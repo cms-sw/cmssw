@@ -64,7 +64,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*>& hcalMEs
   std::vector<MonitorElement*> ieta_iphi_occupancy_maps;
   std::vector<std::string> depthID;
 
-  edm::LogVerbatim("HcalDigisClient") << " Number of histos " <<     hcalMEs.size();
+  edm::LogVerbatim("HcalDigisClient") << " Number of histos " << hcalMEs.size();
 
   for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
     if (hcalMEs[ih]->getName() == "nevtot") {

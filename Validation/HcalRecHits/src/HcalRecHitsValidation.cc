@@ -249,7 +249,7 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
       }
     }
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HcalRecHitsValidation") << "*** Max pT = " << maxPt;
+    edm::LogVerbatim("HcalRecHitsValidation") << "*** Max pT = " << maxPt;
 #endif
   }
 

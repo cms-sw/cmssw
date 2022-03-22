@@ -25,13 +25,12 @@
 
 //#define EDM_ML_DEBUG
 
-ZDCDigiStudy::ZDCDigiStudy(const edm::ParameterSet& ps) :
-  zdcHits(ps.getUntrackedParameter<std::string>("HitCollection", "ZdcHits")),
-  outFile_(ps.getUntrackedParameter<std::string>("outputFile", "zdcHitStudy.root")),
-  verbose_(ps.getUntrackedParameter<bool>("Verbose", false)),
-  checkHit_(true),
-  tok_zdc_(consumes<ZDCDigiCollection>(edm::InputTag("simHcalUnsuppressedDigis"))) {
-
+ZDCDigiStudy::ZDCDigiStudy(const edm::ParameterSet& ps)
+    : zdcHits(ps.getUntrackedParameter<std::string>("HitCollection", "ZdcHits")),
+      outFile_(ps.getUntrackedParameter<std::string>("outputFile", "zdcHitStudy.root")),
+      verbose_(ps.getUntrackedParameter<bool>("Verbose", false)),
+      checkHit_(true),
+      tok_zdc_(consumes<ZDCDigiCollection>(edm::InputTag("simHcalUnsuppressedDigis"))) {
   edm::LogVerbatim("ZDCDigiStudy") << "   Hits: " << zdcHits << " / " << checkHit_ << "   Output: " << outFile_;
 }
 
@@ -344,8 +343,9 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("ZDCDigiStudy") << "CHANNEL = " << digi.id().channel();
-      for (int i=0;i<digi.size();++i)
-	edm::LogVerbatim("ZDCDigiStudy") << "SAMPLE = " << i << "  ADC = " << digi.sample(i).adc() << " fC =  " <<digi.sample(i).nominal_fC();
+      for (int i = 0; i < digi.size(); ++i)
+        edm::LogVerbatim("ZDCDigiStudy") << "SAMPLE = " << i << "  ADC = " << digi.sample(i).adc()
+                                         << " fC =  " << digi.sample(i).nominal_fC();
 #endif
       //  digi[i] should be the sample as digi.sample(i), I think
     }  // loop on all (22) ZDC digis
