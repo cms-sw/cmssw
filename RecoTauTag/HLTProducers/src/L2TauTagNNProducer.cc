@@ -183,8 +183,10 @@ private:
                       const ZVertexSoA& patavtx_soa,
                       const reco::BeamSpot& beamspot,
                       const MagneticField* magfi);
-  std::vector<int> selectGoodVertices(const ZVertexSoA& patavtx_soa,
-                                      const pixelTrack::TrackSoA& patatracks_tsoa );
+  void selectGoodTracksAndVertices(const ZVertexSoA& patavtx_soa,
+                                   const pixelTrack::TrackSoA& patatracks_tsoa,
+                                   std::vector<int>& TrkGood,
+                                   std::vector<int>& VtxGood);
   std::pair<float, float> impactParameter(int it,
                                           const pixelTrack::TrackSoA& patatracks_tsoa,
                                           float patatrackPhi,
@@ -565,71 +567,52 @@ void L2TauNNProducer::fillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
   }
 }
 
-std::vector<int> L2TauNNProducer::selectGoodVertices(const ZVertexSoA& patavtx_soa,
-                                                     const pixelTrack::TrackSoA& patatracks_tsoa) {
-   auto maxTracks = patatracks_tsoa.stride();
-   const int nv = patavtx_soa.nvFinal;
-   std::vector<int> VtxGood;
-   if (nv == 0)
-     return VtxGood;
-   VtxGood.reserve(nv);
+void L2TauNNProducer::selectGoodTracksAndVertices(const ZVertexSoA& patavtx_soa,
+                                                  const pixelTrack::TrackSoA& patatracks_tsoa,
+                                                  std::vector<int>& TrkGood,
+                                                  std::vector<int>& VtxGood) {
+  const auto maxTracks = patatracks_tsoa.stride();
+  const int nv = patavtx_soa.nvFinal;
+  auto const* quality = patatracks_tsoa.qualityData();
 
-   std::vector<double> maxChi2_;
-   std::vector<double> pTSquaredSum(nv);
+  // No need to sort either as the algorithms is just using the max (not even the location, just the max value of pt2sum).
+  std::vector<double> pTSquaredSum(nv, 0);
+  std::vector<int> nTrkAssociated(nv, 0);
 
-   for (int j = nv - 1; j >= 0; --j) {
-     std::vector<int> trk_ass_to_vtx;
-     auto vtx_idx = patavtx_soa.sortInd[j];
-     assert(vtx_idx < nv);
-     for (int trk_idx = 0; trk_idx < maxTracks; trk_idx++) {
-       auto nHits = patatracks_tsoa.nHits(trk_idx);
-       if (nHits == 0)
-         break;
-       int vtx_ass_to_track = patavtx_soa.idv[trk_idx];
-       if (vtx_ass_to_track == int16_t(vtx_idx))
-         trk_ass_to_vtx.push_back(trk_idx);
-     }
-     auto nt = trk_ass_to_vtx.size();
-     if (nt == 0) {
-       continue;
-     }
-    if (nt < 2) {
-      trk_ass_to_vtx.clear();
-      continue;
-    }
-    for (const auto& trk_idx : trk_ass_to_vtx) {
-      int vtx_ass_to_track = patavtx_soa.idv[trk_idx];
-      if (vtx_ass_to_track != vtx_idx)
-        continue;
-      double patatrackPt = patatracks_tsoa.pt[trk_idx];
-      if (patatrackPt < trackPtMin_)
-        continue;
-      if (patatracks_tsoa.chi2(trk_idx) > trackChi2Max_)
-        continue;
-      if (patatrackPt > trackPtMax_) {
-        patatrackPt = trackPtMax_;
-      }
-      pTSquaredSum.at(vtx_idx) += patatrackPt * patatrackPt;
-    }
-  }
-  std::vector<size_t> sortIdxs(nv);
-  std::iota(sortIdxs.begin(), sortIdxs.end(), 0);
-  std::sort(sortIdxs.begin(), sortIdxs.end(), [&](size_t const i1, size_t const i2) {
-    return pTSquaredSum[i1] > pTSquaredSum[i2];
-  });
-  auto const minFOM_fromFrac = pTSquaredSum[sortIdxs.front()] * fractionSumPt2_;
-
-  for (int j = nv - 1; j >= 0; --j) {
-    auto idx = patavtx_soa.sortInd[j];
-
-    if (VtxGood.size() >= maxVtx_) {
+  for (int32_t trk_idx = 0; trk_idx < maxTracks; ++trk_idx) {
+    auto nHits = patatracks_tsoa.nHits(trk_idx);
+    if (nHits == 0) {
       break;
     }
-    if (pTSquaredSum[idx] >= minFOM_fromFrac && pTSquaredSum[idx] > minSumPt2_) {
-      VtxGood.push_back(idx);
+    int vtx_ass_to_track = patavtx_soa.idv[trk_idx];
+    if (vtx_ass_to_track >= 0 && vtx_ass_to_track <= nv) {
+      double patatrackPt = patatracks_tsoa.pt[trk_idx];
+      ++nTrkAssociated.at(vtx_ass_to_track);
+      if (patatrackPt >= trackPtMin_ && patatracks_tsoa.chi2(trk_idx) <= trackChi2Max_) {
+        if (patatrackPt > trackPtMax_) {
+          patatrackPt = trackPtMax_;
+        }
+        pTSquaredSum.at(vtx_ass_to_track) += patatrackPt * patatrackPt;
+      }
+    }
+    auto q = quality[trk_idx];
+    if (q < pixelTrack::Quality::loose)
+      continue;
+    if (nHits < 0)
+      continue;
+    TrkGood.push_back(trk_idx);
+  }
+  if (nv > 0) {
+    const auto minFOM_fromFrac = (*std::max_element(pTSquaredSum.begin(), pTSquaredSum.end())) * fractionSumPt2_;
+    for (int j = nv - 1; j >= 0; --j) {
+      auto vtx_idx = patavtx_soa.sortInd[j];
+      assert(vtx_idx < nv);
+      if (nTrkAssociated.at(vtx_idx) >= 2 && pTSquaredSum[vtx_idx] >= minFOM_fromFrac &&
+          pTSquaredSum[vtx_idx] > minSumPt2_) {
+        VtxGood.push_back(vtx_idx);
+      }
     }
   }
-  return VtxGood;
 }
 
 std::pair<float, float> L2TauNNProducer::impactParameter(int it,
@@ -679,30 +662,18 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
   auto getCell = [&](NNInputs input) -> float& {
     return getCellImpl(cellGridMatrix, tau_idx, phi_idx, eta_idx, input);
   };
+
+  std::vector<int> TrkGood;
+  std::vector<int> VtxGood;
+
+  selectGoodTracksAndVertices(patavtx_soa, patatracks_tsoa, TrkGood, VtxGood);
+
   const int nTaus = static_cast<int>(allTaus.size());
   for (tau_idx = 0; tau_idx < nTaus; tau_idx++) {
     const float tauEta = allTaus[tau_idx]->eta();
     const float tauPhi = allTaus[tau_idx]->phi();
 
-    auto maxTracks = patatracks_tsoa.stride();
-    auto const* quality = patatracks_tsoa.qualityData();
-
-    std::vector<int> TrackGood;
-    for (int32_t it = 0; it < maxTracks; ++it) {
-      auto nHits = patatracks_tsoa.nHits(it);
-      if (nHits == 0)
-        break;
-      auto q = quality[it];
-      if (q < pixelTrack::Quality::loose)
-        continue;
-      if (nHits < 0)
-        continue;
-      TrackGood.push_back(it);
-    }
-
-    std::vector<int> VtxGood = selectGoodVertices(patavtx_soa, patatracks_tsoa);
-
-    for (const auto it : TrackGood) {
+    for (const auto it : TrkGood) {
       const float patatrackPt = patatracks_tsoa.pt[it];
       if (patatrackPt <= 0)
         continue;
