@@ -347,7 +347,7 @@ namespace pixelgpudetails {
     //if (threadIdx.x==0) printf("Event: %u blockIdx.x: %u start: %u end: %u\n", eventno, blockIdx.x, begin, end);
 
     int32_t first = threadIdx.x + blockIdx.x * blockDim.x;
-    int32_t lastWord = wordCounter-1;
+    int32_t lastWord = wordCounter - 1;
     for (int32_t iloop = first, nend = wordCounter; iloop < nend; iloop += blockDim.x * gridDim.x) {
       auto gIndex = iloop;
       xx[gIndex] = 0;
@@ -441,15 +441,15 @@ namespace pixelgpudetails {
         }
       }
 
-     // remove duplicate pixels (for the time being keep second to reproduce current CPU behaviour)
-     auto noADC = sipixelconstants::removeADC(ww);
-     // auto noADCm1 =  sipixelconstants::removeADC(gIndex==0 ? 0 : word[gIndex-1]);
-     auto noADCp1 =  sipixelconstants::removeADC(gIndex==lastWord ? 0 :  word[gIndex+1]);
-     if (noADC==noADCp1) {
-       // auto globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
-       // printf("dup pix at %d %d %d\n",detId.moduleId,globalPix.row,globalPix.col);  
-       continue;
-     }
+      // remove duplicate pixels (for the time being keep second to reproduce current CPU behaviour)
+      auto noADC = sipixelconstants::removeADC(ww);
+      // auto noADCm1 =  sipixelconstants::removeADC(gIndex==0 ? 0 : word[gIndex-1]);
+      auto noADCp1 = sipixelconstants::removeADC(gIndex == lastWord ? 0 : word[gIndex + 1]);
+      if (noADC == noADCp1) {
+        // auto globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
+        // printf("dup pix at %d %d %d\n",detId.moduleId,globalPix.row,globalPix.col);
+        continue;
+      }
 
       pixelgpudetails::Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
       xx[gIndex] = globalPix.row;  // origin shifting by 1 0-159
