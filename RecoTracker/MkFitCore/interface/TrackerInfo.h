@@ -27,6 +27,7 @@ namespace mkfit {
     SVector3 m_xdir;
     unsigned int m_detid;
 
+    ModuleInfo() = default;
     ModuleInfo(SVector3 pos, SVector3 nor, SVector3 phi, unsigned int id)
         : m_pos(pos), m_zdir(nor), m_xdir(phi), m_detid(id) {}
   };
@@ -34,9 +35,12 @@ namespace mkfit {
   //==============================================================================
 
   class LayerInfo {
+    friend class TrackerInfo;
+
   public:
     enum LayerType_e { Undef = -1, Barrel = 0, EndCapPos = 1, EndCapNeg = 2 };
 
+    LayerInfo() = default;
     LayerInfo(int lid, LayerType_e type) : m_layer_id(lid), m_layer_type(type) {}
 
     void set_layer_type(LayerType_e t) { m_layer_type = t; }
@@ -119,13 +123,13 @@ namespace mkfit {
 
     int m_layer_id = -1;
     LayerType_e m_layer_type = Undef;
-    int m_subdet;  // sub-detector id, not used in core mkFit
+    int m_subdet = -1;  // sub-detector id, not used in core mkFit
 
-    float m_rin, m_rout, m_zmin, m_zmax;
-    float m_propagate_to;
+    float m_rin = 0, m_rout = 0, m_zmin = 0, m_zmax = 0;
+    float m_propagate_to = 0;
 
-    float m_q_bin;                     // > 0 - bin width, < 0 - number of bins
-    float m_hole_r_min, m_hole_r_max;  // This could be turned into std::function when needed.
+    float m_q_bin = 0;                         // > 0 - bin width, < 0 - number of bins
+    float m_hole_r_min = 0, m_hole_r_max = 0;  // This could be turned into std::function when needed.
     bool m_has_r_range_hole = false;
     bool m_is_stereo = false;
     bool m_is_pixel = false;
@@ -159,6 +163,8 @@ namespace mkfit {
     const LayerInfo& layer(int l) const { return m_layers[l]; }
     LayerInfo& layer_nc(int l) { return m_layers[l]; }
 
+    int n_total_modules() const;
+
     const LayerInfo& operator[](int l) const { return m_layers[l]; }
 
     const LayerInfo& outer_barrel_layer() const { return m_layers[m_barrel.back()]; }
@@ -166,6 +172,10 @@ namespace mkfit {
     const std::vector<int>& barrel_layers() const { return m_barrel; }
     const std::vector<int>& endcap_pos_layers() const { return m_ecap_pos; }
     const std::vector<int>& endcap_neg_layers() const { return m_ecap_neg; }
+
+    void write_bin_file(const std::string& fname) const;
+    void read_bin_file(const std::string& fname);
+    void print_tracker(int level) const;
 
   private:
     int new_layer(LayerInfo::LayerType_e type);

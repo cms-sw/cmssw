@@ -39,10 +39,10 @@ defaultOutputFileName="phase1-trackerinfo.bin"
 # level: 0 - no printout; 1 - print layers, 2 - print modules
 # outputFileName: binary dump file; no dump if empty string
 process.dump = cms.EDAnalyzer("DumpMkFitGeometry",
-                              level   = cms.untracked.int32(2),
+                              level   = cms.untracked.int32(1),
                               tagInfo = cms.untracked.string('no-tag'),
                        outputFileName = cms.untracked.string(defaultOutputFileName)
                               )
 
-print("NOT YET IMPLEMENTED: Dumping geometry in ", defaultOutputFileName, "\n");
+print("Requesting MkFit geometry dump into file:", defaultOutputFileName, "\n");
 process.p = cms.Path(process.dump)

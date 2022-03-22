@@ -1,13 +1,6 @@
 include ${SADIR}/Makefile.config
 
-CPPEXTRA := ${USER_CPPFLAGS} ${DEFS} -I${SRCDIR} -I../mkFit-external
-LDEXTRA  := ${USER_LDFLAGS}
-
-CPPFLAGS := ${CPPEXTRA} ${CPPFLAGS}
-CXXFLAGS += -fPIC ${USER_CXXFLAGS}
-LDFLAGS  += ${LDEXTRA}
-
-CPPFLAGS_NO_ROOT := ${CPPEXTRA} ${CPPFLAGS_NO_ROOT}
+CPPFLAGS := -I${SRCDIR} -I../mkFit-external ${CPPFLAGS}
 
 .PHONY: all clean distclean echo
 
@@ -19,9 +12,11 @@ OBJS := $(SRCB:.cc=.o)
 TGTS := $(basename ${OBJS})
 TGTS := $(addprefix ../, $(addsuffix .so, ${TGTS}))
 
+GEO_2017_BIN = ../CMS-2017.bin
+
 vpath %.cc ${SACMS}/Geoms
 
-all: ${TGTS}
+all: ${TGTS} ${GEO_2017_BIN}
 
 %.o: %.cc %.d
 	${CXX} ${CPPFLAGS} ${CXXFLAGS} ${VEC_HOST} -c -o $@ $<
@@ -31,6 +26,9 @@ all: ${TGTS}
 
 ../%.so: %.o
 	${CXX} -shared -L.. -lMicCore -o $@ $<
+
+${GEO_2017_BIN}:
+	curl http://xrd-cache-1.t2.ucsd.edu/matevz/PKF/CMS-2017.bin -o $@
 
 ifeq ($(filter clean distclean, ${MAKECMDGOALS}),)
 include ${DEPS}
