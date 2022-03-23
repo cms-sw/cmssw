@@ -100,15 +100,18 @@ void CSCStubResolutionValidation::analyze(const edm::Event& e, const edm::EventS
       const bool isME11(cscId.station() == 1 and (cscId.ring() == 4 or cscId.ring() == 1));
       const bool isME1a(isME11 and clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B);
       int ring = cscId.ring();
-      if (isME1a) ring = 4;
-      else if (isME11) ring = 1;
+      if (isME1a)
+        ring = 4;
+      else if (isME11)
+        ring = 1;
       CSCDetId cscId2(cscId.endcap(), cscId.station(), ring, cscId.chamber(), 0);
       auto id2 = cscId2.rawId();
 
       // calculate deltastrip for ME1/a. Basically, we need to subtract 64 from the CLCT key strip to
       // compare with key strip as obtained through the fit to simhits positions.
       int deltaStrip = 0;
-      if (isME1a) deltaStrip = CSCConstants::NUM_STRIPS_ME1B;
+      if (isME1a)
+        deltaStrip = CSCConstants::NUM_STRIPS_ME1B;
 
       // fractional strip
       const float fhs_clct = clct.getFractionalStrip(2);
