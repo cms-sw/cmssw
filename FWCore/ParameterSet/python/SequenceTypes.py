@@ -238,7 +238,7 @@ def findDirectDependencies(element, collection,sortByType=True):
                 continue
             t = 'sequences'
         # cms.Task
-        elif isinstance(item, _Task):
+        elif isinstance(item, Task):
             if not item.hasLabel_():
                 dependencies += item.directDependencies(sortByType)
                 continue
@@ -450,8 +450,10 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         # where objects that contain other objects are involved. See the comments
         # for the _MutatingSequenceVisitor.
 
-        if (isinstance(original,Task) != isinstance(replacement,Task)) or (isinstance(original,ConditionalTask) != isinstance(replacement,ConditionalTask)):
+        if (isinstance(original,Task) != isinstance(replacement,Task)):
                raise TypeError("replace only works if both arguments are Tasks or neither")
+        if (isinstance(original,ConditionalTask) != isinstance(replacement,ConditionalTask)):
+               raise TypeError("replace only works if both arguments are ConditionalTasks or neither")
         v = _CopyAndReplaceSequenceVisitor(original,replacement)
         self.visit(v)
         if v.didReplace():
@@ -1634,7 +1636,7 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
         # for the _MutatingSequenceVisitor.
 
         if not self._allowedInTask(original) or (not replacement is None and not self._allowedInTask(replacement)):
-           raise TypeError("The Task replace function only works with objects that can be placed on a {}\n".format(self._taskType()) + \
+           raise TypeError("The {0} replace function only works with objects that can be placed on a {0}\n".format(self._taskType()) + \
                            "           replace was called with original type = {}\n".format(str(type(original))) + \
                            "           and replacement type = {}\n".format(str(type(replacement))))
         else:
@@ -1714,7 +1716,7 @@ class _TaskBasePlaceholder(object):
 
 class Task(_TaskBase) :
     """Holds EDProducers, EDFilters, ESProducers, ESSources, Services, and Tasks.
-    A Task can be associated with Sequences, Paths, EndPaths and the Schedule.
+    A Task can be associated with Sequences, Paths, EndPaths, ConditionalTasks and the Schedule.
     An EDProducer or EDFilter will be enabled to run unscheduled if it is on
     a task associated with the Schedule or any scheduled Path or EndPath (directly
     or indirectly through Sequences) and not be on any scheduled Path or EndPath.
@@ -1763,7 +1765,7 @@ class ConditionalTask(_TaskBase) :
     An EDProducer or EDFilter will be added to a Path or EndPath based on which other
     modules on the Path consumes its data products. If that ConditionalTask assigned module
     is placed after an EDFilter, the module will only run if the EDFilter passes. If no module
-    on the Path needs the module's data products, the module will be removed from the job.
+    on the Path needs the module's data products, the module will be treated as if it were on a Task.
     """
     @staticmethod
     def _taskType():
@@ -1897,6 +1899,10 @@ if __name__=="__main__":
             l[:]=[]
             p6.visit(namesVisitor)
             self.assertEqual(l,['!&','a','b','@'])
+
+        def testTaskConstructor(self):
+            a = DummyModule("a")
+            self.assertRaises(RuntimeError, lambda : Task(ConditionalTask(a)) )
 
         def testDumpPython(self):
             a = DummyModule("a")
