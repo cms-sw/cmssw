@@ -20,7 +20,7 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "ExpressCosmics" : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias",
                   "ExpressAlignment":"TkAlMinBias",
                   # Used for new PCC PCL introduced in 2018
-                  "AlcaLumiPixelsExpress":"AlCaPCCRandom",
+                  "ALCALumiPixelsCountsExpress":"AlCaPCCRandom",
                   # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
                   "AlCaPhiSym"     : "",
                   "AlCaP0"         : "",
@@ -39,6 +39,47 @@ AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                   "StreamExpressHI" : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+SiPixelCalZeroBias"
                   }
 
+# AlCaReco matrix used in CMSSW releases in 2018
+AlCaRecoMatrix2018 = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
+                  "Charmonium"     : "TkAlJpsiMuMu",
+                  "Commissioning"  : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector+TkAlMinBias+SiStripCalMinBias",
+                  "Cosmics"        : "SiPixelCalCosmics+SiStripCalCosmics+TkAlCosmics0T+MuAlGlobalCosmics",
+                  "DoubleEG"       : "EcalCalZElectron+EcalUncalZElectron+HcalCalIterativePhiSym+HcalCalIsoTrkProducerFilter",
+                  "DoubleMuon"     : "TkAlZMuMu+TkAlDiMuonAndVertex+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalLowPUHBHEMuonFilter",
+                  # New PD in 2018 to replace SinglePhoton SingleElectron and DoubleEG in 2017
+                  "EGamma"         : "EcalESAlign+EcalUncalWElectron+EcalUncalZElectron+HcalCalIsoTrkProducerFilter+HcalCalIterativePhiSym",
+                  "HLTPhysics"     : "TkAlMinBias+HcalCalIterativePhiSym+HcalCalIsoTrkProducerFilter+HcalCalHO+HcalCalHBHEMuonProducerFilter",
+                  "JetHT"          : "HcalCalIsoTrkProducerFilter+HcalCalIsolatedBunchFilter+TkAlMinBias",
+                  "MinimumBias"    : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
+                  "MuOnia"         : "TkAlUpsilonMuMu",
+                  "NoBPTX"         : "TkAlCosmicsInCollisions",
+                  "SingleElectron" : "EcalUncalWElectron+EcalUncalZElectron+HcalCalIterativePhiSym+EcalESAlign",
+                  "SingleMuon"     : "SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonProducerFilter",
+                  "SinglePhoton"   : "HcalCalGammaJet",
+                  "ZeroBias"       : "SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+AlCaPCCZeroBiasFromRECO", 
+
+                  "Express"        : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
+                  "ExpressCosmics" : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias",
+                  "ExpressAlignment":"TkAlMinBias",
+                  # Used for new PCC PCL introduced in 2018
+                  "AlcaLumiPixelsExpress":"AlCaPCCRandom",
+                  # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
+                  "AlCaPhiSym"     : "",
+                  "AlCaP0"         : "",
+                  # ---------------------------------------------------------------------------------------------------------------------------
+                  "HcalNZS"        : "HcalCalMinBias",
+                  # This is in the AlCaRecoMatrix, but no RelVals are produced
+                  # 'TestEnablesTracker'  : 'TkAlLAS'
+                  # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
+                  "MET" : "HcalCalNoise",
+                  "SingleMu" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+MuAlZMuMu+HcalCalHO",
+                  "DoubleMu" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlZMuMu",
+                  "DoubleMuParked" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlZMuMu",
+                  "MuOniaParked" : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
+                  "DoubleElectron" : "EcalCalZElectron+EcalUncalZElectron",
+                  "StreamExpress" : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias+SiPixelCalSingleMuon+PPSCalTrackBasedSel",
+                  "StreamExpressHI" : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+SiPixelCalZeroBias"
+                  }
 # AlCaReco matrix used in CMSSW releases in 2017
 AlCaRecoMatrix2017 = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
                       "Charmonium"     : "TkAlJpsiMuMu",
