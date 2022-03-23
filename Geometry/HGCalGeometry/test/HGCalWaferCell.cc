@@ -118,7 +118,8 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           int kndx = ((rotn * 10 + part) * 10 + type);
           auto itr = waferMap.find(kndx);
           if (itr != waferMap.end())
-            edm::LogVerbatim("HGCalGeomX") << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn << " with " << (itr->second) << " wafers";
+            edm::LogVerbatim("HGCalGeomX") << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn
+                                           << " with " << (itr->second) << " wafers";
         }
       }
     }
@@ -138,7 +139,8 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               }
             }
           }
-          edm::LogVerbatim("HGCalGeomX") << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn << " with " << num << " cells";
+          edm::LogVerbatim("HGCalGeomX") << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn
+                                         << " with " << num << " cells";
         }
       }
     }

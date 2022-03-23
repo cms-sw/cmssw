@@ -43,13 +43,13 @@ private:
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
 };
 
-HGCalTestNeighbor::HGCalTestNeighbor(const edm::ParameterSet& iC) :
-      name_(iC.getParameter<std::string>("detector")),
+HGCalTestNeighbor::HGCalTestNeighbor(const edm::ParameterSet& iC)
+    : name_(iC.getParameter<std::string>("detector")),
       px_(iC.getParameter<std::vector<double> >("pX")),
       py_(iC.getParameter<std::vector<double> >("pY")),
       pz_(iC.getParameter<std::vector<double> >("pZ")),
       fieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>(edm::ESInputTag{})),
-      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})) { }
+      geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})) {}
 
 void HGCalTestNeighbor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -76,7 +76,8 @@ void HGCalTestNeighbor::analyze(const edm::Event&, const edm::EventSetup& iSetup
       subdet = HGCHEB;
     else
       subdet = HGCEE;
-    edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Detector:Subdetector " << DetId::Forward << ":" << subdet;
+    edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Detector:Subdetector " << DetId::Forward << ":"
+                                   << subdet;
     doTest(geom, subdet, bField);
   } else {
     DetId::Detector det;
@@ -121,7 +122,9 @@ void HGCalTestNeighbor::doTest(const HGCalGeometry* geom, ForwardSubdetector sub
               GlobalVector p(px_[k], py_[k], zside * pz_[k]);
               DetId id2 = geom->neighborZ(id1, p);
               DetId id3 = geom->neighborZ(id1, bField, 1, p);
-              edm::LogVerbatim("HGCalGeomX") << "DetId" << HGCalDetId(id1) << " :" << global1 << " p" << p << " ID2" << HGCalDetId(id2) << " :" << geom->getPosition(id2) << " ID3" << HGCalDetId(id3) << " :" << geom->getPosition(id3);
+              edm::LogVerbatim("HGCalGeomX")
+                  << "DetId" << HGCalDetId(id1) << " :" << global1 << " p" << p << " ID2" << HGCalDetId(id2) << " :"
+                  << geom->getPosition(id2) << " ID3" << HGCalDetId(id3) << " :" << geom->getPosition(id3);
             }
           }
         }
@@ -152,7 +155,9 @@ void HGCalTestNeighbor::doTestWafer(const HGCalGeometry* geom, DetId::Detector d
                   GlobalVector p(px_[k], py_[k], zside * pz_[k]);
                   DetId id2 = geom->neighborZ(id1, p);
                   DetId id3 = geom->neighborZ(id1, bField, 1, p);
-                  edm::LogVerbatim("HGCalGeomX") << "DetId" << HGCSiliconDetId(id1) << " :" << global1 << " p" << p << " ID2" << HGCSiliconDetId(id2) << " :" << geom->getPosition(id2) << " ID3" << HGCSiliconDetId(id3) << " :" << geom->getPosition(id3);
+                  edm::LogVerbatim("HGCalGeomX") << "DetId" << HGCSiliconDetId(id1) << " :" << global1 << " p" << p
+                                                 << " ID2" << HGCSiliconDetId(id2) << " :" << geom->getPosition(id2)
+                                                 << " ID3" << HGCSiliconDetId(id3) << " :" << geom->getPosition(id3);
                 }
               }
             }
@@ -183,7 +188,9 @@ void HGCalTestNeighbor::doTestScint(const HGCalGeometry* geom, DetId::Detector d
               GlobalVector p(px_[k], py_[k], zside * pz_[k]);
               DetId id2 = geom->neighborZ(id1, p);
               DetId id3 = geom->neighborZ(id1, bField, 1, p);
-              edm::LogVerbatim("HGCalGeomX") << "DetId" << HGCScintillatorDetId(id1) << " :" << global1 << " p" << p << " ID2" << HGCScintillatorDetId(id2) << " :" << geom->getPosition(id2) << " ID3" << HGCScintillatorDetId(id3) << " :" << geom->getPosition(id3);
+              edm::LogVerbatim("HGCalGeomX") << "DetId" << HGCScintillatorDetId(id1) << " :" << global1 << " p" << p
+                                             << " ID2" << HGCScintillatorDetId(id2) << " :" << geom->getPosition(id2)
+                                             << " ID3" << HGCScintillatorDetId(id3) << " :" << geom->getPosition(id3);
             }
           }
         }

@@ -70,7 +70,8 @@ void HGCalSizeTester::doTestWafer(const HGCalGeometry* geom, DetId::Detector det
       for (int waferU : wafers) {
         for (int waferV : wafers) {
           int type = geom->topology().dddConstants().getTypeHex(layer, waferU, waferV);
-          edm::LogVerbatim("HGCalGeomX") << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " type " << type;
+          edm::LogVerbatim("HGCalGeomX") << "zside " << zside << " layer " << layer << " wafer " << waferU << ":"
+                                         << waferV << " type " << type;
           for (int cellU : cells) {
             for (int cellV : cells) {
               edm::LogVerbatim("HGCalGeomX") << "det " << det << " cell " << cellU << ":" << cellV;
@@ -80,10 +81,15 @@ void HGCalSizeTester::doTestWafer(const HGCalGeometry* geom, DetId::Detector det
                 auto icell1 = geom->getGeometry(id1);
                 GlobalPoint global1 = geom->getPosition(id1);
                 DetId idc1 = geom->getClosestCell(global1);
-		std::string cherr = (id1.rawId() != idc1.rawId()) ? "***** ERROR *****" : "";
-                edm::LogVerbatim("HGCalGeomX") << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << waferU << ":" << waferV << ":" << cellU << ":" << cellV << ") Geom " << icell1 << " position (" << global1.x() << ", " << global1.y() << ", " << global1.z() << ") ids " << std::hex << id1.rawId() << ":" << idc1.rawId() << std::dec << ":" << HGCSiliconDetId(id1) << ":" << HGCSiliconDetId(idc1) << " parameter[3] = " << icell1->param()[2] << ":" << icell1->param()[2] << cherr;
+                std::string cherr = (id1.rawId() != idc1.rawId()) ? "***** ERROR *****" : "";
+                edm::LogVerbatim("HGCalGeomX")
+                    << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << waferU << ":" << waferV
+                    << ":" << cellU << ":" << cellV << ") Geom " << icell1 << " position (" << global1.x() << ", "
+                    << global1.y() << ", " << global1.z() << ") ids " << std::hex << id1.rawId() << ":" << idc1.rawId()
+                    << std::dec << ":" << HGCSiliconDetId(id1) << ":" << HGCSiliconDetId(idc1)
+                    << " parameter[3] = " << icell1->param()[2] << ":" << icell1->param()[2] << cherr;
                 std::vector<GlobalPoint> corners = geom->getNewCorners(idc1);
-		std::ostringstream st1;
+                std::ostringstream st1;
                 st1 << corners.size() << " corners";
                 for (auto const& cor : corners)
                   st1 << " [" << cor.x() << "," << cor.y() << "," << cor.z() << "]";
@@ -92,7 +98,8 @@ void HGCalSizeTester::doTestWafer(const HGCalGeometry* geom, DetId::Detector det
                 int k(0);
                 for (auto const& id : ids) {
                   GlobalPoint global0 = geom->getPosition(id);
-                  edm::LogVerbatim("HGCalGeomX") << "Neighbor[" << k << "] " << HGCSiliconDetId(id) << " position (" << global0.x() << ", " << global0.y() << ", " << global0.z() << ")";
+                  edm::LogVerbatim("HGCalGeomX") << "Neighbor[" << k << "] " << HGCSiliconDetId(id) << " position ("
+                                                 << global0.x() << ", " << global0.y() << ", " << global0.z() << ")";
                   ++k;
                 }
               }
@@ -121,10 +128,15 @@ void HGCalSizeTester::doTestScint(const HGCalGeometry* geom, DetId::Detector det
             auto icell1 = geom->getGeometry(id1);
             GlobalPoint global1 = geom->getPosition(id1);
             DetId idc1 = geom->getClosestCell(global1);
-	    std::string cherr = (id1.rawId() != idc1.rawId()) ? "***** ERROR *****" : "";
-            edm::LogVerbatim("HGCalGeomX") << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << ieta << ":" << iphi << ") Geom " << icell1 << " position (" << global1.x() << ", " << global1.y() << ", " << global1.z() << ") ids " << std::hex << id1.rawId() << ":" << idc1.rawId() << std::dec << ":" << HGCScintillatorDetId(id1) << ":" << HGCScintillatorDetId(idc1) << " parameter[11] = " << icell1->param()[10] << ":" << icell1->param()[10] << cherr;
+            std::string cherr = (id1.rawId() != idc1.rawId()) ? "***** ERROR *****" : "";
+            edm::LogVerbatim("HGCalGeomX")
+                << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << ieta << ":" << iphi
+                << ") Geom " << icell1 << " position (" << global1.x() << ", " << global1.y() << ", " << global1.z()
+                << ") ids " << std::hex << id1.rawId() << ":" << idc1.rawId() << std::dec << ":"
+                << HGCScintillatorDetId(id1) << ":" << HGCScintillatorDetId(idc1)
+                << " parameter[11] = " << icell1->param()[10] << ":" << icell1->param()[10] << cherr;
             std::vector<GlobalPoint> corners = geom->getNewCorners(idc1);
-	    std::ostringstream st1;
+            std::ostringstream st1;
             st1 << corners.size() << " corners";
             for (auto const& cor : corners)
               st1 << " [" << cor.x() << "," << cor.y() << "," << cor.z() << "]";
@@ -133,7 +145,8 @@ void HGCalSizeTester::doTestScint(const HGCalGeometry* geom, DetId::Detector det
             int k(0);
             for (auto const& id : ids) {
               GlobalPoint global0 = geom->getPosition(id);
-              edm::LogVerbatim("HGCalGeomX") << "Neighbor[" << k << "] " << HGCScintillatorDetId(id) << " position (" << global0.x() << ", " << global0.y() << ", " << global0.z() << ")";
+              edm::LogVerbatim("HGCalGeomX") << "Neighbor[" << k << "] " << HGCScintillatorDetId(id) << " position ("
+                                             << global0.x() << ", " << global0.y() << ", " << global0.z() << ")";
               ++k;
             }
           }
