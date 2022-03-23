@@ -22,6 +22,7 @@ public:
   using PtrAsInt = unsigned long long;
 
   static constexpr auto maxCellsPerHit = caConstants::maxCellsPerHit;
+  static constexpr auto invalidHitId = std::numeric_limits<caConstants::hindex_type>::max();
   using OuterHitOfCellContainer = caConstants::OuterHitOfCellContainer;
   using OuterHitOfCell = caConstants::OuterHitOfCell;
   using CellNeighbors = caConstants::CellNeighbors;
@@ -52,7 +53,7 @@ public:
     theOuterHitId = outerHitId;
     theLayerPairId_ = layerPairId;
     theStatus_ = 0;
-    theFishboneId = std::numeric_limits<hindex_type>::max();
+    theFishboneId = invalidHitId;
 
     // optimization that depends on access pattern
     theInnerZ = hh.zGlobal(innerHitId);
@@ -342,10 +343,17 @@ public:
   __device__ __forceinline__ bool unused() const { return 0 == (uint16_t(StatusBit::kUsed) & theStatus_); }
   __device__ __forceinline__ void setStatusBits(StatusBit mask) { theStatus_ |= uint16_t(mask); }
 
-  __device__ __forceinline__ void setFishbone(hindex_type id) { theFishboneId = id; }
+  __device__ __forceinline__ void setFishbone(hindex_type id, float z, Hits const& hh) { 
+    // make it deterministic: use the farther apart (in z)
+    auto old = theFishboneId;
+    while (old != atomicCAS(&theFishboneId,old,
+      (invalidHitId == old || std::abs(z-theInnerZ) < std::abs(hh.zGlobal(old)-theInnerZ)) ?
+      id : old)
+    ) old = theFishboneId;
+  }
   __device__ __forceinline__ auto fishboneId() const { return theFishboneId; }
   __device__ __forceinline__ bool hasFishbone() const {
-    return theFishboneId != std::numeric_limits<hindex_type>::max();
+    return theFishboneId != invalidHitId;
   }
 
 private:
