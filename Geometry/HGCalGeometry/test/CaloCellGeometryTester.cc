@@ -36,9 +36,12 @@ void CaloCellGeometryTester::analyze(const edm::Event& /*iEvent*/, const edm::Ev
   for (unsigned int k = 0; k < ncalo; ++k) {
     const CaloSubdetectorGeometry* geom = geo->getSubdetectorGeometry((DetId::Detector)(dets[k]), subd[k]);
     if (geom) {
-      edm::LogVerbatim("HGCalGeomX") << name[k] << " has " << geom->getValidDetIds((DetId::Detector)(dets[k]), subd[k]).size() << " valid cells";
+      edm::LogVerbatim("HGCalGeomX") << name[k] << " has "
+                                     << geom->getValidDetIds((DetId::Detector)(dets[k]), subd[k]).size()
+                                     << " valid cells";
       if (k >= 7)
-        edm::LogVerbatim("HGCalGeomX") << "Number of valid GeomID " << ((HGCalGeometry*)(geom))->getValidGeomDetIds().size();
+        edm::LogVerbatim("HGCalGeomX") << "Number of valid GeomID "
+                                       << ((HGCalGeometry*)(geom))->getValidGeomDetIds().size();
     } else {
       edm::LogVerbatim("HGCalGeomX") << name[k] << " is not present in the current scenario";
     }

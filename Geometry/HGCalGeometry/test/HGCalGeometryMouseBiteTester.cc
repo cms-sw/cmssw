@@ -29,17 +29,18 @@ private:
   const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> dddToken_;
 };
 
-HGCalGeometryMouseBiteTester::HGCalGeometryMouseBiteTester(const edm::ParameterSet& iC) :
-      nameSense_(iC.getParameter<std::string>("NameSense")),
-      nameDetector_ (iC.getParameter<std::string>("NameDevice")),
+HGCalGeometryMouseBiteTester::HGCalGeometryMouseBiteTester(const edm::ParameterSet& iC)
+    : nameSense_(iC.getParameter<std::string>("NameSense")),
+      nameDetector_(iC.getParameter<std::string>("NameDevice")),
       dddToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
-
-  edm::LogVerbatim("HGCalGeomX") << "Test mousebite for " << nameDetector_ << " using constants of " << nameSense_ << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << "Test mousebite for " << nameDetector_ << " using constants of " << nameSense_
+                                 << std::endl;
 }
 
 void HGCalGeometryMouseBiteTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   const HGCalDDDConstants& hgdc = iSetup.getData(dddToken_);
-  edm::LogVerbatim("HGCalGeomX") << nameDetector_ << " Layers = " << hgdc.layers(true) << " Sectors = " << hgdc.sectors();
+  edm::LogVerbatim("HGCalGeomX") << nameDetector_ << " Layers = " << hgdc.layers(true)
+                                 << " Sectors = " << hgdc.sectors();
 
   const auto bite = std::make_unique<HGCalMouseBite>(hgdc, false);
   ForwardSubdetector subdet(ForwardEmpty);
@@ -52,13 +53,15 @@ void HGCalGeometryMouseBiteTester::analyze(const edm::Event&, const edm::EventSe
   } else {
     det = DetId::HGCalEE;
   }
-  edm::LogVerbatim("HGCalGeomX") << "Perform test for " << nameSense_ << " Detector " << det << " SubDetector " << subdet;
+  edm::LogVerbatim("HGCalGeomX") << "Perform test for " << nameSense_ << " Detector " << det << " SubDetector "
+                                 << subdet;
 
   int zside(1), layer(1), waferU(1), waferV(1);
   int types[] = {0, 1};
   for (int type : types) {
     int ncell = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
-    edm::LogVerbatim("HGCalGeomX") << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " type " << type << " cells " << ncell;
+    edm::LogVerbatim("HGCalGeomX") << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV
+                                   << " type " << type << " cells " << ncell;
     for (int u = 0; u < 2 * ncell; ++u) {
       for (int v = 0; v < 2 * ncell; ++v) {
         if (((v - u) < ncell) && ((u - v) <= ncell)) {
