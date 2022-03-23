@@ -1282,8 +1282,8 @@ class Process(object):
         decoratedList = []
         lister = DecoratedNodeNameVisitor(decoratedList)
         condTaskModules = []
-        constTaskVistor = ModuleNodeOnConditionalTaskVisitor(condTaskModules)
-        pathCompositeVisitor = CompositeVisitor(pathValidator, nodeVisitor, lister, constTaskVistor)
+        condTaskVistor = ModuleNodeOnConditionalTaskVisitor(condTaskModules)
+        pathCompositeVisitor = CompositeVisitor(pathValidator, nodeVisitor, lister, condTaskVistor)
         endpathCompositeVisitor = CompositeVisitor(endpathValidator, nodeVisitor, lister)
         for triggername in triggerPaths:
             iPath = self.paths_()[triggername]
@@ -3002,15 +3002,15 @@ process.s2 = cms.Sequence(process.a+(process.a+process.a))""")
             testTask1.add(testTask3)
             process.myTask1 = testTask1
 
-            # test the validation that occurs when attaching a Task to a Process
+            # test the validation that occurs when attaching a ConditionalTask to a Process
             # first a case that passes, then one the fails on an EDProducer
             # then one that fails on a service
             l = set()
             visitor = NodeNameVisitor(l)
             testTask1.visit(visitor)
             self.assertEqual(l, set(['mesproducer', 'mproducer', 'mproducer2', 'mfilter', 'd', 'messource']))
-            l2 = testTask1.moduleNames
-            self.assertEqual(l, set(['mesproducer', 'mproducer', 'mproducer2', 'mfilter', 'd', 'messource']))
+            l2 = testTask1.moduleNames()
+            self.assertEqual(l2, set(['mesproducer', 'mproducer', 'mproducer2', 'mfilter', 'd', 'messource']))
 
             testTask4 = ConditionalTask(edproducer3)
             l.clear()
