@@ -157,10 +157,13 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         cust=properties.get('Custom', None)
         era=properties.get('Era', None)
         modifier=properties.get('ProcessModifier',None)
+        geometry=properties.get('Geom',None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
         if era is not None:
             stepDict[stepName][k]['--era']=era
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
+        if geometry == 'Extended2026D88' and step == 'HARVESTGlobal':
+            stepDict[stepName][k] = merge([{'--filein':'file:step3_inDQM.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
@@ -185,6 +188,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'ALCA',
         'Nano',
         'MiniAOD',
+        'HLT75e33',
     ],
     PU =  [
         'DigiTrigger',
@@ -200,6 +204,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'HARVESTGlobal',
         'MiniAOD',
         'Nano',
+        'HLT75e33',
     ],
     suffix = '',
     offset = 0.0,
@@ -1048,23 +1053,6 @@ upgradeWFs['Aging3000'].suffix = 'Aging3000'
 upgradeWFs['Aging3000'].offset = 0.103
 upgradeWFs['Aging3000'].lumi = '3000'
 
-class UpgradeWorkflow_Phase2HLT75e33(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'DigiTrigger' in step: # for Phase-2
-            stepDict[stepName][k] = merge([{'-s': 'DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:75e33'}, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return fragment=="TTbar_14TeV" and ('2026' in key)
-upgradeWFs['Phase2HLT75e33'] = UpgradeWorkflow_Phase2HLT75e33(
-    steps = [
-        'DigiTrigger',
-    ],
-    PU = [
-        'DigiTrigger',
-    ],
-    suffix = '_HLT75e33',
-    offset = 0.111,
-)
-
 # Specifying explicitly the --filein is not nice but that was the
 # easiest way to "skip" the output of step2 (=premixing stage1) for
 # filein (as it goes to pileup_input). It works (a bit accidentally
@@ -1619,7 +1607,7 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal','HLT75e33', 'HARVESTGlobal'],
     },
     '2026D89' : {
         'Geom' : 'Extended2026D89', 
@@ -1647,7 +1635,9 @@ upgradeProperties[2026] = {
 # standard PU sequences
 for key in list(upgradeProperties[2026].keys()):
     upgradeProperties[2026][key+'PU'] = deepcopy(upgradeProperties[2026][key])
-    upgradeProperties[2026][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
+    upgradeProperties[2026][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU'] + \
+                                                     (['HLT75e33'] if 'HLT75e33' in upgradeProperties[2026][key]['ScenToRun'] else []) + \
+                                                     ['HARVESTGlobalPU']
 
 # for relvals
 defaultDataSets = {}
