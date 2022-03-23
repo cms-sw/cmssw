@@ -82,7 +82,7 @@ namespace gpuPixelDoublets {
             if (n[ic] > n[jc]) {
               if (sameLayer) {
                 cj.kill();  // closest
-                ci.setFishbone(cj.inner_hit_id());
+                ci.setFishbone(cj.inner_hit_id(), cj.inner_z(hh), hh);
               } else {
                 ci.kill();  // farthest
                 break;
@@ -92,7 +92,7 @@ namespace gpuPixelDoublets {
                 cj.kill();  // farthest
               } else {
                 ci.kill();  // closest
-                cj.setFishbone(ci.inner_hit_id());
+                cj.setFishbone(ci.inner_hit_id(), ci.inner_z(hh), hh);
                 break;
               }
             }
