@@ -55,12 +55,12 @@ private:
   const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
 };
 
-HGCalWaferTypeTester::HGCalWaferTypeTester(const edm::ParameterSet& iC) :
-      nameSense_(iC.getParameter<std::string>("NameSense")),
+HGCalWaferTypeTester::HGCalWaferTypeTester(const edm::ParameterSet& iC)
+    : nameSense_(iC.getParameter<std::string>("NameSense")),
       nameDetector_(iC.getParameter<std::string>("NameDevice")),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
-
-  edm::LogVerbatim("HGCalGeomX") << "Test wafer types for " << nameDetector_ << " using constants of " << nameSense_ << " for  RecoFlag true";
+  edm::LogVerbatim("HGCalGeomX") << "Test wafer types for " << nameDetector_ << " using constants of " << nameSense_
+                                 << " for  RecoFlag true";
 }
 
 void HGCalWaferTypeTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -128,7 +128,8 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
           match = true;
           for (unsigned int i = 0; i < nc; ++i) {
             if ((((pat[indx] / ii) & 1) != 0) && (((ipat / ii) & 1) == 0)) {
-              edm::LogVerbatim("HGCalGeomX") << "Fail at " << i << ":" << ii << " Expect " << ((pat[indx] / ii) & 1) << " Found " << ((ipat / ii) & 1);
+              edm::LogVerbatim("HGCalGeomX") << "Fail at " << i << ":" << ii << " Expect " << ((pat[indx] / ii) & 1)
+                                             << " Found " << ((ipat / ii) & 1);
               match = false;
               break;
             }
@@ -151,8 +152,10 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
             }
           }
         }
-	std::string cherr = (!match) ? " ***** ERROR *****" : "";
-        edm::LogVerbatim("HGCalGeomX") << "Wafer[" << wtype << ", " << hid.layer() << ", " << hid.waferU() << ", " << hid.waferV() << "]  with type: rotation " << type.first << ":" << type.second << " Pattern " << std::hex << pat[indx] << ":" << ipat << std::dec << cherr;
+        std::string cherr = (!match) ? " ***** ERROR *****" : "";
+        edm::LogVerbatim("HGCalGeomX") << "Wafer[" << wtype << ", " << hid.layer() << ", " << hid.waferU() << ", "
+                                       << hid.waferV() << "]  with type: rotation " << type.first << ":" << type.second
+                                       << " Pattern " << std::hex << pat[indx] << ":" << ipat << std::dec << cherr;
         if (!match) {
           ++bad;
           // Need debug information here
@@ -160,7 +163,9 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
           HGCalWaferMask::getTypeMode(xyz.x(), xyz.y(), r, R, range.first, range.second, wtype, 0, true);
           for (unsigned int i = 0; i < 24; ++i) {
             double rp = std::sqrt((xyz.x() + dx[i]) * (xyz.x() + dx[i]) + (xyz.y() + dy[i]) * (xyz.y() + dy[i]));
-            edm::LogVerbatim("HGCalGeomX") << "Corner[" << i << "] (" << xyz.x() << ":" << xyz.y() << ") (" << (xyz.x() + dx[i]) << ":" << (xyz.y() + dy[i]) << " ) R " << rp << " Limit " << range.first << ":" << range.second;
+            edm::LogVerbatim("HGCalGeomX")
+                << "Corner[" << i << "] (" << xyz.x() << ":" << xyz.y() << ") (" << (xyz.x() + dx[i]) << ":"
+                << (xyz.y() + dy[i]) << " ) R " << rp << " Limit " << range.first << ":" << range.second;
           }
         } else {
           ++good;
@@ -168,7 +173,8 @@ void HGCalWaferTypeTester::analyze(const edm::Event& iEvent, const edm::EventSet
         ++total;
       }
     }
-    edm::LogVerbatim("HGCalGeomX") << "\n\nExamined " << ids.size() << ":" << all << " wafers " << total << " partial wafers of which " << good << " are good and " << bad << " are bad\n";
+    edm::LogVerbatim("HGCalGeomX") << "\n\nExamined " << ids.size() << ":" << all << " wafers " << total
+                                   << " partial wafers of which " << good << " are good and " << bad << " are bad\n";
   }
 }
 

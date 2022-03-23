@@ -58,7 +58,8 @@ HGCalWaferCheck::HGCalWaferCheck(const edm::ParameterSet& iC)
       reco_(iC.getParameter<bool>("Reco")),
       dddToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
-  edm::LogVerbatim("HGCalGeomX") << "Test numbering for " << nameDetector_ << " using constants of " << nameSense_ << " for  RecoFlag " << reco_;
+  edm::LogVerbatim("HGCalGeomX") << "Test numbering for " << nameDetector_ << " using constants of " << nameSense_
+                                 << " for  RecoFlag " << reco_;
 }
 
 HGCalWaferCheck::~HGCalWaferCheck() {}
@@ -68,7 +69,9 @@ void HGCalWaferCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const HGCalDDDConstants& hgdc = iSetup.getData(dddToken_);
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
-  edm::LogVerbatim("HGCalGeomX") << nameDetector_ << " Layers = " << hgdc.layers(reco_) << " Sectors = " << hgdc.sectors() << " Valid Cells " << geomR.getValidDetIds().size() << " Valid Geometry Cells " << geomR.getValidGeomDetIds().size();
+  edm::LogVerbatim("HGCalGeomX") << nameDetector_ << " Layers = " << hgdc.layers(reco_)
+                                 << " Sectors = " << hgdc.sectors() << " Valid Cells " << geomR.getValidDetIds().size()
+                                 << " Valid Geometry Cells " << geomR.getValidGeomDetIds().size();
   if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     for (int layer = 1; layer <= 2; ++layer) {
