@@ -81,26 +81,39 @@ SiStripMonitorTrack_ckf = SiStripMonitorTrack.clone(
 #     Mod_On = False
 # )
 
+# track refitter 
+from RecoTracker.TrackProducer.TrackRefitterP5_cfi import *
+refitterForCosmictrackfinderP5 = TrackRefitterP5.clone(
+    src = "cosmictrackfinderP5"
+)
+refitterForCtfWithMaterialTracksP5 = TrackRefitterP5.clone(
+    src = "ctfWithMaterialTracksP5"
+)
+refitterForRsWithMaterialTracksP5 = TrackRefitterP5.clone(
+    src = "rsWithMaterialTracksP5"
+)
+
 # TrackerMonitorTrack ####
 # Clone for Cosmic Track Finder
 from DQM.TrackerMonitorTrack.MonitorTrackResiduals_cfi import *
 MonitorTrackResiduals_cosmicTk = MonitorTrackResiduals.clone(
-    trajectoryInput = 'cosmictrackfinderP5',
-    Tracks = 'cosmictrackfinderP5',
+    trajectoryInput = 'refitterForCosmictrackfinderP5',
+    Tracks = 'refitterForCosmictrackfinderP5',
     Mod_On = False,
     VertexCut = False
 )
 # Clone for CKF Tracks
 MonitorTrackResiduals_ckf = MonitorTrackResiduals.clone(
-    trajectoryInput = 'ctfWithMaterialTracksP5',
-    Tracks = 'ctfWithMaterialTracksP5',
+    trajectoryInput = 'refitterForCtfWithMaterialTracksP5',
+    Tracks = 'refitterForCtfWithMaterialTracksP5',
     Mod_On = False,
     VertexCut = False
 )
-# Clone for Road Search  Tracks
+
+# Clone for Road Search Tracks
 # MonitorTrackResiduals_rs = MonitorTrackResiduals.clone(
-#     trajectoryInput = 'rsWithMaterialTracksP5',
-#     Tracks = 'rsWithMaterialTracksP5',
+#     trajectoryInput = 'refitterForRsWithMaterialTracksP5',
+#     Tracks = 'refitterForRsWithMaterialTracksP5',
 #     Mod_On = False,
 #     VertexCut = False
 # )
@@ -133,4 +146,4 @@ SiStripDQMTier0_ckf = cms.Sequence(APVPhases*consecutiveHEs*SiStripMonitorTrack_
 #removed modules using TkDetMap
 #SiStripDQMTier0 = cms.Sequence(APVPhases*consecutiveHEs*siStripFEDCheck*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoSiStrip)
 #SiStripDQMTier0 = cms.Sequence(APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*TrackMon_cosmicTk*TrackMon_ckf*TrackEffMon_ckf*TrackSplitMonitor*dqmInfoSiStrip)
-SiStripDQMTier0 = cms.Sequence(APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*MonitorTrackResiduals_ckf*dqmInfoSiStrip)
+SiStripDQMTier0 = cms.Sequence(APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrack_ckf*refitterForCtfWithMaterialTracksP5*MonitorTrackResiduals_ckf*dqmInfoSiStrip)
