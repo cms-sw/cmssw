@@ -9,7 +9,6 @@
 
 MagneticFieldMapESProducer::MagneticFieldMapESProducer(const edm::ParameterSet& p)
     : label_(p.getUntrackedParameter<std::string>("trackerGeometryLabel", "")) {
-
   auto cc = setWhatProduced(this);
   tokenGeom_ = cc.consumes(edm::ESInputTag("", label_));
   tokenBField_ = cc.consumes();
