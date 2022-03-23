@@ -61,7 +61,6 @@ private:
   const bool mvaGenRecMatch(const HepMC::GenParticle&, const double&, const reco::TrackBase&);
 
   const edm::Ref<std::vector<TrackingParticle>>* getMatchedTP(const reco::TrackBaseRef&);
-  const bool genSelBPH(const HepMC::GenParticle&);
 
   // ------------ member data ------------
 
@@ -81,6 +80,7 @@ private:
   static constexpr double deltaPTcut_ = 0.05;  // dPT < 5%
   static constexpr double deltaDRcut_ = 0.03;  // DeltaR separation
   static constexpr double tol_ = 1.e-4;        // tolerance on reconstructed track time, [ns]
+  static constexpr double mvaSel_ = 0.8;       // minimum MVA value for PID analysis
 
   static constexpr float c_cm_ns = geant_units::operators::convertMmToCm(CLHEP::c_light);  // [mm/ns] -> [cm/ns]
 
@@ -511,15 +511,17 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
       }
 
-      // for PID study select only tracks with associated time information
+      // for PID study select only high purity tracks with associated time information with good MVA quality
 
-      if (Sigmat0Safe[trackref] == -1.) {
+      if (!trackGen.quality(reco::TrackBase::TrackQuality::highPurity) || Sigmat0Safe[trackref] == -1. ||
+          mtdQualMVA[trackref] < mvaSel_) {
         continue;
       }
 
       reco::TrackBaseRef tbrTrk(trackref);
       auto tp_info = getMatchedTP(tbrTrk);
       if (tp_info != nullptr) {
+
         double dbetaPi = c_cm_ns * (tMtd[trackref] - treco - tofPi[trackref]) / pathLength[trackref];
         double dbetaK = c_cm_ns * (tMtd[trackref] - treco - tofK[trackref]) / pathLength[trackref];
         double dbetaP = c_cm_ns * (tMtd[trackref] - treco - tofP[trackref]) / pathLength[trackref];
@@ -546,7 +548,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
               << " tMtd - tof pi/K/p " << tMtd[trackref] - tofPi[trackref] << " " << tMtd[trackref] - tofK[trackref]
               << " " << tMtd[trackref] - tofP[trackref] << " Prob pi/K/p " << probPi[trackref] << " " << probK[trackref]
               << " " << probP[trackref];
-          ;
         }
 
         if (std::abs(trackGen.eta()) < trackMaxBtlEta_) {
@@ -888,7 +889,7 @@ const edm::Ref<std::vector<TrackingParticle>>* MtdTracksValidation::getMatchedTP
   auto found = r2s_->find(recoTrack);
 
   // no matching or no unique matching
-  if (found == r2s_->end() || r2s_->numberOfAssociations(recoTrack) > 1) {
+  if (found == r2s_->end()) {
     return nullptr;
   }
 
@@ -900,22 +901,6 @@ const edm::Ref<std::vector<TrackingParticle>>* MtdTracksValidation::getMatchedTP
 
   // no match
   return nullptr;
-}
-
-const bool MtdTracksValidation::genSelBPH(const HepMC::GenParticle& genP) {
-  bool match = false;
-  if (genP.status() != 1 || (std::abs(genP.pdg_id()) != 211 && std::abs(genP.pdg_id()) != 321)) {
-    return match;
-  }
-  HepMC::GenVertex* orig0 = genP.production_vertex();
-  if (orig0->particles_in_size() > 0 && std::abs((*orig0->particles_in_const_begin())->pdg_id()) == 313) {
-    HepMC::GenVertex* orig1 = (*orig0->particles_in_const_begin())->production_vertex();
-    if (orig1->particles_in_size() > 0 && std::abs((*orig1->particles_in_const_begin())->pdg_id()) == 511) {
-      match = true;
-      //edm::LogWarning("MtdTracksValidation") << genP.pdg_id() << " " << orig1->particles_in_size() << " " << std::abs((*orig0->particles_in_const_begin())->pdg_id()) << " " << std::abs((*orig1->particles_in_const_begin())->pdg_id());
-    }
-  }
-  return match;
 }
 
 DEFINE_FWK_MODULE(MtdTracksValidation);
