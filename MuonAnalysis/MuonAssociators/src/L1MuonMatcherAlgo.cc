@@ -3,7 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet &iConfig, edm::ConsumesCollector iCollector)
-    : prop_(iConfig, iCollector),
+    : propSetup_(iConfig, iCollector),
       useStage2L1_(iConfig.existsAs<bool>("useStage2L1") ? iConfig.getParameter<bool>("useStage2L1") : false),
       preselectionCut_(
           (iConfig.existsAs<std::string>("preselection")) ? iConfig.getParameter<std::string>("preselection") : ""),
@@ -67,7 +67,7 @@ L1MuonMatcherAlgo::L1MuonMatcherAlgo(const edm::ParameterSet &iConfig, edm::Cons
 
 L1MuonMatcherAlgo::~L1MuonMatcherAlgo() {}
 
-void L1MuonMatcherAlgo::init(const edm::EventSetup &iSetup) { prop_.init(iSetup); }
+void L1MuonMatcherAlgo::init(const edm::EventSetup &iSetup) { prop_ = propSetup_.init(iSetup); }
 
 bool L1MuonMatcherAlgo::match(TrajectoryStateOnSurface &propagated,
                               const l1extra::L1MuonParticle &l1,
