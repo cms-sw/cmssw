@@ -17,7 +17,7 @@ public:
   std::unique_ptr<MagneticFieldMap> produce(const MagneticFieldMapRecord &);
 
 private:
-  const std::string _label;
+  const std::string label_;
   edm::ESGetToken<TrackerInteractionGeometry, TrackerInteractionGeometryRecord> tokenGeom_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenBField_;
 };
