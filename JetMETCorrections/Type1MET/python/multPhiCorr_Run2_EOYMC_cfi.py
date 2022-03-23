@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # EOY 2018 MC corrections
-multPhiCorr_EOY2018MC = cms.VPSet(
+multPhiCorr_EOYMC2018 = cms.VPSet(
     cms.PSet(
-      name=cms.string("EOY2018MC"),
+      name=cms.string("EOYMC2018"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -16,9 +16,9 @@ multPhiCorr_EOY2018MC = cms.VPSet(
 )
 
 # EOY 2017 MC corrections without METv2 fix
-multPhiCorr_EOY2017MC = cms.VPSet(
+multPhiCorr_EOYMC2017 = cms.VPSet(
     cms.PSet(
-      name=cms.string("EOY2017MC"),
+      name=cms.string("EOYMC2017"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -31,9 +31,9 @@ multPhiCorr_EOY2017MC = cms.VPSet(
 )
 
 # EOY 2017 MC corrections with METv2 fix
-multPhiCorr_EOY2017MC_METv2 = cms.VPSet(
+multPhiCorr_EOYMC2017_METv2 = cms.VPSet(
     cms.PSet(
-      name=cms.string("EOY2017MC_METv2"),
+      name=cms.string("EOYMC2017_METv2"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -46,9 +46,9 @@ multPhiCorr_EOY2017MC_METv2 = cms.VPSet(
 )
 
 # EOY 2016 MC corrections
-multPhiCorr_EOY2016MC = cms.VPSet(
+multPhiCorr_EOYMC2016 = cms.VPSet(
     cms.PSet(
-      name=cms.string("EOY2016MC"),
+      name=cms.string("EOYMC2016"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),

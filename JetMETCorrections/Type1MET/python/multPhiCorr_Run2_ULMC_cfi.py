@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # UL 2018 MC corrections
-multPhiCorr_UL2018MC = cms.VPSet(
+multPhiCorr_ULMC2018 = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2018MC"),
+      name=cms.string("ULMC2018"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -16,9 +16,9 @@ multPhiCorr_UL2018MC = cms.VPSet(
 )
 
 # UL 2017 MC corrections
-multPhiCorr_UL2017MC = cms.VPSet(
+multPhiCorr_ULMC2017 = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2017MC"),
+      name=cms.string("ULMC2017"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -31,9 +31,9 @@ multPhiCorr_UL2017MC = cms.VPSet(
 )
 
 # UL 2016preVFP MC corrections
-multPhiCorr_UL2016preVFPMC = cms.VPSet(
+multPhiCorr_ULMC2016preVFP = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016preVFPMC"),
+      name=cms.string("ULMC2016preVFP"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -46,9 +46,9 @@ multPhiCorr_UL2016preVFPMC = cms.VPSet(
 )
 
 # UL 2016postVFP MC corrections
-multPhiCorr_UL2016postVFPMC = cms.VPSet(
+multPhiCorr_ULMC2016postVFP = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016postVFPMC"),
+      name=cms.string("ULMC2016postVFP"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
