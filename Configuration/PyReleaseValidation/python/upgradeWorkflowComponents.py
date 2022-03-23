@@ -157,10 +157,13 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         cust=properties.get('Custom', None)
         era=properties.get('Era', None)
         modifier=properties.get('ProcessModifier',None)
+        geometry=properties.get('Geom',None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
         if era is not None:
             stepDict[stepName][k]['--era']=era
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
+        if geometry == 'Extended2026D88' and step == 'HARVESTGlobal':
+            stepDict[stepName][k] = merge([{'--filein':'file:step3_inDQM.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
@@ -185,6 +188,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'ALCA',
         'Nano',
         'MiniAOD',
+        'HLT75e33',
     ],
     PU =  [
         'DigiTrigger',
@@ -200,6 +204,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'HARVESTGlobal',
         'MiniAOD',
         'Nano',
+        'HLT75e33',
     ],
     suffix = '',
     offset = 0.0,
@@ -2012,7 +2017,7 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal','HLT75e33', 'HARVESTGlobal'],
     },
     '2026D89' : {
         'Geom' : 'Extended2026D89', 
@@ -2040,7 +2045,9 @@ upgradeProperties[2026] = {
 # standard PU sequences
 for key in list(upgradeProperties[2026].keys()):
     upgradeProperties[2026][key+'PU'] = deepcopy(upgradeProperties[2026][key])
-    upgradeProperties[2026][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
+    upgradeProperties[2026][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU'] + \
+                                                     (['HLT75e33'] if 'HLT75e33' in upgradeProperties[2026][key]['ScenToRun'] else []) + \
+                                                     ['HARVESTGlobalPU']
 
 # for relvals
 defaultDataSets = {}
