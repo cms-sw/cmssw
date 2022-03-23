@@ -2,13 +2,13 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -19,7 +19,7 @@
 class HGCalGeometryCornerTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalGeometryCornerTester(const edm::ParameterSet&);
-  ~HGCalGeometryCornerTester() override;
+  ~HGCalGeometryCornerTester() override = default;
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
 
@@ -34,8 +34,6 @@ HGCalGeometryCornerTester::HGCalGeometryCornerTester(const edm::ParameterSet& iC
           edm::ESInputTag{"", iC.getParameter<std::string>("detector")})},
       cornerType_(iC.getParameter<int>("cornerType")) {}
 
-HGCalGeometryCornerTester::~HGCalGeometryCornerTester() {}
-
 void HGCalGeometryCornerTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   const HGCalGeometry& geom = iSetup.getData(geomToken_);
   doTest(&geom);
@@ -43,24 +41,27 @@ void HGCalGeometryCornerTester::analyze(const edm::Event&, const edm::EventSetup
 
 void HGCalGeometryCornerTester::doTest(const HGCalGeometry* geom) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << "doTest: " << ids.size() << " valid ids for " << geom->cellElement() << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << "doTest: " << ids.size() << " valid ids for " << geom->cellElement();
   unsigned int kount(0);
   for (auto const& id : ids) {
-    std::cout << "[" << kount << "] ";
+    std::ostringstream st1;
+    st1 << "[" << kount << "] ";
     if (id.det() == DetId::Forward)
-      std::cout << HGCalDetId(id);
+      st1 << HGCalDetId(id);
     else if (id.det() == DetId::HGCalHSc)
-      std::cout << HGCScintillatorDetId(id);
+      st1 << HGCScintillatorDetId(id);
     else
-      std::cout << HGCSiliconDetId(id);
-    std::cout << std::endl;
+      st1 << HGCSiliconDetId(id);
+    edm::LogVerbatim("HGCalGeomX") << st1.str();
     const auto cor = ((cornerType_ > 0) ? geom->getCorners(id)
                                         : ((cornerType_ < 0) ? geom->get8Corners(id) : geom->getNewCorners(id)));
     GlobalPoint gp = geom->getPosition(id);
-    std::cout << "Center" << gp << "with " << cor.size() << " Corners: ";
+    std::ostringstream st2;
+    st2 << "Center" << gp << "with " << cor.size() << " Corners: ";
     for (unsigned k = 0; k < cor.size(); ++k)
-      std::cout << "[" << k << "]" << cor[k];
-    std::cout << " Area " << geom->getArea(id) << std::endl;
+      st2 << "[" << k << "]" << cor[k];
+    st2 << " Area " << geom->getArea(id);
+    edm::LogVerbatim("HGCalGeomX") << st2.str();
     ++kount;
   }
 }

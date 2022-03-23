@@ -20,6 +20,10 @@ process.GlobalTag.toGet = cms.VPSet(
              )
     )
 
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
 process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
         enable = cms.untracked.bool(False)
@@ -36,6 +40,11 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
     debugModules = cms.untracked.vstring('*')
 )
+
+process.load('FWCore.MessageService.MessageLogger_cfi')
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
