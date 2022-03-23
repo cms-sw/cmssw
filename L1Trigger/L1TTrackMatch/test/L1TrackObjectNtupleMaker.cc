@@ -115,8 +115,8 @@ public:
   ~L1TrackObjectNtupleMaker() override;
 
   // Mandatory methods
-  void beginJob();
-  void endJob();
+  void beginJob() override;
+  void endJob() override;
   void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   // Other member functions
