@@ -28,15 +28,19 @@ namespace ticl {
     struct ClustersOnLayer {
       std::vector<float> x;
       std::vector<float> y;
+      std::vector<float> z;
+      std::vector<float> r_over_absz;
       std::vector<float> radius;
       std::vector<float> eta;
       std::vector<float> phi;
       std::vector<int> cells;
+      std::vector<uint8_t> isSilicon;
 
       std::vector<float> energy;
       std::vector<float> rho;
+      std::vector<float> z_extension;
 
-      std::vector<float> delta;
+      std::vector<std::pair<float, int>> delta;
       std::vector<std::pair<int, int>> nearestHigher;
       std::vector<int> clusterIndex;
       std::vector<unsigned int> layerClusterOriginalIdx;
@@ -46,12 +50,16 @@ namespace ticl {
       void clear() {
         x.clear();
         y.clear();
+        z.clear();
+        r_over_absz.clear();
         radius.clear();
         eta.clear();
         phi.clear();
         cells.clear();
+        isSilicon.clear();
         energy.clear();
         rho.clear();
+        z_extension.clear();
         delta.clear();
         nearestHigher.clear();
         clusterIndex.clear();
@@ -63,12 +71,16 @@ namespace ticl {
       void shrink_to_fit() {
         x.shrink_to_fit();
         y.shrink_to_fit();
+        z.shrink_to_fit();
+        r_over_absz.shrink_to_fit();
         radius.shrink_to_fit();
         eta.shrink_to_fit();
         phi.shrink_to_fit();
         cells.shrink_to_fit();
+        isSilicon.shrink_to_fit();
         energy.shrink_to_fit();
         rho.shrink_to_fit();
+        z_extension.shrink_to_fit();
         delta.shrink_to_fit();
         nearestHigher.shrink_to_fit();
         clusterIndex.shrink_to_fit();
@@ -87,20 +99,32 @@ namespace ticl {
     void calculateLocalDensity(const TILES&, const int layerId, const std::vector<std::pair<int, int>>&);
     void calculateDistanceToHigher(const TILES&, const int layerId, const std::vector<std::pair<int, int>>&);
     int findAndAssignTracksters(const TILES&, const std::vector<std::pair<int, int>>&);
-    void dumpClusters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa, const int) const;
+    void dumpClusters(const TILES& tiles,
+                      const std::vector<std::pair<int, int>>& layerIdx2layerandSoa,
+                      const int) const;
     void dumpTracksters(const std::vector<std::pair<int, int>>& layerIdx2layerandSoa,
                         const int,
                         const std::vector<Trackster>&) const;
     void dumpTiles(const TILES&) const;
 
     std::vector<ClustersOnLayer> clusters_;
+    std::vector<float> layersPosZ_;
 
     edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
     const double criticalDensity_;
+    const double criticalSelfDensity_;
     const int densitySiblingLayers_;
     const double densityEtaPhiDistanceSqr_;
-    const double densityOnSameLayer_;
+    const double densityXYDistanceSqr_;
+    const double kernelDensityFactor_;
+    const bool densityOnSameLayer_;
+    const bool nearestHigherOnSameLayer_;
+    const bool useAbsoluteProjectiveScale_;
+    const bool useClusterDimensionXY_;
+    const bool rescaleDensityByZ_;
     const double criticalEtaPhiDistance_;
+    const double criticalXYDistance_;
+    const int criticalZDistanceLyr_;
     const double outlierMultiplier_;
     const int minNumLayerCluster_;
     const std::vector<int> filter_on_categories_;
