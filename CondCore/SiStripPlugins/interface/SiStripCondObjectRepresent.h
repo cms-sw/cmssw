@@ -32,6 +32,11 @@
 //functions for correct representation of data in summary and plot
 namespace SiStripCondObjectRepresent {
 
+  static const std::map<std::string, int> k_colormap = {
+      {"TIB", kRed}, {"TOB", kGreen}, {"TID", kBlack}, {"TEC", kBlue}};
+  static const std::map<std::string, int> k_markermap = {
+      {"TIB", kFullCircle}, {"TOB", kFullTriangleUp}, {"TID", kFullSquare}, {"TEC", kFullTriangleDown}};
+
   enum plotType { STANDARD, COMPARISON, DIFF, RATIO, MAP, END_OF_TYPES };
   enum granularity { PERSTRIP, PERAPV, PERMODULE };
 
@@ -173,20 +178,22 @@ namespace SiStripCondObjectRepresent {
           hash_(hash),
           m_trackerTopo(StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())) {
+      payloadType_ = std::string();
       granularity_ = PERSTRIP;
-      PlotMode_ = STANDARD;
+      plotMode_ = STANDARD;
       additionalIOV_ = std::make_pair(-1, "");
     }
 
     virtual ~SiStripDataContainer() = default;
 
     ///////////////// public get functions  /////////////////
-    unsigned int run() { return run_; }
-    std::string hash() { return hash_; }
-    std::string topoMode() { return TopoMode_; }
-    const std::string payloadName() { return payloadType_; }
-    plotType getPlotType() { return PlotMode_; }
-    void setPlotType(plotType myType) { PlotMode_ = myType; }
+    const unsigned int run() const { return run_; }
+    const std::string &hash() const { return hash_; }
+    const std::string &topoMode() const { return TopoMode_; }
+    const std::string &payloadName() const { return payloadType_; }
+    const plotType &getPlotType() const { return plotMode_; }
+
+    void setPlotType(plotType myType) { plotMode_ = myType; }
     void setPayloadType(std::string myPayloadType) { payloadType_ = myPayloadType; }
     void setGranularity(granularity myGranularity) {
       granularity_ = myGranularity;
@@ -212,9 +219,9 @@ namespace SiStripCondObjectRepresent {
     };
 
     ////NOTE to be implemented in PayloadInspector classes
-    virtual void allValues() {
+    virtual void storeAllValues() {
       throw cms::Exception("Value definition not found")
-          << "allValues definition not found for " << payloadName() << "\n;";
+          << "storeAllValues definition not found for " << payloadName() << "\n;";
     };
 
     SiStripCondDataItem<type> siStripCondData() { return SiStripCondData_; }
@@ -224,7 +231,7 @@ namespace SiStripCondObjectRepresent {
     /***********************************************************************/
     {
       const char *thePlotType = "";
-      switch (PlotMode_) {
+      switch (plotMode_) {
         case STANDARD:
           thePlotType = Form("Display - IOV: %i", run_);
           break;
@@ -241,10 +248,10 @@ namespace SiStripCondObjectRepresent {
           thePlotType = Form("TrackerMap - %s", hash_.c_str());
           break;
         case END_OF_TYPES:
-          edm::LogError("LogicError") << "Unknown plot type: " << PlotMode_;
+          edm::LogError("LogicError") << "Unknown plot type: " << plotMode_;
           break;
         default:
-          edm::LogError("LogicError") << "Unknown plot type: " << PlotMode_;
+          edm::LogError("LogicError") << "Unknown plot type: " << plotMode_;
           break;
       }
 
@@ -257,15 +264,15 @@ namespace SiStripCondObjectRepresent {
     void compare(SiStripDataContainer *dataCont2)
     /***********************************************************************/
     {
-      PlotMode_ = COMPARISON;
+      plotMode_ = COMPARISON;
       dataCont2->setPlotType(COMPARISON);
       SiStripCondData_.setComparedBit();
 
       setAdditionalIOV(dataCont2->run(), dataCont2->hash());
 
       if (!SiStripCondData_.isCached())
-        allValues();
-      dataCont2->allValues();
+        storeAllValues();
+      dataCont2->storeAllValues();
       auto SiStripCondData2_ = dataCont2->siStripCondData();
 
       auto listOfDetIds = SiStripCondData_.detIds(false);
@@ -281,14 +288,14 @@ namespace SiStripCondObjectRepresent {
     void divide(SiStripDataContainer *dataCont2)
     /***********************************************************************/
     {
-      PlotMode_ = RATIO;
+      plotMode_ = RATIO;
       dataCont2->setPlotType(RATIO);
 
       setAdditionalIOV(dataCont2->run(), dataCont2->hash());
 
       if (!SiStripCondData_.isCached())
-        allValues();
-      dataCont2->allValues();
+        storeAllValues();
+      dataCont2->storeAllValues();
       auto SiStripCondData2_ = dataCont2->siStripCondData();
 
       auto listOfDetIds = SiStripCondData_.detIds(false);
@@ -298,17 +305,17 @@ namespace SiStripCondObjectRepresent {
     }
 
     /***********************************************************************/
-    void Subtract(SiStripDataContainer *dataCont2)
+    void subtract(SiStripDataContainer *dataCont2)
     /***********************************************************************/
     {
-      PlotMode_ = DIFF;
+      plotMode_ = DIFF;
       dataCont2->setPlotType(DIFF);
 
       setAdditionalIOV(dataCont2->run(), dataCont2->hash());
 
       if (!SiStripCondData_.isCached())
-        allValues();
-      dataCont2->allValues();
+        storeAllValues();
+      dataCont2->storeAllValues();
       auto SiStripCondData2_ = dataCont2->siStripCondData();
 
       auto listOfDetIds = SiStripCondData_.detIds(false);
@@ -322,7 +329,7 @@ namespace SiStripCondObjectRepresent {
     /***********************************************************************/
     {
       if (!SiStripCondData_.isCached())
-        allValues();
+        storeAllValues();
       auto listOfDetIds = SiStripCondData_.detIds(false);
       for (const auto &detId : listOfDetIds) {
         std::cout << detId << ": ";
@@ -342,7 +349,7 @@ namespace SiStripCondObjectRepresent {
     /***********************************************************************/
     {
       std::string titleMap;
-      if (PlotMode_ != DIFF && PlotMode_ != RATIO) {
+      if (plotMode_ != DIFF && plotMode_ != RATIO) {
         titleMap =
             "Tracker Map of " + payloadType_ + " " + estimatorType(est) + " per module (payload : " + hash_ + ")";
       } else {
@@ -358,7 +365,7 @@ namespace SiStripCondObjectRepresent {
       std::map<unsigned int, float> info_per_detid;
 
       if (!SiStripCondData_.isCached())
-        allValues();
+        storeAllValues();
       auto listOfDetIds = SiStripCondData_.detIds(false);
       for (const auto &detId : listOfDetIds) {
         auto values = SiStripCondData_.data(detId);
@@ -452,7 +459,7 @@ namespace SiStripCondObjectRepresent {
                                        min,
                                        max);
 
-      if (PlotMode_ == COMPARISON) {
+      if (plotMode_ == COMPARISON) {
         l_mon = new SiStripPI::Monitor1D(myMode,
                                          "last",
                                          Form("#LT %s #GT per %s;#LT%s per %s#GT %s;n. %ss",
@@ -469,7 +476,7 @@ namespace SiStripCondObjectRepresent {
 
       // retrieve the data
       if (!SiStripCondData_.isCached())
-        allValues();
+        storeAllValues();
       auto listOfDetIds = SiStripCondData_.detIds(false);
 
       unsigned int prev_det = 0;
@@ -481,7 +488,7 @@ namespace SiStripCondObjectRepresent {
                 << " listOfDetIds.size(): " << listOfDetIds.size() << std::endl;
 
       for (const auto &detId : listOfDetIds) {
-        if (PlotMode_ == COMPARISON) {
+        if (plotMode_ == COMPARISON) {
           auto values = SiStripCondData_.demuxedData(detId);
           SiStripCondData_.fillMonitor1D(myMode, f_mon, f_entryContainer, values.first, prev_det, prev_apv, detId);
           SiStripCondData_.fillMonitor1D(myMode, l_mon, l_entryContainer, values.second, prev_det, prev_apv, detId);
@@ -510,7 +517,7 @@ namespace SiStripCondObjectRepresent {
       TLegend *legend = new TLegend(0.52, 0.82, 0.95, 0.9);
       legend->SetTextSize(0.025);
 
-      if (PlotMode_ != COMPARISON) {
+      if (plotMode_ != COMPARISON) {
         float theMax = h_first->GetMaximum();
         h_first->SetMaximum(theMax * 1.30);
         h_first->Draw();
@@ -552,10 +559,10 @@ namespace SiStripCondObjectRepresent {
       std::map<unsigned int, SiStripDetSummary::Values> l_map;
 
       if (!SiStripCondData_.isCached())
-        allValues();
+        storeAllValues();
       auto listOfDetIds = SiStripCondData_.detIds(false);
 
-      if (PlotMode_ == COMPARISON) {
+      if (plotMode_ == COMPARISON) {
         for (const auto &detId : listOfDetIds) {
           auto values = SiStripCondData_.demuxedData(detId);
           for (const auto &value : values.first) {
@@ -585,7 +592,7 @@ namespace SiStripCondObjectRepresent {
         f_map = summary.getCounts();
       }
 
-      if (PlotMode_ == COMPARISON) {
+      if (plotMode_ == COMPARISON) {
         std::cout << "f map size: " << f_map.size() << " l map size:" << l_map.size() << std::endl;
         assert(f_map.size() == l_map.size());
       }
@@ -653,7 +660,7 @@ namespace SiStripCondObjectRepresent {
       }
 
       iBin = 0;
-      if (PlotMode_ == COMPARISON) {
+      if (plotMode_ == COMPARISON) {
         for (const auto &element : l_map) {
           iBin++;
           int count = element.second.count;
@@ -671,7 +678,7 @@ namespace SiStripCondObjectRepresent {
       h1->Draw("HIST");
       h1->Draw("Psame");
 
-      if (PlotMode_ == COMPARISON) {
+      if (plotMode_ == COMPARISON) {
         h2->GetYaxis()->SetRangeUser(0., h2->GetMaximum() * 1.30);
         h2->SetMarkerStyle(25);
         h2->SetMarkerColor(kBlue);
@@ -697,7 +704,7 @@ namespace SiStripCondObjectRepresent {
       TLegend *legend = new TLegend(0.52, 0.82, 0.95, 0.9);
       legend->SetHeader(hash_.c_str(), "C");  // option "C" allows to center the header
       legend->AddEntry(h1, Form("IOV: %i", run_), "PL");
-      if (PlotMode_ == COMPARISON) {
+      if (plotMode_ == COMPARISON) {
         legend->AddEntry(h2, Form("IOV: %i", additionalIOV_.first), "PL");
       }
       legend->SetTextSize(0.025);
@@ -710,18 +717,6 @@ namespace SiStripCondObjectRepresent {
     {
       std::map<std::string, TH1F *> h_parts;
       std::map<std::string, TH1F *> h_parts2;
-
-      std::map<std::string, int> colormap;
-      std::map<std::string, int> markermap;
-      colormap["TIB"] = kRed;
-      markermap["TIB"] = kFullCircle;
-      colormap["TOB"] = kGreen;
-      markermap["TOB"] = kFullTriangleUp;
-      colormap["TID"] = kBlack;
-      markermap["TID"] = kFullSquare;
-      colormap["TEC"] = kBlue;
-      markermap["TEC"] = kFullTriangleDown;
-
       std::vector<std::string> parts = {"TEC", "TOB", "TIB", "TID"};
 
       const char *device;
@@ -751,13 +746,13 @@ namespace SiStripCondObjectRepresent {
 
         h_parts[part] = new TH1F(Form("h_%s", part.c_str()), globalTitle, nbins, min, max);
 
-        if (PlotMode_ == COMPARISON) {
+        if (plotMode_ == COMPARISON) {
           h_parts2[part] = new TH1F(Form("h2_%s", part.c_str()), globalTitle, nbins, min, max);
         }
       }
 
       if (!SiStripCondData_.isCached())
-        allValues();
+        storeAllValues();
       auto listOfDetIds = SiStripCondData_.detIds(false);
       for (const auto &detId : listOfDetIds) {
         auto values = SiStripCondData_.data(detId);
@@ -767,28 +762,28 @@ namespace SiStripCondObjectRepresent {
           counter++;
           switch (subid) {
             case StripSubdetector::TIB:
-              if ((PlotMode_ == COMPARISON) && (counter > (values.size() / 2))) {
+              if ((plotMode_ == COMPARISON) && (counter > (values.size() / 2))) {
                 h_parts2["TIB"]->Fill(value);
               } else {
                 h_parts["TIB"]->Fill(value);
               }
               break;
             case StripSubdetector::TID:
-              if ((PlotMode_ == COMPARISON) && (counter > (values.size() / 2))) {
+              if ((plotMode_ == COMPARISON) && (counter > (values.size() / 2))) {
                 h_parts2["TID"]->Fill(value);
               } else {
                 h_parts["TID"]->Fill(value);
               }
               break;
             case StripSubdetector::TOB:
-              if ((PlotMode_ == COMPARISON) && (counter > (values.size() / 2))) {
+              if ((plotMode_ == COMPARISON) && (counter > (values.size() / 2))) {
                 h_parts2["TOB"]->Fill(value);
               } else {
                 h_parts["TOB"]->Fill(value);
               }
               break;
             case StripSubdetector::TEC:
-              if ((PlotMode_ == COMPARISON) && (counter > (values.size() / 2))) {
+              if ((plotMode_ == COMPARISON) && (counter > (values.size() / 2))) {
                 h_parts2["TEC"]->Fill(value);
               } else {
                 h_parts["TEC"]->Fill(value);
@@ -815,8 +810,8 @@ namespace SiStripCondObjectRepresent {
         h_parts[part]->SetStats(false);
         h_parts[part]->SetLineWidth(2);
 
-        if (PlotMode_ != COMPARISON) {
-          h_parts[part]->SetLineColor(colormap[part]);
+        if (plotMode_ != COMPARISON) {
+          h_parts[part]->SetLineColor(k_colormap.at(part));
           float theMax = h_parts[part]->GetMaximum();
           h_parts[part]->SetMaximum(theMax * 1.30);
         } else {
@@ -836,12 +831,12 @@ namespace SiStripCondObjectRepresent {
         }
 
         h_parts[part]->Draw();
-        if (PlotMode_ == COMPARISON) {
+        if (plotMode_ == COMPARISON) {
           h_parts2[part]->Draw("same");
         }
 
         TLegend *leg = new TLegend(.60, 0.8, 0.92, 0.93);
-        if (PlotMode_ != COMPARISON) {
+        if (plotMode_ != COMPARISON) {
           leg->SetTextSize(0.035);
           leg->SetHeader(part.c_str(), "C");  // option "C" allows to center the header
           leg->AddEntry(
@@ -863,23 +858,11 @@ namespace SiStripCondObjectRepresent {
     {
       SiStripPI::setPaletteStyle(SiStripPI::DEFAULT); /* better looking palette ;)*/
 
-      if (PlotMode_ != COMPARISON) {
+      if (plotMode_ != COMPARISON) {
         throw cms::Exception("Logic error") << "not being in compared mode, cannot plot correlations";
       }
 
       std::map<std::string, TH2F *> h2_parts;
-
-      std::map<std::string, int> colormap;
-      std::map<std::string, int> markermap;
-      colormap["TIB"] = kRed;
-      markermap["TIB"] = kFullCircle;
-      colormap["TOB"] = kGreen;
-      markermap["TOB"] = kFullTriangleUp;
-      colormap["TID"] = kBlack;
-      markermap["TID"] = kFullSquare;
-      colormap["TEC"] = kBlue;
-      markermap["TEC"] = kFullTriangleDown;
-
       std::vector<std::string> parts = {"TEC", "TOB", "TIB", "TID"};
 
       const char *device;
@@ -915,7 +898,7 @@ namespace SiStripCondObjectRepresent {
       }
 
       if (!SiStripCondData_.isCached())
-        allValues();
+        storeAllValues();
       auto listOfDetIds = SiStripCondData_.detIds(false);
       for (const auto &detId : listOfDetIds) {
         auto values = SiStripCondData_.demuxedData(detId);
@@ -958,8 +941,8 @@ namespace SiStripCondObjectRepresent {
         h2_parts[part]->GetZaxis()->CenterTitle();
         h2_parts[part]->GetZaxis()->SetMaxDigits(2); /* exponentiate z-axis */
 
-        //h2_parts[part]->SetMarkerColor(colormap[part]);
-        //h2_parts[part]->SetMarkerStyle(markermap[part]);
+        //h2_parts[part]->SetMarkerColor(k_colormap.at(part));
+        //h2_parts[part]->SetMarkerStyle(k_markermap.at(part));
         //h2_parts[part]->SetStats(false);
         //h2_parts[part]->Draw("P");
         h2_parts[part]->Draw("colz");
@@ -985,7 +968,7 @@ namespace SiStripCondObjectRepresent {
     TrackerTopology m_trackerTopo;
     SiStripDetSummary summary{&m_trackerTopo};
     // "Map", "Ratio", or "Diff"
-    plotType PlotMode_;
+    plotType plotMode_;
     std::pair<int, std::string> additionalIOV_;
 
     std::map<std::string, std::string> units_ = {{"SiStripPedestals", "[ADC counts]"},

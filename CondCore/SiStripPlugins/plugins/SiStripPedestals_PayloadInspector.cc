@@ -56,7 +56,7 @@ namespace {
       setGranularity(SiStripCondObjectRepresent::PERSTRIP);
     }
 
-    void allValues() override {
+    void storeAllValues() override {
       std::vector<uint32_t> detid;
       payload_->getDetIds(detid);
 
@@ -136,7 +136,7 @@ namespace {
       SiStripPedestalContainer* f_objContainer =
           new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
 
-      l_objContainer->Subtract(f_objContainer);
+      l_objContainer->subtract(f_objContainer);
 
       //l_objContainer->printAll();
 
@@ -762,10 +762,16 @@ namespace {
       h_first.Draw();
       h_last.Draw("same");
 
-      TLegend legend = TLegend(0.52, 0.82, 0.95, 0.9);
-      legend.SetHeader("SiStrip Pedestal comparison", "C");  // option "C" allows to center the header
-      legend.AddEntry(&h_first, ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
-      legend.AddEntry(&h_last, ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      TLegend legend = TLegend(0.13, 0.82, 0.95, 0.9);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend.SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend.AddEntry(&h_first, (tagname1 + " : " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(&h_last, (tagname2 + " : " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      } else {
+        legend.SetHeader(("#bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend.AddEntry(&h_first, ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(&h_last, ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      }
       legend.SetTextSize(0.025);
       legend.Draw("same");
 
