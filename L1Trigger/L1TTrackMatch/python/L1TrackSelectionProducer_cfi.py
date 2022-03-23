@@ -29,8 +29,8 @@ L1TrackSelectionProducer = cms.EDProducer('L1TrackSelectionProducer',
 )
 
 L1TrackSelectionProducerExtended = L1TrackSelectionProducer.clone(
-  l1TracksInputTag = cms.InputTag("L1GTTInputProducerExtended","Level1TTTracksExtendedConverted"),
-  outputCollectionName = cms.string("Level1TTTracksExtendedSelected"),
-  useDisplacedTracksDeltaZOverride = cms.double(3.0), # Use promt/displaced tracks
+  l1TracksInputTag = "L1GTTInputProducerExtended : Level1TTTracksExtendedConverted",
+  outputCollectionName = "Level1TTTracksExtendedSelected",
+  useDisplacedTracksDeltaZOverride = 3.0, # Use prompt/displaced tracks
 )
 

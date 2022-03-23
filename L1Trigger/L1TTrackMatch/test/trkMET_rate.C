@@ -265,16 +265,16 @@ void trkMET_rate() {
         float this_tp_eta = tp_eta->at(it);
         float this_tp_phi = tp_phi->at(it);
         int this_tp_signal = tp_eventid->at(it);
-        float deltaZ = fabs(tp_z0->at(it) - pv_L1reco->at(0));
+        float deltaZ = std::abs(tp_z0->at(it) - pv_L1reco->at(0));
 
         // kinematic cuts
         if (tp_pt->at(it) < TP_minPt)
           continue;
-        if (fabs(this_tp_eta) > TP_maxEta)
+        if (std::abs(this_tp_eta) > TP_maxEta)
           continue;
         if (tp_nstub->at(it) < 4)
           continue;
-        if (fabs(tp_z0->at(it)) > 15)
+        if (std::abs(tp_z0->at(it)) > 15)
           continue;
         // if (this_tp_signal!=0) continue;
         // if (tp_dxy->at(it) > 1) continue;
@@ -282,17 +282,17 @@ void trkMET_rate() {
           continue;
 
         float deltaZ_cut = 3.0;  // cuts out PU
-        if (fabs(this_tp_eta) >= 0 && fabs(this_tp_eta) < 0.7)
+        if (std::abs(this_tp_eta) >= 0 && std::abs(this_tp_eta) < 0.7)
           deltaZ_cut = 0.4;
-        else if (fabs(this_tp_eta) >= 0.7 && fabs(this_tp_eta) < 1.0)
+        else if (std::abs(this_tp_eta) >= 0.7 && std::abs(this_tp_eta) < 1.0)
           deltaZ_cut = 0.6;
-        else if (fabs(this_tp_eta) >= 1.0 && fabs(this_tp_eta) < 1.2)
+        else if (std::abs(this_tp_eta) >= 1.0 && std::abs(this_tp_eta) < 1.2)
           deltaZ_cut = 0.76;
-        else if (fabs(this_tp_eta) >= 1.2 && fabs(this_tp_eta) < 1.6)
+        else if (std::abs(this_tp_eta) >= 1.2 && std::abs(this_tp_eta) < 1.6)
           deltaZ_cut = 1.0;
-        else if (fabs(this_tp_eta) >= 1.6 && fabs(this_tp_eta) < 2.0)
+        else if (std::abs(this_tp_eta) >= 1.6 && std::abs(this_tp_eta) < 2.0)
           deltaZ_cut = 1.7;
-        else if (fabs(this_tp_eta) >= 2.0 && fabs(this_tp_eta) <= 2.4)
+        else if (std::abs(this_tp_eta) >= 2.0 && std::abs(this_tp_eta) <= 2.4)
           deltaZ_cut = 2.20;
 
         if (deltaZ > deltaZ_cut)
@@ -324,22 +324,23 @@ void trkMET_rate() {
         float deltaZ = thisTrk_z0 - pv_L1reco->at(0);
 
         float deltaZ_cut = 3.0;  // cuts out PU
-        if (fabs(thisTrk_eta) >= 0 && fabs(thisTrk_eta) < 0.7)
+        if (std::abs(thisTrk_eta) >= 0 && std::abs(thisTrk_eta) < 0.7)
           deltaZ_cut = 0.4;
-        else if (fabs(thisTrk_eta) >= 0.7 && fabs(thisTrk_eta) < 1.0)
+        else if (std::abs(thisTrk_eta) >= 0.7 && std::abs(thisTrk_eta) < 1.0)
           deltaZ_cut = 0.6;
-        else if (fabs(thisTrk_eta) >= 1.0 && fabs(thisTrk_eta) < 1.2)
+        else if (std::abs(thisTrk_eta) >= 1.0 && std::abs(thisTrk_eta) < 1.2)
           deltaZ_cut = 0.76;
-        else if (fabs(thisTrk_eta) >= 1.2 && fabs(thisTrk_eta) < 1.6)
+        else if (std::abs(thisTrk_eta) >= 1.2 && std::abs(thisTrk_eta) < 1.6)
           deltaZ_cut = 1.0;
-        else if (fabs(thisTrk_eta) >= 1.6 && fabs(thisTrk_eta) < 2.0)
+        else if (std::abs(thisTrk_eta) >= 1.6 && std::abs(thisTrk_eta) < 2.0)
           deltaZ_cut = 1.7;
-        else if (fabs(thisTrk_eta) >= 2.0 && fabs(thisTrk_eta) <= 2.4)
+        else if (std::abs(thisTrk_eta) >= 2.0 && std::abs(thisTrk_eta) <= 2.4)
           deltaZ_cut = 2.20;
 
-        if (thisTrk_pt < TP_minPt || fabs(thisTrk_eta) > TP_maxEta || thisTrk_nstub < 4 || fabs(thisTrk_z0) > 15)
+        if (thisTrk_pt < TP_minPt || std::abs(thisTrk_eta) > TP_maxEta || thisTrk_nstub < 4 ||
+            std::abs(thisTrk_z0) > 15)
           continue;
-        if (fabs(deltaZ) > deltaZ_cut)
+        if (std::abs(deltaZ) > deltaZ_cut)
           continue;
 
         if (thisTrk_chi2dof < chi2dof_cut && thisTrk_bendchi2 < bendchi2_cut) {

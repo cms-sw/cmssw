@@ -1353,7 +1353,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
       zvtx_gen = genpartIter->vz();  //for gen vertex
       int id = genpartIter->pdgId();
       bool isNeutrino = false;
-      if ((fabs(id) == 12 || fabs(id) == 14 || fabs(id) == 16))
+      if ((std::abs(id) == 12 || std::abs(id) == 14 || std::abs(id) == 16))
         isNeutrino = true;
       if (isNeutrino || id == 1000022) {
         trueMETx += genpartIter->pt() * cos(genpartIter->phi());
