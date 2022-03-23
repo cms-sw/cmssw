@@ -43,12 +43,12 @@ void HGCalGeomLocaterTester::analyze(const edm::Event&, const edm::EventSetup& i
     else
       det = DetId::HGCalEE;
     edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Detector " << det << " Mode "
-              << geom->topology().dddConstants().geomMode();
+                                   << geom->topology().dddConstants().geomMode();
     doTestSilicon(geom, det);
   } else if (geom->topology().tileTrapezoid()) {
     DetId::Detector det(DetId::HGCalHSc);
     edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Detector " << det << " Mode "
-              << geom->topology().dddConstants().geomMode();
+                                   << geom->topology().dddConstants().geomMode();
     doTestScintillator(geom, det);
   }
 }
@@ -68,7 +68,8 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Det
     auto waferxy = geom->topology().dddConstants().locateCell(id, false);
     double dx = global.x() - waferxy.first;
     double dy = global.y() - waferxy.second;
-    st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") waferXY (" << waferxy.first << ", " << waferxy.second << ") Delta (" << dx << ", " << dy << ")";
+    st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") waferXY (" << waferxy.first
+        << ", " << waferxy.second << ") Delta (" << dx << ", " << dy << ")";
     if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
       st1 << " ***** ERROR *****";
       ++bad;
@@ -78,7 +79,8 @@ void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Det
     }
     edm::LogVerbatim("HGCalGeomX") << st1.str();
   }
-  edm::LogVerbatim("HGCalGeomX") << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good << " are good and " << bad << " are bad\n\n\n";
+  edm::LogVerbatim("HGCalGeomX") << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good
+                                 << " are good and " << bad << " are bad\n\n\n";
 }
 
 void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom, DetId::Detector det) {
@@ -96,7 +98,8 @@ void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom, DetId
     auto tilexy = geom->topology().dddConstants().locateCell(id, false);
     double dx = global.x() - tilexy.first;
     double dy = global.y() - tilexy.second;
-    st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") tileXY (" << tilexy.first << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
+    st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") tileXY (" << tilexy.first
+        << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
     if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
       double r1 = sqrt(global.x() * global.x() + global.y() * global.y());
       double r2 = sqrt(tilexy.first * tilexy.first + tilexy.second * tilexy.second);
@@ -108,7 +111,8 @@ void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom, DetId
     }
     edm::LogVerbatim("HGCalGeomX") << st1.str();
   }
-  edm::LogVerbatim("HGCalGeomX") << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good << " are good and " << bad << " are bad\n\n\n";
+  edm::LogVerbatim("HGCalGeomX") << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good
+                                 << " are good and " << bad << " are bad\n\n\n";
 }
 
 //define this as a plug-in
