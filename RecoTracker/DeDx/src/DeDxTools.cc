@@ -2,17 +2,17 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
-#include <vector>
 
+#include <vector>
 #include <numeric>
-namespace DeDxTools {
+
+namespace deDxTools {
   using namespace std;
   using namespace reco;
 
   bool shapeSelection(const SiStripCluster& clus) {
-    // ----------------  COMPTAGE DU NOMBRE DE MAXIMA   --------------------------
+    // ----------------  Counting the number of maxima   --------------------------
     //----------------------------------------------------------------------------
-    //	printf("ShapeTest \n");
     auto const& ampls = clus.amplitudes();
     Int_t NofMax = 0;
     Int_t recur255 = 1;
@@ -20,7 +20,8 @@ namespace DeDxTools {
     bool MaxOnStart = false;
     bool MaxInMiddle = false, MaxOnEnd = false;
     Int_t MaxPos = 0;
-    // Début avec max
+
+    // Start with max
     if (ampls.size() != 1 &&
         ((ampls[0] > ampls[1]) ||
          (ampls.size() > 2 && ampls[0] == ampls[1] && ampls[1] > ampls[2] && ampls[0] != 254 && ampls[0] != 255) ||
@@ -29,7 +30,7 @@ namespace DeDxTools {
       MaxOnStart = true;
     }
 
-    // Maximum entouré
+    // Maximum reached
     if (ampls.size() > 2) {
       for (unsigned int i = 1; i < ampls.size() - 1U; i++) {
         if ((ampls[i] > ampls[i - 1] && ampls[i] > ampls[i + 1]) ||
@@ -57,7 +58,8 @@ namespace DeDxTools {
         }
       }
     }
-    // Fin avec un max
+
+    // End with a max
     if (ampls.size() > 1) {
       if (ampls[ampls.size() - 1] > ampls[ampls.size() - 2] ||
           (ampls.size() > 2 && ampls[ampls.size() - 1] == ampls[ampls.size() - 2] &&
@@ -67,27 +69,26 @@ namespace DeDxTools {
         MaxOnEnd = true;
       }
     }
-    // Si une seule strip touchée
+
+    // If only one strip touched
     if (ampls.size() == 1) {
       NofMax = 1;
     }
 
-    // ---  SELECTION EN FONCTION DE LA FORME POUR LES MAXIMA UNIQUES ---------
+    // --------------  SHAPE-BASED SELECTION FOR UNIQUE MAXIMAS --------------
     //------------------------------------------------------------------------
     /*
-               ____
-              |    |____
-          ____|    |    |
-         |    |    |    |____
-     ____|    |    |    |    |
-    |    |    |    |    |    |____
-  __|____|____|____|____|____|____|__
+                 ____
+                |    |____
+            ____|    |    |
+           |    |    |    |____
+       ____|    |    |    |    |
+      |    |    |    |    |    |____
+    __|____|____|____|____|____|____|__
     C_Mnn C_Mn C_M  C_D  C_Dn C_Dnn
-  */
-    //   bool shapetest=true;
+    */
     bool shapecdtn = false;
 
-    //	Float_t C_M;	Float_t C_D;	Float_t C_Mn;	Float_t C_Dn;	Float_t C_Mnn;	Float_t C_Dnn;
     Float_t C_M = 0.0;
     Float_t C_D = 0.0;
     Float_t C_Mn = 10000;
@@ -148,7 +149,6 @@ namespace DeDxTools {
         int RightOfMaxPos = MaxPos + 1;
         if (RightOfMaxPos >= (int)ampls.size())
           RightOfMaxPos = ampls.size() - 1;
-        //int after = RightOfMaxPos; int before = LeftOfMaxPos; if (after>=(int)ampls.size() ||  before<0)  std::cout<<"invalid read MaxPos:"<<MaxPos <<"size:"<<ampls.size() <<std::endl;
         if (ampls[LeftOfMaxPos] < ampls[RightOfMaxPos]) {
           C_D = (Float_t)ampls[RightOfMaxPos];
           C_Mn = (Float_t)ampls[LeftOfMaxPos];
@@ -218,7 +218,7 @@ namespace DeDxTools {
                 int& nSatStrip,
                 const GeomDetUnit& detUnit,
                 const std::vector<std::vector<float> >& calibGains,
-                const unsigned int& m_off) {
+                const unsigned int& offsetDU_) {
     const auto& Ampls = cluster->amplitudes();
 
     nSatStrip = 0;
@@ -235,7 +235,7 @@ namespace DeDxTools {
       for (unsigned int i = 0; i < Ampls.size(); i++) {
         int calibratedCharge = Ampls[i];
 
-        auto& gains = calibGains[detUnit.index() - m_off];
+        auto& gains = calibGains[detUnit.index() - offsetDU_];
         calibratedCharge = (int)(calibratedCharge / gains[(cluster->firstStrip() + i) / 128]);
         if (calibratedCharge >= 255) {
           if (calibratedCharge >= 1025)
@@ -255,9 +255,9 @@ namespace DeDxTools {
   void makeCalibrationMap(const std::string& m_calibrationPath,
                           const TrackerGeometry& tkGeom,
                           std::vector<std::vector<float> >& calibGains,
-                          const unsigned int& m_off) {
+                          const unsigned int& offsetDU_) {
     auto const& dus = tkGeom.detUnits();
-    calibGains.resize(dus.size() - m_off);
+    calibGains.resize(dus.size() - offsetDU_);
 
     TChain* t1 = new TChain("SiStripCalib/APVGain");
     t1->Add(m_calibrationPath.c_str());
@@ -271,7 +271,7 @@ namespace DeDxTools {
 
     for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       t1->GetEntry(ientry);
-      auto& gains = calibGains[tkGeom.idToDetUnit(DetId(tree_DetId))->index() - m_off];
+      auto& gains = calibGains[tkGeom.idToDetUnit(DetId(tree_DetId))->index() - offsetDU_];
       if (gains.size() < (size_t)(tree_APVId + 1)) {
         gains.resize(tree_APVId + 1);
       }
@@ -280,23 +280,23 @@ namespace DeDxTools {
     t1->Delete();
   }
 
-  ESGetTokenH3DDVariant esConsumes(std::string const& Reccord, edm::ConsumesCollector& iCC) {
-    if (Reccord == "SiStripDeDxMip_3D_Rcd") {
+  ESGetTokenH3DDVariant esConsumes(std::string const& Record, edm::ConsumesCollector& iCC) {
+    if (Record == "SiStripDeDxMip_3D_Rcd") {
       return iCC.esConsumes<H3DD, SiStripDeDxMip_3D_Rcd, edm::Transition::BeginRun>();
     }
-    if (Reccord == "SiStripDeDxPion_3D_Rcd") {
+    if (Record == "SiStripDeDxPion_3D_Rcd") {
       return iCC.esConsumes<H3DD, SiStripDeDxPion_3D_Rcd, edm::Transition::BeginRun>();
     }
-    if (Reccord == "SiStripDeDxKaon_3D_Rcd") {
+    if (Record == "SiStripDeDxKaon_3D_Rcd") {
       return iCC.esConsumes<H3DD, SiStripDeDxKaon_3D_Rcd, edm::Transition::BeginRun>();
     }
-    if (Reccord == "SiStripDeDxProton_3D_Rcd") {
+    if (Record == "SiStripDeDxProton_3D_Rcd") {
       return iCC.esConsumes<H3DD, SiStripDeDxProton_3D_Rcd, edm::Transition::BeginRun>();
     }
-    if (Reccord == "SiStripDeDxElectron_3D_Rcd") {
+    if (Record == "SiStripDeDxElectron_3D_Rcd") {
       return iCC.esConsumes<H3DD, SiStripDeDxElectron_3D_Rcd, edm::Transition::BeginRun>();
     }
-    throw cms::Exception("WrongReccord for dEdx") << "The reccord : " << Reccord << "is unknown\n";
+    throw cms::Exception("WrongRecord for dEdx") << "The record : " << Record << "is unknown\n";
   }
 
   PhysicsTools::Calibration::HistogramD3D const& getHistogramD3D(edm::EventSetup const& iES,
@@ -382,7 +382,7 @@ namespace DeDxTools {
     }
   }
 
-  bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize) {
+  bool isSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize) {
     if (FirstStrip == 0)
       return true;
     if (FirstStrip == 128)
@@ -423,9 +423,9 @@ namespace DeDxTools {
     return false;
   }
 
-  bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it) {
+  bool isFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it) {
     if (dynamic_cast<const StripGeomDetUnit*>(it) == nullptr && dynamic_cast<const PixelGeomDetUnit*>(it) == nullptr) {
-      edm::LogInfo("DeDxTools::IsFarFromBorder") << "this detID doesn't seem to belong to the Tracker" << std::endl;
+      edm::LogInfo("deDxTools") << "this detID doesn't seem to belong to the Tracker" << std::endl;
       return false;
     }
 
@@ -440,15 +440,13 @@ namespace DeDxTools {
       return false;
 
     double DistFromBorder = 1.0;
-    //double HalfWidth      = it->surface().bounds().width()  /2.0;
     double HalfLength =
         trapezoidalBounds ? (*trapezoidalBounds).parameters()[3] : it->surface().bounds().length() / 2.0;
 
-    //  if (fabs(HitLocalPos.x())+HitLocalError.xx() >= (HalfWidth  - DistFromBorder) ) return false;//Don't think is really necessary
     if (fabs(HitLocalPos.y()) + HitLocalError.yy() >= (HalfLength - DistFromBorder))
       return false;
 
     return true;
   }
 
-}  // namespace DeDxTools
+}  // namespace deDxTools

@@ -14,7 +14,7 @@ if cmsEnv.beginTag() == 'Run2_2017':
     process = cms.Process("electronPostValidation",Run2_2017)
 elif cmsEnv.beginTag() == 'Run3':
     from Configuration.Eras.Era_Run3_cff import Run3
-    process = cms.Process('electronValidation', Run3) 
+    process = cms.Process('electronPostValidation', Run3) 
 else:
     from Configuration.Eras.Era_Phase2_cff import Phase2
     process = cms.Process('electronPostValidation',Phase2) 

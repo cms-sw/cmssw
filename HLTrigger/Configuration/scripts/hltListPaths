@@ -1,41 +1,106 @@
 #!/usr/bin/env python3
-
-from __future__ import print_function
 import os
-import re
+import sys
 import argparse
+import re
+import FWCore.ParameterSet.Config as cms
+import HLTrigger.Configuration.Tools.pipe as pipe
+import HLTrigger.Configuration.Tools.options as options
 from HLTrigger.Configuration.extend_argparse import *
 
-import HLTrigger.Configuration.Tools.pipe    as pipe
-import HLTrigger.Configuration.Tools.confdb  as confdb
-import HLTrigger.Configuration.Tools.options as options
-
-
-# adapted from HLTrigger/Configuration/python/Tools/confdb.py
-def _build_query(menu):
-  if menu.run:
-    return '--runNumber %s' % menu.run
-  else:
-    return '--%s --%s --configName %s' % (menu.database, menu.version, menu.name)
-
 def getPathList(config):
-  cmdline = 'hltConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % _build_query(config.menu)
+  # cmd-line args to select HLT configuration
+  if config.menu.run:
+    configline = f'--runNumber {config.menu.run}'
+  else:
+    configline = f'--{config.menu.database} --{config.menu.version} --configName {config.menu.name}'
+
+  # cmd to download HLT configuration
+  cmdline = f'hltConfigFromDB {configline} --noedsources --noes --noservices'
   if config.proxy:
-     cmdline += f" --dbproxy --dbproxyhost {config.proxy_host} --dbproxyport {config.proxy_port}"
-  data = pipe.pipe(cmdline).decode()
-  if 'Exhausted Resultset' in data or 'CONFIG_NOT_FOUND' in data:
-    raise ImportError('%s is not a valid HLT menu' % menu.value)
+    cmdline += f' --dbproxy --dbproxyhost {config.proxy_host} --dbproxyport {config.proxy_port}'
 
+  # load HLT configuration
+  try:
+    foo = {'process': None}
+    exec(pipe.pipe(cmdline).decode(), foo)
+    process = foo['process']
+  except:
+    raise Exception(f'query did not return a valid python file:\n query="{cmdline}"')
+
+  if not isinstance(process, cms.Process):
+    raise Exception(f'query did not return a valid HLT menu:\n query="{cmdline}"')
+
+  # Paths only
   if config.selection == 'paths':
-    filter = re.compile(r' *= *cms.Path.*')
+    pathDict = process.paths_()
+
+  # EndPaths only
   elif config.selection == 'endpaths':
-    filter = re.compile(r' *= *cms.EndPath.*')
-  else: # 'all'
-    filter = re.compile(r' *= *cms.(End)?Path.*')
+    pathDict = process.endpaths_()
 
-  paths  = [ filter.sub('', line) for line in data.splitlines() if filter.search(line) ]
-  return paths
+  # FinalPaths only
+  elif config.selection == 'finalpaths':
+    pathDict = process.finalpaths_()
 
+  # Paths, EndPaths, and FinalPaths ('all')
+  else:
+    pathDict = zip(process.paths_(), process.endpaths_(), process.finalpaths_())
+
+  ret = []
+  for pathName in pathDict:
+
+    # skip if name of the path matches any of
+    # the regular expressions listed in "--exclude"
+    skipPath = False
+    for excludeRegExpr in config.excludeRegExprs:
+      if bool(re.search(excludeRegExpr, pathName)):
+        skipPath = True
+        break
+    if skipPath:
+      continue
+
+    if config.no_dependent_paths:
+      # do not include "dependent paths", i.e. paths that depend on the result of other paths in the same job
+      # the current criterion to identify a path as "dependent" is that
+      # (1) the path contains a "TriggerResultsFilter" module and
+      # (2) the latter module uses the TriggerResults of the current process, and has a non-empty list of "triggerConditions"
+      path = pathDict[pathName]
+      pathIsDependent = False
+      isPath = isinstance(path, cms.Path)
+
+      for moduleName in path.moduleNames():
+        module = getattr(process, moduleName)
+        if module.type_() != 'TriggerResultsFilter' or (hasattr(module, 'triggerConditions') and len(module.triggerConditions) == 0):
+          continue
+
+        usesPathStatus = hasattr(module, 'usePathStatus') and module.usePathStatus
+        usesTrigResOfCurrentProcess = hasattr(module, 'hltResults') and module.hltResults.getProcessName() in [process.name_(), '@currentProcess']+['']*(not isPath)
+
+        if isPath:
+          if usesPathStatus:
+            pathIsDependent = True
+          elif usesTrigResOfCurrentProcess:
+            # The Path contains a TriggerResultsFilter with usePathStatus=False and forcing access to the TriggerResults of the current Process.
+            #  - This is not supported, and should result in a runtime error when using cmsRun.
+            #  - Here, a warning is returned to stderr, and the Path is omitted from the output list.
+            warning_msg = 'WARNING -- the cms.Path named "'+pathName+'" will be ignored.'
+            warning_msg += '\n'+' '*12+'- It contains a "TriggerResultsFilter" attempting to access the "TriggerResults" of the current Process (module: "'+moduleName+'").'
+            warning_msg += '\n'+' '*12+'- This is not supported, and should result in a runtime error when using cmsRun. Please check again the HLT configuration.'
+            print(warning_msg, file=sys.stderr)
+            pathIsDependent = True
+        else:
+          pathIsDependent = usesPathStatus or usesTrigResOfCurrentProcess
+
+        if pathIsDependent:
+          break
+
+      if pathIsDependent:
+        continue
+
+    ret.append(pathName)
+
+  return ret
 
 # define an argparse parser to parse our options
 textwidth = int( 80 )
@@ -49,17 +114,19 @@ formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth
 defaults = options.HLTProcessOptions()
 
 parser = argparse.ArgumentParser(
-  description       = 'List all the Paths and EndPaths from an HLT configuration in the ConfDB database.''',
+  description       = 'List all the Paths, EndPaths and FinalPaths of an HLT configuration in the ConfDB database.',
   argument_default  = argparse.SUPPRESS,
   formatter_class   = formatter,
   add_help          = False )
 
 # required argument
 parser.add_argument('menu',
-                    action  = 'store', 
+                    action  = 'store',
                     type    = options.ConnectionHLTMenu,
-                    metavar = 'MENU', 
+                    metavar = 'MENU',
                     help    = 'HLT menu to dump from the database. Supported formats are:\n  - /path/to/configuration[/Vn]\n  - [[{v1|v2|v3}/]{run3|run2|online|adg}:]/path/to/configuration[/Vn]\n  - run:runnumber\nThe possible converters are "v1", "v2, and "v3" (default).\nThe possible databases are "run3" (default, used for offline development), "run2" (used for accessing run2 offline development menus), "online" (used to extract online menus within Point 5) and "adg" (used to extract the online menus outside Point 5).\nIf no menu version is specified, the latest one is automatically used.\nIf "run:" is used instead, the HLT menu used for the given run number is looked up and used.\nNote other converters and databases exist as options but they are only for expert/special use.' )
+
+# options
 parser.add_argument('--dbproxy',
                     dest    = 'proxy',
                     action  = 'store_true',
@@ -78,25 +145,40 @@ parser.add_argument('--dbproxyhost',
                     default = defaults.proxy_host,
                     help    = 'Host of the socks proxy (default: "localhost")' )
 
-
-# options
 group = parser.add_mutually_exclusive_group()
-group.add_argument('-p', '--only-paths', 
+group.add_argument('-p', '--only-paths',
                     dest    = 'selection',
                     action  = 'store_const',
                     const   = 'paths',
                     help    = 'List only Paths' )
-group.add_argument('-e', '--only-endpaths', 
+group.add_argument('-e', '--only-endpaths',
                     dest    = 'selection',
                     action  = 'store_const',
                     const   = 'endpaths',
                     help    = 'List only EndPaths' )
+group.add_argument('-f', '--only-finalpaths',
+                    dest    = 'selection',
+                    action  = 'store_const',
+                    const   = 'finalpaths',
+                    help    = 'List only FinalPaths' )
 group.add_argument('-a', '--all', 
                     dest    = 'selection',
                     action  = 'store_const',
                     const   = 'all',
                     default = 'all',
-                    help    = 'List both Paths and EndPaths (default)' )
+                    help    = 'List Paths, EndPaths and FinalPaths (default)' )
+
+parser.add_argument('--no-dependent-paths',
+                    dest    = 'no_dependent_paths',
+                    action  = 'store_true',
+                    default = False,
+                    help    = 'Do not list paths which depend on the result of other paths (default: false)' )
+
+parser.add_argument('--exclude',
+                    dest    = 'excludeRegExprs',
+                    nargs   = '+',
+                    default = [],
+                    help    = 'List of regular expressions to select names of paths to be ignored with re.search (default: empty)' )
 
 # redefine "--help" to be the last option, and use a customized message 
 parser.add_argument('-h', '--help', 
@@ -105,6 +187,6 @@ parser.add_argument('-h', '--help',
 
 # parse command line arguments and options
 config = parser.parse_args()
-paths  = getPathList(config)
+paths = getPathList(config)
 for path in paths:
   print(path)

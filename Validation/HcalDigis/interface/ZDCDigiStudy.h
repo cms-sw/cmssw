@@ -44,7 +44,7 @@
 class ZDCDigiStudy : public DQMOneEDAnalyzer<> {
 public:
   ZDCDigiStudy(const edm::ParameterSet& ps);
-  ~ZDCDigiStudy() override;
+  ~ZDCDigiStudy() override = default;
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
@@ -61,10 +61,10 @@ private:
   //# they will be filled in the .cc file #
   /////////////////////////////////////////
 
-  std::string zdcHits, outFile_;
-  bool verbose_, checkHit_;
+  const std::string zdcHits, outFile_;
+  const bool verbose_, checkHit_;
 
-  edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
+  const edm::EDGetTokenT<ZDCDigiCollection> tok_zdc_;
 
   /////////////////
 

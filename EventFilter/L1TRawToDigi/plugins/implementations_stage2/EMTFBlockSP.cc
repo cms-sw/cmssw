@@ -176,6 +176,13 @@ namespace l1t {
         // payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
         auto payload = block.payload();
 
+        // FW version is computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
+        bool useNNBits_ = getAlgoVersion() >= 11098;   // FW versions >= 26.10.2021
+        bool useHMTBits_ = getAlgoVersion() >= 11306;  // FW versions >= 10.01.2022
+
+        static constexpr int nominalShower_ = 2;
+        static constexpr int tightShower_ = 3;
+
         // Check Format of Payload
         l1t::emtf::SP SP_;
         for (int err = 0; err < checkFormat(block); err++)
@@ -210,6 +217,10 @@ namespace l1t {
         res_cand = static_cast<EMTFCollections*>(coll)->getRegionalMuonCands();
         RegionalMuonCand mu_(0, 0, 0, 0, 0, 0, 0, tftype::emtf_pos);
 
+        RegionalMuonShowerBxCollection* res_shower;
+        res_shower = static_cast<EMTFCollections*>(coll)->getRegionalMuonShowers();
+        RegionalMuonShower muShower_(false, false, false, false, false, false);
+
         ///////////////////////////////////
         // Unpack the SP Output Data Record
         ///////////////////////////////////
@@ -226,7 +237,12 @@ namespace l1t {
 
         SP_.set_eta_GMT(TwosCompl(9, GetHexBits(SP1c, 0, 8)));
         SP_.set_mode(GetHexBits(SP1c, 9, 12));
-        SP_.set_bx(GetHexBits(SP1c, 13, 14));
+
+        if (useHMTBits_) {
+          SP_.set_hmt(GetHexBits(SP1c, 13, 14));
+        } else {
+          SP_.set_bx(GetHexBits(SP1c, 13, 14));
+        }
 
         SP_.set_pt_GMT(GetHexBits(SP1d, 0, 8));
         SP_.set_me1_stub_num(GetHexBits(SP1d, 9, 9));
@@ -246,7 +262,13 @@ namespace l1t {
         SP_.set_me4_delay(GetHexBits(SP2b, 9, 11));
         SP_.set_tbin(GetHexBits(SP2b, 12, 14));
 
-        SP_.set_pt_LUT_addr(GetHexBits(SP2c, 0, 14, SP2d, 0, 14));
+        if (useNNBits_) {
+          SP_.set_pt_dxy_GMT(GetHexBits(SP2c, 0, 7));
+          SP_.set_dxy_GMT(GetHexBits(SP2c, 8, 10));
+          SP_.set_nn_pt_valid(GetHexBits(SP2c, 11, 11));
+        } else {
+          SP_.set_pt_LUT_addr(GetHexBits(SP2c, 0, 14, SP2d, 0, 14));
+        }
 
         // SP_.set_dataword     ( uint64_t dataword );
 
@@ -271,6 +293,10 @@ namespace l1t {
         mu_.setHwEta(SP_.Eta_GMT());
         mu_.setHwPhi(SP_.Phi_GMT());
         mu_.setHwPt(SP_.Pt_GMT());
+        if (useNNBits_) {
+          mu_.setHwPtUnconstrained(SP_.Pt_dxy_GMT());
+          mu_.setHwDXY(SP_.Dxy_GMT());
+        }
         mu_.setTFIdentifiers(Track_.Sector() - 1, (Track_.Endcap() == 1) ? emtf_pos : emtf_neg);
         mu_.setTrackSubAddress(RegionalMuonCand::kTrkNum, Track_.Track_num());
         // Truncated to 11 bits and offset by 25 from global event BX in EMTF firmware
@@ -280,6 +306,13 @@ namespace l1t {
         mu_.setTrackSubAddress(RegionalMuonCand::kBX, EMTF_kBX);
         // mu_.set_dataword   ( SP_.Dataword() );
         // Track_.set_GMT(mu_);
+
+        // Set Regional Muon Showers
+        if (useHMTBits_) {
+          muShower_.setTFIdentifiers(Track_.Sector() - 1, (Track_.Endcap() == 1) ? emtf_pos : emtf_neg);
+          muShower_.setOneNominalInTime(SP_.HMT() == nominalShower_ ? true : false);
+          muShower_.setOneTightInTime(SP_.HMT() == tightShower_ ? true : false);
+        }
 
         ///////////////////////
         // Match hits to tracks
@@ -551,6 +584,9 @@ namespace l1t {
         // TBIN_num can range from 0 through 7, i.e. BX = -3 through +4. - AWB 04.04.16
         res_cand->setBXRange(-3, 4);
         res_cand->push_back(SP_.TBIN() - 3, mu_);
+
+        res_shower->setBXRange(-3, 4);
+        res_shower->push_back(SP_.TBIN() - 3, muShower_);
 
         // Finished with unpacking one SP Output Data Record
         return true;

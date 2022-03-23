@@ -722,7 +722,7 @@ float pat::PATIsolatedTrackProducer::getDeDx(const reco::DeDxHitInfo* hitInfo, b
       continue;
 
     // shape selection for strips
-    if (isStrip && !DeDxTools::shapeSelection(*(hitInfo->stripCluster(ih))))
+    if (isStrip && !deDxTools::shapeSelection(*(hitInfo->stripCluster(ih))))
       continue;
 
     float Norm = 0;
