@@ -51,7 +51,7 @@ namespace {
       setGranularity(SiStripCondObjectRepresent::PERAPV);
     }
 
-    void allValues() override {
+    void storeAllValues() override {
       std::vector<uint32_t> detid;
       payload_->getDetIds(detid);
 
@@ -222,7 +222,7 @@ namespace {
       SiStripApvGainContainer* f_objContainer =
           new SiStripApvGainContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
 
-      l_objContainer->Subtract(f_objContainer);
+      l_objContainer->subtract(f_objContainer);
 
       //l_objContainer->printAll();
 

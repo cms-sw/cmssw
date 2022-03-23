@@ -44,7 +44,7 @@ namespace {
       setGranularity(SiStripCondObjectRepresent::PERMODULE);
     }
 
-    void allValues() override {
+    void storeAllValues() override {
       auto LAMap_ = payload_->getLorentzAngles();
       for (const auto &element : LAMap_) {
         SiStripCondData_.fillByPushBack(element.first, element.second);
