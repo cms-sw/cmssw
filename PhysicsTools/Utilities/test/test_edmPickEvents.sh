@@ -1,6 +1,5 @@
 #!/bin/bash -ex
-#Dataset, Run, Lumi and Events are copied from Workflows 4.22
+#Dataset, Run, Lumi and Events are copied from Workflows 136.8521
 
-edmPickEvents.py  "/Cosmics/Run2011A-v1/RAW" 160960:277:10001082,160960:277:10001058,160960:277:10001650 > run_edmCopyPickMerge.sh
-chmod +x run_edmCopyPickMerge.sh
-./run_edmCopyPickMerge.sh
+export CMS_BOT_USE_DASGOCLIENT=true
+edmPickEvents.py --runInteractive "/JetHT/Run2018A-PromptReco-v1/MINIAOD" 315489:31:19015199,315489:31:19098714,315489:31:18897114
