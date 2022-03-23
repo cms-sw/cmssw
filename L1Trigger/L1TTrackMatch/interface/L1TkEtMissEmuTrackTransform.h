@@ -41,7 +41,7 @@ struct InternalEtWord {
 class L1TkEtMissEmuTrackTransform {
 public:
   L1TkEtMissEmuTrackTransform() = default;
-  ~L1TkEtMissEmuTrackTransform(){};
+  ~L1TkEtMissEmuTrackTransform() = default;
 
   void generateLUTs();  // Generate internal LUTs needed for track transfrom
 

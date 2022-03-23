@@ -47,23 +47,20 @@ private:
   virtual void endJob();
 
   // ----------member data ---------------------------
-  float maxZ0_;   // in cm
-  float deltaZ_;  // in cm
-  float maxEta_;
-  float chi2dofMax_;
-  float Chi2RphidofMax_;
-  float Chi2RzdofMax_;
-  float bendChi2Max_;
-  float minPt_;  // in GeV
-  int nStubsmin_;
-  int nPSStubsMin_;   // minimum number of stubs in PS modules
-  float maxPt_;       // in GeV
-  int highPtTracks_;  // saturate or truncate
-  bool displaced_;    // prompt/displaced tracks
-
+  const float maxZ0_;  // in cm
+  float deltaZ_;       // in cm
+  const float Chi2RphidofMax_;
+  const float Chi2RzdofMax_;
+  const float bendChi2Max_;
+  const float minPt_;  // in GeV
+  const int nStubsmin_;
+  const int nPSStubsMin_;  // minimum number of stubs in PS modules
+  const float maxPt_;
+  const float maxEta_;
+  const int highPtTracks_;       // saturate or truncate
+  const bool displaced_;         // prompt/displaced tracks
   vector<double> z0Thresholds_;  // Threshold for track to vertex association
   vector<double> etaRegions_;    // Eta bins for choosing deltaZ threshold
-
   bool debug_;
 
   std::string L1MetCollectionName;
@@ -76,26 +73,24 @@ private:
 
 // constructor//
 L1TrackerEtMissProducer::L1TrackerEtMissProducer(const edm::ParameterSet& iConfig)
-    : pvToken_(consumes<L1VertexCollectionType>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
+    : maxZ0_((float)iConfig.getParameter<double>("maxZ0")),
+      deltaZ_((float)iConfig.getParameter<double>("deltaZ")),
+      Chi2RphidofMax_((float)iConfig.getParameter<double>("chi2rphidofMax")),
+      Chi2RzdofMax_((float)iConfig.getParameter<double>("chi2rzdofMax")),
+      bendChi2Max_((float)iConfig.getParameter<double>("bendChi2Max")),
+      minPt_((float)iConfig.getParameter<double>("minPt")),
+      nStubsmin_(iConfig.getParameter<int>("nStubsmin")),
+      nPSStubsMin_(iConfig.getParameter<int>("nPSStubsMin")),
+      maxPt_((float)iConfig.getParameter<double>("maxPt")),
+      maxEta_((float)iConfig.getParameter<double>("maxEta")),
+      highPtTracks_(iConfig.getParameter<int>("highPtTracks")),
+      displaced_(iConfig.getParameter<bool>("displaced")),
+      z0Thresholds_(iConfig.getParameter<std::vector<double>>("z0Thresholds")),
+      etaRegions_(iConfig.getParameter<std::vector<double>>("etaRegions")),
+      debug_(iConfig.getParameter<bool>("debug")),
+      pvToken_(consumes<L1VertexCollectionType>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
       trackToken_(consumes<L1TTTrackCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
       tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
-  maxZ0_ = (float)iConfig.getParameter<double>("maxZ0");
-  deltaZ_ = (float)iConfig.getParameter<double>("deltaZ");
-  Chi2RphidofMax_ = (float)iConfig.getParameter<double>("chi2rphidofMax");
-  Chi2RzdofMax_ = (float)iConfig.getParameter<double>("chi2rzdofMax");
-  bendChi2Max_ = (float)iConfig.getParameter<double>("bendChi2Max");
-  minPt_ = (float)iConfig.getParameter<double>("minPt");
-  nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
-  nPSStubsMin_ = iConfig.getParameter<int>("nPSStubsMin");
-  maxPt_ = (float)iConfig.getParameter<double>("maxPt");
-  maxEta_ = (float)iConfig.getParameter<double>("maxEta");
-  highPtTracks_ = iConfig.getParameter<int>("highPtTracks");
-  displaced_ = iConfig.getParameter<bool>("displaced");
-  z0Thresholds_ = iConfig.getParameter<std::vector<double>>("z0Thresholds");
-  etaRegions_ = iConfig.getParameter<std::vector<double>>("etaRegions");
-
-  debug_ = iConfig.getParameter<bool>("debug");
-
   L1MetCollectionName = (std::string)iConfig.getParameter<std::string>("L1MetCollectionName");
 
   if (displaced_) {
@@ -160,9 +155,9 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     if (pt < minPt_)
       continue;
-    if (fabs(z0) > maxZ0_)
+    if (std::abs(z0) > maxZ0_)
       continue;
-    if (fabs(eta) > maxEta_)
+    if (std::abs(eta) > maxEta_)
       continue;
     if (chi2rphidof > Chi2RphidofMax_)
       continue;
@@ -198,15 +193,19 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     if (!displaced_) {  // if displaced, deltaZ = 3.0 cm, very loose
       // construct deltaZ cut to be based on track eta
-      for (unsigned int reg = 0; reg < etaRegions_.size(); reg++) {
-        if (fabs(eta) >= etaRegions_[reg] && fabs(eta) < etaRegions_[reg + 1]) {
+      for (unsigned int reg = 0; reg < etaRegions_.size() - 1; reg++) {
+        if (std::abs(eta) >= etaRegions_[reg] && std::abs(eta) < etaRegions_[reg + 1]) {
           deltaZ_ = z0Thresholds_[reg];
           break;
         }
       }
+      if (std::abs(eta) >= etaRegions_[etaRegions_.size() - 1]) {
+        deltaZ_ = z0Thresholds_[etaRegions_.size() - 1];
+        break;
+      }
     }
 
-    if (fabs(z0 - zVTX) <= deltaZ_) {
+    if (std::abs(z0 - zVTX) <= deltaZ_) {
       numassoctracks++;
       sumPx += pt * cos(phi);
       sumPy += pt * sin(phi);
@@ -220,7 +219,6 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
   float et = sqrt(sumPx * sumPx + sumPy * sumPy);
   double etphi = atan2(sumPy, sumPx);
-  //double etmiss_PU = sqrt(sumPx_PU * sumPx_PU + sumPy_PU * sumPy_PU);
 
   math::XYZTLorentzVector missingEt(-sumPx, -sumPy, 0, et);
 

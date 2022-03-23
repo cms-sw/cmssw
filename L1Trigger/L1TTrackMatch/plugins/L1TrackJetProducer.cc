@@ -61,72 +61,72 @@ private:
 
   // ----------member data ---------------------------
 
-  const EDGetTokenT<vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
-  const edm::EDGetTokenT<std::vector<l1t::Vertex> > PVtxToken_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
-
   vector<Ptr<L1TTTrackType> > L1TrkPtrs_;
   vector<int> zBinCount_;
   vector<int> tdtrk_;
-  float trkZMax_;
-  float trkPtMax_;
-  float trkPtMin_;
-  float trkEtaMax_;
-  float trkChi2dofMax_;
-  float trkBendChi2Max_;
-  int trkNPSStubMin_;
-  int lowpTJetMinTrackMultiplicity_;
-  int highpTJetMinTrackMultiplicity_;
-  int zBins_;
+  const float trkZMax_;
+  const float trkPtMax_;
+  const float trkPtMin_;
+  const float trkEtaMax_;
+  const float trkChi2dofMax_;
+  const float trkBendChi2Max_;
+  const int trkNPSStubMin_;
+  const double minTrkJetpT_;
+  const double minJetEtLowPt_;
+  const double minJetEtHighPt_;
   int etaBins_;
   int phiBins_;
-  double minTrkJetpT_;
-  double minJetEtLowPt_;
-  double minJetEtHighPt_;
-  float zStep_;
-  float etaStep_;
-  float phiStep_;
-  bool displaced_;
+  int zBins_;
   float d0CutNStubs4_;
   float d0CutNStubs5_;
+  const int lowpTJetMinTrackMultiplicity_;
+  const int highpTJetMinTrackMultiplicity_;
+  bool displaced_;
   float nStubs4DisplacedChi2_;
   float nStubs5DisplacedChi2_;
   float nStubs4DisplacedBend_;
   float nStubs5DisplacedBend_;
   int nDisplacedTracks_;
   float dzPVTrk_;
+
+  const EDGetTokenT<vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
+  const edm::EDGetTokenT<std::vector<l1t::Vertex> > PVtxToken_;
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+
+  float zStep_;
+  float etaStep_;
+  float phiStep_;
 };
 
 L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
-    : trackToken_(
+    : trkZMax_((float)iConfig.getParameter<double>("trk_zMax")),
+      trkPtMax_((float)iConfig.getParameter<double>("trk_ptMax")),
+      trkPtMin_((float)iConfig.getParameter<double>("trk_ptMin")),
+      trkEtaMax_((float)iConfig.getParameter<double>("trk_etaMax")),
+      trkChi2dofMax_((float)iConfig.getParameter<double>("trk_chi2dofMax")),
+      trkBendChi2Max_((float)iConfig.getParameter<double>("trk_bendChi2Max")),
+      trkNPSStubMin_((int)iConfig.getParameter<int>("trk_nPSStubMin")),
+      minTrkJetpT_(iConfig.getParameter<double>("minTrkJetpT")),
+      minJetEtLowPt_(iConfig.getParameter<double>("minJetEtLowPt")),
+      minJetEtHighPt_(iConfig.getParameter<double>("minJetEtHighPt")),
+      etaBins_((int)iConfig.getParameter<int>("etaBins")),
+      phiBins_((int)iConfig.getParameter<int>("phiBins")),
+      zBins_((int)iConfig.getParameter<int>("zBins")),
+      d0CutNStubs4_((float)iConfig.getParameter<double>("d0_cutNStubs4")),
+      d0CutNStubs5_((float)iConfig.getParameter<double>("d0_cutNStubs5")),
+      lowpTJetMinTrackMultiplicity_((int)iConfig.getParameter<int>("lowpTJetMinTrackMultiplicity")),
+      highpTJetMinTrackMultiplicity_((int)iConfig.getParameter<int>("highpTJetMinTrackMultiplicity")),
+      displaced_(iConfig.getParameter<bool>("displaced")),
+      nStubs4DisplacedChi2_((float)iConfig.getParameter<double>("nStubs4DisplacedChi2")),
+      nStubs5DisplacedChi2_((float)iConfig.getParameter<double>("nStubs5DisplacedChi2")),
+      nStubs4DisplacedBend_((float)iConfig.getParameter<double>("nStubs4Displacedbend")),
+      nStubs5DisplacedBend_((float)iConfig.getParameter<double>("nStubs5Displacedbend")),
+      nDisplacedTracks_((int)iConfig.getParameter<int>("nDisplacedTracks")),
+      dzPVTrk_((float)iConfig.getParameter<double>("MaxDzTrackPV")),
+      trackToken_(
           consumes<vector<TTTrack<Ref_Phase2TrackerDigi_> > >(iConfig.getParameter<InputTag>("L1TrackInputTag"))),
       PVtxToken_(consumes<vector<l1t::Vertex> >(iConfig.getParameter<InputTag>("L1PVertexCollection"))),
       tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
-  trkZMax_ = (float)iConfig.getParameter<double>("trk_zMax");
-  trkPtMax_ = (float)iConfig.getParameter<double>("trk_ptMax");
-  trkPtMin_ = (float)iConfig.getParameter<double>("trk_ptMin");
-  trkEtaMax_ = (float)iConfig.getParameter<double>("trk_etaMax");
-  trkChi2dofMax_ = (float)iConfig.getParameter<double>("trk_chi2dofMax");
-  trkBendChi2Max_ = (float)iConfig.getParameter<double>("trk_bendChi2Max");
-  trkNPSStubMin_ = (int)iConfig.getParameter<int>("trk_nPSStubMin");
-  minTrkJetpT_ = iConfig.getParameter<double>("minTrkJetpT");
-  minJetEtLowPt_ = iConfig.getParameter<double>("minJetEtLowPt");
-  minJetEtHighPt_ = iConfig.getParameter<double>("minJetEtHighPt");
-  etaBins_ = (int)iConfig.getParameter<int>("etaBins");
-  phiBins_ = (int)iConfig.getParameter<int>("phiBins");
-  zBins_ = (int)iConfig.getParameter<int>("zBins");
-  d0CutNStubs4_ = (float)iConfig.getParameter<double>("d0_cutNStubs4");
-  d0CutNStubs5_ = (float)iConfig.getParameter<double>("d0_cutNStubs5");
-  lowpTJetMinTrackMultiplicity_ = (int)iConfig.getParameter<int>("lowpTJetMinTrackMultiplicity");
-  highpTJetMinTrackMultiplicity_ = (int)iConfig.getParameter<int>("highpTJetMinTrackMultiplicity");
-  displaced_ = iConfig.getParameter<bool>("displaced");
-  nStubs4DisplacedChi2_ = (float)iConfig.getParameter<double>("nStubs4DisplacedChi2");
-  nStubs5DisplacedChi2_ = (float)iConfig.getParameter<double>("nStubs5DisplacedChi2");
-  nStubs4DisplacedBend_ = (float)iConfig.getParameter<double>("nStubs4Displacedbend");
-  nStubs5DisplacedBend_ = (float)iConfig.getParameter<double>("nStubs5Displacedbend");
-  nDisplacedTracks_ = (int)iConfig.getParameter<int>("nDisplacedTracks");
-  dzPVTrk_ = (float)iConfig.getParameter<double>("MaxDzTrackPV");
-
   zStep_ = 2.0 * trkZMax_ / (zBins_ + 1);
   etaStep_ = 2.0 * trkEtaMax_ / etaBins_;  //etaStep is the width of an etabin
   phiStep_ = 2 * M_PI / phiBins_;          ////phiStep is the width of a phibin
@@ -180,19 +180,19 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
       continue;
     if (!trackQualityCuts(trk_nstubs, trk_chi2dof, trk_bendchi2))
       continue;
-    if (fabs(PVz - trk_z0) > dzPVTrk_)
+    if (std::abs(PVz - trk_z0) > dzPVTrk_)
       continue;
-    if (fabs(trk_z0) > trkZMax_)
+    if (std::abs(trk_z0) > trkZMax_)
       continue;
-    if (fabs(trkPtr->momentum().eta()) > trkEtaMax_)
+    if (std::abs(trkPtr->momentum().eta()) > trkEtaMax_)
       continue;
     if (trk_pt < trkPtMin_)
       continue;
     L1TrkPtrs_.push_back(trkPtr);
     zBinCount_.push_back(0);
 
-    if ((fabs(trk_d0) > d0CutNStubs5_ && trk_nstubs >= 5 && d0CutNStubs5_ >= 0) ||
-        (trk_nstubs == 4 && fabs(trk_d0) > d0CutNStubs4_ && d0CutNStubs4_ >= 0))
+    if ((std::abs(trk_d0) > d0CutNStubs5_ && trk_nstubs >= 5 && d0CutNStubs5_ >= 0) ||
+        (trk_nstubs == 4 && std::abs(trk_d0) > d0CutNStubs4_ && d0CutNStubs4_ >= 0))
       tdtrk_.push_back(1);  //displaced track
     else
       tdtrk_.push_back(0);  // not displaced track
@@ -220,9 +220,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
         float jetPz = jetPt * sinh(jetEta);
         float jetP = jetPt * cosh(jetEta);
         int totalDisptrk = mzb.clusters[j].numtdtrks;
-        bool isDispJet = false;
-        if (totalDisptrk > nDisplacedTracks_ || totalDisptrk == nDisplacedTracks_)
-          isDispJet = true;
+        bool isDispJet = totalDisptrk >= nDisplacedTracks_;
         math::XYZTLorentzVector jetP4(jetPx, jetPy, jetPz, jetP);
         L1TrackAssocJet.clear();
         for (unsigned int itrk = 0; itrk < mzb.clusters[j].trackidx.size(); itrk++) {
@@ -375,7 +373,7 @@ void L1TrackJetProducer::L2_cluster(vector<Ptr<L1TTTrackType> > L1TrkPtrs_, vect
             if (L1clusters[phibin + 1][index1].used)
               continue;
 
-            if (fabs(L1clusters[phibin + 1][index1].eta - L1clusters[phibin][imax].eta) <= 1.5 * etaStep_) {
+            if (std::abs(L1clusters[phibin + 1][index1].eta - L1clusters[phibin][imax].eta) <= 1.5 * etaStep_) {
               E1 += L1clusters[phibin + 1][index1].pTtot;
               trx1 += L1clusters[phibin + 1][index1].numtracks;
               tdtrk1 += L1clusters[phibin + 1][index1].numtdtrks;
@@ -411,7 +409,7 @@ void L1TrackJetProducer::L2_cluster(vector<Ptr<L1TTTrackType> > L1TrkPtrs_, vect
             for (index1 = 0; L1clusters[phibin + 2][index1].pTtot != 0; ++index1) {
               if (L1clusters[phibin + 2][index1].used)
                 continue;
-              if (fabs(L1clusters[phibin + 2][index1].eta - L1clusters[phibin][imax].eta) <= 1.5 * etaStep_) {
+              if (std::abs(L1clusters[phibin + 2][index1].eta - L1clusters[phibin][imax].eta) <= 1.5 * etaStep_) {
                 E2 += L1clusters[phibin + 2][index1].pTtot;
                 trx2 += L1clusters[phibin + 2][index1].numtracks;
                 tdtrk2 += L1clusters[phibin + 2][index1].numtdtrks;
@@ -481,8 +479,8 @@ void L1TrackJetProducer::L2_cluster(vector<Ptr<L1TTTrackType> > L1TrkPtrs_, vect
     // Now merge clusters, if necessary
     for (int m = 0; m < nclust - 1; ++m) {
       for (int n = m + 1; n < nclust; ++n) {
-        if (L2cluster[n].eta == L2cluster[m].eta && (fabs(L2cluster[n].phi - L2cluster[m].phi) < 1.5 * phiStep_ ||
-                                                     fabs(L2cluster[n].phi - L2cluster[m].phi) > 6.0)) {
+        if (L2cluster[n].eta == L2cluster[m].eta && (std::abs(L2cluster[n].phi - L2cluster[m].phi) < 1.5 * phiStep_ ||
+                                                     std::abs(L2cluster[n].phi - L2cluster[m].phi) > 6.0)) {
           if (L2cluster[n].pTtot > L2cluster[m].pTtot) {
             L2cluster[m].phi = L2cluster[n].phi;
           }
@@ -613,7 +611,7 @@ EtaPhiBin *L1TrackJetProducer::L1_cluster(EtaPhiBin *phislice) {
 
   // Now merge clusters, if necessary
   for (int m = 0; m < nclust - 1; ++m) {
-    if (fabs(clusters[m + 1].eta - clusters[m].eta) < 1.5 * etaStep_) {
+    if (std::abs(clusters[m + 1].eta - clusters[m].eta) < 1.5 * etaStep_) {
       if (clusters[m + 1].pTtot > clusters[m].pTtot) {
         clusters[m].eta = clusters[m + 1].eta;
       }

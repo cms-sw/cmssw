@@ -34,14 +34,6 @@ namespace l1t {
           unsigned int displacedtracks = 0,
           unsigned int tightdisplacedtracks = 0,
           bool displacedTag = false);
-    /*    TkJet(const LorentzVector& p4,
-          const std::vector<edm::Ptr<L1TTTrackType> >& trkPtrs,
-          float jetvtx = -999.,
-          unsigned int ntracks = 0,
-          unsigned int tighttracks = 0,
-          unsigned int displacedtracks = 0,
-          unsigned int tightdisplacedtracks = 0,
-          bool displacedTag = false );*/
 
     // ---------- const member functions ---------------------
 

@@ -68,7 +68,7 @@
 
   <class name="l1t::TkHTMiss" ClassVersion="4">
     <version ClassVersion="4" checksum="4116208712"/>
-    <version ClassVersion="3" checksum="4116208712"/>
+    <version ClassVersion="3" checksum="1471145680"/>
   </class>
   <class name="std::vector<l1t::TkHTMiss>"/>
   <class name="edm::Wrapper<l1t::TkHTMiss>"/>

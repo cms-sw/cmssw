@@ -249,11 +249,23 @@ void L1TkGlbMuonProducer::runOnMuonCollection_v1(const edm::Handle<MuonBxCollect
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TkGlbMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // L1TkGlbMuons
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("L1MuonInputTag", edm::InputTag("simGmtStage2Digis"));
+  desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.add<double>("ETAMIN", 0);
+  desc.add<double>("ETAMAX", 5.0);
+  desc.add<double>("ZMAX", 25.0);
+  desc.add<double>("CHI2MAX", 100.0);
+  desc.add<double>("PTMINTRA", 2.0);
+  desc.add<double>("DRmax", 0.5);
+  desc.add<int>("nStubsmin", 4);
+  desc.add<bool>("correctGMTPropForTkZ", true);
+  desc.add<bool>("use5ParameterFit", false);
+  desc.add<bool>("useTPMatchWindows", true);
+  descriptions.add("L1TkGlbMuons", desc);
+  // or use the following to generate the label from the module's C++ type
+  //descriptions.addWithDefaultLabel(desc);
 }
 
 L1TkGlbMuonProducer::PropState L1TkGlbMuonProducer::propagateToGMT(const L1TkGlbMuonProducer::L1TTTrackType& tk) const {

@@ -75,7 +75,7 @@ namespace L1TkElectronTrackMatchAlgo {
   }
   // --------------- calculate deltaPhi between Track and EGamma object
   double deltaR(const GlobalPoint& epos, const edm::Ptr<L1TTTrackType>& pTrk) {
-    //double dPhi = fabs(reco::deltaPhi(epos.phi(), pTrk->momentum().phi()));
+    //double dPhi = std::abs(reco::deltaPhi(epos.phi(), pTrk->momentum().phi()));
     double dPhi = L1TkElectronTrackMatchAlgo::deltaPhi(epos, pTrk);
     double dEta = deltaEta(epos, pTrk);
     return sqrt(dPhi * dPhi + dEta * dEta);
@@ -88,9 +88,9 @@ namespace L1TkElectronTrackMatchAlgo {
     double z0 = pTrk->POCA().z();
     double theta = 0.0;
     if (ez - z0 >= 0)
-      theta = atan(er / fabs(ez - z0));
+      theta = atan(er / std::abs(ez - z0));
     else
-      theta = M_PI - atan(er / fabs(ez - z0));
+      theta = M_PI - atan(er / std::abs(ez - z0));
     corr_eta = -1.0 * log(tan(theta / 2.0));
     double deleta = (corr_eta - pTrk->momentum().eta());
     return deleta;
@@ -103,8 +103,8 @@ namespace L1TkElectronTrackMatchAlgo {
     double depth = 0.89 * (7.7 + log(e));
     double theta = 2 * atan(exp(-1 * eta));
     double r = 0;
-    if (fabs(eta) > max_eb_eta) {
-      double ecalZ = max_eb_z * fabs(eta) / eta;
+    if (std::abs(eta) > max_eb_eta) {
+      double ecalZ = max_eb_z * std::abs(eta) / eta;
 
       r = ecalZ / cos(2 * atan(exp(-1 * eta))) + depth;
       x = r * cos(phi) * sin(theta);

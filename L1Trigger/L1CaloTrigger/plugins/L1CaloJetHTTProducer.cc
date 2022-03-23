@@ -85,7 +85,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       for (const auto& caloJet : *bxvCaloJetsHandle.product()) {
         if (caloJet.pt() < PtMin)
           continue;
-        if (fabs(caloJet.eta()) > EtaMax)
+        if (std::abs(caloJet.eta()) > EtaMax)
           continue;
         *CaloJetHTT += float(caloJet.pt());
       }
@@ -105,7 +105,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       for (const auto& genJet : *genJetsHandle.product()) {
         if (genJet.pt() < PtMin)
           continue;
-        if (fabs(genJet.eta()) > EtaMax)
+        if (std::abs(genJet.eta()) > EtaMax)
           continue;
         *CaloJetHTT += float(genJet.pt());
       }

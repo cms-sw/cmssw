@@ -60,28 +60,23 @@ private:
 
   // ----------member data ---------------------------
 
-  float zMax_;   // in cm
   float DeltaZ;  // in cm
-  float chi2Max_;
-  float pTMinTra_;  // in GeV
 
-  float pTMax_;       // in GeV, saturation / truncation value
-  int highPtTracks_;  // saturate or truncate
-
-  int nVtx_;         // the number of vertices to return
-  int nStubsmin_;    // minimum number of stubs
-  int nStubsPSmin_;  // minimum number of stubs in PS modules
-
-  int nBinning_;  // number of bins used in the temp histogram
-
+  const float zMax_;  // in cm
+  const float chi2Max_;
+  const float pTMinTra_;   // in GeV
+  const float pTMax_;      // in GeV, saturation / truncation value
+  int highPtTracks_;       // saturate or truncate
+  int nVtx_;               // the number of vertices to return
+  const int nStubsmin_;    // minimum number of stubs
+  const int nStubsPSmin_;  // minimum number of stubs in PS modules
+  int nBinning_;           // number of bins used in the temp histogram
   bool monteCarloVertex_;  //
                            //const StackedTrackerGeometry*                   theStackedGeometry;
-
-  bool doPtComp_;
-  bool doTightChi2_;
+  const bool doPtComp_;
+  const bool doTightChi2_;
   float trkPtTightChi2_;
   float trkChi2dofTightChi2_;
-
   int weight_;  // weight (power) of pT 0 , 1, 2
 
   constexpr static float xmin_ = -30;
@@ -105,32 +100,27 @@ private:
 // constructors and destructor
 //
 L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
-    : hepmcToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("HepMCInputTag"))),
+    : zMax_((float)iConfig.getParameter<double>("ZMAX")),
+      chi2Max_((float)iConfig.getParameter<double>("CHI2MAX")),
+      pTMinTra_((float)iConfig.getParameter<double>("PTMINTRA")),
+      pTMax_((float)iConfig.getParameter<double>("PTMAX")),
+      highPtTracks_(iConfig.getParameter<int>("HighPtTracks")),
+      nVtx_(iConfig.getParameter<int>("nVtx")),
+      nStubsmin_(iConfig.getParameter<int>("nStubsmin")),
+      nStubsPSmin_(iConfig.getParameter<int>("nStubsPSmin")),
+      nBinning_(iConfig.getParameter<int>("nBinning")),
+      monteCarloVertex_(iConfig.getParameter<bool>("MonteCarloVertex")),
+      doPtComp_(iConfig.getParameter<bool>("doPtComp")),
+      doTightChi2_(iConfig.getParameter<bool>("doTightChi2")),
+      trkPtTightChi2_((float)iConfig.getParameter<double>("trk_ptTightChi2")),
+      trkChi2dofTightChi2_((float)iConfig.getParameter<double>("trk_chi2dofTightChi2")),
+      weight_(iConfig.getParameter<int>("WEIGHT")),
+      hepmcToken_(consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("HepMCInputTag"))),
       genparticleToken_(
           consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("GenParticleInputTag"))),
       trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
       topoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
-  zMax_ = (float)iConfig.getParameter<double>("ZMAX");
-  chi2Max_ = (float)iConfig.getParameter<double>("CHI2MAX");
-  pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
-
-  pTMax_ = (float)iConfig.getParameter<double>("PTMAX");
-  highPtTracks_ = iConfig.getParameter<int>("HighPtTracks");
-
-  nVtx_ = iConfig.getParameter<int>("nVtx");
-  nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
-  nStubsPSmin_ = iConfig.getParameter<int>("nStubsPSmin");
-  nBinning_ = iConfig.getParameter<int>("nBinning");
-
-  monteCarloVertex_ = iConfig.getParameter<bool>("MonteCarloVertex");
-  doPtComp_ = iConfig.getParameter<bool>("doPtComp");
-  doTightChi2_ = iConfig.getParameter<bool>("doTightChi2");
-  trkPtTightChi2_ = (float)iConfig.getParameter<double>("trk_ptTightChi2");
-  trkChi2dofTightChi2_ = (float)iConfig.getParameter<double>("trk_chi2dofTightChi2");
-
-  weight_ = iConfig.getParameter<int>("WEIGHT");
-
   produces<TkPrimaryVertexCollection>();
 }
 

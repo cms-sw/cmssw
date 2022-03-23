@@ -32,7 +32,7 @@ using namespace l1t;
 class L1TkHTMissEmulatorProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1TkHTMissEmulatorProducer(const edm::ParameterSet&);
-  ~L1TkHTMissEmulatorProducer() override;
+  ~L1TkHTMissEmulatorProducer() override = default;
 
 private:
   virtual void beginJob();
@@ -99,8 +99,6 @@ L1TkHTMissEmulatorProducer::L1TkHTMissEmulatorProducer(const edm::ParameterSet& 
         << "-------------------------------------------------------------------------\n";
   }
 }
-
-L1TkHTMissEmulatorProducer::~L1TkHTMissEmulatorProducer() {}
 
 void L1TkHTMissEmulatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;

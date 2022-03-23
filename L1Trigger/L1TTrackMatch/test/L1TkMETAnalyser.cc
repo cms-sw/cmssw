@@ -37,7 +37,7 @@ using namespace std;
 class L1TkMETAnalyser : public edm::one::EDAnalyzer<> {
 public:
   explicit L1TkMETAnalyser(const edm::ParameterSet& iConfig);
-  ~L1TkMETAnalyser() override;
+  ~L1TkMETAnalyser() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -109,10 +109,6 @@ L1TkMETAnalyser::L1TkMETAnalyser(edm::ParameterSet const& iConfig) : config(iCon
     TrackMETHWToken_ = consumes<std::vector<l1t::EtSum>>(TrackMETHWInputTag);
   }
 }
-
-/////////////
-// DESTRUCTOR
-L1TkMETAnalyser::~L1TkMETAnalyser() {}
 
 void L1TkMETAnalyser::beginJob() {
   TFileDirectory inputDir = fs_->mkdir("TkMETAnalysis");

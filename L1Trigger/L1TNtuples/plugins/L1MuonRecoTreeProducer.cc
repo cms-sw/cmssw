@@ -510,8 +510,8 @@ void L1MuonRecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventS
     bool isTIGHT =
         (!vertex->empty() && imu->isGlobalMuon() && imu->globalTrack()->normalizedChi2() < 10. &&
          imu->globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && imu->numberOfMatchedStations() > 1 &&
-         fabs(imu->innerTrack()->dxy(vertex->at(0).position())) < 0.2 &&
-         fabs(imu->innerTrack()->dz(vertex->at(0).position())) < 0.5 &&
+         std::abs(imu->innerTrack()->dxy(vertex->at(0).position())) < 0.2 &&
+         std::abs(imu->innerTrack()->dz(vertex->at(0).position())) < 0.5 &&
          imu->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
          imu->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5);
 
@@ -730,7 +730,7 @@ void L1MuonRecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventS
             if (region == rpcHitData->region.at(iRpcHit) && stat == rpcHitData->station.at(iRpcHit) &&
                 sect == rpcHitData->sector.at(iRpcHit) && layer == rpcHitData->layer.at(iRpcHit) &&
                 subsector == rpcHitData->subsector.at(iRpcHit) && roll == rpcHitData->roll.at(iRpcHit) &&
-                ring == rpcHitData->ring.at(iRpcHit) && fabs(xLoc - rpcHitData->xLoc.at(iRpcHit)) < 0.01)
+                ring == rpcHitData->ring.at(iRpcHit) && std::abs(xLoc - rpcHitData->xLoc.at(iRpcHit)) < 0.01)
 
               rpcHitData->muonId.at(iRpcHit) = muonData->nMuons;  // CB rpc hit belongs to mu imu
                   // due to cleaning as in 2012 1 rpc hit belogns to 1 mu
@@ -1082,7 +1082,7 @@ void L1MuonRecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventS
             muonData->sa_phi_mb2.push_back(acos(cosphi));
           else
             muonData->sa_phi_mb2.push_back(2 * pig - acos(cosphi));
-          double abspseta = -log(tan(atan(fabs(rr / zz)) / 2.0));
+          double abspseta = -log(tan(atan(std::abs(rr / zz)) / 2.0));
           if (zz >= 0)
             muonData->sa_pseta.push_back(abspseta);
           else
