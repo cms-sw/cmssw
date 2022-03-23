@@ -1,10 +1,9 @@
 #ifndef __L1Analysis_L1AnalysisL1UpgradeTfMuon_H__
 #define __L1Analysis_L1AnalysisL1UpgradeTfMuon_H__
 
-#include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
-
-#include "L1AnalysisL1UpgradeTfMuonDataFormat.h"
+#include "L1Trigger/L1TNtuples/interface/L1AnalysisL1UpgradeTfMuonDataFormat.h"
 #include "L1Trigger/L1TMuon/interface/MicroGMTConfiguration.h"
+
 namespace L1Analysis {
   class L1AnalysisL1UpgradeTfMuon {
   public:
