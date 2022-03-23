@@ -266,7 +266,7 @@ PFMETTypeOne200_HBHE_BeamHaloCleaned_METmonitoring = hltMETmonitoring.clone(
 )
 # HLT_L1MET_DTClusterNoMB1S50_v
 L1MET_DTClusterNoMB1S50_METmonitoring = hltMETmonitoring.clone(
-    FolderName = 'HLT/MET/L1MET_DTClusterNoMB1S50/',
+    FolderName = 'HLT/EXO/MET/L1MET_DTClusterNoMB1S50/',
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_L1MET_DTClusterNoMB1S50_v*"])
 )
 
