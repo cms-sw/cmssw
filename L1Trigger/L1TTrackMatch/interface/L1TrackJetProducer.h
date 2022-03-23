@@ -1,4 +1,5 @@
-#pragma once
+#ifndef L1Trigger_L1TTrackMatch_L1TrackJetProducer_HH
+#define L1Trigger_L1TTrackMatch_L1TrackJetProducer_HH
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -28,3 +29,4 @@ struct MaxZBin {
   EtaPhiBin *clusters;  //list of all the clusters in this bin
   float ht;             //sum of all cluster pTs--only the zbin with the maximum ht is stored
 };
+#endif

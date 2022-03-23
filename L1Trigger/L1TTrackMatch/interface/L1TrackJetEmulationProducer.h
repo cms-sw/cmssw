@@ -1,4 +1,5 @@
-#pragma once
+#ifndef L1Trigger_L1TTrackMatch_L1TrackJetEmulationProducer_HH
+#define L1Trigger_L1TTrackMatch_L1TrackJetEmulationProducer_HH
 #include <iostream>
 #include <fstream>
 #include <cmath>
@@ -58,7 +59,7 @@ namespace convert {
 
 //Each individual box in the eta and phi dimension.
 //  Also used to store final cluster data for each zbin.
-struct EtaPhiBin {
+struct TrackJetEmulationEtaPhiBin {
   pt_intern pTtot;
   l1t::TkJetWord::nt_t ntracks;
   l1t::TkJetWord::nx_t nxtracks;
@@ -68,10 +69,11 @@ struct EtaPhiBin {
 };
 
 //store important information for plots
-struct MaxZBin {
+struct TrackJetEmulationMaxZBin {
   int znum;    //Numbered from 0 to nzbins (16, 32, or 64) in order
   int nclust;  //number of clusters in this bin
   z0_intern zbincenter;
-  EtaPhiBin *clusters;  //list of all the clusters in this bin
-  pt_intern ht;         //sum of all cluster pTs--only the zbin with the maximum ht is stored
+  TrackJetEmulationEtaPhiBin *clusters;  //list of all the clusters in this bin
+  pt_intern ht;                          //sum of all cluster pTs--only the zbin with the maximum ht is stored
 };
+#endif

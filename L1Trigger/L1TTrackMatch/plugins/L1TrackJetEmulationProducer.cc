@@ -59,8 +59,8 @@ public:
 
   static void fillDescriptions(ConfigurationDescriptions &descriptions);
   bool trackQualityCuts(int trk_nstub, float trk_chi2, float trk_bendchi2);
-  void L2_cluster(vector<Ptr<L1TTTrackType>> L1TrkPtrs_, MaxZBin &mzb);
-  virtual EtaPhiBin *L1_cluster(EtaPhiBin *phislice);
+  void L2_cluster(vector<Ptr<L1TTTrackType>> L1TrkPtrs_, TrackJetEmulationMaxZBin &mzb);
+  virtual TrackJetEmulationEtaPhiBin *L1_cluster(TrackJetEmulationEtaPhiBin *phislice);
 
 private:
   void beginStream(StreamID) override;
@@ -208,7 +208,7 @@ void L1TrackJetEmulationProducer::produce(Event &iEvent, const EventSetup &iSetu
   }
 
   if (!L1TrkPtrs_.empty()) {
-    MaxZBin mzb;
+    TrackJetEmulationMaxZBin mzb;
 
     L2_cluster(L1TrkPtrs_, mzb);
     if (mzb.clusters != nullptr) {
@@ -246,7 +246,7 @@ void L1TrackJetEmulationProducer::produce(Event &iEvent, const EventSetup &iSetu
   }
 }
 
-void L1TrackJetEmulationProducer::L2_cluster(vector<Ptr<L1TTTrackType>> L1TrkPtrs_, MaxZBin &mzb) {
+void L1TrackJetEmulationProducer::L2_cluster(vector<Ptr<L1TTTrackType>> L1TrkPtrs_, TrackJetEmulationMaxZBin &mzb) {
   enum TrackBitWidths {
     kEtaSize = 16,    // Width of z-position (40cm / 0.1)
     kEtaMagSize = 3,  // Width of z-position magnitude (signed)
@@ -257,15 +257,15 @@ void L1TrackJetEmulationProducer::L2_cluster(vector<Ptr<L1TTTrackType>> L1TrkPtr
   };
 
   const int nz = zBins_ + 1;
-  MaxZBin all_zBins[nz];
-  static MaxZBin mzbtemp;
+  TrackJetEmulationMaxZBin all_zBins[nz];
+  static TrackJetEmulationMaxZBin mzbtemp;
   for (int z = 0; z < nz; ++z)
     all_zBins[z] = mzbtemp;
 
   z0_intern zmin = convert::makeZ0(-1.0 * trkZMax_);
   z0_intern zmax = zmin + 2 * zStep_;
 
-  EtaPhiBin epbins[phiBins_][etaBins_];  // create grid of phiBins
+  TrackJetEmulationEtaPhiBin epbins[phiBins_][etaBins_];  // create grid of phiBins
   glbphi_intern phi = convert::makeGlbPhi(-1.0 * M_PI);
   glbeta_intern eta;
   glbeta_intern etamin, etamax, phimin, phimax;
@@ -290,8 +290,8 @@ void L1TrackJetEmulationProducer::L2_cluster(vector<Ptr<L1TTTrackType>> L1TrkPtr
   mzb.ht = 0;
   int ntracks = L1TrkPtrs_.size();
   // uninitalized arrays
-  EtaPhiBin *L1clusters[phiBins_];
-  EtaPhiBin L2cluster[ntracks];
+  TrackJetEmulationEtaPhiBin *L1clusters[phiBins_];
+  TrackJetEmulationEtaPhiBin L2cluster[ntracks];
 
   for (int zbin = 0; zbin < zBins_; ++zbin) {
     for (int i = 0; i < phiBins_; ++i) {  //First initialize pT, numtracks, used to 0 (or false)
@@ -534,7 +534,7 @@ void L1TrackJetEmulationProducer::L2_cluster(vector<Ptr<L1TTTrackType>> L1TrkPtr
     }
     // if ht is larger than previous max, this is the new vertex zbin
     all_zBins[zbin].znum = zbin;
-    all_zBins[zbin].clusters = new EtaPhiBin[nclust];
+    all_zBins[zbin].clusters = new TrackJetEmulationEtaPhiBin[nclust];
     all_zBins[zbin].nclust = nclust;
     all_zBins[zbin].zbincenter = (zmin + zmax) / 2;
     for (int k = 0; k < nclust; ++k) {
@@ -562,8 +562,8 @@ void L1TrackJetEmulationProducer::L2_cluster(vector<Ptr<L1TTTrackType>> L1TrkPtr
   }
 }
 
-EtaPhiBin *L1TrackJetEmulationProducer::L1_cluster(EtaPhiBin *phislice) {
-  EtaPhiBin *clusters = new EtaPhiBin[etaBins_ / 2];
+TrackJetEmulationEtaPhiBin *L1TrackJetEmulationProducer::L1_cluster(TrackJetEmulationEtaPhiBin *phislice) {
+  TrackJetEmulationEtaPhiBin *clusters = new TrackJetEmulationEtaPhiBin[etaBins_ / 2];
   for (int etabin = 0; etabin < etaBins_ / 2; ++etabin) {
     clusters[etabin].pTtot = 0;
     clusters[etabin].ntracks = 0;
