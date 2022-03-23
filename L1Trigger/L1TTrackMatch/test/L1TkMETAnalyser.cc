@@ -34,7 +34,7 @@
 
 using namespace std;
 
-class L1TkMETAnalyser : public edm::one::EDAnalyzer<> {
+class L1TkMETAnalyser : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1TkMETAnalyser(const edm::ParameterSet& iConfig);
   ~L1TkMETAnalyser() override = default;
@@ -74,8 +74,6 @@ private:
   std::vector<float>* m_EmuNtrk;
   std::vector<float>* m_HwNtrk;
 
-  edm::Service<TFileService> fs_;
-
   bool HW_analysis_;
 
   TH1F* hisTkSimMET_;
@@ -108,11 +106,13 @@ L1TkMETAnalyser::L1TkMETAnalyser(edm::ParameterSet const& iConfig) : config(iCon
   if (HW_analysis_) {
     TrackMETHWToken_ = consumes<std::vector<l1t::EtSum>>(TrackMETHWInputTag);
   }
+  usesResource(TFileService::kSharedResource);
 }
 
 void L1TkMETAnalyser::beginJob() {
-  TFileDirectory inputDir = fs_->mkdir("TkMETAnalysis");
-  available_ = fs_.isAvailable();
+  edm::Service<TFileService> fs;
+  TFileDirectory inputDir = fs->mkdir("TkMETAnalysis");
+  available_ = fs.isAvailable();
   if (not available_)
     return;  // No ROOT file open.
 
@@ -128,7 +128,7 @@ void L1TkMETAnalyser::beginJob() {
   m_EmuNtrk = new std::vector<float>;
   m_HwNtrk = new std::vector<float>;
 
-  eventTree = fs_->make<TTree>("eventTree", "Event tree");
+  eventTree = fs->make<TTree>("eventTree", "Event tree");
 
   eventTree->Branch("SimMET", &m_SimMET);
   eventTree->Branch("EmuMET", &m_EmuMET);

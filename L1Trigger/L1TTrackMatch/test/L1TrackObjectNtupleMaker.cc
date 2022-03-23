@@ -8,7 +8,7 @@
 // FRAMEWORK HEADERS
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -99,7 +99,7 @@ using namespace edm;
 //                          //
 //////////////////////////////
 
-class L1TrackObjectNtupleMaker : public edm::stream::EDAnalyzer<> {
+class L1TrackObjectNtupleMaker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 private:
   // ----------constants, enums and typedefs ---------
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1Track;
@@ -558,6 +558,8 @@ L1TrackObjectNtupleMaker::L1TrackObjectNtupleMaker(edm::ParameterSet const& iCon
   L1VertexEmuToken_ = consumes<l1t::VertexWordCollection>(RecoVertexEmuInputTag);
   tTopoToken_ = esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""));
   tGeomToken_ = esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("", ""));
+
+  usesResource(TFileService::kSharedResource);
 }
 
 /////////////
