@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-# UL 2018A DATA corrections
-multPhiCorr_UL2018ADATA = cms.VPSet(
+# ULDATA 2018A  corrections
+multPhiCorr_ULDATA2018A = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2018ADATA"),
+      name=cms.string("ULDATA2018A"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -15,10 +15,10 @@ multPhiCorr_UL2018ADATA = cms.VPSet(
     ),
 )
 
-# UL 2018B DATA corrections
-multPhiCorr_UL2018BDATA = cms.VPSet(
+# ULDATA 2018B  corrections
+multPhiCorr_ULDATA2018B = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2018BDATA"),
+      name=cms.string("ULDATA2018B"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -30,10 +30,10 @@ multPhiCorr_UL2018BDATA = cms.VPSet(
     ),
 )
 
-# UL 2018C DATA corrections
-multPhiCorr_UL2018CDATA = cms.VPSet(
+# ULDATA 2018C  corrections
+multPhiCorr_ULDATA2018C = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2018CDATA"),
+      name=cms.string("ULDATA2018C"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -45,10 +45,10 @@ multPhiCorr_UL2018CDATA = cms.VPSet(
     ),
 )
 
-# UL 2018D DATA corrections
-multPhiCorr_UL2018DDATA = cms.VPSet(
+# ULDATA 2018D  corrections
+multPhiCorr_ULDATA2018D = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2018DDATA"),
+      name=cms.string("ULDATA2018D"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -60,10 +60,10 @@ multPhiCorr_UL2018DDATA = cms.VPSet(
     ),
 )
 
-# UL 2017B DATA corrections
-multPhiCorr_UL2017BDATA = cms.VPSet(
+# ULDATA 2017B  corrections
+multPhiCorr_ULDATA2017B = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2017BDATA"),
+      name=cms.string("ULDATA2017B"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -75,10 +75,10 @@ multPhiCorr_UL2017BDATA = cms.VPSet(
     ),
 )
 
-# UL 2017C DATA corrections
-multPhiCorr_UL2017CDATA = cms.VPSet(
+# ULDATA 2017C  corrections
+multPhiCorr_ULDATA2017C = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2017CDATA"),
+      name=cms.string("ULDATA2017C"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -90,10 +90,10 @@ multPhiCorr_UL2017CDATA = cms.VPSet(
     ),
 )
 
-# UL 2017D DATA corrections
-multPhiCorr_UL2017DDATA = cms.VPSet(
+# ULDATA 2017D  corrections
+multPhiCorr_ULDATA2017D = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2017DDATA"),
+      name=cms.string("ULDATA2017D"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -105,10 +105,10 @@ multPhiCorr_UL2017DDATA = cms.VPSet(
     ),
 )
 
-# UL 2017E DATA corrections
-multPhiCorr_UL2017EDATA = cms.VPSet(
+# ULDATA 2017E  corrections
+multPhiCorr_ULDATA2017E = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2017EDATA"),
+      name=cms.string("ULDATA2017E"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -120,10 +120,10 @@ multPhiCorr_UL2017EDATA = cms.VPSet(
     ),
 )
 
-# UL 2017F DATA corrections
-multPhiCorr_UL2017FDATA = cms.VPSet(
+# ULDATA 2017F  corrections
+multPhiCorr_ULDATA2017F = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2017FDATA"),
+      name=cms.string("ULDATA2017F"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -135,10 +135,10 @@ multPhiCorr_UL2017FDATA = cms.VPSet(
     ),
 )
 
-# UL 2016preVFPB DATA corrections
-multPhiCorr_UL2016preVFPBDATA = cms.VPSet(
+# ULDATA 2016preVFPB  corrections
+multPhiCorr_ULDATA2016preVFPB = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016preVFPBDATA"),
+      name=cms.string("ULDATA2016preVFPB"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -150,10 +150,10 @@ multPhiCorr_UL2016preVFPBDATA = cms.VPSet(
     ),
 )
 
-# UL 2016preVFPC DATA corrections
-multPhiCorr_UL2016preVFPCDATA = cms.VPSet(
+# ULDATA 2016preVFPC  corrections
+multPhiCorr_ULDATA2016preVFPC = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016preVFPCDATA"),
+      name=cms.string("ULDATA2016preVFPC"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -165,10 +165,10 @@ multPhiCorr_UL2016preVFPCDATA = cms.VPSet(
     ),
 )
 
-# UL 2016preVFPD DATA corrections
-multPhiCorr_UL2016preVFPDDATA = cms.VPSet(
+# ULDATA 2016preVFPD  corrections
+multPhiCorr_ULDATA2016preVFPD = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016preVFPDDATA"),
+      name=cms.string("ULDATA2016preVFPD"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -180,10 +180,10 @@ multPhiCorr_UL2016preVFPDDATA = cms.VPSet(
     ),
 )
 
-# UL 2016preVFPE DATA corrections
-multPhiCorr_UL2016preVFPEDATA = cms.VPSet(
+# ULDATA 2016preVFPE  corrections
+multPhiCorr_ULDATA2016preVFPE = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016preVFPEDATA"),
+      name=cms.string("ULDATA2016preVFPE"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -195,10 +195,10 @@ multPhiCorr_UL2016preVFPEDATA = cms.VPSet(
     ),
 )
 
-# UL 2016preVFPF DATA corrections
-multPhiCorr_UL2016preVFPFDATA = cms.VPSet(
+# ULDATA 2016preVFPF  corrections
+multPhiCorr_ULDATA2016preVFPF = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016preVFPFDATA"),
+      name=cms.string("ULDATA2016preVFPF"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -210,10 +210,10 @@ multPhiCorr_UL2016preVFPFDATA = cms.VPSet(
     ),
 )
 
-# UL 2016ostVFPF DATA corrections
-multPhiCorr_UL2016postVFPFDATA = cms.VPSet(
+# ULDATA 2016ostVFPF  corrections
+multPhiCorr_ULDATA2016postVFPF = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016postVFPFDATA"),
+      name=cms.string("ULDATA2016postVFPF"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -225,10 +225,10 @@ multPhiCorr_UL2016postVFPFDATA = cms.VPSet(
     ),
 )
 
-# UL 2016ostVFPG DATA corrections
-multPhiCorr_UL2016postVFPGDATA = cms.VPSet(
+# ULDATA 2016ostVFPG  corrections
+multPhiCorr_ULDATA2016postVFPG = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016postVFPGDATA"),
+      name=cms.string("ULDATA2016postVFPG"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
@@ -240,10 +240,10 @@ multPhiCorr_UL2016postVFPGDATA = cms.VPSet(
     ),
 )
 
-# UL 2016ostVFPH DATA corrections
-multPhiCorr_UL2016postVFPHDATA = cms.VPSet(
+# ULDATA 2016ostVFPH  corrections
+multPhiCorr_ULDATA2016postVFPH = cms.VPSet(
     cms.PSet(
-      name=cms.string("UL2016postVFPHDATA"),
+      name=cms.string("ULDATA2016postVFPH"),
       type=cms.int32(0),
       varType=cms.int32(1),
       etaMin=cms.double(-9.9),
