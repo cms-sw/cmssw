@@ -7,7 +7,6 @@
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include <memory>
 #include <string>
 
 class MagneticFieldMapESProducer : public edm::ESProducer {
