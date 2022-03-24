@@ -21,6 +21,7 @@
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
+#include "CondCore/SiStripPlugins/interface/SiStripCondObjectRepresent.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <memory>
@@ -41,6 +42,199 @@
 namespace {
 
   using namespace cond::payloadInspector;
+
+  class SiStripApvGainContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripApvGain, float> {
+  public:
+    SiStripApvGainContainer(std::shared_ptr<SiStripApvGain> payload, unsigned int run, std::string hash)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripApvGain, float>(payload, run, hash) {
+      payloadType_ = "SiStripApvGain";
+      setGranularity(SiStripCondObjectRepresent::PERAPV);
+    }
+
+    void allValues() override {
+      std::vector<uint32_t> detid;
+      payload_->getDetIds(detid);
+
+      for (const auto& d : detid) {
+        SiStripApvGain::Range range = payload_->getRange(d);
+        for (int it = 0; it < range.second - range.first; it++) {
+          // to be used to fill the histogram
+          SiStripCondData_.fillByPushBack(d, payload_->getApvGain(it, range));
+        }
+      }
+    }
+  };
+
+  /************************************************
+    testing the machinery
+  ************************************************/
+  class SiStripApvGainTest : public cond::payloadInspector::Histogram1D<SiStripApvGain, SINGLE_IOV> {
+  public:
+    SiStripApvGainTest()
+        : cond::payloadInspector::Histogram1D<SiStripApvGain, SINGLE_IOV>(
+              "SiStrip ApvGain values", "SiStrip ApvGain values", 1, 0.0, 1.) {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          SiStripApvGainContainer* objContainer =
+              new SiStripApvGainContainer(payload, std::get<0>(iov), std::get<1>(iov));
+          objContainer->printAll();
+
+        }  // payload
+      }    // iovs
+      return true;
+    }  // fill
+  };
+
+  class SiStripApvGainByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainByPartition() : cond::payloadInspector::PlotImage<SiStripApvGain>("SiStrip ApvGains By Partition") {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      auto iov = iovs.front();
+      std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
+      if (payload.get()) {
+        SiStripApvGainContainer* objContainer =
+            new SiStripApvGainContainer(payload, std::get<0>(iov), std::get<1>(iov));
+        //objContainer->printAll();
+
+        TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+        objContainer->fillByPartition(canvas, 100, 0., 2.);
+
+        std::string fileName(m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+
+      }  // payload
+      return true;
+    }  // fill
+  };
+
+  class SiStripApvGainCompareByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainCompareByPartition()
+        : cond::payloadInspector::PlotImage<SiStripApvGain>("SiStrip Compare ApvGains By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripApvGainContainer* l_objContainer =
+          new SiStripApvGainContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripApvGainContainer* f_objContainer =
+          new SiStripApvGainContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->compare(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, 0.5, 1.5);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripApvGainRatioByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainRatioByPartition()
+        : cond::payloadInspector::PlotImage<SiStripApvGain>("SiStrip Ratio ApvGains By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripApvGainContainer* l_objContainer =
+          new SiStripApvGainContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripApvGainContainer* f_objContainer =
+          new SiStripApvGainContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->divide(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 200, 0., 2.);
+      for (int i = 1; i <= 4; i++)
+        canvas.cd(i)->SetLogy();
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripApvGainDiffByPartition : public cond::payloadInspector::PlotImage<SiStripApvGain> {
+  public:
+    SiStripApvGainDiffByPartition()
+        : cond::payloadInspector::PlotImage<SiStripApvGain>("SiStrip Diff ApvGains By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripApvGainContainer* l_objContainer =
+          new SiStripApvGainContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripApvGainContainer* f_objContainer =
+          new SiStripApvGainContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->Subtract(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, -0.1, 0.1);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
 
   /************************************************
     1d histogram of SiStripApvGains of 1 IOV 
@@ -2073,6 +2267,11 @@ namespace {
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiStripApvGain) {
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainCompareByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainRatioByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainDiffByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorSingleTag);

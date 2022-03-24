@@ -22,6 +22,7 @@
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
+#include "CondCore/SiStripPlugins/interface/SiStripCondObjectRepresent.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
@@ -48,6 +49,188 @@
 namespace {
 
   using namespace cond::payloadInspector;
+
+  class SiStripNoiseContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float> {
+  public:
+    SiStripNoiseContainer(std::shared_ptr<SiStripNoises> payload, unsigned int run, std::string hash)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float>(payload, run, hash) {
+      payloadType_ = "SiStripNoises";
+      setGranularity(SiStripCondObjectRepresent::PERSTRIP);
+    }
+
+    void allValues() override {
+      std::vector<uint32_t> detid;
+      payload_->getDetIds(detid);
+
+      for (const auto& d : detid) {
+        SiStripNoises::Range range = payload_->getRange(d);
+        for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
+          // to be used to fill the histogram
+          SiStripCondData_.fillByPushBack(d, payload_->getNoise(it, range));
+        }
+      }
+    }
+  };
+
+  class SiStripNoiseCompareByPartition : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+    SiStripNoiseCompareByPartition()
+        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Compare Noises By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripNoiseContainer* l_objContainer =
+          new SiStripNoiseContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripNoiseContainer* f_objContainer =
+          new SiStripNoiseContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->compare(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, 0.1, 10.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripNoiseDiffByPartition : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+    SiStripNoiseDiffByPartition()
+        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Diff Noises By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripNoiseContainer* l_objContainer =
+          new SiStripNoiseContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripNoiseContainer* f_objContainer =
+          new SiStripNoiseContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->Subtract(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, -1., 1.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripNoiseCorrelationByPartition : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+    SiStripNoiseCorrelationByPartition()
+        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noises Correlation By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripNoiseContainer* l_objContainer =
+          new SiStripNoiseContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripNoiseContainer* f_objContainer =
+          new SiStripNoiseContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->compare(f_objContainer);
+
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1200);
+      l_objContainer->fillCorrelationByPartition(canvas, 100, 0.1, 10.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripNoiseConsistencyCheck : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  public:
+    SiStripNoiseConsistencyCheck()
+        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise Consistency Check") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripNoiseContainer* f_objContainer =
+          new SiStripNoiseContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripNoiseContainer* l_objContainer =
+          new SiStripNoiseContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+
+      f_objContainer->compare(l_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1000);
+      //f_objContainer->fillValuePlot(canvas,SiStripPI::STRIP_BASED,100,0.1,10);
+      f_objContainer->fillValuePlot(canvas, SiStripPI::APV_BASED, 100, 0.1, 10);
+      //f_objContainer->fillValuePlot(canvas,SiStripPI::MODULE_BASED,100,0.1,10);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
 
   /************************************************
     test class
@@ -160,9 +343,9 @@ namespace {
               std::make_shared<TH1F>(Form("Noise profile_%s", std::to_string(the_detid).c_str()),
                                      Form("SiStrip Noise profile for DetId: %s;Strip number;SiStrip Noise [ADC counts]",
                                           std::to_string(the_detid).c_str()),
-                                     128 * nAPVs,
+                                     sistrip::STRIPS_PER_APV * nAPVs,
                                      -0.5,
-                                     (128 * nAPVs) - 0.5);
+                                     (sistrip::STRIPS_PER_APV * nAPVs) - 0.5);
 
           histo->SetStats(false);
           histo->SetTitle("");
@@ -193,7 +376,7 @@ namespace {
 
           std::vector<int> boundaries;
           for (size_t b = 0; b < v_nAPVs.at(index); b++) {
-            boundaries.push_back(b * 128);
+            boundaries.push_back(b * sistrip::STRIPS_PER_APV);
           }
 
           std::vector<std::shared_ptr<TLine>> linesVec;
@@ -381,7 +564,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -397,7 +580,7 @@ namespace {
           }
 
           enoise.add(std::min<float>(noise, 30.5));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -528,7 +711,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -543,7 +726,7 @@ namespace {
             enoise.reset();
           }
           enoise.add(std::min<float>(noise, 30.5));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -567,7 +750,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -583,7 +766,7 @@ namespace {
           }
 
           enoise.add(std::min<float>(noise, 30.5));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -1814,6 +1997,10 @@ namespace {
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises) {
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseConsistencyCheck);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseCompareByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseDiffByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseCorrelationByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisesTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisePerDetId);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValue);
