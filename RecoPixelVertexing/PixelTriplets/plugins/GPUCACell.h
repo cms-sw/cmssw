@@ -350,7 +350,7 @@ public:
         old !=
         atomicCAS(&theFishboneId,
                   old,
-                  (invalidHitId == old || std::abs(z - theInnerZ) < std::abs(hh.zGlobal(old) - theInnerZ)) ? id : old))
+                  (invalidHitId == old || std::abs(z - theInnerZ) > std::abs(hh.zGlobal(old) - theInnerZ)) ? id : old))
       old = theFishboneId;
   }
   __device__ __forceinline__ auto fishboneId() const { return theFishboneId; }

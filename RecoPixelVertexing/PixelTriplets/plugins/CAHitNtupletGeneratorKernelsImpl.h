@@ -101,6 +101,7 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
 
   for (int idx = first, nt = (*nCells); idx < nt; idx += gridDim.x * blockDim.x) {
     auto const &thisCell = cells[idx];
+    if (thisCell.hasFishbone()) atomicAdd(&c.nFishCells, 1);
     if (thisCell.outerNeighbors().full())  //++tooManyNeighbors[thisCell.theLayerPairId];
       printf("OuterNeighbors overflow %d in %d\n", idx, thisCell.layerPairId());
     if (thisCell.tracks().full())  //++tooManyTracks[thisCell.theLayerPairId];
@@ -194,7 +195,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 
     /* chi2 penalize higher-pt tracks  (try rescale it?)
     auto score = [&](auto it) {
-      return tracks->nHits(it) < 4 ? 
+      return tracks->nLayers(it) < 4 ? 
               std::abs(tracks->tip(it)) :  // tip for triplets
               tracks->chi2(it);            //chi2 for quads
     };
@@ -204,7 +205,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 
     // full crazy combinatorics
     int ntr = thisCell.tracks().size();
-    for (int i = 0; i < ntr; ++i) {
+    for (int i = 0; i < ntr-1; ++i) {
       auto it = thisCell.tracks()[i];
       auto qi = tracks->quality(it);
       if (qi <= reject)
@@ -668,7 +669,7 @@ __global__ void kernel_rejectDuplicate(TkSoA const *__restrict__ ptracks,
     auto score = [&](auto it, auto nl) { return std::abs(tracks.tip(it)); };
 
     // full combinatorics
-    for (auto ip = hitToTuple.begin(idx); ip != hitToTuple.end(idx); ++ip) {
+    for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx)-1; ++ip) {
       auto const it = *ip;
       auto qi = quality[it];
       if (qi <= reject)
@@ -678,7 +679,7 @@ __global__ void kernel_rejectDuplicate(TkSoA const *__restrict__ ptracks,
       auto cti = tracks.stateAtBS.state(it)(3);
       auto e2cti = tracks.stateAtBS.covariance(it)(12);
       auto nli = tracks.nLayers(it);
-      for (auto jp = ip + 1; jp != hitToTuple.end(idx); ++jp) {
+      for (auto jp = ip + 1; jp < hitToTuple.end(idx); ++jp) {
         auto const jt = *jp;
         auto qj = quality[jt];
         if (qj <= reject)
@@ -875,7 +876,7 @@ __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__res
       continue;
     if (quality[i] < loose)
       continue;
-    printf("TK: %d %d %d %d %f %f %f %f %f %f %f %.3f %.3f %.3f %.3f %.3f %.3f\n",
+    printf("TK: %d %d %d %d %f %f %f %f %f %f %f %.3f %.3f %.3f %.3f %.3f %.3f %.3f\n",
            10000 * iev + i,
            int(quality[i]),
            nh,
@@ -893,7 +894,8 @@ __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__res
            hh.zGlobal(*(foundNtuplets.begin(i) + 2)),
            nh > 3 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 3))) : 0,
            nh > 4 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 4))) : 0,
-           nh > 5 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + nh - 1))) : 0);
+           nh > 5 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + 5))) : 0,
+           nh > 6 ? hh.zGlobal(int(*(foundNtuplets.begin(i) + nh - 1))) : 0);
   }
 }
 
@@ -902,9 +904,10 @@ __global__ void kernel_printCounters(cAHitNtupletGenerator::Counters const *coun
   printf(
       "||Counters | nEvents | nHits | nCells | nTuples | nFitTacks  |  nLooseTracks  |  nGoodTracks | nUsedHits | "
       "nDupHits | "
+      "nFishCells | "
       "nKilledCells | "
       "nUsedCells | nZeroTrackCells ||\n");
-  printf("Counters Raw %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
+  printf("Counters Raw %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld %lld\n",
          c.nEvents,
          c.nHits,
          c.nCells,
@@ -914,10 +917,11 @@ __global__ void kernel_printCounters(cAHitNtupletGenerator::Counters const *coun
          c.nFitTracks,
          c.nUsedHits,
          c.nDupHits,
+         c.nFishCells,
          c.nKilledCells,
          c.nEmptyCells,
          c.nZeroTrackCells);
-  printf("Counters Norm %lld ||  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.3f|  %.3f|  %.3f||\n",
+  printf("Counters Norm %lld ||  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.1f|  %.3f|  %.3f|  %.3f|  %.3f||\n",
          c.nEvents,
          c.nHits / double(c.nEvents),
          c.nCells / double(c.nEvents),
@@ -927,6 +931,7 @@ __global__ void kernel_printCounters(cAHitNtupletGenerator::Counters const *coun
          c.nGoodTracks / double(c.nEvents),
          c.nUsedHits / double(c.nEvents),
          c.nDupHits / double(c.nEvents),
+         c.nFishCells / double(c.nCells),
          c.nKilledCells / double(c.nCells),
          c.nEmptyCells / double(c.nCells),
          c.nZeroTrackCells / double(c.nCells));
