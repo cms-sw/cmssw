@@ -162,8 +162,11 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         if era is not None:
             stepDict[stepName][k]['--era']=era
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
-        if geometry == 'Extended2026D88' and step == 'HARVESTGlobal':
-            stepDict[stepName][k] = merge([{'--filein':'file:step3_inDQM.root'}, stepDict[step][k]])
+        if geometry == 'Extended2026D88': #Hack to make proper D88 workflow after including HLT75e33 ste (after RECO).
+            if step == 'RecoGlobal':
+                stepDict[stepName][k] = merge([{'--datatier':'FEVT,MINIAODSIM,DQMIO'}, stepDict[step][k]])
+            if step == 'HARVESTGlobal':
+                stepDict[stepName][k] = merge([{'--filein':'file:step3_inDQM.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
