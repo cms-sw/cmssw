@@ -1,8 +1,8 @@
 #include "FastSimulation/ParticlePropagator/plugins/MagneticFieldMapESProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <memory>
 
 MagneticFieldMapESProducer::MagneticFieldMapESProducer(const edm::ParameterSet& p)
     : label_(p.getUntrackedParameter<std::string>("trackerGeometryLabel", "")) {
