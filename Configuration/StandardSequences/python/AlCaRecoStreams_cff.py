@@ -76,6 +76,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_cff import *
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTrg_cff import *
 # -- alcareco which selects RAW from test enables
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTestPulsesRaw_cff import *
+# -- alcareco to perform the EcalPhiSym calibration on top of the AlCaPhiSym stream (with NanoAOD ouput)
+from Calibration.EcalCalibAlgos.ALCARECOEcalPhiSym_cff import *
 
 ###############################################################
 # HCAL Calibration
@@ -215,6 +217,8 @@ pathALCARECOEcalUncalZElectron   = cms.Path(seqALCARECOEcalUncalZElectron)
 pathALCARECOEcalUncalZSCElectron = cms.Path(seqALCARECOEcalUncalZSCElectron)
 pathALCARECOEcalUncalWElectron   = cms.Path(seqALCARECOEcalUncalWElectron)
 pathALCARECOEcalTestPulsesRaw    = cms.Path(seqALCARECOEcalTestPulsesRaw)
+pathALCARECOEcalPhiSymByRun      = cms.Path(seqALCARECOEcalPhiSymByRun)
+pathALCARECOEcalPhiSymByLumi     = cms.Path(seqALCARECOEcalPhiSymByLumi)
 
 #### Not meant to be used for central production
 #pathALCARECOEcalRecalElectron = cms.Path(seqALCARECOEcalRecalElectron)
@@ -550,7 +554,7 @@ ALCARECOStreamEcalUncalZElectron = cms.FilteredStream(
 	responsible = 'Shervin Nourbakhsh',
 	name = 'EcalUncalZElectron',
 	paths  = (pathALCARECOEcalUncalZElectron, pathALCARECOEcalUncalZSCElectron),
-	content = OutALCARECOEcalUncalElectron.outputCommands,
+        content = OutALCARECOEcalUncalElectron.outputCommands,
 	selectEvents =  cms.untracked.PSet(
           SelectEvents = cms.vstring('pathALCARECOEcalUncalZElectron', 'pathALCARECOEcalUncalZSCElectron')
           ),
@@ -601,6 +605,24 @@ ALCARECOStreamEcalTestPulsesRaw = cms.FilteredStream(
     paths = pathALCARECOEcalTestPulsesRaw,
     content=  OutALCARECOEcalTestPulsesRaw.outputCommands,
     selectEvents = OutALCARECOEcalTestPulsesRaw.SelectEvents,
+    dataTier = cms.untracked.string('ALCARECO')
+)
+
+ALCARECOStreamEcalPhiSymByRun = cms.FilteredStream(
+    responsible = 'Simone Pigazzini',
+    name = 'EcalPhiSymByRun',
+    paths = pathALCARECOEcalPhiSymByRun,
+    content=  OutALCARECOEcalPhiSymByRun.outputCommands,
+    selectEvents = OutALCARECOEcalPhiSymByRun.SelectEvents,
+    dataTier = cms.untracked.string('ALCARECO')
+)
+
+ALCARECOStreamEcalPhiSymByLumi = cms.FilteredStream(
+    responsible = 'Simone Pigazzini',
+    name = 'EcalPhiSymByLumi',
+    paths = pathALCARECOEcalPhiSymByLumi,
+    content=  OutALCARECOEcalPhiSymByLumi.outputCommands,
+    selectEvents = OutALCARECOEcalPhiSymByLumi.SelectEvents,
     dataTier = cms.untracked.string('ALCARECO')
 )
 
