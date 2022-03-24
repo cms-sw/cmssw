@@ -20,7 +20,7 @@ Implementation:
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -36,7 +36,7 @@ Implementation:
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
-class L1CaloJetHTTProducer : public edm::EDProducer {
+class L1CaloJetHTTProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1CaloJetHTTProducer(const edm::ParameterSet&);
 
