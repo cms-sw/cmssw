@@ -13,8 +13,8 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-PFClusterComparator::PFClusterComparator(const edm::ParameterSet& iConfig) :
-      inputTagPFClusters_(iConfig.getParameter<InputTag>("PFClusters")),
+PFClusterComparator::PFClusterComparator(const edm::ParameterSet& iConfig)
+    : inputTagPFClusters_(iConfig.getParameter<InputTag>("PFClusters")),
       inputTagPFClustersCompare_(iConfig.getParameter<InputTag>("PFClustersCompare")),
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       printBlocks_(iConfig.getUntrackedParameter<bool>("printBlocks", false)) {
