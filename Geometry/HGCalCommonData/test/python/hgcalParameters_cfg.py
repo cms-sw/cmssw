@@ -3,9 +3,13 @@ from Configuration.AlCa.autoCond import autoCond
  
 process = cms.Process("HGCalParametersTest")
 process.load('Configuration.StandardSequences.GeometryDB_cff')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.HGCalGeom=dict()
+ 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = autoCond['run1_mc']
- 
 process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string('PHGCalParametersRcd'),
                                               tag = cms.string('HGCALParameters_Geometry_Test01'),
                                               connect = cms.string("sqlite_file:./myfile.db")
