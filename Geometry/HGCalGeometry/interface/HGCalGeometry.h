@@ -80,7 +80,7 @@ public:
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners(const DetId& id) const;
   CornersVec get8Corners(const DetId& id) const;
-  CornersVec getNewCorners(const DetId& id, bool debug=false) const;
+  CornersVec getNewCorners(const DetId& id, bool debug = false) const;
 
   // Get neighbor in z along a direction
   DetId neighborZ(const DetId& idin, const GlobalVector& p) const;
