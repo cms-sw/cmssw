@@ -126,7 +126,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetAction = cms.PSet(
         HistosFile = cms.string('matbdg_%s_%s.root' % (options.label,
                                                        options.geom)),
-        AllStepsToTree = cms.bool(False),
+        AllStepsToTree = cms.bool(True),
         HistogramList = cms.string('Tracker'),
         SelectedVolumes = cms.vstring(_components),
         TreeFile = cms.string('matbdg_tree_%s_%s.root' % (options.label,
