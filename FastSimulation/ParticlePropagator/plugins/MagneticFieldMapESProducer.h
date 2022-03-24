@@ -13,7 +13,7 @@
 class MagneticFieldMapESProducer : public edm::ESProducer {
 public:
   MagneticFieldMapESProducer(const edm::ParameterSet &p);
-  ~MagneticFieldMapESProducer() override;
+  ~MagneticFieldMapESProducer() override = default;
   std::unique_ptr<MagneticFieldMap> produce(const MagneticFieldMapRecord &);
 
 private:
