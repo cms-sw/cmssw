@@ -686,7 +686,7 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
       const auto nHits = patatracks_tsoa.nHits(it);
       if (nHits <= 0)
         continue;
-      const int patatrackNdof = 2 * nHits - 5;
+      const int patatrackNdof = 2 * std::min(6, nHits) - 5;
 
       const int vtx_idx_assTrk = patavtx_soa.idv[it];
       if (reco::deltaR2(patatrackEta, patatrackPhi, tauEta, tauPhi) < dR2_max) {
