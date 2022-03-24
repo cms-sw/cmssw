@@ -40,6 +40,8 @@ private:
   uint32_t getPhiBin(uint32_t roverzbin, double phi);
   double rotatedphi(double phi, int sector);
 
+  uint32_t getReducedModuleHash(const HGCalTriggerModuleDetId& moduleId);
+
   HGCalTriggerTools triggerTools_;
 
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
@@ -117,6 +119,7 @@ HGCalBackendStage1ParameterExtractor::~HGCalBackendStage1ParameterExtractor() {}
 
 void HGCalBackendStage1ParameterExtractor::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es) {
   triggerGeometry_ = es.getHandle(triggerGeomToken_);
+  triggerTools_.setGeometry(triggerGeometry_.product());
 
   json outJSON;
 
@@ -179,6 +182,10 @@ void HGCalBackendStage1ParameterExtractor::fillTriggerGeometry(json& json_file) 
     if (!(tc_module.isHGCalModuleDetId()) || (tc_module.zside() < 0) || (tc_module.sector() != 0))
       continue;
 
+    uint32_t moduleHash = getReducedModuleHash(tc_module);
+    if (moduleHash == 0)
+      throw cms::Exception("BadModule") << "Invalid module (u/eta,v/phi)";
+
     // only retrieve mapping for the tested fpga
     uint32_t fpgaId = triggerGeometry_->getStage1FpgaFromModule(moduleId);
     HGCalTriggerBackendDetId tc_fpga(fpgaId);
@@ -237,7 +244,7 @@ void HGCalBackendStage1ParameterExtractor::fillTriggerGeometry(json& json_file) 
     theTC["roz_bin"] = triggerCellRoZBin;
     theTC["phi_bin"] = triggerCellPhiBin;
 
-    std::string strModId = std::to_string(moduleId);
+    std::string strModId = std::to_string(moduleHash);
     tmp_json[strModId].push_back(theTC);
   }
 
@@ -273,6 +280,19 @@ uint32_t HGCalBackendStage1ParameterExtractor::getTCaddress(int& tc_ueta, int& t
   } else {  //HGCalHSiTrigger(2) or HGCalEE(1)
     return tc_coord_uv_.find(std::make_pair(tc_ueta, tc_vphi))->second;
   }
+}
+
+uint32_t HGCalBackendStage1ParameterExtractor::getReducedModuleHash(const HGCalTriggerModuleDetId& moduleId) {
+  uint32_t subdetId = (uint32_t)(triggerTools_.isScintillator(moduleId));
+  uint32_t layer = triggerTools_.layerWithOffset(moduleId);
+  int moduleUEta = moduleId.moduleU();  //returns eta if scintillator
+  int moduleVPhi = moduleId.moduleV();  // returns phi if scintillator
+  if (moduleUEta < 0 || moduleVPhi < 0)
+    return 0;
+
+  uint32_t reducedHash = (subdetId << 14) + (layer << 8) + (moduleUEta << 4) + moduleVPhi;
+
+  return reducedHash;
 }
 
 void HGCalBackendStage1ParameterExtractor::analyze(const edm::Event& e, const edm::EventSetup& es) {}
