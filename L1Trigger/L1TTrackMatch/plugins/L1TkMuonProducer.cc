@@ -562,86 +562,11 @@ void L1TkMuonProducer::runOnMTFCollection_v2(const edm::Handle<EMTFTrackCollecti
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TkMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  {
-    // L1TkMuons
-    edm::ParameterSetDescription desc;
-    desc.add<std::string>("bmtfMatchAlgoVersion", "TP");
-    desc.add<std::string>("omtfMatchAlgoVersion", "MAnTra");
-    desc.add<std::string>("emtfMatchAlgoVersion", "MAnTra");
-    desc.add<edm::InputTag>("L1BMTFInputTag", edm::InputTag("simKBmtfDigis", "BMTF"));
-    desc.add<edm::InputTag>("L1OMTFInputTag", edm::InputTag("simOmtfDigis", "OMTF"));
-    desc.add<edm::InputTag>("L1EMTFInputTag", edm::InputTag("simEmtfDigis", "EMTF"));
-    desc.add<edm::InputTag>("L1EMTFTrackCollectionInputTag", edm::InputTag("simEmtfDigis"));
-    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
-    desc.add<double>("ETAMIN", 0);
-    desc.add<double>("ETAMAX", 5.0);
-    desc.add<double>("ETABARRELOVERLAP", 0.83);
-    desc.add<double>("ETAOVERLAPENDCAP", 1.24);
-    desc.add<bool>("useRegionEtaMatching", true);
-    desc.add<double>("ZMAX", 25.0);
-    desc.add<double>("CHI2MAX", 100.0);
-    desc.add<double>("PTMINTRA", 2.0);
-    desc.add<double>("DRmax", 0.5);
-    desc.add<int>("nStubsmin", 4);
-    desc.add<bool>("correctGMTPropForTkZ", true);
-    desc.add<bool>("use5ParameterFit", false);
-    desc.add<bool>("useTPMatchWindows", true);
-    desc.add<bool>("applyQualityCuts", false);
-    desc.add<double>("initial_window_factor", 0.0);
-    desc.add<double>("final_window_factor", 0.5);
-    desc.add<double>("pt_start_relax", 2.0);
-    desc.add<double>("pt_end_relax", 6.0);
-    desc.add<bool>("do_relax_factors", true);
-    desc.add<int>("n_trk_par", 4);
-    desc.add<double>("min_trk_p", 3.5);
-    desc.add<double>("max_trk_aeta", 2.5);
-    desc.add<double>("max_trk_chi2", 100.0);
-    desc.add<int>("min_trk_nstubs", 4);
-    desc.add<int>("mantra_n_trk_par", 4);
-    descriptions.add("L1TkMuons", desc);
-    // or use the following to generate the label from the module's C++ type
-    //descriptions.addWithDefaultLabel(desc);
-  }
-  {
-    // L1TkMuonsTP
-    edm::ParameterSetDescription desc;
-    desc.add<std::string>("bmtfMatchAlgoVersion", "TP");
-    desc.add<std::string>("omtfMatchAlgoVersion", "MAnTra");
-    desc.add<std::string>("emtfMatchAlgoVersion", "TP");
-    desc.add<edm::InputTag>("L1BMTFInputTag", edm::InputTag("simKBmtfDigis", "BMTF"));
-    desc.add<edm::InputTag>("L1OMTFInputTag", edm::InputTag("simOmtfDigis", "OMTF"));
-    desc.add<edm::InputTag>("L1EMTFInputTag", edm::InputTag("simEmtfDigis", "EMTF"));
-    desc.add<edm::InputTag>("L1EMTFTrackCollectionInputTag", edm::InputTag("simEmtfDigis"));
-    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
-    desc.add<double>("ETAMIN", 0);
-    desc.add<double>("ETAMAX", 5.0);
-    desc.add<double>("ETABARRELOVERLAP", 0.83);
-    desc.add<double>("ETAOVERLAPENDCAP", 1.24);
-    desc.add<bool>("useRegionEtaMatching", true);
-    desc.add<double>("ZMAX", 25.0);
-    desc.add<double>("CHI2MAX", 100.0);
-    desc.add<double>("PTMINTRA", 2.0);
-    desc.add<double>("DRmax", 0.5);
-    desc.add<int>("nStubsmin", 4);
-    desc.add<bool>("correctGMTPropForTkZ", true);
-    desc.add<bool>("use5ParameterFit", false);
-    desc.add<bool>("useTPMatchWindows", true);
-    desc.add<bool>("applyQualityCuts", false);
-    desc.add<double>("initial_window_factor", 0.0);
-    desc.add<double>("final_window_factor", 0.5);
-    desc.add<double>("pt_start_relax", 2.0);
-    desc.add<double>("pt_end_relax", 6.0);
-    desc.add<bool>("do_relax_factors", true);
-    desc.add<int>("n_trk_par", 4);
-    desc.add<double>("min_trk_p", 3.5);
-    desc.add<double>("max_trk_aeta", 2.5);
-    desc.add<double>("max_trk_chi2", 100.0);
-    desc.add<int>("min_trk_nstubs", 4);
-    desc.add<int>("mantra_n_trk_par", 4);
-    descriptions.add("L1TkMuonsTP", desc);
-    // or use the following to generate the label from the module's C++ type
-    //descriptions.addWithDefaultLabel(desc);
-  }
+  //The following says we do not know what parameters are allowed so do no validation
+  // Please change this to state exactly what you do use, even if it is no parameters
+  edm::ParameterSetDescription desc;
+  desc.setUnknown();
+  descriptions.addDefault(desc);
 }
 
 L1TkMuonProducer::PropState L1TkMuonProducer::propagateToGMT(const L1TkMuonProducer::L1TTTrackType& tk) const {

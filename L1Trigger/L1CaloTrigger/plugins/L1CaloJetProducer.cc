@@ -24,7 +24,7 @@ Implementation:
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -52,7 +52,7 @@ Implementation:
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 
-class L1CaloJetProducer : public edm::EDProducer {
+class L1CaloJetProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1CaloJetProducer(const edm::ParameterSet &);
 
