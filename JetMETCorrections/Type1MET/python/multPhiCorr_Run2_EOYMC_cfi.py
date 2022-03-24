@@ -5,7 +5,7 @@ multPhiCorr_EOYMC2018 = cms.VPSet(
     cms.PSet(
       name=cms.string("EOYMC2018"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -20,7 +20,7 @@ multPhiCorr_EOYMC2017 = cms.VPSet(
     cms.PSet(
       name=cms.string("EOYMC2017"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -35,7 +35,7 @@ multPhiCorr_EOYMC2017_METv2 = cms.VPSet(
     cms.PSet(
       name=cms.string("EOYMC2017_METv2"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -50,7 +50,7 @@ multPhiCorr_EOYMC2016 = cms.VPSet(
     cms.PSet(
       name=cms.string("EOYMC2016"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),

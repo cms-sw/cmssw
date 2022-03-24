@@ -5,7 +5,7 @@ multPhiCorr_ULMC2018 = cms.VPSet(
     cms.PSet(
       name=cms.string("ULMC2018"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -20,7 +20,7 @@ multPhiCorr_ULMC2017 = cms.VPSet(
     cms.PSet(
       name=cms.string("ULMC2017"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -35,7 +35,7 @@ multPhiCorr_ULMC2016preVFP = cms.VPSet(
     cms.PSet(
       name=cms.string("ULMC2016preVFP"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -50,7 +50,7 @@ multPhiCorr_ULMC2016postVFP = cms.VPSet(
     cms.PSet(
       name=cms.string("ULMC2016postVFP"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
