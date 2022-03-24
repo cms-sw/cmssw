@@ -1,9 +1,11 @@
 #include <iostream>
+#include <sstream>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/GeometryObjects/interface/PHGCalParameters.h"
 #include "Geometry/Records/interface/PHGCalParametersRcd.h"
@@ -12,12 +14,12 @@ class HGCalParametersAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalParametersAnalyzer(const edm::ParameterSet&)
       : token_{esConsumes<PHGCalParameters, PHGCalParametersRcd>(edm::ESInputTag{})} {}
-  ~HGCalParametersAnalyzer() override {}
+  ~HGCalParametersAnalyzer() override = default;
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
 
 private:
-  edm::ESGetToken<PHGCalParameters, PHGCalParametersRcd> token_;
+  const edm::ESGetToken<PHGCalParameters, PHGCalParametersRcd> token_;
 };
 
 void HGCalParametersAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -26,203 +28,250 @@ void HGCalParametersAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   const auto& hgp = iSetup.getData(token_);
   const auto* phgp = &hgp;
 
-  std::cout << phgp->name_ << "\n";
+  edm::LogVerbatim("HGCalGeom") << phgp->name_ << "\n";
+  std::ostringstream st1;
   for (auto it : phgp->cellSize_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st1 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st1.str();
 
+  std::ostringstream st2;
   for (auto it : phgp->moduleBlS_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st2 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st2.str();
 
+  std::ostringstream st3;
   for (auto it : phgp->moduleTlS_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st3 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st3.str();
 
+  std::ostringstream st4;
   for (auto it : phgp->moduleHS_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st4 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st4.str();
 
+  std::ostringstream st5;
   for (auto it : phgp->moduleDzS_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st5 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st5.str();
 
+  std::ostringstream st6;
   for (auto it : phgp->moduleAlphaS_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st6 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st6.str();
 
+  std::ostringstream st7;
   for (auto it : phgp->moduleCellS_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st7 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st7.str();
 
+  std::ostringstream st8;
   for (auto it : phgp->moduleBlR_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st8 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st8.str();
 
+  std::ostringstream st9;
   for (auto it : phgp->moduleTlR_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st9 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st9.str();
 
+  std::ostringstream st10;
   for (auto it : phgp->moduleHR_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st10 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st10.str();
 
+  std::ostringstream st11;
   for (auto it : phgp->moduleDzR_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st11 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st11.str();
 
+  std::ostringstream st12;
   for (auto it : phgp->moduleAlphaR_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st12 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st12.str();
 
+  std::ostringstream st13;
   for (auto it : phgp->moduleCellR_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st13 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st13.str();
 
+  std::ostringstream st14;
   for (auto it : phgp->trformTranX_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st14 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st14.str();
 
+  std::ostringstream st15;
   for (auto it : phgp->trformTranY_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st15 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st15.str();
 
+  std::ostringstream st16;
   for (auto it : phgp->trformTranZ_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st16 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st16.str();
 
+  std::ostringstream st17;
   for (auto it : phgp->trformRotXX_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st17 << it << ", ";
 
+  std::ostringstream st18;
   for (auto it : phgp->trformRotYX_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st18 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st18.str();
 
+  std::ostringstream st19;
   for (auto it : phgp->trformRotZX_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st19 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st19.str();
 
+  std::ostringstream st20;
   for (auto it : phgp->trformRotXY_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st20 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st20.str();
 
+  std::ostringstream st21;
   for (auto it : phgp->trformRotYY_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st21 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st21.str();
 
+  std::ostringstream st22;
   for (auto it : phgp->trformRotZY_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st22 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st22.str();
 
+  std::ostringstream st23;
   for (auto it : phgp->trformRotXZ_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st23 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st23.str();
 
+  std::ostringstream st24;
   for (auto it : phgp->trformRotYZ_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st24 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st24.str();
 
+  std::ostringstream st25;
   for (auto it : phgp->trformRotZZ_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st25 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st25.str();
 
+  std::ostringstream st26;
   for (auto it : phgp->zLayerHex_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st26 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st26.str();
 
+  std::ostringstream st27;
   for (auto it : phgp->rMinLayHex_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st27 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st27.str();
 
+  std::ostringstream st28;
   for (auto it : phgp->rMaxLayHex_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st28 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st28.str();
 
+  std::ostringstream st29;
   for (unsigned int k = 0; k < phgp->waferPosX_.size(); ++k)
-    std::cout << "(" << phgp->waferPosX_[k] << ", " << phgp->waferPosY_[k] << ") ";
-  std::cout << "\n";
+    st29 << "(" << phgp->waferPosX_[k] << ", " << phgp->waferPosY_[k] << ") ";
+  edm::LogVerbatim("HGCalGeom") << st29.str();
 
+  std::ostringstream st30;
   for (unsigned int k = 0; k < phgp->cellFineX_.size(); ++k)
-    std::cout << "(" << phgp->cellFineX_[k] << ", " << phgp->cellFineY_[k] << ") ";
-  std::cout << "\n";
+    st30 << "(" << phgp->cellFineX_[k] << ", " << phgp->cellFineY_[k] << ") ";
+  edm::LogVerbatim("HGCalGeom") << st30.str();
 
+  std::ostringstream st31;
   for (unsigned int k = 0; k < phgp->cellCoarseX_.size(); ++k)
-    std::cout << "(" << phgp->cellCoarseX_[k] << ", " << phgp->cellCoarseY_[k] << ") ";
-  std::cout << "\n";
+    st31 << "(" << phgp->cellCoarseX_[k] << ", " << phgp->cellCoarseY_[k] << ") ";
+  edm::LogVerbatim("HGCalGeom") << st31.str();
 
+  std::ostringstream st32;
   for (auto it : phgp->boundR_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st32 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st32.str();
 
+  std::ostringstream st33;
   for (auto it : phgp->moduleLayS_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st33 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st33.str();
 
+  std::ostringstream st34;
   for (auto it : phgp->moduleLayR_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st34 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st34.str();
 
+  std::ostringstream st35;
   for (auto it : phgp->layer_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st35 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st35.str();
 
+  std::ostringstream st36;
   for (auto it : phgp->layerIndex_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st36 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st36.str();
 
+  std::ostringstream st37;
   for (auto it : phgp->layerGroup_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st37 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st37.str();
 
+  std::ostringstream st38;
   for (auto it : phgp->cellFactor_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st38 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st38.str();
 
+  std::ostringstream st39;
   for (auto it : phgp->depth_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st39 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st39.str();
 
+  std::ostringstream st40;
   for (auto it : phgp->depthIndex_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st40 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st40.str();
 
+  std::ostringstream st41;
   for (auto it : phgp->depthLayerF_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st41 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st41.str();
 
+  std::ostringstream st42;
   for (auto it : phgp->waferCopy_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st42 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st42.str();
 
+  std::ostringstream st43;
   for (auto it : phgp->waferTypeL_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st43 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st43.str();
 
+  std::ostringstream st44;
   for (auto it : phgp->waferTypeT_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st44 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st44.str();
 
+  std::ostringstream st45;
   for (auto it : phgp->layerGroupM_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st45 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st45.str();
 
+  std::ostringstream st46;
   for (auto it : phgp->layerGroupO_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st46 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st46.str();
 
+  std::ostringstream st47;
   for (auto it : phgp->trformIndex_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st47 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st47.str();
 
+  std::ostringstream st48;
   for (auto it : phgp->slopeMin_)
-    std::cout << it << ", ";
-  std::cout << "\n";
+    st48 << it << ", ";
+  edm::LogVerbatim("HGCalGeom") << st48.str();
 
-  std::cout << phgp->waferR_ << "\n";
-  std::cout << phgp->nCells_ << "\n";
-  std::cout << phgp->nSectors_ << "\n";
-  std::cout << phgp->mode_ << "\n";
+  edm::LogVerbatim("HGCalGeom") << phgp->waferR_;
+  edm::LogVerbatim("HGCalGeom") << phgp->nCells_;
+  edm::LogVerbatim("HGCalGeom") << phgp->nSectors_;
+  edm::LogVerbatim("HGCalGeom") << phgp->mode_;
 }
 
 DEFINE_FWK_MODULE(HGCalParametersAnalyzer);

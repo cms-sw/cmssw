@@ -73,7 +73,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
   DDFilteredView fv(*cpv, filter);
   bool ok = fv.firstChild();
   HGCalGeometryMode::WaferMode mode(HGCalGeometryMode::Polyhedra);
-
+  edm::LogVerbatim("HGCalGeom") << "Volume " << name << " GeometryMode ";
   if (ok) {
     DDsvalues_type sv(fv.mergedSpecifics());
     php.mode_ = getGeometryMode("GeometryMode", sv);
