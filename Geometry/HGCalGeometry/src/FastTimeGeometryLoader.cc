@@ -22,7 +22,10 @@ FastTimeGeometry* FastTimeGeometryLoader::build(const FastTimeTopology& topology
   unsigned int numberOfCells = topology.totalGeomModules();  // both sides
   int detType = topology.detectorType();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("FastTimeGeom") << "Number of Cells " << numberOfCells << " for type " << detType << " of sub-detector " << topology.subDetector() << " Shape parameters " << FastTimeGeometry::k_NumberOfShapes << ":" << FastTimeGeometry::k_NumberOfParametersPerShape;
+  edm::LogVerbatim("FastTimeGeom") << "Number of Cells " << numberOfCells << " for type " << detType
+                                   << " of sub-detector " << topology.subDetector() << " Shape parameters "
+                                   << FastTimeGeometry::k_NumberOfShapes << ":"
+                                   << FastTimeGeometry::k_NumberOfParametersPerShape;
 #endif
   geom->allocateCorners(numberOfCells);
   geom->allocatePar(FastTimeGeometry::k_NumberOfShapes, FastTimeGeometry::k_NumberOfParametersPerShape);
@@ -46,7 +49,8 @@ FastTimeGeometry* FastTimeGeometryLoader::build(const FastTimeTopology& topology
     const HepGeom::Transform3D ht3d(hr, h3v);
     DetId detId = (DetId)(FastTimeDetId(detType, 0, 0, zside));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("FastTimeGeom") << "FastTimeGeometryLoader:: transf " << ht3d.getTranslation() << " and " << ht3d.getRotation();
+    edm::LogVerbatim("FastTimeGeom") << "FastTimeGeometryLoader:: transf " << ht3d.getTranslation() << " and "
+                                     << ht3d.getRotation();
 #endif
     params[0] = topology.dddConstants().getZHalf(detType);
     params[1] = params[2] = 0;

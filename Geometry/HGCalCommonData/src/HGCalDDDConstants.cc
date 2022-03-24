@@ -672,8 +672,9 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
-  bool rotx = (norot) ? false :
-      ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
+  bool rotx = (norot) ? false
+                      : ((!hgpar_->layerType_.empty()) &&
+                         (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
   if (debug) {
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx << ":"
                                   << waferU << ":" << waferV << ":" << indx << ":"

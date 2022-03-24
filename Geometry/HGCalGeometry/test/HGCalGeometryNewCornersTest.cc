@@ -71,10 +71,10 @@ void HGCalGeometryNewCornersTest::beginRun(const edm::Run&, const edm::EventSetu
   int layerOff = geom->topology().dddConstants().getLayerOffset();
   edm::LogVerbatim("HGCalGeom") << nameDetector_ << " with layers in the range " << layerF << ":" << layerL
                                 << " Offset " << layerOff << " and for " << waferU_.size() << " wafers and cells";
-  
+
   for (unsigned int k = 0; k < waferU_.size(); ++k) {
     for (auto lay : layers_) {
-      HGCSiliconDetId detId(det, 1, types_[k], lay - layerOff, waferU_[k], waferV_[k], 0 , 0);
+      HGCSiliconDetId detId(det, 1, types_[k], lay - layerOff, waferU_[k], waferV_[k], 0, 0);
       GlobalPoint global = geom->getPosition(DetId(detId), debug_);
       double phi2 = global.phi();
       auto xy = geom->topology().dddConstants().waferPosition(lay - layerOff, waferU_[k], waferV_[k], debug_);
@@ -85,7 +85,7 @@ void HGCalGeometryNewCornersTest::beginRun(const edm::Run&, const edm::EventSetu
       std::vector<GlobalPoint> corners = geom->getNewCorners(DetId(detId), debug_);
       std::ostringstream st1;
       for (auto const& it : corners)
-	st1 << it << ", ";
+        st1 << it << ", ";
       edm::LogVerbatim("HGCalGeom") << "Corners: " << st1.str();
     }
   }

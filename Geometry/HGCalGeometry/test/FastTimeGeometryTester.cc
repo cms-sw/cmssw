@@ -31,9 +31,9 @@ private:
   int type_;
 };
 
-FastTimeGeometryTester::FastTimeGeometryTester(const edm::ParameterSet& iC) : 
-  name_(iC.getParameter<std::string>("Detector")),
-  geomToken_(esConsumes<FastTimeGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})) {
+FastTimeGeometryTester::FastTimeGeometryTester(const edm::ParameterSet& iC)
+    : name_(iC.getParameter<std::string>("Detector")),
+      geomToken_(esConsumes<FastTimeGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name_})) {
   type_ = (name_ == "FastTimeBarrel") ? 1 : 2;
 }
 
@@ -60,8 +60,10 @@ void FastTimeGeometryTester::doTest(const FastTimeGeometry* geom, ForwardSubdete
         auto icell1 = geom->getGeometry(id1);
         GlobalPoint global1 = geom->getPosition(id1);
         DetId idc1 = geom->getClosestCell(global1);
-	std::string cherr = (id1.rawId() != idc1.rawId()) ? "  ***** ERROR *****" : "";
-        edm::LogVerbatim("FastTimeGeom") << "Input " << FastTimeDetId(id1) << " geometry " << icell1 << " position (" << global1.x() << ", " << global1.y() << ", " << global1.z() << " Output " << FastTimeDetId(idc1) << cherr;
+        std::string cherr = (id1.rawId() != idc1.rawId()) ? "  ***** ERROR *****" : "";
+        edm::LogVerbatim("FastTimeGeom") << "Input " << FastTimeDetId(id1) << " geometry " << icell1 << " position ("
+                                         << global1.x() << ", " << global1.y() << ", " << global1.z() << " Output "
+                                         << FastTimeDetId(idc1) << cherr;
       }
     }
   }

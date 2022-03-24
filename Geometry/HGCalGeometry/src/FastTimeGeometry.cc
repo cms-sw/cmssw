@@ -64,8 +64,13 @@ void FastTimeGeometry::newCell(
   }
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("FastTimeGeom") << "FastTimeGeometry::newCell-> [" << cellIndex << "] front:" << f1.x() << '/' << f1.y() << '/' << f1.z() << " back:" << f2.x() << '/' << f2.y() << '/' << f2.z() << " eta|phi " << m_cellVec[cellIndex].etaPos() << ":" << m_cellVec[cellIndex].phiPos() << " id:" << FastTimeDetId(detId) << " with valid DetId from " << nOld << " to " << m_validIds.size();
-  edm::LogVerbatim("FastTimeGeom") << "Cell[" << cellIndex << "] " << std::hex << geomId.rawId() << ":" << m_validGeomIds[cellIndex].rawId() << std::dec;
+  edm::LogVerbatim("FastTimeGeom") << "FastTimeGeometry::newCell-> [" << cellIndex << "] front:" << f1.x() << '/'
+                                   << f1.y() << '/' << f1.z() << " back:" << f2.x() << '/' << f2.y() << '/' << f2.z()
+                                   << " eta|phi " << m_cellVec[cellIndex].etaPos() << ":"
+                                   << m_cellVec[cellIndex].phiPos() << " id:" << FastTimeDetId(detId)
+                                   << " with valid DetId from " << nOld << " to " << m_validIds.size();
+  edm::LogVerbatim("FastTimeGeom") << "Cell[" << cellIndex << "] " << std::hex << geomId.rawId() << ":"
+                                   << m_validGeomIds[cellIndex].rawId() << std::dec;
 #endif
 }
 
@@ -117,7 +122,8 @@ DetId FastTimeGeometry::getClosestCell(const GlobalPoint& r) const {
   }
   FastTimeDetId id = FastTimeDetId(m_Type, etaZPhi.first, etaZPhi.second, zside);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("FastTimeGeom") << "getClosestCell: for (" << r.x() << ", " << r.y() << ", " << r.z() << ")  Id " << id.type() << ":" << id.zside() << ":" << id.ieta() << ":" << id.iphi();
+  edm::LogVerbatim("FastTimeGeom") << "getClosestCell: for (" << r.x() << ", " << r.y() << ", " << r.z() << ")  Id "
+                                   << id.type() << ":" << id.zside() << ":" << id.ieta() << ":" << id.iphi();
 #endif
 
   return (topology().valid(id) ? DetId(id) : DetId());
@@ -143,7 +149,8 @@ unsigned int FastTimeGeometry::indexFor(const DetId& id) const {
     DetId geoId = (DetId)(FastTimeDetId(id).geometryCell());
     cellIndex = topology().detId2denseGeomId(geoId);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("FastTimeGeom") << "indexFor " << std::hex << id.rawId() << ":" << geoId.rawId() << std::dec << " index " << cellIndex;
+    edm::LogVerbatim("FastTimeGeom") << "indexFor " << std::hex << id.rawId() << ":" << geoId.rawId() << std::dec
+                                     << " index " << cellIndex;
 #endif
   }
   return cellIndex;
