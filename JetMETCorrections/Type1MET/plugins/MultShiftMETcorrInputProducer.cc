@@ -38,11 +38,6 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
   pflow_ = consumes<edm::View<reco::Candidate>>(cfg.getParameter<edm::InputTag>("srcPFlow"));
   vertices_ = consumes<edm::View<reco::Vertex>>(cfg.getParameter<edm::InputTag>("vertexCollection"));
-  
-  // if the parameter exsits use the value how it was set
-  if(cfg.existsAs<bool>("useGoodVertices")) useGoodVertices_ = cfg.getParameter<bool>("useGoodVertices");
-  // if not, reproduce the previous behaviour of this module, which corresponds to 'true'
-  else useGoodVertices_ = true;
 
   edm::InputTag srcWeights = cfg.getParameter<edm::InputTag>("srcWeights");
   if (!srcWeights.label().empty())
@@ -94,15 +89,11 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
     edm::LogError("MultShiftMETcorrInputProducer::produce") << "could not find vertex collection ";
   }
   uint ngoodVertices = 0;
-  if(useGoodVertices_) {
-      for (unsigned i = 0; i < hpv->size(); i++) {
-        if ((*hpv)[i].ndof() > 4 && (fabs((*hpv)[i].z()) <= 24.) && (fabs((*hpv)[i].position().rho()) <= 2.0))
-          ngoodVertices += 1;
-      }
+  for (unsigned i = 0; i < hpv->size(); i++) {
+    if ((*hpv)[i].ndof() > 4 && (fabs((*hpv)[i].z()) <= 24.) && (fabs((*hpv)[i].position().rho()) <= 2.0))
+      ngoodVertices += 1;
   }
-  else {
-      ngoodVertices = hpv->size();
-  }
+  uint nVertices = hpv->size();
 
   for (unsigned i = 0; i < counts_.size(); i++)
     counts_[i] = 0;
@@ -145,11 +136,14 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
     if (varType_[j] == 0) {
       val = counts_[j];
     }
-    if (varType_[j] == 1) {
+    else if (varType_[j] == 1) {
       val = ngoodVertices;
     }
-    if (varType_[j] == 2) {
+    else if (varType_[j] == 2) {
       val = sumPt_[j];
+    }
+    else if (varType_[j] == 3) {
+      val = nVertices;
     }
 
     corx -= formula_x_[j]->Eval(val);

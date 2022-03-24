@@ -5,7 +5,7 @@ multPhiCorr_ULDATA2018A = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2018A"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -20,7 +20,7 @@ multPhiCorr_ULDATA2018B = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2018B"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -35,7 +35,7 @@ multPhiCorr_ULDATA2018C = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2018C"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -50,7 +50,7 @@ multPhiCorr_ULDATA2018D = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2018D"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -65,7 +65,7 @@ multPhiCorr_ULDATA2017B = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2017B"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -80,7 +80,7 @@ multPhiCorr_ULDATA2017C = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2017C"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -95,7 +95,7 @@ multPhiCorr_ULDATA2017D = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2017D"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -110,7 +110,7 @@ multPhiCorr_ULDATA2017E = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2017E"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -125,7 +125,7 @@ multPhiCorr_ULDATA2017F = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2017F"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -140,7 +140,7 @@ multPhiCorr_ULDATA2016preVFPB = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2016preVFPB"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -155,7 +155,7 @@ multPhiCorr_ULDATA2016preVFPC = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2016preVFPC"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -170,7 +170,7 @@ multPhiCorr_ULDATA2016preVFPD = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2016preVFPD"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -185,7 +185,7 @@ multPhiCorr_ULDATA2016preVFPE = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2016preVFPE"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -200,7 +200,7 @@ multPhiCorr_ULDATA2016preVFPF = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2016preVFPF"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -215,7 +215,7 @@ multPhiCorr_ULDATA2016postVFPF = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2016postVFPF"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -230,7 +230,7 @@ multPhiCorr_ULDATA2016postVFPG = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2016postVFPG"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
@@ -245,7 +245,7 @@ multPhiCorr_ULDATA2016postVFPH = cms.VPSet(
     cms.PSet(
       name=cms.string("ULDATA2016postVFPH"),
       type=cms.int32(0),
-      varType=cms.int32(1),
+      varType=cms.int32(3),
       etaMin=cms.double(-9.9),
       etaMax=cms.double(9.9),
       fx=cms.string("((x*[0])+[1])"),
