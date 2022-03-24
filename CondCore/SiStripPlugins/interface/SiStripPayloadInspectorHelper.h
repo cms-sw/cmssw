@@ -1,24 +1,29 @@
 #ifndef CONDCORE_SISTRIPPLUGINS_SISTRIPPAYLOADINSPECTORHELPER_H
 #define CONDCORE_SISTRIPPLUGINS_SISTRIPPAYLOADINSPECTORHELPER_H
 
-#include <vector>
+// system includes
 #include <numeric>
 #include <string>
+#include <vector>
+
+// user includes
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h" /* for STRIPS_PER_APV*/
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
+// ROOT includes
 #include "TH1.h"
 #include "TH2.h"
 #include "TPaveText.h"
 #include "TStyle.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
-#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
-
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace SiStripPI {
 
@@ -566,7 +571,7 @@ namespace SiStripPI {
       int nAPVs = detInfo.getNumberOfApvsAndStripLength(det.first).first;
       // one fiber connects to 2 APVs
       int nFibers = nAPVs / 2;
-      int nStrips = (128 * detInfo.getNumberOfApvsAndStripLength(det.first).first);
+      int nStrips = (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(det.first).first);
       NTkComponents[0]++;
       NTkComponents[1] += nFibers;
       NTkComponents[2] += nAPVs;
@@ -719,7 +724,7 @@ namespace SiStripPI {
         percentage += range;
       }
       if (percentage != 0)
-        percentage /= 128. * detInfo.getNumberOfApvsAndStripLength(detid).first;
+        percentage /= sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(detid).first;
       if (percentage > 1)
         edm::LogError("SiStripBadStrip_PayloadInspector")
             << "PROBLEM detid " << detid << " value " << percentage << std::endl;

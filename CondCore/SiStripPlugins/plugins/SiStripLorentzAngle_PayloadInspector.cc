@@ -6,18 +6,16 @@
   \date $Date: 2017/09/21 10:59:56 $
 */
 
-#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
-#include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+#include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/CondDB/interface/Time.h"
-
+#include "CondCore/SiStripPlugins/interface/SiStripCondObjectRepresent.h"
+#include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
-
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
-#include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
 #include "DQM/TrackerRemapper/interface/SiStripTkMaps.h"
-
-#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 
 #include <memory>
 #include <sstream>
@@ -36,6 +34,119 @@
 namespace {
 
   using namespace cond::payloadInspector;
+
+  class SiStripLorentzAngleContainer
+      : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripLorentzAngle, float> {
+  public:
+    SiStripLorentzAngleContainer(std::shared_ptr<SiStripLorentzAngle> payload, unsigned int run, std::string hash)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripLorentzAngle, float>(payload, run, hash) {
+      payloadType_ = "SiStripLorentzAngle";
+      setGranularity(SiStripCondObjectRepresent::PERMODULE);
+    }
+
+    void allValues() override {
+      auto LAMap_ = payload_->getLorentzAngles();
+      for (const auto &element : LAMap_) {
+        SiStripCondData_.fillByPushBack(element.first, element.second);
+      }
+    }
+  };
+
+  /************************************************
+    testing the machinery
+  ************************************************/
+  class SiStripLorentzAngleTest : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  public:
+    SiStripLorentzAngleTest() : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle values") {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+      for (auto const &iov : iovs) {
+        std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          SiStripLorentzAngleContainer *objContainer =
+              new SiStripLorentzAngleContainer(payload, std::get<0>(iov), std::get<1>(iov));
+          //objContainer->printAll();
+
+          TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
+          objContainer->fillSummary(canvas);
+
+          std::string fileName(m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+
+        }  // payload
+      }    // iovs
+      return true;
+    }  // fill
+  };
+
+  class SiStripLorentzAngleByPartition : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  public:
+    SiStripLorentzAngleByPartition()
+        : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle By Partition") {
+      setSingleIov(true);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+      for (auto const &iov : iovs) {
+        std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          SiStripLorentzAngleContainer *objContainer =
+              new SiStripLorentzAngleContainer(payload, std::get<0>(iov), std::get<1>(iov));
+          objContainer->printAll();
+
+          TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+          objContainer->fillByPartition(canvas, 100, 0., 0.05);
+
+          std::string fileName(m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+
+        }  // payload
+      }    // iovs
+      return true;
+    }  // fill
+  };
+
+  class SiStripLorentzAngleCompareByRegion : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  public:
+    SiStripLorentzAngleCompareByRegion()
+        : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
+      std::vector<std::tuple<cond::Time_t, cond::Hash> > sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripLorentzAngle> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripLorentzAngleContainer *l_objContainer =
+          new SiStripLorentzAngleContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripLorentzAngleContainer *f_objContainer =
+          new SiStripLorentzAngleContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+
+      l_objContainer->compare(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillSummary(canvas);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
 
   /************************************************
     1d histogram of SiStripLorentzAngle of 1 IOV 
@@ -441,10 +552,13 @@ namespace {
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripLorentzAngle) {
+  PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleValue);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleTkMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngle_TrackerMap);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegion);
+  PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleCompareByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegionCompareSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiStripLorentzAngleByRegionCompareTwoTags);
 }
