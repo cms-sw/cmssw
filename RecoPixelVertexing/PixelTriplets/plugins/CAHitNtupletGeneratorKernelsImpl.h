@@ -101,7 +101,8 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
 
   for (int idx = first, nt = (*nCells); idx < nt; idx += gridDim.x * blockDim.x) {
     auto const &thisCell = cells[idx];
-    if (thisCell.hasFishbone()) atomicAdd(&c.nFishCells, 1);
+    if (thisCell.hasFishbone())
+      atomicAdd(&c.nFishCells, 1);
     if (thisCell.outerNeighbors().full())  //++tooManyNeighbors[thisCell.theLayerPairId];
       printf("OuterNeighbors overflow %d in %d\n", idx, thisCell.layerPairId());
     if (thisCell.tracks().full())  //++tooManyTracks[thisCell.theLayerPairId];
@@ -205,7 +206,7 @@ __global__ void kernel_fastDuplicateRemover(GPUCACell const *__restrict__ cells,
 
     // full crazy combinatorics
     int ntr = thisCell.tracks().size();
-    for (int i = 0; i < ntr-1; ++i) {
+    for (int i = 0; i < ntr - 1; ++i) {
       auto it = thisCell.tracks()[i];
       auto qi = tracks->quality(it);
       if (qi <= reject)
@@ -669,7 +670,7 @@ __global__ void kernel_rejectDuplicate(TkSoA const *__restrict__ ptracks,
     auto score = [&](auto it, auto nl) { return std::abs(tracks.tip(it)); };
 
     // full combinatorics
-    for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx)-1; ++ip) {
+    for (auto ip = hitToTuple.begin(idx); ip < hitToTuple.end(idx) - 1; ++ip) {
       auto const it = *ip;
       auto qi = quality[it];
       if (qi <= reject)
@@ -863,14 +864,15 @@ __global__ void kernel_print_found_ntuplets(TrackingRecHit2DSOAView const *__res
                                             TkSoA const *__restrict__ ptracks,
                                             Quality const *__restrict__ quality,
                                             CAHitNtupletGeneratorKernelsGPU::HitToTuple const *__restrict__ phitToTuple,
-                                            int32_t maxPrint,
+                                            int32_t firstPrint,
+                                            int32_t lastPrint,
                                             int iev) {
   constexpr auto loose = pixelTrack::Quality::loose;
   auto const &hh = *hhp;
   auto const &foundNtuplets = *ptuples;
   auto const &tracks = *ptracks;
-  int first = blockDim.x * blockIdx.x + threadIdx.x;
-  for (int i = first, np = std::min(maxPrint, foundNtuplets.nOnes()); i < np; i += blockDim.x * gridDim.x) {
+  int first = firstPrint + blockDim.x * blockIdx.x + threadIdx.x;
+  for (int i = first, np = std::min(lastPrint, foundNtuplets.nOnes()); i < np; i += blockDim.x * gridDim.x) {
     auto nh = foundNtuplets.size(i);
     if (nh < 3)
       continue;
