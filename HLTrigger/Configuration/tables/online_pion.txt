@@ -17,4 +17,3 @@ DQMOutput
 
 ## only in 'online' version
 RatesMonitoring
-
