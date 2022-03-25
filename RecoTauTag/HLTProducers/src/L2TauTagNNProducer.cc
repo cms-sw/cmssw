@@ -605,7 +605,7 @@ void L2TauNNProducer::selectGoodTracksAndVertices(const ZVertexSoA& patavtx_soa,
   }
   if (nv > 0) {
     const auto minFOM_fromFrac = (*std::max_element(pTSquaredSum.begin(), pTSquaredSum.end())) * fractionSumPt2_;
-    for (int j = nv - 1; j >= 0 && vtxGood.size()< maxVtx_; --j) {
+    for (int j = nv - 1; j >= 0 && vtxGood.size() < maxVtx_; --j) {
       auto vtx_idx = patavtx_soa.sortInd[j];
       assert(vtx_idx < nv);
       if (nTrkAssociated[vtx_idx] >= 2 && pTSquaredSum[vtx_idx] >= minFOM_fromFrac &&
@@ -668,7 +668,6 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
   std::vector<int> vtxGood;
 
   selectGoodTracksAndVertices(patavtx_soa, patatracks_tsoa, trkGood, vtxGood);
-
 
   const int nTaus = allTaus.size();
   for (tau_idx = 0; tau_idx < nTaus; tau_idx++) {
@@ -777,7 +776,6 @@ void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventset
   caloRecHits.eb = &*ebCal;
   caloRecHits.ee = &*eeCal;
   caloRecHits.geometry = &*geometry;
-
 
   const int nTaus = allTaus.size();
   tensorflow::Tensor cellGridMatrix(tensorflow::DT_FLOAT,
