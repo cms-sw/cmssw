@@ -68,7 +68,7 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
   // switch for muon showers in Run-3
   desc.add<bool>("useMuonShowers", false);
-
+  desc.add<bool>("resetPSCountersEachLumiSec",true);
   // These parameters have well defined  default values and are not currently
   // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
   desc.add<bool>("ProduceL1GtDaqRecord", true);
@@ -115,6 +115,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
       m_getPrescaleColumnFromData(parSet.getParameter<bool>("GetPrescaleColumnFromData")),
       m_requireMenuToMatchAlgoBlkInput(parSet.getParameter<bool>("RequireMenuToMatchAlgoBlkInput")),
       m_algoblkInputTag(parSet.getParameter<edm::InputTag>("AlgoBlkInputTag")),
+      m_resetPSCountersEachLumiSec(parSet.getParameter<bool>("resetPSCountersEachLumiSec")),
       m_useMuonShowers(parSet.getParameter<bool>("useMuonShowers")) {
   m_egInputToken = consumes<BXVector<EGamma>>(m_egInputTag);
   m_tauInputToken = consumes<BXVector<Tau>>(m_tauInputTag);
@@ -195,6 +196,7 @@ L1TGlobalProducer::L1TGlobalProducer(const edm::ParameterSet& parSet)
   // create new uGt Board
   m_uGtBrd = std::make_unique<GlobalBoard>();
   m_uGtBrd->setVerbosity(m_verbosity);
+  m_uGtBrd->setResetPSCountersEachLumiSec(m_resetPSCountersEachLumiSec);
 
   // initialize cached IDs
 
