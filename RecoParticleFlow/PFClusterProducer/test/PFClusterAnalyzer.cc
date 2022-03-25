@@ -11,17 +11,12 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-PFClusterAnalyzer::PFClusterAnalyzer(const edm::ParameterSet& iConfig) {
-  inputTagPFClusters_ = iConfig.getParameter<InputTag>("PFClusters");
-
-  verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
-
-  printBlocks_ = iConfig.getUntrackedParameter<bool>("printBlocks", false);
-
+PFClusterAnalyzer::PFClusterAnalyzer(const edm::ParameterSet& iConfig)
+    : inputTagPFClusters_(iConfig.getParameter<InputTag>("PFClusters")),
+      verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
+      printBlocks_(iConfig.getUntrackedParameter<bool>("printBlocks", false)) {
   LogDebug("PFClusterAnalyzer") << " input collection : " << inputTagPFClusters_;
 }
-
-PFClusterAnalyzer::~PFClusterAnalyzer() = default;
 
 void PFClusterAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& es) {}
 
