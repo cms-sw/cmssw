@@ -400,7 +400,7 @@ void L2TauNNProducer::standardizeTensor(tensorflow::Tensor& tensor) {
 
 void L2TauNNProducer::fillL1TauVars(tensorflow::Tensor& cellGridMatrix, const std::vector<l1t::TauRef>& allTaus) {
   using NNInputs = L2TauTagNNv1::NNInputs;
-  //const int nTaus = static_cast<int>(allTaus.size());
+
   const int nTaus = allTaus.size();
   for (int tau_idx = 0; tau_idx < nTaus; tau_idx++) {
     for (int eta_idx = 0; eta_idx < L2TauTagNNv1::nCellEta; eta_idx++) {
@@ -434,7 +434,7 @@ void L2TauNNProducer::fillCaloRecHits(tensorflow::Tensor& cellGridMatrix,
                                       const std::vector<l1t::TauRef>& allTaus,
                                       const caloRecHitCollections& caloRecHits) {
   using NNInputs = L2TauTagNNv1::NNInputs;
-  //const int nTaus = static_cast<int>(allTaus.size());
+
   const int nTaus = allTaus.size();
   float deta, dphi;
   int eta_idx = 0;
@@ -605,7 +605,7 @@ void L2TauNNProducer::selectGoodTracksAndVertices(const ZVertexSoA& patavtx_soa,
   }
   if (nv > 0) {
     const auto minFOM_fromFrac = (*std::max_element(pTSquaredSum.begin(), pTSquaredSum.end())) * fractionSumPt2_;
-    for (int j = nv - 1; j >= 0; --j) {
+    for (int j = nv - 1; j >= 0 && vtxGood.size()< maxVtx_; --j) {
       auto vtx_idx = patavtx_soa.sortInd[j];
       assert(vtx_idx < nv);
       if (nTrkAssociated[vtx_idx] >= 2 && pTSquaredSum[vtx_idx] >= minFOM_fromFrac &&
@@ -669,7 +669,7 @@ void L2TauNNProducer::fillPatatracks(tensorflow::Tensor& cellGridMatrix,
 
   selectGoodTracksAndVertices(patavtx_soa, patatracks_tsoa, trkGood, vtxGood);
 
-  //const int nTaus = static_cast<int>(allTaus.size());
+
   const int nTaus = allTaus.size();
   for (tau_idx = 0; tau_idx < nTaus; tau_idx++) {
     const float tauEta = allTaus[tau_idx]->eta();
@@ -778,7 +778,7 @@ void L2TauNNProducer::produce(edm::Event& event, const edm::EventSetup& eventset
   caloRecHits.ee = &*eeCal;
   caloRecHits.geometry = &*geometry;
 
-  //const int nTaus = static_cast<int>(allTaus.size());
+
   const int nTaus = allTaus.size();
   tensorflow::Tensor cellGridMatrix(tensorflow::DT_FLOAT,
                                     {nTaus, L2TauTagNNv1::nCellEta, L2TauTagNNv1::nCellPhi, L2TauTagNNv1::nVars});
