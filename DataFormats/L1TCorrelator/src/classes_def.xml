@@ -9,14 +9,16 @@
   <class name="edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> >"/>
   <class name="std::vector<edm::Ref<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkPrimaryVertex>,l1t::TkPrimaryVertex> > >"/>
 
-  <class name="l1t::TkEtMiss" ClassVersion="3">
+  <class name="l1t::TkEtMiss" ClassVersion="4">
+   <version ClassVersion="4" checksum="2694422826"/>
    <version ClassVersion="3" checksum="77762919"/>
   </class>
   <class name="std::vector<l1t::TkEtMiss>"/>
   <class name="edm::Wrapper<l1t::TkEtMiss>"/>
   <class name="edm::Wrapper<std::vector<l1t::TkEtMiss> >"/>
 
-  <class name="l1t::TkEm" ClassVersion="3">
+  <class name="l1t::TkEm" ClassVersion="4">
+   <version ClassVersion="4" checksum="1043577432"/>
    <version ClassVersion="3" checksum="2161257944"/>
   </class>
   <class name="std::vector<l1t::TkEm>"/>
@@ -45,7 +47,8 @@
   <class name="edm::Wrapper<std::vector<l1t::L1CaloTkTau> >"/>
   <class name="edm::Ref<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau,edm::refhelper::FindUsingAdvance<std::vector<l1t::L1CaloTkTau>,l1t::L1CaloTkTau> >"/>
 
-  <class name="l1t::TkElectron" ClassVersion="3">
+  <class name="l1t::TkElectron" ClassVersion="4">
+   <version ClassVersion="4" checksum="3922083203"/>
    <version ClassVersion="3" checksum="3970647299"/>
   </class>
   <class name="std::vector<l1t::TkElectron>"/>
@@ -53,7 +56,8 @@
   <class name="edm::Ref<std::vector<l1t::TkElectron>,l1t::TkElectron,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkElectron>,l1t::TkElectron> >"/>
   <class name="std::vector<edm::Ref<std::vector<l1t::TkElectron>,l1t::TkElectron,edm::refhelper::FindUsingAdvance<std::vector<l1t::TkElectron>,l1t::TkElectron> > >"/>
 
-  <class name="l1t::TkJet" ClassVersion="3">
+  <class name="l1t::TkJet" ClassVersion="4">
+   <version ClassVersion="4" checksum="1528601883"/>
    <version ClassVersion="3" checksum="3336007399"/>
   </class>
   <class name="std::vector<l1t::TkJet>"/>
@@ -62,8 +66,9 @@
 
   <class name="edm::RefProd< std::vector<l1t::TkJet> >"/>
 
-  <class name="l1t::TkHTMiss" ClassVersion="3">
-   <version ClassVersion="3" checksum="1471145680"/>
+  <class name="l1t::TkHTMiss" ClassVersion="4">
+    <version ClassVersion="4" checksum="4116208712"/>
+    <version ClassVersion="3" checksum="1471145680"/>
   </class>
   <class name="std::vector<l1t::TkHTMiss>"/>
   <class name="edm::Wrapper<l1t::TkHTMiss>"/>
