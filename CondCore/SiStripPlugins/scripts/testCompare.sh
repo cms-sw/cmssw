@@ -32,7 +32,7 @@ eval `scram run -sh`;
 # Go back to original working directory
 cd $W_DIR;
 
-plotTypes=(SiStripApvGainsComparator SiStripApvGainsValuesComparator SiStripApvGainsComparatorByRegion SiStripApvGainsRatioComparatorByRegion SiStripApvGainsAvgDeviationRatio1sigmaTrackerMap SiStripApvGainsAvgDeviationRatio2sigmaTrackerMap SiStripApvGainsAvgDeviationRatio3sigmaTrackerMap SiStripApvGainsMaxDeviationRatio1sigmaTrackerMap SiStripApvGainsMaxDeviationRatio2sigmaTrackerMap SiStripApvGainsMaxDeviationRatio3sigmaTrackerMap SiStripApvGainByPartition SiStripApvGainCompareByPartition SiStripApvGainDiffByPartition)
+plotTypes=(SiStripApvGainsComparatorSingleTag SiStripApvGainsValuesComparatorSingleTag SiStripApvGainsComparatorByRegionSingleTag SiStripApvGainsRatioComparatorByRegionSingleTag SiStripApvGainByPartition SiStripApvGainCompareByPartition SiStripApvGainDiffByPartition)
 
 mkdir -p $W_DIR/results_$2-$3
 
@@ -54,4 +54,26 @@ echo "Making plot ${i}"
 	--test;
 
     mv *.png $W_DIR/results_$2-$3/${i}_$1_$2-$3.png
+done
+
+plotTypes2=(SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap SiStripApvGainsMaxDeviationRatioWithPreviousIOVTrackerMap)
+
+for i in "${plotTypes2[@]}"
+do
+    for j in 1 2 3
+    do
+	echo "Making plot ${i} with ${j} sigmas"
+	# Run get payload data script
+	getPayloadData.py \
+	    --plugin pluginSiStripApvGain_PayloadInspector \
+	    --plot plot_${i} \
+	    --tag $1 \
+	    --time_type Run \
+	    --iovs  '{"start_iov": "'$STARTIOV'", "end_iov": "'$ENDIOV'"}' \
+	    --input_params '{"nsigma":"'${j}'"}' \
+	    --db sqlite_file:$4 \
+	    --test;
+
+	mv *.png $W_DIR/results_$2-$3/${i}_${j}sigmas_$1_$2-$3.png
+    done
 done
