@@ -131,6 +131,12 @@ void L1TkEmParticleProducer::produce(edm::StreamID, edm::Event& iEvent, const ed
     zvtxL1tk = vtxIter->zvertex();
   }
 
+  if (!L1TTTrackHandle.isValid()) {
+    LogError("L1TkEmParticleProducer") << "\nWarning: L1TTTrackCollectionType not found in the event. Exit."
+                                       << std::endl;
+    return;
+  }
+
   // Now loop over the L1EGamma objects
 
   edm::Handle<EGammaBxCollection> eGammaHandle;
