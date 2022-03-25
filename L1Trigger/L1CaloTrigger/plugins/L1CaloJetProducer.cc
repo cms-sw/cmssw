@@ -24,7 +24,7 @@ Implementation:
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -52,7 +52,7 @@ Implementation:
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 
-class L1CaloJetProducer : public edm::EDProducer {
+class L1CaloJetProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1CaloJetProducer(const edm::ParameterSet &);
 
@@ -761,7 +761,7 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       // 7x7 HCAL Trigger Towers
       // If seeded in barrel and hit is barrel then we can compare iEta/iPhi, else need to use eta/phi
       // in HGCal / transition region
-      if ((abs(d_iEta) <= 3 && abs(d_iPhi) <= 3) || (fabs(d_eta) < 0.3 && fabs(d_phi) < 0.3)) {
+      if ((abs(d_iEta) <= 3 && abs(d_iPhi) <= 3) || (std::abs(d_eta) < 0.3 && std::abs(d_phi) < 0.3)) {
         l1CaloTower.stale = true;
         n_stale++;
 
@@ -805,21 +805,21 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
                                         << caloJetObj.jetCluster.phi() << "\n";
         }
 
-        if ((abs(d_iEta) == 0 && abs(d_iPhi) == 0) || (fabs(d_eta) < 0.043 && fabs(d_phi) < 0.043)) {
+        if ((abs(d_iEta) == 0 && abs(d_iPhi) == 0) || (std::abs(d_eta) < 0.043 && std::abs(d_phi) < 0.043)) {
           caloJetObj.hcal_seed += hcalP4.pt();
           caloJetObj.ecal_seed += ecalP4.pt();
           caloJetObj.l1eg_seed += l1egP4.pt();
           caloJetObj.total_seed += totalP4.pt();
         }
         //if ( (abs( d_iEta ) <= 1 && abs( d_iPhi ) <= 1) ||
-        //    ( fabs( d_eta ) < 0.13 && fabs( d_phi ) < 0.13 ) )
+        //    ( std::abs( d_eta ) < 0.13 && std::abs( d_phi ) < 0.13 ) )
         //{
         //    caloJetObj.hcal_3x3 += hcalP4.pt();
         //    caloJetObj.ecal_3x3 += ecalP4.pt();
         //    caloJetObj.l1eg_3x3 += l1egP4.pt();
         //    caloJetObj.total_3x3 += totalP4.pt();
         //}
-        if ((abs(d_iEta) <= 1 && abs(d_iPhi) <= 2) || (fabs(d_eta) < 0.13 && fabs(d_phi) < 0.22)) {
+        if ((abs(d_iEta) <= 1 && abs(d_iPhi) <= 2) || (std::abs(d_eta) < 0.13 && std::abs(d_phi) < 0.22)) {
           caloJetObj.hcal_3x5 += hcalP4.pt();
           caloJetObj.ecal_3x5 += ecalP4.pt();
           caloJetObj.l1eg_3x5 += l1egP4.pt();
@@ -851,7 +851,7 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
           }
         }
         //if ( ( abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 2) ||
-        //    ( fabs( d_eta ) < 0.22 && fabs( d_phi ) < 0.22 ) )
+        //    ( std::abs( d_eta ) < 0.22 && std::abs( d_phi ) < 0.22 ) )
         //{
         //    caloJetObj.hcal_5x5 += hcalP4.pt();
         //    caloJetObj.ecal_5x5 += ecalP4.pt();
@@ -859,14 +859,14 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         //    caloJetObj.total_5x5 += totalP4.pt();
         //}
         //if ( ( abs( d_iEta ) <= 2 && abs( d_iPhi ) <= 3) ||
-        //    ( fabs( d_eta ) < 0.22 && fabs( d_phi ) < 0.3 ) )
+        //    ( std::abs( d_eta ) < 0.22 && std::abs( d_phi ) < 0.3 ) )
         //{
         //    caloJetObj.hcal_5x7 += hcalP4.pt();
         //    caloJetObj.ecal_5x7 += ecalP4.pt();
         //    caloJetObj.l1eg_5x7 += l1egP4.pt();
         //    caloJetObj.total_5x7 += totalP4.pt();
         //}
-        if ((abs(d_iEta) <= 3 && abs(d_iPhi) <= 3) || (fabs(d_eta) < 0.3 && fabs(d_phi) < 0.3)) {
+        if ((abs(d_iEta) <= 3 && abs(d_iPhi) <= 3) || (std::abs(d_eta) < 0.3 && std::abs(d_phi) < 0.3)) {
           caloJetObj.hcal_7x7 += hcalP4.pt();
           caloJetObj.ecal_7x7 += ecalP4.pt();
           caloJetObj.l1eg_7x7 += l1egP4.pt();
@@ -890,7 +890,7 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         //    caloJetObj.total_2x3_2 += totalP4.pt();
         //}
         //// HGCal / HF
-        //if ( fabs( d_eta ) < 0.087 && fabs( d_phi ) < 0.13 )
+        //if ( std::abs( d_eta ) < 0.087 && std::abs( d_phi ) < 0.13 )
         //{
         //    caloJetObj.hcal_2x3 += hcalP4.pt();
         //    caloJetObj.ecal_2x3 += ecalP4.pt();
@@ -928,7 +928,7 @@ void L1CaloJetProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         //    caloJetObj.total_2x2_4 += totalP4.pt();
         //}
         //// HGCal / HF
-        //if ( fabs( d_eta ) < 0.087 && fabs( d_phi ) < 0.087 )
+        //if ( std::abs( d_eta ) < 0.087 && std::abs( d_phi ) < 0.087 )
         //{
         //    caloJetObj.hcal_2x2 += hcalP4.pt();
         //    caloJetObj.ecal_2x2 += ecalP4.pt();
@@ -1144,7 +1144,7 @@ float L1CaloJetProducer::get_hcal_calibration(float &jet_pt,
                                               float &ecal_L1EG_jet_pt,
                                               float &jet_eta) const {
   float em_frac = (ecal_L1EG_jet_pt + ecal_pt) / jet_pt;
-  float abs_eta = fabs(jet_eta);
+  float abs_eta = std::abs(jet_eta);
   float tmp_jet_pt = jet_pt;
   if (tmp_jet_pt > 499)
     tmp_jet_pt = 499;
@@ -1234,7 +1234,7 @@ float L1CaloJetProducer::get_hcal_calibration(float &jet_pt,
 float L1CaloJetProducer::get_tau_pt_calibration(
     float &tau_pt, float &ecal_pt, float &l1EG_pt, float &n_L1EGs, float &tau_eta) const {
   float em_frac = (l1EG_pt + ecal_pt) / tau_pt;
-  float abs_eta = fabs(tau_eta);
+  float abs_eta = std::abs(tau_eta);
   float tmp_tau_pt = tau_pt;
   if (tmp_tau_pt > 199)
     tmp_tau_pt = 199;
@@ -1336,7 +1336,7 @@ int L1CaloJetProducer::loose_iso_tau_wp(float &tau_pt, float &tau_iso_et, float 
   }
   // Split by barrel and HGCal
   // with Barrel first
-  if (fabs(tau_eta) < 1.5) {
+  if (std::abs(tau_eta) < 1.5) {
     if (isoTauBarrel.Eval(tau_pt) >= (tau_iso_et / tau_pt)) {
       return 1;
     } else {
@@ -1344,7 +1344,7 @@ int L1CaloJetProducer::loose_iso_tau_wp(float &tau_pt, float &tau_iso_et, float 
     }
   }
   // HGCal
-  if (fabs(tau_eta) < 3.0) {
+  if (std::abs(tau_eta) < 3.0) {
     if (isoTauHGCal.Eval(tau_pt) >= (tau_iso_et / tau_pt)) {
       return 1;
     } else {

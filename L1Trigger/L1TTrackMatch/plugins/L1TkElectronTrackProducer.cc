@@ -17,7 +17,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -73,72 +72,57 @@ private:
   // ----------member data ---------------------------
   std::string label;
 
-  float etMin_;  // min ET in GeV of L1EG objects
-
-  float dRMin_;
-  float dRMax_;
-  float pTMinTra_;
-  float maxChi2IsoTracks_;
-  unsigned int minNStubsIsoTracks_;
-
-  bool primaryVtxConstrain_;  // use the primary vertex (default = false)
-  float deltaZ_;              // | z_track - z_ref_track | < deltaZ_ in cm.
-                              // Used only when primaryVtxConstrain_ = True.
+  const float etMin_;  // min ET in GeV of L1EG objects
+  const float pTMinTra_;
+  const float dRMin_;
+  const float dRMax_;
+  float deltaZ_;  // | z_track - z_ref_track | < deltaZ_ in cm.
+                  // Used only when primaryVtxConstrain_ = True.
+  const float maxChi2IsoTracks_;
+  const unsigned int minNStubsIsoTracks_;
   float isoCut_;
   bool relativeIsolation_;
-
+  bool primaryVtxConstrain_;  // use the primary vertex (default = false)
   float trkQualityChi2_;
+  float trkQualityPtMin_;
   bool useTwoStubsPT_;
   bool useClusterET_;  // use cluster et to extrapolate tracks
-  float trkQualityPtMin_;
   std::vector<double> dPhiCutoff_;
   std::vector<double> dRCutoff_;
   std::vector<double> dEtaCutoff_;
   std::string matchType_;
 
   const edm::EDGetTokenT<EGammaBxCollection> egToken_;
-  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
+  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 //
 // constructors and destructor
 //
 L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iConfig)
-    : egToken_(consumes<EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("L1EGammaInputTag"))),
-      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
+    : label(iConfig.getParameter<std::string>("label")),
+      etMin_((float)iConfig.getParameter<double>("ETmin")),
+      pTMinTra_((float)iConfig.getParameter<double>("PTMINTRA")),
+      dRMin_((float)iConfig.getParameter<double>("DRmin")),
+      dRMax_((float)iConfig.getParameter<double>("DRmax")),
+      deltaZ_((float)iConfig.getParameter<double>("DeltaZ")),
+      maxChi2IsoTracks_(iConfig.getParameter<double>("maxChi2IsoTracks")),
+      minNStubsIsoTracks_(iConfig.getParameter<int>("minNStubsIsoTracks")),
+      isoCut_((float)iConfig.getParameter<double>("IsoCut")),
+      relativeIsolation_(iConfig.getParameter<bool>("RelativeIsolation")),
+      trkQualityChi2_((float)iConfig.getParameter<double>("TrackChi2")),
+      trkQualityPtMin_((float)iConfig.getParameter<double>("TrackMinPt")),
+      useTwoStubsPT_(iConfig.getParameter<bool>("useTwoStubsPT")),
+      useClusterET_(iConfig.getParameter<bool>("useClusterET")),
+      dPhiCutoff_(iConfig.getParameter<std::vector<double>>("TrackEGammaDeltaPhi")),
+      dRCutoff_(iConfig.getParameter<std::vector<double>>("TrackEGammaDeltaR")),
+      dEtaCutoff_(iConfig.getParameter<std::vector<double>>("TrackEGammaDeltaEta")),
+      matchType_(iConfig.getParameter<std::string>("TrackEGammaMatchType")),
+      egToken_(consumes<EGammaBxCollection>(iConfig.getParameter<edm::InputTag>("L1EGammaInputTag"))),
+      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-      geomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
-  // label of the collection produced
-  // e.g. EG or IsoEG if all objects are kept
-  // EGIsoTrk or IsoEGIsoTrk if only the EG or IsoEG
-  // objects that pass a cut RelIso < isoCut_ are written
-  // in the new collection.
-  label = iConfig.getParameter<std::string>("label");
-
-  etMin_ = (float)iConfig.getParameter<double>("ETmin");
-
-  // parameters for the calculation of the isolation :
-  pTMinTra_ = (float)iConfig.getParameter<double>("PTMINTRA");
-  dRMin_ = (float)iConfig.getParameter<double>("DRmin");
-  dRMax_ = (float)iConfig.getParameter<double>("DRmax");
-  deltaZ_ = (float)iConfig.getParameter<double>("DeltaZ");
-  maxChi2IsoTracks_ = iConfig.getParameter<double>("maxChi2IsoTracks");
-  minNStubsIsoTracks_ = iConfig.getParameter<int>("minNStubsIsoTracks");
-  // cut applied on the isolation (if this number is <= 0, no cut is applied)
-  isoCut_ = (float)iConfig.getParameter<double>("IsoCut");
-  relativeIsolation_ = iConfig.getParameter<bool>("RelativeIsolation");
-
-  // parameters to select tracks to match with L1EG
-  trkQualityChi2_ = (float)iConfig.getParameter<double>("TrackChi2");
-  trkQualityPtMin_ = (float)iConfig.getParameter<double>("TrackMinPt");
-  useTwoStubsPT_ = iConfig.getParameter<bool>("useTwoStubsPT");
-  useClusterET_ = iConfig.getParameter<bool>("useClusterET");
-  dPhiCutoff_ = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaPhi");
-  dRCutoff_ = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaR");
-  dEtaCutoff_ = iConfig.getParameter<std::vector<double> >("TrackEGammaDeltaEta");
-  matchType_ = iConfig.getParameter<std::string>("TrackEGammaMatchType");
-
+      tGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>()) {
   produces<TkElectronCollection>(label);
 }
 
@@ -149,8 +133,8 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
   std::unique_ptr<TkElectronCollection> result(new TkElectronCollection);
 
   // geometry needed to call pTFrom2Stubs
-  edm::ESHandle<TrackerGeometry> geomHandle = iSetup.getHandle(geomToken_);
-  const TrackerGeometry* tGeom = geomHandle.product();
+  const TrackerGeometry& tGeom = iSetup.getData(tGeomToken_);
+  const TrackerGeometry* tGeometry = &tGeom;
 
   // the L1EGamma objects
   edm::Handle<EGammaBxCollection> eGammaHandle;
@@ -169,8 +153,8 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
     return;
   }
   if (!L1TTTrackHandle.isValid()) {
-    throw cms::Exception("TkEmProducer") << "\nWarning: L1TTTrackCollectionType not found in the event. Exit."
-                                         << std::endl;
+    throw cms::Exception("L1TkElectronTrackProducer")
+        << "\nWarning: L1TTTrackCollectionType not found in the event. Exit." << std::endl;
     return;
   }
 
@@ -196,7 +180,7 @@ void L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetu
     for (trackIter = L1TTTrackHandle->begin(); trackIter != L1TTTrackHandle->end(); ++trackIter) {
       edm::Ptr<L1TTTrackType> L1TrackPtr(L1TTTrackHandle, itr);
       double trkPt_fit = trackIter->momentum().perp();
-      double trkPt_stubs = pTFrom2Stubs::pTFrom2(trackIter, tGeom);
+      double trkPt_stubs = pTFrom2Stubs::pTFrom2(trackIter, tGeometry);
       double trkPt = trkPt_fit;
       if (useTwoStubsPT_)
         trkPt = trkPt_stubs;
@@ -288,12 +272,470 @@ L1TkElectronTrackProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventS
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void L1TkElectronTrackProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  {
+    // L1TkElectrons
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("simCaloStage2Digis"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 10.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "PtDependentCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.08,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      10000000000.0,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", -0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 10000000000.0);
+    desc.add<int>("minNStubsIsoTracks", 0);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkElectrons", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkIsoElectrons
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("simCaloStage2Digis"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 10.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "PtDependentCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.08,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      10000000000.0,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", 0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 10000000000.0);
+    desc.add<int>("minNStubsIsoTracks", 0);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkIsoElectrons", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkElectronsLoose
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("simCaloStage2Digis"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 3.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "PtDependentCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.12,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      10000000000.0,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", -0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 10000000000.0);
+    desc.add<int>("minNStubsIsoTracks", 0);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkElectronsLoose", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkElectronsCrystal
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("L1EGammaClusterEmuProducer"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 10.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "PtDependentCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.08,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      10000000000.0,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", -0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 10000000000.0);
+    desc.add<int>("minNStubsIsoTracks", 0);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkElectronsCrystal", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkIsoElectronsCrystal
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("L1EGammaClusterEmuProducer"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 10.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "PtDependentCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.08,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      10000000000.0,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", 0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 10000000000.0);
+    desc.add<int>("minNStubsIsoTracks", 0);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkIsoElectronsCrystal", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkElectronsLooseCrystal
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("L1EGammaClusterEmuProducer"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 3.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "PtDependentCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.12,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      10000000000.0,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", -0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 10000000000.0);
+    desc.add<int>("minNStubsIsoTracks", 0);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkElectronsLooseCrystal", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkElectronsEllipticMatchCrystal
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("L1EGammaClusterEmuProducer"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 10.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "EllipticalCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.08,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      0.015,
+                                      0.025,
+                                      10000000000.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", -0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 10000000000.0);
+    desc.add<int>("minNStubsIsoTracks", 0);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkElectronsEllipticMatchCrystal", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkElectronsHGC
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("l1EGammaEEProducer", "L1EGammaCollectionBXVWithCuts"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 10.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "PtDependentCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.08,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      10000000000.0,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", -0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 10000000000.0);
+    desc.add<int>("minNStubsIsoTracks", 0);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkElectronsHGC", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkElectronsEllipticMatchHGC
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("l1EGammaEEProducer", "L1EGammaCollectionBXVWithCuts"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 10.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "EllipticalCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.08,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      0.01,
+                                      0.01,
+                                      10000000000.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", -0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 100);
+    desc.add<int>("minNStubsIsoTracks", 4);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkElectronsEllipticMatchHGC", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkIsoElectronsHGC
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("l1EGammaEEProducer", "L1EGammaCollectionBXVWithCuts"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 10.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "PtDependentCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.08,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      10000000000.0,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", 0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.4);
+    desc.add<double>("maxChi2IsoTracks", 100);
+    desc.add<int>("minNStubsIsoTracks", 4);
+    desc.add<double>("DeltaZ", 1.0);
+    descriptions.add("L1TkIsoElectronsHGC", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
+  {
+    // L1TkElectronsLooseHGC
+    edm::ParameterSetDescription desc;
+    desc.add<std::string>("label", "EG");
+    desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("l1EGammaEEProducer", "L1EGammaCollectionBXVWithCuts"));
+    desc.add<double>("ETmin", -1.0);
+    desc.add<edm::InputTag>("L1TrackInputTag", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+    desc.add<double>("TrackChi2", 10000000000.0);
+    desc.add<double>("TrackMinPt", 3.0);
+    desc.add<bool>("useTwoStubsPT", false);
+    desc.add<bool>("useClusterET", false);
+    desc.add<std::string>("TrackEGammaMatchType", "PtDependentCut");
+    desc.add<std::vector<double>>("TrackEGammaDeltaPhi",
+                                  {
+                                      0.07,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaR",
+                                  {
+                                      0.12,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<std::vector<double>>("TrackEGammaDeltaEta",
+                                  {
+                                      10000000000.0,
+                                      0.0,
+                                      0.0,
+                                  });
+    desc.add<bool>("RelativeIsolation", true);
+    desc.add<double>("IsoCut", -0.1);
+    desc.add<double>("PTMINTRA", 2.0);
+    desc.add<double>("DRmin", 0.03);
+    desc.add<double>("DRmax", 0.2);
+    desc.add<double>("maxChi2IsoTracks", 10000000000.0);
+    desc.add<int>("minNStubsIsoTracks", 0);
+    desc.add<double>("DeltaZ", 0.6);
+    descriptions.add("L1TkElectronsLooseHGC", desc);
+    // or use the following to generate the label from the module's C++ type
+    //descriptions.addWithDefaultLabel(desc);
+  }
 }
+
 // method to calculate isolation
 float L1TkElectronTrackProducer::isolation(const edm::Handle<L1TTTrackCollectionType>& trkHandle, int match_index) {
   edm::Ptr<L1TTTrackType> matchedTrkPtr(trkHandle, match_index);

@@ -32,7 +32,8 @@ namespace l1t {
           unsigned int ntracks = 0,
           unsigned int tighttracks = 0,
           unsigned int displacedtracks = 0,
-          unsigned int tightdisplacedtracks = 0);
+          unsigned int tightdisplacedtracks = 0,
+          bool displacedTag = false);
 
     // ---------- const member functions ---------------------
 
@@ -45,6 +46,7 @@ namespace l1t {
     unsigned int nTighttracks() const { return tighttracks_; }
     unsigned int nDisptracks() const { return displacedtracks_; }
     unsigned int nTightDisptracks() const { return tightdisplacedtracks_; }
+    bool isDisplaced() const { return displacedTag_; }
 
     // ---------- member functions ---------------------------
     void setJetVtx(float JetVtx) { JetVtx_ = JetVtx; }
@@ -56,6 +58,7 @@ namespace l1t {
     std::vector<edm::Ptr<L1TTTrackType> > trkPtrs_;
     float JetVtx_;
     unsigned int ntracks_, tighttracks_, displacedtracks_, tightdisplacedtracks_;
+    bool displacedTag_;
   };
 }  // namespace l1t
 
