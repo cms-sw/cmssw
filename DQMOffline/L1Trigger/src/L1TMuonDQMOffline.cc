@@ -108,7 +108,9 @@ double MuonGmtPair::getVar(const L1TMuonDQMOffline::EffType type) const {
 
 //__________DQM_base_class_______________________________________________
 L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet& ps)
-    : m_propagatorSetup(ps.getParameter<edm::ParameterSet>("muProp"), consumesCollector()),
+    : myESTokens_(muonanalysis::PropagateToMuonSetup::getESTokens(ps.getParameter<edm::ParameterSet>("muProp"),
+                                                                  consumesCollector())),
+      m_propagatorSetup(ps.getParameter<edm::ParameterSet>("muProp"), myESTokens_),
       m_effTypes({kEffPt, kEffPhi, kEffEta, kEffVtx}),
       m_resTypes({kResPt, kResQOverPt, kResPhi, kResEta}),
       m_etaRegions({kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf}),

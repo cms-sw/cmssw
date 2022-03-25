@@ -8,8 +8,12 @@ using namespace std;
 using namespace muon;
 
 L1Analysis::L1AnalysisRecoMuon2::L1AnalysisRecoMuon2(const edm::ParameterSet& pset, edm::ConsumesCollector iC)
-    : muPropagatorSetup1st_(pset.getParameter<edm::ParameterSet>("muProp1st"), iC),
-      muPropagatorSetup2nd_(pset.getParameter<edm::ParameterSet>("muProp2nd"), iC) {}
+    : myESTokens1_(
+          muonanalysis::PropagateToMuonSetup::getESTokens(pset.getParameter<edm::ParameterSet>("muProp1st"), iC)),
+      myESTokens2_(
+          muonanalysis::PropagateToMuonSetup::getESTokens(pset.getParameter<edm::ParameterSet>("muProp2nd"), iC)),
+      muPropagatorSetup1st_(pset.getParameter<edm::ParameterSet>("muProp1st"), myESTokens1_),
+      muPropagatorSetup2nd_(pset.getParameter<edm::ParameterSet>("muProp2nd"), myESTokens2_) {}
 
 L1Analysis::L1AnalysisRecoMuon2::~L1AnalysisRecoMuon2() {}
 

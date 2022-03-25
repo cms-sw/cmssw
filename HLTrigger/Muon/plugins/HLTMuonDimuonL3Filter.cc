@@ -49,7 +49,8 @@ namespace {
 
 HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
-      propSetup_(iConfig, consumesCollector()),
+      myESTokens_(muonanalysis::PropagateToMuonSetup::getESTokens(iConfig, consumesCollector())),
+      propSetup_(iConfig, myESTokens_),
       idealMagneticFieldRecordToken_(esConsumes()),
       beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
@@ -187,7 +188,7 @@ void HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("InputLinks", edm::InputTag(""));
   desc.add<double>("L1MatchingdR", 0.3);
   desc.add<bool>("MatchToPreviousCand", true);
-  PropagateToMuonSetup::fillPSetDescription(desc);
+  muonanalysis::PropagateToMuonSetup::fillPSetDescription(desc);
   descriptions.add("hltMuonDimuonL3Filter", desc);
 }
 

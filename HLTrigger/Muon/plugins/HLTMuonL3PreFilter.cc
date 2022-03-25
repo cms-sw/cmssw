@@ -35,7 +35,8 @@ using namespace trigger;
 
 HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig)
     : HLTFilter(iConfig),
-      propSetup_(iConfig, consumesCollector()),
+      myESTokens_(muonanalysis::PropagateToMuonSetup::getESTokens(iConfig, consumesCollector())),
+      propSetup_(iConfig, myESTokens_),
       beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
       candTag_(iConfig.getParameter<InputTag>("CandTag")),
@@ -119,7 +120,7 @@ void HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<double>("L1MatchingdR", 0.3);
   desc.add<bool>("MatchToPreviousCand", true);
   desc.add<edm::InputTag>("InputLinks", edm::InputTag(""));
-  PropagateToMuonSetup::fillPSetDescription(desc);
+  muonanalysis::PropagateToMuonSetup::fillPSetDescription(desc);
   descriptions.add("hltMuonL3PreFilter", desc);
 }
 

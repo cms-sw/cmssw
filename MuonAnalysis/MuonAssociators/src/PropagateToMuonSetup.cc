@@ -4,7 +4,34 @@
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-PropagateToMuonSetup::PropagateToMuonSetup(const edm::ParameterSet &iConfig, edm::ConsumesCollector iC)
+using namespace muonanalysis;
+
+PropagateToMuonSetup::ESTokens PropagateToMuonSetup::getESTokens(const edm::ParameterSet &iConfig,
+                                                                 edm::ConsumesCollector iCollector) {
+  ESTokens ret;
+  std::get<0>(ret) = iCollector.esConsumes();
+  std::get<1>(ret) = iCollector.esConsumes(iConfig.getParameter<edm::ESInputTag>("propagatorAlong"));
+  std::get<2>(ret) = iCollector.esConsumes(iConfig.getParameter<edm::ESInputTag>("propagatorAny"));
+  std::get<3>(ret) = iCollector.esConsumes(iConfig.getParameter<edm::ESInputTag>("propagatorOpposite"));
+  std::get<4>(ret) = iCollector.esConsumes();
+  return ret;
+}
+
+PropagateToMuonSetup::ESTokens PropagateToMuonSetup::getESTokensBeginRun(const edm::ParameterSet &iConfig,
+                                                                         edm::ConsumesCollector iCollector) {
+  ESTokens ret;
+  std::get<0>(ret) = iCollector.esConsumes<edm::Transition::BeginRun>();
+  std::get<1>(ret) =
+      iCollector.esConsumes<edm::Transition::BeginRun>(iConfig.getParameter<edm::ESInputTag>("propagatorAlong"));
+  std::get<2>(ret) =
+      iCollector.esConsumes<edm::Transition::BeginRun>(iConfig.getParameter<edm::ESInputTag>("propagatorAny"));
+  std::get<3>(ret) =
+      iCollector.esConsumes<edm::Transition::BeginRun>(iConfig.getParameter<edm::ESInputTag>("propagatorOpposite"));
+  std::get<4>(ret) = iCollector.esConsumes<edm::Transition::BeginRun>();
+  return ret;
+}
+
+PropagateToMuonSetup::PropagateToMuonSetup(const edm::ParameterSet &iConfig, const ESTokens &iTokens)
     : useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
       useMB2_(iConfig.getParameter<bool>("useStation2")),
       fallbackToME1_(iConfig.getParameter<bool>("fallbackToME1")),
@@ -12,11 +39,11 @@ PropagateToMuonSetup::PropagateToMuonSetup(const edm::ParameterSet &iConfig, edm
       whichState_(AtVertex),
       cosmicPropagation_(iConfig.getParameter<bool>("cosmicPropagationHypothesis")),
       useMB2InOverlap_(iConfig.getParameter<bool>("useMB2InOverlap")),
-      magfieldToken_(iC.esConsumes()),
-      propagatorToken_(iC.esConsumes(iConfig.getParameter<edm::ESInputTag>("propagatorAlong"))),
-      propagatorAnyToken_(iC.esConsumes(iConfig.getParameter<edm::ESInputTag>("propagatorAny"))),
-      propagatorOppositeToken_(iC.esConsumes(iConfig.getParameter<edm::ESInputTag>("propagatorOpposite"))),
-      muonGeometryToken_(iC.esConsumes()) {
+      magfieldToken_(std::get<0>(iTokens)),
+      propagatorToken_(std::get<1>(iTokens)),
+      propagatorAnyToken_(std::get<2>(iTokens)),
+      propagatorOppositeToken_(std::get<3>(iTokens)),
+      muonGeometryToken_(std::get<4>(iTokens)) {
   std::string whichTrack = iConfig.getParameter<std::string>("useTrack");
   if (whichTrack == "none") {
     whichTrack_ = None;

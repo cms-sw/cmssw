@@ -104,7 +104,8 @@ private:
 
   HLTConfigProvider m_hltConfig;
 
-  PropagateToMuonSetup const m_propagatorSetup;
+  muonanalysis::PropagateToMuonSetup::ESTokens myESTokens_;
+  muonanalysis::PropagateToMuonSetup const m_propagatorSetup;
 
   std::vector<float> getHistBinsEff(EffType eff);
   std::tuple<int, double, double> getHistBinsRes(ResType res);

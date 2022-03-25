@@ -78,7 +78,8 @@ private:
 
   edm::EDGetTokenT<edm::View<reco::Muon> > tagToken_;
   edm::EDGetTokenT<l1extra::L1MuonParticleCollection> l1Token_;
-  PropagateToMuonSetup const l1matcherSetup_;
+  muonanalysis::PropagateToMuonSetup::ESTokens myESTokens_;
+  muonanalysis::PropagateToMuonSetup const l1matcherSetup_;
 
   std::string metname;
 
@@ -131,7 +132,9 @@ using namespace reco;
 TriggerMatcherToHLTDebug::TriggerMatcherToHLTDebug(const edm::ParameterSet &pset)
     : tagToken_(consumes<View<reco::Muon> >(pset.getParameter<edm::InputTag>("tags"))),
       l1Token_(consumes<L1MuonParticleCollection>(pset.getParameter<edm::InputTag>("l1s"))),
-      l1matcherSetup_(pset.getParameter<edm::ParameterSet>("l1matcherConfig"), consumesCollector()),
+      myESTokens_(muonanalysis::PropagateToMuonSetup::getESTokens(
+          pset.getParameter<edm::ParameterSet>("l1matcherConfig"), consumesCollector())),
+      l1matcherSetup_(pset.getParameter<edm::ParameterSet>("l1matcherConfig"), myESTokens_),
       deltaR_(pset.getParameter<double>("deltaR")),
       minL1Quality_(pset.getParameter<int32_t>("MinL1Quality")),
       beamspotToken_(consumes<BeamSpot>(pset.getParameter<edm::InputTag>("BeamSpotTag"))),

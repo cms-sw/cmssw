@@ -41,7 +41,8 @@ namespace pat {
     typedef pat::TriggerObjectStandAloneCollection PATPrimitiveCollection;
     typedef pat::TriggerObjectStandAloneMatch PATTriggerAssociation;
 
-    L1MuonMatcherAlgo matcher_;
+    muonanalysis::L1MuonMatcherAlgo::ESTokens myESTokens_;
+    muonanalysis::L1MuonMatcherAlgo matcher_;
 
     /// Tokens for input collections
     edm::EDGetTokenT<edm::View<reco::Candidate> > recoToken_;
@@ -72,7 +73,8 @@ namespace pat {
 }  // namespace pat
 
 pat::L1MuonMatcher::L1MuonMatcher(const edm::ParameterSet &iConfig)
-    : matcher_(iConfig, consumesCollector()),
+    : myESTokens_(muonanalysis::PropagateToMuonSetup::getESTokens(iConfig, consumesCollector())),
+      matcher_(iConfig, myESTokens_),
       recoToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src"))),
       labelL1_(iConfig.getParameter<std::string>("setL1Label")),
       labelProp_(iConfig.getParameter<std::string>("setPropLabel")),

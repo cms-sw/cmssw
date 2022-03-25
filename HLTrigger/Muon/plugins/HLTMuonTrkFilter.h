@@ -22,7 +22,8 @@ public:
                  trigger::TriggerFilterObjectWithRefs& filterproduct) const override;
 
 private:
-  const PropagateToMuonSetup propSetup_;
+  muonanalysis::PropagateToMuonSetup::ESTokens myESTokens_;
+  const muonanalysis::PropagateToMuonSetup propSetup_;
   // WARNING: two input collection represent should be aligned and represent
   // the same list of muons, just stored in different containers
   const edm::InputTag m_muonsTag;                             // input collection of muons

@@ -47,7 +47,8 @@ private:
                             const reco::BeamSpot&,
                             const edm::ESHandle<MagneticField>&) const;
 
-  const PropagateToMuonSetup propSetup_;
+  muonanalysis::PropagateToMuonSetup::ESTokens myESTokens_;
+  const muonanalysis::PropagateToMuonSetup propSetup_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldRecordToken_;
   const edm::InputTag beamspotTag_;
   const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;

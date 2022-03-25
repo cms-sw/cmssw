@@ -63,8 +63,10 @@ namespace L1Analysis {
   private:
     L1AnalysisRecoMuon2DataFormat recoMuon_;
 
-    const PropagateToMuonSetup muPropagatorSetup1st_;
-    const PropagateToMuonSetup muPropagatorSetup2nd_;
+    muonanalysis::PropagateToMuonSetup::ESTokens myESTokens1_;
+    muonanalysis::PropagateToMuonSetup::ESTokens myESTokens2_;
+    const muonanalysis::PropagateToMuonSetup muPropagatorSetup1st_;
+    const muonanalysis::PropagateToMuonSetup muPropagatorSetup2nd_;
 
     PropagateToMuon muPropagator1st_;
     PropagateToMuon muPropagator2nd_;

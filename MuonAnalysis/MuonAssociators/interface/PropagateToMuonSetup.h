@@ -22,50 +22,62 @@ class IdealMagneticFieldRecord;
 class TrackingComponentsRecord;
 class MuonRecoGeometryRecord;
 
-class PropagateToMuonSetup {
-public:
-  explicit PropagateToMuonSetup(const edm::ParameterSet &iConfig, edm::ConsumesCollector);
-  ~PropagateToMuonSetup(){};
+namespace muonanalysis {
 
-  /// Call this method at the beginning of each run, to initialize geometry,
-  /// magnetic field and propagators
-  PropagateToMuon init(const edm::EventSetup &iSetup) const;
-  static void fillPSetDescription(edm::ParameterSetDescription &desc) {
-    desc.add<bool>("useSimpleGeometry", true);
-    desc.add<bool>("useStation2", true);
-    desc.add<bool>("fallbackToME1", false);
-    desc.add<bool>("cosmicPropagationHypothesis", false);
-    desc.add<bool>("useMB2InOverlap", false);
-    desc.add<std::string>("useTrack", "tracker");
-    desc.add<std::string>("useState", "atVertex");
-    desc.add<edm::ESInputTag>("propagatorAlong", edm::ESInputTag("", "hltESPSteppingHelixPropagatorAlong"));
-    desc.add<edm::ESInputTag>("propagatorAny", edm::ESInputTag("", "SteppingHelixPropagatorAny"));
-    desc.add<edm::ESInputTag>("propagatorOpposite", edm::ESInputTag("", "hltESPSteppingHelixPropagatorOpposite"));
-  }
+  class PropagateToMuonSetup {
+  public:
+    using ESTokens = std::tuple<edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>,
+                                edm::ESGetToken<Propagator, TrackingComponentsRecord>,
+                                edm::ESGetToken<Propagator, TrackingComponentsRecord>,
+                                edm::ESGetToken<Propagator, TrackingComponentsRecord>,
+                                edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord>>;
 
-private:
-  /// Use simplified geometry (cylinders and disks, not individual chambers)
-  const bool useSimpleGeometry_;
+    static ESTokens getESTokens(const edm::ParameterSet &, edm::ConsumesCollector);
+    static ESTokens getESTokensBeginRun(const edm::ParameterSet &, edm::ConsumesCollector);
 
-  /// Propagate to MB2 (default) instead of MB1
-  const bool useMB2_;
+    explicit PropagateToMuonSetup(const edm::ParameterSet &iConfig, const ESTokens &);
+    ~PropagateToMuonSetup(){};
 
-  /// Fallback to ME1 if propagation to ME2 fails
-  const bool fallbackToME1_;
+    /// Call this method at the beginning of each run, to initialize geometry,
+    /// magnetic field and propagators
+    PropagateToMuon init(const edm::EventSetup &iSetup) const;
+    static void fillPSetDescription(edm::ParameterSetDescription &desc) {
+      desc.add<bool>("useSimpleGeometry", true);
+      desc.add<bool>("useStation2", true);
+      desc.add<bool>("fallbackToME1", false);
+      desc.add<bool>("cosmicPropagationHypothesis", false);
+      desc.add<bool>("useMB2InOverlap", false);
+      desc.add<std::string>("useTrack", "tracker");
+      desc.add<std::string>("useState", "atVertex");
+      desc.add<edm::ESInputTag>("propagatorAlong", edm::ESInputTag("", "hltESPSteppingHelixPropagatorAlong"));
+      desc.add<edm::ESInputTag>("propagatorAny", edm::ESInputTag("", "SteppingHelixPropagatorAny"));
+      desc.add<edm::ESInputTag>("propagatorOpposite", edm::ESInputTag("", "hltESPSteppingHelixPropagatorOpposite"));
+    }
 
-  /// Labels for input collections
-  WhichTrack whichTrack_;
-  WhichState whichState_;
+  private:
+    /// Use simplified geometry (cylinders and disks, not individual chambers)
+    const bool useSimpleGeometry_;
 
-  /// for cosmics, some things change: the along-opposite is not in-out, nor the innermost/outermost states are in-out really
-  const bool cosmicPropagation_;
+    /// Propagate to MB2 (default) instead of MB1
+    const bool useMB2_;
 
-  const bool useMB2InOverlap_;
+    /// Fallback to ME1 if propagation to ME2 fails
+    const bool fallbackToME1_;
 
-  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
-  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_, propagatorAnyToken_,
-      propagatorOppositeToken_;
-  const edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonGeometryToken_;
-};
+    /// Labels for input collections
+    WhichTrack whichTrack_;
+    WhichState whichState_;
 
+    /// for cosmics, some things change: the along-opposite is not in-out, nor the innermost/outermost states are in-out really
+    const bool cosmicPropagation_;
+
+    const bool useMB2InOverlap_;
+
+    const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+    const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_, propagatorAnyToken_,
+        propagatorOppositeToken_;
+    const edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonGeometryToken_;
+  };
+
+}  // namespace muonanalysis
 #endif

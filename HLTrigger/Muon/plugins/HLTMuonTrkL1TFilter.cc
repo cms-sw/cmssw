@@ -27,7 +27,8 @@
 
 HLTMuonTrkL1TFilter::HLTMuonTrkL1TFilter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
-      propSetup_(iConfig, consumesCollector()),
+      myESTokens_(muonanalysis::PropagateToMuonSetup::getESTokens(iConfig, consumesCollector())),
+      propSetup_(iConfig, myESTokens_),
       m_muonsTag(iConfig.getParameter<edm::InputTag>("inputMuonCollection")),
       m_muonsToken(consumes<reco::MuonCollection>(m_muonsTag)),
       m_candsTag(iConfig.getParameter<edm::InputTag>("inputCandCollection")),
@@ -69,7 +70,7 @@ void HLTMuonTrkL1TFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<unsigned int>("minN", 1);
   desc.add<double>("maxAbsEta", 1e99);
   desc.add<double>("L1MatchingdR", 0.3);
-  PropagateToMuonSetup::fillPSetDescription(desc);
+  muonanalysis::PropagateToMuonSetup::fillPSetDescription(desc);
   descriptions.add("hltMuonTrkL1TFilter", desc);
 }
 
