@@ -131,17 +131,7 @@ namespace mkfit {
 
     bool is_stereo() const { return m_layer_info->is_stereo(); }
     bool is_pixel() const { return m_layer_info->is_pixel(); }
-
-    // Sub-detector type
-    /*
-    bool is_pixb_lyr() const { return m_layer_info->is_pixb_lyr(); }
-    bool is_pixe_lyr() const { return m_layer_info->is_pixe_lyr(); }
-    bool is_pix_lyr() const { return m_layer_info->is_pix_lyr(); }
-    bool is_tib_lyr() const { return m_layer_info->is_tib_lyr(); }
-    bool is_tob_lyr() const { return m_layer_info->is_tob_lyr(); }
-    bool is_tid_lyr() const { return m_layer_info->is_tid_lyr(); }
-    bool is_tec_lyr() const { return m_layer_info->is_tec_lyr(); }
-    */
+    int  subdet() const { return m_layer_info->subdet(); }
 
   private:
     // Constants for phi-bin access / index manipulation.
