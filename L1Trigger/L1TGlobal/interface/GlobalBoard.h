@@ -193,6 +193,8 @@ namespace l1t {
     void setBxFirst(int bx);
     void setBxLast(int bx);
 
+    void setResetPSCountersEachLumiSec(bool val){m_resetPSCountersEachLumiSec=val;}
+
   public:
     inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
 
@@ -263,6 +265,9 @@ namespace l1t {
     // Information about board
     int m_uGtBoardNumber;
     bool m_uGtFinalBoard;
+
+    //whether we reset the prescales each lumi or not
+    bool m_resetPSCountersEachLumiSec = true;
   };
 
 }  // namespace l1t
