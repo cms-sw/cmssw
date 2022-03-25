@@ -1,0 +1,25 @@
+<lcgdict>
+ <selection>
+
+ <class name="l1t::MuonStub" ClassVersion="3">
+   <version ClassVersion="3" checksum="1164456369"/>
+ </class>
+ <class name="std::vector<l1t::MuonStub>"/>
+ <class name="edm::Wrapper<std::vector<l1t::MuonStub > >"/>
+ <class name="edm::Ref<l1t::MuonStubCollection>" splitLevel="0"/>
+
+ <class name="l1t::TrackerMuon" ClassVersion="3">
+   <version ClassVersion="3" checksum="2397458791"/>
+ </class>
+ <class name="std::vector<l1t::TrackerMuon>"/>
+ <class name="edm::Wrapper<std::vector<l1t::TrackerMuon > >"/>
+ <class name="edm::Ref<l1t::TrackerMuonCollection>" splitLevel="0"/>
+
+ <class name="l1t::SAMuon" ClassVersion="3">
+   <version ClassVersion="3" checksum="3294978731"/>
+ </class>
+ <class name="std::vector<l1t::SAMuon>"/>
+ <class name="edm::Wrapper<std::vector<l1t::SAMuon > >"/>
+ <class name="edm::Ref<l1t::SAMuonCollection>" splitLevel="0"/>
+ </selection>
+</lcgdict>
