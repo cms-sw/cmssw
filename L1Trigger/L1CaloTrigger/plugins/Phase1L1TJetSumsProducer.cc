@@ -87,25 +87,26 @@ private:
 
 // initialises plugin configuration and prepares ROOT file for saving the sums
 Phase1L1TJetSumsProducer::Phase1L1TJetSumsProducer(const edm::ParameterSet& iConfig)
-  : inputJetCollectionTag_{consumes<std::vector<reco::CaloJet> >(iConfig.getParameter<edm::InputTag>("inputJetCollectionTag"))},
-  sinPhi_(iConfig.getParameter<std::vector<double> >("sinPhi")),
-  cosPhi_(iConfig.getParameter<std::vector<double> >("cosPhi")),
-  nBinsPhi_(iConfig.getParameter<unsigned int>("nBinsPhi")),
-  phiLow_(iConfig.getParameter<double>("phiLow")),
-  phiUp_(iConfig.getParameter<double>("phiUp")),
-  phiStep_((phiUp_ - phiLow_) / nBinsPhi_),
-  htPtThreshold_(iConfig.getParameter<double>("htPtThreshold")),
-  mhtPtThreshold_(iConfig.getParameter<double>("mhtPtThreshold")),
-  htAbsEtaCut_(iConfig.getParameter<double>("htAbsEtaCut")),
-  mhtAbsEtaCut_(iConfig.getParameter<double>("mhtAbsEtaCut")),
-  ptlsb_(iConfig.getParameter<double>("ptlsb")),
-  outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")) {
-    usesResource("TFileService");
-    produces<std::vector<l1t::EtSum> >(outputCollectionName_).setBranchAlias(outputCollectionName_);
+    : inputJetCollectionTag_{consumes<std::vector<reco::CaloJet> >(
+          iConfig.getParameter<edm::InputTag>("inputJetCollectionTag"))},
+      sinPhi_(iConfig.getParameter<std::vector<double> >("sinPhi")),
+      cosPhi_(iConfig.getParameter<std::vector<double> >("cosPhi")),
+      nBinsPhi_(iConfig.getParameter<unsigned int>("nBinsPhi")),
+      phiLow_(iConfig.getParameter<double>("phiLow")),
+      phiUp_(iConfig.getParameter<double>("phiUp")),
+      phiStep_((phiUp_ - phiLow_) / nBinsPhi_),
+      htPtThreshold_(iConfig.getParameter<double>("htPtThreshold")),
+      mhtPtThreshold_(iConfig.getParameter<double>("mhtPtThreshold")),
+      htAbsEtaCut_(iConfig.getParameter<double>("htAbsEtaCut")),
+      mhtAbsEtaCut_(iConfig.getParameter<double>("mhtAbsEtaCut")),
+      ptlsb_(iConfig.getParameter<double>("ptlsb")),
+      outputCollectionName_(iConfig.getParameter<std::string>("outputCollectionName")) {
+  usesResource("TFileService");
+  produces<std::vector<l1t::EtSum> >(outputCollectionName_).setBranchAlias(outputCollectionName_);
 }
 
 void Phase1L1TJetSumsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const edm::Handle<std::vector<reco::CaloJet> > & jetCollectionHandle = iEvent.getHandle(inputJetCollectionTag_);
+  const edm::Handle<std::vector<reco::CaloJet> >& jetCollectionHandle = iEvent.getHandle(inputJetCollectionTag_);
 
   // computing sums and storing them in sum object
   l1t::EtSum lHT = computeHT(jetCollectionHandle);
