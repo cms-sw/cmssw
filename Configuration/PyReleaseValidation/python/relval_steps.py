@@ -504,7 +504,7 @@ steps['RunZeroBias2021']={'INPUT':InputInfo(dataSet='/ZeroBias/Commissioning2021
 steps['RunHLTPhy2021']={'INPUT':InputInfo(dataSet='/HLTPhysics/Commissioning2021-v1/RAW',label='2021Commissioning',events=100000,location='STD', ls=Run2021Commissioning)}
 steps['RunNoBPTX2021']={'INPUT':InputInfo(dataSet='/NoBPTX/Commissioning2021-v1/RAW',label='2021Commissioning',events=100000,location='STD', ls=Run2021Commissioning)}
 steps['AlCaPhiSym2021']={'INPUT':InputInfo(dataSet='/AlCaPhiSym/Commissioning2021-v1/RAW',label='2021Commissioning',run=[346512],location='STD')}
-steps['AlCaLumiPixels2021']={'INPUT':InputInfo(dataSet='/AlCaLumiPixelsCountsExpress/Commissioning2021-v1/RAW',label='2021',run=[346512],events=100000,location='STD')}
+steps['AlCaLumiPixels2021']={'INPUT':InputInfo(dataSet='/AlCaLumiPixelsCountsExpress/Commissioning2021-v1/RAW',label='2021Commissioning',run=[346512],events=100000,location='STD')}
 
 
 #### Test of lumi section boundary crossing with run2 2018D ####
