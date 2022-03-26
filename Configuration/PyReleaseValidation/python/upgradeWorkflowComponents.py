@@ -1285,7 +1285,7 @@ class UpgradeWorkflow_Run3FS(UpgradeWorkflow):
         if 'HARVESTNano' in step:
             stepDict[stepName][k] = merge([{'-s':'HARVESTING:validationHarvesting',
                                             '--era':'Run3_FastSim',
-                                            '--filein':'step1_inDQM.root'}, stepDict[step][k]])
+                                            '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021' in key
 upgradeWFs['Run3FS'] = UpgradeWorkflow_Run3FS(
@@ -1315,7 +1315,7 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
         if 'HARVESTNano' in step:
             stepDict[stepName][k] = merge([{'-s':'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM',
                                             '--era':'Run3_FastSim',
-                                            '--filein':'step1_inDQM.root'}, stepDict[step][k]])
+                                            '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021' in key
 upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
