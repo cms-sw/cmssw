@@ -24,7 +24,7 @@ Implementation:
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -52,7 +52,7 @@ Implementation:
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 
-class L1CaloJetProducer : public edm::one::EDProducer<> {
+class L1CaloJetProducer : public edm::EDProducer {
 public:
   explicit L1CaloJetProducer(const edm::ParameterSet &);
 
@@ -66,35 +66,35 @@ private:
   float get_tau_pt_calibration(float &tau_pt, float &ecal_pt, float &l1EG_pt, float &n_L1EGs, float &tau_eta) const;
   int loose_iso_tau_wp(float &tau_pt, float &tau_iso_et, float &tau_eta) const;
 
-  const double HcalTpEtMin;
-  const double EcalTpEtMin;
-  const double HGCalHadTpEtMin;
-  const double HGCalEmTpEtMin;
-  const double HFTpEtMin;
-  const double EtMinForSeedHit;
-  const double EtMinForCollection;
-  const double EtMinForTauCollection;
+  double HcalTpEtMin;
+  double EcalTpEtMin;
+  double HGCalHadTpEtMin;
+  double HGCalEmTpEtMin;
+  double HFTpEtMin;
+  double EtMinForSeedHit;
+  double EtMinForCollection;
+  double EtMinForTauCollection;
 
   // For fetching jet calibrations
-  const std::vector<double> jetPtBins;
-  const std::vector<double> emFractionBinsBarrel;
-  const std::vector<double> absEtaBinsBarrel;
-  const std::vector<double> jetCalibrationsBarrel;
-  const std::vector<double> emFractionBinsHGCal;
-  const std::vector<double> absEtaBinsHGCal;
-  const std::vector<double> jetCalibrationsHGCal;
-  const std::vector<double> emFractionBinsHF;
-  const std::vector<double> absEtaBinsHF;
-  const std::vector<double> jetCalibrationsHF;
+  std::vector<double> jetPtBins;
+  std::vector<double> emFractionBinsBarrel;
+  std::vector<double> absEtaBinsBarrel;
+  std::vector<double> jetCalibrationsBarrel;
+  std::vector<double> emFractionBinsHGCal;
+  std::vector<double> absEtaBinsHGCal;
+  std::vector<double> jetCalibrationsHGCal;
+  std::vector<double> emFractionBinsHF;
+  std::vector<double> absEtaBinsHF;
+  std::vector<double> jetCalibrationsHF;
 
   // For fetching tau calibrations
-  const std::vector<double> tauPtBins;
-  const std::vector<double> tauAbsEtaBinsBarrel;
-  const std::vector<double> tauCalibrationsBarrel;
-  const std::vector<edm::ParameterSet> tauL1egInfoBarrel;
-  const std::vector<double> tauAbsEtaBinsHGCal;
-  const std::vector<double> tauCalibrationsHGCal;
-  const std::vector<edm::ParameterSet> tauL1egInfoHGCal;
+  std::vector<double> tauPtBins;
+  std::vector<double> tauAbsEtaBinsBarrel;
+  std::vector<double> tauCalibrationsBarrel;
+  std::vector<edm::ParameterSet> tauL1egInfoBarrel;
+  std::vector<double> tauAbsEtaBinsHGCal;
+  std::vector<double> tauCalibrationsHGCal;
+  std::vector<edm::ParameterSet> tauL1egInfoHGCal;
 
   // For storing jet calibrations
   std::vector<std::vector<std::vector<double>>> calibrationsBarrel;
@@ -109,8 +109,8 @@ private:
   std::vector<std::vector<std::vector<std::vector<double>>>> tauPtCalibrationsBarrel;
   std::vector<std::vector<std::vector<std::vector<double>>>> tauPtCalibrationsHGCal;
 
-  const bool debug;
-  const edm::EDGetTokenT<l1tp2::CaloTowerCollection> l1TowerToken_;
+  bool debug;
+  edm::EDGetTokenT<l1tp2::CaloTowerCollection> l1TowerToken_;
   edm::Handle<l1tp2::CaloTowerCollection> l1CaloTowerHandle;
 
   // TF1s defining tau isolation thresholds
