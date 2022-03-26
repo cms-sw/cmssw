@@ -110,7 +110,7 @@ std::shared_ptr<FWParameterSetterBase> FWParameterSetterBase::makeSetterFor(FWPa
       name = "FWStringParameterSetter";
     else {
       name += "Setter";
-      fwLog(fwlog::kWarning) << "can't find setter type for "<< iParam->name() << ", guessing to " << name << "\n";
+      fwLog(fwlog::kWarning) << "can't find setter type for " << iParam->name() << ", guessing to " << name << "\n";
     }
     edm::TypeWithDict setterClass(edm::TypeWithDict::byName(name));
 
