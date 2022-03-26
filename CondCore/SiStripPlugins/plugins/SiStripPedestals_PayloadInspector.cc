@@ -56,7 +56,7 @@ namespace {
       setGranularity(SiStripCondObjectRepresent::PERSTRIP);
     }
 
-    void allValues() override {
+    void storeAllValues() override {
       std::vector<uint32_t> detid;
       payload_->getDetIds(detid);
 
@@ -136,7 +136,7 @@ namespace {
       SiStripPedestalContainer* f_objContainer =
           new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
 
-      l_objContainer->Subtract(f_objContainer);
+      l_objContainer->subtract(f_objContainer);
 
       //l_objContainer->printAll();
 
@@ -601,6 +601,8 @@ namespace {
         : PlotImage<SiStripPedestals, nIOVs, ntags>("SiStrip Pedestal values comparison") {}
 
     bool fill() override {
+      TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // X and Y offset for Y axis
+
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
@@ -625,12 +627,7 @@ namespace {
       auto f_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
           op_mode_,
           "f_Pedestal",
-          Form("#LT Strip Pedestal #GT per %s for IOV [%s,%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
-               opType(op_mode_).c_str(),
-               std::to_string(std::get<0>(firstiov)).c_str(),
-               std::to_string(std::get<0>(lastiov)).c_str(),
-               opType(op_mode_).c_str(),
-               opType(op_mode_).c_str()),
+          Form(";#LTStrip Pedestal per %s#GT [ADC counts];n. %ss", opType(op_mode_).c_str(), opType(op_mode_).c_str()),
           300,
           0.,
           300.));
@@ -638,12 +635,7 @@ namespace {
       auto l_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
           op_mode_,
           "l_Pedestal",
-          Form("#LT Strip Pedestal #GT per %s for IOV [%s,%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
-               opType(op_mode_).c_str(),
-               std::to_string(std::get<0>(lastiov)).c_str(),
-               std::to_string(std::get<0>(lastiov)).c_str(),
-               opType(op_mode_).c_str(),
-               opType(op_mode_).c_str()),
+          Form(";#LTStrip Pedestal per %s#GT [ADC counts];n. %ss", opType(op_mode_).c_str(), opType(op_mode_).c_str()),
           300,
           0.,
           300.));
@@ -749,25 +741,41 @@ namespace {
       //=========================
       TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
       canvas.cd();
-      canvas.SetBottomMargin(0.11);
+      canvas.SetTopMargin(0.06);
+      canvas.SetBottomMargin(0.10);
       canvas.SetLeftMargin(0.13);
       canvas.SetRightMargin(0.05);
       canvas.Modified();
 
       float theMax = (h_first.GetMaximum() > h_last.GetMaximum()) ? h_first.GetMaximum() : h_last.GetMaximum();
 
-      h_first.SetMaximum(theMax * 1.30);
-      h_last.SetMaximum(theMax * 1.30);
+      h_first.SetMaximum(theMax * 1.20);
+      h_last.SetMaximum(theMax * 1.20);
 
       h_first.Draw();
+      h_last.SetFillColorAlpha(kBlue, 0.15);
       h_last.Draw("same");
 
-      TLegend legend = TLegend(0.52, 0.82, 0.95, 0.9);
-      legend.SetHeader("SiStrip Pedestal comparison", "C");  // option "C" allows to center the header
-      legend.AddEntry(&h_first, ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
-      legend.AddEntry(&h_last, ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      TLegend legend = TLegend(0.13, 0.83, 0.95, 0.94);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend.SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend.AddEntry(&h_first, (tagname1 + " : " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(&h_last, (tagname2 + " : " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      } else {
+        legend.SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend.AddEntry(&h_first, ("IOV since: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(&h_last, ("IOV since: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      }
       legend.SetTextSize(0.025);
       legend.Draw("same");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       Form("#LTSiStrip Pedestals#GT Comparison per %s", opType(op_mode_).c_str()));
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
