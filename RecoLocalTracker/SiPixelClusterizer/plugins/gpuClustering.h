@@ -39,7 +39,8 @@ namespace gpuClustering {
   }
 
   template <bool isPhase2>
-  __global__ void findClus(uint16_t const* __restrict__ id,           // module id of each pixel
+  __global__ void findClus(uint32_t* __restrict__ rawIdArr,
+                           uint16_t* __restrict__ id,                 // module id of each pixel
                            uint16_t const* __restrict__ x,            // local coordinates of each pixel
                            uint16_t const* __restrict__ y,            //
                            uint32_t const* __restrict__ moduleStart,  // index of the first pixel of each module
@@ -103,6 +104,14 @@ namespace gpuClustering {
           printf("too many pixels in module %d: %d > %d\n", thisModuleId, msize - firstPixel, maxPixInModule);
           msize = maxPixInModule + firstPixel;
         }
+        /*
+        /// dump
+       if (thisModuleId==1) {
+        printf ("dump for mod 1\n");
+        for (int k = int(firstPixel); k< msize; ++k) printf ("%d %d\n",x[k],y[k]);
+        printf ("end dump for mod 1\n");
+       }
+       */
       }
 
       __syncthreads();
@@ -113,6 +122,24 @@ namespace gpuClustering {
       totGood = 0;
       __syncthreads();
 #endif
+
+      // remove duplicate
+      if (msize > 1)
+        for (int i = first; i < msize - 1; i += blockDim.x) {
+          if (id[i] == invalidModuleId)  // skip invalid pixels
+            continue;
+          for (int j = i + 1; j < msize; ++j) {
+            if (id[j] == invalidModuleId)  // skip invalid pixels
+              continue;
+            if (y[i] == y[j] && x[i] == x[j]) {
+              //  printf("found dup %d %d %d %d %d\n",i,j,id[i],x[i], y[i]);
+              id[i] = invalidModuleId;
+              rawIdArr[i] = 0;
+              break;
+            }
+          }
+        }
+      __syncthreads();
 
       // fill histo
       for (int i = first; i < msize; i += blockDim.x) {
@@ -204,6 +231,7 @@ namespace gpuClustering {
             continue;
           auto l = nnn[k]++;
           assert(l < maxNeighbours);
+          // if (l>=5) printf("too many Neighbours! %d %d %d\n",thisModuleId, x[i], y[i]);
           nn[k][l] = *p;
         }
       }
