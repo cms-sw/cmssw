@@ -20,7 +20,7 @@ Implementation:
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -36,25 +36,27 @@ Implementation:
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
-class L1CaloJetHTTProducer : public edm::one::EDProducer<> {
+class L1CaloJetHTTProducer : public edm::EDProducer {
 public:
   explicit L1CaloJetHTTProducer(const edm::ParameterSet&);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  const double EtaMax;
-  const double PtMin;
+  double EtaMax;
+  double PtMin;
 
-  const edm::EDGetTokenT<BXVector<l1t::Jet>> bxvCaloJetsToken_;
+  edm::EDGetTokenT<BXVector<l1t::Jet>> bxvCaloJetsToken_;
+  edm::Handle<BXVector<l1t::Jet>> bxvCaloJetsHandle;
 
   // Gen jet collections are only loaded and used if requested
   // (use_gen_jets == true)
-  const edm::EDGetTokenT<std::vector<reco::GenJet>> genJetsToken_;
+  edm::EDGetTokenT<std::vector<reco::GenJet>> genJetsToken_;
+  edm::Handle<std::vector<reco::GenJet>> genJetsHandle;
 
-  const bool debug;
+  bool debug;
 
-  const bool use_gen_jets;
+  bool use_gen_jets;
 };
 
 L1CaloJetHTTProducer::L1CaloJetHTTProducer(const edm::ParameterSet& iConfig)
@@ -77,7 +79,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // CaloJet HTT for L1 collections
   if (!use_gen_jets) {
-    const edm::Handle<BXVector<l1t::Jet>> & bxvCaloJetsHandle = iEvent.getHandle(bxvCaloJetsToken_);
+    iEvent.getByToken(bxvCaloJetsToken_, bxvCaloJetsHandle);
 
     if (bxvCaloJetsHandle.isValid()) {
       for (const auto& caloJet : *bxvCaloJetsHandle.product()) {
@@ -97,7 +99,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   // CaloJet HTT for gen jets
   if (use_gen_jets) {
-    const edm::Handle<std::vector<reco::GenJet>> & genJetsHandle = iEvent.getHandle(genJetsToken_);
+    iEvent.getByToken(genJetsToken_, genJetsHandle);
 
     if (genJetsHandle.isValid()) {
       for (const auto& genJet : *genJetsHandle.product()) {
