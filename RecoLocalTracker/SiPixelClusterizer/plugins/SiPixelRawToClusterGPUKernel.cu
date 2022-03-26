@@ -347,6 +347,7 @@ namespace pixelgpudetails {
     //if (threadIdx.x==0) printf("Event: %u blockIdx.x: %u start: %u end: %u\n", eventno, blockIdx.x, begin, end);
 
     int32_t first = threadIdx.x + blockIdx.x * blockDim.x;
+    int32_t lastWord = wordCounter - 1;
     for (int32_t iloop = first, nend = wordCounter; iloop < nend; iloop += blockDim.x * gridDim.x) {
       auto gIndex = iloop;
       xx[gIndex] = 0;
@@ -438,6 +439,16 @@ namespace pixelgpudetails {
             printf("Error status: %i %d %d %d %d\n", error, dcol, pxid, fedId, roc);
           continue;
         }
+      }
+
+      // remove duplicate pixels (for the time being keep second to reproduce current CPU behaviour)
+      auto noADC = sipixelconstants::removeADC(ww);
+      // auto noADCm1 =  sipixelconstants::removeADC(gIndex==0 ? 0 : word[gIndex-1]);
+      auto noADCp1 = sipixelconstants::removeADC(gIndex == lastWord ? 0 : word[gIndex + 1]);
+      if (noADC == noADCp1) {
+        // auto globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
+        // printf("dup pix at %d %d %d\n",detId.moduleId,globalPix.row,globalPix.col);
+        continue;
       }
 
       pixelgpudetails::Pixel globalPix = frameConversion(barrel, side, layer, rocIdInDetUnit, localPix);
@@ -656,7 +667,8 @@ namespace pixelgpudetails {
       std::cout << "CUDA findClus kernel launch with " << blocks << " blocks of " << threadsPerBlock << " threads\n";
 #endif
 
-      findClus<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+      findClus<false><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().rawIdArr(),
+                                                              digis_d.view().moduleInd(),
                                                               digis_d.view().xx(),
                                                               digis_d.view().yy(),
                                                               clusters_d.moduleStart(),
@@ -763,7 +775,8 @@ namespace pixelgpudetails {
     threadsPerBlock = 256;
     blocks = phase2PixelTopology::numberOfModules;
 
-    findClus<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().moduleInd(),
+    findClus<true><<<blocks, threadsPerBlock, 0, stream>>>(digis_d.view().rawIdArr(),
+                                                           digis_d.view().moduleInd(),
                                                            digis_d.view().xx(),
                                                            digis_d.view().yy(),
                                                            clusters_d.moduleStart(),

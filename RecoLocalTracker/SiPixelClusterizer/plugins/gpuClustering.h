@@ -39,7 +39,8 @@ namespace gpuClustering {
   }
 
   template <bool isPhase2>
-  __global__ void findClus(uint16_t const* __restrict__ id,           // module id of each pixel
+  __global__ void findClus(uint32_t* __restrict__ rawIdArr,
+                           uint16_t* __restrict__ id,                 // module id of each pixel
                            uint16_t const* __restrict__ x,            // local coordinates of each pixel
                            uint16_t const* __restrict__ y,            //
                            uint32_t const* __restrict__ moduleStart,  // index of the first pixel of each module
@@ -113,6 +114,24 @@ namespace gpuClustering {
       totGood = 0;
       __syncthreads();
 #endif
+
+      // remove duplicate
+      if (msize > 1)
+        for (int i = first; i < msize - 1; i += blockDim.x) {
+          if (id[i] == invalidModuleId)  // skip invalid pixels
+            continue;
+          for (int j = i + 1; j < msize; ++j) {
+            if (id[j] == invalidModuleId)  // skip invalid pixels
+              continue;
+            if (y[i] == y[j] && x[i] == x[j]) {
+              //  printf("found dup %d %d %d %d %d\n",i,j,id[i],x[i], y[i]);
+              id[i] = invalidModuleId;
+              rawIdArr[i] = 0;
+              break;
+            }
+          }
+        }
+      __syncthreads();
 
       // fill histo
       for (int i = first; i < msize; i += blockDim.x) {
