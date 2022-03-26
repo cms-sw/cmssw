@@ -86,16 +86,16 @@ void L1TriggerNtupleTrackTrigger::initialize(TTree& tree,
 
 void L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSetup& es) {
   // the L1Tracks
-  const edm::Handle<std::vector<L1TTTrackType>> & l1TTTrackHandle = ev.getHandle(track_token_);
+  const edm::Handle<std::vector<L1TTTrackType>>& l1TTTrackHandle = ev.getHandle(track_token_);
 
   float fBz = 0;
   if (magfield_watcher_.check(es)) {
-    const edm::ESHandle<MagneticField> & magfield = es.getHandle(magf_token);
+    const edm::ESHandle<MagneticField>& magfield = es.getHandle(magf_token);
     fBz = magfield->inTesla(GlobalPoint(0, 0, 0)).z();
   }
 
   // geometry needed to call pTFrom2Stubs
-  const edm::ESHandle<TrackerGeometry> & geomHandle = es.getHandle(geom_token);
+  const edm::ESHandle<TrackerGeometry>& geomHandle = es.getHandle(geom_token);
   const TrackerGeometry* tGeom = geomHandle.product();
 
   triggerTools_.eventSetup(es);
