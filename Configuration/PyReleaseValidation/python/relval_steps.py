@@ -1147,19 +1147,6 @@ steps['H125GGgluonfusionFS_13_UP18']=merge([{'cfg':'H125GGgluonfusion_13TeV_Tune
 steps['SingleMuPt10FS_UP18']=merge([{'cfg':'SingleMuPt10_pythia8_cfi'},step1FastUpg2018Defaults])
 steps['SingleMuPt100FS_UP18']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1FastUpg2018Defaults])
 
-#step1FastUpg2021Defaults
-steps['TTbarFS_14_UP21']=merge([{'cfg':'TTbar_14TeV_TuneCP5_cfi'},Kby(100,1000),step1FastUpg2021Defaults])
-steps['TTbarFS_14_trackingOnlyValidation_UP21']=merge([{'cfg':'TTbar_14TeV_TuneCP5_cfi'},Kby(100,1000),step1FastUpg2021_trackingOnlyValidation])
-steps['SMS-T1tttt_mGl-1500_mLSP-100FS_14_UP21']=merge([{'cfg':'SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi'},Kby(100,1000),step1FastUpg2021Defaults])
-steps['ZEEFS_14_UP21']=merge([{'cfg':'ZEE_14TeV_TuneCP5_cfi'},Kby(100,2000),step1FastUpg2021Defaults])
-steps['ZTTFS_14_UP21']=merge([{'cfg':'ZTT_All_hadronic_14TeV_TuneCP5_cfi'},Kby(100,2000),step1FastUpg2021Defaults])
-steps['ZMMFS_14_UP21']=merge([{'cfg':'ZMM_14TeV_TuneCP5_cfi'},Kby(100,2000),step1FastUpg2021Defaults])
-steps['QCDFlatPt153000FS_14_UP21']=merge([{'cfg':'QCDForPF_14TeV_TuneCP5_cfi'},Kby(27,2000),step1FastUpg2021Defaults])
-steps['QCD_Pt_80_120FS_14_UP21']=merge([{'cfg':'QCD_Pt_80_120_14TeV_TuneCP5_cfi'},Kby(100,500),step1FastUpg2021Defaults])
-steps['H125GGgluonfusionFS_14_UP21']=merge([{'cfg':'H125GGgluonfusion_14TeV_TuneCP5_cfi'},step1FastUpg2021Defaults])
-steps['SingleMuPt10FS_UP21']=merge([{'cfg':'SingleMuPt10_pythia8_cfi'},step1FastUpg2021Defaults])
-steps['SingleMuPt100FS_UP21']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1FastUpg2021Defaults])
-
 ### FastSim: produce sample of minbias events for PU mixing, 2018
 steps['MinBiasFS_13_UP18_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPU18NewMixing])
 
