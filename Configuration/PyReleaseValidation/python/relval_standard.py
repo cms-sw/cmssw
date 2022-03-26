@@ -512,19 +512,6 @@ workflows[2018.13] = ['TTbar_13_UP18', ['TTbarFS_13_trackingOnlyValidation_UP18'
 ### MinBias fastsim_13 TeV for mixing, 2018 ###
 workflows[2021.8] = ['',['MinBiasFS_14_UP21_ForMixing']]
 
-### Phase1 FastSim 14TeV, 2021 ###
-workflows[2021.1] = ['TTbar_14_UP21', ['TTbarFS_14_UP21','HARVESTUP21FS']]
-workflows[2021.2] = ['SingleMuPt10_UP21', ['SingleMuPt10FS_UP21','HARVESTUP21FS']]
-workflows[2021.3] = ['SingleMuPt100_UP21', ['SingleMuPt100FS_UP21','HARVESTUP21FS']]
-workflows[2021.4] = ['ZEE_14_UP21', ['ZEEFS_14_UP21','HARVESTUP21FS']]
-workflows[2021.5] = ['ZTT_14_UP21',['ZTTFS_14_UP21','HARVESTUP21FS']]
-workflows[2021.6] = ['QCD_FlatPt_15_3000_14_UP21', ['QCDFlatPt153000FS_14_UP21','HARVESTUP21FS']]
-workflows[2021.7] = ['H125GGgluonfusion_14_UP21', ['H125GGgluonfusionFS_14_UP21','HARVESTUP21FS']]
-workflows[2021.9] = ['ZMM_14_UP21',['ZMMFS_14_UP21','HARVESTUP21FS']]
-workflows[2021.11] = ['SMS-T1tttt_mGl-1500_mLSP-100_14_UP21', ['SMS-T1tttt_mGl-1500_mLSP-100FS_14_UP21','HARVESTUP21FS']]
-workflows[2021.12] = ['QCD_Pt_80_120_14_UP21', ['QCD_Pt_80_120FS_14_UP21','HARVESTUP21FS']]
-workflows[2021.13] = ['TTbar_14_UP21', ['TTbarFS_14_trackingOnlyValidation_UP21','HARVESTUP21FS_trackingOnly']]
-
 ### standard set ###
 ## particle guns
 workflows[15] = ['', ['SingleElectronPt10','DIGI','RECO','HARVEST']]

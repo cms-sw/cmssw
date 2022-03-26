@@ -1271,6 +1271,66 @@ upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
     offset = 0.9921,
 )
 
+class UpgradeWorkflow_Run3FS(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'GenSim' in step:
+            stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@standardValidation,DQM:@standardDQMFS',
+                                            '--fast':'',
+                                            '--era':'Run3_FastSim',
+                                            '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
+                                            '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
+                                            '--relval':'27000,3000'}, stepDict[step][k]])
+        if 'Digi' in step or 'RecoNano' in step or 'ALCA' in step:
+            stepDict[stepName][k] = None
+        if 'HARVESTNano' in step:
+            stepDict[stepName][k] = merge([{'-s':'HARVESTING:validationHarvesting',
+                                            '--era':'Run3_FastSim',
+                                            '--filein':'step1_inDQM.root'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['Run3FS'] = UpgradeWorkflow_Run3FS(
+    steps = [
+        'GenSim',
+        'Digi',
+        'RecoNano',
+        'HARVESTNano',
+        'ALCA'
+    ],
+    PU = [],
+    suffix = '_Run3FS',
+    offset = 0.301,
+)
+
+class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'GenSim' in step:
+            stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@trackingOnlyValidation',
+                                            '--fast':'',
+                                            '--era':'Run3_FastSim',
+                                            '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
+                                            '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
+                                            '--relval':'27000,3000'}, stepDict[step][k]])
+        if 'Digi' in step or 'RecoNano' in step or 'ALCA' in step:
+            stepDict[stepName][k] = None
+        if 'HARVESTNano' in step:
+            stepDict[stepName][k] = merge([{'-s':'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM',
+                                            '--era':'Run3_FastSim',
+                                            '--filein':'step1_inDQM.root'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
+    steps = [
+        'GenSim',
+        'Digi',
+        'RecoNano',
+        'HARVESTNano',
+        'ALCA'
+    ],
+    PU = [],
+    suffix = '_Run3FStrackingOnly',
+    offset = 0.302,
+)
+
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
