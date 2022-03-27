@@ -541,7 +541,7 @@ void CSCEventData::addAnodeALCTShower(const std::vector<CSCShowerDigi>& digis) {
   theALCTHeader->addShower(digis);
 }
 
-/// Add/pack GE11 GEM Pad Clusters trigger objects receibed by OTMB from GEM
+/// Add/pack GE11 GEM Pad Clusters trigger objects received by OTMB from GEM
 void CSCEventData::add(const std::vector<GEMPadDigiCluster>& clusters, const GEMDetId& gemdetid) {
   checkTMBClasses();
   if (theTMBData->hasGEM()) {
