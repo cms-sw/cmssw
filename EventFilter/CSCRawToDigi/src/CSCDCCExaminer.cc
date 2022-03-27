@@ -729,14 +729,6 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
       ///   Check if ALCT zero suppression enable:
       ALCT_ZSE = (buf1[1] & 0x1000) >> 12;
 
-/*
-      if (ALCT_ZSE) {
-        for (int g = 0; g < 4; g++) {
-          if (buf1[g] == 0x1000)
-            ALCT_WordsSinceLastHeader -= (nWG_round_up - 1);
-        }
-      }
-*/
 #ifdef LOCAL_UNPACK
 /*
       COUT << " Number of Wire Groups: " << nWG_round_up << std::endl;

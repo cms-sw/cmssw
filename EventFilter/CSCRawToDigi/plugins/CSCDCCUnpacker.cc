@@ -592,7 +592,6 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
 
                 /// anode shower digis from OTMB header data
                 CSCShowerDigi anodeShowerDigiOTMB = cscData[iCSC].tmbHeader()->anodeShowerDigi(layer.rawId());
-                ;
                 if (anodeShowerDigiOTMB.isValid()) {
                   std::vector<CSCShowerDigi> anodeShowerDigis;
                   anodeShowerDigis.push_back(anodeShowerDigiOTMB);
@@ -601,7 +600,6 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
 
                 /// cathode shower digis from OTMB header data
                 CSCShowerDigi cathodeShowerDigiOTMB = cscData[iCSC].tmbHeader()->cathodeShowerDigi(layer.rawId());
-                ;
                 if (cathodeShowerDigiOTMB.isValid()) {
                   std::vector<CSCShowerDigi> cathodeShowerDigis;
                   cathodeShowerDigis.push_back(cathodeShowerDigiOTMB);
@@ -623,14 +621,15 @@ void CSCDCCUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
                        ++igem) {
                     int gem_chamber = layer.chamber();
                     int gem_region = (layer.endcap() == 1) ? 1 : -1;
+                    // Loop over GEM layer eta/rolls
                     for (unsigned ieta = 0; ieta < 8; ieta++) {
-                      // GE11 eta needs to be reversed from 0-7 to 8-1
+                      // GE11 eta/roll collection addressing according to GEMDetID definition is 1-8
                       GEMDetId gemid(gem_region, layer.ring(), layer.station(), igem + 1, gem_chamber, ieta + 1);
+                      // GE11 actual data format reporting eta/rolls in 0-7 range
+                      // mapping agreement is that real data eta needs to be reversed from 0-7 to 8-1 for GEMDetId collection convention
                       std::vector<GEMPadDigiCluster> gemDigis =
                           cscData[iCSC].tmbData()->gemData()->etaDigis(igem, 7 - ieta);
                       if (!gemDigis.empty()) {
-                        /* std::cout << "GEM" << gemid << std::endl;
-                        for (auto it : gemDigis) it.print(); */
                         gemProduct->move(std::make_pair(gemDigis.begin(), gemDigis.end()), gemid);
                       }
                     }
