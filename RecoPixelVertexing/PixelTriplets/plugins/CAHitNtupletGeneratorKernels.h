@@ -6,7 +6,7 @@
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "GPUCACell.h"
 
-// #define DUMP_GPU_TK_TUPLES
+#define DUMP_GPU_TK_TUPLES
 
 namespace cAHitNtupletGenerator {
 
@@ -21,6 +21,7 @@ namespace cAHitNtupletGenerator {
     unsigned long long nGoodTracks;
     unsigned long long nUsedHits;
     unsigned long long nDupHits;
+    unsigned long long nFishCells;
     unsigned long long nKilledCells;
     unsigned long long nEmptyCells;
     unsigned long long nZeroTrackCells;
