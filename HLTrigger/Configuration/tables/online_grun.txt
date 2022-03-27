@@ -702,7 +702,10 @@ HLT_L1SingleMuCosmics_v*							#	CMSHLT-2097
 HLT_PPSMaxTracksPerArm1_v*							#	CMSHLT-2179
 HLT_PPSMaxTracksPerRP4_v*							#	CMSHLT-2179
 
-## EndPath ##
+HLT_ExpressMuons_v*       # CMSHLT-2245
+HLT_OnlineMonitorGroup_v* # CMSHLT-2245
+
+## EndPaths / FinalPaths ##
 
 PhysicsEndOfFillOutput
 PhysicsCommissioningOutput
