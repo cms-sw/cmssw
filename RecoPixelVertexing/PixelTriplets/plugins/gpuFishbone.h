@@ -75,25 +75,25 @@ namespace gpuPixelDoublets {
           // must be different detectors
           //        if (d[ic]==d[jc]) continue;
           auto cos12 = x[ic] * x[jc] + y[ic] * y[jc] + z[ic] * z[jc];
-          if (d[ic] != d[jc] && cos12 * cos12 >= 0.99999f * n[ic] * n[jc]) {
+          if (d[ic] != d[jc] && cos12 * cos12 >= 0.99999f * (n[ic] * n[jc])) {
             // alligned:  kill farthest (prefer consecutive layers)
             // if same layer prefer farthest (longer level arm) and make space for intermediate hit
             bool sameLayer = l[ic] == l[jc];
             if (n[ic] > n[jc]) {
               if (sameLayer) {
                 cj.kill();  // closest
-                ci.setFishbone(cj.inner_hit_id());
+                ci.setFishbone(cj.inner_hit_id(), cj.inner_z(hh), hh);
               } else {
                 ci.kill();  // farthest
-                break;
+                // break;
               }
             } else {
               if (!sameLayer) {
                 cj.kill();  // farthest
               } else {
                 ci.kill();  // closest
-                cj.setFishbone(ci.inner_hit_id());
-                break;
+                cj.setFishbone(ci.inner_hit_id(), ci.inner_z(hh), hh);
+                // break;
               }
             }
           }
