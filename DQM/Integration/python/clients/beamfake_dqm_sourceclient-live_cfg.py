@@ -5,8 +5,8 @@ import time
 # Define here the BeamSpotOnline record name,
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineLegacy'
-BSOnlineJobName = 'BeamSpotOnlineLegacy'
+BSOnlineTag = 'BeamSpotOnlineFakeLegacy'
+BSOnlineJobName = 'BeamSpotOnlineFakeLegacy'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 import sys
@@ -177,8 +177,8 @@ else:
                             ),
 
         # Upload to CondDB
-        connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db'),
-        preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db'),
+        connect = cms.string('sqlite_file:BeamSpotOnlineFakeLegacy.db'),
+        preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineFakeLegacy.db'),
         runNumber = cms.untracked.uint64(options.runNumber),
         lastLumiFile = cms.untracked.string('last_lumi.txt'),
         latency = cms.untracked.uint32(2),
