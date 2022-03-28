@@ -1,6 +1,7 @@
 <library   file="*.cc" name="Phase2L1GMTPlugins">
   <use name="DataFormats/L1TMuonPhase2"/>
   <use name="DataFormats/L1TMuon"/>
+  <use name="DataFormats/L1Trigger"/>
   <use name="SimGeneral/HepPDTRecord"/>
   <use name="DataFormats/L1TrackTrigger"/>
   <use name="DataFormats/L1TCorrelator"/>

@@ -2,6 +2,8 @@
 #define PHASE2GMT_PRETRACKMATCHEDMUON
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "L1Trigger/Phase2L1GMT/interface/Constants.h"
+#include <vector>
 
 namespace Phase2L1GMT {
 

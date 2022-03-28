@@ -17,6 +17,7 @@
 #define PHASE2GMT_TAUTO3MU
 
 #include "L1Trigger/Phase2L1GMT/interface/TopologicalAlgorithm.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace Phase2L1GMT {
   class Tauto3Mu : public TopoAlgo {
