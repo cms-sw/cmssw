@@ -30,7 +30,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -64,7 +64,7 @@
 using namespace std;
 using namespace edm;
 
-class TestGEMCSCSegmentAnalyzer : public edm::EDAnalyzer {
+class TestGEMCSCSegmentAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestGEMCSCSegmentAnalyzer(const edm::ParameterSet&);
   ~TestGEMCSCSegmentAnalyzer();
@@ -90,6 +90,8 @@ private:
   bool debug;
   std::string rootFileName;
 
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> kCSCGeometryToken_;
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> kGEMGeometryToken_;
   edm::EDGetTokenT<edm::SimTrackContainer> SimTrack_Token;
   edm::EDGetTokenT<CSCSegmentCollection> CSCSegment_Token;
   edm::EDGetTokenT<GEMCSCSegmentCollection> GEMCSCSegment_Token;
@@ -346,14 +348,15 @@ private:
 // constructors and destructor
 //
 TestGEMCSCSegmentAnalyzer::TestGEMCSCSegmentAnalyzer(const edm::ParameterSet& iConfig)
-
-{
+    : kCSCGeometryToken_(esConsumes<CSCGeometry, MuonGeometryRecord>()),
+      kGEMGeometryToken_(esConsumes<GEMGeometry, MuonGeometryRecord>()) {
   //now do what ever initialization is needed
   debug = iConfig.getUntrackedParameter<bool>("Debug");
   rootFileName = iConfig.getUntrackedParameter<std::string>("RootFileName");
 
   // outputfile = new TFile(rootFileName.c_str(), "RECREATE" );
-  outputfile.reset(TFile::Open(rootFileName.c_str()));
+  outputfile.reset(TFile::Open(rootFileName.c_str(), "CREATE"));
+  outputfile->cd();
 
   SimTrack_Token = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
   CSCSegment_Token = consumes<CSCSegmentCollection>(edm::InputTag("cscSegments"));
@@ -973,8 +976,17 @@ TestGEMCSCSegmentAnalyzer::~TestGEMCSCSegmentAnalyzer() {
 
 // ------------ method called for each event  ------------
 void TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  iSetup.get<MuonGeometryRecord>().get(gemGeom);
-  iSetup.get<MuonGeometryRecord>().get(cscGeom);
+  const auto gemGeom = iSetup.getHandle(kGEMGeometryToken_);
+  if (not gemGeom.isValid()) {
+    edm::LogError("GEMCSCSegment") << "invalid GEMGeometry";
+    return;
+  }
+
+  const auto cscGeom = iSetup.getHandle(kCSCGeometryToken_);
+  if (not cscGeom.isValid()) {
+    edm::LogError("GEMCSCSegment") << "invalid CSCGeometry";
+    return;
+  }
   const CSCGeometry* cscGeom_ = &*cscGeom;
 
   // ================
