@@ -974,7 +974,11 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
     m_prescaleCounterAlgoTrig.reserve(numberPhysTriggers * totalBxInEvent);
 
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-      m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      if (m_semiRandomInitialPSCounters) {
+        m_prescaleCounterAlgoTrig.push_back(semirandomNumber(iEvent, prescaleFactorsAlgoTrig));
+      } else {
+        m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      }
     }
     m_firstEv = false;
     m_currentLumi = iEvent.luminosityBlock();
@@ -984,7 +988,11 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
   if (m_firstEvLumiSegment || (m_currentLumi != iEvent.luminosityBlock() && m_resetPSCountersEachLumiSec)) {
     m_prescaleCounterAlgoTrig.clear();
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-      m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      if (m_semiRandomInitialPSCounters) {
+        m_prescaleCounterAlgoTrig.push_back(semirandomNumber(iEvent, prescaleFactorsAlgoTrig));
+      } else {
+        m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      }
     }
     m_firstEvLumiSegment = false;
     m_currentLumi = iEvent.luminosityBlock();
