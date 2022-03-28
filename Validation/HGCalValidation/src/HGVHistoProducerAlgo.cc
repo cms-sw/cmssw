@@ -2616,10 +2616,10 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
           }
           const auto elemId = (valType == 0) ? hitid : lcId;
           const auto elemFr = (valType == 0) ? it_haf.second : lcFraction;
-          //Since the current hit from sim cluster has a reconstructed hit with the same detid,
-          //make a map that will connect a detid with:
-          //1. the CaloParticles that have a SimCluster with sim hits in that cell via caloparticle id.
-          //2. the sum of all SimHits fractions that contributes to that detid.
+          //Since the current hit from SimCluster has a reconstructed hit {with the same detid, belonging to the corresponding SimTrackster},
+          //make a map that will connect a {detid,lcID} with:
+          //1. the SimTracksters that have a SimCluster with {sim hits in, LCs containing} that cell via SimTrackster id.
+          //2. the sum of all {SimHits, LCs} fractions that contributes to that detid.
           //So, keep in mind that in case of multiple CaloParticles contributing in the same cell
           //the fraction is the sum over all calo particles. So, something like:
           //detid: (caloparticle 1, sum of hits fractions in that detid over all cp) , (caloparticle 2, sum of hits fractions in that detid over all cp), (caloparticle 3, sum of hits fractions in that detid over all cp) ...
