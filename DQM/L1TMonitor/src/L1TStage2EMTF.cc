@@ -367,8 +367,25 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       gemChamberPad[hist]->setBinLabel(bin, std::to_string(bin), 1);
       gemChamberPartition[hist]->setBinLabel(bin, std::to_string(bin), 1);
     }
-  }
+    //Added 06-01-22 ***
+    for (int ch = 0; ch < 36; ch++){
+      for (int lyr = 0; lyr < 2; lyr++){
+          gemBXVFATPerChamber[ch][hist][lyr] = ibooker.book2D("gemBXVFATPerChamber_" + std::to_string(ch) + "_" + std::to_string(hist) + "_" + std::to_string(lyr), "GEM BX vs VFAT in Chamber " + std::to_string(ch+1) + " " + label + " Layer " + std::to_string(lyr), 7, -3, 4, 48, 0, 48);
+          gemBXVFATPerChamber[ch][hist][lyr]->setAxisTitle("BX", 1);
+          gemBXVFATPerChamber[ch][hist][lyr]->setAxisTitle("8*phi + eta, " + label, 2);
 
+          gemBXVFATPerChamberCoincidence[ch][hist][lyr] = ibooker.book2D("gemBXVFATPerChamberCoincidence_" + std::to_string(ch) + "_" + std::to_string(hist) + "_" + std::to_string(lyr), "GEM BX vs VFAT with CSC coincidence in Chamber " + std::to_string(ch+1) + " " + label + " Layer " + std::to_string(lyr), 7, -3, 4, 48, 0, 48);
+          gemBXVFATPerChamberCoincidence[ch][hist][lyr]->setAxisTitle("BX", 1);
+          gemBXVFATPerChamberCoincidence[ch][hist][lyr]->setAxisTitle("8*phi + eta, " + label, 2);
+          for (int bin = 1; bin <= 48; ++bin) {
+            gemBXVFATPerChamberCoincidence[ch][hist][lyr]->setBinLabel(bin, std::to_string(bin-1), 2);
+            gemBXVFATPerChamber[ch][hist][lyr]->setBinLabel(bin, std::to_string(bin-1), 2);
+          }
+      }
+    }
+    gemChamberVFATBX[hist] = ibooker.book2D("gemChamberVFATBX" + name, "GEM Chamber vs VFAT * BX" + label, 42, 1, 43, 210, 0, 210); // 8* (0-2) phi part + (0-7) eta part
+    gemChamberVFATBX[hist]->setAxisTitle("Chamber, " + label, 1);
+  }
   // CSC LCT and RPC Hit Timing
   ibooker.setCurrentFolder(monitorDir + "/Timing");
 
@@ -687,6 +704,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 }
 
 // CSCOccupancy chamber mapping for neighbor inclusive plots
+// Tried to rename this to this_v2_chamber_bin however keep coming across a gmake error, since it has same stucture I'll keep it as is for now.
 int chamber_bin(int station, int ring, int chamber) {
   int chamber_bin_index = 0;
   if (station > 1 && (ring % 2) == 1) {
@@ -894,17 +912,29 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (Hit->Is_GEM() == true) {
       gemHitBX->Fill(Hit->BX(), (endcap > 0) ? 1.5 : 0.5);
       hist_index = (endcap > 0) ? 1 : 0;
+      //Added def of layer
+      int layer = Hit->Layer();
+      int phi_part = Hit->Pad() / 64; // 0-2
+      int vfat = phi_part * 8 + Hit->Partition();
       if (Hit->Neighbor() == false) {
         gemChamberPad[hist_index]->Fill(chamber, Hit->Pad());
         gemChamberPartition[hist_index]->Fill(chamber, Hit->Partition());
         gemHitOccupancy->Fill(chamber_bin(1, 1, chamber), (endcap > 0) ? 1.5 : 0.5);  // follow CSC convention
-      } else {
+	//Added plots 06-01-22 ***
+	      gemBXVFATPerChamber[chamber-1][hist_index][layer]->Fill(Hit->BX(), vfat);
+        //changed from thisv2_chamber_bin
+        gemChamberVFATBX[hist_index]->Fill( chamber_bin(1, 1, chamber), (Hit->BX() + 3) * 30 + vfat);
+      } 
+      //Added plots 06-07-22
+      
+      else {
         gemChamberPad[hist_index]->Fill((Hit->Sector() % 6) * 6 + 2, Hit->Pad());
         gemChamberPartition[hist_index]->Fill((Hit->Sector() % 6) * 6 + 2, Hit->Partition());
         gemHitOccupancy->Fill((Hit->Sector() % 6 + 1) * 7 - 4, (endcap > 0) ? 1.5 : 0.5);  // follow CSC convention
       }
+    
     }  // End of if (Hit->Is_GEM() == true)
-  }    // End of for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
+   }   // End of for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
 
   // Tracks
   edm::Handle<l1t::EMTFTrackCollection> TrackCollection;
