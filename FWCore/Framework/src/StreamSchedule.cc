@@ -453,38 +453,39 @@ namespace edm {
           if (itFound == conditionalModules.end()) {
             //Check to see if this was an alias
             auto findAlias = aliasMap.equal_range(productModuleLabel);
-            if (findAlias.first != findAlias.second) {
-              for (auto it = findAlias.first; it != findAlias.second; ++it) {
-                //this was previously filtered so only the conditional modules remain
-                productModuleLabel = it->second.originalModuleLabel;
+            for (auto it = findAlias.first; it != findAlias.second; ++it) {
+              //this was previously filtered so only the conditional modules remain
+              productModuleLabel = it->second.originalModuleLabel;
+              if (it->second.instanceLabel == "*" or ci.instance() == it->second.instanceLabel) {
                 if (it->second.friendlyClassName == "*" or
                     (ci.type().friendlyClassName() == it->second.friendlyClassName)) {
-                  if (it->second.instanceLabel == "*" or ci.instance() == it->second.instanceLabel) {
-                    productFromConditionalModule = true;
-                    //need to check the rest of the data product info
-                    break;
-                  }
+                  productFromConditionalModule = true;
+                  //need to check the rest of the data product info
+                  break;
                 } else if (ci.kindOfType() == ELEMENT_TYPE) {
                   //consume is a View so need to do more intrusive search
-                  if (it->second.instanceLabel == "*" or ci.instance() == it->second.instanceLabel) {
-                    //find matching branches in module
-                    auto branches = conditionalModuleBranches.equal_range(productModuleLabel);
-                    for (auto itBranch = branches.first; itBranch != branches.second; ++it) {
-                      if (it->second.originalInstanceLabel == "*" or
-                          itBranch->second->productInstanceName() == it->second.originalInstanceLabel) {
-                        if (typeIsViewCompatible(ci.type(),
-                                                 TypeID(itBranch->second->wrappedType().typeInfo()),
-                                                 itBranch->second->className())) {
-                          productFromConditionalModule = true;
-                          break;
-                        }
+                  //find matching branches in module
+                  auto branches = conditionalModuleBranches.equal_range(productModuleLabel);
+                  for (auto itBranch = branches.first; itBranch != branches.second; ++it) {
+                    if (it->second.originalInstanceLabel == "*" or
+                        itBranch->second->productInstanceName() == it->second.originalInstanceLabel) {
+                      if (typeIsViewCompatible(ci.type(),
+                                               TypeID(itBranch->second->wrappedType().typeInfo()),
+                                               itBranch->second->className())) {
+                        productFromConditionalModule = true;
+                        break;
                       }
                     }
+                  }
+                  if (productFromConditionalModule) {
+                    break;
                   }
                 }
               }
             }
-            itFound = conditionalModules.find(productModuleLabel);
+            if (productFromConditionalModule) {
+              itFound = conditionalModules.find(productModuleLabel);
+            }
           } else {
             //need to check the rest of the data product info
             auto findBranches = conditionalModuleBranches.equal_range(productModuleLabel);
