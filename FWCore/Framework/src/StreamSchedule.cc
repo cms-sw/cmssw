@@ -415,6 +415,10 @@ namespace edm {
         if (productModuleLabel.empty()) {
           //this is a consumesMany request
           for (auto const& branch : conditionalModuleBranches) {
+            //check that the conditional module has not been used
+            if (conditionalModules.find(branch.first) == conditionalModules.end()) {
+              continue;
+            }
             if (ci.kindOfType() == edm::PRODUCT_TYPE) {
               if (branch.second->unwrappedTypeID() != ci.type()) {
                 continue;
@@ -426,11 +430,10 @@ namespace edm {
               }
             }
 
-            auto condWorker =
-                getWorker(productModuleLabel, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+            auto condWorker = getWorker(branch.first, proc_pset, workerManager_, preg, prealloc, processConfiguration);
             assert(condWorker);
 
-            conditionalModules.erase(productModuleLabel);
+            conditionalModules.erase(branch.first);
 
             auto dependents = tryToPlaceConditionalModules(condWorker,
                                                            conditionalModules,
