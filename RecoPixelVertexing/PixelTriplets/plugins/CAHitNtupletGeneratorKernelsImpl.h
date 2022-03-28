@@ -101,7 +101,7 @@ __global__ void kernel_checkOverflows(HitContainer const *foundNtuplets,
 
   for (int idx = first, nt = (*nCells); idx < nt; idx += gridDim.x * blockDim.x) {
     auto const &thisCell = cells[idx];
-    if (thisCell.hasFishbone())
+    if (thisCell.hasFishbone() && !thisCell.isKilled())
       atomicAdd(&c.nFishCells, 1);
     if (thisCell.outerNeighbors().full())  //++tooManyNeighbors[thisCell.theLayerPairId];
       printf("OuterNeighbors overflow %d in %d\n", idx, thisCell.layerPairId());
@@ -914,9 +914,9 @@ __global__ void kernel_printCounters(cAHitNtupletGenerator::Counters const *coun
          c.nHits,
          c.nCells,
          c.nTuples,
+         c.nFitTracks,
          c.nLooseTracks,
          c.nGoodTracks,
-         c.nFitTracks,
          c.nUsedHits,
          c.nDupHits,
          c.nFishCells,
