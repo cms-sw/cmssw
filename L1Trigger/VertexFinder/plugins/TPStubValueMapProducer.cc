@@ -77,7 +77,6 @@ private:
   const edm::EDGetTokenT<DetSetVec> stubToken_;
   const edm::EDGetTokenT<TTStubAssMap> stubTruthToken_;
   const edm::EDGetTokenT<TTClusterAssMap> clusterTruthToken_;
-
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
