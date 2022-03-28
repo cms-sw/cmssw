@@ -51,6 +51,7 @@ namespace edm {
     FilterAction filterAction() const { return filterAction_; }
     Worker* getWorker() const { return worker_; }
     bool runConcurrently() const noexcept { return runConcurrently_; }
+    unsigned int bitPosition() const noexcept { return placeInPathContext_.placeInPath(); }
 
     void setPathContext(PathContext const* v) { placeInPathContext_.setPathContext(v); }
 
