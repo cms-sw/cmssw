@@ -1042,14 +1042,12 @@ namespace edm {
                                      << "Name"
                                      << "";
 
-        unsigned int bitpos = 0;
         for (auto const& mod : p.moduleInPathSummaries) {
           LogFwkVerbatim("FwkSummary") << "TrigReport " << std::right << std::setw(5) << 1 << std::right << std::setw(5)
-                                       << bitpos << " " << std::right << std::setw(10) << mod.timesVisited << " "
-                                       << std::right << std::setw(10) << mod.timesPassed << " " << std::right
+                                       << mod.bitPosition << " " << std::right << std::setw(10) << mod.timesVisited
+                                       << " " << std::right << std::setw(10) << mod.timesPassed << " " << std::right
                                        << std::setw(10) << mod.timesFailed << " " << std::right << std::setw(10)
                                        << mod.timesExcept << " " << mod.moduleLabel << "";
-          ++bitpos;
         }
       }
 

@@ -550,7 +550,12 @@ namespace edm {
     //An EDAlias may be redirecting to a module on a ConditionalTask
     std::multimap<std::string, AliasInfo> aliasMap;
     std::multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
+    std::unordered_map<std::string, unsigned int> conditionalModOrder;
     if (itCondBegin != modnames.end()) {
+      for (auto it = itCondBegin + 1; it != modnames.begin() + modnames.size() - 1; ++it) {
+        // ordering needs to skip the # token in the path list
+        conditionalModOrder.emplace(*it, it - modnames.begin() - 1);
+      }
       //the last entry should be ignored since it is required to be "@"
       conditionalmods = std::unordered_set<std::string>(
           std::make_move_iterator(itCondBegin + 1), std::make_move_iterator(modnames.begin() + modnames.size() - 1));
@@ -652,8 +657,8 @@ namespace edm {
       auto condModules = tryToPlaceConditionalModules(
           worker, conditionalmods, conditionalModsBranches, aliasMap, proc_pset, preg, prealloc, processConfiguration);
       for (auto condMod : condModules) {
-        tmpworkers.emplace_back(condMod, WorkerInPath::Ignore, placeInPath, true);
-        ++placeInPath;
+        tmpworkers.emplace_back(
+            condMod, WorkerInPath::Ignore, conditionalModOrder[condMod->description()->moduleLabel()], true);
       }
 
       tmpworkers.emplace_back(worker, filterAction, placeInPath, runConcurrently);
@@ -1033,6 +1038,7 @@ namespace edm {
     sum.timesFailed += path.timesFailed(which);
     sum.timesExcept += path.timesExcept(which);
     sum.moduleLabel = path.getWorker(which)->description()->moduleLabel();
+    sum.bitPosition = path.bitPosition(which);
   }
 
   static void fillPathSummary(Path const& path, PathSummary& sum) {
