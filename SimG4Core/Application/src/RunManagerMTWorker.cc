@@ -18,11 +18,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
@@ -61,7 +61,6 @@
 #include <thread>
 #include <sstream>
 #include <vector>
-#include "tbb/task_arena.h"
 
 static std::once_flag applyOnce;
 
@@ -85,7 +84,7 @@ namespace {
       std::unique_ptr<SimWatcherMakerBase> maker(
           SimWatcherFactory::get()->create(watcher.getParameter<std::string>("type")));
       if (maker == nullptr) {
-        throw edm::Exception(edm::errors::Configuration)
+        throw cms::Exception("Configuration")
             << "RunManagerMTWorker::createWatchers: "
             << "Unable to find the requested Watcher " << watcher.getParameter<std::string>("type");
       } else {
@@ -94,7 +93,7 @@ namespace {
         maker->make(watcher, *(iReg), watcherTemp, producerTemp);
         if (nullptr != watcherTemp) {
           if (!watcherTemp->isMT() && 0 < threadID) {
-            throw edm::Exception(edm::errors::Configuration)
+            throw cms::Exception("Configuration")
                 << "RunManagerMTWorker::createWatchers: "
                 << "Unable to use Watcher " << watcher.getParameter<std::string>("type") << " if number of threads > 1";
           } else {
@@ -230,7 +229,7 @@ void RunManagerMTWorker::initializeTLS() {
   if (otherRegistry) {
     m_tls->registry->connect(*otherRegistry);
     if (thisID > 0) {
-      throw edm::Exception(edm::errors::Configuration)
+      throw cms::Exception("Configuration")
           << "RunManagerMTWorker::initializeTLS : "
           << "SimActivityRegistry service (i.e. visualization) is not supported for more than 1 thread. "
           << " \n If this use case is needed, RunManagerMTWorker has to be updated.";
@@ -265,7 +264,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
     m_UIsession =
         new CustomUIsessionToFile(m_pCustomUIsession.getUntrackedParameter<std::string>("ThreadFile", ""), thisID);
   } else {
-    throw edm::Exception(edm::errors::Configuration)
+    throw cms::Exception("Configuration")
         << "RunManagerMTWorker::initializeG4: Invalid value of CustomUIsession.Type '" << uitype
         << "', valid are MessageLogger, MessageLoggerThreadPrefix, FilePerThread";
   }
@@ -282,7 +281,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
 
   // Define G4 exception handler
   double th = m_p.getParameter<double>("ThresholdForGeometryExceptions") * CLHEP::GeV;
-  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler(th));
+  G4StateManager::GetStateManager()->SetExceptionHandler(new ExceptionHandler(th, false));
 
   // Set the geometry for the worker, share from master
   auto worldPV = runManagerMaster->world().GetWorldVolume();
@@ -346,7 +345,7 @@ void RunManagerMTWorker::initializeG4(RunManagerMT* runManagerMaster, const edm:
   m_tls->kernel->InitializePhysics();
 
   if (!m_tls->kernel->RunInitialization()) {
-    throw edm::Exception(edm::errors::Configuration)
+    throw cms::Exception("Configuration")
         << "RunManagerMTWorker::InitializeG4: Geant4 kernel initialization failed in thread " << thisID;
   }
   //tell all interesting parties that we are beginning the job
@@ -506,9 +505,9 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
                                                         genVertex->t() / CLHEP::second));
   }
   if (m_tls->currentEvent->GetNumberOfPrimaryVertex() == 0) {
-    std::stringstream ss;
-    ss << "RunManagerMTWorker::produce: event " << inpevt.id().event() << " with no G4PrimaryVertices \n";
-    throw SimG4Exception(ss.str());
+    throw cms::Exception("EventCorruption")
+        << "RunManagerMTWorker::produce: event " << inpevt.id().event() << " with no G4PrimaryVertices"
+        << " StreamID=" << inpevt.streamID() << " threadIndex=" << getThreadIndex();
 
   } else {
     edm::LogVerbatim("SimG4CoreApplication")
@@ -527,7 +526,6 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
     sd->reset();
   }
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce: ended Event " << inpevt.id().event();
-
   m_simEvent = nullptr;
   return simEvent;
 }
