@@ -91,9 +91,7 @@ void FastTimerServiceClient::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGet
 void FastTimerServiceClient::dqmEndLuminosityBlock(DQMStore::IBooker& booker,
                                                    DQMStore::IGetter& getter,
                                                    edm::LuminosityBlock const& lumi,
-                                                   edm::EventSetup const& setup) {
-  fillSummaryPlots(booker, getter);
-}
+                                                   edm::EventSetup const& setup) {}
 
 void FastTimerServiceClient::fillSummaryPlots(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
   if (getter.get(m_dqm_path + "/event time_real")) {
@@ -251,7 +249,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
     MonitorElement* me;
 
     booker.setCurrentFolder(subsubdir);
-    me = getter.get("module_time_real_average");
+    me = getter.get(subsubdir + "/module_time_real_average");
     if (me) {
       real_average = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
@@ -266,7 +264,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       }
     }
 
-    me = getter.get("module_time_thread_average");
+    me = getter.get(subsubdir + "/module_time_thread_average");
     if (me) {
       thread_average = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
@@ -282,7 +280,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       }
     }
 
-    me = getter.get("module_time_real_running");
+    me = getter.get(subsubdir + "/module_time_real_running");
     if (me) {
       real_running = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
@@ -297,7 +295,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       }
     }
 
-    me = getter.get("module_time_thread_running");
+    me = getter.get(subsubdir + "/module_time_thread_running");
     if (me) {
       thread_running = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
@@ -313,7 +311,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       }
     }
 
-    me = getter.get("module_efficiency");
+    me = getter.get(subsubdir + "/module_efficiency");
     if (me) {
       efficiency = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
