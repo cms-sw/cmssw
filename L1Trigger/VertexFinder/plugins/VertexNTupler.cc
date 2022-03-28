@@ -40,7 +40,7 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
-  class VertexNTupler : public edm::one::EDAnalyzer<> {
+  class VertexNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit VertexNTupler(const edm::ParameterSet&);
     ~VertexNTupler() override;
@@ -185,7 +185,6 @@ namespace l1tVertexFinder {
     // storage class for configuration parameters
     AnalysisSettings settings_;
 
-    edm::Service<TFileService> fs_;
     // Histograms for Vertex Reconstruction
 
     float numTrueInteractions_, hepMCVtxZ0_, genVtxZ0_;
@@ -217,7 +216,7 @@ namespace l1tVertexFinder {
             consumes<std::vector<l1tVertexFinder::TP>>(iConfig.getParameter<edm::InputTag>("l1TracksTPInputTags"))),
         vTPsToken_(consumes<edm::ValueMap<l1tVertexFinder::TP>>(
             iConfig.getParameter<edm::InputTag>("l1TracksTPValueMapInputTags"))),
-        outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
+        //outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
         printResults_(iConfig.getParameter<bool>("printResults")),
         settings_(iConfig) {
     const std::vector<std::string> trackBranchNames(
@@ -262,6 +261,10 @@ namespace l1tVertexFinder {
         iConfig.getParameter<std::vector<edm::InputTag>>("extraL1VertexInputTags"));
     const std::vector<std::string> extraVertexDescriptions(
         iConfig.getParameter<std::vector<std::string>>("extraL1VertexDescriptions"));
+
+    usesResource(TFileService::kSharedResource);
+    edm::Service<TFileService> fs;
+    outputTree_=fs->make<TTree>("l1VertexReco", "L1 vertex-related info");
 
     std::vector<std::string>::const_iterator branchNameIt = emulationVertexBranchNames.begin();
     std::vector<edm::InputTag>::const_iterator inputTagIt = emulationVertexInputTags.begin();
