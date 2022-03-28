@@ -56,7 +56,7 @@ private:
 
 HGCGeometryTester::HGCGeometryTester(const edm::ParameterSet& iC)
     : ddToken_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})},
-      square_(iC.getUntrackedParameter<bool>("SquareType", false)) { }
+      square_(iC.getUntrackedParameter<bool>("SquareType", false)) {}
 
 void HGCGeometryTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -84,10 +84,12 @@ void HGCGeometryTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
         std::vector<double> solidPar = eview.logicalPart().solid().parameters();
         if (square_) {
           svPars[name] = std::pair<double, double>(solidPar[3], 0.5 * (solidPar[4] + solidPar[5]));
-          edm::LogVerbatim("HGCalGeomX") << name << " Layer " << layer << " " << solidPar[3] << " " << solidPar[4] << " " << solidPar[5];
+          edm::LogVerbatim("HGCalGeomX") << name << " Layer " << layer << " " << solidPar[3] << " " << solidPar[4]
+                                         << " " << solidPar[5];
         } else {
           svPars[name] = std::pair<double, double>(solidPar[0], 0.5 * (solidPar[2] - solidPar[1]));
-          edm::LogVerbatim("HGCalGeomX") << name << " Layer " << layer << " " << solidPar[0] << " " << solidPar[1] << " " << solidPar[2];
+          edm::LogVerbatim("HGCalGeomX") << name << " Layer " << layer << " " << solidPar[0] << " " << solidPar[1]
+                                         << " " << solidPar[2];
         }
       }
     }
