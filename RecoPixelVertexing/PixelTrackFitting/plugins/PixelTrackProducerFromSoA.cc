@@ -154,16 +154,15 @@ void PixelTrackProducerFromSoA::produce(edm::StreamID streamID,
   auto const *quality = tsoa.qualityData();
   auto const &fit = tsoa.stateAtBS;
   auto const &hitIndices = tsoa.hitIndices;
-  auto maxTracks = tsoa.stride();
+  auto nTracks = tsoa.nTracks();
 
-  tracks.reserve(maxTracks);
+  tracks.reserve(nTracks);
 
   int32_t nt = 0;
 
-  for (int32_t it = 0; it < maxTracks; ++it) {
+  for (int32_t it = 0; it < nTracks; ++it) {
     auto nHits = tsoa.nHits(it);
-    if (nHits == 0)
-      break;  // this is a guard: maybe we need to move to nTracks...
+    assert(nHits >= 3);
     indToEdm.push_back(-1);
     auto q = quality[it];
     if (q < minQuality_)
