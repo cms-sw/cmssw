@@ -18,12 +18,13 @@ set InputGenSimGRun0 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/co
 set InputGenSimGRun1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
 #   InputGenSimGRun2 = /store/relval/CMSSW_8_0_16/RelValProdTTbar_13/GEN-SIM/80X_mcRun2_asymptotic_v16_gs7120p2-v1/10000/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
 set InputGenSimGRun2 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/06F2C3AC-8957-E611-9DDF-0025905B85D8.root
-#   InputGenSimGRun3 = /store/relval/CMSSW_11_2_0_pre8/RelValTTbar_13/GEN-SIM/112X_mcRun3_2021_design_v10-v1/00000/3ee9ba1e-0ef8-4242-8343-cff886c9f7b3.root
-set InputGenSimGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_11/3ee9ba1e-0ef8-4242-8343-cff886c9f7b3.root
+#   InputGenSimGRun3 = /store/relval/CMSSW_12_3_0_pre6/RelValTTbar_14TeV/GEN-SIM/123X_mcRun3_2021_realistic_v11-v1/10000/29297788-21c3-4bf2-afe0-5382f08fbcd5.root
+set InputGenSimGRun3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_12/29297788-21c3-4bf2-afe0-5382f08fbcd5.root
 #   InputGenSimHIon1 = /store/relval/CMSSW_8_0_16/RelValZEEMM_13_HI/GEN-SIM/80X_mcRun2_HeavyIon_v9-v1/10000/F8FC5F64-1657-E611-A57E-002590A887F0.root
 set InputGenSimHIon1 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_8/F8FC5F64-1657-E611-A57E-002590A887F0.root
-#   InputGenSimHIon3 = /store/relval/CMSSW_11_2_0_pre8/RelValZEE_14_HI_2021/GEN-SIM/112X_mcRun3_2021_realistic_HI_v11-v1/00000/65e018bc-2a25-4f53-b9cf-aba35a7b212d.root
-set InputGenSimHIon3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_11/65e018bc-2a25-4f53-b9cf-aba35a7b212d.root
+#   InputGenSimHIon3 = /store/relval/CMSSW_12_3_0_pre6/RelValZEE_14_HI_2021/GEN-SIM/123X_mcRun3_2021_realistic_HI_v11-v2/10000/3c102f6f-4b70-4b09-b646-504bc104414d.root
+set InputGenSimHIon3 = root://eoscms.cern.ch//eos/cms/store/group/dpg_trigger/comm_trigger/TriggerStudiesGroup/STORM/GEN-SIM/CMSSW_12/3c102f6f-4b70-4b09-b646-504bc104414d.root
+
 set InputGenSimPIon2 = $InputGenSimGRun2
 set InputGenSimPRef2 = $InputGenSimGRun2
 set InputGenSimPIon3 = $InputGenSimGRun3
