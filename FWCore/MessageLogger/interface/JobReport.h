@@ -255,7 +255,7 @@ namespace edm {
       std::map<std::string, long long> readBranches_;
       std::map<std::string, long long> readBranchesSecFile_;
       oneapi::tbb::concurrent_unordered_map<std::string, AtomicLongLong> readBranchesSecSource_;
-      bool printedReadBranches_;
+      std::atomic<bool> printedReadBranches_;
       std::vector<InputFile>::size_type lastOpenedPrimaryInputFile_;
       edm::propagate_const<std::ostream*> ost_;
     };
