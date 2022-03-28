@@ -41,8 +41,8 @@ public:
   std::unique_ptr<MkFitGeometry> produce(const TrackerRecoGeometryRecord &iRecord);
 
 private:
-  struct gap_collector {
-    struct interval {
+  struct GapCollector {
+    struct Interval {
       float x, y;
     };
 
@@ -56,13 +56,13 @@ private:
     void add_interval(float x, float y);
 
     void sqrt_elements();
-    bool find_gap(interval &itvl, float eps);
+    bool find_gap(Interval &itvl, float eps);
     void print_gaps();
 
-    std::list<interval> m_coverage;
-    interval m_current;
+    std::list<Interval> m_coverage;
+    Interval m_current;
   };
-  typedef std::unordered_map<int, gap_collector> layer_gap_map_t;
+  typedef std::unordered_map<int, GapCollector> layer_gap_map_t;
 
   void considerPoint(const GlobalPoint &gp, mkfit::LayerInfo &lay_info);
   void fillShapeAndPlacement(const GeomDet *det, mkfit::TrackerInfo &trk_info, layer_gap_map_t *lgc_map = nullptr);
@@ -96,7 +96,7 @@ void MkFitGeometryESProducer::fillDescriptions(edm::ConfigurationDescriptions &d
 
 //------------------------------------------------------------------------------
 
-void MkFitGeometryESProducer::gap_collector::add_interval(float x, float y) {
+void MkFitGeometryESProducer::GapCollector::add_interval(float x, float y) {
   if (x > y)
     std::swap(x, y);
   bool handled = false;
@@ -132,14 +132,14 @@ void MkFitGeometryESProducer::gap_collector::add_interval(float x, float y) {
   }
 }
 
-void MkFitGeometryESProducer::gap_collector::sqrt_elements() {
+void MkFitGeometryESProducer::GapCollector::sqrt_elements() {
   for (auto &itvl : m_coverage) {
     itvl.x = std::sqrt(itvl.x);
     itvl.y = std::sqrt(itvl.y);
   }
 }
 
-bool MkFitGeometryESProducer::gap_collector::find_gap(interval &itvl, float eps) {
+bool MkFitGeometryESProducer::GapCollector::find_gap(Interval &itvl, float eps) {
   auto i = m_coverage.begin();
   while (i != m_coverage.end()) {
     auto j = i;
@@ -157,7 +157,7 @@ bool MkFitGeometryESProducer::gap_collector::find_gap(interval &itvl, float eps)
   return false;
 }
 
-void MkFitGeometryESProducer::gap_collector::print_gaps() {
+void MkFitGeometryESProducer::GapCollector::print_gaps() {
   auto i = m_coverage.begin();
   while (i != m_coverage.end()) {
     auto j = i;
@@ -272,7 +272,7 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
 
     // printf("RECT 0x%x %f %f %f\n", detid.rawId(), dx, dy, dz);
   } else {
-    throw std::runtime_error("unsupported Bounds class");
+    throw cms::Exception("UnimplementedFeature") << "unsupported Bounds class";
   }
 
   const bool useMatched = false;
@@ -365,12 +365,13 @@ void MkFitGeometryESProducer::addTECGeometry(mkfit::TrackerInfo &trk_info) {
   for (auto &det : m_trackerGeom->detsTEC()) {
     fillShapeAndPlacement(det, trk_info, &lgc_map);
   }
-  // Now loop over the gap_collectors and see if there is a coverage gap.
-  gap_collector::interval itvl;
+  // Now loop over the GapCollectors and see if there is a coverage gap.
+  GapCollector::Interval itvl;
   for (auto &[layer, gcol] : lgc_map) {
     gcol.sqrt_elements();
     if (gcol.find_gap(itvl, 0.5)) {
-      printf("TEC layer %d, gap: %f -> %f, width = %f\n", layer, itvl.x, itvl.y, itvl.y - itvl.x);
+      edm::LogInfo("TEC layer with gap") << "layer: " << layer << ", gap: " << itvl.x << " -> " << itvl.y
+                                         << " width = " << itvl.y - itvl.x;
       trk_info.layer_nc(layer).set_r_hole_range(itvl.x, itvl.y);
     }
   }
@@ -399,15 +400,13 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
 
   // std::string path = "Geometry/TrackerCommonData/data/";
   if (m_trackerGeom->isThere(GeomDetEnumerators::P1PXB) || m_trackerGeom->isThere(GeomDetEnumerators::P1PXEC)) {
-    // path += "PhaseI/";
-    std::cout << "-- PhaseI --\n";
+    edm::LogInfo("MkFitGeometryESProducer") << "extracting PhaseI eometry";
     trackerInfo->create_layers(18, 27, 27);
   } else if (m_trackerGeom->isThere(GeomDetEnumerators::P2PXB) || m_trackerGeom->isThere(GeomDetEnumerators::P2PXEC) ||
              m_trackerGeom->isThere(GeomDetEnumerators::P2OTB) || m_trackerGeom->isThere(GeomDetEnumerators::P2OTEC)) {
-    // path += "PhaseII/";
-    std::cout << "-- PhaseII --\n";
+    throw cms::Exception("UnimplementedFeature") << "PhaseII geometry extraction";
   } else {
-    std::cout << "-- Phase Naught --\n";
+    throw cms::Exception("UnimplementedFeature") << "unsupported / unknowen geometry version";
   }
 
   // Prepare layer boundaries for bounding-box search
@@ -433,7 +432,7 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
     li.set_q_bin(phase1QBins[i]);
     unsigned int maxsid = li.shrink_modules();
     // Make sure the short id fits in the 12 bits...
-    assert(maxsid < (int)1 << 11);
+    assert(maxsid < 1u << 11);
   }
 
   return std::make_unique<MkFitGeometry>(
