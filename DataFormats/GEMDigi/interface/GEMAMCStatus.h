@@ -40,7 +40,7 @@ public:
     error.badRunType = amc.runType() != 0x1;
     // Last OC in AMC13 is different to TCDS, AMC, and VFAT
     error.badOC = !((uint16_t(amc13->orbitNumber()) == amc.orbitNumber()) ||
-                    (amc13->bunchCrossing() == 0 && amc.orbitNumber() + 1 == (uint16_t(amc13->orbitNumber()))));
+                    (amc13->bunchCrossing() == 0 && uint16_t(amc.orbitNumber() + 1) == uint16_t(amc13->orbitNumber())));
     error.MMCMlocked = !amc.mmcmLocked();
     error.DAQclocklocked = !amc.daqClockLocked();
     error.DAQnotReday = !amc.daqReady();
