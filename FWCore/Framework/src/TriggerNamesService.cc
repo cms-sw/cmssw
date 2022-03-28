@@ -31,11 +31,24 @@ namespace edm {
       loadPosMap(end_pos_, end_names_);
 
       const unsigned int n(trignames_.size());
+      auto const& labelsToRemove = schedulingConstructLabels();
       for (unsigned int i = 0; i != n; ++i) {
         modulenames_.push_back(pset.getParameter<Strings>(trignames_[i]));
+        auto& names = modulenames_.back();
+        names.erase(
+            std::remove_if(names.begin(),
+                           names.end(),
+                           [&labelsToRemove](auto const& n) { return labelsToRemove.find(n) != labelsToRemove.end(); }),
+            names.end());
       }
       for (unsigned int i = 0; i != end_names_.size(); ++i) {
         end_modulenames_.push_back(pset.getParameter<Strings>(end_names_[i]));
+        auto& names = end_modulenames_.back();
+        names.erase(
+            std::remove_if(names.begin(),
+                           names.end(),
+                           [&labelsToRemove](auto const& n) { return labelsToRemove.find(n) != labelsToRemove.end(); }),
+            names.end());
       }
     }
 
@@ -87,6 +100,11 @@ namespace edm {
     bool TriggerNamesService::getTrigPaths(TriggerResults const& triggerResults, Strings& trigPaths) {
       bool dummy;
       return getTrigPaths(triggerResults, trigPaths, dummy);
+    }
+
+    TriggerNamesService::ScheduingConstructLabelSet const& TriggerNamesService::schedulingConstructLabels() {
+      static const ScheduingConstructLabelSet s_set({{"@"}, {"#"}});
+      return s_set;
     }
   }  // namespace service
 }  // namespace edm
