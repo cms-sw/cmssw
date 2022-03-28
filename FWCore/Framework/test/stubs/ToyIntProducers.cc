@@ -415,6 +415,36 @@ namespace edmtest {
   }
 
   //
+  // Produces an IntProduct instance, using many IntProducts as input.
+  //
+
+  class AddAllIntsProducer : public edm::global::EDProducer<> {
+  public:
+    explicit AddAllIntsProducer(edm::ParameterSet const& p) : putToken_{produces()} { consumesMany<IntProduct>(); }
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      descriptions.addDefault(desc);
+    }
+
+  private:
+    const edm::EDPutTokenT<int> putToken_;
+  };
+
+  void AddAllIntsProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    std::vector<edm::Handle<IntProduct>> ints;
+    e.getManyByType(ints);
+
+    int value = 0;
+    for (auto const& i : ints) {
+      value += i->value;
+    }
+
+    e.emplace(putToken_, value);
+  }
+
+  //
   // Produces multiple IntProduct products
   //
 
@@ -844,6 +874,7 @@ namespace edmtest {
   };
 }  // namespace edmtest
 
+using edmtest::AddAllIntsProducer;
 using edmtest::AddIntsProducer;
 using edmtest::BusyWaitIntLegacyProducer;
 using edmtest::BusyWaitIntLimitedProducer;
@@ -878,6 +909,7 @@ DEFINE_FWK_MODULE(TransientIntProducer);
 DEFINE_FWK_MODULE(IntProducerFromTransient);
 DEFINE_FWK_MODULE(Int16_tProducer);
 DEFINE_FWK_MODULE(AddIntsProducer);
+DEFINE_FWK_MODULE(AddAllIntsProducer);
 DEFINE_FWK_MODULE(ManyIntProducer);
 DEFINE_FWK_MODULE(ManyIntWhenRegisteredProducer);
 DEFINE_FWK_MODULE(NonEventIntProducer);
