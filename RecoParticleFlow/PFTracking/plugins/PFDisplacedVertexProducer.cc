@@ -62,7 +62,8 @@ using namespace std;
 using namespace edm;
 
 PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iConfig)
-    : inputTagVertexCandidates_(consumes<reco::PFDisplacedVertexCandidateCollection>(iConfig.getParameter<InputTag>("vertexCandidatesLabel"))),
+    : inputTagVertexCandidates_(consumes<reco::PFDisplacedVertexCandidateCollection>(
+          iConfig.getParameter<InputTag>("vertexCandidatesLabel"))),
       inputTagMainVertex_(consumes<reco::VertexCollection>(iConfig.getParameter<InputTag>("mainVertexLabel"))),
       inputTagBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<InputTag>("offlineBeamSpotLabel"))),
       magFieldToken_(esConsumes()),
@@ -70,7 +71,6 @@ PFDisplacedVertexProducer::PFDisplacedVertexProducer(const edm::ParameterSet& iC
       tkerTopoToken_(esConsumes()),
       tkerGeomToken_(esConsumes()) {
   // --- Setup input collection names --- //
-
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose");
 
