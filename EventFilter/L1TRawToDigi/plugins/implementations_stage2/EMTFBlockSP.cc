@@ -35,6 +35,19 @@ namespace l1t {
         auto payload = block.payload();
         int errors = 0;
 
+        // if (true) {
+        //   std::cout << ">>> SP block to unpack <<<" << std::endl
+        //             << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block.header().raw()
+        //             << std::dec << " (ID " << block.header().getID() << ", size " << block.header().getSize()
+        //             << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block.header().getCapID()
+        //             << ")" << std::dec << std::endl;
+        //   for (const auto& word : block.payload()) {
+        //     if (true)
+        //       std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec
+        //                 << std::endl;
+        //   }
+        // }
+
         // Check the number of 16-bit words
         if (payload.size() != 8) {
           errors += 1;

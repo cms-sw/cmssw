@@ -165,6 +165,19 @@ namespace l1t {
         // payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
         auto payload = block.payload();
 
+        // if (true) {
+        //   std::cout << ">>> Header block to unpack <<<" << std::endl
+        //             << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block.header().raw()
+        //             << std::dec << " (ID " << block.header().getID() << ", size " << block.header().getSize()
+        //             << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block.header().getCapID()
+        //             << ")" << std::dec << std::endl;
+        //   for (const auto& word : block.payload()) {
+        //     if (true)
+        //       std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec
+        //                 << std::endl;
+        //   }
+        // }
+
         // Check Format of Payload
         l1t::emtf::AMC13Header AMC13Header_;
         l1t::emtf::MTF7Header MTF7Header_;
