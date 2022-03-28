@@ -59,7 +59,8 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
   std::vector<DetId> ids;
   HGCalTopology::DecodedDetId id = decode(idin);
   if (waferHexagon8()) {
-    int celltype = hdcons_.cellType(id.iType, id.iCell1, id.iCell2, id.zSide, 1, -1);  // Temporary fix - later for v17 define fwd back and orient
+    int celltype = hdcons_.cellType(
+        id.iType, id.iCell1, id.iCell2, id.zSide, 1, -1);  // Temporary fix - later for v17 define fwd back and orient
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Type:WaferU:WaferV " << id.iType << ":" << id.iCell1 << ":" << id.iCell2
                                   << " CellType " << celltype;

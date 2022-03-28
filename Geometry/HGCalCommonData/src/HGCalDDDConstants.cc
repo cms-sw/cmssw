@@ -247,7 +247,7 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
 }
 
 int32_t HGCalDDDConstants::cellType(int type, int cellU, int cellV, int iz, int fwdBack, int orient) const {
-  int placement = (orient < 0) ? HGCalCell::cellPlacementOld : HGCalCell::cellPlacementIndex(iz, fwdBack,  orient);
+  int placement = (orient < 0) ? HGCalCell::cellPlacementOld : HGCalCell::cellPlacementIndex(iz, fwdBack, orient);
   int ncell = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
   auto cellType = HGCalCell::cellType(cellU, cellV, ncell, placement);
   return cellType.first;
