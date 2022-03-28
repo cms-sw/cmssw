@@ -41,7 +41,7 @@ namespace mkfit {
            m_rin, m_rout, m_zmin, m_zmax,
            is_barrel(), m_is_pixel, m_is_stereo, m_q_bin);
     if (m_has_r_range_hole)
-      printf("          has_r_range_hole: %.2f -> %.2f\n", m_hole_r_min, m_hole_r_max);
+      printf("          has_r_range_hole: %.2f -> %.2f, dr: %f\n", m_hole_r_min, m_hole_r_max, m_hole_r_max - m_hole_r_min);
     // clang-format on
   }
 
@@ -227,7 +227,7 @@ namespace mkfit {
 
       li.m_detid2sid.clear();
       for (int m = 0; m < nm; ++m) {
-        li.m_detid2sid.insert({li.m_modules[m].m_detid, m});
+        li.m_detid2sid.insert({li.m_modules[m].detid, m});
       }
     }
 
@@ -245,13 +245,13 @@ namespace mkfit {
           printf("  Detailed module list N=%d\n", li.n_modules());
           for (int j = 0; j < li.n_modules(); ++j) {
             const ModuleInfo& mi = li.module_info(j);
-            auto* p = mi.m_pos.Array();
-            auto* z = mi.m_zdir.Array();
-            auto* x = mi.m_xdir.Array();
+            auto* p = mi.pos.Array();
+            auto* z = mi.zdir.Array();
+            auto* x = mi.xdir.Array();
             // clang-format off
             printf("Layer %d, mid=%u; detid=0x%x pos=%.3f,%.3f,%.3f, "
                   "norm=%.3f,%.3f,%.3f, phi=%.3f,%.3f,%.3f\n",
-                  i, j, mi.m_detid, p[0], p[1], p[2],
+                  i, j, mi.detid, p[0], p[1], p[2],
                   z[0], z[1], z[2], x[0], x[1], x[2]);
             // clang-format on
           }

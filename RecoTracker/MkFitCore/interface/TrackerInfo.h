@@ -22,14 +22,13 @@ namespace mkfit {
   //==============================================================================
 
   struct ModuleInfo {
-    SVector3 m_pos;
-    SVector3 m_zdir;
-    SVector3 m_xdir;
-    unsigned int m_detid;
+    SVector3 pos;
+    SVector3 zdir;
+    SVector3 xdir;
+    unsigned int detid;
 
     ModuleInfo() = default;
-    ModuleInfo(SVector3 pos, SVector3 nor, SVector3 phi, unsigned int id)
-        : m_pos(pos), m_zdir(nor), m_xdir(phi), m_detid(id) {}
+    ModuleInfo(SVector3 p, SVector3 zd, SVector3 xd, unsigned int id) : pos(p), zdir(zd), xdir(xd), detid(id) {}
   };
 
   //==============================================================================
@@ -106,7 +105,7 @@ namespace mkfit {
     unsigned int register_module(ModuleInfo&& mi) {
       unsigned int pos = m_modules.size();
       m_modules.emplace_back(mi);
-      m_detid2sid[mi.m_detid] = pos;
+      m_detid2sid[mi.detid] = pos;
       return pos;
     }
     unsigned int shrink_modules() {
