@@ -10,6 +10,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
@@ -245,44 +246,11 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
   return cell;
 }
 
-HGCalTypes::CellType HGCalDDDConstants::cellType(int type, int cellU, int cellV) const {
-  // type=0: in the middle; 1..6: the edges clocwise from bottom left;
-  //     =11..16: the corners clockwise from bottom
-  int N = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
-  if (cellU == 0) {
-    if (cellV == 0)
-      return HGCalTypes::CellType::BottomLeftCorner;
-    else if (cellV - cellU == N - 1)
-      return HGCalTypes::CellType::BottomCorner;
-    else
-      return HGCalTypes::CellType::BottomLeftEdge;
-  } else if (cellV == 0) {
-    if (cellU - cellV == N)
-      return HGCalTypes::CellType::TopLeftCorner;
-    else
-      return HGCalTypes::CellType::LeftEdge;
-  } else if (cellU - cellV == N) {
-    if (cellU == 2 * N - 1)
-      return HGCalTypes::CellType::TopCorner;
-    else
-      return HGCalTypes::CellType::TopLeftEdge;
-  } else if (cellU == 2 * N - 1) {
-    if (cellV == 2 * N - 1)
-      return HGCalTypes::CellType::TopRightCorner;
-    else
-      return HGCalTypes::CellType::TopRightEdge;
-  } else if (cellV == 2 * N - 1) {
-    if (cellV - cellU == N - 1)
-      return HGCalTypes::CellType::BottomRightCorner;
-    else
-      return HGCalTypes::CellType::RightEdge;
-  } else if (cellV - cellU == N - 1) {
-    return HGCalTypes::CellType::BottomRightEdge;
-  } else if ((cellU > 2 * N - 1) || (cellV > 2 * N - 1) || (cellV >= (cellU + N)) || (cellU > (cellV + N))) {
-    return HGCalTypes::CellType::UndefinedType;
-  } else {
-    return HGCalTypes::CellType::CentralType;
-  }
+int32_t HGCalDDDConstants::cellType(int type, int cellU, int cellV, int iz, int fwdBack, int orient) const {
+  int placement = (orient < 0) ? HGCalCell::cellPlacementOld : HGCalCell::cellPlacementIndex(iz, fwdBack,  orient);
+  int ncell = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
+  auto cellType = HGCalCell::cellType(cellU, cellV, ncell, placement);
+  return cellType.first;
 }
 
 double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
