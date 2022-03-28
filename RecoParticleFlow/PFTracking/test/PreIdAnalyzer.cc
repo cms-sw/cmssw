@@ -51,11 +51,9 @@ private:
 
 PreIdAnalyzer::PreIdAnalyzer(const edm::ParameterSet& pset)
     : preIdMapToken_(consumes<edm::ValueMap<reco::PreIdRef> >(pset.getParameter<edm::InputTag>("PreIdMap"))),
-      trackToken_(consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("TrackCollection"))) {
-}
+      trackToken_(consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("TrackCollection"))) {}
 
 void PreIdAnalyzer::bookHistograms(DQMStore::IBooker& dbe, edm::Run const&, edm::EventSetup const&) {
-
   //void  PreIdAnalyzer::beginJobAnalyze(const edm::EventSetup & c){
   tracksPt_ = dbe.book1D("TracksPt", "pT", 1000, 0, 100.);
   tracksEta_ = dbe.book1D("TracksEta", "eta", 50, -2.5, 2.5);
