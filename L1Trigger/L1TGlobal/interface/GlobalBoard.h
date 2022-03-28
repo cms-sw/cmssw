@@ -14,6 +14,7 @@
 
 // system include files
 #include <bitset>
+#include <cassert>
 #include <vector>
 
 // user include files
@@ -164,6 +165,32 @@ namespace l1t {
     /// pointer to Tau data list
     inline const BXVector<const GlobalExtBlk*>* getCandL1External() const { return m_candL1External; }
 
+    //initializer prescale counter using a semi-random value between [1, prescale value]
+    static const std::vector<double> semirandomNumber(const edm::Event& iEvent,
+                                                      const std::vector<double>& prescaleFactorsAlgoTrig) {
+      std::vector<double> out(prescaleFactorsAlgoTrig.size(), 1.);
+      //pick a random number from a combination of run, lumi, event numbers (different number for different threads)
+      std::srand(0);
+      std::srand(std::rand() + iEvent.id().run());
+      std::srand(std::rand() + iEvent.id().luminosityBlock());
+      //this causes different semirandomNumber number for different threads
+      std::srand(std::rand() + iEvent.id().event());  //reminder: different threads have different initial event number
+      const double semirandom = std::rand();
+      for (size_t i = 0; i < prescaleFactorsAlgoTrig.size(); i++) {
+        const double ps = prescaleFactorsAlgoTrig.at(i);
+        if (ps == 0 || ps == 1) {  //do not touch ps = 0 and ps = 1
+          out[i] = ps;
+        } else {  //replace ps with a semirandom number between [1,ps]
+          out[i] = semirandom - floor(semirandom / ps) * ps;
+          if (out[i] == 0)
+            out[i] = ps;
+          assert(out[i] > 0);
+          assert(out[i] <= ps);
+        }
+      }
+      return out;
+    }
+
     /*  Drop individual EtSums for Now
     /// pointer to ETM data list
     inline const l1t::EtSum* getCandL1ETM() const
@@ -194,6 +221,7 @@ namespace l1t {
     void setBxLast(int bx);
 
     void setResetPSCountersEachLumiSec(bool val) { m_resetPSCountersEachLumiSec = val; }
+    void setSemiRandomInitialPSCounters(bool val) { m_semiRandomInitialPSCounters = val; }
 
   public:
     inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
@@ -268,6 +296,9 @@ namespace l1t {
 
     //whether we reset the prescales each lumi or not
     bool m_resetPSCountersEachLumiSec = true;
+
+    // start the PS counter from a random value between [1,PS] instead of PS
+    bool m_semiRandomInitialPSCounters = false;
   };
 
 }  // namespace l1t
