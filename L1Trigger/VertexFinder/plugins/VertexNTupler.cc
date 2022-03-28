@@ -216,7 +216,6 @@ namespace l1tVertexFinder {
             consumes<std::vector<l1tVertexFinder::TP>>(iConfig.getParameter<edm::InputTag>("l1TracksTPInputTags"))),
         vTPsToken_(consumes<edm::ValueMap<l1tVertexFinder::TP>>(
             iConfig.getParameter<edm::InputTag>("l1TracksTPValueMapInputTags"))),
-        //outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
         printResults_(iConfig.getParameter<bool>("printResults")),
         settings_(iConfig) {
     const std::vector<std::string> trackBranchNames(
@@ -264,7 +263,7 @@ namespace l1tVertexFinder {
 
     usesResource(TFileService::kSharedResource);
     edm::Service<TFileService> fs;
-    outputTree_=fs->make<TTree>("l1VertexReco", "L1 vertex-related info");
+    outputTree_ = fs->make<TTree>("l1VertexReco", "L1 vertex-related info");
 
     std::vector<std::string>::const_iterator branchNameIt = emulationVertexBranchNames.begin();
     std::vector<edm::InputTag>::const_iterator inputTagIt = emulationVertexInputTags.begin();
