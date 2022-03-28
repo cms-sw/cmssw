@@ -96,8 +96,7 @@ namespace l1t {
                                 const int evt_sector,
                                 const int cluster_id,  // used to differentiate between GEM layer 1/2
                                 const int link) {
-        station =
-            1;  // station is not encoded in the GEM frame for now. Set station = 1 since we only have GE1/1 for Run 3.
+        station = 1;  // station is not encoded in the GEM frame for now. Set station = 1 since we only have GE1/1 for Run 3.
         ring = 1;  // GEMs are only in GE1/1 and GE2/1
         sector = -99;
         subsector = -99;
@@ -126,6 +125,19 @@ namespace l1t {
         // Format defined in MTF7Payload::getBlock() in src/Block.cc
         // payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
         auto payload = block.payload();
+
+        // if (true) {
+        //   std::cout << ">>> GEM block to unpack <<<" << std::endl
+        //             << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block.header().raw()
+        //             << std::dec << " (ID " << block.header().getID() << ", size " << block.header().getSize()
+        //             << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block.header().getCapID()
+        //             << ")" << std::dec << std::endl;
+        //   for (const auto& word : block.payload()) {
+        //     if (true)
+        //       std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec
+        //                 << std::endl;
+        //   }
+        // }
 
         // Check Format of Payload
         l1t::emtf::GEM GEM_;
@@ -189,9 +201,11 @@ namespace l1t {
         // int _sector_gem = (_subsector < 5) ? _sector : (_sector % 6) + 1; //
         int _sector_gem = _sector;
         // Rotate by 2 to match GEM convention in CMSSW (GEMDetId.h) // FIXME VERIFY
-        int _subsector_gem = ((_subsector + 1) % 6) + 1;
+        int _subsector_gem = _subsector; // update chamber mapping 2021.05.31
+//        int _subsector_gem = ((_subsector + 1) % 6) + 1;
         // Define chamber number) // FIXME VERIFY
-        int _chamber = (_sector_gem - 1) * 6 + _subsector_gem;
+        int _chamber = ((_sector_gem - 1) * 6 + _subsector_gem + 2 ) % 36 + 1; // update chamber mapping 2021.05.31
+//        int _chamber = (_sector_gem - 1) * 6 + _subsector_gem;
         // Define CSC-like subsector) // FIXME WHY?? VERIFY
         int _subsector_csc = (_station != 1) ? 0 : ((_chamber % 6 > 2) ? 1 : 2);
 
@@ -228,11 +242,20 @@ namespace l1t {
         }  // End loop: for (auto const & iHit : *res_hit)
 
         // TODO: Re-enable once GEM TP data format is fixed
+        if (exact_duplicate){
+          edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate GEM digis: BX " << Hit_.BX() << ", endcap "
+                                      << Hit_.Endcap() << ", station " << Hit_.Station() << ", neighbor "
+                                      << Hit_.Neighbor() << ", ring " << Hit_.Ring() << ", chamber " << Hit_.Chamber()
+                                      << ", roll " << Hit_.Roll() << ", pad " << Hit_.Pad()
+                                      << ", cluster size " << Hit_.Quality() << ", link " << GEM_.Link() << ", cluster ID " << GEM_.ClusterID()
+                                      << ", BXN " << GEM_.GEM_BXN() << ", BC0 " << GEM_.BC0() << ", TBIN " << GEM_.TBIN()
+                                      << ", VP " << GEM_.VP() << std::endl;
+
+        }
+
         // if (exact_duplicate)
-        //   edm::LogWarning("L1T|EMTF") << "EMTF unpacked duplicate GEM digis: BX " << Hit_.BX() << ", endcap "
-        //                               << Hit_.Endcap() << ", station " << Hit_.Station() << ", neighbor "
-        //                               << Hit_.Neighbor() << ", ring " << Hit_.Ring() << ", chamber " << Hit_.Chamber()
-        //                               << ", roll " << Hit_.Roll() << ", pad " << Hit_.Pad() << std::endl;
+          // edm::LogWarning("L1T|EMTF") << "payload: " << payload[0] << " " << payload[1] << " " << payload[2] << " " << payload[3] << std::endl;
+
 
         (res->at(iOut)).push_GEM(GEM_);
         if (!exact_duplicate)
@@ -240,6 +263,8 @@ namespace l1t {
 
         if (!exact_duplicate)
           res_GEM->insertDigi(Hit_.GEM_DetId(), Hit_.CreateGEMPadDigiCluster());
+
+        // std::cout << "GEM layer: " << Hit_.Layer() << std::endl;
 
         // Finished with unpacking one GEM Data Record
         return true;
