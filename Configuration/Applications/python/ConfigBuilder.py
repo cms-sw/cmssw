@@ -2279,19 +2279,31 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
-        if self._options.nThreads != "1":
+        overrideThreads = (self._options.nThreads != "1")
+        overrideConcurrentLumis = (self._options.nConcurrentLumis != defaultOptions.nConcurrentLumis)
+        overrideConcurrentIOVs = (self._options.nConcurrentIOVs != defaultOptions.nConcurrentIOVs)
+
+        if overrideThreads or overrideConcurrentLumis or overrideConcurrentIOVs:
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
-            self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
-            self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
-            self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
-            self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
-            if int(self._options.nConcurrentLumis) > 1:
-              self.pythonCfgCode +="if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)\n"
-            self.process.options.numberOfThreads = int(self._options.nThreads)
-            self.process.options.numberOfStreams = int(self._options.nStreams)
-            self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
-            self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
+            if overrideThreads:
+                self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
+                self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
+                self.process.options.numberOfThreads = int(self._options.nThreads)
+                self.process.options.numberOfStreams = int(self._options.nStreams)
+            if overrideConcurrentLumis:
+                self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
+                self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
+            if overrideConcurrentIOVs:
+                self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
+                self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
+        if self._options.nConcurrentLumis != "1":
+            # nConcurrentLumis == 0 implies that framework decides the
+            # value based on the number of streams, and the number of
+            # threads/streams can be set afterwards. The safest check
+            # is then to set assertLegacySafe == True only when
+            # explicitly asked to use 1 concurrent lumi.
+            self.pythonCfgCode +="if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)\n"
         #repacked version
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"
