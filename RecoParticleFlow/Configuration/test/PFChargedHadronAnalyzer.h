@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -30,22 +30,22 @@
 \date   September 13, 2010
 */
 
-class PFChargedHadronAnalyzer : public edm::EDAnalyzer {
+class PFChargedHadronAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   typedef reco::PFCandidateCollection::const_iterator CI;
 
   explicit PFChargedHadronAnalyzer(const edm::ParameterSet&);
 
-  ~PFChargedHadronAnalyzer();
+  ~PFChargedHadronAnalyzer() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   /// PFCandidates in which we'll look for pile up particles
-  edm::InputTag inputTagPFCandidates_;
-  edm::InputTag inputTagPFSimParticles_;
+  const edm::InputTag inputTagPFCandidates_;
+  const edm::InputTag inputTagPFSimParticles_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> tokenPFCandidates_;
+  const edm::EDGetTokenT<reco::PFSimParticleCollection> tokenPFSimParticles_;
 
   /// Min pt for charged hadrons
   double ptMin_;

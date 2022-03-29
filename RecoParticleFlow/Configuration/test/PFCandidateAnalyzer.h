@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -24,21 +24,20 @@
 \date   february 2008
 */
 
-class PFCandidateAnalyzer : public edm::EDAnalyzer {
+class PFCandidateAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit PFCandidateAnalyzer(const edm::ParameterSet&);
 
-  ~PFCandidateAnalyzer();
+  ~PFCandidateAnalyzer() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   void printElementsInBlocks(const reco::PFCandidate& cand, std::ostream& out = std::cout) const;
 
   /// PFCandidates in which we'll look for pile up particles
-  edm::InputTag inputTagPFCandidates_;
+  const edm::InputTag inputTagPFCandidates_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> tokenPFCandidates_;
 
   /// verbose ?
   bool verbose_;

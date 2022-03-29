@@ -39,6 +39,10 @@ process.aod = cms.OutputModule("PoolOutputModule",
 )
 
 #process.outpath = cms.EndPath(process.aod )
+process.TFileService = cms.Service(
+    "TFileService",
+    fileName=cms.string('output.root')
+    )
 
 
 process.p = cms.Path(process.pfChargedHadronAnalyzer)

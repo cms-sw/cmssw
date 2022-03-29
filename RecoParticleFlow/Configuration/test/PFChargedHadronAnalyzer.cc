@@ -5,22 +5,26 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 using namespace std;
 using namespace edm;
 using namespace reco;
 
-PFChargedHadronAnalyzer::PFChargedHadronAnalyzer(const edm::ParameterSet& iConfig) {
+PFChargedHadronAnalyzer::PFChargedHadronAnalyzer(const edm::ParameterSet& iConfig) :
+  inputTagPFCandidates_(iConfig.getParameter<InputTag>("PFCandidates")),
+  inputTagPFSimParticles_(iConfig.getParameter<InputTag>("PFSimParticles")),
+  tokenPFCandidates_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
+  tokenPFSimParticles_(consumes<reco::PFSimParticleCollection>(inputTagPFSimParticles_)) {
+  usesResource(TFileService::kSharedResource);
+
   nCh = std::vector<unsigned int>(10, static_cast<unsigned int>(0));
   nEv = std::vector<unsigned int>(2, static_cast<unsigned int>(0));
 
-  inputTagPFCandidates_ = iConfig.getParameter<InputTag>("PFCandidates");
-
-  inputTagPFSimParticles_ = iConfig.getParameter<InputTag>("PFSimParticles");
 
   // Smallest track pt
   ptMin_ = iConfig.getParameter<double>("ptMin");
@@ -46,9 +50,10 @@ PFChargedHadronAnalyzer::PFChargedHadronAnalyzer(const edm::ParameterSet& iConfi
   LogDebug("PFChargedHadronAnalyzer") << " input collection : " << inputTagPFCandidates_;
 
   // The root tuple
-  outputfile_ = iConfig.getParameter<std::string>("rootOutputFile");
-  tf1 = new TFile(outputfile_.c_str(), "RECREATE");
-  s = new TTree("s", " PFCalibration");
+  //outputfile_ = iConfig.getParameter<std::string>("rootOutputFile");
+  //tf1 = new TFile(outputfile_.c_str(), "RECREATE");
+  edm::Service<TFileService> fs;
+  s = fs->make<TTree>("s", " PFCalibration");
 
   s->Branch("true", &true_, "true/F");
   s->Branch("p", &p_, "p/F");
@@ -71,14 +76,13 @@ PFChargedHadronAnalyzer::~PFChargedHadronAnalyzer() {
   std::cout << " - With at least " << nPixMin_ << " pixel hits ....... " << nCh[6] << std::endl;
   std::cout << " - With more than " << nHitMin_[0] << " track hits ..... " << nCh[7] << std::endl;
   std::cout << " - With E_ECAL < " << ecalMax_ << " GeV ............ " << nCh[8] << std::endl;
-
+  /*
   tf1->cd();
   s->Write();
   tf1->Write();
   tf1->Close();
+  */
 }
-
-void PFChargedHadronAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& es) {}
 
 void PFChargedHadronAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
   LogDebug("PFChargedHadronAnalyzer") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run()

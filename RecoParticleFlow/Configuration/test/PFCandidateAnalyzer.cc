@@ -12,8 +12,9 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-PFCandidateAnalyzer::PFCandidateAnalyzer(const edm::ParameterSet& iConfig) {
-  inputTagPFCandidates_ = iConfig.getParameter<InputTag>("PFCandidates");
+PFCandidateAnalyzer::PFCandidateAnalyzer(const edm::ParameterSet& iConfig) :
+  inputTagPFCandidates_(iConfig.getParameter<InputTag>("PFCandidates")),
+  tokenPFCandidates_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)) {
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
@@ -24,17 +25,12 @@ PFCandidateAnalyzer::PFCandidateAnalyzer(const edm::ParameterSet& iConfig) {
   LogDebug("PFCandidateAnalyzer") << " input collection : " << inputTagPFCandidates_;
 }
 
-PFCandidateAnalyzer::~PFCandidateAnalyzer() {}
-
-void PFCandidateAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& es) {}
-
 void PFCandidateAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
   LogDebug("PFCandidateAnalyzer") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run() << endl;
 
   // get PFCandidates
 
-  Handle<PFCandidateCollection> pfCandidates;
-  iEvent.getByLabel(inputTagPFCandidates_, pfCandidates);
+  const edm::Handle<reco::PFCandidateCollection>& pfCandidates = iEvent.getHandle(tokenPFCandidates_);
 
   reco::PFCandidateCollection newcol;
 

@@ -19,7 +19,7 @@
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -66,15 +66,16 @@
 using namespace edm;
 using namespace reco;
 using namespace std;
-class BlockAnalyzer : public edm::EDAnalyzer {
+class BlockAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit BlockAnalyzer(const edm::ParameterSet&);
-  ~BlockAnalyzer();
+  ~BlockAnalyzer() override;
 
 private:
-  virtual void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& iSetup) override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
   double InvMass(const vector<TLorentzVector>& par);
 
   ParameterSet conf_;
@@ -112,13 +113,16 @@ BlockAnalyzer::BlockAnalyzer(const edm::ParameterSet& iConfig)
       pfblocks_(iConfig.getParameter<edm::InputTag>("blockCollection")),
       trackCollection_(iConfig.getParameter<edm::InputTag>("trackCollection")),
       primVtxLabel_(iConfig.getParameter<edm::InputTag>("PrimaryVertexLabel")) {
+  usesResource(TFileService::kSharedResource);
+
   //now do what ever initialization is needed
   outputfile_ = conf_.getParameter<std::string>("OutputFile");
 
   // here a simple tree can be saved
 
-  tf1 = new TFile(outputfile_.c_str(), "RECREATE");
-  s = new TTree("s", " Tree Shared");
+  edm::Service<TFileService> fs;
+//tf1 = new TFile(outputfile_.c_str(), "RECREATE");
+  s = fs->make<TTree>("s", " Tree Shared");
   s->Branch("pt", &pt_, "pt/F");
   s->Branch("eta", &eta_, "eta/F");
   s->Branch("phi", &phi_, "phi/F");
@@ -127,7 +131,6 @@ BlockAnalyzer::BlockAnalyzer(const edm::ParameterSet& iConfig)
 
   // here histograms can be saved
 
-  edm::Service<TFileService> fs;
 
   // histograms
   // h_myhisto  = fs->make<TH1F>("h_myhisto"," ",10,0.,10.);
