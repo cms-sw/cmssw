@@ -308,6 +308,25 @@ struct DQMTTreeIO {
   };
 };
 
+struct openFileType {
+  openFileType(TFile* file, edm::JobReport::Token jrToken, bool jrValid)
+      : m_file(file), m_jrToken(jrToken), m_jrValid(jrValid) {}
+  ~openFileType() {
+    if (m_jrValid) {
+      edm::Service<edm::JobReport> jr;
+      jr->inputFileClosed(edm::InputType::Primary, m_jrToken);
+      m_jrValid = false;
+    }
+  }
+
+  openFileType(openFileType&&) = default;
+  openFileType& operator=(openFileType&&) = default;
+
+  std::unique_ptr<TFile> m_file;
+  edm::JobReport::Token m_jrToken;
+  bool m_jrValid;
+};
+
 class DQMRootSource : public edm::PuttableSourceBase, DQMTTreeIO {
 public:
   DQMRootSource(edm::ParameterSet const&, const edm::InputSourceDescription&);
@@ -370,7 +389,7 @@ private:
   // Index of currenlty processed row in m_fileMetadatas
   unsigned int m_currentIndex;
   // All open DQMIO files
-  std::vector<TFile*> m_openFiles;
+  std::vector<openFileType> m_openFiles;
   // An item here is a row read from DQMIO indices (metadata) table
   std::vector<FileMetadata> m_fileMetadatas;
 };
@@ -422,7 +441,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_nextItemType(edm::InputSource::IsFile),
       m_treeReaders(kNIndicies, std::shared_ptr<TreeReaderBase>()),
       m_currentIndex(0),
-      m_openFiles(std::vector<TFile*>()),
+      m_openFiles(std::vector<openFileType>()),
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
 
@@ -450,8 +469,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
 
 DQMRootSource::~DQMRootSource() {
   for (auto& file : m_openFiles) {
-    if (file != nullptr && file->IsOpen()) {
-      file->Close();
+    if (file.m_file && file.m_file->IsOpen()) {
       logFileAction("Closed file", "");
     }
   }
@@ -470,6 +488,8 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
 
   for (auto& fileitem : m_catalog.fileCatalogItems()) {
     TFile* file;
+    std::string pfn;
+    std::string lfn;
     std::list<std::string> exInfo;
     //loop over names of a file, each of them corresponds to a data catalog
     bool isGoodFile(true);
@@ -509,6 +529,8 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       // Check if a file is usable
       if (file && !file->IsZombie()) {
         logFileAction("Successfully opened file ", it->c_str());
+        pfn = *it;
+        lfn = fileitem.logicalFileName();
         break;
       } else {
         if (std::next(it) == fNames.end()) {
@@ -533,7 +555,17 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     if (!isGoodFile && m_skipBadFiles)
       continue;
 
-    m_openFiles.insert(m_openFiles.begin(), file);
+    std::unique_ptr<std::string> guid{file->Get<std::string>(kCmsGuid)};
+
+    edm::JobReport::Token jrToken;
+    bool tokenValid{guid};
+
+    if (tokenValid) {
+      edm::Service<edm::JobReport> jr;
+      jrToken = jr->inputFileOpened(
+          pfn, lfn, std::string(), std::string(), "DQMRootSource", "source", *guid, std::vector<std::string>());
+    }
+    m_openFiles.emplace_back(file, jrToken, tokenValid);
 
     // Check file format version, which is encoded in the Title of the TFile
     if (strcmp(file->GetTitle(), "1") != 0) {
