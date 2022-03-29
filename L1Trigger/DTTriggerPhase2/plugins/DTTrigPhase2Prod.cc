@@ -33,6 +33,8 @@
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPQualityEnhancerFilter.h"
 #include "L1Trigger/DTTriggerPhase2/interface/MPRedundantFilter.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MPCleanHitsFilter.h"
+#include "L1Trigger/DTTriggerPhase2/interface/MPQualityEnhancerFilterBayes.h"
 #include "L1Trigger/DTTriggerPhase2/interface/GlobalCoordsObtainer.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -104,7 +106,7 @@ public:
   void setMinimumQuality(MP_QUALITY q);
 
   // data-members
-  DTGeometry const* dtGeo_;
+  const DTGeometry* dtGeo_;
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH;
   std::vector<std::pair<int, MuonPath>> primitives_;
 
@@ -122,7 +124,8 @@ private:
   bool do_correlation_;
   int scenario_;
   int df_extended_;
-  std::string geometry_tag_;
+  int max_index_;
+  //  std::string geometry_tag_;
 
   // ParameterSet
   edm::EDGetTokenT<DTDigiCollection> dtDigisToken_;
@@ -133,8 +136,9 @@ private:
   std::unique_ptr<MotherGrouping> grouping_obj_;
   std::unique_ptr<MuonPathAnalyzer> mpathanalyzer_;
   std::unique_ptr<MPFilter> mpathqualityenhancer_;
+  std::unique_ptr<MPFilter> mpathqualityenhancerbayes_;
   std::unique_ptr<MPFilter> mpathredundantfilter_;
-  // std::unique_ptr<MPFilter> mpathhitsfilter_;
+  std::unique_ptr<MPFilter> mpathhitsfilter_;
   std::unique_ptr<MuonPathAssociator> mpathassociator_;
   std::shared_ptr<GlobalCoordsObtainer> globalcoordsobtainer_;
 
@@ -179,6 +183,7 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   scenario_ = pset.getParameter<int>("scenario");
 
   df_extended_ = pset.getParameter<int>("df_extended");
+  max_index_ = pset.getParameter<int>("max_primitives") - 1;
 
   dtDigisToken_ = consumes<DTDigiCollection>(pset.getParameter<edm::InputTag>("digiTag"));
 
@@ -187,9 +192,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
 
   // Choosing grouping scheme:
   algo_ = pset.getParameter<int>("algo");
-
-  // Local to global coordinates approach
-  geometry_tag_ = pset.getUntrackedParameter<std::string>("geometry_tag", "");
 
   edm::ConsumesCollector consumesColl(consumesCollector());
   globalcoordsobtainer_ = std::make_shared<GlobalCoordsObtainer>(pset);
@@ -221,7 +223,9 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   superCelltimewidth_ = pset.getParameter<double>("superCelltimewidth");
 
   mpathqualityenhancer_ = std::make_unique<MPQualityEnhancerFilter>(pset);
+  mpathqualityenhancerbayes_ = std::make_unique<MPQualityEnhancerFilterBayes>(pset);
   mpathredundantfilter_ = std::make_unique<MPRedundantFilter>(pset);
+  mpathhitsfilter_ = std::make_unique<MPCleanHitsFilter>(pset);
   mpathassociator_ = std::make_unique<MuonPathAssociator>(pset, consumesColl, globalcoordsobtainer_);
   rpc_integrator_ = std::make_unique<RPCIntegrator>(pset, consumesColl);
 
@@ -239,15 +243,17 @@ void DTTrigPhase2Prod::beginRun(edm::Run const& iRun, const edm::EventSetup& iEv
   if (debug_)
     LogDebug("DTTrigPhase2Prod") << "beginRun: getting DT geometry";
 
-  grouping_obj_->initialise(iEventSetup);          // Grouping object initialisation
-  mpathanalyzer_->initialise(iEventSetup);         // Analyzer object initialisation
-  mpathqualityenhancer_->initialise(iEventSetup);  // Filter object initialisation
-  mpathredundantfilter_->initialise(iEventSetup);  // Filter object initialisation
-  mpathassociator_->initialise(iEventSetup);       // Associator object initialisation
+  grouping_obj_->initialise(iEventSetup);               // Grouping object initialisation
+  mpathanalyzer_->initialise(iEventSetup);              // Analyzer object initialisation
+  mpathqualityenhancer_->initialise(iEventSetup);       // Filter object initialisation
+  mpathredundantfilter_->initialise(iEventSetup);       // Filter object initialisation
+  mpathqualityenhancerbayes_->initialise(iEventSetup);  // Filter object initialisation
+  mpathhitsfilter_->initialise(iEventSetup);
+  mpathassociator_->initialise(iEventSetup);  // Associator object initialisation
 
-  edm::ESHandle<DTGeometry> geom;
-  iEventSetup.get<MuonGeometryRecord>().get(geometry_tag_, geom);
-  dtGeo_ = &(*geom);
+  if (auto geom = iEventSetup.getHandle(dtGeomH)) {
+    dtGeo_ = &(*geom);
+  }
 }
 
 void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
@@ -350,6 +356,8 @@ void DTTrigPhase2Prod::produce(Event& iEvent, const EventSetup& iEventSetup) {
   MuonPathPtrs filteredmuonpaths;
   if (algo_ == Standard) {
     mpathredundantfilter_->run(iEvent, iEventSetup, muonpaths, filteredmuonpaths);
+  } else {
+    mpathhitsfilter_->run(iEvent, iEventSetup, muonpaths, filteredmuonpaths);
   }
 
   if (dump_) {
@@ -711,7 +719,9 @@ void DTTrigPhase2Prod::endRun(edm::Run const& iRun, const edm::EventSetup& iEven
   grouping_obj_->finish();
   mpathanalyzer_->finish();
   mpathqualityenhancer_->finish();
+  mpathqualityenhancerbayes_->finish();
   mpathredundantfilter_->finish();
+  mpathhitsfilter_->finish();
   mpathassociator_->finish();
   rpc_integrator_->finish();
 };
@@ -773,7 +783,8 @@ void DTTrigPhase2Prod::assignIndex(std::vector<metaPrimitive>& inMPaths) {
   for (auto& prims : primsPerBX) {
     assignIndexPerBX(prims.second);
     for (const auto& primitive : prims.second)
-      inMPaths.push_back(primitive);
+      if (primitive.index <= max_index_)
+        inMPaths.push_back(primitive);
   }
 }
 

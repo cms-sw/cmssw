@@ -77,8 +77,7 @@ void MuonPathAnalyticAnalyzer::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyticAnalyzer::initialiase";
 
-  edm::ESHandle<DTGeometry> geom;
-  iEventSetup.get<MuonGeometryRecord>().get(geometry_tag_, geom);
+  auto geom = iEventSetup.getHandle(dtGeomH);
   dtGeo_ = &(*geom);
 }
 

@@ -23,7 +23,7 @@ CalibratedDigis = cms.EDProducer("CalibratedDigis",
                                  timeOffset = cms.int32(0),
                                  flat_calib = cms.int32(0),
                                  scenario = cms.untracked.int32(0),
-                                 dtDigiTag = cms.InputTag("muonDTDigis")
+                                 dtDigiTag = cms.InputTag("simMuonDTDigis")
                                  )
 
 

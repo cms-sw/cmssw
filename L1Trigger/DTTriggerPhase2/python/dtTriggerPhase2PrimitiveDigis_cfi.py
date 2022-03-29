@@ -27,6 +27,7 @@ dtTriggerPhase2PrimitiveDigis = cms.EDProducer("DTTrigPhase2Prod",
                                                scenario = cms.int32(0), #0 for mc, 1 for data, 2 for slice test
                                                df_extended = cms.int32(0), # DF: 0 for standard, 1 for extended, 2 for both 
                                                filter_cousins = cms.untracked.bool(True),
+                                               max_primitives = cms.int32(999),
 
                                                ttrig_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_ttrig.txt'),
                                                z_filename = cms.FileInPath('L1Trigger/DTTriggerPhase2/data/wire_rawId_z.txt'),
