@@ -3,6 +3,9 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/Phase2L1GMT/interface/Constants.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
+#include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
+#include "DataFormats/Common/interface/Ptr.h"
 #include <vector>
 
 namespace Phase2L1GMT {

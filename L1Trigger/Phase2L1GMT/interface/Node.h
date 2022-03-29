@@ -6,6 +6,7 @@
 #include "L1Trigger/Phase2L1GMT/interface/TrackMuonMatchAlgorithm.h"
 #include "L1Trigger/Phase2L1GMT/interface/Isolation.h"
 #include "L1Trigger/Phase2L1GMT/interface/Tauto3Mu.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 
 namespace Phase2L1GMT {
 
