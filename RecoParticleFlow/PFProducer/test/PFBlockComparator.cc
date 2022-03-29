@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
@@ -34,9 +34,6 @@
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-
-#include "TTree.h"
-#include "TVector2.h"
 
 #include <algorithm>
 #include <map>
@@ -157,24 +154,22 @@ namespace {
 
 typedef edm::ParameterSet PSet;
 
-class PFBlockComparator : public edm::EDAnalyzer {
+class PFBlockComparator : public edm::one::EDAnalyzer<> {
 public:
   PFBlockComparator(const PSet& c)
-      : _src(c.getParameter<edm::InputTag>("source")), _srcOld(c.getParameter<edm::InputTag>("sourceOld")){};
-  ~PFBlockComparator() {}
+    : srcToken_(consumes<reco::PFBlockCollection>(c.getParameter<edm::InputTag>("source"))), srcOldToken_(consumes<reco::PFBlockCollection>(c.getParameter<edm::InputTag>("sourceOld"))) {};
+  ~PFBlockComparator() = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&);
 
 private:
-  edm::InputTag _src;
-  edm::InputTag _srcOld;
+  edm::EDGetTokenT<reco::PFBlockCollection> srcToken_;
+  edm::EDGetTokenT<reco::PFBlockCollection> srcOldToken_;
 };
 
 void PFBlockComparator::analyze(const edm::Event& e, const edm::EventSetup& es) {
-  edm::Handle<reco::PFBlockCollection> blocks;
-  e.getByLabel(_src, blocks);
-  edm::Handle<reco::PFBlockCollection> oldblocks;
-  e.getByLabel(_srcOld, oldblocks);
+  const edm::Handle<reco::PFBlockCollection>& blocks = e.getHandle(srcToken_);
+  const edm::Handle<reco::PFBlockCollection>& oldblocks = e.getHandle(srcOldToken_);
 
   unsigned matchedblocks = 0;
 
