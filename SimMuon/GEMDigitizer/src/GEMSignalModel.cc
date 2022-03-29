@@ -23,6 +23,7 @@ GEMSignalModel::GEMSignalModel(const edm::ParameterSet& config)
       bx0filter_(config.getParameter<bool>("bx0filter")),
       resolutionX_(config.getParameter<double>("resolutionX")),
       cspeed(geant_units::operators::convertMmToCm(CLHEP::c_light)),
+      // average energy required to remove an electron due to ionization for an Ar/CO2 gas mixture (in the ratio of 70/30) is 28.1 eV
       energyMinCut(28.1e-09) {}
 
 GEMSignalModel::~GEMSignalModel() {}
