@@ -10,6 +10,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <unordered_set>
 #include <iostream>
 
 //Using this function with the 'const static within s_dummyPSet'
@@ -117,9 +118,17 @@ void HLTConfigData::extract() {
   // Obtain module labels of all modules on all trigger paths
   const unsigned int n(size());
   moduleLabels_.reserve(n);
+  std::unordered_set<std::string> processDirectives = {{"@"}, {"#"}};
   for (unsigned int i = 0; i != n; ++i) {
     if (processPSet_->existsAs<vector<string>>(triggerNames_[i], true)) {
       moduleLabels_.push_back(processPSet_->getParameter<vector<string>>(triggerNames_[i]));
+      auto& ml = moduleLabels_.back();
+      ml.erase(std::remove_if(ml.begin(),
+                              ml.end(),
+                              [&processDirectives](auto const& l) {
+                                return processDirectives.find(l) != processDirectives.end();
+                              }),
+               ml.end());
     }
   }
   saveTagsModules_.reserve(n);
