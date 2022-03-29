@@ -62,6 +62,7 @@
 #include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
     : m_managerInitialized(false),
@@ -86,7 +87,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_kernel = new G4MTRunManagerKernel();
   m_stateManager = G4StateManager::GetStateManager();
   double th = p.getParameter<double>("ThresholdForGeometryExceptions") * CLHEP::GeV;
-  m_stateManager->SetExceptionHandler(new ExceptionHandler(th));
+  m_stateManager->SetExceptionHandler(new ExceptionHandler(th, false));
   m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
 
@@ -144,13 +145,13 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   std::unique_ptr<PhysicsListMakerBase> physicsMaker(
       PhysicsListFactory::get()->create(m_pPhysics.getParameter<std::string>("type")));
   if (physicsMaker.get() == nullptr) {
-    throw edm::Exception(edm::errors::Configuration) << "Unable to find the Physics list requested";
+    throw cms::Exception("Configuration") << "Unable to find the Physics list requested";
   }
   m_physicsList = physicsMaker->make(m_pPhysics, m_registry);
 
   PhysicsList* phys = m_physicsList.get();
   if (phys == nullptr) {
-    throw edm::Exception(edm::errors::Configuration, "Physics list construction failed!");
+    throw cms::Exception("Configuration") << "Physics list construction failed!";
   }
   if (stepverb > 0) {
     verb = std::max(verb, 1);
@@ -201,7 +202,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (m_kernel->RunInitialization()) {
     m_managerInitialized = true;
   } else {
-    throw edm::Exception(edm::errors::LogicError, "G4RunManagerKernel initialization failed!");
+    throw cms::Exception("LogicError") << "G4RunManagerKernel initialization failed!";
   }
 
   if (m_StorePhysicsTables) {
