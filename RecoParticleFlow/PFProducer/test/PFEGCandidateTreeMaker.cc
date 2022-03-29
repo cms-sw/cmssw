@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
@@ -70,22 +70,26 @@ namespace {
   };
 }  // namespace
 
-class PFEGCandidateTreeMaker : public edm::EDAnalyzer {
+class PFEGCandidateTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   typedef TTree* treeptr;
 
 public:
   PFEGCandidateTreeMaker(const PSet&);
-  ~PFEGCandidateTreeMaker() {}
+  ~PFEGCandidateTreeMaker() override = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::Service<TFileService> _fs;
-  bool _dogen;
-  edm::InputTag _geninput;
-  edm::InputTag _vtxsrc;
-  edm::InputTag _pfEGInput;
-  edm::InputTag _pfInput;
+  const bool dogen_;
+  const edm::InputTag geninput_;
+  const edm::InputTag vtxsrc_;
+  const edm::InputTag pfEGInput_;
+  const edm::InputTag pfInput_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> genToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfEGToken_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> pfToken_;
+
   PFEnergyCalibration _calib;
   std::map<reco::PFCandidateRef, reco::GenParticleRef> _genmatched;
   void findBestGenMatches(const edm::Event& e, const edm::Handle<reco::PFCandidateCollection>&);
@@ -95,14 +99,14 @@ private:
   bool getPFCandMatch(const reco::PFCandidate&, const edm::Handle<reco::PFCandidateCollection>&, const int);
 
   // SC parameters
-  edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
+  const edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
   const EcalMustacheSCParameters* mustacheSCParams_;
-  edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
+  const edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
   const EcalSCDynamicDPhiParameters* scDynamicDPhiParams_;
 
   // the tree
   void setTreeArraysForSize(const size_t N_ECAL, const size_t N_PS);
-  treeptr _tree;
+  treeptr tree_;
   Int_t nVtx;
   Float_t scRawEnergy, scCalibratedEnergy, scPreshowerEnergy, scEta, scPhi, scR, scPhiWidth, scEtaWidth,
       scSeedRawEnergy, scSeedCalibratedEnergy, scSeedEta, scSeedPhi;
@@ -122,17 +126,14 @@ void PFEGCandidateTreeMaker::analyze(const edm::Event& e, const edm::EventSetup&
   mustacheSCParams_ = &es.getData(ecalMustacheSCParametersToken_);
   scDynamicDPhiParams_ = &es.getData(ecalSCDynamicDPhiParametersToken_);
 
-  edm::Handle<reco::VertexCollection> vtcs;
-  e.getByLabel(_vtxsrc, vtcs);
+  const edm::Handle<reco::VertexCollection>& vtcs = e.getHandle(vtxToken_);
   if (vtcs.isValid())
     nVtx = vtcs->size();
   else
     nVtx = -1;
 
-  edm::Handle<reco::PFCandidateCollection> pfEG;
-  edm::Handle<reco::PFCandidateCollection> pfCands;
-  e.getByLabel(_pfEGInput, pfEG);
-  e.getByLabel(_pfInput, pfCands);
+  const edm::Handle<reco::PFCandidateCollection>& pfEG = e.getHandle(pfEGToken_);
+  const edm::Handle<reco::PFCandidateCollection>& pfCands = e.getHandle(pfToken_);
 
   if (pfEG.isValid()) {
     findBestGenMatches(e, pfEG);
@@ -150,10 +151,9 @@ void PFEGCandidateTreeMaker::findBestGenMatches(const edm::Event& e,
   _genmatched.clear();
   reco::GenParticleRef genmatch;
   // gen information (if needed)
-  if (_dogen) {
-    edm::Handle<reco::GenParticleCollection> genp;
+  if (dogen_) {
+    const edm::Handle<reco::GenParticleCollection>& genp = e.getHandle(genToken_);
     std::vector<reco::GenParticleRef> elesandphos;
-    e.getByLabel(_geninput, genp);
     if (genp.isValid()) {
       reco::GenParticleRef bestmatch;
       for (size_t i = 0; i < genp->size(); ++i) {
@@ -211,7 +211,7 @@ void PFEGCandidateTreeMaker::processEGCandidateFillTree(const edm::Event& e,
   N_PSClusters = N_PS;
   reco::GenParticleRef genmatch;
   // gen information (if needed)
-  if (_dogen) {
+  if (dogen_) {
     std::map<reco::PFCandidateRef, reco::GenParticleRef>::iterator itrmatch;
     if ((itrmatch = _genmatched.find(pf)) != _genmatched.end()) {
       genmatch = itrmatch->second;
@@ -267,7 +267,7 @@ void PFEGCandidateTreeMaker::processEGCandidateFillTree(const edm::Event& e,
     clusterDPhiToCentroid[iclus] = TVector2::Phi_mpi_pi(pclus->phi() - sc.phi());
     clusterDEtaToCentroid[iclus] = pclus->eta() - sc.eta();
     clusterHitFractionSharedWithSeed[iclus] = fractionOfSeed(pclus);
-    if (_dogen && genmatch.isNonnull()) {
+    if (dogen_ && genmatch.isNonnull()) {
       clusterDPhiToGen[iclus] = TVector2::Phi_mpi_pi(pclus->phi() - genmatch->phi());
       clusterDEtaToGen[iclus] = pclus->eta() - genmatch->eta();
     }
@@ -292,7 +292,7 @@ void PFEGCandidateTreeMaker::processEGCandidateFillTree(const edm::Event& e,
     psClusterPhi[ipsclus] = ppsclus->phi();
     ++ipsclus;
   }
-  _tree->Fill();
+  tree_->Fill();
 }
 
 bool PFEGCandidateTreeMaker::getPFCandMatch(const reco::PFCandidate& cand,
@@ -324,118 +324,126 @@ bool PFEGCandidateTreeMaker::getPFCandMatch(const reco::PFCandidate& cand,
   return false;
 }
 
-PFEGCandidateTreeMaker::PFEGCandidateTreeMaker(const PSet& p) {
-  ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
-  ecalSCDynamicDPhiParametersToken_ = esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>();
+PFEGCandidateTreeMaker::PFEGCandidateTreeMaker(const PSet& p) :
+  dogen_(p.getUntrackedParameter<bool>("doGen", false)),
+  geninput_(p.getParameter<edm::InputTag>("genSrc")),
+  vtxsrc_(p.getParameter<edm::InputTag>("primaryVertices")),
+  pfEGInput_(p.getParameter<edm::InputTag>("pfEGammaCandSrc")),
+  pfInput_(p.getParameter<edm::InputTag>("pfCandSrc")),
+  genToken_(consumes<reco::GenParticleCollection>(geninput_)),
+  vtxToken_(consumes<reco::VertexCollection>(vtxsrc_)),
+  pfEGToken_(consumes<reco::PFCandidateCollection>(pfEGInput_)),
+  pfToken_(consumes<reco::PFCandidateCollection> (pfInput_)),
+  ecalMustacheSCParametersToken_(esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>()),
+  ecalSCDynamicDPhiParametersToken_(esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>()) {
+
+  usesResource(TFileService::kSharedResource);
 
   N_ECALClusters = 1;
   N_PSClusters = 1;
-  _tree = _fs->make<TTree>("SuperClusterTree", "Dump of all available SC info");
-  _tree->Branch("N_ECALClusters", &N_ECALClusters, "N_ECALClusters/I");
-  _tree->Branch("N_PSClusters", &N_PSClusters, "N_PSClusters/I");
-  _tree->Branch("nVtx", &nVtx, "nVtx/I");
-  _tree->Branch("hasParentSC", &hasParentSC, "hasParentSC/I");
-  _tree->Branch("pfPhotonMatch", &pfPhotonMatch, "pfPhotonMatch/I");
-  _tree->Branch("pfElectronMatch", &pfElectronMatch, "pfElectronMatch/I");
-  _tree->Branch("scRawEnergy", &scRawEnergy, "scRawEnergy/F");
-  _tree->Branch("scCalibratedEnergy", &scCalibratedEnergy, "scCalibratedEnergy/F");
-  _tree->Branch("scPreshowerEnergy", &scPreshowerEnergy, "scPreshowerEnergy/F");
-  _tree->Branch("scEta", &scEta, "scEta/F");
-  _tree->Branch("scPhi", &scPhi, "scPhi/F");
-  _tree->Branch("scR", &scR, "scR/F");
-  _tree->Branch("scPhiWidth", &scPhiWidth, "scPhiWidth/F");
-  _tree->Branch("scEtaWidth", &scEtaWidth, "scEtaWidth/F");
-  _tree->Branch("scSeedRawEnergy", &scSeedRawEnergy, "scSeedRawEnergy/F");
-  _tree->Branch("scSeedCalibratedEnergy", &scSeedCalibratedEnergy, "scSeedCalibratedEnergy/F");
-  _tree->Branch("scSeedEta", &scSeedEta, "scSeedEta/F");
-  _tree->Branch("scSeedPhi", &scSeedPhi, "scSeedPhi/F");
+  edm::Service<TFileService> fs;
+  tree_ = fs->make<TTree>("SuperClusterTree", "Dump of all available SC info");
+  tree_->Branch("N_ECALClusters", &N_ECALClusters, "N_ECALClusters/I");
+  tree_->Branch("N_PSClusters", &N_PSClusters, "N_PSClusters/I");
+  tree_->Branch("nVtx", &nVtx, "nVtx/I");
+  tree_->Branch("hasParentSC", &hasParentSC, "hasParentSC/I");
+  tree_->Branch("pfPhotonMatch", &pfPhotonMatch, "pfPhotonMatch/I");
+  tree_->Branch("pfElectronMatch", &pfElectronMatch, "pfElectronMatch/I");
+  tree_->Branch("scRawEnergy", &scRawEnergy, "scRawEnergy/F");
+  tree_->Branch("scCalibratedEnergy", &scCalibratedEnergy, "scCalibratedEnergy/F");
+  tree_->Branch("scPreshowerEnergy", &scPreshowerEnergy, "scPreshowerEnergy/F");
+  tree_->Branch("scEta", &scEta, "scEta/F");
+  tree_->Branch("scPhi", &scPhi, "scPhi/F");
+  tree_->Branch("scR", &scR, "scR/F");
+  tree_->Branch("scPhiWidth", &scPhiWidth, "scPhiWidth/F");
+  tree_->Branch("scEtaWidth", &scEtaWidth, "scEtaWidth/F");
+  tree_->Branch("scSeedRawEnergy", &scSeedRawEnergy, "scSeedRawEnergy/F");
+  tree_->Branch("scSeedCalibratedEnergy", &scSeedCalibratedEnergy, "scSeedCalibratedEnergy/F");
+  tree_->Branch("scSeedEta", &scSeedEta, "scSeedEta/F");
+  tree_->Branch("scSeedPhi", &scSeedPhi, "scSeedPhi/F");
   // ecal cluster information
   clusterRawEnergy.resize(1);
-  _tree->Branch("clusterRawEnergy", &clusterRawEnergy[0], "clusterRawEnergy[N_ECALClusters]/F");
+  tree_->Branch("clusterRawEnergy", &clusterRawEnergy[0], "clusterRawEnergy[N_ECALClusters]/F");
   clusterCalibEnergy.resize(1);
-  _tree->Branch("clusterCalibEnergy", &clusterCalibEnergy[0], "clusterCalibEnergy[N_ECALClusters]/F");
+  tree_->Branch("clusterCalibEnergy", &clusterCalibEnergy[0], "clusterCalibEnergy[N_ECALClusters]/F");
   clusterEta.resize(1);
-  _tree->Branch("clusterEta", &clusterEta[0], "clusterEta[N_ECALClusters]/F");
+  tree_->Branch("clusterEta", &clusterEta[0], "clusterEta[N_ECALClusters]/F");
   clusterPhi.resize(1);
-  _tree->Branch("clusterPhi", &clusterPhi[0], "clusterPhi[N_ECALClusters]/F");
+  tree_->Branch("clusterPhi", &clusterPhi[0], "clusterPhi[N_ECALClusters]/F");
   clusterDPhiToSeed.resize(1);
-  _tree->Branch("clusterDPhiToSeed", &clusterDPhiToSeed[0], "clusterDPhiToSeed[N_ECALClusters]/F");
+  tree_->Branch("clusterDPhiToSeed", &clusterDPhiToSeed[0], "clusterDPhiToSeed[N_ECALClusters]/F");
   clusterDEtaToSeed.resize(1);
-  _tree->Branch("clusterDEtaToSeed", &clusterDEtaToSeed[0], "clusterDEtaToSeed[N_ECALClusters]/F");
+  tree_->Branch("clusterDEtaToSeed", &clusterDEtaToSeed[0], "clusterDEtaToSeed[N_ECALClusters]/F");
   clusterDPhiToCentroid.resize(1);
-  _tree->Branch("clusterDPhiToCentroid", &clusterDPhiToCentroid[0], "clusterDPhiToCentroid[N_ECALClusters]/F");
+  tree_->Branch("clusterDPhiToCentroid", &clusterDPhiToCentroid[0], "clusterDPhiToCentroid[N_ECALClusters]/F");
   clusterDEtaToCentroid.resize(1);
-  _tree->Branch("clusterDEtaToCentroid", &clusterDEtaToCentroid[0], "clusterDEtaToCentroid[N_ECALClusters]/F");
+  tree_->Branch("clusterDEtaToCentroid", &clusterDEtaToCentroid[0], "clusterDEtaToCentroid[N_ECALClusters]/F");
   clusterHitFractionSharedWithSeed.resize(1);
-  _tree->Branch("clusterHitFractionSharedWithSeed",
+  tree_->Branch("clusterHitFractionSharedWithSeed",
                 &clusterHitFractionSharedWithSeed[0],
                 "clusterHitFractionSharedWithSeed[N_ECALClusters]/F");
   clusterInMustache.resize(1);
-  _tree->Branch("clusterInMustache", &clusterInMustache[0], "clusterInMustache[N_ECALClusters]/I");
+  tree_->Branch("clusterInMustache", &clusterInMustache[0], "clusterInMustache[N_ECALClusters]/I");
   clusterInDynDPhi.resize(1);
-  _tree->Branch("clusterInDynDPhi", &clusterInDynDPhi[0], "clusterInDynDPhi[N_ECALClusters]/I");
+  tree_->Branch("clusterInDynDPhi", &clusterInDynDPhi[0], "clusterInDynDPhi[N_ECALClusters]/I");
   // preshower information
   psClusterRawEnergy.resize(1);
-  _tree->Branch("psClusterRawEnergy", &psClusterRawEnergy[0], "psClusterRawEnergy[N_PSClusters]/F");
+  tree_->Branch("psClusterRawEnergy", &psClusterRawEnergy[0], "psClusterRawEnergy[N_PSClusters]/F");
   psClusterEta.resize(1);
-  _tree->Branch("psClusterEta", &psClusterEta[0], "psClusterEta[N_PSClusters]/F");
+  tree_->Branch("psClusterEta", &psClusterEta[0], "psClusterEta[N_PSClusters]/F");
   psClusterPhi.resize(1);
-  _tree->Branch("psClusterPhi", &psClusterPhi[0], "psClusterPhi[N_PSClusters]/F");
+  tree_->Branch("psClusterPhi", &psClusterPhi[0], "psClusterPhi[N_PSClusters]/F");
 
-  if ((_dogen = p.getUntrackedParameter<bool>("doGen", false))) {
-    _geninput = p.getParameter<edm::InputTag>("genSrc");
-    _tree->Branch("genEta", &genEta, "genEta/F");
-    _tree->Branch("genPhi", &genPhi, "genPhi/F");
-    _tree->Branch("genEnergy", &genEnergy, "genEnergy/F");
-    _tree->Branch("genDRToCentroid", &genDRToCentroid, "genDRToCentroid/F");
-    _tree->Branch("genDRToSeed", &genDRToSeed, "genDRToSeed/F");
+  if (dogen_) {
+    tree_->Branch("genEta", &genEta, "genEta/F");
+    tree_->Branch("genPhi", &genPhi, "genPhi/F");
+    tree_->Branch("genEnergy", &genEnergy, "genEnergy/F");
+    tree_->Branch("genDRToCentroid", &genDRToCentroid, "genDRToCentroid/F");
+    tree_->Branch("genDRToSeed", &genDRToSeed, "genDRToSeed/F");
 
     clusterDPhiToGen.resize(1);
-    _tree->Branch("clusterDPhiToGen", &clusterDPhiToGen[0], "clusterDPhiToGen[N_ECALClusters]/F");
+    tree_->Branch("clusterDPhiToGen", &clusterDPhiToGen[0], "clusterDPhiToGen[N_ECALClusters]/F");
     clusterDEtaToGen.resize(1);
-    _tree->Branch("clusterDEtaToGen", &clusterDEtaToGen[0], "clusterDPhiToGen[N_ECALClusters]/F");
+    tree_->Branch("clusterDEtaToGen", &clusterDEtaToGen[0], "clusterDPhiToGen[N_ECALClusters]/F");
   }
-  _vtxsrc = p.getParameter<edm::InputTag>("primaryVertices");
-  _pfEGInput = p.getParameter<edm::InputTag>("pfEGammaCandSrc");
-  _pfInput = p.getParameter<edm::InputTag>("pfCandSrc");
 }
 
 void PFEGCandidateTreeMaker::setTreeArraysForSize(const size_t N_ECAL, const size_t N_PS) {
   clusterRawEnergy.resize(N_ECAL);
-  _tree->GetBranch("clusterRawEnergy")->SetAddress(&clusterRawEnergy[0]);
+  tree_->GetBranch("clusterRawEnergy")->SetAddress(&clusterRawEnergy[0]);
   clusterCalibEnergy.resize(N_ECAL);
-  _tree->GetBranch("clusterCalibEnergy")->SetAddress(&clusterCalibEnergy[0]);
+  tree_->GetBranch("clusterCalibEnergy")->SetAddress(&clusterCalibEnergy[0]);
   clusterEta.resize(N_ECAL);
-  _tree->GetBranch("clusterEta")->SetAddress(&clusterEta[0]);
+  tree_->GetBranch("clusterEta")->SetAddress(&clusterEta[0]);
   clusterPhi.resize(N_ECAL);
-  _tree->GetBranch("clusterPhi")->SetAddress(&clusterPhi[0]);
+  tree_->GetBranch("clusterPhi")->SetAddress(&clusterPhi[0]);
   clusterDPhiToSeed.resize(N_ECAL);
-  _tree->GetBranch("clusterDPhiToSeed")->SetAddress(&clusterDPhiToSeed[0]);
+  tree_->GetBranch("clusterDPhiToSeed")->SetAddress(&clusterDPhiToSeed[0]);
   clusterDEtaToSeed.resize(N_ECAL);
-  _tree->GetBranch("clusterDEtaToSeed")->SetAddress(&clusterDEtaToSeed[0]);
+  tree_->GetBranch("clusterDEtaToSeed")->SetAddress(&clusterDEtaToSeed[0]);
   clusterDPhiToCentroid.resize(N_ECAL);
-  _tree->GetBranch("clusterDPhiToCentroid")->SetAddress(&clusterDPhiToCentroid[0]);
+  tree_->GetBranch("clusterDPhiToCentroid")->SetAddress(&clusterDPhiToCentroid[0]);
   clusterDEtaToCentroid.resize(N_ECAL);
-  _tree->GetBranch("clusterDEtaToCentroid")->SetAddress(&clusterDEtaToCentroid[0]);
+  tree_->GetBranch("clusterDEtaToCentroid")->SetAddress(&clusterDEtaToCentroid[0]);
   clusterHitFractionSharedWithSeed.resize(N_ECAL);
-  _tree->GetBranch("clusterHitFractionSharedWithSeed")->SetAddress(&clusterHitFractionSharedWithSeed[0]);
+  tree_->GetBranch("clusterHitFractionSharedWithSeed")->SetAddress(&clusterHitFractionSharedWithSeed[0]);
 
-  if (_dogen) {
+  if (dogen_) {
     clusterDPhiToGen.resize(N_ECAL);
-    _tree->GetBranch("clusterDPhiToGen")->SetAddress(&clusterDPhiToGen[0]);
+    tree_->GetBranch("clusterDPhiToGen")->SetAddress(&clusterDPhiToGen[0]);
     clusterDEtaToGen.resize(N_ECAL);
-    _tree->GetBranch("clusterDEtaToGen")->SetAddress(&clusterDEtaToGen[0]);
+    tree_->GetBranch("clusterDEtaToGen")->SetAddress(&clusterDEtaToGen[0]);
   }
   clusterInMustache.resize(N_ECAL);
-  _tree->GetBranch("clusterInMustache")->SetAddress(&clusterInMustache[0]);
+  tree_->GetBranch("clusterInMustache")->SetAddress(&clusterInMustache[0]);
   clusterInDynDPhi.resize(N_ECAL);
-  _tree->GetBranch("clusterInDynDPhi")->SetAddress(&clusterInDynDPhi[0]);
+  tree_->GetBranch("clusterInDynDPhi")->SetAddress(&clusterInDynDPhi[0]);
   psClusterRawEnergy.resize(N_ECAL);
-  _tree->GetBranch("psClusterRawEnergy")->SetAddress(&psClusterRawEnergy[0]);
+  tree_->GetBranch("psClusterRawEnergy")->SetAddress(&psClusterRawEnergy[0]);
   psClusterEta.resize(N_ECAL);
-  _tree->GetBranch("psClusterEta")->SetAddress(&psClusterEta[0]);
+  tree_->GetBranch("psClusterEta")->SetAddress(&psClusterEta[0]);
   psClusterPhi.resize(N_ECAL);
-  _tree->GetBranch("psClusterPhi")->SetAddress(&psClusterPhi[0]);
+  tree_->GetBranch("psClusterPhi")->SetAddress(&psClusterPhi[0]);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

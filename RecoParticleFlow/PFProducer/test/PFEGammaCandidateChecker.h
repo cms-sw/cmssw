@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -25,15 +25,13 @@
 \date   August 2011
 */
 
-class PFEGammaCandidateChecker : public edm::EDAnalyzer {
+class PFEGammaCandidateChecker : public edm::one::EDAnalyzer<> {
 public:
   explicit PFEGammaCandidateChecker(const edm::ParameterSet&);
 
-  ~PFEGammaCandidateChecker();
+  ~PFEGammaCandidateChecker() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   void printJets(const reco::PFJetCollection& pfJetsReco, const reco::PFJetCollection& pfJetsReReco) const;
@@ -43,24 +41,24 @@ private:
   void printElementsInBlocks(const reco::PFCandidate& cand, std::ostream& out = std::cout) const;
 
   /// PFCandidates in which we'll look for pile up particles
-  edm::InputTag inputTagPFCandidatesReco_;
-  edm::InputTag inputTagPFCandidatesReReco_;
-  edm::InputTag inputTagPFJetsReco_;
-  edm::InputTag inputTagPFJetsReReco_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> tokenPFCandidatesReco_;
+  const edm::EDGetTokenT<reco::PFCandidateCollection> tokenPFCandidatesReReco_;
+  const edm::EDGetTokenT<reco::PFJetCollection> tokenPFJetsReco_;
+  const edm::EDGetTokenT<reco::PFJetCollection> tokenPFJetsReReco_;
 
   /// Cuts for comparison
-  double deltaEMax_;
-  double deltaEtaMax_;
-  double deltaPhiMax_;
+  const double deltaEMax_;
+  const double deltaEtaMax_;
+  const double deltaPhiMax_;
 
   /// verbose ?
-  bool verbose_;
+  const bool verbose_;
 
   /// print the blocks associated to a given candidate ?
-  bool printBlocks_;
+  const bool printBlocks_;
 
   /// rank the candidates by Pt
-  bool rankByPt_;
+  const bool rankByPt_;
 
   /// Counter
   unsigned entry_;

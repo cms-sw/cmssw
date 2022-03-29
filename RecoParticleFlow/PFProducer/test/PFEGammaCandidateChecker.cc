@@ -44,54 +44,32 @@ namespace {
   };
 }  // namespace
 
-PFEGammaCandidateChecker::PFEGammaCandidateChecker(const edm::ParameterSet& iConfig) {
-  inputTagPFCandidatesReco_ = iConfig.getParameter<InputTag>("pfCandidatesReco");
-
-  inputTagPFCandidatesReReco_ = iConfig.getParameter<InputTag>("pfCandidatesReReco");
-
-  inputTagPFJetsReco_ = iConfig.getParameter<InputTag>("pfJetsReco");
-
-  inputTagPFJetsReReco_ = iConfig.getParameter<InputTag>("pfJetsReReco");
-
-  deltaEMax_ = iConfig.getParameter<double>("deltaEMax");
-
-  deltaEtaMax_ = iConfig.getParameter<double>("deltaEtaMax");
-
-  deltaPhiMax_ = iConfig.getParameter<double>("deltaPhiMax");
-
-  verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
-
-  printBlocks_ = iConfig.getUntrackedParameter<bool>("printBlocks", false);
-
-  rankByPt_ = iConfig.getUntrackedParameter<bool>("rankByPt", false);
-
+PFEGammaCandidateChecker::PFEGammaCandidateChecker(const edm::ParameterSet& iConfig) :
+      tokenPFCandidatesReco_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<InputTag>("pfCandidatesReco"))),
+      tokenPFCandidatesReReco_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<InputTag>("pfCandidatesReReco"))),
+      tokenPFJetsReco_(consumes<reco::PFJetCollection>(iConfig.getParameter<InputTag>("pfJetsReco"))),
+      tokenPFJetsReReco_(consumes<reco::PFJetCollection>(iConfig.getParameter<InputTag>("pfJetsReReco"))),
+      deltaEMax_(iConfig.getParameter<double>("deltaEMax")),
+      deltaEtaMax_(iConfig.getParameter<double>("deltaEtaMax")),
+      deltaPhiMax_(iConfig.getParameter<double>("deltaPhiMax")),
+      verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
+      printBlocks_(iConfig.getUntrackedParameter<bool>("printBlocks", false)),
+      rankByPt_(iConfig.getUntrackedParameter<bool>("rankByPt", false)) {
+ 
   entry_ = 0;
 
-  LogDebug("PFEGammaCandidateChecker") << " input collections : " << inputTagPFCandidatesReco_ << " "
-                                       << inputTagPFCandidatesReReco_;
+  LogDebug("PFEGammaCandidateChecker") << " input collections : " << (iConfig.getParameter<InputTag>("pfCandidatesReco")) << " " << (iConfig.getParameter<InputTag>("pfCandidatesReReco"));
 }
 
-PFEGammaCandidateChecker::~PFEGammaCandidateChecker() {}
-
-void PFEGammaCandidateChecker::beginRun(const edm::Run& run, const edm::EventSetup& es) {}
-
 void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iSetup) {
-  LogDebug("PFEGammaCandidateChecker") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run()
-                                       << endl;
+  LogDebug("PFEGammaCandidateChecker") << "START event: " << iEvent.id().event() << " in run " << iEvent.id().run();
 
   // get PFCandidates
 
-  Handle<PFCandidateCollection> pfCandidatesReco;
-  iEvent.getByLabel(inputTagPFCandidatesReco_, pfCandidatesReco);
-
-  Handle<PFCandidateCollection> pfCandidatesReReco;
-  iEvent.getByLabel(inputTagPFCandidatesReReco_, pfCandidatesReReco);
-
-  Handle<PFJetCollection> pfJetsReco;
-  iEvent.getByLabel(inputTagPFJetsReco_, pfJetsReco);
-
-  Handle<PFJetCollection> pfJetsReReco;
-  iEvent.getByLabel(inputTagPFJetsReReco_, pfJetsReReco);
+  const edm::Handle<PFCandidateCollection>& pfCandidatesReco = iEvent.getHandle(tokenPFCandidatesReco_);
+  const edm::Handle<PFCandidateCollection>& pfCandidatesReReco = iEvent.getHandle(tokenPFCandidatesReReco_);
+  const edm::Handle<PFJetCollection>& pfJetsReco = iEvent.getHandle(tokenPFJetsReco_);
+  const edm::Handle<PFJetCollection>& pfJetsReReco = iEvent.getHandle(tokenPFJetsReReco_);
 
   reco::PFCandidateCollection pfReco, pfReReco;
 
