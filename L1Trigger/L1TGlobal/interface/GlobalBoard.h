@@ -193,7 +193,7 @@ namespace l1t {
     void setBxFirst(int bx);
     void setBxLast(int bx);
 
-    void setResetPSCountersEachLumiSec(bool val){m_resetPSCountersEachLumiSec=val;}
+    void setResetPSCountersEachLumiSec(bool val) { m_resetPSCountersEachLumiSec = val; }
 
   public:
     inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
