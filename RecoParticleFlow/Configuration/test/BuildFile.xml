@@ -1,4 +1,5 @@
 <library name="PFCandidateAnalyzer" file="PFCandidateAnalyzer.cc">
+  <use name="CommonTools/UtilAlgos"/>
   <use name="DataFormats/ParticleFlowCandidate"/>
   <use name="DataFormats/ParticleFlowReco"/>
   <use name="FWCore/Framework"/>
@@ -9,6 +10,7 @@
 </library>
 
 <library name="PFChargedHadronAnalyzer" file="PFChargedHadronAnalyzer.cc">
+  <use name="CommonTools/UtilAlgos"/>
   <use name="DataFormats/ParticleFlowCandidate"/>
   <use name="DataFormats/ParticleFlowReco"/>
   <use name="RecoParticleFlow/PFTracking"/>
@@ -20,6 +22,7 @@
 </library>
 
 <library name="BlockAnalyzer" file="BlockAnalyzer.cc">
+  <use name="CommonTools/UtilAlgos"/>
   <use name="DataFormats/ParticleFlowCandidate"/>
   <use name="DataFormats/ParticleFlowReco"/>
   <use name="FWCore/Framework"/>
