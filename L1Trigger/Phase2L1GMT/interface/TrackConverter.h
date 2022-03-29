@@ -2,6 +2,7 @@
 #define PHASE2GMT_TRACKCONVERTER
 
 #include "L1Trigger/Phase2L1GMT/interface/ConvertedTTTrack.h"
+#include "DataFormats/L1TMuonPhase2/interface/TrackerMuon.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace Phase2L1GMT {
