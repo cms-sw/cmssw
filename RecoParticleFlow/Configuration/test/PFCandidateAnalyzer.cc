@@ -12,10 +12,9 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-PFCandidateAnalyzer::PFCandidateAnalyzer(const edm::ParameterSet& iConfig) :
-  inputTagPFCandidates_(iConfig.getParameter<InputTag>("PFCandidates")),
-  tokenPFCandidates_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)) {
-
+PFCandidateAnalyzer::PFCandidateAnalyzer(const edm::ParameterSet& iConfig)
+    : inputTagPFCandidates_(iConfig.getParameter<InputTag>("PFCandidates")),
+      tokenPFCandidates_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)) {
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
   printBlocks_ = iConfig.getUntrackedParameter<bool>("printBlocks", false);

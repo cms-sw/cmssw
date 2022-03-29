@@ -121,7 +121,7 @@ BlockAnalyzer::BlockAnalyzer(const edm::ParameterSet& iConfig)
   // here a simple tree can be saved
 
   edm::Service<TFileService> fs;
-//tf1 = new TFile(outputfile_.c_str(), "RECREATE");
+  //tf1 = new TFile(outputfile_.c_str(), "RECREATE");
   s = fs->make<TTree>("s", " Tree Shared");
   s->Branch("pt", &pt_, "pt/F");
   s->Branch("eta", &eta_, "eta/F");
@@ -130,7 +130,6 @@ BlockAnalyzer::BlockAnalyzer(const edm::ParameterSet& iConfig)
   //  s->Branch("",&_,"/F");
 
   // here histograms can be saved
-
 
   // histograms
   // h_myhisto  = fs->make<TH1F>("h_myhisto"," ",10,0.,10.);
