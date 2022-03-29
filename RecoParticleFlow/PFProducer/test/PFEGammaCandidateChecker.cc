@@ -44,9 +44,10 @@ namespace {
   };
 }  // namespace
 
-PFEGammaCandidateChecker::PFEGammaCandidateChecker(const edm::ParameterSet& iConfig) :
-      tokenPFCandidatesReco_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<InputTag>("pfCandidatesReco"))),
-      tokenPFCandidatesReReco_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<InputTag>("pfCandidatesReReco"))),
+PFEGammaCandidateChecker::PFEGammaCandidateChecker(const edm::ParameterSet& iConfig)
+    : tokenPFCandidatesReco_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<InputTag>("pfCandidatesReco"))),
+      tokenPFCandidatesReReco_(
+          consumes<reco::PFCandidateCollection>(iConfig.getParameter<InputTag>("pfCandidatesReReco"))),
       tokenPFJetsReco_(consumes<reco::PFJetCollection>(iConfig.getParameter<InputTag>("pfJetsReco"))),
       tokenPFJetsReReco_(consumes<reco::PFJetCollection>(iConfig.getParameter<InputTag>("pfJetsReReco"))),
       deltaEMax_(iConfig.getParameter<double>("deltaEMax")),
@@ -55,10 +56,11 @@ PFEGammaCandidateChecker::PFEGammaCandidateChecker(const edm::ParameterSet& iCon
       verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
       printBlocks_(iConfig.getUntrackedParameter<bool>("printBlocks", false)),
       rankByPt_(iConfig.getUntrackedParameter<bool>("rankByPt", false)) {
- 
   entry_ = 0;
 
-  LogDebug("PFEGammaCandidateChecker") << " input collections : " << (iConfig.getParameter<InputTag>("pfCandidatesReco")) << " " << (iConfig.getParameter<InputTag>("pfCandidatesReReco"));
+  LogDebug("PFEGammaCandidateChecker") << " input collections : "
+                                       << (iConfig.getParameter<InputTag>("pfCandidatesReco")) << " "
+                                       << (iConfig.getParameter<InputTag>("pfCandidatesReReco"));
 }
 
 void PFEGammaCandidateChecker::analyze(const Event& iEvent, const EventSetup& iSetup) {

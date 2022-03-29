@@ -157,7 +157,8 @@ typedef edm::ParameterSet PSet;
 class PFBlockComparator : public edm::one::EDAnalyzer<> {
 public:
   PFBlockComparator(const PSet& c)
-    : srcToken_(consumes<reco::PFBlockCollection>(c.getParameter<edm::InputTag>("source"))), srcOldToken_(consumes<reco::PFBlockCollection>(c.getParameter<edm::InputTag>("sourceOld"))) {};
+      : srcToken_(consumes<reco::PFBlockCollection>(c.getParameter<edm::InputTag>("source"))),
+        srcOldToken_(consumes<reco::PFBlockCollection>(c.getParameter<edm::InputTag>("sourceOld"))){};
   ~PFBlockComparator() = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&);
