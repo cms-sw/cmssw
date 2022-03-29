@@ -324,19 +324,18 @@ bool PFEGCandidateTreeMaker::getPFCandMatch(const reco::PFCandidate& cand,
   return false;
 }
 
-PFEGCandidateTreeMaker::PFEGCandidateTreeMaker(const PSet& p) :
-  dogen_(p.getUntrackedParameter<bool>("doGen", false)),
-  geninput_(p.getParameter<edm::InputTag>("genSrc")),
-  vtxsrc_(p.getParameter<edm::InputTag>("primaryVertices")),
-  pfEGInput_(p.getParameter<edm::InputTag>("pfEGammaCandSrc")),
-  pfInput_(p.getParameter<edm::InputTag>("pfCandSrc")),
-  genToken_(consumes<reco::GenParticleCollection>(geninput_)),
-  vtxToken_(consumes<reco::VertexCollection>(vtxsrc_)),
-  pfEGToken_(consumes<reco::PFCandidateCollection>(pfEGInput_)),
-  pfToken_(consumes<reco::PFCandidateCollection> (pfInput_)),
-  ecalMustacheSCParametersToken_(esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>()),
-  ecalSCDynamicDPhiParametersToken_(esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>()) {
-
+PFEGCandidateTreeMaker::PFEGCandidateTreeMaker(const PSet& p)
+    : dogen_(p.getUntrackedParameter<bool>("doGen", false)),
+      geninput_(p.getParameter<edm::InputTag>("genSrc")),
+      vtxsrc_(p.getParameter<edm::InputTag>("primaryVertices")),
+      pfEGInput_(p.getParameter<edm::InputTag>("pfEGammaCandSrc")),
+      pfInput_(p.getParameter<edm::InputTag>("pfCandSrc")),
+      genToken_(consumes<reco::GenParticleCollection>(geninput_)),
+      vtxToken_(consumes<reco::VertexCollection>(vtxsrc_)),
+      pfEGToken_(consumes<reco::PFCandidateCollection>(pfEGInput_)),
+      pfToken_(consumes<reco::PFCandidateCollection>(pfInput_)),
+      ecalMustacheSCParametersToken_(esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>()),
+      ecalSCDynamicDPhiParametersToken_(esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>()) {
   usesResource(TFileService::kSharedResource);
 
   N_ECALClusters = 1;
