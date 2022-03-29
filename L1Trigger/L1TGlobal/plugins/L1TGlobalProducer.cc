@@ -68,7 +68,7 @@ void L1TGlobalProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
 
   // switch for muon showers in Run-3
   desc.add<bool>("useMuonShowers", false);
-  desc.add<bool>("resetPSCountersEachLumiSec",true);
+  desc.add<bool>("resetPSCountersEachLumiSec", true);
   // These parameters have well defined  default values and are not currently
   // part of the L1T/HLT interface.  They can be cleaned up or updated at will:
   desc.add<bool>("ProduceL1GtDaqRecord", true);
