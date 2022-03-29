@@ -92,7 +92,7 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
   bool foundBadCandidate = false;
 
-  int n = pfCandidates->size();
+  size_t n = pfCandidates->size();
   std::vector<int> oldToNew(n);
   int iPF = -1;
   for (const reco::PFCandidate& pfCandidate : *pfCandidates) {
