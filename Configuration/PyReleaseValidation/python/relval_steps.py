@@ -1068,22 +1068,6 @@ step1FastPU18NewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
 step1FastUpg2018_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
                                                 step1FastUpg2018Defaults])
 
-step1FastUpg2021Defaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@standardValidation,DQM:@standardDQMFS',
-                           '--fast':'',
-                           '--conditions'  :'auto:phase1_2021_realistic',
-                           '--beamspot'    :'Run3RoundOptics25ns13TeVLowSigmaZ',
-                           '--era'         :'Run3_FastSim',
-                           '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
-                           '--relval':'27000,3000'},
-                           step1Defaults])
-step1FastPU21NewMixing =merge([{'-s':'GEN,SIM,RECOBEFMIX',
-                           '--eventcontent':'FASTPU',
-                           '--datatier':'GEN-SIM-RECO'},
-                           step1FastUpg2021Defaults])
-step1FastUpg2021_trackingOnlyValidation = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,RECO,VALIDATION:@trackingOnlyValidation'},
-                                                step1FastUpg2021Defaults])
-
 #step1FastDefaults
 steps['TTbarFS']=merge([{'cfg':'TTbar_8TeV_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastDefaults])
 steps['SingleMuPt1FS']=merge([{'cfg':'SingleMuPt1_pythia8_cfi'},step1FastDefaults])
@@ -1149,9 +1133,6 @@ steps['SingleMuPt100FS_UP18']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1Fa
 
 ### FastSim: produce sample of minbias events for PU mixing, 2018
 steps['MinBiasFS_13_UP18_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPU18NewMixing])
-
-### FastSim: produce sample of minbias events for PU mixing, 2021
-steps['MinBiasFS_14_UP21_ForMixing']=merge([{'cfg':'MinBias_14TeV_pythia8_TuneCP5_cfi'},Kby(100,1000),step1FastPU21NewMixing])
 
 ### FastSim: template to produce signal and overlay with minbias events
 PUFS25={'--pileup':'AVE_35_BX_25ns',
