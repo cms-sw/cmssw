@@ -81,9 +81,6 @@ steps['RunPhoton2011A']={'INPUT':InputInfo(dataSet='/Photon/Run2011A-v1/RAW',lab
 steps['RunJet2011A']={'INPUT':InputInfo(dataSet='/Jet/Run2011A-v1/RAW',label='2011A',run=Run2011A,events=100000)}
 steps['TestEnableEcalHCAL2017B']={'INPUT':InputInfo(dataSet='/TestEnablesEcalHcal/Run2017B-v1/RAW',label='2017B',run=Run2017BTE,events=100000,location='STD')}
 
-steps['AlCaLumiPixels2021']={'INPUT':InputInfo(dataSet='/AlCaLumiPixelsCountsExpress/Commissioning2021-v1/RAW',label='2021',run=[346512],events=100000,location='STD')}
-
-
 Run2011B=[177719]
 Run2011BSk=[177719,177790,177096,175874]
 steps['RunMinBias2011B']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2011B-v1/RAW',label='2011B',run=Run2011B,events=100000,location='STD')}
@@ -506,6 +503,8 @@ steps['RunMinimumBias2021']={'INPUT':InputInfo(dataSet='/MinimumBias/Commissioni
 steps['RunZeroBias2021']={'INPUT':InputInfo(dataSet='/ZeroBias/Commissioning2021-v1/RAW',label='2021Commissioning',events=100000,location='STD', ls=Run2021Commissioning)}
 steps['RunHLTPhy2021']={'INPUT':InputInfo(dataSet='/HLTPhysics/Commissioning2021-v1/RAW',label='2021Commissioning',events=100000,location='STD', ls=Run2021Commissioning)}
 steps['RunNoBPTX2021']={'INPUT':InputInfo(dataSet='/NoBPTX/Commissioning2021-v1/RAW',label='2021Commissioning',events=100000,location='STD', ls=Run2021Commissioning)}
+steps['AlCaPhiSym2021']={'INPUT':InputInfo(dataSet='/AlCaPhiSym/Commissioning2021-v1/RAW',label='2021Commissioning',run=[346512],location='STD')}
+steps['AlCaLumiPixels2021']={'INPUT':InputInfo(dataSet='/AlCaLumiPixelsCountsExpress/Commissioning2021-v1/RAW',label='2021Commissioning',run=[346512],events=100000,location='STD')}
 
 
 #### Test of lumi section boundary crossing with run2 2018D ####
@@ -2261,6 +2260,15 @@ steps['RECOCOSDEXPRUN3']=merge([{'--conditions':'auto:run3_data_express',
                                  '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress,Configuration/DataProcessing/RecoTLR.customiseCosmicData'
                              },steps['RECOCOSD']])
 
+steps['RECOALCAECALPHISYMDR3']=merge([{'--scenario':'pp',
+                                       '--era':'Run3',
+                                       '--conditions':'auto:run3_data_prompt',
+                                       '--datatier':'RECO',
+                                       '--eventcontent':'RECO',
+                                       '-n':'-1',
+                                       '-s':'RECO:bunchSpacingProducer+ecalMultiFitUncalibRecHitTask+ecalCalibratedRecHitTask',
+                                       '--customise':'Calibration/EcalCalibAlgos/EcalPhiSymRecoSequence_cff'},dataReco])
+
 # step1 gensim for HI mixing
 step1Up2018HiMixDefaults = merge ([{'--beamspot':'MatchHI', '--pileup':'HiMixGEN', '--scenario':'HeavyIons'},hiDefaults2018_ppReco,PUHI,step1Up2018HiProdDefaults])
 def gen2018HiMix(fragment,howMuch):
@@ -2738,6 +2746,15 @@ steps['ALCARECOPROMPTR3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZero
                                   '--eventcontent':'RECO,MINIAOD,ALCARECO,DQM',
                                   '--triggerResultsProcess': 'RECO',
                                   '--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt'},steps['RECODR3']])
+
+steps['ALCAECALPHISYM']={'--scenario':'pp',
+                         '--era':'Run3',
+                         '--conditions':'auto:run3_data_prompt',
+                         '--datatier':'ALCARECO',
+                         '--eventcontent':'ALCARECO',
+                         '-n':'-1',
+                         '-s':'ALCA:EcalPhiSymByRun',
+                         '--customise':'Calibration/EcalCalibAlgos/EcalPhiSymRecoSequence_cff'}
 
 # step4
 step4Defaults = { '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalZElectron+EcalCalWElectron+HcalCalIsoTrk+MuAlCalIsolatedMu+MuAlZMuMu+MuAlOverlaps',
