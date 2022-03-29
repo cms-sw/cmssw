@@ -17,7 +17,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "L1TCaloTriggerNtupleBase.h"
+#include "L1Trigger/L1CaloTrigger/test/ntuples/L1TCaloTriggerNtupleBase.h"
 
 class L1TriggerNtupleTrackTrigger : public L1TCaloTriggerNtupleBase {
 public:
@@ -52,6 +52,9 @@ private:
 
   edm::ESWatcher<IdealMagneticFieldRecord> magfield_watcher_;
   HGCalTriggerTools triggerTools_;
+
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, L1TriggerNtupleTrackTrigger, "L1TriggerNtupleTrackTrigger");
@@ -64,7 +67,8 @@ void L1TriggerNtupleTrackTrigger::initialize(TTree& tree,
                                              edm::ConsumesCollector&& collector) {
   track_token_ =
       collector.consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(conf.getParameter<edm::InputTag>("TTTracks"));
-
+  magneticFieldToken_ = collector.esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tGeomToken_ = collector.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("idealForDigi", ""));
   tree.Branch(branch_name_w_prefix("n").c_str(), &l1track_n_, branch_name_w_prefix("n/I").c_str());
   tree.Branch(branch_name_w_prefix("pt").c_str(), &l1track_pt_);
   tree.Branch(branch_name_w_prefix("pt2stubs").c_str(), &l1track_pt2stubs_);
@@ -87,15 +91,12 @@ void L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSet
 
   float fBz = 0;
   if (magfield_watcher_.check(es)) {
-    edm::ESHandle<MagneticField> magfield;
-    es.get<IdealMagneticFieldRecord>().get(magfield);
+    const MagneticField* magfield = &es.getData(magneticFieldToken_);
     fBz = magfield->inTesla(GlobalPoint(0, 0, 0)).z();
   }
 
   // geometry needed to call pTFrom2Stubs
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  es.get<TrackerDigiGeometryRecord>().get("idealForDigi", geomHandle);
-  const TrackerGeometry* tGeom = geomHandle.product();
+  const TrackerGeometry* tGeom = &es.getData(tGeomToken_);
 
   triggerTools_.eventSetup(es);
 

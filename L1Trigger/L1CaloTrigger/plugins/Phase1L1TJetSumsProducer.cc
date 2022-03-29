@@ -27,7 +27,6 @@ Description: Computes HT and MHT from phase-1-like jets
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/Common/interface/View.h"
