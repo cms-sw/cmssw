@@ -75,4 +75,5 @@ The offsets currently in use are:
 * 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
 * 0.301: FastSim Run-3
 * 0.302: FastSim Run-3 trackingOnly validation
+* 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton

@@ -1331,6 +1331,32 @@ upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
     offset = 0.302,
 )
 
+class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'GenSim' in step:
+            stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
+                                            '--fast':'',
+                                            '--era':'Run3_FastSim',
+                                            '--eventcontent':'FASTPU',
+                                            '--datatier':'GEN-SIM-RECO',
+                                            '--relval':'27000,3000'}, stepDict[step][k]])
+        if 'Digi' in step or 'RecoNano' in step or 'ALCA' in step or 'HARVESTNano' in step:
+            stepDict[stepName][k] = None
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key and fragment=="MinBias_14TeV"
+upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
+    steps = [
+        'GenSim',
+        'Digi',
+        'RecoNano',
+        'HARVESTNano',
+        'ALCA'
+    ],
+    PU = [],
+    suffix = '_Run3FSMBMixing',
+    offset = 0.303,
+)
+
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:

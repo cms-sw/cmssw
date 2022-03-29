@@ -509,9 +509,6 @@ workflows[2018.11] = ['SMS-T1tttt_mGl-1500_mLSP-100_13_UP18', ['SMS-T1tttt_mGl-1
 workflows[2018.12] = ['QCD_Pt_80_120_13_UP18', ['QCD_Pt_80_120FS_13_UP18','HARVESTUP18FS','MINIAODMCUP18FS']]
 workflows[2018.13] = ['TTbar_13_UP18', ['TTbarFS_13_trackingOnlyValidation_UP18','HARVESTUP18FS_trackingOnly']]
 
-### MinBias fastsim_13 TeV for mixing, 2018 ###
-workflows[2021.8] = ['',['MinBiasFS_14_UP21_ForMixing']]
-
 ### standard set ###
 ## particle guns
 workflows[15] = ['', ['SingleElectronPt10','DIGI','RECO','HARVEST']]
