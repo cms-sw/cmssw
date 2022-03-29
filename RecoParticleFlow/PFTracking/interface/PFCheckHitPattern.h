@@ -1,5 +1,5 @@
-#ifndef PFCheckHitPattern_H
-#define PFCheckHitPattern_H
+#ifndef RecoParticleFlow_PFTracking_PFCheckHitPattern_H
+#define RecoParticleFlow_PFTracking_PFCheckHitPattern_H
 
 // standard EDAnalyser include files
 #include <memory>
