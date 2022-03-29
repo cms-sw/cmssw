@@ -15,16 +15,15 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-PFChargedHadronAnalyzer::PFChargedHadronAnalyzer(const edm::ParameterSet& iConfig) :
-  inputTagPFCandidates_(iConfig.getParameter<InputTag>("PFCandidates")),
-  inputTagPFSimParticles_(iConfig.getParameter<InputTag>("PFSimParticles")),
-  tokenPFCandidates_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
-  tokenPFSimParticles_(consumes<reco::PFSimParticleCollection>(inputTagPFSimParticles_)) {
+PFChargedHadronAnalyzer::PFChargedHadronAnalyzer(const edm::ParameterSet& iConfig)
+    : inputTagPFCandidates_(iConfig.getParameter<InputTag>("PFCandidates")),
+      inputTagPFSimParticles_(iConfig.getParameter<InputTag>("PFSimParticles")),
+      tokenPFCandidates_(consumes<reco::PFCandidateCollection>(inputTagPFCandidates_)),
+      tokenPFSimParticles_(consumes<reco::PFSimParticleCollection>(inputTagPFSimParticles_)) {
   usesResource(TFileService::kSharedResource);
 
   nCh = std::vector<unsigned int>(10, static_cast<unsigned int>(0));
   nEv = std::vector<unsigned int>(2, static_cast<unsigned int>(0));
-
 
   // Smallest track pt
   ptMin_ = iConfig.getParameter<double>("ptMin");
