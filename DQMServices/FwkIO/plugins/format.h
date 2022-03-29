@@ -65,6 +65,9 @@ static const char* const kTypeBranch = "Type";
 static const char* const kFirstIndex = "FirstIndex";
 static const char* const kLastIndex = "LastIndex";
 
+//File GUID
+static const char* const kCmsGuid = "cms::edm::GUID";
+
 //Meta data info
 static const char* const kMetaDataDirectoryAbsolute = "/MetaData";
 static const char* const kMetaDataDirectory = kMetaDataDirectoryAbsolute + 1;
