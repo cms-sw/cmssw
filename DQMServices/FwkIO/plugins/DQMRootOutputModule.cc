@@ -38,6 +38,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
@@ -334,8 +335,10 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
 
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
-  std::string guid{m_file->GetUUID().AsString()};
+  std::string guid{edm::createGlobalIdentifier()};
   std::transform(guid.begin(), guid.end(), guid.begin(), (int (*)(int))std::toupper);
+
+  m_file->WriteObject(&guid, kCmsGuid);
   m_jrToken = jr->outputFileOpened(m_fileName,
                                    m_logicalFileName,
                                    std::string(),
