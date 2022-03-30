@@ -8,9 +8,16 @@
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "G4VPhysicalVolume.hh"
 #include "G4VTouchable.hh"
+#include "G4Version.hh"
 #include "G4Step.hh"
 
 #include <iostream>
+
+#if G4VERSION_NUMBER >= 1100
+#define STRING_CONTAINS(a,b) G4StrUtil::contains(a,b)
+#else
+#define STRING_CONTAINS(a,b) a.contains(b)
+#endif
 
 //******************************************************************** Constructor and destructor
 
@@ -25,8 +32,8 @@ uint32_t PPSDiamondOrganization::unitID(const G4Step* aStep) {
   for (int ii = 0; ii < touch->GetHistoryDepth(); ii++) {
     physVol = touch->GetVolume(ii);
 
-    if (G4StrUtil::contains(physVol->GetName(), "CTPPS_Diamond_Segment") ||
-        G4StrUtil::contains(physVol->GetName(), "CTPPS_UFSD_Segment")) {
+    if (STRING_CONTAINS(physVol->GetName(), "CTPPS_Diamond_Segment") ||
+        STRING_CONTAINS(physVol->GetName(), "CTPPS_UFSD_Segment")) {
       theDetector_ = physVol->GetCopyNo() % 100;
       thePlane_ = physVol->GetCopyNo() / 100;
       LogDebug("PPSSimDiamond") << "\n---------------------CTPPS_Diamond_Segment-------------------------------------"
@@ -36,7 +43,7 @@ uint32_t PPSDiamondOrganization::unitID(const G4Step* aStep) {
       LogDebug("PPSSimDiamond") << "\t\t\t\t\tdetector= " << theDetector_ << " plane= " << thePlane_ << " ii = " << ii;
     }
 
-    else if (G4StrUtil::contains(physVol->GetName(), "Primary_Vacuum")) {
+    else if (STRING_CONTAINS(physVol->GetName(), "Primary_Vacuum")) {
       int cpy_no = physVol->GetCopyNo();
       theArm_ = (cpy_no / 100) % 10;
       theStation_ = (cpy_no / 10) % 10;
