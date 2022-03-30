@@ -308,25 +308,6 @@ struct DQMTTreeIO {
   };
 };
 
-struct openFileType {
-  openFileType(TFile* file, edm::JobReport::Token jrToken, bool jrValid)
-      : m_file(file), m_jrToken(jrToken), m_jrValid(jrValid) {}
-  ~openFileType() {
-    if (m_jrValid) {
-      edm::Service<edm::JobReport> jr;
-      jr->inputFileClosed(edm::InputType::Primary, m_jrToken);
-      m_jrValid = false;
-    }
-  }
-
-  openFileType(openFileType&&) = default;
-  openFileType& operator=(openFileType&&) = default;
-
-  std::unique_ptr<TFile> m_file;
-  edm::JobReport::Token m_jrToken;
-  bool m_jrValid;
-};
-
 class DQMRootSource : public edm::PuttableSourceBase, DQMTTreeIO {
 public:
   DQMRootSource(edm::ParameterSet const&, const edm::InputSourceDescription&);
@@ -388,8 +369,23 @@ private:
 
   // Index of currenlty processed row in m_fileMetadatas
   unsigned int m_currentIndex;
+
   // All open DQMIO files
-  std::vector<openFileType> m_openFiles;
+  struct OpenFileInfo {
+    OpenFileInfo(TFile* file, edm::JobReport::Token jrToken) : m_file(file), m_jrToken(jrToken) {}
+    ~OpenFileInfo() {
+      edm::Service<edm::JobReport> jr;
+      jr->inputFileClosed(edm::InputType::Primary, m_jrToken);
+    }
+
+    OpenFileInfo(OpenFileInfo&&) = default;
+    OpenFileInfo& operator=(OpenFileInfo&&) = default;
+
+    std::unique_ptr<TFile> m_file;
+    edm::JobReport::Token m_jrToken;
+  };
+  std::vector<OpenFileInfo> m_openFiles;
+
   // An item here is a row read from DQMIO indices (metadata) table
   std::vector<FileMetadata> m_fileMetadatas;
 };
@@ -441,7 +437,7 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
       m_nextItemType(edm::InputSource::IsFile),
       m_treeReaders(kNIndicies, std::shared_ptr<TreeReaderBase>()),
       m_currentIndex(0),
-      m_openFiles(std::vector<openFileType>()),
+      m_openFiles(std::vector<OpenFileInfo>()),
       m_fileMetadatas(std::vector<FileMetadata>()) {
   edm::sortAndRemoveOverlaps(m_lumisToProcess);
 
@@ -513,7 +509,7 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
           if (!m_skipBadFiles) {
             edm::Exception ex(edm::errors::FileOpenError, "", e);
             ex.addContext("Opening DQM Root file");
-            ex << "\nInput file " << it->c_str() << " was not found, could not be opened, or is corrupted.\n";
+            ex << "\nInput file " << *it << " was not found, could not be opened, or is corrupted.\n";
             //report previous exceptions when use other names to open file
             for (auto const& s : exInfo)
               ex.addAdditionalInfo(s);
@@ -536,7 +532,7 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
         if (std::next(it) == fNames.end()) {
           if (!m_skipBadFiles) {
             edm::Exception ex(edm::errors::FileOpenError);
-            ex << "Input file " << it->c_str() << " could not be opened.\n";
+            ex << "Input file " << *it << " could not be opened.\n";
             ex.addContext("Opening DQM Root file");
             //report previous exceptions when use other names to open file
             for (auto const& s : exInfo)
@@ -556,21 +552,19 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
       continue;
 
     std::unique_ptr<std::string> guid{file->Get<std::string>(kCmsGuid)};
-
-    edm::JobReport::Token jrToken;
-    bool tokenValid{guid};
-
-    if (tokenValid) {
-      edm::Service<edm::JobReport> jr;
-      jrToken = jr->inputFileOpened(
-          pfn, lfn, std::string(), std::string(), "DQMRootSource", "source", *guid, std::vector<std::string>());
+    if (not guid) {
+      guid = std::make_unique<std::string>();
     }
-    m_openFiles.emplace_back(file, jrToken, tokenValid);
+
+    edm::Service<edm::JobReport> jr;
+    auto jrToken = jr->inputFileOpened(
+        pfn, lfn, std::string(), std::string(), "DQMRootSource", "source", *guid, std::vector<std::string>());
+    m_openFiles.emplace_back(file, jrToken);
 
     // Check file format version, which is encoded in the Title of the TFile
     if (strcmp(file->GetTitle(), "1") != 0) {
       edm::Exception ex(edm::errors::FileReadError);
-      ex << "Input file " << fNames[0].c_str() << " does not appear to be a DQM Root file.\n";
+      ex << "Input file " << fNames[0] << " does not appear to be a DQM Root file.\n";
     }
 
     // Read metadata from the file
