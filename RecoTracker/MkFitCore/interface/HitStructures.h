@@ -131,7 +131,7 @@ namespace mkfit {
 
     bool is_stereo() const { return m_layer_info->is_stereo(); }
     bool is_pixel() const { return m_layer_info->is_pixel(); }
-    int  subdet() const { return m_layer_info->subdet(); }
+    int subdet() const { return m_layer_info->subdet(); }
 
   private:
     // Constants for phi-bin access / index manipulation.

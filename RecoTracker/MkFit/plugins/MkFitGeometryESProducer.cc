@@ -303,7 +303,7 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
     (*lgc_map)[lay].add_current();
   }
   // Module information
-  auto p = det->position();
+  const auto &p = det->position();
   auto z = det->rotation().z();
   auto x = det->rotation().x();
   layer_info.register_module({{p.x(), p.y(), p.z()}, {z.x(), z.y(), z.z()}, {x.x(), x.y(), x.z()}, detid.rawId()});
