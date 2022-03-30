@@ -1,5 +1,5 @@
-#ifndef __RecoParticleFlow_PFTracking_convbremhelpersHeavyObjectCache_h__
-#define __RecoParticleFlow_PFTracking_convbremhelpersHeavyObjectCache_h__
+#ifndef RecoParticleFlow_PFTracking_ConvBremHeavyObjectCache_H
+#define RecoParticleFlow_PFTracking_ConvBremHeavyObjectCache_H
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/GBRForest/interface/GBRForest.h"
