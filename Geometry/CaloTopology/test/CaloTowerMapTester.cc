@@ -66,8 +66,8 @@ void CaloTowerMapTester::doTest(const CaloGeometry* geo, const CaloTowerConstitu
   for (const auto& id : dets) {
     CaloTowerDetId tower = ctmap->towerOf(id);
     std::vector<DetId> ids = ctmap->constituentsOf(tower);
-    edm::LogVerbatim("CaloTower") << static_cast<HcalDetId>(id) << " belongs to " << tower << " which has " << ids.size()
-              << " constituents\n";
+    edm::LogVerbatim("CaloTower") << static_cast<HcalDetId>(id) << " belongs to " << tower << " which has "
+                                  << ids.size() << " constituents\n";
     for (unsigned int i = 0; i < ids.size(); ++i) {
       std::ostringstream st1;
       st1 << "[" << i << "] " << std::hex << ids[i].rawId() << std::dec;

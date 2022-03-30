@@ -48,7 +48,8 @@ void HcalTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetu
 
 void HcalTopologyTester::doTest(const HcalTopology& topology) {
   // First test on movements along eta/phi directions
-  edm::LogVerbatim("HCalGeom") << "\nTest on movements along eta/phi directions" << "\n==========================================";
+  edm::LogVerbatim("HCalGeom") << "\nTest on movements along eta/phi directions"
+                               << "\n==========================================";
   for (int idet = 0; idet < 4; idet++) {
     HcalSubdetector subdet = HcalBarrel;
     if (idet == 1)
@@ -68,27 +69,27 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
             std::vector<DetId> idS = topology.south(id);
             std::vector<DetId> idU = topology.up(id);
             edm::LogVerbatim("HCalGeom") << "Neighbours for : Tower " << id;
-	    std::ostringstream st1;
+            std::ostringstream st1;
             st1 << "          " << idE.size() << " sets along East:";
             for (auto& i : idE)
               st1 << " " << (HcalDetId)(i());
-	    edm::LogVerbatim("HCalGeom") << st1.str();
-	    std::ostringstream st2;
+            edm::LogVerbatim("HCalGeom") << st1.str();
+            std::ostringstream st2;
             st2 << "          " << idW.size() << " sets along West:";
             for (auto& i : idW)
               st2 << " " << (HcalDetId)(i());
             edm::LogVerbatim("HCalGeom") << st2.str();
-	    std::ostringstream st3;
+            std::ostringstream st3;
             st3 << "          " << idN.size() << " sets along North:";
             for (auto& i : idN)
               st3 << " " << (HcalDetId)(i());
             edm::LogVerbatim("HCalGeom") << st3.str();
-	    std::ostringstream st4;
+            std::ostringstream st4;
             st4 << "          " << idS.size() << " sets along South:";
             for (auto& i : idS)
               st4 << " " << (HcalDetId)(i());
             edm::LogVerbatim("HCalGeom") << st4.str();
-	    std::ostringstream st5;
+            std::ostringstream st5;
             st5 << "          " << idU.size() << " sets up in depth:";
             for (auto& i : idU)
               st5 << " " << (HcalDetId)(i());
@@ -100,7 +101,8 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
   }
 
   // Check on Dense Index
-  edm::LogVerbatim("HCalGeom") << "\nCheck on Dense Index" << "\n=====================";
+  edm::LogVerbatim("HCalGeom") << "\nCheck on Dense Index"
+                               << "\n=====================";
   int maxDepthHB = topology.maxDepthHB();
   int maxDepthHE = topology.maxDepthHE();
   for (int det = 1; det <= HcalForward; det++) {
@@ -111,8 +113,9 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
           if (topology.valid(cell)) {
             unsigned int dense = topology.detId2denseId(DetId(cell));
             DetId id = topology.denseId2detId(dense);
-	    std::string cherr = (cell != HcalDetId(id)) ? " **** ERROR *****" : "";
-	    edm::LogVerbatim("HCalGeom") << cell << " Dense " << std::hex << dense << std::dec << " o/p " << HcalDetId(id) << cherr;
+            std::string cherr = (cell != HcalDetId(id)) ? " **** ERROR *****" : "";
+            edm::LogVerbatim("HCalGeom") << cell << " Dense " << std::hex << dense << std::dec << " o/p "
+                                         << HcalDetId(id) << cherr;
           }
         }
       }
@@ -120,15 +123,17 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
   }
 
   // Check list of depths
-  edm::LogVerbatim("HCalGeom") << "\nCheck list of Depths" << "\n====================";
+  edm::LogVerbatim("HCalGeom") << "\nCheck list of Depths"
+                               << "\n====================";
   for (int eta = topology.lastHERing() - 2; eta <= topology.lastHERing(); ++eta) {
     for (unsigned int phi = 0; phi <= HcalDetId::kHcalPhiMask2; phi++) {
       for (int depth = 1; depth <= maxDepthHE; depth++) {
         HcalDetId cell(HcalEndcap, eta, phi, depth);
         if (topology.valid(cell)) {
           std::vector<int> depths = topology.mergedDepthList29(cell);
-	  std::ostringstream st1;
-          st1 << cell << " is with merge depth flag " << topology.mergedDepth29(cell) << " having " << depths.size() << " merged depths:";
+          std::ostringstream st1;
+          st1 << cell << " is with merge depth flag " << topology.mergedDepth29(cell) << " having " << depths.size()
+              << " merged depths:";
           for (unsigned int k = 0; k < depths.size(); ++k)
             st1 << " [" << k << "]:" << depths[k];
           edm::LogVerbatim("HCalGeom") << st1.str();

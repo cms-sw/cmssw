@@ -69,7 +69,8 @@ void CaloTowerConstituentsMap::sort() {
 
 std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId& id) const {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloTower") << "Get constituent of " << std::hex << id.rawId() << std::dec << " ID " << id << " ieta " << id.ieta();
+  edm::LogVerbatim("CaloTower") << "Get constituent of " << std::hex << id.rawId() << std::dec << " ID " << id
+                                << " ieta " << id.ieta();
 #endif
   std::vector<DetId> items;
   if (id.ieta() == 0)

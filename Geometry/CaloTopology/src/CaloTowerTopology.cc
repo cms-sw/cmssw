@@ -14,7 +14,8 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology* topology) : hcaltopo(to
   nEtaHO = hcaltopo->lastHORing() - hcaltopo->firstHORing() + 1;
   nEtaHF = hcaltopo->lastHFRing() - hcaltopo->firstHFRing() + 1;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloTower") << "CaloTowerTopology:(1) " << nEtaHB << ":" << nEtaHE_ << ":" << nEtaHO << ":" << nEtaHF << ":" << hcaltopo->isBH();
+  edm::LogVerbatim("CaloTower") << "CaloTowerTopology:(1) " << nEtaHB << ":" << nEtaHE_ << ":" << nEtaHO << ":"
+                                << nEtaHF << ":" << hcaltopo->isBH();
 #endif
   if (hcaltopo->isBH())
     nEtaHE_ = 0;
@@ -30,8 +31,9 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology* topology) : hcaltopo(to
   firstHORing_ = 1;
   lastHORing_ = firstHORing_ + nEtaHO - 1;
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloTower") << "CaloTowerTopology: (2) " << firstHBRing_ << ":" << lastHBRing_ << ":" << firstHERing_ << ":"
-            << lastHERing_ << ":" << firstHFRing_ << ":" << lastHFRing_ << ":" << firstHORing_ << ":" << lastHORing_;
+  edm::LogVerbatim("CaloTower") << "CaloTowerTopology: (2) " << firstHBRing_ << ":" << lastHBRing_ << ":"
+                                << firstHERing_ << ":" << lastHERing_ << ":" << firstHFRing_ << ":" << lastHFRing_
+                                << ":" << firstHORing_ << ":" << lastHORing_;
 #endif
 
   //translate phi segmentation boundaries into continuous ieta
@@ -54,7 +56,8 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology* topology) : hcaltopo(to
   nQuadPhi_ = nEtaQuadPhi_ * 18;
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("CaloTower") << "CaloTowerTopology: (3) " << nEtaSinglePhi_ << ":" << nEtaDoublePhi_ << ":" << nEtaQuadPhi_ << ":" << nSinglePhi_ << ":" << nDoublePhi_ << ":" << nQuadPhi_;
+  edm::LogVerbatim("CaloTower") << "CaloTowerTopology: (3) " << nEtaSinglePhi_ << ":" << nEtaDoublePhi_ << ":"
+                                << nEtaQuadPhi_ << ":" << nSinglePhi_ << ":" << nDoublePhi_ << ":" << nQuadPhi_;
 #endif
 
   //calculate maximum dense index size

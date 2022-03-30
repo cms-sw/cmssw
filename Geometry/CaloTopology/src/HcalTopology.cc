@@ -1289,7 +1289,8 @@ unsigned int HcalTopology::detId2denseIdCALIB(const DetId& id) const {
 
     if (subDet == HcalBarrel) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "CALIB_HB:  dphi = 4 (18 phi values), 3 channel types (0,1,2), eta = -1 or 1\n           total of 18*3*2=108 channels";
+      edm::LogVerbatim("HCalGeom") << "CALIB_HB:  dphi = 4 (18 phi values), 3 channel types (0,1,2), eta = -1 or 1\n   "
+                                      "        total of 18*3*2=108 channels";
 #endif
       auto indx = std::find(etaCalibHB_, etaCalibHB_ + nEtaCalibHB_, ieta);
       auto kndx = std::find(chanCalibHB_, chanCalibHB_ + nchanCalibHB_, channel);
@@ -1300,7 +1301,8 @@ unsigned int HcalTopology::detId2denseIdCALIB(const DetId& id) const {
       }
     } else if (subDet == HcalEndcap) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "CALIB_HE:  dphi = 4 (18 phi values), 7 channel types (0,1,2,3,4,5,6), eta = -1/+1\n           total of 18*7*2=252 channels    if (channel > 2) channel -= 1";
+      edm::LogVerbatim("HCalGeom") << "CALIB_HE:  dphi = 4 (18 phi values), 7 channel types (0,1,2,3,4,5,6), eta = "
+                                      "-1/+1\n           total of 18*7*2=252 channels    if (channel > 2) channel -= 1";
 #endif
       auto indx = std::find(etaCalibHE_, etaCalibHE_ + nEtaCalibHE_, ieta);
       if (indx != etaCalibHE_ + nEtaCalibHE_) {
@@ -1315,7 +1317,9 @@ unsigned int HcalTopology::detId2denseIdCALIB(const DetId& id) const {
       }
     } else if (subDet == HcalForward) {
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HCalGeom") << "CALIB_HF:  dphi = 18 (4 phi values), 3 channel types (0,1,8), eta = -1 or +1\n           or iphi = 1; channel = 9, eta = -1 or +1      total channels 4*3*2=24 + 2";
+      edm::LogVerbatim("HCalGeom")
+          << "CALIB_HF:  dphi = 18 (4 phi values), 3 channel types (0,1,8), eta = -1 or +1\n           or iphi = 1; "
+             "channel = 9, eta = -1 or +1      total channels 4*3*2=24 + 2";
 #endif
       auto indx = std::find(etaCalibHF_, etaCalibHF_ + nEtaCalibHF_, ieta);
       if (indx != etaCalibHF_ + nEtaCalibHF_) {
@@ -1358,7 +1362,9 @@ unsigned int HcalTopology::detId2denseIdCALIB(const DetId& id) const {
     }
   } else if (tid.calibFlavor() == HcalCalibDetId::HOCrosstalk) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HCalGeom") << "HX:  for YB0/HO0 phi is grouped in 6 groups of 6 with dphi=2 but the transitions are 1 or 3 in such a way that the %36 operation yeilds unique values for every iphi\n     ieta = 0 for HO2M/HO1M ieta=2 for HO1P/HO2P; /ieta = 1 YB0/HO0";
+    edm::LogVerbatim("HCalGeom") << "HX:  for YB0/HO0 phi is grouped in 6 groups of 6 with dphi=2 but the transitions "
+                                    "are 1 or 3 in such a way that the %36 operation yeilds unique values for every "
+                                    "iphi\n     ieta = 0 for HO2M/HO1M ieta=2 for HO1P/HO2P; /ieta = 1 YB0/HO0";
 #endif
     int kphi = ((std::abs(ieta) == etaCalibHOX_[0]) ? ((iphi % 2 == 0) ? (iphi / 2 - 1) : (iphi - 1) / 2) : (iphi - 1));
     if (std::abs(ieta) == etaCalibHOX_[0]) {

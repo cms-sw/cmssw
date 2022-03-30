@@ -111,7 +111,8 @@ void HcalDetId2DenseTester::doTestFile(const HcalTopology& topology) {
                 error = "***ERROR***";
                 ++bad;
               }
-              edm::LogVerbatim("HCalGeom") << total << " " << cell << " Dense Index " << dense << " gives back " << HcalDetId(id) << " " << error;
+              edm::LogVerbatim("HCalGeom") << total << " " << cell << " Dense Index " << dense << " gives back "
+                                           << HcalDetId(id) << " " << error;
             }
 
           } else if (items[0].find("CALIB_") == 0) {
@@ -137,7 +138,8 @@ void HcalDetId2DenseTester::doTestFile(const HcalTopology& topology) {
                 error = "***ERROR***";
                 ++bad;
               }
-              edm::LogVerbatim("HCalGeom") << total << " " << cell << " Dense Index " << dense << " gives back " << HcalCalibDetId(id) << " " << error;
+              edm::LogVerbatim("HCalGeom") << total << " " << cell << " Dense Index " << dense << " gives back "
+                                           << HcalCalibDetId(id) << " " << error;
             }
           } else if ((items[0] == "HOX") || (items[0] == "HBX") || (items[0] == "HEX")) {
             HcalCalibDetId cell =
@@ -155,13 +157,15 @@ void HcalDetId2DenseTester::doTestFile(const HcalTopology& topology) {
                 error = "***ERROR***";
                 ++bad;
               }
-              edm::LogVerbatim("HCalGeom") << good << " " << cell << " Dense Index " << dense << " gives back " << HcalCalibDetId(id) << " " << error;
+              edm::LogVerbatim("HCalGeom") << good << " " << cell << " Dense Index " << dense << " gives back "
+                                           << HcalCalibDetId(id) << " " << error;
             }
           }
         }
       }
       fInput.close();
-      edm::LogVerbatim("HCalGeom") << "Reads total of " << all << ":" << total << " records with " << good << ":" << ok << " good and " << bad << " bad DetId's";
+      edm::LogVerbatim("HCalGeom") << "Reads total of " << all << ":" << total << " records with " << good << ":" << ok
+                                   << " good and " << bad << " bad DetId's";
     }
   }
 }
@@ -183,7 +187,8 @@ void HcalDetId2DenseTester::doTestHcalDetId(const HcalTopology& topology) {
                   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
 
   // Check on Dense Index
-  edm::LogVerbatim("HCalGeom") << "\nCheck on Dense Index for DetId's" << "\n==================================";
+  edm::LogVerbatim("HCalGeom") << "\nCheck on Dense Index for DetId's"
+                               << "\n==================================";
   int total(0), good(0), bad(0);
   std::string error;
   for (int i = 0; i < n; ++i) {
@@ -199,11 +204,13 @@ void HcalDetId2DenseTester::doTestHcalDetId(const HcalTopology& topology) {
         ++bad;
         error = "**** ERROR *****";
       }
-      edm::LogVerbatim("HCalGeom") << "[" << total << "] " << cell << " Dense " << dense << " o/p " << HcalDetId(id) << " " << error;
+      edm::LogVerbatim("HCalGeom") << "[" << total << "] " << cell << " Dense " << dense << " o/p " << HcalDetId(id)
+                                   << " " << error;
     }
   }
 
-  edm::LogVerbatim("HCalGeom") << "Analyzes total of " << n << ":" << total << " HcalDetIds with " << good << " good and " << bad << " bad DetId's";
+  edm::LogVerbatim("HCalGeom") << "Analyzes total of " << n << ":" << total << " HcalDetIds with " << good
+                               << " good and " << bad << " bad DetId's";
 }
 
 void HcalDetId2DenseTester::doTestHcalCalibDetId(const HcalTopology& topology) {
@@ -272,7 +279,8 @@ void HcalDetId2DenseTester::doTestHcalCalibDetId(const HcalTopology& topology) {
                   4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2};
 
   // Check on Dense Index
-  edm::LogVerbatim("HCalGeom") << "\nCheck on Dense Index for CalibDetId's" << "\n=======================================";
+  edm::LogVerbatim("HCalGeom") << "\nCheck on Dense Index for CalibDetId's"
+                               << "\n=======================================";
   int total(0), good(0), bad(0);
   std::string error;
   for (int i = 0; i < n; ++i) {
@@ -293,15 +301,18 @@ void HcalDetId2DenseTester::doTestHcalCalibDetId(const HcalTopology& topology) {
         ++bad;
         error = "**** ERROR *****";
       }
-      edm::LogVerbatim("HCalGeom") << "[" << total << "] " << cell << " Dense " << dense << " o/p " << HcalCalibDetId(id) << " " << error;
+      edm::LogVerbatim("HCalGeom") << "[" << total << "] " << cell << " Dense " << dense << " o/p "
+                                   << HcalCalibDetId(id) << " " << error;
     }
   }
-  edm::LogVerbatim("HCalGeom") << "Analyzes total of " << n << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's";
+  edm::LogVerbatim("HCalGeom") << "Analyzes total of " << n << ":" << total << " CalibIds with " << good << " good and "
+                               << bad << " bad DetId's";
 }
 
 void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topology) {
   // Check on Dense Index
-  edm::LogVerbatim("HCalGeom") << "\nCheck on Dense Index for CalibDetId's" << "\n=======================================";
+  edm::LogVerbatim("HCalGeom") << "\nCheck on Dense Index for CalibDetId's"
+                               << "\n=======================================";
   int allT(0), totalT(0), goodT(0), badT(0);
   int all(0), total(0), good(0), bad(0);
   // CalibrationBox (HB)
@@ -316,7 +327,8 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
       }
     }
   }
-  edm::LogVerbatim("HCalGeom") << "CalibHB:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n";
+  edm::LogVerbatim("HCalGeom") << "CalibHB:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+                               << " bad DetId's\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -338,7 +350,8 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
       }
     }
   }
-  edm::LogVerbatim("HCalGeom") << "CalibHE:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n";
+  edm::LogVerbatim("HCalGeom") << "CalibHE:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+                               << " bad DetId's\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -362,7 +375,8 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
       }
     }
   }
-  edm::LogVerbatim("HCalGeom") << "CalibHF:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n";
+  edm::LogVerbatim("HCalGeom") << "CalibHF:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+                               << " bad DetId's\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -387,7 +401,8 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
       }
     }
   }
-  edm::LogVerbatim("HCalGeom") << "CalibHO:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n";
+  edm::LogVerbatim("HCalGeom") << "CalibHO:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+                               << " bad DetId's\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -408,7 +423,8 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
       doTestOneCell(topology, "HOX", cell, all, total, good, bad);
     }
   }
-  edm::LogVerbatim("HCalGeom") << "HOX:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n";
+  edm::LogVerbatim("HCalGeom") << "HOX:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+                               << " bad DetId's\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -428,7 +444,8 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
       doTestOneCell(topology, "HBX", cell, all, total, good, bad);
     }
   }
-  edm::LogVerbatim("HCalGeom") << "HBX:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n";
+  edm::LogVerbatim("HCalGeom") << "HBX:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+                               << " bad DetId's\n";
   allT += all;
   totalT += total;
   goodT += good;
@@ -448,13 +465,15 @@ void HcalDetId2DenseTester::doTestOnlyHcalCalibDetId(const HcalTopology& topolog
       doTestOneCell(topology, "HEX", cell, all, total, good, bad);
     }
   }
-  edm::LogVerbatim("HCalGeom") << "HEX:" << all << ":" << total << " CalibIds with " << good << " good and " << bad << " bad DetId's\n";
+  edm::LogVerbatim("HCalGeom") << "HEX:" << all << ":" << total << " CalibIds with " << good << " good and " << bad
+                               << " bad DetId's\n";
   allT += all;
   totalT += total;
   goodT += good;
   badT += bad;
 
-  edm::LogVerbatim("HCalGeom") << "\nAnalyzes total of " << allT << ":" << totalT << " CalibIds with " << goodT << " good and " << badT << " bad DetId's";
+  edm::LogVerbatim("HCalGeom") << "\nAnalyzes total of " << allT << ":" << totalT << " CalibIds with " << goodT
+                               << " good and " << badT << " bad DetId's";
 }
 
 void HcalDetId2DenseTester::doTestOneCell(const HcalTopology& topology,
@@ -477,7 +496,8 @@ void HcalDetId2DenseTester::doTestOneCell(const HcalTopology& topology,
       ++bad;
       error = "***** ERROR *****";
     }
-    edm::LogVerbatim("HCalGeom") << det << "[" << all << ":" << total << "] " << cell << " Dense " << dense << " o/p " << HcalCalibDetId(id) << " " << error;
+    edm::LogVerbatim("HCalGeom") << det << "[" << all << ":" << total << "] " << cell << " Dense " << dense << " o/p "
+                                 << HcalCalibDetId(id) << " " << error;
   } else {
     edm::LogVerbatim("HCalGeom") << det << "[" << all << "] " << cell << "***** INVALID *****";
   }
