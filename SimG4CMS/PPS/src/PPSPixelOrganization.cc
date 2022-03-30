@@ -39,10 +39,10 @@ uint32_t PPSPixelOrganization ::unitID(const G4Step* aStep) {
     edm::LogInfo("PPSSim") << "physVol=" << physVol->GetName() << ", level=" << ii
                            << ", physVol->GetCopyNo()=" << physVol->GetCopyNo();
 
-    if (physVol->GetName().contains("Envelop")) {
+    if (G4StrUtil::contains(physVol->GetName(), "Envelop")) {
       currentPlane_ = physVol->GetCopyNo() - 1;
       foundEnvelop = true;
-    } else if (physVol->GetName().contains("RP_box_primary_vacuum")) {
+    } else if (G4StrUtil::contains(physVol->GetName(), "RP_box_primary_vacuum")) {
       int cpy_no = physVol->GetCopyNo();
       currentArm_ = (cpy_no / 100) % 10;
       currentStation_ = (cpy_no / 10) % 10;
