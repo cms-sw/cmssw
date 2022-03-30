@@ -1,3 +1,5 @@
+#ifndef RecoParticleFlow_PFTracking_ConvBremPFTrackFinder_H
+#define RecoParticleFlow_PFTracking_ConvBremPFTrackFinder_H
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -89,3 +91,4 @@ private:
   //int nHITS1;
   float nHITS1;
 };
+#endif
