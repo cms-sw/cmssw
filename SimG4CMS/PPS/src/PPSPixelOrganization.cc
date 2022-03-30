@@ -16,9 +16,9 @@
 #include "G4Version.hh"
 
 #if G4VERSION_NUMBER >= 1100
-#define STRING_CONTAINS(a,b) G4StrUtil::contains(a,b)
+#define STRING_CONTAINS(a, b) G4StrUtil::contains(a, b)
 #else
-#define STRING_CONTAINS(a,b) a.contains(b)
+#define STRING_CONTAINS(a, b) a.contains(b)
 #endif
 
 //
