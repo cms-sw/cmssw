@@ -2606,17 +2606,20 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
         //V9:maps the layers in -z: 0->51 and in +z: 52->103
         //V10:maps the layers in -z: 0->49 and in +z: 50->99
         const auto itcheck = hitMap.find(hitid);
-        //Checks whether the current hit belonging to sim cluster has a reconstructed hit.
+        //Check whether the current hit belonging to sim cluster has a reconstructed hit
         if ((valType == 0 && itcheck != hitMap.end()) || (valType > 0 && int(lcId) >= 0)) {
+          float lcFraction = 0;
+          if (valType > 0) {
+            const auto iLC = std::find(simTSs[iSTS].vertices().begin(), simTSs[iSTS].vertices().end(), lcId);
+            lcFraction =
+                1.f / simTSs[iSTS].vertex_multiplicity(std::distance(std::begin(simTSs[iSTS].vertices()), iLC));
+          }
           const auto elemId = (valType == 0) ? hitid : lcId;
-          const auto iLC = std::find(simTSs[iSTS].vertices().begin(), simTSs[iSTS].vertices().end(), lcId);
-          const auto lcFraction =
-              1.f / simTSs[iSTS].vertex_multiplicity(std::distance(std::begin(simTSs[iSTS].vertices()), iLC));
           const auto elemFr = (valType == 0) ? it_haf.second : lcFraction;
-          //Since the current hit from sim cluster has a reconstructed hit with the same detid,
-          //make a map that will connect a detid with:
-          //1. the CaloParticles that have a SimCluster with sim hits in that cell via caloparticle id.
-          //2. the sum of all SimHits fractions that contributes to that detid.
+          //Since the current hit from SimCluster has a reconstructed hit {with the same detid, belonging to the corresponding SimTrackster},
+          //make a map that will connect a {detid,lcID} with:
+          //1. the SimTracksters that have a SimCluster with {sim hits in, LCs containing} that cell via SimTrackster id.
+          //2. the sum of all {SimHits, LCs} fractions that contributes to that detid.
           //So, keep in mind that in case of multiple CaloParticles contributing in the same cell
           //the fraction is the sum over all calo particles. So, something like:
           //detid: (caloparticle 1, sum of hits fractions in that detid over all cp) , (caloparticle 2, sum of hits fractions in that detid over all cp), (caloparticle 3, sum of hits fractions in that detid over all cp) ...
@@ -2641,7 +2644,7 @@ void HGVHistoProducerAlgo::tracksters_to_SimTracksters(
           //fill the cPOnLayer[caloparticle][layer] object with energy (sum of all rechits energy times fraction
           //of the relevant simhit) and keep the hit (detid and fraction) that contributed.
           cPOnLayer[cpId].energy += it_haf.second * hitEn;
-          sCOnLayer[cpId][iSim].energy += lcFraction * hitEn;
+          sCOnLayer[cpId][iSim].energy += elemFr * hitEn;
           // Need to compress the hits and fractions in order to have a
           // reasonable score between CP and LC. Imagine, for example, that a
           // CP has detID X used by 2 SimClusters with different fractions. If
