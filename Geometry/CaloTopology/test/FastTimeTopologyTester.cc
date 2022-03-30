@@ -1,4 +1,5 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -8,7 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -40,7 +41,7 @@ FastTimeTopologyTester::FastTimeTopologyTester(const edm::ParameterSet&)
 void FastTimeTopologyTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setUnknown();
-  descriptions.addDefault(desc);
+  descriptions.add("fastTimeTopologyTester", desc);
 }
 
 void FastTimeTopologyTester::analyze(edm::Event const&, edm::EventSetup const& iSetup) {
@@ -54,27 +55,31 @@ void FastTimeTopologyTester::doTest(const FastTimeTopology& topology) {
       for (int phi = 1; phi <= 720; ++phi) {
         const FastTimeDetId id(1, eta, phi, iz);
         if (topology.valid(id)) {
-          std::cout << "Neighbours for Tower " << id << std::endl;
+          edm::LogVerbatim("FastTime") << "Neighbours for Tower " << id;
           std::vector<DetId> idE = topology.east(id);
           std::vector<DetId> idW = topology.west(id);
           std::vector<DetId> idN = topology.north(id);
           std::vector<DetId> idS = topology.south(id);
-          std::cout << "          " << idE.size() << " sets along East:";
+	  std::ostringstream st1;
+          st1 << "          " << idE.size() << " sets along East:";
           for (auto& i : idE)
-            std::cout << " " << static_cast<FastTimeDetId>(i());
-          std::cout << std::endl;
-          std::cout << "          " << idW.size() << " sets along West:";
+            st1 << " " << static_cast<FastTimeDetId>(i());
+          edm::LogVerbatim("FastTime") << st1.str();
+	  std::ostringstream st2;
+          st2 << "          " << idW.size() << " sets along West:";
           for (auto& i : idW)
-            std::cout << " " << static_cast<FastTimeDetId>(i());
-          std::cout << std::endl;
-          std::cout << "          " << idN.size() << " sets along North:";
+            st2 << " " << static_cast<FastTimeDetId>(i());
+          edm::LogVerbatim("FastTime") << st2.str();
+	  std::ostringstream st3;
+          st3 << "          " << idN.size() << " sets along North:";
           for (auto& i : idN)
-            std::cout << " " << static_cast<FastTimeDetId>(i());
-          std::cout << std::endl;
-          std::cout << "          " << idS.size() << " sets along South:";
+            st3 << " " << static_cast<FastTimeDetId>(i());
+          edm::LogVerbatim("FastTime") << st3.str();
+	  std::ostringstream st4;
+          st4 << "          " << idS.size() << " sets along South:";
           for (auto& i : idS)
-            std::cout << " " << static_cast<FastTimeDetId>(i());
-          std::cout << std::endl;
+            st4 << " " << static_cast<FastTimeDetId>(i());
+          edm::LogVerbatim("FastTime") << st4.str();
         }
         phi += 10;
       }
