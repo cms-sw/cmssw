@@ -94,7 +94,7 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
 
   size_t n = pfCandidates->size();
   std::vector<int> oldToNew(n);
-  int iPF = -1;
+  size_t iPF = -1;
   for (const reco::PFCandidate& pfCandidate : *pfCandidates) {
     iPF++;
     if (pfCandidate.particleId() == reco::PFCandidate::ParticleType::mu)  // muon cleaning
