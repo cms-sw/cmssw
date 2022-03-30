@@ -238,8 +238,8 @@ void TrackletConfigBuilder::buildProjections() {
 
 double TrackletConfigBuilder::phi(double r1, double phi1, double r2, double phi2, double r) {
   double rhoinv = rinv(r1, phi1, r2, phi2);
-  if (fabs(rhoinv) > rinvmax_) {
-    rhoinv = rinvmax_ * rhoinv / fabs(rhoinv);
+  if (std::abs(rhoinv) > rinvmax_) {
+    rhoinv = rinvmax_ * rhoinv / std::abs(rhoinv);
   }
   return phi1 + asin(0.5 * r * rhoinv) - asin(0.5 * r1 * rhoinv);
 }

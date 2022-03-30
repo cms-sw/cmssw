@@ -14,7 +14,6 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -70,19 +69,19 @@ private:
   virtual void endJob();
 
   // track selection criteria
-  float trkZMax_;          // in [cm]
-  float trkChi2dofMax_;    // maximum track chi2dof
-  double trkBendChi2Max_;  // maximum track bendchi2
-  float trkPtMin_;         // in [GeV]
-  float trkEtaMax_;        // in [rad]
-  int trkNStubMin_;        // minimum number of stubs
-  int trkNPSStubMin_;      // minimum number of PS stubs
-  double deltaZ0Cut_;      // save with |L1z-z0| < maxZ0
-  double coneSize_;        // Use anti-kt with this cone size
-  bool doTightChi2_;
-  float trkPtTightChi2_;
-  float trkChi2dofTightChi2_;
-  bool displaced_;  //use prompt/displaced tracks
+  const float trkZMax_;          // in [cm]
+  const float trkChi2dofMax_;    // maximum track chi2dof
+  const double trkBendChi2Max_;  // maximum track bendchi2
+  const float trkPtMin_;         // in [GeV]
+  const float trkEtaMax_;        // in [rad]
+  const int trkNStubMin_;        // minimum number of stubs
+  const int trkNPSStubMin_;      // minimum number of PS stubs
+  const double deltaZ0Cut_;      // save with |L1z-z0| < maxZ0
+  const double coneSize_;        // Use anti-kt with this cone size
+  const bool doTightChi2_;
+  const float trkPtTightChi2_;
+  const float trkChi2dofTightChi2_;
+  const bool displaced_;  //use prompt/displaced tracks
   bool selectTrkMatchGenTight_;
   bool selectTrkMatchGenLoose_;
   bool selectTrkMatchGenOrPU_;
@@ -91,32 +90,34 @@ private:
   edm::EDGetTokenT<std::vector<l1t::Vertex>> pvToken_;
   const edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>> genToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 // constructor
 L1FastTrackingJetProducer::L1FastTrackingJetProducer(const edm::ParameterSet& iConfig)
-    : trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(
+    : trkZMax_((float)iConfig.getParameter<double>("trk_zMax")),
+      trkChi2dofMax_((float)iConfig.getParameter<double>("trk_chi2dofMax")),
+      trkBendChi2Max_(iConfig.getParameter<double>("trk_bendChi2Max")),
+      trkPtMin_((float)iConfig.getParameter<double>("trk_ptMin")),
+      trkEtaMax_((float)iConfig.getParameter<double>("trk_etaMax")),
+      trkNStubMin_((int)iConfig.getParameter<int>("trk_nStubMin")),
+      trkNPSStubMin_((int)iConfig.getParameter<int>("trk_nPSStubMin")),
+      deltaZ0Cut_((float)iConfig.getParameter<double>("deltaZ0Cut")),
+      coneSize_((float)iConfig.getParameter<double>("coneSize")),
+      doTightChi2_(iConfig.getParameter<bool>("doTightChi2")),
+      trkPtTightChi2_((float)iConfig.getParameter<double>("trk_ptTightChi2")),
+      trkChi2dofTightChi2_((float)iConfig.getParameter<double>("trk_chi2dofTightChi2")),
+      displaced_(iConfig.getParameter<bool>("displaced")),
+      selectTrkMatchGenTight_(iConfig.getParameter<bool>("selectTrkMatchGenTight")),
+      selectTrkMatchGenLoose_(iConfig.getParameter<bool>("selectTrkMatchGenLoose")),
+      selectTrkMatchGenOrPU_(iConfig.getParameter<bool>("selectTrkMatchGenOrPU")),
+      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
       pvToken_(consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
       genToken_(
           consumes<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>(iConfig.getParameter<edm::InputTag>("GenInfo"))),
-      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
-  trkZMax_ = (float)iConfig.getParameter<double>("trk_zMax");
-  trkChi2dofMax_ = (float)iConfig.getParameter<double>("trk_chi2dofMax");
-  trkBendChi2Max_ = iConfig.getParameter<double>("trk_bendChi2Max");
-  trkPtMin_ = (float)iConfig.getParameter<double>("trk_ptMin");
-  trkEtaMax_ = (float)iConfig.getParameter<double>("trk_etaMax");
-  trkNStubMin_ = (int)iConfig.getParameter<int>("trk_nStubMin");
-  trkNPSStubMin_ = (int)iConfig.getParameter<int>("trk_nPSStubMin");
-  deltaZ0Cut_ = (float)iConfig.getParameter<double>("deltaZ0Cut");
-  coneSize_ = (float)iConfig.getParameter<double>("coneSize");
-  doTightChi2_ = iConfig.getParameter<bool>("doTightChi2");
-  trkPtTightChi2_ = (float)iConfig.getParameter<double>("trk_ptTightChi2");
-  trkChi2dofTightChi2_ = (float)iConfig.getParameter<double>("trk_chi2dofTightChi2");
-  displaced_ = iConfig.getParameter<bool>("displaced");
-  selectTrkMatchGenTight_ = iConfig.getParameter<bool>("selectTrkMatchGenTight");
-  selectTrkMatchGenLoose_ = iConfig.getParameter<bool>("selectTrkMatchGenLoose");
-  selectTrkMatchGenOrPU_ = iConfig.getParameter<bool>("selectTrkMatchGenOrPU");
+      tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
+      tGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("", ""))) {
   if (displaced_)
     produces<TkJetCollection>("L1FastTrackingJetsExtended");
   else
@@ -142,6 +143,7 @@ void L1FastTrackingJetProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   // Tracker Topology
   const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
+  //const TrackerGeometry& tGeom = iSetup.getData(tGeomToken_);
 
   edm::Handle<std::vector<l1t::Vertex>> L1VertexHandle;
   iEvent.getByToken(pvToken_, L1VertexHandle);

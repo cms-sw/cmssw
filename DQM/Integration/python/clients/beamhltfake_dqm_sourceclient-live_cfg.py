@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 # Define here the BeamSpotOnline record name,
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineHLT'
-BSOnlineJobName = 'BeamSpotOnlineHLT'
+BSOnlineTag = 'BeamSpotOnlineFakeHLT'
+BSOnlineJobName = 'BeamSpotOnlineFakeHLT'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
@@ -148,8 +148,8 @@ else:
                             ),
 
     # Upload to CondDB
-    connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db'),
-    preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db'),
+    connect = cms.string('sqlite_file:BeamSpotOnlineFakeHLT.db'),
+    preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineFakeHLT.db'),
 
     runNumber = cms.untracked.uint64(options.runNumber),
     lastLumiFile = cms.untracked.string('last_lumi.txt'),

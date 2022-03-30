@@ -42,7 +42,7 @@ bool L1HPSPFTauQualityCut::operator()(const l1t::PFCandidate& pfCand, float_t pr
     if (pfCand.charge() != 0) {
       if (dzCut_ == kEnabledPrimary || dzCut_ == kEnabledPileup) {
         const l1t::PFTrackRef& pfCand_track = pfCand.pfTrack();
-        double dz = std::fabs(pfCand_track->vertex().z() - primaryVertex_z);
+        double dz = std::abs(pfCand_track->vertex().z() - primaryVertex_z);
         if (dzCut_ == kEnabledPrimary && dz > maxDz_)
           return false;
         if (dzCut_ == kEnabledPileup && dz <= maxDz_)

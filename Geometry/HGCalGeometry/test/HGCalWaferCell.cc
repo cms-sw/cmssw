@@ -27,11 +27,10 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -61,7 +60,7 @@ HGCalWaferCell::HGCalWaferCell(const edm::ParameterSet& iC)
       nameDetector_(iC.getParameter<std::string>("NameDevice")),
       debug_(iC.getParameter<bool>("Verbosity")),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
-  std::cout << "Check # of cells for " << nameDetector_ << " using constants of " << nameSense_ << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << "Check # of cells for " << nameDetector_ << " using constants of " << nameSense_;
 }
 
 void HGCalWaferCell::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -81,7 +80,7 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (hgdc.waferHexagon8()) {
     // Find all valid wafers
     std::vector<DetId> ids = geom->getValidGeomDetIds();
-    std::cout << "\n\nCheck Wafers for " << nameDetector_ << " with " << ids.size() << " wafers\n\n";
+    edm::LogVerbatim("HGCalGeomX") << "\n\nCheck Wafers for " << nameDetector_ << " with " << ids.size() << " wafers\n";
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     int bad(0);
     std::map<int, int> waferMap;
@@ -96,7 +95,7 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       HGCSiliconDetId id(det, 1, type, layer, waferU, waferV, 0, 0);
       int kndx = ((rotn * 10 + part) * 10 + type);
       if (debug_)
-        std::cout << std::hex << id.rawId() << std::dec << " " << id << " Index:" << kndx << std::endl;
+        edm::LogVerbatim("HGCalGeomX") << std::hex << id.rawId() << std::dec << " " << id << " Index:" << kndx;
       if (waferMap.find(kndx) == waferMap.end()) {
         waferMap[kndx] = 1;
       } else {
@@ -105,7 +104,7 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if ((type < 0) || (type > 2) || (part < 0) || (part > 7) || (rotn < 0) || (rotn > 5))
         ++bad;
     }
-    std::cout << bad << " wafers of unknown types among " << hgdc.waferFileSize() << " wafers\n\n";
+    edm::LogVerbatim("HGCalGeomX") << bad << " wafers of unknown types among " << hgdc.waferFileSize() << " wafers\n";
 
     // Now print out the summary
     static const std::vector<int> itype = {0, 1, 2};
@@ -119,13 +118,13 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           int kndx = ((rotn * 10 + part) * 10 + type);
           auto itr = waferMap.find(kndx);
           if (itr != waferMap.end())
-            std::cout << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn << " with "
-                      << (itr->second) << " wafers\n";
+            edm::LogVerbatim("HGCalGeomX") << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn
+                                           << " with " << (itr->second) << " wafers";
         }
       }
     }
 
-    std::cout << "\n\nSummary of Cells\n================\n";
+    edm::LogVerbatim("HGCalGeomX") << "\n\nSummary of Cells\n================";
     for (const auto& type : itype) {
       int N = (type == 0) ? hgdc.getParameter()->nCellsFine_ : hgdc.getParameter()->nCellsCoarse_;
       for (unsigned int k = 0; k < itypp.size(); ++k) {
@@ -140,12 +139,12 @@ void HGCalWaferCell::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               }
             }
           }
-          std::cout << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn << " with " << num
-                    << " cells\n";
+          edm::LogVerbatim("HGCalGeomX") << "Type:" << type << " Partial:" << typep[k] << " Orientation:" << rotn
+                                         << " with " << num << " cells";
         }
       }
     }
-    std::cout << "\n\n\n";
+    edm::LogVerbatim("HGCalGeomX") << "\n\n";
   }
 }
 

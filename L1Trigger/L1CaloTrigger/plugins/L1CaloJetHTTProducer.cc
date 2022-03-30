@@ -20,7 +20,7 @@ Implementation:
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -36,7 +36,7 @@ Implementation:
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 
-class L1CaloJetHTTProducer : public edm::EDProducer {
+class L1CaloJetHTTProducer : public edm::stream::EDProducer<> {
 public:
   explicit L1CaloJetHTTProducer(const edm::ParameterSet&);
 
@@ -85,7 +85,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       for (const auto& caloJet : *bxvCaloJetsHandle.product()) {
         if (caloJet.pt() < PtMin)
           continue;
-        if (fabs(caloJet.eta()) > EtaMax)
+        if (std::abs(caloJet.eta()) > EtaMax)
           continue;
         *CaloJetHTT += float(caloJet.pt());
       }
@@ -105,7 +105,7 @@ void L1CaloJetHTTProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       for (const auto& genJet : *genJetsHandle.product()) {
         if (genJet.pt() < PtMin)
           continue;
-        if (fabs(genJet.eta()) > EtaMax)
+        if (std::abs(genJet.eta()) > EtaMax)
           continue;
         *CaloJetHTT += float(genJet.pt());
       }
