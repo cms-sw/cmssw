@@ -25,7 +25,8 @@ uint32_t PPSDiamondOrganization::unitID(const G4Step* aStep) {
   for (int ii = 0; ii < touch->GetHistoryDepth(); ii++) {
     physVol = touch->GetVolume(ii);
 
-    if (G4StrUtil::contains(physVol->GetName(), "CTPPS_Diamond_Segment") || G4StrUtil::contains(physVol->GetName(), "CTPPS_UFSD_Segment")) {
+    if (G4StrUtil::contains(physVol->GetName(), "CTPPS_Diamond_Segment") ||
+        G4StrUtil::contains(physVol->GetName(), "CTPPS_UFSD_Segment")) {
       theDetector_ = physVol->GetCopyNo() % 100;
       thePlane_ = physVol->GetCopyNo() / 100;
       LogDebug("PPSSimDiamond") << "\n---------------------CTPPS_Diamond_Segment-------------------------------------"
