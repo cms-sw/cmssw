@@ -12,7 +12,6 @@
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/L1Trigger/interface/Vertex.h"
-#include "L1Trigger/VertexFinder/interface/L1TrackTruthMatched.h"
 
 #include <vector>
 
