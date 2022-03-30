@@ -60,22 +60,22 @@ void CaloTowerTopologyTester::doTest(const CaloTowerTopology& topology) {
         std::vector<DetId> idN = topology.north(id);
         std::vector<DetId> idS = topology.south(id);
         edm::LogVerbatim("CaloTower") << "Neighbours for : Tower " << id << std::endl;
-	std::ostringstream st1;
+        std::ostringstream st1;
         st1 << "          " << idE.size() << " sets along East:";
         for (auto& i : idE)
           st1 << " " << static_cast<CaloTowerDetId>(i());
         edm::LogVerbatim("CaloTower") << st1.str();
-	std::ostringstream st2;
+        std::ostringstream st2;
         st2 << "          " << idW.size() << " sets along West:";
         for (auto& i : idW)
           st2 << " " << static_cast<CaloTowerDetId>(i());
         edm::LogVerbatim("CaloTower") << st2.str();
-	std::ostringstream st3;
+        std::ostringstream st3;
         st3 << "          " << idN.size() << " sets along North:";
         for (auto& i : idN)
           st3 << " " << static_cast<CaloTowerDetId>(i());
         edm::LogVerbatim("CaloTower") << st3.str();
-	std::ostringstream st4;
+        std::ostringstream st4;
         st4 << "          " << idS.size() << " sets along South:";
         for (auto& i : idS)
           st4 << " " << static_cast<CaloTowerDetId>(i());

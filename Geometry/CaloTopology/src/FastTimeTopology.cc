@@ -12,7 +12,10 @@ FastTimeTopology::FastTimeTopology(const FastTimeDDDConstants& hdcons, ForwardSu
   kHGeomHalf_ = 1;
   kSizeForDenseIndexing = (unsigned int)(2 * kHGhalf_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("FastTime") << "FastTimeTopology initialized for subDetetcor " << subdet_ << " Type " << type_ << "  with " << nEtaZ_ << " cells along Z|Eta and " << nPhi_ << " cells along phi: total channels " << kSizeForDenseIndexing << ":" << (2 * kHGeomHalf_);
+  edm::LogVerbatim("FastTime") << "FastTimeTopology initialized for subDetetcor " << subdet_ << " Type " << type_
+                               << "  with " << nEtaZ_ << " cells along Z|Eta and " << nPhi_
+                               << " cells along phi: total channels " << kSizeForDenseIndexing << ":"
+                               << (2 * kHGeomHalf_);
 #endif
 }
 
