@@ -553,7 +553,8 @@ std::shared_ptr<edm::FileBlock> DQMRootSource::readFile_() {
 
     std::unique_ptr<std::string> guid{file->Get<std::string>(kCmsGuid)};
     if (not guid) {
-      guid = std::make_unique<std::string>();
+      guid = std::make_unique<std::string>(file->GetUUID().AsString());
+      std::transform(guid->begin(), guid->end(), guid->begin(), (int (*)(int))std::toupper);
     }
 
     edm::Service<edm::JobReport> jr;
