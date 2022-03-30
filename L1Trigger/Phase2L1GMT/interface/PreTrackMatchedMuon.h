@@ -7,6 +7,12 @@
 #include "DataFormats/L1TMuonPhase2/interface/MuonStub.h"
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
+#include "DataFormats/L1TrackTrigger/interface/TTStub.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/L1Trigger/interface/Vertex.h"
+#include "L1Trigger/VertexFinder/interface/L1TrackTruthMatched.h"
 
 #include <vector>
 
