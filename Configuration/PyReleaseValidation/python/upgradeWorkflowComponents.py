@@ -556,10 +556,13 @@ class PatatrackWorkflow(UpgradeWorkflow):
             else:
               stepDict[stepName][k] = merge([self.__harvest, stepDict[step][k]])
 
-
+# Pixel-only quadruplets workflow running on CPU
+#  - HLT on CPU
+#  - Pixel-only reconstruction on CPU, with DQM and validation
+#  - harvesting
 upgradeWFs['PatatrackPixelOnlyCPU'] = PatatrackWorkflow(
     digi = {
-        # there is no customisation for enabling the Patatrack pixel quadruplets running only on the CPU
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
@@ -572,8 +575,13 @@ upgradeWFs['PatatrackPixelOnlyCPU'] = PatatrackWorkflow(
     offset = 0.501,
 )
 
+# Pixel-only quadruplets workflow running on CPU or GPU
+#  - HLT on GPU (optional)
+#  - Pixel-only reconstruction on GPU (optional), with DQM and validation
+#  - harvesting
 upgradeWFs['PatatrackPixelOnlyGPU'] = PatatrackWorkflow(
     digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
         '--procModifiers': 'gpu'
     },
     reco = {
@@ -587,10 +595,34 @@ upgradeWFs['PatatrackPixelOnlyGPU'] = PatatrackWorkflow(
     offset = 0.502,
 )
 
-# add here a .503 workflow for GPU vs CPU validation
+# Pixel-only quadruplets workflow running on CPU and GPU
+#  - HLT on GPU (required)
+#  - Pixel-only reconstruction on both CPU and GPU, with DQM and validation for GPU-vs-CPU comparisons
+#  - harvesting
+upgradeWFs['PatatrackPixelOnlyGPUValidation'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'pixelNtupletFit,gpuValidation'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelOnlyGPU_Validation',
+    offset = 0.503,
+)
 
+# Pixel-only quadruplets workflow running on CPU or GPU, trimmed down for benchmarking
+#  - HLT on GPU (optional)
+#  - Pixel-only reconstruction on GPU (optional)
 upgradeWFs['PatatrackPixelOnlyGPUProfiling'] = PatatrackWorkflow(
     digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
         '--procModifiers': 'gpu'
     },
     reco = {
@@ -603,9 +635,13 @@ upgradeWFs['PatatrackPixelOnlyGPUProfiling'] = PatatrackWorkflow(
     offset = 0.504,
 )
 
+# Pixel-only triplets workflow running on CPU
+#  - HLT on CPU
+#  - Pixel-only reconstruction on CPU, with DQM and validation
+#  - harvesting
 upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = PatatrackWorkflow(
     digi = {
-        # there is no customisation for enabling the Patatrack pixel triplets running only on the CPU
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
@@ -619,10 +655,14 @@ upgradeWFs['PatatrackPixelOnlyTripletsCPU'] = PatatrackWorkflow(
     offset = 0.505,
 )
 
+# Pixel-only triplets workflow running on CPU or GPU
+#  - HLT on GPU (optional)
+#  - Pixel-only reconstruction on GPU (optional), with DQM and validation
+#  - harvesting
 upgradeWFs['PatatrackPixelOnlyTripletsGPU'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'gpu',
-        '--customise': 'HLTrigger/Configuration/customizeHLTforPatatrack.enablePatatrackPixelTriplets'
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--procModifiers': 'gpu'
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
@@ -636,12 +676,36 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPU'] = PatatrackWorkflow(
     offset = 0.506,
 )
 
-# add here a .507 workflow for GPU vs CPU validation
+# Pixel-only triplets workflow running on CPU and GPU
+#  - HLT on GPU (required)
+#  - Pixel-only reconstruction on both CPU and GPU, with DQM and validation for GPU-vs-CPU comparisons
+#  - harvesting
+upgradeWFs['PatatrackPixelOnlyTripletsGPUValidation'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly,VALIDATION:@pixelTrackingOnlyValidation,DQM:@pixelTrackingOnlyDQM',
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'pixelNtupletFit,gpuValidation',
+        '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+    },
+    suffix = 'Patatrack_PixelOnlyTripletsGPU_Validation',
+    offset = 0.507,
+)
 
+# Pixel-only triplets workflow running on CPU or GPU, trimmed down for benchmarking
+#  - HLT on GPU (optional)
+#  - Pixel-only reconstruction on GPU (optional)
 upgradeWFs['PatatrackPixelOnlyTripletsGPUProfiling'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'gpu',
-        '--customise': 'HLTrigger/Configuration/customizeHLTforPatatrack.enablePatatrackPixelTriplets'
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--procModifiers': 'gpu'
     },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_pixelOnly,RECO:reconstruction_pixelTrackingOnly',
@@ -653,7 +717,14 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPUProfiling'] = PatatrackWorkflow(
     offset = 0.508,
 )
 
+# ECAL-only workflow running on CPU
+#  - HLT on CPU
+#  - ECAL-only reconstruction on CPU, with DQM and validation
+#  - harvesting
 upgradeWFs['PatatrackECALOnlyCPU'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+    },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_ecalOnly,RECO:reconstruction_ecalOnly,VALIDATION:@ecalOnlyValidation,DQM:@ecalOnly',
     },
@@ -664,8 +735,13 @@ upgradeWFs['PatatrackECALOnlyCPU'] = PatatrackWorkflow(
     offset = 0.511,
 )
 
+# ECAL-only workflow running on CPU or GPU
+#  - HLT on GPU (optional)
+#  - ECAL-only reconstruction on GPU (optional), with DQM and validation
+#  - harvesting
 upgradeWFs['PatatrackECALOnlyGPU'] = PatatrackWorkflow(
     digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
         '--procModifiers': 'gpu'
     },
     reco = {
@@ -679,8 +755,13 @@ upgradeWFs['PatatrackECALOnlyGPU'] = PatatrackWorkflow(
     offset = 0.512,
 )
 
+# ECAL-only workflow running on CPU and GPU
+#  - HLT on GPU (required)
+#  - ECAL-only reconstruction on both CPU and GPU, with DQM and validation for GPU-vs-CPU comparisons
+#  - harvesting
 upgradeWFs['PatatrackECALOnlyGPUValidation'] = PatatrackWorkflow(
     digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
         '--accelerators': 'gpu-nvidia',
         '--procModifiers': 'gpu'
     },
@@ -696,8 +777,12 @@ upgradeWFs['PatatrackECALOnlyGPUValidation'] = PatatrackWorkflow(
     offset = 0.513,
 )
 
+# ECAL-only workflow running on CPU or GPU, trimmed down for benchmarking
+#  - HLT on GPU (optional)
+#  - ECAL-only reconstruction on GPU (optional)
 upgradeWFs['PatatrackECALOnlyGPUProfiling'] = PatatrackWorkflow(
     digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
         '--procModifiers': 'gpu'
     },
     reco = {
@@ -710,7 +795,14 @@ upgradeWFs['PatatrackECALOnlyGPUProfiling'] = PatatrackWorkflow(
     offset = 0.514,
 )
 
+# HCAL-only workflow running on CPU
+#  - HLT on CPU
+#  - HCAL-only reconstruction on CPU, with DQM and validation
+#  - harvesting
 upgradeWFs['PatatrackHCALOnlyCPU'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+    },
     reco = {
         '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
     },
@@ -721,8 +813,13 @@ upgradeWFs['PatatrackHCALOnlyCPU'] = PatatrackWorkflow(
     offset = 0.521,
 )
 
+# HCAL-only workflow running on CPU or GPU
+#  - HLT on GPU (optional)
+#  - HCAL-only reconstruction on GPU (optional), with DQM and validation
+#  - harvesting
 upgradeWFs['PatatrackHCALOnlyGPU'] = PatatrackWorkflow(
     digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
         '--procModifiers': 'gpu'
     },
     reco = {
@@ -736,10 +833,34 @@ upgradeWFs['PatatrackHCALOnlyGPU'] = PatatrackWorkflow(
     offset = 0.522,
 )
 
-# add here a .523 workflow for GPU vs CPU validation
+# HCAL-only workflow running on CPU and GPU
+#  - HLT on GPU (required)
+#  - HCAL-only reconstruction on both CPU and GPU, with DQM and validation for GPU-vs-CPU comparisons
+#  - harvesting
+upgradeWFs['PatatrackHCALOnlyGPUValidation'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_hcalOnly,RECO:reconstruction_hcalOnly,VALIDATION:@hcalOnlyValidation,DQM:@hcalOnly+@hcal2Only',
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpuValidation'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@hcalOnlyValidation+@hcal'
+    },
+    suffix = 'Patatrack_HCALOnlyGPU_Validation',
+    offset = 0.523,
+)
 
+# HCAL-only workflow running on CPU or GPU, trimmed down for benchmarking
+#  - HLT on GPU (optional)
+#  - HCAL-only reconstruction on GPU (optional)
 upgradeWFs['PatatrackHCALOnlyGPUProfiling'] = PatatrackWorkflow(
     digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
         '--procModifiers': 'gpu'
     },
     reco = {
@@ -752,9 +873,145 @@ upgradeWFs['PatatrackHCALOnlyGPUProfiling'] = PatatrackWorkflow(
     offset = 0.524,
 )
 
-upgradeWFs['PatatrackCPU'] = PatatrackWorkflow(
+# Workflow running the Pixel quadruplets, ECAL and HCAL reconstruction on CPU
+#  - HLT on CPU
+#  - reconstruction on CPU, with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackAllCPU'] = PatatrackWorkflow(
     digi = {
-        # there is no customisation for enabling the Patatrack pixel quadruplets running only on the CPU
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly+RawToDigi_ecalOnly+RawToDigi_hcalOnly,RECO:reconstruction_pixelTrackingOnly+reconstruction_ecalOnly+reconstruction_hcalOnly,VALIDATION:@pixelTrackingOnlyValidation+@ecalOnlyValidation+@hcalOnlyValidation,DQM:@pixelTrackingOnlyDQM+@ecalOnly+@hcalOnly+@hcal2Only',
+        '--procModifiers': 'pixelNtupletFit'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+    },
+    suffix = 'Patatrack_AllCPU',
+    offset = 0.581,
+)
+
+# Workflow running the Pixel quadruplets, ECAL and HCAL reconstruction on CPU or GPU
+#  - HLT on GPU (optional)
+#  - reconstruction on GPU (optional), with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackAllGPU'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly+RawToDigi_ecalOnly+RawToDigi_hcalOnly,RECO:reconstruction_pixelTrackingOnly+reconstruction_ecalOnly+reconstruction_hcalOnly,VALIDATION:@pixelTrackingOnlyValidation+@ecalOnlyValidation+@hcalOnlyValidation,DQM:@pixelTrackingOnlyDQM+@ecalOnly+@hcalOnly+@hcal2Only',
+        '--procModifiers': 'pixelNtupletFit,gpu'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+    },
+    suffix = 'Patatrack_AllGPU',
+    offset = 0.582,
+)
+
+# Workflow running the Pixel quadruplets, ECAL and HCAL reconstruction on CPU and GPU
+#  - HLT on GPU (required)
+#  - reconstruction on CPU and GPU, with DQM and validation for GPU-vs-CPU comparisons
+#  - harvesting
+upgradeWFs['PatatrackAllGPUValidation'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly+RawToDigi_ecalOnly+RawToDigi_hcalOnly,RECO:reconstruction_pixelTrackingOnly+reconstruction_ecalOnly+reconstruction_hcalOnly,VALIDATION:@pixelTrackingOnlyValidation+@ecalOnlyValidation+@hcalOnlyValidation,DQM:@pixelTrackingOnlyDQM+@ecalOnly+@hcalOnly+@hcal2Only',
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'pixelNtupletFit,gpuValidation'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+    },
+    suffix = 'Patatrack_AllGPU_Validation',
+    offset = 0.583,
+)
+
+# Workflow running the Pixel quadruplets, ECAL and HCAL reconstruction on CPU or GPU, trimmed down for benchmarking
+#  - HLT on GPU (optional)
+#  - minimal reconstruction on GPU (optional)
+# FIXME workflow 0.584 to be implemented
+
+# Workflow running the Pixel triplets, ECAL and HCAL reconstruction on CPU
+#  - HLT on CPU
+#  - reconstruction on CPU, with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackAllTripletsCPU'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly+RawToDigi_ecalOnly+RawToDigi_hcalOnly,RECO:reconstruction_pixelTrackingOnly+reconstruction_ecalOnly+reconstruction_hcalOnly,VALIDATION:@pixelTrackingOnlyValidation+@ecalOnlyValidation+@hcalOnlyValidation,DQM:@pixelTrackingOnlyDQM+@ecalOnly+@hcalOnly+@hcal2Only',
+        '--procModifiers': 'pixelNtupletFit'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+    },
+    suffix = 'Patatrack_AllTripletsCPU',
+    offset = 0.585,
+)
+
+# Workflow running the Pixel triplets, ECAL and HCAL reconstruction on CPU or GPU
+#  - HLT on GPU (optional)
+#  - reconstruction on GPU (optional), with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackAllTripletsGPU'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly+RawToDigi_ecalOnly+RawToDigi_hcalOnly,RECO:reconstruction_pixelTrackingOnly+reconstruction_ecalOnly+reconstruction_hcalOnly,VALIDATION:@pixelTrackingOnlyValidation+@ecalOnlyValidation+@hcalOnlyValidation,DQM:@pixelTrackingOnlyDQM+@ecalOnly+@hcalOnly+@hcal2Only',
+        '--procModifiers': 'pixelNtupletFit,gpu'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+    },
+    suffix = 'Patatrack_AllTripletsGPU',
+    offset = 0.586,
+)
+
+# Workflow running the Pixel triplets, ECAL and HCAL reconstruction on CPU and GPU
+#  - HLT on GPU (required)
+#  - reconstruction on CPU and GPU, with DQM and validation for GPU-vs-CPU comparisons
+#  - harvesting
+upgradeWFs['PatatrackAllTripletsGPUValidation'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        '-s': 'RAW2DIGI:RawToDigi_pixelOnly+RawToDigi_ecalOnly+RawToDigi_hcalOnly,RECO:reconstruction_pixelTrackingOnly+reconstruction_ecalOnly+reconstruction_hcalOnly,VALIDATION:@pixelTrackingOnlyValidation+@ecalOnlyValidation+@hcalOnlyValidation,DQM:@pixelTrackingOnlyDQM+@ecalOnly+@hcalOnly+@hcal2Only',
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'pixelNtupletFit,gpuValidation'
+    },
+    harvest = {
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+    },
+    suffix = 'Patatrack_AllTripletsGPU_Validation',
+    offset = 0.587,
+)
+
+# Workflow running the Pixel triplets, ECAL and HCAL reconstruction on CPU or GPU, trimmed down for benchmarking
+#  - HLT on GPU (optional)
+#  - minimal reconstruction on GPU (optional)
+# FIXME workflow 0.588 to be implemented
+
+# Workflow running the Pixel quadruplets, ECAL and HCAL reconstruction on CPU, together with the full offline reconstruction
+#  - HLT on CPU
+#  - reconstruction on CPU, with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackFullRecoCPU'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
     },
     reco = {
         # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
@@ -762,13 +1019,19 @@ upgradeWFs['PatatrackCPU'] = PatatrackWorkflow(
         '--procModifiers': 'pixelNtupletFit'
     },
     harvest = {
+        # skip the @pixelTrackingOnlyDQM harvesting
     },
-    suffix = 'Patatrack_CPU',
+    suffix = 'Patatrack_FullRecoCPU',
     offset = 0.591,
 )
 
-upgradeWFs['PatatrackGPU'] = PatatrackWorkflow(
+# Workflow running the Pixel quadruplets, ECAL and HCAL reconstruction on GPU (optional), together with the full offline reconstruction on CPU
+#  - HLT on GPU (optional)
+#  - reconstruction on GPU (optional), with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackFullRecoGPU'] = PatatrackWorkflow(
     digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
         '--procModifiers': 'gpu'
     },
     reco = {
@@ -777,14 +1040,42 @@ upgradeWFs['PatatrackGPU'] = PatatrackWorkflow(
         '--procModifiers': 'pixelNtupletFit,gpu'
     },
     harvest = {
+        # skip the @pixelTrackingOnlyDQM harvesting
     },
-    suffix = 'Patatrack_GPU',
+    suffix = 'Patatrack_FullRecoGPU',
     offset = 0.592,
 )
 
-upgradeWFs['PatatrackTripletsCPU'] = PatatrackWorkflow(
+# Workflow running the Pixel quadruplets, ECAL and HCAL reconstruction on CPU and GPU, together with the full offline reconstruction on CPU
+#  - HLT on GPU (required)
+#  - reconstruction on CPU and GPU, with DQM and validation for GPU-vs-CPU comparisons
+#  - harvesting
+upgradeWFs['PatatrackFullRecoGPUValidation'] = PatatrackWorkflow(
     digi = {
-        # there is no customisation for enabling the Patatrack pixel triplets running only on the CPU
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'pixelNtupletFit,gpuValidation'
+    },
+    harvest = {
+        # skip the @pixelTrackingOnlyDQM harvesting
+    },
+    suffix = 'Patatrack_FullRecoGPU_Validation',
+    offset = 0.593,
+)
+
+# Workflow running the Pixel triplets, ECAL and HCAL reconstruction on CPU, together with the full offline reconstruction
+#  - HLT on CPU
+#  - reconstruction on CPU, with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackFullRecoTripletsCPU'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
     },
     reco = {
         # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
@@ -793,15 +1084,20 @@ upgradeWFs['PatatrackTripletsCPU'] = PatatrackWorkflow(
         '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
     },
     harvest = {
+        # skip the @pixelTrackingOnlyDQM harvesting
     },
-    suffix = 'Patatrack_TripletsCPU',
+    suffix = 'Patatrack_FullRecoTripletsCPU',
     offset = 0.595,
 )
 
-upgradeWFs['PatatrackTripletsGPU'] = PatatrackWorkflow(
+# Workflow running the Pixel triplets, ECAL and HCAL reconstruction on GPU (optional), together with the full offline reconstruction on CPU
+#  - HLT on GPU (optional)
+#  - reconstruction on GPU (optional), with DQM and validation
+#  - harvesting
+upgradeWFs['PatatrackFullRecoTripletsGPU'] = PatatrackWorkflow(
     digi = {
-        '--procModifiers': 'gpu',
-        '--customise': 'HLTrigger/Configuration/customizeHLTforPatatrack.enablePatatrackPixelTriplets'
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--procModifiers': 'gpu'
     },
     reco = {
         # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
@@ -810,10 +1106,36 @@ upgradeWFs['PatatrackTripletsGPU'] = PatatrackWorkflow(
         '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
     },
     harvest = {
+        # skip the @pixelTrackingOnlyDQM harvesting
     },
-    suffix = 'Patatrack_TripletsGPU',
+    suffix = 'Patatrack_FullRecoTripletsGPU',
     offset = 0.596,
 )
+
+# Workflow running the Pixel triplets, ECAL and HCAL reconstruction on CPU and GPU, together with the full offline reconstruction on CPU
+#  - HLT on GPU (required)
+#  - reconstruction on CPU and GPU, with DQM and validation for GPU-vs-CPU comparisons
+#  - harvesting
+upgradeWFs['PatatrackFullRecoTripletsGPUValidation'] = PatatrackWorkflow(
+    digi = {
+        # the HLT menu is already set up for using GPUs if available and if the "gpu" modifier is enabled
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'gpu'
+    },
+    reco = {
+        # skip the @pixelTrackingOnlyValidation which cannot run together with the full reconstruction
+        '-s': 'RAW2DIGI:RawToDigi+RawToDigi_pixelOnly,L1Reco,RECO:reconstruction+reconstruction_pixelTrackingOnly,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM+@pixelTrackingOnlyDQM',
+        '--accelerators': 'gpu-nvidia',
+        '--procModifiers': 'pixelNtupletFit,gpuValidation',
+        '--customise' : 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
+    },
+    harvest = {
+        # skip the @pixelTrackingOnlyDQM harvesting
+    },
+    suffix = 'Patatrack_FullRecoTripletsGPU_Validation',
+    offset = 0.597,
+)
+
 
 # end of Patatrack workflows
 
