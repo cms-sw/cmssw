@@ -69,6 +69,8 @@ private:
   MEPSet scalLumiMEPSet_;
   MEPSet pixelLumiMEPSet_;
   MEPSet puMEPSet_;
+
+  bool fillEveryLumiSection_;
 };
 
 FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const& config)
@@ -80,7 +82,8 @@ FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const& config)
                                          : MEPSet{}),
       pixelLumiMEPSet_(doPlotsVsPixelLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("pixelLumiME"))
                                            : MEPSet{}),
-      puMEPSet_(doPlotsVsPU_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("puME")) : MEPSet{}) {}
+      puMEPSet_(doPlotsVsPU_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("puME")) : MEPSet{}),
+      fillEveryLumiSection_(config.getParameter<bool>("fillEveryLumiSection")) {}
 
 FastTimerServiceClient::~FastTimerServiceClient() = default;
 
@@ -91,7 +94,10 @@ void FastTimerServiceClient::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGet
 void FastTimerServiceClient::dqmEndLuminosityBlock(DQMStore::IBooker& booker,
                                                    DQMStore::IGetter& getter,
                                                    edm::LuminosityBlock const& lumi,
-                                                   edm::EventSetup const& setup) {}
+                                                   edm::EventSetup const& setup) {
+  if (fillEveryLumiSection_)
+    fillSummaryPlots(booker, getter);
+}
 
 void FastTimerServiceClient::fillSummaryPlots(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
   if (getter.get(m_dqm_path + "/event time_real")) {
@@ -486,7 +492,7 @@ void FastTimerServiceClient::fillDescriptions(edm::ConfigurationDescriptions& de
   edm::ParameterSetDescription puMEPSet;
   fillPUMePSetDescription(puMEPSet);
   desc.add<edm::ParameterSetDescription>("puME", puMEPSet);
-
+  desc.add<bool>("fillEveryLumiSection", true);
   descriptions.add("fastTimerServiceClient", desc);
 }
 
