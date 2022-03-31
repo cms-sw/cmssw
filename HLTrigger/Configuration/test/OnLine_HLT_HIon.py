@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_3_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_12_3_0/HIon/V53 (CMSSW_12_3_0_pre6)
+# /dev/CMSSW_12_3_0/HIon/V57 (CMSSW_12_3_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V53')
+  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V57')
 )
 
 process.transferSystem = cms.PSet( 
@@ -5390,10 +5390,10 @@ process.hltPreHIOnlineMonitorGroup = cms.EDFilter( "HLTPrescaler",
 process.hltHIOnlineMonitorGroupFilter = cms.EDFilter( "TriggerResultsFilter",
     usePathStatus = cms.bool( True ),
     hltResults = cms.InputTag( 'TriggerResults','','@currentProcess' ),
-    l1tResults = cms.InputTag( "hltGtStage2Digis" ),
+    l1tResults = cms.InputTag( "" ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True ),
-    triggerConditions = cms.vstring( '( HLT_HIRandom_v1 OR HLT_HIHcalNZS_v1 OR HLT_HIHcalPhiSym_v1 OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE )' )
+    triggerConditions = cms.vstring( '( HLT_HIRandom_v1 OR HLT_HIHcalNZS_v1 OR HLT_HIHcalPhiSym_v1 )' )
 )
 process.hltL1EventNumberL1Fat = cms.EDFilter( "HLTL1NumberFilter",
     rawInput = cms.InputTag( "rawDataRepacker" ),

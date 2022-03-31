@@ -568,9 +568,9 @@ namespace edm {
   }
 
   void JobReport::reportReadBranches() {
-    if (impl_->printedReadBranches_)
+    bool expected = false;
+    if (not impl_->printedReadBranches_.compare_exchange_strong(expected, true))
       return;
-    impl_->printedReadBranches_ = true;
     if (impl_->ost_) {
       std::ostream& ost = *(impl_->ost_);
       ost << "<ReadBranches>\n";

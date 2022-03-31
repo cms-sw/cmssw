@@ -37,10 +37,26 @@ public:
   static constexpr int32_t truncatedCell = 2;
   static constexpr int32_t extendedCell = 3;
 
-  std::pair<double, double> HGCalCellUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
-  std::pair<double, double> HGCalCellUV2XY2(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
-  std::pair<int32_t, int32_t> HGCalCellUV2Cell(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
-  static int32_t HGCalCellPlacementIndex(int32_t iz, int32_t fwdBack, int32_t orient);
+  static constexpr int32_t undefinedCell = -1;
+  static constexpr int32_t centralCell = 0;
+  static constexpr int32_t bottomLeftEdge = 1;
+  static constexpr int32_t leftEdge = 2;
+  static constexpr int32_t topLeftEdge = 3;
+  static constexpr int32_t topRightEdge = 4;
+  static constexpr int32_t rightEdge = 5;
+  static constexpr int32_t bottomRightEdge = 6;
+  static constexpr int32_t bottomCorner = 11;
+  static constexpr int32_t bottomLeftCorner = 12;
+  static constexpr int32_t topLeftCorner = 13;
+  static constexpr int32_t topCorner = 14;
+  static constexpr int32_t topRightCorner = 15;
+  static constexpr int32_t bottomRightCorner = 16;
+
+  std::pair<double, double> cellUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
+  std::pair<double, double> cellUV2XY2(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
+  std::pair<int32_t, int32_t> cellUV2Cell(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
+  static int32_t cellPlacementIndex(int32_t iz, int32_t fwdBack, int32_t orient);
+  static std::pair<int32_t, int32_t> cellType(int32_t u, int32_t v, int32_t ncell, int32_t placementIndex);
 
 private:
   const double sqrt3By2_ = (0.5 * std::sqrt(3.0));
