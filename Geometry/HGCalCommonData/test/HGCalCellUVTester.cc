@@ -86,27 +86,31 @@ void HGCalCellUVTester::analyze(const edm::Event&, const edm::EventSetup&) {
   edm::LogVerbatim("HGCalGeom") << "\nHGCalCellUVTester:: nCells " << nCells << " and placement index between "
                                 << indexMin << " and " << indexMax << "\n\n";
   auto start_t = std::chrono::high_resolution_clock::now();
-  
-  for(int i = 0; i<100000; i++){
-    double xi = (2*r2*(float)rand()/RAND_MAX) - r2;
-    double yi = (2*R2*(float)rand()/RAND_MAX) - R2;
-    double c1 = yi + xi/sqrt(3);
+
+  for (int i = 0; i < 100000; i++) {
+    double xi = (2 * r2 * (float)rand() / RAND_MAX) - r2;
+    double yi = (2 * R2 * (float)rand() / RAND_MAX) - R2;
+    double c1 = yi + xi / sqrt(3);
     double c2 = yi - (xi / sqrt(3));
-    if ((xi < r2) && (xi > -1*r2) && (c1 < R2) && (c1 > -1*R2) && (c2 < R2) && (c2 > -1*R2)){            //Only allowing (x, y) inside a wafer
+    if ((xi < r2) && (xi > -1 * r2) && (c1 < R2) && (c1 > -1 * R2) && (c2 < R2) &&
+        (c2 > -1 * R2)) {  //Only allowing (x, y) inside a wafer
       std::pair<int32_t, int32_t> uv1 = wafer.cellUVFromXY1(xi, yi, placeIndex_, waferType_, 0, 0);
       std::pair<int32_t, int32_t> uv2 = wafer.cellUVFromXY2(xi, yi, placeIndex_, waferType_, 0, 0);
       std::pair<int32_t, int32_t> uv3 = wafer.cellUVFromXY3(xi, yi, placeIndex_, waferType_, 1, 0);
       //std::pair<int32_t, int32_t> uv2 = wafer.HGCalCellUVFromXY2(xi, yi, placeIndex_, waferType_, 1, 0);
-      std::string comment = ((uv1.first != uv3.first) || (uv2.first != uv3.first) || (uv1.second != uv3.second) || (uv2.second != uv3.second)) ? " ***** ERROR *****" : "";
-      edm::LogVerbatim("HGCalGeom") << "x = " << xi << " y = " << yi << " type = " << waferType_
-                                    << " placement index " << placeIndex_ << " u " << uv1.first << ":" << uv2.first << ":" << uv3.first
-      			            << " v " << uv1.second << ":"  << uv2.second << ":" << uv3.second << ":" << comment;
-      	
+      std::string comment = ((uv1.first != uv3.first) || (uv2.first != uv3.first) || (uv1.second != uv3.second) ||
+                             (uv2.second != uv3.second))
+                                ? " ***** ERROR *****"
+                                : "";
+      edm::LogVerbatim("HGCalGeom") << "x = " << xi << " y = " << yi << " type = " << waferType_ << " placement index "
+                                    << placeIndex_ << " u " << uv1.first << ":" << uv2.first << ":" << uv3.first
+                                    << " v " << uv1.second << ":" << uv2.second << ":" << uv3.second << ":" << comment;
     }
   }
   auto end_t = std::chrono::high_resolution_clock::now();
   auto diff_t = end_t - start_t;
-  edm::LogVerbatim("HGCalGeom") << "Execution time for 100000 events = " << std::chrono::duration <double, std::milli> (diff_t).count() << " ms";
+  edm::LogVerbatim("HGCalGeom") << "Execution time for 100000 events = "
+                                << std::chrono::duration<double, std::milli>(diff_t).count() << " ms";
 }
 
 // define this as a plug-in
