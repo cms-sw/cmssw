@@ -1007,8 +1007,18 @@ class TauIDEmbedder(object):
                 getattr(self.process, self.updatedTauName).tauIDSources,
                 tauIDSources)
             getattr(self.process, self.updatedTauName).tauIDSources = tauIDSources
-        setattr(self.process,"rerunMvaIsolationTask"+self.postfix,_rerunMvaIsolationTask)
-        setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,_rerunMvaIsolationSequence)
+        if not hasattr(self.process,"rerunMvaIsolationTask"+self.postfix):
+            setattr(self.process,"rerunMvaIsolationTask"+self.postfix,_rerunMvaIsolationTask)
+        else:
+            _updatedRerunMvaIsolationTask = getattr(self.process,"rerunMvaIsolationTask"+self.postfix)
+            _updatedRerunMvaIsolationTask.add(_rerunMvaIsolationTask)
+            setattr(self.process,"rerunMvaIsolationTask"+self.postfix,_updatedRerunMvaIsolationTask)
+        if not hasattr(self.process,"rerunMvaIsolationSequence"+self.postfix):
+            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,_rerunMvaIsolationSequence)
+        else:
+            _updatedRerunMvaIsolationSequence = getattr(self.process,"rerunMvaIsolationSequence"+self.postfix)
+            _updatedRerunMvaIsolationSequence += _rerunMvaIsolationSequence
+            setattr(self.process,"rerunMvaIsolationSequence"+self.postfix,_updatedRerunMvaIsolationSequence)
 
 
     def processDeepProducer(self, producer_name, tauIDSources, workingPoints_):
