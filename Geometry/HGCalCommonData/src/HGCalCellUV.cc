@@ -3,9 +3,11 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cassert>
 
 HGCalCellUV::HGCalCellUV(double waferSize, double separation, int32_t nFine, int32_t nCoarse) {
   HGCalCell hgcalcell(waferSize, nFine, nCoarse);
+  assert(nFine > 0 && nCoarse > 0);
   ncell_[0] = nFine;
   ncell_[1] = nCoarse;
   for (int k = 0; k < 2; ++k) {
