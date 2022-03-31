@@ -29,6 +29,7 @@ from HLTriggerOffline.Exotica.analyses.hltExoticaJetNoBptx_cff         import Je
 from HLTriggerOffline.Exotica.analyses.hltExoticaMuonNoBptx_cff        import MuonNoBptxPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedMuEG_cff     import DisplacedMuEGPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedDimuon_cff   import DisplacedDimuonPSet
+from HLTriggerOffline.Exotica.analyses.hltExoticaDisplacedL2Dimuon_cff import DisplacedL2DimuonPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaPureMET_cff           import PureMETPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMETplusTrack_cff      import METplusTrackPSet
 from HLTriggerOffline.Exotica.analyses.hltExoticaMonojet_cff           import MonojetPSet
@@ -68,6 +69,7 @@ hltExoticaValidator = DQMEDAnalyzer(
         "CaloHT",
         "DisplacedMuEG",
         "DisplacedDimuon",
+        "DisplacedL2Dimuon",
         "PureMET",
         "METplusTrack",
         "Monojet",
@@ -216,6 +218,7 @@ hltExoticaValidator = DQMEDAnalyzer(
     MuonNoBptx       = MuonNoBptxPSet,
     DisplacedMuEG    = DisplacedMuEGPSet,
     DisplacedDimuon  = DisplacedDimuonPSet,
+    DisplacedL2Dimuon = DisplacedL2DimuonPSet,
     PureMET          = PureMETPSet,                                 
     METplusTrack     = METplusTrackPSet,                                 
     Monojet          = MonojetPSet,
