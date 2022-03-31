@@ -53,7 +53,7 @@ public:
   bool hasRPC() const { return theRPCDataIsPresent; }
   CSCRPCData* rpcData() { return &theRPCData; }
   bool hasGEM() const { return theGEMDataIsPresent; }
-  CSCGEMData* gemData() const;
+  CSCGEMData* gemData();
 
   /// not const because it sets size int TMBTrailer
 
