@@ -1,5 +1,5 @@
-#ifndef RecoMuon_TrackingTools_MuonTrackingRegionByPtBuilder_H
-#define RecoMuon_TrackingTools_MuonTrackingRegionByPtBuilder_H
+#ifndef RecoMuon_GlobalTrackingTools_MuonTrackingRegionByPtBuilder_h
+#define RecoMuon_GlobalTrackingTools_MuonTrackingRegionByPtBuilder_h
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -30,7 +30,7 @@ public:
   explicit MuonTrackingRegionByPtBuilder(const edm::ParameterSet& par, edm::ConsumesCollector&& iC) { build(par, iC); }
 
   /// Destructor
-  ~MuonTrackingRegionByPtBuilder() override {}
+  ~MuonTrackingRegionByPtBuilder() override = default;
 
   /// Create Region of Interest
   std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override;
@@ -49,8 +49,6 @@ public:
 
   /// Add Fill Descriptions
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static void fillDescriptionsHLT(edm::ParameterSetDescription& descriptions);
-  static void fillDescriptionsOffline(edm::ParameterSetDescription& descriptions);
 
 private:
   void build(const edm::ParameterSet&, edm::ConsumesCollector&);

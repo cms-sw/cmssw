@@ -69,7 +69,7 @@ void MuonTrackingRegionByPtBuilder::build(const edm::ParameterSet& par, edm::Con
   // Flag to use precise??
   thePrecise = par.getParameter<bool>("precise");
 
-  // perigee reference point ToDo: Check this
+  // perigee reference point
   theOnDemand = RectangularEtaPhiTrackingRegion::intToUseMeasurementTracker(par.getParameter<int>("OnDemand"));
   if (theOnDemand != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
     theMeasurementTrackerToken =
