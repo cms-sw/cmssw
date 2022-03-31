@@ -30,11 +30,15 @@ CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
       bool isOTMB_Run2_fw = false;
       bool isTMB_Run3_fw = false;
       bool isTMB_Run2_fw = false;
+      bool isTMB_hybrid_fw = false;  /// Copper TMB hybrid fw Run2 CLCT + Run3 LCT/MPC + anode-only HMT (March 2022)
       bool isRun2_df = false;
       unsigned df_version = (firmwareRevision >> 9) & 0xF;  // 4-bits Data Format version
       unsigned major_ver = (firmwareRevision >> 5) & 0xF;   // 4-bits major version part
       // unsigned minor_ver = firmwareRevision & 0x1F;         // 5-bits minor version part
       switch (df_version) {
+        case 0x4:
+          isTMB_hybrid_fw = true;
+          break;
         case 0x3:
           isGEM_fw = true;
           break;
@@ -73,6 +77,8 @@ CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision)
         theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(firmwareRevision));
       } else if (isTMB_Run3_fw) {
         theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_CCLUT());
+      } else if (isTMB_hybrid_fw) {
+        theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_TMB());
       }
     }
   } else if (firmwareVersion == 2013) {
@@ -130,11 +136,12 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short *buf) : theHeaderFormat() {
       /* Revisions > 0x6000 - OTMB firmwares, < 0x42D5 - new TMB revisions in 2016 */
       if ((theHeaderFormat->firmwareRevision() >= 0x6000) || (theHeaderFormat->firmwareRevision() < 0x42D5)) {
         theFirmwareVersion = 2013;
-        bool isGEM_fw = false;
-        bool isCCLUT_HMT_fw = false;
-        bool isOTMB_Run2_fw = false;
+        bool isGEM_fw = false;        /// Run3 ME11+GE11 OTMB fw with CCLUT and HMT
+        bool isCCLUT_HMT_fw = false;  /// Run3 MEx1 OTMB fw with CCLUT and HMT
+        bool isOTMB_Run2_fw = false;  /// Run2-compatible data format OTMB fw with Run3 revision code format
         bool isTMB_Run3_fw = false;
         bool isTMB_Run2_fw = false;
+        bool isTMB_hybrid_fw = false;  /// Copper TMB hybrid fw Run2 CLCT + Run3 LCT/MPC + anode-only HMT (March 2022)
         bool isRun2_df = false;
         unsigned firmwareRevision = theHeaderFormat->firmwareRevision();
         /* There are OTMB2013 firmware versions exist, which reports firmwareRevision code = 0x0 */
@@ -144,6 +151,9 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short *buf) : theHeaderFormat() {
           unsigned major_ver = (firmwareRevision >> 5) & 0xF;   // 4-bits major version part
           // unsigned minor_ver = firmwareRevision & 0x1F;         // 5-bits minor version part
           switch (df_version) {
+            case 0x4:
+              isTMB_hybrid_fw = true;
+              break;
             case 0x3:
               isGEM_fw = true;
               break;
@@ -183,6 +193,8 @@ CSCTMBHeader::CSCTMBHeader(const unsigned short *buf) : theHeaderFormat() {
             theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_Run2(buf));
           } else if (isTMB_Run3_fw) {
             theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_CCLUT(buf));
+          } else if (isTMB_hybrid_fw) {
+            theHeaderFormat = std::shared_ptr<CSCVTMBHeaderFormat>(new CSCTMBHeader2020_TMB(buf));
           }
 
         } else {
@@ -350,11 +362,15 @@ void CSCTMBHeader::selfTest(int firmwareVersion, int firmwareRevision) {
         bool isOTMB_Run2_fw = false;
         bool isTMB_Run3_fw = false;
         bool isTMB_Run2_fw = false;
+        bool isTMB_hybrid_fw = false;
         bool isRun2_df = false;
         unsigned df_version = (firmwareRevision >> 9) & 0xF;  // 4-bits Data Format version
         unsigned major_ver = (firmwareRevision >> 5) & 0xF;   // 4-bits major version part
         // unsigned minor_ver = firmwareRevision & 0x1F;         // 5-bits minor version part
         switch (df_version) {
+          case 0x4:
+            isTMB_hybrid_fw = true;
+            break;
           case 0x3:
             isGEM_fw = true;
             break;
@@ -376,17 +392,25 @@ void CSCTMBHeader::selfTest(int firmwareVersion, int firmwareRevision) {
         if (major_ver == 1) {
           isRun2_df = true;
         }
-        if ((isGEM_fw || isCCLUT_HMT_fw || isTMB_Run3_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw) {
+        if ((isGEM_fw || isCCLUT_HMT_fw || isTMB_Run3_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw &&
+            !isTMB_hybrid_fw) {
           clct0 = CSCCLCTDigi(
               1, 6, 6, 1, 0, (120 % 32), (120 / 32), 2, 1, 3, 0xebf, CSCCLCTDigi::Version::Run3, true, false, 2, 6);
           clct1 = CSCCLCTDigi(
               1, 6, 3, 1, 1, (132 % 32), (132 / 32), 2, 2, 3, 0xe54, CSCCLCTDigi::Version::Run3, false, true, 1, 15);
         }
-        if ((isGEM_fw || isCCLUT_HMT_fw || isTMB_Run3_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw) {
+        if ((isGEM_fw || isCCLUT_HMT_fw || isTMB_Run3_fw) && !isRun2_df && !isOTMB_Run2_fw && !isTMB_Run2_fw &&
+            !isTMB_hybrid_fw) {
           lct0 = CSCCorrelatedLCTDigi(
               1, 1, 3, 85, 120, 6, 0, 0, 0, 0, 0, 0, CSCCorrelatedLCTDigi::Version::Run3, true, false, 2, 6);
           lct1 = CSCCorrelatedLCTDigi(
               2, 1, 2, 81, 132, 3, 1, 0, 0, 0, 0, 0, CSCCorrelatedLCTDigi::Version::Run3, false, true, 0, 15);
+        }
+        if (isTMB_hybrid_fw) {
+          lct0 = CSCCorrelatedLCTDigi(
+              1, 1, 3, 85, 120, 6, 0, 0, 0, 0, 0, 0, CSCCorrelatedLCTDigi::Version::Run3, false, false, 0, 0);
+          lct1 = CSCCorrelatedLCTDigi(
+              2, 1, 2, 81, 132, 3, 1, 0, 0, 0, 0, 0, CSCCorrelatedLCTDigi::Version::Run3, false, false, 0, 0);
         }
       }
 

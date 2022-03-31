@@ -110,7 +110,7 @@ process.cscValidation = cms.EDAnalyzer(
 
 process.cscValidation.isSimulation = options.mc
 
-process.analyzer = cms.EDAnalyzer("DigiAnalyzer")
+process.analyzer = cms.EDAnalyzer("CSCDigiAnalyzer")
 
 ## customizations
 if options.mc:

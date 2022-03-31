@@ -24,6 +24,7 @@ CSCTMBData::CSCTMBData()
       theE0FLine(0),
       theTMBHeader(2007, 0x50c3),
       theComparatorData(&theTMBHeader),
+      theGEMData(),
       theTMBScopeIsPresent(false),
       theTMBScope(nullptr),
       theTMBMiniScopeIsPresent(false),
@@ -42,6 +43,7 @@ CSCTMBData::CSCTMBData(int firmwareVersion, int firmwareRevision, int cfebs)
       theE0FLine(0),
       theTMBHeader(firmwareVersion, firmwareRevision),
       theComparatorData(&theTMBHeader),
+      theGEMData(),  // allocate 12 GEM tbins, 0xf - 4 GEM fibers enabled
       theTMBScopeIsPresent(false),
       theTMBScope(nullptr),
       theTMBMiniScopeIsPresent(false),
@@ -56,11 +58,9 @@ CSCTMBData::CSCTMBData(int firmwareVersion, int firmwareRevision, int cfebs)
   theTMBHeader.setNCFEBs(cfebs);
   theComparatorData = CSCComparatorData(&theTMBHeader);
   int wordCnt = theTMBHeader.sizeInWords() + theComparatorData.sizeInWords();
-  /// check if this is OTMB GEM fw
-  /// pre-allocate GEM data block and adjust expected TMB data word count
+  /// check if this is OTMB GEM fw and adjust expected TMB data word count
   if ((firmwareVersion == 2020) && (((firmwareRevision >> 9) & 0x3) == 3)) {
     theGEMDataIsPresent = true;
-    theGEMData = CSCGEMData();  // 12 GEM tbins, 0xf - 4 GEM fibers enabled
     wordCnt += theGEMData.sizeInWords();
   }
   theTMBTrailer = CSCTMBTrailer(wordCnt, firmwareVersion);
@@ -406,10 +406,10 @@ CSCTMBMiniScope& CSCTMBData::tmbMiniScope() const {
   return *theTMBMiniScope;
 }
 
-CSCGEMData* CSCTMBData::gemData() const {
+CSCGEMData* CSCTMBData::gemData() {
   if (!theGEMDataIsPresent)
     throw("No GEM Data in this chamber");
-  return const_cast<CSCGEMData*>(&theGEMData);
+  return &theGEMData;
 }
 
 std::bitset<22> CSCTMBData::nextCRC22_D16(const std::bitset<16>& D, const std::bitset<22>& C) {
