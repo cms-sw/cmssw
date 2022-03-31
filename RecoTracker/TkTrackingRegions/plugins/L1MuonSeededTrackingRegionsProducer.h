@@ -1,5 +1,5 @@
-#ifndef L1MuonSeededTrackingRegionsProducer_h
-#define L1MuonSeededTrackingRegionsProducer_h
+#ifndef RecoTracker_TkTrackingRegions_L1MuonSeededTrackingRegionsProducer_h
+#define RecoTracker_TkTrackingRegions_L1MuonSeededTrackingRegionsProducer_h
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
@@ -116,9 +116,8 @@ public:
       token_measurementTracker =
           iC.consumes<MeasurementTrackerEvent>(regPSet.getParameter<edm::InputTag>("measurementTrackerName"));
     }
-    m_searchOpt = false;
-    if (regPSet.exists("searchOpt"))
-      m_searchOpt = regPSet.getParameter<bool>("searchOpt");
+
+    m_searchOpt = regPSet.getParameter<bool>("searchOpt");
 
     // mode-dependent z-halflength of tracking regions
     if (m_mode == VERTICES_SIGMA)
@@ -237,9 +236,7 @@ public:
 
     const MeasurementTrackerEvent* measurementTracker = nullptr;
     if (!token_measurementTracker.isUninitialized()) {
-      edm::Handle<MeasurementTrackerEvent> hmte;
-      iEvent.getByToken(token_measurementTracker, hmte);
-      measurementTracker = hmte.product();
+      measurementTracker = &iEvent.get(token_measurementTracker);
     }
 
     const auto& field = iSetup.getData(token_field);
@@ -273,9 +270,10 @@ public:
         if (!valid_charge)
           charge = 0;
 
-        int link = 36 + (int)(it->tfMuonIndex() / 3.);
+        int link = l1MuonTF_link_EMTFP_i_ + (int)(it->tfMuonIndex() / 3.);
         bool barrel = true;
-        if ((link >= 36 && link <= 41) || (link >= 66 && link <= 71))
+        if ((link >= l1MuonTF_link_EMTFP_i_ && link <= l1MuonTF_link_EMTFP_f_) ||
+            (link >= l1MuonTF_link_EMTFN_i_ && link <= l1MuonTF_link_EMTFN_f_))
           barrel = false;
 
         // propagate L1 FTS to BS
@@ -303,7 +301,7 @@ public:
             pt = minPtBarrel_;
         } else {
           // ME2
-          theid = theta < Geom::pi() / 2. ? CSCDetId(1, 2, 0, 0, 0) : CSCDetId(2, 2, 0, 0, 0);
+          theid = theta < M_PI / 2. ? CSCDetId(1, 2, 0, 0, 0) : CSCDetId(2, 2, 0, 0, 0);
 
           detLayer = service_->detLayerGeometry()->idToLayer(theid);
 
@@ -318,18 +316,18 @@ public:
         GlobalTrajectoryParameters param(pos, mom, charge, &*service_->magneticField());
 
         AlgebraicSymMatrix55 mat;
-        mat[0][0] = (0.25 / pt) * (0.25 / pt);  // sigma^2(charge/abs_momentum)
+        mat[0][0] = (sigma_qbpt_barrel_ / pt) * (sigma_qbpt_barrel_ / pt);  // sigma^2(charge/abs_momentum)
         if (!barrel)
-          mat[0][0] = (0.4 / pt) * (0.4 / pt);
+          mat[0][0] = (sigma_qbpt_endcap_ / pt) * (sigma_qbpt_endcap_ / pt);
 
         //Assign q/pt = 0 +- 1/pt if charge has been declared invalid
         if (!valid_charge)
-          mat[0][0] = (1. / pt) * (1. / pt);
+          mat[0][0] = (sigma_qbpt_invalid_charge_ / pt) * (sigma_qbpt_invalid_charge_ / pt);
 
-        mat[1][1] = 0.05 * 0.05;  // sigma^2(lambda)
-        mat[2][2] = 0.2 * 0.2;    // sigma^2(phi)
-        mat[3][3] = 20. * 20.;    // sigma^2(x_transverse))
-        mat[4][4] = 20. * 20.;    // sigma^2(y_transverse))
+        mat[1][1] = sigma_lambda_ * sigma_lambda_;  // sigma^2(lambda)
+        mat[2][2] = sigma_phi_ * sigma_phi_;        // sigma^2(phi)
+        mat[3][3] = sigma_x_ * sigma_x_;            // sigma^2(x_transverse))
+        mat[4][4] = sigma_y_ * sigma_y_;            // sigma^2(y_transverse))
 
         CurvilinearTrajectoryError error(mat);
 
@@ -354,8 +352,8 @@ public:
                                                                              m_ptMin,
                                                                              m_originRadius,
                                                                              origins[j].second,
-                                                                             deltaEta,  // m_deltaEta,
-                                                                             deltaPhi,  // m_deltaPhi,
+                                                                             deltaEta,
+                                                                             deltaPhi,
                                                                              field,
                                                                              msmaker,
                                                                              m_precise,
@@ -389,7 +387,7 @@ private:
   bool m_precise;
   edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
   RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_field;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> token_field;
   edm::ESGetToken<MultipleScatteringParametrisationMaker, TrackerMultipleScatteringRecord> token_msmaker;
   bool m_searchOpt;
 
@@ -402,10 +400,26 @@ private:
   const unsigned l1MinQuality_;
   const double minPtBarrel_;
   const double minPtEndcap_;
-  bool centralBxOnly_;
+  const bool centralBxOnly_;
 
-  std::string propagatorName_;
+  const std::string propagatorName_;
   std::unique_ptr<MuonServiceProxy> service_;
+
+  // link number indices of the optical fibres that connect the uGMT with the track finders
+  // EMTF+ : 36-41, OMTF+ : 42-47, BMTF : 48-59, OMTF- : 60-65, EMTF- : 66-71
+  static constexpr int l1MuonTF_link_EMTFP_i_{36};
+  static constexpr int l1MuonTF_link_EMTFP_f_{41};
+  static constexpr int l1MuonTF_link_EMTFN_i_{66};
+  static constexpr int l1MuonTF_link_EMTFN_f_{71};
+
+  // fixed error matrix parameters for L1 muon FTS
+  static constexpr double sigma_qbpt_barrel_{0.25};
+  static constexpr double sigma_qbpt_endcap_{0.4};
+  static constexpr double sigma_qbpt_invalid_charge_{1.0};
+  static constexpr double sigma_lambda_{0.05};
+  static constexpr double sigma_phi_{0.2};
+  static constexpr double sigma_x_{20.0};
+  static constexpr double sigma_y_{20.0};
 };
 
 #endif
