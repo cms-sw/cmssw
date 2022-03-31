@@ -27,11 +27,10 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
@@ -59,8 +58,8 @@ HGCalWaferCheck::HGCalWaferCheck(const edm::ParameterSet& iC)
       reco_(iC.getParameter<bool>("Reco")),
       dddToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
-  std::cout << "Test numbering for " << nameDetector_ << " using constants of " << nameSense_ << " for  RecoFlag "
-            << reco_ << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << "Test numbering for " << nameDetector_ << " using constants of " << nameSense_
+                                 << " for  RecoFlag " << reco_;
 }
 
 HGCalWaferCheck::~HGCalWaferCheck() {}
@@ -70,9 +69,9 @@ void HGCalWaferCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   const HGCalDDDConstants& hgdc = iSetup.getData(dddToken_);
   const auto& geomR = iSetup.getData(geomToken_);
   const HGCalGeometry* geom = &geomR;
-  std::cout << nameDetector_ << " Layers = " << hgdc.layers(reco_) << " Sectors = " << hgdc.sectors() << " Valid Cells "
-            << geomR.getValidDetIds().size() << " Valid Geometry Cells " << geomR.getValidGeomDetIds().size()
-            << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << nameDetector_ << " Layers = " << hgdc.layers(reco_)
+                                 << " Sectors = " << hgdc.sectors() << " Valid Cells " << geomR.getValidDetIds().size()
+                                 << " Valid Geometry Cells " << geomR.getValidGeomDetIds().size();
   if (hgdc.waferHexagon8()) {
     DetId::Detector det = (nameSense_ == "HGCalHESiliconSensitive") ? DetId::HGCalHSi : DetId::HGCalEE;
     for (int layer = 1; layer <= 2; ++layer) {
@@ -82,10 +81,10 @@ void HGCalWaferCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         int cell = (type == 0) ? 12 : 8;
         HGCSiliconDetId id1(det, 1, type, layer, waferU, waferV, cell, cell);
         if (geom->topology().valid(id1))
-          std::cout << " ID: " << id1 << " Position " << geom->getPosition(id1) << std::endl;
+          edm::LogVerbatim("HGCalGeomX") << " ID: " << id1 << " Position " << geom->getPosition(id1);
         HGCSiliconDetId id2(det, -1, type, layer, waferU, waferV, cell, cell);
         if (geom->topology().valid(id2))
-          std::cout << " ID: " << id2 << " Position " << geom->getPosition(id2) << std::endl;
+          edm::LogVerbatim("HGCalGeomX") << " ID: " << id2 << " Position " << geom->getPosition(id2);
       }
       for (int waferV = -12; waferV <= 12; ++waferV) {
         int waferU(0);
@@ -93,10 +92,10 @@ void HGCalWaferCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         int cell = (type == 0) ? 12 : 8;
         HGCSiliconDetId id1(det, 1, type, layer, waferU, waferV, cell, cell);
         if (geom->topology().valid(id1))
-          std::cout << " ID: " << id1 << " Position " << geom->getPosition(id1) << std::endl;
+          edm::LogVerbatim("HGCalGeomX") << " ID: " << id1 << " Position " << geom->getPosition(id1);
         HGCSiliconDetId id2(det, -1, type, layer, waferU, waferV, cell, cell);
         if (geom->topology().valid(id2))
-          std::cout << " ID: " << id2 << " Position " << geom->getPosition(id2) << std::endl;
+          edm::LogVerbatim("HGCalGeomX") << " ID: " << id2 << " Position " << geom->getPosition(id2);
       }
     }
   }

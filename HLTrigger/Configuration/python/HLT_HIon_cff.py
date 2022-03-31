@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/HIon --type HIon
 
-# /dev/CMSSW_12_3_0/HIon/V53 (CMSSW_12_3_0_pre6)
+# /dev/CMSSW_12_3_0/HIon/V57 (CMSSW_12_3_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V53')
+  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V57')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -5126,10 +5126,10 @@ fragment.hltPreHIOnlineMonitorGroup = cms.EDFilter( "HLTPrescaler",
 fragment.hltHIOnlineMonitorGroupFilter = cms.EDFilter( "TriggerResultsFilter",
     usePathStatus = cms.bool( True ),
     hltResults = cms.InputTag( 'TriggerResults','','@currentProcess' ),
-    l1tResults = cms.InputTag( "hltGtStage2Digis" ),
+    l1tResults = cms.InputTag( "" ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True ),
-    triggerConditions = cms.vstring( '( HLT_HIRandom_v1 OR HLT_HIHcalNZS_v1 OR HLT_HIHcalPhiSym_v1 OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE OR FALSE )' )
+    triggerConditions = cms.vstring( '( HLT_HIRandom_v1 OR HLT_HIHcalNZS_v1 OR HLT_HIHcalPhiSym_v1 )' )
 )
 fragment.hltL1EventNumberL1Fat = cms.EDFilter( "HLTL1NumberFilter",
     rawInput = cms.InputTag( "rawDataCollector" ),

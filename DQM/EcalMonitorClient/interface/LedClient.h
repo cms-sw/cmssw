@@ -27,6 +27,7 @@ namespace ecaldqm {
     double tolerancePNAmp_;
     double tolerancePNRMSRatio_;
     float forwardFactor_;
+    std::vector<uint32_t> SClist_;
   };
 }  // namespace ecaldqm
 
