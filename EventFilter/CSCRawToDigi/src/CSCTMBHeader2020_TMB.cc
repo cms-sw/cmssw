@@ -2,6 +2,9 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+/* /// commented to prevent compilation warning 
+   /// use it when copper TMB fw would implement CCLUT features
+ 
 const std::vector<std::pair<unsigned, unsigned> >
     run3_pattern_lookup_tbl = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4},  /// Valid LCT0, invalid LCT1 combination. Check LCT1 vpf
                                {0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}, {1, 0}, {1, 1}, {1, 2}, {1, 3},
@@ -10,6 +13,7 @@ const std::vector<std::pair<unsigned, unsigned> >
 
 const unsigned run2_pattern_lookup_tbl[2][16] = {{10, 10, 10, 8, 8, 8, 6, 6, 6, 4, 4, 4, 2, 2, 2, 2},
                                                  {10, 10, 10, 9, 9, 9, 7, 7, 7, 5, 5, 5, 3, 3, 3, 3}};
+*/
 
 CSCTMBHeader2020_TMB::CSCTMBHeader2020_TMB() {
   bzero(data(), sizeInWords() * 2);
