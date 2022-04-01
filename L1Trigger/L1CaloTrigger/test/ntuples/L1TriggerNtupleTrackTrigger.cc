@@ -34,7 +34,9 @@ private:
                                           double iCharge,
                                           double iBField);
 
-  edm::EDGetToken track_token_;
+  edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> track_token_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magf_token;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geom_token;
 
   int l1track_n_;
   std::vector<float> l1track_pt_;
@@ -52,9 +54,6 @@ private:
 
   edm::ESWatcher<IdealMagneticFieldRecord> magfield_watcher_;
   HGCalTriggerTools triggerTools_;
-
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 };
 
 DEFINE_EDM_PLUGIN(HGCalTriggerNtupleFactory, L1TriggerNtupleTrackTrigger, "L1TriggerNtupleTrackTrigger");
@@ -67,8 +66,9 @@ void L1TriggerNtupleTrackTrigger::initialize(TTree& tree,
                                              edm::ConsumesCollector&& collector) {
   track_token_ =
       collector.consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(conf.getParameter<edm::InputTag>("TTTracks"));
-  magneticFieldToken_ = collector.esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tGeomToken_ = collector.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord>(edm::ESInputTag("idealForDigi", ""));
+  magf_token = collector.esConsumes();
+  geom_token = collector.esConsumes();
+
   tree.Branch(branch_name_w_prefix("n").c_str(), &l1track_n_, branch_name_w_prefix("n/I").c_str());
   tree.Branch(branch_name_w_prefix("pt").c_str(), &l1track_pt_);
   tree.Branch(branch_name_w_prefix("pt2stubs").c_str(), &l1track_pt2stubs_);
@@ -91,12 +91,13 @@ void L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSet
 
   float fBz = 0;
   if (magfield_watcher_.check(es)) {
-    const MagneticField* magfield = &es.getData(magneticFieldToken_);
+    const edm::ESHandle<MagneticField>& magfield = es.getHandle(magf_token);
     fBz = magfield->inTesla(GlobalPoint(0, 0, 0)).z();
   }
 
   // geometry needed to call pTFrom2Stubs
-  const TrackerGeometry* tGeom = &es.getData(tGeomToken_);
+  const edm::ESHandle<TrackerGeometry>& geomHandle = es.getHandle(geom_token);
+  const TrackerGeometry* tGeom = geomHandle.product();
 
   triggerTools_.eventSetup(es);
 
