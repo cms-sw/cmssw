@@ -24,7 +24,6 @@ process.CalibratedDigis.scenario = 0
 process.dtTriggerPhase2PrimitiveDigis.algo = 0 ## initial grouping
 process.dtTriggerPhase2PrimitiveDigis.df_extended = 0
 
-
 # COMPARISON WITH FW
 # process.dtTriggerPhase2PrimitiveDigis.useBX_correlation = True
 # process.dtTriggerPhase2PrimitiveDigis.dBX_correlate_TP = 1
