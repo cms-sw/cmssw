@@ -18,30 +18,30 @@ public:
 private:
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> m_mkfGeoToken;
+  edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkfGeoToken_;
 
-  int m_level;
-  std::string m_outputFileName;
+  int level_;
+  std::string outputFileName_;
 };
 
 DumpMkFitGeometry::DumpMkFitGeometry(const edm::ParameterSet& config)
-    : m_mkfGeoToken{esConsumes()},
-      m_level(config.getUntrackedParameter<int>("level", 1)),
-      m_outputFileName(config.getUntrackedParameter<std::string>("outputFileName", "cmsRecoGeo.root")) {}
+    : mkfGeoToken_{esConsumes()},
+      level_(config.getUntrackedParameter<int>("level", 1)),
+      outputFileName_(config.getUntrackedParameter<std::string>("outputFileName", "cmsRecoGeo.root")) {}
 
 void DumpMkFitGeometry::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const auto& mkfg = iSetup.getData(m_mkfGeoToken);
+  const auto& mkfg = iSetup.getData(mkfGeoToken_);
   const mkfit::TrackerInfo& ti = mkfg.trackerInfo();
 
   edm::LogInfo("DumpMkFitGeometry") << "geom_ptr=" << &mkfg << "n_layers = " << ti.n_layers();
-  if (m_outputFileName.empty()) {
+  if (outputFileName_.empty()) {
     edm::LogInfo("DumpMkFitGeometry") << "no file-name specified, not dumping binary file";
   } else {
-    edm::LogInfo("DumpMkFitGeometry") << "binary file = '" << m_outputFileName << "'";
-    ti.write_bin_file(m_outputFileName);
+    edm::LogInfo("DumpMkFitGeometry") << "binary file = '" << outputFileName_ << "'";
+    ti.write_bin_file(outputFileName_);
   }
 
-  ti.print_tracker(m_level);
+  ti.print_tracker(level_);
   edm::LogInfo("DumpMkFitGeometry") << "finished, n_modules=" << ti.n_total_modules();
 }
 
