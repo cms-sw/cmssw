@@ -32,12 +32,15 @@ MuonG4Numbering::MuonG4Numbering(const MuonGeometryConstants& muonConstants, con
     edm::LogVerbatim("MuonSim") << "MuonGeometryNumbering finds unusual level constant:" << theLevelPart;
   }
   if ((theStartCopyNo != 0) && (theStartCopyNo != 1)) {
-    edm::LogVerbatim("MuonSim") << "MuonGeometryNumbering finds unusual start value for copy numbers:" << theStartCopyNo;
+    edm::LogVerbatim("MuonSim") << "MuonGeometryNumbering finds unusual start value for copy numbers:"
+                                << theStartCopyNo;
   }
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("MuonSim") << "StartCopyNo = " << theStartCopyNo;
-  edm::LogVerbatim("MuonSim") << "MuonG4Numbering configured with Level = " << theLevelPart << " Super = " << theSuperPart << " Base = " << theBasePart << " StartCopyNo = " << theStartCopyNo;
+  edm::LogVerbatim("MuonSim") << "MuonG4Numbering configured with Level = " << theLevelPart
+                              << " Super = " << theSuperPart << " Base = " << theBasePart
+                              << " StartCopyNo = " << theStartCopyNo;
   edm::LogVerbatim("MuonSim") << "dd4hep flag set to " << dd4hep_ << " and offsetmap at " << offMap_;
 #endif
 }
