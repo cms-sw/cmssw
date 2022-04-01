@@ -1004,7 +1004,7 @@ void CastorShowerLibraryMaker::printSLstatus(int ebin, int etabin, int phibin) {
       if (j < nBinsEta - 1)
         st2 << " ";
     }
-    edm::LogVerbatim("HcalSim") << st2 : str();
+    edm::LogVerbatim("HcalSim") << st2.str();
   }
   std::ostringstream st2;
   for (int n = 0; n < 11 + (nBinsEta * nBinsPhi); n++)
