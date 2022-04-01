@@ -11,7 +11,7 @@
 
 #include <iostream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 MuonG4Numbering::MuonG4Numbering(const MuonGeometryConstants& muonConstants, const MuonOffsetMap* offMap, bool dd4hep)
     : offMap_(offMap), dd4hep_(dd4hep) {
