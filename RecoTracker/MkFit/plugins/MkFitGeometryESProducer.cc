@@ -9,28 +9,16 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "RecoTracker/MkFit/interface/MkFitGeometry.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
 // mkFit includes
+#include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 #include "RecoTracker/MkFitCore/interface/ConfigWrapper.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
 
-#include <atomic>
-
-//------------------------------------------------------------------------------
-
-#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
-#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-//#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
-#include <fstream>
-
-//------------------------------------------------------------------------------
 
 class MkFitGeometryESProducer : public edm::ESProducer {
 public:
@@ -77,9 +65,9 @@ private:
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
 
-  const TrackerTopology *m_trackerTopo = nullptr;
-  const TrackerGeometry *m_trackerGeom = nullptr;
-  mkfit::LayerNumberConverter m_layerNrConv = {mkfit::TkLayout::phase1};
+  const TrackerTopology *trackerTopo_ = nullptr;
+  const TrackerGeometry *trackerGeom_ = nullptr;
+  mkfit::LayerNumberConverter layerNrConv_ = {mkfit::TkLayout::phase1};
 };
 
 MkFitGeometryESProducer::MkFitGeometryESProducer(const edm::ParameterSet &iConfig) {
@@ -190,61 +178,8 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   const Bounds *b = &((det->surface()).bounds());
 
   if (const TrapezoidalPlaneBounds *b2 = dynamic_cast<const TrapezoidalPlaneBounds *>(b)) {
-    // Trapezoidal
+    // See sec. "TrapezoidalPlaneBounds parameters" in doc/reco-geom-notes.txt
     std::array<const float, 4> const &par = b2->parameters();
-
-    // These parameters are half-lengths, as in CMSIM/GEANT3
-    // https://github.com/trackreco/cmssw/blob/master/Fireworks/Core/src/FWGeometry.cc#L241
-    // https://github.com/root-project/root/blob/master/geom/geom/src/TGeoArb8.cxx#L1331
-    /*
-    i.shape[0] = 1;
-    i.shape[1] = par[0];  // hBottomEdge - dx1
-    i.shape[2] = par[1];  // hTopEdge    - dx2
-    i.shape[3] = par[2];  // thickness   - dz
-    i.shape[4] = par[3];  // apothem     - dy1
-
-          geoShape = new TGeoTrap(info.shape[3],  //dz
-                            0,              //theta
-                            0,              //phi
-                            info.shape[4],  //dy1
-                            info.shape[1],  //dx1
-                            info.shape[2],  //dx2
-                            0,              //alpha1
-                            info.shape[4],  //dy2
-                            info.shape[1],  //dx3
-                            info.shape[2],  //dx4
-                            0);             //alpha2
-
-      TGeoTrap::TGeoTrap(Double_t dz, Double_t theta, Double_t phi, Double_t h1,
-               Double_t bl1, Double_t tl1, Double_t alpha1, Double_t h2, Double_t bl2,
-               Double_t tl2, Double_t alpha2)
-          :TGeoArb8("", 0, 0)
-    {
-       fDz = dz;           par[2]
-       fTheta = theta;     = 0
-       fPhi = phi;         = 0
-       fH1 = h1;           par[3]
-       fH2 = h2;           par[3]
-       fBl1 = bl1;         par[0]
-       fBl2 = bl2;         par[0]
-       fTl1 = tl1;         par[1]
-       fTl2 = tl2;         par[1]
-       fAlpha1 = alpha1;   = 0
-       fAlpha2 = alpha2;   = 0
-       Double_t tx = TMath::Tan(theta*TMath::DegToRad())*TMath::Cos(phi*TMath::DegToRad()); = 0
-       Double_t ty = TMath::Tan(theta*TMath::DegToRad())*TMath::Sin(phi*TMath::DegToRad()); = 0
-       Double_t ta1 = TMath::Tan(alpha1*TMath::DegToRad());  = 0
-       Double_t ta2 = TMath::Tan(alpha2*TMath::DegToRad());  = 0
-       fXY[0][0] = -bl1;    fXY[0][1] = -h1;  -dz
-       fXY[1][0] = -tl1;    fXY[1][1] =  h1;  -dz
-       fXY[2][0] =  tl1;    fXY[2][1] =  h1;  -dz
-       fXY[3][0] =  bl1;    fXY[3][1] = -h1;  -dz
-       fXY[4][0] = -bl2;    fXY[4][1] = -h2;   dz
-       fXY[5][0] = -tl2;    fXY[5][1] =  h2;   dz
-       fXY[6][0] =  tl2;    fXY[6][1] =  h2;   dz
-       fXY[7][0] =  bl2;    fXY[7][1] = -h2;   dz
-     }
-     */
     xy[0][0] = -par[0];
     xy[0][1] = -par[3];
     xy[1][0] = -par[1];
@@ -277,11 +212,11 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
 
   const bool useMatched = false;
   int lay =
-      m_layerNrConv.convertLayerNumber(detid.subdetId(),
-                                       m_trackerTopo->layer(detid),
-                                       useMatched,
-                                       m_trackerTopo->isStereo(detid),
-                                       m_trackerTopo->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
+      layerNrConv_.convertLayerNumber(detid.subdetId(),
+                                      trackerTopo_->layer(detid),
+                                      useMatched,
+                                      trackerTopo_->isStereo(detid),
+                                      trackerTopo_->side(detid) == static_cast<unsigned>(TrackerDetSide::PosEndcap));
 
   mkfit::LayerInfo &layer_info = trk_info.layer_nc(lay);
   if (lgc_map) {
@@ -310,7 +245,7 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
   // Set some layer parameters (repeatedly, would require hard-coding otherwise)
   layer_info.set_subdet(detid.subdetId());
   layer_info.set_is_pixel(detid.subdetId() <= 2);
-  layer_info.set_is_stereo(m_trackerTopo->isStereo(detid));
+  layer_info.set_is_stereo(trackerTopo_->isStereo(detid));
 }
 
 //==============================================================================
@@ -330,31 +265,31 @@ void MkFitGeometryESProducer::fillShapeAndPlacement(const GeomDet *det,
 // An attempt at export cmsRun config is in python/dumpMkFitGeometry.py
 
 void MkFitGeometryESProducer::addPixBGeometry(mkfit::TrackerInfo &trk_info) {
-  for (auto &det : m_trackerGeom->detsPXB()) {
+  for (auto &det : trackerGeom_->detsPXB()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addPixEGeometry(mkfit::TrackerInfo &trk_info) {
-  for (auto &det : m_trackerGeom->detsPXF()) {
+  for (auto &det : trackerGeom_->detsPXF()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTIBGeometry(mkfit::TrackerInfo &trk_info) {
-  for (auto &det : m_trackerGeom->detsTIB()) {
+  for (auto &det : trackerGeom_->detsTIB()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTOBGeometry(mkfit::TrackerInfo &trk_info) {
-  for (auto &det : m_trackerGeom->detsTOB()) {
+  for (auto &det : trackerGeom_->detsTOB()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
 
 void MkFitGeometryESProducer::addTIDGeometry(mkfit::TrackerInfo &trk_info) {
-  for (auto &det : m_trackerGeom->detsTID()) {
+  for (auto &det : trackerGeom_->detsTID()) {
     fillShapeAndPlacement(det, trk_info);
   }
 }
@@ -362,7 +297,7 @@ void MkFitGeometryESProducer::addTIDGeometry(mkfit::TrackerInfo &trk_info) {
 void MkFitGeometryESProducer::addTECGeometry(mkfit::TrackerInfo &trk_info) {
   // For TEC we also need to discover hole in radial extents.
   layer_gap_map_t lgc_map;
-  for (auto &det : m_trackerGeom->detsTEC()) {
+  for (auto &det : trackerGeom_->detsTEC()) {
     fillShapeAndPlacement(det, trk_info, &lgc_map);
   }
   // Now loop over the GapCollectors and see if there is a coverage gap.
@@ -395,15 +330,15 @@ namespace {
 std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRecoGeometryRecord &iRecord) {
   auto trackerInfo = std::make_unique<mkfit::TrackerInfo>();
 
-  m_trackerGeom = &iRecord.get(geomToken_);
-  m_trackerTopo = &iRecord.get(ttopoToken_);
+  trackerGeom_ = &iRecord.get(geomToken_);
+  trackerTopo_ = &iRecord.get(ttopoToken_);
 
   // std::string path = "Geometry/TrackerCommonData/data/";
-  if (m_trackerGeom->isThere(GeomDetEnumerators::P1PXB) || m_trackerGeom->isThere(GeomDetEnumerators::P1PXEC)) {
+  if (trackerGeom_->isThere(GeomDetEnumerators::P1PXB) || trackerGeom_->isThere(GeomDetEnumerators::P1PXEC)) {
     edm::LogInfo("MkFitGeometryESProducer") << "extracting PhaseI eometry";
     trackerInfo->create_layers(18, 27, 27);
-  } else if (m_trackerGeom->isThere(GeomDetEnumerators::P2PXB) || m_trackerGeom->isThere(GeomDetEnumerators::P2PXEC) ||
-             m_trackerGeom->isThere(GeomDetEnumerators::P2OTB) || m_trackerGeom->isThere(GeomDetEnumerators::P2OTEC)) {
+  } else if (trackerGeom_->isThere(GeomDetEnumerators::P2PXB) || trackerGeom_->isThere(GeomDetEnumerators::P2PXEC) ||
+             trackerGeom_->isThere(GeomDetEnumerators::P2OTB) || trackerGeom_->isThere(GeomDetEnumerators::P2OTEC)) {
     throw cms::Exception("UnimplementedFeature") << "PhaseII geometry extraction";
   } else {
     throw cms::Exception("UnimplementedFeature") << "unsupported / unknowen geometry version";
