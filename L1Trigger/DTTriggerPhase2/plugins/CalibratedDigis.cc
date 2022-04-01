@@ -32,7 +32,6 @@
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 

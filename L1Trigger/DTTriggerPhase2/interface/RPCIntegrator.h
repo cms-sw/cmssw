@@ -1,7 +1,6 @@
 #ifndef Phase2L1Trigger_DTTrigger_RPCIntegrator_h
 #define Phase2L1Trigger_DTTrigger_RPCIntegrator_h
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -93,8 +92,6 @@ private:
   edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH_;
   edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomH_;
 
-  static constexpr double m_dt_phi_granularity_ = (65536. / 0.8);  // 65536 different values per 0.8 radian
-  static constexpr double m_dt_phiB_granularity_ = (2048. / 1.4);  // 2048. different values per 1.4 radian
   // Constant geometry values
   //R[stat][layer] - radius of rpc station/layer from center of CMS
   static constexpr double R_[2][2] = {{410.0, 444.8}, {492.7, 527.3}};
