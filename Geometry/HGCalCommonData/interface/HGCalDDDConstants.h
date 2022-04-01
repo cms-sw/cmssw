@@ -41,7 +41,7 @@ public:
     return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
   }
   double cellThickness(int layer, int waferU, int waferV) const;
-  HGCalTypes::CellType cellType(int type, int waferU, int waferV) const;
+  int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;
   double distFromEdgeHex(double x, double y, double z) const;
   double distFromEdgeTrap(double x, double y, double z) const;
   void etaPhiFromPosition(const double x,

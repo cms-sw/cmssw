@@ -40,7 +40,7 @@
 class HGCalCellPositionTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalCellPositionTester(const edm::ParameterSet&);
-  ~HGCalCellPositionTester() override {}
+  ~HGCalCellPositionTester() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}
@@ -88,8 +88,8 @@ void HGCalCellPositionTester::analyze(const edm::Event&, const edm::EventSetup&)
           v = iu;
         }
         if (((v - u) < nCells) && ((u - v) <= nCells)) {
-          std::pair<double, double> xy1 = wafer.HGCalCellUV2XY1(u, v, placeIndex, waferType_);
-          std::pair<double, double> xy2 = wafer.HGCalCellUV2XY2(u, v, placeIndex, waferType_);
+          std::pair<double, double> xy1 = wafer.cellUV2XY1(u, v, placeIndex, waferType_);
+          std::pair<double, double> xy2 = wafer.cellUV2XY2(u, v, placeIndex, waferType_);
           double dx = xy1.first - xy2.first;
           double dy = xy1.second - xy2.second;
           std::string comment = ((std::abs(dx) > tol) || (std::abs(dy) > tol)) ? " ***** ERROR *****" : "";

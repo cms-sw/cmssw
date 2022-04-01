@@ -88,7 +88,7 @@ defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
 defaultOptions.nStreams = '0'
 defaultOptions.nConcurrentLumis = '0'
-defaultOptions.nConcurrentIOVs = '1'
+defaultOptions.nConcurrentIOVs = '0'
 defaultOptions.accelerators = None
 
 # some helper routines

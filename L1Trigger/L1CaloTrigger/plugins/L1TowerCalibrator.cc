@@ -38,7 +38,7 @@ Implementation:
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -60,46 +60,46 @@ Implementation:
 #include "TFile.h"
 #include "TF1.h"
 
-class L1TowerCalibrator : public edm::EDProducer {
+class L1TowerCalibrator : public edm::one::EDProducer<> {
 public:
   explicit L1TowerCalibrator(const edm::ParameterSet&);
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  double HcalTpEtMin;
-  double EcalTpEtMin;
-  double HGCalHadTpEtMin;
-  double HGCalEmTpEtMin;
-  double HFTpEtMin;
-  double puThreshold;
-  double puThresholdL1eg;
-  double puThresholdHcalMin;
-  double puThresholdHcalMax;
-  double puThresholdEcalMin;
-  double puThresholdEcalMax;
-  double puThresholdHGCalEMMin;
-  double puThresholdHGCalEMMax;
-  double puThresholdHGCalHadMin;
-  double puThresholdHGCalHadMax;
-  double puThresholdHFMin;
-  double puThresholdHFMax;
-  double barrelSF;
-  double hgcalSF;
-  double hfSF;
-  bool debug;
-  bool skipCalibrations;
+  const double HcalTpEtMin;
+  const double EcalTpEtMin;
+  const double HGCalHadTpEtMin;
+  const double HGCalEmTpEtMin;
+  const double HFTpEtMin;
+  const double puThreshold;
+  const double puThresholdL1eg;
+  const double puThresholdHcalMin;
+  const double puThresholdHcalMax;
+  const double puThresholdEcalMin;
+  const double puThresholdEcalMax;
+  const double puThresholdHGCalEMMin;
+  const double puThresholdHGCalEMMax;
+  const double puThresholdHGCalHadMin;
+  const double puThresholdHGCalHadMax;
+  const double puThresholdHFMin;
+  const double puThresholdHFMax;
+  const double barrelSF;
+  const double hgcalSF;
+  const double hfSF;
+  const bool debug;
+  const bool skipCalibrations;
 
-  edm::EDGetTokenT<l1tp2::CaloTowerCollection> l1TowerToken_;
+  const edm::EDGetTokenT<l1tp2::CaloTowerCollection> l1TowerToken_;
   edm::Handle<l1tp2::CaloTowerCollection> l1CaloTowerHandle;
 
-  edm::EDGetTokenT<l1t::HGCalTowerBxCollection> hgcalTowersToken_;
+  const edm::EDGetTokenT<l1t::HGCalTowerBxCollection> hgcalTowersToken_;
   edm::Handle<l1t::HGCalTowerBxCollection> hgcalTowersHandle;
   l1t::HGCalTowerBxCollection hgcalTowers;
 
-  edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
+  const edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTowerHandle;
-  edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderTag_;
+  const edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderTag_;
 
   // nHits to nvtx functions
   std::vector<edm::ParameterSet> nHits_to_nvtx_params;

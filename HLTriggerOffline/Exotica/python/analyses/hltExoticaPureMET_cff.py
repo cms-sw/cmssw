@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 PureMETPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
+        "HLT_L1MET_DTClusterNoMB1S50_v", #New Run 3 path
         ),
     recPFMETLabel  = cms.InputTag("pfMet"),
     recCaloMETLabel = cms.InputTag("caloMet"),

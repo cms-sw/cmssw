@@ -245,7 +245,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
 void L1TrackJetProducer::L2_cluster(vector<Ptr<L1TTTrackType> > L1TrkPtrs_, vector<int> tdtrk_, MaxZBin &mzb) {
   const int nz = zBins_ + 1;
   MaxZBin all_zBins[nz];
-  MaxZBin mzbtemp;
+  MaxZBin mzbtemp = {};
   for (int z = 0; z < nz; ++z)
     all_zBins[z] = mzbtemp;
 

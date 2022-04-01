@@ -11,7 +11,7 @@ for ibin in range(nBinsLogX_METplusTrack + 1):
    binsLogX_METplusTrack.append( pow(10, powerLo_METplusTrack + ibin * binPowerWidth_METplusTrack) )
 
 hltMETplusTrackMonitoring = metPlusTrackMonitoring.clone(
-  FolderName = 'HLT/MET/MET105_IsoTrk50/',
+  FolderName = 'HLT/EXO/MET/MET105_IsoTrk50/',
   histoPSet = dict(
           lsPSet = dict(
                     nbins = 250 ,

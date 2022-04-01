@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/FastTimeTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
@@ -11,9 +12,10 @@ FastTimeTopology::FastTimeTopology(const FastTimeDDDConstants& hdcons, ForwardSu
   kHGeomHalf_ = 1;
   kSizeForDenseIndexing = (unsigned int)(2 * kHGhalf_);
 #ifdef EDM_ML_DEBUG
-  std::cout << "FastTimeTopology initialized for subDetetcor " << subdet_ << " Type " << type_ << "  with " << nEtaZ_
-            << " cells along Z|Eta and " << nPhi_ << " cells along phi: total channels " << kSizeForDenseIndexing << ":"
-            << (2 * kHGeomHalf_) << std::endl;
+  edm::LogVerbatim("FastTime") << "FastTimeTopology initialized for subDetetcor " << subdet_ << " Type " << type_
+                               << "  with " << nEtaZ_ << " cells along Z|Eta and " << nPhi_
+                               << " cells along phi: total channels " << kSizeForDenseIndexing << ":"
+                               << (2 * kHGeomHalf_);
 #endif
 }
 

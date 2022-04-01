@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
@@ -41,7 +42,7 @@
 class HGCGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCGeometryTester(const edm::ParameterSet&);
-  ~HGCGeometryTester() override;
+  ~HGCGeometryTester() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void beginJob() override {}
@@ -49,16 +50,13 @@ public:
   void endJob() override {}
 
 private:
-  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
-  bool square;
+  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
+  const bool square_;
 };
 
 HGCGeometryTester::HGCGeometryTester(const edm::ParameterSet& iC)
-    : ddToken_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})} {
-  square = iC.getUntrackedParameter<bool>("SquareType", false);
-}
-
-HGCGeometryTester::~HGCGeometryTester() {}
+    : ddToken_{esConsumes<DDCompactView, IdealGeometryRecord>(edm::ESInputTag{})},
+      square_(iC.getUntrackedParameter<bool>("SquareType", false)) {}
 
 void HGCGeometryTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -84,14 +82,14 @@ void HGCGeometryTester::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if (svPars.find(name) == svPars.end()) {
         // print half height and widths for the trapezoid
         std::vector<double> solidPar = eview.logicalPart().solid().parameters();
-        if (square) {
+        if (square_) {
           svPars[name] = std::pair<double, double>(solidPar[3], 0.5 * (solidPar[4] + solidPar[5]));
-          std::cout << name << " Layer " << layer << " " << solidPar[3] << " " << solidPar[4] << " " << solidPar[5]
-                    << std::endl;
+          edm::LogVerbatim("HGCalGeomX") << name << " Layer " << layer << " " << solidPar[3] << " " << solidPar[4]
+                                         << " " << solidPar[5];
         } else {
           svPars[name] = std::pair<double, double>(solidPar[0], 0.5 * (solidPar[2] - solidPar[1]));
-          std::cout << name << " Layer " << layer << " " << solidPar[0] << " " << solidPar[1] << " " << solidPar[2]
-                    << std::endl;
+          edm::LogVerbatim("HGCalGeomX") << name << " Layer " << layer << " " << solidPar[0] << " " << solidPar[1]
+                                         << " " << solidPar[2];
         }
       }
     }
