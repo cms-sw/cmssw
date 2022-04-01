@@ -1,7 +1,5 @@
 #include "SimG4CMS/ShowerLibraryProducer/interface/HcalForwardLibWriter.h"
-
-#include "TFile.h"
-#include "TTree.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   edm::ParameterSet theParms = iConfig.getParameter<edm::ParameterSet>("hcalForwardLibWriterParameters");
@@ -62,7 +60,7 @@ void HcalForwardLibWriter::analyze(const edm::Event& iEvent, const edm::EventSet
     std::string fn = theFileHandle[i].name;
     std::string particle = theFileHandle[i].id;
 
-    //    std::cout << "*** Input file  " << i << "   " << fn << std::endl;
+    //    edm::LogVerbatim("HcalSim") << "*** Input file  " << i << "   " << fn;
 
     TFile* theFile = new TFile(fn.c_str(), "READ");
     TTree* theTree = (TTree*)gDirectory->Get("g4SimHits/CherenkovPhotons");
