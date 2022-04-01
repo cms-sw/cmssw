@@ -28,13 +28,11 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet &pset,
                                string hltPath,
                                const std::vector<string> &moduleLabels,
                                const std::vector<string> &stepLabels,
-                               const std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-                                                edm::EDGetTokenT<reco::GenParticleCollection>,
-                                                edm::EDGetTokenT<reco::MuonCollection>> &tokens,
-                               const ESTokens &esTokens)
-    :
-
-      l1Matcher_(pset, esTokens) {
+                               const edm::EDGetTokenT<trigger::TriggerEventWithRefs> &triggerEventToken,
+                               const edm::EDGetTokenT<reco::GenParticleCollection> &genParticlesToken,
+                               const edm::EDGetTokenT<reco::MuonCollection> &recoMuonsToken,
+                               const L1MuonMatcherAlgoForDQM &l1Matcher)
+    : l1Matcher_(l1Matcher) {
   hltPath_ = hltPath;
   moduleLabels_ = moduleLabels;
   stepLabels_ = stepLabels;
@@ -52,10 +50,9 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet &pset,
   genMuonSelector_ = nullptr;
   recMuonSelector_ = nullptr;
 
-  // set tokens
-  hltTriggerSummaryRAW_ = std::get<0>(tokens);
-  genParticleLabel_ = std::get<1>(tokens);
-  recMuonLabel_ = std::get<2>(tokens);
+  hltTriggerSummaryRAW_ = triggerEventToken;
+  genParticleLabel_ = genParticlesToken;
+  recMuonLabel_ = recoMuonsToken;
 }
 
 void HLTMuonPlotter::beginJob() {}
@@ -252,34 +249,6 @@ void HLTMuonPlotter::analyze(const Event &iEvent, const EventSetup &iSetup) {
     }
 
   }  // End loop over sources
-}
-
-std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-           edm::EDGetTokenT<reco::GenParticleCollection>,
-           edm::EDGetTokenT<reco::MuonCollection>>
-HLTMuonPlotter::getTokens(const edm::ParameterSet &pset, edm::ConsumesCollector &&iC) {
-  edm::EDGetTokenT<trigger::TriggerEventWithRefs> _hltTriggerSummaryRAW =
-      iC.consumes<TriggerEventWithRefs>(edm::InputTag("hltTriggerSummaryRAW"));
-  edm::EDGetTokenT<reco::GenParticleCollection> _genParticleLabel =
-      iC.consumes<GenParticleCollection>(pset.getParameter<string>("genParticleLabel"));
-  edm::EDGetTokenT<reco::MuonCollection> _recMuonLabel =
-      iC.consumes<MuonCollection>(pset.getParameter<string>("recMuonLabel"));
-
-  std::tuple<edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
-             edm::EDGetTokenT<reco::GenParticleCollection>,
-             edm::EDGetTokenT<reco::MuonCollection>>
-      myTuple(_hltTriggerSummaryRAW, _genParticleLabel, _recMuonLabel);
-
-  return (myTuple);
-}
-
-std::tuple<edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>,
-           edm::ESGetToken<Propagator, TrackingComponentsRecord>,
-           edm::ESGetToken<Propagator, TrackingComponentsRecord>,
-           edm::ESGetToken<Propagator, TrackingComponentsRecord>,
-           edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord>>
-HLTMuonPlotter::getESTokens(edm::ConsumesCollector iC) {
-  return hltriggeroffline::PropagateToMuon::getESTokens(iC);
 }
 
 void HLTMuonPlotter::findMatches(vector<MatchStruct> &matches,
