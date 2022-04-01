@@ -125,7 +125,6 @@ private:
   int scenario_;
   int df_extended_;
   int max_index_;
-  //  std::string geometry_tag_;
 
   // ParameterSet
   edm::EDGetTokenT<DTDigiCollection> dtDigisToken_;
@@ -192,10 +191,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
 
   // Choosing grouping scheme:
   algo_ = pset.getParameter<int>("algo");
-
-  // Local to global coordinates approach
-  //  geometry_tag_ =
-  //  dtGeomToken_ = consumes<>(pset.getUntrackedParameter<std::string>("geometry_tag", ""));
 
   edm::ConsumesCollector consumesColl(consumesCollector());
   globalcoordsobtainer_ = std::make_shared<GlobalCoordsObtainer>(pset);

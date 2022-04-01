@@ -1,7 +1,6 @@
 #ifndef Phase2L1Trigger_DTTrigger_MuonPathAnalyzer_h
 #define Phase2L1Trigger_DTTrigger_MuonPathAnalyzer_h
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
