@@ -20,10 +20,14 @@ process.dtTriggerPhase2PrimitiveDigis.scenario = 0 #0 is mc, 1 is data, 2 is sli
 process.CalibratedDigis.dtDigiTag = "simMuonDTDigis"
 process.CalibratedDigis.scenario = 0
 
+process.load('RecoLocalMuon.Configuration.RecoLocalMuon_cff')
+
 # STD
 process.dtTriggerPhase2PrimitiveDigis.algo = 0 ## initial grouping
 process.dtTriggerPhase2PrimitiveDigis.df_extended = 0
 
+process.dtTriggerPhase2PrimitiveDigis.useRPC = True
+process.rpcRecHits.rpcDigiLabel = "simMuonRPCDigis"
 
 # COMPARISON WITH FW
 # process.dtTriggerPhase2PrimitiveDigis.useBX_correlation = True
@@ -60,7 +64,8 @@ process.out = cms.OutputModule("PoolOutputModule",
                                fileName = cms.untracked.string('DTTriggerPhase2Primitives.root')
 )
 
-process.p = cms.Path(process.CalibratedDigis *
+process.p = cms.Path(process.rpcRecHits *
+                     process.CalibratedDigis *
                      process.dtTriggerPhase2PrimitiveDigis
 )
 process.this_is_the_end = cms.EndPath(process.out)
