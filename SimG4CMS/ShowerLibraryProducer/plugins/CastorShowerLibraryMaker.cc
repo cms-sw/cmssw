@@ -404,8 +404,11 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent* evt) {
     int etabin = FindEtaBin(eta);
     int phibin = FindPhiBin(phi);
     if (verbosity)
-      edm::LogVerbatim("HcalSim") << "\n========================================================================" << "\nBeginOfEvent: E   : " << pInit << "\t  bin : " << ebin << "\n              Eta : " << eta << "\t  bin : " << etabin << "\n              Phi : " << phi << "\t  bin : " << phibin
-				  << "\n========================================================================";
+      edm::LogVerbatim("HcalSim") << "\n========================================================================"
+                                  << "\nBeginOfEvent: E   : " << pInit << "\t  bin : " << ebin
+                                  << "\n              Eta : " << eta << "\t  bin : " << etabin
+                                  << "\n              Phi : " << phi << "\t  bin : " << phibin
+                                  << "\n========================================================================";
 
     if (ebin < 0 || etabin < 0 || phibin < 0)
       continue;
@@ -430,7 +433,8 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent* evt) {
         }
 */
       if (!accept)
-        edm::LogVerbatim("CastorShowerLibraryMaker") << "Event not accepted for ebin=" << ebin << ",etabin=" << etabin << ",phibin=" << phibin;
+        edm::LogVerbatim("CastorShowerLibraryMaker")
+            << "Event not accepted for ebin=" << ebin << ",etabin=" << etabin << ",phibin=" << phibin;
     } else {
       accept = true;
     }
@@ -530,7 +534,8 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
       double pre_phi = aStep->GetPreStepPoint()->GetMomentum().phi();
       double cur_phi = trk->GetMomentum().phi();
       if (pre_phi != cur_phi) {
-        edm::LogVerbatim("HcalSim") << "Primary track phi :  " << pre_phi << " changed in current step: " << cur_phi << " by processes:";
+        edm::LogVerbatim("HcalSim") << "Primary track phi :  " << pre_phi << " changed in current step: " << cur_phi
+                                    << " by processes:";
         const G4VProcess* proc = aStep->GetPreStepPoint()->GetProcessDefinedStep();
         edm::LogVerbatim("HcalSim") << "           " << proc->GetProcessName() << "  In volume " << CurVolume;
       }
@@ -554,7 +559,9 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
 void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   // check if the job is done!
   if ((*evt)()->IsAborted()) {
-    edm::LogVerbatim("HcalSim") << "\n========================================================================" << "\nEndOfEvent: EVENT ABORTED" << "\n========================================================================";
+    edm::LogVerbatim("HcalSim") << "\n========================================================================"
+                                << "\nEndOfEvent: EVENT ABORTED"
+                                << "\n========================================================================";
     return;
   }
   //DynamicRangeFlatRandomEGunProducer* pgun = edm::DynamicRangeFlatRandomEGunKernel::get_instance();
@@ -619,7 +626,9 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
     edm::LogVerbatim("HcalSim") << SLType;
     printSLstatus(ebin, etabin, phibin);
     if (!SLacceptEvent(ebin, etabin, phibin)) {
-      edm::LogVerbatim("CastorShowerLibraryMaker") << "Event not accepted for ebin=" << ebin << ",etabin=" << etabin << ",phibin=" << phibin << "(" << pInit << "," << eta << "," << phi << ")";
+      edm::LogVerbatim("CastorShowerLibraryMaker")
+          << "Event not accepted for ebin=" << ebin << ",etabin=" << etabin << ",phibin=" << phibin << "(" << pInit
+          << "," << eta << "," << phi << ")";
       continue;
     }
     //
@@ -663,12 +672,14 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   // Check for unassociated energy
   int thecafi_entries = theCAFI->entries();
   if (NEvtAccepted == int(thePrims.size()) && thecafi_entries != NHitInEvent) {
-    edm::LogWarning("HcalSim") << "WARNING: Inconsistent Number of Hits -> Hits in collection: " << theCAFI->entries() << "   Hits in the showers: " << NHitInEvent;
+    edm::LogWarning("HcalSim") << "WARNING: Inconsistent Number of Hits -> Hits in collection: " << theCAFI->entries()
+                               << "   Hits in the showers: " << NHitInEvent;
     double miss_energy = 0;
     double tot_energy = 0;
     GetMissingEnergy(theCAFI, miss_energy, tot_energy);
     if (miss_energy > 0) {
-      edm::LogVerbatim("HcalSim") << "Total missing energy: " << miss_energy << " for an incident energy: " << tot_energy;
+      edm::LogVerbatim("HcalSim") << "Total missing energy: " << miss_energy
+                                  << " for an incident energy: " << tot_energy;
     }
   }
 
@@ -993,7 +1004,7 @@ void CastorShowerLibraryMaker::printSLstatus(int ebin, int etabin, int phibin) {
       if (j < nBinsEta - 1)
         st2 << " ";
     }
-    edm::LogVerbatim("HcalSim") << st2:str();
+    edm::LogVerbatim("HcalSim") << st2 : str();
   }
   std::ostringstream st2;
   for (int n = 0; n < 11 + (nBinsEta * nBinsPhi); n++)
@@ -1155,7 +1166,10 @@ bool CastorShowerLibraryMaker::SLisPhiBinFilled(int ebin, int etabin, int phibin
 void CastorShowerLibraryMaker::KillSecondaries(const G4Step* aStep) {
   const G4TrackVector* p_sec = aStep->GetSecondary();
   for (int i = 0; i < int(p_sec->size()); i++) {
-    edm::LogVerbatim("HcalSim") << "Killing track ID " << p_sec->at(i)->GetTrackID() << " and its secondaries Produced by Process " << p_sec->at(i)->GetCreatorProcess()->GetProcessName() << " in the volume " << aStep->GetTrack()->GetVolume()->GetName();
+    edm::LogVerbatim("HcalSim") << "Killing track ID " << p_sec->at(i)->GetTrackID()
+                                << " and its secondaries Produced by Process "
+                                << p_sec->at(i)->GetCreatorProcess()->GetProcessName() << " in the volume "
+                                << aStep->GetTrack()->GetVolume()->GetName();
     p_sec->at(i)->SetTrackStatus(fKillTrackAndSecondaries);
   }
 }
