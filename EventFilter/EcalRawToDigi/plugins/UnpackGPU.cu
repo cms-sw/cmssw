@@ -1,4 +1,5 @@
 #include "EventFilter/EcalRawToDigi/interface/ElectronicsIdGPU.h"
+#include "EventFilter/EcalRawToDigi/interface/DCCRawDataDefinitions.h"
 
 #include "UnpackGPU.h"
 
@@ -33,6 +34,34 @@ namespace ecal {
     __forceinline__ __device__ int zside_for_eb(ElectronicsIdGPU const& eid) {
       int dcc = eid.dccId();
       return ((dcc >= ElectronicsIdGPU::MIN_DCCID_EBM && dcc <= ElectronicsIdGPU::MAX_DCCID_EBM)) ? -1 : 1;
+    }
+
+    __forceinline__ __device__ uint8_t find_next_tower_block(uint64_t const*& current_tower_block,
+                                                             uint64_t const* trailer,
+                                                             uint32_t const bx,
+                                                             uint32_t const lv1) {
+      const auto* next_tower_block = current_tower_block + 1;  // move forward to skip the broken header
+
+      // expected LV1, BX, #TS
+      const uint64_t lv1local = ((lv1 - 1) & TOWER_L1_MASK);
+      const uint64_t bxlocal = (bx != 3564) ? bx : 0;
+      // The CPU unpacker also checks the # time samples expected in the header
+      // but those are currently not available here
+
+      // construct tower header and mask
+      const uint64_t sign = 0xC0000000C0000000 + (lv1local << TOWER_L1_B) + (bxlocal << TOWER_BX_B);
+      const uint64_t mask =
+          0xC0001000D0000000 + (uint64_t(TOWER_L1_MASK) << TOWER_L1_B) + (uint64_t(TOWER_BX_MASK) << TOWER_BX_B);
+
+      while (next_tower_block != trailer) {
+        if ((*next_tower_block & mask) == sign) {
+          current_tower_block = next_tower_block;
+          return uint8_t(*next_tower_block & TOWER_ID_MASK);
+        } else {
+          ++next_tower_block;
+        }
+      }
+      return TOWER_ID_MASK;  // return the maximum value
     }
 
     __forceinline__ __device__ bool is_synced_towerblock(uint16_t const dccbx,
@@ -151,8 +180,20 @@ namespace ecal {
       // fed header
       //
       auto const fed_header = buffer[0];
-      uint32_t bx = (fed_header >> 20) & 0xfff;
-      uint32_t lv1 = (fed_header >> 32) & 0xffffff;
+      uint32_t bx = (fed_header >> H_BX_B) & H_BX_MASK;
+      uint32_t lv1 = (fed_header >> H_L1_B) & H_L1_MASK;
+      uint32_t triggerType = (fed_header >> H_TTYPE_B) & H_TTYPE_MASK;
+
+      // determine the number of FE channels from the trigger type
+      uint32_t numbChannels(0);
+      if (triggerType == PHYSICTRIGGER) {
+        numbChannels = NUMB_FE;
+      } else if (triggerType == CALIBRATIONTRIGGER) {
+        numbChannels = NUMB_FE + 2;  // FE + 2 MEM blocks
+      } else {
+        // unsupported trigger type
+        return;
+      }
 
       // 9 for fed + dcc header
       // 36 for 4 EE TCC blocks or 18 for 1 EB TCC block
@@ -160,7 +201,27 @@ namespace ecal {
 
       // dcc header w2
       auto const w2 = buffer[2];
-      uint8_t const fov = (w2 >> 48) & 0xf;
+      uint8_t const fov = (w2 >> H_FOV_B) & H_FOV_MASK;
+
+      // make a list of channels with data from DCC header channels status
+      // this could be done for each block instead of each thread since it defined per FED
+      uint8_t exp_ttids[NUMB_FE + 2];  // FE + 2 MEM blocks
+      uint8_t ch = 1;
+      uint8_t nCh = 0;
+      for (uint8_t i = 4; i < 9; ++i) {           // data words with channel status info
+        for (uint8_t j = 0; j < 14; ++j, ++ch) {  // channel status fields in one data word
+          const uint8_t shift = j * 4;            //each channel has 4 bits
+          const int chStatus = (buffer[i] >> shift) & H_CHSTATUS_MASK;
+          const bool regular = (chStatus == CH_DISABLED || chStatus == CH_SUPPRESS);
+          const bool problematic =
+              (chStatus == CH_TIMEOUT || chStatus == CH_HEADERERR || chStatus == CH_LINKERR ||
+               chStatus == CH_LENGTHERR || chStatus == CH_IFIFOFULL || chStatus == CH_L1AIFIFOFULL);
+          if (!(regular || problematic)) {
+            exp_ttids[nCh] = ch;
+            ++nCh;
+          }
+        }
+      }
 
       //
       // print Tower block headers
@@ -169,12 +230,35 @@ namespace ecal {
       auto const* tower_blocks_start = buffer + 9 + ntccblockwords + 6;
       auto const* trailer = buffer + (size / 8 - 1);
       auto const* current_tower_block = tower_blocks_start;
-      while (current_tower_block != trailer) {
+      uint8_t iCh = 0;
+      uint8_t next_tower_id = exp_ttids[iCh];
+      while (current_tower_block != trailer && iCh < numbChannels) {
         auto const w = *current_tower_block;
-        uint8_t ttid = w & 0xff;
-        uint16_t bxlocal = (w >> 16) & 0xfff;
-        uint16_t lv1local = (w >> 32) & 0xfff;
-        uint16_t block_length = (w >> 48) & 0x1ff;
+        uint8_t ttid = w & TOWER_ID_MASK;
+        uint16_t bxlocal = (w >> TOWER_BX_B) & TOWER_BX_MASK;
+        uint16_t lv1local = (w >> TOWER_L1_B) & TOWER_L1_MASK;
+        uint16_t block_length = (w >> TOWER_LENGTH_B) & TOWER_LENGTH_MASK;
+
+        // fast forward to the next good tower id (in case of recovery from an earlier header corruption)
+        while (exp_ttids[iCh] < next_tower_id) {
+          ++iCh;
+        }
+        ++iCh;
+
+        // check if the tower id in the tower header is the one expected
+        // if not try to find the next good header, point the current_tower_block to it, and extract its tower id
+        // or break if there is none
+        if (ttid != next_tower_id) {
+          next_tower_id = find_next_tower_block(current_tower_block, trailer, bx, lv1);
+          if (next_tower_id < TOWER_ID_MASK) {
+            continue;
+          } else {
+            break;
+          }
+        }
+
+        // prepare for the next iteration
+        next_tower_id = exp_ttids[iCh];
 
         uint16_t const dccbx = bx & 0xfff;
         uint16_t const dccl1 = lv1 & 0xfff;
