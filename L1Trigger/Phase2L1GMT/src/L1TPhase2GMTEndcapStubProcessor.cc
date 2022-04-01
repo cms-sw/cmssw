@@ -40,10 +40,9 @@ l1t::MuonStub L1TPhase2GMTEndcapStubProcessor::buildCSCOnlyStub(const CSCDetId& 
 
   if (ring == 3)
     wheel = sign * 3;
-
-  if (ring == 2)
+  else if (ring == 2)
     wheel = sign * 4;
-  if (ring == 1)
+  else if (ring == 1)
     wheel = sign * 5;
 
   int sector = fabs(chamber);
@@ -259,10 +258,6 @@ l1t::MuonStubCollection L1TPhase2GMTEndcapStubProcessor::makeStubs(
   }
 
   l1t::MuonStubCollection rpcStubs;
-
-  //  RPCHitCleaner cleaner(rpc);
-  //cleaner.run(iSetup);
-  //  RPCDigiCollection cleaned = rpc;
 
   auto rpcchamber = cleaned.begin();
   auto rpcchend = cleaned.end();

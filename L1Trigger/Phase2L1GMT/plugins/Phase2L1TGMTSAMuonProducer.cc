@@ -48,7 +48,7 @@ using namespace l1t;
 class Phase2L1TGMTSAMuonProducer : public edm::stream::EDProducer<> {
 public:
   explicit Phase2L1TGMTSAMuonProducer(const edm::ParameterSet&);
-  ~Phase2L1TGMTSAMuonProducer() override;
+  ~Phase2L1TGMTSAMuonProducer() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -65,17 +65,6 @@ private:
   unsigned int Ndisplaced;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 Phase2L1TGMTSAMuonProducer::Phase2L1TGMTSAMuonProducer(const edm::ParameterSet& iConfig)
     : muonToken_(consumes<l1t::MuonBxCollection>(iConfig.getParameter<edm::InputTag>("muonToken"))),
       Nprompt(iConfig.getParameter<uint>("Nprompt")),
@@ -83,8 +72,6 @@ Phase2L1TGMTSAMuonProducer::Phase2L1TGMTSAMuonProducer(const edm::ParameterSet& 
   produces<std::vector<l1t::SAMuon> >("promptSAMuons").setBranchAlias("prompt");
   produces<std::vector<l1t::SAMuon> >("displacedSAMuons").setBranchAlias("displaced");
 }
-
-Phase2L1TGMTSAMuonProducer::~Phase2L1TGMTSAMuonProducer() {}
 
 //
 // member functions
@@ -179,11 +166,11 @@ void Phase2L1TGMTSAMuonProducer::endStream() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void Phase2L1TGMTSAMuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>("muonToken", edm::InputTag("simGmtStage2Digis"));
+  desc.add<unsigned int>("Nprompt", 12);
+  desc.add<unsigned int>("Ndisplaced", 12);
+  descriptions.add("standaloneMuons", desc);
 }
 
 //define this as a plug-in

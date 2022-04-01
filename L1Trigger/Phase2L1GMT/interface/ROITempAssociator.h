@@ -37,7 +37,7 @@ namespace Phase2L1GMT {
           float phi = globalPhi * 2 * M_PI / 576.0;
           if (phi > (M_PI))
             phi = phi - 2 * M_PI;
-          if (phi < (-M_PI))
+          else if (phi < (-M_PI))
             phi = phi + 2 * M_PI;
 
           MuonROI roi(bx, charge, pt, 1);
@@ -54,7 +54,7 @@ namespace Phase2L1GMT {
               float deltaPhi = (stub->quality() & 0x1) ? stub->offline_coord1() - phi : stub->offline_coord2() - phi;
               if (deltaPhi > M_PI)
                 deltaPhi = deltaPhi - 2 * M_PI;
-              if (deltaPhi < -M_PI)
+              else if (deltaPhi < -M_PI)
                 deltaPhi = deltaPhi + 2 * M_PI;
               deltaPhi = fabs(deltaPhi);
               float deltaEta = (stub->etaQuality() == 0 || (stub->etaQuality() & 0x1))
