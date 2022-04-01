@@ -174,17 +174,16 @@ void GTTFileWriter::endJob() {
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void GTTFileWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // GTTFileWriter
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
-
-  //Specify that only 'tracks' is allowed
-  //To use, remove the default given above and uncomment below
-  //ParameterSetDescription desc;
-  //desc.addUntracked<edm::InputTag>("tracks","ctfWithMaterialTracks");
-  //descriptions.addDefault(desc);
+  desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("TTTracksFromTrackletEmulation", "Level1TTTracks"));
+  desc.addUntracked<edm::InputTag>("convertedTracks", edm::InputTag("L1GTTInputProducer", "Level1TTTracksConverted"));
+  desc.addUntracked<edm::InputTag>("vertices", edm::InputTag("VertexProducer", "l1verticesEmulation"));
+  desc.addUntracked<std::string>("inputFilename", "L1GTTInputFile");
+  desc.addUntracked<std::string>("inputConvertedFilename", "L1GTTInputConvertedFile");
+  desc.addUntracked<std::string>("outputFilename", "L1GTTOutputToCorrelatorFile");
+  desc.addUntracked<std::string>("format", "APx");
+  descriptions.add("GTTFileWriter", desc);
 }
 
 //define this as a plug-in

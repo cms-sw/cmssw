@@ -27,7 +27,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
@@ -89,18 +89,21 @@ void GTTFileReader::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   l1t::VertexWordCollection vertices(decodeVertices(eventData.at({"vertices", 0})));
 
-  std::cout << vertices.size() << " vertices found" << std::endl;
+  edm::LogInfo("GTTFileReader") << vertices.size() << " vertices found";
 
   iEvent.put(std::make_unique<l1t::VertexWordCollection>(vertices));
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void GTTFileReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
+  // GTTFileReader
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<std::vector<std::string>>("files",
+                                     {
+                                         "gttOutput_0.txt",
+                                     });
+  desc.addUntracked<std::string>("format", "APx");
+  descriptions.add("GTTFileReader", desc);
 }
 
 //define this as a plug-in
