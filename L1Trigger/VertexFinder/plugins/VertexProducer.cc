@@ -18,23 +18,27 @@ using namespace std;
 
 VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
     : l1TracksToken_(consumes<TTTrackCollectionView>(iConfig.getParameter<edm::InputTag>("l1TracksInputTag"))),
-      trackerTopologyToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
+      tTopoToken(esConsumes<TrackerTopology, TrackerTopologyRcd>()),
       outputCollectionName_(iConfig.getParameter<std::string>("l1VertexCollectionName")),
       settings_(AlgoSettings(iConfig)) {
   // Get configuration parameters
 
   switch (settings_.vx_algo()) {
-    case Algorithm::FastHisto:
-      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the FastHisto binning algorithm";
+    case Algorithm::fastHisto:
+      edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using the fastHisto binning algorithm";
       break;
-    case Algorithm::FastHistoLooseAssociation:
+    case Algorithm::fastHistoEmulation:
       edm::LogInfo("VertexProducer")
-          << "VertexProducer::Finding vertices using the FastHistoLooseAssociation binning algorithm";
+          << "VertexProducer::Finding vertices using the emulation version of the fastHisto binning algorithm";
+      break;
+    case Algorithm::fastHistoLooseAssociation:
+      edm::LogInfo("VertexProducer")
+          << "VertexProducer::Finding vertices using the fastHistoLooseAssociation binning algorithm";
       break;
     case Algorithm::GapClustering:
       edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a gap clustering algorithm";
       break;
-    case Algorithm::AgglomerativeHierarchical:
+    case Algorithm::agglomerativeHierarchical:
       edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a Simple Merge Clustering algorithm";
       break;
     case Algorithm::DBSCAN:
@@ -43,7 +47,7 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
     case Algorithm::PVR:
       edm::LogInfo("VertexProducer") << "VertexProducer::Finding vertices using a PVR algorithm";
       break;
-    case Algorithm::AdaptiveVertexReconstruction:
+    case Algorithm::adaptiveVertexReconstruction:
       edm::LogInfo("VertexProducer")
           << "VertexProducer::Finding vertices using an AdaptiveVertexReconstruction algorithm";
       break;
@@ -56,7 +60,11 @@ VertexProducer::VertexProducer(const edm::ParameterSet& iConfig)
   }
 
   //--- Define EDM output to be written to file (if required)
-  produces<l1t::VertexCollection>(outputCollectionName_);
+  if (settings_.vx_algo() == Algorithm::fastHistoEmulation) {
+    produces<l1t::VertexWordCollection>(outputCollectionName_ + "Emulation");
+  } else {
+    produces<l1t::VertexCollection>(outputCollectionName_);
+  }
 }
 
 void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
@@ -65,31 +73,46 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
 
   std::vector<l1tVertexFinder::L1Track> l1Tracks;
   l1Tracks.reserve(l1TracksHandle->size());
+  if (settings_.debug() > 1) {
+    edm::LogInfo("VertexProducer") << "produce::Processing " << l1TracksHandle->size() << " tracks";
+  }
   for (const auto& track : l1TracksHandle->ptrs()) {
     auto l1track = L1Track(track);
     // Check the minimum pT of the tracks
     // This is left here because it represents the smallest pT to be sent by the track finding boards
     // This has less to do with the algorithms than the constraints of what will be sent to the vertexing algorithm
-    if (l1track.pt() > settings_.vx_TrackMinPt()) {
+    if (l1track.pt() >= settings_.vx_TrackMinPt()) {
       l1Tracks.push_back(l1track);
+    } else {
+      if (settings_.debug() > 2) {
+        edm::LogInfo("VertexProducer") << "produce::Removing track with too low of a pt (" << l1track.pt() << ")\n"
+                                       << "         word = " << l1track.getTTTrackPtr()->getTrackWord().to_string(2);
+      }
     }
+  }
+  if (settings_.debug() > 1) {
+    edm::LogInfo("VertexProducer") << "produce::Processing " << l1Tracks.size() << " tracks after minimum pt cut of"
+                                   << settings_.vx_TrackMinPt() << " GeV";
   }
 
   VertexFinder vf(l1Tracks, settings_);
 
   switch (settings_.vx_algo()) {
-    case Algorithm::FastHisto: {
-      edm::ESHandle<TrackerTopology> tTopoHandle = iSetup.getHandle(trackerTopologyToken_);
-      vf.fastHisto(tTopoHandle.product());
+    case Algorithm::fastHisto: {
+      const TrackerTopology& tTopo = iSetup.getData(tTopoToken);
+      vf.fastHisto(&tTopo);
       break;
     }
-    case Algorithm::FastHistoLooseAssociation:
+    case Algorithm::fastHistoEmulation:
+      vf.fastHistoEmulation();
+      break;
+    case Algorithm::fastHistoLooseAssociation:
       vf.fastHistoLooseAssociation();
       break;
     case Algorithm::GapClustering:
       vf.GapClustering();
       break;
-    case Algorithm::AgglomerativeHierarchical:
+    case Algorithm::agglomerativeHierarchical:
       vf.agglomerativeHierarchicalClustering();
       break;
     case Algorithm::DBSCAN:
@@ -98,7 +121,7 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
     case Algorithm::PVR:
       vf.PVR();
       break;
-    case Algorithm::AdaptiveVertexReconstruction:
+    case Algorithm::adaptiveVertexReconstruction:
       vf.adaptiveVertexReconstruction();
       break;
     case Algorithm::HPV:
@@ -109,20 +132,20 @@ void VertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Event
       break;
   }
 
-  vf.SortVerticesInPt();
+  vf.sortVerticesInPt();
   vf.findPrimaryVertex();
 
   // //=== Store output EDM track and hardware stub collections.
-  std::unique_ptr<l1t::VertexCollection> lProduct(new std::vector<l1t::Vertex>());
-
-  for (const auto& vtx : vf.vertices()) {
-    std::vector<edm::Ptr<l1t::Vertex::Track_t>> lVtxTracks;
-    lVtxTracks.reserve(vtx.tracks().size());
-    for (const auto& t : vtx.tracks())
-      lVtxTracks.push_back(t->getTTTrackPtr());
-    lProduct->emplace_back(l1t::Vertex(vtx.pt(), vtx.z0(), lVtxTracks));
+  if (settings_.vx_algo() == Algorithm::fastHistoEmulation) {
+    std::unique_ptr<l1t::VertexWordCollection> product_emulation =
+        std::make_unique<l1t::VertexWordCollection>(vf.verticesEmulation().begin(), vf.verticesEmulation().end());
+    iEvent.put(std::move(product_emulation), outputCollectionName_ + "Emulation");
+  } else {
+    std::unique_ptr<l1t::VertexCollection> product(new std::vector<l1t::Vertex>());
+    for (const auto& vtx : vf.vertices()) {
+      product->emplace_back(vtx.vertex());
+    }
+    iEvent.put(std::move(product), outputCollectionName_);
   }
-  iEvent.put(std::move(lProduct), outputCollectionName_);
 }
-
 DEFINE_FWK_MODULE(VertexProducer);

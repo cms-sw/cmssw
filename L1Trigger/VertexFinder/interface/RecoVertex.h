@@ -69,6 +69,8 @@ namespace l1tVertexFinder {
                        unsigned int nHighPt = -999,
                        double highestPt = -999.,
                        bool pv = false);
+    /// Get the equivalent l1t::Vertex
+    l1t::Vertex vertex() const;
     /// Vertex z0 position [cm]
     double z0() const { return z0_; }
     /// Vertex z0 width [cm]
@@ -149,6 +151,16 @@ namespace l1tVertexFinder {
     numHighPtTracks_ = nHighPt;
     highestPt_ = highestPt;
     pv_ = pv;
+  }
+
+  template <typename T>
+  l1t::Vertex RecoVertex<T>::vertex() const {
+    std::vector<edm::Ptr<l1t::Vertex::Track_t>> tracks;
+    tracks.reserve(tracks_.size());
+    for (const auto& t : tracks_) {
+      tracks.push_back(t->getTTTrackPtr());
+    }
+    return l1t::Vertex(pT_, z0_, tracks);
   }
 
   // Template specializations
