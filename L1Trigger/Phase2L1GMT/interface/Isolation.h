@@ -18,6 +18,7 @@
 
 #include "L1Trigger/Phase2L1GMT/interface/TopologicalAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace Phase2L1GMT {
   class Isolation : public TopoAlgo {
@@ -100,13 +101,13 @@ namespace Phase2L1GMT {
     int iso = (accum <= absiso_thrT ? 3 : accum <= absiso_thrM ? 2 : accum <= absiso_thrL ? 1 : 0);
 
     if (verbose_) {
-      cout << " [DEBUG Isolation] : absiso_threshold L : " << absiso_thrL << " accum " << accum
-           << " bit set : " << (accum < absiso_thrL) << endl;
-      cout << " [DEBUG Isolation] : absiso_threshold M : " << absiso_thrM << " accum " << accum
-           << " bit set : " << (accum < absiso_thrM) << endl;
-      cout << " [DEBUG Isolation] : absiso_threshold T : " << absiso_thrT << " accum " << accum
-           << " bit set : " << (accum < absiso_thrT) << endl;
-      cout << " [DEBUG Isolation] : absiso : " << (iso) << endl;
+      edm::LogInfo("Isolation") << " [DEBUG Isolation] : absiso_threshold L : " << absiso_thrL << " accum " << accum
+                                << " bit set : " << (accum < absiso_thrL);
+      edm::LogInfo("Isolation") << " [DEBUG Isolation] : absiso_threshold M : " << absiso_thrM << " accum " << accum
+                                << " bit set : " << (accum < absiso_thrM);
+      edm::LogInfo("Isolation") << " [DEBUG Isolation] : absiso_threshold T : " << absiso_thrT << " accum " << accum
+                                << " bit set : " << (accum < absiso_thrT);
+      edm::LogInfo("Isolation") << " [DEBUG Isolation] : absiso : " << (iso);
     }
     return iso;
   }
@@ -123,13 +124,13 @@ namespace Phase2L1GMT {
     int iso = (accum <= thrT.to_int() ? 3 : accum <= thrM.to_int() ? 2 : accum <= thrL.to_int() ? 1 : 0);
 
     if (verbose_) {
-      cout << " [DEBUG Isolation] : reliso_threshold L : " << thrL << " accum " << accum
-           << " bit set : " << (accum < thrL.to_int()) << endl;
-      cout << " [DEBUG Isolation] : reliso_threshold M : " << thrM << " accum " << accum
-           << " bit set : " << (accum < thrM.to_int()) << endl;
-      cout << " [DEBUG Isolation] : reliso_threshold T : " << thrT << " accum " << accum
-           << " bit set : " << (accum < thrT.to_int()) << endl;
-      cout << " [DEBUG Isolation] : reliso : " << (iso << 2) << " org " << iso << endl;
+      edm::LogInfo("Isolation") << " [DEBUG Isolation] : reliso_threshold L : " << thrL << " accum " << accum
+                                << " bit set : " << (accum < thrL.to_int());
+      edm::LogInfo("Isolation") << " [DEBUG Isolation] : reliso_threshold M : " << thrM << " accum " << accum
+                                << " bit set : " << (accum < thrM.to_int());
+      edm::LogInfo("Isolation") << " [DEBUG Isolation] : reliso_threshold T : " << thrT << " accum " << accum
+                                << " bit set : " << (accum < thrT.to_int());
+      edm::LogInfo("Isolation") << " [DEBUG Isolation] : reliso : " << (iso << 2) << " org " << iso;
     }
 
     return iso << 2;
@@ -144,7 +145,7 @@ namespace Phase2L1GMT {
 
     static int itest = 0;
     if (verbose_) {
-      std::cout << "........ RUNNING TEST NUMBER .......... " << itest++ << std::endl;
+      edm::LogInfo("Isolation") << "........ RUNNING TEST NUMBER .......... " << itest++;
     }
 
     for (auto &mu : trkMus) {
@@ -206,27 +207,27 @@ namespace Phase2L1GMT {
     bool pass_ovrl = (deta > 0 || dphi > 0 ? true : false);
 
     if (verbose_) {
-      cout << " [DEBUG compute_trk_iso] : Start of debug msg for compute_trk_iso" << endl;
-      cout << " [DEBUG compute_trk_iso] : incoming muon (pt / eta / phi / z0 / isvalid)" << endl;
-      cout << " [DEBUG compute_trk_iso] : MU  =  " << in_mu.hwPt() << " / " << in_mu.hwEta() << " / " << in_mu.hwPhi()
-           << " / " << in_mu.hwZ0() << " / " << 1 << endl;
-      cout << " [DEBUG compute_trk_iso] : incoming track (pt / eta / phi / z0 / isvalid)" << endl;
-      cout << " [DEBUG compute_trk_iso] : TRK =  " << in_trk.pt() << " / " << in_trk.eta() << " / " << in_trk.phi()
-           << " / " << in_trk.z0() << " / " << 1 << endl;
-      cout << " [DEBUG compute_trk_iso] : Delta phi : " << dphi << endl;
-      cout << " [DEBUG compute_trk_iso] : Delta eta : " << deta << endl;
-      cout << " [DEBUG compute_trk_iso] : Delta z0  : " << dz0 << endl;
-      cout << " [DEBUG compute_trk_iso] : pass_deta      : " << pass_deta << endl;
-      cout << " [DEBUG compute_trk_iso] : pass_dphi      : " << pass_dphi << endl;
-      cout << " [DEBUG compute_trk_iso] : pass_dz0       : " << pass_dz0 << endl;
-      cout << " [DEBUG compute_trk_iso] : pass_trkpt     : " << pass_trkpt << endl;
-      cout << " [DEBUG compute_trk_iso] : pass_ovrl      : " << pass_ovrl << endl;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : Start of debug msg for compute_trk_iso";
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : incoming muon (pt / eta / phi / z0 / isvalid)";
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : MU  =  " << in_mu.hwPt() << " / " << in_mu.hwEta()
+                                << " / " << in_mu.hwPhi() << " / " << in_mu.hwZ0() << " / " << 1;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : incoming track (pt / eta / phi / z0 / isvalid)";
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : TRK =  " << in_trk.pt() << " / " << in_trk.eta() << " / "
+                                << in_trk.phi() << " / " << in_trk.z0() << " / " << 1;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : Delta phi : " << dphi;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : Delta eta : " << deta;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : Delta z0  : " << dz0;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : pass_deta      : " << pass_deta;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : pass_dphi      : " << pass_dphi;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : pass_dz0       : " << pass_dz0;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : pass_trkpt     : " << pass_trkpt;
+      edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : pass_ovrl      : " << pass_ovrl;
     }
     // match conditions
     if (pass_deta && pass_dphi && pass_dz0 && pass_trkpt && pass_ovrl) {
       if (verbose_) {
-        cout << " [DEBUG compute_trk_iso] : THE TRACK WAS MATCHED" << endl;
-        cout << " [DEBUG compute_trk_iso] : RETURN         : " << in_trk.pt() << endl;
+        edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : THE TRACK WAS MATCHED";
+        edm::LogInfo("Isolation") << " [DEBUG compute_trk_iso] : RETURN         : " << in_trk.pt();
       }
 
       //return in_trk.pt();

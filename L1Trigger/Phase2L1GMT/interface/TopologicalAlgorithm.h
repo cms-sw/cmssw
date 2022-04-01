@@ -61,7 +61,7 @@ namespace Phase2L1GMT {
     static int nevti = 0;
     int totalsize = 0;
     // Current setting
-    int exptotal = 12 + 18 * 100;  // N_Muon + N_TRK_LINKS * NTRKperlinks
+    int constexpr exptotal = 12 + 18 * 100;  // N_Muon + N_TRK_LINKS * NTRKperlinks
     for (unsigned int i = 0; i < 12; ++i) {
       if (i < trkMus->size())
         dumpInput << " " << nevti << " 0 " << i << " " << trkMus->at(i).hwPt() * LSBpt << " "
