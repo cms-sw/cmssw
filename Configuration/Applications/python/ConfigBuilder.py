@@ -2297,13 +2297,6 @@ class ConfigBuilder(object):
             if overrideConcurrentIOVs:
                 self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
                 self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
-        if self._options.nConcurrentLumis != "1":
-            # nConcurrentLumis == 0 implies that framework decides the
-            # value based on the number of streams, and the number of
-            # threads/streams can be set afterwards. The safest check
-            # is then to set assertLegacySafe == True only when
-            # explicitly asked to use 1 concurrent lumi.
-            self.pythonCfgCode +="if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)\n"
         #repacked version
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"
