@@ -19,6 +19,7 @@
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
 
+//------------------------------------------------------------------------------
 
 class MkFitGeometryESProducer : public edm::ESProducer {
 public:

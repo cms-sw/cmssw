@@ -13,7 +13,6 @@
 class DumpMkFitGeometry : public edm::one::EDAnalyzer<> {
 public:
   explicit DumpMkFitGeometry(const edm::ParameterSet& config);
-  ~DumpMkFitGeometry(void) override {}
 
 private:
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
