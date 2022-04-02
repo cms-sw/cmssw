@@ -920,7 +920,7 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
 
   bool is_compressed = false;
   if (detId.subdet() == HcalBarrel) {
-    is_compressed = (frame.flavor() == 3);  
+    is_compressed = (frame.flavor() == 3);
     // 0 if frame.flavor is 0 (uncompressed), 1 if frame.flavor is 3 (compressed)
   }
 
