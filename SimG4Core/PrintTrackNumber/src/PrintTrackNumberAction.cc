@@ -69,7 +69,7 @@ void PrintTrackNumberAction::update(const EndOfEvent *e) {
   G4cout << "PTNA: Event simulated= " << g4e->GetEventID() << " #tracks= ";
   if (bNoUserLimits) {
     G4cout << theNoTracksThisEventNoUL << "  Total #tracks in run= " << theNoTracksNoUL
-              << " counting killed by UL= " << theNoTracks << G4endl;
+           << " counting killed by UL= " << theNoTracks << G4endl;
     theNoTracksThisEventNoUL = 0;
   } else {
     G4cout << theNoTracksThisEvent << "  Total #tracks in run= " << theNoTracks << G4endl;

@@ -135,8 +135,9 @@ G4VSolid *DDG4SolidConverter::polycone_rz(const DDSolid &solid) {
   }
   edm::LogVerbatim("SimG4CoreGeometry") << "sp=" << (*par_)[0] / CLHEP::deg << " ep=" << (*par_)[1] / CLHEP::deg;
 #ifdef EDM_ML_DEBUG
-  G4cout << "### Polycone_RZ: " << "sp=" << (*par_)[0]/CLHEP::deg << " ep=" << (*par_)[1]/CLHEP::deg << " N= " << count << G4endl;
-  for (int i=0; i<count; ++i) {
+  G4cout << "### Polycone_RZ: "
+         << "sp=" << (*par_)[0] / CLHEP::deg << " ep=" << (*par_)[1] / CLHEP::deg << " N= " << count << G4endl;
+  for (int i = 0; i < count; ++i) {
     G4cout << " R= " << r[i] << " Z= " << z[i] << G4endl;
   }
 #endif
@@ -168,8 +169,9 @@ G4VSolid *DDG4SolidConverter::polycone_rrz(const DDSolid &solid) {
   }
   edm::LogVerbatim("SimG4CoreGeometry") << "sp=" << (*par_)[0] / CLHEP::deg << " ep=" << (*par_)[1] / CLHEP::deg;
 #ifdef EDM_ML_DEBUG
-  G4cout << "### Polycone_RRZ: " << "sp=" << (*par_)[0]/CLHEP::deg << " ep=" << (*par_)[1]/CLHEP::deg << " N= " << count << G4endl;
-  for(int i=0; i<count; ++i) {
+  G4cout << "### Polycone_RRZ: "
+         << "sp=" << (*par_)[0] / CLHEP::deg << " ep=" << (*par_)[1] / CLHEP::deg << " N= " << count << G4endl;
+  for (int i = 0; i < count; ++i) {
     G4cout << " R1= " << rmin_p[i] << " R1= " << rmax_p[i] << " Z= " << z_p[i] << G4endl;
   }
 #endif
