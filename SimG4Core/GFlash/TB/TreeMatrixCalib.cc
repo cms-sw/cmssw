@@ -1,9 +1,9 @@
 #include "SimG4Core/GFlash/TB/TreeMatrixCalib.h"
 
-TreeMatrixCalib::TreeMatrixCalib(const char * filename) 
-{
-  myFile = new TFile(filename,"RECREATE");
-  myTree = new TTree("T1","my tree");
+TreeMatrixCalib::TreeMatrixCalib(const char * /*filename */) {
+  edm::Service<TFileService> fs;
+  //myFile = new TFile(filename,"RECREATE");
+  myTree = fs->make<TTree>("T1","my tree");
 
   // Amplitude / hodoscopes / tdc infos
   myTree->Branch("run",             &myRun,            "run/I");  
@@ -29,21 +29,20 @@ TreeMatrixCalib::TreeMatrixCalib(const char * filename)
   myTree->Branch("crystal",         &myCrystal,        "crystal[49]/I");  
 }
 
-TreeMatrixCalib::~TreeMatrixCalib() 
-{
+TreeMatrixCalib::~TreeMatrixCalib() {
+  /*
   myFile->cd();
   myTree->Write();
   myFile->Close();
   delete myFile;
+  */
 }
 
-void TreeMatrixCalib::store()
-{
+void TreeMatrixCalib::store() {
   myTree->Fill();
 }
 
-void TreeMatrixCalib::fillInfo( int run, int eve, int xnum, int maxX, int nomX, int nextX, int xeta, int xphi, int tbm, double xx, double yy, double ecalx, double ecaly, double sx, double sy, double qx, double qy, double tdcoff, int allm, double amp[], int cry[])
-{
+void TreeMatrixCalib::fillInfo( int run, int eve, int xnum, int maxX, int nomX, int nextX, int xeta, int xphi, int tbm, double xx, double yy, double ecalx, double ecaly, double sx, double sy, double qx, double qy, double tdcoff, int allm, double amp[], int cry[]) {
   myRun           = run;
   myEvent         = eve;
   myXtalSM        = xnum;

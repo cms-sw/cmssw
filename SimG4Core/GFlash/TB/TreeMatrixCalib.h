@@ -2,6 +2,8 @@
 #define TreeMatrixCalib_h
 
 // includes
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TFile.h"
