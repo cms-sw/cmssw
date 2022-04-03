@@ -174,5 +174,10 @@ G4VParticleChange *GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track
 }
 
 void GflashHadronWrapperProcess::Print(const G4Step &step) {
-  G4cout << " GflashHadronWrapperProcess ProcessName, PreStepPosition, preStepPoint KE, PostStepPoint KE, DeltaEnergy Nsec \n " << step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << " " << step.GetPostStepPoint()->GetPosition() << " " << step.GetPreStepPoint()->GetKineticEnergy() / CLHEP::GeV << " " << step.GetPostStepPoint()->GetKineticEnergy() / CLHEP::GeV << " " << step.GetDeltaEnergy() / CLHEP::GeV << " " << particleChange->GetNumberOfSecondaries() << G4endl;
+  G4cout << " GflashHadronWrapperProcess ProcessName, PreStepPosition, preStepPoint KE, PostStepPoint KE, DeltaEnergy "
+            "Nsec \n "
+         << step.GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << " "
+         << step.GetPostStepPoint()->GetPosition() << " " << step.GetPreStepPoint()->GetKineticEnergy() / CLHEP::GeV
+         << " " << step.GetPostStepPoint()->GetKineticEnergy() / CLHEP::GeV << " " << step.GetDeltaEnergy() / CLHEP::GeV
+         << " " << particleChange->GetNumberOfSecondaries() << G4endl;
 }
