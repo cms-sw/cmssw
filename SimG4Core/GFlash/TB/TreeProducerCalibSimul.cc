@@ -1,4 +1,6 @@
 #include "SimG4Core/GFlash/TB/TreeProducerCalibSimul.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "G4ios.hh"
 
 using namespace std;
 
@@ -7,6 +9,8 @@ using namespace std;
 // contructor
 TreeProducerCalibSimul::TreeProducerCalibSimul( const edm::ParameterSet& iConfig )
 {
+  usesResource(TFileService::kSharedResource);
+
   // now do what ever initialization is needed
   xtalInBeam                 = iConfig.getUntrackedParameter<int>("xtalInBeam",-1000);
   rootfile_                  = iConfig.getUntrackedParameter<std::string>("rootfile","mySimMatrixTree.root");
@@ -21,27 +25,18 @@ TreeProducerCalibSimul::TreeProducerCalibSimul( const edm::ParameterSet& iConfig
   eventHeaderProducer_       = iConfig.getParameter<std::string>("eventHeaderProducer");
 
   // summary
-  cout << endl;
-  cout <<"Constructor" << endl;
-  cout << endl;
-  cout << "TreeProducerCalibSimul"    << endl;
-  cout << "xtal in beam = " << xtalInBeam << endl;
-  cout <<"Fetching hitCollection: "   << EBRecHitCollection_.c_str()     << " prod by " << RecHitProducer_.c_str()      <<endl; 
-  cout <<"Fetching hodoCollection: "  << hodoRecInfoCollection_.c_str()  << " prod by " << hodoRecInfoProducer_.c_str() <<endl;
-  cout <<"Fetching tdcCollection: "   << tdcRecInfoCollection_.c_str()   << " prod by " << tdcRecInfoProducer_.c_str()  <<endl;
-  cout <<"Fetching evHeaCollection: " << eventHeaderCollection_.c_str()  << " prod by " << eventHeaderProducer_.c_str() <<endl;
-  cout << endl;
+  edm::LogVerbatim("GFlash") << "\nConstructor\n\nTreeProducerCalibSimul\nxtal in beam = " << xtalInBeam;
+  edm::LogVerbatim("GFlash") <<"Fetching hitCollection: "   << EBRecHitCollection_.c_str()     << " prod by " << RecHitProducer_.c_str(); 
+  edm::LogVerbatim("GFlash") <<"Fetching hodoCollection: "  << hodoRecInfoCollection_.c_str()  << " prod by " << hodoRecInfoProducer_.c_str();
+  edm::LogVerbatim("GFlash") <<"Fetching tdcCollection: "   << tdcRecInfoCollection_.c_str()   << " prod by " << tdcRecInfoProducer_.c_str();
+  edm::LogVerbatim("GFlash") <<"Fetching evHeaCollection: " << eventHeaderCollection_.c_str()  << " prod by " << eventHeaderProducer_.c_str() << "\n";
 }
 
 
 // -------------------------------------------------
 // destructor
-TreeProducerCalibSimul::~TreeProducerCalibSimul()
-{
-  cout << endl;
-  cout << "Deleting" << endl;
-  cout << endl;
-
+TreeProducerCalibSimul::~TreeProducerCalibSimul() {
+  edm::LogVerbatim("GFlash") << "\nDeleting myTree\n";
   delete myTree;
 }
 
@@ -49,11 +44,8 @@ TreeProducerCalibSimul::~TreeProducerCalibSimul()
 
 // ------------------------------------------------------
 // initializations
-void TreeProducerCalibSimul::beginJob()
-{
-  cout << endl;
-  cout << "BeginJob" << endl;
-  cout << endl;
+void TreeProducerCalibSimul::beginJob() {
+  edm::LogVerbatim("GFlash") << "\nBeginJob\n";
 
   // tree
   myTree = new TreeMatrixCalib(rootfile_.c_str());
@@ -71,11 +63,8 @@ void TreeProducerCalibSimul::beginJob()
 
 // -------------------------------------------
 // finalizing
-void TreeProducerCalibSimul::endJob() 
-{
-  cout << endl;
-  cout << "EndJob" << endl;
-  cout << endl;
+void TreeProducerCalibSimul::endJob() {
+  edm::LogVerbatim("GFlash") << "\nEndJob\n";
 
   ofstream *MyOut = new ofstream(txtfile_.c_str());   
   *MyOut << "total events: "                                   << tot_events      << endl;
@@ -100,7 +89,8 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
   // counting events
   tot_events++;
 
-  if ( tot_events%5000 == 0){ cout << "event " << tot_events << endl;}
+  if ( tot_events%5000 == 0)
+    edm::LogVerbatim("GFlash") << "event " << tot_events;
   
 
   // ---------------------------------------------------------------------
@@ -111,8 +101,8 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByLabel (RecHitProducer_, EBRecHitCollection_, pEBRecHits) ;
   EBRecHits = pEBRecHits.product(); 
   //} catch ( std::exception& ex ) {
-  //std::cout<<"Error! can't get the product " << EBRecHitCollection_.c_str () << std::endl ;
-  //std::cerr<<"Error! can't get the product " << EBRecHitCollection_.c_str () << std::endl ;
+  //edm::LogVerbatim("GFlash") << "Error! can't get the product " << EBRecHitCollection_.c_str ();
+  //G4cerr<<"Error! can't get the product " << EBRecHitCollection_.c_str () << G4endl ;
   //}
 
   // taking what I need: hodoscopes
@@ -122,8 +112,8 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByLabel( hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
   recHodo = pHodo.product();
   //} catch ( std::exception& ex ) {
-  //std::cout<<"Error! can't get the product "<<hodoRecInfoCollection_.c_str() << std::endl;
-  //std::cerr<<"Error! can't get the product "<< hodoRecInfoCollection_.c_str() << std::endl;
+  //edm::LogVerbatim("GFlash") << "Error! can't get the product " << hodoRecInfoCollection_.c_str();
+  //G4cerr << "Error! can't get the product " << hodoRecInfoCollection_.c_str() << G4endl;
   //}
   
   // taking what I need: tdc
@@ -133,8 +123,8 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByLabel( tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
   recTDC = pTDC.product(); 
   //} catch ( std::exception& ex ) {
-  //std::cout<<"Error! can't get the product " << tdcRecInfoCollection_.c_str() << std::endl;
-  //std::cerr<<"Error! can't get the product " << tdcRecInfoCollection_.c_str() << std::endl;
+  //edm::LogVerbatim("GFlash") << "Error! can't get the product " << tdcRecInfoCollection_.c_str();
+  //G4cerr << "Error! can't get the product " << tdcRecInfoCollection_.c_str() << G4endl;
   //}
 
   // taking what I need: event header
@@ -144,8 +134,8 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByLabel( eventHeaderProducer_ , pEventHeader );
   evtHeader = pEventHeader.product(); 
   //} catch ( std::exception& ex ) {
-  //std::cout << "Error! can't get the event header " <<std::endl;
-  //std::cerr << "Error! can't get the event header " <<std::endl;
+  //edm::LogVerbatim("GFlash") << "Error! can't get the event header ";
+  //G4cerr << "Error! can't get the event header " << G4endl;
   //}
    
   // checking everything is there and fine
