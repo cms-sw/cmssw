@@ -17,10 +17,8 @@ namespace ecal {
                                         uint32_t* dids_outEB,
                                         int const nchannels,
                                         double* weights_d,
-                                        uint32_t* flagsEB
-                                      //  ,uint16_t* Debug
-                                        );
-  } //namespace weights
-} //namespace ecal
+                                        uint32_t* flagsEB);
+  }  //namespace weights
+}  //namespace ecal
 
 #endif

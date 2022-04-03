@@ -62,10 +62,9 @@ namespace ecal {
         recHitsEB.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
         recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
         recHitsEB.flags = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);
-
       }
     };
-  } //namespace weights
-} //namespace ecal
+  }  //namespace weights
+}  //namespace ecal
 
 #endif  // RecoLocalCalo_EcalRecProducers_plugins_DeclsForKernels_h

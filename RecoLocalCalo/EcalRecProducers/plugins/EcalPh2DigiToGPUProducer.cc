@@ -24,8 +24,6 @@
 #include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-
-
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -36,10 +34,8 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-
 #include "DeclsForKernelsPh2WeightsGPU.h"
 #include "DeclsForKernels.h"
-
 
 class EcalPh2DigiToGPUProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -48,21 +44,18 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void acquire(edm::Event const& event, edm::EventSetup const& setup, edm::WaitingTaskWithArenaHolder holder) override;
-  void produce(edm::Event& evt, edm::EventSetup const& setup) override; 
+  void produce(edm::Event& evt, edm::EventSetup const& setup) override;
 
 private:
-
   const edm::EDGetTokenT<EBDigiCollectionPh2> ebDigiCollectionToken_;
-  const edm::EDPutTokenT<cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>> digisCollectionTokenEB_;
+  const edm::EDPutTokenT<cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>>
+      digisCollectionTokenEB_;
   uint32_t neb_;
 
   ecal::DigisCollection<::calo::common::DevStoragePolicy> ebdigis_;
 
   cms::cuda::ContextState cudaState_;
-
-
 };
-
 
 void EcalPh2DigiToGPUProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -73,12 +66,14 @@ void EcalPh2DigiToGPUProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   descriptions.addWithDefaultLabel(desc);
 }
 
-EcalPh2DigiToGPUProducer::EcalPh2DigiToGPUProducer(const edm::ParameterSet &ps)
-: ebDigiCollectionToken_(consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"))),
-  digisCollectionTokenEB_(produces<cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>>(ps.getParameter<std::string>("digisLabelEB"))) {}
+EcalPh2DigiToGPUProducer::EcalPh2DigiToGPUProducer(const edm::ParameterSet& ps)
+    : ebDigiCollectionToken_(consumes<EBDigiCollectionPh2>(ps.getParameter<edm::InputTag>("BarrelDigis"))),
+      digisCollectionTokenEB_(produces<cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>>(
+          ps.getParameter<std::string>("digisLabelEB"))) {}
 
-
-void EcalPh2DigiToGPUProducer::acquire(edm::Event const& event, edm::EventSetup const& setup, edm::WaitingTaskWithArenaHolder holder) {
+void EcalPh2DigiToGPUProducer::acquire(edm::Event const& event,
+                                       edm::EventSetup const& setup,
+                                       edm::WaitingTaskWithArenaHolder holder) {
   cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(holder), cudaState_};
 
   //input data from event
@@ -86,21 +81,18 @@ void EcalPh2DigiToGPUProducer::acquire(edm::Event const& event, edm::EventSetup 
 
   neb_ = pdigis->size();
 
-
   //allocate device pointers for output
   ebdigis_.ids = cms::cuda::make_device_unique<uint32_t[]>(neb_, ctx.stream());
   ebdigis_.data = cms::cuda::make_device_unique<uint16_t[]>(neb_ * EcalDataFrame_Ph2::MAXSAMPLES, ctx.stream());
-
 
   //allocate host vectors for holding product data and id vectors
 
   std::vector<uint32_t, cms::cuda::HostAllocator<uint32_t>> idsebtmp;
   std::vector<uint16_t, cms::cuda::HostAllocator<uint16_t>> dataebtmp;
 
-
   //resize vectors to number of digis * size needed per digi
 
-  idsebtmp.resize(neb_ );
+  idsebtmp.resize(neb_);
   dataebtmp.resize(neb_ * EcalDataFrame_Ph2::MAXSAMPLES);
 
   //iterate over digis
@@ -112,7 +104,7 @@ void EcalPh2DigiToGPUProducer::acquire(edm::Event const& event, edm::EventSetup 
     int nSamples = dataFrame.size();
     //assign id to output vector
     idsebtmp.data()[i] = dataFrame.id();
-    
+
     //iterate over sample in digi
     for (int sample = 0; sample < nSamples; ++sample) {
       //get samples from input digi
@@ -121,26 +113,17 @@ void EcalPh2DigiToGPUProducer::acquire(edm::Event const& event, edm::EventSetup 
       dataebtmp.data()[i * nSamples + sample] = thisSample.raw();
     }
     i++;
-
   }
 
-//copy output vectors into member variable device pointers for the output struct
+  //copy output vectors into member variable device pointers for the output struct
 
-  cudaCheck(cudaMemcpyAsync(ebdigis_.ids.get(),
-                            idsebtmp.data(),
-                            idsebtmp.size() * sizeof(uint32_t),
-                            cudaMemcpyHostToDevice,
-                            ctx.stream()));
-  cudaCheck(cudaMemcpyAsync(ebdigis_.data.get(),
-                            dataebtmp.data(),
-                            dataebtmp.size() * sizeof(uint16_t),
-                            cudaMemcpyHostToDevice,
-                            ctx.stream()));
-
+  cudaCheck(cudaMemcpyAsync(
+      ebdigis_.ids.get(), idsebtmp.data(), idsebtmp.size() * sizeof(uint32_t), cudaMemcpyHostToDevice, ctx.stream()));
+  cudaCheck(cudaMemcpyAsync(
+      ebdigis_.data.get(), dataebtmp.data(), dataebtmp.size() * sizeof(uint16_t), cudaMemcpyHostToDevice, ctx.stream()));
 }
 
 void EcalPh2DigiToGPUProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
-
   //get cuda context state for producer
   cms::cuda::ScopedContextProduce ctx{cudaState_};
   ebdigis_.size = neb_;
@@ -149,6 +132,4 @@ void EcalPh2DigiToGPUProducer::produce(edm::Event& event, edm::EventSetup const&
   ctx.emplace(event, digisCollectionTokenEB_, std::move(ebdigis_));
 }
 
-
 DEFINE_FWK_MODULE(EcalPh2DigiToGPUProducer);
-

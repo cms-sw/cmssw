@@ -25,7 +25,7 @@ public:
 private:
   void acquire(edm::Event const&, edm::EventSetup const&, edm::WaitingTaskWithArenaHolder) override;
   void produce(edm::Event&, edm::EventSetup const&) override;
-  
+
 private:
   bool produceEE_;
   using InputProduct = cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>;
@@ -35,7 +35,6 @@ private:
 
   OutputProduct recHitsEB_, recHitsEE_;
   bool containsTimingInformation_;
-  
 };
 
 void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
@@ -43,7 +42,7 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
 
   desc.add<edm::InputTag>("recHitsInLabelEB", edm::InputTag{"ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEB"});
   desc.add<std::string>("recHitsOutLabelEB", "EcalUncalibRecHitsEB");
-  
+
   desc.add<bool>("containsTimingInformation", false);
   desc.add<bool>("produceEE", true);
 
@@ -51,7 +50,6 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("recHitsOutLabelEE", "EcalUncalibRecHitsEE");
 
   confDesc.add("ecalCPUUncalibRecHitProducer", desc);
-
 }
 
 EcalCPUUncalibRecHitProducer::EcalCPUUncalibRecHitProducer(const edm::ParameterSet& ps)
@@ -59,8 +57,8 @@ EcalCPUUncalibRecHitProducer::EcalCPUUncalibRecHitProducer(const edm::ParameterS
       recHitsInEBToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEB"))},
       recHitsOutEBToken_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEB"))},
       containsTimingInformation_{ps.getParameter<bool>("containsTimingInformation")} {
-  if (produceEE_) { 
-    recHitsInEEToken_= consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEE"));
+  if (produceEE_) {
+    recHitsInEEToken_ = consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEE"));
     recHitsOutEEToken_ = produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEE"));
   }
 }
@@ -71,14 +69,12 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
                                            edm::EventSetup const& setup,
                                            edm::WaitingTaskWithArenaHolder taskHolder) {
   // retrieve data/ctx
-  
+
   auto const& ebRecHitsProduct = event.get(recHitsInEBToken_);
-  
+
   cms::cuda::ScopedContextAcquire ctx{ebRecHitsProduct, std::move(taskHolder)};
-  
+
   auto const& ebRecHits = ctx.get(ebRecHitsProduct);
-  
-   
 
   // resize the output buffers
   recHitsEB_.resize(ebRecHits.size);
@@ -91,7 +87,7 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
     cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };
 
-if (produceEE_) {
+  if (produceEE_) {
     auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
     auto const& eeRecHits = ctx.get(eeRecHitsProduct);
     recHitsEE_.resize(eeRecHits.size);
@@ -103,10 +99,6 @@ if (produceEE_) {
   lambdaToTransfer(recHitsEB_.chi2, ebRecHits.chi2.get());
   lambdaToTransfer(recHitsEB_.pedestal, ebRecHits.pedestal.get());
   lambdaToTransfer(recHitsEB_.flags, ebRecHits.flags.get());
-
-
-
-
 
   if (produceEE_) {
     auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
@@ -127,7 +119,6 @@ if (produceEE_) {
     lambdaToTransfer(recHitsEB_.jitter, ebRecHits.jitter.get());
     lambdaToTransfer(recHitsEB_.jitterError, ebRecHits.jitterError.get());
   }
-
 }
 
 void EcalCPUUncalibRecHitProducer::produce(edm::Event& event, edm::EventSetup const& setup) {

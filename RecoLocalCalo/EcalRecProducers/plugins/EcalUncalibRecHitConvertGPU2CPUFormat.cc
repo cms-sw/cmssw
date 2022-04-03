@@ -30,9 +30,9 @@ void EcalUncalibRecHitConvertGPU2CPUFormat::fillDescriptions(edm::ConfigurationD
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("recHitsLabelGPUEB", edm::InputTag("ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEB"));
- 
+
   desc.add<std::string>("recHitsLabelCPUEB", "EcalUncalibRecHitsEB");
-  
+
   desc.add<bool>("produceEE", true);
 
   desc.add<edm::InputTag>("recHitsLabelGPUEE", edm::InputTag("ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"));
@@ -48,7 +48,7 @@ EcalUncalibRecHitConvertGPU2CPUFormat::EcalUncalibRecHitConvertGPU2CPUFormat(con
   produces<EBUncalibratedRecHitCollection>(recHitsLabelCPUEB_);
   if (produceEE_) {
     recHitsGPUEE_ = consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEE"));
-    recHitsLabelCPUEE_ = ps.getParameter<std::string>("recHitsLabelCPUEE"); 
+    recHitsLabelCPUEE_ = ps.getParameter<std::string>("recHitsLabelCPUEE");
     produces<EEUncalibratedRecHitCollection>(recHitsLabelCPUEE_);
   }
 }
@@ -57,7 +57,7 @@ EcalUncalibRecHitConvertGPU2CPUFormat::~EcalUncalibRecHitConvertGPU2CPUFormat() 
 
 void EcalUncalibRecHitConvertGPU2CPUFormat::produce(edm::Event& event, edm::EventSetup const& setup) {
   edm::Handle<InputProduct> hRecHitsGPUEB, hRecHitsGPUEE;
-  
+
   event.getByToken(recHitsGPUEB_, hRecHitsGPUEB);
   auto recHitsCPUEB = std::make_unique<EBUncalibratedRecHitCollection>();
   recHitsCPUEB->reserve(hRecHitsGPUEB->amplitude.size());
@@ -72,28 +72,26 @@ void EcalUncalibRecHitConvertGPU2CPUFormat::produce(edm::Event& event, edm::Even
     (*recHitsCPUEB)[i].setJitterError(hRecHitsGPUEB->jitterError[i]);
     auto const offset = i * EcalDataFrame::MAXSAMPLES;
     for (uint32_t sample = 0; sample < EcalDataFrame::MAXSAMPLES; ++sample)
-    (*recHitsCPUEB)[i].setOutOfTimeAmplitude(sample, hRecHitsGPUEB->amplitudesAll[offset + sample]);
+      (*recHitsCPUEB)[i].setOutOfTimeAmplitude(sample, hRecHitsGPUEB->amplitudesAll[offset + sample]);
   }
-  if (produceEE_) {  
+  if (produceEE_) {
     event.getByToken(recHitsGPUEE_, hRecHitsGPUEE);
     auto recHitsCPUEE = std::make_unique<EEUncalibratedRecHitCollection>();
     recHitsCPUEE->reserve(hRecHitsGPUEE->amplitude.size());
     for (uint32_t i = 0; i < hRecHitsGPUEE->amplitude.size(); ++i) {
       recHitsCPUEE->emplace_back(DetId{hRecHitsGPUEE->did[i]},
-                                  hRecHitsGPUEE->amplitude[i],
-                                  hRecHitsGPUEE->pedestal[i],
-                                  hRecHitsGPUEE->jitter[i],
-                                  hRecHitsGPUEE->chi2[i],
-                                  hRecHitsGPUEE->flags[i]);
+                                 hRecHitsGPUEE->amplitude[i],
+                                 hRecHitsGPUEE->pedestal[i],
+                                 hRecHitsGPUEE->jitter[i],
+                                 hRecHitsGPUEE->chi2[i],
+                                 hRecHitsGPUEE->flags[i]);
       (*recHitsCPUEE)[i].setJitterError(hRecHitsGPUEE->jitterError[i]);
       auto const offset = i * EcalDataFrame::MAXSAMPLES;
       for (uint32_t sample = 0; sample < EcalDataFrame::MAXSAMPLES; ++sample) {
         (*recHitsCPUEE)[i].setOutOfTimeAmplitude(sample, hRecHitsGPUEE->amplitudesAll[offset + sample]);
       }
-    
-    
     }
-  event.put(std::move(recHitsCPUEE), recHitsLabelCPUEE_);
+    event.put(std::move(recHitsCPUEE), recHitsLabelCPUEE_);
   }
   event.put(std::move(recHitsCPUEB), recHitsLabelCPUEB_);
 }

@@ -27,30 +27,25 @@ namespace ecal {
     void entryPoint(ecal::DigisCollection<calo::common::DevStoragePolicy> const& ebDigis,
                     EventOutputDataGPUWeights& eventOutputGPU,
                     cms::cuda::device::unique_ptr<double[]>& weights_d,
-                    // cms::cuda::device::unique_ptr<uint16_t[]>& debug_d,
                     cudaStream_t cudaStream) {
-      unsigned int totalChannels = ebDigis.size ;
+      unsigned int totalChannels = ebDigis.size;
 
-    
       unsigned int nchannels_per_block = 64;
       unsigned int threads_1d = nchannels_per_block;
       unsigned int blocks_1d = (totalChannels / threads_1d) + 1;
 
-      int shared_bytes = nchannels_per_block * EcalDataFrame_Ph2::MAXSAMPLES * (sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(bool) + sizeof(char) + sizeof(bool));
+      int shared_bytes = 2 * sizeof(float) + EcalDataFrame_Ph2::MAXSAMPLES * sizeof(double) +
+                         nchannels_per_block * (EcalDataFrame_Ph2::MAXSAMPLES * (sizeof(uint16_t)) + sizeof(float));
 
-     
-      Phase2WeightsKernel <<<blocks_1d, threads_1d, shared_bytes, cudaStream>>> (ebDigis.data.get(), 
-                                                                                 ebDigis.ids.get(),
-                                                                                 eventOutputGPU.recHitsEB.amplitude.get(),
-                                                                                 eventOutputGPU.recHitsEB.did.get(),
-                                                                                 totalChannels,
-                                                                                 weights_d.get(),
-                                                                                 eventOutputGPU.recHitsEB.flags.get()
-                                                                                 // ,debug_d.get()
-                                                                                 );
+      Phase2WeightsKernel<<<blocks_1d, threads_1d, shared_bytes, cudaStream>>>(ebDigis.data.get(),
+                                                                               ebDigis.ids.get(),
+                                                                               eventOutputGPU.recHitsEB.amplitude.get(),
+                                                                               eventOutputGPU.recHitsEB.did.get(),
+                                                                               totalChannels,
+                                                                               weights_d.get(),
+                                                                               eventOutputGPU.recHitsEB.flags.get());
       cudaCheck(cudaGetLastError());
-
     }
 
-  } // namespace weights
-}   // namespace ecal
+  }  // namespace weights
+}  // namespace ecal

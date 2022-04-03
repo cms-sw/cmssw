@@ -9,7 +9,6 @@
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
-
 #include "EcalUncalibRecHitPhase2WeightsKernels.h"
 #include "KernelHelpers.h"
 
@@ -27,72 +26,50 @@ namespace ecal {
                                         ::ecal::reco::StorageScalarType* amplitudeEB,
                                         uint32_t* dids_outEB,
                                         int const nchannels,
-                                        double* weights_d,
-                                        uint32_t* flagsEB
-                                        // ,uint16_t* debug_d
-                                        ) {
+                                        double* weights,
+                                        uint32_t* flagsEB) {
+      constexpr int nsamples = EcalDataFrame_Ph2::MAXSAMPLES;
+      int const tx = threadIdx.x + blockIdx.x * blockDim.x;
+      unsigned int nchannels_per_block = blockDim.x;
 
-    constexpr int nsamples = EcalDataFrame_Ph2::MAXSAMPLES;
-    int const tx = threadIdx.x + blockIdx.x * blockDim.x;
+      if (tx < nchannels) {
+        auto const did = DetId{dids[tx]};
+        //dynamic shared memory
+        extern __shared__ char shared_mem[];
+        double* shr_weights = (double*)&shared_mem[0];
+        float* shr_gains = (float*)&shared_mem[nsamples * sizeof(double)];
+        float* shr_amp = (float*)&shared_mem[nsamples * sizeof(double) + 2 * sizeof(float)];
+        uint16_t* shr_digis =
+            (uint16_t*)&shared_mem[nsamples * sizeof(double) + 2 * sizeof(float) + nchannels_per_block * sizeof(float)];
 
-    if (tx < nchannels) {
-      auto const did = DetId{dids[tx]};
+        shr_weights = weights;
 
-      double amp = 0.0;
-      bool g1 = false;
+        shr_gains[0] = ecalPh2::gains[0];  //from Catia gains
+        shr_gains[1] = ecalPh2::gains[1];
 
-      float gains[2] = {10., 1.}; //since ecalPh2::gains doesn't work
-      double gratio = 0.0;
+        unsigned int bx = blockIdx.x;    //block index
+        unsigned int btx = threadIdx.x;  //thread index relative to start of current block
 
-      // CMS_UNROLL_LOOP
-      for (int sample = 0; sample < nsamples; ++sample) {
-        double adc = 1.0 * ecalLiteDTU::adc(digis_in[tx * nsamples + sample]);
-
-        int gainId = ecalLiteDTU::gainId(digis_in[tx * nsamples + sample]);  // is the gain Id added properly to the digis in the first place?
-        // gratio = ecalPh2::gains[gainId];   this gives error undefined in device code, hence it is hard coded above
-        gratio = gains[gainId];
-        if (gainId == 1) {
-          g1= true;
+        for (int sample = 0; sample < nsamples; ++sample) {
+          shr_digis[btx * nsamples + sample] = digis_in[bx * nchannels_per_block * nsamples + btx * nsamples + sample];
         }
-          // comment this out to time overhead
-        amp = amp + (adc * gratio * weights_d[sample]); //weights_d might not have been copied properly?
 
-        //  uncomment this and comment above to time overhead
-    //       int gainId =0;
-    //       amp = 0;
-    //       double dummy = 0.;
-    // for (size_t i = 0; i < 200000; ++i) {
-    //   if (i % 2 == 0) {
-    //     dummy += static_cast<double>(i);
-    //   } else {
-    //     dummy -= static_cast<double>(i);
-    //   }
-    // }
-    // amp += dummy;
-
-
-
+        shr_amp[btx] = 0.0;
+        // __syncthread();
+        for (int sample = 0; sample < nsamples; ++sample) {
+          shr_amp[btx] =
+              shr_amp[btx] + ((1.0 * ecalLiteDTU::adc(shr_digis[btx * nsamples + sample])) *
+                              shr_gains[ecalLiteDTU::gainId(shr_digis[btx * nsamples + sample])] * shr_weights[sample]);
         }
-      
-      // debugging============================
-      // if(tx < 16){
-      //   debug_d[tx] = amp;
-      // }
-      // //
-
-      amplitudeEB[tx] = amp;
-      // chi2EB = 0.;
-      // g_pedestalEB = 0.;
-      dids_outEB[tx] = did.rawId();
-      flagsEB = 0;
-      if (g1) {
+        // __syncthreads();
+        amplitudeEB[tx] = shr_amp[btx];
+        dids_outEB[tx] = did.rawId();
+        flagsEB = 0;
+        if (ecalLiteDTU::gainId(shr_digis[btx * nsamples + nsamples - 1])) {
           flagsEB[tx] = EcalUncalibratedRecHit::kHasSwitchToGain1;
         }
 
-      }
-
-    }
-
-
-  } //namespace weights
+      }  //if within nchannels
+    }    //kernel
+  }      //namespace weights
 }  //namespace ecal
