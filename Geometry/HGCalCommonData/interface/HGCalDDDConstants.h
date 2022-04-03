@@ -84,8 +84,15 @@ public:
   std::pair<float, float> localToGlobal8(
       int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
-  std::pair<float, float> locateCell(
-      int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug = false) const;
+  std::pair<float, float> locateCell(int lay,
+                                     int waferU,
+                                     int waferV,
+                                     int cellU,
+                                     int cellV,
+                                     bool reco,
+                                     bool all,
+                                     bool norot = false,
+                                     bool debug = false) const;
   std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug = false) const;
   std::pair<float, float> locateCell(const HGCScintillatorDetId&, bool debug = false) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;
