@@ -11,8 +11,8 @@ namespace l1tpf_impl {
     ~LinearizedPuppiAlgo() override;
 
     const std::vector<std::string> &puGlobalNames() const override;
-    void doPUGlobals(const std::vector<Region> &rs, float npu, std::vector<float> &globals) const override;
-    void runNeutralsPU(Region &r, float npu, const std::vector<float> &globals) const override;
+    void doPUGlobals(const std::vector<Region> &rs, float z0, float npu, std::vector<float> &globals) const override;
+    void runNeutralsPU(Region &r, float z0, float npu, const std::vector<float> &globals) const override;
 
   protected:
     void computePuppiWeights(Region &r,

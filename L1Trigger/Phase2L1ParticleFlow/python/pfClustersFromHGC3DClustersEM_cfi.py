@@ -4,6 +4,7 @@ import L1Trigger.Phase2L1ParticleFlow.pfClustersFromHGC3DClusters_cfi
 
 pfClustersFromHGC3DClustersEM = L1Trigger.Phase2L1ParticleFlow.pfClustersFromHGC3DClusters_cfi.pfClustersFromHGC3DClusters.clone(
     emOnly = cms.bool(True),
+    useEMInterpretation = cms.string("emOnly"), # use EM intepretation to redefine the energy
     etMin = cms.double(0.0), 
     corrector  = cms.string("L1Trigger/Phase2L1ParticleFlow/data/emcorr_hgc.root"),
     preEmId  = cms.string(""),

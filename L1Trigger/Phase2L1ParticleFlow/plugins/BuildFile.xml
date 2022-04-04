@@ -2,6 +2,7 @@
 <use name="DataFormats/HcalDetId"/>
 <use name="DataFormats/HcalDigi"/>
 <use name="DataFormats/JetReco"/>
+<use name="FWCore/PluginManager"/>
 <use name="L1Trigger/L1TCalorimeter"/>
 <use name="L1Trigger/Phase2L1ParticleFlow"/>
 <use name="MagneticField/Engine"/>
