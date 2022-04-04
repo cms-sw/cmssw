@@ -36,6 +36,9 @@ private:
                                             bool debug);
 
   const double sqrt3_ = std::sqrt(3.0);
+  const double sqrt3By2_ = (0.5 * std::sqrt(3.0));
+  const double sin60 = sqrt3By2_;
+  const double cos60 = 0.5;
 
   int32_t ncell_[2];
   double cellX_[2], cellY_[2], cellXTotal_[2], cellYTotal_[2], waferSize;

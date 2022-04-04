@@ -47,11 +47,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
   //--- Reverse transform to placement=0, if placement index ≠ 6
   double xloc1 = (placement >= 6) ? xloc : -xloc;
   int rot = placement % 6;
-  static constexpr double sqrt3By2_ = (0.5 * std::sqrt(3.0));
-  static constexpr double sin60 = sqrt3By2_;
-  static constexpr double cos60 = 0.5;
-  static constexpr std::array<double, 6> fcos{{1.0, 0.5, -0.5, -1.0, -0.5, 0.5}};
-  static constexpr std::array<double, 6> fsin{{0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_}};
+  static const std::vector<double> fcos = {1.0, 0.5, -0.5, -1.0, -0.5, 0.5};
+  static const std::vector<double> fsin = {0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_};
   double x = xloc1 * fcos[rot] - yloc * fsin[rot];
   double y = xloc1 * fsin[rot] + yloc * fcos[rot];
 
@@ -91,9 +88,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(
   //--- Reverse transform to placement=0, if placement index ≠ 7
   double xloc1 = (placement >= 6) ? xloc : -1 * xloc;
   int rot = placement % 6;
-  static constexpr double sqrt3By2_ = (0.5 * std::sqrt(3.0));
-  static constexpr std::array<double, 6> fcos{{0.5, 1.0, 0.5, -0.5, -1.0, -0.5}};
-  static constexpr std::array<double, 6> fsin{{-sqrt3By2_, 0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_}};
+  static const std::vector<double> fcos = {0.5, 1.0, 0.5, -0.5, -1.0, -0.5};
+  static const std::vector<double> fsin = {-sqrt3By2_, 0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_};
   double x = xloc1 * fcos[rot] - yloc * fsin[rot];
   double y = xloc1 * fsin[rot] + yloc * fcos[rot];
 
@@ -159,9 +155,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY3(
   //--- Reverse transform to placement=0, if placement index ≠ 6
   double xloc1 = (placement >= 6) ? xloc : -xloc;
   int rot = placement % 6;
-  static constexpr double sqrt3By2_ = (0.5 * std::sqrt(3.0));
-  static constexpr std::array<double, 6> fcos{{1.0, 0.5, -0.5, -1.0, -0.5, 0.5}};
-  static constexpr std::array<double, 6> fsin{{0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_}};
+  static const std::vector<double> fcos = {1.0, 0.5, -0.5, -1.0, -0.5, 0.5};
+  static const std::vector<double> fsin = {0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_};
   double xprime = xloc1 * fcos[rot] - yloc * fsin[rot];
   double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
   double x = xprime + cellX_[type];
