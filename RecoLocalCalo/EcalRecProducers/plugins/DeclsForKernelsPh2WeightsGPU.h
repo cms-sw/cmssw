@@ -58,6 +58,7 @@ namespace ecal {
         recHitsEB.amplitudesAll = cms::cuda::make_device_unique<reco::ComputationScalarType[]>(
             sizeEB * EcalDataFrame_Ph2::MAXSAMPLES, cudaStream);
         recHitsEB.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
+        recHitsEB.amplitudeError = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
         recHitsEB.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
         recHitsEB.pedestal = cms::cuda::make_device_unique<reco::StorageScalarType[]>(sizeEB, cudaStream);
         recHitsEB.did = cms::cuda::make_device_unique<uint32_t[]>(sizeEB, cudaStream);

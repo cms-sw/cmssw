@@ -24,6 +24,7 @@ namespace ecal {
     __global__ void Phase2WeightsKernel(uint16_t const* digis_in,
                                         uint32_t const* dids,
                                         ::ecal::reco::StorageScalarType* amplitudeEB,
+                                        ::ecal::reco::StorageScalarType* amplitudeErrorEB,
                                         uint32_t* dids_outEB,
                                         int const nchannels,
                                         double* weights,
@@ -63,8 +64,9 @@ namespace ecal {
         }
         // __syncthreads();
         amplitudeEB[tx] = shr_amp[btx];
+        amplitudeErrorEB[tx] = 1.0f;
         dids_outEB[tx] = did.rawId();
-        flagsEB = 0;
+        // flagsEB = 0;
         if (ecalLiteDTU::gainId(shr_digis[btx * nsamples + nsamples - 1])) {
           flagsEB[tx] = EcalUncalibratedRecHit::kHasSwitchToGain1;
         }

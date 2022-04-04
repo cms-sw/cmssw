@@ -14,6 +14,7 @@ namespace ecal {
     __global__ void Phase2WeightsKernel(uint16_t const* digis_in_eb,
                                         uint32_t const* dids_eb,
                                         ::ecal::reco::StorageScalarType* amplitudeEB,
+                                        ::ecal::reco::StorageScalarType* amplitudeErrorEB,
                                         uint32_t* dids_outEB,
                                         int const nchannels,
                                         double* weights_d,

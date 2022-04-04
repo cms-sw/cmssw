@@ -21,6 +21,7 @@ namespace ecal {
 
     typename StoragePolicy::template StorageSelector<reco::ComputationScalarType>::type amplitudesAll;
     typename StoragePolicy::template StorageSelector<reco::StorageScalarType>::type amplitude;
+    typename StoragePolicy::template StorageSelector<reco::StorageScalarType>::type amplitudeError;
     typename StoragePolicy::template StorageSelector<reco::StorageScalarType>::type chi2;
     typename StoragePolicy::template StorageSelector<reco::StorageScalarType>::type pedestal;
     typename StoragePolicy::template StorageSelector<reco::StorageScalarType>::type jitter;
@@ -32,6 +33,7 @@ namespace ecal {
     typename std::enable_if<std::is_same<U, ::calo::common::tags::Vec>::value, void>::type resize(size_t size) {
       amplitudesAll.resize(size * EcalDataFrame::MAXSAMPLES);
       amplitude.resize(size);
+      amplitudeError.resize(size);
       pedestal.resize(size);
       chi2.resize(size);
       did.resize(size);

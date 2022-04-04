@@ -96,6 +96,7 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
   lambdaToTransfer(recHitsEB_.did, ebRecHits.did.get());
   lambdaToTransfer(recHitsEB_.amplitudesAll, ebRecHits.amplitudesAll.get());
   lambdaToTransfer(recHitsEB_.amplitude, ebRecHits.amplitude.get());
+  lambdaToTransfer(recHitsEB_.amplitudeError, ebRecHits.amplitudeError.get());
   lambdaToTransfer(recHitsEB_.chi2, ebRecHits.chi2.get());
   lambdaToTransfer(recHitsEB_.pedestal, ebRecHits.pedestal.get());
   lambdaToTransfer(recHitsEB_.flags, ebRecHits.flags.get());

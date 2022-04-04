@@ -69,6 +69,7 @@ void EcalUncalibRecHitConvertGPU2CPUFormat::produce(edm::Event& event, edm::Even
                                hRecHitsGPUEB->jitter[i],
                                hRecHitsGPUEB->chi2[i],
                                hRecHitsGPUEB->flags[i]);
+    (*recHitsCPUEB)[i].setAmplitudeError(hRecHitsGPUEB->amplitudeError[i]);
     (*recHitsCPUEB)[i].setJitterError(hRecHitsGPUEB->jitterError[i]);
     auto const offset = i * EcalDataFrame::MAXSAMPLES;
     for (uint32_t sample = 0; sample < EcalDataFrame::MAXSAMPLES; ++sample)
