@@ -405,20 +405,22 @@ void DRNCorrectionProducerT<T>::fillDescriptions(edm::ConfigurationDescriptions&
   TritonClient::fillPSetDescription(desc);
   desc.add<edm::InputTag>("particleSource");
   desc.add<edm::InputTag>("rhoName");
-  desc.add<edm::InputTag>("reducedEcalRecHitsEB");
-  desc.add<edm::InputTag>("reducedEcalRecHitsEE");
-  desc.add<edm::InputTag>("reducedEcalRecHitsES");
+  desc.add<edm::InputTag>("reducedEcalRecHitsEB", edm::InputTag("reducedEcalRecHitsEB"));
+  desc.add<edm::InputTag>("reducedEcalRecHitsEE", edm::InputTag("reducedEcalRecHitsEE"));
+  desc.add<edm::InputTag>("reducedEcalRecHitsES", edm::InputTag("reducedEcalRecHitsES"));
   descriptions.addWithDefaultLabel(desc);
 }
 
 //reco:: template instances are supported
 //uncomment the lines below to enable them
-//using PatPhotonDRNCorrectionProducer = DRNCorrectionProducerT<pat::Photon>;
+
+//using GsfElectronDRNCorrectionProducer = DRNCorrectionProducerT<reco::GsfElectron>;
 //using GedPhotonDRNCorrectionProducer = DRNCorrectionProducerT<reco::Photon>;
-using GsfElectronDRNCorrectionProducer = DRNCorrectionProducerT<reco::GsfElectron>;
+//DEFINE_FWK_MODULE(GedPhotonDRNCorrectionProducer);
+//DEFINE_FWK_MODULE(GsfElectronDRNCorrectionProducer);
+
 using PatElectronDRNCorrectionProducer = DRNCorrectionProducerT<pat::Electron>;
+using PatPhotonDRNCorrectionProducer = DRNCorrectionProducerT<pat::Photon>;
 
 DEFINE_FWK_MODULE(PatPhotonDRNCorrectionProducer);
-DEFINE_FWK_MODULE(GedPhotonDRNCorrectionProducer);
-DEFINE_FWK_MODULE(GsfElectronDRNCorrectionProducer);
 DEFINE_FWK_MODULE(PatElectronDRNCorrectionProducer);
