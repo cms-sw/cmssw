@@ -118,7 +118,7 @@ namespace trklet {
         throw cms::Exception("BadConfig")
             << __FILE__ << " " << __LINE__ << " maxStep module = " << module << " not known";
       }
-      return maxstep_.at(module) + maxstepoffset_;
+      return extended_ ? (maxstep_.at(module) + maxstepoffset_extended_) : (maxstep_.at(module) + maxstepoffset_);
     }
 
     double zlength() const { return zlength_; }
@@ -776,6 +776,8 @@ namespace trklet {
     // Set to 0 (default) means standard truncation
     // Set to large value, e.g. 10000, to disable truncation
     unsigned int maxstepoffset_{0};
+    // turn off truncation for displaced tracking (not implemented properly for displaced seeding)
+    unsigned int maxstepoffset_extended_{10000};
 
     //Number of processing steps for one event (108=18TM*240MHz/40MHz)
 
