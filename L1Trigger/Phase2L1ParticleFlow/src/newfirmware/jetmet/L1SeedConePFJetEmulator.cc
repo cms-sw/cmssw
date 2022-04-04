@@ -49,7 +49,7 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   // pt weighted d eta
   std::vector<pt_etaphi_t> pt_deta;
   pt_deta.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), pt_deta.begin(), [&seed, &pt](const Particle& part) {
+  std::transform(parts.begin(), parts.end(), pt_deta.begin(), [&seed](const Particle& part) {
     // In the firmware we calculate the per-particle pt-weighted deta
     return pt_etaphi_t(part.hwPt * detaphi_t(part.hwEta - seed.hwEta));
   });
@@ -60,7 +60,7 @@ L1SCJetEmu::Jet L1SCJetEmu::makeJet_HW(const std::vector<Particle>& parts) const
   // pt weighted d phi
   std::vector<pt_etaphi_t> pt_dphi;
   pt_dphi.resize(parts.size());
-  std::transform(parts.begin(), parts.end(), pt_dphi.begin(), [&seed, &pt](const Particle& part) {
+  std::transform(parts.begin(), parts.end(), pt_dphi.begin(), [&seed](const Particle& part) {
     // In the firmware we calculate the per-particle pt-weighted dphi
     return pt_etaphi_t(part.hwPt * deltaPhi(part, seed));
   });
