@@ -10,6 +10,6 @@ patElectronsDRN = cms.EDProducer("PatElectronDRNCorrectionProducer",
       modelConfigPath = cms.FileInPath("RecoEgamma/EgammaElectronProducers/data/models/electronObjectEnsemble/config.pbtxt"),
       allowedTries = cms.untracked.uint32(1),
       timeout = cms.untracked.uint32(10),
-      useSharedMemory = cms.untracked.bool(False),
+      useSharedMemory = cms.untracked.bool(True),
     )
 )
