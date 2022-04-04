@@ -201,6 +201,7 @@
 					<vfat id="2" hw_id="0xed68" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="6"/>
 					<vfat id="3" hw_id="0xede8" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="7"/>		
 				</rp_plane>
+			</rp_detector_set>
 			<!--4d / FED 578 -- 210 45 FAR TOP-->		        
 			<rp_detector_set id="4">
 				<trigger_vfat hw_id="0xb961"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="8" />				
