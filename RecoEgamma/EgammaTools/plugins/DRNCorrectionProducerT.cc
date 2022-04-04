@@ -411,8 +411,10 @@ void DRNCorrectionProducerT<T>::fillDescriptions(edm::ConfigurationDescriptions&
   descriptions.addWithDefaultLabel(desc);
 }
 
-using PatPhotonDRNCorrectionProducer = DRNCorrectionProducerT<pat::Photon>;
-using GedPhotonDRNCorrectionProducer = DRNCorrectionProducerT<reco::Photon>;
+//reco:: template instances are supported
+//uncomment the lines below to enable them
+//using PatPhotonDRNCorrectionProducer = DRNCorrectionProducerT<pat::Photon>;
+//using GedPhotonDRNCorrectionProducer = DRNCorrectionProducerT<reco::Photon>;
 using GsfElectronDRNCorrectionProducer = DRNCorrectionProducerT<reco::GsfElectron>;
 using PatElectronDRNCorrectionProducer = DRNCorrectionProducerT<pat::Electron>;
 

@@ -184,5 +184,5 @@ run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdate
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(egamma_modifications, appendEgammaHIPhotonIsolationModifier)
 
-from Configuration.ProcessModifiers.photonDRN_cff import photonDRN
-photonDRN.toModify(egamma_modifications, appendPhotonDRNModifier)
+from Configuration.ProcessModifiers.photonDRN_cff import _photonDRN
+_photonDRN.toModify(egamma_modifications, appendPhotonDRNModifier)
