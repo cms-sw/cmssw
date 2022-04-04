@@ -3,9 +3,6 @@ import FWCore.ParameterSet.Config as cms
 patElectronsDRN = cms.EDProducer("PatElectronDRNCorrectionProducer",
     particleSource = cms.InputTag("selectedPatElectrons"),
     rhoName = cms.InputTag("fixedGridRhoFastjetAll"),
-    reducedEcalRecHitsEB = cms.InputTag("reducedEcalRecHitsEB"),
-    reducedEcalRecHitsEE = cms.InputTag("reducedEcalRecHitsEE"),
-    reducedEcalRecHitsES = cms.InputTag("reducedEcalRecHitsES"),
 
     Client = cms.PSet(
       mode = cms.string("Async"),
