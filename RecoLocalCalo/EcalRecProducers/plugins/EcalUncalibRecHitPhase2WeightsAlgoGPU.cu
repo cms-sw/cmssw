@@ -37,13 +37,15 @@ namespace ecal {
       int shared_bytes = 2 * sizeof(float) + EcalDataFrame_Ph2::MAXSAMPLES * sizeof(double) +
                          nchannels_per_block * (EcalDataFrame_Ph2::MAXSAMPLES * (sizeof(uint16_t)) + sizeof(float));
 
-      Phase2WeightsKernel<<<blocks_1d, threads_1d, shared_bytes, cudaStream>>>(ebDigis.data.get(),
-                                                                               ebDigis.ids.get(),
-                                                                               eventOutputGPU.recHitsEB.amplitude.get(),
-                                                                               eventOutputGPU.recHitsEB.did.get(),
-                                                                               totalChannels,
-                                                                               weights_d.get(),
-                                                                               eventOutputGPU.recHitsEB.flags.get());
+      Phase2WeightsKernel<<<blocks_1d, threads_1d, shared_bytes, cudaStream>>>(
+          ebDigis.data.get(),
+          ebDigis.ids.get(),
+          eventOutputGPU.recHitsEB.amplitude.get(),
+          eventOutputGPU.recHitsEB.amplitudeError.get(),
+          eventOutputGPU.recHitsEB.did.get(),
+          totalChannels,
+          weights_d.get(),
+          eventOutputGPU.recHitsEB.flags.get());
       cudaCheck(cudaGetLastError());
     }
 
