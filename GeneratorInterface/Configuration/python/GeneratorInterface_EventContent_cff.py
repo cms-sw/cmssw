@@ -52,3 +52,9 @@ GeneratorInterfaceAOD = cms.PSet(
         'keep *_genParticles_*_*'
     )
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(GeneratorInterfaceRAW,
+                     outputCommands = GeneratorInterfaceRAW.outputCommands+['keep edmHepMCProduct_LHCTransport_*_*'])
+run3_common.toModify(GeneratorInterfaceRECO,
+                     outputCommands = GeneratorInterfaceRECO.outputCommands+['keep edmHepMCProduct_LHCTransport_*_*'])
