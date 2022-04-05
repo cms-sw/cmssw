@@ -70,10 +70,9 @@ namespace {
     }
   };
 
-  class SiStripPedestalCompareByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalCompareByPartition : public PlotImage<SiStripPedestals> {
   public:
-    SiStripPedestalCompareByPartition()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Compare Pedestals By Partition") {
+    SiStripPedestalCompareByPartition() : PlotImage<SiStripPedestals>("SiStrip Compare Pedestals By Partition") {
       setSingleIov(false);
     }
 
@@ -110,10 +109,9 @@ namespace {
     }  // fill
   };
 
-  class SiStripPedestalDiffByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalDiffByPartition : public PlotImage<SiStripPedestals> {
   public:
-    SiStripPedestalDiffByPartition()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Diff Pedestals By Partition") {
+    SiStripPedestalDiffByPartition() : PlotImage<SiStripPedestals>("SiStrip Diff Pedestals By Partition") {
       setSingleIov(false);
     }
 
@@ -150,10 +148,10 @@ namespace {
     }  // fill
   };
 
-  class SiStripPedestalCorrelationByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalCorrelationByPartition : public PlotImage<SiStripPedestals> {
   public:
     SiStripPedestalCorrelationByPartition()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestals Correlation By Partition") {
+        : PlotImage<SiStripPedestals>("SiStrip Pedestals Correlation By Partition") {
       setSingleIov(false);
     }
 

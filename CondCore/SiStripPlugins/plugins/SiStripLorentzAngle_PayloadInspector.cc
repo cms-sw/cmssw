@@ -55,11 +55,9 @@ namespace {
   /************************************************
     testing the machinery
   ************************************************/
-  class SiStripLorentzAngleTest : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  class SiStripLorentzAngleTest : public PlotImage<SiStripLorentzAngle> {
   public:
-    SiStripLorentzAngleTest() : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle values") {
-      setSingleIov(true);
-    }
+    SiStripLorentzAngleTest() : PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle values") { setSingleIov(true); }
 
     bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash> > &iovs) override {
       for (auto const &iov : iovs) {
@@ -81,10 +79,9 @@ namespace {
     }  // fill
   };
 
-  class SiStripLorentzAngleByPartition : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  class SiStripLorentzAngleByPartition : public PlotImage<SiStripLorentzAngle> {
   public:
-    SiStripLorentzAngleByPartition()
-        : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle By Partition") {
+    SiStripLorentzAngleByPartition() : PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle By Partition") {
       setSingleIov(true);
     }
 
@@ -108,10 +105,9 @@ namespace {
     }  // fill
   };
 
-  class SiStripLorentzAngleCompareByRegion : public cond::payloadInspector::PlotImage<SiStripLorentzAngle> {
+  class SiStripLorentzAngleCompareByRegion : public PlotImage<SiStripLorentzAngle> {
   public:
-    SiStripLorentzAngleCompareByRegion()
-        : cond::payloadInspector::PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle By Partition") {
+    SiStripLorentzAngleCompareByRegion() : PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle By Partition") {
       setSingleIov(false);
     }
 
