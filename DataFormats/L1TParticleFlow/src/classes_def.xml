@@ -19,10 +19,8 @@
   <class name="edm::RefVector<l1t::PFTrackCollection>" /> 
   <class name="std::vector<edm::Ref<l1t::PFTrackCollection> >" />
 
-  <class name="l1t::PFCandidate"  ClassVersion="6">
-        <version ClassVersion="6" checksum="2195440462"/>
-        <version ClassVersion="5" checksum="3777180193"/>
-        <version ClassVersion="4" checksum="3798885201"/>
+  <class name="l1t::PFCandidate"  ClassVersion="4">
+        <version ClassVersion="4" checksum="2195440462"/>
         <version ClassVersion="3" checksum="4253860178"/>
   </class>
   <class name="l1t::PFCandidateCollection" />
