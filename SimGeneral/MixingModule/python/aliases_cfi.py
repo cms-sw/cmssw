@@ -107,7 +107,7 @@ phase2_tracker.toModify(simAPVsaturation, mix = None)
 
 # no castor,pixel,strip digis in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
-fastSim.toModify(simCastorDigis, mix = None)
+(fastSim & ~run3_common).toModify(simCastorDigis, mix = None)
 fastSim.toModify(simSiPixelDigis, mix = None)
 fastSim.toModify(simSiStripDigis, mix = None)
 fastSim.toModify(simAPVsaturation, mix = None)
