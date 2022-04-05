@@ -981,12 +981,11 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
   }
 
   // update and clear prescales at the beginning of the luminosity segment
-  if (m_firstEvLumiSegment || m_currentLumi != iEvent.luminosityBlock()) {
+  if (m_firstEvLumiSegment || (m_currentLumi != iEvent.luminosityBlock() && m_resetPSCountersEachLumiSec)) {
     m_prescaleCounterAlgoTrig.clear();
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
       m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
     }
-
     m_firstEvLumiSegment = false;
     m_currentLumi = iEvent.luminosityBlock();
   }
