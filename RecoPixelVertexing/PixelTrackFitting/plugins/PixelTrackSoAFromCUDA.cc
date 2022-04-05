@@ -17,7 +17,7 @@
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
 
 // Switch on to enable checks and printout for found tracks
-#undef PIXEL_DEBUG_PRODUCE
+// #define PIXEL_DEBUG_PRODUCE
 
 class PixelTrackSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -63,7 +63,9 @@ void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& i
 #ifdef PIXEL_DEBUG_PRODUCE
   auto const& tsoa = *soa_;
   auto maxTracks = tsoa.stride();
-  std::cout << "size of SoA" << sizeof(tsoa) << " stride " << maxTracks << std::endl;
+  auto nTracks = tsoa.nTracks();
+  std::cout << "size of SoA " << sizeof(tsoa) << " stride " << maxTracks << std::endl;
+  std::cout << "found " << nTracks << " tracks in cpu SoA at " << &tsoa << std::endl;
 
   int32_t nt = 0;
   for (int32_t it = 0; it < maxTracks; ++it) {
@@ -73,7 +75,7 @@ void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& i
       break;  // this is a guard: maybe we need to move to nTracks...
     nt++;
   }
-  std::cout << "found " << nt << " tracks in cpu SoA at " << &tsoa << std::endl;
+  assert(nTracks == nt);
 #endif
 
   // DO NOT  make a copy  (actually TWO....)

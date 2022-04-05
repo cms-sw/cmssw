@@ -1,4 +1,5 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/CAHitNtupletGeneratorKernelsImpl.h"
+#include <mutex>
 
 template <>
 void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *tracks_d, cudaStream_t cudaStream) {
@@ -90,7 +91,7 @@ void CAHitNtupletGeneratorKernelsGPU::launchKernels(HitsOnCPU const &hh, TkSoA *
 
   kernel_fillHitDetIndices<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tuples_d, hh.view(), detId_d);
   cudaCheck(cudaGetLastError());
-  kernel_fillNLayers<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tracks_d);
+  kernel_fillNLayers<<<numberOfBlocks, blockSize, 0, cudaStream>>>(tracks_d, device_hitTuple_apc_);
   cudaCheck(cudaGetLastError());
 
   // remove duplicates (tracks that share a doublet)
@@ -330,9 +331,20 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
 
 #ifdef DUMP_GPU_TK_TUPLES
   static std::atomic<int> iev(0);
-  ++iev;
-  kernel_print_found_ntuplets<<<1, 32, 0, cudaStream>>>(
-      hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get(), 100, iev);
+  static std::mutex lock;
+  {
+    std::lock_guard<std::mutex> guard(lock);
+    ++iev;
+    for (int k = 0; k < 20000; k += 500) {
+      kernel_print_found_ntuplets<<<1, 32, 0, cudaStream>>>(
+          hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get(), k, k + 500, iev);
+      cudaDeviceSynchronize();
+    }
+    kernel_print_found_ntuplets<<<1, 32, 0, cudaStream>>>(
+        hh.view(), tuples_d, tracks_d, quality_d, device_hitToTuple_.get(), 20000, 1000000, iev);
+    cudaDeviceSynchronize();
+    // cudaStreamSynchronize(cudaStream);
+  }
 #endif
 }
 
