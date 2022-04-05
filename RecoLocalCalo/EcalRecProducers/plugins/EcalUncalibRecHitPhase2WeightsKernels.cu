@@ -1,13 +1,11 @@
 #include <cuda.h>
 
-#include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
-#include "DataFormats/EcalDigi/interface/EcalLiteDTUSample.h"
-#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+#include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
+#include "DataFormats/EcalDigi/interface/EcalLiteDTUSample.h"
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 #include "EcalUncalibRecHitPhase2WeightsKernels.h"
-#include "DeclsForKernelsPh2WeightsGPU.h"
 
 namespace ecal {
   namespace weights {
@@ -43,16 +41,17 @@ namespace ecal {
         unsigned int btx = threadIdx.x;
 
         for (int sample = 0; sample < nsamples; ++sample) {
-          unsigned int idx = threadIdx.x * nsamples + sample;
+          const unsigned int idx = threadIdx.x * nsamples + sample;
           shr_digis[idx] = digis_in[bx * nchannels_per_block * nsamples + idx];
         }
 
         shr_amp[btx] = 0.0;
         CMS_UNROLL_LOOP
         for (int sample = 0; sample < nsamples; ++sample) {
-          unsigned int idx = threadIdx.x * nsamples + sample;
-          shr_amp[btx] = shr_amp[btx] + ((1.0 * ecalLiteDTU::adc(shr_digis[idx])) *
-                                         shr_gains[ecalLiteDTU::gainId(shr_digis[idx])] * shr_weights[sample]);
+          const unsigned int idx = threadIdx.x * nsamples + sample;
+          const auto shr_digi = shr_digis[idx];
+          shr_amp[btx] += (static_cast<float>(ecalLiteDTU::adc(shr_digi)) * shr_gains[ecalLiteDTU::gainId(shr_digi)] *
+                           shr_weights[sample]);
         }
         amplitude[tx] = shr_amp[btx];
         amplitudeError[tx] = 1.0f;

@@ -1,12 +1,14 @@
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 
 #include "EcalUncalibRecHitPhase2WeightsAlgoGPU.h"
-#include "DeclsForKernelsPh2WeightsGPU.h"
+#include "DeclsForKernelsPh2.h"
 
 class EcalUncalibRecHitPhase2WeightsProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -72,14 +74,14 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
                                                         edm::EventSetup const &setup,
                                                         edm::WaitingTaskWithArenaHolder holder) {
   // cuda products
-  auto const &DigisProduct = event.get(digisToken_);
+  auto const &digisProduct = event.get(digisToken_);
   // raii
-  cms::cuda::ScopedContextAcquire ctx{DigisProduct, std::move(holder), cudaState_};
+  cms::cuda::ScopedContextAcquire ctx{digisProduct, std::move(holder), cudaState_};
 
   // get actual obj
-  auto const &Digis = ctx.get(DigisProduct);
+  auto const &digis = ctx.get(digisProduct);
 
-  n_ = Digis.size;
+  n_ = digis.size;
 
   // if no digis stop here
   if (n_ == 0)
@@ -99,7 +101,7 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
   // output on GPU
   eventOutputDataGPU_.allocate(n_, ctx.stream());
 
-  ecal::weights::entryPoint(Digis, eventOutputDataGPU_, weights_d, ctx.stream());
+  ecal::weights::entryPoint(digis, eventOutputDataGPU_, weights_d, ctx.stream());
 }
 
 void EcalUncalibRecHitPhase2WeightsProducerGPU::produce(edm::Event &event, const edm::EventSetup &setup) {

@@ -1,13 +1,15 @@
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
-#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "DeclsForKernelsPh2WeightsGPU.h"
+#include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
+
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+#include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
+
+#include "DeclsForKernelsPh2.h"
 
 class EcalPh2DigiToGPUProducer : public edm::stream::EDProducer<edm::ExternalWork> {
 public:

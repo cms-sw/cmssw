@@ -3,16 +3,15 @@
 
 #include "EcalUncalibRecHitPhase2WeightsKernels.h"
 #include "EcalUncalibRecHitPhase2WeightsAlgoGPU.h"
-#include "DeclsForKernelsPh2WeightsGPU.h"
 
 namespace ecal {
   namespace weights {
 
-    void entryPoint(ecal::DigisCollection<calo::common::DevStoragePolicy> const& Digis,
+    void entryPoint(ecal::DigisCollection<calo::common::DevStoragePolicy> const& digis,
                     EventOutputDataGPU& eventOutputGPU,
                     cms::cuda::device::unique_ptr<double[]>& weights_d,
                     cudaStream_t cudaStream) {
-      unsigned int totalChannels = Digis.size;
+      unsigned int totalChannels = digis.size;
       // 64 threads per block best occupancy from Nsight compute profiler
       unsigned int nchannels_per_block = 64;
       unsigned int threads_1d = nchannels_per_block;
@@ -21,8 +20,8 @@ namespace ecal {
       int shared_bytes = 2 * sizeof(float) + EcalDataFrame_Ph2::MAXSAMPLES * sizeof(double) +
                          nchannels_per_block * (EcalDataFrame_Ph2::MAXSAMPLES * (sizeof(uint16_t)) + sizeof(float));
       Phase2WeightsKernel<<<blocks_1d, threads_1d, shared_bytes, cudaStream>>>(
-          Digis.data.get(),
-          Digis.ids.get(),
+          digis.data.get(),
+          digis.ids.get(),
           eventOutputGPU.recHits.amplitude.get(),
           eventOutputGPU.recHits.amplitudeError.get(),
           eventOutputGPU.recHits.did.get(),

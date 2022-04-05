@@ -3,7 +3,7 @@
 
 #include "CUDADataFormats/EcalDigi/interface/DigisCollection.h"
 
-#include "DeclsForKernelsPh2WeightsGPU.h"
+#include "DeclsForKernelsPh2.h"
 
 namespace ecal {
   namespace weights {

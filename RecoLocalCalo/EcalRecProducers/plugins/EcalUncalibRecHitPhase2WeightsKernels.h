@@ -1,7 +1,7 @@
 #ifndef RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitPhase2WeightsKernels_h
 #define RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitPhase2WeightsKernels_h
 
-#include "DeclsForKernelsPh2WeightsGPU.h"
+#include "DeclsForKernelsPh2.h"
 
 namespace ecal {
   namespace weights {

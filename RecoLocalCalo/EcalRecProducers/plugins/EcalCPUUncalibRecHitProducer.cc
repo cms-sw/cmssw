@@ -69,7 +69,6 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
                                            edm::EventSetup const& setup,
                                            edm::WaitingTaskWithArenaHolder taskHolder) {
   // retrieve data/ctx
-
   auto const& ebRecHitsProduct = event.get(recHitsInEBToken_);
   cms::cuda::ScopedContextAcquire ctx{ebRecHitsProduct, std::move(taskHolder)};
   auto const& ebRecHits = ctx.get(ebRecHitsProduct);
@@ -98,6 +97,10 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
   lambdaToTransfer(recHitsEB_.chi2, ebRecHits.chi2.get());
   lambdaToTransfer(recHitsEB_.pedestal, ebRecHits.pedestal.get());
   lambdaToTransfer(recHitsEB_.flags, ebRecHits.flags.get());
+  if (containsTimingInformation_) {
+    lambdaToTransfer(recHitsEB_.jitter, ebRecHits.jitter.get());
+    lambdaToTransfer(recHitsEB_.jitterError, ebRecHits.jitterError.get());
+  }
 
   if (produceEE_) {
     auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
@@ -106,7 +109,7 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
     lambdaToTransfer(recHitsEE_.did, eeRecHits.did.get());
     lambdaToTransfer(recHitsEE_.amplitudesAll, eeRecHits.amplitudesAll.get());
     lambdaToTransfer(recHitsEE_.amplitude, eeRecHits.amplitude.get());
-    lambdaToTransfer(recHitsEB_.amplitudeError, eeRecHits.amplitudeError.get());
+    lambdaToTransfer(recHitsEE_.amplitudeError, eeRecHits.amplitudeError.get());
     lambdaToTransfer(recHitsEE_.chi2, eeRecHits.chi2.get());
     lambdaToTransfer(recHitsEE_.pedestal, eeRecHits.pedestal.get());
     lambdaToTransfer(recHitsEE_.flags, eeRecHits.flags.get());
@@ -114,10 +117,6 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
       lambdaToTransfer(recHitsEE_.jitter, eeRecHits.jitter.get());
       lambdaToTransfer(recHitsEE_.jitterError, eeRecHits.jitterError.get());
     }
-  }
-  if (containsTimingInformation_) {
-    lambdaToTransfer(recHitsEB_.jitter, ebRecHits.jitter.get());
-    lambdaToTransfer(recHitsEB_.jitterError, ebRecHits.jitterError.get());
   }
 }
 
