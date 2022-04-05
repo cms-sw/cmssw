@@ -20,6 +20,12 @@ using namespace l1t;
 GenMuonGMTPair::GenMuonGMTPair(const reco::GenParticle* muon, const l1t::L1Candidate* gmtmu,
 			       const PropagateToMuon& propagator)
   : mu_(muon), gmtmu_(gmtmu) {
+
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline GenMuonGMTPair::GenMuonGMTPair()" << endl;  
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline GenMuonGMTPair::GenMuonGMTPair() gmtmu " << 
+				       gmtmu << endl;  
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline GenMuonGMTPair::GenMuonGMTPair() gen " << 
+				       muon  << endl;  
   
   if (gmtmu) {
     gmtEta_ = gmtmu_->eta();
@@ -29,18 +35,13 @@ GenMuonGMTPair::GenMuonGMTPair(const reco::GenParticle* muon, const l1t::L1Candi
     gmtPhi_ = -5.;
   }
   if (mu_) {
-    TrajectoryStateOnSurface trajectory = propagator.extrapolate(*mu_);
-    if (trajectory.isValid()) {
-      muEta_ = trajectory.globalPosition().eta();
-      muPhi_ = trajectory.globalPosition().phi();
-    } else {
-      muEta_ = 999.;
-      muPhi_ = 999.;
-    }
+    muEta_ = mu_->eta();
+    muPhi_ = mu_->phi();
   } else {
     muEta_ = 999.;
     muPhi_ = 999.;
   }
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline GenMuonGMTPair::GenMuonGMTPair() END" << endl;  
 };
 
 GenMuonGMTPair::GenMuonGMTPair(const GenMuonGMTPair& muonGmtPair) {
@@ -179,6 +180,7 @@ void L1TPhase2MuonOffline::bookHistograms(DQMStore::IBooker& ibooker, const edm:
 
 //_____________________________________________________________________
 void L1TPhase2MuonOffline::analyze(const Event& iEvent, const EventSetup& eventSetup) {
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::analyze() " << endl;
   // Initialise propagator (do we need this?) 
   muonpropagator_.init(eventSetup);
   
@@ -190,17 +192,22 @@ void L1TPhase2MuonOffline::analyze(const Event& iEvent, const EventSetup& eventS
     if (std::abs(gen.pdgId()) != 13) continue;
     genmus.push_back(&gen);
   }
-  
+  edm::LogInfo("L1TPhase2MuonOffline") << 
+    "L1TPhase2MuonOffline::analyze() N of genmus: "<< genmus.size() << endl;
+
   // Collect both muon collection: 
   iEvent.getByToken(gmtMuonToken_, gmtSAMuon_);
   iEvent.getByToken(gmtTkMuonToken_, gmtTkMuon_);
   
-  // Match each muon to a gen muon, if possible.
-  matchMuonsToGen(genmus);
-    
+   
   // Fill Control histograms
   edm::LogInfo("L1TPhase2MuonOffline") << "Fill Control histograms for GMT Muons" << endl;
   fillControlHistos(); 
+  
+
+  // Match each muon to a gen muon, if possible.
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::analyze() calling matchMuonsToGen() "<< endl;
+  matchMuonsToGen(genmus);
   
   
   /*
@@ -316,11 +323,18 @@ void L1TPhase2MuonOffline::bookControlHistos(DQMStore::IBooker& ibooker, MuType 
   controlHistos_[mutype][kZ0]   = ibooker.book1D(muonNames_[mutype]+"Z0"  , "MuonZ0; Z_{0}"    , 50, 0, 50.0);
   controlHistos_[mutype][kD0]   = ibooker.book1D(muonNames_[mutype]+"D0"  , "MuonD0; D_{0}"    , 50, 0, 200.); 
 }
+void L1TPhase2MuonOffline::bookEfficiencyHistos(DQMStore::IBooker& ibooker, MuType mutype) {
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::bookEfficiencyHistos()" << endl;
+}
+void L1TPhase2MuonOffline::bookResolutionHistos(DQMStore::IBooker& ibooker, MuType mutype) {
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::bookResolutionHistos()" << endl;
+}
+
 /*
 void L1TPhase2MuonOffline
 //_____________________________________________________________________
 void L1TPhase2MuonOffline::bookEfficiencyHistos(DQMStore::IBooker& ibooker, MuType mutype) {
-  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::bookEfficiencyHistos()" << endl;
+  edm::LogInfo("L1tphase2muonoffline") << "L1tphase2muonoffline::bookEfficiencyHistos()" << endl;
   ibooker.setCurrentFolder(m_HistFolder + "/" + muonNames_[mutype] + "/efficiencies");
   
   for (const auto var : effTypes_) {
@@ -422,8 +436,10 @@ void L1TPhase2MuonOffline::matchMuonsToGen(std::vector<const reco::GenParticle*>
   gmtTkMuonPairs_.clear();
 
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::matchMuonsToGen() " << endl;
-
-  for (const auto& gen : genmus){
+  
+  
+  for (const reco::GenParticle * gen : genmus){
+    edm::LogInfo("L1TPhase2MuonOffline") << "Looping on genmus: "<< gen << endl;
     GenMuonGMTPair pairBestCand(&(*gen), nullptr, muonpropagator_);
     for (auto& muIt : *gmtSAMuon_) {   
       GenMuonGMTPair pairTmpCand(&(*gen), &(muIt), muonpropagator_);
@@ -441,7 +457,11 @@ void L1TPhase2MuonOffline::matchMuonsToGen(std::vector<const reco::GenParticle*>
       }
     }
     gmtTkMuonPairs_.emplace_back(pairBestCand2);    
+    
   } 
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::matchMuonsToGen() gmtSAMuons: " << gmtSAMuonPairs_.size()<< endl;
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::matchMuonsToGen() gmtTkMuons: " << gmtTkMuonPairs_.size()<< endl;
+  edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::matchMuonsToGen() END " << endl;
 }
 
 
