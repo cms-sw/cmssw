@@ -77,8 +77,8 @@ class L1TPhase2MuonOffline : public DQMEDAnalyzer {
  protected:
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
   virtual void bookControlHistos(DQMStore::IBooker&, MuType type);
-  virtual void bookEfficiencyHistos(DQMStore::IBooker& ibooker, MuType type) {};
-  virtual void bookResolutionHistos(DQMStore::IBooker& ibooker, MuType type) {};
+  virtual void bookEfficiencyHistos(DQMStore::IBooker& ibooker, MuType type);
+  virtual void bookResolutionHistos(DQMStore::IBooker& ibooker, MuType type);
   void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
   
