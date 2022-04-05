@@ -1,26 +1,23 @@
 #ifndef HeavyFlavorAnalysis_SpecificDecay_BPHWriteSpecificDecay_h
 #define HeavyFlavorAnalysis_SpecificDecay_BPHWriteSpecificDecay_h
 
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
-
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "DataFormats/PatCandidates/interface/GenericParticle.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
-
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexCompositePtrCandidate.h"
-
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/PatCandidates/interface/GenericParticle.h"
-#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
-
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicParticle.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/RefCountedKinematicVertex.h"
 
@@ -34,7 +31,7 @@ class BPHRecoCandidate;
 class BPHWriteSpecificDecay : public BPHAnalyzerWrapper<BPHModuleWrapper::one_producer> {
 public:
   explicit BPHWriteSpecificDecay(const edm::ParameterSet& ps);
-  ~BPHWriteSpecificDecay() override;
+  ~BPHWriteSpecificDecay() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -44,6 +41,7 @@ public:
   void endJob() override;
 
 private:
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> bFieldToken;
   std::string pVertexLabel;
   std::string patMuonLabel;
   std::string ccCandsLabel;
