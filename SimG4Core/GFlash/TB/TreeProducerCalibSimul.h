@@ -5,12 +5,14 @@
 #include <memory>
 
 // framework
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 // for reconstruction
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
@@ -53,7 +55,7 @@
 #include <math.h>
 #include <stdexcept>
 
-class TreeProducerCalibSimul : public edm::one::EDAnalyzer<> {
+class TreeProducerCalibSimul : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit TreeProducerCalibSimul(const edm::ParameterSet&);
   ~TreeProducerCalibSimul();
