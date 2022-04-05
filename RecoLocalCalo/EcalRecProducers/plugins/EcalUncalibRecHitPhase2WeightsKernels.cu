@@ -43,16 +43,16 @@ namespace ecal {
         unsigned int btx = threadIdx.x;
 
         for (int sample = 0; sample < nsamples; ++sample) {
-          unsigned int Idx = threadIdx.x * nsamples + sample;
-          shr_digis[Idx] = digis_in[bx * nchannels_per_block * nsamples + Idx];
+          unsigned int idx = threadIdx.x * nsamples + sample;
+          shr_digis[idx] = digis_in[bx * nchannels_per_block * nsamples + idx];
         }
 
         shr_amp[btx] = 0.0;
         CMS_UNROLL_LOOP
         for (int sample = 0; sample < nsamples; ++sample) {
-          unsigned int Idx = threadIdx.x * nsamples + sample;
-          shr_amp[btx] = shr_amp[btx] + ((1.0 * ecalLiteDTU::adc(shr_digis[Idx])) *
-                                         shr_gains[ecalLiteDTU::gainId(shr_digis[Idx])] * shr_weights[sample]);
+          unsigned int idx = threadIdx.x * nsamples + sample;
+          shr_amp[btx] = shr_amp[btx] + ((1.0 * ecalLiteDTU::adc(shr_digis[idx])) *
+                                         shr_gains[ecalLiteDTU::gainId(shr_digis[idx])] * shr_weights[sample]);
         }
         amplitude[tx] = shr_amp[btx];
         amplitudeError[tx] = 1.0f;
