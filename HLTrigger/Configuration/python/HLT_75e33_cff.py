@@ -234,6 +234,9 @@ fragment.load("HLTrigger/Configuration/HLT_75e33/psets/TrackAssociatorParameters
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/TrajectoryFilterForConversions_cfi")
 fragment.load("HLTrigger/Configuration/HLT_75e33/psets/TrajectoryFilterForElectrons_cfi")
 
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTriggerFinalPath_cff")
+fragment.load("HLTrigger/Configuration/HLT_75e33/paths/HLTAnalyzerEndpath_cff")
+
 fragment.schedule = cms.Schedule(*[
     fragment.l1tReconstructionPath,
 
@@ -288,8 +291,9 @@ fragment.schedule = cms.Schedule(*[
     fragment.HLT_DoubleEle23_12_Iso_L1Seeded,
     fragment.HLT_Diphoton30_23_IsoCaloId_L1Seeded,
 
-    fragment.L1T_DoubleNNTau52,
-    fragment.L1T_SingleNNTau150,
+    ### Removed temporarily until final decision on L1T tau Phase-2
+    #fragment.L1T_DoubleNNTau52,
+    #fragment.L1T_SingleNNTau150,
 
     fragment.MC_JME,
     fragment.MC_BTV,
@@ -301,6 +305,9 @@ fragment.schedule = cms.Schedule(*[
     fragment.MC_Photon100EB_TightID_TightIso_Open_Unseeded,
     fragment.MC_Photon100_Open_L1Seeded,
     fragment.MC_Photon100EB_TightID_TightIso_Open_L1Seeded,
+
+    fragment.HLTriggerFinalPath,
+    fragment.HLTAnalyzerEndpath,
 ])
 
 
