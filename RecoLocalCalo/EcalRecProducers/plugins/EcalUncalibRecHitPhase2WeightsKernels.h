@@ -2,11 +2,6 @@
 #define RecoLocalCalo_EcalRecProducers_plugins_EcalUncalibRecHitPhase2WeightsKernels_h
 
 #include "DeclsForKernelsPh2WeightsGPU.h"
-#include "EigenMatrixTypes_gpu.h"
-
-#include "DeclsForKernelsPh2WeightsGPU.h"
-
-class EcalUncalibratedRecHit;
 
 namespace ecal {
   namespace weights {

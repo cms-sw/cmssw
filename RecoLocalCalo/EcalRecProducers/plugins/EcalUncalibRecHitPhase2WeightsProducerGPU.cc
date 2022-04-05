@@ -1,20 +1,8 @@
-#include <chrono>
-
-#include "CUDADataFormats/EcalRecHitSoA/interface/EcalUncalibratedRecHit.h"
-#include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatiosGPU.h"
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HeterogeneousCore/CUDACore/interface/JobConfigurationGPURecord.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
-#include "DataFormats/EcalDigi/interface/EcalConstants.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 
 #include "EcalUncalibRecHitPhase2WeightsAlgoGPU.h"
@@ -31,37 +19,31 @@ private:
   void produce(edm::Event &, edm::EventSetup const &) override;
 
 private:
-  const float tRise_;
-  const float tFall_;
   const std::vector<double> weights_;
 
   using InputProduct = cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>;
-  const edm::EDGetTokenT<InputProduct> digisTokenEB_;
+  const edm::EDGetTokenT<InputProduct> digisToken_;
   using OutputProduct = cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>;
-  const edm::EDPutTokenT<OutputProduct> recHitsTokenEB_;
+  const edm::EDPutTokenT<OutputProduct> recHitsToken_;
 
   // event data
-  ecal::weights::EventOutputDataGPUWeights eventOutputDataGPU_;
+  ecal::weights::EventOutputDataGPU eventOutputDataGPU_;
 
   cms::cuda::ContextState cudaState_;
 
-  uint32_t neb_;
+  uint32_t n_;
 };
 
 // constructor with initialisation of elements
 EcalUncalibRecHitPhase2WeightsProducerGPU::EcalUncalibRecHitPhase2WeightsProducerGPU(const edm::ParameterSet &ps)
-    : tRise_(ps.getParameter<double>("tRise")),
-      tFall_(ps.getParameter<double>("tFall")),
-      weights_(ps.getParameter<std::vector<double>>("weights")),
-      digisTokenEB_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisLabelEB"))},
-      recHitsTokenEB_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEB"))} {}
+    : weights_(ps.getParameter<std::vector<double>>("weights")),
+      digisToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisLabelEB"))},
+      recHitsToken_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEB"))} {}
 
 void EcalUncalibRecHitPhase2WeightsProducerGPU::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("recHitsLabelEB", "EcalUncalibRecHitsEB");
-  desc.add<double>("tRise", 0.2);
-  desc.add<double>("tFall", 2.);
   desc.add<std::vector<double>>("weights",
                                 {-0.121016,
                                  -0.119899,
@@ -90,17 +72,17 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
                                                         edm::EventSetup const &setup,
                                                         edm::WaitingTaskWithArenaHolder holder) {
   // cuda products
-  auto const &ebDigisProduct = event.get(digisTokenEB_);
+  auto const &DigisProduct = event.get(digisToken_);
   // raii
-  cms::cuda::ScopedContextAcquire ctx{ebDigisProduct, std::move(holder), cudaState_};
+  cms::cuda::ScopedContextAcquire ctx{DigisProduct, std::move(holder), cudaState_};
 
   // get actual obj
-  auto const &ebDigis = ctx.get(ebDigisProduct);
+  auto const &Digis = ctx.get(DigisProduct);
 
-  neb_ = ebDigis.size;
+  n_ = Digis.size;
 
   // if no digis stop here
-  if (neb_ == 0)
+  if (n_ == 0)
     return;
 
   // weights to GPU
@@ -115,19 +97,19 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
                             ctx.stream()));
 
   // output on GPU
-  eventOutputDataGPU_.allocate(neb_, ctx.stream());
+  eventOutputDataGPU_.allocate(n_, ctx.stream());
 
-  ecal::weights::entryPoint(ebDigis, eventOutputDataGPU_, weights_d, ctx.stream());
+  ecal::weights::entryPoint(Digis, eventOutputDataGPU_, weights_d, ctx.stream());
 }
 
 void EcalUncalibRecHitPhase2WeightsProducerGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
   cms::cuda::ScopedContextProduce ctx{cudaState_};
 
-  // set the size of eb
-  eventOutputDataGPU_.recHitsEB.size = neb_;
+  // set the size of digis
+  eventOutputDataGPU_.recHits.size = n_;
 
   // put into the event
-  ctx.emplace(event, recHitsTokenEB_, std::move(eventOutputDataGPU_.recHitsEB));
+  ctx.emplace(event, recHitsToken_, std::move(eventOutputDataGPU_.recHits));
 }
 
 DEFINE_FWK_MODULE(EcalUncalibRecHitPhase2WeightsProducerGPU);

@@ -1,6 +1,3 @@
-#include <cstdlib>
-#include <limits>
-
 #include <cuda.h>
 
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
@@ -10,25 +7,19 @@
 #include "DataFormats/EcalDigi/interface/EcalConstants.h"
 
 #include "EcalUncalibRecHitPhase2WeightsKernels.h"
-#include "KernelHelpers.h"
-
-#include "EigenMatrixTypes_gpu.h"
-
 #include "DeclsForKernelsPh2WeightsGPU.h"
-
-// Kernel which executes weights algorithm on device
 
 namespace ecal {
   namespace weights {
 
     __global__ void Phase2WeightsKernel(uint16_t const* digis_in,
                                         uint32_t const* dids,
-                                        ::ecal::reco::StorageScalarType* amplitudeEB,
-                                        ::ecal::reco::StorageScalarType* amplitudeErrorEB,
-                                        uint32_t* dids_outEB,
+                                        ::ecal::reco::StorageScalarType* amplitude,
+                                        ::ecal::reco::StorageScalarType* amplitudeError,
+                                        uint32_t* dids_out,
                                         int const nchannels,
                                         double* weights,
-                                        uint32_t* flagsEB) {
+                                        uint32_t* flags) {
       constexpr int nsamples = EcalDataFrame_Ph2::MAXSAMPLES;
       int const tx = threadIdx.x + blockIdx.x * blockDim.x;
       unsigned int nchannels_per_block = blockDim.x;
@@ -48,27 +39,26 @@ namespace ecal {
         shr_gains[0] = ecalPh2::gains[0];  //from Catia gains
         shr_gains[1] = ecalPh2::gains[1];
 
-        unsigned int bx = blockIdx.x;    //block index
-        unsigned int btx = threadIdx.x;  //thread index relative to start of current block
+        unsigned int bx = blockIdx.x;  //block index
+        unsigned int btx = threadIdx.x;
 
         for (int sample = 0; sample < nsamples; ++sample) {
-          shr_digis[btx * nsamples + sample] = digis_in[bx * nchannels_per_block * nsamples + btx * nsamples + sample];
+          unsigned int Idx = threadIdx.x * nsamples + sample;
+          shr_digis[Idx] = digis_in[bx * nchannels_per_block * nsamples + Idx];
         }
 
         shr_amp[btx] = 0.0;
-        // __syncthread();
+        CMS_UNROLL_LOOP
         for (int sample = 0; sample < nsamples; ++sample) {
-          shr_amp[btx] =
-              shr_amp[btx] + ((1.0 * ecalLiteDTU::adc(shr_digis[btx * nsamples + sample])) *
-                              shr_gains[ecalLiteDTU::gainId(shr_digis[btx * nsamples + sample])] * shr_weights[sample]);
+          unsigned int Idx = threadIdx.x * nsamples + sample;
+          shr_amp[btx] = shr_amp[btx] + ((1.0 * ecalLiteDTU::adc(shr_digis[Idx])) *
+                                         shr_gains[ecalLiteDTU::gainId(shr_digis[Idx])] * shr_weights[sample]);
         }
-        // __syncthreads();
-        amplitudeEB[tx] = shr_amp[btx];
-        amplitudeErrorEB[tx] = 1.0f;
-        dids_outEB[tx] = did.rawId();
-        // flagsEB = 0;
+        amplitude[tx] = shr_amp[btx];
+        amplitudeError[tx] = 1.0f;
+        dids_out[tx] = did.rawId();
         if (ecalLiteDTU::gainId(shr_digis[btx * nsamples + nsamples - 1])) {
-          flagsEB[tx] = EcalUncalibratedRecHit::kHasSwitchToGain1;
+          flags[tx] = EcalUncalibratedRecHit::kHasSwitchToGain1;
         }
 
       }  //if within nchannels

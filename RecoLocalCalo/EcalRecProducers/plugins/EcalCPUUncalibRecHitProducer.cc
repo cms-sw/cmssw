@@ -71,9 +71,7 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
   // retrieve data/ctx
 
   auto const& ebRecHitsProduct = event.get(recHitsInEBToken_);
-
   cms::cuda::ScopedContextAcquire ctx{ebRecHitsProduct, std::move(taskHolder)};
-
   auto const& ebRecHits = ctx.get(ebRecHitsProduct);
 
   // resize the output buffers
@@ -108,6 +106,7 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
     lambdaToTransfer(recHitsEE_.did, eeRecHits.did.get());
     lambdaToTransfer(recHitsEE_.amplitudesAll, eeRecHits.amplitudesAll.get());
     lambdaToTransfer(recHitsEE_.amplitude, eeRecHits.amplitude.get());
+    lambdaToTransfer(recHitsEB_.amplitudeError, eeRecHits.amplitudeError.get());
     lambdaToTransfer(recHitsEE_.chi2, eeRecHits.chi2.get());
     lambdaToTransfer(recHitsEE_.pedestal, eeRecHits.pedestal.get());
     lambdaToTransfer(recHitsEE_.flags, eeRecHits.flags.get());
