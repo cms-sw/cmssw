@@ -1,17 +1,15 @@
 #ifndef HeavyFlavorAnalysis_SpecificDecay_BPHHistoSpecificDecay_h
 #define HeavyFlavorAnalysis_SpecificDecay_BPHHistoSpecificDecay_h
 
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
-#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Ref.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 
 #include <string>
 
@@ -38,7 +36,7 @@ public:
 
   class CandidateSelect {
   public:
-    virtual ~CandidateSelect() {}
+    virtual ~CandidateSelect() = default;
     virtual bool accept(const pat::CompositeCandidate& cand, const reco::Vertex* pv = nullptr) const = 0;
   };
 
