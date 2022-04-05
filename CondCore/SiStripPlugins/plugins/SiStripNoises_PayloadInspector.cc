@@ -72,10 +72,9 @@ namespace {
     }
   };
 
-  class SiStripNoiseCompareByPartition : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseCompareByPartition : public PlotImage<SiStripNoises> {
   public:
-    SiStripNoiseCompareByPartition()
-        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Compare Noises By Partition") {
+    SiStripNoiseCompareByPartition() : PlotImage<SiStripNoises>("SiStrip Compare Noises By Partition") {
       setSingleIov(false);
     }
 
@@ -112,10 +111,9 @@ namespace {
     }  // fill
   };
 
-  class SiStripNoiseDiffByPartition : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseDiffByPartition : public PlotImage<SiStripNoises> {
   public:
-    SiStripNoiseDiffByPartition()
-        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Diff Noises By Partition") {
+    SiStripNoiseDiffByPartition() : PlotImage<SiStripNoises>("SiStrip Diff Noises By Partition") {
       setSingleIov(false);
     }
 
@@ -152,10 +150,9 @@ namespace {
     }  // fill
   };
 
-  class SiStripNoiseCorrelationByPartition : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseCorrelationByPartition : public PlotImage<SiStripNoises> {
   public:
-    SiStripNoiseCorrelationByPartition()
-        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noises Correlation By Partition") {
+    SiStripNoiseCorrelationByPartition() : PlotImage<SiStripNoises>("SiStrip Noises Correlation By Partition") {
       setSingleIov(false);
     }
 
@@ -190,10 +187,9 @@ namespace {
     }  // fill
   };
 
-  class SiStripNoiseConsistencyCheck : public cond::payloadInspector::PlotImage<SiStripNoises> {
+  class SiStripNoiseConsistencyCheck : public PlotImage<SiStripNoises> {
   public:
-    SiStripNoiseConsistencyCheck()
-        : cond::payloadInspector::PlotImage<SiStripNoises>("SiStrip Noise Consistency Check") {
+    SiStripNoiseConsistencyCheck() : PlotImage<SiStripNoises>("SiStrip Noise Consistency Check") {
       setSingleIov(false);
     }
 
