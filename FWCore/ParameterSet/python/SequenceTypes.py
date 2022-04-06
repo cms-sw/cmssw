@@ -924,6 +924,12 @@ class ModuleNodeOnConditionalTaskVisitor(object):
     def enter(self,visitee):
         if isinstance(visitee, ConditionalTask):
             self._levelInTasks += 1
+        # This block gets the modules contained by SwitchProducer. It
+        # needs to be before the "levelInTasks == 0" check because the
+        # contained modules need to be treated like in ConditionalTask
+        # also when the SwitchProducer itself is in the Path.
+        if hasattr(visitee, "modulesForConditionalTask_"):
+            self.l.extend(visitee.modulesForConditionalTask_())
         if self._levelInTasks == 0:
             return
         if visitee.isLeaf():
