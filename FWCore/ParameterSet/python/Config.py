@@ -3613,6 +3613,10 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
                                          test1 = EDProducer("Bar",
                                                             aa = int32(11),
                                                             bb = PSet(cc = int32(12))))
+            self.assertEqual(proc.sp.label_(), "sp")
+            self.assertEqual(proc.sp.test1.label_(), "sp@test1")
+            self.assertEqual(proc.sp.test2.label_(), "sp@test2")
+
             proc.a = EDProducer("A")
             proc.s = Sequence(proc.a + proc.sp)
             proc.t = Task(proc.a, proc.sp)
@@ -3990,11 +3994,15 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             p.f = EDAnalyzer("OurAnalyzer")
             p.g = EDProducer("OurProducer")
             p.h = EDProducer("YourProducer")
-            p.t1 = Task(p.g, p.h)
-            t2 = Task(p.g, p.h)
+            p.i = SwitchProducerTest(
+                test1 = EDProducer("OneProducer"),
+                test2 = EDProducer("TwoProducer")
+            )
+            p.t1 = Task(p.g, p.h, p.i)
+            t2 = Task(p.g, p.h, p.i)
             t3 = Task(p.g, p.h)
             p.t4 = Task(p.h)
-            p.ct1 = ConditionalTask(p.g, p.h)
+            p.ct1 = ConditionalTask(p.g, p.h, p.i)
             ct2 = ConditionalTask(p.g, p.h)
             ct3 = ConditionalTask(p.g, p.h)
             p.ct4 = ConditionalTask(p.h)
@@ -4007,9 +4015,11 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             p.schedule = Schedule(p.path2, p.path3, p.endpath2, tasks=[t3, p.t4])
             self.assertTrue(hasattr(p, 'f'))
             self.assertTrue(hasattr(p, 'g'))
+            self.assertTrue(hasattr(p, 'i'))
             del p.e
             del p.f
             del p.g
+            del p.i
             self.assertFalse(hasattr(p, 'f'))
             self.assertFalse(hasattr(p, 'g'))
             self.assertEqual(p.t1.dumpPython(), 'cms.Task(process.h)\n')
