@@ -7,7 +7,8 @@
 
 </iftool>
 
-<bin file="SoAStoreView_t.cc">
+<bin file="SoALayoutAndView_t.cu">
   <use name="eigen"/>
   <use name="boost"/>
+  <use name="cuda"/>
 </bin>

@@ -13,7 +13,7 @@
 #include "CUDADataFormats/Common/interface/SoAView.h"
 #include "Eigen/Geometry"
 
-generate_SoA_store(SoAHostDeviceTemplate,
+generate_SoA_store(SoAHostDevice,
                    // predefined static scalars
                    // size_t size;
                    // size_t alignment;
@@ -29,32 +29,26 @@ generate_SoA_store(SoAHostDeviceTemplate,
                    SoA_scalar(const char *, description),
                    SoA_scalar(uint32_t, someNumber));
 
-generate_SoA_store(SoADeviceOnlyTemplate,
+generate_SoA_store(SoADeviceOnly,
                    SoA_column(uint16_t, color),
                    SoA_column(double, value),
                    SoA_column(double *, py),
                    SoA_column(uint32_t, count),
                    SoA_column(uint32_t, anotherCount));
 
-// We target a CUDA-like alignment
-constexpr size_t byteAlignment =
-    128;  // The default alignment for SoA (nVidia GPI cache line size, reflected in CUDA memory allocations).
-
-using SoAHostDevice = SoAHostDeviceTemplate<byteAlignment, AlignmentEnforcement::Enforced>;
-using SoADeviceOnly = SoADeviceOnlyTemplate<byteAlignment, AlignmentEnforcement::Enforced>;
 // A 1 to 1 view of the store (except for unsupported types).
-generate_SoA_view(SoAFullDeviceViewTemplate,
+generate_SoA_view(SoAFullDeviceView,
                   SoA_view_store_list(SoA_view_store(SoAHostDevice, soaHD), SoA_view_store(SoADeviceOnly, soaDO)),
-                  SoA_view_value_list(SoA_view_value(soaHD, x),
-                                      SoA_view_value(soaHD, y),
-                                      SoA_view_value(soaHD, z),
-                                      SoA_view_value(soaDO, color),
-                                      SoA_view_value(soaDO, value),
-                                      SoA_view_value(soaDO, py),
-                                      SoA_view_value(soaDO, count),
-                                      SoA_view_value(soaDO, anotherCount)));
-
-using SoAFullDeviceView = SoAFullDeviceViewTemplate<byteAlignment, AlignmentEnforcement::Enforced>;
+                  SoA_view_value_list(SoA_view_value(soaHD, x, x),
+                                      SoA_view_value(soaHD, y, y),
+                                      SoA_view_value(soaHD, z, z),
+                                      SoA_view_value(soaDO, color, color),
+                                      SoA_view_value(soaDO, value, value),
+                                      SoA_view_value(soaDO, py, py),
+                                      SoA_view_value(soaDO, count, count),
+                                      SoA_view_value(soaDO, anotherCount, anotherCount),
+                                      SoA_view_value(soaHD, description, description),
+                                      SoA_view_value(soaHD, someNumber, someNumber)));
 
 // Eigen cross product kernel (on store)
 struct crossProduct {
@@ -87,22 +81,32 @@ int main(void) {
   // Non-aligned number of elements to check alignment features.
   constexpr unsigned int numElements = 65537;
 
+  // We target a CUDA-like alignment
+  const size_t byteAlignment =
+      128;  // The default alignment for SoA (nVidia GPI cache line size, reflected in CUDA memory allocations).
+
   // Allocate buffer and store on host
   size_t hostDeviceSize = SoAHostDevice::computeDataSize(numElements);
-  AlignedBuffer h_buf(reinterpret_cast<std::byte *>(aligned_alloc(SoAHostDevice::byteAlignment, hostDeviceSize)),
-                      std::free);
-  SoAHostDevice h_soahd(h_buf.get(), numElements);
+  AlignedBuffer h_buf(reinterpret_cast<std::byte *>(aligned_alloc(byteAlignment, hostDeviceSize)), std::free);
+  SoAHostDevice h_soahd(h_buf.get(), numElements, byteAlignment);
 
   // Alocate buffer, stores and views on the device (single, shared buffer).
   size_t deviceOnlySize = SoADeviceOnly::computeDataSize(numElements);
-  AlignedBuffer d_buf(
-      reinterpret_cast<std::byte *>(aligned_alloc(SoAHostDevice::byteAlignment, hostDeviceSize + deviceOnlySize)),
-      std::free);
-  SoAHostDevice d_soahd(d_buf.get(), numElements);
-  SoADeviceOnly d_soado(d_soahd.soaMetadata().nextByte(), numElements);
+  AlignedBuffer d_buf(reinterpret_cast<std::byte *>(aligned_alloc(byteAlignment, hostDeviceSize + deviceOnlySize)),
+                      std::free);
+  SoAHostDevice d_soahd(d_buf.get(), numElements, byteAlignment);
+  SoADeviceOnly d_soado(d_soahd.soaMetadata().nextByte(), numElements, byteAlignment);
   SoAFullDeviceView d_soa(d_soahd, d_soado);
-  SoAFullDeviceView d_soaByColumns(
-      d_soa.x(), d_soa.y(), d_soa.z(), d_soa.color(), d_soa.value(), d_soa.py(), d_soa.count(), d_soa.anotherCount());
+  SoAFullDeviceView d_soaByColumns(d_soa.x(),
+                                   d_soa.y(),
+                                   d_soa.z(),
+                                   d_soa.color(),
+                                   d_soa.value(),
+                                   d_soa.py(),
+                                   d_soa.count(),
+                                   d_soa.anotherCount(),
+                                   d_soa.description(),
+                                   d_soa.someNumber());
 
   // Assert column alignments
   assert(0 == reinterpret_cast<uintptr_t>(h_soahd.x()) % h_soahd.soaMetadata().byteAlignment());
@@ -133,6 +137,11 @@ int main(void) {
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.x()) % h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.y()) % h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.z()) % h_soahd.soaMetadata().byteAlignment());
+  // Limitation of views: we have to get scalar member addresses via metadata.
+  assert(0 == reinterpret_cast<uintptr_t>(d_soa.soaMetadata().addressOf_description()) %
+                  h_soahd.soaMetadata().byteAlignment());
+  assert(0 == reinterpret_cast<uintptr_t>(d_soa.soaMetadata().addressOf_someNumber()) %
+                  h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.color()) % h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.value()) % h_soahd.soaMetadata().byteAlignment());
   assert(0 == reinterpret_cast<uintptr_t>(d_soa.py()) % h_soahd.soaMetadata().byteAlignment());
@@ -189,31 +198,6 @@ int main(void) {
                 << " epsilon=" << std::numeric_limits<double>::epsilon() << std::endl;
       assert(false);
     }
-  }
-
-  // Validate that alignment enforcement works for stores
-  try {
-    SoAHostDeviceTemplate<byteAlignment, AlignmentEnforcement::Enforced> store(reinterpret_cast<std::byte *>(1), 1);
-    assert(false);
-  } catch (const std::out_of_range &) {
-  } catch (...) {
-    assert(false);
-  }
-  // Validate that alignment enforcement works for views
-  try {
-    SoAFullDeviceViewTemplate<byteAlignment, AlignmentEnforcement::Enforced> view(
-        reinterpret_cast<double *>(1),
-        nullptr /* nullptr will bring other problems, but is aligned and will be accepted as such by the constructor */,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr,
-        nullptr);
-    assert(false);
-  } catch (const std::out_of_range &) {
-  } catch (...) {
-    assert(false);
   }
   std::cout << "OK" << std::endl;
 }
