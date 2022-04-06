@@ -2,6 +2,7 @@
 #define RecoTracker_MkFit_MkFitGeometry_h
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 
 #include <memory>
 #include <unordered_map>
@@ -9,7 +10,6 @@
 
 namespace mkfit {
   class LayerNumberConverter;
-  class TrackerInfo;
 }  // namespace mkfit
 
 class DetLayer;
@@ -32,7 +32,9 @@ public:
   mkfit::LayerNumberConverter const& layerNumberConverter() const { return *lnc_; }
   mkfit::TrackerInfo const& trackerInfo() const { return *trackerInfo_; }
   const std::vector<const DetLayer*>& detLayers() const { return dets_; }
-  unsigned int uniqueIdInLayer(int layer, unsigned int detId) const { return detIdToShortId_.at(layer).at(detId); }
+  unsigned int uniqueIdInLayer(int layer, unsigned int detId) const {
+    return trackerInfo_->layer(layer).short_id(detId);
+  }
   const TrackerTopology* topology() const { return ttopo_; }
 
 private:
@@ -40,7 +42,6 @@ private:
   std::unique_ptr<mkfit::LayerNumberConverter> lnc_;  // for pimpl pattern
   std::unique_ptr<mkfit::TrackerInfo> trackerInfo_;
   std::vector<const DetLayer*> dets_;
-  std::vector<std::unordered_map<unsigned int, unsigned int>> detIdToShortId_;
 };
 
 #endif

@@ -1,14 +1,11 @@
 #ifndef RecoTracker_MkFitCore_interface_TrackerInfo_h
 #define RecoTracker_MkFitCore_interface_TrackerInfo_h
 
+#include "RecoTracker/MkFitCore/interface/MatrixSTypes.h"
 #include <string>
 #include <vector>
 
 namespace mkfit {
-
-  class IterationsInfo;
-
-  //==============================================================================
 
   enum WithinSensitiveRegion_e { WSR_Undef = -1, WSR_Inside = 0, WSR_Edge, WSR_Outside };
 
@@ -24,17 +21,36 @@ namespace mkfit {
 
   //==============================================================================
 
+  struct ModuleInfo {
+    SVector3 pos;
+    SVector3 zdir;
+    SVector3 xdir;
+    unsigned int detid;
+
+    ModuleInfo() = default;
+    ModuleInfo(SVector3 p, SVector3 zd, SVector3 xd, unsigned int id) : pos(p), zdir(zd), xdir(xd), detid(id) {}
+  };
+
+  //==============================================================================
+
   class LayerInfo {
+    friend class TrackerInfo;
+
   public:
     enum LayerType_e { Undef = -1, Barrel = 0, EndCapPos = 1, EndCapNeg = 2 };
 
+    LayerInfo() = default;
     LayerInfo(int lid, LayerType_e type) : m_layer_id(lid), m_layer_type(type) {}
 
     void set_layer_type(LayerType_e t) { m_layer_type = t; }
     void set_limits(float r1, float r2, float z1, float z2);
+    void extend_limits(float r, float z);
+    void set_r_in_out(float r1, float r2);
     void set_propagate_to(float pto) { m_propagate_to = pto; }
     void set_r_hole_range(float rh1, float rh2);
     void set_q_bin(float qb) { m_q_bin = qb; }
+    void set_subdet(int sd) { m_subdet = sd; }
+    void set_is_pixel(bool p) { m_is_pixel = p; }
     void set_is_stereo(bool s) { m_is_stereo = s; }
 
     int layer_id() const { return m_layer_id; }
@@ -47,23 +63,17 @@ namespace mkfit {
     float z_mean() const { return 0.5f * (m_zmin + m_zmax); }
     float propagate_to() const { return m_propagate_to; }
     float q_bin() const { return m_q_bin; }
-    bool is_stereo() const { return m_is_stereo; }
 
+    int subdet() const { return m_subdet; }
     bool is_barrel() const { return m_layer_type == Barrel; }
+    bool is_pixel() const { return m_is_pixel; }
+    bool is_stereo() const { return m_is_stereo; }
 
     bool is_within_z_limits(float z) const { return z > m_zmin && z < m_zmax; }
     bool is_within_r_limits(float r) const { return r > m_rin && r < m_rout; }
     bool is_within_q_limits(float q) const { return is_barrel() ? is_within_z_limits(q) : is_within_r_limits(q); }
 
     bool is_in_r_hole(float r) const { return m_has_r_range_hole ? is_in_r_hole_no_check(r) : false; }
-
-    bool is_pixb_lyr() const { return m_is_pixb_lyr; }
-    bool is_pixe_lyr() const { return m_is_pixe_lyr; }
-    bool is_pix_lyr() const { return (m_is_pixb_lyr || m_is_pixe_lyr); }
-    bool is_tib_lyr() const { return m_is_tib_lyr; }
-    bool is_tob_lyr() const { return m_is_tob_lyr; }
-    bool is_tid_lyr() const { return m_is_tid_lyr; }
-    bool is_tec_lyr() const { return m_is_tec_lyr; }
 
     WSR_Result is_within_z_sensitive_region(float z, float dz) const {
       if (z > m_zmax + dz || z < m_zmin - dz)
@@ -88,37 +98,43 @@ namespace mkfit {
       return WSR_Result(WSR_Edge, false);
     }
 
-    void print_layer() const {
-      printf("Layer %2d  r(%7.4f, %7.4f) z(% 9.4f, % 9.4f) is_brl=%d\n",
-             m_layer_id,
-             m_rin,
-             m_rout,
-             m_zmin,
-             m_zmax,
-             is_barrel());
+    void print_layer() const;
+
+    // module & detid interface
+    void reserve_modules(int nm) { m_modules.reserve(nm); }
+    unsigned int register_module(ModuleInfo&& mi) {
+      unsigned int pos = m_modules.size();
+      m_modules.emplace_back(mi);
+      m_detid2sid[mi.detid] = pos;
+      return pos;
+    }
+    unsigned int shrink_modules() {
+      m_modules.shrink_to_fit();
+      return m_modules.size() - 1;
     }
 
-    // To be cleaned out with other geometry cleanup
-    bool m_is_pixb_lyr = false;
-    bool m_is_pixe_lyr = false;
-    bool m_is_tib_lyr = false;
-    bool m_is_tob_lyr = false;
-    bool m_is_tid_lyr = false;
-    bool m_is_tec_lyr = false;
+    unsigned int short_id(unsigned int detid) const { return m_detid2sid.at(detid); }
+    int n_modules() const { return m_modules.size(); }
+    const ModuleInfo& module_info(unsigned int sid) const { return m_modules[sid]; }
 
   private:
     bool is_in_r_hole_no_check(float r) const { return r > m_hole_r_min && r < m_hole_r_max; }
 
     int m_layer_id = -1;
     LayerType_e m_layer_type = Undef;
+    int m_subdet = -1;  // sub-detector id, not used in core mkFit
 
-    float m_rin, m_rout, m_zmin, m_zmax;
-    float m_propagate_to;
+    float m_rin = 0, m_rout = 0, m_zmin = 0, m_zmax = 0;
+    float m_propagate_to = 0;
 
-    float m_q_bin;                     // > 0 - bin width, < 0 - number of bins
-    float m_hole_r_min, m_hole_r_max;  // This could be turned into std::function when needed.
+    float m_q_bin = 0;                         // > 0 - bin width, < 0 - number of bins
+    float m_hole_r_min = 0, m_hole_r_max = 0;  // This could be turned into std::function when needed.
     bool m_has_r_range_hole = false;
     bool m_is_stereo = false;
+    bool m_is_pixel = false;
+
+    std::unordered_map<unsigned int, unsigned int> m_detid2sid;
+    std::vector<ModuleInfo> m_modules;
   };
 
   //==============================================================================
@@ -146,18 +162,19 @@ namespace mkfit {
     const LayerInfo& layer(int l) const { return m_layers[l]; }
     LayerInfo& layer_nc(int l) { return m_layers[l]; }
 
+    int n_total_modules() const;
+
     const LayerInfo& operator[](int l) const { return m_layers[l]; }
 
-    bool is_stereo(int i) const { return m_layers[i].is_stereo(); }
-    bool is_pixb_lyr(int i) const { return m_layers[i].is_pixb_lyr(); }
-    bool is_pixe_lyr(int i) const { return m_layers[i].is_pixe_lyr(); }
-    bool is_pix_lyr(int i) const { return m_layers[i].is_pix_lyr(); }
-    bool is_tib_lyr(int i) const { return m_layers[i].is_tib_lyr(); }
-    bool is_tob_lyr(int i) const { return m_layers[i].is_tob_lyr(); }
-    bool is_tid_lyr(int i) const { return m_layers[i].is_tid_lyr(); }
-    bool is_tec_lyr(int i) const { return m_layers[i].is_tec_lyr(); }
-
     const LayerInfo& outer_barrel_layer() const { return m_layers[m_barrel.back()]; }
+
+    const std::vector<int>& barrel_layers() const { return m_barrel; }
+    const std::vector<int>& endcap_pos_layers() const { return m_ecap_pos; }
+    const std::vector<int>& endcap_neg_layers() const { return m_ecap_neg; }
+
+    void write_bin_file(const std::string& fname) const;
+    void read_bin_file(const std::string& fname);
+    void print_tracker(int level) const;
 
   private:
     int new_layer(LayerInfo::LayerType_e type);

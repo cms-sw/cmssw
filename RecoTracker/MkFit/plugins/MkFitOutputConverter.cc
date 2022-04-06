@@ -292,7 +292,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         // them in the TrackProducer.
         lastHitInvalid = true;
       } else {
-        auto const isPixel = eventOfHits[hitOnTrack.layer].is_pix_lyr();
+        auto const isPixel = eventOfHits[hitOnTrack.layer].is_pixel();
         auto const& hits = isPixel ? pixelClusterIndexToHit.hits() : stripClusterIndexToHit.hits();
 
         auto const& thit = static_cast<BaseTrackerRecHit const&>(*hits[hitOnTrack.index]);
