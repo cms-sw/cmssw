@@ -417,7 +417,7 @@ void CSCEventData::setEventInformation(int bxnum, int lvl1num) {
     theTMBData->tmbHeader()->setNCFEBs(CSCConstants::MAX_CFEBS_RUN1);
 
     // Set number of CFEBs to 7 for Post-LS1 ME11
-    if ((theFormatVersion == 2013) && ((theChamberType == 1) || (theChamberType == 2))) {
+    if ((theFormatVersion >= 2013) && ((theChamberType == 1) || (theChamberType == 2))) {
       theTMBData->tmbHeader()->setNCFEBs(CSCConstants::MAX_CFEBS_RUN2);
     }
   }
@@ -442,12 +442,18 @@ void CSCEventData::checkALCTClasses() {
 
 void CSCEventData::checkTMBClasses() {
   int nCFEBs = CSCConstants::MAX_CFEBS_RUN1;
-  if ((theFormatVersion == 2013) && ((theChamberType == 1) || (theChamberType == 2))) {
+  if ((theFormatVersion >= 2013) && ((theChamberType == 1) || (theChamberType == 2))) {
     nCFEBs = CSCConstants::MAX_CFEBS_RUN2;
   }
   if (theTMBData == nullptr) {
-    if (theFormatVersion == 2013) {  // Set to TMB format for Post-LS1 data
+    if (theFormatVersion == 2013) {  // Set to TMB format for Post-LS1/Run2 data
       theTMBData = new CSCTMBData(2013, 0x7a76, nCFEBs);
+    } else if (theFormatVersion == 2020) {  // Set to TMB format for Run3 data
+      if ((theChamberType == 1) || (theChamberType == 2)) {
+        theTMBData = new CSCTMBData(2020, 0x602, nCFEBs);  // ME11 GEM fw
+      } else {
+        theTMBData = new CSCTMBData(2020, 0x403);  // MEx1 CCLUT fw
+      }
     } else {
       theTMBData = new CSCTMBData(2007, 0x50c3);
     }
@@ -455,7 +461,6 @@ void CSCEventData::checkTMBClasses() {
     theDMBHeader.addNCLCT();
   }
   theTMBData->tmbHeader()->setNCFEBs(nCFEBs);
-  // std::cout << "nCFEBs: " << theTMBData->tmbHeader()->NCFEBs() << std::endl;
 }
 
 void CSCEventData::add(const CSCStripDigi& digi, int layer) {
@@ -506,9 +511,47 @@ void CSCEventData::add(const std::vector<CSCCorrelatedLCTDigi>& digis) {
   theTMBData->tmbHeader()->add(digis);
 }
 
-void CSCEventData::add(const std::vector<CSCShowerDigi>& digis) { checkTMBClasses(); }
+/// Add/pack LCT CSCShower object
+void CSCEventData::addShower(const std::vector<CSCShowerDigi>& digis) {
+  checkTMBClasses();
+  for (auto it : digis) {
+    theTMBData->tmbHeader()->addShower(it);
+  }
+}
 
-void CSCEventData::add(const std::vector<GEMPadDigiCluster>& clusters, const GEMDetId&) { checkTMBClasses(); }
+/// Add/pack anode CSCShower object (from OTMB header)
+void CSCEventData::addAnodeShower(const std::vector<CSCShowerDigi>& digis) {
+  checkTMBClasses();
+  for (auto it : digis) {
+    theTMBData->tmbHeader()->addAnodeShower(it);
+  }
+}
+
+/// Add/pack cathode CSCShower object (from OTMB header)
+void CSCEventData::addCathodeShower(const std::vector<CSCShowerDigi>& digis) {
+  checkTMBClasses();
+  for (auto it : digis) {
+    theTMBData->tmbHeader()->addCathodeShower(it);
+  }
+}
+
+/// Add/pack anode CSCShower objects (from ALCT board data)
+void CSCEventData::addAnodeALCTShower(const std::vector<CSCShowerDigi>& digis) {
+  checkALCTClasses();
+  theALCTHeader->addShower(digis);
+}
+
+/// Add/pack GE11 GEM Pad Clusters trigger objects received by OTMB from GEM
+void CSCEventData::add(const std::vector<GEMPadDigiCluster>& clusters, const GEMDetId& gemdetid) {
+  checkTMBClasses();
+  if (theTMBData->hasGEM()) {
+    int gem_layer = gemdetid.layer();
+    int eta_roll = gemdetid.roll();
+    for (const auto& it : clusters) {
+      theTMBData->gemData()->addEtaPadCluster(it, gem_layer - 1, 8 - eta_roll);
+    }
+  }
+}
 
 std::ostream& operator<<(std::ostream& os, const CSCEventData& evt) {
   for (int ilayer = CSCDetId::minLayerId(); ilayer <= CSCDetId::maxLayerId(); ++ilayer) {
@@ -566,10 +609,8 @@ boost::dynamic_bitset<> CSCEventData::pack() {
 
 unsigned int CSCEventData::calcALCTcrc(std::vector<std::pair<unsigned int, unsigned short*> >& vec) {
   int CRC = 0;
-  //  int size=0;
 
   for (unsigned int n = 0; n < vec.size(); n++) {
-    //      size += vec[n].first;
     for (uint16_t j = 0, w = 0; j < vec[n].first; j++) {
       if (vec[n].second != nullptr) {
         w = vec[n].second[j] & 0xffff;
@@ -584,7 +625,6 @@ unsigned int CSCEventData::calcALCTcrc(std::vector<std::pair<unsigned int, unsig
     }
   }
 
-  //  std::cout << "ALCT CRC vector size: " << size <<  ", crc: 0x" << std::hex << CRC<< std::endl;
   return CRC;
 }
 
