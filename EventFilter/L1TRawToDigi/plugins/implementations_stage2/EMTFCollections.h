@@ -6,6 +6,7 @@
 #include <iomanip>   // For things like std::setw
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonShower.h"
 #include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
 #include "DataFormats/L1TMuon/interface/EMTFHit.h"
 #include "DataFormats/L1TMuon/interface/EMTFTrack.h"
@@ -27,6 +28,7 @@ namespace l1t {
       EMTFCollections(edm::Event& e)
           : UnpackerCollections(e),  // What are these? - AWB 27.01.16
             regionalMuonCands_(new RegionalMuonCandBxCollection()),
+            regionalMuonShowers_(new RegionalMuonShowerBxCollection()),
             EMTFDaqOuts_(new EMTFDaqOutCollection()),
             EMTFHits_(new EMTFHitCollection()),
             EMTFHits_ZS_(new EMTFHitCollection()),
@@ -40,6 +42,7 @@ namespace l1t {
       ~EMTFCollections() override;
 
       inline RegionalMuonCandBxCollection* getRegionalMuonCands() { return regionalMuonCands_.get(); }
+      inline RegionalMuonShowerBxCollection* getRegionalMuonShowers() { return regionalMuonShowers_.get(); }
       inline EMTFDaqOutCollection* getEMTFDaqOuts() { return EMTFDaqOuts_.get(); }
       inline EMTFHitCollection* getEMTFHits() { return EMTFHits_.get(); }
       inline EMTFHitCollection* getEMTFHits_ZS() { return EMTFHits_ZS_.get(); }
@@ -52,6 +55,7 @@ namespace l1t {
 
     private:
       std::unique_ptr<RegionalMuonCandBxCollection> regionalMuonCands_;
+      std::unique_ptr<RegionalMuonShowerBxCollection> regionalMuonShowers_;
       std::unique_ptr<EMTFDaqOutCollection> EMTFDaqOuts_;
       std::unique_ptr<EMTFHitCollection> EMTFHits_;
       std::unique_ptr<EMTFHitCollection> EMTFHits_ZS_;
