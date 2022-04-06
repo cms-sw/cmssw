@@ -7,73 +7,57 @@
 // Original Author:  Christopher Edelmaier
 //
 ///////////////////////////////////////////////////////////////////////////////
-//
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DataFormats/Common/interface/Handle.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
-
-#include "DataFormats/Scalers/interface/LumiScalers.h"
-
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/TrackReco/interface/TrackBase.h"
-
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-
-#include "DQM/SiStripCommon/interface/TkHistoMap.h"
-
-#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
-
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 class SiStripHitEfficiencyWorker : public DQMEDAnalyzer {
 public:
   explicit SiStripHitEfficiencyWorker(const edm::ParameterSet& conf);
-  ~SiStripHitEfficiencyWorker() override;
+  ~SiStripHitEfficiencyWorker() override = default;
 
 private:
   void beginJob();  // TODO remove
@@ -126,14 +110,15 @@ private:
   const edm::EDGetTokenT<DetIdCollection> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
-  edm::ESGetToken<StripClusterParameterEstimator, TkStripCPERecord> stripCPEToken_;
-  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
-  edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measTrackerToken_;
-  edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> chi2EstimatorToken_;
-  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<StripClusterParameterEstimator, TkStripCPERecord> stripCPEToken_;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measTrackerToken_;
+  const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> chi2EstimatorToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
+  const edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 
   int events, EventTrackCKF;
 
@@ -204,7 +189,8 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       magFieldToken_(esConsumes()),
       measTrackerToken_(esConsumes()),
       chi2EstimatorToken_(esConsumes(edm::ESInputTag{"", "Chi2"})),
-      propagatorToken_(esConsumes(edm::ESInputTag{"", "PropagatorWithMaterial"})) {
+      propagatorToken_(esConsumes(edm::ESInputTag{"", "PropagatorWithMaterial"})),
+      tkDetMapToken_(esConsumes<edm::Transition::BeginRun>()) {
   layers = conf.getParameter<int>("Layer");
   DEBUG = conf.getParameter<bool>("Debug");
   addLumi_ = conf.getUntrackedParameter<bool>("addLumi", false);
@@ -250,9 +236,6 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
     std::cout << " " << badMod << std::endl;
   }
 }
-
-// Virtual destructor needed.
-SiStripHitEfficiencyWorker::~SiStripHitEfficiencyWorker() {}
 
 void SiStripHitEfficiencyWorker::beginJob() {
   // TODO convert to counters, or simply remove?
@@ -463,11 +446,9 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
     }
   }
 
-  edm::ESHandle<TkDetMap> tkDetMapHandle;
-  setup.get<TrackerTopologyRcd>().get(tkDetMapHandle);
-  h_module =
-      EffTkMap(std::make_unique<TkHistoMap>(tkDetMapHandle.product(), booker, path, "perModule_total", 0, false, true),
-               std::make_unique<TkHistoMap>(tkDetMapHandle.product(), booker, path, "perModule_found", 0, false, true));
+  const TkDetMap* tkDetMap = &setup.getData(tkDetMapToken_);
+  h_module = EffTkMap(std::make_unique<TkHistoMap>(tkDetMap, booker, path, "perModule_total", 0, false, true),
+                      std::make_unique<TkHistoMap>(tkDetMap, booker, path, "perModule_found", 0, false, true));
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -1039,26 +1020,26 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       h_allLayer.fill(layerWithSide, !badflag);
 
       /* Used in SiStripHitEffFromCalibTree:
-* run              -> "run"              -> run              // e.id().run()
-* event            -> "event"            -> evt              // e.id().event()
-* ModIsBad         -> "ModIsBad"         -> isBad
-* SiStripQualBad   -> "SiStripQualBad""  -> quality
-* Id               -> "Id"               -> id               // iidd
-* withinAcceptance -> "withinAcceptance" -> accept
-* whatlayer        -> "layer"            -> layer_wheel      // Tklayers
-* highPurity       -> "highPurity"       -> highPurity
-* TrajGlbX         -> "TrajGlbX"         -> x                // tm.globalX()
-* TrajGlbY         -> "TrajGlbY"         -> y                // tm.globalY()
-* TrajGlbZ         -> "TrajGlbZ"         -> z                // tm.globalZ()
-* ResXSig          -> "ResXSig"          -> resxsig          // finalCluster.xResidualPull;
-* TrajLocX         -> "TrajLocX"         -> TrajLocX         // xloc
-* TrajLocY         -> "TrajLocY"         -> TrajLocY         // yloc
-* ClusterLocX      -> "ClusterLocX"      -> ClusterLocX      // finalCluster.xLocal
-* bunchx           -> "bunchx"           -> bx               // e.bunchCrossing()
-* instLumi         -> "instLumi"         -> instLumi         ## if addLumi_
-* PU               -> "PU"               -> PU               ## if addLumi_
-* commonMode       -> "commonMode"       -> CM               ## if addCommonMode_ / _useCM
-*/
+       * run              -> "run"              -> run              // e.id().run()
+       * event            -> "event"            -> evt              // e.id().event()
+       * ModIsBad         -> "ModIsBad"         -> isBad
+       * SiStripQualBad   -> "SiStripQualBad""  -> quality
+       * Id               -> "Id"               -> id               // iidd
+       * withinAcceptance -> "withinAcceptance" -> accept
+       * whatlayer        -> "layer"            -> layer_wheel      // Tklayers
+       * highPurity       -> "highPurity"       -> highPurity
+       * TrajGlbX         -> "TrajGlbX"         -> x                // tm.globalX()
+       * TrajGlbY         -> "TrajGlbY"         -> y                // tm.globalY()
+       * TrajGlbZ         -> "TrajGlbZ"         -> z                // tm.globalZ()
+       * ResXSig          -> "ResXSig"          -> resxsig          // finalCluster.xResidualPull;
+       * TrajLocX         -> "TrajLocX"         -> TrajLocX         // xloc
+       * TrajLocY         -> "TrajLocY"         -> TrajLocY         // yloc
+       * ClusterLocX      -> "ClusterLocX"      -> ClusterLocX      // finalCluster.xLocal
+       * bunchx           -> "bunchx"           -> bx               // e.bunchCrossing()
+       * instLumi         -> "instLumi"         -> instLumi         ## if addLumi_
+       * PU               -> "PU"               -> PU               ## if addLumi_
+       * commonMode       -> "commonMode"       -> CM               ## if addCommonMode_ / _useCM
+       */
       LogDebug("SiStripHitEfficiency:HitEff") << "after good location check" << std::endl;
     }
     LogDebug("SiStripHitEfficiency:HitEff") << "after list of clusters" << std::endl;
