@@ -289,7 +289,7 @@ void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update) {
 void AlignableMuon::buildGEMEndcap(const GEMGeometry* pGEM, bool update) {
   LogDebug("Position") << "Constructing AlignableGEMEndcap";
   std::vector<AlignableGEMStation*> tmpGEMStationsInEndcap;
-  for (const auto&  GEMRegion : pGEM->regions()) {
+  for (const auto& GEMRegion : pGEM->regions()) {
     int iec = GEMRegion->region();
     std::vector<AlignableGEMRing*> tmpGEMRingsInStation;
     for (const auto& GEMStation : pGEM->stations()) {

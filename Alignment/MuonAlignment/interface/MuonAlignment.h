@@ -59,6 +59,7 @@ public:
   void saveGEMtoDB();
   void saveToDB();
   bool doGEM();
+
 private:
   void init();
   void recursiveCopySurveyToAlignment(Alignable* alignable);

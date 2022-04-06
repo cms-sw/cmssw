@@ -367,5 +367,6 @@ void MuonAlignment::saveGEMtoDB(void) {
 void MuonAlignment::saveToDB(void) {
   saveDTtoDB();
   saveCSCtoDB();
-  if (doGEM_) saveGEMtoDB();
+  if (doGEM_)
+    saveGEMtoDB();
 }
