@@ -8,9 +8,9 @@
 
 // user includes
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+#include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
@@ -27,6 +27,9 @@
 #include "TStyle.h"
 
 namespace SiStripPI {
+
+  //##### for metadata
+  using MetaData = std::tuple<cond::Time_t, cond::Hash>;
 
   //##### for plotting
 
@@ -421,7 +424,7 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
-  double getMaximum(TObjArray* array)
+  inline double getMaximum(TObjArray* array)
   /*--------------------------------------------------------------------*/
   {
     double theMaximum = (static_cast<TH1*>(array->At(0)))->GetMaximum();
