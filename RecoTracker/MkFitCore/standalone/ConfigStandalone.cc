@@ -90,8 +90,8 @@ namespace mkfit {
   }  // namespace
 
   void execTrackerInfoCreatorPlugin(const std::string &base, TrackerInfo &ti, IterationsInfo &ii, bool verbose) {
-    std::string soname = base + ".so";
-
+    const std::string soname = base + ".so";
+    const std::string binname = base + ".bin";
     struct stat st;
 
     int si = 0;
@@ -103,21 +103,29 @@ namespace mkfit {
         path += "/";
       }
       path += search_path[si];
-      path += soname;
-      if (stat(path.c_str(), &st) == 0) {
-        printf("mkfit::execTrackerInfoCreatorPlugin processing '%s'\n", path.c_str());
+      std::string sopath = path + soname;
+      if (stat(sopath.c_str(), &st) == 0) {
+        printf("execTrackerInfoCreatorPlugin processing '%s'\n", sopath.c_str());
 
-        void *h = dlopen(path.c_str(), RTLD_LAZY);
+        void *h = dlopen(sopath.c_str(), RTLD_LAZY);
         if (!h) {
           perror("dlopen failed");
           exit(2);
         }
 
-        long long *p2f = (long long *)dlsym(h, "TrackerInfoCrator_ptr");
+        long long *p2f = (long long *)dlsym(h, "TrackerInfoCreator_ptr");
         if (!p2f) {
           perror("dlsym failed");
           exit(2);
         }
+
+        std::string binpath = path + binname;
+        int binsr = stat(binpath.c_str(), &st);
+        printf("execTrackerInfoCreatorPlugin has%s found TrackerInfo binary file '%s'\n",
+               binsr ? " NOT" : "",
+               binpath.c_str());
+        if (binsr == 0)
+          ti.read_bin_file(binpath);
 
         TrackerInfoCreator_foo foo = (TrackerInfoCreator_foo)(*p2f);
         foo(ti, ii, verbose);
