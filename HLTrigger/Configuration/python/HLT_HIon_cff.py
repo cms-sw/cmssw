@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/HIon --type HIon
 
-# /dev/CMSSW_12_3_0/HIon/V57 (CMSSW_12_3_0_pre6)
+# /dev/CMSSW_12_3_0/HIon/V61 (CMSSW_12_3_0_pre6)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V57')
+  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V61')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -27368,11 +27368,11 @@ fragment.hltSinglePuAK4CaloJet60Eta1p5 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 1.5 ),
     MinN = cms.int32( 1 )
 )
-fragment.hltCsPFJetsCorrectedMatchedToPuCaloJets60 = cms.EDProducer( "PFJetsMatchedToFilteredCaloJetsProducer",
-    PFJetSrc = cms.InputTag( "hltCsAK4PFJetsCorrectedPPOnAA" ),
-    CaloJetFilter = cms.InputTag( "hltSinglePuAK4CaloJet60Eta1p5" ),
-    DeltaR = cms.double( 0.2 ),
-    TriggerType = cms.int32( 85 )
+fragment.hltCsPFJetsCorrectedMatchedToPuCaloJets60 = cms.EDProducer( "HLTPFJetsMatchedToFilteredCaloJetsProducer",
+    src = cms.InputTag( "hltCsAK4PFJetsCorrectedPPOnAA" ),
+    triggerJetsFilter = cms.InputTag( "hltSinglePuAK4CaloJet60Eta1p5" ),
+    triggerJetsType = cms.int32( 85 ),
+    maxDeltaR = cms.double( 0.2 )
 )
 fragment.hltSingleCsPFJet60Eta1p5 = cms.EDFilter( "HLT1PFJet",
     saveTags = cms.bool( True ),
@@ -27402,11 +27402,11 @@ fragment.hltSinglePuAK4CaloJet70Eta1p5 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 1.5 ),
     MinN = cms.int32( 1 )
 )
-fragment.hltCsPFJetsCorrectedMatchedToPuCaloJets70 = cms.EDProducer( "PFJetsMatchedToFilteredCaloJetsProducer",
-    PFJetSrc = cms.InputTag( "hltCsAK4PFJetsCorrectedPPOnAA" ),
-    CaloJetFilter = cms.InputTag( "hltSinglePuAK4CaloJet70Eta1p5" ),
-    DeltaR = cms.double( 0.2 ),
-    TriggerType = cms.int32( 85 )
+fragment.hltCsPFJetsCorrectedMatchedToPuCaloJets70 = cms.EDProducer( "HLTPFJetsMatchedToFilteredCaloJetsProducer",
+    src = cms.InputTag( "hltCsAK4PFJetsCorrectedPPOnAA" ),
+    triggerJetsFilter = cms.InputTag( "hltSinglePuAK4CaloJet70Eta1p5" ),
+    triggerJetsType = cms.int32( 85 ),
+    maxDeltaR = cms.double( 0.2 )
 )
 fragment.hltSingleCsPFJet80Eta1p5 = cms.EDFilter( "HLT1PFJet",
     saveTags = cms.bool( True ),
@@ -27436,11 +27436,11 @@ fragment.hltSinglePuAK4CaloJet80Eta1p5 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 1.5 ),
     MinN = cms.int32( 1 )
 )
-fragment.hltCsPFJetsCorrectedMatchedToPuCaloJets80 = cms.EDProducer( "PFJetsMatchedToFilteredCaloJetsProducer",
-    PFJetSrc = cms.InputTag( "hltCsAK4PFJetsCorrectedPPOnAA" ),
-    CaloJetFilter = cms.InputTag( "hltSinglePuAK4CaloJet80Eta1p5" ),
-    DeltaR = cms.double( 0.2 ),
-    TriggerType = cms.int32( 85 )
+fragment.hltCsPFJetsCorrectedMatchedToPuCaloJets80 = cms.EDProducer( "HLTPFJetsMatchedToFilteredCaloJetsProducer",
+    src = cms.InputTag( "hltCsAK4PFJetsCorrectedPPOnAA" ),
+    triggerJetsFilter = cms.InputTag( "hltSinglePuAK4CaloJet80Eta1p5" ),
+    triggerJetsType = cms.int32( 85 ),
+    maxDeltaR = cms.double( 0.2 )
 )
 fragment.hltSingleCsPFJet100Eta1p5 = cms.EDFilter( "HLT1PFJet",
     saveTags = cms.bool( True ),
@@ -27474,11 +27474,11 @@ fragment.hltSinglePuAK4CaloJet90Eta1p5 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 1.5 ),
     MinN = cms.int32( 1 )
 )
-fragment.hltCsPFJetsCorrectedMatchedToPuCaloJets90 = cms.EDProducer( "PFJetsMatchedToFilteredCaloJetsProducer",
-    PFJetSrc = cms.InputTag( "hltCsAK4PFJetsCorrectedPPOnAA" ),
-    CaloJetFilter = cms.InputTag( "hltSinglePuAK4CaloJet90Eta1p5" ),
-    DeltaR = cms.double( 0.2 ),
-    TriggerType = cms.int32( 85 )
+fragment.hltCsPFJetsCorrectedMatchedToPuCaloJets90 = cms.EDProducer( "HLTPFJetsMatchedToFilteredCaloJetsProducer",
+    src = cms.InputTag( "hltCsAK4PFJetsCorrectedPPOnAA" ),
+    triggerJetsFilter = cms.InputTag( "hltSinglePuAK4CaloJet90Eta1p5" ),
+    triggerJetsType = cms.int32( 85 ),
+    maxDeltaR = cms.double( 0.2 )
 )
 fragment.hltSingleCsPFJet120Eta1p5 = cms.EDFilter( "HLT1PFJet",
     saveTags = cms.bool( True ),
