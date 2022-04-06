@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include "RecoTracker/MkFitCore/standalone/Event.h"
 #include "RecoTracker/MkFitCore/interface/Config.h"
+#include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 #include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
 
 using namespace mkfit;
@@ -46,6 +47,7 @@ void printHelp(const char* av0) {
       "Options:\n"
       "  --input          <str>    input file\n"
       "  --output         <str>    output file\n"
+      "  --geo            <file>   binary TrackerInfo geometry (def: CMS-2017.bin)\n"
       "  --verbosity      <num>    print details (0 quiet, 1 print counts, 2 print all; def: 0)\n"
       "  --maxevt         <num>    maxevt events to write (-1 for everything in the file def: -1)\n"
       "  --clean-sim-tracks        apply sim track cleaning (def: no cleaning)\n"
@@ -61,6 +63,7 @@ int main(int argc, char* argv[]) {
   std::string inputFileName;
   bool haveOutput = false;
   std::string outputFileName;
+  std::string geoFileName("CMS-2017.bin");
 
   bool cleanSimTracks = false;
   bool writeAllEvents = false;
@@ -93,6 +96,9 @@ int main(int argc, char* argv[]) {
       next_arg_or_die(mArgs, i);
       outputFileName = *i;
       haveOutput = true;
+    } else if (*i == "--geo") {
+      next_arg_or_die(mArgs, i);
+      geoFileName = *i;
     } else if (*i == "--verbosity") {
       next_arg_or_die(mArgs, i);
       verbosity = std::atoi(i->c_str());
@@ -130,10 +136,11 @@ int main(int argc, char* argv[]) {
 
   using namespace std;
 
+  TrackerInfo tkinfo;
+  tkinfo.read_bin_file(geoFileName);
   LayerNumberConverter lnc(TkLayout::phase1);
   const unsigned int nTotalLayers = lnc.nLayers();
-
-  vector<unordered_map<unsigned int, unsigned int>> module_shortId_hash(nTotalLayers);
+  assert(nTotalLayers == (unsigned int)tkinfo.n_layers());
 
   int nstot = 0;
   std::vector<int> nhitstot(nTotalLayers, 0);
@@ -947,12 +954,7 @@ int main(int argc, char* argv[]) {
       if (ilay < 0)
         continue;
 
-      unsigned int imoduleid;
-      {
-        auto ii =
-            module_shortId_hash[ilay].emplace(pix_detId->at(ipix), (unsigned int)module_shortId_hash[ilay].size());
-        imoduleid = ii.first->second;
-      }
+      unsigned int imoduleid = tkinfo[ilay].short_id(pix_detId->at(ipix));
 
       int simTkIdxNt = bestTkIdx(pix_simHitIdx->at(ipix), pix_chargeFraction->at(ipix), ipix, HitType::Pixel);
       int simTkIdx = simTkIdxNt >= 0 ? simTrackIdx_[simTkIdxNt] : -1;  //switch to index in simTracks_
@@ -1041,12 +1043,7 @@ int main(int argc, char* argv[]) {
       if (ilay == -1)
         continue;
 
-      unsigned int imoduleid;
-      {
-        auto ii =
-            module_shortId_hash[ilay].emplace(str_detId->at(istr), (unsigned int)module_shortId_hash[ilay].size());
-        imoduleid = ii.first->second;
-      }
+      unsigned int imoduleid = tkinfo[ilay].short_id(str_detId->at(istr));
 
       int simTkIdxNt = bestTkIdx(str_simHitIdx->at(istr), str_chargeFraction->at(istr), istr, HitType::Strip);
       int simTkIdx = simTkIdxNt >= 0 ? simTrackIdx_[simTkIdxNt] : -1;  //switch to index in simTracks_
@@ -1252,6 +1249,6 @@ int main(int argc, char* argv[]) {
   printf("=== Max module id for %u layers\n", nTotalLayers);
   printf("================================================================\n");
   for (unsigned int ii = 0; ii < nTotalLayers; ++ii) {
-    printf("Layer%2d : %d\n", ii, (int)module_shortId_hash[ii].size());
+    printf("Layer%2d : %d\n", ii, tkinfo[ii].n_modules());
   }
 }
