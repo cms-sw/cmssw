@@ -28,9 +28,7 @@ TreeMatrixCalib::TreeMatrixCalib(const char*) {
   myTree_->Branch("crystal", &myCrystal, "crystal[49]/I");
 }
 
-void TreeMatrixCalib::store() { 
-  myTree_->Fill();
-}
+void TreeMatrixCalib::store() { myTree_->Fill(); }
 
 void TreeMatrixCalib::fillInfo(int run,
                                int eve,
