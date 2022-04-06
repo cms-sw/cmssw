@@ -14,11 +14,11 @@ namespace stripgpu {
                                                                    const SiStripGain* gains,
                                                                    const SiStripNoises& noises)
 
-      : noise_(kFedCount * kStripsPerFed),
-        invthick_(kFedCount * kChannelCount),
-        detID_(kFedCount * kChannelCount),
-        iPair_(kFedCount * kChannelCount),
-        gain_(kFedCount * kApvCount) {
+      : noise_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH),
+        invthick_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED),
+        detID_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED),
+        iPair_(sistrip::NUMBER_OF_FEDS * sistrip::FEDCH_PER_FED),
+        gain_(sistrip::NUMBER_OF_FEDS * sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED) {
     detToFeds_.clear();
 
     // connected: map<DetID, std::vector<int>>

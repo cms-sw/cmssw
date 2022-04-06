@@ -40,7 +40,7 @@ namespace stripgpu {
       const auto fedid = chanlocs->fedID(chan);
       const auto fedch = chanlocs->fedCh(chan);
       const auto ipair = conditions->iPair(fedid, fedch);
-      const auto ipoff = kStripsPerChannel * ipair;
+      const auto ipoff = sistrip::STRIPS_PER_FEDCH * ipair;
 
       const auto data = chanlocs->input(chan);
       const auto len = chanlocs->length(chan);
@@ -65,9 +65,9 @@ namespace stripgpu {
             alldata[aoff++] = data[(choff++) ^ 7];
           }
         }
-      }
-    }
-  }
+      }  // choff < end
+    }    // data != nullptr && len > 0
+  }      // chan < chanlocs->size()
 
   __device__ constexpr int maxseeds() { return kMaxSeedStrips; }
 
@@ -182,36 +182,40 @@ namespace stripgpu {
 
       auto noiseSquared_i = noise_i * noise_i;
       float adcSum_i = static_cast<float>(adc[index]);
+      auto testIndex = index - 1;
+      auto size = 1;
+
+      auto addtocluster = [&](int &indexLR) {
+        const auto testchan = channels[testIndex];
+        const auto testFed = chanlocs->fedID(testchan);
+        const auto testChannel = chanlocs->fedCh(testchan);
+        const auto testStrip = stripId[testIndex];
+        const auto testNoise = conditions->noise(testFed, testChannel, testStrip);
+        const auto testADC = adc[testIndex];
+
+        if (testADC >= static_cast<uint8_t>(testNoise * channelThreshold)) {
+          ++size;
+          indexLR = testIndex;
+          noiseSquared_i += testNoise * testNoise;
+          adcSum_i += static_cast<float>(testADC);
+        }
+      };
 
       // find left boundary
       auto indexLeft = index;
-      auto testIndex = index - 1;
-      auto size = 1;
 
       if (testIndex >= 0 && stripId[testIndex] == stripgpu::invalidStrip) {
         testIndex -= 2;
       }
 
       if (testIndex >= 0) {
+        const auto testchan = channels[testIndex];
+        const auto testDet = chanlocs->detID(testchan);
         auto rangeLeft = stripId[indexLeft] - stripId[testIndex] - 1;
-        auto testchan = channels[testIndex];
-        auto testDet = chanlocs->detID(testchan);
         auto sameDetLeft = det == testDet;
 
         while (sameDetLeft && rangeLeft >= 0 && rangeLeft <= maxSequentialHoles && size < clusterSizeLimit + 1) {
-          testchan = channels[testIndex];
-          const auto testFed = chanlocs->fedID(testchan);
-          const auto testChannel = chanlocs->fedCh(testchan);
-          const auto testStrip = stripId[testIndex];
-          const auto testNoise = conditions->noise(testFed, testChannel, testStrip);
-          const auto testADC = adc[testIndex];
-
-          if (testADC >= static_cast<uint8_t>(testNoise * channelThreshold)) {
-            ++size;
-            indexLeft = testIndex;
-            noiseSquared_i += testNoise * testNoise;
-            adcSum_i += static_cast<float>(testADC);
-          }
+          addtocluster(indexLeft);
           --testIndex;
           if (testIndex >= 0 && stripId[testIndex] == stripgpu::invalidStrip) {
             testIndex -= 2;
@@ -224,8 +228,8 @@ namespace stripgpu {
           } else {
             sameDetLeft = false;
           }
-        }
-      }
+        }  // while loop
+      }    // testIndex >= 0
 
       // find right boundary
       auto indexRight = index;
@@ -236,25 +240,13 @@ namespace stripgpu {
       }
 
       if (testIndex < nStrips) {
+        const auto testchan = channels[testIndex];
+        const auto testDet = chanlocs->detID(testchan);
         auto rangeRight = stripId[testIndex] - stripId[indexRight] - 1;
-        auto testchan = channels[testIndex];
-        auto testDet = chanlocs->detID(testchan);
         auto sameDetRight = det == testDet;
 
         while (sameDetRight && rangeRight >= 0 && rangeRight <= maxSequentialHoles && size < clusterSizeLimit + 1) {
-          testchan = channels[testIndex];
-          const auto testFed = chanlocs->fedID(testchan);
-          const auto testChannel = chanlocs->fedCh(testchan);
-          const auto testStrip = stripId[testIndex];
-          const auto testNoise = conditions->noise(testFed, testChannel, testStrip);
-          const auto testADC = adc[testIndex];
-
-          if (testADC >= static_cast<uint8_t>(testNoise * channelThreshold)) {
-            ++size;
-            indexRight = testIndex;
-            noiseSquared_i += testNoise * testNoise;
-            adcSum_i += static_cast<float>(testADC);
-          }
+          addtocluster(indexRight);
           ++testIndex;
           if (testIndex < nStrips && stripId[testIndex] == stripgpu::invalidStrip) {
             testIndex += 2;
@@ -267,15 +259,15 @@ namespace stripgpu {
           } else {
             sameDetRight = false;
           }
-        }
-      }
+        }  // while loop
+      }    // testIndex < nStrips
       clusterIndexLeft[i] = indexLeft;
       clusterSize[i] = indexRight - indexLeft + 1;
       clusterDetId[i] = det;
       firstStrip[i] = stripId[indexLeft];
       trueCluster[i] =
           (noiseSquared_i * clusterThresholdSquared <= adcSum_i * adcSum_i) and (clusterSize[i] <= clusterSizeLimit);
-    }
+    }  // i < nSeedStripsNC
     if (i == 0) {
       clust_data_d->nClusters_ = nSeedStripsNC;
     }

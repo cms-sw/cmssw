@@ -2,6 +2,7 @@
 #define CalibFormats_SiStripObjects_SiStripClusterizerConditionsGPU_h
 
 #include "DataFormats/SiStripCluster/interface/SiStripTypes.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 
 #include "HeterogeneousCore/CUDACore/interface/ESProduct.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
@@ -14,23 +15,17 @@ class SiStripGain;
 class SiStripNoises;
 
 namespace stripgpu {
-  static constexpr int kStripsPerChannel = 256;
-  static constexpr int kFedFirst = 50;
-  static constexpr int kFedLast = 489;
-  static constexpr int kFedCount = kFedLast - kFedFirst + 1;
-  static constexpr int kChannelCount = 96;
-  static constexpr int kApvCount = 2 * kChannelCount;
-  static constexpr int kStripsPerFed = kChannelCount * kStripsPerChannel;
-
-  __host__ __device__ inline fedId_t fedIndex(fedId_t fed) { return fed - kFedFirst; }
+  __host__ __device__ inline fedId_t fedIndex(fedId_t fed) { return fed - sistrip::FED_ID_MIN; }
   __host__ __device__ inline std::uint32_t stripIndex(fedId_t fed, fedCh_t channel, stripId_t strip) {
-    return fedIndex(fed) * kStripsPerFed + channel * kStripsPerChannel + (strip % kStripsPerChannel);
+    return fedIndex(fed) * sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH + channel * sistrip::STRIPS_PER_FEDCH +
+           (strip % sistrip::STRIPS_PER_FEDCH);
   }
   __host__ __device__ inline std::uint32_t apvIndex(fedId_t fed, fedCh_t channel, stripId_t strip) {
-    return fedIndex(fed) * kApvCount + 2 * channel + (strip % kStripsPerChannel) / 128;
+    return fedIndex(fed) * sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED + sistrip::APVS_PER_CHAN * channel +
+           (strip % sistrip::STRIPS_PER_FEDCH) / sistrip::STRIPS_PER_APV;
   }
   __host__ __device__ inline std::uint32_t channelIndex(fedId_t fed, fedCh_t channel) {
-    return fedIndex(fed) * kChannelCount + channel;
+    return fedIndex(fed) * sistrip::FEDCH_PER_FED + channel;
   }
 
   class SiStripClusterizerConditionsGPU {
@@ -80,11 +75,11 @@ namespace stripgpu {
         __device__ inline bool bad(fedId_t fed, fedCh_t channel, stripId_t strip) const {
           return badBit == (noise_[stripIndex(fed, channel, strip)] & badBit);
         }
-        const std::uint16_t* noise_;  //[kFedCount*kStripsPerFed];
-        const float* invthick_;       //[kFedCount*kChannelCount];
-        const detId_t* detID_;        //[kFedCount*kChannelCount];
-        const APVPair_t* iPair_;      //[kFedCount*kChannelCount];
-        const float* gain_;           //[kFedCount*kApvCount];
+        const std::uint16_t* noise_;  //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH];
+        const float* invthick_;       //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
+        const detId_t* detID_;        //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
+        const APVPair_t* iPair_;      //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
+        const float* gain_;           //[sistrip::NUMBER_OF_FEDS*sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED];
       };
 
       const DeviceView* deviceView() const { return deviceView_.get(); }
@@ -92,11 +87,13 @@ namespace stripgpu {
       cms::cuda::device::unique_ptr<DeviceView> deviceView_;
       cms::cuda::host::unique_ptr<DeviceView> hostView_;
 
-      cms::cuda::device::unique_ptr<std::uint16_t[]> noise_;  //[kFedCount*kStripsPerFed];
-      cms::cuda::device::unique_ptr<float[]> invthick_;       //[kFedCount*kChannelCount];
-      cms::cuda::device::unique_ptr<detId_t[]> detID_;        //[kFedCount*kChannelCount];
-      cms::cuda::device::unique_ptr<APVPair_t[]> iPair_;      //[kFedCount*kChannelCount];
-      cms::cuda::device::unique_ptr<float[]> gain_;           //[kFedCount*kApvCount];
+      cms::cuda::device::unique_ptr<std::uint16_t[]>
+          noise_;  //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED * sistrip::STRIPS_PER_FEDCH];
+      cms::cuda::device::unique_ptr<float[]> invthick_;   //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
+      cms::cuda::device::unique_ptr<detId_t[]> detID_;    //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
+      cms::cuda::device::unique_ptr<APVPair_t[]> iPair_;  //[sistrip::NUMBER_OF_FEDS*sistrip::FEDCH_PER_FED];
+      cms::cuda::device::unique_ptr<float[]>
+          gain_;  //[sistrip::NUMBER_OF_FEDS*sistrip::APVS_PER_FEDCH * sistrip::FEDCH_PER_FED];
     };
 
     SiStripClusterizerConditionsGPU(const SiStripQuality& quality,

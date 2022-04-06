@@ -18,7 +18,7 @@ namespace stripgpu {
   }
 
   SiStripRawToClusterGPUKernel::SiStripRawToClusterGPUKernel(const edm::ParameterSet& conf)
-      : fedIndex_(stripgpu::kFedCount, stripgpu::invalidFed),
+      : fedIndex_(sistrip::NUMBER_OF_FEDS, stripgpu::invalidFed),
         channelThreshold_(conf.getParameter<double>("ChannelThreshold")),
         seedThreshold_(conf.getParameter<double>("SeedThreshold")),
         clusterThresholdSquared_(std::pow(conf.getParameter<double>("ClusterThreshold"), 2.0f)),
@@ -27,7 +27,7 @@ namespace stripgpu {
         maxAdjacentBad_(conf.getParameter<unsigned>("MaxAdjacentBad")),
         maxClusterSize_(conf.getParameter<unsigned>("MaxClusterSize")),
         minGoodCharge_(clusterChargeCut(conf)) {
-    fedRawDataOffsets_.reserve(stripgpu::kFedCount);
+    fedRawDataOffsets_.reserve(sistrip::NUMBER_OF_FEDS);
   }
 
   void SiStripRawToClusterGPUKernel::makeAsync(const std::vector<const FEDRawData*>& rawdata,
@@ -47,7 +47,7 @@ namespace stripgpu {
     size_t off = 0;
     fedRawDataOffsets_.clear();
     fedIndex_.clear();
-    fedIndex_.resize(stripgpu::kFedCount, stripgpu::invalidFed);
+    fedIndex_.resize(sistrip::NUMBER_OF_FEDS, stripgpu::invalidFed);
 
     sistrip::FEDReadoutMode mode = sistrip::READOUT_MODE_INVALID;
 
@@ -62,7 +62,10 @@ namespace stripgpu {
         if (fedRawDataOffsets_.size() == 1) {
           mode = buff->readoutMode();
         } else {
-          assert(buff->readoutMode() == mode);
+          if (buff->readoutMode() != mode) {
+            throw cms::Exception("[SiStripRawToClusterGPUKernel] inconsistent readout mode ")
+                << buff->readoutMode() << " != " << mode;
+          }
         }
       }
     }
@@ -70,6 +73,9 @@ namespace stripgpu {
     cms::cuda::copyAsync(fedRawDataGPU, fedRawDataHost_, totalSize, stream);
 
     const auto& detmap = conditions.detToFeds();
+    if ((mode != sistrip::READOUT_MODE_ZERO_SUPPRESSED) && (mode != sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10)) {
+      throw cms::Exception("[SiStripRawToClusterGPUKernel] unsupported readout mode ") << mode;
+    }
     const uint16_t headerlen = mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ? 7 : 2;
     size_t offset = 0;
     chanlocs_ = std::make_unique<ChannelLocs>(detmap.size(), stream);

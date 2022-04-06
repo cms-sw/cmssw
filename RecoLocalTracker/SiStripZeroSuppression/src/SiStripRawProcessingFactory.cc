@@ -82,7 +82,7 @@ std::unique_ptr<SiStripFedZeroSuppression> SiStripRawProcessingFactory::create_S
 
 std::unique_ptr<SiStripAPVRestorer> SiStripRawProcessingFactory::create_Restorer(const edm::ParameterSet& conf,
                                                                                  edm::ConsumesCollector iC) {
-  if (!conf.getParameter<std::string>("APVRestoreMode").empty()) {
+  if (!conf.exists("APVRestoreMode")) {
     return std::unique_ptr<SiStripAPVRestorer>(nullptr);
   } else {
     return std::unique_ptr<SiStripAPVRestorer>(new SiStripAPVRestorer(conf, iC));
