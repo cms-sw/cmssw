@@ -89,12 +89,13 @@ namespace {
     }  // fill
   };
 
-  class SiStripApvGainByPartition : public PlotImage<SiStripApvGain> {
+  class SiStripApvGainByPartition : public PlotImage<SiStripApvGain, SINGLE_IOV> {
   public:
-    SiStripApvGainByPartition() : PlotImage<SiStripApvGain>("SiStrip ApvGains By Partition") { setSingleIov(true); }
+    SiStripApvGainByPartition() : PlotImage<SiStripApvGain, SINGLE_IOV>("SiStrip ApvGains By Partition") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      auto iov = iovs.front();
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
       std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
         SiStripApvGainContainer* objContainer =
@@ -106,7 +107,6 @@ namespace {
 
         std::string fileName(m_imageFileName);
         canvas.SaveAs(fileName.c_str());
-
       }  // payload
       return true;
     }  // fill
