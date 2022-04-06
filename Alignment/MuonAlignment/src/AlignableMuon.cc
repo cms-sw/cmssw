@@ -293,6 +293,8 @@ void AlignableMuon::buildGEMEndcap(const GEMGeometry* pGEM, bool update) {
     int iec = GEMRegion->region();
     std::vector<AlignableGEMRing*> tmpGEMRingsInStation;
     for (const auto& GEMStation : pGEM->stations()) {
+      if (GEMStation->region() != iec)
+        continue;
       int ist = GEMStation->station();
       std::vector<AlignableGEMSuperChamber*> tmpGEMSuperChambersInRing;
       int iri = 1;

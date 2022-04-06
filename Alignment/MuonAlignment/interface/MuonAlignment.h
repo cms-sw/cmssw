@@ -58,7 +58,6 @@ public:
   void saveCSCtoDB();
   void saveGEMtoDB();
   void saveToDB();
-  bool doGEM();
 
 private:
   void init();
@@ -73,8 +72,6 @@ private:
   const DTGeometry* dtGeometry_;
   const CSCGeometry* cscGeometry_;
   const GEMGeometry* gemGeometry_;
-
-  bool doGEM_;
 
   align::Scalars displacements;
 
