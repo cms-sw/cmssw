@@ -43,11 +43,10 @@ void MuonAlignment::init() {
 MuonAlignment::MuonAlignment(const DTGeometry* dtGeometry,
                              const CSCGeometry* cscGeometry,
                              const GEMGeometry* gemGeometry)
-    : dtGeometry_(dtGeometry), cscGeometry_(cscGeometry), gemGeometry_(gemGeometry), doGEM_(false) {
+    : dtGeometry_(dtGeometry), cscGeometry_(cscGeometry), gemGeometry_(gemGeometry) {
   init();
 
   theAlignableMuon = new AlignableMuon(&*dtGeometry_, &*cscGeometry_, &*gemGeometry_);
-  doGEM_ = theAlignableMuon->doGEM();
   theAlignableNavigator = new AlignableNavigator(theAlignableMuon);
 }
 
@@ -367,6 +366,5 @@ void MuonAlignment::saveGEMtoDB(void) {
 void MuonAlignment::saveToDB(void) {
   saveDTtoDB();
   saveCSCtoDB();
-  if (doGEM_)
-    saveGEMtoDB();
+  saveGEMtoDB();
 }
