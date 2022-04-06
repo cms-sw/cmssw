@@ -402,3 +402,13 @@ def nanoWmassGenCustomize(process):
     etaPrecision="{} ? {} : {}".format(pdgSelection, CandVars.eta.precision.value(), genParticleTable.variables.eta.precision.value())
     process.genParticleTable.variables.eta.precision=cms.string(etaPrecision)
     return process
+
+# lowPtElectrons do not exsit for old nano campaigns (i.e. before v9)
+_modifiers = ( run2_miniAOD_80XLegacy |
+               run2_nanoAOD_94XMiniAODv1 |
+               run2_nanoAOD_94XMiniAODv2 |
+               run2_nanoAOD_94X2016 |
+               run2_nanoAOD_102Xv1 |
+               run2_nanoAOD_106Xv1 )
+_modifiers.toModify(linkedObjects,lowPtElectrons="")
+_modifiers.toModify(simpleCleanerTable,lowPtElectrons="")
