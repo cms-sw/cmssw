@@ -75,6 +75,7 @@ namespace cms::soa {
 /**
  * Member types aliasing for referencing by name
  */
+// clang-format off
 #define _DECLARE_VIEW_MEMBER_TYPE_ALIAS_IMPL(LAYOUT_NAME, LAYOUT_MEMBER, LOCAL_NAME, DATA)                         \
   typedef typename BOOST_PP_CAT(TypeOf_, LAYOUT_NAME)::SoAMetadata::BOOST_PP_CAT(TypeOf_, LAYOUT_MEMBER)           \
       BOOST_PP_CAT(TypeOf_, LOCAL_NAME);                                                                           \
@@ -89,6 +90,7 @@ namespace cms::soa {
   DATA BOOST_PP_CAT(ParametersTypeOf_, LOCAL_NAME) BOOST_PP_CAT(parametersOf_, LOCAL_NAME)() const {               \
     return parent_.BOOST_PP_CAT(LOCAL_NAME, Parameters_);                                                          \
   };
+// clang-format on
 
 #define _DECLARE_VIEW_MEMBER_TYPE_ALIAS(R, DATA, LAYOUT_MEMBER_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_TYPE_ALIAS_IMPL BOOST_PP_TUPLE_PUSH_BACK(LAYOUT_MEMBER_NAME, DATA))
@@ -115,6 +117,7 @@ namespace cms::soa {
  * Generator of member initialization from constructor.
  * We use a lambda with auto return type to handle multiple possible return types.
  */
+// clang-format off
 #define _DECLARE_VIEW_MEMBER_INITIALIZERS_IMPL(LAYOUT, MEMBER, NAME)                    \
   (BOOST_PP_CAT(NAME, Parameters_)([&]() -> auto {                                      \
     auto params = LAYOUT.soaMetadata().BOOST_PP_CAT(parametersOf_, MEMBER)();           \
@@ -123,6 +126,7 @@ namespace cms::soa {
         throw std::out_of_range("In constructor by layout: misaligned column: " #NAME); \
     return params;                                                                      \
   }()))
+// clang-format on
 
 #define _DECLARE_VIEW_MEMBER_INITIALIZERS(R, DATA, LAYOUT_MEMBER_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_MEMBER_INITIALIZERS_IMPL LAYOUT_MEMBER_NAME)
@@ -131,6 +135,7 @@ namespace cms::soa {
  * Generator of size computation for constructor.
  * This is the per-layout part of the lambda checking they all have the same size.
  */
+// clang-format off
 #define _UPDATE_SIZE_OF_VIEW_IMPL(LAYOUT_TYPE, LAYOUT_NAME)                               \
   if (set) {                                                                              \
     if (ret != LAYOUT_NAME.soaMetadata().size())                                          \
@@ -139,6 +144,7 @@ namespace cms::soa {
     ret = LAYOUT_NAME.soaMetadata().size();                                               \
     set = true;                                                                           \
   }
+// clang-format on
 
 #define _UPDATE_SIZE_OF_VIEW(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_UPDATE_SIZE_OF_VIEW_IMPL TYPE_NAME)
 
@@ -206,6 +212,7 @@ namespace cms::soa {
 /**
  * Declaration of the members accessors of the const element subclass
  */
+// clang-format off
 #define _DECLARE_VIEW_CONST_ELEMENT_ACCESSOR_IMPL(LAYOUT_NAME, LAYOUT_MEMBER, LOCAL_NAME)                 \
   SOA_HOST_DEVICE_INLINE                                                                                  \
       typename SoAConstValueWithConf<BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, LOCAL_NAME),                \
@@ -213,6 +220,7 @@ namespace cms::soa {
       LOCAL_NAME() const {                                                                                \
     return BOOST_PP_CAT(LOCAL_NAME, _)();                                                                 \
   }
+// clang-format on
 
 #define _DECLARE_VIEW_CONST_ELEMENT_ACCESSOR(R, DATA, LAYOUT_MEMBER_NAME) \
   _DECLARE_VIEW_CONST_ELEMENT_ACCESSOR_IMPL LAYOUT_MEMBER_NAME
@@ -220,11 +228,13 @@ namespace cms::soa {
 /**
  * Declaration of the private members of the const element subclass
  */
+// clang-format off
 #define _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER_IMPL(LAYOUT_NAME, LAYOUT_MEMBER, LOCAL_NAME)                      \
   const cms::soa::ConstValueTraits<SoAConstValueWithConf<BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, LOCAL_NAME),     \
                                                          typename BOOST_PP_CAT(SoAMetadata::TypeOf_, LOCAL_NAME)>, \
                                    BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, LOCAL_NAME)>                           \
       BOOST_PP_CAT(LOCAL_NAME, _);
+// clang-format on
 
 #define _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER(R, DATA, LAYOUT_MEMBER_NAME) \
   _DECLARE_VIEW_CONST_ELEMENT_VALUE_MEMBER_IMPL LAYOUT_MEMBER_NAME
@@ -242,10 +252,12 @@ namespace cms::soa {
 /**
  * Declaration of the private members of the const element subclass
  */
+// clang-format off
 #define _DECLARE_VIEW_ELEMENT_VALUE_MEMBER_IMPL(LAYOUT_NAME, LAYOUT_MEMBER, LOCAL_NAME) \
   SoAValueWithConf<BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, LOCAL_NAME),                \
                    typename BOOST_PP_CAT(SoAMetadata::TypeOf_, LOCAL_NAME)>             \
       LOCAL_NAME;
+// clang-format on
 
 #define _DECLARE_VIEW_ELEMENT_VALUE_MEMBER(R, DATA, LAYOUT_MEMBER_NAME) \
   _DECLARE_VIEW_ELEMENT_VALUE_MEMBER_IMPL LAYOUT_MEMBER_NAME
@@ -262,6 +274,7 @@ namespace cms::soa {
 /**
  * Direct access to column pointer and indexed access
  */
+// clang-format off
 #define _DECLARE_VIEW_SOA_ACCESSOR_IMPL(LAYOUT_NAME, LAYOUT_MEMBER, LOCAL_NAME)                         \
   /* Column or scalar */                                                                                \
   SOA_HOST_DEVICE_INLINE                                                                                \
@@ -278,6 +291,7 @@ namespace cms::soa {
         template ColumnType<BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType< \
             cms::soa::SoAAccessType::mutableAccess>(BOOST_PP_CAT(LOCAL_NAME, Parameters_))(index);      \
   }
+// clang-format on
 
 #define _DECLARE_VIEW_SOA_ACCESSOR(R, DATA, LAYOUT_MEMBER_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_SOA_ACCESSOR_IMPL LAYOUT_MEMBER_NAME)
@@ -285,6 +299,7 @@ namespace cms::soa {
 /**
  * Direct access to column pointer (const) and indexed access.
  */
+// clang-format off
 #define _DECLARE_VIEW_SOA_CONST_ACCESSOR_IMPL(LAYOUT_NAME, LAYOUT_MEMBER, LOCAL_NAME)                   \
   /* Column or scalar */                                                                                \
   SOA_HOST_DEVICE_INLINE auto LOCAL_NAME() const {                                                      \
@@ -297,6 +312,7 @@ namespace cms::soa {
         template ColumnType<BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, LOCAL_NAME)>::template AccessType< \
             cms::soa::SoAAccessType::constAccess>(BOOST_PP_CAT(LOCAL_NAME, Parameters_))(index);        \
   }
+// clang-format on
 
 #define _DECLARE_VIEW_SOA_CONST_ACCESSOR(R, DATA, LAYOUT_MEMBER_NAME) \
   BOOST_PP_EXPAND(_DECLARE_VIEW_SOA_CONST_ACCESSOR_IMPL LAYOUT_MEMBER_NAME)
@@ -565,7 +581,7 @@ namespace cms::soa {
 /**
  * A macro defining both layout and view(s) in one go.
  */
-
+// clang-format off
 #define GENERATE_SOA_LAYOUT_VIEW_AND_CONST_VIEW(LAYOUT_NAME, VIEW_NAME, CONST_VIEW_NAME, ...)                          \
   GENERATE_SOA_LAYOUT(LAYOUT_NAME, __VA_ARGS__)                                                                        \
   using BOOST_PP_CAT(LAYOUT_NAME, _default) = LAYOUT_NAME<>;                                                           \
@@ -578,7 +594,9 @@ namespace cms::soa {
       SOA_VIEW_LAYOUT_LIST((BOOST_PP_CAT(LAYOUT_NAME, _default), BOOST_PP_CAT(instance_, LAYOUT_NAME))),               \
       SOA_VIEW_VALUE_LIST(                                                                                             \
           _ITERATE_ON_ALL_COMMA(_VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, LAYOUT_NAME), __VA_ARGS__)))
+// clang-format on
 
+// clang-format off
 #define GENERATE_SOA_LAYOUT_AND_VIEW(LAYOUT_NAME, VIEW_NAME, ...)                                                      \
   GENERATE_SOA_LAYOUT(LAYOUT_NAME, __VA_ARGS__);                                                                       \
   using BOOST_PP_CAT(LAYOUT_NAME, _default) = LAYOUT_NAME<>;                                                           \
@@ -586,7 +604,9 @@ namespace cms::soa {
                     SOA_VIEW_LAYOUT_LIST((BOOST_PP_CAT(LAYOUT_NAME, _default), BOOST_PP_CAT(instance_, LAYOUT_NAME))), \
                     SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                         \
                         _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, LAYOUT_NAME), __VA_ARGS__)))
+// clang-format on
 
+// clang-format off
 #define GENERATE_SOA_LAYOUT_AND_CONST_VIEW(LAYOUT_NAME, CONST_VIEW_NAME, ...)                            \
   GENERATE_SOA_LAYOUT(LAYOUT_NAME, __VA_ARGS__)                                                          \
   using BOOST_PP_CAT(LAYOUT_NAME, _default) = LAYOUT_NAME<>;                                             \
@@ -595,5 +615,6 @@ namespace cms::soa {
       SOA_VIEW_LAYOUT_LIST((BOOST_PP_CAT(LAYOUT_NAME, _default), BOOST_PP_CAT(instance_, LAYOUT_NAME))), \
       SOA_VIEW_VALUE_LIST(                                                                               \
           _ITERATE_ON_ALL_COMMA(_VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, LAYOUT_NAME), __VA_ARGS__)))
+// clang-format on
 
 #endif  // ndef DataStructures_SoAView_h

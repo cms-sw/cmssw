@@ -163,8 +163,7 @@ namespace cms::soa {
     typedef std::tuple<ScalarType*, size_t> TupleOrPointerType;
     ScalarType* addr_ = nullptr;
     size_t stride_ = 0;
-    SOA_HOST_DEVICE_INLINE SoAParametersImpl(ScalarType* addr, size_t stride)
-        : addr_(addr), stride_(stride) {}
+    SOA_HOST_DEVICE_INLINE SoAParametersImpl(ScalarType* addr, size_t stride) : addr_(addr), stride_(stride) {}
     SOA_HOST_DEVICE_INLINE SoAParametersImpl(const TupleOrPointerType tuple)
         : addr_(std::get<0>(tuple)), stride_(std::get<1>(tuple)) {}
     SOA_HOST_DEVICE_INLINE SoAParametersImpl() {}
@@ -209,8 +208,7 @@ namespace cms::soa {
     typedef typename Restr::PointerToConst PtrToConst;
     typedef typename Restr::ReferenceToConst RefToConst;
     SOA_HOST_DEVICE_INLINE SoAValue(size_t i, T* col) : idx_(i), col_(col) {}
-    SOA_HOST_DEVICE_INLINE SoAValue(size_t i, SoAParametersImpl<COLUMN_TYPE, T> params)
-        : idx_(i), col_(params.addr_) {}
+    SOA_HOST_DEVICE_INLINE SoAValue(size_t i, SoAParametersImpl<COLUMN_TYPE, T> params) : idx_(i), col_(params.addr_) {}
     /* SOA_HOST_DEVICE_INLINE operator T&() { return col_[idx_]; } */
     SOA_HOST_DEVICE_INLINE Ref operator()() {
       // Ptr type will add the restrict qualifyer if needed
@@ -471,8 +469,7 @@ namespace cms::soa {
   template <typename T>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::column, SoAAccessType::constAccess> {
     SOA_HOST_DEVICE_INLINE
-    SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::column, T>& params)
-        : params_(params) {}
+    SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::column, T>& params) : params_(params) {}
     SOA_HOST_DEVICE_INLINE const T* operator()() const { return params_.addr_; }
     typedef T* NoParamReturnType;
     SOA_HOST_DEVICE_INLINE T operator()(size_t index) const { return params_.addr_[index]; }
@@ -500,8 +497,7 @@ namespace cms::soa {
   template <typename T>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::scalar, SoAAccessType::constAccess> {
     SOA_HOST_DEVICE_INLINE
-    SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::scalar, T>& params)
-        : params_(params) {}
+    SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::scalar, T>& params) : params_(params) {}
     SOA_HOST_DEVICE_INLINE T operator()() const { return *params_.addr_; }
     typedef T NoParamReturnType;
     SOA_HOST_DEVICE_INLINE void operator()(size_t index) const {
@@ -529,8 +525,7 @@ namespace cms::soa {
   template <typename T>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::constAccess> {
     SOA_HOST_DEVICE_INLINE
-    SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::eigen, T>& params)
-        : params_(params) {}
+    SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::eigen, T>& params) : params_(params) {}
     SOA_HOST_DEVICE_INLINE const typename T::Scalar* operator()() const { return params_.addr_; }
     typedef typename T::Scalar* NoParamReturnType;
     //SOA_HOST_DEVICE_INLINE T operator()(size_t index) const { return params_.addr_[index]; }
@@ -538,7 +533,7 @@ namespace cms::soa {
   private:
     SoAConstParametersImpl<SoAColumnType::eigen, T> params_;
   };
-  
+
   /* A helper template stager avoiding comma in macros */
   template <typename T>
   struct SoAAccessors {

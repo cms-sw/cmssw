@@ -176,6 +176,7 @@
 /**
  * Computation of the column or scalar pointer location in the memory layout (at SoA construction time)
  */
+// clang-format off
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                 \
   _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                                                                            \
                   BOOST_PP_CAT(NAME, _) = reinterpret_cast<CPP_TYPE*>(curMem);                                        \
@@ -192,12 +193,14 @@
   if constexpr (alignmentEnforcement == AlignmentEnforcement::Enforced)                                               \
     if (reinterpret_cast<intptr_t>(BOOST_PP_CAT(NAME, _)) % byteAlignment)                                            \
       throw std::out_of_range("In layout constructor: misaligned column: " #NAME);
+// clang-format on
 
 #define _ASSIGN_SOA_COLUMN_OR_SCALAR(R, DATA, TYPE_NAME) _ASSIGN_SOA_COLUMN_OR_SCALAR_IMPL TYPE_NAME
 
 /**
  * Computation of the column or scalar size for SoA size computation
  */
+// clang-format off
 #define _ACCUMULATE_SOA_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                              \
   _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                                                                    \
                   ret += (((sizeof(CPP_TYPE) - 1) / byteAlignment) + 1) * byteAlignment;                      \
@@ -206,12 +209,14 @@
                   , /* Eigen column */                                                                        \
                   ret += (((nElements * sizeof(CPP_TYPE::Scalar) - 1) / byteAlignment) + 1) * byteAlignment * \
                          CPP_TYPE::RowsAtCompileTime * CPP_TYPE::ColsAtCompileTime;)
+// clang-format on
 
 #define _ACCUMULATE_SOA_ELEMENT(R, DATA, TYPE_NAME) _ACCUMULATE_SOA_ELEMENT_IMPL TYPE_NAME
 
 /**
  * Direct access to column pointer and indexed access
  */
+// clang-format off
 #define _DECLARE_SOA_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                     \
   _SWITCH_ON_TYPE(                                                                                                 \
       VALUE_TYPE,                                                                              /* Scalar */        \
@@ -221,12 +226,14 @@
       } SOA_HOST_DEVICE_INLINE CPP_TYPE& NAME(size_t index) { return BOOST_PP_CAT(NAME, _)[index]; },              \
       /* Eigen column */ /* Unsupported for the moment TODO */                                                     \
       BOOST_PP_EMPTY())
+// clang-format on
 
 #define _DECLARE_SOA_ACCESSOR(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_SOA_ACCESSOR_IMPL TYPE_NAME)
 
 /**
  * Direct access to column pointer (const) and indexed access.
  */
+// clang-format off
 #define _DECLARE_SOA_CONST_ACCESSOR_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                               \
   _SWITCH_ON_TYPE(                                                                                                 \
       VALUE_TYPE,                                                                                     /* Scalar */ \
@@ -237,12 +244,14 @@
       SOA_HOST_DEVICE_INLINE CPP_TYPE::Scalar const* NAME()                                                        \
           const { return BOOST_PP_CAT(NAME, _); } SOA_HOST_DEVICE_INLINE size_t BOOST_PP_CAT(                      \
               NAME, Stride)() { return BOOST_PP_CAT(NAME, Stride_); })
+// clang-format on
 
 #define _DECLARE_SOA_CONST_ACCESSOR(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_SOA_CONST_ACCESSOR_IMPL TYPE_NAME)
 
 /**
  * SoA class member declaration (column pointers).
  */
+// clang-format off
 #define _DECLARE_SOA_DATA_MEMBER_IMPL(VALUE_TYPE, CPP_TYPE, NAME)     \
   _SWITCH_ON_TYPE(VALUE_TYPE, /* Scalar */                            \
                   CPP_TYPE* BOOST_PP_CAT(NAME, _) = nullptr;          \
@@ -251,6 +260,7 @@
                   , /* Eigen column */                                \
                   CPP_TYPE::Scalar * BOOST_PP_CAT(NAME, _) = nullptr; \
                   size_t BOOST_PP_CAT(NAME, Stride_) = 0;)
+// clang-format on
 
 #define _DECLARE_SOA_DATA_MEMBER(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_DECLARE_SOA_DATA_MEMBER_IMPL TYPE_NAME)
 

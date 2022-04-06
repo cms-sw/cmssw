@@ -66,7 +66,8 @@ using SoAFullDeviceView =
 // Eigen cross product kernel (on store)
 __global__ void crossProduct(SoAHostDeviceView soa, const unsigned int numElements) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
-  if (i>=numElements) return;
+  if (i >= numElements)
+    return;
   auto si = soa[i];
   si.r() = si.a().cross(si.b());
 }
@@ -74,7 +75,8 @@ __global__ void crossProduct(SoAHostDeviceView soa, const unsigned int numElemen
 // Device-only producer kernel
 __global__ void producerKernel(SoAFullDeviceView soa, const unsigned int numElements) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
-  if (i>=numElements) return;
+  if (i >= numElements)
+    return;
   auto si = soa[i];
   si.color() &= 0x55 << i % (sizeof(si.color()) - sizeof(char));
   si.value() = sqrt(si.x() * si.x() + si.y() * si.y() + si.z() * si.z());
@@ -83,7 +85,8 @@ __global__ void producerKernel(SoAFullDeviceView soa, const unsigned int numElem
 // Device-only consumer with result in host-device area
 __global__ void consumerKernel(SoAFullDeviceView soa, const unsigned int numElements) {
   int i = blockIdx.x * blockDim.x + threadIdx.x;
-  if (i>=numElements) return;
+  if (i >= numElements)
+    return;
   auto si = soa[i];
   si.x() = si.color() * si.value();
 }
@@ -112,14 +115,14 @@ int main(void) {
 
   // Allocate buffer and store on host
   size_t hostDeviceSize = SoAHostDeviceLayout::computeDataSize(numElements);
-  std::byte * h_buf = nullptr;
+  std::byte* h_buf = nullptr;
   cudaCheck(cudaMallocHost(&h_buf, hostDeviceSize));
   SoAHostDeviceLayout h_soahdLayout(h_buf, numElements);
   SoAHostDeviceView h_soahd(h_soahdLayout);
 
   // Alocate buffer, stores and views on the device (single, shared buffer).
   size_t deviceOnlySize = SoADeviceOnlyLayout::computeDataSize(numElements);
-  std::byte * d_buf = nullptr;
+  std::byte* d_buf = nullptr;
   cudaCheck(cudaMallocHost(&d_buf, hostDeviceSize + deviceOnlySize));
   SoAHostDeviceLayout d_soahdLayout(d_buf, numElements);
   SoADeviceOnlyLayout d_soadoLayout(d_soahdLayout.soaMetadata().nextByte(), numElements);
@@ -208,7 +211,7 @@ int main(void) {
 
   // Paint the device only with 0xFF initially
   cudaCheck(cudaMemsetAsync(d_soadoLayout.soaMetadata().data(), 0xFF, d_soadoLayout.soaMetadata().byteSize(), stream));
-  
+
   // Produce to the device only area
   producerKernel<<<(numElements + 255) / 256, 256, 0, stream>>>(d_soaFullView, numElements);
 
@@ -258,7 +261,7 @@ int main(void) {
   RangeCheckingHostDeviceView soa1viewRangeChecking(d_soahdLayout);
   // This should throw an exception in the kernel
   try {
-    rangeCheckKernel<<<1,1,0,stream>>>(soa1viewRangeChecking);
+    rangeCheckKernel<<<1, 1, 0, stream>>>(soa1viewRangeChecking);
   } catch (const std::out_of_range&) {
     std::cout << "Exception received in enqueue." << std::endl;
   }
