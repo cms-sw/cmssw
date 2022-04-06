@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,9 +30,9 @@
 #include "DataFormats/CSCDigi/interface/CSCWireDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 
-class DigiAnalyzer : public edm::EDAnalyzer {
+class CSCDigiAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  explicit DigiAnalyzer(edm::ParameterSet const& conf);
+  explicit CSCDigiAnalyzer(edm::ParameterSet const& conf);
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;
 
 private:
@@ -49,7 +49,7 @@ private:
   edm::EDGetTokenT<CSCDCCFormatStatusDigiCollection> dc_token;
 };
 
-DigiAnalyzer::DigiAnalyzer(edm::ParameterSet const& conf) {
+CSCDigiAnalyzer::CSCDigiAnalyzer(edm::ParameterSet const& conf) {
   eventNumber = 0;
 
   wd_token = consumes<CSCWireDigiCollection>(conf.getParameter<edm::InputTag>("wireDigiTag"));
@@ -63,7 +63,7 @@ DigiAnalyzer::DigiAnalyzer(edm::ParameterSet const& conf) {
   dc_token = consumes<CSCDCCFormatStatusDigiCollection>(conf.getParameter<edm::InputTag>("dccfDigiTag"));
 }
 
-void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
+void CSCDigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   edm::Handle<CSCWireDigiCollection> wires;
   edm::Handle<CSCStripDigiCollection> strips;
   edm::Handle<CSCComparatorDigiCollection> comparators;
@@ -164,8 +164,8 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   }
 
   eventNumber++;
-  edm::LogInfo("DigiAnalyzer") << "end of event number " << eventNumber;
+  edm::LogInfo("CSCDigiAnalyzer") << "end of event number " << eventNumber;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(DigiAnalyzer);
+DEFINE_FWK_MODULE(CSCDigiAnalyzer);

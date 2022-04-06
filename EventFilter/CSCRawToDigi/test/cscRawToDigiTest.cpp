@@ -14,7 +14,7 @@ int main() {
 
   CSCTMBHeader::selfTest(2020, 0x401);  // OTMB MEx1 CCLUT/HMT Run3 format
   CSCTMBHeader::selfTest(2020, 0x601);  // OTMB MEx1 CCLUT/HMT+GEM Run3 format
-  CSCTMBHeader::selfTest(2020, 0x001);  // TMB HMT CLCT Run2 LCT Run3 format
+  CSCTMBHeader::selfTest(2020, 0x801);  // copper TMB hybrid anode HMT-only CLCT Run2 LCT Run3 format
 
   CSCTMBHeader::selfTest(2020, 0x021);  // TMB CCLUT/HMT Run2 format
   CSCTMBHeader::selfTest(2020, 0x221);  // OTMB CCLUT/HMT Run2 format
