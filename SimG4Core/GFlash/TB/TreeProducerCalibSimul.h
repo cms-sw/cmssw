@@ -53,12 +53,13 @@
 #include <unistd.h>
 #include <fstream>
 #include <math.h>
+#include <memory>
 #include <stdexcept>
 
 class TreeProducerCalibSimul : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit TreeProducerCalibSimul(const edm::ParameterSet&);
-  ~TreeProducerCalibSimul();
+  ~TreeProducerCalibSimul() override = default;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
@@ -77,15 +78,15 @@ private:
   std::string eventHeaderProducer_;
   double posCluster_;
 
-  TreeMatrixCalib* myTree;
+  std::unique_ptr<TreeMatrixCalib> myTree_;
 
-  int xtalInBeam;
-  int tot_events;
-  int tot_events_ok;
-  int noHits;
-  int noHodo;
-  int noTdc;
-  int noHeader;
+  int xtalInBeam_;
+  int tot_events_;
+  int tot_events_ok_;
+  int noHits_;
+  int noHodo_;
+  int noTdc_;
+  int noHeader_;
 };
 
 #endif
