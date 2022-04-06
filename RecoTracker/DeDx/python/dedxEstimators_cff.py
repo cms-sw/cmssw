@@ -84,11 +84,6 @@ fastSim.toReplaceWith(doAlldEdXEstimatorsTask, cms.Task(dedxHarmonic2, dedxPixel
 # use only the strips for Run-3
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify(dedxHitInfo,
-    lowPtTracksEstimatorParameters = cms.PSet(
-        fraction = cms.double(0),
-        exponent = cms.double(-2.0),
-        truncate = cms.bool(False)
-    ),
+    lowPtTracksEstimatorParameters = dict(fraction = 0., exponent = -2.0,truncate = False),
     usePixelForPrescales = False
 )
-
