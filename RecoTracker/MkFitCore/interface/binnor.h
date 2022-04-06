@@ -1,12 +1,14 @@
 #ifndef RecoTracker_MkFitCore_interface_binnor_h
 #define RecoTracker_MkFitCore_interface_binnor_h
 
+#include "radix_sort.h"
+
 #include <algorithm>
 #include <cmath>
 #include <numeric>
 #include <vector>
 #include <cassert>
-#include <cstdio>
+//#include <cstdio>
 
 namespace mkfit {
 
@@ -149,6 +151,9 @@ namespace mkfit {
   //    used to fill it). Final counts for all the bins, as well as starting
   //    indices for the bins (within m_ranks), are computed and stored in packed
   //    form (i.e., bit-fields) in m_bins.
+  // 5. m_cons can be kept to do preselection when determining search ranges.
+  //    Note that additional precision on Axis2 is screened out during sorting.
+
   //
   // C - bin content type, to hold "bin population coordinates" in packed form (bit-fields)
   // A1, A2 - axis types
@@ -156,17 +161,21 @@ namespace mkfit {
 
   template <typename C, typename A1, typename A2, unsigned NB_first = 8 * sizeof(C), unsigned NB_count = 8 * sizeof(C)>
   struct binnor {
+    static_assert(std::is_same<C, unsigned short>() || std::is_same<C, unsigned int>());
     static_assert(std::is_same<typename A1::real_t, typename A2::real_t>());
     static_assert(A1::c_M + A2::c_M <= 32);
 
     static constexpr unsigned int c_A1_mask = (1 << A1::c_M) - 1;
     static constexpr unsigned int c_A2_Mout_mask = ~(((1 << A2::c_M2N_shift) - 1) << A1::c_M);
 
+    using sort_func = std::function<void(binnor &)>;
+
     // Pair of axis bin indices packed into unsigned.
     struct B_pair {
       unsigned int packed_value;  // bin1 in A1::c_M lower bits, bin2 above
 
       B_pair() : packed_value(0) {}
+      B_pair(unsigned int pv) : packed_value(pv) {}
       B_pair(typename A1::index_t i1, typename A2::index_t i2) : packed_value(i2 << A1::c_M | i1) {}
 
       typename A1::index_t bin1() const { return packed_value & c_A1_mask; }
@@ -189,10 +198,20 @@ namespace mkfit {
     const A1 &m_a1;
     const A2 &m_a2;
     std::vector<B_pair> m_cons;
+    std::vector<unsigned> m_cons_masked;
     std::vector<C_pair> m_bins;
     std::vector<C> m_ranks;
+    const bool m_radix_sort;
+    const bool m_keep_cons;
+    const bool m_do_masked;
 
-    binnor(const A1 &a1, const A2 &a2) : m_a1(a1), m_a2(a2), m_bins(m_a1.size_of_N() * m_a2.size_of_N()) {}
+    binnor(const A1 &a1, const A2 &a2, bool radix = true, bool keep_cons = false)
+        : m_a1(a1),
+          m_a2(a2),
+          m_bins(m_a1.size_of_N() * m_a2.size_of_N()),
+          m_radix_sort(radix),
+          m_keep_cons(keep_cons),
+          m_do_masked(radix || !keep_cons) {}
 
     // Access
 
@@ -221,37 +240,60 @@ namespace mkfit {
     // Filling
 
     void reset_contents() {
+      if (m_keep_cons) {
+        m_cons.clear();
+        m_cons.shrink_to_fit();
+      }
       m_bins.assign(m_bins.size(), C_pair());
       m_ranks.clear();
       m_ranks.shrink_to_fit();
     }
 
-    void begin_registration(C n_items) { m_cons.reserve(n_items); }
+    void begin_registration(C n_items) {
+      if (m_keep_cons)
+        m_cons.reserve(n_items);
+      if (!m_keep_cons || m_radix_sort)
+        m_cons_masked.reserve(n_items);
+    }
+
+    void register_entry(B_pair bp) {
+      m_cons.emplace_back(bp);
+      if (m_keep_cons)
+        m_cons.push_back(bp);
+      if (m_do_masked)
+        m_cons_masked.push_back(bp.mask_A2_M_bins());
+    }
 
     void register_entry(typename A1::real_t r1, typename A2::real_t r2) {
-      m_cons.push_back({m_a1.from_R_to_M_bin(r1), m_a2.from_R_to_M_bin(r2)});
+      register_entry({m_a1.from_R_to_M_bin(r1), m_a2.from_R_to_M_bin(r2)});
     }
 
     void register_entry_safe(typename A1::real_t r1, typename A2::real_t r2) {
-      m_cons.push_back({m_a1.from_R_to_M_bin_safe(r1), m_a2.from_R_to_M_bin_safe(r2)});
+      register_entry({m_a1.from_R_to_M_bin_safe(r1), m_a2.from_R_to_M_bin_safe(r2)});
     }
 
     // Do M-binning outside, potentially using R_to_M_bin_safe().
-    void register_m_bins(typename A1::index_t m1, typename A2::index_t m2) { m_cons.push_back({m1, m2}); }
+    void register_m_bins(typename A1::index_t m1, typename A2::index_t m2) { register_entry({m1, m2}); }
 
-    void finalize_registration() {
-      // call internal sort, bin building from icc where template instantiation has to be made.
-
-      m_ranks.resize(m_cons.size());
-      std::iota(m_ranks.begin(), m_ranks.end(), 0);
-
-      std::sort(m_ranks.begin(), m_ranks.end(), [&](auto &a, auto &b) {
-        return m_cons[a].mask_A2_M_bins() < m_cons[b].mask_A2_M_bins();
-      });
+    void finalize_registration(sort_func ext_sort = 0) {
+      if (m_radix_sort) {
+        radix_sort<unsigned, C> radix;
+        radix.sort(m_cons_masked, m_ranks);
+      } else {
+        m_ranks.resize(m_cons.size());
+        std::iota(m_ranks.begin(), m_ranks.end(), 0);
+        if (m_keep_cons)
+          std::sort(m_ranks.begin(), m_ranks.end(), [&](auto &a, auto &b) {
+            return m_cons[a].mask_A2_M_bins() < m_cons[b].mask_A2_M_bins();
+          });
+        else
+          std::sort(
+              m_ranks.begin(), m_ranks.end(), [&](auto &a, auto &b) { return m_cons_masked[a] < m_cons_masked[b]; });
+      }
 
       for (C i = 0; i < m_ranks.size(); ++i) {
         C j = m_ranks[i];
-        C_pair &c_bin = ref_content(m_bin_to_n_bin(m_cons[j]));
+        C_pair &c_bin = ref_content(m_bin_to_n_bin(m_keep_cons ? m_cons[j] : B_pair(m_cons_masked[j])));
         if (c_bin.count == 0)
           c_bin.first = i;
         ++c_bin.count;
@@ -262,10 +304,10 @@ namespace mkfit {
 #endif
       }
 
-      // Those could be kept to do preselection when determining search ranges.
-      // Especially since additional precision on Axis2 is screened out during sorting.
-      m_cons.clear();
-      m_cons.shrink_to_fit();
+      if (m_do_masked) {
+        m_cons_masked.clear();
+        m_cons_masked.shrink_to_fit();
+      }
     }
   };
 
