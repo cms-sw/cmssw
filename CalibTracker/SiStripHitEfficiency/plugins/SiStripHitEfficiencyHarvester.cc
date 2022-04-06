@@ -1,24 +1,20 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 #include "TEfficiency.h"
-
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 
 class SiStripHitEfficiencyHarvester : public DQMEDHarvester {
 public:
@@ -55,20 +51,19 @@ private:
 };
 
 SiStripHitEfficiencyHarvester::SiStripHitEfficiencyHarvester(const edm::ParameterSet& conf)
-: showRings_(conf.getUntrackedParameter<bool>("ShowRings", false)),
-  autoIneffModTagging_(conf.getUntrackedParameter<bool>("AutoIneffModTagging", false)),
-  doStoreOnDB_(conf.getParameter<bool>("doStoreOnDB")),
-  nTEClayers_(showRings_ ? 7 : 9),  // number of rings or wheels
-  threshold_(conf.getParameter<double>("Threshold")),
-  nModsMin_(conf.getParameter<int>("nModsMin")),
-  tkMapMin_(conf.getUntrackedParameter<double>("TkMapMin", 0.9)),
-  title_(conf.getParameter<std::string>("Title")),
-  record_(conf.getParameter<std::string>("Record")),
-  tTopoToken_(esConsumes<edm::Transition::EndRun>()),
-  tkDetMapToken_(esConsumes<edm::Transition::EndRun>()),
-  stripQualityToken_(esConsumes<edm::Transition::EndRun>()),
-  tkGeomToken_(esConsumes<edm::Transition::EndRun>())
-{}
+    : showRings_(conf.getUntrackedParameter<bool>("ShowRings", false)),
+      autoIneffModTagging_(conf.getUntrackedParameter<bool>("AutoIneffModTagging", false)),
+      doStoreOnDB_(conf.getParameter<bool>("doStoreOnDB")),
+      nTEClayers_(showRings_ ? 7 : 9),  // number of rings or wheels
+      threshold_(conf.getParameter<double>("Threshold")),
+      nModsMin_(conf.getParameter<int>("nModsMin")),
+      tkMapMin_(conf.getUntrackedParameter<double>("TkMapMin", 0.9)),
+      title_(conf.getParameter<std::string>("Title")),
+      record_(conf.getParameter<std::string>("Record")),
+      tTopoToken_(esConsumes<edm::Transition::EndRun>()),
+      tkDetMapToken_(esConsumes<edm::Transition::EndRun>()),
+      stripQualityToken_(esConsumes<edm::Transition::EndRun>()),
+      tkGeomToken_(esConsumes<edm::Transition::EndRun>()) {}
 
 void SiStripHitEfficiencyHarvester::endRun(edm::Run const&, edm::EventSetup const& iSetup) {
   if (!tTopo_) {
@@ -175,19 +170,19 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
           // We have a bad module, put it in the list!
           badModules[det] = eff;
           tkMapBad.fillc(det, 255, 0, 0);
-          std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId() << " efficiency: " << eff
-                    << " , " << num << "/" << denom << std::endl;
+          std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
+                    << " efficiency: " << eff << " , " << num << "/" << denom << std::endl;
         } else {
           //Fill the bad list with empty results for every module
           tkMapBad.fillc(det, 255, 255, 255);
         }
         if (eff < threshold_)
-          std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId() << " efficiency: " << eff
-                    << " , " << num << "/" << denom << std::endl;
+          std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
+                    << " efficiency: " << eff << " , " << num << "/" << denom << std::endl;
 
         if (denom < nModsMin_) {
-          std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId() << " is under occupancy at "
-                    << denom << std::endl;
+          std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
+                    << " is under occupancy at " << denom << std::endl;
         }
       }
       //Put any module into the TKMap
@@ -231,11 +226,12 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
             }
             if (eff_up < layer_min_eff + 0.08)  // printing message also for modules sligthly above (8%) the limit
 
-              std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId() << " efficiency: " << eff
-                        << " , " << num << "/" << denom << " , upper limit: " << eff_up << std::endl;
+              std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
+                        << " efficiency: " << eff << " , " << num << "/" << denom << " , upper limit: " << eff_up
+                        << std::endl;
             if (denom < nModsMin_) {
-              std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId() << " layer " << layer
-                        << " is under occupancy at " << denom << std::endl;
+              std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId() << " layer "
+                        << layer << " is under occupancy at " << denom << std::endl;
             }
           }
         }
@@ -249,7 +245,8 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   tkMapNum.save(true, 0, 0, "SiStripHitEffTKMapNum_NEW.png");
   tkMapDen.save(true, 0, 0, "SiStripHitEffTKMapDen_NEW.png");
 
-  const auto detInfo = SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
+  const auto detInfo =
+      SiStripDetInfoFileReader::read(edm::FileInPath{SiStripDetInfoFileReader::kDefaultFile}.fullPath());
   SiStripQuality pQuality{detInfo};
   //This is the list of the bad strips, use to mask out entire APVs
   //Now simply go through the bad hit list and mask out things that
