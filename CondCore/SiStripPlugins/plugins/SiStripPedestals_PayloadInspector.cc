@@ -50,8 +50,8 @@ namespace {
 
   class SiStripPedestalContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float> {
   public:
-    SiStripPedestalContainer(std::shared_ptr<SiStripPedestals> payload, unsigned int run, std::string hash)
-        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float>(payload, run, hash) {
+    SiStripPedestalContainer(const std::shared_ptr<SiStripPedestals>& payload, const SiStripPI::MetaData& metadata)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float>(payload, metadata, std::string()) {
       payloadType_ = "SiStripPedestals";
       setGranularity(SiStripCondObjectRepresent::PERSTRIP);
     }
@@ -76,8 +76,8 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
@@ -90,10 +90,8 @@ namespace {
       std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripPedestalContainer* l_objContainer =
-          new SiStripPedestalContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
-      SiStripPedestalContainer* f_objContainer =
-          new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov);
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov);
 
       l_objContainer->compare(f_objContainer);
 
@@ -115,8 +113,8 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
@@ -129,10 +127,8 @@ namespace {
       std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripPedestalContainer* l_objContainer =
-          new SiStripPedestalContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
-      SiStripPedestalContainer* f_objContainer =
-          new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov);
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov);
 
       l_objContainer->subtract(f_objContainer);
 
@@ -155,8 +151,8 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
@@ -169,10 +165,8 @@ namespace {
       std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripPedestalContainer* l_objContainer =
-          new SiStripPedestalContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
-      SiStripPedestalContainer* f_objContainer =
-          new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov);
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov);
 
       l_objContainer->compare(f_objContainer);
 
@@ -606,7 +600,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);

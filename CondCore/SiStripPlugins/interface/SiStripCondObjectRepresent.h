@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <fmt/printf.h>
 
 // user includes
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
@@ -172,26 +173,35 @@ namespace SiStripCondObjectRepresent {
   template <class Item, class type>
   class SiStripDataContainer {
   public:
-    SiStripDataContainer(std::shared_ptr<Item> payload, unsigned int run, std::string hash)
+    SiStripDataContainer(const std::shared_ptr<Item> &payload,
+                         const SiStripPI::MetaData &metadata,
+                         const std::string &tagname)
         : payload_(payload),
-          run_(run),
-          hash_(hash),
+          run_(std::get<0>(metadata)),
+          hash_(std::get<1>(metadata)),
+          tagname_(tagname),
           m_trackerTopo(StandaloneTrackerTopology::fromTrackerParametersXMLFile(
               edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())) {
       payloadType_ = std::string();
       granularity_ = PERSTRIP;
       plotMode_ = STANDARD;
-      additionalIOV_ = std::make_pair(-1, "");
+      additionalIOV_ = std::make_tuple(-1, "", "");
     }
 
     virtual ~SiStripDataContainer() = default;
 
     ///////////////// public get functions  /////////////////
     const unsigned int run() const { return run_; }
+    const unsigned int run2() const { return std::get<0>(additionalIOV_); }
     const std::string &hash() const { return hash_; }
+    const std::string &hash2() const { return std::get<1>(additionalIOV_); }
+    const SiStripPI::MetaData metaData() const { return std::make_tuple(run_, hash_); }
+    const std::string &tagName() const { return tagname_; }
+    const std::string &tagName2() const { return std::get<2>(additionalIOV_); }
     const std::string &topoMode() const { return TopoMode_; }
     const std::string &payloadName() const { return payloadType_; }
     const plotType &getPlotType() const { return plotMode_; }
+    const bool isMultiTag() { return (tagname_ != this->tagName2()); }
 
     void setPlotType(plotType myType) { plotMode_ = myType; }
     void setPayloadType(std::string myPayloadType) { payloadType_ = myPayloadType; }
@@ -213,9 +223,10 @@ namespace SiStripCondObjectRepresent {
       }
     }
 
-    void setAdditionalIOV(unsigned int run, std::string hash) {
-      additionalIOV_.first = run;
-      additionalIOV_.second = hash;
+    void setAdditionalIOV(const unsigned int run, const std::string &hash, const std::string &tagname) {
+      std::get<0>(additionalIOV_) = run;
+      std::get<1>(additionalIOV_) = hash;
+      std::get<2>(additionalIOV_) = tagname;
     };
 
     ////NOTE to be implemented in PayloadInspector classes
@@ -239,10 +250,10 @@ namespace SiStripCondObjectRepresent {
           thePlotType = "Display";
           break;
         case DIFF:
-          thePlotType = Form("#Delta (%i-%i)", run_, additionalIOV_.first);
+          thePlotType = Form("#Delta (%i-%i)", run_, std::get<0>(additionalIOV_));
           break;
         case RATIO:
-          thePlotType = Form("Ratio (%i/%i)", run_, additionalIOV_.first);
+          thePlotType = Form("Ratio (%i/%i)", run_, std::get<0>(additionalIOV_));
           break;
         case MAP:
           thePlotType = Form("TrackerMap - %s", hash_.c_str());
@@ -268,7 +279,7 @@ namespace SiStripCondObjectRepresent {
       dataCont2->setPlotType(COMPARISON);
       SiStripCondData_.setComparedBit();
 
-      setAdditionalIOV(dataCont2->run(), dataCont2->hash());
+      setAdditionalIOV(dataCont2->run(), dataCont2->hash(), dataCont2->tagName());
 
       if (!SiStripCondData_.isCached())
         storeAllValues();
@@ -291,7 +302,7 @@ namespace SiStripCondObjectRepresent {
       plotMode_ = RATIO;
       dataCont2->setPlotType(RATIO);
 
-      setAdditionalIOV(dataCont2->run(), dataCont2->hash());
+      setAdditionalIOV(dataCont2->run(), dataCont2->hash(), dataCont2->tagName());
 
       if (!SiStripCondData_.isCached())
         storeAllValues();
@@ -311,7 +322,7 @@ namespace SiStripCondObjectRepresent {
       plotMode_ = DIFF;
       dataCont2->setPlotType(DIFF);
 
-      setAdditionalIOV(dataCont2->run(), dataCont2->hash());
+      setAdditionalIOV(dataCont2->run(), dataCont2->hash(), dataCont2->tagName());
 
       if (!SiStripCondData_.isCached())
         storeAllValues();
@@ -545,7 +556,7 @@ namespace SiStripCondObjectRepresent {
 
         legend->SetHeader(Form("%s comparison", payloadType_.c_str()), "C");  // option "C" allows to center the header
         legend->AddEntry(h_first, Form("IOV: %i", run_), "F");
-        legend->AddEntry(h_last, Form("IOV: %i", (additionalIOV_.first)), "F");
+        legend->AddEntry(h_last, Form("IOV: %i", (std::get<0>(additionalIOV_))), "F");
       }
 
       legend->Draw("same");
@@ -705,7 +716,7 @@ namespace SiStripCondObjectRepresent {
       legend->SetHeader(hash_.c_str(), "C");  // option "C" allows to center the header
       legend->AddEntry(h1, Form("IOV: %i", run_), "PL");
       if (plotMode_ == COMPARISON) {
-        legend->AddEntry(h2, Form("IOV: %i", additionalIOV_.first), "PL");
+        legend->AddEntry(h2, Form("IOV: %i", std::get<0>(additionalIOV_)), "PL");
       }
       legend->SetTextSize(0.025);
       legend->Draw("same");
@@ -745,9 +756,10 @@ namespace SiStripCondObjectRepresent {
                                    device);
 
         h_parts[part] = new TH1F(Form("h_%s", part.c_str()), globalTitle, nbins, min, max);
-
+        h_parts[part]->SetTitle(""); /* remove the title from display */
         if (plotMode_ == COMPARISON) {
           h_parts2[part] = new TH1F(Form("h2_%s", part.c_str()), globalTitle, nbins, min, max);
+          h_parts2[part]->SetTitle(""); /* remove the title from display */
         }
       }
 
@@ -798,6 +810,11 @@ namespace SiStripCondObjectRepresent {
 
       canvas.Divide(2, 2);
 
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(31);
+
       int index = 0;
       for (const auto &part : parts) {
         index++;
@@ -812,6 +829,7 @@ namespace SiStripCondObjectRepresent {
 
         if (plotMode_ != COMPARISON) {
           h_parts[part]->SetLineColor(k_colormap.at(part));
+          h_parts[part]->SetFillColorAlpha(k_colormap.at(part), 0.15);
           float theMax = h_parts[part]->GetMaximum();
           h_parts[part]->SetMaximum(theMax * 1.30);
         } else {
@@ -822,6 +840,7 @@ namespace SiStripCondObjectRepresent {
           h_parts2[part]->SetStats(false);
           h_parts2[part]->SetLineWidth(2);
           h_parts2[part]->SetLineColor(kBlue);
+          h_parts2[part]->SetFillColorAlpha(kBlue, 0.15);
 
           float theMax = (h_parts[part]->GetMaximum() > h_parts2[part]->GetMaximum()) ? h_parts[part]->GetMaximum()
                                                                                       : h_parts2[part]->GetMaximum();
@@ -835,19 +854,43 @@ namespace SiStripCondObjectRepresent {
           h_parts2[part]->Draw("same");
         }
 
-        TLegend *leg = new TLegend(.60, 0.8, 0.92, 0.93);
+        TLegend *leg = new TLegend(.13, 0.81, 0.92, 0.93);
         if (plotMode_ != COMPARISON) {
-          leg->SetTextSize(0.035);
-          leg->SetHeader(part.c_str(), "C");  // option "C" allows to center the header
-          leg->AddEntry(
-              h_parts[part],
-              Form("#splitline{#mu = %.2f}{r.m.s. = %.2f}", h_parts[part]->GetMean(), h_parts[part]->GetRMS()),
-              "L");
+          // it means it's a difference
+          if (this->isMultiTag()) {
+            leg->SetHeader("#bf{Two Tags Difference}", "C");  // option "C" allows to center the header
+            leg->AddEntry(h_parts[part],
+                          (fmt::sprintf("#splitline{%s : %i}{%s : %i}", tagName(), run(), tagName2(), run2())).c_str(),
+                          "F");
+          } else {
+            leg->SetHeader(("tag: #bf{" + tagName() + "}").c_str(), "C");  // option "C" allows to center the header
+            leg->AddEntry(h_parts[part], (fmt::sprintf("%s", plotDescriptor())).c_str(), "F");
+          }
+          leg->SetTextSize(0.04);
           leg->Draw("same");
+          ltx.DrawLatexNDC(
+              0.35,
+              0.7,
+              (fmt::sprintf("#splitline{#mu = %.2f}{r.m.s. = %.2f}", h_parts[part]->GetMean(), h_parts[part]->GetRMS()))
+                  .c_str());
+          ltx.DrawLatexNDC(1 - gPad->GetRightMargin(),
+                           1 - gPad->GetTopMargin() + 0.01,
+                           (fmt::sprintf("#color[2]{%s} %s Values Diff", part, payloadType_)).c_str());
         } else {
-          leg->AddEntry(h_parts[part], Form("IOV: %i", run_), "L");
-          leg->AddEntry(h_parts2[part], Form("IOV: %i", (additionalIOV_.first)), "L");
+          if (this->isMultiTag()) {
+            leg->SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+            leg->AddEntry(h_parts[part], (fmt::sprintf("%s : %i", tagName(), run())).c_str(), "F");
+            leg->AddEntry(h_parts2[part], (fmt::sprintf("%s : %i", tagName2(), run2())).c_str(), "F");
+          } else {
+            leg->SetHeader(("tag: #bf{" + tagName() + "}").c_str(), "C");  // option "C" allows to center the header
+            leg->AddEntry(h_parts[part], (fmt::sprintf("IOV since: %i", this->run())).c_str(), "F");
+            leg->AddEntry(h_parts2[part], (fmt::sprintf("IOV since: %i", this->run2())).c_str(), "F");
+          }
+          leg->SetTextSize(0.035);
           leg->Draw("same");
+          ltx.DrawLatexNDC(1 - gPad->GetRightMargin(),
+                           1 - gPad->GetTopMargin() + 0.01,
+                           (fmt::sprintf("#color[2]{%s} %s Values Comparison", part, payloadType_)).c_str());
         }
       }
     }
@@ -891,7 +934,7 @@ namespace SiStripCondObjectRepresent {
                                    std::to_string(run_).c_str(),
                                    payloadType_.c_str(),
                                    (units_[payloadType_]).c_str(),
-                                   std::to_string(additionalIOV_.first).c_str(),
+                                   std::to_string(std::get<0>(additionalIOV_)).c_str(),
                                    device);
 
         h2_parts[part] = new TH2F(Form("h2_%s", part.c_str()), globalTitle, nbins, min, max, nbins, min, max);
@@ -950,7 +993,7 @@ namespace SiStripCondObjectRepresent {
         TLegend *leg = new TLegend(.13, 0.87, 0.27, 0.93);
         leg->SetTextSize(0.045);
         leg->SetHeader(Form("#bf{%s}", part.c_str()), "C");  // option "C" allows to center the header
-        //leg->AddEntry(h2_parts[part], Form("#DeltaIOV: #splitline{%i}{%i}", run_, additionalIOV_.first),"P");
+        //leg->AddEntry(h2_parts[part], Form("#DeltaIOV: #splitline{%i}{%i}", run_, std::get<0>(additionalIOV_)),"P");
         leg->Draw("same");
       }
     }
@@ -963,13 +1006,14 @@ namespace SiStripCondObjectRepresent {
   private:
     unsigned int run_;
     std::string hash_;
+    std::string tagname_;
     granularity granularity_;
     std::string TopoMode_;
     TrackerTopology m_trackerTopo;
     SiStripDetSummary summary{&m_trackerTopo};
     // "Map", "Ratio", or "Diff"
     plotType plotMode_;
-    std::pair<int, std::string> additionalIOV_;
+    std::tuple<int, std::string, std::string> additionalIOV_;
 
     std::map<std::string, std::string> units_ = {{"SiStripPedestals", "[ADC counts]"},
                                                  {"SiStripApvGain", ""},  //dimensionless TODO: verify

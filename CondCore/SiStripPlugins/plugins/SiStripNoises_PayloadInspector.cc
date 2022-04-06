@@ -52,8 +52,8 @@ namespace {
 
   class SiStripNoiseContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float> {
   public:
-    SiStripNoiseContainer(std::shared_ptr<SiStripNoises> payload, unsigned int run, std::string hash)
-        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float>(payload, run, hash) {
+    SiStripNoiseContainer(const std::shared_ptr<SiStripNoises>& payload, const SiStripPI::MetaData& metadata)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float>(payload, metadata, std::string()) {
       payloadType_ = "SiStripNoises";
       setGranularity(SiStripCondObjectRepresent::PERSTRIP);
     }
@@ -78,8 +78,8 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
@@ -92,10 +92,8 @@ namespace {
       std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripNoiseContainer* l_objContainer =
-          new SiStripNoiseContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
-      SiStripNoiseContainer* f_objContainer =
-          new SiStripNoiseContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov);
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov);
 
       l_objContainer->compare(f_objContainer);
 
@@ -117,8 +115,8 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
@@ -131,10 +129,8 @@ namespace {
       std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripNoiseContainer* l_objContainer =
-          new SiStripNoiseContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
-      SiStripNoiseContainer* f_objContainer =
-          new SiStripNoiseContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov);
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov);
 
       l_objContainer->subtract(f_objContainer);
 
@@ -156,8 +152,8 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
@@ -170,10 +166,8 @@ namespace {
       std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripNoiseContainer* l_objContainer =
-          new SiStripNoiseContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
-      SiStripNoiseContainer* f_objContainer =
-          new SiStripNoiseContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov);
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov);
 
       l_objContainer->compare(f_objContainer);
 
@@ -193,8 +187,8 @@ namespace {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
@@ -207,10 +201,8 @@ namespace {
       std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripNoiseContainer* f_objContainer =
-          new SiStripNoiseContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
-      SiStripNoiseContainer* l_objContainer =
-          new SiStripNoiseContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov);
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov);
 
       f_objContainer->compare(l_objContainer);
 
@@ -649,7 +641,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -866,7 +858,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -1162,7 +1154,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -1386,7 +1378,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
