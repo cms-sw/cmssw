@@ -380,6 +380,14 @@ class SwitchProducer(EDProducer):
         return myname
     def caseLabel_(self, name, case):
         return name+"@"+case
+    def modulesForConditionalTask_(self):
+        # Need the contained modules (not EDAliases) for ConditionalTask
+        ret = []
+        for case in self.parameterNames_():
+            caseobj = self.__dict__[case]
+            if not isinstance(caseobj, EDAlias):
+                ret.append(caseobj)
+        return ret
     def appendToProcessDescLists_(self, modules, aliases, myname):
         # This way we can insert the chosen EDProducer to @all_modules
         # so that we get easily a worker for it
