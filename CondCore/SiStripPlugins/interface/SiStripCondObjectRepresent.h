@@ -201,7 +201,7 @@ namespace SiStripCondObjectRepresent {
     const std::string &topoMode() const { return TopoMode_; }
     const std::string &payloadName() const { return payloadType_; }
     const plotType &getPlotType() const { return plotMode_; }
-    const bool isMultiTag() { return (tagname_ != this->tagName2()); }
+    const bool isMultiTag() { return (tagname_ != this->tagName2() && !(this->tagName2()).empty()); }
 
     void setPlotType(plotType myType) { plotMode_ = myType; }
     void setPayloadType(std::string myPayloadType) { payloadType_ = myPayloadType; }
@@ -875,7 +875,7 @@ namespace SiStripCondObjectRepresent {
                   .c_str());
           ltx.DrawLatexNDC(1 - gPad->GetRightMargin(),
                            1 - gPad->GetTopMargin() + 0.01,
-                           (fmt::sprintf("#color[2]{%s} %s Values Diff", part, payloadType_)).c_str());
+                           (fmt::sprintf("#color[2]{%s} %s Values %s", part, payloadType_, plotDescriptor())).c_str());
         } else {
           if (this->isMultiTag()) {
             leg->SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header

@@ -52,8 +52,10 @@ namespace {
 
   class SiStripNoiseContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float> {
   public:
-    SiStripNoiseContainer(const std::shared_ptr<SiStripNoises>& payload, const SiStripPI::MetaData& metadata)
-        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float>(payload, metadata, std::string()) {
+    SiStripNoiseContainer(const std::shared_ptr<SiStripNoises>& payload,
+                          const SiStripPI::MetaData& metadata,
+                          const std::string& tagName)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float>(payload, metadata, tagName) {
       payloadType_ = "SiStripNoises";
       setGranularity(SiStripCondObjectRepresent::PERSTRIP);
     }
@@ -72,28 +74,24 @@ namespace {
     }
   };
 
-  class SiStripNoiseCompareByPartition : public PlotImage<SiStripNoises> {
+  class SiStripNoiseCompareByPartition : public PlotImage<SiStripNoises, MULTI_IOV, 2> {
   public:
-    SiStripNoiseCompareByPartition() : PlotImage<SiStripNoises>("SiStrip Compare Noises By Partition") {
-      setSingleIov(false);
-    }
+    SiStripNoiseCompareByPartition() : PlotImage<SiStripNoises, MULTI_IOV, 2>("SiStrip Compare Noises By Partition") {}
 
-    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
-      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
-
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
 
       std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov);
-      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov);
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, tagname1);
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, tagname2);
 
       l_objContainer->compare(f_objContainer);
 
@@ -109,28 +107,24 @@ namespace {
     }  // fill
   };
 
-  class SiStripNoiseDiffByPartition : public PlotImage<SiStripNoises> {
+  class SiStripNoiseDiffByPartition : public PlotImage<SiStripNoises, MULTI_IOV, 2> {
   public:
-    SiStripNoiseDiffByPartition() : PlotImage<SiStripNoises>("SiStrip Diff Noises By Partition") {
-      setSingleIov(false);
-    }
+    SiStripNoiseDiffByPartition() : PlotImage<SiStripNoises, MULTI_IOV, 2>("SiStrip Diff Noises By Partition") {}
 
-    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
-      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
-
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
 
       std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov);
-      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov);
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, tagname1);
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, tagname2);
 
       l_objContainer->subtract(f_objContainer);
 
@@ -166,8 +160,8 @@ namespace {
       std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov);
-      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov);
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, "");
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, "");
 
       l_objContainer->compare(f_objContainer);
 
@@ -201,8 +195,8 @@ namespace {
       std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov);
-      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov);
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, "");
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, "");
 
       f_objContainer->compare(l_objContainer);
 

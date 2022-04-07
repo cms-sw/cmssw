@@ -39,9 +39,9 @@ namespace {
       : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripLorentzAngle, float> {
   public:
     SiStripLorentzAngleContainer(const std::shared_ptr<SiStripLorentzAngle> &payload,
-                                 const SiStripPI::MetaData &metadata)
-        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripLorentzAngle, float>(
-              payload, metadata, std::string()) {
+                                 const SiStripPI::MetaData &metadata,
+                                 const std::string &tagName)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripLorentzAngle, float>(payload, metadata, tagName) {
       payloadType_ = "SiStripLorentzAngle";
       setGranularity(SiStripCondObjectRepresent::PERMODULE);
     }
@@ -64,10 +64,10 @@ namespace {
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
-
+      auto tagname = tag.name;
       std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        SiStripLorentzAngleContainer *objContainer = new SiStripLorentzAngleContainer(payload, iov);
+        SiStripLorentzAngleContainer *objContainer = new SiStripLorentzAngleContainer(payload, iov, tagname);
         //objContainer->printAll();
 
         TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
@@ -89,10 +89,10 @@ namespace {
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
-
+      auto tagname = tag.name;
       std::shared_ptr<SiStripLorentzAngle> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        SiStripLorentzAngleContainer *objContainer = new SiStripLorentzAngleContainer(payload, iov);
+        SiStripLorentzAngleContainer *objContainer = new SiStripLorentzAngleContainer(payload, iov, tagname);
         objContainer->printAll();
 
         TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
@@ -105,28 +105,26 @@ namespace {
     }  // fill
   };
 
-  class SiStripLorentzAngleCompareByRegion : public PlotImage<SiStripLorentzAngle> {
+  class SiStripLorentzAngleCompareByRegion : public PlotImage<SiStripLorentzAngle, MULTI_IOV, 2> {
   public:
-    SiStripLorentzAngleCompareByRegion() : PlotImage<SiStripLorentzAngle>("SiStrip LorentzAngle By Partition") {
-      setSingleIov(false);
-    }
+    SiStripLorentzAngleCompareByRegion()
+        : PlotImage<SiStripLorentzAngle, MULTI_IOV, 2>("SiStrip LorentzAngle By Partition") {}
 
-    bool fill(const std::vector<SiStripPI::MetaData> &iovs) override {
-      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
-
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const &t1, auto const &t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
 
       std::shared_ptr<SiStripLorentzAngle> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripLorentzAngle> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripLorentzAngleContainer *l_objContainer = new SiStripLorentzAngleContainer(last_payload, lastiov);
-      SiStripLorentzAngleContainer *f_objContainer = new SiStripLorentzAngleContainer(first_payload, firstiov);
+      SiStripLorentzAngleContainer *l_objContainer = new SiStripLorentzAngleContainer(last_payload, lastiov, tagname1);
+      SiStripLorentzAngleContainer *f_objContainer =
+          new SiStripLorentzAngleContainer(first_payload, firstiov, tagname2);
 
       l_objContainer->compare(f_objContainer);
 
