@@ -326,10 +326,11 @@ namespace edm {
                       EventTransitionInfo const& iInfo,
                       StreamID const& streamID) {
     updateCounters(state_);
-    recordStatus(failedModuleIndex_, state_);
+    auto failedModuleBitPosition = bitPosition(failedModuleIndex_);
+    recordStatus(failedModuleBitPosition, state_);
     // Caught exception is propagated via WaitingTaskList
     CMS_SA_ALLOW try {
-      HLTPathStatus status(state_, failedModuleIndex_);
+      HLTPathStatus status(state_, failedModuleBitPosition);
 
       if (pathStatusInserter_) {  // pathStatusInserter is null for EndPaths
         pathStatusInserter_->setPathStatus(streamID, status);
