@@ -17,7 +17,7 @@ class G3EventProxy;
 class TreeMatrixCalib {
 public:
   TreeMatrixCalib(const char* filename = "tb.root");
-  ~TreeMatrixCalib();
+  ~TreeMatrixCalib() = default;
 
   void fillInfo(int run,
                 int eve,
@@ -44,8 +44,7 @@ public:
   void store();
 
 private:
-  TFile* myFile;
-  TTree* myTree;
+  TTree* myTree_;
 
   // general info
   int myEvent, myRun;
