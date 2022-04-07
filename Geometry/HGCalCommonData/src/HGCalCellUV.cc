@@ -53,8 +53,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
   double y = xloc1 * fsin[rot] + yloc * fcos[rot];
 
   //--- Calculate coordinates in u,v,w system
-  double u = x * sin60 + y * cos60;
-  double v = -x * sin60 + y * cos60;
+  double u = x * sin60_ + y * cos60_;
+  double v = -x * sin60_ + y * cos60_;
   double w = y;
 
   //--- Rounding in u, v, w coordinates
