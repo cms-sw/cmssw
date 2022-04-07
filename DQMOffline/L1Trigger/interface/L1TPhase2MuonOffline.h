@@ -39,7 +39,7 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 // Common tools
-#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
+//#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -52,7 +52,6 @@
 
 #include <memory>
 #include "TRegexp.h"
-#include "TString.h"
 #include <utility>
 #include <vector>
 
@@ -71,20 +70,25 @@ class L1TPhase2MuonOffline : public DQMEDAnalyzer {
   enum VarType { kPt, kEta, kPhi, kIso, kQual, kZ0, kD0, kNVarTypes };
   enum EffType { kEffPt, kEffPhi, kEffEta, kEffTypes };
   enum ResType { kResPt, kRes1OverPt, kResQOverPt, kResPhi, kResEta, kResCh, kNResTypes };
-  enum EtaRegion { kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf, kEtaRegionOut, kNEtaRegions };
+  enum EtaRegion { kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf, kNEtaRegions };
   enum QualLevel { kQualAll, kQualOpen, kQualDouble, kQualSingle, kNQualLevels };
 
  protected:
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
-  virtual void bookControlHistos(DQMStore::IBooker&, MuType type);
-  virtual void bookEfficiencyHistos(DQMStore::IBooker& ibooker, MuType type);
-  virtual void bookResolutionHistos(DQMStore::IBooker& ibooker, MuType type);
-  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
   void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+  void bookControlHistos(DQMStore::IBooker&, MuType type);
+  void bookEfficiencyHistos(DQMStore::IBooker& ibooker, MuType type);
+  void bookResolutionHistos(DQMStore::IBooker& ibooker, MuType type);
+  void bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& run, const edm::EventSetup& iSetup) override;
+
   
   //Fill Histos
   void fillControlHistos(); 
+  void fillEfficiencyHistos();
+  void fillResolutionHistos();
   
+
 private:
   // Cut and Matching
   void getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection>& gmtCands);
@@ -99,7 +103,7 @@ private:
   edm::Handle<l1t::TrackerMuonCollection> gmtTkMuon_;
   edm::Handle<std::vector<reco::GenParticle>> genparticles_;
   
-  PropagateToMuon muonpropagator_;
+  //  PropagateToMuon muonpropagator_;
 
   // vectors of enum values to loop over (and store quantities) 
   const std::vector<MuType> muonTypes_;
@@ -136,13 +140,19 @@ private:
   std::tuple<int, double, double> getHistBinsRes(ResType res);
   
   // Keys for histogram maps
-  typedef std::tuple<MuType, ResType, EtaRegion, QualLevel> histoKeyResType_;  
-  typedef std::tuple<MuType, EffType, int, EtaRegion, QualLevel> histoKeyEffType_; 
-  typedef std::tuple<MuType, VarType> histoKeyVarType_;
-
+  /*typedef std::tuple<MuType, ResType, EtaRegion, QualLevel> histoKeyResType_;  
+    typedef std::tuple<MuType, EffType, int, EtaRegion, QualLevel> histoKeyEffType_; 
+    typedef std::tuple<MuType, VarType> histoKeyVarType_;
+  */
   // Histograms and histogram containers
   //  std::map<std::tuple<MuType, EffType, int, EtaRegion, QualLevel>, MonitorElement*> efficiencyHistos_;
   //  std::map<std::tuple<MuType, ResType, EtaRegion, QualLevel>, MonitorElement*> resolutionHistos_;
+  //  TH1F* efficiencyNum_[kNMuTypes][kNEtaRegions][kNQualLevels][kEffTypes]; 
+  //  TH1F* efficiencyDen_[kNMuTypes][kNEtaRegions][kNQualLevels][kEffTypes]; 
+  
+  MonitorElement* efficiencyNum_[kNMuTypes][kNEtaRegions][kNQualLevels][kEffTypes]; 
+  MonitorElement* efficiencyDen_[kNMuTypes][kNEtaRegions][kNQualLevels][kEffTypes]; 
+  MonitorElement* resolutionHistos_[kNMuTypes][kNEtaRegions][kNQualLevels][kNResTypes];
   MonitorElement* controlHistos_[kNMuTypes][kNVarTypes];
 
   // helper variables
@@ -162,7 +172,7 @@ private:
 //
 class GenMuonGMTPair {
 public:
-  GenMuonGMTPair(const reco::GenParticle* mu, const l1t::L1Candidate* gmtmu, const PropagateToMuon& propagator);
+  GenMuonGMTPair(const reco::GenParticle* mu, const l1t::L1Candidate* gmtmu); 
   GenMuonGMTPair(const GenMuonGMTPair& muongmtPair);
   ~GenMuonGMTPair(){};
 
