@@ -46,8 +46,10 @@ namespace {
 
   class SiStripApvGainContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripApvGain, float> {
   public:
-    SiStripApvGainContainer(const std::shared_ptr<SiStripApvGain>& payload, const SiStripPI::MetaData& metadata)
-        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripApvGain, float>(payload, metadata, std::string()) {
+    SiStripApvGainContainer(const std::shared_ptr<SiStripApvGain>& payload,
+                            const SiStripPI::MetaData& metadata,
+                            const std::string& tagName)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripApvGain, float>(payload, metadata, tagName) {
       payloadType_ = "SiStripApvGain";
       setGranularity(SiStripCondObjectRepresent::PERAPV);
     }
@@ -76,10 +78,11 @@ namespace {
 
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
+      auto tagname = tag.name;
       for (auto const& iov : tag.iovs) {
         std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
         if (payload.get()) {
-          SiStripApvGainContainer* objContainer = new SiStripApvGainContainer(payload, iov);
+          SiStripApvGainContainer* objContainer = new SiStripApvGainContainer(payload, iov, tagname);
           objContainer->printAll();
 
         }  // payload
@@ -95,9 +98,10 @@ namespace {
     bool fill() override {
       auto tag = PlotBase::getTag<0>();
       auto iov = tag.iovs.front();
+      auto tagname = tag.name;
       std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        SiStripApvGainContainer* objContainer = new SiStripApvGainContainer(payload, iov);
+        SiStripApvGainContainer* objContainer = new SiStripApvGainContainer(payload, iov, tagname);
         //objContainer->printAll();
 
         TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
@@ -110,28 +114,25 @@ namespace {
     }  // fill
   };
 
-  class SiStripApvGainCompareByPartition : public PlotImage<SiStripApvGain> {
+  class SiStripApvGainCompareByPartition : public PlotImage<SiStripApvGain, MULTI_IOV, 2> {
   public:
-    SiStripApvGainCompareByPartition() : PlotImage<SiStripApvGain>("SiStrip Compare ApvGains By Partition") {
-      setSingleIov(false);
-    }
+    SiStripApvGainCompareByPartition()
+        : PlotImage<SiStripApvGain, MULTI_IOV, 2>("SiStrip Compare ApvGains By Partition") {}
 
-    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
-      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
-
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
 
       std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov);
-      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov);
+      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov, tagname1);
+      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov, tagname2);
 
       l_objContainer->compare(f_objContainer);
 
@@ -147,37 +148,33 @@ namespace {
     }  // fill
   };
 
-  class SiStripApvGainRatioByPartition : public PlotImage<SiStripApvGain> {
+  class SiStripApvGainRatioByPartition : public PlotImage<SiStripApvGain, MULTI_IOV, 2> {
   public:
-    SiStripApvGainRatioByPartition() : PlotImage<SiStripApvGain>("SiStrip Ratio ApvGains By Partition") {
-      setSingleIov(false);
-    }
+    SiStripApvGainRatioByPartition() : PlotImage<SiStripApvGain, MULTI_IOV, 2>("SiStrip Ratio ApvGains By Partition") {}
 
-    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
-      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
-
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
 
       std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov);
-      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov);
+      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov, tagname1);
+      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov, tagname2);
 
       l_objContainer->divide(f_objContainer);
 
       //l_objContainer->printAll();
 
       TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
-      l_objContainer->fillByPartition(canvas, 200, 0., 2.);
-      for (int i = 1; i <= 4; i++)
-        canvas.cd(i)->SetLogy();
+      l_objContainer->fillByPartition(canvas, 200, 0.5, 1.5);
+      //for (int i = 1; i <= 4; i++)
+      //  canvas.cd(i)->SetLogy();
 
       std::string fileName(m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -186,28 +183,24 @@ namespace {
     }  // fill
   };
 
-  class SiStripApvGainDiffByPartition : public PlotImage<SiStripApvGain> {
+  class SiStripApvGainDiffByPartition : public PlotImage<SiStripApvGain, MULTI_IOV, 2> {
   public:
-    SiStripApvGainDiffByPartition() : PlotImage<SiStripApvGain>("SiStrip Diff ApvGains By Partition") {
-      setSingleIov(false);
-    }
+    SiStripApvGainDiffByPartition() : PlotImage<SiStripApvGain, MULTI_IOV, 2>("SiStrip Diff ApvGains By Partition") {}
 
-    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
-      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
-
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
 
       std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov);
-      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov);
+      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov, tagname1);
+      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov, tagname2);
 
       l_objContainer->subtract(f_objContainer);
 
