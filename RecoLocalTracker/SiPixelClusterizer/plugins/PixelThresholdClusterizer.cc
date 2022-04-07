@@ -291,7 +291,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
     */
 
     if (adc >= thePixelThreshold) {
-      theBuffer.set_adc(row, col, adc);
+      theBuffer.add_adc(row, col, adc);
       // VV: add pixel to the fake list. Only when running on digi collection
       if (di->flag() != 0)
         theFakePixels[row * theNumOfCols + col] = true;
