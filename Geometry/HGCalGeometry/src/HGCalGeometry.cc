@@ -42,8 +42,6 @@ HGCalGeometry::HGCalGeometry(const HGCalTopology& topology_)
 #endif
 }
 
-HGCalGeometry::~HGCalGeometry() {}
-
 void HGCalGeometry::fillNamedParams(DDFilteredView fv) {}
 
 void HGCalGeometry::initializeParms() {}
@@ -185,7 +183,7 @@ std::shared_ptr<const CaloCellGeometry> HGCalGeometry::getGeometry(const DetId& 
     return nullptr;  // nothing to get
   DetId geomId = getGeometryDetId(detId);
   const uint32_t cellIndex(m_topology.detId2denseGeomId(geomId));
-  const GlobalPoint pos = (detId != geomId) ? getPosition(detId) : GlobalPoint();
+  const GlobalPoint pos = (detId != geomId) ? getPosition(detId, false) : GlobalPoint();
   return cellGeomPtr(cellIndex, pos);
 }
 
@@ -196,8 +194,6 @@ bool HGCalGeometry::present(const DetId& detId) const {
   const uint32_t index(m_topology.detId2denseGeomId(geomId));
   return (nullptr != getGeometryRawPtr(index));
 }
-
-GlobalPoint HGCalGeometry::getPosition(const DetId& detid) const { return getPosition(detid, false); }
 
 GlobalPoint HGCalGeometry::getPosition(const DetId& detid, bool debug) const {
   unsigned int cellIndex = indexFor(detid);
@@ -278,7 +274,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners(const DetId& detid) const {
   unsigned int cellIndex = indexFor(detid);
   HGCalTopology::DecodedDetId id = m_topology.decode(detid);
   if (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc) {
-    GlobalPoint v = getPosition(detid);
+    GlobalPoint v = getPosition(detid, false);
     int type = std::min(id.iType, 1);
     std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(type, id.iSec1);
     float dr = k_half * (rr.second - rr.first);
@@ -335,7 +331,7 @@ HGCalGeometry::CornersVec HGCalGeometry::get8Corners(const DetId& detid) const {
   unsigned int cellIndex = indexFor(detid);
   HGCalTopology::DecodedDetId id = m_topology.decode(detid);
   if (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc) {
-    GlobalPoint v = getPosition(detid);
+    GlobalPoint v = getPosition(detid, false);
     int type = std::min(id.iType, 1);
     std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(type, id.iSec1);
     float dr = k_half * (rr.second - rr.first);
@@ -392,7 +388,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid, bool 
     edm::LogVerbatim("HGCalGeom") << "NewCorners for Layer " << id.iLay << " Wafer " << id.iSec1 << ":" << id.iSec2
                                   << " Cell " << id.iCell1 << ":" << id.iCell2;
   if (cellIndex < m_cellVec2.size() && m_det == DetId::HGCalHSc) {
-    GlobalPoint v = getPosition(detid);
+    GlobalPoint v = getPosition(detid, false);
     int type = std::min(id.iType, 1);
     std::pair<double, double> rr = m_topology.dddConstants().cellSizeTrap(type, id.iSec1);
     float dr = k_half * (rr.second - rr.first);
@@ -459,7 +455,7 @@ DetId HGCalGeometry::neighborZ(const DetId& idin, const GlobalVector& momentum) 
 #endif
   if ((lay >= m_topology.dddConstants().firstLayer()) && (lay <= m_topology.dddConstants().lastLayer(true)) &&
       (momentum.z() != 0.0)) {
-    GlobalPoint v = getPosition(idin);
+    GlobalPoint v = getPosition(idin, false);
     double z = id.zSide * m_topology.dddConstants().waferZ(lay, true);
     double grad = (z - v.z()) / momentum.z();
     GlobalPoint p(v.x() + grad * momentum.x(), v.y() + grad * momentum.y(), z);
@@ -490,7 +486,7 @@ DetId HGCalGeometry::neighborZ(const DetId& idin,
 #endif
   if ((lay >= m_topology.dddConstants().firstLayer()) && (lay <= m_topology.dddConstants().lastLayer(true)) &&
       (momentum.z() != 0.0)) {
-    GlobalPoint v = getPosition(idin);
+    GlobalPoint v = getPosition(idin, false);
     double z = id.zSide * m_topology.dddConstants().waferZ(lay, true);
     FreeTrajectoryState fts(v, momentum, charge, bField);
     Plane::PlanePointer nPlane = Plane::build(Plane::PositionType(0, 0, z), Plane::RotationType());
