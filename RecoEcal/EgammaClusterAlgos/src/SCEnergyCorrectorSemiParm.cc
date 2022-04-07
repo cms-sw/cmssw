@@ -51,6 +51,7 @@ SCEnergyCorrectorSemiParm::SCEnergyCorrectorSemiParm()
       caloGeom_(nullptr),
       isHLT_(false),
       isPhaseII_(false),
+      regTrainedWithPS_(true),
       applySigmaIetaIphiBug_(false),
       nHitsAboveThresholdEB_(0),
       nHitsAboveThresholdEE_(0),
@@ -140,7 +141,7 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
   double sigma = regParam.sigma(regData);
 
   double energyCorr = mean * sc.rawEnergy();
-  if (isHLT_ && sc.seed()->seed().det() == DetId::Ecal && seedId.subdetId() == EcalEndcap) {
+  if (isHLT_ && sc.seed()->seed().det() == DetId::Ecal && seedId.subdetId() == EcalEndcap && !regTrainedWithPS_) {
     energyCorr += sc.preshowerEnergy();
   }
   double resolutionEst = sigma * energyCorr;
