@@ -55,7 +55,7 @@ namespace mkfit {
 
   class MkBuilder {
   public:
-    using insert_seed_foo = void(const Track &, int);
+    using insert_seed_foo = void(const Track &, int, int);
     using filter_track_cand_foo = bool(const TrackCand &);
 
     typedef std::vector<std::pair<int, int>> CandIdx_t;
@@ -92,7 +92,7 @@ namespace mkfit {
     void end_event();
     void release_memory();
 
-    void import_seeds(const TrackVec &in_seeds, std::function<insert_seed_foo> insert_seed);
+    void import_seeds(const TrackVec &in_seeds, const bool seeds_sorted, std::function<insert_seed_foo> insert_seed);
 
     // filter for rearranging cands that will / will not do backward search.
     int filter_comb_cands(std::function<filter_track_cand_foo> filter);
@@ -116,8 +116,8 @@ namespace mkfit {
 
     // --------
 
-    void find_tracks_load_seeds_BH(const TrackVec &in_seeds);  // for FindTracksBestHit
-    void find_tracks_load_seeds(const TrackVec &in_seeds);
+    void find_tracks_load_seeds_BH(const TrackVec &in_seeds, const bool seeds_sorted);  // for FindTracksBestHit
+    void find_tracks_load_seeds(const TrackVec &in_seeds, const bool seeds_sorted);
 
     int find_tracks_unroll_candidates(std::vector<std::pair<int, int>> &seed_cand_vec,
                                       int start_seed,
