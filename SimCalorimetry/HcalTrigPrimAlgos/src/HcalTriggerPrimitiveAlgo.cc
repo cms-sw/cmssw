@@ -446,7 +446,10 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       unsigned int sample = samples[ibin + i];
 
       if (fix_saturation_ && (sample_saturation.size() > ibin + i))
-        check_sat = sample_saturation[ibin + i];
+        check_sat = (sample_saturation[ibin + i] | (sample > QIE11_MAX_LINEARIZATION_ET));
+
+      if (sample > QIE11_MAX_LINEARIZATION_ET)
+        sample = QIE11_MAX_LINEARIZATION_ET;
 
       // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
       double segmentationFactor = 1.0;
@@ -490,8 +493,12 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
 
     if (isPeak) {
       output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
-      if (fix_saturation_ && force_saturation[idx])
+
+      if (fix_saturation_ && force_saturation[idx] && ids.size() == 2)
+        output[ibin] = QIE11_MAX_LINEARIZATION_ET * 0.5;
+      else if (fix_saturation_ && force_saturation[idx])
         output[ibin] = QIE11_MAX_LINEARIZATION_ET;
+
     } else {
       // Not a peak
       output[ibin] = 0;
