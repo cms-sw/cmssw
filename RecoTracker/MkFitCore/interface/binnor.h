@@ -4,11 +4,9 @@
 #include "radix_sort.h"
 
 #include <algorithm>
-#include <cmath>
 #include <numeric>
 #include <vector>
 #include <cassert>
-//#include <cstdio>
 
 namespace mkfit {
 
@@ -168,8 +166,6 @@ namespace mkfit {
     static constexpr unsigned int c_A1_mask = (1 << A1::c_M) - 1;
     static constexpr unsigned int c_A2_Mout_mask = ~(((1 << A2::c_M2N_shift) - 1) << A1::c_M);
 
-    using sort_func = std::function<void(binnor &)>;
-
     // Pair of axis bin indices packed into unsigned.
     struct B_pair {
       unsigned int packed_value;  // bin1 in A1::c_M lower bits, bin2 above
@@ -275,7 +271,7 @@ namespace mkfit {
     // Do M-binning outside, potentially using R_to_M_bin_safe().
     void register_m_bins(typename A1::index_t m1, typename A2::index_t m2) { register_entry({m1, m2}); }
 
-    void finalize_registration(sort_func ext_sort = 0) {
+    void finalize_registration() {
       if (m_radix_sort) {
         radix_sort<unsigned, C> radix;
         radix.sort(m_cons_masked, m_ranks);

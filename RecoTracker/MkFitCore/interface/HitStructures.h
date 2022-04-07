@@ -794,7 +794,7 @@ namespace mkfit {
 
   class EventOfCombCandidates {
   public:
-    EventOfCombCandidates(int size = 0) : m_cc_pool(), m_candidates(), m_capacity(0), m_size(0) {}
+    EventOfCombCandidates(int size = 0) : m_cc_pool(), m_candidates() {}
 
     void releaseMemory() {
       {  // Get all the destructors called before nuking CcPool.
@@ -803,6 +803,7 @@ namespace mkfit {
       }
       m_capacity = 0;
       m_size = 0;
+      m_n_seeds_inserted = 0;
       m_cc_pool.release();
     }
 
@@ -821,20 +822,22 @@ namespace mkfit {
         m_candidates[s].reset(0, 0);
       }
 
-      m_size = 0;
+      m_size = new_capacity;
+      m_n_seeds_inserted = 0;
     }
 
     void resizeAfterFiltering(int n_removed) {
       assert(n_removed <= m_size);
       m_size -= n_removed;
+      m_n_seeds_inserted -= n_removed;
     }
 
-    void insertSeed(const Track& seed, int region) {
-      assert(m_size < m_capacity);
+    void insertSeed(const Track& seed, int region, int pos) {
+      assert(pos < m_size);
 
-      m_candidates[m_size].importSeed(seed, region);
+      m_candidates[pos].importSeed(seed, region);
 
-      ++m_size;
+      ++m_n_seeds_inserted;
     }
 
     void compactifyHitStorageForBestCand(bool remove_seed_hits, int backward_fit_min_hits) {
@@ -867,8 +870,9 @@ namespace mkfit {
 
     std::vector<CombCandidate> m_candidates;
 
-    int m_capacity;
-    int m_size;
+    int m_capacity = 0;
+    int m_size = 0;
+    int m_n_seeds_inserted = 0;
   };
 
 }  // end namespace mkfit
