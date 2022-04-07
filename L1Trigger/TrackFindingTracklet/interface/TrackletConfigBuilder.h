@@ -9,18 +9,21 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
 
 #include <vector>
+#include <list>
 #include <utility>
 #include <set>
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 
+namespace tt {class Setup;}
+
 namespace trklet {
 
   class TrackletConfigBuilder {
   public:
     //Builds the configuration for the tracklet based track finding
-    TrackletConfigBuilder(const Settings& settings);
+    TrackletConfigBuilder(const Settings& settings, const tt::Setup* setup = nullptr);
 
     //This method writes out the configuration as files
     void writeAll(std::ostream& wires, std::ostream& memories, std::ostream& modules);
@@ -75,6 +78,17 @@ namespace trklet {
     //
     void buildProjections();
 
+#ifdef CMSSW_GIT_HASH
+    // Calculate phi range of modules read by each DTC.
+    void setDTCphirange(const tt::Setup* setup);
+
+    // Write DTC phi ranges to dtcphirange.txt for stand-alone emulation.
+    void writeDTCphirange() const;
+#else
+    // Set phi ranges after reading them from dtcphirange.txt (stand-alone emulation)
+    void setDTCphirange(const tt::Setup* setup = nullptr);
+#endif
+
     //
     // Helper function to determine if a pair of VM memories form valid TE
     //
@@ -115,7 +129,7 @@ namespace trklet {
                        unsigned int ivm2,
                        unsigned int iseed) const;
 
-    //StubPaur displaced name
+    //StubPair displaced name
     std::string SPDName(unsigned int l1,
                         unsigned int ireg1,
                         unsigned int ivm1,
@@ -244,10 +258,10 @@ namespace trklet {
     std::pair<std::vector<std::pair<double, double> >, std::vector<std::pair<double, double> > >
         VMStubsTE_[N_SEED_PROMPT];
 
-    //List of the TEs and the VM bins for each TE
+    // VM bin in inner/outer seeding layer of each TE.
     std::vector<std::pair<unsigned int, unsigned int> > TE_[N_SEED_PROMPT];
 
-    //The TCs for each seeding combination
+    //The ID of all TE that send data to TCs for each seeding combination
     std::vector<std::vector<unsigned int> > TC_[N_SEED_PROMPT];
 
     //The projections to each layer/disk from a seed and TC
@@ -263,6 +277,9 @@ namespace trklet {
                                                        {1, -1, -1, -1, -1, -1, 2, 3, -1, -1, 4},   //D3D4
                                                        {-1, -1, -1, -1, -1, -1, -1, 1, 2, 3, 4},   //L1D1
                                                        {1, -1, -1, -1, -1, -1, -1, 2, 3, 4, -1}};  //L2D1
+
+    struct DTCinfo {std::string name; int layer; float phimin; float phimax;};
+    std::list<DTCinfo> vecDTCinfo_;
 
     //Settings
     const Settings& settings_;

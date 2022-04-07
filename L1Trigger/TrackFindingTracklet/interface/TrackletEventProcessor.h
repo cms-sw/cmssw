@@ -3,13 +3,15 @@
 #define L1Trigger_TrackFindingTracklet_interface_TrackletEventProcessor_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/Timer.h"
-#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <map>
 #include <memory>
 #include <vector>
 #include <deque>
 #include <string>
+
+namespace tt {class Setup;}
 
 namespace trklet {
 
@@ -19,6 +21,7 @@ namespace trklet {
   class Sector;
   class HistBase;
   class Track;
+  class ChannelAssignment;
 
   class TrackletEventProcessor {
   public:
@@ -26,7 +29,7 @@ namespace trklet {
 
     ~TrackletEventProcessor();
 
-    void init(Settings const& theSettings, const ChannelAssignment* channelAssignment);
+    void init(Settings const& theSettings, const ChannelAssignment* channelAssignment, const tt::Setup* setup = nullptr);
 
     void event(SLHCEvent& ev);
 

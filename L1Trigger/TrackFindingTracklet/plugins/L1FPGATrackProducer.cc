@@ -343,7 +343,7 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
   setup_ = iSetup.getData(esGetToken_);
   channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
   // initialize the tracklet event processing (this sets all the processing & memory modules, wiring, etc)
-  eventProcessor.init(settings_, channelAssignment_);
+  eventProcessor.init(settings_, channelAssignment_, &setup_);
 }
 
 //////////
