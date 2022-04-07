@@ -33,6 +33,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <unordered_set>
 
 namespace edm {
 
@@ -83,7 +84,6 @@ namespace edm {
       std::string const& getTrigPathModule(size_type const i, size_type const j) const {
         return (modulenames_.at(i)).at(j);
       }
-
       Strings const& getEndPathModules(std::string const& name) const {
         return end_modulenames_.at(find(end_pos_, name));
       }
