@@ -50,29 +50,42 @@ namespace edmtest {
   public:
     IntTestAnalyzer(edm::ParameterSet const& iPSet)
         : value_(iPSet.getUntrackedParameter<int>("valueMustMatch")),
-          token_(consumes(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel"))) {}
+          token_(consumes(iPSet.getUntrackedParameter<edm::InputTag>("moduleLabel"))),
+          missing_(iPSet.getUntrackedParameter<bool>("valueMustBeMissing")) {}
 
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<int>("valueMustMatch");
       desc.addUntracked<edm::InputTag>("moduleLabel");
+      desc.addUntracked<bool>("valueMustBeMissing", false);
       descriptions.addDefault(desc);
     }
 
     void analyze(edm::StreamID, edm::Event const& iEvent, edm::EventSetup const&) const {
-      auto const& prod = iEvent.get(token_);
-      if (prod.value != value_) {
+      auto const& prod = iEvent.getHandle(token_);
+      if (missing_) {
+        if (prod.isValid()) {
+          edm::ProductLabels labels;
+          labelsForToken(token_, labels);
+          throw cms::Exception("ValueNotMissing")
+              << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process
+              << "\" is being produced, which is not expected.";
+        }
+        return;
+      }
+      if (prod->value != value_) {
         edm::ProductLabels labels;
         labelsForToken(token_, labels);
         throw cms::Exception("ValueMismatch")
             << "The value for \"" << labels.module << ":" << labels.productInstance << ":" << labels.process << "\" is "
-            << prod.value << " but it was supposed to be " << value_;
+            << prod->value << " but it was supposed to be " << value_;
       }
     }
 
   private:
     int const value_;
     edm::EDGetTokenT<IntProduct> const token_;
+    bool const missing_;
   };
 
   //--------------------------------------------------------------------
