@@ -39,6 +39,7 @@ namespace l1t {
       // }
 
       event_.put(std::move(regionalMuonCands_));
+      event_.put(std::move(regionalMuonShowers_));
       event_.put(std::move(EMTFDaqOuts_));
       event_.put(std::move(EMTFHits_ZS_));
       event_.put(std::move(EMTFTracks_));

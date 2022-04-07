@@ -24,7 +24,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/AnySelector.h"
-#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
+#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuonSetup.h"
 
 class L1MuonMatcherAlgo {
 public:
@@ -238,6 +238,7 @@ private:
   template <class T>
   int genericQuality(const T &cand) const;
 
+  PropagateToMuonSetup propSetup_;
   PropagateToMuon prop_;
 
   bool useStage2L1_;
