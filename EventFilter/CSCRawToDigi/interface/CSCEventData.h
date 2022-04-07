@@ -102,7 +102,12 @@ public:
   void add(const std::vector<CSCALCTDigi> &);
   void add(const std::vector<CSCCLCTDigi> &);
   void add(const std::vector<CSCCorrelatedLCTDigi> &);
-  void add(const std::vector<CSCShowerDigi> &);
+  /// Run3 CSC Shower HMT objects
+  void addShower(const std::vector<CSCShowerDigi> &);           // add LCT CSCShower
+  void addAnodeShower(const std::vector<CSCShowerDigi> &);      // add Anode CSCShower
+  void addCathodeShower(const std::vector<CSCShowerDigi> &);    // add Cathode CSCShower
+  void addAnodeALCTShower(const std::vector<CSCShowerDigi> &);  // add Anode ALCT CSCShower
+  /// Run3 GEM Pad Clusters obecjts
   void add(const std::vector<GEMPadDigiCluster> &, const GEMDetId &);
 
   /// this will fill the DMB header, and change all related fields in
