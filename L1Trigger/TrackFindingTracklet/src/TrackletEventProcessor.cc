@@ -7,6 +7,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Track.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletConfigBuilder.h"
 #include "L1Trigger/TrackFindingTracklet/interface/IMATH_TrackletCalculator.h"
+#include "L1Trigger/TrackFindingTracklet/interface/ChannelAssignment.h"
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -24,7 +25,7 @@ TrackletEventProcessor::~TrackletEventProcessor() {
   }
 }
 
-void TrackletEventProcessor::init(Settings const& theSettings, const ChannelAssignment* channelAssignment) {
+void TrackletEventProcessor::init(Settings const& theSettings, const ChannelAssignment* channelAssignment, const tt::Setup* setup) {
   settings_ = &theSettings;
   channelAssignment_ = channelAssignment;
   // number of track channel
@@ -100,7 +101,7 @@ void TrackletEventProcessor::init(Settings const& theSettings, const ChannelAssi
     configure(inwire, inmem, inproc);
 
   } else {
-    TrackletConfigBuilder config(*settings_);
+    TrackletConfigBuilder config(*settings_, setup);
 
     //Write configurations to file.
     if (settings_->writeConfig()) {
