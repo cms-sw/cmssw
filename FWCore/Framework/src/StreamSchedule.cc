@@ -3,6 +3,7 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProductResolverIndexHelper.h"
 #include "FWCore/Framework/src/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/TriggerReport.h"
@@ -378,6 +379,159 @@ namespace edm {
     }
   }
 
+  static Worker* getWorker(std::string const& moduleLabel,
+                           ParameterSet& proc_pset,
+                           WorkerManager& workerManager,
+                           ProductRegistry& preg,
+                           PreallocationConfiguration const* prealloc,
+                           std::shared_ptr<ProcessConfiguration const> processConfiguration) {
+    bool isTracked;
+    ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
+    if (modpset == nullptr) {
+      return nullptr;
+    }
+    assert(isTracked);
+
+    return workerManager.getWorker(*modpset, preg, prealloc, processConfiguration, moduleLabel);
+  }
+
+  std::vector<Worker*> StreamSchedule::tryToPlaceConditionalModules(
+      Worker* worker,
+      std::unordered_set<std::string>& conditionalModules,
+      std::multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+      std::multimap<std::string, AliasInfo> const& aliasMap,
+      ParameterSet& proc_pset,
+      ProductRegistry& preg,
+      PreallocationConfiguration const* prealloc,
+      std::shared_ptr<ProcessConfiguration const> processConfiguration) {
+    std::vector<Worker*> returnValue;
+    auto const& consumesInfo = worker->consumesInfo();
+    auto moduleLabel = worker->description()->moduleLabel();
+    using namespace productholderindexhelper;
+    for (auto const& ci : consumesInfo) {
+      if (not ci.skipCurrentProcess() and
+          (ci.process().empty() or ci.process() == processConfiguration->processName())) {
+        auto productModuleLabel = ci.label();
+        if (productModuleLabel.empty()) {
+          //this is a consumesMany request
+          for (auto const& branch : conditionalModuleBranches) {
+            //check that the conditional module has not been used
+            if (conditionalModules.find(branch.first) == conditionalModules.end()) {
+              continue;
+            }
+            if (ci.kindOfType() == edm::PRODUCT_TYPE) {
+              if (branch.second->unwrappedTypeID() != ci.type()) {
+                continue;
+              }
+            } else {
+              if (not typeIsViewCompatible(
+                      ci.type(), TypeID(branch.second->wrappedType().typeInfo()), branch.second->className())) {
+                continue;
+              }
+            }
+
+            auto condWorker = getWorker(branch.first, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+            assert(condWorker);
+
+            conditionalModules.erase(branch.first);
+
+            auto dependents = tryToPlaceConditionalModules(condWorker,
+                                                           conditionalModules,
+                                                           conditionalModuleBranches,
+                                                           aliasMap,
+                                                           proc_pset,
+                                                           preg,
+                                                           prealloc,
+                                                           processConfiguration);
+            returnValue.insert(returnValue.end(), dependents.begin(), dependents.end());
+            returnValue.push_back(condWorker);
+          }
+        } else {
+          //just a regular consumes
+          bool productFromConditionalModule = false;
+          auto itFound = conditionalModules.find(productModuleLabel);
+          if (itFound == conditionalModules.end()) {
+            //Check to see if this was an alias
+            auto findAlias = aliasMap.equal_range(productModuleLabel);
+            for (auto it = findAlias.first; it != findAlias.second; ++it) {
+              //this was previously filtered so only the conditional modules remain
+              productModuleLabel = it->second.originalModuleLabel;
+              if (it->second.instanceLabel == "*" or ci.instance() == it->second.instanceLabel) {
+                if (it->second.friendlyClassName == "*" or
+                    (ci.type().friendlyClassName() == it->second.friendlyClassName)) {
+                  productFromConditionalModule = true;
+                  //need to check the rest of the data product info
+                  break;
+                } else if (ci.kindOfType() == ELEMENT_TYPE) {
+                  //consume is a View so need to do more intrusive search
+                  //find matching branches in module
+                  auto branches = conditionalModuleBranches.equal_range(productModuleLabel);
+                  for (auto itBranch = branches.first; itBranch != branches.second; ++it) {
+                    if (it->second.originalInstanceLabel == "*" or
+                        itBranch->second->productInstanceName() == it->second.originalInstanceLabel) {
+                      if (typeIsViewCompatible(ci.type(),
+                                               TypeID(itBranch->second->wrappedType().typeInfo()),
+                                               itBranch->second->className())) {
+                        productFromConditionalModule = true;
+                        break;
+                      }
+                    }
+                  }
+                  if (productFromConditionalModule) {
+                    break;
+                  }
+                }
+              }
+            }
+            if (productFromConditionalModule) {
+              itFound = conditionalModules.find(productModuleLabel);
+            }
+          } else {
+            //need to check the rest of the data product info
+            auto findBranches = conditionalModuleBranches.equal_range(productModuleLabel);
+            for (auto itBranch = findBranches.first; itBranch != findBranches.second; ++itBranch) {
+              if (itBranch->second->productInstanceName() == ci.instance()) {
+                if (ci.kindOfType() == PRODUCT_TYPE) {
+                  if (ci.type() == itBranch->second->unwrappedTypeID()) {
+                    productFromConditionalModule = true;
+                    break;
+                  }
+                } else {
+                  //this is a view
+                  if (typeIsViewCompatible(ci.type(),
+                                           TypeID(itBranch->second->wrappedType().typeInfo()),
+                                           itBranch->second->className())) {
+                    productFromConditionalModule = true;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          if (productFromConditionalModule) {
+            auto condWorker =
+                getWorker(productModuleLabel, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+            assert(condWorker);
+
+            conditionalModules.erase(itFound);
+
+            auto dependents = tryToPlaceConditionalModules(condWorker,
+                                                           conditionalModules,
+                                                           conditionalModuleBranches,
+                                                           aliasMap,
+                                                           proc_pset,
+                                                           preg,
+                                                           prealloc,
+                                                           processConfiguration);
+            returnValue.insert(returnValue.end(), dependents.begin(), dependents.end());
+            returnValue.push_back(condWorker);
+          }
+        }
+      }
+    }
+    return returnValue;
+  }
+
   void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
@@ -388,6 +542,66 @@ namespace edm {
                                    std::vector<std::string> const& endPathNames) {
     vstring modnames = proc_pset.getParameter<vstring>(pathName);
     PathWorkers tmpworkers;
+
+    //Pull out ConditionalTask modules
+    auto itCondBegin = std::find(modnames.begin(), modnames.end(), "#");
+
+    std::unordered_set<std::string> conditionalmods;
+    //An EDAlias may be redirecting to a module on a ConditionalTask
+    std::multimap<std::string, AliasInfo> aliasMap;
+    std::multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
+    std::unordered_map<std::string, unsigned int> conditionalModOrder;
+    if (itCondBegin != modnames.end()) {
+      for (auto it = itCondBegin + 1; it != modnames.begin() + modnames.size() - 1; ++it) {
+        // ordering needs to skip the # token in the path list
+        conditionalModOrder.emplace(*it, it - modnames.begin() - 1);
+      }
+      //the last entry should be ignored since it is required to be "@"
+      conditionalmods = std::unordered_set<std::string>(
+          std::make_move_iterator(itCondBegin + 1), std::make_move_iterator(modnames.begin() + modnames.size() - 1));
+
+      for (auto const& cond : conditionalmods) {
+        //force the creation of the conditional modules so alias check can work
+        (void)getWorker(cond, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+      }
+      //find aliases
+      {
+        auto aliases = proc_pset.getParameter<std::vector<std::string>>("@all_aliases");
+        std::string const star("*");
+        for (auto const& alias : aliases) {
+          auto info = proc_pset.getParameter<edm::ParameterSet>(alias);
+          auto aliasedToModuleLabels = info.getParameterNames();
+          for (auto const& mod : aliasedToModuleLabels) {
+            if (not mod.empty() and mod[0] != '@' and conditionalmods.find(mod) != conditionalmods.end()) {
+              auto aliasPSet = proc_pset.getParameter<edm::ParameterSet>(mod);
+              std::string type = star;
+              std::string instance = star;
+              std::string originalInstance = star;
+              if (aliasPSet.exists("type")) {
+                type = aliasPSet.getParameter<std::string>("type");
+              }
+              if (aliasPSet.exists("toProductInstance")) {
+                instance = aliasPSet.getParameter<std::string>("toProductInstance");
+              }
+              if (aliasPSet.exists("fromProductInstance")) {
+                originalInstance = aliasPSet.getParameter<std::string>("fromProductInstance");
+              }
+
+              aliasMap.emplace(alias, AliasInfo{type, instance, originalInstance, mod});
+            }
+          }
+        }
+      }
+      {
+        //find branches created by the conditional modules
+        for (auto const& prod : preg.productList()) {
+          if (conditionalmods.find(prod.first.moduleLabel()) != conditionalmods.end()) {
+            conditionalModsBranches.emplace(prod.first.moduleLabel(), &prod.second);
+          }
+        }
+      }
+    }
+    modnames.erase(itCondBegin, modnames.end());
 
     unsigned int placeInPath = 0;
     for (auto const& name : modnames) {
@@ -409,9 +623,8 @@ namespace edm {
         moduleLabel.erase(0, 1);
       }
 
-      bool isTracked;
-      ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
-      if (modpset == nullptr) {
+      Worker* worker = getWorker(moduleLabel, proc_pset, workerManager_, preg, prealloc, processConfiguration);
+      if (worker == nullptr) {
         std::string pathType("endpath");
         if (!search_all(endPathNames, pathName)) {
           pathType = std::string("path");
@@ -420,9 +633,7 @@ namespace edm {
             << "The unknown module label \"" << moduleLabel << "\" appears in " << pathType << " \"" << pathName
             << "\"\n please check spelling or remove that label from the path.";
       }
-      assert(isTracked);
 
-      Worker* worker = workerManager_.getWorker(*modpset, preg, prealloc, processConfiguration, moduleLabel);
       if (ignoreFilters && filterAction != WorkerInPath::Ignore && worker->moduleType() == Worker::kFilter) {
         // We have a filter on an end path, and the filter is not explicitly ignored.
         // See if the filter is allowed.
@@ -442,6 +653,14 @@ namespace edm {
       if (runConcurrently && worker->moduleType() == Worker::kFilter and filterAction != WorkerInPath::Ignore) {
         runConcurrently = false;
       }
+
+      auto condModules = tryToPlaceConditionalModules(
+          worker, conditionalmods, conditionalModsBranches, aliasMap, proc_pset, preg, prealloc, processConfiguration);
+      for (auto condMod : condModules) {
+        tmpworkers.emplace_back(
+            condMod, WorkerInPath::Ignore, conditionalModOrder[condMod->description()->moduleLabel()], true);
+      }
+
       tmpworkers.emplace_back(worker, filterAction, placeInPath, runConcurrently);
       ++placeInPath;
     }
@@ -819,6 +1038,7 @@ namespace edm {
     sum.timesFailed += path.timesFailed(which);
     sum.timesExcept += path.timesExcept(which);
     sum.moduleLabel = path.getWorker(which)->description()->moduleLabel();
+    sum.bitPosition = path.bitPosition(which);
   }
 
   static void fillPathSummary(Path const& path, PathSummary& sum) {

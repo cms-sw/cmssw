@@ -95,6 +95,7 @@
 #include <vector>
 #include <sstream>
 #include <atomic>
+#include <unordered_set>
 
 namespace edm {
 
@@ -288,6 +289,21 @@ namespace edm {
 
     void reportSkipped(EventPrincipal const& ep) const;
 
+    struct AliasInfo {
+      std::string friendlyClassName;
+      std::string instanceLabel;
+      std::string originalInstanceLabel;
+      std::string originalModuleLabel;
+    };
+    std::vector<Worker*> tryToPlaceConditionalModules(
+        Worker*,
+        std::unordered_set<std::string>& conditionalModules,
+        std::multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+        std::multimap<std::string, AliasInfo> const& aliasMap,
+        ParameterSet& proc_pset,
+        ProductRegistry& preg,
+        PreallocationConfiguration const* prealloc,
+        std::shared_ptr<ProcessConfiguration const> processConfiguration);
     void fillWorkers(ParameterSet& proc_pset,
                      ProductRegistry& preg,
                      PreallocationConfiguration const* prealloc,

@@ -119,6 +119,12 @@ namespace edmtest {
         : token_{produces<IntProduct>()}, value_(p.getParameter<int>("ivalue")) {}
     void produce(edm::Event& e, edm::EventSetup const& c) override;
 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.add<int>("ivalue");
+      descriptions.addDefault(desc);
+    }
+
   private:
     edm::EDPutTokenT<IntProduct> token_;
     int value_;
@@ -373,13 +379,20 @@ namespace edmtest {
     explicit AddIntsProducer(edm::ParameterSet const& p)
         : putToken_{produces<IntProduct>()},
           otherPutToken_{produces<IntProduct>("other")},
-          onlyGetOnEvent_(p.getUntrackedParameter<unsigned int>("onlyGetOnEvent", 0u)) {
+          onlyGetOnEvent_(p.getUntrackedParameter<unsigned int>("onlyGetOnEvent")) {
       auto const& labels = p.getParameter<std::vector<edm::InputTag>>("labels");
       for (auto const& label : labels) {
         tokens_.emplace_back(consumes(label));
       }
     }
     void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      desc.addUntracked<unsigned int>("onlyGetOnEvent", 0u);
+      desc.add<std::vector<edm::InputTag>>("labels");
+      descriptions.addDefault(desc);
+    }
 
   private:
     std::vector<edm::EDGetTokenT<IntProduct>> tokens_;
@@ -399,6 +412,36 @@ namespace edmtest {
     }
     e.emplace(putToken_, value);
     e.emplace(otherPutToken_, value);
+  }
+
+  //
+  // Produces an IntProduct instance, using many IntProducts as input.
+  //
+
+  class AddAllIntsProducer : public edm::global::EDProducer<> {
+  public:
+    explicit AddAllIntsProducer(edm::ParameterSet const& p) : putToken_{produces()} { consumesMany<IntProduct>(); }
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+      edm::ParameterSetDescription desc;
+      descriptions.addDefault(desc);
+    }
+
+  private:
+    const edm::EDPutTokenT<int> putToken_;
+  };
+
+  void AddAllIntsProducer::produce(edm::StreamID, edm::Event& e, edm::EventSetup const&) const {
+    std::vector<edm::Handle<IntProduct>> ints;
+    e.getManyByType(ints);
+
+    int value = 0;
+    for (auto const& i : ints) {
+      value += i->value;
+    }
+
+    e.emplace(putToken_, value);
   }
 
   //
@@ -831,6 +874,7 @@ namespace edmtest {
   };
 }  // namespace edmtest
 
+using edmtest::AddAllIntsProducer;
 using edmtest::AddIntsProducer;
 using edmtest::BusyWaitIntLegacyProducer;
 using edmtest::BusyWaitIntLimitedProducer;
@@ -865,6 +909,7 @@ DEFINE_FWK_MODULE(TransientIntProducer);
 DEFINE_FWK_MODULE(IntProducerFromTransient);
 DEFINE_FWK_MODULE(Int16_tProducer);
 DEFINE_FWK_MODULE(AddIntsProducer);
+DEFINE_FWK_MODULE(AddAllIntsProducer);
 DEFINE_FWK_MODULE(ManyIntProducer);
 DEFINE_FWK_MODULE(ManyIntWhenRegisteredProducer);
 DEFINE_FWK_MODULE(NonEventIntProducer);

@@ -84,6 +84,10 @@ namespace edm {
     // If the TypeID for the wrapped type is already available,
     // it is faster to call getContainedTypeFromWrapper directly.
     TypeID getContainedType(TypeID const& typeID);
+
+    bool typeIsViewCompatible(TypeID const& requestedViewType,
+                              TypeID const& wrappedtypeID,
+                              std::string const& className);
   }  // namespace productholderindexhelper
 
   class ProductResolverIndexHelper {
