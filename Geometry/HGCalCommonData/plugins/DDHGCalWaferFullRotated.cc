@@ -134,7 +134,7 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
   double r2 = 0.5 * waferSize_;
   double R2 = r2 / sqrt3;
   const int nFine(nCells_), nCoarse(nCells_);
-  HGCalCell wafer(waferSize_, nFine, nCoarse);
+  HGCalCell wafer((waferSize_ + waferSepar_), nFine, nCoarse);
   for (unsigned int k = 0; k < tag_.size(); ++k) {
     // First the mother
     std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};
