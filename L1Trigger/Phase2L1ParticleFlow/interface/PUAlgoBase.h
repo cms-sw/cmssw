@@ -37,7 +37,7 @@ namespace l1tpf_impl {
     int debug_;
     float etaCharged_, vtxRes_;
     bool vtxAdaptiveCut_;
-    int NVtx_;
+    int nVtx_;
   };
 
 }  // namespace l1tpf_impl

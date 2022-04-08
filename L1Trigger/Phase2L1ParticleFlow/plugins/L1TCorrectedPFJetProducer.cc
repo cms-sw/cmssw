@@ -2,8 +2,6 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-#include "DataFormats/Candidate/interface/Candidate.h"
-
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -44,12 +42,6 @@ void L1TCorrectedPFJetProducer::produce(edm::StreamID, edm::Event& iEvent, const
     // start out as copy
     out->emplace_back(srcjet.p4());
     auto& jet = out->back();
-    // copy daughters
-    //if (copyDaughters_) {
-    //  for (const auto& dau : srcjet.daughterPtrVector()) {
-    //    jet.addConstituent(edm::Ptr<l1t::L1Candidate>(dau));
-    //  }
-    //}
     // apply corrections
     jet.calibratePt(corrector_.correctedPt(jet.pt(), jet.eta()));
   }

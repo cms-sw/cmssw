@@ -29,12 +29,12 @@ private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
   /// ///////////////// ///
 
-  float _coneSize;
-  unsigned _nJets;
-  bool _HW;
-  bool _debug;
-  L1SCJetEmu _emulator;
-  edm::EDGetTokenT<std::vector<l1t::PFCandidate>> _l1PFToken;
+  float coneSize;
+  unsigned nJets;
+  bool HW;
+  bool debug;
+  L1SCJetEmu emulator;
+  edm::EDGetTokenT<std::vector<l1t::PFCandidate>> l1PFToken;
 
   std::vector<l1t::PFJet> processEvent_SW(std::vector<edm::Ptr<l1t::PFCandidate>>& parts) const;
   std::vector<l1t::PFJet> processEvent_HW(std::vector<edm::Ptr<l1t::PFCandidate>>& parts) const;
@@ -51,12 +51,12 @@ private:
 };
 
 L1SeedConePFJetProducer::L1SeedConePFJetProducer(const edm::ParameterSet& cfg)
-    : _coneSize(cfg.getParameter<double>("coneSize")),
-      _nJets(cfg.getParameter<unsigned>("nJets")),
-      _HW(cfg.getParameter<bool>("HW")),
-      _debug(cfg.getParameter<bool>("debug")),
-      _emulator(L1SCJetEmu(_debug, _coneSize, _nJets)),
-      _l1PFToken(consumes<std::vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
+    : coneSize(cfg.getParameter<double>("coneSize")),
+      nJets(cfg.getParameter<unsigned>("nJets")),
+      HW(cfg.getParameter<bool>("HW")),
+      debug(cfg.getParameter<bool>("debug")),
+      emulator(L1SCJetEmu(debug, coneSize, nJets)),
+      l1PFToken(consumes<std::vector<l1t::PFCandidate>>(cfg.getParameter<edm::InputTag>("L1PFObjects"))) {
   produces<l1t::PFJetCollection>();
 }
 
@@ -66,7 +66,7 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
   std::unique_ptr<l1t::PFJetCollection> newPFJetCollection(new l1t::PFJetCollection);
 
   edm::Handle<l1t::PFCandidateCollection> l1PFCandidates;
-  iEvent.getByToken(_l1PFToken, l1PFCandidates);
+  iEvent.getByToken(l1PFToken, l1PFCandidates);
 
   std::vector<edm::Ptr<l1t::PFCandidate>> particles;
   for (unsigned i = 0; i < (*l1PFCandidates).size(); i++) {
@@ -74,7 +74,7 @@ void L1SeedConePFJetProducer::produce(edm::StreamID /*unused*/,
   }
 
   std::vector<l1t::PFJet> jets;
-  if (_HW) {
+  if (HW) {
     jets = processEvent_HW(particles);
   } else {
     jets = processEvent_SW(particles);
@@ -129,22 +129,22 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_SW(std::vector<edm
     return (i->pt() > j->pt());
   });
   std::vector<l1t::PFJet> jets;
-  jets.reserve(_nJets);
-  while (!work.empty() && jets.size() < _nJets) {
+  jets.reserve(nJets);
+  while (!work.empty() && jets.size() < nJets) {
     // Take the first (highest pt) candidate as a seed
     edm::Ptr<l1t::PFCandidate> seed = work.at(0);
     // Get the particles within a _coneSize of the seed
     std::vector<edm::Ptr<l1t::PFCandidate>> particlesInCone;
     std::copy_if(
         work.begin(), work.end(), std::back_inserter(particlesInCone), [&](const edm::Ptr<l1t::PFCandidate>& part) {
-          return reco::deltaR<l1t::PFCandidate, l1t::PFCandidate>(*seed, *part) <= _coneSize;
+          return reco::deltaR<l1t::PFCandidate, l1t::PFCandidate>(*seed, *part) <= coneSize;
         });
     jets.push_back(makeJet_SW(particlesInCone));
     // remove the clustered particles
     work.erase(std::remove_if(work.begin(),
                               work.end(),
                               [&](const edm::Ptr<l1t::PFCandidate>& part) {
-                                return reco::deltaR<l1t::PFCandidate, l1t::PFCandidate>(*seed, *part) <= _coneSize;
+                                return reco::deltaR<l1t::PFCandidate, l1t::PFCandidate>(*seed, *part) <= coneSize;
                               }),
                work.end());
   }
@@ -156,7 +156,7 @@ std::vector<l1t::PFJet> L1SeedConePFJetProducer::processEvent_HW(std::vector<edm
   // Convert the EDM format to the hardware format, and call the standalone emulator
   std::pair<std::vector<L1SCJetEmu::Particle>, std::unordered_map<const l1t::PFCandidate*, edm::Ptr<l1t::PFCandidate>>>
       particles = convertEDMToHW(work);
-  std::vector<L1SCJetEmu::Jet> jets = _emulator.emulateEvent(particles.first);
+  std::vector<L1SCJetEmu::Jet> jets = emulator.emulateEvent(particles.first);
   return convertHWToEDM(jets, particles.second);
 }
 

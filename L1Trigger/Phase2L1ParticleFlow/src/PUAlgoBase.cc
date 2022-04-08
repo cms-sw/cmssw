@@ -9,7 +9,7 @@ PUAlgoBase::PUAlgoBase(const edm::ParameterSet &iConfig)
       etaCharged_(iConfig.getParameter<double>("etaCharged")),
       vtxRes_(iConfig.getParameter<double>("vtxRes")),
       vtxAdaptiveCut_(iConfig.getParameter<bool>("vtxAdaptiveCut")),
-      NVtx_(iConfig.getParameter<int>("nVtx")) {}
+      nVtx_(iConfig.getParameter<int>("nVtx")) {}
 
 PUAlgoBase::~PUAlgoBase() {}
 
@@ -36,7 +36,7 @@ void PUAlgoBase::runChargedPV(Region &r, std::vector<float> &z0s) const {
           (std::abs(r.globalAbsEta(p.track.floatVtxEta())) < 1.3);  // FIXME could make a better integer implementation
     //p.chargedPV = (p.hwId <= 1 && std::abs(p.track.hwZ0 - iZ0) < (barrel ? iDZ : iDZ2));
     bool pFromPV = false;
-    for (int v = 0; v < NVtx_; v++) {
+    for (int v = 0; v < nVtx_; v++) {
       int16_t iZ0 = round(z0s[v] * InputTrack::Z0_SCALE);
       if (std::abs(p.track.hwZ0 - iZ0) < (barrel ? iDZ : iDZ2))
         pFromPV = true;
@@ -111,8 +111,8 @@ void PUAlgoBase::doVertexings(std::vector<Region> &rs, VertexAlgo algo, std::vec
   }
   switch (algo) {
     case VertexAlgo::External: {
-      int lBin[NVtx_];
-      for (int vtx = 0; vtx < int(NVtx_) - int(pvdz.size()); vtx++) {
+      int lBin[nVtx_];
+      for (int vtx = 0; vtx < int(nVtx_) - int(pvdz.size()); vtx++) {
         float max = 0;
         for (int b = 1; b <= lNBins; ++b) {
           bool pPass = false;
@@ -133,8 +133,8 @@ void PUAlgoBase::doVertexings(std::vector<Region> &rs, VertexAlgo algo, std::vec
       }
     } break;
     case VertexAlgo::Old: {
-      int lBin[NVtx_];
-      for (int vtx = 0; vtx < NVtx_; ++vtx) {
+      int lBin[nVtx_];
+      for (int vtx = 0; vtx < nVtx_; ++vtx) {
         float pMax = 0;
         lBin[vtx] = -1;
         for (int b = 1; b <= lNBins; ++b) {
@@ -156,8 +156,8 @@ void PUAlgoBase::doVertexings(std::vector<Region> &rs, VertexAlgo algo, std::vec
       }
     }; break;
     case VertexAlgo::TP: {
-      int lBin[NVtx_];
-      for (int vtx = 0; vtx < NVtx_; vtx++) {
+      int lBin[nVtx_];
+      for (int vtx = 0; vtx < nVtx_; vtx++) {
         float max = 0;
         for (int b = 1; b <= lNBins; ++b) {
           bool pPass = false;
@@ -188,7 +188,7 @@ void PUAlgoBase::doVertexings(std::vector<Region> &rs, VertexAlgo algo, std::vec
         central =
             (std::abs(r.globalAbsEta(p.floatVtxEta())) < 1.3);  // FIXME could make a better integer implementation
       bool pFromPV = false;
-      for (int v = 0; v < NVtx_; v++) {
+      for (int v = 0; v < nVtx_; v++) {
         int16_t iZ0 = round(pvdz[v] * InputTrack::Z0_SCALE);
         if (std::abs(p.hwZ0 - iZ0) < (central ? iDZ : iDZ2))
           pFromPV = true;

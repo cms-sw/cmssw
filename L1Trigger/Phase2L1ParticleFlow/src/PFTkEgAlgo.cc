@@ -7,6 +7,7 @@ using namespace l1tpf_impl;
 #include "DataFormats/Common/interface/RefToPtr.h"
 #include <algorithm>
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
   template <typename T1, typename T2>
@@ -56,16 +57,16 @@ void PFTkEGAlgo::runTkEG(Region &r) const {
   initRegion(r);
 
   if (debug_ > 0) {
-    std::cout << "[PFTkEGAlgo::runTkEG] START" << std::endl;
-    std::cout << "   # emCalo: " << r.emcalo.size() << " # tk: " << r.track.size() << std::endl;
+    edm::LogInfo("PFTkEGAlgo") << "   # emCalo: " << r.emcalo.size() << " # tk: " << r.track.size();
   }
   if (debug_ > 0) {
     for (int ic = 0, nc = r.emcalo.size(); ic < nc; ++ic) {
       const auto &calo = r.emcalo[ic];
-      std::cout << "[OLD] IN calo[" << ic << "] pt: " << calo.floatPt() << " eta: " << r.globalEta(calo.floatEta())
-                << " phi: " << r.globalPhi(calo.floatPhi()) << " hwEta: " << calo.hwEta << " hwPhi: " << calo.hwPhi
-                << " src pt: " << calo.src->pt() << " src eta: " << calo.src->eta() << " src phi: " << calo.src->phi()
-                << std::endl;
+      edm::LogInfo("PFTkEGAlgo") << "[OLD] IN calo[" << ic << "] pt: " << calo.floatPt()
+                                 << " eta: " << r.globalEta(calo.floatEta()) << " phi: " << r.globalPhi(calo.floatPhi())
+                                 << " hwEta: " << calo.hwEta << " hwPhi: " << calo.hwPhi
+                                 << " src pt: " << calo.src->pt() << " src eta: " << calo.src->eta()
+                                 << " src phi: " << calo.src->phi();
     }
   }
 
@@ -212,17 +213,17 @@ void PFTkEGAlgo::link_emCalo2tk(const Region &r, std::vector<int> &emCalo2tk) co
     float dPhiMax = dPhiValues_[eta_index];
 
     if (debug_ > 4)
-      std::cout << "idx: " << eta_index << " deta: " << dEtaMax << " dphi: " << dPhiMax << std::endl;
+      edm::LogInfo("PFTkEGAlgo") << "idx: " << eta_index << " deta: " << dEtaMax << " dphi: " << dPhiMax;
 
     float dPtMin = 999;
     if (debug_ > 3)
-      std::cout << "--- calo: pt: " << calo.floatPt() << " eta: " << calo.floatEta() << " phi: " << calo.floatPhi()
-                << std::endl;
+      edm::LogInfo("PFTkEGAlgo") << "--- calo: pt: " << calo.floatPt() << " eta: " << calo.floatEta()
+                                 << " phi: " << calo.floatPhi();
     for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
       const auto &tk = r.track[itk];
       if (debug_ > 3)
-        std::cout << "  - tk: pt: " << tk.floatPt() << " eta: " << tk.floatEta() << " phi: " << tk.floatPhi()
-                  << std::endl;
+        edm::LogInfo("PFTkEGAlgo") << "  - tk: pt: " << tk.floatPt() << " eta: " << tk.floatEta()
+                                   << " phi: " << tk.floatPhi();
 
       if (tk.floatPt() < trkQualityPtMin_)
         continue;
@@ -231,19 +232,16 @@ void PFTkEGAlgo::link_emCalo2tk(const Region &r, std::vector<int> &emCalo2tk) co
       float d_eta = tk.floatEta() - calo.floatEta();  // We only use it squared
 
       if (debug_ > 3)
-        std::cout << " deta: " << fabs(d_eta) << " dphi: " << d_phi
-                  << " ell: " << ((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))
-                  << std::endl;
-      // std::cout << "Global abs eta: " << r.globalAbsEta(calo.floatEta())
-      //           << " abs eta: " << fabs(calo.floatEta()) << std::endl;
+        edm::LogInfo("PFTkEGAlgo") << " deta: " << fabs(d_eta) << " dphi: " << d_phi << " ell: "
+                                   << ((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax));
 
       if ((((d_phi / dPhiMax) * (d_phi / dPhiMax)) + ((d_eta / dEtaMax) * (d_eta / dEtaMax))) < 1.) {
         if (debug_ > 3)
-          std::cout << "    pass elliptic " << std::endl;
+          edm::LogInfo("PFTkEGAlgo") << "    pass elliptic ";
         // NOTE: for now we implement only best pt match. This is NOT what is done in the L1TkElectronTrackProducer
         if (fabs(tk.floatPt() - calo.floatPt()) < dPtMin) {
           if (debug_ > 3)
-            std::cout << "     best pt match: " << fabs(tk.floatPt() - calo.floatPt()) << std::endl;
+            edm::LogInfo("PFTkEGAlgo") << "     best pt match: " << fabs(tk.floatPt() - calo.floatPt());
           emCalo2tk[ic] = itk;
           dPtMin = fabs(tk.floatPt() - calo.floatPt());
         }

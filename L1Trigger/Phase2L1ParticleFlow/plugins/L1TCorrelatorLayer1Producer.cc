@@ -67,7 +67,7 @@ private:
   bool emuTkVtx_;
   edm::EDGetTokenT<std::vector<l1t::Vertex>> extTkVtx_;
   edm::EDGetTokenT<std::vector<l1t::VertexWord>> tkVtxEmu_;
-  int NVtx_;
+  int nVtx_;
 
   edm::EDGetTokenT<l1t::SAMuonCollection> muCands_;  // standalone muons
 
@@ -257,7 +257,7 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   } else {
     extTkVtx_ = consumes<std::vector<l1t::Vertex>>(iConfig.getParameter<edm::InputTag>("vtxCollection"));
   }
-  NVtx_ = iConfig.getParameter<int>("nVtx");
+  nVtx_ = iConfig.getParameter<int>("nVtx");
 
   const char *iprefix[4] = {"totNReg", "maxNReg", "totNSec", "maxNSec"};
   for (int i = 0; i <= l1muType; ++i) {
@@ -389,9 +389,9 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   event_.pvs.push_back(hwpv);
   event_.pvs_emu.push_back(pvwd.vertexWord());
   //Do a quick histogram vertexing to get multiple vertices (Hack for the taus)
-  if (NVtx_ > 1) {
+  if (nVtx_ > 1) {
     std::stable_sort(ptsums.begin(), ptsums.end(), [](const auto &a, const auto &b) { return a.first > b.first; });
-    for (int i0 = 0; i0 < std::min(int(ptsums.size()), int(NVtx_)); i0++) {
+    for (int i0 = 0; i0 < std::min(int(ptsums.size()), int(nVtx_)); i0++) {
       z0s.push_back(ptsums[i0].second);
     }
     for (unsigned int i = 1; i < z0s.size(); ++i) {

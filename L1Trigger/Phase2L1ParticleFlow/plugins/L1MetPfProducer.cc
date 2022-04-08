@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
@@ -130,10 +131,10 @@ void L1MetPfProducer::Project(pt_t pt, phi_t phi, pxy_t& pxy, bool isX, bool deb
     phiQ1 = hwPi_ - phiQ1;
 
   if (phiQ1 > hwPiOverTwo_) {
-    std::cout << "unexpected phi (high)" << std::endl;
+    edm::LogWarning("L1MetPfProducer") << "unexpected phi (high)";
     phiQ1 = hwPiOverTwo_;
   } else if (phiQ1 < 0) {
-    std::cout << "unexpected phi (low)" << std::endl;
+    edm::LogWarning("L1MetPfProducer") << "unexpected phi (low)";
     phiQ1 = 0;
   }
   if (isX) {

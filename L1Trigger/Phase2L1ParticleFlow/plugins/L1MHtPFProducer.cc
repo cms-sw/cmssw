@@ -24,29 +24,29 @@ public:
 
 private:
   void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
-  edm::EDGetTokenT<std::vector<l1t::PFJet>> _jetsToken;
-  float _minJetPt;
-  float _maxJetEta;
+  edm::EDGetTokenT<std::vector<l1t::PFJet>> jetsToken;
+  float minJetPt;
+  float maxJetEta;
 
   std::vector<l1ct::Jet> convertEDMToHW(std::vector<l1t::PFJet> edmJets) const;
   std::vector<l1t::EtSum> convertHWToEDM(l1ct::Sum hwSums) const;
 };
 
 L1MhtPfProducer::L1MhtPfProducer(const edm::ParameterSet& cfg)
-    : _jetsToken(consumes<std::vector<l1t::PFJet>>(cfg.getParameter<edm::InputTag>("jets"))),
-      _minJetPt(cfg.getParameter<double>("minJetPt")),
-      _maxJetEta(cfg.getParameter<double>("maxJetEta")) {
+    : jetsToken(consumes<std::vector<l1t::PFJet>>(cfg.getParameter<edm::InputTag>("jets"))),
+      minJetPt(cfg.getParameter<double>("minJetPt")),
+      maxJetEta(cfg.getParameter<double>("maxJetEta")) {
   produces<std::vector<l1t::EtSum>>();
 }
 
 void L1MhtPfProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Get the jets from the event
-  l1t::PFJetCollection edmJets = iEvent.get(_jetsToken);
+  l1t::PFJetCollection edmJets = iEvent.get(jetsToken);
 
   // Apply pT and eta selections
   l1t::PFJetCollection edmJetsFiltered;
   std::copy_if(edmJets.begin(), edmJets.end(), std::back_inserter(edmJetsFiltered), [&](auto jet) {
-    return jet.pt() > _minJetPt && std::abs(jet.eta()) < _maxJetEta;
+    return jet.pt() > minJetPt && std::abs(jet.eta()) < maxJetEta;
   });
 
   // Run the emulation
