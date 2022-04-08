@@ -11,6 +11,7 @@
 #include <HepMC3/GenVertex.h>
 #include <HepMC3/GenParticle.h>
 #include "SimDataFormats/GeneratorProducts/interface/HepMC3Product.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
 using namespace std;
@@ -101,7 +102,9 @@ void HepMC3Product::boostToLab(TMatrixD const* lorentz, std::string const& type)
 
     isPBoostApplied_ = true;
   } else {
-    std::cout << " no type found for boostToLab(std::string), options are vertex or momentum" << std::endl;
+    edm::LogWarning("GeneratorProducts") << "no type found for boostToLab(std::string), options are vertex or momentum";
+    //throw edm::Exception(edm::errors::Configuration, "GeneratorProducts")
+    //  << "no type found for boostToLab(std::string), options are vertex or momentum \n";
   }
 
   return;
