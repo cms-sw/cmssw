@@ -46,11 +46,15 @@ namespace edm {
 
       std::string const& theInstanceAlias(instanceAlias == star ? productInstanceName : instanceAlias);
       BranchKey aliasKey(friendlyClassName, alias, theInstanceAlias, processName);
-      if (preg.productList().find(aliasKey) != preg.productList().end()) {
-        throw Exception(errors::Configuration, "EDAlias conflicts with data\n")
-            << "A product of type '" << friendlyClassName << "'\n"
-            << "with module label '" << alias << "' and instance name '" << theInstanceAlias << "'\n"
-            << "already exists.\n";
+      if (auto it = preg.productList().find(aliasKey); it != preg.productList().end()) {
+        // We might have already inserted an alias that was a chosen case of a SwitchProducer
+        if (not it->second.isAlias()) {
+          throw Exception(errors::Configuration, "EDAlias conflicts with data\n")
+              << "A product of type '" << friendlyClassName << "'\n"
+              << "with module label '" << alias << "' and instance name '" << theInstanceAlias << "'\n"
+              << "already exists.\n";
+        }
+        return;
       }
       auto iter = aliasKeys.find(aliasKey);
       if (iter != aliasKeys.end()) {
