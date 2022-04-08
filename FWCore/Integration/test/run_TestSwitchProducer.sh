@@ -63,6 +63,14 @@ pushd ${LOCAL_TMP_DIR}
   echo "Test provenance of reversely merged output (ConditionalTask)"
   cmsRun ${LOCAL_TEST_DIR}/${test}ProvenanceAnalyzer_cfg.py testSwitchProducerConditionalTaskMerge2.root || die "cmsRun ${test}ProvenanceAnalyzer_cfg.py ConditionalTask2" $?
 
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, more extensive EDAlias tests"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAlias_cfg.py || die "cmsRun ${test}ConditionalTaskEDAlias_cfg.py 1" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, more extensive EDAlias tests, case test2 disabled"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAlias_cfg.py disableTest2 || die "cmsRun ${test}ConditionalTaskEDAlias_cfg.py 2" $?
+
   
   echo "*************************************************"
   echo "SwitchProducer in a Path"
