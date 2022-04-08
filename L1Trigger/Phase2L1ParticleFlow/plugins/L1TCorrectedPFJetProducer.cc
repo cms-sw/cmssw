@@ -1,5 +1,8 @@
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -18,13 +21,13 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  edm::EDGetTokenT<edm::View<reco::Jet>> jets_;
+  edm::EDGetTokenT<edm::View<reco::Candidate>> jets_;
   l1tpf::corrector corrector_;
   bool copyDaughters_;
 };
 
 L1TCorrectedPFJetProducer::L1TCorrectedPFJetProducer(const edm::ParameterSet& iConfig)
-    : jets_(consumes<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("jets"))),
+    : jets_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("jets"))),
       corrector_(iConfig.getParameter<std::string>("correctorFile"), iConfig.getParameter<std::string>("correctorDir")),
       copyDaughters_(iConfig.getParameter<bool>("copyDaughters")) {
   produces<std::vector<l1t::PFJet>>();
@@ -33,7 +36,7 @@ L1TCorrectedPFJetProducer::L1TCorrectedPFJetProducer(const edm::ParameterSet& iC
 L1TCorrectedPFJetProducer::~L1TCorrectedPFJetProducer() {}
 
 void L1TCorrectedPFJetProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) const {
-  edm::Handle<edm::View<reco::Jet>> jets;
+  edm::Handle<edm::View<reco::Candidate>> jets;
   iEvent.getByToken(jets_, jets);
   auto out = std::make_unique<std::vector<l1t::PFJet>>();
 
@@ -42,11 +45,11 @@ void L1TCorrectedPFJetProducer::produce(edm::StreamID, edm::Event& iEvent, const
     out->emplace_back(srcjet.p4());
     auto& jet = out->back();
     // copy daughters
-    if (copyDaughters_) {
-      for (const auto& dau : srcjet.daughterPtrVector()) {
-        jet.addConstituent(edm::Ptr<l1t::L1Candidate>(dau));
-      }
-    }
+    //if (copyDaughters_) {
+    //  for (const auto& dau : srcjet.daughterPtrVector()) {
+    //    jet.addConstituent(edm::Ptr<l1t::L1Candidate>(dau));
+    //  }
+    //}
     // apply corrections
     jet.calibratePt(corrector_.correctedPt(jet.pt(), jet.eta()));
   }
