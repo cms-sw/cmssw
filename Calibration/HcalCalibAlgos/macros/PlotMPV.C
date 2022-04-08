@@ -203,7 +203,7 @@ rType drawMPV(const char* name,
               int ener = 13,
               int normalize = 0,
               bool save = false,
-	      int npar = 1,
+              int npar = 1,
               bool debug = false) {
   rType results;
   gStyle->SetCanvasBorderMode(0);
@@ -296,7 +296,7 @@ rType drawMPV(const char* name,
     if (normalize % 10 > 0) {
       ymax = 1.2;
       ymin = 0.8;
-//    ymin = 0.6;
+      //    ymin = 0.6;
     } else {
       ymin = 100 * imin;
       ymax = 100 * imax;
@@ -330,9 +330,11 @@ rType drawMPV(const char* name,
     g->SetMarkerStyle(8);
     g->SetMarkerColor(kBlue);
 
-    std::cout << "ieta " << eta << " iphi " << phi << " depth " << depth << " mu " << value1 << " +- " << error1 << " Chisq " << f->GetChisquare() << "/" << np << std::endl;
-    std::ofstream log1("slopes_newCode.txt",std::ios_base::app|std::ios_base::out);
-    log1 << "ieta\t" << eta << "\tdepth\t" << depth << "\tmu\t" << value1 << "\terror\t " << error1 << "\tChisq\t" << f->GetChisquare() << std::endl;
+    std::cout << "ieta " << eta << " iphi " << phi << " depth " << depth << " mu " << value1 << " +- " << error1
+              << " Chisq " << f->GetChisquare() << "/" << np << std::endl;
+    std::ofstream log1("slopes_newCode.txt", std::ios_base::app | std::ios_base::out);
+    log1 << "ieta\t" << eta << "\tdepth\t" << depth << "\tmu\t" << value1 << "\terror\t " << error1 << "\tChisq\t"
+         << f->GetChisquare() << std::endl;
     log1.close();
 
     g->GetXaxis()->SetRangeUser(xmin, xmax);
@@ -411,7 +413,7 @@ rType plotMPV(const char* infile,
               int ener = 13,
               int normalize = 0,
               bool save = false,
-	      int npar = 1,
+              int npar = 1,
               bool debug = false) {
   char name[100];
   int iy = iyear % 100;
@@ -421,7 +423,8 @@ rType plotMPV(const char* infile,
 
   std::map<int, std::pair<double, double> > mpvs;
   readMPVs(infile, eta, phi, depth, nmax, mpvs, debug);
-  rType results = drawMPV(name, eta, phi, depth, nmax, mpvs, first, drawleg, iyear, lumi, ener, normalize, save, npar, debug);
+  rType results =
+      drawMPV(name, eta, phi, depth, nmax, mpvs, first, drawleg, iyear, lumi, ener, normalize, save, npar, debug);
   return results;
 }
 
@@ -435,7 +438,7 @@ rType plot2MPV(const char* infile,
                int ener = 13,
                int normalize = 0,
                bool save = false,
-	       int npar = 1,
+               int npar = 1,
                bool debug = false) {
   char name[100];
   sprintf(name, "mpvE%dD%d", eta, depth);
@@ -465,7 +468,8 @@ rType plot2MPV(const char* infile,
       mpvs[period] = std::pair<double, double>(mpv, empv);
     }
   }
-  rType results = drawMPV(name, eta, 0, depth, nmax, mpvs, first, drawleg, iyear, lumi, ener, normalize, save, npar, debug);
+  rType results =
+      drawMPV(name, eta, 0, depth, nmax, mpvs, first, drawleg, iyear, lumi, ener, normalize, save, npar, debug);
   return results;
 }
 
@@ -478,7 +482,7 @@ void plotMPVs(const char* infile,
               double lumis = 0.0,
               int ener = 13,
               bool save = false,
-	      int npar = 1,
+              int npar = 1,
               bool debug = false) {
   int ieta[22] = {-26, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
   int ndep[22] = {7, 6, 6, 6, 6, 6, 6, 6, 5, 3, 1, 1, 3, 5, 6, 6, 6, 6, 6, 6, 6, 7};
@@ -498,7 +502,8 @@ void plotMPVs(const char* infile,
       sprintf(name, "mpvE%dF%dD%d", eta, phi, depth);
       std::map<int, std::pair<double, double> > mpvs;
       readMPVs(infile, eta, phi, depth, nmax, mpvs, debug);
-      rType rt = drawMPV(name, eta, phi, depth, nmax, mpvs, first, true, iyear, lumi, ener, normalize, save, npar, debug);
+      rType rt =
+          drawMPV(name, eta, phi, depth, nmax, mpvs, first, true, iyear, lumi, ener, normalize, save, npar, debug);
       if (rt.pad != nullptr) {
         char line[100];
         sprintf(line, "%3d %2d %d %d   %8.4f  %8.4f  %8.4f", eta, phi, depth, nvx, rt.mean, rt.error, rt.chisq);
@@ -636,74 +641,28 @@ void getTruncatedMeanX(
   int ieta[22] = {-26, -25, -24, -23, -22, -21, -20, -19, -18, -17, -16, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26};
   int ndep[22] = {7, 6, 6, 6, 6, 6, 6, 6, 6, 3, 4, 4, 3, 6, 6, 6, 6, 6, 6, 6, 6, 7};
   int idep[22] = {1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 4, 4, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1};
-  int ioff[22] = {0, 7, 13, 19, 25, 31, 37, 43, 49, 54, 56,
-		  57, 58, 60, 65, 71, 77, 83, 89, 95, 101, 107};
-  double frac18[114] = {0.40, 0.55, 0.50, 0.55, 0.60, 0.60, 0.60,
-			0.40, 0.55, 0.60, 0.60, 0.60, 0.60, 
-			0.40, 0.55, 0.60, 0.60, 0.60, 0.60, 
-			0.45, 0.55, 0.60, 0.60, 0.60, 0.60, 
-			0.55, 0.60, 0.60, 0.60, 0.60, 0.60,
-                        0.55, 0.60, 0.60, 0.60, 0.60, 0.65, 
-			0.60, 0.60, 0.60, 0.60, 0.60, 0.65,
-			0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 
-			0.60, 0.60, 0.60, 0.60, 0.60,
-			0.65, 0.60, 
-			0.80,
-			0.80, 
-			0.65, 0.60,
-                        0.60, 0.60, 0.60, 0.60, 0.60,
-			0.60, 0.60, 0.60, 0.60, 0.60, 0.65,
-			0.60, 0.60, 0.60, 0.60, 0.60, 0.65,
-			0.60, 0.60, 0.60, 0.60, 0.60, 0.65,
-			0.55, 0.60, 0.60, 0.60, 0.60, 0.65,
-                        0.55, 0.60, 0.60, 0.60, 0.60, 0.60,
-			0.45, 0.55, 0.60, 0.60, 0.60, 0.60,
-			0.40, 0.55, 0.60, 0.60, 0.60, 0.60,
-			0.40, 0.55, 0.50, 0.55, 0.60, 0.60, 0.60};
-  double frac17[114] = {0.70, 0.65, 0.55, 0.60, 0.60, 0.65, 0.65,
-			0.67, 0.55, 0.55, 0.57, 0.55, 0.62,
-			0.65, 0.57, 0.60, 0.55, 0.70, 0.65,
-			0.65, 0.60, 0.55, 0.65, 0.75, 0.60,
-			0.60, 0.60, 0.65, 0.62, 0.75, 0.65,
-                        0.70, 0.67, 0.60, 0.65, 0.55, 0.65,
-			0.60, 0.55, 0.75, 0.65, 0.75, 0.70,
-			0.60, 0.55, 0.75, 0.67, 0.65, 0.60,
-			0.60, 0.45, 0.50, 0.52, 0.70, 
-			0.65, 0.60, 
-			0.80,
-			0.80, 
-			0.60, 0.65, 
-			0.60, 0.55, 0.75, 0.67, 0.65,
-			0.60, 0.55, 0.75, 0.65, 0.75, 0.70,
-                        0.70, 0.67, 0.60, 0.65, 0.55, 0.65,
-			0.60, 0.60, 0.65, 0.62, 0.75, 0.65,
-			0.65, 0.60, 0.55, 0.65, 0.75, 0.60,
-			0.65, 0.60, 0.55, 0.65, 0.75, 0.60,
-			0.65, 0.57, 0.60, 0.55, 0.70, 0.65,
-			0.67, 0.55, 0.55, 0.57, 0.55, 0.62,
-			0.70, 0.65, 0.55, 0.60, 0.60, 0.65, 0.65};
-  double frac63[114] = {0.63, 0.60, 0.57, 0.56, 0.60, 0.61, 0.60,
-			0.60, 0.60, 0.60, 0.60, 0.60, 0.61,
-			0.58, 0.60, 0.60, 0.60, 0.62, 0.63,
-			0.57, 0.60, 0.60, 0.60, 0.65, 0.61,
-			0.57, 0.60, 0.60, 0.60, 0.62, 0.64,
-                        0.60, 0.60, 0.60, 0.60, 0.63, 0.65,
-			0.65, 0.60, 0.63, 0.60, 0.64, 0.65,
-			0.60, 0.60, 0.63, 0.62, 0.62, 0.60,
-			0.60, 0.60, 0.60, 0.60, 0.60,
-			0.60, 0.60,
-			0.80,
-                        0.80, 
-			0.60, 0.60,
-			0.60, 0.60, 0.60, 0.60, 0.60, 
-			0.60, 0.60, 0.63, 0.62, 0.62, 0.65,
-			0.65, 0.60, 0.63, 0.60, 0.64, 0.65,
-			0.60, 0.60, 0.60, 0.60, 0.63, 0.65,
-                        0.57, 0.60, 0.60, 0.60, 0.62, 0.64,
-			0.57, 0.60, 0.60, 0.60, 0.65, 0.61,
-			0.58, 0.60, 0.60, 0.60, 0.62, 0.63,
-			0.60, 0.60, 0.60, 0.60, 0.60, 0.61,
-			0.63, 0.60, 0.57, 0.56, 0.60, 0.61, 0.60};
+  int ioff[22] = {0, 7, 13, 19, 25, 31, 37, 43, 49, 54, 56, 57, 58, 60, 65, 71, 77, 83, 89, 95, 101, 107};
+  double frac18[114] = {
+      0.40, 0.55, 0.50, 0.55, 0.60, 0.60, 0.60, 0.40, 0.55, 0.60, 0.60, 0.60, 0.60, 0.40, 0.55, 0.60, 0.60, 0.60, 0.60,
+      0.45, 0.55, 0.60, 0.60, 0.60, 0.60, 0.55, 0.60, 0.60, 0.60, 0.60, 0.60, 0.55, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60,
+      0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.80,
+      0.80, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.60, 0.60, 0.60, 0.60, 0.60,
+      0.65, 0.60, 0.60, 0.60, 0.60, 0.60, 0.65, 0.55, 0.60, 0.60, 0.60, 0.60, 0.65, 0.55, 0.60, 0.60, 0.60, 0.60, 0.60,
+      0.45, 0.55, 0.60, 0.60, 0.60, 0.60, 0.40, 0.55, 0.60, 0.60, 0.60, 0.60, 0.40, 0.55, 0.50, 0.55, 0.60, 0.60, 0.60};
+  double frac17[114] = {
+      0.70, 0.65, 0.55, 0.60, 0.60, 0.65, 0.65, 0.67, 0.55, 0.55, 0.57, 0.55, 0.62, 0.65, 0.57, 0.60, 0.55, 0.70, 0.65,
+      0.65, 0.60, 0.55, 0.65, 0.75, 0.60, 0.60, 0.60, 0.65, 0.62, 0.75, 0.65, 0.70, 0.67, 0.60, 0.65, 0.55, 0.65, 0.60,
+      0.55, 0.75, 0.65, 0.75, 0.70, 0.60, 0.55, 0.75, 0.67, 0.65, 0.60, 0.60, 0.45, 0.50, 0.52, 0.70, 0.65, 0.60, 0.80,
+      0.80, 0.60, 0.65, 0.60, 0.55, 0.75, 0.67, 0.65, 0.60, 0.55, 0.75, 0.65, 0.75, 0.70, 0.70, 0.67, 0.60, 0.65, 0.55,
+      0.65, 0.60, 0.60, 0.65, 0.62, 0.75, 0.65, 0.65, 0.60, 0.55, 0.65, 0.75, 0.60, 0.65, 0.60, 0.55, 0.65, 0.75, 0.60,
+      0.65, 0.57, 0.60, 0.55, 0.70, 0.65, 0.67, 0.55, 0.55, 0.57, 0.55, 0.62, 0.70, 0.65, 0.55, 0.60, 0.60, 0.65, 0.65};
+  double frac63[114] = {
+      0.63, 0.60, 0.57, 0.56, 0.60, 0.61, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.61, 0.58, 0.60, 0.60, 0.60, 0.62, 0.63,
+      0.57, 0.60, 0.60, 0.60, 0.65, 0.61, 0.57, 0.60, 0.60, 0.60, 0.62, 0.64, 0.60, 0.60, 0.60, 0.60, 0.63, 0.65, 0.65,
+      0.60, 0.63, 0.60, 0.64, 0.65, 0.60, 0.60, 0.63, 0.62, 0.62, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.80,
+      0.80, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.63, 0.62, 0.62, 0.65, 0.65, 0.60, 0.63, 0.60, 0.64,
+      0.65, 0.60, 0.60, 0.60, 0.60, 0.63, 0.65, 0.57, 0.60, 0.60, 0.60, 0.62, 0.64, 0.57, 0.60, 0.60, 0.60, 0.65, 0.61,
+      0.58, 0.60, 0.60, 0.60, 0.62, 0.63, 0.60, 0.60, 0.60, 0.60, 0.60, 0.61, 0.63, 0.60, 0.57, 0.56, 0.60, 0.61, 0.60};
 
   char name[100];
   sprintf(name, "Data%d_trunc.txt", year);
@@ -713,8 +672,8 @@ void getTruncatedMeanX(
     for (int depth = idep[k]; depth <= ndep[k]; ++depth) {
       int indx = ioff[k] + depth - idep[k];
       double frac = ((year == 17) ? ((phi == 0) ? frac17[indx] : frac63[indx]) : frac18[indx]);
-//    std::cout << k << " E " << ieta[k] << " D " << depth << " I " << indx << " R " << frac << std::endl;
-//    continue;
+      //    std::cout << k << " E " << ieta[k] << " D " << depth << " I " << indx << " R " << frac << std::endl;
+      //    continue;
       rType rt = plotHist(infile, frac, ieta[k], depth, phi, nvx, false);
       if (rt.pad != nullptr) {
         char line[100];
@@ -732,7 +691,7 @@ void getTruncatedMeanX(
         log << type << '\t' << ieta[k] << '\t' << phi << '\t' << depth << '\t' << nvx << '\t' << rt.mean << '\t'
             << rt.error << std::endl;
         if (save) {
-//        sprintf(name, "%s_comb.pdf", rt.pad->GetName());
+          //        sprintf(name, "%s_comb.pdf", rt.pad->GetName());
           sprintf(name, "truncate/%s_comb.pdf", rt.pad->GetName());
           rt.pad->Print(name);
         }
