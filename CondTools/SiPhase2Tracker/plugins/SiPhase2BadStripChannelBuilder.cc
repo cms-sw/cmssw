@@ -97,9 +97,7 @@ std::unique_ptr<SiStripBadStrip> SiPhase2BadStripChannelBuilder::getNewObject() 
   auto obj = std::make_unique<SiStripBadStrip>();
 
   // early return with nullptr if fraction is ==0.
-  if (badComponentsFraction_ > 0.) {
-    ;
-  } else {
+  if (badComponentsFraction_ == 0.f) {
     return obj;
   }
 
