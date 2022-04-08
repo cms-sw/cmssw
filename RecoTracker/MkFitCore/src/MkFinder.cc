@@ -1155,6 +1155,15 @@ namespace mkfit {
                   itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
             }
 
+            // Select only SiStrip hits with cluster size <8
+            if (!layer_of_hits.is_pixel()) {
+              if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >= 8)
+                isCompatible = false;
+            }
+            //else { // Uncomment to apply analogous cut on pixel cluster size
+            //  if (layer_of_hits.refHit( m_XHitArr.At(itrack, hit_cnt, 0) ).spanRows() >= 8 || layer_of_hits.refHit( m_XHitArr.At(itrack, hit_cnt, 0) ).spanCols() >= 8) isCompatible = false;
+            //}
+
             if (isCompatible) {
               CombCandidate &ccand = cloner.combCandWithOriginalIndex(m_SeedIdx(itrack, 0, 0));
               bool hitExists = false;
