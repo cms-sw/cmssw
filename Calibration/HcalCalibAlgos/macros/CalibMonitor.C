@@ -972,38 +972,38 @@ void CalibMonitor::Loop() {
     bool selRun = (includeRun_ ? ((t_Run >= runlo_) && (t_Run <= runhi_)) : ((t_Run < runlo_) || (t_Run > runhi_)));
     if (select) {
       if (p4060)
-	++kount50[2];
+        ++kount50[2];
       if (kp == 0) {
-	++kount0[2];
+        ++kount0[2];
       } else if (kp == 1) {
-	++kount1[2];
+        ++kount1[2];
       } else if (kp == 2) {
-	++kount2[2];
+        ++kount2[2];
       } else if (kp == 3) {
-	++kount3[2];
+        ++kount3[2];
       } else if (kp == 4) {
-	++kount4[2];
+        ++kount4[2];
       } else if (kp == 5) {
-	++kount5[2];
+        ++kount5[2];
       }
     }
     select =
         (selRun && (fabs(t_ieta) >= etalo_) && (fabs(t_ieta) <= etahi_) && (t_nVtx >= nvxlo_) && (t_nVtx <= nvxhi_));
     if (select) {
       if (p4060)
-	++kount50[3];
+        ++kount50[3];
       if (kp == 0) {
-	++kount0[3];
+        ++kount0[3];
       } else if (kp == 1) {
-	++kount1[3];
+        ++kount1[3];
       } else if (kp == 2) {
-	++kount2[3];
+        ++kount2[3];
       } else if (kp == 3) {
-	++kount3[3];
+        ++kount3[3];
       } else if (kp == 4) {
-	++kount4[3];
+        ++kount4[3];
       } else if (kp == 5) {
-	++kount5[3];
+        ++kount5[3];
       }
     }
     if (!select) {
@@ -1166,7 +1166,7 @@ void CalibMonitor::Loop() {
         ++kount5[7];
       }
       if (t_selectTk) {
-	if (p4060) 
+        if (p4060)
           ++kount50[8];
         if (kp == 0) {
           ++kount0[8];
@@ -1181,8 +1181,8 @@ void CalibMonitor::Loop() {
         } else if (kp == 5) {
           ++kount5[8];
         }
-	if (t_hmaxNearP < cut) {
-	  if (p4060) 
+        if (t_hmaxNearP < cut) {
+          if (p4060)
             ++kount50[9];
           if (kp == 0) {
             ++kount0[9];
@@ -1197,9 +1197,9 @@ void CalibMonitor::Loop() {
           } else if (kp == 5) {
             ++kount5[9];
           }
-	  if (t_eMipDR < 1.0) {
-	    if (p4060) 
-	      ++kount50[10];
+          if (t_eMipDR < 1.0) {
+            if (p4060)
+              ++kount50[10];
             if (kp == 0) {
               ++kount0[10];
             } else if (kp == 1) {
@@ -1213,9 +1213,9 @@ void CalibMonitor::Loop() {
             } else if (kp == 5) {
               ++kount5[10];
             }
-	    if (eHcal > 0.001) {
-	      if (p4060) 
-		++kount50[11];
+            if (eHcal > 0.001) {
+              if (p4060)
+                ++kount50[11];
               if (kp == 0) {
                 ++kount0[11];
               } else if (kp == 1) {
@@ -1229,8 +1229,8 @@ void CalibMonitor::Loop() {
               } else if (kp == 5) {
                 ++kount5[11];
               }
-	      if (selPhi) {
-		if (p4060) 
+              if (selPhi) {
+                if (p4060)
                   ++kount50[12];
                 if (kp == 0) {
                   ++kount0[12];
@@ -1494,17 +1494,17 @@ void CalibMonitor::Loop() {
     std::cout << "Number in each step for tracks of momentum " << ps_[k - 1] << "-" << ps_[k] << " Gev: ";
     for (unsigned int k1 = 0; k1 < 18; ++k1) {
       if (k == 1) {
-	std::cout << " [" << k1 << "] " << kount0[k1];
+        std::cout << " [" << k1 << "] " << kount0[k1];
       } else if (k == 2) {
-	std::cout << " [" << k1 << "] " << kount1[k1];
+        std::cout << " [" << k1 << "] " << kount1[k1];
       } else if (k == 3) {
-	std::cout << " [" << k1 << "] " << kount2[k1];
+        std::cout << " [" << k1 << "] " << kount2[k1];
       } else if (k == 4) {
-	std::cout << " [" << k1 << "] " << kount3[k1];
+        std::cout << " [" << k1 << "] " << kount3[k1];
       } else if (k == 5) {
-	std::cout << " [" << k1 << "] " << kount4[k1];
+        std::cout << " [" << k1 << "] " << kount4[k1];
       } else if (k == 6) {
-	std::cout << " [" << k1 << "] " << kount5[k1];
+        std::cout << " [" << k1 << "] " << kount5[k1];
       }
     }
     std::cout << std::endl;
