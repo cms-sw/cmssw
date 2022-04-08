@@ -9,13 +9,13 @@
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include "CondCore/CondDB/interface/Time.h"
-#include "CondCore/SiStripPlugins/interface/SiStripCondObjectRepresent.h"
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
 #include "CondCore/Utilities/interface/PayloadInspector.h"
 #include "CondCore/Utilities/interface/PayloadInspectorModule.h"
 #include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 #include "DQM/TrackerRemapper/interface/SiStripTkMaps.h"
+#include "SiStripCondObjectRepresent.h"
 
 #include <memory>
 #include <sstream>
