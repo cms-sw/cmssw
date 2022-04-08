@@ -95,7 +95,8 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
   DDLogicalPart glog1, glog2;
 
   static const double sqrt3 = std::sqrt(3.0);
-  double R = (addWaferSeparation_ == 0) ? waferSize_ / (3.0 * nCells_) : (waferSize_ + waferSeparation_) / (3.0 * nCells_) ;
+  double R =
+      (addWaferSeparation_ == 0) ? waferSize_ / (3.0 * nCells_) : (waferSize_ + waferSeparation_) / (3.0 * nCells_);
   double r = 0.5 * R * sqrt3;
   double dx1 = R;
   double dx2 = 0.5 * dx1;
@@ -105,7 +106,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
   double dy2 = 0.5 * dy1;
   double dy3 = 1.5 * dy1;
   std::vector<double> xx = {
-    dx1, dx2, -dx2, -dx1, -dx2, dx2, dx3, dx1, dx4, -dx4, -dx1, -dx3, -dx3, -dx1, -dx4, dx4, dx1, dx3};
+      dx1, dx2, -dx2, -dx1, -dx2, dx2, dx3, dx1, dx4, -dx4, -dx1, -dx3, -dx3, -dx1, -dx4, dx4, dx1, dx3};
   std::vector<double> yy = {
       0, dy1, dy1, 0, -dy1, -dy1, dy2, dy1, dy3, dy3, dy1, dy2, -dy2, -dy1, -dy3, -dy3, -dy1, -dy2};
   double zpos = (posSens_ == 0) ? -0.5 * (waferT_ - cellT_) : 0.5 * (waferT_ - cellT_);
@@ -157,7 +158,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
   static constexpr int ir2[] = {2, 4, 0, 3, 5, 1};
   static constexpr int ir3[] = {3, 5, 1, 4, 0, 2};
   static constexpr int ir4[] = {5, 1, 3, 0, 2, 4};
-  
+
   static constexpr int tr[] = {1, 3, 5, 2, 4, 0};
   for (unsigned int i = 0; i < truncCN_.size(); ++i) {
     std::vector<double> xw = {xx[ir0[i]], xx[ir1[i]], xx[ir2[i]], xx[ir3[i]] + txx[tr[i]], xx[ir4[i]] + txx[tr[i]]};
@@ -195,7 +196,7 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
   static constexpr int ie3[] = {14, 6, 10, 12, 16, 8};
   static constexpr int ie4[] = {17, 9, 13, 15, 7, 11};
 
-  static constexpr int te[] = {2, 4, 0, 1, 3, 5};  
+  static constexpr int te[] = {2, 4, 0, 1, 3, 5};
   for (unsigned int i = 0; i < extenCN_.size(); ++i) {
     std::vector<double> xw = {xx[ie0[i]], xx[ie1[i]], xx[ie2[i]], xx[ie3[i]] + txx[te[i]], xx[ie4[i]] + txx[te[i]]};
     std::vector<double> yw = {yy[ie0[i]], yy[ie1[i]], yy[ie2[i]], yy[ie3[i]] + tyy[te[i]], yy[ie4[i]] + tyy[te[i]]};
@@ -226,16 +227,18 @@ void DDHGCalCell::execute(DDCompactView& cpv) {
 #endif
   }
 
-  static constexpr int ic0[] = {0,  1,  2,  3,  4,  5,  0,  1,  2,  3,  4,  5};
-  static constexpr int ic1[] = {1,  2,  3,  4,  5,  0,  1,  2,  3,  4,  5,  0};
-  static constexpr int ic2[] = {10, 3,  14, 5,  6,  1,  2,  12, 4,  16, 0,  8};
-  static constexpr int ic3[] = {3,  5,  5,  1,  1,  3,  4,  4,  0,  0,  2,  2};
-  static constexpr int ic4[] = {5,  17, 1,  9,  3,  13, 15, 0,  7,  2,  11, 4};
+  static constexpr int ic0[] = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5};
+  static constexpr int ic1[] = {1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0};
+  static constexpr int ic2[] = {10, 3, 14, 5, 6, 1, 2, 12, 4, 16, 0, 8};
+  static constexpr int ic3[] = {3, 5, 5, 1, 1, 3, 4, 4, 0, 0, 2, 2};
+  static constexpr int ic4[] = {5, 17, 1, 9, 3, 13, 15, 0, 7, 2, 11, 4};
 
   static constexpr int tc[] = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5};
   for (unsigned int i = 0; i < cornrCN_.size(); ++i) {
-    std::vector<double> xw = {xx[ic0[i]], xx[ic1[i]], xx[ic2[i]] + txx[tc[i]], xx[ic3[i]] + txx[tc[i]+6], xx[ic4[i]] + txx[(tc[i]+1)%6]};
-    std::vector<double> yw = {yy[ic0[i]], yy[ic1[i]], yy[ic2[i]] + tyy[tc[i]], yy[ic3[i]] + tyy[tc[i]+6], yy[ic4[i]] + tyy[(tc[i]+1)%6]};
+    std::vector<double> xw = {
+        xx[ic0[i]], xx[ic1[i]], xx[ic2[i]] + txx[tc[i]], xx[ic3[i]] + txx[tc[i] + 6], xx[ic4[i]] + txx[(tc[i] + 1) % 6]};
+    std::vector<double> yw = {
+        yy[ic0[i]], yy[ic1[i]], yy[ic2[i]] + tyy[tc[i]], yy[ic3[i]] + tyy[tc[i] + 6], yy[ic4[i]] + tyy[(tc[i] + 1) % 6]};
     solid = DDSolidFactory::extrudedpolygon(DDName(cornrCN_[i], nameSpace_), xw, yw, zw, zx, zy, scale);
     glog1 = DDLogicalPart(solid.ddname(), matter, solid);
 #ifdef EDM_ML_DEBUG
