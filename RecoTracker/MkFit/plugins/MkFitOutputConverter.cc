@@ -341,6 +341,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     const auto seedIndex = cand.label();
     LogTrace("MkFitOutputConverter") << " from seed " << seedIndex << " seed hits";
 
+    if (mkFitOutput.propagatedToFirstLayer()) fts.rescaleError(100.);
     auto tsosDet =
         mkFitOutput.propagatedToFirstLayer()
             ? convertInnermostState(fts, recHits, propagatorAlong, propagatorOpposite)
