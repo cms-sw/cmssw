@@ -1,7 +1,6 @@
 #include "MkFinder.h"
 
 #include "CandCloner.h"
-#include "RecoTracker/MkFitCore/interface/HitStructures.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "FindingFoos.h"
 

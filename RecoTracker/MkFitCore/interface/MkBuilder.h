@@ -2,8 +2,8 @@
 #define RecoTracker_MkFitCore_interface_MkBuilder_h
 
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
-#include "RecoTracker/MkFitCore/interface/Track.h"
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
+#include "RecoTracker/MkFitCore/interface/TrackStructures.h"
 
 #include <atomic>
 #include <functional>
@@ -68,25 +68,10 @@ namespace mkfit {
     static std::unique_ptr<MkBuilder> make_builder(bool silent = true);
     static void populate();
 
-    int total_cands() const {
-      int res = 0;
-      for (int i = 0; i < m_event_of_comb_cands.size(); ++i)
-        res += m_event_of_comb_cands[i].size();
-      return res;
-    }
+    int total_cands() const;
+    std::pair<int, int> max_hits_layer(const EventOfHits &eoh) const;
 
-    std::pair<int, int> max_hits_layer(const EventOfHits &eoh) const {
-      int maxN = 0;
-      int maxL = 0;
-      for (int l = 0; l < eoh.nLayers(); ++l) {
-        int lsize = eoh[l].nHits();
-        if (lsize > maxN) {
-          maxN = lsize;
-          maxL = eoh[l].layer_id();
-        }
-      }
-      return {maxN, maxL};
-    }
+    // --------
 
     void begin_event(MkJob *job, Event *ev, const char *build_type);
     void end_event();

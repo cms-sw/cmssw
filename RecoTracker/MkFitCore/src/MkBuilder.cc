@@ -169,6 +169,26 @@ namespace mkfit {
 
   void MkBuilder::populate() { g_exe_ctx.populate(Config::numThreadsFinder); }
 
+  std::pair<int, int> MkBuilder::max_hits_layer(const EventOfHits &eoh) const {
+    int maxN = 0;
+    int maxL = 0;
+    for (int l = 0; l < eoh.nLayers(); ++l) {
+      int lsize = eoh[l].nHits();
+      if (lsize > maxN) {
+        maxN = lsize;
+        maxL = eoh[l].layer_id();
+      }
+    }
+    return {maxN, maxL};
+  }
+
+  int MkBuilder::total_cands() const {
+    int res = 0;
+    for (int i = 0; i < m_event_of_comb_cands.size(); ++i)
+      res += m_event_of_comb_cands[i].size();
+    return res;
+  }
+
   //------------------------------------------------------------------------------
   // Common functions
   //------------------------------------------------------------------------------
@@ -217,7 +237,8 @@ namespace mkfit {
     IterationSeedPartition part(size);
     std::vector<unsigned> ranks;
     if (!seeds_sorted) {
-      axis_pow2_u1<float, unsigned short, 10, 6> ax_phi(-Const::PI, Const::PI);
+      // We don't care about bins in phi, use low N to reduce overall number of bins.
+      axis_pow2_u1<float, unsigned short, 10, 4> ax_phi(-Const::PI, Const::PI);
       axis<float, unsigned short, 8, 8> ax_eta(-3.0, 3.0, 64u);
       binnor<unsigned int, decltype(ax_phi), decltype(ax_eta), 20, 12> phi_eta_binnor(ax_phi, ax_eta);
       part.m_phi_eta_foo = [&](float phi, float eta) { phi_eta_binnor.register_entry_safe(phi, eta); };
