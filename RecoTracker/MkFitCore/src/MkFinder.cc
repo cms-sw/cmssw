@@ -1074,7 +1074,7 @@ namespace mkfit {
                 newcand.setScore(getScoreCand(newcand, true /*penalizeTailMissHits*/, true /*inFindCandidates*/));
                 newcand.setOriginIndex(m_CandIdx(itrack, 0, 0));
 
-                if (chi2 < m_iteration_params->chi2CutOverlap) {
+                if (chi2 < max_c2) { // to apply a fixed cut instead: m_iteration_params->chi2CutOverlap 
                   CombCandidate &ccand = *newcand.combCandidate();
                   ccand[m_CandIdx(itrack, 0, 0)].considerHitForOverlap(
                       hit_idx, layer_of_hits.refHit(hit_idx).detIDinLayer(), chi2);
@@ -1232,7 +1232,7 @@ namespace mkfit {
               const int hit_idx = m_XHitArr.At(itrack, hit_cnt, 0);
 
               // Register hit for overlap consideration, here we apply chi2 cut
-              if (chi2 < m_iteration_params->chi2CutOverlap) {
+              if (chi2 < max_c2) { // to apply a fixed cut instead: m_iteration_params->chi2CutOverlap 
                 ccand[m_CandIdx(itrack, 0, 0)].considerHitForOverlap(
                     hit_idx, layer_of_hits.refHit(hit_idx).detIDinLayer(), chi2);
               }
