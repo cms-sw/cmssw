@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
-#include <openssl/sha.h>
+#include <openssl/evp.h>
 
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 
@@ -161,27 +161,40 @@ std::string SiStripPayloadHandler<SiStripPayload>::makeConfigHash() {
 
   // calcuate SHA-1 hash using openssl
   // adapted from cond::persistency::makeHash() in CondCore/CondDB/src/IOVSchema.cc
-  SHA_CTX ctx;
-  if (!SHA1_Init(&ctx)) {
+#if OPENSSL_API_COMPAT < 0x10100000L
+  OpenSSL_add_all_digests();
+  EVP_MD_CTX* mdctx = EVP_MD_CTX_create();
+#else
+  OPENSSL_init_crypto();
+  EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+#endif
+  const EVP_MD* md = EVP_get_digestbyname("SHA1");
+  if (!EVP_DigestInit_ex(mdctx, md, nullptr)) {
     throw cms::Exception("SHA1 initialization error.");
   }
-  if (!SHA1_Update(&ctx, p_type.c_str(), p_type.size())) {
+  if (!EVP_DigestUpdate(mdctx, p_type.c_str(), p_type.size())) {
     throw cms::Exception("SHA1 processing error (1).");
   }
-  if (!SHA1_Update(&ctx, p_cfgstr.c_str(), p_cfgstr.size())) {
+  if (!EVP_DigestUpdate(mdctx, p_cfgstr.c_str(), p_cfgstr.size())) {
     throw cms::Exception("SHA1 processing error (2).");
   }
-  unsigned char hash[SHA_DIGEST_LENGTH];
-  if (!SHA1_Final(hash, &ctx)) {
+  unsigned char hash[EVP_MAX_MD_SIZE];
+  unsigned int md_len;
+  if (!EVP_DigestFinal_ex(mdctx, hash, &md_len)) {
     throw cms::Exception("SHA1 finalization error.");
   }
+#if OPENSSL_API_COMPAT < 0x10100000L
+  EVP_MD_CTX_destroy(mdctx);
+#else
+  EVP_MD_CTX_free(mdctx);
+#endif
 
-  char tmp[SHA_DIGEST_LENGTH * 2 + 1];
+  char tmp[EVP_MAX_MD_SIZE * 2 + 1];
   // re-write bytes in hex
-  for (unsigned int i = 0; i < SHA_DIGEST_LENGTH; i++) {
+  for (unsigned int i = 0; i < md_len; i++) {
     ::sprintf(&tmp[i * 2], "%02x", hash[i]);
   }
-  tmp[SHA_DIGEST_LENGTH * 2] = 0;
+  tmp[md_len * 2] = 0;
 
   edm::LogInfo("SiStripPayloadHandler") << "[SiStripPayloadHandler::" << __func__
                                         << "] "
