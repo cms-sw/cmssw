@@ -98,12 +98,12 @@ void HLTL1TSeed::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<string>("L1SeedsLogicalExpression", "");
   desc.add<edm::InputTag>("L1ObjectMapInputTag", edm::InputTag("hltGtStage2ObjectMap"));
   desc.add<edm::InputTag>("L1GlobalInputTag", edm::InputTag("hltGtStage2Digis"));
-  desc.add<edm::InputTag>("L1MuonInputTag", edm::InputTag("hltGmtStage2Digis:Muon"));
-  desc.add<edm::InputTag>("L1MuonShowerInputTag", edm::InputTag("hltGmtStage2Digis:MuonShower"));
-  desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("hltCaloStage2Digis:EGamma"));
-  desc.add<edm::InputTag>("L1JetInputTag", edm::InputTag("hltCaloStage2Digis:Jet"));
-  desc.add<edm::InputTag>("L1TauInputTag", edm::InputTag("hltCaloStage2Digis:Tau"));
-  desc.add<edm::InputTag>("L1EtSumInputTag", edm::InputTag("hltCaloStage2Digis:EtSum"));
+  desc.add<edm::InputTag>("L1MuonInputTag", edm::InputTag("hltGtStage2Digis:Muon"));
+  desc.add<edm::InputTag>("L1MuonShowerInputTag", edm::InputTag("hltGtStage2Digis:MuonShower"));
+  desc.add<edm::InputTag>("L1EGammaInputTag", edm::InputTag("hltGtStage2Digis:EGamma"));
+  desc.add<edm::InputTag>("L1JetInputTag", edm::InputTag("hltGtStage2Digis:Jet"));
+  desc.add<edm::InputTag>("L1TauInputTag", edm::InputTag("hltGtStage2Digis:Tau"));
+  desc.add<edm::InputTag>("L1EtSumInputTag", edm::InputTag("hltGtStage2Digis:EtSum"));
   descriptions.add("hltL1TSeed", desc);
 }
 
