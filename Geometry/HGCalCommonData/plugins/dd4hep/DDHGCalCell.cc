@@ -73,7 +73,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   static const double sqrt3 = std::sqrt(3.0);
   static const double waf2cell = 3.0;
   static const double cornerfac = 2.5;
-  double R = (addWaferSeparation == 0) ? waferSize / (waf2cell * nCells) : (waferSize + waferSeparation) / (waf2cell * nCells);
+  double R =
+      (addWaferSeparation == 0) ? waferSize / (waf2cell * nCells) : (waferSize + waferSeparation) / (waf2cell * nCells);
   double r = 0.5 * R * sqrt3;
   double dx1 = R;
   double dx2 = 0.5 * dx1;
@@ -185,7 +186,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   static constexpr int ie2[] = {3, 5, 1, 2, 4, 0};
   static constexpr int ie3[] = {14, 6, 10, 12, 16, 8};
   static constexpr int ie4[] = {17, 9, 13, 15, 7, 11};
-  static constexpr int te[] = {2, 4, 0, 1, 3, 5};  
+  static constexpr int te[] = {2, 4, 0, 1, 3, 5};
   for (unsigned int i = 0; i < extenCN.size(); ++i) {
     std::vector<double> xw = {xx[ie0[i]], xx[ie1[i]], xx[ie2[i]], xx[ie3[i]] + txx[te[i]], xx[ie4[i]] + txx[te[i]]};
     std::vector<double> yw = {yy[ie0[i]], yy[ie1[i]], yy[ie2[i]], yy[ie3[i]] + tyy[te[i]], yy[ie4[i]] + tyy[te[i]]};
@@ -222,15 +223,17 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
 #endif
   }
 
-  static constexpr int ic0[] = {0,  1,  2,  3,  4,  5,  0,  1,  2,  3,  4,  5};
-  static constexpr int ic1[] = {1,  2,  3,  4,  5,  0,  1,  2,  3,  4,  5,  0};
-  static constexpr int ic2[] = {10, 3,  14, 5,  6,  1,  2,  12, 4,  16, 0,  8};
-  static constexpr int ic3[] = {3,  5,  5,  1,  1,  3,  4,  4,  0,  0,  2,  2};
-  static constexpr int ic4[] = {5,  17, 1,  9,  3,  13, 15, 0,  7,  2,  11, 4};
+  static constexpr int ic0[] = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5};
+  static constexpr int ic1[] = {1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0};
+  static constexpr int ic2[] = {10, 3, 14, 5, 6, 1, 2, 12, 4, 16, 0, 8};
+  static constexpr int ic3[] = {3, 5, 5, 1, 1, 3, 4, 4, 0, 0, 2, 2};
+  static constexpr int ic4[] = {5, 17, 1, 9, 3, 13, 15, 0, 7, 2, 11, 4};
   static constexpr int tc[] = {0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5};
   for (unsigned int i = 0; i < cornrCN.size(); ++i) {
-    std::vector<double> xw = {xx[ic0[i]], xx[ic1[i]], xx[ic2[i]] + txx[tc[i]], xx[ic3[i]] + txx[tc[i]+6], xx[ic4[i]] + txx[(tc[i]+1)%6]};
-    std::vector<double> yw = {yy[ic0[i]], yy[ic1[i]], yy[ic2[i]] + tyy[tc[i]], yy[ic3[i]] + tyy[tc[i]+6], yy[ic4[i]] + tyy[(tc[i]+1)%6]};
+    std::vector<double> xw = {
+        xx[ic0[i]], xx[ic1[i]], xx[ic2[i]] + txx[tc[i]], xx[ic3[i]] + txx[tc[i] + 6], xx[ic4[i]] + txx[(tc[i] + 1) % 6]};
+    std::vector<double> yw = {
+        yy[ic0[i]], yy[ic1[i]], yy[ic2[i]] + tyy[tc[i]], yy[ic3[i]] + tyy[tc[i] + 6], yy[ic4[i]] + tyy[(tc[i] + 1) % 6]};
     solid = dd4hep::ExtrudedPolygon(xw, yw, zw, zx, zy, scale);
     ns.addSolidNS(ns.prepend(cornrCN[i]), solid);
     glog1 = dd4hep::Volume(solid.name(), solid, matter);
