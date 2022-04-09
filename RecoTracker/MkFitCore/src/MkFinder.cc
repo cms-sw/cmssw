@@ -227,7 +227,8 @@ namespace mkfit {
 
   void MkFinder::selectHitIndices(const LayerOfHits &layer_of_hits, const int N_proc) {
     // bool debug = true;
-
+    using bidx_t = LayerOfHits::bin_index_t;
+    using bcnt_t = LayerOfHits::bin_content_t;
     const LayerOfHits &L = layer_of_hits;
     const IterationLayerConfig &ILC = *m_iteration_layer_config;
 
@@ -242,7 +243,7 @@ namespace mkfit {
             N_proc);
 
     float dqv[NN], dphiv[NN], qv[NN], phiv[NN];
-    int qb1v[NN], qb2v[NN], qbv[NN], pb1v[NN], pb2v[NN];
+    bidx_t qb1v[NN], qb2v[NN], qbv[NN], pb1v[NN], pb2v[NN];
 
     const auto assignbins = [&](int itrack,
                                 float q,
@@ -264,7 +265,7 @@ namespace mkfit {
       qbv[itrack] = L.qBinChecked(q);
       qb1v[itrack] = L.qBinChecked(q - dq);
       qb2v[itrack] = L.qBinChecked(q + dq) + 1;
-      pb1v[itrack] = L.phiBin(phi - dphi);
+      pb1v[itrack] = L.phiBin(phi - dphi);  // phi masks applied in loop
       pb2v[itrack] = L.phiBin(phi + dphi) + 1;
     };
 
@@ -362,11 +363,11 @@ namespace mkfit {
         continue;
       }
 
-      const int qb = qbv[itrack];
-      const int qb1 = qb1v[itrack];
-      const int qb2 = qb2v[itrack];
-      const int pb1 = pb1v[itrack];
-      const int pb2 = pb2v[itrack];
+      const bidx_t qb = qbv[itrack];
+      const bidx_t qb1 = qb1v[itrack];
+      const bidx_t qb2 = qb2v[itrack];
+      const bidx_t pb1 = pb1v[itrack];
+      const bidx_t pb2 = pb2v[itrack];
 
       // Used only by usePhiQArrays
       const float q = qv[itrack];
@@ -374,7 +375,7 @@ namespace mkfit {
       const float dphi = dphiv[itrack];
       const float dq = dqv[itrack];
 
-      dprintf("  %2d/%2d: %6.3f %6.3f %6.6f %7.5f %3d %3d %4d %4d\n",
+      dprintf("  %2d/%2d: %6.3f %6.3f %6.6f %7.5f %3u %3u %4u %4u\n",
               L.layer_id(),
               itrack,
               q,
@@ -416,12 +417,12 @@ namespace mkfit {
       }
 #endif
 
-      for (int qi = qb1; qi < qb2; ++qi) {
-        for (int pi = pb1; pi < pb2; ++pi) {
-          const int pb = L.phiMaskApply(pi);
+      for (bidx_t qi = qb1; qi < qb2; ++qi) {
+        for (bidx_t pi = pb1; pi < pb2; ++pi) {
+          const bidx_t pb = L.phiMaskApply(pi);
 
           // Limit to central Q-bin
-          if (qi == qb && L.phi_bin_dead(qi, pb) == true) {
+          if (qi == qb && L.isBinDead(pb, qi) == true) {
             dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pb=" << pb << " q=" << q
                                                      << " phi=" << phi);
             m_XWsrResult[itrack].m_in_gap = true;
@@ -435,15 +436,15 @@ namespace mkfit {
 
           //SK: ~20x1024 bin sizes give mostly 1 hit per bin. Commented out for 128 bins or less
           // #pragma nounroll
-          auto pbi = L.phi_bin_info(qi, pb);
-          for (uint16_t hi = pbi.first; hi < pbi.second; ++hi) {
+          auto pbi = L.phiQBinContent(pb, qi);
+          for (bcnt_t hi = pbi.begin(); hi < pbi.end(); ++hi) {
             // MT: Access into m_hit_zs and m_hit_phis is 1% run-time each.
 
-            int hi_orig = L.getOriginalHitIndex(hi);
+            unsigned int hi_orig = L.getOriginalHitIndex(hi);
 
             if (m_iteration_hit_mask && (*m_iteration_hit_mask)[hi_orig]) {
               dprintf(
-                  "Yay, denying masked hit on layer %d, hi %d, orig idx %d\n", L.layer_info()->layer_id(), hi, hi_orig);
+                  "Yay, denying masked hit on layer %u, hi %u, orig idx %u\n", L.layer_info()->layer_id(), hi, hi_orig);
               continue;
             }
 
@@ -671,7 +672,7 @@ namespace mkfit {
               if (ddphi >= dphi)
                 continue;
 
-              dprintf("     SHI %3d %4d %4d %5d  %6.3f %6.3f %6.4f %7.5f   %s\n",
+              dprintf("     SHI %3u %4u %4u %5u  %6.3f %6.3f %6.4f %7.5f   %s\n",
                       qi,
                       pi,
                       pb,

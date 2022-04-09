@@ -157,7 +157,11 @@ namespace mkfit {
   // A1, A2 - axis types
   // NB_first, NB_count - number of bits for storage of { first, count } pairs
 
-  template <typename C, typename A1, typename A2, unsigned NB_first = 8 * sizeof(C), unsigned NB_count = 8 * sizeof(C)>
+  template <typename C,
+            typename A1,
+            typename A2,
+            unsigned int NB_first = 8 * sizeof(C),
+            unsigned int NB_count = 8 * sizeof(C)>
   struct binnor {
     static_assert(std::is_same<C, unsigned short>() || std::is_same<C, unsigned int>());
     static_assert(std::is_same<typename A1::real_t, typename A2::real_t>());
@@ -188,13 +192,14 @@ namespace mkfit {
       C_pair() : first(0), count(0) {}
       C_pair(C f, C c) : first(f), count(c) {}
 
+      C begin() const { return first; }
       C end() const { return first + count; }
     };
 
     const A1 &m_a1;
     const A2 &m_a2;
     std::vector<B_pair> m_cons;
-    std::vector<unsigned> m_cons_masked;
+    std::vector<unsigned int> m_cons_masked;
     std::vector<C_pair> m_bins;
     std::vector<C> m_ranks;
     const bool m_radix_sort;
@@ -209,7 +214,7 @@ namespace mkfit {
           m_keep_cons(keep_cons),
           m_do_masked(radix || !keep_cons) {}
 
-    // Access
+    // Access -- bin indices
 
     B_pair m_bin_to_n_bin(B_pair m_bin) {
       return {m_a1.from_M_bin_to_N_bin(m_bin.bin1()), m_a2.from_M_bin_to_N_bin(m_bin.bin2())};
@@ -220,6 +225,8 @@ namespace mkfit {
     B_pair get_n_bin(typename A1::real_t r1, typename A2::real_t r2) const {
       return {m_a1.from_R_to_N_bin(r1), m_a2.from_R_to_N_bin(r2)};
     }
+
+    // Access -- content of bins
 
     C_pair &ref_content(B_pair n_bin) { return m_bins[n_bin.bin2() * m_a1.size_of_N() + n_bin.bin1()]; }
 
@@ -235,20 +242,22 @@ namespace mkfit {
 
     // Filling
 
-    void reset_contents() {
+    void reset_contents(bool shrink_vectors = true) {
       if (m_keep_cons) {
         m_cons.clear();
-        m_cons.shrink_to_fit();
+        if (shrink_vectors)
+          m_cons.shrink_to_fit();
       }
       m_bins.assign(m_bins.size(), C_pair());
       m_ranks.clear();
-      m_ranks.shrink_to_fit();
+      if (shrink_vectors)
+        m_ranks.shrink_to_fit();
     }
 
     void begin_registration(C n_items) {
       if (m_keep_cons)
         m_cons.reserve(n_items);
-      if (!m_keep_cons || m_radix_sort)
+      if (m_do_masked)
         m_cons_masked.reserve(n_items);
     }
 
@@ -300,6 +309,8 @@ namespace mkfit {
 #endif
       }
 
+      if (m_keep_cons)
+        m_cons.shrink_to_fit();
       if (m_do_masked) {
         m_cons_masked.clear();
         m_cons_masked.shrink_to_fit();
