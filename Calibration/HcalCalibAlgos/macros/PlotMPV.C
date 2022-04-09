@@ -677,7 +677,7 @@ void getTruncatedMeanX(
       int indx = ioff[k] + depth - idep[k];
       double frac = ((year == 17) ? ((phi == 0) ? frac17[indx] : frac63[indx]) : frac18[indx]);
       if (debugMode)
-	std::cout << k << " E " << ieta[k] << " D " << depth << " I " << indx << " R " << frac << std::endl;
+        std::cout << k << " E " << ieta[k] << " D " << depth << " I " << indx << " R " << frac << std::endl;
       rType rt = plotHist(infile, frac, ieta[k], depth, phi, nvx, false);
       if (rt.pad != nullptr) {
         char line[100];
@@ -695,7 +695,7 @@ void getTruncatedMeanX(
         log << type << '\t' << ieta[k] << '\t' << phi << '\t' << depth << '\t' << nvx << '\t' << rt.mean << '\t'
             << rt.error << std::endl;
         if (save) {
-	  sprintf(name, "%s_comb.pdf", rt.pad->GetName());
+          sprintf(name, "%s_comb.pdf", rt.pad->GetName());
           rt.pad->Print(name);
         }
       }
