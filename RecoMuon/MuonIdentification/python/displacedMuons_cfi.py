@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 displacedMuons = cms.EDProducer("MuonProducer",
                        ActivateDebug = cms.untracked.bool(False),
-                       InputMuons = cms.InputTag("filteredDisplacedMuons1stStep"),
+                       InputMuons = cms.InputTag("displacedMuons1stStep"),
 
                        FillPFMomentumAndAssociation = cms.bool(True),
                        PFCandidates = cms.InputTag("particleFlowTmp"),

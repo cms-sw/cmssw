@@ -4,11 +4,11 @@ from CommonTools.ParticleFlow.Isolation.tools_cfi import *
 
 
 #Now prepare the iso deposits for displacedMuons
-dispMuPFIsoDepositCharged=isoDepositReplace('filteredDisplacedMuons1stStep','pfAllChargedHadrons')
-dispMuPFIsoDepositChargedAll=isoDepositReplace('filteredDisplacedMuons1stStep','pfAllChargedParticles')
-dispMuPFIsoDepositNeutral=isoDepositReplace('filteredDisplacedMuons1stStep','pfAllNeutralHadrons')
-dispMuPFIsoDepositGamma=isoDepositReplace('filteredDisplacedMuons1stStep','pfAllPhotons')
-dispMuPFIsoDepositPU=isoDepositReplace('filteredDisplacedMuons1stStep','pfPileUpAllChargedParticles')
+dispMuPFIsoDepositCharged=isoDepositReplace('displacedMuons1stStep','pfAllChargedHadrons')
+dispMuPFIsoDepositChargedAll=isoDepositReplace('displacedMuons1stStep','pfAllChargedParticles')
+dispMuPFIsoDepositNeutral=isoDepositReplace('displacedMuons1stStep','pfAllNeutralHadrons')
+dispMuPFIsoDepositGamma=isoDepositReplace('displacedMuons1stStep','pfAllPhotons')
+dispMuPFIsoDepositPU=isoDepositReplace('displacedMuons1stStep','pfPileUpAllChargedParticles')
 
 displacedMuonPFIsolationDepositsTask = cms.Task(
     dispMuPFIsoDepositCharged,

@@ -6,7 +6,7 @@ muIsoDepositTk = cms.EDProducer("MuIsoDepositCopyProducer",
 )
 
 muIsoDepositTkDisplaced = cms.EDProducer("MuIsoDepositCopyProducer",
-  inputTags = cms.VInputTag(cms.InputTag("filteredDisplacedMuons1stStep:tracker")),
+  inputTags = cms.VInputTag(cms.InputTag("displacedMuons1stStep:tracker")),
   depositNames = cms.vstring('')
 )
 
@@ -16,7 +16,7 @@ muIsoDepositJets = cms.EDProducer("MuIsoDepositCopyProducer",
 )
 
 muIsoDepositJetsDisplaced = cms.EDProducer("MuIsoDepositCopyProducer",
-  inputTags = cms.VInputTag(cms.InputTag("filteredDisplacedMuons1stStep:jets")),
+  inputTags = cms.VInputTag(cms.InputTag("displacedMuons1stStep:jets")),
   depositNames = cms.vstring('')
 )
 
@@ -26,7 +26,7 @@ muIsoDepositCalByAssociatorTowers = cms.EDProducer("MuIsoDepositCopyProducer",
 )
 
 muIsoDepositCalByAssociatorTowersDisplaced = cms.EDProducer("MuIsoDepositCopyProducer",
-  inputTags = cms.VInputTag(cms.InputTag("filteredDisplacedMuons1stStep:ecal"), cms.InputTag("filteredDisplacedMuons1stStep:hcal"), cms.InputTag("filteredDisplacedMuons1stStep:ho")),
+  inputTags = cms.VInputTag(cms.InputTag("displacedMuons1stStep:ecal"), cms.InputTag("displacedMuons1stStep:hcal"), cms.InputTag("displacedMuons1stStep:ho")),
   depositNames = cms.vstring('ecal', 'hcal', 'ho')
 )
 
