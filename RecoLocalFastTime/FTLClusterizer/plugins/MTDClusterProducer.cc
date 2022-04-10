@@ -136,7 +136,6 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   else
     edm::LogWarning("MTDReco") << "MTDClusterProducer:: Missing Endcap Digis";
 
-
   e.put(std::move(outputBarrel), ftlbInstance_);
   e.put(std::move(outputEndcap), ftleInstance_);
 }
