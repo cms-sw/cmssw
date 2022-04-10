@@ -50,9 +50,8 @@ displacedMuons1stStep = muons1stStep.clone(
                             'outer tracks'],
     fillGlobalTrackQuality = False
 )
-from RecoMuon.MuonIdentification.filteredDisplacedMuons1stStep_cfi import *
 
-displacedMuonIdProducerTask = cms.Task(displacedMuons1stStep, filteredDisplacedMuons1stStep)
+displacedMuonIdProducerTask = cms.Task(displacedMuons1stStep)
 
 #Muon Id isGood flag ValueMap producer sequence
 from RecoMuon.MuonIdentification.muonSelectionTypeValueMapProducer_cff import *
