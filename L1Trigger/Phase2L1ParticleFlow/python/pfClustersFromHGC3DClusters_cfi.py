@@ -11,27 +11,30 @@ pfClustersFromHGC3DClusters = cms.EDProducer("PFClusterProducerFromHGC3DClusters
         method = cms.string("BDT"), # "" to be disabled, "BDT" to be enabled
         variables = cms.VPSet(
             cms.PSet(name = cms.string("fabs(eta)"), value = cms.string("abs(eta())")),
-            cms.PSet(name = cms.string("coreShowerLength"), value = cms.string("coreShowerLength()")),
-            cms.PSet(name = cms.string("maxLayer"), value = cms.string("maxLayer()")),
-            cms.PSet(name = cms.string("hOverE"), value = cms.string("hOverE()")),
+            cms.PSet(name = cms.string("eMax"), value = cms.string("eMax()")),
+            cms.PSet(name = cms.string("sigmaPhiPhiTot"), value = cms.string("sigmaPhiPhiTot()")),
             cms.PSet(name = cms.string("sigmaZZ"), value = cms.string("sigmaZZ()")),
+            cms.PSet(name = cms.string("layer50percent"), value = cms.string("layer50percent()")),
+            cms.PSet(name = cms.string("triggerCells67percent"), value = cms.string("triggerCells67percent()")),
         ),
-        weightsFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_vs_Pion_BDTweights.xml.gz"),
-        wp = cms.string("0.01")
+        weightsFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_vs_Pion_BDTweights_1116.xml.gz"),
+        wp = cms.string("0.05")
     ),
     emVsPUID = cms.PSet(
         isPUFilter = cms.bool(True),
         preselection = cms.string(""),
         method = cms.string("BDT"), # "" to be disabled, "BDT" to be enabled
         variables = cms.VPSet(
-            cms.PSet(name = cms.string("fabs(eta)"), value = cms.string("abs(eta())")),
-            cms.PSet(name = cms.string("coreShowerLength"), value = cms.string("coreShowerLength()")),
-            cms.PSet(name = cms.string("maxLayer"), value = cms.string("maxLayer()")),
+            cms.PSet(name = cms.string("eMax"), value = cms.string("eMax()")),
+            cms.PSet(name = cms.string("eMaxOverE"), value = cms.string("eMax()/energy()")),
             cms.PSet(name = cms.string("sigmaPhiPhiTot"), value = cms.string("sigmaPhiPhiTot()")),
+            cms.PSet(name = cms.string("sigmaRRTot"), value = cms.string("sigmaRRTot()")),
+            cms.PSet(name = cms.string("triggerCells90percent"), value = cms.string("triggerCells90percent()")),
         ),
-        weightsFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights.xml.gz"),
-        wp = cms.string("-0.02")
+        weightsFile = cms.string("L1Trigger/Phase2L1ParticleFlow/data/hgcal_egID/Photon_Pion_vs_Neutrino_BDTweights_1116.xml.gz"),
+        wp = cms.string("0.15")
     ),
+    useEMInterpretation = cms.string("allKeepHad"), # for all clusters, use EM intepretation to redefine the EM part of the energy
     emOnly = cms.bool(False),
     etMin = cms.double(1.0),
     resol = cms.PSet(
