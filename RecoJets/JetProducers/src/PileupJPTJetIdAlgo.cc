@@ -109,7 +109,7 @@ namespace cms {
     }
 
     const edm::RefToBase<reco::Jet> jptjetRef = jet->getCaloJetRef();
-    reco::CaloJet const * rawcalojet = dynamic_cast<reco::CaloJet const *>( &* jptjetRef);
+    reco::CaloJet const* rawcalojet = dynamic_cast<reco::CaloJet const*>(&*jptjetRef);
 
     int ncalotowers = 0.;
     double sumpt = 0.;

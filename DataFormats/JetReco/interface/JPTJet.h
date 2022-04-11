@@ -28,8 +28,8 @@ namespace reco {
   class JPTJet : public Jet {
   public:
     struct Specific {
-      Specific() :             
-            mChargedHadronEnergy(0),
+      Specific()
+          : mChargedHadronEnergy(0),
             mChargedEmEnergy(0),
             mResponseOfChargedWithEff(0),
             mResponseOfChargedWithoutEff(0),
@@ -41,7 +41,7 @@ namespace reco {
             Eta2momtr(0),
             Phi2momtr(0),
             Pout(0),
-            Zch(0), 
+            Zch(0),
             JPTSeed(0) {}
       edm::RefToBase<reco::Jet> theCaloJetRef;
       reco::TrackRefVector pionsInVertexInCalo;
