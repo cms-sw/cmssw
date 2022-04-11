@@ -1,0 +1,7 @@
+<use name="Utilities/OpenSSL"/>
+<bin file="test_openssl_sha1.cpp" name="test_openssl_sha1">
+  <flags CXXFLAGS="-Wno-deprecated-declarations"/>
+</bin>
+
+<bin file="test_openssl_evp_digest.cpp" name="test_openssl_evp_digest">
+</bin>
