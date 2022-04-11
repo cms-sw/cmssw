@@ -41,6 +41,7 @@ void DeDxEstimatorProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<string>("ProbabilityMode", "Accumulation");
   desc.add<double>("fraction", 0.4);
   desc.add<double>("exponent", -2.0);
+  desc.add<bool>("truncate", true);
 
   descriptions.add("DeDxEstimatorProducer", desc);
 }
