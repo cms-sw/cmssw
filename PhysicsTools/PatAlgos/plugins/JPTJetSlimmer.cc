@@ -61,7 +61,7 @@ public:
           // Add reference to the created CaloJet collection
           reco::CaloJetRef myjet(pOut1RefProd, idxCaloJet++);
           tmp_specific.theCaloJetRef = edm::RefToBase<reco::Jet>(myjet);
-          reco::CaloJet const * rawcalojetc = dynamic_cast<reco::CaloJet const *>( &* rawcalojet);
+          reco::CaloJet const* rawcalojetc = dynamic_cast<reco::CaloJet const*>(&*rawcalojet);
           caloJets->push_back(*rawcalojetc);
         } else {
           //  Add reference to existing slimmedCaloJet Collection to JPTJet
