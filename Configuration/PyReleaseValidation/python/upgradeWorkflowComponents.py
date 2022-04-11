@@ -157,16 +157,10 @@ class UpgradeWorkflow_baseline(UpgradeWorkflow):
         cust=properties.get('Custom', None)
         era=properties.get('Era', None)
         modifier=properties.get('ProcessModifier',None)
-        geometry=properties.get('Geom',None)
         if cust is not None: stepDict[stepName][k]['--customise']=cust
         if era is not None:
             stepDict[stepName][k]['--era']=era
         if modifier is not None: stepDict[stepName][k]['--procModifier']=modifier
-        if geometry == 'Extended2026D88': #Hack to make proper D88 workflow after including HLT75e33 ste (after RECO).
-            if step == 'RecoGlobal':
-                stepDict[stepName][k] = merge([{'--datatier':'FEVT,MINIAODSIM,DQMIO'}, stepDict[step][k]])
-            if step == 'HARVESTGlobal':
-                stepDict[stepName][k] = merge([{'--filein':'file:step3_inDQM.root'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return True
 upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
@@ -1200,6 +1194,33 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     offset = 0.21,
 )
 
+class UpgradeWorkflow_HLT75e33(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'--filein':'file:step3_inDQM.root'}, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2026' in key
+upgradeWFs['HLT75e33'] = UpgradeWorkflow_HLT75e33(
+    steps = [
+        'GenSimHLBeamSpot14',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HLT75e33',
+        'HARVESTGlobal',
+    ],
+    PU = [
+        'GenSimHLBeamSpot14',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HLT75e33',
+        'HARVESTGlobal',
+    ],
+    suffix = '_HLT75e33',
+    offset = 0.75,
+)
+
 class UpgradeWorkflow_Neutron(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'GenSim' in step:
@@ -2020,7 +2041,7 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal','HLT75e33', 'HARVESTGlobal'],
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D89' : {
         'Geom' : 'Extended2026D89', 
@@ -2048,9 +2069,7 @@ upgradeProperties[2026] = {
 # standard PU sequences
 for key in list(upgradeProperties[2026].keys()):
     upgradeProperties[2026][key+'PU'] = deepcopy(upgradeProperties[2026][key])
-    upgradeProperties[2026][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU'] + \
-                                                     (['HLT75e33'] if 'HLT75e33' in upgradeProperties[2026][key]['ScenToRun'] else []) + \
-                                                     ['HARVESTGlobalPU']
+    upgradeProperties[2026][key+'PU']['ScenToRun'] = ['GenSimHLBeamSpot','DigiTriggerPU','RecoGlobalPU', 'HARVESTGlobalPU']
 
 # for relvals
 defaultDataSets = {}
