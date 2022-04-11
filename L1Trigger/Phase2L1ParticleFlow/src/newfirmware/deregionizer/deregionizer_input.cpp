@@ -3,11 +3,7 @@
 #include <vector>
 #include "deregionizer_input.h"
 
-#ifdef CMSSW_GIT_HASH
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
-#else
-#include "../../utils/dbgPrintf.h"
-#endif
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 l1ct::DeregionizerInput::DeregionizerInput(std::vector<float> &regionEtaCenter,
                                            std::vector<float> &regionPhiCenter,

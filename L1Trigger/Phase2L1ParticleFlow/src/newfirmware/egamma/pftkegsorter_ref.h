@@ -8,7 +8,7 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 #else
 #include "../../../utils/dbgPrintf.h"
 #endif

@@ -6,7 +6,7 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "./L1SeedConePFJetEmulator.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 #else
 #include "../../seededcone/ref/L1SeedConePFJetEmulator.h"
 #include "../../../utils/dbgPrintf.h"

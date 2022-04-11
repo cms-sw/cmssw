@@ -5,7 +5,7 @@
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 l1ct::DeregionizerEmulator::DeregionizerEmulator(const edm::ParameterSet &iConfig)
     : DeregionizerEmulator(iConfig.getParameter<uint32_t>("nPuppiFinalBuffer"),

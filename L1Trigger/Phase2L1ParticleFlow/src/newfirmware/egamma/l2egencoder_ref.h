@@ -5,7 +5,7 @@
 #include "DataFormats/L1TParticleFlow/interface/egamma.h"
 
 #ifdef CMSSW_GIT_HASH
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #else
 #include "../../utils/dbgPrintf.h"

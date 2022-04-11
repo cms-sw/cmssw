@@ -4,11 +4,7 @@
 #include <algorithm>
 #include <cassert>
 
-#ifdef CMSSW_GIT_HASH
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
-#else
-#include "../utils/dbgPrintf.h"
-#endif
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 inline unsigned int PowerOf2LessThan(unsigned int n) {
   unsigned int i = 1;

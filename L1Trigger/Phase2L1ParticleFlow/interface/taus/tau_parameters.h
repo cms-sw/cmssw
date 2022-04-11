@@ -4,9 +4,9 @@
 #include <complex>
 #include "ap_int.h"
 #include "ap_fixed.h"
-#include "../../common/hls4ml/v020/nnet_layer.h"
-#include "../../common/hls4ml/v020/nnet_activation.h"
-#include "../../common/hls4ml/v020/nnet_common.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/common/nnet_layer.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/common/nnet_activation.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/common/nnet_common.h"
 
 //hls-fpga-machine-learning insert numbers
 #define N_INPUTS 80

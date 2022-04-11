@@ -7,7 +7,6 @@
 #include "DataFormats/L1TParticleFlow/interface/pf.h"
 #include "DataFormats/L1TParticleFlow/interface/puppi.h"
 #include "DataFormats/L1TParticleFlow/interface/egamma.h"
-//#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
 #include "DataFormats/L1TParticleFlow/interface/emulator_io.h"
 
 namespace l1t {

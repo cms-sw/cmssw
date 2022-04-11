@@ -2,7 +2,7 @@
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #include "Math/ProbFunc.h"
 

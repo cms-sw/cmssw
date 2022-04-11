@@ -1,5 +1,5 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/PFAlgo3.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 

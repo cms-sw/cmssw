@@ -6,11 +6,11 @@
 #include "DataFormats/L1TParticleFlow/interface/pf.h"
 
 #ifdef CMSSW_GIT_HASH
-#include "../common/bitonic_hybrid_sort_ref.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_hybrid_sort_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #else
-#include "../../common/bitonic_hybrid_sort_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_hybrid_sort_ref.h"
 #include "../../utils/dbgPrintf.h"
 
 #endif
