@@ -4,14 +4,14 @@ Track Quality Body file
 C.Brown & C.Savard 07/2020
 */
 
-#include "L1Trigger/TrackTrigger/interface/TrackQuality.h"
+#include "L1Trigger/TrackTrigger/interface/L1TrackQuality.h"
 #include "PhysicsTools/ONNXRuntime/interface/ONNXRuntime.h"
 
 //Constructors
 
-TrackQuality::TrackQuality() {}
+L1TrackQuality::L1TrackQuality() {}
 
-TrackQuality::TrackQuality(const edm::ParameterSet& qualityParams) {
+L1TrackQuality::L1TrackQuality(const edm::ParameterSet& qualityParams) {
   std::string AlgorithmString = qualityParams.getParameter<std::string>("qualityAlgorithm");
   // Unpacks EDM parameter set itself to save unecessary processing within TrackProducers
   if (AlgorithmString == "Cut") {
@@ -33,8 +33,8 @@ TrackQuality::TrackQuality(const edm::ParameterSet& qualityParams) {
   }
 }
 
-std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
-                                                  std::vector<std::string> const& featureNames) {
+std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
+                                                    std::vector<std::string> const& featureNames) {
   // List input features for MVA in proper order below, the features options are
   // {"log_chi2","log_chi2rphi","log_chi2rz","log_bendchi2","nstubs","lay1_hits","lay2_hits",
   // "lay3_hits","lay4_hits","lay5_hits","lay6_hits","disk1_hits","disk2_hits","disk3_hits",
@@ -212,7 +212,7 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
   return transformedFeatures;
 }
 
-void TrackQuality::setTrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) {
+void L1TrackQuality::setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) {
   if (this->qualityAlgorithm_ == QualityAlgorithm::Cut) {
     // Get Track parameters
     float trk_pt = aTrack.momentum().perp();
@@ -272,13 +272,13 @@ void TrackQuality::setTrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack) {
   }
 }
 
-void TrackQuality::setCutParameters(std::string const& AlgorithmString,
-                                    float maxZ0,
-                                    float maxEta,
-                                    float chi2dofMax,
-                                    float bendchi2Max,
-                                    float minPt,
-                                    int nStubmin) {
+void L1TrackQuality::setCutParameters(std::string const& AlgorithmString,
+                                      float maxZ0,
+                                      float maxEta,
+                                      float chi2dofMax,
+                                      float bendchi2Max,
+                                      float minPt,
+                                      int nStubmin) {
   qualityAlgorithm_ = QualityAlgorithm::Cut;
   maxZ0_ = maxZ0;
   maxEta_ = maxEta;
@@ -288,10 +288,10 @@ void TrackQuality::setCutParameters(std::string const& AlgorithmString,
   nStubsmin_ = nStubmin;
 }
 
-void TrackQuality::setONNXModel(std::string const& AlgorithmString,
-                                edm::FileInPath const& ONNXmodel,
-                                std::string const& ONNXInputName,
-                                std::vector<std::string> const& featureNames) {
+void L1TrackQuality::setONNXModel(std::string const& AlgorithmString,
+                                  edm::FileInPath const& ONNXmodel,
+                                  std::string const& ONNXInputName,
+                                  std::vector<std::string> const& featureNames) {
   //Convert algorithm string to Enum class for track by track comparison
   if (AlgorithmString == "NN") {
     qualityAlgorithm_ = QualityAlgorithm::NN;
