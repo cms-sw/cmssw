@@ -1,13 +1,13 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/Fake2 --type Fake2
 
-# /dev/CMSSW_12_3_0/Fake2/V7 (CMSSW_12_3_0_pre6)
+# /dev/CMSSW_12_3_0/Fake2/V8 (CMSSW_12_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/Fake2/V7')
+  tableName = cms.string('/dev/CMSSW_12_3_0/Fake2/V8')
 )
 
 fragment.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -95,7 +95,7 @@ fragment.hltGtStage2Digis = cms.EDProducer( "L1TRawToDigi",
 )
 fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
-    MuonShowerInputTag = cms.InputTag( "" ),
+    MuonShowerInputTag = cms.InputTag( 'hltGtStage2Digis','MuonShower' ),
     EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
     JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
@@ -106,7 +106,8 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     AlgorithmTriggersUnprescaled = cms.bool( True ),
     RequireMenuToMatchAlgoBlkInput = cms.bool( True ),
     AlgorithmTriggersUnmasked = cms.bool( True ),
-    useMuonShowers = cms.bool( False ),
+    useMuonShowers = cms.bool( True ),
+    resetPSCountersEachLumiSec = cms.bool( True ),
     ProduceL1GtDaqRecord = cms.bool( True ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     EmulateBxInEvent = cms.int32( 1 ),
@@ -151,7 +152,7 @@ fragment.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
     L1ObjectMapInputTag = cms.InputTag( "hltGtStage2ObjectMap" ),
     L1GlobalInputTag = cms.InputTag( "hltGtStage2Digis" ),
     L1MuonInputTag = cms.InputTag( 'hltGtStage2Digis','Muon' ),
-    L1MuonShowerInputTag = cms.InputTag( 'hltGmtStage2Digis','MuonShower' ),
+    L1MuonShowerInputTag = cms.InputTag( 'hltGtStage2Digis','MuonShower' ),
     L1EGammaInputTag = cms.InputTag( 'hltGtStage2Digis','EGamma' ),
     L1JetInputTag = cms.InputTag( 'hltGtStage2Digis','Jet' ),
     L1TauInputTag = cms.InputTag( 'hltGtStage2Digis','Tau' ),
