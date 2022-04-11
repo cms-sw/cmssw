@@ -7,6 +7,7 @@
 #include <numeric>
 #include <vector>
 #include <cassert>
+#include <cmath>
 
 namespace mkfit {
 
@@ -262,7 +263,6 @@ namespace mkfit {
     }
 
     void register_entry(B_pair bp) {
-      m_cons.emplace_back(bp);
       if (m_keep_cons)
         m_cons.push_back(bp);
       if (m_do_masked)
@@ -281,19 +281,20 @@ namespace mkfit {
     void register_m_bins(typename A1::index_t m1, typename A2::index_t m2) { register_entry({m1, m2}); }
 
     void finalize_registration() {
-      if (m_radix_sort) {
-        radix_sort<unsigned, C> radix;
+      unsigned int n_entries = m_do_masked ? m_cons_masked.size() : m_cons.size();
+      if (m_radix_sort && n_entries >= 128) {
+        radix_sort<unsigned int, C> radix;
         radix.sort(m_cons_masked, m_ranks);
       } else {
-        m_ranks.resize(m_cons.size());
+        m_ranks.resize(n_entries);
         std::iota(m_ranks.begin(), m_ranks.end(), 0);
-        if (m_keep_cons)
+        if (m_do_masked)
+          std::sort(
+              m_ranks.begin(), m_ranks.end(), [&](auto &a, auto &b) { return m_cons_masked[a] < m_cons_masked[b]; });
+        else
           std::sort(m_ranks.begin(), m_ranks.end(), [&](auto &a, auto &b) {
             return m_cons[a].mask_A2_M_bins() < m_cons[b].mask_A2_M_bins();
           });
-        else
-          std::sort(
-              m_ranks.begin(), m_ranks.end(), [&](auto &a, auto &b) { return m_cons_masked[a] < m_cons_masked[b]; });
       }
 
       for (C i = 0; i < m_ranks.size(); ++i) {
