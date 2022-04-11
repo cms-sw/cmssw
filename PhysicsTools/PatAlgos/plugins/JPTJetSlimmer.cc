@@ -15,7 +15,6 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Common/interface/RefToPtr.h"
 #include <vector>
 
 class JPTJetSlimmer : public edm::stream::EDProducer<> {
@@ -47,7 +46,7 @@ public:
       if (selector_(ijet)) {
         // Add specific : only reference to CaloJet collection. It is necessary for
         // recalibration JPTJet at MiniAod.
-        const edm::Ptr<reco::CaloJet>& rawcalojet = ijet.getCaloJetRef();
+        const edm::RefToBase<reco::Jet>& rawcalojet = ijet.getCaloJetRef();
         int icalo = -1;
         int i = 0;
         for (auto const& icjet : h_calojets) {
@@ -61,11 +60,12 @@ public:
         if (icalo < 0) {
           // Add reference to the created CaloJet collection
           reco::CaloJetRef myjet(pOut1RefProd, idxCaloJet++);
-          tmp_specific.theCaloJetRef = edm::refToPtr(myjet);
-          caloJets->push_back(*rawcalojet);
+          tmp_specific.theCaloJetRef = edm::RefToBase<reco::Jet>(myjet);
+          reco::CaloJet const * rawcalojetc = dynamic_cast<reco::CaloJet const *>( &* rawcalojet);
+          caloJets->push_back(*rawcalojetc);
         } else {
           //  Add reference to existing slimmedCaloJet Collection to JPTJet
-          tmp_specific.theCaloJetRef = h_calojets.ptrAt(icalo);
+          tmp_specific.theCaloJetRef = edm::RefToBase<reco::Jet>(h_calojets.refAt(icalo));
         }
         const reco::Candidate::Point& orivtx = ijet.vertex();
         reco::JPTJet newJPTJet(ijet.p4(), orivtx, tmp_specific, ijet.getJetConstituents());

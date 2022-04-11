@@ -41,7 +41,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Common/interface/RefToPtr.h"
 #include <string>
 
 using namespace std;
@@ -167,7 +166,7 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       jptspe.elecsInVertexOutCalo = elecs.inVertexOutOfCalo_;
       jptspe.elecsOutVertexInCalo = elecs.outOfVertexInCalo_;
       reco::CaloJetRef myjet(pOut1RefProd, idxCaloJet++);
-      jptspe.theCaloJetRef = edm::refToPtr(myjet);
+      jptspe.theCaloJetRef = edm::RefToBase<reco::Jet>(myjet);
       jptspe.JPTSeed = 1;
       reco::JPTJet fJet(p4, jet.primaryVertex()->position(), jptspe, mycalo.getJetConstituents());
       pOut->push_back(fJet);
@@ -220,29 +219,72 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     // Fill JPT Specific
-    specific.theCaloJetRef = jets_h.ptrAt(iJet);
+    specific.theCaloJetRef = edm::RefToBase<reco::Jet>(jets_h.refAt(iJet));
+    specific.mResponseOfChargedWithEff = (float)mJPTalgo->getResponseOfChargedWithEff();
+    specific.mResponseOfChargedWithoutEff = (float)mJPTalgo->getResponseOfChargedWithoutEff();
+    specific.mSumPtOfChargedWithEff = (float)mJPTalgo->getSumPtWithEff();
+    specific.mSumPtOfChargedWithoutEff = (float)mJPTalgo->getSumPtWithoutEff();
+    specific.mSumEnergyOfChargedWithEff = (float)mJPTalgo->getSumEnergyWithEff();
+    specific.mSumEnergyOfChargedWithoutEff = (float)mJPTalgo->getSumEnergyWithoutEff();
+    specific.mChargedHadronEnergy = (float)mJPTalgo->getSumEnergyWithoutEff();
 
     // Fill Charged Jet shape parameters
+
+    double deR2Tr = 0.;
+    double deEta2Tr = 0.;
+    double dePhi2Tr = 0.;
     double Zch = 0.;
+    double Pout2 = 0.;
+    double Pout = 0.;
+    double denominator_tracks = 0.;
+    int ntracks = 0;
 
     for (reco::TrackRefVector::const_iterator it = pions.inVertexInCalo_.begin(); it != pions.inVertexInCalo_.end();
          it++) {
+      double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
+      double deEta = (*it)->eta() - p4.eta();
+      double dePhi = deltaPhi((*it)->phi(), p4.phi());
       if ((**it).ptError() / (**it).pt() < 0.1) {
+        deR2Tr = deR2Tr + deR * deR * (*it)->pt();
+        deEta2Tr = deEta2Tr + deEta * deEta * (*it)->pt();
+        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (*it)->pt();
+        denominator_tracks = denominator_tracks + (*it)->pt();
         Zch = Zch + (*it)->pt();
+
+        Pout2 = Pout2 + (**it).p() * (**it).p() - (Zch * p4.P()) * (Zch * p4.P());
+        ntracks++;
       }
     }
-
     for (reco::TrackRefVector::const_iterator it = muons.inVertexInCalo_.begin(); it != muons.inVertexInCalo_.end();
          it++) {
+      double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
+      double deEta = (*it)->eta() - p4.eta();
+      double dePhi = deltaPhi((*it)->phi(), p4.phi());
       if ((**it).ptError() / (**it).pt() < 0.1) {
+        deR2Tr = deR2Tr + deR * deR * (*it)->pt();
+        deEta2Tr = deEta2Tr + deEta * deEta * (*it)->pt();
+        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (*it)->pt();
+        denominator_tracks = denominator_tracks + (*it)->pt();
         Zch = Zch + (*it)->pt();
+
+        Pout2 = Pout2 + (**it).p() * (**it).p() - (Zch * p4.P()) * (Zch * p4.P());
+        ntracks++;
       }
     }
-
     for (reco::TrackRefVector::const_iterator it = elecs.inVertexInCalo_.begin(); it != elecs.inVertexInCalo_.end();
          it++) {
+      double deR = deltaR((*it)->eta(), (*it)->phi(), p4.eta(), p4.phi());
+      double deEta = (*it)->eta() - p4.eta();
+      double dePhi = deltaPhi((*it)->phi(), p4.phi());
       if ((**it).ptError() / (**it).pt() < 0.1) {
+        deR2Tr = deR2Tr + deR * deR * (*it)->pt();
+        deEta2Tr = deEta2Tr + deEta * deEta * (*it)->pt();
+        dePhi2Tr = dePhi2Tr + dePhi * dePhi * (*it)->pt();
+        denominator_tracks = denominator_tracks + (*it)->pt();
         Zch = Zch + (*it)->pt();
+
+        Pout2 = Pout2 + (**it).p() * (**it).p() - (Zch * p4.P()) * (Zch * p4.P());
+        ntracks++;
       }
     }
 
@@ -265,6 +307,19 @@ void JetPlusTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     if (mJPTalgo->getSumPtForBeta() > 0.)
       Zch = Zch / mJPTalgo->getSumPtForBeta();
 
+    if (ntracks > 0) {
+      Pout = sqrt(fabs(Pout2)) / ntracks;
+    }
+    if (denominator_tracks != 0) {
+      deR2Tr = deR2Tr / denominator_tracks;
+      deEta2Tr = deEta2Tr / denominator_tracks;
+      dePhi2Tr = dePhi2Tr / denominator_tracks;
+    }
+
+    specific.R2momtr = deR2Tr;
+    specific.Eta2momtr = deEta2Tr;
+    specific.Phi2momtr = dePhi2Tr;
+    specific.Pout = Pout;
     specific.Zch = Zch;
 
     // Create JPT jet
