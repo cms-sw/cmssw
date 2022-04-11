@@ -1,17 +1,15 @@
 #ifndef L2EgSorter_REF_H
 #define L2EgSorter_REF_H
 
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
+#include "DataFormats/L1TParticleFlow/interface/egamma.h"
+#include "DataFormats/L1TParticleFlow/interface/pf.h"
+
 #ifdef CMSSW_GIT_HASH
-#include "../dataformats/layer1_emulator.h"
-#include "../dataformats/egamma.h"
-#include "../dataformats/pf.h"
 #include "../common/bitonic_hybrid_sort_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
 
 #else
-#include "../../dataformats/layer1_emulator.h"
-#include "../../dataformats/egamma.h"
-#include "../../dataformats/pf.h"
 #include "../../common/bitonic_hybrid_sort_ref.h"
 #include "../../utils/dbgPrintf.h"
 

@@ -1,13 +1,8 @@
 #ifndef L1Trigger_Phase2L1ParticleFlow_L1SeedConePFJetEmulator_h
 #define L1Trigger_Phase2L1ParticleFlow_L1SeedConePFJetEmulator_h
 
-#ifdef CMSSW_GIT_HASH
-#include "../dataformats/layer1_emulator.h"
-#include "../dataformats/jets.h"
-#else
-#include "../../../dataformats/layer1_emulator.h"
-#include "../../../dataformats/jets.h"
-#endif
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
+#include "DataFormats/L1TParticleFlow/interface/jets.h"
 
 #include <iostream>
 #include <vector>

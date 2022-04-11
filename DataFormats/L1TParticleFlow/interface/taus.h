@@ -1,8 +1,8 @@
-#ifndef FIRMWARE_dataformats_taus_h
-#define FIRMWARE_dataformats_taus_h
+#ifndef DataFormats_L1TParticleFlow_taus_h
+#define DataFormats_L1TParticleFlow_taus_h
 
-#include "datatypes.h"
-#include "bit_encoding.h"
+#include "DataFormats/L1TParticleFlow/interface/datatypes.h"
+#include "DataFormats/L1TParticleFlow/interface/bit_encoding.h"
 
 namespace l1ct {
 

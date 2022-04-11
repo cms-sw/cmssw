@@ -1,9 +1,9 @@
-#ifndef FIRMWARE_dataformats_sums_h
-#define FIRMWARE_dataformats_sums_h
+#ifndef DataFormats_L1TParticleFlow_sums_h
+#define DataFormats_L1TParticleFlow_sums_h
 
-#include "datatypes.h"
-#include "gt_datatypes.h"
-#include "bit_encoding.h"
+#include "DataFormats/L1TParticleFlow/interface/datatypes.h"
+#include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
+#include "DataFormats/L1TParticleFlow/interface/bit_encoding.h"
 
 namespace l1ct {
 

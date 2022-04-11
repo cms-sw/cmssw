@@ -15,7 +15,7 @@
 #include "L1Trigger/DemonstratorTools/interface/BoardDataWriter.h"
 #include "L1Trigger/DemonstratorTools/interface/utilities.h"
 #include "DataFormats/L1TParticleFlow/interface/PFJet.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/dataformats/gt_datatypes.h"
+#include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
 
 //
 // class declaration

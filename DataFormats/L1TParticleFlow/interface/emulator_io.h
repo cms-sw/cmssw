@@ -3,7 +3,7 @@
 
 #include <fstream>
 #include <vector>
-#include "datatypes.h"
+#include "DataFormats/L1TParticleFlow/interface/datatypes.h"
 
 namespace l1ct {
 

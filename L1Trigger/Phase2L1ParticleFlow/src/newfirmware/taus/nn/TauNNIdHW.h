@@ -1,11 +1,7 @@
 #ifndef L1Trigger_Phase2L1ParticleFlow_TAUNNIDHW_H_
 #define L1Trigger_Phase2L1ParticleFlow_TAUNNIDHW_H_
 
-#ifdef CMSSW_GIT_HASH
-#include "../../dataformats/layer1_emulator.h"
-#else
-#include "../../../../dataformats/layer1_emulator.h"
-#endif
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 
 #include <cstdio>
 #include <complex>

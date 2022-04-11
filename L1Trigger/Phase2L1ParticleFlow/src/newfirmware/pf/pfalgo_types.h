@@ -1,11 +1,7 @@
 #ifndef FIRMWARE_PFALGO_TYPES_H
 #define FIRMWARE_PFALGO_TYPES_H
 
-#ifdef CMSSW_GIT_HASH
-#include "../dataformats/datatypes.h"
-#else
-#include "../../dataformats/datatypes.h"
-#endif
+#include "DataFormats/L1TParticleFlow/interface/datatypes.h"
 
 namespace l1ct {
 

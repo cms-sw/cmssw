@@ -1,15 +1,10 @@
-#include "layer1_emulator.h"
-#include "emulator_io.h"
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
+//#include "DataFormats/L1TParticleFlow/interface/emulator_io.h"
+//#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
 #include <cmath>
 #include <iostream>
 #include <cstdlib>
 #include <algorithm>
-
-#ifdef CMSSW_GIT_HASH
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
-#else
-#include "../utils/dbgPrintf.h"
-#endif
 
 #ifdef CMSSW_GIT_HASH
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -407,10 +402,10 @@ bool l1ct::Event::read(std::fstream& from) {
   if (!readVar(from, version))
     return false;
   if (version != VERSION) {
-    dbgCout() << "ERROR: version mismatch between this code (" << VERSION << ") and dump file (" << version << ")."
-              << std::endl;
-    dbgCerr() << "ERROR: version mismatch between this code (" << VERSION << ") and dump file (" << version << ")."
-              << std::endl;
+    //dbgCout() << "ERROR: version mismatch between this code (" << VERSION << ") and dump file (" << version << ")."
+    //          << std::endl;
+    //dbgCerr() << "ERROR: version mismatch between this code (" << VERSION << ") and dump file (" << version << ")."
+    //          << std::endl;
     abort();
   }
   return readVar(from, run) && readVar(from, lumi) && readVar(from, event) && raw.read(from) && decoded.read(from) &&

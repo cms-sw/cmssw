@@ -1,7 +1,7 @@
 #ifndef LINPUPPI_REF_H
 #define LINPUPPI_REF_H
 
-#include "../dataformats/layer1_emulator.h"
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 
 #include <vector>
 

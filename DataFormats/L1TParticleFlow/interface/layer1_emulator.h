@@ -1,12 +1,14 @@
-#ifndef FIRMWARE_dataformats_layer1_emulator_h
-#define FIRMWARE_dataformats_layer1_emulator_h
+#ifndef DataFormats_L1TParticleFlow_layer1_emulator_h
+#define DataFormats_L1TParticleFlow_layer1_emulator_h
 
 #include <fstream>
 #include <vector>
-#include "layer1_objs.h"
-#include "pf.h"
-#include "puppi.h"
-#include "egamma.h"
+#include "DataFormats/L1TParticleFlow/interface/layer1_objs.h"
+#include "DataFormats/L1TParticleFlow/interface/pf.h"
+#include "DataFormats/L1TParticleFlow/interface/puppi.h"
+#include "DataFormats/L1TParticleFlow/interface/egamma.h"
+//#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "DataFormats/L1TParticleFlow/interface/emulator_io.h"
 
 namespace l1t {
   class PFTrack;

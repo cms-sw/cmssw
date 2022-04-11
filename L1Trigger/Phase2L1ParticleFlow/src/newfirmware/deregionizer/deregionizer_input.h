@@ -2,11 +2,7 @@
 #define L1Trigger_Phase2L1ParticleFlow_newfirmware_deregionizer_input_h
 
 #include <vector>
-#ifdef CMSSW_GIT_HASH
-#include "../dataformats/layer1_emulator.h"
-#else
-#include "../../dataformats/layer1_emulator.h"
-#endif
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 
 namespace l1ct {
 

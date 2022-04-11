@@ -1,11 +1,11 @@
 #ifndef PFALGO_COMMON_REF_H
 #define PFALGO_COMMON_REF_H
 
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
+
 #ifdef CMSSW_GIT_HASH
-#include "../dataformats/layer1_emulator.h"
 #include "pfalgo_types.h"
 #else
-#include "../../dataformats/layer1_emulator.h"
 #include "../firmware/pfalgo_types.h"
 #endif
 

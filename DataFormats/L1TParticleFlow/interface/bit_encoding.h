@@ -1,8 +1,8 @@
-#ifndef FIRMWARE_L1PF_ENCODING_H
-#define FIRMWARE_L1PF_ENCODING_H
+#ifndef DATAFORMATS_L1TPARTICLEFLOW_ENCODING_H
+#define DATAFORMATS_L1TPARTICLEFLOW_ENCODING_H
 
 #include <cassert>
-#include "datatypes.h"
+#include "DataFormats/L1TParticleFlow/interface/datatypes.h"
 
 template <typename U, typename T>
 inline void _pack_into_bits(U& u, unsigned int& start, const T& data) {

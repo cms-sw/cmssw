@@ -1,5 +1,5 @@
-#ifndef FIRMWARE_dataformats_datatypes_h
-#define FIRMWARE_dataformats_datatypes_h
+#ifndef DataFormats_L1TParticleFlow_datatypes_h
+#define DataFormats_L1TParticleFlow_datatypes_h
 
 #if (!defined(__CLANG__)) && defined(__GNUC__) && defined(CMSSW_GIT_HASH)
 #pragma GCC diagnostic push

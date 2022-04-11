@@ -1,5 +1,5 @@
-#ifndef FIRMWARE_dataformats_gt_datatypes_h
-#define FIRMWARE_dataformats_gt_datatypes_h
+#ifndef DataFormats_L1TParticleFlow_gtdatatypes_h
+#define DataFormats_L1TParticleFlow_gtdatatypes_h
 
 #if (!defined(__CLANG__)) && defined(__GNUC__) && defined(CMSSW_GIT_HASH)
 #pragma GCC diagnostic push
@@ -12,7 +12,7 @@
 #pragma GCC diagnostic pop
 #endif
 
-#include "bit_encoding.h"
+#include "DataFormats/L1TParticleFlow/interface/bit_encoding.h"
 #include <array>
 #include <cstdint>
 

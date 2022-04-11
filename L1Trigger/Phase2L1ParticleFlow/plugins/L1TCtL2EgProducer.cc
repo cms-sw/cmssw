@@ -10,7 +10,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/transform.h"
 
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/dataformats/layer1_emulator.h"
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/egamma/l2egsorter_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/egamma/l2egsorter_ref.cpp"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/egamma/l2egencoder_ref.h"

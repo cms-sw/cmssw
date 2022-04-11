@@ -1,14 +1,13 @@
 #ifndef L2EGENCODER_REF_H
 #define L2EGENCODER_REF_H
 
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
+#include "DataFormats/L1TParticleFlow/interface/egamma.h"
+
 #ifdef CMSSW_GIT_HASH
-#include "../dataformats/layer1_emulator.h"
-#include "../dataformats/egamma.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
 
 #else
-#include "../../dataformats/layer1_emulator.h"
-#include "../../dataformats/egamma.h"
 #include "../../utils/dbgPrintf.h"
 
 #endif

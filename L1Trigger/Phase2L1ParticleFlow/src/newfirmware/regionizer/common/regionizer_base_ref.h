@@ -1,7 +1,7 @@
 #ifndef REGIONIZER_BASE_REF_H
 #define REGIONIZER_BASE_REF_H
 
-#include "../../dataformats/layer1_emulator.h"
+#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 
 namespace edm {
   class ParameterSet;
