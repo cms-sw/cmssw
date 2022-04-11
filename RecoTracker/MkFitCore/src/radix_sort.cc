@@ -1,6 +1,7 @@
 #include "RecoTracker/MkFitCore/interface/radix_sort.h"
 
 #include <array>
+#include <numeric>
 
 namespace mkfit {
 
@@ -43,14 +44,15 @@ namespace mkfit {
     rank_t* link[256];
     ranks.resize(nb);
     std::vector<rank_t> ranks2(nb);
+    bool ranks_are_invalid = true;
     // Radix sort, j is the pass number (0=LSB, 3=MSB)
     for (rank_t j = 0; j < c_NBytes; j++) {
       // Shortcut to current counters
       rank_t* cur_count = &histos[j << 8];
-      // Get first byte - f that byte's counter equals nb, all values are the same.
-      ubyte_t unique_val = *(((ubyte_t*)values.data()) + j);
 
-      if (cur_count[unique_val] != nb) {
+      // Get first byte - if that byte's counter equals nb, all values are the same.
+      ubyte_t first_entry_val = *(((ubyte_t*)values.data()) + j);
+      if (cur_count[first_entry_val] != nb) {
         // Create offsets
         link[0] = ranks2.data();
         for (rank_t i = 1; i < 256; i++)
@@ -59,12 +61,13 @@ namespace mkfit {
         // Perform Radix Sort
         ubyte_t* input_bytes = (ubyte_t*)values.data();
         input_bytes += j;
-        if (j == 0) {
+        if (ranks_are_invalid) {
           for (rank_t i = 0; i < nb; i++)
             *link[input_bytes[i << 2]]++ = i;
+          ranks_are_invalid = false;
         } else {
-          rank_t* indices = &ranks[0];
-          rank_t* indices_end = &ranks[nb];
+          rank_t* indices = ranks.data();
+          rank_t* indices_end = indices + nb;
           while (indices != indices_end) {
             rank_t id = *indices++;
             *link[input_bytes[id << 2]]++ = id;
@@ -75,6 +78,9 @@ namespace mkfit {
         ranks.swap(ranks2);
       }
     }
+    // If all values are equal, fill ranks with sequential integers.
+    if (ranks_are_invalid)
+      std::iota(ranks.begin(), ranks.end(), 0);
   }
 
   // Instantiate supported sort types.
