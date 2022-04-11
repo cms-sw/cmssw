@@ -96,7 +96,7 @@ namespace mkfit {
     m_binnor.finalize_registration();
 
     for (unsigned int i = 0; i < m_n_hits; ++i) {
-      int j = m_binnor.m_ranks[i];
+      unsigned int j = m_binnor.m_ranks[i];
 #ifdef COPY_SORTED_HITS
       memcpy(&m_hits[i], &hitv[j], sizeof(Hit));
 #endif
@@ -113,23 +113,15 @@ namespace mkfit {
     m_dead_bins.assign(m_dead_bins.size(), false);
 
     for (const auto &d : deadv) {
-      bin_index_t q_bin_1 = m_ax_eta.from_R_to_N_bin_safe(d.q1);
-      bin_index_t q_bin_2 = m_ax_eta.from_R_to_N_bin_safe(d.q2) + 1;
-      bin_index_t phi_bin_1 = m_ax_phi.from_R_to_N_bin_safe(d.phi1);
-      bin_index_t phi_bin_2 = m_ax_phi.from_R_to_N_bin_safe(d.phi2) + 1;
-      for (bin_index_t q_bin = q_bin_1; q_bin < q_bin_2; q_bin++) {
-        unsigned int qoff = q_bin * m_ax_phi.size_of_N();
-        if (phi_bin_1 > phi_bin_2) {
-          for (bin_index_t pb = phi_bin_1; pb <= m_ax_phi.m_last_N_bin; pb++) {
+      bin_index_t q_bin_1 = qBinChecked(d.q1);
+      bin_index_t q_bin_2 = qBinChecked(d.q2) + 1;
+      bin_index_t phi_bin_1 = phiBin(d.phi1);
+      bin_index_t phi_bin_2 = phiMaskApply(phiBin(d.phi2) + 1);
+
+      for (bin_index_t q_bin = q_bin_1; q_bin != q_bin_2; q_bin++) {
+        const unsigned int qoff = q_bin * m_ax_phi.size_of_N();
+        for (bin_index_t pb = phi_bin_1; pb != phi_bin_2; pb = phiMaskApply(pb + 1)) {
             m_dead_bins[qoff + pb] = true;
-          }
-          for (bin_index_t pb = 0; pb < phi_bin_2; pb++) {
-            m_dead_bins[qoff + pb] = true;
-          }
-        } else {
-          for (bin_index_t pb = phi_bin_1; pb < phi_bin_2; pb++) {
-            m_dead_bins[qoff + pb] = true;
-          }
         }
       }
     }
@@ -188,8 +180,8 @@ namespace mkfit {
     }
 
     for (unsigned int i = 0; i < m_n_hits; ++i) {
-      int j = m_binnor.m_ranks[i];  // index in intermediate
-      int k = m_ext_idcs[j];        // index in external hit_vec
+      unsigned int j = m_binnor.m_ranks[i];  // index in intermediate
+      unsigned int k = m_ext_idcs[j];        // index in external hit_vec
 
 #ifdef COPY_SORTED_HITS
       memcpy(&m_hits[i], &hitv[k], sizeof(Hit));
@@ -235,7 +227,7 @@ namespace mkfit {
   void LayerOfHits::printBins() {
     for (bin_index_t qb = 0; qb <= m_ax_eta.m_last_N_bin; ++qb) {
       printf("%c bin %d\n", is_barrel() ? 'Z' : 'R', qb);
-      for (bin_index_t pb = 0; pb < m_ax_phi.m_last_N_bin; ++pb) {
+      for (bin_index_t pb = 0; pb <= m_ax_phi.m_last_N_bin; ++pb) {
         if (pb % 8 == 0)
           printf(" Phi %4d: ", pb);
         auto content = m_binnor.get_content(pb, qb);

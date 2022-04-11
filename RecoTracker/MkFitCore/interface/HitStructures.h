@@ -25,8 +25,8 @@ namespace mkfit {
   public:
     using bin_index_t = unsigned short;
     using bin_content_t = unsigned int;
-    using axis_phi_t = axis_pow2_u1<float, bin_index_t, 10, 8>;
-    using axis_eta_t = axis<float, bin_index_t, 8, 8>;
+    using axis_phi_t = axis_pow2_u1<float, bin_index_t, 16, 8>;
+    using axis_eta_t = axis<float, bin_index_t, 16, 8>;
     using binnor_t = binnor<bin_content_t, axis_phi_t, axis_eta_t, 18, 14>;
 
     // Initializator

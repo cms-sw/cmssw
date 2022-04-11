@@ -265,8 +265,8 @@ namespace mkfit {
       qbv[itrack] = L.qBinChecked(q);
       qb1v[itrack] = L.qBinChecked(q - dq);
       qb2v[itrack] = L.qBinChecked(q + dq) + 1;
-      pb1v[itrack] = L.phiBin(phi - dphi);  // phi masks applied in loop
-      pb2v[itrack] = L.phiBin(phi + dphi) + 1;
+      pb1v[itrack] = L.phiBinChecked(phi - dphi);
+      pb2v[itrack] = L.phiMaskApply(L.phiBin(phi + dphi) + 1);
     };
 
     const auto calcdphi2 = [&](int itrack, float dphidx, float dphidy) {
@@ -374,19 +374,11 @@ namespace mkfit {
       const float phi = phiv[itrack];
       const float dphi = dphiv[itrack];
       const float dq = dqv[itrack];
-
+      // clang-format off
       dprintf("  %2d/%2d: %6.3f %6.3f %6.6f %7.5f %3u %3u %4u %4u\n",
-              L.layer_id(),
-              itrack,
-              q,
-              phi,
-              dq,
-              dphi,
-              qb1,
-              qb2,
-              pb1,
-              pb2);
-
+              L.layer_id(), itrack, q, phi, dq, dphi,
+              qb1, qb2, pb1, pb2);
+      // clang-format on
       // MT: One could iterate in "spiral" order, to pick hits close to the center.
       // http://stackoverflow.com/questions/398299/looping-in-a-spiral
       // This would then work best with relatively small bin sizes.
@@ -417,13 +409,11 @@ namespace mkfit {
       }
 #endif
 
-      for (bidx_t qi = qb1; qi < qb2; ++qi) {
-        for (bidx_t pi = pb1; pi < pb2; ++pi) {
-          const bidx_t pb = L.phiMaskApply(pi);
-
+      for (bidx_t qi = qb1; qi != qb2; ++qi) {
+        for (bidx_t pi = pb1; pi != pb2; pi = L.phiMaskApply(pi + 1)) {
           // Limit to central Q-bin
-          if (qi == qb && L.isBinDead(pb, qi) == true) {
-            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pb=" << pb << " q=" << q
+          if (qi == qb && L.isBinDead(pi, qi) == true) {
+            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pi=" << pi << " q=" << q
                                                      << " phi=" << phi);
             m_XWsrResult[itrack].m_in_gap = true;
           }
@@ -436,7 +426,7 @@ namespace mkfit {
 
           //SK: ~20x1024 bin sizes give mostly 1 hit per bin. Commented out for 128 bins or less
           // #pragma nounroll
-          auto pbi = L.phiQBinContent(pb, qi);
+          auto pbi = L.phiQBinContent(pi, qi);
           for (bcnt_t hi = pbi.begin(); hi < pbi.end(); ++hi) {
             // MT: Access into m_hit_zs and m_hit_phis is 1% run-time each.
 
@@ -584,85 +574,44 @@ namespace mkfit {
 
                 if (!(std::isnan(phi)) && !(std::isnan(getEta(m_Par[iI].At(itrack, 5, 0))))) {
                   //|| std::isnan(ter) || std::isnan(her) || std::isnan(m_Chi2(itrack, 0, 0)) || std::isnan(hchi2)))
-                  printf(
-                      "HITWINDOWSEL "
-                      "%d "
-                      "%d %d %d "
-                      "%d %d %d "
-                      "%6.3f %6.3f %6.3f %6.3f "
-                      "%d "
-                      "%d %d %d %d "
-                      "%d "
-                      "%d %d %d "
-                      "%6.3f %6.3f %6.3f "
-                      "%d %d %6.3f %6.3f "
-                      "%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f "
-                      "%6.3f %6.3f %6.3f %6.3f %6.3f "
-                      "%6.6f %6.6f %6.6f %6.6f %6.6f "
-                      "%6.3f %6.3f %6.3f %6.3f %6.3f "
-                      "%6.6f %6.6f %6.6f %6.6f %6.6f "
-                      "%6.3f %6.3f %6.3f "
-                      "%6.3f"
-                      "\n",
-                      m_event->evtID(),
-                      L.layer_id(),
-                      L.is_barrel(),
-                      L.getOriginalHitIndex(hi),
-                      itrack,
-                      m_CandIdx(itrack, 0, 0),
-                      m_Label(itrack, 0, 0),
-                      1.0f / m_Par[iI].At(itrack, 3, 0),
-                      getEta(m_Par[iI].At(itrack, 5, 0)),
-                      m_Par[iI].At(itrack, 4, 0),
-                      m_Chi2(itrack, 0, 0),
-                      m_NFoundHits(itrack, 0, 0),
-                      m_SeedIdx(itrack, 0, 0),
-                      m_SeedLabel(itrack, 0, 0),
-                      m_SeedAlgo(itrack, 0, 0),
-                      thisseedmcid,
-                      mchid,
-                      st_isfindable,
-                      st_prodtype,
-                      st_label,
-                      st_pt,
-                      st_eta,
-                      st_phi,
-                      st_nhits,
-                      st_charge,
-                      st_r,
-                      st_z,
-                      q,
-                      L.hit_q(hi),
-                      ddq,
-                      dq,
-                      phi,
-                      L.hit_phi(hi),
-                      ddphi,
-                      dphi,
-                      tx,
-                      ty,
-                      tr,
-                      tphi,
-                      tz,
-                      tex,
-                      tey,
-                      ter,
-                      tephi,
-                      tez,
-                      hx,
-                      hy,
-                      hr,
-                      hphi,
-                      hz,
-                      hex,
-                      hey,
-                      her,
-                      hephi,
-                      hez,
-                      ht_dxy,
-                      ht_dz,
-                      ht_dphi,
-                      hchi2);
+                  // clang-format off
+                  printf("HITWINDOWSEL "
+                         "%d "
+                         "%d %d %d "
+                         "%d %d %d "
+                         "%6.3f %6.3f %6.3f %6.3f "
+                         "%d "
+                         "%d %d %d %d "
+                         "%d "
+                         "%d %d %d "
+                         "%6.3f %6.3f %6.3f "
+                         "%d %d %6.3f %6.3f "
+                         "%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f "
+                         "%6.3f %6.3f %6.3f %6.3f %6.3f "
+                         "%6.6f %6.6f %6.6f %6.6f %6.6f "
+                         "%6.3f %6.3f %6.3f %6.3f %6.3f "
+                         "%6.6f %6.6f %6.6f %6.6f %6.6f "
+                         "%6.3f %6.3f %6.3f "
+                         "%6.3f"
+                         "\n",
+                         m_event->evtID(),
+                         L.layer_id(), L.is_barrel(), L.getOriginalHitIndex(hi),
+                         itrack, m_CandIdx(itrack, 0, 0), m_Label(itrack, 0, 0),
+                         1.0f / m_Par[iI].At(itrack, 3, 0), getEta(m_Par[iI].At(itrack, 5, 0)), m_Par[iI].At(itrack, 4, 0), m_Chi2(itrack, 0, 0),
+                         m_NFoundHits(itrack, 0, 0),
+                         m_SeedIdx(itrack, 0, 0), m_SeedLabel(itrack, 0, 0), m_SeedAlgo(itrack, 0, 0), thisseedmcid,
+                         mchid,
+                         st_isfindable, st_prodtype, st_label,
+                         st_pt, st_eta, st_phi,
+                         st_nhits, st_charge, st_r, st_z,
+                         q, L.hit_q(hi), ddq, dq, phi, L.hit_phi(hi), ddphi, dphi,
+                         tx, ty, tr, tphi, tz,
+                         tex, tey, ter, tephi, tez,
+                         hx, hy, hr, hphi, hz,
+                         hex, hey, her, hephi, hez,
+                         ht_dxy, ht_dz, ht_dphi,
+                         hchi2);
+                  // clang-format ofn
                 }
               }
 #endif
@@ -671,17 +620,11 @@ namespace mkfit {
                 continue;
               if (ddphi >= dphi)
                 continue;
-
-              dprintf("     SHI %3u %4u %4u %5u  %6.3f %6.3f %6.4f %7.5f   %s\n",
-                      qi,
-                      pi,
-                      pb,
-                      hi,
-                      L.hit_q(hi),
-                      L.hit_phi(hi),
-                      ddq,
-                      ddphi,
-                      (ddq < dq && ddphi < dphi) ? "PASS" : "FAIL");
+              // clang-format off
+              dprintf("     SHI %3u %4u %5u  %6.3f %6.3f %6.4f %7.5f   %s\n",
+                      qi, pi, hi, L.hit_q(hi), L.hit_phi(hi),
+                      ddq, ddphi, (ddq < dq && ddphi < dphi) ? "PASS" : "FAIL");
+              // clang-format on
 
               // MT: Removing extra check gives full efficiency ...
               //     and means our error estimations are wrong!
