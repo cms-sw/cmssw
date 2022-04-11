@@ -22,11 +22,10 @@
 
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
-#include "CondCore/SiStripPlugins/interface/SiStripCondObjectRepresent.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
-
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "SiStripCondObjectRepresent.h"
 
 #include <memory>
 #include <sstream>
@@ -50,8 +49,10 @@ namespace {
 
   class SiStripPedestalContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float> {
   public:
-    SiStripPedestalContainer(std::shared_ptr<SiStripPedestals> payload, unsigned int run, std::string hash)
-        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float>(payload, run, hash) {
+    SiStripPedestalContainer(const std::shared_ptr<SiStripPedestals>& payload,
+                             const SiStripPI::MetaData& metadata,
+                             const std::string& tagName)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float>(payload, metadata, tagName) {
       payloadType_ = "SiStripPedestals";
       setGranularity(SiStripCondObjectRepresent::PERSTRIP);
     }
@@ -70,31 +71,25 @@ namespace {
     }
   };
 
-  class SiStripPedestalCompareByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalCompareByPartition : public PlotImage<SiStripPedestals, MULTI_IOV, 2> {
   public:
     SiStripPedestalCompareByPartition()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Compare Pedestals By Partition") {
-      setSingleIov(false);
-    }
+        : PlotImage<SiStripPedestals, MULTI_IOV, 2>("SiStrip Compare Pedestals By Partition") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
-
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
 
       std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripPedestalContainer* l_objContainer =
-          new SiStripPedestalContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
-      SiStripPedestalContainer* f_objContainer =
-          new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, tagname1);
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, tagname2);
 
       l_objContainer->compare(f_objContainer);
 
@@ -110,31 +105,25 @@ namespace {
     }  // fill
   };
 
-  class SiStripPedestalDiffByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalDiffByPartition : public PlotImage<SiStripPedestals, MULTI_IOV, 2> {
   public:
     SiStripPedestalDiffByPartition()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Diff Pedestals By Partition") {
-      setSingleIov(false);
-    }
+        : PlotImage<SiStripPedestals, MULTI_IOV, 2>("SiStrip Diff Pedestals By Partition") {}
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
-
-      // make absolute sure the IOVs are sortd by since
-      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
-        return std::get<0>(t1) < std::get<0>(t2);
-      });
-
-      auto firstiov = sorted_iovs.front();
-      auto lastiov = sorted_iovs.back();
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
 
       std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripPedestalContainer* l_objContainer =
-          new SiStripPedestalContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
-      SiStripPedestalContainer* f_objContainer =
-          new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, tagname1);
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, tagname2);
 
       l_objContainer->subtract(f_objContainer);
 
@@ -150,15 +139,15 @@ namespace {
     }  // fill
   };
 
-  class SiStripPedestalCorrelationByPartition : public cond::payloadInspector::PlotImage<SiStripPedestals> {
+  class SiStripPedestalCorrelationByPartition : public PlotImage<SiStripPedestals> {
   public:
     SiStripPedestalCorrelationByPartition()
-        : cond::payloadInspector::PlotImage<SiStripPedestals>("SiStrip Pedestals Correlation By Partition") {
+        : PlotImage<SiStripPedestals>("SiStrip Pedestals Correlation By Partition") {
       setSingleIov(false);
     }
 
-    bool fill(const std::vector<std::tuple<cond::Time_t, cond::Hash>>& iovs) override {
-      std::vector<std::tuple<cond::Time_t, cond::Hash>> sorted_iovs = iovs;
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
 
       // make absolute sure the IOVs are sortd by since
       std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
@@ -171,10 +160,8 @@ namespace {
       std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
       std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
 
-      SiStripPedestalContainer* l_objContainer =
-          new SiStripPedestalContainer(last_payload, std::get<0>(lastiov), std::get<1>(lastiov));
-      SiStripPedestalContainer* f_objContainer =
-          new SiStripPedestalContainer(first_payload, std::get<0>(firstiov), std::get<1>(firstiov));
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, "");
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, "");
 
       l_objContainer->compare(f_objContainer);
 
@@ -608,7 +595,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
