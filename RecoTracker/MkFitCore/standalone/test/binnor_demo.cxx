@@ -30,15 +30,17 @@ int main() {
     }
     */
 
-  axis<float, unsigned short, 12, 6> eta(-2.6, 2.6, 20u);
+  axis<float, unsigned short, 16, 8> eta(-2.6, 2.6, 20u);
 
   printf("Axis eta: M-bits=%d, N-bits=%d  m_bins=%d n_bins=%d\n", eta.c_M, eta.c_N, eta.size_of_M(), eta.size_of_N());
 
-  const int NN = 100000;
-  const bool use_radix = true;
-  const bool keep_cons = false;
+  const int NLoop = 100; // Number of time to repeat the loop.
+  const int NN = 1000;   // Number of tracks (eta, phi pairs) to bin.
+  const bool print_bin_contents = false;
+  const bool use_radix = true; // NOTE: radix_sort will automatically switch to std::sort for NN < 128
+  const bool keep_cons = true;
 
-  binnor<unsigned int, decltype(phi), decltype(eta), 24, 8> b(phi, eta, use_radix, keep_cons);
+  binnor<unsigned int, decltype(phi), decltype(eta), 18, 14> b(phi, eta, use_radix, keep_cons);
 
   // typedef typeof(b) type_b;
   printf("Have binnor, size of vec = %zu, sizeof(C_pair) = %d\n", b.m_bins.size(), sizeof(decltype(b)::C_pair));
@@ -52,25 +54,34 @@ int main() {
   };
   std::vector<track> tracks;
   tracks.reserve(NN);
-
-  auto start = std::chrono::high_resolution_clock::now();
-
-  b.begin_registration(NN);  // optional, reserves construction vector
-
   for (int i = 0; i < NN; ++i) {
     tracks.push_back({d_phi(rnd), d_eta(rnd)});
-    b.register_entry(tracks.back().phi, tracks.back().eta);
     // printf("made track %3d:  phi=%f  eta=%f\n", i, tracks.back().phi, tracks.back().eta);
   }
 
-  auto reg_start = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<long long, std::nano> duration, fill_duration, sort_duration;
 
-  b.finalize_registration();
+  for (int n_loop = 0; n_loop < NLoop; ++n_loop) {
+    b.reset_contents(false); // do not shrink the vectors
 
-  auto stop = std::chrono::high_resolution_clock::now();
-  auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-  auto fill_duration = std::chrono::duration_cast<std::chrono::microseconds>(reg_start - start);
-  auto sort_duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - reg_start);
+    auto start = std::chrono::high_resolution_clock::now();
+
+    b.begin_registration(NN);  // NN optional, reserves construction vector
+
+    for (int i = 0; i < NN; ++i) {
+      b.register_entry(tracks[i].phi, tracks[i].eta);
+    }
+
+    auto reg_start = std::chrono::high_resolution_clock::now();
+
+    b.finalize_registration();
+
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    duration += std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+    fill_duration += std::chrono::duration_cast<std::chrono::nanoseconds>(reg_start - start);
+    sort_duration += std::chrono::duration_cast<std::chrono::nanoseconds>(stop - reg_start);
+  }
 
   // for (int i = 0; i < NN; ++i)
   // {
@@ -78,35 +89,37 @@ int main() {
   //     printf("%3d  %3d  phi=%f  eta=%f\n", i, b.m_ranks[i], t.phi, t.eta);
   // }
 
-  printf("\n\n--- Single bin access for (phi, eta) = (0,0):\n\n");
-  auto nbin = b.get_n_bin(0.f, 0.f);
-  auto cbin = b.get_content(0.f, 0.f);
-  printf("For (phi 0, eta 0; %u, %u) got first %d, count %d\n", nbin.bin1(), nbin.bin2(), cbin.first, cbin.count);
-  for (auto i = cbin.first; i < cbin.first + cbin.count; ++i) {
-    const track &t = tracks[b.m_ranks[i]];
-    printf("%3d  %3d  phi=%f  eta=%f\n", i, b.m_ranks[i], t.phi, t.eta);
-  }
+  if (print_bin_contents) {
+    printf("\n\n--- Single bin access for (phi, eta) = (0,0):\n\n");
+    auto nbin = b.get_n_bin(0.f, 0.f);
+    auto cbin = b.get_content(0.f, 0.f);
+    printf("For (phi 0, eta 0; %u, %u) got first %d, count %d\n", nbin.bin1(), nbin.bin2(), cbin.first, cbin.count);
+    for (auto i = cbin.first; i < cbin.first + cbin.count; ++i) {
+      const track &t = tracks[b.m_ranks[i]];
+      printf("%3d  %3d  phi=%f  eta=%f\n", i, b.m_ranks[i], t.phi, t.eta);
+    }
 
-  printf("\n\n--- Range access for phi=[(-PI+0.02 +- 0.1], eta=[1.3 +- .2]:\n\n");
-  auto phi_rng = phi.from_R_rdr_to_N_bins(-PI + 0.02, 0.1);
-  auto eta_rng = eta.from_R_rdr_to_N_bins(1.3, .2);
-  printf("phi bin range: %u, %u; eta %u, %u\n", phi_rng.begin, phi_rng.end, eta_rng.begin, eta_rng.end);
-  for (auto i_phi = phi_rng.begin; i_phi != phi_rng.end; i_phi = phi.next_N_bin(i_phi)) {
-    for (auto i_eta = eta_rng.begin; i_eta != eta_rng.end; i_eta = eta.next_N_bin(i_eta)) {
-      printf(" at i_phi=%u, i_eta=%u\n", i_phi, i_eta);
-      auto cbin = b.get_content(i_phi, i_eta);
-      for (auto i = cbin.first; i < cbin.first + cbin.count; ++i) {
-        const track &t = tracks[b.m_ranks[i]];
-        printf("   %3d  %3d  phi=%f  eta=%f\n", i, b.m_ranks[i], t.phi, t.eta);
+    printf("\n\n--- Range access for phi=[(-PI+0.02 +- 0.1], eta=[1.3 +- .2]:\n\n");
+    auto phi_rng = phi.from_R_rdr_to_N_bins(-PI + 0.02, 0.1);
+    auto eta_rng = eta.from_R_rdr_to_N_bins(1.3, .2);
+    printf("phi bin range: %u, %u; eta %u, %u\n", phi_rng.begin, phi_rng.end, eta_rng.begin, eta_rng.end);
+    for (auto i_phi = phi_rng.begin; i_phi != phi_rng.end; i_phi = phi.next_N_bin(i_phi)) {
+      for (auto i_eta = eta_rng.begin; i_eta != eta_rng.end; i_eta = eta.next_N_bin(i_eta)) {
+        printf(" at i_phi=%u, i_eta=%u\n", i_phi, i_eta);
+        auto cbin = b.get_content(i_phi, i_eta);
+        for (auto i = cbin.first; i < cbin.first + cbin.count; ++i) {
+          const track &t = tracks[b.m_ranks[i]];
+          printf("   %3d  %3d  phi=%f  eta=%f\n", i, b.m_ranks[i], t.phi, t.eta);
+        }
       }
     }
   }
 
-  printf("\nProcessing time for %d points: %f sec (filling %f sec, sort + binning %f sec)\n",
-         NN,
-         1.e-6 * duration.count(),
-         1.e-6 * fill_duration.count(),
-         1.e-6 * sort_duration.count());
+  printf("\nProcessing time for %d times %d points: %f sec (filling %f sec, sort + binning %f sec)\n",
+         NLoop, NN,
+         1.e-9 * duration.count(),
+         1.e-9 * fill_duration.count(),
+         1.e-9 * sort_duration.count());
 
   b.reset_contents();
 
