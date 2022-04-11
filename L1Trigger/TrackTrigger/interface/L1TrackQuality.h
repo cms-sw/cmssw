@@ -4,8 +4,8 @@ Track Quality Header file
 C.Brown 28/07/20
 */
 
-#ifndef L1Trigger_TrackTrigger_interface_TrackQuality_h
-#define L1Trigger_TrackTrigger_interface_TrackQuality_h
+#ifndef L1Trigger_TrackTrigger_interface_L1TrackQuality_h
+#define L1Trigger_TrackTrigger_interface_L1TrackQuality_h
 
 #include <iostream>
 #include <set>
@@ -26,25 +26,25 @@ C.Brown 28/07/20
 #include "DataFormats/L1TrackTrigger/interface/TTTrack.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
-class TrackQuality {
+class L1TrackQuality {
 public:
-  // Enum class used for determining prediction behaviour in setTrackQuality
+  // Enum class used for determining prediction behaviour in setL1TrackQuality
   enum class QualityAlgorithm { Cut, GBDT, NN, None };
 
   //Default Constructor
-  TrackQuality();
+  L1TrackQuality();
 
-  TrackQuality(const edm::ParameterSet& qualityParams);
+  L1TrackQuality(const edm::ParameterSet& qualityParams);
 
   //Default Destructor
-  ~TrackQuality() = default;
+  ~L1TrackQuality() = default;
 
   // Controls the conversion between TTTrack features and ML model training features
   std::vector<float> featureTransform(TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
                                       std::vector<std::string> const& featureNames);
 
   // Passed by reference a track without MVA filled, method fills the track's MVA field
-  void setTrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
+  void setL1TrackQuality(TTTrack<Ref_Phase2TrackerDigi_>& aTrack);
 
   // To set private member data
   void setCutParameters(std::string const& AlgorithmString,
