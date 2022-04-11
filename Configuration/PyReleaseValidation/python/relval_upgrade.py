@@ -49,6 +49,10 @@ for year in upgradeKeys:
                                 stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','MiniAOD').replace('RecoNano','MiniAOD').replace('Reco','MiniAOD'),specialWF.suffix))
                                 if 'RecoNano' in step:
                                     stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoNano','Nano'),specialWF.suffix))
+                        # hack to add extra HLT75e33 step for Phase-2
+                        if 'HLT75e33' in specialType:
+                            if 'RecoGlobal' in step:
+                                stepList[specialType].append(stepMaker(key,frag[:-4],step.replace('RecoGlobal','HLT75e33'),specialWF.suffix))
                         # similar hacks for premixing
                         if 'PMX' in specialType:
                             if 'GenSim' in step:
