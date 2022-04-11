@@ -53,6 +53,8 @@ namespace edm {
   public:
     /// self type
     typedef AssociationMap<Tag> self;
+    /// tag/association type
+    typedef Tag tag_type;
     /// index type
     typedef typename Tag::index_type index_type;
     /// insert key type
