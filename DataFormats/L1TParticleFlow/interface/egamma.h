@@ -1,5 +1,5 @@
-#ifndef DataFormats_L1TParticleFlow_h
-#define DataFormats_L1TParticleFlow_h
+#ifndef DataFormats_L1TParticleFlow_egamma_h
+#define DataFormats_L1TParticleFlow_egamma_h
 
 #include "DataFormats/L1TParticleFlow/interface/datatypes.h"
 #include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"

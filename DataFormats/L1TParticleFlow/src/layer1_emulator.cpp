@@ -1,6 +1,4 @@
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
-//#include "DataFormats/L1TParticleFlow/interface/emulator_io.h"
-//#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
 #include <cmath>
 #include <iostream>
 #include <cstdlib>

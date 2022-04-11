@@ -19,7 +19,6 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-//#include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/l1-converters/tracks/tkinput_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/l1-converters/tracks/tkinput_ref.cpp"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/l1-converters/muons/muonGmtToL1ct_ref.h"
