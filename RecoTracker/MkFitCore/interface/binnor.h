@@ -52,8 +52,8 @@ namespace mkfit {
       assert(N_size <= (1 << N));
     }
 
-    I from_R_to_M_bin(R r) const { return (r - m_R_min) * m_M_fac; }
-    I from_R_to_N_bin(R r) const { return (r - m_R_min) * m_N_fac; }
+    I from_R_to_M_bin(R r) const { return std::floor((r - m_R_min) * m_M_fac); }
+    I from_R_to_N_bin(R r) const { return std::floor((r - m_R_min) * m_N_fac); }
 
     I from_R_to_M_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_M_bin : from_R_to_M_bin(r)); }
     I from_R_to_N_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_N_bin : from_R_to_N_bin(r)); }
