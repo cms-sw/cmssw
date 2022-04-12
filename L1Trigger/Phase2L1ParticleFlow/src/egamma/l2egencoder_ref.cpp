@@ -1,4 +1,4 @@
-#include "l2egencoder_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/l2egencoder_ref.h"
 
 using namespace l1ct;
 

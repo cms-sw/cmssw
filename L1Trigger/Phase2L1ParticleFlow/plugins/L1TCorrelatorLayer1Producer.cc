@@ -37,11 +37,10 @@
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo_dummy_ref.cpp"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/puppi/linpuppi_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/puppi/linpuppi_ref.cpp"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/egamma/pftkegalgo_ref.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/egamma/pftkegalgo_ref.cpp"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pftkegalgo_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo_common_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/pf/pfalgo_common_ref.cpp"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/egamma/pftkegsorter_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pftkegsorter_ref.h"
 
 #include "DataFormats/L1TCorrelator/interface/TkElectron.h"
 #include "DataFormats/L1TCorrelator/interface/TkElectronFwd.h"

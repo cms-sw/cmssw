@@ -1,4 +1,4 @@
-#include "pfeginput_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/pfeginput_ref.h"
 
 using namespace l1ct;
 

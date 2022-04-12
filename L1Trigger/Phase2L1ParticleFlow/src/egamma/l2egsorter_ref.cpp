@@ -1,4 +1,4 @@
-#include "l2egsorter_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/egamma/l2egsorter_ref.h"
 
 #include <cmath>
 #include <cstdio>
