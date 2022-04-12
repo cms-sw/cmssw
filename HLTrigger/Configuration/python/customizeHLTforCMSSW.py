@@ -136,11 +136,20 @@ def customisePixelL1ClusterThresholdForRun2Input(process):
 
     return process
 
+def customiseCTPPSFor2018Input(process):
+    for prod in producers_by_type(process, 'CTPPSGeometryESModule'):
+        prod.isRun2 = True
+    for prod in producers_by_type(process, 'CTPPSPixelRawToDigi'):
+        prod.isRun3 = False
+
+    return process
+
 def customiseFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC"""
     process = customisePixelGainForRun2Input(process)
     process = customisePixelL1ClusterThresholdForRun2Input(process)
     process = customiseHCALFor2018Input(process)
+    process = customiseCTPPSFor2018Input(process)
 
     return process
 
