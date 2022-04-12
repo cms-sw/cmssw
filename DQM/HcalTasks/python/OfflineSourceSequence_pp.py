@@ -44,6 +44,14 @@ hcalOnlyOfflineSourceSequenceGPU = cms.Sequence(
 from Configuration.ProcessModifiers.gpuValidationHcal_cff import gpuValidationHcal
 gpuValidationHcal.toReplaceWith(hcalOnlyOfflineSourceSequence, hcalOnlyOfflineSourceSequenceGPU)
 
+from Configuration.Eras.Modifier_run2_HCAL_2018_cff import run2_HCAL_2018
+run2_HCAL_2018.toModify(hcalGPUComparisonTask,
+    tagHBHE_ref = "hbheprereco@cpu",
+    tagHBHE_target = "hbheprereco@cuda"
+)
+run2_HCAL_2018.toModify(recHitTask,
+    tagHBHE = "hbheprereco"
+)
 
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
 _phase1_hcalOnlyOfflineSourceSequence = hcalOnlyOfflineSourceSequence.copy()
