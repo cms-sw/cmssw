@@ -13,7 +13,7 @@ unset INTEL_LICENSE_FILE
 make -j 16 AVX_512:=1 WITH_ROOT=1
 
 # To build with icc, do the above except for make, then:
-# if [ -z ${INTEL_LICENSE_FILE+x} ]; then INTEL_LICENSE_FILE=1; fi
+# if [ -z ${INTEL_LICENSE_FILE+x} ]; then export INTEL_LICENSE_FILE=1; fi
 # source /opt/intel/oneapi/compiler/latest/env/vars.sh
 # source /opt/intel/oneapi/tbb/latest/env/vars.sh
 # make -j 16 AVX_512:=1 WITH_ROOT=1
