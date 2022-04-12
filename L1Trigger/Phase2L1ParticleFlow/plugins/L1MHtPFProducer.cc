@@ -15,7 +15,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 // bitwise emulation headers
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/jetmet/L1PFHtEmulator.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1PFHtEmulator.h"
 
 class L1MhtPfProducer : public edm::global::EDProducer<> {
 public:

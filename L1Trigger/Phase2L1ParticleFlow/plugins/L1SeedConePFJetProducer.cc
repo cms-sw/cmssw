@@ -14,8 +14,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 // bitwise emulation headers
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/jetmet/L1SeedConePFJetEmulator.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/jetmet/L1SeedConePFJetEmulator.cc"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1SeedConePFJetEmulator.h"
 #include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
 
 class L1SeedConePFJetProducer : public edm::global::EDProducer<> {

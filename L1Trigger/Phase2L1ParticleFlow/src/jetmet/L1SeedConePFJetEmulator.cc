@@ -1,4 +1,4 @@
-#include "L1SeedConePFJetEmulator.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/jetmet/L1SeedConePFJetEmulator.h"
 
 L1SCJetEmu::L1SCJetEmu(bool debug, float coneSize, unsigned nJets)
     : debug_(debug),
