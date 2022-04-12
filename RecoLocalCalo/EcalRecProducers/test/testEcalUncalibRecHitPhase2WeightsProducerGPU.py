@@ -23,7 +23,7 @@ process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
-process.load('RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2GPU_cff')
+process.load('RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cff')
 process.load('RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi')
 
 process.maxEvents = cms.untracked.PSet(
