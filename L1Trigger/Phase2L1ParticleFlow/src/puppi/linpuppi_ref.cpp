@@ -1,12 +1,7 @@
-#include "linpuppi_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/puppi/linpuppi_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/puppi/linpuppi_bits.h"
 #include <cmath>
 #include <algorithm>
-
-#ifdef CMSSW_GIT_HASH
-#include "linpuppi_bits.h"
-#else
-#include "firmware/linpuppi_bits.h"
-#endif
 
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_hybrid_sort_ref.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/common/bitonic_sort_ref.h"
