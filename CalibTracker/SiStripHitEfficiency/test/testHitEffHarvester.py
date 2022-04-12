@@ -1,7 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register("isUnitTest",
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "are we running the unit test")
+options.parseArguments()
+
 process = cms.Process("HitEffHarvest")
-process.load("Configuration/StandardSequences/MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
@@ -16,7 +25,7 @@ process.source = cms.Source("DQMRootSource",
 
 runNumber = 325172
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.hiteffharvest = cms.EDProducer("SiStripHitEfficiencyHarvester",
     Threshold           = cms.double(0.1),
@@ -34,20 +43,33 @@ process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
 process.allPath = cms.Path(process.hiteffharvest*process.DQMSaver)
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations = cms.untracked.vstring(
-        "log_hiteffharvest"
+if(options.isUnitTest):
+    process.MessageLogger.cerr.enable = False
+    process.MessageLogger.TkHistoMap = dict()
+    process.MessageLogger.SiStripHitEfficiency = dict()  
+    process.MessageLogger.cout = cms.untracked.PSet(
+        enable    = cms.untracked.bool(True),        
+        threshold = cms.untracked.string("INFO"),
+        enableStatistics = cms.untracked.bool(True),
+        default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
+        FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
+                                       reportEvery = cms.untracked.int32(1)),
+        TkHistoMap = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+        SiStripHitEfficiency = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+    )
+else:
+    process.MessageLogger = cms.Service(
+        "MessageLogger",
+        destinations = cms.untracked.vstring("log_hiteffharvest"),
+        log_hiteffharvest = cms.untracked.PSet(
+            threshold = cms.untracked.string("DEBUG"),
+            default = cms.untracked.PSet(
+                limit = cms.untracked.int32(-1)
+            )
         ),
-    log_hiteffharvest = cms.untracked.PSet(
-        threshold = cms.untracked.string("DEBUG"),
-        default = cms.untracked.PSet(
-        limit = cms.untracked.int32(-1)
-        )
-    ),
-    debugModules = cms.untracked.vstring("hiteffharvest"),
-    categories=cms.untracked.vstring("TkHistoMap", "SiStripHitEfficiency:HitEff", "SiStripHitEfficiency")
-)
+        debugModules = cms.untracked.vstring("hiteffharvest"),
+        categories=cms.untracked.vstring("TkHistoMap", "SiStripHitEfficiency:HitEff", "SiStripHitEfficiency")
+    )
 
 process.TFileService = cms.Service("TFileService",
         fileName = cms.string('SiStripHitEffHistos_run{0:d}_NEW.root'.format(runNumber))
