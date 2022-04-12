@@ -237,10 +237,6 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
           phi_jet2_->Fill(jet2.phi());
           eta_phi_jet1_->Fill(jet1.eta(), jet1.phi());
           eta_phi_jet2_->Fill(jet2.eta(), jet2.phi());
-          if (btag1 < 0)
-            btag1 = -0.5;
-          if (btag2 < 0)
-            btag2 = -0.5;
           discr_offline_btag_jet1_->Fill(btag1);
           discr_offline_btag_jet2_->Fill(btag2);
 
@@ -259,9 +255,9 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
             }
           }
           for (auto const& to : onlinebtags) {
-            if (reco::deltaR(jet1, to))
+            if (reco::deltaR(jet1, to) < 0.3)
               match1 = true;
-            if (reco::deltaR(jet2, to))
+            if (reco::deltaR(jet2, to) < 0.3)
               match2 = true;
           }
 
