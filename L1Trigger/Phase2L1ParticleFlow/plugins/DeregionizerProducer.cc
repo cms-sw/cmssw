@@ -7,10 +7,8 @@
 
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/deregionizer/deregionizer_input.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/deregionizer/deregionizer_ref.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/deregionizer/deregionizer_input.cpp"
-#include "L1Trigger/Phase2L1ParticleFlow/src/newfirmware/deregionizer/deregionizer_ref.cpp"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/deregionizer/deregionizer_input.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/deregionizer/deregionizer_ref.h"
 
 class DeregionizerProducer : public edm::stream::EDProducer<> {
 public:

@@ -1,5 +1,5 @@
-#ifndef L1Trigger_Phase2L1ParticleFlow_newfirmware_deregionizer_input_h
-#define L1Trigger_Phase2L1ParticleFlow_newfirmware_deregionizer_input_h
+#ifndef L1Trigger_Phase2L1ParticleFlow_deregionizer_input_h
+#define L1Trigger_Phase2L1ParticleFlow_deregionizer_input_h
 
 #include <vector>
 #include "DataFormats/L1TParticleFlow/interface/layer1_emulator.h"

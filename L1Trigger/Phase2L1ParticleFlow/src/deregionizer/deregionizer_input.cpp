@@ -1,8 +1,7 @@
 #include <fstream>
 #include <cmath>
 #include <vector>
-#include "deregionizer_input.h"
-
+#include "L1Trigger/Phase2L1ParticleFlow/interface/deregionizer/deregionizer_input.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 l1ct::DeregionizerInput::DeregionizerInput(std::vector<float> &regionEtaCenter,

@@ -1,5 +1,5 @@
-#ifndef L1Trigger_Phase2L1ParticleFlow_newfirmware_deregionizer_ref_h
-#define L1Trigger_Phase2L1ParticleFlow_newfirmware_deregionizer_ref_h
+#ifndef L1Trigger_Phase2L1ParticleFlow_deregionizer_ref_h
+#define L1Trigger_Phase2L1ParticleFlow_deregionizer_ref_h
 
 #include <vector>
 #include "deregionizer_input.h"
