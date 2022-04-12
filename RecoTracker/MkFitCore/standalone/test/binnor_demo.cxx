@@ -1,26 +1,70 @@
-#include "../../interface/binnor.h"
 #include <random>
 #include <chrono>
 
 #include "../../interface/radix_sort.h"
+#include "../../src/radix_sort.cc"
+#include "../../interface/binnor.h"
 
 // build as:
-// c++ -o binnor_demo -std=c++17 binnor_demo.cxx
-// with radix_sort:
-// c++ -o binnor_demo -O3 -mavx2 -std=c++17 binnor_demo.cxx -I../../../.. ../../src/radix_sort.cc
+// c++ -o binnor_demo -O3 -mavx2 -std=c++17 -I../../../.. binnor_demo.cxx
+
+bool print_axis_binnor = true;
+bool print_bin_contents = true;
+
+void run_scan();
+void run_test(const int NLoop, int NN, const bool use_radix = true, const bool keep_cons = false);
 
 using namespace mkfit;
 
-int main() {
+int main()
+{
+  bool use_radix = true;
+  bool keep_cons = false;
+  run_test(100, 10000, use_radix, keep_cons);
+
+  // Run scan over low N-elements to see where radix starts to make more sense.
+  // NOTE: In binnor.h, finalize_registration(), comment-out the existing heuristics
+  // that uses std::sort over radix when NN < 256 (128 with keep_cons).
+  // run_scan();
+
+}
+
+// -------------------------------------------------------------
+
+void run_scan()
+{
+  print_axis_binnor = false;
+  print_bin_contents = false;
+
+  const bool radix[] = { true, true, false, false };
+  const bool keepc[] = { false, true, false, true };
+
+  for (int t = 0; t < 4; ++t) {
+    printf("RADIX=%s  KEEP-CONS=%s\n", radix[t] ? "true" : "false", keepc[t] ? "true" : "false");
+    for (int i = 100; i <= 400; i += 10) {
+      run_test(100000, i, radix[t], keepc[t]);
+    }
+    printf("\n");
+  }
+}
+
+// -------------------------------------------------------------
+
+void run_test(const int NLoop, int NN, const bool use_radix, const bool keep_cons) {
   constexpr float PI = 3.14159265358979323846;
   constexpr float TwoPI = 6.28318530717958647692;
   constexpr float PIOver2 = PI / 2.0f;
   constexpr float PIOver4 = PI / 4.0f;
 
   axis_pow2_u1<float, unsigned short, 16, 8> phi(-PI, PI);
+  axis<float, unsigned short, 16, 8> eta(-2.6, 2.6, 20u);
+  binnor<unsigned int, decltype(phi), decltype(eta), 18, 14> b(phi, eta, use_radix, keep_cons);
 
-  printf("Axis phi: M-bits=%d, N-bits=%d  Masks M:0x%x N:0x%x\n", phi.c_M, phi.c_N, phi.c_M_mask, phi.c_N_mask);
-
+  if (print_axis_binnor) {
+    printf("Axis phi: M-bits=%d, N-bits=%d  Masks M:0x%x N:0x%x\n", phi.c_M, phi.c_N, phi.c_M_mask, phi.c_N_mask);
+    printf("Axis eta: M-bits=%d, N-bits=%d  m_bins=%d n_bins=%d\n", eta.c_M, eta.c_N, eta.size_of_M(), eta.size_of_N());
+    printf("Have binnor, size of vec = %zu, sizeof(C_pair) = %d\n", b.m_bins.size(), sizeof(decltype(b)::C_pair));
+  }
   /*
     for (float p = -TwoPI; p < TwoPI; p += TwoPI / 15.4f) {
         printf("  phi=%-9f m=%5d n=%3d m2n=%3d n_safe=%3d\n", p,
@@ -29,21 +73,6 @@ int main() {
                phi.from_R_to_N_bin_safe(p) );
     }
     */
-
-  axis<float, unsigned short, 16, 8> eta(-2.6, 2.6, 20u);
-
-  printf("Axis eta: M-bits=%d, N-bits=%d  m_bins=%d n_bins=%d\n", eta.c_M, eta.c_N, eta.size_of_M(), eta.size_of_N());
-
-  const int NLoop = 100; // Number of time to repeat the loop.
-  const int NN = 1000;   // Number of tracks (eta, phi pairs) to bin.
-  const bool print_bin_contents = false;
-  const bool use_radix = true; // NOTE: radix_sort will automatically switch to std::sort for NN < 128
-  const bool keep_cons = true;
-
-  binnor<unsigned int, decltype(phi), decltype(eta), 18, 14> b(phi, eta, use_radix, keep_cons);
-
-  // typedef typeof(b) type_b;
-  printf("Have binnor, size of vec = %zu, sizeof(C_pair) = %d\n", b.m_bins.size(), sizeof(decltype(b)::C_pair));
 
   std::mt19937 rnd(std::random_device{}());
   std::uniform_real_distribution<float> d_phi(-PI, PI);
@@ -60,6 +89,7 @@ int main() {
   }
 
   std::chrono::duration<long long, std::nano> duration, fill_duration, sort_duration;
+  duration = fill_duration = sort_duration = std::chrono::nanoseconds::zero();
 
   for (int n_loop = 0; n_loop < NLoop; ++n_loop) {
     b.reset_contents(false); // do not shrink the vectors
@@ -113,15 +143,12 @@ int main() {
         }
       }
     }
+    printf("\n");
   }
 
-  printf("\nProcessing time for %d times %d points: %f sec (filling %f sec, sort + binning %f sec)\n",
+  printf("Processing time for %d times %d points: %f sec (filling %f sec, sort + binning %f sec)\n",
          NLoop, NN,
          1.e-9 * duration.count(),
          1.e-9 * fill_duration.count(),
          1.e-9 * sort_duration.count());
-
-  b.reset_contents();
-
-  return 0;
 }

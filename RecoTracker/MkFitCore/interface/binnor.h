@@ -282,7 +282,7 @@ namespace mkfit {
 
     void finalize_registration() {
       unsigned int n_entries = m_do_masked ? m_cons_masked.size() : m_cons.size();
-      if (m_radix_sort && n_entries >= 128) {
+      if (m_radix_sort && n_entries >= (m_keep_cons ? 128 : 256)) {
         radix_sort<unsigned int, C> radix;
         radix.sort(m_cons_masked, m_ranks);
       } else {
