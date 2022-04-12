@@ -12,4 +12,4 @@ namespace cms {
 #endif
     });
   }
-}
+}  // namespace cms
