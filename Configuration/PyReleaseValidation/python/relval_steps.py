@@ -3595,10 +3595,10 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--geometry' : geom
                                       }
     
-    upgradeStepDict['HLT75e33'][k] = {'-s':'HLT:75e33',
+    upgradeStepDict['HLT75e33'][k] = {'-s':'HLT:@relval2026',
                                       '--processName':'HLTX',
                                       '--conditions':gt,
-                                      '--datatier':'GEN-SIM-RECO',
+                                      '--datatier':'FEVT',
                                       '-n':'10',
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
