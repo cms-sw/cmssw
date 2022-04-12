@@ -1,8 +1,4 @@
-#ifdef CMSSW_GIT_HASH
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
-#else
-#include "../../utils/dbgPrintf.h"
-#endif
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 template <typename T>
 void l1ct::multififo_regionizer::maybe_push(const T& t,

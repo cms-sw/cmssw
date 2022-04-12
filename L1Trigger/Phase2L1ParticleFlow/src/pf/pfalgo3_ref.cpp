@@ -1,16 +1,11 @@
-#include "pfalgo3_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/pf/pfalgo3_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #include <cmath>
 #include <cstdio>
 #include <algorithm>
 #include <vector>
 #include <memory>
-
-#ifdef CMSSW_GIT_HASH
-#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
-#else
-#include "../../utils/dbgPrintf.h"
-#endif
 
 #ifdef CMSSW_GIT_HASH
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

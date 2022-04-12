@@ -1,9 +1,8 @@
 #ifndef tdr_regionizer_ref_h
 #define tdr_regionizer_ref_h
 
-#include "../common/regionizer_base_ref.h"
-
-#include "tdr_regionizer_elements_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/regionizer_base_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/tdr_regionizer_elements_ref.h"
 
 namespace edm {
   class ParameterSet;

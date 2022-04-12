@@ -1,4 +1,4 @@
-#include "hgcalinput_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/l1-converters/hgcalinput_ref.h"
 
 l1ct::HgcalClusterDecoderEmulator::~HgcalClusterDecoderEmulator() {}
 

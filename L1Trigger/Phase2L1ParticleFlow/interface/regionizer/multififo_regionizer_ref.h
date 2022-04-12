@@ -1,10 +1,9 @@
 #ifndef multififo_regionizer_ref_h
 #define multififo_regionizer_ref_h
 
-#include "../common/regionizer_base_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/regionizer_base_ref.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/regionizer/multififo_regionizer_elements_ref.h"
 #include <memory>
-
-#include "multififo_regionizer_elements_ref.h"
 
 namespace edm {
   class ParameterSet;
