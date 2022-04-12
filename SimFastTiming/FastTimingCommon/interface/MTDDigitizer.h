@@ -179,7 +179,10 @@ namespace mtd_digitizer {
   void MTDDigitizer<Traits>::accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre) {
     edm::Handle<edm::PSimHitContainer> simHits;
     e.getByLabel(inputSimHits_, simHits);
-    accumulate(simHits, 0, hre);
+    if (simHits.isValid())
+      accumulate(simHits, 0, hre);
+    else
+      edm::LogWarning("MTDMix") << "MTDDigitizer:: Cannot find hits for " << inputSimHits_;
   }
 
   template <class Traits>
@@ -188,7 +191,10 @@ namespace mtd_digitizer {
                                         CLHEP::HepRandomEngine* hre) {
     edm::Handle<edm::PSimHitContainer> simHits;
     e.getByLabel(inputSimHits_, simHits);
-    accumulate(simHits, e.bunchCrossing(), hre);
+    if (simHits.isValid())
+      accumulate(simHits, e.bunchCrossing(), hre);
+    else
+      edm::LogWarning("MTDMix") << "MTDDigitizer:: Cannot find hits for " << inputSimHits_;
   }
 
   template <class Traits>
