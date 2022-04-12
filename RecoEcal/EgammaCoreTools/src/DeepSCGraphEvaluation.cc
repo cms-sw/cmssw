@@ -96,7 +96,6 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
       nItems = nInputs;
       nInputs = 0;
     }
-    // Input tensors initialization
 
     // Inputs
     tensorflow::Tensor clsX_{tensorflow::DT_FLOAT,
@@ -108,34 +107,31 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
     tensorflow::Tensor isSeedX_{tensorflow::DT_FLOAT, {static_cast<long int>(nItems), cfg_.maxNClusters, 1}};
     tensorflow::Tensor nClsSize_{tensorflow::DT_FLOAT, {static_cast<long int>(nItems)}};
 
-    float* C = clsX_.flat<float>().data();
     // Look on batch dim
     for (size_t b = 0; b < nItems; b++) {
       const auto& cls_data = inputs.clustersX[iB * cfg_.batchSize + b];
       // Loop on clusters
       for (size_t k = 0; k < cfg_.maxNClusters; k++) {
         // Loop on features
-        for (size_t z = 0; z < cfg_.nClusterFeatures; z++, C++) {
+        for (size_t z = 0; z < cfg_.nClusterFeatures; z++) {
           if (k < cls_data.size()) {
-            *C = float(cls_data[k][z]);
+            clsX_.tensor<float, 3>()(b, k, z) = float(cls_data[k][z]);
           } else {
-            *C = 0.;
+            clsX_.tensor<float, 3>()(b, k, z) = 0.;
           }
         }
       }
     }
 
-    float* W = windX_.flat<float>().data();
     // Look on batch dim
     for (size_t b = 0; b < nItems; b++) {
       const auto& wind_features = inputs.windowX[iB * cfg_.batchSize + b];
       // Loop on features
-      for (size_t k = 0; k < cfg_.nWindowFeatures; k++, W++) {
-        *W = float(wind_features[k]);
+      for (size_t k = 0; k < cfg_.nWindowFeatures; k++) {
+        windX_.matrix<float>()(b, k) = float(wind_features[k]);
       }
     }
 
-    float* H = hitsX_.flat<float>().data();
     // Look on batch dim
     for (size_t b = 0; b < nItems; b++) {
       const auto& hits_data = inputs.hitsX[iB * cfg_.batchSize + b];
@@ -154,33 +150,31 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
           // Check the number of clusters and hits for padding
           bool ok = j < nhits_in_cluster;
           // Loop on rechits features
-          for (size_t z = 0; z < cfg_.nRechitsFeatures; z++, H++) {
+          for (size_t z = 0; z < cfg_.nRechitsFeatures; z++) {
             if (ok)
-              *H = float(hits_data[k][j][z]);
+              hitsX_.tensor<float, 4>()(b, k, j, z) = float(hits_data[k][j][z]);
             else
-              *H = 0.;
+              hitsX_.tensor<float, 4>()(b, k, j, z) = 0.;
           }
         }
       }
     }
 
-    float* S = isSeedX_.flat<float>().data();
     // Look on batch dim
     for (size_t b = 0; b < nItems; b++) {
       const auto& isSeed_data = inputs.isSeed[iB * cfg_.batchSize + b];
       // Loop on clusters
-      for (size_t k = 0; k < cfg_.maxNClusters; k++, S++) {
+      for (size_t k = 0; k < cfg_.maxNClusters; k++) {
         if (k < isSeed_data.size()) {
-          *S = float(isSeed_data[k]);
+          isSeedX_.tensor<float, 3>()(b, k, 0) = float(isSeed_data[k]);
         } else {
-          *S = 0.;
+          isSeedX_.tensor<float, 3>()(b, k, 0) = 0.;
         }
       }
     }
 
-    float* M = nClsSize_.flat<float>().data();
-    for (size_t b = 0; b < nItems; b++, M++) {
-      *M = float(inputs.clustersX[iB * cfg_.batchSize + b].size());
+    for (size_t b = 0; b < nItems; b++) {
+      nClsSize_.vec<float>()(b) = float(inputs.clustersX[iB * cfg_.batchSize + b].size());
     }
 
     std::vector<std::pair<std::string, tensorflow::Tensor>> feed_dict = {
@@ -193,13 +187,14 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
     LogDebug("DeepSCGraphEvaluation") << "Run model";
     tensorflow::run(session_, feed_dict, {"cl_class", "wind_class"}, &outputs_tf);
     // Reading the 1st output: clustering probability
-    float* y_cl = outputs_tf[0].flat<float>().data();
+    const auto& y_cl = outputs_tf[0].tensor<float, 3>();
     // Iterate on the clusters for each window
     for (size_t b = 0; b < nItems; b++) {
       uint ncls = inputs.clustersX[iB * cfg_.batchSize + b].size();
       std::vector<float> cl_output(ncls);
       for (size_t c = 0; c < ncls; c++) {
-        float y = y_cl[b * cfg_.maxNClusters + c];
+        //float y = y_cl[b * cfg_.maxNClusters + c];
+        float y = y_cl(b, c, 0);
         // Applying sigmoid to logit
         cl_output[c] = 1 / (1 + std::exp(-y));
       }
