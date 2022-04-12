@@ -10,16 +10,14 @@ MPCleanHitsFilter::MPCleanHitsFilter(const ParameterSet &pset) : MPFilter(pset) 
   // Obtention of parameters
   debug_ = pset.getUntrackedParameter<bool>("debug");
 
-  timeTolerance_ = pset.exists("timeTolerance") ? pset.getParameter<int>("timeTolerance") : 999999;
+  timeTolerance_ = pset.getParameter<int>("timeTolerance");
   // probably something close to the max time drift (400ns/2) is a reasonable value
 }
 void MPCleanHitsFilter::run(edm::Event &iEvent,
                             const edm::EventSetup &iEventSetup,
                             MuonPathPtrs &inMPaths,
                             MuonPathPtrs &outMPaths) {
-  int counter = 0;
   for (const auto &mpath : inMPaths) {
-    ++counter;
     auto mpAux = std::make_shared<MuonPath>(*mpath);
     removeOutliers(mpAux);  // remove hits that are more than 1 bX from the meantime.
 

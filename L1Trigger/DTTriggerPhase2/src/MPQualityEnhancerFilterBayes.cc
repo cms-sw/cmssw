@@ -233,10 +233,7 @@ void MPQualityEnhancerFilterBayes::filterCousins(std::vector<metaPrimitive> &inM
   // double bestChi2 = 9999;
 
   // At the beginning, we want to keep all mpaths
-  bool keep_this[inMPaths.size()];
-  for (unsigned int k = 0; k < inMPaths.size(); k++) {
-    keep_this[k] = true;
-  }
+  std::vector<bool> keep_this(inMPaths.size(), true);
 
   // If we have just one mpath, save it
   if (inMPaths.size() == 1) {
