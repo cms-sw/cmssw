@@ -578,21 +578,23 @@ namespace edm {
           auto aliasedToModuleLabels = info.getParameterNames();
           for (auto const& mod : aliasedToModuleLabels) {
             if (not mod.empty() and mod[0] != '@' and conditionalmods.find(mod) != conditionalmods.end()) {
-              auto aliasPSet = proc_pset.getParameter<edm::ParameterSet>(mod);
-              std::string type = star;
-              std::string instance = star;
-              std::string originalInstance = star;
-              if (aliasPSet.exists("type")) {
-                type = aliasPSet.getParameter<std::string>("type");
-              }
-              if (aliasPSet.exists("toProductInstance")) {
-                instance = aliasPSet.getParameter<std::string>("toProductInstance");
-              }
-              if (aliasPSet.exists("fromProductInstance")) {
-                originalInstance = aliasPSet.getParameter<std::string>("fromProductInstance");
-              }
+              auto aliasVPSet = info.getParameter<std::vector<edm::ParameterSet>>(mod);
+              for (auto const& aliasPSet : aliasVPSet) {
+                std::string type = star;
+                std::string instance = star;
+                std::string originalInstance = star;
+                if (aliasPSet.exists("type")) {
+                  type = aliasPSet.getParameter<std::string>("type");
+                }
+                if (aliasPSet.exists("toProductInstance")) {
+                  instance = aliasPSet.getParameter<std::string>("toProductInstance");
+                }
+                if (aliasPSet.exists("fromProductInstance")) {
+                  originalInstance = aliasPSet.getParameter<std::string>("fromProductInstance");
+                }
 
-              aliasMap.emplace(alias, AliasInfo{type, instance, originalInstance, mod});
+                aliasMap.emplace(alias, AliasInfo{type, instance, originalInstance, mod});
+              }
             }
           }
         }
