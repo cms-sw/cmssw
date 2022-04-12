@@ -1,3 +1,4 @@
+// user includes
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
@@ -14,7 +15,11 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+// ROOT includes
 #include "TEfficiency.h"
+
+// custom made printout
+#define LOGPRINT edm::LogPrint("SiStripHitEfficiencyHarvester")
 
 class SiStripHitEfficiencyHarvester : public DQMEDHarvester {
 public:
@@ -25,20 +30,22 @@ public:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
-  bool showRings_, autoIneffModTagging_, doStoreOnDB_;
-  unsigned int nTEClayers_;
+  const bool showRings_, autoIneffModTagging_, doStoreOnDB_;
+  const unsigned int nTEClayers_;
   std::string layerName(unsigned int k) const;
-  double threshold_;
-  int nModsMin_;
-  double tkMapMin_;
-  std::string title_, record_;
-  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const double threshold_;
+  const int nModsMin_;
+  const double tkMapMin_;
+  const std::string title_, record_;
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+
   std::unique_ptr<TrackerTopology> tTopo_;
-  edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
   std::unique_ptr<TkDetMap> tkDetMap_;
-  edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
   std::unique_ptr<SiStripQuality> stripQuality_;
-  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   std::vector<DetId> stripDetIds_;
 
   void writeBadStripPayload(const SiStripQuality& quality) const;
@@ -118,13 +125,11 @@ std::string SiStripHitEfficiencyHarvester::layerName(unsigned int k) const {
 }
 
 void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
-  // FIXME no stdout
   if (!autoIneffModTagging_)
-    std::cout << "A module is bad if efficiency < " << threshold_ << " and has at least " << nModsMin_ << " nModsMin."
-              << std::endl;
+    LOGPRINT << "A module is bad if efficiency < " << threshold_ << " and has at least " << nModsMin_ << " nModsMin.";
   else
-    std::cout << "A module is bad if the upper limit on the efficiency is < to the avg in the layer - " << threshold_
-              << " and has at least " << nModsMin_ << " nModsMin." << std::endl;
+    LOGPRINT << "A module is bad if the upper limit on the efficiency is < to the avg in the layer - " << threshold_
+             << " and has at least " << nModsMin_ << " nModsMin.";
 
   edm::Service<TFileService> fs;
 
@@ -170,19 +175,19 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
           // We have a bad module, put it in the list!
           badModules[det] = eff;
           tkMapBad.fillc(det, 255, 0, 0);
-          std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
-                    << " efficiency: " << eff << " , " << num << "/" << denom << std::endl;
+          LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
+                   << " efficiency: " << eff << " , " << num << "/" << denom;
         } else {
           //Fill the bad list with empty results for every module
           tkMapBad.fillc(det, 255, 255, 255);
         }
         if (eff < threshold_)
-          std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
-                    << " efficiency: " << eff << " , " << num << "/" << denom << std::endl;
+          LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
+                   << " efficiency: " << eff << " , " << num << "/" << denom;
 
         if (denom < nModsMin_) {
-          std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
-                    << " is under occupancy at " << denom << std::endl;
+          LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
+                   << " is under occupancy at " << denom;
         }
       }
       //Put any module into the TKMap
@@ -201,9 +206,8 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
       //Compute threshold to use for each layer
       hEffInLayer[i]->GetXaxis()->SetRange(3, hEffInLayer[i]->GetNbinsX() + 1);  // Remove from the avg modules below 1%
       const double layer_min_eff = hEffInLayer[i]->GetMean() - std::max(2.5 * hEffInLayer[i]->GetRMS(), threshold_);
-      std::cout << "Layer " << i << " threshold for bad modules: <" << layer_min_eff
-                << "  (layer mean: " << hEffInLayer[i]->GetMean() << " rms: " << hEffInLayer[i]->GetRMS() << ")"
-                << std::endl;
+      LOGPRINT << "Layer " << i << " threshold for bad modules: <" << layer_min_eff
+               << "  (layer mean: " << hEffInLayer[i]->GetMean() << " rms: " << hEffInLayer[i]->GetRMS() << ")";
 
       hEffInLayer[i]->GetXaxis()->SetRange(1, hEffInLayer[i]->GetNbinsX() + 1);
 
@@ -226,12 +230,11 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
             }
             if (eff_up < layer_min_eff + 0.08)  // printing message also for modules sligthly above (8%) the limit
 
-              std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
-                        << " efficiency: " << eff << " , " << num << "/" << denom << " , upper limit: " << eff_up
-                        << std::endl;
+              LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
+                       << " efficiency: " << eff << " , " << num << "/" << denom << " , upper limit: " << eff_up;
             if (denom < nModsMin_) {
-              std::cout << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId() << " layer "
-                        << layer << " is under occupancy at " << denom << std::endl;
+              LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId() << " layer "
+                       << layer << " is under occupancy at " << denom;
             }
           }
         }
@@ -257,10 +260,10 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
     //We need to figure out how many strips are in this particular module
     //To Mask correctly!
     const auto nStrips = detInfo.getNumberOfApvsAndStripLength(det).first * 128;
-    std::cout << "Number of strips module " << det << " is " << nStrips << std::endl;
+    LOGPRINT << "Number of strips module " << det << " is " << nStrips;
     badStripList.push_back(pQuality.encode(0, nStrips, 0));
     //Now compact into a single bad module
-    std::cout << "ID1 shoudl match list of modules above " << det << std::endl;
+    LOGPRINT << "ID1 shoudl match list of modules above " << det;
     pQuality.compact(det, badStripList);
     pQuality.put(det, SiStripQuality::Range(badStripList.begin(), badStripList.end()));
   }
@@ -272,7 +275,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   }
 
   printTotalStatistics(layerFound, layerTotal);  // statistics by layer and subdetector
-  //std::cout << "\n-----------------\nNew IOV starting from run " << e.id().run() << " event " << e.id().event()
+  //LOGPRINT << "\n-----------------\nNew IOV starting from run " << e.id().run() << " event " << e.id().event()
   //     << " lumiBlock " << e.luminosityBlock() << " time " << e.time().value() << "\n-----------------\n";
   printAndWriteBadModules(pQuality, detInfo);  // TODO
 
@@ -298,8 +301,8 @@ void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 
 
   for (Long_t i = 1; i <= 22; i++) {
     layereff = double(layerFound[i]) / double(layerTotal[i]);
-    std::cout << "Layer " << i << " (" << layerName(i) << ") has total efficiency " << layereff << " " << layerFound[i]
-              << "/" << layerTotal[i] << std::endl;
+    LOGPRINT << "Layer " << i << " (" << layerName(i) << ") has total efficiency " << layereff << " " << layerFound[i]
+             << "/" << layerTotal[i];
     totalfound += layerFound[i];
     totaltotal += layerTotal[i];
     if (i < 5) {
@@ -320,15 +323,15 @@ void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 
     }
   }
 
-  std::cout << "The total efficiency is " << double(totalfound) / double(totaltotal) << std::endl;
-  std::cout << "      TIB: " << double(subdetfound[1]) / subdettotal[1] << " " << subdetfound[1] << "/"
-            << subdettotal[1] << std::endl;
-  std::cout << "      TOB: " << double(subdetfound[2]) / subdettotal[2] << " " << subdetfound[2] << "/"
-            << subdettotal[2] << std::endl;
-  std::cout << "      TID: " << double(subdetfound[3]) / subdettotal[3] << " " << subdetfound[3] << "/"
-            << subdettotal[3] << std::endl;
-  std::cout << "      TEC: " << double(subdetfound[4]) / subdettotal[4] << " " << subdetfound[4] << "/"
-            << subdettotal[4] << std::endl;
+  LOGPRINT << "The total efficiency is " << double(totalfound) / double(totaltotal);
+  LOGPRINT << "      TIB: " << double(subdetfound[1]) / subdettotal[1] << " " << subdetfound[1] << "/"
+           << subdettotal[1];
+  LOGPRINT << "      TOB: " << double(subdetfound[2]) / subdettotal[2] << " " << subdetfound[2] << "/"
+           << subdettotal[2];
+  LOGPRINT << "      TID: " << double(subdetfound[3]) / subdettotal[3] << " " << subdetfound[3] << "/"
+           << subdettotal[3];
+  LOGPRINT << "      TEC: " << double(subdetfound[4]) / subdettotal[4] << " " << subdetfound[4] << "/"
+           << subdettotal[4];
 }
 
 void SiStripHitEfficiencyHarvester::writeBadStripPayload(const SiStripQuality& quality) const {
@@ -517,67 +520,65 @@ void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality
     if (percentage != 0)
       percentage /= 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
     if (percentage > 1)
-      edm::LogError("SiStripQualityStatistics")
-          << "PROBLEM detid " << det.rawId() << " value " << percentage << std::endl;
+      edm::LogError("SiStripQualityStatistics") << "PROBLEM detid " << det.rawId() << " value " << percentage;
   }
 
   // printout
-  std::cout << "\n-----------------\nGlobal Info\n-----------------";
-  std::cout << "\nBadComp \t	Modules \tFibers "
-               "\tApvs\tStrips\n----------------------------------------------------------------";
-  std::cout << "\nTracker:\t\t" << nTkBadComp[0] << "\t" << nTkBadComp[1] << "\t" << nTkBadComp[2] << "\t"
-            << nTkBadComp[3];
-  std::cout << std::endl;
-  std::cout << "\nTIB:\t\t\t" << nBadComp[0][0][0] << "\t" << nBadComp[0][0][1] << "\t" << nBadComp[0][0][2] << "\t"
-            << nBadComp[0][0][3];
-  std::cout << "\nTID:\t\t\t" << nBadComp[1][0][0] << "\t" << nBadComp[1][0][1] << "\t" << nBadComp[1][0][2] << "\t"
-            << nBadComp[1][0][3];
-  std::cout << "\nTOB:\t\t\t" << nBadComp[2][0][0] << "\t" << nBadComp[2][0][1] << "\t" << nBadComp[2][0][2] << "\t"
-            << nBadComp[2][0][3];
-  std::cout << "\nTEC:\t\t\t" << nBadComp[3][0][0] << "\t" << nBadComp[3][0][1] << "\t" << nBadComp[3][0][2] << "\t"
-            << nBadComp[3][0][3];
-  std::cout << "\n";
+  LOGPRINT << "\n-----------------\nGlobal Info\n-----------------";
+  LOGPRINT << "\nBadComp \t	Modules \tFibers "
+              "\tApvs\tStrips\n----------------------------------------------------------------";
+  LOGPRINT << "\nTracker:\t\t" << nTkBadComp[0] << "\t" << nTkBadComp[1] << "\t" << nTkBadComp[2] << "\t"
+           << nTkBadComp[3];
+  LOGPRINT << "\nTIB:\t\t\t" << nBadComp[0][0][0] << "\t" << nBadComp[0][0][1] << "\t" << nBadComp[0][0][2] << "\t"
+           << nBadComp[0][0][3];
+  LOGPRINT << "\nTID:\t\t\t" << nBadComp[1][0][0] << "\t" << nBadComp[1][0][1] << "\t" << nBadComp[1][0][2] << "\t"
+           << nBadComp[1][0][3];
+  LOGPRINT << "\nTOB:\t\t\t" << nBadComp[2][0][0] << "\t" << nBadComp[2][0][1] << "\t" << nBadComp[2][0][2] << "\t"
+           << nBadComp[2][0][3];
+  LOGPRINT << "\nTEC:\t\t\t" << nBadComp[3][0][0] << "\t" << nBadComp[3][0][1] << "\t" << nBadComp[3][0][2] << "\t"
+           << nBadComp[3][0][3];
+  LOGPRINT << "\n";
 
   for (int i = 1; i < 5; ++i)
-    std::cout << "\nTIB Layer " << i << " :\t\t" << nBadComp[0][i][0] << "\t" << nBadComp[0][i][1] << "\t"
-              << nBadComp[0][i][2] << "\t" << nBadComp[0][i][3];
-  std::cout << "\n";
+    LOGPRINT << "\nTIB Layer " << i << " :\t\t" << nBadComp[0][i][0] << "\t" << nBadComp[0][i][1] << "\t"
+             << nBadComp[0][i][2] << "\t" << nBadComp[0][i][3];
+  LOGPRINT << "\n";
   for (int i = 1; i < 4; ++i)
-    std::cout << "\nTID+ Disk " << i << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t"
-              << nBadComp[1][i][2] << "\t" << nBadComp[1][i][3];
+    LOGPRINT << "\nTID+ Disk " << i << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t"
+             << nBadComp[1][i][2] << "\t" << nBadComp[1][i][3];
   for (int i = 4; i < 7; ++i)
-    std::cout << "\nTID- Disk " << i - 3 << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t"
-              << nBadComp[1][i][2] << "\t" << nBadComp[1][i][3];
-  std::cout << "\n";
+    LOGPRINT << "\nTID- Disk " << i - 3 << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t"
+             << nBadComp[1][i][2] << "\t" << nBadComp[1][i][3];
+  LOGPRINT << "\n";
   for (int i = 1; i < 7; ++i)
-    std::cout << "\nTOB Layer " << i << " :\t\t" << nBadComp[2][i][0] << "\t" << nBadComp[2][i][1] << "\t"
-              << nBadComp[2][i][2] << "\t" << nBadComp[2][i][3];
-  std::cout << "\n";
+    LOGPRINT << "\nTOB Layer " << i << " :\t\t" << nBadComp[2][i][0] << "\t" << nBadComp[2][i][1] << "\t"
+             << nBadComp[2][i][2] << "\t" << nBadComp[2][i][3];
+  LOGPRINT << "\n";
   for (int i = 1; i < 10; ++i)
-    std::cout << "\nTEC+ Disk " << i << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t"
-              << nBadComp[3][i][2] << "\t" << nBadComp[3][i][3];
+    LOGPRINT << "\nTEC+ Disk " << i << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t"
+             << nBadComp[3][i][2] << "\t" << nBadComp[3][i][3];
   for (int i = 10; i < 19; ++i)
-    std::cout << "\nTEC- Disk " << i - 9 << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t"
-              << nBadComp[3][i][2] << "\t" << nBadComp[3][i][3];
-  std::cout << "\n";
+    LOGPRINT << "\nTEC- Disk " << i - 9 << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t"
+             << nBadComp[3][i][2] << "\t" << nBadComp[3][i][3];
+  LOGPRINT << "\n";
 
-  std::cout << "\n----------------------------------------------------------------\n\t\t   Detid  \tModules Fibers "
-               "Apvs\n----------------------------------------------------------------";
+  LOGPRINT << "\n----------------------------------------------------------------\n\t\t   Detid  \tModules Fibers "
+              "Apvs\n----------------------------------------------------------------";
   for (int i = 1; i < 5; ++i)
-    std::cout << "\nTIB Layer " << i << " :" << ssV[0][i].str();
-  std::cout << "\n";
+    LOGPRINT << "\nTIB Layer " << i << " :" << ssV[0][i].str();
+  LOGPRINT << "\n";
   for (int i = 1; i < 4; ++i)
-    std::cout << "\nTID+ Disk " << i << " :" << ssV[1][i].str();
+    LOGPRINT << "\nTID+ Disk " << i << " :" << ssV[1][i].str();
   for (int i = 4; i < 7; ++i)
-    std::cout << "\nTID- Disk " << i - 3 << " :" << ssV[1][i].str();
-  std::cout << "\n";
+    LOGPRINT << "\nTID- Disk " << i - 3 << " :" << ssV[1][i].str();
+  LOGPRINT << "\n";
   for (int i = 1; i < 7; ++i)
-    std::cout << "\nTOB Layer " << i << " :" << ssV[2][i].str();
-  std::cout << "\n";
+    LOGPRINT << "\nTOB Layer " << i << " :" << ssV[2][i].str();
+  LOGPRINT << "\n";
   for (int i = 1; i < 10; ++i)
-    std::cout << "\nTEC+ Disk " << i << " :" << ssV[3][i].str();
+    LOGPRINT << "\nTEC+ Disk " << i << " :" << ssV[3][i].str();
   for (int i = 10; i < 19; ++i)
-    std::cout << "\nTEC- Disk " << i - 9 << " :" << ssV[3][i].str();
+    LOGPRINT << "\nTEC- Disk " << i - 9 << " :" << ssV[3][i].str();
 
   // store also bad modules in log file
   std::ofstream badModules;
