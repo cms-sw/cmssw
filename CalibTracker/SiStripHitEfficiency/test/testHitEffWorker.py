@@ -1,5 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register("isUnitTest",
+                 False,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "are we running the unit test")
+options.parseArguments()
+
 process = cms.Process("HitEff")
 process.load("Configuration/StandardSequences/MagneticField_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
@@ -11,20 +20,22 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
 
 process.source = cms.Source("PoolSource", fileNames=cms.untracked.vstring(
     # 10 random files, will need the rest later
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/E3D6AECF-3F12-6540-97DC-4A6994CFEBF3.root",
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/242566C3-0540-8C43-8D6E-BB42C1FE0BB5.root",
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/BC8C0839-F645-B948-9040-15FCB5D50472.root",
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/3A806401-2CBC-4345-A5CB-593AABD4BE4E.root",
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/852C3C1E-2BD4-A843-A65B-51110A503FBD.root",
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/B795F9A0-4681-A34A-B879-E33A0DEC8720.root",
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/3A0884F2-A395-C541-8EFB-740C45A57CCE.root",
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/D274E7C1-5A9D-A544-B9B3-6A30166FC16C.root",
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/C4D243DC-2A09-CF42-A050-7678EF4A90D7.root",
-    "file:/eos/cms/store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/7946A89D-8AC5-6B4F-BAD2-AE3B971865C5.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/E3D6AECF-3F12-6540-97DC-4A6994CFEBF3.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/242566C3-0540-8C43-8D6E-BB42C1FE0BB5.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/BC8C0839-F645-B948-9040-15FCB5D50472.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/3A806401-2CBC-4345-A5CB-593AABD4BE4E.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/852C3C1E-2BD4-A843-A65B-51110A503FBD.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/B795F9A0-4681-A34A-B879-E33A0DEC8720.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/3A0884F2-A395-C541-8EFB-740C45A57CCE.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/D274E7C1-5A9D-A544-B9B3-6A30166FC16C.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/C4D243DC-2A09-CF42-A050-7678EF4A90D7.root",
+    "root://cms-xrd-global.cern.ch//store/express/Run2018D/StreamExpress/ALCARECO/SiStripCalMinBias-Express-v1/000/325/172/00000/7946A89D-8AC5-6B4F-BAD2-AE3B971865C5.root",
     ))
 
-#process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(15))
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100000))
+if(options.isUnitTest):
+    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(20))
+else:
+    process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100000))
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
@@ -99,19 +110,28 @@ process.dqmSaver = cms.EDAnalyzer("DQMFileSaver",
         )
 process.HitEffOutput = cms.EndPath(process.dqmOutput*process.dqmSaver)
 
-process.MessageLogger = cms.Service(
-    "MessageLogger",
-    destinations = cms.untracked.vstring(
-        "log_tkhistomap"
-        ),
-    log_tkhistomap = cms.untracked.PSet(
-        threshold = cms.untracked.string("DEBUG"),
-        default = cms.untracked.PSet(
-        limit = cms.untracked.int32(-1)
-        )
-    ),
-    debugModules = cms.untracked.vstring("hiteff", "anEff"),
-    categories=cms.untracked.vstring("TkHistoMap", "SiStripHitEfficiency:HitEff", "SiStripHitEfficiency")
-)
+if(options.isUnitTest):
+    process.MessageLogger.cerr.enable = False
+    process.MessageLogger.TkHistoMap = dict()
+    process.MessageLogger.SiStripHitEfficiency = dict()  
+    process.MessageLogger.cout = cms.untracked.PSet(
+        enable    = cms.untracked.bool(True),        
+        threshold = cms.untracked.string("INFO"),
+        enableStatistics = cms.untracked.bool(True),
+        default   = cms.untracked.PSet(limit = cms.untracked.int32(0)),                       
+        FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
+                                       reportEvery = cms.untracked.int32(1)),
+        TkHistoMap = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+        SiStripHitEfficiency = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+    )
+else:
+    process.MessageLogger = cms.Service(
+        "MessageLogger",
+        destinations = cms.untracked.vstring("log_tkhistomap"),
+        debugModules = cms.untracked.vstring("hiteff", "anEff"),
+        log_tkhistomap =  cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
+                                             default = cms.untracked.PSet(limit = cms.untracked.int32(-1))),
+        categories=cms.untracked.vstring("TkHistoMap", "SiStripHitEfficiency:HitEff", "SiStripHitEfficiency"),
+    )
 # Run the rest of the CT-based sequence with
 # cmsRun test/testSiStripHitEffFromCalibTree_cfg.py inputFiles=HitEffTree.root runNumber=325172
