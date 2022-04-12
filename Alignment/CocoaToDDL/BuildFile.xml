@@ -1,7 +1,8 @@
-<use name="CLHEP"/>
 <use name="Alignment/CocoaUtilities"/>
 <use name="Alignment/CocoaModel"/>
 <use name="Alignment/CocoaDDLObjects"/>
+<use name="clhep"/>
+<use name="geant4core"/>
 <export>
   <lib name="1"/>
 </export>
