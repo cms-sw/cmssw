@@ -121,7 +121,7 @@ namespace mkfit {
       for (bin_index_t q_bin = q_bin_1; q_bin != q_bin_2; q_bin++) {
         const unsigned int qoff = q_bin * m_ax_phi.size_of_N();
         for (bin_index_t pb = phi_bin_1; pb != phi_bin_2; pb = phiMaskApply(pb + 1)) {
-            m_dead_bins[qoff + pb] = true;
+          m_dead_bins[qoff + pb] = true;
         }
       }
     }
