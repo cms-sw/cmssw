@@ -9,66 +9,63 @@ class HGCalTypes {
 public:
   HGCalTypes() {}
 
-  enum WaferCorner {
-    WaferCorner0 = 0,
-    WaferCorner1 = 1,
-    WaferCorner2 = 2,
-    WaferCorner3 = 3,
-    WaferCorner4 = 4,
-    WaferCorner5 = 5
-  };
+  static constexpr int32_t WaferCorner0 = 0;
+  static constexpr int32_t WaferCorner1 = 1;
+  static constexpr int32_t WaferCorner2 = 2;
+  static constexpr int32_t WaferCorner3 = 3;
+  static constexpr int32_t WaferCorner4 = 4;
+  static constexpr int32_t WaferCorner5 = 5;
 
-  enum WaferPosition {
-    UnknownPosition = -1,
-    WaferCenter = 0,
-    CornerCenterYp = 1,
-    CornerCenterYm = 2,
-    CornerCenterXp = 3,
-    CornerCenterXm = 4,
-    WaferCenterB = 5,
-    WaferCenterR = 6
-  };
+  static constexpr int32_t UnknownPosition = -1;
+  static constexpr int32_t WaferCenter = 0;
+  static constexpr int32_t CornerCenterYp = 1;
+  static constexpr int32_t CornerCenterYm = 2;
+  static constexpr int32_t CornerCenterXp = 3;
+  static constexpr int32_t CornerCenterXm = 4;
+  static constexpr int32_t WaferCenterB = 5;
+  static constexpr int32_t WaferCenterR = 6;
 
-  enum WaferType {
-    WaferTypeUndefined = -1,
-    WaferFineThin = 0,
-    WaferCoarseThin = 1,
-    WaferCoarseThick = 2,
-    WaferFineThick = 3
-  };
+  static constexpr int32_t WaferTypeUndefined = -1;
+  static constexpr int32_t WaferFineThin = 0;
+  static constexpr int32_t WaferCoarseThin = 1;
+  static constexpr int32_t WaferCoarseThick = 2;
+  static constexpr int32_t WaferFineThick = 3;
 
-  enum WaferPartialType {
-    WaferFull = 0,
-    WaferFive = 1,
-    WaferChopTwo = 2,
-    WaferChopTwoM = 3,
-    WaferHalf = 4,
-    WaferSemi = 5,
-    WaferSemi2 = 6,
-    WaferThree = 7,
-    WaferHalf2 = 8,
-    WaferFive2 = 9,
-    WaferLDTop = 11,
-    WaferLDBottom = 12,
-    WaferLDLeft = 13,
-    WaferLDRight = 14,
-    WaferLDFive = 15,
-    WaferLDTree = 16,
-    WaferHDTop = 21,
-    WaferHDBottom = 22,
-    WaferHDLeft = 23,
-    WaferHDRight = 24,
-    WaferHDFive = 25,
-    WaferOut = 99
-  };
+  static constexpr int32_t WaferFull = 0;
+  static constexpr int32_t WaferFive = 1;
+  static constexpr int32_t WaferChopTwo = 2;
+  static constexpr int32_t WaferChopTwoM = 3;
+  static constexpr int32_t WaferHalf = 4;
+  static constexpr int32_t WaferSemi = 5;
+  static constexpr int32_t WaferSemi2 = 6;
+  static constexpr int32_t WaferThree = 7;
+  static constexpr int32_t WaferHalf2 = 8;
+  static constexpr int32_t WaferFive2 = 9;
+  static constexpr int32_t WaferLDTop = 11;
+  static constexpr int32_t WaferLDBottom = 12;
+  static constexpr int32_t WaferLDLeft = 13;
+  static constexpr int32_t WaferLDRight = 14;
+  static constexpr int32_t WaferLDFive = 15;
+  static constexpr int32_t WaferLDThree = 16;
+  static constexpr int32_t WaferHDTop = 21;
+  static constexpr int32_t WaferHDBottom = 22;
+  static constexpr int32_t WaferHDLeft = 23;
+  static constexpr int32_t WaferHDRight = 24;
+  static constexpr int32_t WaferHDFive = 25;
+  static constexpr int32_t WaferOut = 99;
 
-  enum LayerType {
-    WaferCenteredFront = 0,
-    WaferCenteredBack = 1,
-    CornerCenteredY = 2,
-    CornerCenteredLambda = 3,
-    WaferCenteredRotated = 4
-  };
+  static constexpr int32_t WaferOrient0 = 0;
+  static constexpr int32_t WaferOrient1 = 1;
+  static constexpr int32_t WaferOrient2 = 2;
+  static constexpr int32_t WaferOrient3 = 3;
+  static constexpr int32_t WaferOrient4 = 4;
+  static constexpr int32_t WaferOrient5 = 5;
+
+  static constexpr int32_t WaferCenteredFront = 0;
+  static constexpr int32_t WaferCenteredBack = 1;
+  static constexpr int32_t CornerCenteredY = 2;
+  static constexpr int32_t CornerCenteredLambda = 3;
+  static constexpr int32_t WaferCenteredRotated = 4;
 
   static constexpr int32_t WaferCornerMin = 3;
   static constexpr int32_t WaferCornerMax = 6;
