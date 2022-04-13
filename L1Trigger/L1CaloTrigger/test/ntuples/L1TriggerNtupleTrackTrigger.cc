@@ -17,7 +17,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "L1TCaloTriggerNtupleBase.h"
+#include "L1Trigger/L1CaloTrigger/test/ntuples/L1TCaloTriggerNtupleBase.h"
 
 class L1TriggerNtupleTrackTrigger : public L1TCaloTriggerNtupleBase {
 public:
