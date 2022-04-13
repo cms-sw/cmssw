@@ -4,12 +4,10 @@
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalLayerTiles.h"
 
-void runTest(HGCalLayerTiles const& t, int expected, float etaMin, float etaMax,
-             float phiMin, float phiMax) {
+void runTest(HGCalLayerTiles const& t, int expected, float etaMin, float etaMax, float phiMin, float phiMax) {
   auto limits = t.searchBoxEtaPhi(etaMin, etaMax, phiMin, phiMax);
 
-  std::cout << "Limits are: " << limits[0] << " " << limits[1] << " "
-            << limits[2] << " " << limits[3] << std::endl;
+  std::cout << "Limits are: " << limits[0] << " " << limits[1] << " " << limits[2] << " " << limits[3] << std::endl;
   assert(limits[0] <= limits[1]);
   assert(limits[2] <= limits[3]);
 
@@ -22,8 +20,7 @@ void runTest(HGCalLayerTiles const& t, int expected, float etaMin, float etaMax,
     }
   }
 
-  std::cout << "Found " << entries << " entries, expected " << expected
-            << std::endl;
+  std::cout << "Found " << entries << " entries, expected " << expected << std::endl;
   assert(entries == expected);
 }
 
@@ -57,25 +54,18 @@ int main(int argc, char* argv[]) {
   t.fill(dummy, dummy, etas, phis, isSilicon);
   t2.fill(dummy, dummy, etas, phis2, isSilicon);
 
-  std::cout << "Testing a Tile with " << phiBins
-            << " bins with binwidth: " << phi_bin_width << " at pi transition"
+  std::cout << "Testing a Tile with " << phiBins << " bins with binwidth: " << phi_bin_width << " at pi transition"
             << std::endl;
-  std::cout << "-M_PI bin: " << t.mPiPhiBin << " M_PI bin: " << t.pPiPhiBin
-            << std::endl;
-  std::cout << "Filling phi value: " << phi_transition_left
-            << " at left-pi bin: " << t.getPhiBin(phi_transition_left)
+  std::cout << "-M_PI bin: " << t.mPiPhiBin << " M_PI bin: " << t.pPiPhiBin << std::endl;
+  std::cout << "Filling phi value: " << phi_transition_left << " at left-pi bin: " << t.getPhiBin(phi_transition_left)
             << std::endl;
   std::cout << "Filling phi value: " << phi_transition_right
-            << " at right-pi bin: " << t.getPhiBin(phi_transition_right)
-            << std::endl;
+            << " at right-pi bin: " << t.getPhiBin(phi_transition_right) << std::endl;
   std::cout << "Filling phi value: " << phi_transition_right2
-            << " at right-pi bin: " << t.getPhiBin(phi_transition_right2)
-            << std::endl;
+            << " at right-pi bin: " << t.getPhiBin(phi_transition_right2) << std::endl;
 
-  runTest(t, entries_right + entries_left, 1.95, 2.05, phi_transition_left,
-          phi_transition_right);
-  runTest(t2, entries_right + entries_left, 1.95, 2.05, phi_transition_left,
-          phi_transition_right2);
+  runTest(t, entries_right + entries_left, 1.95, 2.05, phi_transition_left, phi_transition_right);
+  runTest(t2, entries_right + entries_left, 1.95, 2.05, phi_transition_left, phi_transition_right2);
 
   return 0;
 }
