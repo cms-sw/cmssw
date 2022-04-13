@@ -6,12 +6,10 @@
 
 using namespace ticl;
 
-void runTest(TICLLayerTile const& t, int expected, float etaMin, float etaMax,
-             float phiMin, float phiMax) {
+void runTest(TICLLayerTile const& t, int expected, float etaMin, float etaMax, float phiMin, float phiMax) {
   auto limits = t.searchBoxEtaPhi(etaMin, etaMax, phiMin, phiMax);
 
-  std::cout << "Limits are: " << limits[0] << " " << limits[1] << " "
-            << limits[2] << " " << limits[3] << std::endl;
+  std::cout << "Limits are: " << limits[0] << " " << limits[1] << " " << limits[2] << " " << limits[3] << std::endl;
   assert(limits[0] <= limits[1]);
   assert(limits[2] <= limits[3]);
 
@@ -24,8 +22,7 @@ void runTest(TICLLayerTile const& t, int expected, float etaMin, float etaMax,
     }
   }
 
-  std::cout << "Found " << entries << " entries, expected " << expected
-            << std::endl;
+  std::cout << "Found " << entries << " entries, expected " << expected << std::endl;
   assert(entries == expected);
 }
 
@@ -40,15 +37,11 @@ int main(int argc, char* argv[]) {
   float constexpr eta = 2.0;
 
   TICLLayerTile t, t2;
-  std::cout << "Testing a Tile with " << phiBins
-            << " bins with binwidth: " << phi_bin_width << " at bin transition"
+  std::cout << "Testing a Tile with " << phiBins << " bins with binwidth: " << phi_bin_width << " at bin transition"
             << std::endl;
-  std::cout << "Filling left-pi bin: " << t.phiBin(phi_transition_left)
-            << std::endl;
-  std::cout << "Filling right-pi bin: " << t.phiBin(phi_transition_right)
-            << std::endl;
-  std::cout << "Filling right2-pi bin: " << t.phiBin(phi_transition_right2)
-            << std::endl;
+  std::cout << "Filling left-pi bin: " << t.phiBin(phi_transition_left) << std::endl;
+  std::cout << "Filling right-pi bin: " << t.phiBin(phi_transition_right) << std::endl;
+  std::cout << "Filling right2-pi bin: " << t.phiBin(phi_transition_right2) << std::endl;
 
   for (unsigned int i = 0; i < entries_left; ++i) {
     t.fill(eta, phi_transition_left, i);
@@ -60,10 +53,8 @@ int main(int argc, char* argv[]) {
     t2.fill(eta, phi_transition_right2, i);
   }
 
-  runTest(t, entries_left + entries_right, 1.95, 2.05, phi_transition_left,
-          phi_transition_right);
-  runTest(t2, entries_left + entries_right, 1.95, 2.05, phi_transition_left,
-          phi_transition_right2);
+  runTest(t, entries_left + entries_right, 1.95, 2.05, phi_transition_left, phi_transition_right);
+  runTest(t2, entries_left + entries_right, 1.95, 2.05, phi_transition_left, phi_transition_right2);
 
   return 0;
 }
