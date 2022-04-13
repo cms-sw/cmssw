@@ -155,6 +155,7 @@ def customiseFor2018Input(process):
 
 
 def customiseForOffline(process):
+#   https://its.cern.ch/jira/browse/CMSHLT-2271
     for prod in producers_by_type(process, 'BeamSpotOnlineProducer'):
         prod.useTransientRecord = False
 
