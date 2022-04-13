@@ -83,8 +83,8 @@ process.configurationMetadata = cms.untracked.PSet(
 
 # Set up the DQM GPU validation task
 process.ecalMonitorTaskEcalOnly.workers = ["GpuTask"]
-process.ecalMonitorTaskEcalOnly.collectionTags.EBCpuUncalibRecHit = "ecalUncalibRecHitPhase2new@cpu:EcalUncalibRecHitsEB"
-process.ecalMonitorTaskEcalOnly.collectionTags.EBGpuUncalibRecHit = "ecalUncalibRecHitPhase2new@cuda:EcalUncalibRecHitsEB"
+process.ecalMonitorTaskEcalOnly.collectionTags.EBCpuUncalibRecHit = "ecalUncalibRecHitPhase2@cpu:EcalUncalibRecHitsEB"
+process.ecalMonitorTaskEcalOnly.collectionTags.EBGpuUncalibRecHit = "ecalUncalibRecHitPhase2@cuda:EcalUncalibRecHitsEB"
 
 # Output definition
 outputCommand = process.FEVTDEBUGHLTEventContent.outputCommands
