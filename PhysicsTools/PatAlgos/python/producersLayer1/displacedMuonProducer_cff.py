@@ -4,7 +4,10 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
 
-sourceMuons = cms.InputTag("displacedMuons")
+from PhysicsTools.PatAlgos.recoLayer0.filteredDisplacedMuons_cfi import *
+filteredDisplacedMuonsTask = cms.Task(filteredDisplacedMuons)
+
+sourceMuons = cms.InputTag("filteredDisplacedMuons")
 
 patDisplacedMuons = patMuons.clone(
 
@@ -12,10 +15,10 @@ patDisplacedMuons = patMuons.clone(
     muonSource = sourceMuons,
 
     # embedding objects
-    embedMuonBestTrack      = cms.bool(False),  ## embed in AOD externally stored muon best track from global pflow
-    embedTunePMuonBestTrack = cms.bool(False),  ## embed in AOD externally stored muon best track from muon only
+    embedMuonBestTrack      = cms.bool(True),  ## embed in AOD externally stored muon best track from global pflow
+    embedTunePMuonBestTrack = cms.bool(True),  ## embed in AOD externally stored muon best track from muon only
     forceBestTrackEmbedding = cms.bool(False), ## force embedding separately the best tracks even if they're already embedded e.g. as tracker or global tracks
-    embedTrack          = cms.bool(False), ## embed in AOD externally stored tracker track
+    embedTrack          = cms.bool(True), ## embed in AOD externally stored tracker track
     embedCombinedMuon   = cms.bool(True),  ## embed in AOD externally stored combined muon track
     embedStandAloneMuon = cms.bool(True),  ## embed in AOD externally stored standalone muon track
     embedPickyMuon      = cms.bool(False),  ## embed in AOD externally stored TeV-refit picky muon track
@@ -30,7 +33,7 @@ patDisplacedMuons = patMuons.clone(
 
     # Read and store combined inverse beta
     addInverseBeta    = cms.bool(True),
-    sourceMuonTimeExtra = cms.InputTag("displacedMuons","combined"), #Use combined info, not only csc or dt (need to check if this is 'on' for displaced)
+    sourceMuonTimeExtra = cms.InputTag("filteredDisplacedMuons","combined"), #Use combined info, not only csc or dt (need to check if this is 'on' for displaced)
 
     # mc matching (deactivated)
     addGenMatch   = cms.bool(False),
@@ -74,7 +77,7 @@ patDisplacedMuons = patMuons.clone(
     softMvaTrainingFile = cms.FileInPath("RecoMuon/MuonIdentification/data/TMVA-muonid-bmm4-B-25.weights.xml"),
 
     # MC Info
-    muonSimInfo = cms.InputTag("displacedMuonSimClassifier"), # This module does not exists but producer check existence but itself
+    muonSimInfo = cms.InputTag("displacedMuonSimClassifier"), # This module does not exists but producer checks existence by itself
 
     # Trigger Info 
     addTriggerMatching = cms.bool(False),
@@ -87,6 +90,13 @@ patDisplacedMuons = patMuons.clone(
 patDisplacedMuons.isoDeposits = cms.PSet()
 patDisplacedMuons.isolationValues = cms.PSet()
 
-makePatDisplacedMuonsTask = cms.Task(patDisplacedMuons)
+
+
+# Displaced muon task filters the displacedMuons that overlap with standard muons
+makePatDisplacedMuonsTask = cms.Task(
+    filteredDisplacedMuonsTask,
+    patDisplacedMuons
+    )
+
 makePatDisplacedMuons = cms.Sequence(makePatDisplacedMuonsTask)
 
