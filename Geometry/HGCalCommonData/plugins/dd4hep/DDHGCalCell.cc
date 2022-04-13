@@ -80,12 +80,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   double dx2 = 0.5 * dx1;
   double dx3 = cornerfac * dx2;
   double dx4 = 0.5 * dx2;
-  double dy1 = r;
-  double dy2 = 0.5 * dy1;
-  double dy3 = 1.5 * dy1;
   double dx5 = (addWaferSeparation == 0) ? 0.0 : waferSeparation * 0.5;
   double dx6 = dx5 * 0.5;
   double dx7 = dx5;
+  double dy1 = r;
+  double dy2 = 0.5 * dy1;
+  double dy3 = 1.5 * dy1;
   double dy4 = dx5 * 0.5 * sqrt3;
   double dy5 = dx5 * 2 / sqrt3;
   double dy6 = dy5 * 0.5;
