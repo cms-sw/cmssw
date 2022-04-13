@@ -1,7 +1,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalCellUV.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
-#include <vector>
+#include <array>
 #include <algorithm>
 #include <cassert>
 
@@ -47,8 +47,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
   //--- Reverse transform to placement=0, if placement index ≠ 6
   double xloc1 = (placement >= 6) ? xloc : -xloc;
   int rot = placement % 6;
-  static const std::vector<double> fcos = {1.0, 0.5, -0.5, -1.0, -0.5, 0.5};
-  static const std::vector<double> fsin = {0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_};
+  static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
+  static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
   double x = xloc1 * fcos[rot] - yloc * fsin[rot];
   double y = xloc1 * fsin[rot] + yloc * fcos[rot];
 
@@ -88,8 +88,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(
   //--- Reverse transform to placement=0, if placement index ≠ 7
   double xloc1 = (placement >= 6) ? xloc : -1 * xloc;
   int rot = placement % 6;
-  static const std::vector<double> fcos = {0.5, 1.0, 0.5, -0.5, -1.0, -0.5};
-  static const std::vector<double> fsin = {-sqrt3By2_, 0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_};
+  static constexpr std::array<double, 6> fcos = {{cos60_, 1.0, cos60_, -cos60_, -1.0, -cos60_}};
+  static constexpr std::array<double, 6> fsin = {{-sin60_, 0.0, sin60_, sin60_, 0.0, -sin60_}};
   double x = xloc1 * fcos[rot] - yloc * fsin[rot];
   double y = xloc1 * fsin[rot] + yloc * fcos[rot];
 
@@ -155,8 +155,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY3(
   //--- Reverse transform to placement=0, if placement index ≠ 6
   double xloc1 = (placement >= 6) ? xloc : -xloc;
   int rot = placement % 6;
-  static const std::vector<double> fcos = {1.0, 0.5, -0.5, -1.0, -0.5, 0.5};
-  static const std::vector<double> fsin = {0.0, sqrt3By2_, sqrt3By2_, 0.0, -sqrt3By2_, -sqrt3By2_};
+  static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
+  static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
   double xprime = xloc1 * fcos[rot] - yloc * fsin[rot];
   double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
   double x = xprime + cellX_[type];
