@@ -27,15 +27,10 @@ namespace ecal {
         //dynamic shared memory
         extern __shared__ char shared_mem[];
         double* shr_weights = (double*)&shared_mem[0];
-        float* shr_gains = (float*)&shared_mem[nsamples * sizeof(double)];
-        float* shr_amp = (float*)&shared_mem[nsamples * sizeof(double) + 2 * sizeof(float)];
-        uint16_t* shr_digis =
-            (uint16_t*)&shared_mem[nsamples * sizeof(double) + 2 * sizeof(float) + nchannels_per_block * sizeof(float)];
+        float* shr_amp = (float*)&shared_mem[nsamples * sizeof(double)];
+        uint16_t* shr_digis = (uint16_t*)&shared_mem[nsamples * sizeof(double)+ nchannels_per_block * sizeof(float)];
 
         shr_weights = weights;
-
-        shr_gains[0] = ecalPh2::gains[0];  //from Catia gains
-        shr_gains[1] = ecalPh2::gains[1];
 
         unsigned int bx = blockIdx.x;  //block index
         unsigned int btx = threadIdx.x;
@@ -50,7 +45,7 @@ namespace ecal {
         for (int sample = 0; sample < nsamples; ++sample) {
           const unsigned int idx = threadIdx.x * nsamples + sample;
           const auto shr_digi = shr_digis[idx];
-          shr_amp[btx] += (static_cast<float>(ecalLiteDTU::adc(shr_digi)) * shr_gains[ecalLiteDTU::gainId(shr_digi)] *
+          shr_amp[btx] += (static_cast<float>(ecalLiteDTU::adc(shr_digi)) * ecalPh2::gains[ecalLiteDTU::gainId(shr_digi)] *
                            shr_weights[sample]);
         }
         amplitude[tx] = shr_amp[btx];
