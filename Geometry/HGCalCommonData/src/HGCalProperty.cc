@@ -1,6 +1,9 @@
 #include "Geometry/HGCalCommonData/interface/HGCalProperty.h"
 
-int32_t HGCalProperty::waferProperty(const int32_t thick, const int32_t part, const int32_t orient, const int32_t casette) {
+int32_t HGCalProperty::waferProperty(const int32_t thick,
+                                     const int32_t part,
+                                     const int32_t orient,
+                                     const int32_t casette) {
   return (((thick % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetThick) +
           ((part % HGCalProperty::kHGCalFactorPartial) * HGCalProperty::kHGCalOffsetPartial) +
           ((orient % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetOrient) +
