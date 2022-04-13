@@ -34,6 +34,15 @@ class adaptToRunAtMiniAOD(object):
 			self.process.makePatTausTask,
 			self.process.selectedPatTaus
 		)
+		#Add Run-2 tauIDs for boostedTaus
+		if self.runBoosted:
+			self.process.PFTauMVAIsoTask = cms.Task(
+				self.process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLTraw,
+				self.process.hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT,
+				self.process.hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLTraw,
+				self.process.hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT
+			)
+			self.process.PFTauTask.add(self.process.PFTauMVAIsoTask)
 		self.miniAODTausTask = configtools.cloneProcessingSnippetTask(
 			self.process,self.process.miniAODTausTask,postfix=self.postfix)
 		setattr(self.process,'miniAODTausSequence'+self.postfix,cms.Sequence(self.miniAODTausTask))
@@ -227,13 +236,49 @@ class adaptToRunAtMiniAOD(object):
 				 provenanceConfigLabel = cms.string('IDWPdefinitions'),
 				 idLabel = cms.string('ByTightMuonRejectionSimple')
                  ))
+		#Add Run-2 tauIDs still used for boostedTaus
+		if self.runBoosted:
+			from PhysicsTools.PatAlgos.producersLayer1.tauProducer_cfi import containerID
+			containerID(_patTauProducer.tauIDSources,
+				"hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT"+self.postfix,
+				"rawValues", [
+				["byIsolationMVArun2DBoldDMwLTraw", "discriminator"]
+			])
+			containerID(_patTauProducer.tauIDSources,
+				"hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT"+self.postfix,
+				"workingPoints", [
+				["byVVLooseIsolationMVArun2DBoldDMwLT", "_VVLoose"],
+				["byVLooseIsolationMVArun2DBoldDMwLT", "_VLoose"],
+				["byLooseIsolationMVArun2DBoldDMwLT", "_Loose"],
+				["byMediumIsolationMVArun2DBoldDMwLT", "_Medium"],
+				["byTightIsolationMVArun2DBoldDMwLT", "_Tight"],
+				["byVTightIsolationMVArun2DBoldDMwLT", "_VTight"],
+				["byVVTightIsolationMVArun2DBoldDMwLT", "_VVTight"]
+			])
+			containerID(_patTauProducer.tauIDSources,
+				"hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT"+self.postfix,
+				"rawValues", [
+				["byIsolationMVArun2DBnewDMwLTraw", "discriminator"]
+			])
+			containerID(_patTauProducer.tauIDSources,
+				"hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT"+self.postfix,
+				"workingPoints", [
+				["byVVLooseIsolationMVArun2DBnewDMwLT", "_VVLoose"],
+				["byVLooseIsolationMVArun2DBnewDMwLT", "_VLoose"],
+				["byLooseIsolationMVArun2DBnewDMwLT", "_Loose"],
+				["byMediumIsolationMVArun2DBnewDMwLT", "_Medium"],
+				["byTightIsolationMVArun2DBnewDMwLT", "_Tight"],
+				["byVTightIsolationMVArun2DBnewDMwLT", "_VTight"],
+				["byVVTightIsolationMVArun2DBnewDMwLT", "_VVTight"]
+			])
 
 		# Run TauIDs (anti-e && deepTau) on top of selectedPatTaus
 		_updatedTauName = 'selectedPatTausNewIDs'+self.postfix
 		_noUpdatedTauName = 'selectedPatTausNoNewIDs'+self.postfix
-		toKeep = ['againstEle2018']
-		if not self.runBoosted:
-			toKeep.append('deepTau2017v2p1')
+		toKeep = ['deepTau2017v2p1']
+		#For boosted do not run deepTauIDs, but add still used Run-2 anti-e MVA
+		if self.runBoosted:
+			toKeep = ['againstEle2018']
 		import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
 		tauIdEmbedder = tauIdConfig.TauIDEmbedder(
 			self.process, debug = False,
