@@ -92,6 +92,8 @@ protected:
 
   std::vector<bool> theFakePixels;  // fake pixels introduced to guide clustering
 
+  std::vector<uint8_t> thePixelOccurrence;  // the number of times each pixel occurs (for tracking duplicate pixels)
+
   //! Clustering-related quantities:
   float thePixelThresholdInNoiseUnits;    // Pixel threshold in units of noise
   float theSeedThresholdInNoiseUnits;     // Pixel cluster seed in units of noise
