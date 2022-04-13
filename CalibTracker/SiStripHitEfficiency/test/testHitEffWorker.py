@@ -114,6 +114,7 @@ if(options.isUnitTest):
     process.MessageLogger.cerr.enable = False
     process.MessageLogger.TkHistoMap = dict()
     process.MessageLogger.SiStripHitEfficiency = dict()  
+    process.MessageLogger.SiStripHitEfficiencyWorker = dict()  
     process.MessageLogger.cout = cms.untracked.PSet(
         enable    = cms.untracked.bool(True),        
         threshold = cms.untracked.string("INFO"),
@@ -122,7 +123,8 @@ if(options.isUnitTest):
         FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
                                        reportEvery = cms.untracked.int32(1)),
         TkHistoMap = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
-        SiStripHitEfficiency = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+        SiStripHitEfficiency = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+        SiStripHitEfficiencyWorker = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
 else:
     process.MessageLogger = cms.Service(
@@ -131,7 +133,10 @@ else:
         debugModules = cms.untracked.vstring("hiteff", "anEff"),
         log_tkhistomap =  cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
                                              default = cms.untracked.PSet(limit = cms.untracked.int32(-1))),
-        categories=cms.untracked.vstring("TkHistoMap", "SiStripHitEfficiency:HitEff", "SiStripHitEfficiency"),
+        categories=cms.untracked.vstring("TkHistoMap", 
+                                         "SiStripHitEfficiency:HitEff", 
+                                         "SiStripHitEfficiency", 
+                                         "SiStripHitEfficiencyWorker")
     )
 # Run the rest of the CT-based sequence with
 # cmsRun test/testSiStripHitEffFromCalibTree_cfg.py inputFiles=HitEffTree.root runNumber=325172
