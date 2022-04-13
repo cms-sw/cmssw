@@ -15,7 +15,7 @@ triggerFlagPSet = cms.PSet(
   hltDBKey = cms.string(''),
   errorReplyHlt = cms.bool(False),
   verbosityLevel = cms.uint32(1),
-  andOr = cms.bool(True)
+  andOr = cms.bool(False)
 )
 
 mssmHbbBtagTriggerMonitor = DQMEDAnalyzer("TagAndProbeBtagTriggerMonitor",
@@ -43,7 +43,7 @@ mssmHbbBtagTriggerMonitor = DQMEDAnalyzer("TagAndProbeBtagTriggerMonitor",
 ## Full hadronic - DeepCSV BTag
 
 mssmHbbDeepCSVBtagTriggerMonitorFH40 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/fullhadronic/DeepCSVBtagTrigger/pt40",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets40_PFBTagDeepCSV_p71",
     jetPtMin = 40,
     triggerobjbtag = "hltBTagPFDeepCSV0p71Single8Jets30",
     histoPSet = dict(jetPt = [40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130,140,150,160,180,200,250,300,400,500]),
@@ -51,7 +51,7 @@ mssmHbbDeepCSVBtagTriggerMonitorFH40 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepCSVBtagTriggerMonitorFH100 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/fullhadronic/DeepCSVBtagTrigger/pt100",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets100_PFBTagDeepCSV_p71",
     jetPtMin = 100,
     triggerobjbtag = "hltBTagPFDeepCSV0p71Single8Jets30",
     histoPSet = dict(jetPt = [100,110,120,130,140,150,160,170,180,190,200,220,240,260,280,300,350,400,450,500,600,700,800]),
@@ -59,7 +59,7 @@ mssmHbbDeepCSVBtagTriggerMonitorFH100 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepCSVBtagTriggerMonitorFH200 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/fullhadronic/DeepCSVBtagTrigger/pt200",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets200_PFBTagDeepCSV_p71",
     jetPtMin = 200,
     triggerobjbtag = "hltBTagPFDeepCSV0p71Single8Jets30",
     histoPSet = dict(jetPt = [200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,380,400,420,440,460,500,550,600,700,800,900,1000]),
@@ -67,7 +67,7 @@ mssmHbbDeepCSVBtagTriggerMonitorFH200 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepCSVBtagTriggerMonitorFH350 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/fullhadronic/DeepCSVBtagTrigger/pt350",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets350_PFBTagDeepCSV_p71",
     jetPtMin = 350,
     triggerobjbtag = "hltBTagPFDeepCSV0p71Single8Jets30",
     histoPSet = dict(jetPt = [350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,650,700,750,800,900,1000]),
@@ -77,7 +77,7 @@ mssmHbbDeepCSVBtagTriggerMonitorFH350 = mssmHbbBtagTriggerMonitor.clone(
 ## Semileptonic - DeepCSV BTag
 
 mssmHbbDeepCSVBtagTriggerMonitorSL40 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/semileptonic/DeepCSVBtagTrigger/pt40",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets40_PFBTagDeepCSV_p71",
     jetPtMin = 40,
     triggerobjbtag = "hltBTagPFDeepCSV0p71Single8Jets30",
     histoPSet = dict(jetPt = [40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130,140,150,160,180,200,250,300,400,500]),
@@ -85,7 +85,7 @@ mssmHbbDeepCSVBtagTriggerMonitorSL40 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepCSVBtagTriggerMonitorSL100 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/semileptonic/DeepCSVBtagTrigger/pt100",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets100_PFBTagDeepCSV_p71",
     jetPtMin = 100,
     triggerobjbtag = "hltBTagPFDeepCSV0p71Single8Jets30",
     histoPSet = dict(jetPt = [100,110,120,130,140,150,160,170,180,190,200,220,240,260,280,300,350,400,450,500,600,700,800]),
@@ -93,7 +93,7 @@ mssmHbbDeepCSVBtagTriggerMonitorSL100 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepCSVBtagTriggerMonitorSL200 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/semileptonic/DeepCSVBtagTrigger/pt200",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets200_PFBTagDeepCSV_p71",
     jetPtMin = 200,
     triggerobjbtag = "hltBTagPFDeepCSV0p71Single8Jets30",
     histoPSet = dict(jetPt = [200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,380,400,420,440,460,500,550,600,700,800,900,1000]),
@@ -101,7 +101,7 @@ mssmHbbDeepCSVBtagTriggerMonitorSL200 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepCSVBtagTriggerMonitorSL350 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/semileptonic/DeepCSVBtagTrigger/pt350",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets350_PFBTagDeepCSV_p71",
     jetPtMin = 350,
     triggerobjbtag = "hltBTagPFDeepCSV0p71Single8Jets30",
     histoPSet = dict(jetPt = [350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,650,700,750,800,900,1000]),
@@ -112,7 +112,7 @@ mssmHbbDeepCSVBtagTriggerMonitorSL350 = mssmHbbBtagTriggerMonitor.clone(
 ## Full hadronic - DeepJet BTag
 
 mssmHbbDeepJetBtagTriggerMonitorFH40 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/fullhadronic/DeepJetBtagTrigger/pt40",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets40_PFBTagDeepJet_p71",
     jetPtMin = 40,
     triggerobjbtag = "hltBTagPFDeepJet0p71Single8Jets30",
     histoPSet = dict(jetPt = [40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130,140,150,160,180,200,250,300,400,500]),
@@ -120,7 +120,7 @@ mssmHbbDeepJetBtagTriggerMonitorFH40 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepJetBtagTriggerMonitorFH100 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/fullhadronic/DeepJetBtagTrigger/pt100",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets100_PFBTagDeepJet_p71",
     jetPtMin = 100,
     triggerobjbtag = "hltBTagPFDeepJet0p71Single8Jets30",
     histoPSet = dict(jetPt = [100,110,120,130,140,150,160,170,180,190,200,220,240,260,280,300,350,400,450,500,600,700,800]),
@@ -128,7 +128,7 @@ mssmHbbDeepJetBtagTriggerMonitorFH100 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepJetBtagTriggerMonitorFH200 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/fullhadronic/DeepJetBtagTrigger/pt200",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets200_PFBTagDeepJet_p71",
     jetPtMin = 200,
     triggerobjbtag = "hltBTagPFDeepJet0p71Single8Jets30",
     histoPSet = dict(jetPt = [200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,380,400,420,440,460,500,550,600,700,800,900,1000]),
@@ -136,7 +136,7 @@ mssmHbbDeepJetBtagTriggerMonitorFH200 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepJetBtagTriggerMonitorFH350 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/fullhadronic/DeepJetBtagTrigger/pt350",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_DoublePFJets350_PFBTagDeepJet_p71",
     jetPtMin = 350,
     triggerobjbtag = "hltBTagPFDeepJet0p71Single8Jets30",
     histoPSet = dict(jetPt = [350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,650,700,750,800,900,1000]),
@@ -147,7 +147,7 @@ mssmHbbDeepJetBtagTriggerMonitorFH350 = mssmHbbBtagTriggerMonitor.clone(
 ## Semileptonic - DeepJet BTag
 
 mssmHbbDeepJetBtagTriggerMonitorSL40 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/semileptonic/DeepJetBtagTrigger/pt40",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets40_PFBTagDeepJet_p71",
     jetPtMin = 40,
     triggerobjbtag = "hltBTagPFDeepJet0p71Single8Jets30",
     histoPSet = dict(jetPt = [40,45,50,55,60,65,70,75,80,85,90,95,100,105,110,115,120,130,140,150,160,180,200,250,300,400,500]),
@@ -155,7 +155,7 @@ mssmHbbDeepJetBtagTriggerMonitorSL40 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepJetBtagTriggerMonitorSL100 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/semileptonic/DeepJetBtagTrigger/pt100",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets100_PFBTagDeepJet_p71",
     jetPtMin = 100,
     triggerobjbtag = "hltBTagPFDeepJet0p71Single8Jets30",
     histoPSet = dict(jetPt = [100,110,120,130,140,150,160,170,180,190,200,220,240,260,280,300,350,400,450,500,600,700,800]),
@@ -163,7 +163,7 @@ mssmHbbDeepJetBtagTriggerMonitorSL100 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepJetBtagTriggerMonitorSL200 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/semileptonic/DeepJetBtagTrigger/pt200",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets200_PFBTagDeepJet_p71",
     jetPtMin = 200,
     triggerobjbtag = "hltBTagPFDeepJet0p71Single8Jets30",
     histoPSet = dict(jetPt = [200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,380,400,420,440,460,500,550,600,700,800,900,1000]),
@@ -171,7 +171,7 @@ mssmHbbDeepJetBtagTriggerMonitorSL200 = mssmHbbBtagTriggerMonitor.clone(
 )
 
 mssmHbbDeepJetBtagTriggerMonitorSL350 = mssmHbbBtagTriggerMonitor.clone(
-    dirname = "HLT/HIG/MssmHbb/semileptonic/DeepJetBtagTrigger/pt350",
+    dirname = "HLT/HIG/MssmHbb/control/btag/HLT_Mu12_DoublePFJets350_PFBTagDeepJet_p71",
     jetPtMin = 350,
     triggerobjbtag = "hltBTagPFDeepJet0p71Single8Jets30",
     histoPSet = dict(jetPt = [350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,650,700,750,800,900,1000]),

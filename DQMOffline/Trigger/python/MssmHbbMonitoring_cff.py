@@ -14,7 +14,7 @@ hltMssmHbbmonitoring =  mssmHbbMonitoring.clone(
 )
 # Fully-hadronic MssmHbb DeepCSV (main)
 hltMssmHbbDeepCSVMonitoringFH116 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/fullhadronic/DeepCSV/pt116',
+    FolderName = 'HLT/HIG/MssmHbb/fullhadronic/HLT_DoublePFJets116MaxDeta1p6_DoublePFBTagDeepCSV_p71',
     bjetSelection = 'pt>100 & abs(eta)<2.2',
     numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets116MaxDeta1p6_DoublePFBTagDeepCSV_p71_v*']),
     histoPSet = dict(jetPtBinning = [0,100,150,200,250,300,350,400,500,700,1000,1500])
@@ -22,7 +22,7 @@ hltMssmHbbDeepCSVMonitoringFH116 = hltMssmHbbmonitoring.clone(
 
 # Fully-hadronic MssmHbb DeepCSV (backup)
 hltMssmHbbDeepCSVMonitoringFH128 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/fullhadronic/DeepCSV/pt128',
+    FolderName = 'HLT/HIG/MssmHbb/fullhadronic/HLT_DoublePFJets128MaxDeta1p6_DoublePFBTagDeepCSV_p71',
     bjetSelection = 'pt>100 & abs(eta)<2.2',
     numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets128MaxDeta1p6_DoublePFBTagDeepCSV_p71_v*']),
     histoPSet = dict(jetPtBinning = [0,100,150,200,250,300,350,400,500,700,1000,1500])
@@ -30,7 +30,7 @@ hltMssmHbbDeepCSVMonitoringFH128 = hltMssmHbbmonitoring.clone(
 
 # Semileptonic MssmHbb DeepCSV (main)
 hltMssmHbbDeepCSVMonitoringSL40 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/semileptonic/DeepCSV/pt40',
+    FolderName = 'HLT/HIG/MssmHbb/semileptonic/HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepCSV_p71',
     bjetSelection = 'pt>40 & abs(eta)<2.2',
     nmuons = 1,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
@@ -42,7 +42,7 @@ hltMssmHbbDeepCSVMonitoringSL40 = hltMssmHbbmonitoring.clone(
 
 # Semileptonic MssmHbb DeepCSV (backup)
 hltMssmHbbDeepCSVMonitoringSL54 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/semileptonic/DeepCSV/pt54',
+    FolderName = 'HLT/HIG/MssmHbb/semileptonic/HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepCSV_p71',
     bjetSelection = 'pt>40 & abs(eta)<2.2',
     nmuons = 1,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
@@ -56,7 +56,7 @@ hltMssmHbbDeepCSVMonitoringSL54 = hltMssmHbbmonitoring.clone(
 
 # Fully-hadronic MssmHbb DeepJet (main)
 hltMssmHbbDeepJetMonitoringFH116 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/fullhadronic/DeepJet/pt116',
+    FolderName = 'HLT/HIG/MssmHbb/fullhadronic/HLT_DoublePFJets116MaxDeta1p6_DoublePFBTagDeepJet_p71',
     bjetSelection = 'pt>100 & abs(eta)<2.2',
     numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets116MaxDeta1p6_DoublePFBTagDeepJet_p71_v*']),
     histoPSet = dict(jetPtBinning = [0,100,150,200,250,300,350,400,500,700,1000,1500])
@@ -64,7 +64,7 @@ hltMssmHbbDeepJetMonitoringFH116 = hltMssmHbbmonitoring.clone(
 
 # Fully-hadronic MssmHbb DeepJet (backup)
 hltMssmHbbDeepJetMonitoringFH128 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/fullhadronic/DeepJet/pt128',
+    FolderName = 'HLT/HIG/MssmHbb/fullhadronic/HLT_DoublePFJets128MaxDeta1p6_DoublePFBTagDeepJet_p71',
     bjetSelection = 'pt>100 & abs(eta)<2.2',
     numGenericTriggerEventPSet = dict(hltPaths = ['HLT_DoublePFJets128MaxDeta1p6_DoublePFBTagDeepJet_p71_v*']),
     histoPSet = dict(jetPtBinning = [0,100,150,200,250,300,350,400,500,700,1000,1500])
@@ -72,7 +72,7 @@ hltMssmHbbDeepJetMonitoringFH128 = hltMssmHbbmonitoring.clone(
 
 # Semileptonic MssmHbb DeepJet (main)
 hltMssmHbbDeepJetMonitoringSL40 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/semileptonic/DeepJet/pt40',
+    FolderName = 'HLT/HIG/MssmHbb/semileptonic/HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepJet_p71',
     bjetSelection = 'pt>40 & abs(eta)<2.2',
     nmuons = 1,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
@@ -83,7 +83,7 @@ hltMssmHbbDeepJetMonitoringSL40 = hltMssmHbbmonitoring.clone(
 
 # Semileptonic MssmHbb DeepJet (backup)
 hltMssmHbbDeepJetMonitoringSL54 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/semileptonic/DeepJet/pt54',
+    FolderName = 'HLT/HIG/MssmHbb/semileptonic/HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepJet_p71',
     bjetSelection = 'pt>40 & abs(eta)<2.2',
     nmuons = 1,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
@@ -96,7 +96,7 @@ hltMssmHbbDeepJetMonitoringSL54 = hltMssmHbbmonitoring.clone(
 
 #control b-tagging 
 hltMssmHbbMonitoringMu12 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/control/mu12',
+    FolderName = 'HLT/HIG/MssmHbb/control/muon/HLT_Mu12eta2p3',
     nmuons = 1,
     nbjets = 0,
     njets = 0,
@@ -106,7 +106,7 @@ hltMssmHbbMonitoringMu12 = hltMssmHbbmonitoring.clone(
 )
 
 hltMssmHbbMonitoringMu12Jet40 = hltMssmHbbmonitoring.clone(
-    FolderName = 'HLT/HIG/MssmHbb/control/mu12jet40',
+    FolderName = 'HLT/HIG/MssmHbb/control/muon/HLT_Mu12eta2p3_PFJet40',
     nmuons = 1,
     nbjets = 0,
     njets = 1,
