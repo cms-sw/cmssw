@@ -17,6 +17,7 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     # Note also that the capitalization is important! For example, 'parton shower'                                        
     # must be lower case and 'PDF' must be capital                                                                        
     weightgroups = cms.vstring(['scale', 'PDF', 'matrix element', 'unknown', 'parton shower']),
+    outputNames = cms.vstring(['LHEScaleWeight', 'LHEPdfWeight', 'MEParamWeight', 'UnknownWeight', 'PSWeight']),
     # Max number of groups to store for each type above, -1 ==> store all found                                           
     #maxGroupsPerType = cms.vint32([-1, -1, -1, -1, -1]),
     maxGroupsPerType = cms.vint32([1, 1, -1, 1, 1]),
