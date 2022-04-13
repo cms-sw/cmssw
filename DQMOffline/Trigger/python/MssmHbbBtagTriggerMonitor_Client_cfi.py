@@ -4,10 +4,7 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 mssmHbbBtag = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/HIG/MssmHbb/fullhadronic/DeepCSVBtagTrigger/*",
-        "HLT/HIG/MssmHbb/semileptonic/DeepCSVBtagTrigger/*",
-        "HLT/HIG/MssmHbb/fullhadronic/DeepJetBtagTrigger/*",
-        "HLT/HIG/MssmHbb/semileptonic/DeepJetBtagTrigger/*",
+        "HLT/HIG/MssmHbb/control/btag/*",
     ),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
