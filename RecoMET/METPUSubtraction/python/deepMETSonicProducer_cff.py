@@ -5,7 +5,7 @@ deepMETSonicProducer = cms.EDProducer("DeepMETSonicProducer",
         timeout = cms.untracked.uint32(300),
         mode = cms.string("Async"),
         modelName = cms.string("deepmet"),
-        modelConfigPath = cms.FileInPath("HeterogeneousCore/SonicTriton/data/models/deepmet/config.pbtxt"),
+        modelConfigPath = cms.FileInPath("RecoMET/RecoMET-METPUSubtraction/deepmet/deepmet/config.pbtxt"),
         # version "1" is the resolutionTune
         # version "2" is the responeTune
         modelVersion = cms.string("1"),
