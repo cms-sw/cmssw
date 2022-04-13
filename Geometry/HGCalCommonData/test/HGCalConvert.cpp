@@ -52,13 +52,13 @@
 
 struct wafer {
   int thick, partial, orient, casette;
-  wafer(int t = 0, int p = 0, int o = 0, int c = 0) : thick(t), partial(p), orient(o), casette(c) {};
+  wafer(int t = 0, int p = 0, int o = 0, int c = 0) : thick(t), partial(p), orient(o), casette(c){};
 };
 
 struct layerInfo {
   int layer, type;
   std::vector<double> deltaR;
-  layerInfo(int ly, int ty, std::vector<double> dR) : layer(ly), type(ty), deltaR(dR) {};
+  layerInfo(int ly, int ty, std::vector<double> dR) : layer(ly), type(ty), deltaR(dR){};
 };
 
 struct tile {
@@ -124,7 +124,13 @@ public:
                int debug = 0);
 
 private:
-  void writeSilicon(const char*, const unsigned int, const std::vector<layerInfo>&, const std::map<int, wafer>&, const std::string&, const bool&, const bool&);
+  void writeSilicon(const char*,
+                    const unsigned int,
+                    const std::vector<layerInfo>&,
+                    const std::map<int, wafer>&,
+                    const std::string&,
+                    const bool&,
+                    const bool&);
 
   const unsigned int layMax1_, layMax2_, layMax3_;
 };
@@ -338,7 +344,8 @@ void ConvertSiliconV0::writeSilicon(const char* outfile,
     fOut << blank << "<Vector name=" << apost << "WaferProperties" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
   for (itr = module.begin(); itr != module.end(); ++itr) {
-    int property = HGCalProperty::waferProperty((itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).casette);
+    int property = HGCalProperty::waferProperty(
+        (itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).casette);
     std::string last = ((k2 + 1) == module.size()) ? " " : ",";
     if (k2 % 10 == 0)
       fOut << "\n  " << blank << std::setw(5) << property << last;
@@ -376,9 +383,23 @@ void ConvertSiliconV1::convert(
     //First read in all records
     char buffer[1024];
     std::string thick[4] = {"h120", "l200", "l300", "h200"};
-    int addType[4] = {HGCalTypes::WaferFineThin, HGCalTypes::WaferCoarseThin, HGCalTypes::WaferCoarseThick, HGCalTypes::WaferFineThick};
-    const int partTypeH[6] = {HGCalTypes::WaferFull, HGCalTypes::WaferHalf2, HGCalTypes::WaferChopTwoM, HGCalTypes::WaferSemi2, HGCalTypes::WaferSemi2, HGCalTypes::WaferFive2};
-    const int partTypeL[7] = {HGCalTypes::WaferFull, HGCalTypes::WaferHalf, HGCalTypes::WaferHalf, HGCalTypes::WaferSemi, HGCalTypes::WaferSemi, HGCalTypes::WaferFive, HGCalTypes::WaferThree};
+    int addType[4] = {HGCalTypes::WaferFineThin,
+                      HGCalTypes::WaferCoarseThin,
+                      HGCalTypes::WaferCoarseThick,
+                      HGCalTypes::WaferFineThick};
+    const int partTypeH[6] = {HGCalTypes::WaferFull,
+                              HGCalTypes::WaferHalf2,
+                              HGCalTypes::WaferChopTwoM,
+                              HGCalTypes::WaferSemi2,
+                              HGCalTypes::WaferSemi2,
+                              HGCalTypes::WaferFive2};
+    const int partTypeL[7] = {HGCalTypes::WaferFull,
+                              HGCalTypes::WaferHalf,
+                              HGCalTypes::WaferHalf,
+                              HGCalTypes::WaferSemi,
+                              HGCalTypes::WaferSemi,
+                              HGCalTypes::WaferFive,
+                              HGCalTypes::WaferThree};
     std::map<int, wafer> module1, module2, module3;
     unsigned int all(0), comments(0), others(0), bad(0), good(0);
     int layers(0);
@@ -526,7 +547,8 @@ void ConvertSiliconV1::writeSilicon(const char* outfile,
     fOut << blank << "<Vector name=" << apost << "WaferProperties" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
   for (itr = module.begin(); itr != module.end(); ++itr) {
-    int property = HGCalProperty::waferProperty((itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).casette);
+    int property = HGCalProperty::waferProperty(
+        (itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).casette);
     std::string last = ((k2 + 1) == module.size()) ? " " : ",";
     if (k2 % 10 == 0)
       fOut << "\n  " << blank << std::setw(5) << property << last;
@@ -553,7 +575,8 @@ void ConvertSiliconV1::writeSilicon(const char* outfile,
   fOut.close();
 }
 
-ConvertSiliconV2::ConvertSiliconV2(unsigned int layMax1, unsigned int layMax2, unsigned int layMax3) : layMax1_(layMax1), layMax2_(layMax2), layMax3_(layMax3) {}
+ConvertSiliconV2::ConvertSiliconV2(unsigned int layMax1, unsigned int layMax2, unsigned int layMax3)
+    : layMax1_(layMax1), layMax2_(layMax2), layMax3_(layMax3) {}
 
 void ConvertSiliconV2::convert(
     const char* infile, const char* outfile1, const char* outfile2, const char* outfile3, int modeGlobal, int debug) {
@@ -565,9 +588,23 @@ void ConvertSiliconV2::convert(
     char buffer[1024];
     const int thksize = 4;
     std::string thick[thksize] = {"h120", "l200", "l300", "h200"};
-    int addType[thksize] = {HGCalTypes::WaferFineThin, HGCalTypes::WaferCoarseThin, HGCalTypes::WaferCoarseThick, HGCalTypes::WaferFineThick};
-    const int partTypeH[6] = {HGCalTypes::WaferFull, HGCalTypes::WaferHDTop, HGCalTypes::WaferHDBottom, HGCalTypes::WaferHDLeft, HGCalTypes::WaferHDRight, HGCalTypes::WaferHDFive};
-    const int partTypeL[7] = {HGCalTypes::WaferFull, HGCalTypes::WaferLDTop, HGCalTypes::WaferLDBottom, HGCalTypes::WaferLDLeft, HGCalTypes::WaferLDRight, HGCalTypes::WaferLDFive, HGCalTypes::WaferLDThree};
+    int addType[thksize] = {HGCalTypes::WaferFineThin,
+                            HGCalTypes::WaferCoarseThin,
+                            HGCalTypes::WaferCoarseThick,
+                            HGCalTypes::WaferFineThick};
+    const int partTypeH[6] = {HGCalTypes::WaferFull,
+                              HGCalTypes::WaferHDTop,
+                              HGCalTypes::WaferHDBottom,
+                              HGCalTypes::WaferHDLeft,
+                              HGCalTypes::WaferHDRight,
+                              HGCalTypes::WaferHDFive};
+    const int partTypeL[7] = {HGCalTypes::WaferFull,
+                              HGCalTypes::WaferLDTop,
+                              HGCalTypes::WaferLDBottom,
+                              HGCalTypes::WaferLDLeft,
+                              HGCalTypes::WaferLDRight,
+                              HGCalTypes::WaferLDFive,
+                              HGCalTypes::WaferLDThree};
     const unsigned int casetteEE(6), casetteHE(12);
     std::map<int, wafer> module1, module2, module3;
     unsigned int all(0), comments(0), others(0), bad(0), good(0);
@@ -585,32 +622,32 @@ void ConvertSiliconV2::convert(
         ++others;
         std::vector<std::string> items = splitString(std::string(buffer));
         if (others <= layMax3_) {
-	  unsigned int casettes = (others <= layMax1_) ? casetteEE : casetteHE;
-	  if (items.size() < (casettes + 2)) {
-	    ++bad;
-	  } else {
-	    int layer = std::atoi(items[0].c_str());
-	    int type = std::atoi(items[1].c_str());
-	    std::vector<double> dR;
-	    for (unsigned int k = 0; k < casettes; ++k)
-	      dR.emplace_back(std::atof(items[k+2].c_str()));
-	    layerInfo ltype(layer, type, dR);
-	    if (others <= layMax1_) {
-	      layer1.emplace_back(ltype);
-	    } else if ((others <= layMax2_) || global) {
-	      layer2.emplace_back(ltype);
-	    } else {
-	      layer3.emplace_back(ltype);
-	    }
-	  }
-	} else if (items.size() != 9) {
-	  ++bad;
-	} else {
-	  ++good;
-	  unsigned int layer = std::atoi(items[0].c_str());
-	  int waferU = std::atoi(items[6].c_str());
+          unsigned int casettes = (others <= layMax1_) ? casetteEE : casetteHE;
+          if (items.size() < (casettes + 2)) {
+            ++bad;
+          } else {
+            int layer = std::atoi(items[0].c_str());
+            int type = std::atoi(items[1].c_str());
+            std::vector<double> dR;
+            for (unsigned int k = 0; k < casettes; ++k)
+              dR.emplace_back(std::atof(items[k + 2].c_str()));
+            layerInfo ltype(layer, type, dR);
+            if (others <= layMax1_) {
+              layer1.emplace_back(ltype);
+            } else if ((others <= layMax2_) || global) {
+              layer2.emplace_back(ltype);
+            } else {
+              layer3.emplace_back(ltype);
+            }
+          }
+        } else if (items.size() != 9) {
+          ++bad;
+        } else {
+          ++good;
+          unsigned int layer = std::atoi(items[0].c_str());
+          int waferU = std::atoi(items[6].c_str());
           int waferV = std::atoi(items[7].c_str());
-          int casette = std::atoi(items[8].c_str()) + 1; // Start casette # = 1
+          int casette = std::atoi(items[8].c_str()) + 1;  // Start casette # = 1
           int thck = static_cast<int>(std::find(thick, thick + thksize, items[2]) - thick);
           int part = std::atoi(items[1].c_str());
           if ((thck <= thksize) && (part >= 0)) {
@@ -624,24 +661,24 @@ void ConvertSiliconV2::convert(
           if (layer <= layMax1_) {
             int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV, false);
             module1[index] = waf;
-	    if ((cminEE < 0) || (casette < cminEE))
-	      cminEE = casette;
-	    if ((cmaxEE < 0) || (casette > cmaxEE))
-	      cmaxEE = casette;
+            if ((cminEE < 0) || (casette < cminEE))
+              cminEE = casette;
+            if ((cmaxEE < 0) || (casette > cmaxEE))
+              cmaxEE = casette;
           } else if ((layer <= layMax2_) || global) {
             int index = HGCalWaferIndex::waferIndex(layer - layMax1_, waferU, waferV, false);
             module2[index] = waf;
-	    if ((cminHE1 < 0) || (casette < cminHE1))
-	      cminHE1 = casette;
-	    if ((cmaxHE1 < 0) || (casette > cmaxHE1))
-	      cmaxHE1 = casette;
+            if ((cminHE1 < 0) || (casette < cminHE1))
+              cminHE1 = casette;
+            if ((cmaxHE1 < 0) || (casette > cmaxHE1))
+              cmaxHE1 = casette;
           } else {
             int index = HGCalWaferIndex::waferIndex(layer - layMax1_, waferU, waferV, false);
             module3[index] = waf;
-	    if ((cminHE2 < 0) || (casette < cminHE2))
-	      cminHE2 = casette;
-	    if ((cmaxHE2 < 0) || (casette > cmaxHE2))
-	      cmaxHE2 = casette;
+            if ((cminHE2 < 0) || (casette < cminHE2))
+              cminHE2 = casette;
+            if ((cmaxHE2 < 0) || (casette > cmaxHE2))
+              cmaxHE2 = casette;
           }
         }
       }
@@ -654,26 +691,27 @@ void ConvertSiliconV2::convert(
     for (const auto& l : layer1) {
       std::cout << "Layer " << l.layer << " Type " << l.type << " DR";
       for (unsigned int k = 0; k < l.deltaR.size(); ++k)
-	std::cout << ": " << l.deltaR[k];
+        std::cout << ": " << l.deltaR[k];
       std::cout << std::endl;
     }
     std::cout << "\nThere are " << layer2.size() << " of types:" << std::endl;
     for (const auto& l : layer2) {
       std::cout << "Layer " << l.layer << " Type " << l.type << " DR";
       for (unsigned int k = 0; k < l.deltaR.size(); ++k)
-	std::cout << ": " << l.deltaR[k];
+        std::cout << ": " << l.deltaR[k];
       std::cout << std::endl;
     }
     if (layer3.size() > 0) {
       std::cout << "\nThere are " << layer3.size() << " of types:" << std::endl;
       for (const auto& l : layer3) {
-	std::cout << "Layer " << l.layer << " Type " << l.type << " DR";
-	for (unsigned int k = 0; k < l.deltaR.size(); ++k)
-	  std::cout << ": " << l.deltaR[k];
+        std::cout << "Layer " << l.layer << " Type " << l.type << " DR";
+        for (unsigned int k = 0; k < l.deltaR.size(); ++k)
+          std::cout << ": " << l.deltaR[k];
         std::cout << std::endl;
       }
     }
-    std::cout << "\nMinimum and Maximum Casette #'s:: EE: " << cminEE << ":" << cmaxEE << " HEF: " << cminHE1 << ":" << cmaxHE1 << " HEB: " << cminHE2 << ":" << cmaxHE2 << std::endl;
+    std::cout << "\nMinimum and Maximum Casette #'s:: EE: " << cminEE << ":" << cmaxEE << " HEF: " << cminHE1 << ":"
+              << cmaxHE1 << " HEB: " << cminHE2 << ":" << cmaxHE2 << std::endl;
     std::cout << std::endl << std::endl;
 
     //Now write separately for EE, HEsil and HEmix
@@ -687,7 +725,7 @@ void ConvertSiliconV2::convert(
 }
 
 void ConvertSiliconV2::writeSilicon(const char* outfile,
-				    const unsigned int casettes,
+                                    const unsigned int casettes,
                                     const std::vector<layerInfo>& layers,
                                     const std::map<int, wafer>& module,
                                     const std::string& tag,
@@ -735,7 +773,13 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
     }
     ++k1;
     if (debug)
-      std::cout << "Wafer " << HGCalWaferIndex::waferLayer(itr->first) << ":" << HGCalWaferIndex::waferU(itr->first) << ":" << HGCalWaferIndex::waferV(itr->first) << " T " << (itr->second).thick << " P " << (itr->second).partial << " O " << (itr->second).orient << " C " << (itr->second).casette << " Property " << HGCalProperty::waferProperty((itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).casette) << std::endl;
+      std::cout << "Wafer " << HGCalWaferIndex::waferLayer(itr->first) << ":" << HGCalWaferIndex::waferU(itr->first)
+                << ":" << HGCalWaferIndex::waferV(itr->first) << " T " << (itr->second).thick << " P "
+                << (itr->second).partial << " O " << (itr->second).orient << " C " << (itr->second).casette
+                << " Property "
+                << HGCalProperty::waferProperty(
+                       (itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).casette)
+                << std::endl;
   }
   fOut << "\n" << blank << "</Vector>\n";
   if (mode)
@@ -745,7 +789,8 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
     fOut << blank << "<Vector name=" << apost << "WaferProperties" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << module.size() << apost << ">";
   for (itr = module.begin(); itr != module.end(); ++itr) {
-    int property = HGCalProperty::waferProperty((itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).casette);
+    int property = HGCalProperty::waferProperty(
+        (itr->second).thick, (itr->second).partial, (itr->second).orient, (itr->second).casette);
     std::string last = ((k2 + 1) == module.size()) ? " " : ",";
     if (k2 % 8 == 0)
       fOut << "\n  " << blank << std::setw(7) << property << last;
@@ -771,9 +816,11 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
   fOut << "\n" << blank << "</Vector>\n";
   unsigned int csize = casettes * layers.size() + 1;
   if (mode) {
-    fOut << blank << "<Vector name=" << apost << "CasetteShift" << tag << apost << " type=" << apost << "numeric" << apost << " nEntries=" << apost << csize << apost << ">";
+    fOut << blank << "<Vector name=" << apost << "CasetteShift" << tag << apost << " type=" << apost << "numeric"
+         << apost << " nEntries=" << apost << csize << apost << ">";
   } else {
-    fOut << blank << "<Vector name=" << apost << "CastteShift" << apost << " type=" << apost << "numeric" << apost << " nEntries=" << apost << csize << apost << ">";
+    fOut << blank << "<Vector name=" << apost << "CastteShift" << apost << " type=" << apost << "numeric" << apost
+         << " nEntries=" << apost << csize << apost << ">";
   }
   std::string last = (layers.size() == 0) ? " " : ",";
   fOut << "\n  " << blank << std::setw(2) << casettes << last;
@@ -782,9 +829,9 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
     for (unsigned int k = 0; k < casettes; ++k) {
       std::string last = ((k3 == layers.size()) && ((k + 1) == casettes)) ? " " : ",";
       if ((k == 0) || (k == 6))
-	fOut << "\n  " << blank << std::setw(8) << l.deltaR[k] << last;
+        fOut << "\n  " << blank << std::setw(8) << l.deltaR[k] << last;
       else
-	fOut << std::setw(8) << l.deltaR[k] << last;
+        fOut << std::setw(8) << l.deltaR[k] << last;
     }
   }
   fOut << "\n" << blank << "</Vector>\n";
