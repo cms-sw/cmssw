@@ -12,8 +12,8 @@ namespace ecal {
 
       void allocate(uint32_t digi_size, cudaStream_t cudaStream) {
         auto const size = digi_size;
-        recHits.amplitudesAll = cms::cuda::make_device_unique<reco::ComputationScalarType[]>(
-            size * EcalDataFrame::MAXSAMPLES, cudaStream);
+        recHits.amplitudesAll = 
+            cms::cuda::make_device_unique<reco::ComputationScalarType[]>(size * EcalDataFrame::MAXSAMPLES, cudaStream);
         recHits.amplitude = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
         recHits.amplitudeError = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
         recHits.chi2 = cms::cuda::make_device_unique<reco::StorageScalarType[]>(size, cudaStream);
