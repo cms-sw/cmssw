@@ -2,6 +2,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
@@ -32,7 +33,6 @@ public:
 private:
   const bool showRings_, autoIneffModTagging_, doStoreOnDB_;
   const unsigned int nTEClayers_;
-  std::string layerName(unsigned int k) const;
   const double threshold_;
   const int nModsMin_;
   const double tkMapMin_;
@@ -92,38 +92,6 @@ void SiStripHitEfficiencyHarvester::endRun(edm::Run const&, edm::EventSetup cons
   }
 }
 
-namespace {
-  unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
-    switch (DetId(iidd).subdetId()) {
-      case SiStripSubdetector::TIB:
-        return tTopo->tibLayer(iidd);
-      case SiStripSubdetector::TOB:
-        return tTopo->tobLayer(iidd) + 4;
-      case SiStripSubdetector::TID:
-        return tTopo->tidWheel(iidd) + 10;
-      case SiStripSubdetector::TEC:
-        return tTopo->tecWheel(iidd) + 13;
-      default:
-        return 0;
-    }
-  }
-}  // namespace
-
-std::string SiStripHitEfficiencyHarvester::layerName(unsigned int k) const {
-  const std::string ringlabel{showRings_ ? "R" : "D"};
-  if (k > 0 && k < 5) {
-    return fmt::format("TIB L{:d}", k);
-  } else if (k > 4 && k < 11) {
-    return fmt::format("TOB L{:d}", k - 4);
-  } else if (k > 10 && k < 14) {
-    return fmt::format("TID {0}{1:d}", ringlabel, k - 10);
-  } else if (k > 13 && k < 14 + nTEClayers_) {
-    return fmt::format("TEC {0}{1:d}", ringlabel, k - 13);
-  } else {
-    return "";
-  }
-}
-
 void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
   if (!autoIneffModTagging_)
     LOGPRINT << "A module is bad if efficiency < " << threshold_ << " and has at least " << nModsMin_ << " nModsMin.";
@@ -137,7 +105,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   h_module_total->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_total");
   auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
   h_module_found->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_found");
-  LogDebug("SiStripHitEfficiency:HitEff")
+  LogDebug("SiStripHitEfficiencyHarvester")
       << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
       << h_module_found->getMap(3)->getEntries();
 
@@ -164,7 +132,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   std::map<unsigned int, double> badModules;
 
   for (auto det : stripDetIds_) {
-    auto layer = checkLayer(det, tTopo_.get());
+    auto layer = ::checkLayer(det, tTopo_.get());
     const auto num = h_module_found->getValue(det);
     const auto denom = h_module_total->getValue(det);
     if (denom) {
@@ -175,19 +143,19 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
           // We have a bad module, put it in the list!
           badModules[det] = eff;
           tkMapBad.fillc(det, 255, 0, 0);
-          LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
-                   << " efficiency: " << eff << " , " << num << "/" << denom;
+          LOGPRINT << "Layer " << layer << " (" << ::layerName(layer, showRings_, nTEClayers_) << ")  module "
+                   << det.rawId() << " efficiency: " << eff << " , " << num << "/" << denom;
         } else {
           //Fill the bad list with empty results for every module
           tkMapBad.fillc(det, 255, 255, 255);
         }
         if (eff < threshold_)
-          LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
-                   << " efficiency: " << eff << " , " << num << "/" << denom;
+          LOGPRINT << "Layer " << layer << " (" << ::layerName(layer, showRings_, nTEClayers_) << ")  module "
+                   << det.rawId() << " efficiency: " << eff << " , " << num << "/" << denom;
 
         if (denom < nModsMin_) {
-          LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
-                   << " is under occupancy at " << denom;
+          LOGPRINT << "Layer " << layer << " (" << ::layerName(layer, showRings_, nTEClayers_) << ")  module "
+                   << det.rawId() << " is under occupancy at " << denom;
         }
       }
       //Put any module into the TKMap
@@ -212,7 +180,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
       hEffInLayer[i]->GetXaxis()->SetRange(1, hEffInLayer[i]->GetNbinsX() + 1);
 
       for (auto det : stripDetIds_) {
-        const auto layer = checkLayer(det, tTopo_.get());
+        const auto layer = ::checkLayer(det, tTopo_.get());
         if (layer == i) {
           const auto num = h_module_found->getValue(det);
           const auto denom = h_module_total->getValue(det);
@@ -230,11 +198,12 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
             }
             if (eff_up < layer_min_eff + 0.08)  // printing message also for modules sligthly above (8%) the limit
 
-              LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId()
-                       << " efficiency: " << eff << " , " << num << "/" << denom << " , upper limit: " << eff_up;
+              LOGPRINT << "Layer " << layer << " (" << ::layerName(layer, showRings_, nTEClayers_) << ")  module "
+                       << det.rawId() << " efficiency: " << eff << " , " << num << "/" << denom
+                       << " , upper limit: " << eff_up;
             if (denom < nModsMin_) {
-              LOGPRINT << "Layer " << layer << " (" << layerName(layer) << ")  module " << det.rawId() << " layer "
-                       << layer << " is under occupancy at " << denom;
+              LOGPRINT << "Layer " << layer << " (" << ::layerName(layer, showRings_, nTEClayers_) << ")  module "
+                       << det.rawId() << " layer " << layer << " is under occupancy at " << denom;
             }
           }
         }
@@ -301,8 +270,8 @@ void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 
 
   for (Long_t i = 1; i <= 22; i++) {
     layereff = double(layerFound[i]) / double(layerTotal[i]);
-    LOGPRINT << "Layer " << i << " (" << layerName(i) << ") has total efficiency " << layereff << " " << layerFound[i]
-             << "/" << layerTotal[i];
+    LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers_) << ") has total efficiency "
+             << layereff << " " << layerFound[i] << "/" << layerTotal[i];
     totalfound += layerFound[i];
     totaltotal += layerTotal[i];
     if (i < 5) {
@@ -372,7 +341,7 @@ void SiStripHitEfficiencyHarvester::makeSummaryVsLumi(DQMStore::IGetter& getter,
       if (htotal->GetBinContent(i) == 0)
         htotal->SetBinContent(i, 1);
     }
-    LogDebug("SiStripHitEfficiency:HitEff")
+    LogDebug("SiStripHitEfficiencyHarvester")
         << "Total hits for layer " << iLayer << " (vs lumi): " << htotal->GetEntries() << ", found "
         << hfound->GetEntries();
   }
@@ -520,7 +489,7 @@ void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality
     if (percentage != 0)
       percentage /= 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
     if (percentage > 1)
-      edm::LogError("SiStripQualityStatistics") << "PROBLEM detid " << det.rawId() << " value " << percentage;
+      edm::LogError("SiStripHitEfficiencyHarvester") << "PROBLEM detid " << det.rawId() << " value " << percentage;
   }
 
   // printout
