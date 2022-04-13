@@ -1,0 +1,8 @@
+import FWCore.ParameterSet.Config as cms
+
+from RecoMET.METPUSubtraction.deepMETProducer_cfi import deepMETProducer
+from RecoMET.METPUSubtraction.deepMETSonicProducer_cff import deepMETSonicProducer as _deepMETSonicProducer
+from Configuration.ProcessModifiers.deepMETSonicTriton_cff import deepMETSonicTriton
+
+deepMETSonicTriton.toReplaceWith(deepMETProducer,_deepMETSonicProducer)
+
