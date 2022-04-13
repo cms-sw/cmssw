@@ -260,8 +260,7 @@ TemplatedSecondaryVertexProducer<IPTI, VTX>::TemplatedSecondaryVertexProducer(co
       constraint == CONSTRAINT_BEAMSPOT || constraint == CONSTRAINT_PV_PRIMARIES_IN_FIT)
     token_BeamSpot = consumes<reco::BeamSpot>(params.getParameter<edm::InputTag>("beamSpotTag"));
   useExternalSV = false;
-  if (params.existsAs<bool>("useExternalSV"))
-    useExternalSV = params.getParameter<bool>("useExternalSV");
+  useExternalSV = params.getParameter<bool>("useExternalSV");
   if (useExternalSV) {
     token_extSVCollection = consumes<edm::View<VTX> >(params.getParameter<edm::InputTag>("extSVCollection"));
     extSVDeltaRToJet = params.getParameter<double>("extSVDeltaRToJet");
