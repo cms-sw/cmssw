@@ -253,11 +253,10 @@ void GE0SegAlgoRU::lookForSegments(const SegmentParameters& params,
         pruneBadHits(params.maxChi2Prune, current_proto_segment, current_fit, n_seg_min);
 
       LogDebug("GE0SegAlgoRU") << "[GE0SegAlgoRU::lookForSegments] # of hits in segment "
-                                       << current_proto_segment.size() << " min # " << n_seg_min << " => "
-                                       << (current_proto_segment.size() >= n_seg_min) << " chi2/ndof "
-                                       << current_fit->chi2() / current_fit->ndof() << " => "
-                                       << (current_fit->chi2() / current_fit->ndof() < params.maxChi2GoodSeg)
-                                       << std::endl;
+                               << current_proto_segment.size() << " min # " << n_seg_min << " => "
+                               << (current_proto_segment.size() >= n_seg_min) << " chi2/ndof "
+                               << current_fit->chi2() / current_fit->ndof() << " => "
+                               << (current_fit->chi2() / current_fit->ndof() < params.maxChi2GoodSeg) << std::endl;
 
       if (current_proto_segment.size() < n_seg_min)
         continue;
@@ -387,8 +386,8 @@ bool GE0SegAlgoRU::areHitsCloseInEta(const float maxETA,
                                      const GlobalPoint& h2) const {
   float diff = std::abs(h1.eta() - h2.eta());
   LogDebug("GE0SegAlgoRU") << "[GE0SegAlgoRU::areHitsCloseInEta] gp1 = " << h1 << " in eta part = " << h1.eta()
-                                   << " and gp2 = " << h2 << " in eta part = " << h2.eta() << " ==> dEta = " << diff
-                                   << " ==> return " << (diff < 0.1) << std::endl;
+                           << " and gp2 = " << h2 << " in eta part = " << h2.eta() << " ==> dEta = " << diff
+                           << " ==> return " << (diff < 0.1) << std::endl;
   //temp for floating point comparision...maxEta is the difference between partitions, so x1.5 to take into account non-circle geom.
   return (diff < std::max(maxETA, 0.01f));
 }
@@ -399,8 +398,8 @@ bool GE0SegAlgoRU::areHitsCloseInGlobalPhi(const float maxPHI,
                                            const GlobalPoint& h2) const {
   float dphi12 = deltaPhi(h1.barePhi(), h2.barePhi());
   LogDebug("GE0SegAlgoRU") << "[GE0SegAlgoRU::areHitsCloseInGlobalPhi] gp1 = " << h1 << " and gp2 = " << h2
-                                   << " ==> dPhi = " << dphi12 << " ==> return "
-                                   << (std::abs(dphi12) < std::max(maxPHI, 0.02f)) << std::endl;
+                           << " ==> dPhi = " << dphi12 << " ==> return " << (std::abs(dphi12) < std::max(maxPHI, 0.02f))
+                           << std::endl;
   return std::abs(dphi12) < std::max(maxPHI, float(float(nLayDisp) * 0.004));
 }
 
@@ -464,8 +463,8 @@ void GE0SegAlgoRU::pruneBadHits(const float maxChi2,
       worstHit = it;
     }
     LogDebug("GE0SegAlgoRU") << "[GE0SegAlgoRU::pruneBadHits] pruning one hit-> layer: " << (*worstHit)->layer
-                                     << " eta: " << (*worstHit)->gp.eta() << " phi: " << (*worstHit)->gp.phi()
-                                     << " old chi2/dof: " << fit->chi2() / fit->ndof() << std::endl;
+                             << " eta: " << (*worstHit)->gp.eta() << " phi: " << (*worstHit)->gp.phi()
+                             << " old chi2/dof: " << fit->chi2() / fit->ndof() << std::endl;
     proto_segment.erase(worstHit);
     fit = makeFit(proto_segment);
   }
