@@ -54,6 +54,14 @@ run2_HCAL_2018.toModify(recHitTask,
 )
 
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
+### reverting the reco tag setting that inherited from run2
+run3_HB.toModify(hcalGPUComparisonTask,
+    tagHBHE_ref = "hbhereco@cpu",
+    tagHBHE_target = "hbhereco@cuda"
+)
+run3_HB.toModify(recHitTask,
+    tagHBHE = "hbhereco"
+)
 _phase1_hcalOnlyOfflineSourceSequence = hcalOnlyOfflineSourceSequence.copy()
 _phase1_hcalOnlyOfflineSourceSequence.replace(recHitPreRecoTask, recHitTask)
 run3_HB.toReplaceWith(hcalOnlyOfflineSourceSequence, _phase1_hcalOnlyOfflineSourceSequence)
