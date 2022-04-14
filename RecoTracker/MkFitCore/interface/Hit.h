@@ -192,6 +192,7 @@ namespace mkfit {
     static constexpr int kChargePerCMBits = 8;
     static constexpr int kDetIdInLayerBits = 12;
     static constexpr int kClusterSizeBits = 5;
+    static constexpr int kMaxClusterSize = (1 << kClusterSizeBits) - 1;
 
     struct PackedData {
       unsigned int detid_in_layer : kDetIdInLayerBits;
@@ -222,7 +223,7 @@ namespace mkfit {
 
     static unsigned int minChargePerCM() { return kMinChargePerCM; }
     static unsigned int maxChargePerCM() { return kMinChargePerCM + (0xfe << 3); }
-    static unsigned int maxSpan() { return 32; }
+    static unsigned int maxSpan() { return kMaxClusterSize; }
 
     void setupAsPixel(unsigned int id, int rows, int cols) {
       pdata_.detid_in_layer = id;
