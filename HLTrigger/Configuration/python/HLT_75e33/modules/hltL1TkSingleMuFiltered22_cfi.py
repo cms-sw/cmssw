@@ -10,6 +10,6 @@ hltL1TkSingleMuFiltered22 = cms.EDFilter("L1TTkMuonFilter",
         endcap = cms.vdouble(0.864715, 1.03215, 0.0),
         overlap = cms.vdouble(0.920897, 1.03712, 0.0)
     ),
-    inputTag = cms.InputTag("L1TkMuons"),
+    inputTag = cms.InputTag("hltL1TkMuons"),
     saveTags = cms.bool(True)
 )

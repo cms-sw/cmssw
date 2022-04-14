@@ -71,7 +71,7 @@ l1pfProducerHF = cms.EDProducer("L1TPFProducer",
             phiSlices = cms.uint32(1)
         )
     ),
-    tkMuons = cms.InputTag("L1TkMuons"),
+    tkMuons = cms.InputTag("hltL1TkMuons"),
     trackRegionMode = cms.string('atCalo'),
     tracks = cms.InputTag(""),
     trkMaxChi2 = cms.double(15),
