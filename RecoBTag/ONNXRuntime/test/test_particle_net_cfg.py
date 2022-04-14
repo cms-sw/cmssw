@@ -3,15 +3,19 @@ from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask
 
 from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('analysis')
-options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/DCFE3F5F-AE42-E811-B6DB-008CFAF72A64.root'
-options.maxEvents = 1000
+#options.inputFiles = '/store/mc/RunIIFall17MiniAODv2/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/90000/DCFE3F5F-AE42-E811-B6DB-008CFAF72A64.root'
+options.inputFiles = 'file:/storage/local/data1/home/jduarte1/forPatrick/FFA0194D-1BBC-EF4F-9B8F-8FBED2C62FC8.root'
+#options.inputFiles = '/store/mc/RunIISummer19UL17MiniAOD/TTToHadronic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_mc2017_realistic_v6-v4/30000/FFA0194D-1BBC-EF4F-9B8F-8FBED2C62FC8.root'
+#options.inputFiles = 'file:FFA0194D-1BBC-EF4F-9B8F-8FBED2C62FC8.root'
+options.maxEvents = 100
 options.parseArguments()
 
-process = cms.Process("PATtest")
+from Configuration.ProcessModifiers.enableSonicTriton_cff import enableSonicTriton
+process = cms.Process('PATtest',enableSonicTriton)
 
 ## MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1
 
 
 ## Options and Output Report
@@ -23,6 +27,21 @@ process.source = cms.Source("PoolSource",
 )
 ## Maximal Number of Events
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(options.maxEvents))
+
+process.load("HeterogeneousCore.SonicTriton.TritonService_cff")
+process.TritonService.verbose = True
+# fallback server
+process.TritonService.fallback.enable = True
+process.TritonService.fallback.verbose = True
+process.TritonService.servers.append(
+    cms.PSet(
+        name = cms.untracked.string("default"),
+        #address = cms.untracked.string("prp-gpu-1.t2.ucsd.edu"),
+        address = cms.untracked.string("ailab01.fnal.gov"),
+        port = cms.untracked.uint32(8001),
+    )
+)
+
 
 ## Geometry and Detector Conditions (needed for a few patTuple production steps)
 process.load("Configuration.Geometry.GeometryRecoDB_cff")
@@ -47,7 +66,8 @@ process.outpath = cms.EndPath(process.out, patAlgosToolsTask)
 
 ## and add them to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
-from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsAll as pfParticleNetJetTagsAll
+from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetJetTagsProbs as pfParticleNetJetTagsProbs
+from RecoBTag.ONNXRuntime.pfParticleNet_cff import _pfParticleNetSonicJetTagsProbs as pfParticleNetSonicJetTagsProbs
 
 updateJetCollection(
    process,
@@ -56,7 +76,7 @@ updateJetCollection(
    svSource = cms.InputTag('slimmedSecondaryVertices'),
    rParam = 0.8,
    jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-   btagDiscriminators = pfParticleNetJetTagsAll
+   btagDiscriminators = pfParticleNetJetTagsProbs+pfParticleNetSonicJetTagsProbs
    )
 
 from Configuration.EventContent.EventContent_cff import MINIAODSIMEventContent
@@ -67,4 +87,6 @@ process.out.outputCommands.append('keep *_selectedPatJets*_*_*')
 process.out.outputCommands.append('keep *_selectedUpdatedPatJets*_*_*')
 process.out.outputCommands.append('keep *_updatedPatJets*_*_*')
 
-process.out.fileName = 'test_particle_net_MINIAODSIM.root'
+process.out.fileName = 'test_particle_net_MINIAODSIM_noragged.root'
+
+
