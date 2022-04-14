@@ -591,8 +591,8 @@ bool TrackletCalculatorDisplaced::LLLSeeding(const Stub* innerFPGAStub,
     return false;
   }
 
-  double phicritapprox = phi0approx - asin(0.5 * settings_.rcrit() * rinvapprox);
-  int phicrit = iphi0 - 2 * irinv;
+  double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
+  int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
   int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
   int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
@@ -1006,8 +1006,8 @@ bool TrackletCalculatorDisplaced::DDLSeeding(const Stub* innerFPGAStub,
   if (!success)
     return false;
 
-  double phicritapprox = phi0approx - asin(0.5 * settings_.rcrit() * rinvapprox);
-  int phicrit = iphi0 - 2 * irinv;
+  double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
+  int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
   int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
   int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
@@ -1401,9 +1401,9 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
 
   if (!success)
     return false;
-
-  double phicritapprox = phi0approx - asin(0.5 * settings_.rcrit() * rinvapprox);
-  int phicrit = iphi0 - 2 * irinv;
+  
+  double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
+  int phicrit = iphi0 - 2 * irinv - 2 * id0;
 
   int iphicritmincut = settings_.phicritminmc() / globals_->ITC_L1L2()->phi0_final.K();
   int iphicritmaxcut = settings_.phicritmaxmc() / globals_->ITC_L1L2()->phi0_final.K();
