@@ -39,6 +39,7 @@ namespace VVIObjFDetails {
 //! \param mode  - (input) set to 0 to calculate the density function and to 1 to calculate the distribution function
 // ***************************************************************************************************************************************
 
+// WARNING: if you change this, dont forget to change VVIObjF::VVIObjF(float kappa) too
 VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   const float xp[9] = {9.29, 2.47, .89, .36, .15, .07, .03, .02, 0.0};
   const float xq[7] = {.012, .03, .08, .26, .87, 3.83, 11.0};
@@ -139,6 +140,7 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
 //! \param kappa - (input) Vavilov kappa parameter [0.01 (Landau-like) < kappa < 10. (Gaussian-like)]
 // ***************************************************************************************************************************************
 
+// WARNING: if you change this, dont forget to change the full constructor too
 VVIObjF::VVIObjF(float kappa) : mode_(1) {
   const float xp[9] = {9.29, 2.47, .89, .36, .15, .07, .03, .02, 0.0};
   const float xq[7] = {.012, .03, .08, .26, .87, 3.83, 11.0};
