@@ -9,11 +9,11 @@ from ..modules.l1pfProducerBarrel_cfi import *
 from ..modules.l1pfProducerHF_cfi import *
 from ..modules.l1pfProducerHGCal_cfi import *
 from ..modules.l1pfProducerHGCalNoTK_cfi import *
-from ..modules.L1TkElectronsEllipticMatchCrystal_cfi import *
-from ..modules.L1TkElectronsEllipticMatchHGC_cfi import *
+from ..modules.hltL1TkElectronsEllipticMatchCrystal_cfi import *
+from ..modules.hltL1TkElectronsEllipticMatchHGC_cfi import *
 from ..modules.hltL1TkMuons_cfi import *
-from ..modules.L1TkPhotonsCrystal_cfi import *
-from ..modules.L1TkPhotonsHGC_cfi import *
+from ..modules.hltL1TkPhotonsCrystal_cfi import *
+from ..modules.hltL1TkPhotonsHGC_cfi import *
 from ..modules.L1TkPrimaryVertex_cfi import *
 from ..modules.l1tSlwPFPuppiJets_cfi import *
 from ..modules.l1tSlwPFPuppiJetsCorrected_cfi import *
@@ -38,11 +38,11 @@ from ..modules.simTwinMuxDigis_cfi import *
 
 l1tReconstructionTask = cms.Task(
     L1EGammaClusterEmuProducer,
-    L1TkElectronsEllipticMatchCrystal,
-    L1TkElectronsEllipticMatchHGC,
+    hltL1TkElectronsEllipticMatchCrystal,
+    hltL1TkElectronsEllipticMatchHGC,
     hltL1TkMuons,
-    L1TkPhotonsCrystal,
-    L1TkPhotonsHGC,
+    hltL1TkPhotonsCrystal,
+    hltL1TkPhotonsHGC,
     L1TkPrimaryVertex,
     l1EGammaEEProducer,
     l1NNTauProducerPuppi,

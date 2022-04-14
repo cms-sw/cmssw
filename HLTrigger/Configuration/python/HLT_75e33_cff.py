@@ -318,11 +318,11 @@ del fragment.me0RecHits
 del fragment.me0Segments
 
 del fragment.L1EGammaClusterEmuProducer
-del fragment.L1TkElectronsEllipticMatchCrystal
-del fragment.L1TkElectronsEllipticMatchHGC
+#del fragment.L1TkElectronsEllipticMatchCrystal
+#del fragment.L1TkElectronsEllipticMatchHGC
 #del fragment.L1TkMuons
-del fragment.L1TkPhotonsCrystal
-del fragment.L1TkPhotonsHGC
+#del fragment.L1TkPhotonsCrystal
+#del fragment.L1TkPhotonsHGC
 del fragment.L1TkPrimaryVertex
 del fragment.l1EGammaEEProducer
 del fragment.l1NNTauProducerPuppi
