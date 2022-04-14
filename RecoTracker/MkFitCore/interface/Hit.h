@@ -189,12 +189,15 @@ namespace mkfit {
     int mcTrackID(const MCHitInfoVec& globalMCHitInfo) const { return globalMCHitInfo[mcHitID_].mcTrackID(); }
 
     static constexpr int kMinChargePerCM = 1620;
+    static constexpr int kChargePerCMBits = 8;
+    static constexpr int kDetIdInLayerBits = 12;
+    static constexpr int kClusterSizeBits = 5;
 
     struct PackedData {
-      unsigned int detid_in_layer : 12;
-      unsigned int charge_pcm : 8;  // MIMI see set/get funcs; applicable for phase-0/1
-      unsigned int span_rows : 5;
-      unsigned int span_cols : 5;
+      unsigned int detid_in_layer : kDetIdInLayerBits;
+      unsigned int charge_pcm : kChargePerCMBits;  // MIMI see set/get funcs; applicable for phase-0/1
+      unsigned int span_rows : kClusterSizeBits;
+      unsigned int span_cols : kClusterSizeBits;
 
       PackedData() : detid_in_layer(0), charge_pcm(0), span_rows(0), span_cols(0) {}
 
