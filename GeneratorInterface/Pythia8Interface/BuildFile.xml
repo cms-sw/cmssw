@@ -5,7 +5,7 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/Core"/>
 <use name="boost"/>
-<use name="pythia8"/>
+<use name="pythia8230_hnl"/>
 <use name="evtgen"/>
 <use name="vincia"/>
 <use name="dire"/>
