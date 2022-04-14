@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TkMuons = cms.EDProducer("L1TkMuonProducer",
+hltL1TkMuons = cms.EDProducer("L1TkMuonProducer",
     CHI2MAX = cms.double(100.0),
     DRmax = cms.double(0.5),
     ETABARRELOVERLAP = cms.double(0.83),
@@ -47,3 +47,5 @@ L1TkMuons = cms.EDProducer("L1TkMuonProducer",
     useRegionEtaMatching = cms.bool(True),
     useTPMatchWindows = cms.bool(True)
 )
+
+L1TkMuons = hltL1TkMuons.clone()

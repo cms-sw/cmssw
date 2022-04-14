@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from ..modules.L1TkMuons_cfi import *
+from ..modules.hltL1TkMuons_cfi import *
 from ..modules.hltL1SingleMuFiltered5_cfi import *
 from ..modules.hltL1TripleMuFiltered3_cfi import *
 from ..modules.hltL3fL1TkTripleMu533L31055DZFiltered0p2_cfi import *
@@ -73,7 +73,7 @@ from ..sequences.HLTEndSequence_cfi import *
 
 HLT_TriMu_10_5_5_DZ_FromL1TkMuon = cms.Path(
     HLTBeginSequence +
-    L1TkMuons +
+    hltL1TkMuons +
     hltL1TripleMuFiltered3 +
     hltL1SingleMuFiltered5 +
     hltTripleMuon3DZ1p0 +
@@ -83,7 +83,7 @@ HLT_TriMu_10_5_5_DZ_FromL1TkMuon = cms.Path(
     hltL3fL1TkTripleMu533L31055DZFiltered0p2 +
     HLTEndSequence,
     cms.Task(
-        L1TkMuons,
+        hltL1TkMuons,
         MeasurementTrackerEvent,
         hltCsc2DRecHits,
         hltCscSegments,

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 hltL2MuonSeedsFromL1TkMuon = cms.EDProducer("L2MuonSeedGeneratorFromL1TkMu",
     EtaMatchingBins = cms.vdouble(0.0, 2.5),
-    InputObjects = cms.InputTag("L1TkMuons"),
+    InputObjects = cms.InputTag("hltL1TkMuons"),
     L1MaxEta = cms.double(2.5),
     L1MinPt = cms.double(0.0),
     MatchDR = cms.vdouble(0.3),
