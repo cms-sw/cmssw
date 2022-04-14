@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/PRef --type PRef
 
-# /dev/CMSSW_12_3_0/PRef/V63 (CMSSW_12_3_0)
+# /dev/CMSSW_12_3_0/PRef/V67 (CMSSW_12_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -9,7 +9,7 @@ from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V63')
+  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V67')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4637,7 +4637,7 @@ fragment.hltOnlineBeamSpot = cms.EDProducer( "BeamSpotOnlineProducer",
     src = cms.InputTag( "hltScalersRawToDigi" ),
     gtEvmLabel = cms.InputTag( "" ),
     maxRadius = cms.double( 2.0 ),
-    useTransientRecord = cms.bool( False )
+    useTransientRecord = cms.bool( True )
 )
 fragment.hltL1sZeroBias = cms.EDFilter( "HLTL1TSeed",
     saveTags = cms.bool( True ),
@@ -5264,10 +5264,10 @@ fragment.hltRpcRecHits = cms.EDProducer( "RPCRecHitProducer",
 )
 fragment.hltMuonGEMDigis = cms.EDProducer( "GEMRawToDigiModule",
     InputLabel = cms.InputTag( "rawDataCollector" ),
-    useDBEMap = cms.bool( False ),
+    useDBEMap = cms.bool( True ),
     keepDAQStatus = cms.bool( False ),
     readMultiBX = cms.bool( False ),
-    ge21Off = cms.bool( False ),
+    ge21Off = cms.bool( True ),
     fedIdStart = cms.uint32( 1467 ),
     fedIdEnd = cms.uint32( 1478 )
 )
