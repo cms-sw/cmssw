@@ -3,11 +3,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Utilities/OpenSSL/interface/openssl_init.h"
 
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
-#include <openssl/evp.h>
 
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 
@@ -161,13 +161,8 @@ std::string SiStripPayloadHandler<SiStripPayload>::makeConfigHash() {
 
   // calcuate SHA-1 hash using openssl
   // adapted from cond::persistency::makeHash() in CondCore/CondDB/src/IOVSchema.cc
-#if OPENSSL_API_COMPAT < 0x10100000L
-  OpenSSL_add_all_digests();
-  EVP_MD_CTX* mdctx = EVP_MD_CTX_create();
-#else
-  OPENSSL_init_crypto();
+  cms::openssl_init();
   EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
-#endif
   const EVP_MD* md = EVP_get_digestbyname("SHA1");
   if (!EVP_DigestInit_ex(mdctx, md, nullptr)) {
     throw cms::Exception("SHA1 initialization error.");
@@ -183,11 +178,7 @@ std::string SiStripPayloadHandler<SiStripPayload>::makeConfigHash() {
   if (!EVP_DigestFinal_ex(mdctx, hash, &md_len)) {
     throw cms::Exception("SHA1 finalization error.");
   }
-#if OPENSSL_API_COMPAT < 0x10100000L
-  EVP_MD_CTX_destroy(mdctx);
-#else
   EVP_MD_CTX_free(mdctx);
-#endif
 
   char tmp[EVP_MAX_MD_SIZE * 2 + 1];
   // re-write bytes in hex

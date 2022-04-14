@@ -8,6 +8,7 @@
 <use name="FWCore/PluginManager"/>
 <use name="OnlineDB/SiStripConfigDb"/>
 <use name="OnlineDB/SiStripESSources"/>
+<use name="Utilities/OpenSSL"/>
 <library file="*.cc" name="OnlineDBSiStripO2OPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
