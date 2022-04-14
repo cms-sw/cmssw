@@ -17,7 +17,7 @@ L1TkEleDouble12Filter = cms.EDFilter("L1TTkEleFilter",
         endcap = cms.vdouble(0.453144, 1.26205, 0.0)
     ),
     TrkIsolation = cms.vdouble(99999.0, 99999.0),
-    inputTag1 = cms.InputTag("L1TkElectronsEllipticMatchCrystal","EG"),
-    inputTag2 = cms.InputTag("L1TkElectronsEllipticMatchHGC","EG"),
+    inputTag1 = cms.InputTag("hltL1TkElectronsEllipticMatchCrystal","EG"),
+    inputTag2 = cms.InputTag("hltL1TkElectronsEllipticMatchHGC","EG"),
     saveTags = cms.bool(True)
 )

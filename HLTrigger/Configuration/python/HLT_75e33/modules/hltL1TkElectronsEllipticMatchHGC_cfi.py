@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-L1TkElectronsEllipticMatchHGC = cms.EDProducer("L1TkElectronTrackProducer",
+hltL1TkElectronsEllipticMatchHGC = cms.EDProducer("L1TkElectronTrackProducer",
     DRmax = cms.double(0.2),
     DRmin = cms.double(0.03),
     DeltaZ = cms.double(0.6),

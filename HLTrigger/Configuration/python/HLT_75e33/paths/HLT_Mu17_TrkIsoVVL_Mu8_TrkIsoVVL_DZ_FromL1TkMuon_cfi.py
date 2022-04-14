@@ -99,7 +99,6 @@ from ..sequences.HLTEndSequence_cfi import *
 
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_FromL1TkMuon = cms.Path(
     HLTBeginSequence +
-    hltL1TkMuons +
     hltL1TkDoubleMuFiltered7 +
     hltL1TkSingleMuFiltered15 +
     hltDoubleMuon7DZ1p0 +
