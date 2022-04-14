@@ -337,7 +337,6 @@ void SiStripQuality::ReduceGranularity(double threshold) {
     BadStripPerApv[3] = 0;
     BadStripPerApv[4] = 0;
     BadStripPerApv[5] = 0;
-    ipos = 0;
 
     SiStripBadStrip::Range sqrange =
         SiStripBadStrip::Range(getDataVectorBegin() + rp->ibegin, getDataVectorBegin() + rp->iend);
