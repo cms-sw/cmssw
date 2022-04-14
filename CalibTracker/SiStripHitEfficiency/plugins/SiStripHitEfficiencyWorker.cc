@@ -43,7 +43,6 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -79,29 +78,10 @@ private:
                    bool highPurity);
 
   // ----------member data ---------------------------
+
+  // event data tokens
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
   const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> commonModeToken_;
-
-  bool addLumi_;
-  bool addCommonMode_;
-  bool cutOnTracks_;
-  unsigned int trackMultiplicityCut_;
-  bool useFirstMeas_;
-  bool useLastMeas_;
-  bool useAllHitsFromTracksWithMissingHits_;
-
-  unsigned int clusterMatchingMethod_;
-  float resXSig_;
-  float clusterTracjDist_;
-  float stripsApvEdge_;
-  bool useOnlyHighPurityTracks_;
-  int bunchX_;
-  bool showRings_;
-  unsigned int nTEClayers_;
-  bool showTOB6TEC9_;
-
-  std::set<uint32_t> badModules_;
-
   const edm::EDGetTokenT<reco::TrackCollection> combinatorialTracks_token_;
   const edm::EDGetTokenT<std::vector<Trajectory>> trajectories_token_;
   const edm::EDGetTokenT<TrajTrackAssociationCollection> trajTrackAsso_token_;
@@ -109,6 +89,7 @@ private:
   const edm::EDGetTokenT<DetIdCollection> digis_token_;
   const edm::EDGetTokenT<MeasurementTrackerEvent> trackerEvent_token_;
 
+  // event setup tokens
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
   const edm::ESGetToken<StripClusterParameterEstimator, TkStripCPERecord> stripCPEToken_;
@@ -119,10 +100,31 @@ private:
   const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_;
   const edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 
-  int events, EventTrackCKF;
+  // configurable parameters
+  unsigned int layers_;
+  bool DEBUG_;
+  bool addLumi_;
+  bool addCommonMode_;
+  bool cutOnTracks_;
+  unsigned int trackMultiplicityCut_;
+  bool useFirstMeas_;
+  bool useLastMeas_;
+  bool useAllHitsFromTracksWithMissingHits_;
+  unsigned int clusterMatchingMethod_;
+  float resXSig_;
+  float clusterTracjDist_;
+  float stripsApvEdge_;
+  bool useOnlyHighPurityTracks_;
+  int bunchX_;
+  bool showRings_;
+  bool showTOB6TEC9_;
+  unsigned int nTEClayers_;
 
-  unsigned int layers;
-  bool DEBUG;
+  // output file
+  std::set<uint32_t> badModules_;
+
+  // counters
+  int events, EventTrackCKF;
 
   struct EffME1 {
     EffME1() : hTotal(nullptr), hFound(nullptr) {}
@@ -189,28 +191,28 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       measTrackerToken_(esConsumes()),
       chi2EstimatorToken_(esConsumes(edm::ESInputTag{"", "Chi2"})),
       propagatorToken_(esConsumes(edm::ESInputTag{"", "PropagatorWithMaterial"})),
-      tkDetMapToken_(esConsumes<edm::Transition::BeginRun>()) {
-  layers = conf.getParameter<int>("Layer");
-  DEBUG = conf.getParameter<bool>("Debug");
-  addLumi_ = conf.getUntrackedParameter<bool>("addLumi", false);
-  addCommonMode_ = conf.getUntrackedParameter<bool>("addCommonMode", false);
-  cutOnTracks_ = conf.getUntrackedParameter<bool>("cutOnTracks", false);
-  trackMultiplicityCut_ = conf.getUntrackedParameter<unsigned int>("trackMultiplicity", 100);
-  useFirstMeas_ = conf.getUntrackedParameter<bool>("useFirstMeas", false);
-  useLastMeas_ = conf.getUntrackedParameter<bool>("useLastMeas", false);
-  useAllHitsFromTracksWithMissingHits_ = conf.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
+      tkDetMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      layers_(conf.getParameter<int>("Layer")),
+      DEBUG_(conf.getParameter<bool>("Debug")),
+      addLumi_(conf.getUntrackedParameter<bool>("addLumi", false)),
+      addCommonMode_(conf.getUntrackedParameter<bool>("addCommonMode", false)),
+      cutOnTracks_(conf.getUntrackedParameter<bool>("cutOnTracks", false)),
+      trackMultiplicityCut_(conf.getUntrackedParameter<unsigned int>("trackMultiplicity", 100)),
+      useFirstMeas_(conf.getUntrackedParameter<bool>("useFirstMeas", false)),
+      useLastMeas_(conf.getUntrackedParameter<bool>("useLastMeas", false)),
+      useAllHitsFromTracksWithMissingHits_(
+          conf.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false)),
+      clusterMatchingMethod_(conf.getUntrackedParameter<int>("ClusterMatchingMethod", 0)),
+      resXSig_(conf.getUntrackedParameter<double>("ResXSig", -1)),
+      clusterTracjDist_(conf.getUntrackedParameter<double>("ClusterTrajDist", 64.0)),
+      stripsApvEdge_(conf.getUntrackedParameter<double>("StripsApvEdge", 10.0)),
+      useOnlyHighPurityTracks_(conf.getUntrackedParameter<bool>("UseOnlyHighPurityTracks", true)),
+      bunchX_(conf.getUntrackedParameter<int>("BunchCrossing", 0)),
+      showRings_(conf.getUntrackedParameter<bool>("ShowRings", false)),
+      showTOB6TEC9_(conf.getUntrackedParameter<bool>("ShowTOB6TEC9", false)) {
+  nTEClayers_ = (showRings_ ? 7 : 9);  // number of rings or wheels
 
   const std::string badModulesFile = conf.getUntrackedParameter<std::string>("BadModulesFile", "");
-  clusterMatchingMethod_ = conf.getUntrackedParameter<int>("ClusterMatchingMethod", 0);
-  resXSig_ = conf.getUntrackedParameter<double>("ResXSig", -1);
-  clusterTracjDist_ = conf.getUntrackedParameter<double>("ClusterTrajDist", 64.0);
-  stripsApvEdge_ = conf.getUntrackedParameter<double>("StripsApvEdge", 10.0);
-  useOnlyHighPurityTracks_ = conf.getUntrackedParameter<bool>("UseOnlyHighPurityTracks", true);
-  bunchX_ = conf.getUntrackedParameter<int>("BunchCrossing", 0);
-  showRings_ = conf.getUntrackedParameter<bool>("ShowRings", false);
-  nTEClayers_ = (showRings_ ? 7 : 9);  // number of rings or wheels
-  showTOB6TEC9_ = conf.getUntrackedParameter<bool>("ShowTOB6TEC9", false);
-
   if (!badModulesFile.empty()) {
     std::ifstream badModules_file(badModulesFile);
     uint32_t badmodule_detid;
@@ -240,126 +242,6 @@ void SiStripHitEfficiencyWorker::beginJob() {
   events = 0;
   EventTrackCKF = 0;
 }
-
-namespace {
-
-  double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr) {
-    double error = sqrt(parameters.second.xx() + xerr * xerr);
-    double separation = abs(parameters.first.x() - xx);
-    double consistency = separation / error;
-    return consistency;
-  }
-
-  bool isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) {
-    unsigned int layer;
-    switch (DetId(iidd).subdetId()) {
-      case SiStripSubdetector::TIB:
-        layer = tTopo->tibLayer(iidd);
-        return (layer == 1 || layer == 2);
-      case SiStripSubdetector::TOB:
-        layer = tTopo->tobLayer(iidd) + 4;
-        return (layer == 5 || layer == 6);
-      case SiStripSubdetector::TID:
-        layer = tTopo->tidRing(iidd) + 10;
-        return (layer == 11 || layer == 12);
-      case SiStripSubdetector::TEC:
-        layer = tTopo->tecRing(iidd) + 13;
-        return (layer == 14 || layer == 15 || layer == 18);
-      default:
-        return false;
-    }
-  }
-
-  bool check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj) {
-    unsigned int partner_iidd = 0;
-    bool found2DPartner = false;
-    // first get the id of the other detector
-    if ((iidd & 0x3) == 1)
-      partner_iidd = iidd + 1;
-    if ((iidd & 0x3) == 2)
-      partner_iidd = iidd - 1;
-    // next look in the trajectory measurements for a measurement from that detector
-    // loop through trajectory measurements to find the partner_iidd
-    for (const auto& tm : traj) {
-      if (tm.recHit()->geographicalId().rawId() == partner_iidd) {
-        found2DPartner = true;
-      }
-    }
-    return found2DPartner;
-  }
-
-  bool isInBondingExclusionZone(
-      unsigned int iidd, unsigned int TKlayers, double yloc, double yErr, const TrackerTopology* tTopo) {
-    constexpr float exclusionWidth = 0.4;
-    constexpr float TOBexclusion = 0.0;
-    constexpr float TECexRing5 = -0.89;
-    constexpr float TECexRing6 = -0.56;
-    constexpr float TECexRing7 = 0.60;
-
-    //Added by Chris Edelmaier to do TEC bonding exclusion
-    const int subdetector = ((iidd >> 25) & 0x7);
-    const int ringnumber = ((iidd >> 5) & 0x7);
-
-    bool inZone = false;
-    //New TOB and TEC bonding region exclusion zone
-    if ((TKlayers >= 5 && TKlayers < 11) || ((subdetector == 6) && ((ringnumber >= 5) && (ringnumber <= 7)))) {
-      //There are only 2 cases that we need to exclude for
-      float highzone = 0.0;
-      float lowzone = 0.0;
-      float higherr = yloc + 5.0 * yErr;
-      float lowerr = yloc - 5.0 * yErr;
-      if (TKlayers >= 5 && TKlayers < 11) {
-        //TOB zone
-        highzone = TOBexclusion + exclusionWidth;
-        lowzone = TOBexclusion - exclusionWidth;
-      } else if (ringnumber == 5) {
-        //TEC ring 5
-        highzone = TECexRing5 + exclusionWidth;
-        lowzone = TECexRing5 - exclusionWidth;
-      } else if (ringnumber == 6) {
-        //TEC ring 6
-        highzone = TECexRing6 + exclusionWidth;
-        lowzone = TECexRing6 - exclusionWidth;
-      } else if (ringnumber == 7) {
-        //TEC ring 7
-        highzone = TECexRing7 + exclusionWidth;
-        lowzone = TECexRing7 - exclusionWidth;
-      }
-      //Now that we have our exclusion region, we just have to properly identify it
-      if ((highzone <= higherr) && (highzone >= lowerr))
-        inZone = true;
-      if ((lowzone >= lowerr) && (lowzone <= higherr))
-        inZone = true;
-      if ((higherr <= highzone) && (higherr >= lowzone))
-        inZone = true;
-      if ((lowerr >= lowzone) && (lowerr <= highzone))
-        inZone = true;
-    }
-    return inZone;
-  }
-
-  struct ClusterInfo {
-    float xResidual;
-    float xResidualPull;
-    float xLocal;
-    ClusterInfo(float xRes, float xResPull, float xLoc) : xResidual(xRes), xResidualPull(xResPull), xLocal(xLoc) {}
-  };
-
-  float calcPhi(float x, float y) {
-    float phi = 0;
-    if ((x >= 0) && (y >= 0))
-      phi = std::atan(y / x);
-    else if ((x >= 0) && (y <= 0))
-      phi = std::atan(y / x) + 2 * M_PI;
-    else if ((x <= 0) && (y >= 0))
-      phi = std::atan(y / x) + M_PI;
-    else
-      phi = std::atan(y / x) + M_PI;
-    phi = phi * 180.0 / M_PI;
-
-    return phi;
-  }
-}  // anonymous namespace
 
 void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
                                                 const edm::Run& run,
@@ -436,7 +318,7 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
   const auto tTopo = &es.getData(tTopoToken_);
 
-  //  bool DEBUG = false;
+  //  bool DEBUG_ = false;
 
   LogDebug("SiStripHitEfficiencyWorker") << "beginning analyze from HitEff";
 
@@ -548,12 +430,12 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         // for double sided layers check both sensors--if no hit was found on either sensor surface,
         // the trajectory measurements only have one invalid hit entry on the matched surface
         // so get the TrajectoryAtInvalidHit for both surfaces and include them in the study
-        if (isDoubleSided(iidd, tTopo) && ((iidd & 0x3) == 0)) {
+        if (::isDoubleSided(iidd, tTopo) && ((iidd & 0x3) == 0)) {
           // do hit eff check twice--once for each sensor
           //add a TM for each surface
           TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 1);
           TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 2);
-        } else if (isDoubleSided(iidd, tTopo) && (!check2DPartner(iidd, TMeas))) {
+        } else if (::isDoubleSided(iidd, tTopo) && (!::check2DPartner(iidd, TMeas))) {
           // if only one hit was found the trajectory measurement is on that sensor surface, and the other surface from
           // the matched layer should be added to the study as well
           TMs.emplace_back(*itm, tTopo, tkgeom, propagator, 1);
@@ -627,14 +509,14 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
             const unsigned int tec9id = tec9Hit->geographicalId().rawId();
             LogDebug("SiStripHitEfficiencyWorker")
-                << "tec9id = " << tec9id << " is Double sided = " << isDoubleSided(tec9id, tTopo)
+                << "tec9id = " << tec9id << " is Double sided = " << ::isDoubleSided(tec9id, tTopo)
                 << "  and 0x3 = " << (tec9id & 0x3);
 
             if (tec9Hit->geographicalId().rawId() != 0) {
               LogDebug("SiStripHitEfficiencyWorker") << "tec9 hit actually being added to TM vector";
               // in tec the hit can be single or doubled sided. whenever the invalid hit at the end of vector of TMs is
               // double sided it is always on the matched surface, so we need to split it into the true sensor surfaces
-              if (isDoubleSided(tec9id, tTopo)) {
+              if (::isDoubleSided(tec9id, tTopo)) {
                 TMs.emplace_back(tec9TM, tTopo, tkgeom, propagator, 1);
                 TMs.emplace_back(tec9TM, tTopo, tkgeom, propagator, 2);
               } else
@@ -692,10 +574,11 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
   // reget layer from iidd here, to account for TOB 6 and TEC 9 TKlayers being off
   const auto TKlayers = ::checkLayer(iidd, tTopo);
 
-  const bool withinAcceptance = tm.withinAcceptance() && (!isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo));
+  const bool withinAcceptance =
+      tm.withinAcceptance() && (!::isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo));
 
-  if (                                            // (TKlayers > 0) && // FIXME confirm this
-      ((layers == TKlayers) || (layers == 0))) {  // Look at the layer not used to reconstruct the track
+  if (                                              // (TKlayers > 0) && // FIXME confirm this
+      ((layers_ == TKlayers) || (layers_ == 0))) {  // Look at the layer not used to reconstruct the track
     LogDebug("SiStripHitEfficiencyWorker") << "Looking at layer under study";
     unsigned int ModIsBad = 2;
     unsigned int SiStripQualBad = 0;
@@ -705,10 +588,10 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
 
     if (!theClusters.empty()) {
       LogDebug("SiStripHitEfficiencyWorker") << "Checking clusters with size = " << theClusters.size();
-      std::vector<ClusterInfo> VCluster_info;  //fill with X residual, X residual pull, local X
+      std::vector<::ClusterInfo> VCluster_info;  //fill with X residual, X residual pull, local X
       const auto idsv = theClusters.find(iidd);
       if (idsv != theClusters.end()) {
-        //if (DEBUG)      LogDebug("SiStripHitEfficiencyWorker") << "the ID from the dsv = " << dsv.id() ;
+        //if (DEBUG_)      LogDebug("SiStripHitEfficiencyWorker") << "the ID from the dsv = " << dsv.id() ;
         LogDebug("SiStripHitEfficiencyWorker")
             << "found  (ClusterId == iidd) with ClusterId = " << idsv->id() << " and iidd = " << iidd;
         const auto stripdet = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(iidd)));
@@ -748,7 +631,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
         for (const auto& clus : *idsv) {
           StripClusterParameterEstimator::LocalValues parameters = stripCPE.localParameters(clus, *stripdet);
           float res = (parameters.first.x() - xloc);
-          float sigma = checkConsistency(parameters, xloc, xErr);
+          float sigma = ::checkConsistency(parameters, xloc, xErr);
           // The consistency is probably more accurately measured with the Chi2MeasurementEstimator. To use it
           // you need a TransientTrackingRecHit instead of the cluster
           //theEstimator=       new Chi2MeasurementEstimator(30);
@@ -771,7 +654,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
               << "  trajectory position = " << xloc << "  traj error = " << xErr;
         }
       }
-      ClusterInfo finalCluster{1000.0, 1000.0, 0.0};
+      ::ClusterInfo finalCluster{1000.0, 1000.0, 0.0};
       if (!VCluster_info.empty()) {
         LogDebug("SiStripHitEfficiencyWorker") << "found clusters > 0";
         if (VCluster_info.size() > 1) {
@@ -961,7 +844,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
         if (badflag) {
           if (layer > 0 && layer <= 10) {
             // 1-4: TIB, 4-10: TOB
-            h_hotcold[layer - 1]->Fill(360. - calcPhi(tm.globalX(), tm.globalY()), tm.globalZ(), 1.);
+            h_hotcold[layer - 1]->Fill(360. - ::calcPhi(tm.globalX(), tm.globalY()), tm.globalZ(), 1.);
           } else if (layer > 10 && layer <= 13) {
             // 11-13: TID, above: TEC
             const int side = layer > 13 ? (iidd >> 13) & 0x3 : (iidd >> 18) & 0x3;
@@ -1013,7 +896,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
     LogDebug("SiStripHitEfficiencyWorker") << "after list of clusters";
   }
   LogDebug("SiStripHitEfficiencyWorker") << "After layers=TKLayers if with TKlayers=" << TKlayers
-                                         << ", layers=" << layers;
+                                         << ", layers=" << layers_;
 }
 
 void SiStripHitEfficiencyWorker::endJob() {
