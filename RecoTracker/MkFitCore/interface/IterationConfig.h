@@ -93,7 +93,7 @@ namespace mkfit {
     int maxConsecHoles = 1;
     float chi2Cut_min = 15.0;
     float chi2CutOverlap = 3.5;
-    float pTCutOverlap = 1.0;
+    float pTCutOverlap = 0.0;
 
     //seed cleaning params
     float c_ptthr_hpt = 2.0;
