@@ -1,15 +1,14 @@
-import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms 
+from RecoEgamma.EgammaTools.patPhotonDRNCorrectionProducer_cfi import patPhotonDRNCorrectionProducer
 
-patPhotonsDRN = cms.EDProducer("PatPhotonDRNCorrectionProducer",
-    particleSource = cms.InputTag("selectedPatPhotons"),
-    rhoName = cms.InputTag("fixedGridRhoFastjetAll"),
-
-    Client = cms.PSet(
-      mode = cms.string("Async"),
-      modelName = cms.string("photonObjectEnsemble"),
-      modelConfigPath = cms.FileInPath("RecoEgamma/EgammaPhotonProducers/data/models/photonObjectEnsemble/config.pbtxt"),
-      allowedTries = cms.untracked.uint32(1),
-      timeout = cms.untracked.uint32(10),
-      useSharedMemory = cms.untracked.bool(True),
+patPhotonsDRN = patPhotonDRNCorrectionProducer.clone(
+                            particleSource = 'selectedPatPhotons',
+                            rhoName = 'fixedGridRhoFastjetAll',
+                            Client = patPhotonDRNCorrectionProducer.Client.clone(
+                              mode = 'Async',
+                              allowedTries = 1,
+                              modelName = 'photonObjectEnsemble',
+                              modelConfigPath = 'RecoEgamma/EgammaPhotonProducers/data/models/photonObjectEnsemble/config.pbtxt',
+                              timeout = 10
+                            )
     )
-)
