@@ -52,7 +52,7 @@ $ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers tracking
 * *maxConsecHoles:*  maximum number of allowed consecutive holes on a candidate
 * *chi2Cut_min:*     minimum chi2 cut for accepting a new hit
 * *chi2CutOverlap:*  chi2 cut for accepting an overlap hit (currently NOT used)
-* *pTCutOverlap:*    pT cut below which the overlap hits are not picked up (currently NOT used)
+* *pTCutOverlap:*    pT cut below which the overlap hits are not picked up
 
 #### Seed cleaning params (based on elliptical dR-dz cut)
 

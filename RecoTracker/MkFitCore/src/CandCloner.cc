@@ -191,12 +191,10 @@ namespace mkfit {
           if (n_pushed >= mp_iteration_params->maxCandsPerSeed)
             break;
 
-          // set the overlap if we have a true hit (and possibly pT > pTCutOverlap)
+          // set the overlap if we have a true hit and pT > pTCutOverlap (=0 by default)
           HitMatch *hm;
-          if (tc.pT() > 0.0 && h2a.hitIdx >= 0 &&
-              (hm = ccand[h2a.trkIdx].findOverlap(
-                   h2a.hitIdx,
-                   h2a.module))) {  // To select tracks with a different pT cut, can use: mp_iteration_params->pTCutOverlap
+          if (tc.pT() > mp_iteration_params->pTCutOverlap && h2a.hitIdx >= 0 &&
+              (hm = ccand[h2a.trkIdx].findOverlap(h2a.hitIdx, h2a.module))) {
             tc.addHitIdx(hm->m_hit_idx, m_layer, hm->m_chi2);
             tc.incOverlapCount();
           }
