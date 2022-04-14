@@ -15,6 +15,7 @@
 <use name="pythia8"/>
 <use name="HepPDT"/>
 <use name="clhep"/>
+<use name="hepmc"/>
 <use name="rootcore"/>
 <use name="geant4core"/>
 <export>

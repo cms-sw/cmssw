@@ -3,6 +3,7 @@
 <use name="clhep"/>
 <use name="pythia6"/>
 <use name="f77compiler"/>
+<use name="hepmc"/>
 <export>
   <lib name="1"/>
 </export>

@@ -6,4 +6,5 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="boost"/>
+<use name="hepmc"/>
 <flags EDM_PLUGIN="1"/>
