@@ -16,7 +16,7 @@ namespace ecal {
       unsigned int nchannels_per_block = 64;
       unsigned int threads_1d = nchannels_per_block;
       unsigned int blocks_1d = (totalChannels / threads_1d) + 1;
-      // shared bytes from size of gain array, weight constants, digi samples per block, uncalib rechits amplitudes per block
+      // shared bytes from size of weight constants, digi samples per block, uncalib rechits amplitudes per block
       int shared_bytes = EcalDataFrame_Ph2::MAXSAMPLES * sizeof(double) +
                          nchannels_per_block * (EcalDataFrame_Ph2::MAXSAMPLES * (sizeof(uint16_t)) + sizeof(float));
       Phase2WeightsKernel<<<blocks_1d, threads_1d, shared_bytes, cudaStream>>>(
