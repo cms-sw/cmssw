@@ -366,8 +366,6 @@ TopDecaySubset::ShowerModel TopDecaySubset::checkShowerModel(edm::Event& event) 
     shower = kPythia;
   else if (moduleName.find("Pythia8") != std::string::npos)
     shower = kPythia8;
-  else if (moduleName.find("Herwig6") != std::string::npos)
-    shower = kHerwig;
   else if (moduleName.find("ThePEG") != std::string::npos)
     // Herwig++
     shower = kHerwig;
