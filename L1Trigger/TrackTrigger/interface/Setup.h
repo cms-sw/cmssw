@@ -386,6 +386,7 @@ namespace tt {
     int gpDepthMemory() const { return gpDepthMemory_; }
     // defining r-z sector shape
     double boundarieEta(int eta) const { return boundariesEta_.at(eta); }
+    std::vector<double> boundarieEta() const { return boundariesEta_; }
     // phi sector size in rad
     double baseSector() const { return baseSector_; }
     // cut on zT
