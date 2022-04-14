@@ -181,9 +181,8 @@ void HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       partonSelector_ = PartonSelectorPtr(new SherpaPartonSelector());
       edm::LogInfo("PartonModeDefined") << "Using Sherpa parton selection mode.";
     } else
-      throw cms::Exception("InvalidPartonMode")
-          << "Parton selection mode is invalid: " << partonMode_
-          << ", use Auto | Pythia6 | Pythia8 | Herwig++ | Sherpa" << std::endl;
+      throw cms::Exception("InvalidPartonMode") << "Parton selection mode is invalid: " << partonMode_
+                                                << ", use Auto | Pythia6 | Pythia8 | Herwig++ | Sherpa" << std::endl;
 
     partonSelectorSet_ = true;
   }
