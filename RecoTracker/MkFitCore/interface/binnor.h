@@ -56,8 +56,8 @@ namespace mkfit {
     I from_R_to_M_bin(R r) const { return std::floor((r - m_R_min) * m_M_fac); }
     I from_R_to_N_bin(R r) const { return std::floor((r - m_R_min) * m_N_fac); }
 
-    I from_R_to_M_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_M_bin : from_R_to_M_bin(r)); }
-    I from_R_to_N_bin_safe(R r) const { return r <= m_R_min ? 0 : (r >= m_R_max ? m_last_N_bin : from_R_to_N_bin(r)); }
+    I from_R_to_M_bin_safe(R r) const { return r <= m_R_min ? 0 : std::min(m_last_M_bin, from_R_to_M_bin(r)); }
+    I from_R_to_N_bin_safe(R r) const { return r <= m_R_min ? 0 : std::min(m_last_N_bin, from_R_to_N_bin(r)); }
 
     I from_M_bin_to_N_bin(I m) const { return m >> c_M2N_shift; }
 
@@ -193,6 +193,7 @@ namespace mkfit {
       C_pair() : first(0), count(0) {}
       C_pair(C f, C c) : first(f), count(c) {}
 
+      bool empty() const { return count == 0; }
       C begin() const { return first; }
       C end() const { return first + count; }
     };

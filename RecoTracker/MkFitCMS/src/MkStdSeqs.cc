@@ -185,6 +185,8 @@ namespace mkfit {
         for (auto i_phi = phi_rng.begin; i_phi != phi_rng.end; i_phi = ax_phi.next_N_bin(i_phi)) {
           for (auto i_eta = eta_rng.begin; i_eta != eta_rng.end; i_eta = ax_eta.next_N_bin(i_eta)) {
             const auto cbin = phi_eta_binnor.get_content(i_phi, i_eta);
+            if (cbin.empty())
+              continue;
             for (auto i = cbin.first; i < cbin.end(); ++i) {
               int tss = phi_eta_binnor.m_ranks[i];
 

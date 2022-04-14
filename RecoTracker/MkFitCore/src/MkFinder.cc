@@ -427,6 +427,8 @@ namespace mkfit {
           //SK: ~20x1024 bin sizes give mostly 1 hit per bin. Commented out for 128 bins or less
           // #pragma nounroll
           auto pbi = L.phiQBinContent(pi, qi);
+          if (pbi.empty())
+            continue;
           for (bcnt_t hi = pbi.begin(); hi < pbi.end(); ++hi) {
             // MT: Access into m_hit_zs and m_hit_phis is 1% run-time each.
 
