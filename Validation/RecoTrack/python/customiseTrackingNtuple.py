@@ -149,4 +149,6 @@ def extendedContent(process):
     process.trackingNtuple.saveSimHitsP3 = True
     process.trackingNtuple.addSeedCurvCov = True
 
+    process.trackingNtuple.includeTrackCandidates = True
+
     return process
