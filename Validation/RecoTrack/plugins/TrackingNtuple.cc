@@ -4494,6 +4494,7 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
                                    edm::InputTag("trackingParticleNumberOfLayersProducer", "stripStereoLayers"));
   desc.addUntracked<std::string>("TTRHBuilder", "WithTrackAngle");
   desc.addUntracked<bool>("includeSeeds", false);
+  desc.addUntracked<bool>("includeTrackCandidates", false);
   desc.addUntracked<bool>("addSeedCurvCov", false);
   desc.addUntracked<bool>("includeAllHits", false);
   desc.addUntracked<bool>("includeMVA", true);
