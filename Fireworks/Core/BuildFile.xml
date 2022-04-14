@@ -37,6 +37,7 @@
 <use name="rootrgl"/>
 <use name="rootglew"/>
 <use name="rootgui"/>
+<use name="hepmc"/>
 <export>
   <lib name="1"/>
 </export>
