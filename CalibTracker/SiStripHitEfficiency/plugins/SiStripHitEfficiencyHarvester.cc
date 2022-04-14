@@ -5,6 +5,7 @@
 #include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h" /* for STRIPS_PER_APV*/
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
@@ -15,6 +16,9 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+//system includes
+#include <sstream>
 
 // ROOT includes
 #include "TEfficiency.h"
@@ -228,7 +232,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
     std::vector<unsigned int> badStripList;
     //We need to figure out how many strips are in this particular module
     //To Mask correctly!
-    const auto nStrips = detInfo.getNumberOfApvsAndStripLength(det).first * 128;
+    const auto nStrips = detInfo.getNumberOfApvsAndStripLength(det).first * sistrip::STRIPS_PER_APV;
     LOGPRINT << "Number of strips module " << det << " is " << nStrips;
     badStripList.push_back(pQuality.encode(0, nStrips, 0));
     //Now compact into a single bad module
@@ -487,67 +491,69 @@ void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality
       percentage += range;
     }
     if (percentage != 0)
-      percentage /= 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
+      percentage /= (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(det).first);
     if (percentage > 1)
       edm::LogError("SiStripHitEfficiencyHarvester") << "PROBLEM detid " << det.rawId() << " value " << percentage;
   }
 
   // printout
-  LOGPRINT << "\n-----------------\nGlobal Info\n-----------------";
-  LOGPRINT << "\nBadComp \t	Modules \tFibers "
-              "\tApvs\tStrips\n----------------------------------------------------------------";
-  LOGPRINT << "\nTracker:\t\t" << nTkBadComp[0] << "\t" << nTkBadComp[1] << "\t" << nTkBadComp[2] << "\t"
-           << nTkBadComp[3];
-  LOGPRINT << "\nTIB:\t\t\t" << nBadComp[0][0][0] << "\t" << nBadComp[0][0][1] << "\t" << nBadComp[0][0][2] << "\t"
-           << nBadComp[0][0][3];
-  LOGPRINT << "\nTID:\t\t\t" << nBadComp[1][0][0] << "\t" << nBadComp[1][0][1] << "\t" << nBadComp[1][0][2] << "\t"
-           << nBadComp[1][0][3];
-  LOGPRINT << "\nTOB:\t\t\t" << nBadComp[2][0][0] << "\t" << nBadComp[2][0][1] << "\t" << nBadComp[2][0][2] << "\t"
-           << nBadComp[2][0][3];
-  LOGPRINT << "\nTEC:\t\t\t" << nBadComp[3][0][0] << "\t" << nBadComp[3][0][1] << "\t" << nBadComp[3][0][2] << "\t"
-           << nBadComp[3][0][3];
-  LOGPRINT << "\n";
+  std::ostringstream ss;
+  ss << "\n-----------------\nGlobal Info\n-----------------";
+  ss << "\nBadComp \t	Modules \tFibers "
+        "\tApvs\tStrips\n----------------------------------------------------------------";
+  ss << "\nTracker:\t\t" << nTkBadComp[0] << "\t" << nTkBadComp[1] << "\t" << nTkBadComp[2] << "\t" << nTkBadComp[3];
+  ss << "\nTIB:\t\t\t" << nBadComp[0][0][0] << "\t" << nBadComp[0][0][1] << "\t" << nBadComp[0][0][2] << "\t"
+     << nBadComp[0][0][3];
+  ss << "\nTID:\t\t\t" << nBadComp[1][0][0] << "\t" << nBadComp[1][0][1] << "\t" << nBadComp[1][0][2] << "\t"
+     << nBadComp[1][0][3];
+  ss << "\nTOB:\t\t\t" << nBadComp[2][0][0] << "\t" << nBadComp[2][0][1] << "\t" << nBadComp[2][0][2] << "\t"
+     << nBadComp[2][0][3];
+  ss << "\nTEC:\t\t\t" << nBadComp[3][0][0] << "\t" << nBadComp[3][0][1] << "\t" << nBadComp[3][0][2] << "\t"
+     << nBadComp[3][0][3];
+  ss << "\n";
 
   for (int i = 1; i < 5; ++i)
-    LOGPRINT << "\nTIB Layer " << i << " :\t\t" << nBadComp[0][i][0] << "\t" << nBadComp[0][i][1] << "\t"
-             << nBadComp[0][i][2] << "\t" << nBadComp[0][i][3];
-  LOGPRINT << "\n";
+    ss << "\nTIB Layer " << i << " :\t\t" << nBadComp[0][i][0] << "\t" << nBadComp[0][i][1] << "\t" << nBadComp[0][i][2]
+       << "\t" << nBadComp[0][i][3];
+  ss << "\n";
   for (int i = 1; i < 4; ++i)
-    LOGPRINT << "\nTID+ Disk " << i << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t"
-             << nBadComp[1][i][2] << "\t" << nBadComp[1][i][3];
+    ss << "\nTID+ Disk " << i << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t" << nBadComp[1][i][2]
+       << "\t" << nBadComp[1][i][3];
   for (int i = 4; i < 7; ++i)
-    LOGPRINT << "\nTID- Disk " << i - 3 << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t"
-             << nBadComp[1][i][2] << "\t" << nBadComp[1][i][3];
-  LOGPRINT << "\n";
+    ss << "\nTID- Disk " << i - 3 << " :\t\t" << nBadComp[1][i][0] << "\t" << nBadComp[1][i][1] << "\t"
+       << nBadComp[1][i][2] << "\t" << nBadComp[1][i][3];
+  ss << "\n";
   for (int i = 1; i < 7; ++i)
-    LOGPRINT << "\nTOB Layer " << i << " :\t\t" << nBadComp[2][i][0] << "\t" << nBadComp[2][i][1] << "\t"
-             << nBadComp[2][i][2] << "\t" << nBadComp[2][i][3];
-  LOGPRINT << "\n";
+    ss << "\nTOB Layer " << i << " :\t\t" << nBadComp[2][i][0] << "\t" << nBadComp[2][i][1] << "\t" << nBadComp[2][i][2]
+       << "\t" << nBadComp[2][i][3];
+  ss << "\n";
   for (int i = 1; i < 10; ++i)
-    LOGPRINT << "\nTEC+ Disk " << i << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t"
-             << nBadComp[3][i][2] << "\t" << nBadComp[3][i][3];
+    ss << "\nTEC+ Disk " << i << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t" << nBadComp[3][i][2]
+       << "\t" << nBadComp[3][i][3];
   for (int i = 10; i < 19; ++i)
-    LOGPRINT << "\nTEC- Disk " << i - 9 << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t"
-             << nBadComp[3][i][2] << "\t" << nBadComp[3][i][3];
-  LOGPRINT << "\n";
+    ss << "\nTEC- Disk " << i - 9 << " :\t\t" << nBadComp[3][i][0] << "\t" << nBadComp[3][i][1] << "\t"
+       << nBadComp[3][i][2] << "\t" << nBadComp[3][i][3];
+  ss << "\n";
 
-  LOGPRINT << "\n----------------------------------------------------------------\n\t\t   Detid  \tModules Fibers "
-              "Apvs\n----------------------------------------------------------------";
+  ss << "\n----------------------------------------------------------------\n\t\t   Detid  \tModules Fibers "
+        "Apvs\n----------------------------------------------------------------";
   for (int i = 1; i < 5; ++i)
-    LOGPRINT << "\nTIB Layer " << i << " :" << ssV[0][i].str();
-  LOGPRINT << "\n";
+    ss << "\nTIB Layer " << i << " :" << ssV[0][i].str();
+  ss << "\n";
   for (int i = 1; i < 4; ++i)
-    LOGPRINT << "\nTID+ Disk " << i << " :" << ssV[1][i].str();
+    ss << "\nTID+ Disk " << i << " :" << ssV[1][i].str();
   for (int i = 4; i < 7; ++i)
-    LOGPRINT << "\nTID- Disk " << i - 3 << " :" << ssV[1][i].str();
-  LOGPRINT << "\n";
+    ss << "\nTID- Disk " << i - 3 << " :" << ssV[1][i].str();
+  ss << "\n";
   for (int i = 1; i < 7; ++i)
-    LOGPRINT << "\nTOB Layer " << i << " :" << ssV[2][i].str();
-  LOGPRINT << "\n";
+    ss << "\nTOB Layer " << i << " :" << ssV[2][i].str();
+  ss << "\n";
   for (int i = 1; i < 10; ++i)
-    LOGPRINT << "\nTEC+ Disk " << i << " :" << ssV[3][i].str();
+    ss << "\nTEC+ Disk " << i << " :" << ssV[3][i].str();
   for (int i = 10; i < 19; ++i)
-    LOGPRINT << "\nTEC- Disk " << i - 9 << " :" << ssV[3][i].str();
+    ss << "\nTEC- Disk " << i - 9 << " :" << ssV[3][i].str();
+
+  LOGPRINT << ss.str();
 
   // store also bad modules in log file
   std::ofstream badModules;
