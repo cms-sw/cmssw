@@ -1155,13 +1155,19 @@ namespace mkfit {
                   itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
             }
 
-            // Select only SiStrip hits with cluster size <8
+            // Select only SiStrip hits with cluster size <= m_iteration_params->maxClusterSize
             if (!layer_of_hits.is_pixel()) {
-              if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >= 8)
+              if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+                  m_iteration_params->maxClusterSize)
                 isCompatible = false;
             }
-            //else { // Uncomment to apply analogous cut on pixel cluster size
-            //  if (layer_of_hits.refHit( m_XHitArr.At(itrack, hit_cnt, 0) ).spanRows() >= 8 || layer_of_hits.refHit( m_XHitArr.At(itrack, hit_cnt, 0) ).spanCols() >= 8) isCompatible = false;
+            // Uncomment to apply analogous cut on cluster size of SiPixel hits
+            //else {
+            //  if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+            //          m_iteration_params->maxClusterSize ||
+            //      layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanCols() >=
+            //          m_iteration_params->maxClusterSize)
+            //    isCompatible = false;
             //}
 
             if (isCompatible) {
