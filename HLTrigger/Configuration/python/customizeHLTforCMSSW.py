@@ -163,12 +163,21 @@ def customiseFor37231(process):
 
     return process
 
+
+def customiseForOffline(process):
+#   https://its.cern.ch/jira/browse/CMSHLT-2271
+    for prod in producers_by_type(process, 'BeamSpotOnlineProducer'):
+        prod.useTransientRecord = False
+
+    return process
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # if the gpu modifier is enabled, make the Pixel, ECAL and HCAL reconstruction offloadable to a GPU
     from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
     gpu.makeProcessModifier(customizeHLTforPatatrack).apply(process)
+    process = customiseForOffline(process)
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
