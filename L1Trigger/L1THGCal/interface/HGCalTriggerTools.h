@@ -35,7 +35,10 @@ public:
   ~HGCalTriggerTools() {}
 
   void setGeometry(const HGCalTriggerGeometryBase* const);
-  void eventSetup(const edm::EventSetup&, const edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord>&);  // Kept for backward compatibility: used in L1Trigger/L1CaloTrigger/test
+  void eventSetup(const edm::EventSetup&,
+                  const edm::ESGetToken<
+                      HGCalTriggerGeometryBase,
+                      CaloGeometryRecord>&);  // Kept for backward compatibility: used in L1Trigger/L1CaloTrigger/test
   GlobalPoint getTCPosition(const DetId& id) const;
   unsigned layers(ForwardSubdetector type) const;
   unsigned layers(DetId::Detector type) const;
