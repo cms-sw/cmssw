@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PatAlgos.PatPhotonDRNCorrectionProducer_cfi import PatPhotonDRNCorrectionProducer
-
 patPhotonsDRN = cms.EDProducer("PatPhotonDRNCorrectionProducer",
     particleSource = cms.InputTag("selectedPatPhotons"),
     rhoName = cms.InputTag("fixedGridRhoFastjetAll"),
