@@ -193,8 +193,8 @@ namespace mkfit {
     struct PackedData {
       unsigned int detid_in_layer : 12;
       unsigned int charge_pcm : 8;  // MIMI see set/get funcs; applicable for phase-0/1
-      unsigned int span_rows : 3;
-      unsigned int span_cols : 3;
+      unsigned int span_rows : 5;
+      unsigned int span_cols : 5;
 
       PackedData() : detid_in_layer(0), charge_pcm(0), span_rows(0), span_cols(0) {}
 
@@ -219,19 +219,19 @@ namespace mkfit {
 
     static unsigned int minChargePerCM() { return kMinChargePerCM; }
     static unsigned int maxChargePerCM() { return kMinChargePerCM + (0xfe << 3); }
-    static unsigned int maxSpan() { return 8; }
+    static unsigned int maxSpan() { return 32; }
 
     void setupAsPixel(unsigned int id, int rows, int cols) {
       pdata_.detid_in_layer = id;
       pdata_.charge_pcm = 0xff;
-      pdata_.span_rows = std::min(0x7, rows - 1);
-      pdata_.span_cols = std::min(0x7, cols - 1);
+      pdata_.span_rows = std::min(0x20, rows - 1);
+      pdata_.span_cols = std::min(0x20, cols - 1);
     }
 
     void setupAsStrip(unsigned int id, int cpcm, int rows) {
       pdata_.detid_in_layer = id;
       pdata_.set_charge_pcm(cpcm);
-      pdata_.span_rows = std::min(0x7, rows - 1);
+      pdata_.span_rows = std::min(0x20, rows - 1);
     }
 
   private:
