@@ -28,12 +28,12 @@ namespace {
 }  // namespace
 
 void SSDigitizerAlgorithm::init(const edm::EventSetup& es) {
-  if (use_LorentzAngle_DB_)   // Get Lorentz angle from DB record
+  if (use_LorentzAngle_DB_)  // Get Lorentz angle from DB record
     siPhase2OTLorentzAngle_ = &es.getData(siPhase2OTLorentzAngleToken_);
- 
-  if (use_deadmodule_DB_) // Get Bad Channel (SiStripBadStrip) from DB 
-    badChannelPayload_  = &es.getData(badChannelToken_);
-  
+
+  if (use_deadmodule_DB_)  // Get Bad Channel (SiStripBadStrip) from DB
+    badChannelPayload_ = &es.getData(badChannelToken_);
+
   geom_ = &es.getData(geomToken_);
 }
 
@@ -50,7 +50,8 @@ SSDigitizerAlgorithm::SSDigitizerAlgorithm(const edm::ParameterSet& conf, edm::C
     siPhase2OTLorentzAngleToken_ = iC.esConsumes();
 
   if (use_deadmodule_DB_) {
-    std::string badChannelLabel_ = conf.getParameter<ParameterSet>("SSDigitizerAlgorithm").getUntrackedParameter<std::string>("BadChannelLabel","");
+    std::string badChannelLabel_ = conf.getParameter<ParameterSet>("SSDigitizerAlgorithm")
+                                       .getUntrackedParameter<std::string>("BadChannelLabel", "");
     badChannelToken_ = iC.esConsumes(edm::ESInputTag{"", badChannelLabel_});
   }
 
@@ -198,17 +199,17 @@ void SSDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pix
 
   signal_map_type& theSignal = _signal[detId];
   signal_map_type signalNew;
-   
+
   SiStripBadStrip::Range range = badChannelPayload_->getRange(detId);
   for (std::vector<unsigned int>::const_iterator badChannel = range.first; badChannel != range.second; ++badChannel) {
     const auto& firstStrip = badChannelPayload_->decodePhase2(*badChannel).firstStrip;
     const auto& channelRange = badChannelPayload_->decodePhase2(*badChannel).range;
 
-
     for (int index = 0; index < channelRange; index++) {
       for (auto& s : theSignal) {
         auto& channel = s.first;
-        if( channel == firstStrip+index) s.second.set(0.);
+        if (channel == firstStrip + index)
+          s.second.set(0.);
       }
     }
   }

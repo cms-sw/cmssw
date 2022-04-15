@@ -25,7 +25,7 @@ namespace {
 }  // namespace
 
 Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC)
-  : PixelDigitizerAlgorithm(conf, iC),
+    : PixelDigitizerAlgorithm(conf, iC),
       np_column_radius_(
           (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnRadius")) *
           1.0_um),
@@ -35,7 +35,6 @@ Pixel3DDigitizerAlgorithm::Pixel3DDigitizerAlgorithm(const edm::ParameterSet& co
       np_column_gap_(
           (conf.getParameter<edm::ParameterSet>("Pixel3DDigitizerAlgorithm").getParameter<double>("NPColumnGap")) *
           1.0_um) {
-
   // XXX - NEEDED?
   pixelFlag_ = true;
 

@@ -310,4 +310,3 @@ void PixelDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* 
     }
   }
 }
-

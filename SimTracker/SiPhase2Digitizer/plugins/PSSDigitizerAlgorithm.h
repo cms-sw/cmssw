@@ -7,7 +7,6 @@
 #include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 
-
 class PSSDigitizerAlgorithm : public Phase2TrackerDigitizerAlgorithm {
 public:
   PSSDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
