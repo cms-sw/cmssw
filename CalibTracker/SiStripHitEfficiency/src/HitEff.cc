@@ -708,7 +708,6 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                     FinalCluster[i] = VCluster_info.at(0)[i];
                   }
                 }
-                nClusters = 0;
                 VCluster_info.clear();
               }
 
