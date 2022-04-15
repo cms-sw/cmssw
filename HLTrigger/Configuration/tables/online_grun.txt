@@ -342,9 +342,9 @@ AlCa_LumiPixelsCounts_ZeroBias_v*			#	CMSHLT-2114
 DST_ZeroBias_v*	#	CMSHLT-1404
 HLT_Mu17_Photon30_IsoCaloId_v*	#	CMSHLT-1409
 HLT_DoubleL2Mu50_v*	#	CMSHLT-1416
-HLT_L2Mu50_v*	#	CMSHLT-1416
-HLT_OldMu100_v*	#	CMSHLT-1416
-HLT_TkMu100_v*	#	CMSHLT-1416
+HLT_L2Mu50_v*        # CMSHLT-1416
+HLT_CascadeMu100_v*  # CMSHLT-1416, CMSHLT-2277
+HLT_HighPtTkMu100_v* # CMSHLT-1416, CMSHLT-2277
 HLT_Ele27_Ele37_CaloIdL_MW_v*	#	CMSHLT-1419
 HLT_Mu27_Ele37_CaloIdL_MW_v*	#	CMSHLT-1419
 HLT_Mu37_Ele27_CaloIdL_MW_v*	#	CMSHLT-1419
@@ -675,8 +675,8 @@ HLT_AK8PFJet250_SoftDropMass40_PFAK8ParticleNetTauTau0p30_v* # CMSHLT-2253
 HLT_AK8PFJet275_SoftDropMass40_PFAK8ParticleNetTauTau0p30_v* # CMSHLT-2253
 HLT_DoubleMediumDeepTauIsoPFTauHPS30_L2NN_eta2p1_PFJet60_v* # CMSHLT-2221
 HLT_DoublePFJets40_Mass500_MediumDeepTau45_L2NN_MediumDeepTau20_eta2p1_v* # CMSHLT-2224
-HLT_DoubleL2Mu10NoVtx_2Cha_PromptL3Mu0Veto_v*                           # CMSHLT-2211
-HLT_DoubleL3Mu10NoVtx_Displaced_v*                                      # CMSHLT-2211
+HLT_DoubleL2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm_v* # CMSHLT-2279
+HLT_DoubleL3Mu16_10NoVtx_DxyMin0p01cm_v*         # CMSHLT-2279
 HLT_Mu20NoFiltersNoVtxDisplaced_Photon20_CaloCustomId_v*                # CMSHLT-2211
 HLT_DoubleMediumChargedIsoDisplacedPFTauHPS32_Trk1_eta2p1_v*            # CMSHLT-2211
 HLT_HT430_DelayedJet40_DoubleDelay0p5nsTrackless_v*                     # CMSHLT-2211
