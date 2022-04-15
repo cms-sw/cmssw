@@ -5,9 +5,6 @@ from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.gpuValidationEcal_cff import gpuValidationEcal
 
-#from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cff import *
-#from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
-
 process = cms.Process('RECO',Phase2C10,phase2_ecal_devel, gpu, gpuValidationEcal)
 
 # import of standard configurations
