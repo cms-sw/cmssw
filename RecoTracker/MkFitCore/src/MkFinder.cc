@@ -611,7 +611,7 @@ namespace mkfit {
                          hex, hey, her, hephi, hez,
                          ht_dxy, ht_dz, ht_dphi,
                          hchi2);
-                  // clang-format ofn
+                  // clang-format on
                 }
               }
 #endif
