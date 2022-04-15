@@ -206,7 +206,7 @@ namespace mkfit {
         if (cpcm < kMinChargePerCM)
           charge_pcm = 0;
         else
-          charge_pcm = std::min(0xff, ((cpcm - kMinChargePerCM) >> 3) + 1);
+          charge_pcm = std::min((1 << kChargePerCMBits) - 1, ((cpcm - kMinChargePerCM) >> 3) + 1);
       }
       unsigned int get_charge_pcm() const {
         if (charge_pcm == 0)
@@ -222,20 +222,20 @@ namespace mkfit {
     unsigned int spanCols() const { return pdata_.span_cols + 1; }
 
     static unsigned int minChargePerCM() { return kMinChargePerCM; }
-    static unsigned int maxChargePerCM() { return kMinChargePerCM + (0xfe << 3); }
+    static unsigned int maxChargePerCM() { return kMinChargePerCM + (((1 << kChargePerCMBits) - 2) << 3); }
     static unsigned int maxSpan() { return kMaxClusterSize; }
 
     void setupAsPixel(unsigned int id, int rows, int cols) {
       pdata_.detid_in_layer = id;
-      pdata_.charge_pcm = 0xff;
-      pdata_.span_rows = std::min(0x20, rows - 1);
-      pdata_.span_cols = std::min(0x20, cols - 1);
+      pdata_.charge_pcm = (1 << kChargePerCMBits) - 1;
+      pdata_.span_rows = std::min(kMaxClusterSize, rows - 1);
+      pdata_.span_cols = std::min(kMaxClusterSize, cols - 1);
     }
 
     void setupAsStrip(unsigned int id, int cpcm, int rows) {
       pdata_.detid_in_layer = id;
       pdata_.set_charge_pcm(cpcm);
-      pdata_.span_rows = std::min(0x20, rows - 1);
+      pdata_.span_rows = std::min(kMaxClusterSize, rows - 1);
     }
 
   private:
