@@ -625,6 +625,7 @@ namespace edm {
       bool operator==(IndexIntoFileItrImpl const& right) const;
 
       IndexIntoFile const* indexIntoFile() const { return indexIntoFile_; }
+
       int size() const { return size_; }
       virtual int indexedSize() const { return size(); }
 
@@ -689,8 +690,8 @@ namespace edm {
       RunNumber_t run() const override;
       LuminosityBlockNumber_t lumi() const override;
       EntryNumber_t entry() const override;
-      bool shouldProcessLumi() const override { return true; }
-      bool shouldProcessRun() const override { return true; }
+      bool shouldProcessLumi() const final { return true; }
+      bool shouldProcessRun() const final { return true; }
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
@@ -725,8 +726,8 @@ namespace edm {
       RunNumber_t run() const override;
       LuminosityBlockNumber_t lumi() const override;
       EntryNumber_t entry() const override;
-      bool shouldProcessLumi() const override { return true; }
-      bool shouldProcessRun() const override { return true; }
+      bool shouldProcessLumi() const final { return true; }
+      bool shouldProcessRun() const final { return true; }
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
@@ -761,8 +762,8 @@ namespace edm {
       RunNumber_t run() const override;
       LuminosityBlockNumber_t lumi() const override;
       EntryNumber_t entry() const override;
-      bool shouldProcessLumi() const override;
-      bool shouldProcessRun() const override;
+      bool shouldProcessLumi() const final;
+      bool shouldProcessRun() const final;
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
