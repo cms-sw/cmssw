@@ -69,13 +69,22 @@ in the iteration (once for each contained contiguous sequence
 of events plus possibly one additional time near the end
 for the run or lumi to be processed and merged, although this
 might or might not occur with the last contiguous sequence
-of events). The iterator automatically skips over
-the duplicate event entries created by this. The client
-needs to check the iterator function named shouldProcessLumi
-or shouldProcessRun to determine whether a lumi or run
-entry should be recognized as a placeholder or it is
-the entry where the products should be read and merged
-for output.
+of events). The iterator is designed to automatically step to
+each event once, even when it points at the same RunOrLumiEntry
+with the same events more than once in the iteration. The client
+does not need to do anything special related to events. On the
+other hand, the client (usually PoolSource, which passes the
+value into the Principal) needs to check the iterator functions
+named shouldProcessLumi or shouldProcessRun to determine whether
+a lumi or run is being encountered more than once. Those functions
+will return true only once. At that time, run or lumi products
+are read, possibly merged, and written to output. When those
+functions return false, transitions still occur but products
+are not read, merged or written. If a module attempts to get
+run or lumi products in those transitions, there will be a
+"ProductNotFound" exception or invalid Handle. In general,
+getting run or lumi products from events does not work with
+the EntryOrder iterator type.
 
 One final comment with regards to IndexIntoFileItr.  This
 is not an STL iterator and it cannot be used with std::
