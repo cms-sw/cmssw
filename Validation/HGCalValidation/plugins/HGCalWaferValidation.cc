@@ -222,7 +222,7 @@ void HGCalWaferValidation::DDFindWafers(DDCompactView::GraphWalker& walker) {
 
 // ----- process the layer of wafers -----
 void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker) {
-  static int waferLayer = 0;  // layer numbers in DD are assumed to be sequential from 1
+  int waferLayer = 0;  // layer numbers in DD are assumed to be sequential from 1
   waferLayer++;
   edm::LogVerbatim(logcat) << "ProcessWaferLayer: Processing layer " << waferLayer;
   do {
