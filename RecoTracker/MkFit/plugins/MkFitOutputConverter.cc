@@ -346,8 +346,10 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     const auto seedIndex = cand.label();
     LogTrace("MkFitOutputConverter") << " from seed " << seedIndex << " seed hits";
 
-    // Rescale candidate error if candidate is already propagated to first layer, to be consistent with TransientInitialStateEstimator::innerState used in CkfTrackCandidateMakerBase
-    // Error is only rescaled for candidates propagated to first layer; otherwise, candidates undergo backwardFit where error is already rescaled
+    // Rescale candidate error if candidate is already propagated to first layer,
+    // to be consistent with TransientInitialStateEstimator::innerState used in CkfTrackCandidateMakerBase
+    // Error is only rescaled for candidates propagated to first layer;
+    // otherwise, candidates undergo backwardFit where error is already rescaled
     if (mkFitOutput.propagatedToFirstLayer() && doErrorRescale_)
       fts.rescaleError(100.);
     auto tsosDet =
