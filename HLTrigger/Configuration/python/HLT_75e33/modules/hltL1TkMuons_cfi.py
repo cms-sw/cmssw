@@ -47,5 +47,3 @@ hltL1TkMuons = cms.EDProducer("L1TkMuonProducer",
     useRegionEtaMatching = cms.bool(True),
     useTPMatchWindows = cms.bool(True)
 )
-
-L1TkMuons = hltL1TkMuons.clone()
