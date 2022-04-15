@@ -74,9 +74,6 @@ std::vector<double> DeepSCGraphEvaluation::scaleWindowFeatures(const std::vector
 }
 
 std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInputs& inputs) const {
-  /*
-   Evaluate the DeepSC model
-  */
   LogDebug("DeepSCGraphEvaluation") << "Starting evaluation";
 
   // Final output

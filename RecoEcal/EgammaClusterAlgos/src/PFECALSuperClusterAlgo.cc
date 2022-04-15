@@ -296,14 +296,14 @@ void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedClusterPtrVec
   // make sure only seeds appear at the front of the list of clusters
   auto last_seed = std::stable_partition(clusters.begin(), clusters.end(), seedable);
 
-  EcalClustersGraph ecalClusterGraph_{clusters,
-                                      static_cast<int>(std::distance(clusters.begin(), last_seed)),
-                                      topology_,
-                                      ebGeom_,
-                                      eeGeom_,
-                                      barrelRecHits_,
-                                      endcapRecHits_,
-                                      SCProducerCache_};
+  reco::EcalClustersGraph ecalClusterGraph_{clusters,
+                                            static_cast<int>(std::distance(clusters.begin(), last_seed)),
+                                            topology_,
+                                            ebGeom_,
+                                            eeGeom_,
+                                            barrelRecHits_,
+                                            endcapRecHits_,
+                                            SCProducerCache_};
   // Build sub-regions of the detector where the DeepSC algo will be run
   ecalClusterGraph_.initWindows();
   // For each sub-region, prepare the DeepSC input tensors
@@ -314,7 +314,7 @@ void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedClusterPtrVec
   ecalClusterGraph_.setThresholds();
   ecalClusterGraph_.selectClusters();
   // Extract the final SuperCluster collection
-  EcalClustersGraph::EcalGraphOutput windows = ecalClusterGraph_.getGraphOutput();
+  reco::EcalClustersGraph::EcalGraphOutput windows = ecalClusterGraph_.getGraphOutput();
   for (auto& [seed, clustered] : windows) {
     bool isEE = false;
     if (seed->the_ptr()->layer() == PFLayer::ECAL_ENDCAP)

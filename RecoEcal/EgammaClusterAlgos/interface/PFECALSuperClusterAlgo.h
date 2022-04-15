@@ -70,7 +70,7 @@ public:
   enum energy_weight { kRaw, kCalibratedNoPS, kCalibratedTotal };
 
   /// constructor
-  PFECALSuperClusterAlgo(const SCProducerCache* cache);
+  PFECALSuperClusterAlgo(const reco::SCProducerCache* cache);
 
   void setVerbosityLevel(bool verbose) { verbose_ = verbose; }
 

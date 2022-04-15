@@ -86,6 +86,8 @@ std::vector<int> EcalClustersGraph::clusterPosition(const CaloCluster* cluster) 
 }
 
 std::vector<double> EcalClustersGraph::dynamicWindow(double seedEta) {
+  // The dEta-dPhi detector window dimension is chosen to that the algorithm is always larger than
+  // the Mustache dimension
   std::vector<double> window;
   window.resize(3);
 
@@ -95,31 +97,34 @@ std::vector<double> EcalClustersGraph::dynamicWindow(double seedEta) {
   double dphi = 0.;
 
   //deta_down
-  if (eta < 2.1)
+  constexpr float deta_down_bins[2] = {2.1, 2.5};
+  if (eta < deta_down_bins[0])
     deta_down = -0.075;
-  else if (eta >= 2.1 && eta < 2.5)
+  else if (eta >= deta_down_bins[0] && eta < deta_down_bins[1])
     deta_down = -0.1875 * eta + 0.31875;
-  else if (eta >= 2.5)
+  else if (eta >= deta_down_bins[1])
     deta_down = -0.15;
 
   //deta_up
-  if (eta >= 0 && eta < 0.1)
+  constexpr float deta_up_bins[4] = {0.1, 1.3, 1.7, 1.9};
+  if (eta < deta_up_bins[0])
     deta_up = 0.075;
-  else if (eta >= 0.1 && eta < 1.3)
+  else if (eta >= deta_up_bins[0] && eta < deta_up_bins[1])
     deta_up = 0.0758929 - 0.0178571 * eta + 0.0892857 * (eta * eta);
-  else if (eta >= 1.3 && eta < 1.7)
+  else if (eta >= deta_up_bins[1] && eta < deta_up_bins[2])
     deta_up = 0.2;
-  else if (eta >= 1.7 && eta < 1.9)
+  else if (eta >= deta_up_bins[2] && eta < deta_up_bins[3])
     deta_up = 0.625 - 0.25 * eta;
-  else if (eta >= 1.9)
+  else if (eta >= deta_up_bins[3])
     deta_up = 0.15;
 
   //dphi
-  if (eta < 1.9)
+  constexpr float dphi_bins[2] = {1.9, 2.7};
+  if (eta < dphi_bins[0])
     dphi = 0.6;
-  else if (eta >= 1.9 && eta < 2.7)
+  else if (eta >= dphi_bins[0] && eta < dphi_bins[1])
     dphi = 1.075 - 0.25 * eta;
-  else if (eta >= 2.7)
+  else if (eta >= dphi_bins[1])
     dphi = 0.4;
 
   window[0] = deta_down;
