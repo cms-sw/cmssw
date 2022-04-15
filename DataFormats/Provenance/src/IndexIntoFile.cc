@@ -58,10 +58,10 @@ namespace edm {
 
   void IndexIntoFile::addLumi(int index, RunNumber_t run, LuminosityBlockNumber_t lumi, EntryNumber_t entry) {
     // assign each lumi an order value sequentially when first seen
-    std::pair<IndexRunLumiKey, EntryNumber_t> keyAndOrder(IndexRunLumiKey(index, run, lumi), lumiToOrder().size());
+    std::pair<IndexRunLumiKey, EntryNumber_t> keyAndOrder{IndexRunLumiKey{index, run, lumi}, lumiToOrder().size()};
     lumiToOrder().insert(keyAndOrder);  // does nothing if this key already was inserted
     runOrLumiEntries_.emplace_back(invalidEntry,
-                                   lumiToOrder()[IndexRunLumiKey(index, run, lumi)],
+                                   lumiToOrder()[IndexRunLumiKey{index, run, lumi}],
                                    entry,
                                    index,
                                    run,
@@ -98,10 +98,10 @@ namespace edm {
     previousAddedIndex() = index;
 
     if (lumi == invalidLumi) {  // adding a run entry
-      std::pair<IndexRunKey, EntryNumber_t> keyAndOrder(IndexRunKey(index, run), runToOrder().size());
+      std::pair<IndexRunKey, EntryNumber_t> keyAndOrder{IndexRunKey{index, run}, runToOrder().size()};
       runToOrder().insert(keyAndOrder);  // does nothing if this key already was inserted
       runOrLumiEntries_.emplace_back(
-          runToOrder()[IndexRunKey(index, run)], invalidEntry, entry, index, run, lumi, invalidEntry, invalidEntry);
+          runToOrder()[IndexRunKey{index, run}], invalidEntry, entry, index, run, lumi, invalidEntry, invalidEntry);
     } else {
       if (event == invalidEvent) {  // adding a lumi entry
         if ((currentIndex() != index or currentRun() != run or currentLumi() != lumi) and
@@ -113,7 +113,7 @@ namespace edm {
         currentIndex() = invalidIndex;
         currentRun() = invalidRun;
         currentLumi() = invalidLumi;
-        std::pair<IndexRunKey, EntryNumber_t> keyAndOrder(IndexRunKey(index, run), runToOrder().size());
+        std::pair<IndexRunKey, EntryNumber_t> keyAndOrder{IndexRunKey{index, run}, runToOrder().size()};
         runToOrder().insert(keyAndOrder);  // does nothing if this key already was inserted
       } else {                             // adding an event entry
         if ((currentIndex() != index or currentRun() != run or currentLumi() != lumi) and
@@ -128,7 +128,7 @@ namespace edm {
           currentLumi() = lumi;
           beginEvents() = entry;
           endEvents() = beginEvents() + 1;
-          std::pair<IndexRunKey, EntryNumber_t> keyAndOrder(IndexRunKey(index, run), runToOrder().size());
+          std::pair<IndexRunKey, EntryNumber_t> keyAndOrder{IndexRunKey{index, run}, runToOrder().size()};
           runToOrder().insert(keyAndOrder);  // does nothing if this key already was inserted
         } else {
           assert(currentIndex() == index);
