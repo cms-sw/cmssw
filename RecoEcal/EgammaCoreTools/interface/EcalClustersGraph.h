@@ -47,8 +47,6 @@
  * The DeepSC algorithm is applied on sub-graphs of clusters to form SuperCluster.
  */
 
-using namespace std;
-using namespace reco;
 namespace reco {
 
   class EcalClustersGraph {
@@ -64,12 +62,15 @@ namespace reco {
                       const CaloSubdetectorGeometry* eeGeom,
                       const EcalRecHitCollection* recHitsEB,
                       const EcalRecHitCollection* recHitsEE,
-                      const SCProducerCache* cache);
+                      const reco::SCProducerCache* cache);
 
     std::vector<int> clusterPosition(const CaloCluster* cluster);
 
     // Sign flip deltaEta as in the Mustache
     double deltaEta(double seed_eta, double cluster_eta) { return (1 - 2 * (seed_eta < 0)) * (cluster_eta - seed_eta); }
+
+    // The dEta-dPhi detector window dimension is chosen to that the algorithm is always larger than
+    // the Mustache dimension
     std::vector<double> dynamicWindow(double seedEta);
 
     std::vector<double> computeVariables(const CaloCluster* seed, const CaloCluster* cluster);
@@ -104,13 +105,13 @@ namespace reco {
     const CaloSubdetectorGeometry* eeGeom_;
     const EcalRecHitCollection* recHitsEB_;
     const EcalRecHitCollection* recHitsEE_;
-    const SCProducerCache* SCProducerCache_;
+    const reco::SCProducerCache* SCProducerCache_;
 
     // GraphMap for handling all the windows and scores
-    GraphMap graphMap_;
-    GraphMap::CollectionStrategy strategy_;
+    reco::GraphMap graphMap_;
+    reco::GraphMap::CollectionStrategy strategy_;
     float threshold_;
-    DeepSCInputs inputs_;
+    reco::DeepSCInputs inputs_;
   };
 
 }  // namespace reco
