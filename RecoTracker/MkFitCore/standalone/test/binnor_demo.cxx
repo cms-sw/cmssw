@@ -136,10 +136,8 @@ void run_test(const int NLoop, int NN, const bool use_radix, const bool keep_con
     for (auto i_phi = phi_rng.begin; i_phi != phi_rng.end; i_phi = phi.next_N_bin(i_phi)) {
       for (auto i_eta = eta_rng.begin; i_eta != eta_rng.end; i_eta = eta.next_N_bin(i_eta)) {
         printf(" at i_phi=%u, i_eta=%u\n", i_phi, i_eta);
-        auto cbin = b.get_content(i_phi, i_eta);
-        if (cbin.empty())
-          continue;
-        for (auto i = cbin.first; i < cbin.first + cbin.count; ++i) {
+        const auto cbin = b.get_content(i_phi, i_eta);
+        for (auto i = cbin.begin(); i < cbin.end(); ++i) {
           const track &t = tracks[b.m_ranks[i]];
           printf("   %3d  %3d  phi=%f  eta=%f\n", i, b.m_ranks[i], t.phi, t.eta);
         }
