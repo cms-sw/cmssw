@@ -626,6 +626,15 @@ namespace edm {
 
       IndexIntoFile const* indexIntoFile() const { return indexIntoFile_; }
 
+      // runOrLumiEntries_ and runOrLumiIndexes_ have the same size. It
+      // is returned by the function size(). There are iterator data members
+      // that are indexes into a container. The iterators also need the size of that
+      // container and the function indexedSize() returns it. For the NoSort and
+      // Sorted derived iterator classes, those indexes point directly into
+      // runOrLumiEntries_ or runOrLumiIndexes_ and therefore return the same
+      // value as size(). The indexes in the EntryOrder iterator class point into
+      // a larger container and indexedSize() is overridden to give the size of
+      // that container.
       int size() const { return size_; }
       virtual int indexedSize() const { return size(); }
 
