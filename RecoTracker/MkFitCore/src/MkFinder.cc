@@ -939,6 +939,21 @@ namespace mkfit {
               isCompatible &= passStripChargePCMfromTrack(
                   itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
             }
+            // Select only SiStrip hits with cluster size < maxClusterSize
+            if (!layer_of_hits.is_pixel()) {
+              if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+                  m_iteration_params->maxClusterSize)
+                isCompatible = false;
+            }
+            // Uncomment to apply analogous cut on cluster size of SiPixel hits
+            //else {
+            //  if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+            //          m_iteration_params->maxClusterSize ||
+            //      layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanCols() >=
+            //          m_iteration_params->maxClusterSize)
+            //    isCompatible = false;
+            //}
+
             if (isCompatible) {
               oneCandPassCut = true;
               break;
@@ -968,7 +983,7 @@ namespace mkfit {
                                    << "   updated track parameters x=" << m_Par[iC].constAt(0, 0, 0)
                                    << " y=" << m_Par[iC].constAt(0, 1, 0));
 
-        //create candidate with hit in case chi2 < m_iteration_params->chi2Cut_min
+        //create candidate with hit in case chi2 < max_c2
         //fixme: please vectorize me... (not sure it's possible in this case)
         for (int itrack = 0; itrack < N_proc; ++itrack) {
           float max_c2 = getHitSelDynamicChi2Cut(itrack, iP);
@@ -987,6 +1002,21 @@ namespace mkfit {
                 isCompatible &= passStripChargePCMfromTrack(
                     itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
               }
+              // Select only SiStrip hits with cluster size < maxClusterSize
+              if (!layer_of_hits.is_pixel()) {
+                if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+                    m_iteration_params->maxClusterSize)
+                  isCompatible = false;
+              }
+              // Uncomment to apply analogous cut on cluster size of SiPixel hits
+              //else {
+              //  if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+              //          m_iteration_params->maxClusterSize ||
+              //      layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanCols() >=
+              //          m_iteration_params->maxClusterSize)
+              //    isCompatible = false;
+              //}
+
               if (isCompatible) {
                 bool hitExists = false;
                 int maxHits = m_NFoundHits(itrack, 0, 0);
@@ -1155,7 +1185,7 @@ namespace mkfit {
                   itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
             }
 
-            // Select only SiStrip hits with cluster size <= m_iteration_params->maxClusterSize
+            // Select only SiStrip hits with cluster size < maxClusterSize
             if (!layer_of_hits.is_pixel()) {
               if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
                   m_iteration_params->maxClusterSize)
