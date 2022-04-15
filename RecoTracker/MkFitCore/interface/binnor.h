@@ -32,7 +32,7 @@ namespace mkfit {
 
     const R m_R_min, m_R_max;
     const R m_M_fac, m_N_fac;
-    const R m_M_lbhp, m_N_lbhp; // last bin half-posts
+    const R m_M_lbhp, m_N_lbhp;  // last bin half-posts
     const I m_last_M_bin, m_last_N_bin;
 
     struct I_pair {
