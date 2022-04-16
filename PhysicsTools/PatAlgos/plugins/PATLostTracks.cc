@@ -285,7 +285,7 @@ void pat::PATLostTracks::addPackedCandidate(std::vector<pat::PackedCandidate>& c
     id = -11;
 
   // assign the proper pdgId for tracks that are reconstructed as a muon
-  const reco::Muon * muon(nullptr);
+  const reco::Muon* muon(nullptr);
   for (auto& mu : *muons) {
     if (reco::TrackRef(mu.innerTrack()) == trk) {
       id = -13 * trk->charge();
