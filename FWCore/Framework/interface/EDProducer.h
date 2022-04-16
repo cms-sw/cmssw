@@ -41,7 +41,7 @@ namespace edm {
     friend class WorkerT;
     typedef EDProducer ModuleType;
 
-    EDProducer();
+    CMS_DEPRECATED EDProducer();
     ~EDProducer() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
