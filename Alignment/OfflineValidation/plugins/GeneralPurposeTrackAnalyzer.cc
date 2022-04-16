@@ -699,6 +699,10 @@ private:
   void beginRun(edm::Run const &run, edm::EventSetup const &setup) override
   //*************************************************************
   {
+    // initialize runInfoMap_
+    runInfoMap_[run.run()].first = 0;
+    runInfoMap_[run.run()].second = 0;
+
     // Magnetic Field setup
     magneticField_ = setup.getHandle(magFieldToken_);
     float B_ = magneticField_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
@@ -709,7 +713,7 @@ private:
     }
 
     //SiStrip Latency
-    edm::ESHandle<SiStripLatency> apvlat = setup.getHandle(latencyToken_);
+    const SiStripLatency *apvlat = &setup.getData(latencyToken_);
     if (apvlat->singleReadOutMode() == 1) {
       mode = 1;  // peak mode
     } else if (apvlat->singleReadOutMode() == 0) {
