@@ -22,8 +22,9 @@ namespace edm {
       ThrowingDelayedReader(
           signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadSource,
           signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* postEventReadSource)
-          : preEventReadFromSourceSignal_(preEventReadSource), postEventReadFromSourceSignal_(postEventReadSource),
-              e_(std::make_exception_ptr(cms::Exception("TEST"))) {}
+          : preEventReadFromSourceSignal_(preEventReadSource),
+            postEventReadFromSourceSignal_(postEventReadSource),
+            e_(std::make_exception_ptr(cms::Exception("TEST"))) {}
 
       signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> const* preEventReadFromSourceSignal()
           const final {
@@ -38,7 +39,7 @@ namespace edm {
       std::shared_ptr<WrapperBase> getProduct_(BranchID const& k, EDProductGetter const* ep) final {
         try {
           std::rethrow_exception(e_);
-        } catch(cms::Exception const& iE) {
+        } catch (cms::Exception const& iE) {
           //avoid adding to the context for each call
           auto copyException = iE;
           copyException.addContext("called ThrowingDelayedReader");
