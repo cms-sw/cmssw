@@ -34,7 +34,7 @@ namespace edm {
     friend class WorkerT;
     typedef EDAnalyzer ModuleType;
 
-    EDAnalyzer();
+    CMS_DEPRECATED EDAnalyzer();
     ~EDAnalyzer() override;
 
     std::string workerType() const { return "WorkerT<EDAnalyzer>"; }

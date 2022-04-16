@@ -44,7 +44,7 @@ namespace edm {
     friend class WorkerT;
     typedef EDFilter ModuleType;
 
-    EDFilter();
+    CMS_DEPRECATED EDFilter();
     ~EDFilter() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
