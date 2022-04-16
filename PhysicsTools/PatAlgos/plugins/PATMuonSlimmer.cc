@@ -69,7 +69,8 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet &iConfig)
       pf2pc_.push_back(consumes<edm::Association<pat::PackedCandidateCollection>>(tag));
   }
   if (linkToLostTrack_) {
-    track2LostTrack_ = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("lostTracks"));
+    track2LostTrack_ =
+        consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("lostTracks"));
   }
 
   if (modifyMuon_) {
@@ -128,11 +129,11 @@ void pat::PATMuonSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     }
   }
   if (linkToLostTrack_) {
-    const auto& trk2LT = iEvent.get(track2LostTrack_);
-    for (const auto& mu : *src) {
-      const auto& track = dynamic_cast<const reco::Muon*>(mu.originalObject())->innerTrack();
+    const auto &trk2LT = iEvent.get(track2LostTrack_);
+    for (const auto &mu : *src) {
+      const auto &track = dynamic_cast<const reco::Muon *>(mu.originalObject())->innerTrack();
       if (track.isNonnull() && trk2LT.contains(track.id())) {
-        const auto& lostTrack = trk2LT[track];
+        const auto &lostTrack = trk2LT[track];
         if (lostTrack.isNonnull())
           mu2pc[mu.refToOrig_] = lostTrack;
       }
