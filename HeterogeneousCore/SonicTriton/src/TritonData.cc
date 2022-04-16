@@ -27,30 +27,49 @@ TritonData<IO>::TritonData(const std::string& name,
       dims_(model_info.shape().begin(), model_info.shape().end()),
       noBatch_(client_->noBatch()),
       batchSize_(0),
-      fullShape_(dims_),
-      shape_(fullShape_.begin() + (noBatch_ ? 0 : 1), fullShape_.end()),
-      variableDims_(anyNeg(shape_)),
-      productDims_(variableDims_ ? -1 : dimProduct(shape_)),
       dname_(model_info.datatype()),
       dtype_(tco::ProtocolStringToDataType(dname_)),
       byteSize_(tco::GetDataTypeByteSize(dtype_)),
       totalByteSize_(0) {
-  //create input or output object
-  IO* iotmp;
-  createObject(&iotmp);
-  data_.reset(iotmp);
+  //initialize first shape entry
+  addEntry(1);
+  //one-time computation of some shape info
+  variableDims_ = anyNeg(entries_.front().shape_));
+  productDims_ = variableDims_ ? -1 : dimProduct(entries_.front().shape_);
+  checkShm();
 }
 
 template <>
-void TritonInputData::createObject(tc::InferInput** ioptr) {
-  tc::InferInput::Create(ioptr, name_, fullShape_, dname_);
-}
-
-template <>
-void TritonOutputData::createObject(tc::InferRequestedOutput** ioptr) {
-  tc::InferRequestedOutput::Create(ioptr, name_);
+void TritonOutputData::checkShm() {
   //another specialization for output: can't use shared memory if output size is not known
   useShm_ &= !variableDims_;
+}
+
+template <typename IO>
+void TritonData<IO>::addEntry(unsigned entry) {
+  if (entry > entries_.size()) {
+    entries_.reserve(entry+1);
+    for (unsigned i = entries_.size(); i < entry+1; ++i) {
+      entries_.emplace_back(dims_, noBatch_, name_, dname_);
+      //todo: should each entry have its own batch size?
+      //for now, restrict multi-request mode for ragged batching to batch size = 1
+      if (entry>1 and !noBatch_)
+        entries_.back().fullShape_[0] = 1;
+    }
+    //go back and fix the first one
+    if (entry>1 and !noBatch_)
+      entries_[0].fullShape_[0] = 1;
+  }
+}
+
+template <>
+void TritonInputData::TritonDataEntry::createObject(tc::InferInput** ioptr, const std::string& name, const std::string& dname) {
+  tc::InferInput::Create(ioptr, name, fullShape_, dname);
+}
+
+template <>
+void TritonOutputData::TritonDataEntry::createObject(tc::InferRequestedOutput** ioptr, const std::string& name, const std::string& dname)) {
+  tc::InferRequestedOutput::Create(ioptr, name);
 }
 
 template <>
@@ -70,24 +89,27 @@ tc::InferenceServerGrpcClient* TritonData<IO>::client() {
 
 //setters
 template <typename IO>
-void TritonData<IO>::setShape(const TritonData<IO>::ShapeType& newShape) {
+void TritonData<IO>::setShape(const TritonData<IO>::ShapeType& newShape, unsigned entry) {
+  addEntry(entry);
   for (unsigned i = 0; i < newShape.size(); ++i) {
-    setShape(i, newShape[i]);
+    setShape(i, newShape[i], entry);
   }
 }
 
 template <typename IO>
-void TritonData<IO>::setShape(unsigned loc, int64_t val) {
+void TritonData<IO>::setShape(unsigned loc, int64_t val, unsigned entry) {
+  addEntry(entry);
+
   unsigned locFull = fullLoc(loc);
 
   //check boundary
-  if (locFull >= fullShape_.size())
+  if (locFull >= entries_[entry].fullShape_.size())
     throw cms::Exception("TritonDataError")
-        << name_ << " setShape(): dimension " << locFull << " out of bounds (" << fullShape_.size() << ")";
+        << name_ << " setShape(): dimension " << locFull << " out of bounds (" << entries_[entry].fullShape_.size() << ")";
 
-  if (val != fullShape_[locFull]) {
+  if (val != entries_[entry].fullShape_[locFull]) {
     if (dims_[locFull] == -1)
-      fullShape_[locFull] = val;
+      entries_[entry].fullShape_[entry][locFull] = val;
     else
       throw cms::Exception("TritonDataError")
           << name_ << " setShape(): attempt to change value of non-variable shape dimension " << loc;
@@ -97,20 +119,39 @@ void TritonData<IO>::setShape(unsigned loc, int64_t val) {
 template <typename IO>
 void TritonData<IO>::setBatchSize(unsigned bsize) {
   batchSize_ = bsize;
-  if (!noBatch_)
-    fullShape_[0] = batchSize_;
+  if (!noBatch_) {
+    if (entries_[0].fullShape_.size()==1)
+      entries_[0].fullShape_ = batchSize_;
+    else
+      throw cms::Exception("TritonDataError") << "attempt to set batch size to " << bsize << " when ragged batching is in use";
+  }
+}
+
+template <typename IO>
+void TritonData<IO>::TritonDataEntry::computeSizes(int64_t shapeSize, int64_t byteSize) {
+  sizeShape_ = shapeSize;
+  byteSizePerBatch_ = byteSize * sizeShape_;
 }
 
 template <typename IO>
 void TritonData<IO>::computeSizes() {
-  sizeShape_ = sizeShape();
-  byteSizePerBatch_ = byteSize_ * sizeShape_;
-  totalByteSize_ = byteSizePerBatch_ * batchSize_;
+  for (unsigned i = 0; i < entries_.size(); ++i) {
+    entries_[i].computeSizes(sizeShape(i), byteSize_);
+    totalByteSize_ += entries_[i].byteSizePerBatch_ * batchSize_;
+  }
 }
+
 template <typename IO>
-void TritonData<IO>::resetSizes() {
+void TritonData<IO>::TritonDataEntry::resetSizes() {
   sizeShape_ = 0;
   byteSizePerBatch_ = 0;
+}
+
+template <typename IO>
+void TritonData<IO>::resetSizes() {
+  for (unsigned i = 0; i < entries_.size(); ++i) {
+    entries_[i].resetSizes();
+  }
   totalByteSize_ = 0;
 }
 
@@ -168,21 +209,32 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
   const auto& data_in = *ptr;
 
   //check batch size
-  if (data_in.size() != batchSize_) {
+  if (entries_.size()==1 and data_in.size() != batchSize_)) {
     throw cms::Exception("TritonDataError") << name_ << " toServer(): input vector has size " << data_in.size()
                                             << " but specified batch size is " << batchSize_;
   }
-
-  //shape must be specified for variable dims or if batch size changes
-  data_->SetShape(fullShape_);
+  else if (entries_.size()>1 and data_in.size() != entries_.size()) {
+    throw cms::Exception("TritonDataError") << name_ << " toServer(): input vector has size " << data_in.size()
+                                            << " but specified entries size is " << entries_.size();
+  }
 
   //check type
   checkType<DT>();
 
   computeSizes();
   updateMem(totalByteSize_);
-  for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
-    memResource_->copyInput(data_in[i0].data(), i0 * byteSizePerBatch_);
+
+  unsigned counter = 0;
+  for (unsigned i = 0; i < entries_.size(); ++i) {
+    auto& entry = entries_[i];
+
+    //shape must be specified for variable dims or if batch size changes
+    entry.data_->SetShape(entry.fullShape_);
+
+    for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
+      memResource_->copyInput(data_in[counter].data(), counter * entry.byteSizePerBatch_);
+      ++counter;
+    }
   }
   memResource_->set();
 
