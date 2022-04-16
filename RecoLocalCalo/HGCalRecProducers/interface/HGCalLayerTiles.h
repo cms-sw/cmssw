@@ -6,6 +6,7 @@
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalTilesConstants.h"
 #include "RecoLocalCalo/HGCalRecProducers/interface/HFNoseTilesConstants.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 #include <vector>
 #include <array>
@@ -16,6 +17,7 @@
 template <typename T>
 class HGCalLayerTilesT {
 public:
+  typedef T type;
   void fill(const std::vector<float>& x,
             const std::vector<float>& y,
             const std::vector<float>& eta,
@@ -26,14 +28,6 @@ public:
       tiles_[getGlobalBin(x[i], y[i])].push_back(i);
       if (!isSi[i]) {
         tiles_[getGlobalBinEtaPhi(eta[i], phi[i])].push_back(i);
-        // Copy cells in phi=[-3.15,-3.] to the last bin
-        if (getPhiBin(phi[i]) == mPiPhiBin) {
-          tiles_[getGlobalBinEtaPhi(eta[i], phi[i] + 2 * M_PI)].push_back(i);
-        }
-        // Copy cells in phi=[3.,3.15] to the first bin
-        if (getPhiBin(phi[i]) == pPiPhiBin) {
-          tiles_[getGlobalBinEtaPhi(eta[i], phi[i] - 2 * M_PI)].push_back(i);
-        }
       }
     }
   }
@@ -66,11 +60,9 @@ public:
   }
 
   int getPhiBin(float phi) const {
-    constexpr float phiRange = T::maxPhi - T::minPhi;
-    static_assert(phiRange >= 0.);
-    constexpr float r = T::nRowsPhi / phiRange;
-    int phiBin = (phi - T::minPhi) * r;
-    phiBin = std::clamp(phiBin, 0, T::nRowsPhi - 1);
+    auto normPhi = normalizedPhi(phi);
+    constexpr float r = T::nRowsPhi * M_1_PI * 0.5f;
+    int phiBin = (normPhi + M_PI) * r;
     return phiBin;
   }
 
@@ -102,6 +94,15 @@ public:
     int etaBinMax = getEtaBin(etaMax);
     int phiBinMin = getPhiBin(phiMin);
     int phiBinMax = getPhiBin(phiMax);
+    // If the search window cross the phi-bin boundary, add T::nPhiBins to the
+    // MAx value. This guarantees that the caller can perform a valid doule
+    // loop on eta and phi. It is the caller responsibility to perform a module
+    // operation on the phiBin values returned by this function, to explore the
+    // correct bins.
+    if (phiBinMax < phiBinMin) {
+      phiBinMax += T::nRowsPhi;
+    }
+
     return std::array<int, 4>({{etaBinMin, etaBinMax, phiBinMin, phiBinMax}});
   }
 

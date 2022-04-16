@@ -285,7 +285,8 @@ void HGCalCLUEAlgoT<T>::calculateLocalDensity(const T& lt, const unsigned int la
 
       for (int etaBin = search_box[0]; etaBin < search_box[1] + 1; ++etaBin) {
         for (int phiBin = search_box[2]; phiBin < search_box[3] + 1; ++phiBin) {
-          int binId = lt.getGlobalBinByBinEtaPhi(etaBin, phiBin);
+          int phi = (phiBin % T::type::nRowsPhi);
+          int binId = lt.getGlobalBinByBinEtaPhi(etaBin, phi);
           size_t binSize = lt[binId].size();
 
           for (unsigned int j = 0; j < binSize; j++) {
@@ -416,7 +417,8 @@ void HGCalCLUEAlgoT<T>::calculateDistanceToHigher(const T& lt,
       for (int xBin = search_box[0]; xBin < search_box[1] + 1; ++xBin) {
         for (int yBin = search_box[2]; yBin < search_box[3] + 1; ++yBin) {
           // get the id of this bin
-          size_t binId = lt.getGlobalBinByBinEtaPhi(xBin, yBin);
+          int phi = (yBin % T::type::nRowsPhi);
+          size_t binId = lt.getGlobalBinByBinEtaPhi(xBin, phi);
           // get the size of this bin
           size_t binSize = lt[binId].size();
 
