@@ -3,11 +3,11 @@
 int32_t HGCalProperty::waferProperty(const int32_t thick,
                                      const int32_t part,
                                      const int32_t orient,
-                                     const int32_t casette) {
+                                     const int32_t cassette) {
   return (((thick % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetThick) +
           ((part % HGCalProperty::kHGCalFactorPartial) * HGCalProperty::kHGCalOffsetPartial) +
           ((orient % HGCalProperty::kHGCalFactor) * HGCalProperty::kHGCalOffsetOrient) +
-          ((casette % HGCalProperty::kHGCalFactorCasette) * HGCalProperty::kHGCalOffsetCasette));
+          ((cassette % HGCalProperty::kHGCalFactorCassette) * HGCalProperty::kHGCalOffsetCassette));
 }
 
 int32_t HGCalProperty::waferThick(const int32_t property) {
@@ -22,8 +22,8 @@ int32_t HGCalProperty::waferOrient(const int32_t property) {
   return ((property / HGCalProperty::kHGCalOffsetOrient) % HGCalProperty::kHGCalFactor);
 }
 
-int32_t HGCalProperty::waferCasette(const int32_t property) {
-  return ((property / HGCalProperty::kHGCalOffsetCasette) % HGCalProperty::kHGCalFactorCasette);
+int32_t HGCalProperty::waferCassette(const int32_t property) {
+  return ((property / HGCalProperty::kHGCalOffsetCassette) % HGCalProperty::kHGCalFactorCassette);
 }
 
 int32_t HGCalProperty::tileProperty(const int32_t type, const int32_t sipm) {
