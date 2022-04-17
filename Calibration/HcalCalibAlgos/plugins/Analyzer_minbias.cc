@@ -79,11 +79,10 @@ namespace cms {
 
   private:
     // ----------member data ---------------------------
-    std::string fOutputFileName;
+    std::string fOutputFileName_;
+    bool theRecalib_;
     std::string hcalfile_;
     std::ofstream* myout_hcal;
-
-    edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
 
     // names of modules, producing object collections
     TFile* hOutputFile;
@@ -142,22 +141,22 @@ namespace cms {
     double theDFFillDetMapMin1[5][5][73][43];
     double theDFFillDetMapMin2[5][5][73][43];
 
-    edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-    edm::EDGetTokenT<HORecHitCollection> tok_ho_;
-    edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+    const edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    const edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+    const edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
 
-    edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNoise_;
-    edm::EDGetTokenT<HORecHitCollection> tok_hoNoise_;
-    edm::EDGetTokenT<HFRecHitCollection> tok_hfNoise_;
+    const edm::EDGetTokenT<FEDRawDataCollection> tok_data_;
+
+    const edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNoise_;
+    const edm::EDGetTokenT<HORecHitCollection> tok_hoNoise_;
+    const edm::EDGetTokenT<HFRecHitCollection> tok_hfNoise_;
 
     //
-    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtRec_;
-    edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNorm_;
+    const edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> tok_gtRec_;
+    const edm::EDGetTokenT<HBHERecHitCollection> tok_hbheNorm_;
 
-    edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respCorr_;
-    edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> tok_l1gt_;
-
-    bool theRecalib;
+    const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respCorr_;
+    const edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> tok_l1gt_;
   };
 }  // namespace cms
 
@@ -165,30 +164,24 @@ namespace cms {
 // constructors and destructor
 //
 namespace cms {
-  Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig) {
+  Analyzer_minbias::Analyzer_minbias(const edm::ParameterSet& iConfig)
+      : fOutputFileName_(iConfig.getUntrackedParameter<std::string>("HistOutFile")),
+        theRecalib_(iConfig.getParameter<bool>("Recalib")),
+        tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"))),
+        tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputMB"))),
+        tok_hf_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"))),
+        tok_data_(consumes<FEDRawDataCollection>(edm::InputTag(iConfig.getParameter<std::string>("InputLabel")))),
+        tok_hbheNoise_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputNoise"))),
+        tok_hoNoise_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputNoise"))),
+        tok_hfNoise_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputNoise"))),
+        tok_gtRec_(consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"))),
+        tok_hbheNorm_(consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"))),
+        tok_respCorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()),
+        tok_l1gt_(esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd>()) {
     usesResource(TFileService::kSharedResource);
     // get name of output file with histogramms
-    fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile");
     // get names of modules, producing object collections
-
-    tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputMB"));
-    tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputMB"));
-    tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputMB"));
-    tok_data_ = consumes<FEDRawDataCollection>(edm::InputTag(iConfig.getParameter<std::string>("InputLabel")));
-
-    tok_hbheNoise_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInputNoise"));
-    tok_hoNoise_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputNoise"));
-    tok_hfNoise_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInputNoise"));
-
-    // this was hardcodded..
-    tok_gtRec_ = consumes<L1GlobalTriggerReadoutRecord>(edm::InputTag("gtDigisAlCaMB"));
-    tok_hbheNorm_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
-
-    tok_respCorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
-    tok_l1gt_ = esConsumes<L1GtTriggerMenu, L1GtTriggerMenuRcd>();
-
-    theRecalib = iConfig.getParameter<bool>("Recalib");
-
+    // some of the label names are hardcodded..
     //
     for (int i = 0; i < 73; i++) {
       for (int j = 0; j < 43; j++) {
@@ -441,9 +434,9 @@ namespace cms {
                                      << provenance->productInstanceName();
     }
     const HcalRespCorrs* myRecalib = nullptr;
-    if (theRecalib) {
+    if (theRecalib_) {
       myRecalib = &iSetup.getData(tok_respCorr_);
-    }  // theRecalib
+    }  // theRecalib_
 
     // Noise part for HB HE
 
@@ -461,16 +454,14 @@ namespace cms {
       }
     }
 
-    edm::Handle<HBHERecHitCollection> hbheNormal;
-    iEvent.getByToken(tok_hbheNorm_, hbheNormal);
+    const edm::Handle<HBHERecHitCollection> hbheNormal = iEvent.getHandle(tok_hbheNorm_);
     if (!hbheNormal.isValid()) {
       edm::LogWarning("AnalyzerMB") << " hbheNormal failed ";
     } else {
       edm::LogVerbatim("AnalyzerMB") << " The size of the normal collection " << hbheNormal->size();
     }
 
-    edm::Handle<HBHERecHitCollection> hbheNS;
-    iEvent.getByToken(tok_hbheNoise_, hbheNS);
+    const edm::Handle<HBHERecHitCollection> hbheNS = iEvent.getHandle(tok_hbheNoise_);
 
     if (!hbheNS.isValid()) {
       edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hbhe"
@@ -485,8 +476,7 @@ namespace cms {
     if (HithbheNS.size() != 5184) {
       edm::LogWarning("AnalyzerMB") << " HBHE problem " << rnnum << " " << HithbheNS.size();
     }
-    edm::Handle<HBHERecHitCollection> hbheMB;
-    iEvent.getByToken(tok_hbhe_, hbheMB);
+    const edm::Handle<HBHERecHitCollection> hbheMB = iEvent.getHandle(tok_hbhe_);
 
     if (!hbheMB.isValid()) {
       edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hbhe"
@@ -499,8 +489,7 @@ namespace cms {
       edm::LogWarning("AnalyzerMB") << " HBHE problem " << rnnum << " " << HithbheMB.size();
     }
 
-    edm::Handle<HFRecHitCollection> hfNS;
-    iEvent.getByToken(tok_hfNoise_, hfNS);
+    const edm::Handle<HFRecHitCollection> hfNS = iEvent.getHandle(tok_hfNoise_);
 
     if (!hfNS.isValid()) {
       edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hf"
@@ -514,8 +503,7 @@ namespace cms {
       edm::LogWarning("AnalyzerMB") << " HF problem " << rnnum << " " << HithfNS.size();
     }
 
-    edm::Handle<HFRecHitCollection> hfMB;
-    iEvent.getByToken(tok_hf_, hfMB);
+    const edm::Handle<HFRecHitCollection> hfMB = iEvent.getHandle(tok_hf_);
 
     if (!hfMB.isValid()) {
       edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hf"
@@ -532,7 +520,7 @@ namespace cms {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
-      if (theRecalib)
+      if (theRecalib_)
         icalconst = myRecalib->getValues(mydetid)->getValue();
 
       HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
@@ -585,7 +573,7 @@ namespace cms {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
-      if (theRecalib)
+      if (theRecalib_)
         icalconst = myRecalib->getValues(mydetid)->getValue();
 
       HBHERecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
@@ -645,7 +633,7 @@ namespace cms {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
-      if (theRecalib)
+      if (theRecalib_)
         icalconst = myRecalib->getValues(mydetid)->getValue();
 
       HFRecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());
@@ -699,7 +687,7 @@ namespace cms {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
-      if (theRecalib)
+      if (theRecalib_)
         icalconst = myRecalib->getValues(mydetid)->getValue();
 
       HFRecHit aHit(hbheItr->id(), hbheItr->energy() * icalconst, hbheItr->time());

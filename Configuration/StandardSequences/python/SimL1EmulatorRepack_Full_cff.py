@@ -15,8 +15,8 @@ stage2L1Trigger.toModify(None, _print)
 
 # First, Unpack all inputs to L1:
 
-import EventFilter.Utilities.tcdsRawToDigi_cfi
-unpackTcds = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
+import EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi
+unpackTcds = EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi.tcdsRawToDigi.clone(
     InputLabel = cms.InputTag( 'rawDataCollector', processName=cms.InputTag.skipCurrentProcess()))
 
 import EventFilter.L1TRawToDigi.bmtfDigis_cfi

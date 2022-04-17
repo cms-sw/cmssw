@@ -48,9 +48,9 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 
 import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvHLT.subSystemFolder = 'HLT'
-
+dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone(
+    subSystemFolder = 'HLT'
+)
 offlineHLTSource = cms.Sequence(
     hltFiltersDQMonitor *
     egHLTOffDQMSource *

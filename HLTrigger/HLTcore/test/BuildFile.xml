@@ -1,0 +1,4 @@
+<bin file="test_catch2_*.cc" name="testHLTriggerHLTcoreCatch2">
+  <use name="HLTrigger/HLTcore"/>
+  <use name="catch2"/>
+</bin>

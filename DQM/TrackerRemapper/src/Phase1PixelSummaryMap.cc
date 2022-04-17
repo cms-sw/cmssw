@@ -81,10 +81,10 @@ void Phase1PixelSummaryMap::createTrackerBaseMap() {
 }
 
 //============================================================================
-void Phase1PixelSummaryMap::printTrackerMap(TCanvas& canvas) {
+void Phase1PixelSummaryMap::printTrackerMap(TCanvas& canvas, const float topMargin) {
   //canvas = TCanvas("c1","c1",plotWidth,plotHeight);
   canvas.cd();
-  canvas.SetTopMargin(0.02);
+  canvas.SetTopMargin(topMargin);
   canvas.SetBottomMargin(0.02);
   canvas.SetLeftMargin(0.02);
   canvas.SetRightMargin(0.14);
@@ -122,7 +122,7 @@ void Phase1PixelSummaryMap::printTrackerMap(TCanvas& canvas) {
   txt.SetTextAngle(0);
 
   //# draw new-style title
-  txt.SetTextSize(0.05);
+  txt.SetTextSize((topMargin == 0.02) ? 0.05 : 0.03);
   txt.DrawLatex(0.5, 0.95, (fmt::sprintf("Pixel Tracker Map: %s", m_title)).c_str());
   txt.SetTextSize(0.03);
 

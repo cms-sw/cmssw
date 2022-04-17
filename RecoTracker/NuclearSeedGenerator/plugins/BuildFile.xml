@@ -1,4 +1,5 @@
 <use name="RecoTracker/NuclearSeedGenerator"/>
+<use name="RecoTracker/Record"/>
 <use name="RecoTracker/TrackProducer"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/TrackReco"/>

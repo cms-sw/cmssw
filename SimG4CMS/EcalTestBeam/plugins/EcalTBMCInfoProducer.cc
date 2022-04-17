@@ -27,6 +27,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <vector>
 
 class EcalTBMCInfoProducer : public edm::stream::EDProducer<> {
@@ -35,48 +36,51 @@ public:
   explicit EcalTBMCInfoProducer(const edm::ParameterSet &ps);
 
   /// Destructor
-  ~EcalTBMCInfoProducer() override;
+  ~EcalTBMCInfoProducer() override = default;
 
   /// Produce digis out of raw data
   void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
 
 private:
-  double beamEta;
-  double beamPhi;
-  double beamTheta;
+  const double fMinEta;
+  const double fMaxEta;
+  const double fMinPhi;
+  const double fMaxPhi;
+  const double beamEta;
+  const double beamPhi;
+  const double beamTheta;
+  const double beamXoff;
+  const double beamYoff;
+
+  const edm::EDGetTokenT<edm::HepMCProduct> GenVtxToken;
 
   int crysNumber;
-
-  double beamXoff;
-  double beamYoff;
 
   double partXhodo;
   double partYhodo;
 
-  EcalTBCrystalMap *theTestMap;
+  std::unique_ptr<EcalTBCrystalMap> theTestMap;
 
-  ROOT::Math::Rotation3D *fromCMStoTB;
-
-  edm::EDGetTokenT<edm::HepMCProduct> GenVtxToken;
+  std::unique_ptr<ROOT::Math::Rotation3D> fromCMStoTB;
 };
 
-EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
+EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps)
+    : fMinEta(ps.getParameter<double>("MinEta")),
+      fMaxEta(ps.getParameter<double>("MaxEta")),
+      fMinPhi(ps.getParameter<double>("MinPhi")),
+      fMaxPhi(ps.getParameter<double>("MaxPhi")),
+      beamEta((fMaxEta + fMinEta) / 2.),
+      beamPhi((fMaxPhi + fMinPhi) / 2.),
+      beamTheta(2.0 * atan(exp(-beamEta))),
+      beamXoff(ps.getParameter<double>("BeamMeanX")),
+      beamYoff(ps.getParameter<double>("BeamMeanX")),
+      GenVtxToken(consumes<edm::HepMCProduct>(edm::InputTag("moduleLabelVtx", "source"))) {
   produces<PEcalTBInfo>();
 
   edm::FileInPath CrystalMapFile = ps.getParameter<edm::FileInPath>("CrystalMapFile");
-  GenVtxToken = consumes<edm::HepMCProduct>(edm::InputTag("moduleLabelVtx", "source"));
-  double fMinEta = ps.getParameter<double>("MinEta");
-  double fMaxEta = ps.getParameter<double>("MaxEta");
-  double fMinPhi = ps.getParameter<double>("MinPhi");
-  double fMaxPhi = ps.getParameter<double>("MaxPhi");
-  beamEta = (fMaxEta + fMinEta) / 2.;
-  beamPhi = (fMaxPhi + fMinPhi) / 2.;
-  beamTheta = 2.0 * atan(exp(-beamEta));
-  beamXoff = ps.getParameter<double>("BeamMeanX");
-  beamYoff = ps.getParameter<double>("BeamMeanX");
 
   std::string fullMapName = CrystalMapFile.fullPath();
-  theTestMap = new EcalTBCrystalMap(fullMapName);
+  theTestMap = std::make_unique<EcalTBCrystalMap>(fullMapName);
   crysNumber = 0;
 
   double deltaEta = 999.;
@@ -126,7 +130,7 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
   double zy = sin(beamTheta) * sin(beamPhi);
   double zz = cos(beamTheta);
 
-  fromCMStoTB = new ROOT::Math::Rotation3D(xx, xy, xz, yx, yy, yz, zx, zy, zz);
+  fromCMStoTB = std::make_unique<ROOT::Math::Rotation3D>(xx, xy, xz, yx, yy, yz, zx, zy, zz);
 
   // random number
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -137,8 +141,6 @@ EcalTBMCInfoProducer::EcalTBMCInfoProducer(const edm::ParameterSet &ps) {
                                              "in the configuration file or remove the modules that require it.";
   }
 }
-
-EcalTBMCInfoProducer::~EcalTBMCInfoProducer() { delete theTestMap; }
 
 void EcalTBMCInfoProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -158,8 +160,7 @@ void EcalTBMCInfoProducer::produce(edm::Event &event, const edm::EventSetup &eve
 
   partXhodo = partYhodo = 0.;
 
-  edm::Handle<edm::HepMCProduct> GenEvt;
-  event.getByToken(GenVtxToken, GenEvt);
+  const edm::Handle<edm::HepMCProduct> &GenEvt = event.getHandle(GenVtxToken);
 
   const HepMC::GenEvent *Evt = GenEvt->GetEvent();
   HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin();

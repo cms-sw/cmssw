@@ -68,7 +68,7 @@ kSourceFindEvent = "sourceFindEvent"
 kSourceDelayedRead ="sourceDelayedRead"
 
 #----------------------------------------------
-def processingStepsFromStallMonitorOutput(f,moduleNames):
+def processingStepsFromStallMonitorOutput(f,moduleNames, esModuleNames):
     for rawl in f:
         l = rawl.strip()
         if not l or l[0] == '#':
@@ -113,6 +113,19 @@ def processingStepsFromStallMonitorOutput(f,moduleNames):
                     isEvent = (int(payload[2]) == 0)
                 name = moduleNames[moduleID]
 
+            # 'q' = end of esmodule prefetching
+            # 'N' = begin of esmodule processing
+            # 'n' = end of esmodule processing
+            if step == 'q' or step == 'N' or step == 'n':
+                trans = kStarted
+                if step == 'q':
+                    trans = kPrefetchEnd
+                elif step == 'n':
+                    trans = kFinished
+                if step == 'n' or step == 'N':
+                    isEvent = (int(payload[2]) == 0)
+                name = esModuleNames[moduleID]
+
             # 'A' = begin of module acquire function
             # 'a' = end of module acquire function
             elif step == 'A' or step == 'a':
@@ -140,6 +153,7 @@ class StallMonitorParser(object):
         numStreams = 0
         numStreamsFromSource = 0
         moduleNames = {}
+        esModuleNames = {}
         for rawl in f:
             l = rawl.strip()
             if l and l[0] == 'M':
@@ -156,13 +170,21 @@ class StallMonitorParser(object):
                 (id,name)=tuple(l[2:].split())
                 moduleNames[id] = name
                 continue
+            if len(l) > 5 and l[0:2] == "#N":
+                (id,name)=tuple(l[2:].split())
+                esModuleNames[id] = name
+                continue
+
         self._f = f
         if numStreams == 0:
           numStreams = numStreamsFromSource +1
         self.numStreams =numStreams
         self._moduleNames = moduleNames
+        self._esModuleNames = esModuleNames
         self.maxNameSize =0
         for n in moduleNames.items():
+            self.maxNameSize = max(self.maxNameSize,len(n))
+        for n in esModuleNames.items():
             self.maxNameSize = max(self.maxNameSize,len(n))
         self.maxNameSize = max(self.maxNameSize,len(kSourceDelayedRead))
 
@@ -171,7 +193,7 @@ class StallMonitorParser(object):
         Using a generator reduces the memory overhead when parsing a large file.
             """
         self._f.seek(0)
-        return processingStepsFromStallMonitorOutput(self._f,self._moduleNames)
+        return processingStepsFromStallMonitorOutput(self._f,self._moduleNames, self._esModuleNames)
 
 #----------------------------------------------
 # Utility to get time out of Tracer output text format
@@ -574,11 +596,30 @@ def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, he
             allStackTimes[color].extend(theTS*(nthreads-threadOffset))
 
 #----------------------------------------------
+# The same ES module can have multiple Proxies running concurrently
+#   so we need to reference count the names of the active modules
+class RefCountSet(set):
+  def __init__(self):
+    super().__init__()
+    self.__itemsAndCount = dict()
+  def add(self, item):
+    v = self.__itemsAndCount.setdefault(item,0)
+    self.__itemsAndCount[item]=v+1
+    return super().add(item)
+  def remove(self, item):
+    v = self.__itemsAndCount[item]
+    if v == 1:
+      del self.__itemsAndCount[item]
+      super().remove(item)
+    else:
+      self.__itemsAndCount[item]=v-1
+
+
 def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder, setXAxis, xLower, xUpper):
 
     stalledModuleNames = set([x for x in iter(stalledModuleInfo)])
     streamLowestRow = [[] for x in range(numStreams)]
-    modulesActiveOnStreams = [set() for x in range(numStreams)]
+    modulesActiveOnStreams = [RefCountSet() for x in range(numStreams)]
     acquireActiveOnStreams = [set() for x in range(numStreams)]
     externalWorkOnStreams  = [set() for x in range(numStreams)]
     previousFinishTime = [None for x in range(numStreams)]

@@ -45,7 +45,7 @@ namespace cms {
       rhoToken_ = consumes<double>(iConfig.getParameter<edm::InputTag>("srcRho"));
     }
 
-    std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
+    std::string alias = iConfig.getParameter<std::string>("alias");
 
     produces<reco::PFMETCollection>().setBranchAlias(alias);
   }

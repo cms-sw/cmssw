@@ -1,5 +1,5 @@
-#ifndef RecoTauTag_TauTagTools_TFormulaWriter_h
-#define RecoTauTag_TauTagTools_TFormulaWriter_h
+#ifndef CondFormats_PhysicsToolsObjects_TFormulaWriter_h
+#define CondFormats_PhysicsToolsObjects_TFormulaWriter_h
 
 /** \class TgraphWriter
  *
@@ -11,14 +11,14 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
 #include <string>
 
-class TFormulaWriter : public edm::EDAnalyzer {
+class TFormulaWriter : public edm::one::EDAnalyzer<> {
 public:
   TFormulaWriter(const edm::ParameterSet&);
   ~TFormulaWriter();

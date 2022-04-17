@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Classes to check that a set of ROOT files are OK and publish a report
 """

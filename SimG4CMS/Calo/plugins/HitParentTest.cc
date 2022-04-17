@@ -43,22 +43,35 @@ protected:
 
 private:
   /** performs some checks on hits */
-  void analyzeHits(const std::vector<PCaloHit>&, int type);
-  void analyzeAPDHits(const std::vector<PCaloHit>&, int depth);
+  void analyzeHits(const std::vector<PCaloHit>&,
+                   const edm::Handle<edm::SimTrackContainer>&,
+                   const edm::Handle<edm::SimVertexContainer>&,
+                   int type);
+  void analyzeAPDHits(const std::vector<PCaloHit>&,
+                      const edm::Handle<edm::SimTrackContainer>&,
+                      const edm::Handle<edm::SimVertexContainer>&,
+                      int depth);
 
-  bool simTrackPresent(int id);
-  math::XYZTLorentzVectorD getOldestParentVertex(edm::SimTrackContainer::const_iterator track);
-  edm::SimTrackContainer::const_iterator parentSimTrack(edm::SimTrackContainer::const_iterator thisTrkItr);
-  bool validSimTrack(unsigned int simTkId, edm::SimTrackContainer::const_iterator thisTrkItr);
+  bool simTrackPresent(const edm::Handle<edm::SimTrackContainer>&, int id);
+  math::XYZTLorentzVectorD getOldestParentVertex(const edm::Handle<edm::SimTrackContainer>&,
+                                                 const edm::Handle<edm::SimVertexContainer>&,
+                                                 edm::SimTrackContainer::const_iterator track);
+  edm::SimTrackContainer::const_iterator parentSimTrack(const edm::Handle<edm::SimTrackContainer>&,
+                                                        const edm::Handle<edm::SimVertexContainer>&,
+                                                        edm::SimTrackContainer::const_iterator thisTrkItr);
+  bool validSimTrack(const edm::Handle<edm::SimTrackContainer>&,
+                     const edm::Handle<edm::SimVertexContainer>&,
+                     unsigned int simTkId,
+                     edm::SimTrackContainer::const_iterator thisTrkItr);
 
 private:
-  std::string sourceLabel, g4Label, hitLabEB, hitLabEE, hitLabES, hitLabHC;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_eb_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_ee_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_es_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hc_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tok_tk_;
-  edm::EDGetTokenT<edm::SimVertexContainer> tok_vtx_;
+  const std::string sourceLabel, g4Label_, hitLabEB_, hitLabEE_, hitLabES_, hitLabHC_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_eb_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_ee_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_es_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hc_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tok_tk_;
+  const edm::EDGetTokenT<edm::SimVertexContainer> tok_vtx_;
 
   /** error and other counters */
   unsigned int total_num_apd_hits_seen[2];
@@ -71,9 +84,6 @@ private:
   /** number of APD hits for which no generator particle was found */
   unsigned int num_apd_hits_no_gen_particle[2];
 
-  edm::Handle<edm::SimTrackContainer> SimTk;
-  edm::Handle<edm::SimVertexContainer> SimVtx;
-
   /** 'histogram' of types of particles going through the APD. Maps from numeric particle code
       to the number of occurences. */
   std::map<int, unsigned> particle_type_count;
@@ -85,24 +95,23 @@ private:
   TH1F *hitType[7], *hitRho[7], *hitZ[7];
 };
 
-HitParentTest::HitParentTest(const edm::ParameterSet& ps) {
+HitParentTest::HitParentTest(const edm::ParameterSet& ps)
+    : sourceLabel(ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared")),
+      g4Label_(ps.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits")),
+      hitLabEB_(ps.getUntrackedParameter<std::string>("EBCollection", "EcalHitsEB")),
+      hitLabEE_(ps.getUntrackedParameter<std::string>("EECollection", "EcalHitsEE")),
+      hitLabES_(ps.getUntrackedParameter<std::string>("ESCollection", "EcalHitsES")),
+      hitLabHC_(ps.getUntrackedParameter<std::string>("HCCollection", "HcalHits")),
+      tok_eb_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLabEB_))),
+      tok_ee_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLabEE_))),
+      tok_es_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLabES_))),
+      tok_hc_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLabHC_))),
+      tok_tk_(consumes<edm::SimTrackContainer>(edm::InputTag(g4Label_))),
+      tok_vtx_(consumes<edm::SimVertexContainer>(edm::InputTag(g4Label_))) {
   usesResource(TFileService::kSharedResource);
 
-  sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel", "VtxSmeared");
-  g4Label = ps.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits");
-  hitLabEB = ps.getUntrackedParameter<std::string>("EBCollection", "EcalHitsEB");
-  hitLabEE = ps.getUntrackedParameter<std::string>("EECollection", "EcalHitsEE");
-  hitLabES = ps.getUntrackedParameter<std::string>("ESCollection", "EcalHitsES");
-  hitLabHC = ps.getUntrackedParameter<std::string>("HCCollection", "HcalHits");
-  edm::LogVerbatim("HitParentTest") << "Module Label: " << g4Label << "   Hits: " << hitLabEB << ", " << hitLabEE
-                                    << ", " << hitLabES << ", " << hitLabHC;
-
-  tok_eb_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hitLabEB));
-  tok_ee_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hitLabEE));
-  tok_es_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hitLabES));
-  tok_hc_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label, hitLabHC));
-  tok_tk_ = consumes<edm::SimTrackContainer>(edm::InputTag(g4Label));
-  tok_vtx_ = consumes<edm::SimVertexContainer>(edm::InputTag(g4Label));
+  edm::LogVerbatim("HitParentTest") << "Module Label: " << g4Label_ << "   Hits: " << hitLabEB_ << ", " << hitLabEE_
+                                    << ", " << hitLabES_ << ", " << hitLabHC_;
 
   for (unsigned int i = 0; i < 2; ++i) {
     total_num_apd_hits_seen[i] = 0;
@@ -163,26 +172,22 @@ void HitParentTest::analyze(const edm::Event& e, const edm::EventSetup&) {
   edm::LogVerbatim("HitParentTest") << "HitParentTes::Run = " << e.id().run() << " Event = " << e.id().event();
 
   // get PCaloHits for ecal barrel
-  edm::Handle<edm::PCaloHitContainer> caloHitEB;
-  e.getByToken(tok_eb_, caloHitEB);
+  const edm::Handle<edm::PCaloHitContainer>& caloHitEB = e.getHandle(tok_eb_);
 
   // get PCaloHits for ecal endcap
-  edm::Handle<edm::PCaloHitContainer> caloHitEE;
-  e.getByToken(tok_ee_, caloHitEE);
+  const edm::Handle<edm::PCaloHitContainer>& caloHitEE = e.getHandle(tok_ee_);
 
   // get PCaloHits for preshower
-  edm::Handle<edm::PCaloHitContainer> caloHitES;
-  e.getByToken(tok_es_, caloHitES);
+  const edm::Handle<edm::PCaloHitContainer>& caloHitES = e.getHandle(tok_es_);
 
   // get PCaloHits for hcal
-  edm::Handle<edm::PCaloHitContainer> caloHitHC;
-  e.getByToken(tok_hc_, caloHitHC);
+  const edm::Handle<edm::PCaloHitContainer>& caloHitHC = e.getHandle(tok_hc_);
 
   // get sim tracks
-  e.getByToken(tok_tk_, SimTk);
+  const edm::Handle<edm::SimTrackContainer>& simTk = e.getHandle(tok_tk_);
 
   // get sim vertices
-  e.getByToken(tok_vtx_, SimVtx);
+  const edm::Handle<edm::SimVertexContainer>& simVtx = e.getHandle(tok_vtx_);
 
   edm::LogVerbatim("HitParentTest") << "HitParentTest: hits valid[EB]: " << caloHitEB.isValid()
                                     << " valid[EE]: " << caloHitEE.isValid() << " valid[ES]: " << caloHitES.isValid()
@@ -190,15 +195,15 @@ void HitParentTest::analyze(const edm::Event& e, const edm::EventSetup&) {
 
   if (caloHitEB.isValid()) {
     for (int depth = 1; depth <= 2; ++depth)
-      analyzeAPDHits(*caloHitEB, depth);
-    analyzeHits(*caloHitEB, 0);
+      analyzeAPDHits(*caloHitEB, simTk, simVtx, depth);
+    analyzeHits(*caloHitEB, simTk, simVtx, 0);
   }
   if (caloHitEE.isValid())
-    analyzeHits(*caloHitEE, 1);
+    analyzeHits(*caloHitEE, simTk, simVtx, 1);
   if (caloHitES.isValid())
-    analyzeHits(*caloHitES, 2);
+    analyzeHits(*caloHitES, simTk, simVtx, 2);
   if (caloHitHC.isValid())
-    analyzeHits(*caloHitHC, 3);
+    analyzeHits(*caloHitHC, simTk, simVtx, 3);
 }
 
 /** define the comparison for sorting the particle ids counting map */
@@ -256,7 +261,10 @@ void HitParentTest::endJob() {
   }
 }
 
-void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
+void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits,
+                                const edm::Handle<edm::SimTrackContainer>& simTk,
+                                const edm::Handle<edm::SimVertexContainer>& simVtx,
+                                int type) {
   for (std::vector<PCaloHit>::const_iterator hit_it = hits.begin(); hit_it != hits.end(); ++hit_it) {
     int id(type), flag(0);
     if (type == 3) {
@@ -281,12 +289,12 @@ void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
       bool found = false;
       flag = 2;
       // check whether this id is actually there in the list of simtracks
-      for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end() && !found;
+      for (edm::SimTrackContainer::const_iterator simTrkItr = simTk->begin(); simTrkItr != simTk->end() && !found;
            ++simTrkItr) {
         if (hit_geant_track_id == (int)(simTrkItr->trackId())) {
           found = true;
           flag = 3;
-          bool match = validSimTrack(hit_geant_track_id, simTrkItr);
+          bool match = validSimTrack(simTk, simVtx, hit_geant_track_id, simTrkItr);
 
           edm::LogVerbatim("HitParentTest")
               << "[" << detector[type] << "] Match = " << match << " hit_geant_track_id=" << hit_geant_track_id
@@ -299,18 +307,18 @@ void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
 
           // beam pipe...
           int pid = simTrkItr->type();
-          math::XYZTLorentzVectorD oldest_parent_vertex = getOldestParentVertex(simTrkItr);
+          math::XYZTLorentzVectorD oldest_parent_vertex = getOldestParentVertex(simTk, simVtx, simTrkItr);
 
-          edm::SimTrackContainer::const_iterator oldest_parent_track = parentSimTrack(simTrkItr);
+          edm::SimTrackContainer::const_iterator oldest_parent_track = parentSimTrack(simTk, simVtx, simTrkItr);
 
           edm::LogVerbatim("HitParentTest")
               << "[" << detector[type] << "] Hit pid = " << pid << "  hit track id = " << hit_geant_track_id
               << " Oldest Parent's Vertex: " << oldest_parent_vertex << " rho = " << oldest_parent_vertex.Rho()
               << " Oldest Parent's pid: " << oldest_parent_track->type()
               << " Oldest Parent's track id: " << oldest_parent_track->trackId()
-              << "\nHit vertex index: " << simTrkItr->vertIndex() << " (tot #vertices: " << SimVtx->size() << ")"
-              << "\nHit vertex parent track: " << (*SimVtx)[simTrkItr->vertIndex()].parentIndex()
-              << " present=" << simTrackPresent((*SimVtx)[simTrkItr->vertIndex()].parentIndex());
+              << "\nHit vertex index: " << simTrkItr->vertIndex() << " (tot #vertices: " << simVtx->size() << ")"
+              << "\nHit vertex parent track: " << (*simVtx)[simTrkItr->vertIndex()].parentIndex()
+              << " present=" << simTrackPresent(simTk, (*simVtx)[simTrkItr->vertIndex()].parentIndex());
           if (histos) {
             hitRho[id]->Fill(oldest_parent_vertex.Rho());
             hitZ[id]->Fill(oldest_parent_vertex.Z());
@@ -326,7 +334,10 @@ void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
   }  // loop over all calohits (of the given depth)
 }
 
-void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth) {
+void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits,
+                                   const edm::Handle<edm::SimTrackContainer>& simTk,
+                                   const edm::Handle<edm::SimVertexContainer>& simVtx,
+                                   int depth) {
   for (std::vector<PCaloHit>::const_iterator hit_it = hits.begin(); hit_it != hits.end(); ++hit_it) {
     if (hit_it->depth() == depth) {
       ++total_num_apd_hits_seen[depth - 1];
@@ -339,11 +350,11 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth)
       } else {
         bool found = false;
         // check whether this id is actually there in the list of simtracks
-        for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end() && !found;
+        for (edm::SimTrackContainer::const_iterator simTrkItr = simTk->begin(); simTrkItr != simTk->end() && !found;
              ++simTrkItr) {
           if (hit_geant_track_id == (int)(simTrkItr->trackId())) {
             found = true;
-            bool match = validSimTrack(hit_geant_track_id, simTrkItr);
+            bool match = validSimTrack(simTk, simVtx, hit_geant_track_id, simTrkItr);
 
             edm::LogVerbatim("HitParentTest")
                 << "APDHIT Match = " << match << " hit_geant_track_id = " << hit_geant_track_id
@@ -365,19 +376,19 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth)
             //--------------------
             // check where the oldest parent has its vertex. Should be close to the
             // beam pipe...
-            math::XYZTLorentzVectorD oldest_parent_vertex = getOldestParentVertex(simTrkItr);
+            math::XYZTLorentzVectorD oldest_parent_vertex = getOldestParentVertex(simTk, simVtx, simTrkItr);
 
-            edm::SimTrackContainer::const_iterator oldest_parent_track = parentSimTrack(simTrkItr);
+            edm::SimTrackContainer::const_iterator oldest_parent_track = parentSimTrack(simTk, simVtx, simTrkItr);
 
             edm::LogVerbatim("HitParentTest")
                 << "APD hit pid = " << apd_pid << " APD hit track id = " << hit_geant_track_id
                 << " depth = " << hit_it->depth() << " OLDEST PARENT'S VERTEX: " << oldest_parent_vertex
                 << " rho = " << oldest_parent_vertex.Rho() << " OLDEST PARENT'S PID: " << oldest_parent_track->type()
                 << " OLDEST PARENT'S track id: " << oldest_parent_track->trackId() << "\n"
-                << "APD hit vertex index: " << simTrkItr->vertIndex() << " (tot #vertices: " << SimVtx->size() << ")"
+                << "APD hit vertex index: " << simTrkItr->vertIndex() << " (tot #vertices: " << simVtx->size() << ")"
                 << "\n"
-                << "APD hit vertex parent track: " << (*SimVtx)[simTrkItr->vertIndex()].parentIndex()
-                << " present=" << simTrackPresent((*SimVtx)[simTrkItr->vertIndex()].parentIndex());
+                << "APD hit vertex parent track: " << (*simVtx)[simTrkItr->vertIndex()].parentIndex()
+                << " present=" << simTrackPresent(simTk, (*simVtx)[simTrkItr->vertIndex()].parentIndex());
 
           }  // a match was found
         }    // geant track id found in simtracks
@@ -389,31 +400,35 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth)
   }      // loop over all calohits (of the given depth)
 }
 
-bool HitParentTest::simTrackPresent(int id) {
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); ++simTrkItr) {
+bool HitParentTest::simTrackPresent(const edm::Handle<edm::SimTrackContainer>& simTk, int id) {
+  for (edm::SimTrackContainer::const_iterator simTrkItr = simTk->begin(); simTrkItr != simTk->end(); ++simTrkItr) {
     if ((int)(simTrkItr->trackId()) == id)
       return true;
   }
   return false;
 }
 
-math::XYZTLorentzVectorD HitParentTest::getOldestParentVertex(edm::SimTrackContainer::const_iterator track) {
+math::XYZTLorentzVectorD HitParentTest::getOldestParentVertex(const edm::Handle<edm::SimTrackContainer>& simTk,
+                                                              const edm::Handle<edm::SimVertexContainer>& simVtx,
+                                                              edm::SimTrackContainer::const_iterator track) {
   static const math::XYZTLorentzVectorD invalid_vertex(
       10000, 10000, 10000, 10000);  // default value if no valid vertex found
 
-  edm::SimTrackContainer::const_iterator oldest_parent_track = parentSimTrack(track);
+  edm::SimTrackContainer::const_iterator oldest_parent_track = parentSimTrack(simTk, simVtx, track);
 
   int vertex_index = oldest_parent_track->vertIndex();
 
   // sanity checks
-  if (vertex_index < 0 || vertex_index >= (int)(SimVtx->size()))
+  if (vertex_index < 0 || vertex_index >= (int)(simVtx->size()))
     return invalid_vertex;
 
-  return (*SimVtx)[vertex_index].position();
+  return (*simVtx)[vertex_index].position();
 }
 
-edm::SimTrackContainer::const_iterator HitParentTest::parentSimTrack(edm::SimTrackContainer::const_iterator thisTrkItr) {
-  edm::SimTrackContainer::const_iterator itr = SimTk->end();
+edm::SimTrackContainer::const_iterator HitParentTest::parentSimTrack(const edm::Handle<edm::SimTrackContainer>& simTk,
+                                                                     const edm::Handle<edm::SimVertexContainer>& simVtx,
+                                                                     edm::SimTrackContainer::const_iterator thisTrkItr) {
+  edm::SimTrackContainer::const_iterator itr = simTk->end();
 
   int vertIndex = thisTrkItr->vertIndex();
   int type = thisTrkItr->type();
@@ -423,17 +438,17 @@ edm::SimTrackContainer::const_iterator HitParentTest::parentSimTrack(edm::SimTra
 
   if (vertIndex == -1)
     return thisTrkItr;
-  else if (vertIndex >= (int)SimVtx->size())
+  else if (vertIndex >= (int)simVtx->size())
     return itr;
 
-  edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
+  edm::SimVertexContainer::const_iterator simVtxItr = simVtx->begin();
   for (int iv = 0; iv < vertIndex; iv++)
     simVtxItr++;
   int parent = simVtxItr->parentIndex();
 
-  if (parent < 0 && simVtxItr != SimVtx->begin()) {
+  if (parent < 0 && simVtxItr != simVtx->begin()) {
     const math::XYZTLorentzVectorD pos1 = simVtxItr->position();
-    for (simVtxItr = SimVtx->begin(); simVtxItr != SimVtx->end(); ++simVtxItr) {
+    for (simVtxItr = simVtx->begin(); simVtxItr != simVtx->end(); ++simVtxItr) {
       if (simVtxItr->parentIndex() > 0) {
         const math::XYZTLorentzVectorD pos2 = pos1 - simVtxItr->position();
         double dist = pos2.P();
@@ -444,15 +459,18 @@ edm::SimTrackContainer::const_iterator HitParentTest::parentSimTrack(edm::SimTra
       }
     }
   }
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+  for (edm::SimTrackContainer::const_iterator simTrkItr = simTk->begin(); simTrkItr != simTk->end(); simTrkItr++) {
     if ((int)simTrkItr->trackId() == parent && simTrkItr != thisTrkItr)
-      return parentSimTrack(simTrkItr);
+      return parentSimTrack(simTk, simVtx, simTrkItr);
   }
 
   return thisTrkItr;
 }
 
-bool HitParentTest::validSimTrack(unsigned int simTkId, edm::SimTrackContainer::const_iterator thisTrkItr) {
+bool HitParentTest::validSimTrack(const edm::Handle<edm::SimTrackContainer>& simTk,
+                                  const edm::Handle<edm::SimVertexContainer>& simVtx,
+                                  unsigned int simTkId,
+                                  edm::SimTrackContainer::const_iterator thisTrkItr) {
   edm::LogVerbatim("HitParentTest") << "Inside validSimTrack: trackId " << thisTrkItr->trackId() << " vtxIndex "
                                     << thisTrkItr->vertIndex() << " to be matched to " << simTkId;
 
@@ -462,16 +480,16 @@ bool HitParentTest::validSimTrack(unsigned int simTkId, edm::SimTrackContainer::
 
   //Otherwise trace back the history using SimTracks and SimVertices
   int vertIndex = thisTrkItr->vertIndex();
-  if (vertIndex == -1 || vertIndex >= (int)SimVtx->size())
+  if (vertIndex == -1 || vertIndex >= (int)simVtx->size())
     return false;
-  edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
+  edm::SimVertexContainer::const_iterator simVtxItr = simVtx->begin();
   for (int iv = 0; iv < vertIndex; iv++)
     simVtxItr++;
   int parent = simVtxItr->parentIndex();
   edm::LogVerbatim("HitParentTest") << "validSimTrack:: parent index " << parent << " ";
-  if (parent < 0 && simVtxItr != SimVtx->begin()) {
+  if (parent < 0 && simVtxItr != simVtx->begin()) {
     const math::XYZTLorentzVectorD pos1 = simVtxItr->position();
-    for (simVtxItr = SimVtx->begin(); simVtxItr != SimVtx->end(); ++simVtxItr) {
+    for (simVtxItr = simVtx->begin(); simVtxItr != simVtx->end(); ++simVtxItr) {
       if (simVtxItr->parentIndex() > 0) {
         const math::XYZTLorentzVectorD pos2 = pos1 - simVtxItr->position();
         double dist = pos2.P();
@@ -483,9 +501,9 @@ bool HitParentTest::validSimTrack(unsigned int simTkId, edm::SimTrackContainer::
     }
   }
   edm::LogVerbatim("HitParentTest") << "HitParentTes::final index " << parent;
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+  for (edm::SimTrackContainer::const_iterator simTrkItr = simTk->begin(); simTrkItr != simTk->end(); simTrkItr++) {
     if ((int)simTrkItr->trackId() == parent && simTrkItr != thisTrkItr)
-      return validSimTrack(simTkId, simTrkItr);
+      return validSimTrack(simTk, simVtx, simTkId, simTrkItr);
   }
 
   return false;

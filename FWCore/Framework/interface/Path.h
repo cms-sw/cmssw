@@ -87,6 +87,7 @@ namespace edm {
     int timesFailed(size_type i) const { return workers_.at(i).timesFailed(); }
     int timesExcept(size_type i) const { return workers_.at(i).timesExcept(); }
     Worker const* getWorker(size_type i) const { return workers_.at(i).getWorker(); }
+    unsigned int bitPosition(size_type i) const { return workers_.at(i).bitPosition(); }
 
     void setEarlyDeleteHelpers(std::map<const Worker*, EarlyDeleteHelper*> const&);
 

@@ -22,7 +22,7 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
   static const G4String ws_banner = "\n-------- WWWW ------- G4Exception-START -------- WWWW -------\n";
   static const G4String we_banner = "\n-------- WWWW -------- G4Exception-END --------- WWWW -------\n";
 
-  const G4Track* track = G4EventManager::GetEventManager()->GetTrackingManager()->GetTrack();
+  G4Track* track = G4EventManager::GetEventManager()->GetTrackingManager()->GetTrack();
   double ekin = m_eth;
 
   std::stringstream message;
@@ -61,8 +61,10 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,
   G4String code;
   mescode >> code;
 
+  // track is killed
   if (ekin < m_eth && code == "GeomNav0003") {
     localSeverity = JustWarning;
+    track->SetTrackStatus(fStopAndKill);
   }
 
   bool res = false;

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # This script creates a .tex-file for displaying the results
 # of an offline alignment validation of the CMS tracker.
 #

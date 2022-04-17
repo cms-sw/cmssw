@@ -3,7 +3,8 @@
 <use name="DataFormats/TrackerCommon"/>
 <use name="Geometry/TrackerGeometryBuilder"/>
 <use name="RecoTracker/TkDetLayers"/>
-<use name="mkfit"/>
+<use name="RecoTracker/MkFitCore"/>
+<use name="RecoTracker/MkFitCMS"/>
 <use name="rootcore"/>
 <export>
   <lib name="RecoTrackerMkFit"/>

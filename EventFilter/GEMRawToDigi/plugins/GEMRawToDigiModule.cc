@@ -45,7 +45,7 @@ public:
 private:
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
   edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
-  bool useDBEMap_, keepDAQStatus_, readMultiBX_;
+  bool useDBEMap_, keepDAQStatus_, readMultiBX_, ge21Off_;
   unsigned int fedIdStart_, fedIdEnd_;
   std::unique_ptr<GEMRawToDigi> gemRawToDigi_;
 };
@@ -58,6 +58,7 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
       useDBEMap_(pset.getParameter<bool>("useDBEMap")),
       keepDAQStatus_(pset.getParameter<bool>("keepDAQStatus")),
       readMultiBX_(pset.getParameter<bool>("readMultiBX")),
+      ge21Off_(pset.getParameter<bool>("ge21Off")),
       fedIdStart_(pset.getParameter<unsigned int>("fedIdStart")),
       fedIdEnd_(pset.getParameter<unsigned int>("fedIdEnd")),
       gemRawToDigi_(std::make_unique<GEMRawToDigi>()) {
@@ -71,6 +72,12 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
   if (useDBEMap_) {
     gemEMapToken_ = esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>();
   }
+  if (ge21Off_ && fedIdStart_ == FEDNumbering::MINGEMFEDID && fedIdEnd_ == FEDNumbering::MAXGEMFEDID) {
+    fedIdEnd_ = FEDNumbering::MINGE21FEDID - 1;
+  } else if (ge21Off_) {
+    edm::LogError("InvalidSettings") << "Turning GE2/1 off requires changing the FEDIDs the GEM unpacker looks at. If "
+                                        "you wish to set the FEDIDs yourself, don't use the ge21Off switch.";
+  }
 }
 
 void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -79,6 +86,7 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<bool>("useDBEMap", false);
   desc.add<bool>("keepDAQStatus", false);
   desc.add<bool>("readMultiBX", false);
+  desc.add<bool>("ge21Off", false);
   desc.add<unsigned int>("fedIdStart", FEDNumbering::MINGEMFEDID);
   desc.add<unsigned int>("fedIdEnd", FEDNumbering::MAXGEMFEDID);
   descriptions.add("muonGEMDigisDefault", desc);

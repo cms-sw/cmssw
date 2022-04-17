@@ -25,7 +25,7 @@
 class ECALRegFEDSelector : public edm::one::EDProducer<> {
 public:
   ECALRegFEDSelector(const edm::ParameterSet&);
-  ~ECALRegFEDSelector() override;
+  ~ECALRegFEDSelector() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -36,19 +36,17 @@ private:
 
   std::unique_ptr<const EcalElectronicsMapping> ec_mapping;
 
-  double delta_;
+  const double delta_;
   bool fedSaved[1200];
 
-  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_seed_;
+  const edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 };
 
-ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig) {
-  tok_seed_ = consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("regSeedLabel"));
-  delta_ = iConfig.getParameter<double>("delta");
-
-  tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"));
-
+ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig)
+    : delta_(iConfig.getParameter<double>("delta")),
+      tok_seed_(consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("regSeedLabel"))),
+      tok_raw_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"))) {
   ec_mapping = std::make_unique<EcalElectronicsMapping>();
 
   produces<FEDRawDataCollection>();
@@ -59,8 +57,6 @@ ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig) {
   }
 }
 
-ECALRegFEDSelector::~ECALRegFEDSelector() {}
-
 void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (int p = 0; p < 1200; p++) {
     fedSaved[p] = false;
@@ -70,14 +66,12 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   auto fedList = std::make_unique<EcalListOfFEDS>();
 
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> trigSeedTrks;
-  iEvent.getByToken(tok_seed_, trigSeedTrks);
+  const edm::Handle<trigger::TriggerFilterObjectWithRefs>& trigSeedTrks = iEvent.getHandle(tok_seed_);
 
   std::vector<edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
   trigSeedTrks->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
 
-  edm::Handle<FEDRawDataCollection> rawIn;
-  iEvent.getByToken(tok_raw_, rawIn);
+  const edm::Handle<FEDRawDataCollection>& rawIn = iEvent.getHandle(tok_raw_);
 
   //  std::vector<int> EC_FED_IDs;
 

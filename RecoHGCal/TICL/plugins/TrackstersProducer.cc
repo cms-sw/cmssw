@@ -25,13 +25,15 @@
 #include "PatternRecognitionbyCA.h"
 #include "PatternRecognitionbyMultiClusters.h"
 
+#include "TrackingTools/Records/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
 
 using namespace ticl;
 
-class TrackstersProducer : public edm::stream::EDProducer<edm::GlobalCache<TrackstersCache>> {
+class TrackstersProducer : public edm::stream::EDProducer<> {
 public:
-  explicit TrackstersProducer(const edm::ParameterSet&, const TrackstersCache*);
+  explicit TrackstersProducer(const edm::ParameterSet&);
   ~TrackstersProducer() override {}
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -44,6 +46,9 @@ public:
 private:
   std::string detector_;
   bool doNose_;
+  const std::string tfDnnLabel_;
+  const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
+  const tensorflow::Session* tfSession_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTiles>> myAlgo_;
   std::unique_ptr<PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>> myAlgoHFNose_;
 
@@ -59,28 +64,12 @@ private:
 };
 DEFINE_FWK_MODULE(TrackstersProducer);
 
-std::unique_ptr<TrackstersCache> TrackstersProducer::initializeGlobalCache(const edm::ParameterSet& params) {
-  // this method is supposed to create, initialize and return a TrackstersCache instance
-  std::unique_ptr<TrackstersCache> cache = std::make_unique<TrackstersCache>(params);
-
-  // load the graph def and save it
-  std::string graphPath = params.getParameter<std::string>("eid_graph_path");
-  if (!graphPath.empty()) {
-    graphPath = edm::FileInPath(graphPath).fullPath();
-    cache->eidGraphDef = tensorflow::loadGraphDef(graphPath);
-  }
-
-  return cache;
-}
-
-void TrackstersProducer::globalEndJob(TrackstersCache* cache) {
-  delete cache->eidGraphDef;
-  cache->eidGraphDef = nullptr;
-}
-
-TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const TrackstersCache* cache)
+TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps)
     : detector_(ps.getParameter<std::string>("detector")),
       doNose_(detector_ == "HFNose"),
+      tfDnnLabel_(ps.getParameter<std::string>("tfDnnLabel")),
+      tfDnnToken_(esConsumes(edm::ESInputTag("", tfDnnLabel_))),
+      tfSession_(nullptr),
       clusters_token_(consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"))),
       filtered_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("filtered_mask"))),
       original_layerclusters_mask_token_(consumes<std::vector<float>>(ps.getParameter<edm::InputTag>("original_mask"))),
@@ -93,12 +82,12 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
   auto pluginPSet = ps.getParameter<edm::ParameterSet>("pluginPatternRecognitionBy" + plugin);
   if (doNose_) {
     myAlgoHFNose_ = PatternRecognitionHFNoseFactory::get()->create(
-        ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, cache, consumesCollector());
+        ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, consumesCollector());
     layer_clusters_tiles_hfnose_token_ =
         consumes<TICLLayerTilesHFNose>(ps.getParameter<edm::InputTag>("layer_clusters_hfnose_tiles"));
   } else {
     myAlgo_ = PatternRecognitionFactory::get()->create(
-        ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, cache, consumesCollector());
+        ps.getParameter<std::string>("patternRecognitionBy"), pluginPSet, consumesCollector());
     layer_clusters_tiles_token_ = consumes<TICLLayerTiles>(ps.getParameter<edm::InputTag>("layer_clusters_tiles"));
   }
 
@@ -129,8 +118,8 @@ void TrackstersProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
   desc.add<edm::InputTag>("layer_clusters_hfnose_tiles", edm::InputTag("ticlLayerTileHFNose"));
   desc.add<edm::InputTag>("seeding_regions", edm::InputTag("ticlSeedingRegionProducer"));
   desc.add<std::string>("patternRecognitionBy", "CA");
-  desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_v0.pb");
   desc.add<std::string>("itername", "unknown");
+  desc.add<std::string>("tfDnnLabel", "tracksterSelectionTf");
 
   // CA Plugin
   edm::ParameterSetDescription pluginDesc;
@@ -160,6 +149,8 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   const auto& layerClustersTimes = evt.get(clustersTime_token_);
   const auto& seeding_regions = evt.get(seeding_regions_token_);
 
+  tfSession_ = es.getData(tfDnnToken_).getSession();
+
   std::unordered_map<int, std::vector<int>> seedToTrackstersAssociation;
   // if it's regional iteration and there are seeding regions
   if (!seeding_regions.empty() and seeding_regions[0].index != -1) {
@@ -171,15 +162,21 @@ void TrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   if (doNose_) {
     const auto& layer_clusters_hfnose_tiles = evt.get(layer_clusters_tiles_hfnose_token_);
-    const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(
-        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_hfnose_tiles, seeding_regions);
+    const typename PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>::Inputs inputHFNose(evt,
+                                                                                         es,
+                                                                                         layerClusters,
+                                                                                         inputClusterMask,
+                                                                                         layerClustersTimes,
+                                                                                         layer_clusters_hfnose_tiles,
+                                                                                         seeding_regions,
+                                                                                         tfSession_);
 
     myAlgoHFNose_->makeTracksters(inputHFNose, *result, seedToTrackstersAssociation);
 
   } else {
     const auto& layer_clusters_tiles = evt.get(layer_clusters_tiles_token_);
     const typename PatternRecognitionAlgoBaseT<TICLLayerTiles>::Inputs input(
-        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions);
+        evt, es, layerClusters, inputClusterMask, layerClustersTimes, layer_clusters_tiles, seeding_regions, tfSession_);
 
     myAlgo_->makeTracksters(input, *result, seedToTrackstersAssociation);
   }

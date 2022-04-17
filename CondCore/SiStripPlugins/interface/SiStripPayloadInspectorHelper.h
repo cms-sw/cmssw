@@ -1,26 +1,35 @@
 #ifndef CONDCORE_SISTRIPPLUGINS_SISTRIPPAYLOADINSPECTORHELPER_H
 #define CONDCORE_SISTRIPPLUGINS_SISTRIPPAYLOADINSPECTORHELPER_H
 
-#include <vector>
+// system includes
 #include <numeric>
 #include <string>
-#include "TH1.h"
-#include "TH2.h"
-#include "TPaveText.h"
-#include "TStyle.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
-#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include <vector>
+
+// user includes
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
-
+#include "CondCore/Utilities/interface/PayloadInspector.h"
+#include "CondFormats/SiStripObjects/interface/SiStripDetSummary.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripSummary.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h" /* for STRIPS_PER_APV*/
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
+// ROOT includes
+#include "TH1.h"
+#include "TH2.h"
+#include "TObjArray.h"
+#include "TPaveText.h"
+#include "TStyle.h"
 
 namespace SiStripPI {
+
+  //##### for metadata
+  using MetaData = std::tuple<cond::Time_t, cond::Hash>;
 
   //##### for plotting
 
@@ -415,11 +424,48 @@ namespace SiStripPI {
   }
 
   /*--------------------------------------------------------------------*/
+  inline double getMaximum(TObjArray* array)
+  /*--------------------------------------------------------------------*/
+  {
+    double theMaximum = (static_cast<TH1*>(array->At(0)))->GetMaximum();
+    for (int i = 0; i < array->GetSize(); i++) {
+      if ((static_cast<TH1*>(array->At(i)))->GetMaximum() > theMaximum) {
+        theMaximum = (static_cast<TH1*>(array->At(i)))->GetMaximum();
+      }
+    }
+    return theMaximum;
+  }
+
+  /*--------------------------------------------------------------------*/
   inline void makeNicePlotStyle(TH1* hist)
   /*--------------------------------------------------------------------*/
   {
     hist->SetStats(kFALSE);
     hist->SetLineWidth(2);
+    hist->GetXaxis()->CenterTitle(true);
+    hist->GetYaxis()->CenterTitle(true);
+    hist->GetXaxis()->SetTitleFont(42);
+    hist->GetYaxis()->SetTitleFont(42);
+    hist->GetXaxis()->SetTitleSize(0.05);
+    hist->GetYaxis()->SetTitleSize(0.05);
+    hist->GetXaxis()->SetTitleOffset(0.9);
+    hist->GetYaxis()->SetTitleOffset(1.3);
+    hist->GetXaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetLabelSize(.05);
+    hist->GetXaxis()->SetLabelSize(.05);
+  }
+
+  /*--------------------------------------------------------------------*/
+  template <class T>
+  inline void makeNiceStyle(T* hist)
+  /*--------------------------------------------------------------------*/
+  {
+    // only for TH1s and inherited classes
+    if constexpr (std::is_base_of<T, TH1>::value) {
+      hist->SetStats(kFALSE);
+      hist->SetLineWidth(2);
+    }
     hist->GetXaxis()->CenterTitle(true);
     hist->GetYaxis()->CenterTitle(true);
     hist->GetXaxis()->SetTitleFont(42);
@@ -566,7 +612,7 @@ namespace SiStripPI {
       int nAPVs = detInfo.getNumberOfApvsAndStripLength(det.first).first;
       // one fiber connects to 2 APVs
       int nFibers = nAPVs / 2;
-      int nStrips = (128 * detInfo.getNumberOfApvsAndStripLength(det.first).first);
+      int nStrips = (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(det.first).first);
       NTkComponents[0]++;
       NTkComponents[1] += nFibers;
       NTkComponents[2] += nAPVs;
@@ -719,7 +765,7 @@ namespace SiStripPI {
         percentage += range;
       }
       if (percentage != 0)
-        percentage /= 128. * detInfo.getNumberOfApvsAndStripLength(detid).first;
+        percentage /= sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(detid).first;
       if (percentage > 1)
         edm::LogError("SiStripBadStrip_PayloadInspector")
             << "PROBLEM detid " << detid << " value " << percentage << std::endl;

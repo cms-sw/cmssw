@@ -21,39 +21,38 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopePlaneRawHits.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRawInfo.h"
 
+#include <memory>
+
 class FakeTBHodoscopeRawInfoProducer : public edm::stream::EDProducer<> {
 public:
   /// Constructor
   explicit FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet &ps);
 
   /// Destructor
-  ~FakeTBHodoscopeRawInfoProducer() override;
+  ~FakeTBHodoscopeRawInfoProducer() override = default;
 
   /// Produce digis out of raw data
   void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
 
 private:
-  EcalTBHodoscopeGeometry *theTBHodoGeom_;
+  std::unique_ptr<EcalTBHodoscopeGeometry> theTBHodoGeom_;
 
-  edm::EDGetTokenT<PEcalTBInfo> ecalTBInfo_;
+  const edm::EDGetTokenT<PEcalTBInfo> ecalTBInfo_;
 };
 
-FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet &ps) {
-  ecalTBInfo_ = consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"));
+FakeTBHodoscopeRawInfoProducer::FakeTBHodoscopeRawInfoProducer(const edm::ParameterSet &ps)
+    : ecalTBInfo_(consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"))) {
   produces<EcalTBHodoscopeRawInfo>();
 
-  theTBHodoGeom_ = new EcalTBHodoscopeGeometry();
+  theTBHodoGeom_ = std::make_unique<EcalTBHodoscopeGeometry>();
 }
-
-FakeTBHodoscopeRawInfoProducer::~FakeTBHodoscopeRawInfoProducer() { delete theTBHodoGeom_; }
 
 void FakeTBHodoscopeRawInfoProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   std::unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
 
   // get the vertex information from the event
 
-  edm::Handle<PEcalTBInfo> theEcalTBInfo;
-  event.getByToken(ecalTBInfo_, theEcalTBInfo);
+  const edm::Handle<PEcalTBInfo> &theEcalTBInfo = event.getHandle(ecalTBInfo_);
 
   double partXhodo = theEcalTBInfo->evXbeam();
   double partYhodo = theEcalTBInfo->evYbeam();

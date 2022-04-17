@@ -50,7 +50,7 @@ def run(args):
     for jobname in processes:
         status[jobname] = {'job':None, 'upload':None, 'fast':None, 'changed':None}
         p = processes[jobname]
-        log = p.communicate()[0]
+        log = p.communicate()[0].decode()
         logging.debug('=== log from o2o run ===\n%s' % log)
         if p.returncode == 0:
             logging.info('Job for %s finished successfully!' % jobname)
@@ -86,7 +86,7 @@ def summary(args, is_ok, status, logfile):
              send_to=args.mail_to,
              send_from=args.mail_from)
     # send the detailed log
-    with open(logfile, 'rb') as log:
+    with open(logfile, 'r') as log:
         helper.send_mail(subject='%sNew O2O Log, IOV: %s' % (debugLabel, args.since),
                  message=log.read(),
                  send_to=args.mail_log_to,

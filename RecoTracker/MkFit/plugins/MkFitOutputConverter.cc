@@ -37,9 +37,9 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 // mkFit indludes
-#include "LayerNumberConverter.h"
-#include "Track.h"
-#include "mkFit/HitStructures.h"
+#include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
+#include "RecoTracker/MkFitCore/interface/Track.h"
+#include "RecoTracker/MkFitCore/interface/HitStructures.h"
 
 namespace {
   template <typename T>
@@ -103,9 +103,13 @@ private:
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
   const edm::EDPutTokenT<TrackCandidateCollection> putTrackCandidateToken_;
   const edm::EDPutTokenT<std::vector<SeedStopInfo>> putSeedStopInfoToken_;
-  const std::string ttrhBuilderName_;
-  const std::string propagatorAlongName_;
-  const std::string propagatorOppositeName_;
+
+  const float qualityMaxInvPt_;
+  const float qualityMinTheta_;
+  const float qualityMaxRsq_;
+  const float qualityMaxZ_;
+  const float qualityMaxPosErrSq_;
+  const bool qualitySignPt_;
 };
 
 MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
@@ -124,7 +128,13 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
           iConfig.getParameter<edm::ESInputTag>("ttrhBuilder"))},
       mkFitGeomToken_{esConsumes<MkFitGeometry, TrackerRecoGeometryRecord>()},
       putTrackCandidateToken_{produces<TrackCandidateCollection>()},
-      putSeedStopInfoToken_{produces<std::vector<SeedStopInfo>>()} {}
+      putSeedStopInfoToken_{produces<std::vector<SeedStopInfo>>()},
+      qualityMaxInvPt_{float(iConfig.getParameter<double>("qualityMaxInvPt"))},
+      qualityMinTheta_{float(iConfig.getParameter<double>("qualityMinTheta"))},
+      qualityMaxRsq_{float(pow(iConfig.getParameter<double>("qualityMaxR"), 2))},
+      qualityMaxZ_{float(iConfig.getParameter<double>("qualityMaxZ"))},
+      qualityMaxPosErrSq_{float(pow(iConfig.getParameter<double>("qualityMaxPosErr"), 2))},
+      qualitySignPt_{iConfig.getParameter<bool>("qualitySignPt")} {}
 
 void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -138,6 +148,13 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add("ttrhBuilder", edm::ESInputTag{"", "WithTrackAngle"});
   desc.add("propagatorAlong", edm::ESInputTag{"", "PropagatorWithMaterial"});
   desc.add("propagatorOpposite", edm::ESInputTag{"", "PropagatorWithMaterialOpposite"});
+
+  desc.add<double>("qualityMaxInvPt", 100)->setComment("max(1/pt) for converted tracks");
+  desc.add<double>("qualityMinTheta", 0.01)->setComment("lower bound on theta (or pi-theta) for converted tracks");
+  desc.add<double>("qualityMaxR", 120)->setComment("max(R) for the state position for converted tracks");
+  desc.add<double>("qualityMaxZ", 280)->setComment("max(|Z|) for the state position for converted tracks");
+  desc.add<double>("qualityMaxPosErr", 100)->setComment("max position error for converted tracks");
+  desc.add<bool>("qualitySignPt", true)->setComment("check sign of 1/pt for converted tracks");
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -194,6 +211,59 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     LogTrace("MkFitOutputConverter") << "Candidate " << candIndex << " pT " << cand.pT() << " eta " << cand.momEta()
                                      << " phi " << cand.momPhi() << " chi2 " << cand.chi2();
 
+    // state: check for basic quality first
+    if (cand.state().invpT() > qualityMaxInvPt_ || (qualitySignPt_ && cand.state().invpT() < 0) ||
+        cand.state().theta() < qualityMinTheta_ || (M_PI - cand.state().theta()) < qualityMinTheta_ ||
+        cand.state().posRsq() > qualityMaxRsq_ || std::abs(cand.state().z()) > qualityMaxZ_ ||
+        (cand.state().errors.At(0, 0) + cand.state().errors.At(1, 1) + cand.state().errors.At(2, 2)) >
+            qualityMaxPosErrSq_) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Candidate " << candIndex << " failed state quality checks" << cand.state().parameters;
+      continue;
+    }
+
+    auto state = cand.state();  // copy because have to modify
+    state.convertFromCCSToGlbCurvilinear();
+    const auto& param = state.parameters;
+    const auto& err = state.errors;
+    AlgebraicSymMatrix55 cov;
+    for (int i = 0; i < 5; ++i) {
+      for (int j = i; j < 5; ++j) {
+        cov[i][j] = err.At(i, j);
+      }
+    }
+
+    auto fts = FreeTrajectoryState(
+        GlobalTrajectoryParameters(
+            GlobalPoint(param[0], param[1], param[2]), GlobalVector(param[3], param[4], param[5]), state.charge, &mf),
+        CurvilinearTrajectoryError(cov));
+    if (!fts.curvilinearError().posDef()) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Curvilinear error not pos-def\n"
+          << fts.curvilinearError().matrix() << "\ncandidate " << candIndex << "ignored";
+      continue;
+    }
+
+    //Sylvester's criterion, start from the smaller submatrix size
+    double det = 0;
+    if ((!fts.curvilinearError().matrix().Sub<AlgebraicSymMatrix22>(0, 0).Det(det)) || det < 0) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Fail pos-def check sub2.det for candidate " << candIndex << " with fts " << fts;
+      continue;
+    } else if ((!fts.curvilinearError().matrix().Sub<AlgebraicSymMatrix33>(0, 0).Det(det)) || det < 0) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Fail pos-def check sub3.det for candidate " << candIndex << " with fts " << fts;
+      continue;
+    } else if ((!fts.curvilinearError().matrix().Sub<AlgebraicSymMatrix44>(0, 0).Det(det)) || det < 0) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Fail pos-def check sub4.det for candidate " << candIndex << " with fts " << fts;
+      continue;
+    } else if ((!fts.curvilinearError().matrix().Det2(det)) || det < 0) {
+      edm::LogInfo("MkFitOutputConverter")
+          << "Fail pos-def check det for candidate " << candIndex << " with fts " << fts;
+      continue;
+    }
+
     // hits
     edm::OwnVector<TrackingRecHit> recHits;
     // nTotalHits() gives sum of valid hits (nFoundHits()) and invalid/missing hits.
@@ -222,7 +292,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         // them in the TrackProducer.
         lastHitInvalid = true;
       } else {
-        auto const isPixel = eventOfHits[hitOnTrack.layer].is_pix_lyr();
+        auto const isPixel = eventOfHits[hitOnTrack.layer].is_pixel();
         auto const& hits = isPixel ? pixelClusterIndexToHit.hits() : stripClusterIndexToHit.hits();
 
         auto const& thit = static_cast<BaseTrackerRecHit const&>(*hits[hitOnTrack.index]);
@@ -270,28 +340,6 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     // seed
     const auto seedIndex = cand.label();
     LogTrace("MkFitOutputConverter") << " from seed " << seedIndex << " seed hits";
-
-    // state
-    auto state = cand.state();  // copy because have to modify
-    state.convertFromCCSToGlbCurvilinear();
-    const auto& param = state.parameters;
-    const auto& err = state.errors;
-    AlgebraicSymMatrix55 cov;
-    for (int i = 0; i < 5; ++i) {
-      for (int j = i; j < 5; ++j) {
-        cov[i][j] = err.At(i, j);
-      }
-    }
-
-    auto fts = FreeTrajectoryState(
-        GlobalTrajectoryParameters(
-            GlobalPoint(param[0], param[1], param[2]), GlobalVector(param[3], param[4], param[5]), state.charge, &mf),
-        CurvilinearTrajectoryError(cov));
-    if (!fts.curvilinearError().posDef()) {
-      edm::LogInfo("MkFitOutputConverter") << "Curvilinear error not pos-def\n"
-                                           << fts.curvilinearError().matrix() << "\ncandidate ignored";
-      continue;
-    }
 
     auto tsosDet =
         mkFitOutput.propagatedToFirstLayer()

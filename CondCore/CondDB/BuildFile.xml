@@ -3,6 +3,7 @@
 <use name="FWCore/Framework"/>
 <use name="boost"/>
 <use name="openssl"/>
+<use name="curl"/>
 <use name="CoralCommon"/>
 <use name="CoralKernel"/>
 <use name="CoralBase"/>

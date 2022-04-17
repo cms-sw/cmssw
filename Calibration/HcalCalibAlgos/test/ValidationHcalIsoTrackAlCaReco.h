@@ -78,19 +78,19 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
-  std::string folderName_;
-  bool saveToFile_;
-  std::string outRootFileName_;
-  edm::InputTag hltFilterTag_;
-  edm::InputTag recoTrLabel_;
+  const std::string folderName_;
+  const bool saveToFile_;
+  const std::string outRootFileName_;
+  const edm::InputTag hltFilterTag_;
+  const edm::InputTag recoTrLabel_;
 
-  edm::EDGetTokenT<trigger::TriggerEvent> tok_hlt_;
-  edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_arITr_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tok_simTrack_;
+  const double pThr_;
+  const double heLow_;
+  const double heUp_;
 
-  double pThr_;
-  double heLow_;
-  double heUp_;
+  const edm::EDGetTokenT<trigger::TriggerEvent> tok_hlt_;
+  const edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_arITr_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tok_simTrack_;
 
   MonitorElement* hl3Pt;
   MonitorElement* hl3eta;

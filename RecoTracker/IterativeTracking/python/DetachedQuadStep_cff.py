@@ -231,6 +231,9 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 )
 fastSim.toModify(detachedQuadStepTracks,TTRHBuilder = 'WithoutRefit')
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(detachedQuadStepTracks, TrajectoryInEvent = True)
+
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
 detachedQuadStep = TrackMVAClassifierDetached.clone(

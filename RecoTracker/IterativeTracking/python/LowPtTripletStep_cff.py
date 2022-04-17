@@ -288,6 +288,9 @@ lowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 )
 fastSim.toModify(lowPtTripletStepTracks, TTRHBuilder = 'WithoutRefit')
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(lowPtTripletStepTracks, TrajectoryInEvent = True)
+
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 lowPtTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
     ComponentName       = 'lowPtTripletStepTrajectoryCleanerBySharedHits',

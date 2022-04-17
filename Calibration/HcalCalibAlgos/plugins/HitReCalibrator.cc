@@ -46,22 +46,22 @@ namespace cms {
 
     bool allowMissingInputs_;
 
-    edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-    edm::EDGetTokenT<HORecHitCollection> tok_ho_;
-    edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
+    const edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
+    const edm::EDGetTokenT<HORecHitCollection> tok_ho_;
+    const edm::EDGetTokenT<HFRecHitCollection> tok_hf_;
 
-    edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+    const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
   };
 }  // end namespace cms
 
 namespace cms {
 
-  HitReCalibrator::HitReCalibrator(const edm::ParameterSet& iConfig) {
-    tok_hbhe_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"));
-    tok_ho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"));
-    tok_hf_ = consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
+  HitReCalibrator::HitReCalibrator(const edm::ParameterSet& iConfig)
+      : tok_hbhe_(consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("hbheInput"))),
+        tok_ho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInput"))),
+        tok_hf_(consumes<HFRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"))),
+        tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()) {
     allowMissingInputs_ = true;
-    tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
 
     //register your products
 
@@ -82,8 +82,7 @@ namespace cms {
     const HcalRespCorrs* jetRecalib = &iSetup.getData(tok_resp_);
 
     try {
-      edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByToken(tok_hbhe_, hbhe);
+      const edm::Handle<HBHERecHitCollection>& hbhe = iEvent.getHandle(tok_hbhe_);
       const HBHERecHitCollection Hithbhe = *(hbhe.product());
       for (HBHERecHitCollection::const_iterator hbheItr = Hithbhe.begin(); hbheItr != Hithbhe.end(); hbheItr++) {
         DetId id = hbheItr->detid();
@@ -105,8 +104,7 @@ namespace cms {
     }
 
     try {
-      edm::Handle<HORecHitCollection> ho;
-      iEvent.getByToken(tok_ho_, ho);
+      const edm::Handle<HORecHitCollection>& ho = iEvent.getHandle(tok_ho_);
       const HORecHitCollection Hitho = *(ho.product());
       for (HORecHitCollection::const_iterator hoItr = Hitho.begin(); hoItr != Hitho.end(); hoItr++) {
         DetId id = hoItr->detid();
@@ -128,8 +126,7 @@ namespace cms {
     }
 
     try {
-      edm::Handle<HFRecHitCollection> hf;
-      iEvent.getByToken(tok_hf_, hf);
+      const edm::Handle<HFRecHitCollection>& hf = iEvent.getHandle(tok_hf_);
       const HFRecHitCollection Hithf = *(hf.product());
       for (HFRecHitCollection::const_iterator hfItr = Hithf.begin(); hfItr != Hithf.end(); hfItr++) {
         DetId id = hfItr->detid();

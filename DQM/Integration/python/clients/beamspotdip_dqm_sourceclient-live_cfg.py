@@ -10,7 +10,8 @@ print("copying " + configFile + " to local")
 copy(configFile,".")
 
 #
-process = cms.Process("BeamSpotDipServer")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("BeamSpotDipServer", Run3)
 process.load("DQMServices.Core.DQM_cfg")
 
 # message logger

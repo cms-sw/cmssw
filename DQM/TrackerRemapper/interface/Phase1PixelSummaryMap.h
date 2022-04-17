@@ -76,7 +76,7 @@ public:
 
   void resetOption(const char* option);
   void createTrackerBaseMap();
-  void printTrackerMap(TCanvas& canvas);
+  void printTrackerMap(TCanvas& canvas, const float topMargin = 0.02);
   bool fillTrackerMap(unsigned int id, double value);
 
 protected:

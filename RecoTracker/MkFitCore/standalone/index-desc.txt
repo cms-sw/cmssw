@@ -1,0 +1,143 @@
+This README provides light documentation on the various use of indices within the code.
+
+---------
+ Outline
+---------
+
+Section 1: Hit Indices
+Section 2: MCHitID
+Section 3: References Track ID (mcTrackID, cmsswTrackID)
+Section 4: Track Label
+
+------------------------
+ Section 1: Hit Indices
+------------------------
+
+Hit indices attached to HitOnTrack array for each track are described below. 
+
+Idx >= 0  : Track contains a reconstructed hit. Idx indicates position within container where hit resides. Before building in mkFit, idx (with layer number) points to the position within Event::layerHits_ [vector of vector of hits, first index: layer, second index: hit idx]. Just prior to building, hit idxs are translated into their position within layerHits_ to EventOfHits::m_layers_of_hits [vector of LayerOfHits, first index is layer, LayerOfHits class for containing array of Hits]. Building uses layers_of_hits, then for validation, the hits are translated back to layerHits_.
+
+Idx == -1 : Track has not found a hit on this layer (true miss).
+
+Idx == -2 : Track has reached maximum number of holes/misses (-1).
+
+Idx == -3 : Track not in sensitive region of detector, does not count towards efficiency.
+
+Idx == -4 : ??
+
+Idx == -7 : Dummy hit to mark the location of an inactive module
+
+Idx == -9 : Reference track contained a hit that has since been filtered out via CCC before written to memory file. -9 hits are NOT stored in layerHits_.
+
+
+--------------------
+ Section 2: mcHitID
+--------------------
+
+Each hit has a unique identifier, independent of layer number, known as mcHitID, even if it has a hit created by a track (could be pure noise!). 
+
+ID >= 0  : Position within Event::simHitsInfo_ (type: vector<MCHitInfo>). Provides additional information about hit: if hit originates from true MC track, if it is a looper hit, etc.
+
+N.B. Word on mcTrackID within MCHitInfo: >= 0 indicates matched to reference track, == -1 a hit not generated from a saved sim track.
+
+-------------------------
+ Section 3: Ref Track ID
+-------------------------
+
+Reference track ID can refere to CMSSW tracks as reference or Sim tracks as reference, i.e. mcTrackID or cmsswTrackID. The ID is stored within TrackExtra for each reco track during validation. Please see validation manifesto for more details on the process of assigning the ref track ID.
+
+ID >=   0 : a long reco track is matched to a findable reference track (will equal label of reference track and therefore position of ref track within container)
+ID ==  -1 : a long reco track is a true fake, enter numer and denom of FR
+ID ==  -2 : a short reco track is matched to a findable reference track
+ID ==  -3 : a short reco track is matched to an unfindable reference track
+ID ==  -4 : a long reco track is matched to an unfindable reference track
+ID ==  -5 : a short reco track is unmatched to a findable reference track
+ID ==  -6 : a short reco track is unmatched to an unfindable reference track
+ID ==  -7 : a long reco track is unmatched to an unfindable reference track
+ID ==  -8 : a short reco track is unmatched to a track that may not have a reference or the reference track set is not given
+ID ==  -9 : a long reco track is unmatched to a track that may not have a reference or the reference track set is not given
+
+------------------------
+ Section 4: Track Label
+------------------------
+
+** Taken from validation manifesto! ** 
+** Originally from Issue #99 on https://github.com/cerati/mictest **
+
+## Introduction
+
+The label currently has multiple meanings depending on the type of track and where it is in the pipeline between seeding, building, and validation.  To begin, allow me to map out the differences in inputs for the various validation sequences, and the associated track associator function:
+
+1. ToyMC Geom + sim seeds: setMCTrackIDInfo()
+2. CMSSW Geom + sim seeds: setMCTrackIDInfo()
+3. ToyMC Geom + found seeds: setMCTrackIDInfo()
+4. CMSSW Geom + cmssw seeds: setCMSSWTrackIDInfoByTrkParams() or setCMSSWTrackIDInfoByHits()
+5. CMSSW Geom + cmssw seeds + external CMSSW tracks as reference + N^2 cleaning + track parameter matching: setCMSSWTrackIDInfoByTrkParams()
+6. CMSSW Geom + cmssw seeds + external CMSSW tracks as reference + pure seeds: setCMSSWTrackIDInfoByHits(), specifying pure seeds
+7. CMSSW Geom + cmssw seeds + external CMSSW tracks as reference + N^2 cleaning + hit matching: setCMSSWTrackIDInfoByHits()
+8. CMSSW Geom + cmssw tracks as input + sim tracks as reference: setMCTrackIDInfo()
+
+## Important note about hits and relation to the label:
+As a reminder, all hits that originate from a simulated particle will have a **mcHitID_** >= 0.  This is the index to the vector of simHitInfo_, where each element of the vector contains additional information about the hit.  Most importantly, it stores the **mcTrackID_**  that the hit originated from.  
+
+As such, the following must be respected for the tracks inside simTracks_: **label_** == **mcTrackID_** == **position** inside the track vector.  If the simTracks_ are moved, shuffled, sorted, deleted, etc., this means that the matching of candidate tracks via **mcTrackID_'s** via hits via **mcHitID_** will be ruined!
+
+## Case 1. and 2.
+
+In both 1. and 2., the seeds are generated from the simtracks, and as such their **label_** == **mcTrackID_**.  Before the building starts, the seeds can be moved around and into different structures. Regardless, for each seed, a candidate track is created with its **label_** equal to the **label_** of the seed it originated from. At the end of building, the candidate tracks are dumped into their conventional candidateTracks_ collection.  At this point, the **label_** of the track may not be pointing to its **position** inside the vector, but still uniquely identifies it as to which seed it came from.  
+
+So we then create a TrackExtra for the track, storing the **label_** as the **seedID**, and then reassign the **label_** of track to be its **position** inside the candidate track vector.  We actually do this for the seed and fit tracks also.  Each track collection has an associated track extra collection, indexed the same such that candidateTracks_[i] has an associated candidateTracksExtra_[i].
+
+The associator is run for each candidate track, using the fact that the now stored **seedID_** also points to the correct **mcTrackID_** this candidate was created from, counting the number of hits in the candidate track after the seed matching this id.  If more than 50% are matched, the candidate track now sets its track extra **mcTrackID_** == **seedID_**.
+
+We then produce two maps to map the candidate tracks:
+1. simToCandidates: 
+ - map key = **mcTrackID**
+ - mapped value = vector of candidate track **label_'s**, where the **label_'s** now represent the **positions** in the candidate vector for tracks who have the **mcTrackID_** in question
+
+2. seedToCandidates:
+ - map key = **seedID_**
+ - mapped value = **label_** of candidate track (again, the **label_** now being the **position** inside the track vector)
+
+These maps are then used to get the associated sim and reco information for the trees.
+
+## Case 3. and 4.
+
+In both 3. and 4., the seedTracks are not intrinsically related to the simTracks_ .  For 3., the seeds are generated from find_seeds(), and the **label_** assigned to the track is just the index at which the seed was created.  For 4., the **label_** is the **mcTrackID** for the sim track it is most closely assocaited to (as given to us from CMSSW), if it exists. 
+
+If using 4., we do relabeling prior to seed cleaning. If **label_** >= 0, the label stays the same, and becomes its **seedID_**.  In the case of the N^2 cleaning, some seeds may remain which have a **label_** == -1.  Since there might be more than one and we want to uniquely identify them after building, we reassign the **label_'s** with an increasing negative number. So the first seed track with **label_** == -1 has label == -1, the second track with **label_** == -1 then has a new **label_* == -2, third track assigned to == -3, etc.  This can also occur in the pure CMSSW seeds (i.e. cmssw seeds that turn into cmssw reco tracks in the cmsswTracks_ collection), in which case we do the relabling in the same fashion.  The CMSSW seeds are then read in and cleaned.  
+
+It is clear here that **label_** of the seed track does not have to equal the **position** inside the track vector!  So the building proceeds in the same manner as 1. and 2., where each seed first generates a single candidate track with a **label_** equal to the seed **label_** which happens to be its **seedID_**.  The candidateTracks_ are dumped out in some order, where the **label_** is still the **seedID_**.
+
+We then generate a TrackExtra for each candidate track (and seed and fit tracks), with the **seedID_** set to the **label_**, then reassigning the **label_** to be the **position** inside the track vector.
+
+The associator is run, now just counting how many hits on the candidate track are matched to a single **mcTrackID**.  If the fraction of hits matching a single **mcTrackID** is greater than 50%, then the track extra **mcTrackID_** is set to the matched **mcTrackID**.
+
+The associate maps are then used in the same fashion as described above. 
+
+## Case 5.
+
+The seed cleaning and labeling is the same as described for 4. The only difference now is that we run a special sequence before the seeds cleaned and then are sorted in eta, storing the original index position of the seed track as a mapped value of the seed track label.  This is because we wish to keep track of which cmssw track originates from which seed track, and the matching is such that the cmssw track label (before being reassigned to its position) == seedID of the track, which equals the position of a seed track inside the track vector. Not all seed tracks will have this property, as not all seeds become cmssw tracks.
+
+The building proceeds, tracks are dumped out, track extra **seedID_** are set to the track candidate **label_**, and the **label_** is reassigned to the track's **position** inside the vector. We also take the chance to generate a track extra for the CMSSW tracks, storing the **label_** as the **seedID_**, and reassigning the **label_** to the CMSSW track's position inside the cmsswTracks_ vector.  
+
+Afterwards, we set the **mcTrackID** of the candidate track == **seedID** (as described previously). In addition, if the candidate track **label_** is mapped, then we set the **seedID_** == mapped value (i.e. the seedID of the cmssw track before it was realigned --> the position of the seed track in its vector before it was moved in eta bins).  
+
+The candidate track to CMSSW associator is run, matching by chi2 and dphi.  If track finds at least one CMSSW track with a match, the **cmsswTrackID_** is set to the **label_** of the CMSSW track.  We then produce a map of the CMSSW tracks to the candidate mkFit tracks.
+
+cmsswToCandidates: 
+ - map key = **cmsswTrackID** (which is now the position of a cmssw track in cmsswTracks_)
+ - mapped value = vector of candidate track **label_'s**, where the **label_'s** now represent the **positions** in the candidate vector for tracks who have the **cmsswTrackID_** in question
+
+## Case 6.
+
+Can only be used with PURE SEEDS. The meaning of the label here is still the same case 5.  Now, of course, we have a "pure" efficiency denominator made of all the CMSSW reco tracks. A matched is considered if mkFit track shares 50% of its hits after the seed with the CMSSW track it was supposed to matched (i.e. pure seeds).
+
+## Case 7.
+
+Use only with CMSSW validation: counts how many hits from mkFit track are matched to cmssw with a map for labels, as CMSSW tracks can share hits! Then loop over map, storing labels in  vec that have 50% of hits matched to single CMSSW track after common seed (denom is mkFit track nHits).  Then sort by matched CMSSW tracks for each mkFit track, selecting the one with the highest match.
+
+## Case 8.
+
+CMSSW tracks retain label and seed id as before, no building done, just remapping to keep track of sim and seed track info.
+Uses special maps and functions to properly do sim track matching: Event::relabel_cmsswtracks_from_seeds() + TTreeValidation::makeRecoTkToSeedTkMapsDumbCMSSW()

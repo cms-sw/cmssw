@@ -1067,6 +1067,7 @@ void GsfElectronAlgo::createElectron(reco::GsfElectronCollection& electrons,
   // Will be overwritten later in the case of the regression
   ele.setCorrectedEcalEnergyError(egamma::ecalClusterEnergyUncertaintyElectronSpecific(*(ele.superCluster())));
   ele.setP4(GsfElectron::P4_FROM_SUPER_CLUSTER, momentum, 0, true);
+  ele.setMass(0.0);
 
   //====================================================
   // brems fractions

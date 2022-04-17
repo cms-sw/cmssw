@@ -25,23 +25,31 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-HLTMuonTrkL1TFilter::HLTMuonTrkL1TFilter(const edm::ParameterSet& iConfig) : HLTFilter(iConfig) {
-  m_muonsTag = iConfig.getParameter<edm::InputTag>("inputMuonCollection");
-  m_muonsToken = consumes<reco::MuonCollection>(m_muonsTag);
-  m_candsTag = iConfig.getParameter<edm::InputTag>("inputCandCollection");
-  m_candsToken = consumes<reco::RecoChargedCandidateCollection>(m_candsTag);
-  m_previousCandTag = iConfig.getParameter<edm::InputTag>("previousCandTag");
-  m_previousCandToken = consumes<trigger::TriggerFilterObjectWithRefs>(m_previousCandTag);
-  m_minTrkHits = iConfig.getParameter<int>("minTrkHits");
-  m_minMuonHits = iConfig.getParameter<int>("minMuonHits");
-  m_minMuonStations = iConfig.getParameter<int>("minMuonStations");
-  m_maxNormalizedChi2 = iConfig.getParameter<double>("maxNormalizedChi2");
-  m_allowedTypeMask = iConfig.getParameter<unsigned int>("allowedTypeMask");
-  m_requiredTypeMask = iConfig.getParameter<unsigned int>("requiredTypeMask");
-  m_trkMuonId = muon::SelectionType(iConfig.getParameter<unsigned int>("trkMuonId"));
-  m_minPt = iConfig.getParameter<double>("minPt");
-  m_minN = iConfig.getParameter<unsigned int>("minN");
-  m_maxAbsEta = iConfig.getParameter<double>("maxAbsEta");
+HLTMuonTrkL1TFilter::HLTMuonTrkL1TFilter(const edm::ParameterSet& iConfig)
+    : HLTFilter(iConfig),
+      propSetup_(iConfig, consumesCollector()),
+      m_muonsTag(iConfig.getParameter<edm::InputTag>("inputMuonCollection")),
+      m_muonsToken(consumes<reco::MuonCollection>(m_muonsTag)),
+      m_candsTag(iConfig.getParameter<edm::InputTag>("inputCandCollection")),
+      m_candsToken(consumes<reco::RecoChargedCandidateCollection>(m_candsTag)),
+      m_previousCandTag(iConfig.getParameter<edm::InputTag>("previousCandTag")),
+      m_previousCandToken(consumes<trigger::TriggerFilterObjectWithRefs>(m_previousCandTag)),
+      m_minTrkHits(iConfig.getParameter<int>("minTrkHits")),
+      m_minMuonHits(iConfig.getParameter<int>("minMuonHits")),
+      m_minMuonStations(iConfig.getParameter<int>("minMuonStations")),
+      m_maxNormalizedChi2(iConfig.getParameter<double>("maxNormalizedChi2")),
+      m_allowedTypeMask(iConfig.getParameter<unsigned int>("allowedTypeMask")),
+      m_requiredTypeMask(iConfig.getParameter<unsigned int>("requiredTypeMask")),
+      m_trkMuonId(muon::SelectionType(iConfig.getParameter<unsigned int>("trkMuonId"))),
+      m_minPt(iConfig.getParameter<double>("minPt")),
+      m_minN(iConfig.getParameter<unsigned int>("minN")),
+      m_maxAbsEta(iConfig.getParameter<double>("maxAbsEta")),
+      m_l1MatchingdR(iConfig.getParameter<double>("L1MatchingdR")),
+      m_l1MatchingdR2(m_l1MatchingdR * m_l1MatchingdR) {
+  if (m_l1MatchingdR <= 0.) {
+    throw cms::Exception("HLTMuonTrkL1TFilterConfiguration")
+        << "invalid value for parameter \"L1MatchingdR\" (must be > 0): " << m_l1MatchingdR;
+  }
 }
 
 void HLTMuonTrkL1TFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -60,12 +68,16 @@ void HLTMuonTrkL1TFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("minPt", 24);
   desc.add<unsigned int>("minN", 1);
   desc.add<double>("maxAbsEta", 1e99);
+  desc.add<double>("L1MatchingdR", 0.3);
+  PropagateToMuonSetup::fillPSetDescription(desc);
   descriptions.add("hltMuonTrkL1TFilter", desc);
 }
 
 bool HLTMuonTrkL1TFilter::hltFilter(edm::Event& iEvent,
                                     const edm::EventSetup& iSetup,
                                     trigger::TriggerFilterObjectWithRefs& filterproduct) const {
+  auto const prop = propSetup_.init(iSetup);
+
   edm::Handle<reco::MuonCollection> muons;
   iEvent.getByToken(m_muonsToken, muons);
   edm::Handle<reco::RecoChargedCandidateCollection> cands;
@@ -94,11 +106,22 @@ bool HLTMuonTrkL1TFilter::hltFilter(edm::Event& iEvent,
   std::vector<unsigned int> filteredMuons;
   for (unsigned int i = 0; i < muons->size(); ++i) {
     const reco::Muon& muon(muons->at(i));
-    // check for dR match to L1 muons
     if (check_l1match) {
+      const reco::RecoChargedCandidateRef cand(cands, i);
+      const reco::TrackRef tk = cand->track();
+      auto etaForMatch = cand->eta();
+      auto phiForMatch = cand->phi();
+      // check for dR match to L1 muons
+      if (tk.isNonnull()) {
+        auto const propagated = prop.extrapolate(*tk);
+        if (propagated.isValid()) {
+          etaForMatch = propagated.globalPosition().eta();
+          phiForMatch = propagated.globalPosition().phi();
+        }
+      }
       bool matchl1 = false;
       for (auto l1cand = vl1cands_begin; l1cand != vl1cands_end; ++l1cand) {
-        if (deltaR(muon, **l1cand) < 0.3) {
+        if (deltaR2(etaForMatch, phiForMatch, (*l1cand)->eta(), (*l1cand)->phi()) < m_l1MatchingdR2) {
           matchl1 = true;
           break;
         }

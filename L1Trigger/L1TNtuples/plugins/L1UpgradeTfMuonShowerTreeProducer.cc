@@ -23,10 +23,10 @@
 // class declaration
 //
 
-class L1UpgradeTfMuonShowerTreeProducer : public edm::one::EDAnalyzer<> {
+class L1UpgradeTfMuonShowerTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1UpgradeTfMuonShowerTreeProducer(const edm::ParameterSet&);
-  ~L1UpgradeTfMuonShowerTreeProducer() override;
+  ~L1UpgradeTfMuonShowerTreeProducer() override = default;
 
 private:
   void beginJob(void) override;
@@ -58,13 +58,13 @@ L1UpgradeTfMuonShowerTreeProducer::L1UpgradeTfMuonShowerTreeProducer(const edm::
 
   l1UpgradeEmtfData = l1UpgradeEmtf.getData();
 
+  usesResource(TFileService::kSharedResource);
+
   // set up output
   tree_ = fs_->make<TTree>("L1UpgradeTfMuonShowerTree", "L1UpgradeTfMuonShowerTree");
   tree_->Branch(
       "L1UpgradeEmtfMuonShower", "L1Analysis::L1AnalysisL1UpgradeTfMuonShowerDataFormat", &l1UpgradeEmtfData, 32000, 3);
 }
-
-L1UpgradeTfMuonShowerTreeProducer::~L1UpgradeTfMuonShowerTreeProducer() {}
 
 //
 // member functions

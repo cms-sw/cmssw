@@ -46,6 +46,7 @@
 #include <CLHEP/Units/GlobalPhysicalConstants.h>
 
 // system include files
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -54,7 +55,7 @@
 class HcalTB06Analysis : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HcalTB06Analysis(const edm::ParameterSet& p);
-  ~HcalTB06Analysis() override;
+  ~HcalTB06Analysis() override = default;
 
   void beginJob() override;
   void endJob() override;
@@ -64,10 +65,23 @@ public:
   const HcalTB06Analysis& operator=(const HcalTB06Analysis&) = delete;
 
 private:
+  const bool m_ECAL;
+  const double m_eta;
+  const double m_phi;
+  const double m_ener;
+  const std::vector<int> m_PDG;
+
   edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
-  edm::EDGetTokenT<edm::PCaloHitContainer> m_HcalToken;
-  edm::EDGetTokenT<edm::PCaloHitContainer> m_BeamToken;
-  bool m_ECAL;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> m_HcalToken;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> m_BeamToken;
+
+  const edm::ParameterSet m_ptb;
+  const double m_timeLimit;
+  const double m_widthEcal;
+  const double m_widthHcal;
+  const double m_factEcal;
+  const double m_factHcal;
+  const double m_eMIP;
 
   int count;
   int m_idxetaEcal;
@@ -75,33 +89,28 @@ private:
   int m_idxetaHcal;
   int m_idxphiHcal;
 
-  double m_eta;
-  double m_phi;
-  double m_ener;
-  double m_timeLimit;
-  double m_widthEcal;
-  double m_widthHcal;
-  double m_factEcal;
-  double m_factHcal;
-  std::vector<int> m_PDG;
-
-  HcalTB06Histo* m_histo;
+  std::unique_ptr<HcalTB06Histo> m_histo;
 };
 
-HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p) : count(0) {
+HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p)
+    : m_ECAL(p.getParameter<bool>("ECAL")),
+      m_eta(p.getParameter<double>("MinEta")),
+      m_phi(p.getParameter<double>("MinPhi")),
+      m_ener(p.getParameter<double>("MinE")),
+      m_PDG(p.getParameter<std::vector<int> >("PartID")),
+      m_HcalToken(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"))),
+      m_BeamToken(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalTB06BeamHits"))),
+      m_ptb(p.getParameter<edm::ParameterSet>("TestBeamAnalysis")),
+      m_timeLimit(m_ptb.getParameter<double>("TimeLimit")),
+      m_widthEcal(m_ptb.getParameter<double>("EcalWidth")),
+      m_widthHcal(m_ptb.getParameter<double>("HcalWidth")),
+      m_factEcal(m_ptb.getParameter<double>("EcalFactor")),
+      m_factHcal(m_ptb.getParameter<double>("HcalFactor")),
+      m_eMIP(m_ptb.getParameter<double>("MIP")),
+      count(0) {
   usesResource("TFileService");
-
-  m_ECAL = p.getParameter<bool>("ECAL");
-  if (m_ECAL) {
+  if (m_ECAL)
     m_EcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
-  }
-  m_HcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
-  m_BeamToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalTB06BeamHits"));
-  m_eta = p.getParameter<double>("MinEta");
-  m_phi = p.getParameter<double>("MinPhi");
-  m_ener = p.getParameter<double>("MinE");
-  m_PDG = p.getParameter<std::vector<int> >("PartID");
-
   double minEta = p.getParameter<double>("MinEta");
   double maxEta = p.getParameter<double>("MaxEta");
   double minPhi = p.getParameter<double>("MinPhi");
@@ -121,27 +130,17 @@ HcalTB06Analysis::HcalTB06Analysis(const edm::ParameterSet& p) : count(0) {
     m_idxphiHcal -= 73;
   }
 
-  edm::ParameterSet ptb = p.getParameter<edm::ParameterSet>("TestBeamAnalysis");
-  m_timeLimit = ptb.getParameter<double>("TimeLimit");
-  m_widthEcal = ptb.getParameter<double>("EcalWidth");
-  m_widthHcal = ptb.getParameter<double>("HcalWidth");
-  m_factEcal = ptb.getParameter<double>("EcalFactor");
-  m_factHcal = ptb.getParameter<double>("HcalFactor");
-  double eMIP = ptb.getParameter<double>("MIP");
-
   edm::LogInfo("HcalTB06Analysis") << "Beam parameters: E(GeV)= " << m_ener << " pdgID= " << m_PDG[0]
                                    << "\n eta= " << m_eta << "  idx_etaEcal= " << m_idxetaEcal
                                    << "  idx_etaHcal= " << m_idxetaHcal << "  phi= " << m_phi
                                    << "  idx_phiEcal= " << m_idxphiEcal << "  idx_phiHcal= " << m_idxphiHcal
                                    << "\n        EcalFactor= " << m_factEcal << "  EcalWidth= " << m_widthEcal << " GeV"
                                    << "\n        HcalFactor= " << m_factHcal << "  HcalWidth= " << m_widthHcal << " GeV"
-                                   << "  MIP=       " << eMIP << " GeV"
+                                   << "  MIP=       " << m_eMIP << " GeV"
                                    << "\n        TimeLimit=  " << m_timeLimit << " ns"
                                    << "\n";
-  m_histo = new HcalTB06Histo(ptb);
+  m_histo = std::make_unique<HcalTB06Histo>(m_ptb);
 }
-
-HcalTB06Analysis::~HcalTB06Analysis() { delete m_histo; }
 
 void HcalTB06Analysis::beginJob() { edm::LogInfo("HcalTB06Analysis") << " =====> Begin of Run"; }
 
@@ -155,19 +154,16 @@ void HcalTB06Analysis::analyze(const edm::Event& evt, const edm::EventSetup&) {
   //Beam Information
   m_histo->fillPrimary(m_ener, m_eta, m_phi);
 
-  edm::Handle<edm::PCaloHitContainer> Ecal;
-  edm::Handle<edm::PCaloHitContainer> Hcal;
-  edm::Handle<edm::PCaloHitContainer> Beam;
   std::vector<double> eCalo(6, 0), eTrig(7, 0);
 
   const std::vector<PCaloHit>* EcalHits = nullptr;
   if (m_ECAL) {
-    evt.getByToken(m_EcalToken, Ecal);
+    const edm::Handle<edm::PCaloHitContainer>& Ecal = evt.getHandle(m_EcalToken);
     EcalHits = Ecal.product();
   }
-  evt.getByToken(m_HcalToken, Hcal);
+  const edm::Handle<edm::PCaloHitContainer>& Hcal = evt.getHandle(m_HcalToken);
   const std::vector<PCaloHit>* HcalHits = Hcal.product();
-  evt.getByToken(m_BeamToken, Beam);
+  const edm::Handle<edm::PCaloHitContainer>& Beam = evt.getHandle(m_BeamToken);
   const std::vector<PCaloHit>* BeamHits = Beam.product();
 
   // Total Energy

@@ -64,8 +64,7 @@ MultiHitGeneratorFromChi2::MultiHitGeneratorFromChi2(const edm::ParameterSet& cf
       maxChi2(cfg.getParameter<double>("maxChi2")),
       refitHits(cfg.getParameter<bool>("refitHits")),
       filterName_(cfg.getParameter<std::string>("ClusterShapeHitFilterName")),
-      builderName_(cfg.existsAs<std::string>("TTRHBuilder") ? cfg.getParameter<std::string>("TTRHBuilder")
-                                                            : std::string("WithTrackAngle")),
+      builderName_(cfg.getParameter<std::string>("TTRHBuilder")),
       useSimpleMF_(false),
       mfName_("") {
   if (useFixedPreFiltering)

@@ -11,11 +11,7 @@ hltTrackValidator = hltMultiTrackValidator.clone(
         "hltIter1Merged",
         "hltIter2PFlowTrackSelectionHighPurity",
         "hltIter2Merged",
-        "hltMergedTracks",
-#        "hltIter3PFlowTrackSelectionHighPurity",
-#        "hltIter3Merged",
-#        "hltIter4PFlowTrackSelectionHighPurity",
-#        "hltIter4Merged",
+        "hltMergedTracks"
     ]
 )
 
@@ -28,3 +24,9 @@ hltMultiTrackValidation = cms.Sequence(
     hltTrackValidator,
     hltMultiTrackValidationTask
 )
+
+def _modifyForRun3(trackvalidator):
+    trackvalidator.label = ["hltPixelTracks", "hltMergedTracks"]
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(hltTrackValidator, _modifyForRun3)

@@ -270,6 +270,7 @@
     <Parameter name="GroupingZOut"   value="28"/>
     <Parameter name="GroupingZOut"   value="28"/>
     <Parameter name="LayerOffset"    value="0"/>
+    <Parameter name="LayerOffset"    value="0"/>
   </SpecPar>
 </SpecParSection>
 

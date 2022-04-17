@@ -31,6 +31,7 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
+         {'SelectorUtils': ['VersionedSelector']},
          {'Associations': ['TTTrackTruthPair', 'edm::Wrapper.+edm::AssociationMap.+TrackingParticle']},
          {'TrajectoryState'         : ['TrajectoryStateOnSurface']},
          {'TrackTriggerAssociation' : ['(TTClusterAssociationMap|TTStubAssociationMap|TTTrackAssociationMap|TrackingParticle).*Phase2TrackerDigi',

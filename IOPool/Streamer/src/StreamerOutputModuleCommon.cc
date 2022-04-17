@@ -23,7 +23,9 @@
 #include <zlib.h>
 
 namespace edm {
-  StreamerOutputModuleCommon::StreamerOutputModuleCommon(ParameterSet const& ps, SelectedProducts const* selections)
+  StreamerOutputModuleCommon::StreamerOutputModuleCommon(ParameterSet const& ps,
+                                                         SelectedProducts const* selections,
+                                                         std::string const& moduleLabel)
       :
 
         serializer_(selections),
@@ -84,6 +86,15 @@ namespace edm {
     // 25-Jan-2008, KAB - pull out the trigger selection request
     // which we need for the INIT message
     hltTriggerSelections_ = EventSelector::getEventSelectionVString(ps);
+
+    Strings const& hltTriggerNames = edm::getAllTriggerNames();
+    hltsize_ = hltTriggerNames.size();
+
+    //Checksum of the module label
+    uLong crc = crc32(0L, Z_NULL, 0);
+    Bytef const* buf = (Bytef const*)(moduleLabel.data());
+    crc = crc32(crc, buf, moduleLabel.length());
+    outputModuleId_ = static_cast<uint32>(crc);
   }
 
   StreamerOutputModuleCommon::~StreamerOutputModuleCommon() {}
@@ -120,8 +131,6 @@ namespace edm {
     //  cms::MD5Result r1 = dig.digest();
     //  std::string hexy = r1.toString();
     //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;
-    Strings const& hltTriggerNames = edm::getAllTriggerNames();
-    hltsize_ = hltTriggerNames.size();
 
     //L1 stays dummy as of today
     Strings l1_names;  //3
@@ -129,11 +138,7 @@ namespace edm {
     l1_names.push_back("t10");
     l1_names.push_back("t2");
 
-    //Setting the process name to HLT
-    uLong crc = crc32(0L, Z_NULL, 0);
-    Bytef const* buf = (Bytef const*)(moduleLabel.data());
-    crc = crc32(crc, buf, moduleLabel.length());
-    outputModuleId_ = static_cast<uint32>(crc);
+    Strings const& hltTriggerNames = edm::getAllTriggerNames();
 
     auto init_message = std::make_unique<InitMsgBuilder>(&sbuf.header_buf_[0],
                                                          sbuf.header_buf_.size(),

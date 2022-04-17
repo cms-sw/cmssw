@@ -391,6 +391,8 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   forallestimators_amplitude_bigger = cms.double(-100.),
                                   #
                                   #
+                                  # if 0 - do not use digis at all
+                                  flagToUseDigiCollectionsORNot = cms.int32(1),
                                   #
                                   #usecontinuousnumbering = cms.untracked.bool(False),
                                   usecontinuousnumbering = cms.untracked.bool(True),

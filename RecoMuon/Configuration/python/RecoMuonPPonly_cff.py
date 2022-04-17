@@ -27,7 +27,8 @@ from RecoMuon.GlobalMuonProducer.GlobalMuonProducer_cff import *
 from RecoMuon.Configuration.iterativeTkDisplaced_cff import *
 displacedGlobalMuons = globalMuons.clone(
     MuonCollectionLabel = 'displacedStandAloneMuons:',
-    TrackerCollectionLabel = 'displacedTracks'
+    TrackerCollectionLabel = 'displacedTracks',
+    selectHighPurity = False
 )
 
 # TeV refinement

@@ -12,6 +12,7 @@
 <use name="CommonTools/UtilAlgos"/>
 <use name="pyquen"/>
 <use name="root"/>
+<use name="hydjet2"/>
 <use name="rootmath"/>
 <use name="rootcore"/>
 <export>

@@ -45,6 +45,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoLocalTracker/Records/interface/TkPhase2OTCPERecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 
 // ROOT includes
 #include <TH1F.h>

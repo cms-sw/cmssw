@@ -16,6 +16,8 @@ Description: Producer for Run3ScoutingElectron and Run3ScoutingPhoton
 
 #include "HLTScoutingEgammaProducer.h"
 
+#include <cstdint>
+
 // function to find rechhit associated to detid and return energy
 float recHitE(const DetId id, const EcalRecHitCollection& recHits) {
   if (id == DetId(0)) {
@@ -205,20 +207,21 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     float sMin = moments.sMin;
     float sMaj = moments.sMaj;
 
-    unsigned int seedId = (*SCseed).seed();
+    uint32_t seedId = (*SCseed).seed();
 
     std::vector<DetId> mDetIds = EcalClusterTools::matrixDetId((topology), (*SCseed).seed(), rechitMatrixSize);
 
     int detSize = mDetIds.size();
+    std::vector<uint32_t> mDetIdIds(detSize, 0);
     std::vector<float> mEnergies(detSize, 0.);
     std::vector<float> mTimes(detSize, 0.);
 
     for (int i = 0; i < detSize; i++) {
+      mDetIdIds[i] = mDetIds[i];
       mEnergies[i] =
-          MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds.at(i), *rechits), mantissaPrecision);
+          MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds[i], *rechits), mantissaPrecision);
       if (saveRecHitTiming)
-        mTimes[i] =
-            MiniFloatConverter::reduceMantissaToNbitsRounding(recHitT(mDetIds.at(i), *rechits), mantissaPrecision);
+        mTimes[i] = MiniFloatConverter::reduceMantissaToNbitsRounding(recHitT(mDetIds[i], *rechits), mantissaPrecision);
     }
 
     float HoE = 999.;
@@ -254,6 +257,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                sMaj,
                                seedId,
                                mEnergies,
+                               mDetIdIds,
                                mTimes);  //read for(ieta){for(iphi){}}
     } else {                             // Candidate is a scouting electron
       outElectrons->emplace_back(candidate.pt(),
@@ -277,6 +281,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  sMaj,
                                  seedId,
                                  mEnergies,
+                                 mDetIdIds,
                                  mTimes);  //read for(ieta){for(iphi){}}
     }
   }

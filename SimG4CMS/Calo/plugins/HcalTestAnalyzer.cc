@@ -38,13 +38,13 @@ public:
 private:
   TTree* tree_;
   HcalTestHistoClass h_;
-  edm::EDGetTokenT<HcalTestHistoClass> tokHist_;
+  const edm::EDGetTokenT<HcalTestHistoClass> tokHist_;
   int kount_;
 };
 
-HcalTestAnalyzer::HcalTestAnalyzer(const edm::ParameterSet&) : tree_(nullptr), kount_(0) {
+HcalTestAnalyzer::HcalTestAnalyzer(const edm::ParameterSet&)
+    : tree_(nullptr), tokHist_(consumes<HcalTestHistoClass>(edm::InputTag("g4SimHits"))), kount_(0) {
   usesResource(TFileService::kSharedResource);
-  tokHist_ = consumes<HcalTestHistoClass>(edm::InputTag("g4SimHits"));
   edm::Service<TFileService> fs;
   if (fs.isAvailable()) {
     tree_ = fs->make<TTree>("HcalTest", "HcalTest");
@@ -69,7 +69,7 @@ void HcalTestAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 void HcalTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   ++kount_;
-  auto histos = e.getHandle(tokHist_);
+  const auto& histos = e.getHandle(tokHist_);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalyzer: [" << kount_ << "] event " << e.id().event() << " with "
                               << histos.isValid();
 

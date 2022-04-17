@@ -15,12 +15,12 @@
 #include <iostream>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "HepMC/WeightContainer.h"
 #include "HepMC/GenEvent.h"
@@ -29,6 +29,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
 #include "TH1D.h"
@@ -38,19 +39,23 @@
 // class decleration
 //
 
-class ZeeAnalyzer : public edm::EDAnalyzer {
+class ZeeAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ZeeAnalyzer(const edm::ParameterSet&);
-  ~ZeeAnalyzer();
+  ~ZeeAnalyzer() override = default;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
 
   // ----------member data ---------------------------
+  const edm::InputTag hepMCProductTag_;
+  const edm::InputTag genEventInfoProductTag_;
+  const std::string outputFilename;
 
-  std::string outputFilename;
+  const edm::EDGetTokenT<edm::HepMCProduct> tokHepMC_;
+  const edm::EDGetTokenT<GenEventInfoProduct> tokEvent_;
   TH1D* weight_histo;
   TH1D* invmass_histo;
   TH1D* Zpt;
@@ -62,39 +67,37 @@ private:
   TH1D* softphi;
 
   double sumWeights;
-  edm::InputTag hepMCProductTag_;
-  edm::InputTag genEventInfoProductTag_;
 };
 
 ZeeAnalyzer::ZeeAnalyzer(const edm::ParameterSet& iConfig)
     : hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")),
-      genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag")) {
-  outputFilename = iConfig.getUntrackedParameter<std::string>("OutputFilename", "dummy.root");
+      genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag")),
+      outputFilename(iConfig.getUntrackedParameter<std::string>("OutputFilename", "dummy.root")),
+      tokHepMC_(consumes<edm::HepMCProduct>(hepMCProductTag_)),
+      tokEvent_(consumes<GenEventInfoProduct>(genEventInfoProductTag_)) {
+  usesResource(TFileService::kSharedResource);
+  edm::Service<TFileService> fs;
 
   sumWeights = 0.0;
 
-  weight_histo = new TH1D("weight_histo", "weight_histo", 20, -10, 10);
-  invmass_histo = new TH1D("invmass_histo", "invmass_histo", 160, 70, 110);
-  Zpt = new TH1D("Zpt", "Zpt", 200, 0, 200);
-  hardpt = new TH1D("hardpt", "hardpt", 200, 0, 200);
-  softpt = new TH1D("softpt", "softpt", 200, 0, 200);
-  hardeta = new TH1D("hardeta", "hardeta", 200, -5, 5);
-  softeta = new TH1D("softeta", "softeta", 200, -5, 5);
+  weight_histo = fs->make<TH1D>("weight_histo", "weight_histo", 20, -10, 10);
+  invmass_histo = fs->make<TH1D>("invmass_histo", "invmass_histo", 160, 70, 110);
+  Zpt = fs->make<TH1D>("Zpt", "Zpt", 200, 0, 200);
+  hardpt = fs->make<TH1D>("hardpt", "hardpt", 200, 0, 200);
+  softpt = fs->make<TH1D>("softpt", "softpt", 200, 0, 200);
+  hardeta = fs->make<TH1D>("hardeta", "hardeta", 200, -5, 5);
+  softeta = fs->make<TH1D>("softeta", "softeta", 200, -5, 5);
 }
-
-ZeeAnalyzer::~ZeeAnalyzer() {}
 
 // ------------ method called to for each event  ------------
 void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   // get HepMC::GenEvent ...
-  Handle<HepMCProduct> evt_h;
-  iEvent.getByLabel(hepMCProductTag_, evt_h);
+  const edm::Handle<edm::HepMCProduct>& evt_h = iEvent.getHandle(tokHepMC_);
   HepMC::GenEvent* evt = new HepMC::GenEvent(*(evt_h->GetEvent()));
 
-  Handle<GenEventInfoProduct> evt_info;
-  iEvent.getByLabel(genEventInfoProductTag_, evt_info);
+  const edm::Handle<GenEventInfoProduct>& evt_info = iEvent.getHandle(tokEvent_);
 
   double weight = evt_info->weight();
   if (weight)
@@ -142,24 +145,8 @@ void ZeeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   delete evt;
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void ZeeAnalyzer::beginJob() {}
-
 // ------------ method called once each job just after ending the event loop  ------------
-void ZeeAnalyzer::endJob() {
-  std::cout << " total sum wieghts = " << sumWeights << std::endl;
-
-  // save histograms into file
-  TFile file(outputFilename.c_str(), "RECREATE");
-  weight_histo->Write();
-  invmass_histo->Write();
-  Zpt->Write();
-  hardpt->Write();
-  softpt->Write();
-  hardeta->Write();
-  softeta->Write();
-  file.Close();
-}
+void ZeeAnalyzer::endJob() { std::cout << " total sum wieghts = " << sumWeights << std::endl; }
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ZeeAnalyzer);

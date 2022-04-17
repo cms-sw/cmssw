@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -75,17 +75,15 @@ namespace {
   };
 }  // namespace
 
-class PFSuperClusterTreeMaker : public edm::EDAnalyzer {
+class PFSuperClusterTreeMaker : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   typedef TTree* treeptr;
 
 public:
   PFSuperClusterTreeMaker(const PSet&);
-  ~PFSuperClusterTreeMaker() {}
-
+  ~PFSuperClusterTreeMaker() override = default;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
-  edm::Service<TFileService> _fs;
   bool _dogen;
   edm::InputTag _geninput;
   edm::InputTag _vtxsrc;
@@ -297,13 +295,15 @@ void PFSuperClusterTreeMaker::processSuperClusterFillTree(const edm::Event& e, c
 }
 
 PFSuperClusterTreeMaker::PFSuperClusterTreeMaker(const PSet& p) {
+  usesResource("TFileService");
   ecalMustacheSCParametersToken_ = esConsumes<EcalMustacheSCParameters, EcalMustacheSCParametersRcd>();
   ecalSCDynamicDPhiParametersToken_ = esConsumes<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd>();
 
   _calib.reset(new PFEnergyCalibration());
   N_ECALClusters = 1;
   N_PSClusters = 1;
-  _tree = _fs->make<TTree>("SuperClusterTree", "Dump of all available SC info");
+  edm::Service<TFileService> fs;
+  _tree = fs->make<TTree>("SuperClusterTree", "Dump of all available SC info");
   _tree->Branch("N_ECALClusters", &N_ECALClusters, "N_ECALClusters/I");
   _tree->Branch("N_PSClusters", &N_PSClusters, "N_PSClusters/I");
   _tree->Branch("nVtx", &nVtx, "nVtx/I");

@@ -2,6 +2,7 @@
 #define DataFormats_Run3ScoutingElectron_h
 
 #include <vector>
+#include <cstdint>
 
 // Class for holding electron information, for use in data scouting
 // IMPORTANT: the content of this class should be changed only in backwards compatible ways!
@@ -27,8 +28,9 @@ public:
                        float r9,
                        float sMin,
                        float sMaj,
-                       unsigned int seedId,
+                       uint32_t seedId,
                        std::vector<float> energyMatrix,
+                       std::vector<uint32_t> detIds,
                        std::vector<float> timingMatrix)
       : pt_(pt),
         eta_(eta),
@@ -51,6 +53,7 @@ public:
         sMaj_(sMaj),
         seedId_(seedId),
         energyMatrix_(std::move(energyMatrix)),
+        detIds_(std::move(detIds)),
         timingMatrix_(std::move(timingMatrix)) {}
   //default constructor
   Run3ScoutingElectron()
@@ -95,8 +98,9 @@ public:
   float r9() const { return r9_; }
   float sMin() const { return sMin_; }
   float sMaj() const { return sMaj_; }
-  unsigned int seedId() const { return seedId_; }
+  uint32_t seedId() const { return seedId_; }
   std::vector<float> const& energyMatrix() const { return energyMatrix_; }
+  std::vector<uint32_t> const& detIds() const { return detIds_; }
   std::vector<float> const& timingMatrix() const { return timingMatrix_; }
 
 private:
@@ -119,8 +123,9 @@ private:
   float r9_;
   float sMin_;
   float sMaj_;
-  unsigned int seedId_;
+  uint32_t seedId_;
   std::vector<float> energyMatrix_;
+  std::vector<uint32_t> detIds_;
   std::vector<float> timingMatrix_;
 };
 

@@ -40,7 +40,7 @@
 class RecAnalyzerHF : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit RecAnalyzerHF(const edm::ParameterSet&);
-  ~RecAnalyzerHF() override;
+  ~RecAnalyzerHF() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -53,13 +53,13 @@ private:
   void analyzeHcal(const HFPreRecHitCollection&, int, bool);
 
   // ----------member data ---------------------------
-  bool ignoreL1_, nzs_, noise_, ratio_, fillTree_;
+  bool nzs_, noise_, ratio_, ignoreL1_, fillTree_;
   double eLowHF_, eHighHF_;
+  std::vector<int> trigbit_;
   std::vector<unsigned int> hcalID_;
   TTree* myTree_;
   TH1D* hist_[2];
   std::vector<std::pair<TH1D*, TH1D*>> histo_;
-  std::vector<int> trigbit_;
   double rnnum_;
   struct myInfo {
     double kount, f11, f12, f13, f14, f21, f22, f23, f24, runcheck;
@@ -76,44 +76,40 @@ private:
 };
 
 // constructors and destructor
-RecAnalyzerHF::RecAnalyzerHF(const edm::ParameterSet& iConfig) {
+RecAnalyzerHF::RecAnalyzerHF(const edm::ParameterSet& iConfig)
+    : nzs_(iConfig.getParameter<bool>("RunNZS")),
+      noise_(iConfig.getParameter<bool>("Noise")),
+      ratio_(iConfig.getParameter<bool>("Ratio")),
+      ignoreL1_(iConfig.getUntrackedParameter<bool>("IgnoreL1", false)),
+      fillTree_(iConfig.getUntrackedParameter<bool>("FillTree", true)),
+      eLowHF_(iConfig.getParameter<double>("ELowHF")),
+      eHighHF_(iConfig.getParameter<double>("EHighHF")),
+      trigbit_(iConfig.getUntrackedParameter<std::vector<int>>("TriggerBits")),
+      tok_hfreco_(consumes<HFPreRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"))),
+      tok_hltL1GtMap_(consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"))) {
   usesResource("TFileService");
-  // get name of output file with histogramms
-  nzs_ = iConfig.getParameter<bool>("RunNZS");
-  noise_ = iConfig.getParameter<bool>("Noise");
-  ratio_ = iConfig.getParameter<bool>("Ratio");
-  eLowHF_ = iConfig.getParameter<double>("ELowHF");
-  eHighHF_ = iConfig.getParameter<double>("EHighHF");
-  trigbit_ = iConfig.getUntrackedParameter<std::vector<int>>("TriggerBits");
-  ignoreL1_ = iConfig.getUntrackedParameter<bool>("IgnoreL1", false);
-  fillTree_ = iConfig.getUntrackedParameter<bool>("FillTree", true);
+  // get constants for the ID
   std::vector<int> ieta = iConfig.getUntrackedParameter<std::vector<int>>("HcalIeta");
   std::vector<int> iphi = iConfig.getUntrackedParameter<std::vector<int>>("HcalIphi");
   std::vector<int> depth = iConfig.getUntrackedParameter<std::vector<int>>("HcalDepth");
 
-  // get token names of modules, producing object collections
-  tok_hfreco_ = consumes<HFPreRecHitCollection>(iConfig.getParameter<edm::InputTag>("hfInput"));
-  tok_hltL1GtMap_ = consumes<L1GlobalTriggerObjectMapRecord>(edm::InputTag("hltL1GtObjectMap"));
-
-  edm::LogVerbatim("RecAnalyzer") << " Flags (IgnoreL1): " << ignoreL1_ << " (NZS) " << nzs_ << " (Noise) " << noise_
-                                  << " (Ratio) " << ratio_;
-  edm::LogVerbatim("RecAnalyzer") << "Thresholds for HF " << eLowHF_ << ":" << eHighHF_;
+  edm::LogVerbatim("RecAnalyzerHF") << " Flags (IgnoreL1): " << ignoreL1_ << " (NZS) " << nzs_ << " (Noise) " << noise_
+                                    << " (Ratio) " << ratio_;
+  edm::LogVerbatim("RecAnalyzerHF") << "Thresholds for HF " << eLowHF_ << ":" << eHighHF_;
   for (unsigned int k = 0; k < ieta.size(); ++k) {
     if (std::abs(ieta[k]) >= 29) {
       unsigned int id = (HcalDetId(HcalForward, ieta[k], iphi[k], depth[k])).rawId();
       hcalID_.push_back(id);
-      edm::LogVerbatim("RecAnalyzer") << "DetId[" << k << "] " << HcalDetId(id);
+      edm::LogVerbatim("RecAnalyzerHF") << "DetId[" << k << "] " << HcalDetId(id);
     }
   }
-  edm::LogVerbatim("RecAnalyzer") << "Select on " << trigbit_.size() << " L1 Trigger selection";
+  edm::LogVerbatim("RecAnalyzerHF") << "Select on " << trigbit_.size() << " L1 Trigger selection";
   unsigned int k(0);
   for (auto trig : trigbit_) {
-    edm::LogVerbatim("RecAnalyzer") << "Bit[" << k << "] " << trig;
+    edm::LogVerbatim("RecAnalyzerHF") << "Bit[" << k << "] " << trig;
     ++k;
   }
 }
-
-RecAnalyzerHF::~RecAnalyzerHF() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void RecAnalyzerHF::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -190,7 +186,7 @@ void RecAnalyzerHF::endJob() {
   if (fillTree_) {
     cells = 0;
     for (const auto& itr : myMap_) {
-      edm::LogVerbatim("RecAnalyzer") << "Fired trigger bit number " << itr.first.first;
+      edm::LogVerbatim("RecAnalyzerHF") << "Fired trigger bit number " << itr.first.first;
       myInfo info = itr.second;
       if (info.kount > 0) {
         mom0_F1 = info.kount;
@@ -209,20 +205,19 @@ void RecAnalyzerHF::endJob() {
         depth = itr.first.second.depth();
         iphi = itr.first.second.iphi();
         ieta = itr.first.second.ieta();
-        edm::LogVerbatim("RecAnalyzer") << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi
-                                        << " F1:mom0  " << mom0_F1 << " mom1 " << mom1_F1 << " mom2 " << mom2_F1
-                                        << " mom3 " << mom3_F1 << " mom4 " << mom4_F1 << " F2:mom0 " << mom0_F2
-                                        << " mom1 " << mom1_F2 << " mom2 " << mom2_F2 << " mom3 " << mom3_F2 << " mom4 "
-                                        << mom4_F2;
+        edm::LogVerbatim("RecAnalyzerHF")
+            << " Result=  " << trigbit << " " << mysubd << " " << ieta << " " << iphi << " F1:mom0  " << mom0_F1
+            << " mom1 " << mom1_F1 << " mom2 " << mom2_F1 << " mom3 " << mom3_F1 << " mom4 " << mom4_F1 << " F2:mom0 "
+            << mom0_F2 << " mom1 " << mom1_F2 << " mom2 " << mom2_F2 << " mom3 " << mom3_F2 << " mom4 " << mom4_F2;
         myTree_->Fill();
         cells++;
       }
     }
-    edm::LogVerbatim("RecAnalyzer") << "cells"
-                                    << " " << cells;
+    edm::LogVerbatim("RecAnalyzerHF") << "cells"
+                                      << " " << cells;
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzer") << "Exiting from RecAnalyzerHF::endjob";
+  edm::LogVerbatim("RecAnalyzerHF") << "Exiting from RecAnalyzerHF::endjob";
 #endif
 }
 
@@ -234,22 +229,20 @@ void RecAnalyzerHF::endJob() {
 void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   rnnum_ = (double)iEvent.run();
 
-  edm::Handle<HFPreRecHitCollection> hf;
-  iEvent.getByToken(tok_hfreco_, hf);
+  const edm::Handle<HFPreRecHitCollection>& hf = iEvent.getHandle(tok_hfreco_);
   if (!hf.isValid()) {
-    edm::LogWarning("RecAnalyzer") << "HcalCalibAlgos: Error! can't get hf product!";
+    edm::LogWarning("RecAnalyzerHF") << "HcalCalibAlgos: Error! can't get hf product!";
     return;
   }
   const HFPreRecHitCollection Hithf = *(hf.product());
-  edm::LogVerbatim("RecAnalyzer") << "HF MB size of collection " << Hithf.size();
+  edm::LogVerbatim("RecAnalyzerHF") << "HF MB size of collection " << Hithf.size();
   if (Hithf.size() < 1700 && nzs_) {
-    edm::LogWarning("RecAnalyzer") << "HF problem " << rnnum_ << " size " << Hithf.size();
+    edm::LogWarning("RecAnalyzerHF") << "HF problem " << rnnum_ << " size " << Hithf.size();
   }
 
   bool select(false);
   if (!trigbit_.empty()) {
-    edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
+    const edm::Handle<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord = iEvent.getHandle(tok_hltL1GtMap_);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
@@ -271,8 +264,7 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
   if (ignoreL1_ || (!trigbit_.empty() && select)) {
     analyzeHcal(Hithf, 1, true);
   } else if ((!ignoreL1_) && (trigbit_.empty())) {
-    edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-    iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
+    const edm::Handle<L1GlobalTriggerObjectMapRecord>& gtObjectMapRecord = iEvent.getHandle(tok_hltL1GtMap_);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       bool ok(false);
@@ -286,7 +278,7 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
         }
       }
       if (!ok) {
-        edm::LogVerbatim("RecAnalyzer") << "No passed L1 Trigger found";
+        edm::LogVerbatim("RecAnalyzerHF") << "No passed L1 Trigger found";
       }
     }
   }
@@ -294,8 +286,8 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
 
 void RecAnalyzerHF::analyzeHcal(const HFPreRecHitCollection& Hithf, int algoBit, bool fill) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("RecAnalyzer") << "Enter analyzeHcal for bit " << algoBit << " Fill " << fill << " Collection size "
-                                  << Hithf.size();
+  edm::LogVerbatim("RecAnalyzerHF") << "Enter analyzeHcal for bit " << algoBit << " Fill " << fill
+                                    << " Collection size " << Hithf.size();
 #endif
   // Signal part for HF
   for (const auto& hfItr : Hithf) {
@@ -311,7 +303,7 @@ void RecAnalyzerHF::analyzeHcal(const HFPreRecHitCollection& Hithf, int algoBit,
       f2 /= energy;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("RecAnalyzer") << hid << " E " << e0 << ":" << e1 << " F " << f1 << ":" << f2;
+    edm::LogVerbatim("RecAnalyzerHF") << hid << " E " << e0 << ":" << e1 << " F " << f1 << ":" << f2;
 #endif
     if (fill) {
       for (unsigned int i = 0; i < hcalID_.size(); i++) {

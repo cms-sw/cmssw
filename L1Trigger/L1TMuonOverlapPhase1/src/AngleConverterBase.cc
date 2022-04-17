@@ -235,7 +235,7 @@ EtaValue AngleConverterBase::getGlobalEtaDt(const DTChamberId& detId) const {
 
   EtaValue etaValue = {
       config->etaToHwEta(chamberMiddleGP.eta()),
-      config->etaToHwEta(abs(chamberMiddleGP.eta() - chambNeighMiddleGP.eta())) / 2,
+      config->etaToHwEta(fabs(chamberMiddleGP.eta() - chambNeighMiddleGP.eta())) / 2,
       0,  //quality
       0,  //bx
       0   //timin

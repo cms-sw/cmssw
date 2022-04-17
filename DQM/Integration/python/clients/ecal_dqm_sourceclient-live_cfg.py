@@ -1,9 +1,10 @@
 ### AUTO-GENERATED CMSRUN CONFIGURATION FOR ECAL DQM ###
 import FWCore.ParameterSet.Config as cms
-from EventFilter.Utilities.tcdsRawToDigi_cfi import * # To monitor LHC status, e.g. to mask trigger primitives quality alarm during Cosmics
+from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import * # To monitor LHC status, e.g. to mask trigger primitives quality alarm during Cosmics
 import sys
 
-process = cms.Process("process")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("process", Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:

@@ -20,7 +20,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/pixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
@@ -217,7 +217,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
         clus.push_back(ic);
         ++ndigi;
       }
-      assert(clust.originalId() == ic);  // make sure hits and clus are in sync
+
       if (convert2Legacy_)
         clusterRef.emplace_back(edmNew::makeRefTo(hclusters, &clust));
       ic++;

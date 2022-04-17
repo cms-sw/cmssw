@@ -96,6 +96,10 @@ int main(int argc, char** argv) {
   histoNoiseForDetId.process(connectionString, PI::mk_input(tag, start, start));
   edm::LogPrint("testSiStripPayloadInspector") << histoNoiseForDetId.data() << std::endl;
 
+  SiStripNoiseCorrelationByPartition histoNoiseCorrelationByPartition;
+  histoNoiseCorrelationByPartition.process(connectionString, PI::mk_input(tag, start, start));
+  edm::LogPrint("testSiStripPayloadInspector") << histoNoiseCorrelationByPartition.data() << std::endl;
+
   // Pedestals
 
   tag = "SiStripPedestals_v2_prompt";
@@ -118,6 +122,10 @@ int main(int argc, char** argv) {
   histoPedestalForDetId.setInputParamValues(inputs);
   histoPedestalForDetId.process(connectionString, PI::mk_input(tag, start, start));
   edm::LogPrint("testSiStripPayloadInspector") << histoPedestalForDetId.data() << std::endl;
+
+  SiStripPedestalCorrelationByPartition histoPedestalCorrelationByPartition;
+  histoPedestalCorrelationByPartition.process(connectionString, PI::mk_input(tag, start, start));
+  edm::LogPrint("testSiStripPayloadInspector") << histoPedestalCorrelationByPartition.data() << std::endl;
 
   //Latency
 

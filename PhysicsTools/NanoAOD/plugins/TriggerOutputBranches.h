@@ -30,7 +30,6 @@ private:
 
   edm::EDGetToken m_token;
   std::string m_baseName;
-  bool m_singleton;
   UInt_t m_counter;
   struct NamedBranchPtr {
     std::string name, title;

@@ -1477,7 +1477,7 @@ void Primary4DVertexValidation::fillDescriptions(edm::ConfigurationDescriptions&
   lDP.push_back(0.);
   lDP.push_back(42.5);
   desc.add<std::vector<double>>("lineDensityPar", lDP);
-  descriptions.add("vertices4D", desc);
+  descriptions.add("vertices4DValid", desc);
 }
 
 const bool Primary4DVertexValidation::mvaTPSel(const TrackingParticle& tp) {

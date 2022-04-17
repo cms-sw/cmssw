@@ -93,4 +93,17 @@ fastSim.toModify(ecalRecHit,
                  recoverEBFE = False,
                  recoverEEFE = False,
                  recoverEBIsolatedChannels = False
-                  )
+                )
+
+# Phase 2 modifications
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toModify(ecalRecHit,
+    EBuncalibRecHitCollection = "ecalUncalibRecHitPhase2:EcalUncalibRecHitsEB",
+    EEuncalibRecHitCollection = "",  # No EE input since there is no ECAL endcap in Phase 2
+    killDeadChannels = False,
+    recoverEBFE = False,
+    recoverEEFE = False,
+    recoverEBIsolatedChannels = False,
+    recoverEEIsolatedChannels = False
+)
+

@@ -130,9 +130,11 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
   typename T::const_iterator begin = input.begin();
   typename T::const_iterator end = input.end();
 
-  // Do not bother for empty detectors
-  if (begin == end)
-    edm::LogWarning("clusterizeDetUnit()") << "No digis to clusterize";
+  // this should never happen and the raw2digi does not create empty detsets
+  if (begin == end) {
+    edm::LogError("PixelThresholdClusterizer") << "@SUB=PixelThresholdClusterizer::clusterizeDetUnitT()"
+                                               << " No digis to clusterize";
+  }
 
   //  Set up the clusterization on this DetId.
   if (!setup(pixDet))

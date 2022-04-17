@@ -4,7 +4,6 @@
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESWatcher.h"

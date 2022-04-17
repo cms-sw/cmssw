@@ -50,6 +50,16 @@ namespace edm {
     eventSetupDescription.addUntracked<edm::ParameterSetDescription>("forceNumberOfConcurrentIOVs", nestedDescription);
     description.addUntracked<edm::ParameterSetDescription>("eventSetup", eventSetupDescription);
 
+    description.addUntracked<std::vector<std::string>>("accelerators", {"*"})
+        ->setComment(
+            "Specify the set of compute accelerator(s) the job is allowed to use. The values can contain the direct "
+            "names of accelerators supported by the ProcessAccelerators defined in the configuration, or patterns "
+            "matching to them (patterns use '*' and '?' wildcards similar to shell). The actual set of accelerators to "
+            "be used is determined on the worker node based on the available hardware. A CPU fallback with the name "
+            "'cpu' is always included in the set of available accelerators. If no accelerator matching to the patterns "
+            "are available on the worker node, the job is terminated with a specific error code. Same happens if an "
+            "empty value is given in the configuration. Default value is pattern '*', which implies use of any "
+            "supported and available hardware (including the CPU fallback).");
     description.addUntracked<bool>("wantSummary", false)
         ->setComment("Set true to print a report on the trigger decisions and timing of modules");
     description.addUntracked<std::string>("fileMode", "FULLMERGE")

@@ -21,32 +21,27 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 //
 // class declaration
 //
 
-class StatisticsFilter : public edm::EDFilter {
+class StatisticsFilter : public edm::stream::EDFilter<> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   explicit StatisticsFilter(const edm::ParameterSet&);
-  ~StatisticsFilter() override;
+  ~StatisticsFilter() override = default;
 
 private:
-  void beginJob() override;
   bool filter(edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
@@ -59,14 +54,6 @@ private:
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
 StatisticsFilter::StatisticsFilter(const edm::ParameterSet& iConfig)
@@ -77,11 +64,6 @@ StatisticsFilter::StatisticsFilter(const edm::ParameterSet& iConfig)
 
   dqmStore_ = edm::Service<DQMStore>().operator->();
   dqmStore_->open(filename, false);
-}
-
-StatisticsFilter::~StatisticsFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -116,9 +98,6 @@ bool StatisticsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   return true;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void StatisticsFilter::beginJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(StatisticsFilter);

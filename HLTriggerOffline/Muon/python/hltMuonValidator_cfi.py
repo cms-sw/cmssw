@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
+
 hltMuonValidator = DQMEDAnalyzer('HLTMuonValidator',
 
     hltProcessName = cms.string("HLT"),
@@ -32,9 +33,14 @@ hltMuonValidator = DQMEDAnalyzer('HLTMuonValidator',
     useSimpleGeometry = cms.bool(True),
     useTrack = cms.string("none"),
     useState = cms.string("atVertex"),
-
+    useStation2 = cms.bool(True),
+    fallbackToME1 = cms.bool(False),
+    cosmicPropagationHypothesis = cms.bool(False),
+    useMB2InOverlap = cms.bool(False),
+    propagatorAlong = cms.ESInputTag("", "hltESPSteppingHelixPropagatorAlong"),
+    propagatorAny = cms.ESInputTag("", "SteppingHelixPropagatorAny"),
+    propagatorOpposite = cms.ESInputTag("", "hltESPSteppingHelixPropagatorOpposite"),
     # set cuts on generated and reconstructed muons
     genMuonCut  = cms.string("abs(pdgId) == 13 && status == 1"),
     recMuonCut  = cms.string("isGlobalMuon"),
-
 )

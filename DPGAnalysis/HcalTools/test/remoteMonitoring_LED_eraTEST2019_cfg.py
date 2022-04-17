@@ -315,6 +315,16 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #usecontinuousnumbering = cms.untracked.bool(False),
                                   usecontinuousnumbering = cms.untracked.bool(True),
                                   #
+                                  #
+                                  #
+                                  #
+                                  # if 0 - do not use digis at all
+                                  flagToUseDigiCollectionsORNot = cms.int32(1),
+                                  #
+                                  #
+                                  #
+                                  #
+                                  #
                                   hcalCalibDigiCollectionTag = cms.InputTag('hcalDigis'),
                                   hbheDigiCollectionTag = cms.InputTag('hcalDigis'),
                                   hoDigiCollectionTag = cms.InputTag('hcalDigis'),
@@ -381,11 +391,12 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   ##OutputFileExt = cms.string(''),
                                   #
                                   )		
-
+##################################################################################################
 process.hcal_db_producer = cms.ESProducer("HcalDbProducer",
     dump = cms.untracked.vstring(''),
     file = cms.untracked.string('')
 )
+##################################################################################################
 process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
     toGet = cms.untracked.vstring('QIEShape',
         'QIEData',
@@ -398,7 +409,7 @@ process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
         'ZSThresholds',
         'RespCorrs')
 )
-
+##################################################################################################
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 # 2018:
@@ -406,22 +417,27 @@ process.GlobalTag.globaltag = '104X_dataRun2_v1'
 ######process.GlobalTag.globaltag = '105X_postLS2_design_v4'
 # 2019:
 #process.GlobalTag.globaltag = '106X_dataRun3_HLT_v3'
-
+##################################################################################################
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 process.hcalDigis.FilterDataQuality = cms.bool(False)
 process.hcalDigis.InputLabel = cms.InputTag("source")
-process.hcalDigis= cms.EDProducer("HcalRawToDigi",
-#    FilterDataQuality = cms.bool(True),
-    FilterDataQuality = cms.bool(False),
-    HcalFirstFED = cms.untracked.int32(700),
-    InputLabel = cms.InputTag("source"),
+############################################################################
+#process.hcalDigis= cms.EDProducer("HcalRawToDigi",
+#    FilterDataQuality = cms.bool(False),
+#    HcalFirstFED = cms.untracked.int32(700),
+#    InputLabel = cms.InputTag("source"),
+#)
+process.load('EventFilter.HcalRawToDigi.hcalRawToDigi_cfi')
+process.hcalDigis= process.hcalRawToDigi.clone(
+    FilterDataQuality = False,
+    InputLabel = "source",
     #InputLabel = cms.InputTag("rawDataCollector"),
 )
-
+##################################################################################################
 #process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestalLocal_cff")
 process.p = cms.Path(process.hcalDigis*process.Analyzer)
 #process.p = cms.Path(process.hcalDigis*process.seqALCARECOHcalCalMinBiasDigiNoHLT*process.seqALCARECOHcalCalMinBias*process.Analyzer)
-
+##################################################################################################
 process.MessageLogger = cms.Service("MessageLogger",
      categories   = cms.untracked.vstring(''),
      destinations = cms.untracked.vstring('cout'),
@@ -431,6 +447,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 	 WARNING = cms.untracked.PSet(limit = cms.untracked.int32(0))
      )
  )
+##################################################################################################
+
 
 
 

@@ -23,19 +23,17 @@
 // user include files
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
+// ROOT includes
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
@@ -45,14 +43,15 @@
 //
 class TrackerTopology;
 class TrackerGeometry;
-class SiStripCorrelateBadStripAndNoise : public edm::EDAnalyzer {
+class SiStripCorrelateBadStripAndNoise : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit SiStripCorrelateBadStripAndNoise(const edm::ParameterSet &);
-  ~SiStripCorrelateBadStripAndNoise() override;
+  ~SiStripCorrelateBadStripAndNoise() override = default;
 
 private:
   void beginRun(const edm::Run &run, const edm::EventSetup &es) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override{};
+  void endRun(const edm::Run &run, const edm::EventSetup &es) override{};
   void endJob() override;
 
   void DoAnalysis(const edm::EventSetup &);

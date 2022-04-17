@@ -1,23 +1,56 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.Utilities.FileUtils as FileUtils
 import FWCore.ParameterSet.VarParsing as VarParsing
+import pkgutil
+import sys
 
 
 # PART 1 : PARSE ARGUMENTS
 
 options = VarParsing.VarParsing ('analysis')
+options.register('redir', 'root://cms-xrd-global.cern.ch/', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, "The XRootD redirector to use")
+options.register('nstart', 0,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "File index to start on")
+options.register('nfiles', -1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of files to process per job")
 options.register('storeTracks', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Store tracks in NTuple")
 options.register('l1Tracks','TTTracksFromTrackletEmulation:Level1TTTracks', VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.string, 'L1 track collection to use')
 options.register('runVariations', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Run some pre-defined algorithmic variations")
-options.register('threads',1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of threads/streams to run")
+options.register('threads', 1,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of threads to run")
+options.register('streams', 0,VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.int, "Number of streams to run")
+options.register('memoryProfiler', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Run the memory profile")
+options.register('tmi', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Run a simple profiler")
+options.register('trace', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Dump the paths and consumes")
+options.register('dump', False, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, "Dump the configuration and exit")
 options.parseArguments()
 
-inputFiles = []
+# handle site name usage
+if options.redir[0]=="T":
+    options.redir = "root://cms-xrd-global.cern.ch//store/test/xrootd/"+options.redir
+
+# Load input files
+inputFiles = cms.untracked.vstring()
+
 for filePath in options.inputFiles:
-    if filePath.endswith(".root"):
-        inputFiles.append(filePath)
+    if filePath.endswith(".root") :    
+        inputFiles.append( filePath )
+    elif filePath.endswith(".txt"):
+        inputFiles += FileUtils.loadListFromFile( filePath )
+    elif filePath.endswith("_cff.py"):
+        inputFilesImport = getattr(__import__(filePath.strip(".py").strip("python/").replace('/','.'),fromlist=["readFiles"]),"readFiles")
+        if options.nfiles==-1:
+            inputFiles.extend( inputFilesImport )
+        else:
+            inputFiles.extend( inputFilesImport[options.nstart:(options.nstart+options.nfiles)] )
+    elif pkgutil.find_loader("L1Trigger.VertexFinder."+filePath+"_cff") is not None:
+        inputFilesImport = getattr(__import__("L1Trigger.VertexFinder."+filePath+"_cff",fromlist=["readFiles"]),"readFiles")
+        if options.nfiles==-1:
+            inputFiles.extend( inputFilesImport )
+        else:
+            inputFiles.extend( inputFilesImport[options.nstart:(options.nstart+options.nfiles)] )
     else:
-        inputFiles += FileUtils.loadListFromFile(filePath)
+        raise RuntimeError("Must specify a list of ROOT files, a list of txt files containing a list of ROOT files, or a list of python input files.")
+
+if options.redir != "":
+    inputFiles = [(options.redir if val.startswith("/") else "")+val for val in inputFiles]
 
 if options.l1Tracks.count(':') != 1:
     raise RuntimeError("Value for 'l1Tracks' command-line argument (= '{}') should contain one colon".format(options.l1Tracks))
@@ -36,14 +69,14 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.source = cms.Source("PoolSource", fileNames = cms.untracked.vstring(inputFiles) )
 process.TFileService = cms.Service("TFileService", fileName = cms.string(options.outputFile))
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.threads),
-    numberOfStreams = cms.untracked.uint32(options.threads if options.threads>0 else 0)
+    numberOfStreams = cms.untracked.uint32(options.streams if options.streams>0 else 0)
 )
 
 process.load('L1Trigger.VertexFinder.VertexProducer_cff')
@@ -60,19 +93,29 @@ if process.L1TVertexNTupler.debug == 0:
 process.Timing = cms.Service("Timing", summaryOnly = cms.untracked.bool(True))
 
 producerSum = process.VertexProducer
-additionalProducerAlgorithms = ["FastHistoLooseAssociation", "DBSCAN"]
+additionalProducerAlgorithms = ["fastHistoEmulation", "fastHistoLooseAssociation", "DBSCAN"]
 for algo in additionalProducerAlgorithms:
     producerName = 'VertexProducer{0}'.format(algo)
     producerName = producerName.replace(".","p") # legalize the name
 
     producer = process.VertexProducer.clone()
     producer.VertexReconstruction.Algorithm = cms.string(algo)
+
+    if "Emulation" in algo:
+        if "L1GTTInputProducer" not in process.producerNames():
+            process.load('L1Trigger.L1TTrackMatch.L1GTTInputProducer_cfi')
+            producer.l1TracksInputTag = cms.InputTag("L1GTTInputProducer","Level1TTTracksConverted")
+            producerSum = process.L1GTTInputProducer + producerSum
+
+        process.L1TVertexNTupler.emulationVertexInputTags.append( cms.InputTag(producerName, 'l1verticesEmulation') )
+        process.L1TVertexNTupler.emulationVertexBranchNames.append(algo)
+    else:
+        process.L1TVertexNTupler.l1VertexInputTags.append( cms.InputTag(producerName, 'l1vertices') )
+        process.L1TVertexNTupler.l1VertexBranchNames.append(algo)
+        process.L1TVertexNTupler.l1VertexTrackInputs.append('hybrid')
+
     setattr(process, producerName, producer)
     producerSum += producer
-
-    process.L1TVertexNTupler.l1VertexInputTags.append( cms.InputTag(producerName, 'l1vertices') )
-    process.L1TVertexNTupler.l1VertexBranchNames.append(algo)
-    process.L1TVertexNTupler.l1VertexTrackInputs.append('hybrid')
 
 # PART 3: PERFORM SCAN OVER ALGO PARAMETER SPACE
 if options.runVariations:
@@ -108,7 +151,31 @@ if options.runVariations:
 
 print "Total number of producers =", len(additionalProducerAlgorithms)+1
 print "  Producers = [{0}]".format(producerSum.dumpSequenceConfig().replace('&',', '))
-print "  Algorithms = [FastHisto, {0}]".format(', '.join(additionalProducerAlgorithms))
- 
+print "  Algorithms = [fastHisto, {0}]".format(', '.join(additionalProducerAlgorithms))
+
+# PART 4: UTILITIES
+
+# MEMORY PROFILING
+if options.memoryProfiler:
+    process.IgProfService = cms.Service("IgProfService",
+        reportEventInterval = cms.untracked.int32(1),
+        reportFirstEvent = cms.untracked.int32(1),
+        reportToFileAtPostEndJob = cms.untracked.string('| gzip -c > '+options.outputFile+'___memory___%I_EndOfJob.gz'),
+        reportToFileAtPostEvent = cms.untracked.string('| gzip -c > '+options.outputFile+'___memory___%I.gz')
+    )
+
+# SIMPLER PROFILING
+if options.tmi:
+    from Validation.Performance.TimeMemoryInfo import customise
+    process = customise(process)
+
+if options.trace:
+    process.add_(cms.Service("Tracer", dumpPathsAndConsumes = cms.untracked.bool(True)))
+
+# SETUP THE PATH
 process.p = cms.Path(producerSum + process.TPStubValueMapProducer + process.InputDataProducer + process.L1TVertexNTupler)
 
+# DUMP AND EXIT
+if options.dump:
+    print process.dumpPython()
+    sys.exit(0)

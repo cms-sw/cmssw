@@ -32,19 +32,20 @@
 // class decleration
 //
 
-class TrackHistoryAnalyzer : public edm::one::EDAnalyzer<> {
+class TrackHistoryAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit TrackHistoryAnalyzer(const edm::ParameterSet &);
-  ~TrackHistoryAnalyzer() override;
+  ~TrackHistoryAnalyzer() override = default;
 
 private:
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
   void beginJob() override;
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void endRun(const edm::Run &, const edm::EventSetup &) override{};
 
   // Member data
-
-  edm::InputTag trackProducer_;
+  const edm::ESGetToken<ParticleDataTable, PDTRecord> pdtToken_;
+  const edm::EDGetTokenT<edm::View<reco::Track>> trkToken_;
 
   std::size_t totalTracks_;
 
@@ -62,17 +63,15 @@ private:
                            HepMC::GenVertex::particles_out_const_iterator) const;
 };
 
-TrackHistoryAnalyzer::TrackHistoryAnalyzer(const edm::ParameterSet &config) : classifier_(config, consumesCollector()) {
-  trackProducer_ = config.getUntrackedParameter<edm::InputTag>("trackProducer");
-  consumes<edm::View<reco::Track>>(trackProducer_);
-}
-
-TrackHistoryAnalyzer::~TrackHistoryAnalyzer() {}
+TrackHistoryAnalyzer::TrackHistoryAnalyzer(const edm::ParameterSet &config)
+    : pdtToken_(esConsumes<edm::Transition::BeginRun>()),
+      trkToken_(consumes<edm::View<reco::Track>>(config.getUntrackedParameter<edm::InputTag>("trackProducer"))),
+      classifier_(config, consumesCollector()) {}
 
 void TrackHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   // Track collection
   edm::Handle<edm::View<reco::Track>> trackCollection;
-  event.getByLabel(trackProducer_, trackCollection);
+  event.getByToken(trkToken_, trackCollection);
 
   // Set the classifier for a new event
   classifier_.newEvent(event, setup);
@@ -82,7 +81,7 @@ void TrackHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
 
   // Loop over the track collection.
   for (std::size_t index = 0; index < trackCollection->size(); index++) {
-    std::cout << std::endl << "History for track #" << index << " : " << std::endl;
+    edm::LogPrint("TrackHistoryAnalyzer") << std::endl << "History for track #" << index << " : ";
 
     // Classify the track and detect for fakes
     if (!classifier_.evaluate(reco::TrackBaseRef(trackCollection, index)).is(TrackClassifier::Fake)) {
@@ -91,8 +90,8 @@ void TrackHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
 
       // Loop over all simParticles
       for (std::size_t hindex = 0; hindex < simParticles.size(); hindex++) {
-        std::cout << "  simParticles [" << hindex << "] : " << particleString(simParticles[hindex]->pdgId())
-                  << std::endl;
+        edm::LogPrint("TrackHistoryAnalyzer")
+            << "  simParticles [" << hindex << "] : " << particleString(simParticles[hindex]->pdgId());
       }
 
       // Get the list of TrackingVertexes associated to
@@ -101,20 +100,20 @@ void TrackHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
       // Loop over all simVertexes
       if (!simVertexes.empty()) {
         for (std::size_t hindex = 0; hindex < simVertexes.size(); hindex++) {
-          std::cout << "  simVertex    [" << hindex << "] : "
-                    << vertexString(simVertexes[hindex]->sourceTracks(), simVertexes[hindex]->daughterTracks())
-                    << std::endl;
+          edm::LogPrint("TrackHistoryAnalyzer")
+              << "  simVertex    [" << hindex
+              << "] : " << vertexString(simVertexes[hindex]->sourceTracks(), simVertexes[hindex]->daughterTracks());
         }
       } else
-        std::cout << "  simVertex no found" << std::endl;
+        edm::LogPrint("TrackHistoryAnalyzer") << "  simVertex no found";
 
       // Get the list of GenParticles associated to
       TrackHistory::GenParticleTrail genParticles(tracer.genParticleTrail());
 
       // Loop over all genParticles
       for (std::size_t hindex = 0; hindex < genParticles.size(); hindex++) {
-        std::cout << "  genParticles [" << hindex << "] : " << particleString(genParticles[hindex]->pdg_id())
-                  << std::endl;
+        edm::LogPrint("TrackHistoryAnalyzer")
+            << "  genParticles [" << hindex << "] : " << particleString(genParticles[hindex]->pdg_id());
       }
 
       // Get the list of TrackingVertexes associated to
@@ -123,26 +122,24 @@ void TrackHistoryAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
       // Loop over all simVertexes
       if (!genVertexes.empty()) {
         for (std::size_t hindex = 0; hindex < genVertexes.size(); hindex++) {
-          std::cout << "  genVertex    [" << hindex << "] : "
-                    << vertexString(genVertexes[hindex]->particles_in_const_begin(),
-                                    genVertexes[hindex]->particles_in_const_end(),
-                                    genVertexes[hindex]->particles_out_const_begin(),
-                                    genVertexes[hindex]->particles_out_const_end())
-                    << std::endl;
+          edm::LogPrint("TrackHistoryAnalyzer") << "  genVertex    [" << hindex << "] : "
+                                                << vertexString(genVertexes[hindex]->particles_in_const_begin(),
+                                                                genVertexes[hindex]->particles_in_const_end(),
+                                                                genVertexes[hindex]->particles_out_const_begin(),
+                                                                genVertexes[hindex]->particles_out_const_end());
         }
       } else
-        std::cout << "  genVertex no found" << std::endl;
+        edm::LogPrint("TrackHistoryAnalyzer") << "  genVertex no found";
     } else
-      std::cout << "  fake track" << std::endl;
+      edm::LogPrint("TrackHistoryAnalyzer") << "  fake track";
 
-    std::cout << "  track categories : " << classifier_;
-    std::cout << std::endl;
+    edm::LogPrint("TrackHistoryAnalyzer") << "  track categories : " << classifier_;
   }
 }
 
 void TrackHistoryAnalyzer::beginRun(const edm::Run &run, const edm::EventSetup &setup) {
   // Get the particles table.
-  setup.getData(pdt_);
+  pdt_ = setup.getHandle(pdtToken_);
 }
 
 void TrackHistoryAnalyzer::beginJob() { totalTracks_ = 0; }

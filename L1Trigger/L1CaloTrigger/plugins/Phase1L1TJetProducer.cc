@@ -37,7 +37,6 @@ Description: Produces jets with a phase-1 like sliding window algorithm using a 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCluster.h"

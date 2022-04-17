@@ -5,7 +5,7 @@
 #include <iostream>
 
 GEMClusterProcessor::GEMClusterProcessor(int region, unsigned station, unsigned chamber, const edm::ParameterSet& conf)
-    : region_(region), station_(station), chamber_(chamber) {
+    : region_(region), station_(station), chamber_(chamber), hasGE21Geometry16Partitions_(false) {
   isEven_ = chamber_ % 2 == 0;
 
   // These LogErrors are sanity checks and should not be printed

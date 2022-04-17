@@ -1,6 +1,3 @@
-<ifrelease name="_ASAN_">
-  <flags NO_TEST_PREFIX="1"/>
-</ifrelease>
 <use name="CondCore/CondDB"/>
 <use name="CondCore/Utilities"/>
 <use name="CondFormats/Common"/>

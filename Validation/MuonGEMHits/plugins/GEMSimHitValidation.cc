@@ -75,21 +75,27 @@ void GEMSimHitValidation::bookHistograms(DQMStore::IBooker& booker, edm::Run con
   TString eloss_xtitle = "Energy loss [eV]";
   TString eloss_ytitle = "Entries / 0.5 keV";
 
-  for (const auto& station : gem->regions()[0]->stations()) {
-    Int_t station_id = station->station();
+  // Demonstrator chamber means we could have a missing station,
+  // process both regions to make sure we include it
+  for (const auto& region : gem->regions()) {
+    for (const auto& station : region->stations()) {
+      Int_t station_id = station->station();
+      if (me_eloss_mu_.find(station_id) != me_eloss_mu_.end())
+        continue;
 
-    auto eloss_mu_name = TString::Format("sim_eloss_muon_GE%d1", station_id);
-    auto eloss_mu_title = TString::Format("SimHit Energy Loss (Muon only) : GE%d1", station_id);
+      auto eloss_mu_name = TString::Format("sim_eloss_muon_GE%d1", station_id);
+      auto eloss_mu_title = TString::Format("SimHit Energy Loss (Muon only) : GE%d1", station_id);
 
-    me_eloss_mu_[station_id] =
-        booker.book1D(eloss_mu_name, eloss_mu_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
+      me_eloss_mu_[station_id] =
+          booker.book1D(eloss_mu_name, eloss_mu_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
 
-    auto eloss_others_name = TString::Format("sim_eloss_others_GE%d1", station_id);
-    auto eloss_others_title = TString::Format("SimHit Energy Loss (Other Particles) : GE%d1", station_id);
+      auto eloss_others_name = TString::Format("sim_eloss_others_GE%d1", station_id);
+      auto eloss_others_title = TString::Format("SimHit Energy Loss (Other Particles) : GE%d1", station_id);
 
-    me_eloss_others_[station_id] =
-        booker.book1D(eloss_others_name, eloss_others_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
-  }  // station loop
+      me_eloss_others_[station_id] =
+          booker.book1D(eloss_others_name, eloss_others_title + ";" + eloss_xtitle + ";" + eloss_ytitle, 20, 0.0, 10.0);
+    }  // station loop
+  }    // region loop
 
   if (detail_plot_) {
     for (const auto& region : gem->regions()) {

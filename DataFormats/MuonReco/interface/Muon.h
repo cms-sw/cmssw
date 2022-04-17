@@ -233,10 +233,12 @@ namespace reco {
       MvaVVTight = 1UL << 31,
       LowPtMvaLoose = 1UL << 32,
       LowPtMvaMedium = 1UL << 33,
+      MvaIDwpMedium = 1UL << 34,
+      MvaIDwpTight = 1UL << 35,
     };
 
     bool passed(uint64_t selection) const { return (selectors_ & selection) == selection; }
-    bool passed(Selector selection) const { return passed(static_cast<unsigned int>(selection)); }
+    bool passed(Selector selection) const { return passed(static_cast<uint64_t>(selection)); }
     uint64_t selectors() const { return selectors_; }
     void setSelectors(uint64_t selectors) { selectors_ = selectors; }
     void setSelector(Selector selector, bool passed) {

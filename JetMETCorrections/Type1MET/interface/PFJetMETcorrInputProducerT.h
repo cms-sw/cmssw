@@ -61,6 +61,16 @@ namespace PFJetMETcorrInputProducer_namespace {
     reco::Candidate::LorentzVector operator()(const T& jet) const { return jet.p4(); }
   };
 
+  // functor to retrieve additional scales of jets
+  // general template just returns 1 because only pat::Jet keeps track of the scales
+  // specialized template for pat::Jet returns combined factor of additional scales
+  template <typename T>
+  class AdditionalScalesT {
+  public:
+    AdditionalScalesT() {}
+    float operator()(const T& jet) const { return 1.0; }
+  };
+
 }  // namespace PFJetMETcorrInputProducer_namespace
 
 template <typename T, typename Textractor>
@@ -196,6 +206,9 @@ private:
         corrJetP4 = jetCorrExtractor_(jet, jetCorrLabel_.label(), jetCorrEtaMax_, &rawJetP4);
       else
         corrJetP4 = jetCorrExtractor_(jet, jetCorr.product(), jetCorrEtaMax_, &rawJetP4);
+      // retrieve additional jet energy scales in case of pat::Jets (done via specialized template defined for pat::Jets) and apply them
+      const static PFJetMETcorrInputProducer_namespace::AdditionalScalesT<T> additionalScales{};
+      corrJetP4 *= additionalScales(jet);
 
       if (corrJetP4.pt() > type1JetPtThreshold_) {
         reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;

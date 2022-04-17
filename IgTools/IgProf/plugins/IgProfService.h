@@ -30,6 +30,9 @@ namespace edm {
       void preEvent(StreamContext const &sc);
       void postEvent(StreamContext const &sc);
 
+      void preModuleEvent(StreamContext const &sc, ModuleCallingContext const &mcc);
+      void postModuleEvent(StreamContext const &sc, ModuleCallingContext const &mcc);
+
       void postEndLumi(GlobalContext const &gc);
 
       void postEndRun(GlobalContext const &gc);
@@ -43,9 +46,10 @@ namespace edm {
       inline bool isProcessWideService(IgProfService const *) { return true; }
 
     private:
-      void makeDump(const std::string &format);
+      void makeDump(const std::string &format, std::string_view moduleLabel = "");
       static std::string replace(const std::string &s, const char *pat, int val);
       static std::string replaceU64(const std::string &s, const char *pat, unsigned long long val);
+      static std::string replace(const std::string &s, const char *pat, std::string_view val);
 
       void (*dump_)(const char *);
 
@@ -55,6 +59,11 @@ namespace edm {
 
       std::string atPreEvent_;
       std::string atPostEvent_;
+
+      std::vector<std::string> modules_;
+      std::vector<std::string> moduleTypes_;
+      std::string atPreModuleEvent_;
+      std::string atPostModuleEvent_;
 
       std::string atPostEndLumi_;
       std::string atPostEndRun_;

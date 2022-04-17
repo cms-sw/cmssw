@@ -22,7 +22,7 @@ Implementation:
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -47,10 +47,10 @@ Implementation:
 // class declaration
 //
 
-class L1UpgradeTreeProducer : public edm::EDAnalyzer {
+class L1UpgradeTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1UpgradeTreeProducer(const edm::ParameterSet&);
-  ~L1UpgradeTreeProducer() override;
+  ~L1UpgradeTreeProducer() override = default;
 
 private:
   void beginJob(void) override;
@@ -71,23 +71,21 @@ private:
   TTree* tree_;
 
   // EDM input tags
-  edm::EDGetTokenT<l1t::EGammaBxCollection> egToken_;
+  const edm::EDGetTokenT<l1t::EGammaBxCollection> egToken_;
+  const edm::EDGetTokenT<l1t::JetBxCollection> jetToken_;
+  const edm::EDGetTokenT<l1t::EtSumBxCollection> sumToken_;
+  const edm::EDGetTokenT<l1t::MuonBxCollection> muonToken_;
+  const edm::EDGetTokenT<l1t::MuonShowerBxCollection> muonShowerToken_;
   std::vector<edm::EDGetTokenT<l1t::TauBxCollection>> tauTokens_;
-  edm::EDGetTokenT<l1t::JetBxCollection> jetToken_;
-  edm::EDGetTokenT<l1t::EtSumBxCollection> sumToken_;
-  edm::EDGetTokenT<l1t::MuonBxCollection> muonToken_;
-  edm::EDGetTokenT<l1t::MuonShowerBxCollection> muonShowerToken_;
 };
 
-L1UpgradeTreeProducer::L1UpgradeTreeProducer(const edm::ParameterSet& iConfig) {
-  egToken_ = consumes<l1t::EGammaBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("egToken"));
-  //tauToken_ = consumes<l1t::TauBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("tauToken"));
-  jetToken_ = consumes<l1t::JetBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("jetToken"));
-  sumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("sumToken"));
-  muonToken_ = consumes<l1t::MuonBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonToken"));
-  muonShowerToken_ =
-      consumes<l1t::MuonShowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonShowerToken"));
-
+L1UpgradeTreeProducer::L1UpgradeTreeProducer(const edm::ParameterSet& iConfig)
+    : egToken_(consumes<l1t::EGammaBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("egToken"))),
+      jetToken_(consumes<l1t::JetBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("jetToken"))),
+      sumToken_(consumes<l1t::EtSumBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("sumToken"))),
+      muonToken_(consumes<l1t::MuonBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonToken"))),
+      muonShowerToken_(
+          consumes<l1t::MuonShowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("muonShowerToken"))) {
   const auto& taus = iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("tauTokens");
   for (const auto& tau : taus) {
     tauTokens_.push_back(consumes<l1t::TauBxCollection>(tau));
@@ -98,14 +96,11 @@ L1UpgradeTreeProducer::L1UpgradeTreeProducer(const edm::ParameterSet& iConfig) {
   l1Upgrade = new L1Analysis::L1AnalysisL1Upgrade();
   l1UpgradeData = l1Upgrade->getData();
 
+  usesResource(TFileService::kSharedResource);
+
   // set up output
   tree_ = fs_->make<TTree>("L1UpgradeTree", "L1UpgradeTree");
   tree_->Branch("L1Upgrade", "L1Analysis::L1AnalysisL1UpgradeDataFormat", &l1UpgradeData, 32000, 3);
-}
-
-L1UpgradeTreeProducer::~L1UpgradeTreeProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //

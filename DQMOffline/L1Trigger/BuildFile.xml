@@ -11,10 +11,10 @@
 <use name="CondFormats/L1TObjects"/>
 <use name="L1Trigger/GlobalTriggerAnalyzer"/>
 <use name="L1Trigger/Phase2L1ParticleFlow"/>
-<use name="SimDataFormats/GeneratorProducts"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/TrajectoryState"/>
 <use name="HLTrigger/HLTcore"/>
 <use name="DQM/L1TMonitor"/>
 <use name="MuonAnalysis/MuonAssociators"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
 <flags EDM_PLUGIN="1"/>

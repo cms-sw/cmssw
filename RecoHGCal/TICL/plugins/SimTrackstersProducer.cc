@@ -144,6 +144,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                    cp.pdgId(),
                    cp.charge(),
                    key.id(),
+                   ticl::Trackster::SIM,
                    *output_mask,
                    *result);
     } else {
@@ -163,6 +164,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                      sc.pdgId(),
                      sc.charge(),
                      scRef.id(),
+                     ticl::Trackster::SIM,
                      *output_mask,
                      *result);
 
@@ -185,6 +187,7 @@ void SimTrackstersProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                  cp.pdgId(),
                  cp.charge(),
                  key.id(),
+                 ticl::Trackster::SIM_CP,
                  *output_mask_fromCP,
                  *result_fromCP);
 

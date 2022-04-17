@@ -22,6 +22,7 @@ public:
     DT_PHI_ETA,
     DT_HIT,
     RPC,
+    RPC_DROPPED,  //to mark that all clusters were dropped because there are more than 2 clusters or at least one too big cluster
     CSC_PHI,
     CSC_ETA,
     CSC_PHI_ETA,
@@ -61,7 +62,7 @@ public:
 typedef std::vector<MuonStub> MuonStubs1D;
 typedef std::vector<MuonStubs1D> MuonStubs2D;
 
-typedef std::shared_ptr<const MuonStub> MuonStubPtr;
+typedef std::shared_ptr<MuonStub> MuonStubPtr;
 typedef std::vector<MuonStubPtr> MuonStubPtrs1D;
 typedef std::vector<MuonStubPtrs1D> MuonStubPtrs2D;
 

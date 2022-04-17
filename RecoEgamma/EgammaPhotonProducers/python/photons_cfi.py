@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
 from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
+from RecoEgamma.PhotonIdentification.mvaHaloVariable_cfi import *
 from RecoEcal.EgammaClusterProducers.hybridSuperClusters_cfi import *
 from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 from RecoEgamma.EgammaIsolationAlgos.egammaHBHERecHitThreshold_cff import egammaHBHERecHit
@@ -30,6 +31,7 @@ photons = cms.EDProducer("GEDPhotonProducer",
     candidateP4type = cms.string("fromEcalEnergy"),                     
     isolationSumsCalculatorSet = cms.PSet(isolationSumsCalculator),
     mipVariableSet = cms.PSet(mipVariable), 
+    mvaBasedHaloVariableSet = cms.PSet(mvaHaloVariable), 
     usePrimaryVertex = cms.bool(True),
     primaryVertexProducer = cms.InputTag('offlinePrimaryVerticesWithBS'),
     posCalc_t0_endcPresh = cms.double(3.6),
@@ -42,6 +44,7 @@ photons = cms.EDProducer("GEDPhotonProducer",
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     preshowerHits = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
     runMIPTagger = cms.bool(True),
+    runMVABasedHaloTagger = cms.bool(False),
     highEt  = cms.double(100.),                       
     minR9Barrel = cms.double(0.94),
     minR9Endcap = cms.double(0.95),
@@ -161,6 +164,7 @@ islandPhotons = cms.EDProducer("PhotonProducer",
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     runMIPTagger = cms.bool(True),
+    runMVABasedHaloTagger = cms.bool(False),
     highEt  = cms.double(100.),
     minR9Barrel = cms.double(10.0),
     minR9Endcap = cms.double(10.0),

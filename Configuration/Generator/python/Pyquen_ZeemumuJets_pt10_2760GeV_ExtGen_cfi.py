@@ -25,7 +25,7 @@ _generator = cms.EDFilter("PyquenGeneratorFilter",
 from GeneratorInterface.Core.ExternalGeneratorFilter import ExternalGeneratorFilter
 generator = ExternalGeneratorFilter(_generator)
 
-_generator.embeddingMode = False
+_generator.embeddingMode = 0
 
 configurationMetadata = cms.untracked.PSet(
     version = cms.untracked.string('$Revision: 1.3 $'),

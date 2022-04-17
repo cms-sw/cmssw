@@ -68,7 +68,7 @@ private:
                         edm::Handle<edm::SimVertexContainer> const& SimVtx);
   template <class T1>
   void analyzeDigi(int type, const T1& detId, uint16_t adc);
-  void analyzeRecHits(int type, edm::Handle<HGCRecHitCollection>& hits);
+  void analyzeRecHits(int type, const edm::Handle<HGCRecHitCollection>& hits);
   void analyzePassiveHits(edm::Handle<edm::PassiveHitContainer> const& hgcPh, int subdet);
   static bool sortTime(const std::pair<double, double>& i, const std::pair<double, double>& j);
 
@@ -86,19 +86,26 @@ private:
   const int sampleIndex_;
   const double gev2mip200_, gev2mip300_, stoc_smear_time_200_, stoc_smear_time_300_;
   std::vector<int> idBeams_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsEE_, tok_hitsFH_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsBH_, tok_hitsBeam_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
-  edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
-  edm::EDGetToken tok_digiEE_, tok_digiFH_, tok_digiBH_;
-  edm::EDGetToken tok_hitrEE_, tok_hitrFH_, tok_hitrBH_;
-  edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
-  edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHEE_, tok_hgcPHFH_;
-  edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHBH_, tok_hgcPHCMSE_, tok_hgcPHBeam_;
-  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDEE_;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomEE_;
-  edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDFH_;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomFH_;
+  const edm::InputTag labelGen_;
+  const std::string labelHitEE_, labelHitFH_, labelHitBH_, labelHitBeam_;
+  const edm::InputTag labelDigiEE_, labelDigiFH_, labelDigiBH_;
+  const edm::InputTag labelRHitEE_, labelRHitFH_, labelRHitBH_;
+  const edm::InputTag labelPassiveEE_, labelPassiveFH_, labelPassiveBH_;
+  const edm::InputTag labelPassiveCMSE_, labelPassiveBeam_;
+
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_hepMC_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tok_simTk_;
+  const edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsEE_, tok_hitsFH_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hitsBH_, tok_hitsBeam_;
+  const edm::EDGetTokenT<HGCalDigiCollection> tok_digiEE_, tok_digiFH_, tok_digiBH_;
+  const edm::EDGetTokenT<HGCRecHitCollection> tok_hitrEE_, tok_hitrFH_, tok_hitrBH_;
+  const edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHEE_, tok_hgcPHFH_;
+  const edm::EDGetTokenT<edm::PassiveHitContainer> tok_hgcPHBH_, tok_hgcPHCMSE_, tok_hgcPHBeam_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDEE_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomEE_;
+  const edm::ESGetToken<HGCalDDDConstants, IdealGeometryRecord> tokDDDFH_;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> tokGeomFH_;
 
   TTree* tree_;
   TH1D *hSimHitE_[4], *hSimHitT_[4];
@@ -167,7 +174,49 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
       gev2mip200_(iConfig.getUntrackedParameter<double>("gev2mip200", 57.0e-6)),
       gev2mip300_(iConfig.getUntrackedParameter<double>("gev2mip300", 85.5e-6)),
       stoc_smear_time_200_(iConfig.getUntrackedParameter<double>("stoc_smear_time_200", 10.24)),
-      stoc_smear_time_300_(iConfig.getUntrackedParameter<double>("stoc_smear_time_300", 15.5)) {
+      stoc_smear_time_300_(iConfig.getUntrackedParameter<double>("stoc_smear_time_300", 15.5)),
+      labelGen_(iConfig.getParameter<edm::InputTag>("generatorSrc")),
+      labelHitEE_(iConfig.getParameter<std::string>("caloHitSrcEE")),
+      labelHitFH_(iConfig.getParameter<std::string>("caloHitSrcFH")),
+      labelHitBH_(iConfig.getParameter<std::string>("caloHitSrcBH")),
+      labelHitBeam_(iConfig.getParameter<std::string>("caloHitSrcBeam")),
+      labelDigiEE_(iConfig.getParameter<edm::InputTag>("digiSrcEE")),
+      labelDigiFH_(iConfig.getParameter<edm::InputTag>("digiSrcFH")),
+      labelDigiBH_(iConfig.getParameter<edm::InputTag>("digiSrcBH")),
+      labelRHitEE_(iConfig.getParameter<edm::InputTag>("recHitSrcEE")),
+      labelRHitFH_(iConfig.getParameter<edm::InputTag>("recHitSrcFH")),
+      labelRHitBH_(iConfig.getParameter<edm::InputTag>("recHitSrcBH")),
+      labelPassiveEE_(iConfig.getParameter<edm::InputTag>("passiveEE")),
+      labelPassiveFH_(iConfig.getParameter<edm::InputTag>("passiveFH")),
+      labelPassiveBH_(iConfig.getParameter<edm::InputTag>("passiveBH")),
+      labelPassiveCMSE_(iConfig.getParameter<edm::InputTag>("passiveCMSE")),
+      labelPassiveBeam_(iConfig.getParameter<edm::InputTag>("passiveBeam")),
+      tok_hepMC_(consumes<edm::HepMCProduct>(labelGen_)),
+      tok_simTk_(consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"))),
+      tok_simVtx_(consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"))),
+      tok_hitsEE_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", labelHitEE_))),
+      tok_hitsFH_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", labelHitFH_))),
+      tok_hitsBH_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", labelHitBH_))),
+      tok_hitsBeam_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", labelHitBeam_))),
+      tok_digiEE_(consumes<HGCalDigiCollection>(labelDigiEE_)),
+      tok_digiFH_(consumes<HGCalDigiCollection>(labelDigiFH_)),
+      tok_digiBH_(consumes<HGCalDigiCollection>(labelDigiFH_)),
+      tok_hitrEE_(consumes<HGCRecHitCollection>(labelRHitEE_)),
+      tok_hitrFH_(consumes<HGCRecHitCollection>(labelRHitFH_)),
+      tok_hitrBH_(consumes<HGCRecHitCollection>(labelRHitBH_)),
+      tok_hgcPHEE_(consumes<edm::PassiveHitContainer>(labelPassiveEE_)),
+      tok_hgcPHFH_(consumes<edm::PassiveHitContainer>(labelPassiveFH_)),
+      tok_hgcPHBH_(consumes<edm::PassiveHitContainer>(labelPassiveBH_)),
+      tok_hgcPHCMSE_(consumes<edm::PassiveHitContainer>(labelPassiveCMSE_)),
+      tok_hgcPHBeam_(consumes<edm::PassiveHitContainer>(labelPassiveBeam_)),
+      tokDDDEE_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorEE_))),
+      tokGeomEE_(
+          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_))),
+      tokDDDFH_(esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(
+          edm::ESInputTag("", detectorFH_))),
+      tokGeomFH_(
+          esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_))) {
   usesResource("TFileService");
   ahcalGeom_ = std::make_unique<AHCalGeometry>(iConfig);
 
@@ -194,83 +243,20 @@ HGCalTBAnalyzer::HGCalTBAnalyzer(const edm::ParameterSet& iConfig)
   if (idBeams_.empty())
     idBeams_.push_back(1001);
 
-  edm::InputTag tmp0 = iConfig.getParameter<edm::InputTag>("generatorSrc");
-  tok_hepMC_ = consumes<edm::HepMCProduct>(tmp0);
-
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: GeneratorSource = " << tmp0;
-#endif
-  std::string tmp1 = iConfig.getParameter<std::string>("caloHitSrcEE");
-  tok_hitsEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
-  tok_simTk_ = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
-  tok_simVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  edm::InputTag tmp2 = iConfig.getParameter<edm::InputTag>("digiSrcEE");
-  tok_digiEE_ = consumes<HGCalDigiCollection>(tmp2);
-  edm::InputTag tmp3 = iConfig.getParameter<edm::InputTag>("recHitSrcEE");
-  tok_hitrEE_ = consumes<HGCRecHitCollection>(tmp3);
-#ifdef EDM_ML_DEBUG
-  if (ifEE_) {
-    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorEE_ << " with tags " << tmp1 << ", " << tmp2
-                               << ", " << tmp3;
-  }
-#endif
-  tmp1 = iConfig.getParameter<std::string>("caloHitSrcFH");
-  tok_hitsFH_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
-  tmp2 = iConfig.getParameter<edm::InputTag>("digiSrcFH");
-  tok_digiFH_ = consumes<HGCalDigiCollection>(tmp2);
-  tmp3 = iConfig.getParameter<edm::InputTag>("recHitSrcFH");
-  tok_hitrFH_ = consumes<HGCRecHitCollection>(tmp3);
-#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: GeneratorSource = " << labelGen_;
+  if (ifEE_)
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorEE_ << " with tags " << labelHitEE_ << ", "
+                               << labelDigiEE_ << ", " << labelRHitEE_;
   if (ifFH_)
-    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorFH_ << " with tags " << tmp1 << ", " << tmp2
-                               << ", " << tmp3;
-#endif
-  tmp1 = iConfig.getParameter<std::string>("caloHitSrcBH");
-  tok_hitsBH_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
-  tmp2 = iConfig.getParameter<edm::InputTag>("digiSrcBH");
-  tok_digiBH_ = consumes<HGCalDigiCollection>(tmp2);
-  tmp3 = iConfig.getParameter<edm::InputTag>("recHitSrcBH");
-  tok_hitrBH_ = consumes<HGCRecHitCollection>(tmp3);
-
-  /// Passive hits
-  edm::InputTag tmp = iConfig.getParameter<edm::InputTag>("passiveEE");
-  tok_hgcPHEE_ = consumes<edm::PassiveHitContainer>(tmp);
-
-  tmp = iConfig.getParameter<edm::InputTag>("passiveFH");
-  tok_hgcPHFH_ = consumes<edm::PassiveHitContainer>(tmp);
-
-  tmp = iConfig.getParameter<edm::InputTag>("passiveBH");
-  tok_hgcPHBH_ = consumes<edm::PassiveHitContainer>(tmp);
-
-  tmp = iConfig.getParameter<edm::InputTag>("passiveCMSE");
-  tok_hgcPHCMSE_ = consumes<edm::PassiveHitContainer>(tmp);
-
-  tmp = iConfig.getParameter<edm::InputTag>("passiveBeam");
-  tok_hgcPHBeam_ = consumes<edm::PassiveHitContainer>(tmp);
-
-#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorFH_ << " with tags " << labelHitFH_ << ", "
+                               << labelDigiFH_ << ", " << labelRHitFH_;
   if (ifBH_)
-    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBH_ << " with tags " << tmp1 << ", " << tmp2
-                               << ", " << tmp3;
-#endif
-  tmp1 = iConfig.getParameter<std::string>("caloHitSrcBeam");
-  tok_hitsBeam_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", tmp1));
-#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBH_ << " with tags " << labelHitBH_ << ", "
+                               << labelDigiFH_ << ", " << labelRHitBH_;
   if (ifBeam_)
-    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBeam_ << " with tags " << tmp1;
+    edm::LogVerbatim("HGCSim") << "HGCalTBAnalyzer:: Detector " << detectorBeam_ << " with tags " << labelHitBeam_;
 #endif
-  if (ifEE_) {
-    tokDDDEE_ =
-        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_));
-    tokGeomEE_ =
-        esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorEE_));
-  }
-  if (ifFH_) {
-    tokDDDFH_ =
-        esConsumes<HGCalDDDConstants, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_));
-    tokGeomFH_ =
-        esConsumes<HGCalGeometry, IdealGeometryRecord, edm::Transition::BeginRun>(edm::ESInputTag("", detectorFH_));
-  }
 }
 
 HGCalTBAnalyzer::~HGCalTBAnalyzer() {}
@@ -562,8 +548,7 @@ void HGCalTBAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
 
 void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Generator input
-  edm::Handle<edm::HepMCProduct> evtMC;
-  iEvent.getByToken(tok_hepMC_, evtMC);
+  const edm::Handle<edm::HepMCProduct>& evtMC = iEvent.getHandle(tok_hepMC_);
   if (!evtMC.isValid()) {
     edm::LogWarning("HGCal") << "no HepMCProduct found";
   } else {
@@ -592,10 +577,8 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // Now the Simhits
   if (doSimHits_) {
-    edm::Handle<edm::SimTrackContainer> SimTk;
-    iEvent.getByToken(tok_simTk_, SimTk);
-    edm::Handle<edm::SimVertexContainer> SimVtx;
-    iEvent.getByToken(tok_simVtx_, SimVtx);
+    const edm::Handle<edm::SimTrackContainer>& SimTk = iEvent.getHandle(tok_simTk_);
+    const edm::Handle<edm::SimVertexContainer>& SimVtx = iEvent.getHandle(tok_simVtx_);
     analyzeSimTracks(SimTk, SimVtx);
 
     simHitLayEn1EE_.clear();
@@ -622,12 +605,11 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     simHitCellTimeFirstHitFH_.clear();
     simHitCellTime15MipFH_.clear();
     simHitCellTimeLastHitFH_.clear();
-    edm::Handle<edm::PCaloHitContainer> theCaloHitContainers;
     std::vector<PCaloHit> caloHits;
     if (ifEE_) {
       simHitLayEn1EE_ = std::vector<float>(hgcons_[0]->layers(false), 0);
       simHitLayEn2EE_ = std::vector<float>(hgcons_[0]->layers(true), 0);
-      iEvent.getByToken(tok_hitsEE_, theCaloHitContainers);
+      const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hitsEE_);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorEE_ << " has " << theCaloHitContainers->size()
@@ -645,7 +627,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (ifFH_) {
       simHitLayEn1FH_ = std::vector<float>(hgcons_[1]->layers(false), 0);
       simHitLayEn2FH_ = std::vector<float>(hgcons_[1]->layers(true), 0);
-      iEvent.getByToken(tok_hitsFH_, theCaloHitContainers);
+      const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hitsFH_);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorFH_ << " has " << theCaloHitContainers->size()
@@ -663,7 +645,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (ifBH_) {
       simHitLayEn1BH_ = std::vector<float>(ahcalGeom_->maxDepth(), 0);
       simHitLayEn2BH_ = std::vector<float>(ahcalGeom_->maxDepth(), 0);
-      iEvent.getByToken(tok_hitsBH_, theCaloHitContainers);
+      const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hitsBH_);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorBH_ << " has " << theCaloHitContainers->size()
@@ -680,7 +662,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     }
     if (ifBeam_) {
       simHitLayEnBeam_ = std::vector<float>(idBeams_.size(), 0);
-      iEvent.getByToken(tok_hitsBeam_, theCaloHitContainers);
+      const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainers = iEvent.getHandle(tok_hitsBeam_);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "PcalohitContainer for " << detectorBeam_ << " has "
@@ -704,8 +686,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     hgcPassiveEEName_.clear();
     hgcPassiveEEID_.clear();
     if (doPassiveEE_) {
-      edm::Handle<edm::PassiveHitContainer> hgcPHEE;
-      iEvent.getByToken(tok_hgcPHEE_, hgcPHEE);
+      const edm::Handle<edm::PassiveHitContainer>& hgcPHEE = iEvent.getHandle(tok_hgcPHEE_);
       analyzePassiveHits(hgcPHEE, 1);
     }
     /// FH
@@ -713,8 +694,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     hgcPassiveFHName_.clear();
     hgcPassiveFHID_.clear();
     if (doPassiveHE_) {
-      edm::Handle<edm::PassiveHitContainer> hgcPHFH;
-      iEvent.getByToken(tok_hgcPHFH_, hgcPHFH);
+      const edm::Handle<edm::PassiveHitContainer>& hgcPHFH = iEvent.getHandle(tok_hgcPHFH_);
       analyzePassiveHits(hgcPHFH, 2);
     }
     /// BH
@@ -722,23 +702,20 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     hgcPassiveBHName_.clear();
     hgcPassiveBHID_.clear();
     if (doPassiveBH_) {
-      edm::Handle<edm::PassiveHitContainer> hgcPHBH;
-      iEvent.getByToken(tok_hgcPHBH_, hgcPHBH);
+      const edm::Handle<edm::PassiveHitContainer>& hgcPHBH = iEvent.getHandle(tok_hgcPHBH_);
       analyzePassiveHits(hgcPHBH, 3);
     }
     /// CMSE
     hgcPassiveCMSEEnergy_.clear();
     hgcPassiveCMSEName_.clear();
     hgcPassiveCMSEID_.clear();
-    edm::Handle<edm::PassiveHitContainer> hgcPHCMSE;
-    iEvent.getByToken(tok_hgcPHCMSE_, hgcPHCMSE);
+    const edm::Handle<edm::PassiveHitContainer>& hgcPHCMSE = iEvent.getHandle(tok_hgcPHCMSE_);
     analyzePassiveHits(hgcPHCMSE, 4);
     ///Beam
     hgcPassiveBeamName_.clear();
     hgcPassiveBeamEnergy_.clear();
     hgcPassiveBeamID_.clear();
-    edm::Handle<edm::PassiveHitContainer> hgcPHBeam;
-    iEvent.getByToken(tok_hgcPHBeam_, hgcPHBeam);
+    const edm::Handle<edm::PassiveHitContainer>& hgcPHBeam = iEvent.getHandle(tok_hgcPHBeam_);
     analyzePassiveHits(hgcPHBeam, 5);
   }
 
@@ -748,8 +725,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   // Now the Digis
   if (doDigis_) {
     if (ifEE_) {
-      edm::Handle<HGCalDigiCollection> theDigiContainers;
-      iEvent.getByToken(tok_digiEE_, theDigiContainers);
+      const edm::Handle<HGCalDigiCollection>& theDigiContainers = iEvent.getHandle(tok_digiEE_);
       if (theDigiContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "HGCDigiCintainer for " << detectorEE_ << " with " << theDigiContainers->size()
@@ -764,8 +740,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
     }
     if (ifFH_) {
-      edm::Handle<HGCalDigiCollection> theDigiContainers;
-      iEvent.getByToken(tok_digiFH_, theDigiContainers);
+      const edm::Handle<HGCalDigiCollection>& theDigiContainers = iEvent.getHandle(tok_digiFH_);
       if (theDigiContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "HGCDigiContainer for " << detectorFH_ << " with " << theDigiContainers->size()
@@ -783,9 +758,8 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   // The Rechits
   if (doRecHits_) {
-    edm::Handle<HGCRecHitCollection> theCaloHitContainers;
     if (ifEE_) {
-      iEvent.getByToken(tok_hitrEE_, theCaloHitContainers);
+      const edm::Handle<HGCRecHitCollection>& theCaloHitContainers = iEvent.getHandle(tok_hitrEE_);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "HGCRecHitCollection for " << detectorEE_ << " has "
@@ -799,7 +773,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
     }
     if (ifFH_) {
-      iEvent.getByToken(tok_hitrFH_, theCaloHitContainers);
+      const edm::Handle<HGCRecHitCollection>& theCaloHitContainers = iEvent.getHandle(tok_hitrFH_);
       if (theCaloHitContainers.isValid()) {
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCSim") << "HGCRecHitCollection for " << detectorFH_ << " has "
@@ -1228,7 +1202,7 @@ void HGCalTBAnalyzer::analyzeDigi(int type, const T1& detId, uint16_t adc) {
   hDigiADC_[type]->Fill(adc);
 }
 
-void HGCalTBAnalyzer::analyzeRecHits(int type, edm::Handle<HGCRecHitCollection>& hits) {
+void HGCalTBAnalyzer::analyzeRecHits(int type, const edm::Handle<HGCRecHitCollection>& hits) {
   std::map<int, double> map_hitLayer;
   std::map<int, std::pair<DetId, double>> map_hitCell;
   for (const auto& it : *hits) {

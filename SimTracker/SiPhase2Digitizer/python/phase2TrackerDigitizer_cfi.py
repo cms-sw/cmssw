@@ -127,7 +127,8 @@ phase2TrackerDigitizer = cms.PSet(
       EfficiencyFactors_Barrel = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999 ),
       EfficiencyFactors_Endcap = cms.vdouble(0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 0.999, 
       0.999, 0.999 ),#Efficiencies kept as Side2Disk1,Side1Disk1 and so on
-      CellsToKill = cms.VPSet()
+      CellsToKill = cms.VPSet(),
+      AddBiasRailInefficiency= cms.bool(False)
     ),
 #Strip in PS module
     PSSDigitizerAlgorithm = cms.PSet(
@@ -250,4 +251,19 @@ _premixStage1ModifyDict = dict(
         AddThresholdSmearing = False,
     ),
 )
+
 premix_stage1.toModify(phase2TrackerDigitizer, **_premixStage1ModifyDict)
+
+from Configuration.ProcessModifiers.enableXTalkInPhase2Pixel_cff import enableXTalkInPhase2Pixel
+_enableXTalkInPhase2PixelModifyDict = dict( 
+    PixelDigitizerAlgorithm = dict(
+        AddXTalk = True, 
+        Odd_row_interchannelCoupling_next_row = 0.00,
+        Even_row_interchannelCoupling_next_row = 0.06
+        )
+)
+
+enableXTalkInPhase2Pixel.toModify(phase2TrackerDigitizer, **_enableXTalkInPhase2PixelModifyDict)
+
+
+

@@ -20,7 +20,6 @@ from HLTrigger.Configuration.common import *
 #                     pset.minGoodStripCharge = cms.PSet(refToPSet_ = cms.string('HLTSiStripClusterChargeCutNone'))
 #     return process
 
-
 def customiseHCALFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC using the old readout for the HCAL barel"""
 
@@ -67,7 +66,6 @@ def customiseHCALFor2018Input(process):
 
     # done
     return process
-
 
 def customiseFor2017DtUnpacking(process):
     """Adapt the HLT to run the legacy DT unpacking
@@ -122,6 +120,9 @@ def customisePixelGainForRun2Input(process):
         producer.VCaltoElectronOffset    =  -60
         producer.VCaltoElectronOffset_L1 = -670
 
+    for producer in producers_by_type(process, "SiPixelRawToClusterCUDA"):
+        producer.isRun2 = True
+
     return process
 
 def customisePixelL1ClusterThresholdForRun2Input(process):
@@ -135,14 +136,40 @@ def customisePixelL1ClusterThresholdForRun2Input(process):
 
     return process
 
+def customiseCTPPSFor2018Input(process):
+    for prod in producers_by_type(process, 'CTPPSGeometryESModule'):
+        prod.isRun2 = True
+    for prod in producers_by_type(process, 'CTPPSPixelRawToDigi'):
+        prod.isRun3 = False
+
+    return process
+
 def customiseFor2018Input(process):
     """Customise the HLT to run on Run 2 data/MC"""
     process = customisePixelGainForRun2Input(process)
     process = customisePixelL1ClusterThresholdForRun2Input(process)
     process = customiseHCALFor2018Input(process)
+    process = customiseCTPPSFor2018Input(process)
 
     return process
 
+def customiseFor37231(process):
+    """ Customisation to fix the typo of Reccord in PR 37231 (https://github.com/cms-sw/cmssw/pull/37231) """
+
+    for prod in producers_by_type(process, 'DeDxEstimatorProducer'):
+        if hasattr(prod, 'Reccord'):
+            prod.Record = prod.Reccord
+            delattr(prod, 'Reccord')
+
+    return process
+
+
+def customiseForOffline(process):
+#   https://its.cern.ch/jira/browse/CMSHLT-2271
+    for prod in producers_by_type(process, 'BeamSpotOnlineProducer'):
+        prod.useTransientRecord = False
+
+    return process
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
@@ -150,8 +177,12 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # if the gpu modifier is enabled, make the Pixel, ECAL and HCAL reconstruction offloadable to a GPU
     from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
     gpu.makeProcessModifier(customizeHLTforPatatrack).apply(process)
+    process = customiseForOffline(process)
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
+    process = customiseFor37231(process)
+
     return process
+

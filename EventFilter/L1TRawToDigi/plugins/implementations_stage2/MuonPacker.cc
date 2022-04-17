@@ -9,7 +9,7 @@ namespace l1t {
       GMTOutputObjectMap gmtObjMap;
       std::pair<int, int> muonBx = getMuons(gmtObjMap, event, static_cast<const CommonTokens*>(toks)->getMuonToken());
       std::pair<int, int> muonShowerBx{0, 0};
-      if (fedId_ == 1402 && fwId_ >= 0x7000000) {
+      if ((fedId_ == 1402 && fwId_ >= 0x7000000) || (fedId_ == 1404 && fwId_ >= 0x00010f01)) {
         muonShowerBx = getMuonShowers(gmtObjMap, event, static_cast<const CommonTokens*>(toks)->getMuonShowerToken());
       }
 

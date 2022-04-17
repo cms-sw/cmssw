@@ -525,6 +525,24 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition,
     LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed isolation requirement" << std::endl;
     return false;
   }
+
+  // sanity check for hwQual ( 3-bit wide check corresponding to bits 27-28-29 in the L1T Jet Word ).
+  // note that this check includes the entire 3-bit width of hwQual, of which only the least significant bit
+  // is currently defined (the other two bits are not yet defined).
+  if (cand.hwQual() > 7) {
+    LogDebug("L1TGlobal") << "\t\t l1t::Candidate has out of range hwQual = " << cand.hwQual() << std::endl;
+    return false;
+  }
+
+  bool hasDisplacedLUT =
+      objPar.displacedLUT & 1;  // Does this algorithm have an LLP cut defined for the algo in the menu?
+  bool passDisplacedLUT = (objPar.displacedLUT & cand.hwQual());  // Did this candidate pass the LLP cut?
+  if (hasDisplacedLUT &&
+      !passDisplacedLUT) {  // Require an inclusive trigger: if LLP cut is not part of algo, ignore cut.
+    LogDebug("L1TGlobal") << "\t\t l1t::Candidate failed displaced requirement" << std::endl;
+    return false;
+  }
+
   //     if (!checkBit(objPar.phiRange, cand.hwPhi())) {
   //         return false;
   //     }

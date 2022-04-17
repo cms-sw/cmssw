@@ -14,7 +14,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.maxEvents = cms.untracked.PSet(
-	input = cms.untracked.int32(5)
+	input = cms.untracked.int32(100)
 	)
 
 process.ana = cms.EDAnalyzer('HydjetAnalyzer',

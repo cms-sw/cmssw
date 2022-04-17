@@ -1,7 +1,6 @@
 #include "HeterogeneousCore/SonicTriton/interface/TritonData.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonClient.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonMemResource.h"
-#include "HeterogeneousCore/SonicTriton/interface/triton_utils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "model_config.pb.h"
@@ -177,9 +176,8 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
   //shape must be specified for variable dims or if batch size changes
   data_->SetShape(fullShape_);
 
-  if (byteSize_ != sizeof(DT))
-    throw cms::Exception("TritonDataError") << name_ << " toServer(): inconsistent byte size " << sizeof(DT)
-                                            << " (should be " << byteSize_ << " for " << dname_ << ")";
+  //check type
+  checkType<DT>();
 
   computeSizes();
   updateMem(totalByteSize_);
@@ -212,10 +210,8 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
     throw cms::Exception("TritonDataError") << name_ << " fromServer(): missing result";
   }
 
-  if (byteSize_ != sizeof(DT)) {
-    throw cms::Exception("TritonDataError") << name_ << " fromServer(): inconsistent byte size " << sizeof(DT)
-                                            << " (should be " << byteSize_ << " for " << dname_ << ")";
-  }
+  //check type
+  checkType<DT>();
 
   const uint8_t* r0 = memResource_->copyOutput();
   const DT* r1 = reinterpret_cast<const DT*>(r0);
@@ -258,10 +254,38 @@ void TritonOutputData::reset() {
 template class TritonData<tc::InferInput>;
 template class TritonData<tc::InferRequestedOutput>;
 
-template TritonInputContainer<float> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<char> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<uint8_t> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<uint16_t> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<uint32_t> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<uint64_t> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<int8_t> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<int16_t> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<int32_t> TritonInputData::allocate(bool reserve);
 template TritonInputContainer<int64_t> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<float> TritonInputData::allocate(bool reserve);
+template TritonInputContainer<double> TritonInputData::allocate(bool reserve);
 
-template void TritonInputData::toServer(TritonInputContainer<float> data_in);
+template void TritonInputData::toServer(TritonInputContainer<char> data_in);
+template void TritonInputData::toServer(TritonInputContainer<uint8_t> data_in);
+template void TritonInputData::toServer(TritonInputContainer<uint16_t> data_in);
+template void TritonInputData::toServer(TritonInputContainer<uint32_t> data_in);
+template void TritonInputData::toServer(TritonInputContainer<uint64_t> data_in);
+template void TritonInputData::toServer(TritonInputContainer<int8_t> data_in);
+template void TritonInputData::toServer(TritonInputContainer<int16_t> data_in);
+template void TritonInputData::toServer(TritonInputContainer<int32_t> data_in);
 template void TritonInputData::toServer(TritonInputContainer<int64_t> data_in);
+template void TritonInputData::toServer(TritonInputContainer<float> data_in);
+template void TritonInputData::toServer(TritonInputContainer<double> data_in);
 
+template TritonOutput<char> TritonOutputData::fromServer() const;
+template TritonOutput<uint8_t> TritonOutputData::fromServer() const;
+template TritonOutput<uint16_t> TritonOutputData::fromServer() const;
+template TritonOutput<uint32_t> TritonOutputData::fromServer() const;
+template TritonOutput<uint64_t> TritonOutputData::fromServer() const;
+template TritonOutput<int8_t> TritonOutputData::fromServer() const;
+template TritonOutput<int16_t> TritonOutputData::fromServer() const;
+template TritonOutput<int32_t> TritonOutputData::fromServer() const;
+template TritonOutput<int64_t> TritonOutputData::fromServer() const;
 template TritonOutput<float> TritonOutputData::fromServer() const;
+template TritonOutput<double> TritonOutputData::fromServer() const;

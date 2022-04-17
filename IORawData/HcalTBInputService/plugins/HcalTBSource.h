@@ -38,7 +38,7 @@ private:
   int m_chunkIds[CHUNK_COUNT];
   std::map<std::string, int> m_sourceIdRemap;
   CDFEventInfo* m_eventInfo;
-  int m_eventNumberOffset;
+  int m_eventNumberOffset, m_skip;
 };
 
 #endif  // HcalTBSource_h_included

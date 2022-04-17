@@ -40,6 +40,7 @@ class ElectronMVAID:
         '''
         if not self._init:
             print('Initializing ' + self.name + self.tag)
+            ROOT.gInterpreter.Declare('#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2.h"')
             ROOT.gSystem.Load("libRecoEgammaElectronIdentification")
             categoryCutStrings =  ROOT.vector(ROOT.string)()
             for x in self.categoryCuts : 
@@ -65,9 +66,9 @@ class WorkingPoints(object):
 
     def _reformat_cut_definitions(self, working_points):
         new_definitions = dict()
-        for wpname, definitions in working_points.iteritems():
+        for wpname, definitions in working_points.items():
             new_definitions[wpname] = dict()
-            for name, cut in definitions.cuts.iteritems():
+            for name, cut in definitions.cuts.items():
                 categ_id = int(name.lstrip('cutCategory'))
                 cut = cut.replace('pt','x')
                 formula = ROOT.TFormula('_'.join([self.name, wpname, name]), cut)

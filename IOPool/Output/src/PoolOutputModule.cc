@@ -460,10 +460,10 @@ namespace edm {
         ->setComment(
             "Maximum output file size, in kB.\n"
             "If over maximum, new output file will be started at next input file transition.");
-    desc.addUntracked<int>("compressionLevel", 9)->setComment("ROOT compression level of output file.");
-    desc.addUntracked<std::string>("compressionAlgorithm", "ZLIB")
+    desc.addUntracked<int>("compressionLevel", 4)->setComment("ROOT compression level of output file.");
+    desc.addUntracked<std::string>("compressionAlgorithm", "ZSTD")
         ->setComment(
-            "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, and ZSTD");
+            "Algorithm used to compress data in the ROOT output file, allowed values are ZLIB, LZMA, LZ4, and ZSTD");
     desc.addUntracked<int>("basketSize", 16384)->setComment("Default ROOT basket size in output file.");
     desc.addUntracked<int>("eventAuxiliaryBasketSize", 16384)
         ->setComment("Default ROOT basket size in output file for EventAuxiliary branch.");

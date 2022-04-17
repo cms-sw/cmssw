@@ -147,54 +147,54 @@ private:
   L1MuKBMTCombinedStubRefVector stubs_;
 
   //vertex coordinates
-  int curvVertex_;
-  int phiVertex_;
-  int dxy_;
+  int curvVertex_ = 0;
+  int phiVertex_ = 0;
+  int dxy_ = 0;
 
   //muon coordinates
-  int curvMuon_;
-  int phiMuon_;
-  int phiBMuon_;
+  int curvMuon_ = 0;
+  int phiMuon_ = 0;
+  int phiBMuon_ = 0;
 
   //generic coordinates
-  int curv_;
-  int phi_;
-  int phiB_;
+  int curv_ = 0;
+  int phi_ = 0;
+  int phiB_ = 0;
   //common coordinates
-  int coarseEta_;
+  int coarseEta_ = 0;
 
   //Approximate Chi2 metric
-  int approxChi2_;
-  int trackCompatibility_;
+  int approxChi2_ = 0;
+  int trackCompatibility_ = 0;
 
   //phi bitmask
-  int hitPattern_;
+  int hitPattern_ = 0;
 
   //propagation step
-  int step_;
+  int step_ = 0;
 
   //sector
-  int sector_;
+  int sector_ = 0;
   //wheel
-  int wheel_;
+  int wheel_ = 0;
 
   //quality
-  int quality_;
+  int quality_ = 0;
 
   //Fine eta
-  int fineEta_;
+  int fineEta_ = 0;
 
   //has fine eta?
-  bool hasFineEta_;
+  bool hasFineEta_ = false;
 
   //BX
-  int bx_;
+  int bx_ = 0;
 
   //rank
-  int rank_;
+  int rank_ = 0;
 
   //Unconstrained floating point pt
-  float ptUnconstrained_;
+  float ptUnconstrained_ = 0;
 
   //Kalman Gain for making LUTs
   std::vector<float> kalmanGain0_;

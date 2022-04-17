@@ -7,6 +7,10 @@
 #include "CondFormats/RunInfo/interface/LHCInfo.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
+namespace cond {
+  class OMSService;
+}
+
 class LHCInfoPopConSourceHandler : public popcon::PopConSourceHandler<LHCInfo> {
 public:
   LHCInfoPopConSourceHandler(const edm::ParameterSet& pset);
@@ -16,12 +20,12 @@ public:
 
 private:
   void addEmptyPayload(cond::Time_t iov);
-  bool getNextFillData(cond::persistency::Session& session, const boost::posix_time::ptime& targetTime, bool ended);
-  bool getFillData(cond::persistency::Session& session, unsigned short fillId);
-  size_t getLumiData(cond::persistency::Session& session,
+
+  size_t getLumiData(const cond::OMSService& service,
+                     unsigned short fillId,
                      const boost::posix_time::ptime& beginFillTime,
                      const boost::posix_time::ptime& endFillTime);
-  bool getDipData(cond::persistency::Session& session,
+  void getDipData(const cond::OMSService& service,
                   const boost::posix_time::ptime& beginFillTime,
                   const boost::posix_time::ptime& endFillTime);
   bool getCTTPSData(cond::persistency::Session& session,
@@ -44,6 +48,7 @@ private:
   //for reading from relational database source
   std::string m_connectionString, m_ecalConnectionString;
   std::string m_dipSchema, m_authpath;
+  std::string m_omsBaseUrl;
   std::unique_ptr<LHCInfo> m_fillPayload;
   std::shared_ptr<LHCInfo> m_prevPayload;
   std::vector<std::pair<cond::Time_t, std::shared_ptr<LHCInfo> > > m_tmpBuffer;

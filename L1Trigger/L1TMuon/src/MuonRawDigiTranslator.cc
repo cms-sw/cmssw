@@ -263,17 +263,20 @@ void l1t::MuonRawDigiTranslator::generate64bitDataWord(
   dataword = (((uint64_t)msw) << 32) + lsw;
 }
 
+bool l1t::MuonRawDigiTranslator::showerFired(uint32_t shower_word, int fedId, unsigned int fwId) {
+  if ((fedId == 1402 && fwId >= 0x7000000) || (fedId == 1404 && fwId >= 0x00010f01)) {
+    return ((shower_word >> showerShift_) & 1) == 1;
+  }
+  return false;
+}
+
 std::array<uint32_t, 4> l1t::MuonRawDigiTranslator::getPackedShowerDataWords(const MuonShower& shower,
                                                                              const int fedId,
                                                                              const unsigned int fwId) {
   std::array<uint32_t, 4> res{};
-  if (fedId == 1402 && fwId < 0x7000000) {
-    return res;
-  } else {
+  if ((fedId == 1402 && fwId >= 0x7000000) || (fedId == 1404 && fwId >= 0x00010f01)) {
     res.at(0) = shower.isOneNominalInTime() ? (1 << showerShift_) : 0;
-    res.at(1) = shower.isOneNominalOutOfTime() ? (1 << showerShift_) : 0;
-    res.at(2) = shower.isTwoLooseInTime() ? (1 << showerShift_) : 0;
-    res.at(3) = shower.isTwoLooseOutOfTime() ? (1 << showerShift_) : 0;
+    res.at(1) = shower.isOneTightInTime() ? (1 << showerShift_) : 0;
   }
   return res;
 }

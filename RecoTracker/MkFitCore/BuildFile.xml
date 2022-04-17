@@ -1,0 +1,8 @@
+<use name="rootsmatrix"/>
+<use name="json"/>
+<use name="tbb"/>
+<flags CXXFLAGS="-fopenmp-simd -Wno-error=strict-aliasing"/>
+<flags ADD_SUBDIR="1"/>
+<export>
+  <lib name="RecoTrackerMkFitCore"/>
+</export>

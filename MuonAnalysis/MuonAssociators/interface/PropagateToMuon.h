@@ -4,12 +4,10 @@
 //
 
 /**
-  \class    PropagateToMuon PropagateToMuon.h "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h"
-  \brief    Propagate an object (usually a track) to the second muon station.
-            Support for other muon stations will be added on request.
-            
-  \author   Giovanni Petrucciani
-  \version  $Id: PropagateToMuon.h,v 1.3 2010/07/01 07:41:09 gpetrucc Exp $
+  \class    PropagateToMuon PropagateToMuon.h "MuonAnalysis/MuonAssociators/interface/PropagateToMuon.h" 
+
+  \brief Propagate an object (usually a track) to the second (default) or first muon station.
+
 */
 
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -17,28 +15,35 @@
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "MuonAnalysis/MuonAssociators/interface/trackStateEnums.h"
 
-class DetLayer;
 class IdealMagneticFieldRecord;
 class TrackingComponentsRecord;
 class MuonRecoGeometryRecord;
 
 class PropagateToMuon {
 public:
-  explicit PropagateToMuon(const edm::ParameterSet &iConfig, edm::ConsumesCollector);
-  ~PropagateToMuon();
-
-  /// Call this method at the beginning of each event, to initialize geometry, magnetic field and propagators
-  void init(const edm::EventSetup &iSetup);
+  explicit PropagateToMuon() {}
+  explicit PropagateToMuon(edm::ESHandle<MagneticField>,
+                           edm::ESHandle<Propagator>,
+                           edm::ESHandle<Propagator>,
+                           edm::ESHandle<Propagator>,
+                           edm::ESHandle<MuonDetLayerGeometry>,
+                           bool,
+                           bool,
+                           bool,
+                           WhichTrack,
+                           WhichState,
+                           bool,
+                           bool);
+  ~PropagateToMuon() {}
 
   /// Extrapolate reco::Track to the muon station 2, return an invalid TSOS if it fails
   TrajectoryStateOnSurface extrapolate(const reco::Track &tk) const { return extrapolate(startingState(tk)); }
@@ -57,13 +62,13 @@ public:
   TrajectoryStateOnSurface extrapolate(const FreeTrajectoryState &state) const;
 
 private:
-  enum WhichTrack { None, TrackerTk, MuonTk, GlobalTk };
-  enum WhichState { AtVertex, Innermost, Outermost };
+  // needed services for track propagation
+  edm::ESHandle<MagneticField> magfield_;
+  edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
+  edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
 
-  /// Use simplified geometry (cylinders and disks, not individual chambers)
   bool useSimpleGeometry_;
 
-  /// Propagate to MB2 (default) instead of MB1
   bool useMB2_;
 
   /// Fallback to ME1 if propagation to ME2 fails
@@ -78,14 +83,6 @@ private:
 
   bool useMB2InOverlap_;
 
-  // needed services for track propagation
-  edm::ESHandle<MagneticField> magfield_;
-  edm::ESHandle<Propagator> propagator_, propagatorAny_, propagatorOpposite_;
-  edm::ESHandle<MuonDetLayerGeometry> muonGeometry_;
-
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
-  edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorToken_, propagatorAnyToken_, propagatorOppositeToken_;
-  edm::ESGetToken<MuonDetLayerGeometry, MuonRecoGeometryRecord> muonGeometryToken_;
   // simplified geometry for track propagation
   const BoundCylinder *barrelCylinder_;
   const BoundDisk *endcapDiskPos_[3], *endcapDiskNeg_[3];

@@ -41,7 +41,7 @@ public:
     return std::make_pair(hgpar_->radiusLayer_[type][irad - 1], hgpar_->radiusLayer_[type][irad]);
   }
   double cellThickness(int layer, int waferU, int waferV) const;
-  HGCalTypes::CellType cellType(int type, int waferU, int waferV) const;
+  int32_t cellType(int type, int waferU, int waferV, int iz, int fwdBack, int orient) const;
   double distFromEdgeHex(double x, double y, double z) const;
   double distFromEdgeTrap(double x, double y, double z) const;
   void etaPhiFromPosition(const double x,
@@ -84,8 +84,15 @@ public:
   std::pair<float, float> localToGlobal8(
       int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
-  std::pair<float, float> locateCell(
-      int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug = false) const;
+  std::pair<float, float> locateCell(int lay,
+                                     int waferU,
+                                     int waferV,
+                                     int cellU,
+                                     int cellV,
+                                     bool reco,
+                                     bool all,
+                                     bool norot = false,
+                                     bool debug = false) const;
   std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug = false) const;
   std::pair<float, float> locateCell(const HGCScintillatorDetId&, bool debug = false) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;

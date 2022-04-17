@@ -43,7 +43,8 @@ namespace nanoaod {
       UInt8,
       Bool,
       UInt32,
-      Double
+      Double,
+      Int8
     };  // We could have other Float types with reduced mantissa, and similar
 
     FlatTable() : size_(0) {}
@@ -143,6 +144,8 @@ namespace nanoaod {
         return ColumnType::Int;
       else if constexpr (std::is_same<T, uint8_t>())
         return ColumnType::UInt8;
+      else if constexpr (std::is_same<T, int8_t>())
+        return ColumnType::Int8;
       else if constexpr (std::is_same<T, bool>())
         return ColumnType::Bool;
       else if constexpr (std::is_same<T, uint32_t>())
@@ -191,6 +194,8 @@ namespace nanoaod {
         return table.ints_;
       else if constexpr (std::is_same<T, uint8_t>())
         return table.uint8s_;
+      else if constexpr (std::is_same<T, int8_t>())
+        return table.int8s_;
       else if constexpr (std::is_same<T, bool>())
         return table.uint8s_;
       else if constexpr (std::is_same<T, uint32_t>())
@@ -208,6 +213,7 @@ namespace nanoaod {
     std::vector<float> floats_;
     std::vector<int> ints_;
     std::vector<uint8_t> uint8s_;
+    std::vector<int8_t> int8s_;
     std::vector<uint32_t> uint32s_;
     std::vector<double> doubles_;
   };

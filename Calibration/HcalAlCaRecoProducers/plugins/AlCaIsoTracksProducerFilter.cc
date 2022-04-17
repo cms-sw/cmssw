@@ -55,24 +55,22 @@ private:
 
   // ----------member data ---------------------------
   HLTConfigProvider hltConfig_;
-  std::vector<std::string> trigNames_;
   unsigned int nRun_, nAll_, nGood_;
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
-  std::string processName_;
-  edm::InputTag triggerResultsLabel_;
+  const std::vector<std::string> trigNames_;
+  const std::string processName_;
+  const edm::InputTag triggerResultsLabel_;
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
 };
 
 AlCaIsoTracksProducerFilter::AlCaIsoTracksProducerFilter(const edm::ParameterSet& iConfig,
                                                          const AlCaIsoTracksProdFilter::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0) {
-  //now do what ever initialization is needed
-  trigNames_ = iConfig.getParameter<std::vector<std::string> >("triggers");
-  processName_ = iConfig.getParameter<std::string>("processName");
-  triggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultLabel");
-
-  // define tokens for access
-  tok_trigRes_ = consumes<edm::TriggerResults>(triggerResultsLabel_);
-
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
+      trigNames_(iConfig.getParameter<std::vector<std::string> >("triggers")),
+      processName_(iConfig.getParameter<std::string>("processName")),
+      triggerResultsLabel_(iConfig.getParameter<edm::InputTag>("triggerResultLabel")),
+      tok_trigRes_(consumes<edm::TriggerResults>(triggerResultsLabel_)) {
   edm::LogVerbatim("HcalIsoTrack") << "Use process name " << processName_ << " Labels " << triggerResultsLabel_
                                    << " selecting " << trigNames_.size() << " triggers\n";
   for (unsigned int k = 0; k < trigNames_.size(); ++k) {

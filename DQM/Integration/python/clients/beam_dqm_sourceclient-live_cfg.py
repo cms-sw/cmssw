@@ -427,6 +427,7 @@ print("Configured frontierKey", options.runUniqueKey)
 # Final path
 if (not process.runType.getRunType() == process.runType.hi_run):
     process.p = cms.Path(process.scalersRawToDigi
+                       * process.onlineMetaDataDigis
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.dqmcommon
@@ -435,6 +436,7 @@ if (not process.runType.getRunType() == process.runType.hi_run):
                        * process.BeamSpotProblemModule)
 else:
     process.p = cms.Path(process.scalersRawToDigi
+                       * process.onlineMetaDataDigis
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.filter_step # the only extra: pix-multi filter

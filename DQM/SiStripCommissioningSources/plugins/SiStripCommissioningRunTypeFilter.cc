@@ -19,9 +19,37 @@
 // system include files
 #include <memory>
 #include <algorithm>
+#include <vector>
 
 // user include files
-#include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningRunTypeFilter.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+//
+// class declaration
+//
+class SiStripEventSummary;
+
+class SiStripCommissioningRunTypeFilter : public edm::stream::EDFilter<> {
+public:
+  explicit SiStripCommissioningRunTypeFilter(const edm::ParameterSet&);
+  ~SiStripCommissioningRunTypeFilter() override = default;
+
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+  // ----------member data ---------------------------
+  //      edm::InputTag inputModuleLabel_;
+  edm::EDGetTokenT<SiStripEventSummary> summaryToken_;
+  std::vector<sistrip::RunType> runTypes_;
+};
 
 //
 // constructors and destructor
@@ -48,3 +76,6 @@ bool SiStripCommissioningRunTypeFilter::filter(edm::Event& iEvent, const edm::Ev
   iEvent.getByToken(summaryToken_, summary);
   return (std::find(runTypes_.begin(), runTypes_.end(), summary->runType()) != runTypes_.end());
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripCommissioningRunTypeFilter);

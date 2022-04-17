@@ -1,8 +1,25 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
 
-rhoTable = cms.EDProducer("GlobalVariablesTableProducer",
+beamSpotTable = cms.EDProducer("SimpleBeamspotFlatTableProducer",
+    src = cms.InputTag("offlineBeamSpot"),
+    name = cms.string("BeamSpot"),
+    doc = cms.string("offlineBeamSpot, the offline reconstructed beamspot"),
+    singleton = cms.bool(True),  # there's always exactly one MET per event
+    extension = cms.bool(False), # this is the main table for the MET
     variables = cms.PSet(
+       type = Var("type()","int8",doc="BeamSpot type (Unknown = -1, Fake = 0, LHC = 1, Tracker = 2)"),
+       z = Var("position().z()",float,doc="BeamSpot center, z coordinate (cm)",precision=-1),
+       zError = Var("z0Error()",float,doc="Error on BeamSpot center, z coordinate (cm)",precision=-1),
+       sigmaZ = Var("sigmaZ()",float,doc="Width of BeamSpot in z (cm)",precision=-1),
+       sigmaZError = Var("sigmaZ0Error()",float,doc="Error on width of BeamSpot in z (cm)",precision=-1),
+    ),
+)
+
+rhoTable = cms.EDProducer("GlobalVariablesTableProducer",
+    name = cms.string("Rho"),
+    variables = cms.PSet(
+        fixedGridRhoAll = ExtVar( cms.InputTag("fixedGridRhoAll"), "double", doc = "rho from all PF Candidates, no foreground removal (for isolation of prompt photons)" ),
         fixedGridRhoFastjetAll = ExtVar( cms.InputTag("fixedGridRhoFastjetAll"), "double", doc = "rho from all PF Candidates, used e.g. for JECs" ),
         fixedGridRhoFastjetCentralNeutral = ExtVar( cms.InputTag("fixedGridRhoFastjetCentralNeutral"), "double", doc = "rho from neutral PF Candidates with |eta| < 2.5, used e.g. for rho corrections of some lepton isolations" ),
         fixedGridRhoFastjetCentralCalo = ExtVar( cms.InputTag("fixedGridRhoFastjetCentralCalo"), "double", doc = "rho from calo towers with |eta| < 2.5, used e.g. egamma PFCluster isolation" ),
@@ -53,5 +70,5 @@ genFilterTable = cms.EDProducer("SimpleGenFilterFlatTableProducerLumi",
         ),
 )
 
-globalTablesTask = cms.Task(rhoTable)
+globalTablesTask = cms.Task(beamSpotTable, rhoTable)
 globalTablesMCTask = cms.Task(puTable,genTable,genFilterTable)

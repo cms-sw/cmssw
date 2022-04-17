@@ -6,7 +6,7 @@ import os
 options = VarParsing.VarParsing ('analysis')
 
 options.register ('runNumber',
-                  100, # default value
+                  100101, # default value
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.int,          # string, int, or float
                   "Run Number")
@@ -54,7 +54,7 @@ process.maxEvents = cms.untracked.PSet(
 process.options = cms.untracked.PSet(
     numberOfThreads = cms.untracked.uint32(options.numThreads),
     numberOfStreams = cms.untracked.uint32(options.numFwkStreams),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1) # ShmStreamConsumer requires synchronization at LuminosityBlock boundaries
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(2)
 )
 process.MessageLogger = cms.Service("MessageLogger",
     cout = cms.untracked.PSet(threshold = cms.untracked.string( "ERROR" )),
@@ -93,10 +93,10 @@ process.source = cms.Source("FedRawDataInputSource",
     maxBufferedFiles = cms.untracked.uint32(2),
     fileListMode = cms.untracked.bool(True),
     fileNames = cms.untracked.vstring(
-        ram_dir_path+"run000101_ls0001_index000000.raw",
-        ram_dir_path+"run000101_ls0001_index000001.raw",
-        ram_dir_path+"run000101_ls0002_index000000.raw",
-        ram_dir_path+"run000101_ls0002_index000001.raw"
+        ram_dir_path+"run100101_ls0001_index000000.raw",
+        ram_dir_path+"run100101_ls0001_index000001.raw",
+        ram_dir_path+"run100101_ls0002_index000000.raw",
+        ram_dir_path+"run100101_ls0002_index000001.raw"
     )
 
 )
@@ -104,10 +104,10 @@ process.source = cms.Source("FedRawDataInputSource",
 process.PrescaleService = cms.Service( "PrescaleService",
                                        forceDefault = cms.bool( False ),
                                        prescaleTable = cms.VPSet( 
-                                         cms.PSet(  pathName = cms.string( "p1" ),
+                                         cms.PSet(  pathName = cms.string( "HLT_Physics" ),
                                          prescales = cms.vuint32( 10)
                                          ),
-                                         cms.PSet(  pathName = cms.string( "p2" ),
+                                         cms.PSet(  pathName = cms.string( "HLT_Muon" ),
                                          prescales = cms.vuint32( 100 )
                                          )
                                        ),
@@ -130,27 +130,28 @@ process.b = cms.EDAnalyzer("ExceptionGenerator",
     defaultAction = cms.untracked.int32(0),
     defaultQualifier = cms.untracked.int32(5))
 
-process.tcdsRawToDigi = cms.EDProducer("TcdsRawToDigi",
-    InputLabel = cms.InputTag("rawDataCollector")
-)
 
-process.p1 = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
-process.p2 = cms.Path(process.b*process.filter2)
+import EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi
+process.tcdsRawToDigi = EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
+process.tcdsRawToDigi.InputLabel = cms.InputTag("rawDataCollector")
+
+process.HLT_Physics = cms.Path(process.a*process.tcdsRawToDigi*process.filter1)
+process.HLT_Muon = cms.Path(process.b*process.filter2)
 
 process.streamA = cms.OutputModule("EvFOutputModule",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p1' ))
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Physics' ))
 )
 
-process.streamB = cms.OutputModule("EvFOutputModule",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+process.streamB = cms.OutputModule("GlobalEvFOutputModule",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Muon' ))
 )
 
-process.streamC = cms.OutputModule("ShmStreamConsumer",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+process.streamDQM = cms.OutputModule("GlobalEvFOutputModule",
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Physics', 'HLT_Muon' ))
 )
 
 process.streamD = cms.OutputModule("EventStreamFileWriter",
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
+    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'HLT_Muon' ))
 )
 
 process.hltJson = cms.EDAnalyzer("HLTriggerJSONMonitoring")
@@ -163,7 +164,6 @@ process.DQMStore = cms.Service( "DQMStore",
 from DQMServices.FileIO.DQMFileSaverPB_cfi import dqmSaver
 process.hltDQMFileSaver = dqmSaver
 
-
 process.daqHistoTest = cms.EDProducer("DaqTestHistograms",
     numberOfHistograms = cms.untracked.uint32(50),
     lumisectionRange =  cms.untracked.uint32(20)
@@ -172,7 +172,7 @@ process.daqHistoTest = cms.EDProducer("DaqTestHistograms",
 process.ep = cms.EndPath(
   process.streamA
   + process.streamB
-  + process.streamC
+  + process.streamDQM
 # + process.streamD
   + process.hltJson
   + process.daqHistoTest

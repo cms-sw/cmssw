@@ -7,7 +7,7 @@ process = cms.Process('RECOgpu', eras.Run2_2018)
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('HeterogeneousCore.CUDAServices.CUDAService_cfi')
+process.load('HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -146,6 +146,4 @@ process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
 
-# report CUDAService messages
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
-process.MessageLogger.CUDAService = cms.untracked.PSet()

@@ -20,10 +20,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,14 +29,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 
-#include "CondCore/CondDB/interface/Exception.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAPDPNRatiosRefRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
 #include "CondFormats/DataRecord/interface/EcalLaserAlphasRcd.h"
 
 #include "OnlineDB/EcalCondDB/interface/all_monitoring_types.h"
@@ -47,8 +42,6 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
-
-#include "DataFormats/Common/interface/Handle.h"
 
 #include "CondTools/Ecal/interface/EcalGetLaserData.h"
 

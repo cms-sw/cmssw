@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,7 +15,7 @@
 #include <TTree.h>
 #include <TFile.h>
 
-class CSCTFAnalyzer : public edm::EDAnalyzer {
+class CSCTFAnalyzer : public edm::one::EDAnalyzer<> {
 private:
   edm::InputTag mbProducer, lctProducer, trackProducer, statusProducer;
   TTree *tree;
@@ -46,7 +46,7 @@ public:
 #include <iostream>
 #include <iomanip>
 
-CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf) : edm::EDAnalyzer() {
+CSCTFAnalyzer::CSCTFAnalyzer(const edm::ParameterSet &conf) : edm::one::EDAnalyzer<>() {
   mbProducer = conf.getUntrackedParameter<edm::InputTag>("mbProducer", edm::InputTag("csctfunpacker"));
   lctProducer = conf.getUntrackedParameter<edm::InputTag>("lctProducer", edm::InputTag("csctfunpacker"));
   trackProducer = conf.getUntrackedParameter<edm::InputTag>("trackProducer", edm::InputTag("csctfunpacker"));

@@ -15,7 +15,7 @@ GEMEfficiencyHarvester::~GEMEfficiencyHarvester() {}
 void GEMEfficiencyHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>("folder", "GEM/Efficiency/type0");
-  descriptions.add("gemEfficiencyHarvesterDefault", desc);
+  descriptions.add("gemEfficiencyHarvester", desc);
 }
 
 TProfile* GEMEfficiencyHarvester::computeEfficiency(
@@ -122,7 +122,7 @@ void GEMEfficiencyHarvester::doEfficiency(DQMStore::IBooker& ibooker, DQMStore::
       me_pairs[key].second = me;
   }
 
-  for (auto&& [key, value] : me_pairs) {
+  for (const auto& [key, value] : me_pairs) {
     const auto& [me_passed, me_total] = value;
     if (me_passed == nullptr) {
       edm::LogError(log_category_) << "numerator is missing. " << key << std::endl;
@@ -218,7 +218,7 @@ std::tuple<std::string, int, int> GEMEfficiencyHarvester::parseResidualName(cons
   name.erase(name.find("_GE"), 3);
 
   // -11_R4 -> (-11, R4)
-  const std::vector<std::string>&& tokens = splitString(name, "_");
+  const std::vector<std::string> tokens = splitString(name, "_");
   const size_t num_tokens = tokens.size();
 
   if (num_tokens != 2) {
@@ -271,7 +271,7 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
       continue;
     }
 
-    auto&& [region_sign, station, ieta] = parseResidualName(name, prefix);
+    const auto [region_sign, station, ieta] = parseResidualName(name, prefix);
     if (region_sign.empty() or station < 0 or ieta < 0) {
       edm::LogError(log_category_) << "failed to parse the name of the residual histogram: " << name << std::endl;
       continue;
@@ -374,7 +374,7 @@ void GEMEfficiencyHarvester::doResolution(DQMStore::IBooker& ibooker,
     h_skewness->SetBinError(xbin, ybin, hist->GetSkewness(11));
   }
 
-  for (auto&& each : {h_mean, h_stddev, h_skewness}) {
+  for (auto& each : {h_mean, h_stddev, h_skewness}) {
     ibooker.book2D(each->GetName(), each);
   }
 }

@@ -86,7 +86,7 @@ void DeDxDiscriminatorLearner::algoBeginJob(const edm::EventSetup& iSetup) {
 
     m_off = tkGeom.offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
 
-    DeDxTools::makeCalibrationMap(m_calibrationPath, tkGeom, calibGains, m_off);
+    deDxTools::makeCalibrationMap(m_calibrationPath, tkGeom, calibGains, m_off);
   }
 
   //Read the calibTree if in calibTree mode
@@ -179,16 +179,16 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit,
     if (cluster.amplitudes().size() > MaxNrStrips) {
       return;
     }
-    if (DeDxTools::IsSpanningOver2APV(cluster.firstStrip(), cluster.amplitudes().size())) {
+    if (deDxTools::isSpanningOver2APV(cluster.firstStrip(), cluster.amplitudes().size())) {
       return;
     }
-    if (!DeDxTools::IsFarFromBorder(trajState, &detUnit)) {
+    if (!deDxTools::isFarFromBorder(trajState, &detUnit)) {
       return;
     }
     float pathLen = 10.0 * detUnit.surface().bounds().thickness() / fabs(cosine);
-    float chargeAbs = DeDxTools::getCharge(&cluster, NSaturating, detUnit, calibGains, m_off);
+    float chargeAbs = deDxTools::getCharge(&cluster, NSaturating, detUnit, calibGains, m_off);
     float charge = chargeAbs / pathLen;
-    if (!shapetest || (shapetest && DeDxTools::shapeSelection(cluster))) {
+    if (!shapetest || (shapetest && deDxTools::shapeSelection(cluster))) {
       Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
     }
   } else if (clus.isStrip() && thit.isMatched()) {
@@ -202,16 +202,16 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit,
     if (clusterM.amplitudes().size() > MaxNrStrips) {
       return;
     }
-    if (DeDxTools::IsSpanningOver2APV(clusterM.firstStrip(), clusterM.amplitudes().size())) {
+    if (deDxTools::isSpanningOver2APV(clusterM.firstStrip(), clusterM.amplitudes().size())) {
       return;
     }
-    if (!DeDxTools::IsFarFromBorder(trajState, &detUnitM)) {
+    if (!deDxTools::isFarFromBorder(trajState, &detUnitM)) {
       return;
     }
     float pathLen = 10.0 * detUnitM.surface().bounds().thickness() / fabs(cosine);
-    float chargeAbs = DeDxTools::getCharge(&clusterM, NSaturating, detUnitM, calibGains, m_off);
+    float chargeAbs = deDxTools::getCharge(&clusterM, NSaturating, detUnitM, calibGains, m_off);
     float charge = chargeAbs / pathLen;
-    if (!shapetest || (shapetest && DeDxTools::shapeSelection(clusterM))) {
+    if (!shapetest || (shapetest && deDxTools::shapeSelection(clusterM))) {
       Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
     }
 
@@ -220,16 +220,16 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit,
     if (clusterS.amplitudes().size() > MaxNrStrips) {
       return;
     }
-    if (DeDxTools::IsSpanningOver2APV(clusterS.firstStrip(), clusterS.amplitudes().size())) {
+    if (deDxTools::isSpanningOver2APV(clusterS.firstStrip(), clusterS.amplitudes().size())) {
       return;
     }
-    if (!DeDxTools::IsFarFromBorder(trajState, &detUnitS)) {
+    if (!deDxTools::isFarFromBorder(trajState, &detUnitS)) {
       return;
     }
     pathLen = 10.0 * detUnitS.surface().bounds().thickness() / fabs(cosine);
-    chargeAbs = DeDxTools::getCharge(&clusterS, NSaturating, detUnitS, calibGains, m_off);
+    chargeAbs = deDxTools::getCharge(&clusterS, NSaturating, detUnitS, calibGains, m_off);
     charge = chargeAbs / pathLen;
-    if (!shapetest || (shapetest && DeDxTools::shapeSelection(clusterS))) {
+    if (!shapetest || (shapetest && deDxTools::shapeSelection(clusterS))) {
       Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
     }
   }

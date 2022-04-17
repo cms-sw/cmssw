@@ -91,7 +91,7 @@ OutputDDToDDL::OutputDDToDDL(const edm::ParameterSet& iConfig) : m_fname() {
            << std::endl;
   (*m_xos) << std::fixed << std::setprecision(18);
 
-  ddToken_ = esConsumes<DDCompactView, IdealGeometryRecord>();
+  ddToken_ = esConsumes<DDCompactView, IdealGeometryRecord, edm::Transition::BeginRun>();
 }
 
 OutputDDToDDL::~OutputDDToDDL() {

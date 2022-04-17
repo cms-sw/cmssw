@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,8 +30,6 @@ DTT0ValidateDBRead::DTT0ValidateDBRead(edm::ParameterSet const& p)
       dtT0Token_(esConsumes()) {}
 
 DTT0ValidateDBRead::DTT0ValidateDBRead(int i) : dtT0Token_(esConsumes()) {}
-
-DTT0ValidateDBRead::~DTT0ValidateDBRead() {}
 
 void DTT0ValidateDBRead::analyze(const edm::Event& e, const edm::EventSetup& context) {
   using namespace edm::eventsetup;

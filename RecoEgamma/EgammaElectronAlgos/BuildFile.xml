@@ -25,6 +25,7 @@
 <use name="RecoEgamma/ElectronIdentification"/>
 <use name="CondFormats/GBRForest"/>
 <use name="CondFormats/DataRecord"/>
+<use name="CommonTools/Egamma"/>
 <export>
   <lib name="1"/>
 </export>

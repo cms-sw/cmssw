@@ -1,0 +1,40 @@
+# how to find input file:  eos ls -latr /eos/cms/store/data/Run2018A/HcalNZS/RAW/v1/000/316/
+#how to run: cmsRun remoteMonitoring_Global_PSM_test_cfg.py
+#----------------------------------------------------------------------------
+# Auto generated configuration file
+# using: 
+# Revision: 1.19 
+# Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
+# with command line options: RelVal -s ALCA:HcalCalMinBias --data --scenario=pp -n 100 --conditions auto:run3_data_prompt --datatier USER --customise=HLTrigger/Configuration/CustomConfigs.L1THLT --era Run3 --processName=USER --filein file:RelVal_RECO.root --fileout file:RelVal_ALCA.root --no_exec
+
+import sys
+import FWCore.ParameterSet.Config as cms
+
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process('USER',Run3)
+
+# import of standard configurations
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load("CondCore.CondDB.CondDB_cfi")
+process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
+process.l1GtUnpack.DaqGtInputTag = 'source'
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
+#----------------------------------------------------------------------------
+process.maxEvents = cms.untracked.PSet(
+#    input = cms.untracked.int32(100),
+    input = cms.untracked.int32(-1),
+    output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
+)
+#----------------------------------------------------------------------------
+# Input source
+process.source = cms.Source("PoolSource",
+	       	skipBadFiles=cms.untracked.bool(True),	
+    fileNames = cms.untracked.vstring(

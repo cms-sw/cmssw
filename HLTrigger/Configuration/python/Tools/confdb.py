@@ -117,7 +117,7 @@ class HLTProcess(object):
         sys.stderr.write("%s: error while retrieving the list of paths from the HLT menu\n\n" % os.path.basename(sys.argv[0]))
         sys.stderr.write(err + "\n\n")
         sys.exit(1)
-    filter = re.compile(r' *= *cms.(End)?Path.*')
+    filter = re.compile(r' *= *cms.(End|Final)?Path.*')
     paths  = [ filter.sub('', line) for line in data.splitlines() if filter.search(line) ]
     return paths
 
@@ -281,14 +281,20 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
     %(process)s.HLTriggerFirstPath.replace(%(process)s.hltGetConditions,%(process)s.hltDummyConditions)
 """
 
-      # fix the Scouting EndPaths
+      # the scouting path issue:
+      # 1) for config fragments, we remove all output modules
+      # 2) however in old style datasets, the scouting output paths also run the unpackers which are needed
+      # 3) therefore they have to keep the scouting path but remove the scouting output module
+      # 4) in new style datasets, aka datasetpaths & finalpaths, the scouting unpackers are on another path and all of this is unnecessary
+      # 5) however its hard to detect whether we have new style or old style so we run this for both
+      # 6) therefore we end up with a superfluous Scouting*OutputPaths which are empty
       for path in self.all_paths:
         match = re.match(r'(Scouting\w+)Output$', path)
         if match:
           module = 'hltOutput' + match.group(1)
           self.data = self.data.replace(path+' = cms.EndPath', path+' = cms.Path')
           self.data = self.data.replace(' + process.'+module, '')
-
+          self.data = self.data.replace(' process.'+module, '')
     else:
 
       # override the process name and adapt the relevant filters
@@ -465,7 +471,7 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
 
   def overrideOutput(self):
     # if not runnign on Hilton, override the "online" ShmStreamConsumer output modules with "offline" PoolOutputModule's
-    # note for Run3 ShmStreamConsumer has been replaced with EvFOutputModule
+    # note for Run3 ShmStreamConsumer has been replaced with EvFOutputModule and later GlobalEvFOutputModule
     # so we also do a replace there
     if not self.config.hilton:
       self.data = re.sub(
@@ -478,7 +484,11 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
         r'\1hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),\n\3\n',
         self.data,0,re.DOTALL
       )
-
+      self.data = re.sub(
+        r'\b(process\.)?hltOutput(\w+) *= *cms\.OutputModule\( *"GlobalEvFOutputModule" *,\n    use_compression = cms.untracked.bool\( True \),\n    compression_algorithm = cms.untracked.string\( "ZLIB" \),\n    compression_level = cms.untracked.int32\( 1 \),\n    lumiSection_interval = cms.untracked.int32\( 0 \),\n(.+?),\n    psetMap = cms.untracked.InputTag\( "hltPSetMap" \)\n',
+        r'\1hltOutput\2 = cms.OutputModule( "PoolOutputModule",\n    fileName = cms.untracked.string( "output\2.root" ),\n    fastCloning = cms.untracked.bool( False ),\n    dataset = cms.untracked.PSet(\n        filterName = cms.untracked.string( "" ),\n        dataTier = cms.untracked.string( "RAW" )\n    ),\n\3\n',
+        self.data,0,re.DOTALL
+      )
     if not self.config.fragment and self.config.output == 'minimal':
       # add a single output to keep the TriggerResults and TriggerEvent
       self.data += """
@@ -502,7 +512,7 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
         'keep l1tTauBXVector_*_Tau_*',
     )
 )
-%(process)s.MinimalOutput = cms.EndPath( %(process)s.hltOutputMinimal )
+%(process)s.MinimalOutput = cms.FinalPath( %(process)s.hltOutputMinimal )
 %(process)s.schedule.append( %(process)s.MinimalOutput )
 """
     elif not self.config.fragment and self.config.output == 'full':
@@ -518,7 +528,7 @@ from HLTrigger.Configuration.CustomConfigs import L1REPACK
     ),
     outputCommands = cms.untracked.vstring( 'keep *' )
 )
-%(process)s.FullOutput = cms.EndPath( %(process)s.hltOutputFull )
+%(process)s.FullOutput = cms.FinalPath( %(process)s.hltOutputFull )
 %(process)s.schedule.append( %(process)s.FullOutput )
 """
 
@@ -674,19 +684,18 @@ if 'GlobalTag' in %%(dict)s:
     fileName = cms.untracked.string("DQMIO.root")
 )
 """
-
-      empty_path = re.compile(r'.*\b(process\.)?DQMOutput = cms\.EndPath\( *\).*')
-      other_path = re.compile(r'(.*\b(process\.)?DQMOutput = cms\.EndPath\()(.*)')
+      empty_path = re.compile(r'.*\b(process\.)?DQMOutput = cms\.(Final|End)Path\( *\).*')
+      other_path = re.compile(r'(.*\b(process\.)?DQMOutput = cms\.(Final|End)Path\()(.*)')
       if empty_path.search(self.data):
         # replace an empty DQMOutput path
-        self.data = empty_path.sub(dqmstore + '\n%(process)s.DQMOutput = cms.EndPath( %(process)s.dqmOutput )\n', self.data)
+        self.data = empty_path.sub(dqmstore + '\n%(process)s.DQMOutput = cms.FinalPath( %(process)s.dqmOutput )\n', self.data)
       elif other_path.search(self.data):
         # prepend the dqmOutput to the DQMOutput path
-        self.data = other_path.sub(dqmstore + r'\g<1> %(process)s.dqmOutput +\g<3>', self.data)
+        self.data = other_path.sub(dqmstore + r'\g<1> %(process)s.dqmOutput +\g<4>', self.data)
       else:
         # create a new DQMOutput path with the dqmOutput module
         self.data += dqmstore
-        self.data += '\n%(process)s.DQMOutput = cms.EndPath( %(process)s.dqmOutput )\n'
+        self.data += '\n%(process)s.DQMOutput = cms.FinalPath( %(process)s.dqmOutput )\n'
         self.data += '%(process)s.schedule.append( %(process)s.DQMOutput )\n'
 
 

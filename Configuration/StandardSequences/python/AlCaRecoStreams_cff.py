@@ -76,6 +76,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_cff import *
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTrg_cff import *
 # -- alcareco which selects RAW from test enables
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTestPulsesRaw_cff import *
+# -- alcareco to perform the EcalPhiSym calibration on top of the AlCaPhiSym stream (with NanoAOD ouput)
+from Calibration.EcalCalibAlgos.ALCARECOEcalPhiSym_cff import *
 
 ###############################################################
 # HCAL Calibration
@@ -164,6 +166,9 @@ from CalibTracker.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_cff import *
 
 from Calibration.EcalCalibAlgos.ALCARECOPromptCalibProdEcalPedestals_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOPromptCalibProdLumiPCC_cff import *
+
+from Calibration.PPSAlCaRecoProducer.ALCARECOPPSCalMaxTracks_cff import *
+
 ###############################################################
 # hotline skim workflows
 ###############################################################
@@ -192,7 +197,7 @@ pathALCARECOSiPixelCalSingleMuonTight = cms.Path(seqALCARECOSiPixelCalSingleMuon
 pathALCARECOSiPixelCalCosmics = cms.Path(seqALCARECOSiPixelCalCosmics)
 pathALCARECOSiStripCalMinBias = cms.Path(seqALCARECOSiStripCalMinBias*ALCARECOSiStripCalMinBiasDQM)
 pathALCARECOSiStripCalCosmics = cms.Path(seqALCARECOSiStripCalCosmics)
-pathALCARECOSiStripCalCosmicsNano = cms.Path(seqALCARECOSiStripCalCosmics*seqALCARECOSiStripCalCosmicsNano)
+pathALCARECOSiStripCalCosmicsNano = cms.Path(seqALCARECOSiStripCalCosmicsNano)
 pathALCARECOSiStripCalMinBiasAAG = cms.Path(seqALCARECOSiStripCalMinBiasAAG*ALCARECOSiStripCalMinBiasAAGDQM)
 pathALCARECOSiStripCalSmallBiasScan = cms.Path(seqALCARECOSiStripCalSmallBiasScan)
 pathALCARECOSiStripCalZeroBias = cms.Path(seqALCARECOSiStripCalZeroBias*ALCARECOSiStripCalZeroBiasDQM)
@@ -212,6 +217,8 @@ pathALCARECOEcalUncalZElectron   = cms.Path(seqALCARECOEcalUncalZElectron)
 pathALCARECOEcalUncalZSCElectron = cms.Path(seqALCARECOEcalUncalZSCElectron)
 pathALCARECOEcalUncalWElectron   = cms.Path(seqALCARECOEcalUncalWElectron)
 pathALCARECOEcalTestPulsesRaw    = cms.Path(seqALCARECOEcalTestPulsesRaw)
+pathALCARECOEcalPhiSymByRun      = cms.Path(seqALCARECOEcalPhiSymByRun)
+pathALCARECOEcalPhiSymByLumi     = cms.Path(seqALCARECOEcalPhiSymByLumi)
 
 #### Not meant to be used for central production
 #pathALCARECOEcalRecalElectron = cms.Path(seqALCARECOEcalRecalElectron)
@@ -246,6 +253,7 @@ pathALCARECORpcCalHLT = cms.Path(seqALCARECORpcCalHLT)
 pathALCARECOPromptCalibProdPPSTimingCalib = cms.Path(taskALCARECOPromptCalibProdPPSTimingCalib)
 pathALCARECOPromptCalibProdPPSDiamondSampicTimingCalib = cms.Path(taskALCARECOPromptCalibProdPPSDiamondSampicTimingCalib)
 pathALCARECOPromptCalibProdPPSAlignment = cms.Path(taskALCARECOPromptCalibProdPPSAlignment)
+pathALCARECOPPSCalMaxTracks = cms.Path(seqALCARECOPPSCalMaxTracksReco)
 pathALCARECOTkAlBeamHalo = cms.Path(seqALCARECOTkAlBeamHalo*ALCARECOTkAlBeamHaloDQM)
 pathALCARECOMuAlBeamHaloOverlaps = cms.Path(seqALCARECOMuAlBeamHaloOverlaps)
 pathALCARECOMuAlBeamHalo = cms.Path(seqALCARECOMuAlBeamHalo)
@@ -546,7 +554,7 @@ ALCARECOStreamEcalUncalZElectron = cms.FilteredStream(
 	responsible = 'Shervin Nourbakhsh',
 	name = 'EcalUncalZElectron',
 	paths  = (pathALCARECOEcalUncalZElectron, pathALCARECOEcalUncalZSCElectron),
-	content = OutALCARECOEcalUncalElectron.outputCommands,
+        content = OutALCARECOEcalUncalElectron.outputCommands,
 	selectEvents =  cms.untracked.PSet(
           SelectEvents = cms.vstring('pathALCARECOEcalUncalZElectron', 'pathALCARECOEcalUncalZSCElectron')
           ),
@@ -597,6 +605,24 @@ ALCARECOStreamEcalTestPulsesRaw = cms.FilteredStream(
     paths = pathALCARECOEcalTestPulsesRaw,
     content=  OutALCARECOEcalTestPulsesRaw.outputCommands,
     selectEvents = OutALCARECOEcalTestPulsesRaw.SelectEvents,
+    dataTier = cms.untracked.string('ALCARECO')
+)
+
+ALCARECOStreamEcalPhiSymByRun = cms.FilteredStream(
+    responsible = 'Simone Pigazzini',
+    name = 'EcalPhiSymByRun',
+    paths = pathALCARECOEcalPhiSymByRun,
+    content=  OutALCARECOEcalPhiSymByRun.outputCommands,
+    selectEvents = OutALCARECOEcalPhiSymByRun.SelectEvents,
+    dataTier = cms.untracked.string('ALCARECO')
+)
+
+ALCARECOStreamEcalPhiSymByLumi = cms.FilteredStream(
+    responsible = 'Simone Pigazzini',
+    name = 'EcalPhiSymByLumi',
+    paths = pathALCARECOEcalPhiSymByLumi,
+    content=  OutALCARECOEcalPhiSymByLumi.outputCommands,
+    selectEvents = OutALCARECOEcalPhiSymByLumi.SelectEvents,
     dataTier = cms.untracked.string('ALCARECO')
 )
 
@@ -1025,6 +1051,14 @@ ALCARECOStreamPromptCalibProdLumiPCC = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
+ALCARECOStreamPPSCalMaxTracks = cms.FilteredStream(
+	responsible = 'Leszek Grzanka',
+	name = 'PPSCalMaxTracks',
+	paths  = (pathALCARECOPPSCalMaxTracks),
+	content = OutALCARECOPPSCalMaxTracks.outputCommands,
+	selectEvents = OutALCARECOPPSCalMaxTracks.SelectEvents,
+	dataTier = cms.untracked.string('ALCARECO')
+	)
 
 ALCARECOStreamHotline = cms.FilteredStream(
         responsible = 'Dustin Anderson',

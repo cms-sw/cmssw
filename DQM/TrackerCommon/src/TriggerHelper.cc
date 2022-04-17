@@ -9,7 +9,7 @@
 #include <vector>
 
 /// To be called from the ED module's c'tor
-TriggerHelper::TriggerHelper(const edm::ParameterSet &config)
+TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &iC)
     : watchDB_(nullptr),
       gtDBKey_(""),
       l1DBKey_(""),
@@ -35,6 +35,9 @@ TriggerHelper::TriggerHelper(const edm::ParameterSet &config)
     if (config.exists("andOrDcs")) {
       andOrDcs_ = config.getParameter<bool>("andOrDcs");
       dcsInputTag_ = config.getParameter<edm::InputTag>("dcsInputTag");
+      dcsInputToken_ = iC.mayConsume<DcsStatusCollection>(dcsInputTag_);
+      dcsRecordInputTag_ = config.getParameter<edm::InputTag>("dcsRecordInputTag");
+      dcsRecordToken_ = iC.mayConsume<DCSRecord>(dcsRecordInputTag_);
       dcsPartitions_ = config.getParameter<std::vector<int>>("dcsPartitions");
       errorReplyDcs_ = config.getParameter<bool>("errorReplyDcs");
     } else {
@@ -61,6 +64,7 @@ TriggerHelper::TriggerHelper(const edm::ParameterSet &config)
     if (config.exists("andOrHlt")) {
       andOrHlt_ = config.getParameter<bool>("andOrHlt");
       hltInputTag_ = config.getParameter<edm::InputTag>("hltInputTag");
+      hltInputToken_ = iC.mayConsume<edm::TriggerResults>(hltInputTag_);
       hltLogicalExpressions_ = config.getParameter<std::vector<std::string>>("hltPaths");
       errorReplyHlt_ = config.getParameter<bool>("errorReplyHlt");
       if (config.exists("hltDBKey"))
@@ -137,13 +141,41 @@ bool TriggerHelper::acceptDcs(const edm::Event &event) {
   if (!onDcs_ || dcsPartitions_.empty())
     return (!andOr_);  // logically neutral, depending on base logical connective
 
+  bool useDCSRecord(false);
+
   // Accessing the DcsStatusCollection
   edm::Handle<DcsStatusCollection> dcsStatus;
-  event.getByLabel(dcsInputTag_, dcsStatus);
-  if (!dcsStatus.isValid()) {
-    edm::LogError("TriggerHelper") << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode()
-                                   << "\" not in event ==> decision: " << errorReplyDcs_;
+  event.getByToken(dcsInputToken_, dcsStatus);
+
+  edm::Handle<DCSRecord> dcsRecord;
+  event.getByToken(dcsRecordToken_, dcsRecord);
+
+  // none of the DCS products is valid
+  if (!dcsStatus.isValid() && !dcsRecord.isValid()) {
+    edm::LogWarning("TriggerHelper") << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode()
+                                     << "\" not in event \n"
+                                     << "DCSRecord product with InputTag \"" << dcsRecordInputTag_.encode()
+                                     << "\" not in event \n"
+                                     << " ==> decision: " << errorReplyDcs_;
     return errorReplyDcs_;
+  }
+  if (dcsStatus.isValid() && (*dcsStatus).empty()) {
+    if (event.eventAuxiliary().isRealData()) {
+      // this is the Data case for >= Run3, DCSStatus is available (unpacked), but empty
+      // becasue SCAL is not in data-taking. In this case we fall back to s/w FED 1022
+      if (dcsRecord.isValid()) {
+        useDCSRecord = true;
+      } else {
+        edm::LogWarning("TriggerHelper") << "DCSRecord product with InputTag \"" << dcsRecordInputTag_.encode()
+                                         << "\" empty ==> decision: " << errorReplyDcs_;
+        return errorReplyDcs_;
+      }
+    } else {
+      // this is the case in which the DCS status is empty, but it's not real data.
+      edm::LogInfo("TriggerHelper") << "DcsStatusCollection product with InputTag \"" << dcsInputTag_.encode()
+                                    << "\" empty ==> decision: " << errorReplyDcs_;
+      return errorReplyDcs_;
+    }
   }
 
   // Determine decision of DCS partition combination and return
@@ -151,7 +183,7 @@ bool TriggerHelper::acceptDcs(const edm::Event &event) {
     for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
          partitionNumber != dcsPartitions_.end();
          ++partitionNumber) {
-      if (acceptDcsPartition(dcsStatus, *partitionNumber))
+      if (acceptDcsPartition(dcsStatus, dcsRecord, useDCSRecord, *partitionNumber))
         return true;
     }
     return false;
@@ -159,48 +191,106 @@ bool TriggerHelper::acceptDcs(const edm::Event &event) {
   for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
        partitionNumber != dcsPartitions_.end();
        ++partitionNumber) {
-    if (!acceptDcsPartition(dcsStatus, *partitionNumber))
+    if (!acceptDcsPartition(dcsStatus, dcsRecord, useDCSRecord, *partitionNumber))
       return false;
   }
   return true;
 }
 
-bool TriggerHelper::acceptDcsPartition(const edm::Handle<DcsStatusCollection> &dcsStatus, int dcsPartition) const {
+bool TriggerHelper::acceptDcsPartition(const edm::Handle<DcsStatusCollection> &dcsStatus,
+                                       const edm::Handle<DCSRecord> &dcsRecord,
+                                       bool useDCSRecord,
+                                       int dcsPartition) const {
+  int theDCSRecordPartition;
   // Error checks
   switch (dcsPartition) {
     case DcsStatus::EBp:
+      theDCSRecordPartition = DCSRecord::EBp;
+      break;
     case DcsStatus::EBm:
+      theDCSRecordPartition = DCSRecord::EBm;
+      break;
     case DcsStatus::EEp:
+      theDCSRecordPartition = DCSRecord::EEp;
+      break;
     case DcsStatus::EEm:
+      theDCSRecordPartition = DCSRecord::EBm;
+      break;
     case DcsStatus::HBHEa:
+      theDCSRecordPartition = DCSRecord::HBHEa;
+      break;
     case DcsStatus::HBHEb:
+      theDCSRecordPartition = DCSRecord::HBHEb;
+      break;
     case DcsStatus::HBHEc:
+      theDCSRecordPartition = DCSRecord::HBHEc;
+      break;
     case DcsStatus::HF:
+      theDCSRecordPartition = DCSRecord::HF;
+      break;
     case DcsStatus::HO:
+      theDCSRecordPartition = DCSRecord::HO;
+      break;
     case DcsStatus::RPC:
+      theDCSRecordPartition = DCSRecord::RPC;
+      break;
     case DcsStatus::DT0:
+      theDCSRecordPartition = DCSRecord::DT0;
+      break;
     case DcsStatus::DTp:
+      theDCSRecordPartition = DCSRecord::DTp;
+      break;
     case DcsStatus::DTm:
+      theDCSRecordPartition = DCSRecord::DTm;
+      break;
     case DcsStatus::CSCp:
+      theDCSRecordPartition = DCSRecord::CSCp;
+      break;
     case DcsStatus::CSCm:
+      theDCSRecordPartition = DCSRecord::CSCm;
+      break;
     case DcsStatus::CASTOR:
+      theDCSRecordPartition = DCSRecord::CASTOR;
+      break;
     case DcsStatus::TIBTID:
+      theDCSRecordPartition = DCSRecord::TIBTID;
+      break;
     case DcsStatus::TOB:
+      theDCSRecordPartition = DCSRecord::TOB;
+      break;
     case DcsStatus::TECp:
+      theDCSRecordPartition = DCSRecord::TECp;
+      break;
     case DcsStatus::TECm:
+      theDCSRecordPartition = DCSRecord::TECm;
+      break;
     case DcsStatus::BPIX:
+      theDCSRecordPartition = DCSRecord::BPIX;
+      break;
     case DcsStatus::FPIX:
+      theDCSRecordPartition = DCSRecord::FPIX;
+      break;
     case DcsStatus::ESp:
+      theDCSRecordPartition = DCSRecord::ESp;
+      break;
     case DcsStatus::ESm:
+      theDCSRecordPartition = DCSRecord::ESm;
       break;
     default:
-      edm::LogError("TriggerHelper") << "DCS partition number \"" << dcsPartition
-                                     << "\" does not exist ==> decision: " << errorReplyDcs_;
+      edm::LogWarning("TriggerHelper") << "DCS partition number \"" << dcsPartition
+                                       << "\" does not exist ==> decision: " << errorReplyDcs_;
       return errorReplyDcs_;
   }
 
   // Determine decision
-  return dcsStatus->at(0).ready(dcsPartition);
+  if (!useDCSRecord) {
+    return dcsStatus->at(0).ready(dcsPartition);
+  } else {
+    LogDebug("TriggerHelper") << "using dcs record, dcsPartition:" << dcsPartition << " " << theDCSRecordPartition
+                              << " " << (*dcsRecord).partitionName(theDCSRecordPartition) << " "
+                              << (*dcsRecord).highVoltageReady(theDCSRecordPartition) << std::endl;
+    return (*dcsRecord).highVoltageReady(theDCSRecordPartition);
+  }
 }
 
 /// Does this event fulfill the configured GT status logical expression
@@ -364,7 +454,7 @@ bool TriggerHelper::acceptHlt(const edm::Event &event) {
 
   // Accessing the TriggerResults
   edm::Handle<edm::TriggerResults> hltTriggerResults;
-  event.getByLabel(hltInputTag_, hltTriggerResults);
+  event.getByToken(hltInputToken_, hltTriggerResults);
   if (!hltTriggerResults.isValid()) {
     edm::LogError("TriggerHelper") << "TriggerResults product with InputTag \"" << hltInputTag_.encode()
                                    << "\" not in event ==> decision: " << errorReplyHlt_;

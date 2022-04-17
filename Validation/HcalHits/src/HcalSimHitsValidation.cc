@@ -1,28 +1,27 @@
 #include "Geometry/HcalCommonData/interface/HcalHitRelabeller.h"
 #include "Validation/HcalHits/interface/HcalSimHitsValidation.h"
 
-HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
+HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf)
+    : g4Label_(conf.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits")),
+      hcalHits_(conf.getUntrackedParameter<std::string>("HcalHitCollection", "HcalHits")),
+      ebHits_(conf.getUntrackedParameter<std::string>("EBHitCollection", "EcalHitsEB")),
+      eeHits_(conf.getUntrackedParameter<std::string>("EEHitCollection", "EcalHitsEE")),
+      hf1_(conf.getParameter<double>("hf1")),
+      hf2_(conf.getParameter<double>("hf2")),
+      outputFile_(conf.getUntrackedParameter<std::string>("outputFile", "myfile.root")),
+      testNumber_(conf.getUntrackedParameter<bool>("TestNumber", false)),
+      auxPlots_(conf.getUntrackedParameter<bool>("auxiliaryPlots", false)),
+      tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"))),
+      tok_hcal_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_))),
+      tok_ecalEB_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebHits_))),
+      tok_ecalEE_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeHits_))),
+      tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   // DQM ROOT output
-  outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
-  testNumber_ = conf.getUntrackedParameter<bool>("TestNumber", false);
-  auxPlots_ = conf.getUntrackedParameter<bool>("auxiliaryPlots", false);
 
   // register for data access
-  g4Label_ = conf.getUntrackedParameter<std::string>("ModuleLabel", "g4SimHits");
-  hcalHits_ = conf.getUntrackedParameter<std::string>("HcalHitCollection", "HcalHits");
-  ebHits_ = conf.getUntrackedParameter<std::string>("EBHitCollection", "EcalHitsEB");
-  eeHits_ = conf.getUntrackedParameter<std::string>("EEHitCollection", "EcalHitsEE");
 
   // import sampling factors
-  hf1_ = conf.getParameter<double>("hf1");
-  hf2_ = conf.getParameter<double>("hf2");
-
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
-  tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hcalHits_));
-  tok_ecalEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, ebHits_));
-  tok_ecalEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, eeHits_));
-  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
 
   if (!outputFile_.empty()) {
     edm::LogVerbatim("OutputInfo") << " Hcal SimHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
@@ -32,8 +31,6 @@ HcalSimHitsValidation::HcalSimHitsValidation(edm::ParameterSet const &conf) {
 
   nevtot = 0;
 }
-
-HcalSimHitsValidation::~HcalSimHitsValidation() {}
 
 void HcalSimHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es) {
   hcons_ = &es.getData(tok_HRNDC_);
@@ -292,8 +289,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   double phi_MC = -999.;  // phi of initial particle from HepMC
   double eta_MC = -999.;  // eta of initial particle from HepMC
 
-  edm::Handle<edm::HepMCProduct> evtMC;
-  ev.getByToken(tok_evt_, evtMC);  // generator in late 310_preX
+  const edm::Handle<edm::HepMCProduct> &evtMC = ev.getHandle(tok_evt_);  // generator in late 310_preX
   if (!evtMC.isValid()) {
     edm::LogVerbatim("OutputInfo") << "no HepMCProduct found";
   }
@@ -326,8 +322,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   const float calib_HF1 = hf1_;  // 1.0/0.383;
   const float calib_HF2 = hf2_;  // 1.0/0.368;
 
-  edm::Handle<edm::PCaloHitContainer> hcalHits;
-  ev.getByToken(tok_hcal_, hcalHits);
+  const edm::Handle<edm::PCaloHitContainer> &hcalHits = ev.getHandle(tok_hcal_);
   const auto SimHitResult = hcalHits.product();
 
   float eta_diff;
@@ -426,9 +421,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   double EcalCone = 0;
 
   if (!ebHits_.empty()) {
-    edm::Handle<edm::PCaloHitContainer> ecalEBHits;
-    ev.getByToken(tok_ecalEB_, ecalEBHits);
-    const auto SimHitResultEB = ecalEBHits.product();
+    const auto &SimHitResultEB = &ev.get(tok_ecalEB_);
 
     for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEB->begin(); SimHits != SimHitResultEB->end();
          ++SimHits) {
@@ -448,9 +441,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
   // Ecal EE SimHits
   if (!eeHits_.empty()) {
-    edm::Handle<edm::PCaloHitContainer> ecalEEHits;
-    ev.getByToken(tok_ecalEE_, ecalEEHits);
-    const auto SimHitResultEE = ecalEEHits.product();
+    const auto &SimHitResultEE = &ev.get(tok_ecalEE_);
 
     for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEE->begin(); SimHits != SimHitResultEE->end();
          ++SimHits) {

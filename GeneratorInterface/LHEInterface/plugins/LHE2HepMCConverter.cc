@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -39,10 +39,10 @@
 // class declaration
 //
 
-class LHE2HepMCConverter : public edm::EDProducer {
+class LHE2HepMCConverter : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
   explicit LHE2HepMCConverter(const edm::ParameterSet&);
-  ~LHE2HepMCConverter() override;
+  ~LHE2HepMCConverter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -52,12 +52,14 @@ protected:
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
   // ----------member data ---------------------------
-  edm::InputTag _lheEventSrcTag;
-  edm::InputTag _lheRunSrcTag;
   const LHERunInfoProduct* _lheRunSrc;
-
+  const edm::InputTag _lheEventSrcTag;
+  const edm::InputTag _lheRunSrcTag;
+  const edm::EDGetTokenT<LHEEventProduct> eventProductToken_;
+  const edm::EDGetTokenT<LHERunInfoProduct> runInfoProductToken_;
   //      std::shared_ptr<lhef::LHERunInfo> lheRunInfo_;
 };
 
@@ -72,17 +74,14 @@ private:
 //
 // constructors and destructor
 //
-LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig) : _lheRunSrc(nullptr) {
+LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig)
+    : _lheRunSrc(nullptr),
+      _lheEventSrcTag(iConfig.getParameter<edm::InputTag>("LHEEventProduct")),
+      _lheRunSrcTag(iConfig.getParameter<edm::InputTag>("LHERunInfoProduct")),
+      eventProductToken_(consumes<LHEEventProduct>(_lheEventSrcTag)),
+      runInfoProductToken_(consumes<LHERunInfoProduct, edm::InRun>(_lheRunSrcTag)) {
   //register your products
   produces<edm::HepMCProduct>("unsmeared");
-
-  _lheEventSrcTag = iConfig.getParameter<edm::InputTag>("LHEEventProduct");
-  _lheRunSrcTag = iConfig.getParameter<edm::InputTag>("LHERunInfoProduct");
-}
-
-LHE2HepMCConverter::~LHE2HepMCConverter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -92,8 +91,7 @@ LHE2HepMCConverter::~LHE2HepMCConverter() {
 // ------------ method called to produce the data  ------------
 void LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
-  Handle<LHEEventProduct> lheEventSrc;
-  iEvent.getByLabel(_lheEventSrcTag, lheEventSrc);
+  const edm::Handle<LHEEventProduct>& lheEventSrc = iEvent.getHandle(eventProductToken_);
 
   HepMC::GenEvent* evt = new HepMC::GenEvent();
   HepMC::GenVertex* v = new HepMC::GenVertex();
@@ -131,8 +129,7 @@ void LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called when starting to processes a run  ------------
 void LHE2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup const&) {
-  edm::Handle<LHERunInfoProduct> lheRunSrcHandle;
-  iRun.getByLabel(_lheRunSrcTag, lheRunSrcHandle);
+  edm::Handle<LHERunInfoProduct> lheRunSrcHandle = iRun.getHandle(runInfoProductToken_);
   if (lheRunSrcHandle.isValid()) {
     _lheRunSrc = lheRunSrcHandle.product();
   } else {

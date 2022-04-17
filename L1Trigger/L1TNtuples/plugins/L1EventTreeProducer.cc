@@ -22,7 +22,7 @@ Implementation:
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,10 +46,10 @@ Implementation:
 // class declaration
 //
 
-class L1EventTreeProducer : public edm::EDAnalyzer {
+class L1EventTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1EventTreeProducer(const edm::ParameterSet&);
-  ~L1EventTreeProducer() override;
+  ~L1EventTreeProducer() override = default;
 
 private:
   void beginJob(void) override;
@@ -57,7 +57,7 @@ private:
   void endJob() override;
 
 public:
-  L1Analysis::L1AnalysisEvent* l1Event;
+  std::unique_ptr<L1Analysis::L1AnalysisEvent> l1Event;
   L1Analysis::L1AnalysisEventDataFormat* l1EventData;
 
 private:
@@ -67,36 +67,29 @@ private:
   // tree
   TTree* tree_;
 
-  edm::EDGetTokenT<edm::TriggerResults> hltSource_;
-
   // EDM input tags
-  //edm::EDGetTokenT<l1t::EGammaBxCollection> egToken_;
+  const edm::EDGetTokenT<edm::TriggerResults> hltSource_;
 };
 
-L1EventTreeProducer::L1EventTreeProducer(const edm::ParameterSet& iConfig) {
-  hltSource_ = consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltSource"));
-
+L1EventTreeProducer::L1EventTreeProducer(const edm::ParameterSet& iConfig)
+    : hltSource_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("hltSource"))) {
   std::string puMCFile = iConfig.getUntrackedParameter<std::string>("puMCFile", "");
   std::string puMCHist = iConfig.getUntrackedParameter<std::string>("puMCHist", "pileup");
   std::string puDataFile = iConfig.getUntrackedParameter<std::string>("puDataFile", "");
   std::string puDataHist = iConfig.getUntrackedParameter<std::string>("puDataHist", "pileup");
 
+  usesResource(TFileService::kSharedResource);
+
   bool useAvgVtx = iConfig.getUntrackedParameter<bool>("useAvgVtx", true);
   double maxAllowedWeight = iConfig.getUntrackedParameter<double>("maxAllowedWeight", -1);
 
-  l1Event = new L1Analysis::L1AnalysisEvent(
+  l1Event = std::make_unique<L1Analysis::L1AnalysisEvent>(
       puMCFile, puMCHist, puDataFile, puDataHist, useAvgVtx, maxAllowedWeight, consumesCollector());
   l1EventData = l1Event->getData();
 
   // set up output
   tree_ = fs_->make<TTree>("L1EventTree", "L1EventTree");
   tree_->Branch("Event", "L1Analysis::L1AnalysisEventDataFormat", &l1EventData, 32000, 3);
-}
-
-L1EventTreeProducer::~L1EventTreeProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  delete l1Event;
 }
 
 //

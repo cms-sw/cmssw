@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,13 +14,13 @@ Toy EDAnalyzer for testing purposes only.
 class DTReadOutMapping;
 class DTReadOutMappingRcd;
 
-class DTROMapValidateDBRead : public edm::EDAnalyzer {
+class DTROMapValidateDBRead : public edm::one::EDAnalyzer<> {
 public:
   explicit DTROMapValidateDBRead(edm::ParameterSet const& p);
   explicit DTROMapValidateDBRead(int i);
-  virtual ~DTROMapValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTROMapValidateDBRead() override = default;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

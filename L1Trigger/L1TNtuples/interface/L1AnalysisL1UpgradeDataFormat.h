@@ -92,6 +92,7 @@ namespace L1Analysis {
       jetIEt.clear();
       jetIEta.clear();
       jetIPhi.clear();
+      jetHwQual.clear();
       jetBx.clear();
       jetTowerIPhi.clear();
       jetTowerIEta.clear();
@@ -184,6 +185,7 @@ namespace L1Analysis {
     std::vector<short int> jetIEt;
     std::vector<short int> jetIEta;
     std::vector<short int> jetIPhi;
+    std::vector<short int> jetHwQual;
     std::vector<short int> jetBx;
     std::vector<short int> jetTowerIPhi;
     std::vector<short int> jetTowerIEta;

@@ -13,30 +13,32 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoHGCal/TICL/interface/GlobalCache.h"
+
+#include "TrackingTools/Records/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
+#include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
+
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 
 #include "TrackstersPCA.h"
 
 using namespace ticl;
 
-class TrackstersMergeProducer : public edm::stream::EDProducer<edm::GlobalCache<TrackstersCache>> {
+class TrackstersMergeProducer : public edm::stream::EDProducer<> {
 public:
-  explicit TrackstersMergeProducer(const edm::ParameterSet &ps, const CacheBase *cache);
+  explicit TrackstersMergeProducer(const edm::ParameterSet &ps);
   ~TrackstersMergeProducer() override{};
   void produce(edm::Event &, const edm::EventSetup &) override;
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
-
-  // static methods for handling the global cache
-  static std::unique_ptr<TrackstersCache> initializeGlobalCache(const edm::ParameterSet &);
-  static void globalEndJob(TrackstersCache *);
 
 private:
   typedef ticl::Trackster::IterationIndex TracksterIterIndex;
 
   void fillTile(TICLTracksterTiles &, const std::vector<Trackster> &, TracksterIterIndex);
 
-  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters, std::vector<Trackster> &result) const;
+  void energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                             const tensorflow::Session *,
+                             std::vector<Trackster> &result) const;
   void printTrackstersDebug(const std::vector<Trackster> &, const char *label) const;
   void assignTimeToCandidates(std::vector<TICLCandidate> &resultCandidates) const;
   void dumpTrackster(const Trackster &) const;
@@ -50,6 +52,10 @@ private:
   const edm::EDGetTokenT<edm::ValueMap<std::pair<float, float>>> clustersTime_token_;
   const edm::EDGetTokenT<std::vector<reco::Track>> tracks_token_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometry_token_;
+  const std::string tfDnnLabel_;
+  const edm::ESGetToken<TfGraphDefWrapper, TfGraphRecord> tfDnnToken_;
+  const tensorflow::Session *tfSession_;
+
   const bool optimiseAcrossTracksters_;
   const int eta_bin_window_;
   const int phi_bin_window_;
@@ -81,7 +87,7 @@ private:
   static constexpr int eidNFeatures_ = 3;
 };
 
-TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, const CacheBase *cache)
+TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps)
     : tracksterstrkem_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("tracksterstrkem"))),
       trackstersem_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("trackstersem"))),
       tracksterstrk_token_(consumes<std::vector<Trackster>>(ps.getParameter<edm::InputTag>("tracksterstrk"))),
@@ -92,6 +98,9 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
           consumes<edm::ValueMap<std::pair<float, float>>>(ps.getParameter<edm::InputTag>("layer_clustersTime"))),
       tracks_token_(consumes<std::vector<reco::Track>>(ps.getParameter<edm::InputTag>("tracks"))),
       geometry_token_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tfDnnLabel_(ps.getParameter<std::string>("tfDnnLabel")),
+      tfDnnToken_(esConsumes(edm::ESInputTag("", tfDnnLabel_))),
+      tfSession_(nullptr),
       optimiseAcrossTracksters_(ps.getParameter<bool>("optimiseAcrossTracksters")),
       eta_bin_window_(ps.getParameter<int>("eta_bin_window")),
       phi_bin_window_(ps.getParameter<int>("phi_bin_window")),
@@ -117,14 +126,6 @@ TrackstersMergeProducer::TrackstersMergeProducer(const edm::ParameterSet &ps, co
       eidNLayers_(ps.getParameter<int>("eid_n_layers")),
       eidNClusters_(ps.getParameter<int>("eid_n_clusters")),
       eidSession_(nullptr) {
-  // mount the tensorflow graph onto the session when set
-  const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
-  if (trackstersCache == nullptr || trackstersCache->eidGraphDef == nullptr) {
-    throw cms::Exception("MissingGraphDef")
-        << "TrackstersMergeProducer received an empty graph definition from the global cache";
-  }
-  eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
-
   produces<std::vector<Trackster>>();
   produces<std::vector<TICLCandidate>>();
 }
@@ -171,6 +172,8 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
   rhtools_.setGeometry(*geom);
   auto resultTrackstersMerged = std::make_unique<std::vector<Trackster>>();
   auto resultCandidates = std::make_unique<std::vector<TICLCandidate>>();
+
+  tfSession_ = es.getData(tfDnnToken_).getSession();
 
   TICLTracksterTiles tracksterTile;
   std::vector<bool> usedTrackstersMerged;
@@ -262,7 +265,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
                         layerClusters,
                         layerClustersTimes,
                         rhtools_.getPositionLayer(rhtools_.lastLayerEE()).z());
-  energyRegressionAndID(layerClusters, *resultTrackstersMerged);
+  energyRegressionAndID(layerClusters, tfSession_, *resultTrackstersMerged);
 
   printTrackstersDebug(*resultTrackstersMerged, "TrackstersMergeProducer");
 
@@ -540,6 +543,7 @@ void TrackstersMergeProducer::produce(edm::Event &evt, const edm::EventSetup &es
 }
 
 void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                                                    const tensorflow::Session *eidSession,
                                                     std::vector<Trackster> &tracksters) const {
   // Energy regression and particle identification strategy:
   //
@@ -655,7 +659,7 @@ void TrackstersMergeProducer::energyRegressionAndID(const std::vector<reco::Calo
   }
 
   // run the inference (7)
-  tensorflow::run(eidSession_, inputList, outputNames, &outputs);
+  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {
@@ -700,25 +704,6 @@ void TrackstersMergeProducer::assignTimeToCandidates(std::vector<TICLCandidate> 
       }
     }
   }
-}
-
-std::unique_ptr<TrackstersCache> TrackstersMergeProducer::initializeGlobalCache(const edm::ParameterSet &params) {
-  // this method is supposed to create, initialize and return a TrackstersCache instance
-  std::unique_ptr<TrackstersCache> cache = std::make_unique<TrackstersCache>(params);
-
-  // load the graph def and save it
-  std::string graphPath = params.getParameter<std::string>("eid_graph_path");
-  if (!graphPath.empty()) {
-    graphPath = edm::FileInPath(graphPath).fullPath();
-    cache->eidGraphDef = tensorflow::loadGraphDef(graphPath);
-  }
-
-  return cache;
-}
-
-void TrackstersMergeProducer::globalEndJob(TrackstersCache *cache) {
-  delete cache->eidGraphDef;
-  cache->eidGraphDef = nullptr;
 }
 
 void TrackstersMergeProducer::printTrackstersDebug(const std::vector<Trackster> &tracksters, const char *label) const {
@@ -776,7 +761,7 @@ void TrackstersMergeProducer::fillDescriptions(edm::ConfigurationDescriptions &d
   desc.add<double>("resol_calo_offset_em", 1.5);
   desc.add<double>("resol_calo_scale_em", 0.15);
   desc.add<bool>("debug", true);
-  desc.add<std::string>("eid_graph_path", "RecoHGCal/TICL/data/tf_models/energy_id_v0.pb");
+  desc.add<std::string>("tfDnnLabel", "tracksterSelectionTf");
   desc.add<std::string>("eid_input_name", "input");
   desc.add<std::string>("eid_output_name_energy", "output/regressed_energy");
   desc.add<std::string>("eid_output_name_id", "output/id_probabilities");

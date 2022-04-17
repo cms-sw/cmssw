@@ -25,7 +25,6 @@
     <Constant name="PatchPanel_Cables_FrontModcenter" value="3048.5*mm"/>
     <Constant name="PatchPanel_Cables_thickness" value="21*mm"/>
     <Constant name="FrontModerator_thickness" value="20*mm"/>
-    <Constant name="Active_Disc_thickness" value="8*mm"/>
     <Constant name="BackSupportPlate_thickness" value="5*mm"/>
     <!-- <Constant name="Disc_Rmin" value="315*mm"/> --> <!-- correct value, but not compatible with current modules placement -->
     <Constant name="Disc_Rmin" value="300*mm"/>
@@ -126,7 +125,6 @@
     <Constant name="LGAD_Substrate_translation_z" value="0.025*mm"/>
     <Constant name="PowerBoard_translation_z" value="1*mm"/>
     <Constant name="servicesServiceHybrid_translation_z" value="-2*mm"/>
-    <Constant name="SensorModule_translation_z" value="0.21*mm"/>
     <Constant name="ServiceHybrid_translation_z" value="1.*mm"/>
     <Constant name="xoffset_servicehybrid" value="1*mm"/>
 
@@ -224,6 +222,7 @@
             <rSolid name="Notch_int"/>
             <Translation x="[BackSupportPlate_thickness]" y="0.*mm" z="-[BackSupportPlate_thickness]"/>
     </SubtractionSolid>
+    <Box name="SubBox2" dz="2*[BackSupportPlate_thickness]" dx="0.5*[Notch_bl2]" dy="0.5*[NotchSubbox_width]"/>
     <SubtractionSolid name="Notch_left">
             <rSolid name="Notch_whole"/>
             <rSolid name="SubBox2"/>
@@ -234,7 +233,6 @@
             <rSolid name="SubBox2"/>
             <Translation x="[BackSupportPlate_thickness]+0.5*([Notch_bl2]-[Notch_bl1])" y="0.5*[NotchSubbox_width]" z="0.5*[Notch_thickness]"/>
     </SubtractionSolid>
-    <Box name="SubBox2" dz="2*[BackSupportPlate_thickness]" dx="0.5*[Notch_bl2]" dy="0.5*[NotchSubbox_width]"/>
     <UnionSolid name="BackSupportPlate_3">
             <rSolid name="BackSupportPlate_2"/>
             <rSolid name="Notch_left"/>
@@ -265,8 +263,8 @@
         <ZSection z="[BackSupportPlate_Z3]" rMin="[BackSupportPlate_R5]" rMax="[ServiceExtVolume_R3]"/>
         <ZSection z="[BackSupportPlate_Z4]" rMin="[BackSupportPlate_R5]" rMax="[ServiceExtVolume_R4]"/>
     </Polycone>
-    <Tubs name="InnerCylinder" rMin="[ETLrmin]" rMax="[InnerCylinder_Rmax]" dz="0.5*([BackSupportPlate_Z2]-[ETLzmin])" startPhi="0*deg" deltaPhi="360*deg"/>
-    <Tubs name="InnerBrackets" rMin="[InnerCylinder_Rmax]" rMax="[Disc_Rmin]" dz="0.5*([BackSupportPlate_Z2]-[ETLzmin])" startPhi="0*deg" deltaPhi="360*deg"/>
+    <!-- <Tubs name="InnerCylinder" rMin="[ETLrmin]" rMax="[InnerCylinder_Rmax]" dz="0.5*([BackSupportPlate_Z2]-[ETLzmin])" startPhi="0*deg" deltaPhi="360*deg"/> -->
+    <!-- <Tubs name="InnerBrackets" rMin="[InnerCylinder_Rmax]" rMax="[Disc_Rmin]" dz="0.5*([BackSupportPlate_Z2]-[ETLzmin])" startPhi="0*deg" deltaPhi="360*deg"/> -->
     
     <!-- FRONT: face closest to IP, BACK: furthest from IP -->
     <Tubs name="DiscSector_Front" rMin="[Disc_Rmin]" rMax="[Disc_Rmax]" dz="0.5*[Active_Disc_thickness]" startPhi="-90*deg" deltaPhi="180*deg"/> <!-- half-disc on front face -->
@@ -356,15 +354,15 @@
       <rSolid name="etl:ServicesExtVolume2"/>
       <rMaterial name="mtdMaterial:ETLServicesVolume"/>
     </LogicalPart>
-    <LogicalPart name="InnerCylinder" category="unspecified">
-      <rSolid name="etl:InnerCylinder"/>
-      <rMaterial name="materials:Borosilicate_Glass"/>
-    </LogicalPart>
-    <LogicalPart name="InnerBrackets" category="unspecified">
-      <rSolid name="etl:InnerBrackets"/>
-      <rMaterial name="materials:Aluminium"/>
-    </LogicalPart>
-    
+    <!-- <LogicalPart name="InnerCylinder" category="unspecified"> -->
+      <!-- <rSolid name="etl:InnerCylinder"/> -->
+      <!-- <rMaterial name="materials:Borosilicate_Glass"/> -->
+    <!-- </LogicalPart> -->
+    <!-- <LogicalPart name="InnerBrackets" category="unspecified"> -->
+      <!-- <rSolid name="etl:InnerBrackets"/> -->
+      <!-- <rMaterial name="materials:Aluminium"/> -->
+    <!-- </LogicalPart> -->
+
     <!-- Cables sectors -->
     <LogicalPart name="Cables1" category="unspecified">
       <rSolid name="etl:Cables1"/>
@@ -622,16 +620,16 @@
         <rChild name="etl:ServicesExtVolume2"/>
         <Translation x="0.*mm" y="0.*mm" z="0.*mm" />
     </PosPart>
-    <!-- <PosPart copyNumber="1">
-        <rParent name="etl:EndcapTimingLayer"/>
-        <rChild name="etl:InnerCylinder"/>
-        <Translation x="0.*mm" y="0.*mm" z="[InnerCylinder_center]" />
-    </PosPart>
-    <PosPart copyNumber="1">
-        <rParent name="etl:EndcapTimingLayer"/>
-        <rChild name="etl:InnerBrackets"/>
-        <Translation x="0.*mm" y="0.*mm" z="[InnerCylinder_center]" />
-    </PosPart> -->
+     <!-- <PosPart copyNumber="1"> -->
+        <!-- <rParent name="etl:EndcapTimingLayer"/> -->
+        <!-- <rChild name="etl:InnerCylinder"/> -->
+        <!-- <Translation x="0.*mm" y="0.*mm" z="[InnerCylinder_center]" /> -->
+    <!-- </PosPart> -->
+    <!-- <PosPart copyNumber="1"> -->
+        <!-- <rParent name="etl:EndcapTimingLayer"/> -->
+        <!-- <rChild name="etl:InnerBrackets"/> -->
+        <!-- <Translation x="0.*mm" y="0.*mm" z="[InnerCylinder_center]" /> -->
+    <!-- </PosPart> -->
     
     <!-- Children volumes Cables -->
     <PosPart copyNumber="1">

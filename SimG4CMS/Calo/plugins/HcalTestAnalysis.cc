@@ -68,15 +68,20 @@ private:
   double timeOfFlight(int det, int layer, double eta);
 
 private:
-  //Keep parameters to instantiate HcalTestHistoClass later
-  std::string fileName_;
-
   // Qie Analysis
   std::unique_ptr<HcalQie> myqie_;
   int addTower_;
 
   // Private Tuples
   std::unique_ptr<HcalTestHistoClass> tuples_;
+
+  // to read from ParameterSet
+  const edm::ParameterSet m_Anal;
+  double eta0_, phi0_;
+  const int laygroup_, centralTower_;
+  const std::vector<std::string> names_;
+  //Keep parameters to instantiate HcalTestHistoClass later
+  const std::string fileName_;
 
   // Numbering scheme
   edm::ESGetToken<HcalDDDSimConstants, HcalSimNumberingRecord> ddconsToken_;
@@ -89,11 +94,6 @@ private:
   std::vector<int> group_, tower_;
   int nGroup_, nTower_;
 
-  // to read from ParameterSet
-  std::vector<std::string> names_;
-  double eta0_, phi0_;
-  int centralTower_;
-
   // some private members for ananlysis
   unsigned int count_;
   double edepEB_, edepEE_, edepHB_, edepHE_;
@@ -101,15 +101,17 @@ private:
   double mudist_[20];  // Distance of muon from central part
 };
 
-HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) : addTower_(3), hcons_(nullptr) {
+HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p)
+    : addTower_(3),
+      m_Anal(p.getParameter<edm::ParameterSet>("HcalTestAnalysis")),
+      eta0_(m_Anal.getParameter<double>("Eta0")),
+      phi0_(m_Anal.getParameter<double>("Phi0")),
+      laygroup_(m_Anal.getParameter<int>("LayerGrouping")),
+      centralTower_(m_Anal.getParameter<int>("CentralTower")),
+      names_(m_Anal.getParameter<std::vector<std::string> >("Names")),
+      fileName_(m_Anal.getParameter<std::string>("FileName")),
+      hcons_(nullptr) {
   org_.reset(nullptr);
-  edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTestAnalysis");
-  eta0_ = m_Anal.getParameter<double>("Eta0");
-  phi0_ = m_Anal.getParameter<double>("Phi0");
-  int laygroup = m_Anal.getParameter<int>("LayerGrouping");
-  centralTower_ = m_Anal.getParameter<int>("CentralTower");
-  names_ = m_Anal.getParameter<std::vector<std::string> >("Names");
-  fileName_ = m_Anal.getParameter<std::string>("FileName");
 
   tuples_.reset(nullptr);
   numberingFromDDD_.reset(nullptr);
@@ -117,7 +119,7 @@ HcalTestAnalysis::HcalTestAnalysis(const edm::ParameterSet& p) : addTower_(3), h
                               << " and of G4step";
 
   count_ = 0;
-  group_ = layerGrouping(laygroup);
+  group_ = layerGrouping(laygroup_);
   nGroup_ = 0;
   for (unsigned int i = 0; i < group_.size(); i++)
     if (group_[i] > nGroup_)

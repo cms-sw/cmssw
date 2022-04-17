@@ -73,6 +73,7 @@ void L1Analysis::L1AnalysisL1Upgrade::SetJet(const edm::Handle<l1t::JetBxCollect
         l1upgrade_.jetIEt.push_back(it->hwPt());
         l1upgrade_.jetIEta.push_back(it->hwEta());
         l1upgrade_.jetIPhi.push_back(it->hwPhi());
+        l1upgrade_.jetHwQual.push_back(it->hwQual());
         l1upgrade_.jetBx.push_back(ibx);
         l1upgrade_.jetRawEt.push_back(it->rawEt());
         l1upgrade_.jetSeedEt.push_back(it->seedEt());

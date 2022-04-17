@@ -2,7 +2,6 @@
 #include <cmath>
 #include <vector>
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
@@ -12,11 +11,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include "HLTmumutkFilter.h"
 #include "TMath.h"
@@ -177,29 +171,17 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent,
       throw cms::Exception("BadLogic") << "HLTmumutkFilterr: ERROR: the vertex must have "
                                        << " at least two muons by definition." << std::endl;
 
-    int iTrkFoundRefs = 0;
+    bool notYetFoundTrackRefs(true);
     for (auto cand = trkcands->begin(); cand != trkcands->end(); cand++) {
       reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-      if (tkRef == vertextkRef1 && iTrkFoundRefs == 0 && !track1Matched) {
+      if ((tkRef == vertextkRef1 && !track1Matched) || (tkRef == vertextkRef2 && !track2Matched) ||
+          (tkRef == vertextkRef3 && !track3Matched)) {
+        notYetFoundTrackRefs = false;
         tkcand = cand;
-        iTrkFoundRefs++;
-        track1Matched = true;
-        break;
-      }
-      if (tkRef == vertextkRef2 && iTrkFoundRefs == 0 && !track2Matched) {
-        tkcand = cand;
-        iTrkFoundRefs++;
-        track2Matched = true;
-        break;
-      }
-      if (tkRef == vertextkRef3 && iTrkFoundRefs == 0 && !track3Matched) {
-        tkcand = cand;
-        iTrkFoundRefs++;
-        track3Matched = true;
         break;
       }
     }
-    if (iTrkFoundRefs == 0)
+    if (notYetFoundTrackRefs)
       throw cms::Exception("BadLogic") << "HLTmumutkFilterr: ERROR: the vertex must have "
                                        << " at least one track by definition." << std::endl;
 
