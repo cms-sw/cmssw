@@ -23,10 +23,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "CondFormats/SiPixelObjects/interface/GlobalPixel.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
-//#include "CondFormats/SiPixelObjects/interface/SiPixelQuality.h"
-//#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
 #include "CondFormats/SiPixelObjects/interface/LocalPixel.h"
-//#include "CondFormats/SiPixelObjects/interface/CablingPathToDetUnit.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/SiPhase2OuterTrackerLorentzAngle.h"
 
 // Geometry
