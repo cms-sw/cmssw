@@ -15,6 +15,9 @@
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "CondTools/L1TriggerExt/interface/DataWriterExt.h"
 
+using DataWriterExtPtr = std::unique_ptr<l1t::DataWriterExt>;
+using RecordToWriterMap = std::map<std::string, DataWriterExtPtr>;
+
 class L1CondDBPayloadWriterExt : public edm::one::EDAnalyzer<> {
 public:
   explicit L1CondDBPayloadWriterExt(const edm::ParameterSet&);
@@ -26,7 +29,7 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-  l1t::DataWriterExt m_writer;
+  RecordToWriterMap m_rcdToWriterMap;
   // std::string m_tag ; // tag is known by PoolDBOutputService
 
   // set to false to write config data without valid TSC key
@@ -53,7 +56,16 @@ L1CondDBPayloadWriterExt::L1CondDBPayloadWriterExt(const edm::ParameterSet& iCon
       m_overwriteKeys(iConfig.getParameter<bool>("overwriteKeys")),
       m_logTransactions(iConfig.getParameter<bool>("logTransactions")),
       m_newL1TriggerKeyListExt(iConfig.getParameter<bool>("newL1TriggerKeyListExt")),
-      theL1TriggerKeyExtToken_(esConsumes()) {}
+      theL1TriggerKeyExtToken_(esConsumes())
+{
+  auto cc = consumesCollector();
+  for (auto sysWriter : iConfig.getParameter<std::vector<std::string>>("sysWriters")) {
+    //construct writer
+    DataWriterExtPtr writer = std::make_unique<l1t::DataWriterExt>(sysWriter);
+    writer->getWriter()->setToken( cc );
+    m_rcdToWriterMap[ sysWriter ] = std::move(writer); //the sysWriter holds info in 'rcd@prod' format
+  }
+}
 
 L1CondDBPayloadWriterExt::~L1CondDBPayloadWriterExt() {
   // do anything here that needs to be done at desctruction time
@@ -66,6 +78,8 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
 
   // Get L1TriggerKeyListExt and make a copy
   L1TriggerKeyListExt oldKeyList;
+  l1t::DataWriterExt& m_writer = *m_rcdToWriterMap.at("L1TriggerKeyExtRcd@L1TriggerKeyExt");
+
 
   if (!m_newL1TriggerKeyListExt) {
     if (!m_writer.fillLastTriggerKeyList(oldKeyList)) {
@@ -95,7 +109,7 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
 
   if (triggerKeyOK && m_writeL1TriggerKeyExt) {
     edm::LogVerbatim("L1-O2O") << "Object key for L1TriggerKeyExtRcd@L1TriggerKeyExt: " << key.tscKey();
-    token = m_writer.writePayload(iSetup, "L1TriggerKeyExtRcd@L1TriggerKeyExt");
+    token = m_writer.writePayload(iSetup);
   }
 
   // If L1TriggerKeyExt is invalid, then all configuration data is already in DB
@@ -132,7 +146,7 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
             }
 
             try {
-              token = m_writer.writePayload(iSetup, it->first);
+              token = m_rcdToWriterMap.at(it->first)->writePayload(iSetup);
             } catch (l1t::DataInvalidException& ex) {
               edm::LogVerbatim("L1-O2O") << ex.what() << " Skipping to next record.";
 

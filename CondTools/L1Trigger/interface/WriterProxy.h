@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
@@ -12,6 +13,8 @@
 #include "CondTools/L1Trigger/interface/Exception.h"
 
 #include <string>
+
+using namespace edm;
 
 namespace l1t {
 
@@ -32,6 +35,8 @@ namespace l1t {
          * methods here.
          */
 
+    virtual void setToken(edm::ConsumesCollector cc) = 0;
+
     virtual std::string save(const edm::EventSetup& setup) const = 0;
 
   protected:
@@ -41,9 +46,17 @@ namespace l1t {
  * should instaciate a new version of this class and register it in plugin system.
  */
   template <class Record, class Type>
-  class WriterProxyT : public WriterProxy {
+    class WriterProxyT : public WriterProxy {
+
+  private:
+    edm::ESGetToken<Type, Record> rcdToken;
+
   public:
     ~WriterProxyT() override {}
+
+    void setToken(edm::ConsumesCollector cc) override {
+      rcdToken = cc.esConsumes();
+    }
 
     /* This method requires that Record and Type supports copy constructor */
     std::string save(const edm::EventSetup& setup) const override {
@@ -51,7 +64,7 @@ namespace l1t {
       edm::ESHandle<Type> handle;
 
       try {
-        setup.get<Record>().get(handle);
+        handle = setup.getHandle(rcdToken);
       } catch (l1t::DataAlreadyPresentException& ex) {
         return std::string();
       }
