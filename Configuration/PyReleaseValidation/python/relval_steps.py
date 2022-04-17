@@ -3585,6 +3585,14 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
+                                      
+    upgradeStepDict['DigiNoHLT'][k] = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
+                                       '--conditions':gt,
+                                       '--datatier':'GEN-SIM-DIGI-RAW',
+                                       '-n':'10',
+                                       '--eventcontent':'FEVTDEBUGHLT',
+                                       '--geometry' : geom
+                                       }
 
     # Adding Track trigger step in step2
     upgradeStepDict['DigiTrigger'][k] = {'-s':'DIGI:pdigi_valid,L1TrackTrigger,L1,DIGI2RAW,HLT:%s'%(hltversion),
@@ -3594,6 +3602,15 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
+                                      
+    upgradeStepDict['HLT'][k] = {'-s':'HLT:%s'%(hltversion),
+                                 '--conditions':gt,
+                                 '--datatier':'GEN-SIM-DIGI-RAW',
+                                 '-n':'10',
+                                 '--eventcontent':'FEVTDEBUGHLT',
+                                 '--geometry' : geom,
+                                 '--outputCommands' : '"drop *_*_*_GEN,drop *_*_*_DIGI2RAW"'
+                                 }
 
     upgradeStepDict['Reco'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
                                       '--conditions':gt,
@@ -3701,6 +3718,9 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'RECOSIM,MINIAODSIM,NANOEDMAODSIM,DQM',
                                       '--geometry' : geom
                                       }
+                                      
+    upgradeStepDict['RecoNanoHLT'][k] = upgradeStepDict['RecoNano'][k]
+    upgradeStepDict['RecoNanoHLT'][k].update({'--secondfilein': 'file:step2.root', '--filein': 'file:step3.root'})
                                       
     # setup baseline and variations
     for specialType,specialWF in upgradeWFs.items():
