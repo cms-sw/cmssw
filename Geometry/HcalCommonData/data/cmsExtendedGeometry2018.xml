@@ -4,7 +4,8 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref='Geometry/CMSCommonData/data/materials.xml'/>
+    <Include ref='Geometry/CMSCommonData/data/materials/2017/v2/materials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/trackermaterial/2017/v2/trackermaterial.xml'/>
     <Include ref='Geometry/CMSCommonData/data/rotations.xml'/>
     <Include ref='Geometry/CMSCommonData/data/extend/cmsextent.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cms/2017/v1/cms.xml'/>
@@ -22,36 +23,36 @@
     <Include ref='Geometry/CMSCommonData/data/muonMagnet.xml'/>
     <Include ref='Geometry/CMSCommonData/data/cavern.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdMaterials.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/pixfwdMaterials/2017/v2/pixfwdMaterials.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/pixfwdCommon.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdCylinder.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwd.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdDisks.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdSupportRingParameters.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdInnerDiskZplus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdInnerDiskZminus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdOuterDiskZplus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdOuterDiskZminus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeInnerZplus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeInnerZminus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZplus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZminus.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarmaterial.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarladder.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull0.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull1.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull2.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull3.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarlayer.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarlayer0.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarlayer1.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarlayer2.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbarlayer3.xml'/> 
-    <Include ref='Geometry/TrackerCommonData/data/PhaseI/pixbar.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdCylinder.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdDisks.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v3/pixfwd.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdSupportRingParameters.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdInnerDiskZplus.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdInnerDiskZminus.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdOuterDiskZplus.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdOuterDiskZminus.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeInnerZplus.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeInnerZminus.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZplus.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixfwdbladeOuterZminus.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/pixbarmaterial/2017/v1//pixbarmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladder.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull0.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull1.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull2.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull3.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer0.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer1.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer2.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer3.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/PhaseI/v2/pixbar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/Run2/trackerpatchpannel.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/Run2/trackerpixelnose.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/tibtidcommonmaterial.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/tibmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tibtidcommonmaterial/2017/v2/tibtidcommonmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tibmaterial/2017/v2/tibmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibmodule0a.xml'/>
@@ -84,7 +85,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tiblayer2.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tiblayer3.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tib.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/tidmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tidmaterial/2017/v2/tidmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tidmodule0r.xml'/>
@@ -107,7 +108,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tibtidservices.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibtidservicesf.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tibtidservicesb.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/tobmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tobmaterial/2017/v2/tobmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobmodule2.xml'/>
@@ -134,8 +135,8 @@
     <Include ref='Geometry/TrackerCommonData/data/tobrod5l.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobrod5h.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tobrod5.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/v2/tob.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/tecmaterial.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tob/v3/tob.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tecmaterial/2017/v1/tecmaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodpar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodule0.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecmodule0r.xml'/>
@@ -184,7 +185,7 @@
     <Include ref='Geometry/TrackerCommonData/data/tecpetal6b.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecpetal8f.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecpetal8b.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/tecwheel.xml'/>
+    <Include ref='Geometry/TrackerCommonData/data/tecwheel/2017/v1/tecwheel.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecwheela.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecwheelb.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecwheelc.xml'/>
@@ -193,7 +194,6 @@
     <Include ref='Geometry/TrackerCommonData/data/tecservices.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tecbackplate.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/tec.xml'/>
-    <Include ref='Geometry/TrackerCommonData/data/Run2/trackermaterial.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/Run2/tracker.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/trackerpixbar.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerpixfwd.xml'/>
@@ -209,7 +209,7 @@
     <Include ref='Geometry/EcalCommonData/data/ebcon.xml'/>
     <Include ref='Geometry/EcalCommonData/data/ebrot.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eecon.xml'/>
-    <Include ref='Geometry/EcalCommonData/data/eefixed.xml'/>
+    <Include ref='Geometry/EcalCommonData/data/eefixed/2017/v1/eefixed.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eehier.xml'/>
     <Include ref='Geometry/EcalCommonData/data/eealgo.xml'/>
     <Include ref='Geometry/EcalCommonData/data/escon.xml'/>
@@ -222,7 +222,7 @@
     <Include ref='Geometry/HcalCommonData/data/hcalcablealgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalbarrelalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalendcap/PhaseI/hcalendcapalgo.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/average/hcalforwardmaterial.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/2018/hcalSimNumbering.xml'/> 
@@ -252,18 +252,18 @@
     <Include ref='Geometry/ForwardCommonData/data/zdc.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/zdclumi.xml'/>
     <Include ref='Geometry/ForwardCommonData/data/cmszdc.xml'/>
-    <Include ref='Geometry/MuonCommonData/data/muonNumbering/2017/v1/muonNumbering.xml'/>
+    <Include ref='Geometry/MuonCommonData/data/muonNumbering/2017/v2/muonNumbering.xml'/>
     <Include ref='Geometry/TrackerCommonData/data/PhaseI/trackerStructureTopology.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseI/trackersens.xml'/>
-    <Include ref='Geometry/TrackerRecoData/data/PhaseI/trackerRecoMaterial.xml'/>
+    <Include ref='Geometry/TrackerRecoData/data/PhaseI/v1/trackerRecoMaterial.xml'/>
     <Include ref='Geometry/EcalSimData/data/ecalsens.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalsenspmf.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalsens/2017/v1/hcalsenspmf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hf.xml'/>
     <Include ref='Geometry/HcalSimData/data/hfpmt.xml'/>
     <Include ref='Geometry/HcalSimData/data/hffibrebundle.xml'/>
-    <Include ref='Geometry/HcalSimData/data/CaloUtil.xml'/>
+    <Include ref='Geometry/HcalSimData/data/CaloUtil/2017/v1/CaloUtil.xml'/>
     <Include ref='Geometry/MuonSimData/data/v2/muonSens.xml'/>
-    <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter.xml'/>
+    <Include ref='Geometry/DTGeometryBuilder/data/dtSpecsFilter/2017/v1/dtSpecsFilter.xml'/>
     <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecsFilter.xml'/>
     <Include ref='Geometry/CSCGeometryBuilder/data/cscSpecs.xml'/>
     <Include ref='Geometry/RPCGeometryBuilder/data/RPCSpecs.xml'/>
@@ -272,7 +272,7 @@
     <Include ref='Geometry/ForwardCommonData/data/brmsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/castorsens.xml'/>
     <Include ref='Geometry/ForwardSimData/data/zdcsens.xml'/>
-    <Include ref='Geometry/HcalSimData/data/HcalProdCuts.xml'/>
+    <Include ref='Geometry/HcalSimData/data/HcalProdCuts/2017/v1/HcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/EcalProdCuts.xml'/>
     <Include ref='Geometry/EcalSimData/data/ESProdCuts.xml'/>
     <Include ref='Geometry/TrackerSimData/data/PhaseI/trackerProdCuts.xml'/>
@@ -284,3 +284,4 @@
     <Include ref='Geometry/CMSCommonData/data/FieldParameters.xml'/>
   </IncludeSection>
 </DDDefinition>
+
