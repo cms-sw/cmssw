@@ -1,24 +1,35 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/Handle.h"
 
-class TH1D;
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-class ExhumeAnalyzer : public edm::EDAnalyzer {
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
+#include "TH1D.h"
+
+class ExhumeAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ExhumeAnalyzer(const edm::ParameterSet&);
-  ~ExhumeAnalyzer();
+  ~ExhumeAnalyzer() override = default;
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   //virtual void beginJob(const edm::EventSetup& eventSetup);
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
-  edm::InputTag genParticlesTag_;
-
-  double Ebeam_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
+  const double Ebeam_;
 
   // Histograms
   TH1D* hist_eta_;
@@ -32,23 +43,8 @@ private:
   TH1D* hist_MX_;
 };
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "TH1D.h"
-
 ExhumeAnalyzer::ExhumeAnalyzer(const edm::ParameterSet& pset)
-    : genParticlesTag_(pset.getParameter<edm::InputTag>("GenParticleTag")),
+    : genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("GenParticleTag"))),
       Ebeam_(pset.getParameter<double>("EBeam")) {}
 
 void ExhumeAnalyzer::beginJob() {
@@ -65,12 +61,9 @@ void ExhumeAnalyzer::beginJob() {
   hist_MX_ = fs->make<TH1D>("hist_MX", "Missing mass", 100, 80., 150.);
 }
 
-ExhumeAnalyzer::~ExhumeAnalyzer() {}
-
 void ExhumeAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   // Generator Information
-  edm::Handle<reco::GenParticleCollection> genParticles;
-  event.getByLabel(genParticlesTag_, genParticles);
+  const edm::Handle<reco::GenParticleCollection>& genParticles = event.getHandle(genParticlesToken_);
 
   // Look for protons
   double pz1max = 0.;

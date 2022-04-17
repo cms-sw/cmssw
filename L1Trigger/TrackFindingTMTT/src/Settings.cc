@@ -65,6 +65,7 @@ namespace tmtt {
     hybrid_ = true;
     magneticField_ = 0.;  // Value set later
     killScenario_ = 0;    // Emulation of dead modules
+    killRecover_ = false;
 
     if (hybrid_) {
       if (not useApproxB_) {

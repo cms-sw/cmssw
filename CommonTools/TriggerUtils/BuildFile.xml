@@ -1,6 +1,7 @@
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/L1TObjects"/>
 <use name="DataFormats/Common"/>
+<use name="DataFormats/OnlineMetaData"/>
 <use name="DataFormats/Scalers"/>
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="FWCore/Framework"/>

@@ -21,6 +21,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/OnlineMetaData/interface/DCSRecord.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -49,6 +50,9 @@ class TriggerHelper {
   bool andOr_;
   bool andOrDcs_;
   edm::InputTag dcsInputTag_;
+  edm::InputTag dcsRecordInputTag_;
+  edm::EDGetTokenT<DcsStatusCollection> dcsInputToken_;
+  edm::EDGetTokenT<DCSRecord> dcsRecordToken_;
   std::vector<int> dcsPartitions_;
   bool errorReplyDcs_;
   bool andOrGt_;
@@ -64,6 +68,7 @@ class TriggerHelper {
   bool errorReplyL1_;
   bool andOrHlt_;
   edm::InputTag hltInputTag_;
+  edm::EDGetTokenT<edm::TriggerResults> hltInputToken_;
   std::string hltDBKey_;
   std::vector<std::string> hltLogicalExpressions_;
   bool errorReplyHlt_;
@@ -97,11 +102,14 @@ public:
 private:
   // Private methods
 
-  TriggerHelper(const edm::ParameterSet &config);
+  TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &iC);
 
   // DCS
   bool acceptDcs(const edm::Event &event);
-  bool acceptDcsPartition(const edm::Handle<DcsStatusCollection> &dcsStatus, int dcsPartition) const;
+  bool acceptDcsPartition(const edm::Handle<DcsStatusCollection> &dcsStatus,
+                          const edm::Handle<DCSRecord> &dcsRecord,
+                          bool useDCSRecord,
+                          int dcsPartition) const;
 
   // GT status bits
   bool acceptGt(const edm::Event &event);
@@ -132,7 +140,7 @@ TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesColle
 
 template <typename T>
 TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &iC, T &module)
-    : TriggerHelper(config) {
+    : TriggerHelper(config, iC) {
   if (onL1_ && (!l1DBKey_.empty() || !l1LogicalExpressions_.empty())) {
     l1Gt_ = std::make_unique<L1GtUtils>(config, iC, false, module, L1GtUtils::UseEventSetupIn::Event);
   }

@@ -275,6 +275,9 @@ initialStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.cl
 )
 fastSim.toModify(initialStepTracks, TTRHBuilder = 'WithoutRefit')
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(initialStepTracks, TrajectoryInEvent = True)
+
 #vertices
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices as _offlinePrimaryVertices
 firstStepPrimaryVerticesUnsorted = _offlinePrimaryVertices.clone(

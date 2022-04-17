@@ -71,8 +71,11 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
   m_ExtendedCands.reserve(20);
 
   // set configuration parameters
-  if (!m_config)
-    m_config = new L1MuGMTConfig(ps);
+  if (not m_config) {
+    auto temp = std::make_shared<L1MuGMTConfig>(ps);
+    std::shared_ptr<L1MuGMTConfig> empty;
+    std::atomic_compare_exchange_strong(&m_config, &empty, temp);
+  }
   m_writeLUTsAndRegs = ps.getUntrackedParameter<bool>("WriteLUTsAndRegs", false);
 
   // build GMT
@@ -119,8 +122,11 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
     edm::LogVerbatim("GMT_info") << "creating GMT Sorter";
   m_Sorter = new L1MuGMTSorter(*this);  // barrel
 
-  if (!m_db)
-    m_db = new L1MuGMTDebugBlock(m_config->getBxMin(), m_config->getBxMax());
+  if (not m_db) {
+    auto temp = std::make_shared<L1MuGMTDebugBlock>(m_config->getBxMin(), m_config->getBxMax());
+    std::shared_ptr<L1MuGMTDebugBlock> empty;
+    std::atomic_compare_exchange_strong(&m_db, &empty, temp);
+  }
   usesResource("L1MuGlobalMuonTrigger");
   ///EventSetup Tokens
   m_gmtScalesToken = esConsumes<L1MuGMTScales, L1MuGMTScalesRcd>();
@@ -135,10 +141,6 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
 // Destructor --
 //--------------
 L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
-  if (m_db)
-    delete m_db;
-  m_db = nullptr;
-
   delete m_Sorter;
   delete m_Merger[1];         // endcap Merger
   delete m_Merger[0];         // barrel Merger
@@ -151,10 +153,6 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
   delete m_Matcher[1];        // endcap matcher
   delete m_Matcher[0];        // barrel matcher
   delete m_PSB;
-
-  if (m_config)
-    delete m_config;
-  m_config = nullptr;
 
   // copied from produce() by Jim B, 7 Aug 2007
   std::vector<L1MuGMTReadoutRecord*>::iterator irr = m_ReadoutRingbuffer.begin();
@@ -452,5 +450,5 @@ std::unique_ptr<L1MuGMTReadoutCollection> L1MuGlobalMuonTrigger::getReadoutColle
 
 // static data members
 
-L1MuGMTConfig* L1MuGlobalMuonTrigger::m_config = nullptr;
-L1MuGMTDebugBlock* L1MuGlobalMuonTrigger::m_db = nullptr;
+std::shared_ptr<L1MuGMTConfig> L1MuGlobalMuonTrigger::m_config;
+std::shared_ptr<L1MuGMTDebugBlock> L1MuGlobalMuonTrigger::m_db;

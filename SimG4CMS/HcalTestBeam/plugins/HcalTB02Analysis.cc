@@ -81,9 +81,9 @@ private:
   std::unique_ptr<HcalTB02Histo> histo;
 
   // to read from parameter set
-  bool hcalOnly;
-  std::string fileNameTuple;
-  std::vector<std::string> names;
+  const edm::ParameterSet m_Anal;
+  const bool hcalOnly;
+  const std::vector<std::string> names;
 
   //To be saved
   std::map<int, float> energyInScints, energyInCrystals;
@@ -103,11 +103,10 @@ private:
 // constructors and destructor
 //
 
-HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p) {
-  edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("HcalTB02Analysis");
-  hcalOnly = m_Anal.getUntrackedParameter<bool>("HcalClusterOnly", true);
-  names = m_Anal.getParameter<std::vector<std::string> >("Names");
-
+HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p)
+    : m_Anal(p.getParameter<edm::ParameterSet>("HcalTB02Analysis")),
+      hcalOnly(m_Anal.getUntrackedParameter<bool>("HcalClusterOnly", true)),
+      names(m_Anal.getParameter<std::vector<std::string> >("Names")) {
   produces<HcalTB02HistoClass>();
 
   edm::LogVerbatim("HcalTBSim") << "HcalTB02Analysis:: Initialised as observer of "

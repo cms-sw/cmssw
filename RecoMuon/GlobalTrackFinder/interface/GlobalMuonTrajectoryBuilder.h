@@ -14,6 +14,7 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 namespace edm {
   class ParameterSet;
@@ -48,5 +49,9 @@ private:
   edm::InputTag theTkTrackLabel;
   edm::EDGetTokenT<reco::TrackCollection> allTrackerTracksToken;
   edm::Handle<reco::TrackCollection> allTrackerTracks;
+  edm::InputTag thePrimaryVtxLabel;
+  edm::EDGetTokenT<reco::VertexCollection> primaryVertexToken;
+  edm::Handle<reco::VertexCollection> vertexCollection;
+  bool selectHighPurity_;
 };
 #endif

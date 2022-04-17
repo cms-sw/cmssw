@@ -66,8 +66,14 @@ public:
 private:
   // HSc trigger cell grouping
   unsigned hSc_triggercell_size_ = 2;
-  unsigned hSc_module_size_ = 12;  // in TC units (144 TC / panel = 36 e-links)
-  unsigned hSc_wafers_per_module_ = 3;
+  static constexpr unsigned hSc_num_panels_per_sector_ = 12;
+  static constexpr unsigned hSc_tcs_per_module_phi_ = 4;
+  static constexpr unsigned hSc_front_layers_split_ = 12;
+  static constexpr unsigned hSc_back_layers_split_ = 8;
+  static constexpr unsigned hSc_layer_for_split_ = 40;
+  static constexpr int hSc_tc_layer0_min_ = 24;
+  static constexpr int ntc_per_wafer_ = 48;
+  static constexpr int nSectors_ = 3;
 
   edm::FileInPath jsonMappingFile_;
 
@@ -78,6 +84,7 @@ private:
   std::unordered_map<unsigned, unsigned> links_per_module_;
 
   std::unordered_multimap<unsigned, unsigned> stage2_to_stage1links_;
+  std::unordered_map<unsigned, bool> stage1links_samesector_;
   std::unordered_map<unsigned, unsigned> stage1link_to_stage2_;
   std::unordered_map<unsigned, unsigned> stage1link_to_stage1_;
   std::unordered_multimap<unsigned, unsigned> stage1_to_stage1links_;
@@ -92,9 +99,6 @@ private:
   std::vector<unsigned> trigger_layers_;
   std::vector<unsigned> trigger_nose_layers_;
   unsigned last_trigger_layer_ = 0;
-
-  //Scintillator layout
-  unsigned hSc_num_panels_per_sector_ = 8;
 
   // layer offsets
   unsigned heOffset_ = 0;
@@ -111,7 +115,8 @@ private:
   void unpackLayerSubdetWaferId(unsigned wafer, unsigned& layer, int& subdet, int& waferU, int& waferV) const;
   HGCalGeomRotation::WaferCentring getWaferCentring(unsigned layer, int subdet) const;
   void etaphiMappingFromSector0(int& ieta, int& iphi, unsigned sector) const;
-  unsigned etaphiMappingToSector0(int& ieta, int& iphi) const;
+  unsigned tcEtaphiMappingToSector0(int& tc_ieta, int& tc_iphi) const;
+  void getScintillatoriEtaiPhi(int& ieta, int& iphi, int tc_eta, int tc_phi, unsigned layer) const;
   unsigned layerWithOffset(unsigned) const;
   unsigned getNextSector(const unsigned sector) const;
   unsigned getPreviousSector(const unsigned sector) const;
@@ -120,19 +125,14 @@ private:
 HGCalTriggerGeometryV9Imp3::HGCalTriggerGeometryV9Imp3(const edm::ParameterSet& conf)
     : HGCalTriggerGeometryBase(conf),
       hSc_triggercell_size_(conf.getParameter<unsigned>("ScintillatorTriggerCellSize")),
-      hSc_module_size_(conf.getParameter<unsigned>("ScintillatorModuleSize")),
       jsonMappingFile_(conf.getParameter<edm::FileInPath>("JsonMappingFile")) {
-  const unsigned ntc_per_wafer = 48;
-  hSc_wafers_per_module_ = std::round(hSc_module_size_ * hSc_module_size_ / float(ntc_per_wafer));
-  if (ntc_per_wafer * hSc_wafers_per_module_ < hSc_module_size_ * hSc_module_size_) {
-    hSc_wafers_per_module_++;
-  }
   std::vector<unsigned> tmp_vector = conf.getParameter<std::vector<unsigned>>("DisconnectedLayers");
   std::move(tmp_vector.begin(), tmp_vector.end(), std::inserter(disconnected_layers_, disconnected_layers_.end()));
 }
 
 void HGCalTriggerGeometryV9Imp3::reset() {
   stage2_to_stage1links_.clear();
+  stage1links_samesector_.clear();
   stage1link_to_stage2_.clear();
   stage1link_to_stage1_.clear();
   stage1_to_stage1links_.clear();
@@ -261,11 +261,12 @@ unsigned HGCalTriggerGeometryV9Imp3::getModuleFromTriggerCell(const unsigned tri
     tc_type = trigger_cell_sc_id.type();
     layer = trigger_cell_sc_id.layer();
     zside = trigger_cell_sc_id.zside();
-    int ietamin = hscTopology().dddConstants().getREtaRange(layer).first;
-    int ietamin_tc = ((ietamin - 1) / hSc_triggercell_size_ + 1);
-    int ieta = ((trigger_cell_sc_id.ietaAbs() - ietamin_tc) / hSc_module_size_ + 1);
-    int iphi = (trigger_cell_sc_id.iphi() - 1) / hSc_module_size_ + 1;
-    unsigned sector = etaphiMappingToSector0(ieta, iphi);
+    int tc_eta = trigger_cell_sc_id.ietaAbs();
+    int tc_phi = trigger_cell_sc_id.iphi();
+    unsigned sector = tcEtaphiMappingToSector0(tc_eta, tc_phi);
+    int ieta = 0;
+    int iphi = 0;
+    getScintillatoriEtaiPhi(ieta, iphi, tc_eta, tc_phi, layer);
     module_id =
         HGCalTriggerModuleDetId(HGCalTriggerSubdetector::HGCalHScTrigger, zside, tc_type, layer, sector, ieta, iphi);
   }
@@ -385,15 +386,28 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getTriggerCellsFr
   geom_set trigger_cell_det_ids;
   // Scintillator
   if (subdet == HGCalTriggerSubdetector::HGCalHScTrigger) {
-    int ietamin = hscTopology().dddConstants().getREtaRange(hgc_module_id.layer()).first;
-    int ietamin_tc = ((ietamin - 1) / hSc_triggercell_size_ + 1);
-    int ieta0 = (hgc_module_id.eta() - 1) * hSc_module_size_ + ietamin_tc;
+    int ieta0 = hgc_module_id.eta();
     int iphi0 = hgc_module_id.phi();
+
+    unsigned layer = hgc_module_id.layer();
     etaphiMappingFromSector0(ieta0, iphi0, hgc_module_id.sector());
-    iphi0 = (iphi0 - 1) * hSc_module_size_ + 1;
-    for (int ietaAbs = ieta0; ietaAbs < ieta0 + (int)hSc_module_size_; ietaAbs++) {
+    int split = (layer > hSc_layer_for_split_) ? hSc_back_layers_split_ : hSc_front_layers_split_;
+    if (ieta0 == 1) {
+      ieta0 = ieta0 + split;
+    } else {
+      ieta0 = ieta0 + 1;
+    }
+    iphi0 = (iphi0 * hSc_tcs_per_module_phi_) + hSc_tc_layer0_min_ + 1;
+    int total_tcs = hSc_num_panels_per_sector_ * hSc_tcs_per_module_phi_ * nSectors_;
+    if (iphi0 > total_tcs) {
+      iphi0 = iphi0 - total_tcs;
+    }
+
+    int hSc_tcs_per_module_eta = (layer > hSc_layer_for_split_) ? hSc_back_layers_split_ : hSc_front_layers_split_;
+
+    for (int ietaAbs = ieta0; ietaAbs < ieta0 + (int)hSc_tcs_per_module_eta; ietaAbs++) {
       int ieta = ietaAbs * hgc_module_id.zside();
-      for (int iphi = iphi0; iphi < iphi0 + (int)hSc_module_size_; iphi++) {
+      for (int iphi = iphi0; iphi < iphi0 + (int)hSc_tcs_per_module_phi_; iphi++) {
         unsigned trigger_cell_id = HGCScintillatorDetId(hgc_module_id.type(), hgc_module_id.layer(), ieta, iphi);
         if (validTriggerCellFromCells(trigger_cell_id))
           trigger_cell_det_ids.emplace(trigger_cell_id);
@@ -449,12 +463,28 @@ HGCalTriggerGeometryBase::geom_ordered_set HGCalTriggerGeometryV9Imp3::getOrdere
 
   // Scintillator
   if (subdet == HGCalTriggerSubdetector::HGCalHScTrigger) {
-    int ieta0 = hgc_module_id.eta() * hSc_module_size_;
-    int iphi0 = (hgc_module_id.phi() * (hgc_module_id.sector() + 1)) * hSc_module_size_;
+    int ieta0 = hgc_module_id.eta();
+    int iphi0 = hgc_module_id.phi();
 
-    for (int ietaAbs = ieta0; ietaAbs < ieta0 + (int)hSc_module_size_; ietaAbs++) {
+    unsigned layer = hgc_module_id.layer();
+    etaphiMappingFromSector0(ieta0, iphi0, hgc_module_id.sector());
+    int split = (layer > hSc_layer_for_split_) ? hSc_back_layers_split_ : hSc_front_layers_split_;
+    if (ieta0 == 1) {
+      ieta0 = ieta0 + split;
+    } else {
+      ieta0 = ieta0 + 1;
+    }
+    iphi0 = (iphi0 * hSc_tcs_per_module_phi_) + hSc_tc_layer0_min_ + 1;
+    int total_tcs = hSc_num_panels_per_sector_ * hSc_tcs_per_module_phi_ * nSectors_;
+    if (iphi0 > total_tcs) {
+      iphi0 = iphi0 - total_tcs;
+    }
+
+    int hSc_tcs_per_module_eta = (layer > hSc_layer_for_split_) ? hSc_back_layers_split_ : hSc_front_layers_split_;
+
+    for (int ietaAbs = ieta0; ietaAbs < ieta0 + (int)hSc_tcs_per_module_eta; ietaAbs++) {
       int ieta = ietaAbs * hgc_module_id.zside();
-      for (int iphi = iphi0; iphi < iphi0 + (int)hSc_module_size_; iphi++) {
+      for (int iphi = iphi0; iphi < iphi0 + (int)hSc_tcs_per_module_phi_; iphi++) {
         unsigned trigger_cell_id = HGCScintillatorDetId(hgc_module_id.type(), hgc_module_id.layer(), ieta, iphi);
         if (validTriggerCellFromCells(trigger_cell_id))
           trigger_cell_det_ids.emplace(trigger_cell_id);
@@ -575,17 +605,15 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1LinksFro
     const unsigned stage2_id) const {
   geom_set stage1link_ids;
   HGCalTriggerBackendDetId id(stage2_id);
-
   auto stage2_itrs = stage2_to_stage1links_.equal_range(id.label());
   for (auto stage2_itr = stage2_itrs.first; stage2_itr != stage2_itrs.second; stage2_itr++) {
-    if (stage2_itr->second == true) {  //link and stage2 FPGA are the same sector
-      stage1link_ids.emplace(HGCalTriggerBackendDetId(
-          id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1Link, id.sector(), stage2_itr->second));
+    unsigned label = stage2_itr->second;
+    if (stage1links_samesector_.at(label) == true) {  //link and stage2 FPGA are the same sector
+      stage1link_ids.emplace(
+          HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1Link, id.sector(), label));
     } else {  //link is from the next sector (anti-clockwise)
-      stage1link_ids.emplace(HGCalTriggerBackendDetId(id.zside(),
-                                                      HGCalTriggerBackendDetId::BackendType::Stage1Link,
-                                                      getNextSector(id.sector()),
-                                                      stage2_itr->second));
+      stage1link_ids.emplace(HGCalTriggerBackendDetId(
+          id.zside(), HGCalTriggerBackendDetId::BackendType::Stage1Link, getNextSector(id.sector()), label));
     }
   }
 
@@ -615,7 +643,6 @@ unsigned HGCalTriggerGeometryV9Imp3::getStage2FpgaFromStage1Link(const unsigned 
 HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1LinksFromStage1Fpga(
     const unsigned stage1_id) const {
   geom_set stage1link_ids;
-
   HGCalTriggerBackendDetId id(stage1_id);
 
   auto stage1_itrs = stage1_to_stage1links_.equal_range(id.label());
@@ -781,8 +808,11 @@ void HGCalTriggerGeometryV9Imp3::fillMaps() {
   try {
     //Stage 2 to Stage 1 links mapping
     for (unsigned stage2_id = 0; stage2_id < mapping_config.at("Stage2").size(); stage2_id++) {
-      for (auto& link : mapping_config.at("Stage2").at(stage2_id).at("Stage1Links")) {
-        stage2_to_stage1links_.emplace(stage2_id, link.at("SameSector"));
+      for (unsigned link_id = 0; link_id < mapping_config.at("Stage2").at(stage2_id).at("Stage1Links").size();
+           link_id++) {
+        stage2_to_stage1links_.emplace(stage2_id, link_id);
+        stage1links_samesector_.emplace(
+            link_id, mapping_config.at("Stage2").at(stage2_id).at("Stage1Links").at(link_id).at("SameSector"));
       }
     }
   } catch (const json::exception& e) {
@@ -902,7 +932,11 @@ void HGCalTriggerGeometryV9Imp3::etaphiMappingFromSector0(int& ieta, int& iphi, 
   if (sector == 0) {
     return;
   }
-  iphi = iphi + (sector * hSc_num_panels_per_sector_);
+  if (sector == 2) {
+    iphi = iphi + hSc_num_panels_per_sector_;
+  } else if (sector == 1) {
+    iphi = iphi + (2 * hSc_num_panels_per_sector_);
+  }
 }
 
 HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV9Imp3::getWaferCentring(unsigned layer, int subdet) const {
@@ -923,19 +957,44 @@ HGCalGeomRotation::WaferCentring HGCalTriggerGeometryV9Imp3::getWaferCentring(un
   }
 }
 
-unsigned HGCalTriggerGeometryV9Imp3::etaphiMappingToSector0(int& ieta, int& iphi) const {
+unsigned HGCalTriggerGeometryV9Imp3::tcEtaphiMappingToSector0(int& tc_ieta, int& tc_iphi) const {
   unsigned sector = 0;
 
-  if (unsigned(std::abs(iphi)) > 2 * hSc_num_panels_per_sector_)
-    sector = 2;
-  else if (unsigned(std::abs(iphi)) > hSc_num_panels_per_sector_)
-    sector = 1;
-  else
+  if (tc_iphi > hSc_tc_layer0_min_ && tc_iphi <= hSc_tc_layer0_min_ + ntc_per_wafer_) {
     sector = 0;
+  } else if (tc_iphi > hSc_tc_layer0_min_ + ntc_per_wafer_ && tc_iphi <= hSc_tc_layer0_min_ + 2 * ntc_per_wafer_) {
+    sector = 2;
+  } else {
+    sector = 1;
+  }
 
-  iphi = iphi - (sector * hSc_num_panels_per_sector_);
+  if (sector == 0) {
+    tc_iphi = tc_iphi - hSc_tc_layer0_min_;
+  } else if (sector == 2) {
+    tc_iphi = tc_iphi - (hSc_tc_layer0_min_ + ntc_per_wafer_);
+  } else if (sector == 1) {
+    if (tc_iphi <= hSc_tc_layer0_min_) {
+      tc_iphi = tc_iphi + nSectors_ * ntc_per_wafer_;
+    }
+    tc_iphi = tc_iphi - (nSectors_ * ntc_per_wafer_ - hSc_tc_layer0_min_);
+  }
 
   return sector;
+}
+
+void HGCalTriggerGeometryV9Imp3::getScintillatoriEtaiPhi(
+    int& ieta, int& iphi, int tc_eta, int tc_phi, unsigned layer) const {
+  iphi = (tc_phi - 1) / hSc_tcs_per_module_phi_;  //Phi index 1-12
+
+  int split = hSc_front_layers_split_;
+  if (layer > hSc_layer_for_split_) {
+    split = hSc_back_layers_split_;
+  }
+  if (tc_eta <= split) {
+    ieta = 0;
+  } else {
+    ieta = 1;
+  }
 }
 
 bool HGCalTriggerGeometryV9Imp3::validTriggerCell(const unsigned trigger_cell_id) const {

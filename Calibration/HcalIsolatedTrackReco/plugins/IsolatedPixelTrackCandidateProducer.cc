@@ -180,18 +180,15 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
                                    << " candidates to start with\n";
 #endif
   for (unsigned int iPix = 0; iPix < toks_pix_.size(); iPix++) {
-    edm::Handle<reco::TrackCollection> iPixCol;
-    theEvent.getByToken(toks_pix_[iPix], iPixCol);
+    const edm::Handle<reco::TrackCollection>& iPixCol = theEvent.getHandle(toks_pix_[iPix]);
     for (reco::TrackCollection::const_iterator pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
       pixelTrackRefs.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
     }
   }
 
-  edm::Handle<l1extra::L1JetParticleCollection> l1eTauJets;
-  theEvent.getByToken(tok_l1_, l1eTauJets);
+  const edm::Handle<l1extra::L1JetParticleCollection>& l1eTauJets = theEvent.getHandle(tok_l1_);
 
-  edm::Handle<reco::VertexCollection> pVert;
-  theEvent.getByToken(tok_vert_, pVert);
+  const edm::Handle<reco::VertexCollection>& pVert = theEvent.getHandle(tok_vert_);
 
   double drMaxL1Track_ = tauAssocCone_;
 

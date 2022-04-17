@@ -439,7 +439,11 @@ HLT_HIUPC_SingleEG5_BptxAND_MaxPixelTrack_v*
 HLT_HIUPC_DoubleEG2_BptxAND_MaxPixelTrack_v*
 HLT_HIUPC_DoubleEG5_BptxAND_MaxPixelTrack_v*
 
+HLT_HIOnlineMonitorGroup_v* # CMSHLT-2245
+
 HLTriggerFinalPath
+
+## EndPaths / FinalPaths ##
 
 HIDQMOutput
 HIDQMEventDisplayOutput

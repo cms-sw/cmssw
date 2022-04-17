@@ -248,6 +248,11 @@ muonSeededStepCoreTask = cms.Task(
 muonSeededStepCore = cms.Sequence(muonSeededStepCoreTask)
 #Phase2 : just muon Seed InOut is used in this moment
 #trackingPhase2PU140.toReplaceWith(muonSeededStepCore, muonSeededStepCoreInOut)
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(muonSeededTracksInOut, TrajectoryInEvent = True)
+phase2_timing_layer.toModify(muonSeededTracksOutIn, TrajectoryInEvent = True)
+
 muonSeededStepExtraInOutTask = cms.Task(
     muonSeededTracksInOutClassifier
 )

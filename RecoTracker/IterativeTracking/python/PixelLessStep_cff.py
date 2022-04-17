@@ -355,6 +355,8 @@ pixelLessStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
 )
 fastSim.toModify(pixelLessStepTracks, TTRHBuilder = 'WithoutRefit')
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(pixelLessStepTracks, TrajectoryInEvent = True)
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *

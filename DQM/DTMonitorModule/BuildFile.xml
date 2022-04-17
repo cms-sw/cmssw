@@ -13,7 +13,6 @@
 <use name="CalibMuon/DTDigiSync"/>
 <use name="RecoMuon/MeasurementDet"/>
 <use name="RecoMuon/TrackingTools"/>
-<use name="HLTrigger/HLTcore"/>
 <use name="TrackPropagation/SteppingHelixPropagator"/>
 <use name="boost"/>
 <use name="rootgraphics"/>

@@ -5,7 +5,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,7 +24,7 @@ class TestCategory;
 ///This is an example of how to use the AlgorithmCalibration stuff
 // to read the calibrated objects from a .xml file
 
-class XMLCalibrationTest : public edm::EDAnalyzer {
+class XMLCalibrationTest : public edm::one::EDAnalyzer<> {
 public:
   explicit XMLCalibrationTest(const edm::ParameterSet&);
   ~XMLCalibrationTest();

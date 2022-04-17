@@ -16,6 +16,11 @@ namespace HepMCValidationHelper {
     return a->momentum().perp() > b->momentum().perp();
   }
 
+  template <class T>
+  inline bool sortByPtRef(const T lhs, const T rhs) {
+    return lhs->pt() > rhs->pt();
+  }
+
   //sort by energy
   inline bool sortByE(const HepMC::GenParticle* a, const HepMC::GenParticle* b) {
     return a->momentum().e() > b->momentum().e();

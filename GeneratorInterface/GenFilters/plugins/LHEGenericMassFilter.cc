@@ -23,11 +23,10 @@ using namespace std;
 class LHEGenericMassFilter : public edm::global::EDFilter<> {
 public:
   explicit LHEGenericMassFilter(const edm::ParameterSet&);
-  ~LHEGenericMassFilter() override;
+  ~LHEGenericMassFilter() override = default;
 
 private:
   bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
-  void endJob() override;
 
   // ----------member data ---------------------------
 
@@ -44,11 +43,6 @@ LHEGenericMassFilter::LHEGenericMassFilter(const edm::ParameterSet& iConfig)
       particleID_(iConfig.getParameter<std::vector<int> >("ParticleID")),
       minMass_(iConfig.getParameter<double>("MinMass")),
       maxMass_(iConfig.getParameter<double>("MaxMass")) {}
-
-LHEGenericMassFilter::~LHEGenericMassFilter() {
-  // do anything here that needs to be done at destruction time
-  // (e.g. close files, deallocate resources etc.)
-}
 
 // ------------ method called to skim the data  ------------
 bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
@@ -82,16 +76,13 @@ bool LHEGenericMassFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::Ev
 
   // event accept/reject logic
   if (nFound == numRequired_) {
-    double Mass = std::sqrt(E * E - (Px * Px + Py * Py + Pz * Pz));
-    if (Mass > minMass_ && Mass < maxMass_) {
+    double sqrdMass = E * E - (Px * Px + Py * Py + Pz * Pz);
+    if (sqrdMass > minMass_ * minMass_ && sqrdMass < maxMass_ * maxMass_) {
       return true;
     }
   }
   return false;
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void LHEGenericMassFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(LHEGenericMassFilter);

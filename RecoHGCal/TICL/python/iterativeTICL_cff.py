@@ -12,6 +12,7 @@ from RecoHGCal.TICL.HADStep_cff import *
 from RecoHGCal.TICL.ticlLayerTileProducer_cfi import ticlLayerTileProducer
 from RecoHGCal.TICL.pfTICLProducer_cfi import pfTICLProducer as _pfTICLProducer
 from RecoHGCal.TICL.trackstersMergeProducer_cfi import trackstersMergeProducer as _trackstersMergeProducer
+from RecoHGCal.TICL.tracksterSelectionTf_cfi import *
 
 ticlLayerTileTask = cms.Task(ticlLayerTileProducer)
 

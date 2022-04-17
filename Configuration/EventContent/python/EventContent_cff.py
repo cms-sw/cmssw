@@ -66,7 +66,7 @@ from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import *
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
 from EventFilter.OnlineMetaDataRawToDigi.OnlineMetaData_EventContent_cff import *
-from EventFilter.Utilities.Tcds_EventContent_cff import *
+from EventFilter.OnlineMetaDataRawToDigi.Tcds_EventContent_cff import *
 
 #DigiToRaw content
 from EventFilter.Configuration.DigiToRaw_EventContent_cff import *

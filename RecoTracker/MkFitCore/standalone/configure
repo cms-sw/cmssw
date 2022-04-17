@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# Setup for standalone build. To be further improved.
+
+path=$1
+
+if [ -z "$path" ] || [ ! -d "$path" ]; then
+    echo "Argument must be an existing directory."
+    exit 1
+fi
+
+if [ ! -d "$path/RecoTracker" ] ||
+   [ ! -d "$path/RecoTracker/MkFitCore" ] ||
+   [ ! -d "$path/RecoTracker/MkFitCMS" ]; then
+    echo "Source directory must contain RecoTracker/MkFitCore/ and RecoTracker/MkFitCMS/."
+    exit 1
+fi
+
+mkdir -p objs-Core objs-Core-Geoms objs-CMS objs-CMS-Geoms
+
+git clone git@github.com:trackreco/mkFit-external.git
+
+sa=$path/RecoTracker/MkFitCore/standalone
+
+### ln -fs $sa/Makefile.config .
+
+cat > Makefile <<END
+export SRCDIR := $path
+export SADIR  := $path/RecoTracker/MkFitCore/standalone
+export SACMS  := $path/RecoTracker/MkFitCMS/standalone
+
+### include Makefile.config
+
+all:
+
+
+SUBPKGS := Core CylCowWLids CMS
+
+%:
+	\${MAKE} -C objs-Core -f \${SADIR}/Makefile \$@
+	\${MAKE} -C objs-Core-Geoms -f \${SADIR}/Geoms/Makefile \$@
+	\${MAKE} -C objs-CMS -f \${SACMS}/Makefile \$@
+	\${MAKE} -C objs-CMS-Geoms -f \${SACMS}/Geoms/Makefile \$@
+END

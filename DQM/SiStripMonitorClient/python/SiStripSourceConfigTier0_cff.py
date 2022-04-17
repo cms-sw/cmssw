@@ -70,13 +70,24 @@ SiStripMonitorClusterBPTX = SiStripMonitorCluster.clone(
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toModify(SiStripMonitorClusterBPTX, 
-    BPTXfilter = dict(
-        stage2 = cms.bool(True),
-        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
-        l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
-        ReadPrescalesFromFile = cms.bool(True)
-    )
-)
+                         BPTXfilter = dict(
+                             stage2 = cms.bool(True),
+                             l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             ReadPrescalesFromFile = cms.bool(True)
+                         ),
+                         PixelDCSfilter = dict(
+                             stage2 = cms.bool(True),
+                             l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             ReadPrescalesFromFile = cms.bool(True)),
+                         StripDCSfilter = dict(
+                             stage2 = cms.bool(True),
+                             l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+                             ReadPrescalesFromFile = cms.bool(True)
+                         )
+                        )
 
 # refitter ### (FIXME rename, move)
 from DQM.SiPixelMonitorTrack.RefitterForPixelDQM import *

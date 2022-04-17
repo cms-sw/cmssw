@@ -194,5 +194,6 @@ void RegressionHelper::applyCombinationRegression(reco::GsfElectron& ele) const 
                                         combinedMomentum);
 
     ele.setP4(reco::GsfElectron::P4_COMBINATION, newMomentum, combinedMomentumError, true);
+    ele.setMass(0.0);
   }
 }

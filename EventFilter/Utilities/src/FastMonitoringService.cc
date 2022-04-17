@@ -432,7 +432,7 @@ namespace evf {
 
     //build a map of modules keyed by their module description address
     //here we need to treat output modules in a special way so they can be easily singled out
-    if (desc.moduleName() == "Stream" || desc.moduleName() == "ShmStreamConsumer" ||
+    if (desc.moduleName() == "Stream" || desc.moduleName() == "GlobalEvFOutputModule" ||
         desc.moduleName() == "EvFOutputModule" || desc.moduleName() == "EventStreamFileWriter" ||
         desc.moduleName() == "PoolOutputModule") {
       fmt_->m_data.encModule_.updateReserved((void*)&desc);

@@ -35,6 +35,15 @@ echo -e " Done with the readers \n\n"
 
 sleep 5
 
+## do the builders from file
+for entry in "${LOCAL_TEST_DIR}/"SiStrip*FromASCIIFile_cfg.py
+do
+  echo "===== Test \"cmsRun $entry \" ===="
+  (cmsRun $entry) || die "Failure using cmsRun $entry" $?
+done
+
+echo -e " Done with the builders from file \n\n"
+
 ## do the miscalibrators
 for entry in "${LOCAL_TEST_DIR}/"SiStrip*Miscalibrator_cfg.py
 do
@@ -68,3 +77,9 @@ sqlite3 gainManipulations.db "select * from IOV"
 
 (cmsRun ${LOCAL_TEST_DIR}/SiStripApvGainRescaler_cfg.py additionalConds=sqlite_file:${PWD}/gainManipulations.db) || die "Failure using cmsRun SiStripApvGainRescaler_cfg.py)" $?
 echo -e " Done with the gain rescaler \n\n"
+
+## do the visualization code
+
+(cmsRun "${LOCAL_TEST_DIR}/"SiStripCondVisualizer_cfg.py) || die "Failure using cmsRun SiStripCondVisualizer_cfg.py" $?
+(python3 "${LOCAL_TEST_DIR}/"db_tree_dump_wrapper.py) || die "Failure running python3 db_tree_dump_wrapper.py" $?
+echo -e " Done with the visualization \n\n"

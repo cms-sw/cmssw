@@ -1,0 +1,1185 @@
+<?xml version="1.0"?>
+<!--
+============= XML GENERATION METADATA HEADER =============
+tkLayout revision: dev-jan-21-3457-cebbdc7
+tkLayout developed by https://github.com/tkLayout/tkLayout/graphs/contributors .
+Adinda De Wit (adewit on lxplus733.cern.ch) responsible for cross-check of the automatically-generated description below.
+generation date: 2021-04-15.11:52:52
+note: see OT801_IT800_2021_04_15.cfg for full config files
+=========== END XML GENERATION METADATA HEADER ===========
+-->
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<SpecParSection label="spec-pars2.xml">
+     <SpecPar name="FullTrackerPar">
+       <PartSelector path="//Tracker" />
+       <Parameter name="TkDDDStructure" value="FullTracker"/>
+     </SpecPar>
+<SpecPar name="Phase2PixelBarrelPar">
+<PartSelector path="//Phase2PixelBarrel"/>
+<Parameter name="TkDDDStructure" value="PixelPhase2Barrel"/>
+</SpecPar>
+<SpecPar name="PixelBarrelLayerPar">
+<PartSelector path="//ITLayer1"/>
+<PartSelector path="//ITLayer2"/>
+<PartSelector path="//ITLayer3"/>
+<PartSelector path="//ITLayer4"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelLayer"/>
+</SpecPar>
+<SpecPar name="Phase2PixelBarrelRodPar">
+<PartSelector path="//ITLayer1RodUnflipped"/>
+<PartSelector path="//ITLayer1RodFlipped"/>
+<PartSelector path="//ITLayer2RodUnflipped"/>
+<PartSelector path="//ITLayer2RodFlipped"/>
+<PartSelector path="//ITLayer3RodUnflipped"/>
+<PartSelector path="//ITLayer3RodFlipped"/>
+<PartSelector path="//ITLayer4RodUnflipped"/>
+<PartSelector path="//ITLayer4RodFlipped"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelLadder"/>
+</SpecPar>
+<SpecPar name="PixelPhase2EndcapSubDetPar">
+<PartSelector path="//Phase2PixelEndcap"/>
+<Parameter name="TkDDDStructure" value="PixelPhase2EndcapSubDet"/>
+</SpecPar>
+<SpecPar name="PixelEndcapDoubleDiskPar">
+<PartSelector path="//ITDisc1"/>
+<PartSelector path="//ITDisc2"/>
+<PartSelector path="//ITDisc3"/>
+<PartSelector path="//ITDisc4"/>
+<PartSelector path="//ITDisc5"/>
+<PartSelector path="//ITDisc6"/>
+<PartSelector path="//ITDisc7"/>
+<PartSelector path="//ITDisc8"/>
+<PartSelector path="//ITDisc9"/>
+<PartSelector path="//ITDisc10"/>
+<PartSelector path="//ITDisc11"/>
+<PartSelector path="//ITDisc12"/>
+<Parameter name="TkDDDStructure" value="PixelPhase2EndcapDoubleDisk"/>
+</SpecPar>
+<SpecPar name="PixelEndcapSubDiskPar">
+<PartSelector path="//ITDisc1SubDisk1"/>
+<PartSelector path="//ITDisc1SubDisk2"/>
+<PartSelector path="//ITDisc2SubDisk1"/>
+<PartSelector path="//ITDisc2SubDisk2"/>
+<PartSelector path="//ITDisc3SubDisk1"/>
+<PartSelector path="//ITDisc3SubDisk2"/>
+<PartSelector path="//ITDisc4SubDisk1"/>
+<PartSelector path="//ITDisc4SubDisk2"/>
+<PartSelector path="//ITDisc5SubDisk1"/>
+<PartSelector path="//ITDisc5SubDisk2"/>
+<PartSelector path="//ITDisc6SubDisk1"/>
+<PartSelector path="//ITDisc6SubDisk2"/>
+<PartSelector path="//ITDisc7SubDisk1"/>
+<PartSelector path="//ITDisc7SubDisk2"/>
+<PartSelector path="//ITDisc8SubDisk1"/>
+<PartSelector path="//ITDisc8SubDisk2"/>
+<PartSelector path="//ITDisc9SubDisk1"/>
+<PartSelector path="//ITDisc9SubDisk2"/>
+<PartSelector path="//ITDisc10SubDisk1"/>
+<PartSelector path="//ITDisc10SubDisk2"/>
+<PartSelector path="//ITDisc11SubDisk1"/>
+<PartSelector path="//ITDisc11SubDisk2"/>
+<PartSelector path="//ITDisc12SubDisk1"/>
+<PartSelector path="//ITDisc12SubDisk2"/>
+<Parameter name="TkDDDStructure" value="PixelPhase2EndcapSubDisk"/>
+</SpecPar>
+<SpecPar name="PixelEndcapRingPar">
+<PartSelector path="//ITDisc1SubDisk1Ring1"/>
+<PartSelector path="//ITDisc1SubDisk1Ring2"/>
+<PartSelector path="//ITDisc1SubDisk1Ring3"/>
+<PartSelector path="//ITDisc1SubDisk1Ring4"/>
+<PartSelector path="//ITDisc1SubDisk2Ring1"/>
+<PartSelector path="//ITDisc1SubDisk2Ring2"/>
+<PartSelector path="//ITDisc1SubDisk2Ring3"/>
+<PartSelector path="//ITDisc1SubDisk2Ring4"/>
+<PartSelector path="//ITDisc2SubDisk1Ring1"/>
+<PartSelector path="//ITDisc2SubDisk1Ring2"/>
+<PartSelector path="//ITDisc2SubDisk1Ring3"/>
+<PartSelector path="//ITDisc2SubDisk1Ring4"/>
+<PartSelector path="//ITDisc2SubDisk2Ring1"/>
+<PartSelector path="//ITDisc2SubDisk2Ring2"/>
+<PartSelector path="//ITDisc2SubDisk2Ring3"/>
+<PartSelector path="//ITDisc2SubDisk2Ring4"/>
+<PartSelector path="//ITDisc3SubDisk1Ring1"/>
+<PartSelector path="//ITDisc3SubDisk1Ring2"/>
+<PartSelector path="//ITDisc3SubDisk1Ring3"/>
+<PartSelector path="//ITDisc3SubDisk1Ring4"/>
+<PartSelector path="//ITDisc3SubDisk2Ring1"/>
+<PartSelector path="//ITDisc3SubDisk2Ring2"/>
+<PartSelector path="//ITDisc3SubDisk2Ring3"/>
+<PartSelector path="//ITDisc3SubDisk2Ring4"/>
+<PartSelector path="//ITDisc4SubDisk1Ring1"/>
+<PartSelector path="//ITDisc4SubDisk1Ring2"/>
+<PartSelector path="//ITDisc4SubDisk1Ring3"/>
+<PartSelector path="//ITDisc4SubDisk1Ring4"/>
+<PartSelector path="//ITDisc4SubDisk2Ring1"/>
+<PartSelector path="//ITDisc4SubDisk2Ring2"/>
+<PartSelector path="//ITDisc4SubDisk2Ring3"/>
+<PartSelector path="//ITDisc4SubDisk2Ring4"/>
+<PartSelector path="//ITDisc5SubDisk1Ring1"/>
+<PartSelector path="//ITDisc5SubDisk1Ring2"/>
+<PartSelector path="//ITDisc5SubDisk1Ring3"/>
+<PartSelector path="//ITDisc5SubDisk1Ring4"/>
+<PartSelector path="//ITDisc5SubDisk2Ring1"/>
+<PartSelector path="//ITDisc5SubDisk2Ring2"/>
+<PartSelector path="//ITDisc5SubDisk2Ring3"/>
+<PartSelector path="//ITDisc5SubDisk2Ring4"/>
+<PartSelector path="//ITDisc6SubDisk1Ring1"/>
+<PartSelector path="//ITDisc6SubDisk1Ring2"/>
+<PartSelector path="//ITDisc6SubDisk1Ring3"/>
+<PartSelector path="//ITDisc6SubDisk1Ring4"/>
+<PartSelector path="//ITDisc6SubDisk2Ring1"/>
+<PartSelector path="//ITDisc6SubDisk2Ring2"/>
+<PartSelector path="//ITDisc6SubDisk2Ring3"/>
+<PartSelector path="//ITDisc6SubDisk2Ring4"/>
+<PartSelector path="//ITDisc7SubDisk1Ring1"/>
+<PartSelector path="//ITDisc7SubDisk1Ring2"/>
+<PartSelector path="//ITDisc7SubDisk1Ring3"/>
+<PartSelector path="//ITDisc7SubDisk1Ring4"/>
+<PartSelector path="//ITDisc7SubDisk2Ring1"/>
+<PartSelector path="//ITDisc7SubDisk2Ring2"/>
+<PartSelector path="//ITDisc7SubDisk2Ring3"/>
+<PartSelector path="//ITDisc7SubDisk2Ring4"/>
+<PartSelector path="//ITDisc8SubDisk1Ring1"/>
+<PartSelector path="//ITDisc8SubDisk1Ring2"/>
+<PartSelector path="//ITDisc8SubDisk1Ring3"/>
+<PartSelector path="//ITDisc8SubDisk1Ring4"/>
+<PartSelector path="//ITDisc8SubDisk2Ring1"/>
+<PartSelector path="//ITDisc8SubDisk2Ring2"/>
+<PartSelector path="//ITDisc8SubDisk2Ring3"/>
+<PartSelector path="//ITDisc8SubDisk2Ring4"/>
+<PartSelector path="//ITDisc9SubDisk1Ring1"/>
+<PartSelector path="//ITDisc9SubDisk1Ring2"/>
+<PartSelector path="//ITDisc9SubDisk1Ring3"/>
+<PartSelector path="//ITDisc9SubDisk1Ring4"/>
+<PartSelector path="//ITDisc9SubDisk1Ring5"/>
+<PartSelector path="//ITDisc9SubDisk2Ring1"/>
+<PartSelector path="//ITDisc9SubDisk2Ring2"/>
+<PartSelector path="//ITDisc9SubDisk2Ring3"/>
+<PartSelector path="//ITDisc9SubDisk2Ring4"/>
+<PartSelector path="//ITDisc9SubDisk2Ring5"/>
+<PartSelector path="//ITDisc10SubDisk1Ring1"/>
+<PartSelector path="//ITDisc10SubDisk1Ring2"/>
+<PartSelector path="//ITDisc10SubDisk1Ring3"/>
+<PartSelector path="//ITDisc10SubDisk1Ring4"/>
+<PartSelector path="//ITDisc10SubDisk1Ring5"/>
+<PartSelector path="//ITDisc10SubDisk2Ring1"/>
+<PartSelector path="//ITDisc10SubDisk2Ring2"/>
+<PartSelector path="//ITDisc10SubDisk2Ring3"/>
+<PartSelector path="//ITDisc10SubDisk2Ring4"/>
+<PartSelector path="//ITDisc10SubDisk2Ring5"/>
+<PartSelector path="//ITDisc11SubDisk1Ring1"/>
+<PartSelector path="//ITDisc11SubDisk1Ring2"/>
+<PartSelector path="//ITDisc11SubDisk1Ring3"/>
+<PartSelector path="//ITDisc11SubDisk1Ring4"/>
+<PartSelector path="//ITDisc11SubDisk1Ring5"/>
+<PartSelector path="//ITDisc11SubDisk2Ring1"/>
+<PartSelector path="//ITDisc11SubDisk2Ring2"/>
+<PartSelector path="//ITDisc11SubDisk2Ring3"/>
+<PartSelector path="//ITDisc11SubDisk2Ring4"/>
+<PartSelector path="//ITDisc11SubDisk2Ring5"/>
+<PartSelector path="//ITDisc12SubDisk1Ring1"/>
+<PartSelector path="//ITDisc12SubDisk1Ring2"/>
+<PartSelector path="//ITDisc12SubDisk1Ring3"/>
+<PartSelector path="//ITDisc12SubDisk1Ring4"/>
+<PartSelector path="//ITDisc12SubDisk1Ring5"/>
+<PartSelector path="//ITDisc12SubDisk2Ring1"/>
+<PartSelector path="//ITDisc12SubDisk2Ring2"/>
+<PartSelector path="//ITDisc12SubDisk2Ring3"/>
+<PartSelector path="//ITDisc12SubDisk2Ring4"/>
+<PartSelector path="//ITDisc12SubDisk2Ring5"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapPanel"/>
+</SpecPar>
+<SpecPar name="ITLayer1R1BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer1R1BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer1R2BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer1R2BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer1R3BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer1R3BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer1R4BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer1R4BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer1R5BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer1R5BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer2R1BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer2R1BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer2R2BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer2R2BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer2R3BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer2R3BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer2R4BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer2R4BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer2R5BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer2R5BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer3R1BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer3R1BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer3R2BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer3R2BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer3R3BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer3R3BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer3R4BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer3R4BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer3R5BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer3R5BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer4R1BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer4R1BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer4R2BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer4R2BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer4R3BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer4R3BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer4R4BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer4R4BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITLayer4R5BModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITLayer4R5BModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelBarrelDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc1SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc1SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc1SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc1SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc1SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc1SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc1SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc1SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc1SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc1SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc1SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc1SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc1SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc1SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc1SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc1SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc2SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc2SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc2SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc2SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc2SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc2SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc2SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc2SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc2SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc2SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc2SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc2SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc2SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc2SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc2SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc2SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc3SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc3SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc3SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc3SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc3SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc3SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc3SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc3SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc3SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc3SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc3SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc3SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc3SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc3SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc3SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc3SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc4SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc4SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc4SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc4SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc4SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc4SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc4SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc4SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc4SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc4SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc4SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc4SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc4SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc4SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc4SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc4SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc5SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc5SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc5SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc5SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc5SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc5SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc5SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc5SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc5SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc5SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc5SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc5SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc5SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc5SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc5SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc5SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc6SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc6SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc6SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc6SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc6SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc6SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc6SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc6SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc6SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc6SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc6SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc6SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc6SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc6SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc6SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc6SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc7SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc7SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc7SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc7SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc7SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc7SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc7SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc7SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc7SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc7SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc7SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc7SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc7SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc7SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc7SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc7SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc8SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc8SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc8SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc8SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc8SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc8SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc8SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc8SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc8SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc8SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc8SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc8SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="672"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="1"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc8SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc8SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc8SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc8SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD1R5EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD1R5EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc9SD2R5EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc9SD2R5EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD1R5EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD1R5EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc10SD2R5EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc10SD2R5EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD1R5EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD1R5EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc11SD2R5EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc11SD2R5EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD1R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD1R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD1R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD1R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD1R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD1R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD1R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD1R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD1R5EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD1R5EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD2R1EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD2R1EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD2R2EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD2R2EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD2R3EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD2R3EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD2R4EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD2R4EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+<SpecPar name="ITDisc12SD2R5EModuleInnerPixelActiveReadoutPar">
+<PartSelector path="//ITDisc12SD2R5EModuleInnerPixelActive"/>
+<Parameter name="TkDDDStructure" value="PixelEndcapDet"/>
+<Parameter name="PixelROCRows" eval="true" value="677"/>
+<Parameter name="PixelROCCols" eval="true" value="217"/>
+<Parameter name="PixelROC_X" eval="true" value="2"/>
+<Parameter name="PixelROC_Y" eval="true" value="2"/>
+</SpecPar>
+</SpecParSection>
+</DDDefinition>

@@ -17,7 +17,7 @@ public:
 
   static void fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     iDesc.add<int>("maxCCCLostHits", 9999);
-    iDesc.add<edm::ParameterSetDescription>("minGoodStripCharge", getFilledConfigurationDescription4CCC());
+    iDesc.add<edm::ParameterSetDescription>("minGoodStripCharge", getConfigurationDescription4CCC(CCC::kLoose));
   }
 
   bool qualityFilter(const Trajectory& traj) const override { return TrajectoryFilter::qualityFilterIfNotContributing; }

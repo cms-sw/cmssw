@@ -125,11 +125,15 @@ namespace edm {
       void postModuleGlobalBeginRun(GlobalContext const&, ModuleCallingContext const&);
       void preModuleGlobalEndRun(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobalEndRun(GlobalContext const&, ModuleCallingContext const&);
+      void preModuleWriteRun(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleWriteRun(GlobalContext const&, ModuleCallingContext const&);
 
       void preModuleGlobalBeginLumi(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobalBeginLumi(GlobalContext const&, ModuleCallingContext const&);
       void preModuleGlobalEndLumi(GlobalContext const&, ModuleCallingContext const&);
       void postModuleGlobalEndLumi(GlobalContext const&, ModuleCallingContext const&);
+      void preModuleWriteLumi(GlobalContext const&, ModuleCallingContext const&);
+      void postModuleWriteLumi(GlobalContext const&, ModuleCallingContext const&);
 
       void preBeginProcessBlock(GlobalContext const&);
       void postBeginProcessBlock(GlobalContext const&);
@@ -149,6 +153,9 @@ namespace edm {
 
       void prePathEvent(StreamContext const&, PathContext const&);
       void postPathEvent(StreamContext const&, PathContext const&, HLTPathStatus const&);
+
+      void preESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
+      void postESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&);
 
       // set up the module name in the message drop, and the enable/suppress info
       void establishModule(const ModuleDescription& desc, const char* whichPhase);

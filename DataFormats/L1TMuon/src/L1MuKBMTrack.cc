@@ -6,28 +6,15 @@ L1MuKBMTrack::~L1MuKBMTrack() {}
 
 L1MuKBMTrack::L1MuKBMTrack(const L1MuKBMTCombinedStubRef& seed, int phi, int phiB)
     : reco::LeafCandidate(-1, reco::LeafCandidate::PolarLorentzVector(0.1, 0.0, 0.0, 0.105)),
-      covariance_(std::vector<double>(6, 0.0)),
-      curvVertex_(0),
-      phiVertex_(0),
-      dxy_(0),
-      curvMuon_(0),
-      phiMuon_(0),
-      phiBMuon_(0),
-      curv_(0),
+      covariance_(6, 0.0),
       phi_(phi),
       phiB_(phiB),
-      coarseEta_(0),
-      approxChi2_(0),
-      trackCompatibility_(0),
-      hitPattern_(0),
       step_(seed->stNum()),
       sector_(seed->scNum()),
       wheel_(seed->whNum()),
       quality_(seed->quality()),
-      hasFineEta_(false),
       bx_(seed->bxNum()),
-      rank_(seed->bxNum()),
-      ptUnconstrained_(0.0) {
+      rank_(seed->bxNum()) {
   stubs_.push_back(seed);
   residuals_.push_back(0);
   residuals_.push_back(0);

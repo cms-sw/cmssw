@@ -69,7 +69,7 @@ phase2_hfnose.toModify( theDigitizers,
 )
 
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
-run3_common.toModify( theDigitizers, castor = None )
+(run3_common & ~fastSim).toModify( theDigitizers, castor = None )
 
 from SimGeneral.MixingModule.ecalTimeDigitizer_cfi import ecalTimeDigitizer
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
@@ -100,6 +100,10 @@ premix_stage2.toModify(theDigitizers,
         endcapDigitizer = dict(premixStage1 = True)
     )
 )
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(theDigitizers,
+                        strip = None)
 
 theDigitizersValid = cms.PSet(theDigitizers)
 theDigitizers.mergedtruth.select.signalOnlyTP = True

@@ -45,7 +45,7 @@ public:
   };
 
   explicit HcalGeomCheck(const edm::ParameterSet&);
-  ~HcalGeomCheck() override {}
+  ~HcalGeomCheck() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 protected:
@@ -62,9 +62,9 @@ private:
   const int ietaMin_, ietaMax_, depthMax_;
   const double rmin_, rmax_, zmin_, zmax_;
   const int nbinR_, nbinZ_, verbosity_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
   const HcalDDDRecConstants* hcons_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
 
   //histogram related stuff
   TH2D* h_RZ_;
@@ -74,9 +74,7 @@ private:
 };
 
 HcalGeomCheck::HcalGeomCheck(const edm::ParameterSet& iConfig)
-    :
-
-      caloHitSource_(iConfig.getParameter<std::string>("caloHitSource")),
+    : caloHitSource_(iConfig.getParameter<std::string>("caloHitSource")),
       ietaMin_(iConfig.getUntrackedParameter<int>("ietaMin", -41)),
       ietaMax_(iConfig.getUntrackedParameter<int>("ietaMax", 41)),
       depthMax_(iConfig.getUntrackedParameter<int>("depthMax", 7)),
@@ -86,10 +84,10 @@ HcalGeomCheck::HcalGeomCheck(const edm::ParameterSet& iConfig)
       zmax_(iConfig.getUntrackedParameter<double>("zMax", 12500.0)),
       nbinR_(iConfig.getUntrackedParameter<int>("nBinR", 550)),
       nbinZ_(iConfig.getUntrackedParameter<int>("nBinZ", 2500)),
-      verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)) {
+      verbosity_(iConfig.getUntrackedParameter<int>("verbosity", 0)),
+      tok_hits_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_))),
+      tok_HRNDC_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()) {
   usesResource(TFileService::kSharedResource);
-  tok_hits_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", caloHitSource_));
-  tok_HRNDC_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
 }
 
 void HcalGeomCheck::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -110,8 +108,7 @@ void HcalGeomCheck::fillDescriptions(edm::ConfigurationDescriptions& description
 
 void HcalGeomCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Now the hits
-  edm::Handle<edm::PCaloHitContainer> theCaloHitContainer;
-  iEvent.getByToken(tok_hits_, theCaloHitContainer);
+  const edm::Handle<edm::PCaloHitContainer>& theCaloHitContainer = iEvent.getHandle(tok_hits_);
   if (theCaloHitContainer.isValid()) {
     if (verbosity_ > 0)
       edm::LogVerbatim("HcalValidation") << " PcalohitItr = " << theCaloHitContainer->size();

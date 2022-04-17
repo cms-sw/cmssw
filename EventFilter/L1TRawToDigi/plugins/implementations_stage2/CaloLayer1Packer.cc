@@ -107,9 +107,14 @@ namespace l1t {
 
             HcalTrigTowerDetId id(cEta, cPhi);
             const auto tp = hcalTPGs->find(id);
+
             if (tp != hcalTPGs->end()) {
+              uint32_t fg_bits = 0;
+              for (int index = 0; index < 6; index++)
+                fg_bits |= tp->SOI_fineGrain(index) << index;
+
               ctp7Data.setET(cType, negativeEta, iEta, iPhi, tp->SOI_compressedEt());
-              ctp7Data.setFB(cType, negativeEta, iEta, iPhi, tp->SOI_fineGrain());
+              ctp7Data.setFB(cType, negativeEta, iEta, iPhi, fg_bits);
             }
           }
         }

@@ -36,7 +36,7 @@
 class QualityCutsAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit QualityCutsAnalyzer(const edm::ParameterSet &);
-  ~QualityCutsAnalyzer() override;
+  ~QualityCutsAnalyzer() override = default;
 
 private:
   void beginJob() override;
@@ -44,13 +44,13 @@ private:
   void endJob() override;
 
   // Member data
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttrkToken_;
+  const edm::EDGetTokenT<edm::View<reco::Track>> trkToken_;
+  const edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
+  const edm::EDGetTokenT<reco::JetTracksAssociationCollection> jtaToken_;
 
   typedef std::vector<int> vint;
   typedef std::vector<std::string> vstring;
-
-  edm::InputTag trackProducer_;
-  edm::InputTag primaryVertexProducer_;
-  edm::InputTag jetTracksAssociation_;
 
   std::string rootFile_;
 
@@ -201,14 +201,13 @@ private:
 //
 // constructors and destructor
 //
-QualityCutsAnalyzer::QualityCutsAnalyzer(const edm::ParameterSet &config) : classifier_(config, consumesCollector()) {
-  trackProducer_ = config.getUntrackedParameter<edm::InputTag>("trackProducer");
-  consumes<edm::View<reco::Track>>(trackProducer_);
-  primaryVertexProducer_ = config.getUntrackedParameter<edm::InputTag>("primaryVertexProducer");
-  consumes<reco::VertexCollection>(primaryVertexProducer_);
-  jetTracksAssociation_ = config.getUntrackedParameter<edm::InputTag>("jetTracksAssociation");
-  consumes<reco::JetTracksAssociationCollection>(jetTracksAssociation_);
-
+QualityCutsAnalyzer::QualityCutsAnalyzer(const edm::ParameterSet &config)
+    : ttrkToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      trkToken_(consumes<edm::View<reco::Track>>(config.getUntrackedParameter<edm::InputTag>("trackProducer"))),
+      vtxToken_(consumes<reco::VertexCollection>(config.getUntrackedParameter<edm::InputTag>("primaryVertexProducer"))),
+      jtaToken_(consumes<reco::JetTracksAssociationCollection>(
+          config.getUntrackedParameter<edm::InputTag>("jetTracksAssociation"))),
+      classifier_(config, consumesCollector()) {
   rootFile_ = config.getUntrackedParameter<std::string>("rootFile");
 
   minimumNumberOfHits_ = config.getUntrackedParameter<int>("minimumNumberOfHits");
@@ -228,8 +227,6 @@ QualityCutsAnalyzer::QualityCutsAnalyzer(const edm::ParameterSet &config) : clas
   }
 }
 
-QualityCutsAnalyzer::~QualityCutsAnalyzer() {}
-
 //
 // member functions
 //
@@ -238,16 +235,15 @@ QualityCutsAnalyzer::~QualityCutsAnalyzer() {}
 void QualityCutsAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   // Track collection
   edm::Handle<edm::View<reco::Track>> trackCollection;
-  event.getByLabel(trackProducer_, trackCollection);
+  event.getByToken(trkToken_, trackCollection);
   // Primary vertex
   edm::Handle<reco::VertexCollection> primaryVertexCollection;
-  event.getByLabel(primaryVertexProducer_, primaryVertexCollection);
+  event.getByToken(vtxToken_, primaryVertexCollection);
   // Jet to tracks associator
   edm::Handle<reco::JetTracksAssociationCollection> jetTracks;
-  event.getByLabel(jetTracksAssociation_, jetTracks);
+  event.getByToken(jtaToken_, jetTracks);
   // Trasient track builder
-  edm::ESHandle<TransientTrackBuilder> TTbuilder;
-  setup.get<TransientTrackRecord>().get("TransientTrackBuilder", TTbuilder);
+  const edm::ESHandle<TransientTrackBuilder> TTbuilder = setup.getHandle(ttrkToken_);
 
   // Setting up event information for the track categories.
   classifier_.newEvent(event, setup);

@@ -139,11 +139,11 @@ deepMetResponseTuneTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
 )
 
-metFixEE2017Table = metTable.clone()
-metFixEE2017Table.src = cms.InputTag("slimmedMETsFixEE2017")
-metFixEE2017Table.name = cms.string("METFixEE2017")
-metFixEE2017Table.doc = cms.string("Type-1 corrected PF MET, with fixEE2017 definition")
-
+metFixEE2017Table = metTable.clone(
+    src = cms.InputTag("slimmedMETsFixEE2017"),
+    name = cms.string("METFixEE2017"),
+    doc = cms.string("Type-1 corrected PF MET, with fixEE2017 definition"),
+)
 
 metMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = metTable.src,

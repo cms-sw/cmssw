@@ -1,27 +1,34 @@
 import FWCore.ParameterSet.Config as cms
 
-silent = True
-#silent = False
+import argparse
+import sys
 
-#includeAnalyzer = True
-includeAnalyzer = False
+parser = argparse.ArgumentParser(prog=sys.argv[0], description='Test CUDA EDProducers')
+
+parser.add_argument("--silent", help="Silence printouts", action="store_true")
+parser.add_argument("--includeAnalyzer", help="Include an EDAnalyzer", action="store_true")
+parser.add_argument("--accelerator", type=str, help="String for accelerator to enable")
+
+argv = sys.argv[:]
+if '--' in argv:
+    argv.remove("--")
+args, unknown = parser.parse_known_args(argv)
 
 process = cms.Process("Test")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
+process.load("HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi")
 
 process.source = cms.Source("EmptySource")
 
 process.maxEvents.input = 3
-if not silent:
+if not args.silent:
     process.maxEvents.input = 10
     process.MessageLogger.cerr.threshold = cms.untracked.string("INFO")
     process.MessageLogger.cerr.INFO.limit = process.MessageLogger.cerr.default.limit
 
 
-#process.options.numberOfThreads = 4
-process.options.numberOfStreams = 0
-#process.Tracer = cms.Service("Tracer")
+if args.accelerator is not None:
+    process.options.accelerators = [args.accelerator]
 
 # Flow diagram of the modules
 #
@@ -69,7 +76,7 @@ process.prod4 = SwitchProducerCUDA(
 # GPU analyzer (optionally)
 from HeterogeneousCore.CUDATest.testCUDAAnalyzerGPU_cfi import testCUDAAnalyzerGPU
 process.anaCUDA = testCUDAAnalyzerGPU.clone(src="prod6CUDA")
-if silent:
+if args.silent:
     process.anaCUDA.minValue = 2.3e7
     process.anaCUDA.maxValue = 2.5e7
 
@@ -95,7 +102,7 @@ process.t = cms.Task(
     process.prod6Task
 )
 process.p = cms.Path()
-if includeAnalyzer:
+if args.includeAnalyzer:
     process.p += process.anaCUDA
 process.p.associate(process.t)
 process.ep = cms.EndPath(process.out)

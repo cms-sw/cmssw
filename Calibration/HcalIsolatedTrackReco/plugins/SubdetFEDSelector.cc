@@ -23,26 +23,24 @@ private:
   void endJob() override {}
 
   // ----------member data ---------------------------
-  bool getEcal_;
-  bool getHcal_;
-  bool getStrip_;
-  bool getPixel_;
-  bool getMuon_;
-  bool getTrigger_;
+  const bool getEcal_;
+  const bool getHcal_;
+  const bool getStrip_;
+  const bool getPixel_;
+  const bool getMuon_;
+  const bool getTrigger_;
 
-  edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
+  const edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
 };
 
-SubdetFEDSelector::SubdetFEDSelector(const edm::ParameterSet& iConfig) {
-  getEcal_ = iConfig.getParameter<bool>("getECAL");
-  getStrip_ = iConfig.getParameter<bool>("getSiStrip");
-  getPixel_ = iConfig.getParameter<bool>("getSiPixel");
-  getHcal_ = iConfig.getParameter<bool>("getHCAL");
-  getMuon_ = iConfig.getParameter<bool>("getMuon");
-  getTrigger_ = iConfig.getParameter<bool>("getTrigger");
-
-  tok_raw_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"));
-
+SubdetFEDSelector::SubdetFEDSelector(const edm::ParameterSet& iConfig)
+    : getEcal_(iConfig.getParameter<bool>("getECAL")),
+      getHcal_(iConfig.getParameter<bool>("getHCAL")),
+      getStrip_(iConfig.getParameter<bool>("getSiStrip")),
+      getPixel_(iConfig.getParameter<bool>("getSiPixel")),
+      getMuon_(iConfig.getParameter<bool>("getMuon")),
+      getTrigger_(iConfig.getParameter<bool>("getTrigger")),
+      tok_raw_(consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("rawInputLabel"))) {
   produces<FEDRawDataCollection>();
 }
 
@@ -51,8 +49,7 @@ SubdetFEDSelector::~SubdetFEDSelector() {}
 void SubdetFEDSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto producedData = std::make_unique<FEDRawDataCollection>();
 
-  edm::Handle<FEDRawDataCollection> rawIn;
-  iEvent.getByToken(tok_raw_, rawIn);
+  const edm::Handle<FEDRawDataCollection>& rawIn = iEvent.getHandle(tok_raw_);
 
   std::vector<int> selFEDs;
 

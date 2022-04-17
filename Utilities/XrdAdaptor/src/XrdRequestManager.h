@@ -226,6 +226,7 @@ namespace XrdAdaptor {
     bool m_nextInitialSourceToggle;
     // The time when the next active source check should be performed.
     timespec m_nextActiveSourceCheck;
+    int m_redirectLimitDelayScale;
     bool searchMode;
 
     const std::string m_name;

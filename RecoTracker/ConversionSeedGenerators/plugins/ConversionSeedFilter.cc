@@ -17,31 +17,30 @@
 //
 
 #include <memory>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/Math/interface/deltaPhi.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 class ConversionSeedFilter : public edm::stream::EDProducer<> {
 public:
   explicit ConversionSeedFilter(const edm::ParameterSet&);
-  ~ConversionSeedFilter() override;
+  ~ConversionSeedFilter() override = default;
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
@@ -65,19 +64,23 @@ private:
   TrajectoryStateOnSurface getTSOS(const reco::Track& tk);
   TrajectoryStateOnSurface getTSOS(const Trajectory& tj, const TrajectorySeed& ts);
 
-  edm::EDGetTokenT<TrajectorySeedCollection> inputCollSeedPos;
-  edm::EDGetTokenT<TrajectorySeedCollection> inputCollSeedNeg;
-  edm::EDGetTokenT<TrajTrackAssociationCollection> inputTrajectory;
-  double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken;
+  const edm::EDGetTokenT<TrajectorySeedCollection> inputCollSeedPos;
+  const edm::EDGetTokenT<TrajectorySeedCollection> inputCollSeedNeg;
+  const edm::EDGetTokenT<TrajTrackAssociationCollection> inputTrajectory;
+  const double deltaPhiCut, deltaCotThetaCut, deltaRCut, deltaZCut;
 
-  edm::ESHandle<TrackerGeometry> theG;
-  edm::ESHandle<MagneticField> theMF;
+  const TrackerGeometry* theG;
+  const MagneticField* theMF;
   uint32_t maxInputSeeds;
   bool takeAll;
 };
 
 ConversionSeedFilter::ConversionSeedFilter(const edm::ParameterSet& cfg)
-    :  //inputCollTkPos(cfg.getParameter<edm::InputTag>("tkCollectionPos")),
+    : geomToken(esConsumes()),
+      mfToken(esConsumes()),
+      //inputCollTkPos(cfg.getParameter<edm::InputTag>("tkCollectionPos")),
       inputCollSeedPos(consumes<TrajectorySeedCollection>(cfg.getParameter<edm::InputTag>("seedCollectionPos"))),
       //inputCollTkNeg(cfg.getParameter<edm::InputTag>("tkCollectionNeg")),
       inputCollSeedNeg(consumes<TrajectorySeedCollection>(cfg.getParameter<edm::InputTag>("seedCollectionNeg"))),
@@ -90,8 +93,6 @@ ConversionSeedFilter::ConversionSeedFilter(const edm::ParameterSet& cfg)
       takeAll(cfg.getParameter<bool>("takeAll")) {
   produces<TrajectorySeedCollection>();
 }
-
-ConversionSeedFilter::~ConversionSeedFilter() {}
 
 void ConversionSeedFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -107,8 +108,8 @@ void ConversionSeedFilter::produce(edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<TrajTrackAssociationCollection> trajTrackAssociations;
   iEvent.getByToken(inputTrajectory, trajTrackAssociations);
 
-  iSetup.get<TrackerDigiGeometryRecord>().get(theG);
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
+  theG = &iSetup.getData(geomToken);
+  theMF = &iSetup.getData(mfToken);
 
   auto result = std::make_unique<TrajectorySeedCollection>();
 
@@ -242,11 +243,11 @@ void ConversionSeedFilter::SearchAmongTrajectories(const TrajectorySeedCollectio
 TrajectoryStateOnSurface ConversionSeedFilter::getTSOS(const TrajectorySeed& ts) {
   PTrajectoryStateOnDet state = ts.startingState();
   DetId detId(state.detId());
-  return trajectoryStateTransform::transientState(state, &(theG->idToDet(detId)->surface()), theMF.product());
+  return trajectoryStateTransform::transientState(state, &(theG->idToDet(detId)->surface()), theMF);
 }
 
 TrajectoryStateOnSurface ConversionSeedFilter::getTSOS(const reco::Track& tk) {
-  return trajectoryStateTransform::innerStateOnSurface(tk, *theG.product(), theMF.product());
+  return trajectoryStateTransform::innerStateOnSurface(tk, *theG, theMF);
 }
 
 TrajectoryStateOnSurface ConversionSeedFilter::getTSOS(const Trajectory& tj, const TrajectorySeed& ts) {

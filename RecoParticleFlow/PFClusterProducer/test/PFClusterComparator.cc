@@ -13,37 +13,32 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-PFClusterComparator::PFClusterComparator(const edm::ParameterSet& iConfig) {
-  inputTagPFClusters_ = iConfig.getParameter<InputTag>("PFClusters");
+PFClusterComparator::PFClusterComparator(const edm::ParameterSet& iConfig)
+    : inputTagPFClusters_(iConfig.getParameter<InputTag>("PFClusters")),
+      inputTagPFClustersCompare_(iConfig.getParameter<InputTag>("PFClustersCompare")),
+      verbose_(iConfig.getUntrackedParameter<bool>("verbose", false)),
+      printBlocks_(iConfig.getUntrackedParameter<bool>("printBlocks", false)) {
+  usesResource("TFileService");
 
-  inputTagPFClustersCompare_ = iConfig.getParameter<InputTag>("PFClustersCompare");
+  edm::Service<TFileService> fs;
+  log10E_old = fs->make<TH1F>("log10E_old", "log10(E cluster)", 500, -5, 5);
+  log10E_new = fs->make<TH1F>("log10E_new", "log10(E cluster)", 500, -5, 5);
+  deltaEnergy = fs->make<TH1F>("delta_energy", "E_{old} - E_{new}", 5000, -5, 5);
 
-  verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
+  posX_old = fs->make<TH1F>("posX_old", "log10(E cluster)", 50000, 0, 500);
+  posX_new = fs->make<TH1F>("posX_new", "log10(E cluster)", 50000, 0, 500);
+  deltaX = fs->make<TH1F>("delta_X", "X_{old} - X_{new}", 5000, -5, 5);
 
-  printBlocks_ = iConfig.getUntrackedParameter<bool>("printBlocks", false);
+  posY_old = fs->make<TH1F>("posY_old", "log10(E cluster)", 50000, 0, 500);
+  posY_new = fs->make<TH1F>("posY_new", "log10(E cluster)", 50000, 0, 500);
+  deltaY = fs->make<TH1F>("delta_Y", "Y_{old} - Y_{new}", 5000, -5, 5);
 
-  log10E_old = fs_->make<TH1F>("log10E_old", "log10(E cluster)", 500, -5, 5);
-  log10E_new = fs_->make<TH1F>("log10E_new", "log10(E cluster)", 500, -5, 5);
-  deltaEnergy = fs_->make<TH1F>("delta_energy", "E_{old} - E_{new}", 5000, -5, 5);
-
-  posX_old = fs_->make<TH1F>("posX_old", "log10(E cluster)", 50000, 0, 500);
-  posX_new = fs_->make<TH1F>("posX_new", "log10(E cluster)", 50000, 0, 500);
-  deltaX = fs_->make<TH1F>("delta_X", "X_{old} - X_{new}", 5000, -5, 5);
-
-  posY_old = fs_->make<TH1F>("posY_old", "log10(E cluster)", 50000, 0, 500);
-  posY_new = fs_->make<TH1F>("posY_new", "log10(E cluster)", 50000, 0, 500);
-  deltaY = fs_->make<TH1F>("delta_Y", "Y_{old} - Y_{new}", 5000, -5, 5);
-
-  posZ_old = fs_->make<TH1F>("posZ_old", "log10(E cluster)", 50000, 0, 500);
-  posZ_new = fs_->make<TH1F>("posZ_new", "log10(E cluster)", 50000, 0, 500);
-  deltaZ = fs_->make<TH1F>("delta_Z", "Z_{old} - Z_{new}", 5000, -5, 5);
+  posZ_old = fs->make<TH1F>("posZ_old", "log10(E cluster)", 50000, 0, 500);
+  posZ_new = fs->make<TH1F>("posZ_new", "log10(E cluster)", 50000, 0, 500);
+  deltaZ = fs->make<TH1F>("delta_Z", "Z_{old} - Z_{new}", 5000, -5, 5);
 
   LogDebug("PFClusterComparator") << " input collection : " << inputTagPFClusters_;
 }
-
-PFClusterComparator::~PFClusterComparator() = default;
-
-void PFClusterComparator::beginRun(const edm::Run& run, const edm::EventSetup& es) {}
 
 void PFClusterComparator::analyze(const Event& iEvent, const EventSetup& iSetup) {
   std::map<unsigned, unsigned> detId_count;

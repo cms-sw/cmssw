@@ -1,0 +1,330 @@
+      IntrVec_t a_0 = LD(a, 0);
+      IntrVec_t b_0 = LD(b, 0);
+      IntrVec_t c_0 = MUL(a_0, b_0);
+      IntrVec_t b_1 = LD(b, 1);
+      IntrVec_t c_1 = MUL(a_0, b_1);
+      IntrVec_t b_3 = LD(b, 3);
+      IntrVec_t c_2 = MUL(a_0, b_3);
+      IntrVec_t b_6 = LD(b, 6);
+      IntrVec_t c_3 = MUL(a_0, b_6);
+      IntrVec_t b_10 = LD(b, 10);
+      IntrVec_t c_4 = MUL(a_0, b_10);
+      IntrVec_t b_15 = LD(b, 15);
+      IntrVec_t c_5 = MUL(a_0, b_15);
+
+      IntrVec_t a_1 = LD(a, 1);
+      c_0 = FMA(a_1, b_1, c_0);
+      IntrVec_t b_2 = LD(b, 2);
+      c_1 = FMA(a_1, b_2, c_1);
+      IntrVec_t b_4 = LD(b, 4);
+      c_2 = FMA(a_1, b_4, c_2);
+      IntrVec_t b_7 = LD(b, 7);
+      c_3 = FMA(a_1, b_7, c_3);
+      IntrVec_t b_11 = LD(b, 11);
+      c_4 = FMA(a_1, b_11, c_4);
+      IntrVec_t b_16 = LD(b, 16);
+      c_5 = FMA(a_1, b_16, c_5);
+
+      IntrVec_t a_3 = LD(a, 3);
+      c_0 = FMA(a_3, b_3, c_0);
+      c_1 = FMA(a_3, b_4, c_1);
+      IntrVec_t b_5 = LD(b, 5);
+      c_2 = FMA(a_3, b_5, c_2);
+      IntrVec_t b_8 = LD(b, 8);
+      c_3 = FMA(a_3, b_8, c_3);
+      IntrVec_t b_12 = LD(b, 12);
+      c_4 = FMA(a_3, b_12, c_4);
+      IntrVec_t b_17 = LD(b, 17);
+      c_5 = FMA(a_3, b_17, c_5);
+
+      IntrVec_t a_6 = LD(a, 6);
+      c_0 = FMA(a_6, b_6, c_0);
+      c_1 = FMA(a_6, b_7, c_1);
+      c_2 = FMA(a_6, b_8, c_2);
+      IntrVec_t b_9 = LD(b, 9);
+      c_3 = FMA(a_6, b_9, c_3);
+      IntrVec_t b_13 = LD(b, 13);
+      c_4 = FMA(a_6, b_13, c_4);
+      IntrVec_t b_18 = LD(b, 18);
+      c_5 = FMA(a_6, b_18, c_5);
+
+      IntrVec_t a_10 = LD(a, 10);
+      c_0 = FMA(a_10, b_10, c_0);
+      c_1 = FMA(a_10, b_11, c_1);
+      c_2 = FMA(a_10, b_12, c_2);
+      c_3 = FMA(a_10, b_13, c_3);
+      IntrVec_t b_14 = LD(b, 14);
+      c_4 = FMA(a_10, b_14, c_4);
+      IntrVec_t b_19 = LD(b, 19);
+      c_5 = FMA(a_10, b_19, c_5);
+
+      IntrVec_t a_15 = LD(a, 15);
+      c_0 = FMA(a_15, b_15, c_0);
+      c_1 = FMA(a_15, b_16, c_1);
+      c_2 = FMA(a_15, b_17, c_2);
+      c_3 = FMA(a_15, b_18, c_3);
+      c_4 = FMA(a_15, b_19, c_4);
+      ST(c, 0, c_0);
+      ST(c, 1, c_1);
+      ST(c, 2, c_2);
+      ST(c, 3, c_3);
+      ST(c, 4, c_4);
+      IntrVec_t b_20 = LD(b, 20);
+      c_5 = FMA(a_15, b_20, c_5);
+
+      IntrVec_t c_6 = MUL(a_1, b_0);
+      IntrVec_t c_7 = MUL(a_1, b_1);
+      IntrVec_t c_8 = MUL(a_1, b_3);
+      IntrVec_t c_9 = MUL(a_1, b_6);
+      ST(c, 5, c_5);
+      IntrVec_t c_10 = MUL(a_1, b_10);
+      IntrVec_t c_11 = MUL(a_1, b_15);
+
+      IntrVec_t a_2 = LD(a, 2);
+      c_6 = FMA(a_2, b_1, c_6);
+      c_7 = FMA(a_2, b_2, c_7);
+      c_8 = FMA(a_2, b_4, c_8);
+      c_9 = FMA(a_2, b_7, c_9);
+      c_10 = FMA(a_2, b_11, c_10);
+      c_11 = FMA(a_2, b_16, c_11);
+
+      IntrVec_t a_4 = LD(a, 4);
+      c_6 = FMA(a_4, b_3, c_6);
+      c_7 = FMA(a_4, b_4, c_7);
+      c_8 = FMA(a_4, b_5, c_8);
+      c_9 = FMA(a_4, b_8, c_9);
+      c_10 = FMA(a_4, b_12, c_10);
+      c_11 = FMA(a_4, b_17, c_11);
+
+      IntrVec_t a_7 = LD(a, 7);
+      c_6 = FMA(a_7, b_6, c_6);
+      c_7 = FMA(a_7, b_7, c_7);
+      c_8 = FMA(a_7, b_8, c_8);
+      c_9 = FMA(a_7, b_9, c_9);
+      c_10 = FMA(a_7, b_13, c_10);
+      c_11 = FMA(a_7, b_18, c_11);
+
+      IntrVec_t a_11 = LD(a, 11);
+      c_6 = FMA(a_11, b_10, c_6);
+      c_7 = FMA(a_11, b_11, c_7);
+      c_8 = FMA(a_11, b_12, c_8);
+      c_9 = FMA(a_11, b_13, c_9);
+      c_10 = FMA(a_11, b_14, c_10);
+      c_11 = FMA(a_11, b_19, c_11);
+
+      IntrVec_t a_16 = LD(a, 16);
+      c_6 = FMA(a_16, b_15, c_6);
+      c_7 = FMA(a_16, b_16, c_7);
+      c_8 = FMA(a_16, b_17, c_8);
+      c_9 = FMA(a_16, b_18, c_9);
+      c_10 = FMA(a_16, b_19, c_10);
+      ST(c, 6, c_6);
+      ST(c, 7, c_7);
+      ST(c, 8, c_8);
+      ST(c, 9, c_9);
+      ST(c, 10, c_10);
+      c_11 = FMA(a_16, b_20, c_11);
+
+      IntrVec_t c_12 = MUL(a_3, b_0);
+      IntrVec_t c_13 = MUL(a_3, b_1);
+      IntrVec_t c_14 = MUL(a_3, b_3);
+      IntrVec_t c_15 = MUL(a_3, b_6);
+      ST(c, 11, c_11);
+      IntrVec_t c_16 = MUL(a_3, b_10);
+      IntrVec_t c_17 = MUL(a_3, b_15);
+
+      c_12 = FMA(a_4, b_1, c_12);
+      c_13 = FMA(a_4, b_2, c_13);
+      c_14 = FMA(a_4, b_4, c_14);
+      c_15 = FMA(a_4, b_7, c_15);
+      c_16 = FMA(a_4, b_11, c_16);
+      c_17 = FMA(a_4, b_16, c_17);
+
+      IntrVec_t a_5 = LD(a, 5);
+      c_12 = FMA(a_5, b_3, c_12);
+      c_13 = FMA(a_5, b_4, c_13);
+      c_14 = FMA(a_5, b_5, c_14);
+      c_15 = FMA(a_5, b_8, c_15);
+      c_16 = FMA(a_5, b_12, c_16);
+      c_17 = FMA(a_5, b_17, c_17);
+
+      IntrVec_t a_8 = LD(a, 8);
+      c_12 = FMA(a_8, b_6, c_12);
+      c_13 = FMA(a_8, b_7, c_13);
+      c_14 = FMA(a_8, b_8, c_14);
+      c_15 = FMA(a_8, b_9, c_15);
+      c_16 = FMA(a_8, b_13, c_16);
+      c_17 = FMA(a_8, b_18, c_17);
+
+      IntrVec_t a_12 = LD(a, 12);
+      c_12 = FMA(a_12, b_10, c_12);
+      c_13 = FMA(a_12, b_11, c_13);
+      c_14 = FMA(a_12, b_12, c_14);
+      c_15 = FMA(a_12, b_13, c_15);
+      c_16 = FMA(a_12, b_14, c_16);
+      c_17 = FMA(a_12, b_19, c_17);
+
+      IntrVec_t a_17 = LD(a, 17);
+      c_12 = FMA(a_17, b_15, c_12);
+      c_13 = FMA(a_17, b_16, c_13);
+      c_14 = FMA(a_17, b_17, c_14);
+      c_15 = FMA(a_17, b_18, c_15);
+      c_16 = FMA(a_17, b_19, c_16);
+      ST(c, 12, c_12);
+      ST(c, 13, c_13);
+      ST(c, 14, c_14);
+      ST(c, 15, c_15);
+      ST(c, 16, c_16);
+      c_17 = FMA(a_17, b_20, c_17);
+
+      IntrVec_t c_18 = MUL(a_6, b_0);
+      IntrVec_t c_19 = MUL(a_6, b_1);
+      IntrVec_t c_20 = MUL(a_6, b_3);
+      IntrVec_t c_21 = MUL(a_6, b_6);
+      ST(c, 17, c_17);
+      IntrVec_t c_22 = MUL(a_6, b_10);
+      IntrVec_t c_23 = MUL(a_6, b_15);
+
+      c_18 = FMA(a_7, b_1, c_18);
+      c_19 = FMA(a_7, b_2, c_19);
+      c_20 = FMA(a_7, b_4, c_20);
+      c_21 = FMA(a_7, b_7, c_21);
+      c_22 = FMA(a_7, b_11, c_22);
+      c_23 = FMA(a_7, b_16, c_23);
+
+      c_18 = FMA(a_8, b_3, c_18);
+      c_19 = FMA(a_8, b_4, c_19);
+      c_20 = FMA(a_8, b_5, c_20);
+      c_21 = FMA(a_8, b_8, c_21);
+      c_22 = FMA(a_8, b_12, c_22);
+      c_23 = FMA(a_8, b_17, c_23);
+
+      IntrVec_t a_9 = LD(a, 9);
+      c_18 = FMA(a_9, b_6, c_18);
+      c_19 = FMA(a_9, b_7, c_19);
+      c_20 = FMA(a_9, b_8, c_20);
+      c_21 = FMA(a_9, b_9, c_21);
+      c_22 = FMA(a_9, b_13, c_22);
+      c_23 = FMA(a_9, b_18, c_23);
+
+      IntrVec_t a_13 = LD(a, 13);
+      c_18 = FMA(a_13, b_10, c_18);
+      c_19 = FMA(a_13, b_11, c_19);
+      c_20 = FMA(a_13, b_12, c_20);
+      c_21 = FMA(a_13, b_13, c_21);
+      c_22 = FMA(a_13, b_14, c_22);
+      c_23 = FMA(a_13, b_19, c_23);
+
+      IntrVec_t a_18 = LD(a, 18);
+      c_18 = FMA(a_18, b_15, c_18);
+      c_19 = FMA(a_18, b_16, c_19);
+      c_20 = FMA(a_18, b_17, c_20);
+      c_21 = FMA(a_18, b_18, c_21);
+      c_22 = FMA(a_18, b_19, c_22);
+      ST(c, 18, c_18);
+      ST(c, 19, c_19);
+      ST(c, 20, c_20);
+      ST(c, 21, c_21);
+      ST(c, 22, c_22);
+      c_23 = FMA(a_18, b_20, c_23);
+
+      IntrVec_t c_24 = MUL(a_10, b_0);
+      IntrVec_t c_25 = MUL(a_10, b_1);
+      IntrVec_t c_26 = MUL(a_10, b_3);
+      IntrVec_t c_27 = MUL(a_10, b_6);
+      ST(c, 23, c_23);
+      IntrVec_t c_28 = MUL(a_10, b_10);
+      IntrVec_t c_29 = MUL(a_10, b_15);
+
+      c_24 = FMA(a_11, b_1, c_24);
+      c_25 = FMA(a_11, b_2, c_25);
+      c_26 = FMA(a_11, b_4, c_26);
+      c_27 = FMA(a_11, b_7, c_27);
+      c_28 = FMA(a_11, b_11, c_28);
+      c_29 = FMA(a_11, b_16, c_29);
+
+      c_24 = FMA(a_12, b_3, c_24);
+      c_25 = FMA(a_12, b_4, c_25);
+      c_26 = FMA(a_12, b_5, c_26);
+      c_27 = FMA(a_12, b_8, c_27);
+      c_28 = FMA(a_12, b_12, c_28);
+      c_29 = FMA(a_12, b_17, c_29);
+
+      c_24 = FMA(a_13, b_6, c_24);
+      c_25 = FMA(a_13, b_7, c_25);
+      c_26 = FMA(a_13, b_8, c_26);
+      c_27 = FMA(a_13, b_9, c_27);
+      c_28 = FMA(a_13, b_13, c_28);
+      c_29 = FMA(a_13, b_18, c_29);
+
+      IntrVec_t a_14 = LD(a, 14);
+      c_24 = FMA(a_14, b_10, c_24);
+      c_25 = FMA(a_14, b_11, c_25);
+      c_26 = FMA(a_14, b_12, c_26);
+      c_27 = FMA(a_14, b_13, c_27);
+      c_28 = FMA(a_14, b_14, c_28);
+      c_29 = FMA(a_14, b_19, c_29);
+
+      IntrVec_t a_19 = LD(a, 19);
+      c_24 = FMA(a_19, b_15, c_24);
+      c_25 = FMA(a_19, b_16, c_25);
+      c_26 = FMA(a_19, b_17, c_26);
+      c_27 = FMA(a_19, b_18, c_27);
+      c_28 = FMA(a_19, b_19, c_28);
+      ST(c, 24, c_24);
+      ST(c, 25, c_25);
+      ST(c, 26, c_26);
+      ST(c, 27, c_27);
+      ST(c, 28, c_28);
+      c_29 = FMA(a_19, b_20, c_29);
+
+      IntrVec_t c_30 = MUL(a_15, b_0);
+      IntrVec_t c_31 = MUL(a_15, b_1);
+      IntrVec_t c_32 = MUL(a_15, b_3);
+      IntrVec_t c_33 = MUL(a_15, b_6);
+      ST(c, 29, c_29);
+      IntrVec_t c_34 = MUL(a_15, b_10);
+      IntrVec_t c_35 = MUL(a_15, b_15);
+
+      c_30 = FMA(a_16, b_1, c_30);
+      c_31 = FMA(a_16, b_2, c_31);
+      c_32 = FMA(a_16, b_4, c_32);
+      c_33 = FMA(a_16, b_7, c_33);
+      c_34 = FMA(a_16, b_11, c_34);
+      c_35 = FMA(a_16, b_16, c_35);
+
+      c_30 = FMA(a_17, b_3, c_30);
+      c_31 = FMA(a_17, b_4, c_31);
+      c_32 = FMA(a_17, b_5, c_32);
+      c_33 = FMA(a_17, b_8, c_33);
+      c_34 = FMA(a_17, b_12, c_34);
+      c_35 = FMA(a_17, b_17, c_35);
+
+      c_30 = FMA(a_18, b_6, c_30);
+      c_31 = FMA(a_18, b_7, c_31);
+      c_32 = FMA(a_18, b_8, c_32);
+      c_33 = FMA(a_18, b_9, c_33);
+      c_34 = FMA(a_18, b_13, c_34);
+      c_35 = FMA(a_18, b_18, c_35);
+
+      c_30 = FMA(a_19, b_10, c_30);
+      c_31 = FMA(a_19, b_11, c_31);
+      c_32 = FMA(a_19, b_12, c_32);
+      c_33 = FMA(a_19, b_13, c_33);
+      c_34 = FMA(a_19, b_14, c_34);
+      c_35 = FMA(a_19, b_19, c_35);
+
+      IntrVec_t a_20 = LD(a, 20);
+      c_30 = FMA(a_20, b_15, c_30);
+      c_31 = FMA(a_20, b_16, c_31);
+      c_32 = FMA(a_20, b_17, c_32);
+      c_33 = FMA(a_20, b_18, c_33);
+      c_34 = FMA(a_20, b_19, c_34);
+      ST(c, 30, c_30);
+      ST(c, 31, c_31);
+      ST(c, 32, c_32);
+      ST(c, 33, c_33);
+      ST(c, 34, c_34);
+      c_35 = FMA(a_20, b_20, c_35);
+
+      ST(c, 35, c_35);

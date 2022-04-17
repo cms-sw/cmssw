@@ -73,6 +73,10 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
   //---------------------------------------------------------------------------
 
   for (auto const& theInput : inputHandle) {
+    if (!theInput.isValid()) {
+      edm::LogWarning("MTDReco") << "MTDTrackingRecHitProducer: Invalid collection";
+      continue;
+    }
     const edmNew::DetSetVector<FTLCluster>& input = *theInput;
 
     LogDebug("MTDTrackingRecHitProducer") << "inputCollection " << input.size();

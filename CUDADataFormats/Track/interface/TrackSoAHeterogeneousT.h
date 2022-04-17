@@ -5,7 +5,7 @@
 #include <algorithm>
 
 #include "CUDADataFormats/Track/interface/TrajectoryStateSoAT.h"
-#include "Geometry/TrackerGeometryBuilder/interface/pixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 
 #include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
@@ -45,6 +45,9 @@ public:
 
   eigenSoA::ScalarSoA<int8_t, S> nLayers;
 
+  constexpr int nTracks() const { return nTracks_; }
+  constexpr void setNTracks(int n) { nTracks_ = n; }
+
   constexpr int nHits(int i) const { return detIndices.size(i); }
 
   constexpr bool isTriplet(int i) const { return nLayers(i) == 3; }
@@ -80,6 +83,9 @@ public:
 
   HitContainer hitIndices;
   HitContainer detIndices;
+
+private:
+  int nTracks_;
 };
 
 namespace pixelTrack {

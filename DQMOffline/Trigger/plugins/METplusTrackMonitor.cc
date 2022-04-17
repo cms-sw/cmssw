@@ -50,7 +50,6 @@ private:
   edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
 
   edm::InputTag hltMetTag_;
-  edm::InputTag hltMetCleanTag_;
   edm::InputTag trackLegFilterTag_;
 
   std::vector<double> met_variable_binning_;
@@ -67,7 +66,6 @@ private:
   ObjME metPhiME_;
   ObjME deltaphimetj1ME_;
   ObjME metVsHltMet_;
-  ObjME metVsHltMetClean_;
 
   ObjME muonPtME_variableBinning_;
   ObjME muonPtVsLS_;
@@ -102,7 +100,6 @@ METplusTrackMonitor::METplusTrackMonitor(const edm::ParameterSet& iConfig)
       vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
       theTrigSummary_(consumes<trigger::TriggerEvent>(iConfig.getParameter<edm::InputTag>("trigSummary"))),
       hltMetTag_(iConfig.getParameter<edm::InputTag>("hltMetFilter")),
-      hltMetCleanTag_(iConfig.getParameter<edm::InputTag>("hltMetCleanFilter")),
       trackLegFilterTag_(iConfig.getParameter<edm::InputTag>("trackLegFilter")),
       met_variable_binning_(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning")),
@@ -201,20 +198,6 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker& ibooker,
          met_binning_.xmin,
          met_binning_.xmax);
   setMETitle(metVsHltMet_, "hltMet (online) [GeV]", "CaloMET (offline) [GeV]");
-
-  histname = "metVsHltMetClean";
-  histtitle = "CaloMET vs hltMetClean";
-  bookME(ibooker,
-         metVsHltMetClean_,
-         histname,
-         histtitle,
-         met_binning_.nbins,
-         met_binning_.xmin,
-         met_binning_.xmax,
-         met_binning_.nbins,
-         met_binning_.xmin,
-         met_binning_.xmax);
-  setMETitle(metVsHltMetClean_, "hltMetClean (online) [GeV]", "CaloMET (offline) [GeV]");
 
   // Track leg histograms
 
@@ -343,11 +326,10 @@ void METplusTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup cons
     return;
   }
 
-  trigger::TriggerObject hltMet, hltMetClean;
+  trigger::TriggerObject hltMet;
   bool passesHltMetFilter = getHLTObj(triggerSummary, hltMetTag_, hltMet);
-  bool passesHltMetCleanFilter = getHLTObj(triggerSummary, hltMetCleanTag_, hltMetClean);
 
-  if (!passesHltMetFilter || !passesHltMetCleanFilter)
+  if (!passesHltMetFilter)
     return;
 
   // Filling MET leg histograms (numerator)
@@ -356,7 +338,6 @@ void METplusTrackMonitor::analyze(edm::Event const& iEvent, edm::EventSetup cons
   deltaphimetj1ME_.numerator->Fill(deltaphi_metjet1);
   metVsLS_.numerator->Fill(ls, met);
   metVsHltMet_.numerator->Fill(hltMet.pt(), met);
-  metVsHltMetClean_.numerator->Fill(hltMetClean.pt(), met);
 
   // Filling track leg histograms (denominator)
   double leadMuonPt = !(muons.empty()) ? muons[0].pt() : -1.0;
@@ -428,7 +409,6 @@ void METplusTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
   desc.add<edm::InputTag>("trigSummary", edm::InputTag("hltTriggerSummaryAOD"));
   desc.add<edm::InputTag>("hltMetFilter", edm::InputTag("hltMET105", "", "HLT"));
-  desc.add<edm::InputTag>("hltMetCleanFilter", edm::InputTag("hltMETClean65", "", "HLT"));
   desc.add<edm::InputTag>("trackLegFilter", edm::InputTag("hltTrk50Filter", "", "HLT"));
 
   desc.add<std::string>("metSelection", "pt > 0");
@@ -442,19 +422,7 @@ void METplusTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("maxMatchDeltaR", 0.1);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
-  genericTriggerEventPSet.add<bool>("andOr");
-  genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
-  genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions", {});
-  genericTriggerEventPSet.add<bool>("andOrDcs", false);
-  genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
-  genericTriggerEventPSet.add<std::string>("dbLabel", "");
-  genericTriggerEventPSet.add<bool>("andOrHlt", true);
-  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
-  genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths", {});
-  genericTriggerEventPSet.add<std::string>("hltDBKey", "");
-  genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
-  genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
-
+  GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
 

@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.common_cff import *
+from PhysicsTools.NanoAOD.genProtonTable_cfi import genProtonTable as _genproton
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from RecoPPS.ProtonReconstruction.ppsFilteredProtonProducer_cfi import *
 
@@ -53,12 +54,21 @@ singleRPTable = cms.EDProducer("SimpleProtonTrackFlatTableProducer",
         thetaY = Var("thetaY",float,doc="th y",precision=10),
     ),
     externalVariables = cms.PSet(
-        decRPId = ExtVar("protonTable:protonRPId",int,doc="Detector ID",precision=8), 
+        decRPId = ExtVar("protonTable:protonRPId",int,doc="Detector ID",precision=8),
     ),
 )
 
 protonTablesTask = cms.Task(filteredProtons,protonTable,multiRPTable)
 if singleRPProtons: protonTablesTask.add(singleRPTable)
 
+# GEN-level signal/PU protons collection
+genProtonTable = _genproton.clone(
+    cut = cms.string('(pdgId == 2212) && (abs(pz) > 5200) && (abs(pz) < 6467.5)') # xi in [0.015, 0.2]
+)
+
+genProtonTablesTask = cms.Task(genProtonTable)
+
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1:
     modifier.toReplaceWith(protonTablesTask, cms.Task())
+    # input GEN-level PU protons collection only introduced for UL and 12_X_Y
+    modifier.toReplaceWith(genProtonTablesTask, cms.Task())

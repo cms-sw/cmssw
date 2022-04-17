@@ -1,7 +1,8 @@
 from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process( "sistriplaserDQMLive" )
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process( "sistriplaserDQMLive", Run3 )
 process.MessageLogger = cms.Service( "MessageLogger",
   cout = cms.untracked.PSet(threshold = cms.untracked.string( 'ERROR' )),
   destinations = cms.untracked.vstring( 'cout')

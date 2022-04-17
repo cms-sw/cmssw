@@ -2,7 +2,6 @@
 <use name="CommonTools/Statistics"/>
 <use name="FWCore/ParameterSet"/>
 <use name="CommonTools/UtilAlgos"/>
-<use name="SimTracker/VertexAssociation"/>
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="MagneticField/Records"/>
 <use name="MagneticField/Engine"/>

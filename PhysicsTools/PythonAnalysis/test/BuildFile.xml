@@ -138,6 +138,7 @@
 <test name="import-google" command="python3 -c 'import google'"/>
 <test name="import-lxml" command="python3 -c 'import lxml'"/>
 <test name="import-bs4" command="python3 -c 'import bs4'"/>
+<test name="import-professor2" command="python3 -c 'import professor2'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
 <test name="run-ipython" command="ipython -h"/>
 <test name="run-pylint" command="pylint -h"/>

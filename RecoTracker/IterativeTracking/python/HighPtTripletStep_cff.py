@@ -274,6 +274,9 @@ highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
 )
 fastSim.toModify(highPtTripletStepTracks,TTRHBuilder = 'WithoutRefit')
 
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(highPtTripletStepTracks, TrajectoryInEvent = True)
+
 # Final selection
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
 highPtTripletStep = TrackMVAClassifierPrompt.clone(

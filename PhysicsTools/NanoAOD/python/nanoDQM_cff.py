@@ -10,16 +10,22 @@ _vplots80X = nanoDQM.vplots.clone()
 # Tau plots
 _tauPlots80X = cms.VPSet()
 for plot in _vplots80X.Tau.plots:
-    if (plot.name.value().find("MVA")>-1 and plot.name.value().find("2017")>-1) or (plot.name.value().find("AntiEle")>-1 and plot.name.value().find("2018")>-1):
+    if (plot.name.value().find("MVA")>-1 and plot.name.value().find("2017")>-1) or (plot.name.value().find("AntiEle")>-1 and plot.name.value().find("2018")>-1) or (plot.name.value().find("AntiEleDeadECal")>-1) or (plot.name.value().find("DeepTau")>-1):
         continue
     _tauPlots80X.append(plot)
-_tauPlots80X.append(Plot1D('idMVAnewDM', 'idMVAnewDM', 64, -0.5, 63.5, 'IsolationMVArun2v1DBnewDMwLT ID working point: bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight, 32 = VVTight'))
-_tauPlots80X.append(Plot1D('idMVAoldDMdR03', 'idMVAoldDMdR03', 64, -0.5, 63.5, 'IsolationMVArun2v1DBdR03oldDMwLT ID working point: bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight, 32 = VVTight'))
-_tauPlots80X.append(Plot1D('rawMVAnewDM', 'rawMVAnewDM', 20, -1, 1, 'byIsolationMVArun2v1DBnewDMwLT raw output discriminator'))
-_tauPlots80X.append(Plot1D('rawMVAoldDMdR03', 'rawMVAoldDMdR03', 20, -1, 1, 'byIsolationMVArun2v1DBdR03oldDMwLT raw output discriminator'))
+_tauPlots80X.extend([Plot1D('idMVAnewDM', 'idMVAnewDM', 64, -0.5, 63.5, 'IsolationMVArun2v1DBnewDMwLT ID working point: bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight, 32 = VVTight'),
+                     Plot1D('idMVAoldDM', 'idMVAoldDM', 64, -0.5, 63.5, 'IsolationMVArun2v1DBnewDMwLT ID working point: bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight, 32 = VVTight'),
+                     Plot1D('idMVAoldDMdR03', 'idMVAoldDMdR03', 64, -0.5, 63.5, 'IsolationMVArun2v1DBdR03oldDMwLT ID working point: bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight, 32 = VVTight'),
+                     Plot1D('rawMVAnewDM', 'rawMVAnewDM', 20, -1, 1, 'byIsolationMVArun2v1DBnewDMwLT raw output discriminator'),
+                     Plot1D('rawMVAoldDM', 'rawMVAoldDM', 20, -1, 1, 'byIsolationMVArun2v1DBnewDMwLT raw output discriminator'),
+                     Plot1D('rawMVAoldDMdR03', 'rawMVAoldDMdR03', 20, -1, 1, 'byIsolationMVArun2v1DBdR03oldDMwLT raw output discriminator'),
+                     Plot1D('idAntiEle', 'idAntiEle', 32, -0.5, 31.5, 'Anti-electron MVA discriminator V6: bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight'),
+                     Plot1D('rawAnti', 'rawAntiEle', 20, -100, 100, 'Anti-electron MVA discriminator V6 raw output discriminator'),
+                     Plot1D('rawAntiEleCat', 'rawAntiEleCat', 17, -1.5, 15.5, 'Anti-electron MVA discriminator V6 category')
+])
 _vplots80X.Tau.plots = _tauPlots80X
 run2_miniAOD_80XLegacy.toModify(nanoDQM,
-                                     vplots = _vplots80X
+                                vplots = _vplots80X
 )
 _tauPlotsPreV9 = cms.VPSet()
 for plot in nanoDQM.vplots.Tau.plots:
@@ -28,6 +34,8 @@ for plot in nanoDQM.vplots.Tau.plots:
 _tauPlotsPreV9.extend([
                 Plot1D('idDecayMode', 'idDecayMode', 2, -0.5, 1.5, "tauID('decayModeFinding')"),
                 Plot1D('idDecayModeNewDMs', 'idDecayModeNewDMs', 2, -0.5, 1.5, "tauID('decayModeFindingNewDMs')"),
+                Plot1D('idAntiEle', 'idAntiEle', 32, -0.5, 31.5, 'Anti-electron MVA discriminator V6: bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight'),
+                Plot1D('idAntiEle2018', 'idAntiEle2018', 32, -0.5, 31.5, 'Anti-electron MVA discriminator V6 (2018): bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight'),
                 Plot1D('idMVAnewDM2017v2', 'idMVAnewDM2017v2', 128, -0.5, 127.5, 'IsolationMVArun2v1DBnewDMwLT ID working point (2017v2): bitmask 1 = VVLoose, 2 = VLoose, 4 = Loose, 8 = Medium, 16 = Tight, 32 = VTight, 64 = VVTight'),
                 Plot1D('idMVAoldDM', 'idMVAoldDM', 64, -0.5, 63.5, 'IsolationMVArun2v1DBoldDMwLT ID working point: bitmask 1 = VLoose, 2 = Loose, 4 = Medium, 8 = Tight, 16 = VTight, 32 = VVTight'),
                 Plot1D('idMVAoldDM2017v1', 'idMVAoldDM2017v1', 128, -0.5, 127.5, 'IsolationMVArun2v1DBoldDMwLT ID working point (2017v1): bitmask 1 = VVLoose, 2 = VLoose, 4 = Loose, 8 = Medium, 16 = Tight, 32 = VTight, 64 = VVTight'),
@@ -45,6 +53,16 @@ _tauPlotsPreV9.extend([
 ])
 
 (run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(nanoDQM.vplots.Tau, plots = _tauPlotsPreV9)
+
+_boostedTauPlotsV10 = cms.VPSet()
+for plot in nanoDQM.vplots.boostedTau.plots:
+    _boostedTauPlotsV10.append(plot)
+_boostedTauPlotsV10.extend([
+    Plot1D('idMVAoldDMdR032017v2', 'idMVAoldDMdR032017v2', 128, -0.5, 127.5, 'IsolationMVArun2017v2DBoldDMdR0p3wLT ID working point (2017v2): bitmask 1 = VVLoose, 2 = VLoose, 4 = Loose, 8 = Medium, 16 = Tight, 32 = VTight, 64 = VVTight'),
+    Plot1D('rawMVAoldDMdR032017v2', 'rawMVAoldDMdR032017v2', 20, -1, 1, 'byIsolationMVArun2017v2DBoldDMdR0p3wLT raw output discriminator (2017v2)')
+])
+
+(run2_nanoAOD_106Xv2).toModify(nanoDQM.vplots.boostedTau, plots = _boostedTauPlotsV10)
 
 _METFixEE2017_DQMentry = nanoDQM.vplots.MET.clone()
 _METFixEE2017_plots = cms.VPSet()

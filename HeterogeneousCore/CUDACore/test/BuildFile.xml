@@ -8,6 +8,7 @@
     <use name="HeterogeneousCore/CUDACore"/>
     <use name="catch2"/>
     <use name="cuda"/>
+    <use name="fmt"/>
   </bin>
 
   <bin file="testStreamEvent.cu" name="testHeterogeneousCoreCUDACoreStreamEvent">
@@ -15,4 +16,12 @@
     <use name="cuda"/>
   </bin>
 
+  <bin name="cudaTimeMeasurement" file="cudaTimeMeasurement.cu">
+    <use name="cuda"/>
+    <use name="HeterogeneousCore/CUDAUtilities"/>
+    <flags TEST_RUNNER_CMD="cudaTimeMeasurement -a10 -t100 -s10000 -q -p12345"/>
+</bin>
+
+
 </iftool>
+

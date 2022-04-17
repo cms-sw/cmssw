@@ -38,7 +38,10 @@ public:
 
 private:
   // DD
-  void buildGeometry(DDFilteredView& fview, const MuonGeometryConstants& muonConstants, RecoIdealGeometry& rgeo);
+  void buildGeometry(DDFilteredView& fview,
+                     DDFilteredView& fview2,
+                     const MuonGeometryConstants& muonConstants,
+                     RecoIdealGeometry& rgeo);
   void buildSuperChamber(DDFilteredView& fv, GEMDetId detId, RecoIdealGeometry& rgeo);
   void buildChamber(DDFilteredView& fv, GEMDetId detId, RecoIdealGeometry& rgeo);
   void buildEtaPartition(DDFilteredView& fv, GEMDetId detId, RecoIdealGeometry& rgeo);

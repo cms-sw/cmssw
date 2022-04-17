@@ -1,4 +1,5 @@
 <use name="CUDADataFormats/Vertex"/>
+<use name="CUDADataFormats/Track"/>
 <use name="CommonTools/Clustering1D"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="DataFormats/GeometryCommonDetAlgo"/>

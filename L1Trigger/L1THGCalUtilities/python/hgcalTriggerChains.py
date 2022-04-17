@@ -34,32 +34,32 @@ class HGCalTriggerChains:
         self.ntuple[name] = generator
 
     def register_chain(self, vfe, concentrator, backend1, backend2, selector='', ntuple=''):
-        if not vfe in self.vfe: 
+        if not vfe in self.vfe:
             raise KeyError('{} not registered as VFE producer'.format(vfe))
-        if not concentrator in self.concentrator: 
+        if not concentrator in self.concentrator:
             raise KeyError('{} not registered as concentrator producer'.format(concentrator))
-        if not backend1 in self.backend1: 
+        if not backend1 in self.backend1:
             raise KeyError('{} not registered as backend1 producer'.format(backend1))
-        if not backend2 in self.backend2: 
+        if not backend2 in self.backend2:
             raise KeyError('{} not registered as backend2 producer'.format(backend2))
         if selector!='' and not selector in self.selector:
             raise KeyError('{} not registered as selector'.format(selector))
-        if ntuple!='' and not ntuple in self.ntuple: 
+        if ntuple!='' and not ntuple in self.ntuple:
             raise KeyError('{} not registered as ntuplizer'.format(ntuple))
         self.chain.append( (vfe, concentrator, backend1, backend2, selector, ntuple) )
 
-    def register_truth_chain(self, vfe, truth_prod, backend1='', backend2='', selector='', ntuple=''): 
-        if not vfe in self.vfe: 
+    def register_truth_chain(self, vfe, truth_prod, backend1='', backend2='', selector='', ntuple=''):
+        if not vfe in self.vfe:
             raise KeyError('{} not registered as VFE producer'.format(vfe))
-        if not truth_prod in self.truth_prod: 
+        if not truth_prod in self.truth_prod:
             raise KeyError('{} not registered as truth producer'.format(truth_prod))
-        if backend1!='' and not backend1 in self.backend1: 
+        if backend1!='' and not backend1 in self.backend1:
             raise KeyError('{} not registered as backend1 producer'.format(backend1))
-        if backend2!='' and not backend2 in self.backend2: 
+        if backend2!='' and not backend2 in self.backend2:
             raise KeyError('{} not registered as backend2 producer'.format(backend2))
         if selector!='' and not selector in self.selector:
             raise KeyError('{} not registered as selector'.format(selector))
-        if ntuple!='' and not ntuple in self.ntuple: 
+        if ntuple!='' and not ntuple in self.ntuple:
             raise KeyError('{} not registered as ntuplizer'.format(ntuple))
         self.truth_chain.append( (vfe, truth_prod, backend1, backend2, selector, ntuple) )
 
@@ -80,32 +80,38 @@ class HGCalTriggerChains:
             backend2_name = '{0}{1}{2}{3}'.format(vfe, concentrator, backend1, backend2)
             selector_name = '{0}{1}{2}{3}{4}'.format(vfe, concentrator, backend1, backend2, selector)
             ntuple_name = '{0}{1}{2}{3}{4}{5}'.format(vfe, concentrator, backend1, backend2, selector, ntuple)
-            if selector=='':
-                ntuple_inputs = [
-                        concentrator_name+':HGCalConcentratorProcessorSelection',
-                        backend1_name+':HGCalBackendLayer1Processor2DClustering',
-                        backend2_name+':HGCalBackendLayer2Processor3DClustering'
-                        ]
-            else:
-                ntuple_inputs = [
-                        concentrator_name+':HGCalConcentratorProcessorSelection',
-                        backend1_name+':HGCalBackendLayer1Processor2DClustering',
-                        selector_name]
             if not hasattr(process, vfe):
                 setattr(process, vfe, self.vfe[vfe](process))
                 vfe_task.add(getattr(process, vfe))
             if not hasattr(process, concentrator_name):
-                setattr(process, concentrator_name, self.concentrator[concentrator](process, vfe))
+                vfe_processor = getattr(process, vfe).ProcessorParameters.ProcessorName.value()
+                setattr(process, concentrator_name, self.concentrator[concentrator](process, vfe+':'+vfe_processor))
                 concentrator_task.add(getattr(process, concentrator_name))
             if not hasattr(process, backend1_name):
-                setattr(process, backend1_name, self.backend1[backend1](process, concentrator_name))
+                concentrator_processor = getattr(process, concentrator_name).ProcessorParameters.ProcessorName.value()
+                setattr(process, backend1_name, self.backend1[backend1](process, concentrator_name+':'+concentrator_processor))
                 backend1_task.add(getattr(process, backend1_name))
             if not hasattr(process, backend2_name):
-                setattr(process, backend2_name, self.backend2[backend2](process, backend1_name))
+                backend1_processor = getattr(process, backend1_name).ProcessorParameters.ProcessorName.value()
+                setattr(process, backend2_name, self.backend2[backend2](process, backend1_name+':'+backend1_processor))
                 backend2_task.add(getattr(process, backend2_name))
             if selector!='' and not hasattr(process, selector_name):
-                setattr(process, selector_name, self.selector[selector](process, backend2_name))
+                backend2_processor = getattr(process, backend2_name).ProcessorParameters.ProcessorName.value()
+                setattr(process, selector_name, self.selector[selector](process, backend2_name+':'+backend2_processor))
                 selector_sequence *= getattr(process, selector_name)
+
+            if selector=='':
+                ntuple_inputs = [
+                        concentrator_name+':'+getattr(process, concentrator_name).ProcessorParameters.ProcessorName.value(),
+                        backend1_name+':'+getattr(process, backend1_name).ProcessorParameters.ProcessorName.value(),
+                        backend2_name+':'+getattr(process, backend2_name).ProcessorParameters.ProcessorName.value()
+                        ]
+            else:
+                ntuple_inputs = [
+                        concentrator_name+':'+getattr(process, concentrator_name).ProcessorParameters.ProcessorName.value(),
+                        backend1_name+':'+getattr(process, backend1_name).ProcessorParameters.ProcessorName.value(),
+                        selector_name]
+
             if ntuple!='' and not hasattr(process, ntuple_name):
                 setattr(process, ntuple_name, self.ntuple[ntuple](process, ntuple_inputs))
                 ntuple_sequence *= getattr(process, ntuple_name)
@@ -117,12 +123,16 @@ class HGCalTriggerChains:
         ntuple_sequence.remove(tmpseq)
         process.globalReplace('hgcalVFE', vfe_task)
         process.globalReplace('hgcalConcentrator', concentrator_task)
-        process.globalReplace('hgcalBackEndLayer1', backend1_task)
-        process.globalReplace('hgcalBackEndLayer2', backend2_task)
+        if 'HGCalBackendStage1Processor' in backend1_processor:
+            process.globalReplace('hgcalBackEndStage1', backend1_task)
+            process.globalReplace('hgcalBackEndStage2', backend2_task)
+        else:
+            process.globalReplace('hgcalBackEndLayer1', backend1_task)
+            process.globalReplace('hgcalBackEndLayer2', backend2_task)
         process.globalReplace('hgcalTriggerSelector', selector_sequence)
         process.globalReplace('hgcalTriggerNtuples', ntuple_sequence)
         return process
-    
+
     def create_truth_sequences(self, process):
         if not hasattr(process, 'caloTruthCellsProducer'):
             from L1Trigger.L1THGCalUtilities.caloTruthCellsProducer_cfi import caloTruthCellsProducer

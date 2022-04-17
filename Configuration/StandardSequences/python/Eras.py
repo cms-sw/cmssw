@@ -38,6 +38,7 @@ class Eras (object):
                  'Run3_pp_on_PbPb',
                  'Run3_dd4hep',
                  'Run3_DDD',
+                 'Run3_FastSim',
                  'Phase2',
                  'Phase2C9',
                  'Phase2C10',
@@ -56,7 +57,8 @@ class Eras (object):
                  'Phase2C11I13T23M9',
                  'Phase2C11I13T25M9',
                  'Phase2C11I13T26M9',
-                 'Phase2C11I13T27M9'
+                 'Phase2C11I13T27M9',
+                 'Phase2C17I13M9'
         ]
 
         internalUseMods = ['run2_common', 'run2_25ns_specific',

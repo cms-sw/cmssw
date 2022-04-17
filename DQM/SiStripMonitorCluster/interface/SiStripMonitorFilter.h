@@ -10,9 +10,8 @@
 #include <memory>
 
 // user include files
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,7 +21,7 @@
 class SiStripMonitorFilter : public DQMEDAnalyzer {
 public:
   explicit SiStripMonitorFilter(const edm::ParameterSet &);
-  ~SiStripMonitorFilter() override{};
+  ~SiStripMonitorFilter() override = default;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;

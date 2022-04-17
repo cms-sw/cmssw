@@ -15,7 +15,10 @@
 namespace {
   void fillNtuplets(RegionsSeedingHitSets::RegionFiller& seedingHitSetsFiller, const OrderedHitSeeds& quadruplets) {
     for (const auto& quad : quadruplets) {
-      seedingHitSetsFiller.emplace_back(quad[0], quad[1], quad[2], quad[3]);
+      if (quad.size() == 3)
+        seedingHitSetsFiller.emplace_back(quad[0], quad[1], quad[2]);
+      if (quad.size() == 4)
+        seedingHitSetsFiller.emplace_back(quad[0], quad[1], quad[2], quad[3]);
     }
   }
 }  // namespace

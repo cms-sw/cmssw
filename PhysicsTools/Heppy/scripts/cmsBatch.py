@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Colin
 # batch mode for cmsRun, March 2009
 

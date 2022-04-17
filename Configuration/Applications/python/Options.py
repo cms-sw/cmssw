@@ -414,3 +414,8 @@ expertSettings.add_option("--nConcurrentIOVs",
                           default=defaultOptions.nConcurrentIOVs,
                           dest='nConcurrentIOVs'
                           )
+expertSettings.add_option("--accelerators",
+                          help="Comma-separated list of accelerators to enable; if 'cpu' is not included, the job will fail if none of the accelerators is available (default is not set, enabling all available accelerators, including the cpu)",
+                          default=None,
+                          dest='accelerators'
+                          )

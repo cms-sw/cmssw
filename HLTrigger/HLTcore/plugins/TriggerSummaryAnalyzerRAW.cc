@@ -141,6 +141,10 @@ void TriggerSummaryAnalyzerRAW::analyze(edm::StreamID, const edm::Event& iEvent,
       if (nL1TMuon > 0)
         LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TMuon: " << nL1TMuon;
 
+      const unsigned int nL1TMuonShower(handle->l1tmuonShowerSlice(iFO).second - handle->l1tmuonShowerSlice(iFO).first);
+      if (nL1TMuonShower > 0)
+        LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TMuonShower: " << nL1TMuonShower;
+
       const unsigned int nL1TEGamma(handle->l1tegammaSlice(iFO).second - handle->l1tegammaSlice(iFO).first);
       if (nL1TEGamma > 0)
         LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TEGamma: " << nL1TEGamma;
@@ -189,27 +193,28 @@ void TriggerSummaryAnalyzerRAW::analyze(edm::StreamID, const edm::Event& iEvent,
       LogVerbatim("TriggerSummaryAnalyzerRAW") << endl;
     }
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "Elements in linearised collections of Refs: " << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Photons:    " << handle->photonSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Electrons:  " << handle->electronSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Muons:      " << handle->muonSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Jets:       " << handle->jetSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Composites: " << handle->compositeSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  BaseMETs:   " << handle->basemetSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  CaloMETs:   " << handle->calometSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Pixtracks:  " << handle->pixtrackSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1EM:       " << handle->l1emSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1Muon:     " << handle->l1muonSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1Jet:      " << handle->l1jetSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1EtMiss:   " << handle->l1etmissSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1HfRings:  " << handle->l1hfringsSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFJets:     " << handle->pfjetSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFTaus:     " << handle->pftauSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFMETs:     " << handle->pfmetSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TMuon:    " << handle->l1tmuonSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEGamma:  " << handle->l1tegammaSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TJet:     " << handle->l1tjetSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTau:     " << handle->l1ttauSize() << endl;
-    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEtSum:   " << handle->l1tetsumSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Photons:       " << handle->photonSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Electrons:     " << handle->electronSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Muons:         " << handle->muonSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Jets:          " << handle->jetSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Composites:    " << handle->compositeSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  BaseMETs:      " << handle->basemetSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  CaloMETs:      " << handle->calometSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Pixtracks:     " << handle->pixtrackSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1EM:          " << handle->l1emSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1Muon:        " << handle->l1muonSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1Jet:         " << handle->l1jetSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1EtMiss:      " << handle->l1etmissSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1HfRings:     " << handle->l1hfringsSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFJets:        " << handle->pfjetSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFTaus:        " << handle->pftauSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFMETs:        " << handle->pfmetSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TMuon:       " << handle->l1tmuonSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TMuonShower: " << handle->l1tmuonShowerSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEGamma:     " << handle->l1tegammaSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TJet:        " << handle->l1tjetSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTau:        " << handle->l1ttauSize() << endl;
+    LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEtSum:      " << handle->l1tetsumSize() << endl;
     /* Phase-2 */
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkMuon:    " << handle->l1ttkmuonSize() << endl;
     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTkEle:     " << handle->l1ttkeleSize() << endl;

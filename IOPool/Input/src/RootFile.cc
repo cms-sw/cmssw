@@ -370,10 +370,11 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::branchIDListBranchName().c_str(), &branchIDListsPtr);
     }
 
+    ThinnedAssociationsHelper* thinnedAssociationsHelperPtr;  // must remain in scope through getEntry()
     if (inputType != InputType::SecondarySource) {
       fileThinnedAssociationsHelper_ =
           std::make_unique<ThinnedAssociationsHelper>();  // propagate_const<T> has no reset() function
-      ThinnedAssociationsHelper* thinnedAssociationsHelperPtr = fileThinnedAssociationsHelper_.get();
+      thinnedAssociationsHelperPtr = fileThinnedAssociationsHelper_.get();
       if (metaDataTree->FindBranch(poolNames::thinnedAssociationsHelperBranchName().c_str()) != nullptr) {
         metaDataTree->SetBranchAddress(poolNames::thinnedAssociationsHelperBranchName().c_str(),
                                        &thinnedAssociationsHelperPtr);

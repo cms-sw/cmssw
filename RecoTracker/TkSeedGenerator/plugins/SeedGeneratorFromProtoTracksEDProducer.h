@@ -3,13 +3,10 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromProtoTrack.h"
 #include "SeedFromConsecutiveHitsCreator.h"
-
-#include <string>
 
 class dso_hidden SeedGeneratorFromProtoTracksEDProducer : public edm::stream::EDProducer<> {
 public:

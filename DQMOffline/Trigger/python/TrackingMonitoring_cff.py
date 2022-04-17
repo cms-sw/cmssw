@@ -1,109 +1,109 @@
 import FWCore.ParameterSet.Config as cms
 
 import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
-trackingMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-trackingMonHLT.beamSpot                = cms.InputTag("hltOnlineBeamSpot")
-trackingMonHLT.primaryVertex           = cms.InputTag("hltPixelVertices")
-trackingMonHLT.doAllPlots              = cms.bool(False)
-trackingMonHLT.doLumiAnalysis          = cms.bool(False)     
-trackingMonHLT.doProfilesVsLS          = cms.bool(True)
-trackingMonHLT.doDCAPlots              = cms.bool(True)
-trackingMonHLT.pvNDOF                  = cms.int32(1)
-trackingMonHLT.doProfilesVsLS          = cms.bool(True)
-trackingMonHLT.doPlotsVsGoodPVtx       = cms.bool(True)
-trackingMonHLT.doEffFromHitPatternVsPU = cms.bool(True)
-trackingMonHLT.doEffFromHitPatternVsBX = cms.bool(True)
-trackingMonHLT.doEffFromHitPatternVsLUMI = cms.bool(True)
-trackingMonHLT.doPlotsVsGoodPVtx       = cms.bool(True)
-trackingMonHLT.doPlotsVsLUMI           = cms.bool(True)
-trackingMonHLT.doPlotsVsBX             = cms.bool(True)
-
-pixelTracksMonitoringHLT = trackingMonHLT.clone()
-pixelTracksMonitoringHLT.FolderName       = 'HLT/Tracking/pixelTracks'
-pixelTracksMonitoringHLT.TrackProducer    = 'hltPixelTracks'
-pixelTracksMonitoringHLT.allTrackProducer = 'hltPixelTracks'
-pixelTracksMonitoringHLT.doEffFromHitPatternVsPU   = False
-pixelTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
-pixelTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
-
-iter0TracksMonitoringHLT = trackingMonHLT.clone()
-iter0TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter0'
-iter0TracksMonitoringHLT.TrackProducer    = 'hltIter0PFlowCtfWithMaterialTracks'
-iter0TracksMonitoringHLT.allTrackProducer = 'hltIter0PFlowCtfWithMaterialTracks'
-iter0TracksMonitoringHLT.doEffFromHitPatternVsPU   = True
-iter0TracksMonitoringHLT.doEffFromHitPatternVsBX   = False
-iter0TracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
-
-iter0HPTracksMonitoringHLT = trackingMonHLT.clone()
-iter0HPTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter0HP'
-iter0HPTracksMonitoringHLT.TrackProducer    = 'hltIter0PFlowTrackSelectionHighPurity'
-iter0HPTracksMonitoringHLT.allTrackProducer = 'hltIter0PFlowTrackSelectionHighPurity'
-iter0HPTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
-iter0HPTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
-iter0HPTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
-
-iter1TracksMonitoringHLT = trackingMonHLT.clone()
-iter1TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter1'
-iter1TracksMonitoringHLT.TrackProducer    = 'hltIter1PFlowCtfWithMaterialTracks'
-iter1TracksMonitoringHLT.allTrackProducer = 'hltIter1PFlowCtfWithMaterialTracks'
-iter1TracksMonitoringHLT.doEffFromHitPatternVsPU   = True
-iter1TracksMonitoringHLT.doEffFromHitPatternVsBX   = False
-iter1TracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
-
-iter1HPTracksMonitoringHLT = trackingMonHLT.clone()
-iter1HPTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter1HP'
-iter1HPTracksMonitoringHLT.TrackProducer    = 'hltIter1PFlowTrackSelectionHighPurity'
-iter1HPTracksMonitoringHLT.allTrackProducer = 'hltIter1PFlowTrackSelectionHighPurity'
-iter1HPTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
-iter1HPTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
-iter1HPTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
-
-iter2TracksMonitoringHLT = trackingMonHLT.clone()
-iter2TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2'
-iter2TracksMonitoringHLT.TrackProducer    = 'hltIter2PFlowCtfWithMaterialTracks'
-iter2TracksMonitoringHLT.allTrackProducer = 'hltIter2PFlowCtfWithMaterialTracks'
-iter2TracksMonitoringHLT.doEffFromHitPatternVsPU   = True
-iter2TracksMonitoringHLT.doEffFromHitPatternVsBX   = False
-iter2TracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
-
-iter2HPTracksMonitoringHLT = trackingMonHLT.clone()
-iter2HPTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2HP'
-iter2HPTracksMonitoringHLT.TrackProducer    = 'hltIter2PFlowTrackSelectionHighPurity'
-iter2HPTracksMonitoringHLT.allTrackProducer = 'hltIter2PFlowTrackSelectionHighPurity'
-iter2HPTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
-iter2HPTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
-iter2HPTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
-
-iter2MergedTracksMonitoringHLT = trackingMonHLT.clone()
-iter2MergedTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2Merged'
-iter2MergedTracksMonitoringHLT.TrackProducer    = 'hltIter2Merged'
-iter2MergedTracksMonitoringHLT.allTrackProducer = 'hltIter2Merged'
-iter2MergedTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
-iter2MergedTracksMonitoringHLT.doEffFromHitPatternVsBX   = False
-iter2MergedTracksMonitoringHLT.doEffFromHitPatternVsLUMI = False
-
-iterHLTTracksMonitoringHLT = trackingMonHLT.clone()
-iterHLTTracksMonitoringHLT.FolderName       = 'HLT/Tracking/tracks'
-iterHLTTracksMonitoringHLT.TrackProducer    = 'hltMergedTracks'
-iterHLTTracksMonitoringHLT.allTrackProducer = 'hltMergedTracks'
-iterHLTTracksMonitoringHLT.doEffFromHitPatternVsPU   = True
-iterHLTTracksMonitoringHLT.doEffFromHitPatternVsBX   = True
-iterHLTTracksMonitoringHLT.doEffFromHitPatternVsLUMI = True
-iterHLTTracksMonitoringHLT.doDCAPlots                = True
-iterHLTTracksMonitoringHLT.doPVPlots                 = cms.bool(True)
-iterHLTTracksMonitoringHLT.doBSPlots                 = cms.bool(True)
-iterHLTTracksMonitoringHLT.doSIPPlots                = cms.bool(True)
-
-iter3TracksMonitoringHLT = trackingMonHLT.clone()
-iter3TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter3Merged'
-iter3TracksMonitoringHLT.TrackProducer    = 'hltIter3Merged'
-iter3TracksMonitoringHLT.allTrackProducer = 'hltIter3Merged'
-
-iter4TracksMonitoringHLT = trackingMonHLT.clone()
-iter4TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter4Merged'
-iter4TracksMonitoringHLT.TrackProducer    = 'hltIter4Merged'
-iter4TracksMonitoringHLT.allTrackProducer = 'hltIter4Merged'
-
+trackingMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone(
+    beamSpot                = "hltOnlineBeamSpot",
+    primaryVertex           = "hltPixelVertices",
+    doAllPlots              = False,
+    doLumiAnalysis          = False,     
+    #doProfilesVsLS          = True,
+    doDCAPlots              = True,
+    pvNDOF                  = 1,
+    doProfilesVsLS          = True,
+    #doPlotsVsGoodPVtx       = True,
+    doEffFromHitPatternVsPU = True,
+    doEffFromHitPatternVsBX = True,
+    doEffFromHitPatternVsLUMI = True,
+    doPlotsVsGoodPVtx       = True,
+    doPlotsVsLUMI           = True,
+    doPlotsVsBX             = True
+)
+pixelTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/pixelTracks',
+    TrackProducer    = 'hltPixelTracks',
+    allTrackProducer = 'hltPixelTracks',
+    doEffFromHitPatternVsPU   = False,
+    doEffFromHitPatternVsBX   = False,
+    doEffFromHitPatternVsLUMI = False
+)
+iter0TracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/iter0',
+    TrackProducer    = 'hltIter0PFlowCtfWithMaterialTracks',
+    allTrackProducer = 'hltIter0PFlowCtfWithMaterialTracks',
+    doEffFromHitPatternVsPU   = True,
+    doEffFromHitPatternVsBX   = False,
+    doEffFromHitPatternVsLUMI = False
+)
+iter0HPTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/iter0HP',
+    TrackProducer    = 'hltIter0PFlowTrackSelectionHighPurity',
+    allTrackProducer = 'hltIter0PFlowTrackSelectionHighPurity',
+    doEffFromHitPatternVsPU   = True,
+    doEffFromHitPatternVsBX   = False,
+    doEffFromHitPatternVsLUMI = False
+)
+iter1TracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/iter1',
+    TrackProducer    = 'hltIter1PFlowCtfWithMaterialTracks',
+    allTrackProducer = 'hltIter1PFlowCtfWithMaterialTracks',
+    doEffFromHitPatternVsPU   = True,
+    doEffFromHitPatternVsBX   = False,
+    doEffFromHitPatternVsLUMI = False
+)
+iter1HPTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/iter1HP',
+    TrackProducer    = 'hltIter1PFlowTrackSelectionHighPurity',
+    allTrackProducer = 'hltIter1PFlowTrackSelectionHighPurity',
+    doEffFromHitPatternVsPU   = True,
+    doEffFromHitPatternVsBX   = False,
+    doEffFromHitPatternVsLUMI = False
+)
+iter2TracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/iter2',
+    TrackProducer    = 'hltIter2PFlowCtfWithMaterialTracks',
+    allTrackProducer = 'hltIter2PFlowCtfWithMaterialTracks',
+    doEffFromHitPatternVsPU   = True,
+    doEffFromHitPatternVsBX   = False,
+    doEffFromHitPatternVsLUMI = False
+)
+iter2HPTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/iter2HP',
+    TrackProducer    = 'hltIter2PFlowTrackSelectionHighPurity',
+    allTrackProducer = 'hltIter2PFlowTrackSelectionHighPurity',
+    doEffFromHitPatternVsPU   = True,
+    doEffFromHitPatternVsBX   = False,
+    doEffFromHitPatternVsLUMI = False
+)
+iter2MergedTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/iter2Merged',
+    TrackProducer    = 'hltIter2Merged',
+    allTrackProducer = 'hltIter2Merged',
+    doEffFromHitPatternVsPU   = True,
+    doEffFromHitPatternVsBX   = False,
+    doEffFromHitPatternVsLUMI = False
+)
+iterHLTTracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/tracks',
+    TrackProducer    = 'hltMergedTracks',
+    allTrackProducer = 'hltMergedTracks',
+    doEffFromHitPatternVsPU   = True,
+    doEffFromHitPatternVsBX   = True,
+    doEffFromHitPatternVsLUMI = True,
+    doDCAPlots                = True,
+    doPVPlots                 = cms.bool(True),
+    doBSPlots                 = cms.bool(True),
+    doSIPPlots                = cms.bool(True)
+)
+iter3TracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/iter3Merged',
+    TrackProducer    = 'hltIter3Merged',
+    allTrackProducer = 'hltIter3Merged'
+)
+iter4TracksMonitoringHLT = trackingMonHLT.clone(
+    FolderName       = 'HLT/Tracking/iter4Merged',
+    TrackProducer    = 'hltIter4Merged',
+    allTrackProducer = 'hltIter4Merged'
+)
 trackingMonitorHLT = cms.Sequence(
     pixelTracksMonitoringHLT
     + iter0HPTracksMonitoringHLT
@@ -116,7 +116,7 @@ trackingMonitorHLT = cms.Sequence(
 trackingMonitorHLTall = cms.Sequence(
     pixelTracksMonitoringHLT
     + iter0TracksMonitoringHLT
-    + iter2HPTracksMonitoringHLT
+    + iter0HPTracksMonitoringHLT
     + iter1TracksMonitoringHLT
     + iter1HPTracksMonitoringHLT
     + iter2TracksMonitoringHLT
@@ -133,62 +133,62 @@ trackingMonitorHLTall = cms.Sequence(
 # Iter0: process.hltIter0ElectronsTrackSelectionHighPurity
 # Iter1HP: hltIter1MergedForElectrons
 # Iter2HP: hltIter2MergedForElectrons
-egmTrackingMonHLT = trackingMonHLT.clone()
-egmTrackingMonHLT.primaryVertex = cms.InputTag("hltElectronsVertex")
-egmTrackingMonHLT.doEffFromHitPatternVsPU   = False
-egmTrackingMonHLT.doEffFromHitPatternVsBX   = False
-egmTrackingMonHLT.doEffFromHitPatternVsLUMI = False 
-
-gsfTracksMonitoringHLT = egmTrackingMonHLT.clone()
-gsfTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/GSF'
-gsfTracksMonitoringHLT.TrackProducer    = 'hltEgammaGsfTracks'
-gsfTracksMonitoringHLT.allTrackProducer = 'hltEgammaGsfTracks'
-
-pixelTracksForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-pixelTracksForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/pixelTracks'
-pixelTracksForElectronsTracksMonitoringHLT.TrackProducer    = 'hltPixelTracksElectrons'
-pixelTracksForElectronsTracksMonitoringHLT.allTrackProducer = 'hltPixelTracksElectrons'
-
-iter0ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter0ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter0'
-iter0ForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter0ElectronsCtfWithMaterialTracks'
-iter0ForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter0ElectronsCtfWithMaterialTracks'
-
-iter0HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter0HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter0HP'
-iter0HPForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter0ElectronsTrackSelectionHighPurity'
-iter0HPForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter0ElectronsTrackSelectionHighPurity'
-
-iter1ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter1ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter1'
-iter1ForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter1ElectronsCtfWithMaterialTracks'
-iter1ForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter1ElectronsCtfWithMaterialTracks'
-
-iter1HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter1HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter1HP'
-iter1HPForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter1ElectronsTrackSelectionHighPurity'
-iter1HPForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter1ElectronsTrackSelectionHighPurity'
-
-iter1MergedForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter1MergedForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter1Merged'
-iter1MergedForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter1MergedForElectrons'
-iter1MergedForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter1MergedForElectrons'
-
-iter2ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter2ForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter2'
-iter2ForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter2ElectronsCtfWithMaterialTracks'
-iter2ForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter2ElectronsCtfWithMaterialTracks'
-
-iter2HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone()
-iter2HPForElectronsTracksMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter2HP'
-iter2HPForElectronsTracksMonitoringHLT.TrackProducer    = 'hltIter2ElectronsTrackSelectionHighPurity'
-iter2HPForElectronsTracksMonitoringHLT.allTrackProducer = 'hltIter2ElectronsTrackSelectionHighPurity'
-
-iterHLTTracksForElectronsMonitoringHLT = egmTrackingMonHLT.clone()
-iterHLTTracksForElectronsMonitoringHLT.FolderName       = 'HLT/EGM/Tracking/iter2Merged'
-iterHLTTracksForElectronsMonitoringHLT.TrackProducer    = 'hltIter2MergedForElectrons'
-iterHLTTracksForElectronsMonitoringHLT.allTrackProducer = 'hltIter2MergedForElectrons'
- 
+egmTrackingMonHLT = trackingMonHLT.clone(
+    primaryVertex = "hltElectronsVertex",
+    doEffFromHitPatternVsPU   = False,
+    doEffFromHitPatternVsBX   = False,
+    doEffFromHitPatternVsLUMI = False 
+)
+gsfTracksMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/GSF',
+    TrackProducer    = 'hltEgammaGsfTracks',
+    allTrackProducer = 'hltEgammaGsfTracks'
+)
+pixelTracksForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/pixelTracks',
+    TrackProducer    = 'hltPixelTracksElectrons',
+    allTrackProducer = 'hltPixelTracksElectrons'
+)
+iter0ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/iter0',
+    TrackProducer    = 'hltIter0ElectronsCtfWithMaterialTracks',
+    allTrackProducer = 'hltIter0ElectronsCtfWithMaterialTracks'
+)
+iter0HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/iter0HP',
+    TrackProducer    = 'hltIter0ElectronsTrackSelectionHighPurity',
+    allTrackProducer = 'hltIter0ElectronsTrackSelectionHighPurity'
+)
+iter1ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/iter1',
+    TrackProducer    = 'hltIter1ElectronsCtfWithMaterialTracks',
+    allTrackProducer = 'hltIter1ElectronsCtfWithMaterialTracks'
+)
+iter1HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/iter1HP',
+    TrackProducer    = 'hltIter1ElectronsTrackSelectionHighPurity',
+    allTrackProducer = 'hltIter1ElectronsTrackSelectionHighPurity'
+)
+iter1MergedForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/iter1Merged',
+    TrackProducer    = 'hltIter1MergedForElectrons',
+    allTrackProducer = 'hltIter1MergedForElectrons'
+)
+iter2ForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/iter2',
+    TrackProducer    = 'hltIter2ElectronsCtfWithMaterialTracks',
+    allTrackProducer = 'hltIter2ElectronsCtfWithMaterialTracks'
+)
+iter2HPForElectronsTracksMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/iter2HP',
+    TrackProducer    = 'hltIter2ElectronsTrackSelectionHighPurity',
+    allTrackProducer = 'hltIter2ElectronsTrackSelectionHighPurity'
+)
+iterHLTTracksForElectronsMonitoringHLT = egmTrackingMonHLT.clone(
+    FolderName       = 'HLT/EGM/Tracking/iter2Merged',
+    TrackProducer    = 'hltIter2MergedForElectrons',
+    allTrackProducer = 'hltIter2MergedForElectrons'
+)
 
 egmTrackingMonitorHLT = cms.Sequence(
     gsfTracksMonitoringHLT
@@ -199,6 +199,10 @@ egmTrackingMonitorHLT = cms.Sequence(
     + iterHLTTracksForElectronsMonitoringHLT
 )
 
-
 trkHLTDQMSourceExtra = cms.Sequence(
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toReplaceWith(trackingMonitorHLT, cms.Sequence(pixelTracksMonitoringHLT + iterHLTTracksMonitoringHLT))
+run3_common.toReplaceWith(trackingMonitorHLTall, cms.Sequence(pixelTracksMonitoringHLT + iter0TracksMonitoringHLT + iterHLTTracksMonitoringHLT))
+run3_common.toReplaceWith(egmTrackingMonitorHLT, cms.Sequence(gsfTracksMonitoringHLT))

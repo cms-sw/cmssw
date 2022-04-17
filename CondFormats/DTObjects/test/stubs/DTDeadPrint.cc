@@ -20,8 +20,6 @@ namespace edmtest {
 
   DTDeadPrint::DTDeadPrint(int i) {}
 
-  DTDeadPrint::~DTDeadPrint() {}
-
   void DTDeadPrint::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     // Context is not used.

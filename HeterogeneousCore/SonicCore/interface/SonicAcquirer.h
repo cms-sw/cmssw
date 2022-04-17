@@ -17,8 +17,10 @@ public:
   //typedef to simplify usage
   typedef typename Client::Input Input;
   //constructor
-  SonicAcquirer(edm::ParameterSet const& cfg, const std::string& debugName = "", bool verbose = true)
-      : clientPset_(cfg.getParameterSet("Client")), debugName_(debugName), verbose_(verbose) {}
+  SonicAcquirer(edm::ParameterSet const& cfg)
+      : clientPset_(cfg.getParameterSet("Client")),
+        debugName_(cfg.getParameter<std::string>("@module_label")),
+        verbose_(clientPset_.getUntrackedParameter<bool>("verbose")) {}
   //destructor
   ~SonicAcquirer() override = default;
 

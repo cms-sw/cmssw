@@ -1,14 +1,15 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -41,75 +42,77 @@ void HGCalGeomLocaterTester::analyze(const edm::Event&, const edm::EventSetup& i
       det = DetId::HGCalHSi;
     else
       det = DetId::HGCalEE;
-    std::cout << "Perform test for " << name_ << " Detector " << det << " Mode "
-              << geom->topology().dddConstants().geomMode() << std::endl;
+    edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Detector " << det << " Mode "
+                                   << geom->topology().dddConstants().geomMode();
     doTestSilicon(geom, det);
   } else if (geom->topology().tileTrapezoid()) {
     DetId::Detector det(DetId::HGCalHSc);
-    std::cout << "Perform test for " << name_ << " Detector " << det << " Mode "
-              << geom->topology().dddConstants().geomMode() << std::endl;
+    edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name_ << " Detector " << det << " Mode "
+                                   << geom->topology().dddConstants().geomMode();
     doTestScintillator(geom, det);
   }
 }
 
 void HGCalGeomLocaterTester::doTestSilicon(const HGCalGeometry* geom, DetId::Detector det) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << "doTest:: " << ids.size() << " valid ids for " << geom->cellElement() << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << "doTest:: " << ids.size() << " valid ids for " << geom->cellElement();
   const double tol = 0.001;
   const unsigned int step = 10;
   int all(0), good(0), bad(0);
   for (unsigned int k = 0; k < ids.size(); k += step) {
     ++all;
     HGCSiliconDetId id(ids[k]);
-    std::cout << "ID[" << k << "] " << id;
+    std::ostringstream st1;
+    st1 << "ID[" << k << "] " << id;
     GlobalPoint global = geom->getPosition(id);
     auto waferxy = geom->topology().dddConstants().locateCell(id, false);
     double dx = global.x() - waferxy.first;
     double dy = global.y() - waferxy.second;
-    std::cout << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") waferXY ("
-              << waferxy.first << ", " << waferxy.second << ") Delta (" << dx << ", " << dy << ")";
+    st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") waferXY (" << waferxy.first
+        << ", " << waferxy.second << ") Delta (" << dx << ", " << dy << ")";
     if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
-      std::cout << "***** ERROR *****" << std::endl;
+      st1 << " ***** ERROR *****";
       ++bad;
       geom->topology().dddConstants().locateCell(id, true);
     } else {
-      std::cout << std::endl;
       ++good;
     }
+    edm::LogVerbatim("HGCalGeomX") << st1.str();
   }
-  std::cout << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good << " are good and " << bad
-            << " are bad\n\n\n\n";
+  edm::LogVerbatim("HGCalGeomX") << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good
+                                 << " are good and " << bad << " are bad\n\n\n";
 }
 
 void HGCalGeomLocaterTester::doTestScintillator(const HGCalGeometry* geom, DetId::Detector det) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << "doTest:: " << ids.size() << " valid ids for " << geom->cellElement() << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << "doTest:: " << ids.size() << " valid ids for " << geom->cellElement();
   const double tol = 0.01;
   const unsigned int step = 10;
   int all(0), good(0), bad(0);
   for (unsigned int k = 0; k < ids.size(); k += step) {
     ++all;
     HGCScintillatorDetId id(ids[k]);
-    std::cout << "ID[" << k << "] " << id;
+    std::ostringstream st1;
+    st1 << "ID[" << k << "] " << id;
     GlobalPoint global = geom->getPosition(id);
     auto tilexy = geom->topology().dddConstants().locateCell(id, false);
     double dx = global.x() - tilexy.first;
     double dy = global.y() - tilexy.second;
-    std::cout << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") tileXY (" << tilexy.first
-              << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
+    st1 << " position (" << global.x() << ", " << global.y() << ", " << global.z() << ") tileXY (" << tilexy.first
+        << ", " << tilexy.second << ") Delta (" << dx << ", " << dy << ")";
     if ((std::abs(dx) > tol) || (std::abs(dy) > tol)) {
       double r1 = sqrt(global.x() * global.x() + global.y() * global.y());
       double r2 = sqrt(tilexy.first * tilexy.first + tilexy.second * tilexy.second);
-      std::cout << " R " << r1 << ":" << r2 << " ***** ERROR *****" << std::endl;
+      st1 << " R " << r1 << ":" << r2 << " ***** ERROR *****";
       ++bad;
       geom->topology().dddConstants().locateCell(id, true);
     } else {
-      std::cout << std::endl;
       ++good;
     }
+    edm::LogVerbatim("HGCalGeomX") << st1.str();
   }
-  std::cout << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good << " are good and " << bad
-            << " are bad\n\n\n\n";
+  edm::LogVerbatim("HGCalGeomX") << "\n\nStudied " << all << " (" << ids.size() << ") IDs of which " << good
+                                 << " are good and " << bad << " are bad\n\n\n";
 }
 
 //define this as a plug-in

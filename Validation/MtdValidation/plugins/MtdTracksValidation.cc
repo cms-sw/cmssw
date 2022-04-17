@@ -503,7 +503,7 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("trackMinimumEta", 1.5);
   desc.add<double>("trackMaximumEta", 3.2);
 
-  descriptions.add("mtdTracks", desc);
+  descriptions.add("mtdTracksValid", desc);
 }
 
 const bool MtdTracksValidation::mvaGenSel(const HepMC::GenParticle& gp, const float& charge) {

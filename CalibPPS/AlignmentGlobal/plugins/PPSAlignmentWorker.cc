@@ -88,16 +88,17 @@ private:
   };
 
   // ------------ member data ------------
-  edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenBookHistograms_;
-  edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenAnalyze_;
+  const edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenBookHistograms_;
+  const edm::ESGetToken<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd> esTokenAnalyze_;
 
-  edm::EDGetTokenT<CTPPSLocalTrackLiteCollection> tracksToken_;
+  const std::vector<edm::InputTag> tracksTags_;
+  std::vector<edm::EDGetTokenT<CTPPSLocalTrackLiteCollection>> tracksTokens_;
 
   SectorData sectorData45_;
   SectorData sectorData56_;
 
-  std::string dqmDir_;
-  bool debug_;
+  const std::string dqmDir_;
+  const bool debug_;
 };
 
 // -------------------------------- DQMEDAnalyzer methods --------------------------------
@@ -108,16 +109,23 @@ PPSAlignmentWorker::PPSAlignmentWorker(const edm::ParameterSet& iConfig)
               edm::ESInputTag("", iConfig.getParameter<std::string>("label")))),
       esTokenAnalyze_(esConsumes<PPSAlignmentConfiguration, PPSAlignmentConfigurationRcd>(
           edm::ESInputTag("", iConfig.getParameter<std::string>("label")))),
-      tracksToken_(consumes<CTPPSLocalTrackLiteCollection>(iConfig.getParameter<edm::InputTag>("tagTracks"))),
+      tracksTags_(iConfig.getParameter<std::vector<edm::InputTag>>("tracksTags")),
       dqmDir_(iConfig.getParameter<std::string>("dqm_dir")),
       debug_(iConfig.getParameter<bool>("debug")) {
   edm::LogInfo("PPSAlignmentWorker").log([&](auto& li) {
     li << "parameters:\n";
     li << "* label: " << iConfig.getParameter<std::string>("label") << "\n";
-    li << "* tagTracks: " << iConfig.getParameter<edm::InputTag>("tagTracks") << "\n";
+    li << "* tracksTags:\n";
+    for (auto& tag : tracksTags_) {
+      li << "    " << tag << ",\n";
+    }
     li << "* dqm_dir: " << dqmDir_ << "\n";
     li << "* debug: " << std::boolalpha << debug_;
   });
+
+  for (auto& tag : tracksTags_) {
+    tracksTokens_.emplace_back(consumes<CTPPSLocalTrackLiteCollection>(tag));
+  }
 }
 
 void PPSAlignmentWorker::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const& iSetup) {
@@ -128,7 +136,20 @@ void PPSAlignmentWorker::bookHistograms(DQMStore::IBooker& iBooker, edm::Run con
 }
 
 void PPSAlignmentWorker::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  const auto& tracks = iEvent.get(tracksToken_);
+  CTPPSLocalTrackLiteCollection tracks;
+  bool foundProduct = false;
+
+  for (unsigned int i = 0; i < tracksTokens_.size(); i++) {
+    if (auto handle = iEvent.getHandle(tracksTokens_[i])) {
+      tracks = *handle;
+      foundProduct = true;
+      edm::LogInfo("PPSAlignmentWorker") << "Found a product with " << tracksTags_[i];
+      break;
+    }
+  }
+  if (!foundProduct) {
+    throw edm::Exception(edm::errors::ProductNotFound) << "Could not find a product with any of the selected labels.";
+  }
 
   const auto& cfg = iSetup.getData(esTokenAnalyze_);
 
@@ -140,7 +161,7 @@ void PPSAlignmentWorker::fillDescriptions(edm::ConfigurationDescriptions& descri
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("label", "");
-  desc.add<edm::InputTag>("tagTracks", edm::InputTag("ctppsLocalTrackLiteProducer"));
+  desc.add<std::vector<edm::InputTag>>("tracksTags", {edm::InputTag("ctppsLocalTrackLiteProducer")});
   desc.add<std::string>("dqm_dir", "AlCaReco/PPSAlignment");
   desc.add<bool>("debug", false);
 

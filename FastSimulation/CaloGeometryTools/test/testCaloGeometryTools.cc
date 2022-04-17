@@ -65,7 +65,9 @@ private:
   void checkSM();
   void checkSC();
   void testBorderCrossing();
-  int pass_;
+
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tokCaloTopo_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokCaloGeom_;
 
   Histos* myHistos;
   CaloGeometryHelper myGeometry;
@@ -82,7 +84,8 @@ private:
 //
 // constructors and destructor
 //
-testCaloGeometryTools::testCaloGeometryTools(const edm::ParameterSet& iConfig) {
+testCaloGeometryTools::testCaloGeometryTools(const edm::ParameterSet& iConfig)
+    : tokCaloTopo_(esConsumes()), tokCaloGeom_(esConsumes()) {
   myHistos = Histos::instance();
   myHistos->book("h100", 150, 0., 1.5, 100, 0., 35.);
 }
@@ -101,16 +104,13 @@ void testCaloGeometryTools::analyze(const edm::Event& iEvent, const edm::EventSe
 
   RandomEngineAndDistribution random(iEvent.streamID());
 
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-
-  edm::ESHandle<CaloGeometry> pG;
-  iSetup.get<CaloGeometryRecord>().get(pG);
+  const edm::ESHandle<CaloTopology>& theCaloTopology = iSetup.getHandle(tokCaloTopo_);
+  const edm::ESHandle<CaloGeometry>& pG = iSetup.getHandle(tokCaloGeom_);
 
   // Setup the tools
   double bField000 = 4.;
-  myGeometry.setupGeometry(*pG);
-  myGeometry.setupTopology(*theCaloTopology);
+  myGeometry.setupGeometry(*(pG.product()));
+  myGeometry.setupTopology(*(theCaloTopology.product()));
   myGeometry.initialize(bField000);
 
   // Take a point in the barrel

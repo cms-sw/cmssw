@@ -111,9 +111,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   // Although we calculated it with regions, there is some benefit to interpolation.
   unsigned int iPhiET = 4 * L1CaloRegionDetId::N_PHI * physicalPhi / (2 * 3.1415927);
 
-  double physicalPhiHT = atan2(sumHy, sumHx) + 3.1415927;
-  unsigned int iPhiHT = L1CaloRegionDetId::N_PHI * (physicalPhiHT) / (2 * 3.1415927);
-
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0, 0, 0, 0);
 
   // Set quality (i.e. overflow) bits appropriately
@@ -137,7 +134,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   // MHT=rank;
 
   uint16_t MHToHT = MHToverHT(MHT, sumHT);
-  iPhiHT = dijet_phi;
+  unsigned int iPhiHT = (unsigned int)dijet_phi;
 
   l1t::EtSum etMiss(*&etLorentz, EtSum::EtSumType::kMissingEt, MET, 0, iPhiET, METqual);
   l1t::EtSum htMiss(*&etLorentz, EtSum::EtSumType::kMissingHt, MHToHT & 0x7f, 0, iPhiHT, MHTqual);

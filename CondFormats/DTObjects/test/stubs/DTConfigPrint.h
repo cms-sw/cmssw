@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,12 +21,12 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 
 namespace edmtest {
-  class DTConfigPrint : public edm::EDAnalyzer {
+  class DTConfigPrint : public edm::one::EDAnalyzer<> {
   public:
     explicit DTConfigPrint(edm::ParameterSet const& p);
     explicit DTConfigPrint(int i);
-    virtual ~DTConfigPrint();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~DTConfigPrint() override = default;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     std::string connect;

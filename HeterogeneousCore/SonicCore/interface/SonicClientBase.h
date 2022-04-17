@@ -52,6 +52,7 @@ protected:
 
   //members
   SonicMode mode_;
+  bool verbose_;
   std::unique_ptr<SonicDispatcher> dispatcher_;
   unsigned allowedTries_, tries_;
   std::optional<edm::WaitingTaskWithArenaHolder> holder_;

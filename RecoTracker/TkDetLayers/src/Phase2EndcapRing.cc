@@ -15,16 +15,11 @@
 #include "TkDetUtil.h"
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
+#include "DetGroupElementZLess.h"
+
 using namespace std;
 
 typedef GeometricSearchDet::DetWithState DetWithState;
-
-class DetGroupElementZLess {
-public:
-  bool operator()(DetGroup a, DetGroup b) {
-    return (fabs(a.front().det()->position().z()) < fabs(b.front().det()->position().z()));
-  }
-};
 
 Phase2EndcapRing::Phase2EndcapRing(vector<const GeomDet*>& innerDets,
                                    vector<const GeomDet*>& outerDets,

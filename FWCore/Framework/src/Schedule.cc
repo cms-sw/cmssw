@@ -722,7 +722,6 @@ namespace edm {
                                                                                actions,
                                                                                areg,
                                                                                processConfiguration,
-                                                                               !hasSubprocesses,
                                                                                StreamID{i},
                                                                                processContext));
     }
@@ -1043,14 +1042,12 @@ namespace edm {
                                      << "Name"
                                      << "";
 
-        unsigned int bitpos = 0;
         for (auto const& mod : p.moduleInPathSummaries) {
           LogFwkVerbatim("FwkSummary") << "TrigReport " << std::right << std::setw(5) << 1 << std::right << std::setw(5)
-                                       << bitpos << " " << std::right << std::setw(10) << mod.timesVisited << " "
-                                       << std::right << std::setw(10) << mod.timesPassed << " " << std::right
+                                       << mod.bitPosition << " " << std::right << std::setw(10) << mod.timesVisited
+                                       << " " << std::right << std::setw(10) << mod.timesPassed << " " << std::right
                                        << std::setw(10) << mod.timesFailed << " " << std::right << std::setw(10)
                                        << mod.timesExcept << " " << mod.moduleLabel << "";
-          ++bitpos;
         }
       }
 
@@ -1429,6 +1426,13 @@ namespace edm {
       stream->deleteModule(iLabel);
     }
     moduleRegistry_->deleteModule(iLabel, areg->preModuleDestructionSignal_, areg->postModuleDestructionSignal_);
+  }
+
+  void Schedule::initializeEarlyDelete(std::vector<std::string> const& branchesToDeleteEarly,
+                                       edm::ProductRegistry const& preg) {
+    for (auto& stream : streamSchedules_) {
+      stream->initializeEarlyDelete(*moduleRegistry(), branchesToDeleteEarly, preg);
+    }
   }
 
   std::vector<ModuleDescription const*> Schedule::getAllModuleDescriptions() const {

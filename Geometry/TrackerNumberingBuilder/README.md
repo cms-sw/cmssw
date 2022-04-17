@@ -8,6 +8,7 @@ The predefined DetId schemas available in this package are:
 * The Run 1 (aka _present_) detector DetId schema
 * The Phase 1 detector DetId schema where the pixel detector is replaced by the upgraded one
 * The Phase 2 upgrade detector DetId schema where both the strip and the pixel detectors are replaced by the upgraded ones - TDR-like
+* The Phase 2 upgrade reordered detector DetId schema, where the strip detector is replaced by the upgraded one (TDR-like), as is the pixel detector. This differs from the full TDR-like Phase2 DetId schema to account for a re-ordering in the pixel endcaps.
 
 In the table below the DetId levels which are in normal font represents _real_ hierarchy levels which are present 
 also in the `GeometricDet` tree which is build in parallel to the DetId assignment. Those levels which are in _italic_ font are _fake_ levels and are not known by the GeometricDet tree.
@@ -175,6 +176,24 @@ With this subdetector, the flat geometry is compatible using just the central ba
 
 The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
 The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseII/trackerParameters.xml](../TrackerCommonData/data/PhaseII/trackerParameters.xml
+
+### Phase 2 Upgrade Detector DetId schema modified to account for the re-ordering of the pixel 
+Only the subdetector 2 schema is different wrt the original Phase 2 upgrade DetIdSchema
+ 
+* Subdetector 2: (`DetId::subDetId() == PixelSubdetector::PixelEndcap`): Phase2 Pixel Forward
+
+| Name | start bit | hex mask | bit size | `TrackerTopology` method | Notes |
+|------|-----------|-----------|----|-----|-----|
+| subdetector part | 23 | 0x3 | 2 | pxfSide(id) or side(id) | 1=FPIX- 2=FPIX+ |
+| DoubleDisk | 19 | 0xF | 4 |pxfDisk(id) or layer(id) | increasing abs(z) |
+| _SubDisk_ | 18 | 0x1 | 1 | | increasing abs(z) |
+| _SingleRing_ | 12 | 0x3F | 6 | pxfBlade(id) | increasing r |
+| Panel | 10 | 0x3 | 2 | pxfPanel(id) | always 1 |
+| Module | 2 | 0xFF | 8 | pxfModule(id) | increasing phi |
+| _not used_ | 0 | 0x3 | 2 | | |
+
+The configuration names for this detid schema are `trackerNumberingGeometry_cfi` (to run on geometry built from xml files) or `trackerNumberingGeometryDB_cfi` (to run on geometry from DB) for `TrackerGeometricDetESModule` and `trackerTopology2023Constants_cfi` for `TrackerTopology`
+The xml description of tracker parameters for this detid schema is in [Geometry/TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml](../TrackerCommonData/data/PhaseII/TFPXTEPXReordered/trackerParameters.xml
 
 
 ### Subdetector `GeometricDet` Enumerators

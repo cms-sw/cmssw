@@ -76,7 +76,7 @@
   <use name="tbb"/>
   <use name="boost"/>
   <use name="boost_program_options"/>
-  <use name="jemalloc"/>
+  <use name="tcmalloc"/>
   <use name="gperf"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>

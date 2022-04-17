@@ -16,7 +16,7 @@ namespace edm {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps)
       : one::OutputModuleBase::OutputModuleBase(ps),
         one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
-        StreamerOutputModuleCommon(ps, &keptProducts()[InEvent]),
+        StreamerOutputModuleCommon(ps, &keptProducts()[InEvent], description().moduleLabel()),
         trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
         psetToken_(
             consumes<SendJobHeader::ParameterSetMap, edm::InRun>(ps.getUntrackedParameter<edm::InputTag>("psetMap"))) {}

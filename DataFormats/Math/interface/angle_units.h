@@ -37,6 +37,51 @@ namespace angle_units {
              std::fabs(x - y) < std::numeric_limits<NumType>::min();
     }
 
+    // Unit conversion functions. They are not related to angles, but it is convenient to define them here
+    // to avoid code duplication.
+
+    template <class NumType>
+    inline constexpr NumType convertMmToCm(NumType millimeters)  // Millimeters -> centimeters
+    {
+      return (millimeters / 10.);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertCmToMm(NumType centimeters)  // Centimeters -> Milliimeters
+    {
+      return (centimeters * 10.);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertCm2ToMm2(NumType centimeters)  // Centimeters^2 -> Milliimeters^2
+    {
+      return (centimeters * 100.);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertMm3ToM3(NumType mm3)  // Cubic millimeters -> cubic meters
+    {
+      return (mm3 / 1.e9);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertMeVToGeV(NumType mev)  // MeV -> GeV
+    {
+      return (mev * 0.001);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertGeVToMeV(NumType gev)  // GeV -> MeV
+    {
+      return (gev * 1000.);
+    }
+
+    template <class NumType>
+    inline constexpr NumType convertGeVToKeV(NumType gev)  // GeV -> keV
+    {
+      return (gev * 1.e6);
+    }
+
   }  // namespace operators
 }  // namespace angle_units
 

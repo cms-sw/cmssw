@@ -26,6 +26,7 @@ genericTriggerEventFlag4L1bd = cms.PSet(
 PixelDCSfilter = cms.PSet(
     andOr         = cms.bool( False ),
     dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+    dcsRecordInputTag = cms.InputTag ( "onlineMetaDataDigis" ),
     dcsPartitions = cms.vint32 ( 28, 29),
     andOrDcs      = cms.bool( False ),
     errorReplyDcs = cms.bool( True ),

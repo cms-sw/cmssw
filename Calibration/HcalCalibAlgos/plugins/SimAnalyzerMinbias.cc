@@ -48,7 +48,7 @@ public:
 
 private:
   // ----------member data ---------------------------
-  double timeCut_;
+  const double timeCut_;
   TTree* myTree_;
 
   // Root tree members
@@ -59,20 +59,17 @@ private:
     myInfo() { theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = 0; }
   };
   std::map<HcalDetId, myInfo> myMap_;
-  edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tok_evt_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
 };
 
 // constructors and destructor
 
-SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) {
+SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig)
+    : timeCut_(iConfig.getUntrackedParameter<double>("TimeCut", 500)),
+      tok_evt_(consumes<edm::HepMCProduct>(edm::InputTag("generator"))),
+      tok_hcal_(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"))) {
   usesResource(TFileService::kSharedResource);
-  timeCut_ = iConfig.getUntrackedParameter<double>("TimeCut", 500);
-
-  // get token names of modules, producing object collections
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
-  tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
-
   edm::LogVerbatim("AnalyzerMB") << "Use Time cut of " << timeCut_ << " ns";
 }
 
@@ -118,13 +115,13 @@ void SimAnalyzerMinbias::endJob() {
       mom4_MB = info.theMB4;
       cells++;
 
-      edm::LogVerbatim("AnalyzerMB") << " Result=  " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB
-                                     << " mom1 " << mom1_MB << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 "
-                                     << mom4_MB;
+      edm::LogVerbatim("SimAnalyzerMinbias")
+          << " Result=  " << mysubd << " " << ieta << " " << iphi << " mom0  " << mom0_MB << " mom1 " << mom1_MB
+          << " mom2 " << mom2_MB << " mom3 " << mom3_MB << " mom4 " << mom4_MB;
       myTree_->Fill();
     }
   }
-  edm::LogVerbatim("AnalyzerMB") << "cells " << cells;
+  edm::LogVerbatim("SimAnalyzerMinbias") << "cells " << cells;
 }
 
 //
@@ -134,23 +131,21 @@ void SimAnalyzerMinbias::endJob() {
 // ------------ method called to produce the data  ------------
 
 void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
-  edm::LogVerbatim("AnalyzerMB") << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() << ":"
-                                 << iEvent.id().event();
+  edm::LogVerbatim("SimAnalyzerMinbias") << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() << ":"
+                                         << iEvent.id().event();
 
-  edm::Handle<edm::HepMCProduct> evtMC;
-  iEvent.getByToken(tok_evt_, evtMC);
+  const edm::Handle<edm::HepMCProduct>& evtMC = iEvent.getHandle(tok_evt_);
   if (!evtMC.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "no HepMCProduct found";
+    edm::LogWarning("SimAnalyzerMinbias") << "no HepMCProduct found";
   } else {
     const HepMC::GenEvent* myGenEvent = evtMC->GetEvent();
-    edm::LogVerbatim("AnalyzerMB") << "Event with " << myGenEvent->particles_size() << " particles + "
-                                   << myGenEvent->vertices_size() << " vertices";
+    edm::LogVerbatim("SimAnalyzerMinbias") << "Event with " << myGenEvent->particles_size() << " particles + "
+                                           << myGenEvent->vertices_size() << " vertices";
   }
 
-  edm::Handle<edm::PCaloHitContainer> hcalHits;
-  iEvent.getByToken(tok_hcal_, hcalHits);
+  const edm::Handle<edm::PCaloHitContainer>& hcalHits = iEvent.getHandle(tok_hcal_);
   if (!hcalHits.isValid()) {
-    edm::LogWarning("AnalyzerMB") << "Error! can't get HcalHits product!";
+    edm::LogWarning("SimAnalyzerMinbias") << "Error! can't get HcalHits product!";
     return;
   }
 
@@ -169,8 +164,8 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
       itr1->second += energyhit;
     }
   }
-  edm::LogVerbatim("AnalyzerMB") << "extract information of " << hitMap.size() << " towers from " << HitHcal->size()
-                                 << " hits";
+  edm::LogVerbatim("SimAnalyzerMinbias") << "extract information of " << hitMap.size() << " towers from "
+                                         << HitHcal->size() << " hits";
 
   for (std::map<HcalDetId, double>::const_iterator hcalItr = hitMap.begin(); hcalItr != hitMap.end(); ++hcalItr) {
     HcalDetId hid = hcalItr->first;
@@ -186,7 +181,7 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     itr1->second.theMB2 += (energyhit * energyhit);
     itr1->second.theMB3 += (energyhit * energyhit * energyhit);
     itr1->second.theMB4 += (energyhit * energyhit * energyhit * energyhit);
-    edm::LogVerbatim("AnalyzerMB") << "ID " << hid << " with energy " << energyhit;
+    edm::LogVerbatim("SimAnalyzerMinbias") << "ID " << hid << " with energy " << energyhit;
   }
 }
 

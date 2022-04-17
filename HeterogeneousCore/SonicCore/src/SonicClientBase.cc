@@ -76,4 +76,5 @@ void SonicClientBase::fillBasePSetDescription(edm::ParameterSetDescription& desc
                edm::allowedValues<std::string>("Sync", "Async", "PseudoAsync"));
   if (allowRetry)
     desc.addUntracked<unsigned>("allowedTries", 0);
+  desc.addUntracked<bool>("verbose", false);
 }

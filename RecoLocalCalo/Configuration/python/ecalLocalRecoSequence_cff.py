@@ -48,6 +48,10 @@ from RecoLocalCalo.EcalRecProducers.ecalDetailedTimeRecHit_cfi import *
 _phase2_timing_ecalRecHitTask = cms.Task( ecalRecHitTask.copy() , ecalDetailedTimeRecHit )
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 phase2_timing.toReplaceWith( ecalRecHitTask, _phase2_timing_ecalRecHitTask )
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+from RecoLocalCalo.EcalRecProducers.ecalUncalibRecHitPhase2_cff import *
+phase2_ecal_devel.toReplaceWith(ecalUncalibRecHitTask, ecalUncalibRecHitPhase2Task)
+phase2_ecal_devel.toReplaceWith(ecalRecHitNoTPTask, ecalRecHitNoTPTask.copyAndExclude([ecalPreshowerRecHit]))
 
 # FastSim modifications
 _fastSim_ecalRecHitTask = ecalRecHitTask.copyAndExclude([ecalCompactTrigPrim,ecalTPSkim])

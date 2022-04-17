@@ -7,182 +7,119 @@ from DQMOffline.Trigger.SoftdropMonitor_cfi import hltSoftdropmonitoring
 from DQMOffline.Trigger.B2GTnPMonitor_cfi import B2GegmGsfElectronIDsForDQM,B2GegHLTDQMOfflineTnPSource
 from DQMOffline.Trigger.TopMonitor_cfi import hltTOPmonitoring
 
-# B2G triggers:
-# HLT_PFHT1050_v*
-# HLT_AK8PFJet500_v*
-# HLT_AK8PFHT750_TrimMass50_v*
-# HLT_AK8PFJet380_TrimMass30_v*
-# HLT_AK8PFHT800_TrimMass50_v*
-# HLT_AK8PFJet400_TrimMass30_v*
-# HLT_AK8PFHT850_TrimMass50_v*
-# HLT_AK8PFJet420_TrimMass30_v*
-# HLT_AK8PFHT900_TrimMass50_v*
-# HLT_AK8PFHT700_TrimR0p1PT0p03Mass50
+### B2G triggers:
+# HLT_AK8PFHT*_TrimMass50
+# HLT_AK8PFJet*_TrimMass30
+# HLT_Mu37_Ele27_CaloIdL_MW
+# HLT_Mu27_Ele37_CaloIdL_MW
+# HLT_Mu37_TkMu27
+#
+# Additionally, we monitor mjj and mSD for PFHT1050 and AK8PFJet500
 
-PFHT1050_Mjjmonitoring = hltMjjmonitoring.clone()
-PFHT1050_Mjjmonitoring.FolderName = cms.string('HLT/B2G/PFHT1050')
-PFHT1050_Mjjmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT1050_v*")
-PFHT1050_Mjjmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-PFHT1050_Mjjmonitoring.jetSelection = cms.string("pt > 200 && eta < 2.4")
+# HT and AK8jet monitoring
 
-PFHT1050_Softdropmonitoring = hltSoftdropmonitoring.clone()
-PFHT1050_Softdropmonitoring.FolderName = cms.string('HLT/B2G/PFHT1050')
-PFHT1050_Softdropmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT1050_v*")
-PFHT1050_Softdropmonitoring.jetSelection = cms.string("pt > 65 && eta < 2.4")
+PFHT1050_Mjjmonitoring = hltMjjmonitoring.clone(
+    FolderName = 'HLT/B2G/PFHT1050',
+    jets = "ak8PFJetsPuppi",
+    jetSelection = "pt > 200 && eta < 2.4",
+    numGenericTriggerEventPSet= dict(hltPaths = ["HLT_PFHT1050_v*"])     
+)
 
+PFHT1050_Softdropmonitoring = hltSoftdropmonitoring.clone(
+    FolderName = 'HLT/B2G/PFHT1050',
+    jetSelection = "pt > 65 && eta < 2.4",
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFHT1050_v*"])        
+)
 
-AK8PFJet500_Mjjmonitoring = hltMjjmonitoring.clone()
-AK8PFJet500_Mjjmonitoring.FolderName = cms.string('HLT/B2G/AK8PFJet500')
-AK8PFJet500_Mjjmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet500_v*")
-AK8PFJet500_Mjjmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-AK8PFJet500_Mjjmonitoring.jetSelection = cms.string("pt > 200 && eta < 2.4")
+AK8PFJet500_Mjjmonitoring = hltMjjmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFJet500',
+    jets = "ak8PFJetsPuppi",
+    jetSelection = "pt > 200 && eta < 2.4",
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_AK8PFJet500_v*"])
+)
 
-AK8PFJet500_Softdropmonitoring = hltSoftdropmonitoring.clone()
-AK8PFJet500_Softdropmonitoring.FolderName = cms.string('HLT/B2G/AK8PFJet500')
-AK8PFJet500_Softdropmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet500_v*")
-AK8PFJet500_Softdropmonitoring.jetSelection = cms.string("pt > 65 && eta < 2.4")
+AK8PFJet500_Softdropmonitoring = hltSoftdropmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFJet500',
+    jetSelection = "pt > 65 && eta < 2.4",
+    numGenericTriggerEventPSet= dict(hltPaths = ["HLT_AK8PFJet500_v*"])
+)
 
+# AK8PFHT800_TrimMass50 monitoring
 
-AK8PFHT750_TrimMass50_HTmonitoring = hltHTmonitoring.clone()
-AK8PFHT750_TrimMass50_HTmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT750_TrimMass50')
-AK8PFHT750_TrimMass50_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT750_TrimMass50_v*")
-AK8PFHT750_TrimMass50_HTmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-AK8PFHT750_TrimMass50_HTmonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
-AK8PFHT750_TrimMass50_HTmonitoring.jetSelection_HT = cms.string("pt > 200 && eta < 2.5")
+AK8PFHT800_TrimMass50_HTmonitoring = hltHTmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFHT800_TrimMass50',
+    jets = "ak8PFJetsPuppi",
+    jetSelection      = "pt > 0 && eta < 2.5",
+    jetSelection_HT = "pt > 200 && eta < 2.5",
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_AK8PFHT800_TrimMass50_v*"])
+)
 
-AK8PFHT750_TrimMass50_Mjjmonitoring = hltMjjmonitoring.clone()
-AK8PFHT750_TrimMass50_Mjjmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT750_TrimMass50')
-AK8PFHT750_TrimMass50_Mjjmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT750_TrimMass50_v*")
-AK8PFHT750_TrimMass50_Mjjmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-AK8PFHT750_TrimMass50_Mjjmonitoring.jetSelection = cms.string("pt > 200 && eta < 2.4")
+AK8PFHT800_TrimMass50_Mjjmonitoring = hltMjjmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFHT800_TrimMass50',
+    jets = "ak8PFJetsPuppi",
+    jetSelection = "pt > 200 && eta < 2.4",
+    numGenericTriggerEventPSet= dict(hltPaths = ["HLT_AK8PFHT800_TrimMass50_v*"])
+)
 
-AK8PFHT750_TrimMass50_Softdropmonitoring = hltSoftdropmonitoring.clone()
-AK8PFHT750_TrimMass50_Softdropmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT750_TrimMass50')
-AK8PFHT750_TrimMass50_Softdropmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT750_TrimMass50_v*")
-AK8PFHT750_TrimMass50_Softdropmonitoring.jetSelection = cms.string("pt > 65 && eta < 2.4")
+AK8PFHT800_TrimMass50_Softdropmonitoring = hltSoftdropmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFHT800_TrimMass50',
+    jetSelection = "pt > 65 && eta < 2.4",
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_AK8PFHT800_TrimMass50_v*"])
+)
 
+# AK8PFJet400_TrimMass30 monitoring
 
-AK8PFHT800_TrimMass50_HTmonitoring = hltHTmonitoring.clone()
-AK8PFHT800_TrimMass50_HTmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT800_TrimMass50')
-AK8PFHT800_TrimMass50_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT800_TrimMass50_v*")
-AK8PFHT800_TrimMass50_HTmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-AK8PFHT800_TrimMass50_HTmonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
-AK8PFHT800_TrimMass50_HTmonitoring.jetSelection_HT = cms.string("pt > 200 && eta < 2.5")
+AK8PFJet400_TrimMass30_PromptMonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFJet400_TrimMass30',
+    ptcut = 400,
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_AK8PFJet400_TrimMass30_v*"])
+)
 
-AK8PFHT800_TrimMass50_Mjjmonitoring = hltMjjmonitoring.clone()
-AK8PFHT800_TrimMass50_Mjjmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT800_TrimMass50')
-AK8PFHT800_TrimMass50_Mjjmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT800_TrimMass50_v*")
-AK8PFHT800_TrimMass50_Mjjmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-AK8PFHT800_TrimMass50_Mjjmonitoring.jetSelection = cms.string("pt > 200 && eta < 2.4")
+AK8PFJet400_TrimMass30_Mjjmonitoring = hltMjjmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFJet400_TrimMass30',
+    jets = "ak8PFJetsPuppi",
+    jetSelection = "pt > 200 && eta < 2.4",
+    numGenericTriggerEventPSet= dict(hltPaths = ["HLT_AK8PFJet400_TrimMass30_v*"])
+)
 
-AK8PFHT800_TrimMass50_Softdropmonitoring = hltSoftdropmonitoring.clone()
-AK8PFHT800_TrimMass50_Softdropmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT800_TrimMass50')
-AK8PFHT800_TrimMass50_Softdropmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT800_TrimMass50_v*")
-AK8PFHT800_TrimMass50_Softdropmonitoring.jetSelection = cms.string("pt > 65 && eta < 2.4")
+AK8PFJet400_TrimMass30_Softdropmonitoring = hltSoftdropmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFJet400_TrimMass30',
+    jetSelection = "pt > 65 && eta < 2.4",
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_AK8PFJet400_TrimMass30_v*"])
+)
 
+# Lepton cross trigger monitoring
 
-AK8PFHT850_TrimMass50_HTmonitoring = hltHTmonitoring.clone()
-AK8PFHT850_TrimMass50_HTmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT850_TrimMass50')
-AK8PFHT850_TrimMass50_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT850_TrimMass50_v*")
-AK8PFHT850_TrimMass50_HTmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-AK8PFHT850_TrimMass50_HTmonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
-AK8PFHT850_TrimMass50_HTmonitoring.jetSelection_HT = cms.string("pt > 200 && eta < 2.5")
+hltDQMonitorB2G_MuEle = hltTOPmonitoring.clone(
+    FolderName = 'HLT/B2G/Dileptonic/HLT_MuXX_EleXX_CaloIdL_MW',
+    nelectrons = 1,
+    eleSelection = 'pt>20 & abs(eta)<2.5',
+    nmuons = 1,
+    muoSelection = 'pt>20 & abs(eta)<2.4 & ((pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25)  & isPFMuon & (isTrackerMuon || isGlobalMuon)',
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_Mu37_Ele27_CaloIdL_MW_v*', 'HLT_Mu27_Ele37_CaloIdL_MW_v*'])
+)
 
-AK8PFHT850_TrimMass50_Mjjmonitoring = hltMjjmonitoring.clone()
-AK8PFHT850_TrimMass50_Mjjmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT850_TrimMass50')
-AK8PFHT850_TrimMass50_Mjjmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT850_TrimMass50_v*")
-AK8PFHT850_TrimMass50_Mjjmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-AK8PFHT850_TrimMass50_Mjjmonitoring.jetSelection = cms.string("pt > 200 && eta < 2.4")
-
-AK8PFHT850_TrimMass50_Softdropmonitoring = hltSoftdropmonitoring.clone()
-AK8PFHT850_TrimMass50_Softdropmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT850_TrimMass50')
-AK8PFHT850_TrimMass50_Softdropmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT850_TrimMass50_v*")
-AK8PFHT850_TrimMass50_Softdropmonitoring.jetSelection = cms.string("pt > 65 && eta < 2.4")
-
-
-AK8PFHT900_TrimMass50_HTmonitoring = hltHTmonitoring.clone()
-AK8PFHT900_TrimMass50_HTmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT900_TrimMass50')
-AK8PFHT900_TrimMass50_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT900_TrimMass50_v*")
-AK8PFHT900_TrimMass50_HTmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-AK8PFHT900_TrimMass50_HTmonitoring.jetSelection      = cms.string("pt > 0 && eta < 2.5")
-AK8PFHT900_TrimMass50_HTmonitoring.jetSelection_HT = cms.string("pt > 200 && eta < 2.5")
-
-AK8PFHT900_TrimMass50_Mjjmonitoring = hltMjjmonitoring.clone()
-AK8PFHT900_TrimMass50_Mjjmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT900_TrimMass50')
-AK8PFHT900_TrimMass50_Mjjmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT900_TrimMass50_v*")
-AK8PFHT900_TrimMass50_Mjjmonitoring.jets = cms.InputTag("ak8PFJetsPuppi")
-AK8PFHT900_TrimMass50_Mjjmonitoring.jetSelection = cms.string("pt > 200 && eta < 2.4")
-
-AK8PFHT900_TrimMass50_Softdropmonitoring = hltSoftdropmonitoring.clone()
-AK8PFHT900_TrimMass50_Softdropmonitoring.FolderName = cms.string('HLT/B2G/AK8PFHT900_TrimMass50')
-AK8PFHT900_TrimMass50_Softdropmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFHT900_TrimMass50_v*")
-AK8PFHT900_TrimMass50_Softdropmonitoring.jetSelection = cms.string("pt > 65 && eta < 2.4")
+hltDQMonitorB2G_MuTkMu = hltTOPmonitoring.clone(
+    FolderName = 'HLT/B2G/Dileptonic/HLT_Mu37_TkMu27',
+    nmuons = 2,
+    muoSelection = 'pt>20 & abs(eta)<2.4 & ((pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25)  & isPFMuon & (isTrackerMuon || isGlobalMuon)',
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_Mu37_TkMu27_v*'])
+)
 
 
-
-AK8PFJet360_TrimMass30_PromptMonitoring = hltJetMETmonitoring.clone()
-AK8PFJet360_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2G/AK8PFJet360_TrimMass30')
-AK8PFJet360_TrimMass30_PromptMonitoring.ptcut = cms.double(360)
-AK8PFJet360_TrimMass30_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet360_TrimMass30_v*")
-
-AK8PFJet380_TrimMass30_PromptMonitoring = hltJetMETmonitoring.clone()
-AK8PFJet380_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2G/AK8PFJet380_TrimMass30')
-AK8PFJet380_TrimMass30_PromptMonitoring.ptcut = cms.double(380)
-AK8PFJet380_TrimMass30_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet380_TrimMass30_v*")
-
-AK8PFJet400_TrimMass30_PromptMonitoring = hltJetMETmonitoring.clone()
-AK8PFJet400_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2G/AK8PFJet400_TrimMass30')
-AK8PFJet400_TrimMass30_PromptMonitoring.ptcut = cms.double(400)
-AK8PFJet400_TrimMass30_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet400_TrimMass30_v*")
-
-AK8PFJet420_TrimMass30_PromptMonitoring = hltJetMETmonitoring.clone()
-AK8PFJet420_TrimMass30_PromptMonitoring.FolderName = cms.string('HLT/B2G/AK8PFJet420_TrimMass30')
-AK8PFJet420_TrimMass30_PromptMonitoring.ptcut = cms.double(420)
-AK8PFJet420_TrimMass30_PromptMonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_AK8PFJet420_TrimMass30_v*")
-
-hltDQMonitorB2G_MuEle = hltTOPmonitoring.clone()
-hltDQMonitorB2G_MuEle.FolderName = 'HLT/B2G/Dileptonic/HLT_MuXX_EleXX_CaloIdL_MW'
-hltDQMonitorB2G_MuEle.nelectrons = 1
-hltDQMonitorB2G_MuEle.eleSelection = 'pt>20 & abs(eta)<2.5'
-hltDQMonitorB2G_MuEle.nmuons = 1
-hltDQMonitorB2G_MuEle.muoSelection = 'pt>20 & abs(eta)<2.4 & ((pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25)  & isPFMuon & (isTrackerMuon || isGlobalMuon)'
-hltDQMonitorB2G_MuEle.numGenericTriggerEventPSet.hltPaths = ['HLT_Mu37_Ele27_CaloIdL_MW_v*', 'HLT_Mu27_Ele37_CaloIdL_MW_v*']
-
-hltDQMonitorB2G_MuTkMu = hltTOPmonitoring.clone()
-hltDQMonitorB2G_MuTkMu.FolderName = 'HLT/B2G/Dileptonic/HLT_Mu37_TkMu27'
-hltDQMonitorB2G_MuTkMu.nmuons = 2
-hltDQMonitorB2G_MuTkMu.muoSelection = 'pt>20 & abs(eta)<2.4 & ((pfIsolationR04.sumChargedHadronPt + max(pfIsolationR04.sumNeutralHadronEt + pfIsolationR04.sumPhotonEt - (pfIsolationR04.sumPUPt)/2.,0.))/pt < 0.25)  & isPFMuon & (isTrackerMuon || isGlobalMuon)'
-hltDQMonitorB2G_MuTkMu.numGenericTriggerEventPSet.hltPaths = ['HLT_Mu37_TkMu27_v*']
+# the sequence
 
 b2gMonitorHLT = cms.Sequence(
 
     PFHT1050_Mjjmonitoring +
-#    PFHT1050_Softdropmonitoring +
 
     AK8PFJet500_Mjjmonitoring +
-#    AK8PFJet500_Softdropmonitoring +
-
-    AK8PFHT750_TrimMass50_HTmonitoring +
-    AK8PFHT750_TrimMass50_Mjjmonitoring +
-#    AK8PFHT750_TrimMass50_Softdropmonitoring +
 
     AK8PFHT800_TrimMass50_HTmonitoring +
     AK8PFHT800_TrimMass50_Mjjmonitoring +
-#    AK8PFHT800_TrimMass50_Softdropmonitoring +
-
-    AK8PFHT850_TrimMass50_HTmonitoring +
-    AK8PFHT850_TrimMass50_Mjjmonitoring +
-#    AK8PFHT850_TrimMass50_Softdropmonitoring +
-
-    AK8PFHT900_TrimMass50_HTmonitoring +
-    AK8PFHT900_TrimMass50_Mjjmonitoring +
-#    AK8PFHT900_TrimMass50_Softdropmonitoring +
-
-    AK8PFJet360_TrimMass30_PromptMonitoring +
-    AK8PFJet380_TrimMass30_PromptMonitoring +
 
     AK8PFJet400_TrimMass30_PromptMonitoring +
-    AK8PFJet420_TrimMass30_PromptMonitoring +
+    AK8PFJet400_TrimMass30_Mjjmonitoring +
 
     B2GegHLTDQMOfflineTnPSource
 
@@ -199,10 +136,9 @@ b2gMonitorHLT = cms.Sequence(
 b2gHLTDQMSourceWithRECO = cms.Sequence(
     PFHT1050_Softdropmonitoring +
     AK8PFJet500_Softdropmonitoring +
-    AK8PFHT750_TrimMass50_Softdropmonitoring +
     AK8PFHT800_TrimMass50_Softdropmonitoring +
-    AK8PFHT850_TrimMass50_Softdropmonitoring +
-    AK8PFHT900_TrimMass50_Softdropmonitoring
+    AK8PFJet400_TrimMass30_Softdropmonitoring     
+
 )
 
 b2gHLTDQMSourceExtra = cms.Sequence(

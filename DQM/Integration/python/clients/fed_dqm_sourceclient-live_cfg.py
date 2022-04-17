@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 import sys
 
 # Process initialization
-process = cms.Process('FED')
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process('FED', Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:

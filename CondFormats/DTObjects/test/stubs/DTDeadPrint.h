@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,12 +15,12 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
 
 namespace edmtest {
-  class DTDeadPrint : public edm::EDAnalyzer {
+  class DTDeadPrint : public edm::one::EDAnalyzer<> {
   public:
     explicit DTDeadPrint(edm::ParameterSet const& p);
     explicit DTDeadPrint(int i);
-    virtual ~DTDeadPrint();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+    ~DTDeadPrint() override = default;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   private:
     edm::ESGetToken<DTDeadFlag, DTDeadFlagRcd> es_token;

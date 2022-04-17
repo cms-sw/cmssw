@@ -44,9 +44,10 @@
   <class name="edm::RefVector<l1t::PFTauCollection>" /> 
   <class name="std::vector<edm::Ref<l1t::PFTauCollection> >" /> 
 
-  <class name="l1t::HPSPFTau" ClassVersion="12">
-    <version ClassVersion="11" checksum="98678086"/>
+  <class name="l1t::HPSPFTau" ClassVersion="13">
+    <version ClassVersion="13" checksum="588131857"/>
     <version ClassVersion="12" checksum="1127525942"/>
+    <version ClassVersion="11" checksum="98678086"/>
   </class>
   <class name="l1t::HPSPFTauCollection"/>
   <class name="edm::Wrapper<l1t::HPSPFTauCollection>"/>

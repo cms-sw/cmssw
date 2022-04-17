@@ -3,7 +3,8 @@ from __future__ import print_function
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Physics")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("Physics", Run3)
 
 #----------------------------
 # Event Source

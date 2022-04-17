@@ -213,14 +213,14 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   # flag for ask runs of LSs for RMT & CMT accordingly:
                                   #=0-runs, =1-LSs
                                   # keep for LED runs this flags =0 always
-                                  flagtoaskrunsorls = cms.int32(0),
+                                  flagtoaskrunsorls = cms.int32(1),
                                   #
                                   # flag for choice of criterion of bad channels:
                                   #=0-CapIdErr, =1-Ratio, =2-Width, =3-TSmax, =4-TSmean, =5-adcAmplitud
                                   # keep for CMT (global runs) this flags =0 always
                                   flagtodefinebadchannel = cms.int32(0),
                                   #how many bins you want on the plots:better to choice (#LS+1)
-                                  howmanybinsonplots = cms.int32(25),
+                                  howmanybinsonplots = cms.int32(2600),
                                   #
                                   #
                                   # ls - range for RBX study (and ??? perhaps for gain stability via abort gap):
@@ -270,24 +270,24 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #                                  nbadchannels3 = cms.int32(50),
                                   #
                                   #Verbosity = cms.untracked.int32(-79),
-                                  # cuts on Estimator1 to see LS dependences:
-                                  lsdep_estimator1_HBdepth1 = cms.double(2500.),
-                                  lsdep_estimator1_HBdepth2 = cms.double(2500.),
-                                  lsdep_estimator1_HBdepth3 = cms.double(2500.),
-                                  lsdep_estimator1_HBdepth4 = cms.double(2500.),
-                                  lsdep_estimator1_HEdepth1 = cms.double(2500.),
-                                  lsdep_estimator1_HEdepth2 = cms.double(2500.),
-                                  lsdep_estimator1_HEdepth3 = cms.double(2500.),
-                                  lsdep_estimator1_HEdepth4 = cms.double(2500.),
-                                  lsdep_estimator1_HEdepth5 = cms.double(2500.),
-                                  lsdep_estimator1_HEdepth6 = cms.double(2500.),
-                                  lsdep_estimator1_HEdepth7 = cms.double(2500.),
-                                  lsdep_estimator1_HFdepth1 = cms.double(2500.),
-                                  lsdep_estimator1_HFdepth2 = cms.double(2500.),
-                                  lsdep_estimator1_HFdepth3 = cms.double(2500.),
-                                  lsdep_estimator1_HFdepth4 = cms.double(2500.),
-                                  lsdep_estimator1_HOdepth4 = cms.double(2500.),
-                                  # cuts on Estimator2 to see LS dependences:
+                                  # cuts on Estimator1 to see LS dependences: default for normal pp - 2500 everywhere;
+                                  lsdep_estimator1_HBdepth1 = cms.double(1500.),
+                                  lsdep_estimator1_HBdepth2 = cms.double(1500.),
+                                  lsdep_estimator1_HBdepth3 = cms.double(1500.),
+                                  lsdep_estimator1_HBdepth4 = cms.double(1500.),
+                                  lsdep_estimator1_HEdepth1 = cms.double(1500.),
+                                  lsdep_estimator1_HEdepth2 = cms.double(1500.),
+                                  lsdep_estimator1_HEdepth3 = cms.double(1500.),
+                                  lsdep_estimator1_HEdepth4 = cms.double(1500.),
+                                  lsdep_estimator1_HEdepth5 = cms.double(1500.),
+                                  lsdep_estimator1_HEdepth6 = cms.double(1500.),
+                                  lsdep_estimator1_HEdepth7 = cms.double(1500.),
+                                  lsdep_estimator1_HFdepth1 = cms.double(140.),
+                                  lsdep_estimator1_HFdepth2 = cms.double(140.),
+                                  lsdep_estimator1_HFdepth3 = cms.double(140.),
+                                  lsdep_estimator1_HFdepth4 = cms.double(140.),
+                                  lsdep_estimator1_HOdepth4 = cms.double(180.),
+                                  # cuts on Estimator2 to see LS dependences: default 7.
                                   lsdep_estimator2_HBdepth1 = cms.double(7.),
                                   lsdep_estimator2_HBdepth2 = cms.double(7.),
                                   lsdep_estimator2_HEdepth1 = cms.double(7.),
@@ -296,7 +296,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   lsdep_estimator2_HFdepth1 = cms.double(7.),
                                   lsdep_estimator2_HFdepth2 = cms.double(7.),
                                   lsdep_estimator2_HOdepth4 = cms.double(7.),
-                                  # cuts on Estimator3 to see LS dependences:
+                                  # cuts on Estimator3 to see LS dependences: default 7.
                                   lsdep_estimator3_HBdepth1 = cms.double(7.),
                                   lsdep_estimator3_HBdepth2 = cms.double(7.),
                                   lsdep_estimator3_HEdepth1 = cms.double(7.),
@@ -305,7 +305,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   lsdep_estimator3_HFdepth1 = cms.double(7.),
                                   lsdep_estimator3_HFdepth2 = cms.double(7.),
                                   lsdep_estimator3_HOdepth4 = cms.double(7.),
-                                  # cuts on Estimator4 to see LS dependences:
+                                  # cuts on Estimator4 to see LS dependences: default 5.
                                   lsdep_estimator4_HBdepth1 = cms.double(5.),
                                   lsdep_estimator4_HBdepth2 = cms.double(5.),
                                   lsdep_estimator4_HEdepth1 = cms.double(5.),
@@ -314,7 +314,7 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   lsdep_estimator4_HFdepth1 = cms.double(5.),
                                   lsdep_estimator4_HFdepth2 = cms.double(5.),
                                   lsdep_estimator4_HOdepth4 = cms.double(5.),
-                                  # cuts on Estimator5 to see LS dependences:
+                                  # cuts on Estimator5 to see LS dependences: default 1.8
                                   lsdep_estimator5_HBdepth1 = cms.double(1.8),
                                   lsdep_estimator5_HBdepth2 = cms.double(1.8),
                                   lsdep_estimator5_HEdepth1 = cms.double(1.8),
@@ -345,9 +345,11 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #
                                   #
                                   #
-                                  #usecontinuousnumbering = cms.untracked.bool(False),
-                                  usecontinuousnumbering = cms.untracked.bool(True),
+                                  usecontinuousnumbering = cms.untracked.bool(False),
+                                  #usecontinuousnumbering = cms.untracked.bool(True),
                                   #
+                                  # if 0 - do not use digis at all
+                                  flagToUseDigiCollectionsORNot = cms.int32(1),
                                   #
                                   #
                                   hcalCalibDigiCollectionTag = cms.InputTag('hcalDigis'),
@@ -454,7 +456,8 @@ from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = '104X_dataRun2_v1'
 #process.GlobalTag.globaltag = '105X_postLS2_design_v4'
 #process.GlobalTag.globaltag = '106X_dataRun3_HLT_v3'
-process.GlobalTag.globaltag = '113X_dataRun3_HLT_v3'
+#process.GlobalTag.globaltag = '113X_dataRun3_HLT_v3'
+process.GlobalTag.globaltag = '120X_dataRun3_HLT_v3'
 ###########################################################################
 process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 #process.hcalDigis.FilterDataQuality = cms.bool(False)
@@ -468,7 +471,7 @@ process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
 #    #InputLabel = cms.InputTag("rawDataCollector"),
 #)
 ###########################################################################
-process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff")
+#process.load("Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff")
 ###########################################################################
 # Schedule definition
 # pure CMT:
@@ -479,9 +482,9 @@ process.p = cms.Path(process.hcalDigis*process.Analyzer)
 ############################################################################
 # customisation of the process.
 # Automatic addition of the customisation function from HLTrigger.Configuration.CustomConfigs
-from HLTrigger.Configuration.CustomConfigs import L1THLT 
+#from HLTrigger.Configuration.CustomConfigs import L1THLT 
 #call to customisation function L1THLT imported from HLTrigger.Configuration.CustomConfigs
-process = L1THLT(process)
+#process = L1THLT(process)
 # End of customisation functions
 ############################################################################
 ############################################################################

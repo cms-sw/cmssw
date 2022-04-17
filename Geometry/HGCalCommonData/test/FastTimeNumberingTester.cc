@@ -32,48 +32,47 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/HGCalCommonData/interface/FastTimeDDDConstants.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 class FastTimeNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit FastTimeNumberingTester(const edm::ParameterSet&);
-  ~FastTimeNumberingTester() override;
+  ~FastTimeNumberingTester() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
   void endJob() override {}
 
 private:
-  edm::ESGetToken<FastTimeDDDConstants, IdealGeometryRecord> token_;
+  const edm::ESGetToken<FastTimeDDDConstants, IdealGeometryRecord> token_;
 };
 
 FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet&)
     : token_{esConsumes<FastTimeDDDConstants, IdealGeometryRecord>(edm::ESInputTag{})} {}
 
-FastTimeNumberingTester::~FastTimeNumberingTester() {}
-
 // ------------ method called to produce the data  ------------
 void FastTimeNumberingTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const FastTimeDDDConstants& fTnDC = iSetup.getData(token_);
-  std::cout << "Fast timing device with " << fTnDC.getCells(1) << ":" << fTnDC.getCells(2) << " cells"
-            << " for barrel and endcap\n";
+  edm::LogVerbatim("HGCalGeom") << "Fast timing device with " << fTnDC.getCells(1) << ":" << fTnDC.getCells(2)
+                                << " cells for barrel and endcap";
   for (int type = 1; type <= 2; ++type) {
     for (int ix = 0; ix < 400; ++ix) {
       for (int iy = 0; iy < 400; ++iy) {
         if (fTnDC.isValidXY(type, ix, iy)) {
           FastTimeDetId id1(type, ix, iy, 1), id2(type, ix, iy, -1);
-          std::cout << "Valid ID " << id1 << " and " << id2 << std::endl;
+          edm::LogVerbatim("HGCalGeom") << "Valid ID " << id1 << " and " << id2;
         } else {
 #ifdef EDM_ML_DEBUG
-          std::cout << "ix = " << ix << ", iy = " << iy << " is not valid for "
-                    << "FastTime type " << type << std::endl;
+          edm::LogVerbatim("HGCalGeom") << "ix = " << ix << ", iy = " << iy << " is not valid for "
+                                        << "FastTime type " << type;
 #endif
         }
         iy += 9;

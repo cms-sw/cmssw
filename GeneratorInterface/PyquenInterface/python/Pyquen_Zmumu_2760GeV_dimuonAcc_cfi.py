@@ -29,4 +29,4 @@ hiSignal = cms.EDFilter("PyquenGeneratorFilter",
                         bMax = cms.double(0.0) ## max impact param (fm); valid only if cflag_!=0
                         )
 
-hiSignal.embeddingMode = True
+hiSignal.embeddingMode = 0

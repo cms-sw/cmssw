@@ -518,6 +518,14 @@ namespace edm {
     }
     AR_WATCH_USING_METHOD_1(watchPreSourceEarlyTermination)
 
+    /// signal is emitted after the ESModule is registered with EventSetupProvider
+    using PostESModuleRegistration = signalslot::Signal<void(eventsetup::ComponentDescription const&)>;
+    PostESModuleRegistration postESModuleRegistrationSignal_;
+    void watchPostESModuleRegistration(PostESModuleRegistration::slot_type const& iSlot) {
+      postESModuleRegistrationSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPostESModuleRegistration)
+
     /// signal is emitted before the esmodule starts processing and before prefetching has started
     typedef signalslot::Signal<void(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&)>
         PreESModulePrefetching;

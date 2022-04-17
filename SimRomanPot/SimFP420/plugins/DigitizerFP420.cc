@@ -11,7 +11,6 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"

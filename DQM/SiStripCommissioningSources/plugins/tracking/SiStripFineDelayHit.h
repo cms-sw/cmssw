@@ -6,41 +6,39 @@
 #include <utility>
 
 // user include files
-#include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Common/interface/Ref.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "DQM/SiStripCommissioningSources/plugins/tracking/SiStripFineDelayTLA.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include <TrackingTools/PatternTools/interface/Trajectory.h>
-#include "DQM/SiStripCommissioningSources/plugins/tracking/SiStripFineDelayTLA.h"
-#include <CondFormats/SiStripObjects/interface/SiStripFedCabling.h>
-#include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-#include <CondFormats/SiStripObjects/interface/SiStripNoises.h>
-#include <CondFormats/DataRecord/interface/SiStripFedCablingRcd.h>
-
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include <DataFormats/SiStripCommon/interface/SiStripEventSummary.h>
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
 
 //
 // class decleration
 //
 
-class SiStripFineDelayHit : public edm::EDProducer {
+class SiStripFineDelayHit : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
   explicit SiStripFineDelayHit(const edm::ParameterSet&);
   ~SiStripFineDelayHit() override;
@@ -48,6 +46,7 @@ public:
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
   virtual void produceNoTracking(edm::Event&, const edm::EventSetup&);
   using DeviceMask = std::pair<uint32_t, uint32_t>;
   DeviceMask deviceMask(const StripSubdetector::SubDetector subdet,

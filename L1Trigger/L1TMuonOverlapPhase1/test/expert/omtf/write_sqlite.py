@@ -15,11 +15,8 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     process.CondDB,
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
-                      record = cms.string('L1TMTFOverlapParamsRcd'),
-                      tag = cms.string('params')),
-                      cms.PSet(
-                      record = cms.string('L1TMTFOverlapParamsRcd'),
-                      tag = cms.string('patterns'))
+                      record = cms.string('L1TMuonOverlapParamsRcd'),
+                      tag = cms.string('params'))
     )
 )
 

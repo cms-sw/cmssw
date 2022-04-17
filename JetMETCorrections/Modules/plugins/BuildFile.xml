@@ -2,7 +2,6 @@
   <use name="CommonTools/UtilAlgos"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/JetMETObjects"/>
-  <use name="CondCore/DBOutputService"/>
   <use name="DataFormats/JetReco"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/PluginManager"/>

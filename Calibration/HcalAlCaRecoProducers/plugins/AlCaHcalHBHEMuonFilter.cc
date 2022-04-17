@@ -42,10 +42,10 @@ public:
 
 private:
   // ----------member data ---------------------------
-  int prescale_;
-  double minimumMuonP_;
-  edm::InputTag labelHBHEMuonVar_;
-  edm::EDGetTokenT<HcalHBHEMuonVariablesCollection> tokHBHEMuonVar_;
+  const int prescale_;
+  const double minimumMuonP_;
+  const edm::InputTag labelHBHEMuonVar_;
+  const edm::EDGetTokenT<HcalHBHEMuonVariablesCollection> tokHBHEMuonVar_;
 };
 
 //

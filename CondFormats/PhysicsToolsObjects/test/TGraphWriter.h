@@ -1,5 +1,5 @@
-#ifndef RecoTauTag_TauTagTools_TGraphWriter_h
-#define RecoTauTag_TauTagTools_TGraphWriter_h
+#ifndef CondFormats_PhysicsToolsObjects_TGraphWriter_h
+#define CondFormats_PhysicsToolsObjects_TGraphWriter_h
 
 /** \class TGraphWriter
  *
@@ -11,14 +11,14 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
 #include <string>
 
-class TGraphWriter : public edm::EDAnalyzer {
+class TGraphWriter : public edm::one::EDAnalyzer<> {
 public:
   TGraphWriter(const edm::ParameterSet&);
   ~TGraphWriter();

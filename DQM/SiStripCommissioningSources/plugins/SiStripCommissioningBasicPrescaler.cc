@@ -18,9 +18,31 @@
 
 // system include files
 #include <memory>
+#include <vector>
 
 // user include files
-#include "DQM/SiStripCommissioningSources/interface/SiStripCommissioningBasicPrescaler.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+//
+// class declaration
+//
+
+class SiStripCommissioningBasicPrescaler : public edm::stream::EDFilter<> {
+public:
+  explicit SiStripCommissioningBasicPrescaler(const edm::ParameterSet&);
+  ~SiStripCommissioningBasicPrescaler() override = default;
+
+private:
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+
+  // ----------member data ---------------------------
+  uint32_t factor_;
+};
 
 //
 // constructors and destructor
@@ -40,3 +62,5 @@ bool SiStripCommissioningBasicPrescaler::filter(edm::Event& iEvent, const edm::E
   bool result = ((iEvent.id().event() % factor_) == 0);
   return result;
 }
+
+DEFINE_FWK_MODULE(SiStripCommissioningBasicPrescaler);

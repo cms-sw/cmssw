@@ -4,6 +4,10 @@ process = cms.Process("L1TMuonEmulation")
 import os
 import sys
 
+loadConfigFrom_sqlite_file = True
+
+loadConfigFrom_fakeOmtfParams = False
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -56,11 +60,12 @@ process.source = cms.Source('PoolSource',
      
      #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/342/094/00000/038c179a-d2ce-45f0-a7d5-8b2d40017042.root', # only DT, fw 0x0008
      '/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/266/00000/db2cfbdd-5edf-4ee4-aab0-5bdba105728d.root' #DT and RPC fw 0x0008
-     #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/566/00000/19ef107a-4cd9-4df0-ba93-dbfbab8df1cb.root'   
+     #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/344/566/00000/19ef107a-4cd9-4df0-ba93-dbfbab8df1cb.root'  
+     #'/store/express/Commissioning2021/ExpressCosmics/FEVT/Express-v1/000/347/053/00000/7b486245-96ea-4b7c-9fe7-76c957968785.root'  #RPC noise only
      ),             
  )
 	                    
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000))
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -81,17 +86,40 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data', '')
  
 
 
-####Event Setup Producer
-process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
-#process.omtfParams.configXMLFile =  cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008.xml")
+if loadConfigFrom_fakeOmtfParams :
+    ####Event Setup Producer
+    process.load('L1Trigger.L1TMuonOverlapPhase1.fakeOmtfParams_cff')
+    #process.omtfParams.configXMLFile =  cms.FileInPath("L1Trigger/L1TMuon/data/omtf_config/hwToLogicLayer_0x0008.xml")
+    
+    process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
+       toGet = cms.VPSet(
+          cms.PSet(record = cms.string('L1TMuonOverlapParamsRcd'),
+                   data = cms.vstring('L1TMuonOverlapParams'))
+                       ),
+       verbose = cms.untracked.bool(False)
+    )
 
-process.esProd = cms.EDAnalyzer("EventSetupRecordDataGetter",
-   toGet = cms.VPSet(
-      cms.PSet(record = cms.string('L1TMuonOverlapParamsRcd'),
-               data = cms.vstring('L1TMuonOverlapParams'))
-                   ),
-   verbose = cms.untracked.bool(False)
-)
+
+if loadConfigFrom_sqlite_file :
+    process.load("CondCore.CondDB.CondDB_cfi")
+    
+    process.CondDB.connect = "sqlite_file:Patterns.db"
+    #process.CondDB.connect = "sqlite_file:l1config.db"
+    
+    process.CondDB.DBParameters.messageLevel = 3
+    
+    process.PoolDBESSourceSqlite = cms.ESSource("PoolDBESSource",
+      process.CondDB,
+      toGet = cms.VPSet( 
+                        cms.PSet(
+                          record = cms.string('L1TMuonOverlapParamsRcd'),
+                          tag = cms.string('params') #check the tag name int the DB: sqlite3 l1config.db  ; select * from TAG;
+                          )
+       ),
+      verbose = cms.untracked.bool(False)
+    )
+    
+    process.es_prefer_EcalTBWeights = cms.ESPrefer("PoolDBESSource", "PoolDBESSourceSqlite")
 
 #process.TFileService = cms.Service("TFileService", fileName = cms.string('omtfAnalysis1.root'), closeFileFast = cms.untracked.bool(True) )
 						
@@ -141,11 +169,18 @@ process.simOmtfDigis.lctCentralBx = cms.int32(8);#<<<<<<<<<<<<<<<<!!!!!!!!!!!!!!
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-process.L1TMuonSeq = cms.Sequence(  process.esProd    +      
+if loadConfigFrom_fakeOmtfParams :
+    process.L1TMuonSeq = cms.Sequence(  process.esProd    +      
                                     process.omtfStage2Digis + process.simOmtfDigis 
                                    #+ process.dumpED
                                    #+ process.dumpES
-)
+                                   )
+else :
+    process.L1TMuonSeq = cms.Sequence(     
+                                    process.omtfStage2Digis + process.simOmtfDigis 
+                                   #+ process.dumpED
+                                   #+ process.dumpES
+                                   )
 
 process.L1TMuonPath = cms.Path(process.L1TMuonSeq)
 

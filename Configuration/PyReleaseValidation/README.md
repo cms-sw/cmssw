@@ -33,12 +33,17 @@ The offsets currently in use are:
 * 0.5: Pixel tracking only + 0.1
 * 0.501: Patatrack, pixel only quadruplets, on CPU
 * 0.502: Patatrack, pixel only quadruplets, with automatic offload to GPU if available
+* 0.504: Patatrack, pixel only quadruplets, GPU profiling
 * 0.505: Patatrack, pixel only triplets, on CPU
 * 0.506: Patatrack, pixel only triplets, with automatic offload to GPU if available
+* 0.508: Patatrack, pixel only triplets, GPU profiling
 * 0.511: Patatrack, ECAL only, on CPU
 * 0.512: Patatrack, ECAL only, with automatic offload to GPU if available
+* 0.513: Patatrack, ECAL only, GPU vs. CPU validation
+* 0.514: Patatrack, ECAL only, GPU profiling
 * 0.521: Patatrack, HCAL only, on CPU
 * 0.522: Patatrack, HCAL only, with automatic offload to GPU if available
+* 0.524: Patatrack, HCAL only, GPU profiling
 * 0.591: Patatrack, full reco with pixel quadruplets, on CPU
 * 0.592: Patatrack, full reco with pixel quadruplets, with automatic offload to GPU if available
 * 0.595: Patatrack, full reco with pixel triplets, on CPU
@@ -66,4 +71,9 @@ The offsets currently in use are:
 * 0.914: DDD DB
 * 0.101: Phase-2 aging, 1000fb-1
 * 0.103: Phase-2 aging, 3000fb-1
+* 0.201: HGCAL special TICL Pattern recognition Workflows: clue3D
+* 0.202: HGCAL special TICL Pattern recognition Workflows: FastJet
+* 0.301: FastSim Run-3
+* 0.302: FastSim Run-3 trackingOnly validation
+* 0.303: FastSim Run-3 MB for mixing
 * 0.9001: Sonic Triton

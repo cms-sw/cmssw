@@ -5,5 +5,10 @@
     <use name="catch2"/>
   </bin>
 
-  <test name="TestCUDATest" command="runtests.sh"/>
+  <ifrelease name="_GPU_">
+    <test name="TestCUDATest" command="runtests.sh gpu"/>
+  <else/>
+    <test name="TestCUDATest" command="runtests.sh cpu"/>
+  </ifrelease>
+
 </iftool>

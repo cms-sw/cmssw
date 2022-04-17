@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # input modules
 unpackerModule = "gmtStage2Digis"
 emulatorModule = "valGmtStage2Digis"
+showerEmulatorModule = "valGmtShowerDigis"
 
 # directories
 ugmtEmuDqmDir = "L1TEMU/L1TdeStage2uGMT"
@@ -90,6 +91,20 @@ l1tdeStage2uGMT = DQMEDAnalyzer(
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
 stage2L1Trigger_2021.toModify(l1tdeStage2uGMT, displacedQuantities = cms.untracked.bool(True))
 
+# compares the unpacked uGMT muon shower collection to the emulated uGMT muon shower collection
+# only showers that do not match are filled in the histograms
+l1tdeStage2uGMTShowers = DQMEDAnalyzer(
+    "L1TStage2MuonShowerComp",
+    muonShowerCollection1 = cms.InputTag(unpackerModule, "MuonShower"),
+    muonShowerCollection2 = cms.InputTag(showerEmulatorModule),
+    monitorDir = cms.untracked.string(ugmtEmuDqmDir+"/data_vs_emulator_comparison/Muon showers"),
+    muonShowerCollection1Title = cms.untracked.string("uGMT data"),
+    muonShowerCollection2Title = cms.untracked.string("uGMT emulator"),
+    summaryTitle = cms.untracked.string("Summary of comparison between uGMT showers and uGMT emulator showers"),
+    verbose = cms.untracked.bool(False),
+    ignoreBin = cms.untracked.vint32(),
+)
+
 # compares the unpacked uGMT intermediate muon collection to the emulated uGMT intermediate muon collection
 # only muons that do not match are filled in the histograms
 l1tdeStage2uGMTIntermediateBMTF = l1tdeStage2uGMT.clone(
@@ -146,3 +161,7 @@ l1tStage2uGMTEmulatorOnlineDQMSeq = cms.Sequence(
     l1tdeStage2uGMTIntermediateEMTFNeg +
     l1tdeStage2uGMTIntermediateEMTFPos
 )
+
+_run3_l1tStage2uGMTEmulatorOnlineDQMSeq = cms.Sequence(l1tStage2uGMTEmulatorOnlineDQMSeq.copy() + l1tdeStage2uGMTShowers)
+stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTEmulatorOnlineDQMSeq, _run3_l1tStage2uGMTEmulatorOnlineDQMSeq)
+

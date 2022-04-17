@@ -80,31 +80,30 @@ namespace DBoxMetadataHelper {
 
     void printMetaDatas() {
       for (const auto& [key, val] : m_Map) {
-        edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << key << "\n\n" << std::endl;
-        edm::LogPrint("DropBoxMetadataPIHelper") << "prep: " << cleanJson(val.getPrepMetaData()) << "\n" << std::endl;
-        edm::LogPrint("DropBoxMetadataPIHelper") << "prod: " << cleanJson(val.getProdMetaData()) << "\n" << std::endl;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << key;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "prep: " << cleanJson(val.getPrepMetaData());
+        edm::LogPrint("DropBoxMetadataPIHelper") << "prod: " << cleanJson(val.getProdMetaData());
         // check, since it's optional
         if (val.hasMultiMetaData()) {
-          edm::LogPrint("DropBoxMetadataPIHelper") << "multi: " << cleanJson(val.getMultiMetaData()) << "\n"
-                                                   << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << "multi: " << cleanJson(val.getMultiMetaData());
         }
+        edm::LogPrint("DropBoxMetadataPIHelper") << "\n";
       }
     }
 
     void printOneKey(const DBoxMetadataHelper::RecordMetaDataInfo& oneKey) {
-      edm::LogPrint("DropBoxMetadataPIHelper") << "prep: " << cleanJson(oneKey.getPrepMetaData()) << std::endl;
-      edm::LogPrint("DropBoxMetadataPIHelper") << "prod: " << cleanJson(oneKey.getProdMetaData()) << std::endl;
+      edm::LogPrint("DropBoxMetadataPIHelper") << "prep: " << cleanJson(oneKey.getPrepMetaData());
+      edm::LogPrint("DropBoxMetadataPIHelper") << "prod: " << cleanJson(oneKey.getProdMetaData());
       // check, since it's optional
       if (oneKey.hasMultiMetaData()) {
-        edm::LogPrint("DropBoxMetadataPIHelper") << "multi: " << cleanJson(oneKey.getMultiMetaData()) << std::endl;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "multi: " << cleanJson(oneKey.getMultiMetaData());
       }
-      edm::LogPrint("DropBoxMetadataPIHelper") << "\n" << std::endl;
+      edm::LogPrint("DropBoxMetadataPIHelper") << "\n";
     }
 
     void printDiffWithMetadata(const DBoxMetadataHelper::recordMap& theRefMap) {
       edm::LogPrint("DropBoxMetadataPIHelper")
-          << "Target has: " << m_Map.size() << " records, reference has: " << theRefMap.size() << " records"
-          << std::endl;
+          << "Target has: " << m_Map.size() << " records, reference has: " << theRefMap.size() << " records";
 
       const auto& ref_records = DBoxMetadataHelper::getAllRecords(theRefMap);
       const auto& tar_records = DBoxMetadataHelper::getAllRecords(m_Map);
@@ -114,32 +113,26 @@ namespace DBoxMetadataHelper {
 
       // do first the common parts
       for (const auto& key : common) {
-        edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << key << "\n" << std::endl;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << key;
         const auto& val = m_Map.at(key);
         const auto& refval = theRefMap.at(key);
 
         if ((val.getPrepMetaData()).compare(refval.getPrepMetaData()) != 0) {
-          edm::LogPrint("DropBoxMetadataPIHelper") << "found difference in prep metadata!" << std::endl;
-          edm::LogPrint("DropBoxMetadataPIHelper")
-              << " in target   : " << cleanJson(val.getPrepMetaData()) << std::endl;
-          edm::LogPrint("DropBoxMetadataPIHelper")
-              << " in reference: " << cleanJson(refval.getPrepMetaData()) << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << "found difference in prep metadata!";
+          edm::LogPrint("DropBoxMetadataPIHelper") << " in target   : " << cleanJson(val.getPrepMetaData());
+          edm::LogPrint("DropBoxMetadataPIHelper") << " in reference: " << cleanJson(refval.getPrepMetaData());
         }
         if ((val.getProdMetaData()).compare(refval.getProdMetaData()) != 0) {
-          edm::LogPrint("DropBoxMetadataPIHelper") << "found difference in prod metadata!" << std::endl;
-          edm::LogPrint("DropBoxMetadataPIHelper")
-              << " in target   : " << cleanJson(val.getProdMetaData()) << std::endl;
-          edm::LogPrint("DropBoxMetadataPIHelper")
-              << " in reference: " << cleanJson(refval.getProdMetaData()) << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << "found difference in prod metadata!";
+          edm::LogPrint("DropBoxMetadataPIHelper") << " in target   : " << cleanJson(val.getProdMetaData());
+          edm::LogPrint("DropBoxMetadataPIHelper") << " in reference: " << cleanJson(refval.getProdMetaData());
         }
         if ((val.getMultiMetaData()).compare(refval.getMultiMetaData()) != 0) {
-          edm::LogPrint("DropBoxMetadataPIHelper") << "found difference in multi metadata!" << std::endl;
-          edm::LogPrint("DropBoxMetadataPIHelper")
-              << " in target   : " << cleanJson(val.getMultiMetaData()) << std::endl;
-          edm::LogPrint("DropBoxMetadataPIHelper")
-              << " in reference: " << cleanJson(refval.getMultiMetaData()) << std::endl;
+          edm::LogPrint("DropBoxMetadataPIHelper") << "found difference in multi metadata!";
+          edm::LogPrint("DropBoxMetadataPIHelper") << " in target   : " << cleanJson(val.getMultiMetaData());
+          edm::LogPrint("DropBoxMetadataPIHelper") << " in reference: " << cleanJson(refval.getMultiMetaData());
         }
-        edm::LogPrint("DropBoxMetadataPIHelper") << "\n" << std::endl;
+        edm::LogPrint("DropBoxMetadataPIHelper") << "\n";
       }
 
       // if interesction is not the union check for extra differences
@@ -149,7 +142,7 @@ namespace DBoxMetadataHelper {
           for (const auto& ref : ref_records) {
             if (std::find(tar_records.begin(), tar_records.end(), ref) == tar_records.end()) {
               const auto& refval = theRefMap.at(ref);
-              edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << ref << " not present in target! \n" << std::endl;
+              edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << ref << " not present in target!";
               printOneKey(refval);
             }
           }
@@ -159,8 +152,7 @@ namespace DBoxMetadataHelper {
           for (const auto& tar : tar_records) {
             if (std::find(ref_records.begin(), ref_records.end(), tar) == ref_records.end()) {
               const auto& tarval = m_Map.at(tar);
-              edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << tar << " not present in reference! \n"
-                                                       << std::endl;
+              edm::LogPrint("DropBoxMetadataPIHelper") << "key: " << tar << " not present in reference!";
               printOneKey(tarval);
             }
           }
@@ -189,14 +181,15 @@ namespace DBoxMetadataHelper {
   class DBMetaDataPlotDisplay {
   public:
     DBMetaDataPlotDisplay(DBoxMetadataHelper::recordMap theMap, std::string theTag, std::string theIOV)
-        : m_Map(theMap), tagName(theTag), IOVsinceDisplay(theIOV) {}
+        : m_Map(theMap), m_tagName(theTag), m_IOVsinceDisplay(theIOV) {}
     ~DBMetaDataPlotDisplay() = default;
 
-    void setImageFileName(std::string theFileName) {
-      imageFileName_ = theFileName;
+    void setImageFileName(const std::string& theFileName) {
+      m_imageFileName = theFileName;
       return;
     }
 
+    //___________________________________________________________________
     void plotMetaDatas() {
       unsigned int mapsize = m_Map.size();
       float pitch = 1. / (mapsize * 1.1);
@@ -215,7 +208,7 @@ namespace DBoxMetadataHelper {
       y_x1.push_back(y);
       s_x1.push_back("#scale[1.2]{Key}");
       y_x2.push_back(y);
-      s_x2.push_back("#scale[1.2]{tag: " + tagName + " in IOV: " + IOVsinceDisplay + "}");
+      s_x2.push_back("#scale[1.2]{tag: " + m_tagName + " in IOV: " + m_IOVsinceDisplay + "}");
 
       y -= pitch / 2.;
       y_line.push_back(y);
@@ -232,13 +225,8 @@ namespace DBoxMetadataHelper {
         std::string prodMetaData = element.second.getProdMetaData();
 
         // Remove &quot and uninteresting text from output for sake of clarity
-        eraseAllSubStr(prepMetaData, "&quot");
-        eraseAllSubStr(prepMetaData, "destinationDatabase;: ;oracle://cms_orcoff_prep/CMS_CONDITIONS;, ");
-        eraseAllSubStr(prepMetaData, ";since;: null,");
-
-        eraseAllSubStr(prodMetaData, "&quot");
-        eraseAllSubStr(prodMetaData, "destinationDatabase;: ;oracle://cms_orcon_prod/CMS_CONDITIONS;, ");
-        eraseAllSubStr(prodMetaData, ";since;: null,");
+        cleanPrepString(prepMetaData);
+        cleanProdString(prodMetaData);
 
         const std::vector<std::string> pathsPrep = decompose(prepMetaData);
         const std::vector<std::string> pathsProd = decompose(prodMetaData);
@@ -246,17 +234,21 @@ namespace DBoxMetadataHelper {
         const int colWidth = 80;
 
         toAppend = "PREP: ";
+        output.push_back(toAppend);
+        toAppend.clear();
         for (unsigned int iPath = 0; iPath < pathsPrep.size(); ++iPath) {
           std::string thisString = pathsPrep[iPath];
-
-          // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            toAppend.clear();
-            toAppend += thisString;
+          // skip userText since we want to see actual contents, not metadata
+          if (thisString.find("userText") == std::string::npos) {
+            // if the line to be added has less than colWidth chars, and is not a new tag ("inputTag"), append to current
+            if ((toAppend + thisString).length() < colWidth && thisString.find("inputTag") != 0) {
+              toAppend += thisString;
+            } else {
+              // else if the line exceeds colWidth chars or this is a new tag ("inputTag"), dump in the vector and resume from scratch
+              output.push_back(toAppend);
+              toAppend.clear();
+              toAppend += thisString;
+            }
           }
           // if it's the last, dump it
           if (iPath == pathsPrep.size() - 1) {
@@ -265,17 +257,21 @@ namespace DBoxMetadataHelper {
         }
 
         toAppend = "PROD: ";
+        output.push_back(toAppend);
+        toAppend.clear();
         for (unsigned int iPath = 0; iPath < pathsProd.size(); ++iPath) {
           std::string thisString = pathsProd[iPath];
 
-          // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            toAppend.clear();
-            toAppend += thisString;
+          if (thisString.find("userText") == std::string::npos) {
+            // if the line to be added has less than colWidth chars append to current
+            if ((toAppend + thisString).length() < colWidth && thisString.find("inputTag") != 0) {
+              toAppend += thisString;
+            } else {
+              // else if the line exceeds colWidth chars or this is a new tag ("inputTag"), dump in the vector and resume from scratch
+              output.push_back(toAppend);
+              toAppend.clear();
+              toAppend += thisString;
+            }
           }
           // if it's the last, dump it
           if (iPath == pathsProd.size() - 1)
@@ -327,11 +323,12 @@ namespace DBoxMetadataHelper {
       }
 
       std::string fileName("DropBoxMetadata_Display.png");
-      if (!imageFileName_.empty())
-        fileName = imageFileName_;
+      if (!m_imageFileName.empty())
+        fileName = m_imageFileName;
       canvas.SaveAs(fileName.c_str());
     }
 
+    //___________________________________________________________________
     void plotDiffWithMetadata(const DBoxMetadataHelper::recordMap& theRefMap,
                               std::string theRefTag,
                               std::string theRefIOV) {
@@ -358,9 +355,7 @@ namespace DBoxMetadataHelper {
       y_x1.push_back(y);
       s_x1.push_back("#scale[1.2]{Key}");
       y_x2.push_back(y);
-      //      s_x2.push_back("#scale[1.2]{tags (target/ref): " + tagName + "/" + theRefTag
-      //		     + " in IOVs: " + IOVsinceDisplay + "/" + theRefIOV + "}");
-      s_x2.push_back("#scale[1.2]{Target tag / IOV    :" + tagName + " / " + IOVsinceDisplay + "}");
+      s_x2.push_back("#scale[1.2]{Target tag / IOV :" + m_tagName + " / " + m_IOVsinceDisplay + "}");
 
       y -= pitch;
       y_x1.push_back(y);
@@ -381,7 +376,6 @@ namespace DBoxMetadataHelper {
         s_x1.push_back(key);
 
         std::vector<std::string> output;
-        std::string toAppend = "";
 
         std::string tarPrepMetaData = val.getPrepMetaData();
         std::string tarProdMetaData = val.getProdMetaData();
@@ -389,133 +383,56 @@ namespace DBoxMetadataHelper {
         std::string refProdMetaData = refval.getProdMetaData();
 
         // Remove &quot and uninteresting text from output for sake of clarity
-        eraseAllSubStr(tarPrepMetaData, "&quot");
-        eraseAllSubStr(tarPrepMetaData, "destinationDatabase;: ;oracle://cms_orcoff_prep/CMS_CONDITIONS;, ");
-        eraseAllSubStr(tarPrepMetaData, ";since;: null,");
-        eraseAllSubStr(refPrepMetaData, "&quot");
-        eraseAllSubStr(refPrepMetaData, "destinationDatabase;: ;oracle://cms_orcoff_prep/CMS_CONDITIONS;, ");
-        eraseAllSubStr(refPrepMetaData, ";since;: null,");
-
-        eraseAllSubStr(tarProdMetaData, "&quot");
-        eraseAllSubStr(tarProdMetaData, "destinationDatabase;: ;oracle://cms_orcon_prod/CMS_CONDITIONS;, ");
-        eraseAllSubStr(tarProdMetaData, "since;: null, ;");
-        eraseAllSubStr(refProdMetaData, "&quot");
-        eraseAllSubStr(refProdMetaData, "destinationDatabase;: ;oracle://cms_orcon_prod/CMS_CONDITIONS;, ");
-        eraseAllSubStr(refProdMetaData, "since;: null, ;");
+        cleanPrepString(tarPrepMetaData);
+        cleanPrepString(refPrepMetaData);
+        cleanProdString(tarProdMetaData);
+        cleanProdString(refProdMetaData);
 
         const std::vector<std::string> tarPathsPrep = decompose(tarPrepMetaData);
         const std::vector<std::string> refPathsPrep = decompose(refPrepMetaData);
         const std::vector<std::string> tarPathsProd = decompose(tarProdMetaData);
         const std::vector<std::string> refPathsProd = decompose(refProdMetaData);
 
-        const int colWidth = 80;
-
         bool refAndTarIdentical = true;
         std::string tmpTar = "";
         std::string tmpRef = "";
 
-        toAppend = "PREP/tar: ";
-        for (unsigned int iPath = 0; iPath < tarPathsPrep.size(); ++iPath) {
-          std::string thisString = tarPathsPrep[iPath];
-
-          // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            tmpTar += toAppend;
-            toAppend.clear();
-            toAppend += thisString;
-          }
-          // if it's the last, dump it
-          if (iPath == tarPathsPrep.size() - 1) {
-            output.push_back(toAppend);
-            tmpTar += toAppend;
-          }
-        }
-
-        toAppend = "PREP/ref: ";
-        for (unsigned int iPath = 0; iPath < refPathsPrep.size(); ++iPath) {
-          std::string thisString = refPathsPrep[iPath];
-
-          // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            tmpRef += toAppend;
-            toAppend.clear();
-            toAppend += thisString;
-          }
-          // if it's the last, dump it
-          if (iPath == refPathsPrep.size() - 1) {
-            output.push_back(toAppend);
-            tmpRef += toAppend;
-          }
-        }
+        prepareLine(tarPathsPrep, output, tmpTar, "PREP/tar");
+        prepareLine(refPathsPrep, output, tmpRef, "PREP/ref");
 
         // check if printouts are identical for PREP
         eraseAllSubStr(tmpTar, "PREP/tar: ");
         eraseAllSubStr(tmpRef, "PREP/ref: ");
-        if (tmpTar != tmpRef)
+        if (tmpTar != tmpRef) {
           refAndTarIdentical = false;
+        } else {
+          output.clear();
+        }
+
+        // determine the size after having filled the prep- metadata
+        size_t lenAfterPrep = output.size();
+
+        // clear the tmps
         tmpTar = "";
         tmpRef = "";
 
-        toAppend = "PROD/tar: ";
-        for (unsigned int iPath = 0; iPath < tarPathsProd.size(); ++iPath) {
-          std::string thisString = tarPathsProd[iPath];
-
-          // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            tmpTar += toAppend;
-            toAppend.clear();
-            toAppend += thisString;
-          }
-          // if it's the last, dump it
-          if (iPath == tarPathsProd.size() - 1) {
-            output.push_back(toAppend);
-            tmpTar += toAppend;
-          }
-        }
-
-        toAppend = "PROD/ref: ";
-        for (unsigned int iPath = 0; iPath < refPathsProd.size(); ++iPath) {
-          std::string thisString = refPathsProd[iPath];
-
-          // if the line to be added has less than colWidth chars append to current
-          if ((toAppend + thisString).length() < colWidth) {
-            toAppend += thisString;
-          } else {
-            // else if the line exceeds colWidth chars, dump in the vector and resume from scratch
-            output.push_back(toAppend);
-            tmpRef += toAppend;
-            toAppend.clear();
-            toAppend += thisString;
-          }
-          // if it's the last, dump it
-          if (iPath == refPathsProd.size() - 1) {
-            output.push_back(toAppend);
-            tmpRef += toAppend;
-          }
-        }
+        prepareLine(tarPathsProd, output, tmpTar, "PROD/tar");
+        prepareLine(refPathsProd, output, tmpRef, "PROD/ref");
 
         // check if printouts are identical for PROD
         eraseAllSubStr(tmpTar, "PROD/tar: ");
         eraseAllSubStr(tmpRef, "PROD/ref: ");
-        if (tmpTar != tmpRef)
+        if (tmpTar != tmpRef) {
           refAndTarIdentical = false;
+        } else {
+          // remove everything after the prep one
+          output.erase(output.end() - lenAfterPrep, output.end());
+        }
 
         // print either "identical" or contents of tags
         if (refAndTarIdentical) {
           y_x2.push_back(y);
-          s_x2.push_back("identical");
+          s_x2.push_back("#color[4]{identical}");
         } else {
           for (unsigned int br = 0; br < output.size(); br++) {
             y_x2.push_back(y);
@@ -527,7 +444,6 @@ namespace DBoxMetadataHelper {
               y -= pitch;
           }
         }
-
         y_line.push_back(y - (pitch / 2.));
       }
 
@@ -541,19 +457,19 @@ namespace DBoxMetadataHelper {
           y_x1.push_back(y);
           s_x1.push_back(ref);
           y_x2.push_back(y);
-          s_x2.push_back("Only in reference, not in target.");
+          s_x2.push_back("#bf{Only in reference, not in target.}");
           y_line.push_back(y - (pitch / 2.));
         }
       }
 
-      // Second, check if there are records in targe which are not in reference
+      // Second, check if there are records in target which are not in reference
       for (const auto& tar : tar_records) {
         if (std::find(ref_records.begin(), ref_records.end(), tar) == ref_records.end()) {
           y -= pitch;
           y_x1.push_back(y);
           s_x1.push_back(tar);
           y_x2.push_back(y);
-          s_x2.push_back("Only in reference, not in target. ");
+          s_x2.push_back("#bf{Only in target, not in reference.}");
           y_line.push_back(y - (pitch / 2.));
         }
       }
@@ -593,17 +509,18 @@ namespace DBoxMetadataHelper {
       }
 
       std::string fileName("DropBoxMetadata_Compare.png");
-      if (!imageFileName_.empty())
-        fileName = imageFileName_;
+      if (!m_imageFileName.empty())
+        fileName = m_imageFileName;
       canvas.SaveAs(fileName.c_str());
     }
 
   private:
-    DBoxMetadataHelper::recordMap m_Map;
-    std::string tagName;
-    std::string IOVsinceDisplay;
-    std::string imageFileName_;
+    DBoxMetadataHelper::recordMap m_Map;  //!< map of the record / metadata associations
+    std::string m_tagName;                //!< tag name
+    std::string m_IOVsinceDisplay;        //!< iov since
+    std::string m_imageFileName;          //!< image file name
 
+    //___________________________________________________________________
     std::string replaceAll(std::string str, const std::string& from, const std::string& to) {
       size_t start_pos = 0;
       while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
@@ -613,11 +530,13 @@ namespace DBoxMetadataHelper {
       return str;
     }
 
+    //___________________________________________________________________
     std::string cleanJson(std::string str) {
       std::string out = replaceAll(str, std::string("&quot;"), std::string("'"));
       return out;
     }
 
+    //___________________________________________________________________
     void eraseAllSubStr(std::string& s, const std::string& toErase) {
       size_t pos = std::string::npos;
       // Search for the substring in string in a loop until nothing is found
@@ -628,12 +547,40 @@ namespace DBoxMetadataHelper {
       return;
     }
 
+    //___________________________________________________________________
+    void cleanPrepString(std::string& myString) {
+      eraseAllSubStr(myString, "&quot;");
+      eraseAllSubStr(myString, "destinationDatabase: oracle://cms_orcoff_prep/CMS_CONDITIONS, ");
+      eraseAllSubStr(myString, "since: null, ");
+      eraseAllSubStr(myString, "{");
+      eraseAllSubStr(myString, "}");
+      eraseAllSubStr(myString, ":");
+      myString = replaceAll(myString, "destinationTags", "destinationTags:");
+      myString = replaceAll(myString, "inputTag", "inputTag:");
+      return;
+    }
+
+    //___________________________________________________________________
+    void cleanProdString(std::string& myString) {
+      eraseAllSubStr(myString, "&quot;");
+      eraseAllSubStr(myString, "destinationDatabase: oracle://cms_orcon_prod/CMS_CONDITIONS, ");
+      eraseAllSubStr(myString, "since: null, ");
+      eraseAllSubStr(myString, "{");
+      eraseAllSubStr(myString, "}");
+      eraseAllSubStr(myString, ":");
+      myString = replaceAll(myString, "destinationTags", "destinationTags:");
+      myString = replaceAll(myString, "inputTag", "inputTag:");
+      return;
+    }
+
+    //___________________________________________________________________
     std::vector<std::string> decompose(const std::string& s) const {
       // decompose 's' into its parts that are separated by 'delimeter_'
       // (similar as in
       //  Alignment/CommonAlignmentAlgorithm/src/AlignmentParameterSelector.cc)
 
-      const std::string::value_type delimeter_ = ';';  // separator
+      const std::string::value_type delimeter_ = ',';  // separator
+      const std::string::value_type space_ = ' ';      // separator
 
       std::vector<std::string> result;
       if (!(s.size() == 1 && s[0] == delimeter_)) {
@@ -647,10 +594,45 @@ namespace DBoxMetadataHelper {
           }
           result.push_back(s.substr(previousPos, delimiterPos - previousPos));
           previousPos = delimiterPos + 1;  // +1: skip delim
+          if (s[previousPos] == space_)
+            previousPos++;  // remove space
         }
       }
-
       return result;
+    }
+
+    //___________________________________________________________________
+    void prepareLine(const std::vector<std::string>& thePaths,
+                     std::vector<std::string>& output,
+                     std::string& tmp,
+                     const std::string& header) {
+      const int color = (header.find("tar") == std::string::npos) ? 2 /*kRed*/ : 3 /*kGreen*/;
+      const int colWidth = 80;  // maximum width of column
+
+      std::string toAppend = "";
+      toAppend = header;
+      output.push_back("#color[" + std::to_string(color) + "]{" + toAppend + "}");
+      toAppend.clear();
+      for (unsigned int iPath = 0; iPath < thePaths.size(); ++iPath) {
+        std::string thisString = thePaths[iPath];
+        // skip userText since we want to compare actual contents, not metadata
+        if (thisString.find("userText") == std::string::npos) {
+          // if the line to be added has less than colWidth chars, and is not a new tag ("inputTag"), append to current
+          if ((toAppend + thisString).length() < colWidth && thisString.find("inputTag") != 0) {
+            toAppend += thisString;
+          } else {
+            // else if the line exceeds colWidth chars or this is a new tag ("inputTag"), dump in the vector and resume from scratch
+            output.push_back("#color[" + std::to_string(color) + "]{" + toAppend + "}");
+            tmp += toAppend;
+            toAppend.clear();
+            toAppend += thisString;
+          }
+        }
+        if (iPath == thePaths.size() - 1) {
+          output.push_back("#color[" + std::to_string(color) + "]{" + toAppend + "}");
+          tmp += toAppend;
+        }
+      }
     }
   };
 }  // namespace DBoxMetadataHelper

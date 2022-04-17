@@ -521,7 +521,7 @@ void EtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "FTLEndcap"));
   desc.add<bool>("LocalPositionDebug", false);
 
-  descriptions.add("etlDigiHitsDefault", desc);
+  descriptions.add("etlDigiHitsDefaultValid", desc);
 }
 
 DEFINE_FWK_MODULE(EtlDigiHitsValidation);

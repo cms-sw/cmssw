@@ -20,6 +20,7 @@
 
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelDetInfoFileReader.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelFakeLorentzAngleESSource.h"
+#include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
 #include "DataFormats/TrackerCommon/interface/PixelBarrelName.h"
 #include "DataFormats/TrackerCommon/interface/PixelEndcapName.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

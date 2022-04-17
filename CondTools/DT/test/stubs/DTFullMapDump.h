@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -14,13 +14,13 @@ Toy EDAnalyzer for testing purposes only.
 #include <string>
 
 namespace edmtest {
-  class DTFullMapDump : public edm::EDAnalyzer {
+  class DTFullMapDump : public edm::one::EDAnalyzer<> {
   public:
     explicit DTFullMapDump(edm::ParameterSet const& p);
     explicit DTFullMapDump(int i);
-    virtual ~DTFullMapDump();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-    virtual void endJob();
+    ~DTFullMapDump() override = default;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void endJob() override;
 
   private:
     std::string fileName;

@@ -84,13 +84,13 @@ private:
 
   int mypow_2[31];
 
-  bool m_cosmic;
-  bool m_zeroField;
-  int m_bins;
-  double m_low;
-  double m_ahigh;
-  bool m_histFill;  //Stored signals of individual HO towers with default selection criteria
-  bool m_treeFill;  //Store rootuple without almost any selection criteria except a quality on muon
+  const bool m_cosmic;
+  const bool m_zeroField;
+  const int m_bins;
+  const double m_low;
+  const double m_ahigh;
+  const bool m_histFill;  //Stored signals of individual HO towers with default selection criteria
+  const bool m_treeFill;  //Store rootuple without almost any selection criteria except a quality on muon
 
   int ipass;
 
@@ -130,8 +130,8 @@ private:
   float ncount[ringmx][ncut + 10];
 
   edm::InputTag hoCalibVariableCollectionTag;
-  edm::EDGetTokenT<HOCalibVariableCollection> tok_ho_;
-  edm::EDGetTokenT<HORecHitCollection> tok_allho_;
+  const edm::EDGetTokenT<HOCalibVariableCollection> tok_ho_;
+  const edm::EDGetTokenT<HORecHitCollection> tok_allho_;
   // ----------member data ---------------------------
 };
 
@@ -147,29 +147,26 @@ private:
 // constructors and destructor
 //
 
-HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig) {
+HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
+    : m_cosmic(iConfig.getUntrackedParameter<bool>("cosmic", true)),
+      m_zeroField(iConfig.getUntrackedParameter<bool>("zeroField", false)),
+      m_bins(iConfig.getUntrackedParameter<int>("HOSignalBins", 120)),
+      m_low(iConfig.getUntrackedParameter<double>("lowerRange", -1.0)),
+      m_ahigh(iConfig.getUntrackedParameter<double>("upperRange", 29.0)),
+      m_histFill(iConfig.getUntrackedParameter<bool>("histFill", true)),
+      m_treeFill(iConfig.getUntrackedParameter<bool>("treeFill", false)),
+      tok_ho_(consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"))),
+      tok_allho_(consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputTag"))) {
   // It is very likely you want the following in your configuration
   // hoCalibVariableCollectionTag = cms.InputTag('hoCalibProducer', 'HOCalibVariableCollection')
 
   usesResource(TFileService::kSharedResource);
 
-  tok_ho_ = consumes<HOCalibVariableCollection>(iConfig.getParameter<edm::InputTag>("hoCalibVariableCollectionTag"));
-  tok_allho_ = consumes<HORecHitCollection>(iConfig.getParameter<edm::InputTag>("hoInputTag"));
   //now do what ever initialization is needed
   ipass = 0;
   for (int ij = 0; ij < 10; ij++) {
     nevents[ij] = 0;
   }
-
-  m_cosmic = iConfig.getUntrackedParameter<bool>("cosmic", true);
-  m_zeroField = iConfig.getUntrackedParameter<bool>("zeroField", false);
-
-  m_bins = iConfig.getUntrackedParameter<int>("HOSignalBins", 120);
-  m_low = iConfig.getUntrackedParameter<double>("lowerRange", -1.0);
-  m_ahigh = iConfig.getUntrackedParameter<double>("upperRange", 29.0);
-
-  m_histFill = iConfig.getUntrackedParameter<bool>("histFill", true);
-  m_treeFill = iConfig.getUntrackedParameter<bool>("treeFill", false);
 
   edm::Service<TFileService> fs;
 
@@ -320,9 +317,10 @@ HOCalibAnalyzer::~HOCalibAnalyzer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
 
-  edm::LogVerbatim("HOCalib") << " Total events = " << setw(7) << nevents[0] << " " << setw(7) << nevents[1] << " "
-                              << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " " << setw(7) << nevents[4]
-                              << " " << setw(7) << nevents[5] << " Selected events # is " << ipass;
+  edm::LogVerbatim("HOCalibAnalyzer") << " Total events = " << setw(7) << nevents[0] << " " << setw(7) << nevents[1]
+                                      << " " << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " " << setw(7)
+                                      << nevents[4] << " " << setw(7) << nevents[5] << " Selected events # is "
+                                      << ipass;
 }
 
 //
@@ -340,16 +338,14 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   ievt = iEvent.id().event();
   ilumi = iEvent.luminosityBlock();
 
-  edm::Handle<HOCalibVariableCollection> HOCalib;
-
-  iEvent.getByToken(tok_ho_, HOCalib);
+  const edm::Handle<HOCalibVariableCollection>& HOCalib = iEvent.getHandle(tok_ho_);
 
   if (nevents[0] % 20000 == 1) {
-    edm::LogVerbatim("HOCalib") << "nmuon event # " << setw(7) << nevents[0] << " " << setw(7) << nevents[1] << " "
-                                << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " " << setw(7) << nevents[4]
-                                << " " << setw(7) << nevents[5];
-    edm::LogVerbatim("HOCalib") << " Run # " << iEvent.id().run() << " Evt # " << iEvent.id().event() << " "
-                                << int(HOCalib.isValid()) << " " << ipass;
+    edm::LogVerbatim("HOCalibAnalyzer") << "nmuon event # " << setw(7) << nevents[0] << " " << setw(7) << nevents[1]
+                                        << " " << setw(7) << nevents[2] << " " << setw(7) << nevents[3] << " "
+                                        << setw(7) << nevents[4] << " " << setw(7) << nevents[5];
+    edm::LogVerbatim("HOCalibAnalyzer") << " Run # " << iEvent.id().run() << " Evt # " << iEvent.id().event() << " "
+                                        << int(HOCalib.isValid()) << " " << ipass;
   }
 
   if (HOCalib.isValid()) {
@@ -397,13 +393,13 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       for (int ij = 0; ij < 9; ij++) {
         hosig[ij] = (*hoC).hosig[ij];
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HOCalib") << "hosig " << ij << " " << hosig[ij];
+        edm::LogVerbatim("HOCalibAnalyzer") << "hosig " << ij << " " << hosig[ij];
 #endif
       }
       for (int ij = 0; ij < 18; ij++) {
         hocorsig[ij] = (*hoC).hocorsig[ij];
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HOCalib") << "hocorsig " << ij << " " << hocorsig[ij];
+        edm::LogVerbatim("HOCalibAnalyzer") << "hocorsig " << ij << " " << hocorsig[ij];
 #endif
       }
       hocro = (*hoC).hocro;
@@ -443,10 +439,6 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         continue;
       nevents[5]++;
       int iphi = abs(isect) % 100;
-
-      int tmpsect = int((iphi + 1) / 6.) + 1;
-      if (tmpsect > 12)
-        tmpsect = 1;
 
       int iring = 0;
 

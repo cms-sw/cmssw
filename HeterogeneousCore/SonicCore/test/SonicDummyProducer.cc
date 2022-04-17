@@ -10,7 +10,7 @@ namespace sonictest {
   class SonicDummyProducer : public SonicEDProducer<DummyClient> {
   public:
     explicit SonicDummyProducer(edm::ParameterSet const& cfg)
-        : SonicEDProducer<DummyClient>(cfg, "SonicDummyProducer"), input_(cfg.getParameter<int>("input")) {
+        : SonicEDProducer<DummyClient>(cfg), input_(cfg.getParameter<int>("input")) {
       putToken_ = produces<edmtest::IntProduct>();
     }
 

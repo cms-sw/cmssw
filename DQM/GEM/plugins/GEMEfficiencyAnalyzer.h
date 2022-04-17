@@ -61,6 +61,7 @@ private:
 
   inline bool isInsideOut(const reco::Track &);
 
+  bool skipGEMStation(const int);
   std::vector<GEMLayerData> buildGEMLayers(const edm::ESHandle<GEMGeometry> &);
   const reco::Track *getTrack(const reco::Muon &);
   std::pair<TrajectoryStateOnSurface, DetId> getStartingState(const reco::TransientTrack &,
@@ -97,6 +98,9 @@ private:
   int eta_nbins_;
   double eta_low_;
   double eta_up_;
+  bool monitor_ge11_;
+  bool monitor_ge21_;
+  bool monitor_ge0_;
 
   // data mebers derived from parameters
   MuonServiceProxy *muon_service_;

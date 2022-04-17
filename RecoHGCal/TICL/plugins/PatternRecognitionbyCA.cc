@@ -16,10 +16,8 @@
 using namespace ticl;
 
 template <typename TILES>
-PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf,
-                                                      const CacheBase *cache,
-                                                      edm::ConsumesCollector iC)
-    : PatternRecognitionAlgoBaseT<TILES>(conf, cache, iC),
+PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &conf, edm::ConsumesCollector iC)
+    : PatternRecognitionAlgoBaseT<TILES>(conf, iC),
       caloGeomToken_(iC.esConsumes<CaloGeometry, CaloGeometryRecord>()),
       theGraph_(std::make_unique<HGCGraphT<TILES>>()),
       oneTracksterPerTrackSeed_(conf.getParameter<bool>("oneTracksterPerTrackSeed")),
@@ -48,16 +46,7 @@ PatternRecognitionbyCA<TILES>::PatternRecognitionbyCA(const edm::ParameterSet &c
       eidMinClusterEnergy_(conf.getParameter<double>("eid_min_cluster_energy")),
       eidNLayers_(conf.getParameter<int>("eid_n_layers")),
       eidNClusters_(conf.getParameter<int>("eid_n_clusters")),
-      eidSession_(nullptr),
-      siblings_maxRSquared_(conf.getParameter<std::vector<double>>("siblings_maxRSquared")) {
-  // mount the tensorflow graph onto the session when set
-  const TrackstersCache *trackstersCache = dynamic_cast<const TrackstersCache *>(cache);
-  if (trackstersCache == nullptr || trackstersCache->eidGraphDef == nullptr) {
-    throw cms::Exception("MissingGraphDef")
-        << "PatternRecognitionbyCA received an empty graph definition from the global cache";
-  }
-  eidSession_ = tensorflow::createSession(trackstersCache->eidGraphDef);
-}
+      siblings_maxRSquared_(conf.getParameter<std::vector<double>>("siblings_maxRSquared")){};
 
 template <typename TILES>
 PatternRecognitionbyCA<TILES>::~PatternRecognitionbyCA(){};
@@ -196,7 +185,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z());
 
   // run energy regression and ID
-  energyRegressionAndID(input.layerClusters, tmpTracksters);
+  energyRegressionAndID(input.layerClusters, input.tfSession, tmpTracksters);
   // Filter results based on PID criteria or EM/Total energy ratio.
   // We want to **keep** tracksters whose cumulative
   // probability summed up over the selected categories
@@ -257,7 +246,7 @@ void PatternRecognitionbyCA<TILES>::makeTracksters(
                               rhtools_.getPositionLayer(rhtools_.lastLayerEE(isHFnose), isHFnose).z());
 
   // run energy regression and ID
-  energyRegressionAndID(input.layerClusters, result);
+  energyRegressionAndID(input.layerClusters, input.tfSession, result);
 
   // now adding dummy tracksters from seeds not connected to any shower in the result collection
   // these are marked as charged hadrons with probability 1.
@@ -309,6 +298,27 @@ void PatternRecognitionbyCA<TILES>::mergeTrackstersTRK(
                   std::back_inserter(outTrackster.vertex_multiplicity()));
       }
       tracksters.resize(1);
+
+      // Find duplicate LCs
+      auto &orig_vtx = outTrackster.vertices();
+      auto vtx_sorted{orig_vtx};
+      std::sort(std::begin(vtx_sorted), std::end(vtx_sorted));
+      for (unsigned int iLC = 1; iLC < vtx_sorted.size(); ++iLC) {
+        if (vtx_sorted[iLC] == vtx_sorted[iLC - 1]) {
+          // Clean up duplicate LCs
+          const auto lcIdx = vtx_sorted[iLC];
+          const auto firstEl = std::find(orig_vtx.begin(), orig_vtx.end(), lcIdx);
+          const auto firstPos = std::distance(std::begin(orig_vtx), firstEl);
+          auto iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
+          while (iDup != orig_vtx.end()) {
+            orig_vtx.erase(iDup);
+            outTrackster.vertex_multiplicity().erase(outTrackster.vertex_multiplicity().begin() +
+                                                     std::distance(std::begin(orig_vtx), iDup));
+            outTrackster.vertex_multiplicity()[firstPos] -= 1;
+            iDup = std::find(std::next(firstEl), orig_vtx.end(), lcIdx);
+          };
+        }
+      }
     }
   }
   output.shrink_to_fit();
@@ -334,6 +344,7 @@ void PatternRecognitionbyCA<TILES>::emptyTrackstersFromSeedsTRK(
 
 template <typename TILES>
 void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco::CaloCluster> &layerClusters,
+                                                          const tensorflow::Session *eidSession,
                                                           std::vector<Trackster> &tracksters) {
   // Energy regression and particle identification strategy:
   //
@@ -446,7 +457,7 @@ void PatternRecognitionbyCA<TILES>::energyRegressionAndID(const std::vector<reco
   }
 
   // run the inference (7)
-  tensorflow::run(eidSession_, inputList, outputNames, &outputs);
+  tensorflow::run(const_cast<tensorflow::Session *>(eidSession), inputList, outputNames, &outputs);
 
   // store regressed energy per trackster (8)
   if (!eidOutputNameEnergy_.empty()) {

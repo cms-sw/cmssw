@@ -28,8 +28,6 @@ namespace edmtest {
 
   DTT0Write::DTT0Write(int i) {}
 
-  DTT0Write::~DTT0Write() {}
-
   void DTT0Write::analyze(const edm::Event& e, const edm::EventSetup& context) {
     std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;

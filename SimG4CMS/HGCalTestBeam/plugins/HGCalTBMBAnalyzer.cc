@@ -30,18 +30,18 @@ public:
 private:
   void analyze(edm::Event const &, edm::EventSetup const &) override;
 
-  std::vector<std::string> listNames_;
-  edm::InputTag labelMBCalo_;
-  edm::EDGetTokenT<MaterialAccountingCaloCollection> tokMBCalo_;
-  unsigned int nList_;
+  const std::vector<std::string> listNames_;
+  const edm::InputTag labelMBCalo_;
+  const unsigned int nList_;
+  const edm::EDGetTokenT<MaterialAccountingCaloCollection> tokMBCalo_;
   std::vector<TH1D *> me100_, me200_, me300_;
 };
 
-HGCalTBMBAnalyzer::HGCalTBMBAnalyzer(const edm::ParameterSet &p) {
-  listNames_ = p.getParameter<std::vector<std::string>>("detectorNames");
-  labelMBCalo_ = p.getParameter<edm::InputTag>("labelMBCalo");
-  nList_ = listNames_.size();
-  tokMBCalo_ = consumes<MaterialAccountingCaloCollection>(labelMBCalo_);
+HGCalTBMBAnalyzer::HGCalTBMBAnalyzer(const edm::ParameterSet &p)
+    : listNames_(p.getParameter<std::vector<std::string>>("detectorNames")),
+      labelMBCalo_(p.getParameter<edm::InputTag>("labelMBCalo")),
+      nList_(listNames_.size()),
+      tokMBCalo_(consumes<MaterialAccountingCaloCollection>(labelMBCalo_)) {
   edm::LogVerbatim("HGCSim") << "HGCalTBMBAnalyzer initialized for " << nList_ << " volumes";
   for (unsigned int k = 0; k < nList_; ++k)
     edm::LogVerbatim("HGCSim") << " [" << k << "] " << listNames_[k];

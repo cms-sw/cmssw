@@ -42,7 +42,7 @@
 class HGCalTBCheckGunPostion : public edm::stream::EDFilter<> {
 public:
   explicit HGCalTBCheckGunPostion(const edm::ParameterSet&);
-  ~HGCalTBCheckGunPostion() override;
+  ~HGCalTBCheckGunPostion() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -58,8 +58,9 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<edm::HepMCProduct> hepMCproductLabel_;
-  bool verbosity_, method2_;
+  const edm::InputTag labelGen_;
+  const bool verbosity_, method2_;
+  const edm::EDGetTokenT<edm::HepMCProduct> hepMCproductLabel_;
   double tan30deg_, hexwidth_, hexside_;
 };
 
@@ -72,22 +73,19 @@ private:
 //
 
 //
-// constructors and destructor
+// constructor
 //
-HGCalTBCheckGunPostion::HGCalTBCheckGunPostion(const edm::ParameterSet& iConfig) {
+HGCalTBCheckGunPostion::HGCalTBCheckGunPostion(const edm::ParameterSet& iConfig)
+    : labelGen_(iConfig.getParameter<edm::InputTag>("HepMCProductLabel")),
+      verbosity_(iConfig.getUntrackedParameter<bool>("Verbosity", false)),
+      method2_(iConfig.getUntrackedParameter<bool>("Method2", false)),
+      hepMCproductLabel_(consumes<edm::HepMCProduct>(labelGen_)) {
   // now do what ever initialization is needed
-  edm::InputTag tmp0 = iConfig.getParameter<edm::InputTag>("HepMCProductLabel");
-  verbosity_ = iConfig.getUntrackedParameter<bool>("Verbosity", false);
-  method2_ = iConfig.getUntrackedParameter<bool>("Method2", false);
-  hepMCproductLabel_ = consumes<edm::HepMCProduct>(tmp0);
-
   // hexside = 7; //cm - check it
   tan30deg_ = 0.5773502693;
   hexwidth_ = 6.185;
   hexside_ = 2.0 * hexwidth_ * tan30deg_;
 }
-
-HGCalTBCheckGunPostion::~HGCalTBCheckGunPostion() {}
 
 //
 // member functions
@@ -95,26 +93,25 @@ HGCalTBCheckGunPostion::~HGCalTBCheckGunPostion() {}
 
 // ------------ method called on each new Event  ------------
 bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<edm::HepMCProduct> hepmc;
-  iEvent.getByToken(hepMCproductLabel_, hepmc);
-#ifdef DebugLog
+  const edm::Handle<edm::HepMCProduct>& hepmc = iEvent.getHandle(hepMCproductLabel_);
+#ifdef EDM_ML_DEBUG
   if (verbosity_)
-    edm::LogVerbatim("HGCSim") << "isHandle valid: " << isHandle valid;
+    edm::LogVerbatim("HGCSim") << "is hepmc Handle valid: " << hepmc.isValid();
 #endif
   double x(0), y(0);
 
   if (hepmc.isValid()) {
     const HepMC::GenEvent* Evt = hepmc->GetEvent();
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
     if (verbosity_)
       edm::LogVerbatim("HGCSim") << "vertex " << Evt->vertices_size();
 #endif
     for (HepMC::GenEvent::vertex_const_iterator p = Evt->vertices_begin(); p != Evt->vertices_end(); ++p) {
       x = (*p)->position().x() / 10.;  // in cm
       y = (*p)->position().y() / 10.;  // in cm
-#ifdef DebugLog
-      z = (*p)->position().z() / 10.;  // in cm
+#ifdef EDM_ML_DEBUG
+      double z = (*p)->position().z() / 10.;  // in cm
       if (verbosity_)
         edm::LogVerbatim("HGCSim") << " x: " << (*p)->position().x() << ":" << x << " y: " << (*p)->position().y()
                                    << ":" << y << " z: " << (*p)->position().z() << ":" << z;
@@ -140,7 +137,7 @@ bool HGCalTBCheckGunPostion::filter(edm::Event& iEvent, const edm::EventSetup& i
     }
   }
 
-#ifdef DebugLog
+#ifdef EDM_ML_DEBUG
   if (verbosity_)
     edm::LogVerbatim("HGCSim") << "Selection Flag " << flag;
 #endif

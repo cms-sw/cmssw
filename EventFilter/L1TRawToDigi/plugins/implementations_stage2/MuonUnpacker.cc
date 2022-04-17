@@ -8,7 +8,7 @@
 
 namespace l1t {
   namespace stage2 {
-    MuonUnpacker::MuonUnpacker() : res_(nullptr), muonCopy_(0) {}
+    MuonUnpacker::MuonUnpacker() : muonCollection_(nullptr), muonShowerCollection_(nullptr), muonCopy_(0) {}
 
     bool MuonUnpacker::unpack(const Block& block, UnpackerCollections* coll) {
       LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
@@ -33,8 +33,12 @@ namespace l1t {
       getBXRange(nBX, firstBX, lastBX);
 
       // Set the muon collection and the BX range
-      res_ = static_cast<L1TObjectCollections*>(coll)->getMuons(muonCopy_);
-      res_->setBXRange(firstBX, lastBX);
+      muonCollection_ = static_cast<L1TObjectCollections*>(coll)->getMuons(muonCopy_);
+      muonCollection_->setBXRange(firstBX, lastBX);
+      // Set the muon shower collection and the BX range
+      muonShowerCollection_ = static_cast<L1TObjectCollections*>(coll)->getMuonShowers(muonCopy_);
+      muonShowerCollection_->setBXRange(firstBX, lastBX);
+
       LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
       // Get the BX blocks and unpack them
@@ -48,15 +52,48 @@ namespace l1t {
               << " in BX header is outside of the BX range [" << firstBX << "," << lastBX
               << "] defined in the block header.";
         }
-        unpackBx(bx, bxBlock.payload());
+        unpackBx(bx, bxBlock.payload(), block.header().getID());
       }
       return true;
     }
 
-    void MuonUnpacker::unpackBx(int bx, const std::vector<uint32_t>& payload, unsigned int startIdx) {
+    void MuonUnpacker::unpackBx(int bx,
+                                const std::vector<uint32_t>& payload,
+                                unsigned int blockID,
+                                unsigned int startIdx) {
       unsigned int i = startIdx + 2;  // Only words 2-5 are "standard" muon words.
       // Check if there are enough words left in the payload
       if (startIdx + nWords_ <= payload.size()) {
+        // Unpacking showers.
+        // The shower from uGMT is transmitted via four links, each link
+        // carrying on of the bits of the shower. We therefore have to
+        // determine which link we're looking at and act accordingly.
+        // Output links are odd and input links are even.
+        int link_offset{0};  // This is correct for the uGT unpacker
+        if (fed_ == 1402) {  // For uGMT we have to adjust the block/link ID
+          link_offset = 1;
+        }
+        unsigned linkID{(blockID - link_offset) / 2};
+
+        // Try to get the shower for this BX and if it doesn't exist create an
+        // empty one and push it in.
+        // Note: We can't just create it for the first linkID, because in
+        // prinicple there could be a case where that is removed by the ZS.
+        MuonShower shower;
+        if (!muonShowerCollection_->isEmpty(bx)) {
+          shower = muonShowerCollection_->at(bx, 0);
+          muonShowerCollection_->erase(bx, 0);
+        }
+        if (linkID == 0) {  // OneNominal shower
+          shower.setOneNominalInTime(l1t::MuonRawDigiTranslator::showerFired(payload[i + 1], fed_, getAlgoVersion()));
+        } else if (linkID == 1) {  // OneTight shower
+          shower.setOneTightInTime(l1t::MuonRawDigiTranslator::showerFired(payload[i + 1], fed_, getAlgoVersion()));
+        }
+
+        if (shower.isValid()) {
+          muonShowerCollection_->push_back(bx, shower);
+        }
+
         for (unsigned nWord = 2; nWord < nWords_; nWord += 2) {  // Only words 2-5 are "standard" muon words.
           uint32_t raw_data_spare = payload[startIdx + 1];
           uint32_t raw_data_00_31 = payload[i++];
@@ -78,7 +115,7 @@ namespace l1t {
                           << " iso " << mu.hwIso() << " qual " << mu.hwQual() << " charge " << mu.hwCharge()
                           << " charge valid " << mu.hwChargeValid();
 
-          res_->push_back(bx, mu);
+          muonCollection_->push_back(bx, mu);
         }
       } else {
         edm::LogWarning("L1T") << "Only " << payload.size() - i << " 32 bit words in this BX but " << nWords_

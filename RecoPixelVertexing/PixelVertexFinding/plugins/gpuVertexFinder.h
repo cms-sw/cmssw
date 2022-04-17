@@ -5,6 +5,7 @@
 #include <cstdint>
 
 #include "CUDADataFormats/Vertex/interface/ZVertexHeterogeneous.h"
+#include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 
 namespace gpuVertexFinder {
 
@@ -63,8 +64,8 @@ namespace gpuVertexFinder {
 
     ~Producer() = default;
 
-    ZVertexHeterogeneous makeAsync(cudaStream_t stream, TkSoA const* tksoa, float ptMin) const;
-    ZVertexHeterogeneous make(TkSoA const* tksoa, float ptMin) const;
+    ZVertexHeterogeneous makeAsync(cudaStream_t stream, TkSoA const* tksoa, float ptMin, float ptMax) const;
+    ZVertexHeterogeneous make(TkSoA const* tksoa, float ptMin, float ptMax) const;
 
   private:
     const bool oneKernel_;

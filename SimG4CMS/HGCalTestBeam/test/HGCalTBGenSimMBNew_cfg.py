@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2_cff import Phase2
-process = cms.Process('SIM',Phase2)
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
+process = cms.Process('SIM',Phase2,hgcaltb)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -97,10 +98,6 @@ process.VtxSmeared.MaxY =  0
 process.HGCalTBAnalyzer.doDigis = False
 process.HGCalTBAnalyzer.doRecHits = False
 process.g4SimHits.StackingAction.TrackNeutrino = True
-process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
-                             'HGCSensitiveDetector',
-                             'HGCalTB1601SensitiveDetector',
-                             'HcalTB06BeamDetector']
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

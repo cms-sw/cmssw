@@ -1,4 +1,7 @@
-#include <vector>
+// user includes
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -8,11 +11,34 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoVertex/ConfigurableVertexReco/test/CVRTest.h"
-
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
+// system includes
+#include <vector>
 #include <iostream>
+
+class CVRTest : public edm::one::EDAnalyzer<> {
+  /**
+   *  Class that glues the combined btagging algorithm to the framework
+   */
+public:
+  explicit CVRTest(const edm::ParameterSet&);
+  ~CVRTest();
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
+  void discussPrimary(const edm::Event&) const;
+
+private:
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> estoken_ttk;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> estoken_mf;
+
+  ConfigurableVertexReconstructor* vrec_;
+  std::string trackcoll_;
+  std::string vertexcoll_;
+  std::string beamspot_;
+};
 
 using namespace std;
 using namespace reco;
@@ -56,7 +82,9 @@ namespace {
 }  // namespace
 
 CVRTest::CVRTest(const edm::ParameterSet& iconfig)
-    : trackcoll_(iconfig.getParameter<string>("trackcoll")),
+    : estoken_ttk(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      estoken_mf(esConsumes()),
+      trackcoll_(iconfig.getParameter<string>("trackcoll")),
       vertexcoll_(iconfig.getParameter<string>("vertexcoll")),
       beamspot_(iconfig.getParameter<string>("beamspot")) {
   edm::ParameterSet vtxconfig = iconfig.getParameter<edm::ParameterSet>("vertexreco");
@@ -81,10 +109,8 @@ void CVRTest::discussPrimary(const edm::Event& iEvent) const {
 void CVRTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::EventNumber_t const evt = iEvent.id().event();
   cout << "[CVRTest] next event: " << evt << endl;
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  edm::ESHandle<TransientTrackBuilder> builder;
-  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
+  edm::ESHandle<MagneticField> magneticField = iSetup.getHandle(estoken_mf);
+  edm::ESHandle<TransientTrackBuilder> builder = iSetup.getHandle(estoken_ttk);
 
   edm::Handle<reco::TrackCollection> tks;
   iEvent.getByLabel(trackcoll_, tks);

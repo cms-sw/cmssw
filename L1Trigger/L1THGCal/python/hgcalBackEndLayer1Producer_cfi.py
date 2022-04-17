@@ -57,6 +57,42 @@ constrTopological_C2d_params = cms.PSet(c2d_calib_pset,
                                         dR_cluster=cms.double(6.),
                                         )
 
+ntcs_72links = [ 1,  4, 13, 13, 10, 10,  8,  8,  8,  7,  7,  6,  6,  6,  6,  6,  5,  5,  5,  5,  5,  5,  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  3,  2,  2,  2,  2,  2,  2,  2,  2,  1]
+ntcs_120links = [ 2,  7, 27, 24, 19, 17, 16, 15, 14, 14, 13, 13, 13, 12, 12, 12, 11, 11, 11, 10, 10, 10, 10, 10,  9,  9, 10,  9,  9,  9,  8,  8,  7,  5,  3,  3,  3,  3,  3,  3,  3,  3]
+
+phi_edges = [0.98901991,0.72722052,0.6981317,0.87266463,0.93084227,0.90175345,
+0.87266463,0.90175345,0.95993109,0.95993109,0.93084227,0.93084227,
+0.95993109,0.98901991,0.95993109,0.95993109,0.95993109,0.98901991,
+0.98901991,0.95993109,0.95993109,0.98901991,0.98901991,0.98901991,
+0.98901991,0.98901991,1.01810873,0.98901991,0.98901991,0.98901991,
+0.98901991,0.98901991,0.98901991,0.98901991,1.04719755,1.04719755,
+1.04719755,1.04719755,1.01810873,1.04719755,1.01810873,1.01810873]
+
+truncation_params = cms.PSet(rozMin=cms.double(0.07587128),
+        rozMax=cms.double(0.55508006),
+        rozBins=cms.uint32(42),
+        maxTcsPerBin=cms.vuint32(ntcs_120links),
+        phiSectorEdges=cms.vdouble(phi_edges),
+        doTruncation=cms.bool(True)
+        )
+
+truncation_paramsSA = cms.PSet(AlgoName=cms.string('HGCalStage1TruncationWrapper'),
+        rozMin=cms.double(0.07587128),
+        rozMax=cms.double(0.55508006),
+        rozBins=cms.uint32(42),
+        maxTcsPerBin=cms.vuint32(ntcs_120links),
+        phiSectorEdges=cms.vdouble(phi_edges),
+        doTruncation=cms.bool(True)
+        )
+
+
+layer1truncation_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendLayer1Processor'),
+                   C2d_parameters = dummy_C2d_params.clone(),
+                   truncation_parameters = truncation_params.clone()
+                   )
+stage1truncation_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendStage1Processor'),
+                   truncation_parameters = truncation_paramsSA.clone()
+                   )
 
 be_proc = cms.PSet(ProcessorName  = cms.string('HGCalBackendLayer1Processor2DClustering'),
                    C2d_parameters = dummy_C2d_params.clone()
@@ -68,6 +104,13 @@ hgcalBackEndLayer1Producer = cms.EDProducer(
     ProcessorParameters = be_proc.clone()
     )
 
+hgcalBackEndStage1Producer = cms.EDProducer(
+    "HGCalBackendStage1Producer",
+    InputTriggerCells = cms.InputTag('hgcalConcentratorProducer:HGCalConcentratorProcessorSelection'),
+    C2d_parameters = dummy_C2d_params.clone(),
+    ProcessorParameters = stage1truncation_proc.clone()
+    )
+
 hgcalBackEndLayer1ProducerHFNose = hgcalBackEndLayer1Producer.clone(
-    InputTriggerCells = cms.InputTag('hgcalConcentratorProducerHFNose:HGCalConcentratorProcessorSelection')
+    InputTriggerCells = 'hgcalConcentratorProducerHFNose:HGCalConcentratorProcessorSelection'
 )

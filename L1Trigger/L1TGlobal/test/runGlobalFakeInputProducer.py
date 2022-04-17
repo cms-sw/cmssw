@@ -39,7 +39,7 @@ for arg in argv:
     else:
         globals()[k] = v
 
-neventsPerJob = nevents/njob
+neventsPerJob = int(nevents/njob)
 skip = job * neventsPerJob
 
 if skip>4:
@@ -79,15 +79,11 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-        "/store/mc/RunIISummer19UL18RECO/GluGluToContinToZZTo4mu_13TeV_MCFM701_pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/110000/664BBEBB-93A9-5B40-AD9C-DE835A79B712.root",
-        #"/store/mc/RunIISummer20UL18RECO/BuToTau_To3Mu_MuFilter_TuneCP5_13TeV-pythia8-evtgen/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/20000/00901296-D966-DF40-AA25-5F7A959B79CA.root",
-        #"/store/mc/RunIISummer20UL18RECO/DsToTau_To3Mu_MuFilter_TuneCP5_13TeV-pythia8-evtgen/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v1/00000/0003B7FD-6C1E-BF4C-8DA9-BA8A27AF0290.root",
-        #"/store/mc/RunIISummer19UL18RECO/ZZ_TuneCP5_13TeV-pythia8/AODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/280000/04530FC4-E54D-D34A-950E-9F300321E037.root",
-        #"/store/mc/RunIIFall15DR76/TT_TuneCUETP8M1_13TeV-powheg-pythia8/AODSIM/25nsFlat10to25TSG_76X_mcRun2_asymptotic_v11_ext3-v1/20000/F03B8956-5D87-E511-8AE9-002590D0AFFC.root",
-        #"/store/mc/RunIISummer19UL18HLT/TTTo2L2Nu_mtop178p5_TuneCP5_13TeV-powheg-pythia8/GEN-SIM-RAW/102X_upgrade2018_realistic_v15-v2/280000/00429618-85B5-124F-9C16-0C9F07A39E73.root+"
-        #"/store/mc/PhaseIFall16DR/TT_TuneCUETP8M2T4_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU28to62HcalNZSRAW_81X_upgrade2017_realistic_v26-v1/110000/444C2036-84FC-E611-A86D-02163E01433C.root",
-        #"/store/mc/RunIISpring16DR80/TT_TuneCUETP8M1_13TeV-powheg-pythia8/GEN-SIM-RAW/FlatPU20to70HcalNZSRAW_withHLT_80X_mcRun2_asymptotic_v14_ext3-v1/50000/D6D4CAF2-AD65-E611-9642-001EC94BA169.root",
-        #"/store/relval/CMSSW_7_6_0_pre7/RelValTTbar_13/GEN-SIM/76X_mcRun2_asymptotic_v9_realBS-v1/00000/0A812333-427C-E511-A80A-0025905964A2.root",
+        # TTbar CMSSW_12X samples
+        "/store/relval/CMSSW_12_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/122X_mcRun3_2021_realistic_v5-v1/2580000/04b2f8e0-57d6-449c-aa9f-a416c9926f31.root",
+        "/store/relval/CMSSW_12_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/122X_mcRun3_2021_realistic_v5-v1/2580000/12bfbbc7-60fe-44c9-8f04-daa8c7b61406.root",
+        "/store/relval/CMSSW_12_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/122X_mcRun3_2021_realistic_v5-v1/2580000/198e5a8c-8f06-4688-ae0d-5cc51b1eef46.root",
+        "/store/relval/CMSSW_12_3_0_pre2/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/122X_mcRun3_2021_realistic_v5-v1/2580000/2e6c92bb-4997-4232-8475-04a668d8d163.root",
 	),
     skipEvents = cms.untracked.uint32(skip)
     )
@@ -214,7 +210,7 @@ process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
 
-xmlMenu="L1Menu_test_mass_3_body_reduced_v2.xml"
+xmlMenu="L1Menu_Collisions2022_v1_0_0.xml"
 process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
 process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
 
@@ -234,7 +230,6 @@ process.simGtExtFakeProd.setBptxOR    = cms.bool(True)
 
 ## Run the Stage 2 uGT emulator
 process.load('L1Trigger.L1TGlobal.simGtStage2Digis_cfi')
-process.simGtStage2Digis.PrescaleCSVFile = cms.string('prescale_L1TGlobal.csv')
 process.simGtStage2Digis.PrescaleSet = cms.uint32(1)
 process.simGtStage2Digis.ExtInputTag = cms.InputTag("simGtExtFakeProd")
 process.simGtStage2Digis.MuonInputTag = cms.InputTag("gtInput")

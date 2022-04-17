@@ -16,6 +16,7 @@
 
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include <sys/stat.h>
 #include <filesystem>
@@ -25,8 +26,9 @@ namespace evf {
 
   EvFOutputJSONWriter::EvFOutputJSONWriter(edm::ParameterSet const& ps,
                                            edm::SelectedProducts const* selections,
-                                           std::string const& streamLabel)
-      : streamerCommon_(ps, selections),
+                                           std::string const& streamLabel,
+                                           std::string const& moduleLabel)
+      : streamerCommon_(ps, selections, moduleLabel),
         processed_(0),
         accepted_(0),
         errorEvents_(0),
@@ -147,7 +149,8 @@ namespace evf {
 
   void EvFOutputModule::beginRun(edm::RunForOutput const& run) {
     //create run Cache holding JSON file writer and variables
-    jsonWriter_ = std::make_unique<EvFOutputJSONWriter>(ps_, &keptProducts()[edm::InEvent], streamLabel_);
+    jsonWriter_ = std::make_unique<EvFOutputJSONWriter>(
+        ps_, &keptProducts()[edm::InEvent], streamLabel_, description().moduleLabel());
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);
@@ -225,6 +228,16 @@ namespace evf {
   }
 
   void EvFOutputModule::write(edm::EventForOutput const& e) {
+    unsigned int counter = 0;
+    while (edm::Service<evf::EvFDaqDirector>()->inputThrottled()) {
+      if (edm::shutdown_flag.load(std::memory_order_relaxed))
+        break;
+      if (!(counter % 100))
+        edm::LogWarning("FedRawDataInputSource") << "Input throttled detected, writing is paused...";
+      usleep(100000);
+      counter++;
+    }
+
     edm::Handle<edm::TriggerResults> const& triggerResults = getTriggerResults(trToken_, e);
 
     //auto lumiWriter = const_cast<EvFOutputEventWriter*>(luminosityBlockCache(e.getLuminosityBlock().index() ));

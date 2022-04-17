@@ -53,16 +53,16 @@ void PyquenAnalyzer::analyze(const Event& e, const EventSetup&) {
   //runs every event
 
   Handle<HepMCProduct> EvtHandle;
-
-  // find initial (unsmeared, unfiltered,...) HepMCProduct
-  // by its label - PyquenSource, that is
-  //e.getByLabel( "source", EvtHandle ) ;
   e.getByToken(srcT_, EvtHandle);
 
   //  EvtHandle->GetEvent()->print();
 
   double part_eta, part_y, part_pt, part_phi, part_e, part_pz;
   const HepMC::GenEvent* myEvt = EvtHandle->GetEvent();
+  //HepMC::GenVertex* genvtx = nullptr;
+  //genvtx = myEvt->signal_process_vertex();
+  //cout<<" HEPMC Vertex X "<<genvtx->position().x()<<endl;
+
   for (HepMC::GenEvent::particle_const_iterator p = myEvt->particles_begin(); p != myEvt->particles_end(); p++) {
     if (!(*p)->end_vertex() && abs((*p)->pdg_id()) == 211) {
       part_eta = (*p)->momentum().eta();

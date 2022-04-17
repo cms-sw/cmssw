@@ -846,7 +846,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
       SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorBegin =
           rechitmatchedRange.begin();
       SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorEnd = rechitmatchedRange.end();
-      SiStripMatchedRecHit2DCollection::DetSet::const_iterator itermatched = rechitmatchedRangeIteratorBegin;
+      SiStripMatchedRecHit2DCollection::DetSet::const_iterator itermatched;
 
       for (itermatched = rechitmatchedRangeIteratorBegin; itermatched != rechitmatchedRangeIteratorEnd; ++itermatched) {
         SiStripMatchedRecHit2D const rechit = *itermatched;

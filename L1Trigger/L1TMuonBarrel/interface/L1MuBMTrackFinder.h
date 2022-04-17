@@ -27,6 +27,8 @@
 
 #include <vector>
 #include <iostream>
+#include <memory>
+
 //----------------------
 // Base Class Headers --
 //----------------------
@@ -114,7 +116,7 @@ public:
   int numberOfTracks(int bx);
 
   /// return configuration
-  static const L1MuBMTFConfig* config() { return m_config; }
+  static const L1MuBMTFConfig* config() { return m_config.get(); }
 
   l1t::RegionalMuonCandBxCollection& getcache() { return _cache; }
   l1t::RegionalMuonCandBxCollection& getcache0() { return _cache0; }
@@ -141,7 +143,7 @@ private:
   std::vector<L1MuBMWedgeSorter*> m_wsvec;   ///< Wedge Sorters
   L1MuBMMuonSorter* m_ms;                    ///< BM Muon Sorter
 
-  static L1MuBMTFConfig* m_config;  ///< Track Finder configuration
+  static std::shared_ptr<L1MuBMTFConfig> m_config;  ///< Track Finder configuration
 
   edm::EDGetTokenT<L1MuDTChambPhContainer> m_DTDigiToken;
   edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> m_mbParamsToken;

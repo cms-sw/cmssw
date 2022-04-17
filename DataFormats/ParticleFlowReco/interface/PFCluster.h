@@ -146,8 +146,9 @@ namespace reco {
     REPPoint posrep_;
 
     /// Michalis: add timing and depth information
-    float time_, timeError_;
-    double depth_;
+    float time_;
+    float timeError_{0};
+    double depth_{0};
 
     /// transient layer
     PFLayer::Layer layer_;

@@ -26,6 +26,7 @@ public:
 
 private:
   // parameters
+  const bool useMTDTiming_;
   const bool useTimingAverage_;
   const float timingQualityThreshold_;
 
@@ -40,7 +41,8 @@ private:
 DEFINE_FWK_MODULE(PFTICLProducer);
 
 PFTICLProducer::PFTICLProducer(const edm::ParameterSet& conf)
-    : useTimingAverage_(conf.getParameter<bool>("useTimingAverage")),
+    : useMTDTiming_(conf.getParameter<bool>("useMTDTiming")),
+      useTimingAverage_(conf.getParameter<bool>("useTimingAverage")),
       timingQualityThreshold_(conf.getParameter<double>("timingQualityThreshold")),
       ticl_candidates_(consumes<edm::View<TICLCandidate>>(conf.getParameter<edm::InputTag>("ticlCandidateSrc"))),
       srcTrackTime_(consumes<edm::ValueMap<float>>(conf.getParameter<edm::InputTag>("trackTimeValueMap"))),
@@ -59,6 +61,7 @@ void PFTICLProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::InputTag>("trackTimeErrorMap", edm::InputTag("tofPID:sigmat0"));
   desc.add<edm::InputTag>("trackTimeQualityMap", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
   desc.add<double>("timingQualityThreshold", 0.5);
+  desc.add<bool>("useMTDTiming", true);
   desc.add<bool>("useTimingAverage", false);
   // For PFMuonAlgo
   desc.add<edm::InputTag>("muonSrc", edm::InputTag("muons1stStep"));
@@ -143,7 +146,7 @@ void PFTICLProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     auto time = ticl_cand.time();
     auto timeE = ticl_cand.timeError();
 
-    if (candidate.charge()) {
+    if (useMTDTiming_ and candidate.charge()) {
       // Ignore HGCAL timing until it will be TOF corrected
       time = -99.;
       timeE = -1.;

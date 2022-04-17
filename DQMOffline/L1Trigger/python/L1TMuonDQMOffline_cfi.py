@@ -66,6 +66,11 @@ l1tMuonDQMOffline = DQMEDAnalyzer('L1TMuonDQMOffline',
         useSimpleGeometry = cms.bool(True),
         useStation2 = cms.bool(True),
         fallbackToME1 = cms.bool(False),
+        cosmicPropagationHypothesis = cms.bool(False),
+        useMB2InOverlap = cms.bool(False),
+        propagatorAlong = cms.ESInputTag("", "SteppingHelixPropagatorAlong"),
+        propagatorAny = cms.ESInputTag("", "SteppingHelixPropagatorAny"),
+        propagatorOpposite = cms.ESInputTag("", "SteppingHelixPropagatorOpposite")	
     ),
 
     verbose   = cms.untracked.bool(False)

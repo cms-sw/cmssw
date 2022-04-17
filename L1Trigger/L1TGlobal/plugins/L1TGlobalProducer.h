@@ -98,9 +98,6 @@ private:
   const std::vector<std::vector<double>>* m_prescaleFactorsAlgoTrig;
   std::vector<std::vector<double>> m_initialPrescaleFactorsAlgoTrig;
 
-  /// CSV file for prescales
-  std::string m_prescalesFile;
-
   uint m_currentLumi;
 
   /// trigger masks & veto masks
@@ -189,6 +186,8 @@ private:
   edm::ESGetToken<L1TUtmTriggerMenu, L1TUtmTriggerMenuRcd> m_l1GtMenuToken;
   edm::ESGetToken<L1TGlobalPrescalesVetosFract, L1TGlobalPrescalesVetosFractRcd> m_l1GtPrescaleVetosToken;
 
+  //disables reseting the prescale counters each lumisection (needed for offline)
+  bool m_resetPSCountersEachLumiSec;
   // switch to load muon showers in the global board
   bool m_useMuonShowers;
 };

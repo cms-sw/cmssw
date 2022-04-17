@@ -6,7 +6,7 @@
 #include <tuple>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,7 +28,7 @@ namespace std {
   };
 }  // namespace std
 
-class testLeptonAssociator : public edm::EDAnalyzer {
+class testLeptonAssociator : public edm::one::EDAnalyzer<> {
 public:
   explicit testLeptonAssociator(const edm::ParameterSet& iConfig);
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& setup) override;

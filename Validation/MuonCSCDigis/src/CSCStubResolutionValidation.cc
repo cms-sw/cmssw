@@ -90,19 +90,27 @@ void CSCStubResolutionValidation::analyze(const edm::Event& e, const edm::EventS
     // CLCTs
     for (auto& [id, container] : clcts) {
       const CSCDetId cscId(id);
-      const unsigned chamberType(cscId.iChamberType());
 
       // get the best clct in chamber
       const auto& clct = cscStubMatcher_->bestClctInChamber(id);
       if (!clct.isValid())
         continue;
 
-      hitCLCT[chamberType - 1] = true;
+      // ME1a CLCTs are saved in ME1b container. So the DetId need to be specified
+      const bool isME11(cscId.station() == 1 and (cscId.ring() == 4 or cscId.ring() == 1));
+      const bool isME1a(isME11 and clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B);
+      int ring = cscId.ring();
+      if (isME1a)
+        ring = 4;
+      else if (isME11)
+        ring = 1;
+      CSCDetId cscId2(cscId.endcap(), cscId.station(), ring, cscId.chamber(), 0);
+      auto id2 = cscId2.rawId();
 
       // calculate deltastrip for ME1/a. Basically, we need to subtract 64 from the CLCT key strip to
       // compare with key strip as obtained through the fit to simhits positions.
       int deltaStrip = 0;
-      if (cscId.station() == 1 and cscId.ring() == 4 and clct.getKeyStrip() > CSCConstants::MAX_HALF_STRIP_ME1B)
+      if (isME1a)
         deltaStrip = CSCConstants::NUM_STRIPS_ME1B;
 
       // fractional strip
@@ -116,16 +124,18 @@ void CSCStubResolutionValidation::analyze(const edm::Event& e, const edm::EventS
 
       // get the fit hits in chamber for true value
       float stripIntercept, stripSlope;
-      cscStubMatcher_->cscDigiMatcher()->muonSimHitMatcher()->fitHitsInChamber(id, stripIntercept, stripSlope);
+      cscStubMatcher_->cscDigiMatcher()->muonSimHitMatcher()->fitHitsInChamber(id2, stripIntercept, stripSlope);
 
       // add offset of +0.25 strips for non-ME1/1 chambers
-      const bool isME11(cscId.station() == 1 and (cscId.ring() == 4 or cscId.ring() == 1));
       if (!isME11) {
         stripIntercept -= 0.25;
       }
 
       const float strip_csc_sh = stripIntercept;
       const float bend_csc_sh = stripSlope;
+
+      const unsigned chamberType(cscId2.iChamberType());
+      hitCLCT[chamberType - 1] = true;
 
       delta_fhs_clct[chamberType - 1] = fhs_clct - deltaStrip - strip_csc_sh;
       delta_fqs_clct[chamberType - 1] = fqs_clct - deltaStrip - strip_csc_sh;

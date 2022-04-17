@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -65,8 +66,8 @@ private:
   const int allSteps_;
   const std::vector<std::string> detNames_;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tokGeom_;
-  std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > toks_calo_;
-  edm::EDGetTokenT<edm::PassiveHitContainer> tok_passive_;
+  const std::vector<edm::EDGetTokenT<edm::PCaloHitContainer> > toks_calo_;
+  const edm::EDGetTokenT<edm::PassiveHitContainer> tok_passive_;
 
   const CaloGeometry* caloGeometry_;
   const HcalGeometry* hcalGeom_;
@@ -96,13 +97,13 @@ CaloSimHitAnalysis::CaloSimHitAnalysis(const edm::ParameterSet& ps)
       passive_(ps.getUntrackedParameter<bool>("passiveHits", false)),
       allSteps_(ps.getUntrackedParameter<int>("allSteps", 100)),
       detNames_(ps.getUntrackedParameter<std::vector<std::string> >("detNames")),
-      tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
+      tokGeom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      toks_calo_{edm::vector_transform(hitLab_,
+                                       [this](const std::string& name) {
+                                         return consumes<edm::PCaloHitContainer>(edm::InputTag{g4Label_, name});
+                                       })},
+      tok_passive_(consumes<edm::PassiveHitContainer>(edm::InputTag(g4Label_, "AllPassiveHits"))) {
   usesResource(TFileService::kSharedResource);
-
-  // register for data access
-  for (unsigned int i = 0; i < hitLab_.size(); i++)
-    toks_calo_.emplace_back(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, hitLab_[i])));
-  tok_passive_ = consumes<edm::PassiveHitContainer>(edm::InputTag(g4Label_, "AllPassiveHits"));
 
   edm::LogVerbatim("HitStudy") << "Module Label: " << g4Label_ << "   Hits|timeSliceUnit:";
   for (unsigned int i = 0; i < hitLab_.size(); i++)
@@ -282,8 +283,7 @@ void CaloSimHitAnalysis::analyze(edm::Event const& e, edm::EventSetup const& set
   hcalGeom_ = static_cast<const HcalGeometry*>(caloGeometry_->getSubdetectorGeometry(DetId::Hcal, HcalBarrel));
 
   for (unsigned int i = 0; i < toks_calo_.size(); i++) {
-    edm::Handle<edm::PCaloHitContainer> hitsCalo;
-    e.getByToken(toks_calo_[i], hitsCalo);
+    const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(toks_calo_[i]);
     bool getHits = (hitsCalo.isValid());
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis: Input flags Hits[" << i << "]: " << getHits;
@@ -299,8 +299,7 @@ void CaloSimHitAnalysis::analyze(edm::Event const& e, edm::EventSetup const& set
   }
 
   if (passive_) {
-    edm::Handle<edm::PassiveHitContainer> hitsPassive;
-    e.getByToken(tok_passive_, hitsPassive);
+    const edm::Handle<edm::PassiveHitContainer>& hitsPassive = e.getHandle(tok_passive_);
     bool getHits = (hitsPassive.isValid());
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HitStudy") << "CaloSimHitAnalysis: Passive: " << getHits;

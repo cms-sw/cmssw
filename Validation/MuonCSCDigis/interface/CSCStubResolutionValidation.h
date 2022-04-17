@@ -16,8 +16,6 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-  edm::InputTag inputTag_;
-
   std::unique_ptr<CSCStubMatcher> cscStubMatcher_;
 
   // resolution for each CSC TP; 10 CSC stations;
@@ -29,10 +27,6 @@ private:
 
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexInput_;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackInput_;
-
-  double simTrackMinPt_;
-  double simTrackMinEta_;
-  double simTrackMaxEta_;
 };
 
 #endif

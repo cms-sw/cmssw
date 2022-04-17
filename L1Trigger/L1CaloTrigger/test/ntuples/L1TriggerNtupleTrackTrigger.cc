@@ -17,12 +17,12 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "L1TCaloTriggerNtupleBase.h"
+#include "L1Trigger/L1CaloTrigger/test/ntuples/L1TCaloTriggerNtupleBase.h"
 
 class L1TriggerNtupleTrackTrigger : public L1TCaloTriggerNtupleBase {
 public:
   L1TriggerNtupleTrackTrigger(const edm::ParameterSet& conf);
-  ~L1TriggerNtupleTrackTrigger() override{};
+  ~L1TriggerNtupleTrackTrigger() override = default;
   void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) final;
   void fill(const edm::Event& e, const edm::EventSetup& es) final;
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
@@ -34,7 +34,9 @@ private:
                                           double iCharge,
                                           double iBField);
 
-  edm::EDGetToken track_token_;
+  edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> track_token_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magf_token;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geom_token;
 
   int l1track_n_;
   std::vector<float> l1track_pt_;
@@ -64,6 +66,8 @@ void L1TriggerNtupleTrackTrigger::initialize(TTree& tree,
                                              edm::ConsumesCollector&& collector) {
   track_token_ =
       collector.consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(conf.getParameter<edm::InputTag>("TTTracks"));
+  magf_token = collector.esConsumes();
+  geom_token = collector.esConsumes();
 
   tree.Branch(branch_name_w_prefix("n").c_str(), &l1track_n_, branch_name_w_prefix("n/I").c_str());
   tree.Branch(branch_name_w_prefix("pt").c_str(), &l1track_pt_);
@@ -82,19 +86,16 @@ void L1TriggerNtupleTrackTrigger::initialize(TTree& tree,
 
 void L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSetup& es) {
   // the L1Tracks
-  edm::Handle<std::vector<L1TTTrackType>> l1TTTrackHandle;
-  ev.getByToken(track_token_, l1TTTrackHandle);
+  const edm::Handle<std::vector<L1TTTrackType>>& l1TTTrackHandle = ev.getHandle(track_token_);
 
   float fBz = 0;
   if (magfield_watcher_.check(es)) {
-    edm::ESHandle<MagneticField> magfield;
-    es.get<IdealMagneticFieldRecord>().get(magfield);
+    const edm::ESHandle<MagneticField>& magfield = es.getHandle(magf_token);
     fBz = magfield->inTesla(GlobalPoint(0, 0, 0)).z();
   }
 
   // geometry needed to call pTFrom2Stubs
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  es.get<TrackerDigiGeometryRecord>().get("idealForDigi", geomHandle);
+  const edm::ESHandle<TrackerGeometry>& geomHandle = es.getHandle(geom_token);
   const TrackerGeometry* tGeom = geomHandle.product();
 
   triggerTools_.eventSetup(es);

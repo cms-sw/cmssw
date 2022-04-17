@@ -946,6 +946,128 @@ namespace {
     std::string label_;
   };
 
+  /************************************************
+   Full Pixel Tracker Map for Comparison Base Class
+  *************************************************/
+  template <IOVMultiplicity nIOVs, int ntags>
+  class SiPixelLorentzAngleFullMapCompareBase : public PlotImage<SiPixelLorentzAngle, nIOVs, ntags> {
+  public:
+    SiPixelLorentzAngleFullMapCompareBase() : PlotImage<SiPixelLorentzAngle, nIOVs, ntags>("SiPixelLorentzAngle Map") {
+      label_ = "SiPixelLorentzAngleFullPixelMap";
+      payloadString = "Lorentz Angle";
+    }
+
+    bool fill() override {
+      gStyle->SetPalette(kBlueRedYellow);
+
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto f_tagname = PlotBase::getTag<0>().name;
+      std::string l_tagname = "";
+      auto firstiov = theIOVs.front();
+      std::tuple<cond::Time_t, cond::Hash> lastiov;
+
+      // we don't support (yet) comparison with more than 2 tags
+      assert(this->m_plotAnnotations.ntags < 3);
+
+      if (this->m_plotAnnotations.ntags == 2) {
+        auto tag2iovs = PlotBase::getTag<1>().iovs;
+        l_tagname = PlotBase::getTag<1>().name;
+        lastiov = tag2iovs.front();
+      } else {
+        lastiov = theIOVs.back();
+      }
+
+      std::shared_ptr<SiPixelLorentzAngle> last_payload = this->fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiPixelLorentzAngle> first_payload = this->fetchPayload(std::get<1>(firstiov));
+
+      if (first_payload.get() && last_payload.get()) {
+        // creat the base map
+        Phase1PixelSummaryMap fullMap("",
+                                      fmt::sprintf("%s Diff", payloadString),
+                                      fmt::sprintf("%s difference #Delta#mu_{H}/#mu_{H} [%%]", payloadString));
+        fullMap.createTrackerBaseMap();
+
+        std::map<uint32_t, float> l_LAMap_ = last_payload->getLorentzAngles();
+        std::map<uint32_t, float> f_LAMap_ = first_payload->getLorentzAngles();
+
+        std::string lastIOVsince = std::to_string(std::get<0>(lastiov));
+        std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
+
+        if (l_LAMap_.size() != f_LAMap_.size()) {
+          edm::LogError(label_) << "There are " << l_LAMap_.size() << "dets in payload" << std::get<1>(lastiov)
+                                << "and " << f_LAMap_.size() << " dets in payload" << std::get<1>(firstiov)
+                                << "display is not possible!";
+
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          SiPixelPI::displayNotSupported(canvas, SiPixelPI::mismatched);
+          std::string fileName(this->m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        }
+
+        if (l_LAMap_.size() == SiPixelPI::phase0size || l_LAMap_.size() > SiPixelPI::phase1size) {
+          edm::LogError(label_) << "There are " << l_LAMap_.size()
+                                << " DetIds in this payload. SiPixelLorentzAngleFullPixelMap maps are not supported "
+                                   "for non-Phase1 Pixel geometries !";
+          TCanvas canvas("Canv", "Canv", 1200, 1000);
+          SiPixelPI::displayNotSupported(canvas, l_LAMap_.size());
+          std::string fileName(this->m_imageFileName);
+          canvas.SaveAs(fileName.c_str());
+          return false;
+        } else {
+          if (l_LAMap_.size() < SiPixelPI::phase1size) {
+            edm::LogWarning(label_) << "\n ********* WARNING! ********* \n There are " << l_LAMap_.size()
+                                    << " DetIds in this payload !"
+                                    << "\n **************************** \n";
+          }
+        }
+
+        // fill the map
+        for (const auto &[id, value] : l_LAMap_) {
+          assert(value != 0.);  // do not divide by 0
+          const auto &diff = (value - f_LAMap_[id]) * 100.f / value;
+          fullMap.fillTrackerMap(id, diff);
+        }
+
+        // print the map
+        TCanvas canvas("Canv", "Canv", 3000, 2000);
+        fullMap.printTrackerMap(canvas, 0.03);  // is the top margin of the canvas
+
+        // take care of the legend
+        auto ltx = TLatex();
+        ltx.SetTextFont(62);
+        ltx.SetTextSize(0.025);
+        ltx.SetTextAlign(11);
+        std::string ltxText;
+        if (this->m_plotAnnotations.ntags == 2) {
+          ltxText = fmt::sprintf("#color[2]{%s, %s} vs #color[4]{%s, %s}",
+                                 f_tagname,
+                                 std::to_string(std::get<0>(firstiov)),
+                                 l_tagname,
+                                 std::to_string(std::get<0>(lastiov)));
+        } else {
+          ltxText = fmt::sprintf("%s IOV: #color[2]{%s} vs IOV: #color[4]{%s}",
+                                 f_tagname,
+                                 std::to_string(std::get<0>(firstiov)),
+                                 std::to_string(std::get<0>(lastiov)));
+        }
+        ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.01, ltxText.c_str());
+
+        std::string fileName(this->m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+      }  // if has got the payloads
+      return true;
+    }
+
+  protected:
+    std::string payloadString;
+    std::string label_;
+  };
+
+  using SiPixelLorentzAngleFullMapCompareSingleTag = SiPixelLorentzAngleFullMapCompareBase<MULTI_IOV, 1>;
+  using SiPixelLorentzAngleFullMapCompareTwoTags = SiPixelLorentzAngleFullMapCompareBase<SINGLE_IOV, 2>;
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
@@ -965,4 +1087,6 @@ PAYLOAD_INSPECTOR_MODULE(SiPixelLorentzAngle) {
   PAYLOAD_INSPECTOR_CLASS(SiPixelFPixLorentzAngleMap);
   PAYLOAD_INSPECTOR_CLASS(SiPixelFullLorentzAngleMapByROC);
   PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleFullPixelMap);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleFullMapCompareSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(SiPixelLorentzAngleFullMapCompareTwoTags);
 }

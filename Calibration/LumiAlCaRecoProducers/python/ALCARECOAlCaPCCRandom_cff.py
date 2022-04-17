@@ -9,20 +9,13 @@ ALCARECORandomHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
     throw = cms.bool(False) # tolerate triggers stated above, but not available
 )
 
-from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import siPixelDigis
-siPixelDigisForLumiR = siPixelDigis.cpu.clone(
-    InputLabel = "hltFEDSelectorLumiPixels"
-)
 
-from RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizerPreSplitting_cfi import siPixelClustersPreSplitting
-siPixelClustersForLumiR = siPixelClustersPreSplitting.cpu.clone(
-    src = "siPixelDigisForLumiR"
-)
+from Calibration.LumiAlCaRecoProducers.alcaPCCIntegrator_cfi import alcaPCCIntegrator
+alcaPCCIntegratorRandom = alcaPCCIntegrator.clone()
+alcaPCCIntegratorRandom.AlcaPCCIntegratorParameters.inputPccLabel="hltAlcaPixelClusterCounts"
+alcaPCCIntegratorRandom.AlcaPCCIntegratorParameters.trigstring    = "alcaPCCEvent"
+alcaPCCIntegratorRandom.AlcaPCCIntegratorParameters.ProdInst      = "alcaPCCRandom"
 
-from Calibration.LumiAlCaRecoProducers.alcaPCCProducer_cfi import alcaPCCProducer
-alcaPCCProducerRandom = alcaPCCProducer.clone()
-alcaPCCProducerRandom.pixelClusterLabel = cms.InputTag("siPixelClustersForLumiR")
-alcaPCCProducerRandom.trigstring        = cms.untracked.string("alcaPCCRandom")
 
 # Sequence #
-seqALCARECOAlCaPCCRandom = cms.Sequence(ALCARECORandomHLT + siPixelDigisForLumiR + siPixelClustersForLumiR + alcaPCCProducerRandom)
+seqALCARECOAlCaPCCRandom = cms.Sequence(ALCARECORandomHLT+alcaPCCIntegratorRandom)
