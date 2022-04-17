@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
@@ -13,13 +14,15 @@
 
 #include <string>
 
+using namespace edm;
+
 namespace l1t {
 
   /* This is class that is used to save data to DB. Saving requires that we should know types at compile time.
  * This means that I cannot create simple class that saves all records. So, I create a base class, and template
  * version of it, that will procede with saving. This approach is the same as used in DataProxy.
  */
-  class WriterProxy {
+  class WriterProxy : public EDConsumerBase {
   public:
     virtual ~WriterProxy() {}
 
@@ -42,7 +45,11 @@ namespace l1t {
  */
   template <class Record, class Type>
   class WriterProxyT : public WriterProxy {
+
+  private:
+    edm::ESGetToken<Type, Record> rcdToken;
   public:
+  WriterProxyT() : rcdToken(esConsumes()) {}
     ~WriterProxyT() override {}
 
     /* This method requires that Record and Type supports copy constructor */
@@ -51,7 +58,7 @@ namespace l1t {
       edm::ESHandle<Type> handle;
 
       try {
-        setup.get<Record>().get(handle);
+        handle = setup.getHandle(rcdToken);
       } catch (l1t::DataAlreadyPresentException& ex) {
         return std::string();
       }
