@@ -258,10 +258,10 @@ void PixelDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* 
   std::vector<SiPixelQuality::disabledModuleType> disabledModules = siPixelBadModule_->getBadComponentList();
 
   SiPixelQuality::disabledModuleType badmodule;
-  for (size_t id = 0; id < disabledModules.size(); id++) {
-    if (detID == disabledModules[id].DetID) {
+  for (const auto& mod : disabledModules) {
+    if (detID == mod.DetID) {
       isbad = true;
-      badmodule = disabledModules[id];
+      badmodule = mod;
       break;
     }
   }
