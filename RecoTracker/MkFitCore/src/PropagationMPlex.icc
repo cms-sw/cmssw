@@ -70,6 +70,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
     float dDdipt = 0.;
     float dDdphi = 0.;
 
+    CMS_UNROLL_LOOP_COUNT(Config::Niter)
     for (int i = 0; i < Config::Niter; ++i) {
       //compute distance and path for the current iteration
       r0 = hipo(outPar(n, 0, 0), outPar(n, 1, 0));
@@ -93,7 +94,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
       }
       D += id;
 
-      if (Config::useTrigApprox) {
+      if constexpr (Config::useTrigApprox) {
         sincos4(id * ipt * kinv * 0.5f, sinah, cosah);
       } else {
         cosah = std::cos(id * ipt * kinv * 0.5f);
@@ -162,7 +163,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
     const float dadipt = (ipt * dDdipt + D) * kinv;
     const float dadphi = dDdphi * ipt * kinv;
 
-    if (Config::useTrigApprox) {
+    if constexpr (Config::useTrigApprox) {
       sincos4(alpha, sina, cosa);
     } else {
       cosa = std::cos(alpha);

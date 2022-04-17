@@ -1,3 +1,5 @@
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+
 #include "MaterialEffects.h"
 #include "PropagationMPlex.h"
 
@@ -331,6 +333,7 @@ namespace mkfit {
       float pxin = cosP / ipt;
       float pyin = sinP / ipt;
 
+      CMS_UNROLL_LOOP_COUNT(Config::Niter)
       for (int i = 0; i < Config::Niter; ++i) {
         dprint_np(n,
                   std::endl
@@ -343,7 +346,7 @@ namespace mkfit {
         const float ialpha = (r - r0) * ipt / k;
         //alpha+=ialpha;
 
-        if (Config::useTrigApprox) {
+        if constexpr (Config::useTrigApprox) {
           sincos4(ialpha * 0.5f, sinah, cosah);
         } else {
           cosah = std::cos(ialpha * 0.5f);
@@ -754,7 +757,7 @@ namespace mkfit {
       const float deltaZ = zout - zin;
       const float alpha = deltaZ * tanT * ipt * kinv;
 
-      if (Config::useTrigApprox) {
+      if constexpr (Config::useTrigApprox) {
         sincos4(alpha * 0.5f, sinahTmp, cosahTmp);
       } else {
         cosahTmp = std::cos(alpha * 0.5f);
