@@ -40,8 +40,8 @@ TritonClient::TritonClient(const edm::ParameterSet& params, const std::string& d
     : SonicClient(params, debugName, "TritonClient"),
       verbose_(params.getUntrackedParameter<bool>("verbose")),
       useSharedMemory_(params.getUntrackedParameter<bool>("useSharedMemory")),
-      compressionAlgo_(getCompressionAlgo(params.getUntrackedParameter<std::string>("compression"))),
-      options_(1,params.getParameter<std::string>("modelName")) {
+      compressionAlgo_(getCompressionAlgo(params.getUntrackedParameter<std::string>("compression"))) {
+  options_.emplace_back(params.getParameter<std::string>("modelName"));
   //get appropriate server for this model
   edm::Service<TritonService> ts;
   const auto& server =
@@ -262,7 +262,7 @@ void TritonClient::evaluate() {
   unsigned nEntries = input_.begin()->second.entries_.size();
   std::vector<std::vector<triton::client::InferInput*>> inputsTriton(nEntries);
   for (auto& inputTriton : inputsTriton) {
-    inputTriton.reserve(inputs_.size());
+    inputTriton.reserve(input_.size());
   }
   for (auto& [iname, input] : input_) {
     for (unsigned i = 0; i < nEntries; ++i){
@@ -273,7 +273,7 @@ void TritonClient::evaluate() {
   //set up output pointers similarly
   std::vector<std::vector<const triton::client::InferRequestedOutput*>> outputsTriton(nEntries);
   for (auto& outputTriton : outputsTriton) {
-    outputTriton.reserve(outputs_.size());
+    outputTriton.reserve(output_.size());
   }
   for (auto& [oname, output] : output_) {
     for (unsigned i = 0; i < nEntries; ++i){
