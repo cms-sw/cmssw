@@ -24,11 +24,17 @@ options.register('globalTag',
                  VarParsing.VarParsing.varType.string, # string, int, or float
                  "name of the input Global Tag")
 
+options.register('unitTest',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.bool, # string, int, or float
+                 "is it a unit test?")
+
 options.register('inputData',
                  "/eos/cms/store/express/Commissioning2022/ExpressCosmics/FEVT/Express-v1/000/350/010/00000/*",
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string, # string, int, or float
-                 "eos directory to read  from")
+                 "eos directory to read from")
 
 options.register('maxEvents',
                  -1,
@@ -82,15 +88,16 @@ process.GlobalTag = GlobalTag(process.GlobalTag,options.globalTag, '')
 readFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource",fileNames = readFiles)
 the_files=[]
-#file_list = glob.glob(options.inputData)
-file_list = glob.glob("/eos/cms/store/express/Commissioning2022/ExpressCosmics/FEVT/Express-v1/000/350/010/00000/*")
-for f in file_list:
-    the_files.append(f.replace("/eos/cms",""))
+if(options.unitTest):
+    ## fixed input for the unit test
+    readFiles.extend(["/store/express/Commissioning2022/ExpressCosmics/FEVT/Express-v1/000/350/010/00000/e0edb947-f8c4-4e6a-b856-ab64117fc6ee.root"]) 
+else:
+    file_list = glob.glob(options.inputData)
+    for f in file_list:
+        the_files.append(f.replace("/eos/cms",""))
+    print(the_files)
+    readFiles.extend(the_files)
 
-#readFiles.extend(the_files)
-readFiles.extend(["/store/express/Commissioning2022/ExpressCosmics/FEVT/Express-v1/000/350/010/00000/e0edb947-f8c4-4e6a-b856-ab64117fc6ee.root"]) 
-
-print(the_files)
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(options.maxEvents))
 
 ###################################################################
@@ -143,6 +150,11 @@ from CommonTools.RecoAlgos.ptMaxTrackCountFilter_cfi import ptMaxTrackCountFilte
 process.myfilter = ptMaxTrackCountFilter.clone(src = cms.InputTag(options.trackCollection),
                                                ptMax = cms.double(3.))
 
+process.preAnaSeq = cms.Sequence()
+if(options.unitTest):
+    print("adding the max pT filter")
+    process.preAnaSeq = cms.Sequence(process.myfilter)
+
 ###################################################################
 # The analysis module
 ###################################################################
@@ -163,10 +175,14 @@ process.TFileService = cms.Service("TFileService",
 ###################################################################
 # Path
 ###################################################################
-process.p1 = cms.Path(process.myfilter
-                      *process.offlineBeamSpot
-                      #*process.AliMomConstraint
+process.p1 = cms.Path(process.offlineBeamSpot
+                      #*process.AliMomConstraint  # for 0T
                       *process.TrackRefitter1
                       *process.myanalysis
-                      *process.fastdmr
-                      )
+                      *process.fastdmr)
+
+###################################################################
+# preprend the filter
+###################################################################
+if(options.unitTest):
+    process.p1.insert(0, process.preAnaSeq)
