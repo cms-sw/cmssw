@@ -57,8 +57,9 @@ void TritonData<IO>::addEntry(unsigned entry) {
         entries_.back().fullShape_[0] = 1;
     }
     //go back and fix the first one
-    if (entry>1 and !noBatch_)
-      entries_[0].fullShape_[0] = 1;
+    if (entry>1 and !noBatch_) {
+      batchSize_ = entries_[0].fullShape_[0] = 1;
+    }
   }
 }
 
@@ -139,20 +140,6 @@ void TritonData<IO>::computeSizes() {
     entries_[i].computeSizes(sizeShape(i), byteSize_);
     totalByteSize_ += entries_[i].byteSizePerBatch_ * batchSize_;
   }
-}
-
-template <typename IO>
-void TritonData<IO>::TritonDataEntry::resetSizes() {
-  sizeShape_ = 0;
-  byteSizePerBatch_ = 0;
-}
-
-template <typename IO>
-void TritonData<IO>::resetSizes() {
-  for (unsigned i = 0; i < entries_.size(); ++i) {
-    entries_[i].resetSizes();
-  }
-  totalByteSize_ = 0;
 }
 
 //create a memory resource if none exists;
@@ -269,10 +256,16 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
   const DT* r1 = reinterpret_cast<const DT*>(r0);
 
   TritonOutput<DT> dataOut;
-  dataOut.reserve(batchSize_);
-  for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
-    auto offset = i0 * sizeShape_;
-    dataOut.emplace_back(r1 + offset, r1 + offset + sizeShape_);
+  dataOut.reserve(std::max(batchSize_, entries_.size()));
+  unsigned counter = 0;
+  for (unsigned i = 0; i < entries_.size(); ++i) {
+    auto& entry = entries_[i];
+
+    for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
+      auto offset = counter * entry.sizeShape_;
+      dataOut.emplace_back(r1 + offset, r1 + offset + sizeShape_);
+      ++counter;
+    }
   }
 
   done_ = true;
@@ -283,23 +276,16 @@ template <>
 void TritonInputData::reset() {
   done_ = false;
   holder_.reset();
-  data_->Reset();
-  //reset shape
-  if (variableDims_) {
-    for (unsigned i = 0; i < shape_.size(); ++i) {
-      unsigned locFull = fullLoc(i);
-      fullShape_[locFull] = dims_[locFull];
-    }
-  }
-  resetSizes();
+  entries_.clear();
+  totalByteSize_ = 0;
 }
 
 template <>
 void TritonOutputData::reset() {
   done_ = false;
-  result_.reset();
   holder_.reset();
-  resetSizes();
+  entries_.clear();
+  totalByteSize_ = 0;
 }
 
 //explicit template instantiation declarations
