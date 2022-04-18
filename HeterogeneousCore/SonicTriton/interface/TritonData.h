@@ -97,7 +97,10 @@ private:
           : fullShape_(dims),
             shape_(fullShape_.begin() + (noBatch ? 0 : 1), fullShape_.end()),
             sizeShape_(0),
-            byteSizePerBatch_(0) {
+            byteSizePerBatch_(0),
+            totalByteSize_(0),
+            offset_(0),
+            output_(nullptr) {
         //create input or output object
         IO* iotmp;
         createObject(&iotmp, name, dname);
@@ -107,18 +110,25 @@ private:
     private:
       friend class TritonData<IO>;
       friend class TritonClient;
+      friend class TritonMemResource<IO>;
+      friend class TritonHeapResource<IO>;
+      friend class TritonCpuShmResource<IO>;
+#ifdef TRITON_ENABLE_GPU
+      friend class TritonGpuShmResource<IO>;
+#endif
 
       //accessors
       void createObject(IO** ioptr, const std::string& name, const std::string& dname);
-      void computeSizes(int64_t shapeSize, int64_t byteSize);
+      void computeSizes(int64_t shapeSize, int64_t byteSize, int64_t batchSize);
 
       //members
       ShapeType fullShape_;
       ShapeView shape_;
-      size_t sizeShape_;
-      size_t byteSizePerBatch_;
+      size_t sizeShape_, byteSizePerBatch_, totalByteSize_;
       std::shared_ptr<IO> data_;
       std::shared_ptr<Result> result_;
+      unsigned offset_;
+      const uint8_t* output_;
   };
 
   //private accessors only used internally or by client
@@ -206,10 +216,6 @@ void TritonOutputData::prepare();
 template <>
 template <typename DT>
 TritonOutput<DT> TritonOutputData::fromServer() const;
-template <>
-void TritonInputData::reset();
-template <>
-void TritonOutputData::reset();
 
 //explicit template instantiation declarations
 extern template class TritonData<triton::client::InferInput>;
