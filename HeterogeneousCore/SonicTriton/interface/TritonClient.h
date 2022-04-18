@@ -50,7 +50,7 @@ public:
 
 protected:
   //helpers
-  void getResults(std::shared_ptr<triton::client::InferResult> results);
+  void getResults(std::vector<triton::client::InferResult*>& results);
   void evaluate() override;
   template <typename F>
   bool handle_exception(F&& call);
@@ -71,13 +71,9 @@ protected:
   grpc_compression_algorithm compressionAlgo_;
   triton::client::Headers headers_;
 
-  //IO pointers for triton
-  std::vector<triton::client::InferInput*> inputsTriton_;
-  std::vector<const triton::client::InferRequestedOutput*> outputsTriton_;
-
   std::unique_ptr<triton::client::InferenceServerGrpcClient> client_;
   //stores timeout, model name and version
-  triton::client::InferOptions options_;
+  std::vector<triton::client::InferOptions> options_;
 
 private:
   friend TritonInputData;

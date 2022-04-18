@@ -106,11 +106,11 @@ private:
 
     private:
       friend class TritonData<IO>;
+      friend class TritonClient;
 
       //accessors
       void createObject(IO** ioptr, const std::string& name, const std::string& dname));
       void computeSizes(int64_t byteSize);
-      void resetSizes();
 
       //members
       ShapeType fullShape_;
@@ -118,6 +118,7 @@ private:
       size_t sizeShape_;
       size_t byteSizePerBatch_;
       std::shared_ptr<IO> data_;
+      std::shared_ptr<Result> result_;
   };
 
   //private accessors only used internally or by client
@@ -125,11 +126,10 @@ private:
   unsigned fullLoc(unsigned loc) const { return loc + (noBatch_ ? 0 : 1); }
   void setBatchSize(unsigned bsize);
   void reset();
-  void setResult(std::shared_ptr<Result> result) { result_ = result; }
-  IO* data(unsigned entry=0) { return entries[entry].data_.get(); }
+  void setResult(Result* result, unsigned entry=0) { entries_[entry].result_ = std::make_shared<Result>(result); }
+  IO* data(unsigned entry=0) { return entries_[entry].data_.get(); }
   void updateMem(size_t size);
   void computeSizes();
-  void resetSizes();
   triton::client::InferenceServerGrpcClient* client();
   template <typename DT>
   void checkType() const {
@@ -173,7 +173,6 @@ private:
   //so that TritonOutputGpuShmResource can store data here
   std::shared_ptr<void> holder_;
   std::shared_ptr<TritonMemResource<IO>> memResource_;
-  std::shared_ptr<Result> result_;
   //can be modified in otherwise-const fromServer() method to prevent multiple calls
   CMS_SA_ALLOW mutable bool done_{};
 };
