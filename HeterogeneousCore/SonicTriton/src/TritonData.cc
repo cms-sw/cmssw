@@ -34,7 +34,7 @@ TritonData<IO>::TritonData(const std::string& name,
   //initialize first shape entry
   addEntryImpl(1);
   //one-time computation of some shape info
-  variableDims_ = anyNeg(entries_.front().shape_));
+  variableDims_ = anyNeg(entries_.front().shape_);
   productDims_ = variableDims_ ? -1 : dimProduct(entries_.front().shape_);
   checkShm();
 }
@@ -67,7 +67,7 @@ void TritonInputData::TritonDataEntry::createObject(tc::InferInput** ioptr, cons
 }
 
 template <>
-void TritonOutputData::TritonDataEntry::createObject(tc::InferRequestedOutput** ioptr, const std::string& name, const std::string& dname)) {
+void TritonOutputData::TritonDataEntry::createObject(tc::InferRequestedOutput** ioptr, const std::string& name, const std::string& dname) {
   tc::InferRequestedOutput::Create(ioptr, name);
 }
 
@@ -108,7 +108,7 @@ void TritonData<IO>::setShape(unsigned loc, int64_t val, unsigned entry) {
 
   if (val != entries_[entry].fullShape_[locFull]) {
     if (dims_[locFull] == -1)
-      entries_[entry].fullShape_[entry][locFull] = val;
+      entries_[entry].fullShape_[locFull] = val;
     else
       throw cms::Exception("TritonDataError")
           << name_ << " setShape(): attempt to change value of non-variable shape dimension " << loc;
@@ -138,6 +138,7 @@ void TritonData<IO>::TritonDataEntry::computeSizes(int64_t shapeSize, int64_t by
 
 template <typename IO>
 void TritonData<IO>::computeSizes() {
+  totalByteSize_ = 0;
   for (unsigned i = 0; i < entries_.size(); ++i) {
     entries_[i].computeSizes(sizeShape(i), byteSize_);
     totalByteSize_ += entries_[i].byteSizePerBatch_ * batchSize_;
@@ -177,12 +178,15 @@ void TritonData<IO>::updateMem(size_t size) {
 template <>
 template <typename DT>
 TritonInputContainer<DT> TritonInputData::allocate(bool reserve) {
-  //automatically creates a vector for each batch entry (if batch size known)
-  auto ptr = std::make_shared<TritonInput<DT>>(batchSize_);
-  if (reserve and !anyNeg(shape_)) {
+  //automatically creates a vector for each entry (if batch size or entry size known)
+  auto ptr = std::make_shared<TritonInput<DT>>(getEntrySize());
+  if (reserve) {
     computeSizes();
-    for (auto& vec : *ptr) {
-      vec.reserve(sizeShape_);
+    for (auto& entry : entries_){
+      if (anyNeg(entry.shape_)) continue;
+      for (auto& vec : *ptr) {
+        vec.reserve(entry.sizeShape_);
+      }
     }
   }
   return ptr;
@@ -198,7 +202,7 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
   const auto& data_in = *ptr;
 
   //check batch size
-  if (entries_.size()==1 and data_in.size() != batchSize_)) {
+  if (entries_.size()==1 and data_in.size() != batchSize_) {
     throw cms::Exception("TritonDataError") << name_ << " toServer(): input vector has size " << data_in.size()
                                             << " but specified batch size is " << batchSize_;
   }
@@ -247,10 +251,6 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
   if (done_)
     throw cms::Exception("TritonDataError") << name_ << " fromServer() was already called for this event";
 
-  if (!result_) {
-    throw cms::Exception("TritonDataError") << name_ << " fromServer(): missing result";
-  }
-
   //check type
   checkType<DT>();
 
@@ -258,14 +258,18 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
   const DT* r1 = reinterpret_cast<const DT*>(r0);
 
   TritonOutput<DT> dataOut;
-  dataOut.reserve(std::max(batchSize_, entries_.size()));
+  dataOut.reserve(getEntrySize());
   unsigned counter = 0;
   for (unsigned i = 0; i < entries_.size(); ++i) {
-    auto& entry = entries_[i];
+    const auto& entry = entries_[i];
+
+    if (!entry.result_) {
+      throw cms::Exception("TritonDataError") << name_ << " fromServer(): missing result";
+    }
 
     for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
       auto offset = counter * entry.sizeShape_;
-      dataOut.emplace_back(r1 + offset, r1 + offset + sizeShape_);
+      dataOut.emplace_back(r1 + offset, r1 + offset + entry.sizeShape_);
       ++counter;
     }
   }

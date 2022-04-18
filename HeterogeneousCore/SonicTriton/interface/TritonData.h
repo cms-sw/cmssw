@@ -93,7 +93,7 @@ private:
   class TritonDataEntry {
     public:
       //constructors
-      TritonDataEntry(const ShapeType& dims, bool noBatch, const std::string& name, const std::string& dname))
+      TritonDataEntry(const ShapeType& dims, bool noBatch, const std::string& name, const std::string& dname)
           : fullShape_(dims),
             shape_(fullShape_.begin() + (noBatch ? 0 : 1), fullShape_.end()),
             sizeShape_(0),
@@ -109,8 +109,8 @@ private:
       friend class TritonClient;
 
       //accessors
-      void createObject(IO** ioptr, const std::string& name, const std::string& dname));
-      void computeSizes(int64_t byteSize);
+      void createObject(IO** ioptr, const std::string& name, const std::string& dname);
+      void computeSizes(int64_t shapeSize, int64_t byteSize);
 
       //members
       ShapeType fullShape_;
@@ -125,8 +125,9 @@ private:
   void checkShm() {}
   unsigned fullLoc(unsigned loc) const { return loc + (noBatch_ ? 0 : 1); }
   void setBatchSize(unsigned bsize);
+  size_t getEntrySize() const { return std::max(static_cast<size_t>(batchSize_), entries_.size()); }
   void reset();
-  void setResult(Result* result, unsigned entry=0) { entries_[entry].result_ = std::make_shared<Result>(result); }
+  void setResult(Result* result, unsigned entry=0) { entries_[entry].result_ = std::shared_ptr<Result>(result); }
   IO* data(unsigned entry=0) { return entries_[entry].data_.get(); }
   void updateMem(size_t size);
   void computeSizes();
@@ -167,7 +168,7 @@ private:
   std::string dname_;
   inference::DataType dtype_;
   int64_t byteSize_;
-  std::vector<TritonDataEntry<IO>> entries_;
+  std::vector<TritonDataEntry> entries_;
   size_t totalByteSize_;
   //can be modified in otherwise-const fromServer() method in TritonMemResource::copyOutput():
   //TritonMemResource holds a non-const pointer to an instance of this class
@@ -184,6 +185,12 @@ using TritonOutputData = TritonData<triton::client::InferRequestedOutput>;
 using TritonOutputMap = std::unordered_map<std::string, TritonOutputData>;
 
 //avoid "explicit specialization after instantiation" error
+template <>
+void TritonInputData::TritonDataEntry::createObject(triton::client::InferInput** ioptr, const std::string& name, const std::string& dname);
+template <>
+void TritonOutputData::TritonDataEntry::createObject(triton::client::InferRequestedOutput** ioptr, const std::string& name, const std::string& dname);
+template <>
+void TritonOutputData::checkShm();
 template <>
 std::string TritonInputData::xput() const;
 template <>
@@ -203,10 +210,6 @@ template <>
 void TritonInputData::reset();
 template <>
 void TritonOutputData::reset();
-template <>
-void TritonInputData::createObject(triton::client::InferInput** ioptr);
-template <>
-void TritonOutputData::createObject(triton::client::InferRequestedOutput** ioptr);
 
 //explicit template instantiation declarations
 extern template class TritonData<triton::client::InferInput>;
