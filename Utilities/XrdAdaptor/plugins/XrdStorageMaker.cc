@@ -188,6 +188,8 @@ namespace edm::storage {
         // can error out sooner.
         env->PutInt("ConnectionWindow", timeout / 6 + 1);
         env->PutInt("ConnectionRetry", 2);
+        //disable fork handler as this appears to interfere with fork/exec calls
+        env->PutInt("RunForkHandler", 0);
       }
       m_lastTimeout = timeout;
     }
