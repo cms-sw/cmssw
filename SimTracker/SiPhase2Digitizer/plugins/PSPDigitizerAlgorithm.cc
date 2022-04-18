@@ -73,3 +73,9 @@ bool PSPDigitizerAlgorithm::isInBiasRailRegion(const PSimHit& hit) const {
   else
     return false;
 }
+//
+// -- Read Bad Channels from the Condidion DB and kill channels/module accordingly
+//
+void PSPDigitizerAlgorithm::module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) {
+  // this method is dummy at the moment. Will be implemented once we have the corresponding objectcondition DB
+}
