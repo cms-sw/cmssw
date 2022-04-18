@@ -131,17 +131,19 @@ void TritonData<IO>::setBatchSize(unsigned bsize) {
 }
 
 template <typename IO>
-void TritonData<IO>::TritonDataEntry::computeSizes(int64_t shapeSize, int64_t byteSize) {
+void TritonData<IO>::TritonDataEntry::computeSizes(int64_t shapeSize, int64_t byteSize, int64_t batchSize) {
   sizeShape_ = shapeSize;
   byteSizePerBatch_ = byteSize * sizeShape_;
+  totalByteSize_ = byteSizePerBatch_ * batchSize;
 }
 
 template <typename IO>
 void TritonData<IO>::computeSizes() {
   totalByteSize_ = 0;
   for (unsigned i = 0; i < entries_.size(); ++i) {
-    entries_[i].computeSizes(sizeShape(i), byteSize_);
-    totalByteSize_ += entries_[i].byteSizePerBatch_ * batchSize_;
+    entries_[i].computeSizes(sizeShape(i), byteSize_, batchSize_);
+    entries_[i].offset_ = totalByteSize_;
+    totalByteSize_ += entries_[i].totalByteSize_;
   }
 }
 
@@ -217,6 +219,7 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
   computeSizes();
   updateMem(totalByteSize_);
 
+  unsigned offset = 0;
   unsigned counter = 0;
   for (unsigned i = 0; i < entries_.size(); ++i) {
     auto& entry = entries_[i];
@@ -225,7 +228,8 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
     entry.data_->SetShape(entry.fullShape_);
 
     for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
-      memResource_->copyInput(data_in[counter].data(), counter * entry.byteSizePerBatch_);
+      memResource_->copyInput(data_in[counter].data(), offset, i);
+      offset += i0 * entry.byteSizePerBatch_;
       ++counter;
     }
   }
@@ -254,23 +258,21 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
   //check type
   checkType<DT>();
 
-  const uint8_t* r0 = memResource_->copyOutput();
-  const DT* r1 = reinterpret_cast<const DT*>(r0);
+  memResource_->copyOutput();
 
   TritonOutput<DT> dataOut;
   dataOut.reserve(getEntrySize());
-  unsigned counter = 0;
   for (unsigned i = 0; i < entries_.size(); ++i) {
     const auto& entry = entries_[i];
+    const DT* r1 = reinterpret_cast<const DT*>(entry.output_);
 
     if (!entry.result_) {
       throw cms::Exception("TritonDataError") << name_ << " fromServer(): missing result";
     }
 
     for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
-      auto offset = counter * entry.sizeShape_;
+      auto offset = i0 * entry.sizeShape_;
       dataOut.emplace_back(r1 + offset, r1 + offset + entry.sizeShape_);
-      ++counter;
     }
   }
 
@@ -278,16 +280,8 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
   return dataOut;
 }
 
-template <>
-void TritonInputData::reset() {
-  done_ = false;
-  holder_.reset();
-  entries_.clear();
-  totalByteSize_ = 0;
-}
-
-template <>
-void TritonOutputData::reset() {
+template <typename IO>
+void TritonData<IO>::reset() {
   done_ = false;
   holder_.reset();
   entries_.clear();
