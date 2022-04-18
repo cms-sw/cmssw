@@ -7,6 +7,7 @@
 <use   name="GeneratorInterface/ExternalDecays"/>
 <use   name="f77compiler"/>
 <use   name="hydjet"/>
+<use name="hepmc"/>
 <export>
   <lib   name="1"/>
 </export>
