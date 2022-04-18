@@ -189,6 +189,17 @@ bool TritonClient::setBatchSize(unsigned bsize) {
   }
 }
 
+void TritonClient::addEntry(unsigned entry) {
+  for (auto& element : input_) {
+    element.second.addEntryImpl(entry);
+  }
+  for (auto& element : output_) {
+    element.second.addEntryImpl(entry);
+  }
+  if (entry>1)
+    setBatchSize(1);
+}
+
 void TritonClient::reset() {
   for (auto& element : input_) {
     element.second.reset();
@@ -248,42 +259,30 @@ void TritonClient::evaluate() {
 
   //set up input pointers for triton (generalized for multi-request ragged batching case)
   //one vector<InferInput*> per request
-  std::vector<std::vector<triton::client::InferInput*>> inputsTriton;
   unsigned nEntries = input_.begin()->second.entries_.size();
-  inputsTriton.resize(nEntries);
+  std::vector<std::vector<triton::client::InferInput*>> inputsTriton(nEntries);
   for (auto& inputTriton : inputsTriton) {
     inputTriton.reserve(inputs_.size());
   }
-  //consistency check
-  //todo: move addEntry to a TritonClient function that auto loops over all inputs? & outputs?
-  auto success = handle_exception([&]() {
-    std::vector<unsigned> nEntriesAll;
-    nEntriesAll.reserve(input_.size());
-    for (auto& [iname, input] : input_) {
-      nEntriesAll.push_back(input.entries_.size());
-    }
-    if (std::adjacent_find(nEntriesAll.begin(), nEntriesAll.end(), std::not_equal_to<>()) != nEntriesAll.end())
-      throw cms::Exception("InconsistentInput") << "Different numbers of entries among different inputs: " << printColl(nEntriesAll);
-  });
-  if (!success)
-    return;
   for (auto& [iname, input] : input_) {
     for (unsigned i = 0; i < nEntries; ++i){
       inputsTriton[i].push_back(input.data(i));
     }
   }
 
-  //set up output pointers accordingly (same number of entries as input)
-  std::vector<std::vector<const triton::client::InferRequestedOutput*>> outputsTriton_;
+  //set up output pointers similarly
+  std::vector<std::vector<const triton::client::InferRequestedOutput*>> outputsTriton(nEntries);
+  for (auto& outputTriton : outputsTriton) {
+    outputTriton.reserve(outputs_.size());
+  }
   for (auto& [oname, output] : output_) {
-    output.addEntry(nEntries);
     for (unsigned i = 0; i < nEntries; ++i){
       outputsTriton[i].push_back(output.data(i));
     }
   }
 
   //set up shared memory for output
-  success = handle_exception([&]() {
+  auto success = handle_exception([&]() {
     for (auto& element : output_) {
       element.second.prepare();
     }

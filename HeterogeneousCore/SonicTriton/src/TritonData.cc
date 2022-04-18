@@ -32,7 +32,7 @@ TritonData<IO>::TritonData(const std::string& name,
       byteSize_(tco::GetDataTypeByteSize(dtype_)),
       totalByteSize_(0) {
   //initialize first shape entry
-  addEntry(1);
+  addEntryImpl(1);
   //one-time computation of some shape info
   variableDims_ = anyNeg(entries_.front().shape_));
   productDims_ = variableDims_ ? -1 : dimProduct(entries_.front().shape_);
@@ -47,18 +47,16 @@ void TritonOutputData::checkShm() {
 
 template <typename IO>
 void TritonData<IO>::addEntry(unsigned entry) {
+  //ensures consistency among all inputs
+  client_->addEntry(entry);
+}
+
+template <typename IO>
+void TritonData<IO>::addEntryImpl(unsigned entry) {
   if (entry > entries_.size()) {
     entries_.reserve(entry+1);
     for (unsigned i = entries_.size(); i < entry+1; ++i) {
       entries_.emplace_back(dims_, noBatch_, name_, dname_);
-      //todo: should each entry have its own batch size?
-      //for now, restrict multi-request mode for ragged batching to batch size = 1
-      if (entry>1 and !noBatch_)
-        entries_.back().fullShape_[0] = 1;
-    }
-    //go back and fix the first one
-    if (entry>1 and !noBatch_) {
-      batchSize_ = entries_[0].fullShape_[0] = 1;
     }
   }
 }
@@ -121,8 +119,12 @@ template <typename IO>
 void TritonData<IO>::setBatchSize(unsigned bsize) {
   batchSize_ = bsize;
   if (!noBatch_) {
-    if (entries_[0].fullShape_.size()==1)
-      entries_[0].fullShape_ = batchSize_;
+    //should only be set to 1 in cases when entries > 1
+    if (batchSize_==1 or entries_.size()==1) {
+      for (auto& entry : entries_) {
+        entry.fullShape_[0] = batchSize_;
+      }
+    }
     else
       throw cms::Exception("TritonDataError") << "attempt to set batch size to " << bsize << " when ragged batching is in use";
   }

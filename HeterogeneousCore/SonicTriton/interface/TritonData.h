@@ -152,6 +152,7 @@ private:
   }
   std::string xput() const;
   void addEntry(unsigned entry);
+  void addEntryImpl(unsigned entry);
 
   //members
   std::string name_;

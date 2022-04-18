@@ -81,6 +81,7 @@ private:
 
   //private accessors only used by data
   auto client() { return client_.get(); }
+  void addEntry(unsigned entry);
 };
 
 #endif
