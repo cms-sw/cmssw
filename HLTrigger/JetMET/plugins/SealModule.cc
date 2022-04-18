@@ -22,6 +22,8 @@
 #include "HLTrigger/JetMET/interface/HLTPFJetIDProducer.h"
 #include "HLTrigger/JetMET/interface/HLTMETCleanerUsingJetID.h"
 
+#include "HLTrigger/JetMET/plugins/HLTJetHFCleaner.h"
+
 //Work with all jet collections without changing the module name
 #include "HLTrigger/JetMET/interface/HLTHtMhtProducer.h"
 #include "HLTrigger/JetMET/interface/HLTCaloTowerHtMhtProducer.h"
@@ -254,3 +256,9 @@ DEFINE_FWK_MODULE(HLTPFJetsMatchedToFilteredCaloJetsProducer);
 
 typedef HLTPFJetsMatchedToFilteredJetsProducer<reco::PFJetRef> HLTPFJetsMatchedToFilteredPFJetsProducer;
 DEFINE_FWK_MODULE(HLTPFJetsMatchedToFilteredPFJetsProducer);
+
+typedef HLTJetHFCleaner<reco::CaloJet> HLTCaloJetHFCleaner;
+DEFINE_FWK_MODULE(HLTCaloJetHFCleaner);
+
+typedef HLTJetHFCleaner<reco::PFJet> HLTPFJetHFCleaner;
+DEFINE_FWK_MODULE(HLTPFJetHFCleaner);
