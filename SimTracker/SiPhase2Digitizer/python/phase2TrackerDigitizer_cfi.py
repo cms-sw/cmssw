@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 PixelDigitizerAlgorithmCommon = cms.PSet(
