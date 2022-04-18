@@ -7,9 +7,7 @@
 
 class HGCalCassette {
 public:
-  HGCalCassette(int cassette, const std::vector<double>& shifts) { 
-    setParameter(cassette, shifts);
-  }
+  HGCalCassette(int cassette, const std::vector<double>& shifts) { setParameter(cassette, shifts); }
   HGCalCassette() {}
 
   void setParameter(int cassette, const std::vector<double>& shifts);
