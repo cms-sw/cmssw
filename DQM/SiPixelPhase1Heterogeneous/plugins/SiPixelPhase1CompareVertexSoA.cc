@@ -1,5 +1,4 @@
 // -*- C++ -*-
-///bookLayer
 // Package:    SiPixelPhase1CompareVertexSoA
 // Class:      SiPixelPhase1CompareVertexSoA
 //
@@ -53,14 +52,12 @@ private:
 // constructors
 //
 
-SiPixelPhase1CompareVertexSoA::SiPixelPhase1CompareVertexSoA(const edm::ParameterSet& iConfig) :
-  tokenSoAVertexCPU_(consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrcCPU"))),
-  tokenSoAVertexGPU_(consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrcGPU"))),
-  tokenBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))),
-  topFolderName_(iConfig.getParameter<std::string>("TopFolderName")),
-  dzCut_(iConfig.getParameter<double>("dzCut"))
-{
-}
+SiPixelPhase1CompareVertexSoA::SiPixelPhase1CompareVertexSoA(const edm::ParameterSet& iConfig)
+    : tokenSoAVertexCPU_(consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrcCPU"))),
+      tokenSoAVertexGPU_(consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrcGPU"))),
+      tokenBeamSpot_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"))),
+      topFolderName_(iConfig.getParameter<std::string>("TopFolderName")),
+      dzCut_(iConfig.getParameter<double>("dzCut")) {}
 
 //
 // -- Analyze
@@ -69,7 +66,8 @@ void SiPixelPhase1CompareVertexSoA::analyze(const edm::Event& iEvent, const edm:
   const auto& vsoaHandleCPU = iEvent.getHandle(tokenSoAVertexCPU_);
   const auto& vsoaHandleGPU = iEvent.getHandle(tokenSoAVertexGPU_);
   if (!vsoaHandleCPU.isValid() || !vsoaHandleGPU.isValid()) {
-    edm::LogWarning("SiPixelPhase1MonitorTrackSoA") << "Either vertex SoA found GPU or CPU not found. Comparison not run!" << std::endl;
+    edm::LogWarning("SiPixelPhase1MonitorTrackSoA")
+        << "Either vertex SoA found GPU or CPU not found. Comparison not run!" << std::endl;
     return;
   }
 
@@ -90,7 +88,7 @@ void SiPixelPhase1CompareVertexSoA::analyze(const edm::Event& iEvent, const edm:
     dxdz = bs.dxdz();
     dydz = bs.dydz();
   }
-  
+
   for (int ivc = 0; ivc < nVerticesCPU; ivc++) {
     auto sic = vsoaCPU.sortInd[ivc];
     auto zc = vsoaCPU.zv[sic];
@@ -110,16 +108,16 @@ void SiPixelPhase1CompareVertexSoA::analyze(const edm::Event& iEvent, const edm:
       auto chi2GPU = vsoaGPU.chi2[sig];
 
       //insert some matching condition
-      if(std::abs(zc - zg) > dzCut_)   continue;
+      if (std::abs(zc - zg) > dzCut_)
+        continue;
 
       hx->Fill(xc, xg);
       hy->Fill(yc, yg);
       hz->Fill(zc, zg);
       hchi2->Fill(chi2CPU, chi2GPU);
-      hchi2oNdof->Fill(chi2CPU/ndofCPU, chi2GPU/ndofGPU);
+      hchi2oNdof->Fill(chi2CPU / ndofCPU, chi2GPU / ndofGPU);
       hptv2->Fill(vsoaCPU.ptv2[sic], vsoaGPU.ptv2[sig]);
       hntrks->Fill(ndofCPU + 1, ndofGPU + 1);
-      
     }
   }
   hnVertex->Fill(nVerticesCPU, nVerticesGPU);
