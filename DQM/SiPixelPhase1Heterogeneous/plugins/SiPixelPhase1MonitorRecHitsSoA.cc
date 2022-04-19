@@ -3,7 +3,7 @@
 // Package:    SiPixelPhase1MonitorRecHitsSoA
 // Class:      SiPixelPhase1MonitorRecHitsSoA
 //
-/**\class SiPixelPhase1MonitorRecHitsSoA SiPixelPhase1MonitorRecHitsSoA.cc 
+/**\class SiPixelPhase1MonitorRecHitsSoA SiPixelPhase1MonitorRecHitsSoA.cc
 */
 //
 // Author: Suvankar Roy Chowdhury, Alessandro Rossi
@@ -97,7 +97,6 @@ void SiPixelPhase1MonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm
   }
   auto const& rhsoa = *rhsoaHandle;
   const TrackingRecHit2DSOAView* soa2d = rhsoa.view();
-
   uint32_t nHits_ = soa2d->nHits();
   hnHits->Fill(nHits_);
   auto detIds = tkGeom_->detUnitIds();
@@ -111,6 +110,7 @@ void SiPixelPhase1MonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm
     uint32_t charge = soa2d->charge(i);
     int16_t sizeX = std::ceil(float(std::abs(soa2d->clusterSizeX(i)) / 8.));
     int16_t sizeY = std::ceil(float(std::abs(soa2d->clusterSizeY(i)) / 8.));
+
     hBFposZP->Fill(zG, fphi);
     int16_t ysign = yG >= 0 ? 1 : -1;
     hBFposZR->Fill(zG, rG * ysign);
