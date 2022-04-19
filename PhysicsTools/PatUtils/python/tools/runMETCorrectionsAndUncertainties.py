@@ -1093,7 +1093,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             xyTags["{}_{}".format(corScheme_,"50ns")]=getattr(metCors,"{}_{}_{}".format("patMultPhiCorrParams",corScheme_,"50ns"))
             xyTags["{}_{}".format(corScheme_,"25ns")]=getattr(metCors,"{}_{}_{}".format("patMultPhiCorrParams",corScheme_,"25ns"))
             if datamc!="" and campaign!="" and era!="":
-                xyTags["{}_{}_{}_{}".format(corScheme_,campaign,datamc,era)]=getattr(metCors,"{}_{}{}{}".format("patMultPhiCorrParams",campaign,datamc,era))
+                if not self.getvalue("Puppi"):
+                    xyTags["{}_{}_{}_{}".format(corScheme_,campaign,datamc,era)]=getattr(metCors,"{}_{}{}{}".format("patMultPhiCorrParams",campaign,datamc,era))
+                else:
+                    xyTags["{}_{}_{}_{}".format(corScheme_,campaign,datamc,era)]=getattr(metCors,"{}_{}{}{}".format("patMultPhiCorrParams_Puppi",campaign,datamc,era))
 
         if datamc!="" and campaign!="" and era!="":
             getattr(process, "patPFMetTxyCorr"+postfix).parameters = xyTags["{}_{}_{}_{}".format(corScheme,campaign,datamc,era)]
