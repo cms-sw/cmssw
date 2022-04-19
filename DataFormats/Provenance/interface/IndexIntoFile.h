@@ -636,7 +636,7 @@ namespace edm {
       // a larger container and indexedSize() is overridden to give the size of
       // that container.
       int size() const { return size_; }
-      virtual int indexedSize() const { return size(); }
+      virtual int indexedSize() const;
 
       EntryType type() const { return type_; }
       int indexToRun() const { return indexToRun_; }

@@ -1376,6 +1376,8 @@ namespace edm {
             nEvents_ == right.nEvents_);
   }
 
+  int IndexIntoFile::IndexIntoFileItrImpl::indexedSize() const { return size(); }
+
   void IndexIntoFile::IndexIntoFileItrImpl::copyPosition(IndexIntoFileItrImpl const& position) {
     type_ = position.type_;
     indexToRun_ = position.indexToRun_;
@@ -1853,7 +1855,7 @@ namespace edm {
       auto entry = runOrLumisEntry(indexToLumi()).entry();
       if (entry == invalidEntry) {
         auto const& runLumiEntry = runOrLumisEntry(indexToLumi());
-        for (int index = indexToLumi() + 1; index < indexedSize_; ++index) {
+        for (int index = indexToLumi() + 1; index < indexedSize(); ++index) {
           auto const& laterRunOrLumiEntry = runOrLumisEntry(index);
           if (runLumiEntry.lumi() == laterRunOrLumiEntry.lumi() and runLumiEntry.run() == laterRunOrLumiEntry.run() and
               runLumiEntry.processHistoryIDIndex() == laterRunOrLumiEntry.processHistoryIDIndex() &&
@@ -1909,7 +1911,7 @@ namespace edm {
     setIndexToEvent(0);
     setNEvents(0);
 
-    for (int index = indexToLumi(); index < indexedSize_; ++index) {
+    for (int index = indexToLumi(); index < indexedSize(); ++index) {
       if (runOrLumisEntry(index).isRun()) {
         break;
       } else if (runOrLumisEntry(index).lumi() == runOrLumisEntry(indexToLumi()).lumi()) {
@@ -1932,7 +1934,7 @@ namespace edm {
       return false;
 
     // Look for the next event range, same lumi but different entry
-    for (int index = indexToEventRange() + 1; index < indexedSize_; ++index) {
+    for (int index = indexToEventRange() + 1; index < indexedSize(); ++index) {
       if (runOrLumisEntry(index).isRun()) {
         return false;  // hit next run
       } else if (runOrLumisEntry(index).lumi() == runOrLumisEntry(indexToEventRange()).lumi()) {
@@ -1953,7 +1955,7 @@ namespace edm {
   bool IndexIntoFile::IndexIntoFileItrEntryOrder::previousEventRange() {
     if (indexToEventRange() == invalidIndex)
       return false;
-    assert(indexToEventRange() < indexedSize_);
+    assert(indexToEventRange() < indexedSize());
 
     // Look backward for a previous event range with events, same lumi but different entry
     for (int newRange = indexToEventRange() - 1; newRange > 0; --newRange) {
@@ -1988,7 +1990,7 @@ namespace edm {
   bool IndexIntoFile::IndexIntoFileItrEntryOrder::skipLumiInRun() {
     if (indexToLumi() == invalidIndex)
       return false;
-    for (int i = 1; indexToLumi() + i < indexedSize_; ++i) {
+    for (int i = 1; indexToLumi() + i < indexedSize(); ++i) {
       int newLumi = indexToLumi() + i;
       if (runOrLumisEntry(newLumi).isRun()) {
         return false;  // hit next run
@@ -2003,7 +2005,7 @@ namespace edm {
   }
 
   bool IndexIntoFile::IndexIntoFileItrEntryOrder::lumiEntryValid(int index) const {
-    assert(index >= 0 && index < indexedSize_);
+    assert(index >= 0 && index < indexedSize());
     auto entry = runOrLumisEntry(index).entry();
     if (entry == invalidEntry) {
       // Practically, this function serves its intended purpose, but the behavior is
@@ -2014,11 +2016,11 @@ namespace edm {
       // In this case, shouldWeProcessRunOrLumi will return false to let
       // the code using IndexIntoFile know to not actually try to process
       // the lumi.
-      if (index + 1 < indexedSize_) {
+      if (index + 1 < indexedSize()) {
         if (runOrLumisEntry(index).lumi() != runOrLumisEntry(index + 1).lumi()) {
           return true;
         }
-      } else if (index + 1 == indexedSize_) {
+      } else if (index + 1 == indexedSize()) {
         return true;
       }
     }
@@ -2026,7 +2028,7 @@ namespace edm {
   }
 
   IndexIntoFile::EntryType IndexIntoFile::IndexIntoFileItrEntryOrder::getRunOrLumiEntryType(int index) const {
-    if (index < 0 || index >= indexedSize_) {
+    if (index < 0 || index >= indexedSize()) {
       return kEnd;
     } else if (runOrLumisEntry(index).isRun()) {
       return kRun;
@@ -2035,14 +2037,14 @@ namespace edm {
   }
 
   bool IndexIntoFile::IndexIntoFileItrEntryOrder::isSameLumi(int index1, int index2) const {
-    if (index1 < 0 || index1 >= indexedSize_ || index2 < 0 || index2 >= indexedSize_) {
+    if (index1 < 0 || index1 >= indexedSize() || index2 < 0 || index2 >= indexedSize()) {
       return false;
     }
     return runOrLumisEntry(index1).lumi() == runOrLumisEntry(index2).lumi();
   }
 
   bool IndexIntoFile::IndexIntoFileItrEntryOrder::isSameRun(int index1, int index2) const {
-    if (index1 < 0 || index1 >= indexedSize_ || index2 < 0 || index2 >= indexedSize_) {
+    if (index1 < 0 || index1 >= indexedSize() || index2 < 0 || index2 >= indexedSize()) {
       return false;
     }
     return runOrLumisEntry(index1).run() == runOrLumisEntry(index2).run() &&
@@ -2050,7 +2052,7 @@ namespace edm {
   }
 
   LuminosityBlockNumber_t IndexIntoFile::IndexIntoFileItrEntryOrder::lumi(int index) const {
-    if (index < 0 || index >= indexedSize_) {
+    if (index < 0 || index >= indexedSize()) {
       return invalidLumi;
     }
     return runOrLumisEntry(index).lumi();
