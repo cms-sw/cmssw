@@ -63,7 +63,7 @@ private:
 
 SiPixelPhase1MonitorTrackSoA::SiPixelPhase1MonitorTrackSoA(const edm::ParameterSet& iConfig) {
   tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
-  topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
+  topFolderName_ = iConfig.getParameter<std::string>("topFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
   useQualityCut_ = iConfig.getParameter<bool>("useQualityCut");
   minQuality_ = pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"));
 }
@@ -175,7 +175,7 @@ void SiPixelPhase1MonitorTrackSoA::fillDescriptions(edm::ConfigurationDescriptio
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksSoA"));
-  desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelTrackSoA");
+  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelTrackSoA");
   desc.add<bool>("useQualityCut", true);
   desc.add<std::string>("minQuality", "loose");
   descriptions.addWithDefaultLabel(desc);
