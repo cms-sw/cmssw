@@ -1,31 +1,27 @@
 #include <cstdio>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include <boost/algorithm/string.hpp>
 
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenWeightInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
-#include "SimDataFormats/GeneratorProducts/interface/UnknownWeightGroupInfo.h"
-
-#include "GeneratorInterface/Core/interface/GenWeightHelper.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/transform.h"
-#include <boost/algorithm/string.hpp>
+#include "GeneratorInterface/Core/interface/GenWeightHelper.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenWeightInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/UnknownWeightGroupInfo.h"
 
 struct GenWeightInfoProdData {
   bool makeNewProduct;
@@ -74,7 +70,8 @@ GenWeightProductProducer::~GenWeightProductProducer() {}
 
 void GenWeightProductProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // In case there is already a product in the file when this is scheduled
-  // (leave the list of weightproducts empty if you always want to produce a new product)
+  // (leave the list of weightproducts empty if you always want to produce a new
+  // product)
   const auto& productInfo = *luminosityBlockCache(iEvent.getLuminosityBlock().index());
   if (!productInfo.makeNewProduct)
     return;
@@ -130,14 +127,18 @@ void GenWeightProductProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<std::vector<std::string>>("weightProductLabels", std::vector<std::string>{{""}})
       ->setComment(
           "tag(s) to look for existing GenWeightProduct/GenWeightInfoProducts. "
-          "If they are found, a new one won't be created. Leave this argument empty if you want to recreate new "
+          "If they are found, a new one won't be created. Leave this argument "
+          "empty if you want to recreate new "
           "products regardless.");
   desc.addUntracked<bool>("debug", false)->setComment("Output debug info");
   desc.addUntracked<bool>("guessPSWeightIdx", false)
-      ->setComment("If not possible to parse text, guess the parton shower weight indices");
+      ->setComment(
+          "If not possible to parse text, guess the parton shower weight "
+          "indices");
   desc.addUntracked<bool>("allowUnassociatedWeights", false)
       ->setComment(
-          "Handle weights found in the event that aren't advertised in the weight header (otherwise throw exception)");
+          "Handle weights found in the event that aren't advertised in the "
+          "weight header (otherwise throw exception)");
   descriptions.add("genWeights", desc);
 }
 

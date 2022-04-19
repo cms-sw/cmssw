@@ -2,8 +2,8 @@
 #define SimDataFormats_GeneratorProducts_LHEEventProduct_h
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/PdfInfo.h"
@@ -117,9 +117,12 @@ private:
   std::unique_ptr<PDF> pdf_;
   std::vector<WGT> weights_;
   double originalXWGTUP_;
-  std::vector<float> scales_;  //scale value used to exclude EWK-produced partons from matching
-  int npLO_;                   //number of partons for LO process (used to steer matching/merging)
-  int npNLO_;                  //number of partons for NLO process (used to steer matching/merging)
+  std::vector<float> scales_;  // scale value used to exclude EWK-produced
+                               // partons from matching
+  int npLO_;                   // number of partons for LO process (used to steer
+                               // matching/merging)
+  int npNLO_;                  // number of partons for NLO process (used to steer
+                               // matching/merging)
 };
 
 #endif  // GeneratorEvent_LHEInterface_LHEEventProduct_h

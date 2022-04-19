@@ -1,11 +1,12 @@
 #ifndef SimDataFormats_GeneratorProducts_PdfWeightGroupInfo_h
 #define SimDataFormats_GeneratorProducts_PdfWeightGroupInfo_h
 
-#include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
-#include "LHAPDF/LHAPDF.h"
 #include <iostream>
 #include <set>
 #include <unordered_map>
+
+#include "LHAPDF/LHAPDF.h"
+#include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
 
 namespace gen {
   enum PdfUncertaintyType {

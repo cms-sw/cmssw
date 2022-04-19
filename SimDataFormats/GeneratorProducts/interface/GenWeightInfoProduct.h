@@ -3,11 +3,10 @@
 
 #include <iterator>
 #include <memory>
-#include <vector>
-#include <string>
-#include <optional>
 #include <numeric>
-#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
 
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
@@ -52,9 +51,10 @@ public:
   void addWeightGroupInfo(gen::WeightGroupInfo info);
   void addWeightGroupInfo(std::unique_ptr<gen::WeightGroupInfo> info);
   const int numberOfGroups() const { return weightGroupsInfo_.size(); }
-  // If there are unassociated weights, the number of filled groups will be less than the number
-  // of groups, because the unassociated group can't be filled. Likewise the number of weights
-  // in the GenWeightInfoProduct product will be less than the number of weights in the event
+  // If there are unassociated weights, the number of filled groups will be less
+  // than the number of groups, because the unassociated group can't be filled.
+  // Likewise the number of weights in the GenWeightInfoProduct product will be
+  // less than the number of weights in the event
   const int numberOfFilledGroups() const {
     return std::accumulate(weightGroupsInfo_.begin(), weightGroupsInfo_.end(), 0, [](auto sum, auto& entry) {
       return sum + (entry->nIdsContained() > 0 ? 1 : 0);

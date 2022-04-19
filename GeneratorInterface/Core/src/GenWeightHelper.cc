@@ -1,4 +1,5 @@
 #include "GeneratorInterface/Core/interface/GenWeightHelper.h"
+
 #include <iostream>
 
 using namespace tinyxml2;
@@ -37,7 +38,8 @@ namespace gen {
           curGroup = attributes["group"];
           groupIndex++;
         }
-        // Gen Weights can't have an ID, because they are just a std::vector<float> in the event
+        // Gen Weights can't have an ID, because they are just a
+        // std::vector<float> in the event
         attributes["id"] = "";
         parsedWeights.push_back({attributes["id"], index, curGroup, text, attributes, groupIndex});
       } else {

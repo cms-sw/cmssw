@@ -1,4 +1,5 @@
 #include "GeneratorInterface/Core/interface/LHEWeightHelper.h"
+
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <iostream>
@@ -20,9 +21,9 @@ namespace gen {
       if (failIfInvalidXML_) {
         std::cout << "XML error: ";
         xmlDoc.PrintError();
-        throw cms::Exception("LHEWeightHelper")
-            << "The LHE header is not valid! Weight information was not properly parsed."
-            << " The error type is '" << errorTypeAsString_.at(errorType) << "'";
+        throw cms::Exception("LHEWeightHelper") << "The LHE header is not valid! Weight information was not properly "
+                                                   "parsed."
+                                                << " The error type is '" << errorTypeAsString_.at(errorType) << "'";
       } else if (errorType == ErrorType::HTMLStyle) {
         if (debug_)
           std::cout << "  >>> This file uses &gt; instead of >\n";
@@ -45,10 +46,14 @@ namespace gen {
         return false;
       } else if (errorType == ErrorType::NoWeightGroup) {
         if (debug_)
-          std::cout << "  >>> There are no <weightgroup> in the LHE xml header, ending parsing" << std::endl;
+          std::cout << "  >>> There are no <weightgroup> in the LHE xml header, "
+                       "ending parsing"
+                    << std::endl;
         return false;
       } else {
-        std::string error = "Fatal error when parsing the LHE header. The header is not valid XML! Parsing error was ";
+        std::string error =
+            "Fatal error when parsing the LHE header. The header is not valid "
+            "XML! Parsing error was ";
         error += xmlDoc.ErrorStr();
         throw cms::Exception("LHEWeightHelper") << error;
       }
@@ -180,7 +185,8 @@ namespace gen {
   }
 
   tinyxml2::XMLError LHEWeightHelper::tryRemoveTrailings(tinyxml2::XMLDocument& xmlDoc, std::string& fullHeader) const {
-    // delete extra strings after the last </weightgroup> (occasionally contain '<' or '>')
+    // delete extra strings after the last </weightgroup> (occasionally contain
+    // '<' or '>')
     std::size_t theLastKet = fullHeader.rfind(weightgroupKet_) + weightgroupKet_.length();
     std::size_t thelastWeight = fullHeader.rfind(weightTag_) + weightTag_.length();
     fullHeader = fullHeader.substr(0, std::max(theLastKet, thelastWeight));

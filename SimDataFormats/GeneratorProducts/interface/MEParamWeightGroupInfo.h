@@ -2,6 +2,7 @@
 #define SimDataFormats_GeneratorProducts_MEParamWeightGroupInfo_h
 
 #include <unordered_map>
+
 #include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
 
 namespace gen {
