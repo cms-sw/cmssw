@@ -1,5 +1,4 @@
 // -*- C++ -*-
-///bookLayer
 // Package:    SiPixelPhase1CompareTrackSoA
 // Class:      SiPixelPhase1CompareTrackSoA
 //
@@ -65,15 +64,13 @@ private:
 // constructors
 //
 
-SiPixelPhase1CompareTrackSoA::SiPixelPhase1CompareTrackSoA(const edm::ParameterSet& iConfig) :
-  tokenSoATrackCPU_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcCPU"))),
-  tokenSoATrackGPU_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcGPU"))),
-  topFolderName_(iConfig.getParameter<std::string>("TopFolderName")),
-  useQualityCut_(iConfig.getParameter<bool>("useQualityCut")),
-  minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))), 
-  dr2cut_(iConfig.getParameter<double>("deltaR2cut")) {
-
-}
+SiPixelPhase1CompareTrackSoA::SiPixelPhase1CompareTrackSoA(const edm::ParameterSet& iConfig)
+    : tokenSoATrackCPU_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcCPU"))),
+      tokenSoATrackGPU_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcGPU"))),
+      topFolderName_(iConfig.getParameter<std::string>("TopFolderName")),
+      useQualityCut_(iConfig.getParameter<bool>("useQualityCut")),
+      minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
+      dr2cut_(iConfig.getParameter<double>("deltaR2cut")) {}
 
 //
 // -- Analyze
@@ -82,14 +79,15 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
   const auto& tsoaHandleCPU = iEvent.getHandle(tokenSoATrackCPU_);
   const auto& tsoaHandleGPU = iEvent.getHandle(tokenSoATrackGPU_);
   if (!tsoaHandleCPU.isValid() || !tsoaHandleGPU) {
-    edm::LogWarning("SiPixelPhase1CompareTrackSoA") << "Either GPU or CPU tracks not found! Hence comparison not run!" << std::endl;
+    edm::LogWarning("SiPixelPhase1CompareTrackSoA")
+        << "Either GPU or CPU tracks not found! Hence comparison not run!" << std::endl;
     return;
   }
 
   auto const& tsoaCPU = *((tsoaHandleCPU.product())->get());
   auto const& tsoaGPU = *((tsoaHandleGPU.product())->get());
-  auto maxTracksCPU = tsoaCPU.stride();//this should be same for both?
-  auto maxTracksGPU = tsoaGPU.stride();//this should be same for both?
+  auto maxTracksCPU = tsoaCPU.stride();  //this should be same for both?
+  auto maxTracksGPU = tsoaGPU.stride();  //this should be same for both?
   auto const* qualityCPU = tsoaCPU.qualityData();
   auto const* qualityGPU = tsoaGPU.qualityData();
   int32_t nTracksCPU = 0;
@@ -99,10 +97,12 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
   int32_t nLooseAndAboveTracksGPU = 0;
 
   //Loop over GPU tracks and store the indices of the loose tracks. Whats happens if useQualityCut_ is false?
-  std::vector<int32_t>  looseTrkidxGPU;
+  std::vector<int32_t> looseTrkidxGPU;
   for (int32_t jt = 0; jt < maxTracksGPU; ++jt) {
-    if (tsoaGPU.nHits(jt) == 0)  break;  // this is a guard
-    if (!(tsoaGPU.pt(jt) > 0.))  continue;
+    if (tsoaGPU.nHits(jt) == 0)
+      break;  // this is a guard
+    if (!(tsoaGPU.pt(jt) > 0.))
+      continue;
     nTracksGPU++;
     if (useQualityCut_ && qualityGPU[jt] < minQuality_)
       continue;
@@ -112,8 +112,10 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
 
   //Now loop over CPU tracks//nested loop for loose gPU tracks
   for (int32_t it = 0; it < maxTracksCPU; ++it) {
-    if (tsoaCPU.nHits(it) == 0)  break;  // this is a guard
-    if (!(tsoaCPU.pt(it) > 0.))  continue;
+    if (tsoaCPU.nHits(it) == 0)
+      break;  // this is a guard
+    if (!(tsoaCPU.pt(it) > 0.))
+      continue;
     nTracksCPU++;
     if (useQualityCut_ && qualityCPU[it] < minQuality_)
       continue;
@@ -123,17 +125,19 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
     float mindr2 = 99.;
     float etacpu = tsoaCPU.eta(it);
     float phicpu = tsoaCPU.phi(it);
-    for (auto gid :  looseTrkidxGPU) {
+    for (auto gid : looseTrkidxGPU) {
       float etagpu = tsoaGPU.eta(gid);
       float phigpu = tsoaGPU.phi(gid);
       float dr2 = reco::deltaR2(etacpu, phicpu, etagpu, phigpu);
-      if(dr2 > dr2cut_)  continue; // this is arbitrary
-      if(mindr2 > dr2 ) {
-	mindr2 = dr2;
-	closestTkidx = gid;
+      if (dr2 > dr2cut_)
+        continue;  // this is arbitrary
+      if (mindr2 > dr2) {
+        mindr2 = dr2;
+        closestTkidx = gid;
       }
     }
-    if(closestTkidx == 99999)  continue;
+    if (closestTkidx == 99999)
+      continue;
     nLooseAndAboveTracksCPU_matchedGPU++;
 
     hchi2->Fill(tsoaCPU.chi2(it), tsoaGPU.chi2(closestTkidx));
