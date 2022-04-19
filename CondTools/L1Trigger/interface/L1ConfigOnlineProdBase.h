@@ -151,9 +151,8 @@ std::unique_ptr<TData> L1ConfigOnlineProdBase<TRcd, TData>::produce(const TRcd& 
       throw l1t::DataInvalidException("Unable to generate " + dataType + " for key " + key + ".");
     }
   } else {
-    std::string dataType = edm::typelookup::className<TData>();
-
-    throw l1t::DataAlreadyPresentException(dataType + " for key " + key + " already in CondDB.");
+    // use nullptr to signal that the L1TriggerKey already exists in CondDB
+    return {};
   }
 
   return pData;
@@ -167,10 +166,11 @@ bool L1ConfigOnlineProdBase<TRcd, TData>::getObjectKey(const TRcd& iRecord, std:
 
   // If L1TriggerKey is invalid, then all configuration objects are
   // already in ORCON.
-  edm::ESHandle<L1TriggerKey> key;
-  try {
-    key = iRecord.getHandle(l1TriggerKeyToken_);
-  } catch (l1t::DataAlreadyPresentException& ex) {
+  // Previously this code assumed that the setup.get() call would
+  // throw an exception from an ESProducer producing the Type
+  // object. Now the handle is invalid in that case.
+  edm::ESHandle<L1TriggerKey> key = iRecord.getHandle(l1TriggerKeyToken_);
+  if (not key.isValid()) {
     objectKey = std::string();
     return false;
   }

@@ -149,9 +149,8 @@ std::unique_ptr<const TData> L1ConfigOnlineProdBaseExt<TRcd, TData>::produce(con
       throw l1t::DataInvalidException("Unable to generate " + dataType + " for key " + key + ".");
     }
   } else {
-    std::string dataType = edm::typelookup::className<TData>();
-
-    throw l1t::DataAlreadyPresentException(dataType + " for key " + key + " already in CondDB.");
+    // use nullptr to signal that the L1TriggerKey already exists in CondDB
+    return {};
   }
 
   return pData;
@@ -169,9 +168,7 @@ bool L1ConfigOnlineProdBaseExt<TRcd, TData>::getObjectKey(const TRcd& record, st
   // If L1TriggerKeyExt is invalid, then all configuration objects are
   // already in ORCON.
   // edm::ESHandle<L1TriggerKeyExt> key_token;
-  try {
-    keyRcd.get(key_token);
-  } catch (l1t::DataAlreadyPresentException& ex) {
+  if (not keyRcd.getHandle(key_token).isValid()) {
     objectKey = std::string();
     return false;
   }

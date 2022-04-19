@@ -71,11 +71,9 @@ L1ObjectKeysOnlineProdBase::~L1ObjectKeysOnlineProdBase() {
 L1ObjectKeysOnlineProdBase::ReturnType L1ObjectKeysOnlineProdBase::produce(const L1TriggerKeyRcd& iRecord) {
   // Get L1TriggerKey with label "SubsystemKeysOnly".  Re-throw exception if
   // not present.
-  edm::ESHandle<L1TriggerKey> subsystemKeys;
-  try {
-    subsystemKeys = iRecord.getHandle(l1TriggerKeyToken_);
-  } catch (l1t::DataAlreadyPresentException& ex) {
-    throw ex;
+  edm::ESHandle<L1TriggerKey> subsystemKeys = iRecord.getHandle(l1TriggerKeyToken_);
+  if (not subsystemKeys.isValid()) {
+    return {};
   }
 
   // Copy L1TriggerKey to new object.

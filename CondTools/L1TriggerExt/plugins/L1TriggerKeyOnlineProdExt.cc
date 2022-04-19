@@ -32,14 +32,12 @@ L1TriggerKeyOnlineProdExt::~L1TriggerKeyOnlineProdExt() {
 // ------------ method called to produce the data  ------------
 L1TriggerKeyOnlineProdExt::ReturnType L1TriggerKeyOnlineProdExt::produce(const L1TriggerKeyExtRcd& iRecord) {
   // Start with "SubsystemKeysOnly"
-  L1TriggerKeyExt subsystemKeys;
-  try {
-    subsystemKeys = iRecord.get(L1TriggerKeyExt_token);
-  } catch (l1t::DataAlreadyPresentException& ex) {
-    throw ex;
+  edm::ESHandle<L1TriggerKeyExt> subsystemKeys = iRecord.getHandle(L1TriggerKeyExt_token);
+  if (not subsystemKeys.isValid()) {
+    return {};
   }
 
-  auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(subsystemKeys);
+  auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(*subsystemKeys);
 
   // Collate object keys
   for (auto const& token : m_subsystemTokens) {

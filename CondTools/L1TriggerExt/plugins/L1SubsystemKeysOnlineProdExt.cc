@@ -152,8 +152,8 @@ L1SubsystemKeysOnlineProdExt::ReturnType L1SubsystemKeysOnlineProdExt::produce(c
     edm::LogVerbatim("L1-O2O") << "TWINMUX_RS_KEY:	" << TWINMUXrsKey;
 
   } else {
-    throw l1t::DataAlreadyPresentException("L1TriggerKeyExt for TSC key " + m_tscKey + " and RS key " + m_rsKey +
-                                           " already in CondDB.");
+    // use nullptr to signal that the L1TriggerKey already exists in CondDB
+    return {};
   }
 
   return pL1TriggerKey;

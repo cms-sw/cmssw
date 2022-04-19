@@ -1,8 +1,10 @@
 #ifndef CondTools_L1Trigger_WriterProxy_h
 #define CondTools_L1Trigger_WriterProxy_h
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
@@ -22,6 +24,8 @@ namespace l1t {
   class WriterProxy {
   public:
     virtual ~WriterProxy() {}
+
+    virtual void setConsumes(edm::ConsumesCollector cc) = 0;
 
     /* Saves record and type from given event setup to pool DB. This method should not worry
          * about such things as IOV and so on. It should return new payload token and then
@@ -45,18 +49,19 @@ namespace l1t {
   public:
     ~WriterProxyT() override {}
 
+    void setConsumes(edm::ConsumesCollector cc) override { token_ = cc.esConsumes(); }
+
     /* This method requires that Record and Type supports copy constructor */
     std::string save(const edm::EventSetup& setup) const override {
       // load record and type from EventSetup and save them in db
-      edm::ESHandle<Type> handle;
 
-      try {
-        setup.get<Record>().get(handle);
-      } catch (l1t::DataAlreadyPresentException& ex) {
+      // Previously this code assumed that the setup.get() call would
+      // throw an exception from an ESProducer producing the Type
+      // object. Now the handle is invalid in that case.
+      edm::ESHandle<Type> handle = setup.getHandle(token_);
+      if (not handle.isValid()) {
         return std::string();
       }
-
-      // If handle is invalid, then data is already in DB
 
       edm::Service<cond::service::PoolDBOutputService> poolDb;
       if (!poolDb.isAvailable()) {
@@ -74,6 +79,9 @@ namespace l1t {
       tr.close();
       return payloadToken;
     }
+
+  private:
+    edm::ESGetToken<Type, Record> token_;
   };
 
   typedef edmplugin::PluginFactory<l1t::WriterProxy*()> WriterFactory;

@@ -10,14 +10,26 @@
 
 namespace l1t {
   DataWriterExt::DataWriterExt() {}
+  DataWriterExt::DataWriterExt(std::vector<std::string> const& recordTypes, edm::ConsumesCollector cc) {
+    WriterFactory* factory = WriterFactory::get();
+    for (auto const& recordType : recordTypes) {
+      std::unique_ptr<WriterProxy> writer(factory->create(recordType + "@Writer"));
+      if (writer.get() == nullptr) {
+        throw cond::Exception("DataWriter: could not create WriterProxy with name " + recordType + "@Writer");
+      }
+      // TODO: move to be part of the factory->create() call when time is calmer
+      writer->setConsumes(cc);
+      writers_.emplace(recordType, std::move(writer));
+    }
+  }
   DataWriterExt::~DataWriterExt() {}
 
-  std::string DataWriterExt::writePayload(const edm::EventSetup& setup, const std::string& recordType) {
-    WriterFactory* factory = WriterFactory::get();
-    std::unique_ptr<WriterProxy> writer(factory->create(recordType + "@Writer"));
-    if (writer.get() == nullptr) {
-      throw cond::Exception("DataWriter: could not create WriterProxy with name " + recordType + "@Writer");
+  std::optional<std::string> DataWriterExt::writePayload(const edm::EventSetup& setup, const std::string& recordType) {
+    auto found = writers_.find(recordType);
+    if (found == writers_.end()) {
+      return std::nullopt;
     }
+    WriterProxy* writer = found->second.get();
 
     edm::Service<cond::service::PoolDBOutputService> poolDb;
     if (!poolDb.isAvailable()) {

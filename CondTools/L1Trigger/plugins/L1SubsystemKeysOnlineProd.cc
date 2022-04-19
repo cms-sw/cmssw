@@ -147,7 +147,8 @@ L1SubsystemKeysOnlineProd::ReturnType L1SubsystemKeysOnlineProd::produce(const L
     pL1TriggerKey->setSubsystemKey(L1TriggerKey::kTSP0, tsp0Key);
     edm::LogVerbatim("L1-O2O") << "TSP0_KEY " << tsp0Key;
   } else {
-    throw l1t::DataAlreadyPresentException("L1TriggerKey for TSC key " + m_tscKey + " already in CondDB.");
+    // use nullptr to signal that the L1TriggerKey already exists in CondDB
+    return {};
   }
 
   return pL1TriggerKey;

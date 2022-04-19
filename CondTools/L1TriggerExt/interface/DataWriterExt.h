@@ -20,6 +20,8 @@
 
 #include <string>
 #include <map>
+#include <optional>
+#include <unordered_map>
 
 namespace l1t {
 
@@ -34,14 +36,18 @@ namespace l1t {
 
   class DataWriterExt {
   public:
+    // non-consumes interface, to be removed
     DataWriterExt();
+    // interface with consumes
+    DataWriterExt(std::vector<std::string> const& recordTypes, edm::ConsumesCollector cc);
     ~DataWriterExt();
 
     // Payload and IOV writing functions.
 
     // Get payload from EventSetup and write to DB with no IOV
     // recordType = "record@type", return value is payload token
-    std::string writePayload(const edm::EventSetup& setup, const std::string& recordType);
+    // returned optional is nullopt if the recordType is not given in the constructor
+    std::optional<std::string> writePayload(const edm::EventSetup& setup, const std::string& recordType);
 
     // Use PoolDBOutputService to append IOV with sinceRun to IOV sequence
     // for given ESRecord.  PoolDBOutputService knows the corresponding IOV tag.
@@ -65,7 +71,8 @@ namespace l1t {
 
     bool fillLastTriggerKeyList(L1TriggerKeyListExt& output);
 
-  protected:
+  private:
+    std::unordered_map<std::string, std::unique_ptr<WriterProxy>> writers_;
   };
 
   template <class T>

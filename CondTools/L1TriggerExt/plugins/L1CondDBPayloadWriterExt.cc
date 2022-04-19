@@ -48,7 +48,8 @@ private:
 };
 
 L1CondDBPayloadWriterExt::L1CondDBPayloadWriterExt(const edm::ParameterSet& iConfig)
-    : m_writeL1TriggerKeyExt(iConfig.getParameter<bool>("writeL1TriggerKeyExt")),
+    : m_writer(iConfig.getParameter<std::vector<std::string>>("sysWriters"), consumesCollector()),
+      m_writeL1TriggerKeyExt(iConfig.getParameter<bool>("writeL1TriggerKeyExt")),
       m_writeConfigData(iConfig.getParameter<bool>("writeConfigData")),
       m_overwriteKeys(iConfig.getParameter<bool>("overwriteKeys")),
       m_logTransactions(iConfig.getParameter<bool>("logTransactions")),
@@ -95,11 +96,11 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
 
   if (triggerKeyOK && m_writeL1TriggerKeyExt) {
     edm::LogVerbatim("L1-O2O") << "Object key for L1TriggerKeyExtRcd@L1TriggerKeyExt: " << key.tscKey();
-    token = m_writer.writePayload(iSetup, "L1TriggerKeyExtRcd@L1TriggerKeyExt");
+    auto tokenOptional = m_writer.writePayload(iSetup, "L1TriggerKeyExtRcd@L1TriggerKeyExt");
+    if (not tokenOptional) {
+      throw cond::Exception("Writer missing for L1TriggerKeyExtRcd@L1TriggerKeyExt");
+    }
   }
-
-  // If L1TriggerKeyExt is invalid, then all configuration data is already in DB
-  bool throwException = false;
 
   if (!token.empty() || !m_writeL1TriggerKeyExt) {
     // Record token in L1TriggerKeyListExt
@@ -114,6 +115,8 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
       // Loop over record@type in L1TriggerKeyExt
       L1TriggerKeyExt::RecordToKey::const_iterator it = key.recordToKeyMap().begin();
       L1TriggerKeyExt::RecordToKey::const_iterator end = key.recordToKeyMap().end();
+
+      std::set<std::string> missingRecordWriters;
 
       for (; it != end; ++it) {
         // Do nothing if object key is null.
@@ -131,15 +134,12 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
               edm::LogVerbatim("L1-O2O") << "object key for " << it->first << ": " << it->second;
             }
 
-            try {
-              token = m_writer.writePayload(iSetup, it->first);
-            } catch (l1t::DataInvalidException& ex) {
-              edm::LogVerbatim("L1-O2O") << ex.what() << " Skipping to next record.";
-
-              throwException = true;
-
+            auto tokenOptional = m_writer.writePayload(iSetup, it->first);
+            if (not tokenOptional) {
+              missingRecordWriters.insert(it->first);
               continue;
             }
+            token = *tokenOptional;
 
             if (!token.empty()) {
               // Record token in L1TriggerKeyListExt
@@ -160,16 +160,22 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
           }
         }
       }
+
+      if (not missingRecordWriters.empty()) {
+        std::stringstream ss;
+        ss << "The writers for the following records were missing:\n";
+        for (auto const& mrw : missingRecordWriters) {
+          ss << " " << mrw << "\n";
+        }
+        // TODO: add the logic to report the records for which a writer was configured but was not used
+        throw cond::Exception(ss.str());
+      }
     }
   }
 
   if (keyList) {
     // Write L1TriggerKeyListExt to ORCON
     m_writer.writeKeyList(keyList, 0, m_logTransactions);
-  }
-
-  if (throwException) {
-    throw l1t::DataInvalidException("Payload problem found.");
   }
 }
 

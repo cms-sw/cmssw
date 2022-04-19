@@ -21,15 +21,13 @@ L1ObjectKeysOnlineProdBaseExt::~L1ObjectKeysOnlineProdBaseExt() {
 L1ObjectKeysOnlineProdBaseExt::ReturnType L1ObjectKeysOnlineProdBaseExt::produce(const L1TriggerKeyExtRcd& iRecord) {
   // Get L1TriggerKeyExt with label "SubsystemKeysOnly".  Re-throw exception if
   // not present.
-  L1TriggerKeyExt subsystemKeys;
-  try {
-    subsystemKeys = iRecord.get(L1TriggerKeyExt_token);
-  } catch (l1t::DataAlreadyPresentException& ex) {
-    throw ex;
+  edm::ESHandle<L1TriggerKeyExt> subsystemKeys = iRecord.getHandle(L1TriggerKeyExt_token);
+  if (not subsystemKeys.isValid()) {
+    return {};
   }
 
   // Copy L1TriggerKeyExt to new object.
-  auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(subsystemKeys);
+  auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(*subsystemKeys);
 
   // Get object keys.
   fillObjectKeys(pL1TriggerKey.get());

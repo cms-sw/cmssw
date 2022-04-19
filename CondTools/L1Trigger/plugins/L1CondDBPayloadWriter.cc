@@ -74,22 +74,20 @@ void L1CondDBPayloadWriter::analyze(const edm::Event& iEvent, const edm::EventSe
 
   // Write L1TriggerKey to ORCON with no IOV
   std::string token;
-  ESHandle<L1TriggerKey> key;
 
   // Before calling writePayload(), check if TSC key is already in
   // L1TriggerKeyList.  writePayload() will not catch this situation in
   // the case of dummy configurations.
   bool triggerKeyOK = true;
-  try {
-    // Get L1TriggerKey
-    key = iSetup.getHandle(l1TriggerKeyToken_);
-
+  // Get L1TriggerKey
+  ESHandle<L1TriggerKey> key = iSetup.getHandle(l1TriggerKeyToken_);
+  if (key.isValid()) {
     if (!m_overwriteKeys) {
       triggerKeyOK = oldKeyList.token(key->tscKey()).empty();
     }
-  } catch (l1t::DataAlreadyPresentException& ex) {
+  } else {
     triggerKeyOK = false;
-    edm::LogVerbatim("L1-O2O") << ex.what();
+    edm::LogVerbatim("L1-O2O") << "L1TriggerKey was already inserted";
   }
 
   if (triggerKeyOK && m_writeL1TriggerKey) {
