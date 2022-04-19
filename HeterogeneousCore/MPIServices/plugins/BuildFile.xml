@@ -1,4 +1,6 @@
 <use name="openmpi"/>
+<use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/ServiceRegistry"/>
+<use name="HeterogeneousCore/MPIServices"/>
 <flags EDM_PLUGIN="1"/>
