@@ -188,6 +188,15 @@ namespace mkfit {
     int layer(const MCHitInfoVec& globalMCHitInfo) const { return globalMCHitInfo[mcHitID_].layer(); }
     int mcTrackID(const MCHitInfoVec& globalMCHitInfo) const { return globalMCHitInfo[mcHitID_].mcTrackID(); }
 
+    // Indices for "fake" hit addition
+    // Only if fake_hit_idx==-1, then count as missing hit for candidate score
+    static constexpr int kHitMissIdx = -1;        //  hit is missed
+    static constexpr int kHitStopIdx = -2;        //  track is stopped
+    static constexpr int kHitEdgeIdx = -3;        //  track not in sensitive region of detector
+    static constexpr int kHitMaxClusterIdx = -5;  //  hit cluster size > maxClusterSize
+    static constexpr int kHitInGapIdx = -7;       //  track passing through inactive module
+    static constexpr int kHitCCCFilterIdx = -9;   //  hit filtered via CCC (unused)
+
     static constexpr int kMinChargePerCM = 1620;
     static constexpr int kChargePerCMBits = 8;
     static constexpr int kDetIdInLayerBits = 12;

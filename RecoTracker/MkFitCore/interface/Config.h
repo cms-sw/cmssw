@@ -91,15 +91,6 @@ namespace mkfit {
     constexpr float mag_b1 = 7.53701e-06;
     constexpr float mag_a = 2.43878e-11;
 
-    // Config for "fake" hit addition
-    // Only if fake_hit_idx==-1, then count as missing hit for candidate score
-    constexpr int hit_miss_idx_ = -1;        //  hit is missed
-    constexpr int hit_stop_idx_ = -2;        //  track is stopped
-    constexpr int hit_edge_idx_ = -3;        //  track not in sensitive region of detector
-    constexpr int hit_maxcluster_idx_ = -5;  //  hit cluster size > maxClusterSize
-    constexpr int hit_gap_idx_ = -7;         //  track passing through inactive module
-    constexpr int hit_cccfilter_idx_ = -9;   //  hit filtered via CCC (unused)
-
     // Config for SelectHitIndices
     // Use extra arrays to store phi and q of hits.
     // MT: This would in principle allow fast selection of good hits, if
