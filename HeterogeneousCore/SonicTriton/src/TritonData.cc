@@ -32,7 +32,7 @@ TritonData<IO>::TritonData(const std::string& name,
       byteSize_(tco::GetDataTypeByteSize(dtype_)),
       totalByteSize_(0) {
   //initialize first shape entry
-  addEntryImpl(1);
+  addEntryImpl(0);
   //one-time computation of some shape info
   variableDims_ = anyNeg(entries_.front().shape_);
   productDims_ = variableDims_ ? -1 : dimProduct(entries_.front().shape_);
@@ -53,7 +53,7 @@ void TritonData<IO>::addEntry(unsigned entry) {
 
 template <typename IO>
 void TritonData<IO>::addEntryImpl(unsigned entry) {
-  if (entry > entries_.size()) {
+  if (entry >= entries_.size()) {
     entries_.reserve(entry+1);
     for (unsigned i = entries_.size(); i < entry+1; ++i) {
       entries_.emplace_back(dims_, noBatch_, name_, dname_);
