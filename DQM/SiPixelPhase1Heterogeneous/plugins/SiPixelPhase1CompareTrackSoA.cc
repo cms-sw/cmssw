@@ -106,7 +106,7 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
     nTracksGPU++;
     if (useQualityCut_ && qualityGPU[jt] < minQuality_)
       continue;
-    nLooseAndAboveTracksCPU++;
+    nLooseAndAboveTracksGPU++;
     looseTrkidxGPU.emplace_back(jt);
   }
 
@@ -161,9 +161,9 @@ void SiPixelPhase1CompareTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
 
   // clang-format off
   std::string toRep = "Number of tracks";
-  hnTracks = iBook.book2D("nTracks", fmt::sprintf("%s per event; CPU; GPU",toRep), 1001, -0.5, 1000.5, 1001, -0.5, 1000.5);
-  hnLooseAndAboveTracks = iBook.book2D("nLooseAndAboveTracks", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 1001, -0.5, 1000.5, 1001, -0.5, 1000.5);
-  hnLooseAndAboveTracks_matched = iBook.book2D("nLooseAndAboveTracks_matched", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 1001, -0.5, 1000.5, 1001, -0.5, 1000.5);
+  hnTracks = iBook.book2D("nTracks", fmt::sprintf("%s per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
+  hnLooseAndAboveTracks = iBook.book2D("nLooseAndAboveTracks", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
+  hnLooseAndAboveTracks_matched = iBook.book2D("nLooseAndAboveTracks_matched", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
 
   toRep = "Number of all RecHits per track (quality #geq loose)";
   hnHits = iBook.book2D("nRecHits", fmt::sprintf("%s;CPU;GPU",toRep), 15, -0.5, 14.5, 15, -0.5, 14.5);
