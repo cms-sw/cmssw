@@ -88,31 +88,31 @@ private:
   // mapping of wafer shape codes: DD / old format -> new format (LD/HD)
   using WaferShapeMap = std::map<std::string, int>;
 
-  const WaferShapeMap waferShapeMapDD = {{"F", HGCalTypes::WaferPartialType::WaferFull},
-                                         {"a", HGCalTypes::WaferPartialType::WaferHalf},
-                                         {"am", HGCalTypes::WaferPartialType::WaferHalf2},
-                                         {"b", HGCalTypes::WaferPartialType::WaferFive},
-                                         {"bm", HGCalTypes::WaferPartialType::WaferFive2},
-                                         {"c", HGCalTypes::WaferPartialType::WaferThree},
-                                         {"d", HGCalTypes::WaferPartialType::WaferSemi},
-                                         {"dm", HGCalTypes::WaferPartialType::WaferSemi2},
-                                         {"g", HGCalTypes::WaferPartialType::WaferChopTwo},
-                                         {"gm", HGCalTypes::WaferPartialType::WaferChopTwoM}};
+  const WaferShapeMap waferShapeMapDD = {{"F", HGCalTypes::WaferFull},
+                                         {"a", HGCalTypes::WaferHalf},
+                                         {"am", HGCalTypes::WaferHalf2},
+                                         {"b", HGCalTypes::WaferFive},
+                                         {"bm", HGCalTypes::WaferFive2},
+                                         {"c", HGCalTypes::WaferThree},
+                                         {"d", HGCalTypes::WaferSemi},
+                                         {"dm", HGCalTypes::WaferSemi2},
+                                         {"g", HGCalTypes::WaferChopTwo},
+                                         {"gm", HGCalTypes::WaferChopTwoM}};
 
-  const WaferShapeMap waferShapeMapLD = {{"0", HGCalTypes::WaferPartialType::WaferFull},
-                                         {"1", HGCalTypes::WaferPartialType::WaferHalf},
-                                         {"2", HGCalTypes::WaferPartialType::WaferHalf},
-                                         {"3", HGCalTypes::WaferPartialType::WaferSemi},
-                                         {"4", HGCalTypes::WaferPartialType::WaferSemi},
-                                         {"5", HGCalTypes::WaferPartialType::WaferFive},
-                                         {"6", HGCalTypes::WaferPartialType::WaferThree}};
+  const WaferShapeMap waferShapeMapLD = {{"0", HGCalTypes::WaferFull},
+                                         {"1", HGCalTypes::WaferHalf},
+                                         {"2", HGCalTypes::WaferHalf},
+                                         {"3", HGCalTypes::WaferSemi},
+                                         {"4", HGCalTypes::WaferSemi},
+                                         {"5", HGCalTypes::WaferFive},
+                                         {"6", HGCalTypes::WaferThree}};
 
-  const WaferShapeMap waferShapeMapHD = {{"0", HGCalTypes::WaferPartialType::WaferFull},
-                                         {"1", HGCalTypes::WaferPartialType::WaferHalf2},
-                                         {"2", HGCalTypes::WaferPartialType::WaferChopTwoM},
-                                         {"3", HGCalTypes::WaferPartialType::WaferSemi2},
-                                         {"4", HGCalTypes::WaferPartialType::WaferSemi2},
-                                         {"5", HGCalTypes::WaferPartialType::WaferFive2}};
+  const WaferShapeMap waferShapeMapHD = {{"0", HGCalTypes::WaferFull},
+                                         {"1", HGCalTypes::WaferHalf2},
+                                         {"2", HGCalTypes::WaferChopTwoM},
+                                         {"3", HGCalTypes::WaferSemi2},
+                                         {"4", HGCalTypes::WaferSemi2},
+                                         {"5", HGCalTypes::WaferFive2}};
 
   bool DDFindHGCal(DDCompactView::GraphWalker& walker, std::string targetName);
   void DDFindWafers(DDCompactView::GraphWalker& walker);
@@ -222,7 +222,7 @@ void HGCalWaferValidation::DDFindWafers(DDCompactView::GraphWalker& walker) {
 
 // ----- process the layer of wafers -----
 void HGCalWaferValidation::ProcessWaferLayer(DDCompactView::GraphWalker& walker) {
-  static int waferLayer = 0;  // layer numbers in DD are assumed to be sequential from 1
+  int waferLayer = 0;  // layer numbers in DD are assumed to be sequential from 1
   waferLayer++;
   edm::LogVerbatim(logcat) << "ProcessWaferLayer: Processing layer " << waferLayer;
   do {
@@ -286,9 +286,9 @@ bool HGCalWaferValidation::isThicknessMatched(const int geoThickClass, const int
 // ------------ check if wafer rotation in geo matches in file (true = is a match) ------------
 bool HGCalWaferValidation::isRotationMatched(
     const bool isNewFile, const int layer, const int fileShapeCode, const int geoRotCode, const int fileRotCode) {
-  if (fileShapeCode != HGCalTypes::WaferPartialType::WaferFull && geoRotCode == fileRotCode)
+  if (fileShapeCode != HGCalTypes::WaferFull && geoRotCode == fileRotCode)
     return true;
-  if (fileShapeCode == HGCalTypes::WaferPartialType::WaferFull) {
+  if (fileShapeCode == HGCalTypes::WaferFull) {
     if (isNewFile && layerTypes_[layer - 1] == 3) {  // this array is index-0 based
       if ((geoRotCode + 1) % 2 == fileRotCode % 2)
         return true;
@@ -453,7 +453,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
     const int waferV(std::stoi(tokens[7]));
     const int waferShapeCode(isNewFile ? (waferDensityStr == "l"   ? waferShapeMapLD.at(waferShapeStr)
                                           : waferDensityStr == "h" ? waferShapeMapHD.at(waferShapeStr)
-                                                                   : HGCalTypes::WaferPartialType::WaferOut)
+                                                                   : HGCalTypes::WaferOut)
                                        : waferShapeMapDD.at(waferShapeStr));
 
     // map index for crosschecking with DD
@@ -486,7 +486,7 @@ void HGCalWaferValidation::analyze(const edm::Event& iEvent, const edm::EventSet
       edm::LogVerbatim(logcat) << "POSITION y ERROR: " << strWaferCoord(waferCoord);
     }
 
-    if (waferInfo.shapeCode != waferShapeCode || waferShapeCode == HGCalTypes::WaferPartialType::WaferOut) {
+    if (waferInfo.shapeCode != waferShapeCode || waferShapeCode == HGCalTypes::WaferOut) {
       nShapeError++;
       edm::LogVerbatim(logcat) << "SHAPE ERROR: " << strWaferCoord(waferCoord) << "  ( " << waferInfo.shapeCode
                                << " != " << waferDensityStr << waferShapeCode << " )  name=" << waferInfo.waferName;
