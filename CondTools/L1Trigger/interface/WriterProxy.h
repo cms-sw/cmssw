@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
@@ -35,6 +35,8 @@ namespace l1t {
          * methods here.
          */
 
+    virtual void setToken(edm::ConsumesCollector cc) = 0;
+
     virtual std::string save(const edm::EventSetup& setup) const = 0;
 
   protected:
@@ -44,13 +46,17 @@ namespace l1t {
  * should instaciate a new version of this class and register it in plugin system.
  */
   template <class Record, class Type>
-  class WriterProxyT : public WriterProxy {
+    class WriterProxyT : public WriterProxy {
+
   private:
     edm::ESGetToken<Type, Record> rcdToken;
 
   public:
-    WriterProxyT() : rcdToken(esConsumes()) {}
     ~WriterProxyT() override {}
+
+    void setToken(edm::ConsumesCollector cc) override {
+      rcdToken = cc.esConsumes();
+    }
 
     /* This method requires that Record and Type supports copy constructor */
     std::string save(const edm::EventSetup& setup) const override {
