@@ -4,7 +4,6 @@ noConcurrentLumiGenerators = [
     "BeamHaloProducer",
     "CosMuoGenProducer",
     "Herwig7GeneratorFilter",
-    "HydjetGeneratorFilter",
     "Hydjet2GeneratorFilter",
     "PyquenGeneratorFilter",
     "Pythia6GeneratorFilter",
