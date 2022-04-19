@@ -36,7 +36,7 @@ siPixelPhase1MonitorVertexSoAGPU = siPixelPhase1MonitorVertexSoA.clone(
 )
 
 
-monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorTrackOASoAGPU *
+monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorTrackSoAGPU *
                                             siPixelPhase1MonitorTrackSoACPU *
                                             siPixelPhase1CompareTrackSoA *
                                             siPixelPhase1MonitorVertexSoACPU *
