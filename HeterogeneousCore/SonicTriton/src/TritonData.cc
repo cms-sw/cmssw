@@ -286,6 +286,8 @@ void TritonData<IO>::reset() {
   holder_.reset();
   entries_.clear();
   totalByteSize_ = 0;
+  //re-initialize first shape entry
+  addEntryImpl(0);
 }
 
 //explicit template instantiation declarations
