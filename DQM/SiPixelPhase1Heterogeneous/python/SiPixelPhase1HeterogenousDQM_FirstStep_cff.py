@@ -17,22 +17,22 @@ from DQM.SiPixelPhase1Heterogeneous.siPixelPhase1CompareVertexSoA_cfi import *
 
 siPixelPhase1MonitorTrackSoACPU = siPixelPhase1MonitorTrackSoA.clone(
   pixelTrackSrc = 'pixelTracksSoA@cpu',
-  TopFolderName = 'SiPixelHeterogeneous/PixelTrackSoACPU',
+  topFolderName = 'SiPixelHeterogeneous/PixelTrackSoACPU',
 )
 
 siPixelPhase1MonitorTrackSoAGPU = siPixelPhase1MonitorTrackSoA.clone(
   pixelTrackSrc = 'pixelTracksSoA@cuda',
-  TopFolderName = 'SiPixelHeterogeneous/PixelTrackSoAGPU',
+  topFolderName = 'SiPixelHeterogeneous/PixelTrackSoAGPU',
 )
 
 siPixelPhase1MonitorVertexSoACPU = siPixelPhase1MonitorVertexSoA.clone(
   pixelVertexSrc = 'pixelVerticesSoA@cpu',
-  TopFolderName = 'SiPixelHeterogeneous/PixelVertexSoACPU',
+  topFolderName = 'SiPixelHeterogeneous/PixelVertexSoACPU',
 )
 
 siPixelPhase1MonitorVertexSoAGPU = siPixelPhase1MonitorVertexSoA.clone(
   pixelVertexSrc = 'pixelVerticesSoA@cuda',
-  TopFolderName = 'SiPixelHeterogeneous/PixelVertexSoAGPU',
+  topFolderName = 'SiPixelHeterogeneous/PixelVertexSoAGPU',
 )
 
 

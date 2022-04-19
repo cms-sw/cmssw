@@ -9,13 +9,11 @@
 //
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 // DQM Histograming
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -40,24 +38,24 @@ private:
   const bool useQualityCut_;
   const pixelTrack::Quality minQuality_;
   const float dr2cut_;
-  MonitorElement* hnTracks;
-  MonitorElement* hnLooseAndAboveTracks;
-  MonitorElement* hnLooseAndAboveTracks_matched;
-  MonitorElement* hnHits;
-  MonitorElement* hnHitsVsPhi;
-  MonitorElement* hnHitsVsEta;
-  MonitorElement* hnLayers;
-  MonitorElement* hnLayersVsPhi;
-  MonitorElement* hnLayersVsEta;
-  MonitorElement* hchi2;
-  MonitorElement* hChi2VsPhi;
-  MonitorElement* hChi2VsEta;
-  MonitorElement* hpt;
-  MonitorElement* heta;
-  MonitorElement* hphi;
-  MonitorElement* hz;
-  MonitorElement* htip;
-  MonitorElement* hquality;
+  MonitorElement* hnTracks_;
+  MonitorElement* hnLooseAndAboveTracks_;
+  MonitorElement* hnLooseAndAboveTracks_matched_;
+  MonitorElement* hnHits_;
+  MonitorElement* hnHitsVsPhi_;
+  MonitorElement* hnHitsVsEta_;
+  MonitorElement* hnLayers_;
+  MonitorElement* hnLayersVsPhi_;
+  MonitorElement* hnLayersVsEta_;
+  MonitorElement* hchi2_;
+  MonitorElement* hChi2VsPhi_;
+  MonitorElement* hChi2VsEta_;
+  MonitorElement* hpt_;
+  MonitorElement* heta_;
+  MonitorElement* hphi_;
+  MonitorElement* hz_;
+  MonitorElement* htip_;
+  MonitorElement* hquality_;
 };
 
 //
@@ -67,7 +65,7 @@ private:
 SiPixelPhase1CompareTrackSoA::SiPixelPhase1CompareTrackSoA(const edm::ParameterSet& iConfig)
     : tokenSoATrackCPU_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcCPU"))),
       tokenSoATrackGPU_(consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrcGPU"))),
-      topFolderName_(iConfig.getParameter<std::string>("TopFolderName")),
+      topFolderName_(iConfig.getParameter<std::string>("topFolderName")),
       useQualityCut_(iConfig.getParameter<bool>("useQualityCut")),
       minQuality_(pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"))),
       dr2cut_(iConfig.getParameter<double>("deltaR2cut")) {}
@@ -78,14 +76,20 @@ SiPixelPhase1CompareTrackSoA::SiPixelPhase1CompareTrackSoA(const edm::ParameterS
 void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const auto& tsoaHandleCPU = iEvent.getHandle(tokenSoATrackCPU_);
   const auto& tsoaHandleGPU = iEvent.getHandle(tokenSoATrackGPU_);
-  if (!tsoaHandleCPU.isValid() || !tsoaHandleGPU) {
-    edm::LogWarning("SiPixelPhase1CompareTrackSoA")
-        << "Either GPU or CPU tracks not found! Hence comparison not run!" << std::endl;
+  if (not tsoaHandleCPU or not tsoaHandleGPU) {
+    edm::LogWarning out("SiPixelPhase1CompareTrackSoA");
+    if (not tsoaHandleCPU) {
+      out << "reference (cpu) tracks not found; ";
+    }
+    if (not tsoaHandleGPU) {
+      out << "target (gpu) tracks not found; ";
+    }
+    out << "the comparison will not run.";
     return;
   }
 
-  auto const& tsoaCPU = *((tsoaHandleCPU.product())->get());
-  auto const& tsoaGPU = *((tsoaHandleGPU.product())->get());
+  auto const& tsoaCPU = *tsoaHandleCPU->get();
+  auto const& tsoaGPU = *tsoaHandleGPU->get();
   auto maxTracksCPU = tsoaCPU.stride();  //this should be same for both?
   auto maxTracksGPU = tsoaGPU.stride();  //this should be same for both?
   auto const* qualityCPU = tsoaCPU.qualityData();
@@ -121,8 +125,9 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
       continue;
     nLooseAndAboveTracksCPU++;
     //Now loop over loose GPU trk and find the closest in DeltaR//do we need pt cut?
-    int32_t closestTkidx = 99999;
-    float mindr2 = 99.;
+    const int32_t notFound = -1;
+    int32_t closestTkidx = notFound;
+    float mindr2 = dr2cut_;
     float etacpu = tsoaCPU.eta(it);
     float phicpu = tsoaCPU.phi(it);
     for (auto gid : looseTrkidxGPU) {
@@ -136,22 +141,22 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
         closestTkidx = gid;
       }
     }
-    if (closestTkidx == 99999)
+    if (closestTkidx == notFound)
       continue;
     nLooseAndAboveTracksCPU_matchedGPU++;
 
-    hchi2->Fill(tsoaCPU.chi2(it), tsoaGPU.chi2(closestTkidx));
-    hnHits->Fill(tsoaCPU.nHits(it), tsoaGPU.nHits(closestTkidx));
-    hnLayers->Fill(tsoaCPU.nLayers(it), tsoaGPU.nLayers(closestTkidx));
-    hpt->Fill(tsoaCPU.pt(it), tsoaGPU.pt(closestTkidx));
-    heta->Fill(etacpu, tsoaGPU.eta(closestTkidx));
-    hphi->Fill(phicpu, tsoaGPU.phi(closestTkidx));
-    hz->Fill(tsoaCPU.zip(it), tsoaGPU.zip(closestTkidx));
-    htip->Fill(tsoaCPU.tip(it), tsoaGPU.tip(closestTkidx));
+    hchi2_->Fill(tsoaCPU.chi2(it), tsoaGPU.chi2(closestTkidx));
+    hnHits_->Fill(tsoaCPU.nHits(it), tsoaGPU.nHits(closestTkidx));
+    hnLayers_->Fill(tsoaCPU.nLayers(it), tsoaGPU.nLayers(closestTkidx));
+    hpt_->Fill(tsoaCPU.pt(it), tsoaGPU.pt(closestTkidx));
+    heta_->Fill(etacpu, tsoaGPU.eta(closestTkidx));
+    hphi_->Fill(phicpu, tsoaGPU.phi(closestTkidx));
+    hz_->Fill(tsoaCPU.zip(it), tsoaGPU.zip(closestTkidx));
+    htip_->Fill(tsoaCPU.tip(it), tsoaGPU.tip(closestTkidx));
   }
-  hnTracks->Fill(nTracksCPU, nTracksGPU);
-  hnLooseAndAboveTracks->Fill(nLooseAndAboveTracksCPU, nLooseAndAboveTracksGPU);
-  hnLooseAndAboveTracks_matched->Fill(nLooseAndAboveTracksCPU, nLooseAndAboveTracksCPU_matchedGPU);
+  hnTracks_->Fill(nTracksCPU, nTracksGPU);
+  hnLooseAndAboveTracks_->Fill(nLooseAndAboveTracksCPU, nLooseAndAboveTracksGPU);
+  hnLooseAndAboveTracks_matched_->Fill(nLooseAndAboveTracksCPU, nLooseAndAboveTracksCPU_matchedGPU);
 }
 
 //
@@ -165,25 +170,24 @@ void SiPixelPhase1CompareTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
 
   // clang-format off
   std::string toRep = "Number of tracks";
-  hnTracks = iBook.book2D("nTracks", fmt::sprintf("%s per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
-  hnLooseAndAboveTracks = iBook.book2D("nLooseAndAboveTracks", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
-  hnLooseAndAboveTracks_matched = iBook.book2D("nLooseAndAboveTracks_matched", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
+  hnTracks_ = iBook.book2D("nTracks", fmt::sprintf("%s per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
+  hnLooseAndAboveTracks_ = iBook.book2D("nLooseAndAboveTracks", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
+  hnLooseAndAboveTracks_matched_ = iBook.book2D("nLooseAndAboveTracks_matched", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
 
   toRep = "Number of all RecHits per track (quality #geq loose)";
-  hnHits = iBook.book2D("nRecHits", fmt::sprintf("%s;CPU;GPU",toRep), 15, -0.5, 14.5, 15, -0.5, 14.5);
+  hnHits_ = iBook.book2D("nRecHits", fmt::sprintf("%s;CPU;GPU",toRep), 15, -0.5, 14.5, 15, -0.5, 14.5);
 
   toRep = "Number of all layers per track (quality #geq loose)";
-  hnLayers = iBook.book2D("nLayers", fmt::sprintf("%s;CPU;GPU",toRep), 15, -0.5, 14.5, 15, -0.5, 14.5);
+  hnLayers_ = iBook.book2D("nLayers", fmt::sprintf("%s;CPU;GPU",toRep), 15, -0.5, 14.5, 15, -0.5, 14.5);
 
   toRep = "Track (quality #geq loose) #chi^{2}/ndof";
-  hchi2 = iBook.book2D("nChi2ndof", fmt::sprintf("%s;CPU;GPU",toRep), 40, 0., 20., 40, 0., 20.);
+  hchi2_ = iBook.book2D("nChi2ndof", fmt::sprintf("%s;CPU;GPU",toRep), 40, 0., 20., 40, 0., 20.);
 
-
-  hpt = iBook.book2D("pt", "Track (quality #geq loose) p_{T} [GeV];CPU;GPU", 200, 0., 200., 200, 0., 200.);
-  heta = iBook.book2D("eta", "Track (quality #geq loose) #eta;CPU;GPU", 30, -3., 3., 30, -3., 3.);
-  hphi = iBook.book2D("phi", "Track (quality #geq loose) #phi;CPU;GPU", 30, -M_PI, M_PI, 30, -M_PI, M_PI);
-  hz = iBook.book2D("z", "Track (quality #geq loose) z [cm];CPU;GPU", 30, -30., 30., 30, -30., 30.);
-  htip = iBook.book2D("tip", "Track (quality #geq loose) TIP [cm];CPU;GPU", 100, -0.5, 0.5, 100, -0.5, 0.5);
+  hpt_ = iBook.book2D("pt", "Track (quality #geq loose) p_{T} [GeV];CPU;GPU", 200, 0., 200., 200, 0., 200.);
+  heta_ = iBook.book2D("eta", "Track (quality #geq loose) #eta;CPU;GPU", 30, -3., 3., 30, -3., 3.);
+  hphi_ = iBook.book2D("phi", "Track (quality #geq loose) #phi;CPU;GPU", 30, -M_PI, M_PI, 30, -M_PI, M_PI);
+  hz_ = iBook.book2D("z", "Track (quality #geq loose) z [cm];CPU;GPU", 30, -30., 30., 30, -30., 30.);
+  htip_ = iBook.book2D("tip", "Track (quality #geq loose) TIP [cm];CPU;GPU", 100, -0.5, 0.5, 100, -0.5, 0.5);
 }
 
 void SiPixelPhase1CompareTrackSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -191,7 +195,7 @@ void SiPixelPhase1CompareTrackSoA::fillDescriptions(edm::ConfigurationDescriptio
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackSrcCPU", edm::InputTag("pixelTracksSoA@cpu"));
   desc.add<edm::InputTag>("pixelTrackSrcGPU", edm::InputTag("pixelTracksSoA@cuda"));
-  desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU/");
+  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelTrackCompareGPUvsCPU/");
   desc.add<bool>("useQualityCut", true);
   desc.add<std::string>("minQuality", "loose");
   desc.add<double>("deltaR2cut", 0.04);
