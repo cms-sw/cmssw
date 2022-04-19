@@ -55,6 +55,7 @@
 
 ////////////////
 // PHYSICS TOOLS
+#include "L1Trigger/TrackTrigger/interface/HitPatternHelper.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
@@ -160,7 +161,16 @@ private:
   std::vector<int>* m_trk_dhits;
   std::vector<int>* m_trk_seed;
   std::vector<int>* m_trk_hitpattern;
+  std::vector<int>* m_trk_lhits_hitpattern; // 6-digit hit mask (barrel layer only) dervied from hitpattern
+  std::vector<int>* m_trk_dhits_hitpattern; // disk only
+  std::vector<int>* m_trk_nPSstub_hitpattern;
+  std::vector<int>* m_trk_n2Sstub_hitpattern;
+  std::vector<int>* m_trk_nLostPSstub_hitpattern;
+  std::vector<int>* m_trk_nLost2Sstub_hitpattern;
+  std::vector<int>* m_trk_nLoststub_V1_hitpattern; // Same as the definiton of "nlaymiss_interior" in TrackQuality.cc
+  std::vector<int>* m_trk_nLoststub_V2_hitpattern; // A tighter version of "nlaymiss_interior"
   std::vector<unsigned int>* m_trk_phiSector;
+  std::vector<int>* m_trk_etaSector;
   std::vector<int>* m_trk_genuine;
   std::vector<int>* m_trk_loose;
   std::vector<int>* m_trk_unknown;
@@ -329,7 +339,16 @@ void L1TrackNtupleMaker::beginJob() {
   m_trk_dhits = new std::vector<int>;
   m_trk_seed = new std::vector<int>;
   m_trk_hitpattern = new std::vector<int>;
+  m_trk_lhits_hitpattern = new std::vector<int>;
+  m_trk_dhits_hitpattern = new std::vector<int>;
+  m_trk_nPSstub_hitpattern = new std::vector<int>;
+  m_trk_n2Sstub_hitpattern = new std::vector<int>;
+  m_trk_nLostPSstub_hitpattern = new std::vector<int>;
+  m_trk_nLost2Sstub_hitpattern = new std::vector<int>;
+  m_trk_nLoststub_V1_hitpattern = new std::vector<int>;
+  m_trk_nLoststub_V2_hitpattern = new std::vector<int>;
   m_trk_phiSector = new std::vector<unsigned int>;
+  m_trk_etaSector = new std::vector<int>;
   m_trk_genuine = new std::vector<int>;
   m_trk_loose = new std::vector<int>;
   m_trk_unknown = new std::vector<int>;
@@ -427,7 +446,16 @@ void L1TrackNtupleMaker::beginJob() {
     eventTree->Branch("trk_dhits", &m_trk_dhits);
     eventTree->Branch("trk_seed", &m_trk_seed);
     eventTree->Branch("trk_hitpattern", &m_trk_hitpattern);
+    eventTree->Branch("trk_lhits_hitpattern", &m_trk_lhits_hitpattern);
+    eventTree->Branch("trk_dhits_hitpattern", &m_trk_dhits_hitpattern);
+    eventTree->Branch("trk_nPSstub_hitpattern", &m_trk_nPSstub_hitpattern);
+    eventTree->Branch("trk_n2Sstub_hitpattern", &m_trk_n2Sstub_hitpattern);
+    eventTree->Branch("trk_nLostPSstub_hitpattern", &m_trk_nLostPSstub_hitpattern);
+    eventTree->Branch("trk_nLost2Sstub_hitpattern", &m_trk_nLost2Sstub_hitpattern);
+    eventTree->Branch("trk_nLoststub_V1_hitpattern", &m_trk_nLoststub_V1_hitpattern);
+    eventTree->Branch("trk_nLoststub_V2_hitpattern", &m_trk_nLoststub_V2_hitpattern);
     eventTree->Branch("trk_phiSector", &m_trk_phiSector);
+    eventTree->Branch("trk_etaSector", &m_trk_etaSector);
     eventTree->Branch("trk_genuine", &m_trk_genuine);
     eventTree->Branch("trk_loose", &m_trk_loose);
     eventTree->Branch("trk_unknown", &m_trk_unknown);
@@ -554,7 +582,16 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_dhits->clear();
     m_trk_seed->clear();
     m_trk_hitpattern->clear();
+    m_trk_lhits_hitpattern->clear();
+    m_trk_dhits_hitpattern->clear();
+    m_trk_nPSstub_hitpattern->clear();
+    m_trk_n2Sstub_hitpattern->clear();
+    m_trk_nLostPSstub_hitpattern->clear();
+    m_trk_nLost2Sstub_hitpattern->clear();
+    m_trk_nLoststub_V1_hitpattern->clear();
+    m_trk_nLoststub_V2_hitpattern->clear();
     m_trk_phiSector->clear();
+    m_trk_etaSector->clear();
     m_trk_genuine->clear();
     m_trk_loose->clear();
     m_trk_unknown->clear();
@@ -678,9 +715,13 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   edm::ESHandle<MagneticField> magneticFieldHandle;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
+    
+  edm::ESHandle<hph::Setup> HPHHandle;
+  iSetup.get<hph::SetupRcd>().get(HPHHandle);
 
   const TrackerTopology* const tTopo = tTopoHandle.product();
   const TrackerGeometry* const theTrackerGeom = tGeomHandle.product();
+  const hph::Setup* HPHsetup = HPHHandle.product();
 
   // ----------------------------------------------------------------------------------------------
   // loop over L1 stubs
@@ -864,6 +905,29 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_trk_eta = iterL1Track->momentum().eta();
       float tmp_trk_phi = iterL1Track->momentum().phi();
       float tmp_trk_z0 = iterL1Track->z0();  //cm
+      float tmp_trk_tanL = iterL1Track->tanL();
+        
+      int tmp_trk_hitpattern = 0;
+      tmp_trk_hitpattern = (int)iterL1Track->hitPattern();
+      hph::HitPatternHelper hph(HPHsetup, tmp_trk_hitpattern, tmp_trk_tanL, tmp_trk_z0);
+      std::vector<int> hitpattern_expanded_binary = hph.binary();
+      int tmp_trk_lhits_hitpattern = 0;
+      int tmp_trk_dhits_hitpattern = 0;
+      for (int i = 0; i < (int)hitpattern_expanded_binary.size(); i++) {
+          if (hitpattern_expanded_binary[i]) {
+              if (i<6) {
+                  tmp_trk_lhits_hitpattern += pow(10, i);
+              }else{
+                  tmp_trk_dhits_hitpattern += pow(10, i-6);
+              }
+          }
+      }
+      int tmp_trk_nPSstub_hitpattern = hph.numPS();
+      int tmp_trk_n2Sstub_hitpattern = hph.num2S();
+      int tmp_trk_nLostPSstub_hitpattern = hph.numMissingPS();
+      int tmp_trk_nLost2Sstub_hitpattern = hph.numMissing2S();
+      int tmp_trk_nLoststub_V1_hitpattern = hph.numMissingInterior1();
+      int tmp_trk_nLoststub_V2_hitpattern = hph.numMissingInterior2();
 
       float tmp_trk_d0 = -999;
       if (L1Tk_nPar == 5) {
@@ -885,10 +949,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       int tmp_trk_seed = 0;
       tmp_trk_seed = (int)iterL1Track->trackSeedType();
 
-      int tmp_trk_hitpattern = 0;
-      tmp_trk_hitpattern = (int)iterL1Track->hitPattern();
-
       unsigned int tmp_trk_phiSector = iterL1Track->phiSector();
+      int tmp_trk_etaSector = hph.etaSector();
 
       // ----------------------------------------------------------------------------------------------
       // loop over stubs on tracks
@@ -975,7 +1037,16 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       m_trk_lhits->push_back(tmp_trk_lhits);
       m_trk_seed->push_back(tmp_trk_seed);
       m_trk_hitpattern->push_back(tmp_trk_hitpattern);
+      m_trk_lhits_hitpattern->push_back(tmp_trk_lhits_hitpattern);
+      m_trk_dhits_hitpattern->push_back(tmp_trk_dhits_hitpattern);
+      m_trk_nPSstub_hitpattern->push_back(tmp_trk_nPSstub_hitpattern);
+      m_trk_n2Sstub_hitpattern->push_back(tmp_trk_n2Sstub_hitpattern);
+      m_trk_nLostPSstub_hitpattern->push_back(tmp_trk_nLostPSstub_hitpattern);
+      m_trk_nLost2Sstub_hitpattern->push_back(tmp_trk_nLost2Sstub_hitpattern);
+      m_trk_nLoststub_V1_hitpattern->push_back(tmp_trk_nLoststub_V1_hitpattern);
+      m_trk_nLoststub_V2_hitpattern->push_back(tmp_trk_nLoststub_V2_hitpattern);
       m_trk_phiSector->push_back(tmp_trk_phiSector);
+      m_trk_etaSector->push_back(tmp_trk_etaSector);
       m_trk_genuine->push_back(tmp_trk_genuine);
       m_trk_loose->push_back(tmp_trk_loose);
       m_trk_unknown->push_back(tmp_trk_unknown);
