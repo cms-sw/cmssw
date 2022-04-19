@@ -8,13 +8,6 @@ class HGCalCell {
 public:
   HGCalCell(double waferSize, int32_t nFine, int32_t nCoarse);
 
-  static constexpr int32_t waferOrient0 = 0;
-  static constexpr int32_t waferOrient1 = 1;
-  static constexpr int32_t waferOrient2 = 2;
-  static constexpr int32_t waferOrient3 = 3;
-  static constexpr int32_t waferOrient4 = 4;
-  static constexpr int32_t waferOrient5 = 5;
-
   static constexpr int32_t cellPlacementIndex0 = 0;
   static constexpr int32_t cellPlacementIndex1 = 1;
   static constexpr int32_t cellPlacementIndex2 = 2;
