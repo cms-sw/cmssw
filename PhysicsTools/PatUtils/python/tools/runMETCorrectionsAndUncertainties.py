@@ -10,6 +10,7 @@ from PhysicsTools.PatUtils.tools.pfforTrkMET_cff import *
 import JetMETCorrections.Type1MET.BadPFCandidateJetsEEnoiseProducer_cfi as _modbad
 import JetMETCorrections.Type1MET.UnclusteredBlobProducer_cfi as _modunc
 
+# function to determine whether a valid input tag was given
 def isValidInputTag(input):
     input_str = input
     if isinstance(input, cms.InputTag):
@@ -19,7 +20,7 @@ def isValidInputTag(input):
     else:
         return True
 
-
+# class to manage the (re-)calculation of MET, its corrections, and its uncertainties
 class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
     _label='RunMETCorrectionsAndUncertainties'
@@ -27,6 +28,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
     def __init__(self):
         ConfigToolBase.__init__(self)
+        # MET type, correctionlevel, and uncertainties
         self.addParameter(self._defaultParameters, 'metType', "PF",
                           "Type of considered MET (only PF and Puppi supported so far)", Type=str, allowedValues = ["PF","Puppi"])
         self.addParameter(self._defaultParameters, 'correctionLevel', [""],
@@ -36,9 +38,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "enable/disable the uncertainty computation", Type=bool)
         self.addParameter(self._defaultParameters, 'produceIntermediateCorrections', False,
                           "enable/disable the production of all correction schemes (only for the most common)", Type=bool)
+
+        # high-level object collections used e.g. for MET uncertainties or jet cleaning
         self.addParameter(self._defaultParameters, 'electronCollection', cms.InputTag('selectedPatElectrons'),
                           "Input electron collection", Type=cms.InputTag, acceptNoneValue=True)
-#  empty default InputTag for photons to avoid double-counting wrt. cleanPatElectrons collection
         self.addParameter(self._defaultParameters, 'photonCollection', cms.InputTag('selectedPatPhotons'),
                           "Input photon collection", Type=cms.InputTag, acceptNoneValue=True)
         self.addParameter(self._defaultParameters, 'muonCollection', cms.InputTag('selectedPatMuons'),
@@ -47,8 +50,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "Input tau collection", Type=cms.InputTag, acceptNoneValue=True)
         self.addParameter(self._defaultParameters, 'jetCollectionUnskimmed', cms.InputTag('patJets'),
                           "Input unskimmed jet collection for T1 MET computation", Type=cms.InputTag, acceptNoneValue=True)
+
+        # pf candidate collection used for recalculation of MET from pf candidates
         self.addParameter(self._defaultParameters, 'pfCandCollection', cms.InputTag('particleFlow'),
                           "pf Candidate collection", Type=cms.InputTag, acceptNoneValue=True)
+
+        # some options influencing MET corrections and uncertainties calculation
         self.addParameter(self._defaultParameters, 'autoJetCleaning', 'LepClean',
                           "Enable the jet cleaning for the uncertainty computation: Full for tau/photons/jet cleaning, Partial for jet cleaning, LepClean for jet cleaning with muon and electrons only, None or Manual for no cleaning",
                           allowedValues = ["Full","Partial","LepClean","None"])
@@ -57,10 +64,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'jetCorrectionType', 'L1L2L3-L1',
                           "Use L1L2L3-L1 for the standard L1 removal / L1L2L3-RC for the random-cone correction", Type=str, allowedValues = ["L1L2L3-L1","L1L2L3-RC"])
 
+        # technical options determining which JES corrections are used
         self.addParameter(self._defaultParameters, 'jetCorLabelUpToL3', "ak4PFCHSL1FastL2L3Corrector", "Use ak4PFL1FastL2L3Corrector (ak4PFCHSL1FastL2L3Corrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Corrector for CaloJets", Type=str)
         self.addParameter(self._defaultParameters, 'jetCorLabelL3Res', "ak4PFCHSL1FastL2L3ResidualCorrector", "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFCHSL1FastL2L3ResidualCorrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=str)
-
-# the file is used only for local running
+        # the file is used only for local running
         self.addParameter(self._defaultParameters, 'jecUncertaintyFile', '',
                           "Extra JES uncertainty file", Type=str)
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', None,
@@ -70,12 +77,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'mvaMetLeptons',["Electrons","Muons"],
                           "Leptons to be used for recoil computation in the MVA MET, available values are: Electrons, Muons, Taus, Photons", allowedValues=["Electrons","Muons","Taus","Photons",""])
 
-        self.addParameter(self._defaultParameters, 'addToPatDefaultSequence', False,
-                          "Flag to enable/disable that metUncertaintySequence is inserted into patDefaultSequence", Type=bool)
+        # options to apply selections to the considered jets
         self.addParameter(self._defaultParameters, 'manualJetConfig', False,
                   "Enable jet configuration options", Type=bool)
         self.addParameter(self._defaultParameters, 'jetSelection', 'pt>15 && abs(eta)<9.9',
                           "Advanced jet kinematic selection", Type=str)
+
+        # flags to influence how the MET is (re-)calculated, e.g. completely from scratch or just propagating new JECs
         self.addParameter(self._defaultParameters, 'recoMetFromPFCs', False,
                   "Recompute the MET from scratch using the pfCandidate collection", Type=bool)
         self.addParameter(self._defaultParameters, 'reapplyJEC', True,
@@ -86,12 +94,14 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                   "Flag to enable/disable the MET significance computation", Type=bool)
         self.addParameter(self._defaultParameters, 'CHS', False,
                   "Flag to enable/disable the CHS jets", Type=bool)
+
+        # information on what dataformat or datatype we are running on
         self.addParameter(self._defaultParameters, 'runOnData', False,
                           "Switch for data/MC processing", Type=bool)
         self.addParameter(self._defaultParameters, 'onMiniAOD', False,
                           "Switch on miniAOD configuration", Type=bool)
-        self.addParameter(self._defaultParameters, 'postfix', '',
-                          "Technical parameter to identify the resulting sequence and its modules (allows multiple calls in a job)", Type=str)
+
+        # special input parameters when running over 2017 data
         self.addParameter(self._defaultParameters,'fixEE2017', False,
                           "Exclude jets and PF candidates with EE noise characteristics (fix for 2017 run)", Type=bool)
         self.addParameter(self._defaultParameters,'fixEE2017Params', {'userawPt': True, 'ptThreshold': 50.0, 'minEtaThreshold': 2.65, 'maxEtaThreshold': 3.139},
@@ -99,20 +109,27 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'extractDeepMETs', False,
                           "Extract DeepMETs from miniAOD, instead of recomputing them.", Type=bool)
 
-        # private parameters
+        # technical parameters
         self.addParameter(self._defaultParameters, 'Puppi', False,
                           "Puppi algorithm (private)", Type=bool)
+        self.addParameter(self._defaultParameters, 'addToPatDefaultSequence', False,
+                          "Flag to enable/disable that metUncertaintySequence is inserted into patDefaultSequence", Type=bool)
+        self.addParameter(self._defaultParameters, 'postfix', '',
+                          "Technical parameter to identify the resulting sequences/tasks and its corresponding modules (allows multiple calls in a job)", Type=str)
 
         self.addParameter(self._defaultParameters, 'campaign', '', 'Production campaign', Type=str)
         self.addParameter(self._defaultParameters, 'era', '', 'Era e.g. 2018, 2017B, ...', Type=str)
-
+        # make another parameter collection by copying the default parameters collection
+        # later adapt the newly created parameter collection to always have a copy of the default parameters
         self._parameters = copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
+    # function to return the saved default parameters of the class
     def getDefaultParameters(self):
         return self._defaultParameters
 
 #=========================================================================================
+# implement __call__ function to be able to use class instances like functions
     def __call__(self, process,
                  metType                 =None,
                  correctionLevel         =None,
