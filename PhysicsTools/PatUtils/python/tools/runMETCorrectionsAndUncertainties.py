@@ -469,6 +469,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                                   pfCandCollection,
                                                                   jetCollection,
                                                                   jetUncInfos,
+                                                                  patMetUncertaintyTask,
                                                                   postfix)
 
         if not hasattr(process, "patMetCorrectionTask"+postfix):
@@ -868,6 +869,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     def getMETUncertainties(self, process, metType, metModName, electronCollection,
                             photonCollection, muonCollection, tauCollection,
                             pfCandCollection, jetCollection, jetUncInfos,
+                            patMetUncertaintyTask,
                             postfix):
 
 
@@ -875,7 +877,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         metUncSequence = cms.Sequence()
         shiftedModuleSequence = cms.Sequence()
 
-        getMETUncertainties_task = cms.Task()
+        getMETUncertainties_task, getMETUncertainties_label = cms.Task(), "getMETUncertainties_task{}".format(postfix)
         task = getPatAlgosToolsTask(process)
 
         #===================================================================================
@@ -888,7 +890,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if "Smear" in metModName:
                 preId="Smeared"
 
-            metJERUncModules = self.getVariations(process, metModName, "Jet",preId, jetCollection, "Res", metUncSequence, postfix=postfix )
+            metJERUncModules = self.getVariations(process, metModName, "Jet",preId, jetCollection, "Res", patMetUncertaintyTask, postfix=postfix )
 
             for mod in metJERUncModules.keys():
                 addToProcessAndTask(mod, metJERUncModules[mod], process, getMETUncertainties_task)
@@ -1018,18 +1020,20 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if not isValidInputTag(objectCollections[obj]): # or objectCollections[obj]=="":
                 print("INFO : %s collection %s does not exists, no energy scale shifting will be performed in MET uncertainty tools" %(obj, objectCollections[obj]))
             else:
-                metObjUncModules = self.getVariations(process, metModName, obj,"", objectCollections[obj], "En", metUncSequence, jetUncInfos, postfix )
+                metObjUncModules = self.getVariations(process, metModName, obj,"", objectCollections[obj], "En", patMetUncertaintyTask, jetUncInfos, postfix )
 
                 #adding the shifted MET produced to the proper patMetModuleSequence
                 for mod in metObjUncModules.keys():
                     addToProcessAndTask(mod, metObjUncModules[mod], process, getMETUncertainties_task)
                     #shiftedModuleSequence += getattr(process, mod)
 
-        if not hasattr(process, "getMETUncertainties_task"+postfix):
-            setattr(process, "getMETUncertainties_task"+postfix, getMETUncertainties_task)
-        else:
-            getattr(process, "getMETUncertainties_task"+postfix).add(getMETUncertainties_task)
-        task.add(getattr(process, "getMETUncertainties_task"+postfix))
+        # add the local task to the process
+        addTaskToProcess(process, getMETUncertainties_label, getMETUncertainties_task)
+
+        # add the task to the patAlgosToolsTask
+        #task.add(getattr(process, getMETUncertainties_label))
+
+        patMetUncertaintyTask.add(getattr(process, getMETUncertainties_label))
 
         #return the sequence containing the shifted collections producers
         return metUncSequence, shiftedModuleSequence
@@ -1175,7 +1179,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 #====================================================================================================
     def getVariations(self, process, metModName, identifier,preId, objectCollection, varType,
-                      metUncSequence, jetUncInfos=None, postfix="" ):
+                      patMetUncertaintyTask, jetUncInfos=None, postfix="" ):
 
         # temporary hardcoded varyByNSigma value
         varyByNsigmas=1
@@ -1217,7 +1221,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             shiftedMetProducers = self.copyCentralMETProducer(process, shiftedCollModules, identifier, metModName, varType, postfix)
         else:
             shiftedMetProducers = self.createShiftedModules(process, shiftedCollModules, identifier, preId, objectCollection,
-                                                            metModName, varType, metUncSequence, postfix)
+                                                            metModName, varType, patMetUncertaintyTask, postfix)
 
         return shiftedMetProducers
 
@@ -1246,12 +1250,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 #========================================================================================
     def createShiftedModules(self, process, shiftedCollModules, identifier, preId, objectCollection,
-                             metModName, varType, metUncSequence, postfix):
+                             metModName, varType, patMetUncertaintyTask, postfix):
 
         shiftedMetProducers = {}
 
         task = getPatAlgosToolsTask(process)
-        createShiftedModules_task = cms.Task()
+        createShiftedModules_task, createShiftedModules_label = cms.Task(), "createShiftedModules_task{}".format(postfix)
 
         # remove the postfix to put it at the end
         baseName = self.removePostfix(metModName, postfix)
@@ -1322,11 +1326,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
            #==========================================================================================
 
-        if not hasattr(process, "createShiftedModules_task"+postfix):
-            setattr(process, "createShiftedModules_task"+postfix, createShiftedModules_task)
-        else:
-            getattr(process, "createShiftedModules_task"+postfix).add(createShiftedModules_task)
-        task.add(getattr(process, "createShiftedModules_task"+postfix))
+        addTaskToProcess(process, createShiftedModules_label, createShiftedModules_task)
+        task.add(getattr(process, createShiftedModules_label))
+
 
         return shiftedMetProducers
 
@@ -1645,7 +1647,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             )
 
         task = getPatAlgosToolsTask(process)
-        updateJECs_task, updateJECs_label = cms.Task(), "updateJECs{}".format(postfix)
+        updateJECs_task, updateJECs_label = cms.Task(), "updateJECs_task{}".format(postfix)
         addToProcessAndTask("patJetCorrFactorsReapplyJEC"+postfix, patJetCorrFactorsReapplyJEC, process, updateJECs_task)
         addToProcessAndTask("patJetsReapplyJEC"+postfix, patJetsReapplyJEC.clone(), process, updateJECs_task)
 
@@ -1706,7 +1708,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     def ak4JetReclustering(self,process, pfCandCollection, patMetModuleTask, postfix):
 
         task = getPatAlgosToolsTask(process)
-        ak4JetReclustering_task, ak4JetReclustering_label = cms.Task(), "ak4JetReclustering{}".format(postfix)
+        ak4JetReclustering_task, ak4JetReclustering_label = cms.Task(), "ak4JetReclustering_task{}".format(postfix)
 
         chs = self._parameters["CHS"].value
         jetColName="ak4PFJets"
@@ -1892,7 +1894,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, "slimmedMETs"+postfix) and self._parameters["metType"].value == "PF":
 
             task = getPatAlgosToolsTask(process)
-            miniAODConfiguration_task, miniAODConfiguration_label = cms.Task(), "miniAODConfiguration{}".format(postfix)
+            miniAODConfiguration_task, miniAODConfiguration_label = cms.Task(), "miniAODConfiguration_task{}".format(postfix)
 
             from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
             addToProcessAndTask("slimmedMETs"+postfix, slimmedMETs.clone(), process, miniAODConfiguration_task)
