@@ -1,12 +1,14 @@
-#include <vector>
-#include <string>
-
 #include "SimDataFormats/GeneratorProducts/interface/GenWeightInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/PdfWeightGroupInfo.h"
+
+#include <string>
+#include <vector>
+
 #include "FWCore/Utilities/interface/Exception.h"
+#include "SimDataFormats/GeneratorProducts/interface/PdfWeightGroupInfo.h"
 
 GenWeightInfoProduct::GenWeightInfoProduct(std::vector<std::unique_ptr<gen::WeightGroupInfo>>& weightGroups) {
-  // Could just do a std::move on the vector, but copying is safer if the user expects the vector to still be usable
+  // Could just do a std::move on the vector, but copying is safer if the user
+  // expects the vector to still be usable
   for (auto& ptr : weightGroups) {
     std::unique_ptr<gen::WeightGroupInfo> cloneptr(ptr->clone());
     weightGroupsInfo_.emplace_back(std::move(cloneptr));
@@ -32,7 +34,8 @@ const std::vector<gen::WeightGroupData> GenWeightInfoProduct::allWeightGroupsInf
 }
 
 gen::WeightGroupData GenWeightInfoProduct::containingWeightGroupInfo(int index, size_t startSearch) const {
-  // When filling the weights, most likely to find the weight matches the previous group or the one after
+  // When filling the weights, most likely to find the weight matches the
+  // previous group or the one after
   if (startSearch < weightGroupsInfo_.size() && weightGroupsInfo_[startSearch]->containsWeight(index))
     return {startSearch, weightGroupsInfo_[startSearch].get()};
   else if (startSearch + 1 < weightGroupsInfo_.size() && weightGroupsInfo_[startSearch + 1]->containsWeight(index))
@@ -50,8 +53,8 @@ gen::WeightGroupData GenWeightInfoProduct::containingWeightGroupInfo(int index, 
 
 const gen::WeightGroupInfo* GenWeightInfoProduct::orderedWeightGroupInfo(int weightGroupIndex) const {
   if (weightGroupIndex >= static_cast<int>(weightGroupsInfo_.size()))
-    throw cms::Exception("GenWeightInfoProduct")
-        << "Weight index requested is outside the range of weights in the product";
+    throw cms::Exception("GenWeightInfoProduct") << "Weight index requested is outside the range of weights in the "
+                                                    "product";
   return weightGroupsInfo_[weightGroupIndex].get();
 }
 

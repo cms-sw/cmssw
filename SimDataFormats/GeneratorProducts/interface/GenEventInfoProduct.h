@@ -1,8 +1,8 @@
 #ifndef SimDataFormats_GeneratorProducts_GenEventInfoProduct_h
 #define SimDataFormats_GeneratorProducts_GenEventInfoProduct_h
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "SimDataFormats/GeneratorProducts/interface/PdfInfo.h"
 

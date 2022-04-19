@@ -1,4 +1,5 @@
 #include "SimDataFormats/GeneratorProducts/interface/MEParamWeightGroupInfo.h"
+
 #include <iostream>
 
 namespace gen {

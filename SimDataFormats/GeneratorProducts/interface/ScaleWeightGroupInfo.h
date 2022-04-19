@@ -1,9 +1,10 @@
 #ifndef SimDataFormats_GeneratorProducts_ScaleWeightGroupInfo_h
 #define SimDataFormats_GeneratorProducts_ScaleWeightGroupInfo_h
 
-#include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
 #include <unordered_map>
 #include <vector>
+
+#include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
 
 namespace gen {
   class ScaleWeightGroupInfo : public WeightGroupInfo {

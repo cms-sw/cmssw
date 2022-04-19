@@ -1,31 +1,26 @@
 #include <cstdio>
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
-
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
+#include "FWCore/Utilities/interface/transform.h"
+#include "GeneratorInterface/Core/interface/LHEWeightHelper.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenWeightInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/UnknownWeightGroupInfo.h"
-
-#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
-#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
-#include "GeneratorInterface/Core/interface/LHEWeightHelper.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/transform.h"
-#include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 
 struct GenWeightInfoProdData {
   bool makeNewProduct;
@@ -143,7 +138,8 @@ std::shared_ptr<GenWeightInfoProdData> LHEWeightProductProducer::globalBeginRun(
   } catch (cms::Exception& e) {
     std::string error = e.what();
     error +=
-        "\n   NOTE: if you want to attempt to process this sample anyway, set failIfInvalidXML = False "
+        "\n   NOTE: if you want to attempt to process this sample anyway, set "
+        "failIfInvalidXML = False "
         "in the configuration file (current value is ";
     error += weightHelper_.failIfInvalidXML() ? "True" : "False";
     error +=
@@ -167,19 +163,24 @@ void LHEWeightProductProducer::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<std::vector<std::string>>("lheSourceLabels", std::vector<std::string>{{"externalLHEProducer"}, {"source"}})
       ->setComment(
           "tag(s) to look for LHERunInfoProduct/LHEEventProduct"
-          "If they are found, a new one won't be created. Leave this argument empty if you want to recreate new "
+          "If they are found, a new one won't be created. Leave this argument "
+          "empty if you want to recreate new "
           "products regardless.");
   desc.add<std::vector<edm::InputTag>>("weightProductLabels", std::vector<edm::InputTag>{{""}})
       ->setComment(
           "tag(s) to look for existing GenWeightProduct/GenWeightInfoProducts. "
-          "If they are found, a new one won't be created. Leave this argument empty if you want to recreate new "
+          "If they are found, a new one won't be created. Leave this argument "
+          "empty if you want to recreate new "
           "products regardless.");
   desc.addUntracked<bool>("debug", false)->setComment("Output debug info");
   desc.addUntracked<bool>("failIfInvalidXML", true)
-      ->setComment("Throw exception if XML header is invalid (rather than trying to recover and parse anyway)");
+      ->setComment(
+          "Throw exception if XML header is invalid (rather than trying to "
+          "recover and parse anyway)");
   desc.addUntracked<bool>("allowUnassociatedWeights", false)
       ->setComment(
-          "Handle weights found in the event that aren't advertised in the weight header (otherwise throw exception)");
+          "Handle weights found in the event that aren't advertised in the "
+          "weight header (otherwise throw exception)");
   descriptions.add("lheWeights", desc);
 }
 

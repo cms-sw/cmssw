@@ -1,9 +1,10 @@
-#include <string>
-#include <algorithm>
 #include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
+#include <algorithm>
 #include <iostream>
+#include <string>
+
+#include "FWCore/Utilities/interface/Exception.h"
 
 namespace gen {
   void WeightGroupInfo::copy(const WeightGroupInfo& other) {
@@ -18,8 +19,9 @@ namespace gen {
   }
 
   WeightGroupInfo* WeightGroupInfo::clone() const {
-    throw cms::Exception("WeightGroupInfo")
-        << "In group " << name_ << ": WeightGroupInfo is abstract, so it's clone() method can't be implemented.";
+    throw cms::Exception("WeightGroupInfo") << "In group " << name_
+                                            << ": WeightGroupInfo is abstract, so it's clone() method can't be "
+                                               "implemented.";
   }
 
   const WeightMetaInfo& WeightGroupInfo::weightMetaInfo(int weightEntry) const {

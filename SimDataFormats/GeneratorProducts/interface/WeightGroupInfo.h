@@ -4,11 +4,11 @@
 /** \class PdfInfo
  *
  */
-#include <string>
 #include <algorithm>
-#include <vector>
 #include <array>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace gen {
   struct WeightMetaInfo {

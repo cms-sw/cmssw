@@ -1,14 +1,14 @@
 #ifndef SimDataFormats_GeneratorProducts_GenWeightProduct_h
 #define SimDataFormats_GeneratorProducts_GenWeightProduct_h
 
-#include <memory>
-#include <vector>
-#include <string>
 #include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
 #include "SimDataFormats/GeneratorProducts/interface/WeightsInfo.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 typedef std::vector<std::vector<double>> WeightsContainer;
 

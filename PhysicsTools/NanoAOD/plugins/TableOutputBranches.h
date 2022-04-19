@@ -1,9 +1,11 @@
 #ifndef PhysicsTools_NanoAOD_TableOutputBranches_h
 #define PhysicsTools_NanoAOD_TableOutputBranches_h
 
+#include <TTree.h>
+
 #include <string>
 #include <vector>
-#include <TTree.h>
+
 #include "DataFormats/NanoAOD/interface/FlatTable.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -14,7 +16,8 @@ public:
   void branch(TTree &tree);
 
   /// Fill the current table, if extensions == table.extension().
-  /// This parameter is used so that the fill is called first for non-extensions and then for extensions
+  /// This parameter is used so that the fill is called first for non-extensions
+  /// and then for extensions
   void fill(const nanoaod::FlatTable &tab, TTree &tree, bool extensions);
 
 private:

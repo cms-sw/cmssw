@@ -1,21 +1,22 @@
 #ifndef GeneratorInterface_LHEInterface_WeightHelper_h
 #define GeneratorInterface_LHEInterface_WeightHelper_h
 
-#include "SimDataFormats/GeneratorProducts/interface/GenWeightProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenWeightInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
-#include "SimDataFormats/GeneratorProducts/interface/PdfWeightGroupInfo.h"
-#include "SimDataFormats/GeneratorProducts/interface/WeightsInfo.h"
-#include "SimDataFormats/GeneratorProducts/interface/UnknownWeightGroupInfo.h"
-#include "SimDataFormats/GeneratorProducts/interface/PdfWeightGroupInfo.h"
-#include "SimDataFormats/GeneratorProducts/interface/PartonShowerWeightGroupInfo.h"
-#include "SimDataFormats/GeneratorProducts/interface/ScaleWeightGroupInfo.h"
-#include "SimDataFormats/GeneratorProducts/interface/MEParamWeightGroupInfo.h"
-#include "LHAPDF/LHAPDF.h"
-#include <boost/algorithm/string.hpp>
 #include <bits/stdc++.h>
+
+#include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <memory>
+
+#include "LHAPDF/LHAPDF.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenWeightInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenWeightProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/MEParamWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/PartonShowerWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/PdfWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/ScaleWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/UnknownWeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/WeightGroupInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/WeightsInfo.h"
 
 namespace gen {
   struct ParsedWeight {
@@ -95,10 +96,11 @@ namespace gen {
     weightProduct->setNumWeightSets(weightsInfo.numberOfGroups());
     gen::WeightGroupData groupData = {0, nullptr};
     int i = 0;
-    // size=1 happens if there are no PS weights, so the weights vector contains only the central GEN weight.
+    // size=1 happens if there are no PS weights, so the weights vector contains
+    // only the central GEN weight.
     if (weights.size() > 1) {
-      // This gets remade every event to avoid having state-dependence in the helper class
-      // could think about doing caching instead
+      // This gets remade every event to avoid having state-dependence in the
+      // helper class could think about doing caching instead
       int unassociatedIdx = weightsInfo.unassociatedIdx();
       std::unique_ptr<gen::UnknownWeightGroupInfo> unassociatedGroup;
       if (unassociatedIdx != -1)

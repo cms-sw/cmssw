@@ -1,4 +1,5 @@
 #include "SimDataFormats/GeneratorProducts/interface/PartonShowerWeightGroupInfo.h"
+
 #include <exception>
 #include <iostream>
 
@@ -39,9 +40,11 @@ namespace gen {
                                                          PSSplittingType splittingType) const {
     std::string label = isISR ? "isr" : "fsr";
 
-    // if ((variationType == PSVarType::con || variationType == PSVarType::def || variationType == PSVarType::red) &&
+    // if ((variationType == PSVarType::con || variationType == PSVarType::def ||
+    // variationType == PSVarType::red) &&
     //     splittingType != PSSplittingType::combined)
-    //   throw std::invalid_argument("VariationType must be muR or CNS if subprocess is specified");
+    //   throw std::invalid_argument("VariationType must be muR or CNS if
+    //   subprocess is specified");
 
     if (nameIsPythiaSyntax_) {
       // Splitting

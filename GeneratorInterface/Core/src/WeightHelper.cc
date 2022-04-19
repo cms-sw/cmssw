@@ -1,7 +1,9 @@
 #include "GeneratorInterface/Core/interface/WeightHelper.h"
+
+#include <regex>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <regex>
 
 namespace gen {
   WeightHelper::WeightHelper() {}
@@ -204,8 +206,8 @@ namespace gen {
       auto& group = weightGroups[i];
       if (group->weightType() == gen::WeightType::kPdfWeights) {
         auto& pdfGroup = *static_cast<gen::PdfWeightGroupInfo*>(group.get());
-        // These are weights that contain nothing but a single central weight, because
-        // some versions of madgraph write the central weight separately
+        // These are weights that contain nothing but a single central weight,
+        // because some versions of madgraph write the central weight separately
         if (pdfGroup.nIdsContained() == 1 && pdfGroup.parentLhapdfId() == centralWeight.lhaid()) {
           toRemove.push_back(i);
           const auto& weightInfo = pdfGroup.weightMetaInfo(0);
@@ -213,7 +215,8 @@ namespace gen {
         }
       }
     }
-    // Indices are guaranteed to be unique, delete from high to low to avoid changing indices
+    // Indices are guaranteed to be unique, delete from high to low to avoid
+    // changing indices
     std::sort(std::begin(toRemove), std::end(toRemove), std::greater<size_t>());
     for (auto i : toRemove) {
       weightGroups.erase(std::begin(weightGroups) + i);
