@@ -409,6 +409,7 @@ namespace edm {
     EntryNumber_t currentLumi = invalidEntry;
     EntryNumber_t previousLumi = invalidEntry;
 
+    RunOrLumiEntry const* lastEntry = nullptr;
     for (RunOrLumiEntry const& item : runOrLumiEntries_) {
       if (item.isRun()) {
         currentRun = item.orderPHIDRun();
@@ -419,12 +420,14 @@ namespace edm {
               << "If this occurs after an unrelated exception occurs, please ignore this\n"
               << "exception and fix the primary exception. This is a possible and expected\n"
               << "side effect. Otherwise, please report to Framework developers.\n"
-              << "This could indicate a bug in the source or Framework\n";
+              << "This could indicate a bug in the source or Framework\n"
+              << "Run: " << item.run() << " Lumi: " << item.lumi() << " Entry: " << item.entry() << "\n";
         }
         currentLumi = item.orderPHIDRunLumi();
         if (currentLumi != previousLumi) {
           if (!foundValidLumiEntry) {
             shouldThrow = true;
+            break;
           }
           foundValidLumiEntry = false;
           previousLumi = currentLumi;
@@ -433,6 +436,7 @@ namespace edm {
           foundValidLumiEntry = true;
         }
       }
+      lastEntry = &item;
     }
     if (!foundValidLumiEntry) {
       shouldThrow = true;
@@ -444,7 +448,8 @@ namespace edm {
           << "If this occurs after an unrelated exception occurs, please ignore this\n"
           << "exception and fix the primary exception. This is a possible and expected\n"
           << "side effect. Otherwise, please report to Framework developers.\n"
-          << "This could indicate a bug in the source or Framework\n";
+          << "This could indicate a bug in the source or Framework\n"
+          << "Run: " << lastEntry->run() << " Lumi: " << lastEntry->lumi() << " Entry: " << lastEntry->entry() << "\n";
     }
   }
 
