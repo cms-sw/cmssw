@@ -39,5 +39,6 @@
     <use   name="TrackingTools/TrajectoryState"/>
     <use name="L1Trigger/TrackerTFP"/>
     <use name="L1Trigger/TrackFindingTracklet"/>
+    <use name="L1Trigger/TrackTrigger"/>
   </library>
 </environment>
