@@ -62,7 +62,6 @@
 #include "PhysicsTools/JetMCAlgos/interface/BasePartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia6PartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/Pythia8PartonSelector.h"
-#include "PhysicsTools/JetMCAlgos/interface/Herwig6PartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/HerwigppPartonSelector.h"
 #include "PhysicsTools/JetMCAlgos/interface/SherpaPartonSelector.h"
 
@@ -153,8 +152,6 @@ void HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       partonMode_ = "Pythia6";
     else if (moduleName.find("Pythia8") != std::string::npos)
       partonMode_ = "Pythia8";
-    else if (moduleName.find("Herwig6") != std::string::npos)
-      partonMode_ = "Herwig6";
     else if (moduleName.find("ThePEG") != std::string::npos)
       partonMode_ = "Herwig++";
     else if (moduleName.find("Herwig7") != std::string::npos)
@@ -177,9 +174,6 @@ void HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     } else if (partonMode_ == "Pythia8") {
       partonSelector_ = PartonSelectorPtr(new Pythia8PartonSelector());
       edm::LogInfo("PartonModeDefined") << "Using Pythia8 parton selection mode.";
-    } else if (partonMode_ == "Herwig6") {
-      partonSelector_ = PartonSelectorPtr(new Herwig6PartonSelector());
-      edm::LogInfo("PartonModeDefined") << "Using Herwig6 parton selection mode.";
     } else if (partonMode_ == "Herwig++") {
       partonSelector_ = PartonSelectorPtr(new HerwigppPartonSelector());
       edm::LogInfo("PartonModeDefined") << "Using Herwig++ parton selection mode.";
@@ -189,7 +183,7 @@ void HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     } else
       throw cms::Exception("InvalidPartonMode")
           << "Parton selection mode is invalid: " << partonMode_
-          << ", use Auto | Pythia6 | Pythia8 | Herwig6 | Herwig++ | Sherpa" << std::endl;
+          << ", use Auto | Pythia6 | Pythia8 | Herwig++ | Sherpa" << std::endl;
 
     partonSelectorSet_ = true;
   }
