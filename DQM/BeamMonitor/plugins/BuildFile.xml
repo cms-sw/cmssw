@@ -2,6 +2,7 @@
 <use name="DataFormats/Scalers"/>
 <use name="DataFormats/OnlineMetaData"/>
 <use name="DataFormats/TrackReco"/>
+<use name="DataFormats/TCDS"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/BeamSpot"/>
 <use name="CondFormats/DataRecord"/>

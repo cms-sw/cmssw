@@ -12,6 +12,7 @@ dqmBeamMonitor_pixelless = DQMEDAnalyzer("BeamMonitor",
                               recordName = cms.untracked.string('BeamSpotOnlineHLTObjectsRcd'),
                               useLockRecords = cms.untracked.bool(False),
                               nLSForUpload = cms.untracked.int32(5),
+                              tcdsRecord = cms.InputTag('tcdsDigis','tcdsRecord'),
                               BeamFitter = cms.PSet(
         			Debug = cms.untracked.bool(False),
         			TrackCollection = cms.untracked.InputTag('ctfPixelLess'),
