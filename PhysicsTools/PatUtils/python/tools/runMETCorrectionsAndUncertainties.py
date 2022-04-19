@@ -32,7 +32,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'metType', "PF",
                           "Type of considered MET (only PF and Puppi supported so far)", Type=str, allowedValues = ["PF","Puppi"])
         self.addParameter(self._defaultParameters, 'correctionLevel', [""],
-                          "level of correction : available corrections for pfMet are T0, T1, T2, Txy and Smear; irrelevant entry for MVAMet)",
+                          "level of correction : available corrections for pfMet are T0, T1, T2, Txy and Smear)",
                           allowedValues=["T0","T1","T2","Txy","Smear",""])
         self.addParameter(self._defaultParameters, 'computeUncertainties', True,
                           "enable/disable the uncertainty computation", Type=bool)
@@ -72,10 +72,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "Extra JES uncertainty file", Type=str)
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', None,
                           "JES uncertainty Tag", acceptNoneValue=True) # Type=str,
-
-# FIXME STILL NEEDED?
-        self.addParameter(self._defaultParameters, 'mvaMetLeptons',["Electrons","Muons"],
-                          "Leptons to be used for recoil computation in the MVA MET, available values are: Electrons, Muons, Taus, Photons", allowedValues=["Electrons","Muons","Taus","Photons",""])
 
         # options to apply selections to the considered jets
         self.addParameter(self._defaultParameters, 'manualJetConfig', False,
@@ -148,7 +144,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  jetCorLabelL3Res        =None,
                  jecUncertaintyFile      =None,
                  jecUncertaintyTag       =None,
-                 mvaMetLeptons           =None,
                  addToPatDefaultSequence =None,
                  manualJetConfig         =None,
                  jetSelection            =None,
@@ -205,10 +200,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             jecUncertaintyFile = self._defaultParameters['jecUncertaintyFile'].value
         if jecUncertaintyTag  is None:
             jecUncertaintyTag = self._defaultParameters['jecUncertaintyTag'].value
-
-        if mvaMetLeptons is None:
-            mvaMetLeptons = self._defaultParameters['mvaMetLeptons'].value
-
         if addToPatDefaultSequence is None :
             addToPatDefaultSequence = self._defaultParameters['addToPatDefaultSequence'].value
         if manualJetConfig is None :
@@ -262,8 +253,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('jecUncertaintyFile',jecUncertaintyFile),
         self.setParameter('jecUncertaintyTag',jecUncertaintyTag),
 
-        self.setParameter('mvaMetLeptons',mvaMetLeptons),
-
         self.setParameter('addToPatDefaultSequence',addToPatDefaultSequence),
         self.setParameter('jetSelection',jetSelection),
         self.setParameter('recoMetFromPFCs',recoMetFromPFCs),
@@ -280,8 +269,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('campaign',campaign),
         self.setParameter('era',era),
 
-        #if mva/puppi MET, autoswitch to std jets
-        if metType == "MVA" or metType == "Puppi":
+        #if puppi MET, autoswitch to std jets
+        if metType == "Puppi":
             self.setParameter('CHS',False),
 
         #enabling puppi flag
@@ -340,7 +329,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         reclusterJets           = self._parameters['reclusterJets'].value
         computeMETSignificance  = self._parameters['computeMETSignificance'].value
         extractDeepMETs         = self._parameters['extractDeepMETs'].value
-        mvaMetLeptons           = self._parameters['mvaMetLeptons'].value
         # specific option for 2017 EE noise mitigation
         fixEE2017               = self._parameters['fixEE2017'].value
         fixEE2017Params         = self._parameters['fixEE2017Params'].value
@@ -596,16 +584,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if self.getvalue("runOnData"):
             getattr(process, _myPatMet).addGenMET  = False
 
-
-        ############### MM: FIXME MVA ################# -> QUESTION: Still needed???
-        if metType == "MVA": # and not hasattr(process, 'pat'+metType+'Met'):
-           # process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
-            mvaMetProducer = self.createMVAMETModule(process)
-            addToProcessAndTask('pfMVAMet'+postfix, mvaMetProducer, process, produceMET_task)
-            addToProcessAndTask(_myPatMet,
-                                getattr(process,'patPFMet' ).clone(metSource = cms.InputTag('pfMVAMet')),
-                                process, produceMET_task)
-
         # add PAT MET producer to subtask
         produceMET_task.add(getattr(process, _myPatMet ))
 
@@ -627,10 +605,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         patMetCorrectionSequence = cms.Sequence()
         getCorrectedMET_task = cms.Task()
         metModName = "pat"+metType+"Met"+postfix
-
-        # QUESTION: Still needed?
-        if metType == "MVA": #corrections are irrelevant for the MVA MET (except jet smearing?)
-            return patMetCorrectionSequence, metModName
 
         # correction level names
         corNames = { #not really needed but in case we have changes in the future....
@@ -794,12 +768,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                        srcCorrections = cms.VInputTag(corrections)
                      )
             taskName="getCorrectedMET_task"
-
-        #MM: FIXME MVA QUESTION: Still needed?
-        #if metType == "MVA":
-        #    return patMetCorrectionSequence, metModName #FIXME
-        #    corMetProducer = self.createMVAMETModule(process)
-        #    sequenceName="pfMVAMEtSequence"
 
         addToProcessAndTask(metModName, corMetProducer, process, getCorrectedMET_task)
 
@@ -1133,9 +1101,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         if identifier == "Jet":
             moduleType="ShiftedPATJetProducer"
-            #MM: FIXME MVA
-            #if self._parameters["metType"].value == "MVA":
-            #    moduleType="ShiftedPFJetProducer"
 
             if jetUncInfos["jecUncFile"] == "":
                 shiftedModuleUp = cms.EDProducer(moduleType,
@@ -1286,9 +1251,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #adding the shifted collection producers to the sequence, create the shifted MET correction Modules and add them as well
         for mod in shiftedCollModules.keys():
             modName = "shiftedPat"+preId+identifier+varType+mod+postfix
-            #MM: FIXME MVA QUESTION: Still needed?
-            #if  "MVA" in metModName and identifier == "Jet": #dummy fix
-            #    modName = "uncorrectedshiftedPat"+preId+identifier+varType+mod+postfix
             if (identifier=="Photon" or identifier=="Unclustered") and self.getvalue("Puppi"):
                 shiftedCollModules[mod].srcWeights = "puppiNoLep"
             if not hasattr(process, modName):
@@ -1317,36 +1279,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     )
                 shiftedMetProducers[ modName ] = shiftedMETModule
 
-            #MM: FIXME MVA QUESTION: Still needed?
-            #MVA MET, duplication of the MVA MET producer ============================================
-            #if "MVA" in metModName:
-            #    print "name: ",metModName, modName
-            #    shiftedMETModule = self.createMVAMETModule(process, identifier, modName, True)
-            #    modName = baseName+identifier+varType+mod+postfix
-            #    setattr(process, modName, shiftedMETModule)
-            #    shiftedMetProducers[ modName ] = shiftedMETModule
-            #
-            #     #pileupjetId and  =====
-            #    if identifier == "Jet":
-            #        #special collection replacement for the MVAMET for the jet case ======
-            #        origCollection = cms.InputTag("calibratedAK4PFJetsForPFMVAMEt"+postfix) #self._parameters["jetCollection"].value
-            #        newCollection = cms.InputTag("uncorrectedshiftedPat"+preId+identifier+varType+mod+postfix)
-            #        moduleName = "shiftedPat"+preId+identifier+varType+mod+postfix
-            #        corrShiftedModule = getattr(process,"calibratedAK4PFJetsForPFMVAMEt").clone(
-            #            src=newCollection
-            # )
-
-            #        setattr(process, moduleName, corrShiftedModule)
-            #        metUncSequence += getattr(process, moduleName)
-
-            #        puJetIdProducer = getattr(process, "puJetIdForPFMVAMEt").clone(
-            #            jets = moduleName
-            #            )
-            #        puJetIdName = "puJetIdForPFMVAMEt"+preId+identifier+varType+mod+postfix
-            #        setattr(process, puJetIdName, puJetIdProducer)
-            #        metUncSequence += getattr(process, puJetIdName)
-            #        shiftedMETModule.srcMVAPileupJetId = cms.InputTag(puJetIdName,"fullDiscriminant")
-
            #==========================================================================================
 
         addTaskToProcess(process, createShiftedModules_label, createShiftedModules_task)
@@ -1366,112 +1298,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                        )
 
         return shiftedModule
-
-#========================================================================================
-# QUESTION: Stilll needed?
-    def createMVAMETModule(self, process, identifier="", shiftedCollection="", isShifted=False, postfix="" ):
-
-        task = getPatAlgosToolsTask(process)
-
-        if not hasattr(process, "pfMVAMEt"):
-            process.load("RecoMET.METPUSubtraction.mvaPFMET_cff")
-
-        #retrieve collections
-        electronCollection = self._parameters["electronCollection"].value
-        muonCollection = self._parameters["electronCollection"].value
-        photonCollection = self._parameters["photonCollection"].value
-        tauCollection = self._parameters["tauCollection"].value
-        pfCandCollection = self._parameters["pfCandCollection"].value
-        corJetCollection = cms.InputTag("calibratedAK4PFJetsForPFMVAMEt"+postfix)
-        uncorJetCollection = cms.InputTag("ak4PFJets")
-
-        #shift if needed===
-        if isShifted:
-            if identifier == "Electron":
-                electronCollection = cms.InputTag(shiftedCollection)
-            if identifier == "Muon":
-                muonCollection = cms.InputTag(shiftedCollection)
-            if identifier == "Tau":
-                tauCollection = cms.InputTag(shiftedCollection)
-            if identifier == "Photon":
-                photonCollection = cms.InputTag(shiftedCollection)
-            if identifier == "Unclustered":
-                pfCandCollection = cms.InputTag(shiftedCollection)
-            if identifier == "Jet":
-                corJetCollection = cms.InputTag(shiftedCollection)
-                uncorJetCollection = cms.InputTag("uncorrected"+shiftedCollection)
-
-
-        #leptons
-        mvaMetLeptons = self._parameters["mvaMetLeptons"].value
-        leptons = cms.VInputTag([])
-        if "Electrons" in mvaMetLeptons and isValidInputTag(electronCollection):
-            leptons.append = electronCollection
-        if "Muons" in mvaMetLeptons and isValidInputTag(muonCollection):
-            leptons.append = muonCollection
-        if "Photons" in mvaMetLeptons and isValidInputTag(photonCollection):
-            leptons.append = photonCollection
-        if "Taus" in mvaMetLeptons and isValidInputTag(tauCollection):
-            leptons.append = tauCollection
-
-
-        mvaMetProducer=getattr(process, "pfMVAMEt").clone(
-            srcCorrJets = corJetCollection,
-            srcUncorrJets = uncorJetCollection,
-            srcPFCandidates = pfCandCollection,
-            srcLeptons = leptons,
-            )
-
-        return mvaMetProducer
-
-#========================================================================================
-# QUESTION: Stilll needed?
-    def getUnclusteredVariationsForMVAMET(self, process, var, val,  metUncSequence, postfix ):
-
-        if not hasattr(process, "pfCandsNotInJetsForMetCorr"):
-            process.load("JetMETCorrections.Type1MET.correctionTerms.PfMetType1Type2_cff")
-
-        #MM: it's bloody stupid to make it that way....
-        # compute the shifted particles ====
-        unclCandModule = cms.EDProducer("ShiftedPFCandidateProducer",
-                                        src = cms.InputTag('pfCandsNotInJetsForMetCorr'),
-                                        shiftBy = cms.double(val),
-                                        uncertainty = cms.double(0.10)
-                                        )
-        setattr(process, "pfCandsNotInJetsUnclusteredEn"+var+postfix, unclCandModule)
-        metUncSequence += getattr(process, "pfCandsNotInJetsUnclusteredEn"+var+postfix)
-
-
-
-        #replace the old unclustered particles by the shifted ones....
-        pfCandCollection = self._parameters["pfCandCollection"].value
-
-        #top projection on jets
-        pfCandsNotInJets = _mod.candPtrProjector.clone(
-                                          src = pfCandCollection,
-                                          veto = "ak4PFJets"
-                                          )
-        setattr(process, "pfCandsNotInJetsUnclusteredEn"+var+postfix, pfCandsNotInJets)
-        metUncSequence += getattr(process,"pfCandsNotInJetsUnclusteredEn"+var+postfix)
-
-        fullShiftedModule = self.createShiftedObjectModuleForMVAMET(pfCandCollection, cms.InputTag("pfCandsNotInJetsUnclusteredEn"+var+postfix), 0.01 )
-        setattr(process, "pfCandidatesEn"+var+postfix, fullShiftedModule)
-        metUncSequence += getattr(process, "pfCandidatesEn"+var+postfix)
-
-        # duplication of the MVA MET producer ============================================
-        shiftedMETModule = self.createMVAMETModule(process, "Unclustered", "pfCandidatesEn"+var+postfix, True)
-        return shiftedMETModule
-
-#========================================================================================
-# QUESTION: Stilll needed?
-    def createShiftedObjectModuleForMVAMET(self, origCollection, shiftedCollection, dr=0.5):
-        fullShiftedModule = cms.EDProducer("ShiftedPFCandidateProducerByMatchedObject",
-                 srcPFCandidates = origCollection,
-                 srcUnshiftedObjects = origCollection,
-                 dRmatch_PFCandidate = cms.double(dr),
-                 srcShiftedObjects = shiftedCollection
-               )
-        return fullShiftedModule
 
 #========================================================================================
     def createSmearedJetModule(self, process, jetCollection, smear, varyByNsigmas, varDir, postfix):
@@ -1509,29 +1335,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 variation = cms.int32( int(varyByNsigmas) ),
                 genJets = genJetsCollection,
                 )
-
-        #MM: FIXME MVA QUESTION: Stilll needed?
-        #if "MVA" == self._parameters["metType"].value:
-        #    from RecoMET.METProducers.METSigParams_cfi import *
-
-        #    genJetsCollection=cms.InputTag('ak4GenJetsNoNu')
-        #    if self._parameters["onMiniAOD"].value:
-        #        genJetsCollection=cms.InputTag("slimmedGenJets")
-
-        #    smearedJetModule = cms.EDProducer("SmearedPFJetProducer",
-        #            src = cms.InputTag('ak4PFJets'),
-        #            jetCorrLabel = cms.InputTag("ak4PFL1FastL2L3Corrector"),
-        #            dRmaxGenJetMatch = cms.string('min(0.5, 0.1 + 0.3*exp(-0.05*(genJetPt - 10.)))'),
-        #            sigmaMaxGenJetMatch = cms.double(3.),
-        #            inputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root'),
-        #            lutName = cms.string('pfJetResolutionMCtoDataCorrLUT'),
-        #            jetResolutions = METSignificance_params,
-        #            skipRawJetPtThreshold = cms.double(10.), # GeV
-        #            skipCorrJetPtThreshold = cms.double(1.e-2),
-        #            srcGenJets = genJetsCollection,
-        #            shiftBy = cms.double(varyByNsigmas),
-        #            #verbosity = cms.int32(1)
-        #            )
 
         return smearedJetModule
 
