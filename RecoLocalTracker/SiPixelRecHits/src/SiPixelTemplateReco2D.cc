@@ -14,11 +14,12 @@
 //  2.70 - Change convergence criterion to require it in both planes [it was either]
 //  2.80 - Change 3D to 2D
 //  2.90 - Fix divide by zero for separate 1D convergence branch
+//  3.00 - Change VVIObjF so it only reads kappa
 //
 //
 //
 //  Created by Morris Swartz on 7/13/17.
-//
+//  Simplification of VVIObjF by Tamas Vami
 //
 
 #ifdef SI_PIXEL_TEMPLATE_STANDALONE
@@ -696,9 +697,8 @@ int SiPixelTemplateReco2D::PixelTempReco2D(int id,
     float sigmaQ = templ2D.sigmavav();
     float kappa = templ2D.kappavav();
     float xvav = (qtotal / qtfrac0[ipass] - mpv) / sigmaQ;
-    float beta2 = 1.f;
     //  VVIObj is a private port of CERNLIB VVIDIS
-    VVIObjF vvidist(kappa, beta2, 1);
+    VVIObjF vvidist(kappa);
     float prvav = vvidist.fcn(xvav);
     probQ = 1.f - prvav;
   } else {
