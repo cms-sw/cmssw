@@ -4,6 +4,8 @@ test=testSwitchProducer
 
 function die { echo Failure $1: status $2 ; exit $2 ; }
 
+# Running on multiple threads and streams to test any behavior that
+# occurs when there are many of them
 NUMTHREADS=4
 
 pushd ${LOCAL_TMP_DIR}
@@ -37,6 +39,37 @@ pushd ${LOCAL_TMP_DIR}
   echo "*************************************************"
   echo "Test provenance of reversely merged output (Task)"
   cmsRun ${LOCAL_TEST_DIR}/${test}ProvenanceAnalyzer_cfg.py testSwitchProducerTaskMerge2.root || die "cmsRun ${test}ProvenanceAnalyzer_cfg.py Task2" $?
+
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTask_cfg.py || die "cmsRun ${test}ConditionalTask_cfg.py 1" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, case test2 disabled"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTask_cfg.py disableTest2 || die "cmsRun ${test}ConditionalTask_cfg.py 2" $?
+
+  echo "*************************************************"
+  echo "Merge outputs (ConditionalTask)"
+  cmsRun ${LOCAL_TEST_DIR}/${test}Merge_cfg.py outputFile=testSwitchProducerConditionalTaskMerge1.root inputFiles=file:testSwitchProducerConditionalTask1.root inputFiles=file:testSwitchProducerConditionalTask2.root || die "Merge ConditionalTask1: order 1 2" $?
+  echo "*************************************************"
+  echo "Merge outputs in reverse order (ConditionalTask)"
+  cmsRun ${LOCAL_TEST_DIR}/${test}Merge_cfg.py outputFile=testSwitchProducerConditionalTaskMerge2.root inputFiles=file:testSwitchProducerConditionalTask2.root inputFiles=file:testSwitchProducerConditionalTask1.root || die "Merge ConditionalTask2: order 2 1" $?
+
+  echo "*************************************************"
+  echo "Test provenance of merged output (ConditionalTask)"
+  cmsRun ${LOCAL_TEST_DIR}/${test}ProvenanceAnalyzer_cfg.py testSwitchProducerConditionalTaskMerge1.root || die "cmsRun ${test}ProvenanceAnalyzer_cfg.py ConditionalTask1" $?
+  echo "*************************************************"
+  echo "Test provenance of reversely merged output (ConditionalTask)"
+  cmsRun ${LOCAL_TEST_DIR}/${test}ProvenanceAnalyzer_cfg.py testSwitchProducerConditionalTaskMerge2.root || die "cmsRun ${test}ProvenanceAnalyzer_cfg.py ConditionalTask2" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, more extensive EDAlias tests"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAlias_cfg.py || die "cmsRun ${test}ConditionalTaskEDAlias_cfg.py 1" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, more extensive EDAlias tests, case test2 disabled"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAlias_cfg.py disableTest2 || die "cmsRun ${test}ConditionalTaskEDAlias_cfg.py 2" $?
 
   
   echo "*************************************************"

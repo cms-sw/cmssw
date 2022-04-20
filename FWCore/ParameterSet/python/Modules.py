@@ -252,6 +252,14 @@ class SwitchProducer(EDProducer):
         self.__setParameters(kargs)
         self._isModified = False
 
+    def setLabel(self, label):
+        super().setLabel(label)
+        # SwitchProducer owns the contained modules, and therefore
+        # need to set / unset the label for them explicitly here
+        for case in self.parameterNames_():
+            producer = self.__dict__[case]
+            producer.setLabel(self.caseLabel_(label, case) if label is not None else None)
+
     @staticmethod
     def getCpu():
         """Returns a function that returns the priority for a CPU "computing device". Intended to be used by deriving classes."""
@@ -288,6 +296,8 @@ class SwitchProducer(EDProducer):
             message += self.dumpPython() + '\n'
             raise ValueError(message)
         self.__dict__[name]=value
+        if self.hasLabel_():
+            value.setLabel(self.caseLabel_(self.label_(), name))
         self._Parameterizable__parameterNames.append(name)
         self._isModified = True
 
@@ -318,6 +328,8 @@ class SwitchProducer(EDProducer):
                 raise TypeError(name+" can only be set to a cms.EDProducer or cms.EDAlias")
             # We should always receive an cms.EDProducer
             self.__dict__[name] = value
+            if self.hasLabel_():
+                value.setLabel(self.caseLabel_(self.label_(), name))
             self._isModified = True
 
     def clone(self, **params):
@@ -368,6 +380,14 @@ class SwitchProducer(EDProducer):
         return myname
     def caseLabel_(self, name, case):
         return name+"@"+case
+    def modulesForConditionalTask_(self):
+        # Need the contained modules (not EDAliases) for ConditionalTask
+        ret = []
+        for case in self.parameterNames_():
+            caseobj = self.__dict__[case]
+            if not isinstance(caseobj, EDAlias):
+                ret.append(caseobj)
+        return ret
     def appendToProcessDescLists_(self, modules, aliases, myname):
         # This way we can insert the chosen EDProducer to @all_modules
         # so that we get easily a worker for it
@@ -386,8 +406,8 @@ class SwitchProducer(EDProducer):
         newpset.addString(True, "@module_label", self.moduleLabel_(myname))
         newpset.addString(True, "@module_type", "SwitchProducer")
         newpset.addString(True, "@module_edm_type", "EDProducer")
-        newpset.addVString(True, "@all_cases", [myname+"@"+p for p in self.parameterNames_()])
-        newpset.addString(False, "@chosen_case", myname+"@"+self._chooseCase(accelerators))
+        newpset.addVString(True, "@all_cases", [self.caseLabel_(myname, p) for p in self.parameterNames_()])
+        newpset.addString(False, "@chosen_case", self.caseLabel_(myname, self._chooseCase(accelerators)))
         parameterSet.addPSet(True, self.nameInProcessDesc_(myname), newpset)
 
     def _placeImpl(self,name,proc):
@@ -550,6 +570,24 @@ if __name__ == "__main__":
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = ESProducer("Foo")))
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = ESPrefer("Foo")))
             self.assertRaises(TypeError, lambda: SwitchProducerTest(test1 = SwitchProducerTest(test1 = EDProducer("Foo"))))
+
+            # Label
+            sp.setLabel("sp")
+            self.assertEqual(sp.label_(), "sp")
+            self.assertEqual(sp.test1.label_(), "sp@test1")
+            self.assertEqual(sp.test2.label_(), "sp@test2")
+            sp.test3 = EDProducer("Xyzzy")
+            self.assertEqual(sp.test3.label_(), "sp@test3")
+            sp.test1 = EDProducer("Fred")
+            self.assertEqual(sp.test1.label_(), "sp@test1")
+            del sp.test1
+            sp.test1 = EDProducer("Wilma")
+            self.assertEqual(sp.test1.label_(), "sp@test1")
+            sp.setLabel(None)
+            sp.setLabel("other")
+            self.assertEqual(sp.label_(), "other")
+            self.assertEqual(sp.test1.label_(), "other@test1")
+            self.assertEqual(sp.test2.label_(), "other@test2")
 
             # Case decision
             accelerators = ["test1", "test2", "test3"]

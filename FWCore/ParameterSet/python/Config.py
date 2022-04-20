@@ -1298,7 +1298,7 @@ class Process(object):
               l.sort()
               decoratedList.extend(l)
               decoratedList.append("@")
-            iPath.insertInto(processPSet, triggername, decoratedList)
+            iPath.insertInto(processPSet, triggername, decoratedList[:])
         for endpathname in endpaths:
             if endpathname is not endPathWithFinalPathModulesName:
               iEndPath = self.endpaths_()[endpathname]
@@ -1308,7 +1308,7 @@ class Process(object):
             endpathValidator.setLabel(endpathname)
             lister.initialize()
             iEndPath.visit(endpathCompositeVisitor)
-            iEndPath.insertInto(processPSet, endpathname, decoratedList)
+            iEndPath.insertInto(processPSet, endpathname, decoratedList[:])
         processPSet.addVString(False, "@filters_on_endpaths", endpathValidator.filtersOnEndpaths)
           
 
@@ -3613,6 +3613,10 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
                                          test1 = EDProducer("Bar",
                                                             aa = int32(11),
                                                             bb = PSet(cc = int32(12))))
+            self.assertEqual(proc.sp.label_(), "sp")
+            self.assertEqual(proc.sp.test1.label_(), "sp@test1")
+            self.assertEqual(proc.sp.test2.label_(), "sp@test2")
+
             proc.a = EDProducer("A")
             proc.s = Sequence(proc.a + proc.sp)
             proc.t = Task(proc.a, proc.sp)
@@ -3688,6 +3692,26 @@ process.addSubProcess(cms.SubProcess(process = childProcess, SelectEvents = cms.
             self.assertEqual((True,"Foo"), p.values["sp@test1"][1].values["@module_type"])
             self.assertEqual((True,"EDAlias"), p.values["sp@test2"][1].values["@module_edm_type"])
             self.assertEqual((True,"Bar"), p.values["sp@test2"][1].values["a"][1][0].values["type"])
+
+            # ConditionalTask
+            proc = Process("test")
+            proc.spct = SwitchProducerTest(test2 = EDProducer("Foo",
+                                                              a = int32(1),
+                                                              b = PSet(c = int32(2))),
+                                           test1 = EDProducer("Bar",
+                                                              aa = int32(11),
+                                                              bb = PSet(cc = int32(12))),
+                                           test3 = EDAlias(a = VPSet(PSet(type = string("Bar")))))
+            proc.spp = proc.spct.clone()
+            proc.a = EDProducer("A")
+            proc.ct = ConditionalTask(proc.spct)
+            proc.p = Path(proc.a, proc.ct)
+            proc.pp = Path(proc.a + proc.spp)
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual(["a", "spct", "spct@test1", "spct@test2", "spp", "spp@test1", "spp@test2"], p.values["@all_modules"][1])
+            self.assertEqual(["a", "#", "spct", "spct@test1", "spct@test2", "@"], p.values["p"][1])
+            self.assertEqual(["a", "spp", "#", "spp@test1", "spp@test2", "@"], p.values["pp"][1])
 
         def testPrune(self):
             p = Process("test")
@@ -3990,11 +4014,15 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             p.f = EDAnalyzer("OurAnalyzer")
             p.g = EDProducer("OurProducer")
             p.h = EDProducer("YourProducer")
-            p.t1 = Task(p.g, p.h)
-            t2 = Task(p.g, p.h)
+            p.i = SwitchProducerTest(
+                test1 = EDProducer("OneProducer"),
+                test2 = EDProducer("TwoProducer")
+            )
+            p.t1 = Task(p.g, p.h, p.i)
+            t2 = Task(p.g, p.h, p.i)
             t3 = Task(p.g, p.h)
             p.t4 = Task(p.h)
-            p.ct1 = ConditionalTask(p.g, p.h)
+            p.ct1 = ConditionalTask(p.g, p.h, p.i)
             ct2 = ConditionalTask(p.g, p.h)
             ct3 = ConditionalTask(p.g, p.h)
             p.ct4 = ConditionalTask(p.h)
@@ -4007,9 +4035,11 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             p.schedule = Schedule(p.path2, p.path3, p.endpath2, tasks=[t3, p.t4])
             self.assertTrue(hasattr(p, 'f'))
             self.assertTrue(hasattr(p, 'g'))
+            self.assertTrue(hasattr(p, 'i'))
             del p.e
             del p.f
             del p.g
+            del p.i
             self.assertFalse(hasattr(p, 'f'))
             self.assertFalse(hasattr(p, 'g'))
             self.assertEqual(p.t1.dumpPython(), 'cms.Task(process.h)\n')

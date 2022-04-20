@@ -28,6 +28,7 @@
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include "LuminosityBlockProcessingStatus.h"
+#include "processEDAliases.h"
 
 #include <algorithm>
 #include <cassert>
@@ -485,6 +486,10 @@ namespace edm {
             }
             if (productFromConditionalModule) {
               itFound = conditionalModules.find(productModuleLabel);
+              //check that the alias-for conditional module has not been used
+              if (itFound == conditionalModules.end()) {
+                continue;
+              }
             }
           } else {
             //need to check the rest of the data product info
@@ -573,24 +578,46 @@ namespace edm {
           auto aliasedToModuleLabels = info.getParameterNames();
           for (auto const& mod : aliasedToModuleLabels) {
             if (not mod.empty() and mod[0] != '@' and conditionalmods.find(mod) != conditionalmods.end()) {
-              auto aliasPSet = proc_pset.getParameter<edm::ParameterSet>(mod);
-              std::string type = star;
-              std::string instance = star;
-              std::string originalInstance = star;
-              if (aliasPSet.exists("type")) {
-                type = aliasPSet.getParameter<std::string>("type");
-              }
-              if (aliasPSet.exists("toProductInstance")) {
-                instance = aliasPSet.getParameter<std::string>("toProductInstance");
-              }
-              if (aliasPSet.exists("fromProductInstance")) {
-                originalInstance = aliasPSet.getParameter<std::string>("fromProductInstance");
-              }
+              auto aliasVPSet = info.getParameter<std::vector<edm::ParameterSet>>(mod);
+              for (auto const& aliasPSet : aliasVPSet) {
+                std::string type = star;
+                std::string instance = star;
+                std::string originalInstance = star;
+                if (aliasPSet.exists("type")) {
+                  type = aliasPSet.getParameter<std::string>("type");
+                }
+                if (aliasPSet.exists("toProductInstance")) {
+                  instance = aliasPSet.getParameter<std::string>("toProductInstance");
+                }
+                if (aliasPSet.exists("fromProductInstance")) {
+                  originalInstance = aliasPSet.getParameter<std::string>("fromProductInstance");
+                }
 
-              aliasMap.emplace(alias, AliasInfo{type, instance, originalInstance, mod});
+                aliasMap.emplace(alias, AliasInfo{type, instance, originalInstance, mod});
+              }
             }
           }
         }
+      }
+      //find SwitchProducers whose chosen case is an alias
+      {
+        auto const& all_modules = proc_pset.getParameter<std::vector<std::string>>("@all_modules");
+        std::vector<std::string> switchEDAliases;
+        for (auto const& module : all_modules) {
+          auto const& mod_pset = proc_pset.getParameter<edm::ParameterSet>(module);
+          if (mod_pset.getParameter<std::string>("@module_type") == "SwitchProducer") {
+            auto const& chosen_case = mod_pset.getUntrackedParameter<std::string>("@chosen_case");
+            auto range = aliasMap.equal_range(chosen_case);
+            if (range.first != range.second) {
+              switchEDAliases.push_back(chosen_case);
+              for (auto it = range.first; it != range.second; ++it) {
+                aliasMap.emplace(module, it->second);
+              }
+            }
+          }
+        }
+        detail::processEDAliases(
+            switchEDAliases, conditionalmods, proc_pset, processConfiguration->processName(), preg);
       }
       {
         //find branches created by the conditional modules
