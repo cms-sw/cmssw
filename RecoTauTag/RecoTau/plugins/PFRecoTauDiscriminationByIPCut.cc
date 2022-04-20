@@ -11,9 +11,8 @@ class PFRecoTauDiscriminationByIPCut final : public PFTauDiscriminationProducerB
 public:
   explicit PFRecoTauDiscriminationByIPCut(const edm::ParameterSet& iConfig)
       : PFTauDiscriminationProducerBase(iConfig),
-        tausTIPToken_(consumes<PFTauTIPAssociationByRef>(iConfig.getParameter<edm::InputTag>("tausTIP"))),
-        tauTIPSelectorString_(iConfig.getParameter<std::string>("cut")),
-        tauTIPSelector_(tauTIPSelectorString_) {}
+        tausTIPToken_(consumes(iConfig.getParameter<edm::InputTag>("tausTIP"))),
+        tauTIPSelector_(iConfig.getParameter<std::string>("cut")) {}
   ~PFRecoTauDiscriminationByIPCut() override {}
   void beginEvent(const edm::Event&, const edm::EventSetup&) override;
   double discriminate(const PFTauRef& pfTau) const override;
@@ -25,7 +24,6 @@ private:
   edm::EDGetTokenT<PFTauTIPAssociationByRef> tausTIPToken_;
   edm::Handle<PFTauTIPAssociationByRef> tausTIP_;
 
-  const std::string tauTIPSelectorString_;
   const StringCutObjectSelector<reco::PFTauTransverseImpactParameter> tauTIPSelector_;
 };
 
