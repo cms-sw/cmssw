@@ -229,7 +229,7 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
 
     for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
       memResource_->copyInput(data_in[counter].data(), offset, i);
-      offset += i0 * entry.byteSizePerBatch_;
+      offset += entry.byteSizePerBatch_;
       ++counter;
     }
   }
