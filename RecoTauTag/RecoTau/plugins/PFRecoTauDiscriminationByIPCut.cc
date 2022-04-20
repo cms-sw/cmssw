@@ -41,12 +41,7 @@ void PFRecoTauDiscriminationByIPCut::fillDescriptions(edm::ConfigurationDescript
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("tausTIP", edm::InputTag("hltTauIPCollection"));
   desc.add<std::string>("cut", "abs(dxy) > -999.");
-  {
-    edm::ParameterSetDescription psd0;
-    psd0.add<std::string>("BooleanOperator", "and");
-    desc.add<edm::ParameterSetDescription>("Prediscriminants", psd0);
-  }
-  desc.add<edm::InputTag>("PFTauProducer", edm::InputTag("pfRecoTauProducer"));
+  fillProducerDescriptions(desc);  // inherited from the base
   descriptions.addWithDefaultLabel(desc);
 }
 
