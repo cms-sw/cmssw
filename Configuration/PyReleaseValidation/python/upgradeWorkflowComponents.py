@@ -185,6 +185,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'ALCA',
         'Nano',
         'MiniAOD',
+        'HLT75e33',
     ],
     PU =  [
         'DigiTrigger',
@@ -200,6 +201,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'HARVESTGlobal',
         'MiniAOD',
         'Nano',
+        'HLT75e33',
     ],
     suffix = '',
     offset = 0.0,
@@ -1190,6 +1192,33 @@ upgradeWFs['ProdLike'] = UpgradeWorkflow_ProdLike(
     ],
     suffix = '_ProdLike',
     offset = 0.21,
+)
+
+class UpgradeWorkflow_HLT75e33(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'HARVEST' in step:
+            stepDict[stepName][k] = merge([{'--filein':'file:step3_inDQM.root'}, stepDict[step][k]])
+        else:
+            stepDict[stepName][k] = merge([stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and '2026' in key
+upgradeWFs['HLT75e33'] = UpgradeWorkflow_HLT75e33(
+    steps = [
+        'GenSimHLBeamSpot14',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HLT75e33',
+        'HARVESTGlobal',
+    ],
+    PU = [
+        'GenSimHLBeamSpot14',
+        'DigiTrigger',
+        'RecoGlobal',
+        'HLT75e33',
+        'HARVESTGlobal',
+    ],
+    suffix = '_HLT75e33',
+    offset = 0.75,
 )
 
 class UpgradeWorkflow_Neutron(UpgradeWorkflow):
