@@ -807,7 +807,13 @@ namespace edm {
         int runOrLumiIndex_;
       };
 
-      struct EntryOrderInitializationInfo {
+      class EntryOrderInitializationInfo {
+      public:
+        void resizeVectors(std::vector<RunOrLumiEntry> const&);
+        void gatherNeededInfo(std::vector<RunOrLumiEntry> const&);
+        void fillIndexesSortedByEventEntry(std::vector<RunOrLumiEntry> const&);
+        void fillIndexesToLastContiguousEvents(std::vector<RunOrLumiEntry> const&);
+
         // Contains information only needed in the constructor of IndexIntoFileItrEntryOrder
         std::vector<int> firstIndexOfRun_;
         std::vector<int> firstIndexOfLumi_;
@@ -838,20 +844,17 @@ namespace edm {
       };
 
       void addRunsWithNoEvents(EntryOrderInitializationInfo&, EntryNumber_t maxRunTTreeEntry = invalidEntry);
-      void resizeVectors(EntryOrderInitializationInfo&);
-      void gatherNeededInfo(EntryOrderInitializationInfo&);
-      void fillIndexesSortedByEventEntry(EntryOrderInitializationInfo&);
-      void fillIndexesToLastContiguousEvents(EntryOrderInitializationInfo&);
       void fillLumisWithNoRemainingEvents(std::vector<TTreeEntryAndIndex>& lumisWithNoRemainingEvents,
                                           int startingIndex,
                                           EntryNumber_t currentRun,
-                                          RunOrLumiEntry const* eventSequenceRunOrLumiEntry);
+                                          RunOrLumiEntry const* eventSequenceRunOrLumiEntry) const;
+      void reserveSpaceInVectors(std::vector<EntryNumber_t>::size_type);
       void addToFileOrder(int index, bool processRunOrLumi, bool processEvents);
       void handleToEndOfContiguousEventsInRun(EntryOrderInitializationInfo& info, EntryNumber_t currentRun);
       void handleToEndOfContiguousEventsInLumis(EntryOrderInitializationInfo& info,
                                                 EntryNumber_t currentRun,
                                                 int endOfRunEntries);
-      void setToLowestInLumi(EntryNumber_t& lumiTTreeEntryNumber, EntryOrderInitializationInfo& info, int currentLumi);
+      EntryNumber_t lowestInLumi(EntryOrderInitializationInfo& info, int currentLumi) const;
       void handleLumisWithNoEvents(std::vector<TTreeEntryAndIndex>::const_iterator& nextLumiWithNoEvents,
                                    std::vector<TTreeEntryAndIndex>::const_iterator& endLumisWithNoEvents,
                                    EntryNumber_t lumiTTreeEntryNumber,
