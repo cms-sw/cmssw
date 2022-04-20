@@ -137,7 +137,7 @@ private:
   void setBatchSize(unsigned bsize);
   size_t getEntrySize() const { return std::max(static_cast<size_t>(batchSize_), entries_.size()); }
   void reset();
-  void setResult(Result* result, unsigned entry=0) { entries_[entry].result_ = std::shared_ptr<Result>(result); }
+  void setResult(Result* result, unsigned entry=0) { entries_[entry].result_.reset(result); }
   IO* data(unsigned entry=0) { return entries_[entry].data_.get(); }
   void updateMem(size_t size);
   void computeSizes();
