@@ -20,10 +20,6 @@ upgradeKeys[2017] = [
     '2021PU',
     '2021Design',
     '2021DesignPU',
-    '2021HLT',
-    '2021HLTPU',
-    '2021DesignHLT',
-    '2021DesignHLTPU',
     '2023',
     '2023PU',
     '2024',
@@ -175,14 +171,12 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'GenSimHLBeamSpotHGCALCloseBy',
         'Digi',
         'DigiTrigger',
-        'DigiNoHLT',
         'HLT',
         'RecoLocal',
         'Reco',
         'RecoFakeHLT',
         'RecoGlobal',
         'RecoNano',
-        'RecoNanoHLT',
         'HARVEST',
         'HARVESTFakeHLT',
         'HARVESTNano',
@@ -195,15 +189,12 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     ],
     PU =  [
         'DigiTrigger',
-        'DigiNoHLT',
-        'HLT',
         'RecoLocal',
         'RecoGlobal',
         'Digi',
         'Reco',
         'RecoFakeHLT',
         'RecoNano',
-        'RecoNanoHLT',
         'HARVEST',
         'HARVESTFakeHLT',
         'HARVESTNano',
@@ -213,6 +204,30 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     ],
     suffix = '',
     offset = 0.0,
+)
+
+class UpgradeWorkflow_DigiNoHLT(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if stepDict[step][k] != None:
+            if 'ALCA' in step:
+                stepDict[stepName][k] = None
+            if 'RecoNano' in step:
+                stepDict[stepName][k] = merge([{'--filein': 'file:step3.root', '--secondfilein': 'file:step2.root'}, stepDict[step][k]])
+            if 'Digi' in step:
+                stepDict[stepName][k] = merge([{'-s': re.sub(',HLT.*', '', stepDict[step][k]['-s'])}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        if ('TTbar_14TeV' in fragment and '2021' == key):
+            stepList.insert(stepList.index('Digi_DigiNoHLT_2021')+1, 'HLT_2021')
+        return ('TTbar_14TeV' in fragment and '2021' == key)
+upgradeWFs['DigiNoHLT'] = UpgradeWorkflow_DigiNoHLT(
+    steps = [
+        'Digi',
+        'RecoNano',
+        'ALCA'
+    ],
+    PU = [],
+    suffix = '_DigiNoHLT',
+    offset = 0.601,
 )
 
 # some commonalities among tracking WFs
@@ -1603,94 +1618,6 @@ upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
     offset = 0.9921,
 )
 
-class UpgradeWorkflow_Run3FS(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'GenSim' in step:
-            stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@standardValidation,DQM:@standardDQMFS',
-                                            '--fast':'',
-                                            '--era':'Run3_FastSim',
-                                            '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
-                                            '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
-                                            '--relval':'27000,3000'}, stepDict[step][k]])
-        if 'Digi' in step or 'RecoNano' in step or 'ALCA' in step:
-            stepDict[stepName][k] = None
-        if 'HARVESTNano' in step:
-            stepDict[stepName][k] = merge([{'-s':'HARVESTING:validationHarvesting',
-                                            '--fast':'',
-                                            '--era':'Run3_FastSim',
-                                            '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
-upgradeWFs['Run3FS'] = UpgradeWorkflow_Run3FS(
-    steps = [
-        'GenSim',
-        'Digi',
-        'RecoNano',
-        'HARVESTNano',
-        'ALCA'
-    ],
-    PU = [],
-    suffix = '_Run3FS',
-    offset = 0.301,
-)
-
-class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'GenSim' in step:
-            stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@trackingOnlyValidation',
-                                            '--fast':'',
-                                            '--era':'Run3_FastSim',
-                                            '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
-                                            '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
-                                            '--relval':'27000,3000'}, stepDict[step][k]])
-        if 'Digi' in step or 'RecoNano' in step or 'ALCA' in step:
-            stepDict[stepName][k] = None
-        if 'HARVESTNano' in step:
-            stepDict[stepName][k] = merge([{'-s':'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM',
-                                            '--fast':'',
-                                            '--era':'Run3_FastSim',
-                                            '--filein':'file:step1_inDQM.root'}, stepDict[step][k]])
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
-upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
-    steps = [
-        'GenSim',
-        'Digi',
-        'RecoNano',
-        'HARVESTNano',
-        'ALCA'
-    ],
-    PU = [],
-    suffix = '_Run3FStrackingOnly',
-    offset = 0.302,
-)
-
-class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
-    def setup_(self, step, stepName, stepDict, k, properties):
-        if 'GenSim' in step:
-            stepDict[stepName][k] = merge([{'-s':'GEN,SIM,RECOBEFMIX',
-                                            '--fast':'',
-                                            '--era':'Run3_FastSim',
-                                            '--eventcontent':'FASTPU',
-                                            '--datatier':'GEN-SIM-RECO',
-                                            '--relval':'27000,3000'}, stepDict[step][k]])
-        if 'Digi' in step or 'RecoNano' in step or 'ALCA' in step or 'HARVESTNano' in step:
-            stepDict[stepName][k] = None
-    def condition(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key and fragment=="MinBias_14TeV"
-upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
-    steps = [
-        'GenSim',
-        'Digi',
-        'RecoNano',
-        'HARVESTNano',
-        'ALCA'
-    ],
-    PU = [],
-    suffix = '_Run3FSMBMixing',
-    offset = 0.303,
-)
-
 class UpgradeWorkflow_DD4hep(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
@@ -1878,22 +1805,6 @@ upgradeProperties[2017] = {
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano'],
     },
-    '2021HLT' : {
-        'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2021_realistic',
-        'HLTmenu': '@relval2021',
-        'Era' : 'Run3',
-        'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
-        'ScenToRun' : ['GenSim','DigiNoHLT','HLT','RecoNanoHLT','HARVESTNano','ALCA'],
-    },
-    '2021DesignHLT' : {
-        'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2021_design',
-        'HLTmenu': '@relval2021',
-        'Era' : 'Run3',
-        'BeamSpot': 'GaussSigmaZ4cm',
-        'ScenToRun' : ['GenSim','DigiNoHLT','HLT','RecoNanoHLT','HARVESTNano'],
-    },    
     '2023' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
