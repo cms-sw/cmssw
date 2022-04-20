@@ -305,6 +305,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
     def toolCode(self, process):
+        ### 1. read given parameters ###
         # MET type, corrections, and uncertainties
         metType                 = self._parameters['metType'].value
         correctionLevel         = self._parameters['correctionLevel'].value
@@ -341,7 +342,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         addToPatDefaultSequence = self._parameters['addToPatDefaultSequence'].value
         postfix                 = self._parameters['postfix'].value
 
-        # prepare jet configuration
+        # prepare jet configuration used during MET (re-)calculation
         jetUncInfos = {
                         "jCorrPayload":jetFlavor,
                         "jCorLabelUpToL3":jetCorLabelUpToL3,
@@ -357,8 +358,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         elif (jecUncertaintyTag!=None):
             jetUncInfos[ "jecUncTag" ] = jecUncertaintyTag
 
+        ### 2. (re-)construct MET ###
         patMetModuleSequence = cms.Sequence()
-        # task for main MET modules
+        # task for main MET construction modules
         patMetModuleTask = cms.Task()
 
         # 2017 EE fix will modify pf cand and jet collections used downstream
@@ -372,39 +374,39 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 postfix,
             )
 
-        # recompute the MET (and thus the jets as well for correction) from scratch
+        # recompute the MET (and thus the jets as well for correction) from scratch i.e. from pfcandidates
         if recoMetFromPFCs:
             self.recomputeRawMetFromPfcs(process,
                                          pfCandCollection,
                                          onMiniAOD,
                                          patMetModuleTask,
                                          postfix)
-
-        elif onMiniAOD: #raw MET extraction if running on miniAODs
+        # if not using pfcandidates, you can extract the raw MET from MiniAOD
+        elif onMiniAOD:
             self.extractMET(process, "raw", patMetModuleTask, postfix)
 
-        #jet AK4 reclustering if needed for JECs
-
+        # jet AK4 reclustering if needed for JECs ...
         if reclusterJets:
             jetCollectionUnskimmed = self.ak4JetReclustering(process, pfCandCollection,
                                                              patMetModuleTask, postfix)
 
-        # or reapplication of jecs
+        # ... or reapplication of JECs to already existing jets in MiniAOD
         if onMiniAOD:
             if not reclusterJets and reapplyJEC:
                 jetCollectionUnskimmed = self.updateJECs(process, jetCollectionUnskimmed, patMetModuleTask, postfix)
 
 
-        #getting the jet collection that will be used for corrections
-        #and uncertainty computation
+        # getting the jet collection that will be used for corrections and uncertainty computation
+        # starts with the unskimmed jet collection and applies some selection and cleaning criteria
         jetCollection = self.getJetCollectionForCorsAndUncs(process,
                                                             jetCollectionUnskimmed,
                                                             jetSelection,
                                                             autoJetCleaning,
-                                                            patMetModuleSequence,
+                                                            patMetModuleTask,
                                                             postfix)
 
-        #pre-preparation to run over miniAOD
+        # pre-preparation to run over miniAOD
+        # need to make sure to use the correct pfcandidate collection
         if onMiniAOD:
             self.miniAODConfigurationPre(process, patMetModuleTask, pfCandCollection, postfix)
         else:
@@ -419,12 +421,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             if hasattr(process,"patPhotons") and process.patPhotons.photonSource == cms.InputTag("reducedEgamma","reducedGedPhotons"):
                 process.pfeGammaToCandidate.photon2pf = "reducedEgamma:reducedPhotonPfCandMap"
 
-        #default MET production
+        # default MET production
         self.produceMET(process, metType, patMetModuleTask, postfix)
 
 
 
-        #preparation to run over miniAOD (met reproduction)
+        # preparation to run over miniAOD (met reproduction)
         if onMiniAOD:
             self.miniAODConfiguration(process,
                                       pfCandCollection,
@@ -433,7 +435,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                       postfix
                                       )
 
-        # correct the MET
+        ### 3. (re-)correct MET ###
         patMetCorrectionTask = cms.Task()
         patMetCorrectionSequence, metModName = self.getCorrectedMET(process, metType, correctionLevel,
                                                                     produceIntermediateCorrections,
@@ -545,7 +547,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     def produceMET(self, process,  metType, patMetModuleTask, postfix):
 
         # get the patAlgosToolsTask
-        task = getPatAlgosToolsTask(process)
+        #task = getPatAlgosToolsTask(process)
         # create a subtask for this function that will hold all the necessary modules
         produceMET_task, produceMET_label = cms.Task(), "produceMET_task{}".format(postfix)
 
@@ -1363,7 +1365,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
     def recomputeRawMetFromPfcs(self, process, pfCandCollection, onMiniAOD, patMetModuleTask, postfix):
 
-        task = getPatAlgosToolsTask(process)
+        #task = getPatAlgosToolsTask(process)
         recomputeRawMetFromPfcs_task, recomputeRawMetFromPfcs_label = cms.Task(), "recomputeRawMetFromPfcs_task{}".format(postfix)
 
         # RECO MET
@@ -1424,7 +1426,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
     def extractMET(self, process, correctionLevel, patMetModuleTask, postfix):
 
-        task = getPatAlgosToolsTask(process)
+        #task = getPatAlgosToolsTask(process)
         extractMET_task, extractMET_label = cms.Task(), "extractMET_task{}".format(postfix)
 
         pfMet = cms.EDProducer("RecoMETExtractor",
@@ -1474,7 +1476,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"+postfix))
             )
 
-        task = getPatAlgosToolsTask(process)
+        #task = getPatAlgosToolsTask(process)
         updateJECs_task, updateJECs_label = cms.Task(), "updateJECs_task{}".format(postfix)
         addToProcessAndTask("patJetCorrFactorsReapplyJEC"+postfix, patJetCorrFactorsReapplyJEC, process, updateJECs_task)
         addToProcessAndTask("patJetsReapplyJEC"+postfix, patJetsReapplyJEC.clone(), process, updateJECs_task)
@@ -1495,10 +1497,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
     def getJetCollectionForCorsAndUncs(self, process, jetCollectionUnskimmed,
-                                       jetSelection, autoJetCleaning,patMetModuleSequence, postfix):
+                                       jetSelection, autoJetCleaning,patMetModuleTask, postfix):
 
-        task = getPatAlgosToolsTask(process)
-        getJetCollectionForCorsAndUncs_task = cms.Task()
+        #task = getPatAlgosToolsTask(process)
+        getJetCollectionForCorsAndUncs_task, getJetCollectionForCorsAndUncs_label = cms.Task(), "getJetCollectionForCorsAndUncs_task{}".format(postfix)
 
         basicJetsForMet = cms.EDProducer("PATJetCleanerForType1MET",
                                          src = jetCollectionUnskimmed,
@@ -1523,19 +1525,16 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         addToProcessAndTask("jetSelectorForMet"+postfix, jetSelector, process, getJetCollectionForCorsAndUncs_task)
         #patMetModuleSequence += getattr(process, "jetSelectorForMet"+postfix)
 
-        jetCollection = self.jetCleaning(process, "jetSelectorForMet"+postfix, autoJetCleaning, patMetModuleSequence, postfix)
-        if not hasattr(process, "getJetCollectionForCorsAndUncs_task"+postfix):
-            setattr(process, "getJetCollectionForCorsAndUncs_task"+postfix, getJetCollectionForCorsAndUncs_task)
-        else:
-            getattr(process, "getJetCollectionForCorsAndUncs_task"+postfix).add(getJetCollectionForCorsAndUncs_task)
-        task.add(getattr(process, "getJetCollectionForCorsAndUncs_task"+postfix))
+        jetCollection = self.jetCleaning(process, "jetSelectorForMet"+postfix, autoJetCleaning, patMetModuleTask, postfix)
+        addTaskToProcess(process, getJetCollectionForCorsAndUncs_label, getJetCollectionForCorsAndUncs_task)
+        patMetModuleTask.add(getattr(process, getJetCollectionForCorsAndUncs_label))
 
         return jetCollection
 
 
     def ak4JetReclustering(self,process, pfCandCollection, patMetModuleTask, postfix):
 
-        task = getPatAlgosToolsTask(process)
+        #task = getPatAlgosToolsTask(process)
         ak4JetReclustering_task, ak4JetReclustering_label = cms.Task(), "ak4JetReclustering_task{}".format(postfix)
 
         chs = self._parameters["CHS"].value
@@ -1623,8 +1622,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
     def miniAODConfigurationPre(self, process, patMetModuleTask, pfCandCollection, postfix):
 
-            #extractor for caloMET === temporary for the beginning of the data taking
-        self.extractMET(process,"rawCalo",patMetModuleTask,postfix)
+        #task = getPatAlgosToolsTask(process)
+        miniAODConfigurationPre_task, miniAODConfigurationPre_label = cms.Task(), "miniAODConfigurationPre_task{}".format(postfix)
+
+        # extractor for caloMET === temporary for the beginning of the data taking
+        self.extractMET(process,"rawCalo",miniAODConfigurationPre_task,postfix)
         caloMetName="metrawCalo" if hasattr(process,"metrawCalo") else "metrawCalo"+postfix
         from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
         addMETCollection(process,
@@ -1632,10 +1634,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                          metSource = caloMetName
                          )
         getattr(process,"patCaloMet").addGenMET = False
+        miniAODConfigurationPre_task.add(getattr(process,"patCaloMet"))
 
         # extract DeepMETs (ResponseTune and ResolutionTune) from miniAOD
         if self._parameters["extractDeepMETs"].value:
-            self.extractMET(process, "rawDeepResponseTune", patMetModuleTask, postfix)
+            self.extractMET(process, "rawDeepResponseTune", miniAODConfigurationPre_task, postfix)
             deepMetResponseTuneName = "metrawDeepResponseTune" if hasattr(process, "metrawDeepResponseTune") else "metrawDeepResponseTune"+postfix
             addMETCollection(process,
                              labelName = "deepMETsResponseTune",
@@ -1643,8 +1646,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                             )
             getattr(process, "deepMETsResponseTune").addGenMET = False
             getattr(process, "deepMETsResponseTune").computeMETSignificance = cms.bool(False)
+            miniAODConfigurationPre_task.add(getattr(process, "deepMETsResponseTune"))
 
-            self.extractMET(process, "rawDeepResolutionTune", patMetModuleTask, postfix)
+            self.extractMET(process, "rawDeepResolutionTune", miniAODConfigurationPre_task, postfix)
             deepMetResolutionTuneName = "metrawDeepResolutionTune" if hasattr(process, "metrawDeepResolutionTune") else "metrawDeepResolutionTune"+postfix
             addMETCollection(process,
                              labelName = "deepMETsResolutionTune",
@@ -1652,9 +1656,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                             )
             getattr(process, "deepMETsResolutionTune").addGenMET = False
             getattr(process, "deepMETsResolutionTune").computeMETSignificance = cms.bool(False)
+            miniAODConfigurationPre_task.add(getattr(process, "deepMETsResolutionTune"))
 
-        ##adding the necessary chs and track met configuration
-        task = getPatAlgosToolsTask(process)
         miniAODConfigurationPre_task = cms.Task()
 
         from CommonTools.ParticleFlow.pfCHS_cff import pfCHS
@@ -1670,6 +1673,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         process.patCHSMet.computeMETSignificant = cms.bool(False)
         process.patCHSMet.addGenMET = cms.bool(False)
+        miniAODConfigurationPre_task.add(process.patCHSMet)
 
         pfTrk = chargedPackedCandsForTkMet.clone()
         addToProcessAndTask("pfTrk", pfTrk, process, miniAODConfigurationPre_task)
@@ -1683,12 +1687,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         process.patTrkMet.computeMETSignificant = cms.bool(False)
         process.patTrkMet.addGenMET = cms.bool(False)
+        miniAODConfigurationPre_task.add(process.patTrkMet)
 
-        if not hasattr(process, "miniAODConfigurationPre_task"+postfix):
-            setattr(process, "miniAODConfigurationPre_task"+postfix, miniAODConfigurationPre_task)
-        else:
-            getattr(process, "miniAODConfigurationPre_task"+postfix).add(miniAODConfigurationPre_task)
-        task.add(getattr(process, "miniAODConfigurationPre_task"+postfix))
+        addTaskToProcess(process, miniAODConfigurationPre_label, miniAODConfigurationPre_task)
+
+        patMetModuleTask.add(getattr(process, miniAODConfigurationPre_label))
         #patMetModuleSequence += getattr(process, "pfTrk")
         #patMetModuleSequence += getattr(process, "pfMetTrk")
         #patMetModuleSequence += getattr(process, "patTrkMet")
@@ -1721,7 +1724,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         if not hasattr(process, "slimmedMETs"+postfix) and self._parameters["metType"].value == "PF":
 
-            task = getPatAlgosToolsTask(process)
+            #task = getPatAlgosToolsTask(process)
             miniAODConfiguration_task, miniAODConfiguration_label = cms.Task(), "miniAODConfiguration_task{}".format(postfix)
 
             from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi import slimmedMETs
@@ -1872,7 +1875,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     def runFixEE2017(self,process,params,jets,cands,goodcolls,patMetModuleTask,postfix):
 
         # get the PatAlgosToolsTask
-        task = getPatAlgosToolsTask(process)
+        # task = getPatAlgosToolsTask(process)
         # create a local task to collect all the modules added in this function
         runFixEE2017_task, runFixEE2017_label = cms.Task(), "runFixEE2017_task{}".format(postfix)
 
