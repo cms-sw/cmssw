@@ -101,7 +101,7 @@ L1TPhase2MuonOffline::L1TPhase2MuonOffline(const ParameterSet& ps) :
   effTypes_({kEffPt, kEffPhi, kEffEta}),
   resTypes_({kResPt, kResQOverPt, kResPhi, kResEta}),
   etaRegions_({kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf}),
-  qualLevels_({kQualAll, kQualOpen, kQualDouble, kQualSingle}),
+  qualLevels_({kQualOpen, kQualDouble, kQualSingle}),
   resNames_({{kResPt, "pt"}, 
  	     {kRes1OverPt, "1overpt"},
  	     {kResQOverPt, "qoverpt"},
@@ -118,13 +118,12 @@ L1TPhase2MuonOffline::L1TPhase2MuonOffline(const ParameterSet& ps) :
 	     {kEtaRegionBmtf, "etaMin0_etaMax0p83"},
 	     {kEtaRegionOmtf, "etaMin0p83_etaMax1p24"},
 	     {kEtaRegionEmtf, "etaMin1p24_etaMax2p4"}}),
-  qualNames_({{kQualAll, "qualAll"}, 
-	     {kQualOpen, "qualOpen"}, 
-	     {kQualDouble, "qualDouble"}, 
-	     {kQualSingle, "qualSingle"}}),
+  qualNames_({{kQualOpen, "qualOpen"}, 
+	      {kQualDouble, "qualDouble"}, 
+	      {kQualSingle, "qualSingle"}}),
   muonNames_({{kSAMuon, "SAMuon"}, {kTkMuon, "TkMuon"}}),
   histFolder_(ps.getUntrackedParameter<string>("histFolder")),
-//  cutsVPSet_(ps.getUntrackedParameter<std::vector<edm::ParameterSet>>("cuts")),
+  cutsVPSet_(ps.getUntrackedParameter<std::vector<edm::ParameterSet>>("cuts")),
   effVsPtBins_(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPtBins")),
   effVsPhiBins_(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsPhiBins")),
   effVsEtaBins_(ps.getUntrackedParameter<std::vector<double>>("efficiencyVsEtaBins")),
@@ -138,6 +137,20 @@ L1TPhase2MuonOffline::L1TPhase2MuonOffline(const ParameterSet& ps) :
   lsb_eta = Phase2L1GMT::LSBeta;
   lsb_z0 = Phase2L1GMT::LSBSAz0;
   lsb_d0 = Phase2L1GMT::LSBSAd0;
+
+  for (const auto& c : cutsVPSet_) {
+    const auto qCut = c.getUntrackedParameter<int>("qualCut");
+    QualLevel qLevel = kQualOpen;
+    if (qCut > 11) {
+      qLevel = kQualSingle;
+    } else if (qCut > 7) {
+      qLevel = kQualDouble;
+    } else if (qCut > 3) {
+      qLevel = kQualOpen;
+    }
+    cuts_.emplace_back(std::make_pair(c.getUntrackedParameter<int>("ptCut"), qLevel));
+  }
+
 }
 
 //_____________________________________________________________________
@@ -213,23 +226,25 @@ void L1TPhase2MuonOffline::bookControlHistos(DQMStore::IBooker& ibooker, MuType 
 void L1TPhase2MuonOffline::bookEfficiencyHistos(DQMStore::IBooker& ibooker, MuType mutype) {
   edm::LogInfo("L1TPhase2MuonOffline") << "L1TPhase2MuonOffline::bookEfficiencyHistos()" << endl;
   
-  ibooker.setCurrentFolder(histFolder_ + "/" + muonNames_[mutype] + "/efficiencies"); 
+  ibooker.setCurrentFolder(histFolder_ + "/" + muonNames_[mutype] + "/nums_and_dens"); 
   
   std::string histoname = "";
   for (const auto eta : etaRegions_) {
     for (const auto q : qualLevels_) {
-      histoname = muonNames_[mutype] + "_" + etaNames_[eta] + "_" + qualNames_[q];
+      histoname = "Eff_" + muonNames_[mutype] + "_" + etaNames_[eta] + "_" + qualNames_[q];
+      
       auto histBins = getHistBinsEff(kEffPt);
       efficiencyNum_[mutype][eta][q][kEffPt]  = ibooker.book1D(histoname + "_Pt_Num",  "MuonPt; p_{T} ;", histBins.size()-1, &histBins[0]);
-      efficiencyDen_[mutype][eta][q][kEffPt]  = ibooker.book1D(histoname + "_Pt_Den",  "MuonPt; p_{T} ;", histBins.size()-1, &histBins[0]);
-
+      efficiencyDen_[mutype][eta][q][kEffPt]  = ibooker.book1D(histoname + "_Pt_Den",  "MuonPt; p_{T} ;", histBins.size()-1, &histBins[0]);      
+      
       histBins = getHistBinsEff(kEffEta);
       efficiencyNum_[mutype][eta][q][kEffEta] = ibooker.book1D(histoname + "_Eta_Num", "MuonEta; #eta ;", histBins.size()-1, &histBins[0]);
       efficiencyDen_[mutype][eta][q][kEffEta] = ibooker.book1D(histoname + "_Eta_Den", "MuonEta; #eta ;", histBins.size()-1, &histBins[0]);
-
+      
       histBins = getHistBinsEff(kEffPhi);
       efficiencyNum_[mutype][eta][q][kEffPhi] = ibooker.book1D(histoname + "_Phi_Num", "MuonPhi; #phi ;", histBins.size()-1, &histBins[0]);
       efficiencyDen_[mutype][eta][q][kEffPhi] = ibooker.book1D(histoname + "_Phi_Den", "MuonPhi; #phi ;", histBins.size()-1, &histBins[0]);
+      
     }    
   }
 }
@@ -241,7 +256,7 @@ void L1TPhase2MuonOffline::bookResolutionHistos(DQMStore::IBooker& ibooker, MuTy
   for (const auto eta : etaRegions_) {
     for (const auto q : qualLevels_) {
       for (const auto var : resTypes_){
-	histoname = muonNames_[mutype] + "_" + etaNames_[eta] + "_" + qualNames_[q] + "_" + resNames_[var];
+	histoname = "Res_" + muonNames_[mutype] + "_" + etaNames_[eta] + "_" + qualNames_[q] + "_" + resNames_[var];
 	auto nbins = std::get<0>(getHistBinsRes(var));
 	auto xmin = std::get<1>(getHistBinsRes(var));
 	auto xmax = std::get<2>(getHistBinsRes(var));	
@@ -275,33 +290,46 @@ void L1TPhase2MuonOffline::fillControlHistos(){
   }  
 }
 void L1TPhase2MuonOffline::fillEfficiencyHistos(){
+      
   for (auto muIt : gmtSAMuonPairs_){
     auto eta = muIt.etaRegion();
-    for (const auto q : qualLevels_) {
-      if (muIt.gmtQual() < q*4) continue;
-      for (const auto var : resTypes_) {
-	auto varToFill = muIt.getDeltaVar(var);
+    for (const auto var : effTypes_) {
+      auto varToFill = muIt.getVar(var);
+      for (const auto& cut : cuts_){
+	const auto gmtPtCut = cut.first;
+	const auto q        = cut.second;
 	
-	efficiencyDen_[kSAMuon][eta][q][var]->Fill(varToFill) ;
+	efficiencyDen_[kSAMuon][eta][q][var]->Fill(varToFill) ;     
 	if (muIt.gmtPt() < 0) continue;	  // gmt muon does not exits
-	efficiencyNum_[kSAMuon][eta][q][var]->Fill(varToFill) ;
+	
+	if (muIt.gmtQual() < q*4) continue;    //quality requirements
+	if (var != kEffPt && muIt.gmtPt() < gmtPtCut) continue; // pt requirement 
+	
+	efficiencyNum_[kSAMuon][eta][q][var]->Fill(varToFill);
+      }
+    }
+  }
+
+  /// FOR TK MUONS
+  for (auto muIt : gmtTkMuonPairs_){
+    auto eta = muIt.etaRegion();
+    for (const auto var : effTypes_) {
+      auto varToFill = muIt.getVar(var);
+      for (const auto& cut : cuts_){
+	const auto gmtPtCut = cut.first;
+	const auto q        = cut.second;
+	
+	efficiencyDen_[kTkMuon][eta][q][var]->Fill(varToFill) ;     
+	if (muIt.gmtPt() < 0) continue;	  // gmt muon does not exits
+	
+	if (muIt.gmtQual() < q*4) continue;    //quality requirements
+	if (var != kEffPt && muIt.gmtPt() < gmtPtCut) continue; // pt requirement 
+	
+	efficiencyNum_[kTkMuon][eta][q][var]->Fill(varToFill);
       }
     }
   }
   
-  for (auto muIt : gmtTkMuonPairs_){
-    auto eta = muIt.etaRegion();
-    for (const auto q : qualLevels_) {
-      if (muIt.gmtQual() < q*4) continue;
-      for (const auto var : resTypes_) {
-	auto varToFill = muIt.getDeltaVar(var);
-	
-	efficiencyDen_[kTkMuon][eta][q][var]->Fill(varToFill) ;
-	if (muIt.gmtPt() < 0) continue;	  // gmt muon does not exits
-	efficiencyNum_[kTkMuon][eta][q][var]->Fill(varToFill) ;
-      }
-    }
-  }
 }
 void L1TPhase2MuonOffline::fillResolutionHistos(){
   

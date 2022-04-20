@@ -71,7 +71,7 @@ class L1TPhase2MuonOffline : public DQMEDAnalyzer {
   enum EffType { kEffPt, kEffPhi, kEffEta, kEffTypes };
   enum ResType { kResPt, kRes1OverPt, kResQOverPt, kResPhi, kResEta, kResCh, kNResTypes };
   enum EtaRegion { kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf, kNEtaRegions };
-  enum QualLevel { kQualAll, kQualOpen, kQualDouble, kQualSingle, kNQualLevels };
+  enum QualLevel { kQualOpen, kQualDouble, kQualSingle, kNQualLevels };
 
  protected:
   void dqmBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
@@ -124,7 +124,7 @@ private:
 
   // config params
   std::string histFolder_;
-  //std::vector<edm::ParameterSet> cutsVPSet_;  
+  std::vector<edm::ParameterSet> cutsVPSet_;  
 
   std::vector<double> effVsPtBins_;
   std::vector<double> effVsPhiBins_;
@@ -158,7 +158,7 @@ private:
   // helper variables
   std::vector<GenMuonGMTPair> gmtSAMuonPairs_;
   std::vector<GenMuonGMTPair> gmtTkMuonPairs_;
-  //std::vector<std::pair<int, QualLevel>> cuts_;
+  std::vector<std::pair<int, QualLevel>> cuts_;
 
   float lsb_pt ;
   float lsb_phi;
