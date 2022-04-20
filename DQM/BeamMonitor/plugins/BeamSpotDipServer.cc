@@ -50,7 +50,7 @@ BeamSpotDipServer::BeamSpotDipServer(const edm::ParameterSet& ps) {
   //
   bsLegacyToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 
-  dcsRecordInputTag_ = ps.getParameter<edm::InputTag>("dcsRecordInputTag");
+  dcsRecordInputTag_ = ps.getUntrackedParameter<edm::InputTag>("dcsRecordInputTag");
   dcsRecordToken_ = consumes<DCSRecord>(dcsRecordInputTag_);
 
   //

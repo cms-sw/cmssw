@@ -12,7 +12,7 @@ dqmFakeBeamMonitor = DQMEDAnalyzer("FakeBeamMonitor",
                               OnlineMode = cms.untracked.bool(True),
                               recordName = cms.untracked.string('BeamSpotOnlineHLTObjectsRcd'),
                               useLockRecords = cms.untracked.bool(False),
-                              BeamFitter = cms.PSet(
+                              BeamFitter = cms.untracked.PSet(
                                 Debug = cms.untracked.bool(False),
                                 TrackCollection = cms.untracked.InputTag('pixelTracks'),
                                 IsMuonCollection = cms.untracked.bool(False),
@@ -39,7 +39,7 @@ dqmFakeBeamMonitor = DQMEDAnalyzer("FakeBeamMonitor",
                                 MinimumInputTracks = cms.untracked.int32(150),
                                 deltaSignificanceCut = cms.untracked.double(10)
                                 ),
-                              PVFitter = cms.PSet(
+                              PVFitter = cms.untracked.PSet(
                                 Debug = cms.untracked.bool(False),
                                 Apply3DFit = cms.untracked.bool(True),
                                 VertexCollection = cms.untracked.InputTag('pixelVertices'),
@@ -61,17 +61,17 @@ dqmFakeBeamMonitor = DQMEDAnalyzer("FakeBeamMonitor",
                                 useOnlyFirstPV = cms.untracked.bool(False),
                                 minSumPt = cms.untracked.double(0.)
                                 ),
-                              dxBin = cms.int32(200),
-                              dxMin = cms.double(-1.0),
-                              dxMax = cms.double(1.0),
+                              dxBin = cms.untracked.int32(200),
+                              dxMin = cms.untracked.double(-1.0),
+                              dxMax = cms.untracked.double(1.0),
                               
-                              vxBin = cms.int32(200),
-                              vxMin = cms.double(-0.5),
-                              vxMax = cms.double(0.5),
+                              vxBin = cms.untracked.int32(200),
+                              vxMin = cms.untracked.double(-0.5),
+                              vxMax = cms.untracked.double(0.5),
                               
-                              dzBin = cms.int32(80),
-                              dzMin = cms.double(-20),
-                              dzMax = cms.double(20),
+                              dzBin = cms.untracked.int32(80),
+                              dzMin = cms.untracked.double(-20),
+                              dzMax = cms.untracked.double(20),
                               
                               phiBin = cms.int32(63),
                               phiMin = cms.double(-3.15),

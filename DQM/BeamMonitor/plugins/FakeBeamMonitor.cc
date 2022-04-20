@@ -102,21 +102,21 @@ std::string FakeBeamMonitor::getGMTstring(const time_t& timeToConvert) {
 FakeBeamMonitor::~FakeBeamMonitor() { delete rndm_; };
 
 FakeBeamMonitor::FakeBeamMonitor(const ParameterSet& ps)
-    : dxBin_(ps.getParameter<int>("dxBin")),
-      dxMin_(ps.getParameter<double>("dxMin")),
-      dxMax_(ps.getParameter<double>("dxMax")),
+    : dxBin_(ps.getUntrackedParameter<int>("dxBin")),
+      dxMin_(ps.getUntrackedParameter<double>("dxMin")),
+      dxMax_(ps.getUntrackedParameter<double>("dxMax")),
 
-      vxBin_(ps.getParameter<int>("vxBin")),
-      vxMin_(ps.getParameter<double>("vxMin")),
-      vxMax_(ps.getParameter<double>("vxMax")),
+      vxBin_(ps.getUntrackedParameter<int>("vxBin")),
+      vxMin_(ps.getUntrackedParameter<double>("vxMin")),
+      vxMax_(ps.getUntrackedParameter<double>("vxMax")),
 
-      phiBin_(ps.getParameter<int>("phiBin")),
-      phiMin_(ps.getParameter<double>("phiMin")),
-      phiMax_(ps.getParameter<double>("phiMax")),
+      phiBin_(ps.getUntrackedParameter<int>("phiBin")),
+      phiMin_(ps.getUntrackedParameter<double>("phiMin")),
+      phiMax_(ps.getUntrackedParameter<double>("phiMax")),
 
-      dzBin_(ps.getParameter<int>("dzBin")),
-      dzMin_(ps.getParameter<double>("dzMin")),
-      dzMax_(ps.getParameter<double>("dzMax")),
+      dzBin_(ps.getUntrackedParameter<int>("dzBin")),
+      dzMin_(ps.getUntrackedParameter<double>("dzMin")),
+      dzMax_(ps.getUntrackedParameter<double>("dzMax")),
 
       countEvt_(0),
       countLumi_(0),
@@ -136,11 +136,11 @@ FakeBeamMonitor::FakeBeamMonitor(const ParameterSet& ps)
   deltaSigCut_ = ps.getUntrackedParameter<double>("deltaSignificanceCut", 15);
   debug_ = ps.getUntrackedParameter<bool>("Debug");
   onlineMode_ = ps.getUntrackedParameter<bool>("OnlineMode");
-  min_Ntrks_ = ps.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
-  maxZ_ = ps.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
-  minNrVertices_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
-  minVtxNdf_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
-  minVtxWgt_ = ps.getParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
+  min_Ntrks_ = ps.getUntrackedParameter<ParameterSet>("BeamFitter").getUntrackedParameter<int>("MinimumInputTracks");
+  maxZ_ = ps.getUntrackedParameter<ParameterSet>("BeamFitter").getUntrackedParameter<double>("MaximumZ");
+  minNrVertices_ = ps.getUntrackedParameter<ParameterSet>("PVFitter").getUntrackedParameter<unsigned int>("minNrVerticesForFit");
+  minVtxNdf_ = ps.getUntrackedParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexNdf");
+  minVtxWgt_ = ps.getUntrackedParameter<ParameterSet>("PVFitter").getUntrackedParameter<double>("minVertexMeanWeight");
   useLockRecords_ = ps.getUntrackedParameter<bool>("useLockRecords");
 
   if (!monitorName_.empty())

@@ -20,24 +20,24 @@
 // -----------------------------
 
 PixelVTXMonitor::PixelVTXMonitor(const edm::ParameterSet& ps) : parameters_(ps) {
-  moduleName_ = parameters_.getParameter<std::string>("ModuleName");
-  folderName_ = parameters_.getParameter<std::string>("FolderName");
+  moduleName_ = parameters_.getUntrackedParameter<std::string>("ModuleName");
+  folderName_ = parameters_.getUntrackedParameter<std::string>("FolderName");
   pixelClusterInputTagToken_ =
-      consumes<SiPixelClusterCollectionNew>(parameters_.getParameter<edm::InputTag>("PixelClusterInputTag"));
+      consumes<SiPixelClusterCollectionNew>(parameters_.getUntrackedParameter<edm::InputTag>("PixelClusterInputTag"));
   pixelVertexInputTagToken_ =
-      consumes<reco::VertexCollection>(parameters_.getParameter<edm::InputTag>("PixelVertexInputTag"));
-  hltInputTagToken_ = consumes<edm::TriggerResults>(parameters_.getParameter<edm::InputTag>("HLTInputTag"));
-  pixelClusterInputTag_ = parameters_.getParameter<edm::InputTag>("PixelClusterInputTag");
-  pixelVertexInputTag_ = parameters_.getParameter<edm::InputTag>("PixelVertexInputTag");
-  hltInputTag_ = parameters_.getParameter<edm::InputTag>("HLTInputTag");
-  minVtxDoF_ = parameters_.getParameter<double>("MinVtxDoF");
+      consumes<reco::VertexCollection>(parameters_.getUntrackedParameter<edm::InputTag>("PixelVertexInputTag"));
+  hltInputTagToken_ = consumes<edm::TriggerResults>(parameters_.getUntrackedParameter<edm::InputTag>("HLTInputTag"));
+  pixelClusterInputTag_ = parameters_.getUntrackedParameter<edm::InputTag>("PixelClusterInputTag");
+  pixelVertexInputTag_ = parameters_.getUntrackedParameter<edm::InputTag>("PixelVertexInputTag");
+  hltInputTag_ = parameters_.getUntrackedParameter<edm::InputTag>("HLTInputTag");
+  minVtxDoF_ = parameters_.getUntrackedParameter<double>("MinVtxDoF");
 }
 
 PixelVTXMonitor::~PixelVTXMonitor() {}
 
 void PixelVTXMonitor::bookHistograms() {
   std::vector<std::string> hltPathsOfInterest =
-      parameters_.getParameter<std::vector<std::string> >("HLTPathsOfInterest");
+      parameters_.getUntrackedParameter<std::vector<std::string> >("HLTPathsOfInterest");
   if (hltPathsOfInterest.empty())
     return;
 
@@ -55,8 +55,8 @@ void PixelVTXMonitor::bookHistograms() {
       selectedPaths.push_back(*it);
   }
 
-  edm::ParameterSet ClusHistoPar = parameters_.getParameter<edm::ParameterSet>("TH1ClusPar");
-  edm::ParameterSet VtxHistoPar = parameters_.getParameter<edm::ParameterSet>("TH1VtxPar");
+  edm::ParameterSet ClusHistoPar = parameters_.getUntrackedParameter<edm::ParameterSet>("TH1ClusPar");
+  edm::ParameterSet VtxHistoPar = parameters_.getUntrackedParameter<edm::ParameterSet>("TH1VtxPar");
 
   std::string currentFolder = moduleName_ + "/" + folderName_;
   dbe_->setCurrentFolder(currentFolder);
@@ -74,9 +74,9 @@ void PixelVTXMonitor::bookHistograms() {
       htitle += tag + ")";
       local_MEs.clusME = dbe_->book1D(hname,
                                       htitle,
-                                      ClusHistoPar.getParameter<int32_t>("Xbins"),
-                                      ClusHistoPar.getParameter<double>("Xmin"),
-                                      ClusHistoPar.getParameter<double>("Xmax"));
+                                      ClusHistoPar.getUntrackedParameter<int32_t>("Xbins"),
+                                      ClusHistoPar.getUntrackedParameter<double>("Xmin"),
+                                      ClusHistoPar.getUntrackedParameter<double>("Xmax"));
 
       hname = "nPxlVtx_";
       hname += tag;
@@ -84,9 +84,9 @@ void PixelVTXMonitor::bookHistograms() {
       htitle += tag + ")";
       local_MEs.vtxME = dbe_->book1D(hname,
                                      htitle,
-                                     VtxHistoPar.getParameter<int32_t>("Xbins"),
-                                     VtxHistoPar.getParameter<double>("Xmin"),
-                                     VtxHistoPar.getParameter<double>("Xmax"));
+                                     VtxHistoPar.getUntrackedParameter<int32_t>("Xbins"),
+                                     VtxHistoPar.getUntrackedParameter<double>("Xmin"),
+                                     VtxHistoPar.getUntrackedParameter<double>("Xmax"));
 
       histoMap_.insert(std::make_pair(tag, local_MEs));
     }

@@ -48,22 +48,22 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer(const ParameterSet& iConfig) {
   pixelHitCollection = consumes<SiPixelRecHitCollection>(
       iConfig.getUntrackedParameter<InputTag>("pixelHitCollection", InputTag("siPixelRecHits")));
 
-  debugMode = iConfig.getParameter<bool>("debugMode");
-  nLumiFit = iConfig.getParameter<unsigned int>("nLumiFit");
-  maxLumiIntegration = iConfig.getParameter<unsigned int>("maxLumiIntegration");
-  nLumiXaxisRange = iConfig.getParameter<unsigned int>("nLumiXaxisRange");
-  dataFromFit = iConfig.getParameter<bool>("dataFromFit");
-  minNentries = iConfig.getParameter<unsigned int>("minNentries");
-  xRange = iConfig.getParameter<double>("xRange");
-  xStep = iConfig.getParameter<double>("xStep");
-  yRange = iConfig.getParameter<double>("yRange");
-  yStep = iConfig.getParameter<double>("yStep");
-  zRange = iConfig.getParameter<double>("zRange");
-  zStep = iConfig.getParameter<double>("zStep");
-  VxErrCorr = iConfig.getParameter<double>("VxErrCorr");
-  minVxDoF = iConfig.getParameter<double>("minVxDoF");
-  minVxWgt = iConfig.getParameter<double>("minVxWgt");
-  fileName = iConfig.getParameter<string>("fileName");
+  debugMode = iConfig.getUntrackedParameter<bool>("debugMode");
+  nLumiFit = iConfig.getUntrackedParameter<unsigned int>("nLumiFit");
+  maxLumiIntegration = iConfig.getUntrackedParameter<unsigned int>("maxLumiIntegration");
+  nLumiXaxisRange = iConfig.getUntrackedParameter<unsigned int>("nLumiXaxisRange");
+  dataFromFit = iConfig.getUntrackedParameter<bool>("dataFromFit");
+  minNentries = iConfig.getUntrackedParameter<unsigned int>("minNentries");
+  xRange = iConfig.getUntrackedParameter<double>("xRange");
+  xStep = iConfig.getUntrackedParameter<double>("xStep");
+  yRange = iConfig.getUntrackedParameter<double>("yRange");
+  yStep = iConfig.getUntrackedParameter<double>("yStep");
+  zRange = iConfig.getUntrackedParameter<double>("zRange");
+  zStep = iConfig.getUntrackedParameter<double>("zStep");
+  VxErrCorr = iConfig.getUntrackedParameter<double>("VxErrCorr");
+  minVxDoF = iConfig.getUntrackedParameter<double>("minVxDoF");
+  minVxWgt = iConfig.getUntrackedParameter<double>("minVxWgt");
+  fileName = iConfig.getUntrackedParameter<string>("fileName");
 
   // ### Set internal variables ###
   nParams = 9;  // Number of free parameters in the fit

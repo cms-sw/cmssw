@@ -50,7 +50,7 @@ private:
 TKStatus::TKStatus(const edm::ParameterSet& ps)
     : dcsStatusToken_(consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi"))),
       dcsRecordToken_(consumes<DCSRecord>(edm::InputTag("onlineMetaDataDigis"))) {
-  dcsTkFileName_ = ps.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
+  dcsTkFileName_ = ps.getUntrackedParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
   {
     std::string tmpname = dcsTkFileName_;
     tmpname.insert(dcsTkFileName_.length() - 4, "_TkStatus");
