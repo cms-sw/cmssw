@@ -3594,7 +3594,16 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                       '--eventcontent':'FEVTDEBUGHLT',
                                       '--geometry' : geom
                                       }
-
+    
+    upgradeStepDict['HLT75e33'][k] = {'-s':'HLT:@relval2026',
+                                      '--processName':'HLTX',
+                                      '--conditions':gt,
+                                      '--datatier':'FEVT',
+                                      '-n':'10',
+                                      '--eventcontent':'FEVTDEBUGHLT',
+                                      '--geometry' : geom
+                                      }
+    
     upgradeStepDict['Reco'][k] = {'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@ExtraHLT+@miniAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
