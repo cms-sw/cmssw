@@ -129,7 +129,8 @@ validations
 
 Variable | Default value | Explanation
 -------- | ------------- | -----------
-dataset | Single test file | A file list containing all analysis files.
+dataset | Single test file | A file list containing all analysis files. For CRAB running, you can also specify a CMS dataset in the form: "/JetHT/Run2018A-TkAlMinBias-12Nov2019_UL2018-v2/ALCARECO". This will not work for condor jobs to encourage CRAB usage for large datasets.
+filesPerJob | 5 | Number of files per job when running via CRAB or condor
 alignments | None | An array of alignment sets for which the validation is run.
 trackCollection     | "ALCARECOTkAlMinBias" | Track collection used for the analysis.
 maxevents     | 1 | Maximum number of events before cmsRun terminates.
@@ -197,6 +198,8 @@ inputFile   |  None | File containing the jetHT validation histograms for myAlig
 legendText  | "AlignmentN" | Name with which the alignment is referred to in the legend of the drawn figures. For all-in-one configuration, this variable is called "title" instead of "legendText".
 color       | Varies | Marker color used with this alignment
 style       | 20 | Marker style used with this alignment
+markerSize  | 1  | Marker size used with this alignment
+copyErrorColor | false | true: Use marker color for statistical error bars. false: Draw statistical error bars black.
 
 ```
 Standalone:               All-in-one:
@@ -241,6 +244,19 @@ drawDxyErrorVsPt     | false | Draw dxy error profiles as a function of pT
 drawDxyErrorVsPhi    | false | Draw dxy error profiles as a function of phi
 drawDxyErrorVsEta    | false | Draw dxy error profiles as a function of eta
 drawDxyErrorVsPtWide | false | Draw dxy error profiles as a function of pT in wide pT bins
+drawReferenceProfile | false | Draw the profile from all runs as a reference to single IOV profile plots
+drawCentralEtaSummaryProfile | true | Draw the central eta curves to the all runs summary profile plots
+legendShiftTotalX    | 0 | Shift the legend from the default position in x-direction for profile plots. Units are in fractions of the canvas size.
+legendShiftTotalY    | 0 | Shift the legend from the default position in y-direction for profile plots. Units are in fractions of the canvas size.
+legendShiftX0    | 0 | Shift only the leftmost part of multicolumn legends in x-direction for profile plots. Units are in fractions of the canvas size.
+legendShiftX1    | 0 | Shift only the second column from the left in multicolumn legends in x-direction for profile plots. Units are in fractions of the canvas size.
+legendShiftX2    | 0 | Shift only the third column from the left in multicolumn legends in x-direction for profile plots. Units are in fractions of the canvas size.
+legendShiftY0    | 0 | Shift only the leftmost part of multicolumn legends in y-direction for profile plots. Units are in fractions of the canvas size.
+legendShiftY1    | 0 | Shift only the second column from the left in multicolumn legends in y-direction for profile plots. Units are in fractions of the canvas size.
+legendShiftY2    | 0 | Shift only the third column from the left in multicolumn legends in y-direction for profile plots. Units are in fractions of the canvas size.
+legendTextSize   | 0.05 | Text size used in the legend.
+legendTextFont   | 62 | Text font used in the legend.
+nIovInOnePlot          | 1 | Number of successive IOV:s drawn in a single plot if profile plots are drawn for each IOV. If there are more then one aligment that are plotted in single canvas, this is automatically set to 1 regardless of user input.
 
 ```
 Standalone:               All-in-one:
@@ -291,6 +307,35 @@ Variable | Default value | Explanation
 -------- | ------------- | -----------
 drawDzError  | false | Draw the trend plots for dz errors
 drawDxyError | false | Draw the trend plots for dxy errors
+legendShiftTotalX    | 0 | Shift the legend from the default position in x-direction for trend plots. Units are in fractions of the canvas size.
+legendShiftTotalY    | 0 | Shift the legend from the default position in y-direction for trend plots. Units are in fractions of the canvas size.
+legendTextSize   | 0.05 | Text size used in the legend.
+legendTextFont   | 62 | Text font used in the legend.
+drawYearLines    | false | Draw vertical lines to trend plot marking for example different years of data taking.
+runsForLines     | [290543,314881] | List of run numbers to which the vertical lines in the trend plots are drawn.
+yearLineColor | 1 | Color of the drawn vertical lines
+yearLineWidth | 1 | Width of the drawn vertical lines
+yearLineStyle | 1 | Style of the drawn vertical lines
+useLuminosityAxis | true | true: For trend plots, make the width of the x-axis bin for each IOV proportional to the integrated luminosity within that IOV. false: Each IOV has the same bin width in x-axis.
+skipRunsWithNoData | false | true: If an IOV defined in lumiPerIovFile does not have any data, do not draw empty space to the x-axis for this IOV. false: Draw empty space for IOV:s with no data.
+drawTags | false | Draw manually defined tags to trend plots.
+tagLabels | [["2016",0.105,0.855],["2017",0.305,0.855],["2018",0.563,0.855]] | Tags to draw to the trend plots. This is an array of arrays, where the inner arrays must be in format ["tagText", tagPositionX, tagPositionY].
+tagTextSize | 0.05 | Text size for the drawn tags
+tagTextFont | 42 | Text font for the drawn tags
+canvasHeight | 400 | Height of the canvas in trend plots
+canvasWidth | 1000 | Width of the canvas in trend plots
+marginLeft | 0.08 | Left margin for the trend canvas
+marginRight | 0.03 | Right margin for the trend canvas
+marginTop | 0.06 | Top margin for the trend canvas
+marginBottom | 0.15 | Bottom margin for the trend canvas
+titleOffsetX | 1.1 | Offset of the x-axis title in trend plots
+titleOffsetY | 0.55 | Offset of the y-axis title in trend plots
+titleSizeX | 0.06 | Size of the x-axis title in trend plots
+titleSizeY | 0.06 | Size of the y-axis title in trend plots
+labelOffsetX | 0.01 | Offset of the x-axis label in trend plots
+labelOffsetY | 0.007 | Offset of the y-axis label in trend plots
+labelSizeX | 0.05 | Size of the x-axis label in trend plots
+labelSizeY | 0.05 | Size of the y-axis label in trend plots
 
 ```
 Standalone:               All-in-one:
@@ -327,13 +372,10 @@ All the remaining parameters
 Variable | Default value | Explanation
 -------- | ------------- | -----------
 drawTrackQA            | false | Draw the track QA plots (number of vertices, tracks per vertex, track pT, track phi, and track eta).
-drawYearLines          | false | Draw vertical lines to trend plot marking for example different years of data taking.
-runsForLines           | [0] | List of run numbers to which the vertical draws in the trend plots are drawn.
 lumiPerIovFile         | "lumiPerRun_Run2.txt" | File containing integrated luminosity for each IOV.
-drawPlotsForEachIOV    | false | true: For profile plots, draw the profiles separately for each IOV defined in the lumiPerIovFile. false: Only draw plots integrated over all IOVs.
-nIovInOnePlot          | 1 | Number of successive IOV:s drawn in a single plot is profile plots are drawn for each IOV.
-useLuminosityForTrends | true | true: For trend plots, make the width of the x-axis bin for each IOV proportional to the integrated luminosity within that IOV. false: Each IOV has the same bin width in x-axis.
-skipRunsWithNoData     | false | true: If an IOV defined in lumiPerIovFile does not have any data, do not draw empty space to the x-axis for this IOV. false: Draw empty space for IOV:s with no data.
+iovListMode            | "run" | If "IOV", the plot legends are drawn as IOV NNN-NNN. Otherwise they are Run NNN.
+legendTextForAllRuns   | "All" | String referring to all runs included in the file. If you want better description than "all", you can set this to for example "Run2018A" or similar.
+drawPlotsForEachIOV    | false | true: Draw the dxy and dz histograms and profiles separately for each IOV defined in the lumiPerIovFile. false: Only draw plots integrated over all IOVs.
 widePtBinBorders       | [3,5,10,20,50,100] | List for pT borders used in wide pT bin profiles. Also the trend plots are calculated using these pT borders. This needs to be set to same value as the profilePtBorders variable used in the corresponding validation analysis. The all-in-one config does this automatically for you.
 normalizeQAplots       | true | true: For track QA plots, normalize each distribution with its integral. false: No normalization for QA plots, show directly the counts.
 makeIovlistForSlides   | false | true: Create a text file to be used as input for prepareSlides.sh script for making latex presentation template with profile plots from each IOV. false: Do not do this.

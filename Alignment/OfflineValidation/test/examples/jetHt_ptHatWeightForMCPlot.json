@@ -14,7 +14,7 @@
             "style": 20
           },
           "MCPFJet320": {
-            "inputFile": "CMSSW_BASE/src/Alignment/OfflineValidation/test/examples/ptHatFiles_MC2018_PFJet320.txt",
+            "inputFile": "$CMSSW_BASE/src/Alignment/OfflineValidation/test/examples/ptHatFiles_MC2018_PFJet320.txt",
             "legendText": "MC PFJet320 weight",
             "color": 1,
             "style": 20
@@ -35,19 +35,16 @@
             "drawDxyErrorVsPt": true,
             "drawDxyErrorVsPhi": true,
             "drawDxyErrorVsEta": true,
-            "drawDxyErrorVsPtWide": false
+            "drawDxyErrorVsPtWide": false,
+            "drawCentralEtaSummaryProfile": false,
+            "nIovInOnePlot": 1
         },
         "drawTrends": {
             "drawDzError": false,
             "drawDxyError": false
         },
-        "lumiPerIovFile": "CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
-        "drawYearLines": true,
-        "runsForLines": [290543,314881],
+        "lumiPerIovFile": "$CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt",
         "drawPlotsForEachIOV": false,
-        "nIovInOnePlot": 1,
-        "useLuminosityForTrends": true,
-        "skipRunsWithNoData": false,
         "normalizeQAplots": true,
         "makeIovlistForSlides": false,
         "iovListForSlides": "iovListForSlides.txt",

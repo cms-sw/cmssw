@@ -26,6 +26,12 @@
            "globaltag": "auto:run2_data",
            "style": "2101",
            "title": "unit test"
+        },
+        "unitTestJetHTMC": {
+           "color": "1",
+           "globaltag": "auto:phase1_2018_realistic",
+           "style": "2101",
+           "title": "unit test"
         }
     },
     "validations": {
@@ -122,14 +128,14 @@
                 "testJob": {
                     "alignments": ["unitTestJetHT"],
                     "trackCollection": "ALCARECOTkAlMinBias",
-                    "maxevents": 10,
+                    "maxevents": 100,
                     "iovListFile": "CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt"
                 },
                 "testMC": {
-                    "alignments": ["unitTest"],
+                    "alignments": ["unitTestJetHTMC"],
                     "trackCollection": "ALCARECOTkAlMinBias",
                     "mc": "True",
-                    "maxevents": 10
+                    "maxevents": 100
                 }
             },
             "merge": {
@@ -139,7 +145,7 @@
                 },
                 "testMC": {
                     "singles": ["testMC"],
-                    "alignments": ["unitTest"]
+                    "alignments": ["unitTestJetHTMC"]
                 }
             },
             "plot": {
@@ -159,7 +165,7 @@
                 },
                 "testMC": {
                     "merges": ["testMC"],
-                    "alignments": ["unitTest"],
+                    "alignments": ["unitTestJetHTMC"],
                     "jethtplot":{
                         "drawProfiles": {
                             "drawDzErrorVsPt": true,
