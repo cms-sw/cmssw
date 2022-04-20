@@ -69,9 +69,7 @@ namespace l1t {
 
     bool fillLastTriggerKeyList(L1TriggerKeyListExt& output);
 
-    WriterProxy* getWriter() {
-      return writer.get();
-    }
+    WriterProxy* getWriter() { return writer.get(); }
 
   private:
     WriterProxyPtr writer;
@@ -88,12 +86,12 @@ namespace l1t {
 
     poolDb->forceInit();
     cond::persistency::Session session = poolDb->session();
-    ///  session.transaction().start(true);
+    session.transaction().start(true);
 
     // Get object from CondDB
     std::shared_ptr<T> ref = session.fetchPayload<T>(payloadToken);
     outputObject = *ref;
-    ///  session.transaction().commit ();
+    session.transaction().commit();
   }
 
 }  // namespace l1t

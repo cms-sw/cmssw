@@ -56,14 +56,13 @@ L1CondDBPayloadWriterExt::L1CondDBPayloadWriterExt(const edm::ParameterSet& iCon
       m_overwriteKeys(iConfig.getParameter<bool>("overwriteKeys")),
       m_logTransactions(iConfig.getParameter<bool>("logTransactions")),
       m_newL1TriggerKeyListExt(iConfig.getParameter<bool>("newL1TriggerKeyListExt")),
-      theL1TriggerKeyExtToken_(esConsumes())
-{
+      theL1TriggerKeyExtToken_(esConsumes()) {
   auto cc = consumesCollector();
-  for (auto sysWriter : iConfig.getParameter<std::vector<std::string>>("sysWriters")) {
+  for (const auto& sysWriter : iConfig.getParameter<std::vector<std::string>>("sysWriters")) {
     //construct writer
     DataWriterExtPtr writer = std::make_unique<l1t::DataWriterExt>(sysWriter);
-    writer->getWriter()->setToken( cc );
-    m_rcdToWriterMap[ sysWriter ] = std::move(writer); //the sysWriter holds info in 'rcd@prod' format
+    writer->getWriter()->setToken(cc);
+    m_rcdToWriterMap[sysWriter] = std::move(writer);  //the sysWriter holds info in 'rcd@prod' format
   }
 }
 
@@ -79,7 +78,6 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
   // Get L1TriggerKeyListExt and make a copy
   L1TriggerKeyListExt oldKeyList;
   l1t::DataWriterExt& m_writer = *m_rcdToWriterMap.at("L1TriggerKeyExtRcd@L1TriggerKeyExt");
-
 
   if (!m_newL1TriggerKeyListExt) {
     if (!m_writer.fillLastTriggerKeyList(oldKeyList)) {
