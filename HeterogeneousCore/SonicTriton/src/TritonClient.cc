@@ -196,7 +196,7 @@ void TritonClient::addEntry(unsigned entry) {
   for (auto& element : output_) {
     element.second.addEntryImpl(entry);
   }
-  if (entry>1)
+  if (entry>0)
     setBatchSize(1);
 }
 
