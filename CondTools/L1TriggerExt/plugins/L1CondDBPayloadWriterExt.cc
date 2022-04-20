@@ -78,7 +78,7 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
 
   // Get L1TriggerKeyListExt and make a copy
   L1TriggerKeyListExt oldKeyList;
-  l1t::DataWriterExt& m_writer = *m_rcdToWriterMap["L1TriggerKeyExtRcd@L1TriggerKeyExt"];
+  l1t::DataWriterExt& m_writer = *m_rcdToWriterMap.at("L1TriggerKeyExtRcd@L1TriggerKeyExt");
 
 
   if (!m_newL1TriggerKeyListExt) {
@@ -146,7 +146,7 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
             }
 
             try {
-              token = m_rcdToWriterMap[it->first]->writePayload(iSetup);
+              token = m_rcdToWriterMap.at(it->first)->writePayload(iSetup);
             } catch (l1t::DataInvalidException& ex) {
               edm::LogVerbatim("L1-O2O") << ex.what() << " Skipping to next record.";
 
