@@ -16,19 +16,29 @@ options.register ('config',
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,         # string, int, or float
                   "AllInOne config.")
+options.register ('runType',
+                  "condor", # Default type
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,         # string, int, or float
+                  "AllInOne config.")
+options.register ('jobNumber',
+                  -1, # Default value
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.int,         # string, int, or float
+                  "AllInOne config.")
 options.parseArguments()
 
 #Read in AllInOne config in JSON format
-from Alignment.OfflineValidation.TkAlAllInOneTool.utils import _byteify
 import json
 import os
+import re
 
 if options.config == "":
     configuration = {"validation": {},
                      "alignment": {}}
 else:
     with open(options.config, "r") as configFile:
-        configuration = _byteify(json.load(configFile, object_hook=_byteify), ignore_dicts=True)
+        configuration = json.load(configFile)
 
 # Read parameters from the configuration file
 useMC = configuration["validation"].get("mc", False)
@@ -39,6 +49,8 @@ iovListList = configuration["validation"].get("iovList", [0,500000])
 ptBorders = configuration["validation"].get("profilePtBorders", [3,5,10,20,50,100])
 trackCollection = str(configuration["validation"].get("trackCollection", "ALCARECOTkAlMinBias"))
 maxEventsToRun = configuration["validation"].get("maxevents", 1)
+filesPerJob = configuration["validation"].get("filesPerJob", 5)
+runsInFiles = configuration.get("runsInFiles",[])
 
 # The default global tag is suiteble for the unit test file for data
 globalTag = str(configuration["alignment"].get("globaltag", "auto:run2_data"))
@@ -89,12 +101,58 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 readFiles = []
 
 if "dataset" in configuration["validation"]:
-    with open(configuration["validation"]["dataset"], "r") as datafiles:
-        for fileName in datafiles.readlines():
-            readFiles.append(fileName.replace("\n", ""))
 
-    ##Define input source
-    process.source = cms.Source("PoolSource",
+    # We have defined a CMS dataset
+    if re.match( r'^/[^/.]+/[^/.]+/[^/.]+$', configuration["validation"]["dataset"] ):
+
+        ##Define a dummy source. This will be overwritten by CRAB
+        process.source = cms.Source("PoolSource",
+                                fileNames = cms.untracked.vstring("dummy.dat"),
+                                skipEvents = cms.untracked.uint32(0)
+                               )
+      
+    # We are dealing with a filelist
+    else:
+        with open(configuration["validation"]["dataset"], "r") as datafiles:
+            for fileName in datafiles.readlines():
+                readFiles.append(fileName.replace("\n", ""))
+
+        # If we do run number based splitting, only read the files that correspond to the current run number
+        if len(runsInFiles) > 0:
+            newFiles = []
+            for line in readFiles:
+                runAndFile = line.split()
+                if runsInFiles[options.jobNumber] == runAndFile[0]:
+                    newFiles.append(runAndFile[1])
+            readFiles = newFiles
+
+            ##Define input source
+            process.source = cms.Source("PoolSource",
+                                fileNames = cms.untracked.vstring(readFiles),
+                                eventsToProcess = cms.untracked.VEventRange("{}:1-{}:max".format(runsInFiles[options.jobNumber], runsInFiles[options.jobNumber]))
+                               )
+
+        ## If we are not doing run number based splitting but have defined a job number, we have file based splitting. Only analyze the files corresponding to this job number
+        elif options.jobNumber >= 0:
+            newFiles = []
+            numberOfFiles = len(readFiles)
+            firstIndex = filesPerJob * options.jobNumber
+            for fileIndex in range(firstIndex, firstIndex+filesPerJob):
+                if fileIndex >= numberOfFiles:
+                    break
+                newFiles.append(readFiles[fileIndex])
+            readFiles = newFiles
+
+            ##Define input source
+            process.source = cms.Source("PoolSource",
+                                fileNames = cms.untracked.vstring(readFiles),
+                                skipEvents = cms.untracked.uint32(0)
+                               )
+
+        ## In the default case we are most likely doing CRAB running. Just use the whole file list. CRAB will handle splitting
+        else:
+            ##Define input source
+            process.source = cms.Source("PoolSource",
                                 fileNames = cms.untracked.vstring(readFiles),
                                 skipEvents = cms.untracked.uint32(0)
                                )
@@ -104,9 +162,9 @@ else:
     print(">>>>>>>>>> JetHT_cfg.py: msg%-i: dataset not specified in configuration! Loading default file!")
 
     if useMC:
-        print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file for 2017 MC from 170-300 pT hat bin.")
+        print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file for 2018 MC from 170-300 pT hat bin.")
         process.source = cms.Source("PoolSource",
-                              fileNames = cms.untracked.vstring('root://xrootd-cms.infn.it//store/mc/RunIIWinter19PFCalibDRPremix/QCD_Pt_170to300_TuneCP5_13TeV_pythia8/ALCARECO/TkAlMinBias-2017Conditions_105X_mc2017_realistic_v5-v1/10000/A4C71578-282D-384C-AF19-9A685808EEB8.root')
+                              fileNames = cms.untracked.vstring('root://xrootd-cms.infn.it//store/mc/RunIIWinter19PFCalibDRPremix/QCD_Pt_170to300_TuneCP5_13TeV_pythia8/ALCARECO/TkAlMinBias-2018Conditions_105X_upgrade2018_realistic_v4-v1/270000/C42688BC-7401-3A41-9008-7CD1CA4B09E1.root')
                               )
     else:
         print(">>>>>>>>>> JetHT_cfg.py: msg%-i: Default file read from 2018D JetHT dataset.")
@@ -218,9 +276,16 @@ process.jetHTAnalyzer = cms.EDAnalyzer('JetHTAnalyzer',
                                        iovList = cms.untracked.vint32(iovListList)
                                        )
 
+jobNumberString = ""
+if options.jobNumber >= 0:
+    jobNumberString = "_{}".format(options.jobNumber)
+
+outputName = "{}/JetHTAnalysis{}.root".format(configuration.get("output", os.getcwd()), jobNumberString)
+if options.runType == "crab":
+    outputName = "JetHTAnalysis.root"
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("{}/JetHTAnalysis.root".format(configuration.get("output", os.getcwd()))),	
+                                   fileName = cms.string(outputName),	
                                    closeFileFast = cms.untracked.bool(False)
                                    )
 

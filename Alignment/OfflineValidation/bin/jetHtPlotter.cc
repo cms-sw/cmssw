@@ -10,6 +10,9 @@
 #include <TGraphErrors.h>
 #include <TLegend.h>
 #include <TLine.h>
+#include <TSystem.h>
+#include <TMath.h>
+#include <TLatex.h>
 
 // AllInOneTool includes
 #include "Options.h"
@@ -35,32 +38,90 @@ const int kMaxFiles = 4;
  *    int color[kMaxFiles] = Color used for each files
  */
 void drawSingleHistogram(TH1D *histogram[kMaxFiles], const char *saveName, bool saveFigures, TString comment[kMaxFiles], int legendPosition, bool normalize, bool logScale, int color[kMaxFiles]){
+  
+  // Create and setup the histogram drawer
   JDrawer *drawer = new JDrawer();
   drawer->SetLogY(logScale);
-  double legendX1 = 0.6; double legendY1 = 0.75; double legendX2 = 0.9; double legendY2 = 0.9;
-  if(legendPosition == 1){
-    legendX1 = 0.35; legendY1 = 0.2; legendX2 = 0.65; legendY2 = 0.35;
-  }
-  TLegend *legend = new TLegend(legendX1,legendY1,legendX2,legendY2);
-  legend->SetFillStyle(0);legend->SetBorderSize(0);legend->SetTextSize(0.05);legend->SetTextFont(62);
+  drawer->SetTopMargin(0.08);
+  
+  // The first histogram in the array is always included, draw it
   histogram[0]->SetLineColor(color[0]);
   if(normalize) histogram[0]->Scale(1.0/histogram[0]->Integral());
-  legend->AddEntry(histogram[0],comment[0],"l");
   drawer->DrawHistogram(histogram[0]);
+  
+  // Draw all the remaining histograms in the array. Calculate how many were drawn
+  int nHistograms = 1;
   for(int iFile = 1; iFile < kMaxFiles; iFile++){
     if(histogram[iFile]){
+      nHistograms++;
       histogram[iFile]->SetLineColor(color[iFile]);
       if(normalize) histogram[iFile]->Scale(1.0/histogram[iFile]->Integral());
       histogram[iFile]->Draw("Same");
+    }
+  }
+  
+  // Create a legend with size depending on the number of histograms
+  double legendX1 = 0.6; double legendY1 = 0.9-0.07*nHistograms; double legendX2 = 0.9; double legendY2 = 0.9;
+  if(legendPosition == 1){
+    legendX1 = 0.35; legendY1 = 0.4-0.07*nHistograms + 0.07*(nHistograms/4); legendX2 = 0.65; legendY2 = 0.4 + 0.07*(nHistograms/4);
+  }
+  TLegend *legend = new TLegend(legendX1,legendY1,legendX2,legendY2);
+  legend->SetFillStyle(0);legend->SetBorderSize(0);legend->SetTextSize(0.05);legend->SetTextFont(62);
+  
+  // Add all the histograms to the legend and draw it
+  legend->AddEntry(histogram[0],comment[0],"l");
+  for(int iFile = 1; iFile < kMaxFiles; iFile++){
+    if(histogram[iFile]){
       legend->AddEntry(histogram[iFile],comment[iFile],"l");
     }
   }
   legend->Draw();
+  
+  // Save the drawn figure to a file
   if(saveFigures) gPad->GetCanvas()->SaveAs(Form("output/%s.pdf",saveName));
 }
 
 /*
- *  Construct vectors of ptHet files and the ptHat value in each of those files
+ *  Find a good range for the y-axes of the histograms
+ *
+ *  Arguments:
+ *   TH1D *histogram[kMaxFiles] = Histogram array from which the Y-axis range is searched
+ *
+ *  return:
+ *   Tuple containing the minimum and maximum zoom for the histogram Y-axis
+ */
+std::tuple<double, double> findHistogramYaxisRange(TH1D *histogram[kMaxFiles]){
+  
+  // Find the smallest minimum and largest maximum from the histograms
+  double minValue = histogram[0]->GetMinimum();
+  double maxValue = histogram[0]->GetMaximum();
+  
+  double newMinValue, newMaxValue;
+  
+  for(int iFile = 1; iFile < kMaxFiles; iFile++){
+    if(histogram[iFile]){
+      newMinValue = histogram[iFile]->GetMinimum();
+      newMaxValue = histogram[iFile]->GetMaximum();
+      
+      if(newMinValue < minValue) minValue = newMinValue;
+      if(newMaxValue > maxValue) maxValue = newMaxValue;
+    }
+  }
+  
+  // Add some margin below the minimum and over the maximum
+  double margin = 0.075;
+  double totalSpan = maxValue - minValue;
+  minValue = minValue - margin * totalSpan;
+  if(minValue < 0) minValue = 0;
+  maxValue = maxValue + margin * totalSpan;
+  
+  // Return the minimum and maximum values
+  return std::make_tuple(minValue, maxValue);
+  
+}
+
+/*
+ *  Construct vectors of ptHat files and the ptHat value in each of those files
  *
  *  Arguments:
  *   const char* inputFile = File containing the list of ptHat separated files and ptHat bin in each file
@@ -151,16 +212,18 @@ TH1* getPtHatCombinedHistogram(std::vector<TFile*> ptHatFiles, std::vector<int> 
  *
  *  Arguments:
  *   const char* inputFile = File containing the run and luminosity lists
+ *   const char* iovListMode = List mode for IOVs. Tells if every run in the IOV list is it's own IOV or a border run in a set of runs for IOV.
  *
  *  return:
- *   Tuple containing list of runs, luminosities, and histogram names within the validation files
+ *   Tuple containing list of runs, luminosities, histogram names and legend strings within the validation files
  */
-std::tuple<std::vector<int>, std::vector<double>, std::vector<TString>> getRunAndLumiLists(const char* inputFile){
+std::tuple<std::vector<int>, std::vector<double>, std::vector<TString>, std::vector<TString>> getRunAndLumiLists(const char* inputFile, const char* iovListMode){
   
   // Create vectors for each list
   std::vector<int> iovVector;
   std::vector<double> lumiPerIov;
   std::vector<TString> iovNames;
+  std::vector<TString> iovLegend;
   
   // Helper variables to read the file
   std::string lineInFile;
@@ -183,18 +246,32 @@ std::tuple<std::vector<int>, std::vector<double>, std::vector<TString>> getRunAn
     iovVector.push_back(thisIov);
     lumiPerIov.push_back(thisLumi);
   }
-
+  
   // Create names for the different IOV:s
   for(std::vector<int>::size_type i = 1; i < iovVector.size(); i++){
     iovNames.push_back(Form("iov%d-%d",iovVector.at(i-1),iovVector.at(i)-1));
   }
   
+  // For the legend naming, use just the run if specified in iovListMode
+  TString listModeParser = iovListMode;
+  if(listModeParser.EqualTo("iov",TString::kIgnoreCase)){
+    for(std::vector<int>::size_type i = 1; i < iovVector.size(); i++){
+      iovLegend.push_back(Form("IOV %d-%d",iovVector.at(i-1),iovVector.at(i)-1));
+    }
+  } else {
+    for(std::vector<int>::size_type i = 0; i < iovVector.size()-1; i++){
+      iovLegend.push_back(Form("Run %d",iovVector.at(i)));
+    }
+  }
+  
   // Add the iov integrated histograms after the histograms per IOV
   iovNames.push_back("all");
   iovNames.push_back("central");
+  iovLegend.push_back("All");
+  iovLegend.push_back("Central");
   
   // After all the vectors are filled, return them
-  return std::make_tuple(iovVector, lumiPerIov, iovNames);
+  return std::make_tuple(iovVector, lumiPerIov, iovNames, iovLegend);
   
 }
 
@@ -301,7 +378,7 @@ void jetHtPlotter(std::string configurationFileName){
   
   JetHtPlotConfiguration *configurationGiver = new JetHtPlotConfiguration();
   configurationGiver->ReadJsonFile(configurationFileName);
-  configurationGiver->PrintConfiguration();
+  //configurationGiver->PrintConfiguration();
   
   enum enumHistogramType{kDz, kDzError, kDxy, kDxyError, knHistogramTypes};
   TString histogramName[knHistogramTypes] = {"dz","dzerr","dxy","dxyerr"};
@@ -316,27 +393,69 @@ void jetHtPlotter(std::string configurationFileName){
   bool drawProfile[knProfileTypes];
   bool drawTrend[knTrendTypes];
   
-  bool drawTrackQA = configurationGiver->GetDrawTrackQA();                                // Draw track and vertex QA figures
-  drawHistogram[kDz] = configurationGiver->GetDrawHistogram(kDz);                         // Draw the dz histograms
-  drawHistogram[kDzError] = configurationGiver->GetDrawHistogram(kDzError);               // Draw the dz error histograms
-  drawProfile[kDzErrorVsPt] = configurationGiver->GetDrawProfile(kDzErrorVsPt);           // Draw mean dz error as a function of pT
-  drawProfile[kDzErrorVsPhi] = configurationGiver->GetDrawProfile(kDzErrorVsPhi);         // Draw mean dz error as a function of phi
-  drawProfile[kDzErrorVsEta] = configurationGiver->GetDrawProfile(kDzErrorVsEta);         // Draw mean dz error as a function of eta
-  drawProfile[kDzErrorVsPtWide] = configurationGiver->GetDrawProfile(kDzErrorVsPtWide);   // Draw mean dz error in wide pT bins
-  drawHistogram[kDxy] = configurationGiver->GetDrawHistogram(kDxy);                       // Draw the dxy histograms
-  drawHistogram[kDxyError] = configurationGiver->GetDrawHistogram(kDxyError);             // Draw the dxy error histograms
-  drawProfile[kDxyErrorVsPt] = configurationGiver->GetDrawProfile(kDxyErrorVsPt);         // Draw the dxy error as a function of pT
-  drawProfile[kDxyErrorVsPhi] = configurationGiver->GetDrawProfile(kDxyErrorVsPhi);       // Draw the dxy error as a function of phi
-  drawProfile[kDxyErrorVsEta] = configurationGiver->GetDrawProfile(kDxyErrorVsEta);       // Draw the dxy error as a function of eta
-  drawProfile[kDxyErrorVsPtWide] = configurationGiver->GetDrawProfile(kDxyErrorVsPtWide); // Draw mean dxy error in wide pT bins
-  drawTrend[kDzErrorTrend] = configurationGiver->GetDrawTrend(kDzErrorTrend);             // Draw the trend plots for dz errors
-  drawTrend[kDxyErrorTrend] = configurationGiver->GetDrawTrend(kDxyErrorTrend);           // Draw the trend plots for dxy errors
+  bool drawTrackQA = configurationGiver->GetDrawTrackQA();                                   // Draw track and vertex QA figures
+  drawHistogram[kDz] = configurationGiver->GetDrawHistogram(kDz);                            // Draw the dz histograms
+  drawHistogram[kDzError] = configurationGiver->GetDrawHistogram(kDzError);                  // Draw the dz error histograms
+  drawProfile[kDzErrorVsPt] = configurationGiver->GetDrawProfile(kDzErrorVsPt);              // Draw mean dz error as a function of pT
+  drawProfile[kDzErrorVsPhi] = configurationGiver->GetDrawProfile(kDzErrorVsPhi);            // Draw mean dz error as a function of phi
+  drawProfile[kDzErrorVsEta] = configurationGiver->GetDrawProfile(kDzErrorVsEta);            // Draw mean dz error as a function of eta
+  drawProfile[kDzErrorVsPtWide] = configurationGiver->GetDrawProfile(kDzErrorVsPtWide);      // Draw mean dz error in wide pT bins
+  drawHistogram[kDxy] = configurationGiver->GetDrawHistogram(kDxy);                          // Draw the dxy histograms
+  drawHistogram[kDxyError] = configurationGiver->GetDrawHistogram(kDxyError);                // Draw the dxy error histograms
+  drawProfile[kDxyErrorVsPt] = configurationGiver->GetDrawProfile(kDxyErrorVsPt);            // Draw the dxy error as a function of pT
+  drawProfile[kDxyErrorVsPhi] = configurationGiver->GetDrawProfile(kDxyErrorVsPhi);          // Draw the dxy error as a function of phi
+  drawProfile[kDxyErrorVsEta] = configurationGiver->GetDrawProfile(kDxyErrorVsEta);          // Draw the dxy error as a function of eta
+  drawProfile[kDxyErrorVsPtWide] = configurationGiver->GetDrawProfile(kDxyErrorVsPtWide);    // Draw mean dxy error in wide pT bins
+  bool drawReferenceProfile = configurationGiver->GetDrawReferenceProfile();                 // Draw reference profile to single IOV plots
+  bool drawCentralEtaSummaryProfile = configurationGiver->GetDrawCentralEtaSummaryProfile(); // Draw central eta histograms to all runs summary profiles
+  drawTrend[kDzErrorTrend] = configurationGiver->GetDrawTrend(kDzErrorTrend);                // Draw the trend plots for dz errors
+  drawTrend[kDxyErrorTrend] = configurationGiver->GetDrawTrend(kDxyErrorTrend);              // Draw the trend plots for dxy errors
+  
+  const int nMaxLegendColumns = 3;
+  double profileLegendShiftTotalX = configurationGiver->GetProfileLegendShiftTotalX();  // Total legend position shift in x-direction for profile plots
+  double profileLegendShiftTotalY = configurationGiver->GetProfileLegendShiftTotalY();  // Total legend position shift in y-direction for profile plots
+  double profileLegendShiftColumnX[nMaxLegendColumns];
+  double profileLegendShiftColumnY[nMaxLegendColumns];
+  for(int iColumn = 0; iColumn < nMaxLegendColumns; iColumn++){
+    profileLegendShiftColumnX[iColumn] = configurationGiver->GetProfileLegendShiftColumnX(iColumn);  // Columnwise legend position shift in x-direction for profile plots
+    profileLegendShiftColumnY[iColumn] = configurationGiver->GetProfileLegendShiftColumnY(iColumn);  // Columnwise legend position shift in x-direction for profile plots
+  }
+  double profileLegendTextSize = configurationGiver->GetProfileLegendTextSize(); // Legend text size for profile plots
+  int profileLegendTextFont = configurationGiver->GetProfileLegendTextFont(); // Legend text font for profile plots
+  TString legendTextForAllRuns = configurationGiver->GetLegendTextForAllRuns(); // Legend text referring to all runs in the file
+  
+  double trendLegendShiftTotalX = configurationGiver->GetTrendLegendShiftTotalX();  // Total legend position shift in x-direction for trend plots
+  double trendLegendShiftTotalY = configurationGiver->GetTrendLegendShiftTotalY();  // Total legend position shift in y-direction for trend plots
+  double trendLegendTextSize = configurationGiver->GetTrendLegendTextSize(); // Legend text size for trend plots
+  int trendLegendTextFont = configurationGiver->GetTrendLegendTextFont(); // Legend text font for trend plots
+  
+  bool drawTrendTag = configurationGiver->GetDrawTrendTag(); // Draw manual tags to the trend plots
+  std::vector<std::string> trendTagText = configurationGiver->GetTrendTagText();  // Drawn tag texts for trend plots
+  std::vector<double> trendTagPositionX = configurationGiver->GetTrendTagPositionX(); // Trend tag x-positions
+  std::vector<double> trendTagPositionY = configurationGiver->GetTrendTagPositionY(); // Trend tag y-positions
+  double trendTagTextSize = configurationGiver->GetTrendTagTextSize(); // Tag text size for trend plots
+  int trendTagTextFont = configurationGiver->GetTrendTagTextFont(); // Tag text font for trend plots
+  
+  int trendCanvasHeight = configurationGiver->GetTrendCanvasHeight(); // Canvas height for trend plots
+  int trendCanvasWidth = configurationGiver->GetTrendCanvasWidth(); // Canvas width for trend plots
+  double trendMarginLeft = configurationGiver->GetTrendMarginLeft(); // Left margin in trend plots
+  double trendMarginRight = configurationGiver->GetTrendMarginRight(); // Right margin in trend plots
+  double trendMarginTop = configurationGiver->GetTrendMarginTop(); // Top margin in trend plots
+  double trendMarginBottom = configurationGiver->GetTrendMarginBottom(); // Bottom margin in trend plots
+  double trendTitleOffsetX = configurationGiver->GetTrendTitleOffsetX(); // x-axis title offset in trend plots
+  double trendTitleOffsetY = configurationGiver->GetTrendTitleOffsetY(); // y-axis title offset in trend plots
+  double trendTitleSizeX = configurationGiver->GetTrendTitleSizeX(); // x-axis title size in trend plots
+  double trendTitleSizeY = configurationGiver->GetTrendTitleSizeY(); // y-axis title size in trend plots
+  double trendLabelOffsetX = configurationGiver->GetTrendLabelOffsetX(); // x-axis label offset in trend plots
+  double trendLabelOffsetY = configurationGiver->GetTrendLabelOffsetY(); // y-axis label offset in trend plots
+  double trendLabelSizeX = configurationGiver->GetTrendLabelSizeX(); // x-axis label size in trend plots
+  double trendLabelSizeY = configurationGiver->GetTrendLabelSizeY(); // y-axis label size in trend plots
   
   bool drawPlotsForEachIOV = configurationGiver->GetDrawPlotsForEachIOV();        // True = Draw profile and histogram plots for every IOV. False = only draw average over all runs
   bool useLuminosityForTrends = configurationGiver->GetUseLuminosityForTrends();  // True = Draw trends as a function of luminosity. False = Draw trends as a function of run index
   bool skipRunsWithNoData = configurationGiver->GetSkipRunsWithNoData();          // True = Do not draw empty space if run in list is missing data. False = Draw empty space
   
-  int colors[] = {kRed,kGreen+3,kMagenta,kCyan,kViolet+3,kOrange,kPink-7,kSpring+3,kAzure-7};
+  int colors[] = {kBlue,kRed,kGreen+2,kMagenta,kCyan,kViolet+3,kOrange,kPink-7,kSpring+3,kAzure-7};
   int nIovInOnePlot = configurationGiver->GetNIovInOnePlot();  // Define how many iov:s are drawn to the same plot
   
   double profileZoomLow[knProfileTypes];
@@ -364,19 +483,26 @@ void jetHtPlotter(std::string configurationFileName){
   if(compareFiles == 0) return; // Cannot do plotting without files!
   if(compareFiles > kMaxFiles) compareFiles = kMaxFiles;  // Four is maximum number of files in current implementation
   
+  // If we have more then one file, we should not draw more than one IOV per plot and plot all the files instead
+  if(compareFiles > 1) nIovInOnePlot = 1;
+  
   // Read the input file names. If file names end with .txt, they are assumed to be lists of files in different ptHat bins
   TString inputFileName[kMaxFiles];
   bool loadFromList[kMaxFiles] = {false, false, false, false};
   TString legendComment[kMaxFiles];
   int fileColor[kMaxFiles];
-  int fileMarker[kMaxFiles];
+  int fileMarkerStyle[kMaxFiles];
+  int fileMarkerSize[kMaxFiles];
+  bool copyErrorColor[kMaxFiles];
   
   for(int iFile = 0; iFile < kMaxFiles; iFile++){
     inputFileName[iFile] = configurationGiver->GetInputFile(iFile);
     if(inputFileName[iFile].EndsWith("txt")) loadFromList[iFile] = true;
     legendComment[iFile] = configurationGiver->GetLegendComment(iFile); // Text written to the legend for each file
     fileColor[iFile] = configurationGiver->GetMarkerColor(iFile);       // Color of markers related to this file
-    fileMarker[iFile] = configurationGiver->GetMarkerStyle(iFile);      // Style for markers related to this file
+    fileMarkerStyle[iFile] = configurationGiver->GetMarkerStyle(iFile);      // Style for markers related to this file
+    fileMarkerSize[iFile] = configurationGiver->GetMarkerSize(iFile);      // Size for markers related to this file
+    copyErrorColor[iFile] = configurationGiver->GetCopyErrorColor(iFile);      // Copy the marker color for error bars for this file
   }
   
   // Prepare an IOV list that can be used with the slide generation script
@@ -397,11 +523,25 @@ void jetHtPlotter(std::string configurationFileName){
   // Year boundary runs
   bool drawYearLines = configurationGiver->GetDrawYearLines();           // Draw lines between data taking years
   std::vector<int> linePosition = configurationGiver->GetRunsForLines(); // Positions of the above lines
+  int yearLineColor = configurationGiver->GetYearLineColor();            // Color of the above lines
+  int yearLineWidth = configurationGiver->GetYearLineWidth();            // Width of the above lines
+  int yearLineStyle = configurationGiver->GetYearLineStyle();            // Style of the above lines
 
   // ======================================================
   // ================ Configuration done ==================
   // ======================================================
   
+  // =======================================================
+  //   Make sure that the output folder for figures exists
+  // =======================================================
+
+  if(saveFigures){
+    TString outputFolderStatus = gSystem->GetFromPipe("if [ -d output ]; then echo true; else echo false; fi");
+    if(outputFolderStatus == "false"){
+      gSystem->Exec("mkdir output");
+    }
+  }
+
   // ===============================================================
   //   Read different ptHat files for combining those with weights
   // ===============================================================
@@ -430,14 +570,23 @@ void jetHtPlotter(std::string configurationFileName){
   
   // Luminosity per run file
   const char* iovAndLumiFile = configurationGiver->GetLumiPerIovFile();
+  const char* iovListMode = configurationGiver->GetIovListMode();
   
   // Create a vector for a new iovList
   std::vector<int> iovVector;
   std::vector<double> lumiPerIov;
   std::vector<double> lumiPerIovWithSkips;
   std::vector<TString> iovNames;
+  std::vector<TString> iovLegend;
   
-  std::tie(iovVector, lumiPerIov, iovNames) = getRunAndLumiLists(iovAndLumiFile);
+  std::tie(iovVector, lumiPerIov, iovNames, iovLegend) = getRunAndLumiLists(iovAndLumiFile, iovListMode);
+  
+  // For the IOV legend, remove the two last entries and replace them with user defined names
+  iovLegend.pop_back();
+  iovLegend.pop_back();
+  iovLegend.push_back(legendTextForAllRuns);
+  iovLegend.push_back(Form("%s  |#eta| < 1", legendTextForAllRuns.Data()));
+  
   
   // ===============================================
   //                IOV list for slides
@@ -467,7 +616,6 @@ void jetHtPlotter(std::string configurationFileName){
   TH1D *jetHtHistograms[kMaxFiles][knHistogramTypes][nIov];
   TProfile *jetHtProfiles[kMaxFiles][knProfileTypes][nIov];
   TGraphErrors *gBigTrend[kMaxFiles][knTrendTypes][nWidePtBins];
-  int legendSplitter = 0;
   
   // Initialize everything to NULL
   for(int iFile = 0; iFile < kMaxFiles; iFile++){
@@ -590,9 +738,24 @@ void jetHtPlotter(std::string configurationFileName){
   // ===============================================
   
   JDrawer *drawer = new JDrawer();
-  TLegend *legend[2];
+  TLegend *legend[nMaxLegendColumns];
+  int columnOrder[nMaxLegendColumns];
   bool noIovFound = true;
-  
+  bool canvasDrawn;
+  bool doNotDrawEta;
+  double minZoomY, maxZoomY;
+  int nDrawnHistograms, nLeftLegend, nRightLegend;
+  double legendX1, legendX2, legendY1, legendY2;
+  int iLegend = 0;
+  int skipColor = 0;
+  int nNullHistograms;
+  int iHistogram;
+  TString legendString;
+  TH1D *histogramSearchArray[kMaxFiles];
+  for(int iFile = 0; iFile < kMaxFiles; iFile++){
+    histogramSearchArray[iFile] = NULL;
+  }  
+
   // Draw track and vertex histograms
   if(drawTrackQA){
     drawSingleHistogram(hVertex, Form("vertex%s",saveComment), saveFigures, legendComment, 0, normalizeQAplots, false, fileColor);
@@ -608,17 +771,31 @@ void jetHtPlotter(std::string configurationFileName){
     for(int iHistogramType = 0; iHistogramType < knHistogramTypes; iHistogramType++){
       if(drawHistogram[iHistogramType]){
         
-        legend[0] = new TLegend(0.7,0.85-0.05*compareFiles,0.95,0.9);
+        double legendX1 = 0.6; double legendY1 = 0.9-0.07*compareFiles; double legendX2 = 0.9; double legendY2 = 0.9;
+        if(iHistogramType == kDxy || iHistogramType == kDz){
+          legendX1 = 0.4; legendY1 = 0.4-0.07*compareFiles + 0.07*(compareFiles/4); legendX2 = 0.7; legendY2 = 0.4 + 0.07*(compareFiles/4);
+        }
+        
+        legend[0] = new TLegend(legendX1,legendY1,legendX2,legendY2);
         legend[0]->SetFillStyle(0);legend[0]->SetBorderSize(0);
         legend[0]->SetTextSize(0.05);legend[0]->SetTextFont(62);
         
         if(jetHtHistograms[0][iHistogramType][iIov] != NULL){
-          drawer->DrawHistogram(jetHtHistograms[0][iHistogramType][iIov], histogramXaxis[iHistogramType], "tracks", iovNames.at(iIov).Data());
+
+          for(int iFile = 0; iFile < compareFiles; iFile++){
+            histogramSearchArray[iFile] = jetHtHistograms[iFile][iHistogramType][iIov];
+          }
+          
+          std::tie(minZoomY, maxZoomY) = findHistogramYaxisRange(histogramSearchArray);
+          jetHtHistograms[0][iHistogramType][iIov]->GetYaxis()->SetRangeUser(minZoomY, maxZoomY);
+          jetHtHistograms[0][iHistogramType][iIov]->SetLineColor(fileColor[0]);
+
+          drawer->DrawHistogram(jetHtHistograms[0][iHistogramType][iIov], histogramXaxis[iHistogramType], "Tracks", iovLegend.at(iIov).Data());
           legend[0]->AddEntry(jetHtHistograms[0][iHistogramType][iIov],legendComment[0],"l");
           
           for(int iFile = 1; iFile < compareFiles; iFile++){
             if(jetHtHistograms[iFile][iHistogramType][iIov] != NULL){
-              jetHtHistograms[iFile][iHistogramType][iIov]->SetLineColor(colors[iFile-1]);
+              jetHtHistograms[iFile][iHistogramType][iIov]->SetLineColor(fileColor[iFile]);
               jetHtHistograms[iFile][iHistogramType][iIov]->Draw("same");
               legend[0]->AddEntry(jetHtHistograms[iFile][iHistogramType][iIov],legendComment[iFile],"l");
             }
@@ -643,68 +820,161 @@ void jetHtPlotter(std::string configurationFileName){
     if(drawProfile[iProfileType]){
       
       // Set the style for IOV integrated histograms
-      jetHtProfiles[0][iProfileType][nIov-2]->SetLineColor(fileColor[0]);
-      jetHtProfiles[0][iProfileType][nIov-2]->SetLineWidth(2);
-      jetHtProfiles[0][iProfileType][nIov-2]->GetYaxis()->SetRangeUser(profileZoomLow[iProfileType], profileZoomHigh[iProfileType]);
-      
-      for(int iFile = 1; iFile < compareFiles; iFile++){
+      for(int iFile = 0; iFile < compareFiles; iFile++){
         jetHtProfiles[iFile][iProfileType][nIov-2]->SetLineColor(fileColor[iFile]);
         jetHtProfiles[iFile][iProfileType][nIov-2]->SetLineWidth(2);
+        jetHtProfiles[iFile][iProfileType][nIov-2]->SetLineStyle(2);
+        jetHtProfiles[iFile][iProfileType][nIov-2]->GetYaxis()->SetRangeUser(profileZoomLow[iProfileType], profileZoomHigh[iProfileType]);
       }
       
-      // NOTE: IOV drawing only works for one or two files! Using more files will not give good results!!!
+      // Drawing plots for each IOV.
       if(drawPlotsForEachIOV){
         for(int iIov= 0; iIov < nIov-2; iIov = iIov + nIovInOnePlot){
           
           noIovFound = true;
+          iLegend = 0;
+          canvasDrawn = false;
+          nNullHistograms = 0;
           
-          // Set up the IOV:s to be drawn to the current plot
-          for(int iSamePlot = 0; iSamePlot < nIovInOnePlot; iSamePlot++){
-            if(iIov + iSamePlot >= nIov - 2) break; // Do not draw again all or central references
-            if(jetHtProfiles[0][iProfileType][iIov+iSamePlot] != NULL){
-              jetHtProfiles[0][iProfileType][iIov+iSamePlot]->SetLineColor(colors[iSamePlot]);
-              jetHtProfiles[0][iProfileType][iIov+iSamePlot]->SetLineWidth(2);
-              noIovFound = false;
-            } else {
-              cout << "No histogram found for: " << Form("%s_%s",iovNames.at(iIov).Data(),profileName[iProfileType].Data()) << endl;
-            }
-            
-            if(jetHtProfiles[1][iProfileType][iIov+iSamePlot] != NULL){
-              jetHtProfiles[1][iProfileType][iIov+iSamePlot]->SetLineColor(colors[iSamePlot+nIovInOnePlot]);
-              jetHtProfiles[1][iProfileType][iIov+iSamePlot]->SetLineWidth(2);
+          // If we have more than one file, draw all files to the same figure. Otherwise use the nIovInOnePlot variable for the single file.
+          // Set up the IOV:s or files to be drawn to the current plot
+          for(int iFile = 0; iFile < compareFiles; iFile++){
+            skipColor = 0;
+            for(int iSamePlot = 0; iSamePlot < nIovInOnePlot; iSamePlot++){
+              if(iIov + iSamePlot >= nIov - 2) break; // Do not draw again all or central references
+              if(jetHtProfiles[iFile][iProfileType][iIov+iSamePlot] != NULL){
+                if(nIovInOnePlot > 1){
+                  if(colors[iFile+iSamePlot] == fileColor[0]) skipColor++;
+                  jetHtProfiles[iFile][iProfileType][iIov+iSamePlot]->SetLineColor(colors[skipColor+iSamePlot]);
+                } else {
+                  jetHtProfiles[iFile][iProfileType][iIov+iSamePlot]->SetLineColor(fileColor[iFile+iSamePlot]);
+                }
+                jetHtProfiles[iFile][iProfileType][iIov+iSamePlot]->SetLineWidth(2);
+                noIovFound = false;
+              } else {
+                cout << "No histogram found for: " << Form("%s_%s",iovNames.at(iIov).Data(),profileName[iProfileType].Data()) << endl;
+                nNullHistograms++;
+              }
             }
           }
           
           if(noIovFound) continue;
           
-          // First, draw the reference over all runs to the plot
-          drawer->DrawHistogram(jetHtProfiles[0][iProfileType][nIov-2], profileXaxis[iProfileType], Form("#LT#sigma(%s)#GT (#mum)",profileYaxis[iProfileType].Data()));
+          // Setup legends. There are four different configuration.
+          // 1) Draw several files in one plot, include reference distribution from all runs
+          // 2) Draw several files in one plot, do not include reference distribution from all runs
+          // 3) Draw several IOVs in one plot, include reference distribution from all runs
+          // 4) Draw several IOVs in one plot, do not include reference distribution from all runs
+          // Each setup needs slightly different configuration for the legends to look good
           
-          // Define a new legend for the plot
-          for(int iFile = 0; iFile < compareFiles; iFile++){
-            legend[iFile] = new TLegend(0.56-0.37*iFile,0.8-0.05*nIovInOnePlot,0.86-0.37*iFile,0.9);
-            legend[iFile]->SetFillStyle(0); legend[iFile]->SetBorderSize(0);
-            legend[iFile]->SetTextSize(0.05); legend[iFile]->SetTextFont(62);
+          // First determine the number of drawns histograms and how many of them should be drawn to left and right, if the legend is split
+          nDrawnHistograms = drawReferenceProfile*compareFiles + nIovInOnePlot*compareFiles - nNullHistograms;
+          nLeftLegend = TMath::Ceil(nDrawnHistograms/2.0);
+          nRightLegend = TMath::Floor(nDrawnHistograms/2.0);
+          
+          // Make adjustments to the number of drawn histograms in some special cases
+          if(!drawReferenceProfile){
+            if(compareFiles > 1){
+              nLeftLegend = 1;
+              nRightLegend = nDrawnHistograms;
+            }
+            if(nIovInOnePlot > 1){
+              if(nLeftLegend > nRightLegend) {
+                nRightLegend++;
+              } else {
+                nLeftLegend++;
+              }
+            }
           }
-          legend[0]->AddEntry(jetHtProfiles[0][iProfileType][nIov-2],Form("All (%s)",legendComment[0].Data()),"l");
           
-          if(jetHtProfiles[1][iProfileType][nIov-2] != NULL){
-            jetHtProfiles[1][iProfileType][nIov-2]->Draw("same");
-            legend[1]->AddEntry(jetHtProfiles[1][iProfileType][nIov-2],Form("All (%s)",legendComment[1].Data()),"l");
+          // The order of columns changes for different configurations. Define it here
+          columnOrder[0] = 0; columnOrder[1] = 1; columnOrder[2] = 2;
+          if(compareFiles > 1){
+            columnOrder[0] = 1; columnOrder[1] = 2; columnOrder[2] = 0;
+            if(!drawReferenceProfile){
+              columnOrder[0] = 1; columnOrder[1] = 0; columnOrder[2] = 2;
+            }
+          }
+          
+          // Define three different legends. Their position is determined by the specific configuration
+          legendX1 = 0.19 + 0.24*drawReferenceProfile*(compareFiles > 1) + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[0]];
+          legendY1 = 0.9 - (profileLegendTextSize+0.02)*nLeftLegend + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[0]];
+          legendX2 = 0.41 + 0.24*drawReferenceProfile*(compareFiles > 1) + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[0]];
+          legendY2 = 0.9 + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[0]];;
+          legend[0] = new TLegend(legendX1,legendY1,legendX2,legendY2);
+          legend[0]->SetFillStyle(0); legend[0]->SetBorderSize(0);
+          legend[0]->SetTextSize(profileLegendTextSize); legend[0]->SetTextFont(profileLegendTextFont);
+          
+          legendX1 = 0.55 - 0.24*!drawReferenceProfile*(compareFiles > 1) + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[1]];
+          legendY1 = 0.9 - (profileLegendTextSize+0.02)*nRightLegend + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[1]];
+          legendX2 = 0.77 - 0.24*!drawReferenceProfile*(compareFiles > 1) + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[1]];
+          legendY2 = 0.9 + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[1]];
+          legend[1] = new TLegend(legendX1,legendY1,legendX2,legendY2);
+          legend[1]->SetFillStyle(0); legend[1]->SetBorderSize(0);
+          legend[1]->SetTextSize(profileLegendTextSize); legend[1]->SetTextFont(profileLegendTextFont);
+          
+          legendX1 = 0.13 + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[2]];
+          legendY1 = 0.9-(profileLegendTextSize+0.02)*nLeftLegend + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[2]];
+          legendX2 = 0.49 + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[2]];
+          legendY2 = 0.9 + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[2]];
+          legend[2] = new TLegend(legendX1,legendY1,legendX2,legendY2);
+          legend[2]->SetFillStyle(0); legend[2]->SetBorderSize(0);
+          legend[2]->SetTextSize(profileLegendTextSize); legend[2]->SetTextFont(profileLegendTextFont);
+          
+          // First, draw the reference over all runs to the plot
+          if(drawReferenceProfile){
+            for(int iFile = 0; iFile < compareFiles; iFile++){
+              if(jetHtProfiles[iFile][iProfileType][nIov-2] != NULL){
+                if(!canvasDrawn){
+                  drawer->DrawHistogram(jetHtProfiles[iFile][iProfileType][nIov-2], profileXaxis[iProfileType], Form("#LT#sigma(%s)#GT (#mum)",profileYaxis[iProfileType].Data()), " ", "HIST,C");
+                  canvasDrawn = true;
+                } else {
+                  jetHtProfiles[iFile][iProfileType][nIov-2]->Draw("same,HIST,C");
+                }
+                legendString = legendTextForAllRuns.Data();
+                if(nIovInOnePlot > 1) legendString.Append(Form(" (%s)", legendComment[iFile].Data()));
+                legend[0]->AddEntry(jetHtProfiles[iFile][iProfileType][nIov-2],legendString.Data(),"l");
+                legend[2]->AddEntry((TObject*)0, Form("%s:", legendComment[iFile].Data()),"");
+              }
+            }
+          }
+          
+          // If we draw several histograms per IOV, add the alignment to the legend if not included in the reference
+          if(!drawReferenceProfile && (nIovInOnePlot > 1)){
+            legend[0]->AddEntry((TObject*)0, legendComment[0].Data(),"");
           }
           
           // Draw defined number of different IOVs to the plot
           for(int iFile = 0; iFile < compareFiles; iFile++){
+            iHistogram = 0; // This variable takes into account null histograms in case of legend splitting
             for(int iSamePlot = 0; iSamePlot < nIovInOnePlot; iSamePlot++){
               if(iIov + iSamePlot >= nIov - 2) break; // Do not draw again all or central references
               if(jetHtProfiles[iFile][iProfileType][iIov+iSamePlot] != NULL){
-                jetHtProfiles[iFile][iProfileType][iIov+iSamePlot]->Draw("same");
-                legend[iFile]->AddEntry(jetHtProfiles[iFile][iProfileType][iIov+iSamePlot],iovNames.at(iIov+iSamePlot),"l");
+                if(!canvasDrawn){
+                  drawer->DrawHistogram(jetHtProfiles[iFile][iProfileType][iIov+iSamePlot], profileXaxis[iProfileType], Form("#LT#sigma(%s)#GT (#mum)",profileYaxis[iProfileType].Data()), " ");
+                  canvasDrawn = true;
+                } else {
+                  jetHtProfiles[iFile][iProfileType][iIov+iSamePlot]->Draw("same");
+                }
+                
+                // Different legend texts if drawing several files or several IOVs in one plot
+                if(compareFiles > 1){
+                  legendString = iovLegend.at(iIov+iSamePlot).Data();
+                  if(!drawReferenceProfile) legendString.Append(Form(" (%s)", legendComment[iFile].Data()));
+                  legend[1]->AddEntry(jetHtProfiles[iFile][iProfileType][iIov+iSamePlot],legendString.Data(),"l");
+                } else {
+                  if(iHistogram+1 == nLeftLegend) iLegend = 1;
+                  legend[iLegend]->AddEntry(jetHtProfiles[iFile][iProfileType][iIov+iSamePlot],iovLegend.at(iIov+iSamePlot),"l");
+                }
+                iHistogram++;
               }
             }
-            legend[iFile]->Draw();
           }
           
+          // Draw the legends
+          legend[0]->Draw();
+          legend[1]->Draw();
+          if(drawReferenceProfile && compareFiles > 1) legend[2]->Draw();
           
           
           // Save the figures
@@ -719,66 +989,80 @@ void jetHtPlotter(std::string configurationFileName){
           
         } // iov loop for drawing
       } // if for drawing profiles for each IOV
+            
+      // First, setup the legends for the all runs plots
+      doNotDrawEta = (!drawCentralEtaSummaryProfile || iProfileType == kDxyErrorVsEta || iProfileType == kDzErrorVsEta);
       
-      
-      // After all IOV:s, draw summary with all and central curves
-      drawer->DrawHistogram(jetHtProfiles[0][iProfileType][nIov-2], profileXaxis[iProfileType], Form("#LT#sigma(%s)#GT (#mum)",profileYaxis[iProfileType].Data()), plotTitle);
-      
-      // Add a reference to all runs in central eta range, except for plots as a function of eta
-      // Only draw central histogram is comparing only 2 files
-      if(jetHtProfiles[0][iProfileType][nIov-1] != NULL && compareFiles < 3){
-        jetHtProfiles[0][iProfileType][nIov-1]->SetLineColor(kRed);
-        jetHtProfiles[0][iProfileType][nIov-1]->SetLineWidth(2);
-        jetHtProfiles[0][iProfileType][nIov-1]->Draw("same");
+      // The order of columns changes for different configurations. Define it here
+      columnOrder[0] = 1; columnOrder[1] = 2; columnOrder[2] = 0;
+      if(doNotDrawEta){
+        columnOrder[0] = 1; columnOrder[1] = 0; columnOrder[2] = 2;
       }
       
+      // Define three different legends. Their position is determined by the specific configuration
+      legendX1 = 0.48 + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[0]];
+      legendY1 = 0.9 - (profileLegendTextSize+0.02)*compareFiles + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[0]];
+      legendX2 = 0.7 + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[0]];
+      legendY2 = 0.9 + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[0]];
+      legend[0] = new TLegend(legendX1,legendY1,legendX2,legendY2);
+      legend[0]->SetFillStyle(0); legend[0]->SetBorderSize(0);
+      legend[0]->SetTextSize(profileLegendTextSize); legend[0]->SetTextFont(profileLegendTextFont);
       
-      for(int iFile = 1; iFile < compareFiles; iFile++){
-        
-        // Add all and central also from the comparison file
+      legendX1 = 0.65 - 0.25*doNotDrawEta + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[1]];
+      legendY1 = 0.9 - (profileLegendTextSize+0.02)*compareFiles + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[1]];
+      legendX2 = 0.87 - 0.25*doNotDrawEta + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[1]];
+      legendY2 = 0.9 + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[1]];
+      legend[1] = new TLegend(legendX1,legendY1,legendX2,legendY2);
+      legend[1]->SetFillStyle(0); legend[1]->SetBorderSize(0);
+      legend[1]->SetTextSize(profileLegendTextSize); legend[1]->SetTextFont(profileLegendTextFont);
+      
+      legendX1 = 0.18 + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[2]];
+      legendY1 = 0.9-(profileLegendTextSize+0.02)*compareFiles + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[2]];
+      legendX2 = 0.54 + profileLegendShiftTotalX + profileLegendShiftColumnX[columnOrder[2]];
+      legendY2 = 0.9 + profileLegendShiftTotalY + profileLegendShiftColumnY[columnOrder[2]];
+      legend[2] = new TLegend(legendX1,legendY1,legendX2,legendY2);
+      legend[2]->SetFillStyle(0); legend[2]->SetBorderSize(0);
+      legend[2]->SetTextSize(profileLegendTextSize); legend[2]->SetTextFont(profileLegendTextFont);
+      
+      
+      // First, draw histograms from all runs to the plot
+      canvasDrawn = false;
+      for(int iFile = 0; iFile < compareFiles; iFile++){
         if(jetHtProfiles[iFile][iProfileType][nIov-2] != NULL){
-          jetHtProfiles[iFile][iProfileType][nIov-2]->Draw("same");
-          if(jetHtProfiles[iFile][iProfileType][nIov-1] != NULL && compareFiles < 3){ // Only add central if comparing just two files
-            jetHtProfiles[iFile][iProfileType][nIov-1]->SetLineColor(kMagenta);
-            jetHtProfiles[iFile][iProfileType][nIov-1]->SetLineWidth(2);
-            jetHtProfiles[iFile][iProfileType][nIov-1]->Draw("same");
-          }
-        }
-      }
-      
-      // Define legends for the plots
-      legendSplitter = 2;
-      if(compareFiles < legendSplitter) legendSplitter = compareFiles;
-      for(int iFile = 0; iFile < legendSplitter; iFile++){
-        if(legendSplitter < 2){
-          legend[iFile] = new TLegend(0.56,0.75,0.86,0.9);
-        } else {
-          legend[iFile] = new TLegend(0.19+0.37*iFile,0.75,0.49+0.37*iFile,0.9);
-        }
-        legend[iFile]->SetFillStyle(0); legend[iFile]->SetBorderSize(0);
-        legend[iFile]->SetTextSize(0.05); legend[iFile]->SetTextFont(62);
-        if(drawPlotsForEachIOV){
-          commentEntry = Form("All (%s)",legendComment[iFile].Data());
-        } else {
-          commentEntry = legendComment[iFile];
-        }
-        legend[iFile]->AddEntry(jetHtProfiles[iFile][iProfileType][nIov-2],commentEntry.Data(),"l");
-        if(jetHtProfiles[iFile][iProfileType][nIov-1] != NULL && compareFiles < 3) legend[iFile]->AddEntry(jetHtProfiles[iFile][iProfileType][nIov-1],Form("Central (%s)",legendComment[iFile].Data()),"l");
-      }
-      
-      if(compareFiles > 2){
-        for(int iFile = 2; iFile < compareFiles; iFile++){
-          if(drawPlotsForEachIOV){
-            commentEntry = Form("All (%s)",legendComment[iFile].Data());
+          jetHtProfiles[iFile][iProfileType][nIov-2]->SetLineStyle(1); // Reset the line style after IOV specific plots
+          if(!canvasDrawn){
+            drawer->DrawHistogram(jetHtProfiles[iFile][iProfileType][nIov-2], profileXaxis[iProfileType], Form("#LT#sigma(%s)#GT (#mum)",profileYaxis[iProfileType].Data()), plotTitle);
+            canvasDrawn = true;
           } else {
-            commentEntry = legendComment[iFile];
+            jetHtProfiles[iFile][iProfileType][nIov-2]->Draw("same");
           }
-          legend[iFile-2]->AddEntry(jetHtProfiles[iFile][iProfileType][nIov-2],commentEntry.Data(),"l");
+          legendString = legendTextForAllRuns.Data();
+          if(doNotDrawEta) legendString.Append(Form(" (%s)", legendComment[iFile].Data()));
+          legend[1]->AddEntry(jetHtProfiles[iFile][iProfileType][nIov-2],legendString.Data(),"l");
+          legend[2]->AddEntry((TObject*)0, Form("%s:", legendComment[iFile].Data()),"");
         }
       }
       
-      for(int iFile = 0; iFile < legendSplitter; iFile++){
-        legend[iFile]->Draw();
+      // If there is no canvas, nothing can be done. Break out of the if-statement
+      if(!canvasDrawn) break;
+      
+      // If we want to draw the central eta as reference, draw them as a dashed line
+      if(!doNotDrawEta){
+        for(int iFile = 0; iFile < compareFiles; iFile++){
+          if(jetHtProfiles[iFile][iProfileType][nIov-1] != NULL){
+            jetHtProfiles[iFile][iProfileType][nIov-1]->SetLineColor(fileColor[iFile]);
+            jetHtProfiles[iFile][iProfileType][nIov-1]->SetLineWidth(2);
+            jetHtProfiles[iFile][iProfileType][nIov-1]->SetLineStyle(2);
+            jetHtProfiles[iFile][iProfileType][nIov-1]->Draw("same,HIST,C");
+            legend[0]->AddEntry(jetHtProfiles[iFile][iProfileType][nIov-1], "|#eta| < 1", "l");
+          }
+        }
+      }
+      
+      legend[1]->Draw();
+      if(!doNotDrawEta){
+        legend[0]->Draw();
+        legend[2]->Draw();
       }
       
       // Save the figures
@@ -793,13 +1077,26 @@ void jetHtPlotter(std::string configurationFileName){
   
   // Trend plots
   TLegend *trendLegend;
-  drawer->SetCanvasSize(1000,400);
-  drawer->SetLeftMargin(0.08);
-  drawer->SetRightMargin(0.03);
-  drawer->SetTitleOffsetY(0.55);
-  drawer->SetLabelOffsetY(0.007);
+  drawer->SetCanvasSize(trendCanvasWidth,trendCanvasHeight);
+  drawer->SetLeftMargin(trendMarginLeft);
+  drawer->SetRightMargin(trendMarginRight);
+  drawer->SetTopMargin(trendMarginTop);
+  drawer->SetBottomMargin(trendMarginBottom);
+  drawer->SetTitleOffsetX(trendTitleOffsetX);
+  drawer->SetTitleOffsetY(trendTitleOffsetY);
+  drawer->SetTitleSizeX(trendTitleSizeX);
+  drawer->SetTitleSizeY(trendTitleSizeY);
+  drawer->SetLabelOffsetX(trendLabelOffsetX);
+  drawer->SetLabelOffsetY(trendLabelOffsetY);
+  drawer->SetLabelSizeX(trendLabelSizeX);
+  drawer->SetLabelSizeY(trendLabelSizeY);
   double lumiX;
   TLine *lumiLine;
+  
+  // Writed for adding tags to trend plots
+  TLatex *tagWriter = new TLatex();
+  tagWriter->SetTextFont(trendTagTextFont);
+  tagWriter->SetTextSize(trendTagTextSize);
   
   TString xTitle = "Run index";
   if(useLuminosityForTrends) xTitle = "Delivered luminosity  (1/fb)";
@@ -808,14 +1105,20 @@ void jetHtPlotter(std::string configurationFileName){
     if(!drawTrend[iTrend]) continue;
     for(int iWidePt = 0; iWidePt < nWidePtBins; iWidePt++){
       
-      trendLegend = new TLegend(0.65,0.6,0.9,0.9);
+      legendX1 = 0.65 + trendLegendShiftTotalX;
+      legendY1 = 0.83 - (profileLegendTextSize+0.02)*compareFiles + trendLegendShiftTotalY;
+      legendX2 = 0.9 + trendLegendShiftTotalX;
+      legendY2 = 0.9 + trendLegendShiftTotalY;
+      trendLegend = new TLegend(legendX1,legendY1,legendX2,legendY2);
       trendLegend->SetFillStyle(0); trendLegend->SetBorderSize(0);
-      trendLegend->SetTextSize(0.05); trendLegend->SetTextFont(62);
+      trendLegend->SetTextSize(trendLegendTextSize); trendLegend->SetTextFont(trendLegendTextFont);
       trendLegend->SetHeader(Form("%s error trend for p_{T} > %.0f GeV", profileYaxis[iTrend+6].Data(), widePtBinBorders.at(iWidePt)));
       
       for(int iFile = 0; iFile < compareFiles; iFile++){
         gBigTrend[iFile][iTrend][iWidePt]->SetMarkerColor(fileColor[iFile]);
-        gBigTrend[iFile][iTrend][iWidePt]->SetMarkerStyle(fileMarker[iFile]);
+        gBigTrend[iFile][iTrend][iWidePt]->SetMarkerStyle(fileMarkerStyle[iFile]);
+        gBigTrend[iFile][iTrend][iWidePt]->SetMarkerSize(fileMarkerSize[iFile]);
+        if(copyErrorColor[iFile]) gBigTrend[iFile][iTrend][iWidePt]->SetLineColor(fileColor[iFile]);
         
         if(iFile == 0){
           drawer->DrawGraphCustomAxes(gBigTrend[iFile][iTrend][iWidePt], 0, nRuns, trendZoomLow[iTrend], trendZoomHigh[iTrend], xTitle, Form("#LT #sigma(%s) #GT", profileYaxis[iTrend+6].Data()), " ", "ap");
@@ -829,17 +1132,27 @@ void jetHtPlotter(std::string configurationFileName){
       
       trendLegend->Draw();
       
-      // Draw lines for different data taking year
+      // Draw lines for different data taking years
       if(drawYearLines){
         
         for(int thisRun : linePosition){
           
           lumiX = getLuminosityBeforeRun(lumiPerIovWithSkips, iovVector, thisRun);
           lumiLine = new TLine(lumiX, trendZoomLow[iTrend], lumiX, trendZoomHigh[iTrend]);
+          lumiLine->SetLineColor(yearLineColor);
+          lumiLine->SetLineWidth(yearLineWidth);
+          lumiLine->SetLineStyle(yearLineStyle);
           lumiLine->Draw();
           
         }
         
+      }
+      
+      // Draw all defined tags
+      if(drawTrendTag){
+        for(std::vector<std::string>::size_type iTag = 0; iTag < trendTagText.size(); iTag++){
+          tagWriter->DrawLatexNDC(trendTagPositionX.at(iTag), trendTagPositionY.at(iTag), trendTagText.at(iTag).c_str());
+        }
       }
       
       // Save the figures

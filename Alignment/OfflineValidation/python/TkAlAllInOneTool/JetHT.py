@@ -1,36 +1,141 @@
 import copy
 import os
+import math
+import re
+from datetime import date
+
+# Path digesting function copied from validateAlignments.py
+def digest_path(path):
+    # split path in folders
+    path_s = str(path).split(os.sep)
+
+    path_d_s = []
+    for part in path_s:
+        # Look for environment variables such as $CMSSW_BASE
+        if part.startswith('$'):
+            env_var = part[1:].replace('{', '').replace('}', '')
+            path_d_s.append(os.environ[env_var])
+        else: path_d_s.append(part)
+
+    # re join folders in to a path
+    path_d = os.path.join(*path_d_s)
+
+    # re add front / if needed
+    if path.startswith(os.sep): path_d = os.sep + path_d
+
+    return path_d
+
+# Find number of files on a file list. If the list defines a run number before each file, find the number of unique runs instead and return a list of runs with the number
+def findNumberOfUnits(fileList):
+
+    with open(fileList,"r") as inputFiles:
+
+        fileContent = inputFiles.readlines()
+        firstLine =  fileContent[0].rstrip()
+        runsInFiles = []
+
+        # If each line only contains one file, return the number of files
+        if len(firstLine.split()) == 1:
+            nInputFiles = sum(1 for line in fileContent if line.rstrip())
+            return runsInFiles, nInputFiles
+
+        # We now know that the input file is in format "run file". Return the number of unique runs together with the list
+        for line in fileContent:
+            run = line.split()[0]
+            if not run in runsInFiles:
+                runsInFiles.append(run)
+
+        return runsInFiles, len(runsInFiles)
 
 def JetHT(config, validationDir):
-    ##List with all and merge jobs
+
+    # List with all and merge jobs
     jobs = []
     mergeJobs = []
     runType = "single"
 
-    ##Start with single DMR jobs
+    # Find today
+    today = date.today()
+    dayFormat = today.strftime("%Y-%m-%d")
+
+    # Start with single JetHT jobs
     if not runType in config["validations"]["JetHT"]: 
         raise Exception("No 'single' key word in config for JetHT") 
 
     for datasetName in config["validations"]["JetHT"][runType]:
 
         for alignment in config["validations"]["JetHT"][runType][datasetName]["alignments"]:
-            ##Work directory for each alignment
+            # Work directory for each alignment
             workDir = "{}/JetHT/{}/{}/{}".format(validationDir, runType, datasetName, alignment)
 
-            ##Write local config
+            # For all the strings in the configuration, expand environment variables
+            for key in config["validations"]["JetHT"][runType][datasetName]:
+                if isinstance(config["validations"]["JetHT"][runType][datasetName][key], str):
+                    config["validations"]["JetHT"][runType][datasetName][key] = digest_path(config["validations"]["JetHT"][runType][datasetName][key])
+
+            # Write local config
             local = {}
             local["output"] = "{}/{}/JetHT/{}/{}/{}".format(config["LFS"], config["name"], runType, datasetName, alignment)
             local["alignment"] = copy.deepcopy(config["alignments"][alignment])
             local["validation"] = copy.deepcopy(config["validations"]["JetHT"][runType][datasetName])
             local["validation"].pop("alignments")
 
-            ##Write job info
+            useCMSdataset = False
+            nInputFiles = 1
+            runsInFiles = []
+            if "dataset" in config["validations"]["JetHT"][runType][datasetName]:
+                inputList = config["validations"]["JetHT"][runType][datasetName]["dataset"]
+
+                # Check if the input is a CMS dataset instead of filelist
+                if re.match( r'^/[^/.]+/[^/.]+/[^/.]+$', inputList ):
+                    useCMSdataset = True
+
+                # If it is not, read the number of files in a given filelist
+                else:
+                    runsInFiles, nInputFiles = findNumberOfUnits(inputList)
+            else:
+                inputList = "needToHaveSomeDefaultFileHere.txt"
+
+            if "filesPerJob" in config["validations"]["JetHT"][runType][datasetName]:
+                filesPerJob = config["validations"]["JetHT"][runType][datasetName]["filesPerJob"]
+            else:
+                filesPerJob = 5
+
+            # If we have defined which runs can be found from which files, we want to define one condor job for run number. Otherwise we do file based splitting.
+            oneJobForEachRun = (len(runsInFiles) > 0)
+            if oneJobForEachRun:
+                nCondorJobs = nInputFiles
+                local["runsInFiles"] = runsInFiles
+            else:
+                nCondorJobs = math.ceil(nInputFiles / filesPerJob)
+ 
+            # Define lines that need to be changed from the template crab configuration
+            crabCustomConfiguration = {"overwrite":[], "remove":[], "add":[]}
+            crabCustomConfiguration["overwrite"].append("inputList = \'{}\'".format(inputList))
+            crabCustomConfiguration["overwrite"].append("jobTag = \'TkAlJetHTAnalysis_{}_{}_{}_{}\'".format(runType, datasetName, alignment, dayFormat))
+            crabCustomConfiguration["overwrite"].append("config.Data.unitsPerJob = {}".format(filesPerJob))
+
+            # If there is a CMS dataset defined instead of input file list, make corresponding changes in the configuration file
+            if useCMSdataset:
+                crabCustomConfiguration["remove"].append("inputList")
+                crabCustomConfiguration["remove"].append("config.Data.userInputFiles")
+                crabCustomConfiguration["remove"].append("config.Data.totalUnits")
+                crabCustomConfiguration["remove"].append("config.Data.outputPrimaryDataset")
+                crabCustomConfiguration["overwrite"].pop(0) # Remove inputList from overwrite actions, it is removed for CMS dataset
+                crabCustomConfiguration["add"].append("config.Data.inputDataset = \'{}\'".format(inputList))
+                crabCustomConfiguration["add"].append("config.Data.inputDBS = \'global\'")
+                
+            local["crabCustomConfiguration"] = crabCustomConfiguration
+
+            # Write job info
             job = {
                 "name": "JetHT_{}_{}_{}".format(runType, alignment, datasetName),
                 "dir": workDir,
                 "exe": "cmsRun",
                 "cms-config": "{}/src/Alignment/OfflineValidation/python/TkAlAllInOneTool/JetHT_cfg.py".format(os.environ["CMSSW_BASE"]),
                 "run-mode": "Condor",
+                "nCondorJobs": nCondorJobs,
+                "exeArguments": "validation_cfg.py config=validation.json jobNumber=$JOBNUMBER",
                 "dependencies": [],
                 "config": local, 
             }
@@ -77,6 +182,7 @@ def JetHT(config, validationDir):
                     "exe": "addHistograms.sh",
                     "exeArguments": "{} {} {} JetHTAnalysis_merged".format(localRun, eosInputDirectory, eosOutputDirectory),
                     "run-mode": "Condor",
+                    "flavour": "espresso",
                     "config": local,
                     "dependencies": [],
                 }
@@ -87,7 +193,8 @@ def JetHT(config, validationDir):
                     singleAlignment, singleDatasetName = singleJob["name"].split("_")[2:]
 
                     if singleDatasetName in config["validations"]["JetHT"][runType][datasetName]["singles"]:
-                        job["dependencies"].append(singleJob["name"])
+                        if singleAlignment == alignment:
+                            job["dependencies"].append(singleJob["name"])
 
                 mergeJobs.append(job)
 
@@ -101,6 +208,11 @@ def JetHT(config, validationDir):
 
         ##Loop over all merge jobs/IOVs which are wished
         for datasetName in config["validations"]["JetHT"][runType]:
+
+            # For all the strings in the configuration, expand environment variables
+            for key in config["validations"]["JetHT"][runType][datasetName]:
+                if isinstance(config["validations"]["JetHT"][runType][datasetName][key], str):
+                    config["validations"]["JetHT"][runType][datasetName][key] = digest_path(config["validations"]["JetHT"][runType][datasetName][key])
 
             #Work and output directories for each dataset
             workDir = "{}/JetHT/{}/{}".format(validationDir, runType, datasetName)
@@ -147,21 +259,20 @@ def JetHT(config, validationDir):
                 "dir": workDir,
                 "exe": "jetHtPlotter",
                 "run-mode": "Condor",
+                "flavour": "espresso",
                 "config": local,
                 "dependencies": [],
             }
 
-            for alignment in config["validations"]["JetHT"][runType][datasetName]["alignments"]:
+            ##Loop over all merge jobs and set them dependencies for the plot job
+            for mergeJob in mergeJobs:
+                ##Get merge job info and append to plot job if requirements are fulfilled
+                mergeAlignment, mergeDatasetName = mergeJob["name"].split("_")[2:]
 
-                ##Loop over all merge jobs and set them dependencies for the plot job
-                for mergeJob in mergeJobs:
-                    ##Get single job info and append to merge job if requirements fullfilled
-                    mergeAlignment, mergeDatasetName = mergeJob["name"].split("_")[2:]
+                if mergeDatasetName in config["validations"]["JetHT"][runType][datasetName]["merges"]:
+                    job["dependencies"].append(mergeJob["name"])
 
-                    if mergeDatasetName in config["validations"]["JetHT"][runType][datasetName]["merges"]:
-                        job["dependencies"].append(mergeJob["name"])
-
-                plotJobs.append(job)
+            plotJobs.append(job)
 
         jobs.extend(plotJobs)
         

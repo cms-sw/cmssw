@@ -21,6 +21,11 @@ alignments:
         globaltag: auto:run2_data
         style: 2101
         title: Unit test
+    unitTestJetHTMC:
+        color: 1
+        globaltag: auto:phase1_2018_realistic
+        style: 2101
+        title: unit test
 
 validations:
     DMR:
@@ -116,15 +121,15 @@ validations:
                 alignments:
                 - unitTestJetHT
                 trackCollection: ALCARECOTkAlMinBias
-                maxevents: 10
+                maxevents: 100
                 iovListFile: CMSSW_BASE/src/Alignment/OfflineValidation/data/lumiPerRun_Run2.txt
 
             testMC:
                 alignments:
-                - unitTest
+                - unitTestJetHTMC
                 trackCollection: ALCARECOTkAlMinBias
                 mc: True
-                maxevents: 10
+                maxevents: 100
         merge:
             testJob:
                 singles:
@@ -135,7 +140,7 @@ validations:
                 singles:
                 - testMC
                 alignments:
-                - unitTest
+                - unitTestJetHTMC
         plot:
             testJob:
                 merges:
@@ -153,7 +158,7 @@ validations:
                 merges:
                 - testMC
                 alignments:
-                - unitTest
+                - unitTestJetHTMC
                 jethtplot:
                     drawProfiles:
                         drawDzErrorVsPt: true
