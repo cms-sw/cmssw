@@ -118,6 +118,19 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor)
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
+# Digitisation: produce the TCDS digis containing BST record
+from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
+process.tcdsDigis = tcdsRawToDigi.clone()
+
+#------------------------
+# Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
+if (process.runType.getRunType() == process.runType.hi_run and live):
+    rawDataInputTag = "rawDataRepacker"
+else:
+    rawDataInputTag = "rawDataCollector"
+
+process.tcdsDigis.InputLabel = rawDataInputTag
+
 #-----------------------------------------------------------
 # Swap offline <-> online BeamSpot as in Express and HLT
 import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
@@ -226,6 +239,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
     print("Configured frontierKey", options.runUniqueKey)
 
     process.p = cms.Path( process.hltTriggerTypeFilter
+                        * process.tcdsDigis
                         * process.dqmcommon
                         * process.offlineBeamSpot
                         * process.monitor )
