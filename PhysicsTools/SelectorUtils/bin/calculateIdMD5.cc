@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
   unsigned int md_len = 0;
   unsigned char id_md5_[EVP_MAX_MD_SIZE];
 
-  EVP_DigestInit_ex(mdctx, md, NULL);
+  EVP_DigestInit_ex(mdctx, md, nullptr);
   EVP_DigestUpdate(mdctx, (const unsigned char*)tracked.c_str(), tracked.size());
   EVP_DigestFinal_ex(mdctx, id_md5_, &md_len);
   EVP_MD_CTX_free(mdctx);

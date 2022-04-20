@@ -489,7 +489,7 @@ namespace spu {
     cms::openssl_init();
     EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
     const EVP_MD *md = EVP_get_digestbyname("MD5");
-    EVP_DigestInit_ex(mdctx, md, NULL);
+    EVP_DigestInit_ex(mdctx, md, nullptr);
 
     //Open File
     int fd = open(filename.c_str(), O_RDONLY);
