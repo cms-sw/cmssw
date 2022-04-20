@@ -26,7 +26,7 @@ public:
     };
 
     client_->setBatchSize(batchSize_);
-    auto& input1 = iInput.at("RAGGED_INPUT");
+    auto& input1 = iInput.at("INPUT0");
     auto data1 = input1.allocate<float>();
     for (int i = 0; i < batchSize_; ++i) {
       (*data1)[i] = value_lists[i];
@@ -38,13 +38,13 @@ public:
   }
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
     // check the results
-    const auto& output1 = iOutput.at("RAGGED_OUTPUT");
+    const auto& output1 = iOutput.at("OUTPUT0");
     // convert from server format
     const auto& tmp = output1.fromServer<float>();
     edm::LogInfo msg(debugName_);
     for (int i = 0; i < batchSize_; ++i){
-        msg << "output " << i << ": ";
-        for(int j = 0; j < output1.shape()[0]; ++j){
+        msg << "output " << i << " (" << triton_utils::printColl(output1.shape(i)) << "): ";
+        for(int j = 0; j < output1.shape(i)[0]; ++j){
             msg << tmp[i][j] << " ";
         }
         msg << "\n";
