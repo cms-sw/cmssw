@@ -171,7 +171,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'GenSimHLBeamSpotHGCALCloseBy',
         'Digi',
         'DigiTrigger',
-        'HLT',
+        'HLTRun3',
         'RecoLocal',
         'Reco',
         'RecoFakeHLT',
@@ -219,7 +219,7 @@ class UpgradeWorkflow_DigiNoHLT(UpgradeWorkflow):
                 stepDict[stepName][k] = merge([{'-s': re.sub(',HLT.*', '', stepDict[step][k]['-s'])}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         if ('TTbar_14TeV' in fragment and '2021' == key):
-            stepList.insert(stepList.index('Digi_DigiNoHLT_2021')+1, 'HLT_2021')
+            stepList.insert(stepList.index('Digi_DigiNoHLT_2021')+1, 'HLTRun3_2021')
         return ('TTbar_14TeV' in fragment and '2021' == key)
 upgradeWFs['DigiNoHLT'] = UpgradeWorkflow_DigiNoHLT(
     steps = [
