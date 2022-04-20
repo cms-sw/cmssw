@@ -126,6 +126,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 #=========================================================================================
 # implement __call__ function to be able to use class instances like functions
+# reads the given parameters and saves them
+# runs the toolCode function in the end
     def __call__(self, process,
                  metType                 =None,
                  correctionLevel         =None,
