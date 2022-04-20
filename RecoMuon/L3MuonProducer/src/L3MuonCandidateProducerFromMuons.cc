@@ -31,7 +31,8 @@ static const std::string category("Muon|RecoMuon|L3MuonCandidateProducerFromMuon
 
 /// constructor with config
 L3MuonCandidateProducerFromMuons::L3MuonCandidateProducerFromMuons(const ParameterSet& parameterSet)
-    : m_L3CollectionLabel(parameterSet.getParameter<InputTag>("InputObjects"))  // standAlone Collection Label
+    : m_L3CollectionLabel(parameterSet.getParameter<InputTag>("InputObjects")),  // standAlone Collection Label
+    m_displacedReco(parameterSet.getParameter<bool>("DisplacedReconstruction"))
 {
   muonToken_ = consumes<reco::MuonCollection>(m_L3CollectionLabel);
   LogTrace(category) << " constructor called";
@@ -59,8 +60,18 @@ void L3MuonCandidateProducerFromMuons::produce(StreamID, Event& event, const Eve
   } else {
     for (unsigned int i = 0; i < muons->size(); i++) {
       // avoids crashing in case the muon is SA only.
-      TrackRef tkref = ((*muons)[i].innerTrack().isNonnull()) ? (*muons)[i].innerTrack() : (*muons)[i].muonBestTrack();
-
+      TrackRef tkref;
+      if (m_displacedReco) {
+        if ((*muons)[i].isGlobalMuon() == 1) {
+        tkref = (*muons)[i].globalTrack();
+        }
+        else {
+        tkref = (*muons)[i].muonBestTrack();
+        }
+      }
+      else {
+      tkref = ((*muons)[i].innerTrack().isNonnull()) ? (*muons)[i].innerTrack() : (*muons)[i].muonBestTrack();
+      }
       Particle::Charge q = tkref->charge();
       Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
       Particle::Point vtx(tkref->vx(), tkref->vy(), tkref->vz());

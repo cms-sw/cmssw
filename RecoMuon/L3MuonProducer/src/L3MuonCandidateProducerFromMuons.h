@@ -36,6 +36,7 @@ private:
   // L3/GLB Collection Label
   edm::InputTag m_L3CollectionLabel;
   edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  bool m_displacedReco;
 };
 
 #endif
