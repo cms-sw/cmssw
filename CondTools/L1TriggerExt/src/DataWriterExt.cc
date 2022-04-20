@@ -22,15 +22,13 @@ namespace l1t {
     if (writer.get() == nullptr) {
       throw cond::Exception("DataWriter: could not create WriterProxy with name " + recordType + "@Writer");
     }
-    edm::LogVerbatim("L1-O2O DataWriterExt::DataWriterExt") << "Created new " << typeid(writer).name()
-                                                            << "  | address " << writer.get()
-                                                            << "  | rcd " << recordType;
+    edm::LogVerbatim("L1-O2O DataWriterExt::DataWriterExt")
+        << "Created new " << typeid(writer).name() << "  | address " << writer.get() << "  | rcd " << recordType;
   }
   DataWriterExt::~DataWriterExt() {}
 
   std::string DataWriterExt::writePayload(const edm::EventSetup& setup) {
-    edm::LogVerbatim("L1-O2O DataWriterExt::writePayload")
-      << "Will use stored writer at " << writer.get();
+    edm::LogVerbatim("L1-O2O DataWriterExt::writePayload") << "Will use stored writer at " << writer.get();
 
     edm::Service<cond::service::PoolDBOutputService> poolDb;
     if (!poolDb.isAvailable()) {

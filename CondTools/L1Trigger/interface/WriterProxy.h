@@ -46,17 +46,14 @@ namespace l1t {
  * should instaciate a new version of this class and register it in plugin system.
  */
   template <class Record, class Type>
-    class WriterProxyT : public WriterProxy {
-
+  class WriterProxyT : public WriterProxy {
   private:
     edm::ESGetToken<Type, Record> rcdToken;
 
   public:
     ~WriterProxyT() override {}
 
-    void setToken(edm::ConsumesCollector cc) override {
-      rcdToken = cc.esConsumes();
-    }
+    void setToken(edm::ConsumesCollector cc) override { rcdToken = cc.esConsumes(); }
 
     /* This method requires that Record and Type supports copy constructor */
     std::string save(const edm::EventSetup& setup) const override {
