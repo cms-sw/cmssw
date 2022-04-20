@@ -59,6 +59,7 @@ The offsets currently in use are:
 * 0.21: Production-like sequence
 * 0.24: 0 Tesla (Run-2, Run-3)
 * 0.61: `phase2_ecal_devel` era
+* 0.75: Phase-2 HLT
 * 0.91: Track DNN modifier
 * 0.97: Premixing stage1
 * 0.98: Premixing stage2

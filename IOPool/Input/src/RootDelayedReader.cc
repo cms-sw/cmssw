@@ -43,7 +43,13 @@ namespace edm {
     if (lastException_) {
       try {
         std::rethrow_exception(lastException_);
+      } catch (edm::Exception const& e) {
+        //avoid growing the context each time the exception is rethrown.
+        auto copy = e;
+        copy.addContext("Rethrowing an exception that happened on a different read request.");
+        throw copy;
       } catch (cms::Exception& e) {
+        //If we do anything here to 'copy', we would lose the actual type of the exception.
         e.addContext("Rethrowing an exception that happened on a different read request.");
         throw;
       }

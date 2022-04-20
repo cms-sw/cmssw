@@ -5,6 +5,7 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/ExternalDecays"/>
 <use name="f77compiler"/>
+<use name="hepmc"/>
 <flags CPPDEFINES="__SIBYLL__"/>
 <flags CPPDEFINES="__QGSJET01__"/>
 <flags CPPDEFINES="__QGSJETII04__"/>
