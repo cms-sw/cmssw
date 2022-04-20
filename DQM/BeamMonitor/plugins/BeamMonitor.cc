@@ -664,9 +664,8 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const Eve
 
 // ----------------------------------------------------------
 void BeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
-  Handle<TCDSRecord> tcdsData;
-  iEvent.getByToken(tcdsToken_, tcdsData);
-  int beamMode = tcdsData->getBST().getBeamMode();
+  const TCDSRecord& tcdsData = iEvent.get(tcdsToken_);
+  int beamMode = tcdsData.getBST().getBeamMode();
   if (beamMode == BSTRecord::BeamMode::STABLE)
     logToDb_ = true;
 
