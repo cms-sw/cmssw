@@ -152,7 +152,7 @@ const std::string DQMFileSaverOnline::fillOrigin(const std::string& filename, co
 
   boost::iostreams::mapped_file_source fp(filename);
 
-  EVP_DigestInit_ex(mdctx, md, NULL);
+  EVP_DigestInit_ex(mdctx, md, nullptr);
   EVP_DigestUpdate(mdctx, (unsigned char*)fp.data(), fp.size());
   EVP_DigestFinal_ex(mdctx, md5, &md_len);
   EVP_MD_CTX_free(mdctx);
