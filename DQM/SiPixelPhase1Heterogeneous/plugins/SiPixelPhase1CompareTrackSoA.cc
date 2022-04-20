@@ -23,6 +23,55 @@
 // for string manipulations
 #include <fmt/printf.h>
 
+namespace {
+  // same logic used for the MTV:
+  // cf https://github.com/cms-sw/cmssw/blob/master/Validation/RecoTrack/src/MTVHistoProducerAlgoForTracker.cc
+  typedef dqm::reco::DQMStore DQMStore;
+
+  void BinLogX(TH1* h) {
+    TAxis* axis = h->GetXaxis();
+    int bins = axis->GetNbins();
+
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    std::vector<float> new_bins(bins + 1, 0);
+
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+
+    axis->Set(bins, new_bins.data());
+  }
+
+  void BinLogY(TH1* h) {
+    TAxis* axis = h->GetYaxis();
+    int bins = axis->GetNbins();
+
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    std::vector<float> new_bins(bins + 1, 0);
+
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+
+    axis->Set(bins, new_bins.data());
+  }
+
+  template <typename... Args>
+  dqm::reco::MonitorElement* make2DIfLog(DQMStore::IBooker& ibook, bool logx, bool logy, Args&&... args) {
+    auto h = std::make_unique<TH2F>(std::forward<Args>(args)...);
+    if (logx)
+      BinLogX(h.get());
+    if (logy)
+      BinLogY(h.get());
+    const auto& name = h->GetName();
+    return ibook.book2D(name, h.release());
+  }
+}  // namespace
+
 class SiPixelPhase1CompareTrackSoA : public DQMEDAnalyzer {
 public:
   explicit SiPixelPhase1CompareTrackSoA(const edm::ParameterSet&);
@@ -51,6 +100,7 @@ private:
   MonitorElement* hChi2VsPhi_;
   MonitorElement* hChi2VsEta_;
   MonitorElement* hpt_;
+  MonitorElement* hptLogLog_;
   MonitorElement* heta_;
   MonitorElement* hphi_;
   MonitorElement* hz_;
@@ -149,6 +199,7 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
     hnHits_->Fill(tsoaCPU.nHits(it), tsoaGPU.nHits(closestTkidx));
     hnLayers_->Fill(tsoaCPU.nLayers(it), tsoaGPU.nLayers(closestTkidx));
     hpt_->Fill(tsoaCPU.pt(it), tsoaGPU.pt(closestTkidx));
+    hptLogLog_->Fill(tsoaCPU.pt(it), tsoaGPU.pt(closestTkidx));
     heta_->Fill(etacpu, tsoaGPU.eta(closestTkidx));
     hphi_->Fill(phicpu, tsoaGPU.phi(closestTkidx));
     hz_->Fill(tsoaCPU.zip(it), tsoaGPU.zip(closestTkidx));
@@ -184,6 +235,7 @@ void SiPixelPhase1CompareTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
   hchi2_ = iBook.book2D("nChi2ndof", fmt::sprintf("%s;CPU;GPU",toRep), 40, 0., 20., 40, 0., 20.);
 
   hpt_ = iBook.book2D("pt", "Track (quality #geq loose) p_{T} [GeV];CPU;GPU", 200, 0., 200., 200, 0., 200.);
+  hptLogLog_ = make2DIfLog(iBook, true, true, "ptLogLog", "Track (quality #geq loose) p_{T} [GeV];CPU;GPU", 200, log10(0.5), log10(200.), 200, log10(0.5), log10(200.));
   heta_ = iBook.book2D("eta", "Track (quality #geq loose) #eta;CPU;GPU", 30, -3., 3., 30, -3., 3.);
   hphi_ = iBook.book2D("phi", "Track (quality #geq loose) #phi;CPU;GPU", 30, -M_PI, M_PI, 30, -M_PI, M_PI);
   hz_ = iBook.book2D("z", "Track (quality #geq loose) z [cm];CPU;GPU", 30, -30., 30., 30, -30., 30.);
