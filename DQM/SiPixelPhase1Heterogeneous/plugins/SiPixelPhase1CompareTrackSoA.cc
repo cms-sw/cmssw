@@ -9,6 +9,7 @@
 //
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -106,6 +107,16 @@ private:
   MonitorElement* hz_;
   MonitorElement* htip_;
   MonitorElement* hquality_;
+  //1D differences
+  MonitorElement* hptdiffMatched_;
+  MonitorElement* hetadiffMatched_;
+  MonitorElement* hphidiffMatched_;
+  MonitorElement* hzdiffMatched_;
+  //for matching eff vs region:dervie ration at harvesting
+  MonitorElement* hpt_eta_tkAllCPU_;
+  MonitorElement* hpt_eta_tkAllCPUMatched_;
+  MonitorElement* hphi_z_tkAllCPU_;
+  MonitorElement* hphi_z_tkAllCPUMatched_;
 };
 
 //
@@ -191,6 +202,9 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
         closestTkidx = gid;
       }
     }
+
+    hpt_eta_tkAllCPU_->Fill(etacpu, tsoaCPU.pt(it));  //all CPU tk
+    hphi_z_tkAllCPU_->Fill(tsoaCPU.zip(it), phicpu);
     if (closestTkidx == notFound)
       continue;
     nLooseAndAboveTracksCPU_matchedGPU++;
@@ -204,6 +218,12 @@ void SiPixelPhase1CompareTrackSoA::analyze(const edm::Event& iEvent, const edm::
     hphi_->Fill(phicpu, tsoaGPU.phi(closestTkidx));
     hz_->Fill(tsoaCPU.zip(it), tsoaGPU.zip(closestTkidx));
     htip_->Fill(tsoaCPU.tip(it), tsoaGPU.tip(closestTkidx));
+    hptdiffMatched_->Fill(tsoaCPU.pt(it) - tsoaGPU.pt(closestTkidx));
+    hetadiffMatched_->Fill(etacpu - tsoaGPU.eta(closestTkidx));
+    hphidiffMatched_->Fill(reco::deltaPhi(phicpu, tsoaGPU.phi(closestTkidx)));
+    hzdiffMatched_->Fill(tsoaCPU.zip(it) - tsoaGPU.zip(closestTkidx));
+    hpt_eta_tkAllCPUMatched_->Fill(etacpu, tsoaCPU.pt(it));  //matched to gpu
+    hphi_z_tkAllCPUMatched_->Fill(tsoaCPU.zip(it), phicpu);
   }
   hnTracks_->Fill(nTracksCPU, nTracksGPU);
   hnLooseAndAboveTracks_->Fill(nLooseAndAboveTracksCPU, nLooseAndAboveTracksGPU);
@@ -240,6 +260,18 @@ void SiPixelPhase1CompareTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
   hphi_ = iBook.book2D("phi", "Track (quality #geq loose) #phi;CPU;GPU", 30, -M_PI, M_PI, 30, -M_PI, M_PI);
   hz_ = iBook.book2D("z", "Track (quality #geq loose) z [cm];CPU;GPU", 30, -30., 30., 30, -30., 30.);
   htip_ = iBook.book2D("tip", "Track (quality #geq loose) TIP [cm];CPU;GPU", 100, -0.5, 0.5, 100, -0.5, 0.5);
+  //1D difference plots
+  hptdiffMatched_ = iBook.book1D("ptdiffmatched", " p_{T} diff [GeV] between matched tracks; #Delta p_{T} [GeV]", 60, -30., 30.);
+  hetadiffMatched_ = iBook.book1D("etadiffmatched", " #eta diff between matched tracks; #Delta #eta", 300, -3., 3);
+  hphidiffMatched_ = iBook.book1D("phidiffmatched", " #phi diff between matched tracks; #Delta #phi",  300, -M_PI, M_PI);
+  hzdiffMatched_ = iBook.book1D("zdiffmatched", " z diff between matched tracks; #Delta z [cm]",  60, -30, 30.);
+  //2D plots for eff
+  hpt_eta_tkAllCPU_ = iBook.book2D("ptetatrkAllCPU", "Track (quality #geq loose) on CPU; #eta; p_{T} [GeV];", 30, -M_PI, M_PI, 200, 0., 200.);
+  hpt_eta_tkAllCPUMatched_ = iBook.book2D("ptetatrkAllCPUmatched", "Track (quality #geq loose) on CPU matched to GPU track; #eta; p_{T} [GeV];", 30, -M_PI, M_PI, 200, 0., 200.);
+
+  hphi_z_tkAllCPU_ = iBook.book2D("phiztrkAllCPU", "Track (quality #geq loose) on CPU; #phi; z [cm];", 30, -30., 30., 30, -M_PI, M_PI);
+  hphi_z_tkAllCPUMatched_ = iBook.book2D("phiztrkAllCPUmatched", "Track (quality #geq loose) on CPU; #phi; z [cm];", 30, -30., 30., 30, -M_PI, M_PI);
+
 }
 
 void SiPixelPhase1CompareTrackSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

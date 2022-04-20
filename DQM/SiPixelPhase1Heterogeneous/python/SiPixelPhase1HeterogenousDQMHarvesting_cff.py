@@ -1,2 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-siPixelPhase1HeterogenousDQMHarvesting = cms.Sequence()
+from DQM.SiPixelPhase1Heterogeneous.siPixelPhase1TrackComparisonHarvester_cfi import *
+
+siPixelPhase1HeterogenousDQMHarvesting = cms.Sequence(siPixelPhase1TrackComparisonHarvester)
