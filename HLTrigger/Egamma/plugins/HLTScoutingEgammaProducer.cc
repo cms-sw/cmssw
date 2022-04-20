@@ -65,6 +65,7 @@ HLTScoutingEgammaProducer::HLTScoutingEgammaProducer(const edm::ParameterSet& iC
       mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
       saveRecHitTiming(iConfig.getParameter<bool>("saveRecHitTiming")),
       rechitMatrixSize(iConfig.getParameter<int>("rechitMatrixSize")),  //(2n+1)^2
+      rechitZeroSuppression(iConfig.getParameter<bool>("rechitZeroSuppression")),
       ecalRechitEB_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRechitEB"))),
       ecalRechitEE_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRechitEE"))) {
   //register products
@@ -212,16 +213,18 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     std::vector<DetId> mDetIds = EcalClusterTools::matrixDetId((topology), (*SCseed).seed(), rechitMatrixSize);
 
     int detSize = mDetIds.size();
-    std::vector<uint32_t> mDetIdIds(detSize, 0);
-    std::vector<float> mEnergies(detSize, 0.);
-    std::vector<float> mTimes(detSize, 0.);
+    std::vector<uint32_t> mDetIdIds;
+    std::vector<float> mEnergies;
+    std::vector<float> mTimes;
 
     for (int i = 0; i < detSize; i++) {
-      mDetIdIds[i] = mDetIds[i];
-      mEnergies[i] =
-          MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds[i], *rechits), mantissaPrecision);
-      if (saveRecHitTiming)
-        mTimes[i] = MiniFloatConverter::reduceMantissaToNbitsRounding(recHitT(mDetIds[i], *rechits), mantissaPrecision);
+        if (recHitE(mDetIds[i], *rechits)>0 or (!rechitZeroSuppression)) {
+            mDetIdIds.push_back(mDetIds[i]);
+            mEnergies.push_back(MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds[i], *rechits), mantissaPrecision));
+            if (saveRecHitTiming) {
+                mTimes.push_back(MiniFloatConverter::reduceMantissaToNbitsRounding(recHitT(mDetIds[i], *rechits), mantissaPrecision));
+            }
+        }
     }
 
     float HoE = 999.;
@@ -258,7 +261,8 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                seedId,
                                mEnergies,
                                mDetIdIds,
-                               mTimes);  //read for(ieta){for(iphi){}}
+                               mTimes,
+                               rechitZeroSuppression);  //read for(ieta){for(iphi){}}
     } else {                             // Candidate is a scouting electron
       outElectrons->emplace_back(candidate.pt(),
                                  candidate.eta(),
@@ -282,7 +286,8 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  seedId,
                                  mEnergies,
                                  mDetIdIds,
-                                 mTimes);  //read for(ieta){for(iphi){}}
+                                 mTimes,
+                                 rechitZeroSuppression);  //read for(ieta){for(iphi){}}
     }
   }
 
@@ -312,6 +317,7 @@ void HLTScoutingEgammaProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<bool>("saveRecHitTiming", false);
   desc.add<int>("mantissaPrecision", 10)->setComment("default float16, change to 23 for float32");
   desc.add<int>("rechitMatrixSize", 10);
+  desc.add<bool>("rechitZeroSuppression", true);
   desc.add<edm::InputTag>("ecalRechitEB", edm::InputTag("hltEcalRecHit:EcalRecHitsEB"));
   desc.add<edm::InputTag>("ecalRechitEE", edm::InputTag("hltEcalRecHit:EcalRecHitsEE"));
   descriptions.add("hltScoutingEgammaProducer", desc);
