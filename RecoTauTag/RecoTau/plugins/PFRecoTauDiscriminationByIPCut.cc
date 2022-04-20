@@ -7,7 +7,7 @@
 
 using namespace reco;
 
-class PFRecoTauDiscriminationByIPCut : public PFTauDiscriminationProducerBase {
+class PFRecoTauDiscriminationByIPCut final : public PFTauDiscriminationProducerBase {
 public:
   explicit PFRecoTauDiscriminationByIPCut(const edm::ParameterSet& iConfig)
       : PFTauDiscriminationProducerBase(iConfig),
