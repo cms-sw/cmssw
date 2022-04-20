@@ -3450,7 +3450,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
         see_stateCurvCov.push_back(std::move(cov));
       }
 
-      see_trkIdx.push_back(-1);  // to be set correctly in fillTracks
+      see_trkIdx.push_back(-1);    // to be set correctly in fillTracks
+      see_tcandIdx.push_back(-1);  // to be set correctly in fillCandidates
       if (includeTrackingParticles_) {
         see_simTrkIdx.push_back(tpIdx);
         see_simTrkShareFrac.push_back(sharedFraction);
@@ -3967,7 +3968,9 @@ void TrackingNtuple::fillCandidates(const edm::Handle<TrackCandidateCollection>&
     math::XYZVector mom(p.x(), p.y(), p.z());
 
     //pseduo track for access to easy methods
-    reco::Track trk(0, 0, pos, mom, stateAtPCA.charge(), stateAtPCA.curvilinearError());
+    static const reco::Track::CovarianceMatrix dummyCov = AlgebraicMatrixID();
+    reco::Track trk(
+        0, 0, pos, mom, stateAtPCA.charge(), tbStateAtPCA.isValid() ? stateAtPCA.curvilinearError().matrix() : dummyCov);
 
     const auto& tkParam = trk.parameters();
     auto tkCov = trk.covariance();
@@ -4024,6 +4027,7 @@ void TrackingNtuple::fillCandidates(const edm::Handle<TrackCandidateCollection>&
           tkParam, tkCov, *(tpCollection[tpKeyToIndex.at(bestFirstHitKeyCount.key)]), mf, bs);
     }
 
+    auto iglobCand = tcand_pca_valid.size(); //global cand index
     tcand_pca_valid.push_back(tbStateAtPCA.isValid());
     tcand_pca_px.push_back(trk.px());
     tcand_pca_py.push_back(trk.py());
@@ -4091,9 +4095,9 @@ void TrackingNtuple::fillCandidates(const edm::Handle<TrackCandidateCollection>&
       tcand_seedIdx.push_back(seedIndex);
       if (see_tcandIdx[seedIndex] != -1) {
         throw cms::Exception("LogicError") << "Track cand index has already been set for seed " << seedIndex << " to "
-                                           << see_tcandIdx[seedIndex] << "; was trying to set it to " << iCand;
+                                           << see_tcandIdx[seedIndex] << "; was trying to set it to " << iglobCand<<" current "<<iCand;
       }
-      see_tcandIdx[seedIndex] = iCand;
+      see_tcandIdx[seedIndex] = iglobCand;
     }
     tcand_vtxIdx.push_back(-1);  // to be set correctly in fillVertices
     if (includeTrackingParticles_) {
@@ -4115,7 +4119,7 @@ void TrackingNtuple::fillCandidates(const edm::Handle<TrackCandidateCollection>&
     tcand_bestFromFirstHitSimTrkShareFracSimClusterDenom.push_back(bestFirstHitShareFracSimClusterDenom);
     tcand_bestFromFirstHitSimTrkNChi2.push_back(bestFirstHitChi2);
 
-    LogTrace("TrackingNtuple") << "Track cand #" << iCand << " with q=" << trk.charge() << ", pT=" << trk.pt()
+    LogTrace("TrackingNtuple") << "Track cand #" << iCand <<" glob " << iglobCand << " with q=" << trk.charge() << ", pT=" << trk.pt()
                                << " GeV, eta: " << trk.eta() << ", phi: " << trk.phi() << ", nValid=" << nValid
                                << " seed#=" << aCand.seedRef().key() << " simMatch=" << isSimMatched
                                << " nSimHits=" << nSimHits
@@ -4153,11 +4157,11 @@ void TrackingNtuple::fillCandidates(const edm::Handle<TrackCandidateCollection>&
         if (includeAllHits_) {
           checkProductID(hitProductIds, clusterRef.id(), "track");
           if (clusterRef.isPixel()) {
-            pix_tcandIdx[clusterKey].push_back(iCand);
+            pix_tcandIdx[clusterKey].push_back(iglobCand);
           } else if (clusterRef.isPhase2()) {
-            ph2_tcandIdx[clusterKey].push_back(iCand);
+            ph2_tcandIdx[clusterKey].push_back(iglobCand);
           } else {
-            str_tcandIdx[clusterKey].push_back(iCand);
+            str_tcandIdx[clusterKey].push_back(iglobCand);
           }
         }
 
