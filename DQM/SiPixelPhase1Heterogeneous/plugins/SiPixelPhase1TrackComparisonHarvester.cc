@@ -26,8 +26,15 @@ SiPixelPhase1TrackComparisonHarvester::SiPixelPhase1TrackComparisonHarvester(con
 void SiPixelPhase1TrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   MonitorElement* hpt_eta_tkAllCPU = igetter.get(topFolder_ + "/ptetatrkAllCPU");
   MonitorElement* hpt_eta_tkAllCPUmatched = igetter.get(topFolder_ + "/ptetatrkAllCPUmatched");
-  MonitorElement* hphi_z_tkAllCPU_ = igetter.get(topFolder_ + "/phiztrkAllCPU");
-  MonitorElement* hphi_z_tkAllCPUmatched_ = igetter.get(topFolder_ + "/phiztrkAllCPUmatched");
+  MonitorElement* hphi_z_tkAllCPU = igetter.get(topFolder_ + "/phiztrkAllCPU");
+  MonitorElement* hphi_z_tkAllCPUmatched = igetter.get(topFolder_ + "/phiztrkAllCPUmatched");
+
+  if (hpt_eta_tkAllCPU == nullptr or hpt_eta_tkAllCPUmatched == nullptr or hphi_z_tkAllCPU == nullptr or
+      hphi_z_tkAllCPUmatched == nullptr) {
+    edm::LogError("SiPixelPhase1TrackComparisonHarvester")
+        << "MEs needed for this module are not found in the input file. Skipping.";
+    return;
+  }
 
   ibooker.cd();
   ibooker.setCurrentFolder(topFolder_);
@@ -37,7 +44,7 @@ void SiPixelPhase1TrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker
       "matchingeff_phi_z", "Efficiency of track matching; #phi; z [cm];", 30, -M_PI, M_PI, 30, -30., 30.);
 
   hpt_eta_matchRatio->divide(hpt_eta_tkAllCPUmatched, hpt_eta_tkAllCPU, 1., 1., "B");
-  hphi_z_matchRatio->divide(hphi_z_tkAllCPUmatched_, hphi_z_tkAllCPU_, 1., 1., "B");
+  hphi_z_matchRatio->divide(hphi_z_tkAllCPUmatched, hphi_z_tkAllCPU, 1., 1., "B");
 }
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
