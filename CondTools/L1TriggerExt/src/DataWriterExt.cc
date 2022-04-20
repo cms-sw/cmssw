@@ -18,7 +18,7 @@ namespace l1t {
   // they need to be constructed at "construction time" to register what they produce
   DataWriterExt::DataWriterExt(const std::string& recordType) {
     WriterFactory* factory = WriterFactory::get();
-    writer = std::move( WriterProxyPtr(factory->create(recordType + "@Writer")) );
+    writer = factory->create(recordType + "@Writer");
     if (writer.get() == nullptr) {
       throw cond::Exception("DataWriter: could not create WriterProxy with name " + recordType + "@Writer");
     }
