@@ -34,7 +34,7 @@ void SiPixelPhase1TrackComparisonHarvester::dqmEndJob(DQMStore::IBooker& ibooker
   MonitorElement* hpt_eta_matchRatio = ibooker.book2D(
       "matchingeff_pt_eta", "Efficiency of track matching; #eta; p_{T} [GeV];", 30, -M_PI, M_PI, 200, 0., 200.);
   MonitorElement* hphi_z_matchRatio = ibooker.book2D(
-      "matchingeff_phi_z", "Efficiency of track matching; #phi; z [cm];", 30, -30., 30., 60, -M_PI, M_PI);
+      "matchingeff_phi_z", "Efficiency of track matching; #phi; z [cm];", 30, -M_PI, M_PI, 30, -30., 30.);
 
   hpt_eta_matchRatio->divide(hpt_eta_tkAllCPUmatched, hpt_eta_tkAllCPU, 1., 1., "B");
   hphi_z_matchRatio->divide(hphi_z_tkAllCPUmatched_, hphi_z_tkAllCPU_, 1., 1., "B");
