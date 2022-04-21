@@ -14,8 +14,6 @@
 
 #include <string>
 
-using namespace edm;
-
 namespace l1t {
 
   /* This is class that is used to save data to DB. Saving requires that we should know types at compile time.
@@ -65,7 +63,6 @@ namespace l1t {
       } catch (l1t::DataAlreadyPresentException& ex) {
         return std::string();
       }
-
       // If handle is invalid, then data is already in DB
 
       edm::Service<cond::service::PoolDBOutputService> poolDb;
@@ -74,14 +71,13 @@ namespace l1t {
       }
       poolDb->forceInit();
       cond::persistency::Session session = poolDb->session();
-      cond::persistency::TransactionScope tr(session.transaction());
-      // if throw transaction will unroll
-      ///	    tr.start(false);
+      if (not session.transaction().isActive())
+        session.transaction().start(false);  // true: read only, false: read-write
 
       std::shared_ptr<Type> pointer = std::make_shared<Type>(*(handle.product()));
       std::string payloadToken = session.storePayload(*pointer);
-      ///	    tr.commit();
-      tr.close();
+
+      session.transaction().commit();
       return payloadToken;
     }
   };
