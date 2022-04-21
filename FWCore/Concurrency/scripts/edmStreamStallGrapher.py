@@ -617,7 +617,7 @@ class RefCountSet(set):
       self.__itemsAndCount[item]=v-1
 
 
-def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder, setXAxis, xLower, xUpper):
+def createPDFImage(pdfFile, shownStacks, showStreams, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder, setXAxis, xLower, xUpper):
 
     stalledModuleNames = set([x for x in iter(stalledModuleInfo)])
     streamLowestRow = [[] for x in range(numStreams)]
@@ -757,15 +757,17 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     streamLowestRow = consolidateContiguousBlocks(numStreams, streamLowestRow)
 
     nr = 1
-    if shownStacks:
+    if shownStacks and showStreams:
         nr += 1
     fig, ax = plt.subplots(nrows=nr, squeeze=True)
     axStack = None
-    if shownStacks:
+    if shownStacks and showStreams:
         [xH,yH] = fig.get_size_inches()
         fig.set_size_inches(xH,yH*4/3)
         ax = plt.subplot2grid((4,1),(0,0), rowspan=3)
         axStack = plt.subplot2grid((4,1),(3,0))
+    if shownStacks and not showStreams:
+        axStack = ax
 
     ax.set_xlabel("Time (sec)")
     ax.set_ylabel("Stream ID")
@@ -780,7 +782,8 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
         times=[(x.begin/1000000., x.delta/1000000.) for x in lowestRow] # Scale from microsec to sec.
         colors=[x.color for x in lowestRow]
         # for each stream, plot the lowest row
-        ax.broken_barh(times,(iStream-0.4,height),facecolors=colors,edgecolors=colors,linewidth=0)
+        if showStreams:
+            ax.broken_barh(times,(iStream-0.4,height),facecolors=colors,edgecolors=colors,linewidth=0)
         # record them also for inclusion in the stack plot
         # the darkviolet ones get counted later so do not count them here
         for info in lowestRow:
@@ -798,7 +801,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
             plotPerStreamAboveFirstAndPrepareStack(perStreamTimesWithExtendedWork,
                                                    allStackTimes, ax, i, height,
                                                    streamHeightCut=2,
-                                                   doPlot=True,
+                                                   doPlot=showStreams,
                                                    addToStackTimes=False,
                                                    color='darkviolet',
                                                    threadOffset=1)
@@ -806,7 +809,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
             plotPerStreamAboveFirstAndPrepareStack(perStreamRunningTimes,
                                                    allStackTimes, ax, i, height,
                                                    streamHeightCut=2,
-                                                   doPlot=True,
+                                                   doPlot=showStreams,
                                                    addToStackTimes=True,
                                                    color='blue',
                                                    threadOffset=1)
@@ -884,6 +887,9 @@ if __name__=="__main__":
                         action='store_true',
                         help='''Create stack plot, combining all stream-specific info.
                         Can be used only when -g is specified.''')
+    parser.add_argument('--no_streams', action='store_true',
+                        help='''Do not show per stream plots.
+                        Can be used only when -g and -s are specified.''')
     parser.add_argument('-e', '--external',
                         action='store_false',
                         help='''Suppress display of external work in graphs.''')
@@ -906,6 +912,7 @@ if __name__=="__main__":
     inputFile = args.filename
     pdfFile = args.graph
     shownStacks = args.stack
+    showStreams = not args.no_streams
     displayExternalWork = args.external
     checkOrder = args.order
     doModuleTimings = False
@@ -944,6 +951,9 @@ if __name__=="__main__":
     if pdfFile is None and shownStacks:
         print("The -s (--stack) option can be used only when the -g (--graph) option is specified.")
         exit(1)
+    if pdfFile and (not shownStacks and not showStreams):
+        print("When using -g, one must either specify -s OR do not specify --no_streams")
+        exit(1)
 
     sys.stderr.write(">reading file: '{}'\n".format(inputFile.name))
     reader = readLogFile(inputFile)
@@ -958,7 +968,7 @@ if __name__=="__main__":
         createAsciiImage(reader.processingSteps(), reader.numStreams, reader.maxNameSize)
     else:
         sys.stderr.write(">creating PDF\n")
-        createPDFImage(pdfFile, shownStacks, reader.processingSteps(), reader.numStreams, stalledModules, displayExternalWork, checkOrder, setXAxis, xLower, xUpper)
+        createPDFImage(pdfFile, shownStacks, showStreams, reader.processingSteps(), reader.numStreams, stalledModules, displayExternalWork, checkOrder, setXAxis, xLower, xUpper)
     printStalledModulesInOrder(stalledModules)
     if doModuleTimings:
         sys.stderr.write(">creating module-timings.json\n")
