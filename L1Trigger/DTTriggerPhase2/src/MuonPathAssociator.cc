@@ -15,15 +15,14 @@ MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset,
                                        std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer) {
   // Obtention of parameters
   debug_ = pset.getUntrackedParameter<bool>("debug");
-  clean_chi2_correlation_ = pset.getUntrackedParameter<bool>("clean_chi2_correlation");
-  useBX_correlation_ = pset.getUntrackedParameter<bool>("useBX_correlation");
-  allow_confirmation_ = pset.getUntrackedParameter<bool>("allow_confirmation");
-  dT0_correlate_TP_ = pset.getUntrackedParameter<double>("dT0_correlate_TP");
-  dBX_correlate_TP_ = pset.getUntrackedParameter<int>("dBX_correlate_TP");
-  dTanPsi_correlate_TP_ = pset.getUntrackedParameter<double>("dTanPsi_correlate_TP");
-  minx_match_2digis_ = pset.getUntrackedParameter<double>("minx_match_2digis");
-  chi2corTh_ = pset.getUntrackedParameter<double>("chi2corTh");
-  geometry_tag_ = pset.getUntrackedParameter<std::string>("geometry_tag");
+  clean_chi2_correlation_ = pset.getParameter<bool>("clean_chi2_correlation");
+  useBX_correlation_ = pset.getParameter<bool>("useBX_correlation");
+  allow_confirmation_ = pset.getParameter<bool>("allow_confirmation");
+  dT0_correlate_TP_ = pset.getParameter<double>("dT0_correlate_TP");
+  dBX_correlate_TP_ = pset.getParameter<int>("dBX_correlate_TP");
+  dTanPsi_correlate_TP_ = pset.getParameter<double>("dTanPsi_correlate_TP");
+  minx_match_2digis_ = pset.getParameter<double>("minx_match_2digis");
+  chi2corTh_ = pset.getParameter<double>("chi2corTh");
 
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator: constructor";

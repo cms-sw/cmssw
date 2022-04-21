@@ -21,7 +21,6 @@ process.CalibratedDigis.scenario = 0 # 0 for mc, 1 for data, 2 for slice test
 
 #DTTriggerPhase2
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
-#process.dtTriggerPhase2PrimitiveDigis.trigger_with_sl = 3  #4 means SL 1 and 3
 #for the moment the part working in phase2 format is the slice test
 #process.dtTriggerPhase2PrimitiveDigis.p2_df = True
 #process.dtTriggerPhase2PrimitiveDigis.filter_primos = True
