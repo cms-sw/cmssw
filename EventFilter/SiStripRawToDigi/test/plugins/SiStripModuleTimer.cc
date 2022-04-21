@@ -1,13 +1,34 @@
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripModuleTimer.h"
+// user includes
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+//#include "DQM/HLTEvF/interface/PathTimerService.h"
+
+// ROOT includes
+#include "TFile.h"
+#include "TTree.h"
+
+class SiStripModuleTimer : public edm::EDAnalyzer {
+public:
+  SiStripModuleTimer(const edm::ParameterSet&);
+  ~SiStripModuleTimer();
+
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob();
+
+private:
+  std::vector<std::string> moduleLabels_;
+  std::vector<double> times_;
+  TFile* file_;
+  TTree* tree_;
+};
 
 using namespace std;
 using namespace edm;
 
 SiStripModuleTimer::SiStripModuleTimer(const ParameterSet& pset)
-    :
-
-      moduleLabels_(pset.getUntrackedParameter<vector<string> >("ModuleLabels")),
+    : moduleLabels_(pset.getUntrackedParameter<vector<string> >("ModuleLabels")),
       times_(moduleLabels_.size()),
       file_(0),
       tree_(0) {
@@ -26,8 +47,6 @@ SiStripModuleTimer::~SiStripModuleTimer() {
   file_->Close();
 }
 
-void SiStripModuleTimer::beginJob() {}
-
 void SiStripModuleTimer::endJob() {
   file_->cd();
   tree_->Write();
@@ -44,3 +63,7 @@ void SiStripModuleTimer::analyze(const Event& iEvent, const EventSetup& iSetup) 
   //}
   tree_->Fill();
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripModuleTimer);
