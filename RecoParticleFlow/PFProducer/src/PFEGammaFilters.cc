@@ -181,9 +181,11 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
     if (electronPt > ele_iso_pt_) {
       // using the Barrel model for electron in the EB-EE gap
       if (eleEta <= etaThreshold) {
-        passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
-      } else if (eleEta > etaThreshold) {
-        passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
+	  passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
+      } else if (eleEta > etaThreshold && eleEta < 2.5) {
+	  passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
+      } else if (eleEta >= 2.5) {
+	  passEleSelection = false;
       }
     } else {  // pt < ele_iso_pt_
       passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
@@ -226,7 +228,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
   //this is to be taken care of by EGM POG
   //https://github.com/cms-sw/cmssw/issues/35374
   if (thisEleIsNotAllowedInPF(electron, allowEEEinPF_))
-    passEleSelection = false;
+      passEleSelection = false;
 
   return passEleSelection && passGsfElePreSelWithOnlyConeHadem(electron);
 }
