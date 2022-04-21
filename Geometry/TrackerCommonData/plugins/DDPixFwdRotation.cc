@@ -23,7 +23,6 @@
 #include <string>
 #include <vector>
 
-
 class DDPixFwdRotation : public DDAlgorithm {
 public:
   DDPixFwdRotation() {}
@@ -38,7 +37,7 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  double endcap_;       // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
+  double endcap_;  // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
   std::string rotNameNippleToCover_;
   std::string rotNameCoverToNipple_;
   std::string rotNameNippleToBody_;
@@ -54,23 +53,23 @@ private:
   double kX_;
   double kY_;
   double kZ_;
-  std::string rotNS_;                   //Namespace of the rotation matrix
-  std::string idNameSpace_;             //Namespace of this and ALL sub-parts
+  std::string rotNS_;        //Namespace of the rotation matrix
+  std::string idNameSpace_;  //Namespace of this and ALL sub-parts
 };
 
 void DDPixFwdRotation::initialize(const DDNumericArguments& nArgs,
-				  const DDVectorArguments& vArgs,
-				  const DDMapArguments&,
-				  const DDStringArguments& sArgs,
-				  const DDStringVectorArguments&) {
+                                  const DDVectorArguments& vArgs,
+                                  const DDMapArguments&,
+                                  const DDStringArguments& sArgs,
+                                  const DDStringVectorArguments&) {
   // -- Input geometry parameters :  -----------------------------------------------------
   endcap_ = nArgs["Endcap"];
   rotNameNippleToCover_ = sArgs["NippleToCover"];
   rotNameCoverToNipple_ = sArgs["CoverToNipple"];
   rotNameNippleToBody_ = sArgs["NippleToBody"];
-  nBlades_ = static_cast<int>(nArgs["Blades"]); // Number of blades
-  bladeAngle_ = nArgs ["BladeAngle"];  // Angle of blade rotation around its axis
-  bladeZShift_ = nArgs["BladeZShift"];  // Shift in Z between the axes of two adjacent blades
+  nBlades_ = static_cast<int>(nArgs["Blades"]);  // Number of blades
+  bladeAngle_ = nArgs["BladeAngle"];             // Angle of blade rotation around its axis
+  bladeZShift_ = nArgs["BladeZShift"];           // Shift in Z between the axes of two adjacent blades
   ancorRadius_ = nArgs["AncorRadius"];  // Distance from beam line to ancor point defining center of "blade frame"
   // Coordinates of Nipple ancor points J and K in "blade frame" :
   jX_ = nArgs["JX"];
@@ -83,7 +82,11 @@ void DDPixFwdRotation::initialize(const DDNumericArguments& nArgs,
   rotNS_ = sArgs["RotationNS"];
   idNameSpace_ = DDCurrentNamespace::ns();
 
-  edm::LogVerbatim("PixelGeom") << "DDPixFwdRotation: Initialize with endcap " << endcap_  << " NameSpace " << idNameSpace_ << ":" << rotNS_ << "\n  nBlades " << nBlades_ << " bladeAngle " << bladeAngle_ << " bladeZShift " << bladeZShift_ << " ancorRadius " << ancorRadius_ << " jX|jY|jZ " << jX_ << ":" << jY_ << ":" << jZ_ << " kX|kY|kZ " << kX_ << ":" << kY_ << ":" << kZ_;
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdRotation: Initialize with endcap " << endcap_ << " NameSpace "
+                                << idNameSpace_ << ":" << rotNS_ << "\n  nBlades " << nBlades_ << " bladeAngle "
+                                << bladeAngle_ << " bladeZShift " << bladeZShift_ << " ancorRadius " << ancorRadius_
+                                << " jX|jY|jZ " << jX_ << ":" << jY_ << ":" << jZ_ << " kX|kY|kZ " << kX_ << ":" << kY_
+                                << ":" << kZ_;
 }
 
 void DDPixFwdRotation::execute(DDCompactView&) {
@@ -91,9 +94,10 @@ void DDPixFwdRotation::execute(DDCompactView&) {
 
   double effBladeAngle = endcap_ * bladeAngle_;
 
-  CLHEP::Hep3Vector jC = CLHEP::Hep3Vector(jX_ * endcap_, jY_ + ancorRadius_, jZ_);;  // Point J in the "cover" blade frame
-  CLHEP::Hep3Vector kB = CLHEP::Hep3Vector(kX_ * endcap_, kY_ + ancorRadius_, kZ_);;  // PoinladeZShiftladeZShiftladeZShiftt K in the "body" blade frame
-
+  CLHEP::Hep3Vector jC = CLHEP::Hep3Vector(jX_ * endcap_, jY_ + ancorRadius_, jZ_);
+  ;  // Point J in the "cover" blade frame
+  CLHEP::Hep3Vector kB = CLHEP::Hep3Vector(kX_ * endcap_, kY_ + ancorRadius_, kZ_);
+  ;  // PoinladeZShiftladeZShiftladeZShiftt K in the "body" blade frame
 
   // Z-shift from "cover" to "body" blade frame:
 
@@ -128,18 +132,28 @@ void DDPixFwdRotation::execute(DDCompactView&) {
   edm::LogVerbatim("PixelGeom") << " Angle to Cover: " << angleCover;
   CLHEP::HepRotation* rpCN = new CLHEP::HepRotation(axis, angleCover);
 
-  DDrot(DDName(rotNameCoverToNipple_, rotNS_), std::make_unique<DDRotationMatrix>(rpCN->xx(), rpCN->xy(), rpCN->xz(), rpCN->yx(), rpCN->yy(), rpCN->yz(), rpCN->zx(), rpCN->zy(), rpCN->zz()));
+  DDrot(
+      DDName(rotNameCoverToNipple_, rotNS_),
+      std::make_unique<DDRotationMatrix>(
+          rpCN->xx(), rpCN->xy(), rpCN->xz(), rpCN->yx(), rpCN->yy(), rpCN->yz(), rpCN->zx(), rpCN->zy(), rpCN->zz()));
   CLHEP::HepRotation rpNC(axis, -angleCover);
-  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameCoverToNipple_, rotNS_) << " with " << rpCN;
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameCoverToNipple_, rotNS_) << " with "
+                                << rpCN;
 
-  DDrot(DDName(rotNameNippleToCover_, rotNS_), std::make_unique<DDRotationMatrix>(rpNC.xx(), rpNC.xy(), rpNC.xz(), rpNC.yx(), rpNC.yy(), rpNC.yz(), rpNC.zx(), rpNC.zy(), rpNC.zz()));
-  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToCover_, rotNS_) << " with " << rpNC;
+  DDrot(DDName(rotNameNippleToCover_, rotNS_),
+        std::make_unique<DDRotationMatrix>(
+            rpNC.xx(), rpNC.xy(), rpNC.xz(), rpNC.yx(), rpNC.yy(), rpNC.yz(), rpNC.zx(), rpNC.zy(), rpNC.zz()));
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToCover_, rotNS_) << " with "
+                                << rpNC;
 
   // Rotation from nipple frame to "body" blade frame :
 
   CLHEP::HepRotation rpNB(rpNC * rCB);
-  DDrot(DDName(rotNameNippleToBody_, rotNS_), std::make_unique<DDRotationMatrix>(rpNB.xx(), rpNB.xy(), rpNB.xz(), rpNB.yx(), rpNB.yy(), rpNB.yz(), rpNB.zx(), rpNB.zy(), rpNB.zz()));
-  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToBody_, rotNS_) << " with " << rpNB;
+  DDrot(DDName(rotNameNippleToBody_, rotNS_),
+        std::make_unique<DDRotationMatrix>(
+            rpNB.xx(), rpNB.xy(), rpNB.xz(), rpNB.yx(), rpNB.yy(), rpNB.yz(), rpNB.zx(), rpNB.zy(), rpNB.zz()));
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToBody_, rotNS_) << " with "
+                                << rpNB;
   edm::LogVerbatim("PixelGeom") << " Angle to body : " << vZ.angle(rpNB * vZ);
 }
 

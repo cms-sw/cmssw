@@ -41,7 +41,7 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  double endcap_;        // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
+  double endcap_;  // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
 
   int nBlades_;         // Number of blades
   double bladeAngle_;   // Angle of blade rotation around axis perpendicular to beam
@@ -59,30 +59,30 @@ private:
   double kY_;
   double kZ_;
 
-  std::string flagString_;      // String of flags
-  std::string flagSelector_;    // Character that means "yes" in flagString
+  std::string flagString_;    // String of flags
+  std::string flagSelector_;  // Character that means "yes" in flagString
 
-  std::string childName_;       // Child volume name
-  int startCopy_;               // First copy number
+  std::string childName_;  // Child volume name
+  int startCopy_;          // First copy number
 
   std::vector<double> childTranslationVector_;  // Child translation with respect to "blade frame"
   std::string childRotationName_;               // Child rotation with respect to "blade frame"
 
-  std::string idNameSpace_;                     //Namespace of this and ALL sub-parts
+  std::string idNameSpace_;  //Namespace of this and ALL sub-parts
 
   CLHEP::Hep3Vector getTranslation();
   CLHEP::HepRotation getRotation();
 };
 
 void DDPixFwdBladesNew::initialize(const DDNumericArguments& nArgs,
-				   const DDVectorArguments& vArgs,
-				   const DDMapArguments&,
-				   const DDStringArguments& sArgs,
-				   const DDStringVectorArguments&) {
+                                   const DDVectorArguments& vArgs,
+                                   const DDMapArguments&,
+                                   const DDStringArguments& sArgs,
+                                   const DDStringVectorArguments&) {
   endcap_ = nArgs["Endcap"];
-  nBlades_ = static_cast<int>(nArgs["Blades"]); // Number of blades
-  bladeAngle_ = nArgs ["BladeAngle"];  // Angle of blade rotation around its axis
-  bladeZShift_ = nArgs["BladeZShift"];  // Shift in Z between the axes of two adjacent blades
+  nBlades_ = static_cast<int>(nArgs["Blades"]);  // Number of blades
+  bladeAngle_ = nArgs["BladeAngle"];             // Angle of blade rotation around its axis
+  bladeZShift_ = nArgs["BladeZShift"];           // Shift in Z between the axes of two adjacent blades
   ancorRadius_ = nArgs["AncorRadius"];  // Distance from beam line to ancor point defining center of "blade frame"
   // Coordinates of Nipple ancor points J and K in "blade frame" :
   nippleType_ = static_cast<int>(nArgs["NippleType"]);
@@ -102,7 +102,15 @@ void DDPixFwdBladesNew::initialize(const DDNumericArguments& nArgs,
 
   idNameSpace_ = DDCurrentNamespace::ns();
 
-  edm::LogVerbatim("PixelGeom") << "DDPixFwdBladesNew: Initialize with endcap " << endcap_ << " FlagString " << flagString_ << " FlagSelector " << flagSelector_ << " Child " << childName_ << " ChildTranslation " << childTranslationVector_[0] << ":" << childTranslationVector_[1] << ":" << childTranslationVector_[2] << " ChildRotation " << childRotationName_ << " NameSpace " << idNameSpace_ << "\n  nBlades " << nBlades_ << " bladeAngle " << bladeAngle_ << " zPlane " << zPlane_ << " bladeZShift " << bladeZShift_ << " ancorRadius " << ancorRadius_ << " NippleType " << nippleType_ << " jX|jY|jZ " << jX_ << ":" << jY_ << ":" << jZ_ << " kX|kY|kZ " << kX_ << ":" << kY_ << ":" << kZ_;
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBladesNew: Initialize with endcap " << endcap_ << " FlagString "
+                                << flagString_ << " FlagSelector " << flagSelector_ << " Child " << childName_
+                                << " ChildTranslation " << childTranslationVector_[0] << ":"
+                                << childTranslationVector_[1] << ":" << childTranslationVector_[2] << " ChildRotation "
+                                << childRotationName_ << " NameSpace " << idNameSpace_ << "\n  nBlades " << nBlades_
+                                << " bladeAngle " << bladeAngle_ << " zPlane " << zPlane_ << " bladeZShift "
+                                << bladeZShift_ << " ancorRadius " << ancorRadius_ << " NippleType " << nippleType_
+                                << " jX|jY|jZ " << jX_ << ":" << jY_ << ":" << jZ_ << " kX|kY|kZ " << kX_ << ":" << kY_
+                                << ":" << kZ_;
 }
 
 void DDPixFwdBladesNew::execute(DDCompactView& cpv) {
@@ -122,7 +130,8 @@ void DDPixFwdBladesNew::execute(DDCompactView& cpv) {
   if (nippleType_ == 1) {
     childRotMatrix = getRotation();
   } else if (!childRotationName_.empty()) {
-    DDRotation childRotation = DDRotation(DDName(DDSplit(childRotationName_).first, DDSplit(childRotationName_).second));
+    DDRotation childRotation =
+        DDRotation(DDName(DDSplit(childRotationName_).first, DDSplit(childRotationName_).second));
     // due to conversion to ROOT::Math::Rotation3D -- Michael Case
     DD3Vector x, y, z;
     childRotation.rotation().GetComponents(x, y, z);  // these are the orthonormal columns.
@@ -130,7 +139,10 @@ void DDPixFwdBladesNew::execute(DDCompactView& cpv) {
     childRotMatrix = CLHEP::HepRotation(tr);
   }
 
-  CLHEP::Hep3Vector childTranslation = (nippleType_ == 1) ? getTranslation() :  CLHEP::Hep3Vector(childTranslationVector_[0], childTranslationVector_[1], childTranslationVector_[2]);
+  CLHEP::Hep3Vector childTranslation =
+      (nippleType_ == 1)
+          ? getTranslation()
+          : CLHEP::Hep3Vector(childTranslationVector_[0], childTranslationVector_[1], childTranslationVector_[2]);
 
   // Create a matrix for rotation around blade axis (to "blade frame") :
   CLHEP::HepRotation bladeRotMatrix(CLHEP::Hep3Vector(0., 1., 0.), effBladeAngle);
@@ -170,13 +182,23 @@ void DDPixFwdBladesNew::execute(DDCompactView& cpv) {
 
     if (!rotation) {
       rotMatrix *= childRotMatrix;
-      rotation = DDrot(DDName(rotstr, idNameSpace_), std::make_unique<DDRotationMatrix>(rotMatrix.xx(), rotMatrix.xy(), rotMatrix.xz(), rotMatrix.yx(), rotMatrix.yy(), rotMatrix.yz(), rotMatrix.zx(), rotMatrix.zy(), rotMatrix.zz()));
+      rotation = DDrot(DDName(rotstr, idNameSpace_),
+                       std::make_unique<DDRotationMatrix>(rotMatrix.xx(),
+                                                          rotMatrix.xy(),
+                                                          rotMatrix.xz(),
+                                                          rotMatrix.yx(),
+                                                          rotMatrix.yy(),
+                                                          rotMatrix.yz(),
+                                                          rotMatrix.zx(),
+                                                          rotMatrix.zy(),
+                                                          rotMatrix.zz()));
     }
     // position the child :
 
     DDTranslation ddtran(translation.x(), translation.y(), translation.z());
     cpv.position(child, mother, copy, ddtran, rotation);
-    edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Position " << child << " copy " << copy << " in " << mother << " with translation " << ddtran << " and rotation " << rotation;
+    edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Position " << child << " copy " << copy << " in " << mother
+                                  << " with translation " << ddtran << " and rotation " << rotation;
     ++copy;
   }
 
@@ -188,8 +210,10 @@ void DDPixFwdBladesNew::execute(DDCompactView& cpv) {
 CLHEP::Hep3Vector DDPixFwdBladesNew::getTranslation() {
   double effBladeAngle = endcap_ * bladeAngle_;
 
-  CLHEP::Hep3Vector jC = CLHEP::Hep3Vector(endcap_ * jX_, jY_ + ancorRadius_, jZ_);  // Point J in the "cover" blade frame
-  CLHEP::Hep3Vector kB = CLHEP::Hep3Vector(endcap_ * kX_, kY_ + ancorRadius_, kZ_);  // Point K in the "body" blade frame
+  CLHEP::Hep3Vector jC =
+      CLHEP::Hep3Vector(endcap_ * jX_, jY_ + ancorRadius_, jZ_);  // Point J in the "cover" blade frame
+  CLHEP::Hep3Vector kB =
+      CLHEP::Hep3Vector(endcap_ * kX_, kY_ + ancorRadius_, kZ_);  // Point K in the "body" blade frame
 
   // Z-shift from "cover" to "body" blade frame:
   CLHEP::Hep3Vector tCB(bladeZShift_ * sin(effBladeAngle), 0., bladeZShift_ * cos(effBladeAngle));
@@ -210,8 +234,10 @@ CLHEP::Hep3Vector DDPixFwdBladesNew::getTranslation() {
 CLHEP::HepRotation DDPixFwdBladesNew::getRotation() {
   double effBladeAngle = endcap_ * bladeAngle_;
 
-  CLHEP::Hep3Vector jC = CLHEP::Hep3Vector(endcap_ * jX_, jY_ + ancorRadius_, jZ_);  // Point J in the "cover" blade frame
-  CLHEP::Hep3Vector kB = CLHEP::Hep3Vector(endcap_ * kX_, kY_ + ancorRadius_, kZ_);  // Point K in the "body" blade frame
+  CLHEP::Hep3Vector jC =
+      CLHEP::Hep3Vector(endcap_ * jX_, jY_ + ancorRadius_, jZ_);  // Point J in the "cover" blade frame
+  CLHEP::Hep3Vector kB =
+      CLHEP::Hep3Vector(endcap_ * kX_, kY_ + ancorRadius_, kZ_);  // Point K in the "body" blade frame
 
   // Z-shift from "cover" to "body" blade frame:
   CLHEP::Hep3Vector tCB(bladeZShift_ * sin(effBladeAngle), 0., bladeZShift_ * cos(effBladeAngle));
@@ -224,7 +250,7 @@ CLHEP::HepRotation DDPixFwdBladesNew::getRotation() {
   CLHEP::Hep3Vector kC = rCB * (kB + tCB);
   CLHEP::Hep3Vector jkC = kC - jC;
   edm::LogVerbatim("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: "
-				<< "JK Length " << jkC.mag() * CLHEP::mm;
+                                << "JK Length " << jkC.mag() * CLHEP::mm;
 
   // Rotations from nipple frame to "cover" blade frame and back :
   CLHEP::Hep3Vector vZ(0., 0., 1.);
