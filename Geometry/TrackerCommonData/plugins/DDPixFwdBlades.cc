@@ -201,7 +201,14 @@ void DDPixFwdBlades::initialize(const DDNumericArguments& nArgs,
 
   copyNumbers.clear();
 
-  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades: Initialize with endcap " << endcap << " FlagString " << flagString << " FlagSelector " << flagSelector << " Child " << childName << " ChildTranslation " << childTranslationVector[0] << ":" << childTranslationVector[1] << ":" << childTranslationVector[2] << " ChildRotation " << childRotationName << " NameSpace " << idNameSpace << "\n  nBlades " << nBlades << " bladeAngle " << bladeAngle << " zPlane " << zPlane << " bladeZShift " << bladeZShift << " ancorRadius " << ancorRadius << " jX|jY|jZ " << jX << ":" << jY << ":" << jZ << " kX|kY|kZ " << kX << ":" << kY << ":" << kZ;
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades: Initialize with endcap " << endcap << " FlagString " << flagString
+                                << " FlagSelector " << flagSelector << " Child " << childName << " ChildTranslation "
+                                << childTranslationVector[0] << ":" << childTranslationVector[1] << ":"
+                                << childTranslationVector[2] << " ChildRotation " << childRotationName << " NameSpace "
+                                << idNameSpace << "\n  nBlades " << nBlades << " bladeAngle " << bladeAngle
+                                << " zPlane " << zPlane << " bladeZShift " << bladeZShift << " ancorRadius "
+                                << ancorRadius << " jX|jY|jZ " << jX << ":" << jY << ":" << jZ << " kX|kY|kZ " << kX
+                                << ":" << kY << ":" << kZ;
 }
 
 void DDPixFwdBlades::execute(DDCompactView& cpv) {
@@ -307,7 +314,8 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
 
     DDTranslation ddtran(translation.x(), translation.y(), translation.z());
     cpv.position(child, mother, copy, ddtran, rotation);
-    edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Position " << child << " copy " << copy << " in " << mother << " with translation " << ddtran << " and rotation " << rotation;
+    edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Position " << child << " copy " << copy << " in " << mother
+                                  << " with translation " << ddtran << " and rotation " << rotation;
   }
 
   // End of cycle over Phi positions
@@ -363,7 +371,7 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   double jkLength = jkC.mag();
   DDConstant JK(DDName("JK", "pixfwdNipple"), make_unique<double>(jkLength));
   edm::LogVerbatim("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: "
-                        << "JK Length " << jkLength * CLHEP::mm;
+                                << "JK Length " << jkLength * CLHEP::mm;
 
   // Position of the center of a nipple in "cover" blade frame :
 
@@ -394,11 +402,13 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
       make_unique<DDRotationMatrix>(
           rpCN->xx(), rpCN->xy(), rpCN->xz(), rpCN->yx(), rpCN->yy(), rpCN->yz(), rpCN->zx(), rpCN->zy(), rpCN->zz()));
   CLHEP::HepRotation rpNC(axis, -angleCover);
-  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameCoverToNipple, "pixfwdNipple") << " with " << rpCN;
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameCoverToNipple, "pixfwdNipple")
+                                << " with " << rpCN;
   DDrot(DDName(rotNameNippleToCover, "pixfwdNipple"),
         make_unique<DDRotationMatrix>(
             rpNC.xx(), rpNC.xy(), rpNC.xz(), rpNC.yx(), rpNC.yy(), rpNC.yz(), rpNC.zx(), rpNC.zy(), rpNC.zz()));
-  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToCover, "pixfwdNipple") << " with " << rpNC;
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToCover, "pixfwdNipple")
+                                << " with " << rpNC;
 
   // Rotation from nipple frame to "body" blade frame :
 
@@ -407,7 +417,8 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   DDrot(DDName(rotNameNippleToBody, "pixfwdNipple"),
         make_unique<DDRotationMatrix>(
             rpNB.xx(), rpNB.xy(), rpNB.xz(), rpNB.yx(), rpNB.yy(), rpNB.yz(), rpNB.zx(), rpNB.zy(), rpNB.zz()));
-  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToBody, "pixfwdNipple") << " with " << rpNB;
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToBody, "pixfwdNipple") << " with "
+                                << rpNB;
   double angleBody = vZ.angle(rpNB * vZ);
   edm::LogVerbatim("PixelGeom") << " Angle to body : " << angleBody;
 }
