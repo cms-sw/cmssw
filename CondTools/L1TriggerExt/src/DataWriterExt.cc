@@ -87,19 +87,18 @@ namespace l1t {
 
     poolDb->forceInit();
     cond::persistency::Session session = poolDb->session();
-    cond::persistency::TransactionScope tr(session.transaction());
-    ///tr.start( false );
+    if (not session.transaction().isActive())
+      session.transaction().start(false);
 
     // Write L1TriggerKeyListExt payload and save payload token before committing
     std::shared_ptr<L1TriggerKeyListExt> pointer(keyList);
     std::string payloadToken = session.storePayload(*pointer);
 
     // Commit before calling updateIOV(), otherwise PoolDBOutputService gets
-    // confused.
-    ///tr.commit ();
-    tr.close();
+    // confused. ??? why?
 
     // Set L1TriggerKeyListExt IOV
+    session.transaction().commit();
     updateIOV("L1TriggerKeyListExtRcd", payloadToken, sinceRun, logTransactions);
   }
 
