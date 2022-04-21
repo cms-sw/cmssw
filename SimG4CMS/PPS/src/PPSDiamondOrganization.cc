@@ -26,10 +26,9 @@ uint32_t PPSDiamondOrganization::unitID(const G4Step* aStep) {
   thePlane_ = coNum / 100;
 
   G4VPhysicalVolume* physVolVac = touch->GetVolume(3);
-  if(nullptr == physVolVac) {
-    edm::LogError("PPSSimDiamond") << "Physical volume Primary_Vacuum not found for "
-				   << physVol->GetName() 
-				   << "; cannot determine CTPPSDiamondDetId.";
+  if (nullptr == physVolVac) {
+    edm::LogError("PPSSimDiamond") << "Physical volume Primary_Vacuum not found for " << physVol->GetName()
+                                   << "; cannot determine CTPPSDiamondDetId.";
   } else {
     int cpy_no = physVolVac->GetCopyNo();
     theArm_ = (cpy_no / 100) % 10;

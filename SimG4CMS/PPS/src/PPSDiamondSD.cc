@@ -30,7 +30,7 @@ PPSDiamondSD::PPSDiamondSD(const std::string& pname,
                            const SensitiveDetectorCatalog& clg,
                            edm::ParameterSet const& p,
                            const SimTrackManager* manager)
-  : SensitiveTkDetector(pname, clg) {
+    : SensitiveTkDetector(pname, clg) {
   collectionName.insert(pname);
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("PPSDiamondSD");
   verbosity_ = m_Anal.getParameter<int>("Verbosity");
@@ -71,8 +71,8 @@ void PPSDiamondSD::printHitInfo() {
                             << " PV " << currentPV_->GetName() << " PVid = " << currentPV_->GetCopyNo() << " Unit "
                             << unitID_ << "\n";
   LogDebug("PPSSimDiamond") << " primary " << primaryID_ << " time slice " << tSliceID_ << " of energy "
-                            << theTrack_->GetTotalEnergy() << " Eloss=" << eloss_
-			    << " position pre: " << hitPoint_ << " post: " << exitPoint_;
+                            << theTrack_->GetTotalEnergy() << " Eloss=" << eloss_ << " position pre: " << hitPoint_
+                            << " post: " << exitPoint_;
   LogDebug("PPSSimDiamond") << " positions "
                             << "(" << postStepPoint_->GetPosition().x() << "," << postStepPoint_->GetPosition().y()
                             << "," << postStepPoint_->GetPosition().z() << ")"
@@ -96,7 +96,7 @@ void PPSDiamondSD::printHitInfo() {
 
 bool PPSDiamondSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   eloss_ = aStep->GetTotalEnergyDeposit();
-  if(eloss_ > 0.0) {
+  if (eloss_ > 0.0) {
     eloss_ /= GeV;
     stepInfo(aStep);
     if (theTrack_->GetDefinition()->GetPDGEncoding() == 2212) {
@@ -140,10 +140,8 @@ void PPSDiamondSD::stepInfo(const G4Step* aStep) {
   //corrected phi and theta treatment
   G4ThreeVector gmd = preStepPoint_->GetMomentumDirection();
   // convert it to local frame
-  G4ThreeVector lmd = ((G4TouchableHistory*)(preStepPoint_->GetTouchable()))
-                          ->GetHistory()
-                          ->GetTopTransform()
-                          .TransformAxis(gmd);
+  G4ThreeVector lmd =
+      ((G4TouchableHistory*)(preStepPoint_->GetTouchable()))->GetHistory()->GetTopTransform().TransformAxis(gmd);
   Local3DPoint lnmd = ConvertToLocal3DPoint(lmd);
   thetaAtEntry_ = lnmd.theta();
   phiAtEntry_ = lnmd.phi();

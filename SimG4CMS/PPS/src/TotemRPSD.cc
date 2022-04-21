@@ -36,7 +36,7 @@ TotemRPSD::TotemRPSD(const std::string& pname,
                      const SensitiveDetectorCatalog& clg,
                      edm::ParameterSet const& p,
                      const SimTrackManager* manager)
-  : SensitiveTkDetector(pname, clg) {
+    : SensitiveTkDetector(pname, clg) {
   collectionName.insert(pname);
 
   edm::ParameterSet m_Anal = p.getParameter<edm::ParameterSet>("TotemRPSD");
@@ -72,8 +72,8 @@ void TotemRPSD::printHitInfo() {
                       << " PV " << currentPV_->GetName() << " PVid = " << currentPV_->GetCopyNo() << " Unit "
                       << unitID_;
   LogDebug("TotemRP") << " primary " << primaryID_ << " time slice " << tSliceID_ << " of energy "
-                      << theTrack_->GetTotalEnergy() << " Eloss_ " << eloss_ 
-		      << " position pre: " << hitPoint_ << " post: " << exitPoint_;
+                      << theTrack_->GetTotalEnergy() << " Eloss_ " << eloss_ << " position pre: " << hitPoint_
+                      << " post: " << exitPoint_;
 
   if (parentID_ == 0) {
     LogDebug("TotemRP") << " primary particle ";
@@ -91,11 +91,11 @@ void TotemRPSD::printHitInfo() {
 
 bool TotemRPSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   eloss_ = aStep->GetTotalEnergyDeposit();
-  if(eloss_ > 0.0) {
+  if (eloss_ > 0.0) {
     eloss_ /= GeV;
     stepInfo(aStep);
     edm::LogVerbatim("TotemRP") << "TotemRPSD: ProcessHits 1: Eloss=" << eloss_ << " "
-				<< theTrack_->GetDefinition()->GetParticleName();
+                                << theTrack_->GetDefinition()->GetParticleName();
     createNewHit();
   }
   return true;
@@ -134,10 +134,8 @@ void TotemRPSD::stepInfo(const G4Step* aStep) {
   //corrected phi and theta treatment
   G4ThreeVector gmd = preStepPoint_->GetMomentumDirection();
   // convert it to local frame
-  G4ThreeVector lmd = ((G4TouchableHistory*)(preStepPoint_->GetTouchable()))
-                          ->GetHistory()
-                          ->GetTopTransform()
-                          .TransformAxis(gmd);
+  G4ThreeVector lmd =
+      ((G4TouchableHistory*)(preStepPoint_->GetTouchable()))->GetHistory()->GetTopTransform().TransformAxis(gmd);
   Local3DPoint lnmd = ConvertToLocal3DPoint(lmd);
   thetaAtEntry_ = lnmd.theta();
   phiAtEntry_ = lnmd.phi();
@@ -164,8 +162,7 @@ void TotemRPSD::createNewHit() {
   // Protect against creating hits in detectors not inserted
   double outrangeX = hitPoint_.x();
   double outrangeY = hitPoint_.y();
-  if (std::abs(outrangeX) > rp_garage_position_ ||
-      std::abs(outrangeY) > rp_garage_position_)
+  if (std::abs(outrangeX) > rp_garage_position_ || std::abs(outrangeY) > rp_garage_position_)
     return;
   // end protection
 
