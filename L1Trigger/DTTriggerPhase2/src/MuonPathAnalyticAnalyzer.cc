@@ -13,14 +13,13 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset,
                                                    std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer)
     : MuonPathAnalyzer(pset, iC),
       debug_(pset.getUntrackedParameter<bool>("debug")),
-      chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
-      tanPhiTh_(pset.getUntrackedParameter<double>("tanPhiTh")),
-      tanPhiThw2max_(pset.getUntrackedParameter<double>("tanPhiThw2max")),
-      tanPhiThw2min_(pset.getUntrackedParameter<double>("tanPhiThw2min")),
-      tanPhiThw1max_(pset.getUntrackedParameter<double>("tanPhiThw1max")),
-      tanPhiThw1min_(pset.getUntrackedParameter<double>("tanPhiThw1min")),
-      tanPhiThw0_(pset.getUntrackedParameter<double>("tanPhiThw0")),
-      geometry_tag_(pset.getUntrackedParameter<std::string>("geometry_tag")) {
+      chi2Th_(pset.getParameter<double>("chi2Th")),
+      tanPhiTh_(pset.getParameter<double>("tanPhiTh")),
+      tanPhiThw2max_(pset.getParameter<double>("tanPhiThw2max")),
+      tanPhiThw2min_(pset.getParameter<double>("tanPhiThw2min")),
+      tanPhiThw1max_(pset.getParameter<double>("tanPhiThw1max")),
+      tanPhiThw1min_(pset.getParameter<double>("tanPhiThw1min")),
+      tanPhiThw0_(pset.getParameter<double>("tanPhiThw0")) {
   if (debug_)
     LogDebug("MuonPathAnalyticAnalyzer") << "MuonPathAnalyzer: constructor";
 
@@ -54,7 +53,7 @@ MuonPathAnalyticAnalyzer::MuonPathAnalyticAnalyzer(const ParameterSet &pset,
     shiftthetainfo_[rawId] = shift;
   }
 
-  chosen_sl_ = pset.getUntrackedParameter<int>("trigger_with_sl");
+  chosen_sl_ = pset.getParameter<int>("trigger_with_sl");
 
   if (chosen_sl_ != 1 && chosen_sl_ != 3 && chosen_sl_ != 4) {
     LogDebug("MuonPathAnalyticAnalyzer") << "chosen sl must be 1,3 or 4(both superlayers)";

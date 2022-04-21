@@ -14,10 +14,10 @@ RPCIntegrator::RPCIntegrator(const edm::ParameterSet& pset, edm::ConsumesCollect
   m_debug_ = pset.getUntrackedParameter<bool>("debug");
   if (m_debug_)
     LogDebug("RPCIntegrator") << "RPCIntegrator constructor";
-  m_max_quality_to_overwrite_t0_ = pset.getUntrackedParameter<int>("max_quality_to_overwrite_t0");
-  m_bx_window_ = pset.getUntrackedParameter<int>("bx_window");
-  m_phi_window_ = pset.getUntrackedParameter<double>("phi_window");
-  m_storeAllRPCHits_ = pset.getUntrackedParameter<bool>("storeAllRPCHits");
+  m_max_quality_to_overwrite_t0_ = pset.getParameter<int>("max_quality_to_overwrite_t0");
+  m_bx_window_ = pset.getParameter<int>("bx_window");
+  m_phi_window_ = pset.getParameter<double>("phi_window");
+  m_storeAllRPCHits_ = pset.getParameter<bool>("storeAllRPCHits");
 
   rpcGeomH_ = iC.esConsumes<RPCGeometry, MuonGeometryRecord>();
   dtGeomH_ = iC.esConsumes<DTGeometry, MuonGeometryRecord>();

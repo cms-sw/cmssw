@@ -83,7 +83,6 @@ private:
   double dTanPsi_correlate_TP_;
   double minx_match_2digis_;
   double chi2corTh_;
-  std::string geometry_tag_;
 
   //shift
   edm::FileInPath shift_filename_;

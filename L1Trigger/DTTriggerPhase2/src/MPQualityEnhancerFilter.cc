@@ -12,7 +12,6 @@ using namespace cmsdt;
 MPQualityEnhancerFilter::MPQualityEnhancerFilter(const ParameterSet &pset) : MPFilter(pset) {
   // Obtention of parameters
   debug_ = pset.getUntrackedParameter<bool>("debug");
-  filter_cousins_ = pset.getUntrackedParameter<bool>("filter_cousins");
 }
 
 MPQualityEnhancerFilter::~MPQualityEnhancerFilter() {}

@@ -25,9 +25,6 @@ void MPQualityEnhancerFilterBayes::run(edm::Event &iEvent,
                                        const edm::EventSetup &iEventSetup,
                                        std::vector<metaPrimitive> &inMPaths,
                                        std::vector<metaPrimitive> &outMPaths) {
-  // std::vector<metaPrimitive> buff;
-  // std::vector<metaPrimitive> buff2;
-
   filterCousins(inMPaths, outMPaths);
   if (debug_) {
     LogDebug("MPQualityEnhancerFilterBayes") << "Ended Cousins Filter. The final primitives before Refiltering are: ";
@@ -36,18 +33,6 @@ void MPQualityEnhancerFilterBayes::run(edm::Event &iEvent,
     }
     LogDebug("MPQualityEnhancerFilterBayes") << "Total Primitives = " << outMPaths.size();
   }
-  // refilteringCousins(buff, buff2);
-  // if (debug_) {
-  //   LogDebug("MPQualityEnhancerFilterBayes") << "Ended Cousins Refilter. The final primitives before UniqueFilter are: ";
-  //   for (unsigned int i = 0; i < buff2.size(); i++) {
-  //     printmP(buff2[i]);
-  //   }
-  //   LogDebug("MPQualityEnhancerFilterBayes") << "Total Primitives = " << buff2.size();
-  // }
-  // filterUnique(buff2, outMPaths);
-
-  // buff.clear();
-  // buff2.clear();
 }
 
 void MPQualityEnhancerFilterBayes::finish(){};
@@ -58,33 +43,7 @@ int MPQualityEnhancerFilterBayes::areCousins(metaPrimitive mp, metaPrimitive sec
   DTSuperLayerId mpId(mp.rawId);
   DTSuperLayerId second_mpId(second_mp.rawId);
 
-  cout << "Comparing mp:" << endl;
-  cout << "ID: wheel " << mpId.wheel() << ", station " << mpId.station() << ", sector " << mpId.sector() << endl;
-  cout << "ID: wheel " << second_mpId.wheel() << ", station " << second_mpId.station() << ", sector "
-       << second_mpId.sector() << endl;
-
-  cout << mp.wi1 << "(" << mp.tdc1 << ")"
-       << " " << mp.wi2 << "(" << mp.tdc2 << ")"
-       << " " << mp.wi3 << "(" << mp.tdc3 << ")"
-       << " " << mp.wi4 << "(" << mp.tdc4 << ")"
-       << " " << mp.wi5 << "(" << mp.tdc5 << ")"
-       << " " << mp.wi6 << "(" << mp.tdc6 << ")"
-       << " " << mp.wi7 << "(" << mp.tdc7 << ")"
-       << " " << mp.wi8 << "(" << mp.tdc8 << ")"
-       << " " << endl;
-  cout << second_mp.wi1 << "(" << second_mp.tdc1 << ")"
-       << " " << second_mp.wi2 << "(" << second_mp.tdc2 << ")"
-       << " " << second_mp.wi3 << "(" << second_mp.tdc3 << ")"
-       << " " << second_mp.wi4 << "(" << second_mp.tdc4 << ")"
-       << " " << second_mp.wi5 << "(" << second_mp.tdc5 << ")"
-       << " " << second_mp.wi6 << "(" << second_mp.tdc6 << ")"
-       << " " << second_mp.wi7 << "(" << second_mp.tdc7 << ")"
-       << " " << second_mp.wi8 << "(" << second_mp.tdc8 << ")"
-       << " " << endl;
-
   int output = 0;
-  //  if (mp.rawId != second_mp.rawId){
-  // metaPrimitives must be in the same chamber to be cousins
   if (mpId.wheel() != second_mpId.wheel() || mpId.station() != second_mpId.station() ||
       mpId.sector() != second_mpId.sector()) {
     cout << "Not in the same chamber" << endl;
@@ -227,10 +186,6 @@ int MPQualityEnhancerFilterBayes::rango(metaPrimitive mp) {
 
 void MPQualityEnhancerFilterBayes::filterCousins(std::vector<metaPrimitive> &inMPaths,
                                                  std::vector<metaPrimitive> &outMPaths) {
-  // int primo_index = 0;
-  // bool oneof4 = false; // quality >= 6, for the moment. So, correlated primitives
-  // int bestI = -1;
-  // double bestChi2 = 9999;
 
   // At the beginning, we want to keep all mpaths
   std::vector<bool> keep_this(inMPaths.size(), true);

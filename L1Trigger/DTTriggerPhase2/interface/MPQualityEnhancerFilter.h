@@ -49,7 +49,6 @@ private:
 
   // Private attributes
   bool debug_;
-  bool filter_cousins_;
 };
 
 #endif
