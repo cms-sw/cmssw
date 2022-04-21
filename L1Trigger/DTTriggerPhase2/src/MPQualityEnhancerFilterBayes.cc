@@ -186,7 +186,6 @@ int MPQualityEnhancerFilterBayes::rango(metaPrimitive mp) {
 
 void MPQualityEnhancerFilterBayes::filterCousins(std::vector<metaPrimitive> &inMPaths,
                                                  std::vector<metaPrimitive> &outMPaths) {
-
   // At the beginning, we want to keep all mpaths
   std::vector<bool> keep_this(inMPaths.size(), true);
 
