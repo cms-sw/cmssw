@@ -70,7 +70,7 @@ private:
   const bool doCandidates_;
   const bool doMet_;
   const bool doTrackVars_;
-  const bool trackVarsRel_;
+  const bool relativeTrackVars_;
   const bool doCandIndsForJets_;
 };
 
@@ -93,7 +93,7 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet &iConfig)
       doCandidates_(iConfig.getParameter<bool>("doCandidates")),
       doMet_(iConfig.getParameter<bool>("doMet")),
       doTrackVars_(iConfig.getParameter<bool>("doTrackVars")),
-      trackVarsRel_(iConfig.getParameter<bool>("trackVarsRel")),
+      relativeTrackVars_(iConfig.getParameter<bool>("relativeTrackVars")),
       doCandIndsForJets_(iConfig.getParameter<bool>("doCandIndsForJets")) {
   //register products
   produces<Run3ScoutingPFJetCollection>();
@@ -170,7 +170,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
             normchi2 = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->normalizedChi2(), mantissaPrecision_);
             lostInnerHits = btagbtvdeep::lost_inner_hits_from_pfcand(cand);
             quality = btagbtvdeep::quality_from_pfcand(cand);
-            if (trackVarsRel_) {
+            if (relativeTrackVars_) {
                 trk_pt = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->pt()-cand.pt(), mantissaPrecision_);
                 trk_eta = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->eta()-cand.eta(), mantissaPrecision_);
                 trk_phi = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->phi()-cand.phi(), mantissaPrecision_);
@@ -210,7 +210,7 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
             trk_pt,
             trk_eta,
             trk_phi,
-            trackVarsRel_);
+            relativeTrackVars_);
       }
     }
   }
@@ -322,7 +322,7 @@ void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<bool>("doCandidates", true);
   desc.add<bool>("doMet", true);
   desc.add<bool>("doTrackVars", true);
-  desc.add<bool>("trackVarsRel", true);
+  desc.add<bool>("relativeTrackVars", true);
   desc.add<bool>("doCandIndsForJets", false);
   descriptions.addWithDefaultLabel(desc);
 }

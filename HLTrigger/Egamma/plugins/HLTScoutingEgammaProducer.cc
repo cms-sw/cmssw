@@ -216,9 +216,12 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     std::vector<uint32_t> mDetIdIds;
     std::vector<float> mEnergies;
     std::vector<float> mTimes;
+    mDetIdIds.reserve(detSize);
+    mEnergies.reserve(detSize);
+    mTimes.reserve(detSize);
 
     for (int i = 0; i < detSize; i++) {
-        if (recHitE(mDetIds[i], *rechits)>0 or (!rechitZeroSuppression)) {
+        if (not rechitZeroSuppression or recHitE(mDetIds[i], *rechits) > 0) {
             mDetIdIds.push_back(mDetIds[i]);
             mEnergies.push_back(MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds[i], *rechits), mantissaPrecision));
             if (saveRecHitTiming) {

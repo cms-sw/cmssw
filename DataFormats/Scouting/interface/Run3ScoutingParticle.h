@@ -24,7 +24,7 @@ public:
                        float trk_pt,
                        float trk_eta,
                        float trk_phi,
-                       bool trk_vars_rel)
+                       bool relative_trk_vars)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
@@ -40,7 +40,7 @@ public:
         trk_pt_(trk_pt),
         trk_eta_(trk_eta),
         trk_phi_(trk_phi),
-        trk_vars_rel_(trk_vars_rel) {}
+        relative_trk_vars_(relative_trk_vars) {}
 
   // default constractor
   Run3ScoutingParticle()
@@ -59,7 +59,7 @@ public:
         trk_pt_(0),
         trk_eta_(0),
         trk_phi_(0),
-        trk_vars_rel_(false) {}
+        relative_trk_vars_(false) {}
 
   //accessor functions
   float pt() const { return pt_; }
@@ -77,7 +77,7 @@ public:
   float trk_pt() const { return trk_pt_; }
   float trk_eta() const { return trk_eta_; }
   float trk_phi() const { return trk_phi_; }
-  bool trk_vars_rel() const { return trk_vars_rel_; }
+  bool relative_trk_vars() const { return relative_trk_vars_; }
 
 private:
   float pt_;
@@ -95,7 +95,7 @@ private:
   float trk_pt_;
   float trk_eta_;
   float trk_phi_;
-  bool trk_vars_rel_;
+  bool relative_trk_vars_;
 };
 
 typedef std::vector<Run3ScoutingParticle> Run3ScoutingParticleCollection;
