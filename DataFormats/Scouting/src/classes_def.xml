@@ -33,7 +33,8 @@
   <class name="Run3ScoutingPFJet" ClassVersion="3">
       <version ClassVersion="3" checksum="3819751468"/>
   </class>
-  <class name="Run3ScoutingParticle" ClassVersion="6">
+  <class name="Run3ScoutingParticle" ClassVersion="7">
+   <version ClassVersion="7" checksum="2425016900"/>
    <version ClassVersion="6" checksum="3844610129"/>
    <version ClassVersion="5" checksum="583559071"/>
       <version ClassVersion="3" checksum="1672617274"/>
