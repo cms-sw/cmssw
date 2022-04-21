@@ -13,13 +13,13 @@ MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset,
                                                      std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer)
     : MuonPathAnalyzer(pset, iC),
       debug_(pset.getUntrackedParameter<bool>("debug")),
-      chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
+      chi2Th_(pset.getParameter<double>("chi2Th")),
       shift_filename_(pset.getParameter<edm::FileInPath>("shift_filename")),
       bxTolerance_(30),
       minQuality_(LOWQ),
       chiSquareThreshold_(50),
-      minHits4Fit_(pset.getUntrackedParameter<int>("minHits4Fit")),
-      splitPathPerSL_(pset.getUntrackedParameter<bool>("splitPathPerSL")) {
+      minHits4Fit_(pset.getParameter<int>("minHits4Fit")),
+      splitPathPerSL_(pset.getParameter<bool>("splitPathPerSL")) {
   // Obtention of parameters
 
   if (debug_)

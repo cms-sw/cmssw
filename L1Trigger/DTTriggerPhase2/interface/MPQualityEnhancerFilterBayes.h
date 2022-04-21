@@ -47,9 +47,6 @@ public:
 private:
   // Private methods
   void filterCousins(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
-  /* void refilteringCousins(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath); */
-  /* void filterTanPhi(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath); */
-  /* void filterUnique(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath); */
 
   // Private attributes
   bool debug_;
