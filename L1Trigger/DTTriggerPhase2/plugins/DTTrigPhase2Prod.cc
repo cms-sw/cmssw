@@ -123,7 +123,6 @@ private:
   bool debug_;
   bool dump_;
   double dT0_correlate_TP_;
-  bool do_correlation_;
   int scenario_;
   int df_extended_;
   int max_index_;
@@ -180,7 +179,6 @@ DTTrigPhase2Prod::DTTrigPhase2Prod(const ParameterSet& pset)
   debug_ = pset.getUntrackedParameter<bool>("debug");
   dump_ = pset.getUntrackedParameter<bool>("dump");
 
-  do_correlation_ = pset.getParameter<bool>("do_correlation");
   scenario_ = pset.getParameter<int>("scenario");
 
   df_extended_ = pset.getParameter<int>("df_extended");
@@ -882,28 +880,25 @@ void DTTrigPhase2Prod::fillDescriptions(edm::ConfigurationDescriptions& descript
   // dtTriggerPhase2PrimitiveDigis
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("digiTag", edm::InputTag("CalibratedDigis"));
+  desc.add<int>("trigger_with_sl", 4);
   desc.add<int>("timeTolerance", 999999);
-  desc.addUntracked<std::string>("geometry_tag", "");
-  desc.addUntracked<int>("trigger_with_sl", 4);
-  desc.addUntracked<double>("tanPhiTh", 1.0);
-  desc.addUntracked<double>("tanPhiThw2max", 1.3);
-  desc.addUntracked<double>("tanPhiThw2min", 0.5);
-  desc.addUntracked<double>("tanPhiThw1max", 0.9);
-  desc.addUntracked<double>("tanPhiThw1min", 0.2);
-  desc.addUntracked<double>("tanPhiThw0", 0.5);
-  desc.addUntracked<double>("chi2Th", 0.01);
-  desc.addUntracked<double>("chi2corTh", 0.1);
-  desc.add<bool>("do_correlation", true);
-  desc.addUntracked<bool>("useBX_correlation", false);
-  desc.addUntracked<double>("dT0_correlate_TP", 25.0);
-  desc.addUntracked<int>("dBX_correlate_TP", 0);
-  desc.addUntracked<double>("dTanPsi_correlate_TP", 99999.0);
-  desc.addUntracked<bool>("clean_chi2_correlation", true);
-  desc.addUntracked<bool>("allow_confirmation", true);
-  desc.addUntracked<double>("minx_match_2digis", 1.0);
+  desc.add<double>("tanPhiTh", 1.0);
+  desc.add<double>("tanPhiThw2max", 1.3);
+  desc.add<double>("tanPhiThw2min", 0.5);
+  desc.add<double>("tanPhiThw1max", 0.9);
+  desc.add<double>("tanPhiThw1min", 0.2);
+  desc.add<double>("tanPhiThw0", 0.5);
+  desc.add<double>("chi2Th", 0.01);
+  desc.add<double>("chi2corTh", 0.1);
+  desc.add<bool>("useBX_correlation", false);
+  desc.add<double>("dT0_correlate_TP", 25.0);
+  desc.add<int>("dBX_correlate_TP", 0);
+  desc.add<double>("dTanPsi_correlate_TP", 99999.0);
+  desc.add<bool>("clean_chi2_correlation", true);
+  desc.add<bool>("allow_confirmation", true);
+  desc.add<double>("minx_match_2digis", 1.0);
   desc.add<int>("scenario", 0);
   desc.add<int>("df_extended", 0);
-  desc.addUntracked<bool>("filter_cousins", true);
   desc.add<int>("max_primitives", 999);
   desc.add<edm::FileInPath>("ttrig_filename", edm::FileInPath("L1Trigger/DTTriggerPhase2/data/wire_rawId_ttrig.txt"));
   desc.add<edm::FileInPath>("z_filename", edm::FileInPath("L1Trigger/DTTriggerPhase2/data/wire_rawId_z.txt"));
@@ -912,52 +907,52 @@ void DTTrigPhase2Prod::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<edm::FileInPath>("global_coords_filename",
                             edm::FileInPath("L1Trigger/DTTriggerPhase2/data/global_coord_perp_x_phi0.txt"));
   desc.add<int>("algo", 0);
-  desc.addUntracked<int>("minHits4Fit", 3);
-  desc.addUntracked<bool>("splitPathPerSL", true);
+  desc.add<int>("minHits4Fit", 3);
+  desc.add<bool>("splitPathPerSL", true);
   desc.addUntracked<bool>("debug", false);
   desc.addUntracked<bool>("dump", false);
   desc.add<edm::InputTag>("rpcRecHits", edm::InputTag("rpcRecHits"));
   desc.add<bool>("useRPC", false);
-  desc.addUntracked<int>("bx_window", 1);
-  desc.addUntracked<double>("phi_window", 50.0);
-  desc.addUntracked<int>("max_quality_to_overwrite_t0", 9);
-  desc.addUntracked<bool>("storeAllRPCHits", false);
+  desc.add<int>("bx_window", 1);
+  desc.add<double>("phi_window", 50.0);
+  desc.add<int>("max_quality_to_overwrite_t0", 9);
+  desc.add<bool>("storeAllRPCHits", false);
   desc.add<bool>("activateBuffer", false);
   desc.add<double>("superCelltimewidth", 400);
   desc.add<int>("superCellspacewidth", 20);
   {
     edm::ParameterSetDescription psd0;
     psd0.addUntracked<bool>("debug", false);
-    psd0.addUntracked<double>("angletan", 0.3);
-    psd0.addUntracked<double>("anglebinwidth", 1.0);
-    psd0.addUntracked<double>("posbinwidth", 2.1);
-    psd0.addUntracked<double>("maxdeltaAngDeg", 10);
-    psd0.addUntracked<double>("maxdeltaPos", 10);
-    psd0.addUntracked<int>("UpperNumber", 6);
-    psd0.addUntracked<int>("LowerNumber", 4);
-    psd0.addUntracked<double>("MaxDistanceToWire", 0.03);
-    psd0.addUntracked<int>("minNLayerHits", 6);
-    psd0.addUntracked<int>("minSingleSLHitsMax", 3);
-    psd0.addUntracked<int>("minSingleSLHitsMin", 3);
-    psd0.addUntracked<bool>("allowUncorrelatedPatterns", true);
-    psd0.addUntracked<int>("minUncorrelatedHits", 3);
+    psd0.add<double>("angletan", 0.3);
+    psd0.add<double>("anglebinwidth", 1.0);
+    psd0.add<double>("posbinwidth", 2.1);
+    psd0.add<double>("maxdeltaAngDeg", 10);
+    psd0.add<double>("maxdeltaPos", 10);
+    psd0.add<int>("UpperNumber", 6);
+    psd0.add<int>("LowerNumber", 4);
+    psd0.add<double>("MaxDistanceToWire", 0.03);
+    psd0.add<int>("minNLayerHits", 6);
+    psd0.add<int>("minSingleSLHitsMax", 3);
+    psd0.add<int>("minSingleSLHitsMin", 3);
+    psd0.add<bool>("allowUncorrelatedPatterns", true);
+    psd0.add<int>("minUncorrelatedHits", 3);
     desc.add<edm::ParameterSetDescription>("HoughGrouping", psd0);
   }
   {
     edm::ParameterSetDescription psd0;
-    psd0.addUntracked<edm::FileInPath>(
+    psd0.add<edm::FileInPath>(
         "pattern_filename", edm::FileInPath("L1Trigger/DTTriggerPhase2/data/PseudoBayesPatterns_uncorrelated_v0.root"));
     psd0.addUntracked<bool>("debug", false);
-    psd0.addUntracked<int>("minNLayerHits", 3);
-    psd0.addUntracked<int>("minSingleSLHitsMax", 3);
-    psd0.addUntracked<int>("minSingleSLHitsMin", 0);
-    psd0.addUntracked<int>("allowedVariance", 1);
-    psd0.addUntracked<bool>("allowDuplicates", false);
-    psd0.addUntracked<bool>("setLateralities", true);
-    psd0.addUntracked<bool>("allowUncorrelatedPatterns", true);
-    psd0.addUntracked<int>("minUncorrelatedHits", 3);
-    psd0.addUntracked<bool>("saveOnPlace", true);
-    psd0.addUntracked<int>("maxPathsPerMatch", 256);
+    psd0.add<int>("minNLayerHits", 3);
+    psd0.add<int>("minSingleSLHitsMax", 3);
+    psd0.add<int>("minSingleSLHitsMin", 0);
+    psd0.add<int>("allowedVariance", 1);
+    psd0.add<bool>("allowDuplicates", false);
+    psd0.add<bool>("setLateralities", true);
+    psd0.add<bool>("allowUncorrelatedPatterns", true);
+    psd0.add<int>("minUncorrelatedHits", 3);
+    psd0.add<bool>("saveOnPlace", true);
+    psd0.add<int>("maxPathsPerMatch", 256);
     desc.add<edm::ParameterSetDescription>("PseudoBayesPattern", psd0);
   }
   descriptions.add("dtTriggerPhase2PrimitiveDigis", desc);
