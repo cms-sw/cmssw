@@ -67,6 +67,8 @@ kFinishedSourceDelayedRead=8
 kSourceFindEvent = "sourceFindEvent"
 kSourceDelayedRead ="sourceDelayedRead"
 
+kTimeFuzz = 1000 # in microseconds
+
 #----------------------------------------------
 def processingStepsFromStallMonitorOutput(f,moduleNames, esModuleNames):
     for rawl in f:
@@ -474,7 +476,7 @@ def reduceSortedPoints(ps):
     reducedPoints = []
     tmp = Point(ps[0].x, ps[0].y)
     for p in ps[1:]:
-        if tmp.x == p.x:
+        if abs(tmp.x -p.x)<kTimeFuzz:
             tmp.y += p.y
         else:
             reducedPoints.append(tmp)
@@ -555,7 +557,7 @@ def mergeContiguousBlocks(blocks):
 
     lastStartTime,lastTimeLength,lastHeight = oldBlocks[0]
     for start,length,height in oldBlocks[1:]:
-        if height == lastHeight and lastStartTime+lastTimeLength == start:
+        if height == lastHeight and abs(lastStartTime+lastTimeLength - start) < kTimeFuzz:
             lastTimeLength += length
         else:
             blocks.append((lastStartTime,lastTimeLength,lastHeight))
