@@ -234,7 +234,8 @@ TGeoMgrFromDdd::ReturnType TGeoMgrFromDdd::produce(const DisplayGeomRecord& iRec
 //==============================================================================
 
 TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& iSolid) {
-  edm::LogVerbatim("TGeoMgrFromDdd") << "createShape with name: " << iName << " and solid: " << iSolid.name().fullname();
+  edm::LogVerbatim("TGeoMgrFromDdd") << "createShape with name: " << iName
+                                     << " and solid: " << iSolid.name().fullname();
 
   DDBase<DDName, DDI::Solid*>::def_type defined(iSolid.isDefined());
   if (!defined.first)
@@ -589,7 +590,9 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
 }
 
 TGeoVolume* TGeoMgrFromDdd::createVolume(const std::string& iName, const DDSolid& iSolid, const DDMaterial& iMaterial) {
-  edm::LogVerbatim("TGeoMgrFromDdd") << "createVolume with name: " << iName << " and solid: " << iSolid.name().fullname() << " and material " << iMaterial.name().fullname();
+  edm::LogVerbatim("TGeoMgrFromDdd") << "createVolume with name: " << iName
+                                     << " and solid: " << iSolid.name().fullname() << " and material "
+                                     << iMaterial.name().fullname();
   TGeoVolume* v = nameToVolume_[iName];
   if (v == nullptr) {
     TGeoShape* solid =
