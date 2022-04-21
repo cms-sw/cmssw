@@ -38,8 +38,7 @@ PPSPixelSD::PPSPixelSD(const std::string& pname,
                        const SensitiveDetectorCatalog& clg,
                        edm::ParameterSet const& p,
                        SimTrackManager const* manager)
-    : SensitiveTkDetector(pname, clg),
-      theManager_(manager) {
+    : SensitiveTkDetector(pname, clg), theManager_(manager) {
   //Add PPS Sentitive Detector Names
   collectionName.insert(pname);
 
@@ -63,8 +62,8 @@ bool PPSPixelSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   if (eloss_ > 0.0) {
     eloss_ /= GeV;
     stepInfo(aStep);
-    LogDebug("PPSSim") << "PPSPixelSD: ProcessHits: edep=" << eloss_ 
-		       << " " << theTrack_->GetDefinition()->GetParticleName();
+    LogDebug("PPSSim") << "PPSPixelSD: ProcessHits: edep=" << eloss_ << " "
+                       << theTrack_->GetDefinition()->GetParticleName();
     if (!hitExists())
       createNewHit();
   }
@@ -187,13 +186,12 @@ bool PPSPixelSD::hitExists() {
   }
 
   // look in the HitContainer whether a hit with the same unitID_,
-  // tSliceID_ already exists: secondary energy deposition 
+  // tSliceID_ already exists: secondary energy deposition
   // is added to the primary hit
   int nhits = theHC_->entries();
   for (int j = 0; j < nhits; ++j) {
     PPSPixelG4Hit* aPreviousHit = (*theHC_)[j];
-    if (aPreviousHit->timeSliceID() == tSliceID_ &&
-        aPreviousHit->unitID() == unitID_) {
+    if (aPreviousHit->timeSliceID() == tSliceID_ && aPreviousHit->unitID() == unitID_) {
       currentHit_ = aPreviousHit;
       updateHit();
       return true;
@@ -234,7 +232,7 @@ void PPSPixelSD::createNewHit() {
   currentHit_->setThetaAtEntry(thetaAtEntry_);
   currentHit_->setPhiAtEntry(phiAtEntry_);
 
-  G4ThreeVector pos = 0.5*(hitPoint_ + exitPoint_);
+  G4ThreeVector pos = 0.5 * (hitPoint_ + exitPoint_);
   currentHit_->setMeanPosition(pos);
   currentHit_->setEntryPoint(theLocalEntryPoint_);
   currentHit_->setExitPoint(theLocalExitPoint_);
@@ -250,8 +248,8 @@ void PPSPixelSD::createNewHit() {
 
 void PPSPixelSD::updateHit() {
 #ifdef debug
-    LogDebug("PPSSim") << "G4PPSPixelSD updateHit: add eloss=" << eloss_ << "\nCurrentHit=" << currentHit_
-                       << ", PostStepPoint=" << postStepPoint_->GetPosition();
+  LogDebug("PPSSim") << "G4PPSPixelSD updateHit: add eloss=" << eloss_ << "\nCurrentHit=" << currentHit_
+                     << ", PostStepPoint=" << postStepPoint_->GetPosition();
 #endif
   currentHit_->setEnergyLoss(eloss_);
   // buffer for next steps:

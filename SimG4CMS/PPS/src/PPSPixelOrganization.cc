@@ -34,10 +34,9 @@ uint32_t PPSPixelOrganization ::unitID(const G4Step* aStep) {
   currentPlane_ = coNum - 1;
 
   G4VPhysicalVolume* physVolVac = touch->GetVolume(3);
-  if(nullptr == physVolVac) {
-    edm::LogError("PPSPixelSim") << "Physical volume RP_box_primary_vacuum not found for "
-				 << physVol->GetName() 
-				 << "; cannot determine CTPPSPixelDetId.";
+  if (nullptr == physVolVac) {
+    edm::LogError("PPSPixelSim") << "Physical volume RP_box_primary_vacuum not found for " << physVol->GetName()
+                                 << "; cannot determine CTPPSPixelDetId.";
   } else {
     int cpy_no = physVolVac->GetCopyNo();
     currentArm_ = (cpy_no / 100) % 10;
@@ -45,10 +44,8 @@ uint32_t PPSPixelOrganization ::unitID(const G4Step* aStep) {
     currentRP_ = cpy_no % 10;
   }
 
-  edm::LogVerbatim("PPSPixelSim") << "    arm=" << currentArm_ 
-				  << " station=" << currentStation_
-				  << " roman_pot=" << currentRP_ 
-				  << " detector=" << currentPlane_;
+  edm::LogVerbatim("PPSPixelSim") << "    arm=" << currentArm_ << " station=" << currentStation_
+                                  << " roman_pot=" << currentRP_ << " detector=" << currentPlane_;
   CTPPSPixelDetId id(currentArm_, currentStation_, currentRP_, currentPlane_);
   uint32_t kk = id.rawId();
   edm::LogVerbatim("PPSPixelSim") << "PPSPixelSim: ID=" << kk;

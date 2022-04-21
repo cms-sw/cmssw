@@ -91,10 +91,8 @@ private:
   double vy_ = 0.0;
   double vz_ = 0.0;
 
-
   double Globaltimehit_;
   double theglobaltimehit_;
-
 
   unsigned int unitID_ = 0;
   int verbosity_;
