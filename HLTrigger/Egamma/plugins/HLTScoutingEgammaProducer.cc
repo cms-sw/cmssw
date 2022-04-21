@@ -221,13 +221,15 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     mTimes.reserve(detSize);
 
     for (int i = 0; i < detSize; i++) {
-        if (not rechitZeroSuppression or recHitE(mDetIds[i], *rechits) > 0) {
-            mDetIdIds.push_back(mDetIds[i]);
-            mEnergies.push_back(MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds[i], *rechits), mantissaPrecision));
-            if (saveRecHitTiming) {
-                mTimes.push_back(MiniFloatConverter::reduceMantissaToNbitsRounding(recHitT(mDetIds[i], *rechits), mantissaPrecision));
-            }
+      if (not rechitZeroSuppression or recHitE(mDetIds[i], *rechits) > 0) {
+        mDetIdIds.push_back(mDetIds[i]);
+        mEnergies.push_back(
+            MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds[i], *rechits), mantissaPrecision));
+        if (saveRecHitTiming) {
+          mTimes.push_back(
+              MiniFloatConverter::reduceMantissaToNbitsRounding(recHitT(mDetIds[i], *rechits), mantissaPrecision));
         }
+      }
     }
 
     float HoE = 999.;
@@ -266,7 +268,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                mDetIdIds,
                                mTimes,
                                rechitZeroSuppression);  //read for(ieta){for(iphi){}}
-    } else {                             // Candidate is a scouting electron
+    } else {                                            // Candidate is a scouting electron
       outElectrons->emplace_back(candidate.pt(),
                                  candidate.eta(),
                                  candidate.phi(),
