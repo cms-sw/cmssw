@@ -50,8 +50,8 @@ public:
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  std::string outputFile_;
-  edm::ESGetToken<DataType, RecordType> tok_;
+  const std::string outputFile_;
+  const edm::ESGetToken<DataType, RecordType> tok_;
 };
 
 template <class DataType, class RecordType>
