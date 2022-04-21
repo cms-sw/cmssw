@@ -305,6 +305,7 @@ trackingMkFitTobTecStep.toReplaceWith(tobTecStepTrackCandidates, mkFitOutputConv
     mkFitSeeds = 'tobTecStepTrackCandidatesMkFitSeeds',
     tracks = 'tobTecStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(tobTecStepTrackCandidatesMkFitConfig, minPt=2.0)
 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(tobTecStepTrackCandidates,
