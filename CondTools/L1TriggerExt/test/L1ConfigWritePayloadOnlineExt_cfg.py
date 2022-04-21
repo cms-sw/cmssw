@@ -112,6 +112,7 @@ process.load("CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff")
 from CondTools.L1TriggerExt.L1ConfigTSCPayloadsExt_cff import setTSCPayloadsDB, liftPayloadSafetyFor
 setTSCPayloadsDB( process, options.onlineDBConnect, options.onlineDBAuth, options.protoDBConnect, options.protoDBAuth )
 liftPayloadSafetyFor( process, options.unsafe.split(',') )
+print( "Lifted transaction safe for:", options.unsafe.split(',') )
 
 # Define CondDB tags
 from CondTools.L1TriggerExt.L1CondEnumExt_cfi import L1CondEnumExt
