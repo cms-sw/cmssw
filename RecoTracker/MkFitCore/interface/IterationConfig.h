@@ -112,6 +112,9 @@ namespace mkfit {
     float drth_central = 0.001;
     float drth_obarrel = 0.001;
     float drth_forward = 0.001;
+
+    //min pT cut
+    float minPtCut = 0.0;
   };
 
   //==============================================================================

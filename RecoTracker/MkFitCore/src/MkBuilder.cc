@@ -614,6 +614,9 @@ namespace mkfit {
 
     seed_cand_vec.clear();
 
+    auto &iter_params = (iteration_dir == SteeringParams::IT_BkwSearch) ? m_job->m_iter_config.m_backward_params
+                                                                        : m_job->m_iter_config.m_params;
+
     for (int iseed = start_seed; iseed < end_seed; ++iseed) {
       CombCandidate &ccand = m_event_of_comb_cands[iseed];
 
@@ -624,6 +627,11 @@ namespace mkfit {
         bool active = false;
         for (int ic = 0; ic < (int)ccand.size(); ++ic) {
           if (ccand[ic].getLastHitIdx() != -2) {
+            // Stop candidates with pT<X GeV
+            if (ccand[ic].pT() < iter_params.minPtCut) {
+              ccand[ic].addHitIdx(-2, layer, 0.0f);
+              continue;
+            }
             // Check if the candidate is close to it's max_r, pi/2 - 0.2 rad (11.5 deg)
             if (iteration_dir == SteeringParams::IT_FwdSearch && ccand[ic].pT() < 1.2) {
               const float dphi = std::abs(ccand[ic].posPhi() - ccand[ic].momPhi());

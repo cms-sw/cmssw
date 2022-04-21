@@ -242,6 +242,7 @@ trackingMkFitDetachedTripletStep.toReplaceWith(detachedTripletStepTrackCandidate
     mkFitSeeds = 'detachedTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'detachedTripletStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(detachedTripletStepTrackCandidatesMkFitConfig, minPt=0.9)
 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 _fastSim_detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
