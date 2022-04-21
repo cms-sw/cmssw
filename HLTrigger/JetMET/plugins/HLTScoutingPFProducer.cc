@@ -171,13 +171,13 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
             lostInnerHits = btagbtvdeep::lost_inner_hits_from_pfcand(cand);
             quality = btagbtvdeep::quality_from_pfcand(cand);
             if (relativeTrackVars_) {
-                trk_pt = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->pt()-cand.pt(), mantissaPrecision_);
-                trk_eta = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->eta()-cand.eta(), mantissaPrecision_);
-                trk_phi = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->phi()-cand.phi(), mantissaPrecision_);
+              trk_pt = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->pt() - cand.pt(), mantissaPrecision_);
+              trk_eta = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->eta() - cand.eta(), mantissaPrecision_);
+              trk_phi = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->phi() - cand.phi(), mantissaPrecision_);
             } else {
-                trk_pt = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->pt(), mantissaPrecision_);
-                trk_eta = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->eta(), mantissaPrecision_);
-                trk_phi = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->phi(), mantissaPrecision_);
+              trk_pt = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->pt(), mantissaPrecision_);
+              trk_eta = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->eta(), mantissaPrecision_);
+              trk_phi = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->phi(), mantissaPrecision_);
             }
             if (not vertexCollection->empty()) {
               const reco::Vertex &pv = (*vertexCollection)[0];
@@ -194,23 +194,22 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
             normchi2 = MiniFloatConverter::reduceMantissaToNbitsRounding(999, mantissaPrecision_);
           }
         }
-        outPFCandidates->emplace_back(
-            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.pt(), mantissaPrecision_),
-            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.eta(), mantissaPrecision_),
-            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.phi(), mantissaPrecision_),
-            cand.pdgId(),
-            vertex_index,
-            normchi2,
-            dz,
-            dxy,
-            dzError,
-            dxyError,
-            lostInnerHits,
-            quality,
-            trk_pt,
-            trk_eta,
-            trk_phi,
-            relativeTrackVars_);
+        outPFCandidates->emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(cand.pt(), mantissaPrecision_),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.eta(), mantissaPrecision_),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.phi(), mantissaPrecision_),
+                                      cand.pdgId(),
+                                      vertex_index,
+                                      normchi2,
+                                      dz,
+                                      dxy,
+                                      dzError,
+                                      dxyError,
+                                      lostInnerHits,
+                                      quality,
+                                      trk_pt,
+                                      trk_eta,
+                                      trk_phi,
+                                      relativeTrackVars_);
       }
     }
   }
