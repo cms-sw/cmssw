@@ -1,14 +1,48 @@
+// system includes
+#include <map>
+#include <sstream>
+#include <string>
+#include <utility>
+#include <vector>
+
+// user includes
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripFEDRawDataAnalyzer.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <sstream>
-#include <string>
-#include <map>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+/**
+   @class SiStripFEDRawDataAnalyzer 
+   @brief Analyzes contents of FEDRawData collection
+*/
+
+class SiStripFEDRawDataAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  typedef std::pair<uint16_t, uint16_t> Fed;
+  typedef std::vector<Fed> Feds;
+  typedef std::vector<uint16_t> Channels;
+  typedef std::map<uint16_t, Channels> ChannelsMap;
+
+  SiStripFEDRawDataAnalyzer(const edm::ParameterSet&);
+  ~SiStripFEDRawDataAnalyzer();
+
+  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob();
+
+private:
+  const edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> esTokenCabling_;
+  edm::InputTag label_;
+};
 
 using namespace sistrip;
 using namespace std;
@@ -321,3 +355,7 @@ void SiStripFEDRawDataAnalyzer::analyze(const edm::Event& event, const edm::Even
     LogTrace(mlRawToDigi_) << ss.str();
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripFEDRawDataAnalyzer);
