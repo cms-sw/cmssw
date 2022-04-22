@@ -101,6 +101,9 @@ namespace l1tpf_calo {
     T &operator()(float eta, float phi) { return data_[grid_->find_cell(eta, phi)]; }
     const T &operator()(float eta, float phi) const { return data_[grid_->find_cell(eta, phi)]; }
 
+    float eta(float eta, float phi) const { return grid().eta(grid_->find_cell(eta, phi)); }
+    float phi(float eta, float phi) const { return grid().phi(grid_->find_cell(eta, phi)); }
+
     const Grid &grid() const { return *grid_; }
 
     unsigned int size() const { return data_.size(); }
@@ -146,6 +149,7 @@ namespace l1tpf_calo {
     std::vector<T> data_;
     const T empty_;
   };
+  typedef GridData<float> EtaPhiCenterGrid;
   typedef GridData<float> EtGrid;
   typedef GridData<int> IndexGrid;
 
@@ -169,9 +173,11 @@ namespace l1tpf_calo {
 
   struct CombinedCluster : public Cluster {
     float ecal_et, hcal_et;
+    float ecal_eta, ecal_phi;
     void clear() {
       Cluster::clear();
       ecal_et = hcal_et = 0;
+      ecal_eta = ecal_phi = 0;
     }
   };
 
@@ -182,8 +188,17 @@ namespace l1tpf_calo {
     SingleCaloClusterer(const edm::ParameterSet &pset);
     ~SingleCaloClusterer();
     void clear();
-    void add(const reco::Candidate &c) { add(c.pt(), c.eta(), c.phi()); }
-    void add(float pt, float eta, float phi) { rawet_(eta, phi) += pt; }
+    void add(const reco::Candidate &c, bool updateEtaPhi = false) { add(c.pt(), c.eta(), c.phi(), updateEtaPhi); }
+    void add(float pt, float eta, float phi, bool updateEtaPhi = false) { 
+      rawet_(eta, phi) += pt; 
+      if (updateEtaPhi) {
+        float newet = rawet_(eta, phi);
+        float prevw = (newet-pt)/newet;
+        float nextw = pt/newet;
+        eta_center_(eta, phi) = eta_center_(eta, phi)*prevw + eta*nextw;
+        phi_center_(eta, phi) = phi_center_(eta, phi)*prevw + phi*nextw;
+      }
+    }
     void run();
 
     /// possibly grow clusters by adding unclustered energy on the sides
@@ -191,6 +206,8 @@ namespace l1tpf_calo {
     void grow();
 
     const EtGrid &raw() const { return rawet_; }
+    const EtaPhiCenterGrid &etaCenter() const { return eta_center_; }
+    const EtaPhiCenterGrid &phiCenter() const { return phi_center_; }
     const IndexGrid &indexGrid() const { return clusterIndex_; }
     const std::vector<Cluster> &clusters() const { return clusters_; }
     const Cluster &cluster(int i) const {
@@ -199,6 +216,8 @@ namespace l1tpf_calo {
 
     /// non-const access to the energy: be careful to use it only before 'run()'
     EtGrid &raw() { return rawet_; }
+    EtaPhiCenterGrid &etaCenter() { return eta_center_; }
+    EtaPhiCenterGrid &phiCenter() { return phi_center_; }
 
     // for the moment, generic interface that takes a cluster and returns the corrected pt
     template <typename Corrector>
@@ -223,6 +242,8 @@ namespace l1tpf_calo {
     }; /* if there's more than one local maximum neighbour, they all take half of the value (no fp division) */
     const Grid *grid_;
     EtGrid rawet_, unclustered_;
+    EtaPhiCenterGrid eta_center_;
+    EtaPhiCenterGrid phi_center_;
     PreClusterGrid precluster_;
     IndexGrid clusterIndex_, cellKey_;
     std::vector<Cluster> clusters_;
@@ -280,6 +301,17 @@ namespace l1tpf_calo {
   public:
     FlatCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer &ecal, const SingleCaloClusterer &hcal);
     ~FlatCaloLinker() override;
+    void clear() override;
+    void run() override;
+
+  protected:
+    SingleCaloClusterer combClusterer_;
+  };
+
+  class CombinedCaloLinker : public SimpleCaloLinkerBase {
+  public:
+    CombinedCaloLinker(const edm::ParameterSet &pset, const SingleCaloClusterer &ecal, const SingleCaloClusterer &hcal);
+    ~CombinedCaloLinker() override;
     void clear() override;
     void run() override;
 

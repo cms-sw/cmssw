@@ -167,6 +167,8 @@ l1tpf_calo::SingleCaloClusterer::SingleCaloClusterer(const edm::ParameterSet &ps
     : grid_(getGrid(pset.getParameter<std::string>("grid"))),
       rawet_(*grid_),
       unclustered_(*grid_),
+      eta_center_(*grid_),
+      phi_center_(*grid_),
       precluster_(*grid_),
       clusterIndex_(*grid_),
       cellKey_(*grid_),
@@ -194,6 +196,8 @@ l1tpf_calo::SingleCaloClusterer::~SingleCaloClusterer() {}
 
 void l1tpf_calo::SingleCaloClusterer::clear() {
   rawet_.zero();
+  eta_center_.zero();
+  phi_center_.zero();
   clusters_.clear();
   clusterIndex_.fill(-1);
 }
@@ -369,13 +373,15 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SingleCaloClusterer::fetch
                                                                                       float ptMin) const {
   auto ret = std::make_unique<l1t::PFClusterCollection>();
   const EtGrid &src = (unclusteredOnly ? unclustered_ : rawet_);
+  const EtaPhiCenterGrid &eta_shift = eta_center_;
+  const EtaPhiCenterGrid &phi_shift = phi_center_;
   for (unsigned int i = 0, ncells = grid_->size(); i < ncells; ++i) {
     if (src[i] <= ptMin)
       continue;
     if ((unclusteredOnly == false) && (ptMin == 0)) {
       assert(cellKey_[i] == int(ret->size()));
     }
-    ret->emplace_back(src[i], grid_->eta(i), grid_->phi(i));
+    ret->emplace_back(src[i], grid_->eta(i)+eta_shift[i], grid_->phi(i)+phi_shift[i]);
     ret->back().setHwEta(grid_->ieta(i));
     ret->back().setHwPhi(grid_->iphi(i));
   }
@@ -448,8 +454,8 @@ std::unique_ptr<l1t::PFClusterCollection> l1tpf_calo::SimpleCaloLinkerBase::fetc
       }
       if (cluster.et > (photon ? minPhotonEt_ : minHadronEt_)) {
         ret->emplace_back(cluster.et,
-                          cluster.eta,
-                          cluster.phi,
+                          photon ? cluster.ecal_eta : cluster.eta,
+                          photon ? cluster.ecal_phi : cluster.phi,
                           cluster.ecal_et > 0 ? std::max(cluster.et - cluster.ecal_et, 0.f) / cluster.ecal_et : -1,
                           photon);
         if (setRefs) {
@@ -624,6 +630,65 @@ void l1tpf_calo::FlatCaloLinker::run() {
   }
 }
 
+l1tpf_calo::CombinedCaloLinker::CombinedCaloLinker(const edm::ParameterSet &pset,
+                                           const SingleCaloClusterer &ecal,
+                                           const SingleCaloClusterer &hcal)
+    : SimpleCaloLinkerBase(pset, ecal, hcal), combClusterer_(pset) {}
+
+l1tpf_calo::CombinedCaloLinker::~CombinedCaloLinker() {}
+
+void l1tpf_calo::CombinedCaloLinker::clear() {
+  clearBase();
+  combClusterer_.clear();
+}
+
+void l1tpf_calo::CombinedCaloLinker::run() {
+  combClusterer_.clear();
+
+  const EtGrid &hraw = hcal_.raw();
+  const EtGrid &eraw = ecal_.raw();
+  const EtaPhiCenterGrid &eeta = ecal_.etaCenter();
+  const EtaPhiCenterGrid &ephi = ecal_.phiCenter();
+  combClusterer_.raw() = eraw;
+  combClusterer_.raw() += hraw;
+
+  combClusterer_.run();
+  clusterIndex_ = combClusterer_.indexGrid();
+  const std::vector<Cluster> &clustersSrc = combClusterer_.clusters();
+  unsigned int nclust = clustersSrc.size();
+  clusters_.resize(nclust);
+  for (unsigned int ic = 0; ic < nclust; ++ic) {
+    const Cluster &src = clustersSrc[ic];
+    CombinedCluster &dst = clusters_[ic];
+    dst.et = src.et;
+    dst.eta = src.eta;
+    dst.phi = src.phi;
+    dst.ecal_et = 0;
+    dst.hcal_et = 0;
+    float pt_max = 0.;
+    float eta_ecal = 0.;
+    float phi_ecal = 0.;
+    for (const auto &pair : src.constituents) {
+      if (eraw[pair.first]) {
+        float ept = pair.second * eraw[pair.first];
+        dst.ecal_et += ept;
+        dst.constituents.emplace_back(-pair.first - 1, pair.second);
+        if (ept > pt_max) {
+          eta_ecal = pair.second * eeta[pair.first];
+          phi_ecal = pair.second * ephi[pair.first];
+          pt_max = ept;
+        }
+      }
+      if (hraw[pair.first]) {
+        dst.hcal_et += pair.second * hraw[pair.first];
+        dst.constituents.emplace_back(+pair.first + 1, pair.second);
+      }
+    }
+    dst.ecal_eta = eta_ecal;
+    dst.ecal_phi = phi_ecal;
+  }
+}
+
 std::unique_ptr<l1tpf_calo::SimpleCaloLinkerBase> l1tpf_calo::makeCaloLinker(const edm::ParameterSet &pset,
                                                                              const SingleCaloClusterer &ecal,
                                                                              const SingleCaloClusterer &hcal) {
@@ -632,6 +697,8 @@ std::unique_ptr<l1tpf_calo::SimpleCaloLinkerBase> l1tpf_calo::makeCaloLinker(con
     return std::make_unique<l1tpf_calo::SimpleCaloLinker>(pset, ecal, hcal);
   } else if (algo == "flat") {
     return std::make_unique<l1tpf_calo::FlatCaloLinker>(pset, ecal, hcal);
+  } else if (algo == "combined") {
+    return std::make_unique<l1tpf_calo::CombinedCaloLinker>(pset, ecal, hcal);
   } else {
     throw cms::Exception("Configuration") << "Unsupported linker algo '" << algo << "'\n";
   }

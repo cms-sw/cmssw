@@ -134,7 +134,7 @@ void L1TPFCaloProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       if (debug_)
         edm::LogWarning("L1TPFCaloProducer")
             << "adding ECal input pt " << it.pt() << ", eta " << it.eta() << ", phi " << it.phi() << "\n";
-      ecalClusterer_.add(it);
+      ecalClusterer_.add(it,true);
     }
   }
 
