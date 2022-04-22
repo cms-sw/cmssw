@@ -182,11 +182,11 @@ if "uGMT" in options.dropFromJob:
 if "EMTF" in options.dropFromJob:
     systems.remove("L1TMuonEndCapParamsO2ORcd@L1TMuonEndCapParams")
     ## still need a method to handle exceptions for existing payloads in the CondDB
-    systems.remove("L1TMuonEndCapForestO2ORcd@L1TMuonEndCapForest")
+    #systems.remove("L1TMuonEndCapForestO2ORcd@L1TMuonEndCapForest")
 if "OMTF" in options.dropFromJob:
     systems.remove("L1TMuonOverlapFwVersionO2ORcd@L1TMuonOverlapFwVersion")
     ## still need a method to handle exceptions for existing payloads in the CondDB
-    systems.remove("L1TMuonOverlapParamsO2ORcd@L1TMuonOverlapParams")
+    #systems.remove("L1TMuonOverlapParamsO2ORcd@L1TMuonOverlapParams")
 if "BMTF" in options.dropFromJob:
     systems.remove("L1TMuonBarrelParamsO2ORcd@L1TMuonBarrelParams")
 if "CALO" in options.dropFromJob:
