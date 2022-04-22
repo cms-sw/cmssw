@@ -166,7 +166,7 @@ void SiPixelPhase1CompareVertexSoA::fillDescriptions(edm::ConfigurationDescripti
   desc.add<edm::InputTag>("pixelVertexSrcCPU", edm::InputTag("pixelVerticesSoA@cpu"));
   desc.add<edm::InputTag>("pixelVertexSrcGPU", edm::InputTag("pixelVerticesSoA@cuda"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("offlineBeamSpot"));
-  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelVertexCompareSoAGPU vs CPU");
+  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelVertexCompareSoAGPUvsCPU");
   desc.add<double>("dzCut", 1.);
   descriptions.addWithDefaultLabel(desc);
 }
