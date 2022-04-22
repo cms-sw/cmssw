@@ -51,8 +51,9 @@ namespace ecal {
         amplitude[tx] = shr_amp[btx];
         amplitudeError[tx] = 1.0f;
         dids_out[tx] = did.rawId();
+        flags[tx] = 0;
         if (ecalLiteDTU::gainId(shr_digis[btx * nsamples + nsamples - 1])) {
-          flags[tx] = EcalUncalibratedRecHit::kHasSwitchToGain1;
+          flags[tx] = 0x1 << EcalUncalibratedRecHit::kHasSwitchToGain1;
         }
 
       }  //if within nchannels
