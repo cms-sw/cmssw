@@ -43,7 +43,7 @@ public:
   ~TestMS();
   virtual void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
-  virtual void endRun(edm::Run const& run, const edm::EventSetup& es){};
+  virtual void endRun(edm::Run const& run, const edm::EventSetup& es) override;
 
 private:
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
@@ -76,6 +76,7 @@ TestMS::~TestMS() {
 }
 
 void TestMS::analyze(const edm::Event& ev, const edm::EventSetup& es) {}
+void TestMS::endRun(edm::Run const& run, const edm::EventSetup& es) {}
 
 void TestMS::beginRun(edm::Run const& run, const edm::EventSetup& es) {
   auto const& tracker = es.getData(trackerToken_);
