@@ -930,7 +930,8 @@ upgradeWFs['PatatrackAllGPUValidation'] = PatatrackWorkflow(
         '--procModifiers': 'pixelNtupletFit,gpuValidation'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only',
+        '--procModifiers': 'gpuValidation'
     },
     suffix = 'Patatrack_AllGPU_Validation',
     offset = 0.583,
@@ -996,7 +997,8 @@ upgradeWFs['PatatrackAllTripletsGPUValidation'] = PatatrackWorkflow(
         '--procModifiers': 'pixelNtupletFit,gpuValidation'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only',
+        '--procModifiers': 'gpuValidation'
     },
     suffix = 'Patatrack_AllTripletsGPU_Validation',
     offset = 0.587,
