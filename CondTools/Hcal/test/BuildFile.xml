@@ -27,6 +27,11 @@
   <lib name="PMTParams"/>
 </bin>
 
+<bin file="HFPhase1PMTParams_unittest.cc">
+  <flags TEST_RUNNER_ARGS = "/bin/bash CondTools/Hcal/test testHFPhase1PMTParams.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+
 <library file="HcalConditionsTest.cc" name="testCondToolsConTHcal">
  <flags EDM_PLUGIN="1"/>
 </library>
