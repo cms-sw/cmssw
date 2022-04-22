@@ -11,55 +11,59 @@
 #include <string>
 #include <iostream>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibTracker/SiStripHitEfficiency/interface/HitEff.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+// user includes
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
+#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
+#include "CalibTracker/SiStripHitEfficiency/plugins/HitEff.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
-#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/TrackReco/interface/TrackBase.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
-#include "DataFormats/TrackReco/interface/DeDxData.h"
-#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
+// ROOT includes
 #include "TMath.h"
 #include "TH1F.h"
+
+// custom made printout
+#define LOGPRINT edm::LogPrint("SiStripHitEfficiency:HitEff")
 
 //
 // constructors and destructor
@@ -99,9 +103,6 @@ HitEff::HitEff(const edm::ParameterSet& conf)
   useAllHitsFromTracksWithMissingHits_ =
       conf_.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false);
 }
-
-// Virtual destructor needed.
-HitEff::~HitEff() {}
 
 void HitEff::beginJob() {
   edm::Service<TFileService> fs;
@@ -267,8 +268,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
       surface = &(tracker->idToDet(ClusterDetId)->surface());
       LocalPoint lp = parameters.first;
       GlobalPoint gp = surface->toGlobal(lp);
-      unsigned int layer = checkLayer(ClusterId, tTopo);
-            if(DEBUG) cout << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << endl;
+      unsigned int layer = ::checkLayer(ClusterId, tTopo);
+            if(DEBUG) LOGPRINT << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << endl;
     }
   }
   */
@@ -374,7 +375,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
         unsigned int iidd = theInHit->geographicalId().rawId();
 
-        unsigned int TKlayers = checkLayer(iidd, tTopo);
+        unsigned int TKlayers = ::checkLayer(iidd, tTopo);
         LogDebug("SiStripHitEfficiency:HitEff") << "TKlayer from trajectory: " << TKlayers << "  from module = " << iidd
                                                 << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/"
                                                 << ((iidd & 0x3) == 1) << "/" << ((iidd & 0x3) == 2) << endl;
@@ -409,12 +410,12 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
         // for double sided layers check both sensors--if no hit was found on either sensor surface,
         // the trajectory measurements only have one invalid hit entry on the matched surface
         // so get the TrajectoryAtInvalidHit for both surfaces and include them in the study
-        if (isDoubleSided(iidd, tTopo) && ((iidd & 0x3) == 0)) {
+        if (::isDoubleSided(iidd, tTopo) && ((iidd & 0x3) == 0)) {
           // do hit eff check twice--once for each sensor
           //add a TM for each surface
           TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 1));
           TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 2));
-        } else if (isDoubleSided(iidd, tTopo) && (!check2DPartner(iidd, TMeas))) {
+        } else if (::isDoubleSided(iidd, tTopo) && (!::check2DPartner(iidd, TMeas))) {
           // if only one hit was found the trajectory measurement is on that sensor surface, and the other surface from
           // the matched layer should be added to the study as well
           TMs.push_back(TrajectoryAtInvalidHit(*itm, tTopo, tkgeom, propagator, 1));
@@ -435,7 +436,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
         bool isLast = (itm == (TMeas.end() - 1));
         bool isLastTOB5 = true;
         if (!isLast) {
-          if (checkLayer((++itm)->recHit()->geographicalId().rawId(), tTopo) == 9)
+          if (::checkLayer((++itm)->recHit()->geographicalId().rawId(), tTopo) == 9)
             isLastTOB5 = false;
           else
             isLastTOB5 = true;
@@ -470,7 +471,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
         bool isLastTEC8 = true;
         if (!isLast) {
-          if (checkLayer((++itm)->recHit()->geographicalId().rawId(), tTopo) == 21)
+          if (::checkLayer((++itm)->recHit()->geographicalId().rawId(), tTopo) == 21)
             isLastTEC8 = false;
           else
             isLastTEC8 = true;
@@ -491,15 +492,15 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
           if (!(iidd == StripSubdetector::TEC))
             LogDebug("SiStripHitEfficiency:HitEff") << "there is a problem with TEC 9 extrapolation" << endl;
 
-          //cout << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << endl;
+          //LOGPRINT << " tec9 id = " << iidd << " and side = " << tTopo->tecSide(iidd) << endl;
           vector<TrajectoryMeasurement> tmp;
           if (tTopo->tecSide(iidd) == 1) {
             tmp = layerMeasurements.measurements(*tec9neg, tsosTEC9, *thePropagator, *estimator);
-            //cout << "on negative side" << endl;
+            //LOGPRINT << "on negative side" << endl;
           }
           if (tTopo->tecSide(iidd) == 2) {
             tmp = layerMeasurements.measurements(*tec9pos, tsosTEC9, *thePropagator, *estimator);
-            //cout << "on positive side" << endl;
+            //LOGPRINT << "on positive side" << endl;
           }
 
           if (!tmp.empty()) {
@@ -511,20 +512,20 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
             unsigned int tec9id = tec9Hit->geographicalId().rawId();
             LogDebug("SiStripHitEfficiency:HitEff")
-                << "tec9id = " << tec9id << " is Double sided = " << isDoubleSided(tec9id, tTopo)
+                << "tec9id = " << tec9id << " is Double sided = " << ::isDoubleSided(tec9id, tTopo)
                 << "  and 0x3 = " << (tec9id & 0x3) << endl;
 
             if (tec9Hit->geographicalId().rawId() != 0) {
               LogDebug("SiStripHitEfficiency:HitEff") << "tec9 hit actually being added to TM vector" << endl;
               // in tec the hit can be single or doubled sided. whenever the invalid hit at the end of vector of TMs is
               // double sided it is always on the matched surface, so we need to split it into the true sensor surfaces
-              if (isDoubleSided(tec9id, tTopo)) {
+              if (::isDoubleSided(tec9id, tTopo)) {
                 TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator, 1));
                 TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator, 2));
               } else
                 TMs.push_back(TrajectoryAtInvalidHit(tec9TM, tTopo, tkgeom, propagator));
             }
-          }  //else cout << "tec9 tmp empty" << endl;
+          }  //else LOGPRINT << "tec9 tmp empty" << endl;
         }
 
         ////////////////////////////////////////////////////////
@@ -560,7 +561,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
           int TrajStrip = -1;
 
           // reget layer from iidd here, to account for TOB 6 and TEC 9 TKlayers being off
-          TKlayers = checkLayer(iidd, tTopo);
+          TKlayers = ::checkLayer(iidd, tTopo);
 
           if ((layers == TKlayers) || (layers == 0)) {  // Look at the layer not used to reconstruct the track
             whatlayer = TKlayers;
@@ -594,7 +595,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
               for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = input.begin(); DSViter != input.end();
                    DSViter++) {
                 // DSViter is a vector of SiStripClusters located on a single module
-                //if (DEBUG)      cout << "the ID from the DSViter = " << DSViter->id() << endl;
+                //if (DEBUG)      LOGPRINT << "the ID from the DSViter = " << DSViter->id() << endl;
                 unsigned int ClusterId = DSViter->id();
                 if (ClusterId == iidd) {
                   LogDebug("SiStripHitEfficiency:HitEff")
@@ -632,7 +633,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                                                           hapoth);  // radialy extrapolated x loc position at middle
                       TrajStrip = TrajLocXMid / pitch + nstrips / 2.0;
                     }
-                    //cout<<" Layer "<<TKlayers<<" TrajStrip: "<<nstrips<<" "<<pitch<<" "<<TrajStrip<<endl;
+                    //LOGPRINT<<" Layer "<<TKlayers<<" TrajStrip: "<<nstrips<<" "<<pitch<<" "<<TrajStrip<<endl;
                   }
 
                   for (edmNew::DetSet<SiStripCluster>::const_iterator iter = DSViter->begin(); iter != DSViter->end();
@@ -640,7 +641,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                     //iter is a single SiStripCluster
                     StripClusterParameterEstimator::LocalValues parameters = stripcpe.localParameters(*iter, *stripdet);
                     float res = (parameters.first.x() - xloc);
-                    float sigma = checkConsistency(parameters, xloc, xErr);
+                    float sigma = ::checkConsistency(parameters, xloc, xErr);
                     // The consistency is probably more accurately measured with the Chi2MeasurementEstimator. To use it
                     // you need a TransientTrackingRecHit instead of the cluster
                     //theEstimator=       new Chi2MeasurementEstimator(30);
@@ -861,81 +862,6 @@ void HitEff::endJob() {
 
   LogDebug("SiStripHitEfficiency:HitEff") << " Events Analysed             " << events << endl;
   LogDebug("SiStripHitEfficiency:HitEff") << " Number Of Tracked events    " << EventTrackCKF << endl;
-}
-
-double HitEff::checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr) {
-  double error = sqrt(parameters.second.xx() + xerr * xerr);
-  double separation = abs(parameters.first.x() - xx);
-  double consistency = separation / error;
-  return consistency;
-}
-
-bool HitEff::isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const {
-  StripSubdetector strip = StripSubdetector(iidd);
-  unsigned int subid = strip.subdetId();
-  unsigned int layer = 0;
-  if (subid == StripSubdetector::TIB) {
-    layer = tTopo->tibLayer(iidd);
-    if (layer == 1 || layer == 2)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TOB) {
-    layer = tTopo->tobLayer(iidd) + 4;
-    if (layer == 5 || layer == 6)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TID) {
-    layer = tTopo->tidRing(iidd) + 10;
-    if (layer == 11 || layer == 12)
-      return true;
-    else
-      return false;
-  } else if (subid == StripSubdetector::TEC) {
-    layer = tTopo->tecRing(iidd) + 13;
-    if (layer == 14 || layer == 15 || layer == 18)
-      return true;
-    else
-      return false;
-  } else
-    return false;
-}
-
-bool HitEff::check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj) {
-  unsigned int partner_iidd = 0;
-  bool found2DPartner = false;
-  // first get the id of the other detector
-  if ((iidd & 0x3) == 1)
-    partner_iidd = iidd + 1;
-  if ((iidd & 0x3) == 2)
-    partner_iidd = iidd - 1;
-  // next look in the trajectory measurements for a measurement from that detector
-  // loop through trajectory measurements to find the partner_iidd
-  for (std::vector<TrajectoryMeasurement>::const_iterator iTM = traj.begin(); iTM != traj.end(); ++iTM) {
-    if (iTM->recHit()->geographicalId().rawId() == partner_iidd) {
-      found2DPartner = true;
-    }
-  }
-  return found2DPartner;
-}
-
-unsigned int HitEff::checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
-  StripSubdetector strip = StripSubdetector(iidd);
-  unsigned int subid = strip.subdetId();
-  if (subid == StripSubdetector::TIB) {
-    return tTopo->tibLayer(iidd);
-  }
-  if (subid == StripSubdetector::TOB) {
-    return tTopo->tobLayer(iidd) + 4;
-  }
-  if (subid == StripSubdetector::TID) {
-    return tTopo->tidWheel(iidd) + 10;
-  }
-  if (subid == StripSubdetector::TEC) {
-    return tTopo->tecWheel(iidd) + 13;
-  }
-  return 0;
 }
 
 //define this as a plug-in
