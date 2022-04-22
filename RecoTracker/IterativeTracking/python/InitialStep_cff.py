@@ -257,6 +257,7 @@ trackingMkFitInitialStep.toReplaceWith(initialStepTrackCandidates, mkFitOutputCo
     mkFitSeeds = 'initialStepTrackCandidatesMkFitSeeds',
     tracks = 'initialStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(initialStepTrackCandidatesMkFitConfig, minPt=0.6)
 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(initialStepTrackCandidates,
