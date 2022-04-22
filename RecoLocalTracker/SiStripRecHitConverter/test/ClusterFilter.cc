@@ -19,7 +19,7 @@ public:
   ~ClusterFilter() override = default;
 
 private:
-  bool filter(edm::Event&, edm::EventSetup const&);
+  bool filter(edm::Event&, edm::EventSetup const&) override;
   const int nMax_;
   const edm::EDGetTokenT<edm::DetSetVector<SiStripCluster>> clustersToken_;
 };

@@ -31,8 +31,8 @@ public:
   SiStripDigiValidator(const edm::ParameterSet& config);
   ~SiStripDigiValidator() override = default;
 
-  virtual void endJob();
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  virtual void endJob() override;
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
   void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripDigi>&);
   void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripRawDigi>&);
