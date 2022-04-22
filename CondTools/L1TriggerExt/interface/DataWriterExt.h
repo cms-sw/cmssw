@@ -69,10 +69,10 @@ namespace l1t {
 
     bool fillLastTriggerKeyList(L1TriggerKeyListExt& output);
 
-    WriterProxy* getWriter() { return writer.get(); }
+    WriterProxy* getWriter() { return writer_.get(); }
 
   private:
-    WriterProxyPtr writer;
+    WriterProxyPtr writer_;
 
   protected:
   };
