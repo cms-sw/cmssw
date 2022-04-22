@@ -1,61 +1,57 @@
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+// system includes
+#include <vector>
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
+// user includes
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
-#include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementError.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
-#include "DataFormats/DetId/interface/DetIdCollection.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
+#include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterInfo.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
+#include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
+#include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
+// ROOT includes
+#include "TRandom2.h"
 #include "TROOT.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include <vector>
 #include "TTree.h"
-#include <iostream>
-#include <cstdlib>
-#include <cstdio>
-#include "Riostream.h"
-#include "TRandom2.h"
 
 class TrackerTopology;
 
 class HitEff : public edm::one::EDAnalyzer<> {
 public:
   explicit HitEff(const edm::ParameterSet& conf);
-  double checkConsistency(const StripClusterParameterEstimator::LocalValues& parameters, double xx, double xerr);
-  bool isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const;
-  bool check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasurement>& traj);
-  ~HitEff() override;
-  unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo);
+  ~HitEff() override = default;
 
 private:
   void beginJob() override;
