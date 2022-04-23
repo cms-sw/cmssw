@@ -149,6 +149,9 @@ void SiPixelPhase1CompareVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
   //std::string top_folder = ""//
   ibooker.cd();
   ibooker.setCurrentFolder(topFolderName_);
+
+  // FIXME: all the 2D correlation plots are quite heavy in terms of memory consumption, so a as soon as DQM supports either TH2I or THnSparse
+  // these should be moved to a less resource consuming format
   hnVertex_ = ibooker.book2D("nVertex", "# of Vertex;CPU;GPU", 101, -0.5, 100.5, 101, -0.5, 100.5);
   hx_ = ibooker.book2D("vx", "Vertez x;CPU;GPU", 20, -0.1, 0.1, 20, -0.1, 0.1);
   hy_ = ibooker.book2D("vy", "Vertez y;CPU;GPU", 20, -0.1, 0.1, 20, -0.1, 0.1);
