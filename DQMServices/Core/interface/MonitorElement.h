@@ -18,6 +18,7 @@
 #include "TH1D.h"
 #include "TH2F.h"
 #include "TH2S.h"
+#include "TH2I.h"
 #include "TH2D.h"
 #include "TH3F.h"
 #include "TProfile.h"
@@ -438,6 +439,7 @@ namespace dqm::impl {
     virtual TH1D *getTH1D();
     virtual TH2F *getTH2F();
     virtual TH2S *getTH2S();
+    virtual TH2I *getTH2I();
     virtual TH2D *getTH2D();
     virtual TH3F *getTH3F();
     virtual TProfile *getTProfile();
@@ -494,6 +496,10 @@ namespace dqm::legacy {
     using dqm::reco::MonitorElement::getTH2S;
     virtual TH2S *getTH2S() const {
       return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2S();
+    };
+    using dqm::reco::MonitorElement::getTH2I;
+    virtual TH2I *getTH2I() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2I();
     };
     using dqm::reco::MonitorElement::getTH2D;
     virtual TH2D *getTH2D() const {
