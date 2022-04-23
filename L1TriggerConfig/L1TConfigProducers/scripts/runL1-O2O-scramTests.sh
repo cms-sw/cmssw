@@ -42,32 +42,37 @@ runnum=$1
 tsckey=$2
 rskey=$3
 
-#CMSSW_BASE=${RELEASEDIR}
-#CMSSW_BASE=${JOBDIR}/${RELEASE} #for local CMSSW checkout
+
 echo CMSSW_BASE = $CMSSW_BASE
 echo PWD = $PWD
-ls -al
+ls -a
 
 export TNS_ADMIN=/etc
-
 echo "INFO: ADDITIONAL CMS OPTIONS:  " $CMS_OPTIONS $KEY_CONTENT $TAG_UPDATE
 
-ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_adg/CMS_TRG_R onlineDBAuth=./"
-#ONLINEDB_OPTIONS="onlineDBAuth=./"
-PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_adg/CMS_CONDITIONS protoDBAuth=./"
+ONLINEDB_OPTIONS="onlineDBConnect=oracle://cms_omds_adg/CMS_TRG_R onlineDBAuth=$HOME/"
+PROTODB_OPTIONS="protoDBConnect=oracle://cms_orcon_adg/CMS_CONDITIONS protoDBAuth=$HOME/"
 
-local_db=$CMSSW_BASE/src/L1TriggerConfig/L1TConfigProducers/data/l1config.db
+## test dir
+DATA_DIR=$CMSSW_BASE/$SCRAM_TEST_NAME
+mkdir $DATA_DIR
+## get sqlite from the write-only CMSSW_SEARCH_PATH
+for dir in $(echo $CMSSW_SEARCH_PATH | tr ':' '\n') ; do
+  [ -e $dir/L1TriggerConfig/L1TConfigProducers/data/l1config.db ] || continue
+  cp $dir/L1TriggerConfig/L1TConfigProducers/data/l1config.db $DATA_DIR/
+  break
+done
+local_db=$DATA_DIR/l1config.db
+sqlite3 $local_db -cmd "SELECT * from IOV;" ".q" > $DATA_DIR/iov_before
+
 echo "Writing to sqlite_file:$local_db instead of ORCON."
-INDB_OPTIONS="inputDBConnect=sqlite_file:$local_db inputDBAuth=./"
-OUTDB_OPTIONS="outputDBConnect=sqlite_file:$local_db outputDBAuth=./"
+INDB_OPTIONS="inputDBConnect=sqlite_file:$local_db inputDBAuth=$HOME/"
+OUTDB_OPTIONS="outputDBConnect=sqlite_file:$local_db outputDBAuth=$HOME/"
 COPY_OPTIONS="copyNonO2OPayloads=1 copyDBConnect=sqlite_file:$local_db"
 
-# echo "Writing to cms_orcoff_prep instead of ORCON"
-# INDB_OPTIONS="inputDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS inputDBAuth=/data/O2O/L1T/"
-# OUTDB_OPTIONS="outputDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS outputDBAuth=/data/O2O/L1T/"
-# COPY_OPTIONS="copyNonO2OPayloads=1 copyDBConnect=oracle://cms_orcoff_prep/CMS_CONDITIONS copyDBAuth=/data/O2O/L1T/"
-
-
+##
+## =============== O2O Job ===============
+##
 
 if cmsRun -e ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyListExt=1 ${TAG_UPDATE} | c++filt --types | grep "${tsckey}:${rskey}" ; then echo "TSC payloads present"
 else
@@ -112,7 +117,13 @@ else
     exit ${o2ocode}
 fi
 
-
+echo ">>>>>>>"
+echo ">>>>>>> JOB REPORT"
+echo "============================== BEFORE O2O =============================="
+cat $DATA_DIR/iov_before
+echo "============================== AFTER O2O =============================="
 sqlite3 $local_db -cmd "SELECT * from IOV;" ".q"
+
+rm -r $DATA_DIR
 exit $o2ocode
 
