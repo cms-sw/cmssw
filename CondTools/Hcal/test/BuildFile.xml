@@ -10,7 +10,7 @@
 <library name="PMTParams" file="make_*cc">
 </library>
 
-<bin file="write_HFPhase1PMTParams.cc">
+<bin name="write_HFPhase1PMTParams" file="write_HFPhase1PMTParams.cc">
   <lib name="PMTParams"/>
 </bin>
 
@@ -28,6 +28,7 @@
 </bin>
 
 <bin file="HFPhase1PMTParams_unittest.cc">
+  <flags PRE_TEST = "write_HFPhase1PMTParams"/>
   <flags TEST_RUNNER_ARGS = "/bin/bash CondTools/Hcal/test testHFPhase1PMTParams.sh"/>
   <use name="FWCore/Utilities"/>
 </bin>
