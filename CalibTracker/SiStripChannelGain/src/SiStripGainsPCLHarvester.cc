@@ -459,7 +459,7 @@ namespace {
 
     sprintf(FunName, "Fitfcn_%s", his->GetName());
 
-    TF1* ffitold = (TF1*)gROOT->GetListOfFunctions()->FindObject(FunName);
+    TF1* ffitold = dynamic_cast<TF1*>(gROOT->GetListOfFunctions()->FindObject(FunName));
     if (ffitold)
       delete ffitold;
 
@@ -488,7 +488,7 @@ namespace {
 //********************************************************************************//
 void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charge_Vs_Index) {
   unsigned int I = 0;
-  TH1F* Proj = nullptr;
+  TH1D* Proj = nullptr;
   static constexpr double DEF_F = -9999.;
   double FitResults[6] = {DEF_F, DEF_F, DEF_F, DEF_F, DEF_F, DEF_F};
   double MPVmean = 300;
@@ -522,8 +522,8 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
       continue;
     }
 
-    Proj = (TH1F*)(chvsidx->ProjectionY(
-        "", chvsidx->GetXaxis()->FindBin(APV->Index), chvsidx->GetXaxis()->FindBin(APV->Index), "e"));
+    Proj = chvsidx->ProjectionY(
+        "", chvsidx->GetXaxis()->FindBin(APV->Index), chvsidx->GetXaxis()->FindBin(APV->Index), "e");
     if (!Proj)
       continue;
 
@@ -538,7 +538,7 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
       std::shared_ptr<stAPVGain> APV2 = APVsColl[(APV->DetId << 4) | SecondAPVId];
       if (APV2->Bin < 0)
         APV2->Bin = chvsidx->GetXaxis()->FindBin(APV2->Index);
-      TH1F* Proj2 = (TH1F*)(chvsidx->ProjectionY("", APV2->Bin, APV2->Bin, "e"));
+      TH1D* Proj2 = chvsidx->ProjectionY("", APV2->Bin, APV2->Bin, "e");
       if (Proj2) {
         Proj->Add(Proj2, 1);
         delete Proj2;
@@ -553,7 +553,7 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
           continue;
         if (APV2->Bin < 0)
           APV2->Bin = chvsidx->GetXaxis()->FindBin(APV2->Index);
-        TH1F* Proj2 = (TH1F*)(chvsidx->ProjectionY("", APV2->Bin, APV2->Bin, "e"));
+        TH1D* Proj2 = chvsidx->ProjectionY("", APV2->Bin, APV2->Bin, "e");
         if (Proj2) {
           Proj->Add(Proj2, 1);
           delete Proj2;
