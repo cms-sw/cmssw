@@ -257,6 +257,52 @@ namespace dqm {
             },
             /* forceReplace */ true);
       }
+
+      // MM 23.04.22 add TH2I histograms
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
+      MonitorElement* book2I(TString const& name,
+                             TString const& title,
+                             int nchX,
+                             double lowX,
+                             double highX,
+                             int nchY,
+                             double lowY,
+                             double highY,
+                             FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2I, [=]() {
+          auto th2 = new TH2I(name, title, nchX, lowX, highX, nchY, lowY, highY);
+          onbooking(th2);
+          return th2;
+        });
+      }
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
+      MonitorElement* book2I(TString const& name,
+                             TString const& title,
+                             int nchX,
+                             float const* xbinsize,
+                             int nchY,
+                             float const* ybinsize,
+                             FUNC onbooking = NOOP()) {
+        return bookME(name, MonitorElementData::Kind::TH2I, [=]() {
+          auto th2 = new TH2I(name, title, nchX, xbinsize, nchY, ybinsize);
+          onbooking(th2);
+          return th2;
+        });
+      }
+      template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
+      MonitorElement* book2I(TString const& name, TH2I* object, FUNC onbooking = NOOP()) {
+        return bookME(
+            name,
+            MonitorElementData::Kind::TH2I,
+            [=]() {
+              auto th2 = static_cast<TH2I*>(object->Clone(name));
+              onbooking(th2);
+              return th2;
+            },
+            /* forceReplace */ true);
+      }
+
+      // MM 23.04.2022 add TH2I histograms
       template <typename FUNC = NOOP, std::enable_if_t<not std::is_arithmetic<FUNC>::value, int> = 0>
       MonitorElement* book2DD(TString const& name,
                               TString const& title,

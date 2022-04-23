@@ -235,6 +235,8 @@ namespace dqm::impl {
       static_cast<TH2S *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
     else if (kind() == Kind::TH2D)
       static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
+    else if (kind() == Kind::TH2I)
+      static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
     else if (kind() == Kind::TPROFILE)
       static_cast<TProfile *>(accessRootObject(access, __PRETTY_FUNCTION__, 1))->Fill(x, yw, 1);
     else
@@ -1002,6 +1004,12 @@ namespace dqm::impl {
     auto access = this->accessMut();
     assert(kind() == Kind::TH2S);
     return static_cast<TH2S *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
+  }
+
+  TH2I *MonitorElement::getTH2I() {
+    auto access = this->accessMut();
+    assert(kind() == Kind::TH2I);
+    return static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 
   TH2D *MonitorElement::getTH2D() {
