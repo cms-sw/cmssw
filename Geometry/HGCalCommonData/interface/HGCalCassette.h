@@ -19,7 +19,6 @@ private:
   int cassette_;
   bool typeHE_;
   std::vector<double> shifts_;
-  std::vector<double> cos_, sin_;
 };
 
 #endif
