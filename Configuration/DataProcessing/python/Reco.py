@@ -157,10 +157,6 @@ class Reco(Scenario):
 
         eiStep=''
 
-        if 'beamSplashRun' in args:
-          eiStep = ":localreco+hcalOnlyGlobalRecoSequence+caloTowersRec" if args['beamSplashRun'] else ""
-          print("Using RECO%s step for ED clients" % eiStep)     
-
         options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
 
 

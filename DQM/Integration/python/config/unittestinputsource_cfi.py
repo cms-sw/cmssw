@@ -81,12 +81,6 @@ options.register('noDB',
                  VarParsing.VarParsing.varType.bool,
                  "Don't upload the BeamSpot conditions to the DB")
 
-options.register('BeamSplashRun',
-                 False, # default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool,
-                 "Set client source settings for beam SPLASH run")
-
 options.parseArguments()
 
 print("Querying DAS for files...")
