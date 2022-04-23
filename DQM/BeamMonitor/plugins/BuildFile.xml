@@ -4,6 +4,7 @@
 <use name="DataFormats/TrackReco"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/TCDS"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="RecoVertex/BeamSpotProducer"/>
