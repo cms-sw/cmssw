@@ -230,6 +230,8 @@ void SiPixelPhase1CompareTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
 
   // clang-format off
   std::string toRep = "Number of tracks";
+  // FIXME: all the 2D correlation plots are quite heavy in terms of memory consumption, so a as soon as DQM supports either TH2I or THnSparse
+  // these should be moved to a less resource consuming format
   hnTracks_ = iBook.book2D("nTracks", fmt::sprintf("%s per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
   hnLooseAndAboveTracks_ = iBook.book2D("nLooseAndAboveTracks", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
   hnLooseAndAboveTracks_matched_ = iBook.book2D("nLooseAndAboveTracks_matched", fmt::sprintf("%s (quality #geq loose) per event; CPU; GPU",toRep), 501, -0.5, 500.5, 501, -0.5, 500.5);
