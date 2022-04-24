@@ -1,15 +1,18 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_3_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_12_3_0/HIon/V72 (CMSSW_12_3_0)
+# /dev/CMSSW_12_3_0/HIon/V77 (CMSSW_12_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
 from HeterogeneousCore.CUDACore.SwitchProducerCUDA import SwitchProducerCUDA
+from HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA import ProcessAcceleratorCUDA
 
 process = cms.Process( "HLTHIon" )
 
+process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
+
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V72')
+  tableName = cms.string('/dev/CMSSW_12_3_0/HIon/V77')
 )
 
 process.transferSystem = cms.PSet( 
@@ -13260,7 +13263,8 @@ process.hltParticleFlowSuperClusterECALPPOnAA = cms.EDProducer( "PFECALSuperClus
       regressionKeyEE = cms.string( "pfscecal_EECorrection_online" ),
       regressionKeyEB = cms.string( "pfscecal_EBCorrection_online" ),
       uncertaintyKeyEE = cms.string( "pfscecal_EEUncertainty_online" ),
-      isHLT = cms.bool( True )
+      isHLT = cms.bool( True ),
+      regTrainedWithPS = cms.bool( True )
     ),
     applyCrackCorrections = cms.bool( False ),
     satelliteClusterSeedThreshold = cms.double( 50.0 ),
