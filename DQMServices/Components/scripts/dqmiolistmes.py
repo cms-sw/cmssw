@@ -45,6 +45,7 @@ if 'Indices;1' in things:
     "TH2Fs",
     "TH2Ss",
     "TH2Ds",
+    "TH2Is",
     "TH3Fs",
     "TProfiles",
     "TProfile2Ds"
