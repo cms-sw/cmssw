@@ -111,6 +111,14 @@ namespace {
     }
   };
   template <>
+  struct HistoTraits<TH2I> {
+    static TH2I *get(MonitorElement *me) { return me->getTH2I(); }
+    template <typename... Args>
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
+      return iBooker.book2I(std::forward<Args>(args)...);
+    }
+  };
+  template <>
   struct HistoTraits<TH3F> {
     static TH3F *get(MonitorElement *me) { return me->getTH3F(); }
     template <typename... Args>

@@ -107,6 +107,7 @@ private:
              Tokens<TH2F>,
              Tokens<TH2S>,
              Tokens<TH2D>,
+             Tokens<TH2I>,
              Tokens<TH3F>,
              Tokens<TProfile>,
              Tokens<TProfile2D>,
