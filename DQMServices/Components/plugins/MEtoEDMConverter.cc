@@ -51,6 +51,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
   produces<MEtoEDM<TH2F>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH2S>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH2D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH2I>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH3F>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TProfile>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TProfile2D>, edm::Transition::EndRun>(sName);
@@ -65,6 +66,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
   produces<MEtoEDM<TH2F>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH2S>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH2D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH2I>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH3F>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TProfile>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TProfile2D>, edm::Transition::EndLuminosityBlock>(sName);
@@ -124,6 +126,7 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
   unsigned int n2F = 0;
   unsigned int n2S = 0;
   unsigned int n2D = 0;
+  unsigned int n2I = 0;
   unsigned int n3F = 0;
   unsigned int nProf = 0;
   unsigned int nProf2 = 0;
@@ -178,6 +181,10 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
         ++n2D;
         break;
 
+      case MonitorElement::Kind::TH2I:
+        ++n2I;
+        break;
+
       case MonitorElement::Kind::TH3F:
         ++n3F;
         break;
@@ -207,6 +214,7 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
   std::unique_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>(n2F));
   std::unique_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>(n2S));
   std::unique_ptr<MEtoEDM<TH2D> > pOut2d(new MEtoEDM<TH2D>(n2D));
+  std::unique_ptr<MEtoEDM<TH2I> > pOut2i(new MEtoEDM<TH2I>(n2I));
   std::unique_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>(n3F));
   std::unique_ptr<MEtoEDM<TProfile> > pOutProf(new MEtoEDM<TProfile>(nProf));
   std::unique_ptr<MEtoEDM<TProfile2D> > pOutProf2(new MEtoEDM<TProfile2D>(nProf2));
@@ -257,6 +265,10 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
         pOut2d->putMEtoEdmObject(me->getFullname(), *me->getTH2D());
         break;
 
+      case MonitorElement::Kind::TH2I:
+        pOut2i->putMEtoEdmObject(me->getFullname(), *me->getTH2I());
+        break;
+
       case MonitorElement::Kind::TH3F:
         pOut3->putMEtoEdmObject(me->getFullname(), *me->getTH3F());
         break;
@@ -296,6 +308,7 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
   iPutTo.put(std::move(pOut2), sName);
   iPutTo.put(std::move(pOut2s), sName);
   iPutTo.put(std::move(pOut2d), sName);
+  iPutTo.put(std::move(pOut2i), sName);
   iPutTo.put(std::move(pOut3), sName);
   iPutTo.put(std::move(pOutProf), sName);
   iPutTo.put(std::move(pOutProf2), sName);
