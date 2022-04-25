@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <sstream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 bool HGCalWaferMask::maskCell(int u, int v, int n, int ncor, int fcor, int corners) {
   /*
