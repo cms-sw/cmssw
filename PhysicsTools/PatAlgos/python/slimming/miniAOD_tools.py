@@ -120,6 +120,7 @@ def miniAOD_customizeCommon(process):
     #
     process.selectedPatJets.cut = cms.string("pt > 10")
     process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))")
+    process.selectedPatDisplacedMuons.cut = cms.string("pt > 3 || (standAloneMuon().isNonnull() && standAloneMuon().pt() > 3)")
     
     from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
     phase2_muon.toModify(process.selectedPatMuons, cut = "pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose') || muonID('ME0MuonArbitrated') || muonID('GEMMuonArbitrated')) )")

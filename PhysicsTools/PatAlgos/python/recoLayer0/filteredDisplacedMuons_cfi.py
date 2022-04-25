@@ -18,8 +18,10 @@ filteredDisplacedMuons = cms.EDProducer("DisplacedMuonFilterProducer",
     HoIsoDeposits    = cms.InputTag("displacedMuons:ho"),
 
     # Filter
-    minDxy     = cms.double( 0.1 ),
-    minDz      = cms.double( 5. ),
-    minDeltaR  = cms.double( 0.01 ),
-    minDeltaPt = cms.double( 1.0 )
+    minDxy           = cms.double( 2 ),
+    minDz            = cms.double( 10. ),
+    minDeltaR        = cms.double( 0.1 ),
+    minRelDeltaPt    = cms.double( 0.1 ),
+    minDeltaRSTA     = cms.double( 0.1 ),
+    minRelDeltaPtSTA = cms.double( 0.1 )
 )
