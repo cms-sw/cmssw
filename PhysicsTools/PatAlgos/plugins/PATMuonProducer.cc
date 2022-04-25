@@ -1053,6 +1053,8 @@ void PATMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     constexpr float mvaIDmediumCut = 0.08;
     constexpr float mvaIDtightCut = 0.12;
     if (computeMuonIDMVA_) {
+	  const double dz = std::abs(muon.muonBestTrack()->dz(primaryVertex.position()));
+	  const double dxy = std::abs(muon.muonBestTrack()->dxy(primaryVertex.position()));
       if (muon.isLooseMuon()) {
         mvaID = globalCache()->muonMvaIDEstimator().computeMVAID(muon)[1];
       } else {
