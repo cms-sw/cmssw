@@ -17,7 +17,7 @@ AlCaRecoMatrix = {
                   "ExpressCosmics"              : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias",
                   "HcalNZS"                     : "HcalCalMinBias",
                   "HLTPhysics"                  : "TkAlMinBias",
-                  "JetHT"                       : "HcalCalIsoTrkProducerFilter",
+                  "JetHT"                       : "HcalCalIsoTrkProducerFilter+TkAlMinBias",
                   "MET"                         : "HcalCalNoise",
                   "MinimumBias"                 : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
                   "MuOnia"                      : "TkAlUpsilonMuMu",
