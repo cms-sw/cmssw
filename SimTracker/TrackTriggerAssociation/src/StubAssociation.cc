@@ -60,7 +60,7 @@ namespace tt {
     // Get all TPs that are matched to these stubs in at least 'tpMinLayers' layers and 'tpMinLayersPS' ps layers
     vector<TPPtr> tpPtrs = associate(ttStubRefs);
     // remove TPs with more then 'tpMaxBadStubs2S' not associated 2S stubs and more then 'tpMaxBadStubsPS' not associated PS stubs
-    auto check = [this, ttStubRefs](const TPPtr& tpPtr) {
+    auto check = [this, &ttStubRefs](const TPPtr& tpPtr) {
       int bad2S(0);
       int badPS(0);
       for (const TTStubRef& ttStubRef : ttStubRefs) {
