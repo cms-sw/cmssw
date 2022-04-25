@@ -56,7 +56,7 @@ jobs:
         GITLAB_HOSTNAME: "gitlab.cern.ch"
         GITLAB_USERNAME: "cms-l1tk"   
         GITLAB_PASSWORD: ${{ secrets.GITLAB_L1TK_CMSSW_CI_TOKEN }} # Generate token here: https://gitlab.cern.ch/cms-l1tk/cmssw_CI/-/settings/access_tokens and add it to GitHub secrets https://github.com/cms-L1TK/cmssw/settings/secrets/actions   
-        GITLAB_PROJECT_ID: "124851" # ID visible at https://gitlab.cern.ch/cms-l1tk/cmssw 
+        GITLAB_PROJECT_ID: "124851" # ID visible at https://gitlab.cern.ch/cms-l1tk/cmssw_CI
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # https://help.github.com/en/articles/virtual-environments-for-github-actions#github_token-secret
         MIRROR_REPO: ${{ env.mirror_repo }} # gitlab mirror.
         IS_CMSSW: "true" # Is repo CMSSW or something else (e.g. HLS)?
