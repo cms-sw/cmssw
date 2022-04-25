@@ -29,7 +29,7 @@ public:
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
-  
+
   struct JetRefCompare {
     inline bool operator()(const edm::RefToBase<reco::Jet>& j1, const edm::RefToBase<reco::Jet>& j2) const {
       return (j1.id() < j2.id()) || ((j1.id() == j2.id()) && (j1.key() < j2.key()));
@@ -59,7 +59,7 @@ private:
   edm::InputTag triggerSummaryLabel_;
 
   std::vector<edm::EDGetTokenT<reco::JetTagCollection> > jetTagTokens_;
-  
+
   edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryToken_;
 
   MonitorElement* pt_jet1_;
@@ -98,9 +98,10 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::Paramete
   probeBtagmin_ = iConfig.getParameter<double>("probeBtagMin");
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummary");
   triggerSummaryToken_ = consumes<trigger::TriggerEvent>(triggerSummaryLabel_);
-// New
-  jetTagTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("btagAlgos"),
-        [this](edm::InputTag const& tag) { return mayConsume<reco::JetTagCollection>(tag); });
+  // New
+  jetTagTokens_ =
+      edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("btagAlgos"),
+                            [this](edm::InputTag const& tag) { return mayConsume<reco::JetTagCollection>(tag); });
 
   genTriggerEventFlag_ = std::make_unique<GenericTriggerEventFlag>(
       iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this);
@@ -185,50 +186,43 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
   bool match2 = false;
 
   JetTagMap allJetBTagVals;
-  for (const auto& jetTagToken : jetTagTokens_)
-  {
+  for (const auto& jetTagToken : jetTagTokens_) {
     edm::Handle<reco::JetTagCollection> bjetHandle;
     iEvent.getByToken(jetTagToken, bjetHandle);
-    if (not bjetHandle.isValid())
-    {
+    if (not bjetHandle.isValid()) {
       edm::LogWarning("TagAndProbeBtagTriggerMonitor") << "B-Jet handle not valid, will skip event \n";
       return;
     }
-    
+
     const reco::JetTagCollection& bTags = *(bjetHandle.product());
     for (const auto& i_jetTag : bTags) {
-       const auto& jetRef = i_jetTag.first;
-       const auto btagVal = i_jetTag.second;
-       if (not std::isfinite(btagVal)) {
-         continue;
-       }
-       if (allJetBTagVals.find(jetRef) != allJetBTagVals.end()) {
-         allJetBTagVals.at(jetRef) += btagVal;
-       } else {
-         allJetBTagVals.insert(JetTagMap::value_type(jetRef, btagVal));
-       }
-       
+      const auto& jetRef = i_jetTag.first;
+      const auto btagVal = i_jetTag.second;
+      if (not std::isfinite(btagVal)) {
+        continue;
+      }
+      if (allJetBTagVals.find(jetRef) != allJetBTagVals.end()) {
+        allJetBTagVals.at(jetRef) += btagVal;
+      } else {
+        allJetBTagVals.insert(JetTagMap::value_type(jetRef, btagVal));
+      }
     }
   }
 
   // applying selection for event; tag & probe -> selection  for all events
   if (genTriggerEventFlag_->on() && genTriggerEventFlag_->accept(iEvent, iSetup)) {
-     
     if (allJetBTagVals.size() > 1) {
-      
       auto jetBTagVal = allJetBTagVals.begin();
       auto jet1 = *dynamic_cast<const reco::Jet*>(jetBTagVal->first.get());
       auto btag1 = jetBTagVal->second;
-      
+
       ++jetBTagVal;
       auto jet2 = *dynamic_cast<const reco::Jet*>(jetBTagVal->first.get());
       auto btag2 = jetBTagVal->second;
 
-      if (jet1.pt() > jetPtmin_ && jet2.pt() > jetPtmin_ && fabs(jet1.eta()) < jetEtamax_ && fabs(jet2.eta()) < jetEtamax_)
-      {
-        if (btag1 > tagBtagmin_ && btag2 > probeBtagmin_) 
-        {
-
+      if (jet1.pt() > jetPtmin_ && jet2.pt() > jetPtmin_ && fabs(jet1.eta()) < jetEtamax_ &&
+          fabs(jet2.eta()) < jetEtamax_) {
+        if (btag1 > tagBtagmin_ && btag2 > probeBtagmin_) {
           pt_jet1_->Fill(jet1.pt());
           pt_jet2_->Fill(jet2.pt());
           eta_jet1_->Fill(jet1.eta());
