@@ -41,12 +41,12 @@ private:
   std::string rotNameNippleToCover_;
   std::string rotNameCoverToNipple_;
   std::string rotNameNippleToBody_;
-  int nBlades_;         // Number of blades
-  double bladeAngle_;   // Angle of blade rotation around axis perpendicular to beam
-  double bladeZShift_;  // Shift in Z between the axes of two adjacent blades
-  double ancorRadius_;  // Distance from beam line to ancor point defining center of "blade frame"
-  double jX_, jY_, jZ_;      // Coordinates of Nipple ancor points J in blade frame 
-  double kX_, kY_, kZ_;      // Coordinates of Nipple ancor points K in blade frame 
+  int nBlades_;              // Number of blades
+  double bladeAngle_;        // Angle of blade rotation around axis perpendicular to beam
+  double bladeZShift_;       // Shift in Z between the axes of two adjacent blades
+  double ancorRadius_;       // Distance from beam line to ancor point defining center of "blade frame"
+  double jX_, jY_, jZ_;      // Coordinates of Nipple ancor points J in blade frame
+  double kX_, kY_, kZ_;      // Coordinates of Nipple ancor points K in blade frame
   std::string rotNS_;        //Namespace of the rotation matrix
   std::string idNameSpace_;  //Namespace of this and ALL sub-parts
 };
