@@ -110,6 +110,8 @@ private:
   const float qualityMaxZ_;
   const float qualityMaxPosErrSq_;
   const bool qualitySignPt_;
+
+  const bool doErrorRescale_;
 };
 
 MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
@@ -134,7 +136,8 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
       qualityMaxRsq_{float(pow(iConfig.getParameter<double>("qualityMaxR"), 2))},
       qualityMaxZ_{float(iConfig.getParameter<double>("qualityMaxZ"))},
       qualityMaxPosErrSq_{float(pow(iConfig.getParameter<double>("qualityMaxPosErr"), 2))},
-      qualitySignPt_{iConfig.getParameter<bool>("qualitySignPt")} {}
+      qualitySignPt_{iConfig.getParameter<bool>("qualitySignPt")},
+      doErrorRescale_{iConfig.getParameter<bool>("doErrorRescale")} {}
 
 void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -155,6 +158,8 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<double>("qualityMaxZ", 280)->setComment("max(|Z|) for the state position for converted tracks");
   desc.add<double>("qualityMaxPosErr", 100)->setComment("max position error for converted tracks");
   desc.add<bool>("qualitySignPt", true)->setComment("check sign of 1/pt for converted tracks");
+
+  desc.add<bool>("doErrorRescale", true)->setComment("rescale candidate error before final fit");
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -341,6 +346,12 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     const auto seedIndex = cand.label();
     LogTrace("MkFitOutputConverter") << " from seed " << seedIndex << " seed hits";
 
+    // Rescale candidate error if candidate is already propagated to first layer,
+    // to be consistent with TransientInitialStateEstimator::innerState used in CkfTrackCandidateMakerBase
+    // Error is only rescaled for candidates propagated to first layer;
+    // otherwise, candidates undergo backwardFit where error is already rescaled
+    if (mkFitOutput.propagatedToFirstLayer() && doErrorRescale_)
+      fts.rescaleError(100.);
     auto tsosDet =
         mkFitOutput.propagatedToFirstLayer()
             ? convertInnermostState(fts, recHits, propagatorAlong, propagatorOpposite)
