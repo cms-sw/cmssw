@@ -276,9 +276,15 @@ namespace edm {
     /// This enum is used to specify the order of iteration.
     /// In firstAppearanceOrder there are 3 sort criteria, in order of precedence these are:
     ///
-    ///   1. firstAppearance of the ProcessHistoryID and run number in the output module
+    ///   1. firstAppearance of the ProcessHistoryID and run number in the Events TTree of
+    ///   the file (in cases where there are no Events in a run it depends on the order
+    ///   of the call to writeRun or writeLumi in the preceding step where the IndexIntoFile
+    ///   was created)
     ///
-    ///   2. firstAppearance of the ProcessHistoryID, run number and lumi number in the output module
+    ///   2. firstAppearance of the ProcessHistoryID, run number and lumi number in the Events
+    ///   TTree of the file (in cases where there are no Events in a lumi it depends on the
+    ///   order of the call to writeRun or writeLumi in the preceding step where the IndexIntoFile
+    ///   was created)
     ///
     ///   3. entry number
     ///
