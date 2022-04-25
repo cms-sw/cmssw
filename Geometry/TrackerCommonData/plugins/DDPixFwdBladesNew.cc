@@ -41,33 +41,21 @@ public:
   void execute(DDCompactView& cpv) override;
 
 private:
-  double endcap_;  // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
-
+  double endcap_;       // +1 for Z Plus endcap disks, -1 for Z Minus endcap disks
   int nBlades_;         // Number of blades
   double bladeAngle_;   // Angle of blade rotation around axis perpendicular to beam
   double zPlane_;       // Common shift in Z for all blades (with respect to disk center plane)
   double bladeZShift_;  // Shift in Z between the axes of two adjacent blades
-
   double ancorRadius_;  // Distance from beam line to ancor point defining center of "blade frame"
-
-  // Coordinates of Nipple ancor points J and K in "blade frame" :
-  int nippleType_;
-  double jX_;
-  double jY_;
-  double jZ_;
-  double kX_;
-  double kY_;
-  double kZ_;
-
-  std::string flagString_;    // String of flags
-  std::string flagSelector_;  // Character that means "yes" in flagString
-
-  std::string childName_;  // Child volume name
-  int startCopy_;          // First copy number
-
+  int nippleType_;      // Flag if it is called frm Nipple (1) or not (0)
+  double jX_, jY_, jZ_; // Coordinates of Nipple ancor points J in blade frame
+  double kX_, kY_, kZ_; // Coordinates of Nipple ancor points K in blade frame
+  std::string flagString_;   // String of flags
+  std::string flagSelector_; // Character that means "yes" in flagString
+  std::string childName_;    // Child volume name
+  int startCopy_;            // First copy number
   std::vector<double> childTranslationVector_;  // Child translation with respect to "blade frame"
   std::string childRotationName_;               // Child rotation with respect to "blade frame"
-
   std::string idNameSpace_;  //Namespace of this and ALL sub-parts
 
   CLHEP::Hep3Vector getTranslation();

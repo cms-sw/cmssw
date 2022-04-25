@@ -45,14 +45,8 @@ private:
   double bladeAngle_;   // Angle of blade rotation around axis perpendicular to beam
   double bladeZShift_;  // Shift in Z between the axes of two adjacent blades
   double ancorRadius_;  // Distance from beam line to ancor point defining center of "blade frame"
-
-  // Coordinates of Nipple ancor points J and K in "blade frame" :
-  double jX_;
-  double jY_;
-  double jZ_;
-  double kX_;
-  double kY_;
-  double kZ_;
+  double jX_, jY_, jZ_;      // Coordinates of Nipple ancor points J in blade frame 
+  double kX_, kY_, kZ_;      // Coordinates of Nipple ancor points K in blade frame 
   std::string rotNS_;        //Namespace of the rotation matrix
   std::string idNameSpace_;  //Namespace of this and ALL sub-parts
 };
@@ -91,7 +85,6 @@ void DDPixFwdRotation::initialize(const DDNumericArguments& nArgs,
 
 void DDPixFwdRotation::execute(DDCompactView&) {
   // -- Compute Nipple parameters if not already computed :
-
   double effBladeAngle = endcap_ * bladeAngle_;
 
   CLHEP::Hep3Vector jC = CLHEP::Hep3Vector(jX_ * endcap_, jY_ + ancorRadius_, jZ_);
@@ -100,32 +93,26 @@ void DDPixFwdRotation::execute(DDCompactView&) {
   ;  // PoinladeZShiftladeZShiftladeZShiftt K in the "body" blade frame
 
   // Z-shift from "cover" to "body" blade frame:
-
   CLHEP::Hep3Vector tCB(bladeZShift_ * sin(effBladeAngle), 0., bladeZShift_ * cos(effBladeAngle));
 
   // Rotation from "cover" blade frame into "body" blade frame :
-
   double deltaPhi = endcap_ * (360. / nBlades_) * CLHEP::deg;
   CLHEP::HepRotation rCB(CLHEP::Hep3Vector(1. * sin(effBladeAngle), 0., 1. * cos(effBladeAngle)), deltaPhi);
 
   // Transform vector k into "cover" blade frame :
-
   CLHEP::Hep3Vector kC = rCB * (kB + tCB);
 
   // Vector JK in the "cover" blade frame:
-
   CLHEP::Hep3Vector jkC = kC - jC;
   double jkLength = jkC.mag();
   DDConstant JK(DDName("JK", rotNS_), std::make_unique<double>(jkLength));
   edm::LogVerbatim("PixelGeom") << "+++++++++++++++ DDPixFwdRotation: JK Length " << jkLength * CLHEP::mm;
 
   // Position of the center of a nipple in "cover" blade frame :
-
   CLHEP::Hep3Vector nippleTranslation((kC + jC) / 2. - CLHEP::Hep3Vector(0., ancorRadius_, 0.));
   edm::LogVerbatim("PixelGeom") << "Child translation : " << nippleTranslation;
 
   // Rotations from nipple frame to "cover" blade frame and back :
-
   CLHEP::Hep3Vector vZ(0., 0., 1.);
   CLHEP::Hep3Vector axis = vZ.cross(jkC);
   double angleCover = vZ.angle(jkC);
@@ -147,7 +134,6 @@ void DDPixFwdRotation::execute(DDCompactView&) {
                                 << rpNC;
 
   // Rotation from nipple frame to "body" blade frame :
-
   CLHEP::HepRotation rpNB(rpNC * rCB);
   DDrot(DDName(rotNameNippleToBody_, rotNS_),
         std::make_unique<DDRotationMatrix>(
