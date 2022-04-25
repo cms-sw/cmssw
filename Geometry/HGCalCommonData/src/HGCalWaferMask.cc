@@ -1288,7 +1288,7 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
 #endif
     }
-  } else if (part == HGCalTypes::WaferHDBottom) {
+  } else if (part == HGCalTypes::WaferHDTop) {
     int np[12][5] = {{0, 22, 16, 5, 0},
                      {1, 23, 17, 0, 1},
                      {2, 18, 12, 1, 2},
@@ -1307,7 +1307,7 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
 #endif
     }
-  } else if (part == HGCalTypes::WaferHDTop) {
+  } else if (part == HGCalTypes::WaferHDBottom) {
     int np[12][7] = {{1, 2, 3, 4, 16, 22, 1},
                      {2, 3, 4, 5, 17, 23, 2},
                      {3, 4, 5, 0, 12, 18, 3},
@@ -1326,7 +1326,7 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
 #endif
     }
-  } else if (part == HGCalTypes::WaferHDRight) {
+  } else if (part == HGCalTypes::WaferHDLeft) {
     int np[12][6] = {{0, 1, 2, 14, 21, 0},
                      {1, 2, 3, 15, 22, 1},
                      {2, 3, 4, 16, 23, 2},
@@ -1345,7 +1345,7 @@ std::vector<std::pair<double, double> > HGCalWaferMask::waferXY(
       edm::LogVerbatim("HGCalGeom") << k << ":" << np[place][k] << ":" << dx[np[place][k]] << ":" << dy[np[place][k]];
 #endif
     }
-  } else if (part == HGCalTypes::WaferHDLeft) {
+  } else if (part == HGCalTypes::WaferHDRight) {
     int np[12][6] = {{5, 17, 18, 3, 4, 5},
                      {0, 12, 19, 4, 5, 0},
                      {1, 13, 20, 5, 0, 1},
