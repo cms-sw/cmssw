@@ -39,7 +39,7 @@ caloStage2Params.egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalor
 
 caloStage2Params.egPUSType                  = cms.string("None")
 caloStage2Params.egIsolationType            = cms.string("compressed")
-caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Iso_LUT_04_04_2017.2.txt")
+caloStage2Params.egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Isolation_LUT_Option_390_10p0_0p8_42p5_26_04_2022.txt")
 caloStage2Params.egIsoLUTFile2               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_LoosestIso_2018.2.txt")
 caloStage2Params.egIsoAreaNrTowersEta       = cms.uint32(2)
 caloStage2Params.egIsoAreaNrTowersPhi       = cms.uint32(4)
@@ -51,7 +51,7 @@ caloStage2Params.egPUSParams                = cms.vdouble(1,4,32) #Isolation win
 caloStage2Params.egCalibrationType          = cms.string("compressed")
 caloStage2Params.egCalibrationVersion       = cms.uint32(0)
 #caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Calibration_LUT_FW_v17.04.04_shapeIdentification_adapt0.99_compressedieta_compressedE_compressedshape_v15.12.08_correct.txt")
-caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/corrections_Trimming10_compressedieta_compressedE_compressedshape_PANTELIS_v2_NEW_CALIBRATIONS_withShape_v17.04.04.txt")
+caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/EG_Calibration_LUT_compressedieta_compressedE_compressedshape_26_04_2022.txt")
 
 # Tau
 caloStage2Params.tauLsb                        = cms.double(0.5)

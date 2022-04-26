@@ -1,0 +1,13 @@
+# LUT for centrality thresholds in hw scale
+# Index is just threshold number (0-7 inclusive)
+#anything after # is ignored with the exception of the header
+#the header is first valid line starting with #<header> versionStr(unused but may be in future) nrBitsAddress nrBitsData </header>
+#<header> V1 3 14 </header>
+0 0
+1 55
+2 376
+3 1198
+4 2839
+5 3487
+6 4000
+7 5000

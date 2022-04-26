@@ -1,0 +1,2056 @@
+# address to et sum tower Et threshold LUT
+# maps 11 bits to 9 bits
+# 11 bits = (compressedPileupEstimate << 6) | abs(ieta)
+# compressedPileupEstimate is unsigned 5 bits, abs(ieta) is unsigned 6 bits
+# data: tower energy threshold returned has 9 bits 
+# anything after # is ignored with the exception of the header
+# the header is first valid line starting with #<header> versionStr nrBitsAddress nrBitsData </header>
+#<header> v1 11 9 </header>
+0 0             # nTT4 = 0-5 ieta = 0
+1 0             # ieta = 1
+2 0             # ieta = 2
+3 0             # ieta = 3
+4 0             # ieta = 4
+5 0             # ieta = 5
+6 0             # ieta = 6
+7 0             # ieta = 7
+8 0             # ieta = 8
+9 0             # ieta = 9
+10 0             # ieta = 10
+11 0             # ieta = 11
+12 0             # ieta = 12
+13 0             # ieta = 13
+14 0             # ieta = 14
+15 0             # ieta = 15
+16 0             # ieta = 16
+17 0             # ieta = 17
+18 0             # ieta = 18
+19 0             # ieta = 19
+20 0             # ieta = 20
+21 0             # ieta = 21
+22 0             # ieta = 22
+23 0             # ieta = 23
+24 0             # ieta = 24
+25 0             # ieta = 25
+26 0             # ieta = 26
+27 0             # ieta = 27
+28 0             # ieta = 28
+29 0             # ieta = 30
+30 0             # ieta = 31
+31 0             # ieta = 32
+32 0             # ieta = 33
+33 0             # ieta = 34
+34 0             # ieta = 35
+35 0             # ieta = 36
+36 0             # ieta = 37
+37 0             # ieta = 38
+38 0             # ieta = 39
+39 0             # ieta = 40
+40 0             # ieta = 41
+41 0 #dummy
+42 0 #dummy
+43 0 #dummy
+44 0 #dummy
+45 0 #dummy
+46 0 #dummy
+47 0 #dummy
+48 0 #dummy
+49 0 #dummy
+50 0 #dummy
+51 0 #dummy
+52 0 #dummy
+53 0 #dummy
+54 0 #dummy
+55 0 #dummy
+56 0 #dummy
+57 0 #dummy
+58 0 #dummy
+59 0 #dummy
+60 0 #dummy
+61 0 #dummy
+62 0 #dummy
+63 0 #dummy
+64 0             # nTT4 = 5-10 ieta = 0
+65 0             # ieta = 1
+66 0             # ieta = 2
+67 0             # ieta = 3
+68 0             # ieta = 4
+69 0             # ieta = 5
+70 0             # ieta = 6
+71 0             # ieta = 7
+72 0             # ieta = 8
+73 0             # ieta = 9
+74 0             # ieta = 10
+75 0             # ieta = 11
+76 0             # ieta = 12
+77 0             # ieta = 13
+78 0             # ieta = 14
+79 0             # ieta = 15
+80 0             # ieta = 16
+81 0             # ieta = 17
+82 0             # ieta = 18
+83 0             # ieta = 19
+84 0             # ieta = 20
+85 0             # ieta = 21
+86 0             # ieta = 22
+87 0             # ieta = 23
+88 0             # ieta = 24
+89 0             # ieta = 25
+90 0             # ieta = 26
+91 0             # ieta = 27
+92 0             # ieta = 28
+93 0             # ieta = 30
+94 0             # ieta = 31
+95 0             # ieta = 32
+96 0             # ieta = 33
+97 0             # ieta = 34
+98 0             # ieta = 35
+99 0             # ieta = 36
+100 0             # ieta = 37
+101 0             # ieta = 38
+102 0             # ieta = 39
+103 0             # ieta = 40
+104 0             # ieta = 41
+105 0 #dummy
+106 0 #dummy
+107 0 #dummy
+108 0 #dummy
+109 0 #dummy
+110 0 #dummy
+111 0 #dummy
+112 0 #dummy
+113 0 #dummy
+114 0 #dummy
+115 0 #dummy
+116 0 #dummy
+117 0 #dummy
+118 0 #dummy
+119 0 #dummy
+120 0 #dummy
+121 0 #dummy
+122 0 #dummy
+123 0 #dummy
+124 0 #dummy
+125 0 #dummy
+126 0 #dummy
+127 0 #dummy
+128 0             # nTT4 = 10-15 ieta = 0
+129 0             # ieta = 1
+130 0             # ieta = 2
+131 0             # ieta = 3
+132 0             # ieta = 4
+133 0             # ieta = 5
+134 0             # ieta = 6
+135 0             # ieta = 7
+136 0             # ieta = 8
+137 0             # ieta = 9
+138 0             # ieta = 10
+139 0             # ieta = 11
+140 0             # ieta = 12
+141 0             # ieta = 13
+142 0             # ieta = 14
+143 0             # ieta = 15
+144 0             # ieta = 16
+145 0             # ieta = 17
+146 0             # ieta = 18
+147 0             # ieta = 19
+148 0             # ieta = 20
+149 0             # ieta = 21
+150 0             # ieta = 22
+151 0             # ieta = 23
+152 0             # ieta = 24
+153 0             # ieta = 25
+154 0             # ieta = 26
+155 0             # ieta = 27
+156 0             # ieta = 28
+157 0             # ieta = 30
+158 0             # ieta = 31
+159 0             # ieta = 32
+160 0             # ieta = 33
+161 0             # ieta = 34
+162 0             # ieta = 35
+163 0             # ieta = 36
+164 0             # ieta = 37
+165 0             # ieta = 38
+166 0             # ieta = 39
+167 0             # ieta = 40
+168 0             # ieta = 41
+169 0 #dummy
+170 0 #dummy
+171 0 #dummy
+172 0 #dummy
+173 0 #dummy
+174 0 #dummy
+175 0 #dummy
+176 0 #dummy
+177 0 #dummy
+178 0 #dummy
+179 0 #dummy
+180 0 #dummy
+181 0 #dummy
+182 0 #dummy
+183 0 #dummy
+184 0 #dummy
+185 0 #dummy
+186 0 #dummy
+187 0 #dummy
+188 0 #dummy
+189 0 #dummy
+190 0 #dummy
+191 0 #dummy
+192 0             # nTT4 = 15-20 ieta = 0
+193 0             # ieta = 1
+194 0             # ieta = 2
+195 0             # ieta = 3
+196 0             # ieta = 4
+197 0             # ieta = 5
+198 0             # ieta = 6
+199 0             # ieta = 7
+200 0             # ieta = 8
+201 0             # ieta = 9
+202 0             # ieta = 10
+203 0             # ieta = 11
+204 0             # ieta = 12
+205 0             # ieta = 13
+206 0             # ieta = 14
+207 0             # ieta = 15
+208 0             # ieta = 16
+209 0             # ieta = 17
+210 0             # ieta = 18
+211 0             # ieta = 19
+212 0             # ieta = 20
+213 0             # ieta = 21
+214 0             # ieta = 22
+215 0             # ieta = 23
+216 0             # ieta = 24
+217 0             # ieta = 25
+218 0             # ieta = 26
+219 0             # ieta = 27
+220 1             # ieta = 28
+221 0             # ieta = 30
+222 0             # ieta = 31
+223 0             # ieta = 32
+224 0             # ieta = 33
+225 0             # ieta = 34
+226 0             # ieta = 35
+227 0             # ieta = 36
+228 0             # ieta = 37
+229 0             # ieta = 38
+230 0             # ieta = 39
+231 0             # ieta = 40
+232 0             # ieta = 41
+233 0 #dummy
+234 0 #dummy
+235 0 #dummy
+236 0 #dummy
+237 0 #dummy
+238 0 #dummy
+239 0 #dummy
+240 0 #dummy
+241 0 #dummy
+242 0 #dummy
+243 0 #dummy
+244 0 #dummy
+245 0 #dummy
+246 0 #dummy
+247 0 #dummy
+248 0 #dummy
+249 0 #dummy
+250 0 #dummy
+251 0 #dummy
+252 0 #dummy
+253 0 #dummy
+254 0 #dummy
+255 0 #dummy
+256 0             # nTT4 = 20-25 ieta = 0
+257 0             # ieta = 1
+258 0             # ieta = 2
+259 0             # ieta = 3
+260 0             # ieta = 4
+261 0             # ieta = 5
+262 0             # ieta = 6
+263 0             # ieta = 7
+264 0             # ieta = 8
+265 0             # ieta = 9
+266 0             # ieta = 10
+267 0             # ieta = 11
+268 0             # ieta = 12
+269 0             # ieta = 13
+270 0             # ieta = 14
+271 0             # ieta = 15
+272 0             # ieta = 16
+273 0             # ieta = 17
+274 0             # ieta = 18
+275 0             # ieta = 19
+276 0             # ieta = 20
+277 0             # ieta = 21
+278 0             # ieta = 22
+279 0             # ieta = 23
+280 0             # ieta = 24
+281 0             # ieta = 25
+282 0             # ieta = 26
+283 0             # ieta = 27
+284 1             # ieta = 28
+285 0             # ieta = 30
+286 0             # ieta = 31
+287 0             # ieta = 32
+288 0             # ieta = 33
+289 0             # ieta = 34
+290 0             # ieta = 35
+291 0             # ieta = 36
+292 0             # ieta = 37
+293 0             # ieta = 38
+294 0             # ieta = 39
+295 0             # ieta = 40
+296 0             # ieta = 41
+297 0 #dummy
+298 0 #dummy
+299 0 #dummy
+300 0 #dummy
+301 0 #dummy
+302 0 #dummy
+303 0 #dummy
+304 0 #dummy
+305 0 #dummy
+306 0 #dummy
+307 0 #dummy
+308 0 #dummy
+309 0 #dummy
+310 0 #dummy
+311 0 #dummy
+312 0 #dummy
+313 0 #dummy
+314 0 #dummy
+315 0 #dummy
+316 0 #dummy
+317 0 #dummy
+318 0 #dummy
+319 0 #dummy
+320 0             # nTT4 = 25-30 ieta = 0
+321 0             # ieta = 1
+322 0             # ieta = 2
+323 0             # ieta = 3
+324 0             # ieta = 4
+325 0             # ieta = 5
+326 0             # ieta = 6
+327 0             # ieta = 7
+328 0             # ieta = 8
+329 0             # ieta = 9
+330 0             # ieta = 10
+331 0             # ieta = 11
+332 0             # ieta = 12
+333 0             # ieta = 13
+334 0             # ieta = 14
+335 0             # ieta = 15
+336 0             # ieta = 16
+337 0             # ieta = 17
+338 0             # ieta = 18
+339 0             # ieta = 19
+340 0             # ieta = 20
+341 0             # ieta = 21
+342 0             # ieta = 22
+343 0             # ieta = 23
+344 0             # ieta = 24
+345 0             # ieta = 25
+346 1             # ieta = 26
+347 0             # ieta = 27
+348 2             # ieta = 28
+349 0             # ieta = 30
+350 0             # ieta = 31
+351 0             # ieta = 32
+352 0             # ieta = 33
+353 0             # ieta = 34
+354 0             # ieta = 35
+355 0             # ieta = 36
+356 0             # ieta = 37
+357 0             # ieta = 38
+358 0             # ieta = 39
+359 0             # ieta = 40
+360 0             # ieta = 41
+361 0 #dummy
+362 0 #dummy
+363 0 #dummy
+364 0 #dummy
+365 0 #dummy
+366 0 #dummy
+367 0 #dummy
+368 0 #dummy
+369 0 #dummy
+370 0 #dummy
+371 0 #dummy
+372 0 #dummy
+373 0 #dummy
+374 0 #dummy
+375 0 #dummy
+376 0 #dummy
+377 0 #dummy
+378 0 #dummy
+379 0 #dummy
+380 0 #dummy
+381 0 #dummy
+382 0 #dummy
+383 0 #dummy
+384 0             # nTT4 = 30-35 ieta = 0
+385 0             # ieta = 1
+386 0             # ieta = 2
+387 0             # ieta = 3
+388 0             # ieta = 4
+389 0             # ieta = 5
+390 0             # ieta = 6
+391 0             # ieta = 7
+392 0             # ieta = 8
+393 0             # ieta = 9
+394 0             # ieta = 10
+395 0             # ieta = 11
+396 0             # ieta = 12
+397 0             # ieta = 13
+398 0             # ieta = 14
+399 0             # ieta = 15
+400 0             # ieta = 16
+401 0             # ieta = 17
+402 0             # ieta = 18
+403 0             # ieta = 19
+404 0             # ieta = 20
+405 0             # ieta = 21
+406 0             # ieta = 22
+407 0             # ieta = 23
+408 1             # ieta = 24
+409 1             # ieta = 25
+410 1             # ieta = 26
+411 1             # ieta = 27
+412 2             # ieta = 28
+413 0             # ieta = 30
+414 0             # ieta = 31
+415 0             # ieta = 32
+416 0             # ieta = 33
+417 0             # ieta = 34
+418 0             # ieta = 35
+419 0             # ieta = 36
+420 0             # ieta = 37
+421 0             # ieta = 38
+422 0             # ieta = 39
+423 0             # ieta = 40
+424 0             # ieta = 41
+425 0 #dummy
+426 0 #dummy
+427 0 #dummy
+428 0 #dummy
+429 0 #dummy
+430 0 #dummy
+431 0 #dummy
+432 0 #dummy
+433 0 #dummy
+434 0 #dummy
+435 0 #dummy
+436 0 #dummy
+437 0 #dummy
+438 0 #dummy
+439 0 #dummy
+440 0 #dummy
+441 0 #dummy
+442 0 #dummy
+443 0 #dummy
+444 0 #dummy
+445 0 #dummy
+446 0 #dummy
+447 0 #dummy
+448 0             # nTT4 = 35-40 ieta = 0
+449 0             # ieta = 1
+450 0             # ieta = 2
+451 0             # ieta = 3
+452 0             # ieta = 4
+453 0             # ieta = 5
+454 0             # ieta = 6
+455 0             # ieta = 7
+456 0             # ieta = 8
+457 0             # ieta = 9
+458 0             # ieta = 10
+459 0             # ieta = 11
+460 0             # ieta = 12
+461 0             # ieta = 13
+462 0             # ieta = 14
+463 0             # ieta = 15
+464 0             # ieta = 16
+465 0             # ieta = 17
+466 0             # ieta = 18
+467 0             # ieta = 19
+468 0             # ieta = 20
+469 0             # ieta = 21
+470 0             # ieta = 22
+471 1             # ieta = 23
+472 1             # ieta = 24
+473 1             # ieta = 25
+474 1             # ieta = 26
+475 1             # ieta = 27
+476 3             # ieta = 28
+477 0             # ieta = 30
+478 0             # ieta = 31
+479 0             # ieta = 32
+480 0             # ieta = 33
+481 0             # ieta = 34
+482 0             # ieta = 35
+483 0             # ieta = 36
+484 0             # ieta = 37
+485 0             # ieta = 38
+486 0             # ieta = 39
+487 0             # ieta = 40
+488 1             # ieta = 41
+489 0 #dummy
+490 0 #dummy
+491 0 #dummy
+492 0 #dummy
+493 0 #dummy
+494 0 #dummy
+495 0 #dummy
+496 0 #dummy
+497 0 #dummy
+498 0 #dummy
+499 0 #dummy
+500 0 #dummy
+501 0 #dummy
+502 0 #dummy
+503 0 #dummy
+504 0 #dummy
+505 0 #dummy
+506 0 #dummy
+507 0 #dummy
+508 0 #dummy
+509 0 #dummy
+510 0 #dummy
+511 0 #dummy
+512 0             # nTT4 = 40-45 ieta = 0
+513 0             # ieta = 1
+514 0             # ieta = 2
+515 0             # ieta = 3
+516 0             # ieta = 4
+517 0             # ieta = 5
+518 0             # ieta = 6
+519 0             # ieta = 7
+520 0             # ieta = 8
+521 0             # ieta = 9
+522 0             # ieta = 10
+523 0             # ieta = 11
+524 0             # ieta = 12
+525 0             # ieta = 13
+526 0             # ieta = 14
+527 0             # ieta = 15
+528 0             # ieta = 16
+529 0             # ieta = 17
+530 0             # ieta = 18
+531 1             # ieta = 19
+532 1             # ieta = 20
+533 1             # ieta = 21
+534 1             # ieta = 22
+535 1             # ieta = 23
+536 1             # ieta = 24
+537 1             # ieta = 25
+538 2             # ieta = 26
+539 1             # ieta = 27
+540 4             # ieta = 28
+541 1             # ieta = 30
+542 0             # ieta = 31
+543 0             # ieta = 32
+544 0             # ieta = 33
+545 0             # ieta = 34
+546 0             # ieta = 35
+547 0             # ieta = 36
+548 0             # ieta = 37
+549 0             # ieta = 38
+550 0             # ieta = 39
+551 0             # ieta = 40
+552 1             # ieta = 41
+553 0 #dummy
+554 0 #dummy
+555 0 #dummy
+556 0 #dummy
+557 0 #dummy
+558 0 #dummy
+559 0 #dummy
+560 0 #dummy
+561 0 #dummy
+562 0 #dummy
+563 0 #dummy
+564 0 #dummy
+565 0 #dummy
+566 0 #dummy
+567 0 #dummy
+568 0 #dummy
+569 0 #dummy
+570 0 #dummy
+571 0 #dummy
+572 0 #dummy
+573 0 #dummy
+574 0 #dummy
+575 0 #dummy
+576 0             # nTT4 = 45-50 ieta = 0
+577 0             # ieta = 1
+578 0             # ieta = 2
+579 0             # ieta = 3
+580 0             # ieta = 4
+581 0             # ieta = 5
+582 0             # ieta = 6
+583 0             # ieta = 7
+584 0             # ieta = 8
+585 0             # ieta = 9
+586 0             # ieta = 10
+587 0             # ieta = 11
+588 0             # ieta = 12
+589 1             # ieta = 13
+590 1             # ieta = 14
+591 1             # ieta = 15
+592 1             # ieta = 16
+593 1             # ieta = 17
+594 1             # ieta = 18
+595 1             # ieta = 19
+596 1             # ieta = 20
+597 1             # ieta = 21
+598 1             # ieta = 22
+599 1             # ieta = 23
+600 1             # ieta = 24
+601 1             # ieta = 25
+602 2             # ieta = 26
+603 2             # ieta = 27
+604 5             # ieta = 28
+605 2             # ieta = 30
+606 0             # ieta = 31
+607 0             # ieta = 32
+608 0             # ieta = 33
+609 0             # ieta = 34
+610 0             # ieta = 35
+611 0             # ieta = 36
+612 0             # ieta = 37
+613 0             # ieta = 38
+614 0             # ieta = 39
+615 0             # ieta = 40
+616 2             # ieta = 41
+617 0 #dummy
+618 0 #dummy
+619 0 #dummy
+620 0 #dummy
+621 0 #dummy
+622 0 #dummy
+623 0 #dummy
+624 0 #dummy
+625 0 #dummy
+626 0 #dummy
+627 0 #dummy
+628 0 #dummy
+629 0 #dummy
+630 0 #dummy
+631 0 #dummy
+632 0 #dummy
+633 0 #dummy
+634 0 #dummy
+635 0 #dummy
+636 0 #dummy
+637 0 #dummy
+638 0 #dummy
+639 0 #dummy
+640 0             # nTT4 = 50-55 ieta = 0
+641 0             # ieta = 1
+642 0             # ieta = 2
+643 0             # ieta = 3
+644 0             # ieta = 4
+645 0             # ieta = 5
+646 0             # ieta = 6
+647 0             # ieta = 7
+648 0             # ieta = 8
+649 0             # ieta = 9
+650 0             # ieta = 10
+651 0             # ieta = 11
+652 0             # ieta = 12
+653 1             # ieta = 13
+654 1             # ieta = 14
+655 1             # ieta = 15
+656 1             # ieta = 16
+657 1             # ieta = 17
+658 1             # ieta = 18
+659 1             # ieta = 19
+660 1             # ieta = 20
+661 1             # ieta = 21
+662 1             # ieta = 22
+663 1             # ieta = 23
+664 1             # ieta = 24
+665 2             # ieta = 25
+666 2             # ieta = 26
+667 2             # ieta = 27
+668 6             # ieta = 28
+669 3             # ieta = 30
+670 0             # ieta = 31
+671 0             # ieta = 32
+672 0             # ieta = 33
+673 0             # ieta = 34
+674 0             # ieta = 35
+675 0             # ieta = 36
+676 0             # ieta = 37
+677 0             # ieta = 38
+678 1             # ieta = 39
+679 0             # ieta = 40
+680 3             # ieta = 41
+681 0 #dummy
+682 0 #dummy
+683 0 #dummy
+684 0 #dummy
+685 0 #dummy
+686 0 #dummy
+687 0 #dummy
+688 0 #dummy
+689 0 #dummy
+690 0 #dummy
+691 0 #dummy
+692 0 #dummy
+693 0 #dummy
+694 0 #dummy
+695 0 #dummy
+696 0 #dummy
+697 0 #dummy
+698 0 #dummy
+699 0 #dummy
+700 0 #dummy
+701 0 #dummy
+702 0 #dummy
+703 0 #dummy
+704 0             # nTT4 = 55-60 ieta = 0
+705 0             # ieta = 1
+706 0             # ieta = 2
+707 0             # ieta = 3
+708 0             # ieta = 4
+709 0             # ieta = 5
+710 0             # ieta = 6
+711 0             # ieta = 7
+712 0             # ieta = 8
+713 0             # ieta = 9
+714 0             # ieta = 10
+715 0             # ieta = 11
+716 0             # ieta = 12
+717 1             # ieta = 13
+718 1             # ieta = 14
+719 1             # ieta = 15
+720 1             # ieta = 16
+721 1             # ieta = 17
+722 1             # ieta = 18
+723 1             # ieta = 19
+724 1             # ieta = 20
+725 1             # ieta = 21
+726 1             # ieta = 22
+727 1             # ieta = 23
+728 2             # ieta = 24
+729 2             # ieta = 25
+730 3             # ieta = 26
+731 2             # ieta = 27
+732 7             # ieta = 28
+733 4             # ieta = 30
+734 1             # ieta = 31
+735 1             # ieta = 32
+736 1             # ieta = 33
+737 1             # ieta = 34
+738 1             # ieta = 35
+739 1             # ieta = 36
+740 1             # ieta = 37
+741 1             # ieta = 38
+742 1             # ieta = 39
+743 1             # ieta = 40
+744 5             # ieta = 41
+745 0 #dummy
+746 0 #dummy
+747 0 #dummy
+748 0 #dummy
+749 0 #dummy
+750 0 #dummy
+751 0 #dummy
+752 0 #dummy
+753 0 #dummy
+754 0 #dummy
+755 0 #dummy
+756 0 #dummy
+757 0 #dummy
+758 0 #dummy
+759 0 #dummy
+760 0 #dummy
+761 0 #dummy
+762 0 #dummy
+763 0 #dummy
+764 0 #dummy
+765 0 #dummy
+766 0 #dummy
+767 0 #dummy
+768 0             # nTT4 = 60-65 ieta = 0
+769 0             # ieta = 1
+770 0             # ieta = 2
+771 0             # ieta = 3
+772 0             # ieta = 4
+773 0             # ieta = 5
+774 0             # ieta = 6
+775 0             # ieta = 7
+776 0             # ieta = 8
+777 0             # ieta = 9
+778 0             # ieta = 10
+779 0             # ieta = 11
+780 0             # ieta = 12
+781 1             # ieta = 13
+782 1             # ieta = 14
+783 1             # ieta = 15
+784 1             # ieta = 16
+785 1             # ieta = 17
+786 1             # ieta = 18
+787 1             # ieta = 19
+788 1             # ieta = 20
+789 1             # ieta = 21
+790 1             # ieta = 22
+791 2             # ieta = 23
+792 2             # ieta = 24
+793 3             # ieta = 25
+794 3             # ieta = 26
+795 3             # ieta = 27
+796 9             # ieta = 28
+797 5             # ieta = 30
+798 1             # ieta = 31
+799 1             # ieta = 32
+800 1             # ieta = 33
+801 2             # ieta = 34
+802 1             # ieta = 35
+803 2             # ieta = 36
+804 1             # ieta = 37
+805 2             # ieta = 38
+806 2             # ieta = 39
+807 2             # ieta = 40
+808 6             # ieta = 41
+809 0 #dummy
+810 0 #dummy
+811 0 #dummy
+812 0 #dummy
+813 0 #dummy
+814 0 #dummy
+815 0 #dummy
+816 0 #dummy
+817 0 #dummy
+818 0 #dummy
+819 0 #dummy
+820 0 #dummy
+821 0 #dummy
+822 0 #dummy
+823 0 #dummy
+824 0 #dummy
+825 0 #dummy
+826 0 #dummy
+827 0 #dummy
+828 0 #dummy
+829 0 #dummy
+830 0 #dummy
+831 0 #dummy
+832 0             # nTT4 = 65-70 ieta = 0
+833 0             # ieta = 1
+834 0             # ieta = 2
+835 0             # ieta = 3
+836 0             # ieta = 4
+837 0             # ieta = 5
+838 0             # ieta = 6
+839 0             # ieta = 7
+840 0             # ieta = 8
+841 0             # ieta = 9
+842 0             # ieta = 10
+843 0             # ieta = 11
+844 0             # ieta = 12
+845 1             # ieta = 13
+846 1             # ieta = 14
+847 1             # ieta = 15
+848 1             # ieta = 16
+849 1             # ieta = 17
+850 1             # ieta = 18
+851 1             # ieta = 19
+852 1             # ieta = 20
+853 1             # ieta = 21
+854 2             # ieta = 22
+855 2             # ieta = 23
+856 2             # ieta = 24
+857 3             # ieta = 25
+858 4             # ieta = 26
+859 3             # ieta = 27
+860 10             # ieta = 28
+861 6             # ieta = 30
+862 2             # ieta = 31
+863 2             # ieta = 32
+864 2             # ieta = 33
+865 2             # ieta = 34
+866 2             # ieta = 35
+867 2             # ieta = 36
+868 2             # ieta = 37
+869 2             # ieta = 38
+870 2             # ieta = 39
+871 2             # ieta = 40
+872 7             # ieta = 41
+873 0 #dummy
+874 0 #dummy
+875 0 #dummy
+876 0 #dummy
+877 0 #dummy
+878 0 #dummy
+879 0 #dummy
+880 0 #dummy
+881 0 #dummy
+882 0 #dummy
+883 0 #dummy
+884 0 #dummy
+885 0 #dummy
+886 0 #dummy
+887 0 #dummy
+888 0 #dummy
+889 0 #dummy
+890 0 #dummy
+891 0 #dummy
+892 0 #dummy
+893 0 #dummy
+894 0 #dummy
+895 0 #dummy
+896 0             # nTT4 = 70-75 ieta = 0
+897 0             # ieta = 1
+898 0             # ieta = 2
+899 0             # ieta = 3
+900 0             # ieta = 4
+901 0             # ieta = 5
+902 0             # ieta = 6
+903 0             # ieta = 7
+904 0             # ieta = 8
+905 0             # ieta = 9
+906 0             # ieta = 10
+907 0             # ieta = 11
+908 0             # ieta = 12
+909 1             # ieta = 13
+910 1             # ieta = 14
+911 1             # ieta = 15
+912 1             # ieta = 16
+913 2             # ieta = 17
+914 2             # ieta = 18
+915 2             # ieta = 19
+916 2             # ieta = 20
+917 2             # ieta = 21
+918 2             # ieta = 22
+919 2             # ieta = 23
+920 3             # ieta = 24
+921 4             # ieta = 25
+922 5             # ieta = 26
+923 4             # ieta = 27
+924 12             # ieta = 28
+925 7             # ieta = 30
+926 3             # ieta = 31
+927 3             # ieta = 32
+928 3             # ieta = 33
+929 3             # ieta = 34
+930 3             # ieta = 35
+931 3             # ieta = 36
+932 3             # ieta = 37
+933 3             # ieta = 38
+934 3             # ieta = 39
+935 3             # ieta = 40
+936 9             # ieta = 41
+937 0 #dummy
+938 0 #dummy
+939 0 #dummy
+940 0 #dummy
+941 0 #dummy
+942 0 #dummy
+943 0 #dummy
+944 0 #dummy
+945 0 #dummy
+946 0 #dummy
+947 0 #dummy
+948 0 #dummy
+949 0 #dummy
+950 0 #dummy
+951 0 #dummy
+952 0 #dummy
+953 0 #dummy
+954 0 #dummy
+955 0 #dummy
+956 0 #dummy
+957 0 #dummy
+958 0 #dummy
+959 0 #dummy
+960 0             # nTT4 = 75-80 ieta = 0
+961 0             # ieta = 1
+962 0             # ieta = 2
+963 0             # ieta = 3
+964 0             # ieta = 4
+965 0             # ieta = 5
+966 0             # ieta = 6
+967 0             # ieta = 7
+968 0             # ieta = 8
+969 0             # ieta = 9
+970 0             # ieta = 10
+971 0             # ieta = 11
+972 0             # ieta = 12
+973 2             # ieta = 13
+974 2             # ieta = 14
+975 2             # ieta = 15
+976 2             # ieta = 16
+977 2             # ieta = 17
+978 2             # ieta = 18
+979 2             # ieta = 19
+980 2             # ieta = 20
+981 2             # ieta = 21
+982 2             # ieta = 22
+983 3             # ieta = 23
+984 3             # ieta = 24
+985 4             # ieta = 25
+986 5             # ieta = 26
+987 4             # ieta = 27
+988 12             # ieta = 28
+989 9             # ieta = 30
+990 3             # ieta = 31
+991 3             # ieta = 32
+992 3             # ieta = 33
+993 3             # ieta = 34
+994 3             # ieta = 35
+995 4             # ieta = 36
+996 3             # ieta = 37
+997 4             # ieta = 38
+998 4             # ieta = 39
+999 4             # ieta = 40
+1000 10             # ieta = 41
+1001 0 #dummy
+1002 0 #dummy
+1003 0 #dummy
+1004 0 #dummy
+1005 0 #dummy
+1006 0 #dummy
+1007 0 #dummy
+1008 0 #dummy
+1009 0 #dummy
+1010 0 #dummy
+1011 0 #dummy
+1012 0 #dummy
+1013 0 #dummy
+1014 0 #dummy
+1015 0 #dummy
+1016 0 #dummy
+1017 0 #dummy
+1018 0 #dummy
+1019 0 #dummy
+1020 0 #dummy
+1021 0 #dummy
+1022 0 #dummy
+1023 0 #dummy
+1024 0             # nTT4 = 80-85 ieta = 0
+1025 0             # ieta = 1
+1026 0             # ieta = 2
+1027 0             # ieta = 3
+1028 0             # ieta = 4
+1029 0             # ieta = 5
+1030 0             # ieta = 6
+1031 0             # ieta = 7
+1032 0             # ieta = 8
+1033 0             # ieta = 9
+1034 0             # ieta = 10
+1035 0             # ieta = 11
+1036 0             # ieta = 12
+1037 2             # ieta = 13
+1038 2             # ieta = 14
+1039 2             # ieta = 15
+1040 2             # ieta = 16
+1041 2             # ieta = 17
+1042 2             # ieta = 18
+1043 2             # ieta = 19
+1044 2             # ieta = 20
+1045 2             # ieta = 21
+1046 3             # ieta = 22
+1047 3             # ieta = 23
+1048 4             # ieta = 24
+1049 5             # ieta = 25
+1050 6             # ieta = 26
+1051 5             # ieta = 27
+1052 12             # ieta = 28
+1053 10             # ieta = 30
+1054 4             # ieta = 31
+1055 4             # ieta = 32
+1056 4             # ieta = 33
+1057 4             # ieta = 34
+1058 4             # ieta = 35
+1059 4             # ieta = 36
+1060 4             # ieta = 37
+1061 4             # ieta = 38
+1062 4             # ieta = 39
+1063 4             # ieta = 40
+1064 12             # ieta = 41
+1065 0 #dummy
+1066 0 #dummy
+1067 0 #dummy
+1068 0 #dummy
+1069 0 #dummy
+1070 0 #dummy
+1071 0 #dummy
+1072 0 #dummy
+1073 0 #dummy
+1074 0 #dummy
+1075 0 #dummy
+1076 0 #dummy
+1077 0 #dummy
+1078 0 #dummy
+1079 0 #dummy
+1080 0 #dummy
+1081 0 #dummy
+1082 0 #dummy
+1083 0 #dummy
+1084 0 #dummy
+1085 0 #dummy
+1086 0 #dummy
+1087 0 #dummy
+1088 0             # nTT4 = 85-90 ieta = 0
+1089 0             # ieta = 1
+1090 0             # ieta = 2
+1091 0             # ieta = 3
+1092 0             # ieta = 4
+1093 0             # ieta = 5
+1094 0             # ieta = 6
+1095 0             # ieta = 7
+1096 0             # ieta = 8
+1097 0             # ieta = 9
+1098 0             # ieta = 10
+1099 0             # ieta = 11
+1100 0             # ieta = 12
+1101 2             # ieta = 13
+1102 2             # ieta = 14
+1103 2             # ieta = 15
+1104 2             # ieta = 16
+1105 2             # ieta = 17
+1106 2             # ieta = 18
+1107 2             # ieta = 19
+1108 2             # ieta = 20
+1109 2             # ieta = 21
+1110 3             # ieta = 22
+1111 3             # ieta = 23
+1112 4             # ieta = 24
+1113 5             # ieta = 25
+1114 6             # ieta = 26
+1115 5             # ieta = 27
+1116 12             # ieta = 28
+1117 10             # ieta = 30
+1118 4             # ieta = 31
+1119 4             # ieta = 32
+1120 4             # ieta = 33
+1121 4             # ieta = 34
+1122 4             # ieta = 35
+1123 4             # ieta = 36
+1124 4             # ieta = 37
+1125 4             # ieta = 38
+1126 4             # ieta = 39
+1127 4             # ieta = 40
+1128 12             # ieta = 41
+1129 0 #dummy
+1130 0 #dummy
+1131 0 #dummy
+1132 0 #dummy
+1133 0 #dummy
+1134 0 #dummy
+1135 0 #dummy
+1136 0 #dummy
+1137 0 #dummy
+1138 0 #dummy
+1139 0 #dummy
+1140 0 #dummy
+1141 0 #dummy
+1142 0 #dummy
+1143 0 #dummy
+1144 0 #dummy
+1145 0 #dummy
+1146 0 #dummy
+1147 0 #dummy
+1148 0 #dummy
+1149 0 #dummy
+1150 0 #dummy
+1151 0 #dummy
+1152 0             # nTT4 = 90-95 ieta = 0
+1153 0             # ieta = 1
+1154 0             # ieta = 2
+1155 0             # ieta = 3
+1156 0             # ieta = 4
+1157 0             # ieta = 5
+1158 0             # ieta = 6
+1159 0             # ieta = 7
+1160 0             # ieta = 8
+1161 0             # ieta = 9
+1162 0             # ieta = 10
+1163 0             # ieta = 11
+1164 0             # ieta = 12
+1165 2             # ieta = 13
+1166 2             # ieta = 14
+1167 2             # ieta = 15
+1168 2             # ieta = 16
+1169 2             # ieta = 17
+1170 2             # ieta = 18
+1171 2             # ieta = 19
+1172 2             # ieta = 20
+1173 2             # ieta = 21
+1174 3             # ieta = 22
+1175 3             # ieta = 23
+1176 4             # ieta = 24
+1177 5             # ieta = 25
+1178 6             # ieta = 26
+1179 5             # ieta = 27
+1180 12             # ieta = 28
+1181 10             # ieta = 30
+1182 4             # ieta = 31
+1183 4             # ieta = 32
+1184 4             # ieta = 33
+1185 4             # ieta = 34
+1186 4             # ieta = 35
+1187 4             # ieta = 36
+1188 4             # ieta = 37
+1189 4             # ieta = 38
+1190 4             # ieta = 39
+1191 4             # ieta = 40
+1192 12             # ieta = 41
+1193 0 #dummy
+1194 0 #dummy
+1195 0 #dummy
+1196 0 #dummy
+1197 0 #dummy
+1198 0 #dummy
+1199 0 #dummy
+1200 0 #dummy
+1201 0 #dummy
+1202 0 #dummy
+1203 0 #dummy
+1204 0 #dummy
+1205 0 #dummy
+1206 0 #dummy
+1207 0 #dummy
+1208 0 #dummy
+1209 0 #dummy
+1210 0 #dummy
+1211 0 #dummy
+1212 0 #dummy
+1213 0 #dummy
+1214 0 #dummy
+1215 0 #dummy
+1216 0             # nTT4 = 95-100 ieta = 0
+1217 0             # ieta = 1
+1218 0             # ieta = 2
+1219 0             # ieta = 3
+1220 0             # ieta = 4
+1221 0             # ieta = 5
+1222 0             # ieta = 6
+1223 0             # ieta = 7
+1224 0             # ieta = 8
+1225 0             # ieta = 9
+1226 0             # ieta = 10
+1227 0             # ieta = 11
+1228 0             # ieta = 12
+1229 2             # ieta = 13
+1230 2             # ieta = 14
+1231 2             # ieta = 15
+1232 2             # ieta = 16
+1233 2             # ieta = 17
+1234 2             # ieta = 18
+1235 2             # ieta = 19
+1236 2             # ieta = 20
+1237 2             # ieta = 21
+1238 3             # ieta = 22
+1239 3             # ieta = 23
+1240 4             # ieta = 24
+1241 5             # ieta = 25
+1242 6             # ieta = 26
+1243 5             # ieta = 27
+1244 12             # ieta = 28
+1245 10             # ieta = 30
+1246 4             # ieta = 31
+1247 4             # ieta = 32
+1248 4             # ieta = 33
+1249 4             # ieta = 34
+1250 4             # ieta = 35
+1251 4             # ieta = 36
+1252 4             # ieta = 37
+1253 4             # ieta = 38
+1254 4             # ieta = 39
+1255 4             # ieta = 40
+1256 12             # ieta = 41
+1257 0 #dummy
+1258 0 #dummy
+1259 0 #dummy
+1260 0 #dummy
+1261 0 #dummy
+1262 0 #dummy
+1263 0 #dummy
+1264 0 #dummy
+1265 0 #dummy
+1266 0 #dummy
+1267 0 #dummy
+1268 0 #dummy
+1269 0 #dummy
+1270 0 #dummy
+1271 0 #dummy
+1272 0 #dummy
+1273 0 #dummy
+1274 0 #dummy
+1275 0 #dummy
+1276 0 #dummy
+1277 0 #dummy
+1278 0 #dummy
+1279 0 #dummy
+1280 0             # nTT4 = 100-105 ieta = 0
+1281 0             # ieta = 1
+1282 0             # ieta = 2
+1283 0             # ieta = 3
+1284 0             # ieta = 4
+1285 0             # ieta = 5
+1286 0             # ieta = 6
+1287 0             # ieta = 7
+1288 0             # ieta = 8
+1289 0             # ieta = 9
+1290 0             # ieta = 10
+1291 0             # ieta = 11
+1292 0             # ieta = 12
+1293 2             # ieta = 13
+1294 2             # ieta = 14
+1295 2             # ieta = 15
+1296 2             # ieta = 16
+1297 2             # ieta = 17
+1298 2             # ieta = 18
+1299 2             # ieta = 19
+1300 2             # ieta = 20
+1301 2             # ieta = 21
+1302 3             # ieta = 22
+1303 3             # ieta = 23
+1304 4             # ieta = 24
+1305 5             # ieta = 25
+1306 6             # ieta = 26
+1307 5             # ieta = 27
+1308 12             # ieta = 28
+1309 10             # ieta = 30
+1310 4             # ieta = 31
+1311 4             # ieta = 32
+1312 4             # ieta = 33
+1313 4             # ieta = 34
+1314 4             # ieta = 35
+1315 4             # ieta = 36
+1316 4             # ieta = 37
+1317 4             # ieta = 38
+1318 4             # ieta = 39
+1319 4             # ieta = 40
+1320 12             # ieta = 41
+1321 0 #dummy
+1322 0 #dummy
+1323 0 #dummy
+1324 0 #dummy
+1325 0 #dummy
+1326 0 #dummy
+1327 0 #dummy
+1328 0 #dummy
+1329 0 #dummy
+1330 0 #dummy
+1331 0 #dummy
+1332 0 #dummy
+1333 0 #dummy
+1334 0 #dummy
+1335 0 #dummy
+1336 0 #dummy
+1337 0 #dummy
+1338 0 #dummy
+1339 0 #dummy
+1340 0 #dummy
+1341 0 #dummy
+1342 0 #dummy
+1343 0 #dummy
+1344 0             # nTT4 = 105-110 ieta = 0
+1345 0             # ieta = 1
+1346 0             # ieta = 2
+1347 0             # ieta = 3
+1348 0             # ieta = 4
+1349 0             # ieta = 5
+1350 0             # ieta = 6
+1351 0             # ieta = 7
+1352 0             # ieta = 8
+1353 0             # ieta = 9
+1354 0             # ieta = 10
+1355 0             # ieta = 11
+1356 0             # ieta = 12
+1357 2             # ieta = 13
+1358 2             # ieta = 14
+1359 2             # ieta = 15
+1360 2             # ieta = 16
+1361 2             # ieta = 17
+1362 2             # ieta = 18
+1363 2             # ieta = 19
+1364 2             # ieta = 20
+1365 2             # ieta = 21
+1366 3             # ieta = 22
+1367 3             # ieta = 23
+1368 4             # ieta = 24
+1369 5             # ieta = 25
+1370 6             # ieta = 26
+1371 5             # ieta = 27
+1372 12             # ieta = 28
+1373 10             # ieta = 30
+1374 4             # ieta = 31
+1375 4             # ieta = 32
+1376 4             # ieta = 33
+1377 4             # ieta = 34
+1378 4             # ieta = 35
+1379 4             # ieta = 36
+1380 4             # ieta = 37
+1381 4             # ieta = 38
+1382 4             # ieta = 39
+1383 4             # ieta = 40
+1384 12             # ieta = 41
+1385 0 #dummy
+1386 0 #dummy
+1387 0 #dummy
+1388 0 #dummy
+1389 0 #dummy
+1390 0 #dummy
+1391 0 #dummy
+1392 0 #dummy
+1393 0 #dummy
+1394 0 #dummy
+1395 0 #dummy
+1396 0 #dummy
+1397 0 #dummy
+1398 0 #dummy
+1399 0 #dummy
+1400 0 #dummy
+1401 0 #dummy
+1402 0 #dummy
+1403 0 #dummy
+1404 0 #dummy
+1405 0 #dummy
+1406 0 #dummy
+1407 0 #dummy
+1408 0             # nTT4 = 110-115 ieta = 0
+1409 0             # ieta = 1
+1410 0             # ieta = 2
+1411 0             # ieta = 3
+1412 0             # ieta = 4
+1413 0             # ieta = 5
+1414 0             # ieta = 6
+1415 0             # ieta = 7
+1416 0             # ieta = 8
+1417 0             # ieta = 9
+1418 0             # ieta = 10
+1419 0             # ieta = 11
+1420 0             # ieta = 12
+1421 2             # ieta = 13
+1422 2             # ieta = 14
+1423 2             # ieta = 15
+1424 2             # ieta = 16
+1425 2             # ieta = 17
+1426 2             # ieta = 18
+1427 2             # ieta = 19
+1428 2             # ieta = 20
+1429 2             # ieta = 21
+1430 3             # ieta = 22
+1431 3             # ieta = 23
+1432 4             # ieta = 24
+1433 5             # ieta = 25
+1434 6             # ieta = 26
+1435 5             # ieta = 27
+1436 12             # ieta = 28
+1437 10             # ieta = 30
+1438 4             # ieta = 31
+1439 4             # ieta = 32
+1440 4             # ieta = 33
+1441 4             # ieta = 34
+1442 4             # ieta = 35
+1443 4             # ieta = 36
+1444 4             # ieta = 37
+1445 4             # ieta = 38
+1446 4             # ieta = 39
+1447 4             # ieta = 40
+1448 12             # ieta = 41
+1449 0 #dummy
+1450 0 #dummy
+1451 0 #dummy
+1452 0 #dummy
+1453 0 #dummy
+1454 0 #dummy
+1455 0 #dummy
+1456 0 #dummy
+1457 0 #dummy
+1458 0 #dummy
+1459 0 #dummy
+1460 0 #dummy
+1461 0 #dummy
+1462 0 #dummy
+1463 0 #dummy
+1464 0 #dummy
+1465 0 #dummy
+1466 0 #dummy
+1467 0 #dummy
+1468 0 #dummy
+1469 0 #dummy
+1470 0 #dummy
+1471 0 #dummy
+1472 0             # nTT4 = 115-120 ieta = 0
+1473 0             # ieta = 1
+1474 0             # ieta = 2
+1475 0             # ieta = 3
+1476 0             # ieta = 4
+1477 0             # ieta = 5
+1478 0             # ieta = 6
+1479 0             # ieta = 7
+1480 0             # ieta = 8
+1481 0             # ieta = 9
+1482 0             # ieta = 10
+1483 0             # ieta = 11
+1484 0             # ieta = 12
+1485 2             # ieta = 13
+1486 2             # ieta = 14
+1487 2             # ieta = 15
+1488 2             # ieta = 16
+1489 2             # ieta = 17
+1490 2             # ieta = 18
+1491 2             # ieta = 19
+1492 2             # ieta = 20
+1493 2             # ieta = 21
+1494 3             # ieta = 22
+1495 3             # ieta = 23
+1496 4             # ieta = 24
+1497 5             # ieta = 25
+1498 6             # ieta = 26
+1499 5             # ieta = 27
+1500 12             # ieta = 28
+1501 10             # ieta = 30
+1502 4             # ieta = 31
+1503 4             # ieta = 32
+1504 4             # ieta = 33
+1505 4             # ieta = 34
+1506 4             # ieta = 35
+1507 4             # ieta = 36
+1508 4             # ieta = 37
+1509 4             # ieta = 38
+1510 4             # ieta = 39
+1511 4             # ieta = 40
+1512 12             # ieta = 41
+1513 0 #dummy
+1514 0 #dummy
+1515 0 #dummy
+1516 0 #dummy
+1517 0 #dummy
+1518 0 #dummy
+1519 0 #dummy
+1520 0 #dummy
+1521 0 #dummy
+1522 0 #dummy
+1523 0 #dummy
+1524 0 #dummy
+1525 0 #dummy
+1526 0 #dummy
+1527 0 #dummy
+1528 0 #dummy
+1529 0 #dummy
+1530 0 #dummy
+1531 0 #dummy
+1532 0 #dummy
+1533 0 #dummy
+1534 0 #dummy
+1535 0 #dummy
+1536 0             # nTT4 = 120-125 ieta = 0
+1537 0             # ieta = 1
+1538 0             # ieta = 2
+1539 0             # ieta = 3
+1540 0             # ieta = 4
+1541 0             # ieta = 5
+1542 0             # ieta = 6
+1543 0             # ieta = 7
+1544 0             # ieta = 8
+1545 0             # ieta = 9
+1546 0             # ieta = 10
+1547 0             # ieta = 11
+1548 0             # ieta = 12
+1549 2             # ieta = 13
+1550 2             # ieta = 14
+1551 2             # ieta = 15
+1552 2             # ieta = 16
+1553 2             # ieta = 17
+1554 2             # ieta = 18
+1555 2             # ieta = 19
+1556 2             # ieta = 20
+1557 2             # ieta = 21
+1558 3             # ieta = 22
+1559 3             # ieta = 23
+1560 4             # ieta = 24
+1561 5             # ieta = 25
+1562 6             # ieta = 26
+1563 5             # ieta = 27
+1564 12             # ieta = 28
+1565 10             # ieta = 30
+1566 4             # ieta = 31
+1567 4             # ieta = 32
+1568 4             # ieta = 33
+1569 4             # ieta = 34
+1570 4             # ieta = 35
+1571 4             # ieta = 36
+1572 4             # ieta = 37
+1573 4             # ieta = 38
+1574 4             # ieta = 39
+1575 4             # ieta = 40
+1576 12             # ieta = 41
+1577 0 #dummy
+1578 0 #dummy
+1579 0 #dummy
+1580 0 #dummy
+1581 0 #dummy
+1582 0 #dummy
+1583 0 #dummy
+1584 0 #dummy
+1585 0 #dummy
+1586 0 #dummy
+1587 0 #dummy
+1588 0 #dummy
+1589 0 #dummy
+1590 0 #dummy
+1591 0 #dummy
+1592 0 #dummy
+1593 0 #dummy
+1594 0 #dummy
+1595 0 #dummy
+1596 0 #dummy
+1597 0 #dummy
+1598 0 #dummy
+1599 0 #dummy
+1600 0             # nTT4 = 125-130 ieta = 0
+1601 0             # ieta = 1
+1602 0             # ieta = 2
+1603 0             # ieta = 3
+1604 0             # ieta = 4
+1605 0             # ieta = 5
+1606 0             # ieta = 6
+1607 0             # ieta = 7
+1608 0             # ieta = 8
+1609 0             # ieta = 9
+1610 0             # ieta = 10
+1611 0             # ieta = 11
+1612 0             # ieta = 12
+1613 2             # ieta = 13
+1614 2             # ieta = 14
+1615 2             # ieta = 15
+1616 2             # ieta = 16
+1617 2             # ieta = 17
+1618 2             # ieta = 18
+1619 2             # ieta = 19
+1620 2             # ieta = 20
+1621 2             # ieta = 21
+1622 3             # ieta = 22
+1623 3             # ieta = 23
+1624 4             # ieta = 24
+1625 5             # ieta = 25
+1626 6             # ieta = 26
+1627 5             # ieta = 27
+1628 12             # ieta = 28
+1629 10             # ieta = 30
+1630 4             # ieta = 31
+1631 4             # ieta = 32
+1632 4             # ieta = 33
+1633 4             # ieta = 34
+1634 4             # ieta = 35
+1635 4             # ieta = 36
+1636 4             # ieta = 37
+1637 4             # ieta = 38
+1638 4             # ieta = 39
+1639 4             # ieta = 40
+1640 12             # ieta = 41
+1641 0 #dummy
+1642 0 #dummy
+1643 0 #dummy
+1644 0 #dummy
+1645 0 #dummy
+1646 0 #dummy
+1647 0 #dummy
+1648 0 #dummy
+1649 0 #dummy
+1650 0 #dummy
+1651 0 #dummy
+1652 0 #dummy
+1653 0 #dummy
+1654 0 #dummy
+1655 0 #dummy
+1656 0 #dummy
+1657 0 #dummy
+1658 0 #dummy
+1659 0 #dummy
+1660 0 #dummy
+1661 0 #dummy
+1662 0 #dummy
+1663 0 #dummy
+1664 0             # nTT4 = 130-135 ieta = 0
+1665 0             # ieta = 1
+1666 0             # ieta = 2
+1667 0             # ieta = 3
+1668 0             # ieta = 4
+1669 0             # ieta = 5
+1670 0             # ieta = 6
+1671 0             # ieta = 7
+1672 0             # ieta = 8
+1673 0             # ieta = 9
+1674 0             # ieta = 10
+1675 0             # ieta = 11
+1676 0             # ieta = 12
+1677 2             # ieta = 13
+1678 2             # ieta = 14
+1679 2             # ieta = 15
+1680 2             # ieta = 16
+1681 2             # ieta = 17
+1682 2             # ieta = 18
+1683 2             # ieta = 19
+1684 2             # ieta = 20
+1685 2             # ieta = 21
+1686 3             # ieta = 22
+1687 3             # ieta = 23
+1688 4             # ieta = 24
+1689 5             # ieta = 25
+1690 6             # ieta = 26
+1691 5             # ieta = 27
+1692 12             # ieta = 28
+1693 10             # ieta = 30
+1694 4             # ieta = 31
+1695 4             # ieta = 32
+1696 4             # ieta = 33
+1697 4             # ieta = 34
+1698 4             # ieta = 35
+1699 4             # ieta = 36
+1700 4             # ieta = 37
+1701 4             # ieta = 38
+1702 4             # ieta = 39
+1703 4             # ieta = 40
+1704 12             # ieta = 41
+1705 0 #dummy
+1706 0 #dummy
+1707 0 #dummy
+1708 0 #dummy
+1709 0 #dummy
+1710 0 #dummy
+1711 0 #dummy
+1712 0 #dummy
+1713 0 #dummy
+1714 0 #dummy
+1715 0 #dummy
+1716 0 #dummy
+1717 0 #dummy
+1718 0 #dummy
+1719 0 #dummy
+1720 0 #dummy
+1721 0 #dummy
+1722 0 #dummy
+1723 0 #dummy
+1724 0 #dummy
+1725 0 #dummy
+1726 0 #dummy
+1727 0 #dummy
+1728 0             # nTT4 = 135-140 ieta = 0
+1729 0             # ieta = 1
+1730 0             # ieta = 2
+1731 0             # ieta = 3
+1732 0             # ieta = 4
+1733 0             # ieta = 5
+1734 0             # ieta = 6
+1735 0             # ieta = 7
+1736 0             # ieta = 8
+1737 0             # ieta = 9
+1738 0             # ieta = 10
+1739 0             # ieta = 11
+1740 0             # ieta = 12
+1741 2             # ieta = 13
+1742 2             # ieta = 14
+1743 2             # ieta = 15
+1744 2             # ieta = 16
+1745 2             # ieta = 17
+1746 2             # ieta = 18
+1747 2             # ieta = 19
+1748 2             # ieta = 20
+1749 2             # ieta = 21
+1750 3             # ieta = 22
+1751 3             # ieta = 23
+1752 4             # ieta = 24
+1753 5             # ieta = 25
+1754 6             # ieta = 26
+1755 5             # ieta = 27
+1756 12             # ieta = 28
+1757 10             # ieta = 30
+1758 4             # ieta = 31
+1759 4             # ieta = 32
+1760 4             # ieta = 33
+1761 4             # ieta = 34
+1762 4             # ieta = 35
+1763 4             # ieta = 36
+1764 4             # ieta = 37
+1765 4             # ieta = 38
+1766 4             # ieta = 39
+1767 4             # ieta = 40
+1768 12             # ieta = 41
+1769 0 #dummy
+1770 0 #dummy
+1771 0 #dummy
+1772 0 #dummy
+1773 0 #dummy
+1774 0 #dummy
+1775 0 #dummy
+1776 0 #dummy
+1777 0 #dummy
+1778 0 #dummy
+1779 0 #dummy
+1780 0 #dummy
+1781 0 #dummy
+1782 0 #dummy
+1783 0 #dummy
+1784 0 #dummy
+1785 0 #dummy
+1786 0 #dummy
+1787 0 #dummy
+1788 0 #dummy
+1789 0 #dummy
+1790 0 #dummy
+1791 0 #dummy
+1792 0             # nTT4 = 140-145 ieta = 0
+1793 0             # ieta = 1
+1794 0             # ieta = 2
+1795 0             # ieta = 3
+1796 0             # ieta = 4
+1797 0             # ieta = 5
+1798 0             # ieta = 6
+1799 0             # ieta = 7
+1800 0             # ieta = 8
+1801 0             # ieta = 9
+1802 0             # ieta = 10
+1803 0             # ieta = 11
+1804 0             # ieta = 12
+1805 2             # ieta = 13
+1806 2             # ieta = 14
+1807 2             # ieta = 15
+1808 2             # ieta = 16
+1809 2             # ieta = 17
+1810 2             # ieta = 18
+1811 2             # ieta = 19
+1812 2             # ieta = 20
+1813 2             # ieta = 21
+1814 3             # ieta = 22
+1815 3             # ieta = 23
+1816 4             # ieta = 24
+1817 5             # ieta = 25
+1818 6             # ieta = 26
+1819 5             # ieta = 27
+1820 12             # ieta = 28
+1821 10             # ieta = 30
+1822 4             # ieta = 31
+1823 4             # ieta = 32
+1824 4             # ieta = 33
+1825 4             # ieta = 34
+1826 4             # ieta = 35
+1827 4             # ieta = 36
+1828 4             # ieta = 37
+1829 4             # ieta = 38
+1830 4             # ieta = 39
+1831 4             # ieta = 40
+1832 12             # ieta = 41
+1833 0 #dummy
+1834 0 #dummy
+1835 0 #dummy
+1836 0 #dummy
+1837 0 #dummy
+1838 0 #dummy
+1839 0 #dummy
+1840 0 #dummy
+1841 0 #dummy
+1842 0 #dummy
+1843 0 #dummy
+1844 0 #dummy
+1845 0 #dummy
+1846 0 #dummy
+1847 0 #dummy
+1848 0 #dummy
+1849 0 #dummy
+1850 0 #dummy
+1851 0 #dummy
+1852 0 #dummy
+1853 0 #dummy
+1854 0 #dummy
+1855 0 #dummy
+1856 0             # nTT4 = 145-150 ieta = 0
+1857 0             # ieta = 1
+1858 0             # ieta = 2
+1859 0             # ieta = 3
+1860 0             # ieta = 4
+1861 0             # ieta = 5
+1862 0             # ieta = 6
+1863 0             # ieta = 7
+1864 0             # ieta = 8
+1865 0             # ieta = 9
+1866 0             # ieta = 10
+1867 0             # ieta = 11
+1868 0             # ieta = 12
+1869 2             # ieta = 13
+1870 2             # ieta = 14
+1871 2             # ieta = 15
+1872 2             # ieta = 16
+1873 2             # ieta = 17
+1874 2             # ieta = 18
+1875 2             # ieta = 19
+1876 2             # ieta = 20
+1877 2             # ieta = 21
+1878 3             # ieta = 22
+1879 3             # ieta = 23
+1880 4             # ieta = 24
+1881 5             # ieta = 25
+1882 6             # ieta = 26
+1883 5             # ieta = 27
+1884 12             # ieta = 28
+1885 10             # ieta = 30
+1886 4             # ieta = 31
+1887 4             # ieta = 32
+1888 4             # ieta = 33
+1889 4             # ieta = 34
+1890 4             # ieta = 35
+1891 4             # ieta = 36
+1892 4             # ieta = 37
+1893 4             # ieta = 38
+1894 4             # ieta = 39
+1895 4             # ieta = 40
+1896 12             # ieta = 41
+1897 0 #dummy
+1898 0 #dummy
+1899 0 #dummy
+1900 0 #dummy
+1901 0 #dummy
+1902 0 #dummy
+1903 0 #dummy
+1904 0 #dummy
+1905 0 #dummy
+1906 0 #dummy
+1907 0 #dummy
+1908 0 #dummy
+1909 0 #dummy
+1910 0 #dummy
+1911 0 #dummy
+1912 0 #dummy
+1913 0 #dummy
+1914 0 #dummy
+1915 0 #dummy
+1916 0 #dummy
+1917 0 #dummy
+1918 0 #dummy
+1919 0 #dummy
+1920 0             # nTT4 = 150-155 ieta = 0
+1921 0             # ieta = 1
+1922 0             # ieta = 2
+1923 0             # ieta = 3
+1924 0             # ieta = 4
+1925 0             # ieta = 5
+1926 0             # ieta = 6
+1927 0             # ieta = 7
+1928 0             # ieta = 8
+1929 0             # ieta = 9
+1930 0             # ieta = 10
+1931 0             # ieta = 11
+1932 0             # ieta = 12
+1933 2             # ieta = 13
+1934 2             # ieta = 14
+1935 2             # ieta = 15
+1936 2             # ieta = 16
+1937 2             # ieta = 17
+1938 2             # ieta = 18
+1939 2             # ieta = 19
+1940 2             # ieta = 20
+1941 2             # ieta = 21
+1942 3             # ieta = 22
+1943 3             # ieta = 23
+1944 4             # ieta = 24
+1945 5             # ieta = 25
+1946 6             # ieta = 26
+1947 5             # ieta = 27
+1948 12             # ieta = 28
+1949 10             # ieta = 30
+1950 4             # ieta = 31
+1951 4             # ieta = 32
+1952 4             # ieta = 33
+1953 4             # ieta = 34
+1954 4             # ieta = 35
+1955 4             # ieta = 36
+1956 4             # ieta = 37
+1957 4             # ieta = 38
+1958 4             # ieta = 39
+1959 4             # ieta = 40
+1960 12             # ieta = 41
+1961 0 #dummy
+1962 0 #dummy
+1963 0 #dummy
+1964 0 #dummy
+1965 0 #dummy
+1966 0 #dummy
+1967 0 #dummy
+1968 0 #dummy
+1969 0 #dummy
+1970 0 #dummy
+1971 0 #dummy
+1972 0 #dummy
+1973 0 #dummy
+1974 0 #dummy
+1975 0 #dummy
+1976 0 #dummy
+1977 0 #dummy
+1978 0 #dummy
+1979 0 #dummy
+1980 0 #dummy
+1981 0 #dummy
+1982 0 #dummy
+1983 0 #dummy
+1984 0             # nTT4 = 155-160 ieta = 0
+1985 0             # ieta = 1
+1986 0             # ieta = 2
+1987 0             # ieta = 3
+1988 0             # ieta = 4
+1989 0             # ieta = 5
+1990 0             # ieta = 6
+1991 0             # ieta = 7
+1992 0             # ieta = 8
+1993 0             # ieta = 9
+1994 0             # ieta = 10
+1995 0             # ieta = 11
+1996 0             # ieta = 12
+1997 2             # ieta = 13
+1998 2             # ieta = 14
+1999 2             # ieta = 15
+2000 2             # ieta = 16
+2001 2             # ieta = 17
+2002 2             # ieta = 18
+2003 2             # ieta = 19
+2004 2             # ieta = 20
+2005 2             # ieta = 21
+2006 3             # ieta = 22
+2007 3             # ieta = 23
+2008 4             # ieta = 24
+2009 5             # ieta = 25
+2010 6             # ieta = 26
+2011 5             # ieta = 27
+2012 12             # ieta = 28
+2013 10             # ieta = 30
+2014 4             # ieta = 31
+2015 4             # ieta = 32
+2016 4             # ieta = 33
+2017 4             # ieta = 34
+2018 4             # ieta = 35
+2019 4             # ieta = 36
+2020 4             # ieta = 37
+2021 4             # ieta = 38
+2022 4             # ieta = 39
+2023 4             # ieta = 40
+2024 12             # ieta = 41
+2025 0 #dummy
+2026 0 #dummy
+2027 0 #dummy
+2028 0 #dummy
+2029 0 #dummy
+2030 0 #dummy
+2031 0 #dummy
+2032 0 #dummy
+2033 0 #dummy
+2034 0 #dummy
+2035 0 #dummy
+2036 0 #dummy
+2037 0 #dummy
+2038 0 #dummy
+2039 0 #dummy
+2040 0 #dummy
+2041 0 #dummy
+2042 0 #dummy
+2043 0 #dummy
+2044 0 #dummy
+2045 0 #dummy
+2046 0 #dummy
+2047 0 #dummy
