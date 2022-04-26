@@ -9,12 +9,8 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MPQualityEnhancerFilterBayes::MPQualityEnhancerFilterBayes(const ParameterSet &pset) : MPFilter(pset) {
-  // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
-}
-
-MPQualityEnhancerFilterBayes::~MPQualityEnhancerFilterBayes() {}
+MPQualityEnhancerFilterBayes::MPQualityEnhancerFilterBayes(const ParameterSet &pset)
+    : MPFilter(pset), debug_(pset.getUntrackedParameter<bool>("debug")) {}
 
 // ============================================================================
 // Main methods (initialise, run, finish)
@@ -46,7 +42,6 @@ int MPQualityEnhancerFilterBayes::areCousins(metaPrimitive mp, metaPrimitive sec
   int output = 0;
   if (mpId.wheel() != second_mpId.wheel() || mpId.station() != second_mpId.station() ||
       mpId.sector() != second_mpId.sector()) {
-    cout << "Not in the same chamber" << endl;
     return output;
   }
 
@@ -67,7 +62,6 @@ int MPQualityEnhancerFilterBayes::areCousins(metaPrimitive mp, metaPrimitive sec
   if (mp.wi8 == second_mp.wi8 and mp.tdc8 == second_mp.tdc8 and mp.wi8 != -1 and mp.tdc8 != -1)
     output = 8;
 
-  cout << output << endl;
   return output;
 }
 
@@ -214,11 +208,8 @@ void MPQualityEnhancerFilterBayes::filterCousins(std::vector<metaPrimitive> &inM
           keep_this[i] = false;
         // Case they are cousins, keep the best one
         if (areCousins(inMPaths[i], inMPaths[j]) != 0) {
-          cout << "They are cousins" << endl;
-
           // In case both are correlated, they have to share a full SL
           if (inMPaths[i].quality > 5 && inMPaths[j].quality > 5 && shareSL(inMPaths[i], inMPaths[j]) == 0) {
-            cout << "But don't share a whole SL" << endl;
             continue;
           }
 

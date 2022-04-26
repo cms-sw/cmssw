@@ -74,7 +74,7 @@ private:
   std::vector<TLateralities> lateralities_;
   std::vector<cmsdt::LATQ_TYPE> latQuality_;
 
-  bool debug_;
+  const bool debug_;
   double chi2Th_;
   edm::FileInPath shift_filename_;
   int bxTolerance_;
