@@ -2,6 +2,7 @@
   <flags NO_TEST_PREFIX="1"/>
 </ifrelease>
 <test name="TestDQMOnlineClient-beam_dqm_sourceclient" command="runtest.sh beam_dqm_sourceclient-live_cfg.py"/>
+<test name="TestDQMOnlineClient-beamhlt_dqm_sourceclient" command="runtest.sh beamhlt_dqm_sourceclient-live_cfg.py" />
 <test name="TestDQMOnlineClient-beampixel_dqm_sourceclient" command="runtest.sh beampixel_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-csc_dqm_sourceclient" command="runtest.sh csc_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-ctpps_dqm_sourceclient" command="runtest.sh ctpps_dqm_sourceclient-live_cfg.py"/>
@@ -25,8 +26,6 @@
 <test name="TestDQMOnlineClient-scal_dqm_sourceclient" command="runtest.sh scal_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-sistrip_dqm_sourceclient" command="runtest.sh sistrip_dqm_sourceclient-live_cfg.py"/>
 <test name="TestDQMOnlineClient-onlinebeammonitor_dqm_sourceclient" command="runtest.sh onlinebeammonitor_dqm_sourceclient-live_cfg.py"/>
-<!-- Need an HLT stream -->
-<!-- <test name="TestDQMOnlineClient-beamhlt_dqm_sourceclient" command="runtest.sh beamhlt_dqm_sourceclient-live_cfg.py" /> -->
 <!-- streamDQMCalibration is required -->
 <!-- <test name="TestDQMOnlineClient-ecalcalib_dqm_sourceclient" command="runtest.sh ecalcalib_dqm_sourceclient-live_cfg.py" /> -->
 <!-- streamDQMCalibration is required -->
