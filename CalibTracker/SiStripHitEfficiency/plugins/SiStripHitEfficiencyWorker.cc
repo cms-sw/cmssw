@@ -250,7 +250,7 @@ void SiStripHitEfficiencyWorker::beginJob() {
 void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
                                                 const edm::Run& run,
                                                 const edm::EventSetup& setup) {
-  const std::string path = "SiStrip/HitEfficiency";  // TODO make this configurable
+  const std::string path = "AlCaReco/SiStripHitEfficiency";  // TODO make this configurable
   booker.setCurrentFolder(path);
   h_bx = booker.book1D("bx", "bx", 3600, 0, 3600);
   h_instLumi = booker.book1D("instLumi", "inst. lumi.", 250, 0, 25000);
