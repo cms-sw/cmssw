@@ -446,9 +446,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       unsigned int sample = samples[ibin + i];
 
       if (fix_saturation_ && (sample_saturation.size() > ibin + i))
-        check_sat = (sample_saturation[ibin + i] | (sample > QIE11_MAX_LINEARIZATION_ET));
-      else if (sample > QIE11_MAX_LINEARIZATION_ET)
-        sample = QIE11_MAX_LINEARIZATION_ET;
+        check_sat = sample_saturation[ibin + i];
 
       // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
       double segmentationFactor = 1.0;
@@ -500,7 +498,12 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
     }
     // peak-finding is not applied for FG bits
     // compute(msb) returns two bits (MIP). compute(timingTDC,ids) returns 6 bits (1 depth, 1 prompt, 1 delayed 01, 1 delayed 10, 2 reserved)
-    finegrain[ibin] = fg_algo.compute(timingTDC[idx], ids[0]).to_ulong() | fg_algo.compute(msb[idx]).to_ulong() << 4;
+    finegrain[ibin] = fg_algo.compute(timingTDC[idx + filterPresamples], ids[0]).to_ulong() |
+                      fg_algo.compute(msb[idx + filterPresamples]).to_ulong() << 4;
+    if (ibin == tpPresamples && (idx + filterPresamples) != dgPresamples)
+      edm::LogError("HcalTriggerPritimveAlgo")
+          << "TP SOI (tpPresamples = " << tpPresamples
+          << ") is not aligned with digi SOI (dgPresamples = " << dgPresamples << ")";
   }
   outcoder_->compress(output, finegrain, result);
 }
@@ -915,6 +918,12 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
   incoder_->adc2Linear(frame, samples1);                                  // use linearization LUT
   std::vector<unsigned short> bits12_15 = incoder_->group0FGbits(frame);  // get 4 energy bits (12-15) from group 0 LUT
 
+  bool is_compressed = false;
+  if (detId.subdet() == HcalBarrel) {
+    is_compressed = (frame.flavor() == 3);
+    // 0 if frame.flavor is 0 (uncompressed), 1 if frame.flavor is 3 (compressed)
+  }
+
   auto it = fgUpgradeTDCMap_.find(id);
   if (it == fgUpgradeTDCMap_.end()) {
     FGUpgradeTDCContainer element;
@@ -922,7 +931,8 @@ void HcalTriggerPrimitiveAlgo::addUpgradeTDCFG(const HcalTrigTowerDetId& id, con
     it = fgUpgradeTDCMap_.insert(std::make_pair(id, element)).first;
   }
   for (int i = 0; i < frame.samples(); i++) {
-    it->second[i][detId.depth() - 1] = std::make_pair(bits12_15[i], std::make_pair(frame[i].tdc(), samples1[i]));
+    it->second[i][detId.depth() - 1] =
+        std::make_pair(std::make_pair(bits12_15[i], is_compressed), std::make_pair(frame[i].tdc(), samples1[i]));
   }
 }
 
