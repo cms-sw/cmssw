@@ -54,7 +54,7 @@ if unitTest:
 
   # Read streamer files from https://github.com/cms-data/DQM-Integration
   import os
-  dqm_integration_data = [os.path.join(dir,'DQM/Integration') for dir in os.getenv('CMSSW_SEARCH_PATH','').split(":") if os.path.exists(os.path.join(dir,'DQM/Integration'))][0]
+  dqm_integration_data = [os.path.join(dir,'DQM/Integration/data') for dir in os.getenv('CMSSW_SEARCH_PATH','').split(":") if os.path.exists(os.path.join(dir,'DQM/Integration/data'))][0]
 
   # Set the process source
   process.source = cms.Source("DQMStreamerReader",
