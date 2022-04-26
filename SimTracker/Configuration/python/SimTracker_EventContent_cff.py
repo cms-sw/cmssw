@@ -37,7 +37,11 @@ SimTrackerDEBUG = cms.PSet(
 )
 #RAW content 
 SimTrackerRAW = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_allTrackMCMatch_*_*')
+    outputCommands = cms.untracked.vstring(
+        'keep *_allTrackMCMatch_*_*',
+#keep future products from UL DIGI step
+        'keep *_prunedTrackingParticles_*_*',
+        'keep *_prunedDigiSimLinks_*_*')
 )
 #RECO content
 SimTrackerRECO = cms.PSet(

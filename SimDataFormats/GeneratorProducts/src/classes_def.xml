@@ -13,6 +13,11 @@
 		<!-- <field name="itsParticleData" transient="true"/> -->
 		<!-- <field name="itsDecayData" transient="true"/> -->
 	</class>
+	<ioread sourceClass = "HepMC::GenParticle" source="int m_barcode" version="[11]" targetClass="HepMC::GenParticle" target="m_barcode">
+          <![CDATA[m_barcode = onfile.m_barcode;
+                   if(newObj->end_vertex()) { hepmc_rootio::add_to_particles_in(newObj->end_vertex(), newObj); }
+	  ]]>
+	</ioread>
     <class name="HepMC::GenCrossSection" ClassVersion="10">
      <version ClassVersion="10" checksum="920043842"/>
     </class>

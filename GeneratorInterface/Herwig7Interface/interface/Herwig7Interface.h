@@ -28,13 +28,16 @@ Marco A. Harrendorf
 
 namespace ThePEG {
 
-  template<> struct HepMCTraits<HepMC::GenEvent> :
-                public HepMCTraitsBase<
-    HepMC::GenEvent, HepMC::GenParticle,
-    HepMC::GenVertex, HepMC::Polarization,
-    HepMC::PdfInfo> {};
+  template <>
+  struct HepMCTraits<HepMC::GenEvent> : public HepMCTraitsBase<HepMC::GenEvent,
+                                                               HepMC::GenParticle,
+                                                               HepMC::GenParticle *,
+                                                               HepMC::GenVertex,
+                                                               HepMC::GenVertex *,
+                                                               HepMC::Polarization,
+                                                               HepMC::PdfInfo> {};
 
-}
+}  // namespace ThePEG
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -66,7 +69,7 @@ class Herwig7Interface {
 	std::auto_ptr<HepMC::IO_BaseClass>	iobc_;
 
 	// HerwigUi contains settings piped to Herwig7
-	Herwig::HerwigUIProvider* HwUI_;
+	std::shared_ptr<Herwig::HerwigUIProvider> HwUI_;
 
 	/**
         * Function calls Herwig event generator via API

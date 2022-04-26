@@ -54,7 +54,9 @@ namespace JME {
             static const JetResolutionScaleFactor get(const edm::EventSetup&, const std::string&);
 #endif
 
-            float getScaleFactor(const JetParameters& parameters, Variation variation = Variation::NOMINAL) const;
+            float getScaleFactor(const JetParameters& parameters,
+                                 Variation variation = Variation::NOMINAL,
+                                 std::string uncertaintySource = "") const;
 
             void dump() const {
                 m_object->dump();

@@ -35,7 +35,7 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
                                        "5 = muon from b, 4 = muon from c, 3 = muon from light or unknown, 0 = unmatched"; break;
                 case MElectron: flavDoc_ = "1 = prompt electron (including gamma*->mu mu), 15 = electron from prompt tau, 22 = prompt photon (likely conversion), " // continues below
                                            "5 = electron from b, 4 = electron from c, 3 = electron from light or unknown, 0 = unmatched"; break;
-                case MPhoton: flavDoc_ = "1 = prompt photon, 13 = prompt electron, 0 = unknown or unmatched"; break;
+                case MPhoton: flavDoc_ = "1 = prompt photon, 11 = prompt electron, 0 = unknown or unmatched"; break;
                 case MTau: flavDoc_    = "1 = prompt electron, 2 = prompt muon, 3 = tau->e decay, 4 = tau->mu decay, 5 = hadronic tau decay, 0 = unknown or unmatched"; break;
                 case MOther: flavDoc_  = "1 = from hard scatter, 0 = unknown or unmatched"; break;
             }
@@ -86,8 +86,12 @@ class CandMCMatchTableProducer : public edm::global::EDProducer<> {
                         else flav[i] = getParentHadronFlag(match); // 3 = light, 4 = charm, 5 = b
                         break;
                     case MPhoton:
-                        if (match->isPromptFinalState()) flav[i] = (match->pdgId() == 22 ? 1 : 13); // prompt electron or photon
-                        break;
+		        if (match->isPromptFinalState() && match->pdgId() == 22)
+			  flav[i] = 1;  // prompt photon
+			else if ((match->isPromptFinalState() || match->isDirectPromptTauDecayProductFinalState()) &&
+				 abs(match->pdgId()) == 11)
+			  flav[i] = 11;  // prompt electron
+			break;
                     case MTau:
 		        // CV: assignment of status codes according to https://twiki.cern.ch/twiki/bin/viewauth/CMS/HiggsToTauTauWorking2016#MC_Matching
 		        if      ( match.isNonnull() && match->statusFlags().isPrompt()                  && abs(match->pdgId()) == 11 ) flav[i] = 1;

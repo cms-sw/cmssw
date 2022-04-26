@@ -4,7 +4,18 @@ function die { echo $1: status $2 ;  exit $2; }
 
 pushd ${LOCAL_TMP_DIR}
 
-cmsRun ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py PoolInputTest.root 11 561 7 6 3 || die 'Failure using PrePoolInputTest_cfg.py' $?
+cmsRun -j PoolInputTest_jobreport.xml ${LOCAL_TEST_DIR}/PrePoolInputTest_cfg.py PoolInputTest.root 11 561 7 6 3 || die 'Failure using PrePoolInputTest_cfg.py' $?
+
+cmsRun  -j PoolGuidTest_jobreport.xml ${LOCAL_TEST_DIR}/PoolGUIDTest_cfg.py file:PoolInputTest.root && die 'PoolGUIDTest_cfg.py PoolInputTest.root did not throw an exception' 1
+GUID_EXIT_CODE=$(edmFjrDump --exitCode PoolGuidTest_jobreport.xml)
+if [ "x${GUID_EXIT_CODE}" != "x8034" ]; then
+    echo "Inconsistent GUID test reported exit code ${GUID_EXIT_CODE} which is different from the expected 8034"
+    exit 1
+fi
+GUID_NAME=$(edmFjrDump --guid PoolInputTest_jobreport.xml).root
+cp PoolInputTest.root ${GUID_NAME}
+cmsRun ${LOCAL_TEST_DIR}/PoolGUIDTest_cfg.py file:${GUID_NAME} || die 'Failure using PoolGUIDTest_cfg.py ${GUID_NAME}' $?
+
 
 cp PoolInputTest.root PoolInputOther.root
 

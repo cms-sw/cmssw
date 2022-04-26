@@ -41,18 +41,18 @@ class DeepTauCache {
 public:
     using GraphPtr = std::shared_ptr<tensorflow::GraphDef>;
 
-    DeepTauCache(const std::string& graph_name, bool mem_mapped);
+    DeepTauCache(const std::map<std::string, std::string>& graph_names, bool mem_mapped);
     ~DeepTauCache();
 
    // A Session allows concurrent calls to Run(), though a Session must
    // be created / extended by a single thread.
-   tensorflow::Session& getSession() const { return *session_; }
-   const tensorflow::GraphDef& getGraph() const { return *graph_; }
+   tensorflow::Session& getSession(const std::string& name = "") const { return *sessions_.at(name); }
+   const tensorflow::GraphDef& getGraph(const std::string& name = "") const { return *graphs_.at(name); }
 
 private:
-    GraphPtr graph_;
-    tensorflow::Session* session_;
-    std::unique_ptr<tensorflow::MemmappedEnv> memmappedEnv_;
+    std::map<std::string, GraphPtr> graphs_;
+    std::map<std::string, tensorflow::Session*> sessions_;
+    std::map<std::string, std::unique_ptr<tensorflow::MemmappedEnv>> memmappedEnv_;
 };
 
 class DeepTauBase : public edm::stream::EDProducer<edm::GlobalCache<DeepTauCache>> {
@@ -96,6 +96,8 @@ private:
 
 protected:
     edm::EDGetTokenT<TauCollection> tausToken_;
+    edm::EDGetTokenT<pat::PackedCandidateCollection> pfcandToken_;
+    edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
     std::map<std::string, WPMap> workingPoints_;
     OutputCollection outputs_;
     const DeepTauCache* cache_;

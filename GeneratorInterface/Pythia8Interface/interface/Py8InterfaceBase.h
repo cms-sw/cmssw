@@ -32,6 +32,7 @@ namespace gen {
          virtual bool generatePartonsAndHadronize() = 0;
          bool decay() { return true; } // NOT used - let's call it "design imperfection"
          bool readSettings( int ); // common func
+         void makeTmpSLHA(const std::string&); //helper for above
          virtual bool initializeForInternalPartons() = 0;
          bool declareStableParticles( const std::vector<int>& ); // common func
          bool declareSpecialSettings( const std::vector<std::string>& ); // common func

@@ -251,9 +251,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
       if(fClonePackedCands && (!fUseExistingWeights)) {
         if(fPuppiForLeptons)
-          pCand->setPuppiWeight(pCand->puppiWeight(),lWeights[puppiMatched-lCandidates.begin()]);
+          pCand->setPuppiWeight(pCand->puppiWeight(),lWeights[val]);
         else
-          pCand->setPuppiWeight(lWeights[puppiMatched-lCandidates.begin()],pCand->puppiWeightNoLep());
+          pCand->setPuppiWeight(lWeights[val],pCand->puppiWeightNoLep());
       }
     } else {
       pVec.SetPxPyPzE( 0, 0, 0, 0);

@@ -103,3 +103,9 @@
   <use name="FWCore/PluginManager"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library file="LumiProducerFromBrilcalc.cc" name="LumiProducerFromBrilcalc">
+  <use name="FWCore/PluginManager"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DataFormats/Luminosity"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
