@@ -9,8 +9,8 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
 #include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
+#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -35,7 +35,10 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -58,6 +61,7 @@ class SiStripHitEfficiencyWorker : public DQMEDAnalyzer {
 public:
   explicit SiStripHitEfficiencyWorker(const edm::ParameterSet& conf);
   ~SiStripHitEfficiencyWorker() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginJob();  // TODO remove
@@ -904,7 +908,35 @@ void SiStripHitEfficiencyWorker::endJob() {
   LogDebug("SiStripHitEfficiencyWorker") << " Number Of Tracked events    " << EventTrackCKF;
 }
 
+void SiStripHitEfficiencyWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("lumiScalers", edm::InputTag{"scalersRawToDigi"});
+  desc.add<edm::InputTag>("commonMode", edm::InputTag{"siStripDigis", "CommonMode"});
+  desc.add<edm::InputTag>("combinatorialTracks", edm::InputTag{"generalTracks"});
+  desc.add<edm::InputTag>("trajectories", edm::InputTag{"generalTracks"});
+  desc.add<edm::InputTag>("siStripClusters", edm::InputTag{"siStripClusters"});
+  desc.add<edm::InputTag>("siStripDigis", edm::InputTag{"siStripDigis"});
+  desc.add<edm::InputTag>("trackerEvent", edm::InputTag{"MeasurementTrackerEvent"});
+  desc.add<int>("Layer", 0);
+  desc.add<bool>("Debug", false);
+  desc.addUntracked<bool>("addLumi", true);
+  desc.addUntracked<bool>("addCommonMode", false);
+  desc.addUntracked<bool>("cutOnTracks", false);
+  desc.addUntracked<unsigned int>("trackMultiplicity", 100);
+  desc.addUntracked<bool>("useFirstMeas", false);
+  desc.addUntracked<bool>("useLastMeas", false);
+  desc.addUntracked<bool>("useAllHitsFromTracksWithMissingHits", false);
+  desc.addUntracked<int>("ClusterMatchingMethod", 0);
+  desc.addUntracked<double>("ResXSig", -1);
+  desc.addUntracked<double>("ClusterTrajDist", 64.0);
+  desc.addUntracked<double>("StripsApvEdge", 10.0);
+  desc.addUntracked<bool>("UseOnlyHighPurityTracks", true);
+  desc.addUntracked<int>("BunchCrossing", 0);
+  desc.addUntracked<bool>("ShowRings", false);
+  desc.addUntracked<bool>("ShowTOB6TEC9", false);
+  desc.addUntracked<std::string>("BadModulesFile", "");
+  descriptions.addWithDefaultLabel(desc);
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripHitEfficiencyWorker);
-
-// TODO next: try to run this
