@@ -658,8 +658,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetosFract> L1TGlobalPrescalesVetosOnlin
 
   auto payload = std::make_unique<const L1TGlobalPrescalesVetosFract>(*data_.getWriteInstance());
 
-  edm::LogInfo("L1-O2O: L1TGlobalPrescalesVetosOnlineProd")
-      << "SummaryForFunctionManager: uGTrs | OK      | All looks good";
+  edm::LogInfo("L1-O2O: L1TCaloParamsOnlineProd") << "SummaryForFunctionManager: uGTrs | OK      | All looks good";
 
   return payload;
 }

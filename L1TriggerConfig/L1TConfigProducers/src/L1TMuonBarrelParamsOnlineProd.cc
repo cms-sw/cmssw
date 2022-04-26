@@ -150,8 +150,7 @@ std::unique_ptr<const L1TMuonBarrelParams> L1TMuonBarrelParamsOnlineProd::newObj
 
   auto retval = std::make_unique<const L1TMuonBarrelParams>(m_params_helper);
 
-  edm::LogInfo("L1-O2O: L1TMuonBarrelParamsOnlineProd")
-      << "SummaryForFunctionManager: BMTF  | OK      | All looks good";
+  edm::LogInfo("L1-O2O: L1TCaloParamsOnlineProd") << "SummaryForFunctionManager: BMTF  | OK      | All looks good";
   return retval;
 }
 
