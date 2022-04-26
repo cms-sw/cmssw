@@ -19,7 +19,7 @@ class MPQualityEnhancerFilterBayes : public MPFilter {
 public:
   // Constructors and destructor
   MPQualityEnhancerFilterBayes(const edm::ParameterSet &pset);
-  ~MPQualityEnhancerFilterBayes() override;
+  ~MPQualityEnhancerFilterBayes() override = default;
 
   // Main methods
   void initialise(const edm::EventSetup &iEventSetup) override;
@@ -49,7 +49,7 @@ private:
   void filterCousins(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
 
   // Private attributes
-  bool debug_;
+  const bool debug_;
 };
 
 #endif

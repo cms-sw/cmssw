@@ -18,7 +18,7 @@ class MPCleanHitsFilter : public MPFilter {
 public:
   // Constructors and destructor
   MPCleanHitsFilter(const edm::ParameterSet& pset);
-  ~MPCleanHitsFilter() override;
+  ~MPCleanHitsFilter() override = default;
 
   // Main methods
   void initialise(const edm::EventSetup& iEventSetup) override{};
@@ -44,7 +44,7 @@ public:
 
 private:
   // Private attributes
-  bool debug_;
+  const bool debug_;
   int timeTolerance_;
 };
 
