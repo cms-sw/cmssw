@@ -35,9 +35,7 @@ process.hiteffharvest = cms.EDProducer("SiStripHitEfficiencyHarvester",
     doStoreOnDB         = cms.bool(True),
     ShowRings           = cms.untracked.bool(False),  # default False
     TkMapMin            = cms.untracked.double(0.90), # default 0.90
-    EffPlotMin          = cms.untracked.double(0.90), # default 0.90
-    Title               = cms.string(' Hit Efficiency - run {0:d}'.format(runNumber))
-    )
+    Title               = cms.string(' Hit Efficiency - run {0:d}'.format(runNumber)))
 
 process.load("DQM.SiStripCommon.TkHistoMap_cff")
 
