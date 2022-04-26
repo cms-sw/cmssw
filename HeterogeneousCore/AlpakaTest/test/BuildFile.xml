@@ -1,0 +1,4 @@
+<test
+  name="testHeterogeneousCoreAlpakaTestWriteRead"
+  command="cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test/writer.py; cmsRun ${LOCALTOP}/src/HeterogeneousCore/AlpakaTest/test/reader.py"
+/>
