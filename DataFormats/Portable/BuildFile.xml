@@ -1,0 +1,3 @@
+<use name="alpaka"/>
+<use name="DataFormats/SoATemplate" source_only="1"/>
+<use name="HeterogeneousCore/AlpakaInterface" source_only="1"/>
