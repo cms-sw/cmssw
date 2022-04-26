@@ -1804,6 +1804,12 @@ namespace edm {
 
     EntryNumber_t currentRun = invalidEntry;
 
+    // The main iterator created here (iEventSequence) is incremented
+    // in the function handleToEndOfContiguousEventsInRun and
+    // the functions it calls. The iterator is stored in "info",
+    // which also holds other information related to the iteration.
+    // The information is passed to these functions inside the "info"
+    // object.
     for (info.iEventSequence_ = info.indexesSortedByEventEntry_.cbegin(),
         info.iEventSequenceEnd_ = info.indexesSortedByEventEntry_.cend();
          info.iEventSequence_ < info.iEventSequenceEnd_;) {
