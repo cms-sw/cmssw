@@ -10,6 +10,10 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -30,6 +34,7 @@ class SiStripHitEfficiencyHarvester : public DQMEDHarvester {
 public:
   explicit SiStripHitEfficiencyHarvester(const edm::ParameterSet&);
   ~SiStripHitEfficiencyHarvester() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
@@ -576,6 +581,19 @@ void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality
   for (int i = 10; i < 19; ++i)
     badModules << "\nTEC- Disk " << i - 9 << " :" << ssV[3][i].str();
   badModules.close();
+}
+
+void SiStripHitEfficiencyHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("doStoreOnDB", false);
+  desc.add<std::string>("Record", "SiStripBadStrip");
+  desc.add<double>("Threshold", 0.1);
+  desc.add<std::string>("Title", "Hit Efficiency");
+  desc.add<int>("nModsMin", 5);
+  desc.addUntracked<bool>("AutoIneffModTagging", false);
+  desc.addUntracked<double>("TkMapMin", 0.9);
+  desc.addUntracked<bool>("ShowRings", false);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
