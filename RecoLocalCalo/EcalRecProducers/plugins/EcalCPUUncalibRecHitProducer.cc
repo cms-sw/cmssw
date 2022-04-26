@@ -27,6 +27,7 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
+  bool produceEE_;
   using InputProduct = cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>;
   edm::EDGetTokenT<InputProduct> recHitsInEBToken_, recHitsInEEToken_;
   using OutputProduct = ecal::UncalibratedRecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
@@ -40,20 +41,27 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("recHitsInLabelEB", edm::InputTag{"ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEB"});
-  desc.add<edm::InputTag>("recHitsInLabelEE", edm::InputTag{"ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"});
   desc.add<std::string>("recHitsOutLabelEB", "EcalUncalibRecHitsEB");
-  desc.add<std::string>("recHitsOutLabelEE", "EcalUncalibRecHitsEE");
+
   desc.add<bool>("containsTimingInformation", false);
+  desc.add<bool>("produceEE", true);
+
+  desc.add<edm::InputTag>("recHitsInLabelEE", edm::InputTag{"ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"});
+  desc.add<std::string>("recHitsOutLabelEE", "EcalUncalibRecHitsEE");
 
   confDesc.add("ecalCPUUncalibRecHitProducer", desc);
 }
 
 EcalCPUUncalibRecHitProducer::EcalCPUUncalibRecHitProducer(const edm::ParameterSet& ps)
-    : recHitsInEBToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEB"))},
-      recHitsInEEToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEE"))},
+    : produceEE_{ps.getParameter<bool>("produceEE")},
+      recHitsInEBToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEB"))},
       recHitsOutEBToken_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEB"))},
-      recHitsOutEEToken_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEE"))},
-      containsTimingInformation_{ps.getParameter<bool>("containsTimingInformation")} {}
+      containsTimingInformation_{ps.getParameter<bool>("containsTimingInformation")} {
+  if (produceEE_) {
+    recHitsInEEToken_ = consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEE"));
+    recHitsOutEEToken_ = produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEE"));
+  }
+}
 
 EcalCPUUncalibRecHitProducer::~EcalCPUUncalibRecHitProducer() {}
 
@@ -62,14 +70,11 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
                                            edm::WaitingTaskWithArenaHolder taskHolder) {
   // retrieve data/ctx
   auto const& ebRecHitsProduct = event.get(recHitsInEBToken_);
-  auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
   cms::cuda::ScopedContextAcquire ctx{ebRecHitsProduct, std::move(taskHolder)};
   auto const& ebRecHits = ctx.get(ebRecHitsProduct);
-  auto const& eeRecHits = ctx.get(eeRecHitsProduct);
 
   // resize the output buffers
   recHitsEB_.resize(ebRecHits.size);
-  recHitsEE_.resize(eeRecHits.size);
 
   auto lambdaToTransfer = [&ctx](auto& dest, auto* src) {
     using vector_type = typename std::remove_reference<decltype(dest)>::type;
@@ -79,42 +84,52 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
     cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };
 
+  if (produceEE_) {
+    auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
+    auto const& eeRecHits = ctx.get(eeRecHitsProduct);
+    recHitsEE_.resize(eeRecHits.size);
+  }
   // enqeue transfers
   lambdaToTransfer(recHitsEB_.did, ebRecHits.did.get());
-  lambdaToTransfer(recHitsEE_.did, eeRecHits.did.get());
-
   lambdaToTransfer(recHitsEB_.amplitudesAll, ebRecHits.amplitudesAll.get());
-  lambdaToTransfer(recHitsEE_.amplitudesAll, eeRecHits.amplitudesAll.get());
-
   lambdaToTransfer(recHitsEB_.amplitude, ebRecHits.amplitude.get());
-  lambdaToTransfer(recHitsEE_.amplitude, eeRecHits.amplitude.get());
-
+  lambdaToTransfer(recHitsEB_.amplitudeError, ebRecHits.amplitudeError.get());
   lambdaToTransfer(recHitsEB_.chi2, ebRecHits.chi2.get());
-  lambdaToTransfer(recHitsEE_.chi2, eeRecHits.chi2.get());
-
   lambdaToTransfer(recHitsEB_.pedestal, ebRecHits.pedestal.get());
-  lambdaToTransfer(recHitsEE_.pedestal, eeRecHits.pedestal.get());
-
   lambdaToTransfer(recHitsEB_.flags, ebRecHits.flags.get());
-  lambdaToTransfer(recHitsEE_.flags, eeRecHits.flags.get());
-
   if (containsTimingInformation_) {
     lambdaToTransfer(recHitsEB_.jitter, ebRecHits.jitter.get());
-    lambdaToTransfer(recHitsEE_.jitter, eeRecHits.jitter.get());
-
     lambdaToTransfer(recHitsEB_.jitterError, ebRecHits.jitterError.get());
-    lambdaToTransfer(recHitsEE_.jitterError, eeRecHits.jitterError.get());
+  }
+
+  if (produceEE_) {
+    auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
+    auto const& eeRecHits = ctx.get(eeRecHitsProduct);
+    recHitsEE_.resize(eeRecHits.size);
+    lambdaToTransfer(recHitsEE_.did, eeRecHits.did.get());
+    lambdaToTransfer(recHitsEE_.amplitudesAll, eeRecHits.amplitudesAll.get());
+    lambdaToTransfer(recHitsEE_.amplitude, eeRecHits.amplitude.get());
+    lambdaToTransfer(recHitsEE_.amplitudeError, eeRecHits.amplitudeError.get());
+    lambdaToTransfer(recHitsEE_.chi2, eeRecHits.chi2.get());
+    lambdaToTransfer(recHitsEE_.pedestal, eeRecHits.pedestal.get());
+    lambdaToTransfer(recHitsEE_.flags, eeRecHits.flags.get());
+    if (containsTimingInformation_) {
+      lambdaToTransfer(recHitsEE_.jitter, eeRecHits.jitter.get());
+      lambdaToTransfer(recHitsEE_.jitterError, eeRecHits.jitterError.get());
+    }
   }
 }
 
 void EcalCPUUncalibRecHitProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
   // tmp vectors
   auto recHitsOutEB = std::make_unique<OutputProduct>(std::move(recHitsEB_));
-  auto recHitsOutEE = std::make_unique<OutputProduct>(std::move(recHitsEE_));
-
   // put into event
   event.put(recHitsOutEBToken_, std::move(recHitsOutEB));
-  event.put(recHitsOutEEToken_, std::move(recHitsOutEE));
+
+  if (produceEE_) {
+    auto recHitsOutEE = std::make_unique<OutputProduct>(std::move(recHitsEE_));
+    event.put(recHitsOutEEToken_, std::move(recHitsOutEE));
+  }
 }
 
 DEFINE_FWK_MODULE(EcalCPUUncalibRecHitProducer);
