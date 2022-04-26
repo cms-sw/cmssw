@@ -1,4 +1,3 @@
-
 # import the definition of the steps and input files:
 from  Configuration.PyReleaseValidation.relval_steps import *
 
@@ -11,7 +10,7 @@ workflows = Matrix()
 
 ## data production test
 workflows[1000] = [ '',['RunMinBias2011A','TIER0','SKIMD','HARVESTDfst2','ALCASPLIT']]
-workflows[1001] = [ '',['RunMinBias2011A','TIER0EXP','ALCAEXP','ALCAHARVDSIPIXELCALRUN1','ALCAHARVD1','ALCAHARVD2','ALCAHARVD3','ALCAHARVD4','ALCAHARVD5','ALCAHARVD7']]
+workflows[1001] = [ '',['RunMinBias2011A','TIER0EXP','ALCAEXP','ALCAHARVDSIPIXELCALRUN1','ALCAHARVD1','ALCAHARVD2','ALCAHARVD3','ALCAHARVD4','ALCAHARVD5','ALCAHARVD7','ALCAHARVD8']]
 workflows[1001.2] = [ '',['RunZeroBias2017F','TIER0EXPRUN2','ALCAEXPRUN2','ALCAHARVDSIPIXELCAL','ALCAHARVDSIPIXELCALLA']]
 
 workflows[1002]=['RRD',['RunMinBias2011A','RECODR1','COPYPASTE']]
