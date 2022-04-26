@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Geometry.HcalCommonData.GeometryDD4HepExtended2017_cff import *
+from Configuration.Geometry.GeometryDD4hepExtended2017DD4hep_cff import *
 
 from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *
 from RecoTracker.GeometryESProducer.TrackerRecoGeometryESProducer_cfi import *
