@@ -38,10 +38,9 @@ namespace l1t {
         int htmiss = (candbit[0] >> 5) & 0x7F;
         int overflowhtmiss = (candbit[0] >> 12) & 0x1;
 
-        l1t::EtSum mht = l1t::EtSum();
+        l1t::EtSum mht{l1t::EtSum::kMissingHt};
         mht.setHwPt(htmiss);
         mht.setHwPhi(htmissphi);
-        mht.setType(l1t::EtSum::kMissingHt);
         int flaghtmiss = mht.hwQual();
         flaghtmiss |= overflowhtmiss;
         mht.setHwQual(flaghtmiss);
