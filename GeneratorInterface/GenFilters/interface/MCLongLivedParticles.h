@@ -33,7 +33,6 @@ To run independently of pdgIds, do not insert the particleIDs entry in filter de
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Pythia8/Pythia.h"
 
 
 //
@@ -55,7 +54,7 @@ private:
   // ----------member data ---------------------------
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
   std::vector<int> particleIDs;  //possible now to chose on which pdgIds the filter is applied - if ParticleIDs.size()==0 runs on all particles in  the event as the preovious filter version
- 
+  float theCut; 
   float theUpperCut; // Maximum displacement accepted
   float theLowerCut; //Minimum displacement accepted 
   edm::InputTag hepMCProductTag_;
