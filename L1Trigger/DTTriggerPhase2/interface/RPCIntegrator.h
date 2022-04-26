@@ -80,17 +80,16 @@ public:
   std::vector<RPCMetaprimitive> RPCMetaprimitives_;
 
 private:
-  //RPCRecHitCollection m_rpcRecHits;
-  bool m_debug_;
+  const bool m_debug_;
   int m_max_quality_to_overwrite_t0_;
   int m_bx_window_;
   double m_phi_window_;
   bool m_storeAllRPCHits_;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH_;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomH_;
 
   DTGeometry const* dtGeo_;
   RPCGeometry const* rpcGeo_;
-  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomH_;
-  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> rpcGeomH_;
 
   // Constant geometry values
   //R[stat][layer] - radius of rpc station/layer from center of CMS

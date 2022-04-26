@@ -12,17 +12,17 @@ using namespace cmsdt;
 // ============================================================================
 MuonPathAssociator::MuonPathAssociator(const ParameterSet &pset,
                                        edm::ConsumesCollector &iC,
-                                       std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer) {
+                                       std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer)
+    : debug_(pset.getUntrackedParameter<bool>("debug")),
+      clean_chi2_correlation_(pset.getParameter<bool>("clean_chi2_correlation")),
+      useBX_correlation_(pset.getParameter<bool>("useBX_correlation")),
+      allow_confirmation_(pset.getParameter<bool>("allow_confirmation")),
+      dT0_correlate_TP_(pset.getParameter<double>("dT0_correlate_TP")),
+      dBX_correlate_TP_(pset.getParameter<int>("dBX_correlate_TP")),
+      dTanPsi_correlate_TP_(pset.getParameter<double>("dTanPsi_correlate_TP")),
+      minx_match_2digis_(pset.getParameter<double>("minx_match_2digis")),
+      chi2corTh_(pset.getParameter<double>("chi2corTh")) {
   // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
-  clean_chi2_correlation_ = pset.getParameter<bool>("clean_chi2_correlation");
-  useBX_correlation_ = pset.getParameter<bool>("useBX_correlation");
-  allow_confirmation_ = pset.getParameter<bool>("allow_confirmation");
-  dT0_correlate_TP_ = pset.getParameter<double>("dT0_correlate_TP");
-  dBX_correlate_TP_ = pset.getParameter<int>("dBX_correlate_TP");
-  dTanPsi_correlate_TP_ = pset.getParameter<double>("dTanPsi_correlate_TP");
-  minx_match_2digis_ = pset.getParameter<double>("minx_match_2digis");
-  chi2corTh_ = pset.getParameter<double>("chi2corTh");
 
   if (debug_)
     LogDebug("MuonPathAssociator") << "MuonPathAssociator: constructor";
@@ -939,7 +939,6 @@ void MuonPathAssociator::correlateMPaths(edm::Handle<DTDigiCollection> dtdigis,
         for (auto metaprimitiveIt = inMPaths.begin(); metaprimitiveIt != inMPaths.end(); ++metaprimitiveIt)
           if (metaprimitiveIt->rawId == sl2Id.rawId()) {
             SL2metaPrimitives.push_back(*metaprimitiveIt);
-            //std::cout<<"pushing back eta metaprimitive: ";
             printmPC(*metaprimitiveIt);
             outMPaths.push_back(*metaprimitiveIt);
           }

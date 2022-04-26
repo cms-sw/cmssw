@@ -194,8 +194,6 @@ void MuonPathAnalyticAnalyzer::analyze(MuonPathPtr &inMPath, std::vector<metaPri
     }
   }
 
-  // if (!is_four_hit) cout << "Found a 3!" << endl;
-
   if (max_coarse_time - min_coarse_time >= 2)
     return;
   int coarse_offset = max_coarse_time - 1;
