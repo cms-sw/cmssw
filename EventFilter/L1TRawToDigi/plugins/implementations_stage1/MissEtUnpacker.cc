@@ -38,10 +38,9 @@ namespace l1t {
         int overflowetmiss = (candbit[0] >> 12) & 0x1;
         int etmissphi = candbit[1] & 0x7F;
 
-        l1t::EtSum met = l1t::EtSum();
+        l1t::EtSum met{l1t::EtSum::kMissingEt};
         met.setHwPt(etmiss);
         met.setHwPhi(etmissphi);
-        met.setType(l1t::EtSum::kMissingEt);
         int flagetmiss = met.hwQual();
         flagetmiss |= overflowetmiss;
         met.setHwQual(flagetmiss);
