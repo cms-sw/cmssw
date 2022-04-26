@@ -98,7 +98,7 @@ private:
 
   // Private attributes
 
-  bool debug_;
+  const bool debug_;
   double chi2Th_;
   double tanPhiTh_;
   double tanPhiThw2max_;

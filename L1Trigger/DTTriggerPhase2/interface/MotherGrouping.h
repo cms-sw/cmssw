@@ -47,7 +47,7 @@ private:
   // Private methods
 
   // Private attributes
-  bool debug_;
+  const bool debug_;
 };
 
 #endif

@@ -8,10 +8,8 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MPRedundantFilter::MPRedundantFilter(const ParameterSet& pset) : MPFilter(pset), maxBufferSize_(8) {
-  // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
-}
+MPRedundantFilter::MPRedundantFilter(const ParameterSet& pset)
+    : MPFilter(pset), debug_(pset.getUntrackedParameter<bool>("debug")), maxBufferSize_(8) {}
 
 MPRedundantFilter::~MPRedundantFilter() {}
 

@@ -9,12 +9,8 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MPQualityEnhancerFilter::MPQualityEnhancerFilter(const ParameterSet &pset) : MPFilter(pset) {
-  // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
-}
-
-MPQualityEnhancerFilter::~MPQualityEnhancerFilter() {}
+MPQualityEnhancerFilter::MPQualityEnhancerFilter(const ParameterSet &pset)
+    : MPFilter(pset), debug_(pset.getUntrackedParameter<bool>("debug")) {}
 
 // ============================================================================
 // Main methods (initialise, run, finish)

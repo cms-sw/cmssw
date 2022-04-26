@@ -6,10 +6,8 @@ using namespace std;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MPCleanHitsFilter::MPCleanHitsFilter(const ParameterSet &pset) : MPFilter(pset) {
-  // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
-
+MPCleanHitsFilter::MPCleanHitsFilter(const ParameterSet &pset)
+    : MPFilter(pset), debug_(pset.getUntrackedParameter<bool>("debug")) {
   timeTolerance_ = pset.getParameter<int>("timeTolerance");
   // probably something close to the max time drift (400ns/2) is a reasonable value
 }
@@ -50,5 +48,3 @@ double MPCleanHitsFilter::getMeanTime(MuonPathPtr &mpath) {
   }
   return meantime / count;
 }
-
-MPCleanHitsFilter::~MPCleanHitsFilter() {}

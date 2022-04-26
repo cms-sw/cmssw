@@ -51,9 +51,9 @@ namespace {
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-HoughGrouping::HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC) : MotherGrouping(pset, iC) {
+HoughGrouping::HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC)
+    : MotherGrouping(pset, iC), debug_(pset.getUntrackedParameter<bool>("debug")) {
   // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
   if (debug_)
     LogDebug("HoughGrouping") << "HoughGrouping: constructor";
 
