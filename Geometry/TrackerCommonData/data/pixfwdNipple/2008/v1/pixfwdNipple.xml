@@ -1,0 +1,311 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <ConstantsSection label="Input" eval="true">
+    <Constant name="R01" value="2.00*mm"/>
+    <Constant name="R02" value="2.50*mm"/>
+    <Constant name="R03" value="2.00*mm"/>
+    <Constant name="R04" value="2.50*mm"/>
+    <Constant name="R05" value="3.00*mm"/>
+    <Constant name="R06" value="3.00*mm"/>
+    <Constant name="R07" value="3.50*mm"/>
+    <Constant name="R08" value="4.50*mm"/>
+    <Constant name="R09" value="3.25*mm"/>
+    <Constant name="R10" value="3.75*mm"/>
+    <Constant name="R11" value="3.50*mm"/>
+    <Constant name="L01" value="8.23*mm"/>
+    <Constant name="L02" value="8.23*mm"/>
+    <Constant name="L03" value="6.73*mm"/>
+    <Constant name="L04" value="9.50*mm"/>
+    <Constant name="L05" value="4.00*mm"/>
+    <Constant name="L06" value="4.00*mm"/>
+    <Constant name="L07" value="1.00*mm"/>
+    <Constant name="L08" value="1.00*mm"/>
+    <Constant name="A01" value="60*deg"/>
+    <Constant name="RootHalfThickness" value="[pixfwdPanelBase:RootHalfThickness]"/>
+  </ConstantsSection>
+ 
+  <!-- Nipple root and a solid for boolean subtraction -->
+  <ConstantsSection label="Root" eval="true">
+    <Constant name="JK" value="16.9*mm"/>
+    <!-- 16.9523 as printed by algorithm, made slightly smaller
+         to avoid overlaps due to numerical errors. Can be made
+         more precise once DDL is able to use constants defined 
+         in algorithms directly. -->
+    <Constant name="AngleBody" value="0.172941*rad"/>
+    <Constant name="AngleCover" value="0.172941*rad"/>
+    <Constant name="Dsub" value="2.0*mm"/>
+    <Constant name="Rsub" value="[R08]/cos([AngleBody]) + ([Dsub]/2)*tan([AngleBody]) + [pixfwdCommon:SmallBool]"/>
+    <Constant name="DeltaBody" value="([Dsub]/2 - 0.5*mm) / cos([AngleBody])"/>
+    <Constant name="DeltaCover" value="([Dsub]/2 - 0.5*mm) / cos([AngleCover])"/>
+  </ConstantsSection>
+  <SolidSection label="Root">
+    <Tubs name="PixelForwardNipple_01" rMin="0.*mm" rMax="[R08]-0.9*mm" dz="[L04]/2+3.7*mm" startPhi="0." deltaPhi="360*deg"/>
+    <Tubs name="PixelForwardNippleSubtract" rMin="0.*mm" rMax="[Rsub]-0.9*mm" dz="[Dsub]/2." startPhi="0." deltaPhi="360*deg"/>
+    <Tubs name="PixelForwardNippleMiddle" rMin="0.*mm" rMax="[R08]" dz="[L04]/2.+0.4*mm" startPhi="0." deltaPhi="360*deg"/>
+    <SubtractionSolid name="PixelForwardNipple_int01">
+      <rSolid name="PixelForwardNipple_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="-[L04]/2.-3.7*mm-[DeltaCover]"/>
+      <rRotation name="pixfwdNipple:NippleToCoverZPlus"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="PixelForwardNippleZPlus_01">
+      <rSolid name="PixelForwardNipple_int01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="[L04]/2.+3.7*mm+[DeltaBody]"/>
+      <rRotation name="pixfwdNipple:NippleToBodyZPlus"/>
+    </SubtractionSolid>
+    <UnionSolid name="PixelForwardNippleZPlus">
+      <rSolid name="PixelForwardNippleZPlus_01"/>
+      <rSolid name="PixelForwardNippleMiddle"/>
+      <Translation x="0." y="0." z="0."/>
+    </UnionSolid>
+    <SubtractionSolid name="PixelForwardNipple_int02">
+      <rSolid name="PixelForwardNipple_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="-[L04]/2.-3.7*mm-[DeltaCover]"/>
+      <rRotation name="pixfwdNipple:NippleToCoverZMinus"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="PixelForwardNippleZMinus_01">
+      <rSolid name="PixelForwardNipple_int02"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="[L04]/2.+3.7*mm+[DeltaBody]"/>
+      <rRotation name="pixfwdNipple:NippleToBodyZMinus"/>
+    </SubtractionSolid>
+    <UnionSolid name="PixelForwardNippleZMinus">
+      <rSolid name="PixelForwardNippleZMinus_01"/>
+      <rSolid name="PixelForwardNippleMiddle"/>
+      <Translation x="0." y="0." z="0."/>
+    </UnionSolid>
+  </SolidSection>
+  <LogicalPartSection label="Root">
+    <LogicalPart name="PixelForwardNippleZPlus" category="envelope">
+      <rSolid name="PixelForwardNippleZPlus"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleZMinus" category="envelope">
+      <rSolid name="PixelForwardNippleZMinus"/>
+      <rMaterial name="materials:Air"/>
+    </LogicalPart>
+  </LogicalPartSection>
+  <!-- Sleeve and pipes inside it -->
+  <ConstantsSection label="Sleeve" eval="true">
+    <Constant name="e01" value="[JK]-[L01]-[L02]"/>
+  </ConstantsSection>
+  <SolidSection label="Sleeve">
+    <Polycone name="PixelForwardNippleSleeve" startPhi="0.*deg" deltaPhi="360*deg">
+      <ZSection z="-[L04]/2" rMin="0." rMax="[R08]"/>
+      <ZSection z="[L04]/2-([R08]-[R07])*tan([A01])" rMin="0." rMax="[R08]"/>
+      <ZSection z="[L04]/2" rMin="0." rMax="[R07]"/>
+    </Polycone>
+    <Polycone name="PixelForwardNippleEpoxyCover" startPhi="0.*deg" deltaPhi="360*deg">
+      <ZSection z="-[L06]/2" rMin="[R05]" rMax="[R11]"/>
+      <ZSection z="[L06]/2-[L07]-([R10]-[R11])" rMin="[R05]" rMax="[R11]"/>
+      <ZSection z="[L06]/2-[L07]" rMin="[R05]" rMax="[R10]"/>
+      <ZSection z="[L06]/2" rMin="[R05]" rMax="[R10]"/>
+    </Polycone>
+    <Polycone name="PixelForwardNippleEpoxyBody" startPhi="0.*deg" deltaPhi="360*deg">
+      <ZSection z="-[L05]/2" rMin="[R02]" rMax="[R09]"/>
+      <ZSection z="-[L05]/2+[L08]" rMin="[R02]" rMax="[R09]"/>
+      <ZSection z="-[L05]/2+[L08]+([R09]-[R06])" rMin="[R02]" rMax="[R06]"/>
+      <ZSection z="[L05]/2" rMin="[R02]" rMax="[R06]"/>
+    </Polycone>
+    <Polycone name="PixelForwardNippleSleeveCoolant" startPhi="0.*deg" deltaPhi="360*deg">
+      <ZSection z="-[L04]/2" rMin="0.0" rMax="[R04]"/>
+      <ZSection z="-[L04]/2+[L06]-([L02]-[L03])" rMin="0.0" rMax="[R04]"/>
+      <ZSection z="-[L04]/2+[L06]-([L02]-[L03])+([R04]-[R03])" rMin="0.0" rMax="[R03]"/>
+      <ZSection z="-[L04]/2+[L06]" rMin="0.0" rMax="[R03]"/>
+      <ZSection z="-[L04]/2+[L06]" rMin="0.0" rMax="[R02]"/>
+      <ZSection z="-[L04]/2+[L06]+[e01]" rMin="0.0" rMax="[R02]"/>
+      <ZSection z="-[L04]/2+[L06]+[e01]" rMin="0.0" rMax="[R01]"/>
+      <ZSection z="[L04]/2" rMin="0.0" rMax="[R01]"/>
+    </Polycone>
+  </SolidSection>
+  <LogicalPartSection label="Sleeve">
+    <LogicalPart name="PixelForwardNippleSleeve" category="cooling">
+      <rSolid name="PixelForwardNippleSleeve"/>
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleEpoxyCover" category="cooling">
+      <rSolid name="PixelForwardNippleEpoxyCover"/>
+      <rMaterial name="pixfwdMaterials:Pix_Fwd_AgEpoxy"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleEpoxyBody" category="cooling">
+      <rSolid name="PixelForwardNippleEpoxyBody"/>
+      <rMaterial name="pixfwdMaterials:Pix_Fwd_AgEpoxy"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleSleeveCoolant" category="cooling">
+      <rSolid name="PixelForwardNippleSleeveCoolant"/>
+      <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+    </LogicalPart>
+  </LogicalPartSection>
+  <PosPartSection label="Sleeve">
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleZPlus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleSleeve"/>
+      <Translation x="0." y="0." z="-[JK]/2 + [L02] - [L06] + [L04]/2"/>
+    </PosPart>
+    <PosPart copyNumber="2">
+      <rParent name="pixfwdNipple:PixelForwardNippleZMinus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleSleeve"/>
+      <Translation x="0." y="0." z="-[JK]/2 + [L02] - [L06] + [L04]/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleSleeve"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleEpoxyCover"/>
+      <Translation x="0." y="0." z="-[L04]/2 + [L06]/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleSleeve"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleEpoxyBody"/>
+      <Translation x="0." y="0." z="[L04]/2 - [L05]/2"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleSleeve"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleSleeveCoolant"/>
+    </PosPart>
+  </PosPartSection>
+  <!-- Cover side : -->
+  <ConstantsSection label="Cover" eval="true">
+    <Constant name="e02" value="([L02]-[L06])/2"/>
+    <!-- Half length of cover side -->
+  </ConstantsSection>
+  <SolidSection label="Cover">
+    <Tubs name="PixelForwardNippleCover_01" rMin="0.*mm" rMax="[R05]" dz="[e02]" startPhi="0." deltaPhi="360*deg"/>
+    <Tubs name="PixelForwardNippleCoverCoolant_01" rMin="0.*mm" rMax="[R04]" dz="[e02]" startPhi="0." deltaPhi="360*deg"/>
+    <SubtractionSolid name="PixelForwardNippleCoverZPlus">
+      <rSolid name="PixelForwardNippleCover_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="-[e02]-[DeltaCover]"/>
+      <rRotation name="pixfwdNipple:NippleToCoverZPlus"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="PixelForwardNippleCoverCoolantZPlus">
+      <rSolid name="PixelForwardNippleCoverCoolant_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="-[e02]-[DeltaCover]"/>
+      <rRotation name="pixfwdNipple:NippleToCoverZPlus"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="PixelForwardNippleCoverZMinus">
+      <rSolid name="PixelForwardNippleCover_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="-[e02]-[DeltaCover]"/>
+      <rRotation name="pixfwdNipple:NippleToCoverZMinus"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="PixelForwardNippleCoverCoolantZMinus">
+      <rSolid name="PixelForwardNippleCoverCoolant_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="-[e02]-[DeltaCover]"/>
+      <rRotation name="pixfwdNipple:NippleToCoverZMinus"/>
+    </SubtractionSolid>
+  </SolidSection>
+  <LogicalPartSection label="Cover">
+    <LogicalPart name="PixelForwardNippleCoverZPlus" category="cooling">
+      <rSolid name="PixelForwardNippleCoverZPlus"/>
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleCoverCoolantZPlus" category="cooling">
+      <rSolid name="PixelForwardNippleCoverCoolantZPlus"/>
+      <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleCoverZMinus" category="cooling">
+      <rSolid name="PixelForwardNippleCoverZMinus"/>
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleCoverCoolantZMinus" category="cooling">
+      <rSolid name="PixelForwardNippleCoverCoolantZMinus"/>
+      <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+    </LogicalPart>
+  </LogicalPartSection>
+  <PosPartSection label="Cover">
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleZPlus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleCoverZPlus"/>
+      <Translation x="0." y="0." z="-[JK]/2 + [e02]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleCoverZPlus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleCoverCoolantZPlus"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleZMinus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleCoverZMinus"/>
+      <Translation x="0." y="0." z="-[JK]/2 + [e02]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleCoverZMinus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleCoverCoolantZMinus"/>
+    </PosPart>
+  </PosPartSection>
+  <!-- Body side : -->
+  <ConstantsSection label="Body" eval="true">
+    <Constant name="e03" value="([JK]-[e02]*2-[L04])/2"/>
+    <!--Half length of body side -->
+  </ConstantsSection>
+  <SolidSection label="Body">
+    <Tubs name="PixelForwardNippleBody_01" rMin="0.*mm" rMax="[R02]" dz="[e03]" startPhi="0." deltaPhi="360*deg"/>
+    <Tubs name="PixelForwardNippleBodyCoolant_01" rMin="0.*mm" rMax="[R01]" dz="[e03]" startPhi="0." deltaPhi="360*deg"/>
+    <SubtractionSolid name="PixelForwardNippleBodyZPlus">
+      <rSolid name="PixelForwardNippleBody_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="[e03]+[DeltaBody]"/>
+      <rRotation name="pixfwdNipple:NippleToBodyZPlus"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="PixelForwardNippleBodyCoolantZPlus">
+      <rSolid name="PixelForwardNippleBodyCoolant_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="[e03]+[DeltaBody]"/>
+      <rRotation name="pixfwdNipple:NippleToBodyZPlus"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="PixelForwardNippleBodyZMinus">
+      <rSolid name="PixelForwardNippleBody_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="[e03]+[DeltaBody]"/>
+      <rRotation name="pixfwdNipple:NippleToBodyZMinus"/>
+    </SubtractionSolid>
+    <SubtractionSolid name="PixelForwardNippleBodyCoolantZMinus">
+      <rSolid name="PixelForwardNippleBodyCoolant_01"/>
+      <rSolid name="PixelForwardNippleSubtract"/>
+      <Translation x="0." y="0." z="[e03]+[DeltaBody]"/>
+      <rRotation name="pixfwdNipple:NippleToBodyZMinus"/>
+    </SubtractionSolid>
+  </SolidSection>
+  <LogicalPartSection label="Body">
+    <LogicalPart name="PixelForwardNippleBodyZPlus" category="cooling">
+      <rSolid name="PixelForwardNippleBodyZPlus"/>
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleBodyCoolantZPlus" category="cooling">
+      <rSolid name="PixelForwardNippleBodyCoolantZPlus"/>
+      <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleBodyZMinus" category="cooling">
+      <rSolid name="PixelForwardNippleBodyZMinus"/>
+      <rMaterial name="trackermaterial:T_Aluminium"/>
+    </LogicalPart>
+    <LogicalPart name="PixelForwardNippleBodyCoolantZMinus" category="cooling">
+      <rSolid name="PixelForwardNippleBodyCoolantZMinus"/>
+      <rMaterial name="pixfwdMaterials:PixelForwardCoolant"/>
+    </LogicalPart>
+  </LogicalPartSection>
+  <PosPartSection label="BodyPlus">
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleZPlus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleBodyZPlus"/>
+      <Translation x="0." y="0." z="[JK]/2 - [e03]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleBodyZPlus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleBodyCoolantZPlus"/>
+    </PosPart>
+  </PosPartSection>
+  <PosPartSection label="BodyMinus">
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleZMinus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleBodyZMinus"/>
+      <Translation x="0." y="0." z="[JK]/2 - [e03]"/>
+    </PosPart>
+    <PosPart copyNumber="1">
+      <rParent name="pixfwdNipple:PixelForwardNippleBodyZMinus"/>
+      <rChild name="pixfwdNipple:PixelForwardNippleBodyCoolantZMinus"/>
+    </PosPart>
+  </PosPartSection>
+</DDDefinition>
