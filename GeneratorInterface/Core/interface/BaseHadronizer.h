@@ -86,7 +86,7 @@ namespace gen {
     void randomizeIndex(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine);
     void generateLHE(edm::LuminosityBlock const& lumi, CLHEP::HepRandomEngine* rengine, unsigned int ncpu);
     void cleanLHE();
-    unsigned int getVHepMC() {return ivhepmc;}
+    unsigned int getVHepMC() { return ivhepmc; }
 
   protected:
     unsigned int ivhepmc = 2;
