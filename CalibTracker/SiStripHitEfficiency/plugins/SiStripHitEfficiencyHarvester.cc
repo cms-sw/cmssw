@@ -111,9 +111,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   edm::Service<TFileService> fs;
 
   auto h_module_total = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_total->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_total");
+  h_module_total->loadTkHistoMap("AlCaReco/SiStripHitEfficiency", "perModule_total");
   auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_found->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_found");
+  h_module_found->loadTkHistoMap("AlCaReco/SiStripHitEfficiency", "perModule_found");
   LogDebug("SiStripHitEfficiencyHarvester")
       << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
       << h_module_found->getMap(3)->getEntries();
@@ -338,8 +338,8 @@ void SiStripHitEfficiencyHarvester::makeSummaryVsBX(DQMStore::IGetter& getter, T
 
 void SiStripHitEfficiencyHarvester::makeSummaryVsLumi(DQMStore::IGetter& getter, TFileService& fs) const {
   for (unsigned int iLayer = 1; iLayer != (showRings_ ? 20 : 22); ++iLayer) {
-    auto hfound = getter.get(fmt::format("SiStrip/HitEfficiency/layerfound_vsLumi_layer_{}", iLayer))->getTH1F();
-    auto htotal = getter.get(fmt::format("SiStrip/HitEfficiency/layertotal_vsLumi_layer_{}", iLayer))->getTH1F();
+    auto hfound = getter.get(fmt::format("AlCaReco/SiStripHitEfficiency/layerfound_vsLumi_layer_{}", iLayer))->getTH1F();
+    auto htotal = getter.get(fmt::format("AlCaReco/SiStripHitEfficiency/layertotal_vsLumi_layer_{}", iLayer))->getTH1F();
     if (!hfound->GetSumw2())
       hfound->Sumw2();
     if (!htotal->GetSumw2())
