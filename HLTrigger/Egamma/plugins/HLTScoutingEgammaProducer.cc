@@ -224,8 +224,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
       auto const recHit_en = recHitE(mDetIds[i], *rechits);
       if (not rechitZeroSuppression or recHit_en > 0) {
         mDetIdIds.push_back(mDetIds[i]);
-        mEnergies.push_back(
-            MiniFloatConverter::reduceMantissaToNbitsRounding(recHit_en, mantissaPrecision));
+        mEnergies.push_back(MiniFloatConverter::reduceMantissaToNbitsRounding(recHit_en, mantissaPrecision));
         if (saveRecHitTiming) {
           mTimes.push_back(
               MiniFloatConverter::reduceMantissaToNbitsRounding(recHitT(mDetIds[i], *rechits), mantissaPrecision));
