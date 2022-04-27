@@ -114,6 +114,19 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   h_module_total->loadTkHistoMap("AlCaReco/SiStripHitEfficiency", "perModule_total");
   auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
   h_module_found->loadTkHistoMap("AlCaReco/SiStripHitEfficiency", "perModule_found");
+
+  // check on the input TkHistoMap
+  if (h_module_total->getMap(1) == nullptr or h_module_found->getMap(1) == nullptr) {
+    if (h_module_total->getMap(1) == nullptr) {
+      edm::LogError("SiStripHitEfficiencyHarvester") << "perModule_total TkHistoMap was not found.\n -> Aborting!";
+    }
+    if (h_module_found->getMap(1) == nullptr) {
+      edm::LogError("SiStripHitEfficiencyHarvester") << "perModule_found TkHistoMap was not found.\n -> Aborting!";
+    }
+    // no input TkHistoMaps -> early return
+    return;
+  }
+
   LogDebug("SiStripHitEfficiencyHarvester")
       << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
       << h_module_found->getMap(3)->getEntries();
@@ -347,6 +360,18 @@ void SiStripHitEfficiencyHarvester::makeSummaryVsLumi(DQMStore::IGetter& getter)
         getter.get(fmt::format("AlCaReco/SiStripHitEfficiency/layerfound_vsLumi_layer_{}", iLayer))->getTH1F();
     auto htotal =
         getter.get(fmt::format("AlCaReco/SiStripHitEfficiency/layertotal_vsLumi_layer_{}", iLayer))->getTH1F();
+
+    if (hfound == nullptr or htotal == nullptr) {
+      if (hfound == nullptr)
+        edm::LogError("SiStripHitEfficiencyHarvester")
+            << fmt::format("AlCaReco/SiStripHitEfficiency/layerfound_vsLumi_layer_{}", iLayer) << " was not found!";
+      if (htotal == nullptr)
+        edm::LogError("SiStripHitEfficiencyHarvester")
+            << fmt::format("AlCaReco/SiStripHitEfficiency/layertotal_vsLumi_layer_{}", iLayer) << " was not found!";
+      // no input histograms -> continue in the loop
+      continue;
+    }
+
     if (!hfound->GetSumw2())
       hfound->Sumw2();
     if (!htotal->GetSumw2())
