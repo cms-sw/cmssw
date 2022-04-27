@@ -617,6 +617,41 @@
 		<Title>Fraction of CSC Records with CFEB B-Words</Title>
 		<Name>CSC_Format_Warnings_Fract</Name>
 	</Histogram>
+        <Histogram ref="chamberMap">
+                <Descr>Histogram shows Run3 combined HMT bits sent to MPC readout occupancies</Descr>
+                <Title>CSCs reporting HMT bits sent to MPC</Title>
+                <Name>CSC_LCT_HMT_Reporting</Name>
+        </Histogram>
+        <Histogram ref="chamberMap">
+                <Descr>Histogram shows Run3 Anode HMT bits (O)TMB readout occupancies</Descr>
+                <Title>CSCs reporting Anode HMT bits in (O)TMB</Title>
+                <Name>CSC_Anode_HMT_Reporting</Name>
+        </Histogram>
+        <Histogram ref="chamberMap">
+                <Descr>Histogram shows Run3 Cathode HMT bits (O)TMB readout occupancies</Descr>
+                <Title>CSCs reporting Cathode HMT bits in (O)TMB</Title>
+                <Name>CSC_Cathode_HMT_Reporting</Name>
+        </Histogram>
+        <Histogram ref="chamberMap">
+                <Descr>Histogram shows Run3 Anode HMT bits from ALCT sent to (O)TMB readout occupancies</Descr>
+                <Title>CSCs reporting Anode HMT bits (from ALCT)</Title>
+                <Name>CSC_Anode_HMT_ALCT_Reporting</Name>
+        </Histogram>
+        <Histogram ref="chamberMap">
+                <Descr>Histogram shows chambers with (O)TMB Run3 Data Format</Descr>
+                <Title>CSCs reporting (O)TMB Run3 Data Format</Title>
+                <Name>CSC_TMB_Run3_Data_Format</Name>
+        </Histogram>
+        <Histogram ref="chamberMap">
+                <Descr>Histogram shows chambers with (O)TMB Run3 CCLUT enabled</Descr>
+                <Title>CSCs reporting (O)TMB Run3 CCLUT enabled</Title>
+                <Name>CSC_TMB_Run3_CCLUT_Mode</Name>
+        </Histogram>
+        <Histogram ref="chamberMap">
+                <Descr>Histogram shows chambers with ALCT Run3 Data Format</Descr>
+                <Title>CSCs reporting ALCT Run3 Data Format</Title>
+                <Name>CSC_ALCT_Run3_Format</Name>
+        </Histogram>
 	<Histogram>
 		<Prefix>EMU</Prefix>
 		<SetGridx>1</SetGridx>
@@ -4692,5 +4727,40 @@
                 <Name>GEM_gemB_VFAT_Hits_in_Time_Profile</Name>
         </Histogram>
 
+       <Histogram>
+                <Prefix>EMU</Prefix>
+                <SetLabelSizeY>0.025</SetLabelSizeY>
+                <SetOption>colz</SetOption>
+                <SetOptStat>e</SetOptStat>
+                <Title>GEM z+ VFATs occupancies</Title>
+                <Type>h2</Type>
+                <XBins>72</XBins>
+                <XMax>73</XMax>
+                <XMin>1</XMin>
+                <XTitle>GEM z+ chamber (gemA+B)</XTitle>
+                <YBins>24</YBins>
+                <YMax>24</YMax>
+                <YMin>0</YMin>
+                <YTitle>VFATs</YTitle>
+                <Name>Plus_endcap_GEM_VFAT_occupancy</Name>
+        </Histogram>
+        
+        <Histogram>
+                <Prefix>EMU</Prefix>
+                <SetLabelSizeY>0.025</SetLabelSizeY>
+                <SetOption>colz</SetOption>
+                <SetOptStat>e</SetOptStat>
+                <Title>GEM z- VFATs occupancies</Title>
+                <Type>h2</Type>
+                <XBins>72</XBins>
+                <XMax>73</XMax>
+                <XMin>1</XMin>
+                <XTitle>GEM z- chamber (gemA+B)</XTitle>
+                <YBins>24</YBins>
+                <YMax>24</YMax>
+                <YMin>0</YMin>
+                <YTitle>VFATs</YTitle>
+                <Name>Minus_endcap_GEM_VFAT_occupancy</Name>
+        </Histogram>
 
 </Booking>

@@ -418,10 +418,17 @@ namespace cscdqm {
     if (data.nalct()) {
       const CSCALCTHeader* alctHeader = data.alctHeader();
       int fwVersion = alctHeader->alctFirmwareVersion();
+      int fwRevision = alctHeader->alctFirmwareRevision();
       const CSCALCTTrailer* alctTrailer = data.alctTrailer();
       const CSCAnodeData* alctData = data.alctData();
 
       if (alctHeader && alctTrailer) {
+        /** Summary plot for chambers with detected Run3 ALCT firmware */
+        if (getEMUHisto(h::EMU_CSC_RUN3_ALCT_FORMAT, mo)) {
+          /// ALCT Run3 firmware revision should be > 5
+          if (fwRevision > 5)
+            mo->SetBinContent(cscPosition, cscType + 1, fwRevision);
+        }
         std::vector<CSCALCTDigi> alctsDatasTmp = alctHeader->ALCTDigis();
         std::vector<CSCALCTDigi> alctsDatas;
 
@@ -516,9 +523,14 @@ namespace cscdqm {
 
         /** Run3 ALCT HMT bits from ALCT data */
         std::vector<CSCShowerDigi> alctShowers = alctHeader->alctShowerDigis();
-        if (getCSCHisto(h::CSC_RUN3_ALCT_HMT_BITS_VS_BX, crateID, dmbID, mo)) {
-          for (unsigned bx = 0; bx < alctShowers.size(); bx++) {
+        for (unsigned bx = 0; bx < alctShowers.size(); bx++) {
+          if (getCSCHisto(h::CSC_RUN3_ALCT_HMT_BITS_VS_BX, crateID, dmbID, mo)) {
             mo->Fill(alctShowers[bx].bitsInTime(), bx);
+          }
+          /** Summary occupancy plot for ANode HMT bits per BX from ALCT */
+          if (getEMUHisto(h::EMU_CSC_ANODE_HMT_ALCT_REPORTING, mo)) {
+            if (alctShowers[bx].isValid())
+              mo->Fill(cscPosition, cscType);
           }
         }
 
@@ -886,11 +898,20 @@ namespace cscdqm {
               isGEM_df = true;
             if (((tmbHeader->FirmwareRevision() >> 9) & 0xF) == 0x4)
               isTMB_hybrid_df = true;
+            /** Summary plot for chambers with detected (O)TMB Run3 data format */
+            if ((isTMB_hybrid_df || isRun3_df) && getEMUHisto(h::EMU_CSC_TMB_RUN3_DATA_FORMAT, mo)) {
+              mo->SetBinContent(cscPosition, cscType + 1, 1);
+            }
           }
 
           if (tmbHeader->FirmwareVersion() == 2020) {
             if (isRun3_df) {
-              // tmbHeader->tmbHeader2020().print(std::cout);
+              /** Summary plot for chambers with detected enabled (O)TMB Run3 CCLUT mode */
+              if (getEMUHisto(h::EMU_CSC_TMB_RUN3_CCLUT_MODE, mo)) {
+                if (tmbHeader->clct0_ComparatorCode() > 0)
+                  mo->SetBinContent(cscPosition, cscType + 1, 1);
+              }
+
               if (isGEM_df) {
                 if (getCSCHisto(h::CSC_GEM_FIBERS_STATUS, crateID, dmbID, mo)) {
                   int gem_fibers = tmbHeader->gem_enabled_fibers();
@@ -945,7 +966,7 @@ namespace cscdqm {
                                               dmbID,
                                               mo)) {
                                 // int npad = (7 - (pads_hits[0] / 192)) * 192 + pads_hits[0] % 192;
-                                int npad = pads_hits[0]; // no eta recode
+                                int npad = pads_hits[0];  // no eta recode
                                 mo->Fill(npad, pads_hits.size());
                               }
 
@@ -957,9 +978,20 @@ namespace cscdqm {
                                 mo->Fill(hits_timebin);
                               }
 
+                              /// Fill summary GEM VFATs occupancies plots for endcaps
+                              if ((cid.endcap() == 1) && getEMUHisto(h::EMU_GEM_PLUS_ENDCAP_VFAT_OCCUPANCY, mo)) {
+                                int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
+                                mo->Fill((cscPosition)*2 + i - 1, vfat);
+                              }
+
+                              if ((cid.endcap() == 2) && getEMUHisto(h::EMU_GEM_MINUS_ENDCAP_VFAT_OCCUPANCY, mo)) {
+                                int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
+                                mo->Fill((cscPosition)*2 + i - 1, vfat);
+                              }
+
                               for (unsigned pad = 0; pad < pads_hits.size(); pad++) {
                                 // int npad = (7 - (pads_hits[pad] / 192)) * 192 + pads_hits[pad] % 192;
-                                int npad = pads_hits[pad]; // no eta recode
+                                int npad = pads_hits[pad];  // no eta recode
                                 if (getCSCHisto(
                                         ((i == 0) ? h::CSC_GEM_GEMA_HITS : h::CSC_GEM_GEMB_HITS), crateID, dmbID, mo)) {
                                   mo->Fill(npad);
@@ -985,7 +1017,7 @@ namespace cscdqm {
                                                 crateID,
                                                 dmbID,
                                                 mo)) {
-                                  int vfat = (pads_hits[0]/192) + ((pads_hits[0]%192)/64)*8;
+                                  int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
                                   mo->Fill(vfat, hits_timebin);
                                 }
                                 if (getCSCHisto(((i == 0) ? h::CSC_GEM_GEMA_VFAT_HITS_IN_TIME_PROFILE
@@ -993,7 +1025,7 @@ namespace cscdqm {
                                                 crateID,
                                                 dmbID,
                                                 mo)) {
-                                  int vfat = (pads_hits[0]/192) + ((pads_hits[0]%192)/64)*8;
+                                  int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
                                   mo->Fill(vfat, hits_timebin);
                                 }
                                 /*
@@ -1046,6 +1078,18 @@ namespace cscdqm {
                   }
                 }  // OTMB hasGEM
               }    // isGEM_df
+
+              /// Summary occupancy plot for Anode HMT bits from OTMB
+              if (getEMUHisto(h::EMU_CSC_ANODE_HMT_REPORTING, mo)) {
+                if (tmbHeader->alctHMT() > 0)
+                  mo->Fill(cscPosition, cscType);
+              }
+
+              /// Summary occupancy plot for Cathode HMT bits from OTMB
+              if (getEMUHisto(h::EMU_CSC_CATHODE_HMT_REPORTING, mo)) {
+                if (tmbHeader->clctHMT() > 0)
+                  mo->Fill(cscPosition, cscType);
+              }
 
               if (getCSCHisto(h::CSC_CLCT_RUN3_HMT_NHITS, crateID, dmbID, mo)) {
                 mo->Fill(tmbHeader->hmt_nhits());
@@ -1147,16 +1191,6 @@ namespace cscdqm {
                     if (getCSCHisto(h::CSC_GEM_LCT_SYNC_STATUS, crateID, dmbID, mo)) {
                       mo->Fill(lct, i);  // Fill for valid LCT
                     }
-                    /*
-                                  if (isMEvalid(cscME, "GEM_LCT_KeyStrip_Sync_Status", mo))
-                                    {
-                                      mo->Fill(corr_lctsDatasTmp[lct].getStrip(2),i);
-                                    }
-                                  if (isMEvalid(cscME, "GEM_LCT_KeyWG_Sync_Status", mo))
-                                    {
-                                      mo->Fill(corr_lctsDatasTmp[lct].getKeyWG(),i);
-                                    }
-                                 */
                   }
                 }
               }
@@ -1168,6 +1202,11 @@ namespace cscdqm {
 
             if (lct == 0) {
               if (corr_lctsDatasTmp[lct].isRun3() || isTMB_hybrid_df) {
+                /// Summary occupancy plot for combined HMT bits sent to MPC
+                if (getEMUHisto(h::EMU_CSC_LCT_HMT_REPORTING, mo)) {
+                  if (corr_lctsDatasTmp[lct].getHMT() > 0)
+                    mo->Fill(cscPosition, cscType);
+                }
                 if (getCSCHisto(h::CSC_RUN3_HMT_DISTRIBUTION, crateID, dmbID, mo)) {
                   mo->Fill(corr_lctsDatasTmp[lct].getHMT());
                 }

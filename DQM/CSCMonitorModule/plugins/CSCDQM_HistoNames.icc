@@ -478,7 +478,16 @@ namespace h {
   HIST_ID(CSC_GEM_GEMA_VFAT_HITS_IN_TIME)                       \
   HIST_ID(CSC_GEM_GEMB_VFAT_HITS_IN_TIME)                       \
   HIST_ID(CSC_GEM_GEMA_VFAT_HITS_IN_TIME_PROFILE)               \
-  HIST_ID(CSC_GEM_GEMB_VFAT_HITS_IN_TIME_PROFILE)
+  HIST_ID(CSC_GEM_GEMB_VFAT_HITS_IN_TIME_PROFILE)               \
+  HIST_ID(EMU_GEM_PLUS_ENDCAP_VFAT_OCCUPANCY)                   \
+  HIST_ID(EMU_GEM_MINUS_ENDCAP_VFAT_OCCUPANCY)                  \
+  HIST_ID(EMU_CSC_LCT_HMT_REPORTING)                            \
+  HIST_ID(EMU_CSC_ANODE_HMT_REPORTING)                          \
+  HIST_ID(EMU_CSC_CATHODE_HMT_REPORTING)                        \
+  HIST_ID(EMU_CSC_ANODE_HMT_ALCT_REPORTING)                     \
+  HIST_ID(EMU_CSC_TMB_RUN3_DATA_FORMAT)                         \
+  HIST_ID(EMU_CSC_TMB_RUN3_CCLUT_MODE)                          \
+  HIST_ID(EMU_CSC_RUN3_ALCT_FORMAT)
 
 #define HIST_NAME_TABLE                                         \
   HIST_NAME("Actual_DMB_CFEB_DAV_Frequency")                    \
@@ -928,7 +937,16 @@ namespace h {
   HIST_NAME("GEM_gemA_VFAT_Hits_in_Time")                       \
   HIST_NAME("GEM_gemB_VFAT_Hits_in_Time")                       \
   HIST_NAME("GEM_gemA_VFAT_Hits_in_Time_Profile")               \
-  HIST_NAME("GEM_gemB_VFAT_Hits_in_Time_Profile")
+  HIST_NAME("GEM_gemB_VFAT_Hits_in_Time_Profile")               \
+  HIST_NAME("Plus_endcap_GEM_VFAT_occupancy")                   \
+  HIST_NAME("Minus_endcap_GEM_VFAT_occupancy")                  \
+  HIST_NAME("CSC_LCT_HMT_Reporting")                            \
+  HIST_NAME("CSC_Anode_HMT_Reporting")                          \
+  HIST_NAME("CSC_Cathode_HMT_Reporting")                        \
+  HIST_NAME("CSC_Anode_HMT_ALCT_Reporting")                     \
+  HIST_NAME("CSC_TMB_Run3_Data_Format")                         \
+  HIST_NAME("CSC_TMB_Run3_CCLUT_Mode")                          \
+  HIST_NAME("CSC_ALCT_Run3_Format")
 
 #define HIST_ID(a) a,
   enum HistoId { HIST_ID_TABLE };
