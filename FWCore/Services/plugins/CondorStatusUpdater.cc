@@ -80,7 +80,6 @@ namespace edm {
       edm::ParameterSetID m_processParameterSetID;
 
       std::uint_least64_t m_lastEventCount = 0;
-      bool m_disable = false;
     };
 
   }  // namespace service
@@ -100,7 +99,7 @@ CondorStatusService::CondorStatusService(ParameterSet const &pset, edm::Activity
       m_runs(0),
       m_files(0) {
   m_shouldUpdate.clear();
-  if (pset.getUntrackedParameter("disable", false)) {
+  if (not pset.getUntrackedParameter("enable", true)) {
     return;
   }
   if (!isChirpSupported()) {
@@ -425,7 +424,7 @@ void CondorStatusService::fillDescriptions(ConfigurationDescriptions &descriptio
       ->setComment("Interval, in seconds, to calculate event rate over (using EMA)");
   desc.addOptionalUntracked<std::string>("tag")->setComment(
       "Identifier tag for this process (a value of 'Foo' results in ClassAd attributes of the form 'ChirpCMSSWFoo*')");
-  desc.addOptionalUntracked<bool>("disable", false)->setComment("Disable this service");
+  desc.addOptionalUntracked<bool>("enable", true)->setComment("Enable this service");
   descriptions.add("CondorStatusService", desc);
 }
 
