@@ -1,87 +1,37 @@
-AlCaRecoMatrix = {"AlCaLumiPixels" : "AlCaPCCZeroBias+AlCaPCCRandom",
-                  "Charmonium"     : "TkAlJpsiMuMu",
-                  "Commissioning"  : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector+TkAlMinBias+SiStripCalMinBias",
-                  "Cosmics"        : "SiPixelCalCosmics+SiStripCalCosmics+TkAlCosmics0T+MuAlGlobalCosmics",
-                  "DoubleEG"       : "EcalCalZElectron+EcalUncalZElectron+HcalCalIterativePhiSym+HcalCalIsoTrkProducerFilter",
-                  "DoubleMuon"     : "TkAlZMuMu+TkAlDiMuonAndVertex+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalLowPUHBHEMuonFilter",
-                  # New PD in 2018 to replace SinglePhoton SingleElectron and DoubleEG in 2017
-                  "EGamma"         : "EcalESAlign+EcalUncalWElectron+EcalUncalZElectron+HcalCalIsoTrkProducerFilter+HcalCalIterativePhiSym",
-                  "HLTPhysics"     : "TkAlMinBias+HcalCalIterativePhiSym+HcalCalIsoTrkProducerFilter+HcalCalHO+HcalCalHBHEMuonProducerFilter",
-                  "JetHT"          : "HcalCalIsoTrkProducerFilter+HcalCalIsolatedBunchFilter+TkAlMinBias",
-                  "MinimumBias"    : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
-                  "MuOnia"         : "TkAlUpsilonMuMu",
-                  "NoBPTX"         : "TkAlCosmicsInCollisions",
-                  "SingleElectron" : "EcalUncalWElectron+EcalUncalZElectron+HcalCalIterativePhiSym+EcalESAlign",
-                  "SingleMuon"     : "SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonProducerFilter",
-                  "SinglePhoton"   : "HcalCalGammaJet",
-                  "ZeroBias"       : "SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+SiStripCalMinBias+AlCaPCCZeroBiasFromRECO", 
-
-                  "Express"        : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias",
-                  "ExpressCosmics" : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias",
-                  "ExpressAlignment":"TkAlMinBias",
-                  # Used for new PCC PCL introduced in 2018
-                  "ALCALumiPixelsCountsExpress":"AlCaPCCRandom",
-                  # These two cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
-                  "AlCaPhiSym"     : "",
-                  "AlCaP0"         : "",
-                  # ---------------------------------------------------------------------------------------------------------------------------
-                  "HcalNZS"        : "HcalCalMinBias",
-                  # This is in the AlCaRecoMatrix, but no RelVals are produced
-                  # 'TestEnablesTracker'  : 'TkAlLAS'
-                  # 'TestEnablesEcalHcal' : 'HcalCalPedestal'
-                  "MET" : "HcalCalNoise",
-                  "SingleMu" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlMuonIsolated+MuAlZMuMu+HcalCalHO",
-                  "DoubleMu" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlZMuMu",
-                  "DoubleMuParked" : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlZMuMu",
-                  "MuOniaParked" : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
-                  "DoubleElectron" : "EcalCalZElectron+EcalUncalZElectron",
-                  "StreamExpress" : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias+SiPixelCalSingleMuon+PPSCalTrackBasedSel",
-                  "StreamExpressHI" : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+SiPixelCalZeroBias"
+AlCaRecoMatrix = {
+                  "ALCALumiPixelsCountsExpress" : "AlCaPCCRandom",
+                  "AlCaLumiPixelsCountsPrompt"  : "AlCaPCCZeroBias+RawPCCProducer",
+                  # These two (AlCaPhiSym, AlCaP0) cannot run on RAW, they are just meant to run on the dedicated AlcaRAW so they do not enter the allForPrompt list
+                  "AlCaPhiSym"                  : "",
+                  "AlCaP0"                      : "",
+                  "ALCAPPS"                     : "PPSCalMaxTracks", # Express producer
+                  "AlCaPPS"                     : "PPSCalMaxTracks", # Prompt  producer
+                  "Charmonium"                  : "TkAlJpsiMuMu",
+                  "Commissioning"               : "HcalCalIsoTrk+HcalCalIsolatedBunchSelector+TkAlMinBias+SiStripCalMinBias",
+                  "Cosmics"                     : "SiPixelCalCosmics+SiStripCalCosmics+TkAlCosmics0T+MuAlGlobalCosmics",
+                  "DoubleMuon"                  : "TkAlZMuMu+TkAlDiMuonAndVertex+MuAlCalIsolatedMu",
+                  "DoubleMuParked"              : "MuAlCalIsolatedMu+MuAlOverlaps+TkAlZMuMu",
+                  "EGamma"                      : "EcalESAlign+EcalUncalWElectron+EcalUncalZElectron+HcalCalIsoTrkProducerFilter+HcalCalIterativePhiSym",
+                  "Express"                     : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias",
+                  "ExpressAlignment"            : "TkAlMinBias",
+                  "ExpressCosmics"              : "SiStripPCLHistos+SiStripCalZeroBias+TkAlCosmics0T+SiPixelCalZeroBias",
+                  "HcalNZS"                     : "HcalCalMinBias",
+                  "HLTPhysics"                  : "TkAlMinBias",
+                  "JetHT"                       : "HcalCalIsoTrkProducerFilter+TkAlMinBias",
+                  "MET"                         : "HcalCalNoise",
+                  "MinimumBias"                 : "SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias",
+                  "MuOnia"                      : "TkAlUpsilonMuMu",
+                  "MuOniaParked"                : "TkAlJpsiMuMu+TkAlUpsilonMuMu",
+                  "NoBPTX"                      : "TkAlCosmicsInCollisions",
+                  "SingleMuon"                  : "SiPixelCalSingleMuonLoose+SiPixelCalSingleMuonTight+TkAlMuonIsolated+MuAlCalIsolatedMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonProducerFilter",
+                  "StreamExpress"               : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+SiPixelCalZeroBias+SiPixelCalSingleMuon+PPSCalTrackBasedSel",
+                  "StreamExpressHI"             : "SiStripCalZeroBias+TkAlMinBiasHI+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+SiPixelCalZeroBias",
+                  # These (TestEnablesTracker, TestEnablesEcalHcal) are in the AlCaRecoMatrix, but no RelVals are produced
+                  # 'TestEnablesTracker'        : 'TkAlLAS'
+                  # 'TestEnablesEcalHcal'       : 'HcalCalPedestal'
+                  "ZeroBias"                    : "SiStripCalZeroBias+TkAlMinBias+SiStripCalMinBias",
                   }
 
-# AlCaReco matrix used in CMSSW releases in 2018
-# First copy the default dict
-AlCaRecoMatrix2018 = AlCaRecoMatrix.copy()
-# Then customize for 2018
-customizationFor2018 = {"ALCALumiPixelsCountsExpress" : "",
-                        "AlcaLumiPixelsExpress"       : "AlCaPCCRandom"
-                       }
-AlCaRecoMatrix2018.update(customizationFor2018)
-
-# AlCaReco matrix used in CMSSW releases in 2017
-# First copy the default dict
-AlCaRecoMatrix2017 = AlCaRecoMatrix.copy()
-# Then customize for 2017
-customizationFor2017 = {"ALCALumiPixelsCountsExpress" : "",
-                        "Cosmics"                     : "TkAlCosmics0T+MuAlGlobalCosmics",
-                        "DoubleEG"                    : "EcalCalZElectron+EcalUncalZElectron+HcalCalIterativePhiSym+HcalCalIsoTrkFilter",
-                        "DoubleMuon"                  : "TkAlZMuMu+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu",
-                        "EGamma"                      : "",
-                        "HLTPhysics"                  : "TkAlMinBias",
-                        "JetHT"                       : "HcalCalIsoTrkFilter+HcalCalIsolatedBunchFilter",
-                        "SingleMuon"                  : "TkAlMuonIsolated+MuAlCalIsolatedMu+MuAlOverlaps+MuAlZMuMu+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonFilter+HcalCalHEMuonFilter",
-                        "DoubleElectron"              : "EcalCalZElectron+EcalUncalZElectron+HcalCalIsoTrkFilter",
-                        "StreamExpress"               : "SiStripCalZeroBias+TkAlMinBias+SiStripPCLHistos+SiStripCalMinBias+SiStripCalMinBiasAAG+Hotline+LumiPixelsMinBias+SiPixelCalZeroBias"
-                       }
-AlCaRecoMatrix2017.update(customizationFor2017)
-
-# This matrix has been used for the legacy reprocessing of the 2016 2016B-H dataset.
-# With the exception of ZeroBias, it was also used for the 23Sept16 reprocessing of 2016B-G
-# First copy the default dict
-AlCaRecoMatrix2016 = AlCaRecoMatrix.copy()
-# Then customize for 2016 re-reco
-customizationFor2016 = {"ALCALumiPixelsCountsExpress" : "",
-                        "AlCaP0"                      : "",
-                        "AlCaPhiSym"                  : "",
-                        "EGamma"                      : "",
-                        "Express"                     : "",
-                        "ExpressAlignment"            : "",
-                        "ExpressCosmics"              : "",
-                        "MuOniaParked"                : "",
-                        "StreamExpress"               : "",
-                        "StreamExpressHI"             : ""
-                       }
-AlCaRecoMatrix2016.update(customizationFor2016)
 
 def buildList(pdList, matrix):
     """Takes a list of primary datasets (PDs) and the AlCaRecoMatrix (a dictinary) and returns a string with all the AlCaRecos for the selected PDs separated by the '+' character without duplicates."""
@@ -99,8 +49,8 @@ def buildList(pdList, matrix):
     return stringList
 
 # Update the lists anytime a new PD is added to the matrix
-autoAlca = { 'allForPrompt'         : buildList(['Charmonium', 'Commissioning', 'DoubleEG', 'DoubleElectron', 'DoubleMu', 'DoubleMuParked', 'DoubleMuon', 'HLTPhysics', 'HcalNZS', 'JetHT', 'MET', 'MinimumBias', 'MuOnia', 'MuOniaParked', 'NoBPTX' , 'SingleElectron', 'SingleMu', 'SingleMuon', 'SinglePhoton', 'ZeroBias'], AlCaRecoMatrix),
-             'allForExpress'        : buildList(['StreamExpress'], AlCaRecoMatrix),
+autoAlca = { 'allForPrompt'         : buildList(['Charmonium', 'Commissioning', 'DoubleMuParked', 'DoubleMuon', 'EGamma', 'HLTPhysics', 'HcalNZS', 'JetHT', 'MET', 'MinimumBias', 'MuOnia', 'MuOniaParked', 'NoBPTX', 'SingleMuon', 'ZeroBias'], AlCaRecoMatrix),
+             'allForExpress'        : buildList(['StreamExpress', 'ALCALumiPixelsCountsExpress'], AlCaRecoMatrix),
              'allForExpressHI'      : buildList(['StreamExpressHI'], AlCaRecoMatrix),
              'allForPromptCosmics'  : buildList(['Cosmics'], AlCaRecoMatrix),
              'allForExpressCosmics' : buildList(['ExpressCosmics'], AlCaRecoMatrix) }

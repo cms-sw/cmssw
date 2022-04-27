@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<DDDefinition>
+
+  <ConstantsSection label="pixfwdRotation" eval="true">
+    <Constant name="Blades"      value="24"/>
+    <Constant name="BladeAngle"  value="20.0*deg"/>
+    <Constant name="BladeZShift" value="6.0*mm"/>
+    <Constant name="AncorRadius" value="54.631*mm"/>
+    <Constant name="JX"          value="-16.25*mm"/>
+    <Constant name="JY"          value="96.50*mm"/>
+    <Constant name="JZ"          value="1.25*mm"/>
+    <Constant name="KX"          value="16.25*mm"/>
+    <Constant name="KY"          value="96.50*mm"/>
+    <Constant name="KZ"          value="-1.25*mm"/>
+  </ConstantsSection>
+
+  <Algorithm name="track:DDPixFwdRotation">
+    <rParent name="pixfwdNipple:PixelForwardNippleZPlus"/>
+    <Numeric name="Endcap"       value="1."/>
+    <String name="NippleToCover" value="NippleToCoverZPlus"/>
+    <String name="CoverToNipple" value="CoverToNippleZPlus"/>
+    <String name="NippleToBody"  value="NippleToBodyZPlus"/>
+    <Numeric name="Blades"       value="[Blades]"/>
+    <Numeric name="BladeAngle"   value="[BladeAngle]"/>
+    <Numeric name="BladeZShift"  value="[BladeZShift]"/>
+    <Numeric name="AncorRadius"  value="[AncorRadius]"/>
+    <Numeric name="JX"           value="[JX]"/>
+    <Numeric name="JY"           value="[JY]"/>
+    <Numeric name="JZ"           value="[JZ]"/>
+    <Numeric name="KX"           value="[KX]"/>
+    <Numeric name="KY"           value="[KY]"/>
+    <Numeric name="KZ"           value="[KZ]"/>
+    <String name="RotationNS"    value="pixfwdNipple"/>
+  </Algorithm>
+
+  <Algorithm name="track:DDPixFwdRotation">
+    <rParent name="pixfwdNipple:PixelForwardNippleZMinus"/>
+    <Numeric name="Endcap"       value="-1."/>
+    <String name="NippleToCover" value="NippleToCoverZMinus"/>
+    <String name="CoverToNipple" value="CoverToNippleZMinus"/>
+    <String name="NippleToBody"  value="NippleToBodyZMinus"/>
+    <Numeric name="Blades"       value="[Blades]"/>
+    <Numeric name="BladeAngle"   value="[BladeAngle]"/>
+    <Numeric name="BladeZShift"  value="[BladeZShift]"/>
+    <Numeric name="AncorRadius"  value="[AncorRadius]"/>
+    <Numeric name="JX"           value="[JX]"/>
+    <Numeric name="JY"           value="[JY]"/>
+    <Numeric name="JZ"           value="[JZ]"/>
+    <Numeric name="KX"           value="[KX]"/>
+    <Numeric name="KY"           value="[KY]"/>
+    <Numeric name="KZ"           value="[KZ]"/>
+    <String name="RotationNS"    value="pixfwdNipple"/>
+  </Algorithm>
+
+</DDDefinition>

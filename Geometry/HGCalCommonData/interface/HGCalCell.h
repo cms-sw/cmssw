@@ -49,6 +49,7 @@ public:
   std::pair<double, double> cellUV2XY2(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   std::pair<int32_t, int32_t> cellUV2Cell(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   static int32_t cellPlacementIndex(int32_t iz, int32_t fwdBack, int32_t orient);
+  static std::pair<int32_t, int32_t> cellOrient(int32_t placementIndex);
   static std::pair<int32_t, int32_t> cellType(int32_t u, int32_t v, int32_t ncell, int32_t placementIndex);
 
 private:
