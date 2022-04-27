@@ -189,11 +189,10 @@ namespace edm {
           event.reset(t);
         }
       }
-      if (ivhepmc == 2 && !event.get())  // HepMC
+      if (ivhepmc == 2 && !event.get())
         return false;
-      if (ivhepmc == 3 && !event3.get())  // HepMC3
+      if (ivhepmc == 3 && !event3.get())
         return false;
-      }
 
       passEvtGenSelector = hadronizer_.select(event.get());
     }
@@ -202,9 +201,9 @@ namespace edm {
     //
     // fisrt of all, put back modified event tree (after external decay)
     //
-    if (ivhepmc == 2)  // HepMC
+    if (ivhepmc == 2)
       hadronizer_.resetEvent(std::move(event));
-    if (ivhepmc == 3)  // HepMC3
+    if (ivhepmc == 3)
       hadronizer_.resetEvent3(std::move(event3));
 
     //
