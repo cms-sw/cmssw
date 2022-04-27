@@ -224,6 +224,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   else{
     //Use the existing weights
     int lPackCtr = 0;
+    lWeights.reserve(pfCol->size());
+    lCandidates.reserve(pfCol->size());
     for(auto const& aPF : *pfCol) {  
       const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       float curpupweight = -1.;
@@ -273,6 +275,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
 
   int val = -1;
+  puppiP4s.reserve(hPFProduct->size());
+  if (fUseExistingWeights || fClonePackedCands)
+    fPackedPuppiCandidates->reserve(hPFProduct->size());
+  else
+    fPuppiCandidates->reserve(hPFProduct->size());
   for ( auto const& aCand : *hPFProduct) {
     val++;
     std::unique_ptr<pat::PackedCandidate> pCand;
