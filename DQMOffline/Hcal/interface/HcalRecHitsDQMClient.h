@@ -22,8 +22,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include <memory>
 #include <unistd.h>
