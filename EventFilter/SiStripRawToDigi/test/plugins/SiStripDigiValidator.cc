@@ -1,6 +1,57 @@
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripDigiValidator.h"
+// system includes
+#include <sstream>
+
+// user includes
+#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
+#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+/**
+    @file EventFilter/SiStripRawToDigi/test/plugins/SiStripDigiValidator.h
+    @class SiStripDigiValidator
+
+    @brief Compares two digi collections. Reports an error if the collection
+           sizes do not match or the first collection conatins any digi which
+           does not have an identical matching digi in the other collection.
+           This guarentees that the collections are identical.
+*/
+
+class SiStripDigiValidator : public edm::EDAnalyzer {
+public:
+  SiStripDigiValidator(const edm::ParameterSet& config);
+  ~SiStripDigiValidator() override = default;
+
+  virtual void endJob() override;
+  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
+
+  void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripDigi>&);
+  void validate(const edm::DetSetVector<SiStripDigi>&, const edm::DetSetVector<SiStripRawDigi>&);
+  void validate(const edm::DetSetVector<SiStripRawDigi>&, const edm::DetSetVector<SiStripDigi>&);
+  void validate(const edm::DetSetVector<SiStripRawDigi>&, const edm::DetSetVector<SiStripRawDigi>&);
+
+private:
+  inline const std::string& header() { return header_; }
+
+  //Input collections
+  const edm::InputTag tag1_;
+  const edm::InputTag tag2_;
+  const bool raw1_;
+  const bool raw2_;
+  //used to remember if there have been errors for message in endJob
+  bool errors_;
+
+  std::string header_;
+};
 
 SiStripDigiValidator::SiStripDigiValidator(const edm::ParameterSet& conf)
     : tag1_(conf.getUntrackedParameter<edm::InputTag>("TagCollection1")),
@@ -23,10 +74,6 @@ SiStripDigiValidator::SiStripDigiValidator(const edm::ParameterSet& conf)
   mayConsume<edm::DetSetVector<SiStripDigi> >(tag2_);
   mayConsume<edm::DetSetVector<SiStripRawDigi> >(tag2_);
 }
-
-SiStripDigiValidator::~SiStripDigiValidator() {}
-
-void SiStripDigiValidator::beginJob() {}
 
 void SiStripDigiValidator::endJob() {
   std::stringstream ss;
@@ -222,3 +269,7 @@ void SiStripDigiValidator::validate(const edm::DetSetVector<SiStripRawDigi>& col
     }
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripDigiValidator);
