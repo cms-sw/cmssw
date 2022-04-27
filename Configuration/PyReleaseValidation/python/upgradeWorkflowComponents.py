@@ -171,6 +171,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'GenSimHLBeamSpotHGCALCloseBy',
         'Digi',
         'DigiTrigger',
+        'HLTRun3',
         'RecoLocal',
         'Reco',
         'RecoFakeHLT',
@@ -205,6 +206,30 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
     ],
     suffix = '',
     offset = 0.0,
+)
+
+class UpgradeWorkflow_DigiNoHLT(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if stepDict[step][k] != None:
+            if 'ALCA' in step:
+                stepDict[stepName][k] = None
+            if 'RecoNano' in step:
+                stepDict[stepName][k] = merge([{'--filein': 'file:step3.root', '--secondfilein': 'file:step2.root'}, stepDict[step][k]])
+            if 'Digi' in step:
+                stepDict[stepName][k] = merge([{'-s': re.sub(',HLT.*', '', stepDict[step][k]['-s'])}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        if ('TTbar_14TeV' in fragment and '2021' == key):
+            stepList.insert(stepList.index('Digi_DigiNoHLT_2021')+1, 'HLTRun3_2021')
+        return ('TTbar_14TeV' in fragment and '2021' == key)
+upgradeWFs['DigiNoHLT'] = UpgradeWorkflow_DigiNoHLT(
+    steps = [
+        'Digi',
+        'RecoNano',
+        'ALCA'
+    ],
+    PU = [],
+    suffix = '_DigiNoHLT',
+    offset = 0.601,
 )
 
 # some commonalities among tracking WFs

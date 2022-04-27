@@ -29,13 +29,17 @@ public:
   /// destructor
   ~L3MuonCandidateProducerFromMuons() override;
 
+  /// descriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   /// produce candidates
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   // L3/GLB Collection Label
-  edm::InputTag m_L3CollectionLabel;
-  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
+  edm::InputTag const m_L3CollectionLabel;
+  edm::EDGetTokenT<reco::MuonCollection> const m_muonToken;
+  bool const m_displacedReco;
 };
 
 #endif

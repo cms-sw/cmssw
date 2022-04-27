@@ -232,6 +232,13 @@ int HGCalCell::cellPlacementIndex(int32_t iz, int32_t fwdBack, int32_t orient) {
   return indx;
 }
 
+std::pair<int32_t, int32_t> HGCalCell::cellOrient(int32_t placementIndex) {
+  int32_t orient = (placementIndex >= HGCalCell::cellPlacementExtra) ? (placementIndex - HGCalCell::cellPlacementExtra)
+                                                                     : placementIndex;
+  int32_t fwdBack = (placementIndex >= HGCalCell::cellPlacementExtra) ? 1 : -1;
+  return std::make_pair(orient, fwdBack);
+}
+
 std::pair<int32_t, int32_t> HGCalCell::cellType(int32_t u, int32_t v, int32_t ncell, int32_t placementIndex) {
   int cell(0), cellx(0), cellt(HGCalCell::fullCell);
   if (placementIndex >= HGCalCell::cellPlacementExtra) {

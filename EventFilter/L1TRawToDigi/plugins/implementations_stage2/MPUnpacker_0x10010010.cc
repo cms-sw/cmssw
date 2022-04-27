@@ -309,30 +309,25 @@ namespace l1t {
         //      ===== Aux =====
         raw_data = block.payload()[faux];
 
-        // create a sum object for each type of HF sum
-        l1t::EtSum mbp0 = l1t::EtSum();
-        l1t::EtSum mbm0 = l1t::EtSum();
-        l1t::EtSum mbm1 = l1t::EtSum();
-        l1t::EtSum mbp1 = l1t::EtSum();
-
         // readout the sums only if the correct block is  being processed (first frame of AUX)
         switch (block.header().getID()) {
           case 121:  // this should correspond to the first link
+          {
             // read 4 bits starting at position 24 (24 -> 28)
+            l1t::EtSum mbp0{l1t::EtSum::kMinBiasHFP0};
             mbp0.setHwPt((raw_data >> 24) & 0xF);
-            mbp0.setType(l1t::EtSum::kMinBiasHFP0);
 
             // read 4 bits starting at position 16 (16 -> 20)
+            l1t::EtSum mbm0{l1t::EtSum::kMinBiasHFM0};
             mbm0.setHwPt((raw_data >> 16) & 0xF);
-            mbm0.setType(l1t::EtSum::kMinBiasHFM0);
 
             // read 4 bits starting at position 8 (8 -> 12)
+            l1t::EtSum mbp1{l1t::EtSum::kMinBiasHFP1};
             mbp1.setHwPt((raw_data >> 8) & 0xF);
-            mbp1.setType(l1t::EtSum::kMinBiasHFP1);
 
             // read the first 4 bits by masking with 0xF
+            l1t::EtSum mbm1{l1t::EtSum::kMinBiasHFM1};
             mbm1.setHwPt(raw_data & 0xF);
-            mbm1.setType(l1t::EtSum::kMinBiasHFM1);
 
             LogDebug("L1T") << "mbp0 HF sum: " << mbp0.hwPt();
             LogDebug("L1T") << "mbm0 HF sum: " << mbm0.hwPt();
@@ -344,6 +339,7 @@ namespace l1t {
             res2_->push_back(0, mbp1);
             res2_->push_back(0, mbm1);
             break;
+          }
           default:
             break;
         }

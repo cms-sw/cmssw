@@ -54,7 +54,9 @@ private:
     int idx = tab.columnIndex(pair.name);
     if (idx == -1)
       throw cms::Exception("LogicError", "Missing column in input for " + m_baseName + "_" + pair.name);
-    pair.branch->SetAddress(const_cast<T *>(&tab.columnData<T>(idx).front()));  // SetAddress should take a const * !
+    pair.branch->SetAddress(
+        tab.size() == 0 ? static_cast<T *>(nullptr)
+                        : const_cast<T *>(&tab.columnData<T>(idx).front()));  // SetAddress should take a const * !
   }
 };
 
