@@ -95,7 +95,8 @@ std::shared_ptr<GenWeightInfoProdData> GenWeightProductProducer::globalBeginLumi
     if (weightInfoHandle.isValid()) {
       productInfo.makeNewProduct = false;
       break;
-    }
+    } else
+      productInfo.makeNewProduct = false;
   }
 
   edm::Handle<GenLumiInfoHeader> genLumiInfoHandle;
