@@ -605,7 +605,7 @@ void ConvertSiliconV2::convert(
                               HGCalTypes::WaferLDRight,
                               HGCalTypes::WaferLDFive,
                               HGCalTypes::WaferLDThree};
-    const unsigned int cassetteEE(6), cassetteHE(12);
+    const unsigned int cassetteEE(12), cassetteHE(24);
     std::map<int, wafer> module1, module2, module3;
     unsigned int all(0), comments(0), others(0), bad(0), good(0);
     unsigned int layers(layMax3_);
@@ -814,7 +814,7 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
       fOut << std::setw(5) << layerStart[k3] << last;
   }
   fOut << "\n" << blank << "</Vector>\n";
-  unsigned int csize = cassettes * layers.size() + 1;
+  unsigned int csize = cassettes * layers.size();
   if (mode) {
     fOut << blank << "<Vector name=" << apost << "CassetteShift" << tag << apost << " type=" << apost << "numeric"
          << apost << " nEntries=" << apost << csize << apost << ">";
@@ -822,16 +822,14 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
     fOut << blank << "<Vector name=" << apost << "CastteShift" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << csize << apost << ">";
   }
-  std::string last = (layers.size() == 0) ? " " : ",";
-  fOut << "\n  " << blank << std::setw(2) << cassettes << last;
   for (const auto& l : layers) {
     ++k3;
     for (unsigned int k = 0; k < cassettes; ++k) {
       std::string last = ((k3 == layers.size()) && ((k + 1) == cassettes)) ? " " : ",";
       if ((k == 0) || (k == 6))
-        fOut << "\n  " << blank << std::setw(8) << l.deltaR[k] << last;
+        fOut << "\n  " << blank << std::setw(9) << l.deltaR[k] << last;
       else
-        fOut << std::setw(8) << l.deltaR[k] << last;
+        fOut << std::setw(9) << l.deltaR[k] << last;
     }
   }
   fOut << "\n" << blank << "</Vector>\n";
