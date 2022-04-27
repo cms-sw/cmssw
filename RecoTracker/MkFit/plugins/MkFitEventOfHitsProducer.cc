@@ -186,7 +186,7 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
 void MkFitEventOfHitsProducer::fill(const std::vector<const TrackingRecHit*>& hits,
                                     mkfit::EventOfHits& eventOfHits,
                                     const MkFitGeometry& mkFitGeom) const {
-  for (int i = 0, end = hits.size(); i < end; ++i) {
+  for (unsigned int i = 0, end = hits.size(); i < end; ++i) {
     const auto* hit = hits[i];
     if (hit != nullptr) {
       const auto ilay = mkFitGeom.mkFitLayerNumber(hit->geographicalId());

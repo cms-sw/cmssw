@@ -19,6 +19,8 @@
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
 
+#include <sstream>
+
 //------------------------------------------------------------------------------
 
 class MkFitGeometryESProducer : public edm::ESProducer {
@@ -46,7 +48,7 @@ private:
 
     void sqrt_elements();
     bool find_gap(Interval &itvl, float eps);
-    void print_gaps();
+    void print_gaps(std::ostream &ostr);
 
     std::list<Interval> m_coverage;
     Interval m_current;
@@ -146,19 +148,18 @@ bool MkFitGeometryESProducer::GapCollector::find_gap(Interval &itvl, float eps) 
   return false;
 }
 
-void MkFitGeometryESProducer::GapCollector::print_gaps() {
+void MkFitGeometryESProducer::GapCollector::print_gaps(std::ostream &ostr) {
   auto i = m_coverage.begin();
   while (i != m_coverage.end()) {
     auto j = i;
     ++j;
     if (j != m_coverage.end()) {
-      printf("(%f, %f)->%f ", i->y, j->x, j->x - i->y);
+      ostr << "(" << i->y << ", " << j->x << ")->" << j->x - i->y;
       i = j;
     } else {
       break;
     }
   }
-  printf("\n");
 }
 
 //------------------------------------------------------------------------------
@@ -302,15 +303,20 @@ void MkFitGeometryESProducer::addTECGeometry(mkfit::TrackerInfo &trk_info) {
     fillShapeAndPlacement(det, trk_info, &lgc_map);
   }
   // Now loop over the GapCollectors and see if there is a coverage gap.
+  std::ostringstream ostr;
+  ostr << "addTECGeometry() gap report:\n";
   GapCollector::Interval itvl;
   for (auto &[layer, gcol] : lgc_map) {
     gcol.sqrt_elements();
     if (gcol.find_gap(itvl, 0.5)) {
-      edm::LogInfo("TEC layer with gap") << "layer: " << layer << ", gap: " << itvl.x << " -> " << itvl.y
-                                         << " width = " << itvl.y - itvl.x;
+      ostr << "  layer: " << layer << ", gap: " << itvl.x << " -> " << itvl.y << " width = " << itvl.y - itvl.x << "\n";
+      ostr << "    all gaps: ";
+      gcol.print_gaps(ostr);
+      ostr << "\n";
       trk_info.layer_nc(layer).set_r_hole_range(itvl.x, itvl.y);
     }
   }
+  edm::LogVerbatim("MkFitGeometryESProducer") << ostr.str();
 }
 
 //------------------------------------------------------------------------------
@@ -336,7 +342,7 @@ std::unique_ptr<MkFitGeometry> MkFitGeometryESProducer::produce(const TrackerRec
 
   // std::string path = "Geometry/TrackerCommonData/data/";
   if (trackerGeom_->isThere(GeomDetEnumerators::P1PXB) || trackerGeom_->isThere(GeomDetEnumerators::P1PXEC)) {
-    edm::LogInfo("MkFitGeometryESProducer") << "extracting PhaseI eometry";
+    edm::LogInfo("MkFitGeometryESProducer") << "Extracting PhaseI geometry";
     trackerInfo->create_layers(18, 27, 27);
   } else if (trackerGeom_->isThere(GeomDetEnumerators::P2PXB) || trackerGeom_->isThere(GeomDetEnumerators::P2PXEC) ||
              trackerGeom_->isThere(GeomDetEnumerators::P2OTB) || trackerGeom_->isThere(GeomDetEnumerators::P2OTEC)) {

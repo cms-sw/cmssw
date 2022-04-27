@@ -57,7 +57,7 @@ namespace mkfit {
         s.sortHitsByLayer();  // sort seed hits for the matched hits (I hope it works here)
     }
 
-    builder.find_tracks_load_seeds(seeds);
+    builder.find_tracks_load_seeds(seeds, do_seed_clean);
 
     builder.findTracksCloneEngine();
 
