@@ -118,7 +118,7 @@ TreeProducerCalibSimul::TreeProducerCalibSimul(const edm::ParameterSet& iConfig)
   edm::LogVerbatim("GFlash") << "Fetching evHeaCollection: " << eventHeaderCollection_.c_str() << " prod by "
                              << eventHeaderProducer_.c_str() << "\n";
 
-  tokEBRecHit_ = consumes<EBRecHitCollection>(edm::InputTag(RecHitProducer_, EBRecHitCollection_)) ;
+  tokEBRecHit_ = consumes<EBRecHitCollection>(edm::InputTag(RecHitProducer_, EBRecHitCollection_));
   tokEcalHodo_ = consumes<EcalTBHodoscopeRecInfo>(edm::InputTag(hodoRecInfoProducer_, hodoRecInfoCollection_));
   tokEcalTDC_ = consumes<EcalTBTDCRecInfo>(edm::InputTag(tdcRecInfoProducer_, tdcRecInfoCollection_));
   tokEventHeader_ = consumes<EcalTBEventHeader>(edm::InputTag(eventHeaderProducer_));
