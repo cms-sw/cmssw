@@ -42,7 +42,7 @@ namespace test {
     }
     bool decay() const { return true; }
 
-    unsigned int getVHepMC() {return ivhepmc;}
+    unsigned int getVHepMC() { return ivhepmc; }
     std::unique_ptr<HepMC::GenEvent> getGenEvent() { return std::move(event_); }
     std::unique_ptr<HepMC3::GenEvent> getGenEvent3() { return std::move(event3_); }
 

@@ -121,13 +121,13 @@ namespace edm {
       usesResource(edm::uniqueSharedResourceName());
     }
 
-    if(ivhepmc == 2) {
+    if (ivhepmc == 2) {
       produces<edm::HepMCProduct>("unsmeared");
       produces<GenEventInfoProduct>();
     }
-    if(ivhepmc == 3) {
-//      produces<edm::HepM3CProduct>("unsmeared");
-//      produces<GenEventInfoProduct3>();
+    if (ivhepmc == 3) {
+      //produces<edm::HepM3CProduct>("unsmeared");
+      //produces<GenEventInfoProduct3>();
     }
     produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>();
     produces<GenLumiInfoProduct, edm::Transition::EndLuminosityBlock>();
@@ -175,25 +175,24 @@ namespace edm {
 
       event = hadronizer_.getGenEvent();
       event3 = hadronizer_.getGenEvent3();
-      if(ivhepmc == 2 && !event.get()) return false;
-      if(ivhepmc == 3 && !event3.get()) return false;
+      if (ivhepmc == 2 && !event.get())
+        return false;
+      if (ivhepmc == 3 && !event3.get())
+        return false;
 
       // The external decay driver is being added to the system,
       // it should be called here
       //
-      if (decayer_) { // handle only HepMC2 for the moment
+      if (decayer_) {  // handle only HepMC2 for the moment
         auto t = decayer_->decay(event.get());
         if (t != event.get()) {
           event.reset(t);
         }
       }
-      if(ivhepmc == 2) { // HepMC
-        if (!event.get())
-          return false;
-      }
-      if(ivhepmc == 3) { // HepMC3
-        if (!event3.get())
-          return false;
+      if (ivhepmc == 2 && !event.get())  // HepMC
+        return false;
+      if (ivhepmc == 3 && !event3.get())  // HepMC3
+        return false;
       }
 
       passEvtGenSelector = hadronizer_.select(event.get());
@@ -203,9 +202,9 @@ namespace edm {
     //
     // fisrt of all, put back modified event tree (after external decay)
     //
-    if(ivhepmc == 2) // HepMC
+    if (ivhepmc == 2)  // HepMC
       hadronizer_.resetEvent(std::move(event));
-    if(ivhepmc == 3) // HepMC3
+    if (ivhepmc == 3)  // HepMC3
       hadronizer_.resetEvent3(std::move(event3));
 
     //
@@ -218,13 +217,13 @@ namespace edm {
 
     event = hadronizer_.getGenEvent();
     event3 = hadronizer_.getGenEvent3();
-    if(ivhepmc == 2) { // HepMC
+    if (ivhepmc == 2) {  // HepMC
       if (!event.get())
         return false;
       event->set_event_number(ev.id().event());
     }
 
-    if(ivhepmc == 3) { // HepMC3
+    if (ivhepmc == 3) {  // HepMC3
       if (!event3.get())
         return false;
       event3->set_event_number(ev.id().event());
@@ -233,7 +232,7 @@ namespace edm {
     //
     // tutto bene - finally, form up EDM products !
     //
-    if(ivhepmc == 2) { // HepMC
+    if (ivhepmc == 2) {  // HepMC
       auto genEventInfo = hadronizer_.getGenEventInfo();
       if (!genEventInfo.get()) {
         // create GenEventInfoProduct from HepMC event in case hadronizer didn't provide one
@@ -246,18 +245,18 @@ namespace edm {
       bare_product->addHepMCData(event.release());
       ev.put(std::move(bare_product), "unsmeared");
     }
-    if(ivhepmc == 3) { // HepMC3
+    if (ivhepmc == 3) {  // HepMC3
       auto genEventInfo3 = hadronizer_.getGenEventInfo3();
       if (!genEventInfo3.get()) {
         // create GenEventInfoProduct3 from HepMC3 event in case hadronizer didn't provide one
         genEventInfo3.reset(new GenEventInfoProduct3(event3.get()));
       }
 
-//      ev.put(std::move(genEventInfo3));
+      //ev.put(std::move(genEventInfo3));
 
-//      std::unique_ptr<HepMCProduct3> bare_product(new HepMCProduct3());
-//      bare_product->addHepMCData(event3.release());
-//      ev.put(std::move(bare_product), "unsmeared");
+      //std::unique_ptr<HepMCProduct3> bare_product(new HepMCProduct3());
+      //bare_product->addHepMCData(event3.release());
+      //ev.put(std::move(bare_product), "unsmeared");
     }
 
     nEventsInLumiBlock_++;
