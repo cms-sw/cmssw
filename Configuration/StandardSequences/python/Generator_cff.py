@@ -57,6 +57,7 @@ GenSmeared = cms.Sequence(generatorSmeared)
 GeneInfo = cms.Sequence(GeneInfoTask)
 genWeightsSeq = cms.Sequence(genWeights*lheWeights)
 genWeights.allowUnassociatedWeights = True # This should be off, but needed until Pythia bug is fixed
+lheWeights.failIfInvalidXML = False # Also would ideally be true, but is needed at least for the tau embedding unit test
 genJetMET = cms.Sequence(genJetMETTask)
 
 from SimPPS.Configuration.GenPPS_cff import *
