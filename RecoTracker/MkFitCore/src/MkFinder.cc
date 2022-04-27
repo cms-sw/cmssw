@@ -949,16 +949,6 @@ namespace mkfit {
                 isCompatible = false;
               }
             }
-            // Uncomment to apply analogous cut on cluster size of SiPixel hits
-            //else {
-            //  if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
-            //          m_iteration_params->maxClusterSize ||
-            //      layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanCols() >=
-            //          m_iteration_params->maxClusterSize) {
-            //    isTooLargeCluster[itrack] = true;
-            //    isCompatible = false;
-            //  }
-            //}
 
             if (isCompatible) {
               oneCandPassCut = true;
@@ -1014,14 +1004,6 @@ namespace mkfit {
                     m_iteration_params->maxClusterSize)
                   isCompatible = false;
               }
-              // Uncomment to apply analogous cut on cluster size of SiPixel hits
-              //else {
-              //  if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
-              //          m_iteration_params->maxClusterSize ||
-              //      layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanCols() >=
-              //          m_iteration_params->maxClusterSize)
-              //    isCompatible = false;
-              //}
 
               if (isCompatible) {
                 bool hitExists = false;
@@ -1205,16 +1187,6 @@ namespace mkfit {
                 isCompatible = false;
               }
             }
-            // Uncomment to apply analogous cut on cluster size of SiPixel hits
-            //else {
-            //  if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
-            //          m_iteration_params->maxClusterSize ||
-            //      layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanCols() >=
-            //          m_iteration_params->maxClusterSize) {
-            //    isTooLargeCluster[itrack] = true;
-            //    isCompatible = false;
-            //  }
-            //}
 
             if (isCompatible) {
               CombCandidate &ccand = cloner.combCandWithOriginalIndex(m_SeedIdx(itrack, 0, 0));
