@@ -1,5 +1,4 @@
 #include "DQMOffline/JetMET/interface/BeamHaloAnalyzer.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 //author : Ronny Remington, University of Florida
 //date : 11/11/09
 
