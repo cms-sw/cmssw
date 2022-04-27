@@ -31,9 +31,6 @@ namespace {
       // Region to be defined by propagation / intersection tests
       TrackerInfo::EtaRegion reg;
 
-      // Max eta used for region sorting
-      constexpr float maxEta_regSort = 7.0;
-
       const LayerInfo &outer_brl = trk_info.outer_barrel_layer();
 
       // Define first (mkFit) layer IDs for each strip subdetector.
@@ -82,10 +79,8 @@ namespace {
       }
 
       part.m_region[i] = reg;
-
-      // TrackerInfo::EtaRegion is enum from 0 to 5 (Reg_Endcap_Neg,Reg_Transition_Neg,Reg_Barrel,Reg_Transition_Pos,Reg_Endcap_Pos)
-      // Symmetrization around TrackerInfo::Reg_Barrel for sorting is required
-      part.m_sort_score[i] = maxEta_regSort * (reg - TrackerInfo::Reg_Barrel) + eta;
+      if (part.m_phi_eta_foo)
+        part.m_phi_eta_foo(eoh[hot.layer].refHit(hot.index).phi(), eta);
     }
   }
 
@@ -158,9 +153,6 @@ namespace {
       // Region to be defined by propagation / intersection tests
       TrackerInfo::EtaRegion reg;
 
-      // Max eta used for region sorting
-      constexpr float maxEta_regSort = 7.0;
-
       const bool z_dir_pos = S.pz() > 0;
       const float maxR = S.maxReachRadius();
 
@@ -199,10 +191,8 @@ namespace {
       }
 
       part.m_region[i] = reg;
-
-      // TrackerInfo::EtaRegion is enum from 0 to 5 (Reg_Endcap_Neg,Reg_Transition_Neg,Reg_Barrel,Reg_Transition_Pos,Reg_Endcap_Pos)
-      // Symmetrization around TrackerInfo::Reg_Barrel for sorting is required
-      part.m_sort_score[i] = maxEta_regSort * (reg - TrackerInfo::Reg_Barrel) + eta;
+      if (part.m_phi_eta_foo)
+        part.m_phi_eta_foo(eoh[hot.layer].refHit(hot.index).phi(), eta);
     }
   }
 }  // namespace
