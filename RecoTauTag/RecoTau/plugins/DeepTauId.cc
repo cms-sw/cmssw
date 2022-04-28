@@ -1156,6 +1156,7 @@ public:
                                        {"RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb"});
     desc.add<bool>("mem_mapped", false);
     desc.add<unsigned>("version", 2);
+    desc.add<unsigned>("sub_version", 5);
     desc.add<int>("debug_level", 0);
     desc.add<bool>("disable_dxy_pca", false);
     desc.add<bool>("disable_hcalFraction_workaround", false);
@@ -1200,6 +1201,7 @@ public:
             consumes<edm::AssociationVector<reco::PFTauRefProd, std::vector<reco::PFTauTransverseImpactParameterRef>>>(
                 cfg.getParameter<edm::InputTag>("pfTauTransverseImpactParameters"))),
         version_(cfg.getParameter<unsigned>("version")),
+        sub_version_(cfg.getParameter<unsigned>("sub_version")),
         debug_level(cfg.getParameter<int>("debug_level")),
         disable_dxy_pca_(cfg.getParameter<bool>("disable_dxy_pca")),
         disable_hcalFraction_workaround_(cfg.getParameter<bool>("disable_hcalFraction_workaround")),
@@ -2811,6 +2813,7 @@ private:
       pfTauTransverseImpactParameters_token_;
   std::string input_layer_, output_layer_;
   const unsigned version_;
+  const unsigned sub_version_;
   const int debug_level;
   const bool disable_dxy_pca_;
   const bool disable_hcalFraction_workaround_;
