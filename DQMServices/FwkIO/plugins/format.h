@@ -29,10 +29,10 @@ enum TypeIndex {
   kTH2FIndex,
   kTH2SIndex,
   kTH2DIndex,
-  kTH2IIndex,
   kTH3FIndex,
   kTProfileIndex,
   kTProfile2DIndex,
+  kTH2IIndex,
   kNIndicies,
   kNoTypesStored = 1000
 };
@@ -46,10 +46,10 @@ static const char* const kTypeNames[] = {"Ints",
                                          "TH2Fs",
                                          "TH2Ss",
                                          "TH2Ds",
-                                         "TH2Is",
                                          "TH3Fs",
                                          "TProfiles",
-                                         "TProfile2Ds"};
+                                         "TProfile2Ds",
+                                         "TH2Is"};
 
 //Branches for each TTree type
 static const char* const kFullNameBranch = "FullName";
