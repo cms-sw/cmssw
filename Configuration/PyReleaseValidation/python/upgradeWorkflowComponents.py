@@ -638,7 +638,8 @@ upgradeWFs['PatatrackPixelOnlyGPUValidation'] = PatatrackWorkflow(
         '--procModifiers': 'pixelNtupletFit,gpuValidation'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'gpuValidation'
     },
     suffix = 'Patatrack_PixelOnlyGPU_Validation',
     offset = 0.503,
@@ -720,7 +721,8 @@ upgradeWFs['PatatrackPixelOnlyTripletsGPUValidation'] = PatatrackWorkflow(
         '--customise': 'RecoPixelVertexing/Configuration/customizePixelTracksForTriplets.customizePixelTracksForTriplets'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM',
+        '--procModifiers': 'gpuValidation',
     },
     suffix = 'Patatrack_PixelOnlyTripletsGPU_Validation',
     offset = 0.507,
@@ -955,7 +957,8 @@ upgradeWFs['PatatrackAllGPUValidation'] = PatatrackWorkflow(
         '--procModifiers': 'pixelNtupletFit,gpuValidation'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only',
+        '--procModifiers': 'gpuValidation'
     },
     suffix = 'Patatrack_AllGPU_Validation',
     offset = 0.583,
@@ -1021,7 +1024,8 @@ upgradeWFs['PatatrackAllTripletsGPUValidation'] = PatatrackWorkflow(
         '--procModifiers': 'pixelNtupletFit,gpuValidation'
     },
     harvest = {
-        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only'
+        '-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM+@ecalOnlyValidation+@ecal+@hcalOnlyValidation+@hcalOnly+@hcal2Only',
+        '--procModifiers': 'gpuValidation'
     },
     suffix = 'Patatrack_AllTripletsGPU_Validation',
     offset = 0.587,
