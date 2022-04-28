@@ -15,7 +15,7 @@ def filterFile(file): #ifstream& input)
     try:
         lines = open(file).readlines()
     except UnicodeDecodeError as e:
-        print("Error reading {0}: {1}".format(file, e.message))
+        print("CppCommentSkipper: ERROR reading {0}: {1}".format(file, e.message))
         raise e
     commentStage = False
 
