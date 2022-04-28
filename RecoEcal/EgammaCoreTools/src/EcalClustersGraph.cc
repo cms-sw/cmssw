@@ -195,18 +195,24 @@ std::vector<std::vector<double>> EcalClustersGraph::fillHits(const CaloCluster* 
 std::vector<double> EcalClustersGraph::computeVariables(const CaloCluster* seed, const CaloCluster* cluster) {
   std::vector<double> cl_vars(12);  //TODO dynamic configuration
   const auto& clusterLocal = clusterPosition(cluster);
-  cl_vars[0] = cluster->energy();                              //cl_energy
-  cl_vars[1] = cluster->energy() / std::cosh(cluster->eta());  //cl_et
-  cl_vars[2] = cluster->eta();                                 //cl_eta
-  cl_vars[3] = cluster->phi();                                 //cl_phi
-  cl_vars[4] = clusterLocal[0];                                //cl_ieta/ix
-  cl_vars[5] = clusterLocal[1];                                //cl_iphi/iy
-  cl_vars[6] = clusterLocal[2];                                //cl_iz
-  cl_vars[7] = deltaEta(seed->eta(), cluster->eta());          //cl_dEta
-  cl_vars[8] = deltaPhi(seed->phi(), cluster->phi());          //cl_dPhi
-  cl_vars[9] = seed->energy() - cluster->energy();             //cl_dEnergy
-  cl_vars[10] = (seed->energy() / std::cosh(seed->eta())) - (cluster->energy() / std::cosh(cluster->eta()));  //cl_dEt
-  cl_vars[11] = cluster->hitsAndFractions().size();                                                           // nxtals
+  double cl_energy = cluster->energy();
+  double cl_eta = cluster->eta();
+  double cl_phi = cluster->phi();
+  double seed_energy = seed->energy();
+  double seed_eta = seed->eta();
+  double seed_phi = seed->phi();
+  cl_vars[0] = cl_energy;                                                               //cl_energy
+  cl_vars[1] = cl_energy / std::cosh(cl_eta);                                           //cl_et
+  cl_vars[2] = cl_eta;                                                                  //cl_eta
+  cl_vars[3] = cl_phi;                                                                  //cl_phi
+  cl_vars[4] = clusterLocal[0];                                                         //cl_ieta/ix
+  cl_vars[5] = clusterLocal[1];                                                         //cl_iphi/iy
+  cl_vars[6] = clusterLocal[2];                                                         //cl_iz
+  cl_vars[7] = deltaEta(seed_eta, cl_eta);                                              //cl_dEta
+  cl_vars[8] = deltaPhi(seed_phi, cl_phi);                                              //cl_dPhi
+  cl_vars[9] = seed_energy - cl_energy;                                                 //cl_dEnergy
+  cl_vars[10] = (seed_energy / std::cosh(seed_eta)) - (cl_energy / std::cosh(cl_eta));  //cl_dEt
+  cl_vars[11] = cluster->hitsAndFractions().size();                                     // nxtals
   return cl_vars;
 }
 
@@ -249,8 +255,6 @@ std::vector<double> EcalClustersGraph::computeWindowVariables(const std::vector<
 }
 
 std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluster* cluster) {
-  double etaWidth = 0.;
-  double phiWidth = 0.;
   double numeratorEtaWidth = 0;
   double numeratorPhiWidth = 0;
   double clEnergy = cluster->energy();
@@ -294,9 +298,9 @@ std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluste
       numeratorEtaWidth += energyHit * dEta * dEta;
       numeratorPhiWidth += energyHit * dPhi * dPhi;
     }
-    etaWidth = sqrt(numeratorEtaWidth / denominator);
-    phiWidth = sqrt(numeratorPhiWidth / denominator);
   }
+  double etaWidth = sqrt(numeratorEtaWidth / denominator);
+  double phiWidth = sqrt(numeratorPhiWidth / denominator);
 
   return std::make_pair(etaWidth, phiWidth);
 }
