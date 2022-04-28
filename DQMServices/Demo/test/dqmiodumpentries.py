@@ -21,10 +21,10 @@ treenames = {
     6: "TH2Fs",
     7: "TH2Ss",
     8: "TH2Ds",
-    9: "TH2Is",
-    10: "TH3Fs",
-    11: "TProfiles",
-    12: "TProfile2Ds",
+    9: "TH3Fs",
+    10: "TProfiles",
+    11: "TProfile2Ds",
+    12: "TH2Is",
 }
 
 f = ROOT.TFile.Open(args.inputfile)
