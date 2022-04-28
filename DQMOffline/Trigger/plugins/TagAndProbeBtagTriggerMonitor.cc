@@ -249,9 +249,9 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
             }
           }
           for (auto const& to : onlinebtags) {
-            if (reco::deltaR(jet1, to) < 0.3)
+            if (reco::deltaR2(jet1, to) < 0.09)
               match1 = true;
-            if (reco::deltaR(jet2, to) < 0.3)
+            if (reco::deltaR2(jet2, to) < 0.09)
               match2 = true;
           }
 
