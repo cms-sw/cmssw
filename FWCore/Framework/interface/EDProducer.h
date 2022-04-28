@@ -33,7 +33,13 @@ namespace edm {
     class ModuleHolderT;
   }
 
-  class CMS_DEPRECATED EDProducer : public ProducerBase, public EDConsumerBase {
+  /**
+   * The legacy EDProducer class is deprecated. We annotate the
+   * constructor only with the CMS_DEPRECATED, because with gcc it
+   * turns out to flag deriving classes more reliably than annotating
+   * the entire class.
+   */
+  class EDProducer : public ProducerBase, public EDConsumerBase {
   public:
     template <typename T>
     friend class maker::ModuleHolderT;
