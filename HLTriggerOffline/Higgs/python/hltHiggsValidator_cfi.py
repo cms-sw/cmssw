@@ -419,10 +419,10 @@ hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
  
     MSSMHbbmu  = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepCSV_p71_v1",
-            "HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepCSV_p71_v1",
-            "HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepJet_p71_v1",
-            "HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepJet_p71_v1",
+            "HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
+            "HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
+            "HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
+            "HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
             ),
         recMuonLabel  = cms.string("muons"),
         recJetLabel  = cms.string("ak4PFJetsCHS"),

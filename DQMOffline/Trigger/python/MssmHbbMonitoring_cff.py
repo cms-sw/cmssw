@@ -76,7 +76,7 @@ hltMssmHbbDeepJetMonitoringSL40 = hltMssmHbbmonitoring.clone(
     bjetSelection = 'pt>40 & abs(eta)<2.2',
     nmuons = 1,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
-    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepJet_p71_v1*']),
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepJet_p71_v*']),
     histoPSet = dict(jetPtBinning = [0,40,60,80,120,160,250,300,350,400,500,1000,1500],
                      muPtBinning = [0,7,11,12,13,15,20,30,40,50,70,100,150,200,400,700])
 )
@@ -87,7 +87,7 @@ hltMssmHbbDeepJetMonitoringSL54 = hltMssmHbbmonitoring.clone(
     bjetSelection = 'pt>40 & abs(eta)<2.2',
     nmuons = 1,
     muoSelection = 'pt>12 & abs(eta)<2.2 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & globalTrack.hitPattern.numberOfValidMuonHits>0 & globalTrack.normalizedChi2<10',
-    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepJet_p71_v1*']),
+    numGenericTriggerEventPSet = dict(hltPaths = ['HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepJet_p71_v*']),
     histoPSet = dict(jetPtBinning = [0,40,60,80,120,160,250,300,350,400,500,1000,1500],
                      muPtBinning = [0,7,11,12,13,15,20,30,40,50,70,100,150,200,400,700])
 )
