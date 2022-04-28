@@ -66,7 +66,7 @@ HcalHitAnalyzer::HcalHitAnalyzer(edm::ParameterSet const &conf)
 namespace HcalHitAnalyzerImpl {
   template <class Collection>
   void analyze(edm::Event const &e, CaloHitAnalyzer &analyzer, edm::EDGetTokenT<Collection> const &token) {
-    const edm::Handle<Collection>& recHits = e.getHandle(token);
+    const edm::Handle<Collection> &recHits = e.getHandle(token);
     for (unsigned i = 0; i < recHits->size(); ++i) {
       analyzer.analyze((*recHits)[i].id().rawId(), (*recHits)[i].energy());
     }
@@ -75,7 +75,7 @@ namespace HcalHitAnalyzerImpl {
 
 void HcalHitAnalyzer::analyze(edm::Event const &e, edm::EventSetup const &c) {
   // Step A: Get Inputs
-  const edm::Handle<CrossingFrame<PCaloHit>>& cf = e.getHandle(cfToken_);
+  const edm::Handle<CrossingFrame<PCaloHit>> &cf = e.getHandle(cfToken_);
   //const edm::Handle<CrossingFrame<PCaloHit>>& zdccf = e.getHandle(zdccfToken_);
 
   // test access to SimHits for HcalHits and ZDC hits
