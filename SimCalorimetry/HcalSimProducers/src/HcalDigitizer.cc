@@ -381,8 +381,8 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
 #endif
         DetId newid = DetId(hid.newForm());
 #ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HcalSim") << "Hit " << i << " out of " << hcalHits.size() << " " << std::hex << id.rawId() << " --> "
-                  << newid.rawId() << std::dec << " " << HcalDetId(newid.rawId()) << '\n';
+        edm::LogVerbatim("HcalSim") << "Hit " << i << " out of " << hcalHits.size() << " " << std::hex << id.rawId()
+                                    << " --> " << newid.rawId() << std::dec << " " << HcalDetId(newid.rawId()) << '\n';
 #endif
         hcalHitsOrig[i].setID(newid.rawId());
         hcalHits.push_back(hcalHitsOrig[i]);
