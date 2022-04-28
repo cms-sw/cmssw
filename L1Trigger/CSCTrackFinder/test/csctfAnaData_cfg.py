@@ -36,7 +36,7 @@ process.source.fileNames.extend([
 ##############
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("EventFilter.CSCTFRawToDigi.csctfunpacker_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag ='GR_R_43_V3::All'
