@@ -1,4 +1,4 @@
-#include "L1Trigger/Phase2L1Taus/plugins/HPSPFTauProducer.h"
+#include "HPSPFTauProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <cmath>  // std::fabs
 
