@@ -426,10 +426,10 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
 
 void HcalDigitizer::accumulate(edm::Event const &e, edm::EventSetup const &eventSetup, CLHEP::HepRandomEngine *engine) {
   // Step A: Get Inputs
-  const edm::Handle<std::vector<PCaloHit>>& zdcHandle = e.getHandle(zdcToken_);
+  const edm::Handle<std::vector<PCaloHit>> &zdcHandle = e.getHandle(zdcToken_);
   isZDC = zdcHandle.isValid();
 
-  const edm::Handle<std::vector<PCaloHit>>& hcalHandle = e.getHandle(hcalToken_);
+  const edm::Handle<std::vector<PCaloHit>> &hcalHandle = e.getHandle(hcalToken_);
   isHCAL = hcalHandle.isValid() or injectTestHits_;
 
   const HcalTopology *htopoP = &eventSetup.getData(topoToken_);

@@ -127,7 +127,7 @@ HcalDigiAnalyzer::HcalDigiAnalyzer(edm::ParameterSet const &conf)
 namespace HcalDigiAnalyzerImpl {
   template <class Collection>
   void analyze(edm::Event const &e, HcalDigiStatistics &statistics, const edm::EDGetTokenT<Collection> &token) {
-    const edm::Handle<Collection>& digis = e.getHandle(token);
+    const edm::Handle<Collection> &digis = e.getHandle(token);
     for (unsigned i = 0; i < digis->size(); ++i) {
       std::cout << (*digis)[i] << std::endl;
       statistics.analyze((*digis)[i]);
@@ -137,7 +137,7 @@ namespace HcalDigiAnalyzerImpl {
 
 void HcalDigiAnalyzer::analyze(edm::Event const &e, edm::EventSetup const &c) {
   // Step A: Get Inputs
-  const edm::Handle<CrossingFrame<PCaloHit>>& cf = e.getHandle(cfToken_);
+  const edm::Handle<CrossingFrame<PCaloHit>> &cf = e.getHandle(cfToken_);
   //const edm::Handle<CrossingFrame<PCaloHit>>& zdccf = e.getHandle(zdccfToken_);
 
   // test access to SimHits for HcalHits and ZDC hits
