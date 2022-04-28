@@ -10,28 +10,24 @@ ________________________________________________________________**/
 // C++ standard
 #include <string>
 // CMS
-#include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
 #include "DataFormats/Luminosity/interface/PixelClusterCounts.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include "DataFormats/Luminosity/interface/PixelClusterCountsInEvent.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "TMath.h"
 //The class
 class AlcaPCCIntegrator
     : public edm::one::EDProducer<edm::EndLuminosityBlockProducer, edm::one::WatchLuminosityBlocks> {
 public:
   explicit AlcaPCCIntegrator(const edm::ParameterSet&);
-  ~AlcaPCCIntegrator() override;
+  ~AlcaPCCIntegrator() override = default;
 
 private:
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, const edm::EventSetup& iSetup) override;
@@ -68,9 +64,6 @@ AlcaPCCIntegrator::AlcaPCCIntegrator(const edm::ParameterSet& iConfig) {
 }
 
 //--------------------------------------------------------------------------------------------------
-AlcaPCCIntegrator::~AlcaPCCIntegrator() {}
-
-//--------------------------------------------------------------------------------------------------
 void AlcaPCCIntegrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   countEvt_++;
 
@@ -83,7 +76,12 @@ void AlcaPCCIntegrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<reco::PixelClusterCountsInEvent> pccHandle;
   iEvent.getByToken(pccToken_, pccHandle);
 
-  const reco::PixelClusterCountsInEvent inputPcc = *(pccHandle.product());
+  if (!pccHandle.isValid()) {
+    // do not resolve a not existing product!
+    return;
+  }
+
+  const reco::PixelClusterCountsInEvent inputPcc = *pccHandle;
   thePCCob->add(inputPcc);
 }
 
