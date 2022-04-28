@@ -70,8 +70,8 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
   theHODigitizer.reset(new HODigitizer(theHOResponse, theElectronicsSim, doNoise));
 
   edm::LogVerbatim("HcalSim") << "HcalTBDigiProducer initialized with doNoise = " << doNoise
-                          << ", doTimeSlew = " << doTimeSlew << " and doPhaseShift = " << doPhaseShift
-                          << " tunePhasShift = " << tunePhaseShift;
+                              << ", doTimeSlew = " << doTimeSlew << " and doPhaseShift = " << doPhaseShift
+                              << " tunePhasShift = " << tunePhaseShift;
 
   if (doPhaseShift)
     theEcalTBToken_ = iC.consumes<PEcalTBInfo>(edm::InputTag(ecalTBInfoLabel, ""));
@@ -82,7 +82,7 @@ HcalTBDigiProducer::~HcalTBDigiProducer() {
     delete theParameterMap;
   if (paraMap)
     delete paraMap;
-   if (theHcalShape)
+  if (theHcalShape)
     delete theHcalShape;
   if (theHcalIntegratedShape)
     delete theHcalIntegratedShape;
@@ -116,7 +116,7 @@ void HcalTBDigiProducer::initializeEvent(edm::Event const &e, edm::EventSetup co
   theHBHEHits.clear();
   theHOHits.clear();
   if (doPhaseShift) {
-    const edm::Handle<PEcalTBInfo>& theEcalTBInfo = e.getHandle(theEcalTBToken_);
+    const edm::Handle<PEcalTBInfo> &theEcalTBInfo = e.getHandle(theEcalTBToken_);
     thisPhaseShift = theEcalTBInfo->phaseShift();
 
     DetId detIdHB(DetId::Hcal, 1);
@@ -148,7 +148,7 @@ void HcalTBDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &
   // Step A: Get Inputs, and accumulate digis
 
   edm::InputTag hcalTag("g4SimHits", "HcalHits");
-  const edm::Handle<std::vector<PCaloHit>>& hcalHandle = e.getHandle(hcalToken_);
+  const edm::Handle<std::vector<PCaloHit>> &hcalHandle = e.getHandle(hcalToken_);
 
   accumulateCaloHits(hcalHandle, 0);
 }
@@ -220,8 +220,8 @@ void HcalTBDigiProducer::updateGeometry() {
   hoCells.clear();
   hoCells = theGeometry->getValidDetIds(DetId::Hcal, HcalOuter);
 
-  edm::LogVerbatim("HcalSim") << "HcalTBDigiProducer update Geometry with " << hbheCells.size() << " cells in HB/HE and "
-			      << hoCells.size() << " cells in HO";
+  edm::LogVerbatim("HcalSim") << "HcalTBDigiProducer update Geometry with " << hbheCells.size()
+                              << " cells in HB/HE and " << hoCells.size() << " cells in HO";
 
   theHBHEDigitizer->setDetIds(hbheCells);
   LogDebug("HcalSim") << "HcalTBDigiProducer: Set DetID's for HB/HE";
