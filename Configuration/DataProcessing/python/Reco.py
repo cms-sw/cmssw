@@ -59,13 +59,16 @@ class Reco(Scenario):
         if ('nThreads' in args) :
             options.nThreads=args['nThreads']
 
-        miniAODStep=''
+        miniAODStep = ''
+        nanoAODStep = ''
 
-# if miniAOD is asked for - then retrieve the miniaod config 
         if 'outputs' in args:
+            print(args['outputs']) 
             for a in args['outputs']:
                 if a['dataTier'] == 'MINIAOD':
-                    miniAODStep=',PAT' 
+                    miniAODStep = ',PAT' 
+                if a['dataTier'] in ['NANOAOD', 'NANOEDMAOD']:
+                    nanoAODStep = ',NANO' 
 
         self._checkRepackedFlag(options, **args)
 
@@ -74,7 +77,10 @@ class Reco(Scenario):
 
         eiStep=''
 
-        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+PhysicsSkimStep+miniAODStep+',DQM'+dqmStep+',ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'
+        options.step += self.recoSeq + eiStep + step + PhysicsSkimStep
+        options.step += miniAODStep + nanoAODStep
+        options.step += ',DQM' + dqmStep + ',ENDJOB'
 
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
