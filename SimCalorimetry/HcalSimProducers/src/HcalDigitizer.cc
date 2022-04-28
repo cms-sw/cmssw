@@ -98,15 +98,14 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
       deliveredLumi(0.),
       agingFlagHB(ps.getParameter<bool>("HBDarkening")),
       agingFlagHE(ps.getParameter<bool>("HEDarkening")),
+      zdcToken_(iC.consumes(edm::InputTag(hitsProducer_, "ZDCHITS"))),
+      hcalToken_(iC.consumes(edm::InputTag(hitsProducer_, "HcalHits"))),
       m_HBDarkening(nullptr),
       m_HEDarkening(nullptr),
       m_HFRecalibration(nullptr),
       injectedHitsEnergy_(ps.getParameter<std::vector<double>>("injectTestHitsEnergy")),
       injectedHitsTime_(ps.getParameter<std::vector<double>>("injectTestHitsTime")),
       injectedHitsCells_(ps.getParameter<std::vector<int>>("injectTestHitsCells")) {
-  iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, "ZDCHITS"));
-  iC.consumes<std::vector<PCaloHit>>(edm::InputTag(hitsProducer_, "HcalHits"));
-
   if (agingFlagHB) {
     m_HBDarkeningToken = iC.esConsumes(edm::ESInputTag("", "HB"));
   }
@@ -427,14 +426,10 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
 
 void HcalDigitizer::accumulate(edm::Event const &e, edm::EventSetup const &eventSetup, CLHEP::HepRandomEngine *engine) {
   // Step A: Get Inputs
-  edm::InputTag zdcTag(hitsProducer_, "ZDCHITS");
-  edm::Handle<std::vector<PCaloHit>> zdcHandle;
-  e.getByLabel(zdcTag, zdcHandle);
+  const edm::Handle<std::vector<PCaloHit>>& zdcHandle = e.getHandle(zdcToken_);
   isZDC = zdcHandle.isValid();
 
-  edm::InputTag hcalTag(hitsProducer_, "HcalHits");
-  edm::Handle<std::vector<PCaloHit>> hcalHandle;
-  e.getByLabel(hcalTag, hcalHandle);
+  const edm::Handle<std::vector<PCaloHit>>& hcalHandle = e.getHandle(hcalToken_);
   isHCAL = hcalHandle.isValid() or injectTestHits_;
 
   const HcalTopology *htopoP = &eventSetup.getData(topoToken_);
