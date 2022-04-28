@@ -29,7 +29,7 @@
 #include <boost/foreach.hpp>
 #include <memory>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector &iC)
     : conditionsToken_(iC.esConsumes()),
@@ -207,8 +207,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
   theZDCDigitizer = std::make_unique<ZDCDigitizer>(theZDCResponse.get(), theZDCElectronicsSim.get(), doEmpty);
 
   testNumbering_ = ps.getParameter<bool>("TestNumbering");
-  //  std::cout << "Flag to see if Hit Relabeller to be initiated " <<
-  //  testNumbering_ << std::endl;
+  //  edm::LogVerbatim("HcalSim") << "Flag to see if Hit Relabeller to be initiated " << testNumbering_;
   if (testNumbering_)
     theRelabeller = std::make_unique<HcalHitRelabeller>(ps.getParameter<bool>("doNeutralDensityFilter"));
 
@@ -368,8 +367,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
       DetId id(hcalHitsOrig[i].id());
       HcalDetId hid(id);
       if (!htopoP->validHcal(hid)) {
-        edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << " " << hid
-                                       << std::endl;
+        edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << " " << hid;
         continue;
       } else if (hid.subdet() == HcalForward && !doHFWindow_ && hcalHitsOrig[i].depth() != 0) {
         // skip HF window hits unless desired
@@ -378,12 +376,12 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit>> const 
         // remove HE hits if asked for (phase 2)
         continue;
       } else {
-#ifdef DebugLog
-        std::cout << "HcalDigitizer format " << hid.oldFormat() << " for " << hid << std::endl;
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HcalSim") << "HcalDigitizer format " << hid.oldFormat() << " for " << hid;
 #endif
         DetId newid = DetId(hid.newForm());
-#ifdef DebugLog
-        std::cout << "Hit " << i << " out of " << hcalHits.size() << " " << std::hex << id.rawId() << " --> "
+#ifdef EDM_ML_DEBUG
+        edm::LogVerbatim("HcalSim") << "Hit " << i << " out of " << hcalHits.size() << " " << std::hex << id.rawId() << " --> "
                   << newid.rawId() << std::dec << " " << HcalDetId(newid.rawId()) << '\n';
 #endif
         hcalHitsOrig[i].setID(newid.rawId());
@@ -501,14 +499,13 @@ void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSet
   edm::LogInfo("HcalDigitizer") << "HCAL HF QIE10 digis : " << hfQIE10Result->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE QIE11 digis : " << hbheQIE11Result->size();
 
-#ifdef DebugLog
-  std::cout << std::endl;
-  std::cout << "HCAL HBHE digis : " << hbheResult->size() << std::endl;
-  std::cout << "HCAL HO   digis : " << hoResult->size() << std::endl;
-  std::cout << "HCAL HF   digis : " << hfResult->size() << std::endl;
-  std::cout << "HCAL ZDC  digis : " << zdcResult->size() << std::endl;
-  std::cout << "HCAL HF QIE10 digis : " << hfQIE10Result->size() << std::endl;
-  std::cout << "HCAL HBHE QIE11 digis : " << hbheQIE11Result->size() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalSim") << "\nHCAL HBHE digis : " << hbheResult->size();
+  edm::LogVerbatim("HcalSim") << "HCAL HO   digis : " << hoResult->size();
+  edm::LogVerbatim("HcalSim") << "HCAL HF   digis : " << hfResult->size();
+  edm::LogVerbatim("HcalSim") << "HCAL ZDC  digis : " << zdcResult->size();
+  edm::LogVerbatim("HcalSim") << "HCAL HF QIE10 digis : " << hfQIE10Result->size();
+  edm::LogVerbatim("HcalSim") << "HCAL HBHE QIE11 digis : " << hbheQIE11Result->size();
 #endif
 
   // Step D: Put outputs into event
@@ -552,8 +549,8 @@ void HcalDigitizer::finalizeEvent(edm::Event &e, const edm::EventSetup &eventSet
     e.put(std::move(pcResult), "HcalHits");
   }
 
-#ifdef DebugLog
-  std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalSim") << "\n========>  HcalDigitizer e.put\n";
 #endif
 }
 
@@ -611,8 +608,7 @@ void HcalDigitizer::updateGeometry(const edm::EventSetup &eventSetup) {
   // geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower); const
   // std::vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo,
   // HcalCastorDetId::SubdetectorId);
-  //  std::cout<<"HcalDigitizer::CheckGeometry number of cells:
-  //  "<<zdcCells.size()<<std::endl;
+  //  edm::LogVerbatim("HcalSim") <<"HcalDigitizer::CheckGeometry number of cells: << zdcCells.size();
   if (zdcCells.empty())
     zdcgeo = false;
   if (hbCells.empty() && heCells.empty())
