@@ -16,7 +16,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 #process.load("Geometry.CSCGeometry.cscGeometry_cfi")
 #process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 ##process.load("Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff")
 ##process.load("CalibMuon.Configuration.CSC_FakeConditions_cff")
