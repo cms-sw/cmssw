@@ -156,7 +156,7 @@ namespace {
     };
   };
 
-  namespace dnn_inputs_2017_v2 {
+  namespace dnn_inputs_v2 {
     constexpr int number_of_inner_cell = 11;
     constexpr int number_of_outer_cell = 21;
     constexpr int number_of_conv_features = 64;
@@ -418,7 +418,7 @@ namespace {
         NumberOfInputs
       };
     }
-  }  // namespace dnn_inputs_2017_v2
+  }  // namespace dnn_inputs_v2
 
   float getTauID(const pat::Tau& tau, const std::string& tauID, float default_value = -999., bool assert_input = true) {
     static tbb::concurrent_unordered_set<std::string> isFirstWarning;
@@ -1218,25 +1218,25 @@ public:
             << "number of inputs does not match the expected inputs for the given version";
     } else if (version_ == 2) {
       tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
-          tensorflow::DT_FLOAT, tensorflow::TensorShape{1, dnn_inputs_2017_v2::TauBlockInputs::NumberOfInputs});
+          tensorflow::DT_FLOAT, tensorflow::TensorShape{1, dnn_inputs_v2::TauBlockInputs::NumberOfInputs});
       for (size_t n = 0; n < 2; ++n) {
         const bool is_inner = n == 0;
         const auto n_cells =
-            is_inner ? dnn_inputs_2017_v2::number_of_inner_cell : dnn_inputs_2017_v2::number_of_outer_cell;
+            is_inner ? dnn_inputs_v2::number_of_inner_cell : dnn_inputs_v2::number_of_outer_cell;
         eGammaTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT,
-            tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs});
+            tensorflow::TensorShape{1, 1, 1, dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs});
         muonTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT,
-            tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs});
+            tensorflow::TensorShape{1, 1, 1, dnn_inputs_v2::MuonBlockInputs::NumberOfInputs});
         hadronsTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT,
-            tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
+            tensorflow::TensorShape{1, 1, 1, dnn_inputs_v2::HadronBlockInputs::NumberOfInputs});
         convTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT,
-            tensorflow::TensorShape{1, n_cells, n_cells, dnn_inputs_2017_v2::number_of_conv_features});
+            tensorflow::TensorShape{1, n_cells, n_cells, dnn_inputs_v2::number_of_conv_features});
         zeroOutputTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
-            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, dnn_inputs_2017_v2::number_of_conv_features});
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, dnn_inputs_v2::number_of_conv_features});
 
         eGammaTensor_[is_inner]->flat<float>().setZero();
         muonTensor_[is_inner]->flat<float>().setZero();
@@ -1577,13 +1577,13 @@ private:
                 << ")>:" << std::endl;
       std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << std::endl;
     }
-    CellGrid inner_grid(dnn_inputs_2017_v2::number_of_inner_cell,
-                        dnn_inputs_2017_v2::number_of_inner_cell,
+    CellGrid inner_grid(dnn_inputs_v2::number_of_inner_cell,
+                        dnn_inputs_v2::number_of_inner_cell,
                         0.02,
                         0.02,
                         disable_CellIndex_workaround_);
-    CellGrid outer_grid(dnn_inputs_2017_v2::number_of_outer_cell,
-                        dnn_inputs_2017_v2::number_of_outer_cell,
+    CellGrid outer_grid(dnn_inputs_v2::number_of_outer_cell,
+                        dnn_inputs_v2::number_of_outer_cell,
                         0.05,
                         0.05,
                         disable_CellIndex_workaround_);
@@ -1593,7 +1593,7 @@ private:
 
     createTauBlockInputs<CandidateCastType>(
         dynamic_cast<const TauCastType&>(tau), tau_index, tau_ref, pv, rho, tau_funcs);
-    using namespace dnn_inputs_2017_v2;
+    using namespace dnn_inputs_v2;
     checkInputs(*tauBlockTensor_, "input_tau", TauBlockInputs::NumberOfInputs);
     createConvFeatures<CandidateCastType>(dynamic_cast<const TauCastType&>(tau),
                                           tau_index,
@@ -1629,26 +1629,26 @@ private:
       json_file_ = new std::ofstream(json_file_name.data());
       is_first_block_ = true;
       (*json_file_) << "{";
-      saveInputs(*tauBlockTensor_, "input_tau", dnn_inputs_2017_v2::TauBlockInputs::NumberOfInputs);
+      saveInputs(*tauBlockTensor_, "input_tau", dnn_inputs_v2::TauBlockInputs::NumberOfInputs);
       saveInputs(*eGammaTensor_[true],
                  "input_inner_egamma",
-                 dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs,
+                 dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs,
                  &inner_grid);
       saveInputs(
-          *muonTensor_[true], "input_inner_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, &inner_grid);
+          *muonTensor_[true], "input_inner_muon", dnn_inputs_v2::MuonBlockInputs::NumberOfInputs, &inner_grid);
       saveInputs(*hadronsTensor_[true],
                  "input_inner_hadrons",
-                 dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs,
+                 dnn_inputs_v2::HadronBlockInputs::NumberOfInputs,
                  &inner_grid);
       saveInputs(*eGammaTensor_[false],
                  "input_outer_egamma",
-                 dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs,
+                 dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs,
                  &outer_grid);
       saveInputs(
-          *muonTensor_[false], "input_outer_muon", dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs, &outer_grid);
+          *muonTensor_[false], "input_outer_muon", dnn_inputs_v2::MuonBlockInputs::NumberOfInputs, &outer_grid);
       saveInputs(*hadronsTensor_[false],
                  "input_outer_hadrons",
-                 dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs,
+                 dnn_inputs_v2::HadronBlockInputs::NumberOfInputs,
                  &outer_grid);
       (*json_file_) << "}";
       delete json_file_;
@@ -1763,15 +1763,15 @@ private:
     eGammaTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
         tensorflow::DT_FLOAT,
         tensorflow::TensorShape{
-            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_2017_v2::EgammaBlockInputs::NumberOfInputs});
+            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs});
     muonTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
         tensorflow::DT_FLOAT,
         tensorflow::TensorShape{
-            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_2017_v2::MuonBlockInputs::NumberOfInputs});
+            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::MuonBlockInputs::NumberOfInputs});
     hadronsTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
         tensorflow::DT_FLOAT,
         tensorflow::TensorShape{
-            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_2017_v2::HadronBlockInputs::NumberOfInputs});
+            (long long int)grid.num_valid_cells(), 1, 1, dnn_inputs_v2::HadronBlockInputs::NumberOfInputs});
 
     eGammaTensor_[is_inner]->flat<float>().setZero();
     muonTensor_[is_inner]->flat<float>().setZero();
@@ -1831,7 +1831,7 @@ private:
                            unsigned batch_idx,
                            int eta_index,
                            int phi_index) {
-    for (int n = 0; n < dnn_inputs_2017_v2::number_of_conv_features; ++n) {
+    for (int n = 0; n < dnn_inputs_v2::number_of_conv_features; ++n) {
       convTensor.tensor<float, 4>()(0, eta_index, phi_index, n) = features.tensor<float, 4>()(batch_idx, 0, 0, n);
     }
   }
@@ -1843,7 +1843,7 @@ private:
                             const reco::Vertex& pv,
                             double rho,
                             TauFunc tau_funcs) {
-    namespace dnn = dnn_inputs_2017_v2::TauBlockInputs;
+    namespace dnn = dnn_inputs_v2::TauBlockInputs;
 
     tensorflow::Tensor& inputs = *tauBlockTensor_;
     inputs.flat<float>().setZero();
@@ -1954,7 +1954,7 @@ private:
                                const Cell& cell_map,
                                TauFunc tau_funcs,
                                bool is_inner) {
-    namespace dnn = dnn_inputs_2017_v2::EgammaBlockInputs;
+    namespace dnn = dnn_inputs_v2::EgammaBlockInputs;
 
     tensorflow::Tensor& inputs = *eGammaTensor_.at(is_inner);
 
@@ -2190,7 +2190,7 @@ private:
                              const Cell& cell_map,
                              TauFunc tau_funcs,
                              bool is_inner) {
-    namespace dnn = dnn_inputs_2017_v2::MuonBlockInputs;
+    namespace dnn = dnn_inputs_v2::MuonBlockInputs;
 
     tensorflow::Tensor& inputs = *muonTensor_.at(is_inner);
 
@@ -2340,7 +2340,7 @@ private:
                                 const Cell& cell_map,
                                 TauFunc tau_funcs,
                                 bool is_inner) {
-    namespace dnn = dnn_inputs_2017_v2::HadronBlockInputs;
+    namespace dnn = dnn_inputs_v2::HadronBlockInputs;
 
     tensorflow::Tensor& inputs = *hadronsTensor_.at(is_inner);
 
