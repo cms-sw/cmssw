@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -66,8 +68,8 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet &ps,
     theAmplifier->setTimeSlewSim(theTimeSlewSim);
   }
 
-  theHBHEDigitizer.reset(new HBHEDigitizer(theHBHEResponse, theElectronicsSim, doNoise));
-  theHODigitizer.reset(new HODigitizer(theHOResponse, theElectronicsSim, doNoise));
+  theHBHEDigitizer = std::make_unique<HBHEDigitizer>(theHBHEResponse, theElectronicsSim, doNoise);
+  theHODigitizer = std::make_unique<HODigitizer>(theHOResponse, theElectronicsSim, doNoise);
 
   edm::LogVerbatim("HcalSim") << "HcalTBDigiProducer initialized with doNoise = " << doNoise
                               << ", doTimeSlew = " << doTimeSlew << " and doPhaseShift = " << doPhaseShift
