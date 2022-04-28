@@ -392,6 +392,11 @@
   <use name="FWCore/Framework"/>
 </bin>
 
+<bin file="test_catch2_main.cc,test_catch2_Factory.cc" name="TestFWCoreFrameworkFactory">
+  <use name="catch2"/>
+  <use name="FWCore/Framework"/>
+</bin>
+
 <test name="testFWCoreFrameworkNonEventOrdering" command="test_non_event_ordering.sh"/>
 <test name="testFWCoreFramework1ThreadESPrefetch" command="run_test_1_thread_es_prefetching.sh"/>
 <test name="testFWCoreFrameworkModuleDeletion" command="run_module_delete_tests.sh"/>
