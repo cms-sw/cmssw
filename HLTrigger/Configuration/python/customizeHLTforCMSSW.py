@@ -156,6 +156,16 @@ def customiseFor37046(process):
     return process
 
 
+def customiseFor37646(process):
+    """ Customisation to remove a renamed parameter in HLTScoutingPFProducer
+     from PR 37646 (https://github.com/cms-sw/cmssw/pull/37646)
+    """
+    for prod in producers_by_type(process, 'HLTScoutingPFProducer'):
+        if hasattr(prod, 'doTrackRelVars'):
+            delattr(prod, 'doTrackRelVars')
+    return process
+
+
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
@@ -167,5 +177,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = customiseFor37046(process)
+
+    process = customiseFor37646(process)
 
     return process
