@@ -18,6 +18,7 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (TTbar trackingOnly, trackingRun2, trackingOnlyRun2, trackingLowPU, pixelTrackingOnly)
 #        (TTbar PU with JME NanoAOD, disable for now due to Run-3 Nano-Prompt preparation)
 #   2018 (ele guns 10, 35, 1000; pho guns 10, 35; mu guns 1, 10, 100, 1000, QCD 3TeV, QCD Flat)
+#        (pho guns 10, 35 with photonDRN enabled)
 #   2018 (ZMM, TTbar, ZEE, MinBias, TTbar PU, ZEE PU, TTbar design)
 #        (TTbar trackingOnly, pixelTrackingOnly)
 #        (HE collapse: TTbar, TTbar PU, TTbar design)
@@ -48,6 +49,7 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            10024.1,10024.2,10024.3,10024.4,10024.5,
            #10224.15,
            10801.0,10802.0,10803.0,10804.0,10805.0,10806.0,10807.0,10808.0,10809.0,10859.0,10871.0,
+           10804.31, 10805.31,
            10842.0,10824.0,10825.0,10826.0,10823.0,11024.0,11025.0,11224.0,
            10824.1,10824.5,
            10824.6,11024.6,11224.6,
