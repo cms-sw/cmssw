@@ -12,22 +12,14 @@
 
 #include "RecoMuon/GlobalTrackingTools/interface/ChamberSegmentUtility.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-#include <iostream>
 #include <map>
 #include <vector>
-#include <iostream>
 
 using namespace edm;
 using namespace std;

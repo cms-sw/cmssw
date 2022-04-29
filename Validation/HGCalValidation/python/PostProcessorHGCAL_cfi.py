@@ -3,6 +3,9 @@ from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
 from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 
+tracksterLabels = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMerge]
+tracksterLabels.extend(['ticlSimTracksters', 'ticlSimTracksters_fromCPs'])
+
 prefix = 'HGCAL/HGCalValidator/'
 maxlayerzm =  50# last layer of BH -z
 maxlayerzp =  100# last layer of BH +z
@@ -37,8 +40,7 @@ eff_simclusters.extend(["fake_phi_layer{:02d} 'LayerCluster Fake Rate vs #phi La
 eff_simclusters.extend(["merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta Layer{:02d} in z-' NumMerge_LayerCluster_in_SimCluster_Eta_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_eta_layer{:02d} 'LayerCluster Merge Rate vs #eta Layer{:02d} in z+' NumMerge_LayerCluster_in_SimCluster_Eta_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 eff_simclusters.extend(["merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z-' NumMerge_LayerCluster_in_SimCluster_Phi_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "merge_phi_layer{:02d} 'LayerCluster Merge Rate vs #phi Layer{:02d} in z+' NumMerge_LayerCluster_in_SimCluster_Phi_perlayer{:02d} Denom_LayerCluster_in_SimCluster_Phi_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ])
 
-subdirsSim = [prefix + hgcalValidator.label_SimClusters._InputTag__moduleLabel + '/ticlTracksters'+iteration+'/' for iteration in ticlIterLabelsMerge]
-subdirsSim.extend([prefix + hgcalValidator.label_SimClusters._InputTag__moduleLabel + '/ticlSimTracksters'])
+subdirsSim = [prefix + hgcalValidator.label_SimClusters._InputTag__moduleLabel + '/'+iteration+'/' for iteration in tracksterLabels]
 postProcessorHGCALsimclusters = DQMEDHarvester('DQMGenericClient',
     subDirs = cms.untracked.vstring(subdirsSim),
     efficiency = cms.vstring(eff_simclusters),
@@ -66,12 +68,10 @@ for elem in simDict:
             eff_tracksters.extend([m+"_"+v+simDict[elem]+" 'Trackster "+metrics[m][0]+" vs "+variables[v][0]+"' Num"+metrics[m][1]+"Trackster_"+V+simDict[elem]+" Denom_Trackster_"+V+simDict[elem]+fakerate])
 
 tsToCP_linking = hgcalValidator.label_TSToCPLinking.value()
-subdirsTracksters = [prefix+'ticlSimTracksters/'+tsToCP_linking, prefix+'ticlSimTracksters_fromCPs/'+tsToCP_linking]
-subdirsTracksters.extend(prefix+'ticlTracksters'+iteration+'/'+tsToCP_linking for iteration in ticlIterLabelsMerge)
+subdirsTracksters = [prefix+iteration+'/'+tsToCP_linking for iteration in tracksterLabels]
 
 tsToSTS_patternRec = hgcalValidator.label_TSToSTSPR.value()
-subdirsTracksters.extend([prefix+'ticlSimTracksters/'+tsToSTS_patternRec, prefix+'ticlSimTracksters_fromCPs/'+tsToSTS_patternRec])
-subdirsTracksters.extend(prefix+'ticlTracksters'+iteration+'/'+tsToSTS_patternRec for iteration in ticlIterLabelsMerge)
+subdirsTracksters.extend(prefix+iteration+'/'+tsToSTS_patternRec for iteration in tracksterLabels)
 
 postProcessorHGCALTracksters = DQMEDHarvester('DQMGenericClient',
   subDirs = cms.untracked.vstring(subdirsTracksters),

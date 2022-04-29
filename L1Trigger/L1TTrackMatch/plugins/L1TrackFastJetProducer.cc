@@ -10,7 +10,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,7 +26,7 @@
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TCorrelator/interface/TkJet.h"
 #include "DataFormats/L1TCorrelator/interface/TkJetFwd.h"
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
+#include "DataFormats/L1Trigger/interface/Vertex.h"
 
 // geometry
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
@@ -60,49 +59,49 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  //void beginJob() override;
+  //virtual void beginJob();
   void produce(edm::Event&, const edm::EventSetup&) override;
-  //void endJob() override;
+  //virtual void endJob();
 
   // track selection criteria
-  float trkZMax_;          // in [cm]
-  float trkChi2dofMax_;    // maximum track chi2dof
-  double trkBendChi2Max_;  // maximum track bendchi2
-  float trkPtMin_;         // in [GeV]
-  float trkEtaMax_;        // in [rad]
-  int trkNStubMin_;        // minimum number of stubs
-  int trkNPSStubMin_;      // minimum number of PS stubs
-  double deltaZ0Cut_;      // save with |L1z-z0| < maxZ0
-  double coneSize_;        // Use anti-kt with this cone size
-  bool doTightChi2_;
-  float trkPtTightChi2_;
-  float trkChi2dofTightChi2_;
-  bool displaced_;  //use prompt/displaced tracks
+  const float trkZMax_;          // in [cm]
+  const float trkChi2dofMax_;    // maximum track chi2dof
+  const double trkBendChi2Max_;  // maximum track bendchi2
+  const float trkPtMin_;         // in [GeV]
+  const float trkEtaMax_;        // in [rad]
+  const int trkNStubMin_;        // minimum number of stubs
+  const int trkNPSStubMin_;      // minimum number of PS stubs
+  const double deltaZ0Cut_;      // save with |L1z-z0| < maxZ0
+  const double coneSize_;        // Use anti-kt with this cone size
+  const bool doTightChi2_;
+  const float trkPtTightChi2_;
+  const float trkChi2dofTightChi2_;
+  const bool displaced_;  //use prompt/displaced tracks
 
   const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
-  edm::EDGetTokenT<TkPrimaryVertexCollection> pvToken_;
+  edm::EDGetTokenT<VertexCollection> pvToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
 // constructor
 L1TrackFastJetProducer::L1TrackFastJetProducer(const edm::ParameterSet& iConfig)
-    : trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
+    : trkZMax_((float)iConfig.getParameter<double>("trk_zMax")),
+      trkChi2dofMax_((float)iConfig.getParameter<double>("trk_chi2dofMax")),
+      trkBendChi2Max_(iConfig.getParameter<double>("trk_bendChi2Max")),
+      trkPtMin_((float)iConfig.getParameter<double>("trk_ptMin")),
+      trkEtaMax_((float)iConfig.getParameter<double>("trk_etaMax")),
+      trkNStubMin_((int)iConfig.getParameter<int>("trk_nStubMin")),
+      trkNPSStubMin_((int)iConfig.getParameter<int>("trk_nPSStubMin")),
+      deltaZ0Cut_((float)iConfig.getParameter<double>("deltaZ0Cut")),
+      coneSize_((float)iConfig.getParameter<double>("coneSize")),
+      doTightChi2_(iConfig.getParameter<bool>("doTightChi2")),
+      trkPtTightChi2_((float)iConfig.getParameter<double>("trk_ptTightChi2")),
+      trkChi2dofTightChi2_((float)iConfig.getParameter<double>("trk_chi2dofTightChi2")),
+      displaced_(iConfig.getParameter<bool>("displaced")),
+      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
           iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-      pvToken_(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
+      pvToken_(consumes<VertexCollection>(iConfig.getParameter<edm::InputTag>("L1PrimaryVertexTag"))),
       tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
-  trkZMax_ = (float)iConfig.getParameter<double>("trk_zMax");
-  trkChi2dofMax_ = (float)iConfig.getParameter<double>("trk_chi2dofMax");
-  trkBendChi2Max_ = iConfig.getParameter<double>("trk_bendChi2Max");
-  trkPtMin_ = (float)iConfig.getParameter<double>("trk_ptMin");
-  trkEtaMax_ = (float)iConfig.getParameter<double>("trk_etaMax");
-  trkNStubMin_ = (int)iConfig.getParameter<int>("trk_nStubMin");
-  trkNPSStubMin_ = (int)iConfig.getParameter<int>("trk_nPSStubMin");
-  deltaZ0Cut_ = (float)iConfig.getParameter<double>("deltaZ0Cut");
-  coneSize_ = (float)iConfig.getParameter<double>("coneSize");
-  doTightChi2_ = iConfig.getParameter<bool>("doTightChi2");
-  trkPtTightChi2_ = (float)iConfig.getParameter<double>("trk_ptTightChi2");
-  trkChi2dofTightChi2_ = (float)iConfig.getParameter<double>("trk_chi2dofTightChi2");
-  displaced_ = iConfig.getParameter<bool>("displaced");
   if (displaced_)
     produces<TkJetCollection>("L1TrackFastJetsExtended");
   else
@@ -124,13 +123,13 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   // Tracker Topology
   const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
 
-  edm::Handle<TkPrimaryVertexCollection> TkPrimaryVertexHandle;
+  edm::Handle<l1t::VertexCollection> TkPrimaryVertexHandle;
   iEvent.getByToken(pvToken_, TkPrimaryVertexHandle);
 
   fastjet::JetDefinition jet_def(fastjet::antikt_algorithm, coneSize_);
   std::vector<fastjet::PseudoJet> JetInputs;
 
-  float recoVtx = TkPrimaryVertexHandle->begin()->zvertex();
+  float recoVtx = TkPrimaryVertexHandle->begin()->z0();
   unsigned int this_l1track = 0;
   for (iterL1Track = TTTrackHandle->begin(); iterL1Track != TTTrackHandle->end(); iterL1Track++) {
     this_l1track++;
@@ -142,9 +141,9 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
         theStubs = iterL1Track->getStubRefs();
     int trk_nstub = (int)theStubs.size();
 
-    if (fabs(trk_z0) > trkZMax_)
+    if (std::abs(trk_z0) > trkZMax_)
       continue;
-    if (fabs(iterL1Track->momentum().eta()) > trkEtaMax_)
+    if (std::abs(iterL1Track->momentum().eta()) > trkEtaMax_)
       continue;
     if (trk_pt < trkPtMin_)
       continue;
@@ -172,7 +171,7 @@ void L1TrackFastJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
     }
     if (trk_nPS < trkNPSStubMin_)
       continue;
-    if (fabs(recoVtx - trk_z0) > deltaZ0Cut_)
+    if (std::abs(recoVtx - trk_z0) > deltaZ0Cut_)
       continue;
 
     fastjet::PseudoJet psuedoJet(iterL1Track->momentum().x(),

@@ -55,6 +55,10 @@ caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',
         hltPaths       = cms.vstring( 'HLT_PFJet450_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
+        stage2 = cms.bool(False),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+        ReadPrescalesFromFile = cms.bool(False),
     ),
     cms.PSet(label = cms.string('lowPtJet'),
         andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
@@ -64,6 +68,10 @@ caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',
         hltPaths       = cms.vstring( 'HLT_PFJet80_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( True ),
+        stage2 = cms.bool(False),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+        ReadPrescalesFromFile = cms.bool(False),
     ),
     cms.PSet(label = cms.string('zeroBias'),
         andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
@@ -73,6 +81,10 @@ caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',
         hltPaths       = cms.vstring( 'HLT_ZeroBias_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
+        stage2 = cms.bool(False),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+        ReadPrescalesFromFile = cms.bool(False),
     ),
     cms.PSet(label = cms.string('highMET'),
         andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
@@ -82,6 +94,10 @@ caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',
         hltPaths       = cms.vstring( 'HLT_MET250_v*' ), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
+        stage2 = cms.bool(False),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+        ReadPrescalesFromFile = cms.bool(False),
     ),
     #cms.PSet(label = cms.string('singleEle'),
     #    andOr         = cms.bool( False ),     #True -> OR #Comment this line to turn OFF
@@ -100,6 +116,10 @@ caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',
         hltPaths       = cms.vstring( 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoMu27_v*'), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
+        stage2 = cms.bool(False),
+        l1tAlgBlkInputTag = cms.InputTag("gtStage2Digis"),
+        l1tExtBlkInputTag = cms.InputTag("gtStage2Digis"),
+        ReadPrescalesFromFile = cms.bool(False),
     ) 
     ),
  
@@ -131,6 +151,16 @@ caloMetDQMAnalyzer = DQMEDAnalyzer('METAnalyzer',
       Filter = cms.untracked.bool(True)
     ),
 )
+
+#
+# Make changes if using the Stage 2 trigger
+#
+from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
+stage2L1Trigger.toModify(caloMetDQMAnalyzer,
+                         triggerSelectedSubFolders = {i: dict(stage2 = True,
+                                                              l1tAlgBlkInputTag = "gtStage2Digis",
+                                                              l1tExtBlkInputTag = "gtStage2Digis",
+                                                              ReadPrescalesFromFile = True) for i in range(0, len(caloMetDQMAnalyzer.triggerSelectedSubFolders))})
 
 pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
     METType = 'pf',

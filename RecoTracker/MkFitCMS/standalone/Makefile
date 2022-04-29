@@ -8,13 +8,19 @@ LIB_CMS := ../libMicCMS.so
 MAIN    := ../mkFit
 WRMEMF  := ../writeMemoryFile
 
-TGTS := ${LIB_CMS} ${MAIN} ${WRMEMF}
+TGTS := ${LIB_CMS} ${MAIN}
+ifdef WITH_ROOT
+TGTS += ${WRMEMF}
+endif
 
 .PHONY: all clean distclean
 
 all: ${TGTS}
 
-SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc) ${SACMS}/tkNtuple/WriteMemoryFile.cc
+SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc)
+ifdef WITH_ROOT
+SRCS += ${SACMS}/tkNtuple/WriteMemoryFile.cc
+endif
 SRCB := $(notdir ${SRCS})
 DEPS := $(SRCB:.cc=.d)
 OBJS := $(SRCB:.cc=.o)

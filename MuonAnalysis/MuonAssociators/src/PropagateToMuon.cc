@@ -3,70 +3,38 @@
 #include <cmath>
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-
-#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-PropagateToMuon::PropagateToMuon(const edm::ParameterSet &iConfig, edm::ConsumesCollector iC)
-    : useSimpleGeometry_(iConfig.getParameter<bool>("useSimpleGeometry")),
-      useMB2_(iConfig.existsAs<bool>("useStation2") ? iConfig.getParameter<bool>("useStation2") : true),
-      fallbackToME1_(iConfig.existsAs<bool>("fallbackToME1") ? iConfig.getParameter<bool>("fallbackToME1") : false),
-      whichTrack_(None),
-      whichState_(AtVertex),
-      cosmicPropagation_(iConfig.existsAs<bool>("cosmicPropagationHypothesis")
-                             ? iConfig.getParameter<bool>("cosmicPropagationHypothesis")
-                             : false),
-      useMB2InOverlap_(iConfig.existsAs<bool>("useMB2InOverlap") ? iConfig.getParameter<bool>("useMB2InOverlap")
-                                                                 : false),
-      magfieldToken_(iC.esConsumes<>()),
-      propagatorToken_(iC.esConsumes<>(edm::ESInputTag("", "SteppingHelixPropagatorAlong"))),
-      propagatorAnyToken_(iC.esConsumes<>(edm::ESInputTag("", "SteppingHelixPropagatorAny"))),
-      propagatorOppositeToken_(iC.esConsumes<>(edm::ESInputTag("", "SteppingHelixPropagatorOpposite"))),
-      muonGeometryToken_(iC.esConsumes<>()) {
-  std::string whichTrack = iConfig.getParameter<std::string>("useTrack");
-  if (whichTrack == "none") {
-    whichTrack_ = None;
-  } else if (whichTrack == "tracker") {
-    whichTrack_ = TrackerTk;
-  } else if (whichTrack == "muon") {
-    whichTrack_ = MuonTk;
-  } else if (whichTrack == "global") {
-    whichTrack_ = GlobalTk;
-  } else
-    throw cms::Exception("Configuration") << "Parameter 'useTrack' must be 'none', 'tracker', 'muon', 'global'\n";
-  if (whichTrack_ != None) {
-    std::string whichState = iConfig.getParameter<std::string>("useState");
-    if (whichState == "atVertex") {
-      whichState_ = AtVertex;
-    } else if (whichState == "innermost") {
-      whichState_ = Innermost;
-    } else if (whichState == "outermost") {
-      whichState_ = Outermost;
-    } else
-      throw cms::Exception("Configuration") << "Parameter 'useState' must be 'atVertex', 'innermost', 'outermost'\n";
-  }
-  if (cosmicPropagation_ && (whichTrack_ == None || whichState_ == AtVertex)) {
-    throw cms::Exception("Configuration") << "When using 'cosmicPropagationHypothesis' useTrack must not be 'none', "
-                                             "and the state must not be 'atVertex'\n";
-  }
-}
-
-PropagateToMuon::~PropagateToMuon() {}
-
-void PropagateToMuon::init(const edm::EventSetup &iSetup) {
-  magfield_ = iSetup.getHandle(magfieldToken_);
-  propagator_ = iSetup.getHandle(propagatorToken_);
-  propagatorOpposite_ = iSetup.getHandle(propagatorOppositeToken_);
-  propagatorAny_ = iSetup.getHandle(propagatorAnyToken_);
-  muonGeometry_ = iSetup.getHandle(muonGeometryToken_);
-
+PropagateToMuon::PropagateToMuon(edm::ESHandle<MagneticField> magfield,
+                                 edm::ESHandle<Propagator> propagator,
+                                 edm::ESHandle<Propagator> propagatorAny,
+                                 edm::ESHandle<Propagator> propagatorOpposite,
+                                 edm::ESHandle<MuonDetLayerGeometry> muonGeometry,
+                                 bool useSimpleGeometry,
+                                 bool useMB2,
+                                 bool fallbackToME1,
+                                 WhichTrack whichTrack,
+                                 WhichState whichState,
+                                 bool cosmicPropagation,
+                                 bool useMB2InOverlap)
+    : magfield_(magfield),
+      propagator_(propagator),
+      propagatorAny_(propagatorAny),
+      propagatorOpposite_(propagatorOpposite),
+      muonGeometry_(muonGeometry),
+      useSimpleGeometry_(useSimpleGeometry),
+      useMB2_(useMB2),
+      fallbackToME1_(fallbackToME1),
+      whichTrack_(whichTrack),
+      whichState_(whichState),
+      cosmicPropagation_(cosmicPropagation),
+      useMB2InOverlap_(useMB2InOverlap) {
   // Get the barrel cylinder
   const DetLayer *dtLay = muonGeometry_->allDTLayers()[useMB2_ ? 1 : 0];
   barrelCylinder_ = dynamic_cast<const BoundCylinder *>(&dtLay->surface());
@@ -220,8 +188,9 @@ TrajectoryStateOnSurface PropagateToMuon::extrapolate(const FreeTrajectoryState 
 
 TrajectoryStateOnSurface PropagateToMuon::getBestDet(const TrajectoryStateOnSurface &tsos,
                                                      const DetLayer *layer) const {
-  TrajectoryStateOnSurface ret;                  // start as null
-  Chi2MeasurementEstimator estimator(1e10, 3.);  // require compatibility at 3 sigma
+  TrajectoryStateOnSurface ret;  // start as null
+  // require compatibility at 3 sigma
+  Chi2MeasurementEstimator estimator(1e10, 3.);
   std::vector<GeometricSearchDet::DetWithState> dets = layer->compatibleDets(tsos, *propagatorAny_, estimator);
   if (!dets.empty()) {
     ret = dets.front().second;

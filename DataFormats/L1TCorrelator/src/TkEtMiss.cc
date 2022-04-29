@@ -26,3 +26,6 @@ TkEtMiss::TkEtMiss(const LorentzVector& p4,
                    const double& etTotalPU,
                    int bx)
     : L1Candidate(p4), type_(type), etTot_(etTotal), etMissPU_(etMissPU), etTotalPU_(etTotalPU), bx_(bx) {}
+
+TkEtMiss::TkEtMiss(const LorentzVector& p4, EtMissType type, const double& EtPhi, const int& qual, int bx)
+    : L1Candidate(p4), type_(type), etPhi_(EtPhi), etQual_(qual), bx_(bx) {}

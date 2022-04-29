@@ -12,4 +12,4 @@ echo "TESTING Calibration/TkAlCaRecoProducers ..."
 cmsRun -e -j testPCLAlCaHarvesting.xml ${LOCAL_TEST_DIR}/testPCLAlCaHarvesting.py || die "Failure running testPCLAlCaHarvesting.py" $?
 cleanTheHouse
 echo "PARSING Framework Job Report ..."
-python ${LOCAL_TEST_DIR}/parseFwkJobReport.py
+python3 ${LOCAL_TEST_DIR}/parseFwkJobReport.py

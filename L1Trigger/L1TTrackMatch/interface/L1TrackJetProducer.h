@@ -1,9 +1,11 @@
-#pragma once
+#ifndef L1Trigger_L1TTrackMatch_L1TrackJetProducer_HH
+#define L1Trigger_L1TTrackMatch_L1TrackJetProducer_HH
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <vector>
 
 //Each individual box in the eta and phi dimension.
 //  Also used to store final cluster data for each zbin.
@@ -16,6 +18,7 @@ struct EtaPhiBin {
   bool used;
   float phi;  //average phi value (halfway b/t min and max)
   float eta;  //average eta value
+  std::vector<unsigned int> trackidx;
 };
 
 //store important information for plots
@@ -26,3 +29,4 @@ struct MaxZBin {
   EtaPhiBin *clusters;  //list of all the clusters in this bin
   float ht;             //sum of all cluster pTs--only the zbin with the maximum ht is stored
 };
+#endif

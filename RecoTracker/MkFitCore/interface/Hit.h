@@ -5,6 +5,7 @@
 #include "RecoTracker/MkFitCore/interface/MatrixSTypes.h"
 
 #include <cmath>
+#include <vector>
 #include <string_view>
 
 namespace mkfit {

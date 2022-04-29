@@ -3,6 +3,8 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Validation/HcalRecHits/interface/HcalRecHitsValidation.h"
 
+//#define EDM_ML_DEBUG
+
 HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const &conf)
     : topFolderName_(conf.getParameter<std::string>("TopFolderName")),
       outputFile_(conf.getUntrackedParameter<std::string>("outputFile", "myfile.root")),
@@ -24,9 +26,9 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const &conf)
       tok_Geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   // DQM ROOT output
   if (!outputFile_.empty()) {
-    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogVerbatim("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
+    edm::LogVerbatim("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
   }
 
   nevtot = 0;
@@ -221,9 +223,11 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
   if (imc != 0) {
     const edm::Handle<edm::HepMCProduct> &evtMC = ev.getHandle(tok_evt_);  // generator in late 310_preX
     if (!evtMC.isValid()) {
-      edm::LogInfo("HcalRecHitsValidation") << "no HepMCProduct found";
+      edm::LogVerbatim("HcalRecHitsValidation") << "no HepMCProduct found";
     } else {
-      //    std::cout << "*** source HepMCProduct found"<< std::endl;
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("HcalRecHitsValidation") << "*** source HepMCProduct found";
+#endif
     }
 
     // MC particle with highest pt is taken as a direction reference
@@ -244,18 +248,23 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
         eta_MC = etap;
       }
     }
-    //  std::cout << "*** Max pT = " << maxPt <<  std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalRecHitsValidation") << "*** Max pT = " << maxPt;
+#endif
   }
 
-  //   std::cout << "*** 2" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalRecHitsValidation") << "*** 2";
+#endif
 
   geometry_ = &c.getData(tok_Geom_);
-  ;
 
   // Fill working vectors of HCAL RecHits quantities (all of these are drawn)
   fillRecHitsTmp(subdet_, ev);
 
-  //  std::cout << "*** 3" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalRecHitsValidation") << "*** 3";
+#endif
 
   //===========================================================================
   // IN ALL other CASES : ieta-iphi maps
@@ -315,14 +324,18 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
     }
   }  // end of ECAL selection
 
-  //     std::cout << "*** 4" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HcalRecHitsValidation") << "*** 4";
+#endif
 
   //===========================================================================
   // SUBSYSTEMS,
   //===========================================================================
 
   if ((subdet_ != 6) && (subdet_ != 0)) {
-    //       std::cout << "*** 6" << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalRecHitsValidation") << "*** 6";
+#endif
 
     double HcalCone = 0.;
 
@@ -419,7 +432,9 @@ void HcalRecHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
       meEnConeEtaProfile_EH->Fill(double(ietaMax), HcalCone + eEcalCone);
     }
 
-    //     std::cout << "*** 7" << std::endl;
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("HcalRecHitsValidation") << "*** 7";
+#endif
   }
 
   // SimHits vs. RecHits

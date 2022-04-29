@@ -264,6 +264,12 @@ PFMETTypeOne200_HBHE_BeamHaloCleaned_METmonitoring = hltMETmonitoring.clone(
     FolderName = 'HLT/JME/MET/PFMETTypeOne200_HBHE_BeamHaloCleaned/',
     numGenericTriggerEventPSet = dict(hltPaths = ["HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned_v*"])
 )
+# HLT_L1MET_DTClusterNoMB1S50_v
+L1MET_DTClusterNoMB1S50_METmonitoring = hltMETmonitoring.clone(
+    FolderName = 'HLT/EXO/MET/L1MET_DTClusterNoMB1S50/',
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_L1MET_DTClusterNoMB1S50_v*"])
+)
+
 exoHLTMETmonitoring = cms.Sequence(
     PFMET110_PFMHT110_IDTight_METmonitoring
     + PFMET120_PFMHT120_IDTight_METmonitoring
@@ -313,4 +319,5 @@ exoHLTMETmonitoring = cms.Sequence(
     + PFMET250_HBHECleaned_METmonitoring
     + PFMET300_HBHECleaned_METmonitoring
     + PFMETTypeOne200_HBHE_BeamHaloCleaned_METmonitoring  
+    + L1MET_DTClusterNoMB1S50_METmonitoring
 )

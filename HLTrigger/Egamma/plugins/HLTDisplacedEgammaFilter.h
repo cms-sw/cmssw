@@ -46,6 +46,7 @@ private:
   double sMaj_max;
   double seedTimeMin;
   double seedTimeMax;
+  bool useTrackVeto;
 
   edm::InputTag inputTrk;
   edm::EDGetTokenT<reco::TrackCollection> inputTrkToken_;

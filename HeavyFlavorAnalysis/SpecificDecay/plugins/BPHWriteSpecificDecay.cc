@@ -1,47 +1,37 @@
-#include "HeavyFlavorAnalysis/SpecificDecay/plugins/BPHWriteSpecificDecay.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexSelect.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
-
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMuonPtSelect.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMuonEtaSelect.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticlePtSelect.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleNeutralVeto.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassSelect.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHChi2Select.h"
-
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHOniaToMuMuBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHKx0ToKPiBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHPhiToKKBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBuToJPsiKBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBsToJPsiPhiBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBdToJPsiKxBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHK0sToPiPiBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHLambda0ToPPiBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBdToJPsiKsBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHLbToJPsiL0Builder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBcToJPsiPiBuilder.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHX3872ToJPsiPiPiBuilder.h"
-
+#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+#include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-
-#include "DataFormats/PatCandidates/interface/GenericParticle.h"
-#include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBcToJPsiPiBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBdToJPsiKsBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBdToJPsiKxBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBsToJPsiPhiBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBuToJPsiKBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHChi2Select.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHK0sToPiPiBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHKx0ToKPiBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHLambda0ToPPiBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHLbToJPsiL0Builder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMuonEtaSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMuonPtSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHOniaToMuMuBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleNeutralVeto.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticlePtSelect.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHPhiToKKBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHX3872ToJPsiPiPiBuilder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/plugins/BPHWriteSpecificDecay.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 
 #include <set>
 #include <string>
@@ -53,7 +43,7 @@ using namespace std;
 // is equivalent to
 // ( xyz = ps.getParameter< string >( "xyx" ) )
 
-BPHWriteSpecificDecay::BPHWriteSpecificDecay(const edm::ParameterSet& ps) {
+BPHWriteSpecificDecay::BPHWriteSpecificDecay(const edm::ParameterSet& ps) : bFieldToken(esConsumes()) {
   usePV = (!SET_PAR(string, pVertexLabel, ps).empty());
   usePM = (!SET_PAR(string, patMuonLabel, ps).empty());
   useCC = (!SET_PAR(string, ccCandsLabel, ps).empty());
@@ -212,8 +202,6 @@ BPHWriteSpecificDecay::BPHWriteSpecificDecay(const edm::ParameterSet& ps) {
     produces<pat::CompositeCandidateCollection>(x3872Name);
 }
 
-BPHWriteSpecificDecay::~BPHWriteSpecificDecay() {}
-
 void BPHWriteSpecificDecay::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<string>("pVertexLabel", "");
@@ -320,8 +308,7 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
   ccRefMap.clear();
 
   // get magnetic field
-  edm::ESHandle<MagneticField> magneticField;
-  es.get<IdealMagneticFieldRecord>().get(magneticField);
+  const MagneticField* magneticField = &es.getData(bFieldToken);
 
   // get object collections
   // collections are got through "BPHTokenWrapper" interface to allow

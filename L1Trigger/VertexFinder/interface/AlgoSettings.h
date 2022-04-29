@@ -10,16 +10,19 @@
 namespace l1tVertexFinder {
 
   enum class Algorithm {
-    FastHisto,
-    FastHistoLooseAssociation,
+    fastHisto,
+    fastHistoEmulation,
+    fastHistoLooseAssociation,
     GapClustering,
-    AgglomerativeHierarchical,
+    agglomerativeHierarchical,
     DBSCAN,
     PVR,
-    AdaptiveVertexReconstruction,
+    adaptiveVertexReconstruction,
     HPV,
     Kmeans
   };
+
+  enum class Precision { Simulation, Emulation };
 
   class AlgoSettings {
   public:
@@ -29,7 +32,8 @@ namespace l1tVertexFinder {
     //=== Vertex Reconstruction configuration
     // Vertex Reconstruction algo
     Algorithm vx_algo() const { return vx_algo_; }
-    /// For Agglomerative cluster algorithm, select a definition of distance between clusters
+    Precision vx_precision() const { return vx_precision_; }
+    // For agglomerative cluster algorithm, select a definition of distance between clusters
     unsigned int vx_distanceType() const { return vx_distanceType_; }
     // Assumed Vertex Distance
     float vx_distance() const { return vx_distance_; }
@@ -39,21 +43,23 @@ namespace l1tVertexFinder {
     unsigned int vx_minTracks() const { return vx_minTracks_; }
     // Compute the z0 position of the vertex with a mean weighted with track momenta
     unsigned int vx_weightedmean() const { return vx_weightedmean_; }
-    /// Chi2 cut for the Adaptive Vertex Recostruction Algorithm
+    // Chi2 cut for the adaptive Vertex Recostruction Algorithm
     float vx_chi2cut() const { return vx_chi2cut_; }
-    /// Window size of the sliding window
+    // Do track quality cuts in emulation algorithms
+    bool vx_DoQualityCuts() const { return vx_DoQualityCuts_; }
+    // Window size of the sliding window
     unsigned int vx_windowSize() const { return vx_windowSize_; }
-    /// FastHisto histogram parameters (min, max, width)
+    // fastHisto histogram parameters (min, max, width)
     std::vector<double> vx_histogram_parameters() const { return vx_histogram_parameters_; }
     double vx_histogram_min() const { return vx_histogram_parameters_.at(0); }
     double vx_histogram_max() const { return vx_histogram_parameters_.at(1); }
     double vx_histogram_binwidth() const { return vx_histogram_parameters_.at(2); }
-    /// FastHisto assumed vertex width
+    // fastHisto assumed vertex width
     float vx_width() const { return vx_width_; }
-    /// FastHisto track selection control
+    // fastHisto track selection control
     bool vx_DoPtComp() const { return vx_DoPtComp_; }
     bool vx_DoTightChi2() const { return vx_DoTightChi2_; }
-    /// Number of vertices to return for FastHisto
+    // Number of vertices to return for fastHisto
     unsigned int vx_nvtx() const { return vx_nvtx_; }
     float vx_dbscan_pt() const { return vx_dbscan_pt_; }
     unsigned int vx_dbscan_mintracks() const { return vx_dbscan_mintracks_; }
@@ -82,18 +88,21 @@ namespace l1tVertexFinder {
 
   private:
     static const std::map<std::string, Algorithm> algoNameMap;
+    static const std::map<Algorithm, Precision> algoPrecisionMap;
 
     // Parameter sets for differents types of configuration parameter.
     edm::ParameterSet vertex_;
 
     // Vertex Reconstruction configuration
     Algorithm vx_algo_;
+    Precision vx_precision_;
     float vx_distance_;
     float vx_resolution_;
     unsigned int vx_distanceType_;
     unsigned int vx_minTracks_;
     unsigned int vx_weightedmean_;
     float vx_chi2cut_;
+    bool vx_DoQualityCuts_;
     bool vx_DoPtComp_;
     bool vx_DoTightChi2_;
     std::vector<double> vx_histogram_parameters_;

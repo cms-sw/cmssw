@@ -141,6 +141,10 @@ void MkFitProducer::produce(edm::StreamID iID, edm::Event& iEvent, const edm::Ev
   const auto& stripHits = iEvent.get(stripHitsToken_);
   const auto& eventOfHits = iEvent.get(eventOfHitsToken_);
   const auto& seeds = iEvent.get(seedToken_);
+  if (seeds.seeds().empty()) {
+    iEvent.emplace(putToken_, mkfit::TrackVec(), not backwardFitInCMSSW_);
+    return;
+  }
   // This producer does not strictly speaking need the MkFitGeometry,
   // but the ESProducer sets global variables (yes, that "feature"
   // should be removed), so getting the MkFitGeometry makes it

@@ -5,6 +5,7 @@
 <use name="clhep"/>
 <use name="f77compiler"/>
 <use name="heppdt"/>
+<use name="hepmc"/>
 <export>
   <lib name="1"/>
 </export>

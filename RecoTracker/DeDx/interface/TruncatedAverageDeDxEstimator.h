@@ -9,11 +9,11 @@
 class TruncatedAverageDeDxEstimator : public BaseDeDxEstimator {
 public:
   TruncatedAverageDeDxEstimator(const edm::ParameterSet& iConfig) {
-    m_fraction = iConfig.getParameter<double>("fraction");
+    fraction_ = iConfig.getParameter<double>("fraction");
   }
 
   std::pair<float, float> dedx(const reco::DeDxHitCollection& Hits) override {
-    int nTrunc = int(Hits.size() * m_fraction);
+    int nTrunc = int(Hits.size() * fraction_);
     double sumdedx = 0;
     for (size_t i = 0; i + nTrunc < Hits.size(); i++) {
       sumdedx += Hits[i].charge();
@@ -23,7 +23,7 @@ public:
   }
 
 private:
-  float m_fraction;
+  float fraction_;
 };
 
 #endif

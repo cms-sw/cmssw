@@ -210,7 +210,7 @@ process.l1GtEmulDigis.TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('s
 # load and configure modules via Global Tag
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
 
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.GlobalTag.globaltag = useGlobalTag + '::All'

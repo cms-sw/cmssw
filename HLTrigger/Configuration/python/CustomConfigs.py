@@ -171,8 +171,3 @@ def L1XML(process,xmlFile=None):
     process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","L1TriggerMenu")
 
     return process
-
-def CTPPSRun2Geometry(process):
-    if hasattr(process,'ctppsGeometryESModule'):
-        process.ctppsGeometryESModule.isRun2 = True
-    return(process)

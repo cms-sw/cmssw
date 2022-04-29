@@ -22,7 +22,10 @@ ticlTrackstersCLUE3DHigh = _trackstersProducer.clone(
     itername = "CLUE3DHigh",
     patternRecognitionBy = "CLUE3D",
     pluginPatternRecognitionByCLUE3D = dict (
-        criticalEtaPhiDistance = 0.025
+        criticalDensity = 0.6,
+        criticalEtaPhiDistance = 0.025,
+        kernelDensityFactor = 0.2,
+        algo_verbosity = 0
     )
 
 )

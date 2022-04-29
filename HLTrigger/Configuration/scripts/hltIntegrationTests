@@ -114,7 +114,6 @@ EXTRA=""
 DATA="--data"
 HLTLISTPATHPROXY=""
 
-
 SELECTION=""
 
 # parse options
@@ -242,7 +241,8 @@ mkdir  "$WORKDIR"
 cd     "$WORKDIR"
 
 # find the list of all trigger paths
-TRIGGERS=$(hltListPaths -p "$MENU" $HLTLISTPATHPROXY | grep -v HLTriggerFinalPath)
+TRIGGERS=$(hltListPaths "$MENU" $HLTLISTPATHPROXY -p --no-dep --exclude "^HLTriggerFinalPath$" "^Dataset_.+")
+echo "${TRIGGERS[@]}" > paths.txt
 
 # print some info
 if [ "$SELECTION" == "complex" ]; then

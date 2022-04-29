@@ -260,6 +260,28 @@ SKIMStreamEXODisplacedJet = cms.FilteredStream(
     dataTier = cms.untracked.string('USER')
     )
 
+from Configuration.Skimming.PDWG_EXODelayedJet_cff import *
+EXODelayedJetPath = cms.Path(EXODelayedJetSkimSequence)
+SKIMStreamEXODelayedJet = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODelayedJet',
+    paths = (EXODelayedJetPath),
+    content = skimRawAODContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+from Configuration.Skimming.PDWG_EXODTCluster_cff import *
+EXODTClusterPath = cms.Path(EXODTClusterSkimSequence)
+SKIMStreamEXODTCluster = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODTCluster',
+    paths = (EXODTClusterPath),
+    content = skimRawAODContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
 from Configuration.Skimming.PDWG_EXODisappTrk_cff import *
 EXODisappTrkPath = cms.Path(EXODisappTrkSkimSequence)
 SKIMStreamEXODisappTrk = cms.FilteredStream(

@@ -12,12 +12,6 @@ class SwitchProducerTest(cms.SwitchProducer):
 
 process = cms.Process("PROD2")
 
-process.options = cms.untracked.PSet(
-    numberOfStreams = cms.untracked.uint32(1),
-    numberOfConcurrentRuns = cms.untracked.uint32(1),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
-)
-
 # Test that having SwitchProducers with same labels as products from
 # earlier processes works
 process.source = cms.Source("PoolSource",

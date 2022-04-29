@@ -20,8 +20,6 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
-#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/GenMET.h"
@@ -57,7 +55,6 @@ struct EVTColContainer {
     GENMET = 390001,
     CALOMET = 390002,
     HLTMET = 390003,
-    L1MET = 390004,
     PFJET = 211,
     CALOJET = 111,
     CALOMHT = 400002,
@@ -78,7 +75,6 @@ struct EVTColContainer {
   const std::vector<reco::GenMET> *genMETs;
   const std::vector<reco::CaloMET> *caloMETs;
   const std::vector<reco::CaloMET> *caloMHTs;
-  const std::vector<l1extra::L1EtMissParticle> *l1METs;
   const std::vector<reco::PFTau> *pfTaus;
   const std::vector<reco::PFJet> *pfJets;
   const std::vector<reco::CaloJet> *caloJets;
@@ -99,7 +95,6 @@ struct EVTColContainer {
         genMETs(nullptr),
         caloMETs(nullptr),
         caloMHTs(nullptr),
-        l1METs(nullptr),
         pfTaus(nullptr),
         pfJets(nullptr),
         caloJets(nullptr),
@@ -124,7 +119,6 @@ struct EVTColContainer {
     genMETs = nullptr;
     caloMETs = nullptr;
     caloMHTs = nullptr;
-    l1METs = nullptr;
     pfTaus = nullptr;
     pfJets = nullptr;
     caloJets = nullptr;
@@ -173,10 +167,6 @@ struct EVTColContainer {
     caloMHTs = v;
     ++nInitialized;
   }
-  void set(const l1extra::L1EtMissParticleCollection *v) {
-    l1METs = v;
-    ++nInitialized;
-  }
   void set(const reco::PFTauCollection *v) {
     pfTaus = v;
     ++nInitialized;
@@ -215,8 +205,6 @@ struct EVTColContainer {
       size = caloMETs->size();
     } else if (objtype == EVTColContainer::CALOMHT && caloMHTs != nullptr) {
       size = caloMHTs->size();
-    } else if (objtype == EVTColContainer::L1MET && l1METs != nullptr) {
-      size = l1METs->size();
     } else if (objtype == EVTColContainer::PFTAU && pfTaus != nullptr) {
       size = pfTaus->size();
     } else if (objtype == EVTColContainer::PFJET && pfJets != nullptr) {
@@ -254,8 +242,6 @@ struct EVTColContainer {
       objTypestr = "CaloMET";
     } else if (objtype == EVTColContainer::CALOMHT) {
       objTypestr = "CaloMHT";
-    } else if (objtype == EVTColContainer::L1MET) {
-      objTypestr = "l1MET";
     } else if (objtype == EVTColContainer::PFTAU) {
       objTypestr = "PFTau";
     } else if (objtype == EVTColContainer::PFJET) {
