@@ -15,7 +15,7 @@ void GEMChMap::setDummy() {
   amcVec_.clear();
 
   chamberMap_.clear();
-  
+
   chamVfats_.clear();
   chamIEtas_.clear();
 
