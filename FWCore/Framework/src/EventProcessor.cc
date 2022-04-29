@@ -1233,7 +1233,7 @@ namespace edm {
 
       if (globalBeginSucceeded) {
         RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
-        if (runPrincipal.continueState() != RunPrincipal::kWillBeContinued) {
+        if (runPrincipal.shouldWriteRun() != RunPrincipal::kNo) {
           FinalWaitingTask t;
           MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
           mergeableRunProductMetadata->preWriteRun();
@@ -1784,7 +1784,7 @@ namespace edm {
 
   void EventProcessor::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& lumiPrincipal) {
     using namespace edm::waiting_task;
-    if (lumiPrincipal.continueState() != LuminosityBlockPrincipal::kWillBeContinued) {
+    if (lumiPrincipal.shouldWriteLumi() != LuminosityBlockPrincipal::kNo) {
       chain::first([&](auto nextTask) {
         ServiceRegistry::Operate op(serviceToken_);
 
@@ -1803,7 +1803,7 @@ namespace edm {
     for (auto& s : subProcesses_) {
       s.deleteLumiFromCache(*iStatus.lumiPrincipal());
     }
-    iStatus.lumiPrincipal()->setContinueState(LuminosityBlockPrincipal::kUninitialized);
+    iStatus.lumiPrincipal()->setShouldWriteLumi(LuminosityBlockPrincipal::kUninitialized);
     iStatus.lumiPrincipal()->clearPrincipal();
     //FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }

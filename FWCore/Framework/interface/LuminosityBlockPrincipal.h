@@ -72,9 +72,9 @@ namespace edm {
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 
-    enum ContinueState { kUninitialized, kWillBeContinued, kProcessLumi };
-    ContinueState continueState() const { return continueState_; }
-    void setContinueState(ContinueState value) { continueState_ = value; }
+    enum ShouldWriteLumi { kUninitialized, kNo, kYes };
+    ShouldWriteLumi shouldWriteLumi() const { return shouldWriteLumi_; }
+    void setShouldWriteLumi(ShouldWriteLumi value) { shouldWriteLumi_ = value; }
 
   private:
     unsigned int transitionIndex_() const override;
@@ -85,7 +85,7 @@ namespace edm {
 
     LuminosityBlockIndex index_;
 
-    ContinueState continueState_ = kUninitialized;
+    ShouldWriteLumi shouldWriteLumi_ = kUninitialized;
   };
 }  // namespace edm
 #endif

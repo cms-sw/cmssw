@@ -82,9 +82,9 @@ namespace edm {
 
     void preReadFile();
 
-    enum ContinueState { kUninitialized, kWillBeContinued, kProcessRun };
-    ContinueState continueState() const { return continueState_; }
-    void setContinueState(ContinueState value) { continueState_ = value; }
+    enum ShouldWriteRun { kUninitialized, kNo, kYes };
+    ShouldWriteRun shouldWriteRun() const { return shouldWriteRun_; }
+    void setShouldWriteRun(ShouldWriteRun value) { shouldWriteRun_ = value; }
 
   private:
     unsigned int transitionIndex_() const override;
@@ -98,7 +98,7 @@ namespace edm {
     // per concurrent run. In all other cases, this should just be null.
     edm::propagate_const<std::unique_ptr<MergeableRunProductMetadata>> mergeableRunProductMetadataPtr_;
 
-    ContinueState continueState_ = kUninitialized;
+    ShouldWriteRun shouldWriteRun_ = kUninitialized;
   };
 }  // namespace edm
 #endif

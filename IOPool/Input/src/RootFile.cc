@@ -1746,11 +1746,11 @@ namespace edm {
       runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.resetAndGetRootDelayedReader());
       // Read in all the products now.
       runPrincipal.readAllFromSourceAndMergeImmediately(mergeableRunProductMetadata);
-      runPrincipal.setContinueState(RunPrincipal::kProcessRun);
+      runPrincipal.setShouldWriteRun(RunPrincipal::kYes);
     } else {
       runPrincipal.fillRunPrincipal(*processHistoryRegistry_, nullptr);
-      if (runPrincipal.continueState() != RunPrincipal::kProcessRun) {
-        runPrincipal.setContinueState(RunPrincipal::kWillBeContinued);
+      if (runPrincipal.shouldWriteRun() != RunPrincipal::kYes) {
+        runPrincipal.setShouldWriteRun(RunPrincipal::kNo);
       }
     }
     return shouldProcessRun;
@@ -1812,12 +1812,12 @@ namespace edm {
       lumiPrincipal.fillLuminosityBlockPrincipal(history, lumiTree_.resetAndGetRootDelayedReader());
       // Read in all the products now.
       lumiPrincipal.readAllFromSourceAndMergeImmediately();
-      lumiPrincipal.setContinueState(LuminosityBlockPrincipal::kProcessLumi);
+      lumiPrincipal.setShouldWriteLumi(LuminosityBlockPrincipal::kYes);
     } else {
       auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
       lumiPrincipal.fillLuminosityBlockPrincipal(history, nullptr);
-      if (lumiPrincipal.continueState() != LuminosityBlockPrincipal::kProcessLumi) {
-        lumiPrincipal.setContinueState(LuminosityBlockPrincipal::kWillBeContinued);
+      if (lumiPrincipal.shouldWriteLumi() != LuminosityBlockPrincipal::kYes) {
+        lumiPrincipal.setShouldWriteLumi(LuminosityBlockPrincipal::kNo);
       }
     }
     ++indexIntoFileIter_;
