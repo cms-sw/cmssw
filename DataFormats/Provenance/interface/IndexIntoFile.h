@@ -619,7 +619,7 @@ namespace edm {
       EntryNumber_t firstEventEntryThisRun();
       EntryNumber_t firstEventEntryThisLumi();
       virtual bool skipLumiInRun() = 0;
-      virtual bool lumiEntryValid(int index) const = 0;
+      virtual bool lumiIterationStartingIndex(int index) const = 0;
 
       void advanceToNextRun();
       void advanceToNextLumiOrRun();
@@ -710,7 +710,7 @@ namespace edm {
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
-      bool lumiEntryValid(int index) const override;
+      bool lumiIterationStartingIndex(int index) const override;
 
     private:
       void initializeLumi_() override;
@@ -746,7 +746,7 @@ namespace edm {
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
-      bool lumiEntryValid(int index) const override;
+      bool lumiIterationStartingIndex(int index) const override;
 
     private:
       void initializeLumi_() override;
@@ -782,7 +782,7 @@ namespace edm {
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
-      bool lumiEntryValid(int index) const override;
+      bool lumiIterationStartingIndex(int index) const override;
       int indexedSize() const override { return indexedSize_; }
 
     private:
@@ -909,7 +909,7 @@ namespace edm {
       EntryNumber_t entry() const { return impl_->entry(); }
       bool shouldProcessLumi() const { return impl_->shouldProcessLumi(); }
       bool shouldProcessRun() const { return impl_->shouldProcessRun(); }
-      bool lumiEntryValid(int index) const { return impl_->lumiEntryValid(index); }
+      bool lumiIterationStartingIndex(int index) const { return impl_->lumiIterationStartingIndex(index); }
 
       /// Same as lumi() except when the the current type is kRun.
       /// In that case instead of always returning 0 (invalid), it will return the lumi that will be processed next

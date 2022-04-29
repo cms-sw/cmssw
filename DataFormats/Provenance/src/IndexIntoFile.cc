@@ -1176,7 +1176,7 @@ namespace edm {
     }
     // Then go forward to the first valid one (or if there are not any valid ones
     // to the last one, only possible in the entryOrder case)
-    while (not lumiEntryValid(newLumi)) {
+    while (not lumiIterationStartingIndex(newLumi)) {
       ++newLumi;
     }
 
@@ -1359,11 +1359,9 @@ namespace edm {
   void IndexIntoFile::IndexIntoFileItrImpl::initializeLumi() {
     initializeLumi_();
     auto oldLumi = lumi();
-    // Go forward to the first valid lumi entry for this lumi
-    // A lumi entry can be invalid if events from different lumis
-    // overlap when doing concurrent lumi processing and also
-    // when processing lumis with non-contiguous events in EntryOrder.
-    while (not lumiEntryValid(indexToLumi_)) {
+    // Then go forward to the first valid one (or if there are not any valid ones
+    // to the last one, only possible in the entryOrder case)
+    while (not lumiIterationStartingIndex(indexToLumi_)) {
       ++indexToLumi_;
     }
     assert(oldLumi == lumi());
@@ -1588,7 +1586,7 @@ namespace edm {
     return false;  // hit the end of the IndexIntoFile
   }
 
-  bool IndexIntoFile::IndexIntoFileItrNoSort::lumiEntryValid(int index) const {
+  bool IndexIntoFile::IndexIntoFileItrNoSort::lumiIterationStartingIndex(int index) const {
     return indexIntoFile()->runOrLumiEntries()[index].entry() != invalidEntry;
   }
 
@@ -1744,7 +1742,7 @@ namespace edm {
     return false;  // hit the end of the IndexIntoFile
   }
 
-  bool IndexIntoFile::IndexIntoFileItrSorted::lumiEntryValid(int index) const {
+  bool IndexIntoFile::IndexIntoFileItrSorted::lumiIterationStartingIndex(int index) const {
     return indexIntoFile()->runOrLumiEntries()[indexIntoFile()->runOrLumiIndexes()[index].indexToGetEntry()].entry() !=
            invalidEntry;
   }
@@ -2011,18 +2009,12 @@ namespace edm {
     return false;  // hit the end of the IndexIntoFile
   }
 
-  bool IndexIntoFile::IndexIntoFileItrEntryOrder::lumiEntryValid(int index) const {
+  bool IndexIntoFile::IndexIntoFileItrEntryOrder::lumiIterationStartingIndex(int index) const {
     assert(index >= 0 && index < indexedSize());
     auto entry = runOrLumisEntry(index).entry();
     if (entry == invalidEntry) {
-      // Practically, this function serves its intended purpose, but the behavior is
-      // inconsistent with the name. When we try to initialize indexToLumi_ in
-      // initializeLumi and hit the last lumi without finding any valid ones this
-      // function calls the last one valid even if its entry is invalid.
-      // This is because something needs to be processed for the lumi.
-      // In this case, shouldWeProcessRunOrLumi will return false to let
-      // the code using IndexIntoFile know to not actually try to process
-      // the lumi.
+      // Usually the starting index is just the first one with a valid lumi TTree entry
+      // number. If there aren't any that are valid, then use the last one.
       if (index + 1 < indexedSize()) {
         if (runOrLumisEntry(index).lumi() != runOrLumisEntry(index + 1).lumi()) {
           return true;
