@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 import os
 
 maxevts   = 1000
-globaltag = 'GR09_31X_V4P::All'
-globaltag = 'STARTUP3XY_V9::All'
+globaltag = 'GR09_31X_V4P'
+globaltag = 'STARTUP3XY_V9'
 inputfile = '/store/data/CRAFT09/Cosmics/RECO/v1/000/109/468/F2CDA89C-B57D-DE11-B2C9-000423D98DC4.root'
 
 process   = cms.Process("RPCTechnicalTrigger")

@@ -193,7 +193,7 @@ if globalTag.count('auto') :
     from Configuration.AlCa.autoCond import autoCond
     useGlobalTag = autoCond[globalTag.replace('auto:', '')]
 else :
-    useGlobalTag = globalTag+'::All'    
+    useGlobalTag = globalTag    
 process.GlobalTag.globaltag = useGlobalTag
 
 # Global Trigger unpacker - produce decision & regional muons from readout record

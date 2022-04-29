@@ -213,7 +213,7 @@ process.l1GtEmulDigis.TechnicalTriggersInputTags = cms.VInputTag(cms.InputTag('s
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = useGlobalTag + '::All'
+process.GlobalTag.globaltag = useGlobalTag
 
 
 # explicit choice of the L1 menu
