@@ -18,7 +18,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
         limit = cms.untracked.int32(-1) ) )
 
 #.. Geometry and Global Tags
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string( globaltag )
 process.load("Configuration.StandardSequences.MagneticField_cff")
