@@ -3,7 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 mssmHbbBtag = DQMEDHarvester("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/HIG/MssmHbb/semileptonic/BtagTrigger/*"),
+    subDirs        = cms.untracked.vstring(
+        "HLT/HIG/MssmHbb/control/btag/*",
+    ),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
@@ -13,40 +15,6 @@ mssmHbbBtag = DQMEDHarvester("DQMGenericClient",
     ),
 )
 
-mssmHbbBtagSL40noMu = mssmHbbBtag.clone(
-    subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40_noMuon"]
-)
-mssmHbbBtagSL40 = mssmHbbBtag.clone(
-    subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt40/"]
-)
-mssmHbbBtagSL100 = mssmHbbBtag.clone(
-    subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt100/"]
-)
-mssmHbbBtagSL200 = mssmHbbBtag.clone(
-    subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt200/"]
-)
-mssmHbbBtagSL350 = mssmHbbBtag.clone(
-    subDirs = ["HLT/HIG/MssmHbb/semileptonic/BtagTrigger/pt350/"]
-)
-mssmHbbBtagAH100 = mssmHbbBtag.clone(
-    subDirs = ["HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt100/"]
-)
-mssmHbbBtagAH200 = mssmHbbBtag.clone(
-    subDirs = ["HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt200/"]
-)
-mssmHbbBtagAH350 = mssmHbbBtag.clone(
-    subDirs = ["HLT/HIG/MssmHbb/fullhadronic/BtagTrigger/pt350/"]
-)
-
-
 mssmHbbBtagTriggerEfficiency = cms.Sequence(
-   mssmHbbBtag
-#   mssmHbbBtagSL40noMu
-# + mssmHbbBtagSL40
-# + mssmHbbBtagSL100
-# + mssmHbbBtagSL200
-# + mssmHbbBtagSL350
-# + mssmHbbBtagAH100
-# + mssmHbbBtagAH200
-# + mssmHbbBtagAH350
+   mssmHbbBtag 
 )
