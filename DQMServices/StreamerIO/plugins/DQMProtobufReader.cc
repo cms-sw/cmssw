@@ -245,6 +245,9 @@ void DQMProtobufReader::load(DQMStore* store, std::string filename) {
       } else if (kind == DQMNet::DQM_PROP_TYPE_TH1D) {
         auto value = static_cast<TH1D*>(obj);
         store->book1DD(objname, value);
+      } else if (kind == DQMNet::DQM_PROP_TYPE_TH1I) {
+        auto value = static_cast<TH1I*>(obj);
+        store->book1I(objname, value);
       } else if (kind == DQMNet::DQM_PROP_TYPE_TH2F) {
         auto value = static_cast<TH2F*>(obj);
         store->book2D(objname, value);
