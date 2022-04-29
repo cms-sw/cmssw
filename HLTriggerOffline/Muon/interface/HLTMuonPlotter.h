@@ -44,8 +44,6 @@
 
 #include "TPRegexp.h"
 
-const unsigned int kNull = (unsigned int)-1;
-
 class HLTMuonPlotter {
 public:
   typedef dqm::legacy::DQMStore DQMStore;

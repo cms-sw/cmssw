@@ -1,9 +1,7 @@
 /** \file HLTExoticaPlotter.cc
  */
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaPlotter.h"
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaSubAnalysis.h"

@@ -9,7 +9,6 @@
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
