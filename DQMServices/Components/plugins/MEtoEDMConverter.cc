@@ -48,6 +48,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
   produces<MEtoEDM<TH1F>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH1S>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH1D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH1I>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH2F>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH2S>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH2D>, edm::Transition::EndRun>(sName);
@@ -63,6 +64,7 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
   produces<MEtoEDM<TH1F>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH1S>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH1D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH1I>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH2F>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH2S>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH2D>, edm::Transition::EndLuminosityBlock>(sName);
@@ -123,6 +125,7 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
   unsigned int n1F = 0;
   unsigned int n1S = 0;
   unsigned int n1D = 0;
+  unsigned int n1I = 0;
   unsigned int n2F = 0;
   unsigned int n2S = 0;
   unsigned int n2D = 0;
@@ -169,6 +172,10 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
         ++n1D;
         break;
 
+      case MonitorElement::Kind::TH1I:
+        ++n1I;
+        break;
+
       case MonitorElement::Kind::TH2F:
         ++n2F;
         break;
@@ -211,6 +218,7 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
   std::unique_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>(n1F));
   std::unique_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>(n1S));
   std::unique_ptr<MEtoEDM<TH1D> > pOut1d(new MEtoEDM<TH1D>(n1D));
+  std::unique_ptr<MEtoEDM<TH1I> > pOut1i(new MEtoEDM<TH1I>(n1I));
   std::unique_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>(n2F));
   std::unique_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>(n2S));
   std::unique_ptr<MEtoEDM<TH2D> > pOut2d(new MEtoEDM<TH2D>(n2D));
@@ -251,6 +259,10 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
 
       case MonitorElement::Kind::TH1D:
         pOut1d->putMEtoEdmObject(me->getFullname(), *me->getTH1D());
+        break;
+
+      case MonitorElement::Kind::TH1I:
+        pOut1i->putMEtoEdmObject(me->getFullname(), *me->getTH1I());
         break;
 
       case MonitorElement::Kind::TH2F:
