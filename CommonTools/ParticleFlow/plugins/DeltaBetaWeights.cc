@@ -9,20 +9,19 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <memory>
 
-class DeltaBetaWeights : public edm::EDProducer {
+class DeltaBetaWeights : public edm::global::EDProducer<> {
 public:
   explicit DeltaBetaWeights(const edm::ParameterSet&);
-  ~DeltaBetaWeights() override;
 
 private:
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   // ----------member data ---------------------------
   edm::InputTag src_;
   edm::InputTag pfCharged_;
@@ -48,32 +47,24 @@ DeltaBetaWeights::DeltaBetaWeights(const edm::ParameterSet& iConfig)
   // src_token = consumes<reco::PFCandidateCollection>(src_);
 }
 
-DeltaBetaWeights::~DeltaBetaWeights() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(DeltaBetaWeights);
 
 // ------------ method called to produce the data  ------------
-void DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void DeltaBetaWeights::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  edm::Handle<edm::View<reco::Candidate> > pfCharged;
-  edm::Handle<edm::View<reco::Candidate> > pfPU;
-  edm::Handle<edm::View<reco::Candidate> > src;
-
-  iEvent.getByToken(src_token, src);
-  iEvent.getByToken(pfCharged_token, pfCharged);
-  iEvent.getByToken(pfPU_token, pfPU);
+  edm::View<reco::Candidate> const pfCharged = iEvent.get(pfCharged_token);
+  edm::View<reco::Candidate> const& pfPU = iEvent.get(pfPU_token);
+  edm::View<reco::Candidate> const& src = iEvent.get(src_token);
 
   double sumNPU = .0;
   double sumPU = .0;
 
   std::unique_ptr<reco::PFCandidateCollection> out(new reco::PFCandidateCollection);
 
-  for (const reco::Candidate& cand : *src) {
+  out->reserve(src.size());
+  for (const reco::Candidate& cand : src) {
     if (cand.charge() != 0) {
       // this part of code should be executed only if input collection is not entirely composed of neutral candidates, i.e. never by default
       edm::LogWarning("DeltaBetaWeights")
@@ -87,14 +78,14 @@ void DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     sumPU = 1.0;
     double eta = cand.eta();
     double phi = cand.phi();
-    for (const reco::Candidate& chCand : *pfCharged) {
+    for (const reco::Candidate& chCand : pfCharged) {
       double sum = (chCand.pt() * chCand.pt()) / (deltaR2(eta, phi, chCand.eta(), chCand.phi()));
       if (sum > 1.0)
         sumNPU *= sum;
     }
     sumNPU = 0.5 * log(sumNPU);
 
-    for (const reco::Candidate& puCand : *pfPU) {
+    for (const reco::Candidate& puCand : pfPU) {
       double sum = (puCand.pt() * puCand.pt()) / (deltaR2(eta, phi, puCand.eta(), puCand.phi()));
       if (sum > 1.0)
         sumPU *= sum;
