@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: skims -s SKIM:EXOHighMET --dasquery=file dataset=/RelValQCD_Pt_1800_2400_14/CMSSW_12_3_0_pre6-123X_mcRun3_2021_realistic_v11-v2/GEN-SIM-RECO -n 100 --conditions 120X_mcRun3_2021_realistic_v6 --python_filename=test_EXOHighMET_SKIM_QCD.py --processName=SKIMEXOHighMET --no_exec
+# with command line options: skims -s SKIM:EXOHighMET --dasquery=file dataset=/RelValQCD_Pt_1800_2400_14/CMSSW_12_3_0_pre6-123X_mcRun3_2021_realistic_v11-v2/GEN-SIM-RECO -n 10000 --conditions 120X_mcRun3_2021_realistic_v6 --python_filename=test_EXOHighMET_SKIM_QCD.py --processName=SKIMEXOHighMET --no_exec
 import FWCore.ParameterSet.Config as cms
 
 
@@ -21,7 +21,7 @@ process.load('Configuration.StandardSequences.Skims_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100),
+    input = cms.untracked.int32(10000),
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
@@ -68,7 +68,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    annotation = cms.untracked.string('skims nevts:100'),
+    annotation = cms.untracked.string('skims nevts:10000'),
     name = cms.untracked.string('Applications'),
     version = cms.untracked.string('$Revision: 1.19 $')
 )
