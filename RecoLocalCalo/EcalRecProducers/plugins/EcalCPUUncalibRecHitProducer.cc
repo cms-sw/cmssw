@@ -27,7 +27,7 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-  bool produceEE_;
+  bool isPhase1_;
   using InputProduct = cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>;
   edm::EDGetTokenT<InputProduct> recHitsInEBToken_, recHitsInEEToken_;
   using OutputProduct = ecal::UncalibratedRecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
@@ -44,7 +44,7 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<std::string>("recHitsOutLabelEB", "EcalUncalibRecHitsEB");
 
   desc.add<bool>("containsTimingInformation", false);
-  desc.add<bool>("produceEE", true);
+  desc.add<bool>("isPhase1", true);
 
   desc.add<edm::InputTag>("recHitsInLabelEE", edm::InputTag{"ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"});
   desc.add<std::string>("recHitsOutLabelEE", "EcalUncalibRecHitsEE");
@@ -53,11 +53,11 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
 }
 
 EcalCPUUncalibRecHitProducer::EcalCPUUncalibRecHitProducer(const edm::ParameterSet& ps)
-    : produceEE_{ps.getParameter<bool>("produceEE")},
+    : isPhase1_{ps.getParameter<bool>("isPhase1")},
       recHitsInEBToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEB"))},
       recHitsOutEBToken_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEB"))},
       containsTimingInformation_{ps.getParameter<bool>("containsTimingInformation")} {
-  if (produceEE_) {
+  if (isPhase1_) {
     recHitsInEEToken_ = consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEE"));
     recHitsOutEEToken_ = produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEE"));
   }
@@ -84,7 +84,7 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
     cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };
 
-  if (produceEE_) {
+  if (isPhase1_) {
     auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
     auto const& eeRecHits = ctx.get(eeRecHitsProduct);
     recHitsEE_.resize(eeRecHits.size);
@@ -93,7 +93,6 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
   lambdaToTransfer(recHitsEB_.did, ebRecHits.did.get());
   lambdaToTransfer(recHitsEB_.amplitudesAll, ebRecHits.amplitudesAll.get());
   lambdaToTransfer(recHitsEB_.amplitude, ebRecHits.amplitude.get());
-  lambdaToTransfer(recHitsEB_.amplitudeError, ebRecHits.amplitudeError.get());
   lambdaToTransfer(recHitsEB_.chi2, ebRecHits.chi2.get());
   lambdaToTransfer(recHitsEB_.pedestal, ebRecHits.pedestal.get());
   lambdaToTransfer(recHitsEB_.flags, ebRecHits.flags.get());
@@ -101,15 +100,16 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
     lambdaToTransfer(recHitsEB_.jitter, ebRecHits.jitter.get());
     lambdaToTransfer(recHitsEB_.jitterError, ebRecHits.jitterError.get());
   }
+  if (!(isPhase1_))
+    lambdaToTransfer(recHitsEB_.amplitudeError, ebRecHits.amplitudeError.get());
 
-  if (produceEE_) {
+  if (isPhase1_) {
     auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
     auto const& eeRecHits = ctx.get(eeRecHitsProduct);
     recHitsEE_.resize(eeRecHits.size);
     lambdaToTransfer(recHitsEE_.did, eeRecHits.did.get());
     lambdaToTransfer(recHitsEE_.amplitudesAll, eeRecHits.amplitudesAll.get());
     lambdaToTransfer(recHitsEE_.amplitude, eeRecHits.amplitude.get());
-    lambdaToTransfer(recHitsEE_.amplitudeError, eeRecHits.amplitudeError.get());
     lambdaToTransfer(recHitsEE_.chi2, eeRecHits.chi2.get());
     lambdaToTransfer(recHitsEE_.pedestal, eeRecHits.pedestal.get());
     lambdaToTransfer(recHitsEE_.flags, eeRecHits.flags.get());
@@ -126,7 +126,7 @@ void EcalCPUUncalibRecHitProducer::produce(edm::Event& event, edm::EventSetup co
   // put into event
   event.put(recHitsOutEBToken_, std::move(recHitsOutEB));
 
-  if (produceEE_) {
+  if (isPhase1_) {
     auto recHitsOutEE = std::make_unique<OutputProduct>(std::move(recHitsEE_));
     event.put(recHitsOutEEToken_, std::move(recHitsOutEE));
   }
