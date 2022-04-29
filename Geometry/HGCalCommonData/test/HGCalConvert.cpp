@@ -1100,7 +1100,9 @@ void ConvertScintillator::makeTitle(const char* outfile,
   if (debug) {
     std::cout << "\nA total of " << nmax << " zones " << std::endl;
     for (int k = 0; k < nmax; ++k)
-      std::cout << "[" << k << "] Layer " << zones[k].layer << " Ring " << zones[k].rmin << ":" << zones[k].rmax << " phi " << zones[k].phimin << ":" << zones[k].phimax << " Cassette " << zones[k].cassette << std::endl;
+      std::cout << "[" << k << "] Layer " << zones[k].layer << " Ring " << zones[k].rmin << ":" << zones[k].rmax
+                << " phi " << zones[k].phimin << ":" << zones[k].phimax << " Cassette " << zones[k].cassette
+                << std::endl;
   }
   if (nmax > 0) {
     std::ofstream fout(outfile);
