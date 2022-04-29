@@ -54,7 +54,7 @@ private:
 SiPixelPhase1MonitorVertexSoA::SiPixelPhase1MonitorVertexSoA(const edm::ParameterSet& iConfig) {
   tokenSoAVertex_ = consumes<ZVertexHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelVertexSrc"));
   tokenBeamSpot_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"));
-  topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");
+  topFolderName_ = iConfig.getParameter<std::string>("topFolderName");
 }
 
 //
@@ -123,7 +123,7 @@ void SiPixelPhase1MonitorVertexSoA::fillDescriptions(edm::ConfigurationDescripti
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelVertexSrc", edm::InputTag("pixelVerticesSoA"));
   desc.add<edm::InputTag>("beamSpotSrc", edm::InputTag("offlineBeamSpot"));
-  desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelVertexSoA");
+  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelVertexSoA");
   descriptions.addWithDefaultLabel(desc);
 }
 DEFINE_FWK_MODULE(SiPixelPhase1MonitorVertexSoA);

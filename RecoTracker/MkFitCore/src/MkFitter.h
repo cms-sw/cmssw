@@ -2,7 +2,7 @@
 #define RecoTracker_MkFitCore_src_MkFitter_h
 
 #include "MkBase.h"
-
+#include "RecoTracker/MkFitCore/interface/Track.h"
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 
 namespace mkfit {
