@@ -517,6 +517,32 @@ upgradeWFs['mlpf'].step3 = {
     '--procModifiers': 'mlpf'
 }
 
+# photonDRN workflows
+class UpgradeWorkflow_photonDRN(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return '2018' in key and "SingleGamma" in fragment
+
+upgradeWFs['photonDRN'] = UpgradeWorkflow_photonDRN(
+    steps = [
+        'Reco',
+        'RecoNano',
+        'RecoFakeHLT'
+    ],
+    PU = [
+        'Reco',
+        'RecoNano',
+        'RecoFakeHLT'
+    ],
+    suffix = '_photonDRN',
+    offset = 0.31,
+)
+upgradeWFs['photonDRN'].step3 = {
+    '--procModifiers': 'enableSonicTriton,photonDRN'
+}
+
 # Patatrack workflows:
 #   - 2018 conditions, TTbar
 #   - 2018 conditions, Z->mumu,
