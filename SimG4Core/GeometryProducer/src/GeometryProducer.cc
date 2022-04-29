@@ -23,7 +23,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
-//#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 
 #include "G4RunManagerKernel.hh"
 #include "G4TransportationManager.hh"
@@ -64,11 +63,9 @@ GeometryProducer::GeometryProducer(edm::ParameterSet const &p)
       m_attach(nullptr),
       m_p(p),
       m_pDD(nullptr),
-      m_pDD4hep(nullptr),
       m_firstRun(true),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
-      m_pUseSensitiveDetectors(p.getParameter<bool>("UseSensitiveDetectors")),
-      m_pGeoFromDD4hep(false) {
+      m_pUseSensitiveDetectors(p.getParameter<bool>("UseSensitiveDetectors")) {
   // Look for an outside SimActivityRegistry
   // this is used by the visualization code
   edm::Service<SimActivityRegistry> otherRegistry;
@@ -121,19 +118,17 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
     m_kernel = new G4RunManagerKernel();
   edm::LogVerbatim("GeometryProducer") << " GeometryProducer initializing ";
   // DDDWorld: get the DDCV from the ES and use it to build the World
-  if (m_pGeoFromDD4hep) {
-    edm::ESTransientHandle<cms::DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    m_pDD4hep = pDD.product();
-  } else {
-    edm::ESTransientHandle<DDCompactView> pDD;
-    es.get<IdealGeometryRecord>().get(pDD);
-    m_pDD = pDD.product();
-  }
+
+  edm::ESTransientHandle<DDCompactView> pDD;
+  es.get<IdealGeometryRecord>().get(pDD);
+  m_pDD = pDD.product();
 
   SensitiveDetectorCatalog catalog;
-  const DDDWorld *dddworld = new DDDWorld(m_pDD, m_pDD4hep, catalog, 1, false, false);
-  G4VPhysicalVolume *world = dddworld->GetWorldVolume();
+  G4LogicalVolumeToDDLogicalPartMap map;
+
+  const DDDWorld *dddworld = new DDDWorld(&(*pDD), map, catalog, false);
+  G4VPhysicalVolume *world = dddworld->GetWorldVolumeForWorker();
+
   if (nullptr != world)
     edm::LogVerbatim("GeometryProducer") << " World Volume: " << world->GetName();
   m_kernel->DefineWorldVolume(world, true);
@@ -151,7 +146,7 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
       m_attach = new AttachSD;
     {
       std::pair<std::vector<SensitiveTkDetector *>, std::vector<SensitiveCaloDetector *>> sensDets =
-	m_attach->create((*m_pDD), catalog_, m_p, m_trackManager.get(), m_registry);
+          m_attach->create((*m_pDD), catalog, m_p, m_trackManager.get(), m_registry);
 
       m_sensTkDets.swap(sensDets.first);
       m_sensCaloDets.swap(sensDets.second);

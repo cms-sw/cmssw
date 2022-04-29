@@ -21,10 +21,6 @@ namespace sim {
   class FieldBuilder;
 }
 
-namespace cms {
-  class DDCompactView;
-}
-
 class SimWatcher;
 class SimProducer;
 class DDDWorld;
@@ -63,12 +59,10 @@ private:
   edm::ParameterSet m_p;
 
   mutable const DDCompactView *m_pDD;
-  mutable const cms::DDCompactView *m_pDD4hep;
 
   bool m_firstRun;
   bool m_pUseMagneticField;
   bool m_pUseSensitiveDetectors;
-  bool m_pGeoFromDD4hep;
 };
 
 #endif
