@@ -41,6 +41,7 @@
 #include "TH1F.h"
 #include "TH1S.h"
 #include "TH1D.h"
+#include "TH1I.h"
 #include "TH2F.h"
 #include "TH2S.h"
 #include "TH2D.h"

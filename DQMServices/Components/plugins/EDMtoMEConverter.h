@@ -104,6 +104,7 @@ private:
   std::tuple<Tokens<TH1F>,
              Tokens<TH1S>,
              Tokens<TH1D>,
+             Tokens<TH1I>,
              Tokens<TH2F>,
              Tokens<TH2S>,
              Tokens<TH2D>,

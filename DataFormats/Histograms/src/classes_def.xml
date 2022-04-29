@@ -21,6 +21,7 @@
  <class name="MEtoEDM<TH1F>"/>
  <class name="MEtoEDM<TH1S>"/>
  <class name="MEtoEDM<TH1D>"/>
+ <class name="MEtoEDM<TH1I>"/>
  <class name="MEtoEDM<TH2F>"/>
  <class name="MEtoEDM<TH2S>"/>
  <class name="MEtoEDM<TH2D>"/>
@@ -35,6 +36,7 @@
  <class name="MEtoEDM<TH1F>::MEtoEDMObject"/>
  <class name="MEtoEDM<TH1S>::MEtoEDMObject"/>
  <class name="MEtoEDM<TH1D>::MEtoEDMObject"/>
+ <class name="MEtoEDM<TH1I>::MEtoEDMObject"/>
  <class name="MEtoEDM<TH2F>::MEtoEDMObject"/>
  <class name="MEtoEDM<TH2S>::MEtoEDMObject"/>
  <class name="MEtoEDM<TH2D>::MEtoEDMObject"/>
@@ -49,6 +51,7 @@
  <class name="std::vector<MEtoEDM<TH1F>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH1S>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH1D>::MEtoEDMObject>"/>
+ <class name="std::vector<MEtoEDM<TH1I>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH2F>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH2S>::MEtoEDMObject>"/>
  <class name="std::vector<MEtoEDM<TH2D>::MEtoEDMObject>"/>
@@ -63,6 +66,7 @@
  <class name="edm::Wrapper<MEtoEDM<TH1F> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH1S> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH1D> >"/>
+ <class name="edm::Wrapper<MEtoEDM<TH1I> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH2F> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH2S> >"/>
  <class name="edm::Wrapper<MEtoEDM<TH2D> >"/>
