@@ -467,6 +467,9 @@ namespace {
     const float getFootprintCorrectiondR03(const pat::Tau& tau, const edm::RefToBase<reco::BaseTau> tau_ref) const {
       return getTauID(tau, "footprintCorrectiondR03");
     }
+    const float getFootprintCorrection(const pat::Tau& tau, const edm::RefToBase<reco::BaseTau> tau_ref) const {
+      return getTauID(tau, "footprintCorrection");
+    }
     const float getNeutralIsoPtSum(const reco::PFTau& tau, const edm::RefToBase<reco::BaseTau> tau_ref) const {
       return (*basicTauDiscriminatorCollection)[tau_ref].rawValues.at(indexMap.at(BasicDiscr::NeutralIsoPtSum));
     }
@@ -1217,8 +1220,31 @@ public:
         throw cms::Exception("DeepTauId")
             << "number of inputs does not match the expected inputs for the given version";
     } else if (version_ == 2) {
-      tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
-          tensorflow::DT_FLOAT, tensorflow::TensorShape{1, dnn_inputs_v2::TauBlockInputs::NumberOfInputs});
+        using namespace dnn_inputs_v2::TauBlockInputs;
+        tauBlockTensor_indices_.resize(NumberOfInputs);
+        std::iota(std::begin(tauBlockTensor_indices_), std::end(tauBlockTensor_indices_), 0);
+        
+        if (sub_version_ == 1)
+        {
+          tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, NumberOfInputs});
+        }
+        else if (sub_version_ == 5)
+        {
+          std::vector<int> varsToDrop{tau_phi, tau_dxy_pca_x, tau_dxy_pca_y, tau_dxy_pca_z}; // indices of vars to be dropped in the full var enum 
+          std::sort(varsToDrop.begin(), varsToDrop.end());
+          for(auto v: varsToDrop)
+          {
+            tauBlockTensor_indices_.at(v) = -1; // set index to -1
+            for(std::size_t i = v+1; i < NumberOfInputs; ++i)
+              tauBlockTensor_indices_.at(i) -= 1; // shift all the following indices by 1
+          }
+          tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, static_cast<int>(NumberOfInputs)-static_cast<int>(varsToDrop.size())});
+        }
+        else
+          throw cms::Exception("DeepTauId") << "subversion " << sub_version_ << " is not supported.";
+
       for (size_t n = 0; n < 2; ++n) {
         const bool is_inner = n == 0;
         const auto n_cells =
@@ -1594,7 +1620,7 @@ private:
     createTauBlockInputs<CandidateCastType>(
         dynamic_cast<const TauCastType&>(tau), tau_index, tau_ref, pv, rho, tau_funcs);
     using namespace dnn_inputs_v2;
-    checkInputs(*tauBlockTensor_, "input_tau", TauBlockInputs::NumberOfInputs);
+    checkInputs(*tauBlockTensor_, "input_tau", static_cast<int>(tauBlockTensor_->shape().dim_size(1)));
     createConvFeatures<CandidateCastType>(dynamic_cast<const TauCastType&>(tau),
                                           tau_index,
                                           tau_ref,
@@ -1629,7 +1655,7 @@ private:
       json_file_ = new std::ofstream(json_file_name.data());
       is_first_block_ = true;
       (*json_file_) << "{";
-      saveInputs(*tauBlockTensor_, "input_tau", dnn_inputs_v2::TauBlockInputs::NumberOfInputs);
+      saveInputs(*tauBlockTensor_, "input_tau", static_cast<int>(tauBlockTensor_->shape().dim_size(1)));
       saveInputs(*eGammaTensor_[true],
                  "input_inner_egamma",
                  dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs,
@@ -1855,7 +1881,7 @@ private:
     get(dnn::rho) = getValueNorm(rho, 21.49f, 9.713f);
     get(dnn::tau_pt) = getValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
     get(dnn::tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
-    get(dnn::tau_phi) = getValueLinear(tau.polarP4().phi(), -pi, pi, false);
+    if (sub_version_ == 1){get(dnn::tau_phi) = getValueLinear(tau.polarP4().phi(), -pi, pi, false);}
     get(dnn::tau_mass) = getValueNorm(tau.polarP4().mass(), 0.6669f, 0.6553f);
     get(dnn::tau_E_over_pt) = getValueLinear(tau.p4().energy() / tau.p4().pt(), 1.f, 5.2f, true);
     get(dnn::tau_charge) = getValue(tau.charge());
@@ -1864,7 +1890,11 @@ private:
     get(dnn::chargedIsoPtSum) = getValueNorm(tau_funcs.getChargedIsoPtSum(tau, tau_ref), 47.78f, 123.5f);
     get(dnn::chargedIsoPtSumdR03_over_dR05) =
         getValue(tau_funcs.getChargedIsoPtSumdR03(tau, tau_ref) / tau_funcs.getChargedIsoPtSum(tau, tau_ref));
-    get(dnn::footprintCorrection) = getValueNorm(tau_funcs.getFootprintCorrectiondR03(tau, tau_ref), 9.029f, 26.42f);
+    if (sub_version_ == 1)
+      get(dnn::footprintCorrection) = getValueNorm(tau_funcs.getFootprintCorrectiondR03(tau, tau_ref), 9.029f, 26.42f);
+    else if (sub_version_ == 5)
+      get(dnn::footprintCorrection) = getValueNorm(tau_funcs.getFootprintCorrection(tau, tau_ref), 9.029f, 26.42f);
+    
     get(dnn::neutralIsoPtSum) = getValueNorm(tau_funcs.getNeutralIsoPtSum(tau, tau_ref), 57.59f, 155.3f);
     get(dnn::neutralIsoPtSumWeight_over_neutralIsoPtSum) =
         getValue(tau_funcs.getNeutralIsoPtSumWeight(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref));
@@ -1879,16 +1909,20 @@ private:
     // them for the inference, because modeling of dxy_PCA in MC poorly describes the data, and x and y coordinates
     // in data results outside of the expected 5 std. dev. input validity range. On the other hand,
     // these coordinates are strongly era-dependent. Kept as comment to document what NN expects.
-    if (!disable_dxy_pca_) {
-      auto const pca = tau_funcs.getdxyPCA(tau, tau_index);
-      get(dnn::tau_dxy_pca_x) = getValueNorm(pca.x(), -0.0241f, 0.0074f);
-      get(dnn::tau_dxy_pca_y) = getValueNorm(pca.y(), 0.0675f, 0.0128f);
-      get(dnn::tau_dxy_pca_z) = getValueNorm(pca.z(), 0.7973f, 3.456f);
-    } else {
-      get(dnn::tau_dxy_pca_x) = 0;
-      get(dnn::tau_dxy_pca_y) = 0;
-      get(dnn::tau_dxy_pca_z) = 0;
+    if (sub_version_ == 1)
+    {
+      if (!disable_dxy_pca_) {
+        auto const pca = tau_funcs.getdxyPCA(tau, tau_index);
+        get(dnn::tau_dxy_pca_x) = getValueNorm(pca.x(), -0.0241f, 0.0074f);
+        get(dnn::tau_dxy_pca_y) = getValueNorm(pca.y(), 0.0675f, 0.0128f);
+        get(dnn::tau_dxy_pca_z) = getValueNorm(pca.z(), 0.7973f, 3.456f);
+      } else {
+        get(dnn::tau_dxy_pca_x) = 0;
+        get(dnn::tau_dxy_pca_y) = 0;
+        get(dnn::tau_dxy_pca_z) = 0;
+      }
     }
+    
     const bool tau_dxy_valid =
         isAbove(tau_funcs.getdxy(tau, tau_index), -10) && isAbove(tau_funcs.getdxyError(tau, tau_index), 0);
     if (tau_dxy_valid) {
@@ -1916,7 +1950,11 @@ private:
     get(dnn::tau_flightLength_x) = getValueNorm(tau_funcs.getFlightLength(tau, tau_index).x(), -0.0003f, 0.7362f);
     get(dnn::tau_flightLength_y) = getValueNorm(tau_funcs.getFlightLength(tau, tau_index).y(), -0.0009f, 0.7354f);
     get(dnn::tau_flightLength_z) = getValueNorm(tau_funcs.getFlightLength(tau, tau_index).z(), -0.0022f, 1.993f);
-    get(dnn::tau_flightLength_sig) = 0.55756444;  //This value is set due to a bug in the training
+    if (sub_version_ == 1)
+      get(dnn::tau_flightLength_sig) = 0.55756444;  //This value is set due to a bug in the training
+    else if (sub_version_ == 5)
+      get(dnn::tau_flightLength_sig) = tau_funcs.getFlightLengthSig(tau, tau_index);
+      
     get(dnn::tau_pt_weighted_deta_strip) =
         getValueLinear(reco::tau::pt_weighted_deta_strip(tau, tau.decayMode()), 0, 1, true);
 
@@ -2825,6 +2863,7 @@ private:
   std::ofstream* json_file_;
   bool is_first_block_;
   int file_counter_;
+  std::vector<int> tauBlockTensor_indices_;
 
   //boolean to check if discriminator indices are already mapped
   bool discrIndicesMapped_ = false;
