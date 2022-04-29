@@ -18,8 +18,8 @@ process.load("L1TriggerConfig.DTTPGConfigProducers.L1DTTPGConfigFromDB_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 
 ##### MONTE CARLO RUNS - start
-#process.GlobalTag.globaltag = 'MC_38Y_V9::All'
-process.GlobalTag.globaltag = "START311_V1::All"
+#process.GlobalTag.globaltag = 'MC_38Y_V9'
+process.GlobalTag.globaltag = "START311_V1"
 # include CCB tags - temporary untill they are not in GlobalTag
 process.GlobalTag.toGet = cms.VPSet()
 process.GlobalTag.toGet.append(
@@ -50,7 +50,7 @@ process.GlobalTag.toGet.append(
 ##### MONTE CARLO RUNS - end
 
 ##### DATA RUNS - start
-#process.GlobalTag.globaltag = "START38_V12::All"
+#process.GlobalTag.globaltag = "START38_V12"
 ## include CCB tags - temporary untill they are not in GlobalTag
 #process.GlobalTag.toGet = cms.VPSet()
 #process.GlobalTag.toGet.append(
