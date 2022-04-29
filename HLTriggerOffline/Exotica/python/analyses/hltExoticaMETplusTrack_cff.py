@@ -2,11 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 METplusTrackPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        #"HLT_MET75_IsoTrk50_v",       # 2015-6 proposal
-        #"HLT_MET90_IsoTrk50_v",       # 2015-6 proposal
-        #"HLT_MET60_IsoTrk35_Loose_v", # 2016-6 proposal
-        "HLT_MET105_IsoTrk50_v",       # 2017 proposal
-        "HLT_MET120_IsoTrk50_v"        # 2017 proposal
+        "HLT_MET105_IsoTrk50_v", # 2017 proposal # Claimed path for Run3
+#        "HLT_MET120_IsoTrk50_v"  # 2017 proposal # Claimed path for Run3, but a backup so no need to monitor it closely here
+        "HLT_PFMET105_IsoTrk50_v", # New Run 3 path
+        "HLT_PFMET110_PFJet100_v", # New Run 3 path
     ),
     recPFMETLabel = cms.InputTag("pfMet"),
     #recMETLabel   = cms.InputTag("hltPFMETProducer"),
@@ -14,8 +13,7 @@ METplusTrackPSet = cms.PSet(
     recMuonLabel  = cms.InputTag("muons"),
     recElecLabel  = cms.InputTag("gedGsfElectrons"),
     #recTrackLabel = cms.InputTag("generalTracks"),
-    #hltMETLabel   = cms.InputTag("hltMetClean"),                    
-    l1METLabel    = cms.InputTag("l1extraParticles","MET"),   
+    #hltMETLabel   = cms.InputTag("hltMetClean"),
     # -- Analysis specific cuts
     minCandidates = cms.uint32(1),
     # -- Analysis specific binnings

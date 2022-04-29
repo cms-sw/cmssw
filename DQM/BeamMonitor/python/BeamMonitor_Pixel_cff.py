@@ -17,6 +17,7 @@ dqmBeamMonitor = DQMEDAnalyzer("BeamMonitor",
                               jetTrigger  = cms.untracked.vstring(),
                               hltResults = cms.InputTag("TriggerResults","","HLT"),
                               nLSForUpload = cms.untracked.int32(5),
+                              tcdsRecord = cms.InputTag('tcdsDigis','tcdsRecord'),
                               BeamFitter = cms.PSet(
                                 Debug = cms.untracked.bool(False),
                                 TrackCollection = cms.untracked.InputTag('pixelTracks'),

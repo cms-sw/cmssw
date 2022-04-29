@@ -23,6 +23,7 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -61,6 +62,9 @@ private:
   typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
   typedef CaloTDigitizer<HODigitizerTraits> HODigitizer;
 
+  const double tunePhaseShift;
+  const std::string ecalTBInfoLabel;
+
   HcalTBSimParameterMap *theParameterMap;
   HcalSimParameterMap *paraMap;
   CaloVShape *theHcalShape;
@@ -78,24 +82,24 @@ private:
 
   HcalTimeSlewSim *theTimeSlewSim;
 
-  HBHEDigitizer *theHBHEDigitizer;
-  HODigitizer *theHODigitizer;
+  std::unique_ptr<HBHEDigitizer> theHBHEDigitizer;
+  std::unique_ptr<HODigitizer> theHODigitizer;
 
-  edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
-  edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> hcalTimeSlew_delay_token_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geometryToken_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> conditionsToken_;
+  const edm::ESGetToken<HcalTimeSlew, HcalTimeSlewRecord> hcalTimeSlew_delay_token_;
   edm::ESWatcher<CaloGeometryRecord> geometryWatcher_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> hcalToken_;
+  edm::EDGetTokenT<PEcalTBInfo> theEcalTBToken_;
   const CaloGeometry *theGeometry;
   std::vector<DetId> hbheCells;
   std::vector<DetId> hoCells;
 
   std::vector<PCaloHit> theHBHEHits, theHOHits;
 
-  std::string ecalTBInfoLabel;
   double thisPhaseShift;
 
   bool doPhaseShift;
-  double tunePhaseShift;
 
   CLHEP::HepRandomEngine *randomEngine_ = nullptr;
 };

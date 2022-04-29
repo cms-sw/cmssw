@@ -6,6 +6,7 @@
 #include "RecoTracker/MkFitCore/interface/Track.h"
 
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
+#include "RecoTracker/MkFitCore/interface/TrackStructures.h"
 
 // Define to get printouts about track and hit chi2.
 // See also MkBuilder::backwardFit().

@@ -91,6 +91,8 @@ public:
   /// Return muon alignable object ID provider derived from the muon system geometry
   const AlignableObjectId& objectIdProvider() const { return alignableObjectId_; }
 
+  const bool doGEM() { return doGEM_; }
+
 private:
   /// Get the position (centered at 0 by default)
   PositionType computePosition();
@@ -123,6 +125,7 @@ private:
   /// alignable object ID provider
   const AlignableObjectId alignableObjectId_;
 
+  bool doGEM_;
   /// Containers of separate components
   std::vector<AlignableDTChamber*> theDTChambers;
   std::vector<AlignableDTStation*> theDTStations;

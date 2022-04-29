@@ -2467,7 +2467,7 @@ hgcalTrackstersPlotter = Plotter()
 def append_hgcalTrackstersPlots(collection = 'ticlTrackstersMerge', name_collection = "TrackstersMerge"):
   # Appending generic plots for Tracksters
   hgcalTrackstersPlotter.append(collection, [
-              _hgcalFolders(collection+ "/" + hgcalValidator.label_TS._InputTag__moduleLabel)
+              _hgcalFolders(collection+ "/" + hgcalValidator.label_TS.value())
               ], PlotFolder(
               *_trackstersPlots,
               loopSubFolders=False,

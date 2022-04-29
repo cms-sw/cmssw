@@ -195,6 +195,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(1)
 
 
 process.pp = cms.Path( process.scalersRawToDigi
+                      *process.onlineMetaDataDigis
                       *process.dqmTKStatus
                       *process.hltTriggerTypeFilter
                       *process.dqmcommon

@@ -16,9 +16,8 @@ L1TGlobalPrescalesVetosFract = cms.ESProducer("L1TGlobalPrescalesVetosFractESPro
     TriggerMenuLuminosity = cms.string('startup'),
     Verbosity = cms.int32(0),
     AlgoBxMaskDefault = cms.int32(1),
-    PrescaleXMLFile = cms.string('UGT_BASE_RS_PRESCALES_v11.xml'),
-    AlgoBxMaskXMLFile = cms.string('UGT_BASE_RS_ALGOBX_MASK_V1.xml'),
-    FinOrMaskXMLFile = cms.string('UGT_BASE_RS_FINOR_MASK_v17.xml'),
-    VetoMaskXMLFile = cms.string('UGT_BASE_RS_VETO_MASK_v1.xml'),
-
+    PrescaleXMLFile = cms.string('UGT_BASE_RS_PRESCALES_L1MenuCollisions2022_v1_0_0.xml'),
+    AlgoBxMaskXMLFile = cms.string('UGT_BASE_RS_ALGOBX_MASK_L1MenuCollisions2022_v1_0_0.xml'),
+    FinOrMaskXMLFile = cms.string('UGT_BASE_RS_FINOR_MASK_L1MenuCollisions2022_v1_0_0.xml'),
+    VetoMaskXMLFile = cms.string('UGT_BASE_RS_VETO_MASK_L1MenuCollisions2022_v1_0_0.xml'),
 )

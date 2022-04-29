@@ -22,7 +22,7 @@ namespace mkfit {
         : m_trk_info(ti), m_mask_vector(maskvec) {}
 
     const std::vector<bool> *get_mask_for_layer(int layer) const override {
-      return m_trk_info.layer(layer).is_pix_lyr() ? m_mask_vector[0] : m_mask_vector[1];
+      return m_trk_info.layer(layer).is_pixel() ? m_mask_vector[0] : m_mask_vector[1];
     }
   };
 
@@ -57,7 +57,7 @@ namespace mkfit {
         s.sortHitsByLayer();  // sort seed hits for the matched hits (I hope it works here)
     }
 
-    builder.find_tracks_load_seeds(seeds);
+    builder.find_tracks_load_seeds(seeds, do_seed_clean);
 
     builder.findTracksCloneEngine();
 

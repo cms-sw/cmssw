@@ -1,4 +1,17 @@
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
+// system includes
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+// user includes
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGauss.h"
+#include "CondFormats/DataRecord/interface/SiStripFedCablingRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -6,17 +19,33 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CLHEP/Random/RandGauss.h"
-#include "CLHEP/Random/RandFlat.h"
-#include <cstdlib>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <ctime>
-#include <cmath>
+
+/**
+    @file EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h
+    @class SiStripTrivialDigiSource
+
+    @brief Creates a DetSetVector of SiStripDigis created using random
+    number generators and attaches the collection to the Event. Allows
+    to test the final DigiToRaw and RawToDigi converters.  
+*/
+class SiStripTrivialDigiSource : public edm::global::EDProducer<> {
+public:
+  SiStripTrivialDigiSource(const edm::ParameterSet&);
+  ~SiStripTrivialDigiSource();
+
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  const edm::ESGetToken<SiStripFedCabling, SiStripFedCablingRcd> esTokenCabling_;
+  const float meanOcc_;
+  const float rmsOcc_;
+  const int ped_;
+  const bool raw_;
+  const bool useFedKey_;
+};
 
 // -----------------------------------------------------------------------------
 //
@@ -174,3 +203,7 @@ void SiStripTrivialDigiSource::produce(edm::StreamID, edm::Event& event, const e
     LogTrace("TrivialDigiSource") << ss.str();
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripTrivialDigiSource);

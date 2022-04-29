@@ -48,6 +48,30 @@ if 'unitTest=True' in sys.argv:
 if unitTest:
   process.load("DQM.Integration.config.unittestinputsource_cfi")
   from DQM.Integration.config.unittestinputsource_cfi import options
+
+  # Overwrite source of the unitTest to use a streamer file instead of the DAS query output
+  print("[beamhlt_dqm_sourceclient-live_cfg]:: Overriding DAS input to use a streamer file")
+
+  # Read streamer files from https://github.com/cms-data/DQM-Integration
+  import os
+  dqm_integration_data = [os.path.join(dir,'DQM/Integration/data') for dir in os.getenv('CMSSW_SEARCH_PATH','').split(":") if os.path.exists(os.path.join(dir,'DQM/Integration/data'))][0]
+
+  # Set the process source
+  process.source = cms.Source("DQMStreamerReader",
+      runNumber = cms.untracked.uint32(346373),
+      runInputDir = cms.untracked.string(dqm_integration_data),
+      SelectEvents = cms.untracked.vstring('*'),
+      streamLabel = cms.untracked.string('streamDQMOnlineBeamspot'),
+      scanOnce = cms.untracked.bool(True),
+      minEventsPerLumi = cms.untracked.int32(1000),
+      delayMillis = cms.untracked.uint32(500),
+      nextLumiTimeoutMillis = cms.untracked.int32(0),
+      skipFirstLumis = cms.untracked.bool(False),
+      deleteDatFiles = cms.untracked.bool(False),
+      endOfRunKills  = cms.untracked.bool(False),
+      inputFileTransitionsEachEvent = cms.untracked.bool(False)
+  )
+
 elif live:
   # for live online DQM in P5
   process.load("DQM.Integration.config.inputsource_cfi")
@@ -117,6 +141,19 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor)
 # process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
+
+# Digitisation: produce the TCDS digis containing BST record
+from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
+process.tcdsDigis = tcdsRawToDigi.clone()
+
+#------------------------
+# Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
+if (process.runType.getRunType() == process.runType.hi_run and live):
+    rawDataInputTag = "rawDataRepacker"
+else:
+    rawDataInputTag = "rawDataCollector"
+
+process.tcdsDigis.InputLabel = rawDataInputTag
 
 #-----------------------------------------------------------
 # Swap offline <-> online BeamSpot as in Express and HLT
@@ -211,7 +248,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
         connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db'),
         preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db'),
         runNumber = cms.untracked.uint64(options.runNumber),
-        lastLumiFile = cms.untracked.string('last_lumi.txt'),
+        lastLumiFile = cms.untracked.string('src/DQM/Integration/python/clients/last_lumi.txt'),
         latency = cms.untracked.uint32(2),
         autoCommit = cms.untracked.bool(True),
         toPut = cms.VPSet(cms.PSet(
@@ -226,6 +263,7 @@ if (process.runType.getRunType() == process.runType.pp_run or
     print("Configured frontierKey", options.runUniqueKey)
 
     process.p = cms.Path( process.hltTriggerTypeFilter
+                        * process.tcdsDigis
                         * process.dqmcommon
                         * process.offlineBeamSpot
                         * process.monitor )

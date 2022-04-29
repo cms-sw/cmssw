@@ -25,6 +25,8 @@ namespace l1t {
              const double& etTotalPU,
              int bx = 0);
 
+    TkEtMiss(const LorentzVector& p4, EtMissType type, const double& EtPhi, const int& NumTracks, int bx = 0);
+
     // ---------- const member functions ---------------------
     EtMissType type() const { return type_; }  // kMET or kMHT
     // For type = kMET, this is |MET|; for type = kMHT, this is |MHT|
@@ -37,6 +39,9 @@ namespace l1t {
     int bx() const { return bx_; }
     const edm::Ref<TkPrimaryVertexCollection>& vtxRef() const { return vtxRef_; }
 
+    double etPhi() const { return etPhi_; }
+    int etQual() const { return etQual_; }
+
     // ---------- member functions ---------------------------
     void setEtTotal(const double& etTotal) { etTot_ = etTotal; }
     void setBx(int bx) { bx_ = bx; }
@@ -48,6 +53,11 @@ namespace l1t {
     double etMissPU_;
     double etTotalPU_;
     edm::Ref<TkPrimaryVertexCollection> vtxRef_;
+
+    double etMiss_;
+    double etPhi_;
+    int etQual_;
+
     int bx_;
   };
 }  // namespace l1t

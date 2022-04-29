@@ -555,8 +555,6 @@ ProtoCand HoughGrouping::associateHits(const DTChamber* thechamb, double m, doub
   LocalPoint tmpLocal, AWireLocal, AWireLocalCh, tmpLocalCh, thepoint;
   GlobalPoint tmpGlobal, AWireGlobal;
   double tmpx = 0;
-  double distleft = 0;
-  double distright = 0;
   unsigned short int tmpwire = 0;
   unsigned short int abslay = 0;
   LATERAL_CASES lat = NONE;
@@ -585,8 +583,6 @@ ProtoCand HoughGrouping::associateHits(const DTChamber* thechamb, double m, doub
       isleft = false;
       isright = false;
       lat = NONE;
-      distleft = 0;
-      distright = 0;
       if (sl == 1)
         abslay = l - 1;
       else
@@ -683,18 +679,12 @@ ProtoCand HoughGrouping::associateHits(const DTChamber* thechamb, double m, doub
           GlobalPoint tmpGlobal_r = thechamb->superLayer(sl)->layer(l)->toGlobal(tmpLocal_r);
           LocalPoint tmpLocalCh_r = thechamb->toLocal(tmpGlobal_r);
 
-          distleft = std::abs(thepoint.x() - tmpLocalCh_l.x());
-          distright = std::abs(thepoint.x() - tmpLocalCh_r.x());
-
           // Filling info
           returnPC.nLayersWithHits_++;
           returnPC.isThereNeighBourHitInLayer_[abslay] = true;
 
-          returnPC.xDistToPattern_[abslay] = abs(tmpx - (tmpLocalCh.x() - 1.05));
-          returnPC.dtHits_[abslay] = DTPrimitive(digimap_[abslay][tmpwire + 1]);
-          returnPC.dtHits_[abslay].setLaterality(LEFT);
-
-          if (distleft < distright) {
+          bool isDistRight = std::abs(thepoint.x() - tmpLocalCh_l.x()) < std::abs(thepoint.x() - tmpLocalCh_r.x());
+          if (isDistRight) {
             returnPC.xDistToPattern_[abslay] = std::abs(tmpx - (tmpLocalCh.x() + 1.05));
             returnPC.dtHits_[abslay] = DTPrimitive(digimap_[abslay][tmpwire - 1]);
             returnPC.dtHits_[abslay].setLaterality(RIGHT);

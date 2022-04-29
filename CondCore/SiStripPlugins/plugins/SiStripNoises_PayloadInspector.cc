@@ -23,9 +23,9 @@
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
-
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "SiStripCondObjectRepresent.h"
 
 #include <memory>
 #include <sstream>
@@ -48,6 +48,170 @@
 namespace {
 
   using namespace cond::payloadInspector;
+
+  class SiStripNoiseContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float> {
+  public:
+    SiStripNoiseContainer(const std::shared_ptr<SiStripNoises>& payload,
+                          const SiStripPI::MetaData& metadata,
+                          const std::string& tagName)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripNoises, float>(payload, metadata, tagName) {
+      payloadType_ = "SiStripNoises";
+      setGranularity(SiStripCondObjectRepresent::PERSTRIP);
+    }
+
+    void storeAllValues() override {
+      std::vector<uint32_t> detid;
+      payload_->getDetIds(detid);
+
+      for (const auto& d : detid) {
+        SiStripNoises::Range range = payload_->getRange(d);
+        for (int it = 0; it < (range.second - range.first) * 8 / 9; ++it) {
+          // to be used to fill the histogram
+          SiStripCondData_.fillByPushBack(d, payload_->getNoise(it, range));
+        }
+      }
+    }
+  };
+
+  class SiStripNoiseCompareByPartition : public PlotImage<SiStripNoises, MULTI_IOV, 2> {
+  public:
+    SiStripNoiseCompareByPartition() : PlotImage<SiStripNoises, MULTI_IOV, 2>("SiStrip Compare Noises By Partition") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
+
+      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, tagname1);
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, tagname2);
+
+      l_objContainer->compare(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, 0.1, 10.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripNoiseDiffByPartition : public PlotImage<SiStripNoises, MULTI_IOV, 2> {
+  public:
+    SiStripNoiseDiffByPartition() : PlotImage<SiStripNoises, MULTI_IOV, 2>("SiStrip Diff Noises By Partition") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
+
+      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, tagname1);
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, tagname2);
+
+      l_objContainer->subtract(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, -1., 1.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripNoiseCorrelationByPartition : public PlotImage<SiStripNoises> {
+  public:
+    SiStripNoiseCorrelationByPartition() : PlotImage<SiStripNoises>("SiStrip Noises Correlation By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, "");
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, "");
+
+      l_objContainer->compare(f_objContainer);
+
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1200);
+      l_objContainer->fillCorrelationByPartition(canvas, 100, 0.1, 10.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripNoiseConsistencyCheck : public PlotImage<SiStripNoises> {
+  public:
+    SiStripNoiseConsistencyCheck() : PlotImage<SiStripNoises>("SiStrip Noise Consistency Check") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripNoises> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripNoises> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripNoiseContainer* f_objContainer = new SiStripNoiseContainer(first_payload, firstiov, "");
+      SiStripNoiseContainer* l_objContainer = new SiStripNoiseContainer(last_payload, lastiov, "");
+
+      f_objContainer->compare(l_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1000);
+      //f_objContainer->fillValuePlot(canvas,SiStripPI::STRIP_BASED,100,0.1,10);
+      f_objContainer->fillValuePlot(canvas, SiStripPI::APV_BASED, 100, 0.1, 10);
+      //f_objContainer->fillValuePlot(canvas,SiStripPI::MODULE_BASED,100,0.1,10);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
 
   /************************************************
     test class
@@ -160,9 +324,9 @@ namespace {
               std::make_shared<TH1F>(Form("Noise profile_%s", std::to_string(the_detid).c_str()),
                                      Form("SiStrip Noise profile for DetId: %s;Strip number;SiStrip Noise [ADC counts]",
                                           std::to_string(the_detid).c_str()),
-                                     128 * nAPVs,
+                                     sistrip::STRIPS_PER_APV * nAPVs,
                                      -0.5,
-                                     (128 * nAPVs) - 0.5);
+                                     (sistrip::STRIPS_PER_APV * nAPVs) - 0.5);
 
           histo->SetStats(false);
           histo->SetTitle("");
@@ -193,7 +357,7 @@ namespace {
 
           std::vector<int> boundaries;
           for (size_t b = 0; b < v_nAPVs.at(index); b++) {
-            boundaries.push_back(b * 128);
+            boundaries.push_back(b * sistrip::STRIPS_PER_APV);
           }
 
           std::vector<std::shared_ptr<TLine>> linesVec;
@@ -381,7 +545,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -397,7 +561,7 @@ namespace {
           }
 
           enoise.add(std::min<float>(noise, 30.5));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -463,12 +627,14 @@ namespace {
         : PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Noise values comparison") {}
 
     bool fill() override {
+      TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // X and Y offset for Y axis
+
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -487,12 +653,7 @@ namespace {
       auto f_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
           op_mode_,
           "f_Noise",
-          Form("#LT Strip Noise #GT per %s for IOV [%s,%s];#LTStrip Noise per %s#GT [ADC counts];n. %ss",
-               opType(op_mode_).c_str(),
-               std::to_string(std::get<0>(firstiov)).c_str(),
-               std::to_string(std::get<0>(lastiov)).c_str(),
-               opType(op_mode_).c_str(),
-               opType(op_mode_).c_str()),
+          Form(";#LTStrip Noise per %s#GT [ADC counts];n. %ss", opType(op_mode_).c_str(), opType(op_mode_).c_str()),
           100,
           0.1,
           10.));
@@ -500,12 +661,7 @@ namespace {
       auto l_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
           op_mode_,
           "l_Noise",
-          Form("#LT Strip Noise #GT per %s for IOV [%s,%s];#LTStrip Noise per %s#GT [ADC counts];n. %ss",
-               opType(op_mode_).c_str(),
-               std::to_string(std::get<0>(lastiov)).c_str(),
-               std::to_string(std::get<0>(lastiov)).c_str(),
-               opType(op_mode_).c_str(),
-               opType(op_mode_).c_str()),
+          Form(";#LTStrip Noise per %s#GT [ADC counts];n. %ss", opType(op_mode_).c_str(), opType(op_mode_).c_str()),
           100,
           0.1,
           10.));
@@ -528,7 +684,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -543,7 +699,7 @@ namespace {
             enoise.reset();
           }
           enoise.add(std::min<float>(noise, 30.5));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -567,7 +723,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -583,7 +739,7 @@ namespace {
           }
 
           enoise.add(std::min<float>(noise, 30.5));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -612,25 +768,41 @@ namespace {
       //=========================
       TCanvas canvas("Partition summary", "partition summary", 1200, 1000);
       canvas.cd();
-      canvas.SetBottomMargin(0.11);
+      canvas.SetTopMargin(0.06);
+      canvas.SetBottomMargin(0.10);
       canvas.SetLeftMargin(0.13);
       canvas.SetRightMargin(0.05);
       canvas.Modified();
 
       float theMax = (h_first.GetMaximum() > h_last.GetMaximum()) ? h_first.GetMaximum() : h_last.GetMaximum();
 
-      h_first.SetMaximum(theMax * 1.30);
-      h_last.SetMaximum(theMax * 1.30);
+      h_first.SetMaximum(theMax * 1.20);
+      h_last.SetMaximum(theMax * 1.20);
 
       h_first.Draw();
+      h_last.SetFillColorAlpha(kBlue, 0.15);
       h_last.Draw("same");
 
-      TLegend legend = TLegend(0.52, 0.82, 0.95, 0.9);
-      legend.SetHeader("SiStrip Noise comparison", "C");  // option "C" allows to center the header
-      legend.AddEntry(&h_first, ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
-      legend.AddEntry(&h_last, ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      TLegend legend = TLegend(0.13, 0.83, 0.95, 0.94);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend.SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend.AddEntry(&h_first, (tagname1 + " : " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(&h_last, (tagname2 + " : " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      } else {
+        legend.SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend.AddEntry(&h_first, ("IOV since: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(&h_last, ("IOV since: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      }
       legend.SetTextSize(0.025);
       legend.Draw("same");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       Form("#LTSiStrip Noise#GT Comparison per %s", opType(op_mode_).c_str()));
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -672,12 +844,14 @@ namespace {
     SiStripNoiseValueComparisonBase() : PlotImage<SiStripNoises, nIOVs, ntags>("SiStrip Noise values comparison") {}
 
     bool fill() override {
+      TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // X and Y offset for Y axis
+
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -693,24 +867,10 @@ namespace {
       std::shared_ptr<SiStripNoises> f_payload = this->fetchPayload(std::get<1>(firstiov));
       std::shared_ptr<SiStripNoises> l_payload = this->fetchPayload(std::get<1>(lastiov));
 
-      auto h_first =
-          std::make_unique<TH1F>("f_Noise",
-                                 Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
-                                      std::to_string(std::get<0>(firstiov)).c_str(),
-                                      std::to_string(std::get<0>(lastiov)).c_str()),
-                                 100,
-                                 0.1,
-                                 10.);
+      auto h_first = std::make_unique<TH1F>("f_Noise", ";Strip Noise [ADC counts];n. strips", 100, 0.1, 10.);
       h_first->SetStats(false);
 
-      auto h_last =
-          std::make_unique<TH1F>("l_Noise",
-                                 Form("Strip noise values comparison [%s,%s];Strip Noise [ADC counts];n. strips",
-                                      std::to_string(std::get<0>(firstiov)).c_str(),
-                                      std::to_string(std::get<0>(lastiov)).c_str()),
-                                 100,
-                                 0.1,
-                                 10.);
+      auto h_last = std::make_unique<TH1F>("l_Noise", ";Strip Noise [ADC counts];n. strips", 100, 0.1, 10.);
       h_last->SetStats(false);
 
       std::vector<uint32_t> f_detid;
@@ -739,6 +899,9 @@ namespace {
         }  // loop over strips
       }
 
+      SiStripPI::makeNicePlotStyle(h_first.get());
+      SiStripPI::makeNicePlotStyle(h_last.get());
+
       h_first->GetYaxis()->CenterTitle(true);
       h_last->GetYaxis()->CenterTitle(true);
 
@@ -754,25 +917,39 @@ namespace {
       //=========================
       TCanvas canvas("Partition summary", "partition summary", 1200, 1000);
       canvas.cd();
-      canvas.SetBottomMargin(0.11);
+      canvas.SetTopMargin(0.06);
+      canvas.SetBottomMargin(0.10);
       canvas.SetLeftMargin(0.13);
       canvas.SetRightMargin(0.05);
       canvas.Modified();
 
       float theMax = (h_first->GetMaximum() > h_last->GetMaximum()) ? h_first->GetMaximum() : h_last->GetMaximum();
 
-      h_first->SetMaximum(theMax * 1.30);
-      h_last->SetMaximum(theMax * 1.30);
+      h_first->SetMaximum(theMax * 1.20);
+      h_last->SetMaximum(theMax * 1.20);
 
       h_first->Draw();
+      h_last->SetFillColorAlpha(kBlue, 0.15);
       h_last->Draw("same");
 
-      TLegend legend = TLegend(0.52, 0.82, 0.95, 0.9);
-      legend.SetHeader("SiStrip Noise comparison", "C");  // option "C" allows to center the header
-      legend.AddEntry(h_first.get(), ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
-      legend.AddEntry(h_last.get(), ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      TLegend legend = TLegend(0.13, 0.83, 0.95, 0.94);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend.SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend.AddEntry(h_first.get(), (tagname1 + " : " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(h_last.get(), (tagname2 + " : " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      } else {
+        legend.SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend.AddEntry(h_first.get(), ("IOV since: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(h_last.get(), ("IOV since: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      }
       legend.SetTextSize(0.025);
       legend.Draw("same");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(), 1 - gPad->GetTopMargin() + 0.01, "SiStrip Noise Values Comparison");
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -970,7 +1147,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -1194,7 +1371,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -1814,6 +1991,10 @@ namespace {
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripNoises) {
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseConsistencyCheck);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseCompareByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseDiffByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripNoiseCorrelationByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisesTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoisePerDetId);
   PAYLOAD_INSPECTOR_CLASS(SiStripNoiseValue);

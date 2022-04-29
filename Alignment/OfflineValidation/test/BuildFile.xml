@@ -12,4 +12,8 @@
     <use name="Alignment/OfflineValidation"/>
   </bin>
 
+  <bin name="testTrackAnalysis" file="testTrackAnalyzers.cc">
+    <use name="FWCore/TestProcessor"/>
+    <use name="catch2"/>
+  </bin>
 </environment>

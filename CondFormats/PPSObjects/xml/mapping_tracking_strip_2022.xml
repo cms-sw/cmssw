@@ -2,7 +2,7 @@
 <top>	
 	<arm id="0">
 		<station id="2">		
-			<!--6e / FED 585 -- 220 45 FR BOT --><!--it was 5b, planes swapped-->
+			<!--6e / FED 585  220 45 FR BOT --><!--it was 5b, planes swapped-->
 			<rp_detector_set id="5">
 				<trigger_vfat hw_id="0xa161"  SubSystemId="4" TOTFEDId="18" OptoRxId="1" GOHId="2" IdxInFiber="8"/>  
 				<rp_plane id="9">	
@@ -66,7 +66,7 @@
 					<vfat id="3" hw_id="0xe1e0"  SubSystemId="4" TOTFEDId="18" OptoRxId="1" GOHId="2" IdxInFiber="7"/>	
 				</rp_plane>
 			</rp_detector_set>
-			<!--6d / FED 585 --  220 45 FR TOP -->	
+			<!--6d / FED 585   220 45 FR TOP -->	
 			<rp_detector_set id="4">
 				<trigger_vfat hw_id="0xb1e1" SubSystemId="4" TOTFEDId="18" OptoRxId="1" GOHId="8" IdxInFiber="8"/> 			
 				<rp_plane id="0">
@@ -132,7 +132,7 @@
 			</rp_detector_set>
 		</station>
 		<station id="0">
-			<!--4e / FED 578 -- 210 45 FR BOT -->	
+			<!--4e / FED 578  210 45 FR BOT -->	
 			<rp_detector_set id="5">
 				<trigger_vfat hw_id="0xd260" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="8"/>  				
 				<rp_plane id="0">
@@ -201,7 +201,8 @@
 					<vfat id="2" hw_id="0xed68" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="6"/>
 					<vfat id="3" hw_id="0xede8" SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="2" IdxInFiber="7"/>		
 				</rp_plane>
-			<!--4d / FED 578 -- 210 45 FAR TOP-->		        
+			</rp_detector_set>
+			<!--4d / FED 578 210 45 FAR TOP-->		        
 			<rp_detector_set id="4">
 				<trigger_vfat hw_id="0xb961"  SubSystemId="4" TOTFEDId="16" OptoRxId="2" GOHId="8" IdxInFiber="8" />				
 				<rp_plane id="0">
@@ -271,7 +272,7 @@
 				
 	<arm id="1">
 		<station id="2">
-			<!--7d / FED 584 -- 220 56 FAR TOP-->
+			<!--7d / FED 584  220 56 FAR TOP-->
 			<rp_detector_set id="4">
 				<trigger_vfat hw_id="0xabe1" SubSystemId="4" TOTFEDId="18" OptoRxId="0" GOHId="8" IdxInFiber="8"/> 			
 				<rp_plane id="0">
@@ -335,7 +336,7 @@
 					<vfat id="3" hw_id="0x9761" SubSystemId="4" TOTFEDId="18" OptoRxId="0" GOHId="8" IdxInFiber="7"/>
 				</rp_plane>
 			</rp_detector_set> 	
-			<!--7e/ FED 584 -- 220 56 FAR BOT-->
+			<!--7e/ FED 584  220 56 FAR BOT-->
 			<rp_detector_set id="5">
 				<trigger_vfat hw_id="0xcd72" SubSystemId="4" TOTFEDId="18" OptoRxId="0" GOHId="2" IdxInFiber="8"/>
 				<rp_plane id="0">
@@ -401,7 +402,7 @@
 			</rp_detector_set>
 		</station>
        	        <station id="0">
-			<!--5e / FED 580 --  210 56 FAR BOTTOM -->
+			<!--5e / FED 580   210 56 FAR BOTTOM -->
 			<rp_detector_set id="5">
 				<trigger_vfat hw_id="0x8d61" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="8"/>    				
 				<rp_plane id="0">	
@@ -465,7 +466,7 @@
 					<vfat id="3" hw_id="0xa36c" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="2" IdxInFiber="7"/>
 				</rp_plane>
 			</rp_detector_set> 
-			<!-- 5d /FED 580 --  210 56 FAR TOP -->		        
+			<!-- 5d /FED 580   210 56 FAR TOP -->		        
 			<rp_detector_set id="4">	
 				<trigger_vfat hw_id="0xa5e1" SubSystemId="4" TOTFEDId="17" OptoRxId="0" GOHId="8" IdxInFiber="8" />				
 				<rp_plane id="0">

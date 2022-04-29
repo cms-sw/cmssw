@@ -45,10 +45,11 @@ namespace {
 class HGCalTriggerGeomTesterV9Imp3 : public edm::stream::EDAnalyzer<> {
 public:
   explicit HGCalTriggerGeomTesterV9Imp3(const edm::ParameterSet&);
-  ~HGCalTriggerGeomTesterV9Imp3();
+  ~HGCalTriggerGeomTesterV9Imp3() override = default;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   void fillTriggerGeometry();
@@ -59,8 +60,8 @@ private:
   void setTreeCellCornerSize(const size_t n);
   void setTreeTriggerCellNeighborSize(const size_t n);
 
+  const edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> triggerGeomToken_;
   edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry_;
-  edm::Service<TFileService> fs_;
   bool no_trigger_;
   bool no_neighbors_;
   TTree* treeModules_;
@@ -210,12 +211,14 @@ private:
 
 /*****************************************************************/
 HGCalTriggerGeomTesterV9Imp3::HGCalTriggerGeomTesterV9Imp3(const edm::ParameterSet& conf)
-    : no_trigger_(false),
+    : triggerGeomToken_(esConsumes<HGCalTriggerGeometryBase, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      no_trigger_(false),
       no_neighbors_(true)
 /*****************************************************************/
 {
+  edm::Service<TFileService> fs;
   // initialize output trees
-  treeModules_ = fs_->make<TTree>("TreeModules", "Tree of all HGC modules");
+  treeModules_ = fs->make<TTree>("TreeModules", "Tree of all HGC modules");
   treeModules_->Branch("id", &moduleId_, "id/I");
   treeModules_->Branch("zside", &moduleSide_, "zside/I");
   treeModules_->Branch("subdet", &moduleSubdet_, "subdet/I");
@@ -290,7 +293,7 @@ HGCalTriggerGeomTesterV9Imp3::HGCalTriggerGeomTesterV9Imp3(const edm::ParameterS
   treeModules_->Branch("c_eta", moduleCell_eta_.get(), "c_eta[c_n]/F");
   treeModules_->Branch("c_phi", moduleCell_phi_.get(), "c_phi[c_n]/F");
   //
-  treeTriggerCells_ = fs_->make<TTree>("TreeTriggerCells", "Tree of all HGC trigger cells");
+  treeTriggerCells_ = fs->make<TTree>("TreeTriggerCells", "Tree of all HGC trigger cells");
   treeTriggerCells_->Branch("id", &triggerCellId_, "id/I");
   treeTriggerCells_->Branch("zside", &triggerCellSide_, "zside/I");
   treeTriggerCells_->Branch("subdet", &triggerCellSubdet_, "subdet/I");
@@ -358,7 +361,7 @@ HGCalTriggerGeomTesterV9Imp3::HGCalTriggerGeomTesterV9Imp3(const edm::ParameterS
   treeTriggerCells_->Branch("c_eta", triggerCellCell_eta_.get(), "c_eta[c_n]/F");
   treeTriggerCells_->Branch("c_phi", triggerCellCell_phi_.get(), "c_phi[c_n]/F");
   //
-  treeCells_ = fs_->make<TTree>("TreeCells", "Tree of all HGC cells");
+  treeCells_ = fs->make<TTree>("TreeCells", "Tree of all HGC cells");
   treeCells_->Branch("id", &cellId_, "id/I");
   treeCells_->Branch("zside", &cellSide_, "zside/I");
   treeCells_->Branch("subdet", &cellSubdet_, "subdet/I");
@@ -380,7 +383,7 @@ HGCalTriggerGeomTesterV9Imp3::HGCalTriggerGeomTesterV9Imp3(const edm::ParameterS
   treeCells_->Branch("corner_y", cellCornersY_.get(), "corner_y[corner_n]/F");
   treeCells_->Branch("corner_z", cellCornersZ_.get(), "corner_z[corner_n]/F");
   //
-  treeCellsBH_ = fs_->make<TTree>("TreeCellsBH", "Tree of all BH cells");
+  treeCellsBH_ = fs->make<TTree>("TreeCellsBH", "Tree of all BH cells");
   treeCellsBH_->Branch("id", &cellBHId_, "id/I");
   treeCellsBH_->Branch("type", &cellBHType_, "type/I");
   treeCellsBH_->Branch("zside", &cellBHSide_, "zside/I");
@@ -402,7 +405,7 @@ HGCalTriggerGeomTesterV9Imp3::HGCalTriggerGeomTesterV9Imp3(const edm::ParameterS
   treeCellsBH_->Branch("x4", &cellBHX4_, "x4/F");
   treeCellsBH_->Branch("y4", &cellBHY4_, "y4/F");
   //
-  treeCellsNose_ = fs_->make<TTree>("TreeCellsNose", "Tree of all HGCnose cells");
+  treeCellsNose_ = fs->make<TTree>("TreeCellsNose", "Tree of all HGCnose cells");
   treeCellsNose_->Branch("id", &cellId_, "id/I");
   treeCellsNose_->Branch("zside", &cellSide_, "zside/I");
   treeCellsNose_->Branch("subdet", &cellSubdet_, "subdet/I");
@@ -424,7 +427,7 @@ HGCalTriggerGeomTesterV9Imp3::HGCalTriggerGeomTesterV9Imp3(const edm::ParameterS
   treeCellsNose_->Branch("corner_y", cellCornersY_.get(), "corner_y[corner_n]/F");
   treeCellsNose_->Branch("corner_z", cellCornersZ_.get(), "corner_z[corner_n]/F");
   //
-  treeModuleErrors_ = fs_->make<TTree>("TreeModuleErrors", "Tree of module mapping errors");
+  treeModuleErrors_ = fs->make<TTree>("TreeModuleErrors", "Tree of module mapping errors");
   treeModuleErrors_->Branch("subdet", &moduleErrorSubdet_, "subdet/I");
   treeModuleErrors_->Branch("layer", &moduleErrorLayer_, "layer/I");
   treeModuleErrors_->Branch("waferu", &moduleErrorWaferU_, "waferu/I");
@@ -432,15 +435,10 @@ HGCalTriggerGeomTesterV9Imp3::HGCalTriggerGeomTesterV9Imp3(const edm::ParameterS
 }
 
 /*****************************************************************/
-HGCalTriggerGeomTesterV9Imp3::~HGCalTriggerGeomTesterV9Imp3()
-/*****************************************************************/
-{}
-
-/*****************************************************************/
 void HGCalTriggerGeomTesterV9Imp3::beginRun(const edm::Run& /*run*/, const edm::EventSetup& es)
 /*****************************************************************/
 {
-  es.get<CaloGeometryRecord>().get("", triggerGeometry_);
+  triggerGeometry_ = es.getHandle(triggerGeomToken_);
 
   no_trigger_ = !checkMappingConsistency();
 

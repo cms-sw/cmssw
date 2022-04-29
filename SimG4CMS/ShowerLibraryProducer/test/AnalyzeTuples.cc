@@ -33,6 +33,7 @@ Implementation:
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TFile.h"
@@ -44,7 +45,7 @@ Implementation:
 class AnalyzeTuples : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit AnalyzeTuples(const edm::ParameterSet&);
-  ~AnalyzeTuples() override;
+  ~AnalyzeTuples() override = default;
 
 private:
   void beginJob() override;
@@ -69,7 +70,7 @@ private:
 AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet& iConfig) {
   usesResource(TFileService::kSharedResource);
 
-  std::cout << "analyzetuples a buraya girdi" << std::endl;
+  edm::LogVerbatim("HcalSim") << "analyzetuples a buraya girdi";
   edm::ParameterSet m_HS = iConfig.getParameter<edm::ParameterSet>("HFShowerLibrary");
   edm::FileInPath fp = m_HS.getParameter<edm::FileInPath>("FileName");
   std::string pTreeName = fp.fullPath();
@@ -125,8 +126,6 @@ AnalyzeTuples::AnalyzeTuples(const edm::ParameterSet& iConfig) {
                            << " Assume x, y, z are not in packed form";
 }
 
-AnalyzeTuples::~AnalyzeTuples() {}
-
 void AnalyzeTuples::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   for (int ibin = 0; ibin < 12; ++ibin) {
     int min = evtPerBin * (ibin);
@@ -135,7 +134,7 @@ void AnalyzeTuples::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       getRecord(0, i);
       int npe_long = 0;
       int npe_short = 0;
-      std::cout << "phptons size" << photon.size() << std::endl;
+      edm::LogVerbatim("HcalSim") << "phptons size" << photon.size();
       for (int j = 0; j < int(photon.size()); ++j) {
         //int depth = 0;
         if (photon[j].z() < 0) {
@@ -144,11 +143,11 @@ void AnalyzeTuples::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         } else {
           //depth = 1;
           ++npe_long;
-          std::cout << photon[j].z() << std::endl;
+          edm::LogVerbatim("HcalSim") << photon[j].z();
         }
       }
       hNPELongElec[ibin]->Fill(npe_long);
-      std::cout << ibin << npe_long << std::endl;
+      edm::LogVerbatim("HcalSim") << ibin << npe_long;
       hNPEShortElec[ibin]->Fill(npe_short);
     }
   }

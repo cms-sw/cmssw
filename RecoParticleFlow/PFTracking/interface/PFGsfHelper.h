@@ -1,5 +1,5 @@
-#ifndef PFGsfHelper_H
-#define PFGsfHelper_H
+#ifndef RecoParticleFlow_PFTracking_PFGsfHelper_H
+#define RecoParticleFlow_PFTracking_PFGsfHelper_H
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

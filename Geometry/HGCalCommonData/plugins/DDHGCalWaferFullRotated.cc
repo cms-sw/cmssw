@@ -134,7 +134,7 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
   double r2 = 0.5 * waferSize_;
   double R2 = r2 / sqrt3;
   const int nFine(nCells_), nCoarse(nCells_);
-  HGCalCell wafer(waferSize_, nFine, nCoarse);
+  HGCalCell wafer((waferSize_ + waferSepar_), nFine, nCoarse);
   for (unsigned int k = 0; k < tag_.size(); ++k) {
     // First the mother
     std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};
@@ -204,12 +204,12 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
         for (int u = 0; u < 2 * nCells_; ++u) {
           for (int v = 0; v < 2 * nCells_; ++v) {
             if (((v - u) < nCells_) && ((u - v) <= nCells_)) {
-              int placeIndex_ = wafer.HGCalCellPlacementIndex(1, face_[k], orient_[k]);
-              std::pair<double, double> xy1 = wafer.HGCalCellUV2XY1(u, v, placeIndex_, cellType_);
+              int placeIndex = wafer.cellPlacementIndex(1, face_[k], orient_[k]);
+              std::pair<double, double> xy1 = wafer.cellUV2XY1(u, v, placeIndex, cellType_);
               double yp = xy1.second;
               double xp = xy1.first;
               int cell(0);
-              std::pair<int, int> cell1 = wafer.HGCalCellUV2Cell(u, v, placeIndex_, cellType_);
+              std::pair<int, int> cell1 = wafer.cellUV2Cell(u, v, placeIndex, cellType_);
               cell = cell1.first + cellOffset_[cell1.second];
               DDTranslation tran(xp, yp, 0);
               int copy = HGCalTypes::packCellTypeUV(cellType_, u, v);

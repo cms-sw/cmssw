@@ -36,19 +36,19 @@
 class __class__ : public edm::stream::EDFilter<> {
 public:
   explicit __class__(const edm::ParameterSet&);
-  ~__class__();
+  ~__class__() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginStream(edm::StreamID) override;
-  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-  virtual void endStream() override;
+  void beginStream(edm::StreamID) override;
+  bool filter(edm::Event&, const edm::EventSetup&) override;
+  void endStream() override;
 
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  //void endRun(edm::Run const&, edm::EventSetup const&) override;
+  //void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
   // ----------member data ---------------------------
 #ifdef THIS_IS_AN_EVENT_EXAMPLE

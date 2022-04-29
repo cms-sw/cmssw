@@ -1,29 +1,32 @@
 // Original Author:  Emmanuelle Perez,40 1-A28,+41227671915,
 //         Created:  Tue Nov 12 17:03:19 CET 2013
-//Modified by Emily MacDonald, 30 Nov 2018
+// Modified by Emily MacDonald, 30 Nov 2018
+// Modified by Christopher Brown 27 March 2021
 
 // system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TCorrelator/interface/TkEtMiss.h"
 #include "DataFormats/L1TCorrelator/interface/TkEtMissFwd.h"
-#include "DataFormats/L1TCorrelator/interface/TkPrimaryVertex.h"
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1Trigger/interface/Vertex.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // detector geometry
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Records/interface/TrackerTopologyRcd.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 using namespace l1t;
 
@@ -32,54 +35,69 @@ public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
 
+  typedef Vertex L1VertexType;
+  typedef VertexCollection L1VertexCollectionType;
+
   explicit L1TrackerEtMissProducer(const edm::ParameterSet&);
   ~L1TrackerEtMissProducer() override;
 
 private:
-  //void beginJob() override;
+  virtual void beginJob();
   void produce(edm::Event&, const edm::EventSetup&) override;
-  //void endJob() override;
+  virtual void endJob();
 
   // ----------member data ---------------------------
-  float maxZ0_;   // in cm
-  float deltaZ_;  // in cm
-  float maxEta_;
-  float chi2dofMax_;
-  float bendChi2Max_;
-  float minPt_;  // in GeV
-  int nStubsmin_;
-  int nPSStubsMin_;   // minimum number of stubs in PS modules
-  float maxPt_;       // in GeV
-  int highPtTracks_;  // saturate or truncate
-  bool displaced_;    //prompt/displaced tracks
+  const float maxZ0_;  // in cm
+  float deltaZ_;       // in cm
+  const float Chi2RphidofMax_;
+  const float Chi2RzdofMax_;
+  const float bendChi2Max_;
+  const float minPt_;  // in GeV
+  const int nStubsmin_;
+  const int nPSStubsMin_;  // minimum number of stubs in PS modules
+  const float maxPt_;
+  const float maxEta_;
+  const int highPtTracks_;       // saturate or truncate
+  const bool displaced_;         // prompt/displaced tracks
+  vector<double> z0Thresholds_;  // Threshold for track to vertex association
+  vector<double> etaRegions_;    // Eta bins for choosing deltaZ threshold
+  bool debug_;
 
-  const edm::EDGetTokenT<TkPrimaryVertexCollection> pvToken_;
-  const edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > > trackToken_;
+  std::string L1MetCollectionName;
+  std::string L1ExtendedMetCollectionName;
+
+  const edm::EDGetTokenT<VertexCollection> pvToken_;
+  const edm::EDGetTokenT<L1TTTrackCollectionType> trackToken_;
   edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 };
 
-//constructor//
+// constructor//
 L1TrackerEtMissProducer::L1TrackerEtMissProducer(const edm::ParameterSet& iConfig)
-    : pvToken_(consumes<TkPrimaryVertexCollection>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
-      trackToken_(consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_> > >(
-          iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
+    : maxZ0_((float)iConfig.getParameter<double>("maxZ0")),
+      deltaZ_((float)iConfig.getParameter<double>("deltaZ")),
+      Chi2RphidofMax_((float)iConfig.getParameter<double>("chi2rphidofMax")),
+      Chi2RzdofMax_((float)iConfig.getParameter<double>("chi2rzdofMax")),
+      bendChi2Max_((float)iConfig.getParameter<double>("bendChi2Max")),
+      minPt_((float)iConfig.getParameter<double>("minPt")),
+      nStubsmin_(iConfig.getParameter<int>("nStubsmin")),
+      nPSStubsMin_(iConfig.getParameter<int>("nPSStubsMin")),
+      maxPt_((float)iConfig.getParameter<double>("maxPt")),
+      maxEta_((float)iConfig.getParameter<double>("maxEta")),
+      highPtTracks_(iConfig.getParameter<int>("highPtTracks")),
+      displaced_(iConfig.getParameter<bool>("displaced")),
+      z0Thresholds_(iConfig.getParameter<std::vector<double>>("z0Thresholds")),
+      etaRegions_(iConfig.getParameter<std::vector<double>>("etaRegions")),
+      debug_(iConfig.getParameter<bool>("debug")),
+      pvToken_(consumes<L1VertexCollectionType>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
+      trackToken_(consumes<L1TTTrackCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
       tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))) {
-  maxZ0_ = (float)iConfig.getParameter<double>("maxZ0");
-  deltaZ_ = (float)iConfig.getParameter<double>("deltaZ");
-  chi2dofMax_ = (float)iConfig.getParameter<double>("chi2dofMax");
-  bendChi2Max_ = (float)iConfig.getParameter<double>("bendChi2Max");
-  minPt_ = (float)iConfig.getParameter<double>("minPt");
-  nStubsmin_ = iConfig.getParameter<int>("nStubsmin");
-  nPSStubsMin_ = iConfig.getParameter<int>("nPSStubsMin");
-  maxPt_ = (float)iConfig.getParameter<double>("maxPt");
-  maxEta_ = (float)iConfig.getParameter<double>("maxEta");
-  highPtTracks_ = iConfig.getParameter<int>("highPtTracks");
-  displaced_ = iConfig.getParameter<bool>("displaced");
+  L1MetCollectionName = (std::string)iConfig.getParameter<std::string>("L1MetCollectionName");
 
-  if (displaced_)
-    produces<TkEtMissCollection>("L1TrackerEtMissExtended");
-  else
-    produces<TkEtMissCollection>("L1TrackerEtMiss");
+  if (displaced_) {
+    L1ExtendedMetCollectionName = (std::string)iConfig.getParameter<std::string>("L1MetExtendedCollectionName");
+    produces<TkEtMissCollection>(L1ExtendedMetCollectionName);
+  } else
+    produces<TkEtMissCollection>(L1MetCollectionName);
 }
 
 L1TrackerEtMissProducer::~L1TrackerEtMissProducer() {}
@@ -92,7 +110,7 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   // Tracker Topology
   const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
 
-  edm::Handle<TkPrimaryVertexCollection> L1VertexHandle;
+  edm::Handle<L1VertexCollectionType> L1VertexHandle;
   iEvent.getByToken(pvToken_, L1VertexHandle);
 
   edm::Handle<L1TTTrackCollectionType> L1TTTrackHandle;
@@ -100,7 +118,7 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   L1TTTrackCollectionType::const_iterator trackIter;
 
   if (!L1VertexHandle.isValid()) {
-    LogError("L1TrackerEtMissProducer") << "\nWarning: TkPrimaryVertexCollection not found in the event. Exit\n";
+    LogError("L1TrackerEtMissProducer") << "\nWarning: VertexCollection not found in the event. Exit\n";
     return;
   }
 
@@ -115,26 +133,35 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   double sumPx_PU = 0;
   double sumPy_PU = 0;
   double etTot_PU = 0;
-  float zVTX = L1VertexHandle->begin()->zvertex();
+  float zVTX = L1VertexHandle->begin()->z0();
+
+  int numtracks = 0;
+  int numqualitytracks = 0;
+  int numassoctracks = 0;
 
   for (trackIter = L1TTTrackHandle->begin(); trackIter != L1TTTrackHandle->end(); ++trackIter) {
+    numtracks++;
     float pt = trackIter->momentum().perp();
     float phi = trackIter->momentum().phi();
     float eta = trackIter->momentum().eta();
-    float chi2dof = trackIter->chi2Red();
+    float chi2rphidof = trackIter->chi2XYRed();
+    float chi2rzdof = trackIter->chi2ZRed();
     float bendChi2 = trackIter->stubPtConsistency();
     float z0 = trackIter->z0();
-    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_> >, TTStub<Ref_Phase2TrackerDigi_> > >
+    //unsigned int Sector = trackIter->phiSector();
+    std::vector<edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
         theStubs = trackIter->getStubRefs();
     int nstubs = (int)theStubs.size();
 
     if (pt < minPt_)
       continue;
-    if (fabs(z0) > maxZ0_)
+    if (std::abs(z0) > maxZ0_)
       continue;
-    if (fabs(eta) > maxEta_)
+    if (std::abs(eta) > maxEta_)
       continue;
-    if (chi2dof > chi2dofMax_)
+    if (chi2rphidof > Chi2RphidofMax_)
+      continue;
+    if (chi2rzdof > Chi2RzdofMax_)
       continue;
     if (bendChi2 > bendChi2Max_)
       continue;
@@ -162,23 +189,24 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     if (nPS < nPSStubsMin_)
       continue;
 
+    numqualitytracks++;
+
     if (!displaced_) {  // if displaced, deltaZ = 3.0 cm, very loose
       // construct deltaZ cut to be based on track eta
-      if (fabs(eta) >= 0 && fabs(eta) < 0.7)
-        deltaZ_ = 0.4;
-      else if (fabs(eta) >= 0.7 && fabs(eta) < 1.0)
-        deltaZ_ = 0.6;
-      else if (fabs(eta) >= 1.0 && fabs(eta) < 1.2)
-        deltaZ_ = 0.76;
-      else if (fabs(eta) >= 1.2 && fabs(eta) < 1.6)
-        deltaZ_ = 1.0;
-      else if (fabs(eta) >= 1.6 && fabs(eta) < 2.0)
-        deltaZ_ = 1.7;
-      else if (fabs(eta) >= 2.0 && fabs(eta) <= 2.4)
-        deltaZ_ = 2.2;
+      for (unsigned int reg = 0; reg < etaRegions_.size() - 1; reg++) {
+        if (std::abs(eta) >= etaRegions_[reg] && std::abs(eta) < etaRegions_[reg + 1]) {
+          deltaZ_ = z0Thresholds_[reg];
+          break;
+        }
+      }
+      if (std::abs(eta) >= etaRegions_[etaRegions_.size() - 1]) {
+        deltaZ_ = z0Thresholds_[etaRegions_.size() - 1];
+        break;
+      }
     }
 
-    if (fabs(z0 - zVTX) <= deltaZ_) {
+    if (std::abs(z0 - zVTX) <= deltaZ_) {
+      numassoctracks++;
       sumPx += pt * cos(phi);
       sumPy += pt * sin(phi);
       etTot += pt;
@@ -190,20 +218,36 @@ void L1TrackerEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   }  // end loop over tracks
 
   float et = sqrt(sumPx * sumPx + sumPy * sumPy);
-  double etmiss_PU = sqrt(sumPx_PU * sumPx_PU + sumPy_PU * sumPy_PU);
+  double etphi = atan2(sumPy, sumPx);
 
   math::XYZTLorentzVector missingEt(-sumPx, -sumPy, 0, et);
+
+  if (debug_) {
+    edm::LogVerbatim("L1TrackerEtMissProducer") << "====Global Pt===="
+                                                << "\n"
+                                                << "Px: " << sumPx << "| Py: " << sumPy << "\n"
+                                                << "====MET==="
+                                                << "\n"
+                                                << "MET: " << et << "| Phi: " << etphi << "\n"
+
+                                                << "# Intial Tracks: " << numtracks << "\n"
+                                                << "# Tracks after Quality Cuts: " << numqualitytracks << "\n"
+                                                << "# Tracks Associated to Vertex: " << numassoctracks << "\n"
+                                                << "========================================================"
+                                                << "\n";
+  }
+
   int ibx = 0;
-  METCollection->push_back(TkEtMiss(missingEt, TkEtMiss::kMET, etTot, etmiss_PU, etTot_PU, ibx));
+  METCollection->push_back(TkEtMiss(missingEt, TkEtMiss::kMET, etphi, numassoctracks, ibx));
 
   if (displaced_)
-    iEvent.put(std::move(METCollection), "L1TrackerEtMissExtended");
+    iEvent.put(std::move(METCollection), L1ExtendedMetCollectionName);
   else
-    iEvent.put(std::move(METCollection), "L1TrackerEtMiss");
+    iEvent.put(std::move(METCollection), L1MetCollectionName);
 }  // end producer
 
-//void L1TrackerEtMissProducer::beginJob() {}
+void L1TrackerEtMissProducer::beginJob() {}
 
-//void L1TrackerEtMissProducer::endJob() {}
+void L1TrackerEtMissProducer::endJob() {}
 
 DEFINE_FWK_MODULE(L1TrackerEtMissProducer);

@@ -33,7 +33,8 @@ namespace HGCalGeometryMode {
     TrapezoidFile = 7,
     Hexagon8Module = 8,
     TrapezoidModule = 9,
-    Hexagon8ModuleOrient = 10,
+    Hexagon8Cassette = 10,
+    TrapezoidCassette = 11,
   };
   enum WaferMode { Polyhedra = 0, ExtrudedPolygon = 1 };
 }  // namespace HGCalGeometryMode
