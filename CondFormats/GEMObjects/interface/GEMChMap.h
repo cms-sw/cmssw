@@ -138,8 +138,8 @@ public:
   void add(chamEC e, chamDC d) { chamberMap_[e] = d; }
 
   const std::vector<uint16_t> getVfats(const int type) const { return chamVfats_.at(type); }
-  void add(int type, uint16_t d) { 
-    if (std::find(chamVfats_[type].begin(), chamVfats_[type].end(), d) != chamVfats_[type].end()) 
+  void add(int type, uint16_t d) {
+    if (std::find(chamVfats_[type].begin(), chamVfats_[type].end(), d) != chamVfats_[type].end())
       chamVfats_[type].push_back(d);
   }
 
