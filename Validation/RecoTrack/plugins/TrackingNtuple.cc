@@ -688,6 +688,7 @@ private:
   const bool includeTrackCandidates_;
   const bool addSeedCurvCov_;
   const bool includeAllHits_;
+  const bool includeOnTrackHitData_;
   const bool includeMVA_;
   const bool includeTrackingParticles_;
   const bool includeOOT_;
@@ -1157,6 +1158,15 @@ private:
   std::vector<short> pix_isBarrel;
   DetIdPixel pix_detId;
   std::vector<std::vector<int>> pix_trkIdx;            // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> pix_onTrk_x;         // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> pix_onTrk_y;         // same for all pix_onTrk_*
+  std::vector<std::vector<float>> pix_onTrk_z;         //
+  std::vector<std::vector<float>> pix_onTrk_xx;        //
+  std::vector<std::vector<float>> pix_onTrk_xy;        //
+  std::vector<std::vector<float>> pix_onTrk_yy;        //
+  std::vector<std::vector<float>> pix_onTrk_yz;        //
+  std::vector<std::vector<float>> pix_onTrk_zz;        //
+  std::vector<std::vector<float>> pix_onTrk_zx;        //
   std::vector<std::vector<int>> pix_tcandIdx;          // second index runs through candidates containing this hit
   std::vector<std::vector<int>> pix_seeIdx;            // second index runs through seeds containing this hit
   std::vector<std::vector<int>> pix_simHitIdx;         // second index runs through SimHits inducing this hit
@@ -1184,6 +1194,15 @@ private:
   std::vector<short> str_isBarrel;
   DetIdStrip str_detId;
   std::vector<std::vector<int>> str_trkIdx;            // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> str_onTrk_x;         // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> str_onTrk_y;         // same for all pix_onTrk_*
+  std::vector<std::vector<float>> str_onTrk_z;         //
+  std::vector<std::vector<float>> str_onTrk_xx;        //
+  std::vector<std::vector<float>> str_onTrk_xy;        //
+  std::vector<std::vector<float>> str_onTrk_yy;        //
+  std::vector<std::vector<float>> str_onTrk_yz;        //
+  std::vector<std::vector<float>> str_onTrk_zz;        //
+  std::vector<std::vector<float>> str_onTrk_zx;        //
   std::vector<std::vector<int>> str_tcandIdx;          // second index runs through candidates containing this hit
   std::vector<std::vector<int>> str_seeIdx;            // second index runs through seeds containing this hit
   std::vector<std::vector<int>> str_simHitIdx;         // second index runs through SimHits inducing this hit
@@ -1236,6 +1255,15 @@ private:
   std::vector<short> ph2_isBarrel;
   DetIdPhase2OT ph2_detId;
   std::vector<std::vector<int>> ph2_trkIdx;            // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> ph2_onTrk_x;         // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> ph2_onTrk_y;         // same for all pix_onTrk_*
+  std::vector<std::vector<float>> ph2_onTrk_z;         //
+  std::vector<std::vector<float>> ph2_onTrk_xx;        //
+  std::vector<std::vector<float>> ph2_onTrk_xy;        //
+  std::vector<std::vector<float>> ph2_onTrk_yy;        //
+  std::vector<std::vector<float>> ph2_onTrk_yz;        //
+  std::vector<std::vector<float>> ph2_onTrk_zz;        //
+  std::vector<std::vector<float>> ph2_onTrk_zx;        //
   std::vector<std::vector<int>> ph2_tcandIdx;          // second index runs through candidates containing this hit
   std::vector<std::vector<int>> ph2_seeIdx;            // second index runs through seeds containing this hit
   std::vector<std::vector<int>> ph2_simHitIdx;         // second index runs through SimHits inducing this hit
@@ -1419,6 +1447,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       includeTrackCandidates_(iConfig.getUntrackedParameter<bool>("includeTrackCandidates")),
       addSeedCurvCov_(iConfig.getUntrackedParameter<bool>("addSeedCurvCov")),
       includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits")),
+      includeOnTrackHitData_(iConfig.getUntrackedParameter<bool>("includeOnTrackHitData")),
       includeMVA_(iConfig.getUntrackedParameter<bool>("includeMVA")),
       includeTrackingParticles_(iConfig.getUntrackedParameter<bool>("includeTrackingParticles")),
       includeOOT_(iConfig.getUntrackedParameter<bool>("includeOOT")),
@@ -1694,6 +1723,17 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     t->Branch("pix_isBarrel", &pix_isBarrel);
     pix_detId.book("pix", t);
     t->Branch("pix_trkIdx", &pix_trkIdx);
+    if (includeOnTrackHitData_) {
+      t->Branch("pix_onTrk_x", &pix_onTrk_x);
+      t->Branch("pix_onTrk_y", &pix_onTrk_y);
+      t->Branch("pix_onTrk_z", &pix_onTrk_z);
+      t->Branch("pix_onTrk_xx", &pix_onTrk_xx);
+      t->Branch("pix_onTrk_xy", &pix_onTrk_xy);
+      t->Branch("pix_onTrk_yy", &pix_onTrk_yy);
+      t->Branch("pix_onTrk_yz", &pix_onTrk_yz);
+      t->Branch("pix_onTrk_zz", &pix_onTrk_zz);
+      t->Branch("pix_onTrk_zx", &pix_onTrk_zx);
+    }
     if (includeTrackCandidates_)
       t->Branch("pix_tcandIdx", &pix_tcandIdx);
     if (includeSeeds_) {
@@ -1726,6 +1766,17 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("str_isBarrel", &str_isBarrel);
       str_detId.book("str", t);
       t->Branch("str_trkIdx", &str_trkIdx);
+      if (includeOnTrackHitData_) {
+        t->Branch("str_onTrk_x", &str_onTrk_x);
+        t->Branch("str_onTrk_y", &str_onTrk_y);
+        t->Branch("str_onTrk_z", &str_onTrk_z);
+        t->Branch("str_onTrk_xx", &str_onTrk_xx);
+        t->Branch("str_onTrk_xy", &str_onTrk_xy);
+        t->Branch("str_onTrk_yy", &str_onTrk_yy);
+        t->Branch("str_onTrk_yz", &str_onTrk_yz);
+        t->Branch("str_onTrk_zz", &str_onTrk_zz);
+        t->Branch("str_onTrk_zx", &str_onTrk_zx);
+      }
       if (includeTrackCandidates_)
         t->Branch("str_tcandIdx", &str_tcandIdx);
       if (includeSeeds_) {
@@ -1783,6 +1834,17 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("ph2_isBarrel", &ph2_isBarrel);
       ph2_detId.book("ph2", t);
       t->Branch("ph2_trkIdx", &ph2_trkIdx);
+      if (includeOnTrackHitData_) {
+        t->Branch("ph2_onTrk_x", &ph2_onTrk_x);
+        t->Branch("ph2_onTrk_y", &ph2_onTrk_y);
+        t->Branch("ph2_onTrk_z", &ph2_onTrk_z);
+        t->Branch("ph2_onTrk_xx", &ph2_onTrk_xx);
+        t->Branch("ph2_onTrk_xy", &ph2_onTrk_xy);
+        t->Branch("ph2_onTrk_yy", &ph2_onTrk_yy);
+        t->Branch("ph2_onTrk_yz", &ph2_onTrk_yz);
+        t->Branch("ph2_onTrk_zz", &ph2_onTrk_zz);
+        t->Branch("ph2_onTrk_zx", &ph2_onTrk_zx);
+      }
       if (includeTrackCandidates_)
         t->Branch("ph2_tcandIdx", &ph2_tcandIdx);
       if (includeSeeds_) {
@@ -2120,6 +2182,15 @@ void TrackingNtuple::clearVariables() {
   pix_isBarrel.clear();
   pix_detId.clear();
   pix_trkIdx.clear();
+  pix_onTrk_x.clear();
+  pix_onTrk_y.clear();
+  pix_onTrk_z.clear();
+  pix_onTrk_xx.clear();
+  pix_onTrk_xy.clear();
+  pix_onTrk_yy.clear();
+  pix_onTrk_yz.clear();
+  pix_onTrk_zz.clear();
+  pix_onTrk_zx.clear();
   pix_tcandIdx.clear();
   pix_seeIdx.clear();
   pix_simHitIdx.clear();
@@ -2144,6 +2215,15 @@ void TrackingNtuple::clearVariables() {
   str_isBarrel.clear();
   str_detId.clear();
   str_trkIdx.clear();
+  str_onTrk_x.clear();
+  str_onTrk_y.clear();
+  str_onTrk_z.clear();
+  str_onTrk_xx.clear();
+  str_onTrk_xy.clear();
+  str_onTrk_yy.clear();
+  str_onTrk_yz.clear();
+  str_onTrk_zz.clear();
+  str_onTrk_zx.clear();
   str_tcandIdx.clear();
   str_seeIdx.clear();
   str_simHitIdx.clear();
@@ -2190,6 +2270,15 @@ void TrackingNtuple::clearVariables() {
   ph2_isBarrel.clear();
   ph2_detId.clear();
   ph2_trkIdx.clear();
+  ph2_onTrk_x.clear();
+  ph2_onTrk_y.clear();
+  ph2_onTrk_z.clear();
+  ph2_onTrk_xx.clear();
+  ph2_onTrk_xy.clear();
+  ph2_onTrk_yy.clear();
+  ph2_onTrk_yz.clear();
+  ph2_onTrk_zz.clear();
+  ph2_onTrk_zx.clear();
   ph2_tcandIdx.clear();
   ph2_seeIdx.clear();
   ph2_xySignificance.clear();
@@ -2961,7 +3050,16 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
 
       pix_isBarrel.push_back(hitId.subdetId() == 1);
       pix_detId.push_back(tTopo, hitId);
-      pix_trkIdx.emplace_back();    // filled in fillTracks
+      pix_trkIdx.emplace_back();  // filled in fillTracks
+      pix_onTrk_x.emplace_back();
+      pix_onTrk_y.emplace_back();
+      pix_onTrk_z.emplace_back();
+      pix_onTrk_xx.emplace_back();
+      pix_onTrk_xy.emplace_back();
+      pix_onTrk_yy.emplace_back();
+      pix_onTrk_yz.emplace_back();
+      pix_onTrk_zz.emplace_back();
+      pix_onTrk_zx.emplace_back();
       pix_tcandIdx.emplace_back();  // filled in fillCandidates
       pix_seeIdx.emplace_back();    // filled in fillSeeds
       pix_x.push_back(ttrh->globalPosition().x());
@@ -3045,7 +3143,16 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   int totalStripHits = rphiHits->dataSize() + stereoHits->dataSize();
   str_isBarrel.resize(totalStripHits);
   str_detId.resize(totalStripHits);
-  str_trkIdx.resize(totalStripHits);    // filled in fillTracks
+  str_trkIdx.resize(totalStripHits);  // filled in fillTracks
+  str_onTrk_x.resize(totalStripHits);
+  str_onTrk_y.resize(totalStripHits);
+  str_onTrk_z.resize(totalStripHits);
+  str_onTrk_xx.resize(totalStripHits);
+  str_onTrk_xy.resize(totalStripHits);
+  str_onTrk_yy.resize(totalStripHits);
+  str_onTrk_yz.resize(totalStripHits);
+  str_onTrk_zz.resize(totalStripHits);
+  str_onTrk_zx.resize(totalStripHits);
   str_tcandIdx.resize(totalStripHits);  // filled in fillCandidates
   str_seeIdx.resize(totalStripHits);    // filled in fillSeeds
   str_simHitIdx.resize(totalStripHits);
@@ -3224,7 +3331,16 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
 
       ph2_isBarrel.push_back(hitId.subdetId() == 1);
       ph2_detId.push_back(tTopo, hitId);
-      ph2_trkIdx.emplace_back();    // filled in fillTracks
+      ph2_trkIdx.emplace_back();  // filled in fillTracks
+      ph2_onTrk_x.emplace_back();
+      ph2_onTrk_y.emplace_back();
+      ph2_onTrk_z.emplace_back();
+      ph2_onTrk_xx.emplace_back();
+      ph2_onTrk_xy.emplace_back();
+      ph2_onTrk_yy.emplace_back();
+      ph2_onTrk_yz.emplace_back();
+      ph2_onTrk_zz.emplace_back();
+      ph2_onTrk_zx.emplace_back();
       ph2_tcandIdx.emplace_back();  // filled in fillCandidates
       ph2_seeIdx.emplace_back();    // filled in fillSeeds
       ph2_x.push_back(ttrh->globalPosition().x());
@@ -3893,10 +4009,37 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
           checkProductID(hitProductIds, clusterRef.id(), "track");
           if (clusterRef.isPixel()) {
             pix_trkIdx[clusterKey].push_back(iTrack);
+            pix_onTrk_x[clusterKey].push_back(hit->globalPosition().x());
+            pix_onTrk_y[clusterKey].push_back(hit->globalPosition().y());
+            pix_onTrk_z[clusterKey].push_back(hit->globalPosition().z());
+            pix_onTrk_xx[clusterKey].push_back(hit->globalPositionError().cxx());
+            pix_onTrk_xy[clusterKey].push_back(hit->globalPositionError().cyx());
+            pix_onTrk_yy[clusterKey].push_back(hit->globalPositionError().cyy());
+            pix_onTrk_yz[clusterKey].push_back(hit->globalPositionError().czy());
+            pix_onTrk_zz[clusterKey].push_back(hit->globalPositionError().czz());
+            pix_onTrk_zx[clusterKey].push_back(hit->globalPositionError().czx());
           } else if (clusterRef.isPhase2()) {
             ph2_trkIdx[clusterKey].push_back(iTrack);
+            ph2_onTrk_x[clusterKey].push_back(hit->globalPosition().x());
+            ph2_onTrk_y[clusterKey].push_back(hit->globalPosition().y());
+            ph2_onTrk_z[clusterKey].push_back(hit->globalPosition().z());
+            ph2_onTrk_xx[clusterKey].push_back(hit->globalPositionError().cxx());
+            ph2_onTrk_xy[clusterKey].push_back(hit->globalPositionError().cyx());
+            ph2_onTrk_yy[clusterKey].push_back(hit->globalPositionError().cyy());
+            ph2_onTrk_yz[clusterKey].push_back(hit->globalPositionError().czy());
+            ph2_onTrk_zz[clusterKey].push_back(hit->globalPositionError().czz());
+            ph2_onTrk_zx[clusterKey].push_back(hit->globalPositionError().czx());
           } else {
             str_trkIdx[clusterKey].push_back(iTrack);
+            str_onTrk_x[clusterKey].push_back(hit->globalPosition().x());
+            str_onTrk_y[clusterKey].push_back(hit->globalPosition().y());
+            str_onTrk_z[clusterKey].push_back(hit->globalPosition().z());
+            str_onTrk_xx[clusterKey].push_back(hit->globalPositionError().cxx());
+            str_onTrk_xy[clusterKey].push_back(hit->globalPositionError().cyx());
+            str_onTrk_yy[clusterKey].push_back(hit->globalPositionError().cyy());
+            str_onTrk_yz[clusterKey].push_back(hit->globalPositionError().czy());
+            str_onTrk_zz[clusterKey].push_back(hit->globalPositionError().czz());
+            str_onTrk_zx[clusterKey].push_back(hit->globalPositionError().czx());
           }
         }
 
@@ -4027,7 +4170,7 @@ void TrackingNtuple::fillCandidates(const edm::Handle<TrackCandidateCollection>&
           tkParam, tkCov, *(tpCollection[tpKeyToIndex.at(bestFirstHitKeyCount.key)]), mf, bs);
     }
 
-    auto iglobCand = tcand_pca_valid.size(); //global cand index
+    auto iglobCand = tcand_pca_valid.size();  //global cand index
     tcand_pca_valid.push_back(tbStateAtPCA.isValid());
     tcand_pca_px.push_back(trk.px());
     tcand_pca_py.push_back(trk.py());
@@ -4094,8 +4237,9 @@ void TrackingNtuple::fillCandidates(const edm::Handle<TrackCandidateCollection>&
       const auto seedIndex = offset->second + aCand.seedRef().key();
       tcand_seedIdx.push_back(seedIndex);
       if (see_tcandIdx[seedIndex] != -1) {
-        throw cms::Exception("LogicError") << "Track cand index has already been set for seed " << seedIndex << " to "
-                                           << see_tcandIdx[seedIndex] << "; was trying to set it to " << iglobCand<<" current "<<iCand;
+        throw cms::Exception("LogicError")
+            << "Track cand index has already been set for seed " << seedIndex << " to " << see_tcandIdx[seedIndex]
+            << "; was trying to set it to " << iglobCand << " current " << iCand;
       }
       see_tcandIdx[seedIndex] = iglobCand;
     }
@@ -4119,10 +4263,10 @@ void TrackingNtuple::fillCandidates(const edm::Handle<TrackCandidateCollection>&
     tcand_bestFromFirstHitSimTrkShareFracSimClusterDenom.push_back(bestFirstHitShareFracSimClusterDenom);
     tcand_bestFromFirstHitSimTrkNChi2.push_back(bestFirstHitChi2);
 
-    LogTrace("TrackingNtuple") << "Track cand #" << iCand <<" glob " << iglobCand << " with q=" << trk.charge() << ", pT=" << trk.pt()
-                               << " GeV, eta: " << trk.eta() << ", phi: " << trk.phi() << ", nValid=" << nValid
-                               << " seed#=" << aCand.seedRef().key() << " simMatch=" << isSimMatched
-                               << " nSimHits=" << nSimHits
+    LogTrace("TrackingNtuple") << "Track cand #" << iCand << " glob " << iglobCand << " with q=" << trk.charge()
+                               << ", pT=" << trk.pt() << " GeV, eta: " << trk.eta() << ", phi: " << trk.phi()
+                               << ", nValid=" << nValid << " seed#=" << aCand.seedRef().key()
+                               << " simMatch=" << isSimMatched << " nSimHits=" << nSimHits
                                << " sharedFraction=" << (sharedFraction.empty() ? -1 : sharedFraction[0])
                                << " tpIdx=" << (tpIdx.empty() ? -1 : tpIdx[0]);
     std::vector<int> hitIdx;
@@ -4501,6 +4645,7 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.addUntracked<bool>("includeTrackCandidates", false);
   desc.addUntracked<bool>("addSeedCurvCov", false);
   desc.addUntracked<bool>("includeAllHits", false);
+  desc.addUntracked<bool>("includeOnTrackHitData", false);
   desc.addUntracked<bool>("includeMVA", true);
   desc.addUntracked<bool>("includeTrackingParticles", true);
   desc.addUntracked<bool>("includeOOT", false);
