@@ -12,8 +12,11 @@ def filterFiles(fileList):
     return files
 
 def filterFile(file): #ifstream& input)
-
-    lines = open(file).readlines()
+    try:
+        lines = open(file).readlines()
+    except UnicodeDecodeError as e:
+        print("CppCommentSkipper: WARNING: Invalid UTF-8 sequence in {0}: {1}".format(file, e.message))
+        lines = open(file, errors='replace').readlines()
     commentStage = False
 
     for i in range(len(lines)):
