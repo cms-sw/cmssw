@@ -26,7 +26,13 @@ namespace edm {
     class ModuleHolderT;
   }
 
-  class CMS_DEPRECATED EDAnalyzer : public EDConsumerBase {
+  /**
+   * The legacy EDAnalyzer class is deprecated. We annotate the
+   * constructor only with the CMS_DEPRECATED, because with gcc it
+   * turns out to flag deriving classes more reliably than annotating
+   * the entire class.
+   */
+  class EDAnalyzer : public EDConsumerBase {
   public:
     template <typename T>
     friend class maker::ModuleHolderT;
@@ -34,7 +40,7 @@ namespace edm {
     friend class WorkerT;
     typedef EDAnalyzer ModuleType;
 
-    EDAnalyzer();
+    CMS_DEPRECATED EDAnalyzer();
     ~EDAnalyzer() override;
 
     std::string workerType() const { return "WorkerT<EDAnalyzer>"; }
