@@ -14,7 +14,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
@@ -38,8 +37,6 @@
 #include <cstring>
 #include <map>
 #include <set>
-
-const unsigned int kNull = (unsigned int)-1;
 
 struct EVTColContainer;
 

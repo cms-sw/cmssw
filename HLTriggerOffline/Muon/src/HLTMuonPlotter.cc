@@ -22,6 +22,10 @@ using namespace edm;
 using namespace reco;
 using namespace trigger;
 
+namespace {
+  const unsigned int kNull = (unsigned int)-1;
+}
+
 typedef vector<ParameterSet> Parameters;
 
 HLTMuonPlotter::HLTMuonPlotter(const ParameterSet &pset,

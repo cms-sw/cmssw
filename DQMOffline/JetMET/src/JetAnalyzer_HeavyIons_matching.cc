@@ -189,24 +189,6 @@ void JetAnalyzer_HeavyIons_matching::bookHistograms(DQMStore::IBooker& ibooker,
 JetAnalyzer_HeavyIons_matching::~JetAnalyzer_HeavyIons_matching() {}
 
 //------------------------------------------------------------------------------
-// beginJob
-//------------------------------------------------------------------------------
-//void JetAnalyzer_HeavyIons_matching::beginJob() {
-//  std::cout<<"inside the begin job function"<<endl;
-//}
-
-//------------------------------------------------------------------------------
-// endJob
-//------------------------------------------------------------------------------
-//void JetAnalyzer_HeavyIons_matching::endJob()
-//{
-//  if (!mOutputFile.empty() && &*edm::Service<DQMStore>())
-//    {
-//      edm::Service<DQMStore>()->save(mOutputFile);
-//    }
-//}
-
-//------------------------------------------------------------------------------
 // analyze
 //------------------------------------------------------------------------------
 void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup) {
