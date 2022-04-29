@@ -53,7 +53,8 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
   int DeepEnergy = 0;
 
   for (size_t i = 0; i < 7; i++) {
-    int bit12_15set = tower[i].first;
+    int bit12_15set = tower[i].first.first;
+    bool is_compressed = tower[i].first.second;
     int bit12 = (bit12_15set & 0b0001);       // low depth 1,2 energy
     int bit13 = (bit12_15set & 0b0010) >> 1;  // high depth 3+ energy
     int bit14 = (bit12_15set & 0b0100) >> 2;  // prompt energy passed
@@ -63,23 +64,25 @@ std::bitset<6> HcalFinegrainBit::compute(const HcalFinegrainBit::TowerTDC& tower
 
     // timing bits
     if (TDC < 50) {  // exclude error code for TDC in HE (unpacked)
-      if (abs(tp_ieta) <=
-          16) {  // in HB, TDC values are compressed. 01 = first delayed range, 10 = second delayed range
-        if (TDC == 1 && bit15 == 1)
-          Ndelayed += 1;
-        if (TDC == 2 && bit15 == 1)
-          NveryDelayed += 1;
-        if (TDC == 0 && bit14 == 1)
-          Nprompt += 1;
-      }
-      if (abs(tp_ieta) > 16 &&
-          i >= 1) {  // in HE, TDC values are uncompressed (0-49). Exclude depth 1 in HE due to backgrounds
-        if (TDC > tdc_HE[abs(tp_ieta) - 1][i] && TDC <= tdc_HE[abs(tp_ieta) - 1][i] + 2 && bit15 == 1)
-          Ndelayed += 1;
-        if (TDC > tdc_HE[abs(tp_ieta) - 1][i] + 2 && bit15 == 1)
-          NveryDelayed += 1;
-        if (TDC <= tdc_HE[abs(tp_ieta) - 1][i] && TDC >= 0 && bit14 == 1)
-          Nprompt += 1;
+      if ((abs(tp_ieta) <= 16) || (i >= 1)) {
+        // count delayed / prompt hits either in HB, or in HE (excluding depth 1 due to backgrounds in HE)
+        // Sim packing into Raw, has uncompressed TDC values (0-49) at the trigger primitive level. Packing (compressing HB TDC 6:2) happens in packer.
+        // Hcal digis have compressed HB TDC (0-3)
+        if (is_compressed == 1) {
+          if (TDC == 1 && bit15 == 1)
+            Ndelayed += 1;
+          if (TDC == 2 && bit15 == 1)
+            NveryDelayed += 1;
+          if (TDC == 0 && bit14 == 1)
+            Nprompt += 1;
+        } else {
+          if (TDC > tdc_boundary[abs(tp_ieta) - 1][i] && TDC <= tdc_boundary[abs(tp_ieta) - 1][i] + 2 && bit15 == 1)
+            Ndelayed += 1;
+          if (TDC > tdc_boundary[abs(tp_ieta) - 1][i] + 2 && bit15 == 1)
+            NveryDelayed += 1;
+          if (TDC <= tdc_boundary[abs(tp_ieta) - 1][i] && TDC >= 0 && bit14 == 1)
+            Nprompt += 1;
+        }
       }
     }
 

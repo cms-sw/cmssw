@@ -15,6 +15,10 @@ process.myanalysis = cms.EDAnalyzer("ZeeAnalyzer",
                                     genEventInfoProductTag = cms.InputTag("generator")
 )
 
+process.TFileService = cms.Service("TFileService",
+        fileName = cms.string("Zee_histo.root")
+)
+
 process.p = cms.Path(process.myanalysis)
 
 

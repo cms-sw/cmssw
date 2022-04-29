@@ -5,7 +5,7 @@ process = cms.Process("HGCalParametersTest",Phase2C11)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 #process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D83XML_cfi")
 process.load("Geometry.HGCalCommonData.testHGCalV15XML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
+process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):

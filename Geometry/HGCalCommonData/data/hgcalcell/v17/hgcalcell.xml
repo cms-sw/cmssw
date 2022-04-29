@@ -3,6 +3,7 @@
 
 <ConstantsSection label="hgcalcell.xml" eval="true">
   <Constant name="WaferSize"             value="[hgcal:WaferSize]"/>
+  <Constant name="SensorSeparation"      value="[hgcal:SensorSeparation]"/>
   <Constant name="WaferThicknessFine"    value="[hgcal:WaferThicknessFine]"/>
   <Constant name="WaferThicknessCoarse1" value="[hgcal:WaferThicknessCoarse1]"/>
   <Constant name="WaferThicknessCoarse2" value="[hgcal:WaferThicknessCoarse2]"/>
@@ -16,14 +17,16 @@
 <PosPartSection label="hgcalcell.xml" eval="true">
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
-    <Numeric name="WaferSize"    value="[WaferSize]"/>
-    <Numeric name="WaferThick"   value="[WaferThicknessFine]"/>
-    <Numeric name="CellThick"    value="[CellThicknessFine]"/>
-    <Numeric name="NCells"       value="[NumberOfCellsFine]"/>
-    <Numeric name="PosSensitive" value="0"/>
-    <String name="Material"      value="materials:Silicon"/>
-    <String name="FullCell"      value="HGCalEECellFull0Fine"/>
-    <String name="FullSensitive" value="HGCalEECellSensitiveFull0Fine"/>
+    <Numeric name="WaferSize"          value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="1"/>
+    <Numeric name="WaferThick"         value="[WaferThicknessFine]"/>
+    <Numeric name="CellThick"          value="[CellThicknessFine]"/>
+    <Numeric name="NCells"             value="[NumberOfCellsFine]"/>
+    <Numeric name="PosSensitive"       value="0"/>
+    <String name="Material"            value="materials:Silicon"/>
+    <String name="FullCell"            value="HGCalEECellFull0Fine"/>
+    <String name="FullSensitive"       value="HGCalEECellSensitiveFull0Fine"/>
     <Vector name="TruncatedCell" type="string" nEntries="6">
        HGCalEECellTrunc01Fine, HGCalEECellTrunc02Fine,
        HGCalEECellTrunc03Fine, HGCalEECellTrunc04Fine,
@@ -57,14 +60,16 @@
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
-    <Numeric name="WaferSize"    value="[WaferSize]"/>
-    <Numeric name="WaferThick"   value="[WaferThicknessFine]"/>
-    <Numeric name="CellThick"    value="[CellThicknessFine]"/>
-    <Numeric name="NCells"       value="[NumberOfCellsFine]"/>
-    <Numeric name="PosSensitive" value="1"/>
-    <String name="Material"      value="materials:Silicon"/>
-    <String name="FullCell"      value="HGCalEECellFull1Fine"/>
-    <String name="FullSensitive" value="HGCalEECellSensitiveFull1Fine"/>
+    <Numeric name="WaferSize"          value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="1"/>
+    <Numeric name="WaferThick"         value="[WaferThicknessFine]"/>
+    <Numeric name="CellThick"          value="[CellThicknessFine]"/>
+    <Numeric name="NCells"             value="[NumberOfCellsFine]"/>
+    <Numeric name="PosSensitive"       value="1"/>
+    <String name="Material"            value="materials:Silicon"/>
+    <String name="FullCell"            value="HGCalEECellFull1Fine"/>
+    <String name="FullSensitive"       value="HGCalEECellSensitiveFull1Fine"/>
     <Vector name="TruncatedCell" type="string" nEntries="6">
        HGCalEECellTrunc21Fine, HGCalEECellTrunc22Fine,
        HGCalEECellTrunc23Fine, HGCalEECellTrunc24Fine,
@@ -98,14 +103,16 @@
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
-    <Numeric name="WaferSize"    value="[WaferSize]"/>
-    <Numeric name="WaferThick"   value="[WaferThicknessCoarse1]"/>
-    <Numeric name="CellThick"    value="[CellThicknessCoarse1]"/>
-    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
-    <Numeric name="PosSensitive" value="0"/>
-    <String name="Material"      value="materials:Silicon"/>
-    <String name="FullCell"      value="HGCalEECellFull0Coarse1"/>
-    <String name="FullSensitive" value="HGCalEECellSensitiveFull0Coarse1"/>
+    <Numeric name="WaferSize"          value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="1"/>
+    <Numeric name="WaferThick"         value="[WaferThicknessCoarse1]"/>
+    <Numeric name="CellThick"          value="[CellThicknessCoarse1]"/>
+    <Numeric name="NCells"             value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive"       value="0"/>
+    <String name="Material"            value="materials:Silicon"/>
+    <String name="FullCell"            value="HGCalEECellFull0Coarse1"/>
+    <String name="FullSensitive"       value="HGCalEECellSensitiveFull0Coarse1"/>
     <Vector name="TruncatedCell" type="string" nEntries="6">
        HGCalEECellTrunc01Coarse1, HGCalEECellTrunc02Coarse1,
        HGCalEECellTrunc03Coarse1, HGCalEECellTrunc04Coarse1,
@@ -139,14 +146,16 @@
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
-    <Numeric name="WaferSize"    value="[WaferSize]"/>
-    <Numeric name="WaferThick"   value="[WaferThicknessCoarse1]"/>
-    <Numeric name="CellThick"    value="[CellThicknessCoarse1]"/>
-    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
-    <Numeric name="PosSensitive" value="1"/>
-    <String name="Material"      value="materials:Silicon"/>
-    <String name="FullCell"      value="HGCalEECellFull1Coarse1"/>
-    <String name="FullSensitive" value="HGCalEECellSensitiveFull1Coarse1"/>
+    <Numeric name="WaferSize"          value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="1"/>
+    <Numeric name="WaferThick"         value="[WaferThicknessCoarse1]"/>
+    <Numeric name="CellThick"          value="[CellThicknessCoarse1]"/>
+    <Numeric name="NCells"             value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive"       value="1"/>
+    <String name="Material"            value="materials:Silicon"/>
+    <String name="FullCell"            value="HGCalEECellFull1Coarse1"/>
+    <String name="FullSensitive"       value="HGCalEECellSensitiveFull1Coarse1"/>
     <Vector name="TruncatedCell" type="string" nEntries="6">
        HGCalEECellTrunc21Coarse1, HGCalEECellTrunc22Coarse1,
        HGCalEECellTrunc23Coarse1, HGCalEECellTrunc24Coarse1,
@@ -180,14 +189,16 @@
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
-    <Numeric name="WaferSize"    value="[WaferSize]"/>
-    <Numeric name="WaferThick"   value="[WaferThicknessCoarse2]"/>
-    <Numeric name="CellThick"    value="[CellThicknessCoarse2]"/>
-    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
-    <Numeric name="PosSensitive" value="0"/>
-    <String name="Material"      value="materials:Silicon"/>
-    <String name="FullCell"      value="HGCalEECellFull0Coarse2"/>
-    <String name="FullSensitive" value="HGCalEECellSensitiveFull0Coarse2"/>
+    <Numeric name="WaferSize"          value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="1"/>
+    <Numeric name="WaferThick"         value="[WaferThicknessCoarse2]"/>
+    <Numeric name="CellThick"          value="[CellThicknessCoarse2]"/>
+    <Numeric name="NCells"             value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive"       value="0"/>
+    <String name="Material"            value="materials:Silicon"/>
+    <String name="FullCell"            value="HGCalEECellFull0Coarse2"/>
+    <String name="FullSensitive"       value="HGCalEECellSensitiveFull0Coarse2"/>
     <Vector name="TruncatedCell" type="string" nEntries="6">
        HGCalEECellTrunc01Coarse2, HGCalEECellTrunc02Coarse2,
        HGCalEECellTrunc03Coarse2, HGCalEECellTrunc04Coarse2,
@@ -221,14 +232,16 @@
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
-    <Numeric name="WaferSize"    value="[WaferSize]"/>
-    <Numeric name="WaferThick"   value="[WaferThicknessCoarse2]"/>
-    <Numeric name="CellThick"    value="[CellThicknessCoarse2]"/>
-    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
-    <Numeric name="PosSensitive" value="1"/>
-    <String name="Material"      value="materials:Silicon"/>
-    <String name="FullCell"      value="HGCalEECellFull1Coarse2"/>
-    <String name="FullSensitive" value="HGCalEECellSensitiveFull1Coarse2"/>
+    <Numeric name="WaferSize"          value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="1"/>
+    <Numeric name="WaferThick"         value="[WaferThicknessCoarse2]"/>
+    <Numeric name="CellThick"          value="[CellThicknessCoarse2]"/>
+    <Numeric name="NCells"             value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive"       value="1"/>
+    <String name="Material"            value="materials:Silicon"/>
+    <String name="FullCell"            value="HGCalEECellFull1Coarse2"/>
+    <String name="FullSensitive"       value="HGCalEECellSensitiveFull1Coarse2"/>
     <Vector name="TruncatedCell" type="string" nEntries="6">
        HGCalEECellTrunc21Coarse2, HGCalEECellTrunc22Coarse2,
        HGCalEECellTrunc23Coarse2, HGCalEECellTrunc24Coarse2,
@@ -262,14 +275,16 @@
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
-    <Numeric name="WaferSize"    value="[WaferSize]"/>
-    <Numeric name="WaferThick"   value="[WaferThicknessFine]"/>
-    <Numeric name="CellThick"    value="[CellThicknessFine]"/>
-    <Numeric name="NCells"       value="[NumberOfCellsFine]"/>
-    <Numeric name="PosSensitive" value="0"/>
-    <String name="Material"      value="materials:Silicon"/>
-    <String name="FullCell"      value="HGCalHECellFull0Fine"/>
-    <String name="FullSensitive" value="HGCalHESiliconCellSensitiveFull0Fine"/>
+    <Numeric name="WaferSize"          value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="1"/>
+    <Numeric name="WaferThick"         value="[WaferThicknessFine]"/>
+    <Numeric name="CellThick"          value="[CellThicknessFine]"/>
+    <Numeric name="NCells"             value="[NumberOfCellsFine]"/>
+    <Numeric name="PosSensitive"       value="0"/>
+    <String name="Material"            value="materials:Silicon"/>
+    <String name="FullCell"            value="HGCalHECellFull0Fine"/>
+    <String name="FullSensitive"       value="HGCalHESiliconCellSensitiveFull0Fine"/>
     <Vector name="TruncatedCell" type="string" nEntries="6">
        HGCalHECellTrunc01Fine, HGCalHECellTrunc02Fine,
        HGCalHECellTrunc03Fine, HGCalHECellTrunc04Fine,
@@ -303,14 +318,16 @@
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
-    <Numeric name="WaferSize"    value="[WaferSize]"/>
-    <Numeric name="WaferThick"   value="[WaferThicknessCoarse1]"/>
-    <Numeric name="CellThick"    value="[CellThicknessCoarse1]"/>
-    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
-    <Numeric name="PosSensitive" value="0"/>
-    <String name="Material"      value="materials:Silicon"/>
-    <String name="FullCell"      value="HGCalHECellFull0Coarse1"/>
-    <String name="FullSensitive" value="HGCalHESiliconCellSensitiveFull0Coarse1"/>
+    <Numeric name="WaferSize"          value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="1"/>
+    <Numeric name="WaferThick"         value="[WaferThicknessCoarse1]"/>
+    <Numeric name="CellThick"          value="[CellThicknessCoarse1]"/>
+    <Numeric name="NCells"             value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive"       value="0"/>
+    <String name="Material"            value="materials:Silicon"/>
+    <String name="FullCell"            value="HGCalHECellFull0Coarse1"/>
+    <String name="FullSensitive"       value="HGCalHESiliconCellSensitiveFull0Coarse1"/>
     <Vector name="TruncatedCell" type="string" nEntries="6">
        HGCalHECellTrunc01Coarse1, HGCalHECellTrunc02Coarse1,
        HGCalHECellTrunc03Coarse1, HGCalHECellTrunc04Coarse1,
@@ -344,14 +361,16 @@
   </Algorithm>
   <Algorithm name="hgcal:DDHGCalCell">
     <rParent name="hgcalwafer:HGCalCell"/>
-    <Numeric name="WaferSize"    value="[WaferSize]"/>
-    <Numeric name="WaferThick"   value="[WaferThicknessCoarse2]"/>
-    <Numeric name="CellThick"    value="[CellThicknessCoarse2]"/>
-    <Numeric name="NCells"       value="[NumberOfCellsCoarse]"/>
-    <Numeric name="PosSensitive" value="0"/>
-    <String name="Material"      value="materials:Silicon"/>
-    <String name="FullCell"      value="HGCalHECellFull0Coarse2"/>
-    <String name="FullSensitive" value="HGCalHESiliconCellSensitiveFull0Coarse2"/>
+    <Numeric name="WaferSize"          value="[WaferSize]"/>
+    <Numeric name="WaferSeparation"    value="[SensorSeparation]"/>
+    <Numeric name="AddWaferSeparation" value="1"/>
+    <Numeric name="WaferThick"         value="[WaferThicknessCoarse2]"/>
+    <Numeric name="CellThick"          value="[CellThicknessCoarse2]"/>
+    <Numeric name="NCells"             value="[NumberOfCellsCoarse]"/>
+    <Numeric name="PosSensitive"       value="0"/>
+    <String name="Material"            value="materials:Silicon"/>
+    <String name="FullCell"            value="HGCalHECellFull0Coarse2"/>
+    <String name="FullSensitive"       value="HGCalHESiliconCellSensitiveFull0Coarse2"/>
     <Vector name="TruncatedCell" type="string" nEntries="6">
        HGCalHECellTrunc01Coarse2, HGCalHECellTrunc02Coarse2,
        HGCalHECellTrunc03Coarse2, HGCalHECellTrunc04Coarse2,

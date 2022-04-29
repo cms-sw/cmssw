@@ -88,3 +88,6 @@ premix_stage2.toModify(hgcalValidator,
 
 from Configuration.Eras.Modifier_phase2_hgcalV10_cff import phase2_hgcalV10
 phase2_hgcalV10.toModify(hgcalValidator, totallayers_to_monitor = cms.int32(50))
+
+from Configuration.Eras.Modifier_phase2_hgcalV16_cff import phase2_hgcalV16
+phase2_hgcalV16.toModify(hgcalValidator, totallayers_to_monitor = cms.int32(47))

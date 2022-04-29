@@ -126,7 +126,7 @@ secFiles.extend( (
 # L1Trigger/Configuration/test/L1EmulatorFromRaw_cfg.py
 #
 # standard includes
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("L1Trigger.GlobalCaloTrigger.test.gctConfig_cff")
 
 # unpack raw data

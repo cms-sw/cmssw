@@ -1,13 +1,6 @@
 include ${SADIR}/Makefile.config
 
-CPPEXTRA := ${USER_CPPFLAGS} ${DEFS} -I${SRCDIR}
-LDEXTRA  := ${USER_LDFLAGS}
-
-CPPFLAGS := ${CPPEXTRA} ${CPPFLAGS}
-CXXFLAGS += -fPIC ${USER_CXXFLAGS}
-LDFLAGS  += ${LDEXTRA}
-
-CPPFLAGS_NO_ROOT := ${CPPEXTRA} ${CPPFLAGS_NO_ROOT}
+CPPFLAGS := -I${SRCDIR} -I../mkFit-external ${CPPFLAGS}
 
 .PHONY: all clean distclean echo
 

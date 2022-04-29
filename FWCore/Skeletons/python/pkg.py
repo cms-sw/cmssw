@@ -109,6 +109,10 @@ class AbstractPkg(object):
             if  line.find(tag) != -1:
               line = ''
               return line
+        if len(keep_etags) == 0:
+            return line.replace('@default', '')
+        if '@default' in line:
+            return ''
         return line
 
     def write(self, fname, tmpl_name, kwds):
@@ -147,6 +151,7 @@ class AbstractPkg(object):
                  '__date__': self.date,
                  '__class__': self.pname,
                  '__class_lowercase__': self.pname.lower(),
+                 '__class_space__': " "*len(self.pname),
                  '__name__': self.pname,
                  '__subsys__': self.config.get('subsystem', 'Subsystem')}
         args = self.config.get('args', None)

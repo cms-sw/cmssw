@@ -1,4 +1,5 @@
 #include "Geometry/CaloTopology/interface/HcalTopologyRestrictionParser.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <boost/tokenizer.hpp>
 #include <sstream>
 #include <iostream>
@@ -29,7 +30,7 @@ std::string HcalTopologyRestrictionParser::parse(const std::string& line) {
 
   int phase = 0;
   for (myTokType::iterator beg = tok.begin(); beg != tok.end() && phase >= 0; ++beg) {
-    std::cout << phase << " : <" << *beg << ">\n";
+    edm::LogVerbatim("HCalGeom") << phase << " : <" << *beg << ">";
     if (*beg == ";") {
       if (phase == 0)
         continue;  // empty

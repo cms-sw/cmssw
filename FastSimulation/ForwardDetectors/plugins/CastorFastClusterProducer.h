@@ -2,12 +2,12 @@
 #define FastSimulation_ForwardDetectors_CastorFastClusterProducer_h
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 // Castorobject includes
 #include "DataFormats/CastorReco/interface/CastorCluster.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
 //
@@ -27,6 +27,7 @@ private:
   typedef math::XYZPointD Point;
   typedef ROOT::Math::RhoEtaPhiPoint ClusterPoint;
   typedef std::vector<reco::CastorCluster> CastorClusterCollection;
+  const edm::EDGetTokenT<reco::GenParticleCollection> tokGenPart_;
 };
 
 #endif

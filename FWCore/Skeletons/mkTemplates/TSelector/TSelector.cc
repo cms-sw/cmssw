@@ -22,11 +22,12 @@
 
 #include "TCanvas.h"
 // user include files
-#include "__subsys__/__pkgname__/plugins/__class__.h"
+#include "__subsys__/__pkgname__/interface/__class__.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
 @example_track#include "DataFormats/TrackReco/interface/Track.h"
+@example_track#include "DataFormats/TrackReco/interface/TrackFwd.h"
 //
 // constants shared between the Selector and the Workers
 //
@@ -49,8 +50,8 @@ __class__Worker::__class__Worker(const TList* fromSelector, TList& out) {
 @example_track  out.Add(h_pt);
 }
 
-__class__Worker::~__class__Worker() {
-}
+__class__Worker::~__class__Worker() {}
+
 // ------------ method called for each event  ------------
 void __class__Worker::process(const edm::Event& iEvent) {
   using namespace edm;
@@ -59,7 +60,7 @@ void __class__Worker::process(const edm::Event& iEvent) {
 @example_track  Handle<TrackCollection> tracks;
 @example_track  iEvent.getByLabel("ctfWithMaterialTracks", tracks);
 @example_track  for (const auto& track : *tracks) {
-@example_track    h_pt->Fill(itTrack->pt());
+@example_track    h_pt->Fill(track.pt());
 @example_track  }
 
   //using namespace edmtest;
@@ -72,21 +73,17 @@ void __class__Worker::process(const edm::Event& iEvent) {
 
 // ------------ called after processing the events  ------------
 // The argument is the same as for the constructor
-void __class__Worker::postProcess(TList& out) {
-}
+void __class__Worker::postProcess(TList& out) {}
 
 //===============================================
 //Only one Selector is made per job. It gets all the results from each worker.
 //===============================================
-__class__::__class__() {
-}
+__class__::__class__() {}
 
-__class__::~__class__() {
-}
+__class__::~__class__() {}
 
 // ------------ called just before all workers are constructed  ------------
-void __class__::begin(TList*& toWorkers) {
-}
+void __class__::begin(TList*& toWorkers) {}
 
 // ------------ called after all workers have finished  ------------
 // The argument 'fromWorkers' contains the accumulated output of all Workers

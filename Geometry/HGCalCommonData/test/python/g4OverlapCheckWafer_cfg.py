@@ -3,7 +3,7 @@ from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
 process = cms.Process("OverlapTest",Phase2C11)
 
-process.load('Geometry.HGCalCommonData.testHGCalWaferTestXML_cfi')
+process.load('Geometry.HGCalCommonData.testHGCalWaferXML_cfi')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

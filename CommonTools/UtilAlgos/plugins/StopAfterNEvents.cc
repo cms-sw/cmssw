@@ -1,10 +1,11 @@
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class StopAfterNEvents : public edm::EDFilter {
+class StopAfterNEvents : public edm::stream::EDFilter<> {
 public:
   StopAfterNEvents(const edm::ParameterSet&);
-  ~StopAfterNEvents() override;
+  ~StopAfterNEvents() override = default;
 
 private:
   bool filter(edm::Event&, edm::EventSetup const&) override;
@@ -21,15 +22,14 @@ using namespace edm;
 StopAfterNEvents::StopAfterNEvents(const ParameterSet& pset)
     : nMax_(pset.getParameter<int>("maxEvents")), n_(0), verbose_(pset.getUntrackedParameter<bool>("verbose", false)) {}
 
-StopAfterNEvents::~StopAfterNEvents() {}
-
 bool StopAfterNEvents::filter(Event&, EventSetup const&) {
   if (n_ < 0)
     return true;
   n_++;
   bool ret = n_ <= nMax_;
   if (verbose_)
-    cout << ">>> filtering event" << n_ << "/" << nMax_ << "(" << (ret ? "true" : "false") << ")" << endl;
+    edm::LogInfo("StopAfterNEvents") << ">>> filtering event" << n_ << "/" << nMax_ << "(" << (ret ? "true" : "false")
+                                     << ")" << endl;
   return ret;
 }
 

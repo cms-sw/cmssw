@@ -450,6 +450,7 @@ workflows[139.001] = ['',['RunMinimumBias2021','HLTDR3_2021','RECODR3_MinBiasOff
 workflows[139.002] = ['',['RunZeroBias2021','HLTDR3_2021','RECODR3_ZBOffline','HARVESTD2021ZB']]
 workflows[139.003] = ['',['RunHLTPhy2021','HLTDR3_2021','RECODR3_HLTPhysics_Offline','HARVESTD2021HLTPhy']]
 workflows[139.004] = ['',['RunNoBPTX2021','HLTDR3_2021','RECODR3_AlCaTkCosmics_Offline','HARVESTDR3']]
+workflows[139.005] = ['',['AlCaPhiSym2021','RECOALCAECALPHISYMDR3','ALCAECALPHISYM']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]

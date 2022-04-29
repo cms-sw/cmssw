@@ -92,10 +92,15 @@ const unsigned int CondorStatusService::m_defaultUpdateInterval;
 constexpr float CondorStatusService::m_defaultEmaInterval;
 
 CondorStatusService::CondorStatusService(ParameterSet const &pset, edm::ActivityRegistry &ar)
-    : m_debug(false), m_lastUpdate(0), m_events(0), m_lumis(0), m_runs(0), m_files(0) {
+    : m_debug(pset.getUntrackedParameter("debug", false)),
+      m_lastUpdate(0),
+      m_events(0),
+      m_lumis(0),
+      m_runs(0),
+      m_files(0) {
   m_shouldUpdate.clear();
-  if (pset.exists("debug")) {
-    m_debug = true;
+  if (not pset.getUntrackedParameter("enable", true)) {
+    return;
   }
   if (!isChirpSupported()) {
     return;
@@ -419,6 +424,7 @@ void CondorStatusService::fillDescriptions(ConfigurationDescriptions &descriptio
       ->setComment("Interval, in seconds, to calculate event rate over (using EMA)");
   desc.addOptionalUntracked<std::string>("tag")->setComment(
       "Identifier tag for this process (a value of 'Foo' results in ClassAd attributes of the form 'ChirpCMSSWFoo*')");
+  desc.addOptionalUntracked<bool>("enable", true)->setComment("Enable this service");
   descriptions.add("CondorStatusService", desc);
 }
 

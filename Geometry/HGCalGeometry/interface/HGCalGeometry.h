@@ -50,7 +50,7 @@ public:
 
   HGCalGeometry(const HGCalTopology& topology);
 
-  ~HGCalGeometry() override;
+  ~HGCalGeometry() override = default;
 
   void localCorners(Pt3DVec& lc, const CCGFloat* pv, unsigned int i, Pt3D& ref);
 
@@ -70,7 +70,7 @@ public:
                   CaloSubdetectorGeometry::DimVec& dimVector,
                   CaloSubdetectorGeometry::IVec& dinsVector) const override;
 
-  GlobalPoint getPosition(const DetId& id) const;
+  GlobalPoint getPosition(const DetId& id, bool debug = false) const;
   GlobalPoint getWaferPosition(const DetId& id) const;
 
   /// Returns area of a cell
@@ -79,7 +79,7 @@ public:
   /// Returns the corner points of this cell's volume.
   CornersVec getCorners(const DetId& id) const;
   CornersVec get8Corners(const DetId& id) const;
-  CornersVec getNewCorners(const DetId& id) const;
+  CornersVec getNewCorners(const DetId& id, bool debug = false) const;
 
   // Get neighbor in z along a direction
   DetId neighborZ(const DetId& idin, const GlobalVector& p) const;

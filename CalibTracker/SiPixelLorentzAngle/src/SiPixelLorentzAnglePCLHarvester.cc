@@ -196,7 +196,7 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
       continue;
 
     if (std::find(treatedIndices.begin(), treatedIndices.end(), i_index) != treatedIndices.end()) {
-      hists.detIdsList.at(i_index).push_back(rawId);
+      hists.detIdsList[i_index].push_back(rawId);
     } else {
       hists.detIdsList.insert(std::pair<uint32_t, std::vector<uint32_t>>(i_index, {rawId}));
       treatedIndices.push_back(i_index);
@@ -205,7 +205,7 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
 
   count = 0;
   for (const auto& i : treatedIndices) {
-    for (const auto& id : hists.detIdsList.at(i)) {
+    for (const auto& id : hists.detIdsList[i]) {
       LogDebug("SiPixelLorentzAnglePCLHarvester") << id;
       count++;
     };
@@ -562,6 +562,8 @@ void SiPixelLorentzAnglePCLHarvester::findMean(MonitorElement* h_drift_depth_adc
   }
   hists.h_mean_[i_ring]->setBinContent(i, mean);
   hists.h_mean_[i_ring]->setBinError(i, error);
+
+  h_drift_depth_adc_slice_->Reset();  // clear again after extracting the parameters
 }
 
 //------------------------------------------------------------------------------
@@ -633,6 +635,7 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   hists.h_bySectMeasLA_->setBinContent(i_index, (res.tan_LA / theMagField));
   hists.h_bySectMeasLA_->setBinError(i_index, (res.error_LA / theMagField));
   hists.h_bySectChi2_->setBinContent(i_index, res.redChi2);
+  hists.h_bySectChi2_->setBinError(i_index, 0.);  // no errors
 
   int nentries = hists.h_bySectOccupancy_->getBinContent(i_index);  // number of on track hits in that sector
 
@@ -643,13 +646,19 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
       << " isNew: " << isNew << " i_index: " << i_index << " shift index: " << shiftIdx;
 
   const auto& detIdsToFill =
-      isNew ? std::vector<unsigned int>({hists.BPixnewDetIds_[shiftIdx]}) : hists.detIdsList.at(i_index);
+      isNew ? std::vector<unsigned int>({hists.BPixnewDetIds_[shiftIdx]}) : hists.detIdsList[i_index];
 
   LogDebug("SiPixelLorentzAnglePCLHarvester")
       << "index: " << i_index << " i_module: " << i_module << " i_layer: " << i_layer;
   for (const auto& id : detIdsToFill) {
     LogDebug("SiPixelLorentzAnglePCLHarvester") << id << ",";
   }
+
+  // no errors on the following MEs
+  hists.h_bySectSetLA_->setBinError(i_index, 0.);
+  hists.h_bySectRejectLA_->setBinError(i_index, 0.);
+  hists.h_bySectLA_->setBinError(i_index, 0.);
+  hists.h_bySectDeltaLA_->setBinError(i_index, 0.);
 
   float LorentzAnglePerTesla_;
   float currentLA = currentLorentzAngle->getLorentzAngle(detIdsToFill.front());
@@ -675,7 +684,6 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
     hists.h_bySectSetLA_->setBinContent(i_index, 0.);
     hists.h_bySectRejectLA_->setBinContent(i_index, (res.tan_LA / theMagField));
     hists.h_bySectLA_->setBinContent(i_index, currentLA);
-
     hists.h_bySectDeltaLA_->setBinContent(i_index, 0.);
 
     for (const auto& id : detIdsToFill) {

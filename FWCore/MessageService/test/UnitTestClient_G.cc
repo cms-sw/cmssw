@@ -1,11 +1,12 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDAnalyzer.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/StreamID.h"
-
+#include <cmath>
 #include <iomanip>
 #include <iostream>
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 namespace edmtest {
 
@@ -21,7 +22,7 @@ namespace edmtest {
       std::cerr << "??? It appears that Message Processing is not Set Up???\n\n";
     }
 
-    double d = 3.14159265357989;
+    double d = M_PI;
     edm::LogWarning("cat_A") << "Test of std::setprecision(p):"
                              << " Pi with precision 12 is " << std::setprecision(12) << d;
 

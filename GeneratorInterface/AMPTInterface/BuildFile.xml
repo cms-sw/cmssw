@@ -1,4 +1,5 @@
 <use name="boost"/>
+<use name="hepmc"/>
 <use name="GeneratorInterface/Core"/>
 <use name="FWCore/Framework"/>
 <use name="SimDataFormats/GeneratorProducts"/>

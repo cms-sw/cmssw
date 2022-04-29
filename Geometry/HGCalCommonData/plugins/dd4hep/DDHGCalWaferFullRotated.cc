@@ -26,9 +26,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& material = args.value<std::string>("ModuleMaterial");
   const auto& thick = args.value<double>("ModuleThickness");
   const auto& waferSize = args.value<double>("WaferSize");
-#ifdef EDM_ML_DEBUG
   const auto& waferSepar = args.value<double>("SensorSeparation");
-#endif
   const auto& waferThick = args.value<double>("WaferThickness");
   const auto& waferTag = args.value<std::string>("WaferTag");
 #ifdef EDM_ML_DEBUG
@@ -83,7 +81,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   double r2 = 0.5 * waferSize;
   double R2 = r2 / sqrt3;
   const int nFine(nCells), nCoarse(nCells);
-  HGCalCell wafer(waferSize, nFine, nCoarse);
+  HGCalCell wafer((waferSize + waferSepar), nFine, nCoarse);
   for (unsigned int k = 0; k < tag.size(); ++k) {
     // First the mother
     std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};
@@ -152,12 +150,12 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         for (int u = 0; u < 2 * nCells; ++u) {
           for (int v = 0; v < 2 * nCells; ++v) {
             if (((v - u) < nCells) && ((u - v) <= nCells)) {
-              int placeIndex_ = wafer.HGCalCellPlacementIndex(1, face[k], orient[k]);
-              std::pair<double, double> xy1 = wafer.HGCalCellUV2XY1(u, v, placeIndex_, cellType);
+              int placeIndex = wafer.cellPlacementIndex(1, face[k], orient[k]);
+              std::pair<double, double> xy1 = wafer.cellUV2XY1(u, v, placeIndex, cellType);
               double yp = xy1.second;
               double xp = xy1.first;
               int cell(0);
-              std::pair<int, int> cell1 = wafer.HGCalCellUV2Cell(u, v, placeIndex_, cellType);
+              std::pair<int, int> cell1 = wafer.cellUV2Cell(u, v, placeIndex, cellType);
               cell = cell1.first + cellOffset[cell1.second];
               dd4hep::Position tran(xp, yp, 0);
               int copy = HGCalTypes::packCellTypeUV(cellType, u, v);

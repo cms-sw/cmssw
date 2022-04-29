@@ -1,10 +1,9 @@
-#ifndef PFCheckHitPattern_H
-#define PFCheckHitPattern_H
+#ifndef RecoParticleFlow_PFTracking_PFCheckHitPattern_H
+#define RecoParticleFlow_PFTracking_PFCheckHitPattern_H
 
 // standard EDAnalyser include files
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

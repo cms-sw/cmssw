@@ -127,8 +127,14 @@ void MTDClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   auto outputBarrel = std::make_unique<FTLClusterCollection>();
   auto outputEndcap = std::make_unique<FTLClusterCollection>();
 
-  run(*inputBarrel, *outputBarrel);
-  run(*inputEndcap, *outputEndcap);
+  if (inputBarrel.isValid())
+    run(*inputBarrel, *outputBarrel);
+  else
+    edm::LogWarning("MTDReco") << "MTDClusterProducer:: Missing Barrel Digis";
+  if (inputEndcap.isValid())
+    run(*inputEndcap, *outputEndcap);
+  else
+    edm::LogWarning("MTDReco") << "MTDClusterProducer:: Missing Endcap Digis";
 
   e.put(std::move(outputBarrel), ftlbInstance_);
   e.put(std::move(outputEndcap), ftleInstance_);

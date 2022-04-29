@@ -196,6 +196,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -232,6 +233,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -268,6 +270,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -303,6 +306,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -339,6 +343,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -374,6 +379,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -409,6 +415,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cff import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -444,6 +451,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -479,6 +487,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -514,6 +523,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -549,6 +559,7 @@ trackerDict = {
         ],
         "sim" : [
             'from Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi import *',
+            'from SLHCUpgradeSimulations.Geometry.fakePhase2OuterTrackerConditions_cff import *',
         ],
         "reco" : [
             'from Geometry.CommonTopologies.globalTrackingGeometry_cfi import *',
@@ -1383,7 +1394,7 @@ muonDict = {
             'Geometry/MuonCommonData/data/mb3/2015/v2/mb3.xml',
             'Geometry/MuonCommonData/data/mb4/2015/v2/mb4.xml',
             'Geometry/MuonCommonData/data/mb4Shield/2021/v1/mb4Shield.xml',
-            'Geometry/MuonCommonData/data/muonYoke/2026/v2/muonYoke.xml',
+            'Geometry/MuonCommonData/data/muonYoke/2026/v3/muonYoke.xml',
             'Geometry/MuonCommonData/data/mf/2026/v8/mf.xml',
             'Geometry/MuonCommonData/data/csc/2021/v2/csc.xml',
             'Geometry/MuonCommonData/data/rpcf/2026/v3/rpcf.xml',

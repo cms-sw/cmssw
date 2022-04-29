@@ -10,6 +10,7 @@
 // V1.1 - make dzero call both fcns with a switch
 // V1.2 - remove inappriate initializers and add methods to return non-zero/normalized region
 // V2.0 - restructuring and speed improvements by V. Innocente
+// V3.0 - further simplification and speedup by Tamas Vami
 //
 
 #ifndef VVIObjF_h
@@ -23,7 +24,8 @@
 // ***********************************************************************************************************************
 class VVIObjF {
 public:
-  VVIObjF(float kappa = 0.01, float beta2 = 1., int mode = 0);  //!< Constructor
+  VVIObjF(float kappa, float beta2, int mode);  //!< Constructor
+  VVIObjF(float kappa);                         //!< Constructor with kappa only
 
   float fcn(float x) const;  //! density (mode=0) or distribution (mode=1) function
   void limits(float& xl,
@@ -31,7 +33,6 @@ public:
 
 private:
   // Vavilov distribution parameters (inputs and common block /G116C1/)
-
   const int mode_;  //!< set to 0 to calculate the density function and to 1 to calculate the distribution function
   float t0_;
   float t1_;

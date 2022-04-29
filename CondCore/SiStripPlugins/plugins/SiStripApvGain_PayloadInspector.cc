@@ -22,6 +22,7 @@
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
+#include "SiStripCondObjectRepresent.h"
 
 #include <memory>
 #include <sstream>
@@ -30,6 +31,7 @@
 // include ROOT
 #include "TProfile.h"
 #include "TH2F.h"
+#include "THStack.h"
 #include "TLegend.h"
 #include "TCanvas.h"
 #include "TLine.h"
@@ -41,6 +43,178 @@
 namespace {
 
   using namespace cond::payloadInspector;
+
+  class SiStripApvGainContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripApvGain, float> {
+  public:
+    SiStripApvGainContainer(const std::shared_ptr<SiStripApvGain>& payload,
+                            const SiStripPI::MetaData& metadata,
+                            const std::string& tagName)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripApvGain, float>(payload, metadata, tagName) {
+      payloadType_ = "SiStripApvGain";
+      setGranularity(SiStripCondObjectRepresent::PERAPV);
+    }
+
+    void storeAllValues() override {
+      std::vector<uint32_t> detid;
+      payload_->getDetIds(detid);
+
+      for (const auto& d : detid) {
+        SiStripApvGain::Range range = payload_->getRange(d);
+        for (int it = 0; it < range.second - range.first; it++) {
+          // to be used to fill the histogram
+          SiStripCondData_.fillByPushBack(d, payload_->getApvGain(it, range));
+        }
+      }
+    }
+  };
+
+  /************************************************
+    testing the machinery
+  ************************************************/
+  class SiStripApvGainTest : public Histogram1D<SiStripApvGain, SINGLE_IOV> {
+  public:
+    SiStripApvGainTest()
+        : Histogram1D<SiStripApvGain, SINGLE_IOV>("SiStrip ApvGain values", "SiStrip ApvGain values", 1, 0.0, 1.) {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto tagname = tag.name;
+      for (auto const& iov : tag.iovs) {
+        std::shared_ptr<SiStripApvGain> payload = Base::fetchPayload(std::get<1>(iov));
+        if (payload.get()) {
+          SiStripApvGainContainer* objContainer = new SiStripApvGainContainer(payload, iov, tagname);
+          objContainer->printAll();
+
+        }  // payload
+      }    // iovs
+      return true;
+    }  // fill
+  };
+
+  class SiStripApvGainByPartition : public PlotImage<SiStripApvGain, SINGLE_IOV> {
+  public:
+    SiStripApvGainByPartition() : PlotImage<SiStripApvGain, SINGLE_IOV>("SiStrip ApvGains By Partition") {}
+
+    bool fill() override {
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+      auto tagname = tag.name;
+      std::shared_ptr<SiStripApvGain> payload = fetchPayload(std::get<1>(iov));
+      if (payload.get()) {
+        SiStripApvGainContainer* objContainer = new SiStripApvGainContainer(payload, iov, tagname);
+        //objContainer->printAll();
+
+        TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+        objContainer->fillByPartition(canvas, 100, 0., 2.);
+
+        std::string fileName(m_imageFileName);
+        canvas.SaveAs(fileName.c_str());
+      }  // payload
+      return true;
+    }  // fill
+  };
+
+  class SiStripApvGainCompareByPartition : public PlotImage<SiStripApvGain, MULTI_IOV, 2> {
+  public:
+    SiStripApvGainCompareByPartition()
+        : PlotImage<SiStripApvGain, MULTI_IOV, 2>("SiStrip Compare ApvGains By Partition") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
+
+      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov, tagname1);
+      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov, tagname2);
+
+      l_objContainer->compare(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, 0.5, 1.5);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripApvGainRatioByPartition : public PlotImage<SiStripApvGain, MULTI_IOV, 2> {
+  public:
+    SiStripApvGainRatioByPartition() : PlotImage<SiStripApvGain, MULTI_IOV, 2>("SiStrip Ratio ApvGains By Partition") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
+
+      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov, tagname1);
+      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov, tagname2);
+
+      l_objContainer->divide(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 200, 0.5, 1.5);
+      //for (int i = 1; i <= 4; i++)
+      //  canvas.cd(i)->SetLogy();
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripApvGainDiffByPartition : public PlotImage<SiStripApvGain, MULTI_IOV, 2> {
+  public:
+    SiStripApvGainDiffByPartition() : PlotImage<SiStripApvGain, MULTI_IOV, 2>("SiStrip Diff ApvGains By Partition") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
+
+      std::shared_ptr<SiStripApvGain> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripApvGain> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripApvGainContainer* l_objContainer = new SiStripApvGainContainer(last_payload, lastiov, tagname1);
+      SiStripApvGainContainer* f_objContainer = new SiStripApvGainContainer(first_payload, firstiov, tagname2);
+
+      l_objContainer->subtract(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, -0.1, 0.1);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
 
   /************************************************
     1d histogram of SiStripApvGains of 1 IOV 
@@ -574,7 +748,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -687,7 +861,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -1191,7 +1365,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -1383,6 +1557,223 @@ namespace {
   using SiStripApvGainsComparatorSingleTag = SiStripApvGainsComparatorBase<1, MULTI_IOV>;
   using SiStripApvGainsComparatorTwoTags = SiStripApvGainsComparatorBase<2, SINGLE_IOV>;
 
+  /************************************************
+    Plot stack of gain by region
+  *************************************************/
+
+  class SiStripApvGainsTHStack : public PlotImage<SiStripApvGain, SINGLE_IOV> {
+  public:
+    SiStripApvGainsTHStack()
+        : PlotImage<SiStripApvGain, SINGLE_IOV>("Stack of SiStrip APV gains values"),
+          m_trackerTopo{StandaloneTrackerTopology::fromTrackerParametersXMLFile(
+              edm::FileInPath("Geometry/TrackerCommonData/data/trackerParameters.xml").fullPath())} {}
+
+    bool fill() override {
+      //TH1F::SetDefaultSumw2(true);
+      auto tag = PlotBase::getTag<0>();
+      auto iov = tag.iovs.front();
+
+      std::shared_ptr<SiStripApvGain> payload = this->fetchPayload(std::get<1>(iov));
+      std::string IOVsince = std::to_string(std::get<0>(iov));
+
+      std::map<partition, std::shared_ptr<TH1F>> h_gains;
+
+      //std::vector< SiStripPI::TrackerRegion > regions;
+      std::vector<partition> regions;
+
+      std::vector<uint32_t> detid;
+      payload->getDetIds(detid);
+
+      // fill the vector of regions
+      for (const auto& d : detid) {
+        //auto region = this->getTheRegion(d);
+        auto region = this->getThePartition(d);
+        if (std::find(regions.begin(), regions.end(), region) == regions.end()) {
+          regions.push_back(region);
+        }
+      }
+
+      LogDebug("SiStripApvGainsTHStack") << "regions.size()=" << regions.size() << std::endl;
+
+      for (const auto& r : regions) {
+        //auto part = std::string(SiStripPI::regionType(r).second);
+
+        auto part = std::string(this->partitionName(r));
+
+        h_gains[r] = std::make_shared<TH1F>(Form("hGains_%s", part.c_str()),
+                                            Form("Gains values for IOV: %s ;Gain;Number of APV", IOVsince.c_str()),
+                                            100,
+                                            0.5,
+                                            1.5);
+      }
+
+      // loop on the payload
+      for (const auto& d : detid) {
+        //auto region = this->getTheRegion(d);
+        auto region = this->getThePartition(d);
+        SiStripApvGain::Range range = payload->getRange(d);
+        for (int it = 0; it < range.second - range.first; ++it) {
+          float gain = payload->getApvGain(it, range);
+          h_gains[region]->Fill(gain);
+        }  // end loop on APVs
+      }    // end loop on detids
+
+      TCanvas canvas("Payload breakout", "payload breakout", 1200, 800);
+      canvas.Divide(2, 1);
+
+      std::array<int, 6> colors = {{kRed, kBlue, kGreen, kCyan, 8, kMagenta}};
+
+      THStack* hs = new THStack("hs", Form("Gains values for IOV: %s;Gain;Number of APV", IOVsince.c_str()));
+      int colorCounter = 0;
+      for (const auto& r : regions) {
+        hs->Add(h_gains[r].get());
+        SiStripPI::makeNicePlotStyle(h_gains[r].get());
+        h_gains[r]->SetFillColor(colors[colorCounter]);
+        //h_gains[r]->SetLineColor(colorCounter);
+        h_gains[r]->SetLineWidth(2);
+        colorCounter++;
+      }
+
+      TLegend legend = TLegend(0.60, 0.65, 0.95, 0.93);
+      legend.SetTextSize(0.05);
+      legend.SetHeader("Gain break-out", "C");  // option "C" allows to center the header
+      for (const auto& r : regions) {
+        auto part = std::string(this->partitionName(r));
+        legend.AddEntry(h_gains[r].get(), part.c_str(), "F");
+      }
+
+      canvas.cd(1)->SetLogy();
+      canvas.cd(1)->SetTopMargin(0.07);
+      canvas.cd(1)->SetBottomMargin(0.10);
+      canvas.cd(1)->SetLeftMargin(0.15);
+      canvas.cd(1)->SetRightMargin(0.05);
+      //      hs->Draw("NOSTACKB");
+
+      int count(0);
+      auto stack = hs->GetHists();
+      double maximum = hs->GetMaximum("nostack");  //SiStripPI::getMaximum(stack);
+
+      TLegend legend2 = TLegend(0.70, 0.65, 0.95, 0.93);
+      legend2.SetTextSize(0.05);
+      legend2.SetHeader("Partition", "C");  // option "C" allows to center the header
+
+      for (const auto&& elem : *stack) {
+        auto clone = (TH1F*)(elem->Clone(Form("hclone_%s", elem->GetName())));
+        SiStripPI::makeNicePlotStyle(clone);
+        clone->SetFillColor(0);
+        clone->SetMarkerStyle(20);
+        clone->SetLineColor(colors[count]);
+        clone->SetMarkerColor(colors[count]);
+        clone->SetMaximum(maximum * 10);
+        TString candName = clone->GetName();
+        legend2.AddEntry(clone, candName.ReplaceAll("hclone_hGains_", ""), "L");
+        if (count == 0) {
+          clone->Draw("HIST");
+        } else {
+          clone->Draw("HISTsame");
+        }
+        count++;
+      }
+
+      legend2.Draw("same");
+
+      canvas.cd(2);  //->SetLogy();
+      canvas.cd(2)->SetTopMargin(0.07);
+      canvas.cd(2)->SetBottomMargin(0.10);
+      canvas.cd(2)->SetLeftMargin(0.12);
+      canvas.cd(2)->SetRightMargin(0.05);
+      hs->Draw();
+      // all graphics manipulations *after* drawing the stack!
+      hs->GetYaxis()->SetMaxDigits(2);
+      SiStripPI::makeNiceStyle<THStack>(hs);
+      legend.Draw("same");
+
+      std::string fileName(this->m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }
+
+  private:
+    TrackerTopology m_trackerTopo;
+    enum partition { TIB = 30, TIDP = 41, TIDM = 42, TOB = 50, TECP = 61, TECM = 62, END_OF_PARTS };
+
+    const char* partitionName(partition part) {
+      std::map<partition, const char*> mapping = {{partition::TIB, "TIB"},
+                                                  {partition::TIDP, "TIPp"},
+                                                  {partition::TIDM, "TIDm"},
+                                                  {partition::TOB, "TOB"},
+                                                  {partition::TECP, "TECp"},
+                                                  {partition::TECM, "TECm"}};
+
+      if (mapping.find(part) == mapping.end()) {
+        throw cms::Exception("Invalid Partition passed");
+      } else {
+        return mapping[part];
+      }
+    }
+
+    partition getThePartition(DetId detid) {
+      int detNum = 0;
+      int side = 0;
+      switch (detid.subdetId()) {
+        case StripSubdetector::TIB:
+          detNum = 30;
+          break;
+        case StripSubdetector::TOB:
+          detNum = 50;
+          break;
+        case StripSubdetector::TEC:
+          // is this module in TEC+ or TEC-?
+          side = m_trackerTopo.tecSide(detid);
+          detNum = 60;
+          break;
+        case StripSubdetector::TID:
+          // is this module in TID+ or TID-?
+          side = m_trackerTopo.tidSide(detid);
+          detNum = 40;
+          break;
+      }
+
+      detNum += side;
+      return static_cast<partition>(detNum);
+    }
+
+    SiStripPI::TrackerRegion getTheRegion(DetId detid) {
+      int layer = 0;
+      int stereo = 0;
+      int detNum = 0;
+
+      switch (detid.subdetId()) {
+        case StripSubdetector::TIB:
+          layer = m_trackerTopo.tibLayer(detid);
+          stereo = m_trackerTopo.tibStereo(detid);
+          detNum = 1000;
+          break;
+        case StripSubdetector::TOB:
+          layer = m_trackerTopo.tobLayer(detid);
+          stereo = m_trackerTopo.tobStereo(detid);
+          detNum = 2000;
+          break;
+        case StripSubdetector::TEC:
+          // is this module in TEC+ or TEC-?
+          layer = m_trackerTopo.tecWheel(detid);
+          stereo = m_trackerTopo.tecStereo(detid);
+          detNum = 3000;
+          break;
+        case StripSubdetector::TID:
+          // is this module in TID+ or TID-?
+          layer = m_trackerTopo.tidWheel(detid);
+          stereo = m_trackerTopo.tidStereo(detid);
+          detNum = 4000;
+          break;
+      }
+
+      detNum += layer * 10 + stereo;
+      return static_cast<SiStripPI::TrackerRegion>(detNum);
+    }
+  };
+
   //*******************************************//
   // Compare Gains from 2 IOVs
   //******************************************//
@@ -1401,7 +1792,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -1582,7 +1973,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -1791,7 +2182,7 @@ namespace {
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -2073,6 +2464,11 @@ namespace {
 // Register the classes as boost python plugin
 PAYLOAD_INSPECTOR_MODULE(SiStripApvGain) {
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsValue);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainTest);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainCompareByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainRatioByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainDiffByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsByRegion);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorSingleTag);
@@ -2083,6 +2479,7 @@ PAYLOAD_INSPECTOR_MODULE(SiStripApvGain) {
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsComparatorByRegionTwoTags);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsRatioComparatorByRegionSingleTag);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsRatioComparatorByRegionTwoTags);
+  PAYLOAD_INSPECTOR_CLASS(SiStripApvGainsTHStack);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvBarrelGainsByLayer);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvAbsoluteBarrelGainsByLayer);
   PAYLOAD_INSPECTOR_CLASS(SiStripApvEndcapMinusGainsByDisk);

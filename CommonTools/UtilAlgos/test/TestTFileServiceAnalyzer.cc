@@ -1,7 +1,9 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "TH1.h"
 #include "TTree.h"
-class TestTFileServiceAnalyzer : public edm::EDAnalyzer {
+class TestTFileServiceAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// constructor
   TestTFileServiceAnalyzer(const edm::ParameterSet&);
@@ -9,6 +11,7 @@ public:
 private:
   /// process one event
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+
   /// histograms
   TH1F *h_test1, *h_test2;
   /// TTree
@@ -19,15 +22,14 @@ private:
   std::string dir1_, dir2_;
 };
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 using namespace edm;
 using namespace std;
 
 TestTFileServiceAnalyzer::TestTFileServiceAnalyzer(const ParameterSet& cfg)
     : dir1_(cfg.getParameter<string>("dir1")), dir2_(cfg.getParameter<string>("dir2")) {
-  Service<TFileService> fs;
+  usesResource(TFileService::kSharedResource);
+  edm::Service<TFileService> fs;
   if (dir1_.empty()) {
     h_test1 = fs->make<TH1F>("test1", "test histogram #1", 100, 0., 100.);
   } else {

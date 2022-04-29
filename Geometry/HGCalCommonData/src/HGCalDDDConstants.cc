@@ -10,6 +10,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeomParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
@@ -213,7 +214,7 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
   const auto& indx = getIndex(lay, true);
   if (indx.first >= 0) {
     if (waferHexagon8() || waferHexagon6()) {
-      const auto& xy = ((waferHexagon8()) ? locateCell(lay, waferU, waferV, cellU, cellV, reco, true, true)
+      const auto& xy = ((waferHexagon8()) ? locateCell(lay, waferU, waferV, cellU, cellV, reco, true, false, false)
                                           : locateCell(cellU, lay, waferU, reco));
       double rpos = sqrt(xy.first * xy.first + xy.second * xy.second);
       return ((rpos >= hgpar_->rMinLayHex_[indx.first]) && (rpos <= hgpar_->rMaxLayHex_[indx.first]));
@@ -245,44 +246,11 @@ double HGCalDDDConstants::cellSizeHex(int type) const {
   return cell;
 }
 
-HGCalTypes::CellType HGCalDDDConstants::cellType(int type, int cellU, int cellV) const {
-  // type=0: in the middle; 1..6: the edges clocwise from bottom left;
-  //     =11..16: the corners clockwise from bottom
-  int N = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
-  if (cellU == 0) {
-    if (cellV == 0)
-      return HGCalTypes::CellType::BottomLeftCorner;
-    else if (cellV - cellU == N - 1)
-      return HGCalTypes::CellType::BottomCorner;
-    else
-      return HGCalTypes::CellType::BottomLeftEdge;
-  } else if (cellV == 0) {
-    if (cellU - cellV == N)
-      return HGCalTypes::CellType::TopLeftCorner;
-    else
-      return HGCalTypes::CellType::LeftEdge;
-  } else if (cellU - cellV == N) {
-    if (cellU == 2 * N - 1)
-      return HGCalTypes::CellType::TopCorner;
-    else
-      return HGCalTypes::CellType::TopLeftEdge;
-  } else if (cellU == 2 * N - 1) {
-    if (cellV == 2 * N - 1)
-      return HGCalTypes::CellType::TopRightCorner;
-    else
-      return HGCalTypes::CellType::TopRightEdge;
-  } else if (cellV == 2 * N - 1) {
-    if (cellV - cellU == N - 1)
-      return HGCalTypes::CellType::BottomRightCorner;
-    else
-      return HGCalTypes::CellType::RightEdge;
-  } else if (cellV - cellU == N - 1) {
-    return HGCalTypes::CellType::BottomRightEdge;
-  } else if ((cellU > 2 * N - 1) || (cellV > 2 * N - 1) || (cellV >= (cellU + N)) || (cellU > (cellV + N))) {
-    return HGCalTypes::CellType::UndefinedType;
-  } else {
-    return HGCalTypes::CellType::CentralType;
-  }
+int32_t HGCalDDDConstants::cellType(int type, int cellU, int cellV, int iz, int fwdBack, int orient) const {
+  int placement = (orient < 0) ? HGCalCell::cellPlacementOld : HGCalCell::cellPlacementIndex(iz, fwdBack, orient);
+  int ncell = (type == 0) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
+  auto cellType = HGCalCell::cellType(cellU, cellV, ncell, placement);
+  return cellType.first;
 }
 
 double HGCalDDDConstants::distFromEdgeHex(double x, double y, double z) const {
@@ -621,7 +589,7 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
   bool rotx =
       ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
   if (debug)
-    edm::LogVerbatim("HGCalGeom") << "LocalToGlobal " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx
+    edm::LogVerbatim("HGCalGeom") << "LocalToGlobal8 " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx
                                   << " Local (" << x << ":" << y << ") Reco " << reco;
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
@@ -631,7 +599,7 @@ std::pair<float, float> HGCalDDDConstants::localToGlobal8(
   x += xy.first;
   y += xy.second;
   if (debug)
-    edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << " by addong " << xy.first << ":" << xy.second;
+    edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << " by adding " << xy.first << ":" << xy.second;
   return (rotx ? getXY(lay, x, y, false) : std::make_pair(x, y));
 }
 
@@ -667,21 +635,20 @@ std::pair<float, float> HGCalDDDConstants::locateCell(int cell, int lay, int typ
 }
 
 std::pair<float, float> HGCalDDDConstants::locateCell(
-    int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool debug) const {
+    int lay, int waferU, int waferV, int cellU, int cellV, bool reco, bool all, bool norot, bool debug) const {
   double x(0), y(0);
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
-  bool rotx =
-      ((!hgpar_->layerType_.empty()) && (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
-#ifdef EDM_ML_DEBUG
+  bool rotx = (norot) ? false
+                      : ((!hgpar_->layerType_.empty()) &&
+                         (hgpar_->layerType_[lay - hgpar_->firstLayer_] == HGCalTypes::WaferCenterR));
   if (debug) {
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << rotx << ":"
                                   << waferU << ":" << waferV << ":" << indx << ":"
                                   << (itr == hgpar_->typesInLayers_.end()) << ":" << type << " Flags " << reco << ":"
                                   << all;
   }
-#endif
   int kndx = cellV * 100 + cellU;
   if (type == 0) {
     auto ktr = hgpar_->cellFineIndex_.find(kndx);
@@ -689,22 +656,18 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
       x = hgpar_->cellFineX_[ktr->second];
       y = hgpar_->cellFineY_[ktr->second];
     }
-#ifdef EDM_ML_DEBUG
     if (debug)
       edm::LogVerbatim("HGCalGeom") << "Fine " << cellU << ":" << cellV << ":" << kndx << ":" << x << ":" << y << ":"
                                     << (ktr != hgpar_->cellFineIndex_.end());
-#endif
   } else {
     auto ktr = hgpar_->cellCoarseIndex_.find(kndx);
     if (ktr != hgpar_->cellCoarseIndex_.end()) {
       x = hgpar_->cellCoarseX_[ktr->second];
       y = hgpar_->cellCoarseY_[ktr->second];
     }
-#ifdef EDM_ML_DEBUG
     if (debug)
       edm::LogVerbatim("HGCalGeom") << "Coarse " << cellU << ":" << cellV << ":" << kndx << ":" << x << ":" << y << ":"
                                     << (ktr != hgpar_->cellCoarseIndex_.end());
-#endif
   }
   if (!reco) {
     x *= HGCalParameters::k_ScaleToDDD;
@@ -714,10 +677,8 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
     const auto& xy = waferPositionNoRot(lay, waferU, waferV, reco, debug);
     x += xy.first;
     y += xy.second;
-#ifdef EDM_ML_DEBUG
     if (debug)
-      edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << " by addong " << xy.first << ":" << xy.second;
-#endif
+      edm::LogVerbatim("HGCalGeom") << "With wafer " << x << ":" << y << " by adding " << xy.first << ":" << xy.second;
   }
   return (rotx ? getXY(lay, x, y, false) : std::make_pair(x, y));
 }

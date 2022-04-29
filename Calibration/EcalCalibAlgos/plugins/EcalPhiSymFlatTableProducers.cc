@@ -1,0 +1,18 @@
+#include "PhysicsTools/NanoAOD/interface/SimpleFlatTableProducer.h"
+
+#include "Calibration/EcalCalibAlgos/interface/EcalPhiSymRecHit.h"
+#include "Calibration/EcalCalibAlgos/interface/EcalPhiSymInfo.h"
+
+typedef LumiSimpleFlatTableProducer<EcalPhiSymRecHit, EcalPhiSymRecHitCollection> EcalPhiSymRecHitFlatTableProducerLumi;
+
+typedef LumiSingletonSimpleFlatTableProducer<EcalPhiSymInfo> EcalPhiSymInfoFlatTableProducerLumi;
+
+typedef RunSimpleFlatTableProducer<EcalPhiSymRecHit, EcalPhiSymRecHitCollection> EcalPhiSymRecHitFlatTableProducerRun;
+
+typedef RunSingletonSimpleFlatTableProducer<EcalPhiSymInfo> EcalPhiSymInfoFlatTableProducerRun;
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EcalPhiSymRecHitFlatTableProducerLumi);
+DEFINE_FWK_MODULE(EcalPhiSymInfoFlatTableProducerLumi);
+DEFINE_FWK_MODULE(EcalPhiSymRecHitFlatTableProducerRun);
+DEFINE_FWK_MODULE(EcalPhiSymInfoFlatTableProducerRun);

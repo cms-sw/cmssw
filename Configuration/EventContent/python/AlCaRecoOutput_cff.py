@@ -76,6 +76,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_Output_cff 
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_Output_cff import *
 # ECAL calibration with eta hlt path
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_Output_cff import *
+# ECAL calibration using the AlCaPhiSym stream (with NanoAOD output)
+from Calibration.EcalCalibAlgos.ALCARECOEcalPhiSym_Output_cff import *
 # ECAL ES alignment
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_Output_cff import *
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTrg_Output_cff import *

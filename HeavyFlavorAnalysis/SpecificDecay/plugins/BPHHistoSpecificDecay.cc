@@ -1,30 +1,20 @@
-
-#include "HeavyFlavorAnalysis/SpecificDecay/plugins/BPHHistoSpecificDecay.h"
-
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
-
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/plugins/BPHHistoSpecificDecay.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
+
+#include "TFile.h"
+#include "TH1.h"
 #include "TMath.h"
-#include "Math/VectorUtil.h"
+#include "TTree.h"
 #include "TVector3.h"
 
-#include <TH1.h>
-#include <TTree.h>
-#include <TFile.h>
-
+#include "Math/VectorUtil.h"
 #include <set>
 #include <string>
 #include <iostream>
@@ -1302,10 +1292,6 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
   runNumber = ev.id().run();
   lumiSection = ev.id().luminosityBlock();
   eventNumber = ev.id().event();
-
-  // get magnetic field
-  edm::ESHandle<MagneticField> magneticField;
-  es.get<IdealMagneticFieldRecord>().get(magneticField);
 
   // get object collections
   // collections are got through "BPHTokenWrapper" interface to allow

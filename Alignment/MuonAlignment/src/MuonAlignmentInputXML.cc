@@ -758,26 +758,13 @@ Alignable *MuonAlignmentInputXML::getGEMnode(align::StructureType structureType,
           } catch (const XMLException &toCatch) {
             throw cms::Exception("XMLException") << "Value of \"superChamber\" must be an integer" << std::endl;
           }
+        }  // end if we need a chamber number
+      }    // end if we need a ring number
+    }      // end if we need a station number
 
-          if (structureType != align::AlignableGEMSuperChamber) {
-            DOMAttr *node_chamber = node->getAttributeNode(str_chamber);
-            if (node_chamber == nullptr)
-              throw cms::Exception("XMLException") << "GEM node is missing required \"chamber\" attribute" << std::endl;
-            try {
-              chamber = XMLString::parseInt(node_chamber->getValue());
-            } catch (const XMLException &toCatch) {
-              throw cms::Exception("XMLException") << "Value of \"chamber\" must be an integer" << std::endl;
-            }
-
-          }  // end if we need a layer number
-        }    // end if we need a chamber number
-      }      // end if we need a ring number
-    }        // end if we need a station number
-
-    GEMDetId chamberId(endcap, station, ring, 0, chamber, 0);
+    GEMDetId chamberId(endcap, ring, station, 0, superChamber, 0);
     rawId = chamberId.rawId();
   }  // end if it's specified by endcap, station, ring, chamber, layer
-
   Alignable *ali = alignableNavigator[rawId];
   if (ali == nullptr)
     throw cms::Exception("XMLException") << "rawId \"" << rawId << "\" is not recognized" << std::endl;

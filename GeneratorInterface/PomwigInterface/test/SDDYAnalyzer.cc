@@ -1,30 +1,43 @@
 ////////// Header section /////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "TH1F.h"
 
-class SDDYAnalyzer : public edm::EDAnalyzer {
+class SDDYAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// Constructor
   SDDYAnalyzer(const edm::ParameterSet& pset);
 
   /// Destructor
-  virtual ~SDDYAnalyzer();
+  ~SDDYAnalyzer() override = default;
 
   // Operations
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
   //virtual void beginJob(const edm::EventSetup& eventSetup) ;
-  virtual void beginJob();
-  virtual void endJob();
+  void beginJob() override;
+  void endJob() override;
 
 private:
   // Input from cfg file
-  edm::InputTag genParticlesTag_;
-  int particle1Id_;
-  int particle2Id_;
+  const edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
+  const int particle1Id_;
+  const int particle2Id_;
+  const bool debug;
 
   // Histograms
   TH1F* hPart1Pt;
@@ -42,39 +55,23 @@ private:
   TH1F* hProtonPt2;
 
   int nevents;
-  bool debug;
   double Ebeam;
 };
 
 ////////// Source code ////////////////////////////////////////////////
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/Common/interface/Handle.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
 /// Constructor
-SDDYAnalyzer::SDDYAnalyzer(const edm::ParameterSet& pset) {
-  genParticlesTag_ = pset.getParameter<edm::InputTag>("GenParticleTag");
-  particle1Id_ = pset.getParameter<int>("Particle1Id");
-  particle2Id_ = pset.getParameter<int>("Particle2Id");
+SDDYAnalyzer::SDDYAnalyzer(const edm::ParameterSet& pset)
+    : genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getParameter<edm::InputTag>("GenParticleTag"))),
+      particle1Id_(pset.getParameter<int>("Particle1Id")),
+      particle2Id_(pset.getParameter<int>("Particle2Id")),
+      debug(pset.getUntrackedParameter<bool>("debug", false)) {
+  usesResource(TFileService::kSharedResource);
 
-  debug = pset.getUntrackedParameter<bool>("debug", false);
   if (debug) {
     std::cout << ">>> First particle Id: " << particle1Id_ << std::endl;
     std::cout << ">>> Second particle Id: " << particle2Id_ << std::endl;
   }
 }
-
-/// Destructor
-SDDYAnalyzer::~SDDYAnalyzer() {}
 
 void SDDYAnalyzer::beginJob() {
   edm::Service<TFileService> fs;
@@ -105,8 +102,7 @@ void SDDYAnalyzer::analyze(const edm::Event& ev, const edm::EventSetup&) {
   nevents++;
 
   // Generator Information
-  edm::Handle<reco::GenParticleCollection> genParticles;
-  ev.getByLabel(genParticlesTag_, genParticles);
+  const edm::Handle<reco::GenParticleCollection>& genParticles = ev.getHandle(genParticlesToken_);
   double pz1max = 0.;
   double pz2min = 0.;
   reco::GenParticleCollection::const_iterator proton1 = genParticles->end();
