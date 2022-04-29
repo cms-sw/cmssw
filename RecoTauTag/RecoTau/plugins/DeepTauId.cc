@@ -2059,9 +2059,14 @@ private:
         get(dnn::pfCand_ele_dz) = getValueNorm(candFunc::getTauDz(ele_cand), 0.001f, 1.02f);
         get(dnn::pfCand_ele_dz_sig) =
             getValueNorm(std::abs(candFunc::getTauDz(ele_cand)) / ele_cand.dzError(), 24.56f, 210.4f);
-        get(dnn::pfCand_ele_track_chi2_ndof) = getValueNorm(
-            candFunc::getPseudoTrack(ele_cand).chi2() / candFunc::getPseudoTrack(ele_cand).ndof(), 2.272f, 8.439f);
-        get(dnn::pfCand_ele_track_ndof) = getValueNorm(candFunc::getPseudoTrack(ele_cand).ndof(), 15.18f, 3.203f);
+        get(dnn::pfCand_ele_track_chi2_ndof) = candFunc::getPseudoTrack(ele_cand).ndof() > 0
+                                                ? getValueNorm(candFunc::getPseudoTrack(ele_cand).chi2() / 
+                                                              candFunc::getPseudoTrack(ele_cand).ndof(), 
+                                                              2.272f, 8.439f)
+                                                : 0;
+        get(dnn::pfCand_ele_track_ndof) = candFunc::getPseudoTrack(ele_cand).ndof() > 0
+                                            ? getValueNorm(candFunc::getPseudoTrack(ele_cand).ndof(), 15.18f, 3.203f)
+                                            : 0;
       }
     }
     if (valid_index_pf_gamma) {
@@ -2296,9 +2301,14 @@ private:
         get(dnn::pfCand_muon_dz) = getValueNorm(candFunc::getTauDz(muon_cand), -0.0117f, 4.097f);
         get(dnn::pfCand_muon_dz_sig) =
             getValueNorm(std::abs(candFunc::getTauDz(muon_cand)) / muon_cand.dzError(), 80.37f, 343.3f);
-        get(dnn::pfCand_muon_track_chi2_ndof) = getValueNorm(
-            candFunc::getPseudoTrack(muon_cand).chi2() / candFunc::getPseudoTrack(muon_cand).ndof(), 0.69f, 1.711f);
-        get(dnn::pfCand_muon_track_ndof) = getValueNorm(candFunc::getPseudoTrack(muon_cand).ndof(), 17.5f, 5.11f);
+        get(dnn::pfCand_muon_track_chi2_ndof) = candFunc::getPseudoTrack(muon_cand).ndof() > 0
+                                                ? getValueNorm(candFunc::getPseudoTrack(muon_cand).chi2() / 
+                                                                candFunc::getPseudoTrack(muon_cand).ndof(), 
+                                                                0.69f, 1.711f)
+                                                : 0;
+        get(dnn::pfCand_muon_track_ndof) = candFunc::getPseudoTrack(muon_cand).ndof() > 0
+                                            ? getValueNorm(candFunc::getPseudoTrack(muon_cand).ndof(), 17.5f, 5.11f)
+                                            : 0;
       }
     }
     if (valid_index_muon) {
