@@ -175,9 +175,9 @@ int main(int argc, char* argv[]) {
   }
 
   int mode = std::atoi(argv[1]);
-  if (mode <= 2) {
+  if ((mode <= 2) && (argc < 7)) {
     std::cout << "Please give a minimum of 7 arguments \n"
-              << "mode == 1\n"
+              << "mode == " << mode << "\n"
               << "input file name\n"
               << "output file name\n"
               << "second output file name\n"
@@ -814,9 +814,9 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
   for (unsigned k = 0; k < layerStart.size(); ++k) {
     std::string last = ((k + 1) == layerStart.size()) ? " " : ",";
     if (k % 10 == 0)
-      fOut << "\n  " << blank << std::setw(5) << layerStart[k3] << last;
+      fOut << "\n  " << blank << std::setw(5) << layerStart[k] << last;
     else
-      fOut << std::setw(5) << layerStart[k3] << last;
+      fOut << std::setw(5) << layerStart[k] << last;
   }
   fOut << "\n" << blank << "</Vector>\n";
   unsigned int csize = cassettes * layers.size();
@@ -831,7 +831,7 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
     ++k3;
     for (unsigned int k = 0; k < cassettes; ++k) {
       std::string last = ((k3 == layers.size()) && ((k + 1) == cassettes)) ? " " : ",";
-      if ((k == 0) || (k == 6))
+      if ((k % 6) == 0)
         fOut << "\n  " << blank << std::setw(9) << l.deltaR[k] << last;
       else
         fOut << std::setw(9) << l.deltaR[k] << last;
