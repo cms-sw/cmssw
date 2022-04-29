@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
               << "for scintillator 4 additional parameters after the first 3\n"
               << "  second output file name\n"
               << "  number of layers in the EE section: 28 or 26\n"
-	      << "  flag to utilize cassette partition or not\n"
+              << "  flag to utilize cassette partition or not\n"
               << "  debug flag\n"
               << std::endl;
     return 0;
@@ -1057,35 +1057,35 @@ void ConvertScintillator::makeTitle(const char* outfile,
         }
       }
       if (debug)
-        std::cout << "L|F|R " << layer << ":" << phi << ":" << irmin << ":" << irmax << std::endl;
+        std::cout << "Layer|Phi|Ring " << layer << ":" << phi << ":" << irmin << ":" << irmax << std::endl;
       if (phi == 1) {
         tile0.layer = layer;
         tile0.rmin = irmin;
         tile0.rmax = irmax;
         tile0.phimin = phi;
         tile0.phimax = phi;
-	tile0.cassette = (cassette_ == 0) ? 0 : 1;
+        tile0.cassette = (cassette_ == 0) ? 0 : 1;
       } else if ((tile0.rmin != irmin) || (tile0.rmax != irmax)) {
-	if (cassette_ != 0) {
-	  if (tile0.cassette * phiCassette < tile0.phimax) {
-	    do { 
-	      int phimax = tile0.phimax;
-	      tile0.phimax = tile0.cassette * phiCassette;
-	      zones.push_back(tile0);
-	      tile0.phimin = tile0.phimax + 1;
-	      tile0.phimax = phimax;
-	      ++tile0.cassette;
-	    } while (tile0.cassette * phiCassette < tile0.phimax);
-	  }
-	}
+        if (cassette_ != 0) {
+          if (tile0.cassette * phiCassette < tile0.phimax) {
+            do {
+              int phimax = tile0.phimax;
+              tile0.phimax = tile0.cassette * phiCassette;
+              zones.push_back(tile0);
+              tile0.phimin = tile0.phimax + 1;
+              tile0.phimax = phimax;
+              ++tile0.cassette;
+            } while (tile0.cassette * phiCassette < tile0.phimax);
+          }
+        }
         zones.push_back(tile0);
-	int cassette =  (cassette_ == 0) ? 0 : (1 + ((phi - 1) / phiCassette));
+        int cassette = (cassette_ == 0) ? 0 : (1 + ((phi - 1) / phiCassette));
         tile0.layer = layer;
         tile0.rmin = irmin;
         tile0.rmax = irmax;
         tile0.phimin = phi;
         tile0.phimax = phi;
-	tile0.cassette = cassette;
+        tile0.cassette = cassette;
         if (phi == HGCalProperty::kHGCalTilePhis)
           zones.push_back(tile0);
       } else {
@@ -1097,6 +1097,11 @@ void ConvertScintillator::makeTitle(const char* outfile,
   }
 
   int nmax = zones.size();
+  if (debug) {
+    std::cout << "\nA total of " << nmax << " zones " << std::endl;
+    for (int k = 0; k < nmax; ++k)
+      std::cout << "[" << k << "] Layer " << zones[k].layer << " Ring " << zones[k].rmin << ":" << zones[k].rmax << " phi " << zones[k].phimin << ":" << zones[k].phimax << " Cassette " << zones[k].cassette << std::endl;
+  }
   if (nmax > 0) {
     std::ofstream fout(outfile);
     char apost('"');
