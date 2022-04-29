@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,7 +27,7 @@
 
 #include <RecoLocalMuon/CSCRecHitD/src/CSCRecoConditions.h>
 
-class CSCRecoBadChannelsAnalyzer : public edm::EDAnalyzer {
+class CSCRecoBadChannelsAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCRecoBadChannelsAnalyzer(edm::ParameterSet const& ps)
       : dashedLineWidth_(80),
