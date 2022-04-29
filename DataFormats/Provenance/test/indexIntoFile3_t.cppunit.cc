@@ -2601,19 +2601,19 @@ void TestIndexIntoFile3::testNonValidLumiInsideValidLumis() {
         case 1: {
           CPPUNIT_ASSERT(check(iter, kLumi, 0, 2, 1, 0, 1));  // lumi 1:1
           CPPUNIT_ASSERT(!iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.lumiEntryValid(2));
+          CPPUNIT_ASSERT(iter.lumiIterationStartingIndex(2));
           break;
         }
         case 2: {
           CPPUNIT_ASSERT(check(iter, kLumi, 0, 3, 1, 0, 1));  // lumi 1:1
           CPPUNIT_ASSERT(!iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(!iter.lumiEntryValid(3));
+          CPPUNIT_ASSERT(!iter.lumiIterationStartingIndex(3));
           break;
         }
         case 3: {
           CPPUNIT_ASSERT(check(iter, kLumi, 0, 4, 1, 0, 1));  // lumi 1:1
           CPPUNIT_ASSERT(!iter.shouldProcessLumi());
-          CPPUNIT_ASSERT(iter.lumiEntryValid(4));
+          CPPUNIT_ASSERT(iter.lumiIterationStartingIndex(4));
           break;
         }
         case 4: {
