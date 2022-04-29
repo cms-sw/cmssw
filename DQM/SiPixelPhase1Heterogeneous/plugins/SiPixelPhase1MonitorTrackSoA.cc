@@ -3,7 +3,7 @@
 // Package:    SiPixelPhase1MonitorTrackSoA
 // Class:      SiPixelPhase1MonitorTrackSoA
 //
-/**\class SiPixelPhase1MonitorTrackSoA SiPixelPhase1MonitorTrackSoA.cc
+/**\class SiPixelPhase1MonitorTrackSoA SiPixelPhase1MonitorTrackSoA.cc 
 */
 //
 // Author: Suvankar Roy Chowdhury
