@@ -1,16 +1,63 @@
-
-#include "DataFormats/SiStripCommon/test/plugins/perf_SiStripFecKey.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/SiStripCommon/interface/Constants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system includes
+#include <vector>
+#include <cstdint>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
 #include <time.h>
 #include <algorithm>
+
+// user includes
+#include "DataFormats/SiStripCommon/interface/Constants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripKey.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+/**
+   @class perfSiStripFecKey 
+   @author R.Bainbridge
+   @brief Simple class that tests SiStripFecKey.
+*/
+class perfSiStripFecKey : public edm::one::EDAnalyzer<> {
+public:
+  perfSiStripFecKey(const edm::ParameterSet&);
+  ~perfSiStripFecKey();
+
+  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
+  class Value {
+  public:
+    uint16_t crate_, slot_, ring_, ccu_, module_, lld_, i2c_;
+    Value() : crate_(0), slot_(0), ring_(0), ccu_(0), module_(0), lld_(0), i2c_(0) { ; }
+    Value(uint16_t crate, uint16_t slot, uint16_t ring, uint16_t ccu, uint16_t module, uint16_t lld, uint16_t i2c)
+        : crate_(crate), slot_(slot), ring_(ring), ccu_(ccu), module_(module), lld_(lld), i2c_(i2c) {
+      ;
+    }
+  };
+
+  void build(std::vector<Value>&,
+             std::vector<uint32_t>&,
+             std::vector<std::string>&,
+             std::vector<SiStripFecKey>&,
+             std::vector<SiStripKey>&);
+
+  void build(const std::vector<Value>&) const;
+  void build(const std::vector<uint32_t>&) const;
+  void build(const std::vector<std::string>&) const;
+  void build(const std::vector<SiStripFecKey>&) const;
+  void build(const std::vector<SiStripKey>&) const;
+
+  void test(const std::vector<SiStripFecKey>&) const;
+
+  uint32_t loops_;
+};
 
 using namespace sistrip;
 
@@ -205,3 +252,6 @@ void perfSiStripFecKey::build(std::vector<Value>& values,
   //   std::sort( derived.begin(), derived.end() );
   //   std::sort( base.begin(), base.end() );
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(perfSiStripFecKey);

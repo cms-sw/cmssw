@@ -75,6 +75,11 @@ private:
 
   std::unique_ptr<TreeMatrixCalib> myTree_;
 
+  edm::EDGetTokenT<EBRecHitCollection> tokEBRecHit_;
+  edm::EDGetTokenT<EcalTBHodoscopeRecInfo> tokEcalHodo_;
+  edm::EDGetTokenT<EcalTBTDCRecInfo> tokEcalTDC_;
+  edm::EDGetTokenT<EcalTBEventHeader> tokEventHeader_;
+
   int xtalInBeam_;
   int tot_events_;
   int tot_events_ok_;
@@ -112,6 +117,11 @@ TreeProducerCalibSimul::TreeProducerCalibSimul(const edm::ParameterSet& iConfig)
                              << tdcRecInfoProducer_.c_str();
   edm::LogVerbatim("GFlash") << "Fetching evHeaCollection: " << eventHeaderCollection_.c_str() << " prod by "
                              << eventHeaderProducer_.c_str() << "\n";
+
+  tokEBRecHit_ = consumes<EBRecHitCollection>(edm::InputTag(RecHitProducer_, EBRecHitCollection_));
+  tokEcalHodo_ = consumes<EcalTBHodoscopeRecInfo>(edm::InputTag(hodoRecInfoProducer_, hodoRecInfoCollection_));
+  tokEcalTDC_ = consumes<EcalTBTDCRecInfo>(edm::InputTag(tdcRecInfoProducer_, tdcRecInfoCollection_));
+  tokEventHeader_ = consumes<EcalTBEventHeader>(edm::InputTag(eventHeaderProducer_));
 }
 
 // ------------------------------------------------------
@@ -157,24 +167,16 @@ void TreeProducerCalibSimul::analyze(const edm::Event& iEvent, const edm::EventS
 
   // ---------------------------------------------------------------------
   // taking what I need: hits
-  edm::Handle<EBRecHitCollection> pEBRecHits;
-  iEvent.getByLabel(RecHitProducer_, EBRecHitCollection_, pEBRecHits);
-  const EBRecHitCollection* EBRecHits = pEBRecHits.product();
+  const EBRecHitCollection* EBRecHits = &iEvent.get(tokEBRecHit_);
 
   // taking what I need: hodoscopes
-  edm::Handle<EcalTBHodoscopeRecInfo> pHodo;
-  iEvent.getByLabel(hodoRecInfoProducer_, hodoRecInfoCollection_, pHodo);
-  const EcalTBHodoscopeRecInfo* recHodo = pHodo.product();
+  const EcalTBHodoscopeRecInfo* recHodo = &iEvent.get(tokEcalHodo_);
 
   // taking what I need: tdc
-  edm::Handle<EcalTBTDCRecInfo> pTDC;
-  iEvent.getByLabel(tdcRecInfoProducer_, tdcRecInfoCollection_, pTDC);
-  const EcalTBTDCRecInfo* recTDC = pTDC.product();
+  const EcalTBTDCRecInfo* recTDC = &iEvent.get(tokEcalTDC_);
 
   // taking what I need: event header
-  edm::Handle<EcalTBEventHeader> pEventHeader;
-  iEvent.getByLabel(eventHeaderProducer_, pEventHeader);
-  const EcalTBEventHeader* evtHeader = pEventHeader.product();
+  const EcalTBEventHeader* evtHeader = &iEvent.get(tokEventHeader_);
 
   // checking everything is there and fine
   if ((!EBRecHits) || (EBRecHits->size() == 0)) {

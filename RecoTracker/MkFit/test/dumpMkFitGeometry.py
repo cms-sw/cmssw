@@ -16,6 +16,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
 
+process.MessageLogger.cerr.threshold = "INFO"
+process.MessageLogger.cerr.MkFitGeometryESProducer = dict(limit=-1)
+
 process.source = cms.Source("EmptySource")
 process.maxEvents.input = 1
 

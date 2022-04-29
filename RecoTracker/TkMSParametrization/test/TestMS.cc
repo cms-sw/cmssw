@@ -1,6 +1,10 @@
+// system includes
+#include <iostream>
+
+// user includes
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -8,10 +12,8 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisationMaker.h"
-
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -20,28 +22,28 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-using namespace GeomDetEnumerators;
 
-#include <iostream>
-
-using namespace std;
-using namespace edm;
-
+// ROOT includes
 #include "TFile.h"
 #include "TH1D.h"
 #include "TProfile.h"
+
+using namespace GeomDetEnumerators;
+using namespace std;
+using namespace edm;
 
 template <class T>
 T sqr(T t) {
   return t * t;
 }
 
-class TestMS : public edm::EDAnalyzer {
+class TestMS : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit TestMS(const edm::ParameterSet& conf);
   ~TestMS();
   virtual void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
   virtual void analyze(const edm::Event& ev, const edm::EventSetup& es) override;
+  virtual void endRun(edm::Run const& run, const edm::EventSetup& es) override;
 
 private:
   edm::ESGetToken<GeometricSearchTracker, TrackerRecoGeometryRecord> trackerToken_;
@@ -74,6 +76,7 @@ TestMS::~TestMS() {
 }
 
 void TestMS::analyze(const edm::Event& ev, const edm::EventSetup& es) {}
+void TestMS::endRun(edm::Run const& run, const edm::EventSetup& es) {}
 
 void TestMS::beginRun(edm::Run const& run, const edm::EventSetup& es) {
   auto const& tracker = es.getData(trackerToken_);

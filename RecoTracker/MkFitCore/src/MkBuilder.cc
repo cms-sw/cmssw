@@ -6,6 +6,7 @@
 
 #include "RecoTracker/MkFitCore/interface/MkBuilder.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
+#include "RecoTracker/MkFitCore/interface/binnor.h"
 
 #include "Pool.h"
 #include "CandCloner.h"
@@ -16,8 +17,6 @@
 #ifdef MKFIT_STANDALONE
 #include "RecoTracker/MkFitCore/standalone/Event.h"
 #endif
-
-#include "Ice/IceRevisitedRadix.h"
 
 //#define DEBUG
 #include "Debug.h"
@@ -170,6 +169,26 @@ namespace mkfit {
 
   void MkBuilder::populate() { g_exe_ctx.populate(Config::numThreadsFinder); }
 
+  std::pair<int, int> MkBuilder::max_hits_layer(const EventOfHits &eoh) const {
+    int maxN = 0;
+    int maxL = 0;
+    for (int l = 0; l < eoh.nLayers(); ++l) {
+      int lsize = eoh[l].nHits();
+      if (lsize > maxN) {
+        maxN = lsize;
+        maxL = eoh[l].layer_id();
+      }
+    }
+    return {maxN, maxL};
+  }
+
+  int MkBuilder::total_cands() const {
+    int res = 0;
+    for (int i = 0; i < m_event_of_comb_cands.size(); ++i)
+      res += m_event_of_comb_cands[i].size();
+    return res;
+  }
+
   //------------------------------------------------------------------------------
   // Common functions
   //------------------------------------------------------------------------------
@@ -208,68 +227,75 @@ namespace mkfit {
     m_event_of_comb_cands.releaseMemory();
   }
 
-  void MkBuilder::import_seeds(const TrackVec &in_seeds, std::function<insert_seed_foo> insert_seed) {
+  void MkBuilder::import_seeds(const TrackVec &in_seeds,
+                               const bool seeds_sorted,
+                               std::function<insert_seed_foo> insert_seed) {
     // bool debug = true;
 
     const int size = in_seeds.size();
 
     IterationSeedPartition part(size);
+    std::vector<unsigned> ranks;
+    if (!seeds_sorted) {
+      // We don't care about bins in phi, use low N to reduce overall number of bins.
+      axis_pow2_u1<float, unsigned short, 10, 4> ax_phi(-Const::PI, Const::PI);
+      axis<float, unsigned short, 8, 8> ax_eta(-3.0, 3.0, 64u);
+      binnor<unsigned int, decltype(ax_phi), decltype(ax_eta), 20, 12> phi_eta_binnor(ax_phi, ax_eta);
+      part.m_phi_eta_foo = [&](float phi, float eta) { phi_eta_binnor.register_entry_safe(phi, eta); };
 
-    m_job->m_iter_config.m_partition_seeds(m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part);
-
-    RadixSort radix;
-    radix.Sort(&part.m_sort_score[0], size);
+      phi_eta_binnor.begin_registration(size);
+      m_job->m_iter_config.m_partition_seeds(m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part);
+      phi_eta_binnor.finalize_registration();
+      ranks.swap(phi_eta_binnor.m_ranks);
+    } else {
+      m_job->m_iter_config.m_partition_seeds(m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part);
+    }
 
     for (int i = 0; i < size; ++i) {
-      int j = radix.GetRanks()[i];
-
-      const Track &S = in_seeds[j];
-      HitOnTrack hot = S.getLastHitOnTrack();
-
+      int j = seeds_sorted ? i : ranks[i];
       int reg = part.m_region[j];
-
       ++m_seedEtaSeparators[reg];
+    }
 
+    // Sum up region counts to contain actual ending indices and prepare insertion cursors.
+    // Fix min/max layers.
+    std::vector<int> seed_cursors(m_job->num_regions());
+    for (int reg = 1; reg < m_job->num_regions(); ++reg) {
+      seed_cursors[reg] = m_seedEtaSeparators[reg - 1];
+      m_seedEtaSeparators[reg] += m_seedEtaSeparators[reg - 1];
+    }
+
+    // Actually imports seeds, detect last-hit layer range per region.
+    for (int i = 0; i < size; ++i) {
+      int j = seeds_sorted ? i : ranks[i];
+      int reg = part.m_region[j];
+      const Track &seed = in_seeds[j];
+      insert_seed(seed, reg, seed_cursors[reg]++);
+
+      HitOnTrack hot = seed.getLastHitOnTrack();
       m_seedMinLastLayer[reg] = std::min(m_seedMinLastLayer[reg], hot.layer);
       m_seedMaxLastLayer[reg] = std::max(m_seedMaxLastLayer[reg], hot.layer);
-
-      insert_seed(S, reg);
     }
 
     // Fix min/max layers
-    for (int i = 0; i < m_job->num_regions(); ++i) {
-      if (m_seedMinLastLayer[i] == 9999)
-        m_seedMinLastLayer[i] = -1;
-      if (m_seedMaxLastLayer[i] == 0)
-        m_seedMaxLastLayer[i] = -1;
+    for (int reg = 0; reg < m_job->num_regions(); ++reg) {
+      if (m_seedMinLastLayer[reg] == 9999)
+        m_seedMinLastLayer[reg] = -1;
+      if (m_seedMaxLastLayer[reg] == 0)
+        m_seedMaxLastLayer[reg] = -1;
     }
 
-    dprintf(
-        "MkBuilder::import_seeds finished import of %d seeds (last seeding layer min, max):\n"
-        "  ec- = %d(%d,%d), t- = %d(%d,%d), brl = %d(%d,%d), t+ = %d(%d,%d), ec+ = %d(%d,%d).\n",
-        size,
-        m_seedEtaSeparators[0],
-        m_seedMinLastLayer[0],
-        m_seedMaxLastLayer[0],
-        m_seedEtaSeparators[1],
-        m_seedMinLastLayer[1],
-        m_seedMaxLastLayer[1],
-        m_seedEtaSeparators[2],
-        m_seedMinLastLayer[2],
-        m_seedMaxLastLayer[2],
-        m_seedEtaSeparators[3],
-        m_seedMinLastLayer[3],
-        m_seedMaxLastLayer[3],
-        m_seedEtaSeparators[4],
-        m_seedMinLastLayer[4],
-        m_seedMaxLastLayer[4]);
-
-    // Sum up region counts to contain actual separator indices.
-    for (int i = 1; i < m_job->num_regions(); ++i) {
-      m_seedEtaSeparators[i] += m_seedEtaSeparators[i - 1];
-    }
-
+    // clang-format off
+    dprintf("MkBuilder::import_seeds finished import of %d seeds (last seeding layer min, max):\n"
+            "  ec- = %d(%d,%d), t- = %d(%d,%d), brl = %d(%d,%d), t+ = %d(%d,%d), ec+ = %d(%d,%d).\n",
+            size,
+            m_seedEtaSeparators[0],                          m_seedMinLastLayer[0], m_seedMaxLastLayer[0],
+            m_seedEtaSeparators[1] - m_seedEtaSeparators[0], m_seedMinLastLayer[1], m_seedMaxLastLayer[1],
+            m_seedEtaSeparators[2] - m_seedEtaSeparators[1], m_seedMinLastLayer[2], m_seedMaxLastLayer[2],
+            m_seedEtaSeparators[3] - m_seedEtaSeparators[2], m_seedMinLastLayer[3], m_seedMaxLastLayer[3],
+            m_seedEtaSeparators[4] - m_seedEtaSeparators[3], m_seedMinLastLayer[4], m_seedMaxLastLayer[4]);
     dcall(print_seeds(m_event_of_comb_cands));
+    // clang-format on
   }
 
   //------------------------------------------------------------------------------
@@ -328,21 +354,12 @@ namespace mkfit {
       gmin = std::max(gmin, min[reg]);
       gmax = std::max(gmax, max[reg]);
     }
-    printf(
-        "MkBuilder::find_min_max_hots_size MIN %3d -- [ %3d | %3d | %3d | %3d | %3d ]   MAX %3d -- [ %3d | %3d | %3d | "
-        "%3d | %3d ]\n",
-        gmin,
-        min[0],
-        min[1],
-        min[2],
-        min[3],
-        min[4],
-        gmax,
-        max[0],
-        max[1],
-        max[2],
-        max[3],
-        max[4]);
+    // clang-format off
+    printf("MkBuilder::find_min_max_hots_size MIN %3d -- [ %3d | %3d | %3d | %3d | %3d ]   "
+           "MAX %3d -- [ %3d | %3d | %3d | %3d | %3d ]\n",
+           gmin, min[0], min[1], min[2], min[3], min[4],
+           gmax, max[0], max[1], max[2], max[3], max[4]);
+    // clang-format on
   }
 
   void MkBuilder::select_best_comb_cands(bool clear_m_tracks, bool remove_missing_hits) {
@@ -428,16 +445,15 @@ namespace mkfit {
   // FindTracksBestHit
   //------------------------------------------------------------------------------
 
-  void MkBuilder::find_tracks_load_seeds_BH(const TrackVec &in_seeds) {
+  void MkBuilder::find_tracks_load_seeds_BH(const TrackVec &in_seeds, const bool seeds_sorted) {
     // bool debug = true;
     assert(!in_seeds.empty());
-    m_tracks.reserve(in_seeds.size());
-    m_tracks.clear();
+    m_tracks.resize(in_seeds.size());
 
-    import_seeds(in_seeds, [&](const Track &seed, int region) {
-      m_tracks.push_back(seed);
-      m_tracks.back().setNSeedHits(seed.nTotalHits());
-      m_tracks.back().setEtaRegion(region);
+    import_seeds(in_seeds, seeds_sorted, [&](const Track &seed, int region, int pos) {
+      m_tracks[pos] = seed;
+      m_tracks[pos].setNSeedHits(seed.nTotalHits());
+      m_tracks[pos].setEtaRegion(region);
     });
 
     //dump seeds
@@ -593,14 +609,16 @@ namespace mkfit {
   // FindTracksCombinatorial: Standard TBB and CloneEngine TBB
   //------------------------------------------------------------------------------
 
-  void MkBuilder::find_tracks_load_seeds(const TrackVec &in_seeds) {
+  void MkBuilder::find_tracks_load_seeds(const TrackVec &in_seeds, const bool seeds_sorted) {
     // This will sort seeds according to iteration configuration.
     assert(!in_seeds.empty());
     m_tracks.clear();  // m_tracks can be used for BkFit.
 
     m_event_of_comb_cands.reset((int)in_seeds.size(), m_job->max_max_cands());
 
-    import_seeds(in_seeds, [&](const Track &seed, int region) { m_event_of_comb_cands.insertSeed(seed, region); });
+    import_seeds(in_seeds, seeds_sorted, [&](const Track &seed, int region, int pos) {
+      m_event_of_comb_cands.insertSeed(seed, region, pos);
+    });
   }
 
   int MkBuilder::find_tracks_unroll_candidates(std::vector<std::pair<int, int>> &seed_cand_vec,
