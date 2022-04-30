@@ -202,12 +202,12 @@ void L1TGMT::analyze(const Event& e, const EventSetup& c) {
     //    if( (Ev - evnum_old_) == 1 && bxnum_old_ > -1 ) {
     // assume getting all events in a sequence (usefull only from reco data)
     if (bxnum_old_ > -1) {
-      int dBx = Bx - bxnum_old_ + 3564 * (e.orbitNumber() - obnum_old_);
+      float dBx = Bx - bxnum_old_ + 3564.0 * (e.orbitNumber() - obnum_old_);
       for (int id = 0; id < 4; id++) {
         if (trsrc_old_ & (1 << id)) {
           for (int i = 0; i < 4; i++) {
             if (nSUBS[i])
-              subs_dbx[i]->Fill(float(dBx), float(id));
+              subs_dbx[i]->Fill(dBx, float(id));
           }
         }
       }

@@ -279,7 +279,7 @@ if useLocalFiles :
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-process.GlobalTag.globaltag = useGlobalTag+'::All'
+process.GlobalTag.globaltag = useGlobalTag
 # FIXME remove when Global Tag OK
 process.load('L1Trigger.Configuration.L1Trigger_FakeConditions_cff')
 
