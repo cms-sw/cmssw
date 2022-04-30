@@ -48,7 +48,7 @@ public:
 
   /** Destructor
    */
-  ~EcalSimRawData() override{};
+  ~EcalSimRawData() override = default;
 
   /** Main method. Called back for each event. This method produced the
    * raw data and write them to disk.
@@ -307,7 +307,7 @@ private:
    * @param collName label of the EDM collection containing the TP.
    * @param tp [out] the trigger primitives
    */
-  void getTp(const edm::Event &event, const std::string &collName, int tp[nTtEta][nTtPhi]) const;
+  void getTp(const edm::Event &event, int type, int tp[nTtEta][nTtPhi]) const;
 
   /** Help function to get the file extension which depends on the output
    * formats.
@@ -440,4 +440,10 @@ private:
   /** basename for output files
    */
   std::string basename_;
+
+  edm::EDGetTokenT<EESrFlagCollection> eeSrFlagToken_;
+  edm::EDGetTokenT<EBSrFlagCollection> ebSrFlagToken_;
+  edm::EDGetTokenT<EBDigiCollection> ebDigisToken_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> trigPrimDigisToken_[2];
+
 };
