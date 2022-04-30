@@ -14,6 +14,21 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
+<library file="Pythia8HepMC3Hadronizer.cc,Py8toJetInput.cc,*Hook*.cc,LHA*.cc" name="GeneratorInterfacePythia8HepMC3Filters">
+  <use name="GeneratorInterface/PartonShowerVeto"/>
+  <use name="GeneratorInterface/ExternalDecays"/>
+  <use name="FWCore/Concurrency"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
+  <use name="GeneratorInterface/Core"/>
+  <use name="hepmc3"/>
+  <use name="pythia8"/>
+  <use name="SimDataFormats/GeneratorProducts"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
 <library file="Py*Gun.cc" name="GeneratorInterfacePythia8Guns">
   <use name="GeneratorInterface/ExternalDecays"/>
   <flags EDM_PLUGIN="1"/>
