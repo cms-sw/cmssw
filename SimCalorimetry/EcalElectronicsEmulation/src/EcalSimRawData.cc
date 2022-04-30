@@ -80,10 +80,10 @@ void EcalSimRawData::analyze(const edm::Event &event, const edm::EventSetup &es)
 
   if (xtalVerbose_ | tpVerbose_) {
     std::cout << "=================================================================="
-            "====\n"
-         << " Event " << iEvent << "\n"
-         << "------------------------------------------------------------------"
-            "----\n";
+                 "====\n"
+              << " Event " << iEvent << "\n"
+              << "------------------------------------------------------------------"
+                 "----\n";
   }
 
   if (fe2dcc_) {
@@ -146,8 +146,8 @@ void EcalSimRawData::fwrite(std::ofstream &f, uint16_t data, int &iWord, bool hp
       f.write(&c, sizeof(c));
     } break;
     case ascii:
-      f << ((iWord % 8 == 0 && iWord != 0) ? "\n" : "") << "0x" << std::setfill('0') << std::setw(4) << std::hex << data << "\t" << std::dec
-        << std::setfill(' ');
+      f << ((iWord % 8 == 0 && iWord != 0) ? "\n" : "") << "0x" << std::setfill('0') << std::setw(4) << std::hex << data
+        << "\t" << std::dec << std::setfill(' ');
       break;
   }
   ++iWord;
@@ -166,7 +166,9 @@ std::string EcalSimRawData::getExt() const {
   }
 }
 
-void EcalSimRawData::genFeData(std::string basename, int iEvent, const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const {
+void EcalSimRawData::genFeData(std::string basename,
+                               int iEvent,
+                               const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const {
   int smf = 0;
   int gmf = 0;
   int nPendingEvt = 0;
@@ -218,13 +220,13 @@ void EcalSimRawData::genFeData(std::string basename, int iEvent, const std::vect
               elec2GeomNum(iTtEta0, iTtPhi0, stripId1, xtalId1, iEta0, iPhi0);
               if (xtalVerbose_) {
                 std::cout << std::dec << "iDcc1 = " << iDcc1 << "\t"
-                     << "iEbTtEta0 = " << iTtEta0 << "\t"
-                     << "iEbTtPhi0 = " << iTtPhi0 << "\t"
-                     << "stripId1 = " << stripId1 << "\t"
-                     << "xtalId1 = " << xtalId1 << "\t"
-                     << "iEta0 = " << iEta0 << "\t"
-                     << "iPhi0 = " << iPhi0 << "\t"
-                     << "adc[5] = 0x" << std::hex << adcCount[iEta0][iPhi0][5] << std::dec << "\n";
+                          << "iEbTtEta0 = " << iTtEta0 << "\t"
+                          << "iEbTtPhi0 = " << iTtPhi0 << "\t"
+                          << "stripId1 = " << stripId1 << "\t"
+                          << "xtalId1 = " << xtalId1 << "\t"
+                          << "iEta0 = " << iEta0 << "\t"
+                          << "iPhi0 = " << iPhi0 << "\t"
+                          << "adc[5] = 0x" << std::hex << adcCount[iEta0][iPhi0][5] << std::dec << "\n";
               }
 
               const std::vector<uint16_t> &adc = adcCount[iEta0][iPhi0];
@@ -336,13 +338,15 @@ void EcalSimRawData::genTccIn(std::string basename, int iEvent, const int tcp[nT
 
           if (tpVerbose_ && tp_fe2tcc != 0) {
             std::cout << std::dec << "iTcc1 = " << iTcc1 << "\t"
-                 << "iTtEta0 = " << iTtEta0 << "\t"
-                 << "iTtPhi0 = " << iTtPhi0 << "\t"
-                 << "iCh1 = " << iCh1 << "\t"
-                 << "memPos = " << memPos << "\t"
-                 << "tp = 0x" << std::setfill('0') << std::hex << std::setw(3) << tp_fe2tcc << std::dec << std::setfill(' ') << "\n";
+                      << "iTtEta0 = " << iTtEta0 << "\t"
+                      << "iTtPhi0 = " << iTtPhi0 << "\t"
+                      << "iCh1 = " << iCh1 << "\t"
+                      << "memPos = " << memPos << "\t"
+                      << "tp = 0x" << std::setfill('0') << std::hex << std::setw(3) << tp_fe2tcc << std::dec
+                      << std::setfill(' ') << "\n";
           }
-          fe2tcc << iCh1 << "\t" << memPos << "\t" << std::setfill('0') << std::hex << "0x" << std::setw(4) << tp_fe2tcc << "\t"
+          fe2tcc << iCh1 << "\t" << memPos << "\t" << std::setfill('0') << std::hex << "0x" << std::setw(4) << tp_fe2tcc
+                 << "\t"
                  << "0" << std::dec << std::setfill(' ') << "\n";
           ++iCh1;
         }  // next TT along phi
@@ -400,11 +404,11 @@ void EcalSimRawData::genTccOut(std::string basename, int iEvent, const int tps[n
 
           if (tpVerbose_) {
             std::cout << std::dec << "iTcc1 = " << iTcc1 << "\t"
-                 << "iTtEta0 = " << iTtEta0 << "\t"
-                 << "iTtPhi0 = " << iTtPhi0 << "\t"
-                 << "iCh1 = " << iCh1 << "\t"
-                 << "memPos = " << memPos << "\t"
-                 << "tp = 0x" << std::hex << tps[iTtEta0][iTtPhi0] << std::dec << "\n";
+                      << "iTtEta0 = " << iTtEta0 << "\t"
+                      << "iTtPhi0 = " << iTtPhi0 << "\t"
+                      << "iCh1 = " << iCh1 << "\t"
+                      << "memPos = " << memPos << "\t"
+                      << "tp = 0x" << std::hex << tps[iTtEta0][iTtPhi0] << std::dec << "\n";
           }
           fwrite(dccF, tps[iTtEta0][iTtPhi0], iDccWord, false);
           ++iCh1;
@@ -429,7 +433,7 @@ void EcalSimRawData::getSrfs(const edm::Event &event,
                              int ebSrf[nTtEta][nTtPhi],
                              int eeSrf[nEndcaps][nScX][nScY]) const {
   // EE
-  const auto & hEeSrFlags = event.getHandle(eeSrFlagToken_);
+  const auto &hEeSrFlags = event.getHandle(eeSrFlagToken_);
   for (size_t i = 0; i < (nEndcaps * nScX * nScY); ((int *)eeSrf)[i++] = -1) {
   };
   if (hEeSrFlags.isValid()) {
@@ -444,11 +448,12 @@ void EcalSimRawData::getSrfs(const edm::Event &event,
       eeSrf[iZ0][iX0][iY0] = flag.value();
     }
   } else {
-    edm::LogWarning("EcalSimRawData") << "EE SR flag not found (Product label: " << srDigiProducer_ << "Producet instance: " << eeSrFlagCollection_ << ")";
+    edm::LogWarning("EcalSimRawData") << "EE SR flag not found (Product label: " << srDigiProducer_
+                                      << "Producet instance: " << eeSrFlagCollection_ << ")";
   }
 
   // EB
-  const auto& hEbSrFlags = event.getHandle(ebSrFlagToken_);
+  const auto &hEbSrFlags = event.getHandle(ebSrFlagToken_);
   for (size_t i = 0; i < (nTtEta * nTtPhi); ((int *)ebSrf)[i++] = -1) {
   };
   if (hEbSrFlags.isValid()) {
@@ -465,12 +470,13 @@ void EcalSimRawData::getSrfs(const edm::Event &event,
       ebSrf[iEbEta0][iPhi0] = flag.value();
     }
   } else {
-    edm::LogWarning("EcalSimRawData") << "EB SR flag not found (Product label: " << srDigiProducer_ << "Producet instance: " << ebSrFlagCollection_ << ")";
+    edm::LogWarning("EcalSimRawData") << "EB SR flag not found (Product label: " << srDigiProducer_
+                                      << "Producet instance: " << ebSrFlagCollection_ << ")";
   }
 }
 
 void EcalSimRawData::getEbDigi(const edm::Event &event, std::vector<uint16_t> adc[nEbEta][nEbPhi]) const {
-  const auto & hEbDigis = event.getHandle(ebDigisToken_);
+  const auto &hEbDigis = event.getHandle(ebDigisToken_);
 
   int nSamples = 0;
   if (hEbDigis.isValid() && !hEbDigis->empty()) {  // there is at least one digi
@@ -501,11 +507,11 @@ void EcalSimRawData::getEbDigi(const edm::Event &event, std::vector<uint16_t> ad
 
       if (iEta0 < 0 || iEta0 >= nEbEta) {
         std::cout << "iEta0 (= " << iEta0 << ") is out of range ("
-             << "[0," << nEbEta - 1 << "])\n";
+                  << "[0," << nEbEta - 1 << "])\n";
       }
       if (iPhi0 < 0 || iPhi0 >= nEbPhi) {
         std::cout << "iPhi0 (= " << iPhi0 << ") is out of range ("
-             << "[0," << nEbPhi - 1 << "])\n";
+                  << "[0," << nEbPhi - 1 << "])\n";
       }
 
       if (xtalVerbose_) {
@@ -536,7 +542,7 @@ void EcalSimRawData::getEbDigi(const edm::Event &event, std::vector<uint16_t> ad
 }
 
 void EcalSimRawData::getTp(const edm::Event &event, int type, int tcp[nTtEta][nTtPhi]) const {
-  const auto & hTpDigis = event.getHandle(trigPrimDigisToken_[type]);
+  const auto &hTpDigis = event.getHandle(trigPrimDigisToken_[type]);
   if (hTpDigis.isValid() && !hTpDigis->empty()) {
     const EcalTrigPrimDigiCollection &tpDigis = *hTpDigis.product();
 
@@ -555,22 +561,23 @@ void EcalSimRawData::getTp(const edm::Event &event, int type, int tcp[nTtEta][nT
       int iTtPhi0 = iTtPhi2cIndex(tp.id().iphi());
       if (iTtEta0 < 0 || iTtEta0 >= nTtEta) {
         std::cout << "iTtEta0 (= " << iTtEta0 << ") is out of range ("
-             << "[0," << nEbTtEta - 1 << "])\n";
+                  << "[0," << nEbTtEta - 1 << "])\n";
       }
       if (iTtPhi0 < 0 || iTtPhi0 >= nTtPhi) {
         std::cout << "iTtPhi0 (= " << iTtPhi0 << ") is out of range ("
-             << "[0," << nTtPhi - 1 << "])\n";
+                  << "[0," << nTtPhi - 1 << "])\n";
       }
 
       tcp[iTtEta0][iTtPhi0] = tp[tp.sampleOfInterest()].raw();
 
       if (tpVerbose_) {
         if (tcp[iTtEta0][iTtPhi0] != 0) {  // print non-zero values only
-	  std::string collName = (type == 0) ? tcpDigiCollection_ : tpDigiCollection_;
-          std::cout << collName << (collName.empty() ? "" : " ") << "TP(" << std::setw(2) << iTtEta0 << "," << iTtPhi0 << ") = "
-               << "0x" << std::setw(4) << tcp[iTtEta0][iTtPhi0] << "\tcmssw indices: " << tp.id().ieta() << " "
-               << tp.id().iphi() << "\n";
-	}
+          std::string collName = (type == 0) ? tcpDigiCollection_ : tpDigiCollection_;
+          std::cout << collName << (collName.empty() ? "" : " ") << "TP(" << std::setw(2) << iTtEta0 << "," << iTtPhi0
+                    << ") = "
+                    << "0x" << std::setw(4) << tcp[iTtEta0][iTtPhi0] << "\tcmssw indices: " << tp.id().ieta() << " "
+                    << tp.id().iphi() << "\n";
+        }
       }
     }  // next TP
     if (tpVerbose_)

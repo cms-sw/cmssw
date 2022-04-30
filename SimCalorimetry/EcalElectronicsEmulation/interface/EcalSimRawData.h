@@ -445,5 +445,4 @@ private:
   edm::EDGetTokenT<EBSrFlagCollection> ebSrFlagToken_;
   edm::EDGetTokenT<EBDigiCollection> ebDigisToken_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> trigPrimDigisToken_[2];
-
 };
