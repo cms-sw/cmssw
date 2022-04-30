@@ -23,7 +23,7 @@ Idx == -2 : Track has reached maximum number of holes/misses (-1).
 
 Idx == -3 : Track not in sensitive region of detector, does not count towards efficiency.
 
-Idx == -4 : ??
+Idx == -5 : Dummy hit to mark hits with cluster size > maxClusterSize
 
 Idx == -7 : Dummy hit to mark the location of an inactive module
 
