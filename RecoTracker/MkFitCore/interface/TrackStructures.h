@@ -473,7 +473,8 @@ namespace mkfit {
     while (--nh >= 0) {
       const HoTNode& hot_node = m_comb_candidate->hot_node(ch);
       int thisL = hot_node.m_hot.layer;
-      if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == -9) && thisL != prevL) {
+      if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == Hit::kHitCCCFilterIdx) &&
+          thisL != prevL) {
         ++nUL;
         prevL = thisL;
       }
@@ -492,7 +493,7 @@ namespace mkfit {
     while (--nh >= 0) {
       const HoTNode& hot_node = m_comb_candidate->hot_node(ch);
       int thisL = hot_node.m_hot.layer;
-      if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == -9)) {
+      if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == Hit::kHitCCCFilterIdx)) {
         if (trk_inf[thisL].is_pixel())
           ++pix;
         else if (trk_inf[thisL].is_stereo()) {
@@ -524,7 +525,8 @@ namespace mkfit {
     while (--nh >= 0) {
       const HoTNode& hot_node = m_comb_candidate->hot_node(ch);
       int thisL = hot_node.m_hot.layer;
-      if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == -9) && thisL != prevL) {
+      if (thisL >= 0 && (hot_node.m_hot.index >= 0 || hot_node.m_hot.index == Hit::kHitCCCFilterIdx) &&
+          thisL != prevL) {
         if (trk_inf[thisL].is_pixel())
           ++pix;
         else if (trk_inf[thisL].is_stereo())
@@ -552,7 +554,7 @@ namespace mkfit {
   inline void TrackCand::addHitIdx(int hitIdx, int hitLyr, float chi2) {
     lastHitIdx_ = m_comb_candidate->addHit({hitIdx, hitLyr}, chi2, lastHitIdx_);
 
-    if (hitIdx >= 0 || hitIdx == -9) {
+    if (hitIdx >= 0 || hitIdx == Hit::kHitCCCFilterIdx) {
       ++nFoundHits_;
       chi2_ += chi2;
       nInsideMinusOneHits_ += nTailMinusOneHits_;
@@ -561,7 +563,7 @@ namespace mkfit {
     //Note that for tracks passing through an inactive module (hitIdx = -7), we do not count the -7 hit against the track when scoring.
     else {
       ++nMissingHits_;
-      if (hitIdx == -1)
+      if (hitIdx == Hit::kHitMissIdx)
         ++nTailMinusOneHits_;
     }
   }
