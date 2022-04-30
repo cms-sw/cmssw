@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 # standard includes
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = "IDEAL_30X::All"
+process.GlobalTag.globaltag = "IDEAL_30X"
 
 
 # unpack raw data
