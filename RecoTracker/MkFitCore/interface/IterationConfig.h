@@ -115,6 +115,9 @@ namespace mkfit {
 
     //min pT cut
     float minPtCut = 0.0;
+
+    //max cluster size cut for SiStrip hits
+    unsigned int maxClusterSize = 8;
   };
 
   //==============================================================================

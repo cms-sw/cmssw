@@ -751,16 +751,16 @@ namespace mkfit {
 
         add_hit(itrack, bestHit[itrack], layer_of_hits.layer_id());
       } else {
-        int fake_hit_idx = -1;
+        int fake_hit_idx = Hit::kHitMissIdx;
 
         if (m_XWsrResult[itrack].m_wsr == WSR_Edge) {
           // YYYYYY Config::store_missed_layers
-          fake_hit_idx = -3;
+          fake_hit_idx = Hit::kHitEdgeIdx;
         } else if (num_all_minus_one_hits(itrack)) {
-          fake_hit_idx = -2;
+          fake_hit_idx = Hit::kHitStopIdx;
         }
 
-        dprint("ADD FAKE HIT FOR TRACK #" << itrack << " withinBounds=" << (fake_hit_idx != -3)
+        dprint("ADD FAKE HIT FOR TRACK #" << itrack << " withinBounds=" << (fake_hit_idx != Hit::kHitEdgeIdx)
                                           << " r=" << std::hypot(m_Par[iP](itrack, 0, 0), m_Par[iP](itrack, 1, 0)));
 
         m_msErr.setDiagonal3x3(itrack, 666);
@@ -883,7 +883,9 @@ namespace mkfit {
     }
 
     dprintf("FindCandidates max hits to process=%d\n", maxSize);
+
     int nHitsAdded[NN]{};
+    bool isTooLargeCluster[NN]{false};
 
     for (int hit_cnt = 0; hit_cnt < maxSize; ++hit_cnt) {
       mhp.reset();
@@ -939,6 +941,15 @@ namespace mkfit {
               isCompatible &= passStripChargePCMfromTrack(
                   itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
             }
+            // Select only SiStrip hits with cluster size < maxClusterSize
+            if (!layer_of_hits.is_pixel()) {
+              if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+                  m_iteration_params->maxClusterSize) {
+                isTooLargeCluster[itrack] = true;
+                isCompatible = false;
+              }
+            }
+
             if (isCompatible) {
               oneCandPassCut = true;
               break;
@@ -968,7 +979,7 @@ namespace mkfit {
                                    << "   updated track parameters x=" << m_Par[iC].constAt(0, 0, 0)
                                    << " y=" << m_Par[iC].constAt(0, 1, 0));
 
-        //create candidate with hit in case chi2 < m_iteration_params->chi2Cut_min
+        //create candidate with hit in case chi2 < max_c2
         //fixme: please vectorize me... (not sure it's possible in this case)
         for (int itrack = 0; itrack < N_proc; ++itrack) {
           float max_c2 = getHitSelDynamicChi2Cut(itrack, iP);
@@ -987,6 +998,13 @@ namespace mkfit {
                 isCompatible &= passStripChargePCMfromTrack(
                     itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
               }
+              // Select only SiStrip hits with cluster size < maxClusterSize
+              if (!layer_of_hits.is_pixel()) {
+                if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+                    m_iteration_params->maxClusterSize)
+                  isCompatible = false;
+              }
+
               if (isCompatible) {
                 bool hitExists = false;
                 int maxHits = m_NFoundHits(itrack, 0, 0);
@@ -1048,19 +1066,23 @@ namespace mkfit {
 
       int fake_hit_idx = ((num_all_minus_one_hits(itrack) < m_iteration_params->maxHolesPerCand) &&
                           (m_NTailMinusOneHits(itrack, 0, 0) < m_iteration_params->maxConsecHoles))
-                             ? -1
-                             : -2;
+                             ? Hit::kHitMissIdx
+                             : Hit::kHitStopIdx;
 
       if (m_XWsrResult[itrack].m_wsr == WSR_Edge) {
         // YYYYYY m_iteration_params->store_missed_layers
-        fake_hit_idx = -3;
+        fake_hit_idx = Hit::kHitEdgeIdx;
       }
       //now add fake hit for tracks that passsed through inactive modules
       else if (m_XWsrResult[itrack].m_in_gap == true && nHitsAdded[itrack] == 0) {
-        fake_hit_idx = -7;
+        fake_hit_idx = Hit::kHitInGapIdx;
+      }
+      //now add fake hit for cases where hit cluster size is larger than maxClusterSize
+      else if (isTooLargeCluster[itrack] == true && nHitsAdded[itrack] == 0) {
+        fake_hit_idx = Hit::kHitMaxClusterIdx;
       }
 
-      dprint("ADD FAKE HIT FOR TRACK #" << itrack << " withinBounds=" << (fake_hit_idx != -3)
+      dprint("ADD FAKE HIT FOR TRACK #" << itrack << " withinBounds=" << (fake_hit_idx != Hit::kHitEdgeIdx)
                                         << " r=" << std::hypot(m_Par[iP](itrack, 0, 0), m_Par[iP](itrack, 1, 0)));
 
       // QQQ as above, only create and add if score better
@@ -1100,7 +1122,9 @@ namespace mkfit {
     }
 
     dprintf("FindCandidatesCloneEngine max hits to process=%d\n", maxSize);
+
     int nHitsAdded[NN]{};
+    bool isTooLargeCluster[NN]{false};
 
     for (int hit_cnt = 0; hit_cnt < maxSize; ++hit_cnt) {
       mhp.reset();
@@ -1153,6 +1177,15 @@ namespace mkfit {
               //rescale strip charge to track parameters and reapply the cut
               isCompatible &= passStripChargePCMfromTrack(
                   itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
+            }
+
+            // Select only SiStrip hits with cluster size < maxClusterSize
+            if (!layer_of_hits.is_pixel()) {
+              if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+                  m_iteration_params->maxClusterSize) {
+                isTooLargeCluster[itrack] = true;
+                isCompatible = false;
+              }
             }
 
             if (isCompatible) {
@@ -1218,15 +1251,19 @@ namespace mkfit {
       // int fake_hit_idx = num_all_minus_one_hits(itrack) < m_iteration_params->maxHolesPerCand ? -1 : -2;
       int fake_hit_idx = ((num_all_minus_one_hits(itrack) < m_iteration_params->maxHolesPerCand) &&
                           (m_NTailMinusOneHits(itrack, 0, 0) < m_iteration_params->maxConsecHoles))
-                             ? -1
-                             : -2;
+                             ? Hit::kHitMissIdx
+                             : Hit::kHitStopIdx;
 
       if (m_XWsrResult[itrack].m_wsr == WSR_Edge) {
-        fake_hit_idx = -3;
+        fake_hit_idx = Hit::kHitEdgeIdx;
       }
       //now add fake hit for tracks that passsed through inactive modules
       else if (m_XWsrResult[itrack].m_in_gap == true && nHitsAdded[itrack] == 0) {
-        fake_hit_idx = -7;
+        fake_hit_idx = Hit::kHitInGapIdx;
+      }
+      //now add fake hit for cases where hit cluster size is larger than maxClusterSize
+      else if (isTooLargeCluster[itrack] == true && nHitsAdded[itrack] == 0) {
+        fake_hit_idx = Hit::kHitMaxClusterIdx;
       }
 
       IdxChi2List tmpList;
@@ -1234,8 +1271,8 @@ namespace mkfit {
       tmpList.hitIdx = fake_hit_idx;
       tmpList.module = -1;
       tmpList.nhits = m_NFoundHits(itrack, 0, 0);
-      tmpList.ntailholes =
-          (fake_hit_idx == -1 ? m_NTailMinusOneHits(itrack, 0, 0) + 1 : m_NTailMinusOneHits(itrack, 0, 0));
+      tmpList.ntailholes = (fake_hit_idx == Hit::kHitMissIdx ? m_NTailMinusOneHits(itrack, 0, 0) + 1
+                                                             : m_NTailMinusOneHits(itrack, 0, 0));
       tmpList.noverlaps = m_NOverlapHits(itrack, 0, 0);
       tmpList.nholes = num_inside_minus_one_hits(itrack);
       tmpList.pt = std::abs(1.0f / m_Par[iP].At(itrack, 3, 0));
