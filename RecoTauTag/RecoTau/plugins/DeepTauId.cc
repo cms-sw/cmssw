@@ -211,6 +211,7 @@ namespace {
         leadChargedCand_etaAtEcalEntrance_minus_tau_eta,
         NumberOfInputs
       };
+      std::vector<int> varsToDrop = {tau_phi, tau_dxy_pca_x, tau_dxy_pca_y, tau_dxy_pca_z}; // indices of vars to be dropped in the full var enum 
     }
 
     namespace EgammaBlockInputs {
@@ -1220,27 +1221,27 @@ public:
         throw cms::Exception("DeepTauId")
             << "number of inputs does not match the expected inputs for the given version";
     } else if (version_ == 2) {
-        using namespace dnn_inputs_v2::TauBlockInputs;
-        tauBlockTensor_indices_.resize(NumberOfInputs);
+        using namespace dnn_inputs_v2;
+        tauBlockTensor_indices_.resize(TauBlockInputs::NumberOfInputs);
         std::iota(std::begin(tauBlockTensor_indices_), std::end(tauBlockTensor_indices_), 0);
         
         if (sub_version_ == 1)
         {
           tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
-            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, NumberOfInputs});
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, TauBlockInputs::NumberOfInputs});
         }
         else if (sub_version_ == 5)
-        {
-          std::vector<int> varsToDrop{tau_phi, tau_dxy_pca_x, tau_dxy_pca_y, tau_dxy_pca_z}; // indices of vars to be dropped in the full var enum 
-          std::sort(varsToDrop.begin(), varsToDrop.end());
-          for(auto v: varsToDrop)
+        { 
+          std::sort(TauBlockInputs::varsToDrop.begin(), TauBlockInputs::varsToDrop.end());
+          for(auto v: TauBlockInputs::varsToDrop)
           {
             tauBlockTensor_indices_.at(v) = -1; // set index to -1
-            for(std::size_t i = v+1; i < NumberOfInputs; ++i)
+            for(std::size_t i = v+1; i < TauBlockInputs::NumberOfInputs; ++i)
               tauBlockTensor_indices_.at(i) -= 1; // shift all the following indices by 1
           }
           tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
-            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, static_cast<int>(NumberOfInputs)-static_cast<int>(varsToDrop.size())});
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, static_cast<int>(TauBlockInputs::NumberOfInputs) 
+                                                             - static_cast<int>(TauBlockInputs::varsToDrop.size())});
         }
         else
           throw cms::Exception("DeepTauId") << "subversion " << sub_version_ << " is not supported.";
