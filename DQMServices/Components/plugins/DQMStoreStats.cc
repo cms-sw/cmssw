@@ -257,6 +257,12 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
                      getEmptyMetric(it->getTH1D()->GetArray(), it->getTH1D()->fN, 0, 0),
                      it->getNbinsX() * sizeof(double));
         break;
+      case MonitorElement::Kind::TH1I:
+        currentSubfolder.AddBinsI(it->getNbinsX(), getEmptyMetric(it->getTH1I()->GetArray(), it->getTH1I()->fN, 0, 0));
+        curr->update(it->getNbinsX(),
+                     getEmptyMetric(it->getTH1I()->GetArray(), it->getTH1I()->fN, 0, 0),
+                     it->getNbinsX() * sizeof(int));
+        break;
       case MonitorElement::Kind::TPROFILE:
         currentSubfolder.AddBinsD(it->getNbinsX(),
                                   getEmptyMetric(it->getTProfile()->GetArray(), it->getTProfile()->fN, 0, 0));
@@ -289,6 +295,14 @@ int DQMStoreStats::calcstats(int mode = DQMStoreStats::considerAllME) {
         curr->update(it->getNbinsX() * it->getNbinsY(),
                      getEmptyMetric(it->getTH2D()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0),
                      it->getNbinsX() * it->getNbinsY() * sizeof(double));
+        break;
+      case MonitorElement::Kind::TH2I:
+        currentSubfolder.AddBinsI(
+            it->getNbinsX() * it->getNbinsY(),
+            getEmptyMetric(it->getTH2I()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0));
+        curr->update(it->getNbinsX() * it->getNbinsY(),
+                     getEmptyMetric(it->getTH2I()->GetArray(), it->getNbinsX() + 2, it->getNbinsY() + 2, 0),
+                     it->getNbinsX() * it->getNbinsY() * sizeof(int));
         break;
       case MonitorElement::Kind::TPROFILE2D:
         currentSubfolder.AddBinsD(
