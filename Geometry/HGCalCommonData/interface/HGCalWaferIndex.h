@@ -10,7 +10,7 @@ namespace HGCalWaferIndex {
   // Unpacks the layer number from the packed index
   int32_t waferLayer(const int32_t index);
   // Unpacks wafer U from the packed index
-  int32_t waferU(const int32_t index); 
+  int32_t waferU(const int32_t index);
   // Unpacks wafer V from the packed index
   int32_t waferV(const int32_t index);
   // Gets the used part of the index (Layer:u:v)

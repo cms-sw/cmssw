@@ -35,8 +35,15 @@ public:
                                          const int& mode,
                                          bool debug = false);
   // Checks partial wafer type and orientation (for V15, V16)
-  static bool goodTypeMode(
-      double xpos, double ypos, double delX, double delY, double rin, double rout, int part, int rotn, bool debug = false);
+  static bool goodTypeMode(double xpos,
+                           double ypos,
+                           double delX,
+                           double delY,
+                           double rin,
+                           double rout,
+                           int part,
+                           int rotn,
+                           bool debug = false);
   // Gets the corners of the partial wafers from its type, orientation, zside
   // (Good for V15, V16 geometries)
   static std::vector<std::pair<double, double> > waferXY(
