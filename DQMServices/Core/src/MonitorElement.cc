@@ -195,6 +195,8 @@ namespace dqm::impl {
       accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(x, 1);
     else if (kind() == Kind::TH1S)
       accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(x, 1);
+    else if (kind() == Kind::TH1I)
+      accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(x, 1);
     else if (kind() == Kind::TH1D)
       accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(x, 1);
     else
@@ -229,12 +231,16 @@ namespace dqm::impl {
       accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(x, yw);
     else if (kind() == Kind::TH1D)
       accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(x, yw);
+    else if (kind() == Kind::TH1I)
+      accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(x, yw);
     else if (kind() == Kind::TH2F)
       static_cast<TH2F *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
     else if (kind() == Kind::TH2S)
       static_cast<TH2S *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
     else if (kind() == Kind::TH2D)
       static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
+    else if (kind() == Kind::TH2I)
+      static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, yw, 1);
     else if (kind() == Kind::TPROFILE)
       static_cast<TProfile *>(accessRootObject(access, __PRETTY_FUNCTION__, 1))->Fill(x, yw, 1);
     else
@@ -248,7 +254,7 @@ namespace dqm::impl {
     // TODO: this should take the lock only once to be actually safe.
     // But since it is not const, we don't even claim it is thread-safe.
     update();
-    if (kind() == Kind::TH1F || kind() == Kind::TH1S || kind() == Kind::TH1D) {
+    if (kind() == Kind::TH1F || kind() == Kind::TH1S || kind() == Kind::TH1D || kind() == Kind::TH1I) {
       int nbins = getNbinsX();
       auto entries = (int)getEntries();
       // first fill bins from left to right
@@ -986,6 +992,12 @@ namespace dqm::impl {
     return static_cast<TH1S *>(accessRootObject(access, __PRETTY_FUNCTION__, 1));
   }
 
+  TH1I *MonitorElement::getTH1I() {
+    auto access = this->accessMut();
+    assert(kind() == Kind::TH1I);
+    return static_cast<TH1I *>(accessRootObject(access, __PRETTY_FUNCTION__, 1));
+  }
+
   TH1D *MonitorElement::getTH1D() {
     auto access = this->accessMut();
     assert(kind() == Kind::TH1D);
@@ -1002,6 +1014,12 @@ namespace dqm::impl {
     auto access = this->accessMut();
     assert(kind() == Kind::TH2S);
     return static_cast<TH2S *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
+  }
+
+  TH2I *MonitorElement::getTH2I() {
+    auto access = this->accessMut();
+    assert(kind() == Kind::TH2I);
+    return static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2));
   }
 
   TH2D *MonitorElement::getTH2D() {
