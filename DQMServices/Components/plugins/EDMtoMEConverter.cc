@@ -87,6 +87,14 @@ namespace {
     }
   };
   template <>
+  struct HistoTraits<TH1I> {
+    static TH1I *get(MonitorElement *me) { return me->getTH1I(); }
+    template <typename... Args>
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
+      return iBooker.book1I(std::forward<Args>(args)...);
+    }
+  };
+  template <>
   struct HistoTraits<TH2F> {
     static TH2F *get(MonitorElement *me) { return me->getTH2F(); }
     template <typename... Args>
@@ -108,6 +116,14 @@ namespace {
     template <typename... Args>
     static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book2DD(std::forward<Args>(args)...);
+    }
+  };
+  template <>
+  struct HistoTraits<TH2I> {
+    static TH2I *get(MonitorElement *me) { return me->getTH2I(); }
+    template <typename... Args>
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
+      return iBooker.book2I(std::forward<Args>(args)...);
     }
   };
   template <>

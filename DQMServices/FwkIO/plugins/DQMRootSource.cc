@@ -450,9 +450,11 @@ DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSou
     m_treeReaders[kTH1FIndex].reset(new TreeObjectReader<TH1F>(MonitorElementData::Kind::TH1F, m_rescope));
     m_treeReaders[kTH1SIndex].reset(new TreeObjectReader<TH1S>(MonitorElementData::Kind::TH1S, m_rescope));
     m_treeReaders[kTH1DIndex].reset(new TreeObjectReader<TH1D>(MonitorElementData::Kind::TH1D, m_rescope));
+    m_treeReaders[kTH1IIndex].reset(new TreeObjectReader<TH1I>(MonitorElementData::Kind::TH1I, m_rescope));
     m_treeReaders[kTH2FIndex].reset(new TreeObjectReader<TH2F>(MonitorElementData::Kind::TH2F, m_rescope));
     m_treeReaders[kTH2SIndex].reset(new TreeObjectReader<TH2S>(MonitorElementData::Kind::TH2S, m_rescope));
     m_treeReaders[kTH2DIndex].reset(new TreeObjectReader<TH2D>(MonitorElementData::Kind::TH2D, m_rescope));
+    m_treeReaders[kTH2IIndex].reset(new TreeObjectReader<TH2I>(MonitorElementData::Kind::TH2I, m_rescope));
     m_treeReaders[kTH3FIndex].reset(new TreeObjectReader<TH3F>(MonitorElementData::Kind::TH3F, m_rescope));
     m_treeReaders[kTProfileIndex].reset(new TreeObjectReader<TProfile>(MonitorElementData::Kind::TPROFILE, m_rescope));
     m_treeReaders[kTProfile2DIndex].reset(

@@ -16,8 +16,10 @@
 #include "TH1F.h"
 #include "TH1S.h"
 #include "TH1D.h"
+#include "TH1I.h"
 #include "TH2F.h"
 #include "TH2S.h"
+#include "TH2I.h"
 #include "TH2D.h"
 #include "TH3F.h"
 #include "TProfile.h"
@@ -436,8 +438,10 @@ namespace dqm::impl {
     virtual TH1F *getTH1F();
     virtual TH1S *getTH1S();
     virtual TH1D *getTH1D();
+    virtual TH1I *getTH1I();
     virtual TH2F *getTH2F();
     virtual TH2S *getTH2S();
+    virtual TH2I *getTH2I();
     virtual TH2D *getTH2D();
     virtual TH3F *getTH3F();
     virtual TProfile *getTProfile();
@@ -487,6 +491,10 @@ namespace dqm::legacy {
     virtual TH1D *getTH1D() const {
       return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH1D();
     };
+    using dqm::reco::MonitorElement::getTH1I;
+    virtual TH1I *getTH1I() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH1I();
+    };
     using dqm::reco::MonitorElement::getTH2F;
     virtual TH2F *getTH2F() const {
       return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2F();
@@ -494,6 +502,10 @@ namespace dqm::legacy {
     using dqm::reco::MonitorElement::getTH2S;
     virtual TH2S *getTH2S() const {
       return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2S();
+    };
+    using dqm::reco::MonitorElement::getTH2I;
+    virtual TH2I *getTH2I() const {
+      return const_cast<dqm::legacy::MonitorElement *>(this)->dqm::reco::MonitorElement::getTH2I();
     };
     using dqm::reco::MonitorElement::getTH2D;
     virtual TH2D *getTH2D() const {

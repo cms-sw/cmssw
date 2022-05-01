@@ -69,6 +69,12 @@ public:
     totalEmptyBins_ += nEmptyBins;
     totalMemory_ += (nBins *= sizeof(double));
   }
+  void AddBinsI(unsigned int nBins, unsigned int nEmptyBins) {
+    ++totalHistos_;
+    totalBins_ += nBins;
+    totalEmptyBins_ += nEmptyBins;
+    totalMemory_ += (nBins *= sizeof(int));
+  }
 };
 
 ///
