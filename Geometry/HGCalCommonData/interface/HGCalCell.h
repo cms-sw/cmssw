@@ -47,9 +47,13 @@ public:
 
   std::pair<double, double> cellUV2XY1(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
   std::pair<double, double> cellUV2XY2(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
+  // Get cell type and orientation index
   std::pair<int32_t, int32_t> cellUV2Cell(int32_t u, int32_t v, int32_t placementIndex, int32_t type);
+  // Get the placement index from zside, forward-backward tag, orientation flag
   static int32_t cellPlacementIndex(int32_t iz, int32_t fwdBack, int32_t orient);
+  // Get the orientation flag and forward-backward tag from placement index
   static std::pair<int32_t, int32_t> cellOrient(int32_t placementIndex);
+  // Get cell type and position in the list
   static std::pair<int32_t, int32_t> cellType(int32_t u, int32_t v, int32_t ncell, int32_t placementIndex);
 
 private:
