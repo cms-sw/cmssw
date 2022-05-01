@@ -971,14 +971,13 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
   // prescale counters are reset at the beginning of the luminosity segment
   if (m_firstEv) {
     // prescale counters: numberPhysTriggers counters per bunch cross
-    m_prescaleCounterAlgoTrig.reserve(numberPhysTriggers * totalBxInEvent);
+    m_prescaleCounterAlgoTrig.reserve(totalBxInEvent);
+
+    auto const& prescaleCountersAlgoTrig =
+        m_semiRandomInitialPSCounters ? semirandomNumber(iEvent, prescaleFactorsAlgoTrig) : prescaleFactorsAlgoTrig;
 
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-      if (m_semiRandomInitialPSCounters) {
-        m_prescaleCounterAlgoTrig.push_back(semirandomNumber(iEvent, prescaleFactorsAlgoTrig));
-      } else {
-        m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
-      }
+      m_prescaleCounterAlgoTrig.push_back(prescaleCountersAlgoTrig);
     }
     m_firstEv = false;
     m_currentLumi = iEvent.luminosityBlock();
