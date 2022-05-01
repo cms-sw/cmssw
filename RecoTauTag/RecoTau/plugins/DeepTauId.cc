@@ -8,6 +8,7 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
+#include "RecoTauTag/RecoTau/interface/Scaling.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
@@ -1229,6 +1230,7 @@ public:
         {
           tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT, tensorflow::TensorShape{1, TauBlockInputs::NumberOfInputs});
+          scalingParamsMap_ = &Scaling::scalingParamsMap_v2p1;
         }
         else if (sub_version_ == 5)
         { 
@@ -1242,6 +1244,7 @@ public:
           tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT, tensorflow::TensorShape{1, static_cast<int>(TauBlockInputs::NumberOfInputs) 
                                                              - static_cast<int>(TauBlockInputs::varsToDrop.size())});
+          scalingParamsMap_ = &Scaling::scalingParamsMap_v2p5;
         }
         else
           throw cms::Exception("DeepTauId") << "subversion " << sub_version_ << " is not supported.";
@@ -1305,6 +1308,17 @@ private:
     const float fixed_value = getValue(value);
     const float norm_value = (fixed_value - mean) / sigma;
     return std::clamp(norm_value, -n_sigmas_max, n_sigmas_max);
+  }
+
+  template <typename T>
+  float getValueScaled(T value, int var_index, Scaling::FeatureT ft, bool is_inner) {
+    const float fixed_value = getValue(value);
+    const float mean = scalingParamsMap_->at(ft).mean_.at(var_index).at(is_inner);
+    const float std = scalingParamsMap_->at(ft).std_.at(var_index).at(is_inner);
+    const float lim_min = scalingParamsMap_->at(ft).lim_min_.at(var_index).at(is_inner);
+    const float lim_max = scalingParamsMap_->at(ft).lim_max_.at(var_index).at(is_inner);
+    const float norm_value = (fixed_value - mean) / std;
+    return std::clamp(norm_value, lim_min, lim_max);
   }
 
   static bool isAbove(double value, double min) { return std::isnormal(value) && value > min; }
@@ -2870,6 +2884,7 @@ private:
   std::unique_ptr<tensorflow::Tensor> tauBlockTensor_;
   std::array<std::unique_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_, convTensor_,
       zeroOutputTensor_;
+  const std::map<Scaling::FeatureT, Scaling::ScalingParams> *scalingParamsMap_;
   const bool save_inputs_;
   std::ofstream* json_file_;
   bool is_first_block_;
