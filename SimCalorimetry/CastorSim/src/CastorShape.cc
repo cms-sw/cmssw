@@ -1,3 +1,4 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimCalorimetry/CastorSim/interface/CastorShape.h"
 #include <cmath>
 
@@ -6,7 +7,7 @@ CastorShape::CastorShape() : nbin_(256), nt_(nbin_, 0.) { computeShapeCastor(); 
 CastorShape::CastorShape(const CastorShape &d) : CaloVShape(d), nbin_(d.nbin_), nt_(d.nt_) {}
 
 void CastorShape::computeShapeCastor() {
-  //  cout << endl << " ===== computeShapeCastor  !!! " << endl << endl;
+  edm::LogVerbatim("CastorSim") << "\n ===== computeShapeCastor  !!! \n";
 
   const float ts = 3.0;  // time constant in   t * exp(-(t/ts)**2)
 

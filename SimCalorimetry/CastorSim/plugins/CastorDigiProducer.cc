@@ -108,7 +108,6 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet &ps,
       theHitCorrection(nullptr),
       theCastorDigitizer(nullptr),
       theCastorHits() {
-
   producesCollector.produces<CastorDigiCollection>();
 
   theCastorResponse->setHitFilter(&theCastorHitFilter);
@@ -234,8 +233,8 @@ void CastorDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
 
     const std::vector<DetId> &castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
-    // std::cout<<"CastorDigiProducer::CheckGeometry number of cells:
-    // "<<castorCells.size()<<std::endl;
+    // // edm::LogInfo("CastorDigiProducer") << "CastorDigiProducer::CheckGeometry number of cells:" << castorCells.size()
+    ;
     theCastorDigitizer->setDetIds(castorCells);
   }
 }
