@@ -38,7 +38,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
@@ -168,24 +168,31 @@ namespace l1t {
     //initializer prescale counter using a semi-random value between [1, prescale value]
     static const std::vector<double> semirandomNumber(const edm::Event& iEvent,
                                                       const std::vector<double>& prescaleFactorsAlgoTrig) {
-      std::vector<double> out(prescaleFactorsAlgoTrig.size(), 1.);
-      //pick a random number from a combination of run, lumi, event numbers (different number for different threads)
-      std::srand(0);
-      std::srand(std::rand() + iEvent.id().run());
+      auto out = prescaleFactorsAlgoTrig;
+      // pick a random number from a combination of run, lumi, event numbers
+      std::srand(iEvent.id().run());
       std::srand(std::rand() + iEvent.id().luminosityBlock());
-      //this causes different semirandomNumber number for different threads
-      std::srand(std::rand() + iEvent.id().event());  //reminder: different threads have different initial event number
-      const double semirandom = std::rand();
-      for (size_t i = 0; i < prescaleFactorsAlgoTrig.size(); i++) {
-        const double ps = prescaleFactorsAlgoTrig.at(i);
-        if (ps == 0 || ps == 1) {  //do not touch ps = 0 and ps = 1
-          out[i] = ps;
-        } else {  //replace ps with a semirandom number between [1,ps]
-          out[i] = semirandom - floor(semirandom / ps) * ps;
-          if (out[i] == 0)
-            out[i] = ps;
-          assert(out[i] > 0);
-          assert(out[i] <= ps);
+      // this causes different (semi)random number number for different streams
+      // reminder: different streams have different initial event number
+      std::srand(std::rand() + iEvent.id().event());
+      // very large (semi)random number
+      double const semirandom = std::rand();
+      for (auto& ps : out) {
+        // if the ps is smaller than 1 (e.g. ps=0, ps=1), it is not changed
+        // else, replace ps with a semirandom integer in the [1,ps] range
+        if (ps > 1) {
+          auto nps = semirandom - floor(semirandom / ps) * ps;
+          // if nps=0 or a wrong value (<0,>ps) use PS value (standard method)
+          if (nps > 0 || nps <= ps)
+            ps = nps;
+          else {
+            if (nps != 0)  // complain only if nps <0 or nps >PS
+              edm::LogWarning("L1TGlobal::semirandomNumber")
+                  << "\n The inital prescale counter obtained by L1TGlobal::semirandomNumber is wrong."
+                  << "\n This is probably do to the floating-point precision. Using the PS value." << semirandom
+                  << "\n semirandom = " << semirandom << "\n PS = " << ps << "\n nps = " << nps
+                  << " <-- it should be in the range [0 , " << ps << "]" << std::endl;
+          }
         }
       }
       return out;
