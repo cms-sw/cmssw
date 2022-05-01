@@ -1223,8 +1223,8 @@ public:
             << "number of inputs does not match the expected inputs for the given version";
     } else if (version_ == 2) {
         using namespace dnn_inputs_v2;
-        tauBlockTensor_indices_.resize(TauBlockInputs::NumberOfInputs);
-        std::iota(std::begin(tauBlockTensor_indices_), std::end(tauBlockTensor_indices_), 0);
+        tauInputs_indices_.resize(TauBlockInputs::NumberOfInputs);
+        std::iota(std::begin(tauInputs_indices_), std::end(tauInputs_indices_), 0);
         
         if (sub_version_ == 1)
         {
@@ -1237,9 +1237,9 @@ public:
           std::sort(TauBlockInputs::varsToDrop.begin(), TauBlockInputs::varsToDrop.end());
           for(auto v: TauBlockInputs::varsToDrop)
           {
-            tauBlockTensor_indices_.at(v) = -1; // set index to -1
+            tauInputs_indices_.at(v) = -1; // set index to -1
             for(std::size_t i = v+1; i < TauBlockInputs::NumberOfInputs; ++i)
-              tauBlockTensor_indices_.at(i) -= 1; // shift all the following indices by 1
+              tauInputs_indices_.at(i) -= 1; // shift all the following indices by 1
           }
           tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT, tensorflow::TensorShape{1, static_cast<int>(TauBlockInputs::NumberOfInputs) 
@@ -1885,41 +1885,47 @@ private:
                             double rho,
                             TauFunc tau_funcs) {
     namespace dnn = dnn_inputs_v2::TauBlockInputs;
+    Scaling::FeatureT ft = Scaling::FeatureT::TauFlat;
+    bool is_inner = false;
 
     tensorflow::Tensor& inputs = *tauBlockTensor_;
     inputs.flat<float>().setZero();
 
-    const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
+    const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, tauInputs_indices_.at(var_index)); };
 
     auto leadChargedHadrCand = dynamic_cast<const CandidateCastType*>(tau.leadChargedHadrCand().get());
 
-    get(dnn::rho) = getValueNorm(rho, 21.49f, 9.713f);
-    get(dnn::tau_pt) = getValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
-    get(dnn::tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
+    get(dnn::rho) = getValueScaled(rho, tauInputs_indices_.at(dnn::rho), ft, is_inner);
+    get(dnn::tau_pt) = getValueScaled(tau.polarP4().pt(), tauInputs_indices_.at(dnn::tau_pt), ft, is_inner);
+    get(dnn::tau_eta) = getValueScaled(tau.polarP4().eta(), tauInputs_indices_.at(dnn::tau_eta), ft, is_inner);
     if (sub_version_ == 1){get(dnn::tau_phi) = getValueLinear(tau.polarP4().phi(), -pi, pi, false);}
-    get(dnn::tau_mass) = getValueNorm(tau.polarP4().mass(), 0.6669f, 0.6553f);
-    get(dnn::tau_E_over_pt) = getValueLinear(tau.p4().energy() / tau.p4().pt(), 1.f, 5.2f, true);
-    get(dnn::tau_charge) = getValue(tau.charge());
-    get(dnn::tau_n_charged_prongs) = getValueLinear(tau.decayMode() / 5 + 1, 1, 3, true);
-    get(dnn::tau_n_neutral_prongs) = getValueLinear(tau.decayMode() % 5, 0, 2, true);
-    get(dnn::chargedIsoPtSum) = getValueNorm(tau_funcs.getChargedIsoPtSum(tau, tau_ref), 47.78f, 123.5f);
+    get(dnn::tau_mass) = getValueScaled(tau.polarP4().mass(), tauInputs_indices_.at(dnn::tau_mass), ft, is_inner);
+    get(dnn::tau_E_over_pt) = getValueScaled(tau.p4().energy() / tau.p4().pt(), tauInputs_indices_.at(dnn::tau_E_over_pt), ft, is_inner);
+    get(dnn::tau_charge) = getValueScaled(tau.charge(), tauInputs_indices_.at(dnn::tau_charge), ft, is_inner);
+    get(dnn::tau_n_charged_prongs) = getValueScaled(tau.decayMode() / 5 + 1, tauInputs_indices_.at(dnn::tau_n_charged_prongs), ft, is_inner);
+    get(dnn::tau_n_neutral_prongs) = getValueScaled(tau.decayMode() % 5, tauInputs_indices_.at(dnn::tau_n_neutral_prongs), ft, is_inner);
+    get(dnn::chargedIsoPtSum) = getValueScaled(tau_funcs.getChargedIsoPtSum(tau, tau_ref), tauInputs_indices_.at(dnn::chargedIsoPtSum), ft, is_inner);
     get(dnn::chargedIsoPtSumdR03_over_dR05) =
-        getValue(tau_funcs.getChargedIsoPtSumdR03(tau, tau_ref) / tau_funcs.getChargedIsoPtSum(tau, tau_ref));
+        getValueScaled(tau_funcs.getChargedIsoPtSumdR03(tau, tau_ref) / tau_funcs.getChargedIsoPtSum(tau, tau_ref),
+          tauInputs_indices_.at(dnn::chargedIsoPtSumdR03_over_dR05), ft, is_inner);
     if (sub_version_ == 1)
-      get(dnn::footprintCorrection) = getValueNorm(tau_funcs.getFootprintCorrectiondR03(tau, tau_ref), 9.029f, 26.42f);
+      get(dnn::footprintCorrection) = getValueScaled(tau_funcs.getFootprintCorrectiondR03(tau, tau_ref), tauInputs_indices_.at(dnn::footprintCorrection), ft, is_inner);
     else if (sub_version_ == 5)
-      get(dnn::footprintCorrection) = getValueNorm(tau_funcs.getFootprintCorrection(tau, tau_ref), 9.029f, 26.42f);
+      get(dnn::footprintCorrection) = getValueScaled(tau_funcs.getFootprintCorrection(tau, tau_ref), tauInputs_indices_.at(dnn::footprintCorrection), ft, is_inner);
     
-    get(dnn::neutralIsoPtSum) = getValueNorm(tau_funcs.getNeutralIsoPtSum(tau, tau_ref), 57.59f, 155.3f);
+    get(dnn::neutralIsoPtSum) = getValueScaled(tau_funcs.getNeutralIsoPtSum(tau, tau_ref), tauInputs_indices_.at(dnn::neutralIsoPtSum), ft, is_inner);
     get(dnn::neutralIsoPtSumWeight_over_neutralIsoPtSum) =
-        getValue(tau_funcs.getNeutralIsoPtSumWeight(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref));
+        getValueScaled(tau_funcs.getNeutralIsoPtSumWeight(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref), 
+          tauInputs_indices_.at(dnn::neutralIsoPtSumWeight_over_neutralIsoPtSum), ft, is_inner);
     get(dnn::neutralIsoPtSumWeightdR03_over_neutralIsoPtSum) =
-        getValue(tau_funcs.getNeutralIsoPtSumdR03Weight(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref));
+        getValueScaled(tau_funcs.getNeutralIsoPtSumdR03Weight(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref), 
+          tauInputs_indices_.at(dnn::neutralIsoPtSumWeightdR03_over_neutralIsoPtSum), ft, is_inner);
     get(dnn::neutralIsoPtSumdR03_over_dR05) =
-        getValue(tau_funcs.getNeutralIsoPtSumdR03(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref));
+        getValueScaled(tau_funcs.getNeutralIsoPtSumdR03(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref),
+          tauInputs_indices_.at(dnn::neutralIsoPtSumdR03_over_dR05), ft, is_inner);
     get(dnn::photonPtSumOutsideSignalCone) =
-        getValueNorm(tau_funcs.getPhotonPtSumOutsideSignalCone(tau, tau_ref), 1.731f, 6.846f);
-    get(dnn::puCorrPtSum) = getValueNorm(tau_funcs.getPuCorrPtSum(tau, tau_ref), 22.38f, 16.34f);
+        getValueScaled(tau_funcs.getPhotonPtSumOutsideSignalCone(tau, tau_ref), tauInputs_indices_.at(dnn::photonPtSumOutsideSignalCone), ft, is_inner);
+    get(dnn::puCorrPtSum) = getValueScaled(tau_funcs.getPuCorrPtSum(tau, tau_ref), tauInputs_indices_.at(dnn::puCorrPtSum), ft, is_inner);
     // The global PCA coordinates were used as inputs during the NN training, but it was decided to disable
     // them for the inference, because modeling of dxy_PCA in MC poorly describes the data, and x and y coordinates
     // in data results outside of the expected 5 std. dev. input validity range. On the other hand,
@@ -1928,9 +1934,9 @@ private:
     {
       if (!disable_dxy_pca_) {
         auto const pca = tau_funcs.getdxyPCA(tau, tau_index);
-        get(dnn::tau_dxy_pca_x) = getValueNorm(pca.x(), -0.0241f, 0.0074f);
-        get(dnn::tau_dxy_pca_y) = getValueNorm(pca.y(), 0.0675f, 0.0128f);
-        get(dnn::tau_dxy_pca_z) = getValueNorm(pca.z(), 0.7973f, 3.456f);
+        get(dnn::tau_dxy_pca_x) = getValueScaled(pca.x(), tauInputs_indices_.at(dnn::tau_dxy_pca_x), ft, is_inner);
+        get(dnn::tau_dxy_pca_y) = getValueScaled(pca.y(), tauInputs_indices_.at(dnn::tau_dxy_pca_y), ft, is_inner);
+        get(dnn::tau_dxy_pca_z) = getValueScaled(pca.z(), tauInputs_indices_.at(dnn::tau_dxy_pca_z), ft, is_inner);
       } else {
         get(dnn::tau_dxy_pca_x) = 0;
         get(dnn::tau_dxy_pca_y) = 0;
@@ -1941,58 +1947,58 @@ private:
     const bool tau_dxy_valid =
         isAbove(tau_funcs.getdxy(tau, tau_index), -10) && isAbove(tau_funcs.getdxyError(tau, tau_index), 0);
     if (tau_dxy_valid) {
-      get(dnn::tau_dxy_valid) = tau_dxy_valid;
-      get(dnn::tau_dxy) = getValueNorm(tau_funcs.getdxy(tau, tau_index), 0.0018f, 0.0085f);
-      get(dnn::tau_dxy_sig) = getValueNorm(
-          std::abs(tau_funcs.getdxy(tau, tau_index)) / tau_funcs.getdxyError(tau, tau_index), 2.26f, 4.191f);
+      get(dnn::tau_dxy_valid) = getValueScaled(tau_dxy_valid, tauInputs_indices_.at(dnn::tau_dxy_valid), ft, is_inner);
+      get(dnn::tau_dxy) = getValueScaled(tau_funcs.getdxy(tau, tau_index), tauInputs_indices_.at(dnn::tau_dxy), ft, is_inner);
+      get(dnn::tau_dxy_sig) = getValueScaled(
+          std::abs(tau_funcs.getdxy(tau, tau_index)) / tau_funcs.getdxyError(tau, tau_index), tauInputs_indices_.at(dnn::tau_dxy_sig), ft, is_inner);
     }
     const bool tau_ip3d_valid =
         isAbove(tau_funcs.getip3d(tau, tau_index), -10) && isAbove(tau_funcs.getip3dError(tau, tau_index), 0);
     if (tau_ip3d_valid) {
-      get(dnn::tau_ip3d_valid) = tau_ip3d_valid;
-      get(dnn::tau_ip3d) = getValueNorm(tau_funcs.getip3d(tau, tau_index), 0.0026f, 0.0114f);
-      get(dnn::tau_ip3d_sig) = getValueNorm(
-          std::abs(tau_funcs.getip3d(tau, tau_index)) / tau_funcs.getip3dError(tau, tau_index), 2.928f, 4.466f);
+      get(dnn::tau_ip3d_valid) = getValueScaled(tau_ip3d_valid, tauInputs_indices_.at(dnn::tau_ip3d_valid), ft, is_inner);
+      get(dnn::tau_ip3d) = getValueScaled(tau_funcs.getip3d(tau, tau_index), tauInputs_indices_.at(dnn::tau_ip3d), ft, is_inner);
+      get(dnn::tau_ip3d_sig) = getValueScaled(
+          std::abs(tau_funcs.getip3d(tau, tau_index)) / tau_funcs.getip3dError(tau, tau_index), tauInputs_indices_.at(dnn::tau_ip3d_sig), ft, is_inner);
     }
     if (leadChargedHadrCand) {
       const bool hasTrackDetails = candFunc::getHasTrackDetails(*leadChargedHadrCand);
       const float tau_dz = (is_online_ && !hasTrackDetails) ? 0 : candFunc::getTauDz(*leadChargedHadrCand);
-      get(dnn::tau_dz) = getValueNorm(tau_dz, 0.f, 0.0190f);
-      get(dnn::tau_dz_sig_valid) = candFunc::getTauDZSigValid(*leadChargedHadrCand);
+      get(dnn::tau_dz) = getValueScaled(tau_dz, tauInputs_indices_.at(dnn::tau_dz), ft, is_inner);
+      get(dnn::tau_dz_sig_valid) = getValueScaled(candFunc::getTauDZSigValid(*leadChargedHadrCand), tauInputs_indices_.at(dnn::tau_dz_sig_valid), ft, is_inner);
       const double dzError = hasTrackDetails ? leadChargedHadrCand->dzError() : -999.;
-      get(dnn::tau_dz_sig) = getValueNorm(std::abs(tau_dz) / dzError, 4.717f, 11.78f);
+      get(dnn::tau_dz_sig) = getValueScaled(std::abs(tau_dz) / dzError, tauInputs_indices_.at(dnn::tau_dz_sig), ft, is_inner);
     }
-    get(dnn::tau_flightLength_x) = getValueNorm(tau_funcs.getFlightLength(tau, tau_index).x(), -0.0003f, 0.7362f);
-    get(dnn::tau_flightLength_y) = getValueNorm(tau_funcs.getFlightLength(tau, tau_index).y(), -0.0009f, 0.7354f);
-    get(dnn::tau_flightLength_z) = getValueNorm(tau_funcs.getFlightLength(tau, tau_index).z(), -0.0022f, 1.993f);
+    get(dnn::tau_flightLength_x) = getValueScaled(tau_funcs.getFlightLength(tau, tau_index).x(), tauInputs_indices_.at(dnn::tau_flightLength_x), ft, is_inner);
+    get(dnn::tau_flightLength_y) = getValueScaled(tau_funcs.getFlightLength(tau, tau_index).y(), tauInputs_indices_.at(dnn::tau_flightLength_y), ft, is_inner);
+    get(dnn::tau_flightLength_z) = getValueScaled(tau_funcs.getFlightLength(tau, tau_index).z(), tauInputs_indices_.at(dnn::tau_flightLength_z), ft, is_inner);
     if (sub_version_ == 1)
       get(dnn::tau_flightLength_sig) = 0.55756444;  //This value is set due to a bug in the training
     else if (sub_version_ == 5)
-      get(dnn::tau_flightLength_sig) = tau_funcs.getFlightLengthSig(tau, tau_index);
+      get(dnn::tau_flightLength_sig) = getValueScaled(tau_funcs.getFlightLengthSig(tau, tau_index), tauInputs_indices_.at(dnn::tau_flightLength_sig), ft, is_inner);
       
     get(dnn::tau_pt_weighted_deta_strip) =
-        getValueLinear(reco::tau::pt_weighted_deta_strip(tau, tau.decayMode()), 0, 1, true);
+        getValueScaled(reco::tau::pt_weighted_deta_strip(tau, tau.decayMode()), tauInputs_indices_.at(dnn::tau_pt_weighted_deta_strip), ft, is_inner);
 
     get(dnn::tau_pt_weighted_dphi_strip) =
-        getValueLinear(reco::tau::pt_weighted_dphi_strip(tau, tau.decayMode()), 0, 1, true);
+        getValueScaled(reco::tau::pt_weighted_dphi_strip(tau, tau.decayMode()), tauInputs_indices_.at(dnn::tau_pt_weighted_dphi_strip), ft, is_inner);
     get(dnn::tau_pt_weighted_dr_signal) =
-        getValueNorm(reco::tau::pt_weighted_dr_signal(tau, tau.decayMode()), 0.0052f, 0.01433f);
-    get(dnn::tau_pt_weighted_dr_iso) = getValueLinear(reco::tau::pt_weighted_dr_iso(tau, tau.decayMode()), 0, 1, true);
-    get(dnn::tau_leadingTrackNormChi2) = getValueNorm(tau_funcs.getLeadingTrackNormChi2(tau), 1.538f, 4.401f);
+        getValueScaled(reco::tau::pt_weighted_dr_signal(tau, tau.decayMode()), tauInputs_indices_.at(dnn::tau_pt_weighted_dr_signal), ft, is_inner);
+    get(dnn::tau_pt_weighted_dr_iso) = getValueScaled(reco::tau::pt_weighted_dr_iso(tau, tau.decayMode()), tauInputs_indices_.at(dnn::tau_pt_weighted_dr_iso), ft, is_inner);
+    get(dnn::tau_leadingTrackNormChi2) = getValueScaled(tau_funcs.getLeadingTrackNormChi2(tau), tauInputs_indices_.at(dnn::tau_leadingTrackNormChi2), ft, is_inner);
     const auto eratio = reco::tau::eratio(tau);
     const bool tau_e_ratio_valid = std::isnormal(eratio) && eratio > 0.f;
-    get(dnn::tau_e_ratio_valid) = tau_e_ratio_valid;
-    get(dnn::tau_e_ratio) = tau_e_ratio_valid ? getValueLinear(eratio, 0, 1, true) : 0.f;
+    get(dnn::tau_e_ratio_valid) = getValueScaled(tau_e_ratio_valid, tauInputs_indices_.at(dnn::tau_e_ratio_valid), ft, is_inner);
+    get(dnn::tau_e_ratio) = tau_e_ratio_valid ? getValueScaled(eratio, tauInputs_indices_.at(dnn::tau_e_ratio), ft, is_inner) : 0.f;
     const double gj_angle_diff = calculateGottfriedJacksonAngleDifference(tau, tau_index, tau_funcs);
     const bool tau_gj_angle_diff_valid = (std::isnormal(gj_angle_diff) || gj_angle_diff == 0) && gj_angle_diff >= 0;
-    get(dnn::tau_gj_angle_diff_valid) = tau_gj_angle_diff_valid;
-    get(dnn::tau_gj_angle_diff) = tau_gj_angle_diff_valid ? getValueLinear(gj_angle_diff, 0, pi, true) : 0;
-    get(dnn::tau_n_photons) = getValueNorm(reco::tau::n_photons_total(tau), 2.95f, 3.927f);
-    get(dnn::tau_emFraction) = getValueLinear(tau_funcs.getEmFraction(tau), -1, 1, false);
+    get(dnn::tau_gj_angle_diff_valid) = getValueScaled(tau_gj_angle_diff_valid, tauInputs_indices_.at(dnn::tau_gj_angle_diff_valid), ft, is_inner);
+    get(dnn::tau_gj_angle_diff) = tau_gj_angle_diff_valid ? getValueScaled(gj_angle_diff, tauInputs_indices_.at(dnn::tau_gj_angle_diff), ft, is_inner) : 0;
+    get(dnn::tau_n_photons) = getValueScaled(reco::tau::n_photons_total(tau), tauInputs_indices_.at(dnn::tau_n_photons), ft, is_inner);
+    get(dnn::tau_emFraction) = getValueScaled(tau_funcs.getEmFraction(tau), tauInputs_indices_.at(dnn::tau_emFraction), ft, is_inner);
 
-    get(dnn::tau_inside_ecal_crack) = getValue(isInEcalCrack(tau.p4().eta()));
+    get(dnn::tau_inside_ecal_crack) = getValueScaled(isInEcalCrack(tau.p4().eta()), tauInputs_indices_.at(dnn::tau_inside_ecal_crack), ft, is_inner);
     get(dnn::leadChargedCand_etaAtEcalEntrance_minus_tau_eta) =
-        getValueNorm(tau_funcs.getEtaAtEcalEntrance(tau) - tau.p4().eta(), 0.0042f, 0.0323f);
+        getValueScaled(tau_funcs.getEtaAtEcalEntrance(tau) - tau.p4().eta(), tauInputs_indices_.at(dnn::leadChargedCand_etaAtEcalEntrance_minus_tau_eta), ft, is_inner);
   }
 
   template <typename CandidateCastType, typename TauCastType>
@@ -2889,7 +2895,7 @@ private:
   std::ofstream* json_file_;
   bool is_first_block_;
   int file_counter_;
-  std::vector<int> tauBlockTensor_indices_;
+  std::vector<int> tauInputs_indices_;
 
   //boolean to check if discriminator indices are already mapped
   bool discrIndicesMapped_ = false;
