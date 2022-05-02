@@ -30,7 +30,8 @@ namespace {
     auto pipe = popen((cmd + " 2>&1").c_str(), "r");
     int thisErrno = errno;
     if (!pipe)
-      throw cms::Exception("SystemError") << "popen() failed with errno " << thisErrno << " for command: " << cmd;
+      throw cms::Exception("SystemError")
+          << "TritonService: popen() failed with errno " << thisErrno << " for command: " << cmd;
 
     //extract output
     constexpr static unsigned buffSize = 128;
@@ -42,7 +43,8 @@ namespace {
       else {
         thisErrno = ferror(pipe);
         if (thisErrno)
-          throw cms::Exception("SystemError") << "failed reading command output with errno " << thisErrno;
+          throw cms::Exception("SystemError")
+              << "TritonService: failed reading command output with errno " << thisErrno;
       }
     }
 
@@ -90,7 +92,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
     auto [sit, unique] = servers_.emplace(serverName, serverPset);
     if (!unique)
       throw cms::Exception("DuplicateServer")
-          << "Not allowed to specify more than one server with same name (" << serverName << ")";
+          << "TritonService: Not allowed to specify more than one server with same name (" << serverName << ")";
     auto& server(sit->second);
 
     std::unique_ptr<tc::InferenceServerGrpcClient> client;
@@ -140,7 +142,8 @@ void TritonService::preModuleConstruction(edm::ModuleDescription const& desc) {
 void TritonService::addModel(const std::string& modelName, const std::string& path) {
   //should only be called in module constructors
   if (!allowAddModel_)
-    throw cms::Exception("DisallowedAddModel") << "Attempt to call addModel() outside of module constructors";
+    throw cms::Exception("DisallowedAddModel")
+        << "TritonService: Attempt to call addModel() outside of module constructors";
   //if model is not in the list, then no specified server provides it
   auto mit = models_.find(modelName);
   if (mit == models_.end()) {
@@ -177,7 +180,7 @@ void TritonService::preModuleDestruction(edm::ModuleDescription const& desc) {
 TritonService::Server TritonService::serverInfo(const std::string& model, const std::string& preferred) const {
   auto mit = models_.find(model);
   if (mit == models_.end())
-    throw cms::Exception("MissingModel") << "There are no servers that provide model " << model;
+    throw cms::Exception("MissingModel") << "TritonService: There are no servers that provide model " << model;
   const auto& modelInfo(mit->second);
   const auto& modelServers = modelInfo.servers;
 
@@ -261,11 +264,13 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   //mark as started before executing in case of ctrl+c while command is running
   startedFallback_ = true;
   const auto& [output, rv] = execSys(command);
-  if (verbose_ or rv != 0)
+  if (verbose_)
     edm::LogInfo("TritonService") << output;
-  if (rv != 0)
-    throw cms::Exception("FallbackFailed") << "Starting the fallback server failed with exit code " << rv;
-
+  if (rv != 0) {
+    edm::LogError("TritonService") << output;
+    throw cms::Exception("FallbackFailed")
+        << "TritonService: Starting the fallback server failed with exit code " << rv;
+  }
   //get the port
   const std::string& portIndicator("CMS_TRITON_GRPC_PORT: ");
   //find last instance in log in case multiple ports were tried
@@ -276,7 +281,8 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
     const auto& portNum = output.substr(pos2, pos3 - pos2);
     server.url += ":" + portNum;
   } else
-    throw cms::Exception("FallbackFailed") << "Unknown port for fallback server, log follows:\n" << output;
+    throw cms::Exception("FallbackFailed") << "TritonService: Unknown port for fallback server, log follows:\n"
+                                           << output;
 }
 
 void TritonService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
