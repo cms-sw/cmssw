@@ -83,7 +83,7 @@ void EcalSimRawData::analyze(const edm::Event &event, const edm::EventSetup &es)
                  "====\n"
               << " Event " << iEvent << "\n"
               << "------------------------------------------------------------------"
-                 "----\n";
+              << "----\n";
   }
 
   if (fe2dcc_) {
@@ -166,7 +166,7 @@ std::string EcalSimRawData::getExt() const {
   }
 }
 
-void EcalSimRawData::genFeData(std::string basename,
+void EcalSimRawData::genFeData(std::string &basename,
                                int iEvent,
                                const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const {
   int smf = 0;
@@ -243,7 +243,7 @@ void EcalSimRawData::genFeData(std::string basename,
   }              // next half-barrel
 }
 
-void EcalSimRawData::genSrData(std::string basename, int iEvent, int srf[nEbTtEta][nTtPhi]) const {
+void EcalSimRawData::genSrData(std::string &basename, int iEvent, int srf[nEbTtEta][nTtPhi]) const {
   for (int iZ0 = 0; iZ0 < 2; ++iZ0) {
     for (int iDccPhi0 = 0; iDccPhi0 < nDccInPhi; ++iDccPhi0) {
       int iDcc1 = iDccPhi0 + iZ0 * nDccInPhi + nDccEndcap + 1;
@@ -306,7 +306,7 @@ void EcalSimRawData::genSrData(std::string basename, int iEvent, int srf[nEbTtEt
   }        // next half-barrel
 }
 
-void EcalSimRawData::genTccIn(std::string basename, int iEvent, const int tcp[nTtEta][nTtPhi]) const {
+void EcalSimRawData::genTccIn(std::string &basename, int iEvent, const int tcp[nTtEta][nTtPhi]) const {
   for (int iZ0 = 0; iZ0 < 2; ++iZ0) {
     for (int iTccPhi0 = 0; iTccPhi0 < nTccInPhi; ++iTccPhi0) {
       int iTcc1 = iTccPhi0 + iZ0 * nTccInPhi + nTccEndcap + 1;
@@ -357,7 +357,7 @@ void EcalSimRawData::genTccIn(std::string basename, int iEvent, const int tcp[nT
   }    // next half-barrel
 }
 
-void EcalSimRawData::genTccOut(std::string basename, int iEvent, const int tps[nTtEta][nTtPhi]) const {
+void EcalSimRawData::genTccOut(std::string &basename, int iEvent, const int tps[nTtEta][nTtPhi]) const {
   int iDccWord = 0;
 
   for (int iZ0 = 0; iZ0 < 2; ++iZ0) {
