@@ -183,10 +183,10 @@ namespace l1t {
         if (ps > 1) {
           auto nps = semirandom - floor(semirandom / ps) * ps;
           // if nps=0 or a wrong value (<0,>ps) use PS value (standard method)
-          if (nps > 0 || nps <= ps)
+          if (nps > 0 and nps <= ps)
             ps = nps;
           else {
-            if (nps != 0)  // complain only if nps <0 or nps >PS
+          if (nps != 0)  // complain only if nps <0 or nps >PS
               edm::LogWarning("L1TGlobal::semirandomNumber")
                   << "\n The inital prescale counter obtained by L1TGlobal::semirandomNumber is wrong."
                   << "\n This is probably do to the floating-point precision. Using the PS value." << semirandom
