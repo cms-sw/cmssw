@@ -70,8 +70,8 @@ EcalSimRawData::EcalSimRawData(const edm::ParameterSet &params) {
   eeSrFlagToken_ = consumes<EESrFlagCollection>(edm::InputTag(srDigiProducer_, eeSrFlagCollection_));
   ebSrFlagToken_ = consumes<EBSrFlagCollection>(edm::InputTag(srDigiProducer_, ebSrFlagCollection_));
   ebDigisToken_ = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, ebDigiCollection_));
-  trigPrimDigisToken_[0] = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(tpProducer_, tcpDigiCollection_));
-  trigPrimDigisToken_[1] = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(tpProducer_, tpDigiCollection_));
+  trigPrimDigisToken_[EcalSimRawData::tcp] = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(tpProducer_, tcpDigiCollection_));
+  trigPrimDigisToken_[EcalSimRawData::tp] = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(tpProducer_, tpDigiCollection_));
 }
 
 void EcalSimRawData::analyze(const edm::Event &event, const edm::EventSetup &es) {
@@ -94,13 +94,13 @@ void EcalSimRawData::analyze(const edm::Event &event, const edm::EventSetup &es)
 
   if (fe2tcc_) {
     int tcp[nTtEta][nTtPhi] = {{0}};
-    getTp(event, 0, tcp);
+    getTp(event, EcalSimRawData::tcp, tcp);
     genTccIn(basename_, iEvent, tcp);
   }
 
   if (tcc2dcc_) {
     int tp[nTtEta][nTtPhi] = {{0}};
-    getTp(event, 1, tp);
+    getTp(event, EcalSimRawData::tp, tp);
     genTccOut(basename_, iEvent, tp);
   }
 
@@ -541,7 +541,7 @@ void EcalSimRawData::getEbDigi(const edm::Event &event, std::vector<uint16_t> ad
   }
 }
 
-void EcalSimRawData::getTp(const edm::Event &event, int type, int tcp[nTtEta][nTtPhi]) const {
+void EcalSimRawData::getTp(const edm::Event &event, EcalSimRawData::tokenType type, int tcp[nTtEta][nTtPhi]) const {
   const auto &hTpDigis = event.getHandle(trigPrimDigisToken_[type]);
   if (hTpDigis.isValid() && !hTpDigis->empty()) {
     const EcalTrigPrimDigiCollection &tpDigis = *hTpDigis.product();
