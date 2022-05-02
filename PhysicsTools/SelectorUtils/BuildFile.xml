@@ -16,20 +16,9 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/PluginManager"/>
 <use name="FWCore/Utilities"/>
+<use name="Utilities/OpenSSL"/>
 <use name="rootcore"/>
 <use name="root"/>
-<use name="openssl"/>
 <export>
   <lib name="1"/>
-  <use name="CommonTools/Utils"/>
-  <use name="DataFormats/Candidate"/>
-  <use name="DataFormats/PatCandidates"/>
-  <use name="DataFormats/BeamSpot"/>
-  <use name="DataFormats/Common"/>
-  <use name="DataFormats/Provenance"/>
-  <use name="DataFormats/VertexReco"/>
-  <use name="FWCore/Common"/>
-  <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/Utilities"/>
-  <use name="openssl"/>
 </export>

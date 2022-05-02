@@ -33,9 +33,8 @@
 #include "PhysicsTools/SelectorUtils/interface/CandidateCut.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
-
 // because we need to be able to validate the ID
-#include <openssl/md5.h>
+#include "Utilities/OpenSSL/interface/openssl_init.h"
 
 namespace candf = candidate_functions;
 
@@ -54,15 +53,23 @@ public:
     name_ = conf.getParameter<std::string>("idName");
 
     // now setup the md5 and cute accessor functions
-    constexpr unsigned length = MD5_DIGEST_LENGTH;
+    cms::openssl_init();
+    EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+    const EVP_MD* md = EVP_get_digestbyname("MD5");
+    unsigned int md_len = 0;
     std::string tracked(conf.trackedPart().dump());
-    memset(id_md5_, 0, length * sizeof(unsigned char));
-    MD5((unsigned char*)tracked.c_str(), tracked.size(), id_md5_);
-    char buf[32];
-    for (unsigned i = 0; i < MD5_DIGEST_LENGTH; ++i) {
-      sprintf(buf, "%02x", id_md5_[i]);
-      md5_string_.append(buf);
+
+    EVP_DigestInit_ex(mdctx, md, NULL);
+    EVP_DigestUpdate(mdctx, tracked.c_str(), tracked.size());
+    EVP_DigestFinal_ex(mdctx, id_md5_, &md_len);
+    EVP_MD_CTX_free(mdctx);
+    id_md5_[md_len] = 0;
+    char tmp[EVP_MAX_MD_SIZE * 2 + 1];
+    for (unsigned int i = 0; i < md_len; i++) {
+      ::sprintf(&tmp[i * 2], "%02x", id_md5_[i]);
     }
+    tmp[md_len * 2] = 0;
+    md5_string_ = tmp;
     initialize(conf);
     this->retInternal_ = this->getBitTemplate();
   }
@@ -133,7 +140,7 @@ public:
 
   const unsigned char* md55Raw() const { return id_md5_; }
   bool operator==(const VersionedSelector& other) const {
-    constexpr unsigned length = MD5_DIGEST_LENGTH;
+    constexpr unsigned length = EVP_MAX_MD_SIZE;
     return (0 == memcmp(id_md5_, other.id_md5_, length * sizeof(unsigned char)));
   }
   const std::string& md5String() const { return md5_string_; }
@@ -185,7 +192,7 @@ protected:
   std::vector<double> values_;
 
 private:
-  unsigned char id_md5_[MD5_DIGEST_LENGTH];
+  unsigned char id_md5_[EVP_MAX_MD_SIZE];
   std::string md5_string_, name_;
 };
 
