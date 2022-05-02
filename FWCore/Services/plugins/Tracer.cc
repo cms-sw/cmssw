@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
@@ -437,6 +438,19 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
               << " lumi = " << iContext.luminosityBlockID().luminosityBlock();
         }
         out << " : time = " << iContext.timestamp().value();
+      });
+          
+  iRegistry.esSyncIOVQueuingSignal_.connect(
+      [this](edm::IOVSyncValue const& iSync) {
+        LogAbsolute("Tracer") <<TimeStamper(printTimestamps_) <<indention_ << indention_ <<" queuing: EventSetup synchronization "<<iSync.eventID();
+      });
+  iRegistry.preESSyncIOVSignal_.connect(
+      [this](edm::IOVSyncValue const& iSync) {
+        LogAbsolute("Tracer") <<TimeStamper(printTimestamps_) <<indention_ <<indention_ <<" pre: EventSetup synchronizing "<<iSync.eventID();
+      });
+  iRegistry.postESSyncIOVSignal_.connect(
+      [this](edm::IOVSyncValue const& iSync) {
+        LogAbsolute("Tracer") <<TimeStamper(printTimestamps_) <<indention_ << indention_ <<" post: EventSetup synchronizing "<<iSync.eventID();
       });
 }
 
