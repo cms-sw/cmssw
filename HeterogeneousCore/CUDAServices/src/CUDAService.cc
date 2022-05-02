@@ -1,6 +1,9 @@
 #include <iomanip>
 #include <iostream>
 #include <limits>
+#include <set>
+#include <string>
+#include <vector>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -10,6 +13,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/ResourceInformation.h"
 #include "FWCore/Utilities/interface/ReusableObjectHolder.h"
 #include "HeterogeneousCore/CUDAServices/interface/CUDAService.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/EventCache.h"
@@ -182,6 +187,8 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
   auto devRuntimeSyncDepth = limits.getUntrackedParameter<int>("cudaLimitDevRuntimeSyncDepth");
   auto devRuntimePendingLaunchCount = limits.getUntrackedParameter<int>("cudaLimitDevRuntimePendingLaunchCount");
 
+  std::set<std::string> models;
+
   for (int i = 0; i < numberOfDevices_; ++i) {
     // read information about the compute device.
     // see the documentation of cudaGetDeviceProperties() for more information.
@@ -191,6 +198,7 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
     if (verbose_) {
       log << '\n';
     }
+    models.insert(std::string(properties.name));
 
     // compute capabilities
     computeCapabilities_.emplace_back(properties.major, properties.minor);
@@ -352,6 +360,16 @@ CUDAService::CUDAService(edm::ParameterSet const& config) : verbose_(config.getU
         log << "  runtime pending launch count: " << std::setw(10) << value << '\n';
       }
     }
+  }
+
+  edm::Service<edm::ResourceInformation> resourceInformationService;
+  if (resourceInformationService.isAvailable()) {
+    std::vector<std::string> modelsV(models.begin(), models.end());
+    resourceInformationService->setGPUModels(modelsV);
+    std::string nvidiaDriverVersion{systemDriverVersion};
+    resourceInformationService->setNvidiaDriverVersion(nvidiaDriverVersion);
+    resourceInformationService->setCudaDriverVersion(driverVersion);
+    resourceInformationService->setCudaRuntimeVersion(runtimeVersion);
   }
 
   // Make sure the caching allocators and stream/event caches are constructed before declaring successful construction
