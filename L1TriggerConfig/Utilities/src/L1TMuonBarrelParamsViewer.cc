@@ -38,8 +38,8 @@ using namespace std;
 
 std::string L1TMuonBarrelParamsViewer::hash(void *buf, size_t len) const {
   cms::openssl_init();
-  EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
-  const EVP_MD* md = EVP_get_digestbyname("SHA1");
+  EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+  const EVP_MD *md = EVP_get_digestbyname("SHA1");
   if (!EVP_DigestInit_ex(mdctx, md, nullptr))
     throw cms::Exception("L1TMuonBarrelParamsViewer::hash") << "SHA1 initialization error";
 
