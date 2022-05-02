@@ -178,7 +178,6 @@ HLT_Dimuon20_Jpsi_Barrel_Seagulls_v*	#	CMSHLT-1275
 HLT_Mu20_TkMu0_Phi_v*	#	CMSHLT-1275
 HLT_Mu25_TkMu0_Onia_v*	#	CMSHLT-1275
 HLT_Mu25_TkMu0_Phi_v*	#	CMSHLT-1275
-HLT_DoubleMu4_3_Bs_v*	#	CMSHLT-1276
 HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v*	#	CMSHLT-1277
 HLT_Mu8_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT300_PFMETNoMu60_v*	#	CMSHLT-1277
 HLT_DoubleMu20_7_Mass0to30_Photon23_v*	#	CMSHLT-1278
@@ -478,7 +477,12 @@ HLT_AK8PFJetFwd25_v*	#	CMSHLT-1662
 HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_CaloMJJ300_PFJetsMJJ400DEta3_v*	#	CMSHLT-1750
 HLT_Photon75_R9Id90_HE10_IsoM_EBOnly_CaloMJJ400_PFJetsMJJ600DEta3_v*	#	CMSHLT-1750
 HLT_IsoMu27_MET90_v*	#	CMSHLT-1741
-HLT_DoubleMu4_3_Jpsi_v*	#	CMSHLT-1753
+HLT_DoubleMu4_3_Bs_v*              # CMSHLT-1276, CMSHLT-2261
+HLT_DoubleMu4_3_Jpsi_v*            # CMSHLT-1753, CMSHLT-2261
+HLT_DoubleMu4_3_LowMass_v*         # CMSHLT-2261
+HLT_DoubleMu4_LowMass_Displaced_v* # CMSHLT-2261
+HLT_Mu0_L1DoubleMu_v*              # CMSHLT-2261
+HLT_Mu4_L1DoubleMu_v*              # CMSHLT-2261
 HLT_MediumChargedIsoPFTau200HighPtRelaxedIso_Trk50_eta2p1_v*	#	CMSHLT-1729
 HLT_MediumChargedIsoPFTau220HighPtRelaxedIso_Trk50_eta2p1_v*	#	CMSHLT-1729
 HLT_AK8PFJet330_TrimMass30_PFAK8BoostedDoubleB_p02_v*	#	CMSHLT-1732
