@@ -181,6 +181,82 @@ namespace Scaling {
             }
         }, // end Electron
 
+        {FeatureT::PfCand_muon, {
+            // mean
+            {{0,0},{0.0861,0.9509},{0.0,0.0},{0.0,0.0},{0,0},
+            {0,0},{0,0},{0,0},{0,0},{0.,0.},
+            {-0.0007,-0.0007},{0.0001,0.0001},{-0.0117,-0.0117},{-0.0001,-0.0001},{0.0004,0.0004},
+            {-0.0118,-0.0118},{0,0},{-0.0045,-0.0045},{4.575,4.575},{-0.0117,-0.0117},
+            {80.37,80.37},{0.69,0.69},{17.5,17.5}},
+
+            // std
+            {{1,1},{0.4065,0.4294},{0.5,0.1},{0.5,0.1},{7.,7.},
+            {3.,3.},{1,1},{1,1},{1,1},{11.,11.},
+            {0.6869,0.6869},{0.6784,0.6784},{4.097,4.097},{0.8642,0.8642},{0.8561,0.8561},
+            {4.405,4.405},{1,1},{0.9655,0.9655},{42.36,42.36},{4.097,4.097},
+            {343.3,343.3},{1.711,1.711},{5.11,5.11}},
+
+            // lim_min
+            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{0.,0.},
+            {0.,0.},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{0.,0.},
+            {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5}},
+
+            // lim_max
+            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{1.,1.},
+            {1.,1.},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},
+            {5,5},{5,5},{5,5},{5,5},{5,5},
+            {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},
+            {5,5},{5,5},{5,5}},
+
+            }
+        }, // end PfCand_muon
+
+        {FeatureT::Muon, {
+            // mean
+            {{0,0},{0.2678,0.7966},{0.0,0.0},{0.0,0.0},{0.0019,0.0019},
+            {8.98,8.98},{0,0},{21.52,21.52},{21.84,21.84},{0,0},
+            {0,0},{0,0},{0.2273,0.2273},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.}},
+
+            // std
+            {{1,1},{3.592,3.402},{0.5,0.1},{0.5,0.1},{1.039,1.039},
+            {71.17,71.17},{1,1},{265.8,265.8},{10.59,10.59},{1,1},
+            {1,1},{1,1},{0.4865,0.4865},{2.0,2.0},{2.0,2.0},
+            {2.0,2.0},{2.0,2.0},{6.0,6.0},{2.0,2.0},{2.0,2.0},
+            {2.0,2.0},{7.,7.},{6.0,6.0},{4.0,4.0},{4.0,4.0},
+            {12.0,12.0},{12.0,12.0},{12.0,12.0},{8.0,8.0},{24.0,24.0},
+            {12.0,12.0},{12.0,12.0},{12.0,12.0},{4.0,4.0},{4.0,4.0},
+            {2.0,2.0},{2.0,2.0}},
+
+            // lim_min
+            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-5,-5},
+            {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
+            {0.,0.},{0.,0.}},
+
+            // lim_max
+            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{5,5},
+            {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0}},
+
+            }
+        }, // end Muon
+
     }; // end scalingParamsMap_v2p1
 
     const std::map<FeatureT, ScalingParams> scalingParamsMap_v2p5 = {
@@ -348,6 +424,82 @@ namespace Scaling {
             {5,5},{5,5}},
             }
         }, // end Electron
+
+        {FeatureT::PfCand_muon, {
+            // mean
+            {{0,0},{0.142,0.9561},{0.0,0.0},{0.0,0.0},{0,0},
+            {0,0},{0,0},{0,0},{0,0},{5.5,5.5},
+            {-9.307e-05,-9.493e-06},{-0.0008956,2.109e-06},{-0.01717,-0.005042},{0.001419,0.0001233},{-0.0001845,-1.605e-06},
+            {-0.01638,-0.004842},{0,0},{-0.008642,-2.842e-05},{10.87,1.391},{-0.01718,-0.005043},
+            {296.6,10.48},{0.7838,0.5868},{17.99,17.11}},
+
+            // std
+            {{1,1},{0.618,0.1959},{0.5,0.1},{0.5,0.1},{1,1},
+            {1,1},{1,1},{1,1},{1,1},{5.5,5.5},
+            {1.123,0.0752},{1.108,0.07712},{6.913,0.8103},{1.229,0.2137},{1.216,0.2138},
+            {7.147,0.9617},{1,1},{1.578,0.1077},{58.34,7.796},{6.915,0.8103},
+            {515.9,155.9},{2.933,1.003},{6.317,4.29}},
+
+            // lim_min
+            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-1.0,-1.0},
+            {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5}},
+
+            // lim_max
+            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},
+            {5,5},{5,5},{5,5},{5,5},{5,5},
+            {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},
+            {5,5},{5,5},{5,5}},
+
+            }
+        }, // end PfCand_muon
+
+        {FeatureT::Muon, {
+            // mean
+            {{0,0},{0.3645,1.033},{0.0,0.0},{0.0,0.0},{0.00344,0.001217},
+            {17.54,5.403},{0,0},{24.78,7.2},{17.92,18.58},{0,0},
+            {0,0},{0,0},{0.3221,0.09762},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{3.0,3.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{3.5,3.5},{3.0,3.0},{2.0,2.0},{2.0,2.0},
+            {6.0,6.0},{6.0,6.0},{6.0,6.0},{4.0,4.0},{12.0,12.0},
+            {6.0,6.0},{6.0,6.0},{6.0,6.0},{2.0,2.0},{2.0,2.0},
+            {1.0,1.0},{1.0,1.0}},
+
+            // std
+            {{1,1},{85.0,65.51},{0.5,0.1},{0.5,0.1},{1.557,0.2033},
+            {97.45,36.07},{1,1},{2022.0,263.3},{6.573,5.019},{1,1},
+            {1,1},{1,1},{0.6166,0.3956},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{3.0,3.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{3.5,3.5},{3.0,3.0},{2.0,2.0},{2.0,2.0},
+            {6.0,6.0},{6.0,6.0},{6.0,6.0},{4.0,4.0},{12.0,12.0},
+            {6.0,6.0},{6.0,6.0},{6.0,6.0},{2.0,2.0},{2.0,2.0},
+            {1.0,1.0},{1.0,1.0}},
+
+            // lim_min
+            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-5,-5},
+            {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},
+            {-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},
+            {-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},
+            {-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},
+            {-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},
+            {-1.0,-1.0},{-1.0,-1.0}},
+
+            // lim_max
+            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{5,5},
+            {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
+            {1.0,1.0},{1.0,1.0}},
+
+            }
+        }, // end Muon
 
     }; // end scalingParamsMap_v2p5
 
