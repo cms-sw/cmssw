@@ -45,7 +45,7 @@ namespace edm {
 class MCLongLivedParticles : public edm::global::EDFilter<> {
 public:
   explicit MCLongLivedParticles(const edm::ParameterSet&);
-  ~MCLongLivedParticles() override;
+  ~MCLongLivedParticles() override = default;
 
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
