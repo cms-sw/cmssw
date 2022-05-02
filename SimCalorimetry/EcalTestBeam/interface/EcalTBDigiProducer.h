@@ -37,7 +37,7 @@ private:
   void fillTBTDCRawInfo(EcalTBTDCRawInfo &theTBTDCRawInfo);
 
   const EcalTrigTowerConstituentsMap m_theTTmap;
-  std::unique_ptr <EcalTBReadout> m_theTBReadout;
+  std::unique_ptr<EcalTBReadout> m_theTBReadout;
 
   std::string m_ecalTBInfoLabel;
   std::string m_EBdigiFinalTag;

@@ -5,7 +5,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
 
-EcalTBReadout::EcalTBReadout(const edm::EDGetTokenT<PEcalTBInfo>& token) : ecalTBInfoToken_(token) {
+EcalTBReadout::EcalTBReadout(const edm::EDGetTokenT<PEcalTBInfo> &token) : ecalTBInfoToken_(token) {
   theTargetCrystal_ = -1;
   theTTlist_.reserve(1);
 }
@@ -153,7 +153,7 @@ void EcalTBReadout::performReadout(edm::Event &event,
   // TB readout
   // step 1: get the target crystal index
 
-  const edm::Handle<PEcalTBInfo> & theEcalTBInfo = event.getHandle(ecalTBInfoToken_);
+  const edm::Handle<PEcalTBInfo> &theEcalTBInfo = event.getHandle(ecalTBInfoToken_);
 
   int crysId = theEcalTBInfo->nCrystal();
 
@@ -173,7 +173,7 @@ void EcalTBReadout::performReadout(edm::Event &event,
   // TB readout
   // step 1: get the target crystal index
 
-  const edm::Handle<PEcalTBInfo> & theEcalTBInfo = event.getHandle(ecalTBInfoToken_);
+  const edm::Handle<PEcalTBInfo> &theEcalTBInfo = event.getHandle(ecalTBInfoToken_);
 
   int crysId = theEcalTBInfo->nCrystal();
 

@@ -19,7 +19,7 @@
 
 class EcalTBReadout {
 public:
-  EcalTBReadout(const edm::EDGetTokenT<PEcalTBInfo>& token);
+  EcalTBReadout(const edm::EDGetTokenT<PEcalTBInfo> &token);
   ~EcalTBReadout() = default;
 
   /// tell the readout which cells exist
