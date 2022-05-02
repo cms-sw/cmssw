@@ -36,7 +36,8 @@ CastorHitAnalyzer::CastorHitAnalyzer(edm::ParameterSet const &conf)
       simParameterMap_(),
       castorFilter_(),
       castorAnalyzer_("CASTOR", 1., &simParameterMap_, &castorFilter_),
-      castorRecHitToken_(consumes<CastorRecHitCollection>(conf.getParameter<edm::InputTag>("castorRecHitCollectionTag"))),
+      castorRecHitToken_(
+          consumes<CastorRecHitCollection>(conf.getParameter<edm::InputTag>("castorRecHitCollectionTag"))),
       castorcfToken_(consumes<CrossingFrame<PCaloHit>>(edm::InputTag("mix", "g4SimHitsCastorFI"))) {}
 
 namespace CastorHitAnalyzerImpl {
