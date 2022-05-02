@@ -776,19 +776,21 @@ class TauIDEmbedder(object):
                 'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2022v2p5_test_outer.pb',
             ]
             setattr(self.process,_deepTauName+self.postfix,cms.EDProducer("DeepTauId",
-                electrons                = cms.InputTag('slimmedElectrons'),
-                muons                    = cms.InputTag('slimmedMuons'),
-                taus                     = cms.InputTag(self.originalTauName),
-                pfcands                  = cms.InputTag('packedPFCandidates'),
-                vertices                 = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                rho                      = cms.InputTag('fixedGridRhoAll'),
-                graph_file               = cms.vstring(file_names),
-                mem_mapped               = cms.bool(False),
-                version                  = cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
-                sub_version              = cms.uint32(5),
-                debug_level              = cms.int32(0),
-                disable_dxy_pca          = cms.bool(True),
-                is_online                = cms.bool(False)
+                electrons                       = cms.InputTag('slimmedElectrons'),
+                muons                           = cms.InputTag('slimmedMuons'),
+                taus                            = cms.InputTag(self.originalTauName),
+                pfcands                         = cms.InputTag('packedPFCandidates'),
+                vertices                        = cms.InputTag('offlineSlimmedPrimaryVertices'),
+                rho                             = cms.InputTag('fixedGridRhoAll'),
+                graph_file                      = cms.vstring(file_names),
+                mem_mapped                      = cms.bool(False),
+                version                         = cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
+                sub_version                     = cms.uint32(5),
+                debug_level                     = cms.int32(0),
+                disable_dxy_pca                 = cms.bool(True),
+                disable_hcalFraction_workaround = cms.bool(True),
+                disable_CellIndex_workaround    = cms.bool(True),
+                is_online                       = cms.bool(False)
             ))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
