@@ -70,8 +70,10 @@ EcalSimRawData::EcalSimRawData(const edm::ParameterSet &params) {
   eeSrFlagToken_ = consumes<EESrFlagCollection>(edm::InputTag(srDigiProducer_, eeSrFlagCollection_));
   ebSrFlagToken_ = consumes<EBSrFlagCollection>(edm::InputTag(srDigiProducer_, ebSrFlagCollection_));
   ebDigisToken_ = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, ebDigiCollection_));
-  trigPrimDigisToken_[EcalSimRawData::tcp] = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(tpProducer_, tcpDigiCollection_));
-  trigPrimDigisToken_[EcalSimRawData::tp] = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(tpProducer_, tpDigiCollection_));
+  trigPrimDigisToken_[EcalSimRawData::tcp] =
+      consumes<EcalTrigPrimDigiCollection>(edm::InputTag(tpProducer_, tcpDigiCollection_));
+  trigPrimDigisToken_[EcalSimRawData::tp] =
+      consumes<EcalTrigPrimDigiCollection>(edm::InputTag(tpProducer_, tpDigiCollection_));
 }
 
 void EcalSimRawData::analyze(const edm::Event &event, const edm::EventSetup &es) {
