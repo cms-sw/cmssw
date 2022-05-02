@@ -302,11 +302,11 @@ def L1TReEmulMCFromRAW(process):
     )
 
     run3_GEM.toModify(process.simEmtfDigis,
-      RPCInput  = cms.InputTag('muonRPCDigis'),
-      GEMEnable = cms.bool(False),  # Will be enabled when GEM is in use.
-      GEMInput  = cms.InputTag('simMuonGEMPadDigiClusters'),
-      CPPFEnable = cms.bool(False), # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits. Set to "False" for MC
-      UseRun3CCLUT_OTMB = cms.bool(False), # TODO: Enable UseRun3CCLUT_OTMB once it's ready.
+      RPCInput  = 'muonRPCDigis',
+      GEMEnable = False,  # Will be enabled when GEM is in use.
+      GEMInput  = 'simMuonGEMPadDigiClusters',
+      CPPFEnable = False,  # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits. Set to "False" for MC
+      UseRun3CCLUT_OTMB = False,  # TODO: Enable UseRun3CCLUT_OTMB once it's ready.
     )
 
     return process
