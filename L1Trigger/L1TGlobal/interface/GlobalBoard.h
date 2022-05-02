@@ -186,10 +186,10 @@ namespace l1t {
           if (nps > 0 and nps <= ps)
             ps = nps;
           else {
-          if (nps != 0)  // complain only if nps <0 or nps >PS
+            if (nps != 0)  // complain only if nps <0 or nps >PS
               edm::LogWarning("L1TGlobal::semirandomNumber")
                   << "\n The inital prescale counter obtained by L1TGlobal::semirandomNumber is wrong."
-                  << "\n This is probably do to the floating-point precision. Using the PS value." << semirandom
+                  << "\n This is probably do to the floating-point precision. Using the PS value."
                   << "\n semirandom = " << semirandom << "\n PS = " << ps << "\n nps = " << nps
                   << " <-- it should be in the range [0 , " << ps << "]" << std::endl;
           }
