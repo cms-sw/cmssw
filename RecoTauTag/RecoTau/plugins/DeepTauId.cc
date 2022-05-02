@@ -2014,6 +2014,15 @@ private:
                                TauFunc tau_funcs,
                                bool is_inner) {
     namespace dnn = dnn_inputs_v2::EgammaBlockInputs;
+    Scaling::FeatureT ft_global = Scaling::FeatureT::GridGlobal;
+    Scaling::FeatureT ft_PFe = Scaling::FeatureT::PfCand_electron;
+    Scaling::FeatureT ft_PFg = Scaling::FeatureT::PfCand_gamma;
+    Scaling::FeatureT ft_e = Scaling::FeatureT::Electron;
+
+    // needed to remap indices from scaling vectors to those from dnn_inputs_v2::EgammaBlockInputs
+    int PFe_index_offset = scalingParamsMap_->at(ft_global).mean_.size();
+    int e_index_offset = PFe_index_offset + scalingParamsMap_->at(ft_PFe).mean_.size();
+    int PFg_index_offset = e_index_offset + scalingParamsMap_->at(ft_e).mean_.size();
 
     tensorflow::Tensor& inputs = *eGammaTensor_.at(is_inner);
 
@@ -2024,69 +2033,61 @@ private:
     const bool valid_index_ele = cell_map.count(CellObjectType::Electron);
 
     if (!cell_map.empty()) {
-      get(dnn::rho) = getValueNorm(rho, 21.49f, 9.713f);
-      get(dnn::tau_pt) = getValueLinear(tau.polarP4().pt(), 20.f, 1000.f, true);
-      get(dnn::tau_eta) = getValueLinear(tau.polarP4().eta(), -2.3f, 2.3f, false);
-      get(dnn::tau_inside_ecal_crack) = getValue(isInEcalCrack(tau.polarP4().eta()));
+      get(dnn::rho) = getValueScaled(rho, dnn::rho, ft_global, is_inner);
+      get(dnn::tau_pt) = getValueScaled(tau.polarP4().pt(), dnn::tau_pt, ft_global, is_inner);
+      get(dnn::tau_eta) = getValueScaled(tau.polarP4().eta(), dnn::tau_eta, ft_global, is_inner );
+      get(dnn::tau_inside_ecal_crack) = getValueScaled(isInEcalCrack(tau.polarP4().eta()), dnn::tau_inside_ecal_crack, ft_global, is_inner);
     }
     if (valid_index_pf_ele) {
       size_t index_pf_ele = cell_map.at(CellObjectType::PfCand_electron);
       const auto& ele_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_pf_ele));
 
-      get(dnn::pfCand_ele_valid) = valid_index_pf_ele;
-      get(dnn::pfCand_ele_rel_pt) = getValueNorm(pfCands.at(index_pf_ele).polarP4().pt() / tau.polarP4().pt(),
-                                                 is_inner ? 0.9792f : 0.304f,
-                                                 is_inner ? 0.5383f : 1.845f);
-      get(dnn::pfCand_ele_deta) = getValueLinear(pfCands.at(index_pf_ele).polarP4().eta() - tau.polarP4().eta(),
-                                                 is_inner ? -0.1f : -0.5f,
-                                                 is_inner ? 0.1f : 0.5f,
-                                                 false);
-      get(dnn::pfCand_ele_dphi) = getValueLinear(dPhi(tau.polarP4(), pfCands.at(index_pf_ele).polarP4()),
-                                                 is_inner ? -0.1f : -0.5f,
-                                                 is_inner ? 0.1f : 0.5f,
-                                                 false);
+      get(dnn::pfCand_ele_valid) = getValueScaled(valid_index_pf_ele, dnn::pfCand_ele_valid-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_rel_pt) = getValueScaled(pfCands.at(index_pf_ele).polarP4().pt() / tau.polarP4().pt(),
+                                                 dnn::pfCand_ele_rel_pt-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_deta) = getValueScaled(pfCands.at(index_pf_ele).polarP4().eta() - tau.polarP4().eta(),
+                                                 dnn::pfCand_ele_deta-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_dphi) = getValueScaled(dPhi(tau.polarP4(), pfCands.at(index_pf_ele).polarP4()),
+                                                 dnn::pfCand_ele_dphi-PFe_index_offset, ft_PFe, is_inner);
       get(dnn::pfCand_ele_pvAssociationQuality) =
-          getValueLinear<int>(candFunc::getPvAssocationQuality(ele_cand), 0, 7, true);
-      get(dnn::pfCand_ele_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(ele_cand, 0.9906834f))
-                                                  : getValue(candFunc::getPuppiWeight(ele_cand, 0.9669586f));
-      get(dnn::pfCand_ele_charge) = getValue(ele_cand.charge());
-      get(dnn::pfCand_ele_lostInnerHits) = getValue<int>(candFunc::getLostInnerHits(ele_cand, 0));
-      get(dnn::pfCand_ele_numberOfPixelHits) = getValueLinear(candFunc::getNumberOfPixelHits(ele_cand, 0), 0, 10, true);
+          getValueScaled<int>(candFunc::getPvAssocationQuality(ele_cand), dnn::pfCand_ele_pvAssociationQuality-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_puppiWeight) = is_inner ? getValueScaled(candFunc::getPuppiWeight(ele_cand, 0.9906834f), dnn::pfCand_ele_puppiWeight-PFe_index_offset, ft_PFe, is_inner)
+                                                  : getValueScaled(candFunc::getPuppiWeight(ele_cand, 0.9669586f), dnn::pfCand_ele_puppiWeight-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_charge) = getValueScaled(ele_cand.charge(), dnn::pfCand_ele_charge-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_lostInnerHits) = getValueScaled<int>(candFunc::getLostInnerHits(ele_cand, 0), dnn::pfCand_ele_lostInnerHits-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_numberOfPixelHits) = getValueScaled(candFunc::getNumberOfPixelHits(ele_cand, 0), dnn::pfCand_ele_numberOfPixelHits-PFe_index_offset, ft_PFe, is_inner);
       get(dnn::pfCand_ele_vertex_dx) =
-          getValueNorm(pfCands.at(index_pf_ele).vertex().x() - pv.position().x(), 0.f, 0.1221f);
+          getValueScaled(pfCands.at(index_pf_ele).vertex().x() - pv.position().x(), dnn::pfCand_ele_vertex_dx-PFe_index_offset, ft_PFe, is_inner);
       get(dnn::pfCand_ele_vertex_dy) =
-          getValueNorm(pfCands.at(index_pf_ele).vertex().y() - pv.position().y(), 0.f, 0.1226f);
+          getValueScaled(pfCands.at(index_pf_ele).vertex().y() - pv.position().y(), dnn::pfCand_ele_vertex_dy-PFe_index_offset, ft_PFe, is_inner);
       get(dnn::pfCand_ele_vertex_dz) =
-          getValueNorm(pfCands.at(index_pf_ele).vertex().z() - pv.position().z(), 0.001f, 1.024f);
-      get(dnn::pfCand_ele_vertex_dx_tauFL) = getValueNorm(
+          getValueScaled(pfCands.at(index_pf_ele).vertex().z() - pv.position().z(), dnn::pfCand_ele_vertex_dz-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_vertex_dx_tauFL) = getValueScaled(
           pfCands.at(index_pf_ele).vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
-          0.f,
-          0.3411f);
-      get(dnn::pfCand_ele_vertex_dy_tauFL) = getValueNorm(
+          dnn::pfCand_ele_vertex_dx_tauFL-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_vertex_dy_tauFL) = getValueScaled(
           pfCands.at(index_pf_ele).vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
-          0.0003f,
-          0.3385f);
-      get(dnn::pfCand_ele_vertex_dz_tauFL) = getValueNorm(
+          dnn::pfCand_ele_vertex_dy_tauFL-PFe_index_offset, ft_PFe, is_inner);
+      get(dnn::pfCand_ele_vertex_dz_tauFL) = getValueScaled(
           pfCands.at(index_pf_ele).vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
-          0.f,
-          1.307f);
+          dnn::pfCand_ele_vertex_dz_tauFL-PFe_index_offset, ft_PFe, is_inner);
 
       const bool hasTrackDetails = candFunc::getHasTrackDetails(ele_cand);
       if (hasTrackDetails) {
-        get(dnn::pfCand_ele_hasTrackDetails) = hasTrackDetails;
-        get(dnn::pfCand_ele_dxy) = getValueNorm(candFunc::getTauDxy(ele_cand), 0.f, 0.171f);
+        get(dnn::pfCand_ele_hasTrackDetails) = getValueScaled(hasTrackDetails, dnn::pfCand_ele_hasTrackDetails-PFe_index_offset, ft_PFe, is_inner);
+        get(dnn::pfCand_ele_dxy) = getValueScaled(candFunc::getTauDxy(ele_cand), dnn::pfCand_ele_dxy-PFe_index_offset, ft_PFe, is_inner);
         get(dnn::pfCand_ele_dxy_sig) =
-            getValueNorm(std::abs(candFunc::getTauDxy(ele_cand)) / pfCands.at(index_pf_ele).dxyError(), 1.634f, 6.45f);
-        get(dnn::pfCand_ele_dz) = getValueNorm(candFunc::getTauDz(ele_cand), 0.001f, 1.02f);
+            getValueScaled(std::abs(candFunc::getTauDxy(ele_cand)) / pfCands.at(index_pf_ele).dxyError(), dnn::pfCand_ele_dxy_sig-PFe_index_offset, ft_PFe, is_inner);
+        get(dnn::pfCand_ele_dz) = getValueScaled(candFunc::getTauDz(ele_cand), dnn::pfCand_ele_dz-PFe_index_offset, ft_PFe, is_inner);
         get(dnn::pfCand_ele_dz_sig) =
-            getValueNorm(std::abs(candFunc::getTauDz(ele_cand)) / ele_cand.dzError(), 24.56f, 210.4f);
+            getValueScaled(std::abs(candFunc::getTauDz(ele_cand)) / ele_cand.dzError(), dnn::pfCand_ele_dz_sig-PFe_index_offset, ft_PFe, is_inner);
         get(dnn::pfCand_ele_track_chi2_ndof) = candFunc::getPseudoTrack(ele_cand).ndof() > 0
-                                                ? getValueNorm(candFunc::getPseudoTrack(ele_cand).chi2() / 
+                                                ? getValueScaled(candFunc::getPseudoTrack(ele_cand).chi2() / 
                                                               candFunc::getPseudoTrack(ele_cand).ndof(), 
-                                                              2.272f, 8.439f)
+                                                              dnn::pfCand_ele_track_chi2_ndof-PFe_index_offset, ft_PFe, is_inner)
                                                 : 0;
         get(dnn::pfCand_ele_track_ndof) = candFunc::getPseudoTrack(ele_cand).ndof() > 0
-                                            ? getValueNorm(candFunc::getPseudoTrack(ele_cand).ndof(), 15.18f, 3.203f)
+                                            ? getValueScaled(candFunc::getPseudoTrack(ele_cand).ndof(), dnn::pfCand_ele_track_ndof-PFe_index_offset, ft_PFe, is_inner)
                                             : 0;
       }
     }
@@ -2094,150 +2095,139 @@ private:
       size_t index_pf_gamma = cell_map.at(CellObjectType::PfCand_gamma);
       const auto& gamma_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_pf_gamma));
 
-      get(dnn::pfCand_gamma_valid) = valid_index_pf_gamma;
-      get(dnn::pfCand_gamma_rel_pt) = getValueNorm(pfCands.at(index_pf_gamma).polarP4().pt() / tau.polarP4().pt(),
-                                                   is_inner ? 0.6048f : 0.02576f,
-                                                   is_inner ? 1.669f : 0.3833f);
-      get(dnn::pfCand_gamma_deta) = getValueLinear(pfCands.at(index_pf_gamma).polarP4().eta() - tau.polarP4().eta(),
-                                                   is_inner ? -0.1f : -0.5f,
-                                                   is_inner ? 0.1f : 0.5f,
-                                                   false);
-      get(dnn::pfCand_gamma_dphi) = getValueLinear(dPhi(tau.polarP4(), pfCands.at(index_pf_gamma).polarP4()),
-                                                   is_inner ? -0.1f : -0.5f,
-                                                   is_inner ? 0.1f : 0.5f,
-                                                   false);
+      get(dnn::pfCand_gamma_valid) = getValueScaled(valid_index_pf_gamma, dnn::pfCand_gamma_valid-PFg_index_offset, ft_PFg, is_inner);
+      get(dnn::pfCand_gamma_rel_pt) = getValueScaled(pfCands.at(index_pf_gamma).polarP4().pt() / tau.polarP4().pt(),
+                                                   dnn::pfCand_gamma_rel_pt-PFg_index_offset, ft_PFg, is_inner);
+      get(dnn::pfCand_gamma_deta) = getValueScaled(pfCands.at(index_pf_gamma).polarP4().eta() - tau.polarP4().eta(),
+                                                   dnn::pfCand_gamma_deta-PFg_index_offset, ft_PFg, is_inner);
+      get(dnn::pfCand_gamma_dphi) = getValueScaled(dPhi(tau.polarP4(), pfCands.at(index_pf_gamma).polarP4()),
+                                                   dnn::pfCand_gamma_dphi-PFg_index_offset, ft_PFg, is_inner);
       get(dnn::pfCand_gamma_pvAssociationQuality) =
-          getValueLinear<int>(candFunc::getPvAssocationQuality(gamma_cand), 0, 7, true);
-      get(dnn::pfCand_gamma_fromPV) = getValueLinear<int>(candFunc::getFromPV(gamma_cand), 0, 3, true);
-      get(dnn::pfCand_gamma_puppiWeight) = is_inner ? getValue(candFunc::getPuppiWeight(gamma_cand, 0.9084110f))
-                                                    : getValue(candFunc::getPuppiWeight(gamma_cand, 0.4211567f));
+          getValueScaled<int>(candFunc::getPvAssocationQuality(gamma_cand), dnn::pfCand_gamma_pvAssociationQuality-PFg_index_offset, ft_PFg, is_inner);
+      get(dnn::pfCand_gamma_fromPV) = getValueScaled<int>(candFunc::getFromPV(gamma_cand), dnn::pfCand_gamma_fromPV-PFg_index_offset, ft_PFg, is_inner);
+      get(dnn::pfCand_gamma_puppiWeight) = is_inner ? getValueScaled(candFunc::getPuppiWeight(gamma_cand, 0.9084110f), 
+                                                                      dnn::pfCand_gamma_puppiWeight-PFg_index_offset, ft_PFg, is_inner)
+                                                    : getValueScaled(candFunc::getPuppiWeight(gamma_cand, 0.4211567f), 
+                                                                      dnn::pfCand_gamma_puppiWeight-PFg_index_offset, ft_PFg, is_inner);
       get(dnn::pfCand_gamma_puppiWeightNoLep) = is_inner
-                                                    ? getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.8857716f))
-                                                    : getValue(candFunc::getPuppiWeightNoLep(gamma_cand, 0.3822604f));
-      get(dnn::pfCand_gamma_lostInnerHits) = getValue<int>(candFunc::getLostInnerHits(gamma_cand, 0));
+                                                    ? getValueScaled(candFunc::getPuppiWeightNoLep(gamma_cand, 0.8857716f), 
+                                                                      dnn::pfCand_gamma_puppiWeightNoLep-PFg_index_offset, ft_PFg, is_inner)
+                                                    : getValueScaled(candFunc::getPuppiWeightNoLep(gamma_cand, 0.3822604f), 
+                                                                      dnn::pfCand_gamma_puppiWeightNoLep-PFg_index_offset, ft_PFg, is_inner);
+      get(dnn::pfCand_gamma_lostInnerHits) = getValueScaled<int>(candFunc::getLostInnerHits(gamma_cand, 0), 
+                                                                  dnn::pfCand_gamma_lostInnerHits-PFg_index_offset, ft_PFg, is_inner);
       get(dnn::pfCand_gamma_numberOfPixelHits) =
-          getValueLinear(candFunc::getNumberOfPixelHits(gamma_cand, 0), 0, 7, true);
+          getValueScaled(candFunc::getNumberOfPixelHits(gamma_cand, 0), dnn::pfCand_gamma_numberOfPixelHits-PFg_index_offset, ft_PFg, is_inner);
       get(dnn::pfCand_gamma_vertex_dx) =
-          getValueNorm(pfCands.at(index_pf_gamma).vertex().x() - pv.position().x(), 0.f, 0.0067f);
+          getValueScaled(pfCands.at(index_pf_gamma).vertex().x() - pv.position().x(), dnn::pfCand_gamma_vertex_dx-PFg_index_offset, ft_PFg, is_inner);
       get(dnn::pfCand_gamma_vertex_dy) =
-          getValueNorm(pfCands.at(index_pf_gamma).vertex().y() - pv.position().y(), 0.f, 0.0069f);
+          getValueScaled(pfCands.at(index_pf_gamma).vertex().y() - pv.position().y(), dnn::pfCand_gamma_vertex_dy-PFg_index_offset, ft_PFg, is_inner);
       get(dnn::pfCand_gamma_vertex_dz) =
-          getValueNorm(pfCands.at(index_pf_gamma).vertex().z() - pv.position().z(), 0.f, 0.0578f);
-      get(dnn::pfCand_gamma_vertex_dx_tauFL) = getValueNorm(
+          getValueScaled(pfCands.at(index_pf_gamma).vertex().z() - pv.position().z(), dnn::pfCand_gamma_vertex_dz-PFg_index_offset, ft_PFg, is_inner);
+      get(dnn::pfCand_gamma_vertex_dx_tauFL) = getValueScaled(
           pfCands.at(index_pf_gamma).vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
-          0.001f,
-          0.9565f);
-      get(dnn::pfCand_gamma_vertex_dy_tauFL) = getValueNorm(
+          dnn::pfCand_gamma_vertex_dx_tauFL-PFg_index_offset, ft_PFg, is_inner);
+      get(dnn::pfCand_gamma_vertex_dy_tauFL) = getValueScaled(
           pfCands.at(index_pf_gamma).vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
-          0.0008f,
-          0.9592f);
-      get(dnn::pfCand_gamma_vertex_dz_tauFL) = getValueNorm(
+          dnn::pfCand_gamma_vertex_dy_tauFL-PFg_index_offset, ft_PFg, is_inner);
+      get(dnn::pfCand_gamma_vertex_dz_tauFL) = getValueScaled(
           pfCands.at(index_pf_gamma).vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
-          0.0038f,
-          2.154f);
+          dnn::pfCand_gamma_vertex_dz_tauFL-PFg_index_offset, ft_PFg, is_inner);
       const bool hasTrackDetails = candFunc::getHasTrackDetails(gamma_cand);
       if (hasTrackDetails) {
-        get(dnn::pfCand_gamma_hasTrackDetails) = hasTrackDetails;
-        get(dnn::pfCand_gamma_dxy) = getValueNorm(candFunc::getTauDxy(gamma_cand), 0.0004f, 0.882f);
+        get(dnn::pfCand_gamma_hasTrackDetails) = getValueScaled(hasTrackDetails, dnn::pfCand_gamma_hasTrackDetails-PFg_index_offset, ft_PFg, is_inner);
+        get(dnn::pfCand_gamma_dxy) = getValueScaled(candFunc::getTauDxy(gamma_cand), dnn::pfCand_gamma_dxy-PFg_index_offset, ft_PFg, is_inner);
         get(dnn::pfCand_gamma_dxy_sig) =
-            getValueNorm(std::abs(candFunc::getTauDxy(gamma_cand)) / gamma_cand.dxyError(), 4.271f, 63.78f);
-        get(dnn::pfCand_gamma_dz) = getValueNorm(candFunc::getTauDz(gamma_cand), 0.0071f, 5.285f);
+            getValueScaled(std::abs(candFunc::getTauDxy(gamma_cand)) / gamma_cand.dxyError(), dnn::pfCand_gamma_dxy_sig-PFg_index_offset, ft_PFg, is_inner);
+        get(dnn::pfCand_gamma_dz) = getValueScaled(candFunc::getTauDz(gamma_cand), dnn::pfCand_gamma_dz-PFg_index_offset, ft_PFg, is_inner);
         get(dnn::pfCand_gamma_dz_sig) =
-            getValueNorm(std::abs(candFunc::getTauDz(gamma_cand)) / gamma_cand.dzError(), 162.1f, 622.4f);
+            getValueScaled(std::abs(candFunc::getTauDz(gamma_cand)) / gamma_cand.dzError(), dnn::pfCand_gamma_dz_sig-PFg_index_offset, ft_PFg, is_inner);
         get(dnn::pfCand_gamma_track_chi2_ndof) = candFunc::getPseudoTrack(gamma_cand).ndof() > 0
-                                                     ? getValueNorm(candFunc::getPseudoTrack(gamma_cand).chi2() /
+                                                     ? getValueScaled(candFunc::getPseudoTrack(gamma_cand).chi2() /
                                                                         candFunc::getPseudoTrack(gamma_cand).ndof(),
-                                                                    4.268f,
-                                                                    15.47f)
+                                                                    dnn::pfCand_gamma_track_chi2_ndof-PFg_index_offset, ft_PFg, is_inner)
                                                      : 0;
         get(dnn::pfCand_gamma_track_ndof) =
             candFunc::getPseudoTrack(gamma_cand).ndof() > 0
-                ? getValueNorm(candFunc::getPseudoTrack(gamma_cand).ndof(), 12.25f, 4.774f)
+                ? getValueScaled(candFunc::getPseudoTrack(gamma_cand).ndof(), dnn::pfCand_gamma_track_ndof-PFg_index_offset, ft_PFg, is_inner)
                 : 0;
       }
     }
     if (valid_index_ele) {
       size_t index_ele = cell_map.at(CellObjectType::Electron);
 
-      get(dnn::ele_valid) = valid_index_ele;
-      get(dnn::ele_rel_pt) = getValueNorm(electrons->at(index_ele).polarP4().pt() / tau.polarP4().pt(),
-                                          is_inner ? 1.067f : 0.5111f,
-                                          is_inner ? 1.521f : 2.765f);
-      get(dnn::ele_deta) = getValueLinear(electrons->at(index_ele).polarP4().eta() - tau.polarP4().eta(),
-                                          is_inner ? -0.1f : -0.5f,
-                                          is_inner ? 0.1f : 0.5f,
-                                          false);
-      get(dnn::ele_dphi) = getValueLinear(dPhi(tau.polarP4(), electrons->at(index_ele).polarP4()),
-                                          is_inner ? -0.1f : -0.5f,
-                                          is_inner ? 0.1f : 0.5f,
-                                          false);
+      get(dnn::ele_valid) = getValueScaled(valid_index_ele, dnn::ele_valid-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_rel_pt) = getValueScaled(electrons->at(index_ele).polarP4().pt() / tau.polarP4().pt(),
+                                          dnn::ele_rel_pt-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_deta) = getValueScaled(electrons->at(index_ele).polarP4().eta() - tau.polarP4().eta(),
+                                          dnn::ele_deta-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_dphi) = getValueScaled(dPhi(tau.polarP4(), electrons->at(index_ele).polarP4()),
+                                          dnn::ele_dphi-e_index_offset, ft_e, is_inner);
 
       float cc_ele_energy, cc_gamma_energy;
       int cc_n_gamma;
       const bool cc_valid =
           calculateElectronClusterVarsV2(electrons->at(index_ele), cc_ele_energy, cc_gamma_energy, cc_n_gamma);
       if (cc_valid) {
-        get(dnn::ele_cc_valid) = cc_valid;
+        get(dnn::ele_cc_valid) = getValueScaled(cc_valid, dnn::ele_cc_valid-e_index_offset, ft_e, is_inner);
         get(dnn::ele_cc_ele_rel_energy) =
-            getValueNorm(cc_ele_energy / electrons->at(index_ele).polarP4().pt(), 1.729f, 1.644f);
-        get(dnn::ele_cc_gamma_rel_energy) = getValueNorm(cc_gamma_energy / cc_ele_energy, 0.1439f, 0.3284f);
-        get(dnn::ele_cc_n_gamma) = getValueNorm(cc_n_gamma, 1.794f, 2.079f);
+            getValueScaled(cc_ele_energy / electrons->at(index_ele).polarP4().pt(), dnn::ele_cc_ele_rel_energy-e_index_offset, ft_e, is_inner);
+        get(dnn::ele_cc_gamma_rel_energy) = getValueScaled(cc_gamma_energy / cc_ele_energy, dnn::ele_cc_gamma_rel_energy-e_index_offset, ft_e, is_inner);
+        get(dnn::ele_cc_n_gamma) = getValueScaled(cc_n_gamma, dnn::ele_cc_n_gamma-e_index_offset, ft_e, is_inner);
       }
-      get(dnn::ele_rel_trackMomentumAtVtx) = getValueNorm(
-          electrons->at(index_ele).trackMomentumAtVtx().R() / electrons->at(index_ele).polarP4().pt(), 1.531f, 1.424f);
-      get(dnn::ele_rel_trackMomentumAtCalo) = getValueNorm(
-          electrons->at(index_ele).trackMomentumAtCalo().R() / electrons->at(index_ele).polarP4().pt(), 1.531f, 1.424f);
-      get(dnn::ele_rel_trackMomentumOut) = getValueNorm(
-          electrons->at(index_ele).trackMomentumOut().R() / electrons->at(index_ele).polarP4().pt(), 0.7735f, 0.935f);
+      get(dnn::ele_rel_trackMomentumAtVtx) = getValueScaled(
+          electrons->at(index_ele).trackMomentumAtVtx().R() / electrons->at(index_ele).polarP4().pt(), dnn::ele_rel_trackMomentumAtVtx-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_rel_trackMomentumAtCalo) = getValueScaled(
+          electrons->at(index_ele).trackMomentumAtCalo().R() / electrons->at(index_ele).polarP4().pt(), dnn::ele_rel_trackMomentumAtCalo-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_rel_trackMomentumOut) = getValueScaled(
+          electrons->at(index_ele).trackMomentumOut().R() / electrons->at(index_ele).polarP4().pt(), dnn::ele_rel_trackMomentumOut-e_index_offset, ft_e, is_inner);
       get(dnn::ele_rel_trackMomentumAtEleClus) =
-          getValueNorm(electrons->at(index_ele).trackMomentumAtEleClus().R() / electrons->at(index_ele).polarP4().pt(),
-                       0.7735f,
-                       0.935f);
-      get(dnn::ele_rel_trackMomentumAtVtxWithConstraint) = getValueNorm(
+          getValueScaled(electrons->at(index_ele).trackMomentumAtEleClus().R() / electrons->at(index_ele).polarP4().pt(),
+                       dnn::ele_rel_trackMomentumAtEleClus-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_rel_trackMomentumAtVtxWithConstraint) = getValueScaled(
           electrons->at(index_ele).trackMomentumAtVtxWithConstraint().R() / electrons->at(index_ele).polarP4().pt(),
-          1.625f,
-          1.581f);
+          dnn::ele_rel_trackMomentumAtVtxWithConstraint-e_index_offset, ft_e, is_inner);
       get(dnn::ele_rel_ecalEnergy) =
-          getValueNorm(electrons->at(index_ele).ecalEnergy() / electrons->at(index_ele).polarP4().pt(), 1.993f, 1.308f);
-      get(dnn::ele_ecalEnergy_sig) = getValueNorm(
-          electrons->at(index_ele).ecalEnergy() / electrons->at(index_ele).ecalEnergyError(), 70.25f, 58.16f);
-      get(dnn::ele_eSuperClusterOverP) = getValueNorm(electrons->at(index_ele).eSuperClusterOverP(), 2.432f, 15.13f);
-      get(dnn::ele_eSeedClusterOverP) = getValueNorm(electrons->at(index_ele).eSeedClusterOverP(), 2.034f, 13.96f);
-      get(dnn::ele_eSeedClusterOverPout) = getValueNorm(electrons->at(index_ele).eSeedClusterOverPout(), 6.64f, 36.8f);
-      get(dnn::ele_eEleClusterOverPout) = getValueNorm(electrons->at(index_ele).eEleClusterOverPout(), 4.183f, 20.63f);
+          getValueScaled(electrons->at(index_ele).ecalEnergy() / electrons->at(index_ele).polarP4().pt(), dnn::ele_rel_ecalEnergy-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_ecalEnergy_sig) = getValueScaled(
+          electrons->at(index_ele).ecalEnergy() / electrons->at(index_ele).ecalEnergyError(), dnn::ele_ecalEnergy_sig-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_eSuperClusterOverP) = getValueScaled(electrons->at(index_ele).eSuperClusterOverP(), dnn::ele_eSuperClusterOverP-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_eSeedClusterOverP) = getValueScaled(electrons->at(index_ele).eSeedClusterOverP(), dnn::ele_eSeedClusterOverP-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_eSeedClusterOverPout) = getValueScaled(electrons->at(index_ele).eSeedClusterOverPout(), dnn::ele_eSeedClusterOverPout-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_eEleClusterOverPout) = getValueScaled(electrons->at(index_ele).eEleClusterOverPout(), dnn::ele_eEleClusterOverPout-e_index_offset, ft_e, is_inner);
       get(dnn::ele_deltaEtaSuperClusterTrackAtVtx) =
-          getValueNorm(electrons->at(index_ele).deltaEtaSuperClusterTrackAtVtx(), 0.f, 0.0363f);
+          getValueScaled(electrons->at(index_ele).deltaEtaSuperClusterTrackAtVtx(), dnn::ele_deltaEtaSuperClusterTrackAtVtx-e_index_offset, ft_e, is_inner);
       get(dnn::ele_deltaEtaSeedClusterTrackAtCalo) =
-          getValueNorm(electrons->at(index_ele).deltaEtaSeedClusterTrackAtCalo(), -0.0001f, 0.0512f);
+          getValueScaled(electrons->at(index_ele).deltaEtaSeedClusterTrackAtCalo(), dnn::ele_deltaEtaSeedClusterTrackAtCalo-e_index_offset, ft_e, is_inner);
       get(dnn::ele_deltaEtaEleClusterTrackAtCalo) =
-          getValueNorm(electrons->at(index_ele).deltaEtaEleClusterTrackAtCalo(), -0.0001f, 0.0541f);
+          getValueScaled(electrons->at(index_ele).deltaEtaEleClusterTrackAtCalo(), dnn::ele_deltaEtaEleClusterTrackAtCalo-e_index_offset, ft_e, is_inner);
       get(dnn::ele_deltaPhiEleClusterTrackAtCalo) =
-          getValueNorm(electrons->at(index_ele).deltaPhiEleClusterTrackAtCalo(), 0.0002f, 0.0553f);
+          getValueScaled(electrons->at(index_ele).deltaPhiEleClusterTrackAtCalo(), dnn::ele_deltaPhiEleClusterTrackAtCalo-e_index_offset, ft_e, is_inner);
       get(dnn::ele_deltaPhiSuperClusterTrackAtVtx) =
-          getValueNorm(electrons->at(index_ele).deltaPhiSuperClusterTrackAtVtx(), 0.0001f, 0.0523f);
+          getValueScaled(electrons->at(index_ele).deltaPhiSuperClusterTrackAtVtx(), dnn::ele_deltaPhiSuperClusterTrackAtVtx-e_index_offset, ft_e, is_inner);
       get(dnn::ele_deltaPhiSeedClusterTrackAtCalo) =
-          getValueNorm(electrons->at(index_ele).deltaPhiSeedClusterTrackAtCalo(), 0.0004f, 0.0777f);
-      get(dnn::ele_mvaInput_earlyBrem) = getValue(electrons->at(index_ele).mvaInput().earlyBrem);
-      get(dnn::ele_mvaInput_lateBrem) = getValue(electrons->at(index_ele).mvaInput().lateBrem);
+          getValueScaled(electrons->at(index_ele).deltaPhiSeedClusterTrackAtCalo(), dnn::ele_deltaPhiSeedClusterTrackAtCalo-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_mvaInput_earlyBrem) = getValueScaled(electrons->at(index_ele).mvaInput().earlyBrem, dnn::ele_mvaInput_earlyBrem-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_mvaInput_lateBrem) = getValueScaled(electrons->at(index_ele).mvaInput().lateBrem, dnn::ele_mvaInput_lateBrem-e_index_offset, ft_e, is_inner);
       get(dnn::ele_mvaInput_sigmaEtaEta) =
-          getValueNorm(electrons->at(index_ele).mvaInput().sigmaEtaEta, 0.0008f, 0.0052f);
-      get(dnn::ele_mvaInput_hadEnergy) = getValueNorm(electrons->at(index_ele).mvaInput().hadEnergy, 14.04f, 69.48f);
-      get(dnn::ele_mvaInput_deltaEta) = getValueNorm(electrons->at(index_ele).mvaInput().deltaEta, 0.0099f, 0.0851f);
+          getValueScaled(electrons->at(index_ele).mvaInput().sigmaEtaEta, dnn::ele_mvaInput_sigmaEtaEta-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_mvaInput_hadEnergy) = getValueScaled(electrons->at(index_ele).mvaInput().hadEnergy, dnn::ele_mvaInput_hadEnergy-e_index_offset, ft_e, is_inner);
+      get(dnn::ele_mvaInput_deltaEta) = getValueScaled(electrons->at(index_ele).mvaInput().deltaEta, dnn::ele_mvaInput_deltaEta-e_index_offset, ft_e, is_inner);
       const auto& gsfTrack = electrons->at(index_ele).gsfTrack();
       if (gsfTrack.isNonnull()) {
-        get(dnn::ele_gsfTrack_normalizedChi2) = getValueNorm(gsfTrack->normalizedChi2(), 3.049f, 10.39f);
-        get(dnn::ele_gsfTrack_numberOfValidHits) = getValueNorm(gsfTrack->numberOfValidHits(), 16.52f, 2.806f);
+        get(dnn::ele_gsfTrack_normalizedChi2) = getValueScaled(gsfTrack->normalizedChi2(), dnn::ele_gsfTrack_normalizedChi2-e_index_offset, ft_e, is_inner);
+        get(dnn::ele_gsfTrack_numberOfValidHits) = getValueScaled(gsfTrack->numberOfValidHits(), dnn::ele_gsfTrack_numberOfValidHits-e_index_offset, ft_e, is_inner);
         get(dnn::ele_rel_gsfTrack_pt) =
-            getValueNorm(gsfTrack->pt() / electrons->at(index_ele).polarP4().pt(), 1.355f, 16.81f);
-        get(dnn::ele_gsfTrack_pt_sig) = getValueNorm(gsfTrack->pt() / gsfTrack->ptError(), 5.046f, 3.119f);
+            getValueScaled(gsfTrack->pt() / electrons->at(index_ele).polarP4().pt(), dnn::ele_rel_gsfTrack_pt-e_index_offset, ft_e, is_inner);
+        get(dnn::ele_gsfTrack_pt_sig) = getValueScaled(gsfTrack->pt() / gsfTrack->ptError(), dnn::ele_gsfTrack_pt_sig-e_index_offset, ft_e, is_inner);
       }
       const auto& closestCtfTrack = electrons->at(index_ele).closestCtfTrackRef();
       const bool has_closestCtfTrack = closestCtfTrack.isNonnull();
       if (has_closestCtfTrack) {
-        get(dnn::ele_has_closestCtfTrack) = has_closestCtfTrack;
-        get(dnn::ele_closestCtfTrack_normalizedChi2) = getValueNorm(closestCtfTrack->normalizedChi2(), 2.411f, 6.98f);
+        get(dnn::ele_has_closestCtfTrack) = getValueScaled(has_closestCtfTrack, dnn::ele_has_closestCtfTrack-e_index_offset, ft_e, is_inner);
+        get(dnn::ele_closestCtfTrack_normalizedChi2) = getValueScaled(closestCtfTrack->normalizedChi2(), dnn::ele_closestCtfTrack_normalizedChi2-e_index_offset, ft_e, is_inner);
         get(dnn::ele_closestCtfTrack_numberOfValidHits) =
-            getValueNorm(closestCtfTrack->numberOfValidHits(), 15.16f, 5.26f);
+            getValueScaled(closestCtfTrack->numberOfValidHits(), dnn::ele_closestCtfTrack_numberOfValidHits-e_index_offset, ft_e, is_inner);
       }
     }
   }
