@@ -79,7 +79,6 @@ private:
   CastorHitFilter castorFilter_;
   CaloHitAnalyzer castorHitAnalyzer_;
   CastorDigiStatistics castorDigiStatistics_;
-  const edm::InputTag castorDigiCollectionTag_;
   const edm::EDGetTokenT<CastorDigiCollection> castordigiToken_;
   const edm::EDGetTokenT<CrossingFrame<PCaloHit>> castorcfToken_;
 };
@@ -89,8 +88,7 @@ CastorDigiAnalyzer::CastorDigiAnalyzer(edm::ParameterSet const &conf)
       simParameterMap_(),
       castorHitAnalyzer_("CASTORDigi", 1., &simParameterMap_, &castorFilter_),
       castorDigiStatistics_("CASTORDigi", 3, 10., 6., 0.1, 0.5, castorHitAnalyzer_),
-      castorDigiCollectionTag_(conf.getParameter<edm::InputTag>("castorDigiCollectionTag")),
-      castordigiToken_(consumes<CastorDigiCollection>(castorDigiCollectionTag_)),
+      castordigiToken_(consumes<CastorDigiCollection>(conf.getParameter<edm::InputTag>("castorDigiCollectionTag"))),
       castorcfToken_(consumes<CrossingFrame<PCaloHit>>(edm::InputTag("mix", "g4SimHitsCastorFI"))) {}
 
 namespace CastorDigiAnalyzerImpl {
