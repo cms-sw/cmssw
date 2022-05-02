@@ -526,7 +526,7 @@ namespace edm {
      */
     copySlotsToFrom(preSourceConstructionSignal_, iOther.preSourceConstructionSignal_);
     copySlotsToFromReverse(postSourceConstructionSignal_, iOther.postSourceConstructionSignal_);
-    
+
     copySlotsToFrom(esSyncIOVQueuingSignal_, iOther.esSyncIOVQueuingSignal_);
     copySlotsToFrom(preESSyncIOVSignal_, iOther.preESSyncIOVSignal_);
     copySlotsToFromReverse(postESSyncIOVSignal_, iOther.postESSyncIOVSignal_);
