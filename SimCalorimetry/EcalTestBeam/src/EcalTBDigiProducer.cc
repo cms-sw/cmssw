@@ -1,6 +1,3 @@
-
-#include <memory>
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,7 +45,8 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet &params,
 
   m_doReadout = params.getParameter<bool>("doReadout");
 
-  m_theTBReadout = new EcalTBReadout(m_ecalTBInfoLabel);
+  edm::EDGetTokenT<PEcalTBInfo> ecalTBInfoToken = iC.consumes<PEcalTBInfo>(edm::InputTag(m_ecalTBInfoLabel));
+  m_theTBReadout = std::make_unique<EcalTBReadout>(ecalTBInfoToken);
 
   m_tunePhaseShift = params.getParameter<double>("tunePhaseShift");
 
@@ -57,8 +55,6 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet &params,
         edm::InputTag(params.getUntrackedParameter<std::string>("EcalTBInfoLabel", "SimEcalTBG4Object")));
   }
 }
-
-EcalTBDigiProducer::~EcalTBDigiProducer() {}
 
 void EcalTBDigiProducer::initializeEvent(edm::Event const &event, edm::EventSetup const &eventSetup) {
   std::cout << "====****Entering EcalTBDigiProducer produce()" << std::endl;

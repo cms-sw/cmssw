@@ -9,6 +9,8 @@
 #include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRawInfo.h"
 
+#include <memory>
+
 namespace edm {
   class ConsumesCollector;
   class Event;
@@ -21,7 +23,7 @@ class PileUpEventPrincipal;
 class EcalTBDigiProducer : public EcalDigiProducer {
 public:
   EcalTBDigiProducer(const edm::ParameterSet &params, edm::ProducesCollector, edm::ConsumesCollector &iC);
-  ~EcalTBDigiProducer() override;
+  ~EcalTBDigiProducer() override = default;
 
   void initializeEvent(edm::Event const &, edm::EventSetup const &) override;
   void finalizeEvent(edm::Event &, edm::EventSetup const &) override;
@@ -35,7 +37,7 @@ private:
   void fillTBTDCRawInfo(EcalTBTDCRawInfo &theTBTDCRawInfo);
 
   const EcalTrigTowerConstituentsMap m_theTTmap;
-  EcalTBReadout *m_theTBReadout;
+  std::unique_ptr <EcalTBReadout> m_theTBReadout;
 
   std::string m_ecalTBInfoLabel;
   std::string m_EBdigiFinalTag;
