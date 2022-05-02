@@ -42,6 +42,27 @@ namespace reco {
       }
     }
 
+    void merge(reco::PixelClusterCounts const& pcc) {
+      std::vector<int> const& counts = pcc.readCounts();
+      std::vector<int> const& modIDs = pcc.readModID();
+      std::vector<int> const& events = pcc.readEvents();
+      for (unsigned int i = 0; i < modIDs.size(); i++) {
+        for (unsigned int bxID = 0; bxID < LumiConstants::numBX; ++bxID) {
+          increment(modIDs[i], bxID + 1, counts.at(i * LumiConstants::numBX + bxID));
+        }
+      }
+      for (unsigned int i = 0; i < LumiConstants::numBX; ++i) {
+        m_events[i] += events[i];
+      }
+    }
+
+    void reset() {
+      m_counts.clear();
+      m_ModID.clear();
+      m_events.clear();
+      m_events.resize(LumiConstants::numBX, 0);
+    }
+
     std::vector<int> const& readCounts() const { return (m_counts); }
     std::vector<int> const& readEvents() const { return (m_events); }
     std::vector<int> const& readModID() const { return (m_ModID); }
