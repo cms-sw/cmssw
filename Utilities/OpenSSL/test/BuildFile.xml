@@ -3,5 +3,12 @@
   <flags CXXFLAGS="-Wno-deprecated-declarations"/>
 </bin>
 
+<bin file="test_openssl_md5.cpp" name="test_openssl_md5">
+  <flags CXXFLAGS="-Wno-deprecated-declarations"/>
+</bin>
+
 <bin file="test_openssl_evp_digest.cpp" name="test_openssl_evp_digest">
+</bin>
+
+<bin file="test_openssl_evp_md5.cpp" name="test_openssl_evp_md5">
 </bin>

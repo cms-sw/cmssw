@@ -1,32 +1,37 @@
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondCore/CondDB/interface/Auth.h"
+#include "Utilities/OpenSSL/interface/openssl_init.h"
 #include "IOVSchema.h"
-//
-#include <openssl/sha.h>
 
 namespace cond {
 
   namespace persistency {
 
     cond::Hash makeHash(const std::string& objectType, const cond::Binary& data) {
-      SHA_CTX ctx;
-      if (!SHA1_Init(&ctx)) {
+      cms::openssl_init();
+      EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+      const EVP_MD* md = EVP_get_digestbyname("SHA1");
+      if (!EVP_DigestInit_ex(mdctx, md, nullptr)) {
         throwException("SHA1 initialization error.", "IOVSchema::makeHash");
       }
-      if (!SHA1_Update(&ctx, objectType.c_str(), objectType.size())) {
+      if (!EVP_DigestUpdate(mdctx, objectType.c_str(), objectType.size())) {
         throwException("SHA1 processing error (1).", "IOVSchema::makeHash");
       }
-      if (!SHA1_Update(&ctx, data.data(), data.size())) {
+      if (!EVP_DigestUpdate(mdctx, data.data(), data.size())) {
         throwException("SHA1 processing error (2).", "IOVSchema::makeHash");
       }
-      unsigned char hash[SHA_DIGEST_LENGTH];
-      if (!SHA1_Final(hash, &ctx)) {
+      unsigned char hash[EVP_MAX_MD_SIZE];
+      unsigned int md_len = 0;
+      if (!EVP_DigestFinal_ex(mdctx, hash, &md_len)) {
         throwException("SHA1 finalization error.", "IOVSchema::makeHash");
       }
-
-      char tmp[SHA_DIGEST_LENGTH * 2 + 1];
+      EVP_MD_CTX_free(mdctx);
+      char tmp[EVP_MAX_MD_SIZE * 2 + 1];
       // re-write bytes in hex
-      for (unsigned int i = 0; i < 20; i++) {
+      if (md_len > 20) {
+        md_len = 20;
+      }
+      for (unsigned int i = 0; i < md_len; i++) {
         ::sprintf(&tmp[i * 2], "%02x", hash[i]);
       }
       tmp[20 * 2] = 0;
