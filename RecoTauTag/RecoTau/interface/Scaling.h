@@ -257,6 +257,61 @@ namespace Scaling {
             }
         }, // end Muon
 
+        {FeatureT::PfCand_chHad, {
+            // mean
+            {{0,0},{0.0194,0.2564},{0.0,0.0},{0.0,0.0},{0,0},
+            {0,0},{0,0},{0,0},{0,0},{0,0},
+            {0,0},{0.,0.},{0.0005,0.0005},{-0.0008,-0.0008},{-0.0201,-0.0201},
+            {-0.0014,-0.0014},{0.0022,0.0022},{-0.0138,-0.0138},{0,0},{-0.012,-0.012},
+            {6.417,6.417},{-0.0246,-0.0246},{301.3,301.3},{0.7876,0.7876},{13.92,13.92},
+            {0,0},{0.,0.}},
+
+            // std 
+            {{1,1},{0.1865,0.8607},{0.5,0.1},{0.5,0.1},{1,1},
+            {7,7},{3,3},{1,1},{1,1},{1,1},
+            {1,1},{12.0,12.0},{1.735,1.735},{1.752,1.752},{8.333,8.333},
+            {1.93,1.93},{1.948,1.948},{8.622,8.622},{1,1},{2.386,2.386},
+            {36.28,36.28},{7.618,7.618},{491.1,491.1},{3.694,3.694},{6.581,6.581},
+            {1,1},{2.6,2.6}},
+
+            // lim_min
+            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {0.,0.},{0.,0.},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{0.,0.},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{0.,0.}},
+
+            // lim_max
+            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {1.,1.},{1.,1.},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},{5,5},{5,5},{5,5},
+            {5,5},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},
+            {5,5},{5,5},{5,5},{5,5},{5,5},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0}},
+            }
+        }, // end PfCand_chHad
+
+        {FeatureT::PfCand_nHad, {
+            // mean 
+            {{0,0},{0.0502,0.3163},{0.0,0.0},{0.0,0.0},{0,0},
+            {0,0},{0,0}},
+
+            // std 
+            {{1,1},{0.4266,0.2769},{0.5,0.1},{0.5,0.1},{1,1},
+            {1,1},{1,1}},
+
+            // lim_min
+            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()}},
+
+            // lim_max
+            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()}},
+
+            }
+        }, // end PfCand_nHad
+
     }; // end scalingParamsMap_v2p1
 
     const std::map<FeatureT, ScalingParams> scalingParamsMap_v2p5 = {
@@ -500,6 +555,61 @@ namespace Scaling {
 
             }
         }, // end Muon
+
+        {FeatureT::PfCand_chHad, {
+            // mean
+            {{0,0},{0.02191,0.2482},{0.0,0.0},{0.0,0.0},{0,0},
+            {0,0},{0,0},{0,0},{0,0},{0,0},
+            {0,0},{6.0,6.0},{0.00106,0.0003524},{-0.001523,-0.0003693},{-0.008181,-0.002133},
+            {0.004498,0.003532},{4.287e-06,0.000612},{-0.007022,-0.0003197},{0,0},{-0.01495,-0.001701},
+            {6.04,4.04},{-0.01381,-0.002282},{323.5,61.12},{0.753,0.9004},{13.6,14.73},
+            {0,0},{1.3,1.3}},
+
+            // std 
+            {{1,1},{0.08964,0.3601},{0.5,0.1},{0.5,0.1},{1,1},
+            {1,1},{1,1},{1,1},{1,1},{1,1},
+            {1,1},{6.0,6.0},{1.732,0.8533},{1.741,0.8569},{8.372,4.132},
+            {1.783,1.033},{1.792,1.039},{8.447,4.436},{1,1},{2.481,1.001},
+            {33.16,16.62},{8.026,3.254},{443.9,244.4},{3.439,4.37},{6.624,5.599},
+            {1,1},{1.3,1.3}},
+
+            // lim_min
+            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-1.0,-1.0},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-1.0,-1.0}},
+
+            // lim_max
+            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},{5,5},{5,5},{5,5},
+            {5,5},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},
+            {5,5},{5,5},{5,5},{5,5},{5,5},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0}},
+            }
+        }, // end PfCand_chHad
+
+        {FeatureT::PfCand_nHad, {
+            // mean 
+            {{0,0},{0.05398,0.2553},{0.0,0.0},{0.0,0.0},{0,0},
+            {0,0},{0,0}},
+
+            // std 
+            {{1,1},{0.2929,0.2687},{0.5,0.1},{0.5,0.1},{1,1},
+            {1,1},{1,1}},
+
+            // lim_min
+            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()}},
+
+            // lim_max
+            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()}},
+
+            }
+        }, // end PfCand_nHad
 
     }; // end scalingParamsMap_v2p5
 
