@@ -52,13 +52,11 @@ namespace pat {
     const edm::InputTag refMuons_;
     const edm::EDGetTokenT<reco::MuonCollection> refMuonToken_;
 
-    // filter criteria and selection
-    const double min_Dxy_;             // dxy threshold in cm
-    const double min_Dz_;              // dz threshold in cm
-    const double min_DeltaR_;          // cutoff in difference with ref dR (from bestTrack)
-    const double min_RelDeltaPt_;      // cutoff in difference with ref pt (from bestTrack)
-    const double min_DeltaR_STA_;      // cutoff in difference with ref dR (from outerTrack)
-    const double min_RelDeltaPt_STA_;  // cutoff in difference with ref pt (from outerTrack)
+    // filter criteria and selection (displacedTracker muons)
+    const double min_Dxy_;             // Minimum dxy
+    const double min_Dz_;              // Minimum dz
+    const double min_DeltaR_;          // dR difference between displaced-prompt muon
+    const double min_RelDeltaPt_;      // Rel. pT difference between displaced-prompt
 
     // what information to fill
     bool fillDetectorBasedIsolation_;
@@ -89,9 +87,6 @@ namespace pat {
     edm::EDGetTokenT<reco::IsoDepositMap> theHoDepositToken_;
     edm::EDGetTokenT<reco::IsoDepositMap> theJetDepositToken_;
 
-    std::vector<std::map<std::string, edm::InputTag> > pfIsoMapNames;
-    std::vector<std::map<std::string, edm::EDGetTokenT<edm::ValueMap<double> > > > pfIsoMapTokens_;
-
   };
 } // namespace path
 
@@ -104,8 +99,6 @@ pat::DisplacedMuonFilterProducer::DisplacedMuonFilterProducer(const edm::Paramet
       min_Dz_(iConfig.getParameter<double>("minDz")),
       min_DeltaR_(iConfig.getParameter<double>("minDeltaR")),
       min_RelDeltaPt_(iConfig.getParameter<double>("minRelDeltaPt")),
-      min_DeltaR_STA_(iConfig.getParameter<double>("minDeltaRSTA")),
-      min_RelDeltaPt_STA_(iConfig.getParameter<double>("minRelDeltaPtSTA")),
       fillDetectorBasedIsolation_(iConfig.getParameter<bool>("FillDetectorBasedIsolation")),
       fillTimingInfo_(iConfig.getParameter<bool>("FillTimingInfo")) {
 
@@ -175,28 +168,26 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
   int oMuons = nMuons;
   for (unsigned int i = 0; i < srcMuons->size(); i++) {
     const reco::Muon& muon(srcMuons->at(i));
-    // save muon if it is displaced enough
-    if ( fabs(muon.bestTrack()->dxy()) > min_Dxy_ && fabs(muon.bestTrack()->dz()) > min_Dz_) { 
-      continue;
-    }
-    // look for overlapping muons if not
-    for (unsigned int j = 0; j < refMuons->size(); j++) {
-      const reco::Muon& ref(refMuons->at(j));
-      double dR = deltaR(muon.eta(), muon.phi(), ref.eta(), ref.phi() );
-      double reldPt = fabs(muon.pt() - ref.pt())/muon.pt();
-      // No STA case:
-      if (!muon.isStandAloneMuon() && !muon.outerTrack().isNonnull() && dR < min_DeltaR_ && reldPt < min_RelDeltaPt_) {
+
+    if (muon.isStandAloneMuon()) {
+      if (muon.innerTrack().isNonnull())
+        continue;
+      if (!muon.isMatchesValid() || muon.numberOfMatches() < 2) {
         filteredmuons[i] = false;
         oMuons = oMuons - 1;
-        break;
       }
-      // STA case:
-      if (muon.isStandAloneMuon() && muon.outerTrack().isNonnull() && ref.isStandAloneMuon() && ref.outerTrack().isNonnull()) {
-        reco::TrackRef muonSTA = muon.outerTrack();
-        reco::TrackRef refSTA = ref.outerTrack();
-        double dRSTA = deltaR(muonSTA->eta(), muonSTA->phi(), refSTA->eta(), refSTA->phi() );
-        double reldPtSTA = fabs(muonSTA->pt() - refSTA->pt())/muonSTA->pt();
-        if (dR < min_DeltaR_ && reldPt < min_RelDeltaPt_ && dRSTA < min_DeltaR_STA_ && reldPtSTA < min_RelDeltaPt_STA_){
+    } else {
+      // save the muon if its impact parameters are above thresholds
+      if ( fabs(muon.bestTrack()->dxy()) > min_Dxy_ && fabs(muon.bestTrack()->dz()) > min_Dz_)
+        continue;
+      // look for overlapping muons if not
+      for (unsigned int j = 0; j < refMuons->size(); j++) {
+        const reco::Muon& ref(refMuons->at(j));
+        if (!ref.innerTrack().isNonnull())
+          continue;
+        double dR = deltaR(muon.eta(), muon.phi(), ref.innerTrack()->eta(), ref.innerTrack()->phi() );
+        double reldPt = fabs(muon.pt() - ref.innerTrack()->pt())/muon.pt();
+        if (dR < min_DeltaR_ && reldPt < min_RelDeltaPt_) {
           filteredmuons[i] = false;
           oMuons = oMuons - 1;
           break;
@@ -204,6 +195,7 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
       }
     }
   }
+
 
   // timing information
   edm::Handle<reco::MuonTimeExtraMap> timeMapCmb;
