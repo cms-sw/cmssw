@@ -34,6 +34,11 @@ CSCSegmentVisualise::CSCSegmentVisualise(const edm::ParameterSet& pset) {
   minRechitChamber = pset.getUntrackedParameter<int>("minRechitPerChamber");
   maxRechitChamber = pset.getUntrackedParameter<int>("maxRechitPerChamber");
 
+  geomToken_ = esConsumes();
+  simHitsToken_ = consumes(edm::InputTag("g4SimHits", "MuonCSCHits"));
+  recHitsToken_ = consumes(edm::InputTag("csc2DRecHits"));
+  segmentsToken_ = consumes(edm::InputTag("cscSegments"));
+
   file = new TFile(filename.c_str(), "RECREATE");
 
   if (file->IsOpen())
@@ -72,24 +77,16 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
   if (idxHisto > 99)
     return;
 
-  edm::ESHandle<CSCGeometry> h;
-  eventSetup.get<MuonGeometryRecord>().get(h);
-  const CSCGeometry* geom_ = &*h;
-
-  edm::Handle<edm::PSimHitContainer> simHits;
-  event.getByLabel("g4SimHits", "MuonCSCHits", simHits);
-
-  edm::Handle<CSCRecHit2DCollection> recHits;
-  event.getByLabel("csc2DRecHits", recHits);
-
-  edm::Handle<CSCSegmentCollection> segments;
-  event.getByLabel("cscSegments", segments);
+  const CSCGeometry& geom_ = eventSetup.getData(geomToken_);
+  const edm::PSimHitContainer& simHits = event.get(simHitsToken_);
+  const CSCRecHit2DCollection& recHits = event.get(recHitsToken_);
+  const CSCSegmentCollection& segments = event.get(segmentsToken_);
 
   std::vector<CSCDetId> chambers;
   std::vector<CSCDetId>::const_iterator chIt;
 
   // First, create vector of chambers with rechits
-  for (CSCRecHit2DCollection::const_iterator it2 = recHits->begin(); it2 != recHits->end(); it2++) {
+  for (CSCRecHit2DCollection::const_iterator it2 = recHits.begin(); it2 != recHits.end(); it2++) {
     bool insert = true;
     for (chIt = chambers.begin(); chIt != chambers.end(); ++chIt)
       if (((*it2).cscDetId().chamber() == (*chIt).chamber()) && ((*it2).cscDetId().station() == (*chIt).station()) &&
@@ -104,10 +101,10 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
     std::vector<const CSCRecHit2D*> cscRecHits;
     std::vector<const CSCSegment*> cscSegments;
     std::vector<const CSCRecHit2D*> eRecHits;
-    const CSCChamber* chamber = geom_->chamber(*chIt);
+    const CSCChamber* chamber = geom_.chamber(*chIt);
 
     CSCRangeMapAccessor acc;
-    CSCRecHit2DCollection::range range = recHits->get(acc.cscChamber(*chIt));
+    CSCRecHit2DCollection::range range = recHits.get(acc.cscChamber(*chIt));
 
     for (CSCRecHit2DCollection::const_iterator rechit = range.first; rechit != range.second; rechit++) {
       cscRecHits.push_back(&(*rechit));
@@ -191,7 +188,7 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
     for (int i = 0; i < nHits; ++i) {
       const CSCRecHit2D* rhit = cscRecHits[i];
       CSCDetId id = (CSCDetId)(*rhit).cscDetId();
-      const CSCLayer* csclayer = geom_->layer(id);
+      const CSCLayer* csclayer = geom_.layer(id);
       LocalPoint lphit = (*rhit).localPosition();
       GlobalPoint gphit = csclayer->toGlobal(lphit);
       LocalPoint lphitChamber = chamber->toLocal(gphit);
@@ -214,7 +211,7 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
       CSCDetId idrec = (CSCDetId)(*rec_it).cscDetId();
       LocalPoint rhitlocal = (*rec_it).localPosition();
 
-      for (edm::PSimHitContainer::const_iterator sim_it = simHits->begin(); sim_it != simHits->end(); sim_it++) {
+      for (edm::PSimHitContainer::const_iterator sim_it = simHits.begin(); sim_it != simHits.end(); sim_it++) {
         CSCDetId idsim = (CSCDetId)(*sim_it).detUnitId();
 
         if (idrec.endcap() == idsim.endcap() && idrec.station() == idsim.station() && idrec.ring() == idsim.ring() &&
@@ -244,7 +241,7 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
     for (int i = 0; i < nHits; ++i) {
       const CSCRecHit2D* rhit = eRecHits[i];
       CSCDetId id = (CSCDetId)(*rhit).cscDetId();
-      const CSCLayer* csclayer = geom_->layer(id);
+      const CSCLayer* csclayer = geom_.layer(id);
       LocalPoint lphit = (*rhit).localPosition();
       GlobalPoint gphit = csclayer->toGlobal(lphit);
       LocalPoint lphitChamber = chamber->toLocal(gphit);
@@ -258,7 +255,7 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
 
     // Then, sort segments per chamber type as well:
 
-    CSCSegmentCollection::range range3 = segments->get(acc.cscChamber(*chIt));
+    CSCSegmentCollection::range range3 = segments.get(acc.cscChamber(*chIt));
     for (CSCSegmentCollection::const_iterator segments = range3.first; segments != range3.second; segments++) {
       cscSegments.push_back(&(*segments));
     }
@@ -298,7 +295,7 @@ void CSCSegmentVisualise::analyze(const edm::Event& event, const edm::EventSetup
 
       for (rh_i = rhseg.begin(); rh_i != rhseg.end(); ++rh_i) {
         CSCDetId id = (CSCDetId)(*rh_i).cscDetId();
-        const CSCLayer* csclayer = geom_->layer(id);
+        const CSCLayer* csclayer = geom_.layer(id);
         LocalPoint lphit = (*rh_i).localPosition();
         GlobalPoint gphit = csclayer->toGlobal(lphit);
         LocalPoint lphitChamber = chamber->toLocal(gphit);
