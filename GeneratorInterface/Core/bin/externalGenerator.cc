@@ -27,6 +27,8 @@
 #include "FWCore/SharedMemory/interface/ROOTDeserializer.h"
 #include "FWCore/SharedMemory/interface/WorkerMonitorThread.h"
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 static char const* const kMemoryNameOpt = "memory-name";
 static char const* const kMemoryNameCommandOpt = "memory-name,m";
 static char const* const kUniqueIDOpt = "unique-id";
@@ -35,6 +37,9 @@ static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kVerboseOpt = "verbose";
 static char const* const kVerboseCommandOpt = "verbose,v";
+
+//This application only uses 1 thread
+CMS_THREAD_SAFE static std::string s_uniqueID;
 
 //NOTE: Can use TestProcessor as the harness for the worker
 
@@ -83,7 +88,7 @@ namespace {
 
   void atexit_handler() {
     if (s_sharedLock) {
-      std::cerr << "early exit called: unlock\n";
+      std::cerr << s_uniqueID << " process: early exit called: unlock\n";
       s_sharedLock->unlock();
     }
   }
@@ -152,6 +157,7 @@ int main(int argc, char* argv[]) {
   CMS_SA_ALLOW try {
     std::string const memoryName(vm[kMemoryNameOpt].as<std::string>());
     std::string const uniqueID(vm[kUniqueIDOpt].as<std::string>());
+    s_uniqueID = uniqueID;
     {
       //This class is holding the lock
       WorkerChannel communicationChannel(memoryName, uniqueID);
@@ -165,7 +171,7 @@ int main(int argc, char* argv[]) {
 
       monitorThread.setAction([lockPtr]() {
         if (lockPtr) {
-          std::cerr << "SIGNAL CAUGHT: unlock\n";
+          std::cerr << "process: SIGNAL CAUGHT: unlock\n";
           lockPtr->unlock();
         }
       });
@@ -177,7 +183,7 @@ int main(int argc, char* argv[]) {
       std::atexit(atexit_handler);
       auto releaseLock = []() {
         if (s_sharedLock) {
-          std::cerr << "terminate called: unlock\n";
+          std::cerr << "process: terminate called: unlock\n";
           s_sharedLock->unlock();
           s_sharedLock = nullptr;
           //deactivate the abort signal
@@ -309,10 +315,10 @@ int main(int argc, char* argv[]) {
       });
     }
   } catch (std::exception const& iExcept) {
-    std::cerr << "caught exception \n" << iExcept.what() << "\n";
+    std::cerr << "process: caught exception \n" << iExcept.what() << "\n";
     return 1;
   } catch (...) {
-    std::cerr << "caught unknown exception";
+    std::cerr << "process: caught unknown exception";
     return 1;
   }
   return 0;
