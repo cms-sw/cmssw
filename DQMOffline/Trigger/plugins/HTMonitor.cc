@@ -53,6 +53,7 @@ private:
 
   const bool requireValidHLTPaths_;
   bool hltPathsAreValid_;
+  const bool enableFullMonitoring_;
 
   edm::InputTag metInputTag_;
   edm::InputTag jetInputTag_;
@@ -67,13 +68,21 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
 
   std::vector<double> ht_variable_binning_;
+  std::vector<double> jetptBinning_;
   MEbinning ht_binning_;
   MEbinning ls_binning_;
 
   ObjME qME_variableBinning_;
   ObjME htVsLS_;
-  ObjME deltaphimetj1ME_;
-  ObjME deltaphij1j2ME_;
+  ObjME METPhiME_;
+  ObjME jetpt1ME_;
+  ObjME jetpt2ME_;
+  ObjME phij1ME_;
+  ObjME phij2ME_;
+  ObjME etaj1ME_;
+  ObjME etaj2ME_;
+  ObjME nJetsME_;    //number of jets passing jet selection (Pt>0)
+  ObjME nJetsHTME_;  //number of jets passing jet selection HT (Pt>30 & eta<2.5)
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_;
@@ -91,17 +100,30 @@ private:
   static constexpr double MAXedge_PHI = 3.2;
   static constexpr int Nbin_PHI = 64;
   static constexpr MEbinning phi_binning_{Nbin_PHI, -MAXedge_PHI, MAXedge_PHI};
+  // Define Eta Bining
+  static constexpr double MAX_ETA = 5.0;
+  static constexpr int N_ETA = 20;
+  static constexpr MEbinning eta_binning{N_ETA, -MAX_ETA, MAX_ETA};
+  //Define nJets Binning HT selection Pt>30 && eta<2.4
+  static constexpr int MIN_NJETS_HT = 0;
+  static constexpr int MAX_NJETS_HT = 30;
+  static constexpr int N_BIN_NJETS_HT = 30;
+  static constexpr MEbinning nJets_HT_binning{N_BIN_NJETS_HT, MIN_NJETS_HT, MAX_NJETS_HT};
+  //Define nJets Binning general selection Pt>0
+  static constexpr int MIN_NJETS = 0;
+  static constexpr int MAX_NJETS = 200;
+  static constexpr int N_BIN_NJETS = 200;
+  static constexpr MEbinning nJets_binning{N_BIN_NJETS, MIN_NJETS, MAX_NJETS};
 
+  std::string quantity_;
   bool warningWasPrinted_;
-
-  enum quant { HT, MJJ, SOFTDROP };
-  quant quantity_;
 };
 
 HTMonitor::HTMonitor(const edm::ParameterSet& iConfig)
     : folderName_(iConfig.getParameter<std::string>("FolderName")),
       requireValidHLTPaths_(iConfig.getParameter<bool>("requireValidHLTPaths")),
       hltPathsAreValid_(false),
+      enableFullMonitoring_(iConfig.getParameter<bool>("enableFullMonitoring")),
       metInputTag_(iConfig.getParameter<edm::InputTag>("met")),
       jetInputTag_(iConfig.getParameter<edm::InputTag>("jets")),
       eleInputTag_(iConfig.getParameter<edm::InputTag>("electrons")),
@@ -114,6 +136,8 @@ HTMonitor::HTMonitor(const edm::ParameterSet& iConfig)
       vtxToken_(mayConsume<reco::VertexCollection>(vtxInputTag_)),
       ht_variable_binning_(
           iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("htBinning")),
+      jetptBinning_(
+          iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetptBinning")),
       ht_binning_(
           getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("htPSet"))),
       ls_binning_(
@@ -131,20 +155,8 @@ HTMonitor::HTMonitor(const edm::ParameterSet& iConfig)
       nelectrons_(iConfig.getParameter<unsigned>("nelectrons")),
       nmuons_(iConfig.getParameter<unsigned>("nmuons")),
       dEtaCut_(iConfig.getParameter<double>("dEtaCut")),
-      warningWasPrinted_(false) {
-  /* mia: THIS CODE SHOULD BE DELETED !!!! */
-  string quantity = iConfig.getParameter<std::string>("quantity");
-  if (quantity == "HT") {
-    quantity_ = HT;
-  } else if (quantity == "Mjj") {
-    quantity_ = MJJ;
-  } else if (quantity == "softdrop") {
-    quantity_ = SOFTDROP;
-  } else {
-    throw cms::Exception("quantity not defined")
-        << "the quantity '" << quantity << "' is undefined. Please check your config!" << std::endl;
-  }
-}
+      quantity_(iConfig.getParameter<std::string>("quantity")),
+      warningWasPrinted_(false) {}
 
 HTMonitor::~HTMonitor() throw() {
   if (num_genTriggerEventFlag_) {
@@ -179,55 +191,87 @@ void HTMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun,
 
   std::string currentFolder = folderName_;
   ibooker.setCurrentFolder(currentFolder);
+  if (quantity_ == "HT") {
+    histname = "ht_variable";
+    histtitle = "HT";
+    bookME(ibooker, qME_variableBinning_, histname, histtitle, ht_variable_binning_);
+    setMETitle(qME_variableBinning_, "HT [GeV]", "events / [GeV]");
 
-  switch (quantity_) {
-    case HT: {
-      histname = "ht_variable";
-      histtitle = "HT";
-      bookME(ibooker, qME_variableBinning_, histname, histtitle, ht_variable_binning_);
-      setMETitle(qME_variableBinning_, "HT [GeV]", "events / [GeV]");
+    histname = "htVsLS";
+    histtitle = "HT vs LS";
+    bookME(ibooker,
+           htVsLS_,
+           histname,
+           histtitle,
+           ls_binning_.nbins,
+           ls_binning_.xmin,
+           ls_binning_.xmax,
+           ht_binning_.xmin,
+           ht_binning_.xmax);
+    setMETitle(htVsLS_, "LS", "HT [GeV]");
 
-      histname = "htVsLS";
-      histtitle = "HT vs LS";
-      bookME(ibooker,
-             htVsLS_,
-             histname,
-             histtitle,
-             ls_binning_.nbins,
-             ls_binning_.xmin,
-             ls_binning_.xmax,
-             ht_binning_.xmin,
-             ht_binning_.xmax);
-      setMETitle(htVsLS_, "LS", "HT [GeV]");
-
-      histname = "deltaphi_metjet1";
-      histtitle = "DPHI_METJ1";
-      bookME(ibooker, deltaphimetj1ME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-      setMETitle(deltaphimetj1ME_, "delta phi (met, j1)", "events / 0.1 rad");
-
-      histname = "deltaphi_jet1jet2";
-      histtitle = "DPHI_J1J2";
-      bookME(ibooker, deltaphij1j2ME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-      setMETitle(deltaphij1j2ME_, "delta phi (j1, j2)", "events / 0.1 rad");
-      break;
+    if (!enableFullMonitoring_) {
+      return;
     }
 
-    case MJJ: {
-      histname = "mjj_variable";
-      histtitle = "Mjj";
-      bookME(ibooker, qME_variableBinning_, histname, histtitle, ht_variable_binning_);
-      setMETitle(qME_variableBinning_, "Mjj [GeV]", "events / [GeV]");
-      break;
-    }
+    histname = "METPhi";
+    histtitle = "METPhi";
+    bookME(ibooker, METPhiME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+    setMETitle(METPhiME_, "MET phi", "events / 0.1 rad");
 
-    case SOFTDROP: {
-      histname = "softdrop_variable";
-      histtitle = "softdropmass";
-      bookME(ibooker, qME_variableBinning_, histname, histtitle, ht_variable_binning_);
-      setMETitle(qME_variableBinning_, "leading jet softdropmass [GeV]", "events / [GeV]");
-      break;
-    }
-  }
+    histname = "jetPt1";
+    histtitle = "leading Jet Pt";
+    bookME(ibooker, jetpt1ME_, histname, histtitle, jetptBinning_);
+    setMETitle(jetpt1ME_, "Pt_1 [GeV]", "events");
+
+    histname = "jetPt2";
+    histtitle = "second leading Jet Pt";
+    bookME(ibooker, jetpt2ME_, histname, histtitle, jetptBinning_);
+    setMETitle(jetpt2ME_, "Pt_2 [GeV]", "events");
+
+    histname = "jetEta1";
+    histtitle = "leading Jet eta";
+    bookME(ibooker, etaj1ME_, histname, histtitle, eta_binning.nbins, eta_binning.xmin, eta_binning.xmax);
+    setMETitle(etaj1ME_, "Jet_1 #eta", "events");
+
+    histname = "jetEta2";
+    histtitle = "subleading Jet eta";
+    bookME(ibooker, etaj2ME_, histname, histtitle, eta_binning.nbins, eta_binning.xmin, eta_binning.xmax);
+    setMETitle(etaj2ME_, "Jet_2 #eta", "events");
+
+    histname = "jetPhi1";
+    histtitle = "leading Jet phi";
+    bookME(ibooker, phij1ME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+    setMETitle(phij1ME_, "Jet_1 #phi", "events / 0.1 rad");
+
+    histname = "jetPhi2";
+    histtitle = "subleading Jet phi";
+    bookME(ibooker, phij2ME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+    setMETitle(phij2ME_, "Jet_2 #phi", "events / 0.1 rad");
+
+    histname = "nJets";
+    histtitle = "number of Jets";
+    bookME(ibooker, nJetsME_, histname, histtitle, nJets_binning.nbins, nJets_binning.xmin, nJets_binning.xmax);
+    setMETitle(nJetsME_, "number of Jets", "events");
+
+    histname = "nJetsHT";
+    histtitle = "number of Jets HT";
+    bookME(
+        ibooker, nJetsHTME_, histname, histtitle, nJets_HT_binning.nbins, nJets_HT_binning.xmin, nJets_HT_binning.xmax);
+    setMETitle(nJetsHTME_, "number of Jets HT", "events");
+  }  //end if --  HT quantity
+  else if (quantity_ == "Mjj") {
+    histname = "mjj_variable";
+    histtitle = "Mjj";
+    bookME(ibooker, qME_variableBinning_, histname, histtitle, ht_variable_binning_);
+    setMETitle(qME_variableBinning_, "Mjj [GeV]", "events / [GeV]");
+  }  //end if -- Mjj quantity
+  else if (quantity_ == "softdrop") {
+    histname = "softdrop_variable";
+    histtitle = "softdropmass";
+    bookME(ibooker, qME_variableBinning_, histname, histtitle, ht_variable_binning_);
+    setMETitle(qME_variableBinning_, "leading jet softdropmass [GeV]", "events / [GeV]");
+  }  //end if -- softdrop quantity
 }
 
 void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -277,13 +321,14 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   if (jets.size() < njets_)
     return;
 
-  float deltaPhi_met_j1 = 10.0;
-  float deltaPhi_j1_j2 = 10.0;
-
-  if (!jets.empty())
-    deltaPhi_met_j1 = fabs(deltaPhi(pfmet.phi(), jets[0].phi()));
-  if (jets.size() >= 2)
-    deltaPhi_j1_j2 = fabs(deltaPhi(jets[0].phi(), jets[1].phi()));
+  const float metphi = pfmet.phi();
+  const int nJetsSel = jets.size();  //jetSelection: PT>0
+  const float Pt_J1 = !jets.empty() ? jets[0].pt() : -10.0;
+  const float Pt_J2 = jets.size() >= 2 ? jets[1].pt() : -10.0;
+  const float Phi_J1 = !jets.empty() ? jets[0].phi() : -10.0;
+  const float Phi_J2 = jets.size() >= 2 ? jets[1].phi() : -10.0;
+  const float Eta_J1 = !jets.empty() ? jets[0].p4().eta() : -10.0;
+  const float Eta_J2 = jets.size() >= 2 ? jets[1].p4().eta() : -10.0;
 
   std::vector<reco::GsfElectron> electrons;
   edm::Handle<reco::GsfElectronCollection> eleHandle;
@@ -368,82 +413,98 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   }
 
   // fill histograms
-  switch (quantity_) {
-    case HT: {
-      float ht = 0.0;
-      for (auto const& j : *jetHandle) {
-        if (jetSelection_HT_(j))
-          ht += j.pt();
+  if (quantity_ == "HT") {
+    float ht = 0.0;
+    int nJets_HT = 0;
+    for (auto const& j : *jetHandle) {
+      if (jetSelection_HT_(j)) {
+        ht += j.pt();
+        nJets_HT = nJets_HT + 1;  //===== jetSelection HT: Pt>30 & eta<2.5
       }
-
-      // filling histograms (denominator)
-      qME_variableBinning_.denominator->Fill(ht);
-
-      deltaphimetj1ME_.denominator->Fill(deltaPhi_met_j1);
-      deltaphij1j2ME_.denominator->Fill(deltaPhi_j1_j2);
-
-      int ls = iEvent.id().luminosityBlock();
-      htVsLS_.denominator->Fill(ls, ht);
-
-      // applying selection for numerator
-      if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
-        return;
-
-      // filling histograms (num_genTriggerEventFlag_)
-      qME_variableBinning_.numerator->Fill(ht);
-
-      htVsLS_.numerator->Fill(ls, ht);
-      deltaphimetj1ME_.numerator->Fill(deltaPhi_met_j1);
-      deltaphij1j2ME_.numerator->Fill(deltaPhi_j1_j2);
-      break;
     }
 
-    case MJJ: {
-      if (jets.size() < 2)
-        return;
+    // filling histograms (denominator)
+    qME_variableBinning_.denominator->Fill(ht);
 
-      // deltaEta cut
-      if (fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_)
-        return;
-      float mjj = (jets[0].p4() + jets[1].p4()).M();
+    int ls = iEvent.id().luminosityBlock();
+    htVsLS_.denominator->Fill(ls, ht);
 
-      qME_variableBinning_.denominator->Fill(mjj);
+    if (enableFullMonitoring_) {  //===check the flag
 
-      // applying selection for numerator
-      if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
-        return;
-
-      qME_variableBinning_.numerator->Fill(mjj);
-      break;
+      METPhiME_.denominator->Fill(metphi);
+      jetpt1ME_.denominator->Fill(Pt_J1);
+      jetpt2ME_.denominator->Fill(Pt_J2);
+      phij1ME_.denominator->Fill(Phi_J1);
+      phij2ME_.denominator->Fill(Phi_J2);
+      etaj1ME_.denominator->Fill(Eta_J1);
+      etaj2ME_.denominator->Fill(Eta_J2);
+      nJetsME_.denominator->Fill(nJetsSel);
+      nJetsHTME_.denominator->Fill(nJets_HT);
     }
 
-    case SOFTDROP: {
-      if (jets.size() < 2)
-        return;
+    // applying selection for numerator
+    if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
+      return;
 
-      // deltaEta cut
-      if (fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_)
-        return;
+    // filling histograms (num_genTriggerEventFlag_)
+    qME_variableBinning_.numerator->Fill(ht);
 
-      float softdrop = jets[0].p4().M();
+    htVsLS_.numerator->Fill(ls, ht);
 
-      qME_variableBinning_.denominator->Fill(softdrop);
-
-      // applying selection for numerator
-      if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
-        return;
-
-      qME_variableBinning_.numerator->Fill(softdrop);
-      break;
+    if (enableFullMonitoring_) {  //===check the flag
+      METPhiME_.numerator->Fill(metphi);
+      jetpt1ME_.numerator->Fill(Pt_J1);
+      jetpt2ME_.numerator->Fill(Pt_J2);
+      phij1ME_.numerator->Fill(Phi_J1);
+      phij2ME_.numerator->Fill(Phi_J2);
+      etaj1ME_.numerator->Fill(Eta_J1);
+      etaj2ME_.numerator->Fill(Eta_J2);
+      nJetsME_.numerator->Fill(nJetsSel);
+      nJetsHTME_.numerator->Fill(nJets_HT);
     }
-  }
+  }  //end if --  HT
+  else if (quantity_ == "Mjj") {
+    if (jets.size() < 2)
+      return;
+
+    // deltaEta cut
+    if (fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_)
+      return;
+    float mjj = (jets[0].p4() + jets[1].p4()).M();
+
+    qME_variableBinning_.denominator->Fill(mjj);
+
+    // applying selection for numerator
+    if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
+      return;
+
+    qME_variableBinning_.numerator->Fill(mjj);
+  }  // end if -- Mjj
+  else if (quantity_ == "softdrop") {
+    if (jets.size() < 2)
+      return;
+
+    // deltaEta cut
+    if (fabs(jets[0].p4().Eta() - jets[1].p4().Eta()) >= dEtaCut_)
+      return;
+
+    float softdrop = jets[0].p4().M();
+
+    qME_variableBinning_.denominator->Fill(softdrop);
+
+    // applying selection for numerator
+    if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
+      return;
+
+    qME_variableBinning_.numerator->Fill(softdrop);
+  }  //end  if -- softdrop
 }
 
 void HTMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("FolderName", "HLT/HT");
   desc.add<bool>("requireValidHLTPaths", true);
-
+  desc.add<bool>("enableFullMonitoring", false);
   desc.add<edm::InputTag>("met", edm::InputTag("pfMet"));
   desc.add<edm::InputTag>("jets", edm::InputTag("ak4PFJetsCHS"));
   desc.add<edm::InputTag>("electrons", edm::InputTag("gedGsfElectrons"));
@@ -461,6 +522,7 @@ void HTMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
+
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
 
@@ -473,7 +535,10 @@ void HTMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
                               350., 400., 450.,  500.,  550.,  600.,  650.,  700.,  750.,  800.,  850.,
                               900., 950., 1000., 1050., 1100., 1200., 1300., 1400., 1500., 2000., 2500.};
   histoPSet.add<std::vector<double> >("htBinning", bins);
-
+  std::vector<double> bins_2 = {
+      0.,   20.,  40.,  60.,  80.,  90.,  100., 110., 120., 130., 140., 150., 160.,
+      170., 180., 190., 200., 220., 240., 260., 280., 300., 350., 400., 450., 1000.};  // Jet pT Binning
+  histoPSet.add<std::vector<double> >("jetptBinning", bins_2);
   edm::ParameterSetDescription lsPSet;
   fillHistoLSPSetDescription(lsPSet);
   histoPSet.add<edm::ParameterSetDescription>("lsPSet", lsPSet);
