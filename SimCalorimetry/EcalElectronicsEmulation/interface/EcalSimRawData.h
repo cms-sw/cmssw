@@ -56,6 +56,8 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
+  enum tokenType { tcp = 0, tp = 1 };
+
   int iEvent;
 
   /** Number of crystals in ECAL barrel along eta
@@ -307,7 +309,7 @@ private:
    * @param collName label of the EDM collection containing the TP.
    * @param tp [out] the trigger primitives
    */
-  void getTp(const edm::Event &event, int type, int tp[nTtEta][nTtPhi]) const;
+  void getTp(const edm::Event &event, tokenType type, int tp[nTtEta][nTtPhi]) const;
 
   /** Help function to get the file extension which depends on the output
    * formats.
