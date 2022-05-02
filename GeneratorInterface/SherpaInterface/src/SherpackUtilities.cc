@@ -1,4 +1,5 @@
 #include "GeneratorInterface/SherpaInterface/interface/SherpackUtilities.h"
+#include "Utilities/OpenSSL/interface/openssl_init.h"
 #include <unistd.h>
 #include <cstdlib>
 namespace spu {
@@ -485,21 +486,26 @@ namespace spu {
   // function for calculating the MD5 checksum of a file
   void md5_File(std::string filename, char *result) {
     char buffer[4096];
-    MD5_CTX md5;
-    MD5_Init(&md5);
+    cms::openssl_init();
+    EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+    const EVP_MD *md = EVP_get_digestbyname("MD5");
+    EVP_DigestInit_ex(mdctx, md, nullptr);
 
     //Open File
     int fd = open(filename.c_str(), O_RDONLY);
     int nb_read;
     while ((nb_read = read(fd, buffer, 4096 - 1))) {
-      MD5_Update(&md5, buffer, nb_read);
+      EVP_DigestUpdate(mdctx, buffer, nb_read);
       memset(buffer, 0, 4096);
     }
-    unsigned char tmp[MD5_DIGEST_LENGTH];
-    MD5_Final(tmp, &md5);
+
+    unsigned int md_len = 0;
+    unsigned char tmp[EVP_MAX_MD_SIZE];
+    EVP_DigestFinal_ex(mdctx, tmp, &md_len);
+    EVP_MD_CTX_free(mdctx);
 
     //Convert the result
-    for (int k = 0; k < MD5_DIGEST_LENGTH; ++k) {
+    for (unsigned int k = 0; k < md_len; ++k) {
       sprintf(result + k * 2, "%02x", tmp[k]);
     }
   }
