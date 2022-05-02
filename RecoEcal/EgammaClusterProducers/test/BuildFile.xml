@@ -9,12 +9,10 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<export>
-</export>
-<environment>
-  <bin name="DRNTest" file="runtestRecoEcalEgammaClusterProducers.cpp">
-    <flags TEST_RUNNER_ARGS="/bin/bash RecoEcal/EgammaClusterProducers/test runtests.sh"/>
-    <use name="FWCore/Utilities"/>
-  </bin>
-
-</environment>
+<bin name="DRNTest" file="runtestRecoEcalEgammaClusterProducers.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash RecoEcal/EgammaClusterProducers/test runtests.sh"/>
+  <use name="FWCore/Utilities"/>
+  <ifrelease name="_ASAN_|_UBSAN_">
+    <flags NO_TEST_PREFIX="1"/>
+  </ifrelease>
+</bin>
