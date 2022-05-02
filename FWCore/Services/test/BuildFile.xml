@@ -22,3 +22,8 @@
   <use name="cpu_features"/>
   <use name="FWCore/Services"/>
 </bin>
+
+<bin file="TestFWCoreServicesDriver.cpp" name="TestResourceInformationService">
+  <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test test_resourceInformationService.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>

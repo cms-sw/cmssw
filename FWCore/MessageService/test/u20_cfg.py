@@ -18,6 +18,10 @@ process.MessageLogger.default = cms.untracked.PSet(
 process.MessageLogger.cerr.noTimeStamps = True
 process.MessageLogger.cerr.enableStatistics = True
 
+process.CPU = cms.Service("CPU",
+    disableJobReportOutput = cms.untracked.bool(True)
+)
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )

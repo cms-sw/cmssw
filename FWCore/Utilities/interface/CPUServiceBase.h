@@ -5,7 +5,7 @@
 // Package:     FWCore/Utilities
 // Class  :     CPUServiceBase
 //
-/**\class CPUServiceBase CPUServiceBase.h "CPUServiceBase.h"
+/**\class edm::CPUServiceBase
 
  Description: Base class for CPU Services
 
@@ -19,10 +19,6 @@
 //         Created:  Wed Sep  7 12:05:13 CDT 2016
 //
 
-// system include files
-#include <string>
-
-// forward declarations
 namespace edm {
   class CPUServiceBase {
   public:
@@ -31,10 +27,6 @@ namespace edm {
     const CPUServiceBase &operator=(const CPUServiceBase &) = delete;  // stop default
 
     virtual ~CPUServiceBase();
-
-    // ---------- member functions ---------------------------
-    ///CPU information - the models present and average speed.
-    virtual bool cpuInfo(std::string &models, double &avgSpeed) = 0;
   };
 }  // namespace edm
 
