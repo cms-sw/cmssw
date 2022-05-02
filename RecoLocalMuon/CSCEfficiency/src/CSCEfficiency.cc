@@ -77,8 +77,7 @@ bool CSCEfficiency::filter(edm::Event &event, const edm::EventSetup &eventSetup)
   edm::ESHandle<CSCGeometry> cscGeom = eventSetup.getHandle(geomToken_);
 
   // use theTrackingGeometry instead of cscGeom?
-  edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  //edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry = eventSetup.getHandle(trackingGeomToken_);
 
   bool triggerPassed = true;
   if (useTrigger) {
@@ -2052,11 +2051,5 @@ CSCEfficiency::~CSCEfficiency() {
   //---- Close the file
   theFile->Close();
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void CSCEfficiency::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void CSCEfficiency::endJob() {}
 
 DEFINE_FWK_MODULE(CSCEfficiency);
