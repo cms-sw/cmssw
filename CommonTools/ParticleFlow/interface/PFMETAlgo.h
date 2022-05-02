@@ -31,9 +31,7 @@ namespace pf2pat {
   public:
     explicit PFMETAlgo(const edm::ParameterSet&);
 
-    ~PFMETAlgo();
-
-    reco::MET produce(const reco::PFCandidateCollection& pfCandidates);
+    reco::MET produce(const reco::PFCandidateCollection& pfCandidates) const;
 
   private:
     /// HF calibration factor (in 31X applied by PFProducer)
