@@ -37,8 +37,8 @@ hltMETmonitoring = metMonitoring.clone(
         andOrDcs      = False, 
         errorReplyDcs = True, 
         verbosityLevel = 1,
-        #hltPaths      = ["HLT_IsoMu27_v*"],
-        hltPaths      = [])
+        hltPaths      = ["HLT_IsoMu27_v*"])
+       # hltPaths      = [])
 )
 
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
