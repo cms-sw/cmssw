@@ -81,7 +81,8 @@ namespace edm {
   RootOutputFile::RootOutputFile(PoolOutputModule* om,
                                  std::string const& fileName,
                                  std::string const& logicalFileName,
-                                 std::vector<std::string> const& processesWithSelectedMergeableRunProducts)
+                                 std::vector<std::string> const& processesWithSelectedMergeableRunProducts,
+                                 std::string const& overrideGUID)
       : file_(fileName),
         logicalFile_(logicalFileName),
         reportToken_(0),
@@ -196,7 +197,15 @@ namespace edm {
     parentageTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::parentageTreeName(), 0);
     parameterSetsTree_ = RootOutputTree::makeTTree(filePtr_.get(), poolNames::parameterSetsTreeName(), 0);
 
-    fid_ = FileID(createGlobalIdentifier());
+    if (overrideGUID.empty()) {
+      fid_ = FileID(createGlobalIdentifier());
+    } else {
+      if (not isValidGlobalIdentifier(overrideGUID)) {
+        throw edm::Exception(errors::Configuration)
+            << "GUID to be used for output file is not valid (is '" << overrideGUID << "')";
+      }
+      fid_ = FileID(overrideGUID);
+    }
 
     // For the Job Report, get a vector of branch names in the "Events" tree.
     // Also create a hash of all the branch names in the "Events" tree
