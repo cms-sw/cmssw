@@ -202,6 +202,8 @@ GlobalContext: transition = BeginProcessBlock
 
 ++++ starting: source run
 ++++ finished: source run
+++++ pre: EventSetup synchronizing run: 1 lumi: 0 event: 0
+++++ post: EventSetup synchronizing run: 1 lumi: 0 event: 0
 ++++ starting: global begin run 1 : time = 1
 GlobalContext: transition = BeginRun
     run: 1 luminosityBlock: 0
@@ -312,6 +314,9 @@ StreamContext: StreamID = 0 transition = BeginRun
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
+++++ pre: EventSetup synchronizing run: 1 lumi: 1 event: 0
+++++ post: EventSetup synchronizing run: 1 lumi: 1 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 1 time = 1
@@ -1240,6 +1245,8 @@ GlobalContext: transition = WriteLuminosityBlock
     ProcessContext: COPY 5ea2a17b2b2eaa97af73c630882cd994
     parent ProcessContext: PROD1 be16549dc0c1f4b03231a8b98d235dac
 
+++++ pre: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
+++++ post: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end run: stream = 0 run = 1 time = 15000001
 StreamContext: StreamID = 0 transition = EndRun
     run: 1 lumi: 0 event: 0
