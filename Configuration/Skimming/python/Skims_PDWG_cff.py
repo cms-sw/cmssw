@@ -288,7 +288,7 @@ SKIMStreamEXOCSCCluster = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'EXOCSCCluster',
     paths = (EXOCSCClusterPath),
-    content = skimRawAODContent.outputCommands,
+    content = skimRawAODContent.outputCommands+['keep *_csc2DRecHits_*_*','keep *_dt1DRecHits_*_*'],
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('AOD')
     )
