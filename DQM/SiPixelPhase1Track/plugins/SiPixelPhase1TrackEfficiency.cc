@@ -436,13 +436,13 @@ namespace {
       std::pair<int, bool[3]> eff_map;
 
       //Fiducial Cut, only calculate the efficiency of the central pixels
-      for (uint p = 0; p < expTrajMeasurements.size(); p++) {	
-	bool valid = false;
-	bool missing = false;
-	passcuts_hit = true;      
-	TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
+      for (uint p = 0; p < expTrajMeasurements.size(); p++) {
+        bool valid = false;
+        bool missing = false;
+        passcuts_hit = true;
+        TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
         const auto& pxb1Hit = pxb1TM.recHit();
-	bool inactive = (pxb1Hit->getType() == TrackingRecHit::inactive);
+        bool inactive = (pxb1Hit->getType() == TrackingRecHit::inactive);
         int detidHit = pxb1Hit->geographicalId();
         if (detidHit == 0)
           continue;
@@ -451,18 +451,18 @@ namespace {
         const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detidHit));
         const PixelTopology& topol = geomdetunit->specificTopology();
 
-        if (!pixhit)	  
-	  continue;
-	
-	LocalPoint lp = pixhit->localPosition();
-        MeasurementPoint mp = topol.measurementPosition(lp);
-	const int nRows = topol.rowsperroc();
-	const int nColumns = topol.colsperroc();
-        int row = (int) mp.x() % nRows;
-        int col = (int) mp.y() % nColumns;
+        if (!pixhit)
+          continue;
 
-        int centerrow = nRows/2;
-        int centercol = nColumns/2;
+        LocalPoint lp = pixhit->localPosition();
+        MeasurementPoint mp = topol.measurementPosition(lp);
+        const int nRows = topol.rowsperroc();
+        const int nColumns = topol.colsperroc();
+        int row = (int)mp.x() % nRows;
+        int col = (int)mp.y() % nColumns;
+
+        int centerrow = nRows / 2;
+        int centercol = nColumns / 2;
 
         if (!((col < (centercol + 10)) && (col > (centercol - 10)) && (row < (centerrow + 10)) &&
               (row > (centerrow - 10))))
@@ -471,8 +471,8 @@ namespace {
         //Access the distance to the closest cluster
         for (const auto& detAndState : compDets) {
           const auto& pXb1_lpos = detAndState.second.localPosition();
-	  if (pxb1Hit->geographicalId().rawId() != detAndState.first->geographicalId().rawId())
-	    continue;
+          if (pxb1Hit->geographicalId().rawId() != detAndState.first->geographicalId().rawId())
+            continue;
           int detid = detAndState.first->geographicalId().rawId();
 
           for (edmNew::DetSetVector<SiPixelCluster>::const_iterator iter_cl = siPixelClusters->begin();
@@ -494,24 +494,22 @@ namespace {
 
                 float Xdist = abs(lp.x() - pXb1_lpos.x());
                 float Ydist = abs(lp.y() - pXb1_lpos.y());
-		float dist = sqrt(Xdist*Xdist + Ydist*Ydist);
-		if (dist < minDist){
-		  minDist = dist;
-		  minD[0] = Xdist;
-		  minD[1] = Ydist;
-		}
+                float dist = sqrt(Xdist * Xdist + Ydist * Ydist);
+                if (dist < minDist) {
+                  minDist = dist;
+                  minD[0] = Xdist;
+                  minD[1] = Ydist;
+                }
               }
 
               if ((minD[0] < 0.02) && (minD[1] < 0.02)) {
                 valid = true;
-                missing = false;		
-		inactive = false;	     
-              } 
-	      else if (inactive){
-		valid = false;
-		missing = false;
-	      }
-	      else{
+                missing = false;
+                inactive = false;
+              } else if (inactive) {
+                valid = false;
+                missing = false;
+              } else {
                 missing = true;
                 valid = false;
               }
@@ -543,7 +541,7 @@ namespace {
                 if (eff_pxb1_vector[i_eff].second[0] == false && valid == true) {
                   eff_pxb1_vector[i_eff].second[0] = valid;
                   eff_pxb1_vector[i_eff].second[1] = missing;
-		  eff_pxb1_vector[i_eff].second[2] = inactive;		  
+                  eff_pxb1_vector[i_eff].second[2] = inactive;
                 }
               }
             }
@@ -551,13 +549,13 @@ namespace {
               eff_map.first = detid;
               eff_map.second[0] = valid;
               eff_map.second[1] = missing;
-	      eff_map.second[2] = inactive;	      
+              eff_map.second[2] = inactive;
               eff_pxb1_vector.push_back(eff_map);
             }
           }
         }
       }
-      
+
       if (eff_pxb1_vector.size() == 1) {
         //eff map is filled -> decide what to do for double hits, ie eff_pxb1_vector.size>1 ... if 1 just use MISSING and VALID as usual
 
