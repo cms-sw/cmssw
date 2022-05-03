@@ -394,7 +394,9 @@ process.SKIMStreamEXOCSCCluster = cms.OutputModule("PoolOutputModule",
         'keep FEDRawDataCollection_rawDataCollector_*_*',
         'keep FEDRawDataCollection_source_*_*',
         'drop *_MEtoEDMConverter_*_*',
-        'drop *_*_*_SKIM'
+        'drop *_*_*_SKIM',
+        'keep *_csc2DRecHits_*_*',
+        'keep *_dt1DRecHits_*_*'
      ) )
 )
 
