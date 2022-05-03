@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_3_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_12_3_0/PIon/V77 (CMSSW_12_3_0)
+# /dev/CMSSW_12_3_0/PIon/V78 (CMSSW_12_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/PIon/V77')
+  tableName = cms.string('/dev/CMSSW_12_3_0/PIon/V78')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2612,11 +2612,11 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     globaltag = cms.string( "None" ),
     snapshotTime = cms.string( "" ),
     toGet = cms.VPSet( 
-      cms.PSet(  record = cms.string( "BeamSpotOnlineLegacyObjectsRcd" ),
-        refreshTime = cms.uint64( 2 )
+      cms.PSet(  refreshTime = cms.uint64( 2 ),
+        record = cms.string( "BeamSpotOnlineLegacyObjectsRcd" )
       ),
-      cms.PSet(  record = cms.string( "BeamSpotOnlineHLTObjectsRcd" ),
-        refreshTime = cms.uint64( 2 )
+      cms.PSet(  refreshTime = cms.uint64( 2 ),
+        record = cms.string( "BeamSpotOnlineHLTObjectsRcd" )
       )
     ),
     DumpStat = cms.untracked.bool( False ),
@@ -2629,56 +2629,91 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
 process.HcalTimeSlewEP = cms.ESSource( "HcalTimeSlewEP",
     appendToDataLabel = cms.string( "HBHE" ),
     timeSlewParametersM2 = cms.VPSet( 
-      cms.PSet(  slope = cms.double( -3.178648 ),
-        tmax = cms.double( 16.0 ),
-        tzero = cms.double( 23.960177 )
+      cms.PSet(  tmax = cms.double( 16.0 ),
+        tzero = cms.double( 23.960177 ),
+        slope = cms.double( -3.178648 )
       ),
-      cms.PSet(  slope = cms.double( -1.5610227 ),
-        tmax = cms.double( 10.0 ),
-        tzero = cms.double( 11.977461 )
+      cms.PSet(  tmax = cms.double( 10.0 ),
+        tzero = cms.double( 11.977461 ),
+        slope = cms.double( -1.5610227 )
       ),
-      cms.PSet(  slope = cms.double( -1.075824 ),
-        tmax = cms.double( 6.25 ),
-        tzero = cms.double( 9.109694 )
+      cms.PSet(  tmax = cms.double( 6.25 ),
+        tzero = cms.double( 9.109694 ),
+        slope = cms.double( -1.075824 )
       )
     ),
     timeSlewParametersM3 = cms.VPSet( 
-      cms.PSet(  tspar2 = cms.double( 0.0 ),
-        tspar0 = cms.double( 12.2999 ),
-        tspar1 = cms.double( -2.19142 ),
-        tspar1_siPM = cms.double( 0.0 ),
+      cms.PSet(  tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 ),
+        tspar2 = cms.double( 0.0 ),
         cap = cms.double( 6.0 ),
-        tspar0_siPM = cms.double( 0.0 ),
-        tspar2_siPM = cms.double( 0.0 )
+        tspar1 = cms.double( -2.19142 ),
+        tspar0 = cms.double( 12.2999 ),
+        tspar1_siPM = cms.double( 0.0 )
       ),
-      cms.PSet(  tspar2 = cms.double( 32.0 ),
-        tspar0 = cms.double( 15.5 ),
+      cms.PSet(  tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 ),
+        tspar2 = cms.double( 32.0 ),
+        cap = cms.double( 6.0 ),
         tspar1 = cms.double( -3.2 ),
-        tspar1_siPM = cms.double( 0.0 ),
-        cap = cms.double( 6.0 ),
-        tspar0_siPM = cms.double( 0.0 ),
-        tspar2_siPM = cms.double( 0.0 )
+        tspar0 = cms.double( 15.5 ),
+        tspar1_siPM = cms.double( 0.0 )
       ),
-      cms.PSet(  tspar2 = cms.double( 0.0 ),
-        tspar0 = cms.double( 12.2999 ),
-        tspar1 = cms.double( -2.19142 ),
-        tspar1_siPM = cms.double( 0.0 ),
+      cms.PSet(  tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 ),
+        tspar2 = cms.double( 0.0 ),
         cap = cms.double( 6.0 ),
-        tspar0_siPM = cms.double( 0.0 ),
-        tspar2_siPM = cms.double( 0.0 )
+        tspar1 = cms.double( -2.19142 ),
+        tspar0 = cms.double( 12.2999 ),
+        tspar1_siPM = cms.double( 0.0 )
       ),
-      cms.PSet(  tspar2 = cms.double( 0.0 ),
-        tspar0 = cms.double( 12.2999 ),
-        tspar1 = cms.double( -2.19142 ),
-        tspar1_siPM = cms.double( 0.0 ),
+      cms.PSet(  tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 ),
+        tspar2 = cms.double( 0.0 ),
         cap = cms.double( 6.0 ),
-        tspar0_siPM = cms.double( 0.0 ),
-        tspar2_siPM = cms.double( 0.0 )
+        tspar1 = cms.double( -2.19142 ),
+        tspar0 = cms.double( 12.2999 ),
+        tspar1_siPM = cms.double( 0.0 )
       )
     )
 )
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
+)
+process.ecalMultifitParametersGPUESProducer = cms.ESSource( "EcalMultifitParametersGPUESProducer",
+    pulseOffsets = cms.vint32( -3, -2, -1, 0, 1, 2, 3, 4 ),
+    EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
+    EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
+    EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
+    EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
+    appendToDataLabel = cms.string( "" )
+)
+process.ecalRecHitParametersGPUESProducer = cms.ESSource( "EcalRecHitParametersGPUESProducer",
+    ChannelStatusToBeExcluded = cms.vstring( 'kDAC',
+      'kNoisy',
+      'kNNoisy',
+      'kFixedG6',
+      'kFixedG1',
+      'kFixedG0',
+      'kNonRespondingIsolated',
+      'kDeadVFE',
+      'kDeadFE',
+      'kNoDataNoTP' ),
+    flagsMapDBReco = cms.PSet( 
+      kDead = cms.vstring( 'kNoDataNoTP' ),
+      kGood = cms.vstring( 'kOk',
+        'kDAC',
+        'kNoLaser',
+        'kNoisy' ),
+      kTowerRecovered = cms.vstring( 'kDeadFE' ),
+      kNoisy = cms.vstring( 'kNNoisy',
+        'kFixedG6',
+        'kFixedG1' ),
+      kNeighboursRecovered = cms.vstring( 'kFixedG0',
+        'kNonRespondingIsolated',
+        'kDeadVFE' )
+    ),
+    appendToDataLabel = cms.string( "" )
 )
 process.eegeom = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "EcalMappingRcd" ),
@@ -2688,6 +2723,10 @@ process.eegeom = cms.ESSource( "EmptyESSource",
 process.es_hardcode = cms.ESSource( "HcalHardcodeCalibrations",
     fromDDD = cms.untracked.bool( False ),
     toGet = cms.untracked.vstring( 'GainWidths' )
+)
+process.hcalMahiPulseOffsetsGPUESProducer = cms.ESSource( "HcalMahiPulseOffsetsGPUESProducer",
+    pulseOffsets = cms.vint32( -3, -2, -1, 0, 1, 2, 3, 4 ),
+    appendToDataLabel = cms.string( "" )
 )
 process.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "JetTagComputerRecord" ),
@@ -3118,6 +3157,71 @@ process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeGEM = cms.bool( False ),
   includeME0 = cms.bool( False )
 )
+process.ecalElectronicsMappingGPUESProducer = cms.ESProducer( "EcalElectronicsMappingGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalGainRatiosGPUESProducer = cms.ESProducer( "EcalGainRatiosGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalIntercalibConstantsGPUESProducer = cms.ESProducer( "EcalIntercalibConstantsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalLaserAPDPNRatiosGPUESProducer = cms.ESProducer( "EcalLaserAPDPNRatiosGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalLaserAPDPNRatiosRefGPUESProducer = cms.ESProducer( "EcalLaserAPDPNRatiosRefGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalLaserAlphasGPUESProducer = cms.ESProducer( "EcalLaserAlphasGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalLinearCorrectionsGPUESProducer = cms.ESProducer( "EcalLinearCorrectionsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalPedestalsGPUESProducer = cms.ESProducer( "EcalPedestalsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalPulseCovariancesGPUESProducer = cms.ESProducer( "EcalPulseCovariancesGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalPulseShapesGPUESProducer = cms.ESProducer( "EcalPulseShapesGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalRechitADCToGeVConstantGPUESProducer = cms.ESProducer( "EcalRechitADCToGeVConstantGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalRechitChannelStatusGPUESProducer = cms.ESProducer( "EcalRechitChannelStatusGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalSamplesCorrelationGPUESProducer = cms.ESProducer( "EcalSamplesCorrelationGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   flagMask = cms.PSet( 
     kBad = cms.vstring( 'kFaultyHardware',
@@ -3156,7 +3260,52 @@ process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   ),
   timeThresh = cms.double( 2.0 )
 )
+process.ecalTimeBiasCorrectionsGPUESProducer = cms.ESProducer( "EcalTimeBiasCorrectionsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalTimeCalibConstantsGPUESProducer = cms.ESProducer( "EcalTimeCalibConstantsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.hcalChannelPropertiesESProd = cms.ESProducer( "HcalChannelPropertiesEP" )
+process.hcalChannelQualityGPUESProducer = cms.ESProducer( "HcalChannelQualityGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalConvertedEffectivePedestalWidthsGPUESProducer = cms.ESProducer( "HcalConvertedEffectivePedestalWidthsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label0 = cms.string( "withTopoEff" ),
+  label1 = cms.string( "withTopoEff" ),
+  label2 = cms.string( "" ),
+  label3 = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalConvertedEffectivePedestalsGPUESProducer = cms.ESProducer( "HcalConvertedEffectivePedestalsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label0 = cms.string( "withTopoEff" ),
+  label1 = cms.string( "" ),
+  label2 = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalConvertedPedestalWidthsGPUESProducer = cms.ESProducer( "HcalConvertedPedestalWidthsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label0 = cms.string( "" ),
+  label1 = cms.string( "" ),
+  label2 = cms.string( "" ),
+  label3 = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalConvertedPedestalsGPUESProducer = cms.ESProducer( "HcalConvertedPedestalsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label0 = cms.string( "" ),
+  label1 = cms.string( "" ),
+  label2 = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.hcalDDDRecConstants = cms.ESProducer( "HcalDDDRecConstantsESModule",
   appendToDataLabel = cms.string( "" )
 )
@@ -3172,6 +3321,36 @@ process.hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False ),
   includeGEM = cms.bool( False ),
   includeME0 = cms.bool( False )
+)
+process.hcalElectronicsMappingGPUESProducer = cms.ESProducer( "HcalElectronicsMappingGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalGainWidthsGPUESProducer = cms.ESProducer( "HcalGainWidthsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalGainsGPUESProducer = cms.ESProducer( "HcalGainsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalLUTCorrsGPUESProducer = cms.ESProducer( "HcalLUTCorrsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalQIECodersGPUESProducer = cms.ESProducer( "HcalQIECodersGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalQIETypesGPUESProducer = cms.ESProducer( "HcalQIETypesGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
 )
 process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   phase = cms.uint32( 1 ),
@@ -3220,6 +3399,31 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   DropChannelStatusBits = cms.vstring( 'HcalCellMask',
     'HcalCellOff',
     'HcalCellDead' ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalRecoParamsWithPulseShapesGPUESProducer = cms.ESProducer( "HcalRecoParamsWithPulseShapesGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalRespCorrsGPUESProducer = cms.ESProducer( "HcalRespCorrsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalSiPMCharacteristicsGPUESProducer = cms.ESProducer( "HcalSiPMCharacteristicsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalSiPMParametersGPUESProducer = cms.ESProducer( "HcalSiPMParametersGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalTimeCorrsGPUESProducer = cms.ESProducer( "HcalTimeCorrsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
@@ -4617,8 +4821,17 @@ process.preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeGEM = cms.bool( False ),
   includeME0 = cms.bool( False )
 )
+process.siPixelGainCalibrationForHLTGPU = cms.ESProducer( "SiPixelGainCalibrationForHLTGPUESProducer",
+  appendToDataLabel = cms.string( "" )
+)
 process.siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
   siPixelQualityLabel = cms.string( "" )
+)
+process.siPixelROCsStatusAndMappingWrapperESProducer = cms.ESProducer( "SiPixelROCsStatusAndMappingWrapperESProducer",
+  ComponentName = cms.string( "" ),
+  CablingMapLabel = cms.string( "" ),
+  UseQualityInfo = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 process.siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer" )
 process.siStripBackPlaneCorrectionDepESProducer = cms.ESProducer( "SiStripBackPlaneCorrectionDepESProducer",
@@ -4755,11 +4968,6 @@ process.ThroughputService = cms.Service( "ThroughputService",
     timeResolution = cms.untracked.double( 5.828 )
 )
 
-process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
-    verbose = cms.untracked.bool( False ),
-    toGet = cms.VPSet( 
-    )
-)
 process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
     RawDataCollection = cms.InputTag( "rawDataCollector" )
 )
@@ -4949,7 +5157,10 @@ process.hltPreDatasetZeroBias = cms.EDFilter( "HLTPrescaler",
 )
 
 process.statusOnGPU = SwitchProducerCUDA(
-   cpu = cms.EDProducer( "BooleanProducer",
+   cuda = cms.EDProducer( "BooleanProducer",
+       value = cms.bool( True )
+   ),
+  cpu = cms.EDProducer( "BooleanProducer",
        value = cms.bool( False )
    ),
  )
@@ -5018,7 +5229,7 @@ process.HLTBeginSequenceRandom = cms.Sequence( process.hltRandomEventsFilter + p
 process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
 process.HLTDatasetPathBeginSequence = cms.Sequence( process.hltGtStage2Digis )
 
-process.HLTriggerFirstPath = cms.Path( process.hltGetConditions + process.hltGetRaw + process.hltPSetMap + process.hltBoolFalse )
+process.HLTriggerFirstPath = cms.Path( process.hltGetRaw + process.hltPSetMap + process.hltBoolFalse )
 process.Status_OnCPU = cms.Path( process.statusOnGPU + ~process.statusOnGPUFilter )
 process.Status_OnGPU = cms.Path( process.statusOnGPU + process.statusOnGPUFilter )
 process.HLT_Physics_v7 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
