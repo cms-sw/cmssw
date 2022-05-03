@@ -19,7 +19,7 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-  bool isPhase1_;
+  bool isPhase2_;
   const edm::EDGetTokenT<InputProduct> recHitsGPUEB_;
   edm::EDGetTokenT<InputProduct> recHitsGPUEE_;
 
@@ -34,7 +34,7 @@ void EcalUncalibRecHitConvertGPU2CPUFormat::fillDescriptions(edm::ConfigurationD
 
   desc.add<std::string>("recHitsLabelCPUEB", "EcalUncalibRecHitsEB");
 
-  desc.add<bool>("isPhase1", true);
+  desc.add<bool>("isPhase2", false);
 
   desc.add<edm::InputTag>("recHitsLabelGPUEE", edm::InputTag("ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"));
   desc.add<std::string>("recHitsLabelCPUEE", "EcalUncalibRecHitsEE");
@@ -43,11 +43,11 @@ void EcalUncalibRecHitConvertGPU2CPUFormat::fillDescriptions(edm::ConfigurationD
 }
 
 EcalUncalibRecHitConvertGPU2CPUFormat::EcalUncalibRecHitConvertGPU2CPUFormat(const edm::ParameterSet& ps)
-    : isPhase1_{ps.getParameter<bool>("isPhase1")},
+    : isPhase2_{ps.getParameter<bool>("isPhase2")},
       recHitsGPUEB_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEB"))},
       recHitsLabelCPUEB_{ps.getParameter<std::string>("recHitsLabelCPUEB")} {
   produces<EBUncalibratedRecHitCollection>(recHitsLabelCPUEB_);
-  if (isPhase1_) {
+  if (!isPhase2_) {
     recHitsGPUEE_ = consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEE"));
     recHitsLabelCPUEE_ = ps.getParameter<std::string>("recHitsLabelCPUEE");
     produces<EEUncalibratedRecHitCollection>(recHitsLabelCPUEE_);
@@ -68,14 +68,14 @@ void EcalUncalibRecHitConvertGPU2CPUFormat::produce(edm::Event& event, edm::Even
                                recHitsGPUEB.jitter[i],
                                recHitsGPUEB.chi2[i],
                                recHitsGPUEB.flags[i]);
-    if (!(isPhase1_))
+    if (isPhase2_)
       (*recHitsCPUEB)[i].setAmplitudeError(recHitsGPUEB.amplitudeError[i]);
     (*recHitsCPUEB)[i].setJitterError(recHitsGPUEB.jitterError[i]);
     auto const offset = i * EcalDataFrame::MAXSAMPLES;
     for (uint32_t sample = 0; sample < EcalDataFrame::MAXSAMPLES; ++sample)
       (*recHitsCPUEB)[i].setOutOfTimeAmplitude(sample, recHitsGPUEB.amplitudesAll[offset + sample]);
   }
-  if (isPhase1_) {
+  if (!isPhase2_) {
     auto const& recHitsGPUEE = event.get(recHitsGPUEE_);
     auto recHitsCPUEE = std::make_unique<EEUncalibratedRecHitCollection>();
     recHitsCPUEE->reserve(recHitsGPUEE.amplitude.size());
