@@ -33,7 +33,6 @@ using namespace std;
 //Filter particles based on their minimum and/or maximum displacement on the transverse plane and optionally on their pdgIds
 //To run independently of pdgId, do not insert the particleIDs entry in filter declaration
 
-
 // class decleration
 //
 namespace edm {
@@ -54,12 +53,12 @@ private:
   // ----------member data ---------------------------
   edm::InputTag hepMCProductTag_;
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
-  std::vector<int> particleIDs_;  // To chose on which pdgIds the filter is applied - if ParticleIDs.at(0)==0 runs on all particles
+  std::vector<int>
+      particleIDs_;  // To chose on which pdgIds the filter is applied - if ParticleIDs.at(0)==0 runs on all particles
 
   const float theUpperCut_;  // Maximum displacement accepted
   const float theLowerCut_;  // Minimum displacement accepted
 };
-
 
 //methods implementation
 //
@@ -74,7 +73,7 @@ MCLongLivedParticles::MCLongLivedParticles(const edm::ParameterSet& iConfig)
 //Filter description
 void MCLongLivedParticles::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("hepMCProductTag", edm::InputTag("generator","unsmeared"));
+  desc.add<edm::InputTag>("hepMCProductTag", edm::InputTag("generator", "unsmeared"));
   desc.add<std::vector<int>>("ParticleIDs", std::vector<int>{0});
   desc.add<double>("LengMax", -1.);
   desc.add<double>("LengMin", -1.);
