@@ -201,7 +201,7 @@ void EcalDigiProducer_Ph2::accumulate(edm::Event const& e, edm::EventSetup const
 
   m_EBShape.setEventSetup(eventSetup);
   m_APDShape.setEventSetup(eventSetup);
-  const edm::Handle<std::vector<PCaloHit>> &ebHandle = e.getHandle(m_HitsEBToken);
+  const edm::Handle<std::vector<PCaloHit>>& ebHandle = e.getHandle(m_HitsEBToken);
 
   accumulateCaloHits(ebHandle, 0);
 }

@@ -28,7 +28,8 @@ EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
   m_BarrelDigitizer = new EcalTimeMapDigitizer(EcalBarrel);
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::Create EB " << m_EBdigiCollection << "  collection and digitizer";
+  edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::Create EB " << m_EBdigiCollection
+                                   << "  collection and digitizer";
 #endif
 
   m_BarrelDigitizer->setTimeLayerId(m_timeLayerEB);
