@@ -211,18 +211,17 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     } else {
       // potentially good for tracking
       const double ke = aTrack->GetKineticEnergy();
-
       auto proc = aTrack->GetCreatorProcess();
       G4int subType = proc->GetProcessSubType();
-      if (nullptr != proc && subType == 16) {
+      if (subType == 16) {
         auto ptr = static_cast<const G4GammaGeneralProcess*>(proc);
         proc = ptr->GetSelectedProcess();
         subType = proc->GetProcessSubType();
-        LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
-                                         << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
-                                         << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " "
-                                         << proc->GetProcessName();
       }
+      LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
+                                       << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
+                                       << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " "
+                                       << proc->GetProcessName();
 
       // kill tracks in specific regions
       if (isThisRegion(reg, deadRegions)) {
@@ -341,9 +340,9 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
           }
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
-              << " Type " << aTrack->GetDefinition()->GetParticleName() << " K.E. " << ke / MeV
-              << " MeV from process/subprocess " << proc->GetProcessType() << "|" << subType << " as " << classification
-              << " Flag " << flag;
+              << " Type " << aTrack->GetDefinition()->GetParticleName() << " Ekin=" << ke / CLHEP::MeV
+              << " MeV from process " << proc->GetProcessName() << " subType=" << subType << " as " << classification
+              << " Flag: " << flag;
         }
       }
     }
