@@ -12,7 +12,6 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
-#include <vector>
 #include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
@@ -22,6 +21,9 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+
+#include <vector>
 
 class APDSimParameters;
 class CaloHitResponse;
@@ -114,6 +116,8 @@ protected:
 private:
   const bool m_PreMix1;
   const bool m_PreMix2;
+
+  const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEBToken;
 
   std::unique_ptr<EBDigitizer_Ph2> m_APDDigitizer;
   std::unique_ptr<EBDigitizer_Ph2> m_BarrelDigitizer;
