@@ -50,7 +50,7 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ppsDirectProtonSimulation = cms.PSet(initialSeed = cms.untracked.uint32(4981))
 )
 
-from SimPPS.DirectSimProducer.profile_base_cff import matchDirectSimOutputs
+from SimPPS.DirectSimProducer.matching_cff import matchDirectSimOutputs
 matchDirectSimOutputs(process)
 
 # number of events
