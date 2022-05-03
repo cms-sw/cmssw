@@ -17,7 +17,7 @@ public:
     constexpr const G4double r1 = 156.52094133;
     constexpr const G4double r2 = -1.02220543;
     const G4double r0 = r1 + r2 * energy;
-    return std::sqrt(r0/G4UniformRand() - r0);
+    return std::sqrt(r0 / G4UniformRand() - r0);
   }
 
   G4double GetZ() const {
