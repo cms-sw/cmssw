@@ -291,6 +291,7 @@ cat >> hlt.py << @EOF
 process.options.numberOfThreads = cms.untracked.uint32( $THREADS )
 process.options.numberOfStreams = cms.untracked.uint32( $STREAMS )
 process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
+process.options.accelerators = cms.untracked.vstring( 'cpu' )
 
 process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
