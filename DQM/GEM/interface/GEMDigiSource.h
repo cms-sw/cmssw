@@ -58,13 +58,11 @@ private:
 
   MEMap4Inf mapDigiOccPerCh_;
 
-  MonitorElement* h2SummaryOcc_;
+  std::string strFolderMain_;
 
   Int_t nBXMin_, nBXMax_;
   Float_t fRadiusMin_;
   Float_t fRadiusMax_;
-
-  Bool_t bModeRelVal_;
 };
 
 #endif  // DQM_GEM_INTERFACE_GEMDigiSource_h

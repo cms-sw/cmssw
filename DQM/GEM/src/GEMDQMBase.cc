@@ -5,6 +5,22 @@ using namespace std;
 using namespace edm;
 
 GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) : geomToken_(esConsumes<edm::Transition::BeginRun>()) {
+  std::string strRunType = cfg.getUntrackedParameter<std::string>("runType");
+
+  nRunType_ = GEMDQM_RUNTYPE_ONLINE;
+
+  if (strRunType == "online") {
+    nRunType_ = GEMDQM_RUNTYPE_ONLINE;
+  } else if (strRunType == "offline") {
+    nRunType_ = GEMDQM_RUNTYPE_OFFLINE;
+  } else if (strRunType == "relval") {
+    nRunType_ = GEMDQM_RUNTYPE_RELVAL;
+  } else if (strRunType == "allplots") {
+    nRunType_ = GEMDQM_RUNTYPE_ALLPLOTS;
+  } else {
+    edm::LogError(log_category_) << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
+  }
+
   log_category_ = cfg.getUntrackedParameter<std::string>("logCategory");
 
   nNumEtaPartitionGE0_ = 0;
@@ -88,7 +104,8 @@ int GEMDQMBase::loadChambers() {
         ME3IdsKey key3(region_number, station_number, layer_number);
         mapStationInfo_[key3] =
             MEStationInfo(region_number, station_number, layer_number, num_superchambers, num_etas, num_vfat, num_digi);
-        mapStationInfo_[key3].fMinPhi_ = -0.088344;  // FIXME
+        readGeometryRadiusInfoChamber(station, mapStationInfo_[key3]);
+        readGeometryPhiInfoChamber(station, mapStationInfo_[key3]);
       }
     }
   }
@@ -144,12 +161,8 @@ dqm::impl::MonitorElement* GEMDQMBase::CreateSummaryHist(DQMStore::IBooker& iboo
     auto key = listLayers[i - 1];
     auto strInfo = GEMUtils::getSuffixName(key);  // NOTE: It starts with '_'
     auto region = keyToRegion(key);
-    auto label = Form("GE%i%i-%cL%i;%s",
-                      std::abs(region),
-                      keyToStation(key),
-                      (region > 0 ? 'P' : 'M'),
-                      keyToLayer(key),
-                      strInfo.Data());
+    auto label =
+        Form("GE%+i1-%cL%i;%s", region * keyToStation(key), (region > 0 ? 'P' : 'M'), keyToLayer(key), strInfo.Data());
     h2Res->setBinLabel(i, label, 2);
     Int_t nNumCh = mapStationInfo_[key].nNumChambers_;
     h2Res->setBinContent(0, i, nNumCh);
@@ -222,5 +235,126 @@ int GEMDQMBase::GenerateMEPerChamber(DQMStore::IBooker& ibooker) {
       }
     }
   }
+  return 0;
+}
+
+int GEMDQMBase::readGeometryRadiusInfoChamber(const GEMStation* station, MEStationInfo& stationInfo) {
+  auto listSuperChambers = station->superChambers();
+
+  Bool_t bDoneEven = false, bDoneOdd = false;
+
+  // Obtaining radius intervals of even/odd chambers
+  for (auto superchamber : listSuperChambers) {
+    Int_t chamberNo = superchamber->id().chamber();
+    if (chamberNo % 2 == 0 && bDoneEven)
+      continue;
+    if (chamberNo % 2 != 0 && bDoneOdd)
+      continue;
+
+    auto& etaPartitions = superchamber->chambers().front()->etaPartitions();
+
+    // A little of additional procedures to list up the radius intervals
+    // It would be independent to local direction of chambers and the order of eta partitions
+    //   1. Obtain the radius of the middle top/bottom points of the trapezoid
+    //   2. Sort these two values and determine which one is the lower/upper one
+    //   3. Keep them all and then sort them
+    //   4. The intermediate radii are set as the mean of the corresponding values of upper/lowers.
+    std::vector<Float_t> listRadiusLower, listRadiusUpper;
+    for (auto iEta : etaPartitions) {
+      const GEMStripTopology& stripTopology = dynamic_cast<const GEMStripTopology&>(iEta->specificTopology());
+      Float_t fHeight = stripTopology.stripLength();
+      LocalPoint lp1(0.0, -0.5 * fHeight), lp2(0.0, 0.5 * fHeight);
+      auto& surface = iEta->surface();
+      GlobalPoint gp1 = surface.toGlobal(lp1), gp2 = surface.toGlobal(lp2);
+      Float_t fR1 = gp1.perp(), fR2 = gp2.perp();
+      Float_t fRL = std::min(fR1, fR2), fRH = std::max(fR1, fR2);
+      listRadiusLower.push_back(fRL);
+      listRadiusUpper.push_back(fRH);
+      // For a future usage
+      //std::cout << "GEO_RADIUS: " << iEta->id().chamber() << " " << iEta->id().ieta() << " "
+      //  << fRL << " " << fRH << std::endl;
+    }
+
+    std::sort(listRadiusLower.begin(), listRadiusLower.end());
+    std::sort(listRadiusUpper.begin(), listRadiusUpper.end());
+
+    std::vector<Float_t>& listR =
+        (chamberNo % 2 == 0 ? stationInfo.listRadiusEvenChamber_ : stationInfo.listRadiusOddChamber_);
+    listR.clear();
+    listR.push_back(listRadiusLower.front());
+    for (int i = 1; i < (int)listRadiusLower.size(); i++) {
+      listR.push_back(0.5 * (listRadiusLower[i] + listRadiusUpper[i - 1]));
+    }
+    listR.push_back(listRadiusUpper.back());
+
+    if (chamberNo % 2 == 0)
+      bDoneEven = true;
+    if (chamberNo % 2 != 0)
+      bDoneOdd = true;
+
+    if (bDoneEven && bDoneOdd)
+      break;
+  }
+
+  return 0;
+}
+
+int GEMDQMBase::readGeometryPhiInfoChamber(const GEMStation* station, MEStationInfo& stationInfo) {
+  auto listSuperChambers = station->superChambers();
+  //Int_t nNumStripVFAT = stationInfo.nNumDigi_ / ( stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_ );
+  Int_t nNumStripEta = stationInfo.nNumDigi_ * (stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_);
+
+  std::vector<std::pair<Int_t, std::pair<std::pair<Float_t, Float_t>, Bool_t>>> listDivPhi;
+
+  // Obtaining phi intervals of chambers
+  for (auto superchamber : listSuperChambers) {
+    auto iEta = superchamber->chambers().front()->etaPartitions().front();
+
+    // What is the index of the first strip? Rather than to ask to someone, let's calculate it!
+    Float_t fWidthStrip = std::abs(iEta->centreOfStrip((Int_t)1).x() - iEta->centreOfStrip((Int_t)0).x());
+    LocalPoint lpRef(-fWidthStrip / 3.0, 0.0);
+    Int_t nStripMid = (Int_t)iEta->strip(lpRef);
+    Int_t nFirstStrip = 1 - ((nNumStripEta / 2) - nStripMid);
+    Int_t nLastStrip = nFirstStrip + nNumStripEta - 1;
+
+    auto& surface = iEta->surface();
+    LocalPoint lpF = iEta->centreOfStrip((Float_t)(nFirstStrip - 0.5));  // To avoid the round error(?)
+    LocalPoint lpL = iEta->centreOfStrip((Float_t)(nLastStrip + 0.5));   // To avoid the round error(?)
+    GlobalPoint gpF = surface.toGlobal(lpF);
+    GlobalPoint gpL = surface.toGlobal(lpL);
+
+    Float_t fPhiF = gpF.phi();
+    Float_t fPhiL = gpL.phi();
+    if (fPhiF * fPhiL < 0 && std::abs(fPhiF) > 0.5 * 3.14159265359) {
+      if (fPhiF < 0)
+        fPhiF += 2 * 3.14159265359;
+      if (fPhiL < 0)
+        fPhiL += 2 * 3.14159265359;
+    }
+    Bool_t bFlipped = fPhiF > fPhiL;
+    Float_t fPhiMin = std::min(fPhiF, fPhiL);
+    Float_t fPhiMax = std::max(fPhiF, fPhiL);
+
+    listDivPhi.emplace_back();
+    listDivPhi.back().first = iEta->id().chamber();
+    listDivPhi.back().second.first.first = fPhiMin;
+    listDivPhi.back().second.first.second = fPhiMax;
+    listDivPhi.back().second.second = bFlipped;
+  }
+
+  stationInfo.fMinPhi_ = 1048576.0;
+  for (auto p : listDivPhi) {
+    if (p.first == 1) {
+      stationInfo.fMinPhi_ = p.second.first.first;
+      break;
+    }
+  }
+
+  // For a future usage
+  //for ( auto p : listDivPhi ) {
+  //  std::cout << "GEO_PHI: " << p.first << " "
+  //    << p.second.first.first << " " << p.second.first.second << " " << p.second.second << std::endl;
+  //}
+
   return 0;
 }
