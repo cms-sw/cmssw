@@ -182,21 +182,25 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
     const auto dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
     const auto dnn_bkg = electron.dnn_bkg_nonIsolated();
     const auto etaThreshold = (useEBModelInGap_) ? ecalBarrelMaxEtaWithGap : ecalBarrelMaxEtaNoGap;
-    if (electronPt > ele_iso_pt_) {
-      // using the Barrel model for electron in the EB-EE gap
-      if (eleEta <= etaThreshold) {
-	  passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
-      } else if (eleEta > etaThreshold && eleEta < 2.5) {
-	  passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
-      } else if (eleEta >= 2.5) {
-	  passEleSelection = false;
-      }
-    } else {  // pt < ele_iso_pt_
-      passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
-    }
-    // TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
-    // To be understood if they are needed
+    if (eleEta < 2.5){
+	if (electronPt > ele_iso_pt_) {
+	    // using the Barrel model for electron in the EB-EE gap
+	    if (eleEta <= etaThreshold) { //high pT barrel
+		passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
+	    } else if (eleEta > etaThreshold) { //high pT endcap (eleEta < 2.5)
+		passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
+	    } else {  // pt < ele_iso_pt_ (eleEta < 2.5)
+		passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
+	    }
+	}
 
+    } else if ((eleEta >= 2.5) && (eleEta <= 2.65)){//First region in extended eta
+	passEleSelection = (dnn_sig > ele_dnnExtEta1Thr_) && (dnn_bkg < ele_dnnBkgExtEta1Thr_);
+    } else if (eleEta > 2.65){//Second region in extended eta
+	passEleSelection = (dnn_sig > ele_dnnExtEta2Thr_) && (dnn_bkg < ele_dnnBkgExtEta2Thr_);
+    }
+// TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
+// To be understood if they are needed
   } else {  // Use legacy MVA for ele pfID < CMSSW_12_1
     if (electronPt > ele_iso_pt_) {
       double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
@@ -225,15 +229,6 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
       }
     }
   }
-
-  //TEMPORARY hack for 12_1.
-  //Do not allow new EtaExtendedEle to enter PF, until ID, regression of EtaExtendedEle are in place.
-  //In 12_2, we expect to have EtaExtendedEle's ID/regression, then this switch can flip to True
-  //this is to be taken care of by EGM POG
-  //https://github.com/cms-sw/cmssw/issues/35374
-  if (thisEleIsNotAllowedInPF(electron, allowEEEinPF_))
-      passEleSelection = false;
-
   return passEleSelection && passGsfElePreSelWithOnlyConeHadem(electron);
 }
 
@@ -393,14 +388,6 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
            << " ETtotal " << ETtotal << " EGsfPoutMode " << dphi_normalsc << endl;
     isSafeForJetMET = false;
   }
-
-  //TEMPORARY hack for 12_1.
-  //Do not allow new EtaExtendedEle to be SafeForJetMET, until ID, regression of EtaExtendedEle are in place.
-  //In 12_2, we expect to have EtaExtendedEle's ID/regression, then this switch can flip to True
-  //this is to be taken care of by EGM POG
-  //https://github.com/cms-sw/cmssw/issues/35374
-  if (thisEleIsNotAllowedInPF(electron, allowEEEinPF_))
-    isSafeForJetMET = false;
 
   return isSafeForJetMET;
 }
