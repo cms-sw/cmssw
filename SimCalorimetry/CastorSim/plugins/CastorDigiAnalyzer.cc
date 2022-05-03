@@ -79,7 +79,8 @@ private:
   CastorHitFilter castorFilter_;
   CaloHitAnalyzer castorHitAnalyzer_;
   CastorDigiStatistics castorDigiStatistics_;
-  edm::InputTag castorDigiCollectionTag_;
+  const edm::EDGetTokenT<CastorDigiCollection> castordigiToken_;
+  const edm::EDGetTokenT<CrossingFrame<PCaloHit>> castorcfToken_;
 };
 
 CastorDigiAnalyzer::CastorDigiAnalyzer(edm::ParameterSet const &conf)
@@ -87,13 +88,13 @@ CastorDigiAnalyzer::CastorDigiAnalyzer(edm::ParameterSet const &conf)
       simParameterMap_(),
       castorHitAnalyzer_("CASTORDigi", 1., &simParameterMap_, &castorFilter_),
       castorDigiStatistics_("CASTORDigi", 3, 10., 6., 0.1, 0.5, castorHitAnalyzer_),
-      castorDigiCollectionTag_(conf.getParameter<edm::InputTag>("castorDigiCollectionTag")) {}
+      castordigiToken_(consumes<CastorDigiCollection>(conf.getParameter<edm::InputTag>("castorDigiCollectionTag"))),
+      castorcfToken_(consumes<CrossingFrame<PCaloHit>>(edm::InputTag("mix", "g4SimHitsCastorFI"))) {}
 
 namespace CastorDigiAnalyzerImpl {
   template <class Collection>
-  void analyze(edm::Event const &e, CastorDigiStatistics &statistics, edm::InputTag &tag) {
-    edm::Handle<Collection> digis;
-    e.getByLabel(tag, digis);
+  void analyze(edm::Event const &e, CastorDigiStatistics &statistics, const edm::EDGetTokenT<Collection> &token) {
+    const edm::Handle<Collection> &digis = e.getHandle(token);
     if (!digis.isValid()) {
       edm::LogError("CastorDigiAnalyzer") << "Could not find Castor Digi Container ";
     } else {
@@ -106,15 +107,13 @@ namespace CastorDigiAnalyzerImpl {
 
 void CastorDigiAnalyzer::analyze(edm::Event const &e, edm::EventSetup const &c) {
   //  edm::Handle<edm::PCaloHitContainer> hits;
-  edm::Handle<CrossingFrame<PCaloHit>> castorcf;
-
-  e.getByLabel("mix", "g4SimHitsCastorFI", castorcf);
+  const edm::Handle<CrossingFrame<PCaloHit>> &castorcf = e.getHandle(castorcfToken_);
 
   // access to SimHits
   std::unique_ptr<MixCollection<PCaloHit>> hits(new MixCollection<PCaloHit>(castorcf.product()));
   //  if (hits.isValid()) {
   castorHitAnalyzer_.fillHits(*hits);
-  CastorDigiAnalyzerImpl::analyze<CastorDigiCollection>(e, castorDigiStatistics_, castorDigiCollectionTag_);
+  CastorDigiAnalyzerImpl::analyze<CastorDigiCollection>(e, castorDigiStatistics_, castordigiToken_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
