@@ -20,6 +20,7 @@ namespace egammaTools {
     std::vector<std::string> modelsFiles;
     std::vector<std::string> scalersFiles;
     uint outputDim = 1;
+    uint outputDimExtEta2 = 1;
   };
 
   struct ScalerConfiguration {

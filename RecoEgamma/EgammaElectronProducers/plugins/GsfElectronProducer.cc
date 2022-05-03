@@ -58,12 +58,21 @@ namespace {
         const auto& values = dnn_ele_pfid[jele];
         // get the previous values
         auto& mvaOutput = mva_outputs[jele];
-        mvaOutput.dnn_e_sigIsolated = values[0];
-        mvaOutput.dnn_e_sigNonIsolated = values[1];
-        mvaOutput.dnn_e_bkgNonIsolated = values[2];
-        mvaOutput.dnn_e_bkgTau = values[3];
-        mvaOutput.dnn_e_bkgPhoton = values[4];
-        el.setMvaOutput(mvaOutput);
+
+	if (abs(el.superCluster()->eta())<=2.65){
+	    mvaOutput.dnn_e_sigIsolated = values[0];
+	    mvaOutput.dnn_e_sigNonIsolated = values[1];
+	    mvaOutput.dnn_e_bkgNonIsolated = values[2];
+	    mvaOutput.dnn_e_bkgTau = values[3];
+	    mvaOutput.dnn_e_bkgPhoton = values[4];
+	}else{
+	    mvaOutput.dnn_e_sigIsolated = values[0];
+            mvaOutput.dnn_e_sigNonIsolated = 0.0;
+            mvaOutput.dnn_e_bkgNonIsolated = values[1];
+            mvaOutput.dnn_e_bkgTau = 0.0;
+            mvaOutput.dnn_e_bkgPhoton = values[2];
+	}
+	    el.setMvaOutput(mvaOutput);
         jele++;
       }
     }
@@ -291,16 +300,21 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd1.add<bool>("enabled", false);
     psd1.add<std::string>("inputTensorName", "FirstLayer_input");
     psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
-    psd1.add<uint>("outputDim", 5);  // Number of output nodes of DNN
+    psd1.add<uint>("outputDim", 5);  // Number of output nodes of DNN for |eta| < 2.65
+    psd1.add<uint>("outputDimExtEta2", 3);  // Number of output nodes of DNN for |eta| > 2.65
     psd1.add<std::vector<std::string>>(
         "modelsFiles",
         {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/lowpT/lowpT_modelDNN.pb",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEB/highpTEB_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_modelDNN.pb",
+	 "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_modelDNN.pb",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_modelDNN.pb"});
     psd1.add<std::vector<std::string>>(
         "scalersFiles",
         {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/lowpT/lowpT_scaler.txt",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEB/highpTEB_scaler.txt",
+	 "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_scaler.txt",
+	 "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_scaler.txt",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_scaler.txt"});
     psd1.add<bool>("useEBModelInGap", true);
     // preselection parameters

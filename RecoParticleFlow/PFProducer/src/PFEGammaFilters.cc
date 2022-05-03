@@ -73,10 +73,14 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
   ele_dnnLowPtThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnLowPtThr");
   ele_dnnHighPtBarrelThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnHighPtBarrelThr");
   ele_dnnHighPtEndcapThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnHighPtEndcapThr");
+  ele_dnnExtEta1Thr_ = eleDNNIdThresholds.getParameter<double>("electronDnnExtEta1Thr");
+  ele_dnnExtEta2Thr_ = eleDNNIdThresholds.getParameter<double>("electronDnnExtEta2Thr");
 
   ele_dnnBkgLowPtThr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgLowPtThr");
   ele_dnnBkgHighPtBarrelThr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgHighPtBarrelThr");
   ele_dnnBkgHighPtEndcapThr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgHighPtEndcapThr");
+  ele_dnnBkgExtEta1Thr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgExtEta1Thr");
+  ele_dnnBkgExtEta2Thr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgExtEta2Thr");
 
   photon_dnnBarrelThr_ = photonDNNIdThresholds.getParameter<double>("photonDnnBarrelThr");
   photon_dnnEndcapThr_ = photonDNNIdThresholds.getParameter<double>("photonDnnEndcapThr");
@@ -505,6 +509,8 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     psd.add<double>("electronDnnLowPtThr", 0.5);
     psd.add<double>("electronDnnHighPtBarrelThr", 0.5);
     psd.add<double>("electronDnnHighPtEndcapThr", 0.5);
+    psd.add<double>("electronDnnExtEta1Thr", 0.5);
+    psd.add<double>("electronDnnExtEta2Thr", 0.5);
     iDesc.add<edm::ParameterSetDescription>("electronDnnThresholds", psd);
   }
   {
@@ -512,6 +518,8 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     psd.add<double>("electronDnnBkgLowPtThr", 1);
     psd.add<double>("electronDnnBkgHighPtBarrelThr", 1);
     psd.add<double>("electronDnnBkgHighPtEndcapThr", 1);
+    psd.add<double>("electronDnnBkgExtEta1Thr", 1);
+    psd.add<double>("electronDnnBkgExtEta2Thr", 1);
     iDesc.add<edm::ParameterSetDescription>("electronDnnBkgThresholds", psd);
   }
   iDesc.add<bool>("usePhotonPFidDnn", false);
