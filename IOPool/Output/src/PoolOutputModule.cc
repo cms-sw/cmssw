@@ -64,7 +64,8 @@ namespace edm {
         compactEventAuxiliary_(pset.getUntrackedParameter<bool>("compactEventAuxiliary")),
         mergeJob_(pset.getUntrackedParameter<bool>("mergeJob")),
         rootOutputFile_(),
-        statusFileName_() {
+        statusFileName_(),
+        overrideGUID_(pset.getUntrackedParameter<std::string>("overrideGUID")) {
     if (pset.getUntrackedParameter<bool>("writeStatusFile")) {
       std::ostringstream statusfilename;
       statusfilename << moduleLabel_ << '_' << getpid();
@@ -386,11 +387,11 @@ namespace edm {
 
   void PoolOutputModule::reallyOpenFile() {
     auto names = physicalAndLogicalNameForNewFile();
-    rootOutputFile_ = std::make_unique<RootOutputFile>(
-        this,
-        names.first,
-        names.second,
-        processesWithSelectedMergeableRunProducts_);  // propagate_const<T> has no reset() function
+    rootOutputFile_ = std::make_unique<RootOutputFile>(this,
+                                                       names.first,
+                                                       names.second,
+                                                       processesWithSelectedMergeableRunProducts_,
+                                                       overrideGUID_);  // propagate_const<T> has no reset() function
   }
 
   void PoolOutputModule::updateBranchParentsForOneBranch(ProductProvenanceRetriever const* provRetriever,
@@ -508,6 +509,10 @@ namespace edm {
             "'PRIOR':   Keep it for products produced in current process. Drop it for products produced in prior "
             "processes.\n"
             "'ALL':     Drop all of it.");
+    desc.addUntracked<std::string>("overrideGUID", defaultString)
+        ->setComment(
+            "Allows to override the GUID of the file. Intended to be used only in Tier0 for re-creating files. The "
+            "GUID needs to be of the proper format.");
     {
       ParameterSetDescription dataSet;
       dataSet.setAllowAnything();
