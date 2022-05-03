@@ -61,7 +61,7 @@ string L1TMuonOverlapParamsViewer::hash(void *buf, size_t len) const {
   for (unsigned int i = 0; i < md_len; i++)
     ::sprintf(&tmp[i * 2], "%02x", hash[i]);
 
-  tmp[20 * 2] = 0;
+  tmp[md_len * 2] = 0;
   return string(tmp);
 }
 
