@@ -72,7 +72,7 @@ public:
 private:
   virtual void cacheEBDigis(const EBDigiCollectionPh2* ebDigiPtr) const {}
 
-  typedef edm::Handle<std::vector<PCaloHit> > HitsHandle;
+  typedef edm::Handle<std::vector<PCaloHit>> HitsHandle;
 
   edm::ESGetToken<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd> pedestalToken_;
   edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> laserToken_;
@@ -126,12 +126,12 @@ private:
   std::unique_ptr<EcalLiteDTUCoder> m_Coder;
 
   typedef CaloTSamples<float, ecalPh2::sampleSize> EcalSamples_Ph2;
-  std::unique_ptr<EcalElectronicsSim<EcalLiteDTUCoder, EcalSamples_Ph2, EcalDataFrame_Ph2> > m_APDElectronicsSim;
+  std::unique_ptr<EcalElectronicsSim<EcalLiteDTUCoder, EcalSamples_Ph2, EcalDataFrame_Ph2>> m_APDElectronicsSim;
   std::unique_ptr<EcalLiteDTUCoder> m_APDCoder;
 
   const CaloGeometry* m_Geometry;
 
-  std::array<std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix_Ph2> >, 2> m_EBCorrNoise;
+  std::array<std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix_Ph2>>, 2> m_EBCorrNoise;
 
   CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
