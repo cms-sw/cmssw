@@ -120,6 +120,10 @@ namespace edm {
     preStreamEarlyTerminationSignal_.connect(std::cref(iOther.preStreamEarlyTerminationSignal_));
     preGlobalEarlyTerminationSignal_.connect(std::cref(iOther.preGlobalEarlyTerminationSignal_));
     preSourceEarlyTerminationSignal_.connect(std::cref(iOther.preSourceEarlyTerminationSignal_));
+
+    esSyncIOVQueuingSignal_.connect(std::cref(iOther.esSyncIOVQueuingSignal_));
+    preESSyncIOVSignal_.connect(std::cref(iOther.preESSyncIOVSignal_));
+    postESSyncIOVSignal_.connect(std::cref(iOther.postESSyncIOVSignal_));
   }
 
   void ActivityRegistry::connectLocals(ActivityRegistry& iOther) {
@@ -522,6 +526,10 @@ namespace edm {
      */
     copySlotsToFrom(preSourceConstructionSignal_, iOther.preSourceConstructionSignal_);
     copySlotsToFromReverse(postSourceConstructionSignal_, iOther.postSourceConstructionSignal_);
+
+    copySlotsToFrom(esSyncIOVQueuingSignal_, iOther.esSyncIOVQueuingSignal_);
+    copySlotsToFrom(preESSyncIOVSignal_, iOther.preESSyncIOVSignal_);
+    copySlotsToFromReverse(postESSyncIOVSignal_, iOther.postESSyncIOVSignal_);
   }
 
   //
