@@ -69,7 +69,8 @@ private:
   const bool doJetTags_;
   const bool doCandidates_;
   const bool doMet_;
-  const bool doTrackRelVars_;
+  const bool doTrackVars_;
+  const bool relativeTrackVars_;
   const bool doCandIndsForJets_;
 };
 
@@ -91,7 +92,8 @@ HLTScoutingPFProducer::HLTScoutingPFProducer(const edm::ParameterSet &iConfig)
       doJetTags_(iConfig.getParameter<bool>("doJetTags")),
       doCandidates_(iConfig.getParameter<bool>("doCandidates")),
       doMet_(iConfig.getParameter<bool>("doMet")),
-      doTrackRelVars_(iConfig.getParameter<bool>("doTrackRelVars")),
+      doTrackVars_(iConfig.getParameter<bool>("doTrackVars")),
+      relativeTrackVars_(iConfig.getParameter<bool>("relativeTrackVars")),
       doCandIndsForJets_(iConfig.getParameter<bool>("doCandIndsForJets")) {
   //register products
   produces<Run3ScoutingPFJetCollection>();
@@ -162,16 +164,21 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
         }
         float normchi2{0}, dz{0}, dxy{0}, dzError{0}, dxyError{0}, trk_pt{0}, trk_eta{0}, trk_phi{0};
         uint8_t lostInnerHits{0}, quality{0};
-        if (doTrackRelVars_) {
+        if (doTrackVars_) {
           const auto *trk = cand.bestTrack();
           if (trk != nullptr) {
             normchi2 = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->normalizedChi2(), mantissaPrecision_);
             lostInnerHits = btagbtvdeep::lost_inner_hits_from_pfcand(cand);
             quality = btagbtvdeep::quality_from_pfcand(cand);
-            trk_pt = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->pt(), mantissaPrecision_);
-            trk_eta = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->eta(), mantissaPrecision_);
-            trk_phi = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->phi(), mantissaPrecision_);
-
+            if (relativeTrackVars_) {
+              trk_pt = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->pt() - cand.pt(), mantissaPrecision_);
+              trk_eta = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->eta() - cand.eta(), mantissaPrecision_);
+              trk_phi = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->phi() - cand.phi(), mantissaPrecision_);
+            } else {
+              trk_pt = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->pt(), mantissaPrecision_);
+              trk_eta = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->eta(), mantissaPrecision_);
+              trk_phi = MiniFloatConverter::reduceMantissaToNbitsRounding(trk->phi(), mantissaPrecision_);
+            }
             if (not vertexCollection->empty()) {
               const reco::Vertex &pv = (*vertexCollection)[0];
 
@@ -187,23 +194,22 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event &iEvent, edm::
             normchi2 = MiniFloatConverter::reduceMantissaToNbitsRounding(999, mantissaPrecision_);
           }
         }
-        outPFCandidates->emplace_back(
-            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.pt(), mantissaPrecision_),
-            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.eta(), mantissaPrecision_),
-            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.phi(), mantissaPrecision_),
-            MiniFloatConverter::reduceMantissaToNbitsRounding(cand.mass(), mantissaPrecision_),
-            cand.pdgId(),
-            vertex_index,
-            normchi2,
-            dz,
-            dxy,
-            dzError,
-            dxyError,
-            lostInnerHits,
-            quality,
-            trk_pt,
-            trk_eta,
-            trk_phi);
+        outPFCandidates->emplace_back(MiniFloatConverter::reduceMantissaToNbitsRounding(cand.pt(), mantissaPrecision_),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.eta(), mantissaPrecision_),
+                                      MiniFloatConverter::reduceMantissaToNbitsRounding(cand.phi(), mantissaPrecision_),
+                                      cand.pdgId(),
+                                      vertex_index,
+                                      normchi2,
+                                      dz,
+                                      dxy,
+                                      dzError,
+                                      dxyError,
+                                      lostInnerHits,
+                                      quality,
+                                      trk_pt,
+                                      trk_eta,
+                                      trk_phi,
+                                      relativeTrackVars_);
       }
     }
   }
@@ -314,7 +320,8 @@ void HLTScoutingPFProducer::fillDescriptions(edm::ConfigurationDescriptions &des
   desc.add<bool>("doJetTags", true);
   desc.add<bool>("doCandidates", true);
   desc.add<bool>("doMet", true);
-  desc.add<bool>("doTrackRelVars", true);
+  desc.add<bool>("doTrackVars", true);
+  desc.add<bool>("relativeTrackVars", true);
   desc.add<bool>("doCandIndsForJets", false);
   descriptions.addWithDefaultLabel(desc);
 }
