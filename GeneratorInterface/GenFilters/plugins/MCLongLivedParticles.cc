@@ -1,11 +1,31 @@
 
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "GeneratorInterface/GenFilters/plugins/MCLongLivedParticles.h"
+// -*- C++ -*-
+//
+// Package:    MCLongLivedParticles
+// Class:      MCLongLivedParticles
+//
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+// system include files
+#include <memory>
 #include <iostream>
 #include <vector>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+//#include "GeneratorInterface/GenFilters/plugins/MCLongLivedParticles.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 using namespace edm;
 using namespace std;
@@ -13,18 +33,48 @@ using namespace std;
 //Filter particles based on their minimum and/or maximum displacement on the transverse plane and optionally on their pdgIds
 //To run independently of pdgId, do not insert the particleIDs entry in filter declaration
 
+
+// class decleration
+//
+namespace edm {
+  class HepMCProduct;
+  class ConfigurationDescriptions;
+}  // namespace edm
+
+class MCLongLivedParticles : public edm::global::EDFilter<> {
+public:
+  explicit MCLongLivedParticles(const edm::ParameterSet&);
+  ~MCLongLivedParticles() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+private:
+  // ----------member data ---------------------------
+  edm::InputTag hepMCProductTag_;
+  const edm::EDGetTokenT<edm::HepMCProduct> token_;
+  std::vector<int> particleIDs_;  // To chose on which pdgIds the filter is applied - if ParticleIDs.at(0)==0 runs on all particles
+
+  const float theUpperCut_;  // Maximum displacement accepted
+  const float theLowerCut_;  // Minimum displacement accepted
+};
+
+
+//methods implementation
+//
+//Class initialization
 MCLongLivedParticles::MCLongLivedParticles(const edm::ParameterSet& iConfig)
-    : moduleLabel_(iConfig.getParameter<std::string>("hepMCProductTag")),
-      hepMCProductTag_(
-          edm::InputTag(iConfig.getUntrackedParameter(moduleLabel_, std::string("generator")), "unsmeared")),
+    : hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")),
       token_(consumes<edm::HepMCProduct>(hepMCProductTag_)),
-      particleIDs(iConfig.getParameter<std::vector<int>>("ParticleIDs")),
+      particleIDs_(iConfig.getParameter<std::vector<int>>("ParticleIDs")),
       theUpperCut_(iConfig.getParameter<double>("LengMax")),
       theLowerCut_(iConfig.getParameter<double>("LengMin")) {}
 
+//Filter description
 void MCLongLivedParticles::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::string>("hepMCProductTag", "moduleLabel");
+  desc.add<edm::InputTag>("hepMCProductTag", edm::InputTag("generator","unsmeared"));
   desc.add<std::vector<int>>("ParticleIDs", std::vector<int>{0});
   desc.add<double>("LengMax", -1.);
   desc.add<double>("LengMin", -1.);
@@ -45,7 +95,7 @@ bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::
   float theUpperCut2 = theUpperCut_ * theUpperCut_;
   float theLowerCut2 = theLowerCut_ * theLowerCut_;
 
-  if (particleIDs.at(0) != 0)
+  if (particleIDs_.at(0) != 0)
     matchedID = false;
 
   const HepMC::GenEvent* generated_event = evt->GetEvent();
@@ -54,8 +104,8 @@ bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++) {
     //if a list of pdgId is provided, loop only on particles with those pdgId
 
-    for (unsigned int idx = 0; idx < particleIDs.size(); idx++) {
-      if (abs((*p)->pdg_id()) == abs(particleIDs.at(idx))) {  //compares absolute values of pdgIds
+    for (unsigned int idx = 0; idx < particleIDs_.size(); idx++) {
+      if (abs((*p)->pdg_id()) == abs(particleIDs_.at(idx))) {  //compares absolute values of pdgIds
         matchedID = true;
         break;
       }
