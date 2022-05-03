@@ -93,6 +93,7 @@ namespace edm {
   class LuminosityBlock;
   class Run;
   class EventSetup;
+  class IOVSyncValue;
   class HLTPathStatus;
   class GlobalContext;
   class StreamContext;
@@ -525,6 +526,24 @@ namespace edm {
       postESModuleRegistrationSignal_.connect(iSlot);
     }
     AR_WATCH_USING_METHOD_1(watchPostESModuleRegistration)
+
+    /// signal is emitted when a new IOV may be needed so we queue a task to do that
+    using ESSyncIOVQueuing = signalslot::Signal<void(IOVSyncValue const&)>;
+    ESSyncIOVQueuing esSyncIOVQueuingSignal_;
+    void watchESSyncIOVQueuing(ESSyncIOVQueuing::slot_type const& iSlot) { esSyncIOVQueuingSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchESSyncIOVQueuing)
+
+    /// signal is emitted just before a new IOV is synchronized
+    using PreESSyncIOV = signalslot::Signal<void(IOVSyncValue const&)>;
+    PreESSyncIOV preESSyncIOVSignal_;
+    void watchPreESSyncIOV(PreESSyncIOV::slot_type const& iSlot) { preESSyncIOVSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPreESSyncIOV)
+
+    /// signal is emitted just after a new IOV is synchronized
+    using PostESSyncIOV = signalslot::Signal<void(IOVSyncValue const&)>;
+    PostESSyncIOV postESSyncIOVSignal_;
+    void watchPostESSyncIOV(PostESSyncIOV::slot_type const& iSlot) { postESSyncIOVSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPostESSyncIOV)
 
     /// signal is emitted before the esmodule starts processing and before prefetching has started
     typedef signalslot::Signal<void(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&)>

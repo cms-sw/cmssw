@@ -1146,7 +1146,9 @@ namespace edm {
     }
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
+      actReg_->preESSyncIOVSignal_.emit(ts);
       synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
+      actReg_->postESSyncIOVSignal_.emit(ts);
       eventSetupForInstanceSucceeded = true;
       sentry.completedSuccessfully();
     }
@@ -1261,7 +1263,9 @@ namespace edm {
         runPrincipal.endTime());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
+      actReg_->preESSyncIOVSignal_.emit(ts);
       synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
+      actReg_->postESSyncIOVSignal_.emit(ts);
       sentry.completedSuccessfully();
     }
     auto const& es = esp_->eventSetupImpl();
@@ -1344,6 +1348,7 @@ namespace edm {
       return;
     }
 
+    actReg_->esSyncIOVQueuingSignal_.emit(iSync);
     // We must be careful with the status object here and in code this function calls. IF we want
     // endRun to be called, then we must call resetResources before the things waiting on
     // iHolder are allowed to proceed. Otherwise, there will be race condition (possibly causing
@@ -1368,6 +1373,7 @@ namespace edm {
           // need to be processed and prepare IOVs for it.
           // Pass in the endIOVWaitingTasks so the lumi can notify them when the
           // lumi is done and no longer needs its EventSetup IOVs.
+          actReg->preESSyncIOVSignal_.emit(iSync);
           espController->eventSetupForInstanceAsync(
               iSync, task, status->endIOVWaitingTasks(), status->eventSetupImpls());
           sentry.completedSuccessfully();
@@ -1389,7 +1395,8 @@ namespace edm {
         asyncEventSetup(
             actReg_.get(), espController_.get(), queueWhichWaitsForIOVsToFinish_, std::move(nextTask), status, iSync);
       }
-    }) | chain::then([this, status](std::exception_ptr const* iPtr, auto nextTask) {
+    }) | chain::then([this, status, iSync](std::exception_ptr const* iPtr, auto nextTask) {
+      actReg_->postESSyncIOVSignal_.emit(iSync);
       //the call to doneWaiting will cause the count to decrement
       auto copyTask = nextTask;
       if (iPtr) {
