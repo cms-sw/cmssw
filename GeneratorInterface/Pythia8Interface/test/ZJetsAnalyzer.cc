@@ -36,7 +36,7 @@ public:
   //
   explicit ZJetsAnalyzer(const edm::ParameterSet&);
   virtual ~ZJetsAnalyzer() = default;  // no need to delete ROOT stuff
-                             // as it'll be deleted upon closing TFile
+                                       // as it'll be deleted upon closing TFile
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
@@ -91,7 +91,7 @@ void ZJetsAnalyzer::endRun(const edm::Run& r, const edm::EventSetup&) {
   std::ofstream testi("testi.dat");
   double val, errval;
 
-  const edm::Handle<GenRunInfoProduct>&  genRunInfoProduct = r.getHandle(tokenGenRun_);
+  const edm::Handle<GenRunInfoProduct>& genRunInfoProduct = r.getHandle(tokenGenRun_);
 
   val = (double)genRunInfoProduct->crossSection();
   std::cout << std::endl;

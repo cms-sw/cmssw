@@ -33,10 +33,12 @@ private:
   TH1D* fHistZZMass;
 };
 
-HZZ4muAnalyzer::HZZ4muAnalyzer(const edm::ParameterSet& pset) : 
-  tokenGenInfo_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
-  tokenHepMC_(consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"))),
-  fHist2muMass(nullptr), fHist4muMass(nullptr), fHistZZMass(nullptr) {
+HZZ4muAnalyzer::HZZ4muAnalyzer(const edm::ParameterSet& pset)
+    : tokenGenInfo_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+      tokenHepMC_(consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"))),
+      fHist2muMass(nullptr),
+      fHist4muMass(nullptr),
+      fHistZZMass(nullptr) {
   // actually, pset is NOT in use - we keep it here just for illustratory putposes
   usesResource(TFileService::kSharedResource);
 }
