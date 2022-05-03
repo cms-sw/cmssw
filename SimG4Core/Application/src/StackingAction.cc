@@ -217,6 +217,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         auto ptr = static_cast<const G4GammaGeneralProcess*>(proc);
         proc = ptr->GetSelectedProcess();
         subType = proc->GetProcessSubType();
+        const_cast<G4Track*>(aTrack)->SetCreatorProcess(proc);
       }
       LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
                                        << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
