@@ -8,7 +8,6 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
-#include "RecoTauTag/RecoTau/interface/Scaling.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
@@ -1230,7 +1229,7 @@ public:
         {
           tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT, tensorflow::TensorShape{1, TauBlockInputs::NumberOfInputs});
-          scalingParamsMap_ = &Scaling::scalingParamsMap_v2p1;
+          scalingParamsMap_ = &deep_tau::Scaling::scalingParamsMap_v2p1;
         }
         else if (sub_version_ == 5)
         { 
@@ -1244,7 +1243,7 @@ public:
           tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT, tensorflow::TensorShape{1, static_cast<int>(TauBlockInputs::NumberOfInputs) 
                                                              - static_cast<int>(TauBlockInputs::varsToDrop.size())});
-          scalingParamsMap_ = &Scaling::scalingParamsMap_v2p5;
+          scalingParamsMap_ = &deep_tau::Scaling::scalingParamsMap_v2p5;
         }
         else
           throw cms::Exception("DeepTauId") << "subversion " << sub_version_ << " is not supported.";
@@ -1311,7 +1310,7 @@ private:
   }
 
   template <typename T>
-  float getValueScaled(T value, int var_index, Scaling::FeatureT ft, bool is_inner) {
+  float getValueScaled(T value, int var_index, deep_tau::Scaling::FeatureT ft, bool is_inner) {
     const float fixed_value = getValue(value);
     const float mean = scalingParamsMap_->at(ft).mean_.at(var_index).at(is_inner);
     const float std = scalingParamsMap_->at(ft).std_.at(var_index).at(is_inner);
@@ -1885,7 +1884,7 @@ private:
                             double rho,
                             TauFunc tau_funcs) {
     namespace dnn = dnn_inputs_v2::TauBlockInputs;
-    Scaling::FeatureT ft = Scaling::FeatureT::TauFlat;
+    deep_tau::Scaling::FeatureT ft = deep_tau::Scaling::FeatureT::TauFlat;
     bool is_inner = false;
 
     tensorflow::Tensor& inputs = *tauBlockTensor_;
@@ -2014,10 +2013,10 @@ private:
                                TauFunc tau_funcs,
                                bool is_inner) {
     namespace dnn = dnn_inputs_v2::EgammaBlockInputs;
-    Scaling::FeatureT ft_global = Scaling::FeatureT::GridGlobal;
-    Scaling::FeatureT ft_PFe = Scaling::FeatureT::PfCand_electron;
-    Scaling::FeatureT ft_PFg = Scaling::FeatureT::PfCand_gamma;
-    Scaling::FeatureT ft_e = Scaling::FeatureT::Electron;
+    deep_tau::Scaling::FeatureT ft_global = deep_tau::Scaling::FeatureT::GridGlobal;
+    deep_tau::Scaling::FeatureT ft_PFe = deep_tau::Scaling::FeatureT::PfCand_electron;
+    deep_tau::Scaling::FeatureT ft_PFg = deep_tau::Scaling::FeatureT::PfCand_gamma;
+    deep_tau::Scaling::FeatureT ft_e = deep_tau::Scaling::FeatureT::Electron;
 
     // needed to remap indices from scaling vectors to those from dnn_inputs_v2::EgammaBlockInputs
     int PFe_index_offset = scalingParamsMap_->at(ft_global).mean_.size();
@@ -2245,9 +2244,9 @@ private:
                              TauFunc tau_funcs,
                              bool is_inner) {
     namespace dnn = dnn_inputs_v2::MuonBlockInputs;
-    Scaling::FeatureT ft_global = Scaling::FeatureT::GridGlobal;
-    Scaling::FeatureT ft_PFmu = Scaling::FeatureT::PfCand_muon;
-    Scaling::FeatureT ft_mu = Scaling::FeatureT::Muon;
+    deep_tau::Scaling::FeatureT ft_global = deep_tau::Scaling::FeatureT::GridGlobal;
+    deep_tau::Scaling::FeatureT ft_PFmu = deep_tau::Scaling::FeatureT::PfCand_muon;
+    deep_tau::Scaling::FeatureT ft_mu = deep_tau::Scaling::FeatureT::Muon;
 
     // needed to remap indices from scaling vectors to those from dnn_inputs_v2::MuonBlockInputs
     int PFmu_index_offset = scalingParamsMap_->at(ft_global).mean_.size();
@@ -2384,9 +2383,9 @@ private:
                                 TauFunc tau_funcs,
                                 bool is_inner) {
     namespace dnn = dnn_inputs_v2::HadronBlockInputs;
-    Scaling::FeatureT ft_global = Scaling::FeatureT::GridGlobal;
-    Scaling::FeatureT ft_PFchH = Scaling::FeatureT::PfCand_chHad;
-    Scaling::FeatureT ft_PFnH = Scaling::FeatureT::PfCand_nHad;
+    deep_tau::Scaling::FeatureT ft_global = deep_tau::Scaling::FeatureT::GridGlobal;
+    deep_tau::Scaling::FeatureT ft_PFchH = deep_tau::Scaling::FeatureT::PfCand_chHad;
+    deep_tau::Scaling::FeatureT ft_PFnH = deep_tau::Scaling::FeatureT::PfCand_nHad;
 
     // needed to remap indices from scaling vectors to those from dnn_inputs_v2::HadronBlockInputs
     int PFchH_index_offset = scalingParamsMap_->at(ft_global).mean_.size();
@@ -2859,7 +2858,7 @@ private:
   std::unique_ptr<tensorflow::Tensor> tauBlockTensor_;
   std::array<std::unique_ptr<tensorflow::Tensor>, 2> eGammaTensor_, muonTensor_, hadronsTensor_, convTensor_,
       zeroOutputTensor_;
-  const std::map<Scaling::FeatureT, Scaling::ScalingParams> *scalingParamsMap_;
+  const std::map<deep_tau::Scaling::FeatureT, deep_tau::Scaling::ScalingParams> *scalingParamsMap_;
   const bool save_inputs_;
   std::ofstream* json_file_;
   bool is_first_block_;
