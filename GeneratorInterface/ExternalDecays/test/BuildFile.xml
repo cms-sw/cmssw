@@ -4,5 +4,8 @@
 <library file="EvtGenTestAnalyzer.cc" name="EvtGenTestAnalyzer">
   <use name="root"/>
   <use name="FWCore/Framework"/>
+  <use name="CommonTools/UtilAlgos"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/Utilities"/>
   <use name="SimDataFormats/GeneratorProducts"/>
 </library>
