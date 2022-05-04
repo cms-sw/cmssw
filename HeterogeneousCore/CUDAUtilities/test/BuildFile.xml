@@ -129,4 +129,23 @@
     <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
     <flags CXXFLAGS="-g -DGPU_DEBUG"/>
   </bin>
+
+  <bin file="testPoolUI.cu" name="testPoolUI">
+    <flags CUDA_FLAGS="-g"/>
+    <flags CXXFLAGS="-g"/>
+  </bin>
+
+  <bin file="testSimplePoolAllocator.cu" name="testSimplePoolAllocatorGPU">
+    <flags CUDA_FLAGS="-g"/>
+    <flags CXXFLAGS="-g"/>
+  </bin>
+
+  <bin file="testSimplePoolAllocator.cpp" name="testSimplePoolAllocatorCPU">
+    <flags CUDA_FLAGS="-g"/>
+    <flags CXXFLAGS="-g"/>
+  </bin>
+
+
 </iftool>
+
+
