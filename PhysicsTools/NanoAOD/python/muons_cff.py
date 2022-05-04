@@ -155,9 +155,6 @@ for modifier in  run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XM
 run2_nanoAOD_102Xv1.toModify(muonTable.variables, puppiIsoId = None)
 
 # Revert back to AK4 CHS jets for Run 2
-run2_nanoAOD_ANY = (
-    run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 |  run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 | run2_nanoAOD_106Xv2
-)
 run2_nanoAOD_ANY.toModify(ptRatioRelForMu,srcJet="updatedJets")
 
 
