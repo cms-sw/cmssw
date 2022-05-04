@@ -4,8 +4,11 @@
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
 # with command line options: skims -s SKIM:EXOHighMET --dasoption=-limit 3 --dasquery=file dataset=/MET/Run2018A-12Nov2019_UL2018-v3/AOD -n 10000 --conditions 102X_dataRun2_v14 --python_filename=test_EXOHighMET_SKIM_METPD.py --processName=SKIMEXOHighMET --no_exec
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-
+options = VarParsing.VarParsing('analysis')
+options.register('runOnData', True, VarParsing.VarParsing.multiplicity.singleton, VarParsing.VarParsing.varType.bool, 'Run on MET data or QCD MC')
+options.parseArguments()
 
 process = cms.Process('SKIMEXOHighMET')
 
@@ -26,10 +29,18 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
+if options.runOnData is True:
+    fileList = ['/store/data/Run2018A/MET/AOD/12Nov2019_UL2018-v3/120000/008A1B54-2CF6-D64B-8CCE-DBD79983CF0B.root']
+else:
+    fileList = [
+        '/store/relval/CMSSW_12_3_0_pre6/RelValQCD_Pt_1800_2400_14/GEN-SIM-RECO/123X_mcRun3_2021_realistic_v11-v2/10000/649f3446-1698-4910-b879-9a6d94d62a9b.root',
+        '/store/relval/CMSSW_12_3_0_pre6/RelValQCD_Pt_1800_2400_14/GEN-SIM-RECO/123X_mcRun3_2021_realistic_v11-v2/10000/aa515779-dad9-4994-b7d2-d672a7c8938a.root',
+        '/store/relval/CMSSW_12_3_0_pre6/RelValQCD_Pt_1800_2400_14/GEN-SIM-RECO/123X_mcRun3_2021_realistic_v11-v2/10000/b7315dce-732e-4ec7-b137-ee3bafff1cd6.root',
+        '/store/relval/CMSSW_12_3_0_pre6/RelValQCD_Pt_1800_2400_14/GEN-SIM-RECO/123X_mcRun3_2021_realistic_v11-v2/10000/df8bd2c1-1e45-479d-9287-2d40fecc25d8.root'
+    ]
+	
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-	'/store/data/Run2018A/MET/AOD/12Nov2019_UL2018-v3/120000/008A1B54-2CF6-D64B-8CCE-DBD79983CF0B.root'
-    ),
+    fileNames = cms.untracked.vstring(fileList),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -510,7 +521,8 @@ process.SKIMStreamEXOHighMET = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '102X_dataRun2_v14', '')
+gt = '102X_dataRun2_v14' if options.runOnData else '120X_mcRun3_2021_realistic_v6'
+process.GlobalTag = GlobalTag(process.GlobalTag, gt, '')
 
 # Path and EndPath definitions
 process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
