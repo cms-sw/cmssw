@@ -3,12 +3,22 @@ import xml.etree.ElementTree as ET
 import sys
 
 ## declare all constants here
-TARGET_LIST_OF_TAGS=['BeamSpotObject_ByLumi', 'BeamSpotObject_ByRun', 'BeamSpotObjectHP_ByLumi', 'BeamSpotObjectHP_ByRun',
-                     'SiPixelLA_pcl', 'SiPixelQualityFromDbRcd_other', 'SiPixelQualityFromDbRcd_prompt', 'SiPixelQualityFromDbRcd_stuckTBM',
-                     'SiStripApvGain_pcl', 'SiStripApvGainAAG_pcl', 'SiStripBadStrip_pcl', 'SiPixelAli_pcl']
+TARGET_LIST_OF_TAGS=['BeamSpotObject_ByLumi',           # beamspot
+                     'BeamSpotObject_ByRun', 
+                     'BeamSpotObjectHP_ByLumi', 
+                     'BeamSpotObjectHP_ByRun',
+                     'SiPixelLA_pcl',                   # SiPixel
+                     'SiPixelQualityFromDbRcd_other', 
+                     'SiPixelQualityFromDbRcd_prompt', 
+                     'SiPixelQualityFromDbRcd_stuckTBM',
+                     'SiStripApvGain_pcl',              # SiStrip
+                     'SiStripApvGainAAG_pcl', 
+                     'SiStripBadStrip_pcl', 
+                     'SiStripBadStripRcdHitEff_pcl',
+                     'SiPixelAli_pcl']                  #Alignment
 TARGET_DQM_FILES=1
 TARGET_DQM_FILENAME='./DQM_V0001_R000325022__Express__PCLTest__ALCAPROMPT.root'
-TARGET_DB_FILES=12
+TARGET_DB_FILES=len(TARGET_LIST_OF_TAGS)
 TARGET_DB_FILENAME='sqlite_file:testPCLAlCaHarvesting.db'
 TARGET_XML_FILENAME='testPCLAlCaHarvesting.xml'
 TOTAL_TARGET_FILES=TARGET_DQM_FILES+TARGET_DB_FILES
@@ -25,7 +35,7 @@ def parseXML(xmlfile):
     totAnaEntries=len(root.findall('AnalysisFile'))
 
     if(totAnaEntries!=TOTAL_TARGET_FILES):
-        print("ERROR: found a not expected number (",totAnaEntries,") of AnalysisFile entries in the FrameworkJobReport.xml")
+        print("ERROR: found a not expected number (",totAnaEntries,") of AnalysisFile entries in the FrameworkJobReport.xml, expecting",TOTAL_TARGET_FILES)
         return -1
 
     listOfInputTags=[]
@@ -55,8 +65,15 @@ def parseXML(xmlfile):
         print("ERROR! Found an uexpected number of DQM files (",countDQMfiles,")")
         return -1
 
+    ## first sort to avoid spurious false positives
+    listOfInputTags.sort()
+    TARGET_LIST_OF_TAGS.sort()
+
     ## That's strict! 
     if(listOfInputTags!=TARGET_LIST_OF_TAGS):
+        print(" list of input tags found in file:",listOfInputTags)
+        print(" target list of tags:",TARGET_LIST_OF_TAGS)
+
         if (listOfInputTags>TARGET_LIST_OF_TAGS):
             print("ERROR!\n This ",[x for x in TARGET_LIST_OF_TAGS if x not in listOfInputTags]," is the set of expected tags not found in the FwdJobReport!")
         else:

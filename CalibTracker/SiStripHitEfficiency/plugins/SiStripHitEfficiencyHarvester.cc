@@ -10,6 +10,10 @@
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterDescription.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -30,11 +34,13 @@ class SiStripHitEfficiencyHarvester : public DQMEDHarvester {
 public:
   explicit SiStripHitEfficiencyHarvester(const edm::ParameterSet&);
   ~SiStripHitEfficiencyHarvester() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void endRun(edm::Run const&, edm::EventSetup const&) override;
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
+  const bool isAtPCL_;
   const bool showRings_, autoIneffModTagging_, doStoreOnDB_;
   const unsigned int nTEClayers_;
   const double threshold_;
@@ -55,14 +61,16 @@ private:
   void writeBadStripPayload(const SiStripQuality& quality) const;
   void printTotalStatistics(const std::array<long, 23>& layerFound, const std::array<long, 23>& layerTotal) const;
   void printAndWriteBadModules(const SiStripQuality& quality, const SiStripDetInfo& detInfo) const;
+  bool checkMapsValidity(const std::vector<MonitorElement*>& maps, const std::string& type) const;
   void makeSummary(DQMStore::IGetter& getter, TFileService& fs) const;
   void makeSummaryVsBX(DQMStore::IGetter& getter, TFileService& fs) const;
-  void makeSummaryVsLumi(DQMStore::IGetter& getter, TFileService& fs) const;
+  void makeSummaryVsLumi(DQMStore::IGetter& getter) const;
   void makeSummaryVsCM(DQMStore::IGetter& getter, TFileService& fs) const;
 };
 
 SiStripHitEfficiencyHarvester::SiStripHitEfficiencyHarvester(const edm::ParameterSet& conf)
-    : showRings_(conf.getUntrackedParameter<bool>("ShowRings", false)),
+    : isAtPCL_(conf.getParameter<bool>("isAtPCL")),
+      showRings_(conf.getUntrackedParameter<bool>("ShowRings", false)),
       autoIneffModTagging_(conf.getUntrackedParameter<bool>("AutoIneffModTagging", false)),
       doStoreOnDB_(conf.getParameter<bool>("doStoreOnDB")),
       nTEClayers_(showRings_ ? 7 : 9),  // number of rings or wheels
@@ -96,6 +104,36 @@ void SiStripHitEfficiencyHarvester::endRun(edm::Run const&, edm::EventSetup cons
   }
 }
 
+bool SiStripHitEfficiencyHarvester::checkMapsValidity(const std::vector<MonitorElement*>& maps,
+                                                      const std::string& type) const {
+  std::vector<bool> isAvailable;
+  isAvailable.reserve(maps.size());
+  std::transform(
+      maps.begin() + 1, maps.end(), std::back_inserter(isAvailable), [](auto& x) { return !(x == nullptr); });
+
+  int count{0};
+  for (const auto& it : isAvailable) {
+    count++;
+    LogDebug("SiStripHitEfficiencyHarvester") << " layer: " << count << " " << it << std::endl;
+    if (it)
+      LogDebug("SiStripHitEfficiencyHarvester") << "resolving to " << maps[count]->getName() << std::endl;
+  }
+
+  // check on the input TkHistoMap
+  bool areMapsAvailable{true};
+  int layerCount{0};
+  for (const auto& it : isAvailable) {
+    layerCount++;
+    if (!it) {
+      edm::LogError("SiStripHitEfficiencyHarvester")
+          << type << " TkHistoMap for layer " << layerCount << " was not found.\n -> Aborting!";
+      areMapsAvailable = false;
+      break;
+    }
+  }
+  return areMapsAvailable;
+}
+
 void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
   if (!autoIneffModTagging_)
     LOGPRINT << "A module is bad if efficiency < " << threshold_ << " and has at least " << nModsMin_ << " nModsMin.";
@@ -103,21 +141,38 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
     LOGPRINT << "A module is bad if the upper limit on the efficiency is < to the avg in the layer - " << threshold_
              << " and has at least " << nModsMin_ << " nModsMin.";
 
-  edm::Service<TFileService> fs;
-
   auto h_module_total = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_total->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_total");
+  h_module_total->loadTkHistoMap("AlCaReco/SiStripHitEfficiency", "perModule_total");
   auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_found->loadTkHistoMap("SiStrip/HitEfficiency", "perModule_found");
+  h_module_found->loadTkHistoMap("AlCaReco/SiStripHitEfficiency", "perModule_found");
+
+  // collect how many layers are missing
+  const auto& totalMaps = h_module_total->getAllMaps();
+  const auto& foundMaps = h_module_found->getAllMaps();
+
+  LogDebug("SiStripHitEfficiencyHarvester")
+      << "totalMaps.size(): " << totalMaps.size() << " foundMaps.size() " << foundMaps.size() << std::endl;
+
+  // check on the input TkHistoMaps
+  bool isTotalMapAvailable = this->checkMapsValidity(totalMaps, std::string("Total"));
+  bool isFoundMapAvailable = this->checkMapsValidity(foundMaps, std::string("Found"));
+
+  LogDebug("SiStripHitEfficiencyHarvester")
+      << "isTotalMapAvailable: " << isTotalMapAvailable << " isFoundMapAvailable " << isFoundMapAvailable << std::endl;
+
+  // no input TkHistoMaps -> early return
+  if (!isTotalMapAvailable or !isFoundMapAvailable)
+    return;
+
   LogDebug("SiStripHitEfficiencyHarvester")
       << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
       << h_module_found->getMap(3)->getEntries();
 
-  std::vector<TH1F*> hEffInLayer(std::size_t(1), nullptr);
+  std::vector<MonitorElement*> hEffInLayer(std::size_t(1), nullptr);
   hEffInLayer.reserve(23);
   for (std::size_t i = 1; i != 23; ++i) {
     hEffInLayer.push_back(
-        fs->make<TH1F>(Form("eff_layer%i", int(i)), Form("Module efficiency in layer %i", int(i)), 201, 0, 1.005));
+        booker.book1D(Form("eff_layer%i", int(i)), Form("Module efficiency in layer %i", int(i)), 201, 0, 1.005));
   }
   std::array<long, 23> layerTotal{};
   std::array<long, 23> layerFound{};
@@ -176,12 +231,13 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   if (autoIneffModTagging_) {
     for (Long_t i = 1; i <= 22; i++) {
       //Compute threshold to use for each layer
-      hEffInLayer[i]->GetXaxis()->SetRange(3, hEffInLayer[i]->GetNbinsX() + 1);  // Remove from the avg modules below 1%
-      const double layer_min_eff = hEffInLayer[i]->GetMean() - std::max(2.5 * hEffInLayer[i]->GetRMS(), threshold_);
+      hEffInLayer[i]->getTH1()->GetXaxis()->SetRange(
+          3, hEffInLayer[i]->getNbinsX() + 1);  // Remove from the avg modules below 1%
+      const double layer_min_eff = hEffInLayer[i]->getMean() - std::max(2.5 * hEffInLayer[i]->getRMS(), threshold_);
       LOGPRINT << "Layer " << i << " threshold for bad modules: <" << layer_min_eff
-               << "  (layer mean: " << hEffInLayer[i]->GetMean() << " rms: " << hEffInLayer[i]->GetRMS() << ")";
+               << "  (layer mean: " << hEffInLayer[i]->getMean() << " rms: " << hEffInLayer[i]->getRMS() << ")";
 
-      hEffInLayer[i]->GetXaxis()->SetRange(1, hEffInLayer[i]->GetNbinsX() + 1);
+      hEffInLayer[i]->getTH1()->GetXaxis()->SetRange(1, hEffInLayer[i]->getNbinsX() + 1);
 
       for (auto det : stripDetIds_) {
         const auto layer = ::checkLayer(det, tTopo_.get());
@@ -252,10 +308,14 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   //     << " lumiBlock " << e.luminosityBlock() << " time " << e.time().value() << "\n-----------------\n";
   printAndWriteBadModules(pQuality, detInfo);  // TODO
 
-  makeSummary(getter, *fs);        // TODO
-  makeSummaryVsBX(getter, *fs);    // TODO
-  makeSummaryVsLumi(getter, *fs);  // TODO
-  makeSummaryVsCM(getter, *fs);    // TODO
+  if (!isAtPCL_) {
+    edm::Service<TFileService> fs;
+    makeSummary(getter, *fs);      // TODO
+    makeSummaryVsBX(getter, *fs);  // TODO
+    makeSummaryVsCM(getter, *fs);  // TODO
+  }
+
+  makeSummaryVsLumi(getter);  // TODO
 }
 
 void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 23>& layerFound,
@@ -331,10 +391,24 @@ void SiStripHitEfficiencyHarvester::makeSummaryVsBX(DQMStore::IGetter& getter, T
   // use found/totalVsBx_layer%i [0,23)
 }
 
-void SiStripHitEfficiencyHarvester::makeSummaryVsLumi(DQMStore::IGetter& getter, TFileService& fs) const {
+void SiStripHitEfficiencyHarvester::makeSummaryVsLumi(DQMStore::IGetter& getter) const {
   for (unsigned int iLayer = 1; iLayer != (showRings_ ? 20 : 22); ++iLayer) {
-    auto hfound = getter.get(fmt::format("SiStrip/HitEfficiency/layerfound_vsLumi_layer_{}", iLayer))->getTH1F();
-    auto htotal = getter.get(fmt::format("SiStrip/HitEfficiency/layertotal_vsLumi_layer_{}", iLayer))->getTH1F();
+    auto hfound =
+        getter.get(fmt::format("AlCaReco/SiStripHitEfficiency/layerfound_vsLumi_layer_{}", iLayer))->getTH1F();
+    auto htotal =
+        getter.get(fmt::format("AlCaReco/SiStripHitEfficiency/layertotal_vsLumi_layer_{}", iLayer))->getTH1F();
+
+    if (hfound == nullptr or htotal == nullptr) {
+      if (hfound == nullptr)
+        edm::LogError("SiStripHitEfficiencyHarvester")
+            << fmt::format("AlCaReco/SiStripHitEfficiency/layerfound_vsLumi_layer_{}", iLayer) << " was not found!";
+      if (htotal == nullptr)
+        edm::LogError("SiStripHitEfficiencyHarvester")
+            << fmt::format("AlCaReco/SiStripHitEfficiency/layertotal_vsLumi_layer_{}", iLayer) << " was not found!";
+      // no input histograms -> continue in the loop
+      continue;
+    }
+
     if (!hfound->GetSumw2())
       hfound->Sumw2();
     if (!htotal->GetSumw2())
@@ -349,7 +423,6 @@ void SiStripHitEfficiencyHarvester::makeSummaryVsLumi(DQMStore::IGetter& getter,
         << "Total hits for layer " << iLayer << " (vs lumi): " << htotal->GetEntries() << ", found "
         << hfound->GetEntries();
   }
-
   // continue
 }
 
@@ -576,6 +649,20 @@ void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality
   for (int i = 10; i < 19; ++i)
     badModules << "\nTEC- Disk " << i - 9 << " :" << ssV[3][i].str();
   badModules.close();
+}
+
+void SiStripHitEfficiencyHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("isAtPCL", false);
+  desc.add<bool>("doStoreOnDB", false);
+  desc.add<std::string>("Record", "SiStripBadStrip");
+  desc.add<double>("Threshold", 0.1);
+  desc.add<std::string>("Title", "Hit Efficiency");
+  desc.add<int>("nModsMin", 5);
+  desc.addUntracked<bool>("AutoIneffModTagging", false);
+  desc.addUntracked<double>("TkMapMin", 0.9);
+  desc.addUntracked<bool>("ShowRings", false);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

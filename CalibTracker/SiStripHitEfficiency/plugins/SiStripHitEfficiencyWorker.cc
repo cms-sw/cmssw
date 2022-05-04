@@ -9,8 +9,8 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
-#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
 #include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
+#include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -35,7 +35,10 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
@@ -58,6 +61,7 @@ class SiStripHitEfficiencyWorker : public DQMEDAnalyzer {
 public:
   explicit SiStripHitEfficiencyWorker(const edm::ParameterSet& conf);
   ~SiStripHitEfficiencyWorker() override = default;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   void beginJob();  // TODO remove
@@ -193,20 +197,19 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       propagatorToken_(esConsumes(edm::ESInputTag{"", "PropagatorWithMaterial"})),
       tkDetMapToken_(esConsumes<edm::Transition::BeginRun>()),
       layers_(conf.getParameter<int>("Layer")),
-      DEBUG_(conf.getParameter<bool>("Debug")),
+      DEBUG_(conf.getUntrackedParameter<bool>("Debug", false)),
       addLumi_(conf.getUntrackedParameter<bool>("addLumi", false)),
       addCommonMode_(conf.getUntrackedParameter<bool>("addCommonMode", false)),
-      cutOnTracks_(conf.getUntrackedParameter<bool>("cutOnTracks", false)),
-      trackMultiplicityCut_(conf.getUntrackedParameter<unsigned int>("trackMultiplicity", 100)),
-      useFirstMeas_(conf.getUntrackedParameter<bool>("useFirstMeas", false)),
-      useLastMeas_(conf.getUntrackedParameter<bool>("useLastMeas", false)),
-      useAllHitsFromTracksWithMissingHits_(
-          conf.getUntrackedParameter<bool>("useAllHitsFromTracksWithMissingHits", false)),
-      clusterMatchingMethod_(conf.getUntrackedParameter<int>("ClusterMatchingMethod", 0)),
-      resXSig_(conf.getUntrackedParameter<double>("ResXSig", -1)),
-      clusterTracjDist_(conf.getUntrackedParameter<double>("ClusterTrajDist", 64.0)),
-      stripsApvEdge_(conf.getUntrackedParameter<double>("StripsApvEdge", 10.0)),
-      useOnlyHighPurityTracks_(conf.getUntrackedParameter<bool>("UseOnlyHighPurityTracks", true)),
+      cutOnTracks_(conf.getParameter<bool>("cutOnTracks")),
+      trackMultiplicityCut_(conf.getParameter<unsigned int>("trackMultiplicity")),
+      useFirstMeas_(conf.getParameter<bool>("useFirstMeas")),
+      useLastMeas_(conf.getParameter<bool>("useLastMeas")),
+      useAllHitsFromTracksWithMissingHits_(conf.getParameter<bool>("useAllHitsFromTracksWithMissingHits")),
+      clusterMatchingMethod_(conf.getParameter<int>("ClusterMatchingMethod")),
+      resXSig_(conf.getParameter<double>("ResXSig")),
+      clusterTracjDist_(conf.getParameter<double>("ClusterTrajDist")),
+      stripsApvEdge_(conf.getParameter<double>("StripsApvEdge")),
+      useOnlyHighPurityTracks_(conf.getParameter<bool>("UseOnlyHighPurityTracks")),
       bunchX_(conf.getUntrackedParameter<int>("BunchCrossing", 0)),
       showRings_(conf.getUntrackedParameter<bool>("ShowRings", false)),
       showTOB6TEC9_(conf.getUntrackedParameter<bool>("ShowTOB6TEC9", false)) {
@@ -246,7 +249,7 @@ void SiStripHitEfficiencyWorker::beginJob() {
 void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
                                                 const edm::Run& run,
                                                 const edm::EventSetup& setup) {
-  const std::string path = "SiStrip/HitEfficiency";  // TODO make this configurable
+  const std::string path = "AlCaReco/SiStripHitEfficiency";  // TODO make this configurable
   booker.setCurrentFolder(path);
   h_bx = booker.book1D("bx", "bx", 3600, 0, 3600);
   h_instLumi = booker.book1D("instLumi", "inst. lumi.", 250, 0, 25000);
@@ -904,7 +907,35 @@ void SiStripHitEfficiencyWorker::endJob() {
   LogDebug("SiStripHitEfficiencyWorker") << " Number Of Tracked events    " << EventTrackCKF;
 }
 
+void SiStripHitEfficiencyWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<bool>("UseOnlyHighPurityTracks", true);
+  desc.add<bool>("cutOnTracks", false);
+  desc.add<bool>("useAllHitsFromTracksWithMissingHits", false);
+  desc.add<bool>("useFirstMeas", false);
+  desc.add<bool>("useLastMeas", false);
+  desc.add<double>("ClusterTrajDist", 64.0);
+  desc.add<double>("ResXSig", -1);
+  desc.add<double>("StripsApvEdge", 10.0);
+  desc.add<edm::InputTag>("combinatorialTracks", edm::InputTag{"generalTracks"});
+  desc.add<edm::InputTag>("commonMode", edm::InputTag{"siStripDigis", "CommonMode"});
+  desc.add<edm::InputTag>("lumiScalers", edm::InputTag{"scalersRawToDigi"});
+  desc.add<edm::InputTag>("siStripClusters", edm::InputTag{"siStripClusters"});
+  desc.add<edm::InputTag>("siStripDigis", edm::InputTag{"siStripDigis"});
+  desc.add<edm::InputTag>("trackerEvent", edm::InputTag{"MeasurementTrackerEvent"});
+  desc.add<edm::InputTag>("trajectories", edm::InputTag{"generalTracks"});
+  desc.add<int>("ClusterMatchingMethod", 0);
+  desc.add<int>("Layer", 0);
+  desc.add<unsigned int>("trackMultiplicity", 100);
+  desc.addUntracked<bool>("Debug", false);
+  desc.addUntracked<bool>("ShowRings", false);
+  desc.addUntracked<bool>("ShowTOB6TEC9", false);
+  desc.addUntracked<bool>("addCommonMode", false);
+  desc.addUntracked<bool>("addLumi", true);
+  desc.addUntracked<int>("BunchCrossing", 0);
+  desc.addUntracked<std::string>("BadModulesFile", "");
+  descriptions.addWithDefaultLabel(desc);
+}
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiStripHitEfficiencyWorker);
-
-// TODO next: try to run this
