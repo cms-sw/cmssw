@@ -29,7 +29,11 @@ struct CudaHostAlloc {
 
 namespace {
 
-  SimplePoolAllocatorImpl<CudaHostAlloc> hostPool(1024);
+  constexpr int poolSize = 128 * 1024;
+
+  SimplePoolAllocatorImpl<PosixAlloc> cpuPool(poolSize);
+
+  SimplePoolAllocatorImpl<CudaHostAlloc> hostPool(poolSize);
 
   struct DevicePools {
     using Pool = SimplePoolAllocatorImpl<CudaDeviceAlloc>;
@@ -52,7 +56,7 @@ namespace {
     std::vector<std::unique_ptr<Pool>> m_devicePools;
   };
 
-  DevicePools devicePool(128 * 1024);
+  DevicePools devicePool(poolSize);
 
 }  // namespace
 
@@ -67,7 +71,9 @@ namespace memoryPool {
     }
 
     SimplePoolAllocator *getPool(Where where) {
-      return onDevice == where ? (SimplePoolAllocator *)(&devicePool()) : (SimplePoolAllocator *)(&hostPool);
+      return onCPU == where
+                 ? (SimplePoolAllocator *)(&cpuPool)
+                 : (onDevice == where ? (SimplePoolAllocator *)(&devicePool()) : (SimplePoolAllocator *)(&hostPool));
     }
 
     struct Payload {
