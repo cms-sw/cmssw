@@ -106,6 +106,36 @@ def L1THLT(process):
     return(process)
 
 
+def HLTRECO(process):
+
+    # --------------------------------------------
+    # remove ESSources and ESProducers from Tasks:
+    #  - needed for HLT+RECO tests on GPU
+    # --------------------------------------------
+    #  - when Reconstruction_cff is loaded, it brings in Tasks that include
+    #    GPU-related ES modules with the same names as they have in HLT configs
+    #  - in TSG tests, these GPU-related RECO Tasks are not included in the Schedule
+    #    (because the "gpu" process-modifier is not used);
+    #    this causes the ES modules not to be executed, thus making them unavailable to HLT producers
+    #  - this workaround removes ES modules from Tasks, making their execution independent of the content of the Schedule;
+    #    with reference to https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideAboutPythonConfigFile?rev=92#Behavior_when_an_ESProducer_ESSo,
+    #    this workaround avoids "Case 3" by reverting to "Case 2"
+    #  - this workaround only affects Tasks of non-HLT steps, as the addition of ES modules to Tasks is not supported in ConfDB
+    #    (none of the Tasks used in the HLT step can contain ES modules in the first place, modulo customisations outside ConfDB)
+    for taskName in process.tasks_():
+        task = process.tasks_()[taskName]
+        esModulesToRemove = set()
+        for modName in task.moduleNames():
+            module = getattr(process, modName)
+            if isinstance(module, cms.ESSource) or isinstance(module, cms.ESProducer):
+                esModulesToRemove.add(module)
+        for esModule in esModulesToRemove:
+            task.remove(esModule)
+    # --------------------------------------------
+
+    return process
+
+
 def HLTDropPrevious(process):
 #   drop on input the previous HLT results
     process.source.inputCommands = cms.untracked.vstring (
@@ -157,6 +187,7 @@ def L1REPACK(process, sequence="Full"):
             delattr(process, obj)
 
     return process
+
 
 def L1XML(process,xmlFile=None):
 
