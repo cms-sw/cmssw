@@ -18,7 +18,7 @@ public:
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
-  void endJob();
+  void endJob() override;
 
 private:
   //
