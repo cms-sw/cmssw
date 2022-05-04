@@ -65,10 +65,10 @@ namespace pat {
     const edm::InputTag srcMuons_;
     const edm::EDGetTokenT<reco::MuonCollection> srcMuonToken_;
 
-    // filter criteria and selection 
-    const double minPtTK_;             // Minimum pt of inner tracks
-    const double minPtSTA_;            // Minimum pt of standalone tracks
-    const double minMatches_;          // Minimum number of matches of standalone-only muons
+    // filter criteria and selection
+    const double minPtTK_;     // Minimum pt of inner tracks
+    const double minPtSTA_;    // Minimum pt of standalone tracks
+    const double minMatches_;  // Minimum number of matches of standalone-only muons
 
     // what information to fill
     bool fillDetectorBasedIsolation_;
@@ -78,7 +78,6 @@ namespace pat {
     edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapCmbToken_;
     edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapDTToken_;
     edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapCSCToken_;
-
 
     // detector based isolation
     edm::InputTag theTrackDepositName;
@@ -98,9 +97,8 @@ namespace pat {
     edm::EDGetTokenT<reco::IsoDepositMap> theHcalDepositToken_;
     edm::EDGetTokenT<reco::IsoDepositMap> theHoDepositToken_;
     edm::EDGetTokenT<reco::IsoDepositMap> theJetDepositToken_;
-
   };
-} // namespace path
+}  // namespace pat
 
 pat::DisplacedMuonFilterProducer::DisplacedMuonFilterProducer(const edm::ParameterSet& iConfig)
     : srcMuons_(iConfig.getParameter<edm::InputTag>("srcMuons")),
@@ -110,12 +108,11 @@ pat::DisplacedMuonFilterProducer::DisplacedMuonFilterProducer(const edm::Paramet
       minMatches_(iConfig.getParameter<double>("minMatches")),
       fillDetectorBasedIsolation_(iConfig.getParameter<bool>("FillDetectorBasedIsolation")),
       fillTimingInfo_(iConfig.getParameter<bool>("FillTimingInfo")) {
-
   produces<reco::MuonCollection>();
 
   if (fillTimingInfo_) {
     timeMapCmbToken_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(srcMuons_.label(), "combined"));
-    timeMapDTToken_  = consumes<reco::MuonTimeExtraMap>(edm::InputTag(srcMuons_.label(), "dt"));
+    timeMapDTToken_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(srcMuons_.label(), "dt"));
     timeMapCSCToken_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(srcMuons_.label(), "csc"));
 
     produces<reco::MuonTimeExtraMap>("combined");
@@ -123,23 +120,21 @@ pat::DisplacedMuonFilterProducer::DisplacedMuonFilterProducer(const edm::Paramet
     produces<reco::MuonTimeExtraMap>("csc");
   }
 
-  
   if (fillDetectorBasedIsolation_) {
-
-    theTrackDepositName   = iConfig.getParameter<edm::InputTag>("TrackIsoDeposits");
+    theTrackDepositName = iConfig.getParameter<edm::InputTag>("TrackIsoDeposits");
     theTrackDepositToken_ = consumes<reco::IsoDepositMap>(theTrackDepositName);
 
-    theJetDepositName     = iConfig.getParameter<edm::InputTag>("JetIsoDeposits");
-    theJetDepositToken_   = consumes<reco::IsoDepositMap>(theJetDepositName);
+    theJetDepositName = iConfig.getParameter<edm::InputTag>("JetIsoDeposits");
+    theJetDepositToken_ = consumes<reco::IsoDepositMap>(theJetDepositName);
 
-    theEcalDepositName    = iConfig.getParameter<edm::InputTag>("EcalIsoDeposits");
-    theEcalDepositToken_  = consumes<reco::IsoDepositMap>(theEcalDepositName);
+    theEcalDepositName = iConfig.getParameter<edm::InputTag>("EcalIsoDeposits");
+    theEcalDepositToken_ = consumes<reco::IsoDepositMap>(theEcalDepositName);
 
-    theHcalDepositName    = iConfig.getParameter<edm::InputTag>("HcalIsoDeposits");
-    theHcalDepositToken_  = consumes<reco::IsoDepositMap>(theHcalDepositName);
+    theHcalDepositName = iConfig.getParameter<edm::InputTag>("HcalIsoDeposits");
+    theHcalDepositToken_ = consumes<reco::IsoDepositMap>(theHcalDepositName);
 
-    theHoDepositName      = iConfig.getParameter<edm::InputTag>("HoIsoDeposits");
-    theHoDepositToken_    = consumes<reco::IsoDepositMap>(theHoDepositName);
+    theHoDepositName = iConfig.getParameter<edm::InputTag>("HoIsoDeposits");
+    theHoDepositToken_ = consumes<reco::IsoDepositMap>(theHoDepositName);
 
     produces<reco::IsoDepositMap>("tracker");
 
@@ -151,7 +146,6 @@ pat::DisplacedMuonFilterProducer::DisplacedMuonFilterProducer(const edm::Paramet
 
     produces<reco::IsoDepositMap>("jets");
   }
-  
 }
 
 pat::DisplacedMuonFilterProducer::~DisplacedMuonFilterProducer() {}
@@ -160,7 +154,6 @@ pat::DisplacedMuonFilterProducer::~DisplacedMuonFilterProducer() {}
 
 void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   auto output = std::make_unique<reco::MuonCollection>();
-
 
   // muon collections
   edm::Handle<reco::MuonCollection> srcMuons;
@@ -171,24 +164,24 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
   // filter the muons
   std::vector<bool> filteredmuons(nMuons, true);
   int oMuons = nMuons;
-  
+
   for (unsigned int i = 0; i < srcMuons->size(); i++) {
-    const reco::Muon& muon(srcMuons->at(i));    
+    const reco::Muon& muon(srcMuons->at(i));
 
     if (muon.isStandAloneMuon()) {
       if (muon.innerTrack().isNonnull()) {
         // Discard STA + GL/TR muons that are below pt threshold
         if (muon.innerTrack()->pt() < minPtTK_ && muon.standAloneMuon()->pt() < minPtSTA_) {
-           filteredmuons[i] = false;
-           oMuons = oMuons - 1;
-           continue;
+          filteredmuons[i] = false;
+          oMuons = oMuons - 1;
+          continue;
         }
       } else {
         // Discard STA-only muons with less than minMatches_ segments and below pt threshold
         if (!muon.isMatchesValid() || muon.numberOfMatches() < minMatches_ || muon.standAloneMuon()->pt() < minPtSTA_) {
-           filteredmuons[i] = false;
-           oMuons = oMuons - 1;
-           continue;
+          filteredmuons[i] = false;
+          oMuons = oMuons - 1;
+          continue;
         }
       }
     } else {
@@ -198,14 +191,13 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
           oMuons = oMuons - 1;
           continue;
         }
-      } else { // Should never happen
+      } else {  // Should never happen
         filteredmuons[i] = false;
         oMuons = oMuons - 1;
         continue;
       }
     }
   }
-
 
   // timing information
   edm::Handle<reco::MuonTimeExtraMap> timeMapCmb;
@@ -221,7 +213,6 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
     iEvent.getByToken(timeMapDTToken_, timeMapDT);
     iEvent.getByToken(timeMapCSCToken_, timeMapCSC);
   }
-
 
   // detector based isolation
   std::vector<reco::IsoDeposit> trackDepColl(oMuons);
@@ -244,7 +235,6 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
     iEvent.getByToken(theJetDepositToken_, jetIsoDepMap);
   }
 
-
   // save filtered muons
   unsigned int k = 0;
   for (unsigned int i = 0; i < srcMuons->size(); i++) {
@@ -256,19 +246,19 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
       reco::Muon outMuon = inMuon;
 
       // Fill timing information
-      if (fillTimingInfo_) { 
+      if (fillTimingInfo_) {
         combinedTimeColl[k] = (*timeMapCmb)[muRef];
-        dtTimeColl[k]       = (*timeMapDT)[muRef];
-        cscTimeColl[k]      = (*timeMapCSC)[muRef];
+        dtTimeColl[k] = (*timeMapDT)[muRef];
+        cscTimeColl[k] = (*timeMapCSC)[muRef];
       }
 
       // Fill detector based isolation
       if (fillDetectorBasedIsolation_) {
         trackDepColl[k] = (*trackIsoDepMap)[muRef];
-        ecalDepColl[k]  = (*ecalIsoDepMap)[muRef];
-        hcalDepColl[k]  = (*hcalIsoDepMap)[muRef];
-        hoDepColl[k]    = (*hoIsoDepMap)[muRef];
-        jetDepColl[k]   = (*jetIsoDepMap)[muRef];
+        ecalDepColl[k] = (*ecalIsoDepMap)[muRef];
+        hcalDepColl[k] = (*hcalIsoDepMap)[muRef];
+        hoDepColl[k] = (*hoIsoDepMap)[muRef];
+        jetDepColl[k] = (*jetIsoDepMap)[muRef];
       }
 
       output->push_back(outMuon);
@@ -276,7 +266,6 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
     }
   }
 
-  
   // fill information
   edm::OrphanHandle<reco::MuonCollection> muonHandle = iEvent.put(std::move(output));
 
@@ -293,15 +282,13 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
     fillMuonMap<reco::IsoDeposit>(iEvent, muonHandle, hcalDepColl, "hcal");
     fillMuonMap<reco::IsoDeposit>(iEvent, muonHandle, hoDepColl, "ho");
   }
-
 }
-
 
 template <typename TYPE>
 void pat::DisplacedMuonFilterProducer::fillMuonMap(edm::Event& event,
-                               const edm::OrphanHandle<reco::MuonCollection>& muonHandle,
-                               const std::vector<TYPE>& muonExtra,
-                               const std::string& label) {
+                                                   const edm::OrphanHandle<reco::MuonCollection>& muonHandle,
+                                                   const std::vector<TYPE>& muonExtra,
+                                                   const std::string& label) {
   typedef typename edm::ValueMap<TYPE>::Filler FILLER;
 
   auto muonMap = std::make_unique<edm::ValueMap<TYPE>>();
