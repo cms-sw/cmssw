@@ -27,15 +27,13 @@ private:
 Herwig6Filter::Herwig6Filter(const edm::ParameterSet& ppp) {}
 
 bool Herwig6Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-   
-  std::vector< Handle<HepMCProduct> > AllProds;
+  std::vector<Handle<HepMCProduct> > AllProds;
   iEvent.getManyByType(AllProds);
-   
+
   if (AllProds.size() == 0) {
-    edm::LogInfo("")<<"   Event is skipped and removed.\n";
+    edm::LogInfo("") << "   Event is skipped and removed.\n";
     return false;
-  }
-  else
+  } else
     return true;
 }
 
