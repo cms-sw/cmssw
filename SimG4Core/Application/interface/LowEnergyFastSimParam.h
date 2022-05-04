@@ -3,6 +3,7 @@
 
 #include "G4Types.hh"
 #include "Randomize.hh"
+#include "G4Log.hh"
 
 class LowEnergyFastSimParam {
 public:
@@ -16,17 +17,13 @@ public:
     constexpr const G4double r1 = 156.52094133;
     constexpr const G4double r2 = -1.02220543;
     const G4double r0 = r1 + r2 * energy;
-    const G4double erand = G4UniformRand();
-
-    return sqrt(r0 / erand - r0);
+    return std::sqrt(r0 / G4UniformRand() - r0);
   }
 
   G4double GetZ() const {
     constexpr const G4double alpha = 0.02211515;
     constexpr const G4double t = 0.66968625;
-    const G4double erand = G4UniformRand();
-
-    return -log(erand) / alpha + t;
+    return -G4Log(G4UniformRand()) / alpha + t;
   }
 };
 
