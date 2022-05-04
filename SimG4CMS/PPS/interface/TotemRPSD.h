@@ -32,85 +32,68 @@ public:
   TotemRPSD(const std::string&, const SensitiveDetectorCatalog&, edm::ParameterSet const&, const SimTrackManager*);
   ~TotemRPSD() override;
 
-  void printHitInfo();
+  // Geant4 methods
+  bool ProcessHits(G4Step* step, G4TouchableHistory* tHistory) override;
 
   void Initialize(G4HCofThisEvent* HCE) override;
   void EndOfEvent(G4HCofThisEvent* eventHC) override;
-  void clear() override;
-  void DrawAll() override;
   void PrintAll() override;
 
-  void fillHits(edm::PSimHitContainer&, const std::string&) override;
-  static constexpr double rp_garage_position_ = 40.0;
-
-private:
-  static constexpr unsigned int maxTotemHits_ = 15000;
-  void clearHits() override;
-  bool ProcessHits(G4Step* step, G4TouchableHistory* tHistory) override;
+  // CMSSW methods
   uint32_t setDetUnitId(const G4Step* step) override;
+  void fillHits(edm::PSimHitContainer&, const std::string&) override;
+  void clearHits() override;
+
+protected:
   void update(const BeginOfEvent*) override;
   void update(const ::EndOfEvent*) override;
 
-  void setNumberingScheme(TotemRPVDetectorOrganization* scheme);
+private:
+  G4ThreeVector setToLocal(const G4ThreeVector& globalPoint);
+  void stepInfo(const G4Step* aStep);
+  void createNewHit();
+  void storeHit(TotemRPG4Hit*);
+  void printHitInfo();
 
   std::unique_ptr<TrackingSlaveSD> slave_;
   std::unique_ptr<TotemRPVDetectorOrganization> numberingScheme_;
 
-private:
-  int verbosity_;
+  TotemRPG4HitCollection* theHC_ = nullptr;
+  TotemRPG4Hit* currentHit_ = nullptr;
+  G4Track* theTrack_ = nullptr;
+  G4VPhysicalVolume* currentPV_ = nullptr;
+  G4int hcID_ = -1;
+  G4int primaryID_ = 0;
+  G4int parentID_ = 0;
+  G4int tSliceID_ = 0;
+  G4double tSlice_ = 0.0;
 
-  G4ThreeVector setToLocal(const G4ThreeVector& globalPoint);
-  void stepInfo(const G4Step* aStep);
-  G4bool hitExists();
-  void createNewHit();
-  void updateHit();
-  void storeHit(TotemRPG4Hit*);
-  void resetForNewPrimary();
-  void summarize();
-  bool isPrimary(const G4Track* track);
-
-private:
-  // Data relative to primary particle (the one which triggers a shower)
-  // These data are common to all Hits of a given shower.
-  // One shower is made of several hits which differ by the
-  // unit ID (cristal/fiber/scintillator) and the Time slice ID.
-
-  G4ThreeVector entrancePoint_;
-  double incidentEnergy_;
-
-  G4String name_;
-  G4int hcID_;
-  TotemRPG4HitCollection* theHC_;
-
-  TotemRPG4Hit* currentHit_;
-  G4Track* theTrack_;
-  G4VPhysicalVolume* currentPV_;
-  unsigned int unitID_;
-  G4int primaryID_, tSliceID_;
-  G4double tSlice_;
-
-  G4StepPoint* preStepPoint_;
-  G4StepPoint* postStepPoint_;
+  G4StepPoint* preStepPoint_ = nullptr;
+  G4StepPoint* postStepPoint_ = nullptr;
   G4ThreeVector hitPoint_;
   G4ThreeVector exitPoint_;
   G4ThreeVector theLocalEntryPoint_;
   G4ThreeVector theLocalExitPoint_;
 
-  double Pabs_;
-  double thePx_, thePy_, thePz_;
-  double Tof_;
-  double Eloss_;
-  short ParticleType_;
+  double incidentEnergy_ = 0.0;
+  double pabs_ = 0.0;
+  double thePx_ = 0.0;
+  double thePy_ = 0.0;
+  double thePz_ = 0.0;
+  double tof_ = 0.0;
+  double eloss_ = 0.0;
 
-  double ThetaAtEntry_;
-  double PhiAtEntry_;
+  double thetaAtEntry_ = 0.0;
+  double phiAtEntry_ = 0.0;
 
-  int ParentId_;
-  double Vx_, Vy_, Vz_;
+  double vx_ = 0.0;
+  double vy_ = 0.0;
+  double vz_ = 0.0;
 
-  // Hist
-  //static TotemTestHitHBNtuple* theNtuple_;
-  int eventno_;
+  unsigned int unitID_ = 0;
+  int verbosity_;
+  int eventno_ = 0;
+  short particleType_ = 0;
 };
 
 #endif  // PPS_TotemRPSD_h
