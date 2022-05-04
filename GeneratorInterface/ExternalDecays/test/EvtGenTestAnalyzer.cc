@@ -127,7 +127,8 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
       dectime = (endvert->position().t() - prodvert->position().t()) * mmcToPs / gamma;
 
       // Mixed particle ?
-      for (HepMC::GenVertex::particles_in_const_iterator p2 = prodvert->particles_in_const_begin(); p2 != prodvert->particles_in_const_end();
+      for (HepMC::GenVertex::particles_in_const_iterator p2 = prodvert->particles_in_const_begin();
+           p2 != prodvert->particles_in_const_end();
            ++p2) {
         if ((*p)->pdg_id() + (*p2)->pdg_id() == 0) {
           mixed = 1;
@@ -136,7 +137,8 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
           dectime = (prodvert->position().t() - mixvert->position().t()) * mmcToPs / gamma;
         }
       }
-      for (HepMC::GenVertex::particles_out_const_iterator ap = endvert->particles_out_const_begin(); ap != endvert->particles_out_const_end();
+      for (HepMC::GenVertex::particles_out_const_iterator ap = endvert->particles_out_const_begin();
+           ap != endvert->particles_out_const_end();
            ++ap) {
         if ((*p)->pdg_id() + (*ap)->pdg_id() == 0)
           mixed = 0;
@@ -259,7 +261,8 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
     // --------------------------------------------------------------
     if ((*p)->pdg_id() == 443) {  //Jpsi
       nJpsi++;
-      for (HepMC::GenVertex::particles_in_const_iterator ap = prodvert->particles_in_const_begin(); ap != prodvert->particles_in_const_end();
+      for (HepMC::GenVertex::particles_in_const_iterator ap = prodvert->particles_in_const_begin();
+           ap != prodvert->particles_in_const_end();
            ++ap) {
         hIdJpsiMot->Fill((*ap)->pdg_id());
       }
@@ -276,14 +279,18 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
     }
     // --------------------------------------------------------------
     if ((*p)->pdg_id() == 13) {  // mu+
-      for (HepMC::GenVertex::particles_in_const_iterator p2 = prodvert->particles_in_const_begin(); p2 != prodvert->particles_in_const_end(); ++p2) {
+      for (HepMC::GenVertex::particles_in_const_iterator p2 = prodvert->particles_in_const_begin();
+           p2 != prodvert->particles_in_const_end();
+           ++p2) {
         if (std::abs((*p2)->pdg_id()) == 511) {  // B0
           hPtmu->Fill((*p)->momentum().perp());
           hPmu->Fill(
               sqrt(pow((*p)->momentum().px(), 2) + pow((*p)->momentum().py(), 2) + pow((*p)->momentum().pz(), 2)));
           hPhimu->Fill((*p)->momentum().phi());
           hEtamu->Fill((*p)->momentum().pseudoRapidity());
-          for (HepMC::GenVertex::particles_out_const_iterator p3 = prodvert->particles_out_const_begin(); p3 != prodvert->particles_out_const_end(); ++p3) {
+          for (HepMC::GenVertex::particles_out_const_iterator p3 = prodvert->particles_out_const_begin();
+               p3 != prodvert->particles_out_const_end();
+               ++p3) {
             if ((*p3)->pdg_id() == -13) {  // mu-
               TLorentzVector pmu1(
                   (*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(), (*p)->momentum().e());
@@ -326,7 +333,9 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
         *undecayed << (*p)->pdg_id() << std::endl;
       } else {
         *decayed << (*p)->pdg_id() << " --> ";
-        for (HepMC::GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin(); bp != endvert->particles_out_const_end(); ++bp) {
+        for (HepMC::GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin();
+             bp != endvert->particles_out_const_end();
+             ++bp) {
           *decayed << (*bp)->pdg_id() << " ";
         }
       }
@@ -336,13 +345,17 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
       enne = -(pLambdaB.Vect().Cross(TVector3(0., 0., 1.))).Unit();
 
       if (endvert) {
-        for (HepMC::GenVertex::particles_out_const_iterator p2 = endvert->particles_out_const_begin(); p2 != endvert->particles_out_const_end(); ++p2) {
+        for (HepMC::GenVertex::particles_out_const_iterator p2 = endvert->particles_out_const_begin();
+             p2 != endvert->particles_out_const_end();
+             ++p2) {
           if ((*p2)->pdg_id() == 443) {  // J/psi
             pJpsi.SetPxPyPzE(
                 (*p2)->momentum().px(), (*p2)->momentum().py(), (*p2)->momentum().pz(), (*p2)->momentum().e());
             HepMC::GenVertex* psivert = (*p2)->end_vertex();
             if (psivert) {
-              for (HepMC::GenVertex::particles_out_const_iterator p3 = psivert->particles_out_const_begin(); p3 != psivert->particles_out_const_end(); ++p3) {
+              for (HepMC::GenVertex::particles_out_const_iterator p3 = psivert->particles_out_const_begin();
+                   p3 != psivert->particles_out_const_end();
+                   ++p3) {
                 if ((*p3)->pdg_id() == -13) {  // mu+
                   pMuP.SetPxPyPzE(
                       (*p3)->momentum().px(), (*p3)->momentum().py(), (*p3)->momentum().pz(), (*p3)->momentum().e());
@@ -355,7 +368,9 @@ void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
                 (*p2)->momentum().px(), (*p2)->momentum().py(), (*p2)->momentum().pz(), (*p2)->momentum().e());
             HepMC::GenVertex* lamvert = (*p2)->end_vertex();
             if (lamvert) {
-              for (HepMC::GenVertex::particles_out_const_iterator p3 = lamvert->particles_out_const_begin(); p3 != lamvert->particles_out_const_end(); ++p3) {
+              for (HepMC::GenVertex::particles_out_const_iterator p3 = lamvert->particles_out_const_begin();
+                   p3 != lamvert->particles_out_const_end();
+                   ++p3) {
                 if (std::abs((*p3)->pdg_id()) == 2212) {  // p
                   pProt.SetPxPyPzE(
                       (*p3)->momentum().px(), (*p3)->momentum().py(), (*p3)->momentum().pz(), (*p3)->momentum().e());

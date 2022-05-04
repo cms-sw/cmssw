@@ -13,8 +13,8 @@ class EvtGenTestAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources
 public:
   //
   explicit EvtGenTestAnalyzer(const edm::ParameterSet&);
-  ~EvtGenTestAnalyzer() override = default; // no need to delete ROOT stuff
-                                    // as it'll be deleted upon closing TFile
+  ~EvtGenTestAnalyzer() override = default;  // no need to delete ROOT stuff
+                                             // as it'll be deleted upon closing TFile
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginJob() override;
