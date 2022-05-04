@@ -13,57 +13,50 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-class BasicGenJetTester : public edm::EDAnalyzer
-{
+class BasicGenJetTester : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
-   public:
+public:
    
-      //
-      explicit BasicGenJetTester( const edm::ParameterSet& ) ;
-      virtual ~BasicGenJetTester() {} // no need to delete ROOT stuff
+  //
+  explicit BasicGenJetTester( const edm::ParameterSet& ) ;
+  ~BasicGenJetTester() override = default; // no need to delete ROOT stuff
                                    // as it'll be deleted upon closing TFile
       
-      virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
-      virtual void beginJob() ;
-      virtual void beginRun( const edm::Run &, const edm::EventSetup& );
-      virtual void endRun( const edm::Run&, const edm::EventSetup& ) ;
-      virtual void endJob() ;
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
+  void beginJob() override;
+  void endJob() override {}
 
-   private:
+private:
    
-     double      fQCut;
-     TH1F*       fNJets;
-     TH1F*       fNJetsAboveQCut;
-     TH1D*       fLeadingJetPt ;
-     TH1D*       fLeadingJetEta;
-     TH1D*       fNext2LeadingJetPt;
-     TH1D*       fNext2LeadingJetEta;
-     TH1D*       fLowestJetHt;
-     TH1D*       fLowestJetEta;
+  const double      fQCut;
+  const edm::EDGetTokenT<reco::GenJetCollection> ak5GenJetToken_;
+
+  TH1F*       fNJets;
+  TH1F*       fNJetsAboveQCut;
+  TH1D*       fLeadingJetPt ;
+  TH1D*       fLeadingJetEta;
+  TH1D*       fNext2LeadingJetPt;
+  TH1D*       fNext2LeadingJetEta;
+  TH1D*       fLowestJetHt;
+  TH1D*       fLowestJetEta;
      
 }; 
 
-using namespace edm;
-using namespace reco;
-using namespace std;
-
-BasicGenJetTester::BasicGenJetTester( const ParameterSet& pset )
-   : fNJets(0), fNJetsAboveQCut(0), 
+BasicGenJetTester::BasicGenJetTester(const edm::ParameterSet& pset)
+   : fQCut(pset.getParameter<double>( "qcut" )),
+     ak5GenJetToken_(consumes<reco::GenJetCollection>("ak5GenJets")),
+     fNJets(0), fNJetsAboveQCut(0), 
      fLeadingJetPt(0), fLeadingJetEta(0), 
      fNext2LeadingJetPt(0), fNext2LeadingJetEta(0),
-     fLowestJetHt(0), fLowestJetEta(0)
-{
-
-   fQCut = pset.getParameter<double>( "qcut" );
-   
+     fLowestJetHt(0), fLowestJetEta(0) {
+  usesResource(TFileService::kSharedResource);
 }
 
-void BasicGenJetTester::beginJob()
-{
+void BasicGenJetTester::beginJob() {
   
-   Service<TFileService> fs;
+  edm::Service<TFileService> fs;
   
   fNJets          = fs->make<TH1F>( "NJets",         "Number of Jets (total)", 50,  0.,   50. );
   fNJetsAboveQCut = fs->make<TH1F>( "NJetsAboveQCut","Number of Jets (above qcut)", 10,  0.,   10. );
@@ -78,86 +71,59 @@ void BasicGenJetTester::beginJob()
   
 }
 
-void BasicGenJetTester::beginRun( const edm::Run& r, const edm::EventSetup& es )
-{
-   
-   return ;
-
-}
-
-void BasicGenJetTester::analyze( const Event& e, const EventSetup& )
-{
+void BasicGenJetTester::analyze( const edm::Event& e, const edm::EventSetup& ) {
   
-   // here's an example of accessing GenJetCollection
-   //
-   Handle< GenJetCollection > ak5GenJetHandle ;
-   Handle< GenJetCollection > ak7GenJetHandle ;
-  
-   // find initial (unsmeared, unfiltered,...) HepMCProduct
-   //
-   e.getByLabel( "ak5GenJets", ak5GenJetHandle ) ;
-   // e.getByLabel( "ak7GenJets", ak7GenJetHandle ) ;
+  // here's an example of accessing GenJetCollection
+  // find initial (unsmeared, unfiltered,...) HepMCProduct
+  //
+  const edm::Handle<reco::GenJetCollection>& ak5GenJetHandle = e.getHandle(ak5GenJetToken_);
+  //const edm::Handle<reco::GenJetCollection>& ak7GenJetHandle = e.getHandle(ak7GenJetToken_);
      
-   int NGenJets5 = ak5GenJetHandle->size();
-   // int NGenJets7 = ak7GenJetHandle->size();
+  int NGenJets5 = ak5GenJetHandle->size();
+  // int NGenJets7 = ak7GenJetHandle->size();
   
-   if ( NGenJets5 <= 0 ) return;
+  if ( NGenJets5 <= 0 ) return;
    
-   fNJets->Fill( (float)NGenJets5 );
+  fNJets->Fill( (float)NGenJets5 );
    
-   int NGenJets5AboveQCut = 0;
-   GenJet GJet;
+  int NGenJets5AboveQCut = 0;
+  reco::GenJet GJet;
    
-   for ( unsigned int idx=0; idx<ak5GenJetHandle->size(); ++idx )
-   {
-      GJet = (*ak5GenJetHandle)[idx];
-      double pt  = GJet.pt();    //cout << ": pt=" << pt; 
-      if ( pt < fQCut ) continue;
-      NGenJets5AboveQCut++;      
-   }
+  for (unsigned int idx=0; idx<ak5GenJetHandle->size(); ++idx)  {
+    GJet = (*ak5GenJetHandle)[idx];
+    double pt  = GJet.pt();    //cout << ": pt=" << pt; 
+    if (pt < fQCut) continue;
+    NGenJets5AboveQCut++;      
+  }
 
-   if ( NGenJets5AboveQCut <= 0 ) return;
+  if (NGenJets5AboveQCut <= 0) return;
 
-   fNJetsAboveQCut->Fill( (float)NGenJets5AboveQCut );
+  fNJetsAboveQCut->Fill( (float)NGenJets5AboveQCut );
    
-   // leading jet
-   //
-   GJet = (*ak5GenJetHandle)[0];
-   fLeadingJetPt->Fill( GJet.pt() );
-   fLeadingJetEta->Fill( GJet.eta() );
+  // leading jet
+  //
+  GJet = (*ak5GenJetHandle)[0];
+  fLeadingJetPt->Fill( GJet.pt() );
+  fLeadingJetEta->Fill( GJet.eta() );
 
-   if ( NGenJets5AboveQCut <= 1 ) return;
+  if (NGenJets5AboveQCut <= 1) return;
    
-   // next-to-leading jet
-   //
-   GJet = (*ak5GenJetHandle)[1];
-   fNext2LeadingJetPt->Fill( GJet.pt() );
-   fNext2LeadingJetEta->Fill( GJet.eta() );
+  // next-to-leading jet
+  //
+  GJet = (*ak5GenJetHandle)[1];
+  fNext2LeadingJetPt->Fill( GJet.pt() );
+  fNext2LeadingJetEta->Fill( GJet.eta() );
 
-   if ( NGenJets5AboveQCut <= 2 ) return;
+  if (NGenJets5AboveQCut <= 2) return;
 
-   // lowest jet (above qcut)
-   //
-   GJet = (*ak5GenJetHandle)[NGenJets5AboveQCut-1];
-   fLowestJetHt->Fill( GJet.pt() );
-   fLowestJetEta->Fill( GJet.eta() );
+  // lowest jet (above qcut)
+  //
+  GJet = (*ak5GenJetHandle)[NGenJets5AboveQCut-1];
+  fLowestJetHt->Fill( GJet.pt() );
+  fLowestJetEta->Fill( GJet.eta() );
        
-   return ;
+  return;
    
-}
-
-void BasicGenJetTester::endRun( const edm::Run& r, const edm::EventSetup& )
-{
-
-   return;
-
-}
-
-
-void BasicGenJetTester::endJob()
-{
-   
-   return ;
 }
  
 DEFINE_FWK_MODULE(BasicGenJetTester);
