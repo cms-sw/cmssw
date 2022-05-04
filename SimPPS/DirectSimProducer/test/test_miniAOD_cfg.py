@@ -38,8 +38,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
     ppsDirectProtonSimulation = cms.PSet(initialSeed = cms.untracked.uint32(4981))
 )
 
-from SimPPS.DirectSimProducer.matching_cff import matchDirectSimOutputs
-matchDirectSimOutputs(process, miniAOD=True)
+from SimPPS.DirectSimProducer.matching_cff import matchDirectSimOutputsMiniAOD
+matchDirectSimOutputsMiniAOD(process)
 
 process.p = cms.Path(
     process.directSimPPS
