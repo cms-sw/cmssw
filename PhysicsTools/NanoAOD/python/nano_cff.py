@@ -42,9 +42,7 @@ linkedObjects = cms.EDProducer("PATObjectCrossLinker",
    taus=cms.InputTag("finalTaus"),
    photons=cms.InputTag("finalPhotons"),
 )
-run2_nanoAOD_ANY = (
-    run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 |  run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 | run2_nanoAOD_106Xv2
-)
+
 # Switch to AK4 CHS jets for Run-2
 run2_nanoAOD_ANY.toModify(linkedObjects, jets="finalJets")
 

@@ -560,9 +560,6 @@ electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCM
 ##### end TEMPORARY Run3
 
 # Revert back to AK4 CHS jets for Run 2
-run2_nanoAOD_ANY = (
-    run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 |  run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 | run2_nanoAOD_106Xv2
-)
 run2_nanoAOD_ANY.toModify(ptRatioRelForEle,srcJet="updatedJets")
 
 
