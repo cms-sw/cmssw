@@ -23,6 +23,7 @@
 #include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "RecoTauTag/RecoTau/interface/PFRecoTauClusterVariables.h"
+#include "RecoTauTag/RecoTau/interface/DeepTauScaling.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/View.h"
@@ -140,14 +141,6 @@ namespace deep_tau {
   };
 
   namespace Scaling {
-    enum class FeatureT{TauFlat, GridGlobal, PfCand_electron, PfCand_muon, PfCand_chHad, PfCand_nHad, PfCand_gamma, Electron, Muon};
-    struct ScalingParams
-    {
-        const std::vector<std::vector<float>> mean_;
-        const std::vector<std::vector<float>> std_;
-        const std::vector<std::vector<float>> lim_min_;
-        const std::vector<std::vector<float>> lim_max_;
-    };
 
     const std::map<FeatureT, ScalingParams> scalingParamsMap_v2p1 = {
         {FeatureT::TauFlat, {
