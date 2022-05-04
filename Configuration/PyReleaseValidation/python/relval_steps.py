@@ -2709,13 +2709,13 @@ steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--conditions':'auto:run1_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
-steps['ALCAEXP']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+Hotline+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO+SiPixelCalSingleMuon,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel+PromptCalibProdSiPixelLorentzAngle',
+steps['ALCAEXP']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+Hotline+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO+SiPixelCalSingleMuon,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEfficiency+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel+PromptCalibProdSiPixelLorentzAngle',
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
 
-steps['ALCAEXPRUN2']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO+SiPixelCalZeroBias+SiPixelCalSingleMuon,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel+PromptCalibProdSiPixelLorentzAngle',
+steps['ALCAEXPRUN2']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO+SiPixelCalZeroBias+SiPixelCalSingleMuon,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEfficiency+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel+PromptCalibProdSiPixelLorentzAngle',
                   '--conditions':'auto:run2_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
@@ -2844,6 +2844,12 @@ steps['ALCAHARVD7']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLoren
                      '--scenario':'pp',
                      '--data':'',
                      '--filein':'file:PromptCalibProdSiPixelLorentzAngle.root'}
+
+steps['ALCAHARVD8']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripHitEfficiency']),
+                     '--conditions':'auto:run1_data',
+                     '--scenario':'pp',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProdSiStripHitEfficiency.root'}
 
 steps['ALCAHARVD5HI']=merge([{'--scenario':'HeavyIons'},steps['ALCAHARVD5']])
 steps['ALCAHARVDTE']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdEcalPedestals']),
