@@ -3,6 +3,7 @@
 
 namespace deep_tau {
   namespace Scaling {
+    constexpr float inf = std::numeric_limits<float>::infinity();
     enum class FeatureT{TauFlat, GridGlobal, PfCand_electron, PfCand_muon, PfCand_chHad, PfCand_nHad, PfCand_gamma, Electron, Muon};
     struct ScalingParams
     {

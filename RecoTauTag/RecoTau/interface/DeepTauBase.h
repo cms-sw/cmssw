@@ -170,27 +170,27 @@ namespace deep_tau {
 
             // lim_min_
             {{-5},{0.},{-1.0},{-1.},{-5},
-            {0},{-std::numeric_limits<float>::infinity()},{0},{0},{-5},
-            {-std::numeric_limits<float>::infinity()},{-5},{-5},{-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity()},{-5},{-5},{-5},{-5},
-            {-5},{-std::numeric_limits<float>::infinity()},{-5},{-5},{-std::numeric_limits<float>::infinity()},
-            {-5},{-5},{-5},{-std::numeric_limits<float>::infinity()},{-5},
-            {-5},{-5},{-5},{-std::numeric_limits<float>::infinity()},{0},
-            {0},{-5},{0},{-5},{-std::numeric_limits<float>::infinity()},
-            {0},{-std::numeric_limits<float>::infinity()},{0},{-5},{-1.0},
-            {-std::numeric_limits<float>::infinity()},{-5}},
+            {0},{-inf},{0},{0},{-5},
+            {-inf},{-5},{-5},{-inf},{-inf},
+            {-inf},{-5},{-5},{-5},{-5},
+            {-5},{-inf},{-5},{-5},{-inf},
+            {-5},{-5},{-5},{-inf},{-5},
+            {-5},{-5},{-5},{-inf},{0},
+            {0},{-5},{0},{-5},{-inf},
+            {0},{-inf},{0},{-5},{-1.0},
+            {-inf},{-5}},
 
             // lim_max_
             {{5},{1.},{1.0},{1.},{5},
-            {1},{std::numeric_limits<float>::infinity()},{1},{1},{5},
-            {std::numeric_limits<float>::infinity()},{5},{5},{std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity()},{5},{5},{5},{5},
-            {5},{std::numeric_limits<float>::infinity()},{5},{5},{std::numeric_limits<float>::infinity()},
-            {5},{5},{5},{std::numeric_limits<float>::infinity()},{5},
-            {5},{5},{5},{std::numeric_limits<float>::infinity()},{1},
-            {1},{5},{1},{5},{std::numeric_limits<float>::infinity()},
-            {1},{std::numeric_limits<float>::infinity()},{1},{5},{-1.0},
-            {std::numeric_limits<float>::infinity()},{5}},
+            {1},{inf},{1},{1},{5},
+            {inf},{5},{5},{inf},{inf},
+            {inf},{5},{5},{5},{5},
+            {5},{inf},{5},{5},{inf},
+            {5},{5},{5},{inf},{5},
+            {5},{5},{5},{inf},{1},
+            {1},{5},{1},{5},{inf},
+            {1},{inf},{1},{5},{-1.0},
+            {inf},{5}},
             } 
         }, // end TauFlat
 
@@ -200,9 +200,9 @@ namespace deep_tau {
             // std_
             {{9.713,9.713},{980.0,980.0},{2.3,2.3},{1,1}},
             // lim_min_
-            {{-5,-5},{0.,0.},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()}},
+            {{-5,-5},{0.,0.},{-1.0,-1.0},{-inf,-inf}},
             // lim_max_
-            {{5,5},{1.,1.},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()}},
+            {{5,5},{1.,1.},{1.0,1.0},{inf,inf}},
             }
         }, // end GridGlobal
 
@@ -222,17 +222,17 @@ namespace deep_tau {
              {8.439,8.439},{3.203,3.203}},
 
             // lim_min_
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{0.,0.},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{0.,0.},{-5,-5},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{0.,0.},
+            {-inf,-inf},{-inf,-inf},{-inf,-inf},{0.,0.},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
+            {-inf,-inf},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5}},
 
             // lim_max_
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{1.,1.},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.,1.},{5,5},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{1.,1.},
+            {inf,inf},{inf,inf},{inf,inf},{1.,1.},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},{5,5},
+            {inf,inf},{5,5},{5,5},{5,5},{5,5},
             {5,5},{5,5}}
             }
         }, // end PfCand_electron
@@ -253,17 +253,17 @@ namespace deep_tau {
              {622.4,622.4},{15.47,15.47},{4.774,4.774}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{0.,0.},
-             {0.,0.},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{0.,0.},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{0.,0.},
+             {0.,0.},{-inf,-inf},{-inf,-inf},{-inf,-inf},{0.,0.},
              {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-             {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},
+             {-5,-5},{-inf,-inf},{-5,-5},{-5,-5},{-5,-5},
              {-5,-5},{-5,-5},{-5,-5}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{1.,1.},
-             {1.,1.},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.,1.},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{1.,1.},
+             {1.,1.},{inf,inf},{inf,inf},{inf,inf},{1.,1.},
              {5,5},{5,5},{5,5},{5,5},{5,5},
-             {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},
+             {5,5},{inf,inf},{5,5},{5,5},{5,5},
              {5,5},{5,5},{5,5}},
             
             }
@@ -291,23 +291,23 @@ namespace deep_tau {
             {6.98,6.98},{5.26,5.26}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},
-            {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-inf,-inf},{-inf,-inf},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-inf,-inf},
             {-5,-5},{-5,-5}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{inf,inf},
             {5,5},{5,5},{5,5},{5,5},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},
-            {5,5},{5,5},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {inf,inf},{inf,inf},{5,5},{5,5},{5,5},
+            {5,5},{5,5},{5,5},{5,5},{inf,inf},
             {5,5},{5,5}},
             }
         }, // end Electron
@@ -328,17 +328,17 @@ namespace deep_tau {
             {343.3,343.3},{1.711,1.711},{5.11,5.11}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{0.,0.},
-            {0.,0.},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{0.,0.},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{0.,0.},
+            {0.,0.},{-inf,-inf},{-inf,-inf},{-inf,-inf},{0.,0.},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-            {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-inf,-inf},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{1.,1.},
-            {1.,1.},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{1.,1.},
+            {1.,1.},{inf,inf},{inf,inf},{inf,inf},{1.0,1.0},
             {5,5},{5,5},{5,5},{5,5},{5,5},
-            {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},
+            {5,5},{inf,inf},{5,5},{5,5},{5,5},
             {5,5},{5,5},{5,5}},
 
             }
@@ -366,9 +366,9 @@ namespace deep_tau {
             {2.0,2.0},{2.0,2.0}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-5,-5},
-            {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{0.,0.},{0.,0.},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-5,-5},
+            {-5,-5},{-inf,-inf},{-5,-5},{-5,-5},{-inf,-inf},
+            {-inf,-inf},{-inf,-inf},{-5,-5},{0.,0.},{0.,0.},
             {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
             {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
             {0.,0.},{0.,0.},{0.,0.},{0.,0.},{0.,0.},
@@ -376,9 +376,9 @@ namespace deep_tau {
             {0.,0.},{0.,0.}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{5,5},
-            {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{5,5},
+            {5,5},{inf,inf},{5,5},{5,5},{inf,inf},
+            {inf,inf},{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},
             {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
             {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
             {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
@@ -406,20 +406,20 @@ namespace deep_tau {
             {1,1},{2.6,2.6}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {0.,0.},{0.,0.},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{0.,0.},{-5,-5},{-5,-5},{-5,-5},
-            {-5,-5},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf},
+            {0.,0.},{0.,0.},{-inf,-inf},{-inf,-inf},{-inf,-inf},
+            {-inf,-inf},{0.,0.},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5},{-inf,-inf},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{0.,0.}},
+            {-inf,-inf},{0.,0.}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {1.,1.},{1.,1.},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},{5,5},{5,5},{5,5},
-            {5,5},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{inf,inf},
+            {1.,1.},{1.,1.},{inf,inf},{inf,inf},{inf,inf},
+            {inf,inf},{1.0,1.0},{5,5},{5,5},{5,5},
+            {5,5},{5,5},{5,5},{inf,inf},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0}},
+            {inf,inf},{1.0,1.0}},
             }
         }, // end PfCand_chHad
 
@@ -433,12 +433,12 @@ namespace deep_tau {
             {1,1},{1,1}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()}},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf},
+            {-inf,-inf},{-inf,-inf}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()}},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{inf,inf},
+            {inf,inf},{inf,inf}},
 
             }
         }, // end PfCand_nHad
@@ -471,25 +471,25 @@ namespace deep_tau {
 
             // lim_min_
             {{-1.0},{-1.0},{-1.0},{-5},{-5},
-            {-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity()},{-5},{-std::numeric_limits<float>::infinity()},
-            {-5},{-5},{-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity()},
-            {-5},{-5},{-std::numeric_limits<float>::infinity()},{-5},{-5},
-            {-std::numeric_limits<float>::infinity()},{-5},{-5},{-5},{-std::numeric_limits<float>::infinity()},
+            {-inf},{-inf},{-inf},{-5},{-inf},
+            {-5},{-5},{-inf},{-inf},{-inf},
+            {-5},{-5},{-inf},{-5},{-5},
+            {-inf},{-5},{-5},{-5},{-inf},
             {-5},{-5},{-5},{-5},{-5},
             {-1.0},{-1.0},{-5},{-1.0},{-5},
-            {-std::numeric_limits<float>::infinity()},{-1.0},{-std::numeric_limits<float>::infinity()},{-1.0},{-5},
-            {-1.0},{-std::numeric_limits<float>::infinity()},{-5}},
+            {-inf},{-1.0},{-inf},{-1.0},{-5},
+            {-1.0},{-inf},{-5}},
 
             // lim_max_
             {{1.0},{1.0},{1.0},{5},{5},
-            {std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity()},{5},{std::numeric_limits<float>::infinity()},
-            {5},{5},{std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity()},
-            {5},{5},{std::numeric_limits<float>::infinity()},{5},{5},
-            {std::numeric_limits<float>::infinity()},{5},{5},{5},{std::numeric_limits<float>::infinity()},
+            {inf},{inf},{inf},{5},{inf},
+            {5},{5},{inf},{inf},{inf},
+            {5},{5},{inf},{5},{5},
+            {inf},{5},{5},{5},{inf},
             {5},{5},{5},{5},{5},
             {1.0},{1.0},{5},{1.0},{5},
-            {std::numeric_limits<float>::infinity()},{1.0},{std::numeric_limits<float>::infinity()},{1.0},{5},
-            {1.0},{std::numeric_limits<float>::infinity()},{5}},
+            {inf},{1.0},{inf},{1.0},{5},
+            {1.0},{inf},{5}},
             } 
         }, // end TauFlat
 
@@ -499,9 +499,9 @@ namespace deep_tau {
             // std_
             {{25.0,25.0},{490.0,490.0},{2.3,2.3},{1,1}},
             // lim_min_
-            {{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()}},
+            {{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf}},
             // lim_max_
-            {{1.0,1.0},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()}},
+            {{1.0,1.0},{1.0,1.0},{1.0,1.0},{inf,inf}},
             }
         }, // end GridGlobal
 
@@ -521,17 +521,17 @@ namespace deep_tau {
              {14.8,8.818},{3.729,3.125}},
 
             // lim_min_
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-1.0,-1.0},{-5,-5},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf},
+            {-inf,-inf},{-inf,-inf},{-inf,-inf},{-1.0,-1.0},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
+            {-inf,-inf},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5}},
 
             // lim_max_
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},{5,5},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{inf,inf},
+            {inf,inf},{inf,inf},{inf,inf},{1.0,1.0},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},{5,5},
+            {inf,inf},{5,5},{5,5},{5,5},{5,5},
             {5,5},{5,5}}
             }
         }, // end PfCand_electron
@@ -552,17 +552,17 @@ namespace deep_tau {
              {546.1,439.3},{16.85,15.84},{4.741,4.562}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-             {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-1.0,-1.0},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf},
+             {-inf,-inf},{-inf,-inf},{-inf,-inf},{-inf,-inf},{-1.0,-1.0},
              {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-             {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},
+             {-5,-5},{-inf,-inf},{-5,-5},{-5,-5},{-5,-5},
              {-5,-5},{-5,-5},{-5,-5}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-             {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{inf,inf},
+             {inf,inf},{inf,inf},{inf,inf},{inf,inf},{1.0,1.0},
              {5,5},{5,5},{5,5},{5,5},{5,5},
-             {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},
+             {5,5},{inf,inf},{5,5},{5,5},{5,5},
              {5,5},{5,5},{5,5}},
 
             }
@@ -590,23 +590,23 @@ namespace deep_tau {
             {5.64,8.186},{5.557,5.149}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},
-            {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
+            {-inf,-inf},{-inf,-inf},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-inf,-inf},
             {-5,-5},{-5,-5}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{inf,inf},
             {5,5},{5,5},{5,5},{5,5},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},
-            {5,5},{5,5},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
+            {inf,inf},{inf,inf},{5,5},{5,5},{5,5},
+            {5,5},{5,5},{5,5},{5,5},{inf,inf},
             {5,5},{5,5}},
             }
         }, // end Electron
@@ -627,17 +627,17 @@ namespace deep_tau {
             {515.9,155.9},{2.933,1.003},{6.317,4.29}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-1.0,-1.0},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf},
+            {-inf,-inf},{-inf,-inf},{-inf,-inf},{-inf,-inf},{-1.0,-1.0},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-            {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-inf,-inf},{-5,-5},{-5,-5},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{inf,inf},
+            {inf,inf},{inf,inf},{inf,inf},{inf,inf},{1.0,1.0},
             {5,5},{5,5},{5,5},{5,5},{5,5},
-            {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{5,5},
+            {5,5},{inf,inf},{5,5},{5,5},{5,5},
             {5,5},{5,5},{5,5}},
 
             }
@@ -665,9 +665,9 @@ namespace deep_tau {
             {1.0,1.0},{1.0,1.0}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-5,-5},
-            {-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-5,-5},
+            {-5,-5},{-inf,-inf},{-5,-5},{-5,-5},{-inf,-inf},
+            {-inf,-inf},{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},
             {-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},
             {-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},
             {-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},{-1.0,-1.0},
@@ -675,9 +675,9 @@ namespace deep_tau {
             {-1.0,-1.0},{-1.0,-1.0}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{5,5},
-            {5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{5,5},
+            {5,5},{inf,inf},{5,5},{5,5},{inf,inf},
+            {inf,inf},{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},
             {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
             {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
             {1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},{1.0,1.0},
@@ -705,20 +705,20 @@ namespace deep_tau {
             {1,1},{1.3,1.3}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-1.0,-1.0},{-5,-5},{-5,-5},{-5,-5},
-            {-5,-5},{-5,-5},{-5,-5},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf},
+            {-inf,-inf},{-inf,-inf},{-inf,-inf},{-inf,-inf},{-inf,-inf},
+            {-inf,-inf},{-1.0,-1.0},{-5,-5},{-5,-5},{-5,-5},
+            {-5,-5},{-5,-5},{-5,-5},{-inf,-inf},{-5,-5},
             {-5,-5},{-5,-5},{-5,-5},{-5,-5},{-5,-5},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-1.0,-1.0}},
+            {-inf,-inf},{-1.0,-1.0}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0},{5,5},{5,5},{5,5},
-            {5,5},{5,5},{5,5},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{inf,inf},
+            {inf,inf},{inf,inf},{inf,inf},{inf,inf},{inf,inf},
+            {inf,inf},{1.0,1.0},{5,5},{5,5},{5,5},
+            {5,5},{5,5},{5,5},{inf,inf},{5,5},
             {5,5},{5,5},{5,5},{5,5},{5,5},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{1.0,1.0}},
+            {inf,inf},{1.0,1.0}},
             }
         }, // end PfCand_chHad
 
@@ -732,12 +732,12 @@ namespace deep_tau {
             {1,1},{1,1}},
 
             // lim_min
-            {{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},
-            {-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()},{-std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity()}},
+            {{-inf,-inf},{-5,-5},{-1.0,-1.0},{-1.0,-1.0},{-inf,-inf},
+            {-inf,-inf},{-inf,-inf}},
 
             // lim_max
-            {{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{5,5},{1.0,1.0},{1.0,1.0},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},
-            {std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()},{std::numeric_limits<float>::infinity(),std::numeric_limits<float>::infinity()}},
+            {{inf,inf},{5,5},{1.0,1.0},{1.0,1.0},{inf,inf},
+            {inf,inf},{inf,inf}},
 
             }
         }, // end PfCand_nHad
