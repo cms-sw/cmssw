@@ -44,10 +44,10 @@ process.refitTracks = process.TrackRefitter.clone(src=cms.InputTag("ALCARECOSiSt
 tracks = cms.InputTag("refitTracks")
 
 process.hiteff = cms.EDProducer("SiStripHitEfficiencyWorker",
-    lumiScalers=cms.InputTag("scalersRawToDigi"),
+    lumiScalers =cms.InputTag("scalersRawToDigi"),
     addLumi = cms.untracked.bool(True),
-    commonMode=cms.InputTag("siStripDigis", "CommonMode"),
-    addCommonMode=cms.untracked.bool(False),
+    commonMode = cms.InputTag("siStripDigis", "CommonMode"),
+    addCommonMode = cms.untracked.bool(False),
     combinatorialTracks = tracks,
     trajectories        = tracks,
     siStripClusters     = cms.InputTag("siStripClusters"),
@@ -55,17 +55,17 @@ process.hiteff = cms.EDProducer("SiStripHitEfficiencyWorker",
     trackerEvent        = cms.InputTag("MeasurementTrackerEvent"),
     # part 2
     Layer = cms.int32(0), # =0 means do all layers
-    Debug = cms.bool(True),
+    Debug = cms.untracked.bool(True),
     # do not cut on the total number of tracks
-    cutOnTracks = cms.untracked.bool(True),
-    trackMultiplicity = cms.untracked.uint32(100),
+    cutOnTracks = cms.bool(True),
+    trackMultiplicity = cms.uint32(100),
     # use or not first and last measurement of a trajectory (biases), default is false
-    useFirstMeas = cms.untracked.bool(False),
-    useLastMeas = cms.untracked.bool(False),
-    useAllHitsFromTracksWithMissingHits = cms.untracked.bool(False),
+    useFirstMeas = cms.bool(False),
+    useLastMeas = cms.bool(False),
+    useAllHitsFromTracksWithMissingHits = cms.bool(False),
     ## non-default settings
-    ClusterMatchingMethod = cms.untracked.int32(4),   # default 0  case0,1,2,3,4
-    ClusterTrajDist       = cms.untracked.double(15), # default 64
+    ClusterMatchingMethod = cms.int32(4),   # default 0  case0,1,2,3,4
+    ClusterTrajDist       = cms.double(15), # default 64
     )
 
 process.load("DQM.SiStripCommon.TkHistoMap_cff")

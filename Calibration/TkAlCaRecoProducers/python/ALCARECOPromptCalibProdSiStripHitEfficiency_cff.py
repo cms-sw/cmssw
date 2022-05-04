@@ -2,12 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 # ------------------------------------------------------------------------------
 # configure a filter to run only on the events selected by TkAlMinBias AlcaReco
-import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-ALCARECOCalMinBiasFilterForSiStripHitEff = copy.deepcopy(hltHighLevel)
-ALCARECOCalMinBiasFilterForSiStripHitEff.HLTPaths = ['pathALCARECOSiStripCalMinBias']
-ALCARECOCalMinBiasFilterForSiStripHitEff.throw = True ## dont throw on unknown path names
-ALCARECOCalMinBiasFilterForSiStripHitEff.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
+ALCARECOCalMinBiasFilterForSiStripHitEff = hltHighLevel.clone(
+    HLTPaths = ['pathALCARECOSiStripCalMinBias'],
+    throw = True, ## throw on unknown path names
+    TriggerResultsTag = ("TriggerResults","","RECO")
+)
 
 # ------------------------------------------------------------------------------
 # This is the sequence for track refitting of the track saved by SiStripCalMinBias
@@ -30,9 +30,10 @@ from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 from DQM.SiStripCommon.TkHistoMap_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 
-ALCARECOMonitoringTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOMonitoringTracks"),
-                                                     NavigationSchool = cms.string("")
-                                                     )
+ALCARECOMonitoringTracksRefit = TrackRefitter.clone(
+         src = "ALCARECOMonitoringTracks",
+         NavigationSchool = cms.string("")
+)
 
 # ------------------------------------------------------------------------------
 # refit and BS can be dropped if done together with RECO.
@@ -46,28 +47,28 @@ ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOMonitoringTracks +
 # This is the module actually doing the calibration
 from CalibTracker.SiStripHitEfficiency.siStripHitEfficiencyWorker_cfi import siStripHitEfficiencyWorker
 ALCARECOSiStripHitEff =  siStripHitEfficiencyWorker.clone(
-    lumiScalers=cms.InputTag("scalersRawToDigi"),
-    addLumi = cms.untracked.bool(True),
-    commonMode=cms.InputTag("siStripDigis", "CommonMode"),
-    addCommonMode=cms.untracked.bool(False),
+    lumiScalers= "scalersRawToDigi",
+    addLumi = True,
+    commonMode = "siStripDigis:CommonMode",
+    addCommonMode= False,
     combinatorialTracks = "ALCARECOMonitoringTracksRefit",
     trajectories        = "ALCARECOMonitoringTracksRefit",
-    siStripClusters     = cms.InputTag("siStripClusters"),
-    siStripDigis        = cms.InputTag("siStripDigis"),
-    trackerEvent        = cms.InputTag("MeasurementTrackerEvent"),
+    siStripClusters     = "siStripClusters",
+    siStripDigis        = "siStripDigis",
+    trackerEvent        = "MeasurementTrackerEvent",
     # part 2
-    Layer = cms.int32(0), # =0 means do all layers
-    Debug = cms.bool(True),
+    Layer = 0, # =0 means do all layers
+    Debug = True,
     # do not cut on the total number of tracks
-    cutOnTracks = cms.untracked.bool(True),
-    trackMultiplicity = cms.untracked.uint32(100),
+    cutOnTracks = True,
+    trackMultiplicity = 100,
     # use or not first and last measurement of a trajectory (biases), default is false
-    useFirstMeas = cms.untracked.bool(False),
-    useLastMeas = cms.untracked.bool(False),
-    useAllHitsFromTracksWithMissingHits = cms.untracked.bool(False),
+    useFirstMeas = False,
+    useLastMeas = False,
+    useAllHitsFromTracksWithMissingHits = False,
     ## non-default settings
-    ClusterMatchingMethod = cms.untracked.int32(4),   # default 0  case0,1,2,3,4
-    ClusterTrajDist       = cms.untracked.double(15), # default 64
+    ClusterMatchingMethod = 4,  # default 0  case0,1,2,3,4
+    ClusterTrajDist       = 15, # default 64
 )
 
 # ----------------------------------------------------------------------------
