@@ -215,6 +215,8 @@ namespace dqm::impl {
       accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(static_cast<double>(x), 1);
     else if (kind() == Kind::TH1S)
       accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(static_cast<double>(x), 1);
+    else if (kind() == Kind::TH1I)
+      accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(static_cast<double>(x), 1);
     else if (kind() == Kind::TH1D)
       accessRootObject(access, __PRETTY_FUNCTION__, 1)->Fill(static_cast<double>(x), 1);
     else
@@ -325,6 +327,8 @@ namespace dqm::impl {
       static_cast<TH2S *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
     else if (kind() == Kind::TH2D)
       static_cast<TH2D *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
+    else if (kind() == Kind::TH2I)
+      static_cast<TH2I *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw);
     else if (kind() == Kind::TH3F)
       static_cast<TH3F *>(accessRootObject(access, __PRETTY_FUNCTION__, 2))->Fill(x, y, zw, 1);
     else if (kind() == Kind::TPROFILE)
