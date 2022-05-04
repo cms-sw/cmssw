@@ -1,6 +1,11 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 #include <iostream>
 
+template <memoryPool::Where where>
+struct dataProducer {
+  static auto operator()(cudaStream_t stream) { return memoryPool::cuda::make_unique<int>(20, stream, where); }
+};
+
 int main() {
   {
     int devices = 0;
@@ -30,6 +35,9 @@ int main() {
   {
     auto pd = memoryPool::cuda::make_unique<int>(20, stream, memoryPool::onDevice);
     auto ph = memoryPool::cuda::make_unique<int>(20, stream, memoryPool::onHost);
+    auto pc = memoryPool::cuda::make_unique<int>(20, stream, memoryPool::onCPU);
+
+    auto dp = dataProducer<onDevice>(stream);
 
     memoryPool::cuda::dumpStat();
   }
