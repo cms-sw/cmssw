@@ -12,7 +12,6 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
-#include <vector>
 #include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
@@ -22,6 +21,9 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
+
+#include <vector>
 
 class APDSimParameters;
 class CaloHitResponse;
@@ -70,7 +72,7 @@ public:
 private:
   virtual void cacheEBDigis(const EBDigiCollectionPh2* ebDigiPtr) const {}
 
-  typedef edm::Handle<std::vector<PCaloHit> > HitsHandle;
+  typedef edm::Handle<std::vector<PCaloHit>> HitsHandle;
 
   edm::ESGetToken<EcalLiteDTUPedestalsMap, EcalLiteDTUPedestalsRcd> pedestalToken_;
   edm::ESGetToken<EcalLaserDbService, EcalLaserDbRecord> laserToken_;
@@ -115,6 +117,8 @@ private:
   const bool m_PreMix1;
   const bool m_PreMix2;
 
+  const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEBToken;
+
   std::unique_ptr<EBDigitizer_Ph2> m_APDDigitizer;
   std::unique_ptr<EBDigitizer_Ph2> m_BarrelDigitizer;
 
@@ -122,12 +126,12 @@ private:
   std::unique_ptr<EcalLiteDTUCoder> m_Coder;
 
   typedef CaloTSamples<float, ecalPh2::sampleSize> EcalSamples_Ph2;
-  std::unique_ptr<EcalElectronicsSim<EcalLiteDTUCoder, EcalSamples_Ph2, EcalDataFrame_Ph2> > m_APDElectronicsSim;
+  std::unique_ptr<EcalElectronicsSim<EcalLiteDTUCoder, EcalSamples_Ph2, EcalDataFrame_Ph2>> m_APDElectronicsSim;
   std::unique_ptr<EcalLiteDTUCoder> m_APDCoder;
 
   const CaloGeometry* m_Geometry;
 
-  std::array<std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix_Ph2> >, 2> m_EBCorrNoise;
+  std::array<std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix_Ph2>>, 2> m_EBCorrNoise;
 
   CLHEP::HepRandomEngine* randomEngine_ = nullptr;
 };
