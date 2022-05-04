@@ -111,7 +111,6 @@ private:
   const edm::EDGetTokenT<edm::HepMCProduct> mcToken_;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertToken_;
   edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > cfToken_;
-
 };
 
 //
@@ -125,7 +124,10 @@ private:
 //
 // constructors and destructor
 //
-AMPTAnalyzer::AMPTAnalyzer(const edm::ParameterSet& iConfig) : pdtToken_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()), mcToken_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared")))) {
+AMPTAnalyzer::AMPTAnalyzer(const edm::ParameterSet& iConfig)
+    : pdtToken_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()),
+      mcToken_(consumes<edm::HepMCProduct>(
+          iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared")))) {
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
@@ -276,7 +278,8 @@ void AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     edm::SimVertexContainer::const_iterator it = simVertices->begin();
     SimVertex vertex = (*it);
-    edm::LogVerbatim("AMPTAnalysis") << " Vertex position " << inum << " " << vertex.position().rho() << " " << vertex.position().z();
+    edm::LogVerbatim("AMPTAnalysis") << " Vertex position " << inum << " " << vertex.position().rho() << " "
+                                     << vertex.position().z();
     vx = vertex.position().x();
     vy = vertex.position().y();
     vz = vertex.position().z();
