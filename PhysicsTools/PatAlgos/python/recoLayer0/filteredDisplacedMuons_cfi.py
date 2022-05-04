@@ -4,7 +4,6 @@ filteredDisplacedMuons = cms.EDProducer("DisplacedMuonFilterProducer",
 
     # Muon collections
     srcMuons = cms.InputTag("displacedMuons"),
-    refMuons = cms.InputTag("muons"),
 
     FillTimingInfo = cms.bool(True),
 
@@ -17,9 +16,8 @@ filteredDisplacedMuons = cms.EDProducer("DisplacedMuonFilterProducer",
     HcalIsoDeposits  = cms.InputTag("displacedMuons:hcal"),
     HoIsoDeposits    = cms.InputTag("displacedMuons:ho"),
 
-    # Filter
-    minDxy           = cms.double( 2 ),
-    minDz            = cms.double( 10. ),
-    minDeltaR        = cms.double( 0.1 ),
-    minRelDeltaPt    = cms.double( 0.1 ),
+    # Preselection criteria
+    minPtSTA         = cms.double( 3.5 ),
+    minPtTK          = cms.double( 3.5 ),
+    minMatches       = cms.double( 2 ),
 )

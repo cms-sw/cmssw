@@ -1,6 +1,22 @@
 /** \class DisplacedMuonFilterProducer
  *
- *  \author C. Fernandez Madrazo <celia.fernandez.madrazo@cern.ch>
+ * The filter takes a reco::Muon collection as an input and preselects
+ * the muons that will be processed by the next sequences.
+ *
+ * 1) StandAlone muons matched to an inner track (either as Tracker or Global muons)
+ *    are preselected if the StandAlone track has pt > minPtSTA_ or the tracker track 
+ *    has pt > minPtTK_
+ *
+ *    (Global muon are contained in this subset)
+ *
+ * 2) StandAlone-only muons are preselected if they have number of segments > minMatches_
+ *    and they have pt > minPtSTA_
+ *
+ * 3) Tracker muons without an StandAlone track are preselected if they have pt > minPtTK_
+ *    and they are labelled as isTrackerMuon() i.e. not RPC/GEM muons.
+ *
+ * \author C. Fernandez Madrazo <celia.fernandez.madrazo@cern.ch>
+ *
  */
 
 // system include files
@@ -49,14 +65,10 @@ namespace pat {
     const edm::InputTag srcMuons_;
     const edm::EDGetTokenT<reco::MuonCollection> srcMuonToken_;
 
-    const edm::InputTag refMuons_;
-    const edm::EDGetTokenT<reco::MuonCollection> refMuonToken_;
-
-    // filter criteria and selection (displacedTracker muons)
-    const double min_Dxy_;             // Minimum dxy
-    const double min_Dz_;              // Minimum dz
-    const double min_DeltaR_;          // dR difference between displaced-prompt muon
-    const double min_RelDeltaPt_;      // Rel. pT difference between displaced-prompt
+    // filter criteria and selection 
+    const double minPtTK_;             // Minimum pt of inner tracks
+    const double minPtSTA_;            // Minimum pt of standalone tracks
+    const double minMatches_;          // Minimum number of matches of standalone-only muons
 
     // what information to fill
     bool fillDetectorBasedIsolation_;
@@ -93,12 +105,9 @@ namespace pat {
 pat::DisplacedMuonFilterProducer::DisplacedMuonFilterProducer(const edm::ParameterSet& iConfig)
     : srcMuons_(iConfig.getParameter<edm::InputTag>("srcMuons")),
       srcMuonToken_(consumes<reco::MuonCollection>(srcMuons_)),
-      refMuons_(iConfig.getParameter<edm::InputTag>("refMuons")),
-      refMuonToken_(consumes<reco::MuonCollection>(refMuons_)),
-      min_Dxy_(iConfig.getParameter<double>("minDxy")),
-      min_Dz_(iConfig.getParameter<double>("minDz")),
-      min_DeltaR_(iConfig.getParameter<double>("minDeltaR")),
-      min_RelDeltaPt_(iConfig.getParameter<double>("minRelDeltaPt")),
+      minPtTK_(iConfig.getParameter<double>("minPtTK")),
+      minPtSTA_(iConfig.getParameter<double>("minPtSTA")),
+      minMatches_(iConfig.getParameter<double>("minMatches")),
       fillDetectorBasedIsolation_(iConfig.getParameter<bool>("FillDetectorBasedIsolation")),
       fillTimingInfo_(iConfig.getParameter<bool>("FillTimingInfo")) {
 
@@ -157,41 +166,42 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
   edm::Handle<reco::MuonCollection> srcMuons;
   iEvent.getByToken(srcMuonToken_, srcMuons);
 
-  edm::Handle<reco::MuonCollection> refMuons;
-  iEvent.getByToken(refMuonToken_, refMuons);
-
   int nMuons = srcMuons->size();
-
 
   // filter the muons
   std::vector<bool> filteredmuons(nMuons, true);
   int oMuons = nMuons;
+  
   for (unsigned int i = 0; i < srcMuons->size(); i++) {
-    const reco::Muon& muon(srcMuons->at(i));
+    const reco::Muon& muon(srcMuons->at(i));    
 
     if (muon.isStandAloneMuon()) {
-      if (muon.innerTrack().isNonnull())
-        continue;
-      if (!muon.isMatchesValid() || muon.numberOfMatches() < 2) {
-        filteredmuons[i] = false;
-        oMuons = oMuons - 1;
+      if (muon.innerTrack().isNonnull()) {
+        // Discard STA + GL/TR muons that are below pt threshold
+        if (muon.innerTrack()->pt() < minPtTK_ && muon.standAloneMuon()->pt() < minPtSTA_) {
+           filteredmuons[i] = false;
+           oMuons = oMuons - 1;
+           continue;
+        }
+      } else {
+        // Discard STA-only muons with less than minMatches_ segments and below pt threshold
+        if (!muon.isMatchesValid() || muon.numberOfMatches() < minMatches_ || muon.standAloneMuon()->pt() < minPtSTA_) {
+           filteredmuons[i] = false;
+           oMuons = oMuons - 1;
+           continue;
+        }
       }
     } else {
-      // save the muon if its impact parameters are above thresholds
-      if ( fabs(muon.bestTrack()->dxy()) > min_Dxy_ && fabs(muon.bestTrack()->dz()) > min_Dz_)
-        continue;
-      // look for overlapping muons if not
-      for (unsigned int j = 0; j < refMuons->size(); j++) {
-        const reco::Muon& ref(refMuons->at(j));
-        if (!ref.innerTrack().isNonnull())
-          continue;
-        double dR = deltaR(muon.eta(), muon.phi(), ref.innerTrack()->eta(), ref.innerTrack()->phi() );
-        double reldPt = fabs(muon.pt() - ref.innerTrack()->pt())/muon.pt();
-        if (dR < min_DeltaR_ && reldPt < min_RelDeltaPt_) {
+      if (muon.innerTrack().isNonnull()) {
+        if (muon.innerTrack()->pt() < minPtTK_ || !muon.isTrackerMuon()) {
           filteredmuons[i] = false;
           oMuons = oMuons - 1;
-          break;
+          continue;
         }
+      } else { // Should never happen
+        filteredmuons[i] = false;
+        oMuons = oMuons - 1;
+        continue;
       }
     }
   }

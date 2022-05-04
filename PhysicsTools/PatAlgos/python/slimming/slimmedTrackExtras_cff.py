@@ -24,6 +24,7 @@ fastSim.toModify(slimmedMuonTrackExtras, outputClusters = False)
 # cluster collections are different in phase 2, so skip this for now
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(slimmedMuonTrackExtras, outputClusters = False)
+phase2_tracker.toModify(slimmedDisplacedMuonTrackExtras, outputClusters = False)
 
 # lower minimum pt for B-parking
 from Configuration.Eras.Modifier_bParking_cff import bParking
