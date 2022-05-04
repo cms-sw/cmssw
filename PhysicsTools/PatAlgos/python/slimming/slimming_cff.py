@@ -76,7 +76,7 @@ from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_
 from Configuration.Eras.Modifier_run2_miniAOD_80XLegacy_cff import run2_miniAOD_80XLegacy
 _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
 (pp_on_AA | _mAOD).toReplaceWith(slimmingTask,
-                                 slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
+                                 slimmingTask.copyAndExclude([slimmedLowPtElectronsTask, slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
 
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import hiEvtPlane
@@ -100,6 +100,9 @@ from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRe
 pp_on_AA.toReplaceWith(
     slimmingTask,
     cms.Task(slimmingTask.copy(), offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery))
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(slimmingTask, slimmingTask.copyAndExclude([slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
 
 from Configuration.Eras.Modifier_phase2_timing_cff import phase2_timing
 _phase2_timing_slimmingTask = cms.Task(slimmingTask.copy(),
