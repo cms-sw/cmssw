@@ -54,7 +54,7 @@ private:
   edm::InputTag hepMCProductTag_;
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
   // To chose on which pdgIds the filter is applied - if ParticleIDs.at(0)==0 runs on all particles
-  std::vector<int>  particleIDs_;  
+  std::vector<int> particleIDs_;
 
   const float theUpperCut_;  // Maximum displacement accepted
   const float theLowerCut_;  // Minimum displacement accepted
@@ -94,14 +94,13 @@ bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::
   const float theUpperCut2 = theUpperCut_ * theUpperCut_;
   const float theLowerCut2 = theLowerCut_ * theLowerCut_;
 
-
   const HepMC::GenEvent* generated_event = evt->GetEvent();
   HepMC::GenEvent::particle_const_iterator p;
 
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++) {
-   
     //matchedID might be moved to false to true for a particle in the event, it needs to be resetted everytime
-    if (particleIDs_.at(0) != 0) matchedID = false; 
+    if (particleIDs_.at(0) != 0)
+      matchedID = false;
 
     //if a list of pdgId is provided, loop only on particles with those pdgId
     for (unsigned int idx = 0; idx < particleIDs_.size(); idx++) {
@@ -121,18 +120,19 @@ bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::
                           (((*p)->production_vertex())->position().x() - ((*p)->end_vertex())->position().x()) +
                       (((*p)->production_vertex())->position().y() - ((*p)->end_vertex())->position().y()) *
                           (((*p)->production_vertex())->position().y() - ((*p)->end_vertex())->position().y());
-  // lower/upper cuts can be also <= 0 - prompt particle needs to be accepted in that case
-        if ((theLowerCut_ <= 0. || dist2 >= theLowerCut2) &&
-                       (theUpperCut_ <= 0. || dist2 < theUpperCut2)) {  
+        // lower/upper cuts can be also <= 0 - prompt particle needs to be accepted in that case
+        if ((theLowerCut_ <= 0. || dist2 >= theLowerCut2) && (theUpperCut_ <= 0. || dist2 < theUpperCut2)) {  
+
+	  std::cout << sqrt(dist2) << " " << (*p)->pdg_id() << std::endl;
           pass = true;
           break;
         }
       }
       if (((*p)->production_vertex() == nullptr) && (((*p)->end_vertex() != nullptr))) {
-// lower/upper cuts can be also 0 - prompt particle needs to be accepted in that case
+        // lower/upper cuts can be also 0 - prompt particle needs to be accepted in that case
         float distEndVert = (*p)->end_vertex()->position().perp();
-        if ((theLowerCut_ <= 0. || distEndVert >= theLowerCut_) &&
-            (theUpperCut_ <= 0. || distEndVert < theUpperCut_)) {  
+        if ((theLowerCut_ <= 0. || distEndVert >= theLowerCut_) && (theUpperCut_ <= 0. || distEndVert < theUpperCut_)) {  
+	  std::cout << distEndVert << " " << (*p)->pdg_id() << std::endl;
           pass = true;
           break;
         }
