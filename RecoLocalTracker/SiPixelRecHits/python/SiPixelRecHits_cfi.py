@@ -66,7 +66,7 @@ siPixelRecHitsPreSplittingSoA = SwitchProducerCUDA(
              )),
 )
 
-gpu.toModify(siPixelRecHitsPreSplittingSoA,cuda = _siPixelRecHitSoAFromCUDA.clone())
+(gpu & pixelNtupletFit).toModify(siPixelRecHitsPreSplittingSoA,cuda = _siPixelRecHitSoAFromCUDA.clone())
 
 (gpu & pixelNtupletFit).toModify(siPixelRecHitsPreSplitting, cuda = _siPixelRecHitFromCUDA.clone())
 
