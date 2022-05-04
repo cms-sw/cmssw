@@ -6,8 +6,8 @@
 //
 
 // system include files
-#include <memory>
-#include <iostream>
+//#include <memory>
+//#include <iostream>
 #include <vector>
 
 // user include files
@@ -21,8 +21,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+//#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+//#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 //#include "GeneratorInterface/GenFilters/plugins/MCLongLivedParticles.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -53,8 +53,8 @@ private:
   // ----------member data ---------------------------
   edm::InputTag hepMCProductTag_;
   const edm::EDGetTokenT<edm::HepMCProduct> token_;
-  std::vector<int>
-      particleIDs_;  // To chose on which pdgIds the filter is applied - if ParticleIDs.at(0)==0 runs on all particles
+  // To chose on which pdgIds the filter is applied - if ParticleIDs.at(0)==0 runs on all particles
+  std::vector<int>  particleIDs_;  
 
   const float theUpperCut_;  // Maximum displacement accepted
   const float theLowerCut_;  // Minimum displacement accepted
@@ -77,7 +77,7 @@ void MCLongLivedParticles::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<std::vector<int>>("ParticleIDs", std::vector<int>{0});
   desc.add<double>("LengMax", -1.);
   desc.add<double>("LengMin", -1.);
-  descriptions.add("selectsDisplacement", desc);
+  descriptions.addDefault(desc);
 }
 
 // ------------ method called to skim the data  ------------
@@ -91,18 +91,19 @@ bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::
   bool pass = false;
   bool matchedID = true;
 
-  float theUpperCut2 = theUpperCut_ * theUpperCut_;
-  float theLowerCut2 = theLowerCut_ * theLowerCut_;
+  const float theUpperCut2 = theUpperCut_ * theUpperCut_;
+  const float theLowerCut2 = theLowerCut_ * theLowerCut_;
 
-  if (particleIDs_.at(0) != 0)
-    matchedID = false;
 
   const HepMC::GenEvent* generated_event = evt->GetEvent();
   HepMC::GenEvent::particle_const_iterator p;
 
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++) {
-    //if a list of pdgId is provided, loop only on particles with those pdgId
+   
+    //matchedID might be moved to false to true for a particle in the event, it needs to be resetted everytime
+    if (particleIDs_.at(0) != 0) matchedID = false; 
 
+    //if a list of pdgId is provided, loop only on particles with those pdgId
     for (unsigned int idx = 0; idx < particleIDs_.size(); idx++) {
       if (abs((*p)->pdg_id()) == abs(particleIDs_.at(idx))) {  //compares absolute values of pdgIds
         matchedID = true;
@@ -120,18 +121,18 @@ bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::
                           (((*p)->production_vertex())->position().x() - ((*p)->end_vertex())->position().x()) +
                       (((*p)->production_vertex())->position().y() - ((*p)->end_vertex())->position().y()) *
                           (((*p)->production_vertex())->position().y() - ((*p)->end_vertex())->position().y());
-
-        if ((dist2 >= theLowerCut2 || theLowerCut_ <= 0.) &&
-            (dist2 < theUpperCut2 ||
-             theUpperCut_ <= 0.)) {  //lower cut can be also 0 - prompt particle needs to be accepted in that case
+  // lower/upper cuts can be also <= 0 - prompt particle needs to be accepted in that case
+        if ((theLowerCut_ <= 0. || dist2 >= theLowerCut2) &&
+                       (theUpperCut_ <= 0. || dist2 < theUpperCut2)) {  
           pass = true;
           break;
         }
       }
-      if (((*p)->production_vertex() == nullptr) && (!((*p)->end_vertex() != nullptr))) {
-        if ((((*p)->end_vertex()->position().perp() >= theLowerCut_) || theLowerCut_ <= 0.) &&
-            (((*p)->end_vertex()->position().perp() < theUpperCut_) ||
-             theUpperCut_ <= 0.)) {  // lower cut can be also 0 - prompt particle needs to be accepted in that case
+      if (((*p)->production_vertex() == nullptr) && (((*p)->end_vertex() != nullptr))) {
+// lower/upper cuts can be also 0 - prompt particle needs to be accepted in that case
+        float distEndVert = (*p)->end_vertex()->position().perp();
+        if ((theLowerCut_ <= 0. || distEndVert >= theLowerCut_) &&
+            (theUpperCut_ <= 0. || distEndVert < theUpperCut_)) {  
           pass = true;
           break;
         }
