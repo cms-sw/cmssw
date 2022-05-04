@@ -6,16 +6,16 @@ Scenario supporting proton collision data taking for AlCaPhiSymEcal stream with 
 
 """
 
-from Configuration.DataProcessing.Impl.AlCa import AlCa
+from Configuration.DataProcessing.Impl.pp import pp
 from Configuration.Eras.Era_Run3_cff import Run3
 
-class AlCaPhiSymEcal_Nano(AlCa):
+class AlCaPhiSymEcal_Nano(pp):
     def __init__(self):
-        AlCa.__init__(self)
+        pp.__init__(self)
         self.skims=['EcalPhiSymByRun']
         self.eras=Run3
+        self.recoSeq = ':bunchSpacingProducer+ecalMultiFitUncalibRecHitTask+ecalCalibratedRecHitTask'
         self.promptCustoms = [ 'Calibration/EcalCalibAlgos/EcalPhiSymRecoSequence_cff.customise' ]
-        self.step = 'RECO:bunchSpacingProducer+ecalMultiFitUncalibRecHitTask+ecalCalibratedRecHitTask'
     """
     _AlCaPhiSymEcal_Nano_
 
