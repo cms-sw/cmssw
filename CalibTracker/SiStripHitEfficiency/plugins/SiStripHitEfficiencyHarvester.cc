@@ -61,6 +61,7 @@ private:
   void writeBadStripPayload(const SiStripQuality& quality) const;
   void printTotalStatistics(const std::array<long, 23>& layerFound, const std::array<long, 23>& layerTotal) const;
   void printAndWriteBadModules(const SiStripQuality& quality, const SiStripDetInfo& detInfo) const;
+  bool checkMapsValidity(const std::vector<MonitorElement*>& maps, const std::string& type) const;
   void makeSummary(DQMStore::IGetter& getter, TFileService& fs) const;
   void makeSummaryVsBX(DQMStore::IGetter& getter, TFileService& fs) const;
   void makeSummaryVsLumi(DQMStore::IGetter& getter) const;
@@ -103,6 +104,36 @@ void SiStripHitEfficiencyHarvester::endRun(edm::Run const&, edm::EventSetup cons
   }
 }
 
+bool SiStripHitEfficiencyHarvester::checkMapsValidity(const std::vector<MonitorElement*>& maps,
+                                                      const std::string& type) const {
+  std::vector<bool> isAvailable;
+  isAvailable.reserve(maps.size());
+  std::transform(
+      maps.begin() + 1, maps.end(), std::back_inserter(isAvailable), [](auto& x) { return !(x == nullptr); });
+
+  int count{0};
+  for (const auto& it : isAvailable) {
+    count++;
+    LogDebug("SiStripHitEfficiencyHarvester") << " layer: " << count << " " << it << std::endl;
+    if (it)
+      LogDebug("SiStripHitEfficiencyHarvester") << "resolving to " << maps[count]->getName() << std::endl;
+  }
+
+  // check on the input TkHistoMap
+  bool areMapsAvailable{true};
+  int layerCount{0};
+  for (const auto& it : isAvailable) {
+    layerCount++;
+    if (!it) {
+      edm::LogError("SiStripHitEfficiencyHarvester")
+          << type << " TkHistoMap for layer " << layerCount << " was not found.\n -> Aborting!";
+      areMapsAvailable = false;
+      break;
+    }
+  }
+  return areMapsAvailable;
+}
+
 void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
   if (!autoIneffModTagging_)
     LOGPRINT << "A module is bad if efficiency < " << threshold_ << " and has at least " << nModsMin_ << " nModsMin.";
@@ -115,17 +146,23 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
   h_module_found->loadTkHistoMap("AlCaReco/SiStripHitEfficiency", "perModule_found");
 
-  // check on the input TkHistoMap
-  if (h_module_total->getMap(1) == nullptr or h_module_found->getMap(1) == nullptr) {
-    if (h_module_total->getMap(1) == nullptr) {
-      edm::LogError("SiStripHitEfficiencyHarvester") << "perModule_total TkHistoMap was not found.\n -> Aborting!";
-    }
-    if (h_module_found->getMap(1) == nullptr) {
-      edm::LogError("SiStripHitEfficiencyHarvester") << "perModule_found TkHistoMap was not found.\n -> Aborting!";
-    }
-    // no input TkHistoMaps -> early return
+  // collect how many layers are missing
+  const auto& totalMaps = h_module_total->getAllMaps();
+  const auto& foundMaps = h_module_found->getAllMaps();
+
+  LogDebug("SiStripHitEfficiencyHarvester")
+      << "totalMaps.size(): " << totalMaps.size() << " foundMaps.size() " << foundMaps.size() << std::endl;
+
+  // check on the input TkHistoMaps
+  bool isTotalMapAvailable = this->checkMapsValidity(totalMaps, std::string("Total"));
+  bool isFoundMapAvailable = this->checkMapsValidity(foundMaps, std::string("Found"));
+
+  LogDebug("SiStripHitEfficiencyHarvester")
+      << "isTotalMapAvailable: " << isTotalMapAvailable << " isFoundMapAvailable " << isFoundMapAvailable << std::endl;
+
+  // no input TkHistoMaps -> early return
+  if (!isTotalMapAvailable or !isFoundMapAvailable)
     return;
-  }
 
   LogDebug("SiStripHitEfficiencyHarvester")
       << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "

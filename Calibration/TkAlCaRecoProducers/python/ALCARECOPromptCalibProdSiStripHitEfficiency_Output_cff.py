@@ -5,6 +5,5 @@ OutALCARECOPromptCalibProdSiStripHitEfficiency_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOPromptCalibProdSiStripHitEfficiency')),
     outputCommands = cms.untracked.vstring('keep *_MEtoEDMConvertSiStripHitEff_*_*'))
 
-import copy
-OutALCARECOPromptCalibProdSiStripHitEfficiency=copy.deepcopy(OutALCARECOPromptCalibProdSiStripHitEfficiency_noDrop)
+OutALCARECOPromptCalibProdSiStripHitEfficiency = OutALCARECOPromptCalibProdSiStripHitEfficiency_noDrop.clone()
 OutALCARECOPromptCalibProdSiStripHitEfficiency.outputCommands.insert(0, "drop *")
