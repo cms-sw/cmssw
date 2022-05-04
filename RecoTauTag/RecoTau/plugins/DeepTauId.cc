@@ -1160,7 +1160,7 @@ public:
                                        {"RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6.pb"});
     desc.add<bool>("mem_mapped", false);
     desc.add<unsigned>("version", 2);
-    desc.add<unsigned>("sub_version", 5);
+    desc.add<unsigned>("sub_version", 1);
     desc.add<int>("debug_level", 0);
     desc.add<bool>("disable_dxy_pca", false);
     desc.add<bool>("disable_hcalFraction_workaround", false);
