@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_3_0/PRef --type PRef --unprescale --process HLTPRef --globaltag auto:run3_hlt_PRef --input file:RelVal_Raw_PRef_DATA.root
 
-# /dev/CMSSW_12_3_0/PRef/V77 (CMSSW_12_3_0)
+# /dev/CMSSW_12_3_0/PRef/V78 (CMSSW_12_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPRef" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V77')
+  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V78')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2690,11 +2690,11 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     globaltag = cms.string( "None" ),
     snapshotTime = cms.string( "" ),
     toGet = cms.VPSet( 
-      cms.PSet(  record = cms.string( "BeamSpotOnlineLegacyObjectsRcd" ),
-        refreshTime = cms.uint64( 2 )
+      cms.PSet(  refreshTime = cms.uint64( 2 ),
+        record = cms.string( "BeamSpotOnlineLegacyObjectsRcd" )
       ),
-      cms.PSet(  record = cms.string( "BeamSpotOnlineHLTObjectsRcd" ),
-        refreshTime = cms.uint64( 2 )
+      cms.PSet(  refreshTime = cms.uint64( 2 ),
+        record = cms.string( "BeamSpotOnlineHLTObjectsRcd" )
       )
     ),
     DumpStat = cms.untracked.bool( False ),
@@ -2707,56 +2707,91 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
 process.HcalTimeSlewEP = cms.ESSource( "HcalTimeSlewEP",
     appendToDataLabel = cms.string( "HBHE" ),
     timeSlewParametersM2 = cms.VPSet( 
-      cms.PSet(  slope = cms.double( -3.178648 ),
-        tmax = cms.double( 16.0 ),
-        tzero = cms.double( 23.960177 )
+      cms.PSet(  tmax = cms.double( 16.0 ),
+        tzero = cms.double( 23.960177 ),
+        slope = cms.double( -3.178648 )
       ),
-      cms.PSet(  slope = cms.double( -1.5610227 ),
-        tmax = cms.double( 10.0 ),
-        tzero = cms.double( 11.977461 )
+      cms.PSet(  tmax = cms.double( 10.0 ),
+        tzero = cms.double( 11.977461 ),
+        slope = cms.double( -1.5610227 )
       ),
-      cms.PSet(  slope = cms.double( -1.075824 ),
-        tmax = cms.double( 6.25 ),
-        tzero = cms.double( 9.109694 )
+      cms.PSet(  tmax = cms.double( 6.25 ),
+        tzero = cms.double( 9.109694 ),
+        slope = cms.double( -1.075824 )
       )
     ),
     timeSlewParametersM3 = cms.VPSet( 
-      cms.PSet(  tspar2 = cms.double( 0.0 ),
-        tspar0 = cms.double( 12.2999 ),
-        tspar1 = cms.double( -2.19142 ),
-        tspar1_siPM = cms.double( 0.0 ),
+      cms.PSet(  tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 ),
+        tspar2 = cms.double( 0.0 ),
         cap = cms.double( 6.0 ),
-        tspar0_siPM = cms.double( 0.0 ),
-        tspar2_siPM = cms.double( 0.0 )
+        tspar1 = cms.double( -2.19142 ),
+        tspar0 = cms.double( 12.2999 ),
+        tspar1_siPM = cms.double( 0.0 )
       ),
-      cms.PSet(  tspar2 = cms.double( 32.0 ),
-        tspar0 = cms.double( 15.5 ),
+      cms.PSet(  tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 ),
+        tspar2 = cms.double( 32.0 ),
+        cap = cms.double( 6.0 ),
         tspar1 = cms.double( -3.2 ),
-        tspar1_siPM = cms.double( 0.0 ),
-        cap = cms.double( 6.0 ),
-        tspar0_siPM = cms.double( 0.0 ),
-        tspar2_siPM = cms.double( 0.0 )
+        tspar0 = cms.double( 15.5 ),
+        tspar1_siPM = cms.double( 0.0 )
       ),
-      cms.PSet(  tspar2 = cms.double( 0.0 ),
-        tspar0 = cms.double( 12.2999 ),
-        tspar1 = cms.double( -2.19142 ),
-        tspar1_siPM = cms.double( 0.0 ),
+      cms.PSet(  tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 ),
+        tspar2 = cms.double( 0.0 ),
         cap = cms.double( 6.0 ),
-        tspar0_siPM = cms.double( 0.0 ),
-        tspar2_siPM = cms.double( 0.0 )
+        tspar1 = cms.double( -2.19142 ),
+        tspar0 = cms.double( 12.2999 ),
+        tspar1_siPM = cms.double( 0.0 )
       ),
-      cms.PSet(  tspar2 = cms.double( 0.0 ),
-        tspar0 = cms.double( 12.2999 ),
-        tspar1 = cms.double( -2.19142 ),
-        tspar1_siPM = cms.double( 0.0 ),
+      cms.PSet(  tspar0_siPM = cms.double( 0.0 ),
+        tspar2_siPM = cms.double( 0.0 ),
+        tspar2 = cms.double( 0.0 ),
         cap = cms.double( 6.0 ),
-        tspar0_siPM = cms.double( 0.0 ),
-        tspar2_siPM = cms.double( 0.0 )
+        tspar1 = cms.double( -2.19142 ),
+        tspar0 = cms.double( 12.2999 ),
+        tspar1_siPM = cms.double( 0.0 )
       )
     )
 )
 process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
+)
+process.ecalMultifitParametersGPUESProducer = cms.ESSource( "EcalMultifitParametersGPUESProducer",
+    pulseOffsets = cms.vint32( -3, -2, -1, 0, 1, 2, 3, 4 ),
+    EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
+    EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
+    EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
+    EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
+    appendToDataLabel = cms.string( "" )
+)
+process.ecalRecHitParametersGPUESProducer = cms.ESSource( "EcalRecHitParametersGPUESProducer",
+    ChannelStatusToBeExcluded = cms.vstring( 'kDAC',
+      'kNoisy',
+      'kNNoisy',
+      'kFixedG6',
+      'kFixedG1',
+      'kFixedG0',
+      'kNonRespondingIsolated',
+      'kDeadVFE',
+      'kDeadFE',
+      'kNoDataNoTP' ),
+    flagsMapDBReco = cms.PSet( 
+      kDead = cms.vstring( 'kNoDataNoTP' ),
+      kGood = cms.vstring( 'kOk',
+        'kDAC',
+        'kNoLaser',
+        'kNoisy' ),
+      kTowerRecovered = cms.vstring( 'kDeadFE' ),
+      kNoisy = cms.vstring( 'kNNoisy',
+        'kFixedG6',
+        'kFixedG1' ),
+      kNeighboursRecovered = cms.vstring( 'kFixedG0',
+        'kNonRespondingIsolated',
+        'kDeadVFE' )
+    ),
+    appendToDataLabel = cms.string( "" )
 )
 process.eegeom = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "EcalMappingRcd" ),
@@ -2766,6 +2801,10 @@ process.eegeom = cms.ESSource( "EmptyESSource",
 process.es_hardcode = cms.ESSource( "HcalHardcodeCalibrations",
     fromDDD = cms.untracked.bool( False ),
     toGet = cms.untracked.vstring( 'GainWidths' )
+)
+process.hcalMahiPulseOffsetsGPUESProducer = cms.ESSource( "HcalMahiPulseOffsetsGPUESProducer",
+    pulseOffsets = cms.vint32( -3, -2, -1, 0, 1, 2, 3, 4 ),
+    appendToDataLabel = cms.string( "" )
 )
 process.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "JetTagComputerRecord" ),
@@ -3196,6 +3235,71 @@ process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeGEM = cms.bool( False ),
   includeME0 = cms.bool( False )
 )
+process.ecalElectronicsMappingGPUESProducer = cms.ESProducer( "EcalElectronicsMappingGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalGainRatiosGPUESProducer = cms.ESProducer( "EcalGainRatiosGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalIntercalibConstantsGPUESProducer = cms.ESProducer( "EcalIntercalibConstantsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalLaserAPDPNRatiosGPUESProducer = cms.ESProducer( "EcalLaserAPDPNRatiosGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalLaserAPDPNRatiosRefGPUESProducer = cms.ESProducer( "EcalLaserAPDPNRatiosRefGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalLaserAlphasGPUESProducer = cms.ESProducer( "EcalLaserAlphasGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalLinearCorrectionsGPUESProducer = cms.ESProducer( "EcalLinearCorrectionsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalPedestalsGPUESProducer = cms.ESProducer( "EcalPedestalsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalPulseCovariancesGPUESProducer = cms.ESProducer( "EcalPulseCovariancesGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalPulseShapesGPUESProducer = cms.ESProducer( "EcalPulseShapesGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalRechitADCToGeVConstantGPUESProducer = cms.ESProducer( "EcalRechitADCToGeVConstantGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalRechitChannelStatusGPUESProducer = cms.ESProducer( "EcalRechitChannelStatusGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalSamplesCorrelationGPUESProducer = cms.ESProducer( "EcalSamplesCorrelationGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   flagMask = cms.PSet( 
     kBad = cms.vstring( 'kFaultyHardware',
@@ -3234,7 +3338,52 @@ process.ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   ),
   timeThresh = cms.double( 2.0 )
 )
+process.ecalTimeBiasCorrectionsGPUESProducer = cms.ESProducer( "EcalTimeBiasCorrectionsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.ecalTimeCalibConstantsGPUESProducer = cms.ESProducer( "EcalTimeCalibConstantsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.hcalChannelPropertiesESProd = cms.ESProducer( "HcalChannelPropertiesEP" )
+process.hcalChannelQualityGPUESProducer = cms.ESProducer( "HcalChannelQualityGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalConvertedEffectivePedestalWidthsGPUESProducer = cms.ESProducer( "HcalConvertedEffectivePedestalWidthsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label0 = cms.string( "withTopoEff" ),
+  label1 = cms.string( "withTopoEff" ),
+  label2 = cms.string( "" ),
+  label3 = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalConvertedEffectivePedestalsGPUESProducer = cms.ESProducer( "HcalConvertedEffectivePedestalsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label0 = cms.string( "withTopoEff" ),
+  label1 = cms.string( "" ),
+  label2 = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalConvertedPedestalWidthsGPUESProducer = cms.ESProducer( "HcalConvertedPedestalWidthsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label0 = cms.string( "" ),
+  label1 = cms.string( "" ),
+  label2 = cms.string( "" ),
+  label3 = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalConvertedPedestalsGPUESProducer = cms.ESProducer( "HcalConvertedPedestalsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label0 = cms.string( "" ),
+  label1 = cms.string( "" ),
+  label2 = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
 process.hcalDDDRecConstants = cms.ESProducer( "HcalDDDRecConstantsESModule",
   appendToDataLabel = cms.string( "" )
 )
@@ -3250,6 +3399,36 @@ process.hcalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False ),
   includeGEM = cms.bool( False ),
   includeME0 = cms.bool( False )
+)
+process.hcalElectronicsMappingGPUESProducer = cms.ESProducer( "HcalElectronicsMappingGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalGainWidthsGPUESProducer = cms.ESProducer( "HcalGainWidthsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalGainsGPUESProducer = cms.ESProducer( "HcalGainsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalLUTCorrsGPUESProducer = cms.ESProducer( "HcalLUTCorrsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalQIECodersGPUESProducer = cms.ESProducer( "HcalQIECodersGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalQIETypesGPUESProducer = cms.ESProducer( "HcalQIETypesGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
 )
 process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   phase = cms.uint32( 1 ),
@@ -3298,6 +3477,31 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
   DropChannelStatusBits = cms.vstring( 'HcalCellMask',
     'HcalCellOff',
     'HcalCellDead' ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalRecoParamsWithPulseShapesGPUESProducer = cms.ESProducer( "HcalRecoParamsWithPulseShapesGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalRespCorrsGPUESProducer = cms.ESProducer( "HcalRespCorrsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalSiPMCharacteristicsGPUESProducer = cms.ESProducer( "HcalSiPMCharacteristicsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalSiPMParametersGPUESProducer = cms.ESProducer( "HcalSiPMParametersGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hcalTimeCorrsGPUESProducer = cms.ESProducer( "HcalTimeCorrsGPUESProducer",
+  ComponentName = cms.string( "" ),
+  label = cms.string( "" ),
   appendToDataLabel = cms.string( "" )
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
@@ -4695,8 +4899,17 @@ process.preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeGEM = cms.bool( False ),
   includeME0 = cms.bool( False )
 )
+process.siPixelGainCalibrationForHLTGPU = cms.ESProducer( "SiPixelGainCalibrationForHLTGPUESProducer",
+  appendToDataLabel = cms.string( "" )
+)
 process.siPixelQualityESProducer = cms.ESProducer( "SiPixelQualityESProducer",
   siPixelQualityLabel = cms.string( "" )
+)
+process.siPixelROCsStatusAndMappingWrapperESProducer = cms.ESProducer( "SiPixelROCsStatusAndMappingWrapperESProducer",
+  ComponentName = cms.string( "" ),
+  CablingMapLabel = cms.string( "" ),
+  UseQualityInfo = cms.bool( False ),
+  appendToDataLabel = cms.string( "" )
 )
 process.siPixelTemplateDBObjectESProducer = cms.ESProducer( "SiPixelTemplateDBObjectESProducer" )
 process.siStripBackPlaneCorrectionDepESProducer = cms.ESProducer( "SiStripBackPlaneCorrectionDepESProducer",
@@ -4833,11 +5046,6 @@ process.ThroughputService = cms.Service( "ThroughputService",
     timeResolution = cms.untracked.double( 5.828 )
 )
 
-process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
-    verbose = cms.untracked.bool( False ),
-    toGet = cms.VPSet( 
-    )
-)
 process.hltGetRaw = cms.EDAnalyzer( "HLTGetRaw",
     RawDataCollection = cms.InputTag( "rawDataCollector" )
 )
@@ -4928,6 +5136,31 @@ process.hltPreZeroBiasBeamspot = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
+process.hltEcalDetIdToBeRecovered = cms.EDProducer( "EcalDetIdToBeRecoveredProducer",
+    ebIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
+    ebDetIdToBeRecovered = cms.string( "ebDetId" ),
+    integrityTTIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityTTIdErrors' ),
+    eeIntegrityGainErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
+    ebFEToBeRecovered = cms.string( "ebFE" ),
+    ebIntegrityGainErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
+    eeDetIdToBeRecovered = cms.string( "eeDetId" ),
+    eeIntegrityGainSwitchErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
+    eeIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
+    ebIntegrityGainSwitchErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
+    ebSrFlagCollection = cms.InputTag( "hltEcalDigis" ),
+    eeFEToBeRecovered = cms.string( "eeFE" ),
+    integrityBlockSizeErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityBlockSizeErrors' ),
+    eeSrFlagCollection = cms.InputTag( "hltEcalDigis" )
+)
+process.hltEcalDigisGPU = cms.EDProducer( "EcalRawToDigiGPU",
+    InputLabel = cms.InputTag( "rawDataCollector" ),
+    maxFedSize = cms.uint32( 10240 ),
+    FEDs = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
+    maxChannelsEB = cms.uint32( 61200 ),
+    maxChannelsEE = cms.uint32( 14648 ),
+    digisLabelEB = cms.string( "ebDigis" ),
+    digisLabelEE = cms.string( "eeDigis" )
+)
 process.hltEcalDigisLegacy = cms.EDProducer( "EcalRawToDigi",
     tccUnpacking = cms.bool( True ),
     FedLabel = cms.InputTag( "listfeds" ),
@@ -4948,21 +5181,69 @@ process.hltEcalDigisLegacy = cms.EDProducer( "EcalRawToDigi",
     headerUnpacking = cms.bool( True ),
     memUnpacking = cms.bool( True )
 )
-process.hltEcalDetIdToBeRecovered = cms.EDProducer( "EcalDetIdToBeRecoveredProducer",
-    ebIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
-    ebDetIdToBeRecovered = cms.string( "ebDetId" ),
-    integrityTTIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityTTIdErrors' ),
-    eeIntegrityGainErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
-    ebFEToBeRecovered = cms.string( "ebFE" ),
-    ebIntegrityGainErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
-    eeDetIdToBeRecovered = cms.string( "eeDetId" ),
-    eeIntegrityGainSwitchErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
-    eeIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
-    ebIntegrityGainSwitchErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
-    ebSrFlagCollection = cms.InputTag( "hltEcalDigis" ),
-    eeFEToBeRecovered = cms.string( "eeFE" ),
-    integrityBlockSizeErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityBlockSizeErrors' ),
-    eeSrFlagCollection = cms.InputTag( "hltEcalDigis" )
+process.hltEcalUncalibRecHitGPU = cms.EDProducer( "EcalUncalibRecHitProducerGPU",
+    digisLabelEB = cms.InputTag( 'hltEcalDigisGPU','ebDigis' ),
+    digisLabelEE = cms.InputTag( 'hltEcalDigisGPU','eeDigis' ),
+    recHitsLabelEB = cms.string( "EcalUncalibRecHitsEB" ),
+    recHitsLabelEE = cms.string( "EcalUncalibRecHitsEE" ),
+    EBtimeFitLimits_Lower = cms.double( 0.2 ),
+    EBtimeFitLimits_Upper = cms.double( 1.4 ),
+    EEtimeFitLimits_Lower = cms.double( 0.2 ),
+    EEtimeFitLimits_Upper = cms.double( 1.4 ),
+    EBtimeConstantTerm = cms.double( 0.6 ),
+    EEtimeConstantTerm = cms.double( 1.0 ),
+    EBtimeNconst = cms.double( 28.5 ),
+    EEtimeNconst = cms.double( 31.8 ),
+    outOfTimeThresholdGain12pEB = cms.double( 1000.0 ),
+    outOfTimeThresholdGain12mEB = cms.double( 1000.0 ),
+    outOfTimeThresholdGain61pEB = cms.double( 1000.0 ),
+    outOfTimeThresholdGain61mEB = cms.double( 1000.0 ),
+    outOfTimeThresholdGain12pEE = cms.double( 1000.0 ),
+    outOfTimeThresholdGain12mEE = cms.double( 1000.0 ),
+    outOfTimeThresholdGain61pEE = cms.double( 1000.0 ),
+    outOfTimeThresholdGain61mEE = cms.double( 1000.0 ),
+    amplitudeThresholdEB = cms.double( 10.0 ),
+    amplitudeThresholdEE = cms.double( 10.0 ),
+    maxNumberHitsEB = cms.uint32( 61200 ),
+    maxNumberHitsEE = cms.uint32( 14648 ),
+    kernelMinimizeThreads = cms.untracked.vuint32( 32, 1, 1 ),
+    shouldRunTimingComputation = cms.bool( True )
+)
+process.hltEcalUncalibRecHitSoA = cms.EDProducer( "EcalCPUUncalibRecHitProducer",
+    recHitsInLabelEB = cms.InputTag( 'hltEcalUncalibRecHitGPU','EcalUncalibRecHitsEB' ),
+    recHitsInLabelEE = cms.InputTag( 'hltEcalUncalibRecHitGPU','EcalUncalibRecHitsEE' ),
+    recHitsOutLabelEB = cms.string( "EcalUncalibRecHitsEB" ),
+    recHitsOutLabelEE = cms.string( "EcalUncalibRecHitsEE" ),
+    containsTimingInformation = cms.bool( True )
+)
+process.hltHbherecoFromGPU = cms.EDProducer( "HcalCPURecHitsProducer",
+    recHitsM0LabelIn = cms.InputTag( "hltHbherecoGPU" ),
+    recHitsM0LabelOut = cms.string( "" ),
+    recHitsLegacyLabelOut = cms.string( "" ),
+    produceSoA = cms.bool( True ),
+    produceLegacy = cms.bool( True )
+)
+process.hltHbherecoGPU = cms.EDProducer( "HBHERecHitProducerGPU",
+    maxChannels = cms.uint32( 10000 ),
+    maxTimeSamples = cms.uint32( 10 ),
+    kprep1dChannelsPerBlock = cms.uint32( 32 ),
+    digisLabelF01HE = cms.InputTag( "hltHcalDigisGPU" ),
+    digisLabelF5HB = cms.InputTag( "hltHcalDigisGPU" ),
+    digisLabelF3HB = cms.InputTag( "hltHcalDigisGPU" ),
+    recHitsLabelM0HBHE = cms.string( "" ),
+    sipmQTSShift = cms.int32( 0 ),
+    sipmQNTStoSum = cms.int32( 3 ),
+    firstSampleShift = cms.int32( 0 ),
+    useEffectivePedestals = cms.bool( True ),
+    meanTime = cms.double( 0.0 ),
+    timeSigmaSiPM = cms.double( 2.5 ),
+    timeSigmaHPD = cms.double( 5.0 ),
+    ts4Thresh = cms.double( 0.0 ),
+    applyTimeSlew = cms.bool( True ),
+    tzeroTimeSlewParameters = cms.vdouble( 23.960177, 11.977461, 9.109694 ),
+    slopeTimeSlewParameters = cms.vdouble( -3.178648, -1.5610227, -1.075824 ),
+    tmaxTimeSlewParameters = cms.vdouble( 16.0, 10.0, 6.25 ),
+    kernelMinimizeThreads = cms.vuint32( 16, 1, 1 )
 )
 process.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     HcalFirstFED = cms.untracked.int32( 700 ),
@@ -4984,6 +5265,16 @@ process.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     ExpectedOrbitMessageTime = cms.untracked.int32( -1 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     ElectronicsMap = cms.string( "" )
+)
+process.hltHcalDigisGPU = cms.EDProducer( "HcalDigisProducerGPU",
+    hbheDigisLabel = cms.InputTag( "hltHcalDigis" ),
+    qie11DigiLabel = cms.InputTag( "hltHcalDigis" ),
+    digisLabelF01HE = cms.string( "" ),
+    digisLabelF5HB = cms.string( "" ),
+    digisLabelF3HB = cms.string( "" ),
+    maxChannelsF01HE = cms.uint32( 10000 ),
+    maxChannelsF5HB = cms.uint32( 10000 ),
+    maxChannelsF3HB = cms.uint32( 10000 )
 )
 process.hltHfprereco = cms.EDProducer( "HFPreReconstructor",
     digiLabel = cms.InputTag( "hltHcalDigis" ),
@@ -5042,15 +5333,15 @@ process.hltHfreco = cms.EDProducer( "HFPhase1Reconstructor",
       HcalAcceptSeverityLevel = cms.int32( 9 )
     ),
     HFStripFilter = cms.PSet( 
-      timeMax = cms.double( 6.0 ),
       seedHitIetaMax = cms.int32( 35 ),
-      gap = cms.int32( 2 ),
       verboseLevel = cms.untracked.int32( 10 ),
-      wedgeCut = cms.double( 0.05 ),
-      stripThreshold = cms.double( 40.0 ),
-      maxStripTime = cms.double( 10.0 ),
       maxThreshold = cms.double( 100.0 ),
-      lstrips = cms.int32( 2 )
+      stripThreshold = cms.double( 40.0 ),
+      wedgeCut = cms.double( 0.05 ),
+      lstrips = cms.int32( 2 ),
+      maxStripTime = cms.double( 10.0 ),
+      gap = cms.int32( 2 ),
+      timeMax = cms.double( 6.0 )
     )
 )
 process.hltHoreco = cms.EDProducer( "HcalHitReconstructor",
@@ -5795,17 +6086,23 @@ process.hltL2Muons = cms.EDProducer( "L2MuonProducer",
 process.hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
     InputObjects = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 )
-process.hltSiPixelDigisLegacy = cms.EDProducer( "SiPixelRawToDigi",
+process.hltOnlineBeamSpotToCUDA = cms.EDProducer( "BeamSpotToCUDA",
+    src = cms.InputTag( "hltOnlineBeamSpot" )
+)
+process.hltSiPixelClustersCUDA = cms.EDProducer( "SiPixelRawToClusterCUDA",
+    isRun2 = cms.bool( False ),
     IncludeErrors = cms.bool( True ),
     UseQualityInfo = cms.bool( False ),
-    ErrorList = cms.vint32( 29 ),
-    UserErrorList = cms.vint32(  ),
+    MaxFEDWords = cms.uint32( 300000 ),
+    clusterThreshold_layer1 = cms.int32( 4000 ),
+    clusterThreshold_otherLayers = cms.int32( 4000 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
-    UsePilotBlade = cms.bool( False ),
-    UsePhase1 = cms.bool( True ),
-    CablingMapLabel = cms.string( "" ),
-    SiPixelQualityLabel = cms.string( "" )
+    CablingMapLabel = cms.string( "" )
+)
+process.hltSiPixelClustersCache = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
+    src = cms.InputTag( "hltSiPixelClusters" ),
+    onDemand = cms.bool( False )
 )
 process.hltSiPixelClustersLegacy = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigisLegacy" ),
@@ -5828,9 +6125,23 @@ process.hltSiPixelClustersLegacy = cms.EDProducer( "SiPixelClusterProducer",
     Phase2DigiBaseline = cms.double( 1200.0 ),
     Phase2KinkADC = cms.int32( 8 )
 )
-process.hltSiPixelClustersCache = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
-    src = cms.InputTag( "hltSiPixelClusters" ),
-    onDemand = cms.bool( False )
+process.hltSiPixelDigiErrorsSoA = cms.EDProducer( "SiPixelDigiErrorsSoAFromCUDA",
+    src = cms.InputTag( "hltSiPixelClustersCUDA" )
+)
+process.hltSiPixelDigisLegacy = cms.EDProducer( "SiPixelRawToDigi",
+    IncludeErrors = cms.bool( True ),
+    UseQualityInfo = cms.bool( False ),
+    ErrorList = cms.vint32( 29 ),
+    UserErrorList = cms.vint32(  ),
+    InputLabel = cms.InputTag( "rawDataCollector" ),
+    Regions = cms.PSet(  ),
+    UsePilotBlade = cms.bool( False ),
+    UsePhase1 = cms.bool( True ),
+    CablingMapLabel = cms.string( "" ),
+    SiPixelQualityLabel = cms.string( "" )
+)
+process.hltSiPixelDigisSoA = cms.EDProducer( "SiPixelDigisSoAFromCUDA",
+    src = cms.InputTag( "hltSiPixelClustersCUDA" )
 )
 process.hltSiPixelRecHitSoA = cms.EDProducer( "SiPixelRecHitSoAFromLegacy",
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -5838,6 +6149,11 @@ process.hltSiPixelRecHitSoA = cms.EDProducer( "SiPixelRecHitSoAFromLegacy",
     CPE = cms.string( "PixelCPEFast" ),
     convertToLegacy = cms.bool( True ),
     isPhase2 = cms.bool( False )
+)
+process.hltSiPixelRecHitsCUDA = cms.EDProducer( "SiPixelRecHitCUDA",
+    beamSpot = cms.InputTag( "hltOnlineBeamSpotToCUDA" ),
+    src = cms.InputTag( "hltSiPixelClustersCUDA" ),
+    CPE = cms.string( "PixelCPEFast" )
 )
 process.hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProducer",
     ProductLabel = cms.InputTag( "rawDataCollector" )
@@ -6143,6 +6459,50 @@ process.hltPixelTracksFilter = cms.EDProducer( "PixelTrackFilterByKinematicsProd
     nSigmaTipMaxTolerance = cms.double( 0.0 ),
     chi2 = cms.double( 1000.0 )
 )
+process.hltPixelTracks = cms.EDProducer( "PixelTrackProducerFromSoA",
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    trackSrc = cms.InputTag( "hltPixelTracksSoA" ),
+    pixelRecHitLegacySrc = cms.InputTag( "hltSiPixelRecHits" ),
+    minNumberOfHits = cms.int32( 0 ),
+    minQuality = cms.string( "loose" )
+)
+process.hltPixelTracksCUDA = cms.EDProducer( "CAHitNtupletCUDA",
+    onGPU = cms.bool( True ),
+    pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsCUDA" ),
+    ptmin = cms.double( 0.899999976158 ),
+    CAThetaCutBarrel = cms.double( 0.00200000009499 ),
+    CAThetaCutForward = cms.double( 0.00300000002608 ),
+    hardCurvCut = cms.double( 0.0328407224959 ),
+    dcaCutInnerTriplet = cms.double( 0.15000000596 ),
+    dcaCutOuterTriplet = cms.double( 0.25 ),
+    earlyFishbone = cms.bool( True ),
+    lateFishbone = cms.bool( False ),
+    idealConditions = cms.bool( False ),
+    fillStatistics = cms.bool( False ),
+    minHitsPerNtuplet = cms.uint32( 3 ),
+    maxNumberOfDoublets = cms.uint32( 524288 ),
+    minHitsForSharingCut = cms.uint32( 10 ),
+    includeJumpingForwardDoublets = cms.bool( True ),
+    fitNas4 = cms.bool( False ),
+    doClusterCut = cms.bool( True ),
+    doZ0Cut = cms.bool( True ),
+    doPtCut = cms.bool( True ),
+    useRiemannFit = cms.bool( False ),
+    doSharedHitCut = cms.bool( True ),
+    dupPassThrough = cms.bool( False ),
+    useSimpleTripletCleaner = cms.bool( True ),
+    trackQualityCuts = cms.PSet( 
+      chi2MaxPt = cms.double( 10.0 ),
+      tripletMaxTip = cms.double( 0.3 ),
+      chi2Scale = cms.double( 8.0 ),
+      quadrupletMaxTip = cms.double( 0.5 ),
+      quadrupletMinPt = cms.double( 0.3 ),
+      quadrupletMaxZip = cms.double( 12.0 ),
+      tripletMaxZip = cms.double( 12.0 ),
+      tripletMinPt = cms.double( 0.5 ),
+      chi2Coeff = cms.vdouble( 0.9, 1.8 )
+    )
+)
 process.hltPixelTracksTrackingRegions = cms.EDProducer( "GlobalTrackingRegionFromBeamSpotEDProducer",
     RegionPSet = cms.PSet( 
       nSigmaZ = cms.double( 4.0 ),
@@ -6152,17 +6512,24 @@ process.hltPixelTracksTrackingRegions = cms.EDProducer( "GlobalTrackingRegionFro
       precise = cms.bool( True )
     )
 )
-process.hltPixelTracks = cms.EDProducer( "PixelTrackProducerFromSoA",
-    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    trackSrc = cms.InputTag( "hltPixelTracksSoA" ),
-    pixelRecHitLegacySrc = cms.InputTag( "hltSiPixelRecHits" ),
-    minNumberOfHits = cms.int32( 0 ),
-    minQuality = cms.string( "loose" )
-)
 process.hltPixelVertices = cms.EDProducer( "PixelVertexProducerFromSoA",
     TrackCollection = cms.InputTag( "hltPixelTracks" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     src = cms.InputTag( "hltPixelVerticesSoA" )
+)
+process.hltPixelVerticesCUDA = cms.EDProducer( "PixelVertexProducerCUDA",
+    onGPU = cms.bool( True ),
+    oneKernel = cms.bool( True ),
+    useDensity = cms.bool( True ),
+    useDBSCAN = cms.bool( False ),
+    useIterative = cms.bool( False ),
+    minT = cms.int32( 2 ),
+    eps = cms.double( 0.07 ),
+    errmax = cms.double( 0.01 ),
+    chi2max = cms.double( 9.0 ),
+    PtMin = cms.double( 0.5 ),
+    PtMax = cms.double( 75.0 ),
+    pixelTrackSrc = cms.InputTag( "hltPixelTracksCUDA" )
 )
 process.hltTrimmedPixelVertices = cms.EDProducer( "PixelVertexCollectionTrimmer",
     src = cms.InputTag( "hltPixelVertices" ),
@@ -8548,12 +8915,22 @@ process.hltPreDatasetZeroBias = cms.EDFilter( "HLTPrescaler",
 )
 
 process.statusOnGPU = SwitchProducerCUDA(
-   cpu = cms.EDProducer( "BooleanProducer",
+   cuda = cms.EDProducer( "BooleanProducer",
+       value = cms.bool( True )
+   ),
+  cpu = cms.EDProducer( "BooleanProducer",
        value = cms.bool( False )
    ),
  )
 process.hltEcalDigis = SwitchProducerCUDA(
-   cpu = cms.EDAlias(
+   cuda = cms.EDProducer( "EcalCPUDigisProducer",
+       digisInLabelEB = cms.InputTag( 'hltEcalDigisGPU','ebDigis' ),
+       digisInLabelEE = cms.InputTag( 'hltEcalDigisGPU','eeDigis' ),
+       digisOutLabelEB = cms.string( "ebDigis" ),
+       digisOutLabelEE = cms.string( "eeDigis" ),
+       produceDummyIntegrityCollections = cms.bool( True )
+   ),
+  cpu = cms.EDAlias(
        hltEcalDigisLegacy = cms.VPSet( 
          cms.PSet(  type = cms.string( "EBDigiCollection" )         ),
          cms.PSet(  type = cms.string( "EEDigiCollection" )         ),
@@ -8577,58 +8954,6 @@ process.hltEcalDigis = SwitchProducerCUDA(
          cms.PSet(  type = cms.string( "EcalTriggerPrimitiveDigisSorted" ),
            fromProductInstance = cms.string( "EcalTriggerPrimitives" )
          )
-       )
-   ),
- )
-process.hltEcalUncalibRecHit = SwitchProducerCUDA(
-   cpu = cms.EDProducer( "EcalUncalibRecHitProducer",
-       EBdigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
-       EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
-       EEdigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
-       EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-       algo = cms.string( "EcalUncalibRecHitWorkerMultiFit" ),
-       algoPSet = cms.PSet( 
-         EBtimeFitLimits_Upper = cms.double( 1.4 ),
-         EEtimeFitLimits_Lower = cms.double( 0.2 ),
-         timealgo = cms.string( "RatioMethod" ),
-         EBtimeNconst = cms.double( 28.5 ),
-         prefitMaxChiSqEE = cms.double( 10.0 ),
-         outOfTimeThresholdGain12mEB = cms.double( 1000.0 ),
-         outOfTimeThresholdGain12mEE = cms.double( 1000.0 ),
-         EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
-         prefitMaxChiSqEB = cms.double( 25.0 ),
-         simplifiedNoiseModelForGainSwitch = cms.bool( True ),
-         EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
-         selectiveBadSampleCriteriaEB = cms.bool( False ),
-         dynamicPedestalsEB = cms.bool( False ),
-         useLumiInfoRunHeader = cms.bool( False ),
-         EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
-         doPrefitEE = cms.bool( False ),
-         dynamicPedestalsEE = cms.bool( False ),
-         selectiveBadSampleCriteriaEE = cms.bool( False ),
-         outOfTimeThresholdGain61pEE = cms.double( 1000.0 ),
-         outOfTimeThresholdGain61pEB = cms.double( 1000.0 ),
-         activeBXs = cms.vint32( -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 ),
-         doPrefitEB = cms.bool( False ),
-         addPedestalUncertaintyEE = cms.double( 0.0 ),
-         addPedestalUncertaintyEB = cms.double( 0.0 ),
-         gainSwitchUseMaxSampleEB = cms.bool( True ),
-         EEtimeNconst = cms.double( 31.8 ),
-         EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
-         outOfTimeThresholdGain12pEB = cms.double( 1000.0 ),
-         gainSwitchUseMaxSampleEE = cms.bool( False ),
-         mitigateBadSamplesEB = cms.bool( False ),
-         outOfTimeThresholdGain12pEE = cms.double( 1000.0 ),
-         ampErrorCalculation = cms.bool( False ),
-         mitigateBadSamplesEE = cms.bool( False ),
-         amplitudeThresholdEB = cms.double( 10.0 ),
-         amplitudeThresholdEE = cms.double( 10.0 ),
-         EBtimeFitLimits_Lower = cms.double( 0.2 ),
-         EEtimeFitLimits_Upper = cms.double( 1.4 ),
-         outOfTimeThresholdGain61mEE = cms.double( 1000.0 ),
-         EEtimeConstantTerm = cms.double( 1.0 ),
-         EBtimeConstantTerm = cms.double( 0.6 ),
-         outOfTimeThresholdGain61mEB = cms.double( 1000.0 )
        )
    ),
  )
@@ -8699,6 +9024,131 @@ process.hltEcalRecHit = SwitchProducerCUDA(
        logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
        recoverEEIsolatedChannels = cms.bool( False ),
        skipTimeCalib = cms.bool( False )
+   ),
+  cuda = cms.EDProducer( "EcalRecHitProducer",
+       recoverEEVFE = cms.bool( False ),
+       EErechitCollection = cms.string( "EcalRecHitsEE" ),
+       recoverEBIsolatedChannels = cms.bool( False ),
+       recoverEBVFE = cms.bool( False ),
+       laserCorrection = cms.bool( True ),
+       EBLaserMIN = cms.double( 0.5 ),
+       killDeadChannels = cms.bool( True ),
+       dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
+       EEuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEE' ),
+       dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
+       EELaserMIN = cms.double( 0.5 ),
+       ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
+       cleaningConfig = cms.PSet( 
+         cThreshold_endcap = cms.double( 15.0 ),
+         tightenCrack_e1_double = cms.double( 2.0 ),
+         cThreshold_barrel = cms.double( 4.0 ),
+         e6e2thresh = cms.double( 0.04 ),
+         e4e1Threshold_barrel = cms.double( 0.08 ),
+         e4e1Threshold_endcap = cms.double( 0.3 ),
+         tightenCrack_e4e1_single = cms.double( 3.0 ),
+         cThreshold_double = cms.double( 10.0 ),
+         e4e1_b_barrel = cms.double( -0.024 ),
+         tightenCrack_e6e2_double = cms.double( 3.0 ),
+         e4e1_a_barrel = cms.double( 0.04 ),
+         tightenCrack_e1_single = cms.double( 2.0 ),
+         e4e1_a_endcap = cms.double( 0.02 ),
+         e4e1_b_endcap = cms.double( -0.0125 ),
+         ignoreOutOfTimeThresh = cms.double( 1.0E9 )
+       ),
+       logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
+       eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
+       recoverEBFE = cms.bool( True ),
+       eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
+       ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
+       singleChannelRecoveryThreshold = cms.double( 8.0 ),
+       sum8ChannelRecoveryThreshold = cms.double( 0.0 ),
+       bdtWeightFileNoCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_noCracks_ZskimData2017_v1.xml" ),
+       bdtWeightFileCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_onlyCracks_ZskimData2017_v1.xml" ),
+       ChannelStatusToBeExcluded = cms.vstring(  ),
+       EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+       triggerPrimitiveDigiCollection = cms.InputTag( "unused" ),
+       recoverEEFE = cms.bool( True ),
+       singleChannelRecoveryMethod = cms.string( "NeuralNetworks" ),
+       EBLaserMAX = cms.double( 3.0 ),
+       flagsMapDBReco = cms.PSet( 
+         kDead = cms.vstring( 'kNoDataNoTP' ),
+         kGood = cms.vstring( 'kOk',
+           'kDAC',
+           'kNoLaser',
+           'kNoisy' ),
+         kTowerRecovered = cms.vstring( 'kDeadFE' ),
+         kNoisy = cms.vstring( 'kNNoisy',
+           'kFixedG6',
+           'kFixedG1' ),
+         kNeighboursRecovered = cms.vstring( 'kFixedG0',
+           'kNonRespondingIsolated',
+           'kDeadVFE' )
+       ),
+       EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
+       algoRecover = cms.string( "EcalRecHitWorkerRecover" ),
+       algo = cms.string( "EcalRecHitWorkerSimple" ),
+       EELaserMAX = cms.double( 8.0 ),
+       logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
+       recoverEEIsolatedChannels = cms.bool( False ),
+       skipTimeCalib = cms.bool( False )
+   ),
+ )
+process.hltEcalUncalibRecHit = SwitchProducerCUDA(
+   cpu = cms.EDProducer( "EcalUncalibRecHitProducer",
+       EBdigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
+       EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
+       EEdigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
+       EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
+       algo = cms.string( "EcalUncalibRecHitWorkerMultiFit" ),
+       algoPSet = cms.PSet( 
+         EBtimeFitLimits_Upper = cms.double( 1.4 ),
+         EEtimeFitLimits_Lower = cms.double( 0.2 ),
+         timealgo = cms.string( "RatioMethod" ),
+         EBtimeNconst = cms.double( 28.5 ),
+         prefitMaxChiSqEE = cms.double( 10.0 ),
+         outOfTimeThresholdGain12mEB = cms.double( 1000.0 ),
+         outOfTimeThresholdGain12mEE = cms.double( 1000.0 ),
+         EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
+         prefitMaxChiSqEB = cms.double( 25.0 ),
+         simplifiedNoiseModelForGainSwitch = cms.bool( True ),
+         EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
+         selectiveBadSampleCriteriaEB = cms.bool( False ),
+         dynamicPedestalsEB = cms.bool( False ),
+         useLumiInfoRunHeader = cms.bool( False ),
+         EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
+         doPrefitEE = cms.bool( False ),
+         dynamicPedestalsEE = cms.bool( False ),
+         selectiveBadSampleCriteriaEE = cms.bool( False ),
+         outOfTimeThresholdGain61pEE = cms.double( 1000.0 ),
+         outOfTimeThresholdGain61pEB = cms.double( 1000.0 ),
+         activeBXs = cms.vint32( -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 ),
+         doPrefitEB = cms.bool( False ),
+         addPedestalUncertaintyEE = cms.double( 0.0 ),
+         addPedestalUncertaintyEB = cms.double( 0.0 ),
+         gainSwitchUseMaxSampleEB = cms.bool( True ),
+         EEtimeNconst = cms.double( 31.8 ),
+         EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
+         outOfTimeThresholdGain12pEB = cms.double( 1000.0 ),
+         gainSwitchUseMaxSampleEE = cms.bool( False ),
+         mitigateBadSamplesEB = cms.bool( False ),
+         outOfTimeThresholdGain12pEE = cms.double( 1000.0 ),
+         ampErrorCalculation = cms.bool( False ),
+         mitigateBadSamplesEE = cms.bool( False ),
+         amplitudeThresholdEB = cms.double( 10.0 ),
+         amplitudeThresholdEE = cms.double( 10.0 ),
+         EBtimeFitLimits_Lower = cms.double( 0.2 ),
+         EEtimeFitLimits_Upper = cms.double( 1.4 ),
+         outOfTimeThresholdGain61mEE = cms.double( 1000.0 ),
+         EEtimeConstantTerm = cms.double( 1.0 ),
+         EBtimeConstantTerm = cms.double( 0.6 ),
+         outOfTimeThresholdGain61mEB = cms.double( 1000.0 )
+       )
+   ),
+  cuda = cms.EDProducer( "EcalUncalibRecHitConvertGPU2CPUFormat",
+       recHitsLabelGPUEB = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEB' ),
+       recHitsLabelGPUEE = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEE' ),
+       recHitsLabelCPUEB = cms.string( "EcalUncalibRecHitsEB" ),
+       recHitsLabelCPUEE = cms.string( "EcalUncalibRecHitsEE" )
    ),
  )
 process.hltHbhereco = SwitchProducerCUDA(
@@ -8807,13 +9257,9 @@ process.hltHbhereco = SwitchProducerCUDA(
        ),
        pulseShapeParametersQIE11 = cms.PSet(  )
    ),
- )
-process.hltSiPixelDigis = SwitchProducerCUDA(
-   cpu = cms.EDAlias(
-       hltSiPixelDigisLegacy = cms.VPSet( 
-         cms.PSet(  type = cms.string( "DetIdedmEDCollection" )         ),
-         cms.PSet(  type = cms.string( "SiPixelRawDataErroredmDetSetVector" )         ),
-         cms.PSet(  type = cms.string( "PixelFEDChanneledmNewDetSetVector" )         )
+  cuda = cms.EDAlias(
+       hltHbherecoFromGPU = cms.VPSet( 
+         cms.PSet(  type = cms.string( "HBHERecHitsSorted" )         )
        )
    ),
  )
@@ -8823,9 +9269,37 @@ process.hltSiPixelClusters = SwitchProducerCUDA(
          cms.PSet(  type = cms.string( "SiPixelClusteredmNewDetSetVector" )         )
        )
    ),
+  cuda = cms.EDProducer( "SiPixelDigisClustersFromSoA",
+       src = cms.InputTag( "hltSiPixelDigisSoA" ),
+       clusterThreshold_layer1 = cms.int32( 4000 ),
+       clusterThreshold_otherLayers = cms.int32( 4000 ),
+       produceDigis = cms.bool( False ),
+       storeDigis = cms.bool( False ),
+       isPhase2 = cms.bool( False )
+   ),
+ )
+process.hltSiPixelDigis = SwitchProducerCUDA(
+   cuda = cms.EDProducer( "SiPixelDigiErrorsFromSoA",
+       digiErrorSoASrc = cms.InputTag( "hltSiPixelDigiErrorsSoA" ),
+       CablingMapLabel = cms.string( "" ),
+       UsePhase1 = cms.bool( True ),
+       ErrorList = cms.vint32( 29 ),
+       UserErrorList = cms.vint32( 40 )
+   ),
+  cpu = cms.EDAlias(
+       hltSiPixelDigisLegacy = cms.VPSet( 
+         cms.PSet(  type = cms.string( "DetIdedmEDCollection" )         ),
+         cms.PSet(  type = cms.string( "SiPixelRawDataErroredmDetSetVector" )         ),
+         cms.PSet(  type = cms.string( "PixelFEDChanneledmNewDetSetVector" )         )
+       )
+   ),
  )
 process.hltSiPixelRecHits = SwitchProducerCUDA(
-   cpu = cms.EDAlias(
+   cuda = cms.EDProducer( "SiPixelRecHitFromCUDA",
+       pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsCUDA" ),
+       src = cms.InputTag( "hltSiPixelClusters" )
+   ),
+  cpu = cms.EDAlias(
        hltSiPixelRecHitSoA = cms.VPSet( 
          cms.PSet(  type = cms.string( "SiPixelRecHitedmNewDetSetVector" )         ),
          cms.PSet(  type = cms.string( "uintAsHostProduct" )         )
@@ -8870,6 +9344,9 @@ process.hltPixelTracksSoA = SwitchProducerCUDA(
          chi2Coeff = cms.vdouble( 0.9, 1.8 )
        )
    ),
+  cuda = cms.EDProducer( "PixelTrackSoAFromCUDA",
+       src = cms.InputTag( "hltPixelTracksCUDA" )
+   ),
  )
 process.hltPixelVerticesSoA = SwitchProducerCUDA(
    cpu = cms.EDProducer( "PixelVertexProducerCUDA",
@@ -8885,6 +9362,9 @@ process.hltPixelVerticesSoA = SwitchProducerCUDA(
        PtMin = cms.double( 0.5 ),
        PtMax = cms.double( 75.0 ),
        pixelTrackSrc = cms.InputTag( "hltPixelTracksSoA" )
+   ),
+  cuda = cms.EDProducer( "PixelVertexSoAFromCUDA",
+       src = cms.InputTag( "hltPixelVerticesCUDA" )
    ),
  )
 
@@ -9233,22 +9713,29 @@ process.hltOutputPhysicsHIZeroBias6 = cms.OutputModule( "PoolOutputModule",
       'keep triggerTriggerEvent_*_*_*' )
 )
 
+process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask = cms.Task( process.hltEcalDetIdToBeRecovered , process.hltEcalDigis , process.hltEcalDigisGPU , process.hltEcalDigisLegacy , process.hltEcalRecHit , process.hltEcalUncalibRecHit , process.hltEcalUncalibRecHitGPU , process.hltEcalUncalibRecHitSoA )
+process.HLTDoLocalHcalTask = cms.Task( process.hltHbhereco , process.hltHbherecoFromGPU , process.hltHbherecoGPU , process.hltHcalDigis , process.hltHcalDigisGPU , process.hltHfprereco , process.hltHfreco , process.hltHoreco )
+process.HLTDoLocalPixelTask = cms.Task( process.hltOnlineBeamSpotToCUDA , process.hltSiPixelClusters , process.hltSiPixelClustersCUDA , process.hltSiPixelClustersCache , process.hltSiPixelClustersLegacy , process.hltSiPixelDigiErrorsSoA , process.hltSiPixelDigis , process.hltSiPixelDigisLegacy , process.hltSiPixelDigisSoA , process.hltSiPixelRecHitSoA , process.hltSiPixelRecHits , process.hltSiPixelRecHitsCUDA )
+process.HLTRecoPixelTracksTask = cms.Task( process.hltPixelTracks , process.hltPixelTracksCUDA , process.hltPixelTracksSoA , process.hltPixelTracksTrackingRegions )
+process.HLTRecopixelvertexingTask = cms.Task( process.HLTRecoPixelTracksTask , process.hltPixelVertices , process.hltPixelVerticesCUDA , process.hltPixelVerticesSoA , process.hltTrimmedPixelVertices )
+process.HLTPreshowerTask = cms.Task( process.hltEcalPreshowerDigis , process.hltEcalPreshowerRecHit )
+process.HLTDoFullUnpackingEgammaEcalTask = cms.Task( process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask , process.HLTPreshowerTask )
+
 process.HLTL1UnpackerSequence = cms.Sequence( process.hltGtStage2Digis + process.hltGtStage2ObjectMap )
 process.HLTBeamSpot = cms.Sequence( process.hltScalersRawToDigi + process.hltOnlineMetaDataDigis + process.hltOnlineBeamSpot )
 process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
-process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( process.hltEcalDigisLegacy + process.hltEcalDigis + process.hltEcalUncalibRecHit + process.hltEcalDetIdToBeRecovered + process.hltEcalRecHit )
-process.HLTDoLocalHcalSequence = cms.Sequence( process.hltHcalDigis + process.hltHbhereco + process.hltHfprereco + process.hltHfreco + process.hltHoreco )
+process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask )
+process.HLTDoLocalHcalSequence = cms.Sequence( process.HLTDoLocalHcalTask )
 process.HLTDoCaloSequencePF = cms.Sequence( process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + process.HLTDoLocalHcalSequence + process.hltTowerMakerForAll )
 process.HLTAK4CaloJetsPrePFRecoSequence = cms.Sequence( process.HLTDoCaloSequencePF + process.hltAK4CaloJetsPF )
 process.HLTPreAK4PFJetsRecoSequence = cms.Sequence( process.HLTAK4CaloJetsPrePFRecoSequence + process.hltAK4CaloJetsPFEt5 )
 process.HLTMuonLocalRecoSequence = cms.Sequence( process.hltMuonDTDigis + process.hltDt1DRecHits + process.hltDt4DSegments + process.hltMuonCSCDigis + process.hltCsc2DRecHits + process.hltCscSegments + process.hltMuonRPCDigis + process.hltRpcRecHits + process.hltMuonGEMDigis + process.hltGemRecHits + process.hltGemSegments )
 process.HLTL2muonrecoNocandSequence = cms.Sequence( process.HLTMuonLocalRecoSequence + process.hltL2OfflineMuonSeeds + process.hltL2MuonSeeds + process.hltL2Muons )
 process.HLTL2muonrecoSequence = cms.Sequence( process.HLTL2muonrecoNocandSequence + process.hltL2MuonCandidates )
-process.HLTDoLocalPixelSequence = cms.Sequence( process.hltSiPixelDigisLegacy + process.hltSiPixelDigis + process.hltSiPixelClustersLegacy + process.hltSiPixelClusters + process.hltSiPixelClustersCache + process.hltSiPixelRecHitSoA + process.hltSiPixelRecHits )
+process.HLTDoLocalPixelSequence = cms.Sequence( process.HLTDoLocalPixelTask )
 process.HLTDoLocalStripSequence = cms.Sequence( process.hltSiStripExcludedFEDListProducer + process.hltSiStripRawToClustersFacility + process.hltSiStripClusters )
 process.HLTIterL3OImuonTkCandidateSequence = cms.Sequence( process.hltIterL3OISeedsFromL2Muons + process.hltIterL3OITrackCandidates + process.hltIterL3OIMuCtfWithMaterialTracks + process.hltIterL3OIMuonTrackCutClassifier + process.hltIterL3OIMuonTrackSelectionHighPurity + process.hltL3MuonsIterL3OI )
-process.HLTRecoPixelTracksSequence = cms.Sequence( process.hltPixelTracksTrackingRegions + process.hltPixelTracksSoA + process.hltPixelTracks )
-process.HLTRecopixelvertexingSequence = cms.Sequence( process.hltPixelTracksFitter + process.hltPixelTracksFilter + process.HLTRecoPixelTracksSequence + process.hltPixelVerticesSoA + process.hltPixelVertices + process.hltTrimmedPixelVertices )
+process.HLTRecopixelvertexingSequence = cms.Sequence( process.hltPixelTracksFitter + process.hltPixelTracksFilter,process.HLTRecopixelvertexingTask )
 process.HLTIterL3MuonRecopixelvertexingSequence = cms.Sequence( process.HLTRecopixelvertexingSequence + process.hltIterL3MuonPixelTracksTrackingRegions + process.hltPixelTracksInRegionL2 )
 process.HLTIterativeTrackingIteration0ForIterL3Muon = cms.Sequence( process.hltIter0IterL3MuonPixelSeedsFromPixelTracks + process.hltIter0IterL3MuonPixelSeedsFromPixelTracksFiltered + process.hltIter0IterL3MuonCkfTrackCandidates + process.hltIter0IterL3MuonCtfWithMaterialTracks + process.hltIter0IterL3MuonTrackCutClassifier + process.hltIter0IterL3MuonTrackSelectionHighPurity )
 process.HLTIterL3IOmuonTkCandidateSequence = cms.Sequence( process.HLTIterL3MuonRecopixelvertexingSequence + process.HLTIterativeTrackingIteration0ForIterL3Muon + process.hltL3MuonsIterL3IO )
@@ -9270,12 +9757,11 @@ process.HLTAK4CaloJetsReconstructionSequence = cms.Sequence( process.HLTDoCaloSe
 process.HLTAK4CaloCorrectorProducersSequence = cms.Sequence( process.hltAK4CaloFastJetCorrector + process.hltAK4CaloRelativeCorrector + process.hltAK4CaloAbsoluteCorrector + process.hltAK4CaloResidualCorrector + process.hltAK4CaloCorrector )
 process.HLTAK4CaloJetsCorrectionSequence = cms.Sequence( process.hltFixedGridRhoFastjetAllCalo + process.HLTAK4CaloCorrectorProducersSequence + process.hltAK4CaloJetsCorrected + process.hltAK4CaloJetsCorrectedIDPassed )
 process.HLTAK4CaloJetsSequence = cms.Sequence( process.HLTAK4CaloJetsReconstructionSequence + process.HLTAK4CaloJetsCorrectionSequence )
-process.HLTPreshowerSequence = cms.Sequence( process.hltEcalPreshowerDigis + process.hltEcalPreshowerRecHit )
-process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence( process.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence + process.HLTPreshowerSequence )
+process.HLTDoFullUnpackingEgammaEcalSequence = cms.Sequence( process.HLTDoFullUnpackingEgammaEcalTask )
 process.HLTBeginSequenceCalibration = cms.Sequence( process.hltCalibrationEventsFilter + process.hltGtStage2Digis )
 process.HLTDatasetPathBeginSequence = cms.Sequence( process.hltGtStage2Digis )
 
-process.HLTriggerFirstPath = cms.Path( process.hltGetConditions + process.hltGetRaw + process.hltPSetMap + process.hltBoolFalse )
+process.HLTriggerFirstPath = cms.Path( process.hltGetRaw + process.hltPSetMap + process.hltBoolFalse )
 process.Status_OnCPU = cms.Path( process.statusOnGPU + ~process.statusOnGPUFilter )
 process.Status_OnGPU = cms.Path( process.statusOnGPU + process.statusOnGPUFilter )
 process.HLT_ZeroBias_Beamspot_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBiasBeamspot + process.HLTTrackingForBeamSpot + process.hltVerticesPF + process.hltVerticesPFSelector + process.hltVerticesPFFilter + process.HLTEndSequence )

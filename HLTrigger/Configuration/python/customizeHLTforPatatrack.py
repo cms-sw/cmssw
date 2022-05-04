@@ -82,7 +82,7 @@ def customiseCommon(process):
             process.schedule.append(process.Status_OnGPU)
 
     # make the ScoutingCaloMuonOutput endpath compatible with using Tasks in the Scouting paths
-    if 'hltOutputScoutingCaloMuon' in process.__dict__ and not 'hltPreScoutingCaloMuonOutputSmart' in process.__dict__:
+    if 'hltOutputScoutingCaloMuon' in process.__dict__ and 'hltPreScoutingCaloMuonOutput' in process.__dict__ and not 'hltPreScoutingCaloMuonOutputSmart' in process.__dict__:
         process.hltPreScoutingCaloMuonOutputSmart = cms.EDFilter( "TriggerResultsFilter",
             l1tIgnoreMaskAndPrescale = cms.bool( False ),
             l1tResults = cms.InputTag( "" ),
@@ -93,7 +93,7 @@ def customiseCommon(process):
         insert_modules_after(process, process.hltPreScoutingCaloMuonOutput, process.hltPreScoutingCaloMuonOutputSmart)
 
     # make the ScoutingPFOutput endpath compatible with using Tasks in the Scouting paths
-    if 'hltOutputScoutingPF' in process.__dict__ and not 'hltPreScoutingPFOutputSmart' in process.__dict__:
+    if 'hltOutputScoutingPF' in process.__dict__ and 'hltPreScoutingPFOutput' in process.__dict__ and not 'hltPreScoutingPFOutputSmart' in process.__dict__:
         process.hltPreScoutingPFOutputSmart = cms.EDFilter( "TriggerResultsFilter",
             l1tIgnoreMaskAndPrescale = cms.bool( False ),
             l1tResults = cms.InputTag( "" ),
