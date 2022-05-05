@@ -103,13 +103,17 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
     fms = (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
   }
 
-  if (fms ? fms->getEventsProcessedForLumi(fp.lumi_) : true) {
+  bool abortFlag = false;
+  if (fms ? fms->getEventsProcessedForLumi(fp.lumi_, &abortFlag) : true) {
     // Save the file in the open directory.
     this->savePB(&*store, openHistoFilePathName, fp.run_, fp.lumi_);
 
     // Now move the the data and json files into the output directory.
     ::rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
   }
+
+  if (abortFlag)
+    return;
 
   // Write the json file in the open directory.
   bpt::ptree pt = fillJson(fp.run_, fp.lumi_, histoFilePathName, transferDestination_, mergeType_, fms);
