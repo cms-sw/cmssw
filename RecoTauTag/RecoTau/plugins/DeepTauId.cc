@@ -8,6 +8,7 @@
  */
 
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
+#include "RecoTauTag/RecoTau/interface/DeepTauScaling.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
