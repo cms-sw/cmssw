@@ -172,6 +172,15 @@ def customiseFor37231(process):
 
     return process
 
+def customiseFor37756(process):
+    """https://github.com/cms-sw/cmssw/pull/37756
+    Removal of use_preshower parameter from PFECALSuperClusterProducer
+    """
+    for prod in producers_by_type(process, 'PFECALSuperClusterProducer'):
+        if hasattr(prod, 'use_preshower'):
+            delattr(prod, 'use_preshower')
+
+    return process
 
 def customiseFor37646(process):
     """ Customisation to remove a renamed parameter in HLTScoutingPFProducer
@@ -204,7 +213,7 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
     # process = customiseFor12718(process)
 
     process = customiseFor37231(process)
-
     process = customiseFor37646(process)
-
+    process = customiseFor37756(process)
+    
     return process
