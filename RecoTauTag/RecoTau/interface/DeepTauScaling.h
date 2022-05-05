@@ -13,20 +13,19 @@ namespace deep_tau {
         std::vector<float> lim_min_;
         std::vector<float> lim_max_;
 
-        template <typename T>
-        static float getValue(T value) {
-        return std::isnormal(value) ? static_cast<float>(value) : 0.f;
-        }
-
         template<typename T>
         float scale(T value, int var_index) const{
-            const float fixed_value = getValue(value);
-            const float mean = mean_.at(var_index);
-            const float std = std_.at(var_index);
-            const float lim_min = lim_min_.at(var_index);
-            const float lim_max = lim_max_.at(var_index);
-            const float norm_value = (fixed_value - mean) / std;
-            return std::clamp(norm_value, lim_min, lim_max);        
+            if (std::isfinite(value))
+            {
+                const float mean = mean_.at(var_index);
+                const float std = std_.at(var_index);
+                const float lim_min = lim_min_.at(var_index);
+                const float lim_max = lim_max_.at(var_index);
+                const float norm_value = (static_cast<float>(value) - mean) / std;
+                return std::clamp(norm_value, lim_min, lim_max);    
+            }
+            else
+                return 0.f;
         };
     };
     
@@ -77,7 +76,7 @@ namespace deep_tau {
             5, 5, 5, inf, 5,
             5, 5, 5, inf, 1,
             1, 5, 1, 5, inf,
-            1, inf, 1, 5, -1.0,
+            1, inf, 1, 5, 1.0,
             inf, 5},
             } 
         }, // end TauFlat
@@ -855,7 +854,7 @@ namespace deep_tau {
             1,1,1,1,5.5,
             1.123,1.108,6.913,1.229,1.216,
             7.147,1,1.578,58.34,6.915,
-            515.9,1,2.933,6.317},
+            515.9,2.933,6.317},
 
             // lim_min
             {-inf,-5,-1.0,-1.0,-inf,
