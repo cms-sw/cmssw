@@ -42,6 +42,5 @@ hltParticleFlowSuperClusterECALL1Seeded = cms.EDProducer("PFECALSuperClusterProd
     thresh_SCEt = cms.double(10.0),
     useDynamicDPhiWindow = cms.bool(True),
     useRegression = cms.bool(True),
-    use_preshower = cms.bool(True),
     verbose = cms.untracked.bool(False)
 )

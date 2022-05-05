@@ -341,7 +341,6 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("thresh_PFClusterEndcap", 0.0);
   desc.add<edm::InputTag>("ESAssociation", edm::InputTag("particleFlowClusterECAL"));
   desc.add<std::string>("PFBasicClusterCollectionPreshower", "particleFlowBasicClusterECALPreshower");
-  desc.add<bool>("use_preshower", true);
   desc.addUntracked<bool>("verbose", false);
   desc.add<double>("thresh_SCEt", 4.0);
   desc.add<double>("etawidth_SuperClusterEndcap", 0.04);

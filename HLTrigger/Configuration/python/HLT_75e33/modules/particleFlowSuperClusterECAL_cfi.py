@@ -57,6 +57,5 @@ particleFlowSuperClusterECAL = cms.EDProducer("PFECALSuperClusterProducer",
     thresh_SCEt = cms.double(4),
     useDynamicDPhiWindow = cms.bool(True),
     useRegression = cms.bool(True),
-    use_preshower = cms.bool(True),
     verbose = cms.untracked.bool(False)
 )
