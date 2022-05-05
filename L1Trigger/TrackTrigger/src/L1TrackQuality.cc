@@ -124,8 +124,6 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
       break;
     }
   }
-  if (tmp_trk_bendchi2 >= bendchi2_bins[n_bendchi2 - 1])
-    tmp_trk_bendchi2_bin = n_bendchi2 - 1;
   if (tmp_trk_bendchi2_bin < 0)
     tmp_trk_bendchi2_bin = n_bendchi2;
 
@@ -140,8 +138,6 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
       break;
     }
   }
-  if (tmp_trk_chi2rphi >= chi2rphi_bins[n_chi2rphi - 1])
-    tmp_trk_chi2rphi_bin = n_chi2rphi - 1;
   if (tmp_trk_chi2rphi_bin < 0)
     tmp_trk_chi2rphi_bin = n_chi2rphi;
 
@@ -156,8 +152,6 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
       break;
     }
   }
-  if (tmp_trk_chi2rz >= chi2rz_bins[n_chi2rz - 1])
-    tmp_trk_chi2rz_bin = n_chi2rz - 1;
   if (tmp_trk_chi2rz_bin < 0)
     tmp_trk_chi2rz_bin = n_chi2rz;
 
