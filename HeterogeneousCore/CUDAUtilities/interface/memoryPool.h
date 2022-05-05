@@ -27,6 +27,7 @@ namespace memoryPool {
 
     void set(std::shared_ptr<DeleterBase> del) { me = del; }
     void setBucket(int bucket) { m_bucket = bucket; }
+    std::shared_ptr<DeleterBase> getDeleter() const { return me;}
 
     void operator()(void* p) {
       if (!me)

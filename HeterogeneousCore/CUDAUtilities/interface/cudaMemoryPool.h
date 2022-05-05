@@ -66,13 +66,16 @@ namespace memoryPool {
     buffer<T> make_buffer(uint64_t size, cudaStream_t const &stream, Where where) {
       return make_buffer<T>(sizeof(T) * size, Deleter(std::make_shared<DeleteOne>(stream, getPool(where))));
     }
+   
+    template <typename T>
+    void swapBuffer(buffer<T> & a, buffer<T> &  b) {
+      std::swap(a,b);
+      // now change deleter type ,,,,      
+      auto aDel = a.get_deleter().getDeleter();
+      a.get_deleter().set(b.get_deleter().getDeleter());
+      b.get_deleter().set(aDel);
+    }
 
-    /*
-      template< class T, class... Args >
-      memoryPool::buffer<T> make_buffer( Args&&... args );
-      template< class T, class... Args >
-      memoryPool::buffer<T> make_buffer(Deleter del, Args&&... args );
-*/
 
   }  // namespace cuda
 }  // namespace memoryPool

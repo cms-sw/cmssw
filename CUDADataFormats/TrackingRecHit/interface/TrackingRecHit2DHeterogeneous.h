@@ -144,7 +144,7 @@ TrackingRecHit2DHeterogeneous<where>::TrackingRecHit2DHeterogeneous(
     if constexpr (memoryPool::onDevice == where) {
       cudaCheck(memoryPool::cuda::copy(m_view, view, sizeof(TrackingRecHit2DSOAView), stream));
     } else {
-      m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
+      memoryPool::cuda::swapBuffer(m_view,view);  
     }
     return;
   }
@@ -208,7 +208,7 @@ TrackingRecHit2DHeterogeneous<where>::TrackingRecHit2DHeterogeneous(
     cudaCheck(cudaMemcpyAsync(m_view.get(), view.get(),sizeof(TrackingRecHit2DSOAView), cudaMemcpyHostToDevice, stream));
 //    cudaCheck(memoryPool::cuda::copy(m_view, view, sizeof(TrackingRecHit2DSOAView), stream));
   } else {
-    m_view.reset(view.release());  // NOLINT: std::move() breaks CUDA version
+     memoryPool::cuda::swapBuffer(m_view,view);
   }
 }
 
