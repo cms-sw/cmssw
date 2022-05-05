@@ -53,11 +53,9 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 process.select = cms.EDFilter("MCLongLivedParticles",
-    hepMCProductTag = cms.untracked.InputTag("VtxSmeared"),
-    ParticleIDs = cms.untracked.vint32(310), ## in mm
-    #LengCut = cms.untracked.double(100.), ## in mm
-   LengMin = cms.untracked.double(30.), ## in mm
-   LengMax = cms.untracked.double(100.), ## in mm
+    ParticleIDs = cms.vint32(310), ## in mm
+    LengMin = cms.double(0.), ## in mm
+    LengMax = cms.double(100.), ## in mm
 
 )
 

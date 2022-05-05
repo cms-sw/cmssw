@@ -2,7 +2,7 @@
 #include "GeneratorInterface/GenFilters/interface/MCLongLivedParticles.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include <iostream>
+#include <vector>
 
 using namespace edm;
 using namespace std;
@@ -11,22 +11,22 @@ using namespace std;
 //To run independently of pdgId, do not insert the particleIDs entry in filter declaration
 
 MCLongLivedParticles::MCLongLivedParticles(const edm::ParameterSet& iConfig) :
-  token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
-  particleIDs(iConfig.getUntrackedParameter("ParticleIDs",std::vector<int>{0})),
-  //hepMCProductTag_(iConfig.getUntrackedParameter<edm::InputTag>("hepMCProductTag",edm::InputTag("generator","unsmeared"))) {}
-   //here do whatever other initialization is needed
+  //hepMCProductTag is left untracked for backwards compatibility
+  hepMCProductTag_(iConfig.getUntrackedParameter<edm::InputTag>("hepMCProductTag",edm::InputTag("generator","unsmeared"))),
+  token_(consumes<edm::HepMCProduct>(hepMCProductTag_)),
+  particleIDs_(iConfig.getParameter<std::vector<int>>("ParticleIDs")),
+  //theCut is left untracked for backwards compatibility
   theCut(iConfig.getUntrackedParameter<double>("LengCut",10.)), // for backwards compatibility
-  theUpperCut(iConfig.getUntrackedParameter<double>("LengMax",-1.)),
-  theLowerCut(iConfig.getUntrackedParameter<double>("LengMin",-1.))
+  theUpperCut_(iConfig.getParameter<double>("LengMax")),
+  theLowerCut_(iConfig.getParameter<double>("LengMin"))
 {}
 
 
-MCLongLivedParticles::~MCLongLivedParticles()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
+void MCLongLivedParticles::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::vector<int>>("ParticleIDs", std::vector<int>{0});
+  desc.add<double>("LengMax", -1.);
+  desc.add<double>("LengMin", -1.);
 }
 
 
@@ -43,14 +43,16 @@ bool MCLongLivedParticles::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   bool pass = false;
   bool matchedID = true;
 
-  if (theCut >=0 &&                               //backwards compatibility with previous single lower cut filter
-	(theUpperCut< 0 && theLowerCut< 0) ){     //if theCut is well defined and theUpperCut and theLowerCut are undefined
-	theUpperCut = -1.;
-	theLowerCut = theCut;
+  //backwards compatibility with previous single lower cut filter: if theCut is well defined and theUpperCut and theLowerCut are undefined
+  // revert to previous behavior (lower cut only)
+  if (theCut >=0 && (theUpperCut_< 0 && theLowerCut_< 0) ){    
+ 	theUpperCut_ = -1.;
+	theLowerCut_ = theCut;
   }
 
-  float theUpperCut2 = theUpperCut*theUpperCut;
-  float theLowerCut2 = theLowerCut*theLowerCut;
+  
+  const float theUpperCut2 = theUpperCut_*theUpperCut_;
+  const float theLowerCut2 = theLowerCut_*theLowerCut_;
   
   const HepMC::GenEvent * generated_event = evt->GetEvent();
   HepMC::GenEvent::particle_const_iterator p;
@@ -58,39 +60,45 @@ bool MCLongLivedParticles::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   for (p = generated_event->particles_begin(); p != generated_event->particles_end(); p++)
     { 
       //if a list of pdgId is provided, loop only on particles with those pdgId 
-      if (particleIDs.at(0)!=0){
-        matchedID = false;
-        for (unsigned int idx=0; idx < particleIDs.size(); idx++){
-          if (abs((*p)->pdg_id())==abs(particleIDs.at(idx))){ //compares absolute values of pdgIds
+   if (particleIDs_.at(0)!=0) matchedID = false;
+        
+	for (unsigned int idx=0; idx < particleIDs_.size(); idx++){
+          if (abs((*p)->pdg_id())==abs(particleIDs_.at(idx))){ //compares absolute values of pdgIds
             matchedID = true;
             break;
           }
         }                
-      } 
       
-      if (matchedID){ 
+      if (matchedID){
+
+	if (theLowerCut_ <= 0. && theUpperCut_ <= 0. && theCut <= 0.)  {
+	   pass = true;
+	   break;
+	} 
 
         if(((*p)->production_vertex() != nullptr) && ((*p)->end_vertex()!=nullptr)){
         
           float dist2 = (((*p)->production_vertex())->position().x()-((*p)->end_vertex())->position().x())*(((*p)->production_vertex())->position().x()-((*p)->end_vertex())->position().x()) +
                         (((*p)->production_vertex())->position().y()-((*p)->end_vertex())->position().y())*(((*p)->production_vertex())->position().y()-((*p)->end_vertex())->position().y());
-       
-          if( (dist2>=theLowerCut2 || theLowerCut<=0.) && 
-              (dist2< theUpperCut2 || theUpperCut<=0.) ){ //lower cut can be also 0 - prompt particle needs to be accepted in that case
+          //lower cut can be also 0 - prompt particle needs to be accepted in that case
+	  if( (dist2>=theLowerCut2 || theLowerCut_<=0.) && 
+              (dist2< theUpperCut2 || theUpperCut_<=0.) ){ 
             pass=true;
             break;
 	    }
         }
-         
-        if(((*p)->production_vertex()==nullptr) && (!((*p)->end_vertex()!=nullptr))){
-          if((((*p)->end_vertex()->position().perp() >= theLowerCut) || theLowerCut<=0.) && 
-             (((*p)->end_vertex()->position().perp() <  theUpperCut) || theUpperCut<=0.)){ // lower cut can be also 0 - prompt particle needs to be accepted in that case
-            pass=true;
+        if(((*p)->production_vertex() == nullptr) && (!((*p)->end_vertex() == nullptr))) { 
+          // lower cut can be also 0 - prompt particle needs to be accepted in that case
+          float distEndVert = (*p)->end_vertex()->position().perp();
+          if(((distEndVert >= theLowerCut_) || theLowerCut_<=0.) && 
+             ((distEndVert <  theUpperCut_) || theUpperCut_<=0.)){ 	 
+	    pass=true;
             break;
 	   }
         }
       }
     }
+     
   return pass;
 }
 
