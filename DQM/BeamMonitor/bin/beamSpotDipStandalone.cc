@@ -19,6 +19,8 @@ using namespace std;
 // constants
 const char* qualities[3] = {"Uncertain", "Bad", "Good"};
 const bool publishStatErrors = true;
+
+const int secPerLS = 23;
 const int rad2urad = 1000000;
 const int cm2um = 10000;
 const int cm2mm = 10;
@@ -516,7 +518,8 @@ void problem() {
 
   lsCount++;
 
-  if ((lsCount % timeoutLS[0] == 0) && (lsCount % timeoutLS[1] != 0)) // first
+  if ((lsCount % (timeoutLS[0]*secPerLS) == 0)
+   && (lsCount % (timeoutLS[1]*secPerLS) != 0)) // first timeout
   {
     if (!alive.test(1))
       alive.flip(1);
@@ -536,7 +539,7 @@ void problem() {
       warnMsg << "No new data for " << lsCount << " LS: " << tkStatus();
       publishRcd("Bad", warnMsg.str(), false, false);
     }
-  } else if (lsCount % timeoutLS[1] == 0) { // second timeout
+  } else if (lsCount % (timeoutLS[1]*secPerLS) == 0) { // second timeout
     if (!alive.test(2))
       alive.flip(2);
     fakeRcd();
@@ -548,7 +551,7 @@ void problem() {
 }
 
 /*****************************************************************************/
-void action()
+void polling()
 {
   try {
     ifstream logFile(sourceFile);
@@ -680,8 +683,8 @@ int main()
 
   while(true)
   {
-    action();
-    sleep(10);
+    polling();
+    sleep(1);
   }
 
    
