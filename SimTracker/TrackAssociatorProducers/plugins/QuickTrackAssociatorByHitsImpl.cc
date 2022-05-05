@@ -43,8 +43,8 @@ namespace {
     return &*trackCollection[index];  // pretty obscure dereference
   }
 
-  template <template <typename> typename T_Coll, typename T_Track>
-  const T_Track* getTrackAt(const edm::Handle<T_Coll<T_Track>>& pTrackCollection, size_t index) {
+  template <typename T_Coll>
+  const auto* getTrackAt(const edm::Handle<T_Coll>& pTrackCollection, size_t index) {
     return &(*pTrackCollection)[index];
   }
 
