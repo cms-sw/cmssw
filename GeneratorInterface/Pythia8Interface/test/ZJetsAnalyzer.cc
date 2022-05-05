@@ -14,7 +14,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "TH1.h"
 
@@ -31,21 +31,22 @@ struct ParticlePtGreater {
   }
 };
 
-class ZJetsAnalyzer : public edm::EDAnalyzer {
+class ZJetsAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   //
   explicit ZJetsAnalyzer(const edm::ParameterSet&);
-  virtual ~ZJetsAnalyzer();  // no need to delete ROOT stuff
-                             // as it'll be deleted upon closing TFile
+  virtual ~ZJetsAnalyzer() = default;  // no need to delete ROOT stuff
+                                       // as it'll be deleted upon closing TFile
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
-  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override {}
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
-  edm::EDGetTokenT<GenEventInfoProduct> tokenGenEvent_;
-  edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
-  edm::EDGetTokenT<GenRunInfoProduct> tokenGenRun_;
+  const edm::EDGetTokenT<GenEventInfoProduct> tokenGenEvent_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
+  const edm::EDGetTokenT<GenRunInfoProduct> tokenGenRun_;
 
   LeptonAnalyserHepMC LA;
   JetInputHepMC JetInput;
@@ -66,10 +67,9 @@ ZJetsAnalyzer::ZJetsAnalyzer(const edm::ParameterSet& pset)
       tokenGenRun_(consumes<GenRunInfoProduct, edm::InRun>(
           edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), ""))),
       fHist2muMass(0) {
+  usesResource(TFileService::kSharedResource);
   // actually, pset is NOT in use - we keep it here just for illustratory putposes
 }
-
-ZJetsAnalyzer::~ZJetsAnalyzer() { ; }
 
 void ZJetsAnalyzer::beginJob() {
   edm::Service<TFileService> fs;
@@ -91,9 +91,7 @@ void ZJetsAnalyzer::endRun(const edm::Run& r, const edm::EventSetup&) {
   std::ofstream testi("testi.dat");
   double val, errval;
 
-  edm::Handle<GenRunInfoProduct> genRunInfoProduct;
-  //r.getByLabel("generator", genRunInfoProduct );
-  r.getByToken(tokenGenRun_, genRunInfoProduct);
+  const edm::Handle<GenRunInfoProduct>& genRunInfoProduct = r.getHandle(tokenGenRun_);
 
   val = (double)genRunInfoProduct->crossSection();
   std::cout << std::endl;
@@ -127,9 +125,7 @@ void ZJetsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   icategories[0]++;
 
   // here's an example of accessing GenEventInfoProduct
-  edm::Handle<GenEventInfoProduct> GenInfoHandle;
-  //e.getByLabel( "generator", GenInfoHandle );
-  e.getByToken(tokenGenEvent_, GenInfoHandle);
+  const edm::Handle<GenEventInfoProduct>& GenInfoHandle = e.getHandle(tokenGenEvent_);
 
   double qScale = GenInfoHandle->qScale();
   double pthat = (GenInfoHandle->hasBinningValues() ? (GenInfoHandle->binningValues())[0] : 0.0);
@@ -149,10 +145,7 @@ void ZJetsAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
 
   // here's an example of accessing particles in the event record (HepMCProduct)
   //
-  edm::Handle<edm::HepMCProduct> EvtHandle;
-  // find initial (unsmeared, unfiltered,...) HepMCProduct
-  //e.getByLabel("VtxSmeared", EvtHandle);
-  e.getByToken(tokenHepMC_, EvtHandle);
+  const edm::Handle<edm::HepMCProduct>& EvtHandle = e.getHandle(tokenHepMC_);
 
   const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
 
