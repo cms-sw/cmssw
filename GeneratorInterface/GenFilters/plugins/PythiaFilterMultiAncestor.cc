@@ -31,7 +31,6 @@ process.jpsi_from_bhadron_filter = cms.EDFilter("PythiaFilterMultiAncestor",
 // user include files
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-// #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

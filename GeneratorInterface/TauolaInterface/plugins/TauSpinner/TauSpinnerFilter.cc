@@ -7,18 +7,16 @@
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
 TauSpinnerFilter::TauSpinnerFilter(const edm::ParameterSet& pset)
-    : src_(pset.getParameter<edm::InputTag>("src")), fRandomEngine(nullptr), ntaus_(0) {
+    : WTToken_(consumes<double>(pset.getParameter<edm::InputTag>("src"))), fRandomEngine(nullptr), ntaus_(0) {
   if (pset.getParameter<int>("ntaus") == 1)
     ntaus_ = 1.0;
   if (pset.getParameter<int>("ntaus") == 2)
     ntaus_ = 2.0;
-  WTToken_ = consumes<double>(src_);
 }
 
 bool TauSpinnerFilter::filter(edm::Event& e, edm::EventSetup const& es) {
   edm::RandomEngineSentry<TauSpinnerFilter> randomEngineSentry(this, e.streamID());
-  edm::Handle<double> WT;
-  e.getByToken(WTToken_, WT);
+  const edm::Handle<double>& WT = e.getHandle(WTToken_);
   if (*(WT.product()) >= 0 && *(WT.product()) <= 4.0) {
     double weight = (*(WT.product()));
     if (fRandomEngine->flat() * ntaus_ * 2.0 < weight) {
