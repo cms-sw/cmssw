@@ -28,10 +28,9 @@ public:
   void setRandomEngine(CLHEP::HepRandomEngine* v) { fRandomEngine = v; }
 
 private:
-  edm::InputTag src_;
+  const edm::EDGetTokenT<double> WTToken_;
   CLHEP::HepRandomEngine* fRandomEngine;
   double ntaus_;
-  edm::EDGetTokenT<double> WTToken_;
 };
 
 #endif
