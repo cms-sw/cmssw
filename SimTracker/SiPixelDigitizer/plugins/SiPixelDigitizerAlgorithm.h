@@ -10,6 +10,8 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimTracker/Common/interface/SimHitInfoForLinks.h"
+#include "SimTracker/SiPixelDigitizer/plugins/PixelDigiAddTempInfo.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelSimHitExtraInfo.h"
 #include "DataFormats/Math/interface/approx_exp.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
@@ -75,11 +77,20 @@ public:
   void digitize(const PixelGeomDetUnit* pixdet,
                 std::vector<PixelDigi>& digis,
                 std::vector<PixelDigiSimLink>& simlinks,
+                std::vector<PixelDigiAddTempInfo>& newClass_Digi_extra,
                 const TrackerTopology* tTopo,
                 CLHEP::HepRandomEngine*);
   void calculateInstlumiFactor(PileupMixingContent* puInfo);
+  void fillSimHitMaps(std::vector<PSimHit> simHits, const unsigned int tofBin);
+  void resetSimHitMaps();
   void init_DynIneffDB(const edm::EventSetup&);
   std::unique_ptr<PixelFEDChannelCollection> chooseScenario(PileupMixingContent* puInfo, CLHEP::HepRandomEngine*);
+
+  void lateSignalReweight(const PixelGeomDetUnit* pixdet,
+                          std::vector<PixelDigi>& digis,
+                          std::vector<PixelSimHitExtraInfo>& newClass_Sim_extra,
+                          const TrackerTopology* tTopo,
+                          CLHEP::HepRandomEngine* engine);
 
   // for premixing
   void calculateInstlumiFactor(const std::vector<PileupSummaryInfo>& ps,
@@ -103,14 +114,14 @@ public:
       }
     }
 
-    Amplitude(float amp, const PSimHit* hitp, size_t hitIndex, unsigned int tofBin, float frac)
+    Amplitude(float amp, const PSimHit* hitp, size_t hitIndex, size_t hitInd4CR, unsigned int tofBin, float frac)
         : _amp(amp), _frac(1, frac) {
       //in case of digi from noisypixels
       //the MC information are removed
       if (_frac[0] < -0.5) {
         _frac.pop_back();
       } else {
-        _hitInfos.emplace_back(hitp, hitIndex, tofBin);
+        _hitInfos.emplace_back(hitp, hitIndex, tofBin, hitInd4CR, amp);
       }
     }
 
@@ -308,10 +319,17 @@ private:
   typedef std::vector<edm::ParameterSet> Parameters;
   typedef boost::multi_array<float, 2> array_2d;
 
+  typedef std::pair<unsigned int, unsigned int> subDetTofBin;
+  typedef std::map<unsigned int, std::vector<PSimHit> > simhit_map;
+  simhit_map SimHitMap;
+  typedef std::map<subDetTofBin, unsigned int> simhit_collectionMap;
+  simhit_collectionMap SimHitCollMap;
+
   // Contains the accumulated hit info.
   signalMaps _signal;
 
   const bool makeDigiSimLinks_;
+  const bool store_SimHitEntryExitPoints_;
 
   const bool use_ineff_from_db_;
   const bool use_module_killing_;   // remove or not the dead pixel modules
@@ -342,6 +360,7 @@ private:
   //-- make_digis
   const float theElectronPerADC;    // Gain, number of electrons per adc count.
   const int theAdcFullScale;        // Saturation count, 255=8bit.
+  const int theAdcFullScLateCR;     // Saturation count, 255=8bit.
   const float theNoiseInElectrons;  // Noise (RMS) in units of electrons.
   const float theReadoutNoise;      // Noise of the readount chain in elec,
                                     //inludes DCOL-Amp,TBM-Amp, Alt, AOH,OptRec.
@@ -388,6 +407,7 @@ private:
 
   //-- calibration smearing
   const bool doMissCalibrate;     // Switch on the calibration smearing
+  const bool doMissCalInLateCR;   // Switch on the calibration smearing
   const float theGainSmearing;    // The sigma of the gain fluctuation (around 1)
   const float theOffsetSmearing;  // The sigma of the offset fluct. (around 0)
 
@@ -443,6 +463,7 @@ private:
                   const PixelGeomDetUnit* pixdet,
                   std::vector<PixelDigi>& digis,
                   std::vector<PixelDigiSimLink>& simlinks,
+                  std::vector<PixelDigiAddTempInfo>& newClass_Digi_extra,
                   const TrackerTopology* tTopo) const;
   void pixel_inefficiency(const PixelEfficiencies& eff,
                           const PixelGeomDetUnit* pixdet,
