@@ -19,7 +19,9 @@ public:
   using Layout = T;
   using Buffer = alpaka::Buf<TDev, std::byte, alpaka::DimInt<1u>, uint32_t>;
 
-  PortableDeviceCollection() = default;
+  PortableDeviceCollection() : buffer_{}, layout_{} {
+    edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
+  }
 
   PortableDeviceCollection(int32_t elements, TDev const &device)
       : buffer_{alpaka::allocBuf<std::byte, uint32_t>(
@@ -28,16 +30,25 @@ public:
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
     alpaka::pin(*buffer_);
+    edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
   }
 
-  ~PortableDeviceCollection() = default;
+  ~PortableDeviceCollection() {
+    // the default implementation would work correctly, but we want to add a call to the MessageLogger
+    edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
+  }
 
   // non-copyable
   PortableDeviceCollection(PortableDeviceCollection const &) = delete;
   PortableDeviceCollection &operator=(PortableDeviceCollection const &) = delete;
 
   // movable
-  PortableDeviceCollection(PortableDeviceCollection &&other) = default;
+  PortableDeviceCollection(PortableDeviceCollection &&other)
+      : buffer_{std::move(other.buffer_)}, layout_{std::move(other.layout_)} {
+    // the default implementation would work correctly, but we want to add a call to the MessageLogger
+    edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
+  }
+
   PortableDeviceCollection &operator=(PortableDeviceCollection &&other) = default;
 
   Layout &operator*() { return layout_; }

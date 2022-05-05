@@ -25,7 +25,14 @@ public:
       assert(product->id(i) == i);
     }
 
-    edm::LogInfo("TestAlpakaAnalyzer") << source_.encode() << ".size() = " << product->size();
+    edm::LogInfo msg("TestAlpakaAnalyzer");
+    msg << source_.encode() << ".size() = " << product->size() << '\n';
+    msg << "data = " << product->data() << " x = " << &product->x(0) << " y = " << &product->y(0)
+        << " z = " << &product->z(0) << " id = " << &product->id(0) << '\n';
+    msg << std::hex << "[y - x] = 0x"
+        << reinterpret_cast<intptr_t>(&product->y(0)) - reinterpret_cast<intptr_t>(&product->x(0)) << " [z - y] = 0x"
+        << reinterpret_cast<intptr_t>(&product->z(0)) - reinterpret_cast<intptr_t>(&product->y(0)) << " [id - z] = 0x"
+        << reinterpret_cast<intptr_t>(&product->id(0)) - reinterpret_cast<intptr_t>(&product->z(0));
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
