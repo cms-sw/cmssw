@@ -12,7 +12,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,8 +39,6 @@
 // root include file
 #include "TFile.h"
 #include "TNtuple.h"
-
-using namespace std;
 
 static const int MAXPARTICLES = 5000000;
 static const int ETABINS = 3;  // Fix also in branch string
@@ -73,15 +71,15 @@ struct AMPTEvent {
   float vr;
 };
 
-class AMPTAnalyzer : public edm::EDAnalyzer {
+class AMPTAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit AMPTAnalyzer(const edm::ParameterSet&);
-  ~AMPTAnalyzer();
+  ~AMPTAnalyzer() = default;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override {}
 
   // ----------member data ---------------------------
 
@@ -107,11 +105,12 @@ private:
   bool doVertex_;
   double etaMax_;
   double ptMin_;
-  edm::InputTag src_;
   edm::InputTag simVerticesTag_;
 
-  edm::ESHandle<ParticleDataTable> pdt;
-  edm::Service<TFileService> f;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdtToken_;
+  const edm::EDGetTokenT<edm::HepMCProduct> mcToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertToken_;
+  edm::EDGetTokenT<CrossingFrame<edm::HepMCProduct> > cfToken_;
 };
 
 //
@@ -125,7 +124,11 @@ private:
 //
 // constructors and destructor
 //
-AMPTAnalyzer::AMPTAnalyzer(const edm::ParameterSet& iConfig) {
+AMPTAnalyzer::AMPTAnalyzer(const edm::ParameterSet& iConfig)
+    : pdtToken_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()),
+      mcToken_(consumes<edm::HepMCProduct>(
+          iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared")))) {
+  usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
   fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
@@ -133,18 +136,14 @@ AMPTAnalyzer::AMPTAnalyzer(const edm::ParameterSet& iConfig) {
   doAnalysis_ = iConfig.getUntrackedParameter<bool>("doAnalysis", true);
   printLists_ = iConfig.getUntrackedParameter<bool>("printLists", false);
   doCF_ = iConfig.getUntrackedParameter<bool>("doMixed", false);
+  if (doCF_)
+    cfToken_ = consumes<CrossingFrame<edm::HepMCProduct> >(edm::InputTag("mix", "source"));
   doVertex_ = iConfig.getUntrackedParameter<bool>("doVertex", false);
   if (doVertex_) {
-    simVerticesTag_ = iConfig.getParameter<edm::InputTag>("simVerticesTag");
+    simVertToken_ = consumes<edm::SimVertexContainer>(iConfig.getParameter<edm::InputTag>("simVerticesTag"));
   }
   etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("VtxSmeared"));
-}
-
-AMPTAnalyzer::~AMPTAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -153,10 +152,7 @@ AMPTAnalyzer::~AMPTAnalyzer() {
 
 // ------------ method called to for each event  ------------
 void AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
-  using namespace HepMC;
-
-  iSetup.getData(pdt);
+  const HepPDT::ParticleDataTable* pdt = &iSetup.getData(pdtToken_);
 
   hev_.event = iEvent.id().event();
   for (int ieta = 0; ieta < ETABINS; ++ieta) {
@@ -174,8 +170,8 @@ void AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   double vy = -99;
   double vz = -99;
   double vr = -99;
-  const GenEvent* evt;
-  const GenEvent* evt2;
+  const HepMC::GenEvent* evt;
+  const HepMC::GenEvent* evt2;
 
   int nmix = -1;
   int np = 0;
@@ -183,20 +179,19 @@ void AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   int src = -1;
 
   if (doCF_) {
-    Handle<CrossingFrame<HepMCProduct> > cf;
-    iEvent.getByLabel(InputTag("mix", "source"), cf);
+    const edm::Handle<CrossingFrame<edm::HepMCProduct> >& cf = iEvent.getHandle(cfToken_);
 
-    MixCollection<HepMCProduct> mix(cf.product());
+    MixCollection<edm::HepMCProduct> mix(cf.product());
 
     nmix = mix.size();
 
-    cout << "Mix Collection Size: " << mix << endl;
+    edm::LogVerbatim("AMPTAnalysis") << "Mix Collection Size: " << mix;
 
-    MixCollection<HepMCProduct>::iterator mbegin = mix.begin();
-    MixCollection<HepMCProduct>::iterator mend = mix.end();
+    MixCollection<edm::HepMCProduct>::iterator mbegin = mix.begin();
+    MixCollection<edm::HepMCProduct>::iterator mend = mix.end();
 
-    for (MixCollection<HepMCProduct>::iterator mixit = mbegin; mixit != mend; ++mixit) {
-      const GenEvent* subevt = (*mixit).GetEvent();
+    for (MixCollection<edm::HepMCProduct>::iterator mixit = mbegin; mixit != mend; ++mixit) {
+      const HepMC::GenEvent* subevt = (*mixit).GetEvent();
       int all = subevt->particles_size();
       np += all;
 
@@ -218,15 +213,13 @@ void AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
   }
 
-  Handle<HepMCProduct> mc;
-  iEvent.getByLabel(src_, mc);
+  const edm::Handle<edm::HepMCProduct>& mc = iEvent.getHandle(mcToken_);
   evt = mc->GetEvent();
 
-  Handle<HepMCProduct> mc2;
-  iEvent.getByLabel(src_, mc2);
+  const edm::Handle<edm::HepMCProduct>& mc2 = iEvent.getHandle(mcToken_);
   evt2 = mc2->GetEvent();
 
-  const HeavyIon* hi = evt->heavy_ion();
+  const HepMC::HeavyIon* hi = evt->heavy_ion();
   if (hi) {
     b = hi->impact_parameter();
     npart = hi->Npart_proj() + hi->Npart_targ();
@@ -235,8 +228,8 @@ void AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     phi0 = hi->event_plane_angle();
 
     if (printLists_) {
-      out_b << b << endl;
-      out_n << npart << endl;
+      out_b << b << std::endl;
+      out_n << npart << std::endl;
     }
   }
 
@@ -247,7 +240,7 @@ void AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
   for (HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it) {
     if ((*it)->status() == 1) {
-      //if((*it)->status() != 1) cout<<(*it)->status()<<endl;
+      //if((*it)->status() != 1) edm::LogVerbatim("AMPTAnalysis") << (*it)->status();
       int pdg_id = (*it)->pdg_id();
       float eta = (*it)->momentum().eta();
       float phi = (*it)->momentum().phi();
@@ -277,8 +270,7 @@ void AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   //   }
 
   if (doVertex_) {
-    edm::Handle<edm::SimVertexContainer> simVertices;
-    iEvent.getByLabel<edm::SimVertexContainer>(simVerticesTag_, simVertices);
+    const edm::Handle<edm::SimVertexContainer>& simVertices = iEvent.getHandle(simVertToken_);
 
     if (!simVertices.isValid())
       throw cms::Exception("FatalError") << "No vertices found\n";
@@ -286,7 +278,8 @@ void AMPTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     edm::SimVertexContainer::const_iterator it = simVertices->begin();
     SimVertex vertex = (*it);
-    cout << " Vertex position " << inum << " " << vertex.position().rho() << " " << vertex.position().z() << endl;
+    edm::LogVerbatim("AMPTAnalysis") << " Vertex position " << inum << " " << vertex.position().rho() << " "
+                                     << vertex.position().z();
     vx = vertex.position().x();
     vy = vertex.position().y();
     vz = vertex.position().z();
@@ -327,6 +320,7 @@ void AMPTAnalyzer::beginJob() {
   }
 
   if (doAnalysis_) {
+    edm::Service<TFileService> f;
     nt = f->make<TNtuple>("nt", "Mixing Analysis", "mix:np:src:sig");
 
     hydjetTree_ = f->make<TTree>("hi", "Tree of AMPT Events");
@@ -353,9 +347,6 @@ void AMPTAnalyzer::beginJob() {
     hydjetTree_->Branch("vr", &hev_.vr, "vr/F");
   }
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void AMPTAnalyzer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(AMPTAnalyzer);
