@@ -26,22 +26,26 @@ int main() {
     TrackingRecHit2DGPU tkhitPhase2(nHits, true, 0, nullptr, nullptr, stream);
     testTrackingRecHit2D::runKernels(tkhitPhase2.view());
 
-    TrackingRecHit2DHost tkhitH(nHits, false, 0, nullptr, nullptr, stream, &tkhit);
-
     memoryPool::cuda::dumpStat();
 
+    TrackingRecHit2DHost tkhitH(nHits, false, 0, nullptr, nullptr, stream, &tkhit);
+
     cudaStreamSynchronize(stream);
+    memoryPool::cuda::dumpStat(); 
+
+    
     assert(tkhitH.view());
     assert(tkhitH.view()->nHits() == unsigned(nHits));
     assert(tkhitH.view()->nMaxModules() == phase1PixelTopology::numberOfModules);
 
-    TrackingRecHit2DHost tkhitHPhase2(nHits, true, 0, nullptr, nullptr, stream, &tkhit);
+    TrackingRecHit2DHost tkhitHPhase2(nHits, true, 0, nullptr, nullptr, stream, &tkhitPhase2);
     cudaStreamSynchronize(stream);
     assert(tkhitHPhase2.view());
     assert(tkhitHPhase2.view()->nHits() == unsigned(nHits));
     assert(tkhitHPhase2.view()->nMaxModules() == phase2PixelTopology::numberOfModules);
 
     memoryPool::cuda::dumpStat();
+    
   }
 
    cudaCheck(cudaStreamSynchronize(stream));
@@ -51,6 +55,8 @@ int main() {
    ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
 
    cudaCheck(cudaStreamDestroy(stream));
+
+   memoryPool::cuda::dumpStat();
 
   return 0;
 }

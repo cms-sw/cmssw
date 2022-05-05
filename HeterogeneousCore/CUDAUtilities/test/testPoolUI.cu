@@ -73,13 +73,21 @@ int main() {
     auto p2 = memoryPool::cuda::make_buffer<bool>(20, devDeleter);
     auto p3 = memoryPool::cuda::make_buffer<int>(20, devDeleter);
 
-    auto hp0 = memoryPool::cuda::make_buffer<int>(20, hosDeleter);
+    { 
+      auto pd = memoryPool::cuda::make_buffer<int>(40, stream, memoryPool::onDevice);
+      memoryPool::cuda::swapBuffer(p0,pd);
+      memoryPool::cuda::dumpStat();
+    }
+    cudaStreamSynchronize(stream);
+
+
+    auto hp0 = memoryPool::cuda::make_buffer<int>(40, hosDeleter);
     auto hp1 = memoryPool::cuda::make_buffer<double>(20, hosDeleter);
     auto hp2 = memoryPool::cuda::make_buffer<bool>(20, hosDeleter);
     auto hp3 = memoryPool::cuda::make_buffer<int>(20, hosDeleter);
 
     cudaCheck(memoryPool::cuda::copy(hp3,p3,20,stream));
-    cudaCheck(memoryPool::cuda::copy(p3,hp0,20,stream));;
+    cudaCheck(memoryPool::cuda::copy(p0,hp0,40,stream));;
 
     memoryPool::cuda::dumpStat();
   }
