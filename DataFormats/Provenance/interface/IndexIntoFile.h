@@ -49,11 +49,42 @@ There can be multiple run entries in a TTree associated
 with the same run number and ProcessHistoryID in a file.
 There can also be multiple lumi entries associated with
 the same lumi number, run number, and ProcessHistoryID.
-Both sorting orders will make these subgroups contiguous,
+The sorting orders identified as numericalOrder and
+firstAppearanceOrder will make these subgroups contiguous,
 but beyond that is up to the client (normally PoolSource,
 which passes them up to the EventProcessor)
 to deal with merging the multiple run (or lumi) entries
 together.
+
+In entryOrder, the Events are processed in the order they
+appear in the Events TTree. The event entries associated
+with a run might not be contiguous. The event entries associated
+with a lumi might not be contiguous. Even so, the iteration
+order will always follow the pattern run followed by contained
+lumis followed by contained events (note it's possible
+there are no contained events for a lumi or no contained
+lumis for a run). Because the events are not contiguous,
+this leads to run or lumi entries appearing more than once
+in the iteration (once for each contained contiguous sequence
+of events plus possibly one additional time near the end
+for the run or lumi to be processed and merged, although this
+might or might not occur with the last contiguous sequence
+of events). The iterator is designed to automatically step to
+each event once, even when it points at the same RunOrLumiEntry
+with the same events more than once in the iteration. The client
+does not need to do anything special related to events. On the
+other hand, the client (usually PoolSource, which passes the
+value into the Principal) needs to check the iterator functions
+named shouldProcessLumi or shouldProcessRun to determine whether
+a lumi or run is being encountered more than once. Those functions
+will return true only once. At that time, run or lumi products
+are read, possibly merged, and written to output. When those
+functions return false, transitions still occur but products
+are not read, merged or written. If a module attempts to get
+run or lumi products in those transitions, there will be a
+"ProductNotFound" exception or invalid Handle. In general,
+getting run or lumi products from events does not work with
+the EntryOrder iterator type.
 
 One final comment with regards to IndexIntoFileItr.  This
 is not an STL iterator and it cannot be used with std::
@@ -85,14 +116,16 @@ This vector holds one element per entry in the run
 TTree and one element per entry in the lumi TTree.
 When sorted, everything associated with a given run and
 ProcessHistoryID will be contiguous in the vector.
-These groups of elements will be sorted in the order they
-first appear in the input file. Within each of
+These groups of elements will be sorted by an OutputModule
+in the order they first appear when an Event, Lumi or Run
+is written to output (close to input order but because of
+concurrency it might not be exactly the same). Within each of
 these groups the run entries come first in order,
 followed by the elements associated with the lumis.
 The lumis are also contiguous and sorted by first
-appearance in the input file. Within a lumi they
-are sorted by entry order. And each luminosity
-element corresponds to one contiguous sequence
+appearance by the output module in a way similar to runs.
+Within a lumi they are sorted by entry order. And each
+luminosity element corresponds to one contiguous sequence
 of Events in the Events TTree. Before we implemented
 concurrent processing of luminosity blocks that
 was the full story. After that it became more complicated
@@ -112,10 +145,7 @@ is invalid (note the one element with a valid entry might
 or might not be associated with a contiguous block of
 events). In the sort of elements related to a particular
 luminosity block, the entries with invalid entry numbers
-will come before the valid ones. (It has not happened
-yet as I am writing this, but a similar thing will
-likely occur for runs if/when we ever implement concurrent
-runs)
+will come before the valid ones.
 
 There are a number of transient data members also.
 The 3 most important of these are vectors.  To
@@ -234,7 +264,6 @@ namespace edm {
     static constexpr LuminosityBlockNumber_t invalidLumi = 0U;
     static constexpr EventNumber_t invalidEvent = 0U;
     static constexpr EntryNumber_t invalidEntry = -1LL;
-    static constexpr EntryNumber_t continuedLumi = -2LL;
 
     enum EntryType { kRun, kLumi, kEvent, kEnd };
 
@@ -247,15 +276,21 @@ namespace edm {
     /// This enum is used to specify the order of iteration.
     /// In firstAppearanceOrder there are 3 sort criteria, in order of precedence these are:
     ///
-    ///   1. firstAppearance of the ProcessHistoryID and run number in the file
+    ///   1. firstAppearance of the ProcessHistoryID and run number in the Events TTree of
+    ///   the file (in cases where there are no Events in a run it depends on the order
+    ///   of the call to writeRun or writeLumi in the preceding step where the IndexIntoFile
+    ///   was created)
     ///
-    ///   2. firstAppearance of the ProcessHistoryID, run number and lumi number in the file
+    ///   2. firstAppearance of the ProcessHistoryID, run number and lumi number in the Events
+    ///   TTree of the file (in cases where there are no Events in a lumi it depends on the
+    ///   order of the call to writeRun or writeLumi in the preceding step where the IndexIntoFile
+    ///   was created)
     ///
     ///   3. entry number
     ///
     /// In numerical order the criteria are in order of precedence are:
     ///
-    ///   1. processHistoryID index (which are normally in order of appearance in the process)
+    ///   1. processHistoryID index (which are normally in order of appearance in the output module)
     ///
     ///   2. run number
     ///
@@ -264,6 +299,37 @@ namespace edm {
     ///   4. event number
     ///
     ///   5. entry number
+    ///
+    /// In entryOrder the order of iteration is as follows:
+    ///
+    ///   1. Events are processed in the exact order they appear in the
+    ///   input Events TTree. (The main purpose of this order is to allow
+    ///   fast cloning of the input Events TTree to the output Events TTree.)
+    ///
+    ///   2. Runs and Lumis will show up around events so that the pattern
+    ///   run, then contained lumi(s), then contained event(s) is always followed,
+    ////  but because events from a run (or lumi) may not be contiguous a particular
+    ///   run entry or lumi entry may appear multiple times in this ordering. Each
+    ///   Run entry or lumi entry will appear once with the function shouldProcessRun
+    ///   or shouldProcessLumi returning true. The client (usually PoolSource) must
+    ///   notice when these return false and not read or process them multiple times.
+    ///
+    ///   3. All runs and lumis associated with a run should be processed
+    ///   when the last contiguous sequence of events for that run is processed.
+    ///   If a run has no events, then it is interspersed within that sequence
+    ///   of runs according to its run TTree entry number.
+    ///
+    ///   4. Within a run, lumis should be processed when the last contiguous
+    ///   subsequence of events from that lumi is processed. If there are
+    ///   no events from a lumi in the last contiguous sequence of events
+    ///   from the run, then the lumis are interspersed within the sequence
+    ///   of lumis from that run in order of lumi TTree entry number.
+    ///
+    ///   Note that the ordering above will allow the client (usually PoolSource)
+    ///   to merge all run entries associated with a single run and merge all lumi
+    ///   entries associated with a single lumi the first time an input file is
+    ///   read. This is the same as in the other two orderings.
+
     enum SortOrder { numericalOrder, firstAppearanceOrder, entryOrder };
 
     /// Used to start an iteration over the Runs, Lumis, and Events in a file.
@@ -546,13 +612,14 @@ namespace edm {
       virtual RunNumber_t run() const = 0;
       virtual LuminosityBlockNumber_t lumi() const = 0;
       virtual EntryNumber_t entry() const = 0;
-      virtual bool entryContinues() const = 0;
+      virtual bool shouldProcessLumi() const = 0;
+      virtual bool shouldProcessRun() const = 0;
       virtual LuminosityBlockNumber_t peekAheadAtLumi() const = 0;
       virtual EntryNumber_t peekAheadAtEventEntry() const = 0;
       EntryNumber_t firstEventEntryThisRun();
       EntryNumber_t firstEventEntryThisLumi();
       virtual bool skipLumiInRun() = 0;
-      virtual bool lumiEntryValid(int index) const = 0;
+      virtual bool lumiIterationStartingIndex(int index) const = 0;
 
       void advanceToNextRun();
       void advanceToNextLumiOrRun();
@@ -564,7 +631,18 @@ namespace edm {
       bool operator==(IndexIntoFileItrImpl const& right) const;
 
       IndexIntoFile const* indexIntoFile() const { return indexIntoFile_; }
+
+      // runOrLumiEntries_ and runOrLumiIndexes_ have the same size. It
+      // is returned by the function size(). There are iterator data members
+      // that are indexes into a container. The iterators also need the size of that
+      // container and the function indexedSize() returns it. For the NoSort and
+      // Sorted derived iterator classes, those indexes point directly into
+      // runOrLumiEntries_ or runOrLumiIndexes_ and therefore return the same
+      // value as size(). The indexes in the EntryOrder iterator class point into
+      // a larger container and indexedSize() is overridden to give the size of
+      // that container.
       int size() const { return size_; }
+      virtual int indexedSize() const;
 
       EntryType type() const { return type_; }
       int indexToRun() const { return indexToRun_; }
@@ -627,11 +705,12 @@ namespace edm {
       RunNumber_t run() const override;
       LuminosityBlockNumber_t lumi() const override;
       EntryNumber_t entry() const override;
-      bool entryContinues() const final { return false; };
+      bool shouldProcessLumi() const final { return true; }
+      bool shouldProcessRun() const final { return true; }
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
-      bool lumiEntryValid(int index) const override;
+      bool lumiIterationStartingIndex(int index) const override;
 
     private:
       void initializeLumi_() override;
@@ -662,11 +741,12 @@ namespace edm {
       RunNumber_t run() const override;
       LuminosityBlockNumber_t lumi() const override;
       EntryNumber_t entry() const override;
-      bool entryContinues() const final { return false; }
+      bool shouldProcessLumi() const final { return true; }
+      bool shouldProcessRun() const final { return true; }
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
-      bool lumiEntryValid(int index) const override;
+      bool lumiIterationStartingIndex(int index) const override;
 
     private:
       void initializeLumi_() override;
@@ -697,16 +777,28 @@ namespace edm {
       RunNumber_t run() const override;
       LuminosityBlockNumber_t lumi() const override;
       EntryNumber_t entry() const override;
-      bool entryContinues() const override;
+      bool shouldProcessLumi() const final;
+      bool shouldProcessRun() const final;
       LuminosityBlockNumber_t peekAheadAtLumi() const override;
       EntryNumber_t peekAheadAtEventEntry() const override;
       bool skipLumiInRun() override;
-      bool lumiEntryValid(int index) const override;
+      bool lumiIterationStartingIndex(int index) const override;
+      int indexedSize() const override { return indexedSize_; }
 
     private:
+      // Note the argument to the function runOrLumisEntry is NOT a
+      // direct index into the vector in IndexIntoFile! It returns a
+      // reference to an object from that vector. However, the argument
+      // to runOrLumisEntry is an index into fileOrderRunOrLumiEntry_
+      // which reorders the elements so the iteration is in event TTree
+      // entry order. It also adds in dummy entries to insert
+      // the extra run and lumi transitions required for that ordering.
+
       RunOrLumiEntry const& runOrLumisEntry(EntryNumber_t iEntry) const {
         return indexIntoFile()->runOrLumiEntries()[fileOrderRunOrLumiEntry_[iEntry]];
       }
+      bool shouldProcessRunOrLumi(EntryNumber_t iEntry) const { return shouldProcessRunOrLumi_[iEntry]; }
+      bool shouldProcessEvents(EntryNumber_t iEntry) const { return shouldProcessEvents_[iEntry]; }
       void initializeLumi_() override;
       bool nextEventRange() override;
       bool previousEventRange() override;
@@ -715,7 +807,77 @@ namespace edm {
       bool isSameLumi(int index1, int index2) const override;
       bool isSameRun(int index1, int index2) const override;
       LuminosityBlockNumber_t lumi(int index) const override;
+
+      struct TTreeEntryAndIndex {
+        IndexIntoFile::EntryNumber_t ttreeEntry_;
+        int runOrLumiIndex_;
+      };
+
+      class EntryOrderInitializationInfo {
+      public:
+        void resizeVectors(std::vector<RunOrLumiEntry> const&);
+        void gatherNeededInfo(std::vector<RunOrLumiEntry> const&);
+        void fillIndexesSortedByEventEntry(std::vector<RunOrLumiEntry> const&);
+        void fillIndexesToLastContiguousEvents(std::vector<RunOrLumiEntry> const&);
+
+        // Contains information only needed in the constructor of IndexIntoFileItrEntryOrder
+        std::vector<int> firstIndexOfRun_;
+        std::vector<int> firstIndexOfLumi_;
+        std::vector<int> startOfLastContiguousEventsInRun_;
+        std::vector<int> startOfLastContiguousEventsInLumi_;
+
+        // Will contain indexes of lumi entries with events and will be
+        // sorted by first Event TTree entry number.
+        std::vector<TTreeEntryAndIndex> indexesSortedByEventEntry_;
+        std::vector<TTreeEntryAndIndex>::const_iterator iEventSequence_;
+        std::vector<TTreeEntryAndIndex>::const_iterator iEventSequenceEnd_;
+        int eventSequenceIndex_ = 0;
+        RunOrLumiEntry const* eventSequenceRunOrLumiEntry_ = nullptr;
+
+        void nextEventSequence(std::vector<RunOrLumiEntry> const& runOrLumiEntries) {
+          ++iEventSequence_;
+          if (iEventSequence_ < iEventSequenceEnd_) {
+            eventSequenceIndex_ = iEventSequence_->runOrLumiIndex_;
+            eventSequenceRunOrLumiEntry_ = &runOrLumiEntries[eventSequenceIndex_];
+          }
+        }
+
+        // Holds the index to the first entry associated with each run with no events
+        // Sorted by the first run TTree entry number
+        std::vector<TTreeEntryAndIndex> runsWithNoEvents_;
+        std::vector<TTreeEntryAndIndex>::const_iterator nextRunWithNoEvents_;
+        std::vector<TTreeEntryAndIndex>::const_iterator endRunsWithNoEvents_;
+      };
+
+      void addRunsWithNoEvents(EntryOrderInitializationInfo&, EntryNumber_t maxRunTTreeEntry = invalidEntry);
+      void fillLumisWithNoRemainingEvents(std::vector<TTreeEntryAndIndex>& lumisWithNoRemainingEvents,
+                                          int startingIndex,
+                                          EntryNumber_t currentRun,
+                                          RunOrLumiEntry const* eventSequenceRunOrLumiEntry) const;
+      void reserveSpaceInVectors(std::vector<EntryNumber_t>::size_type);
+      void addToFileOrder(int index, bool processRunOrLumi, bool processEvents);
+      void handleToEndOfContiguousEventsInRun(EntryOrderInitializationInfo& info, EntryNumber_t currentRun);
+      void handleToEndOfContiguousEventsInLumis(EntryOrderInitializationInfo& info,
+                                                EntryNumber_t currentRun,
+                                                int endOfRunEntries);
+      EntryNumber_t lowestInLumi(EntryOrderInitializationInfo& info, int currentLumi) const;
+      void handleLumisWithNoEvents(std::vector<TTreeEntryAndIndex>::const_iterator& nextLumiWithNoEvents,
+                                   std::vector<TTreeEntryAndIndex>::const_iterator& endLumisWithNoEvents,
+                                   EntryNumber_t lumiTTreeEntryNumber,
+                                   bool completeAll = false);
+      void handleLumiWithEvents(EntryOrderInitializationInfo& info,
+                                int currentLumi,
+                                EntryNumber_t firstBeginEventsContiguousLumi);
+      void handleLumiEntriesNoRemainingEvents(EntryOrderInitializationInfo& info,
+                                              int& iLumiIndex,
+                                              int currentLumi,
+                                              EntryNumber_t firstBeginEventsContiguousLumi,
+                                              bool completeAll = false);
+
+      int indexedSize_ = 0;
       std::vector<EntryNumber_t> fileOrderRunOrLumiEntry_;
+      std::vector<bool> shouldProcessRunOrLumi_;
+      std::vector<bool> shouldProcessEvents_;
     };
 
     //*****************************************************************************
@@ -745,7 +907,9 @@ namespace edm {
       RunNumber_t run() const { return impl_->run(); }
       LuminosityBlockNumber_t lumi() const { return impl_->lumi(); }
       EntryNumber_t entry() const { return impl_->entry(); }
-      bool entryContinues() const { return impl_->entryContinues(); }
+      bool shouldProcessLumi() const { return impl_->shouldProcessLumi(); }
+      bool shouldProcessRun() const { return impl_->shouldProcessRun(); }
+      bool lumiIterationStartingIndex(int index) const { return impl_->lumiIterationStartingIndex(index); }
 
       /// Same as lumi() except when the the current type is kRun.
       /// In that case instead of always returning 0 (invalid), it will return the lumi that will be processed next
@@ -839,6 +1003,7 @@ namespace edm {
     private:
       //for testing
       friend class ::TestIndexIntoFile;
+      friend class ::TestIndexIntoFile2;
       friend class ::TestIndexIntoFile3;
       friend class ::TestIndexIntoFile4;
       friend class ::TestIndexIntoFile5;
@@ -847,6 +1012,7 @@ namespace edm {
       // this class.
       IndexIntoFile const* indexIntoFile() const { return impl_->indexIntoFile(); }
       int size() const { return impl_->size(); }
+      int indexedSize() const { return impl_->indexedSize(); }
       EntryType type() const { return impl_->type(); }
       int indexToRun() const { return impl_->indexToRun(); }
       int indexToLumi() const { return impl_->indexToLumi(); }
@@ -968,6 +1134,9 @@ namespace edm {
     /// because it makes some corrections before sorting.  A std::stable_sort
     /// works in cases where those corrections are not needed.
     void sortVector_Run_Or_Lumi_Entries();
+
+    /// Run this check just after sorting
+    void checkForMissingRunOrLumiEntry() const;
 
     //used internally by addEntry
     void addLumi(int index, RunNumber_t run, LuminosityBlockNumber_t lumi, EntryNumber_t entry);
