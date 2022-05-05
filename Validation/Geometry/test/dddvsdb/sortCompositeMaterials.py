@@ -10,7 +10,7 @@ tree = ET.parse(inputFile)
 root = tree.getroot()
 
 sortList = []
-elem = root.find('{http://www.cern.ch/cms/DDL}MaterialSection')
+elem = root.find('MaterialSection')
 for subelem in elem :
      key = subelem.get('name')
      print (key)

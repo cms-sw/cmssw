@@ -37,6 +37,7 @@
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
+#include "DataFormats/Math/interface/angle_units.h"
 #include "DataFormats/Math/interface/Rounding.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -44,12 +45,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DetectorDescription/Core/interface/DDRoot.h"
-#include "DetectorDescription/Core/interface/DDExpandedView.h"
-#include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
-#include "DetectorDescription/Core/interface/DDMaterial.h"
 
 // output
 #include <iostream>
@@ -59,6 +54,10 @@
 #include <bitset>
 
 using namespace cms_rounding;
+using namespace geometric_det_ns;
+using namespace angle_units::operators;
+
+typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > Displ3DVec;
 
 class ModuleInfo : public edm::one::EDAnalyzer<> {
 public:
@@ -259,8 +258,9 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         Output << " TID" << side << "\t"
                << "Disk " << theDisk << " Ring " << theRing << " " << part << "\t"
                << " module " << tTopo->tidModule(id) << "\t" << name << "\t";
-        Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
-               << module->translation().Z() << std::endl;
+        Output << " " << roundIfNear0(module->translation().X(), tolerance_) << "   \t"
+               << roundIfNear0(module->translation().Y(), tolerance_) << "   \t"
+               << roundIfNear0(module->translation().Z(), tolerance_) << std::endl;
         break;
       }
 
@@ -326,8 +326,9 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
                << "\t"
                << "\t"
                << " module " << theModule << "\t" << name << "\t";
-        Output << " " << module->translation().X() << "   \t" << module->translation().Y() << "   \t"
-               << module->translation().Z() << std::endl;
+        Output << " " << roundIfNear0(module->translation().X(), tolerance_) << "   \t"
+               << roundIfNear0(module->translation().Y(), tolerance_) << "   \t"
+               << roundIfNear0(module->translation().Z(), tolerance_) << std::endl;
 
         // TEC output as Martin Weber's
         int out_side = (tTopo->tecSide(id) == 1) ? -1 : 1;
@@ -385,6 +386,10 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         double out_r = sqrt(module->translation().X() * module->translation().X() +
                             module->translation().Y() * module->translation().Y());
         double out_phi_rad = roundIfNear0(atan2(module->translation().Y(), module->translation().X()), tolerance_);
+        if (almostEqual(out_phi_rad, -1._pi, 10)) {
+          out_phi_rad = 1._pi;
+          // Standardize phi values of |pi| to be always +pi instead of sometimes -pi.
+        }
         TECOutput << out_side << " " << out_disk << " " << out_sector << " " << out_petal << " " << out_ring << " "
                   << out_module << " " << out_sensor << " " << out_x << " " << out_y << " " << out_z << " " << out_r
                   << " " << out_phi_rad << std::endl;
@@ -413,20 +418,25 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     Output << "\t"
            << "thickness " << std::fixed << std::setprecision(0) << thickness << " um \n";
     Output << "\tActive Area Center" << std::endl;
-    Output << "\t O = (" << std::fixed << std::setprecision(4) << module->translation().X() << "," << std::fixed
-           << std::setprecision(4) << module->translation().Y() << "," << std::fixed << std::setprecision(4)
-           << module->translation().Z() << ")" << std::endl;
+    Output << "\t O = (" << std::fixed << std::setprecision(4) << roundIfNear0(module->translation().X(), tolerance_)
+           << "," << std::fixed << std::setprecision(4) << roundIfNear0(module->translation().Y(), tolerance_) << ","
+           << std::fixed << std::setprecision(4) << roundIfNear0(module->translation().Z(), tolerance_) << ")"
+           << std::endl;
     //
     double polarRadius = std::sqrt(module->translation().X() * module->translation().X() +
                                    module->translation().Y() * module->translation().Y());
-    double phiDeg = atan2(module->translation().Y(), module->translation().X()) * 360. / 6.283185307;
-    double phiRad = atan2(module->translation().Y(), module->translation().X());
+    double phiRad = roundIfNear0(atan2(module->translation().Y(), module->translation().X()), tolerance_);
+    if (almostEqual(phiRad, -1._pi, 10)) {
+      phiRad = 1._pi;
+      // Standardize phi values of |pi| to be always +pi instead of sometimes -pi.
+    }
+    double phiDeg = convertRadToDeg(phiRad);
     //
     Output << "\t\t polar radius " << std::fixed << std::setprecision(4) << polarRadius << "\t"
            << "phi [deg] " << std::fixed << std::setprecision(4) << phiDeg << "\t"
            << "phi [rad] " << std::fixed << std::setprecision(4) << phiRad << std::endl;
     // active area versors (rotation matrix)
-    DD3Vector x, y, z;
+    Displ3DVec x, y, z;
     module->rotation().GetComponents(x, y, z);
     x = roundVecIfNear0(x, tolerance_);
     y = roundVecIfNear0(y, tolerance_);
@@ -456,9 +466,10 @@ void ModuleInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     if (fromDDD_ && printDDD_) {
       NumberingOutput << " " << detPos;
     }
-    NumberingOutput << " " << std::fixed << std::setprecision(4) << module->translation().X() << " " << std::fixed
-                    << std::setprecision(4) << module->translation().Y() << " " << std::fixed << std::setprecision(4)
-                    << module->translation().Z() << " " << std::endl;
+    NumberingOutput << " " << std::fixed << std::setprecision(4) << roundIfNear0(module->translation().X(), tolerance_)
+                    << " " << std::fixed << std::setprecision(4) << roundIfNear0(module->translation().Y(), tolerance_)
+                    << " " << std::fixed << std::setprecision(4) << roundIfNear0(module->translation().Z(), tolerance_)
+                    << " " << std::endl;
     //
   }
 
