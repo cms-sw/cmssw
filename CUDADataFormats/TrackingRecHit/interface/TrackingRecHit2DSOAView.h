@@ -4,6 +4,7 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
@@ -25,7 +26,7 @@ public:
 
   using AverageGeometry = pixelTopology::AverageGeometry;
 
-  template <typename>
+  template <memoryPool::Where>
   friend class TrackingRecHit2DHeterogeneous;
   friend class TrackingRecHit2DReduced;
 
