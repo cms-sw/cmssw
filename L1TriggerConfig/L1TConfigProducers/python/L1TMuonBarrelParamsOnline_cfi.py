@@ -17,7 +17,7 @@ l1bmtfparProtodb = cms.ESSource("PoolDBESSource",
 
 L1TMuonBarrelParamsOnlineProd = cms.ESProducer("L1TMuonBarrelParamsOnlineProd",
     onlineAuthentication = cms.string('.'),
-    forceGeneration      = cms.bool(False),
+    forceGeneration      = cms.bool(True),
     onlineDB             = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R'),
     transactionSafe      = cms.bool(True) # nothrow guarantee if set to False: carry on no matter what
 )
