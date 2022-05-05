@@ -18,6 +18,11 @@ namespace memoryPool {
     // schedule free
     void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool);
 
+    template<typename T>
+    auto copy(buffer<T> & dst,buffer<T> const & src, uint64_t size, cudaStream_t stream) {
+        return cudaMemcpyAsync(dst.get(), src.get(), sizeof(T)*size,  cudaMemcpyDefault, stream);
+    }
+
     struct CudaDeleterBase : public DeleterBase {
       CudaDeleterBase(cudaStream_t const &stream, Where where) : DeleterBase(getPool(where)), m_stream(stream) {}
 
@@ -46,24 +51,24 @@ namespace memoryPool {
     };
 
     template <typename T>
-    unique_ptr<T> make_unique(uint64_t size, Deleter del) {
+    buffer<T> make_buffer(uint64_t size, Deleter del) {
       auto ret = alloc(sizeof(T) * size, *del.pool());
       if (ret.second < 0)
         throw std::bad_alloc();
       del.setBucket(ret.second);
-      return unique_ptr<T>((T *)(ret.first), del);
+      return buffer<T>((T *)(ret.first), del);
     }
 
     template <typename T>
-    unique_ptr<T> make_unique(uint64_t size, cudaStream_t const &stream, Where where) {
-      return make_unique<T>(sizeof(T) * size, Deleter(std::make_shared<DeleteOne>(stream, getPool(where))));
+    buffer<T> make_buffer(uint64_t size, cudaStream_t const &stream, Where where) {
+      return make_buffer<T>(sizeof(T) * size, Deleter(std::make_shared<DeleteOne>(stream, getPool(where))));
     }
 
     /*
       template< class T, class... Args >
-      memoryPool::unique_ptr<T> make_unique( Args&&... args );
+      memoryPool::buffer<T> make_buffer( Args&&... args );
       template< class T, class... Args >
-      memoryPool::unique_ptr<T> make_unique(Deleter del, Args&&... args );
+      memoryPool::buffer<T> make_buffer(Deleter del, Args&&... args );
 */
 
   }  // namespace cuda

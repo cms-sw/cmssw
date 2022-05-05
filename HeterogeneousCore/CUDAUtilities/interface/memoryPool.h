@@ -42,6 +42,6 @@ namespace memoryPool {
   };
 
   template <typename T>
-  using unique_ptr = std::unique_ptr<T, Deleter>;
+  using buffer = std::unique_ptr<T, Deleter>;
 
 }  // namespace memoryPool

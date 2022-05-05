@@ -3,7 +3,7 @@
 
 template <memoryPool::Where where>
 struct dataProducer {
-  static auto operator()(cudaStream_t stream) { return memoryPool::cuda::make_unique<int>(20, stream, where); }
+  auto operator()(cudaStream_t stream) { return memoryPool::cuda::make_buffer<int>(20, stream, where); }
 };
 
 int main() {
@@ -33,12 +33,14 @@ int main() {
   auto& stream = streams[0];
 
   {
-    auto pd = memoryPool::cuda::make_unique<int>(20, stream, memoryPool::onDevice);
-    auto ph = memoryPool::cuda::make_unique<int>(20, stream, memoryPool::onHost);
-    auto pc = memoryPool::cuda::make_unique<int>(20, stream, memoryPool::onCPU);
+    auto pd = memoryPool::cuda::make_buffer<int>(20, stream, memoryPool::onDevice);
+    auto ph = memoryPool::cuda::make_buffer<int>(20, stream, memoryPool::onHost);
+    auto pc = memoryPool::cuda::make_buffer<int>(20, stream, memoryPool::onCPU);
 
-    auto dp = dataProducer<onDevice>(stream);
+    auto dp = dataProducer<memoryPool::onDevice>()(stream);
 
+    memoryPool::cuda::copy(ph,pd,20,stream);
+    memoryPool::cuda::copy(pd,ph,20,stream);
     memoryPool::cuda::dumpStat();
   }
 
@@ -46,15 +48,15 @@ int main() {
     memoryPool::Deleter devDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
     memoryPool::Deleter hosDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onHost));
 
-    auto p0 = memoryPool::cuda::make_unique<int>(20, devDeleter);
-    auto p1 = memoryPool::cuda::make_unique<double>(20, devDeleter);
-    auto p2 = memoryPool::cuda::make_unique<bool>(20, devDeleter);
-    auto p3 = memoryPool::cuda::make_unique<int>(20, devDeleter);
+    auto p0 = memoryPool::cuda::make_buffer<int>(20, devDeleter);
+    auto p1 = memoryPool::cuda::make_buffer<double>(20, devDeleter);
+    auto p2 = memoryPool::cuda::make_buffer<bool>(20, devDeleter);
+    auto p3 = memoryPool::cuda::make_buffer<int>(20, devDeleter);
 
-    auto hp0 = memoryPool::cuda::make_unique<int>(20, hosDeleter);
-    auto hp1 = memoryPool::cuda::make_unique<double>(20, hosDeleter);
-    auto hp2 = memoryPool::cuda::make_unique<bool>(20, hosDeleter);
-    auto hp3 = memoryPool::cuda::make_unique<int>(20, hosDeleter);
+    auto hp0 = memoryPool::cuda::make_buffer<int>(20, hosDeleter);
+    auto hp1 = memoryPool::cuda::make_buffer<double>(20, hosDeleter);
+    auto hp2 = memoryPool::cuda::make_buffer<bool>(20, hosDeleter);
+    auto hp3 = memoryPool::cuda::make_buffer<int>(20, hosDeleter);
 
     memoryPool::cuda::dumpStat();
   }
