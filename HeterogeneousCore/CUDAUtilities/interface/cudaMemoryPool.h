@@ -5,6 +5,8 @@
 // only for cudaStream_t
 #include <cuda.h>
 
+#include<cassert>
+
 namespace memoryPool {
   namespace cuda {
 
@@ -19,7 +21,8 @@ namespace memoryPool {
     void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool);
 
     template<typename T>
-    auto copy(buffer<T> & dst,buffer<T> const & src, uint64_t size, cudaStream_t stream) {
+    auto copy(buffer<T> & dst, buffer<T> const & src, uint64_t size, cudaStream_t stream) {
+        assert(dst.get()); assert(src.get()); assert(size>0);
         return cudaMemcpyAsync(dst.get(), src.get(), sizeof(T)*size,  cudaMemcpyDefault, stream);
     }
 

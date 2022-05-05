@@ -1,4 +1,5 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include <iostream>
 
 template <memoryPool::Where where>
@@ -39,8 +40,8 @@ int main() {
 
     auto dp = dataProducer<memoryPool::onDevice>()(stream);
 
-    memoryPool::cuda::copy(ph,pd,20,stream);
-    memoryPool::cuda::copy(pd,ph,20,stream);
+    cudaCheck(memoryPool::cuda::copy(ph,pd,20,stream));
+    cudaCheck(memoryPool::cuda::copy(pd,ph,20,stream));;
     memoryPool::cuda::dumpStat();
   }
 
@@ -57,6 +58,9 @@ int main() {
     auto hp1 = memoryPool::cuda::make_buffer<double>(20, hosDeleter);
     auto hp2 = memoryPool::cuda::make_buffer<bool>(20, hosDeleter);
     auto hp3 = memoryPool::cuda::make_buffer<int>(20, hosDeleter);
+
+    cudaCheck(memoryPool::cuda::copy(hp3,p3,20,stream));
+    cudaCheck(memoryPool::cuda::copy(p3,hp0,20,stream));;
 
     memoryPool::cuda::dumpStat();
   }

@@ -31,7 +31,7 @@ memoryPool::buffer<uint16_t> TrackingRecHit2DGPU::store16ToHostAsync(cudaStream_
 template <>
 memoryPool::buffer<uint32_t> TrackingRecHit2DGPU::hitsModuleStartToHostAsync(cudaStream_t stream) const {
   auto ret = make_buffer<uint32_t>(nMaxModules() + 1, stream,memoryPool::onHost);
-  cudaCheck(
+  if (m_hitsModuleStart) cudaCheck(
       cudaMemcpyAsync(ret.get(), m_hitsModuleStart, sizeof(uint32_t) * (nMaxModules() + 1), cudaMemcpyDefault, stream));
   return ret;
 }
