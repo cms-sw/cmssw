@@ -28,76 +28,76 @@
 #include "TObjArray.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "GeneratorInterface/ExternalDecays/test/EvtGenTestAnalyzer.h"
 
-using namespace edm;
-using namespace std;
-using namespace HepMC;
-
-EvtGenTestAnalyzer::EvtGenTestAnalyzer(const ParameterSet& pset)
-    : fOutputFileName(pset.getUntrackedParameter<string>("HistOutFile", std::string("TestBs.root"))),
+EvtGenTestAnalyzer::EvtGenTestAnalyzer(const edm::ParameterSet& pset)
+    : fOutputFileName(pset.getUntrackedParameter<std::string>("HistOutFile", std::string("TestBs.root"))),
       tokenHepMC_(consumes<edm::HepMCProduct>(
           edm::InputTag(pset.getUntrackedParameter("moduleLabel", std::string("generator")), "unsmeared"))),
-      fOutputFile(0) {}
+      fOutputFile(0) {
+  usesResource(TFileService::kSharedResource);
+}
 
 void EvtGenTestAnalyzer::beginJob() {
   nevent = 0;
   nbs = 0;
 
-  fOutputFile = new TFile(fOutputFileName.c_str(), "RECREATE");
+  edm::Service<TFileService> fs;
+  // fOutputFile = new TFile(fOutputFileName.c_str(), "RECREATE");
   // fHist2muMass  = new TH1D(  "Hist2muMass", "2-mu inv. mass", 100,  60., 120. ) ;
-  hGeneralId = new TH1D("hGeneralId", "LundIDs of all particles", 100, -1000., 1000.);
-  hnB = new TH1D("hnB", "N(B)", 10, 0., 10.);
-  hnJpsi = new TH1D("hnJpsi", "N(Jpsi)", 10, 0., 10.);
-  hnBz = new TH1D("hnBz", "N(B0)", 10, 0., 10.);
-  hnBzb = new TH1D("hnBzb", "N(B0bar)", 10, 0., 10.);
-  hMinvb = new TH1D("hMinvb", "B invariant mass", 100, 5.0, 6.0);
-  hPtbs = new TH1D("hPtbs", "Pt Bs", 100, 0., 50.);
-  hPbs = new TH1D("hPbs", "P Bs", 100, 0., 200.);
-  hPhibs = new TH1D("hPhibs", "Phi Bs", 100, -3.14, 3.14);
-  hEtabs = new TH1D("hEtabs", "Eta Bs", 100, -7.0, 7.0);
-  hPtmu = new TH1D("hPtmu", "Pt Mu", 100, 0., 50.);
-  hPmu = new TH1D("hPmu", "P Mu", 100, 0., 200.);
-  hPhimu = new TH1D("hPhimu", "Phi Mu", 100, -3.14, 3.14);
-  hEtamu = new TH1D("hEtamu", "Eta Mu", 100, -7.0, 7.0);
-  hPtRadPho = new TH1D("hPtRadPho", "Pt radiated photon", 100, 0., 200.);
-  hPhiRadPho = new TH1D("hPhiRadPho", "Phi radiated photon", 100, -3.14, 3.14);
-  hEtaRadPho = new TH1D("hEtaRadPho", "Eta radiated photon", 100, -7.0, 7.0);
-  htbPlus = new TH1D("htbPlus", "B+ proper decay time", 50, 0., 12.);
-  htbUnmix = new TH1D("htbUnmix", "B0 proper decay time (unmixed)", 50, 0., 12.);
-  htbMix = new TH1D("htbMix", "B0 proper decay time (mixed)", 50, 0., 12.);
-  htbMixPlus = new TH1D("htbMixPlus", "B0 proper decay time (mixed positive)", 50, 0., 12.);
-  htbMixMinus = new TH1D("htbMixMinus", "B0 proper decay time (mixed negative)", 50, 0., 12.);
-  htbsUnmix = new TH1D("htbsUnmix", "Bs proper decay time (unmixed)", 50, 0., 12.);
-  htbsMix = new TH1D("htbsMix", "Bs proper decay time (mixed)", 50, 0., 12.);
-  htbJpsiKs = new TH1D("htbJpsiKs", "B0 -> J/#psiK_{s} decay time (B0 tags)", 50, 0., 12.);
-  htbbarJpsiKs = new TH1D("htbbarJpsiKs", "B0 -> J/#psiK_{s} decay time (B0bar tags)", 50, 0., 12.);
-  hmumuMassSqr = new TH1D("hmumuMassSqr", "#mu^{+}#mu^{-} invariant mass squared", 100, -1.0, 25.0);
+  hGeneralId = fs->make<TH1D>("hGeneralId", "LundIDs of all particles", 100, -1000., 1000.);
+  hnB = fs->make<TH1D>("hnB", "N(B)", 10, 0., 10.);
+  hnJpsi = fs->make<TH1D>("hnJpsi", "N(Jpsi)", 10, 0., 10.);
+  hnBz = fs->make<TH1D>("hnBz", "N(B0)", 10, 0., 10.);
+  hnBzb = fs->make<TH1D>("hnBzb", "N(B0bar)", 10, 0., 10.);
+  hMinvb = fs->make<TH1D>("hMinvb", "B invariant mass", 100, 5.0, 6.0);
+  hPtbs = fs->make<TH1D>("hPtbs", "Pt Bs", 100, 0., 50.);
+  hPbs = fs->make<TH1D>("hPbs", "P Bs", 100, 0., 200.);
+  hPhibs = fs->make<TH1D>("hPhibs", "Phi Bs", 100, -3.14, 3.14);
+  hEtabs = fs->make<TH1D>("hEtabs", "Eta Bs", 100, -7.0, 7.0);
+  hPtmu = fs->make<TH1D>("hPtmu", "Pt Mu", 100, 0., 50.);
+  hPmu = fs->make<TH1D>("hPmu", "P Mu", 100, 0., 200.);
+  hPhimu = fs->make<TH1D>("hPhimu", "Phi Mu", 100, -3.14, 3.14);
+  hEtamu = fs->make<TH1D>("hEtamu", "Eta Mu", 100, -7.0, 7.0);
+  hPtRadPho = fs->make<TH1D>("hPtRadPho", "Pt radiated photon", 100, 0., 200.);
+  hPhiRadPho = fs->make<TH1D>("hPhiRadPho", "Phi radiated photon", 100, -3.14, 3.14);
+  hEtaRadPho = fs->make<TH1D>("hEtaRadPho", "Eta radiated photon", 100, -7.0, 7.0);
+  htbPlus = fs->make<TH1D>("htbPlus", "B+ proper decay time", 50, 0., 12.);
+  htbUnmix = fs->make<TH1D>("htbUnmix", "B0 proper decay time (unmixed)", 50, 0., 12.);
+  htbMix = fs->make<TH1D>("htbMix", "B0 proper decay time (mixed)", 50, 0., 12.);
+  htbMixPlus = fs->make<TH1D>("htbMixPlus", "B0 proper decay time (mixed positive)", 50, 0., 12.);
+  htbMixMinus = fs->make<TH1D>("htbMixMinus", "B0 proper decay time (mixed negative)", 50, 0., 12.);
+  htbsUnmix = fs->make<TH1D>("htbsUnmix", "Bs proper decay time (unmixed)", 50, 0., 12.);
+  htbsMix = fs->make<TH1D>("htbsMix", "Bs proper decay time (mixed)", 50, 0., 12.);
+  htbJpsiKs = fs->make<TH1D>("htbJpsiKs", "B0 -> J/#psiK_{s} decay time (B0 tags)", 50, 0., 12.);
+  htbbarJpsiKs = fs->make<TH1D>("htbbarJpsiKs", "B0 -> J/#psiK_{s} decay time (B0bar tags)", 50, 0., 12.);
+  hmumuMassSqr = fs->make<TH1D>("hmumuMassSqr", "#mu^{+}#mu^{-} invariant mass squared", 100, -1.0, 25.0);
   hmumuMassSqrPlus =
-      new TH1D("hmumuMassSqrPlus", "#mu^{+}#mu^{-} invariant mass squared (cos#theta > 0)", 100, -1.0, 25.0);
+      fs->make<TH1D>("hmumuMassSqrPlus", "#mu^{+}#mu^{-} invariant mass squared (cos#theta > 0)", 100, -1.0, 25.0);
   hmumuMassSqrMinus =
-      new TH1D("hmumuMassSqrMinus", "#mu^{+}#mu^{-} invariant mass squared (cos#theta < 0)", 100, -1.0, 25.0);
-  hIdBsDaugs = new TH1D("hIdBsDaugs", "LundIDs of the Bs's daughters", 100, -1000., 1000.);
-  hIdPhiDaugs = new TH1D("hIdPhiDaugs", "LundIDs of the phi's daughters", 100, -500., 500.);
-  hIdJpsiMot = new TH1D("hIdJpsiMot", "LundIDs of the J/psi's mother", 100, -500., 500.);
-  hIdBDaugs = new TH1D("hIdBDaugs", "LundIDs of the B's daughters", 100, -1000., 1000.);
-  hCosTheta1 = new TH1D("hCosTheta1", "cos#theta_{1}", 50, -1., 1.);
-  hCosTheta2 = new TH1D("hCosTheta2", "cos#theta_{2}", 50, -1., 1.);
-  hPhi1 = new TH1D("hPhi1", "#phi_{1}", 50, -3.14, 3.14);
-  hPhi2 = new TH1D("hPhi2", "#phi_{2}", 50, -3.14, 3.14);
-  hCosThetaLambda = new TH1D("hCosThetaLambda", "cos#theta_{#Lambda}", 50, -1., 1.);
+      fs->make<TH1D>("hmumuMassSqrMinus", "#mu^{+}#mu^{-} invariant mass squared (cos#theta < 0)", 100, -1.0, 25.0);
+  hIdBsDaugs = fs->make<TH1D>("hIdBsDaugs", "LundIDs of the Bs's daughters", 100, -1000., 1000.);
+  hIdPhiDaugs = fs->make<TH1D>("hIdPhiDaugs", "LundIDs of the phi's daughters", 100, -500., 500.);
+  hIdJpsiMot = fs->make<TH1D>("hIdJpsiMot", "LundIDs of the J/psi's mother", 100, -500., 500.);
+  hIdBDaugs = fs->make<TH1D>("hIdBDaugs", "LundIDs of the B's daughters", 100, -1000., 1000.);
+  hCosTheta1 = fs->make<TH1D>("hCosTheta1", "cos#theta_{1}", 50, -1., 1.);
+  hCosTheta2 = fs->make<TH1D>("hCosTheta2", "cos#theta_{2}", 50, -1., 1.);
+  hPhi1 = fs->make<TH1D>("hPhi1", "#phi_{1}", 50, -3.14, 3.14);
+  hPhi2 = fs->make<TH1D>("hPhi2", "#phi_{2}", 50, -3.14, 3.14);
+  hCosThetaLambda = fs->make<TH1D>("hCosThetaLambda", "cos#theta_{#Lambda}", 50, -1., 1.);
 
   decayed = new std::ofstream("decayed.txt");
   undecayed = new std::ofstream("undecayed.txt");
   return;
 }
 
-void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
-  Handle<HepMCProduct> EvtHandle;
-  e.getByToken(tokenHepMC_, EvtHandle);
+void EvtGenTestAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
+  const edm::Handle<edm::HepMCProduct>& EvtHandle = e.getHandle(tokenHepMC_);
 
-  const GenEvent* Evt = EvtHandle->GetEvent();
+  const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
   if (Evt)
     nevent++;
 
@@ -113,11 +113,11 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
   int nBJpsiKs = 0;
   int nBJpsiKstar = 0;
 
-  for (GenEvent::particle_const_iterator p = Evt->particles_begin(); p != Evt->particles_end(); ++p) {
+  for (HepMC::GenEvent::particle_const_iterator p = Evt->particles_begin(); p != Evt->particles_end(); ++p) {
     // General
     TLorentzVector thePart4m(0., 0., 0., 0.);
-    GenVertex* endvert = (*p)->end_vertex();
-    GenVertex* prodvert = (*p)->production_vertex();
+    HepMC::GenVertex* endvert = (*p)->end_vertex();
+    HepMC::GenVertex* prodvert = (*p)->production_vertex();
     float gamma = (*p)->momentum().e() / (*p)->generated_mass();
     float dectime = 0.0;
     int mixed = -1;  // mixed is: -1 = unmixed
@@ -127,17 +127,17 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
       dectime = (endvert->position().t() - prodvert->position().t()) * mmcToPs / gamma;
 
       // Mixed particle ?
-      for (GenVertex::particles_in_const_iterator p2 = prodvert->particles_in_const_begin();
+      for (HepMC::GenVertex::particles_in_const_iterator p2 = prodvert->particles_in_const_begin();
            p2 != prodvert->particles_in_const_end();
            ++p2) {
         if ((*p)->pdg_id() + (*p2)->pdg_id() == 0) {
           mixed = 1;
           gamma = (*p2)->momentum().e() / (*p2)->generated_mass();
-          GenVertex* mixvert = (*p2)->production_vertex();
+          HepMC::GenVertex* mixvert = (*p2)->production_vertex();
           dectime = (prodvert->position().t() - mixvert->position().t()) * mmcToPs / gamma;
         }
       }
-      for (GenVertex::particles_out_const_iterator ap = endvert->particles_out_const_begin();
+      for (HepMC::GenVertex::particles_out_const_iterator ap = endvert->particles_out_const_begin();
            ap != endvert->particles_out_const_end();
            ++ap) {
         if ((*p)->pdg_id() + (*ap)->pdg_id() == 0)
@@ -148,22 +148,22 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
     hGeneralId->Fill((*p)->pdg_id());
 
     // --------------------------------------------------------------
-    if (abs((*p)->pdg_id()) == 521)  // B+/-
+    if (std::abs((*p)->pdg_id()) == 521)  // B+/-
     // || abs((*p)->pdg_id()/100) == 4 || abs((*p)->pdg_id()/100) == 3)
     {
       nBp++;
       htbPlus->Fill(dectime);
       int isJpsiKstar = 0;
-      for (GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin();
+      for (HepMC::GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin();
            bp != endvert->particles_out_const_end();
            ++bp) {
-        if ((*bp)->pdg_id() == 443 || abs((*bp)->pdg_id()) == 323)
+        if ((*bp)->pdg_id() == 443 || std::abs((*bp)->pdg_id()) == 323)
           isJpsiKstar++;
       }
       if (isJpsiKstar == 2)
         nBJpsiKstar++;
     }
-    // if ((*p)->pdg_id() == 443) *undecayed << (*p)->pdg_id() << endl;
+    // if ((*p)->pdg_id() == 443) *undecayed << (*p)->pdg_id() << std::endl;
     // --------------------------------------------------------------
 
     if ((*p)->pdg_id() == 531 /* && endvert */) {  // B_s
@@ -173,7 +173,7 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
       hPhibs->Fill((*p)->momentum().phi());
       hEtabs->Fill((*p)->momentum().pseudoRapidity());
 
-      for (GenVertex::particles_out_const_iterator ap = endvert->particles_out_const_begin();
+      for (HepMC::GenVertex::particles_out_const_iterator ap = endvert->particles_out_const_begin();
            ap != endvert->particles_out_const_end();
            ++ap) {
         hIdBsDaugs->Fill((*ap)->pdg_id());
@@ -186,7 +186,7 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
       }
     }
     // --------------------------------------------------------------
-    if (abs((*p)->pdg_id()) == 511 /* && endvert */) {  // B0
+    if (std::abs((*p)->pdg_id()) == 511 /* && endvert */) {  // B0
       if (mixed != 0) {
         nB++;
         if ((*p)->pdg_id() > 0) {
@@ -203,7 +203,7 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
       int isJpsiKs = 0;
       int isKmumu = 0;
       int isSemilept = 0;
-      for (GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin();
+      for (HepMC::GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin();
            bp != endvert->particles_out_const_end();
            ++bp) {
         // Check invariant mass consistency ...
@@ -218,9 +218,9 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
           hPhiRadPho->Fill((*bp)->momentum().phi());
           hEtaRadPho->Fill((*bp)->momentum().pseudoRapidity());
         }
-        if ((*p)->pdg_id() > 0 && (abs((*bp)->pdg_id()) == 313 || abs((*bp)->pdg_id()) == 13))
+        if ((*p)->pdg_id() > 0 && (std::abs((*bp)->pdg_id()) == 313 || std::abs((*bp)->pdg_id()) == 13))
           isKmumu++;
-        if (abs((*bp)->pdg_id()) == 11 || abs((*bp)->pdg_id()) == 13 || abs((*bp)->pdg_id()) == 15)
+        if (std::abs((*bp)->pdg_id()) == 11 || std::abs((*bp)->pdg_id()) == 13 || std::abs((*bp)->pdg_id()) == 15)
           isSemilept++;
       }
 
@@ -230,7 +230,7 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
          for ( GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin(); bp != endvert->particles_out_const_end(); ++bp ) {
 	   *undecayed << (*bp)->pdg_id() << " " ;
          }
-         *undecayed << endl;
+         *undecayed << std::endl;
        } */
 
       if (isSemilept) {
@@ -261,7 +261,7 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
     // --------------------------------------------------------------
     if ((*p)->pdg_id() == 443) {  //Jpsi
       nJpsi++;
-      for (GenVertex::particles_in_const_iterator ap = prodvert->particles_in_const_begin();
+      for (HepMC::GenVertex::particles_in_const_iterator ap = prodvert->particles_in_const_begin();
            ap != prodvert->particles_in_const_end();
            ++ap) {
         hIdJpsiMot->Fill((*ap)->pdg_id());
@@ -270,7 +270,7 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
     // --------------------------------------------------------------
     if ((*p)->pdg_id() == 333) {  // phi
       if (endvert) {
-        for (GenVertex::particles_out_const_iterator cp = endvert->particles_out_const_begin();
+        for (HepMC::GenVertex::particles_out_const_iterator cp = endvert->particles_out_const_begin();
              cp != endvert->particles_out_const_end();
              ++cp) {
           hIdPhiDaugs->Fill((*cp)->pdg_id());
@@ -279,16 +279,16 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
     }
     // --------------------------------------------------------------
     if ((*p)->pdg_id() == 13) {  // mu+
-      for (GenVertex::particles_in_const_iterator p2 = prodvert->particles_in_const_begin();
+      for (HepMC::GenVertex::particles_in_const_iterator p2 = prodvert->particles_in_const_begin();
            p2 != prodvert->particles_in_const_end();
            ++p2) {
-        if (abs((*p2)->pdg_id()) == 511) {  // B0
+        if (std::abs((*p2)->pdg_id()) == 511) {  // B0
           hPtmu->Fill((*p)->momentum().perp());
           hPmu->Fill(
               sqrt(pow((*p)->momentum().px(), 2) + pow((*p)->momentum().py(), 2) + pow((*p)->momentum().pz(), 2)));
           hPhimu->Fill((*p)->momentum().phi());
           hEtamu->Fill((*p)->momentum().pseudoRapidity());
-          for (GenVertex::particles_out_const_iterator p3 = prodvert->particles_out_const_begin();
+          for (HepMC::GenVertex::particles_out_const_iterator p3 = prodvert->particles_out_const_begin();
                p3 != prodvert->particles_out_const_end();
                ++p3) {
             if ((*p3)->pdg_id() == -13) {  // mu-
@@ -330,30 +330,30 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
 
       nbs++;
       if (!endvert) {
-        *undecayed << (*p)->pdg_id() << endl;
+        *undecayed << (*p)->pdg_id() << std::endl;
       } else {
         *decayed << (*p)->pdg_id() << " --> ";
-        for (GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin();
+        for (HepMC::GenVertex::particles_out_const_iterator bp = endvert->particles_out_const_begin();
              bp != endvert->particles_out_const_end();
              ++bp) {
           *decayed << (*bp)->pdg_id() << " ";
         }
       }
-      *decayed << endl;
+      *decayed << std::endl;
 
       pLambdaB.SetPxPyPzE((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(), (*p)->momentum().e());
       enne = -(pLambdaB.Vect().Cross(TVector3(0., 0., 1.))).Unit();
 
       if (endvert) {
-        for (GenVertex::particles_out_const_iterator p2 = endvert->particles_out_const_begin();
+        for (HepMC::GenVertex::particles_out_const_iterator p2 = endvert->particles_out_const_begin();
              p2 != endvert->particles_out_const_end();
              ++p2) {
           if ((*p2)->pdg_id() == 443) {  // J/psi
             pJpsi.SetPxPyPzE(
                 (*p2)->momentum().px(), (*p2)->momentum().py(), (*p2)->momentum().pz(), (*p2)->momentum().e());
-            GenVertex* psivert = (*p2)->end_vertex();
+            HepMC::GenVertex* psivert = (*p2)->end_vertex();
             if (psivert) {
-              for (GenVertex::particles_out_const_iterator p3 = psivert->particles_out_const_begin();
+              for (HepMC::GenVertex::particles_out_const_iterator p3 = psivert->particles_out_const_begin();
                    p3 != psivert->particles_out_const_end();
                    ++p3) {
                 if ((*p3)->pdg_id() == -13) {  // mu+
@@ -366,12 +366,12 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
           if ((*p2)->pdg_id() == 3122) {  // Lambda0
             pLambda0.SetPxPyPzE(
                 (*p2)->momentum().px(), (*p2)->momentum().py(), (*p2)->momentum().pz(), (*p2)->momentum().e());
-            GenVertex* lamvert = (*p2)->end_vertex();
+            HepMC::GenVertex* lamvert = (*p2)->end_vertex();
             if (lamvert) {
-              for (GenVertex::particles_out_const_iterator p3 = lamvert->particles_out_const_begin();
+              for (HepMC::GenVertex::particles_out_const_iterator p3 = lamvert->particles_out_const_begin();
                    p3 != lamvert->particles_out_const_end();
                    ++p3) {
-                if (abs((*p3)->pdg_id()) == 2212) {  // p
+                if (std::abs((*p3)->pdg_id()) == 2212) {  // p
                   pProt.SetPxPyPzE(
                       (*p3)->momentum().px(), (*p3)->momentum().py(), (*p3)->momentum().pz(), (*p3)->momentum().e());
                 }
@@ -414,8 +414,8 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
   hnJpsi->Fill(nJpsi);
   hnBz->Fill(nBz);
   hnBzb->Fill(nBzb);
-  // *undecayed << "-------------------------------" << endl;
-  // *decayed << "-------------------------------" << endl;
+  // *undecayed << "-------------------------------" << std::endl;
+  // *decayed << "-------------------------------" << std::endl;
 
   // if (nBz > 0) std::cout << "nBz = " << nBz << " nBz (K*mu+mu-) = " << nBzKmumu << " nMix = " << nBzmix << std::endl;
   // if (nBz > 0 && nBzKmumu == 0) Evt->print();
@@ -427,6 +427,7 @@ void EvtGenTestAnalyzer::analyze(const Event& e, const EventSetup&) {
 }
 
 void EvtGenTestAnalyzer::endJob() {
+  /*
   TObjArray Hlist(0);
   Hlist.Add(hGeneralId);
   Hlist.Add(hIdPhiDaugs);
@@ -468,8 +469,9 @@ void EvtGenTestAnalyzer::endJob() {
   Hlist.Add(hCosThetaLambda);
   Hlist.Write();
   fOutputFile->Close();
-  cout << "N_events = " << nevent << "\n";
-  cout << "N_LambdaB = " << nbs << "\n";
+  */
+  std::cout << "N_events = " << nevent << "\n";
+  std::cout << "N_LambdaB = " << nbs << "\n";
   return;
 }
 
