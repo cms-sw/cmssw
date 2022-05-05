@@ -15,11 +15,10 @@ L1TGlobalPrescalesVetos = cms.ESProducer("L1TGlobalPrescalesVetosESProducer",
     TriggerMenuLuminosity = cms.string('startup'),
     Verbosity = cms.int32(0),
     AlgoBxMaskDefault = cms.int32(1),
-    PrescaleXMLFile = cms.string('UGT_BASE_RS_PRESCALES_L1MenuCollisions2022_v1_0_0'),
-    AlgoBxMaskXMLFile = cms.string('UGT_BASE_RS_ALGOBX_MASK_L1MenuCollisions2022_v1_0_0'),
-    FinOrMaskXMLFile = cms.string('UGT_BASE_RS_FINOR_MASK_L1MenuCollisions2022_v1_0_0'),
-    VetoMaskXMLFile = cms.string('UGT_BASE_RS_VETO_MASK_L1MenuCollisions2022_v1_0_0'),
-
+    PrescaleXMLFile = cms.string('UGT_BASE_RS_PRESCALES_L1MenuCollisions2022_v1_0_0.xml'),
+    AlgoBxMaskXMLFile = cms.string('UGT_BASE_RS_ALGOBX_MASK_L1MenuCollisions2022_v1_0_0.xml'),
+    FinOrMaskXMLFile = cms.string('UGT_BASE_RS_FINOR_MASK_L1MenuCollisions2022_v1_0_0.xml'),
+    VetoMaskXMLFile = cms.string('UGT_BASE_RS_VETO_MASK_L1MenuCollisions2022_v1_0_0.xml'),
 )
 
 

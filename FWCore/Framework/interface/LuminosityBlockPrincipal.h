@@ -32,6 +32,7 @@ namespace edm {
   public:
     typedef LuminosityBlockAuxiliary Auxiliary;
     typedef Principal Base;
+
     LuminosityBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
                              ProcessConfiguration const& pc,
                              HistoryAppender* historyAppender,
@@ -47,8 +48,6 @@ namespace edm {
     RunPrincipal& runPrincipal() { return *runPrincipal_; }
 
     void setRunPrincipal(std::shared_ptr<RunPrincipal> rp) { runPrincipal_ = rp; }
-
-    void setWillBeContinued(bool iContinued) { willBeContinued_ = iContinued; }
 
     LuminosityBlockIndex index() const { return index_; }
 
@@ -73,8 +72,9 @@ namespace edm {
 
     void put(ProductResolverIndex index, std::unique_ptr<WrapperBase> edp) const;
 
-    ///The source is replaying overlapping LuminosityBlocks and this is not the last part for this LumiosityBlock
-    bool willBeContinued() const { return willBeContinued_; }
+    enum ShouldWriteLumi { kUninitialized, kNo, kYes };
+    ShouldWriteLumi shouldWriteLumi() const { return shouldWriteLumi_; }
+    void setShouldWriteLumi(ShouldWriteLumi value) { shouldWriteLumi_ = value; }
 
   private:
     unsigned int transitionIndex_() const override;
@@ -85,7 +85,7 @@ namespace edm {
 
     LuminosityBlockIndex index_;
 
-    bool willBeContinued_ = false;
+    ShouldWriteLumi shouldWriteLumi_ = kUninitialized;
   };
 }  // namespace edm
 #endif

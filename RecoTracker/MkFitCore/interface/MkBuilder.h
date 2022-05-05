@@ -2,8 +2,8 @@
 #define RecoTracker_MkFitCore_interface_MkBuilder_h
 
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
-#include "RecoTracker/MkFitCore/interface/Track.h"
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
+#include "RecoTracker/MkFitCore/interface/TrackStructures.h"
 
 #include <atomic>
 #include <functional>
@@ -55,7 +55,7 @@ namespace mkfit {
 
   class MkBuilder {
   public:
-    using insert_seed_foo = void(const Track &, int);
+    using insert_seed_foo = void(const Track &, int, int);
     using filter_track_cand_foo = bool(const TrackCand &);
 
     typedef std::vector<std::pair<int, int>> CandIdx_t;
@@ -68,31 +68,16 @@ namespace mkfit {
     static std::unique_ptr<MkBuilder> make_builder(bool silent = true);
     static void populate();
 
-    int total_cands() const {
-      int res = 0;
-      for (int i = 0; i < m_event_of_comb_cands.size(); ++i)
-        res += m_event_of_comb_cands[i].size();
-      return res;
-    }
+    int total_cands() const;
+    std::pair<int, int> max_hits_layer(const EventOfHits &eoh) const;
 
-    std::pair<int, int> max_hits_layer(const EventOfHits &eoh) const {
-      int maxN = 0;
-      int maxL = 0;
-      for (int l = 0; l < eoh.nLayers(); ++l) {
-        int lsize = eoh[l].nHits();
-        if (lsize > maxN) {
-          maxN = lsize;
-          maxL = eoh[l].layer_id();
-        }
-      }
-      return {maxN, maxL};
-    }
+    // --------
 
     void begin_event(MkJob *job, Event *ev, const char *build_type);
     void end_event();
     void release_memory();
 
-    void import_seeds(const TrackVec &in_seeds, std::function<insert_seed_foo> insert_seed);
+    void import_seeds(const TrackVec &in_seeds, const bool seeds_sorted, std::function<insert_seed_foo> insert_seed);
 
     // filter for rearranging cands that will / will not do backward search.
     int filter_comb_cands(std::function<filter_track_cand_foo> filter);
@@ -116,8 +101,8 @@ namespace mkfit {
 
     // --------
 
-    void find_tracks_load_seeds_BH(const TrackVec &in_seeds);  // for FindTracksBestHit
-    void find_tracks_load_seeds(const TrackVec &in_seeds);
+    void find_tracks_load_seeds_BH(const TrackVec &in_seeds, const bool seeds_sorted);  // for FindTracksBestHit
+    void find_tracks_load_seeds(const TrackVec &in_seeds, const bool seeds_sorted);
 
     int find_tracks_unroll_candidates(std::vector<std::pair<int, int>> &seed_cand_vec,
                                       int start_seed,

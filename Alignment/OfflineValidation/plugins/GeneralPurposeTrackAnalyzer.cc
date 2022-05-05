@@ -131,15 +131,21 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &);
 
   template <class OBJECT_TYPE>
-  int GetIndex(const std::vector<OBJECT_TYPE *> &vec, const TString &name) {
+  int index(const std::vector<OBJECT_TYPE *> &vec, const TString &name) {
     for (const auto &iter : vec | boost::adaptors::indexed(0)) {
       if (iter.value() && iter.value()->GetName() == name) {
         return iter.index();
       }
     }
-    edm::LogError("GeneralPurposeTrackAnalyzer") << "@SUB=GeneralPurposeTrackAnalyzer::GetIndex"
+    edm::LogError("GeneralPurposeTrackAnalyzer") << "@SUB=GeneralPurposeTrackAnalyzer::index"
                                                  << " could not find " << name;
     return -1;
+  }
+
+  template <typename T, typename... Args>
+  T *book(const Args &...args) const {
+    T *t = fs->make<T>(args...);
+    return t;
   }
 
 private:
@@ -529,111 +535,113 @@ private:
       }
 
       // Fill 1D track histos
-      static const int etaindex = this->GetIndex(vTrackHistos_, "h_tracketa");
+      static const int etaindex = this->index(vTrackHistos_, "h_tracketa");
       vTrackHistos_[etaindex]->Fill(track->eta());
-      static const int phiindex = this->GetIndex(vTrackHistos_, "h_trackphi");
+      static const int phiindex = this->index(vTrackHistos_, "h_trackphi");
       vTrackHistos_[phiindex]->Fill(track->phi());
-      static const int numOfValidHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfValidHits");
+      static const int numOfValidHitsindex = this->index(vTrackHistos_, "h_trackNumberOfValidHits");
       vTrackHistos_[numOfValidHitsindex]->Fill(track->numberOfValidHits());
-      static const int numOfLostHitsindex = this->GetIndex(vTrackHistos_, "h_trackNumberOfLostHits");
+      static const int numOfLostHitsindex = this->index(vTrackHistos_, "h_trackNumberOfLostHits");
       vTrackHistos_[numOfLostHitsindex]->Fill(track->numberOfLostHits());
 
       GlobalPoint gPoint(track->vx(), track->vy(), track->vz());
       double theLocalMagFieldInInverseGeV = magneticField_->inInverseGeV(gPoint).z();
       double kappa = -track->charge() * theLocalMagFieldInInverseGeV / track->pt();
 
-      static const int kappaindex = this->GetIndex(vTrackHistos_, "h_curvature");
+      static const int kappaindex = this->index(vTrackHistos_, "h_curvature");
       vTrackHistos_[kappaindex]->Fill(kappa);
-      static const int kappaposindex = this->GetIndex(vTrackHistos_, "h_curvature_pos");
+      static const int kappaposindex = this->index(vTrackHistos_, "h_curvature_pos");
       if (track->charge() > 0)
         vTrackHistos_[kappaposindex]->Fill(fabs(kappa));
-      static const int kappanegindex = this->GetIndex(vTrackHistos_, "h_curvature_neg");
+      static const int kappanegindex = this->index(vTrackHistos_, "h_curvature_neg");
       if (track->charge() < 0)
         vTrackHistos_[kappanegindex]->Fill(fabs(kappa));
 
       double chi2Prob = TMath::Prob(track->chi2(), track->ndof());
       double normchi2 = track->normalizedChi2();
 
-      static const int normchi2index = this->GetIndex(vTrackHistos_, "h_normchi2");
+      static const int normchi2index = this->index(vTrackHistos_, "h_normchi2");
       vTrackHistos_[normchi2index]->Fill(normchi2);
-      static const int chi2index = this->GetIndex(vTrackHistos_, "h_chi2");
+      static const int chi2index = this->index(vTrackHistos_, "h_chi2");
       vTrackHistos_[chi2index]->Fill(track->chi2());
-      static const int chi2Probindex = this->GetIndex(vTrackHistos_, "h_chi2Prob");
+      static const int chi2Probindex = this->index(vTrackHistos_, "h_chi2Prob");
       vTrackHistos_[chi2Probindex]->Fill(chi2Prob);
-      static const int ptindex = this->GetIndex(vTrackHistos_, "h_pt");
-      static const int pt2index = this->GetIndex(vTrackHistos_, "h_ptrebin");
+      static const int ptindex = this->index(vTrackHistos_, "h_pt");
+      static const int pt2index = this->index(vTrackHistos_, "h_ptrebin");
       vTrackHistos_[ptindex]->Fill(track->pt());
       vTrackHistos_[pt2index]->Fill(track->pt());
       if (track->ptError() != 0.) {
-        static const int ptResolutionindex = this->GetIndex(vTrackHistos_, "h_ptResolution");
+        static const int ptResolutionindex = this->index(vTrackHistos_, "h_ptResolution");
         vTrackHistos_[ptResolutionindex]->Fill(track->ptError() / track->pt());
       }
       // Fill track profiles
-      static const int d0phiindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_phi");
+      static const int d0phiindex = this->index(vTrackProfiles_, "p_d0_vs_phi");
       vTrackProfiles_[d0phiindex]->Fill(track->phi(), track->d0());
-      static const int dzphiindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_phi");
+      static const int dzphiindex = this->index(vTrackProfiles_, "p_dz_vs_phi");
       vTrackProfiles_[dzphiindex]->Fill(track->phi(), track->dz());
-      static const int d0etaindex = this->GetIndex(vTrackProfiles_, "p_d0_vs_eta");
+      static const int d0etaindex = this->index(vTrackProfiles_, "p_d0_vs_eta");
       vTrackProfiles_[d0etaindex]->Fill(track->eta(), track->d0());
-      static const int dzetaindex = this->GetIndex(vTrackProfiles_, "p_dz_vs_eta");
+      static const int dzetaindex = this->index(vTrackProfiles_, "p_dz_vs_eta");
       vTrackProfiles_[dzetaindex]->Fill(track->eta(), track->dz());
-      static const int chiProbphiindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_phi");
+      static const int chiProbphiindex = this->index(vTrackProfiles_, "p_chi2Prob_vs_phi");
       vTrackProfiles_[chiProbphiindex]->Fill(track->phi(), chi2Prob);
-      static const int chiProbabsd0index = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_d0");
+      static const int chiProbabsd0index = this->index(vTrackProfiles_, "p_chi2Prob_vs_d0");
       vTrackProfiles_[chiProbabsd0index]->Fill(fabs(track->d0()), chi2Prob);
-      static const int chiProbabsdzindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_dz");
+      static const int chiProbabsdzindex = this->index(vTrackProfiles_, "p_chi2Prob_vs_dz");
       vTrackProfiles_[chiProbabsdzindex]->Fill(track->dz(), chi2Prob);
-      static const int chiphiindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_phi");
+      static const int chiphiindex = this->index(vTrackProfiles_, "p_chi2_vs_phi");
       vTrackProfiles_[chiphiindex]->Fill(track->phi(), track->chi2());
-      static const int normchiphiindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_phi");
+      static const int normchiphiindex = this->index(vTrackProfiles_, "p_normchi2_vs_phi");
       vTrackProfiles_[normchiphiindex]->Fill(track->phi(), normchi2);
-      static const int chietaindex = this->GetIndex(vTrackProfiles_, "p_chi2_vs_eta");
+      static const int chietaindex = this->index(vTrackProfiles_, "p_chi2_vs_eta");
       vTrackProfiles_[chietaindex]->Fill(track->eta(), track->chi2());
-      static const int normchiptindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_pt");
+      static const int normchiptindex = this->index(vTrackProfiles_, "p_normchi2_vs_pt");
       vTrackProfiles_[normchiptindex]->Fill(track->pt(), normchi2);
-      static const int normchipindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_p");
+      static const int normchipindex = this->index(vTrackProfiles_, "p_normchi2_vs_p");
       vTrackProfiles_[normchipindex]->Fill(track->p(), normchi2);
-      static const int chiProbetaindex = this->GetIndex(vTrackProfiles_, "p_chi2Prob_vs_eta");
+      static const int chiProbetaindex = this->index(vTrackProfiles_, "p_chi2Prob_vs_eta");
       vTrackProfiles_[chiProbetaindex]->Fill(track->eta(), chi2Prob);
-      static const int normchietaindex = this->GetIndex(vTrackProfiles_, "p_normchi2_vs_eta");
+      static const int normchietaindex = this->index(vTrackProfiles_, "p_normchi2_vs_eta");
       vTrackProfiles_[normchietaindex]->Fill(track->eta(), normchi2);
-      static const int kappaphiindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_phi");
+      static const int kappaphiindex = this->index(vTrackProfiles_, "p_kappa_vs_phi");
       vTrackProfiles_[kappaphiindex]->Fill(track->phi(), kappa);
-      static const int kappaetaindex = this->GetIndex(vTrackProfiles_, "p_kappa_vs_eta");
+      static const int kappaetaindex = this->index(vTrackProfiles_, "p_kappa_vs_eta");
       vTrackProfiles_[kappaetaindex]->Fill(track->eta(), kappa);
-      static const int ptResphiindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_phi");
+      static const int ptResphiindex = this->index(vTrackProfiles_, "p_ptResolution_vs_phi");
       vTrackProfiles_[ptResphiindex]->Fill(track->phi(), track->ptError() / track->pt());
-      static const int ptResetaindex = this->GetIndex(vTrackProfiles_, "p_ptResolution_vs_eta");
+      static const int ptResetaindex = this->index(vTrackProfiles_, "p_ptResolution_vs_eta");
       vTrackProfiles_[ptResetaindex]->Fill(track->eta(), track->ptError() / track->pt());
 
       // Fill 2D track histos
-      static const int d0phiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_phi");
+      static const int etaphiindex_2d = this->index(vTrack2DHistos_, "h2_phi_vs_eta");
+      vTrack2DHistos_[etaphiindex_2d]->Fill(track->eta(), track->phi());
+      static const int d0phiindex_2d = this->index(vTrack2DHistos_, "h2_d0_vs_phi");
       vTrack2DHistos_[d0phiindex_2d]->Fill(track->phi(), track->d0());
-      static const int dzphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_phi");
+      static const int dzphiindex_2d = this->index(vTrack2DHistos_, "h2_dz_vs_phi");
       vTrack2DHistos_[dzphiindex_2d]->Fill(track->phi(), track->dz());
-      static const int d0etaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_d0_vs_eta");
+      static const int d0etaindex_2d = this->index(vTrack2DHistos_, "h2_d0_vs_eta");
       vTrack2DHistos_[d0etaindex_2d]->Fill(track->eta(), track->d0());
-      static const int dzetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_dz_vs_eta");
+      static const int dzetaindex_2d = this->index(vTrack2DHistos_, "h2_dz_vs_eta");
       vTrack2DHistos_[dzetaindex_2d]->Fill(track->eta(), track->dz());
-      static const int chiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_phi");
+      static const int chiphiindex_2d = this->index(vTrack2DHistos_, "h2_chi2_vs_phi");
       vTrack2DHistos_[chiphiindex_2d]->Fill(track->phi(), track->chi2());
-      static const int chiProbphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_phi");
+      static const int chiProbphiindex_2d = this->index(vTrack2DHistos_, "h2_chi2Prob_vs_phi");
       vTrack2DHistos_[chiProbphiindex_2d]->Fill(track->phi(), chi2Prob);
-      static const int chiProbabsd0index_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_d0");
+      static const int chiProbabsd0index_2d = this->index(vTrack2DHistos_, "h2_chi2Prob_vs_d0");
       vTrack2DHistos_[chiProbabsd0index_2d]->Fill(fabs(track->d0()), chi2Prob);
-      static const int normchiphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_phi");
+      static const int normchiphiindex_2d = this->index(vTrack2DHistos_, "h2_normchi2_vs_phi");
       vTrack2DHistos_[normchiphiindex_2d]->Fill(track->phi(), normchi2);
-      static const int chietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2_vs_eta");
+      static const int chietaindex_2d = this->index(vTrack2DHistos_, "h2_chi2_vs_eta");
       vTrack2DHistos_[chietaindex_2d]->Fill(track->eta(), track->chi2());
-      static const int chiProbetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_chi2Prob_vs_eta");
+      static const int chiProbetaindex_2d = this->index(vTrack2DHistos_, "h2_chi2Prob_vs_eta");
       vTrack2DHistos_[chiProbetaindex_2d]->Fill(track->eta(), chi2Prob);
-      static const int normchietaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_eta");
+      static const int normchietaindex_2d = this->index(vTrack2DHistos_, "h2_normchi2_vs_eta");
       vTrack2DHistos_[normchietaindex_2d]->Fill(track->eta(), normchi2);
-      static const int kappaphiindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_phi");
+      static const int kappaphiindex_2d = this->index(vTrack2DHistos_, "h2_kappa_vs_phi");
       vTrack2DHistos_[kappaphiindex_2d]->Fill(track->phi(), kappa);
-      static const int kappaetaindex_2d = this->GetIndex(vTrack2DHistos_, "h2_kappa_vs_eta");
+      static const int kappaetaindex_2d = this->index(vTrack2DHistos_, "h2_kappa_vs_eta");
       vTrack2DHistos_[kappaetaindex_2d]->Fill(track->eta(), kappa);
-      static const int normchi2kappa_2d = this->GetIndex(vTrack2DHistos_, "h2_normchi2_vs_kappa");
+      static const int normchi2kappa_2d = this->index(vTrack2DHistos_, "h2_normchi2_vs_kappa");
       vTrack2DHistos_[normchi2kappa_2d]->Fill(normchi2, kappa);
 
       //dxy with respect to the beamspot
@@ -699,6 +707,10 @@ private:
   void beginRun(edm::Run const &run, edm::EventSetup const &setup) override
   //*************************************************************
   {
+    // initialize runInfoMap_
+    runInfoMap_[run.run()].first = 0;
+    runInfoMap_[run.run()].second = 0;
+
     // Magnetic Field setup
     magneticField_ = setup.getHandle(magFieldToken_);
     float B_ = magneticField_.product()->inTesla(GlobalPoint(0, 0, 0)).mag();
@@ -709,7 +721,7 @@ private:
     }
 
     //SiStrip Latency
-    edm::ESHandle<SiStripLatency> apvlat = setup.getHandle(latencyToken_);
+    const SiStripLatency *apvlat = &setup.getData(latencyToken_);
     if (apvlat->singleReadOutMode() == 1) {
       mode = 1;  // peak mode
     } else if (apvlat->singleReadOutMode() == 0) {
@@ -748,155 +760,152 @@ private:
     ievt = 0;
     itrks = 0;
 
-    hrun = fs->make<TH1D>("h_run", "run", 100000, 230000, 240000);
-    hlumi = fs->make<TH1D>("h_lumi", "lumi", 1000, 0, 1000);
+    hrun = book<TH1D>("h_run", "run", 100000, 230000, 240000);
+    hlumi = book<TH1D>("h_lumi", "lumi", 1000, 0, 1000);
 
-    hchi2ndof = fs->make<TH1D>("h_chi2ndof", "chi2/ndf;#chi^{2}/ndf;tracks", 100, 0, 5.);
-    hCharge = fs->make<TH1D>("h_charge", "charge;Charge of the track;tracks", 5, -2.5, 2.5);
-    hNtrk = fs->make<TH1D>("h_Ntrk", "ntracks;Number of Tracks;events", 200, 0., 200.);
-    hNtrkZoom = fs->make<TH1D>("h_NtrkZoom", "Number of tracks; number of tracks;events", 10, 0., 10.);
+    hchi2ndof = book<TH1D>("h_chi2ndof", "chi2/ndf;#chi^{2}/ndf;tracks", 100, 0, 5.);
+    hCharge = book<TH1D>("h_charge", "charge;Charge of the track;tracks", 5, -2.5, 2.5);
+    hNtrk = book<TH1D>("h_Ntrk", "ntracks;Number of Tracks;events", 200, 0., 200.);
+    hNtrkZoom = book<TH1D>("h_NtrkZoom", "Number of tracks; number of tracks;events", 10, 0., 10.);
     hNhighPurity =
-        fs->make<TH1D>("h_NhighPurity", "n. high purity tracks;Number of high purity tracks;events", 200, 0., 200.);
+        book<TH1D>("h_NhighPurity", "n. high purity tracks;Number of high purity tracks;events", 200, 0., 200.);
 
-    htrkAlgo = fs->make<TH1I>("h_trkAlgo",
-                              "tracking step;iterative tracking step;tracks",
-                              reco::TrackBase::algoSize,
-                              0.,
-                              double(reco::TrackBase::algoSize));
+    htrkAlgo = book<TH1I>("h_trkAlgo",
+                          "tracking step;iterative tracking step;tracks",
+                          reco::TrackBase::algoSize,
+                          0.,
+                          double(reco::TrackBase::algoSize));
 
-    htrkOriAlgo = fs->make<TH1I>("h_trkOriAlgo",
-                                 "original tracking step;original iterative tracking step;tracks",
-                                 reco::TrackBase::algoSize,
-                                 0.,
-                                 double(reco::TrackBase::algoSize));
+    htrkOriAlgo = book<TH1I>("h_trkOriAlgo",
+                             "original tracking step;original iterative tracking step;tracks",
+                             reco::TrackBase::algoSize,
+                             0.,
+                             double(reco::TrackBase::algoSize));
 
     for (size_t ibin = 0; ibin < reco::TrackBase::algoSize - 1; ibin++) {
       htrkAlgo->GetXaxis()->SetBinLabel(ibin + 1, (reco::TrackBase::algoNames[ibin]).c_str());
       htrkOriAlgo->GetXaxis()->SetBinLabel(ibin + 1, (reco::TrackBase::algoNames[ibin]).c_str());
     }
 
-    htrkQuality = fs->make<TH1I>("h_trkQuality", "track quality;track quality;tracks", 6, -1, 5);
+    htrkQuality = book<TH1I>("h_trkQuality", "track quality;track quality;tracks", 6, -1, 5);
     std::string qualities[7] = {"undef", "loose", "tight", "highPurity", "confirmed", "goodIterative"};
     for (int nbin = 1; nbin <= htrkQuality->GetNbinsX(); nbin++) {
       htrkQuality->GetXaxis()->SetBinLabel(nbin, (qualities[nbin - 1]).c_str());
     }
 
-    hP = fs->make<TH1D>("h_P", "Momentum;track momentum [GeV];tracks", 100, 0., 100.);
-    hQoverP = fs->make<TH1D>("h_qoverp", "Track q/p; track q/p [GeV^{-1}];tracks", 100, -1., 1.);
-    hQoverPZoom = fs->make<TH1D>("h_qoverpZoom", "Track q/p; track q/p [GeV^{-1}];tracks", 100, -0.1, 0.1);
-    hPt = fs->make<TH1D>("h_Pt", "Transverse Momentum;track p_{T} [GeV];tracks", 100, 0., 100.);
-    hHit = fs->make<TH1D>("h_nHits", "Number of hits;track n. hits;tracks", 50, -0.5, 49.5);
-    hHit2D = fs->make<TH1D>("h_nHit2D", "Number of 2D hits; number of 2D hits;tracks", 20, 0, 20);
+    hP = book<TH1D>("h_P", "Momentum;track momentum [GeV];tracks", 100, 0., 100.);
+    hQoverP = book<TH1D>("h_qoverp", "Track q/p; track q/p [GeV^{-1}];tracks", 100, -1., 1.);
+    hQoverPZoom = book<TH1D>("h_qoverpZoom", "Track q/p; track q/p [GeV^{-1}];tracks", 100, -0.1, 0.1);
+    hPt = book<TH1D>("h_Pt", "Transverse Momentum;track p_{T} [GeV];tracks", 100, 0., 100.);
+    hHit = book<TH1D>("h_nHits", "Number of hits;track n. hits;tracks", 50, -0.5, 49.5);
+    hHit2D = book<TH1D>("h_nHit2D", "Number of 2D hits; number of 2D hits;tracks", 20, 0, 20);
 
-    hHitCountVsZBPix = fs->make<TH1D>("h_HitCountVsZBpix", "Number of BPix hits vs z;hit global z;hits", 60, -30, 30);
-    hHitCountVsZFPix =
-        fs->make<TH1D>("h_HitCountVsZFpix", "Number of FPix hits vs z;hit global z;hits", 100, -100, 100);
+    hHitCountVsZBPix = book<TH1D>("h_HitCountVsZBpix", "Number of BPix hits vs z;hit global z;hits", 60, -30, 30);
+    hHitCountVsZFPix = book<TH1D>("h_HitCountVsZFpix", "Number of FPix hits vs z;hit global z;hits", 100, -100, 100);
 
-    hHitCountVsXBPix = fs->make<TH1D>("h_HitCountVsXBpix", "Number of BPix hits vs x;hit global x;hits", 20, -20, 20);
-    hHitCountVsXFPix = fs->make<TH1D>("h_HitCountVsXFpix", "Number of FPix hits vs x;hit global x;hits", 20, -20, 20);
+    hHitCountVsXBPix = book<TH1D>("h_HitCountVsXBpix", "Number of BPix hits vs x;hit global x;hits", 20, -20, 20);
+    hHitCountVsXFPix = book<TH1D>("h_HitCountVsXFpix", "Number of FPix hits vs x;hit global x;hits", 20, -20, 20);
 
-    hHitCountVsYBPix = fs->make<TH1D>("h_HitCountVsYBpix", "Number of BPix hits vs y;hit global y;hits", 20, -20, 20);
-    hHitCountVsYFPix = fs->make<TH1D>("h_HitCountVsYFpix", "Number of FPix hits vs y;hit global y;hits", 20, -20, 20);
+    hHitCountVsYBPix = book<TH1D>("h_HitCountVsYBpix", "Number of BPix hits vs y;hit global y;hits", 20, -20, 20);
+    hHitCountVsYFPix = book<TH1D>("h_HitCountVsYFpix", "Number of FPix hits vs y;hit global y;hits", 20, -20, 20);
 
     hHitCountVsThetaBPix =
-        fs->make<TH1D>("h_HitCountVsThetaBpix", "Number of BPix hits vs #theta;hit global #theta;hits", 20, 0., M_PI);
+        book<TH1D>("h_HitCountVsThetaBpix", "Number of BPix hits vs #theta;hit global #theta;hits", 20, 0., M_PI);
     hHitCountVsPhiBPix =
-        fs->make<TH1D>("h_HitCountVsPhiBpix", "Number of BPix hits vs #phi;hit global #phi;hits", 20, -M_PI, M_PI);
+        book<TH1D>("h_HitCountVsPhiBpix", "Number of BPix hits vs #phi;hit global #phi;hits", 20, -M_PI, M_PI);
 
     hHitCountVsThetaFPix =
-        fs->make<TH1D>("h_HitCountVsThetaFpix", "Number of FPix hits vs #theta;hit global #theta;hits", 40, 0., M_PI);
+        book<TH1D>("h_HitCountVsThetaFpix", "Number of FPix hits vs #theta;hit global #theta;hits", 40, 0., M_PI);
     hHitCountVsPhiFPix =
-        fs->make<TH1D>("h_HitCountVsPhiFpix", "Number of FPix hits vs #phi;hit global #phi;hits", 20, -M_PI, M_PI);
+        book<TH1D>("h_HitCountVsPhiFpix", "Number of FPix hits vs #phi;hit global #phi;hits", 20, -M_PI, M_PI);
 
-    hEta = fs->make<TH1D>("h_Eta", "Track pseudorapidity; track #eta;tracks", 100, -etaMax_, etaMax_);
-    hPhi = fs->make<TH1D>("h_Phi", "Track azimuth; track #phi;tracks", 100, -M_PI, M_PI);
+    hEta = book<TH1D>("h_Eta", "Track pseudorapidity; track #eta;tracks", 100, -etaMax_, etaMax_);
+    hPhi = book<TH1D>("h_Phi", "Track azimuth; track #phi;tracks", 100, -M_PI, M_PI);
 
-    hPhiBarrel = fs->make<TH1D>("h_PhiBarrel", "hPhiBarrel (0<|#eta|<0.8);track #Phi;tracks", 100, -M_PI, M_PI);
+    hPhiBarrel = book<TH1D>("h_PhiBarrel", "hPhiBarrel (0<|#eta|<0.8);track #Phi;tracks", 100, -M_PI, M_PI);
     hPhiOverlapPlus =
-        fs->make<TH1D>("h_PhiOverlapPlus", "hPhiOverlapPlus (0.8<#eta<1.4);track #phi;tracks", 100, -M_PI, M_PI);
+        book<TH1D>("h_PhiOverlapPlus", "hPhiOverlapPlus (0.8<#eta<1.4);track #phi;tracks", 100, -M_PI, M_PI);
     hPhiOverlapMinus =
-        fs->make<TH1D>("h_PhiOverlapMinus", "hPhiOverlapMinus (-1.4<#eta<-0.8);track #phi;tracks", 100, -M_PI, M_PI);
-    hPhiEndcapPlus = fs->make<TH1D>("h_PhiEndcapPlus", "hPhiEndcapPlus (#eta>1.4);track #phi;track", 100, -M_PI, M_PI);
-    hPhiEndcapMinus =
-        fs->make<TH1D>("h_PhiEndcapMinus", "hPhiEndcapMinus (#eta<1.4);track #phi;tracks", 100, -M_PI, M_PI);
+        book<TH1D>("h_PhiOverlapMinus", "hPhiOverlapMinus (-1.4<#eta<-0.8);track #phi;tracks", 100, -M_PI, M_PI);
+    hPhiEndcapPlus = book<TH1D>("h_PhiEndcapPlus", "hPhiEndcapPlus (#eta>1.4);track #phi;track", 100, -M_PI, M_PI);
+    hPhiEndcapMinus = book<TH1D>("h_PhiEndcapMinus", "hPhiEndcapMinus (#eta<1.4);track #phi;tracks", 100, -M_PI, M_PI);
 
     if (!isCosmics_) {
-      hPhp = fs->make<TH1D>("h_P_hp", "Momentum (high purity);track momentum [GeV];tracks", 100, 0., 100.);
-      hPthp = fs->make<TH1D>("h_Pt_hp", "Transverse Momentum (high purity);track p_{T} [GeV];tracks", 100, 0., 100.);
-      hHithp = fs->make<TH1D>("h_nHit_hp", "Number of hits (high purity);track n. hits;tracks", 30, 0, 30);
-      hEtahp =
-          fs->make<TH1D>("h_Eta_hp", "Track pseudorapidity (high purity); track #eta;tracks", 100, -etaMax_, etaMax_);
-      hPhihp = fs->make<TH1D>("h_Phi_hp", "Track azimuth (high purity); track #phi;tracks", 100, -M_PI, M_PI);
-      hchi2ndofhp = fs->make<TH1D>("h_chi2ndof_hp", "chi2/ndf (high purity);#chi^{2}/ndf;tracks", 100, 0, 5.);
-      hchi2Probhp = fs->make<TH1D>(
+      hPhp = book<TH1D>("h_P_hp", "Momentum (high purity);track momentum [GeV];tracks", 100, 0., 100.);
+      hPthp = book<TH1D>("h_Pt_hp", "Transverse Momentum (high purity);track p_{T} [GeV];tracks", 100, 0., 100.);
+      hHithp = book<TH1D>("h_nHit_hp", "Number of hits (high purity);track n. hits;tracks", 30, 0, 30);
+      hEtahp = book<TH1D>("h_Eta_hp", "Track pseudorapidity (high purity); track #eta;tracks", 100, -etaMax_, etaMax_);
+      hPhihp = book<TH1D>("h_Phi_hp", "Track azimuth (high purity); track #phi;tracks", 100, -M_PI, M_PI);
+      hchi2ndofhp = book<TH1D>("h_chi2ndof_hp", "chi2/ndf (high purity);#chi^{2}/ndf;tracks", 100, 0, 5.);
+      hchi2Probhp = book<TH1D>(
           "h_chi2_Prob_hp", "#chi^{2} probability (high purity);#chi^{2}prob_{Track};Number of Tracks", 100, 0.0, 1.);
 
-      hvx = fs->make<TH1D>("h_vx", "Track v_{x} ; track v_{x} [cm];tracks", 100, -1.5, 1.5);
-      hvy = fs->make<TH1D>("h_vy", "Track v_{y} ; track v_{y} [cm];tracks", 100, -1.5, 1.5);
-      hvz = fs->make<TH1D>("h_vz", "Track v_{z} ; track v_{z} [cm];tracks", 100, -20., 20.);
-      hd0 = fs->make<TH1D>("h_d0", "Track d_{0} ; track d_{0} [cm];tracks", 100, -1., 1.);
-      hdxy = fs->make<TH1D>("h_dxy", "Track d_{xy}; track d_{xy} [cm]; tracks", 100, -0.5, 0.5);
-      hdz = fs->make<TH1D>("h_dz", "Track d_{z} ; track d_{z} [cm]; tracks", 100, -20, 20);
+      hvx = book<TH1D>("h_vx", "Track v_{x} ; track v_{x} [cm];tracks", 100, -1.5, 1.5);
+      hvy = book<TH1D>("h_vy", "Track v_{y} ; track v_{y} [cm];tracks", 100, -1.5, 1.5);
+      hvz = book<TH1D>("h_vz", "Track v_{z} ; track v_{z} [cm];tracks", 100, -20., 20.);
+      hd0 = book<TH1D>("h_d0", "Track d_{0} ; track d_{0} [cm];tracks", 100, -1., 1.);
+      hdxy = book<TH1D>("h_dxy", "Track d_{xy}; track d_{xy} [cm]; tracks", 100, -0.5, 0.5);
+      hdz = book<TH1D>("h_dz", "Track d_{z} ; track d_{z} [cm]; tracks", 100, -20, 20);
 
       hd0PVvsphi =
-          fs->make<TH2D>("h2_d0PVvsphi", "hd0PVvsphi;track #phi;track d_{0}(PV) [cm]", 160, -M_PI, M_PI, 100, -1., 1.);
+          book<TH2D>("h2_d0PVvsphi", "hd0PVvsphi;track #phi;track d_{0}(PV) [cm]", 160, -M_PI, M_PI, 100, -1., 1.);
       hd0PVvseta =
-          fs->make<TH2D>("h2_d0PVvseta", "hdPV0vseta;track #eta;track d_{0}(PV) [cm]", 160, -2.5, 2.5, 100, -1., 1.);
-      hd0PVvspt = fs->make<TH2D>("h2_d0PVvspt", "hdPV0vspt;track p_{T};d_{0}(PV) [cm]", 50, 0., 100., 100, -1, 1.);
+          book<TH2D>("h2_d0PVvseta", "hdPV0vseta;track #eta;track d_{0}(PV) [cm]", 160, -2.5, 2.5, 100, -1., 1.);
+      hd0PVvspt = book<TH2D>("h2_d0PVvspt", "hdPV0vspt;track p_{T};d_{0}(PV) [cm]", 50, 0., 100., 100, -1, 1.);
 
-      hdxyBS = fs->make<TH1D>("h_dxyBS", "hdxyBS; track d_{xy}(BS) [cm];tracks", 100, -0.1, 0.1);
-      hd0BS = fs->make<TH1D>("h_d0BS", "hd0BS ; track d_{0}(BS) [cm];tracks", 100, -0.1, 0.1);
-      hdzBS = fs->make<TH1D>("h_dzBS", "hdzBS ; track d_{z}(BS) [cm];tracks", 100, -12, 12);
-      hdxyPV = fs->make<TH1D>("h_dxyPV", "hdxyPV; track d_{xy}(PV) [cm];tracks", 100, -0.1, 0.1);
-      hd0PV = fs->make<TH1D>("h_d0PV", "hd0PV ; track d_{0}(PV) [cm];tracks", 100, -0.15, 0.15);
-      hdzPV = fs->make<TH1D>("h_dzPV", "hdzPV ; track d_{z}(PV) [cm];tracks", 100, -0.1, 0.1);
+      hdxyBS = book<TH1D>("h_dxyBS", "hdxyBS; track d_{xy}(BS) [cm];tracks", 100, -0.1, 0.1);
+      hd0BS = book<TH1D>("h_d0BS", "hd0BS ; track d_{0}(BS) [cm];tracks", 100, -0.1, 0.1);
+      hdzBS = book<TH1D>("h_dzBS", "hdzBS ; track d_{z}(BS) [cm];tracks", 100, -12, 12);
+      hdxyPV = book<TH1D>("h_dxyPV", "hdxyPV; track d_{xy}(PV) [cm];tracks", 100, -0.1, 0.1);
+      hd0PV = book<TH1D>("h_d0PV", "hd0PV ; track d_{0}(PV) [cm];tracks", 100, -0.15, 0.15);
+      hdzPV = book<TH1D>("h_dzPV", "hdzPV ; track d_{z}(PV) [cm];tracks", 100, -0.1, 0.1);
 
-      hnhTIB = fs->make<TH1D>("h_nHitTIB", "nhTIB;# hits in TIB; tracks", 20, 0., 20.);
-      hnhTID = fs->make<TH1D>("h_nHitTID", "nhTID;# hits in TID; tracks", 20, 0., 20.);
-      hnhTOB = fs->make<TH1D>("h_nHitTOB", "nhTOB;# hits in TOB; tracks", 20, 0., 20.);
-      hnhTEC = fs->make<TH1D>("h_nHitTEC", "nhTEC;# hits in TEC; tracks", 20, 0., 20.);
+      hnhTIB = book<TH1D>("h_nHitTIB", "nhTIB;# hits in TIB; tracks", 20, 0., 20.);
+      hnhTID = book<TH1D>("h_nHitTID", "nhTID;# hits in TID; tracks", 20, 0., 20.);
+      hnhTOB = book<TH1D>("h_nHitTOB", "nhTOB;# hits in TOB; tracks", 20, 0., 20.);
+      hnhTEC = book<TH1D>("h_nHitTEC", "nhTEC;# hits in TEC; tracks", 20, 0., 20.);
 
     } else {
-      hvx = fs->make<TH1D>("h_vx", "Track v_{x};track v_{x} [cm];tracks", 100, -100., 100.);
-      hvy = fs->make<TH1D>("h_vy", "Track v_{y};track v_{y} [cm];tracks", 100, -100., 100.);
-      hvz = fs->make<TH1D>("h_vz", "Track v_{z};track v_{z} [cm];track", 100, -100., 100.);
-      hd0 = fs->make<TH1D>("h_d0", "Track d_{0};track d_{0} [cm];track", 100, -100., 100.);
-      hdxy = fs->make<TH1D>("h_dxy", "Track d_{xy};track d_{xy} [cm];tracks", 100, -100, 100);
-      hdz = fs->make<TH1D>("h_dz", "Track d_{z};track d_{z} [cm];tracks", 100, -200, 200);
+      hvx = book<TH1D>("h_vx", "Track v_{x};track v_{x} [cm];tracks", 100, -100., 100.);
+      hvy = book<TH1D>("h_vy", "Track v_{y};track v_{y} [cm];tracks", 100, -100., 100.);
+      hvz = book<TH1D>("h_vz", "Track v_{z};track v_{z} [cm];track", 100, -100., 100.);
+      hd0 = book<TH1D>("h_d0", "Track d_{0};track d_{0} [cm];track", 100, -100., 100.);
+      hdxy = book<TH1D>("h_dxy", "Track d_{xy};track d_{xy} [cm];tracks", 100, -100, 100);
+      hdz = book<TH1D>("h_dz", "Track d_{z};track d_{z} [cm];tracks", 100, -200, 200);
 
-      hd0vsphi = fs->make<TH2D>(
+      hd0vsphi = book<TH2D>(
           "h2_d0vsphi", "Track d_{0} vs #phi; track #phi;track d_{0} [cm]", 160, -3.20, 3.20, 100, -100., 100.);
-      hd0vseta = fs->make<TH2D>(
+      hd0vseta = book<TH2D>(
           "h2_d0vseta", "Track d_{0} vs #eta; track #eta;track d_{0} [cm]", 160, -3.20, 3.20, 100, -100., 100.);
-      hd0vspt = fs->make<TH2D>(
-          "h2_d0vspt", "Track d_{0} vs p_{T};track p_{T};track d_{0} [cm]", 50, 0., 100., 100, -100, 100);
+      hd0vspt =
+          book<TH2D>("h2_d0vspt", "Track d_{0} vs p_{T};track p_{T};track d_{0} [cm]", 50, 0., 100., 100, -100, 100);
 
-      hdxyBS = fs->make<TH1D>("h_dxyBS", "Track d_{xy}(BS);d_{xy}(BS) [cm];tracks", 100, -100., 100.);
-      hd0BS = fs->make<TH1D>("h_d0BS", "Track d_{0}(BS);d_{0}(BS) [cm];tracks", 100, -100., 100.);
-      hdzBS = fs->make<TH1D>("h_dzBS", "Track d_{z}(BS);d_{z}(BS) [cm];tracks", 100, -100., 100.);
-      hdxyPV = fs->make<TH1D>("h_dxyPV", "Track d_{xy}(PV); d_{xy}(PV) [cm];tracks", 100, -100., 100.);
-      hd0PV = fs->make<TH1D>("h_d0PV", "Track d_{0}(PV); d_{0}(PV) [cm];tracks", 100, -100., 100.);
-      hdzPV = fs->make<TH1D>("h_dzPV", "Track d_{z}(PV); d_{z}(PV) [cm];tracks", 100, -100., 100.);
+      hdxyBS = book<TH1D>("h_dxyBS", "Track d_{xy}(BS);d_{xy}(BS) [cm];tracks", 100, -100., 100.);
+      hd0BS = book<TH1D>("h_d0BS", "Track d_{0}(BS);d_{0}(BS) [cm];tracks", 100, -100., 100.);
+      hdzBS = book<TH1D>("h_dzBS", "Track d_{z}(BS);d_{z}(BS) [cm];tracks", 100, -100., 100.);
+      hdxyPV = book<TH1D>("h_dxyPV", "Track d_{xy}(PV); d_{xy}(PV) [cm];tracks", 100, -100., 100.);
+      hd0PV = book<TH1D>("h_d0PV", "Track d_{0}(PV); d_{0}(PV) [cm];tracks", 100, -100., 100.);
+      hdzPV = book<TH1D>("h_dzPV", "Track d_{z}(PV); d_{z}(PV) [cm];tracks", 100, -100., 100.);
 
-      hnhTIB = fs->make<TH1D>("h_nHitTIB", "nhTIB;# hits in TIB; tracks", 30, 0., 30.);
-      hnhTID = fs->make<TH1D>("h_nHitTID", "nhTID;# hits in TID; tracks", 30, 0., 30.);
-      hnhTOB = fs->make<TH1D>("h_nHitTOB", "nhTOB;# hits in TOB; tracks", 30, 0., 30.);
-      hnhTEC = fs->make<TH1D>("h_nHitTEC", "nhTEC;# hits in TEC; tracks", 30, 0., 30.);
+      hnhTIB = book<TH1D>("h_nHitTIB", "nhTIB;# hits in TIB; tracks", 30, 0., 30.);
+      hnhTID = book<TH1D>("h_nHitTID", "nhTID;# hits in TID; tracks", 30, 0., 30.);
+      hnhTOB = book<TH1D>("h_nHitTOB", "nhTOB;# hits in TOB; tracks", 30, 0., 30.);
+      hnhTEC = book<TH1D>("h_nHitTEC", "nhTEC;# hits in TEC; tracks", 30, 0., 30.);
     }
 
-    hnhpxb = fs->make<TH1D>("h_nHitPXB", "nhpxb;# hits in Pixel Barrel; tracks", 10, 0., 10.);
-    hnhpxe = fs->make<TH1D>("h_nHitPXE", "nhpxe;# hits in Pixel Endcap; tracks", 10, 0., 10.);
+    hnhpxb = book<TH1D>("h_nHitPXB", "nhpxb;# hits in Pixel Barrel; tracks", 10, 0., 10.);
+    hnhpxe = book<TH1D>("h_nHitPXE", "nhpxe;# hits in Pixel Endcap; tracks", 10, 0., 10.);
 
-    hHitComposition = fs->make<TH1D>("h_hitcomposition", "track hit composition;;# hits", 6, -0.5, 5.5);
+    hHitComposition = book<TH1D>("h_hitcomposition", "track hit composition;;# hits", 6, -0.5, 5.5);
 
     pNBpixHitsVsVx =
-        fs->make<TProfile>("p_NpixHits_vs_Vx", "n. Barrel Pixel hits vs. v_{x};v_{x} (cm);n. BPix hits", 20, -20, 20);
+        book<TProfile>("p_NpixHits_vs_Vx", "n. Barrel Pixel hits vs. v_{x};v_{x} (cm);n. BPix hits", 20, -20, 20);
 
     pNBpixHitsVsVy =
-        fs->make<TProfile>("p_NpixHits_vs_Vy", "n. Barrel Pixel hits vs. v_{y};v_{y} (cm);n. BPix hits", 20, -20, 20);
+        book<TProfile>("p_NpixHits_vs_Vy", "n. Barrel Pixel hits vs. v_{y};v_{y} (cm);n. BPix hits", 20, -20, 20);
 
     pNBpixHitsVsVz =
-        fs->make<TProfile>("p_NpixHits_vs_Vz", "n. Barrel Pixel hits vs. v_{z};v_{z} (cm);n. BPix hits", 20, -100, 100);
+        book<TProfile>("p_NpixHits_vs_Vz", "n. Barrel Pixel hits vs. v_{z};v_{z} (cm);n. BPix hits", 20, -100, 100);
 
     std::string dets[6] = {"PXB", "PXF", "TIB", "TID", "TOB", "TEC"};
 
@@ -904,167 +913,63 @@ private:
       hHitComposition->GetXaxis()->SetBinLabel(i, (dets[i - 1]).c_str());
     }
 
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_tracketa", "Track #eta;#eta_{Track};Number of Tracks", 90, -etaMax_, etaMax_));
-    vTrackHistos_.push_back(fs->make<TH1F>("h_trackphi", "Track #phi;#phi_{Track};Number of Tracks", 90, -M_PI, M_PI));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_trackNumberOfValidHits", "Track # of valid hits;# of valid hits _{Track};Number of Tracks", 40, 0., 40.));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_trackNumberOfLostHits", "Track # of lost hits;# of lost hits _{Track};Number of Tracks", 10, 0., 10.));
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_curvature", "Curvature #kappa;#kappa_{Track};Number of Tracks", 100, -.05, .05));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_curvature_pos", "Curvature |#kappa| Positive Tracks;|#kappa_{pos Track}|;Number of Tracks", 100, .0, .05));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_curvature_neg", "Curvature |#kappa| Negative Tracks;|#kappa_{neg Track}|;Number of Tracks", 100, .0, .05));
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_diff_curvature",
-                       "Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks",
-                       100,
-                       .0,
-                       .05));
+    // vector of track histograms
 
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_chi2", "Track #chi^{2};#chi^{2}_{Track};Number of Tracks", 500, -0.01, 500.));
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_chi2Prob", "#chi^{2} probability;Track Prob(#chi^{2},ndof);Number of Tracks", 100, 0.0, 1.));
-    vTrackHistos_.push_back(
-        fs->make<TH1F>("h_normchi2", "#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks", 100, -0.01, 10.));
+    // clang-format off
+
+    vTrackHistos_.push_back(book<TH1F>("h_tracketa", "Track #eta;#eta_{Track};Number of Tracks", 90, -etaMax_, etaMax_));
+    vTrackHistos_.push_back(book<TH1F>("h_trackphi", "Track #phi;#phi_{Track};Number of Tracks", 90, -M_PI, M_PI));
+    vTrackHistos_.push_back(book<TH1F>("h_trackNumberOfValidHits", "Track # of valid hits;# of valid hits _{Track};Number of Tracks", 40, 0., 40.));
+    vTrackHistos_.push_back(book<TH1F>("h_trackNumberOfLostHits", "Track # of lost hits;# of lost hits _{Track};Number of Tracks", 10, 0., 10.));
+    vTrackHistos_.push_back(book<TH1F>("h_curvature", "Curvature #kappa;#kappa_{Track};Number of Tracks", 100, -.05, .05));
+    vTrackHistos_.push_back(book<TH1F>("h_curvature_pos", "Curvature |#kappa| Positive Tracks;|#kappa_{pos Track}|;Number of Tracks", 100, .0, .05));
+    vTrackHistos_.push_back(book<TH1F>("h_curvature_neg", "Curvature |#kappa| Negative Tracks;|#kappa_{neg Track}|;Number of Tracks", 100, .0, .05));
+    vTrackHistos_.push_back(book<TH1F>("h_diff_curvature","Curvature |#kappa| Tracks Difference;|#kappa_{Track}|;# Pos Tracks - # Neg Tracks",100, .0, .05));
+    vTrackHistos_.push_back(book<TH1F>("h_chi2", "Track #chi^{2};#chi^{2}_{Track};Number of Tracks", 500, -0.01, 500.));
+    vTrackHistos_.push_back(book<TH1F>("h_chi2Prob", "#chi^{2} probability;Track Prob(#chi^{2},ndof);Number of Tracks", 100, 0.0, 1.));
+    vTrackHistos_.push_back(book<TH1F>("h_normchi2", "#chi^{2}/ndof;#chi^{2}/ndof;Number of Tracks", 100, -0.01, 10.));
     //variable binning for chi2/ndof vs. pT
     double xBins[19] = {0., 0.15, 0.5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5., 7., 10., 15., 25., 40., 100., 200.};
-    vTrackHistos_.push_back(fs->make<TH1F>("h_pt", "Track p_{T};p_{T}^{track} [GeV];Number of Tracks", 250, 0., 250));
-    vTrackHistos_.push_back(fs->make<TH1F>("h_ptrebin", "Track p_{T};p_{T}^{track} [GeV];Number of Tracks", 18, xBins));
-    vTrackHistos_.push_back(fs->make<TH1F>(
-        "h_ptResolution", "#delta_{p_{T}}/p_{T}^{track};#delta_{p_{T}}/p_{T}^{track};Number of Tracks", 100, 0., 0.5));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_d0_vs_phi", "Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT [cm]", 100, -M_PI, M_PI));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_dz_vs_phi", "Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT [cm]", 100, -M_PI, M_PI));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_d0_vs_eta", "Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT [cm]", 100, -etaMax_, etaMax_));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_dz_vs_eta",
-                           "Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT [cm]",
-                           100,
-                           -etaMax_,
-                           etaMax_));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_chi2_vs_phi", "#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT", 100, -M_PI, M_PI));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_chi2Prob_vs_phi",
-                           "#chi^{2} probablility vs. #phi;#phi_{Track};#LT #chi^{2} probability#GT",
-                           100,
-                           -M_PI,
-                           M_PI));
+    vTrackHistos_.push_back(book<TH1F>("h_pt", "Track p_{T};p_{T}^{track} [GeV];Number of Tracks", 250, 0., 250));
+    vTrackHistos_.push_back(book<TH1F>("h_ptrebin", "Track p_{T};p_{T}^{track} [GeV];Number of Tracks", 18, xBins));
+    vTrackHistos_.push_back(book<TH1F>("h_ptResolution", "#delta_{p_{T}}/p_{T}^{track};#delta_{p_{T}}/p_{T}^{track};Number of Tracks", 100, 0., 0.5));
 
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_chi2Prob_vs_d0", "#chi^{2} probablility vs. |d_{0}|;|d_{0}|[cm];#LT #chi^{2} probability#GT", 100, 0, 80));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_chi2Prob_vs_dz", "#chi^{2} probablility vs. dz;d_{z} [cm];#LT #chi^{2} probability#GT", 100, -30, 30));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_normchi2_vs_phi", "#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT", 100, -M_PI, M_PI));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_chi2_vs_eta", "#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT", 100, -etaMax_, etaMax_));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_normchi2_vs_pt", "norm #chi^{2} vs. p_{T}_{Track}; p_{T}_{Track};#LT #chi^{2}/ndof #GT", 18, xBins));
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_normchi2_vs_p", "#chi^{2}/ndof vs. p_{Track};p_{Track};#LT #chi^{2}/ndof #GT", 18, xBins));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_chi2Prob_vs_eta",
-                           "#chi^{2} probability vs. #eta;#eta_{Track};#LT #chi^{2} probability #GT",
-                           100,
-                           -etaMax_,
-                           etaMax_));
+    vTrackProfiles_.push_back(book<TProfile>("p_d0_vs_phi", "Transverse Impact Parameter vs. #phi;#phi_{Track};#LT d_{0} #GT [cm]", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(book<TProfile>("p_dz_vs_phi", "Longitudinal Impact Parameter vs. #phi;#phi_{Track};#LT d_{z} #GT [cm]", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(book<TProfile>("p_d0_vs_eta", "Transverse Impact Parameter vs. #eta;#eta_{Track};#LT d_{0} #GT [cm]", 100, -etaMax_, etaMax_));
+    vTrackProfiles_.push_back(book<TProfile>("p_dz_vs_eta", "Longitudinal Impact Parameter vs. #eta;#eta_{Track};#LT d_{z} #GT [cm]", 100, -etaMax_, etaMax_));
+    vTrackProfiles_.push_back(book<TProfile>("p_chi2_vs_phi", "#chi^{2} vs. #phi;#phi_{Track};#LT #chi^{2} #GT", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(book<TProfile>("p_chi2Prob_vs_phi", "#chi^{2} probablility vs. #phi;#phi_{Track};#LT #chi^{2} probability#GT", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(book<TProfile>("p_chi2Prob_vs_d0", "#chi^{2} probablility vs. |d_{0}|;|d_{0}|[cm];#LT #chi^{2} probability#GT", 100, 0, 80));
+    vTrackProfiles_.push_back(book<TProfile>("p_chi2Prob_vs_dz", "#chi^{2} probablility vs. dz;d_{z} [cm];#LT #chi^{2} probability#GT", 100, -30, 30));
+    vTrackProfiles_.push_back(book<TProfile>("p_normchi2_vs_phi", "#chi^{2}/ndof vs. #phi;#phi_{Track};#LT #chi^{2}/ndof #GT", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(book<TProfile>("p_chi2_vs_eta", "#chi^{2} vs. #eta;#eta_{Track};#LT #chi^{2} #GT", 100, -etaMax_, etaMax_));
+    vTrackProfiles_.push_back(book<TProfile>("p_normchi2_vs_pt", "norm #chi^{2} vs. p_{T}_{Track}; p_{T}_{Track};#LT #chi^{2}/ndof #GT", 18, xBins));
+    vTrackProfiles_.push_back(book<TProfile>("p_normchi2_vs_p", "#chi^{2}/ndof vs. p_{Track};p_{Track};#LT #chi^{2}/ndof #GT", 18, xBins));
+    vTrackProfiles_.push_back(book<TProfile>("p_chi2Prob_vs_eta","#chi^{2} probability vs. #eta;#eta_{Track};#LT #chi^{2} probability #GT",100,-etaMax_,etaMax_));
+    vTrackProfiles_.push_back(book<TProfile>("p_normchi2_vs_eta", "#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT", 100, -etaMax_, etaMax_));
+    vTrackProfiles_.push_back(book<TProfile>("p_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -M_PI, M_PI));
+    vTrackProfiles_.push_back(book<TProfile>("p_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -etaMax_, etaMax_));
+    vTrackProfiles_.push_back(book<TProfile>("p_ptResolution_vs_phi","#delta_{p_{T}}/p_{T}^{track};#phi^{track};#delta_{p_{T}}/p_{T}^{track}",100,-M_PI,M_PI));
+    vTrackProfiles_.push_back(book<TProfile>("p_ptResolution_vs_eta","#delta_{p_{T}}/p_{T}^{track};#eta^{track};#delta_{p_{T}}/p_{T}^{track}",100,-etaMax_,etaMax_));
 
-    vTrackProfiles_.push_back(fs->make<TProfile>(
-        "p_normchi2_vs_eta", "#chi^{2}/ndof vs. #eta;#eta_{Track};#LT #chi^{2}/ndof #GT", 100, -etaMax_, etaMax_));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -M_PI, M_PI));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -etaMax_, etaMax_));
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_ptResolution_vs_phi",
-                           "#delta_{p_{T}}/p_{T}^{track};#phi^{track};#delta_{p_{T}}/p_{T}^{track}",
-                           100,
-                           -M_PI,
-                           M_PI));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_phi_vs_eta", "Track #phi vs. #eta;#eta_{Track};#phi_{Track}",50, -etaMax_, etaMax_, 50, -M_PI, M_PI));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_d0_vs_phi", "Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0} [cm]", 100, -M_PI, M_PI, 100, -1., 1.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_dz_vs_phi", "Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z} [cm]",100, -M_PI, M_PI, 100, -100., 100.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_d0_vs_eta", "Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0} [cm]", 100, -etaMax_, etaMax_, 100, -1., 1.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_dz_vs_eta", "Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z} [cm]", 100, -etaMax_, etaMax_, 100, -100., 100.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_chi2_vs_phi", "#chi^{2} vs. #phi;#phi_{Track};#chi^{2}", 100, -M_PI, M_PI, 500, 0., 500.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_chi2Prob_vs_phi", "#chi^{2} probability vs. #phi;#phi_{Track};#chi^{2} probability", 100, -M_PI, M_PI, 100, 0., 1.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_chi2Prob_vs_d0", "#chi^{2} probability vs. |d_{0}|;|d_{0}| [cm];#chi^{2} probability", 100, 0, 80, 100, 0., 1.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_normchi2_vs_phi", "#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof", 100, -M_PI, M_PI, 100, 0., 10.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_chi2_vs_eta", "#chi^{2} vs. #eta;#eta_{Track};#chi^{2}", 100, -etaMax_, etaMax_, 500, 0., 500.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_chi2Prob_vs_eta", "#chi^{2} probaility vs. #eta;#eta_{Track};#chi^{2} probability", 100, -etaMax_, etaMax_, 100, 0., 1.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_normchi2_vs_eta", "#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof", 100, -etaMax_, etaMax_, 100, 0., 10.));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -M_PI, M_PI, 100, .0, .05));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -etaMax_, etaMax_, 100, .0, .05));
+    vTrack2DHistos_.push_back(book<TH2F>("h2_normchi2_vs_kappa", "#kappa vs. #chi^{2}/ndof;#chi^{2}/ndof;#kappa", 100, 0., 10, 100, -.03, .03));
 
-    vTrackProfiles_.push_back(
-        fs->make<TProfile>("p_ptResolution_vs_eta",
-                           "#delta_{p_{T}}/p_{T}^{track};#eta^{track};#delta_{p_{T}}/p_{T}^{track}",
-                           100,
-                           -etaMax_,
-                           etaMax_));
-
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_d0_vs_phi", "Transverse Impact Parameter vs. #phi;#phi_{Track};d_{0} [cm]", 100, -M_PI, M_PI, 100, -1., 1.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_dz_vs_phi",
-                                             "Longitudinal Impact Parameter vs. #phi;#phi_{Track};d_{z} [cm]",
-                                             100,
-                                             -M_PI,
-                                             M_PI,
-                                             100,
-                                             -100.,
-                                             100.));
-
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_d0_vs_eta",
-                                             "Transverse Impact Parameter vs. #eta;#eta_{Track};d_{0} [cm]",
-                                             100,
-                                             -etaMax_,
-                                             etaMax_,
-                                             100,
-                                             -1.,
-                                             1.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_dz_vs_eta",
-                                             "Longitudinal Impact Parameter vs. #eta;#eta_{Track};d_{z} [cm]",
-                                             100,
-                                             -etaMax_,
-                                             etaMax_,
-                                             100,
-                                             -100.,
-                                             100.));
-
-    vTrack2DHistos_.push_back(
-        fs->make<TH2F>("h2_chi2_vs_phi", "#chi^{2} vs. #phi;#phi_{Track};#chi^{2}", 100, -M_PI, M_PI, 500, 0., 500.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2Prob_vs_phi",
-                                             "#chi^{2} probability vs. #phi;#phi_{Track};#chi^{2} probability",
-                                             100,
-                                             -M_PI,
-                                             M_PI,
-                                             100,
-                                             0.,
-                                             1.));
-
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2Prob_vs_d0",
-                                             "#chi^{2} probability vs. |d_{0}|;|d_{0}| [cm];#chi^{2} probability",
-                                             100,
-                                             0,
-                                             80,
-                                             100,
-                                             0.,
-                                             1.));
-
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_normchi2_vs_phi", "#chi^{2}/ndof vs. #phi;#phi_{Track};#chi^{2}/ndof", 100, -M_PI, M_PI, 100, 0., 10.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_chi2_vs_eta", "#chi^{2} vs. #eta;#eta_{Track};#chi^{2}", 100, -etaMax_, etaMax_, 500, 0., 500.));
-    vTrack2DHistos_.push_back(fs->make<TH2F>("h2_chi2Prob_vs_eta",
-                                             "#chi^{2} probaility vs. #eta;#eta_{Track};#chi^{2} probability",
-                                             100,
-                                             -etaMax_,
-                                             etaMax_,
-                                             100,
-                                             0.,
-                                             1.));
-
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_normchi2_vs_eta", "#chi^{2}/ndof vs. #eta;#eta_{Track};#chi^{2}/ndof", 100, -etaMax_, etaMax_, 100, 0., 10.));
-    vTrack2DHistos_.push_back(
-        fs->make<TH2F>("h2_kappa_vs_phi", "#kappa vs. #phi;#phi_{Track};#kappa", 100, -M_PI, M_PI, 100, .0, .05));
-    vTrack2DHistos_.push_back(
-        fs->make<TH2F>("h2_kappa_vs_eta", "#kappa vs. #eta;#eta_{Track};#kappa", 100, -etaMax_, etaMax_, 100, .0, .05));
-    vTrack2DHistos_.push_back(fs->make<TH2F>(
-        "h2_normchi2_vs_kappa", "#kappa vs. #chi^{2}/ndof;#chi^{2}/ndof;#kappa", 100, 0., 10, 100, -.03, .03));
+    // clang-format on
 
     firstEvent_ = true;
 
@@ -1083,10 +988,10 @@ private:
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "firing triggers: " << nFiringTriggers << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
-    tksByTrigger_ = fs->make<TH1D>(
-        "tksByTrigger", "tracks by HLT path;;% of # traks", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
-    evtsByTrigger_ = fs->make<TH1D>(
-        "evtsByTrigger", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
+    tksByTrigger_ =
+        book<TH1D>("tksByTrigger", "tracks by HLT path;;% of # traks", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
+    evtsByTrigger_ =
+        book<TH1D>("evtsByTrigger", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
 
     int i = 0;
     for (const auto &it : triggerMap_) {
@@ -1127,17 +1032,17 @@ private:
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "considered runs: " << nRuns << std::endl;
     edm::LogPrint("GeneralPurposeTrackAnalyzer") << "*******************************" << std::endl;
 
-    modeByRun_ = fs->make<TH1D>("modeByRun",
-                                "Strip APV mode by run number;;APV mode (-1=deco,+1=peak)",
-                                runRange,
-                                theRuns_.front() - 0.5,
-                                theRuns_.back() + 0.5);
+    modeByRun_ = book<TH1D>("modeByRun",
+                            "Strip APV mode by run number;;APV mode (-1=deco,+1=peak)",
+                            runRange,
+                            theRuns_.front() - 0.5,
+                            theRuns_.back() + 0.5);
 
-    fieldByRun_ = fs->make<TH1D>("fieldByRun",
-                                 "CMS B-field intensity by run number;;B-field intensity [T]",
-                                 runRange,
-                                 theRuns_.front() - 0.5,
-                                 theRuns_.back() + 0.5);
+    fieldByRun_ = book<TH1D>("fieldByRun",
+                             "CMS B-field intensity by run number;;B-field intensity [T]",
+                             runRange,
+                             theRuns_.front() - 0.5,
+                             theRuns_.back() + 0.5);
 
     for (const auto &the_r : theRuns_) {
       if (conditionsMap_.find(the_r)->second.first != 0) {

@@ -67,6 +67,12 @@ HLTPhase2TDR = cms.PSet(
         'drop recoGsfElectronCores_uncleanedOnlyGsfElectronCores__*',
         #tracking debugging not needed
         'drop TrackingRecHitsOwned_electronGsfTracksFromMultiCl__*',
+        # Temporary debugging to make it work for 12_4
+        'drop edmHepMCProduct_generatorSmeared__SIM',
+        'drop *_TTClusterAssociatorFromPixelDigis_*_*',
+        'drop *_TTStubAssociatorFromPixelDigis_*_*',
+        'drop *_simMuonCSCDigis_*_*',
+        'drop *_simMuonDTDigis_*_*',
     ) )
 )
 

@@ -93,7 +93,7 @@ namespace mkfit {
     int maxConsecHoles = 1;
     float chi2Cut_min = 15.0;
     float chi2CutOverlap = 3.5;
-    float pTCutOverlap = 1.0;
+    float pTCutOverlap = 0.0;
 
     //seed cleaning params
     float c_ptthr_hpt = 2.0;
@@ -112,6 +112,12 @@ namespace mkfit {
     float drth_central = 0.001;
     float drth_obarrel = 0.001;
     float drth_forward = 0.001;
+
+    //min pT cut
+    float minPtCut = 0.0;
+
+    //max cluster size cut for SiStrip hits
+    unsigned int maxClusterSize = 8;
   };
 
   //==============================================================================
@@ -120,10 +126,12 @@ namespace mkfit {
 
   class IterationSeedPartition {
   public:
-    std::vector<int> m_region;
-    std::vector<float> m_sort_score;
+    using register_seed_phi_eta_foo = void(float, float);
 
-    IterationSeedPartition(int size) : m_region(size), m_sort_score(size) {}
+    std::vector<int> m_region;
+    std::function<register_seed_phi_eta_foo> m_phi_eta_foo;
+
+    IterationSeedPartition(int size) : m_region(size) {}
   };
 
   //==============================================================================

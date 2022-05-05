@@ -34,9 +34,6 @@ protected:
   bool isEndCapP(double eta);
   bool isEndCapM(double eta);
   bool isForward(double eta);
-  bool isHEP17(double eta, double phi);
-  bool isHEM17(double eta, double phi);
-  bool isHEP18(double eta, double phi);  // -0.87< Phi < -1.22
 
   void bookMESub(DQMStore::IBooker&,
                  ObjME* a_me,
@@ -70,6 +67,8 @@ private:
   bool isPFJetTrig;
   bool isCaloJetTrig;
 
+  const bool enableFullMonitoring_;
+
   edm::EDGetTokenT<edm::View<reco::Jet> > jetSrc_;
 
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_;
@@ -85,28 +84,14 @@ private:
   ObjME a_ME_HF[7];
   ObjME a_ME_HE_p[7];
   ObjME a_ME_HE_m[7];
-  ObjME a_ME_HEM17[7];
-  ObjME a_ME_HEP17[7];
-  ObjME a_ME_HEP18[7];
-
-  ObjME jetHEP17_AbsEtaVsPhi_;
-  ObjME jetHEM17_AbsEtaVsPhi_;
-  ObjME jetHEP17_AbsEta_;
-  ObjME jetHEM17_AbsEta_;
 
   std::vector<double> v_jetpt;
   std::vector<double> v_jeteta;
   std::vector<double> v_jetphi;
 
   // (mia) not optimal, we should make use of variable binning which reflects the detector !
-  MEbinning jet_phi_binning_{32, -3.2, 3.2};
-  MEbinning jet_eta_binning_{20, -5, 5};
-
-  MEbinning eta_binning_hep17_{9, 1.3, 3.0};
-  MEbinning eta_binning_hem17_{9, -3.0, -1.3};
-
-  MEbinning phi_binning_hep17_{7, -0.87, -0.52};
-  MEbinning phi_binning_hep18_{7, -0.52, -0.17};
+  MEbinning jet_phi_binning_{64, -3.2, 3.2};
+  MEbinning jet_eta_binning_{50, -5, 5};
 };
 
 JetMonitor::JetMonitor(const edm::ParameterSet& iConfig)
@@ -116,6 +101,7 @@ JetMonitor::JetMonitor(const edm::ParameterSet& iConfig)
       ptcut_(iConfig.getParameter<double>("ptcut")),
       isPFJetTrig(iConfig.getParameter<bool>("ispfjettrg")),
       isCaloJetTrig(iConfig.getParameter<bool>("iscalojettrg")),
+      enableFullMonitoring_(iConfig.getParameter<bool>("enableFullMonitoring")),
       jetSrc_(mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetSrc"))),
       num_genTriggerEventFlag_(new GenericTriggerEventFlag(
           iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this)),
@@ -208,6 +194,12 @@ void JetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
             true,
             true,
             false);
+
+  //check the flag
+  if (!enableFullMonitoring_) {
+    return;
+  }
+
   bookMESub(ibooker,
             a_ME_HE_p,
             sizeof(a_ME_HE_p) / sizeof(a_ME_HE_p[0]),
@@ -216,7 +208,7 @@ void JetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
             "HE_p",
             "(HE+)",
             true,
-            true,
+            false,
             true,
             false);
   bookMESub(ibooker,
@@ -227,76 +219,9 @@ void JetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun
             "HE_m",
             "(HE-)",
             true,
-            true,
+            false,
             true,
             false);
-  bookMESub(ibooker,
-            a_ME_HEP17,
-            sizeof(a_ME_HEP17) / sizeof(a_ME_HEP17[0]),
-            hist_obtag,
-            histtitle_obtag,
-            "HEP17",
-            "(HEP17)",
-            true,
-            false,
-            false,
-            false);
-  bookMESub(ibooker,
-            a_ME_HEM17,
-            sizeof(a_ME_HEM17) / sizeof(a_ME_HEM17[0]),
-            hist_obtag,
-            histtitle_obtag,
-            "HEM17",
-            "(HEM17)",
-            true,
-            false,
-            false,
-            false);
-  bookMESub(ibooker,
-            a_ME_HEP18,
-            sizeof(a_ME_HEP18) / sizeof(a_ME_HEP18[0]),
-            hist_obtag,
-            histtitle_obtag,
-            "HEP18",
-            "(HEP18)",
-            false,
-            false,
-            false,
-            false);
-
-  /*
-    WE WOULD NEED TURNON CURVES TO BE COMPARED NOT JUST THE ZOOM OF A 2D MAP !!!
-
-  histname = hist_obtag +"AbsEtaVsPhi_HEP17"; histtitle = histtitle_obtag + " |eta| Vs phi (HEP17) ";
-  bookME(ibooker,jetHEP17_AbsEtaVsPhi_,histname,histtitle, eta_binning_hep17_.nbins, eta_binning_hep17_.xmin, eta_binning_hep17_.xmax, phi_binning_hep17_.nbins,phi_binning_hep17_.xmin,phi_binning_hep17_.xmax);
-  setMETitle(jetHEP17_AbsEtaVsPhi_,histtitle_obtag + " |#eta|","#phi");
-
-  histname = hist_obtag +"AbsEtaVsPhi_HEM17"; histtitle = histtitle_obtag + " |eta| Vs phi (HEM17) ";
-  bookME(ibooker,jetHEM17_AbsEtaVsPhi_,histname,histtitle, eta_binning_hep17_.nbins, eta_binning_hep17_.xmin, eta_binning_hep17_.xmax, phi_binning_hep17_.nbins,phi_binning_hep17_.xmin,phi_binning_hep17_.xmax);
-  setMETitle(jetHEM17_AbsEtaVsPhi_,histtitle_obtag + " |#eta|","#phi");
-  */
-
-  histname = hist_obtag + "abseta_HEP17";
-  histtitle = histtitle_obtag + " |#eta| (HEP17) ";
-  bookME(ibooker,
-         jetHEP17_AbsEta_,
-         histname,
-         histtitle,
-         eta_binning_hep17_.nbins,
-         eta_binning_hep17_.xmin,
-         eta_binning_hep17_.xmax);
-  setMETitle(jetHEP17_AbsEta_, histtitle_obtag + " |#eta|", "events / |#eta|");
-
-  histname = hist_obtag + "abseta_HEM17";
-  histtitle = histtitle_obtag + " |eta| (HEM17) ";
-  bookME(ibooker,
-         jetHEM17_AbsEta_,
-         histname,
-         histtitle,
-         eta_binning_hep17_.nbins,
-         eta_binning_hep17_.xmin,
-         eta_binning_hep17_.xmax);
-  setMETitle(jetHEM17_AbsEta_, histtitle_obtag + " |#eta|", "events / |#eta|");
 }
 
 void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -325,7 +250,6 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   for (edm::View<reco::Jet>::const_iterator ibegin = offjets->begin(), iend = offjets->end(), ijet = ibegin;
        ijet != iend;
        ++ijet) {
-    //if (ijet->pt()< 20) {continue;}
     if (ijet->pt() < ptcut_) {
       continue;
     }
@@ -346,33 +270,16 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     FillME(a_ME_HB, jetpt_, jetphi_, jeteta_, ls, "denominator", true, true, true, false);
   } else if (isEndCapP(jeteta_)) {
     FillME(a_ME_HE, jetpt_, jetphi_, jeteta_, ls, "denominator", true, true, true, false);
-    FillME(a_ME_HE_p, jetpt_, jetphi_, jeteta_, ls, "denominator", true, true, true, false);
+    if (enableFullMonitoring_) {
+      FillME(a_ME_HE_p, jetpt_, jetphi_, jeteta_, ls, "denominator", true, false, true, false);
+    }
   } else if (isEndCapM(jeteta_)) {
     FillME(a_ME_HE, jetpt_, jetphi_, jeteta_, ls, "denominator", true, true, true, false);
-    FillME(a_ME_HE_m, jetpt_, jetphi_, jeteta_, ls, "denominator", true, true, true, false);
+    if (enableFullMonitoring_) {
+      FillME(a_ME_HE_m, jetpt_, jetphi_, jeteta_, ls, "denominator", true, false, true, false);
+    }
   } else if (isForward(jeteta_)) {
     FillME(a_ME_HF, jetpt_, jetphi_, jeteta_, ls, "denominator", true, true, true, false);
-  }
-
-  if (isHEP17(jeteta_, jetphi_)) {
-    FillME(a_ME_HEP17,
-           jetpt_,
-           jetphi_,
-           jeteta_,
-           ls,
-           "denominator",
-           true,
-           false,
-           false,
-           false);  // doPhi, doEta, doEtaPhi, doVsLS
-    jetHEP17_AbsEta_.denominator->Fill(abs(jeteta_));
-  } else if (isHEM17(jeteta_, jetphi_)) {
-    FillME(
-        a_ME_HEM17, jetpt_, jetphi_, jeteta_, ls, "denominator", true, false, false, false);  // doPhi, doEta, doEtaPhi
-    jetHEM17_AbsEta_.denominator->Fill(abs(jeteta_));
-  } else if (isHEP18(jeteta_, jetphi_)) {
-    FillME(
-        a_ME_HEP18, jetpt_, jetphi_, jeteta_, ls, "denominator", false, false, false, false);  // doPhi, doEta, doEtaPhi
   }
 
   if (num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup))
@@ -383,49 +290,16 @@ void JetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     FillME(a_ME_HB, jetpt_, jetphi_, jeteta_, ls, "numerator", true, true, true, false);
   } else if (isEndCapP(jeteta_)) {
     FillME(a_ME_HE, jetpt_, jetphi_, jeteta_, ls, "numerator", true, true, true, false);
-    FillME(a_ME_HE_p, jetpt_, jetphi_, jeteta_, ls, "numerator", true, true, true, false);
+    if (enableFullMonitoring_) {
+      FillME(a_ME_HE_p, jetpt_, jetphi_, jeteta_, ls, "numerator", true, false, true, false);
+    }
   } else if (isEndCapM(jeteta_)) {
     FillME(a_ME_HE, jetpt_, jetphi_, jeteta_, ls, "numerator", true, true, true, false);
-    FillME(a_ME_HE_m, jetpt_, jetphi_, jeteta_, ls, "numerator", true, true, true, false);
+    if (enableFullMonitoring_) {
+      FillME(a_ME_HE_m, jetpt_, jetphi_, jeteta_, ls, "numerator", true, false, true, false);
+    }
   } else if (isForward(jeteta_)) {
     FillME(a_ME_HF, jetpt_, jetphi_, jeteta_, ls, "numerator", true, true, true, false);
-  }
-
-  if (isHEP17(jeteta_, jetphi_)) {
-    FillME(a_ME_HEP17,
-           jetpt_,
-           jetphi_,
-           jeteta_,
-           ls,
-           "numerator",
-           true,
-           false,
-           false,
-           false);  // doPhi, doEta, doEtaPhi, doVsLS
-    jetHEP17_AbsEta_.numerator->Fill(abs(jeteta_));
-  } else if (isHEM17(jeteta_, jetphi_)) {
-    FillME(a_ME_HEM17,
-           jetpt_,
-           jetphi_,
-           jeteta_,
-           ls,
-           "numerator",
-           true,
-           false,
-           false,
-           false);  // doPhi, doEta, doEtaPhi, doVsLS
-    jetHEM17_AbsEta_.numerator->Fill(abs(jeteta_));
-  } else if (isHEP18(jeteta_, jetphi_)) {
-    FillME(a_ME_HEP18,
-           jetpt_,
-           jetphi_,
-           jeteta_,
-           ls,
-           "numerator",
-           false,
-           false,
-           false,
-           false);  // doPhi, doEta, doEtaPhi, doVsLS
   }
 }
 
@@ -446,46 +320,16 @@ bool JetMonitor::isEndCapM(double eta) {
 /// For Hcal Endcap Plus Area
 bool JetMonitor::isEndCapP(double eta) {
   bool output = false;
-  //if ( eta<=3.0 && eta >1.3) output=true;
   if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0))
     output = true;  // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
 
-/// For Hcal Forward Plus Area
+/// For Hcal Forward Area
 bool JetMonitor::isForward(double eta) {
   bool output = false;
   if (fabs(eta) > 3.0)
     output = true;
-  return output;
-}
-
-/// For Hcal HEP17 Area
-bool JetMonitor::isHEP17(double eta, double phi) {
-  bool output = false;
-  // phi -0.87 to -0.52
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0) && phi > -0.87 && phi <= -0.52) {
-    output = true;
-  }  // (mia) this magic number should come from some file in CMSSW !!!
-  return output;
-}
-
-/// For Hcal HEM17 Area
-bool JetMonitor::isHEM17(double eta, double phi) {
-  bool output = false;
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta < 0) && phi > -0.87 && phi <= -0.52) {
-    output = true;
-  }  // (mia) this magic number should come from some file in CMSSW !!!
-  return output;
-}
-
-/// For Hcal HEP18 Area
-bool JetMonitor::isHEP18(double eta, double phi) {
-  bool output = false;
-  // phi -0.87 to -0.52
-  if (fabs(eta) <= 3.0 && fabs(eta) > 1.3 && (eta > 0) && phi > -0.52 && phi <= -0.17) {
-    output = true;
-  }  // (mia) this magic number should come from some file in CMSSW !!!
   return output;
 }
 
@@ -512,7 +356,7 @@ void JetMonitor::FillME(ObjME* a_me,
       a_me[4].denominator->Fill(eta_);  // eta
     if (doEtaPhi)
       a_me[5].denominator->Fill(eta_, phi_);  // eta vs phi
-    if (doEta)
+    if (doEtaPhi)
       a_me[6].denominator->Fill(eta_, pt_);  // eta vs pT
   } else if (DenoOrNume == "numerator") {
     a_me[0].numerator->Fill(pt_);  // pt
@@ -522,10 +366,10 @@ void JetMonitor::FillME(ObjME* a_me,
     if (doPhi)
       a_me[3].numerator->Fill(phi_);  // phi
     if (doEta)
-      a_me[4].numerator->Fill(eta_);  // eat
+      a_me[4].numerator->Fill(eta_);  // eta
     if (doEtaPhi)
       a_me[5].numerator->Fill(eta_, phi_);  // eta vs phi
-    if (doEta)
+    if (doEtaPhi)
       a_me[6].numerator->Fill(eta_, pt_);  // eta vs pT
   } else {
     edm::LogWarning("JetMonitor") << "CHECK OUT denu option in FillME !!! DenoOrNume ? : " << DenoOrNume << std::endl;
@@ -555,33 +399,6 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
   double maxbin_eta = jet_eta_binning_.xmax;
   double minbin_eta = jet_eta_binning_.xmin;
 
-  if (h_subOptName == "HEP17") {
-    nbin_phi = phi_binning_hep17_.nbins;
-    maxbin_phi = phi_binning_hep17_.xmax;
-    minbin_phi = phi_binning_hep17_.xmin;
-
-    nbin_eta = eta_binning_hep17_.nbins;
-    maxbin_eta = eta_binning_hep17_.xmax;
-    minbin_eta = eta_binning_hep17_.xmin;
-  }
-  if (h_subOptName == "HEM17") {
-    nbin_phi = phi_binning_hep17_.nbins;
-    maxbin_phi = phi_binning_hep17_.xmax;
-    minbin_phi = phi_binning_hep17_.xmin;
-
-    nbin_eta = eta_binning_hem17_.nbins;
-    maxbin_eta = eta_binning_hem17_.xmax;
-    minbin_eta = eta_binning_hem17_.xmin;
-  }
-  if (h_subOptName == "HEP18") {
-    nbin_phi = phi_binning_hep18_.nbins;
-    maxbin_phi = phi_binning_hep18_.xmax;
-    minbin_phi = phi_binning_hep18_.xmin;
-
-    nbin_eta = eta_binning_hep17_.nbins;
-    maxbin_eta = eta_binning_hep17_.xmax;
-    minbin_eta = eta_binning_hep17_.xmin;
-  }
   hName = h_Name + "pT" + hSubN;
   hTitle = h_Title + " pT " + hSubT;
   bookME(Ibooker, a_me[0], hName, hTitle, jetpt_binning_.nbins, jetpt_binning_.xmin, jetpt_binning_.xmax);
@@ -618,7 +435,7 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
     hName = h_Name + "eta" + hSubN;
     hTitle = h_Title + " eta " + hSubT;
     bookME(Ibooker, a_me[4], hName, hTitle, nbin_eta, minbin_eta, maxbin_eta);
-    setMETitle(a_me[4], h_Title + " #eta", "events / #eta");
+    setMETitle(a_me[4], h_Title + " #eta", "events");
   }
 
   if (doEtaPhi) {
@@ -628,7 +445,7 @@ void JetMonitor::bookMESub(DQMStore::IBooker& Ibooker,
     setMETitle(a_me[5], h_Title + " #eta", "#phi");
   }
 
-  if (doEta) {
+  if (doEtaPhi) {
     hName = h_Name + "EtaVspT" + hSubN;
     hTitle = h_Title + " eta Vs pT " + hSubT;
     bookME(Ibooker,
@@ -654,6 +471,8 @@ void JetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<double>("ptcut", 20);
   desc.add<bool>("ispfjettrg", true);
   desc.add<bool>("iscalojettrg", false);
+
+  desc.add<bool>("enableFullMonitoring", true);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);

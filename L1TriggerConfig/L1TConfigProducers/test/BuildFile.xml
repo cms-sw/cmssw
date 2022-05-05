@@ -1,0 +1,7 @@
+<architecture name="_amd64_">
+  <ifcxx11_abi value="1">
+    <flags SETENV="LD_PRELOAD=$(CMS_ORACLEOCCI_LIB)"/>
+  </ifcxx11_abi>
+  <test name="L1O2O_L1TMenu" command="runL1-O2O-scramTests.sh -k uGT,uGTrs -d uGMT,EMTF,OMTF,BMTF,CALO 400000 l1_trg_cosmics2022/v43 l1_trg_rs_cosmics2020/v23"/>
+  <test name="L1O2O_L1TSubs" command="runL1-O2O-scramTests.sh -k uGMT,EMTF,OMTF,BMTF,CALO -d uGT,uGTrs -t L1TMuonEndCapForest:Stage2v1_hlt 500000 l1_trg_collisions2021/v6 l1_trg_rs_collisions2021/v22"/>
+</architecture>

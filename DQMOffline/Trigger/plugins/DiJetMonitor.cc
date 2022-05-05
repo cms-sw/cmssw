@@ -67,6 +67,11 @@ private:
 
   ObjME jetpt1ME_;
   ObjME jetpt2ME_;
+  ObjME jetPhi1ME_;
+  ObjME jetPhi2ME_;
+  ObjME jetEta1ME_;
+  ObjME jetEta2ME_;
+  ObjME jetphiTagME_;
   ObjME jetptAvgaME_;
   ObjME jetptAvgaThrME_;
   ObjME jetptAvgbME_;
@@ -87,7 +92,7 @@ private:
 
   // Define Phi Bin //
   const double DiJet_MAX_PHI = 3.2;
-  //unsigned int DiJet_N_PHI = 64;
+  // unsigned int DiJet_N_PHI = 64;
   unsigned int DiJet_N_PHI = 32;
   MEbinning dijet_phi_binning{DiJet_N_PHI, -DiJet_MAX_PHI, DiJet_MAX_PHI};
   // Define Eta Bin //
@@ -160,6 +165,30 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
   histtitle = "second leading Jet Pt";
   bookME(ibooker, jetpt2ME_, histname, histtitle, dijetpt_binning_.nbins, dijetpt_binning_.xmin, dijetpt_binning_.xmax);
   setMETitle(jetpt2ME_, "Pt_2 [GeV]", "events");
+
+  histname = "jetphi1";
+  histtitle = "leading Jet Phi";
+  bookME(
+      ibooker, jetPhi1ME_, histname, histtitle, dijet_phi_binning.nbins, dijet_phi_binning.xmin, dijet_phi_binning.xmax);
+  setMETitle(jetPhi1ME_, "Jet_Phi_1", "events");
+
+  histname = "jetphi2";
+  histtitle = "second leading Jet Phi";
+  bookME(
+      ibooker, jetPhi2ME_, histname, histtitle, dijet_phi_binning.nbins, dijet_phi_binning.xmin, dijet_phi_binning.xmax);
+  setMETitle(jetPhi2ME_, "Jet_Phi_2", "events");
+
+  histname = "jeteta1";
+  histtitle = "leading Jet Eta";
+  bookME(
+      ibooker, jetEta1ME_, histname, histtitle, dijet_eta_binning.nbins, dijet_eta_binning.xmin, dijet_eta_binning.xmax);
+  setMETitle(jetEta1ME_, "Jet_Eta_1", "events");
+
+  histname = "jeteta2";
+  histtitle = "second leading Jet Eta";
+  bookME(
+      ibooker, jetEta2ME_, histname, histtitle, dijet_eta_binning.nbins, dijet_eta_binning.xmin, dijet_eta_binning.xmax);
+  setMETitle(jetEta2ME_, "Jet_Eta_2", "events");
 
   histname = "jetptAvgB";
   histtitle = "Pt average before offline selection";
@@ -261,6 +290,17 @@ void DiJetMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
          dijet_phi_binning.xmin,
          dijet_phi_binning.xmax);
   setMETitle(jetphiPrbME_, "Phi_probe #phi", "events");
+
+  histname = "jetphiTag";
+  histtitle = "Tag Jet phi";
+  bookME(ibooker,
+         jetphiTagME_,
+         histname,
+         histtitle,
+         dijet_phi_binning.nbins,
+         dijet_phi_binning.xmin,
+         dijet_phi_binning.xmax);
+  setMETitle(jetphiTagME_, "Phi_tag #phi", "events");
 }
 
 void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -312,6 +352,10 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
 
   jetpt1ME_.denominator->Fill(pt_1);
   jetpt2ME_.denominator->Fill(pt_2);
+  jetPhi1ME_.denominator->Fill(phi_1);
+  jetPhi2ME_.denominator->Fill(phi_2);
+  jetEta1ME_.denominator->Fill(eta_1);
+  jetEta2ME_.denominator->Fill(eta_2);
   jetptAvgbME_.denominator->Fill(pt_avg_b);
 
   if (dijet_selection(eta_1, phi_1, eta_2, phi_2, pt_1, pt_2, tag_id, probe_id, iEvent.id().event())) {
@@ -326,6 +370,7 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
       jetetaTagME_.denominator->Fill(eta_1);
       jetptAsyME_.denominator->Fill(pt_asy);
       jetphiPrbME_.denominator->Fill(phi_2);
+      jetphiTagME_.denominator->Fill(phi_1);
       jetAsyEtaME_.denominator->Fill(pt_asy, eta_2);
       jetEtaPhiME_.denominator->Fill(eta_2, phi_2);
     }
@@ -340,6 +385,7 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
       jetetaTagME_.denominator->Fill(eta_2);
       jetptAsyME_.denominator->Fill(pt_asy);
       jetphiPrbME_.denominator->Fill(phi_1);
+      jetphiTagME_.denominator->Fill(phi_2);
       jetAsyEtaME_.denominator->Fill(pt_asy, eta_1);
       jetEtaPhiME_.denominator->Fill(eta_1, phi_1);
     }
@@ -349,6 +395,10 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
 
     jetpt1ME_.numerator->Fill(pt_1);
     jetpt2ME_.numerator->Fill(pt_2);
+    jetPhi1ME_.numerator->Fill(phi_1);
+    jetPhi2ME_.numerator->Fill(phi_2);
+    jetEta1ME_.numerator->Fill(eta_1);
+    jetEta2ME_.numerator->Fill(eta_2);
     jetptAvgbME_.numerator->Fill(pt_avg_b);
 
     if (tag_id == 0 && probe_id == 1) {
@@ -362,6 +412,7 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
       jetetaTagME_.numerator->Fill(eta_1);
       jetptAsyME_.numerator->Fill(pt_asy);
       jetphiPrbME_.numerator->Fill(phi_2);
+      jetphiTagME_.numerator->Fill(phi_1);
       jetAsyEtaME_.numerator->Fill(pt_asy, eta_2);
       jetEtaPhiME_.numerator->Fill(eta_2, phi_2);
     }
@@ -376,6 +427,7 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
       jetetaTagME_.numerator->Fill(eta_2);
       jetptAsyME_.numerator->Fill(pt_asy);
       jetphiPrbME_.numerator->Fill(phi_1);
+      jetphiTagME_.numerator->Fill(phi_2);
       jetAsyEtaME_.numerator->Fill(pt_asy, eta_1);
       jetEtaPhiME_.numerator->Fill(eta_1, phi_1);
     }
@@ -436,6 +488,7 @@ void DiJetMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
+
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
 

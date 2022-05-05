@@ -36,7 +36,13 @@ namespace edm {
   class ActivityRegistry;
   class ThinnedAssociationsHelper;
 
-  class CMS_DEPRECATED EDFilter : public ProducerBase, public EDConsumerBase {
+  /**
+   * The legacy EDFilter class is deprecated. We annotate the
+   * constructor only with the CMS_DEPRECATED, because with gcc it
+   * turns out to flag deriving classes more reliably than annotating
+   * the entire class.
+   */
+  class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
     template <typename T>
     friend class maker::ModuleHolderT;
@@ -44,7 +50,7 @@ namespace edm {
     friend class WorkerT;
     typedef EDFilter ModuleType;
 
-    EDFilter();
+    CMS_DEPRECATED EDFilter();
     ~EDFilter() override;
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);

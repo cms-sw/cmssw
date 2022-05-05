@@ -23,9 +23,6 @@
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DTObjects/interface/DTTtrig.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include <sstream>
 #include <cmath>
 

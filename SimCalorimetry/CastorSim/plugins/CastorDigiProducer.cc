@@ -61,10 +61,11 @@ private:
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup &eventSetup);
 
-  edm::InputTag theHitsProducerTag;
   const edm::ESGetToken<CastorDbService, CastorDbRecord> theConditionsToken;
   const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> theGeometryToken;
   edm::ESWatcher<CaloGeometryRecord> theGeometryWatcher;
+  const edm::InputTag theHitsProducerTag;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> hitToken_;
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<CastorDigitizerTraits> CastorDigitizer;
@@ -95,6 +96,8 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet &ps,
                                        edm::ConsumesCollector &iC)
     : theConditionsToken(iC.esConsumes()),
       theGeometryToken(iC.esConsumes()),
+      theHitsProducerTag(ps.getParameter<edm::InputTag>("hitsProducer")),
+      hitToken_(iC.consumes<std::vector<PCaloHit>>(theHitsProducerTag)),
       theParameterMap(new CastorSimParameterMap(ps)),
       theCastorShape(new CastorShape()),
       theCastorIntegratedShape(new CaloShapeIntegrator(theCastorShape)),
@@ -105,9 +108,6 @@ CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet &ps,
       theHitCorrection(nullptr),
       theCastorDigitizer(nullptr),
       theCastorHits() {
-  theHitsProducerTag = ps.getParameter<edm::InputTag>("hitsProducer");
-  iC.consumes<std::vector<PCaloHit>>(theHitsProducerTag);
-
   producesCollector.produces<CastorDigiCollection>();
 
   theCastorResponse->setHitFilter(&theCastorHitFilter);
@@ -178,8 +178,7 @@ void CastorDigiProducer::accumulateCaloHits(std::vector<PCaloHit> const &hcalHit
 
 void CastorDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &) {
   // Step A: Get and accumulate digitized hits
-  edm::Handle<std::vector<PCaloHit>> castorHandle;
-  e.getByLabel(theHitsProducerTag, castorHandle);
+  const edm::Handle<std::vector<PCaloHit>> &castorHandle = e.getHandle(hitToken_);
 
   accumulateCaloHits(*castorHandle.product(), 0);
 }
@@ -234,8 +233,8 @@ void CastorDigiProducer::checkGeometry(const edm::EventSetup &eventSetup) {
 
     const std::vector<DetId> &castorCells = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
 
-    // std::cout<<"CastorDigiProducer::CheckGeometry number of cells:
-    // "<<castorCells.size()<<std::endl;
+    // // edm::LogInfo("CastorDigiProducer") << "CastorDigiProducer::CheckGeometry number of cells:" << castorCells.size()
+    ;
     theCastorDigitizer->setDetIds(castorCells);
   }
 }

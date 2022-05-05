@@ -1,0 +1,7 @@
+<library file="DumpMkFitGeometry.cc" name="RecoTrackerMkFitTest">
+  <flags EDM_PLUGIN="1"/>
+  <use name="FWCore/Framework"/>
+  <use name="RecoTracker/MkFit"/>
+  <use name="RecoTracker/MkFitCore"/>
+  <use name="RecoTracker/Record"/>
+</library>

@@ -22,7 +22,7 @@ namespace cscdqm {
  */
   class StripClusterFinder {
   public:
-    StripClusterFinder(int l, int s, int cf, int st);
+    StripClusterFinder(int l, int s, int cf, int st, bool ME11 = false);
     void DoAction(int layerId, float* cathodes);
     void printClusters(void);
     std::vector<StripClusterFitData> thePulseHeightMap;
@@ -48,6 +48,8 @@ namespace cscdqm {
     bool FindAndMatch(void);
     void KillCluster(void);
     void RefindMax(void);
+    bool is7DCFEBs;
+    bool isME11;
   };
 
 }  // namespace cscdqm

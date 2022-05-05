@@ -318,6 +318,7 @@ trackingMkFitMixedTripletStep.toReplaceWith(mixedTripletStepTrackCandidates, mkF
     mkFitSeeds = 'mixedTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'mixedTripletStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(mixedTripletStepTrackCandidatesMkFitConfig, minPt=0.4)
 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(mixedTripletStepTrackCandidates,

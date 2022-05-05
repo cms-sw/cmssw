@@ -9,6 +9,8 @@
 #include "G4Electron.hh"
 #include "GFlashHitMaker.hh"
 #include "G4Region.hh"
+#include "G4Positron.hh"
+#include "G4ParticleDefinition.hh"
 #include "G4PhysicalConstants.hh"
 
 constexpr G4double twomass = 2 * CLHEP::electron_mass_c2;
@@ -20,6 +22,7 @@ LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* reg
       fCheck(false),
       fTailPos(0., 0., 0.) {
   fEmax = parSet.getParameter<double>("LowEnergyGflashEcalEmax") * CLHEP::GeV;
+  fPositron = G4Positron::Positron();
 }
 
 G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle) {
@@ -43,17 +46,18 @@ G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
 void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
   fastStep.KillPrimaryTrack();
   fastStep.SetPrimaryTrackPathLength(0.0);
-  G4double energy = fastTrack.GetPrimaryTrack()->GetKineticEnergy();
+  auto track = fastTrack.GetPrimaryTrack();
+  G4double energy = track->GetKineticEnergy();
 
-  const G4ThreeVector& pos = fastTrack.GetPrimaryTrack()->GetPosition();
+  const G4ThreeVector& pos = track->GetPosition();
 
   G4double inPointEnergy = fParam.GetInPointEnergyFraction(energy) * energy;
 
   // take into account positron annihilation (not included in in-point)
-  if (-11 == fastTrack.GetPrimaryTrack()->GetDefinition()->GetPDGEncoding())
+  if (fPositron == track->GetDefinition())
     energy += twomass;
 
-  const G4ThreeVector& momDir = fastTrack.GetPrimaryTrack()->GetMomentumDirection();
+  const G4ThreeVector& momDir = track->GetMomentumDirection();
 
   // in point energy deposition
   GFlashEnergySpot spot;

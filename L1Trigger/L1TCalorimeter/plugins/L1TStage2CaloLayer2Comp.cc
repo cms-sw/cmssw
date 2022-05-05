@@ -648,11 +648,9 @@ bool L1TStage2CaloLayer2Comp::compareSums(const edm::Handle<l1t::EtSumBxCollecti
     return false;
   }
 
-  l1t::EtSum dataSum;
-  l1t::EtSum emulSum;
   for (unsigned int i = 0; i < emulCol->size(currBx); i++) {
-    emulSum = emulCol->at(currBx, i);
-    dataSum = dataCol->at(currBx, l1t::CaloTools::emul_to_data_sum_index_map[i]);
+    l1t::EtSum const &emulSum = emulCol->at(currBx, i);
+    l1t::EtSum const &dataSum = dataCol->at(currBx, l1t::CaloTools::emul_to_data_sum_index_map[i]);
 
     if (emulSum.getType() != dataSum.getType()) {
       edm::LogProblem("l1tcalol2ebec") << "EtSum type problem (data emul): " << dataSum.getType() << " "

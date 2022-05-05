@@ -284,11 +284,29 @@ def L1TReEmulMCFromRAW(process):
     stage2L1Trigger.toModify(process.simEmtfDigis, CSCInput = 'simCscTriggerPrimitiveDigis:MPCSORTED')
     stage2L1Trigger.toModify(process.simOmtfDigis, srcCSC   = 'simCscTriggerPrimitiveDigis:MPCSORTED')
 
-    # Temporary fix for OMTF inputs in MC re-emulation
+    # Correct input collections for MC re-emulation
+    run3_GEM.toModify(process.simBmtfDigis,
+        DTDigi_Source         = 'simTwinMuxDigis',
+        DTDigi_Theta_Source   = 'simDtTriggerPrimitiveDigis'
+    )
+
+    run3_GEM.toModify(process.simKBmtfStubs,
+        srcPhi     = "simTwinMuxDigis",
+        srcTheta   = "simDtTriggerPrimitiveDigis"
+    )
+
     run3_GEM.toModify(process.simOmtfDigis,
         srcRPC   = 'muonRPCDigis',
         srcDTPh  = 'simDtTriggerPrimitiveDigis',
         srcDTTh  = 'simDtTriggerPrimitiveDigis'
+    )
+
+    run3_GEM.toModify(process.simEmtfDigis,
+      RPCInput  = 'muonRPCDigis',
+      GEMEnable = False,  # Will be enabled when GEM is in use.
+      GEMInput  = 'simMuonGEMPadDigiClusters',
+      CPPFEnable = False,  # Use CPPF-emulated clustered RPC hits from CPPF as the RPC hits. Set to "False" for MC
+      UseRun3CCLUT_OTMB = False,  # TODO: Enable UseRun3CCLUT_OTMB once it's ready.
     )
 
     return process

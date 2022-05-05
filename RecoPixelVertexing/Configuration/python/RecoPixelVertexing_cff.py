@@ -53,6 +53,13 @@ gpu.toModify(pixelVerticesSoA,
     )
 )
 
+## GPU vs CPU validation
+# force CPU vertexing to use track SoA from CPU chain and not the converted one from GPU chain
+from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationPixel
+(pixelNtupletFit & gpu & gpuValidationPixel).toModify(pixelVerticesSoA.cpu,
+    pixelTrackSrc = "pixelTracksSoA@cpu"
+)
+
 (pixelNtupletFit & gpu).toReplaceWith(pixelVerticesTask, cms.Task(
     # build pixel vertices in SoA format on the GPU
     pixelVerticesCUDA,

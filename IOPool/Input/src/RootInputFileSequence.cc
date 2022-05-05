@@ -60,9 +60,9 @@ namespace edm {
     return rootFile()->readLuminosityBlockAuxiliary_();
   }
 
-  void RootInputFileSequence::readRun_(RunPrincipal& runPrincipal) {
+  bool RootInputFileSequence::readRun_(RunPrincipal& runPrincipal) {
     assert(rootFile());
-    rootFile()->readRun_(runPrincipal);
+    return rootFile()->readRun_(runPrincipal);
   }
 
   void RootInputFileSequence::fillProcessBlockHelper_() {
@@ -80,9 +80,9 @@ namespace edm {
     rootFile()->readProcessBlock_(processBlockPrincipal);
   }
 
-  void RootInputFileSequence::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
+  bool RootInputFileSequence::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
     assert(rootFile());
-    rootFile()->readLuminosityBlock_(lumiPrincipal);
+    return rootFile()->readLuminosityBlock_(lumiPrincipal);
   }
 
   // readEvent() is responsible for setting up the EventPrincipal.

@@ -12,7 +12,6 @@ public:
   Run3ScoutingParticle(float pt,
                        float eta,
                        float phi,
-                       float m,
                        int pdgId,
                        int vertex,
                        float normchi2,
@@ -24,11 +23,11 @@ public:
                        uint8_t quality,
                        float trk_pt,
                        float trk_eta,
-                       float trk_phi)
+                       float trk_phi,
+                       bool relative_trk_vars)
       : pt_(pt),
         eta_(eta),
         phi_(phi),
-        m_(m),
         pdgId_(pdgId),
         vertex_(vertex),
         normchi2_(normchi2),
@@ -40,14 +39,14 @@ public:
         quality_(quality),
         trk_pt_(trk_pt),
         trk_eta_(trk_eta),
-        trk_phi_(trk_phi) {}
+        trk_phi_(trk_phi),
+        relative_trk_vars_(relative_trk_vars) {}
 
   // default constractor
   Run3ScoutingParticle()
       : pt_(0),
         eta_(0),
         phi_(0),
-        m_(0),
         pdgId_(0),
         vertex_(-1),
         normchi2_(0),
@@ -59,13 +58,13 @@ public:
         quality_(0),
         trk_pt_(0),
         trk_eta_(0),
-        trk_phi_(0) {}
+        trk_phi_(0),
+        relative_trk_vars_(false) {}
 
   //accessor functions
   float pt() const { return pt_; }
   float eta() const { return eta_; }
   float phi() const { return phi_; }
-  float m() const { return m_; }
   int pdgId() const { return pdgId_; }
   int vertex() const { return vertex_; }
   float normchi2() const { return normchi2_; }
@@ -78,12 +77,12 @@ public:
   float trk_pt() const { return trk_pt_; }
   float trk_eta() const { return trk_eta_; }
   float trk_phi() const { return trk_phi_; }
+  bool relative_trk_vars() const { return relative_trk_vars_; }
 
 private:
   float pt_;
   float eta_;
   float phi_;
-  float m_;
   int pdgId_;
   int vertex_;
   float normchi2_;
@@ -96,6 +95,7 @@ private:
   float trk_pt_;
   float trk_eta_;
   float trk_phi_;
+  bool relative_trk_vars_;
 };
 
 typedef std::vector<Run3ScoutingParticle> Run3ScoutingParticleCollection;

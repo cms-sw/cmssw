@@ -36,6 +36,15 @@ def _commonCustomizeForInefficiency(process):
     return process
 
 #
+# activate bias rail inefficiency only
+#
+def customizeSiPhase2OTInefficiencyZeroPercent(process):
+
+    _commonCustomizeForInefficiency(process)
+
+    return process
+
+#
 # activate bias rail inefficiency and 1% random bad strips
 #
 def customizeSiPhase2OTInefficiencyOnePercent(process):

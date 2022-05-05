@@ -5,6 +5,7 @@ from Calibration.TkAlCaRecoProducers.AlcaBeamSpotHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripQualityHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiStripGainsAAGHarvester_cff import *
+from Calibration.TkAlCaRecoProducers.AlcaSiStripHitEfficiencyHarvester_cff import *
 from Calibration.TkAlCaRecoProducers.AlcaSiPixelLorentzAngleHarvester_cff import *
 from Alignment.CommonAlignmentProducer.AlcaSiPixelAliHarvester_cff import *
 from Calibration.EcalCalibAlgos.AlcaEcalPedestalsHarvester_cff import *
@@ -149,6 +150,15 @@ ALCAHARVESTSiStripGainsAAG_dbOutput = cms.PSet(record = cms.string('SiStripApvGa
                                                          )
 
 # --------------------------------------------------------------------------------------
+# SiStrip Bad Components from Hit Efficiency analysis
+ALCAHARVESTSiStripHitEff_metadata = cms.PSet(record = cms.untracked.string('SiStripBadStripFromHitEffRcd'))
+
+ALCAHARVESTSiStripHitEff_dbOutput = cms.PSet(record = cms.string('SiStripBadStripFromHitEffRcd'),
+                                                    tag = cms.string('SiStripBadStripRcdHitEff_pcl'),
+                                                    timetype   = cms.untracked.string('runnumber')
+                                                    )
+
+# --------------------------------------------------------------------------------------
 # SiPixel Alignment
 ALCAHARVESTSiPixelAli_metadata = cms.PSet(record = cms.untracked.string('TrackerAlignmentRcd'))
 
@@ -253,10 +263,11 @@ BeamSpotHPLowPUByRun  = cms.Path(ALCAHARVESTBeamSpotHPLowPUByRun)
 BeamSpotHPLowPUByLumi = cms.Path(ALCAHARVESTBeamSpotHPLowPUByLumi)
 SiStripQuality = cms.Path(ALCAHARVESTSiStripQuality)
 SiStripGains   = cms.Path(ALCAHARVESTSiStripGains)
+SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
+SiStripHitEff = cms.Path(ALCAHARVESTSiStripHitEfficiency)
 SiPixelAli     = cms.Path(ALCAHARVESTSiPixelAli)
 SiPixelLA      = cms.Path(ALCAHARVESTSiPixelLorentzAngle)
 EcalPedestals  = cms.Path(ALCAHARVESTEcalPedestals)
-SiStripGainsAAG = cms.Path(ALCAHARVESTSiStripGainsAAG)
 LumiPCC = cms.Path(ALCAHARVESTLumiPCC)
 SiPixelQuality = cms.Path(dqmEnvSiPixelQuality+ALCAHARVESTSiPixelQuality)#+siPixelPhase1DQMHarvester)
 PPSTimingCalibration = cms.Path(ALCAHARVESTPPSTimingCalibration)
