@@ -1,8 +1,9 @@
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
+
+#include "HeterogeneousCore/CUDAUtilities/interface/SimplePoolAllocator.h"
 
 namespace testTrackingRecHit2D {
 
@@ -26,6 +27,9 @@ int main() {
     testTrackingRecHit2D::runKernels(tkhitPhase2.view());
 
     TrackingRecHit2DHost tkhitH(nHits, false, 0, nullptr, nullptr, stream, &tkhit);
+
+    memoryPool::cuda::dumpStat();
+
     cudaStreamSynchronize(stream);
     assert(tkhitH.view());
     assert(tkhitH.view()->nHits() == unsigned(nHits));
@@ -36,9 +40,17 @@ int main() {
     assert(tkhitHPhase2.view());
     assert(tkhitHPhase2.view()->nHits() == unsigned(nHits));
     assert(tkhitHPhase2.view()->nMaxModules() == phase2PixelTopology::numberOfModules);
+
+    memoryPool::cuda::dumpStat();
   }
 
-  cudaCheck(cudaStreamDestroy(stream));
+   cudaCheck(cudaStreamSynchronize(stream));
+   memoryPool::cuda::dumpStat();
+
+   std::cout <<    "on CPU" << std::endl;
+   ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
+
+   cudaCheck(cudaStreamDestroy(stream));
 
   return 0;
 }
