@@ -41,9 +41,28 @@ int main() {
     auto dp = dataProducer<memoryPool::onDevice>()(stream);
 
     cudaCheck(memoryPool::cuda::copy(ph,pd,20,stream));
-    cudaCheck(memoryPool::cuda::copy(pd,ph,20,stream));;
+    cudaCheck(memoryPool::cuda::copy(pd,ph,20,stream));
+    std::cout << "expect 2a 2u 1a 1u" << std::endl;
+    memoryPool::cuda::dumpStat();
+
+    {
+      auto ph = memoryPool::cuda::make_buffer<int>(20, stream, memoryPool::onHost);
+      cudaCheck(memoryPool::cuda::copy(pd,ph,20,stream));
+    }
+    cudaStreamSynchronize(stream);
+    std::cout << "expect 2a 2u 2a 1u "    << std::endl;
+    memoryPool::cuda::dumpStat();
+   {
+      auto ph = memoryPool::cuda::make_buffer<int>(20, stream, memoryPool::onHost);
+      cudaCheck(memoryPool::cuda::copy(pd,ph,20,stream));
+    }
+    std::cout << "expect 2a 2u 2a 1u "    << std::endl;
+    cudaStreamSynchronize(stream);
     memoryPool::cuda::dumpStat();
   }
+  std::cout << "expect 2a 0u 2a 0u "    << std::endl;
+   cudaStreamSynchronize(stream);
+   memoryPool::cuda::dumpStat();
 
   {
     memoryPool::Deleter devDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
