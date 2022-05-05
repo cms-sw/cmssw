@@ -15,7 +15,7 @@ def filterFile(file): #ifstream& input)
     try:
         lines = open(file).readlines()
     except UnicodeDecodeError as e:
-        print("CppCommentSkipper: WARNING: Invalid UTF-8 sequence in {0}: {1}".format(file, e.message))
+        print("CppCommentSkipper: WARNING: Invalid UTF-8 sequence in {0}".format(file))
         lines = open(file, errors='replace').readlines()
     commentStage = False
 
