@@ -742,32 +742,9 @@ class TauIDEmbedder(object):
 
             _deepTauName = "deepTau2022v2p5"
             workingPoints_ = {
-                "e": {
-                    "VVVLoose": 0.0630386,
-                    "VVLoose": 0.1686942,
-                    "VLoose": 0.3628130,
-                    "Loose": 0.6815435,
-                    "Medium": 0.8847544,
-                    "Tight": 0.9675541,
-                    "VTight": 0.9859251,
-                    "VVTight": 0.9928449,
-                },
-                "mu": {
-                    "VLoose": 0.1058354,
-                    "Loose": 0.2158633,
-                    "Medium": 0.5551894,
-                    "Tight": 0.8754835,
-                },
-                "jet": {
-                    "VVVLoose": 0.2599605,
-                    "VVLoose": 0.4249705,
-                    "VLoose": 0.5983682,
-                    "Loose": 0.7848675,
-                    "Medium": 0.8834768,
-                    "Tight": 0.9308689,
-                    "VTight": 0.9573137,
-                    "VVTight": 0.9733927,
-                },
+                "e": {},
+                "mu": {},
+                "jet": {},
             }
 
             file_names = [
@@ -1085,8 +1062,8 @@ class TauIDEmbedder(object):
 
                 setattr(tauIDSources, 'by{}{}VS{}'.format(point, producer_name[0].upper()+producer_name[1:], target),
                         cms.PSet(inputTag = cms.InputTag(producer_name+self.postfix, 'VS{}'.format(target)), workingPointIndex = cms.int32(index)))
-
-            setattr(getattr(self.process, producer_name+self.postfix), 'VS{}WP'.format(target), cms.vstring(*cut_expressions))
+            if len(cut_expressions) > 0:
+                setattr(getattr(self.process, producer_name+self.postfix), 'VS{}WP'.format(target), cms.vstring(*cut_expressions))
 
 
     def getDpfTauVersion(self, file_name):
