@@ -122,7 +122,6 @@ bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::
                           (((*p)->production_vertex())->position().y() - ((*p)->end_vertex())->position().y());
         // lower/upper cuts can be also <= 0 - prompt particle needs to be accepted in that case
         if ((theLowerCut_ <= 0. || dist2 >= theLowerCut2) && (theUpperCut_ <= 0. || dist2 < theUpperCut2)) {
-          std::cout << sqrt(dist2) << " " << (*p)->pdg_id() << std::endl;
           pass = true;
           break;
         }
@@ -131,7 +130,6 @@ bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::
         // lower/upper cuts can be also 0 - prompt particle needs to be accepted in that case
         float distEndVert = (*p)->end_vertex()->position().perp();
         if ((theLowerCut_ <= 0. || distEndVert >= theLowerCut_) && (theUpperCut_ <= 0. || distEndVert < theUpperCut_)) {
-          std::cout << distEndVert << " " << (*p)->pdg_id() << std::endl;
           pass = true;
           break;
         }
