@@ -127,6 +127,8 @@ private:
 
   edm::EDGetTokenT<TCDSRecord> tcdsToken_;
   bool logToDb_;
+  bool loggerActive_;
+
   // ----------member data ---------------------------
 
   //   std::vector<BSTrkParameters> fBSvector;
