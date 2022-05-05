@@ -1249,6 +1249,26 @@ public:
         else
           throw cms::Exception("DeepTauId") << "subversion " << sub_version_ << " is not supported.";
 
+      namespace sc = deep_tau::Scaling;
+      std::map<std::vector<bool>, std::vector<sc::FeatureT>> GridFeatureTypes_map = {
+        {{false}, {sc::FeatureT::TauFlat, sc::FeatureT::GridGlobal} }, // feature types without inner/outer grid split
+        {{false,true}, {sc::FeatureT::PfCand_electron, sc::FeatureT::PfCand_muon, // feature types with inner/outer grid split
+                        sc::FeatureT::PfCand_chHad, sc::FeatureT::PfCand_nHad, 
+                        sc::FeatureT::PfCand_gamma, sc::FeatureT::Electron, sc::FeatureT::Muon} }
+      };
+
+      // check that sizes of mean/std/lim_min/lim_max vectors are equal between each other
+      for (auto p: GridFeatureTypes_map){
+        for (auto is_inner: p.first){
+          for (auto featureType: p.second)
+          {
+            const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(featureType, is_inner));
+            if (!(sp.mean_.size() == sp.std_.size() && sp.mean_.size() == sp.lim_min_.size() && sp.mean_.size() == sp.lim_max_.size()))
+              throw cms::Exception("DeepTauId") << "sizes of scaling parameter vectors do not match between each other";
+          }
+        }
+      }   
+      
       for (size_t n = 0; n < 2; ++n) {
         const bool is_inner = n == 0;
         const auto n_cells =
