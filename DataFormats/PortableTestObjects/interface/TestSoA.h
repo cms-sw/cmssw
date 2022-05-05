@@ -6,6 +6,7 @@
 #include <cstdint>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/typedefs.h"
 
 namespace portabletest {
 
@@ -135,10 +136,18 @@ namespace portabletest {
              elements * sizeof(int32_t);       // id - no need to pad the last field
     }
 
+    void ROOTReadStreamer(TestSoA const &onfile) {
+      auto size = onfile.size();
+      memcpy(x_, &onfile.x(0), size * sizeof(*x_));
+      memcpy(y_, &onfile.y(0), size * sizeof(*y_));
+      memcpy(z_, &onfile.z(0), size * sizeof(*z_));
+      memcpy(id_, &onfile.id(0), size * sizeof(*id_));
+    }
+
   private:
     // non-owned memory
-    int32_t size_;  //
-    void *buffer_;  //!
+    cms_int32_t size_;  // must be the same as ROOT's Int_t
+    void *buffer_;      //!
 
     // layout
     double *x_;    //[size_]

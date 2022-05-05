@@ -16,7 +16,10 @@ public:
   using Layout = T;
   using Buffer = alpaka::Buf<alpaka_common::DevHost, std::byte, alpaka::DimInt<1u>, uint32_t>;
 
-  PortableHostCollection() = default;
+  PortableHostCollection() : buffer_{}, layout_{} {
+    // the default implementation would work correctly, but we want to add a call to the MessageLogger
+    edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
+  }
 
   PortableHostCollection(int32_t elements, alpaka_common::DevHost const &host)
       // allocate pageable host memory
@@ -25,6 +28,7 @@ public:
         layout_{elements, buffer_->data()} {
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
+    edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
   }
 
   template <typename TDev>
@@ -35,16 +39,25 @@ public:
         layout_{elements, buffer_->data()} {
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
+    edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
   }
 
-  ~PortableHostCollection() = default;
+  ~PortableHostCollection() {
+    // the default implementation would work correctly, but we want to add a call to the MessageLogger
+    edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
+  }
 
   // non-copyable
   PortableHostCollection(PortableHostCollection const &) = delete;
   PortableHostCollection &operator=(PortableHostCollection const &) = delete;
 
   // movable
-  PortableHostCollection(PortableHostCollection &&other) = default;
+  PortableHostCollection(PortableHostCollection &&other)
+      : buffer_{std::move(other.buffer_)}, layout_{std::move(other.layout_)} {
+    // the default implementation would work correctly, but we want to add a call to the MessageLogger
+    edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
+  }
+
   PortableHostCollection &operator=(PortableHostCollection &&other) = default;
 
   Layout &operator*() { return layout_; }
@@ -58,6 +71,14 @@ public:
   Buffer &buffer() { return *buffer_; }
 
   Buffer const &buffer() const { return *buffer_; }
+
+  // part of the ROOT read streamer
+  static void ROOTReadStreamer(PortableHostCollection *newObj, Layout const &layout) {
+    newObj->~PortableHostCollection();
+    // use the global "host" object returned by alpaka_common::host()
+    new (newObj) PortableHostCollection(layout.size(), alpaka_common::host());
+    newObj->layout_.ROOTReadStreamer(layout);
+  }
 
 private:
   std::optional<Buffer> buffer_;  //!
