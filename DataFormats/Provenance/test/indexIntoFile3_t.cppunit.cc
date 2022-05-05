@@ -24,6 +24,8 @@ class TestIndexIntoFile3 : public CppUnit::TestFixture {
   CPPUNIT_TEST(testOverlappingLumisOutOfOrderEvent);
   CPPUNIT_TEST(testOverlappingLumisWithEndWithEmptyLumi);
   CPPUNIT_TEST(testOverlappingLumisWithLumiEndOrderChanged);
+  CPPUNIT_TEST(testNonContiguousRun);
+  CPPUNIT_TEST(testNonValidLumiInsideValidLumis);
   CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -75,6 +77,8 @@ public:
   void testOverlappingLumisOutOfOrderEvent();
   void testOverlappingLumisWithEndWithEmptyLumi();
   void testOverlappingLumisWithLumiEndOrderChanged();
+  void testNonContiguousRun();
+  void testNonValidLumiInsideValidLumis();
 
   ProcessHistoryID nullPHID;
   ProcessHistoryID fakePHID1;
@@ -225,9 +229,12 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
       CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 2));
       CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
       CPPUNIT_ASSERT(iterFirst.size() == 10);
-    } else if (i == 1)
+      CPPUNIT_ASSERT(iterFirst.indexedSize() == 10);
+      CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
+    } else if (i == 1) {
       CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 0, 2));
-    else if (i == 2)
+      CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
+    } else if (i == 2)
       CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 1, 0, 2));
     else if (i == 3)
       CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 1, 0, 2));
@@ -366,9 +373,12 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
       CPPUNIT_ASSERT(check(iterNum, kRun, 0, 1, 1, 0, 4));
       CPPUNIT_ASSERT(iterNum.indexIntoFile() == &indexIntoFile);
       CPPUNIT_ASSERT(iterNum.size() == 10);
-    } else if (i == 1)
+      CPPUNIT_ASSERT(iterNum.indexedSize() == 10);
+      CPPUNIT_ASSERT(iterNum.shouldProcessRun());
+    } else if (i == 1) {
       CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 1, 1, 0, 4));
-    else if (i == 2)
+      CPPUNIT_ASSERT(iterNum.shouldProcessLumi());
+    } else if (i == 2)
       CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 2, 1, 0, 4));
     else if (i == 3)
       CPPUNIT_ASSERT(check(iterNum, kLumi, 0, 3, 1, 0, 4));
@@ -1488,6 +1498,16 @@ void TestIndexIntoFile3::testOverlappingLumisOutOfOrderEvent() {
   indexIntoFile.addEntry(fakePHID1, 11, 101, 7, 0);  // Event
   indexIntoFile.addEntry(fakePHID1, 11, 101, 6, 1);  // Event
   indexIntoFile.addEntry(fakePHID1, 11, 101, 5, 2);  // Event
+  // This test is a bit misnamed. The difference between this test and
+  // the preceding one lies in the event entry numbers being swapped
+  // in order. The order below is the expected order (it is NOT out of order).
+  // I don't think the order of entry numbers in the preceding test is
+  // possible, the event entry number is incremented as each event
+  // is written and addEntry is called at that time. The event entry
+  // number should always increment by one at each addEntry call for
+  // an event. Possibly the preceding test should be deleted (although
+  // IndexIntoFile works with that order also even if it will never
+  // occur ...)
   //Dummy Lumi gets added
   indexIntoFile.addEntry(fakePHID1, 11, 102, 5, 3);  // Event
   //Another dummy lumi gets added
@@ -1609,8 +1629,10 @@ void TestIndexIntoFile3::testOverlappingLumisOutOfOrderEvent() {
       switch (i) {
         case 0: {
           CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 3));  // run 11
+          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 0);
           CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
           CPPUNIT_ASSERT(iterFirst.size() == 10);
+          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
@@ -1622,11 +1644,13 @@ void TestIndexIntoFile3::testOverlappingLumisOutOfOrderEvent() {
         //values are 'IndexIntoFile::EntryType' 'indexToRun' 'indexToLumi' 'indexToEventRange' 'indexToEvent' 'nEvents'
         case 1: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 0, 3));  // lumi 11/101
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 0);
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 2: {
           CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 1, 1, 0, 3));  // event 11/101/7
+          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 0);
           break;
         }
         case 3: {
@@ -1639,7 +1663,7 @@ void TestIndexIntoFile3::testOverlappingLumisOutOfOrderEvent() {
         }
         case 5: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 2, 0, 1));  // lumi 11/102
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 6: {
@@ -1648,7 +1672,7 @@ void TestIndexIntoFile3::testOverlappingLumisOutOfOrderEvent() {
         }
         case 7: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 3, 0, 1));  // lumi 11/101
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 8: {
@@ -1659,15 +1683,17 @@ void TestIndexIntoFile3::testOverlappingLumisOutOfOrderEvent() {
         }
         case 9: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 1));  // lumi 11/102
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 10: {
           CPPUNIT_ASSERT(check(iterFirst, kEvent, 0, 4, 4, 0, 1));  // event 11/102/4
+          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 0);
           break;
         }
         case 11: {
           CPPUNIT_ASSERT(check(iterFirst, kRun, 5, 7, -1, 0, 0));  //Run Phid 2 11
+          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{101, 102};
@@ -1679,22 +1705,29 @@ void TestIndexIntoFile3::testOverlappingLumisOutOfOrderEvent() {
         }
         case 12: {
           CPPUNIT_ASSERT(check(iterFirst, kRun, 6, 7, -1, 0, 0));
+          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 1);
+          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
           break;
         }
         case 13: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 7, -1, 0, 0));
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 14: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 8, 9, 0, 1));
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 15: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 6, 9, 9, 0, 1));
+          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 1);
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 16: {
           CPPUNIT_ASSERT(check(iterFirst, kEvent, 6, 9, 9, 0, 1));
+          CPPUNIT_ASSERT(iterFirst.processHistoryIDIndex() == 1);
           break;
         }
         default:
@@ -1878,6 +1911,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
           CPPUNIT_ASSERT(iterFirst.run() == 1);
           CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
           CPPUNIT_ASSERT(iterFirst.size() == 13);
+          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
 
           iterFirst.getLumisInRun(lumis);
           std::vector<LuminosityBlockNumber_t> expected{1, 2, 3, 4};
@@ -1890,7 +1924,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         case 1: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 0, 2));  // lumi 1/1
           CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 2: {
@@ -1904,7 +1938,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         case 4: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 2, 0, 2));  // lumi 1/2
           CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 5: {
@@ -1917,8 +1951,8 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         }
         case 7: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 3, 0, 1));  // lumi 1/1
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
           break;
         }
         case 8: {
@@ -1930,7 +1964,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         case 9: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 1));  // lumi 1/2
           CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 10: {
@@ -1940,7 +1974,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         case 11: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 6, 5, 0, 2));  // lumi 1/1   5
           CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 12: {
@@ -1954,7 +1988,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         case 14: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 8, 7, 0, 1));  // lumi 1/2
           CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 15: {
@@ -1969,7 +2003,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         case 17: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 9, 9, 0, 4));  // lumi 1/3
           CPPUNIT_ASSERT(iterFirst.lumi() == 3);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 18: {
@@ -1991,7 +2025,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         case 22: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 10, 10, 0, 3));  // lumi 1/4
           CPPUNIT_ASSERT(iterFirst.lumi() == 4);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 23: {
@@ -2009,7 +2043,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         case 26: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 11, 11, 0, 1));  // lumi 1/3
           CPPUNIT_ASSERT(iterFirst.lumi() == 3);
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 27: {
@@ -2019,7 +2053,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithEndWithEmptyLumi() {
         case 28: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 12, 12, 0, 2));  // lumi 1/4
           CPPUNIT_ASSERT(iterFirst.lumi() == 4);
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 29: {
@@ -2209,6 +2243,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
       switch (i) {
         case 0: {
           CPPUNIT_ASSERT(check(iterFirst, kRun, 0, 1, 1, 0, 2));  // run 1
+          CPPUNIT_ASSERT(iterFirst.shouldProcessRun());
           CPPUNIT_ASSERT(iterFirst.run() == 1);
           CPPUNIT_ASSERT(iterFirst.indexIntoFile() == &indexIntoFile);
           CPPUNIT_ASSERT(iterFirst.size() == 11);
@@ -2224,7 +2259,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 1: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 1, 1, 0, 2));  // lumi 1/1
           CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 2: {
@@ -2238,7 +2273,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 4: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 2, 2, 0, 2));  // lumi 1/2
           CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 5: {
@@ -2252,7 +2287,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 7: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 3, 3, 0, 1));  // lumi 1/1
           CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 8: {
@@ -2264,7 +2299,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 9: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 4, 4, 0, 1));  // lumi 1/2
           CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 10: {
@@ -2274,7 +2309,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 11: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 5, 5, 0, 1));  // lumi 1/1   5
           CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 12: {
@@ -2284,7 +2319,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 13: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 6, 6, 0, 2));  // lumi 1/2
           CPPUNIT_ASSERT(iterFirst.lumi() == 2);
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 14: {
@@ -2299,7 +2334,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 16: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 7, 7, 0, 1));  // lumi 1/1
           CPPUNIT_ASSERT(iterFirst.lumi() == 1);
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 17: {
@@ -2309,7 +2344,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 18: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 8, 8, 0, 4));  // lumi 1/3
           CPPUNIT_ASSERT(iterFirst.lumi() == 3);
-          CPPUNIT_ASSERT(iterFirst.entryContinues());
+          CPPUNIT_ASSERT(!iterFirst.shouldProcessLumi());
           break;
         }
         case 19: {
@@ -2331,7 +2366,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 23: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 9, 9, 0, 5));  // lumi 1/4
           CPPUNIT_ASSERT(iterFirst.lumi() == 4);
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 24: {
@@ -2357,7 +2392,7 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
         case 29: {
           CPPUNIT_ASSERT(check(iterFirst, kLumi, 0, 10, 10, 0, 1));  // lumi 1/3
           CPPUNIT_ASSERT(iterFirst.lumi() == 3);
-          CPPUNIT_ASSERT(not iterFirst.entryContinues());
+          CPPUNIT_ASSERT(iterFirst.shouldProcessLumi());
           break;
         }
         case 30: {
@@ -2370,5 +2405,348 @@ void TestIndexIntoFile3::testOverlappingLumisWithLumiEndOrderChanged() {
       }
     }
     CPPUNIT_ASSERT(i == 31);
+  }
+}
+
+void TestIndexIntoFile3::testNonContiguousRun() {
+  edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 1, 0);  // Event
+  indexIntoFile.addEntry(fakePHID1, 2, 1, 1, 1);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 2, 2);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 0);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 0);  // Run
+  indexIntoFile.addEntry(fakePHID1, 2, 1, 0, 1);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2, 0, 0, 1);  // Run
+
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 3, 3);  // Event
+  indexIntoFile.addEntry(fakePHID1, 2, 1, 2, 4);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 4, 5);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 2);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 2);  // Run
+  indexIntoFile.addEntry(fakePHID1, 2, 1, 0, 3);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2, 0, 0, 3);  // Run
+
+  indexIntoFile.sortVector_Run_Or_Lumi_Entries();
+  {
+    edm::IndexIntoFile::IndexIntoFileItr iter = indexIntoFile.begin(IndexIntoFile::entryOrder);
+    edm::IndexIntoFile::IndexIntoFileItr iterEnd = indexIntoFile.end(IndexIntoFile::entryOrder);
+    int i = 0;
+    for (i = 0; iter != iterEnd; ++iter, ++i) {
+      switch (i) {
+        case 0: {
+          CPPUNIT_ASSERT(check(iter, kRun, 0, 1, 1, 0, 1));  // run 1
+          CPPUNIT_ASSERT(iter.size() == 12);
+          CPPUNIT_ASSERT(iter.indexedSize() == 16);
+          CPPUNIT_ASSERT(!iter.shouldProcessRun());
+          CPPUNIT_ASSERT(iter.entry() == 0);
+          break;
+        }
+        case 1: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 0, 1, 1, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
+          // entry has special code in it to look for other entries if the
+          // current RunOrLumiEntry has an invalid TTree entry number.
+          CPPUNIT_ASSERT(iter.entry() == 0);
+          break;
+        }
+        case 2: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 0, 1, 1, 0, 1));  // event 1:1:1
+          CPPUNIT_ASSERT(iter.entry() == 0);
+          break;
+        }
+        case 3: {
+          CPPUNIT_ASSERT(check(iter, kRun, 2, 3, 3, 0, 1));  // run 2
+          CPPUNIT_ASSERT(!iter.shouldProcessRun());
+          CPPUNIT_ASSERT(iter.entry() == 1);
+          break;
+        }
+        case 4: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 2, 3, 3, 0, 1));  // lumi 2:1
+          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 1);
+          break;
+        }
+        case 5: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 2, 3, 3, 0, 1));  // event 2:1:1
+          CPPUNIT_ASSERT(iter.entry() == 1);
+          break;
+        }
+        case 6: {
+          CPPUNIT_ASSERT(check(iter, kRun, 4, 5, 5, 0, 1));  // run 1
+          CPPUNIT_ASSERT(!iter.shouldProcessRun());
+          CPPUNIT_ASSERT(iter.entry() == 0);
+          break;
+        }
+        case 7: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 4, 5, 5, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 0);
+          break;
+        }
+        case 8: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 4, 6, 5, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 0);
+          break;
+        }
+        case 9: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 4, 6, 5, 0, 1));  // event 1:1:2
+          CPPUNIT_ASSERT(iter.entry() == 2);
+          break;
+        }
+        case 10: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 4, 6, 6, 0, 1));  // event 1:1:3
+          CPPUNIT_ASSERT(iter.entry() == 3);
+          break;
+        }
+        case 11: {
+          CPPUNIT_ASSERT(check(iter, kRun, 7, 10, 9, 0, 1));  // run 2
+          CPPUNIT_ASSERT(iter.shouldProcessRun());
+          CPPUNIT_ASSERT(iter.entry() == 1);
+          break;
+        }
+        case 12: {
+          CPPUNIT_ASSERT(check(iter, kRun, 8, 10, 9, 0, 1));  // run 2
+          CPPUNIT_ASSERT(iter.shouldProcessRun());
+          CPPUNIT_ASSERT(iter.entry() == 3);
+          break;
+        }
+        case 13: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 8, 10, 9, 0, 1));  // lumi 2:1
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 1);
+          break;
+        }
+        case 14: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 8, 11, 9, 0, 1));  // lumi 2:1
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 3);
+          break;
+        }
+        case 15: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 8, 11, 9, 0, 1));  // event 2:1:2
+          CPPUNIT_ASSERT(iter.entry() == 4);
+          break;
+        }
+        case 16: {
+          CPPUNIT_ASSERT(check(iter, kRun, 12, 14, 15, 0, 1));  // run 1
+          CPPUNIT_ASSERT(iter.shouldProcessRun());
+          CPPUNIT_ASSERT(iter.entry() == 0);
+          break;
+        }
+        case 17: {
+          CPPUNIT_ASSERT(check(iter, kRun, 13, 14, 15, 0, 1));  // run 1
+          CPPUNIT_ASSERT(iter.shouldProcessRun());
+          CPPUNIT_ASSERT(iter.entry() == 2);
+          break;
+        }
+        case 18: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 13, 14, 15, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 0);
+          break;
+        }
+        case 19: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 13, 15, 15, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 2);
+          break;
+        }
+        case 20: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 13, 15, 15, 0, 1));  // event 1:1:4
+          CPPUNIT_ASSERT(iter.entry() == 5);
+          break;
+        }
+        default:
+          CPPUNIT_ASSERT(false);
+      }
+    }
+    CPPUNIT_ASSERT(i == 21);
+  }
+}
+
+void TestIndexIntoFile3::testNonValidLumiInsideValidLumis() {
+  edm::IndexIntoFile indexIntoFile;
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 1, 0);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 0, 0);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 2, 1);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 1);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 0, 2);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 3, 2);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 2, 0, 3);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 4, 3);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 4);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2, 1, 1, 4);  // Event
+  indexIntoFile.addEntry(fakePHID1, 2, 1, 0, 5);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 2, 0, 0, 0);  // Run
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 5, 5);  // Event
+  indexIntoFile.addEntry(fakePHID1, 1, 1, 0, 6);  // Lumi
+  indexIntoFile.addEntry(fakePHID1, 1, 0, 0, 1);  // Run
+
+  indexIntoFile.sortVector_Run_Or_Lumi_Entries();
+
+  {
+    edm::IndexIntoFile::IndexIntoFileItr iter = indexIntoFile.begin(IndexIntoFile::entryOrder);
+    edm::IndexIntoFile::IndexIntoFileItr iterEnd = indexIntoFile.end(IndexIntoFile::entryOrder);
+    int i = 0;
+    for (i = 0; iter != iterEnd; ++iter, ++i) {
+      switch (i) {
+        case 0: {
+          CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 1, 0, 1));  // run 1
+          CPPUNIT_ASSERT(iter.size() == 11);
+          CPPUNIT_ASSERT(iter.indexedSize() == 14);
+          CPPUNIT_ASSERT(!iter.shouldProcessRun());
+          break;
+        }
+        case 1: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 0, 2, 1, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.lumiIterationStartingIndex(2));
+          break;
+        }
+        case 2: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 0, 3, 1, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(!iter.lumiIterationStartingIndex(3));
+          break;
+        }
+        case 3: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 0, 4, 1, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(!iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.lumiIterationStartingIndex(4));
+          break;
+        }
+        case 4: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 0, 4, 1, 0, 1));  // event 1:1:1
+          CPPUNIT_ASSERT(iter.entry() == 0);
+          break;
+        }
+        case 5: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 0, 4, 2, 0, 1));  // event 1:1:2
+          CPPUNIT_ASSERT(iter.entry() == 1);
+          break;
+        }
+        case 6: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 0, 4, 3, 0, 1));  // event 1:1:3
+          CPPUNIT_ASSERT(iter.entry() == 2);
+          break;
+        }
+        case 7: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 0, 4, 4, 0, 1));  // event 1:1:4
+          CPPUNIT_ASSERT(iter.entry() == 3);
+          break;
+        }
+        case 8: {
+          CPPUNIT_ASSERT(check(iter, kRun, 5, 6, 6, 0, 1));  // run 2
+          CPPUNIT_ASSERT(iter.shouldProcessRun());
+          break;
+        }
+        case 9: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 5, 6, 6, 0, 1));  // lumi 2:1
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          break;
+        }
+        case 10: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 5, 6, 6, 0, 1));  // event 2:1:1
+          CPPUNIT_ASSERT(iter.entry() == 4);
+          break;
+        }
+        case 11: {
+          CPPUNIT_ASSERT(check(iter, kRun, 7, 8, -1, 0, 0));  // run 1
+          CPPUNIT_ASSERT(iter.shouldProcessRun());
+          break;
+        }
+        case 12: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 7, 8, -1, 0, 0));  // lumi 1:2
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          break;
+        }
+        case 13: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 7, 9, -1, 0, 0));  // lumi 1:2
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          break;
+        }
+        case 14: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 7, 10, -1, 0, 0));  // lumi 1:2
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          break;
+        }
+        case 15: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 7, 11, 13, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 1);
+          break;
+        }
+        case 16: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 7, 12, 13, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 4);
+          break;
+        }
+        case 17: {
+          CPPUNIT_ASSERT(check(iter, kLumi, 7, 13, 13, 0, 1));  // lumi 1:1
+          CPPUNIT_ASSERT(iter.shouldProcessLumi());
+          CPPUNIT_ASSERT(iter.entry() == 6);
+          break;
+        }
+        case 18: {
+          CPPUNIT_ASSERT(check(iter, kEvent, 7, 13, 13, 0, 1));  // event 1:1:5
+          CPPUNIT_ASSERT(iter.entry() == 5);
+          break;
+        }
+      }
+    }
+    CPPUNIT_ASSERT(i == 19);
+
+    skipEventBackward(iter);
+    checkSkipped(0, 1, 1, 5);
+    CPPUNIT_ASSERT(check(iter, kRun, 7, 11, 13, 0, 1));
+
+    skipEventBackward(iter);
+    checkSkipped(0, 2, 1, 4);
+    CPPUNIT_ASSERT(check(iter, kRun, 5, 6, 6, 0, 1));
+
+    skipEventBackward(iter);
+    checkSkipped(0, 1, 1, 3);
+    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 4, 0, 1));
+
+    skipEventBackward(iter);
+    checkSkipped(0, 1, 1, 2);
+    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 3, 0, 1));
+
+    skipEventBackward(iter);
+    checkSkipped(0, 1, 1, 1);
+    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 2, 0, 1));
+
+    skipEventBackward(iter);
+    checkSkipped(0, 1, 1, 0);
+    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 1, 0, 1));
+
+    skipEventBackward(iter);
+    checkSkipped(-1, 0, 0, -1);
+    CPPUNIT_ASSERT(check(iter, kRun, 0, 2, 1, 0, 1));
+
+    iter.advanceToNextRun();
+    CPPUNIT_ASSERT(check(iter, kRun, 5, 6, 6, 0, 1));  // run 2
+    iter.advanceToNextRun();
+    CPPUNIT_ASSERT(check(iter, kRun, 7, 8, -1, 0, 0));  // run 1
+    iter.advanceToNextRun();
+    CPPUNIT_ASSERT(check(iter, kEnd, -1, -1, -1, 0, 0));
+
+    iter = indexIntoFile.begin(IndexIntoFile::entryOrder);
+    iter.advanceToNextLumiOrRun();
+    CPPUNIT_ASSERT(check(iter, kLumi, 0, 2, 1, 0, 1));  // lumi 1:1
+    iter.advanceToNextLumiOrRun();
+    CPPUNIT_ASSERT(check(iter, kRun, 5, 6, 6, 0, 1));  // run 2
+    iter.advanceToNextLumiOrRun();
+    CPPUNIT_ASSERT(check(iter, kLumi, 5, 6, 6, 0, 1));  // lumi 2:1
+    iter.advanceToNextLumiOrRun();
+    CPPUNIT_ASSERT(check(iter, kRun, 7, 8, -1, 0, 0));  // run 1
+    iter.advanceToNextLumiOrRun();
+    CPPUNIT_ASSERT(check(iter, kLumi, 7, 8, -1, 0, 0));  // lumi 1:2
+    iter.advanceToNextLumiOrRun();
+    CPPUNIT_ASSERT(check(iter, kLumi, 7, 11, 13, 0, 1));  // lumi 1:1
+    iter.advanceToNextLumiOrRun();
+    CPPUNIT_ASSERT(check(iter, kEnd, -1, -1, -1, 0, 0));
   }
 }

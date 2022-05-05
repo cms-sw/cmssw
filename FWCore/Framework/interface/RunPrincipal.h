@@ -82,6 +82,10 @@ namespace edm {
 
     void preReadFile();
 
+    enum ShouldWriteRun { kUninitialized, kNo, kYes };
+    ShouldWriteRun shouldWriteRun() const { return shouldWriteRun_; }
+    void setShouldWriteRun(ShouldWriteRun value) { shouldWriteRun_ = value; }
+
   private:
     unsigned int transitionIndex_() const override;
 
@@ -93,6 +97,8 @@ namespace edm {
     // there should be one MergeableRunProductMetadata object created
     // per concurrent run. In all other cases, this should just be null.
     edm::propagate_const<std::unique_ptr<MergeableRunProductMetadata>> mergeableRunProductMetadataPtr_;
+
+    ShouldWriteRun shouldWriteRun_ = kUninitialized;
   };
 }  // namespace edm
 #endif

@@ -363,7 +363,7 @@ RepeatingCachedRootSource::ItemType RepeatingCachedRootSource::getNextItemType()
 }
 
 void RepeatingCachedRootSource::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
-  return rootFile_->readLuminosityBlock_(lumiPrincipal);
+  rootFile_->readLuminosityBlock_(lumiPrincipal);
 }
 
 std::shared_ptr<LuminosityBlockAuxiliary> RepeatingCachedRootSource::readLuminosityBlockAuxiliary_() {

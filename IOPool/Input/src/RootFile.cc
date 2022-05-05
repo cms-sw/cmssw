@@ -1716,14 +1716,18 @@ namespace edm {
     processBlockPrincipal.fillProcessBlockPrincipal(rootTree->processName(), rootTree->resetAndGetRootDelayedReader());
   }
 
-  void RootFile::readRun_(RunPrincipal& runPrincipal) {
+  bool RootFile::readRun_(RunPrincipal& runPrincipal) {
+    bool shouldProcessRun = indexIntoFileIter_.shouldProcessRun();
+
     MergeableRunProductMetadata* mergeableRunProductMetadata = nullptr;
-    if (inputType_ == InputType::Primary) {
-      mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
-      RootTree::EntryNumber const& entryNumber = runTree_.entryNumber();
-      assert(entryNumber >= 0);
-      mergeableRunProductMetadata->readRun(
-          entryNumber, *storedMergeableRunProductMetadata_, IndexIntoFileItrHolder(indexIntoFileIter_));
+    if (shouldProcessRun) {
+      if (inputType_ == InputType::Primary) {
+        mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
+        RootTree::EntryNumber const& entryNumber = runTree_.entryNumber();
+        assert(entryNumber >= 0);
+        mergeableRunProductMetadata->readRun(
+            entryNumber, *storedMergeableRunProductMetadata_, IndexIntoFileItrHolder(indexIntoFileIter_));
+      }
     }
 
     if (!runHelper_->fakeNewRun()) {
@@ -1733,14 +1737,23 @@ namespace edm {
     }
     // Begin code for backward compatibility before the existence of run trees.
     if (!runTree_.isValid()) {
-      return;
+      return shouldProcessRun;
     }
     // End code for backward compatibility before the existence of run trees.
-    // NOTE: we use 0 for the index since do not do delayed reads for RunPrincipals
-    runTree_.insertEntryForIndex(0);
-    runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.resetAndGetRootDelayedReader());
-    // Read in all the products now.
-    runPrincipal.readAllFromSourceAndMergeImmediately(mergeableRunProductMetadata);
+    if (shouldProcessRun) {
+      // NOTE: we use 0 for the index since do not do delayed reads for RunPrincipals
+      runTree_.insertEntryForIndex(0);
+      runPrincipal.fillRunPrincipal(*processHistoryRegistry_, runTree_.resetAndGetRootDelayedReader());
+      // Read in all the products now.
+      runPrincipal.readAllFromSourceAndMergeImmediately(mergeableRunProductMetadata);
+      runPrincipal.setShouldWriteRun(RunPrincipal::kYes);
+    } else {
+      runPrincipal.fillRunPrincipal(*processHistoryRegistry_, nullptr);
+      if (runPrincipal.shouldWriteRun() != RunPrincipal::kYes) {
+        runPrincipal.setShouldWriteRun(RunPrincipal::kNo);
+      }
+    }
+    return shouldProcessRun;
   }
 
   std::shared_ptr<LuminosityBlockAuxiliary> RootFile::readLuminosityBlockAuxiliary_() {
@@ -1781,16 +1794,17 @@ namespace edm {
     return lumiAuxiliary;
   }
 
-  void RootFile::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
+  bool RootFile::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
+    bool shouldProcessLumi = indexIntoFileIter_.shouldProcessLumi();
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi);
     // Begin code for backward compatibility before the existence of lumi trees.
     if (!lumiTree_.isValid()) {
       ++indexIntoFileIter_;
-      return;
+      return shouldProcessLumi;
     }
     // End code for backward compatibility before the existence of lumi trees.
-    if (not indexIntoFileIter_.entryContinues()) {
+    if (shouldProcessLumi) {
       lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
       // NOTE: we use 0 for the index since do not do delayed reads for LuminosityBlockPrincipals
       lumiTree_.insertEntryForIndex(0);
@@ -1798,12 +1812,16 @@ namespace edm {
       lumiPrincipal.fillLuminosityBlockPrincipal(history, lumiTree_.resetAndGetRootDelayedReader());
       // Read in all the products now.
       lumiPrincipal.readAllFromSourceAndMergeImmediately();
+      lumiPrincipal.setShouldWriteLumi(LuminosityBlockPrincipal::kYes);
     } else {
       auto history = processHistoryRegistry_->getMapped(lumiPrincipal.aux().processHistoryID());
       lumiPrincipal.fillLuminosityBlockPrincipal(history, nullptr);
-      lumiPrincipal.setWillBeContinued(true);
+      if (lumiPrincipal.shouldWriteLumi() != LuminosityBlockPrincipal::kYes) {
+        lumiPrincipal.setShouldWriteLumi(LuminosityBlockPrincipal::kNo);
+      }
     }
     ++indexIntoFileIter_;
+    return shouldProcessLumi;
   }
 
   bool RootFile::setEntryAtEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
