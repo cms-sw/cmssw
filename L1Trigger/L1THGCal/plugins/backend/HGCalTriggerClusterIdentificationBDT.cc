@@ -102,25 +102,26 @@ void HGCalTriggerClusterIdentificationBDT::initialize(const edm::ParameterSet& c
     throw cms::Exception("HGCalTriggerClusterIdentificationBDT|BadInitialization")
         << "Inconsistent numbers of categories, BDT weight files and working points";
   }
+  size_t categories_size = categories_etamin.size();
 
   const auto wps_conf = conf.getParameter<std::vector<edm::ParameterSet>>("WorkingPoints");
-  working_points_.resize(categories_etamin.size());
+  working_points_.resize(categories_size);
   for (const auto& wp_conf : wps_conf) {
     std::string wp_name = wp_conf.getParameter<std::string>("Name");
     std::vector<double> wps = wp_conf.getParameter<std::vector<double>>("WorkingPoint");
     working_points_names_.emplace_back(wp_name);
-    if (wps.size() != categories_etamin.size()) {
+    if (wps.size() != categories_size) {
       throw cms::Exception("HGCalTriggerClusterIdentificationBDT|BadInitialization")
           << "Inconsistent number of categories in working point '" << wp_name << "'";
     }
-    for (unsigned cat = 0; cat < categories_etamin.size(); cat++) {
+    for (size_t cat = 0; cat < categories_size; cat++) {
       working_points_[cat].emplace_back(wp_name, wps[cat]);
     }
   }
 
-  categories_.reserve(categories_etamin.size());
-  bdts_.reserve(categories_etamin.size());
-  for (unsigned cat = 0; cat < categories_etamin.size(); cat++) {
+  categories_.reserve(categories_size);
+  bdts_.reserve(categories_size);
+  for (size_t cat = 0; cat < categories_size; cat++) {
     categories_.emplace_back(
         categories_ptmin[cat], categories_ptmax[cat], categories_etamin[cat], categories_etamax[cat]);
   }
