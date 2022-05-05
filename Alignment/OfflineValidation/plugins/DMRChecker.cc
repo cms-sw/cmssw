@@ -1963,12 +1963,12 @@ private:
     for (unsigned int i = 1; i <= theNLayers; i++) {
       const char *name_;
       const char *title_;
-      const char *xAxisTitle_;
+      std::string xAxisTitle_;
 
       if (varType.find("Res") != std::string::npos) {
-        xAxisTitle_ = ("res_{" + resType + "'} [#mum]").c_str();
+        xAxisTitle_ = fmt::sprintf("res_{%s'} [#mum]", resType);
       } else {
-        xAxisTitle_ = ("res_{" + resType + "'}/#sigma_{res_{" + resType + "`}}").c_str();
+        xAxisTitle_ = fmt::sprintf("res_{%s'}/#sigma_{res_{%s`}}", resType, resType);
       }
 
       unsigned int side = -1;
@@ -1990,12 +1990,16 @@ private:
                       plane,
                       resType.c_str(),
                       varType.c_str(),
-                      xAxisTitle_);
+                      xAxisTitle_.c_str());
 
       } else {
         name_ = Form("h_%s%s%s_layer%i", detType.c_str(), varType.c_str(), resType.c_str(), i);
-        title_ = Form(
-            "%s (layer %i) track %s-%s;%s;hits", detType.c_str(), i, resType.c_str(), varType.c_str(), xAxisTitle_);
+        title_ = Form("%s (layer %i) track %s-%s;%s;hits",
+                      detType.c_str(),
+                      i,
+                      resType.c_str(),
+                      varType.c_str(),
+                      xAxisTitle_.c_str());
 
         //edm::LogPrint("DMRChecker")<<"bookResidualsHistogram(): "<<i<<" layer:"<<i<<std::endl;
       }
