@@ -78,7 +78,7 @@ private:
   bool dumpSummary_, dumpLVTree_, dumpLVList_, dumpMaterial_;
   bool dumpLV_, dumpSolid_, dumpAtts_, dumpPV_;
   bool dumpRotation_, dumpReplica_, dumpTouch_;
-  bool dumpSense_, dd4hep_;
+  bool dumpSense_, dumpParams_, dd4hep_;
   std::string name_;
   int nchar_;
   std::string fileMat_, fileSolid_, fileLV_, filePV_, fileTouch_;
@@ -101,6 +101,7 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   dumpReplica_ = p.getUntrackedParameter<bool>("DumpReplica", false);
   dumpTouch_ = p.getUntrackedParameter<bool>("DumpTouch", false);
   dumpSense_ = p.getUntrackedParameter<bool>("DumpSense", false);
+  dumpParams_ = p.getUntrackedParameter<bool>("DumpParams", false);
   dd4hep_ = p.getUntrackedParameter<bool>("DD4hep", false);
   name_ = p.getUntrackedParameter<std::string>("Name", "*");
   nchar_ = name_.find('*');
@@ -163,8 +164,20 @@ void PrintGeomInfoAction::beginRun(edm::EventSetup const &es) {
           G4cout << leafDepth << spaces << "### VOLUME = " << lvname << " Copy No";
           for (unsigned int k = 0; k < leafDepth; ++k)
             G4cout << " " << copy[k];
-          G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << convertRadToDeg(tran.phi()) << ")"
-                 << G4endl;
+          if (dumpParams_) {
+            G4cout << " parameters";
+            for (double val : fv.parameters()) {
+              if (std::abs(val) < 1.0) {
+                G4cout << std::setprecision(5);
+              } else
+                G4cout << std::setprecision(6);
+              G4cout << " " << val;
+            }
+            G4cout << G4endl;
+          } else {
+            G4cout << " Centre at " << tran << " (r = " << tran.Rho() << ", phi = " << convertRadToDeg(tran.phi())
+                   << ")" << G4endl;
+          }
         }
       }
     } else {

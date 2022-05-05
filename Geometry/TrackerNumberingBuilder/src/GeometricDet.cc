@@ -343,3 +343,13 @@ std::vector<double> GeometricDet::computeLegacyShapeParameters(const cms::DDSoli
 
   return myOldDDShapeParameters;
 }
+
+std::string GeometricDet::printNavType(int const* n, size_t sz) {
+  std::ostringstream oss;
+  oss << '(';
+  for (int const* it = n; it != n + sz; ++it) {
+    oss << *it << ',';
+  }
+  oss << ')';
+  return oss.str();
+}
