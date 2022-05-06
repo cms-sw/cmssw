@@ -28,8 +28,7 @@ class L1TrackerEtMissProducer : public edm::global::EDProducer<> {
 public:
   typedef TTTrack<Ref_Phase2TrackerDigi_> L1TTTrackType;
   typedef std::vector<L1TTTrackType> L1TTTrackCollectionType;
-  typedef edm::Ref<L1TTTrackCollectionType> L1TTTrackRefType;
-  typedef std::vector<L1TTTrackRefType> L1TTTrackRefCollectionType;
+  typedef edm::RefVector<L1TTTrackCollectionType> L1TTTrackRefCollectionType;
 
   explicit L1TrackerEtMissProducer(const edm::ParameterSet&);
   ~L1TrackerEtMissProducer() override;

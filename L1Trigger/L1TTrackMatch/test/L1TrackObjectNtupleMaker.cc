@@ -107,7 +107,7 @@ private:
   typedef std::vector<L1TrackPtr> L1TrackPtrCollection;
   typedef std::vector<L1Track> L1TrackCollection;
   typedef edm::Ref<L1TrackCollection> L1TrackRef;
-  typedef std::vector<L1TrackRef> L1TrackRefCollection;
+  typedef edm::RefVector<L1TrackCollection> L1TrackRefCollection;
 
 public:
   // Constructor/destructor
