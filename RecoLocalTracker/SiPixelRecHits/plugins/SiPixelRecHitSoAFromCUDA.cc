@@ -90,9 +90,6 @@ void SiPixelRecHitSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const
 
 DEFINE_FWK_MODULE(SiPixelRecHitSoAFromCUDA);
 
-
-
-
 #define FINAL_POOL_DUMP
 #ifdef FINAL_POOL_DUMP
 
@@ -103,17 +100,14 @@ DEFINE_FWK_MODULE(SiPixelRecHitSoAFromCUDA);
 namespace {
 
   struct FinalPoolDump {
-
-  ~FinalPoolDump() {
-    std::cout << "Final Pool Dump\n==== ==== ====\n\n Posix Pool" << std::endl;
-    ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
-    memoryPool::cuda::dumpStat();
-  }
+    ~FinalPoolDump() {
+      std::cout << "Final Pool Dump\n==== ==== ====\n\n Posix Pool" << std::endl;
+      ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
+      memoryPool::cuda::dumpStat();
+    }
   };
 
   FinalPoolDump dump;
 
-}
+}  // namespace
 #endif
-
-

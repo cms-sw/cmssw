@@ -7,29 +7,28 @@
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
 
-#include<iostream>
+#include <iostream>
 
 namespace {
 
-   //  free callback
-    void CUDART_CB freeCallback(void *p) {
-      // std::cout << "free callaback" << std::endl;
-      auto payload = (memoryPool::Payload *)(p);
-      memoryPool::scheduleFree(payload);
-    }
+  //  free callback
+  void CUDART_CB freeCallback(void *p) {
+    // std::cout << "free callaback" << std::endl;
+    auto payload = (memoryPool::Payload *)(p);
+    memoryPool::scheduleFree(payload);
+  }
 
-}
+}  // namespace
 
 struct CudaAlloc {
-  static void  scheduleFree(memoryPool::Payload * payload, cudaStream_t stream) {
+  static void scheduleFree(memoryPool::Payload *payload, cudaStream_t stream) {
     // std::cout    << "schedule free" << std::endl;
     if (stream)
-       cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
-     else
-       memoryPool::scheduleFree(payload);
+      cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
+    else
+      memoryPool::scheduleFree(payload);
   }
 };
-
 
 struct CudaDeviceAlloc : public CudaAlloc {
   using Pointer = void *;
@@ -40,7 +39,6 @@ struct CudaDeviceAlloc : public CudaAlloc {
     return err == cudaSuccess ? p : nullptr;
   }
   static void free(Pointer ptr) { cudaFree(ptr); }
-
 };
 
 struct CudaHostAlloc : public CudaAlloc {
@@ -53,7 +51,6 @@ struct CudaHostAlloc : public CudaAlloc {
   }
   static void free(Pointer ptr) { cudaFreeHost(ptr); }
 };
-
 
 namespace memoryPool {
   namespace cuda {
@@ -72,10 +69,8 @@ namespace memoryPool {
     // schedule free
     inline void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool) {
       auto payload = new Payload{&pool, std::move(buckets)};
-      CudaHostAlloc::scheduleFree(payload,stream);
+      CudaHostAlloc::scheduleFree(payload, stream);
     }
 
   }  // namespace cuda
 }  // namespace memoryPool
-
-

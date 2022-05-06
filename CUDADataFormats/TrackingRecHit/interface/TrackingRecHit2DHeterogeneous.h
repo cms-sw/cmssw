@@ -36,19 +36,22 @@ public:
 
   TrackingRecHit2DHeterogeneous() = default;
 
-  inline TrackingRecHit2DHeterogeneous(
-      uint32_t nHits,
-      bool isPhase2,
-      int32_t offsetBPIX2,
-      pixelCPEforGPU::ParamsOnGPU const* cpeParams,
-      uint32_t const* hitsModuleStart,
-      memoryPool::Where where,
-      cudaStream_t stream,
-      TrackingRecHit2DHeterogeneous const* input = nullptr);
+  inline TrackingRecHit2DHeterogeneous(uint32_t nHits,
+                                       bool isPhase2,
+                                       int32_t offsetBPIX2,
+                                       pixelCPEforGPU::ParamsOnGPU const* cpeParams,
+                                       uint32_t const* hitsModuleStart,
+                                       memoryPool::Where where,
+                                       cudaStream_t stream,
+                                       TrackingRecHit2DHeterogeneous const* input = nullptr);
 
   // used on CPU only
-  inline TrackingRecHit2DHeterogeneous(
-      float* store32, uint16_t* store16, uint32_t* modules, int nHits,       memoryPool::Where where = memoryPool::onCPU, cudaStream_t stream = nullptr);
+  inline TrackingRecHit2DHeterogeneous(float* store32,
+                                       uint16_t* store16,
+                                       uint32_t* modules,
+                                       int nHits,
+                                       memoryPool::Where where = memoryPool::onCPU,
+                                       cudaStream_t stream = nullptr);
   ~TrackingRecHit2DHeterogeneous() = default;
 
   TrackingRecHit2DHeterogeneous(const TrackingRecHit2DHeterogeneous&) = delete;
@@ -80,7 +83,6 @@ public:
   inline void copyFromGPU(TrackingRecHit2DHeterogeneous const* input, cudaStream_t stream);
 
 private:
-
   static constexpr uint32_t n16 = 4;                 // number of elements in m_store16
   static constexpr uint32_t n32 = 10;                // number of elements in m_store32
   static_assert(sizeof(uint32_t) == sizeof(float));  // just stating the obvious

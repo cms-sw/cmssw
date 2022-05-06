@@ -27,7 +27,7 @@ namespace memoryPool {
 
     void set(std::shared_ptr<DeleterBase> del) { me = del; }
     void setBucket(int bucket) { m_bucket = bucket; }
-    std::shared_ptr<DeleterBase> getDeleter() const { return me;}
+    std::shared_ptr<DeleterBase> getDeleter() const { return me; }
 
     void operator()(void* p) {
       if (!me)
@@ -41,7 +41,6 @@ namespace memoryPool {
     std::shared_ptr<DeleterBase> me;
     int m_bucket;
   };
-
 
   template <typename T>
   using buffer = std::unique_ptr<T, Deleter>;

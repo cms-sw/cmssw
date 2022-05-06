@@ -32,9 +32,8 @@ int main() {
     TrackingRecHit2DHost tkhitH(nHits, false, 0, nullptr, nullptr, memoryPool::onHost, stream, &tkhit);
 
     cudaStreamSynchronize(stream);
-    memoryPool::cuda::dumpStat(); 
+    memoryPool::cuda::dumpStat();
 
-    
     assert(tkhitH.view());
     assert(tkhitH.view()->nHits() == unsigned(nHits));
     assert(tkhitH.view()->nMaxModules() == phase1PixelTopology::numberOfModules);
@@ -46,33 +45,28 @@ int main() {
     assert(tkhitHPhase2.view()->nMaxModules() == phase2PixelTopology::numberOfModules);
 
     memoryPool::cuda::dumpStat();
-    
-    
-
   }
 
-   cudaCheck(cudaStreamSynchronize(stream));
-   memoryPool::cuda::dumpStat();
+  cudaCheck(cudaStreamSynchronize(stream));
+  memoryPool::cuda::dumpStat();
 
-   std::cout <<    "on CPU" << std::endl;
-   ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
+  std::cout << "on CPU" << std::endl;
+  ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
 
-   cudaCheck(cudaStreamDestroy(stream));
+  cudaCheck(cudaStreamDestroy(stream));
 
-   memoryPool::cuda::dumpStat();
+  memoryPool::cuda::dumpStat();
 
-   {
+  {
     TrackingRecHit2DGPU tkhit(nHits, false, 0, nullptr, nullptr, memoryPool::onCPU, nullptr);
     assert(tkhit.view());
     assert(tkhit.view()->nHits() == unsigned(nHits));
     assert(tkhit.view()->nMaxModules() == phase1PixelTopology::numberOfModules);
-    std::cout <<    "on CPU" << std::endl;
+    std::cout << "on CPU" << std::endl;
     ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
-   }
-   std::cout <<    "on CPU" << std::endl;
-   ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
-
-
+  }
+  std::cout << "on CPU" << std::endl;
+  ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
 
   return 0;
 }
