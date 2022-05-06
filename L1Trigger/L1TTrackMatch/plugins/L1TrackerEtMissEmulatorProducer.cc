@@ -83,7 +83,8 @@ private:
 L1TrackerEtMissEmulatorProducer::L1TrackerEtMissEmulatorProducer(const edm::ParameterSet& iConfig)
     : pvToken_(consumes<L1VertexCollectionType>(iConfig.getParameter<edm::InputTag>("L1VertexInputTag"))),
       trackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-      vtxAssocTrackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackAssociatedInputTag"))) {
+      vtxAssocTrackToken_(
+          consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackAssociatedInputTag"))) {
   // Setup LUTs
   TrackTransform.generateLUTs();
   phiQuadrants_ = TrackTransform.getPhiQuad();
@@ -144,7 +145,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
   }
 
   if (!L1TTTrackAssociatedHandle.isValid()) {
-    LogError("L1TrackerEtMissEmulatorProducer") << "\nWarning: L1TTTrackAssociatedCollection not found in the event. Exit\n";
+    LogError("L1TrackerEtMissEmulatorProducer")
+        << "\nWarning: L1TTTrackAssociatedCollection not found in the event. Exit\n";
     return;
   }
 
@@ -168,7 +170,8 @@ void L1TrackerEtMissEmulatorProducer::produce(edm::Event& iEvent, const edm::Eve
     // Convert to internal track representation
     InternalEtWord EtTrack = TrackTransform.transformTrack<L1TTTrackType, L1VertexType>(track_ref, vtx);
 
-    if (std::find(L1TTTrackAssociatedHandle->begin(), L1TTTrackAssociatedHandle->end(), track) != L1TTTrackAssociatedHandle->end()) {
+    if (std::find(L1TTTrackAssociatedHandle->begin(), L1TTTrackAssociatedHandle->end(), track) !=
+        L1TTTrackAssociatedHandle->end()) {
       num_assoc_tracks++;
       if (debug_ == 7) {
         edm::LogVerbatim("L1TrackerEtMissEmulatorProducer")
