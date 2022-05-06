@@ -11,22 +11,20 @@ using namespace std;
 //To run independently of pdgId, do not insert the particleIDs entry in filter declaration
 
 MCLongLivedParticles::MCLongLivedParticles(const edm::ParameterSet& iConfig) :
-  //hepMCProductTag is left untracked for backwards compatibility
+  //Parameters left untracked to have flexibility in filter initialization and ensure backwards compatibility
+  //(specify or not the input tag and cuts so that the filter acts as 
+  //its previous version or  as the new one, depending on which parameters have been initialized)
   hepMCProductTag_(iConfig.getUntrackedParameter<edm::InputTag>("hepMCProductTag",edm::InputTag("generator","unsmeared"))),
   token_(consumes<edm::HepMCProduct>(hepMCProductTag_)),
-  particleIDs_(iConfig.getParameter<std::vector<int>>("ParticleIDs")),
-  //theCut is left untracked for backwards compatibility
+  particleIDs_(iConfig.getUntrackedParameter<std::vector<int>>("ParticleIDs",std::vector<int>{0})),
   theCut(iConfig.getUntrackedParameter<double>("LengCut",10.)), // for backwards compatibility
-  theUpperCut_(iConfig.getParameter<double>("LengMax")),
-  theLowerCut_(iConfig.getParameter<double>("LengMin"))
+  theUpperCut_(iConfig.getUntrackedParameter<double>("LengMax",-1)),
+  theLowerCut_(iConfig.getUntrackedParameter<double>("LengMin",-1))
 {}
 
 
 void MCLongLivedParticles::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<std::vector<int>>("ParticleIDs", std::vector<int>{0});
-  desc.add<double>("LengMax", -1.);
-  desc.add<double>("LengMin", -1.);
 }
 
 
