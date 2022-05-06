@@ -1,7 +1,53 @@
-#include "DQMMessageLoggerClient.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <string>
+
 #include <vector>
+#include <string>
+#include <map>
+
+class DQMMessageLoggerClient : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  // Constructor
+  DQMMessageLoggerClient(const edm::ParameterSet &);
+  // Destructor
+  ~DQMMessageLoggerClient() override;
+
+protected:
+  void beginJob() override;
+  //void beginRun(const edm::Run&, const edm::EventSetup&);
+
+  void beginRun(const edm::Run &, const edm::EventSetup &) override;
+
+  // Get the analysis
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
+  // Save the histos
+  void endRun(const edm::Run &, const edm::EventSetup &) override;
+
+private:
+  void fillHistograms();
+
+  // ----------member data ---------------------------
+
+  DQMStore *theDbe;
+  edm::ParameterSet parameters;
+  std::string directoryName;
+
+  std::vector<std::string> binLabel;
+  std::vector<Double_t> binContent;
+
+  int nBinsErrors;
+  int nBinsWarnings;
+
+  MonitorElement *modulesErrorsFound;
+  MonitorElement *modulesWarningsFound;
+  MonitorElement *categoriesErrorsFound;
+  MonitorElement *categoriesWarningsFound;
+};
 
 using namespace std;
 using namespace edm;
@@ -10,7 +56,7 @@ using namespace edm;
 //  constructors and destructor
 // -----------------------------
 
-DQMMessageLoggerClient::DQMMessageLoggerClient(const edm::ParameterSet& ps) {
+DQMMessageLoggerClient::DQMMessageLoggerClient(const edm::ParameterSet &ps) {
   parameters = ps;
   theDbe = nullptr;
   modulesErrorsFound = nullptr;
@@ -31,9 +77,9 @@ void DQMMessageLoggerClient::beginJob() {
   }
 }
 
-void DQMMessageLoggerClient::beginRun(const edm::Run& r, const edm::EventSetup& es) {}
+void DQMMessageLoggerClient::beginRun(const edm::Run &r, const edm::EventSetup &es) {}
 
-void DQMMessageLoggerClient::analyze(const edm::Event& e, const edm::EventSetup& context) {}
+void DQMMessageLoggerClient::analyze(const edm::Event &e, const edm::EventSetup &context) {}
 
 void DQMMessageLoggerClient::fillHistograms() {
   // directoryName should be the same as for DQMMessageLogger
@@ -63,10 +109,10 @@ void DQMMessageLoggerClient::fillHistograms() {
 
     // RETURN ME
 
-    MonitorElement* me = theDbe->get(*ent);
+    MonitorElement *me = theDbe->get(*ent);
     // GET TH1F
     if (theDbe->get(*ent)) {
-      if (TH1* rootHisto = me->getTH1()) {
+      if (TH1 *rootHisto = me->getTH1()) {
         int nonzeros = 0;
         int Nbins = me->getNbinsX();
 
@@ -168,4 +214,8 @@ void DQMMessageLoggerClient::fillHistograms() {
   }
 }
 
-void DQMMessageLoggerClient::endRun(const Run& r, const EventSetup& es) { fillHistograms(); }
+void DQMMessageLoggerClient::endRun(const Run &r, const EventSetup &es) { fillHistograms(); }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DQMMessageLoggerClient);

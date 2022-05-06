@@ -1,29 +1,70 @@
+// system includes
+#include <cmath>
+#include <vector>
+#include <string>
+#include <map>
 
-
-#include "DQMMessageLogger.h"
-#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
+// user includes
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Common/interface/ErrorSummaryEntry.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/FWLite/interface/Event.h"
+#include "DataFormats/FWLite/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/ErrorSummaryEntry.h"
-#include "DataFormats/FWLite/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "TPad.h"
-#include <cmath>
 
 using namespace std;
 using namespace edm;
 
-DQMMessageLogger::DQMMessageLogger(const ParameterSet& parameters) {
+class DQMMessageLogger : public DQMEDAnalyzer {
+public:
+  /// Constructor
+  DQMMessageLogger(const edm::ParameterSet &);
+
+  /// Destructor
+  ~DQMMessageLogger() override = default;
+
+  /// Get the analysis
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
+
+protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
+private:
+  // ----------member data ---------------------------
+
+  // Switch for verbosity
+  std::string metname;
+
+  std::map<std::string, int> moduleMap;
+  std::map<std::string, int> categoryMap;
+  std::map<std::string, int> categoryWCount;
+  std::map<std::string, int> categoryECount;
+  // from parameters
+  std::vector<std::string> categories_vector;
+  std::string directoryName;
+  edm::EDGetTokenT<std::vector<edm::ErrorSummaryEntry> > errorSummary_;
+
+  //The histos
+  MonitorElement *categories_errors;
+  MonitorElement *categories_warnings;
+  MonitorElement *modules_errors;
+  MonitorElement *modules_warnings;
+  MonitorElement *total_errors;
+  MonitorElement *total_warnings;
+};
+
+DQMMessageLogger::DQMMessageLogger(const ParameterSet &parameters) {
   categories_errors = nullptr;
   categories_warnings = nullptr;
   modules_errors = nullptr;
@@ -38,11 +79,7 @@ DQMMessageLogger::DQMMessageLogger(const ParameterSet& parameters) {
       parameters.getUntrackedParameter<std::string>("errorSummary", "logErrorHarvester"));
 }
 
-DQMMessageLogger::~DQMMessageLogger() {
-  // Should the pointers be deleted?
-}
-
-void DQMMessageLogger::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) {
+void DQMMessageLogger::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const &iRun, edm::EventSetup const &iSetup) {
   metname = "errorAnalyzer";
 
   // MAKE CATEGORYMAP USING INPUT FROM CFG FILE
@@ -54,12 +91,12 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
   using TNS = Service<edm::service::TriggerNamesService>;
   using stringvec = vector<std::string>;
   TNS tns;
-  stringvec const& trigpaths = tns->getTrigPaths();
+  stringvec const &trigpaths = tns->getTrigPaths();
 
-  for (auto const& trigpath : trigpaths) {
+  for (auto const &trigpath : trigpaths) {
     stringvec strings = tns->getTrigPathModules(trigpath);
 
-    for (auto& k : strings) {
+    for (auto &k : strings) {
       moduleMap.insert(pair<string, int>(k, moduleMap.size() + 1));
     }
   }
@@ -113,7 +150,7 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
   }
 }
 
-void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
+void DQMMessageLogger::analyze(const Event &iEvent, const EventSetup &iSetup) {
   LogTrace(metname) << "[DQMMessageLogger] Analysis of event # ";
 
   // Take the ErrorSummaryEntry container
@@ -207,3 +244,7 @@ void DQMMessageLogger::analyze(const Event& iEvent, const EventSetup& iSetup) {
     }
   }
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DQMMessageLogger);

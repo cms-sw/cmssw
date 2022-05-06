@@ -1,4 +1,3 @@
-
 /*
  * \file DQMFEDIntegrityClient.cc
  * \author M. Marienfeld
@@ -6,10 +5,69 @@
  *
  * Description: Summing up FED entries from all subdetectors.
  *
-*/
+ */
 
-#include "DQMFEDIntegrityClient.h"
+#include <string>
+#include <vector>
+
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+
+//
+// class declaration
+//
+
+class DQMFEDIntegrityClient : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  DQMFEDIntegrityClient(const edm::ParameterSet&);
+  ~DQMFEDIntegrityClient() override = default;
+
+protected:
+  void beginJob() override;
+  void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
+
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+  void beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) override;
+
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
+  void endJob() override;
+
+private:
+  void initialize();
+  void fillHistograms();
+
+  edm::ParameterSet parameters_;
+
+  DQMStore* dbe_;
+
+  // ---------- member data ----------
+
+  int NBINS;
+  float XMIN, XMAX;
+  float SummaryContent[10];
+
+  MonitorElement* FedEntries;
+  MonitorElement* FedFatal;
+  MonitorElement* FedNonFatal;
+
+  MonitorElement* reportSummary;
+  MonitorElement* reportSummaryContent[10];
+  MonitorElement* reportSummaryMap;
+
+  bool fillInEventloop;
+  bool fillOnEndRun;
+  bool fillOnEndJob;
+  bool fillOnEndLumi;
+  std::string moduleName;
+  std::string fedFolderName;
+};
 
 // -----------------------------
 //  constructors and destructor
@@ -25,8 +83,6 @@ DQMFEDIntegrityClient::DQMFEDIntegrityClient(const edm::ParameterSet& ps) {
   moduleName = ps.getUntrackedParameter<std::string>("moduleName", "FED");
   fedFolderName = ps.getUntrackedParameter<std::string>("fedFolderName", "FEDIntegrity");
 }
-
-DQMFEDIntegrityClient::~DQMFEDIntegrityClient() = default;
 
 void DQMFEDIntegrityClient::initialize() {
   // get back-end interface
@@ -150,6 +206,8 @@ void DQMFEDIntegrityClient::analyze(const edm::Event& e, const edm::EventSetup& 
   if (fillInEventloop)
     fillHistograms();
 }
+
+void DQMFEDIntegrityClient::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c) {}
 
 void DQMFEDIntegrityClient::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& context) {
   if (fillOnEndLumi)
@@ -315,3 +373,7 @@ void DQMFEDIntegrityClient::endJob() {
   if (fillOnEndJob)
     fillHistograms();
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(DQMFEDIntegrityClient);
