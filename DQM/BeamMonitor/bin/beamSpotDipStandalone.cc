@@ -88,14 +88,12 @@ const bool testing = false;
 
 const string subjectCMS = "dip/CMS/Tracker/BeamSpot";
 const string subjectLHC = "dip/CMS/LHC/LuminousRegion";
-const string subjectPV  = "dip/CMS/Tracker/PrimaryVertices";
+const string subjectPV = "dip/CMS/Tracker/PrimaryVertices";
 
-const string sourceFile  =
- "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt";
-const string sourceFile1 =
- "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults_TkStatus.txt";
+const string sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt";
+const string sourceFile1 = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults_TkStatus.txt";
 
-const int timeoutLS[2] = { 1, 2 };
+const int timeoutLS[2] = {1, 2};
 
 //
 
@@ -332,8 +330,7 @@ void publishRcd(string qlty, string err, bool pubCMS, bool fitTime) {
 }
 
 /*****************************************************************************/
-bool readRcd(ifstream& file)
-{
+bool readRcd(ifstream& file) {
   int nthLnInRcd = 0;
   bool rcdQlty = false;
 
@@ -518,8 +515,7 @@ void problem() {
 
   lsCount++;
 
-  if ((lsCount % (timeoutLS[0]*secPerLS) == 0)
-   && (lsCount % (timeoutLS[1]*secPerLS) != 0)) // first timeout
+  if ((lsCount % (timeoutLS[0] * secPerLS) == 0) && (lsCount % (timeoutLS[1] * secPerLS) != 0))  // first timeout
   {
     if (!alive.test(1))
       alive.flip(1);
@@ -539,7 +535,7 @@ void problem() {
       warnMsg << "No new data for " << lsCount << " LS: " << tkStatus();
       publishRcd("Bad", warnMsg.str(), false, false);
     }
-  } else if (lsCount % (timeoutLS[1]*secPerLS) == 0) { // second timeout
+  } else if (lsCount % (timeoutLS[1] * secPerLS) == 0) {  // second timeout
     if (!alive.test(2))
       alive.flip(2);
     fakeRcd();
@@ -551,14 +547,13 @@ void problem() {
 }
 
 /*****************************************************************************/
-void polling()
-{
+void polling() {
   try {
     ifstream logFile(sourceFile);
 
     if (!logFile.good()) {
       cerr << "Source File: " + sourceFile + " doesn't exist!" << endl;
-       problem();
+      problem();
     } else {
       lastModTime = getLastTime(sourceFile);
 
@@ -566,19 +561,18 @@ void polling()
         lastFitTime = lastModTime;
 
       if (getFileSize(sourceFile) == 0) {
-      // source file has zero length
+        // source file has zero length
         if (lastModTime > lastFitTime) {
-            string tmp = tkStatus();
-            cerr << "New run starts. Run number: " << runnum << endl;
-            if (verbose)
-              cerr << "Initial lastModTime = " + getDateTime(lastModTime) << endl;
-          }
-          lastFitTime = lastModTime;
-
+          string tmp = tkStatus();
+          cerr << "New run starts. Run number: " << runnum << endl;
+          if (verbose)
+            cerr << "Initial lastModTime = " + getDateTime(lastModTime) << endl;
+        }
+        lastFitTime = lastModTime;
       }
-    
+
       if (lastModTime > lastFitTime) {
-      // source file modified
+        // source file modified
         if (verbose) {
           cerr << "time of last fit    = " + getDateTime(lastFitTime) << endl;
           cerr << "time of current fit = " + getDateTime(lastModTime) << endl;
@@ -597,7 +591,7 @@ void polling()
             trueRcd();
             alive.reset();
             alive.flip(7);
-          } else { 
+          } else {
             if (verbose)
               cerr << "problem with new record" << endl;
             fakeRcd();
@@ -606,9 +600,9 @@ void polling()
           lsCount = 0;
         }
       } else {
-      // source file not touched
-      problem();
-    }
+        // source file not touched
+        problem();
+      }
     }
 
     logFile.close();
@@ -619,8 +613,7 @@ void polling()
 }
 
 /*****************************************************************************/
-void beginServer()
-{
+void beginServer() {
   try {
     ErrHandler errHandler;
 
@@ -648,8 +641,7 @@ void beginServer()
 }
 
 /*****************************************************************************/
-void endServer()
-{
+void endServer() {
   // destroy publications and data
   cerr << "destroying publication " + subjectCMS << endl;
   dip->destroyDipPublication(publicationCMS);
@@ -658,20 +650,19 @@ void endServer()
   cerr << "destroying publication " + subjectLHC << endl;
   dip->destroyDipPublication(publicationLHC);
   delete messageLHC;
-  
+
   cerr << "destroying publication " + subjectPV << endl;
   dip->destroyDipPublication(publicationPV);
   delete messagePV;
 }
 
 /*****************************************************************************/
-int main()
-{
+int main() {
   startTime = getDateTime();
-  endTime   = getDateTime();
+  endTime = getDateTime();
 
   dip = Dip::create("CmsBeamSpotServer");
-//  dip->setDNSNode("cmsdimns1.cern.ch");
+  //  dip->setDNSNode("cmsdimns1.cern.ch");
   dip->setDNSNode("cmsdimns2.cern.ch");
 
   cerr << "reading from file (NFS)" << endl;
@@ -681,13 +672,10 @@ int main()
 
   cerr << "entering polling loop" << endl;
 
-  while(true)
-  {
+  while (true) {
     polling();
     sleep(1);
   }
-
-   
 
   cerr << "[done]" << endl;
 
@@ -696,4 +684,3 @@ int main()
 
   return 0;
 }
-
