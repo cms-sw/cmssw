@@ -34,6 +34,7 @@ using json = nlohmann::json;
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
@@ -173,6 +174,9 @@ private:
   void preEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
   void postEventReadFromSource(edm::StreamContext const&, edm::ModuleCallingContext const&);
 
+  void preESModule(edm::eventsetup::EventSetupRecordKey const&, edm::ESModuleCallingContext const&);
+  void postESModule(edm::eventsetup::EventSetupRecordKey const&, edm::ESModuleCallingContext const&);
+
   // inherited from TBB task_scheduler_observer
   void on_scheduler_entry(bool worker) final;
   void on_scheduler_exit(bool worker) final;
@@ -306,6 +310,7 @@ private:
   public:
     Resources total;
     AtomicResources overhead;
+    AtomicResources eventsetup;
     Resources event;  // total time etc. spent between preSourceEvent and postEvent
     Measurement event_measurement;
     std::vector<Resources> highlight;
