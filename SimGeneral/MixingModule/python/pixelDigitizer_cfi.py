@@ -31,8 +31,8 @@ phase2_tracker.toReplaceWith(pixelDigitizer, _phase2TrackerDigitizer.clone()) # 
 from CalibTracker.SiPixelESProducers.PixelFEDChannelCollectionProducer_cfi import *
 
 # Run-dependent MC
-from Configuration.ProcessModifiers.runDependent_cff import runDependent
-(runDependent & premix_stage1).toModify(pixelDigitizer, 
+from Configuration.ProcessModifiers.runDependentForPixel_cff import runDependentForPixel
+(runDependentForPixel & premix_stage1).toModify(pixelDigitizer, 
          UseReweighting = False,
          applyLateReweighting = False,
          store_SimHitEntryExitPoints = True,
