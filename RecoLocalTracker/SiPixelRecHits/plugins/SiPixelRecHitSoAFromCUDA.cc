@@ -45,9 +45,9 @@ private:
   uint32_t nHits_;
   uint32_t nMaxModules_;
 
-  cms::cuda::host::unique_ptr<float[]> store32_;
-  cms::cuda::host::unique_ptr<uint16_t[]> store16_;
-  cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStart_;
+  memoryPool::buffer<float> store32_;
+  memoryPool::buffer<uint16_t> store16_;
+  memoryPool::buffer<uint32_t> hitsModuleStart_;
 };
 
 SiPixelRecHitSoAFromCUDA::SiPixelRecHitSoAFromCUDA(const edm::ParameterSet& iConfig)
@@ -89,3 +89,31 @@ void SiPixelRecHitSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const
 }
 
 DEFINE_FWK_MODULE(SiPixelRecHitSoAFromCUDA);
+
+
+
+
+#define FINAL_POOL_DUMP
+#ifdef FINAL_POOL_DUMP
+
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
+
+#include "HeterogeneousCore/CUDAUtilities/interface/SimplePoolAllocator.h"
+
+namespace {
+
+  struct FinalPoolDump {
+
+  ~FinalPoolDump() {
+    std::cout << "Final Pool Dump\n==== ==== ====\n\n Posix Pool" << std::endl;
+    ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
+    memoryPool::cuda::dumpStat();
+  }
+  };
+
+  FinalPoolDump dump;
+
+}
+#endif
+
+

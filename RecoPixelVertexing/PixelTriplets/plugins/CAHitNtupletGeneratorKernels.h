@@ -167,7 +167,7 @@ public:
 
   using HitsView = TrackingRecHit2DSOAView;
   using HitsOnGPU = TrackingRecHit2DSOAView;
-  using HitsOnCPU = TrackingRecHit2DHeterogeneous<Traits>;
+  using HitsOnCPU = TrackingRecHit2DHeterogeneous;
 
   using HitToTuple = caConstants::HitToTuple;
   using TupleMultiplicity = caConstants::TupleMultiplicity;
