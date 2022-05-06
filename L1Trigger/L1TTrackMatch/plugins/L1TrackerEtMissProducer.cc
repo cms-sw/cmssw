@@ -48,7 +48,8 @@ private:
 // constructor
 L1TrackerEtMissProducer::L1TrackerEtMissProducer(const edm::ParameterSet& iConfig)
     : trackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackInputTag"))),
-      vtxAssocTrackToken_(consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackAssociatedInputTag"))),
+      vtxAssocTrackToken_(
+          consumes<L1TTTrackRefCollectionType>(iConfig.getParameter<edm::InputTag>("L1TrackAssociatedInputTag"))),
       L1MetCollectionName(iConfig.getParameter<std::string>("L1MetCollectionName")),
       maxPt_(iConfig.getParameter<double>("maxPt")),
       highPtTracks_(iConfig.getParameter<int>("highPtTracks")),
@@ -89,7 +90,7 @@ void L1TrackerEtMissProducer::produce(edm::StreamID, edm::Event& iEvent, const e
   int numqualitytracks = 0;
   int numassoctracks = 0;
 
-  for (const auto & track : *L1TTTrackHandle) {
+  for (const auto& track : *L1TTTrackHandle) {
     float pt = track->momentum().perp();
     float phi = track->momentum().phi();
 
@@ -102,7 +103,8 @@ void L1TrackerEtMissProducer::produce(edm::StreamID, edm::Event& iEvent, const e
 
     numqualitytracks++;
 
-    if (std::find(L1TTTrackAssociatedHandle->begin(), L1TTTrackAssociatedHandle->end(), track) != L1TTTrackAssociatedHandle->end()) {
+    if (std::find(L1TTTrackAssociatedHandle->begin(), L1TTTrackAssociatedHandle->end(), track) !=
+        L1TTTrackAssociatedHandle->end()) {
       numassoctracks++;
       sumPx += pt * cos(phi);
       sumPy += pt * sin(phi);
