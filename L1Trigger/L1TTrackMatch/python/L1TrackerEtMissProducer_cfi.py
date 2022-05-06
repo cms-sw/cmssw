@@ -5,7 +5,6 @@ from L1Trigger.L1TTrackMatch.L1TrackSelectionProducer_cfi import L1TrackSelectio
 L1TrackerEtMiss = cms.EDProducer('L1TrackerEtMissProducer',
     L1TrackInputTag = cms.InputTag("L1TrackSelectionProducer", L1TrackSelectionProducer.outputCollectionName.value()),
     L1TrackAssociatedInputTag = cms.InputTag("L1TrackSelectionProducer", L1TrackSelectionProducer.outputCollectionName.value() + "Associated"),
-    L1VertexInputTag = cms.InputTag("VertexProducer", VertexProducer.l1VertexCollectionName.value()),
     L1MetCollectionName = cms.string("L1TrackerEtMiss"),
     maxPt = cms.double( -10. ),	    # in GeV. When maxPt > 0, tracks with PT above maxPt are considered as
                                     # mismeasured and are treated according to highPtTracks below.
