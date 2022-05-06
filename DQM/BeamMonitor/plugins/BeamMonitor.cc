@@ -123,7 +123,8 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
       StartAverage_(false),
       firstAverageFit_(0),
       countGapLumi_(0),
-      logToDb_(false) {
+      logToDb_(false),
+      loggerActive_(false) {
   monitorName_ = ps.getUntrackedParameter<string>("monitorName", "YourSubsystemName");
   recordName_ = ps.getUntrackedParameter<string>("recordName");
   bsSrc_ = consumes<reco::BeamSpot>(ps.getUntrackedParameter<InputTag>("beamSpot"));
@@ -215,7 +216,7 @@ namespace {
 }  // namespace
 
 void BeamMonitor::dqmBeginRun(edm::Run const&, edm::EventSetup const&) {
-  if (useLockRecords_ && onlineDbService_.isAvailable() && logToDb_) {
+  if (useLockRecords_ && onlineDbService_.isAvailable()) {
     onlineDbService_->lockRecords();
   }
   nAnalyzedLS_ = 0;
@@ -538,6 +539,7 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const Eve
   nAnalyzedLS_++;
   if (onlineDbService_.isAvailable() && logToDb_) {
     onlineDbService_->logger().start();
+    loggerActive_ = true;
     onlineDbService_->logger().logInfo() << "BeamMonitor::beginLuminosityBlock - LS: " << lumiSeg.luminosityBlock()
                                          << " - Run: " << lumiSeg.getRun().run();
   }
@@ -817,7 +819,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Event
   tmpTime = refBStime[1] = refPVtime[1] = fendtime;
 
   // end DB logger
-  if (onlineDbService_.isAvailable() && logToDb_) {
+  if (onlineDbService_.isAvailable() && logToDb_ && loggerActive_) {
     onlineDbService_->logger().logInfo() << "BeamMonitor::endLuminosityBlock";
     onlineDbService_->logger().end(DBloggerReturn_);
   }
@@ -1594,7 +1596,7 @@ void BeamMonitor::dqmEndRun(const Run& r, const EventSetup& context) {
   mapLSPVStoreSize.clear();
   mapLSCF.clear();
 
-  if (useLockRecords_ && onlineDbService_.isAvailable() && logToDb_) {
+  if (useLockRecords_ && onlineDbService_.isAvailable()) {
     onlineDbService_->releaseLocks();
   }
 }
