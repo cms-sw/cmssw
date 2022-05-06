@@ -5,7 +5,24 @@
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
 
-struct CudaDeviceAlloc {
+namespace {
+
+   //  free callback
+    void CUDART_CB freeCallback(void *p) {
+      auto payload = (memoryPool::Payload *)(p);
+      memoryPool::scheduleFree(payload);
+    }
+
+struct CudaAlloc {
+  static void  scheduleFree(memoryPool::Payload * payload, cudaStream_t stream) {
+    if (stream)
+       cudaLaunchHostFunc(stream, freeCallback, payload);
+     else
+       memoryPool::scheduleFree(payload);
+  }
+};
+
+struct CudaDeviceAlloc : public CudaAlloc {
   using Pointer = void *;
 
   static Pointer alloc(size_t size) {
@@ -14,9 +31,10 @@ struct CudaDeviceAlloc {
     return err == cudaSuccess ? p : nullptr;
   }
   static void free(Pointer ptr) { cudaFree(ptr); }
+
 };
 
-struct CudaHostAlloc {
+struct CudaHostAlloc : public CudaAlloc {
   using Pointer = void *;
 
   static Pointer alloc(size_t size) {
@@ -27,7 +45,6 @@ struct CudaHostAlloc {
   static void free(Pointer ptr) { cudaFreeHost(ptr); }
 };
 
-namespace {
 
   constexpr int poolSize = 128 * 1024;
 
@@ -76,22 +93,6 @@ namespace memoryPool {
                  : (onDevice == where ? (SimplePoolAllocator *)(&devicePool()) : (SimplePoolAllocator *)(&hostPool));
     }
 
-    struct Payload {
-      SimplePoolAllocator *pool;
-      std::vector<int> buckets;
-    };
-
-    //  free callback
-    void CUDART_CB freeCallback(void *p) {
-      auto payload = (Payload *)(p);
-      auto &pool = *(payload->pool);
-      auto const &buckets = payload->buckets;
-      for (auto i : buckets) {
-        pool.free(i);
-      }
-      delete payload;
-    }
-
     // allocate either on current device or on host (actually anywhere, not cuda specific)
     std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool) {
       int i = pool.alloc(size);
@@ -102,7 +103,7 @@ namespace memoryPool {
     // schedule free
     void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool) {
       auto payload = new Payload{&pool, std::move(buckets)};
-      cudaLaunchHostFunc(stream, freeCallback, payload);
+      CudaHostAlloc::scheduleFree(payload,stream);
     }
 
   }  // namespace cuda

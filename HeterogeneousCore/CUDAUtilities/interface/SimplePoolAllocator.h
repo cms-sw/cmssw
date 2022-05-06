@@ -199,8 +199,29 @@ private:
   std::atomic<uint64_t> nFree = 0;
 };
 
-template <typename Traits>
+namespace memoryPool {
+
+    struct Payload {
+      SimplePoolAllocator *pool;
+      std::vector<int> buckets;
+    };
+
+    //  free callback
+    void  scheduleFree(Payload * payload) {
+      auto &pool = *(payload->pool);
+      auto const &buckets = payload->buckets;
+      for (auto i : buckets) {
+        pool.free(i);
+      }
+      delete payload;
+    }
+}
+
+template <typename T>
 struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
+
+  using Traits = T;
+
   SimplePoolAllocatorImpl(int maxSlots) : SimplePoolAllocator(maxSlots) {}
 
   ~SimplePoolAllocatorImpl() override = default;
@@ -215,4 +236,9 @@ struct PosixAlloc {
 
   static Pointer alloc(size_t size) { return ::malloc(size); }
   static void free(Pointer ptr) { ::free(ptr); }
+
+  static void  scheduleFree(memoryPool::Payload * payload) {
+     memoryPool::scheduleFree(payload);
+  }
+
 };
