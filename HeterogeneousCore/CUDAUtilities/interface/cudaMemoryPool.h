@@ -7,7 +7,7 @@
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
 
-#include<cassert>
+#include <cassert>
 
 namespace memoryPool {
   namespace cuda {
@@ -22,10 +22,12 @@ namespace memoryPool {
     // schedule free
     inline void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool);
 
-    template<typename T>
-    auto copy(buffer<T> & dst, buffer<T> const & src, uint64_t size, cudaStream_t stream) {
-        assert(dst.get()); assert(src.get()); assert(size>0);
-        return cudaMemcpyAsync(dst.get(), src.get(), sizeof(T)*size,  cudaMemcpyDefault, stream);
+    template <typename T>
+    auto copy(buffer<T> &dst, buffer<T> const &src, uint64_t size, cudaStream_t stream) {
+      assert(dst.get());
+      assert(src.get());
+      assert(size > 0);
+      return cudaMemcpyAsync(dst.get(), src.get(), sizeof(T) * size, cudaMemcpyDefault, stream);
     }
 
     struct CudaDeleterBase : public DeleterBase {
@@ -68,16 +70,15 @@ namespace memoryPool {
     buffer<T> make_buffer(uint64_t size, cudaStream_t const &stream, Where where) {
       return make_buffer<T>(sizeof(T) * size, Deleter(std::make_shared<DeleteOne>(stream, getPool(where))));
     }
-   
+
     template <typename T>
-    void swapBuffer(buffer<T> & a, buffer<T> &  b) {
-      std::swap(a,b);
-      // now change deleter type ,,,,      
+    void swapBuffer(buffer<T> &a, buffer<T> &b) {
+      std::swap(a, b);
+      // now change deleter type ,,,,
       auto aDel = a.get_deleter().getDeleter();
       a.get_deleter().set(b.get_deleter().getDeleter());
       b.get_deleter().set(aDel);
     }
-
 
   }  // namespace cuda
 }  // namespace memoryPool

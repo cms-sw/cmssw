@@ -201,25 +201,24 @@ private:
 
 namespace memoryPool {
 
-    struct Payload {
-      SimplePoolAllocator *pool;
-      std::vector<int> buckets;
-    };
+  struct Payload {
+    SimplePoolAllocator *pool;
+    std::vector<int> buckets;
+  };
 
-    //  free callback
-    inline void  scheduleFree(Payload * payload) {
-      auto &pool = *(payload->pool);
-      auto const &buckets = payload->buckets;
-      for (auto i : buckets) {
-        pool.free(i);
-      }
-      delete payload;
+  //  free callback
+  inline void scheduleFree(Payload *payload) {
+    auto &pool = *(payload->pool);
+    auto const &buckets = payload->buckets;
+    for (auto i : buckets) {
+      pool.free(i);
     }
-}
+    delete payload;
+  }
+}  // namespace memoryPool
 
 template <typename T>
 struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
-
   using Traits = T;
 
   SimplePoolAllocatorImpl(int maxSlots) : SimplePoolAllocator(maxSlots) {}
@@ -237,8 +236,5 @@ struct PosixAlloc {
   static Pointer alloc(size_t size) { return ::malloc(size); }
   static void free(Pointer ptr) { ::free(ptr); }
 
-  static void  scheduleFree(memoryPool::Payload * payload) {
-     memoryPool::scheduleFree(payload);
-  }
-
+  static void scheduleFree(memoryPool::Payload *payload) { memoryPool::scheduleFree(payload); }
 };

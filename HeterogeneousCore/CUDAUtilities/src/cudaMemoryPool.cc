@@ -7,7 +7,7 @@
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
 
-#include<iostream>
+#include <iostream>
 
 namespace {
 
@@ -60,5 +60,3 @@ namespace memoryPool {
 
   }  // namespace cuda
 }  // namespace memoryPool
-
-
