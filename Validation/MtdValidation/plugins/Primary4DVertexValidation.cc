@@ -328,13 +328,6 @@ private:
   MonitorElement* meTrackResMassPions_[3];
   MonitorElement* meTrackResMassTruePions_[3];
 
-  MonitorElement* meBarrelPiDBetavsp_;
-  MonitorElement* meEndcapPiDBetavsp_;
-  MonitorElement* meBarrelKDBetavsp_;
-  MonitorElement* meEndcapKDBetavsp_;
-  MonitorElement* meBarrelPDBetavsp_;
-  MonitorElement* meEndcapPDBetavsp_;
-
   MonitorElement* meBarrelPIDp_;
   MonitorElement* meEndcapPIDp_;
 
@@ -691,19 +684,6 @@ void Primary4DVertexValidation::bookHistograms(DQMStore::IBooker& ibook,
                      -1.,
                      1.);
   }
-
-  meBarrelPiDBetavsp_ = ibook.book2D(
-      "BarrelPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-  meEndcapPiDBetavsp_ = ibook.book2D(
-      "EndcapPiDBetavsp", "DeltaBeta true pi as pi vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-  meBarrelKDBetavsp_ = ibook.book2D(
-      "BarrelKDBetavsp", "DeltaBeta true K as K vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-  meEndcapKDBetavsp_ = ibook.book2D(
-      "EndcapKDBetavsp", "DeltaBeta true K as K vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-  meBarrelPDBetavsp_ = ibook.book2D(
-      "BarrelPDBetavsp", "DeltaBeta true p as p vs p, |eta| < 1.5;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
-  meEndcapPDBetavsp_ = ibook.book2D(
-      "EndcapPDBetavsp", "DeltaBeta true p as p vs p, |eta| > 1.6;p [GeV]; dBeta", 25, 0., 10., 50, -0.1, 0.1);
 
   meBarrelPIDp_ = ibook.book1D("BarrelPIDp", "PID track MTD momentum spectrum, |eta| < 1.5;p [GeV]", 25, 0., 10.);
   meEndcapPIDp_ = ibook.book1D("EndcapPIDp", "PID track with MTD momentum spectrum, |eta| > 1.6;p [GeV]", 25, 0., 10.);
@@ -1272,7 +1252,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             << "Reco vtx leading match inconsistent: BX/ID " << simpv.at(iev).eventId.bunchCrossing() << " "
             << simpv.at(iev).eventId.event();
       }
-      double treco = vertex->t();
       double vzsim = simpv.at(iev).z;
       double vtsim = simpv.at(iev).t * simUnit_;
 
@@ -1336,10 +1315,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
             }
             meMVATrackMatchedEffEtaMtd_->Fill(std::abs((*iTrack)->eta()));
 
-            double dbetaPi = c_cm_ns * (tMtd[*iTrack] - treco - tofPi[*iTrack]) / pathLength[*iTrack];
-            double dbetaK = c_cm_ns * (tMtd[*iTrack] - treco - tofK[*iTrack]) / pathLength[*iTrack];
-            double dbetaP = c_cm_ns * (tMtd[*iTrack] - treco - tofP[*iTrack]) / pathLength[*iTrack];
-
             unsigned int noPIDtype = 0;
             if (probPi[*iTrack] == -1) {
               noPIDtype = 1;
@@ -1368,7 +1343,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               meBarrelPIDp_->Fill((*iTrack)->p());
               meBarrelNoPIDtype_->Fill(noPIDtype + 0.5);
               if (std::abs((*tp_info)->pdgId()) == 211) {
-                meBarrelPiDBetavsp_->Fill((*iTrack)->p(), dbetaPi);
                 if (noPID) {
                   meBarrelTruePiNoPID_->Fill((*iTrack)->p());
                 } else if (isPi) {
@@ -1384,7 +1358,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                       << probP[*iTrack];
                 }
               } else if (std::abs((*tp_info)->pdgId()) == 321) {
-                meBarrelKDBetavsp_->Fill((*iTrack)->p(), dbetaK);
                 if (noPID) {
                   meBarrelTrueKNoPID_->Fill((*iTrack)->p());
                 } else if (isPi) {
@@ -1400,7 +1373,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                       << probP[*iTrack];
                 }
               } else if (std::abs((*tp_info)->pdgId()) == 2212) {
-                meBarrelPDBetavsp_->Fill((*iTrack)->p(), dbetaP);
                 if (noPID) {
                   meBarrelTruePNoPID_->Fill((*iTrack)->p());
                 } else if (isPi) {
@@ -1420,7 +1392,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
               meEndcapPIDp_->Fill((*iTrack)->p());
               meEndcapNoPIDtype_->Fill(noPIDtype + 0.5);
               if (std::abs((*tp_info)->pdgId()) == 211) {
-                meEndcapPiDBetavsp_->Fill((*iTrack)->p(), dbetaPi);
                 if (noPID) {
                   meEndcapTruePiNoPID_->Fill((*iTrack)->p());
                 } else if (isPi) {
@@ -1436,7 +1407,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                       << probP[*iTrack];
                 }
               } else if (std::abs((*tp_info)->pdgId()) == 321) {
-                meEndcapKDBetavsp_->Fill((*iTrack)->p(), dbetaK);
                 if (noPID) {
                   meEndcapTrueKNoPID_->Fill((*iTrack)->p());
                 } else if (isPi) {
@@ -1452,7 +1422,6 @@ void Primary4DVertexValidation::analyze(const edm::Event& iEvent, const edm::Eve
                       << probP[*iTrack];
                 }
               } else if (std::abs((*tp_info)->pdgId()) == 2212) {
-                meEndcapPDBetavsp_->Fill((*iTrack)->p(), dbetaP);
                 if (noPID) {
                   meEndcapTruePNoPID_->Fill((*iTrack)->p());
                 } else if (isPi) {
