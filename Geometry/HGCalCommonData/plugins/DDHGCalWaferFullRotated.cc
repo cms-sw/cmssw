@@ -27,7 +27,7 @@ class DDHGCalWaferFullRotated : public DDAlgorithm {
 public:
   // Constructor and Destructor
   DDHGCalWaferFullRotated();
-  ~DDHGCalWaferFullRotated() override;
+  ~DDHGCalWaferFullRotated() override = default;
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -64,8 +64,6 @@ DDHGCalWaferFullRotated::DDHGCalWaferFullRotated() {
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Creating an instance";
 #endif
 }
-
-DDHGCalWaferFullRotated::~DDHGCalWaferFullRotated() {}
 
 void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
                                          const DDVectorArguments& vArgs,
