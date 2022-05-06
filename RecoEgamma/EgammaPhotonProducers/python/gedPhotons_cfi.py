@@ -113,7 +113,7 @@ gedPhotons = cms.EDProducer("GEDPhotonProducer",
                     'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/v1/EB/EB_scaler.txt',
                     'RecoEgamma/PhotonIdentification/data/Photon_PFID_dnn/v1/EE/EE_scaler.txt'
         ),
-        outputDim = cms.uint32(1),
+        outputDim = cms.vuint32(1,1),
         useEBModelInGap = cms.bool(True)
     ),
 

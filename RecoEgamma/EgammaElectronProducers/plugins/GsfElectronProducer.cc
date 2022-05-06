@@ -300,8 +300,7 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
     psd1.add<bool>("enabled", false);
     psd1.add<std::string>("inputTensorName", "FirstLayer_input");
     psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
-    psd1.add<uint>("outputDim", 5);  // Number of output nodes of DNN for |eta| < 2.65
-    psd1.add<uint>("outputDimExtEta2", 3);  // Number of output nodes of DNN for |eta| > 2.65
+
     psd1.add<std::vector<std::string>>(
         "modelsFiles",
         {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/lowpT/lowpT_modelDNN.pb",
@@ -316,6 +315,10 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 	 "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_scaler.txt",
 	 "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/exteta1/scaler.txt",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/exteta2/scaler.txt"});
+    psd1.add<std::vector<unsigned int>>(
+	"outputDim",//Number of output nodes for the above models
+	{5,5,5,5,3});
+
     psd1.add<bool>("useEBModelInGap", true);
     // preselection parameters
     desc.add<edm::ParameterSetDescription>("EleDNNPFid", psd1);
