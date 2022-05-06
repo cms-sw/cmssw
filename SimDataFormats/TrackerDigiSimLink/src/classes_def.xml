@@ -36,7 +36,6 @@
  <class name="edm::Wrapper< StripCompactDigiSimLinks >"  />
 
   <class name="PixelSimHitExtraInfo" ClassVersion="3">
-   <field name="chan"     mapping="blob" />
    <version ClassVersion="3" checksum="2247287056"/>
   </class>
  <class name="edm::DetSet<PixelSimHitExtraInfo>"/>
