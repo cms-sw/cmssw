@@ -19,7 +19,7 @@
 //  debug     (int)          Three digit integer to set debug for each
 //                           of the outputs
 //
-//  HGCalConvert 3 infile outfile1 outfile2 laymin debug
+//  HGCalConvert 3 infile outfile1 outfile2 laymin cassette debug
 //  infile   (const char*)   Input file from Katya (modified by Chris)
 //                           containing layer #. ring #, start and end
 //                           of ring radius, SiPM size, 4 hexadecimal
@@ -31,7 +31,9 @@
 //  outfile2 (const char*)   Output file for the part to be inserted in
 //                           the ddAlgorithm part
 //  laymin   (int)           First layer number of the HE part
-//                           (28 for versions: V14, V15; 26 for V16)
+//                           (28 for versions: V14, V15; 26 for V16, V17)
+//  cassette (int)           Cassettes are used in geometry definition
+//                           (0 if nonone, 1 if 12 cassettes are used)
 //  debug    (int)           Two digit integer to set debug for each
 //                           of the outputs
 //
@@ -73,9 +75,9 @@ struct tile {
 };
 
 struct tileZone {
-  tileZone(int l0 = 0, int r0 = 0, int r1 = 0, int f0 = 0, int f1 = 0)
-      : layer(l0), rmin(r0), rmax(r1), phimin(f0), phimax(f1){};
-  int layer, rmin, rmax, phimin, phimax;
+  tileZone(int l0 = 0, int r0 = 0, int r1 = 0, int f0 = 0, int f1 = 0, int c0 = 0)
+      : layer(l0), rmin(r0), rmax(r1), phimin(f0), phimax(f1), cassette(c0){};
+  int layer, rmin, rmax, phimin, phimax, cassette;
 };
 
 std::vector<std::string> splitString(const std::string& fLine);
@@ -137,7 +139,7 @@ private:
 
 class ConvertScintillator {
 public:
-  ConvertScintillator(int layMin = 26);
+  ConvertScintillator(int layMin = 26, int cassette = 0);
   void convert(const char*, const char*, const char*, int debug = 0);
 
 private:
@@ -149,11 +151,12 @@ private:
                  bool debug);
 
   const int layMin_;
+  const int cassette_;
 };
 
 int main(int argc, char* argv[]) {
-  if (argc < 6) {
-    std::cout << "Please give a minimum of 7/5 arguments \n"
+  if (argc < 7) {
+    std::cout << "Please give a minimum of 7 arguments \n"
               << "mode (0, 1:silicon; 2:scintillator)\n"
               << "input file name\n"
               << "output file name\n"
@@ -165,15 +168,16 @@ int main(int argc, char* argv[]) {
               << "for scintillator 4 additional parameters after the first 3\n"
               << "  second output file name\n"
               << "  number of layers in the EE section: 28 or 26\n"
+              << "  flag to utilize cassette partition or not\n"
               << "  debug flag\n"
               << std::endl;
     return 0;
   }
 
   int mode = std::atoi(argv[1]);
-  if (mode <= 2 && argc < 7) {
+  if ((mode <= 2) && (argc < 7)) {
     std::cout << "Please give a minimum of 7 arguments \n"
-              << "mode == 1\n"
+              << "mode == " << mode << "\n"
               << "input file name\n"
               << "output file name\n"
               << "second output file name\n"
@@ -207,10 +211,11 @@ int main(int argc, char* argv[]) {
     const char* outfile1 = argv[3];
     const char* outfile2 = argv[4];
     int laymin = atoi(argv[5]);
-    int debug = atoi(argv[6]);
+    int cassette = atoi(argv[6]);
+    int debug = atoi(argv[7]);
     std::cout << "Calls ConvertScintillator for i/p file " << infile << " o/p files " << outfile1 << ":" << outfile2
-              << " Laymin " << laymin << " Debug " << debug << std::endl;
-    ConvertScintillator c1(laymin);
+              << " Laymin " << laymin << " Cassette " << cassette << " Debug " << debug << std::endl;
+    ConvertScintillator c1(laymin, cassette);
     c1.convert(infile, outfile1, outfile2, debug);
   }
   return 0;
@@ -809,9 +814,9 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
   for (unsigned k = 0; k < layerStart.size(); ++k) {
     std::string last = ((k + 1) == layerStart.size()) ? " " : ",";
     if (k % 10 == 0)
-      fOut << "\n  " << blank << std::setw(5) << layerStart[k3] << last;
+      fOut << "\n  " << blank << std::setw(5) << layerStart[k] << last;
     else
-      fOut << std::setw(5) << layerStart[k3] << last;
+      fOut << std::setw(5) << layerStart[k] << last;
   }
   fOut << "\n" << blank << "</Vector>\n";
   unsigned int csize = cassettes * layers.size();
@@ -826,7 +831,7 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
     ++k3;
     for (unsigned int k = 0; k < cassettes; ++k) {
       std::string last = ((k3 == layers.size()) && ((k + 1) == cassettes)) ? " " : ",";
-      if ((k == 0) || (k == 6))
+      if ((k % 6) == 0)
         fOut << "\n  " << blank << std::setw(9) << l.deltaR[k] << last;
       else
         fOut << std::setw(9) << l.deltaR[k] << last;
@@ -836,7 +841,7 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
   fOut.close();
 }
 
-ConvertScintillator::ConvertScintillator(int layMin) : layMin_(layMin) {}
+ConvertScintillator::ConvertScintillator(int layMin, int cassette) : layMin_(layMin), cassette_(cassette) {}
 
 void ConvertScintillator::convert(const char* infile, const char* outfile1, const char* outfile2, int debug) {
   std::ifstream fInput(infile);
@@ -1032,6 +1037,7 @@ void ConvertScintillator::makeTitle(const char* outfile,
                                     int lmax,
                                     bool debug) {
   const int zside = 1;
+  const int phiCassette = 24;
   std::vector<tileZone> zones;
   for (int layer = lmin; layer <= lmax; ++layer) {
     tileZone tile0;
@@ -1051,20 +1057,35 @@ void ConvertScintillator::makeTitle(const char* outfile,
         }
       }
       if (debug)
-        std::cout << "L|F|R " << layer << ":" << phi << ":" << irmin << ":" << irmax << std::endl;
+        std::cout << "Layer|Phi|Ring " << layer << ":" << phi << ":" << irmin << ":" << irmax << std::endl;
       if (phi == 1) {
         tile0.layer = layer;
         tile0.rmin = irmin;
         tile0.rmax = irmax;
         tile0.phimin = phi;
         tile0.phimax = phi;
+        tile0.cassette = (cassette_ == 0) ? 0 : 1;
       } else if ((tile0.rmin != irmin) || (tile0.rmax != irmax)) {
+        if (cassette_ != 0) {
+          if (tile0.cassette * phiCassette < tile0.phimax) {
+            do {
+              int phimax = tile0.phimax;
+              tile0.phimax = tile0.cassette * phiCassette;
+              zones.push_back(tile0);
+              tile0.phimin = tile0.phimax + 1;
+              tile0.phimax = phimax;
+              ++tile0.cassette;
+            } while (tile0.cassette * phiCassette < tile0.phimax);
+          }
+        }
         zones.push_back(tile0);
+        int cassette = (cassette_ == 0) ? 0 : (1 + ((phi - 1) / phiCassette));
         tile0.layer = layer;
         tile0.rmin = irmin;
         tile0.rmax = irmax;
         tile0.phimin = phi;
         tile0.phimax = phi;
+        tile0.cassette = cassette;
         if (phi == HGCalProperty::kHGCalTilePhis)
           zones.push_back(tile0);
       } else {
@@ -1076,6 +1097,13 @@ void ConvertScintillator::makeTitle(const char* outfile,
   }
 
   int nmax = zones.size();
+  if (debug) {
+    std::cout << "\nA total of " << nmax << " zones " << std::endl;
+    for (int k = 0; k < nmax; ++k)
+      std::cout << "[" << k << "] Layer " << zones[k].layer << " Ring " << zones[k].rmin << ":" << zones[k].rmax
+                << " phi " << zones[k].phimin << ":" << zones[k].phimax << " Cassette " << zones[k].cassette
+                << std::endl;
+  }
   if (nmax > 0) {
     std::ofstream fout(outfile);
     char apost('"');
@@ -1133,15 +1161,15 @@ void ConvertScintillator::makeTitle(const char* outfile,
                 << " nEntries=" << apost << nmax << apost << ">";
     for (int k = 0; k < nmax; ++k) {
       std::string last = ((k + 1) == nmax) ? " " : ",";
-      int f1f2 = HGCalTileIndex::tilePack(0, zones[k].phimin, zones[k].phimax);
-      if (k % 9 == 0) {
-        fout << "\n    " << std::setw(7) << f1f2 << last;
+      int f1f2 = HGCalTileIndex::tilePack(zones[k].cassette, zones[k].phimin, zones[k].phimax);
+      if (k % 7 == 0) {
+        fout << "\n    " << std::setw(9) << f1f2 << last;
         if (debug)
-          std::cout << "\n    " << std::setw(7) << f1f2 << last;
+          std::cout << "\n    " << std::setw(9) << f1f2 << last;
       } else {
-        fout << std::setw(7) << f1f2 << last;
+        fout << std::setw(9) << f1f2 << last;
         if (debug)
-          std::cout << std::setw(7) << f1f2 << last;
+          std::cout << std::setw(9) << f1f2 << last;
       }
       if (zones[k].layer != layer) {
         layerStart.emplace_back(k);
