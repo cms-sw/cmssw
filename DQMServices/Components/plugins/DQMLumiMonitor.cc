@@ -6,16 +6,65 @@
  * Description: Pixel Luminosity Monitoring 
  *
 */
-#include "DQMServices/Components/plugins/DQMLumiMonitor.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/Event.h"
+#include <string>
+#include <vector>
+#include <map>
+
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "TPRegexp.h"
+
+//
+// class declaration
+//
+
+class DQMLumiMonitor : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+  DQMLumiMonitor(const edm::ParameterSet&);
+  ~DQMLumiMonitor() override = default;
+
+protected:
+  void beginJob() override;
+  void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) override;
+  void endRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
+
+private:
+  void bookHistograms();
+
+  edm::ParameterSet parameters_;
+
+  std::string moduleName_;
+  std::string folderName_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClusterInputTag_;
+  edm::EDGetTokenT<LumiSummary> lumiRecordName_;
+
+  DQMStore* dbe_;
+
+  MonitorElement* nClusME_;
+  MonitorElement* intLumiVsLSME_;
+  MonitorElement* nClusVsLSME_;
+  MonitorElement* corrIntLumiAndClusVsLSME_;
+
+  float intLumi_;
+  int nLumi_;
+  unsigned long long m_cacheID_;
+};
 
 // -----------------------------
 //  constructors and destructor
@@ -33,8 +82,6 @@ DQMLumiMonitor::DQMLumiMonitor(const edm::ParameterSet& ps) : parameters_(ps) {
   intLumiVsLSME_ = nullptr;
   corrIntLumiAndClusVsLSME_ = nullptr;
 }
-
-DQMLumiMonitor::~DQMLumiMonitor() = default;
 
 void DQMLumiMonitor::bookHistograms() {
   edm::ParameterSet ClusHistoPar = parameters_.getParameter<edm::ParameterSet>("TH1ClusPar");
@@ -112,6 +159,8 @@ void DQMLumiMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iS
   if (intLumi_ != -1 || nLumi_ != -1)
     corrIntLumiAndClusVsLSME_->Fill(nLumi_, intLumi_, nClusterPix);
 }
+
+void DQMLumiMonitor::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) {}
 
 void DQMLumiMonitor::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& eSetup) {
   edm::LogInfo("PixelLumiMonotor") << " Run Number " << lumiBlock.run() << " Lumi Section Numnber "
