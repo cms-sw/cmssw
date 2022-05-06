@@ -36,7 +36,7 @@ int main() {
   {
     auto pd = memoryPool::cuda::make_buffer<int>(20, stream, memoryPool::onDevice);
     auto ph = memoryPool::cuda::make_buffer<int>(20, stream, memoryPool::onHost);
-    auto pc = memoryPool::cuda::make_buffer<int>(20, stream, memoryPool::onCPU);
+    auto pc = memoryPool::cuda::make_buffer<int>(20, nullptr, memoryPool::onCPU);
 
     auto dp = dataProducer<memoryPool::onDevice>()(stream);
 
@@ -60,7 +60,7 @@ int main() {
     cudaStreamSynchronize(stream);
     memoryPool::cuda::dumpStat();
   }
-  std::cout << "expect 2a 0u 2a 0u "    << std::endl;
+   std::cout << "expect 2a 0u 2a 0u "    << std::endl;
    cudaStreamSynchronize(stream);
    memoryPool::cuda::dumpStat();
 
