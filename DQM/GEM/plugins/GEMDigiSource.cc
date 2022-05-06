@@ -7,7 +7,6 @@ GEMDigiSource::GEMDigiSource(const edm::ParameterSet& cfg) : GEMDQMBase(cfg) {
   tagDigi_ = consumes<GEMDigiCollection>(cfg.getParameter<edm::InputTag>("digisInputLabel"));
   lumiScalers_ = consumes<LumiScalersCollection>(
       cfg.getUntrackedParameter<edm::InputTag>("lumiCollection", edm::InputTag("scalersRawToDigi")));
-  bModeRelVal_ = cfg.getParameter<bool>("modeRelVal");
   nBXMin_ = cfg.getParameter<int>("bxMin");
   nBXMax_ = cfg.getParameter<int>("bxMax");
 }
@@ -15,8 +14,8 @@ GEMDigiSource::GEMDigiSource(const edm::ParameterSet& cfg) : GEMDQMBase(cfg) {
 void GEMDigiSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("digisInputLabel", edm::InputTag("muonGEMDigis", ""));
+  desc.addUntracked<std::string>("runType", "online");
   desc.addUntracked<std::string>("logCategory", "GEMDigiSource");
-  desc.add<bool>("modeRelVal", false);
   desc.add<int>("bxMin", -10);
   desc.add<int>("bxMax", 10);
   descriptions.add("GEMDigiSource", desc);
@@ -28,17 +27,19 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
     return;
   loadChambers();
 
+  strFolderMain_ = "GEM/Digis";
+
   fRadiusMin_ = 120.0;
   fRadiusMax_ = 250.0;
   float radS = -5.0 / 180 * M_PI;
   float radL = 355.0 / 180 * M_PI;
 
-  mapTotalDigi_layer_ = MEMap3Inf(this, "det", "Digi Occupancy", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
+  mapTotalDigi_layer_ = MEMap3Inf(this, "occ", "Digi Occupancy", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
   mapDigiWheel_layer_ = MEMap3Inf(
-      this, "rphi_occ", "Digi R-Phi Occupancy", 360, radS, radL, 8, fRadiusMin_, fRadiusMax_, "#phi (rad)", "R [cm]");
+      this, "occ_rphi", "Digi R-Phi Occupancy", 360, radS, radL, 8, fRadiusMin_, fRadiusMax_, "#phi (rad)", "R [cm]");
   mapDigiOcc_ieta_ = MEMap3Inf(this, "occ_ieta", "Digi iEta Occupancy", 8, 0.5, 8.5, "iEta", "Number of fired digis");
   mapDigiOcc_phi_ =
-      MEMap3Inf(this, "occ_phi", "Digi Phi Occupancy", 108, -5, 355, "#phi (degree)", "Number of fired digis");
+      MEMap3Inf(this, "occ_phi", "Digi Phi Occupancy", 72, -5, 355, "#phi (degree)", "Number of fired digis");
   mapTotalDigiPerEvtLayer_ = MEMap3Inf(this,
                                        "digis_per_layer",
                                        "Total number of digis per event for each layers",
@@ -62,22 +63,31 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
 
   mapDigiOccPerCh_ = MEMap4Inf(this, "occ", "Digi Occupancy", 1, -0.5, 1.5, 1, 0.5, 1.5, "Digi", "iEta");
 
-  if (bModeRelVal_) {
+  if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE) {
+    mapDigiWheel_layer_.TurnOff();
+    mapBX_.TurnOff();
     mapTotalDigi_layer_.TurnOff();
+  }
+
+  if (nRunType_ == GEMDQM_RUNTYPE_RELVAL) {
     mapDigiWheel_layer_.TurnOff();
     mapDigiOccPerCh_.TurnOff();
+    mapTotalDigi_layer_.TurnOff();
+  }
+
+  if (nRunType_ != GEMDQM_RUNTYPE_ALLPLOTS && nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+    mapDigiOcc_ieta_.TurnOff();
+    mapDigiOcc_phi_.TurnOff();
+  }
+
+  if (nRunType_ != GEMDQM_RUNTYPE_ALLPLOTS) {
+    mapTotalDigiPerEvtLayer_.TurnOff();
+    mapTotalDigiPerEvtIEta_.TurnOff();
   }
 
   ibooker.cd();
-  ibooker.setCurrentFolder("GEM/Digis");
+  ibooker.setCurrentFolder(strFolderMain_);
   GenerateMEPerChamber(ibooker);
-
-  h2SummaryOcc_ = nullptr;
-  if (!bModeRelVal_) {
-    h2SummaryOcc_ = CreateSummaryHist(ibooker, "summaryOccDigi");
-    h2SummaryOcc_->setTitle("Summary of occupancy on chambers");
-    h2SummaryOcc_->setXTitle("Chamber");
-  }
 }
 
 int GEMDigiSource::ProcessWithMEMap2(BookingHelper& bh, ME2IdsKey key) {
@@ -125,6 +135,8 @@ int GEMDigiSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key
   ME3IdsKey key3 = key4Tokey3(key);
   MEStationInfo& stationInfo = mapStationInfo_[key3];
 
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/occupancy_" + getNameDirLayer(key3));
+
   int nNumVFATPerEta = stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_;
   int nNumCh = stationInfo.nNumDigi_;
 
@@ -132,6 +144,8 @@ int GEMDigiSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key
   mapDigiOccPerCh_.SetBinConfY(stationInfo.nNumEtaPartitions_);
   mapDigiOccPerCh_.bookND(bh, key);
   mapDigiOccPerCh_.SetLabelForIEta(key, 2);
+
+  bh.getBooker()->setCurrentFolder(strFolderMain_);
 
   return 0;
 }
@@ -190,10 +204,6 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
         if (bTagVFAT.find(nIdxVFAT) == bTagVFAT.end()) {
           mapBX_.Fill(key2, nBX);
         }
-
-        // Occupancy on a chamber
-        if (h2SummaryOcc_)
-          h2SummaryOcc_->Fill(gid.chamber(), mapStationToIdx_[key3]);
 
         bTagVFAT[nIdxVFAT] = true;
       }

@@ -21,6 +21,7 @@ void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descri
   desc.add<edm::InputTag>("AMC13InputLabel", edm::InputTag("muonGEMDigis", "AMC13Status"));
 
   desc.add<Int_t>("AMCSlots", 13);
+  desc.addUntracked<std::string>("runType", "online");
   desc.addUntracked<std::string>("logCategory", "GEMDAQStatusSource");
 
   descriptions.add("GEMDAQStatusSource", desc);
@@ -61,6 +62,10 @@ void GEMDAQStatusSource::LoadROMap(edm::EventSetup const &iSetup) {
 }
 
 void GEMDAQStatusSource::SetLabelAMC13Status(MonitorElement *h2Status) {
+  if (h2Status == nullptr) {
+    return;
+  }
+
   unsigned int unBinPos = 1;
   h2Status->setBinLabel(unBinPos++, "Good", 2);
   h2Status->setBinLabel(unBinPos++, "Invalid AMC", 2);
@@ -78,6 +83,10 @@ void GEMDAQStatusSource::SetLabelAMC13Status(MonitorElement *h2Status) {
 }
 
 void GEMDAQStatusSource::SetLabelAMCStatus(MonitorElement *h2Status) {
+  if (h2Status == nullptr) {
+    return;
+  }
+
   unsigned int unBinPos = 1;
   h2Status->setBinLabel(unBinPos++, "Good", 2);
   h2Status->setBinLabel(unBinPos++, "Invalid OH", 2);
@@ -94,6 +103,10 @@ void GEMDAQStatusSource::SetLabelAMCStatus(MonitorElement *h2Status) {
 }
 
 void GEMDAQStatusSource::SetLabelOHStatus(MonitorElement *h2Status) {
+  if (h2Status == nullptr) {
+    return;
+  }
+
   unsigned int unBinPos = 1;
   h2Status->setBinLabel(unBinPos++, "Good", 2);
   h2Status->setBinLabel(unBinPos++, "Event FIFO near full", 2);
@@ -115,6 +128,10 @@ void GEMDAQStatusSource::SetLabelOHStatus(MonitorElement *h2Status) {
 }
 
 void GEMDAQStatusSource::SetLabelVFATStatus(MonitorElement *h2Status) {
+  if (h2Status == nullptr) {
+    return;
+  }
+
   unsigned int unBinPos = 1;
   h2Status->setBinLabel(unBinPos++, "Good", 2);
   h2Status->setBinLabel(unBinPos++, "Basic overflow", 2);
@@ -134,6 +151,8 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
     return;
   loadChambers();
 
+  strFolderMain_ = "GEM/DAQStatus";
+
   nBXMin_ = -10;
   nBXMax_ = 10;
 
@@ -141,26 +160,32 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   mapFEDIdToRe_[1468] = 1;
 
   ibooker.cd();
-  ibooker.setCurrentFolder("GEM/DAQStatus");
+  ibooker.setCurrentFolder(strFolderMain_);
 
-  h2AMC13Status_ =
-      ibooker.book2D("amc13_status", "AMC13 Status;AMC13;", 2, 0.5, 2.5, nBitAMC13_, 0.5, nBitAMC13_ + 0.5);
-  h2AMCStatusNeg_ = ibooker.book2D("amc_status_GE11-M",
-                                   "AMC Status GE11-M;AMC slot;",
-                                   nAMCSlots_,
-                                   -0.5,
-                                   nAMCSlots_ - 0.5,
-                                   nBitAMC_,
-                                   0.5,
-                                   nBitAMC_ + 0.5);
-  h2AMCStatusPos_ = ibooker.book2D("amc_status_GE11-P",
-                                   "AMC Status GE11-P;AMC slot;",
-                                   nAMCSlots_,
-                                   -0.5,
-                                   nAMCSlots_ - 0.5,
-                                   nBitAMC_,
-                                   0.5,
-                                   nBitAMC_ + 0.5);
+  h2AMC13Status_ = nullptr;
+  h2AMCStatusNeg_ = nullptr;
+  h2AMCStatusPos_ = nullptr;
+
+  if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+    h2AMC13Status_ =
+        ibooker.book2D("amc13_status", "AMC13 Status;AMC13;", 2, 0.5, 2.5, nBitAMC13_, 0.5, nBitAMC13_ + 0.5);
+    h2AMCStatusNeg_ = ibooker.book2D("amc_status_GE11-M",
+                                     "AMC Status GE11-M;AMC slot;",
+                                     nAMCSlots_,
+                                     -0.5,
+                                     nAMCSlots_ - 0.5,
+                                     nBitAMC_,
+                                     0.5,
+                                     nBitAMC_ + 0.5);
+    h2AMCStatusPos_ = ibooker.book2D("amc_status_GE11-P",
+                                     "AMC Status GE11-P;AMC slot;",
+                                     nAMCSlots_,
+                                     -0.5,
+                                     nAMCSlots_ - 0.5,
+                                     nBitAMC_,
+                                     0.5,
+                                     nBitAMC_ + 0.5);
+  }
 
   SetLabelAMC13Status(h2AMC13Status_);
   SetLabelAMCStatus(h2AMCStatusNeg_);
@@ -168,8 +193,6 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
 
   mapStatusOH_ =
       MEMap3Inf(this, "oh_status", "OptoHybrid Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
-  mapStatusVFAT_ =
-      MEMap3Inf(this, "vfat_status", "VFAT Status", 24, -0.5, 24 - 0.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
   mapStatusWarnVFATPerLayer_ = MEMap3Inf(
       this, "vfat_statusWarnSum", "VFAT reporting warnings", 36, 0.5, 36.5, 24, -0.5, 24 - 0.5, "Chamber", "VFAT");
@@ -178,29 +201,42 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   mapStatusVFATPerCh_ =
       MEMap4Inf(this, "vfat_status", "VFAT Status", 24, -0.5, 24 - 0.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
+  if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE) {
+    mapStatusVFATPerCh_.TurnOff();
+  }
+
+  if (nRunType_ == GEMDQM_RUNTYPE_RELVAL) {
+    mapStatusOH_.TurnOff();
+    mapStatusErrVFATPerLayer_.TurnOff();
+    mapStatusWarnVFATPerLayer_.TurnOff();
+    mapStatusVFATPerCh_.TurnOff();
+  }
+
   GenerateMEPerChamber(ibooker);
 
-  h2SummaryStatusAll = CreateSummaryHist(ibooker, "chamberAllStatus");
-  h2SummaryStatusWarning = CreateSummaryHist(ibooker, "chamberWarnings");
-  h2SummaryStatusError = CreateSummaryHist(ibooker, "chamberErrors");
-  h2SummaryStatusVFATWarning = CreateSummaryHist(ibooker, "chamberVFATWarnings");
-  h2SummaryStatusVFATError = CreateSummaryHist(ibooker, "chamberVFATErrors");
-  h2SummaryStatusOHWarning = CreateSummaryHist(ibooker, "chamberOHWarnings");
-  h2SummaryStatusOHError = CreateSummaryHist(ibooker, "chamberOHErrors");
-  h2SummaryStatusAMCWarning = CreateSummaryHist(ibooker, "chamberAMCWarnings");
-  h2SummaryStatusAMCError = CreateSummaryHist(ibooker, "chamberAMCErrors");
-  h2SummaryStatusAMC13Error = CreateSummaryHist(ibooker, "chamberAMC13Errors");
+  if (nRunType_ == GEMDQM_RUNTYPE_ALLPLOTS || nRunType_ == GEMDQM_RUNTYPE_ONLINE) {
+    h2SummaryStatusAll = CreateSummaryHist(ibooker, "chamberAllStatus");
+    h2SummaryStatusWarning = CreateSummaryHist(ibooker, "chamberWarnings");
+    h2SummaryStatusError = CreateSummaryHist(ibooker, "chamberErrors");
+    h2SummaryStatusVFATWarning = CreateSummaryHist(ibooker, "chamberVFATWarnings");
+    h2SummaryStatusVFATError = CreateSummaryHist(ibooker, "chamberVFATErrors");
+    h2SummaryStatusOHWarning = CreateSummaryHist(ibooker, "chamberOHWarnings");
+    h2SummaryStatusOHError = CreateSummaryHist(ibooker, "chamberOHErrors");
+    h2SummaryStatusAMCWarning = CreateSummaryHist(ibooker, "chamberAMCWarnings");
+    h2SummaryStatusAMCError = CreateSummaryHist(ibooker, "chamberAMCErrors");
+    h2SummaryStatusAMC13Error = CreateSummaryHist(ibooker, "chamberAMC13Errors");
 
-  h2SummaryStatusAll->setTitle("Summary of all number of OH or VFAT status of each chambers");
-  h2SummaryStatusWarning->setTitle("Summary of all warnings of each chambers");
-  h2SummaryStatusError->setTitle("Summary of all errors of each chambers");
-  h2SummaryStatusVFATWarning->setTitle("Summary of VFAT warnings of each chambers");
-  h2SummaryStatusVFATError->setTitle("Summary of VFAT errors of each chambers");
-  h2SummaryStatusOHWarning->setTitle("Summary of OH warnings of each chambers");
-  h2SummaryStatusOHError->setTitle("Summary of OH errors of each chambers");
-  h2SummaryStatusAMCWarning->setTitle("Summary of AMC warnings of each chambers");
-  h2SummaryStatusAMCError->setTitle("Summary of AMC errors of each chambers");
-  h2SummaryStatusAMC13Error->setTitle("Summary of AMC13 errors of each chambers");
+    h2SummaryStatusAll->setTitle("Summary of all number of OH or VFAT status of each chambers");
+    h2SummaryStatusWarning->setTitle("Summary of all warnings of each chambers");
+    h2SummaryStatusError->setTitle("Summary of all errors of each chambers");
+    h2SummaryStatusVFATWarning->setTitle("Summary of VFAT warnings of each chambers");
+    h2SummaryStatusVFATError->setTitle("Summary of VFAT errors of each chambers");
+    h2SummaryStatusOHWarning->setTitle("Summary of OH warnings of each chambers");
+    h2SummaryStatusOHError->setTitle("Summary of OH errors of each chambers");
+    h2SummaryStatusAMCWarning->setTitle("Summary of AMC warnings of each chambers");
+    h2SummaryStatusAMCError->setTitle("Summary of AMC errors of each chambers");
+    h2SummaryStatusAMC13Error->setTitle("Summary of AMC13 errors of each chambers");
+  }
 }
 
 int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
@@ -210,7 +246,9 @@ int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
   mapStatusOH_.bookND(bh, key);
   mapStatusOH_.SetLabelForChambers(key, 1);
 
-  SetLabelOHStatus(mapStatusOH_.FindHist(key));
+  if (mapStatusOH_.isOperating()) {
+    SetLabelOHStatus(mapStatusOH_.FindHist(key));
+  }
 
   mapStatusWarnVFATPerLayer_.SetBinConfX(stationInfo.nNumChambers_);
   mapStatusWarnVFATPerLayer_.SetBinConfY(stationInfo.nMaxVFAT_, -0.5);
@@ -224,12 +262,6 @@ int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
   mapStatusErrVFATPerLayer_.SetLabelForChambers(key, 1);
   mapStatusErrVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
-  mapStatusVFAT_.SetBinConfX(stationInfo.nMaxVFAT_, -0.5);
-  mapStatusVFAT_.bookND(bh, key);
-  mapStatusVFAT_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 1);
-
-  SetLabelVFATStatus(mapStatusVFAT_.FindHist(key));
-
   return 0;
 }
 
@@ -237,10 +269,16 @@ int GEMDAQStatusSource::ProcessWithMEMap3WithChamber(BookingHelper &bh, ME4IdsKe
   ME3IdsKey key3 = key4Tokey3(key);
   MEStationInfo &stationInfo = mapStationInfo_[key3];
 
+  bh.getBooker()->setCurrentFolder(strFolderMain_ + "/VFATStatus_" + getNameDirLayer(key3));
+
   mapStatusVFATPerCh_.SetBinConfX(stationInfo.nMaxVFAT_, -0.5);
   mapStatusVFATPerCh_.bookND(bh, key);
   mapStatusVFATPerCh_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 1);
-  SetLabelVFATStatus(mapStatusVFATPerCh_.FindHist(key));
+  if (mapStatusVFATPerCh_.isOperating()) {
+    SetLabelVFATStatus(mapStatusVFATPerCh_.FindHist(key));
+  }
+
+  bh.getBooker()->setCurrentFolder(strFolderMain_);
 
   return 0;
 }
@@ -287,29 +325,35 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       Bool_t bErr = false;
 
       GEMAMC13Status::Warnings warnings{amc13->warnings()};
-      if (warnings.InValidAMC)
-        FillWithRiseErr(h2AMC13Status_, nXBin, 2, bWarn);
+      if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+        if (warnings.InValidAMC)
+          FillWithRiseErr(h2AMC13Status_, nXBin, 2, bWarn);
+      }
 
       GEMAMC13Status::Errors errors{amc13->errors()};
-      if (errors.InValidSize)
-        FillWithRiseErr(h2AMC13Status_, nXBin, 3, bErr);
-      if (errors.failTrailerCheck)
-        FillWithRiseErr(h2AMC13Status_, nXBin, 4, bErr);
-      if (errors.failFragmentLength)
-        FillWithRiseErr(h2AMC13Status_, nXBin, 5, bErr);
-      if (errors.failTrailerMatch)
-        FillWithRiseErr(h2AMC13Status_, nXBin, 6, bErr);
-      if (errors.moreTrailers)
-        FillWithRiseErr(h2AMC13Status_, nXBin, 7, bErr);
-      if (errors.crcModified)
-        FillWithRiseErr(h2AMC13Status_, nXBin, 8, bErr);
-      if (errors.slinkError)
-        FillWithRiseErr(h2AMC13Status_, nXBin, 9, bErr);
-      if (errors.wrongFedId)
-        FillWithRiseErr(h2AMC13Status_, nXBin, 10, bErr);
+      if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+        if (errors.InValidSize)
+          FillWithRiseErr(h2AMC13Status_, nXBin, 3, bErr);
+        if (errors.failTrailerCheck)
+          FillWithRiseErr(h2AMC13Status_, nXBin, 4, bErr);
+        if (errors.failFragmentLength)
+          FillWithRiseErr(h2AMC13Status_, nXBin, 5, bErr);
+        if (errors.failTrailerMatch)
+          FillWithRiseErr(h2AMC13Status_, nXBin, 6, bErr);
+        if (errors.moreTrailers)
+          FillWithRiseErr(h2AMC13Status_, nXBin, 7, bErr);
+        if (errors.crcModified)
+          FillWithRiseErr(h2AMC13Status_, nXBin, 8, bErr);
+        if (errors.slinkError)
+          FillWithRiseErr(h2AMC13Status_, nXBin, 9, bErr);
+        if (errors.wrongFedId)
+          FillWithRiseErr(h2AMC13Status_, nXBin, 10, bErr);
+      }
 
       if (!bWarn && !bErr) {
-        h2AMC13Status_->Fill(nXBin, 1);
+        if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+          h2AMC13Status_->Fill(nXBin, 1);
+        }
       } else {
         auto &listChamber = mapAMC13ToListChamber_[fedId];
         for (auto gid : listChamber) {
@@ -344,33 +388,39 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       Int_t nAMCNum = amc->amcNumber();
 
       GEMAMCStatus::Warnings warnings{amc->warnings()};
-      if (warnings.InValidOH)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 2, bWarn);
-      if (warnings.backPressure)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 3, bWarn);
+      if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+        if (warnings.InValidOH)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 2, bWarn);
+        if (warnings.backPressure)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 3, bWarn);
+      }
 
       GEMAMCStatus::Errors errors{amc->errors()};
-      if (errors.badEC)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 4, bErr);
-      if (errors.badBC)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 5, bErr);
-      if (errors.badOC)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 6, bErr);
-      if (errors.badRunType)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 7, bErr);
-      if (errors.badCRC)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 8, bErr);
-      if (errors.MMCMlocked)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 9, bErr);
-      if (errors.DAQclocklocked)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 10, bErr);
-      if (errors.DAQnotReday)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 11, bErr);
-      if (errors.BC0locked)
-        FillWithRiseErr(h2AMCStatus, nAMCNum, 12, bErr);
+      if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+        if (errors.badEC)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 4, bErr);
+        if (errors.badBC)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 5, bErr);
+        if (errors.badOC)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 6, bErr);
+        if (errors.badRunType)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 7, bErr);
+        if (errors.badCRC)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 8, bErr);
+        if (errors.MMCMlocked)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 9, bErr);
+        if (errors.DAQclocklocked)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 10, bErr);
+        if (errors.DAQnotReday)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 11, bErr);
+        if (errors.BC0locked)
+          FillWithRiseErr(h2AMCStatus, nAMCNum, 12, bErr);
+      }
 
       if (!bWarn && !bErr) {
-        h2AMCStatus->Fill(nAMCNum, 1);
+        if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+          h2AMCStatus->Fill(nAMCNum, 1);
+        }
       } else {
         auto &listChamber = mapAMCToListChamber_[{fedId, nAMCNum}];
         for (auto gid : listChamber) {
@@ -450,25 +500,12 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
 
       GEMVFATStatus::Warnings warnings{vfatStat->warnings()};
       if (warnings.basicOFW)
-        mapStatusVFAT_.Fill(key3, nIdxVFAT, 2);
-      if (warnings.zeroSupOFW)
-        mapStatusVFAT_.Fill(key3, nIdxVFAT, 3);
-      if (warnings.basicOFW)
         mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 2);
       if (warnings.zeroSupOFW)
         mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 3);
 
       GEMVFATStatus::Errors errors{(uint8_t)vfatStat->errors()};
-      if (errors.vc)
-        mapStatusVFAT_.Fill(key3, nIdxVFAT, 4);
-      if (errors.InValidHeader)
-        mapStatusVFAT_.Fill(key3, nIdxVFAT, 5);
-      if (errors.EC)
-        mapStatusVFAT_.Fill(key3, nIdxVFAT, 6);
-      if (errors.BC)
-        mapStatusVFAT_.Fill(key3, nIdxVFAT, 7);
-      if (errors.vc)
-        mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 4);
+      mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 4);
       if (errors.InValidHeader)
         mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 5);
       if (errors.EC)
@@ -478,8 +515,6 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
 
       Bool_t bWarn = warnings.wcodes != 0;
       Bool_t bErr = errors.codes != 0;
-      if (!bWarn && !bErr)
-        mapStatusVFAT_.Fill(key3, nIdxVFAT, 1);
       if (!bWarn && !bErr)
         mapStatusVFATPerCh_.Fill(key4Ch, nIdxVFAT, 1);
       if (bWarn)
@@ -494,26 +529,28 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     }
   }
 
-  // Summarizing all presence of status of each chamber
-  for (auto const &[key4, bErr] : mapChamberAll) {
-    ME3IdsKey key3 = key4Tokey3(key4);
-    Int_t nChamber = keyToChamber(key4);
-    h2SummaryStatusAll->Fill(nChamber, mapStationToIdx_[key3]);
+  if (nRunType_ == GEMDQM_RUNTYPE_ALLPLOTS || nRunType_ == GEMDQM_RUNTYPE_ONLINE) {
+    // Summarizing all presence of status of each chamber
+    for (auto const &[key4, bErr] : mapChamberAll) {
+      ME3IdsKey key3 = key4Tokey3(key4);
+      Int_t nChamber = keyToChamber(key4);
+      h2SummaryStatusAll->Fill(nChamber, mapStationToIdx_[key3]);
+    }
+
+    // Summarizing all presence of status of each chamber
+    FillStatusSummaryPlot(mapChamberAll, h2SummaryStatusAll);
+    // Summarizing all the error and warning occupancy
+    FillStatusSummaryPlot(mapChamberVFATWarning, h2SummaryStatusVFATWarning, &mapChamberWarning);
+    FillStatusSummaryPlot(mapChamberVFATError, h2SummaryStatusVFATError, &mapChamberError);
+    FillStatusSummaryPlot(mapChamberOHWarning, h2SummaryStatusOHWarning, &mapChamberWarning);
+    FillStatusSummaryPlot(mapChamberOHError, h2SummaryStatusOHError, &mapChamberError);
+    FillStatusSummaryPlot(mapChamberAMCWarning, h2SummaryStatusAMCWarning, &mapChamberWarning);
+    FillStatusSummaryPlot(mapChamberAMCError, h2SummaryStatusAMCError, &mapChamberError);
+    FillStatusSummaryPlot(mapChamberAMC13Error, h2SummaryStatusAMC13Error, &mapChamberError);
+
+    FillStatusSummaryPlot(mapChamberWarning, h2SummaryStatusWarning);
+    FillStatusSummaryPlot(mapChamberError, h2SummaryStatusError);
   }
-
-  // Summarizing all presence of status of each chamber
-  FillStatusSummaryPlot(mapChamberAll, h2SummaryStatusAll);
-  // Summarizing all the error and warning occupancy
-  FillStatusSummaryPlot(mapChamberVFATWarning, h2SummaryStatusVFATWarning, &mapChamberWarning);
-  FillStatusSummaryPlot(mapChamberVFATError, h2SummaryStatusVFATError, &mapChamberError);
-  FillStatusSummaryPlot(mapChamberOHWarning, h2SummaryStatusOHWarning, &mapChamberWarning);
-  FillStatusSummaryPlot(mapChamberOHError, h2SummaryStatusOHError, &mapChamberError);
-  FillStatusSummaryPlot(mapChamberAMCWarning, h2SummaryStatusAMCWarning, &mapChamberWarning);
-  FillStatusSummaryPlot(mapChamberAMCError, h2SummaryStatusAMCError, &mapChamberError);
-  FillStatusSummaryPlot(mapChamberAMC13Error, h2SummaryStatusAMC13Error, &mapChamberError);
-
-  FillStatusSummaryPlot(mapChamberWarning, h2SummaryStatusWarning);
-  FillStatusSummaryPlot(mapChamberError, h2SummaryStatusError);
 }
 
 DEFINE_FWK_MODULE(GEMDAQStatusSource);

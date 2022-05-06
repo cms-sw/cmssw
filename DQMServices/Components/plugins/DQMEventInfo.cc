@@ -4,14 +4,14 @@
  * \author M. Zanetti - INFN Padova
  *
 */
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
-
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/Run.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <algorithm>
 #include <iostream>
@@ -35,7 +35,7 @@ public:
   DQMEventInfo(const edm::ParameterSet& ps);
 
   /// Destructor
-  ~DQMEventInfo() override;
+  ~DQMEventInfo() override = default;
 
 protected:
   /// Analyze
@@ -105,8 +105,6 @@ DQMEventInfo::DQMEventInfo(const edm::ParameterSet& ps) {
   if (evtRateWindow_ <= 0.15)
     evtRateWindow_ = 0.15;
 }
-
-DQMEventInfo::~DQMEventInfo() = default;
 
 void DQMEventInfo::bookHistograms(DQMStore::IBooker& ibooker,
                                   edm::Run const& iRun,
