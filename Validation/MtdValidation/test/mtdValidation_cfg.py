@@ -53,9 +53,7 @@ process.btlDigiHitsValid.LocalPositionDebug = True
 process.etlDigiHitsValid.LocalPositionDebug = True
 process.btlLocalRecoValid.LocalPositionDebug = True
 process.etlLocalRecoValid.LocalPositionDebug = True
-process.mtdTracksValid.pidPlots = True
-process.vertices4Dvalid.pidPlots = True
-process.vertices4Dvalid.optionalPlots = True
+process.vertices4DValid.optionalPlots = True
 
 process.validation = cms.Sequence(btlValidation + etlValidation + process.mtdTracksValid + process.vertices4DValid)
 
