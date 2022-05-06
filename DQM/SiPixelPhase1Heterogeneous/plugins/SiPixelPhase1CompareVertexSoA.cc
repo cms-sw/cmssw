@@ -152,15 +152,15 @@ void SiPixelPhase1CompareVertexSoA::bookHistograms(DQMStore::IBooker& ibooker,
 
   // FIXME: all the 2D correlation plots are quite heavy in terms of memory consumption, so a as soon as DQM supports either TH2I or THnSparse
   // these should be moved to a less resource consuming format
-  hnVertex_ = ibooker.book2D("nVertex", "# of Vertex;CPU;GPU", 101, -0.5, 100.5, 101, -0.5, 100.5);
-  hx_ = ibooker.book2D("vx", "Vertez x;CPU;GPU", 20, -0.1, 0.1, 20, -0.1, 0.1);
-  hy_ = ibooker.book2D("vy", "Vertez y;CPU;GPU", 20, -0.1, 0.1, 20, -0.1, 0.1);
-  hz_ = ibooker.book2D("vz", "Vertez z;CPU;GPU", 30, -30., 30., 30, -30., 30.);
-  hchi2_ = ibooker.book2D("chi2", "Vertex chi-squared;CPU;GPU", 40, 0., 20., 40, 0., 20.);
-  hchi2oNdof_ = ibooker.book2D("chi2oNdof", "Vertex chi-squared/Ndof;CPU;GPU", 40, 0., 20., 40, 0., 20.);
-  hptv2_ = ibooker.book2D("ptsq", "Vertex p_T squared;CPU;GPU", 200, 0., 200., 200, 0., 200.);
-  hntrks_ = ibooker.book2D("ntrk", "#tracks associated;CPU;GPU", 100, -0.5, 99.5, 100, -0.5, 99.5);
-  hntrks_ = ibooker.book2D("ntrk", "#tracks associated;CPU;GPU", 100, -0.5, 99.5, 100, -0.5, 99.5);
+  hnVertex_ = ibooker.book2I("nVertex", "# of Vertex;CPU;GPU", 101, -0.5, 100.5, 101, -0.5, 100.5);
+  hx_ = ibooker.book2I("vx", "Vertez x;CPU;GPU", 20, -0.1, 0.1, 20, -0.1, 0.1);
+  hy_ = ibooker.book2I("vy", "Vertez y;CPU;GPU", 20, -0.1, 0.1, 20, -0.1, 0.1);
+  hz_ = ibooker.book2I("vz", "Vertez z;CPU;GPU", 30, -30., 30., 30, -30., 30.);
+  hchi2_ = ibooker.book2I("chi2", "Vertex chi-squared;CPU;GPU", 40, 0., 20., 40, 0., 20.);
+  hchi2oNdof_ = ibooker.book2I("chi2oNdof", "Vertex chi-squared/Ndof;CPU;GPU", 40, 0., 20., 40, 0., 20.);
+  hptv2_ = ibooker.book2I("ptsq", "Vertex p_T squared;CPU;GPU", 200, 0., 200., 200, 0., 200.);
+  hntrks_ = ibooker.book2I("ntrk", "#tracks associated;CPU;GPU", 100, -0.5, 99.5, 100, -0.5, 99.5);
+  hntrks_ = ibooker.book2I("ntrk", "#tracks associated;CPU;GPU", 100, -0.5, 99.5, 100, -0.5, 99.5);
 }
 
 void SiPixelPhase1CompareVertexSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
