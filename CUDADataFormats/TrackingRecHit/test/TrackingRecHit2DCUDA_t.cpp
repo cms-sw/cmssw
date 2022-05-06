@@ -4,6 +4,7 @@
 #include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/SimplePoolAllocator.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 namespace testTrackingRecHit2D {
 
@@ -20,15 +21,15 @@ int main() {
   auto nHits = 200;
   // inner scope to deallocate memory before destroying the stream
   {
-    TrackingRecHit2DGPU tkhit(nHits, false, 0, nullptr, nullptr, stream);
+    TrackingRecHit2DGPU tkhit(nHits, false, 0, nullptr, nullptr, memoryPool::onDevice, stream);
     testTrackingRecHit2D::runKernels(tkhit.view());
 
-    TrackingRecHit2DGPU tkhitPhase2(nHits, true, 0, nullptr, nullptr, stream);
+    TrackingRecHit2DGPU tkhitPhase2(nHits, true, 0, nullptr, nullptr, memoryPool::onDevice, stream);
     testTrackingRecHit2D::runKernels(tkhitPhase2.view());
 
     memoryPool::cuda::dumpStat();
 
-    TrackingRecHit2DHost tkhitH(nHits, false, 0, nullptr, nullptr, stream, &tkhit);
+    TrackingRecHit2DHost tkhitH(nHits, false, 0, nullptr, nullptr, memoryPool::onHost, stream, &tkhit);
 
     cudaStreamSynchronize(stream);
     memoryPool::cuda::dumpStat(); 
@@ -38,7 +39,7 @@ int main() {
     assert(tkhitH.view()->nHits() == unsigned(nHits));
     assert(tkhitH.view()->nMaxModules() == phase1PixelTopology::numberOfModules);
 
-    TrackingRecHit2DHost tkhitHPhase2(nHits, true, 0, nullptr, nullptr, stream, &tkhitPhase2);
+    TrackingRecHit2DHost tkhitHPhase2(nHits, true, 0, nullptr, nullptr, memoryPool::onHost, stream, &tkhitPhase2);
     cudaStreamSynchronize(stream);
     assert(tkhitHPhase2.view());
     assert(tkhitHPhase2.view()->nHits() == unsigned(nHits));
@@ -46,6 +47,8 @@ int main() {
 
     memoryPool::cuda::dumpStat();
     
+    
+
   }
 
    cudaCheck(cudaStreamSynchronize(stream));
@@ -57,6 +60,19 @@ int main() {
    cudaCheck(cudaStreamDestroy(stream));
 
    memoryPool::cuda::dumpStat();
+
+   {
+    TrackingRecHit2DGPU tkhit(nHits, false, 0, nullptr, nullptr, memoryPool::onCPU, nullptr);
+    assert(tkhit.view());
+    assert(tkhit.view()->nHits() == unsigned(nHits));
+    assert(tkhit.view()->nMaxModules() == phase1PixelTopology::numberOfModules);
+    std::cout <<    "on CPU" << std::endl;
+    ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
+   }
+   std::cout <<    "on CPU" << std::endl;
+   ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
+
+
 
   return 0;
 }

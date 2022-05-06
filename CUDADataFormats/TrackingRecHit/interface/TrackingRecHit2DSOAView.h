@@ -26,7 +26,6 @@ public:
 
   using AverageGeometry = pixelTopology::AverageGeometry;
 
-  template <memoryPool::Where>
   friend class TrackingRecHit2DHeterogeneous;
   friend class TrackingRecHit2DReduced;
 
