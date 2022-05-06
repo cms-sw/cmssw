@@ -103,10 +103,10 @@ DDHGCalSiliconRotatedModule::DDHGCalSiliconRotatedModule() {
 }
 
 void DDHGCalSiliconRotatedModule::initialize(const DDNumericArguments& nArgs,
-                                      const DDVectorArguments& vArgs,
-                                      const DDMapArguments&,
-                                      const DDStringArguments& sArgs,
-                                      const DDStringVectorArguments& vsArgs) {
+                                             const DDVectorArguments& vArgs,
+                                             const DDMapArguments&,
+                                             const DDStringArguments& sArgs,
+                                             const DDStringVectorArguments& vsArgs) {
   waferTypes_ = static_cast<int>(nArgs["WaferTypes"]);
   facingTypes_ = static_cast<int>(nArgs["FacingTypes"]);
   partialTypes_ = static_cast<int>(nArgs["PartialTypes"]);
@@ -133,13 +133,14 @@ void DDHGCalSiliconRotatedModule::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "zStart " << zMinBlock_ << " wafer width " << waferSize_ << " separations "
                                 << waferSepar_ << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":"
-                                << cosAlpha_ << " rotation matrix " << rotstr_ << " with " << cassettes_ << " cassettes";
+                                << cosAlpha_ << " rotation matrix " << rotstr_ << " with " << cassettes_
+                                << " cassettes";
 #endif
   waferFull_ = vsArgs["WaferNamesFull"];
   waferPart_ = vsArgs["WaferNamesPartial"];
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: " << waferFull_.size() << " full and " << waferPart_.size()
-                                << " partial modules\nDDHGCalSiliconRotatedModule:Full Modules:";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: " << waferFull_.size() << " full and "
+                                << waferPart_.size() << " partial modules\nDDHGCalSiliconRotatedModule:Full Modules:";
   unsigned int i1max = static_cast<unsigned int>(waferFull_.size());
   for (unsigned int i1 = 0; i1 < i1max; i1 += 2) {
     std::ostringstream st1;
@@ -234,7 +235,8 @@ void DDHGCalSiliconRotatedModule::initialize(const DDNumericArguments& nArgs,
                                   << HGCalProperty::waferThick(waferProperty_[k]) << ":"
                                   << HGCalProperty::waferPartial(waferProperty_[k]) << ":"
                                   << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: " << cassetteShift_.size() << " elements for cassette shifts";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: " << cassetteShift_.size()
+                                << " elements for cassette shifts";
   unsigned int j1max = cassetteShift_.size();
   for (unsigned int j1 = 0; j1 < j1max; j1 += 6) {
     std::ostringstream st1;
@@ -294,8 +296,8 @@ void DDHGCalSiliconRotatedModule::constructLayers(const DDLogicalPart& module, D
 
       std::string name = names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: Layer " << ly << ":" << ii << " Front " << zi << ", "
-                                    << routF << " Back " << zo << ", " << rinB << " superlayer thickness "
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: Layer " << ly << ":" << ii << " Front " << zi
+                                    << ", " << routF << " Back " << zo << ", " << rinB << " superlayer thickness "
                                     << layerThick_[i];
 #endif
       DDName matName(DDSplit(materials_[ii]).first, DDSplit(materials_[ii]).second);
@@ -389,7 +391,8 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
   static const double sqrt3 = std::sqrt(3.0);
   int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
                         ? HGCalTypes::CornerCenterYp
-                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm : HGCalTypes::WaferCenter);
+                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
+                                                                               : HGCalTypes::WaferCenter);
   int layertype = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
@@ -401,8 +404,8 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), kount(0);
   std::vector<int> ntype(3, 0);
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: " << glog.ddname() << "  r " << r << " R " << R << " dy "
-                                << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: " << glog.ddname() << "  r " << r << " R " << R
+                                << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
                                 << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1);
 #endif
   for (int k = firstWafer; k < lastWafer; ++k) {
@@ -428,19 +431,23 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
       i = type * facingTypes_ * orientationTypes_ + place;
       wafer = waferFull_[i];
     } else {
-      int partoffset = (part >=  HGCalTypes::WaferHDTop) ? HGCalTypes::WaferPartHDOffset : HGCalTypes::WaferPartLDOffset;
-      i = (part - partoffset) * facingTypes_ * orientationTypes_ + HGCalTypes::WaferTypeOffset[type] * facingTypes_ * orientationTypes_ + place;
+      int partoffset = (part >= HGCalTypes::WaferHDTop) ? HGCalTypes::WaferPartHDOffset : HGCalTypes::WaferPartLDOffset;
+      i = (part - partoffset) * facingTypes_ * orientationTypes_ +
+          HGCalTypes::WaferTypeOffset[type] * facingTypes_ * orientationTypes_ + place;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:cassette:place:offsets:ind " << layertype << ":" << type << ":" << part << ":" << orien << ":" << cassette << ":" << place << ":" << partoffset << ":" << HGCalTypes::WaferTypeOffset[type] << ":" << i << ":" << waferPart_.size();
+      edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:cassette:place:offsets:ind " << layertype << ":"
+                                    << type << ":" << part << ":" << orien << ":" << cassette << ":" << place << ":"
+                                    << partoffset << ":" << HGCalTypes::WaferTypeOffset[type] << ":" << i << ":"
+                                    << waferPart_.size();
 #endif
       wafer = waferPart_[i];
     }
     int copy = HGCalTypes::packTypeUV(type, u, v);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedModule: Layer " << HGCalWaferIndex::waferLayer(waferIndex_[k])
-                                  << " Wafer " << wafer << " number " << copy << " type:part:orien:ind " << type << ":"
-                                  << part << ":" << orien << ":" << i << " layer:u:v:indx " << (layer + firstLayer_)
-                                  << ":" << u << ":" << v;
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedModule: Layer "
+                                  << HGCalWaferIndex::waferLayer(waferIndex_[k]) << " Wafer " << wafer << " number "
+                                  << copy << " type:part:orien:ind " << type << ":" << part << ":" << orien << ":" << i
+                                  << " layer:u:v:indx " << (layer + firstLayer_) << ":" << u << ":" << v;
     if (iu > ium)
       ium = iu;
     if (iv > ivm)
@@ -455,8 +462,8 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
     cpv.position(name, glog.ddname(), copy, tran, rotation);
 #ifdef EDM_ML_DEBUG
     ++ntype[type];
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedModule: " << name << " number " << copy << " type " << layertype
-                                  << ":" << type << " positioned in " << glog.ddname() << " at " << tran
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalSiliconRotatedModule: " << name << " number " << copy << " type "
+                                  << layertype << ":" << type << " positioned in " << glog.ddname() << " at " << tran
                                   << " with no rotation";
 #endif
   }
