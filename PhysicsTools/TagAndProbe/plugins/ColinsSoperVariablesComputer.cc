@@ -9,7 +9,7 @@
   Fermi National Accelerator Laboratory
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -22,15 +22,15 @@
 #include "PhysicsTools/TagAndProbe/interface/ColinsSoperVariables.h"
 #include "TLorentzVector.h"
 
-class ColinsSoperVariablesComputer : public edm::EDProducer {
+class ColinsSoperVariablesComputer : public edm::global::EDProducer<> {
 public:
   explicit ColinsSoperVariablesComputer(const edm::ParameterSet& iConfig);
   ~ColinsSoperVariablesComputer() override;
 
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
 private:
-  edm::EDGetTokenT<edm::View<reco::Candidate>> parentBosonToken_;
+  const edm::EDGetTokenT<edm::View<reco::Candidate>> parentBosonToken_;
 };
 
 ColinsSoperVariablesComputer::ColinsSoperVariablesComputer(const edm::ParameterSet& iConfig)
@@ -42,7 +42,7 @@ ColinsSoperVariablesComputer::ColinsSoperVariablesComputer(const edm::ParameterS
 
 ColinsSoperVariablesComputer::~ColinsSoperVariablesComputer() {}
 
-void ColinsSoperVariablesComputer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ColinsSoperVariablesComputer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   // read input
