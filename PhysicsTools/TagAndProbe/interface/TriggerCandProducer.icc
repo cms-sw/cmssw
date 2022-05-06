@@ -337,11 +337,3 @@ void TriggerCandProducer<object>::beginRun(edm::Run const& iRun, edm::EventSetup
   if (printIndex_ && changed_)
     std::cout << "HLT configuration changed !" << std::endl;
 }
-
-template <class object>
-void TriggerCandProducer<object>::beginJob() {
-  filterName_ = "";
-}
-
-template <class object>
-void TriggerCandProducer<object>::endJob() {}
