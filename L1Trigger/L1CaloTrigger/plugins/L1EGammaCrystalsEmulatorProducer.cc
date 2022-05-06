@@ -12,9 +12,6 @@ Implementation:
 // Original Author: Cecile Caillol
 // Created: Tue Aug 10 2018
 //
-// Redesign, Calibration: Vladimir Rekovic
-// Date: Tue May 12 2020
-//
 // $Id$
 //
 //
@@ -68,6 +65,7 @@ static constexpr int n_crystals_towerPhi = 5;
 static constexpr int n_crystals_3towers = 3 * 5;
 static constexpr int n_towers_per_link = 17;
 static constexpr int n_clusters_per_link = 2;
+static constexpr int n_clusters_per_L1card = 8;
 static constexpr int n_towers_Eta = 34;
 static constexpr int n_towers_Phi = 72;
 static constexpr int n_towers_halfPhi = 36;
@@ -955,7 +953,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   // If there are more than 8 clusters per equivalent of L1 card we need to put them back in the towers
   for (int ii = 0; ii < n_towers_halfPhi; ++ii) {
-    for (unsigned int jj = 8; jj < n_clusters_4link && jj < cluster_list_L2[ii].size(); ++jj) {
+    for (unsigned int jj = n_clusters_per_L1card; jj < n_clusters_4link && jj < cluster_list_L2[ii].size(); ++jj) {
       if (cluster_list_L2[ii][jj].cpt > 0) {
         ECAL_tower_L1Card[cluster_list_L2[ii][jj].ctowerid_ / n_towers_per_link]
                          [cluster_list_L2[ii][jj].ctowerid_ % n_towers_per_link][ii] += cluster_list_L2[ii][jj].cpt;
@@ -968,14 +966,14 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   // Compute isolation (7*7 ECAL towers) and HCAL energy (5x5 HCAL towers)
   for (int ii = 0; ii < n_towers_halfPhi; ++ii) {  // Loop over the new cluster list (stored in 36x8 format)
-    for (unsigned int jj = 0; jj < 8 && jj < cluster_list_L2[ii].size(); ++jj) {
+    for (unsigned int jj = 0; jj < n_clusters_per_L1card && jj < cluster_list_L2[ii].size(); ++jj) {
       int cluster_etaOfTower_fullDetector = get_towerEta_fromCardTowerInCard(ii, cluster_list_L2[ii][jj].ctowerid_);
       int cluster_phiOfTower_fullDetector = get_towerPhi_fromCardTowerInCard(ii, cluster_list_L2[ii][jj].ctowerid_);
       float hcal_nrj = 0.0;
       float isolation = 0.0;
       int ntowers = 0;
       for (int iii = 0; iii < n_towers_halfPhi; ++iii) {  // The clusters have to be added to the isolation
-        for (unsigned int jjj = 0; jjj < 8 && jjj < cluster_list_L2[iii].size(); ++jjj) {
+        for (unsigned int jjj = 0; jjj < n_clusters_per_L1card && jjj < cluster_list_L2[iii].size(); ++jjj) {
           if (!(iii == ii && jjj == jj)) {
             int cluster2_eta = get_towerEta_fromCardTowerInCard(iii, cluster_list_L2[iii][jjj].ctowerid_);
             int cluster2_phi = get_towerPhi_fromCardTowerInCard(iii, cluster_list_L2[iii][jjj].ctowerid_);
@@ -1042,7 +1040,7 @@ void L1EGCrystalClusterEmulatorProducer::produce(edm::Event& iEvent, const edm::
 
   //Second let's fill the clusters
   for (int ii = 0; ii < n_towers_halfPhi; ++ii) {  // The cluster list is still in the L1 like geometry
-    for (unsigned int jj = 0; jj < unsigned(cluster_list_L2[ii].size()) && jj < n_clusters_4link; ++jj) {
+    for (unsigned int jj = 0; jj < unsigned(cluster_list_L2[ii].size()) && jj < n_clusters_per_L1card; ++jj) {
       crystalID_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
                               [ii / n_clusters_4link] = cluster_list_L2[ii][jj].ccrystalid_;
       towerID_cluster_L2Card[n_links_card * (ii % n_clusters_4link) + jj % n_links_card][jj / n_links_card]
