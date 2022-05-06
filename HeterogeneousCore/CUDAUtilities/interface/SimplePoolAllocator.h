@@ -207,7 +207,7 @@ namespace memoryPool {
     };
 
     //  free callback
-    void  scheduleFree(Payload * payload) {
+    inline void  scheduleFree(Payload * payload) {
       auto &pool = *(payload->pool);
       auto const &buckets = payload->buckets;
       for (auto i : buckets) {

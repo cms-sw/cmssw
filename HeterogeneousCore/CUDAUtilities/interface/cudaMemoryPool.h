@@ -4,6 +4,8 @@
 
 // only for cudaStream_t
 #include <cuda.h>
+#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
 
 #include<cassert>
 
@@ -15,10 +17,10 @@ namespace memoryPool {
     SimplePoolAllocator *getPool(Where where);
 
     // allocate either on current device or on host
-    std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool);
+    inline std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool);
 
     // schedule free
-    void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool);
+    inline void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool);
 
     template<typename T>
     auto copy(buffer<T> & dst, buffer<T> const & src, uint64_t size, cudaStream_t stream) {
@@ -79,3 +81,5 @@ namespace memoryPool {
 
   }  // namespace cuda
 }  // namespace memoryPool
+
+#include "cudaMemoryPoolImpl.h"

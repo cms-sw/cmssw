@@ -47,8 +47,8 @@ private:
 
   uint32_t nHits_;
   uint32_t nMaxModules_;
-  cms::cuda::host::unique_ptr<float[]> store32_;
-  cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStart_;
+  memoryPool::buffer<float> store32_;
+  memoryPool::buffer<uint32_t> hitsModuleStart_;
 };
 
 SiPixelRecHitFromCUDA::SiPixelRecHitFromCUDA(const edm::ParameterSet& iConfig)
@@ -124,8 +124,8 @@ void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& e
     const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
     assert(pixDet);
     SiPixelRecHitCollection::FastFiller recHitsOnDetUnit(output, detid);
-    auto fc = hitsModuleStart_[gind];
-    auto lc = hitsModuleStart_[gind + 1];
+    auto fc = hitsModuleStart_.get()[gind];
+    auto lc = hitsModuleStart_.get()[gind + 1];
     auto nhits = lc - fc;
 
     assert(lc > fc);

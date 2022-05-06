@@ -36,7 +36,7 @@ public:
 
   TrackingRecHit2DHeterogeneous() = default;
 
-  explicit TrackingRecHit2DHeterogeneous(
+  inline TrackingRecHit2DHeterogeneous(
       uint32_t nHits,
       bool isPhase2,
       int32_t offsetBPIX2,
@@ -46,8 +46,9 @@ public:
       cudaStream_t stream,
       TrackingRecHit2DHeterogeneous const* input = nullptr);
 
-  explicit TrackingRecHit2DHeterogeneous(
-      float* store32, uint16_t* store16, uint32_t* modules, int nHits,       memoryPool::Where where, cudaStream_t stream = nullptr);
+  // used on CPU only
+  inline TrackingRecHit2DHeterogeneous(
+      float* store32, uint16_t* store16, uint32_t* modules, int nHits,       memoryPool::Where where = memoryPool::onCPU, cudaStream_t stream = nullptr);
   ~TrackingRecHit2DHeterogeneous() = default;
 
   TrackingRecHit2DHeterogeneous(const TrackingRecHit2DHeterogeneous&) = delete;
@@ -68,15 +69,15 @@ public:
   auto phiBinnerStorage() { return m_phiBinnerStorage; }
   auto iphi() { return m_iphi; }
 
-  buffer<float> localCoordToHostAsync(cudaStream_t stream) const;
+  inline buffer<float> localCoordToHostAsync(cudaStream_t stream) const;
 
-  buffer<uint32_t> hitsModuleStartToHostAsync(cudaStream_t stream) const;
+  inline buffer<uint32_t> hitsModuleStartToHostAsync(cudaStream_t stream) const;
 
-  buffer<uint16_t> store16ToHostAsync(cudaStream_t stream) const;
-  buffer<float> store32ToHostAsync(cudaStream_t stream) const;
+  inline buffer<uint16_t> store16ToHostAsync(cudaStream_t stream) const;
+  inline buffer<float> store32ToHostAsync(cudaStream_t stream) const;
 
-  // needs specialization for Host
-  void copyFromGPU(TrackingRecHit2DHeterogeneous const* input, cudaStream_t stream);
+  // needed for Host
+  inline void copyFromGPU(TrackingRecHit2DHeterogeneous const* input, cudaStream_t stream);
 
 private:
 
@@ -109,5 +110,6 @@ using TrackingRecHit2DGPU = TrackingRecHit2DHeterogeneous;
 using TrackingRecHit2DCPU = TrackingRecHit2DHeterogeneous;
 using TrackingRecHit2DHost = TrackingRecHit2DHeterogeneous;
 
+#include "TrackingRecHit2DHeterogeneousImpl.h"
 
 #endif  // CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneous_h
