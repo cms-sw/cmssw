@@ -263,55 +263,57 @@ void TestIndexIntoFile2::testAddEntryAndFixAndSort() {
   for (IndexIntoFile::SortedRunOrLumiItr endRunOrLumi = indexIntoFile.endRunOrLumi(); runOrLumi != endRunOrLumi;
        ++runOrLumi, ++count) {
     IndexIntoFile::RunOrLumiIndexes const& indexes = runOrLumi.runOrLumiIndexes();
-    if (count == 0) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 4);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == -1);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == -1);
-    }
-    if (count == 1) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 5);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == 0);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == 2);
-    }
-    if (count == 2) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 6);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == -1);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == -1);
-    }
-    if (count == 3) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 8);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == 2);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == 3);
-    }
-    if (count == 4) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 9);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == 2);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == 3);
-    }
-    if (count == 5) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 7);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == 3);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == 3);
-    }
-    if (count == 6) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 0);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == -1);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == -1);
-    }
-    if (count == 7) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 1);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == -1);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == -1);
-    }
-    if (count == 8) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 2);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == 3);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == 7);
-    }
-    if (count == 9) {
-      CPPUNIT_ASSERT(indexes.indexToGetEntry() == 3);
-      CPPUNIT_ASSERT(indexes.beginEventNumbers() == 3);
-      CPPUNIT_ASSERT(indexes.endEventNumbers() == 7);
+    switch (count) {
+      case 0:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 4);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == -1);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == -1);
+        break;
+      case 1:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 5);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == 0);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == 2);
+        break;
+      case 2:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 6);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == -1);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == -1);
+        break;
+      case 3:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 8);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == 2);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == 3);
+        break;
+      case 4:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 9);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == 2);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == 3);
+        break;
+      case 5:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 7);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == 3);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == 3);
+        break;
+      case 6:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 0);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == -1);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == -1);
+        break;
+      case 7:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 1);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == -1);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == -1);
+        break;
+      case 8:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 2);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == 3);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == 7);
+        break;
+      case 9:
+        CPPUNIT_ASSERT(indexes.indexToGetEntry() == 3);
+        CPPUNIT_ASSERT(indexes.beginEventNumbers() == 3);
+        CPPUNIT_ASSERT(indexes.endEventNumbers() == 7);
+        break;
     }
   }
 
@@ -680,110 +682,112 @@ void TestIndexIntoFile2::testAddEntryAndFixAndSort2() {
 
   int index = 0;
   for (auto const& entry : indexIntoFile.runOrLumiEntries()) {
-    if (index == 0) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 0);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
-      CPPUNIT_ASSERT(entry.entry() == 1);
-    }
-    if (index == 1) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 0);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 0);
-      CPPUNIT_ASSERT(entry.entry() == 0);
-    }
-    if (index == 2) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
-      CPPUNIT_ASSERT(entry.entry() == 2);
-    }
-    if (index == 3) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
-      CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
-    }
-    if (index == 4) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
-      CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
-    }
-    if (index == 5) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
-      CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
-    }
-    if (index == 6) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
-      CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
-    }
-    if (index == 7) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
-      CPPUNIT_ASSERT(entry.entry() == 6);
-    }
-    if (index == 8) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 4);
-      CPPUNIT_ASSERT(entry.entry() == 3);
-    }
-    if (index == 9) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 4);
-      CPPUNIT_ASSERT(entry.entry() == 4);
-    }
-    if (index == 10) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 2);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
-      CPPUNIT_ASSERT(entry.entry() == 3);
-    }
-    if (index == 11) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 2);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 2);
-      CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
-    }
-    if (index == 12) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 2);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 2);
-      CPPUNIT_ASSERT(entry.entry() == 1);
-    }
-    if (index == 13) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 2);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 2);
-      CPPUNIT_ASSERT(entry.entry() == 7);
-    }
-    if (index == 14) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 3);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
-      CPPUNIT_ASSERT(entry.entry() == 5);
-    }
-    if (index == 15) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 3);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 3);
-      CPPUNIT_ASSERT(entry.entry() == 2);
-    }
-    if (index == 16) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 4);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
-      CPPUNIT_ASSERT(entry.entry() == 0);
-    }
-    if (index == 17) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 5);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
-      CPPUNIT_ASSERT(entry.entry() == 4);
-    }
-    if (index == 18) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 5);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 5);
-      CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
-    }
-    if (index == 19) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 5);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 5);
-      CPPUNIT_ASSERT(entry.entry() == 8);
-    }
-    if (index == 20) {
-      CPPUNIT_ASSERT(entry.orderPHIDRun() == 5);
-      CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 6);
-      CPPUNIT_ASSERT(entry.entry() == 5);
+    switch (index) {
+      case 0:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 0);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
+        CPPUNIT_ASSERT(entry.entry() == 1);
+        break;
+      case 1:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 0);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 0);
+        CPPUNIT_ASSERT(entry.entry() == 0);
+        break;
+      case 2:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
+        CPPUNIT_ASSERT(entry.entry() == 2);
+        break;
+      case 3:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
+        CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
+        break;
+      case 4:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
+        CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
+        break;
+      case 5:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
+        CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
+        break;
+      case 6:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
+        CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
+        break;
+      case 7:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 1);
+        CPPUNIT_ASSERT(entry.entry() == 6);
+        break;
+      case 8:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 4);
+        CPPUNIT_ASSERT(entry.entry() == 3);
+        break;
+      case 9:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 1);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 4);
+        CPPUNIT_ASSERT(entry.entry() == 4);
+        break;
+      case 10:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 2);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
+        CPPUNIT_ASSERT(entry.entry() == 3);
+        break;
+      case 11:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 2);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 2);
+        CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
+        break;
+      case 12:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 2);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 2);
+        CPPUNIT_ASSERT(entry.entry() == 1);
+        break;
+      case 13:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 2);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 2);
+        CPPUNIT_ASSERT(entry.entry() == 7);
+        break;
+      case 14:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 3);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
+        CPPUNIT_ASSERT(entry.entry() == 5);
+        break;
+      case 15:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 3);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 3);
+        CPPUNIT_ASSERT(entry.entry() == 2);
+        break;
+      case 16:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 4);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
+        CPPUNIT_ASSERT(entry.entry() == 0);
+        break;
+      case 17:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 5);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == IndexIntoFile::invalidEntry);
+        CPPUNIT_ASSERT(entry.entry() == 4);
+        break;
+      case 18:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 5);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 5);
+        CPPUNIT_ASSERT(entry.entry() == IndexIntoFile::invalidEntry);
+        break;
+      case 19:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 5);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 5);
+        CPPUNIT_ASSERT(entry.entry() == 8);
+        break;
+      case 20:
+        CPPUNIT_ASSERT(entry.orderPHIDRun() == 5);
+        CPPUNIT_ASSERT(entry.orderPHIDRunLumi() == 6);
+        CPPUNIT_ASSERT(entry.entry() == 5);
+        break;
     }
     ++index;
   }
@@ -839,9 +843,6 @@ void TestIndexIntoFile2::testAddEntryAndFixAndSort2() {
       CPPUNIT_ASSERT(check(iterEntry, kLumi, 19, 20, -1, 0, 0));
     else
       CPPUNIT_ASSERT(false);
-
-    //CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == IndexIntoFile::invalidEntry);
-    //CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == IndexIntoFile::invalidEntry);
   }
   CPPUNIT_ASSERT(i == 23);
 }
