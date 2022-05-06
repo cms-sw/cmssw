@@ -66,7 +66,7 @@ public:
       config.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
       config.modelsFiles = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
       config.scalersFiles = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-      config.outputDim = pset_dnn.getParameter<uint>("outputDim");
+      config.outputDim = pset_dnn.getParameter<std::vector<unsigned int>>("outputDim");
       const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
       photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config, useEBModelInGap);
     }
