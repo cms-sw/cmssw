@@ -1,8 +1,8 @@
 
 // -*- C++ -*-
 //
-// Package:    MCLongLivedParticles
-// Class:      MCLongLivedParticles
+// Package:    MCDisplacementFilter
+// Class:      MCDisplacementFilter
 //
 
 // system include files
@@ -19,12 +19,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//
-//#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-//#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-//#include "GeneratorInterface/GenFilters/plugins/MCLongLivedParticles.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 using namespace edm;
@@ -40,10 +34,10 @@ namespace edm {
   class ConfigurationDescriptions;
 }  // namespace edm
 
-class MCLongLivedParticles : public edm::global::EDFilter<> {
+class MCDisplacementFilter : public edm::global::EDFilter<> {
 public:
-  explicit MCLongLivedParticles(const edm::ParameterSet&);
-  ~MCLongLivedParticles() override = default;
+  explicit MCDisplacementFilter(const edm::ParameterSet&);
+  ~MCDisplacementFilter() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -63,7 +57,7 @@ private:
 //methods implementation
 //
 //Class initialization
-MCLongLivedParticles::MCLongLivedParticles(const edm::ParameterSet& iConfig)
+MCDisplacementFilter::MCDisplacementFilter(const edm::ParameterSet& iConfig)
     : hepMCProductTag_(iConfig.getParameter<edm::InputTag>("hepMCProductTag")),
       token_(consumes<edm::HepMCProduct>(hepMCProductTag_)),
       particleIDs_(iConfig.getParameter<std::vector<int>>("ParticleIDs")),
@@ -71,7 +65,7 @@ MCLongLivedParticles::MCLongLivedParticles(const edm::ParameterSet& iConfig)
       theLowerCut_(iConfig.getParameter<double>("LengMin")) {}
 
 //Filter description
-void MCLongLivedParticles::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void MCDisplacementFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("hepMCProductTag", edm::InputTag("generator", "unsmeared"));
   desc.add<std::vector<int>>("ParticleIDs", std::vector<int>{0});
@@ -81,7 +75,7 @@ void MCLongLivedParticles::fillDescriptions(edm::ConfigurationDescriptions& desc
 }
 
 // ------------ method called to skim the data  ------------
-bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
+bool MCDisplacementFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   Handle<HepMCProduct> evt;
@@ -139,4 +133,4 @@ bool MCLongLivedParticles::filter(edm::StreamID, edm::Event& iEvent, const edm::
 
   return pass;
 }
-DEFINE_FWK_MODULE(MCLongLivedParticles);
+DEFINE_FWK_MODULE(MCDisplacementFilter);

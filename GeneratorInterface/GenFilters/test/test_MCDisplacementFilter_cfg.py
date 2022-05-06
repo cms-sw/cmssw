@@ -52,7 +52,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     )
 )
 
-process.select = cms.EDFilter("MCLongLivedParticles",
+process.select = cms.EDFilter("MCDisplacementFilter",
     ParticleIDs = cms.vint32(310), ## in mm
     LengMin = cms.double(0.), ## in mm
     LengMax = cms.double(100.), ## in mm
@@ -69,8 +69,12 @@ process.out = cms.OutputModule("PoolOutputModule",
         dataTier = cms.untracked.string('GEN')
     )
 )
+process.genParticles = cms.EDProducer("GenParticleProducer",
+                  src = cms.InputTag("generator","unsmeared")
+)
 
-process.p1 = cms.Path(process.generator*process.select)
+
+process.p1 = cms.Path(process.generator*process.select*process.genParticles)
 process.outpath = cms.EndPath(process.out)
 process.schedule = cms.Schedule(process.p1,process.outpath)
 
