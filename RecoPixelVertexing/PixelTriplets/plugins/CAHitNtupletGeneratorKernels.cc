@@ -22,18 +22,15 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 #endif
 
   // use "nhits" to heuristically dimension the workspace
-
-  // no need to use the Traits allocations, since we know this is being compiled for the CPU
-  //device_isOuterHitOfCell_ = Traits::template make_unique<GPUCACell::OuterHitOfCell[]>(std::max(1U, nhits), stream);
-  device_isOuterHitOfCell_ = std::make_unique<GPUCACell::OuterHitOfCellContainer[]>(std::max(1U, nhits));
+  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(nullptr, memoryPool::onCPU));
+  device_isOuterHitOfCell_ = memoryPool::cuda::make_buffer<GPUCACell::OuterHitOfCellContainer>(std::max(1U, nhits),deleter);
   assert(device_isOuterHitOfCell_.get());
   isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
 
   auto cellStorageSize = caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
                          caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks);
   // no need to use the Traits allocations, since we know this is being compiled for the CPU
-  //cellStorage_ = Traits::template make_unique<unsigned char[]>(cellStorageSize, stream);
-  cellStorage_ = std::make_unique<unsigned char[]>(cellStorageSize);
+  cellStorage_ = memoryPool::cuda::make_buffer<unsigned char>(cellStorageSize,deleter);
   device_theCellNeighborsContainer_ = (GPUCACell::CellNeighbors *)cellStorage_.get();
   device_theCellTracksContainer_ = (GPUCACell::CellTracks *)(cellStorage_.get() + caConstants::maxNumOfActiveDoublets *
                                                                                       sizeof(GPUCACell::CellNeighbors));
@@ -45,9 +42,7 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
                                  device_theCellTracks_.get(),
                                  device_theCellTracksContainer_);
 
-  // no need to use the Traits allocations, since we know this is being compiled for the CPU
-  //device_theCells_ = Traits::template make_unique<GPUCACell[]>(params_.maxNumberOfDoublets_, stream);
-  device_theCells_ = std::make_unique<GPUCACell[]>(params_.maxNumberOfDoublets_);
+  device_theCells_ = memoryPool::cuda::make_buffer<GPUCACell>(params_.maxNumberOfDoublets_,deleter);
   if (0 == nhits)
     return;  // protect against empty events
 

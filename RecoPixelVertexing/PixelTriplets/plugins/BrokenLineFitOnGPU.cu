@@ -1,5 +1,6 @@
+
 #include "BrokenLineFitOnGPU.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                             uint32_t hitsInFit,
@@ -11,13 +12,11 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
   auto numberOfBlocks = (maxNumberOfConcurrentFits_ + blockSize - 1) / blockSize;
 
   //  Fit internals
-  auto tkidGPU = cms::cuda::make_device_unique<caConstants::tindex_type[]>(maxNumberOfConcurrentFits_, stream);
-  auto hitsGPU = cms::cuda::make_device_unique<double[]>(
-      maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<6>) / sizeof(double), stream);
-  auto hits_geGPU = cms::cuda::make_device_unique<float[]>(
-      maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<6>) / sizeof(float), stream);
-  auto fast_fit_resultsGPU = cms::cuda::make_device_unique<double[]>(
-      maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double), stream);
+  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
+  auto tkidGPU = memoryPool::cuda::make_buffer<caConstants::tindex_type>(maxNumberOfConcurrentFits_,deleter);
+  auto hitsGPU = memoryPool::cuda::make_buffer<double>(maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<6>) / sizeof(double), deleter);
+  auto hits_geGPU = memoryPool::cuda::make_buffer<float>(maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<6>) / sizeof(float), deleter);
+  auto fast_fit_resultsGPU = memoryPool::cuda::make_buffer<double>(maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double), deleter);
 
   for (uint32_t offset = 0; offset < maxNumberOfTuples; offset += maxNumberOfConcurrentFits_) {
     // fit triplets
