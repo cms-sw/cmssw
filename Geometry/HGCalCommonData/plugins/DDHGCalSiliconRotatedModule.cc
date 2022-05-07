@@ -59,7 +59,6 @@ private:
 
   int waferTypes_;                      // Number of wafer types
   int facingTypes_;                     // Types of facings of modules toward IP
-  int partialTypes_;                    // Number of partial wafer types
   int orientationTypes_;                // Number of partial wafer orienations
   int firstLayer_;                      // Copy # of the first sensitive layer
   int absorbMode_;                      // Absorber mode
@@ -109,11 +108,10 @@ void DDHGCalSiliconRotatedModule::initialize(const DDNumericArguments& nArgs,
                                              const DDStringVectorArguments& vsArgs) {
   waferTypes_ = static_cast<int>(nArgs["WaferTypes"]);
   facingTypes_ = static_cast<int>(nArgs["FacingTypes"]);
-  partialTypes_ = static_cast<int>(nArgs["PartialTypes"]);
   orientationTypes_ = static_cast<int>(nArgs["OrientationTypes"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Number of types of wafers: " << waferTypes_ << " facings: " << facingTypes_
-                                << " partials: " << partialTypes_ << " Orientations: " << orientationTypes_;
+                                << " Orientations: " << orientationTypes_;
 #endif
   firstLayer_ = static_cast<int>(nArgs["FirstLayer"]);
   absorbMode_ = static_cast<int>(nArgs["AbsorberMode"]);
