@@ -59,7 +59,7 @@ private:
 
   int waferTypes_;                      // Number of wafer types
   int facingTypes_;                     // Types of facings of modules toward IP
-  int orientationTypes_;                // Number of partial wafer orienations
+  int orientationTypes_;                // Number of wafer orienations
   int firstLayer_;                      // Copy # of the first sensitive layer
   int absorbMode_;                      // Absorber mode
   int sensitiveMode_;                   // Sensitive mode
