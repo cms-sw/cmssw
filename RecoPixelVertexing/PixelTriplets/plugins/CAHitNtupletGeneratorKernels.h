@@ -6,6 +6,9 @@
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "GPUCACell.h"
 
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
+
+
 // #define DUMP_GPU_TK_TUPLES
 
 namespace cAHitNtupletGenerator {
@@ -162,8 +165,9 @@ public:
   using Params = cAHitNtupletGenerator::Params;
   using Counters = cAHitNtupletGenerator::Counters;
 
+
   template <typename T>
-  using unique_ptr = typename Traits::template unique_ptr<T>;
+  using buffer = memoryPool::buffer<T>;
 
   using HitsView = TrackingRecHit2DSOAView;
   using HitsOnGPU = TrackingRecHit2DSOAView;
@@ -197,28 +201,28 @@ private:
   Counters* counters_ = nullptr;
 
   // workspace
-  unique_ptr<unsigned char[]> cellStorage_;
-  unique_ptr<caConstants::CellNeighborsVector> device_theCellNeighbors_;
+  buffer<unsigned char> cellStorage_;
+  buffer<caConstants::CellNeighborsVector> device_theCellNeighbors_;
   caConstants::CellNeighbors* device_theCellNeighborsContainer_;
-  unique_ptr<caConstants::CellTracksVector> device_theCellTracks_;
+  buffer<caConstants::CellTracksVector> device_theCellTracks_;
   caConstants::CellTracks* device_theCellTracksContainer_;
 
-  unique_ptr<GPUCACell[]> device_theCells_;
-  unique_ptr<GPUCACell::OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
+  buffer<GPUCACell> device_theCells_;
+  buffer<GPUCACell::OuterHitOfCellContainer> device_isOuterHitOfCell_;
   GPUCACell::OuterHitOfCell isOuterHitOfCell_;
   uint32_t* device_nCells_ = nullptr;
 
-  unique_ptr<HitToTuple> device_hitToTuple_;
-  unique_ptr<HitToTuple::Counter[]> device_hitToTupleStorage_;
+  buffer<HitToTuple> device_hitToTuple_;
+  buffer<HitToTuple::Counter> device_hitToTupleStorage_;
   HitToTuple::View hitToTupleView_;
 
   cms::cuda::AtomicPairCounter* device_hitToTuple_apc_ = nullptr;
 
   cms::cuda::AtomicPairCounter* device_hitTuple_apc_ = nullptr;
 
-  unique_ptr<TupleMultiplicity> device_tupleMultiplicity_;
+  buffer<TupleMultiplicity> device_tupleMultiplicity_;
 
-  unique_ptr<cms::cuda::AtomicPairCounter::c_type[]> device_storage_;
+  buffer<cms::cuda::AtomicPairCounter::c_type> device_storage_;
   // params
   Params const& params_;
   /// Intermediate result avoiding repeated computations.

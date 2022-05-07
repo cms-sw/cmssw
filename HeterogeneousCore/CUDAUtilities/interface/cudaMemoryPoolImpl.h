@@ -13,7 +13,7 @@ namespace {
 
   //  free callback
   void CUDART_CB freeCallback(void *p) {
-    // std::cout << "free callaback" << std::endl;
+    std::cout << "free callaback" << std::endl;
     auto payload = (memoryPool::Payload *)(p);
     memoryPool::scheduleFree(payload);
   }
@@ -22,7 +22,7 @@ namespace {
 
 struct CudaAlloc {
   static void scheduleFree(memoryPool::Payload *payload, cudaStream_t stream) {
-    // std::cout    << "schedule free" << std::endl;
+    std::cout    << "schedule free" << std::endl;
     if (stream)
       cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
     else
@@ -36,9 +36,10 @@ struct CudaDeviceAlloc : public CudaAlloc {
   static Pointer alloc(size_t size) {
     Pointer p = nullptr;
     auto err = cudaMalloc(&p, size);
+    std::cout << "alloc " << size << ((err == cudaSuccess) ? " ok" : " err") << std::endl;
     return err == cudaSuccess ? p : nullptr;
   }
-  static void free(Pointer ptr) { cudaFree(ptr); }
+  static void free(Pointer ptr) { auto err = cudaFree(ptr); std::cout << "free" << ((err == cudaSuccess) ? " ok" : " err") <<std::endl;}
 };
 
 struct CudaHostAlloc : public CudaAlloc {
@@ -47,6 +48,7 @@ struct CudaHostAlloc : public CudaAlloc {
   static Pointer alloc(size_t size) {
     Pointer p = nullptr;
     auto err = cudaMallocHost(&p, size);
+    std::cout << "alloc H " << size << ((err == cudaSuccess) ? " ok" : " err") << std::endl;
     return err == cudaSuccess ? p : nullptr;
   }
   static void free(Pointer ptr) { cudaFreeHost(ptr); }

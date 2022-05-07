@@ -2,6 +2,7 @@
 #include <memory>
 #include <new>
 
+#include<iostream>
 class SimplePoolAllocator;
 
 namespace memoryPool {
@@ -32,6 +33,8 @@ namespace memoryPool {
     void operator()(void* p) {
       if (!me)
         throw std::bad_alloc();
+      if(!p) std::cout << "delete null pointer!!! " << m_bucket << std::endl;
+      // assert(p == pool()->pointer(m_bucket));
       (*me)(m_bucket);
     }
 

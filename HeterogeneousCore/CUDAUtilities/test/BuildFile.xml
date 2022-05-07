@@ -131,8 +131,14 @@
   </bin>
 
   <bin file="testPoolUI.cu" name="testPoolUI">
-    <flags CUDA_FLAGS="-g"/>
-    <flags CXXFLAGS="-g"/>
+    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+    <flags CXXFLAGS="-g -DGPU_DEBUG"/>
+  </bin>
+
+
+  <bin file="testPoolUImt.cu" name="testPoolUImt">
+    <flags CUDA_FLAGS="-g -DGPU_DEBUG"/>
+    <flags CXXFLAGS="-g -DGPU_DEBUG"/>
   </bin>
 
   <bin file="testSimplePoolAllocator.cu" name="testSimplePoolAllocatorGPU">

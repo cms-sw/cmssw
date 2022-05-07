@@ -147,16 +147,16 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 #endif
 
   // in principle we can use "nhits" to heuristically dimension the workspace...
-  device_isOuterHitOfCell_ = cms::cuda::make_device_unique<GPUCACell::OuterHitOfCellContainer[]>(
-      std::max(1, nhits - hh.offsetBPIX2()), stream);
+  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(nullptr, memoryPool::onDevice));
+  device_isOuterHitOfCell_ = memoryPool::cuda::make_buffer<GPUCACell::OuterHitOfCellContainer>(std::max(1, nhits),deleter);
   assert(device_isOuterHitOfCell_.get());
 
   isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
 
-  cellStorage_ = cms::cuda::make_device_unique<unsigned char[]>(
+  cellStorage_ = memoryPool::cuda::make_buffer<unsigned char>(
       caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
           caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks),
-      stream);
+      deleter);
   device_theCellNeighborsContainer_ = (GPUCACell::CellNeighbors *)cellStorage_.get();
   device_theCellTracksContainer_ = (GPUCACell::CellTracks *)(cellStorage_.get() + caConstants::maxNumOfActiveDoublets *
                                                                                       sizeof(GPUCACell::CellNeighbors));
@@ -174,7 +174,7 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
     cudaCheck(cudaGetLastError());
   }
 
-  device_theCells_ = cms::cuda::make_device_unique<GPUCACell[]>(params_.maxNumberOfDoublets_, stream);
+  device_theCells_ = memoryPool::cuda::make_buffer<GPUCACell>(params_.maxNumberOfDoublets_, deleter);
 
 #ifdef GPU_DEBUG
   cudaDeviceSynchronize();
