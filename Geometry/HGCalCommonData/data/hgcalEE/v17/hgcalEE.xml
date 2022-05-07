@@ -6,7 +6,6 @@
     <rParent name="hgcal:HGCalEE"/>
     <Numeric name="WaferTypes"       value="3"/>
     <Numeric name="FacingTypes"      value="2"/>
-    <Numeric name="PartialTypes"     value="17"/>
     <Numeric name="OrientationTypes" value="6"/>
     <Numeric name="FirstLayer"       value="1"/>
     <Numeric name="AbsorberMode"     value="0"/>
