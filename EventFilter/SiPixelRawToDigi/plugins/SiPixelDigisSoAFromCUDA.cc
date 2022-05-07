@@ -9,7 +9,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 class SiPixelDigisSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -27,7 +26,7 @@ private:
   edm::EDGetTokenT<cms::cuda::Product<SiPixelDigisCUDA>> digiGetToken_;
   edm::EDPutTokenT<SiPixelDigisSoA> digiPutToken_;
 
-  cms::cuda::host::unique_ptr<uint16_t[]> store_;
+  memoryPool::buffer<uint16_t> store_;
 
   int nDigis_;
 };

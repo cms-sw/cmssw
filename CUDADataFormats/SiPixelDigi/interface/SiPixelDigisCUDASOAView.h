@@ -3,8 +3,6 @@
 
 #include <cuda_runtime.h>
 
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 
 #include <cstdint>
@@ -96,11 +94,11 @@ private:
   uint32_t* rawIdArr_;
 
   template <typename ReturnType, typename StoreType, typename LocationType>
-  ReturnType* getColumnAddress(LocationType column, StoreType& store, int size) {
+  static ReturnType* getColumnAddress(LocationType column, StoreType& store, int size) {
     return reinterpret_cast<ReturnType*>(store.get() + static_cast<int>(column) * roundFor128ByteAlignment(size));
   }
 
-  static int roundFor128ByteAlignment(int size) {
+  static constexpr int roundFor128ByteAlignment(int size) {
     constexpr int mul = 128 / sizeof(uint16_t);
     return ((size + mul - 1) / mul) * mul;
   };
