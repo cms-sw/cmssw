@@ -4,6 +4,8 @@
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DSOAView.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
+
+#include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class TrackingRecHit2DHeterogeneous {
