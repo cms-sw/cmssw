@@ -18,10 +18,10 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(int32_t nHits, cudaStream_t 
   device_theCellNeighbors_ = memoryPool::cuda::make_buffer<caConstants::CellNeighborsVector>(1,deleter);
   device_theCellTracks_ = memoryPool::cuda::make_buffer<caConstants::CellTracksVector>(1,deleter);
 
-// #ifdef GPU_DEBUG
+#ifdef GPU_DEBUG
   std::cout << "Allocation for tuple building. N hits " << nHits 
   << ((where==memoryPool::onDevice) ? " on GPU" : " on CPU")<<std::endl;
-// #endif
+#endif
 
   nHits++;  // storage requires one more counter;
   assert(nHits > 0);

@@ -17,10 +17,10 @@ namespace memoryPool {
     SimplePoolAllocator *getPool(Where where);
 
     // allocate either on current device or on host
-    inline std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool);
+    /* inline */ std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool);
 
     // schedule free
-    inline void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool);
+    /* inline */ void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool);
 
     template <typename T>
     auto copy(buffer<T> &dst, buffer<T> const &src, uint64_t size, cudaStream_t stream) {
@@ -31,9 +31,17 @@ namespace memoryPool {
     }
 
     struct CudaDeleterBase : public DeleterBase {
-      CudaDeleterBase(cudaStream_t const &stream, Where where) : DeleterBase(getPool(where)), m_stream(stream) {}
+      CudaDeleterBase(cudaStream_t const &stream, Where where) : DeleterBase(getPool(where)), m_stream(stream) {
+//         if (stream) return;
+//         std::cout << "0 stream???" << std::endl;
+//         throw std::bad_alloc();
+      }
 
-      CudaDeleterBase(cudaStream_t const &stream, SimplePoolAllocator *pool) : DeleterBase(pool), m_stream(stream) {}
+      CudaDeleterBase(cudaStream_t const &stream, SimplePoolAllocator *pool) : DeleterBase(pool), m_stream(stream) {
+//           if (stream) return;
+//            std::cout << "0 stream???" << std::endl;
+//            throw std::bad_alloc();
+      }
 
       ~CudaDeleterBase() override = default;
 
@@ -83,4 +91,4 @@ namespace memoryPool {
   }  // namespace cuda
 }  // namespace memoryPool
 
-#include "cudaMemoryPoolImpl.h"
+// #include "cudaMemoryPoolImpl.h"

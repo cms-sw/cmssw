@@ -1,4 +1,5 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPoolImpl.h"
 
 #include "HeterogeneousCore/CUDAUtilities/interface/SimplePoolAllocator.h"
 
