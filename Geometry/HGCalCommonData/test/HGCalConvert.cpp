@@ -639,7 +639,7 @@ void ConvertSiliconV2::convert(
           unsigned int layer = std::atoi(items[0].c_str());
           int waferU = std::atoi(items[6].c_str());
           int waferV = std::atoi(items[7].c_str());
-          int cassette = std::atoi(items[8].c_str()) + 1;  // Start cassette # = 1
+          int cassette = std::atoi(items[8].c_str());
           int thck = static_cast<int>(std::find(thick, thick + thksize, items[2]) - thick);
           int part = std::atoi(items[1].c_str());
           if ((thck <= thksize) && (part >= 0)) {
