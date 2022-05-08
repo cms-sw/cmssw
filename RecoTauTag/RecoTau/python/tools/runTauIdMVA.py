@@ -9,7 +9,7 @@ class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
     availableDiscriminators = [
         "2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
-        "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1", "deepTau2022v2p5", 
+        "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1", "deepTau2018v2p5", 
         "DPFTau_2016_v0", "DPFTau_2016_v1",
         "againstEle2018",
         "newDMPhase2v1",
@@ -20,7 +20,7 @@ class TauIDEmbedder(object):
                  originalTauName = "slimmedTaus",
                  updatedTauName = "slimmedTausNewID",
                  postfix = "",
-                 toKeep =  ["deepTau2017v2p1", "deepTau2022v2p5"],
+                 toKeep =  ["deepTau2017v2p1", "deepTau2018v2p5"],
                  tauIdDiscrMVA_trainings_run2_2017 = { 'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017", },
                  tauIdDiscrMVA_WPs_run2_2017 = {
                     'tauIdMVAIsoDBoldDMwLT2017' : {
@@ -737,10 +737,10 @@ class TauIDEmbedder(object):
             _rerunMvaIsolationTask.add(_deepTauProducer)
             _rerunMvaIsolationSequence += _deepTauProducer
 
-        if "deepTau2022v2p5" in self.toKeep:
+        if "deepTau2018v2p5" in self.toKeep:
             if self.debug: print ("Adding DeepTau IDs")
 
-            _deepTauName = "deepTau2022v2p5"
+            _deepTauName = "deepTau2018v2p5"
             workingPoints_ = {
                 "e": {},
                 "mu": {},
@@ -748,9 +748,9 @@ class TauIDEmbedder(object):
             }
 
             file_names = [
-                'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2022v2p5_test_core.pb',
-                'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2022v2p5_test_inner.pb',
-                'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2022v2p5_test_outer.pb',
+                'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_core.pb',
+                'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_inner.pb',
+                'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_outer.pb',
             ]
             setattr(self.process,_deepTauName+self.postfix,cms.EDProducer("DeepTauId",
                 electrons                       = cms.InputTag('slimmedElectrons'),
