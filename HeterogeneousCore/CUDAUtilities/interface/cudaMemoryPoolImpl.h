@@ -20,7 +20,7 @@ namespace {
        auto message = cudaGetErrorString(status);
        std::cout << " error " << error << ": " << message << std::endl;
     }
-    // std::cout << "free callaback" << std::endl;
+    // std::cout << "free callaback for stream " << streamId << std::endl;
     auto payload = (memoryPool::Payload *)(p);
     memoryPool::scheduleFree(payload);
   }
@@ -29,7 +29,7 @@ namespace {
 
 struct CudaAlloc {
   static void scheduleFree(memoryPool::Payload *payload, cudaStream_t stream) {
-    // std::cout    << "schedule free" << std::endl;
+    // std::cout    << "schedule free for stream " <<  stream <<std::endl;
     if (stream)
       cudaCheck(cudaStreamAddCallback(stream, freeCallback, payload,0));
       // cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
@@ -74,14 +74,14 @@ namespace memoryPool {
     SimplePoolAllocator *getPool(Where where);
 
     // allocate either on current device or on host (actually anywhere, not cuda specific)
-    inline std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool) {
+    /*inline*/ std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool) {
       int i = pool.alloc(size);
       void *p = pool.pointer(i);
       return std::pair<void *, int>(p, i);
     }
 
     // schedule free
-    inline void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool) {
+    /*inline*/ void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool) {
       auto payload = new Payload{&pool, std::move(buckets)};
       CudaHostAlloc::scheduleFree(payload, stream);
     }

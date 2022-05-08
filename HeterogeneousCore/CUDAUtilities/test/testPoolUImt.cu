@@ -174,7 +174,7 @@ void go() {
       kernel_test<<<1, 128, 0, stream>>>(n, dp, me);
 
       // better sync each "event"
-      cudaStreamSynchronize(stream);
+      // cudaStreamSynchronize(stream);
 #else
       // do something???
       for (int k = 0; k < n; ++k) {

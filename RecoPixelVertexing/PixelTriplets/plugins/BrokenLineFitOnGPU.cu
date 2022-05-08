@@ -126,6 +126,9 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
                                                    fast_fit_resultsGPU.get());
       cudaCheck(cudaGetLastError());
     }
-
+#ifdef GPU_DEBUG
+  cudaDeviceSynchronize();
+  cudaCheck(cudaGetLastError());
+#endif
   }  // loop on concurrent fits
 }

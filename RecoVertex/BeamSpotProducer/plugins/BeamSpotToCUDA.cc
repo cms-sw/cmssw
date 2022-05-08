@@ -93,7 +93,7 @@ void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const e
   bsHost->betaStar = bs.betaStar();
 
   BeamSpotCUDA bsDevice(ctx.stream());
-  cudaMemcpyAsync(bsDevice.data(), bsHost.get(), sizeof(BeamSpotPOD), cudaMemcpyHostToDevice, ctx.stream());
+  cudaCheck(cudaMemcpyAsync(bsDevice.data(), bsHost.get(), sizeof(BeamSpotPOD), cudaMemcpyHostToDevice, ctx.stream()));
 
   ctx.emplace(iEvent, bsPutToken_, std::move(bsDevice));
 }

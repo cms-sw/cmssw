@@ -135,8 +135,6 @@ template <>
 void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStream_t stream) {
   int32_t nhits = hh.nHits();
 
-  isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
-
 #ifdef NTUPLE_DEBUG
   std::cout << "building Doublets out of " << nhits << " Hits" << std::endl;
 #endif
@@ -147,7 +145,7 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 #endif
 
   // in principle we can use "nhits" to heuristically dimension the workspace...
-  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(nullptr, memoryPool::onDevice));
+  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
   device_isOuterHitOfCell_ = memoryPool::cuda::make_buffer<GPUCACell::OuterHitOfCellContainer>(std::max(1, nhits),deleter);
   assert(device_isOuterHitOfCell_.get());
 
@@ -325,6 +323,9 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     cudaCheck(cudaGetLastError());
   }
 #ifdef GPU_DEBUG
+  //std::cout << "sync stream " << cudaStream << std::endl;
+  //cudaStreamSynchronize(cudaStream);
+  //std::cout << "sync stream done " << cudaStream <<    std::endl;
   cudaDeviceSynchronize();
   cudaCheck(cudaGetLastError());
 #endif
