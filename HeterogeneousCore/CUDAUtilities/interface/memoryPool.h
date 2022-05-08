@@ -2,7 +2,7 @@
 #include <memory>
 #include <new>
 
-#include<iostream>
+#include <iostream>
 class SimplePoolAllocator;
 
 namespace memoryPool {
@@ -31,10 +31,14 @@ namespace memoryPool {
     std::shared_ptr<DeleterBase> getDeleter() const { return me; }
 
     void operator()(void* p) {
-      if (!me)
+      if (!me) {
+        std::cout << "deleter w/o implementation!!!" << m_bucket << std::endl;
         throw std::bad_alloc();
-      if(!p) std::cout << "delete null pointer!!! " << m_bucket << std::endl;
-      if (m_bucket<0) std::cout << "delete with negative bucket!!!" << std::endl;
+      }
+      if (!p)
+        std::cout << "delete null pointer!!! " << m_bucket << std::endl;
+      if (m_bucket < 0)
+        std::cout << "delete with negative bucket!!!" << std::endl;
       // assert(p == pool()->pointer(m_bucket));
       (*me)(m_bucket);
     }

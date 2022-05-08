@@ -34,7 +34,7 @@ void CUDART_CB myCallback(void *fun) {
   (*(F *)(fun))();
 }
 
-__global__ void kernel_set(int s, Node ** p, int me) {
+__global__ void kernel_set(int s, Node **p, int me) {
   int first = blockIdx.x * blockDim.x + threadIdx.x;
   for (int i = first; i < s; i += gridDim.x * blockDim.x) {
     assert(p[i]);
@@ -81,7 +81,6 @@ void go() {
 
 #endif
 
-
   bool stop = false;
   bool bin24 = false;
   Thread monitor([&] {
@@ -98,18 +97,17 @@ void go() {
 
   int s = 40;
   {
-  std::cout << "try to allocate " << s << std::endl;
-  auto stream = streams[0];
-  {
-    auto pd = memoryPool::cuda::make_buffer<int>(s, stream, where);
-    assert(pd.get());
+    std::cout << "try to allocate " << s << std::endl;
+    auto stream = streams[0];
+    {
+      auto pd = memoryPool::cuda::make_buffer<int>(s, stream, where);
+      assert(pd.get());
+      memoryPool::cuda::dumpStat();
+      pd = memoryPool::cuda::make_buffer<int>(s, stream, where);
+      memoryPool::cuda::dumpStat();
+    }
+    cudaStreamSynchronize(stream);
     memoryPool::cuda::dumpStat();
-    pd = memoryPool::cuda::make_buffer<int>(s, stream, where);
-    memoryPool::cuda::dumpStat();
-  }
-  cudaStreamSynchronize(stream);
-  memoryPool::cuda::dumpStat();
-  
   }
   std::atomic<int> nt = 0;
 
@@ -140,7 +138,7 @@ void go() {
       iter++;
       auto &stream = streams[me];
 
-      memoryPool::Deleter devDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream,where));
+      memoryPool::Deleter devDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, where));
       auto n = rgen1(eng);
       bool large = 0 == (iter % (128 + me));
       for (int k = 0; k < n; ++k) {
@@ -152,19 +150,20 @@ void go() {
         }
         uint64_t s = 1LL << b;
         assert(s > 0);
-        auto p0 = memoryPool::cuda::make_buffer<Node>(s/sizeof(Node) + sizeof(Node), devDeleter);
-        if (!p0.get()) {
+        try {
+          auto p0 = memoryPool::cuda::make_buffer<Node>(s / sizeof(Node) + sizeof(Node), devDeleter);
+          auto p = p0.get();
+          if (nullptr == p) {
+            std::cout << "error not detected??? " << b << ' ' << std::endl;
+            memoryPool::cuda::dumpStat();
+          }
+          assert(p);
+          hp[k] = p;
+        } catch (...) {
           std::cout << "\n\n!!!Failed " << me << " at " << iter << std::endl;
           memoryPool::cuda::dumpStat();
           return;
         }
-        auto p = p0.get();
-        if (nullptr == p) {
-          std::cout << "error not detected??? " << b << ' ' << std::endl;
-          memoryPool::cuda::dumpStat();
-        }
-        assert(p);
-        hp[k] = p;
       }
 #ifdef __CUDACC__
       assert(n <= 100);

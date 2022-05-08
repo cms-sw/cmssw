@@ -8,7 +8,6 @@
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
-
 // #define DUMP_GPU_TK_TUPLES
 
 namespace cAHitNtupletGenerator {
@@ -164,7 +163,6 @@ public:
   using QualityCuts = cAHitNtupletGenerator::QualityCuts;
   using Params = cAHitNtupletGenerator::Params;
   using Counters = cAHitNtupletGenerator::Counters;
-
 
   template <typename T>
   using buffer = memoryPool::buffer<T>;

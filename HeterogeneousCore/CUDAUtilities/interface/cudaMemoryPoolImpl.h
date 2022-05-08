@@ -13,13 +13,13 @@
 namespace {
 
   //  free callback
-  void CUDART_CB freeCallback(cudaStream_t streamId, cudaError_t status, void* p) {
-  //void CUDART_CB freeCallback(void *p) {
+  void CUDART_CB freeCallback(cudaStream_t streamId, cudaError_t status, void *p) {
+    //void CUDART_CB freeCallback(void *p) {
     if (status != cudaSuccess) {
-       std::cout << "Error in free callaback in stream " << streamId << std::endl;
-       auto error = cudaGetErrorName(status);
-       auto message = cudaGetErrorString(status);
-       std::cout << " error " << error << ": " << message << std::endl;
+      std::cout << "Error in free callaback in stream " << streamId << std::endl;
+      auto error = cudaGetErrorName(status);
+      auto message = cudaGetErrorString(status);
+      std::cout << " error " << error << ": " << message << std::endl;
     }
     // std::cout << "free callaback for stream " << streamId << std::endl;
     auto payload = (memoryPool::Payload *)(p);
@@ -32,8 +32,8 @@ struct CudaAlloc {
   static void scheduleFree(memoryPool::Payload *payload, cudaStream_t stream) {
     // std::cout    << "schedule free for stream " <<  stream <<std::endl;
     if (stream)
-      cudaCheck(cudaStreamAddCallback(stream, freeCallback, payload,0));
-      // cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
+      cudaCheck(cudaStreamAddCallback(stream, freeCallback, payload, 0));
+    // cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
     else
       memoryPool::scheduleFree(payload);
   }
@@ -48,10 +48,11 @@ struct CudaDeviceAlloc : public CudaAlloc {
     // std::cout << "alloc " << size << ((err == cudaSuccess) ? " ok" : " err") << std::endl;
     return err == cudaSuccess ? p : nullptr;
   }
-  static void free(Pointer ptr) { 
-     auto err = cudaFree(ptr); 
-     // std::cout << "free" << ((err == cudaSuccess) ? " ok" : " err") <<std::endl;
-     if (err != cudaSuccess) std::cout << " error in cudaFree??" << std::endl;
+  static void free(Pointer ptr) {
+    auto err = cudaFree(ptr);
+    // std::cout << "free" << ((err == cudaSuccess) ? " ok" : " err") <<std::endl;
+    if (err != cudaSuccess)
+      std::cout << " error in cudaFree??" << std::endl;
   }
 };
 

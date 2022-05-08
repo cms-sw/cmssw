@@ -12,11 +12,15 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
   auto numberOfBlocks = (maxNumberOfConcurrentFits_ + blockSize - 1) / blockSize;
 
   //  Fit internals
-  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
-  auto tkidGPU = memoryPool::cuda::make_buffer<caConstants::tindex_type>(maxNumberOfConcurrentFits_,deleter);
-  auto hitsGPU = memoryPool::cuda::make_buffer<double>(maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<6>) / sizeof(double), deleter);
-  auto hits_geGPU = memoryPool::cuda::make_buffer<float>(maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<6>) / sizeof(float), deleter);
-  auto fast_fit_resultsGPU = memoryPool::cuda::make_buffer<double>(maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double), deleter);
+  memoryPool::Deleter deleter =
+      memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
+  auto tkidGPU = memoryPool::cuda::make_buffer<caConstants::tindex_type>(maxNumberOfConcurrentFits_, deleter);
+  auto hitsGPU = memoryPool::cuda::make_buffer<double>(
+      maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<6>) / sizeof(double), deleter);
+  auto hits_geGPU = memoryPool::cuda::make_buffer<float>(
+      maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<6>) / sizeof(float), deleter);
+  auto fast_fit_resultsGPU = memoryPool::cuda::make_buffer<double>(
+      maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double), deleter);
 
   for (uint32_t offset = 0; offset < maxNumberOfTuples; offset += maxNumberOfConcurrentFits_) {
     // fit triplets
@@ -127,8 +131,8 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
       cudaCheck(cudaGetLastError());
     }
 #ifdef GPU_DEBUG
-  cudaDeviceSynchronize();
-  cudaCheck(cudaGetLastError());
+    cudaDeviceSynchronize();
+    cudaCheck(cudaGetLastError());
 #endif
   }  // loop on concurrent fits
 }
