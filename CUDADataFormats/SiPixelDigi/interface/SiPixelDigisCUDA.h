@@ -41,7 +41,6 @@ private:
   uint32_t nDigis_h = 0;
 };
 
-
 // #include "SiPixelDigisCUDAImpl.h"
 
 #endif  // CUDADataFormats_SiPixelDigi_interface_SiPixelDigisCUDA_h

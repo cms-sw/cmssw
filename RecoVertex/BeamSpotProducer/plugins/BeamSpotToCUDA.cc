@@ -31,7 +31,7 @@ namespace {
     BeamSpotPOD* data() { return data_h_.get(); }
     BeamSpotPOD const* data() const { return data_h_.get(); }
 
-    auto & ptr() { return data_h_; }
+    auto& ptr() { return data_h_; }
     cms::cuda::host::noncached::unique_ptr<BeamSpotPOD> const& ptr() const { return data_h_; }
 
   private:

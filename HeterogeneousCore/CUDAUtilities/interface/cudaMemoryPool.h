@@ -30,15 +30,15 @@ namespace memoryPool {
 
     struct CudaDeleterBase : public DeleterBase {
       CudaDeleterBase(cudaStream_t const &stream, Where where) : DeleterBase(getPool(where)), m_stream(stream) {
-//         if (stream) return;
-//         std::cout << "0 stream???" << std::endl;
-//         throw std::bad_alloc();
+        //         if (stream) return;
+        //         std::cout << "0 stream???" << std::endl;
+        //         throw std::bad_alloc();
       }
 
       CudaDeleterBase(cudaStream_t const &stream, SimplePoolAllocator *pool) : DeleterBase(pool), m_stream(stream) {
-//           if (stream) return;
-//            std::cout << "0 stream???" << std::endl;
-//            throw std::bad_alloc();
+        //           if (stream) return;
+        //            std::cout << "0 stream???" << std::endl;
+        //            throw std::bad_alloc();
       }
 
       ~CudaDeleterBase() override = default;

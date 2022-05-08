@@ -27,8 +27,8 @@ namespace {
       try {
         auto error = cudaGetErrorName(status);
         auto message = cudaGetErrorString(status);
-        std::cout << "Callback of CUDA stream " << streamId << " in device " << device
-                                          << " error " << error << ": " << message << std::endl;
+        std::cout << "Callback of CUDA stream " << streamId << " in device " << device << " error " << error << ": "
+                  << message << std::endl;
         throw cms::Exception("CUDAError") << "Callback of CUDA stream " << streamId << " in device " << device
                                           << " error " << error << ": " << message;
       } catch (cms::Exception&) {

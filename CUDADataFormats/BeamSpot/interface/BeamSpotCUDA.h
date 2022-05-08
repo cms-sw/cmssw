@@ -8,14 +8,15 @@
 
 class BeamSpotCUDA {
 public:
- 
   using buffer = memoryPool::buffer<BeamSpotPOD>;
 
   // default constructor, required by cms::cuda::Product<BeamSpotCUDA>
   BeamSpotCUDA() = default;
 
   // constructor that allocates cached device memory on the given CUDA stream
-  BeamSpotCUDA(cudaStream_t stream) { data_d_ = memoryPool::cuda::make_buffer<BeamSpotPOD>(1,stream, memoryPool::onDevice); }
+  BeamSpotCUDA(cudaStream_t stream) {
+    data_d_ = memoryPool::cuda::make_buffer<BeamSpotPOD>(1, stream, memoryPool::onDevice);
+  }
 
   // movable, non-copiable
   BeamSpotCUDA(BeamSpotCUDA const&) = delete;
@@ -26,7 +27,7 @@ public:
   BeamSpotPOD* data() { return data_d_.get(); }
   BeamSpotPOD const* data() const { return data_d_.get(); }
 
-  buffer & ptr() { return data_d_; }
+  buffer& ptr() { return data_d_; }
   buffer const& ptr() const { return data_d_; }
 
 private:

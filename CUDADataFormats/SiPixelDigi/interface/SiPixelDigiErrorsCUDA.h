@@ -8,7 +8,6 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
 
-
 class SiPixelDigiErrorsCUDA {
 public:
   using SiPixelErrorCompactVector = cms::cuda::SimpleVector<SiPixelErrorCompact>;
@@ -40,7 +39,5 @@ private:
   SiPixelFormatterErrors formatterErrors_h;
   int nErrorWords_ = 0;
 };
-
-
 
 #endif  // CUDADataFormats_SiPixelDigi_interface_SiPixelDigiErrorsCUDA_h

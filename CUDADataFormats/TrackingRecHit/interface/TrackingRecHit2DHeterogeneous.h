@@ -4,7 +4,6 @@
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DSOAView.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
-
 #include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
 
 class TrackingRecHit2DHeterogeneous {
@@ -38,21 +37,21 @@ public:
   TrackingRecHit2DHeterogeneous() = default;
 
   /*inline*/ TrackingRecHit2DHeterogeneous(uint32_t nHits,
-                                       bool isPhase2,
-                                       int32_t offsetBPIX2,
-                                       pixelCPEforGPU::ParamsOnGPU const* cpeParams,
-                                       uint32_t const* hitsModuleStart,
-                                       memoryPool::Where where,
-                                       cudaStream_t stream,
-                                       TrackingRecHit2DHeterogeneous const* input = nullptr);
+                                           bool isPhase2,
+                                           int32_t offsetBPIX2,
+                                           pixelCPEforGPU::ParamsOnGPU const* cpeParams,
+                                           uint32_t const* hitsModuleStart,
+                                           memoryPool::Where where,
+                                           cudaStream_t stream,
+                                           TrackingRecHit2DHeterogeneous const* input = nullptr);
 
   // used on CPU only
   /*inline*/ TrackingRecHit2DHeterogeneous(float* store32,
-                                       uint16_t* store16,
-                                       uint32_t* modules,
-                                       int nHits,
-                                       memoryPool::Where where = memoryPool::onCPU,
-                                       cudaStream_t stream = nullptr);
+                                           uint16_t* store16,
+                                           uint32_t* modules,
+                                           int nHits,
+                                           memoryPool::Where where = memoryPool::onCPU,
+                                           cudaStream_t stream = nullptr);
   ~TrackingRecHit2DHeterogeneous() = default;
 
   TrackingRecHit2DHeterogeneous(const TrackingRecHit2DHeterogeneous&) = delete;

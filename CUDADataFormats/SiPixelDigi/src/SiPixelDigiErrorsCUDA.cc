@@ -3,19 +3,17 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
-
-SiPixelDigiErrorsCUDA::SiPixelDigiErrorsCUDA(size_t maxFedWords, SiPixelFormatterErrors errors, cudaStream_t stream) :
-      formatterErrors_h(std::move(errors)),
-      nErrorWords_(maxFedWords) {
+SiPixelDigiErrorsCUDA::SiPixelDigiErrorsCUDA(size_t maxFedWords, SiPixelFormatterErrors errors, cudaStream_t stream)
+    : formatterErrors_h(std::move(errors)), nErrorWords_(maxFedWords) {
   assert(maxFedWords != 0);
 
-  memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
+  memoryPool::Deleter deleter =
+      memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
   assert(deleter.pool());
 
-  data_d =  memoryPool::cuda::make_buffer<SiPixelErrorCompact>(maxFedWords, deleter);
-  error_d = memoryPool::cuda::make_buffer<SiPixelErrorCompactVector>(1,deleter);
-  error_h = memoryPool::cuda::make_buffer<SiPixelErrorCompactVector>(1,stream,memoryPool::onHost);
-
+  data_d = memoryPool::cuda::make_buffer<SiPixelErrorCompact>(maxFedWords, deleter);
+  error_d = memoryPool::cuda::make_buffer<SiPixelErrorCompactVector>(1, deleter);
+  error_h = memoryPool::cuda::make_buffer<SiPixelErrorCompactVector>(1, stream, memoryPool::onHost);
 
   cudaMemsetAsync(data_d.get(), 0x00, maxFedWords, stream);
 
@@ -23,11 +21,11 @@ SiPixelDigiErrorsCUDA::SiPixelDigiErrorsCUDA(size_t maxFedWords, SiPixelFormatte
   assert(error_h->empty());
   assert(error_h->capacity() == static_cast<int>(maxFedWords));
 
-  cudaCheck(memoryPool::cuda::copy(error_d, error_h, 1,stream));
+  cudaCheck(memoryPool::cuda::copy(error_d, error_h, 1, stream));
 }
 
 void SiPixelDigiErrorsCUDA::copyErrorToHostAsync(cudaStream_t stream) {
-  cudaCheck(memoryPool::cuda::copy(error_h, error_d, 1,stream));
+  cudaCheck(memoryPool::cuda::copy(error_h, error_d, 1, stream));
 }
 
 SiPixelDigiErrorsCUDA::HostDataError SiPixelDigiErrorsCUDA::dataErrorToHostAsync(cudaStream_t stream) const {
@@ -44,4 +42,3 @@ SiPixelDigiErrorsCUDA::HostDataError SiPixelDigiErrorsCUDA::dataErrorToHostAsync
   err.set_data(data.get());
   return HostDataError(err, std::move(data));
 }
-
