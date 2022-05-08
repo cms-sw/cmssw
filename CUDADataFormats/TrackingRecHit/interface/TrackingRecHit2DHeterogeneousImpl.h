@@ -1,4 +1,4 @@
-// #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
+#include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DHeterogeneous.h"
 
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DSOAView.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"

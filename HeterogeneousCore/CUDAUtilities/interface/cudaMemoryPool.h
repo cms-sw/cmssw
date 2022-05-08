@@ -3,9 +3,7 @@
 #include <vector>
 
 // only for cudaStream_t
-#include <cuda.h>
 #include <cuda_runtime.h>
-#include <cuda_runtime_api.h>
 
 #include <cassert>
 

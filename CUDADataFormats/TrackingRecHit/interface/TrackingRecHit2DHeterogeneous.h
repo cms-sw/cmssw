@@ -6,7 +6,6 @@
 
 
 #include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 
 class TrackingRecHit2DHeterogeneous {
 public:
@@ -38,7 +37,7 @@ public:
 
   TrackingRecHit2DHeterogeneous() = default;
 
-  inline TrackingRecHit2DHeterogeneous(uint32_t nHits,
+  /*inline*/ TrackingRecHit2DHeterogeneous(uint32_t nHits,
                                        bool isPhase2,
                                        int32_t offsetBPIX2,
                                        pixelCPEforGPU::ParamsOnGPU const* cpeParams,
@@ -48,7 +47,7 @@ public:
                                        TrackingRecHit2DHeterogeneous const* input = nullptr);
 
   // used on CPU only
-  inline TrackingRecHit2DHeterogeneous(float* store32,
+  /*inline*/ TrackingRecHit2DHeterogeneous(float* store32,
                                        uint16_t* store16,
                                        uint32_t* modules,
                                        int nHits,
@@ -74,15 +73,15 @@ public:
   auto phiBinnerStorage() { return m_phiBinnerStorage; }
   auto iphi() { return m_iphi; }
 
-  inline buffer<float> localCoordToHostAsync(cudaStream_t stream) const;
+  /*inline*/ buffer<float> localCoordToHostAsync(cudaStream_t stream) const;
 
-  inline buffer<uint32_t> hitsModuleStartToHostAsync(cudaStream_t stream) const;
+  /*inline*/ buffer<uint32_t> hitsModuleStartToHostAsync(cudaStream_t stream) const;
 
-  inline buffer<uint16_t> store16ToHostAsync(cudaStream_t stream) const;
-  inline buffer<float> store32ToHostAsync(cudaStream_t stream) const;
+  /*inline*/ buffer<uint16_t> store16ToHostAsync(cudaStream_t stream) const;
+  /*inline*/ buffer<float> store32ToHostAsync(cudaStream_t stream) const;
 
   // needed for Host
-  inline void copyFromGPU(TrackingRecHit2DHeterogeneous const* input, cudaStream_t stream);
+  /*inline*/ void copyFromGPU(TrackingRecHit2DHeterogeneous const* input, cudaStream_t stream);
 
 private:
   static constexpr uint32_t n16 = 4;                 // number of elements in m_store16
@@ -114,6 +113,6 @@ using TrackingRecHit2DGPU = TrackingRecHit2DHeterogeneous;
 using TrackingRecHit2DCPU = TrackingRecHit2DHeterogeneous;
 using TrackingRecHit2DHost = TrackingRecHit2DHeterogeneous;
 
-#include "TrackingRecHit2DHeterogeneousImpl.h"
+// #include "TrackingRecHit2DHeterogeneousImpl.h"
 
 #endif  // CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneous_h

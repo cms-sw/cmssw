@@ -4,14 +4,13 @@
 #include <cuda_runtime.h>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDASOAView.h"
 
 class SiPixelDigisCUDA {
 public:
   using StoreType = uint16_t;
   SiPixelDigisCUDA() = default;
-  inline SiPixelDigisCUDA(size_t maxFedWords, cudaStream_t stream);
+  /*inline*/ SiPixelDigisCUDA(size_t maxFedWords, cudaStream_t stream);
   ~SiPixelDigisCUDA() = default;
 
   SiPixelDigisCUDA(const SiPixelDigisCUDA &) = delete;
@@ -27,7 +26,7 @@ public:
   uint32_t nModules() const { return nModules_h; }
   uint32_t nDigis() const { return nDigis_h; }
 
-  inline memoryPool::buffer<StoreType> copyAllToHostAsync(cudaStream_t stream) const;
+  /*inline*/ memoryPool::buffer<StoreType> copyAllToHostAsync(cudaStream_t stream) const;
 
   SiPixelDigisCUDASOAView view() { return m_view; }
   SiPixelDigisCUDASOAView const view() const { return m_view; }
@@ -43,6 +42,6 @@ private:
 };
 
 
-#include "SiPixelDigisCUDAImpl.h"
+// #include "SiPixelDigisCUDAImpl.h"
 
 #endif  // CUDADataFormats_SiPixelDigi_interface_SiPixelDigisCUDA_h
