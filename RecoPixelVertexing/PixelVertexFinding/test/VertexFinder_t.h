@@ -7,6 +7,7 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/requireDevices.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/launch.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 #ifdef USE_DBSCAN
 #include "RecoPixelVertexing/PixelVertexFinding/plugins/gpuClusterTracksDBSCAN.h"
 #define CLUSTERIZE gpuVertexFinder::clusterTracksDBSCAN
@@ -114,13 +115,15 @@ __global__ void print(gpuVertexFinder::ZVertices const* pdata, gpuVertexFinder::
 int main() {
 #ifdef __CUDACC__
   cms::cudatest::requireDevices();
-
-  auto onGPU_d = cms::cuda::make_device_unique<gpuVertexFinder::ZVertices[]>(1, nullptr);
-  auto ws_d = cms::cuda::make_device_unique<gpuVertexFinder::WorkSpace[]>(1, nullptr);
+  auto where = memoryPool::onDevice;
 #else
-  auto onGPU_d = std::make_unique<gpuVertexFinder::ZVertices>();
-  auto ws_d = std::make_unique<gpuVertexFinder::WorkSpace>();
+  auto where = memoryPool::onCPU;
 #endif
+
+  cudaStream_t stream = nullptr;  // here works as nothing is supposed to be deleted before synch...
+
+  auto onGPU_d = memoryPool::cuda::makeBuffer<gpuVertexFinder::ZVertices>(1, stream, where);
+  auto ws_d = memoryPool::cuda::makeBuffer<gpuVertexFinder::WorkSpace>(1, stream, where);
 
   Event ev;
 
