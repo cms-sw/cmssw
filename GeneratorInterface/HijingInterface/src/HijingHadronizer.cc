@@ -243,8 +243,10 @@ bool HijingHadronizer::call_hijset(
     double efrm, std::string frame, std::string proj, std::string targ, int iap, int izp, int iat, int izt) {
   float ef = efrm;
   // initialize hydjet
-  HIJSET(
-      ef, frame.c_str(), proj.c_str(), targ.c_str(), iap, izp, iat, izt, frame.length(), proj.length(), targ.length());
+  frame.resize(4, ' ');
+  proj.resize(4, ' ');
+  targ.resize(4, ' ');
+  HIJSET(ef, frame.data(), proj.data(), targ.data(), iap, izp, iat, izt, frame.length(), proj.length(), targ.length());
   return true;
 }
 
