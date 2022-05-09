@@ -1407,6 +1407,9 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       BSOnline.setEndTimeStamp(timeForDIP.second);
       BSOnline.setEndTime(getGMTstring(timeForDIP.second));
 
+      std::string lumiRangeForDIP = std::to_string(LSRange.first) + " - " + std::to_string(LSRange.second);
+      BSOnline.setLumiRange(lumiRangeForDIP);
+
       edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline object created: \n" << std::endl;
       edm::LogInfo("BeamMonitor") << BSOnline << std::endl;
 
