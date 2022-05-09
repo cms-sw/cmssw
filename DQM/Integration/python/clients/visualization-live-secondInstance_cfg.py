@@ -48,7 +48,7 @@ from DQM.Integration.config.FrontierCondition_GT_autoExpress_cfi import GlobalTa
 kwds = {
    'globalTag': GlobalTag.globaltag.value(),
    'globalTagConnect': GlobalTag.connect.value(),
-   'beamSplashRun' : options.BeamSplashRun,
+   'beamSplashRun' : ":localreco+hcalOnlyGlobalRecoSequence+caloTowersRec" if options.BeamSplashRun else "",
 }
 
 # explicitly select the input collection, since we get multiple in online
