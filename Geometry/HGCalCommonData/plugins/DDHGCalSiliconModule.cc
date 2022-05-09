@@ -371,8 +371,9 @@ void DDHGCalSiliconModule::constructLayers(const DDLogicalPart& module, DDCompac
 void DDHGCalSiliconModule::positionSensitive(const DDLogicalPart& glog, int layer, DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
-                        ? 1
-                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
+                        ? HGCalTypes::CornerCenterYp
+                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
+                                                                               : HGCalTypes::WaferCenter);
   int layertype = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]

@@ -118,7 +118,7 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
   std::array<float, 8> bendchi2_bins{{0, 0.5, 1.25, 2, 3, 5, 10, 50}};
   int n_bendchi2 = static_cast<int>(bendchi2_bins.size());
   float tmp_trk_bendchi2_bin = -1;
-  for (int i = 0; i < n_bendchi2; i++) {
+  for (int i = 0; i < (n_bendchi2 - 1); i++) {
     if (tmp_trk_bendchi2 >= bendchi2_bins[i] && tmp_trk_bendchi2 < bendchi2_bins[i + 1]) {
       tmp_trk_bendchi2_bin = i;
       break;
@@ -132,7 +132,7 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
   std::array<float, 16> chi2rphi_bins{{0, 0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 40, 100, 200, 500, 1000, 3000}};
   int n_chi2rphi = static_cast<int>(chi2rphi_bins.size());
   float tmp_trk_chi2rphi_bin = -1;
-  for (int i = 0; i < n_chi2rphi; i++) {
+  for (int i = 0; i < (n_chi2rphi - 1); i++) {
     if (tmp_trk_chi2rphi >= chi2rphi_bins[i] && tmp_trk_chi2rphi < chi2rphi_bins[i + 1]) {
       tmp_trk_chi2rphi_bin = i;
       break;
@@ -146,7 +146,7 @@ std::vector<float> L1TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDig
   std::array<float, 16> chi2rz_bins{{0, 0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 40, 100, 200, 500, 1000, 3000}};
   int n_chi2rz = static_cast<int>(chi2rz_bins.size());
   float tmp_trk_chi2rz_bin = -1;
-  for (int i = 0; i < n_chi2rz; i++) {
+  for (int i = 0; i < (n_chi2rz - 1); i++) {
     if (tmp_trk_chi2rz >= chi2rz_bins[i] && tmp_trk_chi2rz < chi2rz_bins[i + 1]) {
       tmp_trk_chi2rz_bin = i;
       break;

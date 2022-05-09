@@ -231,9 +231,6 @@
       -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,
       -2,-2,-2,-2,-2,-2, 0, 1, 0, 2,-2
     </Vector>
-    <Vector name="LayerCenter" type="numeric" nEntries="26">
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0</Vector>
     <Vector name="SlopeBottom" type="numeric" nEntries="4">
       0, 0, 0, 0</Vector>
     <Vector name="ZFrontBottom" type="numeric" nEntries="4">
