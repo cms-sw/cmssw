@@ -14,12 +14,12 @@ void HelixFitOnGPU::launchBrokenLineKernels(HitsView const *hv,
   //  Fit internals
   memoryPool::Deleter deleter =
       memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
-  auto tkidGPU = memoryPool::cuda::make_buffer<caConstants::tindex_type>(maxNumberOfConcurrentFits_, deleter);
-  auto hitsGPU = memoryPool::cuda::make_buffer<double>(
+  auto tkidGPU = memoryPool::cuda::makeBuffer<caConstants::tindex_type>(maxNumberOfConcurrentFits_, deleter);
+  auto hitsGPU = memoryPool::cuda::makeBuffer<double>(
       maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix3xNd<6>) / sizeof(double), deleter);
-  auto hits_geGPU = memoryPool::cuda::make_buffer<float>(
+  auto hits_geGPU = memoryPool::cuda::makeBuffer<float>(
       maxNumberOfConcurrentFits_ * sizeof(riemannFit::Matrix6xNf<6>) / sizeof(float), deleter);
-  auto fast_fit_resultsGPU = memoryPool::cuda::make_buffer<double>(
+  auto fast_fit_resultsGPU = memoryPool::cuda::makeBuffer<double>(
       maxNumberOfConcurrentFits_ * sizeof(riemannFit::Vector4d) / sizeof(double), deleter);
 
   for (uint32_t offset = 0; offset < maxNumberOfTuples; offset += maxNumberOfConcurrentFits_) {

@@ -45,9 +45,9 @@ private:
   uint32_t nHits_;
   uint32_t nMaxModules_;
 
-  memoryPool::buffer<float> store32_;
-  memoryPool::buffer<uint16_t> store16_;
-  memoryPool::buffer<uint32_t> hitsModuleStart_;
+  memoryPool::Buffer<float> store32_;
+  memoryPool::Buffer<uint16_t> store16_;
+  memoryPool::Buffer<uint32_t> hitsModuleStart_;
 };
 
 SiPixelRecHitSoAFromCUDA::SiPixelRecHitSoAFromCUDA(const edm::ParameterSet& iConfig)

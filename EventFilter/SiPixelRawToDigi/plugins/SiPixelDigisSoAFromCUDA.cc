@@ -26,7 +26,7 @@ private:
   edm::EDGetTokenT<cms::cuda::Product<SiPixelDigisCUDA>> digiGetToken_;
   edm::EDPutTokenT<SiPixelDigisSoA> digiPutToken_;
 
-  memoryPool::buffer<uint16_t> store_;
+  memoryPool::Buffer<uint16_t> store_;
 
   int nDigis_;
 };

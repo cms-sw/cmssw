@@ -26,16 +26,16 @@ public:
   SiPixelErrorCompactVector* error() { return error_d.get(); }
   SiPixelErrorCompactVector const* error() const { return error_d.get(); }
 
-  using HostDataError = std::pair<SiPixelErrorCompactVector, memoryPool::buffer<SiPixelErrorCompact>>;
+  using HostDataError = std::pair<SiPixelErrorCompactVector, memoryPool::Buffer<SiPixelErrorCompact>>;
   HostDataError dataErrorToHostAsync(cudaStream_t stream) const;
 
   void copyErrorToHostAsync(cudaStream_t stream);
   int nErrorWords() const { return nErrorWords_; }
 
 private:
-  memoryPool::buffer<SiPixelErrorCompact> data_d;
-  memoryPool::buffer<SiPixelErrorCompactVector> error_d;
-  memoryPool::buffer<SiPixelErrorCompactVector> error_h;
+  memoryPool::Buffer<SiPixelErrorCompact> data_d;
+  memoryPool::Buffer<SiPixelErrorCompactVector> error_d;
+  memoryPool::Buffer<SiPixelErrorCompactVector> error_h;
   SiPixelFormatterErrors formatterErrors_h;
   int nErrorWords_ = 0;
 };

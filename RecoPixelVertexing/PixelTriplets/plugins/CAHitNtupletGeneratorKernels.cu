@@ -148,12 +148,12 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
   memoryPool::Deleter deleter =
       memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
   device_isOuterHitOfCell_ =
-      memoryPool::cuda::make_buffer<GPUCACell::OuterHitOfCellContainer>(std::max(1, nhits), deleter);
+      memoryPool::cuda::makeBuffer<GPUCACell::OuterHitOfCellContainer>(std::max(1, nhits), deleter);
   assert(device_isOuterHitOfCell_.get());
 
   isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
 
-  cellStorage_ = memoryPool::cuda::make_buffer<unsigned char>(
+  cellStorage_ = memoryPool::cuda::makeBuffer<unsigned char>(
       caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
           caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks),
       deleter);
@@ -174,7 +174,7 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
     cudaCheck(cudaGetLastError());
   }
 
-  device_theCells_ = memoryPool::cuda::make_buffer<GPUCACell>(params_.maxNumberOfDoublets_, deleter);
+  device_theCells_ = memoryPool::cuda::makeBuffer<GPUCACell>(params_.maxNumberOfDoublets_, deleter);
 
 #ifdef GPU_DEBUG
   cudaDeviceSynchronize();
