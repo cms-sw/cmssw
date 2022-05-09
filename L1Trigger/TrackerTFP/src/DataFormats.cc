@@ -688,19 +688,26 @@ namespace trackerTFP {
 
   template <>
   Format<Variable::z, Process::zht>::Format(const ParameterSet& iConfig, const Setup* setup) : DataFormat(true) {
-    /*const Format<Variable::zT, Process::zht> zT(iConfig, setup);
+    const Format<Variable::zT, Process::zht> zT(iConfig, setup);
     const Format<Variable::cot, Process::zht> cot(iConfig, setup);
-    const double rangeR = 2. * max(abs(setup->outerRadius() - setup->chosenRofZ()), abs(setup->innerRadius() - setup->chosenRofZ()));
+    const double rangeR =
+        2. * max(abs(setup->outerRadius() - setup->chosenRofZ()), abs(setup->innerRadius() - setup->chosenRofZ()));
     range_ = zT.base() + cot.base() * rangeR + setup->maxdZ();
     const Format<Variable::z, Process::dtc> dtc(iConfig, setup);
     base_ = dtc.base();
-    if (iConfig.getParameter<bool>("UseHybrid"))
-      range_ *= 2;
-    width_ = ceil(log2(range_ / base_));*/
-    const Format<Variable::z, Process::gp> z(iConfig, setup);
+    width_ = ceil(log2(range_ / base_));
+    /*const Format<Variable::z, Process::gp> z(iConfig, setup);
     width_ = z.width();
     range_ = z.range();
-    base_ = z.base();
+    base_ = z.base();*/
+  }
+
+  template <>
+  Format<Variable::z, Process::kfin>::Format(const ParameterSet& iConfig, const Setup* setup) : DataFormat(true) {
+    const Format<Variable::z, Process::zht> zht(iConfig, setup);
+    range_ = zht.range() * pow(2, setup->kfinShiftRangeZ());
+    base_ = zht.base();
+    width_ = ceil(log2(range_ / base_));
   }
 
   template <>
@@ -713,6 +720,14 @@ namespace trackerTFP {
     range_ = phiT.base() + inv2R.base() * rangeR + setup->maxdPhi();
     const Format<Variable::phi, Process::dtc> dtc(iConfig, setup);
     base_ = dtc.base();
+    width_ = ceil(log2(range_ / base_));
+  }
+
+  template <>
+  Format<Variable::phi, Process::kfin>::Format(const ParameterSet& iConfig, const Setup* setup) : DataFormat(true) {
+    const Format<Variable::phi, Process::zht> zht(iConfig, setup);
+    range_ = zht.range() * pow(2, setup->kfinShiftRangePhi());
+    base_ = zht.base();
     width_ = ceil(log2(range_ / base_));
   }
 
@@ -863,7 +878,7 @@ namespace trackerTFP {
   template <>
   Format<Variable::dPhi, Process::kfin>::Format(const edm::ParameterSet& iConfig, const Setup* setup)
       : DataFormat(false) {
-    const Format<Variable::phi, Process::mht> phi(iConfig, setup);
+    const Format<Variable::phi, Process::kfin> phi(iConfig, setup);
     range_ = setup->maxdPhi();
     base_ = phi.base();
     width_ = ceil(log2(range_ / base_));
@@ -872,7 +887,7 @@ namespace trackerTFP {
   template <>
   Format<Variable::dZ, Process::kfin>::Format(const edm::ParameterSet& iConfig, const Setup* setup)
       : DataFormat(false) {
-    const Format<Variable::z, Process::zht> z(iConfig, setup);
+    const Format<Variable::z, Process::kfin> z(iConfig, setup);
     range_ = setup->maxdZ();
     base_ = z.base();
     width_ = ceil(log2(range_ / base_));

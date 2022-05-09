@@ -33,7 +33,6 @@ namespace trackerTFP {
       const int width = ceil(log2(r / format(v).base()));
       cout << setw(wName) << *next(variableKFstrs_.begin(), +v) << ": " << setw(wWidth) << width << " " << setw(wWidth)
            << format(v).width() << " | " << setw(wWidth) << format(v).width() - width << endl;
-      //cout << " " << range.first << " " << range.second << " " << format(v).base() << endl;
     }
   }
 
@@ -82,7 +81,7 @@ namespace trackerTFP {
                 << (twos_ ? range_ / 2. : range_) << "." << endl;
       if (twos_ || d >= 0.)
         exception.addAdditionalInfo("Consider raising BaseShift" + v + " in KalmnaFilterFormats_cfi.py.");
-      //throw exception;
+      throw exception;
     }
   }
 

@@ -180,7 +180,7 @@ namespace trackerTFP {
       const double range = ranges[i];
       hisRes_[i] = dir.make<TH1F>(("HisRes" + names[i]).c_str(), ";", 100, -range, range);
     }
-    profResZ0_ = dir.make<TProfile>("ProfResZ0", ";", 128, -2.5, 2.5);
+    profResZ0_ = dir.make<TProfile>("ProfResZ0", ";", 32, 0, 2.5);
     // Efficiencies
     hisEffEtaTotal_ = dir.make<TH1F>("HisTPEtaTotal", ";", 128, -2.5, 2.5);
     hisEffEta_ = dir.make<TH1F>("HisTPEta", ";", 128, -2.5, 2.5);
@@ -384,7 +384,7 @@ namespace trackerTFP {
         const vector<double> ds = {dPhi0, dInv2R, dZ0, dCot};
         for (int i = 0; i < (int)ds.size(); i++)
           his[i]->Fill(ds[i]);
-        prof->Fill(tpPtr->eta(), abs(dZ0));
+        prof->Fill(abs(tpPtr->eta()), abs(dZ0));
       }
     }
   }

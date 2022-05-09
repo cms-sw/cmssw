@@ -26,7 +26,7 @@ namespace trklet {
 
   /*! \class  trklet::ProducerKFout
    *  \brief  Converts KF output into TFP output
-   *  \author Thomas Schuh
+   *  \author Christopher Brown
    *  \date   2021, Aug
    */
   class ProducerKFout : public stream::EDProducer<> {
@@ -59,7 +59,7 @@ namespace trklet {
     ParameterSet iConfig_;
     // helper class to store configurations
     const Setup* setup_;
-    // helper class to extract structured data from TTDTC::Frames
+    // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_;
     // Bins for dPhi/dZ use to create weight LUT
     vector<double> dPhiBins_;
@@ -100,7 +100,7 @@ namespace trklet {
     // check process history if desired
     if (iConfig_.getParameter<bool>("CheckHistory"))
       setup_->checkHistory(iRun.processHistory());
-    // helper class to extract structured data from TTDTC::Frames
+    // helper class to extract structured data from tt::Frames
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
 
     // Calculate 1/dz**2 and 1/dphi**2 bins for v0 and v1 weightings
@@ -156,7 +156,7 @@ namespace trklet {
         TrackKFOutSAPtrCollections temp_collection;
         for (int iLink = 0; iLink < setup_->tfpNumChannel(); iLink++) {
           TrackKFOutSAPtrCollection temp;
-          for (int iTrack = 0; iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / setup_->tttrackBits()); iTrack++)
+          for (int iTrack = 0; iTrack < setup_->numFramesIO(); iTrack++)
             temp.emplace_back(std::make_shared<TrackKFOut>());
           temp_collection.push_back(temp);
         }
@@ -168,7 +168,7 @@ namespace trklet {
         TrackKFOutSAPtrCollections temp_collection;
         for (int iLink = 0; iLink < numWorkers_; iLink++) {
           TrackKFOutSAPtrCollection temp;
-          for (int iTrack = 0; iTrack < setup_->numFramesIO() * ((double)TTBV::S_ / setup_->tttrackBits()); iTrack++)
+          for (int iTrack = 0; iTrack < setup_->numFramesIO(); iTrack++)
             temp.emplace_back(std::make_shared<TrackKFOut>());
           temp_collection.push_back(temp);
         }

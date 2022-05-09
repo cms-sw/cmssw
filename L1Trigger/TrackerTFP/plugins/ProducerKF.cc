@@ -38,8 +38,10 @@ namespace trackerTFP {
   private:
     void beginRun(const Run&, const EventSetup&) override;
     void produce(Event&, const EventSetup&) override;
-    //void endStream() { kalmanFilterFormats_->endJob(); }
-    void endStream() override {}
+    void endStream() override {
+      if (printDebug_)
+        kalmanFilterFormats_->endJob();
+    }
 
     // ED input token of sf stubs and tracks
     EDGetTokenT<StreamsStub> edGetTokenStubs_;
@@ -67,9 +69,12 @@ namespace trackerTFP {
     const DataFormats* dataFormats_;
     // helper class to
     KalmanFilterFormats* kalmanFilterFormats_;
+    // print end job internal unused MSB
+    bool printDebug_;
   };
 
   ProducerKF::ProducerKF(const ParameterSet& iConfig) : iConfig_(iConfig) {
+    printDebug_ = iConfig.getParameter<bool>("PrintKFDebug");
     const string& label = iConfig.getParameter<string>("LabelKFin");
     const string& branchAcceptedStubs = iConfig.getParameter<string>("BranchAcceptedStubs");
     const string& branchAcceptedTracks = iConfig.getParameter<string>("BranchAcceptedTracks");

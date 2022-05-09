@@ -161,14 +161,14 @@ private:
   std::vector<int>* m_trk_dhits;
   std::vector<int>* m_trk_seed;
   std::vector<int>* m_trk_hitpattern;
-  std::vector<int>* m_trk_lhits_hitpattern; // 6-digit hit mask (barrel layer only) dervied from hitpattern
-  std::vector<int>* m_trk_dhits_hitpattern; // disk only
+  std::vector<int>* m_trk_lhits_hitpattern;  // 6-digit hit mask (barrel layer only) dervied from hitpattern
+  std::vector<int>* m_trk_dhits_hitpattern;  // disk only
   std::vector<int>* m_trk_nPSstub_hitpattern;
   std::vector<int>* m_trk_n2Sstub_hitpattern;
   std::vector<int>* m_trk_nLostPSstub_hitpattern;
   std::vector<int>* m_trk_nLost2Sstub_hitpattern;
-  std::vector<int>* m_trk_nLoststub_V1_hitpattern; // Same as the definiton of "nlaymiss_interior" in TrackQuality.cc
-  std::vector<int>* m_trk_nLoststub_V2_hitpattern; // A tighter version of "nlaymiss_interior"
+  std::vector<int>* m_trk_nLoststub_V1_hitpattern;  // Same as the definiton of "nlaymiss_interior" in TrackQuality.cc
+  std::vector<int>* m_trk_nLoststub_V2_hitpattern;  // A tighter version of "nlaymiss_interior"
   std::vector<unsigned int>* m_trk_phiSector;
   std::vector<int>* m_trk_etaSector;
   std::vector<int>* m_trk_genuine;
@@ -715,7 +715,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   edm::ESHandle<MagneticField> magneticFieldHandle;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
-    
+
   edm::ESHandle<hph::Setup> HPHHandle;
   iSetup.get<hph::SetupRcd>().get(HPHHandle);
 
@@ -906,7 +906,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       float tmp_trk_phi = iterL1Track->momentum().phi();
       float tmp_trk_z0 = iterL1Track->z0();  //cm
       float tmp_trk_tanL = iterL1Track->tanL();
-        
+
       int tmp_trk_hitpattern = 0;
       tmp_trk_hitpattern = (int)iterL1Track->hitPattern();
       hph::HitPatternHelper hph(HPHsetup, tmp_trk_hitpattern, tmp_trk_tanL, tmp_trk_z0);
@@ -914,13 +914,13 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       int tmp_trk_lhits_hitpattern = 0;
       int tmp_trk_dhits_hitpattern = 0;
       for (int i = 0; i < (int)hitpattern_expanded_binary.size(); i++) {
-          if (hitpattern_expanded_binary[i]) {
-              if (i<6) {
-                  tmp_trk_lhits_hitpattern += pow(10, i);
-              }else{
-                  tmp_trk_dhits_hitpattern += pow(10, i-6);
-              }
+        if (hitpattern_expanded_binary[i]) {
+          if (i < 6) {
+            tmp_trk_lhits_hitpattern += pow(10, i);
+          } else {
+            tmp_trk_dhits_hitpattern += pow(10, i - 6);
           }
+        }
       }
       int tmp_trk_nPSstub_hitpattern = hph.numPS();
       int tmp_trk_n2Sstub_hitpattern = hph.num2S();

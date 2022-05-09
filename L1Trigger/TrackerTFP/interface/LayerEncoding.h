@@ -28,7 +28,7 @@ namespace trackerTFP {
     const std::vector<int>& maybeLayer(int binEta, int binZT, int binCot) const {
       return maybeLayer_.at(binEta).at(binZT).at(binCot);
     }
-    // encoded layer id for given eta sector, bin in zT, bin in cotThea and decoed layer id
+    // encoded layer id for given eta sector, bin in zT, bin in cotThea and decoed layer id, returns -1 if layer incositent with track
     const int layerIdKF(int binEta, int binZT, int binCot, int layerId) const;
     // pattern of maybe layers for given eta sector, bin in zT and bin in cotThea
     TTBV maybePattern(int binEta, int binZT, int binCot) const;

@@ -27,8 +27,7 @@ using namespace tt;
 namespace trklet {
 
   /*! \class  trklet::ProducerIRin
-   *  \brief  Extracts and rearranges StreamsStub from TTDTC
-   *          Rearrangement may be configured to connect a reduced tracking chain to the correct L1 track board input channels.
+   *  \brief  Transforms TTTDCinto f/w comparable format for summer chain configuratiotn
    *  \author Thomas Schuh
    *  \date   2021, Oct
    */
@@ -55,6 +54,8 @@ namespace trklet {
     const Setup* setup_;
     // helper class to assign stubs to channel
     const ChannelAssignment* channelAssignment_;
+    // map of used tfp channels
+    vector<int> channelEncoding_;
   };
 
   ProducerIRin::ProducerIRin(const ParameterSet& iConfig) : iConfig_(iConfig) {
@@ -68,7 +69,6 @@ namespace trklet {
     esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
     // initial ES products
     setup_ = nullptr;
-    channelAssignment_ = nullptr;
   }
 
   void ProducerIRin::beginRun(const Run& iRun, const EventSetup& iSetup) {
@@ -79,7 +79,9 @@ namespace trklet {
     // check process history if desired
     if (iConfig_.getParameter<bool>("CheckHistory"))
       setup_->checkHistory(iRun.processHistory());
-    channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
+    channelAssignment_ = const_cast<ChannelAssignment*>(&iSetup.getData(esGetTokenChannelAssignment_));
+    // map of used tfp channels
+    channelEncoding_ = channelAssignment_->channelEncoding();
   }
 
   void ProducerIRin::produce(Event& iEvent, const EventSetup& iSetup) {
@@ -89,11 +91,10 @@ namespace trklet {
     if (setup_->configurationSupported()) {
       Handle<TTDTC> handleTTDTC;
       iEvent.getByToken<TTDTC>(edGetTokenTTDTC_, handleTTDTC);
-      const vector<int>& channelEncoding = channelAssignment_->channelEncoding();
-      const int numChannel = setup_->numRegions() * channelEncoding.size();
+      const int numChannel = channelEncoding_.size();
       streamStubs.reserve(numChannel);
       for (int tfpRegion : handleTTDTC->tfpRegions())
-        for (int tfpChannel : channelEncoding)
+        for (int tfpChannel : channelEncoding_)
           streamStubs.emplace_back(handleTTDTC->stream(tfpRegion, tfpChannel));
     }
     // store products

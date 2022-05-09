@@ -127,8 +127,7 @@ void FitTrack::trackFitKF(Tracklet* tracklet,
       // And that's all we need! The rest is just for track fit (done in PurgeDuplicate)
 
     } else {
-
-      // Track fit only called here if not running duplicate removal 
+      // Track fit only called here if not running duplicate removal
       // before fit. (e.g. If skipping duplicate removal).
       HybridFit hybridFitter(iSector_, settings_, globals_);
       hybridFitter.Fit(tracklet, trackstublist);
@@ -871,7 +870,7 @@ std::vector<Tracklet*> FitTrack::orderedMatches(vector<FullMatchMemory*>& fullma
 
 // Adds the fitted track to the output memories to be used by pure Tracklet algo.
 // (Also used by Hybrid algo with non-exact Old KF emulation)
-// Also create output streams, that bypass these memories, (so can include gaps in time), 
+// Also create output streams, that bypass these memories, (so can include gaps in time),
 // to be used by Hybrid case with exact New KF emulation.
 
 void FitTrack::execute(const ChannelAssignment* channelAssignment,
@@ -1005,7 +1004,11 @@ void FitTrack::execute(const ChannelAssignment* channelAssignment,
       countFit++;
 
 #ifdef USEHYBRID
-      trackFitKF(bestTracklet, trackstublist, stubidslist);
+      if (settings_.fakefit()) {
+        trackFitFake(bestTracklet, trackstublist, stubidslist);
+      } else {
+        trackFitKF(bestTracklet, trackstublist, stubidslist);
+      }
 #else
       if (settings_.fakefit()) {
         trackFitFake(bestTracklet, trackstublist, stubidslist);
@@ -1034,7 +1037,7 @@ void FitTrack::execute(const ChannelAssignment* channelAssignment,
     // store bit and clock accurate TB output
     if (settings_.storeTrackBuilderOutput() && bestTracklet) {
       // add gap if enough layer to form track
-        if (!bestTracklet->fit()) {
+      if (!bestTracklet->fit()) {
         streamTrack.emplace_back(tt::Frame());
         for (auto& stream : streamsStub)
           stream.emplace_back(tt::FrameStub());
@@ -1050,7 +1053,7 @@ void FitTrack::execute(const ChannelAssignment* channelAssignment,
       const string t = bestTracklet->fpgat().str();
       streamTrack.emplace_back(valid + seed + rinv + phi0 + z0 + t);
       // hitMap used to remember whcih layer had no stub to fill them with gaps
-      TTBV hitMap(0, channelAssignment->maxNumProjectionLayers());
+      TTBV hitMap(0, streamsStub.size());
       // convert and fill stubs on this track into streamsStub
       for (const auto& stub : bestTracklet->getL1Stubs()) {
         // get TTStubRef of this stub
@@ -1066,9 +1069,12 @@ void FitTrack::execute(const ChannelAssignment* channelAssignment,
         // get stub Residual
         const Residual& resid = bestTracklet->resid(trackletLayerId);
         // create bit accurate 64 bit word
-        const string& r = resid.stubptr()->r().str();
+        string r = resid.stubptr()->r().str();
         const string& phi = resid.fpgaphiresid().str();
         const string& rz = resid.fpgarzresid().str();
+        static constexpr int widthDisk2Sidentifier = 8;
+        if (channelAssignment->type(ttStubRef) == tt::SensorModule::Disk2S)
+          r = string(widthDisk2Sidentifier, '0') + r;
         // store TTStubRef and bit accurate 64 bit word in clock accurate output
         streamsStub[layerId].emplace_back(ttStubRef, valid + r + phi + rz);
       }

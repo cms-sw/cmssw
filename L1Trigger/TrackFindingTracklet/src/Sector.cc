@@ -402,7 +402,7 @@ void Sector::executeME() {
 
 void Sector::executeMC() {
   for (auto& i : MC_) {
-    i->execute(isector_,phimin_);
+    i->execute(isector_, phimin_);
   }
 }
 
@@ -420,14 +420,15 @@ void Sector::executeFT(const ChannelAssignment* channelAssignment,
                        tt::Streams& streamsTrack,
                        tt::StreamsStub& streamsStub) {
   int channelTrack(0);
-  const int offsetTrack = isector_ * channelAssignment->numChannels();
+  const int offsetTrack = isector_ * channelAssignment->numChannelsTrack();
   for (auto& i : FT_) {
     deque<tt::Frame> streamsTrackTmp;
-    vector<deque<tt::FrameStub>> streamsStubTmp(channelAssignment->maxNumProjectionLayers());
+    vector<deque<tt::FrameStub>> streamsStubTmp(channelAssignment->numProjectionLayers(channelTrack));
     i->execute(channelAssignment, streamsTrackTmp, streamsStubTmp, isector_);
     if (!settings_.storeTrackBuilderOutput())
       continue;
-    const int offestStub = (offsetTrack + channelTrack) * channelAssignment->maxNumProjectionLayers();
+    const int offestStub =
+        isector_ * channelAssignment->numChannelsStub() + channelAssignment->offsetStub(channelTrack);
     streamsTrack[offsetTrack + channelTrack++] = tt::Stream(streamsTrackTmp.begin(), streamsTrackTmp.end());
     int channelStub(0);
     for (deque<tt::FrameStub>& stream : streamsStubTmp)

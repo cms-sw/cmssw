@@ -8,7 +8,7 @@
 ///===
 ///=== All variable names & equations come from Fruhwirth KF paper
 ///=== http://dx.doi.org/10.1016/0168-9002%2887%2990887-4
-///===   
+///===
 ///=== Summary of variables:
 ///=== m = hit position (phi,z)
 ///=== V = hit position 2x2 covariance matrix in (phi,z).
@@ -24,8 +24,8 @@
 ///=== S = H*C (2x4 matrix); St = Transpose S
 ///=== R = V + H*C*Ht (KF paper) = V + H*St (used here at simpler): 2x2 matrix
 ///=== Rinv = Inverse R
-///=== K = St * Rinv : 2x2 Kalman gain matrix * det(R) 
-///=== r = m - H*x 
+///=== K = St * Rinv : 2x2 Kalman gain matrix * det(R)
+///=== r = m - H*x
 ///=== x' = x + K*r
 ///=== C' = C - K*H*C (KF paper) = C - K*S (used here as simpler)
 ///=== delta(chi2) = r(transpose) * Rinv * r : Increase in chi2 from new stub added during iteration.

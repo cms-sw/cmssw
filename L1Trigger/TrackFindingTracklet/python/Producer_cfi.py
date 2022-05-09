@@ -15,6 +15,8 @@ TrackFindingTrackletProducer_params = cms.PSet (
   BranchLostStubs      = cms.string  ( "StubLost"      ),                                  #
   BranchLostTracks     = cms.string  ( "TrackLost"     ),                                  #
   CheckHistory         = cms.bool    ( False ),                                            # checks if input sample production is configured as current process
-  EnableTruncation     = cms.bool    ( True  ),                                            # enable emulation of truncation, lost stubs are filled in BranchLost
+  EnableTruncation     = cms.bool    ( True  ),                                            # enable emulation of truncation for TBout, KF, KFin, lost stubs are filled in BranchLost
+  PrintKFDebug         = cms.bool    ( False ),                                            # print end job internal unused MSB
+  UseTTStubResiduals   = cms.bool    ( False ),                                            # stub residuals are recalculated from seed parameter and TTStub position
 
 )

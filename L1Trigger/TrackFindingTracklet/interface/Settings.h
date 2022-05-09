@@ -430,7 +430,7 @@ namespace trklet {
     }
 
     // DTC in given ATCA crate slot.
-    std::string slotToDTCname(unsigned int slot) const {return slotToDTCname_.at(slot);}
+    std::string slotToDTCname(unsigned int slot) const { return slotToDTCname_.at(slot); }
 
     // Tracker layers read by given DTC.
     const std::vector<int>& dtcLayers(const std::string& dtcName) const {
@@ -504,7 +504,8 @@ namespace trklet {
 
     // FIX: There should be 3 PS10G slots & 3 PS (5G) ones.
     // (Will change output files used by HLS).
-    std::vector<std::string> slotToDTCname_{"PS10G_1","PS10G_2","PS10G_3","PS10G_4","PS_1","PS_2","2S_1","2S_2","2S_3","2S_4","2S_5","2S_6"};
+    std::vector<std::string> slotToDTCname_{
+        "PS10G_1", "PS10G_2", "PS10G_3", "PS10G_4", "PS_1", "PS_2", "2S_1", "2S_2", "2S_3", "2S_4", "2S_5", "2S_6"};
 
     std::map<std::string, std::vector<int> > dtclayers_{{"PS10G_1", {0, 6, 8, 10}},
                                                         {"PS10G_2", {0, 7, 9}},
@@ -935,7 +936,7 @@ namespace trklet {
     bool extended_{false};       // turn on displaced tracking
     bool reduced_{false};        // use reduced (Summer Chain) config
 
-    bool combined_{false};       // use combined TP (TE+TC) and MP (PR+ME+MC) configuration
+    bool combined_{false};  // use combined TP (TE+TC) and MP (PR+ME+MC) configuration
 
     std::string skimfile_{""};  //if not empty events will be written out in ascii format to this file
 

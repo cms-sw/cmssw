@@ -15,24 +15,25 @@ process.load( 'L1Trigger.TrackTrigger.TrackTrigger_cff' )
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-
-
 # load code that produces DTCStubs
 process.load( 'L1Trigger.TrackerDTC.ProducerED_cff' )
 # L1 tracking => hybrid emulation 
 process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
 # load code that fits hybrid tracks
-process.load( 'L1Trigger.TrackFindingTracklet.ProducerKF_cff' )
+process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
 #--- Load code that compares s/w with f/w
-process.load( 'L1Trigger.TrackerTFP.Demonstrator_cff' )
+process.load( 'L1Trigger.TrackFindingTracklet.Demonstrator_cff' )
 from L1Trigger.TrackFindingTracklet.Customize_cff import *
-reducedConfig( process )
+#reducedConfig( process )
+fwConfig( process )
 
 # build schedule
 process.tt = cms.Sequence (  process.TrackerDTCProducer
                            + process.L1HybridTracks
                            + process.TrackFindingTrackletProducerIRin
                            + process.TrackFindingTrackletProducerTBout
+                           + process.TrackFindingTrackletProducerKFin
+                           + process.TrackFindingTrackletProducerKF
                           )
 process.demo = cms.Path( process.tt + process.TrackerTFPDemonstrator )
 process.schedule = cms.Schedule( process.demo )
@@ -66,7 +67,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.Even
 process.source = cms.Source(
   "PoolSource",
   fileNames = cms.untracked.vstring( options.inputMC ),
-  skipEvents = cms.untracked.uint32( 0 ),
+  #skipEvents = cms.untracked.uint32( 993 ),
   secondaryFileNames = cms.untracked.vstring(),
   duplicateCheckMode = cms.untracked.string( 'noDuplicateCheck' )
 )

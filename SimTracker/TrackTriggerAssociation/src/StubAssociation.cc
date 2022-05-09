@@ -17,13 +17,14 @@ namespace tt {
   }
 
   // returns collection of TPPtrs associated to given TTstubRef
-  const vector<TPPtr>& StubAssociation::findTrackingParticlePtrs(const TTStubRef& ttStubRef) const {
+  vector<TPPtr> StubAssociation::findTrackingParticlePtrs(const TTStubRef& ttStubRef) const {
     const auto it = mapTTStubRefsTPPtrs_.find(ttStubRef);
-    return it != mapTTStubRefsTPPtrs_.end() ? it->second : emptyTPPtrs_;
+    const vector<TPPtr> res = it != mapTTStubRefsTPPtrs_.end() ? it->second : emptyTPPtrs_;
+    return res;
   }
 
   // returns collection of TTStubRefs associated to given TPPtr
-  const vector<TTStubRef>& StubAssociation::findTTStubRefs(const TPPtr& tpPtr) const {
+  vector<TTStubRef> StubAssociation::findTTStubRefs(const TPPtr& tpPtr) const {
     const auto it = mapTPPtrsTTStubRefs_.find(tpPtr);
     return it != mapTPPtrsTTStubRefs_.end() ? it->second : emptyTTStubRefs_;
   }

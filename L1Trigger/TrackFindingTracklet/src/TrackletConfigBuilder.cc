@@ -63,7 +63,7 @@ TrackletConfigBuilder::TrackletConfigBuilder(const Settings& settings, const tt:
   setDTCphirange(setup);
 
   if (settings_.writeConfig()) {
-    static std::once_flag runOnce; // Only one thread should call this.
+    static std::once_flag runOnce;  // Only one thread should call this.
     std::call_once(runOnce, &TrackletConfigBuilder::writeDTCphirange, this);
   }
 }
@@ -72,14 +72,13 @@ TrackletConfigBuilder::TrackletConfigBuilder(const Settings& settings, const tt:
 
 #ifdef CMSSW_GIT_HASH
 
-void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) { 
-
+void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) {
   list<DTCinfo> vecDTCinfo_unsorted;
 
   // Loop over DTCs in this tracker nonant.
   unsigned int numDTCsPerSector = setup->numDTCsPerRegion();
   for (unsigned int dtcId = 0; dtcId < numDTCsPerSector; dtcId++) {
-    typedef std::pair<float,float> PhiRange;
+    typedef std::pair<float, float> PhiRange;
     std::map<int, PhiRange> dtcPhiRange;
 
     // Loop over all tracker nonants, taking worst case not all identical.
@@ -88,18 +87,18 @@ void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) {
       const std::vector<tt::SensorModule*>& dtcModules = setup->dtcModules(dtcId_regI);
       for (const tt::SensorModule* sm : dtcModules) {
         // Convert layer number to Hybrid convention.
-        int layer = sm->layerId(); // Barrel = 1-6, Endcap = 11-15;
+        int layer = sm->layerId();  // Barrel = 1-6, Endcap = 11-15;
         if (sm->barrel()) {
-          layer--; // Barrel 0-5
+          layer--;  // Barrel 0-5
         } else {
           const int endcapOffsetHybrid = 5;
-          layer -= endcapOffsetHybrid; // Layer 6-19
+          layer -= endcapOffsetHybrid;  // Layer 6-19
         }
         // Inner radius of module.
-        float r = sm->r() - 0.5 * sm->numColumns()*sm->pitchCol()*fabs(sm->sinTilt());
+        float r = sm->r() - 0.5 * sm->numColumns() * sm->pitchCol() * fabs(sm->sinTilt());
         // phi with respect to tracker nonant centre.
-        float phiMin = sm->phi() - 0.5*sm->numRows()*sm->pitchRow() / r;
-        float phiMax = sm->phi() + 0.5*sm->numRows()*sm->pitchRow() / r;
+        float phiMin = sm->phi() - 0.5 * sm->numRows() * sm->pitchRow() / r;
+        float phiMax = sm->phi() + 0.5 * sm->numRows() * sm->pitchRow() / r;
         // Hybrid measures phi w.r.t. lower edge of tracker nonant.
         const float phiOffsetHybrid = 0.5 * dphisectorHG_;
         phiMin += phiOffsetHybrid;
@@ -107,15 +106,16 @@ void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) {
         if (dtcPhiRange.find(layer) == dtcPhiRange.end()) {
           dtcPhiRange[layer] = {phiMin, phiMax};
         } else {
-          dtcPhiRange.at(layer).first  = std::min(phiMin, dtcPhiRange.at(layer).first);
+          dtcPhiRange.at(layer).first = std::min(phiMin, dtcPhiRange.at(layer).first);
           dtcPhiRange.at(layer).second = std::max(phiMax, dtcPhiRange.at(layer).second);
         }
       }
     }
     for (const auto& p : dtcPhiRange) {
       const unsigned int numSlots = setup->numATCASlots();
-      std::string dtcName = settings_.slotToDTCname(dtcId%numSlots);
-      if (dtcId >= numSlots) dtcName = "neg" + dtcName;
+      std::string dtcName = settings_.slotToDTCname(dtcId % numSlots);
+      if (dtcId >= numSlots)
+        dtcName = "neg" + dtcName;
       DTCinfo info;
       info.name = dtcName;
       info.layer = p.first;
@@ -151,10 +151,10 @@ void TrackletConfigBuilder::writeDTCphirange() const {
     std::ofstream out;
     openfile(out, first, dirName, fileName, __FILE__, __LINE__);
     if (first) {
-      out<<"// layer & phi ranges of modules read by each DTC"<<endl;
-      out<<"// (Used by stand-alone emulation)"<<endl;
+      out << "// layer & phi ranges of modules read by each DTC" << endl;
+      out << "// (Used by stand-alone emulation)" << endl;
     }
-    out<<info.name<<" "<<info.layer<<" "<<info.phimin<<" "<<info.phimax<<endl;
+    out << info.name << " " << info.layer << " " << info.phimin << " " << info.phimax << endl;
     out.close();
     first = false;
   }
@@ -166,8 +166,8 @@ void TrackletConfigBuilder::writeDTCphirange() const {
 
 void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) {
   // This file previously written by writeDTCphirange().
-  const string fname="../data/dtcphirange.txt";
-  if (vecDTCinfo_.empty()) { // Only run once per thread.
+  const string fname = "../data/dtcphirange.txt";
+  if (vecDTCinfo_.empty()) {  // Only run once per thread.
     std::ifstream str_dtc;
     str_dtc.open(fname);
     assert(str_dtc.good());
@@ -177,7 +177,7 @@ void TrackletConfigBuilder::setDTCphirange(const tt::Setup* setup) {
       DTCinfo info;
       iss >> info.name >> info.layer >> info.phimin >> info.phimax;
       vecDTCinfo_.push_back(info);
-    } 
+    }
     str_dtc.close();
   }
 }
@@ -506,7 +506,6 @@ std::string TrackletConfigBuilder::PRName(unsigned int ilayer, unsigned int ireg
 }
 
 void TrackletConfigBuilder::writeProjectionMemories(std::ostream& os, std::ostream& memories, std::ostream&) {
-
   // Each TC (e.g. TC_L1L2D) writes a projection memory (TPROJ) for each layer the seed projects to,
   // with name indicating the TC and which layer & phi region it projects to (e.g. TPROJ_L1L2D_L3PHIA).
   //
@@ -583,8 +582,12 @@ std::string TrackletConfigBuilder::TCDName(unsigned int l1, unsigned int l2, uns
   return "TCD_" + LayerName(l1) + LayerName(l2) + LayerName(l3) + iTCStr(itc);
 }
 
-std::string TrackletConfigBuilder::TPROJName(
-    unsigned int l1, unsigned int l2, unsigned int l3, unsigned int itc, unsigned int projlayer, unsigned int projreg) const {
+std::string TrackletConfigBuilder::TPROJName(unsigned int l1,
+                                             unsigned int l2,
+                                             unsigned int l3,
+                                             unsigned int itc,
+                                             unsigned int projlayer,
+                                             unsigned int projreg) const {
   return "TPROJ_" + LayerName(l1) + LayerName(l2) + LayerName(l3) + iTCStr(itc) + "_" + LayerName(projlayer) + "PHI" +
          iTCStr(projreg);
 }
@@ -593,8 +596,12 @@ std::string TrackletConfigBuilder::FTName(unsigned int l1, unsigned int l2, unsi
   return "FT_" + LayerName(l1) + LayerName(l2) + LayerName(l3);
 }
 
-std::string TrackletConfigBuilder::TREName(
-    unsigned int l1, unsigned int ireg1, unsigned int l2, unsigned int ireg2, unsigned int iseed, unsigned int count) const {
+std::string TrackletConfigBuilder::TREName(unsigned int l1,
+                                           unsigned int ireg1,
+                                           unsigned int l2,
+                                           unsigned int ireg2,
+                                           unsigned int iseed,
+                                           unsigned int count) const {
   return "TRE_" + LayerName(l1) + iRegStr(ireg1, iseed) + LayerName(l2) + iRegStr(ireg2, iseed) + "_" + numStr(count);
 }
 
@@ -611,7 +618,6 @@ std::string TrackletConfigBuilder::STName(unsigned int l1,
 }
 
 void TrackletConfigBuilder::writeSPMemories(std::ostream& os, std::ostream& memories, std::ostream& modules) {
-
   // Each TE reads one VM in two seed layers, finds stub pairs & writes to a StubPair ("SP") memory.
   //
   // Each TC reads several StubPair (SP) memories, each containing a pair of VMs of two seeding layers.
@@ -647,7 +653,6 @@ void TrackletConfigBuilder::writeSPMemories(std::ostream& os, std::ostream& memo
 }
 
 void TrackletConfigBuilder::writeSPDMemories(std::ostream& wires, std::ostream& memories, std::ostream& modules) {
-
   // Similar to writeSPMemories, but for displaced (=extended) tracking,
   // with seeds based on triplets of layers.
 
@@ -787,7 +792,6 @@ void TrackletConfigBuilder::writeSPDMemories(std::ostream& wires, std::ostream& 
 }
 
 void TrackletConfigBuilder::writeAPMemories(std::ostream& os, std::ostream& memories, std::ostream& modules) {
-
   // The AllProjection memories (e.g. AP_L2PHIA) contain the intercept point of the projection to
   // a layer. Each is written by one PR module of similar name (e.g. PR_L2PHIA), and read by
   // a MC (e.g. MC_L2PHIA).
@@ -808,11 +812,10 @@ void TrackletConfigBuilder::writeAPMemories(std::ostream& os, std::ostream& memo
 }
 
 void TrackletConfigBuilder::writeCMMemories(std::ostream& os, std::ostream& memories, std::ostream& modules) {
-
   // The CandidateMatch memory (e.g. CM_L1PHIA1) are each written by ME module of similar name
-  // (e.g. ME_L1PHIA1) and contain indices of matching (tracklet projections,stubs) in the specified 
+  // (e.g. ME_L1PHIA1) and contain indices of matching (tracklet projections,stubs) in the specified
   // VM region.
-  // All CM memories in a given phi region (e.g. L1PHIA) are read by a MC module (e.g. MC_L1PHIA) that 
+  // All CM memories in a given phi region (e.g. L1PHIA) are read by a MC module (e.g. MC_L1PHIA) that
   // does more precise matching.
 
   if (combinedmodules_)
@@ -833,9 +836,8 @@ void TrackletConfigBuilder::writeCMMemories(std::ostream& os, std::ostream& memo
 }
 
 void TrackletConfigBuilder::writeVMPROJMemories(std::ostream& os, std::ostream& memories, std::ostream&) {
-
-  // The VMPROJ memories (e.g. VMPROJ_L2PHIA1) written by a PR module each correspond to projections to 
-  // a single VM region in a layer. Each is filled by the PR using all projections (TPROJ) to this VM 
+  // The VMPROJ memories (e.g. VMPROJ_L2PHIA1) written by a PR module each correspond to projections to
+  // a single VM region in a layer. Each is filled by the PR using all projections (TPROJ) to this VM
   // from different seeding layers.
   //
   // Each VMPROJ memory is read by a ME module, which matches the projection to stubs.
@@ -857,7 +859,6 @@ void TrackletConfigBuilder::writeVMPROJMemories(std::ostream& os, std::ostream& 
 }
 
 void TrackletConfigBuilder::writeFMMemories(std::ostream& os, std::ostream& memories, std::ostream& modules) {
-
   // All FullMatch (e.g. FM_L2L3_L1PHIA) memories corresponding to a matches between stubs & tracklets
   // in a given region (e.g. L1PHIA) from all seeding layers, are written by a MC module (e.g. MC_L1PHIA).
   //
@@ -898,10 +899,9 @@ void TrackletConfigBuilder::writeFMMemories(std::ostream& os, std::ostream& memo
 }
 
 void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memories, std::ostream& modules) {
-
   // Each VMR writes AllStub memories (AS) for a single phi region (e.g. PHIC),
   // merging data from all DTCs related to this phi region. It does so by merging data from
-  // the IL memories written by all IRs for this phi region. The wiring map lists all 
+  // the IL memories written by all IRs for this phi region. The wiring map lists all
   // IL memories that feed (">") into a single VMR ("VMR_L1PHIC") that writes to the
   // an AS memory ("AS_L1PHIC").
   // Multiple copies of each AS memory exist where several modules in chain want to read it.
@@ -1039,7 +1039,6 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
     }
 
   } else {
-
     //First write AS memories used by MatchCalculator
     for (unsigned int ilayer = 0; ilayer < N_LAYER + N_DISK; ilayer++) {
       for (unsigned int iReg = 0; iReg < NRegions_[ilayer]; iReg++) {
@@ -1074,7 +1073,7 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
             for (unsigned int iTE = 0; iTE < TC_[iSeed][iTC].size(); iTE++) {
               unsigned int theTE = TC_[iSeed][iTC][iTE];
 
-              unsigned int TE1 = TE_[iSeed][theTE].first; // VM in inner/outer layer of this TE.
+              unsigned int TE1 = TE_[iSeed][theTE].first;  // VM in inner/outer layer of this TE.
               unsigned int TE2 = TE_[iSeed][theTE].second;
 
               if (l1 == ilayer && iReg == TE1 / NVMTE_[iSeed].first)
@@ -1084,7 +1083,7 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
             }
 
             if (used) {
-              nmem++; // Another copy of memory
+              nmem++;  // Another copy of memory
               memories << "AllStubs: AS_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << "n" << nmem << " [42]"
                        << std::endl;
               os << "AS_" << LayerName(ilayer) << "PHI" << iTCStr(iReg) << "n" << nmem << " input=> VMR_"
@@ -1104,10 +1103,9 @@ void TrackletConfigBuilder::writeASMemories(std::ostream& os, std::ostream& memo
 }
 
 void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& memories, std::ostream&) {
-
   // Each VMR writes to Virtual Module memories ("VMS") to be used later by the ME or TE etc.
   // Memory VMSTE_L1PHIC9-12 is the memory for small phi region C in L1 for the TE module.
-  // Numbers 9-12 correspond to the 4 VMs in this phi region. 
+  // Numbers 9-12 correspond to the 4 VMs in this phi region.
   //
   // Each TE reads one VMS memory in each seeding layer.
 
@@ -1153,7 +1151,6 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
     }
 
   } else {
-
     //First write VMS memories used by MatchEngine
     for (unsigned int ilayer = 0; ilayer < N_LAYER + N_DISK; ilayer++) {
       for (unsigned int iVMME = 0; iVMME < NVMME_[ilayer] * NRegions_[ilayer]; iVMME++) {
@@ -1195,7 +1192,7 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
           }
 
           for (unsigned int iTE = 0; iTE < TE_[iSeed].size(); iTE++) {
-            unsigned int TE1 = TE_[iSeed][iTE].first; // VM region in inner/outer layer of this TE
+            unsigned int TE1 = TE_[iSeed][iTE].first;  // VM region in inner/outer layer of this TE
             unsigned int TE2 = TE_[iSeed][iTE].second;
 
             bool used = false;
@@ -1212,7 +1209,7 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
             if (innerouterseed == 1)
               inorout = "O";
 
-            nmem++; // Add another copy of memory.
+            nmem++;  // Add another copy of memory.
             memories << "VMStubsTE: VMSTE_" << LayerName(ilayer) << "PHI" << iRegStr(iReg, iSeed) << iVMTE + 1 << "n"
                      << nmem << " [18]" << std::endl;
             os << "VMSTE_" << LayerName(ilayer) << "PHI" << iRegStr(iReg, iSeed) << iVMTE + 1 << "n" << nmem
@@ -1233,8 +1230,7 @@ void TrackletConfigBuilder::writeVMSMemories(std::ostream& os, std::ostream& mem
 }
 
 void TrackletConfigBuilder::writeTPARMemories(std::ostream& os, std::ostream& memories, std::ostream& modules) {
-
-  // Each TC module (e.g. TC_L1L2A) stores helix params in a single TPAR memory of similar name 
+  // Each TC module (e.g. TC_L1L2A) stores helix params in a single TPAR memory of similar name
   // (e.g. TPAR_L1L2A). The TPAR is subsequently read by the TrackBuilder (FT).
 
   if (combinedmodules_) {
@@ -1276,7 +1272,6 @@ void TrackletConfigBuilder::writeCTMemories(std::ostream& os, std::ostream& memo
 }
 
 void TrackletConfigBuilder::writeILMemories(std::ostream& os, std::ostream& memories, std::ostream& modules) {
-
   // Each Input Router (IR) reads stubs from one DTC (e.g. PS10G_1) & sends them
   // to 4-8 InputLink (IL) memories (labelled PHIA-PHIH), each corresponding to a small
   // phi region of a nonant, for each tracklet layer (L1-L6 or D1-D5) that the DTC
@@ -1304,27 +1299,27 @@ void TrackletConfigBuilder::writeILMemories(std::ostream& os, std::ostream& memo
     int layerdisk = info.layer;
 
     for (unsigned int iReg = 0; iReg < NRegions_[layerdisk]; iReg++) {
-//--- Ian Tomalin's proposed bug fix
-      double phiminDTC_A = info.phimin - M_PI/N_SECTOR; // Phi range of each DTC.
-      double phimaxDTC_A = info.phimax - M_PI/N_SECTOR;
-      double phiminDTC_B = info.phimin + M_PI/N_SECTOR; // Phi range of each DTC.
-      double phimaxDTC_B = info.phimax + M_PI/N_SECTOR;
+      //--- Ian Tomalin's proposed bug fix
+      double phiminDTC_A = info.phimin - M_PI / N_SECTOR;  // Phi range of each DTC.
+      double phimaxDTC_A = info.phimax - M_PI / N_SECTOR;
+      double phiminDTC_B = info.phimin + M_PI / N_SECTOR;  // Phi range of each DTC.
+      double phimaxDTC_B = info.phimax + M_PI / N_SECTOR;
       if (allStubs_[layerdisk][iReg].second > phiminDTC_A && allStubs_[layerdisk][iReg].first < phimaxDTC_A) {
         memories << "InputLink: IL_" << LayerName(layerdisk) << "PHI" << iTCStr(iReg) << "_" << dtcname << "_A"
                  << " [36]" << std::endl;
         os << "IL_" << LayerName(layerdisk) << "PHI" << iTCStr(iReg) << "_" << dtcname << "_A"
-           << " input=> IR_" << dtcname << "_A.stubout output=> VMR_" << LayerName(layerdisk) << "PHI"
-           << iTCStr(iReg) << ".stubin" << std::endl;
+           << " input=> IR_" << dtcname << "_A.stubout output=> VMR_" << LayerName(layerdisk) << "PHI" << iTCStr(iReg)
+           << ".stubin" << std::endl;
       }
       if (allStubs_[layerdisk][iReg].second > phiminDTC_B && allStubs_[layerdisk][iReg].first < phimaxDTC_B) {
         memories << "InputLink: IL_" << LayerName(layerdisk) << "PHI" << iTCStr(iReg) << "_" << dtcname << "_B"
                  << " [36]" << std::endl;
         os << "IL_" << LayerName(layerdisk) << "PHI" << iTCStr(iReg) << "_" << dtcname << "_B"
-           << " input=> IR_" << dtcname << "_B.stubout output=> VMR_" << LayerName(layerdisk) << "PHI"
-           << iTCStr(iReg) << ".stubin" << std::endl;
+           << " input=> IR_" << dtcname << "_B.stubout output=> VMR_" << LayerName(layerdisk) << "PHI" << iTCStr(iReg)
+           << ".stubin" << std::endl;
       }
-//--- Original (buggy) code
-/*
+      //--- Original (buggy) code
+      /*
       double phiminDTC = info.phimin; // Phi range of each DTC.
       double phimaxDTC = info.phimax;
 

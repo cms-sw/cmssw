@@ -5,8 +5,11 @@
 using namespace std;
 using namespace trklet;
 
-MatchEngineUnit::MatchEngineUnit(const Settings& settings, bool barrel, unsigned int layerdisk, const TrackletLUT& luttable)
-  : settings_(settings), luttable_(luttable), candmatches_(3) {
+MatchEngineUnit::MatchEngineUnit(const Settings& settings,
+                                 bool barrel,
+                                 unsigned int layerdisk,
+                                 const TrackletLUT& luttable)
+    : settings_(settings), luttable_(luttable), candmatches_(3) {
   idle_ = true;
   print_ = false;
   imeu_ = -1;
@@ -16,10 +19,7 @@ MatchEngineUnit::MatchEngineUnit(const Settings& settings, bool barrel, unsigned
   good___ = false;
 }
 
-void MatchEngineUnit::setAlmostFull() {
-  almostfullsave_ = candmatches_.nearfull();
-}
-
+void MatchEngineUnit::setAlmostFull() { almostfullsave_ = candmatches_.nearfull(); }
 
 void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
                            unsigned int nrzbins,
@@ -64,12 +64,9 @@ void MatchEngineUnit::init(VMStubsMEMemory* vmstubsmemory,
   proj_ = proj;
 
   good__ = false;
-
 }
 
-
 void MatchEngineUnit::step() {
-
   good__ = !idle() && !almostfullsave_;
 
   if (!good__)
@@ -104,21 +101,15 @@ void MatchEngineUnit::step() {
     } else {
       idle_ = true;
     }
-
- 
   }
-
 }
 
-
 void MatchEngineUnit::processPipeline() {
-
   if (good___) {
-  
     bool isPSmodule = vmstub___.isPSmodule();
     int stubfinerz = vmstub___.finerz().value();
     int stubfinephi = vmstub___.finephi().value();
-    
+
     int deltaphi = stubfinephi - projfinephi___;
 
     constexpr int idphicut = 3;
@@ -138,31 +129,29 @@ void MatchEngineUnit::processPipeline() {
 
     if (barrel_) {
       if (isPSseed___) {
-	constexpr int drzcut = 1;
-	pass = std::abs(idrz) <= drzcut;
+        constexpr int drzcut = 1;
+        pass = std::abs(idrz) <= drzcut;
       } else {
-	constexpr int drzcut = 5;
-	pass = std::abs(idrz) <= drzcut;
+        constexpr int drzcut = 5;
+        pass = std::abs(idrz) <= drzcut;
       }
     } else {
       if (isPSmodule) {
-	constexpr int drzcut = 1;
-	pass = std::abs(idrz) <= drzcut;
+        constexpr int drzcut = 1;
+        pass = std::abs(idrz) <= drzcut;
       } else {
-	constexpr int drzcut = 3;
-	pass = std::abs(idrz) <= drzcut;
+        constexpr int drzcut = 3;
+        pass = std::abs(idrz) <= drzcut;
       }
     }
 
     bool goodpair = (pass && dphicut) && luttable_.lookup(index);
 
     std::pair<Tracklet*, const Stub*> tmppair(proj___, vmstub___.stub());
-    
+
     if (goodpair) {
       candmatches_.store(tmppair);
     }
-
- 
   }
 
   proj___ = proj__;
@@ -170,10 +159,8 @@ void MatchEngineUnit::processPipeline() {
   projfinerz___ = projfinerz__;
   projrinv___ = projrinv__;
   isPSseed___ = isPSseed__;
-  good___ =  good__;
+  good___ = good__;
   vmstub___ = vmstub__;
-
-
 }
 
 void MatchEngineUnit::reset() {
@@ -198,9 +185,8 @@ int MatchEngineUnit::TCID() const {
   }
 
   if (idle_) {
-    return (1<<(settings_.nbitstrackletindex()+settings_.nbitstcindex()))-1;
+    return (1 << (settings_.nbitstrackletindex() + settings_.nbitstcindex())) - 1;
   }
-
 
   return proj_->TCID();
 }

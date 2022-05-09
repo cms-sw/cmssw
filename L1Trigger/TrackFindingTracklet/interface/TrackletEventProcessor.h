@@ -11,7 +11,9 @@
 #include <deque>
 #include <string>
 
-namespace tt {class Setup;}
+namespace tt {
+  class Setup;
+}
 
 namespace trklet {
 
@@ -29,7 +31,9 @@ namespace trklet {
 
     ~TrackletEventProcessor();
 
-    void init(Settings const& theSettings, const ChannelAssignment* channelAssignment, const tt::Setup* setup = nullptr);
+    void init(Settings const& theSettings,
+              const ChannelAssignment* channelAssignment,
+              const tt::Setup* setup = nullptr);
 
     void event(SLHCEvent& ev);
 

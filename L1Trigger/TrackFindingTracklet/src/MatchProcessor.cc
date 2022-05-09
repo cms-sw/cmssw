@@ -183,8 +183,6 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
   bool good__ = false;
 
   for (unsigned int istep = 0; istep < settings_.maxStep("MP"); istep++) {
-
-
     // This print statement is useful for detailed comparison with the HLS code
     // It prints out detailed status information for each clock step
     /* 
@@ -201,13 +199,11 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     }
     */
 
-
     //First do some caching of state at the start of the clock
 
     bool projdone = false;
 
     bool projBuffNearFull = inputProjBuffer_.nearfull();
-
 
     for (unsigned int iME = 0; iME < nMatchEngines_; iME++) {
       matchengines_[iME].setAlmostFull();
@@ -228,7 +224,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
       }
     }
 
-    // check if the matche engine processing the smallest tcid has match 
+    // check if the matche engine processing the smallest tcid has match
 
     if (!matchengines_[iMEbest].empty()) {
       std::pair<Tracklet*, const Stub*> candmatch = matchengines_[iMEbest].read();
@@ -290,7 +286,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
                                 tmpProj.use(1, 1),
                                 tmpProj.isPSseed(),
                                 tmpProj.proj());
-	meactive = true;
+        meactive = true;
         addedProjection = true;
       } else {
         matchengines_[iME].step();
@@ -314,109 +310,109 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     if (iprojmem < inputprojs_.size()) {
       TrackletProjectionsMemory* projMem = inputprojs_[iprojmem];
       if (!projBuffNearFull) {
-	if (settings_.debugTracklet()) {
-	  edm::LogVerbatim("Tracklet") << getName() << " have projection in memory : " << projMem->getName();
-	}
-	
-	Tracklet* proj = projMem->getTracklet(iproj);
-	
-	FPGAWord fpgaphi = proj->proj(layerdisk_).fpgaphiproj();
-	
-	unsigned int iphi = (fpgaphi.value() >> (fpgaphi.nbits() - nvmbits_)) & (nvmbins_ - 1);
+        if (settings_.debugTracklet()) {
+          edm::LogVerbatim("Tracklet") << getName() << " have projection in memory : " << projMem->getName();
+        }
 
-	int nextrabits = 2;
-	int overlapbits = nvmbits_ + nextrabits;
-	
-	unsigned int extrabits = fpgaphi.bits(fpgaphi.nbits() - overlapbits - nextrabits, nextrabits);
-	
-	unsigned int ivmPlus = iphi;
-	
-	int shift = 0;
-	
-	if (extrabits == ((1U << nextrabits) - 1) && iphi != ((1U << settings_.nbitsvmme(layerdisk_)) - 1)) {
-	  shift = 1;
-	  ivmPlus++;
-	}
-	unsigned int ivmMinus = iphi;
-	if (extrabits == 0 && iphi != 0) {
-	  shift = -1;
-	  ivmMinus--;
-	}
-	
-	int projrinv = -1;
-	if (barrel_) {
-	  FPGAWord phider = proj->proj(layerdisk_).fpgaphiprojder();
-	  projrinv = (1 << (nrinv_ - 1)) - 1 - (phider.value() >> (phider.nbits() - nrinv_));
-	} else {
-	  //The next lines looks up the predicted bend based on:
-	  // 1 - r projections
-	  // 2 - phi derivative
-	  // 3 - the sign - i.e. if track is forward or backward
-	  
-	  int rindex = (proj->proj(layerdisk_).fpgarzproj().value() >>
-			(proj->proj(layerdisk_).fpgarzproj().nbits() - nrbits_)) &
-	    ((1 << nrbits_) - 1);
-	  
-	  int phiprojder = proj->proj(layerdisk_).fpgaphiprojder().value();
+        Tracklet* proj = projMem->getTracklet(iproj);
 
-	  int phiderindex = (phiprojder >> (proj->proj(layerdisk_).fpgaphiprojder().nbits() - nphiderbits_)) &
-	    ((1 << nphiderbits_) - 1);
-	  
-	  int signindex = proj->proj(layerdisk_).fpgarzprojder().value() < 0;
-	  
-	  int bendindex = (signindex << (nphiderbits_ + nrbits_)) + (rindex << (nphiderbits_)) + phiderindex;
-	  
-	  projrinv = rinvbendlut_.lookup(bendindex);
-	  
-	  proj->proj(layerdisk_).setBendIndex(projrinv);
-	}
-	assert(projrinv >= 0);
-	
-	unsigned int slot = proj->proj(layerdisk_).fpgarzbin1projvm().value();
-	bool second = proj->proj(layerdisk_).fpgarzbin2projvm().value();
-	
-	unsigned int projfinephi =
-	  (fpgaphi.value() >> (fpgaphi.nbits() - (nvmbits_ + NFINEPHIBITS))) & ((1 << NFINEPHIBITS) - 1);
-	int projfinerz = proj->proj(layerdisk_).fpgafinerzvm().value();
-	
-	bool isPSseed = proj->PSseed();
-	
-	int nbins = (1 << N_RZBITS);
-	if (layerdisk_ >= N_LAYER) {
-	  nbins *= 2;  //twice as many bins in disks (since there are two disks)
-	}
-	
-	VMStubsMEMemory* stubmem = vmstubs_[0];
-	bool usefirstMinus = stubmem->nStubsBin(ivmMinus * nbins + slot) != 0;
-	bool usesecondMinus = (second && (stubmem->nStubsBin(ivmMinus * nbins + slot + 1) != 0));
-	bool usefirstPlus = ivmPlus != ivmMinus && stubmem->nStubsBin(ivmPlus * nbins + slot) != 0;
-	bool usesecondPlus = ivmPlus != ivmMinus && (second && (stubmem->nStubsBin(ivmPlus * nbins + slot + 1) != 0));
-	
-	good_ = usefirstPlus || usesecondPlus || usefirstMinus || usesecondMinus;
-	
-	if (good_) {
-	  ProjectionTemp tmpProj(proj,
-				 slot,
-				 projrinv,
-				 projfinerz,
-				 projfinephi,
-				 ivmMinus,
-				 shift,
-				 usefirstMinus,
-				 usefirstPlus,
-				 usesecondMinus,
-				 usesecondPlus,
-				 isPSseed);
-	  tmpProj_ = tmpProj;
-	}
+        FPGAWord fpgaphi = proj->proj(layerdisk_).fpgaphiproj();
 
-	iproj++;
-	if (iproj == projMem->nTracklets()) {
-	  iproj = 0;
-	  do {
-	    iprojmem++;
-	  } while (iprojmem < inputprojs_.size() && inputprojs_[iprojmem]->nTracklets() == 0);
-	}
+        unsigned int iphi = (fpgaphi.value() >> (fpgaphi.nbits() - nvmbits_)) & (nvmbins_ - 1);
+
+        int nextrabits = 2;
+        int overlapbits = nvmbits_ + nextrabits;
+
+        unsigned int extrabits = fpgaphi.bits(fpgaphi.nbits() - overlapbits - nextrabits, nextrabits);
+
+        unsigned int ivmPlus = iphi;
+
+        int shift = 0;
+
+        if (extrabits == ((1U << nextrabits) - 1) && iphi != ((1U << settings_.nbitsvmme(layerdisk_)) - 1)) {
+          shift = 1;
+          ivmPlus++;
+        }
+        unsigned int ivmMinus = iphi;
+        if (extrabits == 0 && iphi != 0) {
+          shift = -1;
+          ivmMinus--;
+        }
+
+        int projrinv = -1;
+        if (barrel_) {
+          FPGAWord phider = proj->proj(layerdisk_).fpgaphiprojder();
+          projrinv = (1 << (nrinv_ - 1)) - 1 - (phider.value() >> (phider.nbits() - nrinv_));
+        } else {
+          //The next lines looks up the predicted bend based on:
+          // 1 - r projections
+          // 2 - phi derivative
+          // 3 - the sign - i.e. if track is forward or backward
+
+          int rindex =
+              (proj->proj(layerdisk_).fpgarzproj().value() >> (proj->proj(layerdisk_).fpgarzproj().nbits() - nrbits_)) &
+              ((1 << nrbits_) - 1);
+
+          int phiprojder = proj->proj(layerdisk_).fpgaphiprojder().value();
+
+          int phiderindex = (phiprojder >> (proj->proj(layerdisk_).fpgaphiprojder().nbits() - nphiderbits_)) &
+                            ((1 << nphiderbits_) - 1);
+
+          int signindex = proj->proj(layerdisk_).fpgarzprojder().value() < 0;
+
+          int bendindex = (signindex << (nphiderbits_ + nrbits_)) + (rindex << (nphiderbits_)) + phiderindex;
+
+          projrinv = rinvbendlut_.lookup(bendindex);
+
+          proj->proj(layerdisk_).setBendIndex(projrinv);
+        }
+        assert(projrinv >= 0);
+
+        unsigned int slot = proj->proj(layerdisk_).fpgarzbin1projvm().value();
+        bool second = proj->proj(layerdisk_).fpgarzbin2projvm().value();
+
+        unsigned int projfinephi =
+            (fpgaphi.value() >> (fpgaphi.nbits() - (nvmbits_ + NFINEPHIBITS))) & ((1 << NFINEPHIBITS) - 1);
+        int projfinerz = proj->proj(layerdisk_).fpgafinerzvm().value();
+
+        bool isPSseed = proj->PSseed();
+
+        int nbins = (1 << N_RZBITS);
+        if (layerdisk_ >= N_LAYER) {
+          nbins *= 2;  //twice as many bins in disks (since there are two disks)
+        }
+
+        VMStubsMEMemory* stubmem = vmstubs_[0];
+        bool usefirstMinus = stubmem->nStubsBin(ivmMinus * nbins + slot) != 0;
+        bool usesecondMinus = (second && (stubmem->nStubsBin(ivmMinus * nbins + slot + 1) != 0));
+        bool usefirstPlus = ivmPlus != ivmMinus && stubmem->nStubsBin(ivmPlus * nbins + slot) != 0;
+        bool usesecondPlus = ivmPlus != ivmMinus && (second && (stubmem->nStubsBin(ivmPlus * nbins + slot + 1) != 0));
+
+        good_ = usefirstPlus || usesecondPlus || usefirstMinus || usesecondMinus;
+
+        if (good_) {
+          ProjectionTemp tmpProj(proj,
+                                 slot,
+                                 projrinv,
+                                 projfinerz,
+                                 projfinephi,
+                                 ivmMinus,
+                                 shift,
+                                 usefirstMinus,
+                                 usefirstPlus,
+                                 usesecondMinus,
+                                 usesecondPlus,
+                                 isPSseed);
+          tmpProj_ = tmpProj;
+        }
+
+        iproj++;
+        if (iproj == projMem->nTracklets()) {
+          iproj = 0;
+          do {
+            iprojmem++;
+          } while (iprojmem < inputprojs_.size() && inputprojs_[iprojmem]->nTracklets() == 0);
+        }
 
       } else {
         projdone = true && !good_ && !good__;
@@ -429,7 +425,8 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
     //
     //
 
-    if ((projdone && !meactive && inputProjBuffer_.rptr()==inputProjBuffer_.wptr() ) || (istep == settings_.maxStep("MP") - 1)) {
+    if ((projdone && !meactive && inputProjBuffer_.rptr() == inputProjBuffer_.wptr()) ||
+        (istep == settings_.maxStep("MP") - 1)) {
       if (settings_.writeMonitorData("MP")) {
         globals_->ofstream("matchprocessor.txt") << getName() << " " << istep << " " << countall << " " << countsel
                                                  << " " << countme << " " << countinputproj << endl;
@@ -443,7 +440,7 @@ void MatchProcessor::execute(unsigned int iSector, double phimin) {
   }
 }
 
-bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, bool, unsigned int ) {
+bool MatchProcessor::matchCalculator(Tracklet* tracklet, const Stub* fpgastub, bool, unsigned int) {
   const L1TStub* stub = fpgastub->l1tstub();
 
   if (layerdisk_ < N_LAYER) {
