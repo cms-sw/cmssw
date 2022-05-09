@@ -2,6 +2,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Version"/>
 <use   name="boost"/>
 <use   name="openssl"/>
 <use   name="tbb"/>

@@ -23,6 +23,7 @@ MET::MET(const reco::MET & aMET) : PATObject<reco::MET>(aMET) {
     if (pm != nullptr) this->operator=(*pm);
 
     metSig_ =0.;
+    sumPtUnclustered_ = 0.;
     initCorMap();
 }
 
@@ -37,6 +38,7 @@ MET::MET(const edm::RefToBase<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETR
     if (pm != nullptr) this->operator=(*pm);
 
     metSig_ =0.;
+    sumPtUnclustered_ = 0.;
     initCorMap();
 }
 
@@ -50,6 +52,7 @@ MET::MET(const edm::Ptr<reco::MET> & aMETRef) : PATObject<reco::MET>(aMETRef) {
     if (pm != nullptr) this->operator=(*pm);
 
     metSig_ =0.;
+    sumPtUnclustered_ = 0.;
     initCorMap();
 }
 
@@ -60,6 +63,7 @@ genMET_(iOther.genMET_),
 caloMET_(iOther.caloMET_),
 pfMET_(iOther.pfMET_),
 metSig_(iOther.metSig_),
+sumPtUnclustered_(iOther.sumPtUnclustered_),
 uncertaintiesRaw_(iOther.uncertaintiesRaw_), //74X reading compatibility
 uncertaintiesType1_(iOther.uncertaintiesType1_), //74X compatibility
 uncertaintiesType1p2_(iOther.uncertaintiesType1p2_), //74X compatibility
@@ -78,6 +82,7 @@ genMET_(srcMET.genMET_),
 caloMET_(srcMET.caloMET_),
 pfMET_(srcMET.pfMET_),
 metSig_(srcMET.metSig_),
+sumPtUnclustered_(srcMET.sumPtUnclustered_),
 caloPackedMet_(srcMET.caloPackedMet_) {
 
   setSignificanceMatrix(srcMET.getSignificanceMatrix());
@@ -101,6 +106,7 @@ MET& MET::operator=(MET const& iOther) {
    uncertainties_ = iOther.uncertainties_;
    corrections_ = iOther.corrections_;
    metSig_ = iOther.metSig_;
+   sumPtUnclustered_ = iOther.sumPtUnclustered_;
    caloPackedMet_ = iOther.caloPackedMet_;
 
    return *this;
@@ -126,6 +132,10 @@ void MET::setMETSignificance(const double& metSig) {
 double MET::metSignificance() const {
   return metSig_;
 }
+
+void MET::setMETSumPtUnclustered(const double &sumPtUnclustered) { sumPtUnclustered_ = sumPtUnclustered; }
+
+double MET::metSumPtUnclustered() const { return sumPtUnclustered_; }
 
 void
 MET::initCorMap() {

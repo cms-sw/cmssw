@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <algorithm>
 #include <string>
 #include "TFile.h"
 #include "TTree.h"
@@ -38,6 +39,7 @@
 #include "DataFormats/NanoAOD/interface/UniqueString.h"
 #include "PhysicsTools/NanoAOD/plugins/TableOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/TriggerOutputBranches.h"
+#include "PhysicsTools/NanoAOD/plugins/EventStringOutputBranches.h"
 #include "PhysicsTools/NanoAOD/plugins/SummaryTableOutputBranches.h"
 
 #include <iostream>
@@ -115,6 +117,8 @@ private:
 
   std::vector<TableOutputBranches> m_tables;
   std::vector<TriggerOutputBranches> m_triggers;
+  bool m_triggers_areSorted = false;
+  std::vector<EventStringOutputBranches> m_evstrings;
 
   std::vector<SummaryTableOutputBranches> m_runTables;
 
@@ -196,8 +200,20 @@ NanoAODOutputModule::write(edm::EventForOutput const& iEvent) {
   for (unsigned int extensions = 0; extensions <= 1; ++extensions) {
       for (auto & t : m_tables) t.fill(iEvent,*m_tree,extensions);
   }
+  if (!m_triggers_areSorted) {  // sort triggers/flags in inverse processHistory order, to save without any special label the most recent ones
+    std::vector<std::string> pnames;
+    for (auto& p : iEvent.processHistory())
+      pnames.push_back(p.processName());
+    std::sort(m_triggers.begin(), m_triggers.end(), [pnames](TriggerOutputBranches& a, TriggerOutputBranches& b) {
+      return ((std::find(pnames.begin(), pnames.end(), a.processName()) - pnames.begin()) >
+              (std::find(pnames.begin(), pnames.end(), b.processName()) - pnames.begin()));
+    });
+    m_triggers_areSorted = true;
+  }
   // fill triggers
   for (auto & t : m_triggers) t.fill(iEvent,*m_tree);
+  // fill event branches
+  for (auto & t : m_evstrings) t.fill(iEvent,*m_tree);
   m_tree->Fill();
 
   m_processHistoryRegistry.registerProcessHistory(iEvent.processHistory());
@@ -272,6 +288,8 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
   /* Setup file structure here */
   m_tables.clear();
   m_triggers.clear();
+  m_triggers_areSorted = false;
+  m_evstrings.clear();
   m_runTables.clear();
   const auto & keeps = keptProducts();
   for (const auto & keep : keeps[edm::InEvent]) {
@@ -281,6 +299,9 @@ NanoAODOutputModule::openFile(edm::FileBlock const&) {
 	  {
 	      m_triggers.emplace_back(keep.first, keep.second);
 	  }
+      else if(keep.first->className() == "std::basic_string<char,std::char_traits<char> >" && keep.first->productInstanceName()=="genModel") { // friendlyClassName == "String"
+	m_evstrings.emplace_back(keep.first, keep.second, true); // update only at lumiBlock transitions
+      }
       else throw cms::Exception("Configuration", "NanoAODOutputModule cannot handle class " + keep.first->className());     
   }
 
@@ -358,7 +379,7 @@ NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptio
         ->setComment("Autoflush parameter for ROOT file");
 
   //replace with whatever you want to get from the EDM by default
-  const std::vector<std::string> keep = {"drop *", "keep nanoaodFlatTable_*Table_*_*", "keep edmTriggerResults_*_*_*", "keep nanoaodMergeableCounterTable_*Table_*_*", "keep nanoaodUniqueString_nanoMetadata_*_*"};
+  const std::vector<std::string> keep = {"drop *", "keep nanoaodFlatTable_*Table_*_*", "keep edmTriggerResults_*_*_*", "keep String_*_genModel_*", "keep nanoaodMergeableCounterTable_*Table_*_*", "keep nanoaodUniqueString_nanoMetadata_*_*"};
   edm::OutputModule::fillDescription(desc, keep);
   
   //Used by Workflow management for their own meta data

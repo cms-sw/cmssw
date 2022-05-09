@@ -1,3 +1,4 @@
+<use   name="fastjet"/>
 <use   name="boost"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>

@@ -271,9 +271,10 @@
   <ioread sourceClass = "pat::Jet" version="[1-]" targetClass="pat::Jet" source="" target="daughtersTemp_">
     <![CDATA[daughtersTemp_.reset();]]>
   </ioread>
-  <class name="pat::MET"  ClassVersion="15">
-    <version ClassVersion="15" checksum="428901429"/>
+  <class name="pat::MET"  ClassVersion="16">
+    <version ClassVersion="16" checksum="2416242778"/>
     <field name="corMap_" transient="true"/>
+   <version ClassVersion="15" checksum="428901429"/>
    <version ClassVersion="14" checksum="1795935545"/>
    <version ClassVersion="13" checksum="2368359386"/>
    <version ClassVersion="12" checksum="1474251442"/>
@@ -631,6 +632,10 @@
   <class name="std::pair<pat::TauRef, float>"/>
   <class name="std::vector<std::pair<pat::TauRef, float> >" />
   <class name="edm::RefProd<std::vector<pat::Tau> >"/>
+
+  <class name="edm::RefProd<std::vector<pat::GenericParticle>>" />
+  <class name="edm::Association<std::vector<pat::GenericParticle>>" />
+  <class name="edm::Wrapper<edm::Association<std::vector<pat::GenericParticle>> >" />
 
   </selection>
  <exclusion>

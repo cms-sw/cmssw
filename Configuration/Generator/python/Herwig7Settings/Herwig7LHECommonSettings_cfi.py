@@ -12,6 +12,7 @@ herwig7LHECommonSettingsBlock = cms.PSet(
         'set LesHouchesHandler:DecayHandler /Herwig/Decays/DecayHandler',
         'set LesHouchesHandler:HadronizationHandler /Herwig/Hadronization/ClusterHadHandler',
         'set LesHouchesHandler:WeightOption VarNegWeight',
+        'set LesHouchesHandler:Weighted On',
         'set /Herwig/Generators/EventGenerator:EventHandler /Herwig/EventHandlers/LesHouchesHandler',
         'create ThePEG::Cuts /Herwig/Cuts/NoCuts',
         'create ThePEG::LHAPDF /Herwig/Partons/LHAPDF ThePEGLHAPDF.so',

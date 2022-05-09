@@ -94,6 +94,7 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016: # to be updated wh
 
 genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
     genEvent = cms.InputTag("generator"),
+    genLumiInfoHeader = cms.InputTag("generator"),
     lheInfo = cms.VInputTag(cms.InputTag("externalLHEProducer"), cms.InputTag("source")),
     preferredPDFs = cms.VPSet( # see https://lhapdf.hepforge.org/pdfsets.html
         cms.PSet( name = cms.string("PDF4LHC15_nnlo_30_pdfas"), lhaid = cms.uint32(91400) ),
@@ -102,10 +103,12 @@ genWeightsTable = cms.EDProducer("GenWeightsTableProducer",
         cms.PSet( name = cms.string("NNPDF30_lo_as_0130"), lhaid = cms.uint32(262000) ), # some MLM 80X samples have only this (e.g. /store/mc/RunIISummer16MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/MINIAODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6_ext1-v2/120000/02A210D6-F5C3-E611-B570-008CFA197BD4.root )
         cms.PSet( name = cms.string("NNPDF30_nlo_nf_4_pdfas"), lhaid = cms.uint32(292000) ), # some FXFX 80X samples have only this (e.g. WWTo1L1Nu2Q, WWTo4Q)
         cms.PSet( name = cms.string("NNPDF30_nlo_nf_5_pdfas"), lhaid = cms.uint32(292200) ), # some FXFX 80X samples have only this (e.g. DYJetsToLL_Pt, WJetsToLNu_Pt, DYJetsToNuNu_Pt)
+        cms.PSet( name = cms.string("NNPDF31_lo_as_0130"), lhaid = cms.uint32(315200) ), # SUSY signal samples use this
     ),
     namedWeightIDs = cms.vstring(),
     namedWeightLabels = cms.vstring(),
     lheWeightPrecision = cms.int32(14),
+    keepAllPSWeights = cms.bool(False),
     maxPdfWeights = cms.uint32(150), 
     debug = cms.untracked.bool(False),
 )
@@ -119,7 +122,7 @@ l1bits=cms.EDProducer("L1TriggerResultsConverter", src=cms.InputTag("gtStage2Dig
 
 nanoSequenceCommon = cms.Sequence(
         nanoMetadata + jetSequence + muonSequence + tauSequence + electronSequence+photonSequence+vertexSequence+
-        isoTrackSequence + # must be after all the leptons 
+        isoTrackSequence + jetLepSequence + # must be after all the leptons 
         linkedObjects  +
         jetTables + muonTables + tauTables + electronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + isoTrackTables
         )
@@ -136,6 +139,17 @@ nanoSequenceMC.insert(nanoSequenceFS.index(nanoSequenceCommon)+1,nanoSequenceOnl
 for modifier in run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_102Xv1:
     modifier.toModify(extraFlagsTable, variables= cms.PSet())
     modifier.toModify(extraFlagsTable, variables = dict(Flag_ecalBadCalibFilterV2 = ExtVar(cms.InputTag("ecalBadCalibFilterNanoTagger"), bool, doc = "Bad ECAL calib flag (updated xtal list)")))
+
+# modifier which adds new tauIDs (currently only deepTauId2017v2p1 is being added)
+import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
+def nanoAOD_addTauIds(process):
+    updatedTauName = "slimmedTausUpdated"
+    tauIdEmbedder = tauIdConfig.TauIDEmbedder(process, cms, debug = False, updatedTauName = updatedTauName,
+            toKeep = [ "deepTau2017v2p1" ])
+    tauIdEmbedder.runTauID()
+    process.patTauMVAIDsSeq.insert(process.patTauMVAIDsSeq.index(getattr(process, updatedTauName)),
+                                   process.rerunMvaIsolationSequence)
+    return process
 
 from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 def nanoAOD_addDeepInfo(process,addDeepBTag,addDeepFlavour):
@@ -238,7 +252,10 @@ def nanoAOD_addDeepInfoAK8(process,addDeepBTag,addDeepBoostedJet, addDeepDoubleX
         _btagDiscriminators += pfDeepBoostedJetTagsAll
     if addDeepDoubleX: 
         print("Updating process to run DeepDoubleX on datasets before 104X")
-        _btagDiscriminators += ['pfMassIndependentDeepDoubleBvLJetTags:probHbb', 'pfMassIndependentDeepDoubleCvLJetTags:probHcc', 'pfMassIndependentDeepDoubleCvBJetTags:probHcc']
+        _btagDiscriminators += ['pfDeepDoubleBvLJetTags:probHbb', \
+            'pfDeepDoubleCvLJetTags:probHcc', \
+            'pfDeepDoubleCvBJetTags:probHcc', \
+            'pfMassIndependentDeepDoubleBvLJetTags:probHbb', 'pfMassIndependentDeepDoubleCvLJetTags:probHcc', 'pfMassIndependentDeepDoubleCvBJetTags:probHcc']
     if len(_btagDiscriminators)==0: return process
     print("Will recalculate the following discriminators on AK8 jets: "+", ".join(_btagDiscriminators))
     updateJetCollection(
@@ -294,6 +311,7 @@ def nanoAOD_customizeCommon(process):
                                      addDeepBoostedJet=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepBoostedJet_switch,
                                      addDeepDoubleX=nanoAOD_addDeepInfoAK8_switch.nanoAOD_addDeepDoubleX_switch,
                                      jecPayload=nanoAOD_addDeepInfoAK8_switch.jecPayload)
+    (~run2_miniAOD_80XLegacy).toModify(process, lambda p : nanoAOD_addTauIds(p))
     return process
 
 def nanoAOD_customizeData(process):

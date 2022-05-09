@@ -12,11 +12,13 @@ from Configuration.Generator.Herwig7Settings.Herwig7LHECommonSettings_cfi import
 from Configuration.Generator.Herwig7Settings.Herwig7StableParticlesForDetector_cfi import *
 from Configuration.Generator.Herwig7Settings.Herwig7CH3TuneSettings_cfi import *
 from Configuration.Generator.Herwig7Settings.Herwig7LHEPowhegSettings_cfi import *
+from Configuration.Generator.Herwig7Settings.Herwig7PSWeightsSettings_cfi import *
 
 generator = cms.EDFilter("Herwig7GeneratorFilter",
     herwig7LHECommonSettingsBlock,
     herwig7LHEPowhegSettingsBlock,
     herwig7StableParticlesForDetectorBlock,
+    herwig7PSWeightsSettingsBlock,
     herwig7CH3SettingsBlock,
     configFiles = cms.vstring(),
     crossSection = cms.untracked.double(-1),
@@ -37,6 +39,7 @@ generator = cms.EDFilter("Herwig7GeneratorFilter",
         'herwig7CH3AlphaS', 
         'herwig7CH3MPISettings', 
         'herwig7StableParticlesForDetector',
+        'hw_PSWeights_settings',
         'hw_user_settings'
     ),
     repository = cms.string('${HERWIGPATH}/HerwigDefaults.rpo'),

@@ -131,6 +131,18 @@
   <version ClassVersion="10" checksum="262935904"/>
  </class>
  <class name="edm::IndexIntoFile::Transients" ClassVersion="0"/>
+
+ <class name="edm::StoredMergeableRunProductMetadata::SingleRunEntryAndProcess" ClassVersion="3">
+  <version ClassVersion="3" checksum="3004083460"/>
+ </class>
+ <class name="std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntryAndProcess>"/>
+ <class name="edm::StoredMergeableRunProductMetadata::SingleRunEntry" ClassVersion="3">
+  <version ClassVersion="3" checksum="294451415"/>
+ </class>
+ <class name="std::vector<edm::StoredMergeableRunProductMetadata::SingleRunEntry>"/>
+ <class name="edm::StoredMergeableRunProductMetadata" ClassVersion="3">
+  <version ClassVersion="3" checksum="2293482595"/>
+ </class>
  <class name="edm::ProcessHistoryID"/>
  <class name="std::set<edm::ProcessHistoryID >"/>
  <class name="std::vector<edm::ProcessHistory>"/>

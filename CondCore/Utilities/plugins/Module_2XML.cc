@@ -2,6 +2,7 @@
 #include "CondCore/Utilities/src/CondFormats.h"
 
 PAYLOAD_2XML_MODULE( pluginUtilities_payload2xml ){
+  boost::python::class_<cond::BoostVersion>("BoostVersion").def_readonly("label", &cond::BoostVersion::label);
   PAYLOAD_2XML_CLASS( AlCaRecoTriggerBits );
   PAYLOAD_2XML_CLASS( AlignPCLThresholds );
   PAYLOAD_2XML_CLASS( AlignmentErrors );

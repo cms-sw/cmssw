@@ -39,7 +39,6 @@ namespace edm {
     RootEmbeddedFileSequence(RootEmbeddedFileSequence const&) = delete; // Disallow copying and moving
     RootEmbeddedFileSequence& operator=(RootEmbeddedFileSequence const&) = delete; // Disallow copying and moving
 
-    void closeFile_() override;
     void endJob();
     void skipEntries(unsigned int offset);
     bool readOneEvent(EventPrincipal& cache, size_t& fileNameHash, CLHEP::HepRandomEngine*, EventID const* id, bool recycleFiles);
@@ -51,6 +50,7 @@ namespace edm {
 
     static void fillDescription(ParameterSetDescription & desc);
   private:
+    void closeFile_() override;
     void initFile_(bool skipBadFiles) override;
     RootFileSharedPtr makeRootFile(std::shared_ptr<InputFile> filePtr) override; 
 
@@ -65,6 +65,7 @@ namespace edm {
     int initialNumberOfEventsToSkip_;
     unsigned int treeCacheSize_;
     bool enablePrefetching_;
+    bool enforceGUIDInFileName_;
   }; // class RootEmbeddedFileSequence
 }
 #endif
