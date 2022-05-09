@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrackTriplets
+
 from RecoTauTag.HLTProducers.l2TauNNProducer_cfi import *
 from RecoTauTag.HLTProducers.l2TauTagFilter_cfi import *
 
@@ -22,8 +22,6 @@ def update(process):
 
     normalizationDict = 'RecoTauTag/TrainingFiles/data/L2TauNNTag/NormalizationDict.json'
 
-    if 'statusOnGPU' not in process. __dict__:
-        process = customizeHLTforPatatrackTriplets(process)
     process.hltL2TauTagNNProducer = l2TauNNProducer.clone(
         debugLevel = 0,
         L1Taus = [
