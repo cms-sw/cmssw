@@ -52,11 +52,11 @@ _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
 (pp_on_AA | _mAOD).toModify(patCandidateSummary.candidates,
                             func = lambda list: list.remove(cms.InputTag("patLowPtElectrons")) )
 
-from Configuration.ProcessModifiers.run2_miniAOD_UL_preSummer20_cff import run2_miniAOD_UL_preSummer20
-(pp_on_AA | _mAOD | run2_miniAOD_UL_preSummer20).toReplaceWith(patCandidatesTask,
-                                                               patCandidatesTask.copyAndExclude([makePatDisplacedMuonsTask]))
-(pp_on_AA | _mAOD | run2_miniAOD_UL_preSummer20).toModify(patCandidateSummary.candidates,
-                                                          func = lambda list: list.remove(cms.InputTag("patDisplacedMuons")) )
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+(pp_on_AA | _mAOD | run2_miniAOD_UL).toReplaceWith(patCandidatesTask,
+                                                   patCandidatesTask.copyAndExclude([makePatDisplacedMuonsTask]))
+(pp_on_AA | _mAOD | run2_miniAOD_UL).toModify(patCandidateSummary.candidates,
+                                              func = lambda list: list.remove(cms.InputTag("patDisplacedMuons")) )
 
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toReplaceWith(patCandidatesTask, patCandidatesTask.copyAndExclude([makePatDisplacedMuonsTask]))

@@ -28,6 +28,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -53,6 +57,8 @@ namespace pat {
     ~DisplacedMuonFilterProducer() override;
 
     void produce(edm::Event&, const edm::EventSetup&) override;
+    /// description of config file parameters
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
     template <typename TYPE>
@@ -150,6 +156,23 @@ pat::DisplacedMuonFilterProducer::DisplacedMuonFilterProducer(const edm::Paramet
 
 pat::DisplacedMuonFilterProducer::~DisplacedMuonFilterProducer() {}
 
+void pat::DisplacedMuonFilterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  // filteredDisplacedMuons
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("srcMuons", edm::InputTag("displacedMuons"));
+  desc.add<bool>("FillTimingInfo", true);
+  desc.add<bool>("FillDetectorBasedIsolation", false);
+  desc.add<edm::InputTag>("TrackIsoDeposits", edm::InputTag("displacedMuons", "tracker"));
+  desc.add<edm::InputTag>("JetIsoDeposits", edm::InputTag("displacedMuons", "jets"));
+  desc.add<edm::InputTag>("EcalIsoDeposits", edm::InputTag("displacedMuons", "ecal"));
+  desc.add<edm::InputTag>("HcalIsoDeposits", edm::InputTag("displacedMuons", "hcal"));
+  desc.add<edm::InputTag>("HoIsoDeposits", edm::InputTag("displacedMuons", "ho"));
+  desc.add<double>("minPtSTA", 3.5);
+  desc.add<double>("minPtTK", 3.5);
+  desc.add<double>("minMatches", 2);
+  descriptions.add("filteredDisplacedMuons", desc);
+}
+
 // Filter muons
 
 void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -192,6 +215,8 @@ void pat::DisplacedMuonFilterProducer::produce(edm::Event& iEvent, const edm::Ev
           continue;
         }
       } else {  // Should never happen
+        edm::LogWarning("muonBadTracks") << "Muon that has not standalone nor tracker track."
+                                         << "There should be no such object. Muon is skipped.";
         filteredmuons[i] = false;
         oMuons = oMuons - 1;
         continue;
