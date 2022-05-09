@@ -5,6 +5,8 @@
 #include <array>
 #include <set>
 #include <algorithm>
+#include <numeric>
+#include <iterator>
 
 using namespace std;
 using namespace edm;
@@ -16,19 +18,24 @@ namespace trklet {
       : setup_(setup),
         useDuplicateRemoval_(iConfig.getParameter<bool>("UseDuplicateRemoval")),
         boundaries_(iConfig.getParameter<vector<double>>("PtBoundaries")),
-        seedTypeNames_(iConfig.getParameter<vector<string>>("SeedTypesReduced")),
+        seedTypeNames_(iConfig.getParameter<vector<string>>("SeedTypes")),
         numSeedTypes_(seedTypeNames_.size()),
-        numChannels_(useDuplicateRemoval_ ? 2 * boundaries_.size() : numSeedTypes_),
-        maxNumProjectionLayers_(iConfig.getParameter<int>("MaxNumProjectionLayers")),
+        numChannelsTrack_(useDuplicateRemoval_ ? 2 * boundaries_.size() : numSeedTypes_),
         channelEncoding_(iConfig.getParameter<vector<int>>("IRChannelsIn")) {
-    const ParameterSet& pSetSeedTypesSeedLayers = iConfig.getParameter<ParameterSet>("SeedTypesSeedLayersReduced");
-    const ParameterSet& pSetSeedTypesProjectionLayers =
-        iConfig.getParameter<ParameterSet>("SeedTypesProjectionLayersReduced");
+    const ParameterSet& pSetSeedTypesSeedLayers = iConfig.getParameter<ParameterSet>("SeedTypesSeedLayers");
+    const ParameterSet& pSetSeedTypesProjectionLayers = iConfig.getParameter<ParameterSet>("SeedTypesProjectionLayers");
     seedTypesSeedLayers_.reserve(numSeedTypes_);
     seedTypesProjectionLayers_.reserve(numSeedTypes_);
     for (const string& s : seedTypeNames_) {
       seedTypesSeedLayers_.emplace_back(pSetSeedTypesSeedLayers.getParameter<vector<int>>(s));
       seedTypesProjectionLayers_.emplace_back(pSetSeedTypesProjectionLayers.getParameter<vector<int>>(s));
+    }
+    auto acc = [](int& sum, vector<int> ints) { return sum += (int)ints.size(); };
+    numChannelsStub_ = accumulate(seedTypesProjectionLayers_.begin(), seedTypesProjectionLayers_.end(), 0, acc);
+    offsetsStubs_.reserve(numSeedTypes_);
+    for (int seed = 0; seed < numSeedTypes_; seed++) {
+      const auto it = next(seedTypesProjectionLayers_.begin(), seed);
+      offsetsStubs_.emplace_back(accumulate(seedTypesProjectionLayers_.begin(), it, 0, acc));
     }
     // consistency check
     static constexpr int offsetBarrel = 1;
@@ -101,10 +108,12 @@ namespace trklet {
       exception.addContext("trklet::ChannelAssignment::ChannelAssignment");
       throw exception;
     }
+    auto bigger = [](const vector<int>& lhs, const vector<int>& rhs) { return lhs.size() < rhs.size(); };
+    numSeedingLayers_ = max_element(seedTypesSeedLayers_.begin(), seedTypesSeedLayers_.end(), bigger)->size();
   }
 
   // sets channelId of given TTTrackRef, return false if track outside pt range
-  bool ChannelAssignment::channelId(const TTTrackRef& ttTrackRef, int& channelId) const {
+  bool ChannelAssignment::channelId(const TTTrackRef& ttTrackRef, int& channelId) {
     if (!useDuplicateRemoval_) {
       const int seedType = ttTrackRef->trackSeedType();
       if (seedType >= numSeedTypes_) {
@@ -129,8 +138,8 @@ namespace trklet {
     }
     if (channelId == -1)
       return false;
-    channelId = ttTrackRef->rInv() < 0. ? channelId : numChannels_ - channelId - 1;
-    channelId += ttTrackRef->phiSector() * numChannels_;
+    channelId = ttTrackRef->rInv() < 0. ? channelId : numChannelsTrack_ - channelId - 1;
+    channelId += ttTrackRef->phiSector() * numChannelsTrack_;
     return true;
   }
 
@@ -159,6 +168,31 @@ namespace trklet {
     }
     layerId = distance(projectingLayers.begin(), pos);
     return true;
+  }
+
+  // return tracklet layerId (barrel: [0-5], endcap: [6-10]) for given TTStubRef
+  int ChannelAssignment::trackletLayerId(const TTStubRef& ttStubRef) const {
+    static constexpr int offsetBarrel = 1;
+    static constexpr int offsetDisks = 5;
+    return setup_->layerId(ttStubRef) - (setup_->barrel(ttStubRef) ? offsetBarrel : offsetDisks);
+  }
+
+  // index of first stub channel belonging to given track channel
+  int ChannelAssignment::offsetStub(int channelTrack) const {
+    return channelTrack / numChannelsTrack_ * numChannelsStub_ + offsetsStubs_[channelTrack % numChannelsTrack_];
+  }
+
+  //
+  int ChannelAssignment::channelId(int seedType, int layerId) const {
+    const vector<int>& projections = seedTypesProjectionLayers_.at(seedType);
+    const vector<int>& seeds = seedTypesSeedLayers_.at(seedType);
+    const auto itp = find(projections.begin(), projections.end(), layerId);
+    const auto its = find(seeds.begin(), seeds.end(), layerId);
+    if (its != seeds.end())
+      return (int)projections.size() + distance(seeds.begin(), its);
+    if (itp != projections.end())
+      return distance(projections.begin(), itp);
+    return -1;
   }
 
 }  // namespace trklet

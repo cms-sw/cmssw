@@ -24,7 +24,7 @@ TrackTrigger_params = cms.PSet (
     MatchedLayersPS  = cms.int32 (  0  ), # required number of ps layers a found track has to have in common with a TP to consider it matched to it
     UnMatchedStubs   = cms.int32 (  1  ), # allowed number of stubs a found track may have not in common with its matched TP
     UnMatchedStubsPS = cms.int32 (  0  ), # allowed number of PS stubs a found track may have not in common with its matched TP
-    Scattering       = cms.double( 0.00075 ) #
+    Scattering       = cms.double( 0.131283 ) # additional radial uncertainty in cm used to calculate stub phi residual uncertainty to take multiple scattering into account
   ),
 
   # TMTT specific parameter
@@ -62,7 +62,8 @@ TrackTrigger_params = cms.PSet (
       cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) ), # disk 3
       cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) ), # disk 4
       cms.PSet( Disk2SRs = cms.vdouble( 63.9903, 68.9903, 74.2750, 79.2750, 81.9562, 86.9562, 92.4920, 97.4920, 99.8160, 104.8160 ) )  # disk 5
-    )
+    ),
+    InnerRadius = cms.double( 19.6 ), # smallest stub radius after TrackBuilder in cm
   ),
 
   # Parameter specifying TrackingParticle used for Efficiency measurements
@@ -96,14 +97,19 @@ TrackTrigger_params = cms.PSet (
     OuterRadius         = cms.double( 112.7              ), # outer radius of outer tracker in cm
     InnerRadius         = cms.double(  21.8              ), # inner radius of outer tracker in cm
     HalfLength          = cms.double( 270.               ), # half length of outer tracker in cm
-    MaxPitch            = cms.double(    .01             ), # max strip/pixel pitch of outer tracker sensors in cm
-    MaxLength           = cms.double(   2.5              ), # max strip/pixel length of outer tracker sensors in cm
-    TiltApproxSlope     = cms.double(   0.886            ), # 
-    TiltApproxIntercept = cms.double(   0.504            ), # 
-    MindPhi             = cms.double(  0.0001            ), # minimum representable stub phi uncertainty
-    MaxdPhi             = cms.double(  0.02              ), # maximum representable stub phi uncertainty
-    MindZ               = cms.double(  0.1               ), # minimum representable stub z uncertainty
-    MaxdZ               = cms.double( 30.                ), # maximum representable stub z uncertainty
+    TiltApproxSlope     = cms.double(   0.884            ), # In tilted barrel, grad*|z|/r + int approximates |cosTilt| + |sinTilt * cotTheta|
+    TiltApproxIntercept = cms.double(   0.507            ), # In tilted barrel, grad*|z|/r + int approximates |cosTilt| + |sinTilt * cotTheta|
+    TiltUncertaintyR    = cms.double(   0.12             ), # In tilted barrel, constant assumed stub radial uncertainty * sqrt(12) in cm
+    MindPhi             = cms.double(   0.0001           ), # minimum representable stub phi uncertainty * sqrt(12) + additional terms in rad
+    MaxdPhi             = cms.double(   0.02             ), # maximum representable stub phi uncertainty * sqrt(12) + additional terms in rad
+    MindZ               = cms.double(   0.1              ), # minimum representable stub z uncertainty * sqrt(12) + additional terms in cm
+    MaxdZ               = cms.double(  30.               ), # maximum representable stub z uncertainty * sqrt(12) + additional terms in cm
+    Pitch2S             = cms.double(   0.009            ), # strip pitch of outer tracker sensors in cm
+    PitchPS             = cms.double(   0.01             ), # pixel pitch of outer tracker sensors in cm
+    Length2S            = cms.double(   5.025            ), # strip length of outer tracker sensors in cm
+    LengthPS            = cms.double(   0.1467           ), # pixel length of outer tracker sensors in cm
+    TiltedLayerLimitsZ  = cms.vdouble( 15.5, 24.9, 34.3, -1., -1., -1. ), # barrel layer limit |z| value to partition into tilted and untilted region
+    PSDiskLimitsR       = cms.vdouble( 66.4, 66.4, 64.55, 64.55, 64.55 ), # endcap disk limit r value to partition into PS and 2S region
   ),
 
   # Parmeter specifying front-end
@@ -152,7 +158,8 @@ TrackTrigger_params = cms.PSet (
     ChosenRofZ    = cms.double(  50. ), # critical radius defining r-z sector shape in cm
     RangeChiZ     = cms.double( 160. ), # range of stub z residual w.r.t. sector center which needs to be covered
     DepthMemory   = cms.int32 (  64  ), # fifo depth in stub router firmware
-    BoundariesEta = cms.vdouble( -2.40, -2.08, -1.68, -1.26, -0.90, -0.62, -0.41, -0.20, 0.0, 0.20, 0.41, 0.62, 0.90, 1.26, 1.68, 2.08, 2.40 ) # defining r-z sector shape
+    #BoundariesEta = cms.vdouble( -2.40, -2.08, -1.68, -1.26, -0.90, -0.62, -0.41, -0.20, 0.0, 0.20, 0.41, 0.62, 0.90, 1.26, 1.68, 2.08, 2.40 ) # defining r-z sector shape
+    BoundariesEta = cms.vdouble( -2.50, -2.23, -1.88, -1.36, -0.90, -0.62, -0.41, -0.20, 0.0, 0.20, 0.41, 0.62, 0.90, 1.36, 1.88, 2.23, 2.50 ) # defining r-z sector shape
   ),
 
   # Parmeter specifying HoughTransform
@@ -183,12 +190,19 @@ TrackTrigger_params = cms.PSet (
     MaxStubsPerLayer = cms.int32(  4 )  # cut on number of stub per layer for input candidates
   ),
 
+  # Parmeter specifying KalmanFilter Input Formatter
+
+  KalmanFilterIn = cms.PSet (
+    ShiftRangePhi = cms.int32( 2 ), # power of 2 multiplier of stub phi residual range
+    ShiftRangeZ   = cms.int32( 1 )  # power of 2 multiplier of stub z residual range
+  ),
+
   # Parmeter specifying KalmanFilter
   KalmanFilter = cms.PSet (
     NumWorker   = cms.int32 ( 2   ), # number of kf worker
     RangeFactor = cms.double( 2.0 ), # search window of each track parameter in initial uncertainties
     MinLayers   = cms.int32 ( 4   ), # required number of stub layers to form a track
-    MaxLayers   = cms.int32 ( 4   )  # maximum number of  layers added to a track
+    MaxLayers   = cms.int32 ( 7   )  # maximum number of  layers added to a track
   ),
 
   # Parmeter specifying KalmanFilter Output Formatter

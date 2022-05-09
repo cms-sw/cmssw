@@ -25,13 +25,15 @@ TrackletEventProcessor::~TrackletEventProcessor() {
   }
 }
 
-void TrackletEventProcessor::init(Settings const& theSettings, const ChannelAssignment* channelAssignment, const tt::Setup* setup) {
+void TrackletEventProcessor::init(Settings const& theSettings,
+                                  const ChannelAssignment* channelAssignment,
+                                  const tt::Setup* setup) {
   settings_ = &theSettings;
   channelAssignment_ = channelAssignment;
   // number of track channel
-  const int numStreamsTrack = N_SECTOR * channelAssignment_->numChannels();
+  const int numStreamsTrack = N_SECTOR * channelAssignment_->numChannelsTrack();
   // number of stub channel
-  const int numStreamsStub = numStreamsTrack * channelAssignment_->maxNumProjectionLayers();
+  const int numStreamsStub = N_SECTOR * channelAssignment_->numChannelsStub();
   streamsTrack_ = tt::Streams(numStreamsTrack);
   streamsStub_ = tt::StreamsStub(numStreamsStub);
 

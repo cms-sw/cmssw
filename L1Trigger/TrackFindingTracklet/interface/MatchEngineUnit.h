@@ -6,7 +6,7 @@
  * implementation (required to meet II=1)
  * 
  * A total of `nMatchEngines_` MEUs are used in the MP
- ****************************************************************/  
+ ****************************************************************/
 #ifndef L1Trigger_TrackFindingTracklet_interface_MatchEngineUnit_h
 #define L1Trigger_TrackFindingTracklet_interface_MatchEngineUnit_h
 
@@ -60,13 +60,9 @@ namespace trklet {
 
     void setAlmostFull();
 
-    void setimeu(int imeu) {
-      imeu_ =  imeu;
-    }
+    void setimeu(int imeu) { imeu_ = imeu; }
 
-    void setprint(bool print) {
-      print_ =  print;
-    }
+    void setprint(bool print) { print_ = print; }
 
     void reset();
 
@@ -78,7 +74,6 @@ namespace trklet {
     void processPipeline();
 
   private:
-
     //Provide access to constants
     const Settings& settings_;
 
@@ -98,13 +93,13 @@ namespace trklet {
     int projfinephi_;
     std::vector<std::pair<unsigned int, unsigned int>> use_;
     bool isPSseed_;
-    Tracklet  *proj_;
+    Tracklet* proj_;
 
     bool idle_;
 
     unsigned int layerdisk_;
 
-    //Save state at the start of istep 
+    //Save state at the start of istep
     bool almostfullsave_;
 
     //LUT for bend consistency with rinv
@@ -127,8 +122,6 @@ namespace trklet {
     //debugging help
     int imeu_;
     bool print_;
-    
-
   };
 
 };  // namespace trklet

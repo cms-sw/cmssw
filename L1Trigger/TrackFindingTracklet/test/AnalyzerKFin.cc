@@ -55,7 +55,11 @@ namespace trklet {
                     vector<vector<TTStubRef>>& tracks,
                     int channel) const;
     //
-    void associate(const vector<vector<TTStubRef>>& tracks, const StubAssociation* ass, set<TPPtr>& tps, int& sum) const;
+    void associate(const vector<vector<TTStubRef>>& tracks,
+                   const StubAssociation* ass,
+                   set<TPPtr>& tps,
+                   int& sum,
+                   bool perfect = false) const;
 
     // ED input token of stubs
     EDGetTokenT<StreamsStub> edGetTokenAcceptedStubs_;
@@ -139,7 +143,7 @@ namespace trklet {
     Service<TFileService> fs;
     TFileDirectory dir;
     dir = fs->mkdir("KFin");
-    prof_ = dir.make<TProfile>("Counts", ";", 9, 0.5, 9.5);
+    prof_ = dir.make<TProfile>("Counts", ";", 10, 0.5, 10.5);
     prof_->GetXaxis()->SetBinLabel(1, "Stubs");
     prof_->GetXaxis()->SetBinLabel(2, "Tracks");
     prof_->GetXaxis()->SetBinLabel(3, "Lost Tracks");
@@ -149,9 +153,10 @@ namespace trklet {
     prof_->GetXaxis()->SetBinLabel(7, "Found selected TPs");
     prof_->GetXaxis()->SetBinLabel(8, "Lost TPs");
     prof_->GetXaxis()->SetBinLabel(9, "All TPs");
+    prof_->GetXaxis()->SetBinLabel(10, "Perfect TPs");
     // channel occupancy
     constexpr int maxOcc = 180;
-    const int numChannels = channelAssignment_->numChannels() * setup_->numLayers() * setup_->numRegions();
+    const int numChannels = channelAssignment_->numChannelsTrack() * setup_->numLayers() * setup_->numRegions();
     hisChannel_ = dir.make<TH1F>("His Channel Occupancy", ";", maxOcc, -.5, maxOcc - .5);
     profChannel_ = dir.make<TProfile>("Prof Channel Occupancy", ";", numChannels, -.5, numChannels - .5);
   }
@@ -185,15 +190,16 @@ namespace trklet {
     // analyze ht products and associate found tracks with reconstrucable TrackingParticles
     set<TPPtr> tpPtrs;
     set<TPPtr> tpPtrsSelection;
+    set<TPPtr> tpPtrsPerfect;
     set<TPPtr> tpPtrsLost;
     int allMatched(0);
     int allTracks(0);
     for (int region = 0; region < setup_->numRegions(); region++) {
-      const int offset = region * channelAssignment_->numChannels();
+      const int offset = region * channelAssignment_->numChannelsTrack();
       int nStubs(0);
       int nTracks(0);
       int nLost(0);
-      for (int channel = 0; channel < channelAssignment_->numChannels(); channel++) {
+      for (int channel = 0; channel < channelAssignment_->numChannelsTrack(); channel++) {
         vector<vector<TTStubRef>> tracks;
         formTracks(acceptedTracks, acceptedStubs, tracks, offset + channel);
         vector<vector<TTStubRef>> lost;
@@ -208,6 +214,7 @@ namespace trklet {
           continue;
         int tmp(0);
         associate(tracks, selection, tpPtrsSelection, tmp);
+        associate(tracks, selection, tpPtrsPerfect, tmp, true);
         associate(lost, selection, tpPtrsLost, tmp);
         associate(tracks, reconstructable, tpPtrs, allMatched);
       }
@@ -225,6 +232,7 @@ namespace trklet {
     prof_->Fill(6, tpPtrs.size());
     prof_->Fill(7, tpPtrsSelection.size());
     prof_->Fill(8, tpPtrsLost.size());
+    prof_->Fill(10, tpPtrsPerfect.size());
     nEvents_++;
   }
 
@@ -241,6 +249,7 @@ namespace trklet {
     const double numTPsAll = prof_->GetBinContent(6);
     const double numTPsEff = prof_->GetBinContent(7);
     const double numTPsLost = prof_->GetBinContent(8);
+    const double numTPsEffPerfect = prof_->GetBinContent(10);
     const double errStubs = prof_->GetBinError(1);
     const double errTracks = prof_->GetBinError(2);
     const double errTracksLost = prof_->GetBinError(3);
@@ -250,6 +259,8 @@ namespace trklet {
     const double errEff = sqrt(eff * (1. - eff) / totalTPs / nEvents_);
     const double effLoss = numTPsLost / totalTPs;
     const double errEffLoss = sqrt(effLoss * (1. - effLoss) / totalTPs / nEvents_);
+    const double effPerfect = numTPsEffPerfect / totalTPs;
+    const double errEffPerfect = sqrt(effPerfect * (1. - effPerfect) / totalTPs / nEvents_);
     const vector<double> nums = {numStubs, numTracks, numTracksLost};
     const vector<double> errs = {errStubs, errTracks, errTracksLost};
     const int wNums = ceil(log10(*max_element(nums.begin(), nums.end()))) + 5;
@@ -260,7 +271,9 @@ namespace trklet {
          << endl;
     log_ << "number of lost tracks per TFP = " << setw(wNums) << numTracksLost << " +- " << setw(wErrs) << errTracksLost
          << endl;
-    log_ << "     max  tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
+    log_ << "  current tracking efficiency = " << setw(wNums) << effPerfect << " +- " << setw(wErrs) << errEffPerfect
+         << endl;
+    log_ << "  max     tracking efficiency = " << setw(wNums) << eff << " +- " << setw(wErrs) << errEff << endl;
     log_ << "     lost tracking efficiency = " << setw(wNums) << effLoss << " +- " << setw(wErrs) << errEffLoss << endl;
     log_ << "                    fake rate = " << setw(wNums) << fracFake << endl;
     log_ << "               duplicate rate = " << setw(wNums) << fracDup << endl;
@@ -283,28 +296,14 @@ namespace trklet {
       const FrameTrack& frameTrack = streamTrack[frame];
       if (frameTrack.first.isNull())
         continue;
-      const auto end = find_if(next(streamTrack.begin(), frame + 1), streamTrack.end(), [](const FrameTrack& frame) {
-        return frame.first.isNonnull();
-      });
-      const int size = distance(next(streamTrack.begin(), frame), end);
-      int numStubs(0);
+      vector<TTStubRef> ttStubRefs;
+      ttStubRefs.reserve(setup_->numLayers());
       for (int layer = 0; layer < setup_->numLayers(); layer++) {
-        const StreamStub& stream = streamsStubs[offset + layer];
-        numStubs +=
-            accumulate(stream.begin() + frame, stream.begin() + frame + size, 0, [](int& sum, const FrameStub& frame) {
-              return sum += (frame.first.isNonnull() ? 1 : 0);
-            });
+        const FrameStub& stub = streamsStubs[offset + layer][frame];
+        if (stub.first.isNonnull())
+          ttStubRefs.push_back(stub.first);
       }
-      vector<TTStubRef> stubs;
-      stubs.reserve(numStubs);
-      for (int layer = 0; layer < setup_->numLayers(); layer++) {
-        for (int f = frame; f < frame + size; f++) {
-          const FrameStub& stub = streamsStubs[offset + layer][f];
-          if (stub.first.isNonnull())
-            stubs.push_back(stub.first);
-        }
-      }
-      tracks.push_back(stubs);
+      tracks.push_back(ttStubRefs);
     }
   }
 
@@ -312,9 +311,10 @@ namespace trklet {
   void AnalyzerKFin::associate(const vector<vector<TTStubRef>>& tracks,
                                const StubAssociation* ass,
                                set<TPPtr>& tps,
-                               int& sum) const {
+                               int& sum,
+                               bool perfect) const {
     for (const vector<TTStubRef>& ttStubRefs : tracks) {
-      const vector<TPPtr>& tpPtrs = ass->associate(ttStubRefs);
+      const vector<TPPtr>& tpPtrs = perfect ? ass->associateFinal(ttStubRefs) : ass->associate(ttStubRefs);
       if (tpPtrs.empty())
         continue;
       sum++;

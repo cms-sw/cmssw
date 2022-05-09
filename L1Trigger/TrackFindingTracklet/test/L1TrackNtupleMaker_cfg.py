@@ -154,19 +154,19 @@ elif (L1TRKALGO == 'HYBRID_NEWKF'):
     process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
     process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
     from L1Trigger.TrackFindingTracklet.Customize_cff import *
-    newKFConfig( process )
+    fwConfig( process )
     NHELIXPAR = 4
     L1TRK_NAME  = process.TrackFindingTrackletProducer_params.LabelTT.value()
     L1TRK_LABEL = process.TrackFindingTrackletProducer_params.BranchAcceptedTracks.value()
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigis"
     process.TTTrackAssociatorFromPixelDigis.TTTracks = cms.VInputTag( cms.InputTag(L1TRK_NAME, L1TRK_LABEL) )
-    process.HybridNewKF = cms.Sequence(process.L1HybridTracks + process.TrackFindingTrackletProducerKFin + process.TrackFindingTrackletProducerKF + process.TrackFindingTrackletProducerTT + process.TrackFindingTrackletProducerAS + process.TrackFindingTrackletProducerKFout)
+    process.HybridNewKF = cms.Sequence(process.L1HybridTracks + process.TrackFindingTrackletProducerTBout + process.TrackFindingTrackletProducerKFin + process.TrackFindingTrackletProducerKF + process.TrackFindingTrackletProducerTT + process.TrackFindingTrackletProducerAS + process.TrackFindingTrackletProducerKFout)
     process.TTTracksEmulation = cms.Path(process.HybridNewKF)
     #process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks)
     # Optionally include code producing performance plots & end-of-job summary.
     process.load( 'SimTracker.TrackTriggerAssociation.StubAssociator_cff' )
     process.load( 'L1Trigger.TrackFindingTracklet.Analyzer_cff' )
-    process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks + process.StubAssociator +  process.TrackFindingTrackletAnalyzerTracklet + process.TrackFindingTrackletAnalyzerKFin + process.TrackFindingTrackletAnalyzerKF + process.TrackFindingTrackletAnalyzerKFout)
+    process.TTTracksEmulationWithTruth = cms.Path(process.HybridNewKF +  process.TrackTriggerAssociatorTracks + process.StubAssociator +  process.TrackFindingTrackletAnalyzerTracklet + process.TrackFindingTrackletAnalyzerTBout + process.TrackFindingTrackletAnalyzerKFin + process.TrackFindingTrackletAnalyzerKF + process.TrackFindingTrackletAnalyzerKFout)
 
 # HYBRID: prompt tracking, reduced chain
 elif (L1TRKALGO == 'HYBRID_REDUCED'):

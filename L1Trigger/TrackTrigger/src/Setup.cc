@@ -83,6 +83,7 @@ namespace tt {
         hybridLayerRs_(pSetHybrid_.getParameter<vector<double>>("LayerRs")),
         hybridDiskZs_(pSetHybrid_.getParameter<vector<double>>("DiskZs")),
         hybridDisk2SRsSet_(pSetHybrid_.getParameter<vector<ParameterSet>>("Disk2SRsSet")),
+        tbInnerRadius_(pSetHybrid_.getParameter<double>("InnerRadius")),
         // Parameter specifying TrackingParticle used for Efficiency measurements
         pSetTP_(iConfig.getParameter<ParameterSet>("TrackingParticle")),
         tpMinPt_(pSetTP_.getParameter<double>("MinPt")),
@@ -112,14 +113,19 @@ namespace tt {
         outerRadius_(pSetFW_.getParameter<double>("OuterRadius")),
         innerRadius_(pSetFW_.getParameter<double>("InnerRadius")),
         halfLength_(pSetFW_.getParameter<double>("HalfLength")),
-        maxPitch_(pSetFW_.getParameter<double>("MaxPitch")),
-        maxLength_(pSetFW_.getParameter<double>("MaxLength")),
         tiltApproxSlope_(pSetFW_.getParameter<double>("TiltApproxSlope")),
         tiltApproxIntercept_(pSetFW_.getParameter<double>("TiltApproxIntercept")),
+        tiltUncertaintyR_(pSetFW_.getParameter<double>("TiltUncertaintyR")),
         mindPhi_(pSetFW_.getParameter<double>("MindPhi")),
         maxdPhi_(pSetFW_.getParameter<double>("MaxdPhi")),
         mindZ_(pSetFW_.getParameter<double>("MindZ")),
         maxdZ_(pSetFW_.getParameter<double>("MaxdZ")),
+        pitch2S_(pSetFW_.getParameter<double>("Pitch2S")),
+        pitchPS_(pSetFW_.getParameter<double>("PitchPS")),
+        length2S_(pSetFW_.getParameter<double>("Length2S")),
+        lengthPS_(pSetFW_.getParameter<double>("LengthPS")),
+        tiltedLayerLimitsZ_(pSetFW_.getParameter<vector<double>>("TiltedLayerLimitsZ")),
+        psDiskLimitsR_(pSetFW_.getParameter<vector<double>>("PSDiskLimitsR")),
         // Parmeter specifying front-end
         pSetFE_(iConfig.getParameter<ParameterSet>("FrontEnd")),
         widthBend_(pSetFE_.getParameter<int>("WidthBend")),
@@ -183,6 +189,10 @@ namespace tt {
         zhtMinLayers_(pSetZHT_.getParameter<int>("MinLayers")),
         zhtMaxTracks_(pSetZHT_.getParameter<int>("MaxTracks")),
         zhtMaxStubsPerLayer_(pSetZHT_.getParameter<int>("MaxStubsPerLayer")),
+        // Parameter specifying KalmanFilter Input Formatter
+        pSetKFin_(iConfig.getParameter<ParameterSet>("KalmanFilterIn")),
+        kfinShiftRangePhi_(pSetKFin_.getParameter<int>("ShiftRangePhi")),
+        kfinShiftRangeZ_(pSetKFin_.getParameter<int>("ShiftRangeZ")),
         // Parmeter specifying KalmanFilter
         pSetKF_(iConfig.getParameter<ParameterSet>("KalmanFilter")),
         kfNumWorker_(pSetKF_.getParameter<int>("NumWorker")),
@@ -307,6 +317,22 @@ namespace tt {
     checkDTCId(dtcId);
     // from tklayout: first 3 are 10 gbps PS, next 3 are 5 gbps PS and residual 6 are 5 gbps 2S modules
     return slot(dtcId) < slotLimitPS_;
+  }
+
+  // return sensor moduel type
+  SensorModule::Type Setup::type(const TTStubRef& ttStubRef) const {
+    const bool barrel = this->barrel(ttStubRef);
+    const bool psModule = this->psModule(ttStubRef);
+    SensorModule::Type type;
+    if (barrel && psModule)
+      type = SensorModule::BarrelPS;
+    if (barrel && !psModule)
+      type = SensorModule::Barrel2S;
+    if (!barrel && psModule)
+      type = SensorModule::DiskPS;
+    if (!barrel && !psModule)
+      type = SensorModule::Disk2S;
+    return type;
   }
 
   // checks if given dtcId is connected via 10 gbps link
@@ -487,6 +513,13 @@ namespace tt {
     return this->layerId(ttStubRef) - (this->barrel(ttStubRef) ? offsetBarrel : offsetDisks);
   }
 
+  // return index layerId (barrel: [0-5], endcap: [0-6]) for given TTStubRef
+  int Setup::indexLayerId(const TTStubRef& ttStubRef) const {
+    static constexpr int offsetBarrel = 1;
+    static constexpr int offsetDisks = 11;
+    return this->layerId(ttStubRef) - (this->barrel(ttStubRef) ? offsetBarrel : offsetDisks);
+  }
+
   // true if stub from barrel module
   bool Setup::barrel(const TTStubRef& ttStubRef) const {
     const DetId& detId = ttStubRef->getDetId();
@@ -545,7 +578,7 @@ namespace tt {
     SensorModule* sm = sensorModule(detId + 1);
     const double r = stubPos(ttStubRef).perp();
     const double sigma = sm->pitchRow() / r;
-    const double scat = scattering_ * abs(inv2R) / invPtToDphi_;
+    const double scat = scattering_ * abs(inv2R);
     const double extra = sm->barrel() ? 0. : sm->pitchCol() * abs(inv2R);
     const double digi = tmttBasePhi_;
     const double dPhi = sigma + scat + extra + digi;
@@ -582,7 +615,7 @@ namespace tt {
     SensorModule* sm = sensorModule(detId + 1);
     const double r = stubPos(ttStubRef).perp();
     const double sigma = pow(sm->pitchRow() / r, 2) / 12.;
-    const double scat = pow(scattering_ * inv2R / invPtToDphi_, 2);
+    const double scat = pow(scattering_ * inv2R, 2);
     const double extra = sm->barrel() ? 0. : pow(sm->pitchCol() * inv2R, 2);
     const double digi = pow(tmttBasePhi_ / 12., 2);
     return sigma + scat + extra + digi;
@@ -631,6 +664,9 @@ namespace tt {
     widthDSPbu_ = widthDSPbb_ - 1;
     widthDSPcb_ = widthDSPc_ - 1;
     widthDSPcu_ = widthDSPcb_ - 1;
+    // firmware
+    maxPitch_ = max(pitchPS_, pitch2S_);
+    maxLength_ = max(lengthPS_, length2S_);
     // common track finding
     invPtToDphi_ = speedOfLight_ * bField_ / 2000.;
     baseRegion_ = 2. * M_PI / numRegions_;
@@ -714,6 +750,20 @@ namespace tt {
     kfWidthLayerCount_ = ceil(log2(zhtMaxStubsPerLayer_));
   }
 
+  // returns bit accurate hybrid stub radius for given TTStubRef and h/w bit word
+  double Setup::stubR(const TTBV& hw, const TTStubRef& ttStubRef) const {
+    const bool barrel = this->barrel(ttStubRef);
+    const int layerId = this->indexLayerId(ttStubRef);
+    const SensorModule::Type type = this->type(ttStubRef);
+    const int widthR = hybridWidthsR_.at(type);
+    const double baseR = hybridBasesR_.at(type);
+    const TTBV hwR(hw, widthR, 0, barrel);
+    double r = hwR.val(baseR) + (barrel ? hybridLayerRs_.at(layerId) : 0.);
+    if (type == SensorModule::Disk2S)
+      r = disk2SRs_.at(layerId).at((int)r);
+    return r;
+  }
+
   // returns bit accurate position of a stub from a given tfp region [0-8]
   GlobalPoint Setup::stubPos(bool hybrid, const FrameStub& frame, int region) const {
     GlobalPoint p;
@@ -721,22 +771,11 @@ namespace tt {
       return p;
     TTBV bv(frame.second);
     if (hybrid) {
-      const DetId& detId = frame.first->getDetId();
       const bool barrel = this->barrel(frame.first);
-      const int layerId =
-          (barrel ? trackerTopology_->layer(detId) : trackerTopology_->tidWheel(detId)) - offsetLayerId_;
-      const bool psModule = this->psModule(frame.first);
+      const int layerId = this->indexLayerId(frame.first);
       const GlobalPoint gp = this->stubPos(frame.first);
       const bool side = gp.z() > 0.;
-      SensorModule::Type type;
-      if (barrel && psModule)
-        type = SensorModule::BarrelPS;
-      if (barrel && !psModule)
-        type = SensorModule::Barrel2S;
-      if (!barrel && psModule)
-        type = SensorModule::DiskPS;
-      if (!barrel && !psModule)
-        type = SensorModule::Disk2S;
+      const SensorModule::Type type = this->type(frame.first);
       const int widthBend = hybridWidthsBend_.at(type);
       const int widthAlpha = hybridWidthsAlpha_.at(type);
       const int widthPhi = hybridWidthsPhi_.at(type);
@@ -752,11 +791,10 @@ namespace tt {
       double z = bv.val(baseZ, widthZ, 0, true);
       bv >>= widthZ;
       double r = bv.val(baseR, widthR, 0, barrel);
-      if (barrel) {
+      if (barrel)
         r += hybridLayerRs_.at(layerId);
-      } else {
+      else
         z += hybridDiskZs_.at(layerId) * (side ? 1. : -1.);
-      }
       phi = deltaPhi(phi + region * baseRegion_);
       if (type == SensorModule::Disk2S) {
         r = bv.val(widthR);

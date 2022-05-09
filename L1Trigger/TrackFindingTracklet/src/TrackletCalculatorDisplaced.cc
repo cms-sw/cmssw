@@ -1401,7 +1401,7 @@ bool TrackletCalculatorDisplaced::LLDSeeding(const Stub* innerFPGAStub,
 
   if (!success)
     return false;
-  
+
   double phicritapprox = phi0approx - asin((0.5 * settings_.rcrit() * rinvapprox) + (d0approx / settings_.rcrit()));
   int phicrit = iphi0 - 2 * irinv - 2 * id0;
 

@@ -33,9 +33,9 @@ namespace tt {
       return mapTPPtrsTTStubRefs_;
     }
     // returns collection of TPPtrs associated to given TTstubRef
-    const std::vector<TPPtr>& findTrackingParticlePtrs(const TTStubRef& ttStubRef) const;
+    std::vector<TPPtr> findTrackingParticlePtrs(const TTStubRef& ttStubRef) const;
     // returns collection of TTStubRefs associated to given TPPtr
-    const std::vector<TTStubRef>& findTTStubRefs(const TPPtr& tpPtr) const;
+    std::vector<TTStubRef> findTTStubRefs(const TPPtr& tpPtr) const;
     // total number of stubs associated with TPs
     int numStubs() const { return mapTTStubRefsTPPtrs_.size(); };
     // total number of TPs associated with stubs

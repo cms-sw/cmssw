@@ -16,7 +16,9 @@
 #include <fstream>
 #include <cstdlib>
 
-namespace tt {class Setup;}
+namespace tt {
+  class Setup;
+}
 
 namespace trklet {
 
@@ -278,7 +280,12 @@ namespace trklet {
                                                        {-1, -1, -1, -1, -1, -1, -1, 1, 2, 3, 4},   //L1D1
                                                        {1, -1, -1, -1, -1, -1, -1, 2, 3, 4, -1}};  //L2D1
 
-    struct DTCinfo {std::string name; int layer; float phimin; float phimax;};
+    struct DTCinfo {
+      std::string name;
+      int layer;
+      float phimin;
+      float phimax;
+    };
     std::list<DTCinfo> vecDTCinfo_;
 
     //Settings

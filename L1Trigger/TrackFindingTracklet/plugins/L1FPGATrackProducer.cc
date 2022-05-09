@@ -198,7 +198,7 @@ private:
   const ChannelAssignment* channelAssignment_;
 
   // helper class to store DTC configuration
-  tt::Setup setup_;
+  const Setup* setup_;
   // helper class to store configuration needed by HitPatternHelper
   const hph::Setup* setupHPH_;
 
@@ -267,6 +267,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   esGetTokenHPH_ = esConsumes<hph::Setup, hph::SetupRcd, edm::Transition::BeginRun>();
   // initial ES products
   channelAssignment_ = nullptr;
+  setup_ = nullptr;
 
   // --------------------------------------------------------------------------------
   // set options in Settings based on inputs from configuration files
@@ -316,12 +317,12 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
   if (trackQuality_) {
     trackQualityModel_ = std::make_unique<TrackQuality>(iConfig.getParameter<edm::ParameterSet>("TrackQualityPSet"));
   }
-  if (settings_.storeTrackBuilderOutput() && (settings_.doMultipleMatches() || settings_.removalType() != "")) {
+  if (settings_.storeTrackBuilderOutput() && (settings_.doMultipleMatches() || !settings_.removalType().empty())) {
     cms::Exception exception("ConfigurationNotSupported.");
     exception.addContext("L1FPGATrackProducer::produce");
     if (settings_.doMultipleMatches())
       exception << "Storing of TrackBuilder output does not support doMultipleMatches.";
-    if (settings_.removalType() != "")
+    if (!settings_.removalType().empty())
       exception << "Storing of TrackBuilder output does not support duplicate removal.";
     throw exception;
   }
@@ -348,14 +349,14 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0, 0, 0)).z();
   settings_.setBfield(mMagneticFieldStrength);
 
-  setup_ = iSetup.getData(esGetToken_);
+  setup_ = &iSetup.getData(esGetToken_);
   setupHPH_ = &iSetup.getData(esGetTokenHPH_);
   if (trackQuality_) {
     trackQualityModel_->setHPHSetup(setupHPH_);
   }
   channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
   // initialize the tracklet event processing (this sets all the processing & memory modules, wiring, etc)
-  eventProcessor.init(settings_, channelAssignment_, &setup_);
+  eventProcessor.init(settings_, channelAssignment_, setup_);
 }
 
 //////////
@@ -412,37 +413,39 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     int ntps = 1;  //count from 1 ; 0 will mean invalid
 
     int this_tp = 0;
-    for (const auto& iterTP : *TrackingParticleHandle) {
-      edm::Ptr<TrackingParticle> tp_ptr(TrackingParticleHandle, this_tp);
-      this_tp++;
+    if (readMoreMcTruth_) {
+      for (const auto& iterTP : *TrackingParticleHandle) {
+        edm::Ptr<TrackingParticle> tp_ptr(TrackingParticleHandle, this_tp);
+        this_tp++;
 
-      // only keep TPs producing a cluster
-      if (MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).empty())
-        continue;
+        // only keep TPs producing a cluster
+        if (MCTruthTTClusterHandle->findTTClusterRefs(tp_ptr).empty())
+          continue;
 
-      if (iterTP.g4Tracks().empty()) {
-        continue;
-      }
+        if (iterTP.g4Tracks().empty()) {
+          continue;
+        }
 
-      int sim_eventid = iterTP.g4Tracks().at(0).eventId().event();
-      int sim_type = iterTP.pdgId();
-      float sim_pt = iterTP.pt();
-      float sim_eta = iterTP.eta();
-      float sim_phi = iterTP.phi();
+        int sim_eventid = iterTP.g4Tracks().at(0).eventId().event();
+        int sim_type = iterTP.pdgId();
+        float sim_pt = iterTP.pt();
+        float sim_eta = iterTP.eta();
+        float sim_phi = iterTP.phi();
 
-      float vx = iterTP.vertex().x();
-      float vy = iterTP.vertex().y();
-      float vz = iterTP.vertex().z();
+        float vx = iterTP.vertex().x();
+        float vy = iterTP.vertex().y();
+        float vz = iterTP.vertex().z();
 
-      if (sim_pt < 1.0 || std::abs(vz) > 100.0 || hypot(vx, vy) > 50.0)
-        continue;
+        if (sim_pt < 1.0 || std::abs(vz) > 100.0 || hypot(vx, vy) > 50.0)
+          continue;
 
-      ev.addL1SimTrack(sim_eventid, ntps, sim_type, sim_pt, sim_eta, sim_phi, vx, vy, vz);
+        ev.addL1SimTrack(sim_eventid, ntps, sim_type, sim_pt, sim_eta, sim_phi, vx, vy, vz);
 
-      translateTP[tp_ptr] = ntps;
-      ntps++;
+        translateTP[tp_ptr] = ntps;
+        ntps++;
 
-    }  //end loop over TPs
+      }  //end loop over TPs
+    }
 
   }  // end if (readMoreMcTruth_)
 
@@ -456,8 +459,9 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       // Get the DTC name form the channel
       unsigned int atcaSlot = channel % 12;
       string dtcname = settings_.slotToDTCname(atcaSlot);
-      if (channel % 24 >= 12) dtcname = "neg" + dtcname;
-      dtcname += (channel < 24) ? "_A" : "_B"; // which detector region
+      if (channel % 24 >= 12)
+        dtcname = "neg" + dtcname;
+      dtcname += (channel < 24) ? "_A" : "_B";  // which detector region
 
       // Get the stubs from the DTC
       const tt::StreamStub& streamFromDTC{handleDTC->stream(region, channel)};
@@ -470,7 +474,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
           continue;
         }
 
-        const GlobalPoint& ttPos = setup_.stubPos(stub.first);
+        const GlobalPoint& ttPos = setup_->stubPos(stub.first);
 
         //Get the 2 bits for the layercode
         string layerword = stub.second.to_string().substr(61, 2);
@@ -547,18 +551,21 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
           const TTClusterRef& ttClusterRef = stub.first->clusterRef(iClus);
 
           // Now identify all TP's contributing to either cluster in stub.
-          vector<edm::Ptr<TrackingParticle>> vecTpPtr = MCTruthTTClusterHandle->findTrackingParticlePtrs(ttClusterRef);
+          if (readMoreMcTruth_) {
+            vector<edm::Ptr<TrackingParticle>> vecTpPtr =
+                MCTruthTTClusterHandle->findTrackingParticlePtrs(ttClusterRef);
 
-          for (const edm::Ptr<TrackingParticle>& tpPtr : vecTpPtr) {
-            if (translateTP.find(tpPtr) != translateTP.end()) {
-              if (iClus == 0) {
-                assocTPs.push_back(translateTP.at(tpPtr));
+            for (const edm::Ptr<TrackingParticle>& tpPtr : vecTpPtr) {
+              if (translateTP.find(tpPtr) != translateTP.end()) {
+                if (iClus == 0) {
+                  assocTPs.push_back(translateTP.at(tpPtr));
+                } else {
+                  assocTPs.push_back(-translateTP.at(tpPtr));
+                }
+                // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
               } else {
-                assocTPs.push_back(-translateTP.at(tpPtr));
+                assocTPs.push_back(0);
               }
-              // N.B. Since not all tracking particles are stored in InputData::vTPs_, sometimes no match will be found.
-            } else {
-              assocTPs.push_back(0);
             }
           }
         }
@@ -572,7 +579,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                    region,
                    layerdisk,
                    stubwordhex,
-                   setup_.psModule(setup_.dtcId(region, channel)),
+                   setup_->psModule(setup_->dtcId(region, channel)),
                    isFlipped,
                    ttPos.x(),
                    ttPos.y(),
@@ -677,9 +684,9 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   // produce clock and bit output tracks and stubs
   // number of track channel
-  const int numStreamsTrack = N_SECTOR * channelAssignment_->numChannels();
+  const int numStreamsTrack = N_SECTOR * channelAssignment_->numChannelsTrack();
   // number of stub channel
-  const int numStreamsStub = numStreamsTrack * channelAssignment_->maxNumProjectionLayers();
+  const int numStreamsStub = N_SECTOR * channelAssignment_->numChannelsStub();
   Streams streamsTrack(numStreamsTrack);
   StreamsStub streamsStub(numStreamsStub);
   eventProcessor.produce(streamsTrack, streamsStub);

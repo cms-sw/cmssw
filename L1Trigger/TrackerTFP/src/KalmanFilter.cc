@@ -62,7 +62,12 @@ namespace trackerTFP {
         C11_(&kalmanFilterFormats_->format(VariableKF::C11)),
         C22_(&kalmanFilterFormats_->format(VariableKF::C22)),
         C23_(&kalmanFilterFormats_->format(VariableKF::C23)),
-        C33_(&kalmanFilterFormats_->format(VariableKF::C33)) {}
+        C33_(&kalmanFilterFormats_->format(VariableKF::C33)) {
+    C00_->updateRangeActual(pow(dataFormats_->base(Variable::inv2R, Process::kfin), 2));
+    C11_->updateRangeActual(pow(dataFormats_->base(Variable::phiT, Process::kfin), 2));
+    C22_->updateRangeActual(pow(dataFormats_->base(Variable::cot, Process::kfin), 2));
+    C33_->updateRangeActual(pow(dataFormats_->base(Variable::zT, Process::kfin), 2));
+  }
 
   // read in and organize input product (fill vector input_)
   void KalmanFilter::consume(const StreamsTrack& streamsTrack, const StreamsStub& streamsStub) {
@@ -92,9 +97,14 @@ namespace trackerTFP {
       for (int frame = 0; frame < (int)streamTracks.size(); frame++) {
         const FrameTrack& frameTrack = streamTracks[frame];
         // Select frames with valid track
-        if (frameTrack.first.isNull())
+        if (frameTrack.first.isNull()) {
+          if (dataFormats_->hybrid())
+            tracks.push_back(nullptr);
           continue;
-        const auto endOfTrk = find_if(next(streamTracks.begin(), frame + 1), streamTracks.end(), valid);
+        }
+        auto endOfTrk = find_if(next(streamTracks.begin(), frame + 1), streamTracks.end(), valid);
+        if (dataFormats_->hybrid())
+          endOfTrk = next(streamTracks.begin(), frame + 1);
         // No. of frames before next track indicates gives max. no. of stubs this track had in any layer
         const int maxStubsPerLayer = distance(next(streamTracks.begin(), frame), endOfTrk);
         tracks.insert(tracks.end(), maxStubsPerLayer - 1, nullptr);
@@ -215,8 +225,6 @@ namespace trackerTFP {
         state = pop_front(stack);
       streamOutput.push_back(state);
       // The remainder of the code in this loop deals with combinatoric states.
-      //if (!state || !state->stub() || state->layer() != layer_)
-      //state = nullptr;
       if (state != nullptr)
         // Assign next combinatoric stub to state
         comb(state);

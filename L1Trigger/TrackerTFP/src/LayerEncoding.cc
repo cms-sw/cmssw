@@ -5,6 +5,8 @@
 #include <set>
 #include <algorithm>
 #include <cmath>
+#include <sstream>
+#include <fstream>
 
 using namespace std;
 using namespace tt;
@@ -111,12 +113,54 @@ namespace trackerTFP {
         }
       }
     }
+    const bool print = false;
+    if (!print)
+      return;
+    static constexpr int widthLayer = 3;
+    static constexpr auto layerIds = {1, 2, 3, 4, 5, 6, 11, 12, 13, 14, 15};
+    stringstream ss;
+    for (int layer : layerIds) {
+      auto encode = [layer, this](const vector<int>& layers, int& l) {
+        const auto it = find(layers.begin(), layers.end(), layer);
+        if (it == layers.end())
+          return false;
+        l = distance(layers.begin(), it);
+        if (l >= setup_->numLayers())
+          l = setup_->numLayers() - 1;
+        return true;
+      };
+      for (int binEta = 0; binEta < setup_->numSectorsEta(); binEta++) {
+        for (int binZT = 0; binZT < pow(2, zT_->width()); binZT++) {
+          for (int binCot = 0; binCot < pow(2, cot_->width()); binCot++) {
+            const int zT =
+                binZT < pow(2, zT_->width() - 1) ? binZT + pow(2, zT_->width() - 1) : binZT - pow(2, zT_->width() - 1);
+            const int cot = binCot < pow(2, cot_->width() - 1) ? binCot + pow(2, cot_->width() - 1)
+                                                               : binCot - pow(2, cot_->width() - 1);
+            const vector<int>& layers = layerEncoding_[binEta][zT][cot];
+            const vector<int>& maybes = maybeLayer_[binEta][zT][cot];
+            int layerKF(-1);
+            if (encode(layers, layerKF))
+              ss << "1" << TTBV(layerKF, widthLayer) << (encode(maybes, layerKF) ? "1" : "0");
+            else
+              ss << "00000";
+            ss << endl;
+          }
+        }
+      }
+    }
+    fstream file;
+    file.open("layerEncoding.txt", ios::out);
+    file << ss.rdbuf();
+    file.close();
   }
 
-  // Set of layers in each (zT,tanL) digi Bin of each eta sector numbered 0->N
+  // encoded layer id for given eta sector, bin in zT, bin in cotThea and decoed layer id, returns -1 if layer incositent with track
   const int LayerEncoding::layerIdKF(int binEta, int binZT, int binCot, int layerId) const {
     const vector<int>& layers = layerEncoding_[binEta][binZT][binCot];
-    int layer = distance(layers.begin(), find(layers.begin(), layers.end(), layerId));
+    const auto it = find(layers.begin(), layers.end(), layerId);
+    if (it == layers.end())
+      return -1;
+    int layer = distance(layers.begin(), it);
     if (layer >= setup_->numLayers())
       layer = setup_->numLayers() - 1;
     return layer;
@@ -124,7 +168,12 @@ namespace trackerTFP {
 
   // pattern of maybe layers for given eta sector, bin in zT and bin in cotThea
   TTBV LayerEncoding::maybePattern(int binEta, int binZT, int binCot) const {
-    return TTBV(0, setup_->numLayers()).set(maybeLayer(binEta, binZT, binCot));
+    TTBV ttBV(0, setup_->numLayers());
+    const vector<int>& layers = layerEncoding_[binEta][binZT][binCot];
+    const vector<int>& maybes = maybeLayer_[binEta][binZT][binCot];
+    for (int m : maybes)
+      ttBV.set(distance(layers.begin(), find(layers.begin(), layers.end(), m)));
+    return ttBV;
   }
 
 }  // namespace trackerTFP

@@ -58,7 +58,14 @@ namespace tmtt {
     // element.second is kalman layer when stub is from endcap, 7 is invalid
 
     static constexpr std::pair<unsigned, unsigned> layerMap[nEta / 2][nGPlayID + 1] = {
-        {{7, 7}, {0, 7}, {1, 7}, {5, 7}, {4, 7}, {3, 7}, {7, 7}, {2, 7}},  // B1 B2 B3 B4 B5 B6 -- Ultimate config with "maybe layer"
+        {{7, 7},
+         {0, 7},
+         {1, 7},
+         {5, 7},
+         {4, 7},
+         {3, 7},
+         {7, 7},
+         {2, 7}},  // B1 B2 B3 B4 B5 B6 -- Ultimate config with "maybe layer"
         {{7, 7}, {0, 7}, {1, 7}, {5, 7}, {4, 7}, {3, 7}, {7, 7}, {2, 7}},  // B1 B2 B3 B4 B5 B6
         {{7, 7}, {0, 7}, {1, 7}, {5, 7}, {4, 7}, {3, 7}, {7, 7}, {2, 7}},  // B1 B2 B3 B4 B5 B6
         {{7, 7}, {0, 7}, {1, 7}, {5, 7}, {4, 7}, {3, 7}, {7, 7}, {2, 7}},  // B1 B2 B3 B4 B5 B6

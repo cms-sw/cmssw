@@ -67,7 +67,7 @@ namespace trackerTFP {
     ESGetToken<DataFormats, DataFormatsRcd> esGetTokenDataFormats_;
     // stores, calculates and provides run-time constants
     const Setup* setup_;
-    // helper class to extract structured data from TTDTC::Frames
+    // helper class to extract structured data from tt::Frames
     const DataFormats* dataFormats_;
     // enables analyze of TPs
     bool useMCTruth_;
@@ -116,7 +116,7 @@ namespace trackerTFP {
   void AnalyzerMHT::beginRun(const Run& iEvent, const EventSetup& iSetup) {
     // helper class to store configurations
     setup_ = &iSetup.getData(esGetTokenSetup_);
-    // helper class to extract structured data from TTDTC::Frames
+    // helper class to extract structured data from tt::Frames
     dataFormats_ = &iSetup.getData(esGetTokenDataFormats_);
     // book histograms
     Service<TFileService> fs;

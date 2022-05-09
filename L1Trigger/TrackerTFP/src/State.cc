@@ -46,10 +46,10 @@ namespace trackerTFP {
     x2_ = 0.;
     x3_ = 0.;
     // initial uncertainties
-    C00_ = pow(dataFormats_->base(Variable::inv2R, Process::zht), 2);
-    C11_ = pow(dataFormats_->base(Variable::phiT, Process::zht), 2);
-    C22_ = pow(dataFormats_->base(Variable::cot, Process::zht), 2);
-    C33_ = pow(dataFormats_->base(Variable::zT, Process::zht), 2);
+    C00_ = pow(dataFormats_->base(Variable::inv2R, Process::kfin), 2);
+    C11_ = pow(dataFormats_->base(Variable::phiT, Process::kfin), 2);
+    C22_ = pow(dataFormats_->base(Variable::cot, Process::kfin), 2);
+    C33_ = pow(dataFormats_->base(Variable::zT, Process::kfin), 2);
     C01_ = 0.;
     C23_ = 0.;
     // first stub from first layer on input track with stubs
@@ -107,7 +107,7 @@ namespace trackerTFP {
 
   // Determine quality of completed state
   void State::finish() {
-    const vector<StubKF> stubs = this->stubs();
+    const vector<StubKF>& stubs = this->stubs();
     auto consistent = [this](int& sum, const StubKF& stub) {
       auto inConsistentRange = [](float v, float r, float d) { return abs(v) <= (r + d) / 2.; };
       // Check stub consistent with helix, allowing for stub & digi uncertainty

@@ -101,12 +101,6 @@ namespace trackerTFP {
     string token;
     while (getline(ss, token))
       n++;
-    /*if (n != 4) {
-      cms::Exception exception("RunTimeError.");
-      exception.addContext("trackerTFP::Demonstrator::compare");
-      exception << "Bit error detected.";
-      throw exception;
-    }*/
     return n == 4;
   }
 

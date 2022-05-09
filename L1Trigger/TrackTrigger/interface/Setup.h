@@ -81,6 +81,8 @@ namespace tt {
     const TrackerTopology* trackerTopology() const { return trackerTopology_; }
     // returns global TTStub position
     GlobalPoint stubPos(const TTStubRef& ttStubRef) const;
+    // returns bit accurate hybrid stub radius for given TTStubRef and h/w bit word
+    double stubR(const TTBV& hw, const TTStubRef& ttStubRef) const;
     // returns bit accurate position of a stub from a given tfp region [0-8]
     GlobalPoint stubPos(bool hybrid, const tt::FrameStub& frame, int region) const;
     // empty trackerDTC EDProduct
@@ -95,10 +97,14 @@ namespace tt {
     int layerId(const TTStubRef& ttStubRef) const;
     // return tracklet layerId (barrel: [0-5], endcap: [6-10]) for given TTStubRef
     int trackletLayerId(const TTStubRef& ttStubRef) const;
+    // return index layerId (barrel: [0-5], endcap: [0-6]) for given TTStubRef
+    int indexLayerId(const TTStubRef& ttStubRef) const;
     // true if stub from barrel module
     bool barrel(const TTStubRef& ttStubRef) const;
     // true if stub from barrel module
     bool psModule(const TTStubRef& ttStubRef) const;
+    // return sensor moduel type
+    SensorModule::Type type(const TTStubRef& ttStubRef) const;
     //
     TTBV layerMap(const std::vector<int>& ints) const;
     //
@@ -154,6 +160,18 @@ namespace tt {
     double maxdPhi() const { return maxdPhi_; }
     // maximum representable stub z uncertainty
     double maxdZ() const { return maxdZ_; }
+    // barrel layer limit z value to partition into tilted and untilted region
+    double tiltedLayerLimitZ(int layer) const { return tiltedLayerLimitsZ_.at(layer); }
+    // endcap disk limit r value to partition into PS and 2S region
+    double psDiskLimitR(int layer) const { return psDiskLimitsR_.at(layer); }
+    // strip pitch of outer tracker sensors in cm
+    double pitch2S() const { return pitch2S_; }
+    // pixel pitch of outer tracker sensors in cm
+    double pitchPS() const { return pitchPS_; }
+    // strip length of outer tracker sensors in cm
+    double length2S() const { return length2S_; }
+    // pixel length of outer tracker sensors in cm
+    double lengthPS() const { return lengthPS_; }
 
     // Common track finding parameter
 
@@ -226,10 +244,14 @@ namespace tt {
     double halfLength() const { return halfLength_; }
     // max strip/pixel length of outer tracker sensors in cm
     double maxLength() const { return maxLength_; }
-    // In tilted barrel, grad*|z|/r+int approximates |cos(theta) - tiltAngle|/sin(theta)|
+    // In tilted barrel, grad*|z|/r + int approximates |cosTilt| + |sinTilt * cotTheta|
     double tiltApproxSlope() const { return tiltApproxSlope_; }
-    // In tilted barrel, grad*|z|/r+int approximates |cos(theta) - tiltAngle|/sin(theta)|
+    // In tilted barrel, grad*|z|/r + int approximates |cosTilt| + |sinTilt * cotTheta|
     double tiltApproxIntercept() const { return tiltApproxIntercept_; }
+    // In tilted barrel, constant assumed stub radial uncertainty * sqrt(12) in cm
+    double tiltUncertaintyR() const { return tiltUncertaintyR_; }
+    // scattering term used to add stub phi uncertainty depending on assumed track inv2R
+    double scattering() const { return scattering_; }
 
     // Hybrid specific parameter
 
@@ -275,6 +297,10 @@ namespace tt {
     double hybridDiskZ(int layerId) const { return hybridDiskZs_.at(layerId); }
     // range of stub phi in rad
     double hybridRangePhi() const { return hybridRangePhi_; }
+    // range of stub r in cm
+    double hybridRangeR() const { return hybridRangesR_[SensorModule::DiskPS]; }
+    // smallest stub radius after TrackBuilder in cm
+    double tbInnerRadius() const { return tbInnerRadius_; }
 
     // Parameter specifying TTStub algorithm
 
@@ -319,7 +345,7 @@ namespace tt {
     // number of regions a reconstructable particles may cross
     int numOverlappingRegions() const { return numOverlappingRegions_; }
     // number of Tracker boards per ATCA crate.
-    int numATCASlots() const { return numATCASlots_;}
+    int numATCASlots() const { return numATCASlots_; }
     // number of DTC boards used to readout a detector region, likely constructed to be an integerer multiple of NumSlots_
     int numDTCsPerRegion() const { return numDTCsPerRegion_; }
     // max number of sensor modules connected to one DTC board
@@ -444,6 +470,13 @@ namespace tt {
     int zhtMaxStubsPerLayer() const { return zhtMaxStubsPerLayer_; }
     // number of zht cells
     int zhtNumCells() const { return zhtNumCells_; }
+
+    // Parameter specifying KalmanFilter Input Formatter
+
+    // power of 2 multiplier of stub phi residual range
+    int kfinShiftRangePhi() const { return kfinShiftRangePhi_; }
+    // power of 2 multiplier of stub z residual range
+    int kfinShiftRangeZ() const { return kfinShiftRangeZ_; }
 
     // Parameter specifying KalmanFilter
 
@@ -612,6 +645,8 @@ namespace tt {
     std::vector<edm::ParameterSet> hybridDisk2SRsSet_;
     // range of stub phi in rad
     double hybridRangePhi_;
+    // smallest stub radius after TrackBuilder in cm
+    double tbInnerRadius_;
 
     // Parameter specifying TrackingParticle used for Efficiency measurements
     edm::ParameterSet pSetTP_;
@@ -688,6 +723,8 @@ namespace tt {
     double tiltApproxSlope_;
     // approximated tilt correction parameter used to project r to z uncertainty
     double tiltApproxIntercept_;
+    // In tilted barrel, constant assumed stub radial uncertainty * sqrt(12) in cm
+    double tiltUncertaintyR_;
     // minimum representable stub phi uncertainty
     double mindPhi_;
     // maximum representable stub phi uncertainty
@@ -696,6 +733,18 @@ namespace tt {
     double mindZ_;
     // maximum representable stub z uncertainty
     double maxdZ_;
+    // strip pitch of outer tracker sensors in cm
+    double pitch2S_;
+    // pixel pitch of outer tracker sensors in cm
+    double pitchPS_;
+    // strip length of outer tracker sensors in cm
+    double length2S_;
+    // pixel length of outer tracker sensors in cm
+    double lengthPS_;
+    // barrel layer limit |z| value to partition into tilted and untilted region
+    std::vector<double> tiltedLayerLimitsZ_;
+    // endcap disk limit r value to partition into PS and 2S region
+    std::vector<double> psDiskLimitsR_;
 
     // Parameter specifying front-end
     edm::ParameterSet pSetFE_;
@@ -819,6 +868,13 @@ namespace tt {
     int zhtMaxTracks_;
     // cut on number of stub per layer for input candidates
     int zhtMaxStubsPerLayer_;
+
+    // Parameter specifying KalmanFilter Input Formatter
+    edm::ParameterSet pSetKFin_;
+    // power of 2 multiplier of stub phi residual range
+    int kfinShiftRangePhi_;
+    // power of 2 multiplier of stub z residual range
+    int kfinShiftRangeZ_;
 
     // Parameter specifying KalmanFilter
     edm::ParameterSet pSetKF_;

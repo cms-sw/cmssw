@@ -18,8 +18,8 @@ namespace trklet {
   class Track {
   public:
     // Create track from digitized helix params & stubs
-    Track(TrackPars<int> ipars, // digi helix
-          int ichisqrphi, // digi chi2
+    Track(TrackPars<int> ipars,  // digi helix
+          int ichisqrphi,        // digi chi2
           int ichisqrz,
           double chisqrphi,
           double chisqrz,
@@ -79,7 +79,7 @@ namespace trklet {
     }
 
   private:
-    TrackPars<int> ipars_; //digitized track parameters
+    TrackPars<int> ipars_;  //digitized track parameters
     int ichisqrphi_;
     int ichisqrz_;
 
