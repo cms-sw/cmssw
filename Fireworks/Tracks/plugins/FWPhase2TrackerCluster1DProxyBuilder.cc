@@ -28,7 +28,7 @@ public:
   const FWPhase2TrackerCluster1DProxyBuilder& operator=(const FWPhase2TrackerCluster1DProxyBuilder&) = delete;
 
 private:
- void localModelChanges(const FWModelId& iId,
+  void localModelChanges(const FWModelId& iId,
                          TEveElement* parent,
                          FWViewType::EType viewType,
                          const FWViewContext* vc) override;
@@ -65,6 +65,10 @@ void FWPhase2TrackerCluster1DProxyBuilder::build(const FWEventItem* iItem,
       TEveElement* itemHolder = createCompound();
       product->AddElement(itemHolder);
 
+      if (!geom->contains(id)) {
+        fwLog(fwlog::kWarning) << "failed get geometry of Phase2TrackerCluster1D with detid: " << id << std::endl;
+        continue;
+      }
 
       float halfLength = shape[2];
       float pitchSecond = pars[1];
@@ -73,10 +77,10 @@ void FWPhase2TrackerCluster1DProxyBuilder::build(const FWEventItem* iItem,
       //
       TEveStraightLineSet* lineSet = new TEveStraightLineSet;
       float localPointBeg[3] = {fireworks::phase2PixelLocalX((*itc).center(), pars, shape),
-                                float( (*itc).column()) * pitchSecond - halfLength,
+                                float((*itc).column()) * pitchSecond - halfLength,
                                 0.0};
       float localPointEnd[3] = {fireworks::phase2PixelLocalX((*itc).center(), pars, shape),
-                                float( (*itc).column() + 1.0 ) * pitchSecond -halfLength,
+                                float((*itc).column() + 1.0) * pitchSecond - halfLength,
                                 0.0};
 
       float globalPointBeg[3];
@@ -96,9 +100,9 @@ void FWPhase2TrackerCluster1DProxyBuilder::build(const FWEventItem* iItem,
 }
 
 void FWPhase2TrackerCluster1DProxyBuilder::localModelChanges(const FWModelId& iId,
-                                               TEveElement* parent,
-                                               FWViewType::EType viewType,
-                                               const FWViewContext* vc) {
+                                                             TEveElement* parent,
+                                                             FWViewType::EType viewType,
+                                                             const FWViewContext* vc) {
   if (TEveStraightLineSet* ls = dynamic_cast<TEveStraightLineSet*>(*parent->BeginChildren())) {
     Color_t c = FWProxyBuilderBase::item()->modelInfo(iId.index()).displayProperties().color();
     for (TEveProjectable::ProjList_i j = ls->BeginProjecteds(); j != ls->EndProjecteds(); ++j) {
