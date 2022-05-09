@@ -66,14 +66,16 @@ namespace memoryPool {
     template <typename T>
     Buffer<T> makeBuffer(uint64_t size, Deleter del) {
       auto ret = alloc(sizeof(T) * size, *del.pool());
-      if (ret.second < 0)
+      if (ret.second < 0) {
+        std::cout << "could not allocate " << size << ' ' << typeid(T).name() << " of size " << sizeof(T) << std::endl;
         throw std::bad_alloc();
+      }
       return Buffer<T>((T *)(ret.first), ret.second, del);
     }
 
     template <typename T>
     Buffer<T> makeBuffer(uint64_t size, cudaStream_t const &stream, Where where) {
-      return makeBuffer<T>(sizeof(T) * size, Deleter(std::make_shared<DeleteOne>(stream, getPool(where))));
+      return makeBuffer<T>(size, Deleter(std::make_shared<DeleteOne>(stream, getPool(where))));
     }
 
   }  // namespace cuda

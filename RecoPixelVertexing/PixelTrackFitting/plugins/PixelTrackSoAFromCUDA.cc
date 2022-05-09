@@ -1,7 +1,6 @@
 #include <cuda_runtime.h>
 
 #include "CUDADataFormats/Common/interface/Product.h"
-#include "CUDADataFormats/Common/interface/HostProduct.h"
 #include "CUDADataFormats/Track/interface/PixelTrackHeterogeneous.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -15,6 +14,7 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 // Switch on to enable checks and printout for found tracks
 // #define PIXEL_DEBUG_PRODUCE
@@ -35,7 +35,7 @@ private:
   edm::EDGetTokenT<cms::cuda::Product<PixelTrackHeterogeneous>> tokenCUDA_;
   edm::EDPutTokenT<PixelTrackHeterogeneous> tokenSOA_;
 
-  cms::cuda::host::unique_ptr<pixelTrack::TrackSoA> soa_;
+  PixelTrackHeterogeneous soa_;
 };
 
 PixelTrackSoAFromCUDA::PixelTrackSoAFromCUDA(const edm::ParameterSet& iConfig)
@@ -56,7 +56,8 @@ void PixelTrackSoAFromCUDA::acquire(edm::Event const& iEvent,
   cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
   auto const& inputData = ctx.get(inputDataWrapped);
 
-  soa_ = inputData.toHostAsync(ctx.stream());
+  soa_ = memoryPool::cuda::makeBuffer<PixelTrackHeterogeneous::value_type>(1, ctx.stream(), memoryPool::onHost);
+  memoryPool::cuda::copy(soa_, inputData, 1, ctx.stream());
 }
 
 void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
@@ -79,9 +80,9 @@ void PixelTrackSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& i
 #endif
 
   // DO NOT  make a copy  (actually TWO....)
-  iEvent.emplace(tokenSOA_, PixelTrackHeterogeneous(std::move(soa_)));
+  iEvent.emplace(tokenSOA_, std::move(soa_));
 
-  assert(!soa_);
+  assert(!soa_.get());
 }
 
 DEFINE_FWK_MODULE(PixelTrackSoAFromCUDA);

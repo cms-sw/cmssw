@@ -12,8 +12,6 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(int32_t nHits, cudaStream_t 
   // ALLOCATIONS FOR THE INTERMEDIATE RESULTS (STAYS ON WORKER)
   //////////////////////////////////////////////////////////
 
-  memoryPool::Where where =
-      std::is_same<Traits, cms::cudacompat::GPUTraits>::value ? memoryPool::onDevice : memoryPool::onCPU;
   memoryPool::Deleter deleter = memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, where));
 
   device_theCellNeighbors_ = memoryPool::cuda::makeBuffer<caConstants::CellNeighborsVector>(1, deleter);
@@ -41,7 +39,7 @@ void CAHitNtupletGeneratorKernelsCPU::allocateOnGPU(int32_t nHits, cudaStream_t 
   device_nCells_ = (uint32_t*)(device_storage_.get() + 2);
 
   // FIXME: consider collapsing these 3 in one adhoc kernel
-  if constexpr (std::is_same<Traits, cms::cudacompat::GPUTraits>::value) {
+  if constexpr (where == memoryPool::onDevice) {
     cudaCheck(cudaMemsetAsync(device_nCells_, 0, sizeof(uint32_t), stream));
   } else {
     *device_nCells_ = 0;

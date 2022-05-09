@@ -155,10 +155,10 @@ namespace cAHitNtupletGenerator {
 
 }  // namespace cAHitNtupletGenerator
 
-template <typename TTraits>
+template <memoryPool::Where w>
 class CAHitNtupletGeneratorKernels {
 public:
-  using Traits = TTraits;
+  static constexpr memoryPool::Where where = w;
 
   using QualityCuts = cAHitNtupletGenerator::QualityCuts;
   using Params = cAHitNtupletGenerator::Params;
@@ -238,7 +238,7 @@ private:
   }
 };
 
-using CAHitNtupletGeneratorKernelsGPU = CAHitNtupletGeneratorKernels<cms::cudacompat::GPUTraits>;
-using CAHitNtupletGeneratorKernelsCPU = CAHitNtupletGeneratorKernels<cms::cudacompat::CPUTraits>;
+using CAHitNtupletGeneratorKernelsGPU = CAHitNtupletGeneratorKernels<memoryPool::onDevice>;
+using CAHitNtupletGeneratorKernelsCPU = CAHitNtupletGeneratorKernels<memoryPool::onCPU>;
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h

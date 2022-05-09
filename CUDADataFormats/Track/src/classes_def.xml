@@ -1,6 +1,7 @@
 <lcgdict>
-  <class name="cms::cuda::Product<HeterogeneousSoA<pixelTrack::TrackSoA>>" persistent="false"/>
-  <class name="edm::Wrapper<cms::cuda::Product<HeterogeneousSoA<pixelTrack::TrackSoA>>>" persistent="false"/>
-  <class name="HeterogeneousSoA<pixelTrack::TrackSoA>" persistent="false"/>
-  <class name="edm::Wrapper<HeterogeneousSoA<pixelTrack::TrackSoA>>" persistent="false"/>
+  <class name="cms::cuda::Product<memoryPool::Buffer<pixelTrack::TrackSoA>>" persistent="false"/>
+  <class name="edm::Wrapper<cms::cuda::Product<memoryPool::Buffer<pixelTrack::TrackSoA>>>" persistent="false"/>
+  <class name="memoryPool::Buffer<pixelTrack::TrackSoA>" persistent="false"/>
+  <class name="pixelTrack::TrackSoA" persistent="false"/>
+  <class name="edm::Wrapper<memoryPool::Buffer<pixelTrack::TrackSoA>>" persistent="false"/>
 </lcgdict>
