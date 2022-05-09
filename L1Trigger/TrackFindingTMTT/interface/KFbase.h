@@ -48,24 +48,18 @@ namespace tmtt {
     // Do KF fit
     L1fittedTrack fit(const L1track3D &l1track3D) override;
 
-    static const unsigned int nEta = 16;
-    static const unsigned int nGPlayID = 7;
-    static constexpr unsigned int invalidKFlayer = 7;
+    static const unsigned int nKFlayer_ = 7;
+    static const unsigned int nEta_ = 16;
+    static const unsigned int nGPlayer_ = 7;
+    static constexpr unsigned int invalidKFlayer_ = nKFlayer_;
 
     // index across is GP encoded layer ID (where barrel layers=1,2,7,5,4,3 & endcap wheels=3,4,5,6,7 & 0 never occurs)
     // index down is eta reg
     // element.first is kalman layer when stub is from barrel, 7 is invalid
     // element.second is kalman layer when stub is from endcap, 7 is invalid
 
-    static constexpr std::pair<unsigned, unsigned> layerMap[nEta / 2][nGPlayID + 1] = {
-        {{7, 7},
-         {0, 7},
-         {1, 7},
-         {5, 7},
-         {4, 7},
-         {3, 7},
-         {7, 7},
-         {2, 7}},  // B1 B2 B3 B4 B5 B6 -- Ultimate config with "maybe layer"
+    static constexpr std::pair<unsigned, unsigned> layerMap_[nEta_ / 2][nGPlayer_ + 1] = {
+        {{7, 7}, {0, 7}, {1, 7}, {5, 7}, {4, 7}, {3, 7}, {7, 7}, {2, 7}},  // B1 B2 B3 B4 B5 B6
         {{7, 7}, {0, 7}, {1, 7}, {5, 7}, {4, 7}, {3, 7}, {7, 7}, {2, 7}},  // B1 B2 B3 B4 B5 B6
         {{7, 7}, {0, 7}, {1, 7}, {5, 7}, {4, 7}, {3, 7}, {7, 7}, {2, 7}},  // B1 B2 B3 B4 B5 B6
         {{7, 7}, {0, 7}, {1, 7}, {5, 7}, {4, 7}, {3, 7}, {7, 7}, {2, 7}},  // B1 B2 B3 B4 B5 B6
