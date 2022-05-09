@@ -53,7 +53,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 )
 
 process.select = cms.EDFilter("MCDisplacementFilter",
-    ParticleIDs = cms.vint32(310), ## in mm
+    ParticleIDs = cms.vint32(310), 
     LengMin = cms.double(0.), ## in mm
     LengMax = cms.double(100.), ## in mm
 
