@@ -129,7 +129,7 @@ process.dqmOnlineBeamMonitor = cms.EDProducer("OnlineBeamMonitor",
 MonitorName         = cms.untracked.string("OnlineBeamMonitor"),
 AppendRunToFileName = cms.untracked.bool(False),
 WriteDIPAscii       = cms.untracked.bool(True),
-DIPFileName         = cms.untracked.string("BeamFitResultsForDIP.txt")
+DIPFileName         = cms.untracked.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsForDIP.txt")
 )
 
 #---------------
