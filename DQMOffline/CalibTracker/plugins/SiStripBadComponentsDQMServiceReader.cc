@@ -1,12 +1,44 @@
-#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
-
-#include "DQMOffline/CalibTracker/plugins/SiStripBadComponentsDQMServiceReader.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
+// system include files
+#include <sstream>
+#include <string>
 #include <iostream>
 #include <cstdio>
 #include <sys/time.h>
+
+// user include files
+#include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+class TrackerTopology;
+class SiStripBadStrip;
+
+class SiStripBadComponentsDQMServiceReader : public edm::one::EDAnalyzer<> {
+public:
+  explicit SiStripBadComponentsDQMServiceReader(const edm::ParameterSet&);
+  ~SiStripBadComponentsDQMServiceReader() override = default;
+
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  void printError(std::stringstream& ss, const bool error, const std::string& errorText);
+
+  std::string detIdToString(DetId detid, const TrackerTopology& tTopo);
+
+private:
+  const bool printdebug_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<SiStripBadStrip, SiStripBadStripRcd> badStripToken_;
+};
 
 using namespace std;
 
@@ -14,8 +46,6 @@ SiStripBadComponentsDQMServiceReader::SiStripBadComponentsDQMServiceReader(const
     : printdebug_(iConfig.getUntrackedParameter<bool>("printDebug", true)),
       tTopoToken_(esConsumes()),
       badStripToken_(esConsumes()) {}
-
-SiStripBadComponentsDQMServiceReader::~SiStripBadComponentsDQMServiceReader() {}
 
 void SiStripBadComponentsDQMServiceReader::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
@@ -123,3 +153,6 @@ string SiStripBadComponentsDQMServiceReader::detIdToString(DetId detid, const Tr
 
   return name;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripBadComponentsDQMServiceReader);
