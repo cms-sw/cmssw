@@ -10,7 +10,6 @@ const std::string edm::SharedResourceNames::kPythia8 = "Pythia8";
 const std::string edm::SharedResourceNames::kPhotos = "Photos";
 const std::string edm::SharedResourceNames::kTauola = "Tauola";
 const std::string edm::SharedResourceNames::kEvtGen = "EvtGen";
-const std::string edm::SharedResourceNames::kHerwig6 = "Herwig6";
 
 const std::string edm::ESSharedResourceNames::kDDGeometry = "es_DDGeometry";
 const std::string edm::ESSharedResourceNames::kDD4hep = "es_DD4hep";
