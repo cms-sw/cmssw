@@ -18,21 +18,21 @@ namespace hph {
         setupTT_(setupTT),
         layerIds_(),
         layermap_(),
-        nEtaRegions_(tmtt::KFbase::nEta / 2),
-        nKalmanLayers_(tmtt::KFbase::invalidKFlayer) {
+        nEtaRegions_(tmtt::KFbase::nEta_ / 2),
+        nKalmanLayers_(tmtt::KFbase::nKFlayer_) {
     for (const tt::SensorModule& sm : setupTT_.sensorModules()) {
       layerIds_.push_back(std::make_pair(sm.layerId(), sm.barrel()));
     }
     sort(layerIds_.begin(), layerIds_.end(), smallerID);
     layerIds_.erase(unique(layerIds_.begin(), layerIds_.end(), equalID), layerIds_.end());  //Keep only unique layerIds
-    // Converting tmtt::KFbase::layerMap to a format that is acceptatble by HitPatternHelper
+    // Converting tmtt::KFbase::layerMap_ to a format that is acceptatble by HitPatternHelper
     for (int i = 0; i < nEtaRegions_; i++) {
       for (int j = 0; j < (int)layerIds_.size(); j++) {
         int layer = nKalmanLayers_;
         if (layerIds_[j].second) {
-          layer = tmtt::KFbase::layerMap[i][tmtt::TrackerModule::calcLayerIdReduced(layerIds_[j].first)].first;
+          layer = tmtt::KFbase::layerMap_[i][tmtt::TrackerModule::calcLayerIdReduced(layerIds_[j].first)].first;
         } else {
-          layer = tmtt::KFbase::layerMap[i][tmtt::TrackerModule::calcLayerIdReduced(layerIds_[j].first)].second;
+          layer = tmtt::KFbase::layerMap_[i][tmtt::TrackerModule::calcLayerIdReduced(layerIds_[j].first)].second;
         }
         if (layer < nKalmanLayers_) {
           layermap_[i][layer].push_back(layerIds_[j].first);

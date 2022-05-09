@@ -202,7 +202,7 @@ namespace tmtt {
       // Get Kalman encoded layer ID for this stub.
       int kalmanLay = this->kalmanLayer(etaReg, stub->layerIdReduced(), stub->barrel(), stub->r(), stub->z());
 
-      if (kalmanLay != invalidKFlayer) {
+      if (kalmanLay != invalidKFlayer_) {
         if (layerStubs[kalmanLay].size() < settings_->kalmanMaxStubsPerLayer()) {
           layerStubs[kalmanLay].push_back(stub);
         } else {
@@ -266,7 +266,7 @@ namespace tmtt {
           if (kfDeadLayers.find(layer + 1) != kfDeadLayers.end() && layerStubs[layer + 1].empty()) {
             nextlay_stubs = layerStubs[layer + 2];
             nSkippedDeadLayers_nextStubs++;
-          } else if (this->kalmanAmbiguousLayer(etaReg, layer) && layerStubs[layer + 1].empty()) {
+          } else if (this->kalmanAmbiguousLayer(etaReg, layer + 1) && layerStubs[layer + 1].empty()) {
             nextlay_stubs = layerStubs[layer + 2];
             nSkippedAmbiguousLayers_nextStubs++;
           } else {
@@ -342,19 +342,6 @@ namespace tmtt {
 
         new_states.insert(new_states.end(), next_states.begin(), next_states.end());
         new_states.insert(new_states.end(), next_states_skipped.begin(), next_states_skipped.end());
-        /*
-        i = 0;
-        for (auto state : next_states) {
-            new_states.push_back(state);
-          i++;
-        }
-
-        i = 0;
-        for (auto state : next_states_skipped) {
-            new_states.push_back(state);
-          i++;
-        }
-*/
       }  //end of state loop
 
       // copy new_states into prev_states for next iteration or end if we are on
@@ -374,7 +361,7 @@ namespace tmtt {
         // We're done.
         prev_states.clear();
         new_states.clear();
-
+        break;
       } else {
         // Continue iterating.
         prev_states = new_states;
@@ -695,9 +682,9 @@ namespace tmtt {
 
   unsigned int KFbase::kalmanLayer(
       unsigned int iEtaReg, unsigned int layerIDreduced, bool barrel, float r, float z) const {
-    if (nEta != numEtaRegions_)
+    if (nEta_ != numEtaRegions_)
       throw cms::Exception("LogicError")
-          << "ERROR KFbase::getKalmanLayer hardwired value of nEta differs from NumEtaRegions cfg param";
+          << "ERROR KFbase::getKalmanLayer hardwired value of nEta_ differs from NumEtaRegions cfg param";
 
     unsigned int kfEtaReg;  // KF VHDL eta sector def: small in barrel & large in endcap.
     if (iEtaReg < numEtaRegions_ / 2) {
@@ -707,7 +694,7 @@ namespace tmtt {
     }
 
     unsigned int kalmanLay =
-        barrel ? layerMap[kfEtaReg][layerIDreduced].first : layerMap[kfEtaReg][layerIDreduced].second;
+        barrel ? layerMap_[kfEtaReg][layerIDreduced].first : layerMap_[kfEtaReg][layerIDreduced].second;
 
     // Switch back to the layermap that is consistent with current FW when "maybe layer" is not used
     if (not settings_->kfUseMaybeLayers()) {
@@ -764,9 +751,7 @@ namespace tmtt {
     // Only helps in extreme forward sector, and there not significantly.
     // UNDERSTAND IF CAN BE USED ELSEWHERE.
 
-    const unsigned int nEta = 16;
-    const unsigned int nKFlayer = 7;
-    constexpr bool ambiguityMap[nEta / 2][nKFlayer] = {
+    constexpr bool ambiguityMap[nEta_ / 2][nKFlayer_] = {
         {false, false, false, false, false, false, false},
         {false, false, false, false, false, false, false},
         {false, false, false, false, false, false, false},
@@ -785,7 +770,7 @@ namespace tmtt {
     }
 
     bool ambiguous = false;
-    if (settings_->kfUseMaybeLayers())
+    if (settings_->kfUseMaybeLayers() && kfLayer < nKFlayer_)
       ambiguous = ambiguityMap[kfEtaReg][kfLayer];
 
     return ambiguous;
