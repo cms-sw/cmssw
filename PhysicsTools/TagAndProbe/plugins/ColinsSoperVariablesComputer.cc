@@ -74,7 +74,6 @@ void ColinsSoperVariablesComputer::produce(edm::StreamID, edm::Event& iEvent, co
     daughter2 = boson->daughter(1);
 
     if (!(nullptr == daughter1 || nullptr == daughter2)) {
-      isOS = false;
       charge1 = daughter1->charge();
       charge2 = daughter2->charge();
       isOS = charge1 * charge2 < 0;
