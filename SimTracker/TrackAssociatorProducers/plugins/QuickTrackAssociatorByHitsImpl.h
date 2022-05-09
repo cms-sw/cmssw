@@ -99,6 +99,13 @@ public:
   reco::SimToRecoCollectionSeed associateSimToReco(const edm::Handle<edm::View<TrajectorySeed> >&,
                                                    const edm::Handle<TrackingParticleCollection>&) const override;
 
+  //candidate
+  reco::RecoToSimCollectionTCandidate associateRecoToSim(
+      const edm::Handle<TrackCandidateCollection>&, const edm::RefVector<TrackingParticleCollection>&) const override;
+
+  reco::SimToRecoCollectionTCandidate associateSimToReco(
+      const edm::Handle<TrackCandidateCollection>&, const edm::RefVector<TrackingParticleCollection>&) const override;
+
 private:
   typedef std::pair<uint32_t, EncodedEventId>
       SimTrackIdentifiers;  ///< @brief This is enough information to uniquely identify a sim track
@@ -117,12 +124,14 @@ private:
    * in the unnamed namespace of the .cc file. Parts that rely on the type of T_hitOrClusterAssociator
    * are delegated out to overloaded methods.
    */
-  template <class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
-  reco::RecoToSimCollection associateRecoToSimImplementation(
-      const T_TrackCollection& trackCollection,
-      const T_TrackingParticleCollection& trackingParticleCollection,
-      const TrackingParticleRefKeySet* trackingParticleKeys,
-      T_hitOrClusterAssociator hitOrClusterAssociator) const;
+  template <class T_RecoToSimCollection,
+            class T_TrackCollection,
+            class T_TrackingParticleCollection,
+            class T_hitOrClusterAssociator>
+  T_RecoToSimCollection associateRecoToSimImplementation(const T_TrackCollection& trackCollection,
+                                                         const T_TrackingParticleCollection& trackingParticleCollection,
+                                                         const TrackingParticleRefKeySet* trackingParticleKeys,
+                                                         T_hitOrClusterAssociator hitOrClusterAssociator) const;
 
   /** @brief The method that does the work for both overloads of associateSimToReco.
    *
@@ -130,12 +139,14 @@ private:
    * in the unnamed namespace of the .cc file. Parts that rely on the type of T_hitOrClusterAssociator
    * are delegated out to overloaded methods.
    */
-  template <class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
-  reco::SimToRecoCollection associateSimToRecoImplementation(
-      const T_TrackCollection& trackCollection,
-      const T_TrackingParticleCollection& trackingParticleCollection,
-      const TrackingParticleRefKeySet* trackingParticleKeys,
-      T_hitOrClusterAssociator hitOrClusterAssociator) const;
+  template <class T_SimToRecoCollection,
+            class T_TrackCollection,
+            class T_TrackingParticleCollection,
+            class T_hitOrClusterAssociator>
+  T_SimToRecoCollection associateSimToRecoImplementation(const T_TrackCollection& trackCollection,
+                                                         const T_TrackingParticleCollection& trackingParticleCollection,
+                                                         const TrackingParticleRefKeySet* trackingParticleKeys,
+                                                         T_hitOrClusterAssociator hitOrClusterAssociator) const;
 
   /** @brief Returns the TrackingParticle that has the most associated hits to the given track.
    *
@@ -196,10 +207,10 @@ private:
       const TrackerHitAssociator& hitAssociator, iter begin, iter end) const;
 
   // The last parameter is used to decide whether we cound hits or clusters
-  double weightedNumberOfTrackClusters(const reco::Track& track, const TrackerHitAssociator&) const;
-  double weightedNumberOfTrackClusters(const TrajectorySeed& seed, const TrackerHitAssociator&) const;
-  double weightedNumberOfTrackClusters(const reco::Track& track, const ClusterTPAssociation&) const;
-  double weightedNumberOfTrackClusters(const TrajectorySeed& seed, const ClusterTPAssociation&) const;
+  template <typename T_Track>
+  double weightedNumberOfTrackClusters(const T_Track& track, const TrackerHitAssociator&) const;
+  template <typename T_Track>
+  double weightedNumberOfTrackClusters(const T_Track& track, const ClusterTPAssociation&) const;
 
   // called only by weightedNumberOfTrackClusters(..., ClusterTPAssociation)
   template <typename iter>

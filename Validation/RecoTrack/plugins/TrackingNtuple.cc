@@ -346,7 +346,8 @@ namespace {
     int countClusters = 0;
   };
 
-  TrackTPMatch findBestMatchingTrackingParticle(const reco::Track& track,
+  template <typename HRange>
+  TrackTPMatch findBestMatchingTrackingParticle(const HRange& hits,
                                                 const ClusterTPAssociation& clusterToTPMap,
                                                 const TrackingParticleRefKeyToIndex& tpKeyToIndex) {
     struct Count {
@@ -354,8 +355,7 @@ namespace {
       size_t innermostHit = std::numeric_limits<size_t>::max();
     };
 
-    std::vector<OmniClusterRef> clusters =
-        track_associator::hitsToClusterRefs(track.recHitsBegin(), track.recHitsEnd());
+    std::vector<OmniClusterRef> clusters = track_associator::hitsToClusterRefs(hits.begin(), hits.end());
 
     std::unordered_map<int, Count> count;
     for (size_t iCluster = 0, end = clusters.size(); iCluster < end; ++iCluster) {
@@ -392,13 +392,13 @@ namespace {
     return best;
   }
 
-  TrackTPMatch findMatchingTrackingParticleFromFirstHit(const reco::Track& track,
+  template <typename HRange>
+  TrackTPMatch findMatchingTrackingParticleFromFirstHit(const HRange& hits,
                                                         const ClusterTPAssociation& clusterToTPMap,
                                                         const TrackingParticleRefKeyToIndex& tpKeyToIndex) {
     TrackTPMatch best;
 
-    std::vector<OmniClusterRef> clusters =
-        track_associator::hitsToClusterRefs(track.recHitsBegin(), track.recHitsEnd());
+    std::vector<OmniClusterRef> clusters = track_associator::hitsToClusterRefs(hits.begin(), hits.end());
     if (clusters.empty()) {
       return best;
     }
@@ -518,7 +518,6 @@ private:
                      const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                      const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                      const edm::DetSetVector<PixelDigiSimLink>& digiSimLink,
-                     const TransientTrackingRecHitBuilder& theTTRHBuilder,
                      const TrackerTopology& tTopo,
                      const SimHitRefKeyToIndex& simHitRefKeyToIndex,
                      std::set<edm::ProductID>& hitProductIds);
@@ -528,18 +527,15 @@ private:
                                const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                                const edm::DetSetVector<StripDigiSimLink>& digiSimLink,
-                               const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                const TrackerTopology& tTopo,
                                const SimHitRefKeyToIndex& simHitRefKeyToIndex,
                                std::set<edm::ProductID>& hitProductIds);
 
   void fillStripMatchedHits(const edm::Event& iEvent,
-                            const TransientTrackingRecHitBuilder& theTTRHBuilder,
                             const TrackerTopology& tTopo,
                             std::vector<std::pair<int, int>>& monoStereoClusterList);
 
   size_t addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
-                            const TransientTrackingRecHitBuilder& theTTRHBuilder,
                             const TrackerTopology& tTopo,
                             const std::vector<std::pair<uint64_t, StripMaskContainer const*>>& stripMasks,
                             std::vector<std::pair<int, int>>& monoStereoClusterList);
@@ -549,7 +545,6 @@ private:
                         const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                         const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                         const edm::DetSetVector<PixelDigiSimLink>& digiSimLink,
-                        const TransientTrackingRecHitBuilder& theTTRHBuilder,
                         const TrackerTopology& tTopo,
                         const SimHitRefKeyToIndex& simHitRefKeyToIndex,
                         std::set<edm::ProductID>& hitProductIds);
@@ -560,7 +555,6 @@ private:
                  const reco::BeamSpot& bs,
                  const reco::TrackToTrackingParticleAssociator& associatorByHits,
                  const ClusterTPAssociation& clusterToTPMap,
-                 const TransientTrackingRecHitBuilder& theTTRHBuilder,
                  const MagneticField& theMF,
                  const TrackerTopology& tTopo,
                  std::vector<std::pair<int, int>>& monoStereoClusterList,
@@ -576,12 +570,26 @@ private:
                   const reco::VertexCollection& vertices,
                   const reco::TrackToTrackingParticleAssociator& associatorByHits,
                   const ClusterTPAssociation& clusterToTPMap,
-                  const TransientTrackingRecHitBuilder& theTTRHBuilder,
                   const TrackerTopology& tTopo,
                   const std::set<edm::ProductID>& hitProductIds,
                   const std::map<edm::ProductID, size_t>& seedToCollIndex,
                   const std::vector<const MVACollection*>& mvaColls,
                   const std::vector<const QualityMaskCollection*>& qualColls);
+
+  void fillCandidates(const edm::Handle<TrackCandidateCollection>& candsHandle,
+                      int algo,
+                      const TrackingParticleRefVector& tpCollection,
+                      const TrackingParticleRefKeyToIndex& tpKeyToIndex,
+                      const TrackingParticleRefKeyToCount& tpKeyToClusterCount,
+                      const MagneticField& mf,
+                      const reco::BeamSpot& bs,
+                      const reco::VertexCollection& vertices,
+                      const reco::TrackToTrackingParticleAssociator& associatorByHits,
+                      const ClusterTPAssociation& clusterToTPMap,
+                      const TrackerGeometry& tracker,
+                      const TrackerTopology& tTopo,
+                      const std::set<edm::ProductID>& hitProductIds,
+                      const std::map<edm::ProductID, size_t>& seedToCollIndex);
 
   void fillSimHits(const TrackerGeometry& tracker,
                    const TrackingParticleRefKeyToIndex& tpKeyToIndex,
@@ -623,7 +631,7 @@ private:
   SimHitData matchCluster(const OmniClusterRef& cluster,
                           DetId hitId,
                           int clusterKey,
-                          const TransientTrackingRecHit::RecHitPointer& ttrh,
+                          const TrackingRecHit& hit,
                           const ClusterTPAssociation& clusterToTPMap,
                           const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                           const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
@@ -633,12 +641,13 @@ private:
 
   // ----------member data ---------------------------
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
-  const edm::ESGetToken<TransientTrackingRecHitBuilder, TransientRecHitRecord> ttrhToken_;
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
 
   std::vector<edm::EDGetTokenT<edm::View<reco::Track>>> seedTokens_;
   std::vector<edm::EDGetTokenT<std::vector<SeedStopInfo>>> seedStopInfoTokens_;
+
+  std::vector<edm::EDGetTokenT<TrackCandidateCollection>> candidateTokens_;
   edm::EDGetTokenT<edm::View<reco::Track>> trackToken_;
   std::vector<std::tuple<edm::EDGetTokenT<MVACollection>, edm::EDGetTokenT<QualityMaskCollection>>>
       mvaQualityCollectionTokens_;
@@ -668,8 +677,10 @@ private:
 
   std::string builderName_;
   const bool includeSeeds_;
+  const bool includeTrackCandidates_;
   const bool addSeedCurvCov_;
   const bool includeAllHits_;
+  const bool includeOnTrackHitData_;
   const bool includeMVA_;
   const bool includeTrackingParticles_;
   const bool includeOOT_;
@@ -1038,6 +1049,62 @@ private:
   std::vector<std::vector<int>> trk_hitIdx;             // second index runs through hits
   std::vector<std::vector<int>> trk_hitType;            // second index runs through hits
   ////////////////////
+  // track candidates
+  // (first) index runs through track candidates
+  std::vector<short> tcand_pca_valid;  // pca: propagated params at BS
+  std::vector<float> tcand_pca_px;
+  std::vector<float> tcand_pca_py;
+  std::vector<float> tcand_pca_pz;
+  std::vector<float> tcand_pca_pt;
+  std::vector<float> tcand_pca_eta;
+  std::vector<float> tcand_pca_phi;
+  std::vector<float> tcand_pca_dxy;
+  std::vector<float> tcand_pca_dz;
+  std::vector<float> tcand_pca_ptErr;
+  std::vector<float> tcand_pca_etaErr;
+  std::vector<float> tcand_pca_lambdaErr;
+  std::vector<float> tcand_pca_phiErr;
+  std::vector<float> tcand_pca_dxyErr;
+  std::vector<float> tcand_pca_dzErr;
+  std::vector<float> tcand_px;  // from PState
+  std::vector<float> tcand_py;
+  std::vector<float> tcand_pz;
+  std::vector<float> tcand_pt;
+  std::vector<float> tcand_x;
+  std::vector<float> tcand_y;
+  std::vector<float> tcand_z;
+  std::vector<float> tcand_qbpErr;
+  std::vector<float> tcand_lambdaErr;
+  std::vector<float> tcand_phiErr;
+  std::vector<float> tcand_xtErr;
+  std::vector<float> tcand_ytErr;
+  std::vector<float> tcand_ndof;  // sum(hit.dimention) - 5
+  std::vector<int> tcand_q;
+  std::vector<unsigned int> tcand_nValid;
+  std::vector<unsigned int> tcand_nPixel;
+  std::vector<unsigned int> tcand_nStrip;
+  std::vector<unsigned int> tcand_nCluster;
+  std::vector<unsigned int> tcand_algo;
+  std::vector<unsigned short> tcand_stopReason;
+  std::vector<int> tcand_seedIdx;
+  std::vector<int> tcand_vtxIdx;
+  std::vector<short> tcand_isTrue;
+  std::vector<int> tcand_bestSimTrkIdx;
+  std::vector<float> tcand_bestSimTrkShareFrac;
+  std::vector<float> tcand_bestSimTrkShareFracSimDenom;
+  std::vector<float> tcand_bestSimTrkShareFracSimClusterDenom;
+  std::vector<float> tcand_bestSimTrkNChi2;
+  std::vector<int> tcand_bestFromFirstHitSimTrkIdx;
+  std::vector<float> tcand_bestFromFirstHitSimTrkShareFrac;
+  std::vector<float> tcand_bestFromFirstHitSimTrkShareFracSimDenom;
+  std::vector<float> tcand_bestFromFirstHitSimTrkShareFracSimClusterDenom;
+  std::vector<float> tcand_bestFromFirstHitSimTrkNChi2;
+  std::vector<std::vector<float>> tcand_simTrkShareFrac;  // second index runs through matched TrackingParticles
+  std::vector<std::vector<float>> tcand_simTrkNChi2;      // second index runs through matched TrackingParticles
+  std::vector<std::vector<int>> tcand_simTrkIdx;          // second index runs through matched TrackingParticles
+  std::vector<std::vector<int>> tcand_hitIdx;             // second index runs through hits
+  std::vector<std::vector<int>> tcand_hitType;            // second index runs through hits
+  ////////////////////
   // sim tracks
   // (first) index runs through TrackingParticles
   std::vector<int> sim_event;
@@ -1083,6 +1150,16 @@ private:
   std::vector<short> pix_isBarrel;
   DetIdPixel pix_detId;
   std::vector<std::vector<int>> pix_trkIdx;            // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> pix_onTrk_x;         // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> pix_onTrk_y;         // same for all pix_onTrk_*
+  std::vector<std::vector<float>> pix_onTrk_z;         //
+  std::vector<std::vector<float>> pix_onTrk_xx;        //
+  std::vector<std::vector<float>> pix_onTrk_xy;        //
+  std::vector<std::vector<float>> pix_onTrk_yy;        //
+  std::vector<std::vector<float>> pix_onTrk_yz;        //
+  std::vector<std::vector<float>> pix_onTrk_zz;        //
+  std::vector<std::vector<float>> pix_onTrk_zx;        //
+  std::vector<std::vector<int>> pix_tcandIdx;          // second index runs through candidates containing this hit
   std::vector<std::vector<int>> pix_seeIdx;            // second index runs through seeds containing this hit
   std::vector<std::vector<int>> pix_simHitIdx;         // second index runs through SimHits inducing this hit
   std::vector<std::vector<float>> pix_xySignificance;  // second index runs through SimHits inducing this hit
@@ -1109,6 +1186,16 @@ private:
   std::vector<short> str_isBarrel;
   DetIdStrip str_detId;
   std::vector<std::vector<int>> str_trkIdx;            // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> str_onTrk_x;         // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> str_onTrk_y;         // same for all pix_onTrk_*
+  std::vector<std::vector<float>> str_onTrk_z;         //
+  std::vector<std::vector<float>> str_onTrk_xx;        //
+  std::vector<std::vector<float>> str_onTrk_xy;        //
+  std::vector<std::vector<float>> str_onTrk_yy;        //
+  std::vector<std::vector<float>> str_onTrk_yz;        //
+  std::vector<std::vector<float>> str_onTrk_zz;        //
+  std::vector<std::vector<float>> str_onTrk_zx;        //
+  std::vector<std::vector<int>> str_tcandIdx;          // second index runs through candidates containing this hit
   std::vector<std::vector<int>> str_seeIdx;            // second index runs through seeds containing this hit
   std::vector<std::vector<int>> str_simHitIdx;         // second index runs through SimHits inducing this hit
   std::vector<std::vector<float>> str_xySignificance;  // second index runs through SimHits inducing this hit
@@ -1160,6 +1247,16 @@ private:
   std::vector<short> ph2_isBarrel;
   DetIdPhase2OT ph2_detId;
   std::vector<std::vector<int>> ph2_trkIdx;            // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> ph2_onTrk_x;         // second index runs through tracks containing this hit
+  std::vector<std::vector<float>> ph2_onTrk_y;         // same for all pix_onTrk_*
+  std::vector<std::vector<float>> ph2_onTrk_z;         //
+  std::vector<std::vector<float>> ph2_onTrk_xx;        //
+  std::vector<std::vector<float>> ph2_onTrk_xy;        //
+  std::vector<std::vector<float>> ph2_onTrk_yy;        //
+  std::vector<std::vector<float>> ph2_onTrk_yz;        //
+  std::vector<std::vector<float>> ph2_onTrk_zz;        //
+  std::vector<std::vector<float>> ph2_onTrk_zx;        //
+  std::vector<std::vector<int>> ph2_tcandIdx;          // second index runs through candidates containing this hit
   std::vector<std::vector<int>> ph2_seeIdx;            // second index runs through seeds containing this hit
   std::vector<std::vector<int>> ph2_simHitIdx;         // second index runs through SimHits inducing this hit
   std::vector<std::vector<float>> ph2_xySignificance;  // second index runs through SimHits inducing this hit
@@ -1254,6 +1351,7 @@ private:
   std::vector<unsigned short> see_stopReason;
   std::vector<unsigned short> see_nCands;
   std::vector<int> see_trkIdx;
+  std::vector<int> see_tcandIdx;
   std::vector<short> see_isTrue;
   std::vector<int> see_bestSimTrkIdx;
   std::vector<float> see_bestSimTrkShareFrac;
@@ -1300,7 +1398,6 @@ private:
 //
 TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     : mfToken_(esConsumes()),
-      ttrhToken_(esConsumes(edm::ESInputTag("", iConfig.getUntrackedParameter<std::string>("TTRHBuilder")))),
       tTopoToken_(esConsumes()),
       tGeomToken_(esConsumes()),
       trackToken_(consumes<edm::View<reco::Track>>(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))),
@@ -1338,8 +1435,10 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       tpNStripStereoLayersToken_(consumes<edm::ValueMap<unsigned int>>(
           iConfig.getUntrackedParameter<edm::InputTag>("trackingParticleNstripstereolayers"))),
       includeSeeds_(iConfig.getUntrackedParameter<bool>("includeSeeds")),
+      includeTrackCandidates_(iConfig.getUntrackedParameter<bool>("includeTrackCandidates")),
       addSeedCurvCov_(iConfig.getUntrackedParameter<bool>("addSeedCurvCov")),
       includeAllHits_(iConfig.getUntrackedParameter<bool>("includeAllHits")),
+      includeOnTrackHitData_(iConfig.getUntrackedParameter<bool>("includeOnTrackHitData")),
       includeMVA_(iConfig.getUntrackedParameter<bool>("includeMVA")),
       includeTrackingParticles_(iConfig.getUntrackedParameter<bool>("includeTrackingParticles")),
       includeOOT_(iConfig.getUntrackedParameter<bool>("includeOOT")),
@@ -1359,6 +1458,10 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
                                             << seedStopInfoTokens_.size() << " track candidate collections";
     }
   }
+  if (includeTrackCandidates_)
+    candidateTokens_ =
+        edm::vector_transform(iConfig.getUntrackedParameter<std::vector<edm::InputTag>>("trackCandidates"),
+                              [&](const edm::InputTag& tag) { return consumes<TrackCandidateCollection>(tag); });
 
   if (includeAllHits_) {
     if (includeStripHits_ && includePhase2OTHits_) {
@@ -1503,6 +1606,69 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     t->Branch("trk_hitIdx", &trk_hitIdx);
     t->Branch("trk_hitType", &trk_hitType);
   }
+  if (includeTrackCandidates_) {
+    t->Branch("tcand_pca_valid", &tcand_pca_valid);
+    t->Branch("tcand_pca_px", &tcand_pca_px);
+    t->Branch("tcand_pca_py", &tcand_pca_py);
+    t->Branch("tcand_pca_pz", &tcand_pca_pz);
+    t->Branch("tcand_pca_pt", &tcand_pca_pt);
+    t->Branch("tcand_pca_eta", &tcand_pca_eta);
+    t->Branch("tcand_pca_phi", &tcand_pca_phi);
+    t->Branch("tcand_pca_dxy", &tcand_pca_dxy);
+    t->Branch("tcand_pca_dz", &tcand_pca_dz);
+    t->Branch("tcand_pca_ptErr", &tcand_pca_ptErr);
+    t->Branch("tcand_pca_etaErr", &tcand_pca_etaErr);
+    t->Branch("tcand_pca_lambdaErr", &tcand_pca_lambdaErr);
+    t->Branch("tcand_pca_phiErr", &tcand_pca_phiErr);
+    t->Branch("tcand_pca_dxyErr", &tcand_pca_dxyErr);
+    t->Branch("tcand_pca_dzErr", &tcand_pca_dzErr);
+    t->Branch("tcand_px", &tcand_px);
+    t->Branch("tcand_py", &tcand_py);
+    t->Branch("tcand_pz", &tcand_pz);
+    t->Branch("tcand_pt", &tcand_pt);
+    t->Branch("tcand_x", &tcand_x);
+    t->Branch("tcand_y", &tcand_y);
+    t->Branch("tcand_z", &tcand_z);
+    t->Branch("tcand_qbpErr", &tcand_qbpErr);
+    t->Branch("tcand_lambdaErr", &tcand_lambdaErr);
+    t->Branch("tcand_phiErr", &tcand_phiErr);
+    t->Branch("tcand_xtErr", &tcand_xtErr);
+    t->Branch("tcand_ytErr", &tcand_ytErr);
+    t->Branch("tcand_q", &tcand_q);
+    t->Branch("tcand_ndof", &tcand_ndof);
+    t->Branch("tcand_nValid", &tcand_nValid);
+    t->Branch("tcand_nPixel", &tcand_nPixel);
+    t->Branch("tcand_nStrip", &tcand_nStrip);
+    t->Branch("tcand_nCluster", &tcand_nCluster);
+    t->Branch("tcand_algo", &tcand_algo);
+    t->Branch("tcand_stopReason", &tcand_stopReason);
+    if (includeSeeds_) {
+      t->Branch("tcand_seedIdx", &tcand_seedIdx);
+    }
+    t->Branch("tcand_vtxIdx", &tcand_vtxIdx);
+    if (includeTrackingParticles_) {
+      t->Branch("tcand_simTrkIdx", &tcand_simTrkIdx);
+      t->Branch("tcand_simTrkShareFrac", &tcand_simTrkShareFrac);
+      t->Branch("tcand_simTrkNChi2", &tcand_simTrkNChi2);
+      t->Branch("tcand_bestSimTrkIdx", &tcand_bestSimTrkIdx);
+      t->Branch("tcand_bestFromFirstHitSimTrkIdx", &tcand_bestFromFirstHitSimTrkIdx);
+    } else {
+      t->Branch("tcand_isTrue", &tcand_isTrue);
+    }
+    t->Branch("tcand_bestSimTrkShareFrac", &tcand_bestSimTrkShareFrac);
+    t->Branch("tcand_bestSimTrkShareFracSimDenom", &tcand_bestSimTrkShareFracSimDenom);
+    t->Branch("tcand_bestSimTrkShareFracSimClusterDenom", &tcand_bestSimTrkShareFracSimClusterDenom);
+    t->Branch("tcand_bestSimTrkNChi2", &tcand_bestSimTrkNChi2);
+    t->Branch("tcand_bestFromFirstHitSimTrkShareFrac", &tcand_bestFromFirstHitSimTrkShareFrac);
+    t->Branch("tcand_bestFromFirstHitSimTrkShareFracSimDenom", &tcand_bestFromFirstHitSimTrkShareFracSimDenom);
+    t->Branch("tcand_bestFromFirstHitSimTrkShareFracSimClusterDenom",
+              &tcand_bestFromFirstHitSimTrkShareFracSimClusterDenom);
+    t->Branch("tcand_bestFromFirstHitSimTrkNChi2", &tcand_bestFromFirstHitSimTrkNChi2);
+    if (includeAllHits_) {
+      t->Branch("tcand_hitIdx", &tcand_hitIdx);
+      t->Branch("tcand_hitType", &tcand_hitType);
+    }
+  }
   if (includeTrackingParticles_) {
     //sim tracks
     t->Branch("sim_event", &sim_event);
@@ -1548,6 +1714,19 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     t->Branch("pix_isBarrel", &pix_isBarrel);
     pix_detId.book("pix", t);
     t->Branch("pix_trkIdx", &pix_trkIdx);
+    if (includeOnTrackHitData_) {
+      t->Branch("pix_onTrk_x", &pix_onTrk_x);
+      t->Branch("pix_onTrk_y", &pix_onTrk_y);
+      t->Branch("pix_onTrk_z", &pix_onTrk_z);
+      t->Branch("pix_onTrk_xx", &pix_onTrk_xx);
+      t->Branch("pix_onTrk_xy", &pix_onTrk_xy);
+      t->Branch("pix_onTrk_yy", &pix_onTrk_yy);
+      t->Branch("pix_onTrk_yz", &pix_onTrk_yz);
+      t->Branch("pix_onTrk_zz", &pix_onTrk_zz);
+      t->Branch("pix_onTrk_zx", &pix_onTrk_zx);
+    }
+    if (includeTrackCandidates_)
+      t->Branch("pix_tcandIdx", &pix_tcandIdx);
     if (includeSeeds_) {
       t->Branch("pix_seeIdx", &pix_seeIdx);
     }
@@ -1578,6 +1757,19 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("str_isBarrel", &str_isBarrel);
       str_detId.book("str", t);
       t->Branch("str_trkIdx", &str_trkIdx);
+      if (includeOnTrackHitData_) {
+        t->Branch("str_onTrk_x", &str_onTrk_x);
+        t->Branch("str_onTrk_y", &str_onTrk_y);
+        t->Branch("str_onTrk_z", &str_onTrk_z);
+        t->Branch("str_onTrk_xx", &str_onTrk_xx);
+        t->Branch("str_onTrk_xy", &str_onTrk_xy);
+        t->Branch("str_onTrk_yy", &str_onTrk_yy);
+        t->Branch("str_onTrk_yz", &str_onTrk_yz);
+        t->Branch("str_onTrk_zz", &str_onTrk_zz);
+        t->Branch("str_onTrk_zx", &str_onTrk_zx);
+      }
+      if (includeTrackCandidates_)
+        t->Branch("str_tcandIdx", &str_tcandIdx);
       if (includeSeeds_) {
         t->Branch("str_seeIdx", &str_seeIdx);
       }
@@ -1633,6 +1825,19 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       t->Branch("ph2_isBarrel", &ph2_isBarrel);
       ph2_detId.book("ph2", t);
       t->Branch("ph2_trkIdx", &ph2_trkIdx);
+      if (includeOnTrackHitData_) {
+        t->Branch("ph2_onTrk_x", &ph2_onTrk_x);
+        t->Branch("ph2_onTrk_y", &ph2_onTrk_y);
+        t->Branch("ph2_onTrk_z", &ph2_onTrk_z);
+        t->Branch("ph2_onTrk_xx", &ph2_onTrk_xx);
+        t->Branch("ph2_onTrk_xy", &ph2_onTrk_xy);
+        t->Branch("ph2_onTrk_yy", &ph2_onTrk_yy);
+        t->Branch("ph2_onTrk_yz", &ph2_onTrk_yz);
+        t->Branch("ph2_onTrk_zz", &ph2_onTrk_zz);
+        t->Branch("ph2_onTrk_zx", &ph2_onTrk_zx);
+      }
+      if (includeTrackCandidates_)
+        t->Branch("ph2_tcandIdx", &ph2_tcandIdx);
       if (includeSeeds_) {
         t->Branch("ph2_seeIdx", &ph2_seeIdx);
       }
@@ -1736,6 +1941,8 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
     t->Branch("see_stopReason", &see_stopReason);
     t->Branch("see_nCands", &see_nCands);
     t->Branch("see_trkIdx", &see_trkIdx);
+    if (includeTrackCandidates_)
+      t->Branch("see_tcandIdx", &see_tcandIdx);
     if (includeTrackingParticles_) {
       t->Branch("see_simTrkIdx", &see_simTrkIdx);
       t->Branch("see_simTrkShareFrac", &see_simTrkShareFrac);
@@ -1874,6 +2081,60 @@ void TrackingNtuple::clearVariables() {
   trk_simTrkNChi2.clear();
   trk_hitIdx.clear();
   trk_hitType.clear();
+  //track candidates
+  tcand_pca_valid.clear();
+  tcand_pca_px.clear();
+  tcand_pca_py.clear();
+  tcand_pca_pz.clear();
+  tcand_pca_pt.clear();
+  tcand_pca_eta.clear();
+  tcand_pca_phi.clear();
+  tcand_pca_dxy.clear();
+  tcand_pca_dz.clear();
+  tcand_pca_ptErr.clear();
+  tcand_pca_etaErr.clear();
+  tcand_pca_lambdaErr.clear();
+  tcand_pca_phiErr.clear();
+  tcand_pca_dxyErr.clear();
+  tcand_pca_dzErr.clear();
+  tcand_px.clear();
+  tcand_py.clear();
+  tcand_pz.clear();
+  tcand_pt.clear();
+  tcand_x.clear();
+  tcand_y.clear();
+  tcand_z.clear();
+  tcand_qbpErr.clear();
+  tcand_lambdaErr.clear();
+  tcand_phiErr.clear();
+  tcand_xtErr.clear();
+  tcand_ytErr.clear();
+  tcand_ndof.clear();
+  tcand_q.clear();
+  tcand_nValid.clear();
+  tcand_nPixel.clear();
+  tcand_nStrip.clear();
+  tcand_nCluster.clear();
+  tcand_algo.clear();
+  tcand_stopReason.clear();
+  tcand_seedIdx.clear();
+  tcand_vtxIdx.clear();
+  tcand_isTrue.clear();
+  tcand_bestSimTrkIdx.clear();
+  tcand_bestSimTrkShareFrac.clear();
+  tcand_bestSimTrkShareFracSimDenom.clear();
+  tcand_bestSimTrkShareFracSimClusterDenom.clear();
+  tcand_bestSimTrkNChi2.clear();
+  tcand_bestFromFirstHitSimTrkIdx.clear();
+  tcand_bestFromFirstHitSimTrkShareFrac.clear();
+  tcand_bestFromFirstHitSimTrkShareFracSimDenom.clear();
+  tcand_bestFromFirstHitSimTrkShareFracSimClusterDenom.clear();
+  tcand_bestFromFirstHitSimTrkNChi2.clear();
+  tcand_simTrkShareFrac.clear();
+  tcand_simTrkNChi2.clear();
+  tcand_simTrkIdx.clear();
+  tcand_hitIdx.clear();
+  tcand_hitType.clear();
   //sim tracks
   sim_event.clear();
   sim_bunchCrossing.clear();
@@ -1912,6 +2173,16 @@ void TrackingNtuple::clearVariables() {
   pix_isBarrel.clear();
   pix_detId.clear();
   pix_trkIdx.clear();
+  pix_onTrk_x.clear();
+  pix_onTrk_y.clear();
+  pix_onTrk_z.clear();
+  pix_onTrk_xx.clear();
+  pix_onTrk_xy.clear();
+  pix_onTrk_yy.clear();
+  pix_onTrk_yz.clear();
+  pix_onTrk_zz.clear();
+  pix_onTrk_zx.clear();
+  pix_tcandIdx.clear();
   pix_seeIdx.clear();
   pix_simHitIdx.clear();
   pix_xySignificance.clear();
@@ -1935,6 +2206,16 @@ void TrackingNtuple::clearVariables() {
   str_isBarrel.clear();
   str_detId.clear();
   str_trkIdx.clear();
+  str_onTrk_x.clear();
+  str_onTrk_y.clear();
+  str_onTrk_z.clear();
+  str_onTrk_xx.clear();
+  str_onTrk_xy.clear();
+  str_onTrk_yy.clear();
+  str_onTrk_yz.clear();
+  str_onTrk_zz.clear();
+  str_onTrk_zx.clear();
+  str_tcandIdx.clear();
   str_seeIdx.clear();
   str_simHitIdx.clear();
   str_xySignificance.clear();
@@ -1980,6 +2261,16 @@ void TrackingNtuple::clearVariables() {
   ph2_isBarrel.clear();
   ph2_detId.clear();
   ph2_trkIdx.clear();
+  ph2_onTrk_x.clear();
+  ph2_onTrk_y.clear();
+  ph2_onTrk_z.clear();
+  ph2_onTrk_xx.clear();
+  ph2_onTrk_xy.clear();
+  ph2_onTrk_yy.clear();
+  ph2_onTrk_yz.clear();
+  ph2_onTrk_zz.clear();
+  ph2_onTrk_zx.clear();
+  ph2_tcandIdx.clear();
   ph2_seeIdx.clear();
   ph2_xySignificance.clear();
   ph2_simHitIdx.clear();
@@ -2064,6 +2355,7 @@ void TrackingNtuple::clearVariables() {
   see_stopReason.clear();
   see_nCands.clear();
   see_trkIdx.clear();
+  see_tcandIdx.clear();
   see_isTrue.clear();
   see_bestSimTrkIdx.clear();
   see_bestSimTrkShareFrac.clear();
@@ -2108,7 +2400,6 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   using namespace std;
 
   const auto& mf = iSetup.getData(mfToken_);
-  const auto& theTTRHBuilder = &iSetup.getData(ttrhToken_);
   const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
   const TrackerGeometry& tracker = iSetup.getData(tGeomToken_);
 
@@ -2223,7 +2514,6 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                   tpKeyToIndex,
                   *simHitsTPAssoc,
                   pixelDigiSimLinks,
-                  *theTTRHBuilder,
                   tTopo,
                   simHitRefKeyToIndex,
                   hitProductIds);
@@ -2237,13 +2527,12 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                               tpKeyToIndex,
                               *simHitsTPAssoc,
                               stripDigiSimLinks,
-                              *theTTRHBuilder,
                               tTopo,
                               simHitRefKeyToIndex,
                               hitProductIds);
 
       //matched hits
-      fillStripMatchedHits(iEvent, *theTTRHBuilder, tTopo, monoStereoClusterList);
+      fillStripMatchedHits(iEvent, tTopo, monoStereoClusterList);
     }
 
     if (includePhase2OTHits_) {
@@ -2254,7 +2543,6 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                        tpKeyToIndex,
                        *simHitsTPAssoc,
                        phase2OTSimLinks,
-                       *theTTRHBuilder,
                        tTopo,
                        simHitRefKeyToIndex,
                        hitProductIds);
@@ -2269,7 +2557,6 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
               bs,
               associatorByHits,
               clusterToTPMap,
-              *theTTRHBuilder,
               mf,
               tTopo,
               monoStereoClusterList,
@@ -2325,12 +2612,40 @@ void TrackingNtuple::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
              *vertices,
              associatorByHits,
              clusterToTPMap,
-             *theTTRHBuilder,
              tTopo,
              hitProductIds,
              seedCollToOffset,
              mvaColls,
              qualColls);
+
+  if (includeTrackCandidates_) {
+    //candidates
+    for (auto const& token : candidateTokens_) {
+      auto const tCandsHandle = iEvent.getHandle(token);
+
+      edm::EDConsumerBase::Labels labels;
+      labelsForToken(token, labels);
+      TString label = labels.module;
+      label.ReplaceAll("TrackCandidates", "");
+      label.ReplaceAll("muonSeeded", "muonSeededStep");
+      int algo = reco::TrackBase::algoByName(label.Data());
+
+      fillCandidates(tCandsHandle,
+                     algo,
+                     tpCollection,
+                     tpKeyToIndex,
+                     tpKeyToClusterCount,
+                     mf,
+                     bs,
+                     *vertices,
+                     associatorByHits,
+                     clusterToTPMap,
+                     tracker,
+                     tTopo,
+                     hitProductIds,
+                     seedCollToOffset);
+    }
+  }
 
   //tracking particles
   //sort association maps with simHits
@@ -2374,7 +2689,7 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
     const OmniClusterRef& cluster,
     DetId hitId,
     int clusterKey,
-    const TransientTrackingRecHit::RecHitPointer& ttrh,
+    const TrackingRecHit& hit,
     const ClusterTPAssociation& clusterToTPMap,
     const TrackingParticleRefKeyToIndex& tpKeyToIndex,
     const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
@@ -2392,11 +2707,11 @@ TrackingNtuple::SimHitData TrackingNtuple::matchCluster(
   float h_x = 0, h_y = 0;
   float h_xx = 0, h_xy = 0, h_yy = 0;
   if (simHitBySignificance_) {
-    h_x = ttrh->localPosition().x();
-    h_y = ttrh->localPosition().y();
-    h_xx = ttrh->localPositionError().xx();
-    h_xy = ttrh->localPositionError().xy();
-    h_yy = ttrh->localPositionError().yy();
+    h_x = hit.localPosition().x();
+    h_y = hit.localPosition().y();
+    h_xx = hit.localPositionError().xx();
+    h_xy = hit.localPositionError().xy();
+    h_yy = hit.localPositionError().yy();
   }
 
   ret.type = HitSimType::Noise;
@@ -2686,7 +3001,6 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
                                    const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                    const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                                    const edm::DetSetVector<PixelDigiSimLink>& digiSimLink,
-                                   const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                    const TrackerTopology& tTopo,
                                    const SimHitRefKeyToIndex& simHitRefKeyToIndex,
                                    std::set<edm::ProductID>& hitProductIds) {
@@ -2711,8 +3025,6 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
   for (auto it = pixelHits->begin(); it != pixelHits->end(); it++) {
     const DetId hitId = it->detId();
     for (auto hit = it->begin(); hit != it->end(); hit++) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
-
       hitProductIds.insert(hit->cluster().id());
 
       const int key = hit->cluster().key();
@@ -2721,29 +3033,39 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
       pix_isBarrel.push_back(hitId.subdetId() == 1);
       pix_detId.push_back(tTopo, hitId);
       pix_trkIdx.emplace_back();  // filled in fillTracks
-      pix_seeIdx.emplace_back();  // filled in fillSeeds
-      pix_x.push_back(ttrh->globalPosition().x());
-      pix_y.push_back(ttrh->globalPosition().y());
-      pix_z.push_back(ttrh->globalPosition().z());
-      pix_xx.push_back(ttrh->globalPositionError().cxx());
-      pix_xy.push_back(ttrh->globalPositionError().cyx());
-      pix_yy.push_back(ttrh->globalPositionError().cyy());
-      pix_yz.push_back(ttrh->globalPositionError().czy());
-      pix_zz.push_back(ttrh->globalPositionError().czz());
-      pix_zx.push_back(ttrh->globalPositionError().czx());
-      pix_radL.push_back(ttrh->surface()->mediumProperties().radLen());
-      pix_bbxi.push_back(ttrh->surface()->mediumProperties().xi());
+      pix_onTrk_x.emplace_back();
+      pix_onTrk_y.emplace_back();
+      pix_onTrk_z.emplace_back();
+      pix_onTrk_xx.emplace_back();
+      pix_onTrk_xy.emplace_back();
+      pix_onTrk_yy.emplace_back();
+      pix_onTrk_yz.emplace_back();
+      pix_onTrk_zz.emplace_back();
+      pix_onTrk_zx.emplace_back();
+      pix_tcandIdx.emplace_back();  // filled in fillCandidates
+      pix_seeIdx.emplace_back();    // filled in fillSeeds
+      pix_x.push_back(hit->globalPosition().x());
+      pix_y.push_back(hit->globalPosition().y());
+      pix_z.push_back(hit->globalPosition().z());
+      pix_xx.push_back(hit->globalPositionError().cxx());
+      pix_xy.push_back(hit->globalPositionError().cyx());
+      pix_yy.push_back(hit->globalPositionError().cyy());
+      pix_yz.push_back(hit->globalPositionError().czy());
+      pix_zz.push_back(hit->globalPositionError().czz());
+      pix_zx.push_back(hit->globalPositionError().czx());
+      pix_radL.push_back(hit->surface()->mediumProperties().radLen());
+      pix_bbxi.push_back(hit->surface()->mediumProperties().xi());
       pix_clustSizeCol.push_back(hit->cluster()->sizeY());
       pix_clustSizeRow.push_back(hit->cluster()->sizeX());
       pix_usedMask.push_back(pixUsedMask(hit->firstClusterRef().key()));
 
       LogTrace("TrackingNtuple") << "pixHit cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
-                                 << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
+                                 << " rawId=" << hitId.rawId() << " pos =" << hit->globalPosition();
       if (includeTrackingParticles_) {
         SimHitData simHitData = matchCluster(hit->firstClusterRef(),
                                              hitId,
                                              key,
-                                             ttrh,
+                                             *hit,
                                              clusterToTPMap,
                                              tpKeyToIndex,
                                              simHitsTPAssoc,
@@ -2775,7 +3097,6 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
                                              const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                              const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                                              const edm::DetSetVector<StripDigiSimLink>& digiSimLink,
-                                             const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                              const TrackerTopology& tTopo,
                                              const SimHitRefKeyToIndex& simHitRefKeyToIndex,
                                              std::set<edm::ProductID>& hitProductIds) {
@@ -2804,7 +3125,17 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
   str_isBarrel.resize(totalStripHits);
   str_detId.resize(totalStripHits);
   str_trkIdx.resize(totalStripHits);  // filled in fillTracks
-  str_seeIdx.resize(totalStripHits);  // filled in fillSeeds
+  str_onTrk_x.resize(totalStripHits);
+  str_onTrk_y.resize(totalStripHits);
+  str_onTrk_z.resize(totalStripHits);
+  str_onTrk_xx.resize(totalStripHits);
+  str_onTrk_xy.resize(totalStripHits);
+  str_onTrk_yy.resize(totalStripHits);
+  str_onTrk_yz.resize(totalStripHits);
+  str_onTrk_zz.resize(totalStripHits);
+  str_onTrk_zx.resize(totalStripHits);
+  str_tcandIdx.resize(totalStripHits);  // filled in fillCandidates
+  str_seeIdx.resize(totalStripHits);    // filled in fillSeeds
   str_simHitIdx.resize(totalStripHits);
   str_simType.resize(totalStripHits);
   str_chargeFraction.resize(totalStripHits);
@@ -2829,36 +3160,34 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
     for (const auto& detset : hits) {
       const DetId hitId = detset.detId();
       for (const auto& hit : detset) {
-        TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
-
         hitProductIds.insert(hit.cluster().id());
 
         const int key = hit.cluster().key();
         const int lay = tTopo.layer(hitId);
         str_isBarrel[key] = (hitId.subdetId() == StripSubdetector::TIB || hitId.subdetId() == StripSubdetector::TOB);
         str_detId.set(key, tTopo, hitId);
-        str_x[key] = ttrh->globalPosition().x();
-        str_y[key] = ttrh->globalPosition().y();
-        str_z[key] = ttrh->globalPosition().z();
-        str_xx[key] = ttrh->globalPositionError().cxx();
-        str_xy[key] = ttrh->globalPositionError().cyx();
-        str_yy[key] = ttrh->globalPositionError().cyy();
-        str_yz[key] = ttrh->globalPositionError().czy();
-        str_zz[key] = ttrh->globalPositionError().czz();
-        str_zx[key] = ttrh->globalPositionError().czx();
-        str_radL[key] = ttrh->surface()->mediumProperties().radLen();
-        str_bbxi[key] = ttrh->surface()->mediumProperties().xi();
+        str_x[key] = hit.globalPosition().x();
+        str_y[key] = hit.globalPosition().y();
+        str_z[key] = hit.globalPosition().z();
+        str_xx[key] = hit.globalPositionError().cxx();
+        str_xy[key] = hit.globalPositionError().cyx();
+        str_yy[key] = hit.globalPositionError().cyy();
+        str_yz[key] = hit.globalPositionError().czy();
+        str_zz[key] = hit.globalPositionError().czz();
+        str_zx[key] = hit.globalPositionError().czx();
+        str_radL[key] = hit.surface()->mediumProperties().radLen();
+        str_bbxi[key] = hit.surface()->mediumProperties().xi();
         str_chargePerCM[key] = siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster());
         str_clustSize[key] = hit.cluster()->amplitudes().size();
         str_usedMask[key] = strUsedMask(key);
         LogTrace("TrackingNtuple") << name << " cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
-                                   << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
+                                   << " rawId=" << hitId.rawId() << " pos =" << hit.globalPosition();
 
         if (includeTrackingParticles_) {
           SimHitData simHitData = matchCluster(hit.firstClusterRef(),
                                                hitId,
                                                key,
-                                               ttrh,
+                                               hit,
                                                clusterToTPMap,
                                                tpKeyToIndex,
                                                simHitsTPAssoc,
@@ -2892,7 +3221,6 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
 }
 
 size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
-                                          const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                           const TrackerTopology& tTopo,
                                           const std::vector<std::pair<uint64_t, StripMaskContainer const*>>& stripMasks,
                                           std::vector<std::pair<int, int>>& monoStereoClusterList) {
@@ -2905,7 +3233,6 @@ size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
     return mask;
   };
 
-  TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
   const auto hitId = hit.geographicalId();
   const int lay = tTopo.layer(hitId);
   monoStereoClusterList.emplace_back(hit.monoHit().cluster().key(), hit.stereoHit().cluster().key());
@@ -2914,17 +3241,17 @@ size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
   glu_monoIdx.push_back(hit.monoHit().cluster().key());
   glu_stereoIdx.push_back(hit.stereoHit().cluster().key());
   glu_seeIdx.emplace_back();  // filled in fillSeeds
-  glu_x.push_back(ttrh->globalPosition().x());
-  glu_y.push_back(ttrh->globalPosition().y());
-  glu_z.push_back(ttrh->globalPosition().z());
-  glu_xx.push_back(ttrh->globalPositionError().cxx());
-  glu_xy.push_back(ttrh->globalPositionError().cyx());
-  glu_yy.push_back(ttrh->globalPositionError().cyy());
-  glu_yz.push_back(ttrh->globalPositionError().czy());
-  glu_zz.push_back(ttrh->globalPositionError().czz());
-  glu_zx.push_back(ttrh->globalPositionError().czx());
-  glu_radL.push_back(ttrh->surface()->mediumProperties().radLen());
-  glu_bbxi.push_back(ttrh->surface()->mediumProperties().xi());
+  glu_x.push_back(hit.globalPosition().x());
+  glu_y.push_back(hit.globalPosition().y());
+  glu_z.push_back(hit.globalPosition().z());
+  glu_xx.push_back(hit.globalPositionError().cxx());
+  glu_xy.push_back(hit.globalPositionError().cyx());
+  glu_yy.push_back(hit.globalPositionError().cyy());
+  glu_yz.push_back(hit.globalPositionError().czy());
+  glu_zz.push_back(hit.globalPositionError().czz());
+  glu_zx.push_back(hit.globalPositionError().czx());
+  glu_radL.push_back(hit.surface()->mediumProperties().radLen());
+  glu_bbxi.push_back(hit.surface()->mediumProperties().xi());
   glu_chargePerCM.push_back(siStripClusterTools::chargePerCM(hitId, hit.firstClusterRef().stripCluster()));
   glu_clustSizeMono.push_back(hit.monoHit().cluster()->amplitudes().size());
   glu_clustSizeStereo.push_back(hit.stereoHit().cluster()->amplitudes().size());
@@ -2933,12 +3260,11 @@ size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
   LogTrace("TrackingNtuple") << "stripMatchedHit"
                              << " cluster0=" << hit.stereoHit().cluster().key()
                              << " cluster1=" << hit.monoHit().cluster().key() << " subdId=" << hitId.subdetId()
-                             << " lay=" << lay << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
+                             << " lay=" << lay << " rawId=" << hitId.rawId() << " pos =" << hit.globalPosition();
   return glu_isBarrel.size() - 1;
 }
 
 void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
-                                          const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                           const TrackerTopology& tTopo,
                                           std::vector<std::pair<int, int>>& monoStereoClusterList) {
   std::vector<std::pair<uint64_t, StripMaskContainer const*>> stripMasks;
@@ -2953,7 +3279,7 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
   iEvent.getByToken(stripMatchedRecHitToken_, matchedHits);
   for (auto it = matchedHits->begin(); it != matchedHits->end(); it++) {
     for (auto hit = it->begin(); hit != it->end(); hit++) {
-      addStripMatchedHit(*hit, theTTRHBuilder, tTopo, stripMasks, monoStereoClusterList);
+      addStripMatchedHit(*hit, tTopo, stripMasks, monoStereoClusterList);
     }
   }
 }
@@ -2963,7 +3289,6 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
                                       const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                       const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
                                       const edm::DetSetVector<PixelDigiSimLink>& digiSimLink,
-                                      const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                       const TrackerTopology& tTopo,
                                       const SimHitRefKeyToIndex& simHitRefKeyToIndex,
                                       std::set<edm::ProductID>& hitProductIds) {
@@ -2972,8 +3297,6 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
   for (auto it = phase2OTHits->begin(); it != phase2OTHits->end(); it++) {
     const DetId hitId = it->detId();
     for (auto hit = it->begin(); hit != it->end(); hit++) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
-
       hitProductIds.insert(hit->cluster().id());
 
       const int key = hit->cluster().key();
@@ -2982,27 +3305,37 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
       ph2_isBarrel.push_back(hitId.subdetId() == 1);
       ph2_detId.push_back(tTopo, hitId);
       ph2_trkIdx.emplace_back();  // filled in fillTracks
-      ph2_seeIdx.emplace_back();  // filled in fillSeeds
-      ph2_x.push_back(ttrh->globalPosition().x());
-      ph2_y.push_back(ttrh->globalPosition().y());
-      ph2_z.push_back(ttrh->globalPosition().z());
-      ph2_xx.push_back(ttrh->globalPositionError().cxx());
-      ph2_xy.push_back(ttrh->globalPositionError().cyx());
-      ph2_yy.push_back(ttrh->globalPositionError().cyy());
-      ph2_yz.push_back(ttrh->globalPositionError().czy());
-      ph2_zz.push_back(ttrh->globalPositionError().czz());
-      ph2_zx.push_back(ttrh->globalPositionError().czx());
-      ph2_radL.push_back(ttrh->surface()->mediumProperties().radLen());
-      ph2_bbxi.push_back(ttrh->surface()->mediumProperties().xi());
+      ph2_onTrk_x.emplace_back();
+      ph2_onTrk_y.emplace_back();
+      ph2_onTrk_z.emplace_back();
+      ph2_onTrk_xx.emplace_back();
+      ph2_onTrk_xy.emplace_back();
+      ph2_onTrk_yy.emplace_back();
+      ph2_onTrk_yz.emplace_back();
+      ph2_onTrk_zz.emplace_back();
+      ph2_onTrk_zx.emplace_back();
+      ph2_tcandIdx.emplace_back();  // filled in fillCandidates
+      ph2_seeIdx.emplace_back();    // filled in fillSeeds
+      ph2_x.push_back(hit->globalPosition().x());
+      ph2_y.push_back(hit->globalPosition().y());
+      ph2_z.push_back(hit->globalPosition().z());
+      ph2_xx.push_back(hit->globalPositionError().cxx());
+      ph2_xy.push_back(hit->globalPositionError().cyx());
+      ph2_yy.push_back(hit->globalPositionError().cyy());
+      ph2_yz.push_back(hit->globalPositionError().czy());
+      ph2_zz.push_back(hit->globalPositionError().czz());
+      ph2_zx.push_back(hit->globalPositionError().czx());
+      ph2_radL.push_back(hit->surface()->mediumProperties().radLen());
+      ph2_bbxi.push_back(hit->surface()->mediumProperties().xi());
 
       LogTrace("TrackingNtuple") << "phase2 OT cluster=" << key << " subdId=" << hitId.subdetId() << " lay=" << lay
-                                 << " rawId=" << hitId.rawId() << " pos =" << ttrh->globalPosition();
+                                 << " rawId=" << hitId.rawId() << " pos =" << hit->globalPosition();
 
       if (includeTrackingParticles_) {
         SimHitData simHitData = matchCluster(hit->firstClusterRef(),
                                              hitId,
                                              key,
-                                             ttrh,
+                                             *hit,
                                              clusterToTPMap,
                                              tpKeyToIndex,
                                              simHitsTPAssoc,
@@ -3034,7 +3367,6 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
                                const reco::BeamSpot& bs,
                                const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                const ClusterTPAssociation& clusterToTPMap,
-                               const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                const MagneticField& theMF,
                                const TrackerTopology& tTopo,
                                std::vector<std::pair<int, int>>& monoStereoClusterList,
@@ -3137,12 +3469,12 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
           seedTrack.recHitsBegin(),
           seedTrack.recHitsEnd());  // TODO: this function is called 3 times per track, try to reduce
       const int nClusters = clusters.size();
-      const auto bestKeyCount = findBestMatchingTrackingParticle(seedTrack, clusterToTPMap, tpKeyToIndex);
+      const auto bestKeyCount = findBestMatchingTrackingParticle(seedTrack.recHits(), clusterToTPMap, tpKeyToIndex);
       const float bestShareFrac =
           nClusters > 0 ? static_cast<float>(bestKeyCount.countClusters) / static_cast<float>(nClusters) : 0;
       // Another way starting from the first hit of the seed
       const auto bestFirstHitKeyCount =
-          findMatchingTrackingParticleFromFirstHit(seedTrack, clusterToTPMap, tpKeyToIndex);
+          findMatchingTrackingParticleFromFirstHit(seedTrack.recHits(), clusterToTPMap, tpKeyToIndex);
       const float bestFirstHitShareFrac =
           nClusters > 0 ? static_cast<float>(bestFirstHitKeyCount.countClusters) / static_cast<float>(nClusters) : 0;
 
@@ -3187,7 +3519,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       see_stateTrajPz.push_back(mom.z());
 
       ///the following is useful for analysis in global coords at seed hit surface
-      TransientTrackingRecHit::RecHitPointer lastRecHit = theTTRHBuilder.build(&*(seed.recHits().end() - 1));
+      const TrackingRecHit* lastRecHit = &*(seed.recHits().end() - 1);
       TrajectoryStateOnSurface tsos =
           trajectoryStateTransform::transientState(seed.startingState(), lastRecHit->surface(), &theMF);
       auto const& stateGlobal = tsos.globalParameters();
@@ -3206,7 +3538,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
         see_stateCurvCov.push_back(std::move(cov));
       }
 
-      see_trkIdx.push_back(-1);  // to be set correctly in fillTracks
+      see_trkIdx.push_back(-1);    // to be set correctly in fillTracks
+      see_tcandIdx.push_back(-1);  // to be set correctly in fillCandidates
       if (includeTrackingParticles_) {
         see_simTrkIdx.push_back(tpIdx);
         see_simTrkShareFrac.push_back(sharedFraction);
@@ -3221,7 +3554,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 
       /// Hmm, the following could make sense instead of plain failing if propagation to beam line fails
       /*
-      TransientTrackingRecHit::RecHitPointer lastRecHit = theTTRHBuilder.build(&*(seed.recHits().second-1));
+      const TrackingRecHit* lastRecHit = &*(seed.recHits().second-1);
       TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( itSeed->startingState(), lastRecHit->surface(), &theMF);
       float pt  = state.globalParameters().momentum().perp();
       float eta = state.globalParameters().momentum().eta();
@@ -3235,10 +3568,9 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       std::vector<int> hitType;
 
       for (auto const& hit : seed.recHits()) {
-        TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder.build(&hit);
-        int subid = recHit->geographicalId().subdetId();
+        int subid = hit.geographicalId().subdetId();
         if (subid == (int)PixelSubdetector::PixelBarrel || subid == (int)PixelSubdetector::PixelEndcap) {
-          const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
+          const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&hit);
           const auto& clusterRef = bhit->firstClusterRef();
           const auto clusterKey = clusterRef.cluster_pixel().key();
           if (includeAllHits_) {
@@ -3249,8 +3581,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
           hitType.push_back(static_cast<int>(HitType::Pixel));
         } else if (subid == (int)StripSubdetector::TOB || subid == (int)StripSubdetector::TID ||
                    subid == (int)StripSubdetector::TIB || subid == (int)StripSubdetector::TEC) {
-          if (trackerHitRTTI::isMatched(*recHit)) {
-            const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(&*recHit);
+          if (trackerHitRTTI::isMatched(hit)) {
+            const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(&hit);
             if (includeAllHits_) {
               checkProductID(hitProductIds, matchedHit->monoClusterRef().id(), "seed");
               checkProductID(hitProductIds, matchedHit->stereoClusterRef().id(), "seed");
@@ -3268,7 +3600,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
               // SiStripMatchedRecHit2DCollection, e.g. via muon
               // outside-in seeds (or anything taking hits from
               // MeasurementTrackerEvent). So let's add them here.
-              gluedIndex = addStripMatchedHit(*matchedHit, theTTRHBuilder, tTopo, stripMasks, monoStereoClusterList);
+              gluedIndex = addStripMatchedHit(*matchedHit, tTopo, stripMasks, monoStereoClusterList);
             }
 
             if (includeAllHits_)
@@ -3276,7 +3608,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
             hitIdx.push_back(gluedIndex);
             hitType.push_back(static_cast<int>(HitType::Glued));
           } else {
-            const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
+            const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&hit);
             const auto& clusterRef = bhit->firstClusterRef();
             unsigned int clusterKey;
             if (clusterRef.isPhase2()) {
@@ -3315,8 +3647,8 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
       //the part below is not strictly needed
       float chi2 = -1;
       if (nHits == 2) {
-        TransientTrackingRecHit::RecHitPointer recHit0 = theTTRHBuilder.build(&*(seed.recHits().begin()));
-        TransientTrackingRecHit::RecHitPointer recHit1 = theTTRHBuilder.build(&*(seed.recHits().begin() + 1));
+        auto const recHit0 = seed.recHits().begin();
+        auto const recHit1 = seed.recHits().begin() + 1;
         std::vector<GlobalPoint> gp(2);
         std::vector<GlobalError> ge(2);
         gp[0] = recHit0->globalPosition();
@@ -3340,9 +3672,9 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
                                                     : GlobalPoint(0, 0, 0))
             << " eta,phi: " << gp[0].eta() << "," << gp[0].phi();
       } else if (nHits == 3) {
-        TransientTrackingRecHit::RecHitPointer recHit0 = theTTRHBuilder.build(&*(seed.recHits().begin()));
-        TransientTrackingRecHit::RecHitPointer recHit1 = theTTRHBuilder.build(&*(seed.recHits().begin() + 1));
-        TransientTrackingRecHit::RecHitPointer recHit2 = theTTRHBuilder.build(&*(seed.recHits().begin() + 2));
+        auto const recHit0 = seed.recHits().begin();
+        auto const recHit1 = seed.recHits().begin() + 1;
+        auto const recHit2 = seed.recHits().begin() + 2;
         declareDynArray(GlobalPoint, 4, gp);
         declareDynArray(GlobalError, 4, ge);
         declareDynArray(bool, 4, bl);
@@ -3409,7 +3741,6 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
                                 const reco::VertexCollection& vertices,
                                 const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                 const ClusterTPAssociation& clusterToTPMap,
-                                const TransientTrackingRecHitBuilder& theTTRHBuilder,
                                 const TrackerTopology& tTopo,
                                 const std::set<edm::ProductID>& hitProductIds,
                                 const std::map<edm::ProductID, size_t>& seedCollToOffset,
@@ -3463,7 +3794,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
         itTrack->recHitsEnd());  // TODO: this function is called 3 times per track, try to reduce
     const int nClusters = clusters.size();
 
-    const auto bestKeyCount = findBestMatchingTrackingParticle(*itTrack, clusterToTPMap, tpKeyToIndex);
+    const auto bestKeyCount = findBestMatchingTrackingParticle(itTrack->recHits(), clusterToTPMap, tpKeyToIndex);
     const float bestShareFrac = static_cast<float>(bestKeyCount.countClusters) / static_cast<float>(nClusters);
     float bestShareFracSimDenom = 0;
     float bestShareFracSimClusterDenom = 0;
@@ -3478,7 +3809,8 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
           tkParam, tkCov, *(tpCollection[tpKeyToIndex.at(bestKeyCount.key)]), mf, bs);
     }
     // Another way starting from the first hit of the track
-    const auto bestFirstHitKeyCount = findMatchingTrackingParticleFromFirstHit(*itTrack, clusterToTPMap, tpKeyToIndex);
+    const auto bestFirstHitKeyCount =
+        findMatchingTrackingParticleFromFirstHit(itTrack->recHits(), clusterToTPMap, tpKeyToIndex);
     const float bestFirstHitShareFrac =
         static_cast<float>(bestFirstHitKeyCount.countClusters) / static_cast<float>(nClusters);
     float bestFirstHitShareFracSimDenom = 0;
@@ -3618,7 +3950,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     std::vector<int> hitType;
 
     for (auto i = itTrack->recHitsBegin(); i != itTrack->recHitsEnd(); i++) {
-      TransientTrackingRecHit::RecHitPointer hit = theTTRHBuilder.build(&**i);
+      auto hit = *i;
       DetId hitId = hit->geographicalId();
       LogTrace("TrackingNtuple") << "hit #" << std::distance(itTrack->recHitsBegin(), i)
                                  << " subdet=" << hitId.subdetId();
@@ -3647,10 +3979,37 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
           checkProductID(hitProductIds, clusterRef.id(), "track");
           if (clusterRef.isPixel()) {
             pix_trkIdx[clusterKey].push_back(iTrack);
+            pix_onTrk_x[clusterKey].push_back(hit->globalPosition().x());
+            pix_onTrk_y[clusterKey].push_back(hit->globalPosition().y());
+            pix_onTrk_z[clusterKey].push_back(hit->globalPosition().z());
+            pix_onTrk_xx[clusterKey].push_back(hit->globalPositionError().cxx());
+            pix_onTrk_xy[clusterKey].push_back(hit->globalPositionError().cyx());
+            pix_onTrk_yy[clusterKey].push_back(hit->globalPositionError().cyy());
+            pix_onTrk_yz[clusterKey].push_back(hit->globalPositionError().czy());
+            pix_onTrk_zz[clusterKey].push_back(hit->globalPositionError().czz());
+            pix_onTrk_zx[clusterKey].push_back(hit->globalPositionError().czx());
           } else if (clusterRef.isPhase2()) {
             ph2_trkIdx[clusterKey].push_back(iTrack);
+            ph2_onTrk_x[clusterKey].push_back(hit->globalPosition().x());
+            ph2_onTrk_y[clusterKey].push_back(hit->globalPosition().y());
+            ph2_onTrk_z[clusterKey].push_back(hit->globalPosition().z());
+            ph2_onTrk_xx[clusterKey].push_back(hit->globalPositionError().cxx());
+            ph2_onTrk_xy[clusterKey].push_back(hit->globalPositionError().cyx());
+            ph2_onTrk_yy[clusterKey].push_back(hit->globalPositionError().cyy());
+            ph2_onTrk_yz[clusterKey].push_back(hit->globalPositionError().czy());
+            ph2_onTrk_zz[clusterKey].push_back(hit->globalPositionError().czz());
+            ph2_onTrk_zx[clusterKey].push_back(hit->globalPositionError().czx());
           } else {
             str_trkIdx[clusterKey].push_back(iTrack);
+            str_onTrk_x[clusterKey].push_back(hit->globalPosition().x());
+            str_onTrk_y[clusterKey].push_back(hit->globalPosition().y());
+            str_onTrk_z[clusterKey].push_back(hit->globalPosition().z());
+            str_onTrk_xx[clusterKey].push_back(hit->globalPositionError().cxx());
+            str_onTrk_xy[clusterKey].push_back(hit->globalPositionError().cyx());
+            str_onTrk_yy[clusterKey].push_back(hit->globalPositionError().cyy());
+            str_onTrk_yz[clusterKey].push_back(hit->globalPositionError().czy());
+            str_onTrk_zz[clusterKey].push_back(hit->globalPositionError().czz());
+            str_onTrk_zx[clusterKey].push_back(hit->globalPositionError().czx());
           }
         }
 
@@ -3679,6 +4038,259 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
 
     trk_hitIdx.push_back(hitIdx);
     trk_hitType.push_back(hitType);
+  }
+}
+
+void TrackingNtuple::fillCandidates(const edm::Handle<TrackCandidateCollection>& candsHandle,
+                                    int algo,
+                                    const TrackingParticleRefVector& tpCollection,
+                                    const TrackingParticleRefKeyToIndex& tpKeyToIndex,
+                                    const TrackingParticleRefKeyToCount& tpKeyToClusterCount,
+                                    const MagneticField& mf,
+                                    const reco::BeamSpot& bs,
+                                    const reco::VertexCollection& vertices,
+                                    const reco::TrackToTrackingParticleAssociator& associatorByHits,
+                                    const ClusterTPAssociation& clusterToTPMap,
+                                    const TrackerGeometry& tracker,
+                                    const TrackerTopology& tTopo,
+                                    const std::set<edm::ProductID>& hitProductIds,
+                                    const std::map<edm::ProductID, size_t>& seedCollToOffset) {
+  reco::RecoToSimCollectionTCandidate recSimColl = associatorByHits.associateRecoToSim(candsHandle, tpCollection);
+
+  TSCBLBuilderNoMaterial tscblBuilder;
+
+  auto const& cands = *candsHandle;
+  for (size_t iCand = 0; iCand < cands.size(); ++iCand) {
+    const auto& aCand = cands[iCand];
+    const edm::Ref<TrackCandidateCollection> aCandRef(candsHandle, iCand);
+
+    //get parameters and errors from the candidate state
+    auto const& pState = aCand.trajectoryStateOnDet();
+    TrajectoryStateOnSurface state =
+        trajectoryStateTransform::transientState(pState, &(tracker.idToDet(pState.detId())->surface()), &mf);
+    TrajectoryStateClosestToBeamLine tbStateAtPCA = tscblBuilder(*state.freeState(), bs);
+    if (!tbStateAtPCA.isValid()) {
+      edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
+    }
+
+    auto const& stateAtPCA = tbStateAtPCA.trackStateAtPCA();
+    auto v0 = stateAtPCA.position();
+    auto p = stateAtPCA.momentum();
+    math::XYZPoint pos(v0.x(), v0.y(), v0.z());
+    math::XYZVector mom(p.x(), p.y(), p.z());
+
+    //pseduo track for access to easy methods
+    static const reco::Track::CovarianceMatrix dummyCov = AlgebraicMatrixID();
+    reco::Track trk(
+        0, 0, pos, mom, stateAtPCA.charge(), tbStateAtPCA.isValid() ? stateAtPCA.curvilinearError().matrix() : dummyCov);
+
+    const auto& tkParam = trk.parameters();
+    auto tkCov = trk.covariance();
+    tkCov.Invert();
+
+    // Standard track-TP matching
+    int nSimHits = 0;
+    bool isSimMatched = false;
+    std::vector<int> tpIdx;
+    std::vector<float> sharedFraction;
+    std::vector<float> tpChi2;
+    auto foundTPs = recSimColl.find(aCandRef);
+    if (foundTPs != recSimColl.end()) {
+      if (!foundTPs->val.empty()) {
+        nSimHits = foundTPs->val[0].first->numberOfTrackerHits();
+        isSimMatched = true;
+      }
+      for (const auto& tpQuality : foundTPs->val) {
+        tpIdx.push_back(tpKeyToIndex.at(tpQuality.first.key()));
+        sharedFraction.push_back(tpQuality.second);
+        tpChi2.push_back(track_associator::trackAssociationChi2(tkParam, tkCov, *(tpCollection[tpIdx.back()]), mf, bs));
+      }
+    }
+
+    // Search for a best-matching TrackingParticle for a track
+    const auto clusters = track_associator::hitsToClusterRefs(aCand.recHits().begin(), aCand.recHits().end());
+    const int nClusters = clusters.size();
+
+    const auto bestKeyCount = findBestMatchingTrackingParticle(aCand.recHits(), clusterToTPMap, tpKeyToIndex);
+    const float bestCountF = bestKeyCount.countClusters;
+    const float bestShareFrac = bestCountF / nClusters;
+    float bestShareFracSimDenom = 0;
+    float bestShareFracSimClusterDenom = 0;
+    float bestChi2 = -1;
+    if (bestKeyCount.key >= 0) {
+      bestShareFracSimDenom = bestCountF / tpCollection[tpKeyToIndex.at(bestKeyCount.key)]->numberOfTrackerHits();
+      bestShareFracSimClusterDenom = bestCountF / tpKeyToClusterCount.at(bestKeyCount.key);
+      bestChi2 = track_associator::trackAssociationChi2(
+          tkParam, tkCov, *(tpCollection[tpKeyToIndex.at(bestKeyCount.key)]), mf, bs);
+    }
+    // Another way starting from the first hit of the track
+    const auto bestFirstHitKeyCount =
+        findMatchingTrackingParticleFromFirstHit(aCand.recHits(), clusterToTPMap, tpKeyToIndex);
+    const float bestFirstCountF = bestFirstHitKeyCount.countClusters;
+    const float bestFirstHitShareFrac = bestFirstCountF / nClusters;
+    float bestFirstHitShareFracSimDenom = 0;
+    float bestFirstHitShareFracSimClusterDenom = 0;
+    float bestFirstHitChi2 = -1;
+    if (bestFirstHitKeyCount.key >= 0) {
+      bestFirstHitShareFracSimDenom =
+          bestFirstCountF / tpCollection[tpKeyToIndex.at(bestFirstHitKeyCount.key)]->numberOfTrackerHits();
+      bestFirstHitShareFracSimClusterDenom = bestFirstCountF / tpKeyToClusterCount.at(bestFirstHitKeyCount.key);
+      bestFirstHitChi2 = track_associator::trackAssociationChi2(
+          tkParam, tkCov, *(tpCollection[tpKeyToIndex.at(bestFirstHitKeyCount.key)]), mf, bs);
+    }
+
+    auto iglobCand = tcand_pca_valid.size();  //global cand index
+    tcand_pca_valid.push_back(tbStateAtPCA.isValid());
+    tcand_pca_px.push_back(trk.px());
+    tcand_pca_py.push_back(trk.py());
+    tcand_pca_pz.push_back(trk.pz());
+    tcand_pca_pt.push_back(trk.pt());
+    tcand_pca_eta.push_back(trk.eta());
+    tcand_pca_phi.push_back(trk.phi());
+    tcand_pca_dxy.push_back(trk.dxy());
+    tcand_pca_dz.push_back(trk.dz());
+    tcand_pca_ptErr.push_back(trk.ptError());
+    tcand_pca_etaErr.push_back(trk.etaError());
+    tcand_pca_lambdaErr.push_back(trk.lambdaError());
+    tcand_pca_phiErr.push_back(trk.phiError());
+    tcand_pca_dxyErr.push_back(trk.dxyError());
+    tcand_pca_dzErr.push_back(trk.dzError());
+    tcand_px.push_back(state.globalMomentum().x());
+    tcand_py.push_back(state.globalMomentum().y());
+    tcand_pz.push_back(state.globalMomentum().z());
+    tcand_pt.push_back(state.globalMomentum().perp());
+    tcand_x.push_back(state.globalPosition().x());
+    tcand_y.push_back(state.globalPosition().y());
+    tcand_z.push_back(state.globalPosition().z());
+
+    auto const& pStateCov = state.curvilinearError().matrix();
+    tcand_qbpErr.push_back(sqrt(pStateCov(0, 0)));
+    tcand_lambdaErr.push_back(sqrt(pStateCov(1, 1)));
+    tcand_phiErr.push_back(sqrt(pStateCov(2, 2)));
+    tcand_xtErr.push_back(sqrt(pStateCov(3, 3)));
+    tcand_ytErr.push_back(sqrt(pStateCov(4, 4)));
+
+    int ndof = -5;
+    int nValid = 0;
+    int nPixel = 0;
+    int nStrip = 0;
+    for (auto const& hit : aCand.recHits()) {
+      if (hit.isValid()) {
+        ndof += hit.dimension();
+        nValid++;
+
+        auto const subdet = hit.geographicalId().subdetId();
+        if (subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap)
+          nPixel++;
+        else
+          nStrip++;
+      }
+    }
+    tcand_ndof.push_back(ndof);
+    tcand_q.push_back(trk.charge());
+    tcand_nValid.push_back(nValid);
+    tcand_nPixel.push_back(nPixel);
+    tcand_nStrip.push_back(nStrip);
+    tcand_nCluster.push_back(nClusters);
+    tcand_algo.push_back(algo);
+    tcand_stopReason.push_back(aCand.stopReason());
+    if (includeSeeds_) {
+      auto offset = seedCollToOffset.find(aCand.seedRef().id());
+      if (offset == seedCollToOffset.end()) {
+        throw cms::Exception("Configuration")
+            << "Track candidate refers to seed collection " << aCand.seedRef().id()
+            << ", but that seed collection is not given as an input. The following collections were given as an input "
+            << make_ProductIDMapPrinter(seedCollToOffset);
+      }
+
+      const auto seedIndex = offset->second + aCand.seedRef().key();
+      tcand_seedIdx.push_back(seedIndex);
+      if (see_tcandIdx[seedIndex] != -1) {
+        throw cms::Exception("LogicError")
+            << "Track cand index has already been set for seed " << seedIndex << " to " << see_tcandIdx[seedIndex]
+            << "; was trying to set it to " << iglobCand << " current " << iCand;
+      }
+      see_tcandIdx[seedIndex] = iglobCand;
+    }
+    tcand_vtxIdx.push_back(-1);  // to be set correctly in fillVertices
+    if (includeTrackingParticles_) {
+      tcand_simTrkIdx.push_back(tpIdx);
+      tcand_simTrkShareFrac.push_back(sharedFraction);
+      tcand_simTrkNChi2.push_back(tpChi2);
+      tcand_bestSimTrkIdx.push_back(bestKeyCount.key >= 0 ? tpKeyToIndex.at(bestKeyCount.key) : -1);
+      tcand_bestFromFirstHitSimTrkIdx.push_back(
+          bestFirstHitKeyCount.key >= 0 ? tpKeyToIndex.at(bestFirstHitKeyCount.key) : -1);
+    } else {
+      tcand_isTrue.push_back(!tpIdx.empty());
+    }
+    tcand_bestSimTrkShareFrac.push_back(bestShareFrac);
+    tcand_bestSimTrkShareFracSimDenom.push_back(bestShareFracSimDenom);
+    tcand_bestSimTrkShareFracSimClusterDenom.push_back(bestShareFracSimClusterDenom);
+    tcand_bestSimTrkNChi2.push_back(bestChi2);
+    tcand_bestFromFirstHitSimTrkShareFrac.push_back(bestFirstHitShareFrac);
+    tcand_bestFromFirstHitSimTrkShareFracSimDenom.push_back(bestFirstHitShareFracSimDenom);
+    tcand_bestFromFirstHitSimTrkShareFracSimClusterDenom.push_back(bestFirstHitShareFracSimClusterDenom);
+    tcand_bestFromFirstHitSimTrkNChi2.push_back(bestFirstHitChi2);
+
+    LogTrace("TrackingNtuple") << "Track cand #" << iCand << " glob " << iglobCand << " with q=" << trk.charge()
+                               << ", pT=" << trk.pt() << " GeV, eta: " << trk.eta() << ", phi: " << trk.phi()
+                               << ", nValid=" << nValid << " seed#=" << aCand.seedRef().key()
+                               << " simMatch=" << isSimMatched << " nSimHits=" << nSimHits
+                               << " sharedFraction=" << (sharedFraction.empty() ? -1 : sharedFraction[0])
+                               << " tpIdx=" << (tpIdx.empty() ? -1 : tpIdx[0]);
+    std::vector<int> hitIdx;
+    std::vector<int> hitType;
+
+    for (auto i = aCand.recHits().begin(); i != aCand.recHits().end(); i++) {
+      const TrackingRecHit* hit = &*i;
+      DetId hitId = hit->geographicalId();
+      LogTrace("TrackingNtuple") << "hit #" << std::distance(aCand.recHits().begin(), i)
+                                 << " subdet=" << hitId.subdetId();
+      if (hitId.det() != DetId::Tracker)
+        continue;
+
+      LogTrace("TrackingNtuple") << " " << subdetstring(hitId.subdetId()) << " " << tTopo.layer(hitId);
+
+      if (hit->isValid()) {
+        //ugly... but works
+        const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*hit);
+        const auto& clusterRef = bhit->firstClusterRef();
+        unsigned int clusterKey;
+        if (clusterRef.isPixel()) {
+          clusterKey = clusterRef.cluster_pixel().key();
+        } else if (clusterRef.isPhase2()) {
+          clusterKey = clusterRef.cluster_phase2OT().key();
+        } else {
+          clusterKey = clusterRef.cluster_strip().key();
+        }
+
+        LogTrace("TrackingNtuple") << " id: " << hitId.rawId() << " - globalPos =" << hit->globalPosition()
+                                   << " cluster=" << clusterKey << " clusterRef ID=" << clusterRef.id()
+                                   << " eta,phi: " << hit->globalPosition().eta() << "," << hit->globalPosition().phi();
+        if (includeAllHits_) {
+          checkProductID(hitProductIds, clusterRef.id(), "track");
+          if (clusterRef.isPixel()) {
+            pix_tcandIdx[clusterKey].push_back(iglobCand);
+          } else if (clusterRef.isPhase2()) {
+            ph2_tcandIdx[clusterKey].push_back(iglobCand);
+          } else {
+            str_tcandIdx[clusterKey].push_back(iglobCand);
+          }
+        }
+
+        hitIdx.push_back(clusterKey);
+        if (clusterRef.isPixel()) {
+          hitType.push_back(static_cast<int>(HitType::Pixel));
+        } else if (clusterRef.isPhase2()) {
+          hitType.push_back(static_cast<int>(HitType::Phase2OT));
+        } else {
+          hitType.push_back(static_cast<int>(HitType::Strip));
+        }
+      }
+    }
+
+    tcand_hitIdx.push_back(hitIdx);
+    tcand_hitType.push_back(hitType);
   }
 }
 
@@ -3997,10 +4609,13 @@ void TrackingNtuple::fillDescriptions(edm::ConfigurationDescriptions& descriptio
                                    edm::InputTag("trackingParticleNumberOfLayersProducer", "pixelLayers"));
   desc.addUntracked<edm::InputTag>("trackingParticleNstripstereolayers",
                                    edm::InputTag("trackingParticleNumberOfLayersProducer", "stripStereoLayers"));
-  desc.addUntracked<std::string>("TTRHBuilder", "WithTrackAngle");
+  desc.addUntracked<std::string>("TTRHBuilder", "WithTrackAngle")
+      ->setComment("currently not used: keep for possible future use");
   desc.addUntracked<bool>("includeSeeds", false);
+  desc.addUntracked<bool>("includeTrackCandidates", false);
   desc.addUntracked<bool>("addSeedCurvCov", false);
   desc.addUntracked<bool>("includeAllHits", false);
+  desc.addUntracked<bool>("includeOnTrackHitData", false);
   desc.addUntracked<bool>("includeMVA", true);
   desc.addUntracked<bool>("includeTrackingParticles", true);
   desc.addUntracked<bool>("includeOOT", false);
