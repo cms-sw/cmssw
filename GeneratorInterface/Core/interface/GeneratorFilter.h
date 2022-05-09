@@ -125,7 +125,7 @@ namespace edm {
       produces<edm::HepMCProduct>("unsmeared");
       produces<GenEventInfoProduct>();
     } else if (ivhepmc == 3) {
-      //produces<edm::HepM3CProduct>("unsmeared");
+      //produces<edm::HepMC3Product>("unsmeared");
       //produces<GenEventInfoProduct3>();
     }
     produces<GenLumiInfoHeader, edm::Transition::BeginLuminosityBlock>();
