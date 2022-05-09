@@ -175,19 +175,6 @@ int main(int argc, char* argv[]) {
   }
 
   int mode = std::atoi(argv[1]);
-  if ((mode <= 2) && (argc < 7)) {
-    std::cout << "Please give a minimum of 7 arguments \n"
-              << "mode == " << mode << "\n"
-              << "input file name\n"
-              << "output file name\n"
-              << "second output file name\n"
-              << "third output file name\n"
-              << "output mode (0: gobal; 1: local)\n"
-              << "debug (three digis to set debug for each output)\n"
-              << std::endl;
-    return 0;
-  }
-
   const char* infile = argv[2];
   if (mode <= 2) {
     const char* outfile1 = argv[3];
@@ -652,7 +639,7 @@ void ConvertSiliconV2::convert(
           unsigned int layer = std::atoi(items[0].c_str());
           int waferU = std::atoi(items[6].c_str());
           int waferV = std::atoi(items[7].c_str());
-          int cassette = std::atoi(items[8].c_str()) + 1;  // Start cassette # = 1
+          int cassette = std::atoi(items[8].c_str());
           int thck = static_cast<int>(std::find(thick, thick + thksize, items[2]) - thick);
           int part = std::atoi(items[1].c_str());
           if ((thck <= thksize) && (part >= 0)) {
@@ -824,7 +811,7 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
     fOut << blank << "<Vector name=" << apost << "CassetteShift" << tag << apost << " type=" << apost << "numeric"
          << apost << " nEntries=" << apost << csize << apost << ">";
   } else {
-    fOut << blank << "<Vector name=" << apost << "CastteShift" << apost << " type=" << apost << "numeric" << apost
+    fOut << blank << "<Vector name=" << apost << "CassetteShift" << apost << " type=" << apost << "numeric" << apost
          << " nEntries=" << apost << csize << apost << ">";
   }
   for (const auto& l : layers) {
