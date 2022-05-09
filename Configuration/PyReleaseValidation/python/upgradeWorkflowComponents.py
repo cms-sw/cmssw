@@ -460,6 +460,25 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     offset = 0.9,
 )
 
+# WeightedMeanFitter vertexing workflows
+class UpgradeWorkflow_weightedVertex(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        stepDict[stepName][k] = merge([{'--procModifiers': 'weightedVertexing'}, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return fragment=="TTbar_14TeV" and ('2026' or '2022') in key
+upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
+    steps = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    PU = [
+        'RecoGlobal',
+        'HARVESTGlobal'
+    ],
+    suffix = '_weightedVertex',
+    offset = 0.278,
+)
+
 # Special TICL Pattern recognition Workflows
 class UpgradeWorkflow_ticl_clue3D(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
