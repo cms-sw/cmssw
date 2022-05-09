@@ -7,7 +7,7 @@
   \author   Kalanand Mishra
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -23,7 +23,7 @@
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 template <typename T>
-class ObjectMultiplicityCounter : public edm::EDProducer {
+class ObjectMultiplicityCounter : public edm::stream::EDProducer<> {
 public:
   explicit ObjectMultiplicityCounter(const edm::ParameterSet& iConfig);
   ~ObjectMultiplicityCounter() override;

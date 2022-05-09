@@ -7,7 +7,7 @@
   \author   Kalanand Mishra
 */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -24,7 +24,7 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 
 template <typename T>
-class OtherObjectVariableComputer : public edm::EDProducer {
+class OtherObjectVariableComputer : public edm::stream::EDProducer<> {
 public:
   explicit OtherObjectVariableComputer(const edm::ParameterSet& iConfig);
   ~OtherObjectVariableComputer() override;

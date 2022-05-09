@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/PRef --type PRef
 
-# /dev/CMSSW_12_3_0/PRef/V78 (CMSSW_12_3_0)
+# /dev/CMSSW_12_3_0/PRef/V79 (CMSSW_12_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V78')
+  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V79')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4866,31 +4866,6 @@ fragment.hltPreZeroBiasBeamspot = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
-fragment.hltEcalDetIdToBeRecovered = cms.EDProducer( "EcalDetIdToBeRecoveredProducer",
-    ebIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
-    ebDetIdToBeRecovered = cms.string( "ebDetId" ),
-    integrityTTIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityTTIdErrors' ),
-    eeIntegrityGainErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
-    ebFEToBeRecovered = cms.string( "ebFE" ),
-    ebIntegrityGainErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
-    eeDetIdToBeRecovered = cms.string( "eeDetId" ),
-    eeIntegrityGainSwitchErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
-    eeIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
-    ebIntegrityGainSwitchErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
-    ebSrFlagCollection = cms.InputTag( "hltEcalDigis" ),
-    eeFEToBeRecovered = cms.string( "eeFE" ),
-    integrityBlockSizeErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityBlockSizeErrors' ),
-    eeSrFlagCollection = cms.InputTag( "hltEcalDigis" )
-)
-fragment.hltEcalDigisGPU = cms.EDProducer( "EcalRawToDigiGPU",
-    InputLabel = cms.InputTag( "rawDataCollector" ),
-    maxFedSize = cms.uint32( 10240 ),
-    FEDs = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
-    maxChannelsEB = cms.uint32( 61200 ),
-    maxChannelsEE = cms.uint32( 14648 ),
-    digisLabelEB = cms.string( "ebDigis" ),
-    digisLabelEE = cms.string( "eeDigis" )
-)
 fragment.hltEcalDigisLegacy = cms.EDProducer( "EcalRawToDigi",
     tccUnpacking = cms.bool( True ),
     FedLabel = cms.InputTag( "listfeds" ),
@@ -4910,6 +4885,88 @@ fragment.hltEcalDigisLegacy = cms.EDProducer( "EcalRawToDigi",
     forceToKeepFRData = cms.bool( False ),
     headerUnpacking = cms.bool( True ),
     memUnpacking = cms.bool( True )
+)
+fragment.hltEcalDigisGPU = cms.EDProducer( "EcalRawToDigiGPU",
+    InputLabel = cms.InputTag( "rawDataCollector" ),
+    maxFedSize = cms.uint32( 10240 ),
+    FEDs = cms.vint32( 601, 602, 603, 604, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 618, 619, 620, 621, 622, 623, 624, 625, 626, 627, 628, 629, 630, 631, 632, 633, 634, 635, 636, 637, 638, 639, 640, 641, 642, 643, 644, 645, 646, 647, 648, 649, 650, 651, 652, 653, 654 ),
+    maxChannelsEB = cms.uint32( 61200 ),
+    maxChannelsEE = cms.uint32( 14648 ),
+    digisLabelEB = cms.string( "ebDigis" ),
+    digisLabelEE = cms.string( "eeDigis" )
+)
+fragment.hltEcalDigisFromGPU = cms.EDProducer( "EcalCPUDigisProducer",
+    digisInLabelEB = cms.InputTag( 'hltEcalDigisGPU','ebDigis' ),
+    digisInLabelEE = cms.InputTag( 'hltEcalDigisGPU','eeDigis' ),
+    digisOutLabelEB = cms.string( "ebDigis" ),
+    digisOutLabelEE = cms.string( "eeDigis" ),
+    produceDummyIntegrityCollections = cms.bool( True )
+)
+fragment.hltEcalDetIdToBeRecovered = cms.EDProducer( "EcalDetIdToBeRecoveredProducer",
+    ebIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
+    ebDetIdToBeRecovered = cms.string( "ebDetId" ),
+    integrityTTIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityTTIdErrors' ),
+    eeIntegrityGainErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
+    ebFEToBeRecovered = cms.string( "ebFE" ),
+    ebIntegrityGainErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainErrors' ),
+    eeDetIdToBeRecovered = cms.string( "eeDetId" ),
+    eeIntegrityGainSwitchErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
+    eeIntegrityChIdErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityChIdErrors' ),
+    ebIntegrityGainSwitchErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityGainSwitchErrors' ),
+    ebSrFlagCollection = cms.InputTag( "hltEcalDigis" ),
+    eeFEToBeRecovered = cms.string( "eeFE" ),
+    integrityBlockSizeErrors = cms.InputTag( 'hltEcalDigis','EcalIntegrityBlockSizeErrors' ),
+    eeSrFlagCollection = cms.InputTag( "hltEcalDigis" )
+)
+fragment.hltEcalUncalibRecHitLegacy = cms.EDProducer( "EcalUncalibRecHitProducer",
+    EBdigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
+    EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
+    EEdigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
+    EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
+    algo = cms.string( "EcalUncalibRecHitWorkerMultiFit" ),
+    algoPSet = cms.PSet( 
+      addPedestalUncertaintyEE = cms.double( 0.0 ),
+      EBtimeFitLimits_Upper = cms.double( 1.4 ),
+      addPedestalUncertaintyEB = cms.double( 0.0 ),
+      EEtimeFitLimits_Lower = cms.double( 0.2 ),
+      gainSwitchUseMaxSampleEB = cms.bool( True ),
+      timealgo = cms.string( "RatioMethod" ),
+      EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
+      EEtimeNconst = cms.double( 31.8 ),
+      EBtimeNconst = cms.double( 28.5 ),
+      prefitMaxChiSqEE = cms.double( 10.0 ),
+      outOfTimeThresholdGain12mEB = cms.double( 1000.0 ),
+      EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
+      outOfTimeThresholdGain12mEE = cms.double( 1000.0 ),
+      outOfTimeThresholdGain12pEB = cms.double( 1000.0 ),
+      gainSwitchUseMaxSampleEE = cms.bool( False ),
+      prefitMaxChiSqEB = cms.double( 25.0 ),
+      mitigateBadSamplesEB = cms.bool( False ),
+      outOfTimeThresholdGain12pEE = cms.double( 1000.0 ),
+      simplifiedNoiseModelForGainSwitch = cms.bool( True ),
+      ampErrorCalculation = cms.bool( False ),
+      mitigateBadSamplesEE = cms.bool( False ),
+      amplitudeThresholdEB = cms.double( 10.0 ),
+      amplitudeThresholdEE = cms.double( 10.0 ),
+      EBtimeFitLimits_Lower = cms.double( 0.2 ),
+      EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
+      selectiveBadSampleCriteriaEB = cms.bool( False ),
+      dynamicPedestalsEB = cms.bool( False ),
+      useLumiInfoRunHeader = cms.bool( False ),
+      EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
+      dynamicPedestalsEE = cms.bool( False ),
+      doPrefitEE = cms.bool( False ),
+      selectiveBadSampleCriteriaEE = cms.bool( False ),
+      EEtimeFitLimits_Upper = cms.double( 1.4 ),
+      outOfTimeThresholdGain61pEE = cms.double( 1000.0 ),
+      outOfTimeThresholdGain61mEE = cms.double( 1000.0 ),
+      outOfTimeThresholdGain61pEB = cms.double( 1000.0 ),
+      EEtimeConstantTerm = cms.double( 1.0 ),
+      EBtimeConstantTerm = cms.double( 0.6 ),
+      activeBXs = cms.vint32( -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 ),
+      outOfTimeThresholdGain61mEB = cms.double( 1000.0 ),
+      doPrefitEB = cms.bool( False )
+    )
 )
 fragment.hltEcalUncalibRecHitGPU = cms.EDProducer( "EcalUncalibRecHitProducerGPU",
     digisLabelEB = cms.InputTag( 'hltEcalDigisGPU','ebDigis' ),
@@ -4946,34 +5003,145 @@ fragment.hltEcalUncalibRecHitSoA = cms.EDProducer( "EcalCPUUncalibRecHitProducer
     recHitsOutLabelEE = cms.string( "EcalUncalibRecHitsEE" ),
     containsTimingInformation = cms.bool( True )
 )
-fragment.hltHbherecoFromGPU = cms.EDProducer( "HcalCPURecHitsProducer",
-    recHitsM0LabelIn = cms.InputTag( "hltHbherecoGPU" ),
-    recHitsM0LabelOut = cms.string( "" ),
-    recHitsLegacyLabelOut = cms.string( "" ),
-    produceSoA = cms.bool( True ),
-    produceLegacy = cms.bool( True )
+fragment.hltEcalUncalibRecHitFromSoA = cms.EDProducer( "EcalUncalibRecHitConvertGPU2CPUFormat",
+    recHitsLabelGPUEB = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEB' ),
+    recHitsLabelGPUEE = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEE' ),
+    recHitsLabelCPUEB = cms.string( "EcalUncalibRecHitsEB" ),
+    recHitsLabelCPUEE = cms.string( "EcalUncalibRecHitsEE" )
 )
-fragment.hltHbherecoGPU = cms.EDProducer( "HBHERecHitProducerGPU",
-    maxChannels = cms.uint32( 10000 ),
-    maxTimeSamples = cms.uint32( 10 ),
-    kprep1dChannelsPerBlock = cms.uint32( 32 ),
-    digisLabelF01HE = cms.InputTag( "hltHcalDigisGPU" ),
-    digisLabelF5HB = cms.InputTag( "hltHcalDigisGPU" ),
-    digisLabelF3HB = cms.InputTag( "hltHcalDigisGPU" ),
-    recHitsLabelM0HBHE = cms.string( "" ),
-    sipmQTSShift = cms.int32( 0 ),
-    sipmQNTStoSum = cms.int32( 3 ),
-    firstSampleShift = cms.int32( 0 ),
-    useEffectivePedestals = cms.bool( True ),
-    meanTime = cms.double( 0.0 ),
-    timeSigmaSiPM = cms.double( 2.5 ),
-    timeSigmaHPD = cms.double( 5.0 ),
-    ts4Thresh = cms.double( 0.0 ),
-    applyTimeSlew = cms.bool( True ),
-    tzeroTimeSlewParameters = cms.vdouble( 23.960177, 11.977461, 9.109694 ),
-    slopeTimeSlewParameters = cms.vdouble( -3.178648, -1.5610227, -1.075824 ),
-    tmaxTimeSlewParameters = cms.vdouble( 16.0, 10.0, 6.25 ),
-    kernelMinimizeThreads = cms.vuint32( 16, 1, 1 )
+fragment.hltEcalRecHitWithTPs = cms.EDProducer( "EcalRecHitProducer",
+    recoverEEVFE = cms.bool( False ),
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    recoverEBIsolatedChannels = cms.bool( False ),
+    recoverEBVFE = cms.bool( False ),
+    laserCorrection = cms.bool( True ),
+    EBLaserMIN = cms.double( 0.5 ),
+    killDeadChannels = cms.bool( True ),
+    dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
+    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEE' ),
+    dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
+    EELaserMIN = cms.double( 0.5 ),
+    ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
+    cleaningConfig = cms.PSet( 
+      cThreshold_endcap = cms.double( 15.0 ),
+      tightenCrack_e1_double = cms.double( 2.0 ),
+      cThreshold_barrel = cms.double( 4.0 ),
+      e6e2thresh = cms.double( 0.04 ),
+      e4e1Threshold_barrel = cms.double( 0.08 ),
+      e4e1Threshold_endcap = cms.double( 0.3 ),
+      tightenCrack_e4e1_single = cms.double( 3.0 ),
+      cThreshold_double = cms.double( 10.0 ),
+      e4e1_b_barrel = cms.double( -0.024 ),
+      tightenCrack_e6e2_double = cms.double( 3.0 ),
+      e4e1_a_barrel = cms.double( 0.04 ),
+      tightenCrack_e1_single = cms.double( 2.0 ),
+      e4e1_a_endcap = cms.double( 0.02 ),
+      e4e1_b_endcap = cms.double( -0.0125 ),
+      ignoreOutOfTimeThresh = cms.double( 1.0E9 )
+    ),
+    logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
+    eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
+    recoverEBFE = cms.bool( True ),
+    eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
+    ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
+    singleChannelRecoveryThreshold = cms.double( 8.0 ),
+    sum8ChannelRecoveryThreshold = cms.double( 0.0 ),
+    bdtWeightFileNoCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_noCracks_ZskimData2017_v1.xml" ),
+    bdtWeightFileCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_onlyCracks_ZskimData2017_v1.xml" ),
+    ChannelStatusToBeExcluded = cms.vstring(  ),
+    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+    triggerPrimitiveDigiCollection = cms.InputTag( 'hltEcalDigisLegacy','EcalTriggerPrimitives' ),
+    recoverEEFE = cms.bool( True ),
+    singleChannelRecoveryMethod = cms.string( "NeuralNetworks" ),
+    EBLaserMAX = cms.double( 3.0 ),
+    flagsMapDBReco = cms.PSet( 
+      kDead = cms.vstring( 'kNoDataNoTP' ),
+      kGood = cms.vstring( 'kOk',
+        'kDAC',
+        'kNoLaser',
+        'kNoisy' ),
+      kTowerRecovered = cms.vstring( 'kDeadFE' ),
+      kNoisy = cms.vstring( 'kNNoisy',
+        'kFixedG6',
+        'kFixedG1' ),
+      kNeighboursRecovered = cms.vstring( 'kFixedG0',
+        'kNonRespondingIsolated',
+        'kDeadVFE' )
+    ),
+    EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
+    algoRecover = cms.string( "EcalRecHitWorkerRecover" ),
+    algo = cms.string( "EcalRecHitWorkerSimple" ),
+    EELaserMAX = cms.double( 8.0 ),
+    logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
+    recoverEEIsolatedChannels = cms.bool( False ),
+    skipTimeCalib = cms.bool( False )
+)
+fragment.hltEcalRecHitWithoutTPs = cms.EDProducer( "EcalRecHitProducer",
+    recoverEEVFE = cms.bool( False ),
+    EErechitCollection = cms.string( "EcalRecHitsEE" ),
+    recoverEBIsolatedChannels = cms.bool( False ),
+    recoverEBVFE = cms.bool( False ),
+    laserCorrection = cms.bool( True ),
+    EBLaserMIN = cms.double( 0.5 ),
+    killDeadChannels = cms.bool( True ),
+    dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
+    EEuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEE' ),
+    dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
+    EELaserMIN = cms.double( 0.5 ),
+    ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
+    cleaningConfig = cms.PSet( 
+      cThreshold_endcap = cms.double( 15.0 ),
+      tightenCrack_e1_double = cms.double( 2.0 ),
+      cThreshold_barrel = cms.double( 4.0 ),
+      e6e2thresh = cms.double( 0.04 ),
+      e4e1Threshold_barrel = cms.double( 0.08 ),
+      e4e1Threshold_endcap = cms.double( 0.3 ),
+      tightenCrack_e4e1_single = cms.double( 3.0 ),
+      cThreshold_double = cms.double( 10.0 ),
+      e4e1_b_barrel = cms.double( -0.024 ),
+      tightenCrack_e6e2_double = cms.double( 3.0 ),
+      e4e1_a_barrel = cms.double( 0.04 ),
+      tightenCrack_e1_single = cms.double( 2.0 ),
+      e4e1_a_endcap = cms.double( 0.02 ),
+      e4e1_b_endcap = cms.double( -0.0125 ),
+      ignoreOutOfTimeThresh = cms.double( 1.0E9 )
+    ),
+    logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
+    eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
+    recoverEBFE = cms.bool( True ),
+    eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
+    ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
+    singleChannelRecoveryThreshold = cms.double( 8.0 ),
+    sum8ChannelRecoveryThreshold = cms.double( 0.0 ),
+    bdtWeightFileNoCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_noCracks_ZskimData2017_v1.xml" ),
+    bdtWeightFileCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_onlyCracks_ZskimData2017_v1.xml" ),
+    ChannelStatusToBeExcluded = cms.vstring(  ),
+    EBrechitCollection = cms.string( "EcalRecHitsEB" ),
+    triggerPrimitiveDigiCollection = cms.InputTag( "unused" ),
+    recoverEEFE = cms.bool( True ),
+    singleChannelRecoveryMethod = cms.string( "NeuralNetworks" ),
+    EBLaserMAX = cms.double( 3.0 ),
+    flagsMapDBReco = cms.PSet( 
+      kDead = cms.vstring( 'kNoDataNoTP' ),
+      kGood = cms.vstring( 'kOk',
+        'kDAC',
+        'kNoLaser',
+        'kNoisy' ),
+      kTowerRecovered = cms.vstring( 'kDeadFE' ),
+      kNoisy = cms.vstring( 'kNNoisy',
+        'kFixedG6',
+        'kFixedG1' ),
+      kNeighboursRecovered = cms.vstring( 'kFixedG0',
+        'kNonRespondingIsolated',
+        'kDeadVFE' )
+    ),
+    EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
+    algoRecover = cms.string( "EcalRecHitWorkerRecover" ),
+    algo = cms.string( "EcalRecHitWorkerSimple" ),
+    EELaserMAX = cms.double( 8.0 ),
+    logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
+    recoverEEIsolatedChannels = cms.bool( False ),
+    skipTimeCalib = cms.bool( False )
 )
 fragment.hltHcalDigis = cms.EDProducer( "HcalRawToDigi",
     HcalFirstFED = cms.untracked.int32( 700 ),
@@ -5005,6 +5173,140 @@ fragment.hltHcalDigisGPU = cms.EDProducer( "HcalDigisProducerGPU",
     maxChannelsF01HE = cms.uint32( 10000 ),
     maxChannelsF5HB = cms.uint32( 10000 ),
     maxChannelsF3HB = cms.uint32( 10000 )
+)
+fragment.hltHbherecoLegacy = cms.EDProducer( "HBHEPhase1Reconstructor",
+    digiLabelQIE8 = cms.InputTag( "hltHcalDigis" ),
+    processQIE8 = cms.bool( False ),
+    digiLabelQIE11 = cms.InputTag( "hltHcalDigis" ),
+    processQIE11 = cms.bool( True ),
+    tsFromDB = cms.bool( False ),
+    recoParamsFromDB = cms.bool( True ),
+    saveEffectivePedestal = cms.bool( True ),
+    dropZSmarkedPassed = cms.bool( True ),
+    makeRecHits = cms.bool( True ),
+    saveInfos = cms.bool( False ),
+    saveDroppedInfos = cms.bool( False ),
+    use8ts = cms.bool( True ),
+    sipmQTSShift = cms.int32( 0 ),
+    sipmQNTStoSum = cms.int32( 3 ),
+    algorithm = cms.PSet( 
+      ts4Thresh = cms.double( 0.0 ),
+      meanTime = cms.double( 0.0 ),
+      nnlsThresh = cms.double( 1.0E-11 ),
+      nMaxItersMin = cms.int32( 50 ),
+      timeSigmaSiPM = cms.double( 2.5 ),
+      applyTimeSlew = cms.bool( True ),
+      timeSlewParsType = cms.int32( 3 ),
+      ts4Max = cms.vdouble( 100.0, 20000.0, 30000.0 ),
+      samplesToAdd = cms.int32( 2 ),
+      deltaChiSqThresh = cms.double( 0.001 ),
+      applyTimeConstraint = cms.bool( False ),
+      calculateArrivalTime = cms.bool( False ),
+      timeSigmaHPD = cms.double( 5.0 ),
+      useMahi = cms.bool( True ),
+      correctForPhaseContainment = cms.bool( True ),
+      respCorrM3 = cms.double( 1.0 ),
+      pulseJitter = cms.double( 1.0 ),
+      applyPedConstraint = cms.bool( False ),
+      fitTimes = cms.int32( 1 ),
+      nMaxItersNNLS = cms.int32( 500 ),
+      applyTimeSlewM3 = cms.bool( True ),
+      meanPed = cms.double( 0.0 ),
+      ts4Min = cms.double( 0.0 ),
+      applyPulseJitter = cms.bool( False ),
+      useM2 = cms.bool( False ),
+      timeMin = cms.double( -12.5 ),
+      useM3 = cms.bool( False ),
+      chiSqSwitch = cms.double( -1.0 ),
+      dynamicPed = cms.bool( False ),
+      tdcTimeShift = cms.double( 0.0 ),
+      correctionPhaseNS = cms.double( 6.0 ),
+      firstSampleShift = cms.int32( 0 ),
+      activeBXs = cms.vint32( -3, -2, -1, 0, 1, 2, 3, 4 ),
+      ts4chi2 = cms.vdouble( 15.0, 15.0 ),
+      timeMax = cms.double( 12.5 ),
+      Class = cms.string( "SimpleHBHEPhase1Algo" ),
+      applyLegacyHBMCorrection = cms.bool( False )
+    ),
+    algoConfigClass = cms.string( "" ),
+    setNegativeFlagsQIE8 = cms.bool( False ),
+    setNegativeFlagsQIE11 = cms.bool( False ),
+    setNoiseFlagsQIE8 = cms.bool( False ),
+    setNoiseFlagsQIE11 = cms.bool( False ),
+    setPulseShapeFlagsQIE8 = cms.bool( False ),
+    setPulseShapeFlagsQIE11 = cms.bool( False ),
+    setLegacyFlagsQIE8 = cms.bool( False ),
+    setLegacyFlagsQIE11 = cms.bool( False ),
+    flagParametersQIE8 = cms.PSet( 
+      hitEnergyMinimum = cms.double( 1.0 ),
+      pulseShapeParameterSets = cms.VPSet( 
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 0.0, 100.0, -50.0, 0.0, -15.0, 0.15 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 100.0, 2000.0, -50.0, 0.0, -5.0, 0.05 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( 2000.0, 1000000.0, -50.0, 0.0, 95.0, 0.0 )        ),
+        cms.PSet(  pulseShapeParameters = cms.vdouble( -1000000.0, 1000000.0, 45.0, 0.1, 1000000.0, 0.0 )        )
+      ),
+      nominalPedestal = cms.double( 3.0 ),
+      hitMultiplicityThreshold = cms.int32( 17 )
+    ),
+    flagParametersQIE11 = cms.PSet(  ),
+    pulseShapeParametersQIE8 = cms.PSet( 
+      UseDualFit = cms.bool( True ),
+      LinearCut = cms.vdouble( -3.0, -0.054, -0.054 ),
+      TriangleIgnoreSlow = cms.bool( False ),
+      TS4TS5LowerThreshold = cms.vdouble( 100.0, 120.0, 160.0, 200.0, 300.0, 500.0 ),
+      LinearThreshold = cms.vdouble( 20.0, 100.0, 100000.0 ),
+      RightSlopeSmallCut = cms.vdouble( 1.08, 1.16, 1.16 ),
+      TS4TS5UpperThreshold = cms.vdouble( 70.0, 90.0, 100.0, 400.0 ),
+      TS3TS4ChargeThreshold = cms.double( 70.0 ),
+      R45PlusOneRange = cms.double( 0.2 ),
+      TS4TS5LowerCut = cms.vdouble( -1.0, -0.7, -0.5, -0.4, -0.3, 0.1 ),
+      RightSlopeThreshold = cms.vdouble( 250.0, 400.0, 100000.0 ),
+      TS3TS4UpperChargeThreshold = cms.double( 20.0 ),
+      MinimumChargeThreshold = cms.double( 20.0 ),
+      RightSlopeCut = cms.vdouble( 5.0, 4.15, 4.15 ),
+      RMS8MaxThreshold = cms.vdouble( 20.0, 100.0, 100000.0 ),
+      MinimumTS4TS5Threshold = cms.double( 100.0 ),
+      LeftSlopeThreshold = cms.vdouble( 250.0, 500.0, 100000.0 ),
+      TS5TS6ChargeThreshold = cms.double( 70.0 ),
+      TrianglePeakTS = cms.uint32( 10000 ),
+      TS5TS6UpperChargeThreshold = cms.double( 20.0 ),
+      RightSlopeSmallThreshold = cms.vdouble( 150.0, 200.0, 100000.0 ),
+      RMS8MaxCut = cms.vdouble( -13.5, -11.5, -11.5 ),
+      TS4TS5ChargeThreshold = cms.double( 70.0 ),
+      R45MinusOneRange = cms.double( 0.2 ),
+      LeftSlopeCut = cms.vdouble( 5.0, 2.55, 2.55 ),
+      TS4TS5UpperCut = cms.vdouble( 1.0, 0.8, 0.75, 0.72 )
+    ),
+    pulseShapeParametersQIE11 = cms.PSet(  )
+)
+fragment.hltHbherecoGPU = cms.EDProducer( "HBHERecHitProducerGPU",
+    maxChannels = cms.uint32( 10000 ),
+    maxTimeSamples = cms.uint32( 10 ),
+    kprep1dChannelsPerBlock = cms.uint32( 32 ),
+    digisLabelF01HE = cms.InputTag( "hltHcalDigisGPU" ),
+    digisLabelF5HB = cms.InputTag( "hltHcalDigisGPU" ),
+    digisLabelF3HB = cms.InputTag( "hltHcalDigisGPU" ),
+    recHitsLabelM0HBHE = cms.string( "" ),
+    sipmQTSShift = cms.int32( 0 ),
+    sipmQNTStoSum = cms.int32( 3 ),
+    firstSampleShift = cms.int32( 0 ),
+    useEffectivePedestals = cms.bool( True ),
+    meanTime = cms.double( 0.0 ),
+    timeSigmaSiPM = cms.double( 2.5 ),
+    timeSigmaHPD = cms.double( 5.0 ),
+    ts4Thresh = cms.double( 0.0 ),
+    applyTimeSlew = cms.bool( True ),
+    tzeroTimeSlewParameters = cms.vdouble( 23.960177, 11.977461, 9.109694 ),
+    slopeTimeSlewParameters = cms.vdouble( -3.178648, -1.5610227, -1.075824 ),
+    tmaxTimeSlewParameters = cms.vdouble( 16.0, 10.0, 6.25 ),
+    kernelMinimizeThreads = cms.vuint32( 16, 1, 1 )
+)
+fragment.hltHbherecoFromGPU = cms.EDProducer( "HcalCPURecHitsProducer",
+    recHitsM0LabelIn = cms.InputTag( "hltHbherecoGPU" ),
+    recHitsM0LabelOut = cms.string( "" ),
+    recHitsLegacyLabelOut = cms.string( "" ),
+    produceSoA = cms.bool( True ),
+    produceLegacy = cms.bool( True )
 )
 fragment.hltHfprereco = cms.EDProducer( "HFPreReconstructor",
     digiLabel = cms.InputTag( "hltHcalDigis" ),
@@ -5816,23 +6118,33 @@ fragment.hltL2Muons = cms.EDProducer( "L2MuonProducer",
 fragment.hltL2MuonCandidates = cms.EDProducer( "L2MuonCandidateProducer",
     InputObjects = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 )
-fragment.hltOnlineBeamSpotToCUDA = cms.EDProducer( "BeamSpotToCUDA",
+fragment.hltOnlineBeamSpotToGPU = cms.EDProducer( "BeamSpotToCUDA",
     src = cms.InputTag( "hltOnlineBeamSpot" )
 )
-fragment.hltSiPixelClustersCUDA = cms.EDProducer( "SiPixelRawToClusterCUDA",
-    isRun2 = cms.bool( False ),
+fragment.hltSiPixelDigiErrorsSoA = cms.EDProducer( "SiPixelDigiErrorsSoAFromCUDA",
+    src = cms.InputTag( "hltSiPixelClustersGPU" )
+)
+fragment.hltSiPixelDigisLegacy = cms.EDProducer( "SiPixelRawToDigi",
     IncludeErrors = cms.bool( True ),
     UseQualityInfo = cms.bool( False ),
-    MaxFEDWords = cms.uint32( 300000 ),
-    clusterThreshold_layer1 = cms.int32( 4000 ),
-    clusterThreshold_otherLayers = cms.int32( 4000 ),
+    ErrorList = cms.vint32( 29 ),
+    UserErrorList = cms.vint32(  ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
-    CablingMapLabel = cms.string( "" )
+    UsePilotBlade = cms.bool( False ),
+    UsePhase1 = cms.bool( True ),
+    CablingMapLabel = cms.string( "" ),
+    SiPixelQualityLabel = cms.string( "" )
 )
-fragment.hltSiPixelClustersCache = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
-    src = cms.InputTag( "hltSiPixelClusters" ),
-    onDemand = cms.bool( False )
+fragment.hltSiPixelDigisSoA = cms.EDProducer( "SiPixelDigisSoAFromCUDA",
+    src = cms.InputTag( "hltSiPixelClustersGPU" )
+)
+fragment.hltSiPixelDigisFromSoA = cms.EDProducer( "SiPixelDigiErrorsFromSoA",
+    digiErrorSoASrc = cms.InputTag( "hltSiPixelDigiErrorsSoA" ),
+    CablingMapLabel = cms.string( "" ),
+    UsePhase1 = cms.bool( True ),
+    ErrorList = cms.vint32( 29 ),
+    UserErrorList = cms.vint32( 40 )
 )
 fragment.hltSiPixelClustersLegacy = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigisLegacy" ),
@@ -5855,35 +6167,44 @@ fragment.hltSiPixelClustersLegacy = cms.EDProducer( "SiPixelClusterProducer",
     Phase2DigiBaseline = cms.double( 1200.0 ),
     Phase2KinkADC = cms.int32( 8 )
 )
-fragment.hltSiPixelDigiErrorsSoA = cms.EDProducer( "SiPixelDigiErrorsSoAFromCUDA",
-    src = cms.InputTag( "hltSiPixelClustersCUDA" )
-)
-fragment.hltSiPixelDigisLegacy = cms.EDProducer( "SiPixelRawToDigi",
+fragment.hltSiPixelClustersGPU = cms.EDProducer( "SiPixelRawToClusterCUDA",
+    isRun2 = cms.bool( False ),
     IncludeErrors = cms.bool( True ),
     UseQualityInfo = cms.bool( False ),
-    ErrorList = cms.vint32( 29 ),
-    UserErrorList = cms.vint32(  ),
+    MaxFEDWords = cms.uint32( 300000 ),
+    clusterThreshold_layer1 = cms.int32( 4000 ),
+    clusterThreshold_otherLayers = cms.int32( 4000 ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     Regions = cms.PSet(  ),
-    UsePilotBlade = cms.bool( False ),
-    UsePhase1 = cms.bool( True ),
-    CablingMapLabel = cms.string( "" ),
-    SiPixelQualityLabel = cms.string( "" )
+    CablingMapLabel = cms.string( "" )
 )
-fragment.hltSiPixelDigisSoA = cms.EDProducer( "SiPixelDigisSoAFromCUDA",
-    src = cms.InputTag( "hltSiPixelClustersCUDA" )
+fragment.hltSiPixelClustersFromSoA = cms.EDProducer( "SiPixelDigisClustersFromSoA",
+    src = cms.InputTag( "hltSiPixelDigisSoA" ),
+    clusterThreshold_layer1 = cms.int32( 4000 ),
+    clusterThreshold_otherLayers = cms.int32( 4000 ),
+    produceDigis = cms.bool( False ),
+    storeDigis = cms.bool( False ),
+    isPhase2 = cms.bool( False )
 )
-fragment.hltSiPixelRecHitSoA = cms.EDProducer( "SiPixelRecHitSoAFromLegacy",
+fragment.hltSiPixelClustersCache = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
+    src = cms.InputTag( "hltSiPixelClusters" ),
+    onDemand = cms.bool( False )
+)
+fragment.hltSiPixelRecHitsFromLegacy = cms.EDProducer( "SiPixelRecHitSoAFromLegacy",
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     src = cms.InputTag( "hltSiPixelClusters" ),
     CPE = cms.string( "PixelCPEFast" ),
     convertToLegacy = cms.bool( True ),
     isPhase2 = cms.bool( False )
 )
-fragment.hltSiPixelRecHitsCUDA = cms.EDProducer( "SiPixelRecHitCUDA",
-    beamSpot = cms.InputTag( "hltOnlineBeamSpotToCUDA" ),
-    src = cms.InputTag( "hltSiPixelClustersCUDA" ),
+fragment.hltSiPixelRecHitsGPU = cms.EDProducer( "SiPixelRecHitCUDA",
+    beamSpot = cms.InputTag( "hltOnlineBeamSpotToGPU" ),
+    src = cms.InputTag( "hltSiPixelClustersGPU" ),
     CPE = cms.string( "PixelCPEFast" )
+)
+fragment.hltSiPixelRecHitsFromGPU = cms.EDProducer( "SiPixelRecHitFromCUDA",
+    pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsGPU" ),
+    src = cms.InputTag( "hltSiPixelClusters" )
 )
 fragment.hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProducer",
     ProductLabel = cms.InputTag( "rawDataCollector" )
@@ -6189,16 +6510,9 @@ fragment.hltPixelTracksFilter = cms.EDProducer( "PixelTrackFilterByKinematicsPro
     nSigmaTipMaxTolerance = cms.double( 0.0 ),
     chi2 = cms.double( 1000.0 )
 )
-fragment.hltPixelTracks = cms.EDProducer( "PixelTrackProducerFromSoA",
-    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    trackSrc = cms.InputTag( "hltPixelTracksSoA" ),
-    pixelRecHitLegacySrc = cms.InputTag( "hltSiPixelRecHits" ),
-    minNumberOfHits = cms.int32( 0 ),
-    minQuality = cms.string( "loose" )
-)
-fragment.hltPixelTracksCUDA = cms.EDProducer( "CAHitNtupletCUDA",
-    onGPU = cms.bool( True ),
-    pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsCUDA" ),
+fragment.hltPixelTracksCPU = cms.EDProducer( "CAHitNtupletCUDA",
+    onGPU = cms.bool( False ),
+    pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsFromLegacy" ),
     ptmin = cms.double( 0.899999976158 ),
     CAThetaCutBarrel = cms.double( 0.00200000009499 ),
     CAThetaCutForward = cms.double( 0.00300000002608 ),
@@ -6233,6 +6547,53 @@ fragment.hltPixelTracksCUDA = cms.EDProducer( "CAHitNtupletCUDA",
       chi2Coeff = cms.vdouble( 0.9, 1.8 )
     )
 )
+fragment.hltPixelTracksGPU = cms.EDProducer( "CAHitNtupletCUDA",
+    onGPU = cms.bool( True ),
+    pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsGPU" ),
+    ptmin = cms.double( 0.899999976158 ),
+    CAThetaCutBarrel = cms.double( 0.00200000009499 ),
+    CAThetaCutForward = cms.double( 0.00300000002608 ),
+    hardCurvCut = cms.double( 0.0328407224959 ),
+    dcaCutInnerTriplet = cms.double( 0.15000000596 ),
+    dcaCutOuterTriplet = cms.double( 0.25 ),
+    earlyFishbone = cms.bool( True ),
+    lateFishbone = cms.bool( False ),
+    idealConditions = cms.bool( False ),
+    fillStatistics = cms.bool( False ),
+    minHitsPerNtuplet = cms.uint32( 3 ),
+    maxNumberOfDoublets = cms.uint32( 524288 ),
+    minHitsForSharingCut = cms.uint32( 10 ),
+    includeJumpingForwardDoublets = cms.bool( True ),
+    fitNas4 = cms.bool( False ),
+    doClusterCut = cms.bool( True ),
+    doZ0Cut = cms.bool( True ),
+    doPtCut = cms.bool( True ),
+    useRiemannFit = cms.bool( False ),
+    doSharedHitCut = cms.bool( True ),
+    dupPassThrough = cms.bool( False ),
+    useSimpleTripletCleaner = cms.bool( True ),
+    trackQualityCuts = cms.PSet( 
+      chi2MaxPt = cms.double( 10.0 ),
+      tripletMaxTip = cms.double( 0.3 ),
+      chi2Scale = cms.double( 8.0 ),
+      quadrupletMaxTip = cms.double( 0.5 ),
+      quadrupletMinPt = cms.double( 0.3 ),
+      quadrupletMaxZip = cms.double( 12.0 ),
+      tripletMaxZip = cms.double( 12.0 ),
+      tripletMinPt = cms.double( 0.5 ),
+      chi2Coeff = cms.vdouble( 0.9, 1.8 )
+    )
+)
+fragment.hltPixelTracksFromGPU = cms.EDProducer( "PixelTrackSoAFromCUDA",
+    src = cms.InputTag( "hltPixelTracksGPU" )
+)
+fragment.hltPixelTracks = cms.EDProducer( "PixelTrackProducerFromSoA",
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    trackSrc = cms.InputTag( "hltPixelTracksSoA" ),
+    pixelRecHitLegacySrc = cms.InputTag( "hltSiPixelRecHits" ),
+    minNumberOfHits = cms.int32( 0 ),
+    minQuality = cms.string( "loose" )
+)
 fragment.hltPixelTracksTrackingRegions = cms.EDProducer( "GlobalTrackingRegionFromBeamSpotEDProducer",
     RegionPSet = cms.PSet( 
       nSigmaZ = cms.double( 4.0 ),
@@ -6242,12 +6603,21 @@ fragment.hltPixelTracksTrackingRegions = cms.EDProducer( "GlobalTrackingRegionFr
       precise = cms.bool( True )
     )
 )
-fragment.hltPixelVertices = cms.EDProducer( "PixelVertexProducerFromSoA",
-    TrackCollection = cms.InputTag( "hltPixelTracks" ),
-    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-    src = cms.InputTag( "hltPixelVerticesSoA" )
+fragment.hltPixelVerticesCPU = cms.EDProducer( "PixelVertexProducerCUDA",
+    onGPU = cms.bool( False ),
+    oneKernel = cms.bool( True ),
+    useDensity = cms.bool( True ),
+    useDBSCAN = cms.bool( False ),
+    useIterative = cms.bool( False ),
+    minT = cms.int32( 2 ),
+    eps = cms.double( 0.07 ),
+    errmax = cms.double( 0.01 ),
+    chi2max = cms.double( 9.0 ),
+    PtMin = cms.double( 0.5 ),
+    PtMax = cms.double( 75.0 ),
+    pixelTrackSrc = cms.InputTag( "hltPixelTracksSoA" )
 )
-fragment.hltPixelVerticesCUDA = cms.EDProducer( "PixelVertexProducerCUDA",
+fragment.hltPixelVerticesGPU = cms.EDProducer( "PixelVertexProducerCUDA",
     onGPU = cms.bool( True ),
     oneKernel = cms.bool( True ),
     useDensity = cms.bool( True ),
@@ -6259,7 +6629,15 @@ fragment.hltPixelVerticesCUDA = cms.EDProducer( "PixelVertexProducerCUDA",
     chi2max = cms.double( 9.0 ),
     PtMin = cms.double( 0.5 ),
     PtMax = cms.double( 75.0 ),
-    pixelTrackSrc = cms.InputTag( "hltPixelTracksCUDA" )
+    pixelTrackSrc = cms.InputTag( "hltPixelTracksGPU" )
+)
+fragment.hltPixelVerticesFromGPU = cms.EDProducer( "PixelVertexSoAFromCUDA",
+    src = cms.InputTag( "hltPixelVerticesGPU" )
+)
+fragment.hltPixelVertices = cms.EDProducer( "PixelVertexProducerFromSoA",
+    TrackCollection = cms.InputTag( "hltPixelTracks" ),
+    beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+    src = cms.InputTag( "hltPixelVerticesSoA" )
 )
 fragment.hltTrimmedPixelVertices = cms.EDProducer( "PixelVertexCollectionTrimmer",
     src = cms.InputTag( "hltPixelVertices" ),
@@ -8653,14 +9031,7 @@ fragment.statusOnGPU = SwitchProducerCUDA(
    ),
  )
 fragment.hltEcalDigis = SwitchProducerCUDA(
-   cuda = cms.EDProducer( "EcalCPUDigisProducer",
-       digisInLabelEB = cms.InputTag( 'hltEcalDigisGPU','ebDigis' ),
-       digisInLabelEE = cms.InputTag( 'hltEcalDigisGPU','eeDigis' ),
-       digisOutLabelEB = cms.string( "ebDigis" ),
-       digisOutLabelEE = cms.string( "eeDigis" ),
-       produceDummyIntegrityCollections = cms.bool( True )
-   ),
-  cpu = cms.EDAlias(
+   cpu = cms.EDAlias(
        hltEcalDigisLegacy = cms.VPSet( 
          cms.PSet(  type = cms.string( "EBDigiCollection" )         ),
          cms.PSet(  type = cms.string( "EEDigiCollection" )         ),
@@ -8686,310 +9057,59 @@ fragment.hltEcalDigis = SwitchProducerCUDA(
          )
        )
    ),
- )
-fragment.hltEcalRecHit = SwitchProducerCUDA(
-   cpu = cms.EDProducer( "EcalRecHitProducer",
-       recoverEEVFE = cms.bool( False ),
-       EErechitCollection = cms.string( "EcalRecHitsEE" ),
-       recoverEBIsolatedChannels = cms.bool( False ),
-       recoverEBVFE = cms.bool( False ),
-       laserCorrection = cms.bool( True ),
-       EBLaserMIN = cms.double( 0.5 ),
-       killDeadChannels = cms.bool( True ),
-       dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
-       EEuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEE' ),
-       dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
-       EELaserMIN = cms.double( 0.5 ),
-       ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
-       cleaningConfig = cms.PSet( 
-         e6e2thresh = cms.double( 0.04 ),
-         tightenCrack_e6e2_double = cms.double( 3.0 ),
-         e4e1Threshold_endcap = cms.double( 0.3 ),
-         tightenCrack_e4e1_single = cms.double( 3.0 ),
-         tightenCrack_e1_double = cms.double( 2.0 ),
-         cThreshold_barrel = cms.double( 4.0 ),
-         e4e1Threshold_barrel = cms.double( 0.08 ),
-         tightenCrack_e1_single = cms.double( 2.0 ),
-         e4e1_b_barrel = cms.double( -0.024 ),
-         e4e1_a_barrel = cms.double( 0.04 ),
-         ignoreOutOfTimeThresh = cms.double( 1.0E9 ),
-         cThreshold_endcap = cms.double( 15.0 ),
-         e4e1_b_endcap = cms.double( -0.0125 ),
-         e4e1_a_endcap = cms.double( 0.02 ),
-         cThreshold_double = cms.double( 10.0 )
-       ),
-       logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
-       eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
-       recoverEBFE = cms.bool( True ),
-       eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
-       ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
-       singleChannelRecoveryThreshold = cms.double( 8.0 ),
-       sum8ChannelRecoveryThreshold = cms.double( 0.0 ),
-       bdtWeightFileNoCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_noCracks_ZskimData2017_v1.xml" ),
-       bdtWeightFileCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_onlyCracks_ZskimData2017_v1.xml" ),
-       ChannelStatusToBeExcluded = cms.vstring(  ),
-       EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-       triggerPrimitiveDigiCollection = cms.InputTag( 'hltEcalDigisLegacy','EcalTriggerPrimitives' ),
-       recoverEEFE = cms.bool( True ),
-       singleChannelRecoveryMethod = cms.string( "NeuralNetworks" ),
-       EBLaserMAX = cms.double( 3.0 ),
-       flagsMapDBReco = cms.PSet( 
-         kGood = cms.vstring( 'kOk',
-           'kDAC',
-           'kNoLaser',
-           'kNoisy' ),
-         kNeighboursRecovered = cms.vstring( 'kFixedG0',
-           'kNonRespondingIsolated',
-           'kDeadVFE' ),
-         kDead = cms.vstring( 'kNoDataNoTP' ),
-         kNoisy = cms.vstring( 'kNNoisy',
-           'kFixedG6',
-           'kFixedG1' ),
-         kTowerRecovered = cms.vstring( 'kDeadFE' )
-       ),
-       EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
-       algoRecover = cms.string( "EcalRecHitWorkerRecover" ),
-       algo = cms.string( "EcalRecHitWorkerSimple" ),
-       EELaserMAX = cms.double( 8.0 ),
-       logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
-       recoverEEIsolatedChannels = cms.bool( False ),
-       skipTimeCalib = cms.bool( False )
-   ),
-  cuda = cms.EDProducer( "EcalRecHitProducer",
-       recoverEEVFE = cms.bool( False ),
-       EErechitCollection = cms.string( "EcalRecHitsEE" ),
-       recoverEBIsolatedChannels = cms.bool( False ),
-       recoverEBVFE = cms.bool( False ),
-       laserCorrection = cms.bool( True ),
-       EBLaserMIN = cms.double( 0.5 ),
-       killDeadChannels = cms.bool( True ),
-       dbStatusToBeExcludedEB = cms.vint32( 14, 78, 142 ),
-       EEuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEE' ),
-       dbStatusToBeExcludedEE = cms.vint32( 14, 78, 142 ),
-       EELaserMIN = cms.double( 0.5 ),
-       ebFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebFE' ),
-       cleaningConfig = cms.PSet( 
-         cThreshold_endcap = cms.double( 15.0 ),
-         tightenCrack_e1_double = cms.double( 2.0 ),
-         cThreshold_barrel = cms.double( 4.0 ),
-         e6e2thresh = cms.double( 0.04 ),
-         e4e1Threshold_barrel = cms.double( 0.08 ),
-         e4e1Threshold_endcap = cms.double( 0.3 ),
-         tightenCrack_e4e1_single = cms.double( 3.0 ),
-         cThreshold_double = cms.double( 10.0 ),
-         e4e1_b_barrel = cms.double( -0.024 ),
-         tightenCrack_e6e2_double = cms.double( 3.0 ),
-         e4e1_a_barrel = cms.double( 0.04 ),
-         tightenCrack_e1_single = cms.double( 2.0 ),
-         e4e1_a_endcap = cms.double( 0.02 ),
-         e4e1_b_endcap = cms.double( -0.0125 ),
-         ignoreOutOfTimeThresh = cms.double( 1.0E9 )
-       ),
-       logWarningEtThreshold_EE_FE = cms.double( 50.0 ),
-       eeDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeDetId' ),
-       recoverEBFE = cms.bool( True ),
-       eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
-       ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
-       singleChannelRecoveryThreshold = cms.double( 8.0 ),
-       sum8ChannelRecoveryThreshold = cms.double( 0.0 ),
-       bdtWeightFileNoCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_noCracks_ZskimData2017_v1.xml" ),
-       bdtWeightFileCracks = cms.FileInPath( "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/data/BDTWeights/bdtgAllRH_8GT700MeV_onlyCracks_ZskimData2017_v1.xml" ),
-       ChannelStatusToBeExcluded = cms.vstring(  ),
-       EBrechitCollection = cms.string( "EcalRecHitsEB" ),
-       triggerPrimitiveDigiCollection = cms.InputTag( "unused" ),
-       recoverEEFE = cms.bool( True ),
-       singleChannelRecoveryMethod = cms.string( "NeuralNetworks" ),
-       EBLaserMAX = cms.double( 3.0 ),
-       flagsMapDBReco = cms.PSet( 
-         kDead = cms.vstring( 'kNoDataNoTP' ),
-         kGood = cms.vstring( 'kOk',
-           'kDAC',
-           'kNoLaser',
-           'kNoisy' ),
-         kTowerRecovered = cms.vstring( 'kDeadFE' ),
-         kNoisy = cms.vstring( 'kNNoisy',
-           'kFixedG6',
-           'kFixedG1' ),
-         kNeighboursRecovered = cms.vstring( 'kFixedG0',
-           'kNonRespondingIsolated',
-           'kDeadVFE' )
-       ),
-       EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
-       algoRecover = cms.string( "EcalRecHitWorkerRecover" ),
-       algo = cms.string( "EcalRecHitWorkerSimple" ),
-       EELaserMAX = cms.double( 8.0 ),
-       logWarningEtThreshold_EB_FE = cms.double( 50.0 ),
-       recoverEEIsolatedChannels = cms.bool( False ),
-       skipTimeCalib = cms.bool( False )
+  cuda = cms.EDAlias(
+       hltEcalDigisFromGPU = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
+       )
    ),
  )
 fragment.hltEcalUncalibRecHit = SwitchProducerCUDA(
-   cpu = cms.EDProducer( "EcalUncalibRecHitProducer",
-       EBdigiCollection = cms.InputTag( 'hltEcalDigis','ebDigis' ),
-       EEhitCollection = cms.string( "EcalUncalibRecHitsEE" ),
-       EEdigiCollection = cms.InputTag( 'hltEcalDigis','eeDigis' ),
-       EBhitCollection = cms.string( "EcalUncalibRecHitsEB" ),
-       algo = cms.string( "EcalUncalibRecHitWorkerMultiFit" ),
-       algoPSet = cms.PSet( 
-         EBtimeFitLimits_Upper = cms.double( 1.4 ),
-         EEtimeFitLimits_Lower = cms.double( 0.2 ),
-         timealgo = cms.string( "RatioMethod" ),
-         EBtimeNconst = cms.double( 28.5 ),
-         prefitMaxChiSqEE = cms.double( 10.0 ),
-         outOfTimeThresholdGain12mEB = cms.double( 1000.0 ),
-         outOfTimeThresholdGain12mEE = cms.double( 1000.0 ),
-         EEtimeFitParameters = cms.vdouble( -2.390548, 3.553628, -17.62341, 67.67538, -133.213, 140.7432, -75.41106, 16.20277 ),
-         prefitMaxChiSqEB = cms.double( 25.0 ),
-         simplifiedNoiseModelForGainSwitch = cms.bool( True ),
-         EBtimeFitParameters = cms.vdouble( -2.015452, 3.130702, -12.3473, 41.88921, -82.83944, 91.01147, -50.35761, 11.05621 ),
-         selectiveBadSampleCriteriaEB = cms.bool( False ),
-         dynamicPedestalsEB = cms.bool( False ),
-         useLumiInfoRunHeader = cms.bool( False ),
-         EBamplitudeFitParameters = cms.vdouble( 1.138, 1.652 ),
-         doPrefitEE = cms.bool( False ),
-         dynamicPedestalsEE = cms.bool( False ),
-         selectiveBadSampleCriteriaEE = cms.bool( False ),
-         outOfTimeThresholdGain61pEE = cms.double( 1000.0 ),
-         outOfTimeThresholdGain61pEB = cms.double( 1000.0 ),
-         activeBXs = cms.vint32( -5, -4, -3, -2, -1, 0, 1, 2, 3, 4 ),
-         doPrefitEB = cms.bool( False ),
-         addPedestalUncertaintyEE = cms.double( 0.0 ),
-         addPedestalUncertaintyEB = cms.double( 0.0 ),
-         gainSwitchUseMaxSampleEB = cms.bool( True ),
-         EEtimeNconst = cms.double( 31.8 ),
-         EEamplitudeFitParameters = cms.vdouble( 1.89, 1.4 ),
-         outOfTimeThresholdGain12pEB = cms.double( 1000.0 ),
-         gainSwitchUseMaxSampleEE = cms.bool( False ),
-         mitigateBadSamplesEB = cms.bool( False ),
-         outOfTimeThresholdGain12pEE = cms.double( 1000.0 ),
-         ampErrorCalculation = cms.bool( False ),
-         mitigateBadSamplesEE = cms.bool( False ),
-         amplitudeThresholdEB = cms.double( 10.0 ),
-         amplitudeThresholdEE = cms.double( 10.0 ),
-         EBtimeFitLimits_Lower = cms.double( 0.2 ),
-         EEtimeFitLimits_Upper = cms.double( 1.4 ),
-         outOfTimeThresholdGain61mEE = cms.double( 1000.0 ),
-         EEtimeConstantTerm = cms.double( 1.0 ),
-         EBtimeConstantTerm = cms.double( 0.6 ),
-         outOfTimeThresholdGain61mEB = cms.double( 1000.0 )
+   cpu = cms.EDAlias(
+       hltEcalUncalibRecHitLegacy = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
        )
    ),
-  cuda = cms.EDProducer( "EcalUncalibRecHitConvertGPU2CPUFormat",
-       recHitsLabelGPUEB = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEB' ),
-       recHitsLabelGPUEE = cms.InputTag( 'hltEcalUncalibRecHitSoA','EcalUncalibRecHitsEE' ),
-       recHitsLabelCPUEB = cms.string( "EcalUncalibRecHitsEB" ),
-       recHitsLabelCPUEE = cms.string( "EcalUncalibRecHitsEE" )
+  cuda = cms.EDAlias(
+       hltEcalUncalibRecHitFromSoA = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
+       )
+   ),
+ )
+fragment.hltEcalRecHit = SwitchProducerCUDA(
+   cpu = cms.EDAlias(
+       hltEcalRecHitWithTPs = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
+       )
+   ),
+  cuda = cms.EDAlias(
+       hltEcalRecHitWithoutTPs = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
+       )
    ),
  )
 fragment.hltHbhereco = SwitchProducerCUDA(
-   cpu = cms.EDProducer( "HBHEPhase1Reconstructor",
-       digiLabelQIE8 = cms.InputTag( "hltHcalDigis" ),
-       processQIE8 = cms.bool( False ),
-       digiLabelQIE11 = cms.InputTag( "hltHcalDigis" ),
-       processQIE11 = cms.bool( True ),
-       tsFromDB = cms.bool( False ),
-       recoParamsFromDB = cms.bool( True ),
-       saveEffectivePedestal = cms.bool( True ),
-       dropZSmarkedPassed = cms.bool( True ),
-       makeRecHits = cms.bool( True ),
-       saveInfos = cms.bool( False ),
-       saveDroppedInfos = cms.bool( False ),
-       use8ts = cms.bool( True ),
-       sipmQTSShift = cms.int32( 0 ),
-       sipmQNTStoSum = cms.int32( 3 ),
-       algorithm = cms.PSet( 
-         ts4Thresh = cms.double( 0.0 ),
-         meanTime = cms.double( 0.0 ),
-         nnlsThresh = cms.double( 1.0E-11 ),
-         nMaxItersMin = cms.int32( 50 ),
-         timeSigmaSiPM = cms.double( 2.5 ),
-         applyTimeSlew = cms.bool( True ),
-         timeSlewParsType = cms.int32( 3 ),
-         ts4Max = cms.vdouble( 100.0, 20000.0, 30000.0 ),
-         samplesToAdd = cms.int32( 2 ),
-         deltaChiSqThresh = cms.double( 0.001 ),
-         applyTimeConstraint = cms.bool( False ),
-         timeSigmaHPD = cms.double( 5.0 ),
-         useMahi = cms.bool( True ),
-         correctForPhaseContainment = cms.bool( True ),
-         respCorrM3 = cms.double( 1.0 ),
-         pulseJitter = cms.double( 1.0 ),
-         applyPedConstraint = cms.bool( False ),
-         fitTimes = cms.int32( 1 ),
-         nMaxItersNNLS = cms.int32( 500 ),
-         applyTimeSlewM3 = cms.bool( True ),
-         meanPed = cms.double( 0.0 ),
-         ts4Min = cms.double( 0.0 ),
-         applyPulseJitter = cms.bool( False ),
-         useM2 = cms.bool( False ),
-         timeMin = cms.double( -12.5 ),
-         useM3 = cms.bool( False ),
-         chiSqSwitch = cms.double( -1.0 ),
-         dynamicPed = cms.bool( False ),
-         tdcTimeShift = cms.double( 0.0 ),
-         correctionPhaseNS = cms.double( 6.0 ),
-         firstSampleShift = cms.int32( 0 ),
-         activeBXs = cms.vint32( -3, -2, -1, 0, 1, 2, 3, 4 ),
-         ts4chi2 = cms.vdouble( 15.0, 15.0 ),
-         timeMax = cms.double( 12.5 ),
-         Class = cms.string( "SimpleHBHEPhase1Algo" ),
-         calculateArrivalTime = cms.bool( False ),
-         applyLegacyHBMCorrection = cms.bool( False )
-       ),
-       algoConfigClass = cms.string( "" ),
-       setNegativeFlagsQIE8 = cms.bool( False ),
-       setNegativeFlagsQIE11 = cms.bool( False ),
-       setNoiseFlagsQIE8 = cms.bool( False ),
-       setNoiseFlagsQIE11 = cms.bool( False ),
-       setPulseShapeFlagsQIE8 = cms.bool( False ),
-       setPulseShapeFlagsQIE11 = cms.bool( False ),
-       setLegacyFlagsQIE8 = cms.bool( False ),
-       setLegacyFlagsQIE11 = cms.bool( False ),
-       flagParametersQIE8 = cms.PSet( 
-         hitEnergyMinimum = cms.double( 1.0 ),
-         pulseShapeParameterSets = cms.VPSet( 
-           cms.PSet(  pulseShapeParameters = cms.vdouble( 0.0, 100.0, -50.0, 0.0, -15.0, 0.15 )           ),
-           cms.PSet(  pulseShapeParameters = cms.vdouble( 100.0, 2000.0, -50.0, 0.0, -5.0, 0.05 )           ),
-           cms.PSet(  pulseShapeParameters = cms.vdouble( 2000.0, 1000000.0, -50.0, 0.0, 95.0, 0.0 )           ),
-           cms.PSet(  pulseShapeParameters = cms.vdouble( -1000000.0, 1000000.0, 45.0, 0.1, 1000000.0, 0.0 )           )
-         ),
-         nominalPedestal = cms.double( 3.0 ),
-         hitMultiplicityThreshold = cms.int32( 17 )
-       ),
-       flagParametersQIE11 = cms.PSet(  ),
-       pulseShapeParametersQIE8 = cms.PSet( 
-         UseDualFit = cms.bool( True ),
-         LinearCut = cms.vdouble( -3.0, -0.054, -0.054 ),
-         TriangleIgnoreSlow = cms.bool( False ),
-         TS4TS5LowerThreshold = cms.vdouble( 100.0, 120.0, 160.0, 200.0, 300.0, 500.0 ),
-         LinearThreshold = cms.vdouble( 20.0, 100.0, 100000.0 ),
-         RightSlopeSmallCut = cms.vdouble( 1.08, 1.16, 1.16 ),
-         TS4TS5UpperThreshold = cms.vdouble( 70.0, 90.0, 100.0, 400.0 ),
-         TS3TS4ChargeThreshold = cms.double( 70.0 ),
-         R45PlusOneRange = cms.double( 0.2 ),
-         TS4TS5LowerCut = cms.vdouble( -1.0, -0.7, -0.5, -0.4, -0.3, 0.1 ),
-         RightSlopeThreshold = cms.vdouble( 250.0, 400.0, 100000.0 ),
-         TS3TS4UpperChargeThreshold = cms.double( 20.0 ),
-         MinimumChargeThreshold = cms.double( 20.0 ),
-         RightSlopeCut = cms.vdouble( 5.0, 4.15, 4.15 ),
-         RMS8MaxThreshold = cms.vdouble( 20.0, 100.0, 100000.0 ),
-         MinimumTS4TS5Threshold = cms.double( 100.0 ),
-         LeftSlopeThreshold = cms.vdouble( 250.0, 500.0, 100000.0 ),
-         TS5TS6ChargeThreshold = cms.double( 70.0 ),
-         TrianglePeakTS = cms.uint32( 10000 ),
-         TS5TS6UpperChargeThreshold = cms.double( 20.0 ),
-         RightSlopeSmallThreshold = cms.vdouble( 150.0, 200.0, 100000.0 ),
-         RMS8MaxCut = cms.vdouble( -13.5, -11.5, -11.5 ),
-         TS4TS5ChargeThreshold = cms.double( 70.0 ),
-         R45MinusOneRange = cms.double( 0.2 ),
-         LeftSlopeCut = cms.vdouble( 5.0, 2.55, 2.55 ),
-         TS4TS5UpperCut = cms.vdouble( 1.0, 0.8, 0.75, 0.72 )
-       ),
-       pulseShapeParametersQIE11 = cms.PSet(  )
+   cpu = cms.EDAlias(
+       hltHbherecoLegacy = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
+       )
    ),
   cuda = cms.EDAlias(
        hltHbherecoFromGPU = cms.VPSet( 
          cms.PSet(  type = cms.string( "HBHERecHitsSorted" )         )
+       )
+   ),
+ )
+fragment.hltSiPixelDigis = SwitchProducerCUDA(
+   cpu = cms.EDAlias(
+       hltSiPixelDigisLegacy = cms.VPSet( 
+         cms.PSet(  type = cms.string( "DetIdedmEDCollection" )         ),
+         cms.PSet(  type = cms.string( "SiPixelRawDataErroredmDetSetVector" )         ),
+         cms.PSet(  type = cms.string( "PixelFEDChanneledmNewDetSetVector" )         )
+       )
+   ),
+  cuda = cms.EDAlias(
+       hltSiPixelDigisFromSoA = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
        )
    ),
  )
@@ -8999,110 +9119,55 @@ fragment.hltSiPixelClusters = SwitchProducerCUDA(
          cms.PSet(  type = cms.string( "SiPixelClusteredmNewDetSetVector" )         )
        )
    ),
-  cuda = cms.EDProducer( "SiPixelDigisClustersFromSoA",
-       src = cms.InputTag( "hltSiPixelDigisSoA" ),
-       clusterThreshold_layer1 = cms.int32( 4000 ),
-       clusterThreshold_otherLayers = cms.int32( 4000 ),
-       produceDigis = cms.bool( False ),
-       storeDigis = cms.bool( False ),
-       isPhase2 = cms.bool( False )
-   ),
- )
-fragment.hltSiPixelDigis = SwitchProducerCUDA(
-   cuda = cms.EDProducer( "SiPixelDigiErrorsFromSoA",
-       digiErrorSoASrc = cms.InputTag( "hltSiPixelDigiErrorsSoA" ),
-       CablingMapLabel = cms.string( "" ),
-       UsePhase1 = cms.bool( True ),
-       ErrorList = cms.vint32( 29 ),
-       UserErrorList = cms.vint32( 40 )
-   ),
-  cpu = cms.EDAlias(
-       hltSiPixelDigisLegacy = cms.VPSet( 
-         cms.PSet(  type = cms.string( "DetIdedmEDCollection" )         ),
-         cms.PSet(  type = cms.string( "SiPixelRawDataErroredmDetSetVector" )         ),
-         cms.PSet(  type = cms.string( "PixelFEDChanneledmNewDetSetVector" )         )
+  cuda = cms.EDAlias(
+       hltSiPixelClustersFromSoA = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
        )
    ),
  )
 fragment.hltSiPixelRecHits = SwitchProducerCUDA(
-   cuda = cms.EDProducer( "SiPixelRecHitFromCUDA",
-       pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitsCUDA" ),
-       src = cms.InputTag( "hltSiPixelClusters" )
-   ),
-  cpu = cms.EDAlias(
-       hltSiPixelRecHitSoA = cms.VPSet( 
+   cpu = cms.EDAlias(
+       hltSiPixelRecHitsFromLegacy = cms.VPSet( 
          cms.PSet(  type = cms.string( "SiPixelRecHitedmNewDetSetVector" )         ),
          cms.PSet(  type = cms.string( "uintAsHostProduct" )         )
        )
    ),
- )
-fragment.hltPixelTracksSoA = SwitchProducerCUDA(
-   cpu = cms.EDProducer( "CAHitNtupletCUDA",
-       onGPU = cms.bool( False ),
-       pixelRecHitSrc = cms.InputTag( "hltSiPixelRecHitSoA" ),
-       ptmin = cms.double( 0.899999976158 ),
-       CAThetaCutBarrel = cms.double( 0.00200000009499 ),
-       CAThetaCutForward = cms.double( 0.00300000002608 ),
-       hardCurvCut = cms.double( 0.0328407224959 ),
-       dcaCutInnerTriplet = cms.double( 0.15000000596 ),
-       dcaCutOuterTriplet = cms.double( 0.25 ),
-       earlyFishbone = cms.bool( True ),
-       lateFishbone = cms.bool( False ),
-       idealConditions = cms.bool( False ),
-       fillStatistics = cms.bool( False ),
-       minHitsPerNtuplet = cms.uint32( 3 ),
-       maxNumberOfDoublets = cms.uint32( 524288 ),
-       minHitsForSharingCut = cms.uint32( 10 ),
-       includeJumpingForwardDoublets = cms.bool( True ),
-       fitNas4 = cms.bool( False ),
-       doClusterCut = cms.bool( True ),
-       doZ0Cut = cms.bool( True ),
-       doPtCut = cms.bool( True ),
-       useRiemannFit = cms.bool( False ),
-       doSharedHitCut = cms.bool( True ),
-       dupPassThrough = cms.bool( False ),
-       useSimpleTripletCleaner = cms.bool( True ),
-       trackQualityCuts = cms.PSet( 
-         chi2MaxPt = cms.double( 10.0 ),
-         tripletMaxTip = cms.double( 0.3 ),
-         chi2Scale = cms.double( 8.0 ),
-         quadrupletMaxTip = cms.double( 0.5 ),
-         quadrupletMinPt = cms.double( 0.3 ),
-         quadrupletMaxZip = cms.double( 12.0 ),
-         tripletMaxZip = cms.double( 12.0 ),
-         tripletMinPt = cms.double( 0.5 ),
-         chi2Coeff = cms.vdouble( 0.9, 1.8 )
+  cuda = cms.EDAlias(
+       hltSiPixelRecHitsFromGPU = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
        )
    ),
-  cuda = cms.EDProducer( "PixelTrackSoAFromCUDA",
-       src = cms.InputTag( "hltPixelTracksCUDA" )
+ )
+fragment.hltPixelTracksSoA = SwitchProducerCUDA(
+   cpu = cms.EDAlias(
+       hltPixelTracksCPU = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
+       )
+   ),
+  cuda = cms.EDAlias(
+       hltPixelTracksFromGPU = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
+       )
    ),
  )
 fragment.hltPixelVerticesSoA = SwitchProducerCUDA(
-   cpu = cms.EDProducer( "PixelVertexProducerCUDA",
-       onGPU = cms.bool( False ),
-       oneKernel = cms.bool( True ),
-       useDensity = cms.bool( True ),
-       useDBSCAN = cms.bool( False ),
-       useIterative = cms.bool( False ),
-       minT = cms.int32( 2 ),
-       eps = cms.double( 0.07 ),
-       errmax = cms.double( 0.01 ),
-       chi2max = cms.double( 9.0 ),
-       PtMin = cms.double( 0.5 ),
-       PtMax = cms.double( 75.0 ),
-       pixelTrackSrc = cms.InputTag( "hltPixelTracksSoA" )
+   cpu = cms.EDAlias(
+       hltPixelVerticesCPU = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
+       )
    ),
-  cuda = cms.EDProducer( "PixelVertexSoAFromCUDA",
-       src = cms.InputTag( "hltPixelVerticesCUDA" )
+  cuda = cms.EDAlias(
+       hltPixelVerticesFromGPU = cms.VPSet( 
+         cms.PSet(  type = cms.string( "*" )         )
+       )
    ),
  )
 
-fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask = cms.Task( fragment.hltEcalDetIdToBeRecovered , fragment.hltEcalDigis , fragment.hltEcalDigisGPU , fragment.hltEcalDigisLegacy , fragment.hltEcalRecHit , fragment.hltEcalUncalibRecHit , fragment.hltEcalUncalibRecHitGPU , fragment.hltEcalUncalibRecHitSoA )
-fragment.HLTDoLocalHcalTask = cms.Task( fragment.hltHbhereco , fragment.hltHbherecoFromGPU , fragment.hltHbherecoGPU , fragment.hltHcalDigis , fragment.hltHcalDigisGPU , fragment.hltHfprereco , fragment.hltHfreco , fragment.hltHoreco )
-fragment.HLTDoLocalPixelTask = cms.Task( fragment.hltOnlineBeamSpotToCUDA , fragment.hltSiPixelClusters , fragment.hltSiPixelClustersCUDA , fragment.hltSiPixelClustersCache , fragment.hltSiPixelClustersLegacy , fragment.hltSiPixelDigiErrorsSoA , fragment.hltSiPixelDigis , fragment.hltSiPixelDigisLegacy , fragment.hltSiPixelDigisSoA , fragment.hltSiPixelRecHitSoA , fragment.hltSiPixelRecHits , fragment.hltSiPixelRecHitsCUDA )
-fragment.HLTRecoPixelTracksTask = cms.Task( fragment.hltPixelTracks , fragment.hltPixelTracksCUDA , fragment.hltPixelTracksSoA , fragment.hltPixelTracksTrackingRegions )
-fragment.HLTRecopixelvertexingTask = cms.Task( fragment.HLTRecoPixelTracksTask , fragment.hltPixelVertices , fragment.hltPixelVerticesCUDA , fragment.hltPixelVerticesSoA , fragment.hltTrimmedPixelVertices )
+fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask = cms.Task( fragment.hltEcalDigisLegacy , fragment.hltEcalDigisGPU , fragment.hltEcalDigisFromGPU , fragment.hltEcalDigis , fragment.hltEcalDetIdToBeRecovered , fragment.hltEcalUncalibRecHitLegacy , fragment.hltEcalUncalibRecHitGPU , fragment.hltEcalUncalibRecHitSoA , fragment.hltEcalUncalibRecHitFromSoA , fragment.hltEcalUncalibRecHit , fragment.hltEcalRecHitWithTPs , fragment.hltEcalRecHitWithoutTPs , fragment.hltEcalRecHit )
+fragment.HLTDoLocalHcalTask = cms.Task( fragment.hltHcalDigis , fragment.hltHcalDigisGPU , fragment.hltHbherecoLegacy , fragment.hltHbherecoGPU , fragment.hltHbherecoFromGPU , fragment.hltHbhereco , fragment.hltHfprereco , fragment.hltHfreco , fragment.hltHoreco )
+fragment.HLTDoLocalPixelTask = cms.Task( fragment.hltOnlineBeamSpotToGPU , fragment.hltSiPixelDigiErrorsSoA , fragment.hltSiPixelDigisLegacy , fragment.hltSiPixelDigisSoA , fragment.hltSiPixelDigisFromSoA , fragment.hltSiPixelDigis , fragment.hltSiPixelClustersLegacy , fragment.hltSiPixelClustersGPU , fragment.hltSiPixelClustersFromSoA , fragment.hltSiPixelClusters , fragment.hltSiPixelClustersCache , fragment.hltSiPixelRecHitsFromLegacy , fragment.hltSiPixelRecHitsGPU , fragment.hltSiPixelRecHitsFromGPU , fragment.hltSiPixelRecHits )
+fragment.HLTRecoPixelTracksTask = cms.Task( fragment.hltPixelTracksCPU , fragment.hltPixelTracksGPU , fragment.hltPixelTracksFromGPU , fragment.hltPixelTracksSoA , fragment.hltPixelTracks , fragment.hltPixelTracksTrackingRegions )
+fragment.HLTRecopixelvertexingTask = cms.Task( fragment.HLTRecoPixelTracksTask , fragment.hltPixelVerticesCPU , fragment.hltPixelVerticesGPU , fragment.hltPixelVerticesFromGPU , fragment.hltPixelVerticesSoA , fragment.hltPixelVertices , fragment.hltTrimmedPixelVertices )
 fragment.HLTPreshowerTask = cms.Task( fragment.hltEcalPreshowerDigis , fragment.hltEcalPreshowerRecHit )
 fragment.HLTDoFullUnpackingEgammaEcalTask = cms.Task( fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerTask , fragment.HLTPreshowerTask )
 
