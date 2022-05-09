@@ -48,7 +48,7 @@ int ClusterSummary::getModuleLocation(int mod, bool warn) const {
   }
 
   if (warn)
-    edm::LogWarning("NoModule") << "No information for requested module " << mod
+    edm::LogWarning("NoModule") << "No information for requested module " << mod << " (" << subDetNames[mod] << ")"
                                 << ". Please check in the Provenance Infomation for proper modules.";
 
   return -1;
