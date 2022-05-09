@@ -90,8 +90,8 @@ const string subjectCMS = "dip/CMS/Tracker/BeamSpot";
 const string subjectLHC = "dip/CMS/LHC/LuminousRegion";
 const string subjectPV = "dip/CMS/Tracker/PrimaryVertices";
 
-const string sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults.txt";
-const string sourceFile1 = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResults_TkStatus.txt";
+const string sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsForDIP.txt";
+const string sourceFile1 = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsOld_TkStatus.txt";
 
 const int timeoutLS[2] = {1, 2};
 
