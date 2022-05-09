@@ -34,8 +34,7 @@ OnlineBeamMonitor::OnlineBeamMonitor(const ParameterSet& ps)
       numberOfValuesToSave_(0),
       appendRunTxt_(ps.getUntrackedParameter<bool>("AppendRunToFileName")),
       writeDIPTxt_(ps.getUntrackedParameter<bool>("WriteDIPAscii")),
-      outputDIPTxt_(ps.getUntrackedParameter<std::string>("DIPFileName")){
-      
+      outputDIPTxt_(ps.getUntrackedParameter<std::string>("DIPFileName")) {
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
@@ -65,15 +64,14 @@ OnlineBeamMonitor::OnlineBeamMonitor(const ParameterSet& ps)
       histosMap_[itV][itM.first][itM.second] = nullptr;
     }
   }
-
-}  
+}
 
 void OnlineBeamMonitor::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
   edm::ParameterSetDescription ps;
   ps.addUntracked<std::string>("MonitorName", "YourSubsystemName");
-  ps.addUntracked<bool>("AppendRunToFileName",false);
-  ps.addUntracked<bool>("WriteDIPAscii",true);
-  ps.addUntracked<std::string>("DIPFileName","BeamFitResultsForDIP.txt");
+  ps.addUntracked<bool>("AppendRunToFileName", false);
+  ps.addUntracked<bool>("WriteDIPAscii", true);
+  ps.addUntracked<std::string>("DIPFileName", "BeamFitResultsForDIP.txt");
 
   iDesc.addWithDefaultLabel(ps);
 }
@@ -161,7 +159,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     beamSpotsMap_["HLT"] = BeamSpot(apoint, spotDB.sigmaZ(), spotDB.dxdz(), spotDB.dydz(), spotDB.beamWidthX(), matrix);
 
     BeamSpot* aSpot = &(beamSpotsMap_["HLT"]);
-    
+
     aSpot->setBeamWidthY(spotDB.beamWidthY());
     aSpot->setEmittanceX(spotDB.emittanceX());
     aSpot->setEmittanceY(spotDB.emittanceY());
@@ -182,7 +180,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
 
-   lastLumiLegacy_ = spotDB.lastAnalyzedLumi();
+    lastLumiLegacy_ = spotDB.lastAnalyzedLumi();
 
     BeamSpot::CovarianceMatrix matrix;
     for (int i = 0; i < 7; ++i) {
@@ -213,7 +211,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   }
   if (auto bsTransientHandle = iSetup.getHandle(bsTransientToken_)) {
     auto const& spotDB = *bsTransientHandle;
-    std::cout <<" from the DB "<<spotDB<<std::endl;
+    //std::cout << " from the DB " << spotDB << std::endl;
 
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
@@ -233,14 +231,14 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     aSpot->setBeamWidthY(spotDB.beamWidthY());
     aSpot->setEmittanceX(spotDB.emittanceX());
     aSpot->setEmittanceY(spotDB.emittanceY());
-    aSpot->setbetaStar(spotDB.betaStar());    
+    aSpot->setbetaStar(spotDB.betaStar());
     if (spotDB.beamType() == 2) {
       aSpot->setType(reco::BeamSpot::Tracker);
     } else {
       aSpot->setType(reco::BeamSpot::Fake);
     }
-    
-    if (writeDIPTxt_) {      
+
+    if (writeDIPTxt_) {
       std::ofstream outFile;
 
       std::string tmpname = outputDIPTxt_;
@@ -254,21 +252,18 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
       int lastLumiAnalyzed_ = iLumi.id().luminosityBlock();
 
       if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
-         if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() && 
-             beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0()) {      
-    
-	         lastLumiAnalyzed_ = lastLumiHLT_; 
-   
-         } else if(beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() && 
-             beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0()) {
+        if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() &&
+            beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0()) {
+          lastLumiAnalyzed_ = lastLumiHLT_;
 
-                 lastLumiAnalyzed_ = lastLumiLegacy_;
-
-         }
-     }
+        } else if (beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() &&
+                   beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0()) {
+          lastLumiAnalyzed_ = lastLumiLegacy_;
+        }
+      }
 
       outFile.open(tmpname.c_str());
-          
+
       outFile << "Runnumber " << frun << " bx " << 0 << std::endl;
       //outFile << "BeginTimeOfFit " << fbeginTimeOfFit << " " << 0 << std::endl;
       //outFile << "EndTimeOfFit " << fendTimeOfFit << " " << 0 << std::endl;
@@ -293,7 +288,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
       outFile << "EmittanceX " << aSpot->emittanceX() << std::endl;
       outFile << "EmittanceY " << aSpot->emittanceY() << std::endl;
       outFile << "BetaStar " << aSpot->betaStar() << std::endl;
-      
+
       outFile.close();
     }
     //LogInfo("OnlineBeamMonitor")
