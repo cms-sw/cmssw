@@ -26,6 +26,7 @@
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/Utilities/interface/concatenate.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 // forward declarations
 
@@ -84,8 +85,6 @@ namespace edmplugin {
     PluginFactory() { finishedConstruction(); }
   };
 }  // namespace edmplugin
-#define FWCORE_CONCATENATE_HIDDEN(a, b) a##b
-#define FWCORE_CONCATENATE(a, b) FWCORE_CONCATENATE_HIDDEN(a, b)
 #define EDM_REGISTER_PLUGINFACTORY(_factory_, _category_)                                                               \
   namespace edmplugin {                                                                                                 \
     template <>                                                                                                         \
@@ -99,7 +98,7 @@ namespace edmplugin {
       return s_cat;                                                                                                     \
     }                                                                                                                   \
   }                                                                                                                     \
-  enum { FWCORE_CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__) }
+  enum { EDM_CONCATENATE(dummy_edm_register_pluginfactory_, __LINE__) }
 
 #define EDM_REGISTER_PLUGINFACTORY2(_factory_, _category_)                                                              \
   namespace edmplugin {                                                                                                 \
@@ -114,7 +113,7 @@ namespace edmplugin {
       return s_cat;                                                                                                     \
     }                                                                                                                   \
   }                                                                                                                     \
-  enum { FWCORE_CONCATENATE(dummy_edm_register_pluginfactory_2_, __LINE__) }
+  enum { EDM_CONCATENATE(dummy_edm_register_pluginfactory_2_, __LINE__) }
 
 #endif
 
