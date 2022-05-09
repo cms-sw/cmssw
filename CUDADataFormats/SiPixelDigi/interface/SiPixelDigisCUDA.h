@@ -26,14 +26,14 @@ public:
   uint32_t nModules() const { return nModules_h; }
   uint32_t nDigis() const { return nDigis_h; }
 
-  /*inline*/ memoryPool::buffer<StoreType> copyAllToHostAsync(cudaStream_t stream) const;
+  /*inline*/ memoryPool::Buffer<StoreType> copyAllToHostAsync(cudaStream_t stream) const;
 
   SiPixelDigisCUDASOAView view() { return m_view; }
   SiPixelDigisCUDASOAView const view() const { return m_view; }
 
 private:
   // These are consumed by downstream device code
-  memoryPool::buffer<StoreType> m_store;
+  memoryPool::Buffer<StoreType> m_store;
 
   SiPixelDigisCUDASOAView m_view;
 

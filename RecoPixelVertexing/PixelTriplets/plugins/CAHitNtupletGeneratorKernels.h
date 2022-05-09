@@ -165,7 +165,7 @@ public:
   using Counters = cAHitNtupletGenerator::Counters;
 
   template <typename T>
-  using buffer = memoryPool::buffer<T>;
+  using Buffer = memoryPool::Buffer<T>;
 
   using HitsView = TrackingRecHit2DSOAView;
   using HitsOnGPU = TrackingRecHit2DSOAView;
@@ -199,28 +199,28 @@ private:
   Counters* counters_ = nullptr;
 
   // workspace
-  buffer<unsigned char> cellStorage_;
-  buffer<caConstants::CellNeighborsVector> device_theCellNeighbors_;
+  Buffer<unsigned char> cellStorage_;
+  Buffer<caConstants::CellNeighborsVector> device_theCellNeighbors_;
   caConstants::CellNeighbors* device_theCellNeighborsContainer_;
-  buffer<caConstants::CellTracksVector> device_theCellTracks_;
+  Buffer<caConstants::CellTracksVector> device_theCellTracks_;
   caConstants::CellTracks* device_theCellTracksContainer_;
 
-  buffer<GPUCACell> device_theCells_;
-  buffer<GPUCACell::OuterHitOfCellContainer> device_isOuterHitOfCell_;
+  Buffer<GPUCACell> device_theCells_;
+  Buffer<GPUCACell::OuterHitOfCellContainer> device_isOuterHitOfCell_;
   GPUCACell::OuterHitOfCell isOuterHitOfCell_;
   uint32_t* device_nCells_ = nullptr;
 
-  buffer<HitToTuple> device_hitToTuple_;
-  buffer<HitToTuple::Counter> device_hitToTupleStorage_;
+  Buffer<HitToTuple> device_hitToTuple_;
+  Buffer<HitToTuple::Counter> device_hitToTupleStorage_;
   HitToTuple::View hitToTupleView_;
 
   cms::cuda::AtomicPairCounter* device_hitToTuple_apc_ = nullptr;
 
   cms::cuda::AtomicPairCounter* device_hitTuple_apc_ = nullptr;
 
-  buffer<TupleMultiplicity> device_tupleMultiplicity_;
+  Buffer<TupleMultiplicity> device_tupleMultiplicity_;
 
-  buffer<cms::cuda::AtomicPairCounter::c_type> device_storage_;
+  Buffer<cms::cuda::AtomicPairCounter::c_type> device_storage_;
   // params
   Params const& params_;
   /// Intermediate result avoiding repeated computations.

@@ -30,7 +30,7 @@ public:
   };
 
   template <typename T>
-  using buffer = typename memoryPool::buffer<T>;
+  using Buffer = typename memoryPool::Buffer<T>;
 
   using PhiBinner = TrackingRecHit2DSOAView::PhiBinner;
 
@@ -72,12 +72,12 @@ public:
   auto phiBinnerStorage() { return m_phiBinnerStorage; }
   auto iphi() { return m_iphi; }
 
-  /*inline*/ buffer<float> localCoordToHostAsync(cudaStream_t stream) const;
+  /*inline*/ Buffer<float> localCoordToHostAsync(cudaStream_t stream) const;
 
-  /*inline*/ buffer<uint32_t> hitsModuleStartToHostAsync(cudaStream_t stream) const;
+  /*inline*/ Buffer<uint32_t> hitsModuleStartToHostAsync(cudaStream_t stream) const;
 
-  /*inline*/ buffer<uint16_t> store16ToHostAsync(cudaStream_t stream) const;
-  /*inline*/ buffer<float> store32ToHostAsync(cudaStream_t stream) const;
+  /*inline*/ Buffer<uint16_t> store16ToHostAsync(cudaStream_t stream) const;
+  /*inline*/ Buffer<float> store32ToHostAsync(cudaStream_t stream) const;
 
   // needed for Host
   /*inline*/ void copyFromGPU(TrackingRecHit2DHeterogeneous const* input, cudaStream_t stream);
@@ -87,13 +87,13 @@ private:
   static constexpr uint32_t n32 = 10;                // number of elements in m_store32
   static_assert(sizeof(uint32_t) == sizeof(float));  // just stating the obvious
   static_assert(n32 == static_cast<uint32_t>(Storage32::kLayers));
-  buffer<uint16_t> m_store16;  //!
-  buffer<float> m_store32;     //!
+  Buffer<uint16_t> m_store16;  //!
+  Buffer<float> m_store32;     //!
 
-  buffer<TrackingRecHit2DSOAView::PhiBinner> m_PhiBinnerStore;              //!
-  buffer<TrackingRecHit2DSOAView::AverageGeometry> m_AverageGeometryStore;  //!
+  Buffer<TrackingRecHit2DSOAView::PhiBinner> m_PhiBinnerStore;              //!
+  Buffer<TrackingRecHit2DSOAView::AverageGeometry> m_AverageGeometryStore;  //!
 
-  buffer<TrackingRecHit2DSOAView> m_view;  //!
+  Buffer<TrackingRecHit2DSOAView> m_view;  //!
 
   uint32_t m_nHits;
   int32_t m_offsetBPIX2;
