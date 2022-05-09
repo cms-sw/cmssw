@@ -23,6 +23,9 @@ process.patLowPtElectrons.electronSource = "gedGsfElectrons"
 process.patLowPtElectrons.genParticleMatch = "electronMatch"
 process.selectedPatLowPtElectrons.cut = "pt>99999."
 
+process.filteredDisplacedMuons.srcMuons = "muons"
+process.selectedPatDisplacedMuons.cut = "pt>99999."
+
 ### Get PAT trigger tools
 from PhysicsTools.PatAlgos.tools.trigTools import *
 
