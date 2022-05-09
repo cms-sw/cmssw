@@ -78,9 +78,9 @@ _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
 (pp_on_AA | _mAOD).toReplaceWith(slimmingTask,
                                  slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
 
-from Configuration.ProcessModifiers.run2_miniAOD_UL_preSummer20_cff import run2_miniAOD_UL_preSummer20
-(pp_on_AA | _mAOD | run2_miniAOD_UL_preSummer20).toReplaceWith(slimmingTask,
-                                                               slimmingTask.copyAndExclude([slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+(pp_on_AA | _mAOD | run2_miniAOD_UL).toReplaceWith(slimmingTask,
+                                                   slimmingTask.copyAndExclude([slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
 
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
 from RecoHI.HiEvtPlaneAlgos.HiEvtPlane_cfi import hiEvtPlane

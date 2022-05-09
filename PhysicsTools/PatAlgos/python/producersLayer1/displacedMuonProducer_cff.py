@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#from PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi import * # This should be turn on when doing the muonMatch for displacedMuons
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi import *
 
@@ -33,7 +32,7 @@ patDisplacedMuons = patMuons.clone(
 
     # Read and store combined inverse beta
     addInverseBeta    = cms.bool(True),
-    sourceMuonTimeExtra = cms.InputTag("filteredDisplacedMuons","combined"), #Use combined info, not only csc or dt (need to check if this is 'on' for displaced)
+    sourceMuonTimeExtra = cms.InputTag("filteredDisplacedMuons","combined"), 
 
     # mc matching (deactivated)
     addGenMatch   = cms.bool(False),
