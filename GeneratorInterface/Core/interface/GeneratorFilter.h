@@ -125,7 +125,7 @@ namespace edm {
       produces<edm::HepMCProduct>("unsmeared");
       produces<GenEventInfoProduct>();
     }
-    if (ivhepmc == 3) {
+    else if (ivhepmc == 3) {
       //produces<edm::HepM3CProduct>("unsmeared");
       //produces<GenEventInfoProduct3>();
     }
@@ -203,7 +203,7 @@ namespace edm {
     //
     if (ivhepmc == 2)
       hadronizer_.resetEvent(std::move(event));
-    if (ivhepmc == 3)
+    else if (ivhepmc == 3)
       hadronizer_.resetEvent3(std::move(event3));
 
     //
@@ -222,7 +222,7 @@ namespace edm {
       event->set_event_number(ev.id().event());
     }
 
-    if (ivhepmc == 3) {  // HepMC3
+    else if (ivhepmc == 3) {  // HepMC3
       if (!event3.get())
         return false;
       event3->set_event_number(ev.id().event());
@@ -244,7 +244,7 @@ namespace edm {
       bare_product->addHepMCData(event.release());
       ev.put(std::move(bare_product), "unsmeared");
     }
-    if (ivhepmc == 3) {  // HepMC3
+    else if (ivhepmc == 3) {  // HepMC3
       auto genEventInfo3 = hadronizer_.getGenEventInfo3();
       if (!genEventInfo3.get()) {
         // create GenEventInfoProduct3 from HepMC3 event in case hadronizer didn't provide one
