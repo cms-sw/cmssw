@@ -15,6 +15,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
 #include <utility>
 #include <tuple>
 #include <unistd.h>
@@ -264,13 +265,14 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   //mark as started before executing in case of ctrl+c while command is running
   startedFallback_ = true;
   const auto& [output, rv] = execSys(command);
-  if (verbose_)
-    edm::LogInfo("TritonService") << output;
   if (rv != 0) {
     edm::LogError("TritonService") << output;
+    printFallbackServerLog<edm::LogError>();
     throw cms::Exception("FallbackFailed")
         << "TritonService: Starting the fallback server failed with exit code " << rv;
   }
+  else if (verbose_)
+    edm::LogInfo("TritonService") << output;
   //get the port
   const std::string& portIndicator("CMS_TRITON_GRPC_PORT: ");
   //find last instance in log in case multiple ports were tried
@@ -283,6 +285,19 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   } else
     throw cms::Exception("FallbackFailed") << "TritonService: Unknown port for fallback server, log follows:\n"
                                            << output;
+}
+
+template <typename LOG>
+void TritonService::printFallbackServerLog() const {
+  std::string logName("log_"+fallbackOpts_.instanceName+".log");
+  //cmsTriton script moves log from temp to current dir in verbose mode
+  if (!fallbackOpts_.verbose)
+    logName = fallbackOpts_.tempDir+"/"+logName;
+  std::ifstream infile(logName);
+  if (infile.is_open())
+    LOG("TritonService") << "TritonService: server log " << logName << "\n" << infile.rdbuf();
+  else
+    LOG("TritonService") << "TritonService: could not find server log " << logName;
 }
 
 void TritonService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

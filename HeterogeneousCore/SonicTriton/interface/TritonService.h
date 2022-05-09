@@ -117,6 +117,10 @@ private:
   void preModuleDestruction(edm::ModuleDescription const&);
   void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
 
+  //helper
+  template <typename LOG>
+  void printFallbackServerLog() const;
+
   bool verbose_;
   FallbackOpts fallbackOpts_;
   unsigned currentModuleId_;
