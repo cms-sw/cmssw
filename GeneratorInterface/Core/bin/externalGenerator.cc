@@ -84,7 +84,7 @@ using Serializer = ROOTSerializer<T, WriteBuffer>;
 
 namespace {
   //needed for atexit handling
-  boost::interprocess::scoped_lock<boost::interprocess::named_mutex>* s_sharedLock = nullptr;
+  CMS_THREAD_SAFE boost::interprocess::scoped_lock<boost::interprocess::named_mutex>* s_sharedLock = nullptr;
 
   void atexit_handler() {
     if (s_sharedLock) {
