@@ -8,8 +8,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,7 +25,7 @@
            This guarentees that the collections are identical.
 */
 
-class SiStripDigiValidator : public edm::EDAnalyzer {
+class SiStripDigiValidator : public edm::one::EDAnalyzer<> {
 public:
   SiStripDigiValidator(const edm::ParameterSet& config);
   ~SiStripDigiValidator() override = default;
