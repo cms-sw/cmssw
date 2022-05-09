@@ -100,10 +100,10 @@ void go() {
     std::cout << "try to allocate " << s << std::endl;
     auto stream = streams[0];
     {
-      auto pd = memoryPool::cuda::make_buffer<int>(s, stream, where);
+      auto pd = memoryPool::cuda::makeBuffer<int>(s, stream, where);
       assert(pd.get());
       memoryPool::cuda::dumpStat();
-      pd = memoryPool::cuda::make_buffer<int>(s, stream, where);
+      pd = memoryPool::cuda::makeBuffer<int>(s, stream, where);
       memoryPool::cuda::dumpStat();
     }
     cudaStreamSynchronize(stream);
@@ -151,7 +151,7 @@ void go() {
         uint64_t s = 1LL << b;
         assert(s > 0);
         try {
-          auto p0 = memoryPool::cuda::make_buffer<Node>(s / sizeof(Node) + sizeof(Node), devDeleter);
+          auto p0 = memoryPool::cuda::makeBuffer<Node>(s / sizeof(Node) + sizeof(Node), devDeleter);
           auto p = p0.get();
           if (nullptr == p) {
             std::cout << "error not detected??? " << b << ' ' << std::endl;
