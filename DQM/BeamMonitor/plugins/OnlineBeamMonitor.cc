@@ -150,7 +150,6 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   std::string lumiRangeHLT_ = "0 - 0";
   std::string lumiRangeLegacy_ = "0 - 0";
 
-
   if (auto bsHLTHandle = iSetup.getHandle(bsHLTToken_)) {
     auto const& spotDB = *bsHLTHandle;
 
@@ -158,7 +157,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     startTimeStampHLT_ = spotDB.startTime();
     stopTimeStampHLT_ = spotDB.endTime();
     lumiRangeHLT_ = spotDB.lumiRange();
-    
+
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
 
@@ -190,7 +189,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   }
   if (auto bsLegacyHandle = iSetup.getHandle(bsLegacyToken_)) {
     auto const& spotDB = *bsLegacyHandle;
-    
+
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
 
@@ -254,7 +253,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     } else {
       aSpot->setType(reco::BeamSpot::Fake);
     }
-    
+
     if (writeDIPTxt_) {
       std::ofstream outFile;
 
