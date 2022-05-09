@@ -42,7 +42,7 @@ namespace memoryPool {
     SimplePoolAllocator* pool() const { return me->pool(); }
 
   private:
-    std::shared_ptr<DeleterBase> me;
+    std::shared_ptr<DeleterBase> me;  //!
   };
 
   template <typename T>
@@ -111,9 +111,9 @@ namespace memoryPool {
     }
 
   private:
-    Deleter m_deleter;
-    pointer m_p = nullptr;
-    int m_bucket = -1;
+    Deleter m_deleter;      //!
+    pointer m_p = nullptr;  //!
+    int m_bucket = -1;      //!
   };
 
 }  // namespace memoryPool
