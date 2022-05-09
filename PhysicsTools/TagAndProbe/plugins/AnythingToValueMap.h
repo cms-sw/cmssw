@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_TagAndProbe_interface_AnythingToValueMap_h
 #define PhysicsTools_TagAndProbe_interface_AnythingToValueMap_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -16,7 +16,7 @@ namespace pat {
     template <class Adaptor,
               class Collection = typename Adaptor::Collection,
               typename value_type = typename Adaptor::value_type>
-    class AnythingToValueMap : public edm::EDProducer {
+    class AnythingToValueMap : public edm::stream::EDProducer<> {
     public:
       typedef typename edm::ValueMap<value_type> Map;
       typedef typename Map::Filler MapFiller;
@@ -63,7 +63,7 @@ namespace pat {
     template <class Adaptor,
               class Collection = typename Adaptor::Collection,
               typename value_type = typename Adaptor::value_type>
-    class ManyThingsToValueMaps : public edm::EDProducer {
+    class ManyThingsToValueMaps : public edm::stream::EDProducer<> {
     public:
       typedef typename edm::ValueMap<value_type> Map;
       typedef typename Map::Filler MapFiller;

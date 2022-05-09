@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,12 +11,11 @@
 using namespace std;
 using namespace edm;
 
-class TagProbeFitTreeAnalyzer : public edm::EDAnalyzer {
+class TagProbeFitTreeAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset);
   ~TagProbeFitTreeAnalyzer() override{};
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override{};
-  void endRun(const edm::Run& run, const edm::EventSetup& setup) override{};
   void calculateEfficiency(string name, const edm::ParameterSet& pset);
 
 private:
