@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -22,7 +22,7 @@
 
 using namespace std;
 
-class PixelTrackTest : public edm::EDAnalyzer {
+class PixelTrackTest : public edm::one::EDAnalyzer<> {
 public:
   explicit PixelTrackTest(const edm::ParameterSet& conf);
   ~PixelTrackTest();
@@ -58,10 +58,10 @@ void PixelTrackTest::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   using namespace std;
   using namespace reco;
 
-  cout << "*** PixelTrackTest, analyze event: " << ev.id() << endl;
+  edm::LogPrint("PixelTrackTest") << "*** PixelTrackTest, analyze event: " << ev.id();
   Handle<SimTrackContainer> simTrks;
   ev.getByLabel("g4SimHits", simTrks);
-  //  std::cout << "simtrks " << simTrks->size() << std::endl;
+  //  std::edm::LogPrint("PixelTrackTest") << "simtrks " << simTrks->size() << std::endl;
 
   float pt_gen = 0.0;
   typedef SimTrackContainer::const_iterator IP;
@@ -75,7 +75,7 @@ void PixelTrackTest::analyze(const edm::Event& ev, const edm::EventSetup& es) {
     if ((*p).momentum().Pt() > pt_gen)
       pt_gen = (*p).momentum().Pt();
   }
-  //  cout << "pt_gen: " << pt_gen << endl;
+  //  edm::LogPrint("PixelTrackTest") << "pt_gen: " << pt_gen ;
   if (pt_gen < 0.9)
     return;
 
@@ -84,7 +84,7 @@ void PixelTrackTest::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   edm::Handle<reco::TrackCollection> trackCollection;
   ev.getByLabel(collectionLabel, trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
-  cout << "Number of tracks: " << tracks.size() << " tracks" << std::endl;
+  edm::LogPrint("PixelTrackTest") << "Number of tracks: " << tracks.size() << " tracks" << std::endl;
   for (IT it = tracks.begin(); it != tracks.end(); it++) {
     //math::XYZVector mom_rec = (*it).momentum();
     float pt_rec = (*it).pt();
@@ -93,16 +93,16 @@ void PixelTrackTest::analyze(const edm::Event& ev, const edm::EventSetup& es) {
     static_cast<TH1*>(hList.FindObject("h_tip"))->Fill((*it).d0());
   }
 
-  cout << "------------------------------------------------" << endl;
+  edm::LogPrint("PixelTrackTest") << "------------------------------------------------";
 }
 
 void PixelTrackTest::myprint(const reco::Track& track) const {
-  cout << "--- RECONSTRUCTED TRACK: " << endl;
-  cout << "\tmomentum: " << track.momentum() << "\tPT: " << track.pt() << endl;
-  cout << "\tvertex: " << track.vertex() << "\t zip: " << track.dz() << "+/-" << track.dzError()
-       << "\t tip: " << track.d0() << "+/-" << track.d0Error() << endl;
-  cout << "\t chi2: " << track.chi2() << endl;
-  cout << "\tcharge: " << track.charge() << endl;
+  edm::LogPrint("PixelTrackTest") << "--- RECONSTRUCTED TRACK: ";
+  edm::LogPrint("PixelTrackTest") << "\tmomentum: " << track.momentum() << "\tPT: " << track.pt();
+  edm::LogPrint("PixelTrackTest") << "\tvertex: " << track.vertex() << "\t zip: " << track.dz() << "+/-"
+                                  << track.dzError() << "\t tip: " << track.d0() << "+/-" << track.d0Error();
+  edm::LogPrint("PixelTrackTest") << "\t chi2: " << track.chi2();
+  edm::LogPrint("PixelTrackTest") << "\tcharge: " << track.charge();
 }
 
 DEFINE_FWK_MODULE(PixelTrackTest);
