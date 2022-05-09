@@ -10,6 +10,6 @@ GEMRecHitSource.modeRelVal = True
 gemSourcesCosmics = cms.Sequence(
     GEMDigiSource *
     GEMRecHitSource *
-    gemEfficiencyAnalyzerCosmicsTwoLeg *
-    gemEfficiencyAnalyzerCosmicsOneLeg
+    gemEfficiencyAnalyzerCosmicsGlb *
+    gemEfficiencyAnalyzerCosmicsSta
 )
