@@ -128,8 +128,8 @@ private:
   static const unsigned int maxBx_ = 14;
   static const unsigned int thisBx_ = 9;
   std::vector<float> cce_;
-  std::unordered_map<uint32_t, std::vector<std::pair<float, float> > > hitRefs_bx0;
-  std::unordered_map<uint32_t, std::vector<std::tuple<float, float, float> > > PhitRefs_bx0;
+  std::unordered_map<uint32_t, std::vector<std::pair<float, float>>> hitRefs_bx0;
+  std::unordered_map<uint32_t, std::vector<std::tuple<float, float, float>>> PhitRefs_bx0;
   std::unordered_map<uint32_t, bool> hitOrder_monitor;
 };
 
