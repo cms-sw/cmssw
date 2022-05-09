@@ -60,13 +60,9 @@ Tracker:
 * T15: Phase2 tilted tracker (v6.1.6) w/ phase 2 pixel (v6.1.3) (Active geometry: same as T14. Material Budget: major update in IT, gathering info from recent Mechanical designs.)
 * T21: Phase2 tilted tracker. Outer Tracker (v8.0.0): TBPS update in Layer 1 (facilitate IT insertion) + In all TEDD, update sensors Z inter-spacing. Inner Tracker: (v6.1.5) from previous T17
 (TFPX: Changed sensors spacing within all double-disks + Increased distance between Disks 6 and 7 + TBPX portcards between Disks 6 and 7.)
-* T22: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 50x50 pixel aspect ratio everywhere.
-* T23: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T21. Inner Tracker: Based on (v6.1.5) (T21), but with 3D sensors in TBPX L1 + TBPX L2 + TFPX R1.
 * T24: Phase2 tilted tracker. Tracker detector description itself is identical to T21 (OT800 IT615). Change of paradigm, entire description reworked to be compatible with DD4hep library.
 * T25: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.2): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1. Compatible with DD4hep library.
 * T26: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.3): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1 and 50x50 pixel aspect ratio in TFPX and TEPX. Compatible with DD4hep library.
-* T27: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.0): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2 and in the central 3 rods of TBPX L3+4. All pixels in TFPX and TEPX are bricked. Compatible with DD4hep library.
-* T28: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.2): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2+L3 and in the central 3 rods of TBPX L4, as well as in TFPX disks 5-8 and in TEPX. The other barrel pixels, and those in TFPX disks 1-4, are 25x100 mum planar. Compatible with DD4hep library.
 * T29: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.3): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2+L3 and in the central 3 rods of TBPX L4, and with 50x50 mum pixels in TFPX and TEPX. Compatible with DD4hep library.
 * T30: Phase2 titled tracker. Exploratory geometry *only to be used in D91 for now*. Outer Tracker (v8.0.1): based on v8.0.0 with updated TB2S spacing. Inner Tracker (v6.4.0): based on v6.1.5 but TFPX with more realistic module positions.
 
@@ -119,8 +115,6 @@ Several detector combinations have been generated:
 * D70 = T21+C13+M7+I11+O6+F6 (For HGCAL study on evolution of detector)
 * D76 = T21+C14+M9+I13+O7+F6
 * D77 = T24+C14+M9+I13+O7+F6 (Current default scenario)
-* D78 = T22+C14+M9+I13+O7+F6
-* D79 = T23+C14+M9+I13+O7+F6
 * D80 = T25+C14+M9+I13+O7+F6
 * D81 = T26+C14+M9+I13+O7+F6
 * D82 = T21+C15+M9+I13+O7+F7
@@ -128,8 +122,6 @@ Several detector combinations have been generated:
 * D84 = T24+C13+M7+I11+O6+F6 (For HGCAL study on evolution of HGCal replacing D70)
 * D85 = T24+C14+M9+I14+O7+F6
 * D86 = T24+C17+M10+I14+O8+F6
-* D87 = T27+C14+M9+I13+O7+F6
 * D88 = T24+C17+M10+I15+O9+F6
-* D89 = T28+C14+M9+I13+O7+F8
 * D90 = T29+C14+M9+I13+O7+F8
 * D91 = T30+C17+M10+I15+O9+F6
