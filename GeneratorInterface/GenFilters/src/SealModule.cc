@@ -51,7 +51,6 @@
 #include "GeneratorInterface/GenFilters/interface/HeavyQuarkFromMPIFilter.h"
 #include "GeneratorInterface/GenFilters/interface/MCSingleParticleYPt.h"
 #include "GeneratorInterface/GenFilters/interface/PythiaDauVFilterMatchID.h"
-#include "GeneratorInterface/GenFilters/plugins/MCDisplacementFilter.cc"
 
   using cms::BHFilter;
   DEFINE_FWK_MODULE(LQGenFilter);
