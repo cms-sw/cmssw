@@ -267,64 +267,96 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
     else
       CPPUNIT_ASSERT(false);
 
-    if (i == 0)
-      CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-    if (i == 10)
-      CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-    if (i == 12)
-      CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+    switch (i) {
+      case 0:
+        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+        break;
+      case 10:
+        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+        break;
+      case 12:
+        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+        break;
+    }
 
-    if (i == 0)
-      CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
-    if (i == 1)
-      CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
-    if (i == 2)
-      CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
-    if (i == 3)
-      CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
-    if (i == 10)
-      CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
-    if (i == 12)
-      CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+    switch (i) {
+      case 0:
+        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+        break;
+      case 1:
+        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+        break;
+      case 2:
+        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+        break;
+      case 3:
+        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+        break;
+      case 10:
+        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+        break;
+      case 12:
+        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+        break;
+    }
   }
   CPPUNIT_ASSERT(i == 17);
 
   for (i = 0, iterFirst = indexIntoFile.begin(IndexIntoFile::firstAppearanceOrder); iterFirst != iterFirstEnd;
        ++iterFirst, ++i) {
-    if (i == 0)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 0, 0);  // Run
-    if (i == 1)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 101, 0);  // Lumi
-    if (i == 2)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 101, 1);  // Lumi
-    if (i == 3)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 101, 2);  // Lumi
-    if (i == 4)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 101, 0);  // Event
-    if (i == 5)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 101, 1);  // Event
-    if (i == 6)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 101, 2);  // Event
-    if (i == 7)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 101, 3);  // Event
-    if (i == 8)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 102, 3);  // Lumi
-    if (i == 9)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 102, 4);  // Event
-    if (i == 10)
-      checkIDRunLumiEntry(iterFirst, 0, 11, 102, 5);  // Event
-    if (i == 11)
-      checkIDRunLumiEntry(iterFirst, 1, 11, 0, 1);  // Run
-    if (i == 12)
-      checkIDRunLumiEntry(iterFirst, 1, 11, 0, 2);  // Run
-    if (i == 13)
-      checkIDRunLumiEntry(iterFirst, 1, 11, 101, 4);  // Lumi
-    if (i == 14)
-      checkIDRunLumiEntry(iterFirst, 1, 11, 102, 5);  // Lumi
-    if (i == 15)
-      checkIDRunLumiEntry(iterFirst, 1, 11, 102, 6);  // Lumi
-    if (i == 16)
-      checkIDRunLumiEntry(iterFirst, 1, 11, 102, 6);  // Event
+    switch (i) {
+      case 0:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 0, 0);  // Run
+        break;
+      case 1:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 101, 0);  // Lumi
+        break;
+      case 2:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 101, 1);  // Lumi
+        break;
+      case 3:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 101, 2);  // Lumi
+        break;
+      case 4:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 101, 0);  // Event
+        break;
+      case 5:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 101, 1);  // Event
+        break;
+      case 6:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 101, 2);  // Event
+        break;
+      case 7:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 101, 3);  // Event
+        break;
+      case 8:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 102, 3);  // Lumi
+        break;
+      case 9:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 102, 4);  // Event
+        break;
+      case 10:
+        checkIDRunLumiEntry(iterFirst, 0, 11, 102, 5);  // Event
+        break;
+      case 11:
+        checkIDRunLumiEntry(iterFirst, 1, 11, 0, 1);  // Run
+        break;
+      case 12:
+        checkIDRunLumiEntry(iterFirst, 1, 11, 0, 2);  // Run
+        break;
+      case 13:
+        checkIDRunLumiEntry(iterFirst, 1, 11, 101, 4);  // Lumi
+        break;
+      case 14:
+        checkIDRunLumiEntry(iterFirst, 1, 11, 102, 5);  // Lumi
+        break;
+      case 15:
+        checkIDRunLumiEntry(iterFirst, 1, 11, 102, 6);  // Lumi
+        break;
+      case 16:
+        checkIDRunLumiEntry(iterFirst, 1, 11, 102, 6);  // Event
+        break;
+    }
   }
   checkIDRunLumiEntry(iterFirst, -1, 0, 0, -1);  // Event
 
@@ -411,63 +443,94 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
     else
       CPPUNIT_ASSERT(false);
 
-    if (i == 0)
-      CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 3);
-    if (i == 10)
-      CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 3);
-    if (i == 12)
-      CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 6);
-
-    if (i == 0)
-      CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
-    if (i == 1)
-      CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
-    if (i == 2)
-      CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
-    if (i == 3)
-      CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
-    if (i == 10)
-      CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 5);
-    if (i == 12)
-      CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+    switch (i) {
+      case 0:
+        CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 3);
+        break;
+      case 10:
+        CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 3);
+        break;
+      case 12:
+        CPPUNIT_ASSERT(iterNum.firstEventEntryThisRun() == 6);
+        break;
+    }
+    switch (i) {
+      case 0:
+        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+        break;
+      case 1:
+        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+        break;
+      case 2:
+        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+        break;
+      case 3:
+        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 3);
+        break;
+      case 10:
+        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == 5);
+        break;
+      case 12:
+        CPPUNIT_ASSERT(iterNum.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+        break;
+    }
   }
   CPPUNIT_ASSERT(i == 17);
 
   for (i = 0, iterNum = indexIntoFile.begin(IndexIntoFile::numericalOrder); iterNum != iterNumEnd; ++iterNum, ++i) {
-    if (i == 0)
-      checkIDRunLumiEntry(iterNum, 0, 11, 0, 0);  // Run
-    if (i == 1)
-      checkIDRunLumiEntry(iterNum, 0, 11, 101, 0);  // Lumi
-    if (i == 2)
-      checkIDRunLumiEntry(iterNum, 0, 11, 101, 1);  // Lumi
-    if (i == 3)
-      checkIDRunLumiEntry(iterNum, 0, 11, 101, 2);  // Lumi
-    if (i == 4)
-      checkIDRunLumiEntry(iterNum, 0, 11, 101, 3);  // Event
-    if (i == 5)
-      checkIDRunLumiEntry(iterNum, 0, 11, 101, 2);  // Event
-    if (i == 6)
-      checkIDRunLumiEntry(iterNum, 0, 11, 101, 1);  // Event
-    if (i == 7)
-      checkIDRunLumiEntry(iterNum, 0, 11, 101, 0);  // Event
-    if (i == 8)
-      checkIDRunLumiEntry(iterNum, 0, 11, 102, 3);  // Lumi
-    if (i == 9)
-      checkIDRunLumiEntry(iterNum, 0, 11, 102, 5);  // Event
-    if (i == 10)
-      checkIDRunLumiEntry(iterNum, 0, 11, 102, 4);  // Event
-    if (i == 11)
-      checkIDRunLumiEntry(iterNum, 1, 11, 0, 1);  // Run
-    if (i == 12)
-      checkIDRunLumiEntry(iterNum, 1, 11, 0, 2);  // Run
-    if (i == 13)
-      checkIDRunLumiEntry(iterNum, 1, 11, 101, 4);  // Lumi
-    if (i == 14)
-      checkIDRunLumiEntry(iterNum, 1, 11, 102, 5);  // Lumi
-    if (i == 15)
-      checkIDRunLumiEntry(iterNum, 1, 11, 102, 6);  // Lumi
-    if (i == 16)
-      checkIDRunLumiEntry(iterNum, 1, 11, 102, 6);  // Event
+    switch (i) {
+      case 0:
+        checkIDRunLumiEntry(iterNum, 0, 11, 0, 0);  // Run
+        break;
+      case 1:
+        checkIDRunLumiEntry(iterNum, 0, 11, 101, 0);  // Lumi
+        break;
+      case 2:
+        checkIDRunLumiEntry(iterNum, 0, 11, 101, 1);  // Lumi
+        break;
+      case 3:
+        checkIDRunLumiEntry(iterNum, 0, 11, 101, 2);  // Lumi
+        break;
+      case 4:
+        checkIDRunLumiEntry(iterNum, 0, 11, 101, 3);  // Event
+        break;
+      case 5:
+        checkIDRunLumiEntry(iterNum, 0, 11, 101, 2);  // Event
+        break;
+      case 6:
+        checkIDRunLumiEntry(iterNum, 0, 11, 101, 1);  // Event
+        break;
+      case 7:
+        checkIDRunLumiEntry(iterNum, 0, 11, 101, 0);  // Event
+        break;
+      case 8:
+        checkIDRunLumiEntry(iterNum, 0, 11, 102, 3);  // Lumi
+        break;
+      case 9:
+        checkIDRunLumiEntry(iterNum, 0, 11, 102, 5);  // Event
+        break;
+      case 10:
+        checkIDRunLumiEntry(iterNum, 0, 11, 102, 4);  // Event
+        break;
+      case 11:
+        checkIDRunLumiEntry(iterNum, 1, 11, 0, 1);  // Run
+        break;
+      case 12:
+        checkIDRunLumiEntry(iterNum, 1, 11, 0, 2);  // Run
+        break;
+      case 13:
+        checkIDRunLumiEntry(iterNum, 1, 11, 101, 4);  // Lumi
+        break;
+      case 14:
+        checkIDRunLumiEntry(iterNum, 1, 11, 102, 5);  // Lumi
+        break;
+      case 15:
+        checkIDRunLumiEntry(iterNum, 1, 11, 102, 6);  // Lumi
+        break;
+      case 16:
+        checkIDRunLumiEntry(iterNum, 1, 11, 102, 6);  // Event
+        break;
+    }
   }
   checkIDRunLumiEntry(iterNum, -1, 0, 0, -1);  // Event
 
@@ -539,64 +602,96 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
       else
         CPPUNIT_ASSERT(false);
 
-      if (i == 0)
-        CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == 0);
-      if (i == 10)
-        CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == 0);
-      if (i == 12)
-        CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == 6);
+      switch (i) {
+        case 0:
+          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == 0);
+          break;
+        case 10:
+          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == 0);
+          break;
+        case 12:
+          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisRun() == 6);
+          break;
+      }
 
-      if (i == 0)
-        CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
-      if (i == 1)
-        CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
-      if (i == 2)
-        CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
-      if (i == 3)
-        CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
-      if (i == 10)
-        CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 4);
-      if (i == 12)
-        CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+      switch (i) {
+        case 0:
+          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
+          break;
+        case 1:
+          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
+          break;
+        case 2:
+          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
+          break;
+        case 3:
+          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 0);
+          break;
+        case 10:
+          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == 4);
+          break;
+        case 12:
+          CPPUNIT_ASSERT(iterEntry.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          break;
+      }
     }
     CPPUNIT_ASSERT(i == 17);
 
     for (i = 0, iterEntry = indexIntoFile.begin(IndexIntoFile::entryOrder); iterEntry != iterEntryEnd;
          ++iterEntry, ++i) {
-      if (i == 0)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 0, 0);  // Run
-      if (i == 1)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 101, 0);  // Lumi
-      if (i == 2)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 101, 1);  // Lumi
-      if (i == 3)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 101, 2);  // Lumi
-      if (i == 4)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 101, 0);  // Event
-      if (i == 5)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 101, 1);  // Event
-      if (i == 6)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 101, 2);  // Event
-      if (i == 7)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 101, 3);  // Event
-      if (i == 8)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 102, 3);  // Lumi
-      if (i == 9)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 102, 4);  // Event
-      if (i == 10)
-        checkIDRunLumiEntry(iterEntry, 0, 11, 102, 5);  // Event
-      if (i == 11)
-        checkIDRunLumiEntry(iterEntry, 1, 11, 0, 1);  // Run
-      if (i == 12)
-        checkIDRunLumiEntry(iterEntry, 1, 11, 0, 2);  // Run
-      if (i == 13)
-        checkIDRunLumiEntry(iterEntry, 1, 11, 101, 4);  // Lumi
-      if (i == 14)
-        checkIDRunLumiEntry(iterEntry, 1, 11, 102, 5);  // Lumi
-      if (i == 15)
-        checkIDRunLumiEntry(iterEntry, 1, 11, 102, 6);  // Lumi
-      if (i == 16)
-        checkIDRunLumiEntry(iterEntry, 1, 11, 102, 6);  // Event
+      switch (i) {
+        case 0:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 0, 0);  // Run
+          break;
+        case 1:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 101, 0);  // Lumi
+          break;
+        case 2:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 101, 1);  // Lumi
+          break;
+        case 3:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 101, 2);  // Lumi
+          break;
+        case 4:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 101, 0);  // Event
+          break;
+        case 5:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 101, 1);  // Event
+          break;
+        case 6:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 101, 2);  // Event
+          break;
+        case 7:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 101, 3);  // Event
+          break;
+        case 8:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 102, 3);  // Lumi
+          break;
+        case 9:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 102, 4);  // Event
+          break;
+        case 10:
+          checkIDRunLumiEntry(iterEntry, 0, 11, 102, 5);  // Event
+          break;
+        case 11:
+          checkIDRunLumiEntry(iterEntry, 1, 11, 0, 1);  // Run
+          break;
+        case 12:
+          checkIDRunLumiEntry(iterEntry, 1, 11, 0, 2);  // Run
+          break;
+        case 13:
+          checkIDRunLumiEntry(iterEntry, 1, 11, 101, 4);  // Lumi
+          break;
+        case 14:
+          checkIDRunLumiEntry(iterEntry, 1, 11, 102, 5);  // Lumi
+          break;
+        case 15:
+          checkIDRunLumiEntry(iterEntry, 1, 11, 102, 6);  // Lumi
+          break;
+        case 16:
+          checkIDRunLumiEntry(iterEntry, 1, 11, 102, 6);  // Event
+          break;
+      }
     }
     checkIDRunLumiEntry(iterEntry, -1, 0, 0, -1);  // Event
   }
@@ -1123,19 +1218,29 @@ void TestIndexIntoFile3::testOverlappingLumis() {
       else
         CPPUNIT_ASSERT(false);
 
-      if (i == 1)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 9)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 11)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+      switch (i) {
+        case 1:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          break;
+        case 9:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          break;
+        case 11:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+          break;
+      }
 
-      if (i == 2)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
-      if (i == 9)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
-      if (i == 11)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+      switch (i) {
+        case 2:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          break;
+        case 9:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          break;
+        case 11:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          break;
+      }
     }
     CPPUNIT_ASSERT(i == 16);
   }
@@ -1231,19 +1336,29 @@ void TestIndexIntoFile3::testOverlappingLumis() {
       else
         CPPUNIT_ASSERT(false);
 
-      if (i == 1)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 9)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 11)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+      switch (i) {
+        case 1:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          break;
+        case 9:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          break;
+        case 11:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+          break;
+      }
 
-      if (i == 2)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
-      if (i == 9)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
-      if (i == 11)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+      switch (i) {
+        case 2:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          break;
+        case 9:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          break;
+        case 11:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          break;
+      }
     }
     CPPUNIT_ASSERT(i == 16);
   }
@@ -1377,19 +1492,30 @@ void TestIndexIntoFile3::testOverlappingLumisMore() {
           CPPUNIT_ASSERT(false);
         }
       }
-      if (i == 0)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 8)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 10)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
 
-      if (i == 0)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
-      if (i == 8)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
-      if (i == 10)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+      switch (i) {
+        case 0:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          break;
+        case 8:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          break;
+        case 10:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+          break;
+      }
+
+      switch (i) {
+        case 0:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          break;
+        case 8:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          break;
+        case 10:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          break;
+      }
     }
     CPPUNIT_ASSERT(i == 15);
   }
@@ -1475,19 +1601,29 @@ void TestIndexIntoFile3::testOverlappingLumisMore() {
           CPPUNIT_ASSERT(false);
       }
 
-      if (i == 0)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 8)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
-      if (i == 10)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+      switch (i) {
+        case 0:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          break;
+        case 8:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 0);
+          break;
+        case 10:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisRun() == 6);
+          break;
+      }
 
-      if (i == 0)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
-      if (i == 8)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
-      if (i == 10)
-        CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+      switch (i) {
+        case 0:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 0);
+          break;
+        case 8:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == 4);
+          break;
+        case 10:
+          CPPUNIT_ASSERT(iterFirst.firstEventEntryThisLumi() == IndexIntoFile::invalidIndex);
+          break;
+      }
     }
     CPPUNIT_ASSERT(i == 15);
   }
