@@ -249,6 +249,17 @@ SKIMStreamEXOMONOPOLE = cms.FilteredStream(
         dataTier = cms.untracked.string('USER')
         )
 
+from Configuration.Skimming.PDWG_EXOHighMET_cff import *
+EXOHighMETPath = cms.Path(EXOHighMETSequence)
+SKIMStreamEXOHighMET = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXOHighMET',
+    paths = (EXOHighMETPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
 from Configuration.Skimming.PDWG_EXODisplacedJet_cff import *
 EXODisplacedJetPath = cms.Path(EXODisplacedJetSkimSequence)
 SKIMStreamEXODisplacedJet = cms.FilteredStream(
