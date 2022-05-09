@@ -1,4 +1,4 @@
-#include "L1Trigger/L1TMuonOverlapPhase1/plugins/L1MuonOverlapPhase1ParamsDBProducer.h"
+#include "L1MuonOverlapPhase1ParamsDBProducer.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/L1TObjects/interface/L1TMuonOverlapParams.h"
