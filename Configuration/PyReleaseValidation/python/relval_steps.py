@@ -2738,7 +2738,7 @@ steps['ALCARECOEXPR3']=merge([{'-s':'ALCAOUTPUT:SiPixelCalZeroBias+SiStripCalZer
                                '--triggerResultsProcess': 'RECO',
                                '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress'},steps['RECODR3']])
 
-steps['ALCARECOPROMPTR3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonProducerFilter+HcalCalIsoTrkProducerFilter,DQM',
+steps['ALCARECOPROMPTR3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonProducerFilter+HcalCalIsoTrkProducerFilter,DQM:@standardDQMFakeHLT',
                                   '--conditions':'auto:run3_data_prompt',
                                   '--scenario':'pp',
                                   '--era':'Run3',
