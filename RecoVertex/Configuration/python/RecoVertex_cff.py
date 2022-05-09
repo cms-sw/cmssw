@@ -15,11 +15,11 @@ from RecoJets.JetProducers.caloJetsForTrk_cff import *
 
 unsortedOfflinePrimaryVertices=offlinePrimaryVertices.clone()
 offlinePrimaryVertices=sortedPrimaryVertices.clone(
-    vertices="unsortedOfflinePrimaryVertices", 
+    vertices="unsortedOfflinePrimaryVertices",
     particles="trackRefsForJetsBeforeSorting"
 )
 offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(
-    vertices="unsortedOfflinePrimaryVertices:WithBS", 
+    vertices="unsortedOfflinePrimaryVertices:WithBS",
     particles="trackRefsForJetsBeforeSorting"
 )
 trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(
@@ -93,3 +93,7 @@ phase2_timing_layer.toReplaceWith(offlinePrimaryVertices4DWithBS, offlinePrimary
 phase2_timing_layer.toModify(offlinePrimaryVertices4D, vertices = "unsortedOfflinePrimaryVertices4D", particles = "trackRefsForJetsBeforeSorting4D")
 phase2_timing_layer.toModify(offlinePrimaryVertices4DWithBS, vertices = "unsortedOfflinePrimaryVertices4D:WithBS", particles = "trackRefsForJetsBeforeSorting4D")
 
+from Configuration.ProcesssModifiers.weightedVertexing_cff import weightedVertexing
+#don't want to mess up with phase2_timing_layer
+(weightedVertexing & ~phase2_timing_layer).toModify(offlinePrimaryVertices.TkClusParameters.TkDAClusParameters, runInBlocks = True, block_size = cms.uint32(512), overlap_frac = 0.5)
+(weightedVertexing & ~phase2_timing_layer).toModify(offlinePrimaryVerticesWithBS.TkClusParameters.TkDAClusParameters, runInBlocks = True, block_size = cms.uint32(512), overlap_frac = 0.5)
