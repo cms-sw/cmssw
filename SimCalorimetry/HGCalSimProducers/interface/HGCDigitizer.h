@@ -29,7 +29,7 @@ class PileUpEventPrincipal;
 class HGCDigitizer {
 public:
   HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
-  ~HGCDigitizer() {}
+  ~HGCDigitizer() = default;
 
   // index , det id, time
   typedef std::tuple<int, uint32_t, float> HGCCaloHitTuple_t;
@@ -95,6 +95,8 @@ private:
   double bxTime_, ev_per_eh_pair_;
   std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;
   std::unique_ptr<hgc::HGCPUSimHitDataAccumulator> pusimHitAccumulator_;
+  const edm::InputTag hitTag_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> hitToken_;
   void resetSimHitDataAccumulator();
   void resetPUSimHitDataAccumulator();
   //debug position

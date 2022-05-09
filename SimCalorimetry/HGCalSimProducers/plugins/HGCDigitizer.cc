@@ -231,6 +231,8 @@ namespace {
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC)
     : simHitAccumulator_(new HGCSimHitDataAccumulator()),
       pusimHitAccumulator_(new HGCPUSimHitDataAccumulator()),
+      hitTag_(edm::InputTag("g4SimHits", hitCollection_)),
+      hitToken_(iC.consumes<std::vector<PCaloHit>>(hitTag_)),
       geomToken_(iC.esConsumes()),
       refSpeed_(0.1 * CLHEP::c_light),  //[CLHEP::c_light]=mm/ns convert to cm/ns
       averageOccupancies_(occupancyGuesses),
@@ -247,7 +249,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& 
   premixStage1_ = ps.getParameter<bool>("premixStage1");
   premixStage1MinCharge_ = ps.getParameter<double>("premixStage1MinCharge");
   premixStage1MaxCharge_ = ps.getParameter<double>("premixStage1MaxCharge");
-  iC.consumes<std::vector<PCaloHit>>(edm::InputTag("g4SimHits", hitCollection_));
+
   const auto& myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
 
   if (myCfg_.existsAs<edm::ParameterSet>("chargeCollectionEfficiencies")) {
@@ -345,8 +347,7 @@ void HGCDigitizer::accumulate_forPreMix(edm::Event const& e,
                                         CLHEP::HepRandomEngine* hre) {
   //get inputs
 
-  edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
+  const edm::Handle<edm::PCaloHitContainer>& hits = e.getHandle(hitToken_);
   if (!hits.isValid()) {
     edm::LogError("HGCDigitizer") << " @ accumulate_minbias : can't find " << hitCollection_
                                   << " collection of g4SimHits";
@@ -364,8 +365,7 @@ void HGCDigitizer::accumulate_forPreMix(edm::Event const& e,
 //
 void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup, CLHEP::HepRandomEngine* hre) {
   //get inputs
-  edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
+  const edm::Handle<edm::PCaloHitContainer>& hits = e.getHandle(hitToken_);
   if (!hits.isValid()) {
     edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
     return;
@@ -384,7 +384,7 @@ void HGCDigitizer::accumulate_forPreMix(PileUpEventPrincipal const& e,
                                         edm::EventSetup const& eventSetup,
                                         CLHEP::HepRandomEngine* hre) {
   edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
+  e.getByLabel(hitTag_, hits);
 
   if (!hits.isValid()) {
     edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
@@ -404,7 +404,7 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e,
                               CLHEP::HepRandomEngine* hre) {
   //get inputs
   edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(edm::InputTag("g4SimHits", hitCollection_), hits);
+  e.getByLabel(hitTag_, hits);
 
   if (!hits.isValid()) {
     edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
