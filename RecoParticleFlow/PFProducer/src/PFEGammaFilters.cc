@@ -35,6 +35,8 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
       useElePFidDNN_(cfg.getParameter<bool>("useElePFidDnn")),
       usePhotonPFidDNN_(cfg.getParameter<bool>("usePhotonPFidDnn")),
       useEBModelInGap_(cfg.getParameter<bool>("useEBModelInGap")),
+      endcapBoundary_(cfg.getParameter<double>("endcapBoundary")),
+      extEtaBoundary_(cfg.getParameter<double>("extEtaBoundary")),
       ele_iso_pt_(cfg.getParameter<double>("electron_iso_pt")),
       ele_iso_mva_eb_(cfg.getParameter<double>("electron_iso_mva_barrel")),
       ele_iso_mva_ee_(cfg.getParameter<double>("electron_iso_mva_endcap")),
@@ -182,7 +184,7 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
     const auto dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
     const auto dnn_bkg = electron.dnn_bkg_nonIsolated();
     const auto etaThreshold = (useEBModelInGap_) ? ecalBarrelMaxEtaWithGap : ecalBarrelMaxEtaNoGap;
-    if (eleEta < 2.5){
+    if (eleEta < endcapBoundary_){
 	if (electronPt > ele_iso_pt_) {
 	    // using the Barrel model for electron in the EB-EE gap
 	    if (eleEta <= etaThreshold) { //high pT barrel
@@ -194,9 +196,9 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
 	    }
 	}
 
-    } else if ((eleEta >= 2.5) && (eleEta <= 2.65)){//First region in extended eta
+    } else if ((eleEta >= endcapBoundary_) && (eleEta <= extEtaBoundary_)){//First region in extended eta
 	passEleSelection = (dnn_sig > ele_dnnExtEta1Thr_) && (dnn_bkg < ele_dnnBkgExtEta1Thr_);
-    } else if (eleEta > 2.65){//Second region in extended eta
+    } else if (eleEta > extEtaBoundary_){//Second region in extended eta
 	passEleSelection = (dnn_sig > ele_dnnExtEta2Thr_) && (dnn_bkg < ele_dnnBkgExtEta2Thr_);
     }
 // TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
@@ -466,17 +468,17 @@ bool PFEGammaFilters::passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron&
     return passCutBased || passMVA;
 }
 
-bool PFEGammaFilters::thisEleIsNotAllowedInPF(const reco::GsfElectron& electron, bool allowEtaExtEleinPF) const {
-  bool returnVal = false;
-  if (!allowEtaExtEleinPF) {
-    const auto nHitGsf = electron.gsfTrack()->numberOfValidHits();
-    const auto absEleEta = std::abs(electron.eta());
-    if ((absEleEta > 2.5) && (nHitGsf < 5)) {
-      returnVal = true;
-    }
-  }
-  return returnVal;
-}
+// bool PFEGammaFilters::thisEleIsNotAllowedInPF(const reco::GsfElectron& electron, bool allowEtaExtEleinPF) const {
+//   bool returnVal = false;
+//   if (!allowEtaExtEleinPF) {
+//     const auto nHitGsf = electron.gsfTrack()->numberOfValidHits();
+//     const auto absEleEta = std::abs(electron.eta());
+//     if ((absEleEta > 2.5) && (nHitGsf < 5)) {
+//       returnVal = true;
+//     }
+//   }
+//   return returnVal;
+// }
 
 void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   // Electron selection cuts
@@ -491,6 +493,8 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
   iDesc.add<bool>("allowEEEinPF", false);
   iDesc.add<bool>("useElePFidDnn", false);
+  iDesc.add<double>("endcapBoundary", 2.5);
+  iDesc.add<double>("extEtaBoundary", 2.65);
   {
     edm::ParameterSetDescription psd;
     psd.add<double>("electronDnnLowPtThr", 0.5);

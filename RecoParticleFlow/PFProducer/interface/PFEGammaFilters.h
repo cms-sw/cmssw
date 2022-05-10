@@ -47,6 +47,8 @@ private:
   const bool useElePFidDNN_;
   const bool usePhotonPFidDNN_;
   const bool useEBModelInGap_;
+  const float endcapBoundary_;
+  const float extEtaBoundary_;
   const float ele_iso_pt_;
   const float ele_iso_mva_eb_;
   const float ele_iso_mva_ee_;

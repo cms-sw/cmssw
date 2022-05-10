@@ -20,16 +20,16 @@ particleFlowTmp.PFEGammaFiltersParameters.electronDnnThresholds = cms.PSet(
             electronDnnHighPtBarrelThr = cms.double(0.068),
             electronDnnHighPtEndcapThr = cms.double(0.056),
             electronDnnLowPtThr = cms.double(0.075), 
-            electronDnnExtEta1Thr = cms.double(0.075), 
-            electronDnnExtEta2Thr = cms.double(0.075) 
+            electronDnnExtEta1Thr = cms.double(0.113604), 
+            electronDnnExtEta2Thr = cms.double(0.118044) 
         )
 # Thresholds for electron: Bkg_nonIsolated
 particleFlowTmp.PFEGammaFiltersParameters.electronDnnBkgThresholds = cms.PSet(
             electronDnnBkgHighPtBarrelThr = cms.double(0.8),
             electronDnnBkgHighPtEndcapThr = cms.double(0.75),
             electronDnnBkgLowPtThr = cms.double(0.75), 
-            electronDnnBkgExtEta1Thr = cms.double(0.75), 
-            electronDnnBkgExtEta2Thr = cms.double(0.75) 
+            electronDnnBkgExtEta1Thr = cms.double(0.7), 
+            electronDnnBkgExtEta2Thr = cms.double(0.85) 
         )
 # Thresholds for photons
 particleFlowTmp.PFEGammaFiltersParameters.photonDnnThresholds = cms.PSet(
