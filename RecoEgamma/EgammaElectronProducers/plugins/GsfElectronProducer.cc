@@ -59,20 +59,20 @@ namespace {
         // get the previous values
         auto& mvaOutput = mva_outputs[jele];
 
-	if (abs(el.superCluster()->eta())<=2.65){
-	    mvaOutput.dnn_e_sigIsolated = values[0];
-	    mvaOutput.dnn_e_sigNonIsolated = values[1];
-	    mvaOutput.dnn_e_bkgNonIsolated = values[2];
-	    mvaOutput.dnn_e_bkgTau = values[3];
-	    mvaOutput.dnn_e_bkgPhoton = values[4];
-	}else{
-	    mvaOutput.dnn_e_sigIsolated = values[0];
-            mvaOutput.dnn_e_sigNonIsolated = 0.0;
-            mvaOutput.dnn_e_bkgNonIsolated = values[1];
-            mvaOutput.dnn_e_bkgTau = 0.0;
-            mvaOutput.dnn_e_bkgPhoton = values[2];
-	}
-	    el.setMvaOutput(mvaOutput);
+        if (abs(el.superCluster()->eta()) <= 2.65) {
+          mvaOutput.dnn_e_sigIsolated = values[0];
+          mvaOutput.dnn_e_sigNonIsolated = values[1];
+          mvaOutput.dnn_e_bkgNonIsolated = values[2];
+          mvaOutput.dnn_e_bkgTau = values[3];
+          mvaOutput.dnn_e_bkgPhoton = values[4];
+        } else {
+          mvaOutput.dnn_e_sigIsolated = values[0];
+          mvaOutput.dnn_e_sigNonIsolated = 0.0;
+          mvaOutput.dnn_e_bkgNonIsolated = values[1];
+          mvaOutput.dnn_e_bkgTau = 0.0;
+          mvaOutput.dnn_e_bkgPhoton = values[2];
+        }
+        el.setMvaOutput(mvaOutput);
         jele++;
       }
     }
@@ -306,18 +306,17 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
         {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_modelDNN.pb",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEB/highpTEB_modelDNN.pb",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEE/highpTEE_modelDNN.pb",
-	 "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/modelDNN.pb",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta2/modelDNN.pb"});
     psd1.add<std::vector<std::string>>(
         "scalersFiles",
         {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_scaler.txt",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEB/highpTEB_scaler.txt",
-	 "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEE/highpTEE_scaler.txt",
-	 "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEE/highpTEE_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/scaler.txt",
          "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta2/scaler.txt"});
-    psd1.add<std::vector<unsigned int>>(
-	"outputDim",//Number of output nodes for the above models
-	{5,5,5,5,3});
+    psd1.add<std::vector<unsigned int>>("outputDim",  //Number of output nodes for the above models
+                                        {5, 5, 5, 5, 3});
 
     psd1.add<bool>("useEBModelInGap", true);
     // preselection parameters
