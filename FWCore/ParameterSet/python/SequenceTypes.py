@@ -1551,7 +1551,7 @@ class _TaskBase(_ConfigureComponent, _Labelable) :
             iFirst = False
             s += item
         if len(taskContents) > 255:
-            return "cms.{}(*[" + s + "])".format(self._taskType())
+            s = "*[" + s + "]"
         return "cms.{}({})".format(self._taskType(),s)
 
     def directDependencies(self,sortByType=True):
@@ -1971,6 +1971,19 @@ if __name__=="__main__":
             s = Sequence(e, ct4)
             p16 = Path(a+b+s+c,ct1)
             self.assertEqual(p16.dumpPython(),"cms.Path(process.a+process.b+cms.Sequence(process.e, cms.ConditionalTask(process.d, process.f))+process.c, cms.ConditionalTask(process.a))\n")
+
+            n = 260
+            mods = []
+            labels = []
+            for i in range(0, n):
+                l = "a{}".format(i)
+                labels.append("process."+l)
+                mods.append(DummyModule(l))
+            labels.sort()
+            task = Task(*mods)
+            self.assertEqual(task.dumpPython(), "cms.Task(*[" + ", ".join(labels) + "])\n")
+            conditionalTask = ConditionalTask(*mods)
+            self.assertEqual(conditionalTask.dumpPython(), "cms.ConditionalTask(*[" + ", ".join(labels) + "])\n")
 
             l = list()
             namesVisitor = DecoratedNodeNameVisitor(l)
