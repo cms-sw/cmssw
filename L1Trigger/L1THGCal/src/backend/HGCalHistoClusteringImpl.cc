@@ -141,7 +141,11 @@ void HGCalHistoClusteringImpl::finalizeClusters(std::vector<l1t::HGCalMulticlust
       //compute shower shapes
       shape_.fillShapes(multicluster, triggerGeometry);
       // fill quality flag
-      multicluster.setHwQual(id_->decision(multicluster));
+      unsigned hwQual = 0;
+      for (unsigned wp = 0; wp < id_->working_points().size(); wp++) {
+        hwQual |= (id_->decision(multicluster, wp) << wp);
+      }
+      multicluster.setHwQual(hwQual);
       // fill H/E
       multicluster.saveHOverE();
 

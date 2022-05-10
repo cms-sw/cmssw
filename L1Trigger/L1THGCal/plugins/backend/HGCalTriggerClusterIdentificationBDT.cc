@@ -33,12 +33,26 @@ public:
     float eta_max_ = 3.;
   };
 
+  class WorkingPoint {
+  public:
+    WorkingPoint(const std::string& name, double wp) : name_(name), wp_(wp) {}
+    ~WorkingPoint() = default;
+
+    const std::string& name() const { return name_; }
+    double working_point() const { return wp_; }
+
+  private:
+    std::string name_;
+    double wp_;
+  };
+
 public:
   HGCalTriggerClusterIdentificationBDT();
   ~HGCalTriggerClusterIdentificationBDT() override{};
   void initialize(const edm::ParameterSet& conf) final;
   float value(const l1t::HGCalMulticluster& cluster) const final;
-  bool decision(const l1t::HGCalMulticluster& cluster) const final;
+  bool decision(const l1t::HGCalMulticluster& cluster, unsigned wp = 0) const final;
+  const std::vector<std::string>& working_points() const final { return working_points_names_; }
 
 private:
   enum class ClusterVariable {
@@ -57,9 +71,10 @@ private:
   };
   std::vector<Category> categories_;
   std::vector<std::unique_ptr<TMVAEvaluator>> bdts_;
-  std::vector<double> working_points_;
+  std::vector<std::vector<WorkingPoint>> working_points_;
   std::vector<std::string> input_variables_;
   std::vector<ClusterVariable> input_variables_id_;
+  std::vector<std::string> working_points_names_;
 
   float clusterVariable(ClusterVariable, const l1t::HGCalMulticluster&) const;
   int category(float pt, float eta) const;
@@ -81,17 +96,32 @@ void HGCalTriggerClusterIdentificationBDT::initialize(const edm::ParameterSet& c
   std::vector<double> categories_etamax = conf.getParameter<std::vector<double>>("CategoriesEtaMax");
   std::vector<double> categories_ptmin = conf.getParameter<std::vector<double>>("CategoriesPtMin");
   std::vector<double> categories_ptmax = conf.getParameter<std::vector<double>>("CategoriesPtMax");
-  working_points_ = conf.getParameter<std::vector<double>>("WorkingPoints");
 
   if (bdt_files.size() != categories_etamin.size() || categories_etamin.size() != categories_etamax.size() ||
-      categories_etamax.size() != categories_ptmin.size() || categories_ptmin.size() != categories_ptmax.size() ||
-      categories_ptmax.size() != working_points_.size()) {
+      categories_etamax.size() != categories_ptmin.size() || categories_ptmin.size() != categories_ptmax.size()) {
     throw cms::Exception("HGCalTriggerClusterIdentificationBDT|BadInitialization")
         << "Inconsistent numbers of categories, BDT weight files and working points";
   }
-  categories_.reserve(working_points_.size());
-  bdts_.reserve(working_points_.size());
-  for (unsigned cat = 0; cat < categories_etamin.size(); cat++) {
+  size_t categories_size = categories_etamin.size();
+
+  const auto wps_conf = conf.getParameter<std::vector<edm::ParameterSet>>("WorkingPoints");
+  working_points_.resize(categories_size);
+  for (const auto& wp_conf : wps_conf) {
+    std::string wp_name = wp_conf.getParameter<std::string>("Name");
+    std::vector<double> wps = wp_conf.getParameter<std::vector<double>>("WorkingPoint");
+    working_points_names_.emplace_back(wp_name);
+    if (wps.size() != categories_size) {
+      throw cms::Exception("HGCalTriggerClusterIdentificationBDT|BadInitialization")
+          << "Inconsistent number of categories in working point '" << wp_name << "'";
+    }
+    for (size_t cat = 0; cat < categories_size; cat++) {
+      working_points_[cat].emplace_back(wp_name, wps[cat]);
+    }
+  }
+
+  categories_.reserve(categories_size);
+  bdts_.reserve(categories_size);
+  for (size_t cat = 0; cat < categories_size; cat++) {
     categories_.emplace_back(
         categories_ptmin[cat], categories_ptmax[cat], categories_etamin[cat], categories_etamax[cat]);
   }
@@ -148,12 +178,12 @@ float HGCalTriggerClusterIdentificationBDT::value(const l1t::HGCalMulticluster& 
   return (cat != -1 ? bdts_.at(cat)->evaluate(inputs) : -999.);
 }
 
-bool HGCalTriggerClusterIdentificationBDT::decision(const l1t::HGCalMulticluster& cluster) const {
+bool HGCalTriggerClusterIdentificationBDT::decision(const l1t::HGCalMulticluster& cluster, unsigned wp) const {
   float bdt_output = value(cluster);
   float pt = cluster.pt();
   float eta = cluster.eta();
   int cat = category(pt, eta);
-  return (cat != -1 ? bdt_output > working_points_.at(cat) : true);
+  return (cat != -1 ? bdt_output > working_points_.at(cat).at(wp).working_point() : true);
 }
 
 int HGCalTriggerClusterIdentificationBDT::category(float pt, float eta) const {
