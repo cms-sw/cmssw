@@ -10,7 +10,7 @@ class SiPixelDigisCUDA {
 public:
   using StoreType = uint16_t;
   SiPixelDigisCUDA() = default;
-  /*inline*/ SiPixelDigisCUDA(size_t maxFedWords, cudaStream_t stream);
+  SiPixelDigisCUDA(size_t maxFedWords, cudaStream_t stream);
   ~SiPixelDigisCUDA() = default;
 
   SiPixelDigisCUDA(const SiPixelDigisCUDA &) = delete;
@@ -40,7 +40,5 @@ private:
   uint32_t nModules_h = 0;
   uint32_t nDigis_h = 0;
 };
-
-// #include "SiPixelDigisCUDAImpl.h"
 
 #endif  // CUDADataFormats_SiPixelDigi_interface_SiPixelDigisCUDA_h

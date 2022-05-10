@@ -36,22 +36,22 @@ public:
 
   TrackingRecHit2DHeterogeneous() = default;
 
-  /*inline*/ TrackingRecHit2DHeterogeneous(uint32_t nHits,
-                                           bool isPhase2,
-                                           int32_t offsetBPIX2,
-                                           pixelCPEforGPU::ParamsOnGPU const* cpeParams,
-                                           uint32_t const* hitsModuleStart,
-                                           memoryPool::Where where,
-                                           cudaStream_t stream,
-                                           TrackingRecHit2DHeterogeneous const* input = nullptr);
+  TrackingRecHit2DHeterogeneous(uint32_t nHits,
+                                bool isPhase2,
+                                int32_t offsetBPIX2,
+                                pixelCPEforGPU::ParamsOnGPU const* cpeParams,
+                                uint32_t const* hitsModuleStart,
+                                memoryPool::Where where,
+                                cudaStream_t stream,
+                                TrackingRecHit2DHeterogeneous const* input = nullptr);
 
   // used on CPU only
-  /*inline*/ TrackingRecHit2DHeterogeneous(float* store32,
-                                           uint16_t* store16,
-                                           uint32_t* modules,
-                                           int nHits,
-                                           memoryPool::Where where = memoryPool::onCPU,
-                                           cudaStream_t stream = nullptr);
+  TrackingRecHit2DHeterogeneous(float* store32,
+                                uint16_t* store16,
+                                uint32_t* modules,
+                                int nHits,
+                                memoryPool::Where where = memoryPool::onCPU,
+                                cudaStream_t stream = nullptr);
   ~TrackingRecHit2DHeterogeneous() = default;
 
   TrackingRecHit2DHeterogeneous(const TrackingRecHit2DHeterogeneous&) = delete;
@@ -72,15 +72,15 @@ public:
   auto phiBinnerStorage() { return m_phiBinnerStorage; }
   auto iphi() { return m_iphi; }
 
-  /*inline*/ Buffer<float> localCoordToHostAsync(cudaStream_t stream) const;
+  Buffer<float> localCoordToHostAsync(cudaStream_t stream) const;
 
-  /*inline*/ Buffer<uint32_t> hitsModuleStartToHostAsync(cudaStream_t stream) const;
+  Buffer<uint32_t> hitsModuleStartToHostAsync(cudaStream_t stream) const;
 
-  /*inline*/ Buffer<uint16_t> store16ToHostAsync(cudaStream_t stream) const;
-  /*inline*/ Buffer<float> store32ToHostAsync(cudaStream_t stream) const;
+  Buffer<uint16_t> store16ToHostAsync(cudaStream_t stream) const;
+  Buffer<float> store32ToHostAsync(cudaStream_t stream) const;
 
   // needed for Host
-  /*inline*/ void copyFromGPU(TrackingRecHit2DHeterogeneous const* input, cudaStream_t stream);
+  void copyFromGPU(TrackingRecHit2DHeterogeneous const* input, cudaStream_t stream);
 
 private:
   static constexpr uint32_t n16 = 4;                 // number of elements in m_store16
