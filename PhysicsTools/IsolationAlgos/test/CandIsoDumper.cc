@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,7 +21,7 @@
 
 using reco::isodeposit::Direction;
 
-class CandIsoDumper : public edm::EDAnalyzer {
+class CandIsoDumper : public edm::one::EDAnalyzer<> {
 public:
   CandIsoDumper(const edm::ParameterSet&);
 
