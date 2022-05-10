@@ -188,8 +188,6 @@ PFECALSuperClusterProducer::PFECALSuperClusterProducer(const edm::ParameterSet& 
   superClusterAlgo_.setSatelliteThreshold(satelliteClusterSeedThreshold);
   superClusterAlgo_.setMajorityFraction(satelliteMajorityFraction);
   superClusterAlgo_.setDropUnseedable(dropUnseedable);
-  //superClusterAlgo_.setThreshPFClusterMustacheOutBarrel( threshPFClusterMustacheOutBarrel );
-  //superClusterAlgo_.setThreshPFClusterMustacheOutEndcap( threshPFClusterMustacheOutEndcap );
 
   //Load the ECAL energy calibration
   thePFEnergyCalibration_ = std::make_shared<PFEnergyCalibration>();
