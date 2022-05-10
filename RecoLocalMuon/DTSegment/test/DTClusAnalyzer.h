@@ -14,7 +14,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 namespace edm {
   class ParameterSet;
   class Event;
@@ -27,6 +27,12 @@ class TFile;
 class TH1F;
 class TH2F;
 
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecClusterCollection.h"
+
 /* C++ Headers */
 #include <iosfwd>
 
@@ -34,7 +40,7 @@ class TH2F;
 
 /* Class DTClusAnalyzer Interface */
 
-class DTClusAnalyzer : public edm::EDAnalyzer {
+class DTClusAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /* Constructor */
   DTClusAnalyzer(const edm::ParameterSet& pset);
@@ -58,6 +64,12 @@ private:
   std::string theRecClusLabel;
   std::string theRecHits2DLabel;
   std::string theRecHits1DLabel;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDtGeomToken;
+
+  edm::EDGetTokenT<DTRecClusterCollection> theRecClusToken;
+  edm::EDGetTokenT<DTRecHitCollection> theRecHits1DToken;
+  edm::EDGetTokenT<DTRecSegment2DCollection> theRecHits2DToken;
 
 protected:
 };
