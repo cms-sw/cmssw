@@ -271,8 +271,7 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
     printFallbackServerLog<edm::LogError>();
     throw cms::Exception("FallbackFailed")
         << "TritonService: Starting the fallback server failed with exit code " << rv;
-  }
-  else if (verbose_)
+  } else if (verbose_)
     edm::LogInfo("TritonService") << output;
   //get the port
   const std::string& portIndicator("CMS_TRITON_GRPC_PORT: ");
@@ -289,7 +288,8 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
 }
 
 void TritonService::postEndJob() {
-  if (!startedFallback_) return;
+  if (!startedFallback_)
+    return;
 
   std::string command = fallbackOpts_.command + " stop";
   if (verbose_)
@@ -301,8 +301,7 @@ void TritonService::postEndJob() {
     printFallbackServerLog<edm::LogError>();
     throw cms::Exception("FallbackFailed")
         << "TritonService: Stopping the fallback server failed with exit code " << rv;
-  }
-  else if (verbose_) {
+  } else if (verbose_) {
     edm::LogInfo("TritonService") << output;
     printFallbackServerLog<edm::LogInfo>();
   }
@@ -310,12 +309,12 @@ void TritonService::postEndJob() {
 
 template <typename LOG>
 void TritonService::printFallbackServerLog() const {
-  std::vector<std::string> logNames{"log_"+fallbackOpts_.instanceName+".log"};
+  std::vector<std::string> logNames{"log_" + fallbackOpts_.instanceName + ".log"};
   //cmsTriton script moves log from temp to current dir in verbose mode or in some cases when auto_stop is called
   // -> check both places
-  logNames.push_back(fallbackOpts_.tempDir+"/"+logNames[0]);
+  logNames.push_back(fallbackOpts_.tempDir + "/" + logNames[0]);
   bool foundLog = false;
-  for (const auto& logName : logNames){
+  for (const auto& logName : logNames) {
     std::ifstream infile(logName);
     if (infile.is_open()) {
       LOG("TritonService") << "TritonService: server log " << logName << "\n" << infile.rdbuf();
@@ -324,7 +323,8 @@ void TritonService::printFallbackServerLog() const {
     }
   }
   if (!foundLog)
-    LOG("TritonService") << "TritonService: could not find server log " << logNames[0] << " in current directory or " << fallbackOpts_.tempDir;
+    LOG("TritonService") << "TritonService: could not find server log " << logNames[0] << " in current directory or "
+                         << fallbackOpts_.tempDir;
 }
 
 void TritonService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
