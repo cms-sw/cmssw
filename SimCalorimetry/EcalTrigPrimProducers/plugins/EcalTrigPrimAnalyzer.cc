@@ -65,7 +65,6 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet &iConfig)
   if (recHits_) {
     hTPvsRechit_ = fs->make<TH2F>("TP_vs_RecHit", "TP vs  rechit", 256, -1, 255, 255, 0, 255);
     hTPoverRechit_ = fs->make<TH1F>("TP_over_RecHit", "TP over rechit", 500, 0, 4);
-    geomToken_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
     endcapGeomToken_ = esConsumes<CaloSubdetectorGeometry, EcalEndcapGeometryRecord>(edm::ESInputTag("", "EcalEndcap"));
     barrelGeomToken_ = esConsumes<CaloSubdetectorGeometry, EcalBarrelGeometryRecord>(edm::ESInputTag("", "EcalBarrel"));
     eTTmapToken_ = esConsumes<EcalTrigTowerConstituentsMap, IdealGeometryRecord>();
@@ -79,9 +78,9 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet &iConfig)
 // ------------ method called to analyze the data  ------------
 void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Get input
-  const edm::Handle<EcalTrigPrimDigiCollection> &tp = iEvent.getHandle(tpToken_);
-  for (unsigned int i = 0; i < tp.product()->size(); i++) {
-    EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
+  const auto &tp = iEvent.get(tpToken_);
+  for (unsigned int i = 0; i < tp.size(); i++) {
+    EcalTriggerPrimitiveDigi d = tp[i];
     int subdet = d.id().subDet() - 1;
     if (subdet == 0) {
       ecal_et_[subdet]->Fill(d.compressedEt());
@@ -99,24 +98,20 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
     return;
 
   // comparison with RecHits
-  const edm::Handle<EcalRecHitCollection> &rechit_EB_col = iEvent.getHandle(ebToken_);
-  const edm::Handle<EcalRecHitCollection> &rechit_EE_col = iEvent.getHandle(eeToken_);
+  const EcalRecHitCollection &rechit_EB_col = iEvent.get(ebToken_);
+  const EcalRecHitCollection &rechit_EE_col = iEvent.get(eeToken_);
 
-  const edm::ESHandle<CaloGeometry> &theGeometry = iSetup.getHandle(geomToken_);
-  const edm::ESHandle<CaloSubdetectorGeometry> &theBarrelGeometry_handle = iSetup.getHandle(barrelGeomToken_);
-  const edm::ESHandle<CaloSubdetectorGeometry> &theEndcapGeometry_handle = iSetup.getHandle(endcapGeomToken_);
-
-  const CaloSubdetectorGeometry *theEndcapGeometry = theEndcapGeometry_handle.product();
-  const CaloSubdetectorGeometry *theBarrelGeometry = theBarrelGeometry_handle.product();
-  const edm::ESHandle<EcalTrigTowerConstituentsMap> &eTTmap_ = iSetup.getHandle(eTTmapToken_);
+  const auto &theEndcapGeometry = iSetup.getData(endcapGeomToken_);
+  const auto &theBarrelGeometry = iSetup.getData(barrelGeomToken_);
+  const auto &eTTmap = iSetup.getData(eTTmapToken_);
 
   std::map<EcalTrigTowerDetId, float> mapTow_Et;
 
-  for (unsigned int i = 0; i < rechit_EB_col.product()->size(); i++) {
-    const EBDetId &myid1 = (*rechit_EB_col.product())[i].id();
+  for (unsigned int i = 0; i < rechit_EB_col.size(); i++) {
+    const EBDetId &myid1 = rechit_EB_col[i].id();
     EcalTrigTowerDetId towid1 = myid1.tower();
-    float theta = theBarrelGeometry->getGeometry(myid1)->getPosition().theta();
-    float Etsum = ((*rechit_EB_col.product())[i].energy()) * sin(theta);
+    float theta = theBarrelGeometry.getGeometry(myid1)->getPosition().theta();
+    float Etsum = rechit_EB_col[i].energy() * sin(theta);
     bool test_alreadyin = false;
     std::map<EcalTrigTowerDetId, float>::iterator ittest = mapTow_Et.find(towid1);
     if (ittest != mapTow_Et.end())
@@ -126,13 +121,13 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
     unsigned int j = i + 1;
     bool loopend = false;
     unsigned int count = 0;
-    while (j < rechit_EB_col.product()->size() && !loopend) {
+    while (j < rechit_EB_col.size() && !loopend) {
       count++;
-      const EBDetId &myid2 = (*rechit_EB_col.product())[j].id();
+      const EBDetId &myid2 = rechit_EB_col[j].id();
       EcalTrigTowerDetId towid2 = myid2.tower();
       if (towid1 == towid2) {
-        float theta = theBarrelGeometry->getGeometry(myid2)->getPosition().theta();
-        Etsum += (*rechit_EB_col.product())[j].energy() * sin(theta);
+        float theta = theBarrelGeometry.getGeometry(myid2)->getPosition().theta();
+        Etsum += rechit_EB_col[j].energy() * sin(theta);
       }
       j++;
       if (count > 1800)
@@ -141,11 +136,11 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
     mapTow_Et.insert(std::pair<EcalTrigTowerDetId, float>(towid1, Etsum));
   }
 
-  for (unsigned int i = 0; i < rechit_EE_col.product()->size(); i++) {
-    const EEDetId &myid1 = (*rechit_EE_col.product())[i].id();
-    EcalTrigTowerDetId towid1 = (*eTTmap_).towerOf(myid1);
-    float theta = theEndcapGeometry->getGeometry(myid1)->getPosition().theta();
-    float Etsum = (*rechit_EE_col.product())[i].energy() * sin(theta);
+  for (unsigned int i = 0; i < rechit_EE_col.size(); i++) {
+    const EEDetId &myid1 = rechit_EE_col[i].id();
+    EcalTrigTowerDetId towid1 = eTTmap.towerOf(myid1);
+    float theta = theEndcapGeometry.getGeometry(myid1)->getPosition().theta();
+    float Etsum = rechit_EE_col[i].energy() * sin(theta);
     bool test_alreadyin = false;
     std::map<EcalTrigTowerDetId, float>::iterator ittest = mapTow_Et.find(towid1);
     if (ittest != mapTow_Et.end())
@@ -155,12 +150,12 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
     unsigned int j = i + 1;
     bool loopend = false;
     unsigned int count = 0;
-    while (j < rechit_EE_col.product()->size() && !loopend) {
-      const EEDetId &myid2 = (*rechit_EE_col.product())[j].id();
-      EcalTrigTowerDetId towid2 = (*eTTmap_).towerOf(myid2);
+    while (j < rechit_EE_col.size() && !loopend) {
+      const EEDetId &myid2 = rechit_EE_col[j].id();
+      EcalTrigTowerDetId towid2 = eTTmap.towerOf(myid2);
       if (towid1 == towid2) {
-        float theta = theEndcapGeometry->getGeometry(myid2)->getPosition().theta();
-        Etsum += (*rechit_EE_col.product())[j].energy() * sin(theta);
+        float theta = theEndcapGeometry.getGeometry(myid2)->getPosition().theta();
+        Etsum += rechit_EE_col[j].energy() * sin(theta);
       }
       //  else loopend=true;
       j++;
@@ -172,8 +167,8 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
   }
 
   EcalTPGScale ecalScale(tokens_, iSetup);
-  for (unsigned int i = 0; i < tp.product()->size(); i++) {
-    EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
+  for (unsigned int i = 0; i < tp.size(); i++) {
+    EcalTriggerPrimitiveDigi d = tp[i];
     const EcalTrigTowerDetId TPtowid = d.id();
     std::map<EcalTrigTowerDetId, float>::iterator it = mapTow_Et.find(TPtowid);
     float Et = ecalScale.getTPGInGeV(d.compressedEt(), TPtowid);

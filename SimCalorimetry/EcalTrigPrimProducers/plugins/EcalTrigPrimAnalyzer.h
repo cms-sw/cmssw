@@ -75,7 +75,6 @@ private:
   const edm::EDGetTokenT<EcalTrigPrimDigiCollection> tpToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> ebToken_;
   const edm::EDGetTokenT<EcalRecHitCollection> eeToken_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
   edm::ESGetToken<CaloSubdetectorGeometry, EcalEndcapGeometryRecord> endcapGeomToken_;
   edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> barrelGeomToken_;
   edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
