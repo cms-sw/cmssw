@@ -67,6 +67,7 @@ TritonService::TritonService(const edm::ParameterSet& pset, edm::ActivityRegistr
   areg.watchPreModuleDestruction(this, &TritonService::preModuleDestruction);
   //fallback server will be launched (if needed) before beginJob
   areg.watchPreBeginJob(this, &TritonService::preBeginJob);
+  areg.watchPostEndJob(this, &TritonService::postEndJob);
 
   //include fallback server in set if enabled
   if (fallbackOpts_.enable) {
@@ -221,28 +222,28 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
     edm::LogInfo("TritonService") << msg;
 
   //assemble server start command
-  std::string command("cmsTriton -P -1 -p " + pid_);
+  fallbackOpts_.command = "cmsTriton -P -1 -p " + pid_;
   if (fallbackOpts_.debug)
-    command += " -c";
+    fallbackOpts_.command += " -c";
   if (fallbackOpts_.verbose)
-    command += " -v";
+    fallbackOpts_.command += " -v";
   if (fallbackOpts_.useDocker)
-    command += " -d";
+    fallbackOpts_.command += " -d";
   if (fallbackOpts_.useGPU)
-    command += " -g";
+    fallbackOpts_.command += " -g";
   if (!fallbackOpts_.instanceName.empty())
-    command += " -n " + fallbackOpts_.instanceName;
+    fallbackOpts_.command += " -n " + fallbackOpts_.instanceName;
   if (fallbackOpts_.retries >= 0)
-    command += " -r " + std::to_string(fallbackOpts_.retries);
+    fallbackOpts_.command += " -r " + std::to_string(fallbackOpts_.retries);
   if (fallbackOpts_.wait >= 0)
-    command += " -w " + std::to_string(fallbackOpts_.wait);
+    fallbackOpts_.command += " -w " + std::to_string(fallbackOpts_.wait);
   for (const auto& [modelName, model] : unservedModels_) {
-    command += " -m " + model.path;
+    fallbackOpts_.command += " -m " + model.path;
   }
   if (!fallbackOpts_.imageName.empty())
-    command += " -i " + fallbackOpts_.imageName;
+    fallbackOpts_.command += " -i " + fallbackOpts_.imageName;
   if (!fallbackOpts_.sandboxName.empty())
-    command += " -s " + fallbackOpts_.sandboxName;
+    fallbackOpts_.command += " -s " + fallbackOpts_.sandboxName;
   //don't need this anymore
   unservedModels_.clear();
 
@@ -253,9 +254,9 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   }
   //special case ".": use script default (temp dir = .$instanceName)
   if (fallbackOpts_.tempDir != ".")
-    command += " -t " + fallbackOpts_.tempDir;
+    fallbackOpts_.command += " -t " + fallbackOpts_.tempDir;
 
-  command += " start";
+  std::string command = fallbackOpts_.command + " start";
 
   if (fallbackOpts_.debug)
     edm::LogInfo("TritonService") << "Fallback server temporary directory: " << fallbackOpts_.tempDir;
@@ -285,6 +286,26 @@ void TritonService::preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::
   } else
     throw cms::Exception("FallbackFailed") << "TritonService: Unknown port for fallback server, log follows:\n"
                                            << output;
+}
+
+void TritonService::postEndJob() {
+  if (!startedFallback_) return;
+
+  std::string command = fallbackOpts_.command + " stop";
+  if (verbose_)
+    edm::LogInfo("TritonService") << command;
+
+  const auto& [output, rv] = execSys(command);
+  if (rv != 0) {
+    edm::LogError("TritonService") << output;
+    printFallbackServerLog<edm::LogError>();
+    throw cms::Exception("FallbackFailed")
+        << "TritonService: Stopping the fallback server failed with exit code " << rv;
+  }
+  else if (verbose_) {
+    edm::LogInfo("TritonService") << output;
+    printFallbackServerLog<edm::LogInfo>();
+  }
 }
 
 template <typename LOG>
