@@ -130,13 +130,13 @@ void go() {
     cudaMallocHost(&hp, 100 * sizeof(void *));
     assert(hp);
 #endif
+    auto &stream = streams[me];
 
     int iter = 0;
     while (true) {
       if (stop)
         break;
       iter++;
-      auto &stream = streams[me];
 
       memoryPool::Deleter devDeleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, where));
       auto n = rgen1(eng);
@@ -197,6 +197,7 @@ void go() {
       }
 #endif
     }
+    cudaStreamSynchronize(stream);
   };
 
   ThreadGroup threads;
