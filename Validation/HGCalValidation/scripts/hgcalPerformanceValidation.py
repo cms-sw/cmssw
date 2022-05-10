@@ -22,9 +22,7 @@ from collections import OrderedDict
 from Validation.RecoTrack.plotting.validation import Sample, Validation
 from Validation.HGCalValidation.hgcalHtml import _sampleName,_pageNameMap,_summary,_summobj,_MatBudSections,_geoPageNameMap,_individualmaterials,_matPageNameMap,_individualmatplots,_individualMatPlotsDesc,_hideShowFun,_allmaterialsplots,_allmaterialsPlotsDesc, _fromvertexplots, _fromVertexPlotsDesc
 
-from RecoHGCal.TICL.iterativeTICL_cff import ticlIterLabelsMerge
-trackstersIters = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMerge]
-trackstersIters.extend(["ticlSimTracksters", "ticlSimTracksters_fromCPs"])
+from Validation.HGCalValidation.PostProcessorHGCAL_cfi import tracksterLabels as trackstersIters
 
 #------------------------------------------------------------------------------------------
 #Parsing input options
@@ -87,7 +85,14 @@ def putype(t):
 #------------------------------------------------------------------------------------------
 #thereleases = { "CMSSW 11_1_X" : ["CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre3","CMSSW_11_1_0_pre2"] }
 thereleases = OrderedDict()
-thereleases = { "CMSSW 12_3_X" : [
+thereleases = { "CMSSW 12_4_X" : [
+    "CMSSW_12_4_0_pre3_DD4HEP_vs_CMSSW_12_4_0_pre3_DDD",
+    "CMSSW_12_4_0_pre3_vs_CMSSW_12_4_0_pre2",
+    "CMSSW_12_4_0_pre2_vs_CMSSW_12_3_0_pre6"
+                ],
+                "CMSSW 12_3_X" : [
+    "CMSSW_12_3_1_vs_CMSSW_12_3_0_pre6",
+    "CMSSW_12_3_0_pre6_vs_CMSSW_12_3_0_pre5",
     "CMSSW_12_3_0_pre5_D88_vs_CMSSW_12_3_0_pre5_D77",
     "CMSSW_12_3_0_pre5_D77_vs_CMSSW_12_3_0_pre3_D77",
     "CMSSW_12_3_0_pre4_vs_CMSSW_12_3_0_pre3",
@@ -171,9 +176,9 @@ geometryTests = { "Material budget" : [
 
 GeoScenario = "Extended2026D77_vs_Extended2026D88"
 
-RefRelease='CMSSW_12_3_0_pre5'
+RefRelease='CMSSW_12_3_0_pre6'
 
-NewRelease='CMSSW_12_3_0_pre5'
+NewRelease='CMSSW_12_3_1'
 
 NotNormalRelease = "normal"
 NotNormalRefRelease = "normal"
@@ -190,11 +195,15 @@ if "raw" in NotNormalRelease:
     #   appendglobaltag = "_2026D49noPU_gcc900"
     #appendglobaltag = "_2026D77noPU"
     appendglobaltag = "_2026D88noPU"
+    #appendglobaltag = "_2026D88noPU_DDD"
+    #appendglobaltag = "_2026D88noPU_DD4HEP"
 else: 
     #   appendglobaltag = "_2026D49noPU"
     #appendglobaltag = "_2026D76noPU"
     #appendglobaltag = "_2026D77noPU"
     appendglobaltag = "_2026D88noPU"
+    #appendglobaltag = "_2026D88noPU_DDD"
+    #appendglobaltag = "_2026D88noPU_DD4HEP"
 
 #Until the final list of RelVals settles down the following sample list is under constant review
 '''
@@ -468,8 +477,8 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
             #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
             cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_raw1100","_raw1100_rsb") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "normal" in NotNormalRelease and "normal" in NotNormalRefRelease:
-            #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
-            cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("2026D88noPU-v1","2026D77noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("2026D88noPU_DD4HEP-v1","2026D88noPU_DDD-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         else: 
             #print inputpathRef, infi.filename(RefRelease).replace("D49","D41")
             #YOU SHOULD INSPECT EACH TIME THIS COMMAND AND THE REPLACE

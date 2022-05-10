@@ -7,8 +7,8 @@ tracksterLabels = ['ticlTracksters'+iteration for iteration in ticlIterLabelsMer
 tracksterLabels.extend(['ticlSimTracksters', 'ticlSimTracksters_fromCPs'])
 
 prefix = 'HGCAL/HGCalValidator/'
-maxlayerzm =  50# last layer of BH -z
-maxlayerzp =  100# last layer of BH +z
+maxlayerzm = hgcalValidator.totallayers_to_monitor.value()# last layer of BH -z
+maxlayerzp = 2 * hgcalValidator.totallayers_to_monitor.value()# last layer of BH +z
 
 #hgcalLayerClusters
 eff_layers = ["effic_eta_layer{:02d} 'LayerCluster Efficiency vs #eta Layer{:02d} in z-' Num_CaloParticle_Eta_perlayer{:02d} Denom_CaloParticle_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) if (i<maxlayerzm) else "effic_eta_layer{:02d} 'LayerCluster Efficiency vs #eta Layer{:02d} in z+' Num_CaloParticle_Eta_perlayer{:02d} Denom_CaloParticle_Eta_perlayer{:02d}".format(i, i%maxlayerzm+1, i, i) for i in range(maxlayerzp) ]
