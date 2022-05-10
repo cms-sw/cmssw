@@ -9,29 +9,29 @@
 
 using namespace std::placeholders;
 
-inline uint electronModelSelector(const std::map<std::string, float>& vars, float ptThr, float etaThr, float endcapBoundary, float extEtaBoundary) {
+inline uint electronModelSelector(
+    const std::map<std::string, float>& vars, float ptThr, float etaThr, float endcapBoundary, float extEtaBoundary) {
   /* 
   Selection of the model to be applied on the electron based on pt/eta cuts or whatever selection
   */
   const auto pt = vars.at("pt");
   const auto absEta = std::abs(vars.at("eta"));
-  if(absEta<=endcapBoundary){
-      if (pt < ptThr)
-	  return 0;
-      else {
-	  if (absEta <= etaThr) {
-	      return 1;
-	  } else {
-	      return 2;
-	  }
+  if (absEta <= endcapBoundary) {
+    if (pt < ptThr)
+      return 0;
+    else {
+      if (absEta <= etaThr) {
+        return 1;
+      } else {
+        return 2;
       }
+    }
   } else {
-      if (absEta < extEtaBoundary)
-	  return 3;
-      else{
-      	  return 4;
-      }
-      
+    if (absEta < extEtaBoundary)
+      return 3;
+    else {
+      return 4;
+    }
   }
 }
 
@@ -42,8 +42,8 @@ ElectronDNNEstimator::ElectronDNNEstimator(const egammaTools::DNNConfiguration& 
                            ElectronDNNEstimator::ptThreshold,
                            (useEBModelInGap) ? ElectronDNNEstimator::ecalBarrelMaxEtaWithGap
                                              : ElectronDNNEstimator::ecalBarrelMaxEtaNoGap,
-			   ElectronDNNEstimator::endcapBoundary,
-			   ElectronDNNEstimator::extEtaBoundary),
+                           ElectronDNNEstimator::endcapBoundary,
+                           ElectronDNNEstimator::extEtaBoundary),
                  ElectronDNNEstimator::dnnAvaibleInputs),
       useEBModelInGap_(useEBModelInGap) {}
 

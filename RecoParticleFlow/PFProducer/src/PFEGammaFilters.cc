@@ -184,25 +184,25 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
     const auto dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
     const auto dnn_bkg = electron.dnn_bkg_nonIsolated();
     const auto etaThreshold = (useEBModelInGap_) ? ecalBarrelMaxEtaWithGap : ecalBarrelMaxEtaNoGap;
-    if (eleEta < endcapBoundary_){
-	if (electronPt > ele_iso_pt_) {
-	    // using the Barrel model for electron in the EB-EE gap
-	    if (eleEta <= etaThreshold) { //high pT barrel
-		passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
-	    } else if (eleEta > etaThreshold) { //high pT endcap (eleEta < 2.5)
-		passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
-	    } else {  // pt < ele_iso_pt_ (eleEta < 2.5)
-		passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
-	    }
-	}
+    if (eleEta < endcapBoundary_) {
+      if (electronPt > ele_iso_pt_) {
+        // using the Barrel model for electron in the EB-EE gap
+        if (eleEta <= etaThreshold) {  //high pT barrel
+          passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
+        } else if (eleEta > etaThreshold) {  //high pT endcap (eleEta < 2.5)
+          passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
+        } else {  // pt < ele_iso_pt_ (eleEta < 2.5)
+          passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
+        }
+      }
 
-    } else if ((eleEta >= endcapBoundary_) && (eleEta <= extEtaBoundary_)){//First region in extended eta
-	passEleSelection = (dnn_sig > ele_dnnExtEta1Thr_) && (dnn_bkg < ele_dnnBkgExtEta1Thr_);
-    } else if (eleEta > extEtaBoundary_){//Second region in extended eta
-	passEleSelection = (dnn_sig > ele_dnnExtEta2Thr_) && (dnn_bkg < ele_dnnBkgExtEta2Thr_);
+    } else if ((eleEta >= endcapBoundary_) && (eleEta <= extEtaBoundary_)) {  //First region in extended eta
+      passEleSelection = (dnn_sig > ele_dnnExtEta1Thr_) && (dnn_bkg < ele_dnnBkgExtEta1Thr_);
+    } else if (eleEta > extEtaBoundary_) {  //Second region in extended eta
+      passEleSelection = (dnn_sig > ele_dnnExtEta2Thr_) && (dnn_bkg < ele_dnnBkgExtEta2Thr_);
     }
-// TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
-// To be understood if they are needed
+    // TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
+    // To be understood if they are needed
   } else {  // Use legacy MVA for ele pfID < CMSSW_12_1
     if (electronPt > ele_iso_pt_) {
       double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();

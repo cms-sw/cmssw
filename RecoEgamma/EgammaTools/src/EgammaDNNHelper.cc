@@ -155,7 +155,7 @@ std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std:
   // Define the output and run
   std::vector<std::pair<int, std::vector<float>>> outputs;
   // Run all the models
-  for (size_t m = 0; m < nModels_; m++) {  
+  for (size_t m = 0; m < nModels_; m++) {
     if (counts[m] == 0)
       continue;  //Skip model witout inputs
     std::vector<tensorflow::Tensor> output;
@@ -164,14 +164,14 @@ std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std:
     // Get the output and save the ElectronDNNEstimator::outputDim numbers along with the ele index
     const auto& r = output[0].tensor<float, 2>();
     // Iterate on the list of elements in the batch --> many electrons
-    LogDebug("EgammaDNNHelper") << "Model "<<m<<" has "<< cfg_.outputDim[m] <<" nodes!";
+    LogDebug("EgammaDNNHelper") << "Model " << m << " has " << cfg_.outputDim[m] << " nodes!";
     for (uint b = 0; b < counts[m]; b++) {
-	//auto outputDim=cfg_.outputDim;
-	std::vector<float> result(cfg_.outputDim[m]);
-	for (size_t k = 0; k < cfg_.outputDim[m]; k++){
-	    result[k] = r(b, k);
-	    LogDebug("EgammaDNNHelper") << "For Object "<< b+1 <<" : Node "<<k+1<<" score = "<<r(b, k);
-	}
+      //auto outputDim=cfg_.outputDim;
+      std::vector<float> result(cfg_.outputDim[m]);
+      for (size_t k = 0; k < cfg_.outputDim[m]; k++) {
+        result[k] = r(b, k);
+        LogDebug("EgammaDNNHelper") << "For Object " << b + 1 << " : Node " << k + 1 << " score = " << r(b, k);
+      }
       // Get the original index of the electorn in the original order
       const auto cand_index = indexMap[m][b];
       outputs.push_back(std::make_pair(cand_index, result));
