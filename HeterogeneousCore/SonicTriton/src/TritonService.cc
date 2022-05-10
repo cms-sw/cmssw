@@ -310,15 +310,21 @@ void TritonService::postEndJob() {
 
 template <typename LOG>
 void TritonService::printFallbackServerLog() const {
-  std::string logName("log_"+fallbackOpts_.instanceName+".log");
-  //cmsTriton script moves log from temp to current dir in verbose mode
-  if (!fallbackOpts_.verbose)
-    logName = fallbackOpts_.tempDir+"/"+logName;
-  std::ifstream infile(logName);
-  if (infile.is_open())
-    LOG("TritonService") << "TritonService: server log " << logName << "\n" << infile.rdbuf();
-  else
-    LOG("TritonService") << "TritonService: could not find server log " << logName;
+  std::vector<std::string> logNames{"log_"+fallbackOpts_.instanceName+".log"};
+  //cmsTriton script moves log from temp to current dir in verbose mode or in some cases when auto_stop is called
+  // -> check both places
+  logNames.push_back(fallbackOpts_.tempDir+"/"+logNames[0]);
+  bool foundLog = false;
+  for (const auto& logName : logNames){
+    std::ifstream infile(logName);
+    if (infile.is_open()) {
+      LOG("TritonService") << "TritonService: server log " << logName << "\n" << infile.rdbuf();
+      foundLog = true;
+      break;
+    }
+  }
+  if (!foundLog)
+    LOG("TritonService") << "TritonService: could not find server log " << logNames[0] << " in current directory or " << fallbackOpts_.tempDir;
 }
 
 void TritonService::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
