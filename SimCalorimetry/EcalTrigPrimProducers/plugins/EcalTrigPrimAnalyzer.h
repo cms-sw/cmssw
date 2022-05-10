@@ -80,5 +80,4 @@ private:
   edm::ESGetToken<CaloSubdetectorGeometry, EcalBarrelGeometryRecord> barrelGeomToken_;
   edm::ESGetToken<EcalTrigTowerConstituentsMap, IdealGeometryRecord> eTTmapToken_;
   EcalTPGScale::Tokens tokens_;
-
 };
