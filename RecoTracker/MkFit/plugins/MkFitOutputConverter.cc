@@ -84,7 +84,7 @@ private:
                                              const TkClonerImpl& hitCloner,
                                              const std::vector<const DetLayer*>& detLayers,
                                              const mkfit::TrackVec& mkFitSeeds,
-                                             const reco::BeamSpot& bs,
+                                             const reco::BeamSpot* bs,
                                              const reco::VertexCollection* vertices,
                                              const tensorflow::Session* session) const;
 
@@ -103,7 +103,7 @@ private:
 
   std::vector<float> computeDNNs(TrackCandidateCollection const& tkCC,
                                  const std::vector<TrajectoryStateOnSurface>& states,
-                                 const reco::BeamSpot& bs,
+                                 const reco::BeamSpot* bs,
                                  const reco::VertexCollection* vertices,
                                  const tensorflow::Session* session,
                                  const std::vector<float>& chi2,
@@ -169,7 +169,8 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
           TString(iConfig.getParameter<edm::InputTag>("seeds").label()).ReplaceAll("Seeds", "").Data())},
       algoCandSelection_{bool(iConfig.getParameter<bool>("candMVASel"))},
       algoCandWorkingPoint_{float(iConfig.getParameter<double>("candWP"))},
-      bsToken_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
+      bsToken_(algoCandSelection_ ? consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))
+                                  : edm::EDGetTokenT<reco::BeamSpot>()),
       verticesToken_(algoCandSelection_ ? consumes<reco::VertexCollection>(edm::InputTag("firstStepPrimaryVertices"))
                                         : edm::EDGetTokenT<reco::VertexCollection>()),
       tfDnnLabel_(iConfig.getParameter<std::string>("tfDnnLabel")),
@@ -216,19 +217,22 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
   }
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
 
-  edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByToken(bsToken_, bsHandle);
-  const reco::BeamSpot& beamspot = *bsHandle.product();
-
   // primary vertices under the algo_ because in initialStepPreSplitting there are no firstStepPrimaryVertices
+  // beamspot as well since the producer can be used in hlt
   const reco::VertexCollection* vertices = nullptr;
+  const reco::BeamSpot* beamspot = nullptr;
   if (algoCandSelection_) {
     edm::Handle<reco::VertexCollection> hVtx;
     iEvent.getByToken(verticesToken_, hVtx);
     vertices = hVtx.product();
+    edm::Handle<reco::BeamSpot> hBs;
+    iEvent.getByToken(bsToken_, hBs);
+    beamspot = hBs.product();
   }
 
-  const tensorflow::Session* session = iSetup.getData(tfDnnToken_).getSession();
+  const tensorflow::Session* session = nullptr;
+  if (algoCandSelection_)
+    session = iSetup.getData(tfDnnToken_).getSession();
 
   // Convert mkfit presentation back to CMSSW
   iEvent.emplace(putTrackCandidateToken_,
@@ -262,7 +266,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
                                                                  const TkClonerImpl& hitCloner,
                                                                  const std::vector<const DetLayer*>& detLayers,
                                                                  const mkfit::TrackVec& mkFitSeeds,
-                                                                 const reco::BeamSpot& bs,
+                                                                 const reco::BeamSpot* bs,
                                                                  const reco::VertexCollection* vertices,
                                                                  const tensorflow::Session* session) const {
   TrackCandidateCollection output;
@@ -598,7 +602,7 @@ std::pair<TrajectoryStateOnSurface, const GeomDet*> MkFitOutputConverter::conver
 
 std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection const& tkCC,
                                                      const std::vector<TrajectoryStateOnSurface>& states,
-                                                     const reco::BeamSpot& bs,
+                                                     const reco::BeamSpot* bs,
                                                      const reco::VertexCollection* vertices,
                                                      const tensorflow::Session* session,
                                                      const std::vector<float>& chi2,
@@ -629,7 +633,7 @@ std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection co
         state.rescaleError(1 / 100.f);
 
       TrajectoryStateClosestToBeamLine tsAtClosestApproachTrackCand =
-          tscblBuilder(*state.freeState(), bs);  //as in TrackProducerAlgorithm
+          tscblBuilder(*state.freeState(), *bs);  //as in TrackProducerAlgorithm
 
       if (!(tsAtClosestApproachTrackCand.isValid())) {
         edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
@@ -682,8 +686,8 @@ std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection co
       input1.matrix<float>()(nt, 9) = trk.ptError();
       input1.matrix<float>()(nt, 10) = dxy_zmin;
       input1.matrix<float>()(nt, 11) = dzmin;
-      input1.matrix<float>()(nt, 12) = trk.dxy(bs.position());
-      input1.matrix<float>()(nt, 13) = trk.dz(bs.position());
+      input1.matrix<float>()(nt, 12) = trk.dxy(bs->position());
+      input1.matrix<float>()(nt, 13) = trk.dz(bs->position());
       input1.matrix<float>()(nt, 14) = trk.dxyError();
       input1.matrix<float>()(nt, 15) = trk.dzError();
       input1.matrix<float>()(nt, 16) = chi2[itrack] / ndof;
