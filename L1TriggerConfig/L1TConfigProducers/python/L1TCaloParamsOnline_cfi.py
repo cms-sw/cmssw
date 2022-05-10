@@ -17,7 +17,7 @@ l1caloparProtodb = cms.ESSource("PoolDBESSource",
 
 L1TCaloParamsOnlineProd = cms.ESProducer("L1TCaloParamsOnlineProd",
     onlineAuthentication = cms.string('.'),
-    forceGeneration      = cms.bool(False),
+    forceGeneration      = cms.bool(True),
     onlineDB             = cms.string('oracle://CMS_OMDS_LB/CMS_TRG_R'),
     exclusiveLayer       = cms.uint32(0), # process both layers by default
     transactionSafe      = cms.bool(True) # nothrow guarantee if set to False: carry on no matter what
