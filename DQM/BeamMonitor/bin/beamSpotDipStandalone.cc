@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <cmath>
+#include <cstring>
 #include <ctime>
 #include <sys/stat.h>
 #include <bitset>
@@ -83,15 +84,15 @@ float Centroid[3];
 float Tilt[2];
 
 //
-const bool verbose = true;
-const bool testing = false;
+bool verbose = false;
+bool testing = false;
 
 const string subjectCMS = "dip/CMS/Tracker/BeamSpot";
 const string subjectLHC = "dip/CMS/LHC/LuminousRegion";
 const string subjectPV = "dip/CMS/Tracker/PrimaryVertices";
 
-const string sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsForDIP.txt";
-const string sourceFile1 = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsOld_TkStatus.txt";
+string sourceFile = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsForDIP.txt";
+string sourceFile1 = "/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsOld_TkStatus.txt";
 
 const int timeoutLS[2] = {1, 2};
 
@@ -657,7 +658,15 @@ void endServer() {
 }
 
 /*****************************************************************************/
-int main() {
+int main(int narg, char* args[]) {
+  // options
+  verbose = strcmp(args[1], "true");
+  testing = strcmp(args[2], "true");
+
+  sourceFile = args[3];
+  sourceFile1 = args[4];
+
+  //
   startTime = getDateTime();
   endTime = getDateTime();
 
