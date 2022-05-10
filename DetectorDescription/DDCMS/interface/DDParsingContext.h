@@ -13,8 +13,8 @@ namespace cms {
 
   class DDParsingContext {
   public:
-    DDParsingContext(dd4hep::Detector& det, bool makePayloadArg = false)
-        : makePayload(makePayloadArg), description(det) {
+    DDParsingContext(dd4hep::Detector& det, bool makePayloadArg = false, bool validateArg = false)
+        : makePayload(makePayloadArg), validate(validateArg), description(det) {
       assemblies.reserve(100);
       assemblySolids.reserve(100);
       rotations.reserve(3000);
@@ -72,6 +72,7 @@ namespace cms {
     bool debug_algorithms = false;
     bool debug_specpars = false;
     bool makePayload = false;
+    bool validate = false;
 
     dd4hep::Detector& description;
 
