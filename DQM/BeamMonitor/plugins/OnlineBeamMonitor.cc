@@ -138,8 +138,8 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   ESHandle<BeamSpotOnlineObjects> bsHLTHandle;
   ESHandle<BeamSpotOnlineObjects> bsLegacyHandle;
   ESHandle<BeamSpotObjects> bsTransientHandle;
-  int lastLumiHLT_ = 0;
-  int lastLumiLegacy_ = 0;
+  //int lastLumiHLT_ = 0;
+  //int lastLumiLegacy_ = 0;
   std::string startTimeStamp_ = "0";
   std::string startTimeStampHLT_ = "0";
   std::string startTimeStampLegacy_ = "0";
@@ -153,7 +153,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   if (auto bsHLTHandle = iSetup.getHandle(bsHLTToken_)) {
     auto const& spotDB = *bsHLTHandle;
 
-    lastLumiHLT_ = spotDB.lastAnalyzedLumi();
+    //lastLumiHLT_ = spotDB.lastAnalyzedLumi();
     startTimeStampHLT_ = spotDB.startTime();
     stopTimeStampHLT_ = spotDB.endTime();
     lumiRangeHLT_ = spotDB.lumiRange();
@@ -193,7 +193,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
 
-    lastLumiLegacy_ = spotDB.lastAnalyzedLumi();
+    //lastLumiLegacy_ = spotDB.lastAnalyzedLumi();
     startTimeStampLegacy_ = spotDB.startTime();
     stopTimeStampLegacy_ = spotDB.endTime();
     lumiRangeLegacy_ = spotDB.lumiRange();
@@ -265,19 +265,19 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
         sprintf(index, "%s%i", "_Run", frun);
         tmpname.insert(outputDIPTxt_.length() - 4, index);
       }
-      int lastLumiAnalyzed_ = iLumi.id().luminosityBlock();
+      //int lastLumiAnalyzed_ = iLumi.id().luminosityBlock();
 
       if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
         if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() &&
             beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0()) {
-          lastLumiAnalyzed_ = lastLumiHLT_;
+	  // lastLumiAnalyzed_ = lastLumiHLT_;
           startTimeStamp_ = startTimeStampHLT_;
           stopTimeStamp_ = stopTimeStampHLT_;
           lumiRange_ = lumiRangeHLT_;
 
         } else if (beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() &&
                    beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0()) {
-          lastLumiAnalyzed_ = lastLumiLegacy_;
+          //lastLumiAnalyzed_ = lastLumiLegacy_;
           startTimeStamp_ = startTimeStampLegacy_;
           stopTimeStamp_ = stopTimeStampLegacy_;
           lumiRange_ = lumiRangeLegacy_;
@@ -289,7 +289,8 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
       outFile << "Runnumber " << frun << " bx " << 0 << std::endl;
       outFile << "BeginTimeOfFit " << startTimeStamp_ << " " << 0 << std::endl;
       outFile << "EndTimeOfFit " << stopTimeStamp_ << " " << 0 << std::endl;
-      outFile << "LumiRange " << lumiRange_ << " - " << lastLumiAnalyzed_ << std::endl;
+      //outFile << "LumiRange " << lumiRange_ << " - " << lastLumiAnalyzed_ << std::endl;
+      outFile << "LumiRange " << lumiRange_  << std::endl;
       outFile << "Type " << aSpot->type() << std::endl;
       outFile << "X0 " << aSpot->x0() << std::endl;
       outFile << "Y0 " << aSpot->y0() << std::endl;
