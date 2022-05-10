@@ -449,6 +449,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
         output, states, bs, vertices, session, chi2, mkFitOutput.propagatedToFirstLayer() && doErrorRescale_);
 
     TrackCandidateCollection reducedOutput;
+    reducedOutput.reserve(output.size());
     int scoreIndex = 0;
     for (const auto& score : dnnScores) {
       if (score > algoCandWorkingPoint_)
