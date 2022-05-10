@@ -270,7 +270,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
       if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
         if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() &&
             beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0()) {
-	  // lastLumiAnalyzed_ = lastLumiHLT_;
+          // lastLumiAnalyzed_ = lastLumiHLT_;
           startTimeStamp_ = startTimeStampHLT_;
           stopTimeStamp_ = stopTimeStampHLT_;
           lumiRange_ = lumiRangeHLT_;
@@ -290,7 +290,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
       outFile << "BeginTimeOfFit " << startTimeStamp_ << " " << 0 << std::endl;
       outFile << "EndTimeOfFit " << stopTimeStamp_ << " " << 0 << std::endl;
       //outFile << "LumiRange " << lumiRange_ << " - " << lastLumiAnalyzed_ << std::endl;
-      outFile << "LumiRange " << lumiRange_  << std::endl;
+      outFile << "LumiRange " << lumiRange_ << std::endl;
       outFile << "Type " << aSpot->type() << std::endl;
       outFile << "X0 " << aSpot->x0() << std::endl;
       outFile << "Y0 " << aSpot->y0() << std::endl;
