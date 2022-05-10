@@ -1,12 +1,21 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALMustache_cfi import particleFlowSuperClusterECALMustache as _particleFlowSuperClusterECALMustache
-from RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECALDeepSC_cfi import particleFlowSuperClusterECALDeepSC as _particleFlowSuperClusterECALDeepSC
 # define the default ECAL clustering (Mustache or Box or DeepSC)
 particleFlowSuperClusterECAL = _particleFlowSuperClusterECALMustache.clone()
 
 from Configuration.ProcessModifiers.ecal_deepsc_cff import ecal_deepsc
-ecal_deepsc.toReplaceWith(particleFlowSuperClusterECAL, _particleFlowSuperClusterECALDeepSC.clone())
+_particleFlowSuperClusterECALDeepSC = _particleFlowSuperClusterECALMustache.clone()
+_particleFlowSuperClusterECALDeepSC.ClusteringType = "DeepSC"
+_particleFlowSuperClusterECALDeepSC.deepSuperClusterConfig = cms.PSet(
+        modelFile = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/model.pb"),
+        configFileClusterFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/config_clusters_inputs.txt"),
+        configFileWindowFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/config_window_inputs.txt"),
+        configFileHitsFeatures = cms.string("RecoEcal/EgammaClusterProducers/data/DeepSCModels/EOY_2018/config_hits_inputs.txt"),
+        collectionStrategy = cms.string("Cascade")
+    )
+
+ecal_deepsc.toReplaceWith(particleFlowSuperClusterECAL, _particleFlowSuperClusterECALDeepSC)
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(particleFlowSuperClusterECAL, useDynamicDPhiWindow = False,

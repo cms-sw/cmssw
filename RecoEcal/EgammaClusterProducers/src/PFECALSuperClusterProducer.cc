@@ -385,7 +385,7 @@ void PFECALSuperClusterProducer::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<std::string>("PFSuperClusterCollectionEndcapWithPreshower",
                         "particleFlowSuperClusterECALEndcapWithPreshower");
   desc.add<bool>("dropUnseedable", false);
-  
+
   edm::ParameterSetDescription deepSCParams;
   deepSCParams.add<std::string>("modelFile", "");
   deepSCParams.add<std::string>("configFileClusterFeatures", "");

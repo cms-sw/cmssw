@@ -14,7 +14,7 @@ namespace reco {
       auto clustering_type = conf.getParameter<std::string>("ClusteringType");
 
       if (clustering_type == "DeepSC") {
-        const auto& pset_dnn = conf.getParameter<edm::ParameterSet>("deepSuperClusterGraphConfig");
+        const auto& pset_dnn = conf.getParameter<edm::ParameterSet>("deepSuperClusterConfig");
         config.modelFile = pset_dnn.getParameter<std::string>("modelFile");
         config.configFileClusterFeatures = pset_dnn.getParameter<std::string>("configFileClusterFeatures");
         config.configFileWindowFeatures = pset_dnn.getParameter<std::string>("configFileWindowFeatures");
