@@ -19,7 +19,11 @@ public:
   }
 
   //destroy client before destructor called to unregister any shared memory before TritonService shuts down fallback server
-  void endJob() override { this->client_.reset(); }
+  virtual void tritonEndJob() {}
+  void endJob() final {
+    tritonEndJob();
+    this->client_.reset();
+  }
 };
 
 #endif
