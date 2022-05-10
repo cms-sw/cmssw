@@ -20,6 +20,8 @@ from Validation.HGCalValidation.HGCalValidator_cfi import hgcalValidator
 from Validation.HGCalValidation.PostProcessorHGCAL_cfi import lcToCP_linking, simDict, tsToCP_linking, tsToSTS_patternRec, variables
 
 hgcVal_dqm = "DQMData/Run 1/HGCAL/Run summary/HGCalValidator/"
+#The number of layers per endcap in the current default geometry scenario. 
+geometryscenario = 47
 
 #To be able to spot any issues both in -z and +z a layer id was introduced
 #that spans from 0 to 103 for hgcal_v9 geometry. The mapping for hgcal_v9 is:
@@ -68,8 +70,20 @@ print(layerscheme)
 #For V9:
 #layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 52, 'lastLayerEEzp': 80, 'lastLayerFHzp': 92, 'maxlayerzp': 104 }
 #For V10:
-'''
 layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 50, 'lastLayerEEzp': 78, 'lastLayerFHzp': 90, 'maxlayerzp': 100 }
+#For V16
+layerscheme = { 'lastLayerEEzm': 26, 'lastLayerFHzm': 37, 'maxlayerzm': 47, 'lastLayerEEzp': 73, 'lastLayerFHzp': 84, 'maxlayerzp': 94 }
+'''
+#print(layerscheme)
+
+layerscheme = {}
+
+if geometryscenario == 52:
+   layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 52, 'lastLayerEEzp': 80, 'lastLayerFHzp': 92, 'maxlayerzp': 104 }
+elif geometryscenario == 50:
+   layerscheme = { 'lastLayerEEzm': 28, 'lastLayerFHzm': 40, 'maxlayerzm': 50, 'lastLayerEEzp': 78, 'lastLayerFHzp': 90, 'maxlayerzp': 100 }
+elif geometryscenario == 47:
+   layerscheme = { 'lastLayerEEzm': 26, 'lastLayerFHzm': 37, 'maxlayerzm': 47, 'lastLayerEEzp': 73, 'lastLayerFHzp': 84, 'maxlayerzp': 94 }
 #print(layerscheme)
 
 lastLayerEEzm = layerscheme['lastLayerEEzm']  # last layer of EE -z
@@ -1254,7 +1268,7 @@ _cell_association_table_zplus = PlotGroup("cellAssociation_table", [
         ], ncols=8 )
 
 
-_bin_count = 50
+_bin_count = maxlayerzm
 _xtitle = "Layer Numbers in z+"
 _common_eff = {"stat": False, "legend": False, "ymin":0.0, "ymax":1.1}
 _effplots_zplus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
@@ -1508,7 +1522,7 @@ _shared_plots2_sc_zplus.extend([Plot("SharedEnergy_layercl2simcluster_vs_phi_per
 _sharedEnergy_layercluster_to_simcluster_zplus = PlotGroup("sharedEnergy_layercluster_to_simcluster_zplus", _shared_plots2_sc_zplus, ncols=8)
 
 
-_bin_count = 50
+_bin_count = maxlayerzm
 _common_eff = {"stat": False, "legend": False}
 _effplots_sc_zplus_eta = [Plot("effic_eta_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
 _effplots_sc_zplus_phi = [Plot("effic_phi_layer{:02d}".format(i), xtitle="", **_common_eff) for i in range(maxlayerzm,maxlayerzp)]
