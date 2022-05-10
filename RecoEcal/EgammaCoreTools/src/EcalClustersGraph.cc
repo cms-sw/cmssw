@@ -3,6 +3,7 @@
 
 using namespace std;
 using namespace reco;
+using namespace reco::DeepSCInputs;
 
 typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
 typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
@@ -56,9 +57,8 @@ EcalClustersGraph::EcalClustersGraph(CalibratedClusterPtrVector clusters,
   LogTrace("EcalClustersGraph") << "EcalClustersGraph created. nSeeds " << nSeeds_ << ", nClusters " << nCls_ << endl;
 }
 
-std::vector<int> EcalClustersGraph::clusterPosition(const CaloCluster* cluster) {
-  std::vector<int> coordinates;
-  coordinates.resize(3);
+std::array<int, 3> EcalClustersGraph::clusterPosition(const CaloCluster* cluster) const {
+  std::array<int, 3> coordinates;
   int ieta = -999;
   int iphi = -999;
   int iz = -99;
@@ -85,11 +85,10 @@ std::vector<int> EcalClustersGraph::clusterPosition(const CaloCluster* cluster) 
   return coordinates;
 }
 
-std::vector<double> EcalClustersGraph::dynamicWindow(double seedEta) {
+std::array<double, 3> EcalClustersGraph::dynamicWindow(double seedEta) const {
   // The dEta-dPhi detector window dimension is chosen to that the algorithm is always larger than
   // the Mustache dimension
-  std::vector<double> window;
-  window.resize(3);
+  std::array<double, 3> window;
 
   double eta = std::abs(seedEta);
   double deta_down = 0.;
@@ -159,41 +158,47 @@ void EcalClustersGraph::initWindows() {
   }
 }
 
-std::vector<std::vector<double>> EcalClustersGraph::fillHits(const CaloCluster* cluster) {
+std::vector<std::vector<float>> EcalClustersGraph::fillHits(const CaloCluster* cluster) const {
   const std::vector<std::pair<DetId, float>>& hitsAndFractions = cluster->hitsAndFractions();
-  std::vector<std::vector<double>> out(hitsAndFractions.size());
+  std::vector<std::vector<float>> out(hitsAndFractions.size());
   if (hitsAndFractions.empty()) {
     edm::LogError("EcalClustersGraph") << "No hits in cluster!!";
   }
+  // Map containing the available features for the rechits
+  DeepSCInputs::FeaturesMap rechitsFeatures;
   for (unsigned int i = 0; i < hitsAndFractions.size(); i++) {
-    std::vector<double> rechit(DeepSCConfiguration::nRechitsFeatures);
+    rechitsFeatures.clear();
     if (hitsAndFractions[i].first.subdetId() == EcalBarrel) {
       double energy = (*recHitsEB_->find(hitsAndFractions[i].first)).energy();
       EBDetId eb_id(hitsAndFractions[i].first);
-      rechit[0] = eb_id.ieta();                         //ieta
-      rechit[1] = eb_id.iphi();                         //iphi
-      rechit[2] = 0.;                                   //iz
-      rechit[3] = energy * hitsAndFractions[i].second;  //energy * fraction
+      rechitsFeatures["ieta"] = eb_id.ieta();                                //ieta
+      rechitsFeatures["iphi"] = eb_id.iphi();                                //iphi
+      rechitsFeatures["iz"] = 0.;                                            //iz
+      rechitsFeatures["en_withfrac"] = energy * hitsAndFractions[i].second;  //energy * fraction
     } else if (hitsAndFractions[i].first.subdetId() == EcalEndcap) {
       double energy = (*recHitsEE_->find(hitsAndFractions[i].first)).energy();
       EEDetId ee_id(hitsAndFractions[i].first);
-      rechit[0] = ee_id.ix();  //ix
-      rechit[1] = ee_id.iy();  //iy
+      rechitsFeatures["ieta"] = ee_id.ix();  //ix
+      rechitsFeatures["iphi"] = ee_id.iy();  //iy
       if (ee_id.zside() < 0)
-        rechit[2] = -1.;  //iz
+        rechitsFeatures["iz"] = -1.;  //iz
       if (ee_id.zside() > 0)
-        rechit[2] = +1.;                                //iz
-      rechit[3] = energy * hitsAndFractions[i].second;  //energy * fraction
+        rechitsFeatures["iz"] = +1.;                                         //iz
+      rechitsFeatures["en_withfrac"] = energy * hitsAndFractions[i].second;  //energy * fraction
     } else {
       edm::LogError("EcalClustersGraph") << "Rechit is not either EB or EE!!";
     }
-    out[i] = rechit;
+    // Use the method in DeepSCGraphEvaluation to get only the requested variables and possible a rescaling
+    // (depends on configuration)
+    out[i] = SCProducerCache_->deepSCEvaluator->getScaledInputs(rechitsFeatures,
+                                                                SCProducerCache_->deepSCEvaluator->inputFeaturesHits);
   }
   return out;
 }
 
-std::vector<double> EcalClustersGraph::computeVariables(const CaloCluster* seed, const CaloCluster* cluster) {
-  std::vector<double> cl_vars(12);  //TODO dynamic configuration
+DeepSCInputs::FeaturesMap EcalClustersGraph::computeVariables(const CaloCluster* seed,
+                                                              const CaloCluster* cluster) const {
+  DeepSCInputs::FeaturesMap clFeatures;
   const auto& clusterLocal = clusterPosition(cluster);
   double cl_energy = cluster->energy();
   double cl_eta = cluster->eta();
@@ -201,57 +206,43 @@ std::vector<double> EcalClustersGraph::computeVariables(const CaloCluster* seed,
   double seed_energy = seed->energy();
   double seed_eta = seed->eta();
   double seed_phi = seed->phi();
-  cl_vars[0] = cl_energy;                                                               //cl_energy
-  cl_vars[1] = cl_energy / std::cosh(cl_eta);                                           //cl_et
-  cl_vars[2] = cl_eta;                                                                  //cl_eta
-  cl_vars[3] = cl_phi;                                                                  //cl_phi
-  cl_vars[4] = clusterLocal[0];                                                         //cl_ieta/ix
-  cl_vars[5] = clusterLocal[1];                                                         //cl_iphi/iy
-  cl_vars[6] = clusterLocal[2];                                                         //cl_iz
-  cl_vars[7] = deltaEta(seed_eta, cl_eta);                                              //cl_dEta
-  cl_vars[8] = deltaPhi(seed_phi, cl_phi);                                              //cl_dPhi
-  cl_vars[9] = seed_energy - cl_energy;                                                 //cl_dEnergy
-  cl_vars[10] = (seed_energy / std::cosh(seed_eta)) - (cl_energy / std::cosh(cl_eta));  //cl_dEt
-  cl_vars[11] = cluster->hitsAndFractions().size();                                     // nxtals
-  return cl_vars;
+  clFeatures["cl_energy"] = cl_energy;                                                                //cl_energy
+  clFeatures["cl_et"] = cl_energy / std::cosh(cl_eta);                                                //cl_et
+  clFeatures["cl_eta"] = cl_eta;                                                                      //cl_eta
+  clFeatures["cl_phi"] = cl_phi;                                                                      //cl_phi
+  clFeatures["cl_ieta"] = clusterLocal[0];                                                            //cl_ieta/ix
+  clFeatures["cl_iphi"] = clusterLocal[1];                                                            //cl_iphi/iy
+  clFeatures["cl_iz"] = clusterLocal[2];                                                              //cl_iz
+  clFeatures["cl_seed_dEta"] = deltaEta(seed_eta, cl_eta);                                            //cl_dEta
+  clFeatures["cl_seed_dPhi"] = deltaPhi(seed_phi, cl_phi);                                            //cl_dPhi
+  clFeatures["cl_seed_dEnergy"] = seed_energy - cl_energy;                                            //cl_dEnergy
+  clFeatures["cl_seed_dEt"] = (seed_energy / std::cosh(seed_eta)) - (cl_energy / std::cosh(cl_eta));  //cl_dEt
+  clFeatures["cl_nxtals"] = cluster->hitsAndFractions().size();                                       // nxtals
+  return clFeatures;
 }
 
-std::vector<double> EcalClustersGraph::computeWindowVariables(const std::vector<std::vector<double>>& clusters) {
+DeepSCInputs::FeaturesMap EcalClustersGraph::computeWindowVariables(
+    const std::vector<DeepSCInputs::FeaturesMap>& clusters) const {
   size_t nCls = clusters.size();
-  size_t nFeatures = clusters[0].size();
-  std::vector<double> min(nFeatures);
-  std::vector<double> max(nFeatures);
-  std::vector<double> sum(nFeatures);
-  for (const auto& vec : clusters) {
-    for (size_t i = 0; i < nFeatures; i++) {
-      const auto& x = vec[i];
-      sum[i] += x;
-      if (x < min[i])
-        min[i] = x;
-      if (x > max[i])
-        max[i] = x;
+  std::map<std::string, float> min;
+  std::map<std::string, float> max;
+  std::map<std::string, float> avg;
+  for (const auto& clFeatures : clusters) {
+    for (auto const& [key, val] : clFeatures) {
+      avg[key] += (val / nCls);
+      if (val < min[key])
+        min[key] = val;
+      if (val > max[key])
+        max[key] = val;
     }
   }
-  std::vector<double> out(18);
-  out[0] = max[0];           // max_en_cluster
-  out[1] = max[1];           // max_et_cluster
-  out[2] = max[7];           // max_deta_cluster
-  out[3] = max[8];           // max_dphi_cluster
-  out[4] = max[9];           // max_den
-  out[5] = max[10];          // max_det
-  out[6] = min[0];           // min_en_cluster
-  out[7] = min[1];           // min_et_cluster
-  out[8] = min[7];           // min_deta
-  out[9] = min[8];           // min_dphi
-  out[10] = min[9];          // min_den
-  out[11] = min[10];         // min_det
-  out[12] = sum[0] / nCls;   // mean_en_cluster
-  out[13] = sum[1] / nCls;   // mean_et_cluster
-  out[14] = sum[7] / nCls;   // mean_deta
-  out[15] = sum[8] / nCls;   // mean_dphi
-  out[16] = sum[9] / nCls;   // mean_den
-  out[17] = sum[10] / nCls;  // mean_det
-  return out;
+  DeepSCInputs::FeaturesMap windFeatures;
+  for (auto const& el : clusters.front()) {
+    windFeatures["max_" + el.first] = max[el.first];
+    windFeatures["min_" + el.first] = min[el.first];
+    windFeatures["avg_" + el.first] = avg[el.first];
+  }
+  return windFeatures;
 }
 
 std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluster* cluster) {
@@ -364,23 +355,43 @@ std::vector<double> EcalClustersGraph::computeShowerShapes(const CaloCluster* cl
 }
 
 void EcalClustersGraph::fillVariables() {
-  LogDebug("EcalClustersGraph") << "Fill variables";
-  //Looping on all the seeds (window)
+  LogDebug("EcalClustersGraph") << "Fill tensorflow input vector";
+  const auto& deepSCEval = SCProducerCache_->deepSCEvaluator;
+  // Reserving the batch dimension
+  inputs_.clustersX.reserve(nSeeds_);
+  inputs_.hitsX.reserve(nSeeds_);
+  inputs_.windowX.reserve(nSeeds_);
+  inputs_.isSeed.reserve(nSeeds_);
+
+  // Looping on all the seeds (window)
   for (uint is = 0; is < nSeeds_; is++) {
     const auto seedPointer = (*clusters_[is]).the_ptr().get();
-    std::vector<std::vector<double>> unscaledClusterFeatures;
+    std::vector<DeepSCInputs::FeaturesMap> unscaledClusterFeatures;
+    const auto& outEdges = graphMap_.getOutEdges(is);
+    size_t ncls = outEdges.size();
+    // Reserve the vector size
+    inputs_.clustersX[is].reserve(ncls);
+    inputs_.hitsX[is].reserve(ncls);
+    inputs_.isSeed[is].reserve(ncls);
+    unscaledClusterFeatures.reserve(ncls);
     // Loop on all the clusters
-    for (const auto ic : graphMap_.getOutEdges(is)) {
+    for (const auto ic : outEdges) {
       LogTrace("EcalClustersGraph") << "seed: " << is << ", out edge --> " << ic;
       const auto clPointer = (*clusters_[ic]).the_ptr().get();
-      const auto& rawClX = computeVariables(seedPointer, clPointer);
-      unscaledClusterFeatures.push_back(rawClX);
-      inputs_.clustersX[is].push_back(SCProducerCache_->deepSCEvaluator->scaleClusterFeatures(rawClX));
+      const auto& clusterFeatures = computeVariables(seedPointer, clPointer);
+      for (const auto& [key, val] : clusterFeatures) {
+        LogTrace("EcalCluster") << key << "=" << val;
+      }
+      unscaledClusterFeatures.push_back(clusterFeatures);
+      // Select and scale only the requested variables for the tensorflow model input
+      inputs_.clustersX[is].push_back(deepSCEval->getScaledInputs(clusterFeatures, deepSCEval->inputFeaturesClusters));
+      // The scaling and feature selection on hits is performed inside the function for each hit
       inputs_.hitsX[is].push_back(fillHits(clPointer));
       inputs_.isSeed[is].push_back(ic == is);
     }
+    // For window we need the unscaled cluster features and then we select them
     inputs_.windowX[is] =
-        SCProducerCache_->deepSCEvaluator->scaleWindowFeatures(computeWindowVariables(unscaledClusterFeatures));
+        deepSCEval->getScaledInputs(computeWindowVariables(unscaledClusterFeatures), deepSCEval->inputFeaturesWindows);
   }
   LogTrace("EcalClustersGraph") << "N. Windows: " << inputs_.clustersX.size();
 }

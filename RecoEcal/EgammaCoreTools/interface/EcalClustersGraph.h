@@ -9,6 +9,7 @@
 */
 
 #include <vector>
+#include <array>
 #include <cmath>
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
@@ -64,22 +65,6 @@ namespace reco {
                       const EcalRecHitCollection* recHitsEE,
                       const reco::SCProducerCache* cache);
 
-    std::vector<int> clusterPosition(const CaloCluster* cluster);
-
-    // Sign flip deltaEta as in the Mustache
-    double deltaEta(double seed_eta, double cluster_eta) { return (1 - 2 * (seed_eta < 0)) * (cluster_eta - seed_eta); }
-
-    // The dEta-dPhi detector window dimension is chosen to that the algorithm is always larger than
-    // the Mustache dimension
-    std::vector<double> dynamicWindow(double seedEta);
-
-    std::vector<double> computeVariables(const CaloCluster* seed, const CaloCluster* cluster);
-    std::vector<std::vector<double>> fillHits(const CaloCluster* cluster);
-    std::vector<double> computeWindowVariables(const std::vector<std::vector<double>>& clusters);
-
-    std::pair<double, double> computeCovariances(const CaloCluster* cluster);
-    std::vector<double> computeShowerShapes(const CaloCluster* cluster, bool full5x5);
-
     void fillVariables();
 
     double scoreThreshold(const CaloCluster* cluster);
@@ -92,6 +77,24 @@ namespace reco {
     EcalGraphOutput getGraphOutput();
 
   private:
+    std::array<int, 3> clusterPosition(const CaloCluster* cluster) const;
+
+    // Sign flip deltaEta as in the Mustache
+    double deltaEta(double seed_eta, double cluster_eta) const {
+      return (1 - 2 * (seed_eta < 0)) * (cluster_eta - seed_eta);
+    }
+
+    // The dEta-dPhi detector window dimension is chosen to that the algorithm is always larger than
+    // the Mustache dimension
+    std::array<double, 3> dynamicWindow(double seedEta) const;
+
+    DeepSCInputs::FeaturesMap computeVariables(const CaloCluster* seed, const CaloCluster* cluster) const;
+    std::vector<std::vector<float>> fillHits(const CaloCluster* cluster) const;
+    DeepSCInputs::FeaturesMap computeWindowVariables(const std::vector<DeepSCInputs::FeaturesMap>& clusters) const;
+
+    std::pair<double, double> computeCovariances(const CaloCluster* cluster);
+    std::vector<double> computeShowerShapes(const CaloCluster* cluster, bool full5x5);
+
     CalibratedClusterPtrVector clusters_;
     uint nSeeds_;
     uint nCls_;
@@ -110,8 +113,10 @@ namespace reco {
     // GraphMap for handling all the windows and scores
     reco::GraphMap graphMap_;
     reco::GraphMap::CollectionStrategy strategy_;
+
+    // Raw input for the tensorflow DeepSCGraphEvaluation object
+    reco::DeepSCInputs::Inputs inputs_;
     float threshold_;
-    reco::DeepSCInputs inputs_;
   };
 
 }  // namespace reco

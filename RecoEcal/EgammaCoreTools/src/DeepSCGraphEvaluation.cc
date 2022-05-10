@@ -6,18 +6,46 @@
 #include <fstream>
 using namespace reco;
 
+const std::vector<std::string> DeepSCGraphEvaluation::availableClusterInputs = {"cl_energy",
+                                                                                "cl_et",
+                                                                                "cl_eta",
+                                                                                "cl_phi",
+                                                                                "cl_ieta",
+                                                                                "cl_iphi",
+                                                                                "cl_iz",
+                                                                                "cl_seed_dEta",
+                                                                                "cl_seed_dPhi",
+                                                                                "cl_seed_dEnergy",
+                                                                                "cl_seed_dEt",
+                                                                                "cl_nxtals"};
+const std::vector<std::string> DeepSCGraphEvaluation::availableWindowInputs = {
+    "max_cl_energy", "max_cl_et",        "max_cl_eta",       "max_cl_phi",          "max_cl_ieta",     "max_cl_iphi",
+    "max_cl_iz",     "max_cl_seed_dEta", "max_cl_seed_dPhi", "max_cl_seed_dEnergy", "max_cl_seed_dEt", "max_cl_nxtals",
+    "min_cl_energy", "min_cl_et",        "min_cl_eta",       "min_cl_phi",          "min_cl_ieta",     "min_cl_iphi",
+    "min_cl_iz",     "min_cl_seed_dEta", "min_cl_seed_dPhi", "min_cl_seed_dEnergy", "min_cl_seed_dEt", "min_cl_nxtals",
+    "avg_cl_energy", "avg_cl_et",        "avg_cl_eta",       "avg_cl_phi",          "avg_cl_ieta",     "avg_cl_iphi",
+    "avg_cl_iz",     "avg_cl_seed_dEta", "avg_cl_seed_dPhi", "avg_cl_seed_dEnergy", "avg_cl_seed_dEt", "avg_cl_nxtals"};
+const std::vector<std::string> DeepSCGraphEvaluation::availableHitsInputs = {"ieta", "iphi", "iz", "en_withfrac"};
+
 DeepSCGraphEvaluation::DeepSCGraphEvaluation(const DeepSCConfiguration& cfg) : cfg_(cfg) {
   tensorflow::setLogging("0");
   // Init TF graph and session objects
   initTensorFlowGraphAndSession();
   // Init scaler configs
-  uint nClFeat = readScalerConfig(cfg_.scalerFileClusterFeatures, scalerParamsClusters_);
-  if (nClFeat != cfg_.nClusterFeatures) {
+  inputFeaturesClusters =
+      readInputFeaturesConfig(cfg_.configFileClusterFeatures, DeepSCGraphEvaluation::availableClusterInputs);
+  if (inputFeaturesClusters.size() != cfg_.nClusterFeatures) {
     throw cms::Exception("WrongConfiguration") << "Mismatch between number of input features for Clusters and "
                                                << "parameters in the scaler file.";
   }
-  uint nClWind = readScalerConfig(cfg_.scalerFileWindowFeatures, scalerParamsWindows_);
-  if (nClWind != cfg_.nWindowFeatures) {
+  inputFeaturesWindows =
+      readInputFeaturesConfig(cfg_.configFileWindowFeatures, DeepSCGraphEvaluation::availableWindowInputs);
+  if (inputFeaturesWindows.size() != cfg_.nWindowFeatures) {
+    throw cms::Exception("WrongConfiguration") << "Mismatch between number of input features for Clusters and "
+                                               << "parameters in the scaler file.";
+  }
+  inputFeaturesHits = readInputFeaturesConfig(cfg_.configFileHitsFeatures, DeepSCGraphEvaluation::availableHitsInputs);
+  if (inputFeaturesHits.size() != cfg_.nHitsFeatures) {
     throw cms::Exception("WrongConfiguration") << "Mismatch between number of input features for Clusters and "
                                                << "parameters in the scaler file.";
   }
@@ -38,42 +66,58 @@ void DeepSCGraphEvaluation::initTensorFlowGraphAndSession() {
   LogDebug("DeepSCGraphEvaluation") << "TF ready";
 }
 
-uint DeepSCGraphEvaluation::readScalerConfig(std::string file, std::vector<std::pair<float, float>>& scalingParams) {
+DeepSCInputs::InputConfigs DeepSCGraphEvaluation::readInputFeaturesConfig(
+    std::string file, const std::vector<std::string>& availableInputs) const {
+  DeepSCInputs::InputConfigs features;
   LogDebug("DeepSCGraphEvaluation") << "Reading scaler file: " << edm::FileInPath(file).fullPath();
   std::ifstream inputfile{edm::FileInPath(file).fullPath()};
-  int ninputs = 0;
   if (inputfile.fail()) {
-    throw cms::Exception("MissingFile") << "Scaler file not found: " << file;
+    throw cms::Exception("MissingFile") << "Input features config file not found: " << file;
   } else {
     // Now read mean, scale factors for each variable
     float par1, par2;
-    while (inputfile >> par1 >> par2) {
-      scalingParams.push_back(std::make_pair(par1, par2));
-      ninputs += 1;
+    std::string varName, type_str;
+    DeepSCInputs::ScalerType type;
+    while (inputfile >> varName >> type_str >> par1 >> par2) {
+      if (type_str == "MeanRms")
+        type = DeepSCInputs::ScalerType::MeanRms;
+      else if (type_str == "MinMax")
+        type = DeepSCInputs::ScalerType::MinMax;
+      else
+        type = DeepSCInputs::ScalerType::None;  //do nothing
+      features.push_back(DeepSCInputs::InputConfig{.varName = varName, .type = type, .par1 = par1, .par2 = par2});
+      // Protection for mismatch between requested variables and the available ones
+      auto match = std::find(availableInputs.begin(), availableInputs.end(), varName);
+      if (match == std::end(availableInputs)) {
+        throw cms::Exception("MissingInput") << "Requested input (" << varName << ") not available between DNN inputs";
+      }
+      LogDebug("DeepSCGraphEvalutation") << "Registered input feature: " << varName << ", scaler=" << type_str;
     }
   }
-  return ninputs;
+  return features;
 }
 
-std::vector<double> DeepSCGraphEvaluation::scaleClusterFeatures(const std::vector<double>& input) const {
-  std::vector<double> out(input.size());
-  for (size_t i = 0; i < input.size(); i++) {
-    const auto& [par1, par2] = scalerParamsClusters_[i];
-    out[i] = (input[i] - par1) / par2;
+std::vector<float> DeepSCGraphEvaluation::getScaledInputs(const DeepSCInputs::FeaturesMap& variables,
+                                                          const DeepSCInputs::InputConfigs& config) const {
+  std::vector<float> inputs;
+  inputs.reserve(config.size());
+  // Loop on the list of requested variables and scaling values
+  // Different type of scaling are available: 0=no scaling, 1=standard scaler, 2=minmax
+  for (auto& [varName, type, par1, par2] : config) {
+    if (type == DeepSCInputs::ScalerType::MeanRms)
+      inputs.push_back((variables.at(varName) - par1) / par2);
+    else if (type == DeepSCInputs::ScalerType::MinMax)
+      inputs.push_back((variables.at(varName) - par1) / (par2 - par1));
+    else if (type == DeepSCInputs::ScalerType::None) {
+      inputs.push_back(variables.at(varName));  // Do nothing on the variable
+    }
+    //Protection for mismatch between requested variables and the available ones
+    // have been added when the scaler config are loaded --> here we know that the variables are available
   }
-  return out;
+  return inputs;
 }
 
-std::vector<double> DeepSCGraphEvaluation::scaleWindowFeatures(const std::vector<double>& input) const {
-  std::vector<double> out(input.size());
-  for (size_t i = 0; i < input.size(); i++) {
-    const auto& [par1, par2] = scalerParamsWindows_[i];
-    out[i] = (input[i] - par1) / par2;
-  }
-  return out;
-}
-
-std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInputs& inputs) const {
+std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInputs::Inputs& inputs) const {
   LogDebug("DeepSCGraphEvaluation") << "Starting evaluation";
 
   // Final output
@@ -98,9 +142,8 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
     tensorflow::Tensor clsX_{tensorflow::DT_FLOAT,
                              {static_cast<long int>(nItems), cfg_.maxNClusters, cfg_.nClusterFeatures}};
     tensorflow::Tensor windX_{tensorflow::DT_FLOAT, {static_cast<long int>(nItems), cfg_.nWindowFeatures}};
-    tensorflow::Tensor hitsX_{
-        tensorflow::DT_FLOAT,
-        {static_cast<long int>(nItems), cfg_.maxNClusters, cfg_.maxNRechits, cfg_.nRechitsFeatures}};
+    tensorflow::Tensor hitsX_{tensorflow::DT_FLOAT,
+                              {static_cast<long int>(nItems), cfg_.maxNClusters, cfg_.maxNRechits, cfg_.nHitsFeatures}};
     tensorflow::Tensor isSeedX_{tensorflow::DT_FLOAT, {static_cast<long int>(nItems), cfg_.maxNClusters, 1}};
     tensorflow::Tensor nClsSize_{tensorflow::DT_FLOAT, {static_cast<long int>(nItems)}};
 
@@ -147,7 +190,7 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
           // Check the number of clusters and hits for padding
           bool ok = j < nhits_in_cluster;
           // Loop on rechits features
-          for (size_t z = 0; z < cfg_.nRechitsFeatures; z++) {
+          for (size_t z = 0; z < cfg_.nHitsFeatures; z++) {
             if (ok)
               hitsX_.tensor<float, 4>()(b, k, j, z) = float(hits_data[k][j][z]);
             else
