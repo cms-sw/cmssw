@@ -21,7 +21,6 @@ def reducedConfig(process):
   process.ChannelAssignment.SeedTypes = cms.vstring( "L1L2" )
   process.ChannelAssignment.SeedTypesSeedLayers = cms.PSet( L1L2 = cms.vint32( 1,  2 ) )
   process.ChannelAssignment.SeedTypesProjectionLayers = cms.PSet( L1L2 = cms.vint32(  3,  4,  5,  6 ) )
-  process.ChannelAssignment.MaxNumProjectionLayers = 4
   # this are tt::Setup::dtcId in order as in process.TTTracksFromTrackletEmulation.processingModulesFile translated by 
   # reverssing naming logic described in L1FPGATrackProducer
   # TO DO: Eliminate cfg param IRChannelsIn by taking this info from Tracklet wiring map.
