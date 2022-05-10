@@ -112,6 +112,4 @@ using TrackingRecHit2DGPU = TrackingRecHit2DHeterogeneous;
 using TrackingRecHit2DCPU = TrackingRecHit2DHeterogeneous;
 using TrackingRecHit2DHost = TrackingRecHit2DHeterogeneous;
 
-// #include "TrackingRecHit2DHeterogeneousImpl.h"
-
 #endif  // CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneous_h
