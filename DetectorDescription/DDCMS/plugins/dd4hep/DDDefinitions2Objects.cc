@@ -893,6 +893,7 @@ static void placeAssembly(Volume* parentPtr,
       as->ComputeBBox();
     }
   }
+#if defined(VALIDATION_DEBUG)
   TGeoNode* n;
   TString nam_id = TString::Format("%s_%d", (*childPtr)->GetName(), copy);
   n = static_cast<TGeoNode*>((*parentPtr)->GetNode(nam_id));
@@ -900,6 +901,7 @@ static void placeAssembly(Volume* parentPtr,
     printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
     return;
   }
+#endif
 
   PlacedVolume pv;
   if ((*childPtr)->IsAssembly()) {
@@ -1005,10 +1007,12 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
     }
     TGeoNode* n;
     TString nam_id = TString::Format("%s_%d", child->GetName(), copy);
+#if defined(VALIDATION_DEBUG)
     n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
     if (n != nullptr) {
       printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
     }
+#endif
 
     Rotation3D rot(transform.Rotation());
     Translation3D trans(transform.Translation());
@@ -1017,7 +1021,8 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
     Position pos(x, y, z);
     parent->AddNode(child, copy, createPlacement(rot, pos));
 
-    n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
+    n = static_cast<TGeoNode*>(parent->GetNodes()->Last());
+    assert(n->GetName() == nam_id);
     n->TGeoNode::SetUserExtension(new PlacedVolume::Object());
     pv = PlacedVolume(n);
   }
