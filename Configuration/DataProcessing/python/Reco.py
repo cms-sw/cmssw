@@ -163,7 +163,12 @@ class Reco(Scenario):
 
         eiStep=''
 
-        options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
+        if 'beamSplashRun' in args:
+            options.step += 'RAW2DIGI,L1Reco,RECO'+args['beamSplashRun']+',ENDJOB'
+            print("Using RECO%s step in visualizationProcessing" % args['beamSplashRun'])
+        else :
+            options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
+
 
 
         dictIO(options,args)
