@@ -39,7 +39,7 @@ public:
     Errors error{0};
     error.EvtF = oh.evtF();
     error.InF = oh.inF();
-    error.L1aF = oh.l1aF();
+    error.L1aF = (oh.l1aF() and (oh.version() == 0));
     error.EvtSzOFW = oh.evtSzOFW();
     error.Inv = oh.inv();
     error.OOScAvV = oh.oOScAvV();
@@ -53,7 +53,7 @@ public:
     Warnings warn{0};
     warn.EvtNF = oh.evtNF();
     warn.InNF = oh.inNF();
-    warn.L1aNF = oh.l1aNF();
+    warn.L1aNF = (oh.l1aNF() and (oh.version() == 0));
     warn.EvtSzW = oh.evtSzW();
     warnings_ = warn.wcodes;
   }

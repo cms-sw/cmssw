@@ -3,14 +3,14 @@
 using namespace std;
 using namespace edm;
 
-GEMDAQStatusSource::GEMDAQStatusSource(const edm::ParameterSet &cfg) : GEMDQMBase(cfg) {
+GEMDAQStatusSource::GEMDAQStatusSource(const edm::ParameterSet &cfg)
+    : GEMDQMBase(cfg), gemChMapToken_(esConsumes<GEMChMap, GEMChMapRcd, edm::Transition::BeginRun>()) {
   tagVFAT_ = consumes<GEMVFATStatusCollection>(cfg.getParameter<edm::InputTag>("VFATInputLabel"));
   tagOH_ = consumes<GEMOHStatusCollection>(cfg.getParameter<edm::InputTag>("OHInputLabel"));
   tagAMC_ = consumes<GEMAMCStatusCollection>(cfg.getParameter<edm::InputTag>("AMCInputLabel"));
   tagAMC13_ = consumes<GEMAMC13StatusCollection>(cfg.getParameter<edm::InputTag>("AMC13InputLabel"));
 
   nAMCSlots_ = cfg.getParameter<Int_t>("AMCSlots");
-  gemEMapToken_ = esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>();
 }
 
 void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -28,36 +28,35 @@ void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descri
 }
 
 void GEMDAQStatusSource::LoadROMap(edm::EventSetup const &iSetup) {
-  auto gemROMap = std::make_shared<GEMROMapping>();
   //if (useDBEMap_)
   if (true) {
-    const auto &eMap = iSetup.getData(gemEMapToken_);
-    auto gemEMap = std::make_unique<GEMeMap>(eMap);
-    gemEMap->convert(*gemROMap);
+    const auto &chMap = iSetup.getData(gemChMapToken_);
+    auto gemChMap = std::make_unique<GEMChMap>(chMap);
 
-    for (auto imap : gemEMap->theChamberMap_) {
-      int nNumChamber = (int)imap.fedId.size();
-      for (int i = 0; i < nNumChamber; i++) {
-        unsigned int fedId = imap.fedId[i];
-        uint8_t amcNum = imap.amcNum[i];
-        uint8_t gebId = imap.gebId[i];
-        GEMROMapping::chamEC geb_ec{fedId, amcNum, gebId};
-        GEMROMapping::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
-        GEMDetId gemChId = geb_dc.detId;
+    for (auto const &[ec, dc] : gemChMap->chamberMap()) {
+      unsigned int fedId = ec.fedId;
+      uint8_t amcNum = ec.amcNum;
+      GEMDetId gemChId(dc.detId);
 
-        mapFEDIdToRe_[fedId] = gemChId.region();
-        mapAMC13ToListChamber_[fedId].push_back(gemChId);
-        mapAMCToListChamber_[{fedId, amcNum}].push_back(gemChId);
-      }
+      mapFEDIdToRe_[fedId] = gemChId.region();
+      mapAMC13ToListChamber_[fedId].push_back(gemChId);
+      mapAMCToListChamber_[{fedId, amcNum}].push_back(gemChId);
     }
 
-    gemEMap.reset();
   } else {
     // no EMap in DB, using dummy
-    // FIXME: How to add mapFEDIdToRe_ and mapDetIdToAMC_??
-    auto gemEMap = std::make_unique<GEMeMap>();
-    gemEMap->convertDummy(*gemROMap);
-    gemEMap.reset();
+    auto gemChMap = std::make_unique<GEMChMap>();
+    gemChMap->setDummy();
+
+    for (auto const &[ec, dc] : gemChMap->chamberMap()) {
+      unsigned int fedId = ec.fedId;
+      uint8_t amcNum = ec.amcNum;
+      GEMDetId gemChId(dc.detId);
+
+      mapFEDIdToRe_[fedId] = gemChId.region();
+      mapAMC13ToListChamber_[fedId].push_back(gemChId);
+      mapAMCToListChamber_[{fedId, amcNum}].push_back(gemChId);
+    }
   }
 }
 
