@@ -18,6 +18,15 @@ namespace poolDetails {
 
 };  // namespace poolDetails
 
+class SimplePoolAllocator;
+
+namespace memoryPool {
+  struct Payload {
+    SimplePoolAllocator *pool;
+    std::vector<int> buckets;
+  };
+}  // namespace memoryPool
+
 class SimplePoolAllocator {
 public:
   using Pointer = void *;
@@ -26,6 +35,7 @@ public:
 
   virtual Pointer doAlloc(size_t size) = 0;
   virtual void doFree(Pointer ptr) = 0;
+  virtual void scheduleFree(memoryPool::Payload *payload, void *stream) = 0;
 
   SimplePoolAllocator(int maxSlots) : m_maxSlots(maxSlots) {
     for (auto &p : m_used)
@@ -200,12 +210,6 @@ private:
 };
 
 namespace memoryPool {
-
-  struct Payload {
-    SimplePoolAllocator *pool;
-    std::vector<int> buckets;
-  };
-
   //  free callback
   inline void scheduleFree(Payload *payload) {
     auto &pool = *(payload->pool);
@@ -227,6 +231,11 @@ struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
 
   Pointer doAlloc(size_t size) override { return Traits::alloc(size); }
   void doFree(Pointer ptr) override { Traits::free(ptr); }
+
+  void scheduleFree(memoryPool::Payload *payload, void *stream) override {
+    assert(payload->pool == this);
+    Traits::scheduleFree(payload, stream);
+  }
 };
 
 #include <cstdlib>
@@ -236,5 +245,5 @@ struct PosixAlloc {
   static Pointer alloc(size_t size) { return ::malloc(size); }
   static void free(Pointer ptr) { ::free(ptr); }
 
-  static void scheduleFree(memoryPool::Payload *payload) { memoryPool::scheduleFree(payload); }
+  static void scheduleFree(memoryPool::Payload *payload, void *) { memoryPool::scheduleFree(payload); }
 };

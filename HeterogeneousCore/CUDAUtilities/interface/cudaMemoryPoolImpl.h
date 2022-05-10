@@ -29,13 +29,12 @@ namespace {
 }  // namespace
 
 struct CudaAlloc {
-  static void scheduleFree(memoryPool::Payload *payload, cudaStream_t stream) {
+  static void scheduleFree(memoryPool::Payload *payload, void *stream) {
     // std::cout    << "schedule free for stream " <<  stream <<std::endl;
-    if (stream)
-      cudaCheck(cudaStreamAddCallback(stream, freeCallback, payload, 0));
+    if (!stream)
+      std::cout << "???? schedule free for stream " << stream << std::endl;
+    cudaCheck(cudaStreamAddCallback((cudaStream_t)(stream), freeCallback, payload, 0));
     // cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
-    else
-      memoryPool::scheduleFree(payload);
   }
 };
 
@@ -85,7 +84,7 @@ namespace memoryPool {
     // schedule free
     /*inline*/ void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool) {
       auto payload = new Payload{&pool, std::move(buckets)};
-      CudaHostAlloc::scheduleFree(payload, stream);
+      pool.scheduleFree(payload, stream);
     }
 
   }  // namespace cuda

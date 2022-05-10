@@ -242,27 +242,45 @@ void go() {
 #include <cuda_runtime.h>
 #include <cuda_runtime_api.h>
 
-struct CudaDeviceAlloc {
+// copy from implementation
+
+struct CudaAlloc {
+  // not called in this test (done inline)
+  static void scheduleFree(memoryPool::Payload *payload, void *stream) {
+    std::cout << "schedule free for stream " << stream << std::endl;
+    abort();
+  }
+};
+
+struct CudaDeviceAlloc : public CudaAlloc {
   using Pointer = void *;
 
   static Pointer alloc(size_t size) {
     Pointer p = nullptr;
     auto err = cudaMalloc(&p, size);
+    // std::cout << "alloc " << size << ((err == cudaSuccess) ? " ok" : " err") << std::endl;
     return err == cudaSuccess ? p : nullptr;
   }
-  static void free(Pointer ptr) { cudaFree(ptr); }
+  static void free(Pointer ptr) {
+    auto err = cudaFree(ptr);
+    // std::cout << "free" << ((err == cudaSuccess) ? " ok" : " err") <<std::endl;
+    if (err != cudaSuccess)
+      std::cout << " error in cudaFree??" << std::endl;
+  }
 };
 
-struct CudaHostAlloc {
+struct CudaHostAlloc : public CudaAlloc {
   using Pointer = void *;
 
   static Pointer alloc(size_t size) {
     Pointer p = nullptr;
     auto err = cudaMallocHost(&p, size);
+    // std::cout << "alloc H " << size << ((err == cudaSuccess) ? " ok" : " err") << std::endl;
     return err == cudaSuccess ? p : nullptr;
   }
   static void free(Pointer ptr) { cudaFreeHost(ptr); }
 };
+
 #endif
 
 int main() {
