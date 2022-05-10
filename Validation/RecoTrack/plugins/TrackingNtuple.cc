@@ -524,7 +524,7 @@ private:
                      std::set<edm::ProductID>& hitProductIds);
 
   void fillStripRphiStereoHits(const edm::Event& iEvent,
-                               const TrackerGeometry& tracker, 
+                               const TrackerGeometry& tracker,
                                const ClusterTPAssociation& clusterToTPMap,
                                const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
@@ -558,7 +558,7 @@ private:
                  const TrackingParticleRefVector& tpCollection,
                  const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                  const reco::BeamSpot& bs,
-                 const TrackerGeometry& tracker, 
+                 const TrackerGeometry& tracker,
                  const reco::TrackToTrackingParticleAssociator& associatorByHits,
                  const ClusterTPAssociation& clusterToTPMap,
                  const MagneticField& theMF,
@@ -3112,7 +3112,7 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
 }
 
 void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
-                                             const TrackerGeometry& tracker, 
+                                             const TrackerGeometry& tracker,
                                              const ClusterTPAssociation& clusterToTPMap,
                                              const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                              const SimHitTPAssociationProducer::SimHitTPAssociationList& simHitsTPAssoc,
@@ -3241,7 +3241,7 @@ void TrackingNtuple::fillStripRphiStereoHits(const edm::Event& iEvent,
 }
 
 size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
-                                          const TrackerGeometry& tracker, 
+                                          const TrackerGeometry& tracker,
                                           const TrackerTopology& tTopo,
                                           const std::vector<std::pair<uint64_t, StripMaskContainer const*>>& stripMasks,
                                           std::vector<std::pair<int, int>>& monoStereoClusterList) {
@@ -3286,7 +3286,7 @@ size_t TrackingNtuple::addStripMatchedHit(const SiStripMatchedRecHit2D& hit,
 }
 
 void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
-                                          const TrackerGeometry& tracker, 
+                                          const TrackerGeometry& tracker,
                                           const TrackerTopology& tTopo,
                                           std::vector<std::pair<int, int>>& monoStereoClusterList) {
   std::vector<std::pair<uint64_t, StripMaskContainer const*>> stripMasks;
@@ -3388,7 +3388,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
                                const TrackingParticleRefVector& tpCollection,
                                const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                const reco::BeamSpot& bs,
-                               const TrackerGeometry& tracker, 
+                               const TrackerGeometry& tracker,
                                const reco::TrackToTrackingParticleAssociator& associatorByHits,
                                const ClusterTPAssociation& clusterToTPMap,
                                const MagneticField& theMF,
@@ -3757,7 +3757,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
 }
 
 void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
-                                const TrackerGeometry& tracker, 
+                                const TrackerGeometry& tracker,
                                 const TrackingParticleRefVector& tpCollection,
                                 const TrackingParticleRefKeyToIndex& tpKeyToIndex,
                                 const TrackingParticleRefKeyToCount& tpKeyToClusterCount,
