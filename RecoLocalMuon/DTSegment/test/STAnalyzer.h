@@ -14,7 +14,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 namespace edm {
   class ParameterSet;
@@ -40,6 +40,13 @@ class TrajectoryStateOnSurface;
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 /* C++ Headers */
 #include <iosfwd>
@@ -49,19 +56,20 @@ class TrajectoryStateOnSurface;
 
 /* Class STAnalyzer Interface */
 
-class STAnalyzer : public edm::EDAnalyzer {
+class STAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /* Constructor */
   STAnalyzer(const edm::ParameterSet& pset);
 
   /* Destructor */
-  ~STAnalyzer();
+  ~STAnalyzer() override;
 
   /* Operations */
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
+  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-  virtual void beginJob();
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void beginJob() override;
+  void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
+  void endRun(const edm::Run& run, const edm::EventSetup& setup) override {}
 
 private:
   void analyzeSATrack(const edm::Event& event, const edm::EventSetup& eventSetup);
@@ -134,6 +142,14 @@ private:
   std::map<DTChamberId, int> hitsPerChamber;
   std::map<DTSuperLayerId, int> hitsPerSL;
   std::map<DTLayerId, int> hitsPerLayer;
+
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDtGeomTokenBR;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> theDtGeomToken;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMGFieldToken;
+  edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> theTrackingGeometryToken;
+
+  bool firstPass = true;
 
 protected:
 };
