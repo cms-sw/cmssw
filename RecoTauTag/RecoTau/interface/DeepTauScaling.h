@@ -1,6 +1,12 @@
 #ifndef RecoTauTag_RecoTau_DeepTauScaling_h
 #define RecoTauTag_RecoTau_DeepTauScaling_h
 
+#include <vector>
+#include <map>
+#include <cmath>
+#include <limits>
+#include <algorithm>
+
 namespace deep_tau {
   namespace Scaling {
     constexpr float inf = std::numeric_limits<float>::infinity();
