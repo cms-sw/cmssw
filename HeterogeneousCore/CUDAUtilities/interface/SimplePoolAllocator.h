@@ -39,7 +39,7 @@ public:
 
   SimplePoolAllocator(int maxSlots) : m_maxSlots(maxSlots) {
     for (auto &p : m_used)
-      p = true;
+      p.v = true;
   }
 
   int size() const { return m_size; }
@@ -48,7 +48,7 @@ public:
 
   void free(int i) {
     m_last[i] = -1;
-    m_used[i] = false;
+    m_used[i].v = false;
   }
 
   int alloc(uint64_t s) {
@@ -58,7 +58,7 @@ public:
     // if(totBytes>4507964512) garbageCollect();
 
     if (i >= 0) {
-      assert(m_used[i]);
+      assert(m_used[i].v);
       if (nullptr == m_slots[i])
         std::cout << "race ??? " << i << ' ' << m_bucket[i] << ' ' << m_last[i] << std::endl;
       assert(m_slots[i]);
@@ -67,7 +67,7 @@ public:
     garbageCollect();
     i = allocImpl(s);
     if (i >= 0) {
-      assert(m_used[i]);
+      assert(m_used[i].v);
       assert(m_slots[i]);
       assert(m_last[i] >= 0);
     }
@@ -82,14 +82,14 @@ public:
     for (int i = 0; i < ls; ++i) {
       if (b != m_bucket[i])
         continue;
-      if (m_used[i])
+      if (m_used[i].v)
         continue;
       bool exp = false;
-      if (m_used[i].compare_exchange_strong(exp, true)) {
+      if (m_used[i].v.compare_exchange_strong(exp, true)) {
         // verify if in the mean time the garbage collector did operate
         if (nullptr == m_slots[i]) {
           assert(m_bucket[i] < 0);
-          m_used[i] = false;
+          m_used[i].v = false;
           continue;
         }
         m_last[i] = 0;
@@ -113,7 +113,7 @@ public:
   }
 
   int createAt(int ls, int b) {
-    assert(m_used[ls]);
+    assert(m_used[ls].v);
     assert(m_last[ls] > 0);
     m_bucket[ls] = b;
     auto as = poolDetails::bucketSize(b);
@@ -129,14 +129,14 @@ public:
   void garbageCollect() {
     int ls = size();
     for (int i = 0; i < ls; ++i) {
-      if (m_used[i])
+      if (m_used[i].v)
         continue;
       if (m_bucket[i] < 0)
         continue;
       bool exp = false;
-      if (!m_used[i].compare_exchange_strong(exp, true))
+      if (!m_used[i].v.compare_exchange_strong(exp, true))
         continue;
-      assert(m_used[i]);
+      assert(m_used[i].v);
       if (nullptr != m_slots[i]) {
         assert(m_bucket[i] >= 0);
         doFree(m_slots[i]);
@@ -146,7 +146,7 @@ public:
       m_slots[i] = nullptr;
       m_bucket[i] = -1;
       m_last[i] = -3;
-      m_used[i] = false;  // here memory fence as well
+      m_used[i].v = false;  // here memory fence as well
     }
   }
 
@@ -155,18 +155,18 @@ public:
     for (int i = 0; i < ls; ++i) {
       if (m_bucket[i] >= 0)
         continue;
-      if (m_used[i])
+      if (m_used[i].v)
         continue;
       bool exp = false;
-      if (!m_used[i].compare_exchange_strong(exp, true))
+      if (!m_used[i].v.compare_exchange_strong(exp, true))
         continue;
       if (nullptr != m_slots[i]) {  // ops allocated and freed
         assert(m_bucket[i] >= 0);
         assert(m_last[i] = -1);
-        m_used[i] = false;
+        m_used[i].v = false;
         continue;
       }
-      assert(m_used[i]);
+      assert(m_used[i].v);
       m_last[i] = 1;
       return createAt(i, b);
     }
@@ -178,7 +178,7 @@ public:
     uint64_t fs = 0;
     int ls = size();
     for (int i = 0; i < ls; ++i) {
-      if (m_used[i]) {
+      if (m_used[i].v) {
         auto b = m_bucket[i];
         if (b < 0)
           continue;
@@ -201,7 +201,10 @@ private:
 
   std::vector<int> m_bucket = std::vector<int>(m_maxSlots, -1);
   std::vector<Pointer> m_slots = std::vector<Pointer>(m_maxSlots, nullptr);
-  std::vector<std::atomic<bool>> m_used = std::vector<std::atomic<bool>>(m_maxSlots);
+  struct alBool {
+    alignas(64) std::atomic<bool> v;
+  };
+  std::vector<alBool> m_used = std::vector<alBool>(m_maxSlots);
   std::atomic<int> m_size = 0;
 
   std::atomic<uint64_t> totBytes = 0;
