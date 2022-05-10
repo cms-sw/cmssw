@@ -191,11 +191,10 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
           passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
         } else if (eleEta > etaThreshold) {  //high pT endcap (eleEta < 2.5)
           passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
-        } else {  // pt < ele_iso_pt_ (eleEta < 2.5)
-          passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
         }
+      } else {  // pt < ele_iso_pt_ (eleEta < 2.5)
+        passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
       }
-
     } else if ((eleEta >= endcapBoundary_) && (eleEta <= extEtaBoundary_)) {  //First region in extended eta
       passEleSelection = (dnn_sig > ele_dnnExtEta1Thr_) && (dnn_bkg < ele_dnnBkgExtEta1Thr_);
     } else if (eleEta > extEtaBoundary_) {  //Second region in extended eta
