@@ -22,7 +22,7 @@ namespace deep_tau {
 
 namespace {
 
-  struct dnn_inputs_2017v1 {
+  struct dnn_inputs_v1 {
     enum vars {
       pt = 0,
       eta,
@@ -1219,18 +1219,19 @@ public:
       input_layer_ = cache_->getGraph().node(0).name();
       output_layer_ = cache_->getGraph().node(cache_->getGraph().node_size() - 1).name();
       const auto& shape = cache_->getGraph().node(0).attr().at("shape").shape();
-      if (shape.dim(1).size() != dnn_inputs_2017v1::NumberOfInputs)
+      if (shape.dim(1).size() != dnn_inputs_v1::NumberOfInputs)
         throw cms::Exception("DeepTauId")
             << "number of inputs does not match the expected inputs for the given version";
     } else if (version_ == 2) {
       using namespace dnn_inputs_v2;
+      namespace sc = deep_tau::Scaling;
       tauInputs_indices_.resize(TauBlockInputs::NumberOfInputs);
       std::iota(std::begin(tauInputs_indices_), std::end(tauInputs_indices_), 0);
 
       if (sub_version_ == 1) {
         tauBlockTensor_ = std::make_unique<tensorflow::Tensor>(
             tensorflow::DT_FLOAT, tensorflow::TensorShape{1, TauBlockInputs::NumberOfInputs});
-        scalingParamsMap_ = &deep_tau::Scaling::scalingParamsMap_v2p1;
+        scalingParamsMap_ = &sc::scalingParamsMap_v2p1;
       } else if (sub_version_ == 5) {
         std::sort(TauBlockInputs::varsToDrop.begin(), TauBlockInputs::varsToDrop.end());
         for (auto v : TauBlockInputs::varsToDrop) {
@@ -1243,11 +1244,10 @@ public:
             tensorflow::TensorShape{1,
                                     static_cast<int>(TauBlockInputs::NumberOfInputs) -
                                         static_cast<int>(TauBlockInputs::varsToDrop.size())});
-        scalingParamsMap_ = &deep_tau::Scaling::scalingParamsMap_v2p5;
+        scalingParamsMap_ = &sc::scalingParamsMap_v2p5;
       } else
         throw cms::Exception("DeepTauId") << "subversion " << sub_version_ << " is not supported.";
 
-      namespace sc = deep_tau::Scaling;
       std::map<std::vector<bool>, std::vector<sc::FeatureT>> GridFeatureTypes_map = {
           {{false}, {sc::FeatureT::TauFlat, sc::FeatureT::GridGlobal}},  // feature types without inner/outer grid split
           {{false, true},
@@ -1263,7 +1263,7 @@ public:
       for (const auto& p : GridFeatureTypes_map) {
         for (auto is_inner : p.first) {
           for (auto featureType : p.second) {
-            const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(featureType, is_inner));
+            const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(featureType, is_inner));
             if (!(sp.mean_.size() == sp.std_.size() && sp.mean_.size() == sp.lim_min_.size() &&
                   sp.mean_.size() == sp.lim_max_.size()))
               throw cms::Exception("DeepTauId") << "sizes of scaling parameter vectors do not match between each other";
@@ -1273,17 +1273,17 @@ public:
 
       for (size_t n = 0; n < 2; ++n) {
         const bool is_inner = n == 0;
-        const auto n_cells = is_inner ? dnn_inputs_v2::number_of_inner_cell : dnn_inputs_v2::number_of_outer_cell;
+        const auto n_cells = is_inner ? number_of_inner_cell : number_of_outer_cell;
         eGammaTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
-            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, dnn_inputs_v2::EgammaBlockInputs::NumberOfInputs});
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, EgammaBlockInputs::NumberOfInputs});
         muonTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
-            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, dnn_inputs_v2::MuonBlockInputs::NumberOfInputs});
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, MuonBlockInputs::NumberOfInputs});
         hadronsTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
-            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, dnn_inputs_v2::HadronBlockInputs::NumberOfInputs});
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, HadronBlockInputs::NumberOfInputs});
         convTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
-            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, n_cells, n_cells, dnn_inputs_v2::number_of_conv_features});
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, n_cells, n_cells, number_of_conv_features});
         zeroOutputTensor_[is_inner] = std::make_unique<tensorflow::Tensor>(
-            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, dnn_inputs_v2::number_of_conv_features});
+            tensorflow::DT_FLOAT, tensorflow::TensorShape{1, 1, 1, number_of_conv_features});
 
         eGammaTensor_[is_inner]->flat<float>().setZero();
         muonTensor_[is_inner]->flat<float>().setZero();
@@ -1603,7 +1603,7 @@ private:
                         const std::vector<pat::Muon>* muons,
                         std::vector<tensorflow::Tensor>& pred_vector,
                         TauFunc tau_funcs) {
-    const tensorflow::Tensor& inputs = createInputsV1<dnn_inputs_2017v1, const CandidateCastType>(
+    const tensorflow::Tensor& inputs = createInputsV1<dnn_inputs_v1, const CandidateCastType>(
         dynamic_cast<const TauCastType&>(tau), tau_index, tau_ref, electrons, muons, tau_funcs);
     tensorflow::run(&(cache_->getSession()), {{input_layer_, inputs}}, {output_layer_}, &pred_vector);
   }
@@ -1619,28 +1619,20 @@ private:
                         double rho,
                         std::vector<tensorflow::Tensor>& pred_vector,
                         TauFunc tau_funcs) {
+    using namespace dnn_inputs_v2;
     if (debug_level >= 2) {
       std::cout << "<DeepTauId::getPredictionsV2 (moduleLabel = " << moduleDescription().moduleLabel()
                 << ")>:" << std::endl;
       std::cout << " tau: pT = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi() << std::endl;
     }
-    CellGrid inner_grid(dnn_inputs_v2::number_of_inner_cell,
-                        dnn_inputs_v2::number_of_inner_cell,
-                        0.02,
-                        0.02,
-                        disable_CellIndex_workaround_);
-    CellGrid outer_grid(dnn_inputs_v2::number_of_outer_cell,
-                        dnn_inputs_v2::number_of_outer_cell,
-                        0.05,
-                        0.05,
-                        disable_CellIndex_workaround_);
+    CellGrid inner_grid(number_of_inner_cell, number_of_inner_cell, 0.02, 0.02, disable_CellIndex_workaround_);
+    CellGrid outer_grid(number_of_outer_cell, number_of_outer_cell, 0.05, 0.05, disable_CellIndex_workaround_);
     fillGrids(dynamic_cast<const TauCastType&>(tau), *electrons, inner_grid, outer_grid);
     fillGrids(dynamic_cast<const TauCastType&>(tau), *muons, inner_grid, outer_grid);
     fillGrids(dynamic_cast<const TauCastType&>(tau), pfCands, inner_grid, outer_grid);
 
     createTauBlockInputs<CandidateCastType>(
         dynamic_cast<const TauCastType&>(tau), tau_index, tau_ref, pv, rho, tau_funcs);
-    using namespace dnn_inputs_v2;
     checkInputs(*tauBlockTensor_, "input_tau", static_cast<int>(tauBlockTensor_->shape().dim_size(1)));
     createConvFeatures<CandidateCastType>(dynamic_cast<const TauCastType&>(tau),
                                           tau_index,
@@ -1881,8 +1873,9 @@ private:
                             double rho,
                             TauFunc tau_funcs) {
     namespace dnn = dnn_inputs_v2::TauBlockInputs;
-    deep_tau::Scaling::FeatureT ft = deep_tau::Scaling::FeatureT::TauFlat;
-    const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft, false));
+    namespace sc = deep_tau::Scaling;
+    sc::FeatureT ft = sc::FeatureT::TauFlat;
+    const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft, false));
 
     tensorflow::Tensor& inputs = *tauBlockTensor_;
     inputs.flat<float>().setZero();
@@ -2031,10 +2024,11 @@ private:
                                TauFunc tau_funcs,
                                bool is_inner) {
     namespace dnn = dnn_inputs_v2::EgammaBlockInputs;
-    deep_tau::Scaling::FeatureT ft_global = deep_tau::Scaling::FeatureT::GridGlobal;
-    deep_tau::Scaling::FeatureT ft_PFe = deep_tau::Scaling::FeatureT::PfCand_electron;
-    deep_tau::Scaling::FeatureT ft_PFg = deep_tau::Scaling::FeatureT::PfCand_gamma;
-    deep_tau::Scaling::FeatureT ft_e = deep_tau::Scaling::FeatureT::Electron;
+    namespace sc = deep_tau::Scaling;
+    sc::FeatureT ft_global = sc::FeatureT::GridGlobal;
+    sc::FeatureT ft_PFe = sc::FeatureT::PfCand_electron;
+    sc::FeatureT ft_PFg = sc::FeatureT::PfCand_gamma;
+    sc::FeatureT ft_e = sc::FeatureT::Electron;
 
     // needed to remap indices from scaling vectors to those from dnn_inputs_v2::EgammaBlockInputs
     int PFe_index_offset = scalingParamsMap_->at(std::make_pair(ft_global, false)).mean_.size();
@@ -2060,14 +2054,14 @@ private:
     const bool valid_index_ele = cell_map.count(CellObjectType::Electron);
 
     if (!cell_map.empty()) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_global, false));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_global, false));
       get(dnn::rho) = sp.scale(rho, dnn::rho);
       get(dnn::tau_pt) = sp.scale(tau.polarP4().pt(), dnn::tau_pt);
       get(dnn::tau_eta) = sp.scale(tau.polarP4().eta(), dnn::tau_eta);
       get(dnn::tau_inside_ecal_crack) = sp.scale(isInEcalCrack(tau.polarP4().eta()), dnn::tau_inside_ecal_crack);
     }
     if (valid_index_pf_ele) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFe, is_inner));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFe, is_inner));
       size_t index_pf_ele = cell_map.at(CellObjectType::PfCand_electron);
       const auto& ele_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_pf_ele));
 
@@ -2128,7 +2122,7 @@ private:
       }
     }
     if (valid_index_pf_gamma) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFg, is_inner));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFg, is_inner));
       size_t index_pf_gamma = cell_map.at(CellObjectType::PfCand_gamma);
       const auto& gamma_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_pf_gamma));
 
@@ -2199,7 +2193,7 @@ private:
       }
     }
     if (valid_index_ele) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_e, is_inner));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_e, is_inner));
       size_t index_ele = cell_map.at(CellObjectType::Electron);
 
       get(dnn::ele_valid + fill_index_offset_e) = sp.scale(valid_index_ele, dnn::ele_valid - e_index_offset);
@@ -2316,9 +2310,10 @@ private:
                              TauFunc tau_funcs,
                              bool is_inner) {
     namespace dnn = dnn_inputs_v2::MuonBlockInputs;
-    deep_tau::Scaling::FeatureT ft_global = deep_tau::Scaling::FeatureT::GridGlobal;
-    deep_tau::Scaling::FeatureT ft_PFmu = deep_tau::Scaling::FeatureT::PfCand_muon;
-    deep_tau::Scaling::FeatureT ft_mu = deep_tau::Scaling::FeatureT::Muon;
+    namespace sc = deep_tau::Scaling;
+    sc::FeatureT ft_global = sc::FeatureT::GridGlobal;
+    sc::FeatureT ft_PFmu = sc::FeatureT::PfCand_muon;
+    sc::FeatureT ft_mu = sc::FeatureT::Muon;
 
     // needed to remap indices from scaling vectors to those from dnn_inputs_v2::MuonBlockInputs
     int PFmu_index_offset = scalingParamsMap_->at(std::make_pair(ft_global, false)).mean_.size();
@@ -2332,14 +2327,14 @@ private:
     const bool valid_index_muon = cell_map.count(CellObjectType::Muon);
 
     if (!cell_map.empty()) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_global, false));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_global, false));
       get(dnn::rho) = sp.scale(rho, dnn::rho);
       get(dnn::tau_pt) = sp.scale(tau.polarP4().pt(), dnn::tau_pt);
       get(dnn::tau_eta) = sp.scale(tau.polarP4().eta(), dnn::tau_eta);
       get(dnn::tau_inside_ecal_crack) = sp.scale(isInEcalCrack(tau.polarP4().eta()), dnn::tau_inside_ecal_crack);
     }
     if (valid_index_pf_muon) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFmu, is_inner));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFmu, is_inner));
       size_t index_pf_muon = cell_map.at(CellObjectType::PfCand_muon);
       const auto& muon_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_pf_muon));
 
@@ -2401,7 +2396,7 @@ private:
       }
     }
     if (valid_index_muon) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_mu, is_inner));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_mu, is_inner));
       size_t index_muon = cell_map.at(CellObjectType::Muon);
 
       get(dnn::muon_valid) = sp.scale(valid_index_muon, dnn::muon_valid - mu_index_offset);
@@ -2471,9 +2466,10 @@ private:
                                 TauFunc tau_funcs,
                                 bool is_inner) {
     namespace dnn = dnn_inputs_v2::HadronBlockInputs;
-    deep_tau::Scaling::FeatureT ft_global = deep_tau::Scaling::FeatureT::GridGlobal;
-    deep_tau::Scaling::FeatureT ft_PFchH = deep_tau::Scaling::FeatureT::PfCand_chHad;
-    deep_tau::Scaling::FeatureT ft_PFnH = deep_tau::Scaling::FeatureT::PfCand_nHad;
+    namespace sc = deep_tau::Scaling;
+    sc::FeatureT ft_global = sc::FeatureT::GridGlobal;
+    sc::FeatureT ft_PFchH = sc::FeatureT::PfCand_chHad;
+    sc::FeatureT ft_PFnH = sc::FeatureT::PfCand_nHad;
 
     // needed to remap indices from scaling vectors to those from dnn_inputs_v2::HadronBlockInputs
     int PFchH_index_offset = scalingParamsMap_->at(std::make_pair(ft_global, false)).mean_.size();
@@ -2487,14 +2483,14 @@ private:
     const bool valid_nH = cell_map.count(CellObjectType::PfCand_neutralHadron);
 
     if (!cell_map.empty()) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_global, false));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_global, false));
       get(dnn::rho) = sp.scale(rho, dnn::rho);
       get(dnn::tau_pt) = sp.scale(tau.polarP4().pt(), dnn::tau_pt);
       get(dnn::tau_eta) = sp.scale(tau.polarP4().eta(), dnn::tau_eta);
       get(dnn::tau_inside_ecal_crack) = sp.scale(isInEcalCrack(tau.polarP4().eta()), dnn::tau_inside_ecal_crack);
     }
     if (valid_chH) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFchH, is_inner));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFchH, is_inner));
       size_t index_chH = cell_map.at(CellObjectType::PfCand_chargedHadron);
       const auto& chH_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_chH));
 
@@ -2572,7 +2568,7 @@ private:
           sp.scale(candFunc::getRawCaloFraction(chH_cand), dnn::pfCand_chHad_rawCaloFraction - PFchH_index_offset);
     }
     if (valid_nH) {
-      const deep_tau::Scaling::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFnH, is_inner));
+      const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_PFnH, is_inner));
       size_t index_nH = cell_map.at(CellObjectType::PfCand_neutralHadron);
       const auto& nH_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_nH));
 
@@ -2607,7 +2603,7 @@ private:
     static constexpr bool check_all_set = false;
     static constexpr float default_value_for_set_check = -42;
 
-    tensorflow::Tensor inputs(tensorflow::DT_FLOAT, {1, dnn_inputs_2017v1::NumberOfInputs});
+    tensorflow::Tensor inputs(tensorflow::DT_FLOAT, {1, dnn_inputs_v1::NumberOfInputs});
     const auto& get = [&](int var_index) -> float& { return inputs.matrix<float>()(0, var_index); };
     auto leadChargedHadrCand = dynamic_cast<const CandidateCastType*>(tau.leadChargedHadrCand().get());
 
