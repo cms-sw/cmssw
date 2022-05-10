@@ -79,7 +79,7 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet &iConfig)
 // ------------ method called to analyze the data  ------------
 void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   // Get input
-  const edm::Handle<EcalTrigPrimDigiCollection>& tp = iEvent.getHandle(tpToken_);
+  const edm::Handle<EcalTrigPrimDigiCollection> &tp = iEvent.getHandle(tpToken_);
   for (unsigned int i = 0; i < tp.product()->size(); i++) {
     EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
     int subdet = d.id().subDet() - 1;
@@ -99,16 +99,16 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
     return;
 
   // comparison with RecHits
-  const edm::Handle<EcalRecHitCollection>& rechit_EB_col = iEvent.getHandle(ebToken_);
-  const edm::Handle<EcalRecHitCollection>& rechit_EE_col = iEvent.getHandle(eeToken_);
+  const edm::Handle<EcalRecHitCollection> &rechit_EB_col = iEvent.getHandle(ebToken_);
+  const edm::Handle<EcalRecHitCollection> &rechit_EE_col = iEvent.getHandle(eeToken_);
 
-  const edm::ESHandle<CaloGeometry>& theGeometry = iSetup.getHandle(geomToken_);
-  const edm::ESHandle<CaloSubdetectorGeometry>& theBarrelGeometry_handle = iSetup.getHandle(barrelGeomToken_);
-  const edm::ESHandle<CaloSubdetectorGeometry>& theEndcapGeometry_handle = iSetup.getHandle(endcapGeomToken_);
+  const edm::ESHandle<CaloGeometry> &theGeometry = iSetup.getHandle(geomToken_);
+  const edm::ESHandle<CaloSubdetectorGeometry> &theBarrelGeometry_handle = iSetup.getHandle(barrelGeomToken_);
+  const edm::ESHandle<CaloSubdetectorGeometry> &theEndcapGeometry_handle = iSetup.getHandle(endcapGeomToken_);
 
   const CaloSubdetectorGeometry *theEndcapGeometry = theEndcapGeometry_handle.product();
   const CaloSubdetectorGeometry *theBarrelGeometry = theBarrelGeometry_handle.product();
-  const edm::ESHandle<EcalTrigTowerConstituentsMap>& eTTmap_ = iSetup.getHandle(eTTmapToken_);
+  const edm::ESHandle<EcalTrigTowerConstituentsMap> &eTTmap_ = iSetup.getHandle(eTTmapToken_);
 
   std::map<EcalTrigTowerDetId, float> mapTow_Et;
 

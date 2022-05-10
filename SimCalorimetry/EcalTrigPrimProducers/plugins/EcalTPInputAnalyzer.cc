@@ -25,12 +25,12 @@
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "EcalTPInputAnalyzer.h"
 
-EcalTPInputAnalyzer::EcalTPInputAnalyzer(const edm::ParameterSet &iConfig) :
-  producer_(iConfig.getParameter<std::string>("Producer")),
-  ebLabel_(iConfig.getParameter<std::string>("EBLabel")),
-  eeLabel_(iConfig.getParameter<std::string>("EELabel")),
-  ebToken_(consumes<EBDigiCollection>(edm::InputTag(producer_, ebLabel_))),
-  eeToken_(consumes<EEDigiCollection>(edm::InputTag(producer_, eeLabel_))) {
+EcalTPInputAnalyzer::EcalTPInputAnalyzer(const edm::ParameterSet &iConfig)
+    : producer_(iConfig.getParameter<std::string>("Producer")),
+      ebLabel_(iConfig.getParameter<std::string>("EBLabel")),
+      eeLabel_(iConfig.getParameter<std::string>("EELabel")),
+      ebToken_(consumes<EBDigiCollection>(edm::InputTag(producer_, ebLabel_))),
+      eeToken_(consumes<EEDigiCollection>(edm::InputTag(producer_, eeLabel_))) {
   usesResource(TFileService::kSharedResource);
 
   edm::Service<TFileService> fs;
@@ -56,14 +56,14 @@ EcalTPInputAnalyzer::EcalTPInputAnalyzer(const edm::ParameterSet &iConfig) :
 // ------------ method called to analyze the data  ------------
 void EcalTPInputAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   bool barrel = true;
-  const edm::Handle<EBDigiCollection>& ebDigis = iEvent.getHandle(ebToken_);
+  const edm::Handle<EBDigiCollection> &ebDigis = iEvent.getHandle(ebToken_);
   if (!ebDigis.isValid()) {
     barrel = false;
     edm::LogWarning("EcalTPG") << " Couldnt find Barrel dataframes with Producer:" << producer_
                                << " and label: " << ebLabel_;
   }
   bool endcap = true;
-  const edm::Handle<EEDigiCollection>& eeDigis = iEvent.getHandle(eeToken_);
+  const edm::Handle<EEDigiCollection> &eeDigis = iEvent.getHandle(eeToken_);
   if (!eeDigis.isValid()) {
     endcap = false;
     edm::LogWarning("EcalTPG") << " Couldnt find Endcap dataframes with Producer:" << producer_
