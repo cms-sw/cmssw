@@ -18,16 +18,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '122X_mcRun3_2021_realistic_v9', '') # For Run3 DeepTau_v2p5 tests
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2018_realistic', '')
 
 # Input source
 process.source = cms.Source('PoolSource', fileNames = cms.untracked.vstring(
-#     # File from dataset TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8
-#     '/store/mc/RunIISummer20UL18MiniAOD/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/00000/009636D7-07B2-DB49-882D-C251FD62CCE7.root'
-
-     # For Run3 DeepTau_v2p5 tests
-     '/store/mc/Run3Winter22MiniAOD/QCD_Pt-170to300_EMEnriched_TuneCP5_13p6TeV_pythia8/MINIAODSIM/FlatPU0to70_122X_mcRun3_2021_realistic_v9-v2/2530000/20f60cc2-16b5-44c9-8a3e-6976938e8aff.root'
+    # File from dataset TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8
+    '/store/mc/RunIISummer20UL18MiniAOD/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/MINIAODSIM/106X_upgrade2018_realistic_v11_L1v1-v2/00000/009636D7-07B2-DB49-882D-C251FD62CCE7.root'
 ))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(eventsToProcess) )
