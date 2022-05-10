@@ -79,7 +79,7 @@ void SubsystemNeutronWriter::produce(edm::Event& e, edm::EventSetup const& c) {
   }
   theHitWriter->beginEvent(e, c);
   ++theNEvents;
-  const edm::Handle<edm::PSimHitContainer> &hits = e.getHandle(hitToken_);
+  const edm::Handle<edm::PSimHitContainer>& hits = e.getHandle(hitToken_);
 
   // sort hits by chamber
   std::map<int, edm::PSimHitContainer> hitsByChamber;
