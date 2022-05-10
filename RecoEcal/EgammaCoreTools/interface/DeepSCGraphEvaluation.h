@@ -18,11 +18,12 @@ namespace reco {
 
   struct DeepSCConfiguration {
     std::string modelFile;
-    std::string scalerFileClusterFeatures;
-    std::string scalerFileWindowFeatures;
+    std::string configFileClusterFeatures;
+    std::string configFileWindowFeatures;
+    std::string configFileHitsFeatures;
     uint nClusterFeatures;
     uint nWindowFeatures;
-    static constexpr uint nRechitsFeatures = 4;
+    uint nHitsFeatures;
     uint maxNClusters;
     uint maxNRechits;
     uint batchSize;
@@ -32,40 +33,64 @@ namespace reco {
   /*
    * Structure representing the detector windows of a single events, to be evaluated with the DeepSC model.
    * The index structure is described in the following
-   * - clusterX = [ window, cluster, nClusterFeatures[double] ] --> vector of features for each cluster
-   * - hitsX = [window, cluster, hit, nRechitsFeatires[double]] --> vector of features for each RecHit
-   * - windowX = [window, nWindowFeatures[double]] --> vector of summary features of the window
-   * - isSeed [window, cluster[bool]] --> mask indicating the seed cluster in each window  
    */
-  struct DeepSCInputs {
-    std::vector<std::vector<std::vector<double>>> clustersX;
-    std::vector<std::vector<std::vector<std::vector<double>>>> hitsX;
-    std::vector<std::vector<double>> windowX;
-    std::vector<std::vector<bool>> isSeed;
-  };
+
+  namespace DeepSCInputs {
+    enum ScalerType {
+      MeanRms,  // scale as (var - mean)/rms
+      MinMax,   // scale as (var - min) (max-min)
+      None      // do nothing
+    };
+    struct InputConfig {
+      // Each input variable is represented by the tuple <varname, standardization_type, par1, par2>
+      std::string varName;
+      ScalerType type;
+      float par1;
+      float par2;
+    };
+    typedef std::vector<InputConfig> InputConfigs;
+    typedef std::map<std::string, double> FeaturesMap;
+
+    struct Inputs {
+      std::vector<std::vector<std::vector<float>>> clustersX;
+      std::vector<std::vector<std::vector<std::vector<float>>>> hitsX;
+      std::vector<std::vector<float>> windowX;
+      std::vector<std::vector<bool>> isSeed;
+    };
+
+  };  // namespace DeepSCInputs
 
   class DeepSCGraphEvaluation {
   public:
     DeepSCGraphEvaluation(const DeepSCConfiguration&);
     ~DeepSCGraphEvaluation();
 
-    std::vector<double> scaleClusterFeatures(const std::vector<double>& input) const;
-    std::vector<double> scaleWindowFeatures(const std::vector<double>& inputs) const;
+    std::vector<float> getScaledInputs(const DeepSCInputs::FeaturesMap& variables,
+                                       const DeepSCInputs::InputConfigs& config) const;
 
-    std::vector<std::vector<float>> evaluate(const DeepSCInputs& inputs) const;
+    std::vector<std::vector<float>> evaluate(const DeepSCInputs::Inputs& inputs) const;
+
+    // List of input variables names used to check the variables request as
+    // inputs in a dynamic way from configuration file.
+    // If an input variables is not found at construction time an expection is thrown.
+    static const std::vector<std::string> availableClusterInputs;
+    static const std::vector<std::string> availableWindowInputs;
+    static const std::vector<std::string> availableHitsInputs;
+
+    // Configuration of the input variables including the scaling parameters.
+    // The list is used to define the vector of input features passed to the tensorflow model.
+    DeepSCInputs::InputConfigs inputFeaturesClusters;
+    DeepSCInputs::InputConfigs inputFeaturesWindows;
+    DeepSCInputs::InputConfigs inputFeaturesHits;
 
   private:
     void initTensorFlowGraphAndSession();
-    uint readScalerConfig(std::string file, std::vector<std::pair<float, float>>& scalingParams);
-
-    void prepareTensorflowInput(const DeepSCInputs& inputs) const;
+    DeepSCInputs::InputConfigs readInputFeaturesConfig(std::string file,
+                                                       const std::vector<std::string>& availableInputs) const;
 
     const DeepSCConfiguration cfg_;
     std::unique_ptr<tensorflow::GraphDef> graphDef_;
     tensorflow::Session* session_;
-
-    std::vector<std::pair<float, float>> scalerParamsClusters_;
-    std::vector<std::pair<float, float>> scalerParamsWindows_;
   };
 
 };  // namespace reco
