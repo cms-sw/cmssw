@@ -47,19 +47,19 @@ int MPQualityEnhancerFilterBayes::areCousins(metaPrimitive mp, metaPrimitive sec
 
   if (mp.wi1 == second_mp.wi1 and mp.tdc1 == second_mp.tdc1 and mp.wi1 != -1 and mp.tdc1 != -1)
     output = 1;
-  if (mp.wi2 == second_mp.wi2 and mp.tdc2 == second_mp.tdc2 and mp.wi2 != -1 and mp.tdc2 != -1)
+  else if (mp.wi2 == second_mp.wi2 and mp.tdc2 == second_mp.tdc2 and mp.wi2 != -1 and mp.tdc2 != -1)
     output = 2;
-  if (mp.wi3 == second_mp.wi3 and mp.tdc3 == second_mp.tdc3 and mp.wi3 != -1 and mp.tdc3 != -1)
+  else if (mp.wi3 == second_mp.wi3 and mp.tdc3 == second_mp.tdc3 and mp.wi3 != -1 and mp.tdc3 != -1)
     output = 3;
-  if (mp.wi4 == second_mp.wi4 and mp.tdc4 == second_mp.tdc4 and mp.wi4 != -1 and mp.tdc4 != -1)
+  else if (mp.wi4 == second_mp.wi4 and mp.tdc4 == second_mp.tdc4 and mp.wi4 != -1 and mp.tdc4 != -1)
     output = 4;
-  if (mp.wi5 == second_mp.wi5 and mp.tdc5 == second_mp.tdc5 and mp.wi5 != -1 and mp.tdc5 != -1)
+  else if (mp.wi5 == second_mp.wi5 and mp.tdc5 == second_mp.tdc5 and mp.wi5 != -1 and mp.tdc5 != -1)
     output = 5;
-  if (mp.wi6 == second_mp.wi6 and mp.tdc6 == second_mp.tdc6 and mp.wi6 != -1 and mp.tdc6 != -1)
+  else if (mp.wi6 == second_mp.wi6 and mp.tdc6 == second_mp.tdc6 and mp.wi6 != -1 and mp.tdc6 != -1)
     output = 6;
-  if (mp.wi7 == second_mp.wi7 and mp.tdc7 == second_mp.tdc7 and mp.wi7 != -1 and mp.tdc7 != -1)
+  else if (mp.wi7 == second_mp.wi7 and mp.tdc7 == second_mp.tdc7 and mp.wi7 != -1 and mp.tdc7 != -1)
     output = 7;
-  if (mp.wi8 == second_mp.wi8 and mp.tdc8 == second_mp.tdc8 and mp.wi8 != -1 and mp.tdc8 != -1)
+  else if (mp.wi8 == second_mp.wi8 and mp.tdc8 == second_mp.tdc8 and mp.wi8 != -1 and mp.tdc8 != -1)
     output = 8;
 
   return output;
