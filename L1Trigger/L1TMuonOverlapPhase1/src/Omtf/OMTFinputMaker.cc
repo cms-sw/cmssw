@@ -191,12 +191,18 @@ void RpcDigiToStubsConverterOmtf::addRPCstub(MuonStubPtrs2D& muonStubsInLayers,
       muonStubsInLayers[iLayer][iInput + 1]->type = MuonStub::RPC_DROPPED;
     } else if (cluster.size() > config->getRpcMaxClusterSize()) {
       //marking as dropped the one that was added before on the iInput
-      if (muonStubsInLayers[iLayer][iInput])
+      if (muonStubsInLayers[iLayer][iInput]) {
         muonStubsInLayers[iLayer][iInput]->type = MuonStub::RPC_DROPPED;
-      else {
+
+        muonStubsInLayers[iLayer][iInput + 1] = std::make_shared<MuonStub>(stub);
+        muonStubsInLayers[iLayer][iInput + 1]->type = MuonStub::RPC_DROPPED;
+      } else {
         //no stub was added at this input already, so adding a stub and marking it as dropped
-        muonStubsInLayers.at(iLayer).at(iInput) = std::make_shared<MuonStub>(stub);
+        muonStubsInLayers[iLayer].at(iInput) = std::make_shared<MuonStub>(stub);
         muonStubsInLayers[iLayer][iInput]->type = MuonStub::RPC_DROPPED;
+
+        muonStubsInLayers[iLayer][iInput + 1] = std::make_shared<MuonStub>(stub);
+        muonStubsInLayers[iLayer][iInput + 1]->type = MuonStub::RPC_DROPPED;
       }
     } else
       OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);

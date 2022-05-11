@@ -16,14 +16,7 @@ RpcClusterization::~RpcClusterization() {}
 std::vector<RpcCluster> RpcClusterization::getClusters(const RPCDetId& roll, std::vector<RPCDigi>& digis) const {
   std::vector<RpcCluster> allClusters;
 
-  if (!dropAllClustersIfMoreThanMax) {
-    //with the 2018 firmware the agreement is better with this sort
-    std::sort(digis.begin(), digis.end(), [](const RPCDigi& a, const RPCDigi& b) { return a.strip() < b.strip(); });
-  } else {
-    //with the fixed RPC clusterization (Nov 2021 firmware) the data to emulator agreement is better if this reverse is used here,
-    //with the 2018 firmware the agreement is worse with this reverse,
-    std::reverse(digis.begin(), digis.end());
-  }
+  std::sort(digis.begin(), digis.end(), [](const RPCDigi& a, const RPCDigi& b) { return a.strip() < b.strip(); });
 
   typedef std::pair<unsigned int, unsigned int> Cluster;
 
