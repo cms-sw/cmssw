@@ -913,7 +913,7 @@ double HGCalDDDConstants::mouseBite(bool reco) const {
 
 int HGCalDDDConstants::numberCells(bool reco) const {
   int cells =
-      (tileTrapezoid() && (hgpar_->waferMaskMode_ == HGCalGeomParameters::scintillatorFile)) ? tileCount(0, -1) : 0;
+    (tileTrapezoid() && ((hgpar_->waferMaskMode_ == HGCalGeomParameters::scintillatorFile) || (hgpar_->waferMaskMode_ == HGCalGeomParameters::scintillatorCassette))) ? tileCount(0, -1) : 0;
   if (cells == 0) {
     unsigned int nlayer = (reco) ? hgpar_->depth_.size() : hgpar_->layer_.size();
     for (unsigned k = 0; k < nlayer; ++k) {
