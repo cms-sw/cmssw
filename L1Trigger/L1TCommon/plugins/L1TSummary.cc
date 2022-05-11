@@ -6,7 +6,7 @@
 #include <iostream>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -20,10 +20,9 @@ using namespace std;
 using namespace edm;
 using namespace l1t;
 
-class L1TSummary : public EDAnalyzer {
+class L1TSummary : public one::EDAnalyzer<> {
 public:
   explicit L1TSummary(const ParameterSet&);
-  ~L1TSummary() override;
 
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -31,11 +30,6 @@ private:
   void beginJob() override;
   void analyze(Event const&, EventSetup const&) override;
   void endJob() override;
-
-  void beginRun(Run const&, EventSetup const&) override;
-  void endRun(Run const&, EventSetup const&) override;
-  void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-  void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
   // Tag string to mark summary with:
   string tag_;
@@ -110,8 +104,6 @@ L1TSummary::L1TSummary(const ParameterSet& iConfig) {
   sumCount_ = 0;
   muonCount_ = 0;
 }
-
-L1TSummary::~L1TSummary() {}
 
 void L1TSummary::analyze(Event const& iEvent, EventSetup const& iSetup) {
   cout << "L1TSummary Module output for " << tag_ << "\n";
@@ -239,14 +231,6 @@ void L1TSummary::endJob() {
   if (muonCheck_)
     cout << "muon:  " << muonCount_ << "\n";
 }
-
-void L1TSummary::beginRun(Run const& run, EventSetup const& iSetup) {}
-
-void L1TSummary::endRun(Run const&, EventSetup const&) {}
-
-void L1TSummary::beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
-
-void L1TSummary::endLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
 
 void L1TSummary::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
