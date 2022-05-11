@@ -151,7 +151,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
         const std::string meClus3 = fmt::format("ClusterSize_Disk_{}_Ring_{}_CH19-CH27", (region * disk), ring);
         const std::string meClus4 = fmt::format("ClusterSize_Disk_{}_Ring_{}_CH28-CH36", (region * disk), ring);
 
-        auto mecl1 = ibooker.book2D(meClus1, meClus1, 11, 1, 12, 27,  0.5, 27.5);
+        auto mecl1 = ibooker.book2D(meClus1, meClus1, 11, 1, 12, 27, 0.5, 27.5);
         auto mecl2 = ibooker.book2D(meClus2, meClus2, 11, 1, 12, 27, 27.5, 54.5);
         auto mecl3 = ibooker.book2D(meClus3, meClus3, 11, 1, 12, 27, 54.5, 81.5);
         auto mecl4 = ibooker.book2D(meClus4, meClus4, 11, 1, 12, 27, 81.5, 108.5);
@@ -165,9 +165,9 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
             const std::string ylabel1 = fmt::format("R{}_CH{:02d}_C", ring, i);
             const std::string ylabel2 = fmt::format("R{}_CH{:02d}_B", ring, i);
             const std::string ylabel3 = fmt::format("R{}_CH{:02d}_A", ring, i);
-            meCls[icl]->setBinLabel(1 + (i-1) * 3, ylabel1, 2);
-            meCls[icl]->setBinLabel(2 + (i-1) * 3, ylabel2, 2);
-            meCls[icl]->setBinLabel(3 + (i-1) * 3, ylabel3, 2);
+            meCls[icl]->setBinLabel(1 + (i - 1) * 3, ylabel1, 2);
+            meCls[icl]->setBinLabel(2 + (i - 1) * 3, ylabel2, 2);
+            meCls[icl]->setBinLabel(3 + (i - 1) * 3, ylabel3, 2);
           }
           meCls[icl]->setBinLabel(1, "1", 1);
           meCls[icl]->setBinLabel(5, "5", 1);
