@@ -1,11 +1,13 @@
 <use name="FWCore/ParameterSet"/>
 <use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="SimCalorimetry/EcalTrigPrimAlgos"/>
 <use name="DataFormats/EcalDigi"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="CalibCalorimetry/EcalTPGTools"/>
 <use name="CondFormats/DataRecord"/>
+<use name="CommonTools/UtilAlgos"/>
 <library file="*.cc" name="SimCalorimetryEcalTrigPrimProducersPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

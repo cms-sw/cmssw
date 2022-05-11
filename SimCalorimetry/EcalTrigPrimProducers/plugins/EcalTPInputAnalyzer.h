@@ -16,14 +16,15 @@
 //
 
 // system include files
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <TFile.h>
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 #include <TH1I.h>
 #include <string>
 #include <vector>
@@ -32,13 +33,12 @@
 // class declaration
 //
 
-class EcalTPInputAnalyzer : public edm::one::EDAnalyzer<> {
+class EcalTPInputAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit EcalTPInputAnalyzer(const edm::ParameterSet &);
-  ~EcalTPInputAnalyzer() override;
+  ~EcalTPInputAnalyzer() override = default;
 
   void analyze(const edm::Event &, const edm::EventSetup &) override;
-  void endJob() override;
 
 private:
   // for histos of nr of hits
@@ -47,10 +47,11 @@ private:
   TH1I *ecal_tt_[2];
   TH1I *ecal_fgvb_[2];
   TH1I *histEndc, *histBar;
-  TFile *histfile_;
 
-  std::string ebLabel_;
-  std::string eeLabel_;
-  std::string producer_;
+  const std::string producer_;
+  const std::string ebLabel_;
+  const std::string eeLabel_;
+  const edm::EDGetTokenT<EBDigiCollection> ebToken_;
+  const edm::EDGetTokenT<EEDigiCollection> eeToken_;
 };
 #endif
