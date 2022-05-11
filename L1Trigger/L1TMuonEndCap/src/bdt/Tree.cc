@@ -479,7 +479,7 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
   XMLAttrPointer_t attr = xml->GetFirstAttr(xnode);
   std::vector<std::string> splitInfo(3);
   if (xmlVersion >= 2017) {
-    for (unsigned int i = 0, j = 0; i < 10; i++) {
+    for (unsigned int i = 0; i < 10; i++) {
       if(std::string("IVar") == xml->GetAttrName(attr)) {
         splitInfo[0] = xml->GetAttrValue(attr);
       }
