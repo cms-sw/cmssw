@@ -211,7 +211,7 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
               edm::LogVerbatim("HGCalGeom") << "[" << j << "] " << xL[j] << ":" << yL[j];
 #endif
             auto posSense = HGCalCell::cellOrient(placementIndex_[m]);
-            double zpos = (posSense.second < 0) ? -0.5 * (waferThick_ - senseT_) : 0.5 * (waferThick_ - senseT_);
+            double zpos = (posSense.second > 0) ? -0.5 * (waferThick_ - senseT_) : 0.5 * (waferThick_ - senseT_);
             DDTranslation tran(0, 0, zpos);
             int copy = 10 + senseType_;
             cpv.position(glog, glogs[i], copy, tran, rot);
