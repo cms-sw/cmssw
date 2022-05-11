@@ -172,7 +172,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                 << "[" << j << "] " << cms::convert2mm(xL[j]) << ":" << cms::convert2mm(yL[j]);
 #endif
           auto posSense = HGCalCell::cellOrient(placementIndex[m]);
-          double zpos = (posSense.second < 0) ? -0.5 * (waferThick - senseT) : 0.5 * (waferThick - senseT);
+          double zpos = (posSense.second > 0) ? -0.5 * (waferThick - senseT) : 0.5 * (waferThick - senseT);
           dd4hep::Position tran(0, 0, zpos);
           int copy = 10 + senseType;
           glogs[i].placeVolume(glog, copy, tran);
