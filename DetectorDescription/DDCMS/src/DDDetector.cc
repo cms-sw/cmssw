@@ -26,7 +26,9 @@ namespace cms {
     }
     m_description = &dd4hep::Detector::getInstance(tagStr);
     m_description->addExtension<cms::DDVectorsMap>(&m_vectors);
-    auto parsingContext = new cms::DDParsingContext(*m_description, makePayload);  // Removed at end of constructor
+    //only validate if using XML
+    auto parsingContext =
+        new cms::DDParsingContext(*m_description, makePayload, not bigXML);  // Removed at end of constructor
     m_description->addExtension<cms::DDParsingContext>(parsingContext);
     m_description->addExtension<dd4hep::PartSelectionMap>(&m_partsels);
     m_description->addExtension<dd4hep::SpecParRegistry>(&m_specpars);

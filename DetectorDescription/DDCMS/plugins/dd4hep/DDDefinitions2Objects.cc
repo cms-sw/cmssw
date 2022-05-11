@@ -893,12 +893,14 @@ static void placeAssembly(Volume* parentPtr,
       as->ComputeBBox();
     }
   }
-  TGeoNode* n;
-  TString nam_id = TString::Format("%s_%d", (*childPtr)->GetName(), copy);
-  n = static_cast<TGeoNode*>((*parentPtr)->GetNode(nam_id));
-  if (n != nullptr) {
-    printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
-    return;
+  if (ns.context()->validate) {
+    TGeoNode* n;
+    TString nam_id = TString::Format("%s_%d", (*childPtr)->GetName(), copy);
+    n = static_cast<TGeoNode*>((*parentPtr)->GetNode(nam_id));
+    if (n != nullptr) {
+      printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
+      return;
+    }
   }
 
   PlacedVolume pv;
@@ -1005,9 +1007,11 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
     }
     TGeoNode* n;
     TString nam_id = TString::Format("%s_%d", child->GetName(), copy);
-    n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
-    if (n != nullptr) {
-      printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
+    if (ns.context()->validate) {
+      n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
+      if (n != nullptr) {
+        printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
+      }
     }
 
     Rotation3D rot(transform.Rotation());
@@ -1017,7 +1021,8 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
     Position pos(x, y, z);
     parent->AddNode(child, copy, createPlacement(rot, pos));
 
-    n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
+    n = static_cast<TGeoNode*>(parent->GetNodes()->Last());
+    assert(n->GetName() == nam_id);
     n->TGeoNode::SetUserExtension(new PlacedVolume::Object());
     pv = PlacedVolume(n);
   }
