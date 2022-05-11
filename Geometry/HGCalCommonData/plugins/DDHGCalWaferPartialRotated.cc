@@ -85,7 +85,7 @@ void DDHGCalWaferPartialRotated::initialize(const DDNumericArguments& nArgs,
   for (unsigned int k = 0; k < tags_.size(); ++k) {
     for (unsigned int m = 0; m < placementIndex_.size(); ++m) {
       edm::LogVerbatim("HGCalGeom") << "Type[" << k << "] " << tags_[k] << " Partial " << partialTypes_[k]
-                                    << " Plecement Index " << placementIndex_[m];
+                                    << " Placement Index " << placementIndex_[m] << " Tag " << placementIndexTags_[m];
     }
   }
 #endif

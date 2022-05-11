@@ -81,7 +81,7 @@ void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
                                 << " T " << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_
                                 << " T " << waferThick_;
 #endif
-  orient_ = dbl_to_int(vArgs["WaferOrinet"]);
+  orient_ = dbl_to_int(vArgs["WaferOrient"]);
   face_ = dbl_to_int(vArgs["WaferFace"]);
   tag_ = vsArgs["WaferPlacementIndex"];
   layerNames_ = vsArgs["LayerNames"];

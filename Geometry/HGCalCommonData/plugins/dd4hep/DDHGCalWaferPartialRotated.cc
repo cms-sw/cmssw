@@ -44,7 +44,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   for (unsigned int k = 0; k < tags.size(); ++k) {
     for (unsigned int m = 0; m < placementIndex.size(); ++m) {
       edm::LogVerbatim("HGCalGeom") << "Type[" << k << "] " << tags[k] << " Partial " << partialTypes[k]
-                                    << " Plecement Index " << placementIndex[m];
+                                    << " Placement Index " << placementIndex[m] << " Tag " << placementIndexTags[m];
     }
   }
 #endif
