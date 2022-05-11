@@ -1017,6 +1017,27 @@ reco::CandidatePtrVector Tau::isolationGammaCands() const {
   }
 }
 
+std::vector<reco::CandidatePtr> Tau::signalLostTracks() const {
+  std::vector<reco::CandidatePtr> ret;
+  unsigned int i = 0;
+  std::string label = "_lostTrack_" + std::to_string(i);
+  while (this->hasUserCand(label)) {
+    ret.push_back(userCand(label));
+    i++;
+    label = "_lostTrack_" + std::to_string(i);
+  }
+  return ret;
+}
+
+void Tau::setSignalLostTracks(const std::vector<reco::CandidatePtr>& ptrs) {
+  unsigned int i = 0;
+  for (const auto& ptr : ptrs) {
+    std::string label = "_lostTrack_" + std::to_string(i);
+    addUserCand(label, ptr);
+    i++;
+  }
+}
+
 /// ----- Top Projection business -------
 /// get the number of non-null PFCandidates
 size_t Tau::numberOfSourceCandidatePtrs() const {
