@@ -102,6 +102,9 @@ public:
   constexpr static int siliconFileEE = 2;
   constexpr static int siliconFileHE = 3;
   constexpr static int scintillatorFile = 4;
+  constexpr static int siliconCassetteEE = 5;
+  constexpr static int siliconCassetteHE = 6;
+  constexpr static int scintillatorCassette = 7;
 
 private:
   void loadGeometryHexagon(const std::map<int, HGCalGeomParameters::layerParameters>& layers,

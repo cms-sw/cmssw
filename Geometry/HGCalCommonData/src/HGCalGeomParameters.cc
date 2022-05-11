@@ -1308,21 +1308,32 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
   // Read in parameters from Philip's file
   if (php.waferMaskMode_ > 1) {
     std::vector<int> layerType, waferIndex, waferProperties;
+    std::vector<double> cassetteShift;
     if (php.waferMaskMode_ == siliconFileEE) {
       waferIndex = dbl_to_int(fv.vector("WaferIndexEE"));
       waferProperties = dbl_to_int(fv.vector("WaferPropertiesEE"));
+    } else if (php.waferMaskMode_ == siliconCassetteEE) {
+      waferIndex = dbl_to_int(fv.vector("WaferIndexEE"));
+      waferProperties = dbl_to_int(fv.vector("WaferPropertiesEE"));
+      cassetteShift = fv.vector("CassetteShiftEE");
     } else if (php.waferMaskMode_ == siliconFileHE) {
       waferIndex = dbl_to_int(fv.vector("WaferIndexHE"));
       waferProperties = dbl_to_int(fv.vector("WaferPropertiesHE"));
+    } else if (php.waferMaskMode_ == siliconCassetteHE) {
+      waferIndex = dbl_to_int(fv.vector("WaferIndexHE"));
+      waferProperties = dbl_to_int(fv.vector("WaferPropertiesHE"));
+      cassetteShift = fv.vector("CassetteShiftHE");
     }
     if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
-      if (php.waferMaskMode_ == siliconFileEE) {
+      if ((php.waferMaskMode_ == siliconFileEE) || (php.waferMaskMode_ == siliconCassetteEE)) {
         layerType = dbl_to_int(fv.vector("LayerTypesEE"));
-      } else if (php.waferMaskMode_ == siliconFileHE) {
+      } else if ((php.waferMaskMode_ == siliconFileHE) || (php.waferMaskMode_ == siliconCassetteHE)) {
         layerType = dbl_to_int(fv.vector("LayerTypesHE"));
       }
     }
 
+    php.cassetteShift_ = cassetteShift;
+    rescale(php.cassetteShift_, HGCalParameters::k_ScaleFromDD4hep);
     loadSpecParsHexagon8(php, layerType, waferIndex, waferProperties);
   }
 }
@@ -1394,7 +1405,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
   // Read in parameters from Philip's file
   if (php.waferMaskMode_ > 1) {
     std::vector<int> layerType, waferIndex, waferProperties;
-    if (php.waferMaskMode_ == siliconFileEE) {
+    std::vector<double> cassetteShift;
+    if ((php.waferMaskMode_ == siliconFileEE) || (php.waferMaskMode_ == siliconCassetteEE)) {
       for (auto const& it : vmap) {
         if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferIndexEE")) {
           for (const auto& i : it.second)
@@ -1404,7 +1416,15 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
             waferProperties.emplace_back(std::round(i));
         }
       }
-    } else if (php.waferMaskMode_ == siliconFileHE) {
+      if (php.waferMaskMode_ == siliconCassetteEE) {
+        for (auto const& it : vmap) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "CassetteShiftEE")) {
+            for (const auto& i : it.second)
+              cassetteShift.emplace_back(i);
+          }
+        }
+      }
+    } else if ((php.waferMaskMode_ == siliconFileHE) || (php.waferMaskMode_ == siliconCassetteHE)) {
       for (auto const& it : vmap) {
         if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "WaferIndexHE")) {
           for (const auto& i : it.second)
@@ -1414,9 +1434,17 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
             waferProperties.emplace_back(std::round(i));
         }
       }
+      if (php.waferMaskMode_ == siliconCassetteHE) {
+        for (auto const& it : vmap) {
+          if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "CassetteShiftHE")) {
+            for (const auto& i : it.second)
+              cassetteShift.emplace_back(i);
+          }
+        }
+      }
     }
     if (php.mode_ == HGCalGeometryMode::Hexagon8Module) {
-      if (php.waferMaskMode_ == siliconFileEE) {
+      if ((php.waferMaskMode_ == siliconFileEE) || (php.waferMaskMode_ == siliconFileHE)) {
         for (auto const& it : vmap) {
           if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "LayerTypesEE")) {
             for (const auto& i : it.second)
@@ -1433,6 +1461,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const cms::DDFilteredView& fv,
       }
     }
 
+    php.cassetteShift_ = cassetteShift;
+    rescale(php.cassetteShift_, HGCalParameters::k_ScaleFromDD4hep);
     loadSpecParsHexagon8(php, layerType, waferIndex, waferProperties);
   }
 }
@@ -1551,11 +1581,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
   loadSpecParsTrapezoid(php);
 
   // tile parameters from Katja's file
-  if (php.waferMaskMode_ == scintillatorFile) {
+  if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette)) {
     std::vector<int> tileIndx, tileProperty;
     std::vector<int> tileHEX1, tileHEX2, tileHEX3, tileHEX4;
     std::vector<double> tileRMin, tileRMax;
     std::vector<int> tileRingMin, tileRingMax;
+    std::vector<double> cassetteShift;
     tileIndx = dbl_to_int(fv.vector("TileIndex"));
     tileProperty = dbl_to_int(fv.vector("TileProperty"));
     tileHEX1 = dbl_to_int(fv.vector("TileHEX1"));
@@ -1568,7 +1599,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
     rescale(tileRMax, HGCalParameters::k_ScaleFromDDD);
     tileRingMin = dbl_to_int(fv.vector("TileRingMin"));
     tileRingMax = dbl_to_int(fv.vector("TileRingMax"));
+    if (php.waferMaskMode_ == scintillatorCassette) {
+      cassetteShift = fv.vector("CassetteShiftHE");
+      rescale(cassetteShift, HGCalParameters::k_ScaleFromDDD);
+    }
 
+    php.cassetteShift_ = cassetteShift;
     loadSpecParsTrapezoid(php,
                           tileIndx,
                           tileProperty,
@@ -1630,11 +1666,12 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
   loadSpecParsTrapezoid(php);
 
   // tile parameters from Katja's file
-  if (php.waferMaskMode_ == scintillatorFile) {
+  if ((php.waferMaskMode_ == scintillatorFile) || (php.waferMaskMode_ == scintillatorCassette)) {
     std::vector<int> tileIndx, tileProperty;
     std::vector<int> tileHEX1, tileHEX2, tileHEX3, tileHEX4;
     std::vector<double> tileRMin, tileRMax;
     std::vector<int> tileRingMin, tileRingMax;
+    std::vector<double> cassetteShift;
     for (auto const& it : vmap) {
       if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "TileIndex")) {
         for (const auto& i : it.second)
@@ -1668,7 +1705,17 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
           tileRingMax.emplace_back(std::round(i));
       }
     }
+    if (php.waferMaskMode_ == scintillatorCassette) {
+      for (auto const& it : vmap) {
+        if (dd4hep::dd::compareEqual(dd4hep::dd::noNamespace(it.first), "CassetteShiftHE")) {
+          for (const auto& i : it.second)
+            cassetteShift.emplace_back(i);
+        }
+      }
+    }
 
+    rescale(cassetteShift, HGCalParameters::k_ScaleFromDDD);
+    php.cassetteShift_ = cassetteShift;
     loadSpecParsTrapezoid(php,
                           tileIndx,
                           tileProperty,

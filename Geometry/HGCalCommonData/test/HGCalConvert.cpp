@@ -33,7 +33,7 @@
 //  laymin   (int)           First layer number of the HE part
 //                           (28 for versions: V14, V15; 26 for V16, V17)
 //  cassette (int)           Cassettes are used in geometry definition
-//                           (0 if nonone, 1 if 12 cassettes are used)
+//                           (0 if none, 1 if 12 cassettes are used)
 //  debug    (int)           Two digit integer to set debug for each
 //                           of the outputs
 //
@@ -817,7 +817,7 @@ void ConvertSiliconV2::writeSilicon(const char* outfile,
   for (const auto& l : layers) {
     ++k3;
     for (unsigned int k = 0; k < cassettes; ++k) {
-      std::string last = ((k3 == layers.size()) && ((k + 1) == cassettes)) ? " " : ",";
+      std::string last = ((k3 == layers.size()) && ((k + 1) == cassettes)) ? "*mm" : "*mm,";
       if ((k % 6) == 0)
         fOut << "\n  " << blank << std::setw(9) << l.deltaR[k] << last;
       else
