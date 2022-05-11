@@ -16,20 +16,19 @@ using namespace dtbayesam;
 // Constructors and destructor
 // ============================================================================
 PseudoBayesGrouping::PseudoBayesGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC)
-    : MotherGrouping(pset, iC) {
-  // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
-  pattern_filename_ = pset.getUntrackedParameter<edm::FileInPath>("pattern_filename").fullPath();
-  minNLayerHits_ = pset.getUntrackedParameter<int>("minNLayerHits");
-  minSingleSLHitsMax_ = pset.getUntrackedParameter<int>("minSingleSLHitsMax");
-  minSingleSLHitsMin_ = pset.getUntrackedParameter<int>("minSingleSLHitsMin");
-  allowedVariance_ = pset.getUntrackedParameter<int>("allowedVariance");
-  allowDuplicates_ = pset.getUntrackedParameter<bool>("allowDuplicates");
-  allowUncorrelatedPatterns_ = pset.getUntrackedParameter<bool>("allowUncorrelatedPatterns");
-  minUncorrelatedHits_ = pset.getUntrackedParameter<int>("minUncorrelatedHits");
-  maxPathsPerMatch_ = pset.getUntrackedParameter<int>("maxPathsPerMatch");
-  saveOnPlace_ = pset.getUntrackedParameter<bool>("saveOnPlace");
-  setLateralities_ = pset.getUntrackedParameter<bool>("setLateralities");
+    : MotherGrouping(pset, iC),
+      debug_(pset.getUntrackedParameter<bool>("debug")),
+      pattern_filename_(pset.getParameter<edm::FileInPath>("pattern_filename").fullPath()),
+      minNLayerHits_(pset.getParameter<int>("minNLayerHits")),
+      allowedVariance_(pset.getParameter<int>("allowedVariance")),
+      allowDuplicates_(pset.getParameter<bool>("allowDuplicates")),
+      allowUncorrelatedPatterns_(pset.getParameter<bool>("allowUncorrelatedPatterns")),
+      setLateralities_(pset.getParameter<bool>("setLateralities")),
+      saveOnPlace_(pset.getParameter<bool>("saveOnPlace")),
+      minSingleSLHitsMax_(pset.getParameter<int>("minSingleSLHitsMax")),
+      minSingleSLHitsMin_(pset.getParameter<int>("minSingleSLHitsMin")),
+      minUncorrelatedHits_(pset.getParameter<int>("minUncorrelatedHits")),
+      maxPathsPerMatch_(pset.getParameter<int>("maxPathsPerMatch")) {
   if (debug_)
     LogDebug("PseudoBayesGrouping") << "PseudoBayesGrouping:: constructor";
 }

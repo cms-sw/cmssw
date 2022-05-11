@@ -7,54 +7,31 @@ process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
 
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-# process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic', '')
 
-# process.GlobalTag.globaltag = "80X_dataRun2_2016SeptRepro_v7"
-# process.GlobalTag.globaltag = "106X_upgrade2023_realistic_v3"
-
 process.load("L1Trigger.DTTriggerPhase2.CalibratedDigis_cfi")
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 
-process.dtTriggerPhase2PrimitiveDigis.dump = True
-process.dtTriggerPhase2PrimitiveDigis.debug = True
-# process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.double(0.16)
-
-#process.load("FWCore.MessageLogger.MessageLogger_cfi")
-#
-#process.MessageLogger = cms.Service("MessageLogger",
-#                                    destinations = cms.untracked.vstring("detailedInfo"),
-#                                    detailedInfo = cms.untracked.PSet(threshold = cms.untracked.string("DEBUG"),
-#                                                                      default = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
-#                                                                      extension = cms.untracked.string(".txt")),
-#                                    debugModules = cms.untracked.vstring("dtTriggerPhase2BayesPrimitiveDigis","DTTrigPhase2Prod"),
-#                                )
-
 #scenario
-process.dtTriggerPhase2PrimitiveDigis.scenario = 0 #0 is mc, 1 is data, 2 is slice test
+process.dtTriggerPhase2PrimitiveDigis.scenario = cms.int32(0) #0 is mc, 1 is data, 2 is slice test
 process.CalibratedDigis.dtDigiTag = "simMuonDTDigis"
 process.CalibratedDigis.scenario = 0
 
-# Bayes
-process.dtTriggerPhase2BayesPrimitiveDigis = process.dtTriggerPhase2PrimitiveDigis.clone()
-process.dtTriggerPhase2BayesPrimitiveDigis.algo = 1 ## bayes grouping
-
-process.dtTriggerPhase2BayesPrimitiveDigis.minHits4Fit = 3
-process.dtTriggerPhase2BayesPrimitiveDigis.df_extended = 2
-process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minNLayerHits = 3
-process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMax = 3 
-process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.minSingleSLHitsMin = 0 
-process.dtTriggerPhase2BayesPrimitiveDigis.PseudoBayesPattern.allowedVariance = 1
-#process.dtTriggerPhase2BayesPrimitiveDigis.timeTolerance = cms.int32(999999)
-
-
 # STD
-process.dtTriggerPhase2StdPrimitiveDigis   = process.dtTriggerPhase2PrimitiveDigis.clone()
-process.dtTriggerPhase2StdPrimitiveDigis.algo = 0 ## initial grouping
-process.dtTriggerPhase2StdPrimitiveDigis.df_extended = 2
+process.dtTriggerPhase2PrimitiveDigis.algo = 0 ## initial grouping
+process.dtTriggerPhase2PrimitiveDigis.df_extended = 0
+
+# COMPARISON WITH FW
+# process.dtTriggerPhase2PrimitiveDigis.useBX_correlation = True
+# process.dtTriggerPhase2PrimitiveDigis.dBX_correlate_TP = 1
+# process.dtTriggerPhase2PrimitiveDigis.allow_confirmation = False
+# process.dtTriggerPhase2PrimitiveDigis.max_primitives = 4
+
+
+
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
@@ -71,26 +48,18 @@ process.source = cms.Source("PoolSource",
 
 )
                         )
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
-
-
-####################### SliceTest specials ##############################
-
-
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(100))
 
 process.out = cms.OutputModule("PoolOutputModule",
                                outputCommands = cms.untracked.vstring(
                                    'drop *',
                                    'keep *_CalibratedDigis_*_*',
-                                   'keep *_dtTriggerPhase2BayesPrimitiveDigis_*_*',
-                                   'keep *_dtTriggerPhase2StdPrimitiveDigis_*_*',
-                                   'keep *_genParticles_*_*',
+                                   'keep L1Phase2MuDT??Container_dtTriggerPhase2PrimitiveDigis_*_*',
                                ),
                                fileName = cms.untracked.string('DTTriggerPhase2Primitives.root')
 )
 
 process.p = cms.Path(process.CalibratedDigis *
-                     process.dtTriggerPhase2BayesPrimitiveDigis *
-                     process.dtTriggerPhase2StdPrimitiveDigis
+                     process.dtTriggerPhase2PrimitiveDigis
 )
 process.this_is_the_end = cms.EndPath(process.out)
