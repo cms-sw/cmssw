@@ -64,18 +64,17 @@ L1GtTriggerMenuTester::L1GtTriggerMenuTester(const edm::ParameterSet& parSet)
       m_noThrowIncompatibleMenu(parSet.getParameter<bool>("NoThrowIncompatibleMenu")),
       m_printPfsRates(parSet.getParameter<bool>("PrintPfsRates")),
       m_indexPfSet(parSet.getParameter<int>("IndexPfSet")),
+      m_l1GtStableParToken(esConsumes<edm::Transition::BeginRun>()),
+      m_l1GtPfAlgoToken(esConsumes<edm::Transition::BeginRun>()),
+      m_l1GtPfTechToken(esConsumes<edm::Transition::BeginRun>()),
+      m_l1GtTmTechToken(esConsumes<edm::Transition::BeginRun>()),
+      m_l1GtTmVetoAlgoToken(esConsumes<edm::Transition::BeginRun>()),
+      m_l1GtTmVetoTechToken(esConsumes<edm::Transition::BeginRun>()),
+      m_l1GtMenuToken(esConsumes<edm::Transition::BeginRun>()),
       m_numberAlgorithmTriggers(0),
       m_numberTechnicalTriggers(0) {
   // empty
 }
-
-// destructor
-L1GtTriggerMenuTester::~L1GtTriggerMenuTester() {
-  // empty
-}
-
-// begin job
-void L1GtTriggerMenuTester::beginJob() {}
 
 // begin run
 void L1GtTriggerMenuTester::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) {
@@ -123,32 +122,18 @@ void L1GtTriggerMenuTester::beginRun(const edm::Run& iRun, const edm::EventSetup
   printWiki();
 }
 
-// begin luminosity block
-void L1GtTriggerMenuTester::beginLuminosityBlock(const edm::LuminosityBlock& iLumiBlock,
-                                                 const edm::EventSetup& evSetup) {}
-
 // loop over events
 void L1GtTriggerMenuTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   // empty
 }
 
-// end luminosity block
-void L1GtTriggerMenuTester::endLuminosityBlock(const edm::LuminosityBlock& iLumiBlock, const edm::EventSetup& evSetup) {
-
-}
-
 // end run
 void L1GtTriggerMenuTester::endRun(const edm::Run&, const edm::EventSetup& evSetup) {}
-
-// end job
-void L1GtTriggerMenuTester::endJob() {}
 
 void L1GtTriggerMenuTester::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
   // get / update the stable parameters from the EventSetup
 
-  edm::ESHandle<L1GtStableParameters> l1GtStablePar;
-  evSetup.get<L1GtStableParametersRcd>().get(l1GtStablePar);
-  m_l1GtStablePar = l1GtStablePar.product();
+  m_l1GtStablePar = &evSetup.getData(m_l1GtStableParToken);
 
   // number of algorithm triggers
   m_numberAlgorithmTriggers = m_l1GtStablePar->gtNumberPhysTriggers();
@@ -164,49 +149,35 @@ void L1GtTriggerMenuTester::retrieveL1EventSetup(const edm::EventSetup& evSetup)
 
   // get / update the prescale factors from the EventSetup
 
-  edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-  evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-  m_l1GtPfAlgo = l1GtPfAlgo.product();
+  m_l1GtPfAlgo = &evSetup.getData(m_l1GtPfAlgoToken);
 
   m_prescaleFactorsAlgoTrig = &(m_l1GtPfAlgo->gtPrescaleFactors());
 
-  edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech;
-  evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
-  m_l1GtPfTech = l1GtPfTech.product();
+  m_l1GtPfTech = &evSetup.getData(m_l1GtPfTechToken);
 
   m_prescaleFactorsTechTrig = &(m_l1GtPfTech->gtPrescaleFactors());
 
   // get / update the trigger mask from the EventSetup
 
-  edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-  evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
-  m_l1GtTmAlgo = l1GtTmAlgo.product();
+  m_l1GtTmAlgo = &evSetup.getData(m_l1GtTmAlgoToken);
 
   m_triggerMaskAlgoTrig = &(m_l1GtTmAlgo->gtTriggerMask());
 
-  edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-  evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
-  m_l1GtTmTech = l1GtTmTech.product();
+  m_l1GtTmTech = &evSetup.getData(m_l1GtTmTechToken);
 
   m_triggerMaskTechTrig = &(m_l1GtTmTech->gtTriggerMask());
 
-  edm::ESHandle<L1GtTriggerMask> l1GtTmVetoAlgo;
-  evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().get(l1GtTmVetoAlgo);
-  m_l1GtTmVetoAlgo = l1GtTmVetoAlgo.product();
+  m_l1GtTmVetoAlgo = &evSetup.getData(m_l1GtTmVetoAlgoToken);
 
   m_triggerMaskVetoAlgoTrig = &(m_l1GtTmVetoAlgo->gtTriggerMask());
 
-  edm::ESHandle<L1GtTriggerMask> l1GtTmVetoTech;
-  evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().get(l1GtTmVetoTech);
-  m_l1GtTmVetoTech = l1GtTmVetoTech.product();
+  m_l1GtTmVetoTech = &evSetup.getData(m_l1GtTmVetoTechToken);
 
   m_triggerMaskVetoTechTrig = &(m_l1GtTmVetoTech->gtTriggerMask());
 
   // get / update the trigger menu from the EventSetup
 
-  edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-  evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-  m_l1GtMenu = l1GtMenu.product();
+  m_l1GtMenu = &evSetup.getData(m_l1GtMenuToken);
   m_algorithmMap = &(m_l1GtMenu->gtAlgorithmMap());
   m_algorithmAliasMap = &(m_l1GtMenu->gtAlgorithmAliasMap());
   m_technicalTriggerMap = &(m_l1GtMenu->gtTechnicalTriggerMap());
