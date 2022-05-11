@@ -13,13 +13,13 @@ MuonPathAnalyzerInChamber::MuonPathAnalyzerInChamber(const ParameterSet &pset,
                                                      std::shared_ptr<GlobalCoordsObtainer> &globalcoordsobtainer)
     : MuonPathAnalyzer(pset, iC),
       debug_(pset.getUntrackedParameter<bool>("debug")),
-      chi2Th_(pset.getUntrackedParameter<double>("chi2Th")),
+      chi2Th_(pset.getParameter<double>("chi2Th")),
       shift_filename_(pset.getParameter<edm::FileInPath>("shift_filename")),
       bxTolerance_(30),
       minQuality_(LOWQ),
       chiSquareThreshold_(50),
-      minHits4Fit_(pset.getUntrackedParameter<int>("minHits4Fit")),
-      splitPathPerSL_(pset.getUntrackedParameter<bool>("splitPathPerSL")) {
+      minHits4Fit_(pset.getParameter<int>("minHits4Fit")),
+      splitPathPerSL_(pset.getParameter<bool>("splitPathPerSL")) {
   // Obtention of parameters
 
   if (debug_)
@@ -56,8 +56,8 @@ void MuonPathAnalyzerInChamber::initialise(const edm::EventSetup &iEventSetup) {
   if (debug_)
     LogDebug("MuonPathAnalyzerInChamber") << "MuonPathAnalyzerInChamber::initialiase";
 
-  const MuonGeometryRecord &geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH);
+  auto geom = iEventSetup.getHandle(dtGeomH);
+  dtGeo_ = geom.product();
 }
 
 void MuonPathAnalyzerInChamber::run(edm::Event &iEvent,
@@ -346,7 +346,7 @@ void MuonPathAnalyzerInChamber::buildLateralities(MuonPathPtr &mpath) {
   /* We generate all the possible laterality combinations compatible with the built 
      group in the previous step*/
   lateralities_.push_back(TLateralities());
-  for (int ilat = 0; ilat < NLayers; ilat++) {
+  for (int ilat = 0; ilat < cmsdt::NUM_LAYERS_2SL; ilat++) {
     // Get value from input
     LATERAL_CASES lr = (mpath->lateralComb())[ilat];
     if (debug_)
@@ -394,7 +394,7 @@ void MuonPathAnalyzerInChamber::buildLateralities(MuonPathPtr &mpath) {
   if (debug_) {
     for (unsigned int iall = 0; iall < lateralities_.size(); iall++) {
       LogDebug("MuonPathAnalyzerInChamber") << iall << " -> [";
-      for (int ilat = 0; ilat < NLayers; ilat++) {
+      for (int ilat = 0; ilat < cmsdt::NUM_LAYERS_2SL; ilat++) {
         if (ilat != 0)
           LogDebug("MuonPathAnalyzerInChamber") << ",";
         LogDebug("MuonPathAnalyzerInChamber") << lateralities_[iall][ilat];

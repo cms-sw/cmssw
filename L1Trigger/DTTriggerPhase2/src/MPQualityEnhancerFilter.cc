@@ -9,13 +9,8 @@ using namespace cmsdt;
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-MPQualityEnhancerFilter::MPQualityEnhancerFilter(const ParameterSet &pset) : MPFilter(pset) {
-  // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
-  filter_cousins_ = pset.getUntrackedParameter<bool>("filter_cousins");
-}
-
-MPQualityEnhancerFilter::~MPQualityEnhancerFilter() {}
+MPQualityEnhancerFilter::MPQualityEnhancerFilter(const ParameterSet &pset)
+    : MPFilter(pset), debug_(pset.getUntrackedParameter<bool>("debug")) {}
 
 // ============================================================================
 // Main methods (initialise, run, finish)
@@ -148,7 +143,7 @@ void MPQualityEnhancerFilter::filterCousins(std::vector<metaPrimitive> &inMPaths
 void MPQualityEnhancerFilter::refilteringCousins(std::vector<metaPrimitive> &inMPaths,
                                                  std::vector<metaPrimitive> &outMPaths) {
   if (debug_)
-    std::cout << "filtering: starting cousins refiltering" << std::endl;
+    LogDebug("MPQualityEnhancerFilter") << "filtering: starting cousins refiltering\n";
   int bestI = -1;
   double bestChi2 = 9999;
   bool oneOf4 = false;

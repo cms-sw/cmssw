@@ -51,32 +51,32 @@ namespace {
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-HoughGrouping::HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC) : MotherGrouping(pset, iC) {
+HoughGrouping::HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC)
+    : MotherGrouping(pset, iC), debug_(pset.getUntrackedParameter<bool>("debug")) {
   // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
   if (debug_)
     LogDebug("HoughGrouping") << "HoughGrouping: constructor";
 
   // HOUGH TRANSFORM CONFIGURATION
-  angletan_ = pset.getUntrackedParameter<double>("angletan");
-  anglebinwidth_ = pset.getUntrackedParameter<double>("anglebinwidth");
-  posbinwidth_ = pset.getUntrackedParameter<double>("posbinwidth");
+  angletan_ = pset.getParameter<double>("angletan");
+  anglebinwidth_ = pset.getParameter<double>("anglebinwidth");
+  posbinwidth_ = pset.getParameter<double>("posbinwidth");
 
   // MAXIMA SEARCH CONFIGURATION
-  maxdeltaAngDeg_ = pset.getUntrackedParameter<double>("maxdeltaAngDeg");
-  maxdeltaPos_ = pset.getUntrackedParameter<double>("maxdeltaPos");
-  upperNumber_ = (unsigned short int)pset.getUntrackedParameter<int>("UpperNumber");
-  lowerNumber_ = (unsigned short int)pset.getUntrackedParameter<int>("LowerNumber");
+  maxdeltaAngDeg_ = pset.getParameter<double>("maxdeltaAngDeg");
+  maxdeltaPos_ = pset.getParameter<double>("maxdeltaPos");
+  upperNumber_ = (unsigned short int)pset.getParameter<int>("UpperNumber");
+  lowerNumber_ = (unsigned short int)pset.getParameter<int>("LowerNumber");
 
   // HITS ASSOCIATION CONFIGURATION
-  maxDistanceToWire_ = pset.getUntrackedParameter<double>("MaxDistanceToWire");
+  maxDistanceToWire_ = pset.getParameter<double>("MaxDistanceToWire");
 
   // CANDIDATE QUALITY CONFIGURATION
-  minNLayerHits_ = (unsigned short int)pset.getUntrackedParameter<int>("minNLayerHits");
-  minSingleSLHitsMax_ = (unsigned short int)pset.getUntrackedParameter<int>("minSingleSLHitsMax");
-  minSingleSLHitsMin_ = (unsigned short int)pset.getUntrackedParameter<int>("minSingleSLHitsMin");
-  allowUncorrelatedPatterns_ = pset.getUntrackedParameter<bool>("allowUncorrelatedPatterns");
-  minUncorrelatedHits_ = (unsigned short int)pset.getUntrackedParameter<int>("minUncorrelatedHits");
+  minNLayerHits_ = (unsigned short int)pset.getParameter<int>("minNLayerHits");
+  minSingleSLHitsMax_ = (unsigned short int)pset.getParameter<int>("minSingleSLHitsMax");
+  minSingleSLHitsMin_ = (unsigned short int)pset.getParameter<int>("minSingleSLHitsMin");
+  allowUncorrelatedPatterns_ = pset.getParameter<bool>("allowUncorrelatedPatterns");
+  minUncorrelatedHits_ = (unsigned short int)pset.getParameter<int>("minUncorrelatedHits");
 
   dtGeomH = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
