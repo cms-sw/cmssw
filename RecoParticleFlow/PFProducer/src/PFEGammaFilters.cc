@@ -45,8 +45,7 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
       ele_noniso_mva_(cfg.getParameter<double>("electron_noniso_mvaCut")),
       ele_missinghits_(cfg.getParameter<unsigned int>("electron_missinghits")),
       ele_ecalDrivenHademPreselCut_(cfg.getParameter<double>("electron_ecalDrivenHademPreselCut")),
-      ele_maxElePtForOnlyMVAPresel_(cfg.getParameter<double>("electron_maxElePtForOnlyMVAPresel")),
-      allowEEEinPF_(cfg.getParameter<bool>("allowEEEinPF")) {
+      ele_maxElePtForOnlyMVAPresel_(cfg.getParameter<double>("electron_maxElePtForOnlyMVAPresel")) {
   auto const& eleProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("electron_protectionsForBadHcal");
   auto const& eleProtectionsForJetMET = cfg.getParameter<edm::ParameterSet>("electron_protectionsForJetMET");
   auto const& phoProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("photon_protectionsForBadHcal");
@@ -467,18 +466,6 @@ bool PFEGammaFilters::passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron&
     return passCutBased || passMVA;
 }
 
-// bool PFEGammaFilters::thisEleIsNotAllowedInPF(const reco::GsfElectron& electron, bool allowEtaExtEleinPF) const {
-//   bool returnVal = false;
-//   if (!allowEtaExtEleinPF) {
-//     const auto nHitGsf = electron.gsfTrack()->numberOfValidHits();
-//     const auto absEleEta = std::abs(electron.eta());
-//     if ((absEleEta > 2.5) && (nHitGsf < 5)) {
-//       returnVal = true;
-//     }
-//   }
-//   return returnVal;
-// }
-
 void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   // Electron selection cuts
   iDesc.add<double>("electron_iso_pt", 10.0);
@@ -490,7 +477,6 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<unsigned int>("electron_missinghits", 1);
   iDesc.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
   iDesc.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
-  iDesc.add<bool>("allowEEEinPF", false);
   iDesc.add<bool>("useElePFidDnn", false);
   iDesc.add<double>("endcapBoundary", 2.5);
   iDesc.add<double>("extEtaBoundary", 2.65);

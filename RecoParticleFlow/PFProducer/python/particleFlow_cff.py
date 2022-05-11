@@ -10,10 +10,6 @@ from RecoParticleFlow.PFProducer.particleFlowTmpPtrs_cfi import *
 
 particleFlowTmp = particleFlow.clone()
 
-## temporary for 12_1; EtaExtendedEles do not enter PF because ID/regression of EEEs are not ready yet
-## In 12_2, we expect to have EEE's ID/regression, then this switch can flip to True
-particleFlowTmp.PFEGammaFiltersParameters.allowEEEinPF = cms.bool(False)
-
 # Thresholds for e/gamma PFID DNN 
 # Thresholds for electron: Sig_isolated+Sig_nonIsolated
 particleFlowTmp.PFEGammaFiltersParameters.electronDnnThresholds = cms.PSet(

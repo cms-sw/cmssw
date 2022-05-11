@@ -32,7 +32,6 @@ public:
 
 private:
   bool passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron &) const;
-  bool thisEleIsNotAllowedInPF(const reco::GsfElectron &, bool) const;
 
   // Photon selections
   const float ph_Et_;
@@ -74,7 +73,6 @@ private:
   const int ele_missinghits_;
   const float ele_ecalDrivenHademPreselCut_;
   const float ele_maxElePtForOnlyMVAPresel_;
-  const bool allowEEEinPF_;
   float ele_maxNtracks_;
   float ele_maxHcalE_;
   float ele_maxTrackPOverEele_;

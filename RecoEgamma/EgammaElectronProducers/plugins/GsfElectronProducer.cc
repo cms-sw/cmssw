@@ -35,6 +35,7 @@ namespace {
                      const GsfElectronAlgo::HeavyObjectCache* hoc,
                      reco::VertexCollection const& vertices,
                      bool dnnPFidEnabled,
+		     float extetaboundary,
                      const std::vector<tensorflow::Session*>& tfSessions) {
     std::vector<GsfElectron::MvaOutput> mva_outputs(electrons.size());
     size_t iele = 0;
@@ -59,7 +60,7 @@ namespace {
         // get the previous values
         auto& mvaOutput = mva_outputs[jele];
 
-        if (abs(el.superCluster()->eta()) <= 2.65) {
+        if (abs(el.superCluster()->eta()) <= extetaboundary) {
           mvaOutput.dnn_e_sigIsolated = values[0];
           mvaOutput.dnn_e_sigNonIsolated = values[1];
           mvaOutput.dnn_e_bkgNonIsolated = values[2];
@@ -160,6 +161,7 @@ private:
   const bool resetMvaValuesUsingPFCandidates_;
 
   bool dnnPFidEnabled_;
+  float extetaboundary_;
 
   std::vector<tensorflow::Session*> tfSessions_;
 };
@@ -298,6 +300,7 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   {
     edm::ParameterSetDescription psd1;
     psd1.add<bool>("enabled", false);
+    psd1.add<double>("extetaboundary", 2.65);
     psd1.add<std::string>("inputTensorName", "FirstLayer_input");
     psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
 
@@ -430,6 +433,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   // Config for PFID dnn
   const auto& pset_dnn = cfg.getParameter<edm::ParameterSet>("EleDNNPFid");
   dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
+  extetaboundary_ = pset_dnn.getParameter<double>("extetaboundary");
 
   strategyCfg_.useDefaultEnergyCorrection = cfg.getParameter<bool>("useDefaultEnergyCorrection");
 
@@ -740,7 +744,7 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     for (auto& el : electrons) {
       el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set Run2 MVA inputs
     }
-    setMVAOutputs(electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_, tfSessions_);
+    setMVAOutputs(electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_, extetaboundary_, tfSessions_);
   }
 
   // all electrons
