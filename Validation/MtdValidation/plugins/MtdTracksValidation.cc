@@ -58,8 +58,9 @@ private:
 
   const std::string folder_;
   const float trackMinPt_;
-  const float trackMinEta_;
-  const float trackMaxEta_;
+  const float trackMaxBtlEta_;
+  const float trackMinEtlEta_;
+  const float trackMaxEtlEta_;
 
   static constexpr double etacutGEN_ = 4.;     // |eta| < 4;
   static constexpr double etacutREC_ = 3.;     // |eta| < 3;
@@ -134,8 +135,9 @@ private:
 MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       trackMinPt_(iConfig.getParameter<double>("trackMinimumPt")),
-      trackMinEta_(iConfig.getParameter<double>("trackMinimumEta")),
-      trackMaxEta_(iConfig.getParameter<double>("trackMaximumEta")) {
+      trackMaxBtlEta_(iConfig.getParameter<double>("trackMaximumBtlEta")),
+      trackMinEtlEta_(iConfig.getParameter<double>("trackMinimumEtlEta")),
+      trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")) {
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
@@ -204,7 +206,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     const reco::TrackRef mtdTrackref = reco::TrackRef(iEvent.getHandle(RecTrackToken_), trackAssoc[trackref]);
     const reco::Track track = *mtdTrackref;
 
-    if (track.pt() < trackMinPt_)
+    if (track.pt() < trackMinPt_ || std::abs(track.eta()) > trackMaxEtlEta_)
       continue;
 
     meTracktmtd_->Fill(tMtd[trackref]);
@@ -224,7 +226,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     meTrackPathLenghtvsEta_->Fill(std::abs(track.eta()), pathLength[trackref]);
 
-    if (std::abs(track.eta()) < trackMinEta_) {
+    if (std::abs(track.eta()) < trackMaxBtlEta_) {
       // --- all BTL tracks (with and without hit in MTD) ---
       meBTLTrackEffEtaTot_->Fill(track.eta());
       meBTLTrackEffPhiTot_->Fill(track.phi());
@@ -255,13 +257,13 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     else {
       // --- all ETL tracks (with and without hit in MTD) ---
-      if ((track.eta() < -trackMinEta_) && (track.eta() > -trackMaxEta_)) {
+      if ((track.eta() < -trackMinEtlEta_) && (track.eta() > -trackMaxEtlEta_)) {
         meETLTrackEffEtaTot_[0]->Fill(track.eta());
         meETLTrackEffPhiTot_[0]->Fill(track.phi());
         meETLTrackEffPtTot_[0]->Fill(track.pt());
       }
 
-      if ((track.eta() > trackMinEta_) && (track.eta() < trackMaxEta_)) {
+      if ((track.eta() > trackMinEtlEta_) && (track.eta() < trackMaxEtlEta_)) {
         meETLTrackEffEtaTot_[1]->Fill(track.eta());
         meETLTrackEffPhiTot_[1]->Fill(track.phi());
         meETLTrackEffPtTot_[1]->Fill(track.pt());
@@ -323,14 +325,14 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       meTrackNumHits_->Fill(-numMTDEtlvalidhits);
 
       // --- keeping only tracks with last hit in MTD ---
-      if ((track.eta() < -trackMinEta_) && (track.eta() > -trackMaxEta_)) {
+      if ((track.eta() < -trackMinEtlEta_) && (track.eta() > -trackMaxEtlEta_)) {
         if ((MTDEtlZnegD1 == true) || (MTDEtlZnegD2 == true)) {
           meETLTrackEffEtaMtd_[0]->Fill(track.eta());
           meETLTrackEffPhiMtd_[0]->Fill(track.phi());
           meETLTrackEffPtMtd_[0]->Fill(track.pt());
         }
       }
-      if ((track.eta() > trackMinEta_) && (track.eta() < trackMaxEta_)) {
+      if ((track.eta() > trackMinEtlEta_) && (track.eta() < trackMaxEtlEta_)) {
         if ((MTDEtlZposD1 == true) || (MTDEtlZposD2 == true)) {
           meETLTrackEffEtaMtd_[1]->Fill(track.eta());
           meETLTrackEffPhiMtd_[1]->Fill(track.phi());
@@ -340,9 +342,9 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
   }  //RECO tracks loop
 
-  // reco-gen matching used for MVA quality flag
   const auto& primRecoVtx = *(RecVertexHandle.product()->begin());
 
+  // generator level information (HepMC format)
   auto GenEventHandle = makeValid(iEvent.getHandle(HepMCProductToken_));
   const HepMC::GenEvent* mc = GenEventHandle->GetEvent();
   double zsim = convertMmToCm((*(mc->vertices_begin()))->position().z());
@@ -364,8 +366,13 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         continue;
       }
 
+      bool noCrack = std::abs(trackGen.eta()) < trackMaxBtlEta_ || std::abs(trackGen.eta()) > trackMinEtlEta_;
+
+      // reco-gen matching used for MVA quality flag
       if (mvaRecSel(trackGen, primRecoVtx, t0Safe[trackref], Sigmat0Safe[trackref])) {
-        meMVATrackEffPtTot_->Fill(trackGen.pt());
+        if (noCrack) {
+          meMVATrackEffPtTot_->Fill(trackGen.pt());
+        }
         meMVATrackEffEtaTot_->Fill(std::abs(trackGen.eta()));
 
         double dZ = trackGen.vz() - zsim;
@@ -384,12 +391,16 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           if (mvaGenSel(*genP, charge)) {
             if (mvaGenRecMatch(*genP, zsim, trackGen)) {
               meMVATrackZposResTot_->Fill(dZ);
-              meMVATrackMatchedEffPtTot_->Fill(trackGen.pt());
+              if (noCrack) {
+                meMVATrackMatchedEffPtTot_->Fill(trackGen.pt());
+              }
               meMVATrackMatchedEffEtaTot_->Fill(std::abs(trackGen.eta()));
               if (pullT > -9999.) {
                 meMVATrackResTot_->Fill(dT);
                 meMVATrackPullTot_->Fill(pullT);
-                meMVATrackMatchedEffPtMtd_->Fill(trackGen.pt());
+                if (noCrack) {
+                  meMVATrackMatchedEffPtMtd_->Fill(trackGen.pt());
+                }
                 meMVATrackMatchedEffEtaMtd_->Fill(std::abs(trackGen.eta()));
               }
               break;
@@ -499,9 +510,10 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("sigmat0PID", edm::InputTag("tofPID:sigmat0"));
   desc.add<edm::InputTag>("t0PID", edm::InputTag("tofPID:t0"));
   desc.add<edm::InputTag>("trackMVAQual", edm::InputTag("mtdTrackQualityMVA:mtdQualMVA"));
-  desc.add<double>("trackMinimumPt", 1.0);  // [GeV]
-  desc.add<double>("trackMinimumEta", 1.5);
-  desc.add<double>("trackMaximumEta", 3.2);
+  desc.add<double>("trackMinimumPt", 0.7);  // [GeV]
+  desc.add<double>("trackMaximumBtlEta", 1.5);
+  desc.add<double>("trackMinimumEtlEta", 1.6);
+  desc.add<double>("trackMaximumEtlEta", 3.);
 
   descriptions.add("mtdTracksValid", desc);
 }
