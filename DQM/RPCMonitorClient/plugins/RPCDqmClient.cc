@@ -68,7 +68,6 @@ void RPCDqmClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
                                          DQMStore::IGetter& igetter,
                                          edm::LuminosityBlock const& lumiSeg,
                                          edm::EventSetup const& c) {
-
   if (!enableDQMClients_) {
     return;
   }
@@ -171,8 +170,8 @@ void RPCDqmClient::getMonitorElements(DQMStore::IGetter& igetter) {
   //Retrieve barrel clustersize
   for (int wheel = -2; wheel <= 2; wheel++) {
     for (int sector = 1; sector <= 12; sector++) {
-      MonitorElement* myMeCl = igetter.get(
-          fmt::format("{}/Barrel/Wheel_{}/SummaryBySectors/ClusterSize_Wheel_{}_Sector_{}", prefixDir_, wheel, wheel, sector));
+      MonitorElement* myMeCl = igetter.get(fmt::format(
+          "{}/Barrel/Wheel_{}/SummaryBySectors/ClusterSize_Wheel_{}_Sector_{}", prefixDir_, wheel, wheel, sector));
       myMeVectCl.push_back(myMeCl);
     }
   }
@@ -188,8 +187,14 @@ void RPCDqmClient::getMonitorElements(DQMStore::IGetter& igetter) {
     for (int disk = 1; disk <= numberOfDisks_; disk++) {
       for (int ring = numberOfRings_; ring <= 3; ring++) {
         for (unsigned int ich = 0; ich < chNames.size(); ich++) {
-          MonitorElement* myMeCl = igetter.get(
-              fmt::format("{}/{}/Disk_{}/SummaryByRings/ClusterSize_Disk_{}_Ring_{}_{}", prefixDir_, regionName, (region * disk), (region * disk), ring, chNames[ich]));
+          MonitorElement* myMeCl =
+              igetter.get(fmt::format("{}/{}/Disk_{}/SummaryByRings/ClusterSize_Disk_{}_Ring_{}_{}",
+                                      prefixDir_,
+                                      regionName,
+                                      (region * disk),
+                                      (region * disk),
+                                      ring,
+                                      chNames[ich]));
           myMeVectCl.push_back(myMeCl);
         }
       }

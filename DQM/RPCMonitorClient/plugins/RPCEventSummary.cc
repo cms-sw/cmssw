@@ -167,7 +167,7 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
           sectorFactor2 += myMe2->getBinContent(s, r);
         }
 
-        if (rollInSector != 0){
+        if (rollInSector != 0) {
           sectorFactor = sectorFactor / rollInSector;
           sectorFactor2 = sectorFactor2 / rollInSector;
         }

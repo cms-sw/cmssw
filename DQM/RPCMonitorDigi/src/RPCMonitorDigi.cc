@@ -264,9 +264,9 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
 
       if (station == 1) {
         if (detId.layer() == 1) {
-          totalRolls = 2; //RB1in
+          totalRolls = 2;  //RB1in
         } else {
-          totalRolls = 2; //RB1out
+          totalRolls = 2;  //RB1out
         }
         if (roll == 3)
           roll = 2;  // roll=3 is Forward
@@ -285,11 +285,11 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
           }
         }
       } else if (station == 3) {
-        totalRolls = 2; //RB3
+        totalRolls = 2;  //RB3
         if (roll == 3)
           roll = 2;
       } else {
-        totalRolls = 2; //RB4
+        totalRolls = 2;  //RB4
         if (roll == 3)
           roll = 2;
       }
@@ -350,7 +350,7 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
       }
 
       tmpName = fmt::format("ClusterSize_{}_{}_Sector_{}", wheelOrDiskType, wheelOrDiskNumber, sector);
-      if (meSectorRing[tmpName]){
+      if (meSectorRing[tmpName]) {
         if (clusterSize >= meSectorRing[tmpName]->getNbinsX())
           meSectorRing[tmpName]->Fill(meSectorRing[tmpName]->getNbinsX(), nr);
         else
@@ -383,10 +383,10 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
 
       if (meSectorRing[tmpName]) {
         if (clusterSize >= meSectorRing[tmpName]->getNbinsX())
-          meSectorRing[tmpName]->Fill(meSectorRing[tmpName]->getNbinsX(), 3 * (geoServ.segment() - 1) + (3-detId.roll()) + 1);
+          meSectorRing[tmpName]->Fill(meSectorRing[tmpName]->getNbinsX(),
+                                      3 * (geoServ.segment() - 1) + (3 - detId.roll()) + 1);
         else
-          meSectorRing[tmpName]->Fill(clusterSize, 3 * (geoServ.segment() - 1) + (3-detId.roll()) + 1);
-        //FIXME maxroll number (3) needed to be replaced by some variable for consistency
+          meSectorRing[tmpName]->Fill(clusterSize, 3 * (geoServ.segment() - 1) + (3 - detId.roll()) + 1);
       }
 
       // ###################### Wheel/Disk Level #########################
