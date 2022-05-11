@@ -1886,44 +1886,43 @@ private:
 
     auto leadChargedHadrCand = dynamic_cast<const CandidateCastType*>(tau.leadChargedHadrCand().get());
 
-    get(dnn::rho) = sp.scale(rho, tauInputs_indices_.at(dnn::rho));
-    get(dnn::tau_pt) = sp.scale(tau.polarP4().pt(), tauInputs_indices_.at(dnn::tau_pt));
-    get(dnn::tau_eta) = sp.scale(tau.polarP4().eta(), tauInputs_indices_.at(dnn::tau_eta));
+    get(dnn::rho) = sp.scale(rho, tauInputs_indices_[dnn::rho]);
+    get(dnn::tau_pt) = sp.scale(tau.polarP4().pt(), tauInputs_indices_[dnn::tau_pt]);
+    get(dnn::tau_eta) = sp.scale(tau.polarP4().eta(), tauInputs_indices_[dnn::tau_eta]);
     if (sub_version_ == 1) {
       get(dnn::tau_phi) = getValueLinear(tau.polarP4().phi(), -pi, pi, false);
     }
-    get(dnn::tau_mass) = sp.scale(tau.polarP4().mass(), tauInputs_indices_.at(dnn::tau_mass));
-    get(dnn::tau_E_over_pt) = sp.scale(tau.p4().energy() / tau.p4().pt(), tauInputs_indices_.at(dnn::tau_E_over_pt));
-    get(dnn::tau_charge) = sp.scale(tau.charge(), tauInputs_indices_.at(dnn::tau_charge));
-    get(dnn::tau_n_charged_prongs) =
-        sp.scale(tau.decayMode() / 5 + 1, tauInputs_indices_.at(dnn::tau_n_charged_prongs));
-    get(dnn::tau_n_neutral_prongs) = sp.scale(tau.decayMode() % 5, tauInputs_indices_.at(dnn::tau_n_neutral_prongs));
+    get(dnn::tau_mass) = sp.scale(tau.polarP4().mass(), tauInputs_indices_[dnn::tau_mass]);
+    get(dnn::tau_E_over_pt) = sp.scale(tau.p4().energy() / tau.p4().pt(), tauInputs_indices_[dnn::tau_E_over_pt]);
+    get(dnn::tau_charge) = sp.scale(tau.charge(), tauInputs_indices_[dnn::tau_charge]);
+    get(dnn::tau_n_charged_prongs) = sp.scale(tau.decayMode() / 5 + 1, tauInputs_indices_[dnn::tau_n_charged_prongs]);
+    get(dnn::tau_n_neutral_prongs) = sp.scale(tau.decayMode() % 5, tauInputs_indices_[dnn::tau_n_neutral_prongs]);
     get(dnn::chargedIsoPtSum) =
-        sp.scale(tau_funcs.getChargedIsoPtSum(tau, tau_ref), tauInputs_indices_.at(dnn::chargedIsoPtSum));
+        sp.scale(tau_funcs.getChargedIsoPtSum(tau, tau_ref), tauInputs_indices_[dnn::chargedIsoPtSum]);
     get(dnn::chargedIsoPtSumdR03_over_dR05) =
         sp.scale(tau_funcs.getChargedIsoPtSumdR03(tau, tau_ref) / tau_funcs.getChargedIsoPtSum(tau, tau_ref),
-                 tauInputs_indices_.at(dnn::chargedIsoPtSumdR03_over_dR05));
+                 tauInputs_indices_[dnn::chargedIsoPtSumdR03_over_dR05]);
     if (sub_version_ == 1)
       get(dnn::footprintCorrection) =
-          sp.scale(tau_funcs.getFootprintCorrectiondR03(tau, tau_ref), tauInputs_indices_.at(dnn::footprintCorrection));
+          sp.scale(tau_funcs.getFootprintCorrectiondR03(tau, tau_ref), tauInputs_indices_[dnn::footprintCorrection]);
     else if (sub_version_ == 5)
       get(dnn::footprintCorrection) =
-          sp.scale(tau_funcs.getFootprintCorrection(tau, tau_ref), tauInputs_indices_.at(dnn::footprintCorrection));
+          sp.scale(tau_funcs.getFootprintCorrection(tau, tau_ref), tauInputs_indices_[dnn::footprintCorrection]);
 
     get(dnn::neutralIsoPtSum) =
-        sp.scale(tau_funcs.getNeutralIsoPtSum(tau, tau_ref), tauInputs_indices_.at(dnn::neutralIsoPtSum));
+        sp.scale(tau_funcs.getNeutralIsoPtSum(tau, tau_ref), tauInputs_indices_[dnn::neutralIsoPtSum]);
     get(dnn::neutralIsoPtSumWeight_over_neutralIsoPtSum) =
         sp.scale(tau_funcs.getNeutralIsoPtSumWeight(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref),
-                 tauInputs_indices_.at(dnn::neutralIsoPtSumWeight_over_neutralIsoPtSum));
+                 tauInputs_indices_[dnn::neutralIsoPtSumWeight_over_neutralIsoPtSum]);
     get(dnn::neutralIsoPtSumWeightdR03_over_neutralIsoPtSum) =
         sp.scale(tau_funcs.getNeutralIsoPtSumdR03Weight(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref),
-                 tauInputs_indices_.at(dnn::neutralIsoPtSumWeightdR03_over_neutralIsoPtSum));
+                 tauInputs_indices_[dnn::neutralIsoPtSumWeightdR03_over_neutralIsoPtSum]);
     get(dnn::neutralIsoPtSumdR03_over_dR05) =
         sp.scale(tau_funcs.getNeutralIsoPtSumdR03(tau, tau_ref) / tau_funcs.getNeutralIsoPtSum(tau, tau_ref),
-                 tauInputs_indices_.at(dnn::neutralIsoPtSumdR03_over_dR05));
+                 tauInputs_indices_[dnn::neutralIsoPtSumdR03_over_dR05]);
     get(dnn::photonPtSumOutsideSignalCone) = sp.scale(tau_funcs.getPhotonPtSumOutsideSignalCone(tau, tau_ref),
-                                                      tauInputs_indices_.at(dnn::photonPtSumOutsideSignalCone));
-    get(dnn::puCorrPtSum) = sp.scale(tau_funcs.getPuCorrPtSum(tau, tau_ref), tauInputs_indices_.at(dnn::puCorrPtSum));
+                                                      tauInputs_indices_[dnn::photonPtSumOutsideSignalCone]);
+    get(dnn::puCorrPtSum) = sp.scale(tau_funcs.getPuCorrPtSum(tau, tau_ref), tauInputs_indices_[dnn::puCorrPtSum]);
     // The global PCA coordinates were used as inputs during the NN training, but it was decided to disable
     // them for the inference, because modeling of dxy_PCA in MC poorly describes the data, and x and y coordinates
     // in data results outside of the expected 5 std. dev. input validity range. On the other hand,
@@ -1931,9 +1930,9 @@ private:
     if (sub_version_ == 1) {
       if (!disable_dxy_pca_) {
         auto const pca = tau_funcs.getdxyPCA(tau, tau_index);
-        get(dnn::tau_dxy_pca_x) = sp.scale(pca.x(), tauInputs_indices_.at(dnn::tau_dxy_pca_x));
-        get(dnn::tau_dxy_pca_y) = sp.scale(pca.y(), tauInputs_indices_.at(dnn::tau_dxy_pca_y));
-        get(dnn::tau_dxy_pca_z) = sp.scale(pca.z(), tauInputs_indices_.at(dnn::tau_dxy_pca_z));
+        get(dnn::tau_dxy_pca_x) = sp.scale(pca.x(), tauInputs_indices_[dnn::tau_dxy_pca_x]);
+        get(dnn::tau_dxy_pca_y) = sp.scale(pca.y(), tauInputs_indices_[dnn::tau_dxy_pca_y]);
+        get(dnn::tau_dxy_pca_z) = sp.scale(pca.z(), tauInputs_indices_[dnn::tau_dxy_pca_z]);
       } else {
         get(dnn::tau_dxy_pca_x) = 0;
         get(dnn::tau_dxy_pca_y) = 0;
@@ -1944,71 +1943,71 @@ private:
     const bool tau_dxy_valid =
         isAbove(tau_funcs.getdxy(tau, tau_index), -10) && isAbove(tau_funcs.getdxyError(tau, tau_index), 0);
     if (tau_dxy_valid) {
-      get(dnn::tau_dxy_valid) = sp.scale(tau_dxy_valid, tauInputs_indices_.at(dnn::tau_dxy_valid));
-      get(dnn::tau_dxy) = sp.scale(tau_funcs.getdxy(tau, tau_index), tauInputs_indices_.at(dnn::tau_dxy));
+      get(dnn::tau_dxy_valid) = sp.scale(tau_dxy_valid, tauInputs_indices_[dnn::tau_dxy_valid]);
+      get(dnn::tau_dxy) = sp.scale(tau_funcs.getdxy(tau, tau_index), tauInputs_indices_[dnn::tau_dxy]);
       get(dnn::tau_dxy_sig) =
           sp.scale(std::abs(tau_funcs.getdxy(tau, tau_index)) / tau_funcs.getdxyError(tau, tau_index),
-                   tauInputs_indices_.at(dnn::tau_dxy_sig));
+                   tauInputs_indices_[dnn::tau_dxy_sig]);
     }
     const bool tau_ip3d_valid =
         isAbove(tau_funcs.getip3d(tau, tau_index), -10) && isAbove(tau_funcs.getip3dError(tau, tau_index), 0);
     if (tau_ip3d_valid) {
-      get(dnn::tau_ip3d_valid) = sp.scale(tau_ip3d_valid, tauInputs_indices_.at(dnn::tau_ip3d_valid));
-      get(dnn::tau_ip3d) = sp.scale(tau_funcs.getip3d(tau, tau_index), tauInputs_indices_.at(dnn::tau_ip3d));
+      get(dnn::tau_ip3d_valid) = sp.scale(tau_ip3d_valid, tauInputs_indices_[dnn::tau_ip3d_valid]);
+      get(dnn::tau_ip3d) = sp.scale(tau_funcs.getip3d(tau, tau_index), tauInputs_indices_[dnn::tau_ip3d]);
       get(dnn::tau_ip3d_sig) =
           sp.scale(std::abs(tau_funcs.getip3d(tau, tau_index)) / tau_funcs.getip3dError(tau, tau_index),
-                   tauInputs_indices_.at(dnn::tau_ip3d_sig));
+                   tauInputs_indices_[dnn::tau_ip3d_sig]);
     }
     if (leadChargedHadrCand) {
       const bool hasTrackDetails = candFunc::getHasTrackDetails(*leadChargedHadrCand);
       const float tau_dz = (is_online_ && !hasTrackDetails) ? 0 : candFunc::getTauDz(*leadChargedHadrCand);
-      get(dnn::tau_dz) = sp.scale(tau_dz, tauInputs_indices_.at(dnn::tau_dz));
+      get(dnn::tau_dz) = sp.scale(tau_dz, tauInputs_indices_[dnn::tau_dz]);
       get(dnn::tau_dz_sig_valid) =
-          sp.scale(candFunc::getTauDZSigValid(*leadChargedHadrCand), tauInputs_indices_.at(dnn::tau_dz_sig_valid));
+          sp.scale(candFunc::getTauDZSigValid(*leadChargedHadrCand), tauInputs_indices_[dnn::tau_dz_sig_valid]);
       const double dzError = hasTrackDetails ? leadChargedHadrCand->dzError() : -999.;
-      get(dnn::tau_dz_sig) = sp.scale(std::abs(tau_dz) / dzError, tauInputs_indices_.at(dnn::tau_dz_sig));
+      get(dnn::tau_dz_sig) = sp.scale(std::abs(tau_dz) / dzError, tauInputs_indices_[dnn::tau_dz_sig]);
     }
     get(dnn::tau_flightLength_x) =
-        sp.scale(tau_funcs.getFlightLength(tau, tau_index).x(), tauInputs_indices_.at(dnn::tau_flightLength_x));
+        sp.scale(tau_funcs.getFlightLength(tau, tau_index).x(), tauInputs_indices_[dnn::tau_flightLength_x]);
     get(dnn::tau_flightLength_y) =
-        sp.scale(tau_funcs.getFlightLength(tau, tau_index).y(), tauInputs_indices_.at(dnn::tau_flightLength_y));
+        sp.scale(tau_funcs.getFlightLength(tau, tau_index).y(), tauInputs_indices_[dnn::tau_flightLength_y]);
     get(dnn::tau_flightLength_z) =
-        sp.scale(tau_funcs.getFlightLength(tau, tau_index).z(), tauInputs_indices_.at(dnn::tau_flightLength_z));
+        sp.scale(tau_funcs.getFlightLength(tau, tau_index).z(), tauInputs_indices_[dnn::tau_flightLength_z]);
     if (sub_version_ == 1)
       get(dnn::tau_flightLength_sig) = 0.55756444;  //This value is set due to a bug in the training
     else if (sub_version_ == 5)
       get(dnn::tau_flightLength_sig) =
-          sp.scale(tau_funcs.getFlightLengthSig(tau, tau_index), tauInputs_indices_.at(dnn::tau_flightLength_sig));
+          sp.scale(tau_funcs.getFlightLengthSig(tau, tau_index), tauInputs_indices_[dnn::tau_flightLength_sig]);
 
     get(dnn::tau_pt_weighted_deta_strip) = sp.scale(reco::tau::pt_weighted_deta_strip(tau, tau.decayMode()),
-                                                    tauInputs_indices_.at(dnn::tau_pt_weighted_deta_strip));
+                                                    tauInputs_indices_[dnn::tau_pt_weighted_deta_strip]);
 
     get(dnn::tau_pt_weighted_dphi_strip) = sp.scale(reco::tau::pt_weighted_dphi_strip(tau, tau.decayMode()),
-                                                    tauInputs_indices_.at(dnn::tau_pt_weighted_dphi_strip));
+                                                    tauInputs_indices_[dnn::tau_pt_weighted_dphi_strip]);
     get(dnn::tau_pt_weighted_dr_signal) = sp.scale(reco::tau::pt_weighted_dr_signal(tau, tau.decayMode()),
-                                                   tauInputs_indices_.at(dnn::tau_pt_weighted_dr_signal));
-    get(dnn::tau_pt_weighted_dr_iso) = sp.scale(reco::tau::pt_weighted_dr_iso(tau, tau.decayMode()),
-                                                tauInputs_indices_.at(dnn::tau_pt_weighted_dr_iso));
+                                                   tauInputs_indices_[dnn::tau_pt_weighted_dr_signal]);
+    get(dnn::tau_pt_weighted_dr_iso) =
+        sp.scale(reco::tau::pt_weighted_dr_iso(tau, tau.decayMode()), tauInputs_indices_[dnn::tau_pt_weighted_dr_iso]);
     get(dnn::tau_leadingTrackNormChi2) =
-        sp.scale(tau_funcs.getLeadingTrackNormChi2(tau), tauInputs_indices_.at(dnn::tau_leadingTrackNormChi2));
+        sp.scale(tau_funcs.getLeadingTrackNormChi2(tau), tauInputs_indices_[dnn::tau_leadingTrackNormChi2]);
     const auto eratio = reco::tau::eratio(tau);
     const bool tau_e_ratio_valid = std::isnormal(eratio) && eratio > 0.f;
-    get(dnn::tau_e_ratio_valid) = sp.scale(tau_e_ratio_valid, tauInputs_indices_.at(dnn::tau_e_ratio_valid));
-    get(dnn::tau_e_ratio) = tau_e_ratio_valid ? sp.scale(eratio, tauInputs_indices_.at(dnn::tau_e_ratio)) : 0.f;
+    get(dnn::tau_e_ratio_valid) = sp.scale(tau_e_ratio_valid, tauInputs_indices_[dnn::tau_e_ratio_valid]);
+    get(dnn::tau_e_ratio) = tau_e_ratio_valid ? sp.scale(eratio, tauInputs_indices_[dnn::tau_e_ratio]) : 0.f;
     const double gj_angle_diff = calculateGottfriedJacksonAngleDifference(tau, tau_index, tau_funcs);
     const bool tau_gj_angle_diff_valid = (std::isnormal(gj_angle_diff) || gj_angle_diff == 0) && gj_angle_diff >= 0;
     get(dnn::tau_gj_angle_diff_valid) =
-        sp.scale(tau_gj_angle_diff_valid, tauInputs_indices_.at(dnn::tau_gj_angle_diff_valid));
+        sp.scale(tau_gj_angle_diff_valid, tauInputs_indices_[dnn::tau_gj_angle_diff_valid]);
     get(dnn::tau_gj_angle_diff) =
-        tau_gj_angle_diff_valid ? sp.scale(gj_angle_diff, tauInputs_indices_.at(dnn::tau_gj_angle_diff)) : 0;
-    get(dnn::tau_n_photons) = sp.scale(reco::tau::n_photons_total(tau), tauInputs_indices_.at(dnn::tau_n_photons));
-    get(dnn::tau_emFraction) = sp.scale(tau_funcs.getEmFraction(tau), tauInputs_indices_.at(dnn::tau_emFraction));
+        tau_gj_angle_diff_valid ? sp.scale(gj_angle_diff, tauInputs_indices_[dnn::tau_gj_angle_diff]) : 0;
+    get(dnn::tau_n_photons) = sp.scale(reco::tau::n_photons_total(tau), tauInputs_indices_[dnn::tau_n_photons]);
+    get(dnn::tau_emFraction) = sp.scale(tau_funcs.getEmFraction(tau), tauInputs_indices_[dnn::tau_emFraction]);
 
     get(dnn::tau_inside_ecal_crack) =
-        sp.scale(isInEcalCrack(tau.p4().eta()), tauInputs_indices_.at(dnn::tau_inside_ecal_crack));
+        sp.scale(isInEcalCrack(tau.p4().eta()), tauInputs_indices_[dnn::tau_inside_ecal_crack]);
     get(dnn::leadChargedCand_etaAtEcalEntrance_minus_tau_eta) =
         sp.scale(tau_funcs.getEtaAtEcalEntrance(tau) - tau.p4().eta(),
-                 tauInputs_indices_.at(dnn::leadChargedCand_etaAtEcalEntrance_minus_tau_eta));
+                 tauInputs_indices_[dnn::leadChargedCand_etaAtEcalEntrance_minus_tau_eta]);
   }
 
   template <typename CandidateCastType, typename TauCastType>
@@ -2066,12 +2065,12 @@ private:
       const auto& ele_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_pf_ele));
 
       get(dnn::pfCand_ele_valid) = sp.scale(valid_index_pf_ele, dnn::pfCand_ele_valid - PFe_index_offset);
-      get(dnn::pfCand_ele_rel_pt) = sp.scale(pfCands.at(index_pf_ele).polarP4().pt() / tau.polarP4().pt(),
-                                             dnn::pfCand_ele_rel_pt - PFe_index_offset);
-      get(dnn::pfCand_ele_deta) = sp.scale(pfCands.at(index_pf_ele).polarP4().eta() - tau.polarP4().eta(),
-                                           dnn::pfCand_ele_deta - PFe_index_offset);
+      get(dnn::pfCand_ele_rel_pt) =
+          sp.scale(ele_cand.polarP4().pt() / tau.polarP4().pt(), dnn::pfCand_ele_rel_pt - PFe_index_offset);
+      get(dnn::pfCand_ele_deta) =
+          sp.scale(ele_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_ele_deta - PFe_index_offset);
       get(dnn::pfCand_ele_dphi) =
-          sp.scale(dPhi(tau.polarP4(), pfCands.at(index_pf_ele).polarP4()), dnn::pfCand_ele_dphi - PFe_index_offset);
+          sp.scale(dPhi(tau.polarP4(), ele_cand.polarP4()), dnn::pfCand_ele_dphi - PFe_index_offset);
       get(dnn::pfCand_ele_pvAssociationQuality) = sp.scale<int>(
           candFunc::getPvAssocationQuality(ele_cand), dnn::pfCand_ele_pvAssociationQuality - PFe_index_offset);
       get(dnn::pfCand_ele_puppiWeight) = is_inner ? sp.scale(candFunc::getPuppiWeight(ele_cand, 0.9906834f),
@@ -2083,30 +2082,29 @@ private:
           sp.scale<int>(candFunc::getLostInnerHits(ele_cand, 0), dnn::pfCand_ele_lostInnerHits - PFe_index_offset);
       get(dnn::pfCand_ele_numberOfPixelHits) =
           sp.scale(candFunc::getNumberOfPixelHits(ele_cand, 0), dnn::pfCand_ele_numberOfPixelHits - PFe_index_offset);
-      get(dnn::pfCand_ele_vertex_dx) = sp.scale(pfCands.at(index_pf_ele).vertex().x() - pv.position().x(),
-                                                dnn::pfCand_ele_vertex_dx - PFe_index_offset);
-      get(dnn::pfCand_ele_vertex_dy) = sp.scale(pfCands.at(index_pf_ele).vertex().y() - pv.position().y(),
-                                                dnn::pfCand_ele_vertex_dy - PFe_index_offset);
-      get(dnn::pfCand_ele_vertex_dz) = sp.scale(pfCands.at(index_pf_ele).vertex().z() - pv.position().z(),
-                                                dnn::pfCand_ele_vertex_dz - PFe_index_offset);
-      get(dnn::pfCand_ele_vertex_dx_tauFL) = sp.scale(
-          pfCands.at(index_pf_ele).vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
-          dnn::pfCand_ele_vertex_dx_tauFL - PFe_index_offset);
-      get(dnn::pfCand_ele_vertex_dy_tauFL) = sp.scale(
-          pfCands.at(index_pf_ele).vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
-          dnn::pfCand_ele_vertex_dy_tauFL - PFe_index_offset);
-      get(dnn::pfCand_ele_vertex_dz_tauFL) = sp.scale(
-          pfCands.at(index_pf_ele).vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
-          dnn::pfCand_ele_vertex_dz_tauFL - PFe_index_offset);
+      get(dnn::pfCand_ele_vertex_dx) =
+          sp.scale(ele_cand.vertex().x() - pv.position().x(), dnn::pfCand_ele_vertex_dx - PFe_index_offset);
+      get(dnn::pfCand_ele_vertex_dy) =
+          sp.scale(ele_cand.vertex().y() - pv.position().y(), dnn::pfCand_ele_vertex_dy - PFe_index_offset);
+      get(dnn::pfCand_ele_vertex_dz) =
+          sp.scale(ele_cand.vertex().z() - pv.position().z(), dnn::pfCand_ele_vertex_dz - PFe_index_offset);
+      get(dnn::pfCand_ele_vertex_dx_tauFL) =
+          sp.scale(ele_cand.vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
+                   dnn::pfCand_ele_vertex_dx_tauFL - PFe_index_offset);
+      get(dnn::pfCand_ele_vertex_dy_tauFL) =
+          sp.scale(ele_cand.vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
+                   dnn::pfCand_ele_vertex_dy_tauFL - PFe_index_offset);
+      get(dnn::pfCand_ele_vertex_dz_tauFL) =
+          sp.scale(ele_cand.vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
+                   dnn::pfCand_ele_vertex_dz_tauFL - PFe_index_offset);
 
       const bool hasTrackDetails = candFunc::getHasTrackDetails(ele_cand);
       if (hasTrackDetails) {
         get(dnn::pfCand_ele_hasTrackDetails) =
             sp.scale(hasTrackDetails, dnn::pfCand_ele_hasTrackDetails - PFe_index_offset);
         get(dnn::pfCand_ele_dxy) = sp.scale(candFunc::getTauDxy(ele_cand), dnn::pfCand_ele_dxy - PFe_index_offset);
-        get(dnn::pfCand_ele_dxy_sig) =
-            sp.scale(std::abs(candFunc::getTauDxy(ele_cand)) / pfCands.at(index_pf_ele).dxyError(),
-                     dnn::pfCand_ele_dxy_sig - PFe_index_offset);
+        get(dnn::pfCand_ele_dxy_sig) = sp.scale(std::abs(candFunc::getTauDxy(ele_cand)) / ele_cand.dxyError(),
+                                                dnn::pfCand_ele_dxy_sig - PFe_index_offset);
         get(dnn::pfCand_ele_dz) = sp.scale(candFunc::getTauDz(ele_cand), dnn::pfCand_ele_dz - PFe_index_offset);
         get(dnn::pfCand_ele_dz_sig) = sp.scale(std::abs(candFunc::getTauDz(ele_cand)) / ele_cand.dzError(),
                                                dnn::pfCand_ele_dz_sig - PFe_index_offset);
@@ -2128,12 +2126,12 @@ private:
 
       get(dnn::pfCand_gamma_valid + fill_index_offset_PFg) =
           sp.scale(valid_index_pf_gamma, dnn::pfCand_gamma_valid - PFg_index_offset);
-      get(dnn::pfCand_gamma_rel_pt + fill_index_offset_PFg) = sp.scale(
-          pfCands.at(index_pf_gamma).polarP4().pt() / tau.polarP4().pt(), dnn::pfCand_gamma_rel_pt - PFg_index_offset);
-      get(dnn::pfCand_gamma_deta + fill_index_offset_PFg) = sp.scale(
-          pfCands.at(index_pf_gamma).polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_gamma_deta - PFg_index_offset);
-      get(dnn::pfCand_gamma_dphi + fill_index_offset_PFg) = sp.scale(
-          dPhi(tau.polarP4(), pfCands.at(index_pf_gamma).polarP4()), dnn::pfCand_gamma_dphi - PFg_index_offset);
+      get(dnn::pfCand_gamma_rel_pt + fill_index_offset_PFg) =
+          sp.scale(gamma_cand.polarP4().pt() / tau.polarP4().pt(), dnn::pfCand_gamma_rel_pt - PFg_index_offset);
+      get(dnn::pfCand_gamma_deta + fill_index_offset_PFg) =
+          sp.scale(gamma_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_gamma_deta - PFg_index_offset);
+      get(dnn::pfCand_gamma_dphi + fill_index_offset_PFg) =
+          sp.scale(dPhi(tau.polarP4(), gamma_cand.polarP4()), dnn::pfCand_gamma_dphi - PFg_index_offset);
       get(dnn::pfCand_gamma_pvAssociationQuality + fill_index_offset_PFg) = sp.scale<int>(
           candFunc::getPvAssocationQuality(gamma_cand), dnn::pfCand_gamma_pvAssociationQuality - PFg_index_offset);
       get(dnn::pfCand_gamma_fromPV + fill_index_offset_PFg) =
@@ -2152,21 +2150,21 @@ private:
           sp.scale<int>(candFunc::getLostInnerHits(gamma_cand, 0), dnn::pfCand_gamma_lostInnerHits - PFg_index_offset);
       get(dnn::pfCand_gamma_numberOfPixelHits + fill_index_offset_PFg) = sp.scale(
           candFunc::getNumberOfPixelHits(gamma_cand, 0), dnn::pfCand_gamma_numberOfPixelHits - PFg_index_offset);
-      get(dnn::pfCand_gamma_vertex_dx + fill_index_offset_PFg) = sp.scale(
-          pfCands.at(index_pf_gamma).vertex().x() - pv.position().x(), dnn::pfCand_gamma_vertex_dx - PFg_index_offset);
-      get(dnn::pfCand_gamma_vertex_dy + fill_index_offset_PFg) = sp.scale(
-          pfCands.at(index_pf_gamma).vertex().y() - pv.position().y(), dnn::pfCand_gamma_vertex_dy - PFg_index_offset);
-      get(dnn::pfCand_gamma_vertex_dz + fill_index_offset_PFg) = sp.scale(
-          pfCands.at(index_pf_gamma).vertex().z() - pv.position().z(), dnn::pfCand_gamma_vertex_dz - PFg_index_offset);
-      get(dnn::pfCand_gamma_vertex_dx_tauFL + fill_index_offset_PFg) = sp.scale(
-          pfCands.at(index_pf_gamma).vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
-          dnn::pfCand_gamma_vertex_dx_tauFL - PFg_index_offset);
-      get(dnn::pfCand_gamma_vertex_dy_tauFL + fill_index_offset_PFg) = sp.scale(
-          pfCands.at(index_pf_gamma).vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
-          dnn::pfCand_gamma_vertex_dy_tauFL - PFg_index_offset);
-      get(dnn::pfCand_gamma_vertex_dz_tauFL + fill_index_offset_PFg) = sp.scale(
-          pfCands.at(index_pf_gamma).vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
-          dnn::pfCand_gamma_vertex_dz_tauFL - PFg_index_offset);
+      get(dnn::pfCand_gamma_vertex_dx + fill_index_offset_PFg) =
+          sp.scale(gamma_cand.vertex().x() - pv.position().x(), dnn::pfCand_gamma_vertex_dx - PFg_index_offset);
+      get(dnn::pfCand_gamma_vertex_dy + fill_index_offset_PFg) =
+          sp.scale(gamma_cand.vertex().y() - pv.position().y(), dnn::pfCand_gamma_vertex_dy - PFg_index_offset);
+      get(dnn::pfCand_gamma_vertex_dz + fill_index_offset_PFg) =
+          sp.scale(gamma_cand.vertex().z() - pv.position().z(), dnn::pfCand_gamma_vertex_dz - PFg_index_offset);
+      get(dnn::pfCand_gamma_vertex_dx_tauFL + fill_index_offset_PFg) =
+          sp.scale(gamma_cand.vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
+                   dnn::pfCand_gamma_vertex_dx_tauFL - PFg_index_offset);
+      get(dnn::pfCand_gamma_vertex_dy_tauFL + fill_index_offset_PFg) =
+          sp.scale(gamma_cand.vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
+                   dnn::pfCand_gamma_vertex_dy_tauFL - PFg_index_offset);
+      get(dnn::pfCand_gamma_vertex_dz_tauFL + fill_index_offset_PFg) =
+          sp.scale(gamma_cand.vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
+                   dnn::pfCand_gamma_vertex_dz_tauFL - PFg_index_offset);
       const bool hasTrackDetails = candFunc::getHasTrackDetails(gamma_cand);
       if (hasTrackDetails) {
         get(dnn::pfCand_gamma_hasTrackDetails + fill_index_offset_PFg) =
@@ -2195,96 +2193,84 @@ private:
     if (valid_index_ele) {
       const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_e, is_inner));
       size_t index_ele = cell_map.at(CellObjectType::Electron);
+      const auto& ele = electrons->at(index_ele);
 
       get(dnn::ele_valid + fill_index_offset_e) = sp.scale(valid_index_ele, dnn::ele_valid - e_index_offset);
       get(dnn::ele_rel_pt + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).polarP4().pt() / tau.polarP4().pt(), dnn::ele_rel_pt - e_index_offset);
+          sp.scale(ele.polarP4().pt() / tau.polarP4().pt(), dnn::ele_rel_pt - e_index_offset);
       get(dnn::ele_deta + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).polarP4().eta() - tau.polarP4().eta(), dnn::ele_deta - e_index_offset);
+          sp.scale(ele.polarP4().eta() - tau.polarP4().eta(), dnn::ele_deta - e_index_offset);
       get(dnn::ele_dphi + fill_index_offset_e) =
-          sp.scale(dPhi(tau.polarP4(), electrons->at(index_ele).polarP4()), dnn::ele_dphi - e_index_offset);
+          sp.scale(dPhi(tau.polarP4(), ele.polarP4()), dnn::ele_dphi - e_index_offset);
 
       float cc_ele_energy, cc_gamma_energy;
       int cc_n_gamma;
-      const bool cc_valid =
-          calculateElectronClusterVarsV2(electrons->at(index_ele), cc_ele_energy, cc_gamma_energy, cc_n_gamma);
+      const bool cc_valid = calculateElectronClusterVarsV2(ele, cc_ele_energy, cc_gamma_energy, cc_n_gamma);
       if (cc_valid) {
         get(dnn::ele_cc_valid + fill_index_offset_e) = sp.scale(cc_valid, dnn::ele_cc_valid - e_index_offset);
-        get(dnn::ele_cc_ele_rel_energy + fill_index_offset_e) = sp.scale(
-            cc_ele_energy / electrons->at(index_ele).polarP4().pt(), dnn::ele_cc_ele_rel_energy - e_index_offset);
+        get(dnn::ele_cc_ele_rel_energy + fill_index_offset_e) =
+            sp.scale(cc_ele_energy / ele.polarP4().pt(), dnn::ele_cc_ele_rel_energy - e_index_offset);
         get(dnn::ele_cc_gamma_rel_energy + fill_index_offset_e) =
             sp.scale(cc_gamma_energy / cc_ele_energy, dnn::ele_cc_gamma_rel_energy - e_index_offset);
         get(dnn::ele_cc_n_gamma + fill_index_offset_e) = sp.scale(cc_n_gamma, dnn::ele_cc_n_gamma - e_index_offset);
       }
       get(dnn::ele_rel_trackMomentumAtVtx + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).trackMomentumAtVtx().R() / electrons->at(index_ele).polarP4().pt(),
-                   dnn::ele_rel_trackMomentumAtVtx - e_index_offset);
-      get(dnn::ele_rel_trackMomentumAtCalo + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).trackMomentumAtCalo().R() / electrons->at(index_ele).polarP4().pt(),
-                   dnn::ele_rel_trackMomentumAtCalo - e_index_offset);
+          sp.scale(ele.trackMomentumAtVtx().R() / ele.polarP4().pt(), dnn::ele_rel_trackMomentumAtVtx - e_index_offset);
+      get(dnn::ele_rel_trackMomentumAtCalo + fill_index_offset_e) = sp.scale(
+          ele.trackMomentumAtCalo().R() / ele.polarP4().pt(), dnn::ele_rel_trackMomentumAtCalo - e_index_offset);
       get(dnn::ele_rel_trackMomentumOut + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).trackMomentumOut().R() / electrons->at(index_ele).polarP4().pt(),
-                   dnn::ele_rel_trackMomentumOut - e_index_offset);
-      get(dnn::ele_rel_trackMomentumAtEleClus + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).trackMomentumAtEleClus().R() / electrons->at(index_ele).polarP4().pt(),
-                   dnn::ele_rel_trackMomentumAtEleClus - e_index_offset);
-      get(dnn::ele_rel_trackMomentumAtVtxWithConstraint + fill_index_offset_e) = sp.scale(
-          electrons->at(index_ele).trackMomentumAtVtxWithConstraint().R() / electrons->at(index_ele).polarP4().pt(),
-          dnn::ele_rel_trackMomentumAtVtxWithConstraint - e_index_offset);
+          sp.scale(ele.trackMomentumOut().R() / ele.polarP4().pt(), dnn::ele_rel_trackMomentumOut - e_index_offset);
+      get(dnn::ele_rel_trackMomentumAtEleClus + fill_index_offset_e) = sp.scale(
+          ele.trackMomentumAtEleClus().R() / ele.polarP4().pt(), dnn::ele_rel_trackMomentumAtEleClus - e_index_offset);
+      get(dnn::ele_rel_trackMomentumAtVtxWithConstraint + fill_index_offset_e) =
+          sp.scale(ele.trackMomentumAtVtxWithConstraint().R() / ele.polarP4().pt(),
+                   dnn::ele_rel_trackMomentumAtVtxWithConstraint - e_index_offset);
       get(dnn::ele_rel_ecalEnergy + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).ecalEnergy() / electrons->at(index_ele).polarP4().pt(),
-                   dnn::ele_rel_ecalEnergy - e_index_offset);
+          sp.scale(ele.ecalEnergy() / ele.polarP4().pt(), dnn::ele_rel_ecalEnergy - e_index_offset);
       get(dnn::ele_ecalEnergy_sig + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).ecalEnergy() / electrons->at(index_ele).ecalEnergyError(),
-                   dnn::ele_ecalEnergy_sig - e_index_offset);
+          sp.scale(ele.ecalEnergy() / ele.ecalEnergyError(), dnn::ele_ecalEnergy_sig - e_index_offset);
       get(dnn::ele_eSuperClusterOverP + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).eSuperClusterOverP(), dnn::ele_eSuperClusterOverP - e_index_offset);
+          sp.scale(ele.eSuperClusterOverP(), dnn::ele_eSuperClusterOverP - e_index_offset);
       get(dnn::ele_eSeedClusterOverP + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).eSeedClusterOverP(), dnn::ele_eSeedClusterOverP - e_index_offset);
+          sp.scale(ele.eSeedClusterOverP(), dnn::ele_eSeedClusterOverP - e_index_offset);
       get(dnn::ele_eSeedClusterOverPout + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).eSeedClusterOverPout(), dnn::ele_eSeedClusterOverPout - e_index_offset);
+          sp.scale(ele.eSeedClusterOverPout(), dnn::ele_eSeedClusterOverPout - e_index_offset);
       get(dnn::ele_eEleClusterOverPout + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).eEleClusterOverPout(), dnn::ele_eEleClusterOverPout - e_index_offset);
+          sp.scale(ele.eEleClusterOverPout(), dnn::ele_eEleClusterOverPout - e_index_offset);
       get(dnn::ele_deltaEtaSuperClusterTrackAtVtx + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).deltaEtaSuperClusterTrackAtVtx(),
-                   dnn::ele_deltaEtaSuperClusterTrackAtVtx - e_index_offset);
+          sp.scale(ele.deltaEtaSuperClusterTrackAtVtx(), dnn::ele_deltaEtaSuperClusterTrackAtVtx - e_index_offset);
       get(dnn::ele_deltaEtaSeedClusterTrackAtCalo + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).deltaEtaSeedClusterTrackAtCalo(),
-                   dnn::ele_deltaEtaSeedClusterTrackAtCalo - e_index_offset);
+          sp.scale(ele.deltaEtaSeedClusterTrackAtCalo(), dnn::ele_deltaEtaSeedClusterTrackAtCalo - e_index_offset);
       get(dnn::ele_deltaEtaEleClusterTrackAtCalo + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).deltaEtaEleClusterTrackAtCalo(),
-                   dnn::ele_deltaEtaEleClusterTrackAtCalo - e_index_offset);
+          sp.scale(ele.deltaEtaEleClusterTrackAtCalo(), dnn::ele_deltaEtaEleClusterTrackAtCalo - e_index_offset);
       get(dnn::ele_deltaPhiEleClusterTrackAtCalo + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).deltaPhiEleClusterTrackAtCalo(),
-                   dnn::ele_deltaPhiEleClusterTrackAtCalo - e_index_offset);
+          sp.scale(ele.deltaPhiEleClusterTrackAtCalo(), dnn::ele_deltaPhiEleClusterTrackAtCalo - e_index_offset);
       get(dnn::ele_deltaPhiSuperClusterTrackAtVtx + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).deltaPhiSuperClusterTrackAtVtx(),
-                   dnn::ele_deltaPhiSuperClusterTrackAtVtx - e_index_offset);
+          sp.scale(ele.deltaPhiSuperClusterTrackAtVtx(), dnn::ele_deltaPhiSuperClusterTrackAtVtx - e_index_offset);
       get(dnn::ele_deltaPhiSeedClusterTrackAtCalo + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).deltaPhiSeedClusterTrackAtCalo(),
-                   dnn::ele_deltaPhiSeedClusterTrackAtCalo - e_index_offset);
+          sp.scale(ele.deltaPhiSeedClusterTrackAtCalo(), dnn::ele_deltaPhiSeedClusterTrackAtCalo - e_index_offset);
       get(dnn::ele_mvaInput_earlyBrem + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).mvaInput().earlyBrem, dnn::ele_mvaInput_earlyBrem - e_index_offset);
+          sp.scale(ele.mvaInput().earlyBrem, dnn::ele_mvaInput_earlyBrem - e_index_offset);
       get(dnn::ele_mvaInput_lateBrem + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).mvaInput().lateBrem, dnn::ele_mvaInput_lateBrem - e_index_offset);
+          sp.scale(ele.mvaInput().lateBrem, dnn::ele_mvaInput_lateBrem - e_index_offset);
       get(dnn::ele_mvaInput_sigmaEtaEta + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).mvaInput().sigmaEtaEta, dnn::ele_mvaInput_sigmaEtaEta - e_index_offset);
+          sp.scale(ele.mvaInput().sigmaEtaEta, dnn::ele_mvaInput_sigmaEtaEta - e_index_offset);
       get(dnn::ele_mvaInput_hadEnergy + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).mvaInput().hadEnergy, dnn::ele_mvaInput_hadEnergy - e_index_offset);
+          sp.scale(ele.mvaInput().hadEnergy, dnn::ele_mvaInput_hadEnergy - e_index_offset);
       get(dnn::ele_mvaInput_deltaEta + fill_index_offset_e) =
-          sp.scale(electrons->at(index_ele).mvaInput().deltaEta, dnn::ele_mvaInput_deltaEta - e_index_offset);
-      const auto& gsfTrack = electrons->at(index_ele).gsfTrack();
+          sp.scale(ele.mvaInput().deltaEta, dnn::ele_mvaInput_deltaEta - e_index_offset);
+      const auto& gsfTrack = ele.gsfTrack();
       if (gsfTrack.isNonnull()) {
         get(dnn::ele_gsfTrack_normalizedChi2 + fill_index_offset_e) =
             sp.scale(gsfTrack->normalizedChi2(), dnn::ele_gsfTrack_normalizedChi2 - e_index_offset);
         get(dnn::ele_gsfTrack_numberOfValidHits + fill_index_offset_e) =
             sp.scale(gsfTrack->numberOfValidHits(), dnn::ele_gsfTrack_numberOfValidHits - e_index_offset);
-        get(dnn::ele_rel_gsfTrack_pt + fill_index_offset_e) = sp.scale(
-            gsfTrack->pt() / electrons->at(index_ele).polarP4().pt(), dnn::ele_rel_gsfTrack_pt - e_index_offset);
+        get(dnn::ele_rel_gsfTrack_pt + fill_index_offset_e) =
+            sp.scale(gsfTrack->pt() / ele.polarP4().pt(), dnn::ele_rel_gsfTrack_pt - e_index_offset);
         get(dnn::ele_gsfTrack_pt_sig + fill_index_offset_e) =
             sp.scale(gsfTrack->pt() / gsfTrack->ptError(), dnn::ele_gsfTrack_pt_sig - e_index_offset);
       }
-      const auto& closestCtfTrack = electrons->at(index_ele).closestCtfTrackRef();
+      const auto& closestCtfTrack = ele.closestCtfTrackRef();
       const bool has_closestCtfTrack = closestCtfTrack.isNonnull();
       if (has_closestCtfTrack) {
         get(dnn::ele_has_closestCtfTrack + fill_index_offset_e) =
@@ -2339,12 +2325,12 @@ private:
       const auto& muon_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_pf_muon));
 
       get(dnn::pfCand_muon_valid) = sp.scale(valid_index_pf_muon, dnn::pfCand_muon_valid - PFmu_index_offset);
-      get(dnn::pfCand_muon_rel_pt) = sp.scale(pfCands.at(index_pf_muon).polarP4().pt() / tau.polarP4().pt(),
-                                              dnn::pfCand_muon_rel_pt - PFmu_index_offset);
-      get(dnn::pfCand_muon_deta) = sp.scale(pfCands.at(index_pf_muon).polarP4().eta() - tau.polarP4().eta(),
-                                            dnn::pfCand_muon_deta - PFmu_index_offset);
+      get(dnn::pfCand_muon_rel_pt) =
+          sp.scale(muon_cand.polarP4().pt() / tau.polarP4().pt(), dnn::pfCand_muon_rel_pt - PFmu_index_offset);
+      get(dnn::pfCand_muon_deta) =
+          sp.scale(muon_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_muon_deta - PFmu_index_offset);
       get(dnn::pfCand_muon_dphi) =
-          sp.scale(dPhi(tau.polarP4(), pfCands.at(index_pf_muon).polarP4()), dnn::pfCand_muon_dphi - PFmu_index_offset);
+          sp.scale(dPhi(tau.polarP4(), muon_cand.polarP4()), dnn::pfCand_muon_dphi - PFmu_index_offset);
       get(dnn::pfCand_muon_pvAssociationQuality) = sp.scale<int>(
           candFunc::getPvAssocationQuality(muon_cand), dnn::pfCand_muon_pvAssociationQuality - PFmu_index_offset);
       get(dnn::pfCand_muon_fromPV) =
@@ -2358,21 +2344,21 @@ private:
           sp.scale<int>(candFunc::getLostInnerHits(muon_cand, 0), dnn::pfCand_muon_lostInnerHits - PFmu_index_offset);
       get(dnn::pfCand_muon_numberOfPixelHits) = sp.scale(candFunc::getNumberOfPixelHits(muon_cand, 0),
                                                          dnn::pfCand_muon_numberOfPixelHits - PFmu_index_offset);
-      get(dnn::pfCand_muon_vertex_dx) = sp.scale(pfCands.at(index_pf_muon).vertex().x() - pv.position().x(),
-                                                 dnn::pfCand_muon_vertex_dx - PFmu_index_offset);
-      get(dnn::pfCand_muon_vertex_dy) = sp.scale(pfCands.at(index_pf_muon).vertex().y() - pv.position().y(),
-                                                 dnn::pfCand_muon_vertex_dy - PFmu_index_offset);
-      get(dnn::pfCand_muon_vertex_dz) = sp.scale(pfCands.at(index_pf_muon).vertex().z() - pv.position().z(),
-                                                 dnn::pfCand_muon_vertex_dz - PFmu_index_offset);
-      get(dnn::pfCand_muon_vertex_dx_tauFL) = sp.scale(
-          pfCands.at(index_pf_muon).vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
-          dnn::pfCand_muon_vertex_dx_tauFL - PFmu_index_offset);
-      get(dnn::pfCand_muon_vertex_dy_tauFL) = sp.scale(
-          pfCands.at(index_pf_muon).vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
-          dnn::pfCand_muon_vertex_dy_tauFL - PFmu_index_offset);
-      get(dnn::pfCand_muon_vertex_dz_tauFL) = sp.scale(
-          pfCands.at(index_pf_muon).vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
-          dnn::pfCand_muon_vertex_dz_tauFL - PFmu_index_offset);
+      get(dnn::pfCand_muon_vertex_dx) =
+          sp.scale(muon_cand.vertex().x() - pv.position().x(), dnn::pfCand_muon_vertex_dx - PFmu_index_offset);
+      get(dnn::pfCand_muon_vertex_dy) =
+          sp.scale(muon_cand.vertex().y() - pv.position().y(), dnn::pfCand_muon_vertex_dy - PFmu_index_offset);
+      get(dnn::pfCand_muon_vertex_dz) =
+          sp.scale(muon_cand.vertex().z() - pv.position().z(), dnn::pfCand_muon_vertex_dz - PFmu_index_offset);
+      get(dnn::pfCand_muon_vertex_dx_tauFL) =
+          sp.scale(muon_cand.vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
+                   dnn::pfCand_muon_vertex_dx_tauFL - PFmu_index_offset);
+      get(dnn::pfCand_muon_vertex_dy_tauFL) =
+          sp.scale(muon_cand.vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
+                   dnn::pfCand_muon_vertex_dy_tauFL - PFmu_index_offset);
+      get(dnn::pfCand_muon_vertex_dz_tauFL) =
+          sp.scale(muon_cand.vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
+                   dnn::pfCand_muon_vertex_dz_tauFL - PFmu_index_offset);
 
       const bool hasTrackDetails = candFunc::getHasTrackDetails(muon_cand);
       if (hasTrackDetails) {
@@ -2398,45 +2384,39 @@ private:
     if (valid_index_muon) {
       const sc::ScalingParams& sp = scalingParamsMap_->at(std::make_pair(ft_mu, is_inner));
       size_t index_muon = cell_map.at(CellObjectType::Muon);
+      const auto& muon = muons->at(index_muon);
 
       get(dnn::muon_valid) = sp.scale(valid_index_muon, dnn::muon_valid - mu_index_offset);
-      get(dnn::muon_rel_pt) =
-          sp.scale(muons->at(index_muon).polarP4().pt() / tau.polarP4().pt(), dnn::muon_rel_pt - mu_index_offset);
-      get(dnn::muon_deta) =
-          sp.scale(muons->at(index_muon).polarP4().eta() - tau.polarP4().eta(), dnn::muon_deta - mu_index_offset);
-      get(dnn::muon_dphi) =
-          sp.scale(dPhi(tau.polarP4(), muons->at(index_muon).polarP4()), dnn::muon_dphi - mu_index_offset);
-      get(dnn::muon_dxy) = sp.scale(muons->at(index_muon).dB(pat::Muon::PV2D), dnn::muon_dxy - mu_index_offset);
+      get(dnn::muon_rel_pt) = sp.scale(muon.polarP4().pt() / tau.polarP4().pt(), dnn::muon_rel_pt - mu_index_offset);
+      get(dnn::muon_deta) = sp.scale(muon.polarP4().eta() - tau.polarP4().eta(), dnn::muon_deta - mu_index_offset);
+      get(dnn::muon_dphi) = sp.scale(dPhi(tau.polarP4(), muon.polarP4()), dnn::muon_dphi - mu_index_offset);
+      get(dnn::muon_dxy) = sp.scale(muon.dB(pat::Muon::PV2D), dnn::muon_dxy - mu_index_offset);
       get(dnn::muon_dxy_sig) =
-          sp.scale(std::abs(muons->at(index_muon).dB(pat::Muon::PV2D)) / muons->at(index_muon).edB(pat::Muon::PV2D),
-                   dnn::muon_dxy_sig - mu_index_offset);
+          sp.scale(std::abs(muon.dB(pat::Muon::PV2D)) / muon.edB(pat::Muon::PV2D), dnn::muon_dxy_sig - mu_index_offset);
 
-      const bool normalizedChi2_valid =
-          muons->at(index_muon).globalTrack().isNonnull() && muons->at(index_muon).normChi2() >= 0;
+      const bool normalizedChi2_valid = muon.globalTrack().isNonnull() && muon.normChi2() >= 0;
       if (normalizedChi2_valid) {
         get(dnn::muon_normalizedChi2_valid) =
             sp.scale(normalizedChi2_valid, dnn::muon_normalizedChi2_valid - mu_index_offset);
-        get(dnn::muon_normalizedChi2) =
-            sp.scale(muons->at(index_muon).normChi2(), dnn::muon_normalizedChi2 - mu_index_offset);
-        if (muons->at(index_muon).innerTrack().isNonnull())
+        get(dnn::muon_normalizedChi2) = sp.scale(muon.normChi2(), dnn::muon_normalizedChi2 - mu_index_offset);
+        if (muon.innerTrack().isNonnull())
           get(dnn::muon_numberOfValidHits) =
-              sp.scale(muons->at(index_muon).numberOfValidHits(), dnn::muon_numberOfValidHits - mu_index_offset);
+              sp.scale(muon.numberOfValidHits(), dnn::muon_numberOfValidHits - mu_index_offset);
       }
       get(dnn::muon_segmentCompatibility) =
-          sp.scale(muons->at(index_muon).segmentCompatibility(), dnn::muon_segmentCompatibility - mu_index_offset);
+          sp.scale(muon.segmentCompatibility(), dnn::muon_segmentCompatibility - mu_index_offset);
       get(dnn::muon_caloCompatibility) =
-          sp.scale(muons->at(index_muon).caloCompatibility(), dnn::muon_caloCompatibility - mu_index_offset);
+          sp.scale(muon.caloCompatibility(), dnn::muon_caloCompatibility - mu_index_offset);
 
-      const bool pfEcalEnergy_valid = muons->at(index_muon).pfEcalEnergy() >= 0;
+      const bool pfEcalEnergy_valid = muon.pfEcalEnergy() >= 0;
       if (pfEcalEnergy_valid) {
         get(dnn::muon_pfEcalEnergy_valid) =
             sp.scale(pfEcalEnergy_valid, dnn::muon_pfEcalEnergy_valid - mu_index_offset);
         get(dnn::muon_rel_pfEcalEnergy) =
-            sp.scale(muons->at(index_muon).pfEcalEnergy() / muons->at(index_muon).polarP4().pt(),
-                     dnn::muon_rel_pfEcalEnergy - mu_index_offset);
+            sp.scale(muon.pfEcalEnergy() / muon.polarP4().pt(), dnn::muon_rel_pfEcalEnergy - mu_index_offset);
       }
 
-      MuonHitMatchV2 hit_match(muons->at(index_muon));
+      MuonHitMatchV2 hit_match(muon);
       static const std::map<int, std::pair<int, int>> muonMatchHitVars = {
           {MuonSubdetId::DT, {dnn::muon_n_matches_DT_1, dnn::muon_n_hits_DT_1}},
           {MuonSubdetId::CSC, {dnn::muon_n_matches_CSC_1, dnn::muon_n_hits_CSC_1}},
@@ -2495,12 +2475,12 @@ private:
       const auto& chH_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_chH));
 
       get(dnn::pfCand_chHad_valid) = sp.scale(valid_chH, dnn::pfCand_chHad_valid - PFchH_index_offset);
-      get(dnn::pfCand_chHad_rel_pt) = sp.scale(pfCands.at(index_chH).polarP4().pt() / tau.polarP4().pt(),
-                                               dnn::pfCand_chHad_rel_pt - PFchH_index_offset);
-      get(dnn::pfCand_chHad_deta) = sp.scale(pfCands.at(index_chH).polarP4().eta() - tau.polarP4().eta(),
-                                             dnn::pfCand_chHad_deta - PFchH_index_offset);
+      get(dnn::pfCand_chHad_rel_pt) =
+          sp.scale(chH_cand.polarP4().pt() / tau.polarP4().pt(), dnn::pfCand_chHad_rel_pt - PFchH_index_offset);
+      get(dnn::pfCand_chHad_deta) =
+          sp.scale(chH_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_chHad_deta - PFchH_index_offset);
       get(dnn::pfCand_chHad_dphi) =
-          sp.scale(dPhi(tau.polarP4(), pfCands.at(index_chH).polarP4()), dnn::pfCand_chHad_dphi - PFchH_index_offset);
+          sp.scale(dPhi(tau.polarP4(), chH_cand.polarP4()), dnn::pfCand_chHad_dphi - PFchH_index_offset);
       get(dnn::pfCand_chHad_leadChargedHadrCand) =
           sp.scale(&chH_cand == dynamic_cast<const CandidateCastType*>(tau.leadChargedHadrCand().get()),
                    dnn::pfCand_chHad_leadChargedHadrCand - PFchH_index_offset);
@@ -2524,21 +2504,21 @@ private:
           sp.scale<int>(candFunc::getLostInnerHits(chH_cand, 0), dnn::pfCand_chHad_lostInnerHits - PFchH_index_offset);
       get(dnn::pfCand_chHad_numberOfPixelHits) = sp.scale(candFunc::getNumberOfPixelHits(chH_cand, 0),
                                                           dnn::pfCand_chHad_numberOfPixelHits - PFchH_index_offset);
-      get(dnn::pfCand_chHad_vertex_dx) = sp.scale(pfCands.at(index_chH).vertex().x() - pv.position().x(),
-                                                  dnn::pfCand_chHad_vertex_dx - PFchH_index_offset);
-      get(dnn::pfCand_chHad_vertex_dy) = sp.scale(pfCands.at(index_chH).vertex().y() - pv.position().y(),
-                                                  dnn::pfCand_chHad_vertex_dy - PFchH_index_offset);
-      get(dnn::pfCand_chHad_vertex_dz) = sp.scale(pfCands.at(index_chH).vertex().z() - pv.position().z(),
-                                                  dnn::pfCand_chHad_vertex_dz - PFchH_index_offset);
-      get(dnn::pfCand_chHad_vertex_dx_tauFL) = sp.scale(
-          pfCands.at(index_chH).vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
-          dnn::pfCand_chHad_vertex_dx_tauFL - PFchH_index_offset);
-      get(dnn::pfCand_chHad_vertex_dy_tauFL) = sp.scale(
-          pfCands.at(index_chH).vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
-          dnn::pfCand_chHad_vertex_dy_tauFL - PFchH_index_offset);
-      get(dnn::pfCand_chHad_vertex_dz_tauFL) = sp.scale(
-          pfCands.at(index_chH).vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
-          dnn::pfCand_chHad_vertex_dz_tauFL - PFchH_index_offset);
+      get(dnn::pfCand_chHad_vertex_dx) =
+          sp.scale(chH_cand.vertex().x() - pv.position().x(), dnn::pfCand_chHad_vertex_dx - PFchH_index_offset);
+      get(dnn::pfCand_chHad_vertex_dy) =
+          sp.scale(chH_cand.vertex().y() - pv.position().y(), dnn::pfCand_chHad_vertex_dy - PFchH_index_offset);
+      get(dnn::pfCand_chHad_vertex_dz) =
+          sp.scale(chH_cand.vertex().z() - pv.position().z(), dnn::pfCand_chHad_vertex_dz - PFchH_index_offset);
+      get(dnn::pfCand_chHad_vertex_dx_tauFL) =
+          sp.scale(chH_cand.vertex().x() - pv.position().x() - tau_funcs.getFlightLength(tau, tau_index).x(),
+                   dnn::pfCand_chHad_vertex_dx_tauFL - PFchH_index_offset);
+      get(dnn::pfCand_chHad_vertex_dy_tauFL) =
+          sp.scale(chH_cand.vertex().y() - pv.position().y() - tau_funcs.getFlightLength(tau, tau_index).y(),
+                   dnn::pfCand_chHad_vertex_dy_tauFL - PFchH_index_offset);
+      get(dnn::pfCand_chHad_vertex_dz_tauFL) =
+          sp.scale(chH_cand.vertex().z() - pv.position().z() - tau_funcs.getFlightLength(tau, tau_index).z(),
+                   dnn::pfCand_chHad_vertex_dz_tauFL - PFchH_index_offset);
 
       const bool hasTrackDetails = candFunc::getHasTrackDetails(chH_cand);
       if (hasTrackDetails) {
@@ -2573,12 +2553,12 @@ private:
       const auto& nH_cand = dynamic_cast<const CandidateCastType&>(pfCands.at(index_nH));
 
       get(dnn::pfCand_nHad_valid) = sp.scale(valid_nH, dnn::pfCand_nHad_valid - PFnH_index_offset);
-      get(dnn::pfCand_nHad_rel_pt) = sp.scale(pfCands.at(index_nH).polarP4().pt() / tau.polarP4().pt(),
-                                              dnn::pfCand_nHad_rel_pt - PFnH_index_offset);
-      get(dnn::pfCand_nHad_deta) = sp.scale(pfCands.at(index_nH).polarP4().eta() - tau.polarP4().eta(),
-                                            dnn::pfCand_nHad_deta - PFnH_index_offset);
+      get(dnn::pfCand_nHad_rel_pt) =
+          sp.scale(nH_cand.polarP4().pt() / tau.polarP4().pt(), dnn::pfCand_nHad_rel_pt - PFnH_index_offset);
+      get(dnn::pfCand_nHad_deta) =
+          sp.scale(nH_cand.polarP4().eta() - tau.polarP4().eta(), dnn::pfCand_nHad_deta - PFnH_index_offset);
       get(dnn::pfCand_nHad_dphi) =
-          sp.scale(dPhi(tau.polarP4(), pfCands.at(index_nH).polarP4()), dnn::pfCand_nHad_dphi - PFnH_index_offset);
+          sp.scale(dPhi(tau.polarP4(), nH_cand.polarP4()), dnn::pfCand_nHad_dphi - PFnH_index_offset);
       get(dnn::pfCand_nHad_puppiWeight) = is_inner ? sp.scale(candFunc::getPuppiWeight(nH_cand, 0.9798355f),
                                                               dnn::pfCand_nHad_puppiWeight - PFnH_index_offset)
                                                    : sp.scale(candFunc::getPuppiWeight(nH_cand, 0.7813260f),
