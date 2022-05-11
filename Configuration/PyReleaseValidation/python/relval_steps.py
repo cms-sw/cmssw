@@ -514,7 +514,6 @@ steps['RunEGamma2018Dml1']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',
 steps['RunEGamma2018Dml2']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml2)}
 
 #### Run2 TauEmbed ####
-Run2016C={276092: [[91, 95]]}
 steps['RunDoubleMuonTE2016C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016C-v2/RAW',label='2016C',events=10000,location='STD', ls=Run2016C)}
 dataTE = {'--conditions': 'auto:run2_data', '--scenario': 'pp'}
 mcTE = {'--conditions': 'auto:run2_mc', '--scenario': 'pp'}
