@@ -7,6 +7,7 @@
     <Numeric name="WaferTypes"       value="3"/>
     <Numeric name="FacingTypes"      value="2"/>
     <Numeric name="OrientationTypes" value="6"/>
+    <Numeric name="PlaceOffset"      value="0"/>
     <Numeric name="FirstLayer"       value="1"/>
     <Numeric name="AbsorberMode"     value="0"/>
     <Numeric name="SensitiveMode"    value="0"/>

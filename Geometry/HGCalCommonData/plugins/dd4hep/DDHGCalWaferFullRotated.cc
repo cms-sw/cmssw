@@ -34,7 +34,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 << " T " << thick << " Wafer 2r " << waferSize << " Half Separation " << waferSepar
                                 << " T " << waferThick;
 #endif
-  const auto& orient = args.value<std::vector<int> >("WaferOrinet");
+  const auto& orient = args.value<std::vector<int> >("WaferOrient");
   const auto& face = args.value<std::vector<int> >("WaferFace");
   const auto& tag = args.value<std::vector<std::string> >("WaferPlacementIndex");
   const auto& layerNames = args.value<std::vector<std::string> >("LayerNames");

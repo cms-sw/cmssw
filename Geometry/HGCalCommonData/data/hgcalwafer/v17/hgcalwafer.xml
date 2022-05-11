@@ -26,7 +26,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
@@ -75,7 +75,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
@@ -124,7 +124,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
     <String name="WaferTag" value="Coarse1"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
@@ -173,7 +173,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
     <String name="WaferTag" value="Coarse1"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
@@ -222,7 +222,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <String name="WaferTag" value="Coarse2"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
@@ -271,7 +271,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <String name="WaferTag" value="Coarse2"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
@@ -320,7 +320,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
@@ -369,7 +369,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
@@ -418,7 +418,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
     <String name="WaferTag" value="Coarse1"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
@@ -467,7 +467,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
     <String name="WaferTag" value="Coarse1"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
@@ -516,7 +516,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <String name="WaferTag" value="Coarse2"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
@@ -565,7 +565,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <String name="WaferTag" value="Coarse2"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
@@ -871,9 +871,9 @@
     <Vector name="PartialTypes" type="numeric" nEntries="5">
       21, 22, 23, 24, 25</Vector>
     <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      1, 1, 1, 1, 1, 1 </Vector>
-    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      06, 07, 08, 09, 10, 11</Vector>
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy,
@@ -943,9 +943,9 @@
     <Vector name="PartialTypes" type="numeric" nEntries="6">
       11, 12, 13, 14, 15, 16</Vector>
     <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      1, 1, 1, 1, 1, 1 </Vector>
-    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      06, 07, 08, 09, 10, 11</Vector>
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy, 
@@ -1015,9 +1015,9 @@
     <Vector name="PartialTypes" type="numeric" nEntries="6">
       11, 12, 13, 14, 15, 16</Vector>
     <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      1, 1, 1, 1, 1, 1 </Vector>
-    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      6, 7, 8, 9, 10, 11</Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6">
+      06, 07, 08, 09, 10, 11</Vector>
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy,
