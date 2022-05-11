@@ -453,7 +453,7 @@ void Tree::loadFromXML(const char* filename) {
   // I choose to identify the format by checking the top xml node name that is a "BinaryTree" in 2017
   if (std::string("BinaryTree") == xml->GetNodeName(mainnode)) {
     XMLAttrPointer_t attr = xml->GetFirstAttr(mainnode);
-    while(std::string("boostWeight") != xml->GetAttrName(attr)) {
+    while (std::string("boostWeight") != xml->GetAttrName(attr)) {
       attr = xml->GetNextAttr(attr);
     }
     boostWeight = (attr ? strtod(xml->GetAttrValue(attr), nullptr) : 0);
@@ -480,13 +480,13 @@ void Tree::loadFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xnode, Node* t
   std::vector<std::string> splitInfo(3);
   if (xmlVersion >= 2017) {
     for (unsigned int i = 0; i < 10; i++) {
-      if(std::string("IVar") == xml->GetAttrName(attr)) {
+      if (std::string("IVar") == xml->GetAttrName(attr)) {
         splitInfo[0] = xml->GetAttrValue(attr);
       }
-      if(std::string("Cut") == xml->GetAttrName(attr)) {
+      if (std::string("Cut") == xml->GetAttrName(attr)) {
         splitInfo[1] = xml->GetAttrValue(attr);
       }
-      if(std::string("res") == xml->GetAttrName(attr)) {
+      if (std::string("res") == xml->GetAttrName(attr)) {
         splitInfo[2] = xml->GetAttrValue(attr);
       }
       attr = xml->GetNextAttr(attr);
