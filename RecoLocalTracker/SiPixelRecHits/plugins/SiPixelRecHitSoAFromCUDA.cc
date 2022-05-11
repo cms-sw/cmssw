@@ -90,7 +90,7 @@ void SiPixelRecHitSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const
 
 DEFINE_FWK_MODULE(SiPixelRecHitSoAFromCUDA);
 
-#define FINAL_POOL_DUMP
+// #define FINAL_POOL_DUMP
 #ifdef FINAL_POOL_DUMP
 
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
