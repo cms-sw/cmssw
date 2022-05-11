@@ -65,7 +65,7 @@ void RPCClusterSizeTest::clientOperation() {
 
           xBin = sector;
           for (int yBin_ = 1; yBin_ <= myMe->getNbinsY(); yBin_++) {
-            int nbinsX = myMe->getNbinsX() - 1; //Exclude overflow
+            int nbinsX = myMe->getNbinsX() - 1;  //Exclude overflow
             TH1F* h = new TH1F("h", "h", nbinsX, 0.5, 0.5 + nbinsX);
             for (int xBin_ = 1; xBin_ <= nbinsX; xBin_++) {
               int cl = myMe->getBinContent(xBin_, yBin_);
@@ -117,7 +117,7 @@ void RPCClusterSizeTest::clientOperation() {
               }
 
               for (int yBin_ = 1; yBin_ <= myMe->getNbinsY(); yBin_++) {
-                int nbinsX = myMe->getNbinsX() - 1; //Exclude overflow
+                int nbinsX = myMe->getNbinsX() - 1;  //Exclude overflow
                 TH1F* h = new TH1F("h", "h", nbinsX, 0.5, 0.5 + nbinsX);
                 for (int xBin_ = 1; xBin_ <= nbinsX; xBin_++) {
                   int cl = myMe->getBinContent(xBin_, yBin_);
@@ -125,7 +125,8 @@ void RPCClusterSizeTest::clientOperation() {
                 }
 
                 yBin = yBin_ - (3 * ((yBin_ - 1) / 3)) + (3 * (ring - 2));
-                if (yBin % 3 == 1) xBin++;
+                if (yBin % 3 == 1)
+                  xBin++;
 
                 meanCLS = h->GetMean();
 
@@ -137,7 +138,7 @@ void RPCClusterSizeTest::clientOperation() {
                     MEAND->Fill(meanCLS);
                 }
               }
-            }//name check
+            }  //name check
           }
         }
       }
