@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    UserCode/CalibratedDigis
+// Package:    L1Trigger/DTTriggerPhase2
 // Class:      CalibratedDigis
 //
-/**\class CalibratedDigis CalibratedDigis.cc UserCode/CalibratedDigis/plugins/CalibratedDigis.cc
+/**\class CalibratedDigis CalibratedDigis.cc L1Trigger/DTTriggerPhase2/plugins/CalibratedDigis.cc
 
  Description: [one line class summary]
 
@@ -32,7 +32,6 @@
 #include "CalibMuon/DTDigiSync/interface/DTTTrigBaseSync.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CalibMuon/DTDigiSync/interface/DTTTrigSyncFactory.h"
 
@@ -97,7 +96,7 @@ CalibratedDigis::CalibratedDigis(const edm::ParameterSet& iConfig) {
   flat_calib_ = iConfig.getParameter<int>("flat_calib");
   timeOffset_ = iConfig.getParameter<int>("timeOffset");
 
-  scenario = iConfig.getUntrackedParameter<int>("scenario");
+  scenario = iConfig.getParameter<int>("scenario");
 
   produces<DTDigiCollection>();
   //now do what ever other initialization is needed

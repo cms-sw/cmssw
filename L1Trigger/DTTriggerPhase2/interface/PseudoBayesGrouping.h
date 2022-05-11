@@ -47,7 +47,7 @@ private:
 
   // Private attributes
   // Config variables
-  bool debug_;
+  const bool debug_;
   std::string pattern_filename_;
   int pidx_;
   int minNLayerHits_;

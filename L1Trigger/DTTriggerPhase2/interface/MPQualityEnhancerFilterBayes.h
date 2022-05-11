@@ -1,7 +1,8 @@
-#ifndef Phase2L1Trigger_DTTrigger_MPQualityEnhancerFilter_h
-#define Phase2L1Trigger_DTTrigger_MPQualityEnhancerFilter_h
+#ifndef Phase2L1Trigger_DTTrigger_MPQualityEnhancerFilterBayes_h
+#define Phase2L1Trigger_DTTrigger_MPQualityEnhancerFilterBayes_h
 
 #include "L1Trigger/DTTriggerPhase2/interface/MPFilter.h"
+#include "DataFormats/MuonDetId/interface/DTChamberId.h"
 
 #include <iostream>
 #include <fstream>
@@ -14,11 +15,11 @@
 // Class declarations
 // ===============================================================================
 
-class MPQualityEnhancerFilter : public MPFilter {
+class MPQualityEnhancerFilterBayes : public MPFilter {
 public:
   // Constructors and destructor
-  MPQualityEnhancerFilter(const edm::ParameterSet &pset);
-  ~MPQualityEnhancerFilter() override = default;
+  MPQualityEnhancerFilterBayes(const edm::ParameterSet &pset);
+  ~MPQualityEnhancerFilterBayes() override = default;
 
   // Main methods
   void initialise(const edm::EventSetup &iEventSetup) override;
@@ -37,15 +38,15 @@ public:
 
   // Public attributes
   int areCousins(cmsdt::metaPrimitive mp1, cmsdt::metaPrimitive mp2);
+  int shareSL(cmsdt::metaPrimitive mp1, cmsdt::metaPrimitive mp2);
+  bool areSame(cmsdt::metaPrimitive mp1, cmsdt::metaPrimitive mp2);
   int rango(cmsdt::metaPrimitive mp);
+  int BX(cmsdt::metaPrimitive mp);
   void printmP(cmsdt::metaPrimitive mP);
 
 private:
   // Private methods
   void filterCousins(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
-  void refilteringCousins(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
-  void filterTanPhi(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
-  void filterUnique(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
 
   // Private attributes
   const bool debug_;
