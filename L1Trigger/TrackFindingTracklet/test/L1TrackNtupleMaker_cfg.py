@@ -150,7 +150,7 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
     L1TRUTH_NAME = "TTTrackAssociatorFromPixelDigisExtended"
 
 # HYBRID_NEWKF: prompt tracking or reduced
-elif (L1TRKALGO == 'HYBRID_NEWKF' or 'HYBRID_REDUCED'):
+elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
     process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
     process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
     NHELIXPAR = 4
