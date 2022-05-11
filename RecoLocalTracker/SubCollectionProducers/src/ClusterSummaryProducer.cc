@@ -109,12 +109,20 @@ void ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   if (verbose) {
     for (const auto& iS : selectors) {
       const ClusterSummary::CMSTracker module = iS.second;
-      edm::LogInfo("ClusterSummaryProducer")
-          << "n" << moduleNames[module] << ", avg size, avg charge = " << cCluster.getNClusByIndex(module) << ", "
-          << cCluster.getClusSizeByIndex(module) / cCluster.getNClusByIndex(module) << ", "
-          << cCluster.getClusChargeByIndex(module) / cCluster.getNClusByIndex(module) << std::endl;
+      if (cCluster.getNClusByIndex(module) != 0) {
+        edm::LogInfo("ClusterSummaryProducer")
+            << "n" << moduleNames[module] << ", avg size, avg charge = " << cCluster.getNClusByIndex(module) << ", "
+            << cCluster.getClusSizeByIndex(module) / cCluster.getNClusByIndex(module) << ", "
+            << cCluster.getClusChargeByIndex(module) / cCluster.getNClusByIndex(module) << std::endl;
+      } else {
+        edm::LogInfo("ClusterSummaryProducer")
+            << "n" << moduleNames[module] << ", avg size, avg charge = " << cCluster.getNClusByIndex(module) << ", "
+            << "0"
+            << ", "
+            << "0" << std::endl;
+      }
+      edm::LogInfo("ClusterSummaryProducer") << "-------------------------------------------------------" << std::endl;
     }
-    std::cout << "-------------------------------------------------------" << std::endl;
   }
 
   //Put the filled class into the producer
