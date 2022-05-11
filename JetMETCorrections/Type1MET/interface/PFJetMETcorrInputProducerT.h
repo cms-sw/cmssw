@@ -82,16 +82,14 @@ public:
         skipMuonSelection_(nullptr) {
     token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
 
-    if (cfg.exists("offsetCorrLabel")) {
-      offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
-      offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
-    }
+    offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
+    offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
     jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");        //for MC
     jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes");  //for data
     jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
     jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
 
-    jetCorrEtaMax_ = (cfg.exists("jetCorrEtaMax")) ? cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
+    jetCorrEtaMax_ = cfg.getParameter<double>("jetCorrEtaMax") ;
 
     type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
 
