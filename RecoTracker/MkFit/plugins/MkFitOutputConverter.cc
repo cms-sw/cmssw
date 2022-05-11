@@ -135,6 +135,7 @@ private:
   const int algo_;
   const bool algoCandSelection_;
   const float algoCandWorkingPoint_;
+  const int bsize_;
   const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
   const edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
   const std::string tfDnnLabel_;
@@ -169,6 +170,7 @@ MkFitOutputConverter::MkFitOutputConverter(edm::ParameterSet const& iConfig)
           TString(iConfig.getParameter<edm::InputTag>("seeds").label()).ReplaceAll("Seeds", "").Data())},
       algoCandSelection_{bool(iConfig.getParameter<bool>("candMVASel"))},
       algoCandWorkingPoint_{float(iConfig.getParameter<double>("candWP"))},
+      bsize_{int(iConfig.getParameter<int>("batchSize"))},
       bsToken_(algoCandSelection_ ? consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))
                                   : edm::EDGetTokenT<reco::BeamSpot>()),
       verticesToken_(algoCandSelection_ ? consumes<reco::VertexCollection>(edm::InputTag("firstStepPrimaryVertices"))
@@ -202,6 +204,7 @@ void MkFitOutputConverter::fillDescriptions(edm::ConfigurationDescriptions& desc
 
   desc.add<bool>("candMVASel", false)->setComment("flag used to trigger MVA selection at cand level");
   desc.add<double>("candWP", 0)->setComment("MVA selection at cand level working point");
+  desc.add<int>("batchSize", 16)->setComment("batch size for cand DNN evaluation");
 
   descriptions.addWithDefaultLabel(desc);
 }
@@ -449,7 +452,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
   }
 
   if (algoCandSelection_) {
-    const std::vector<float> dnnScores = computeDNNs(
+    const auto& dnnScores = computeDNNs(
         output, states, bs, vertices, session, chi2, mkFitOutput.propagatedToFirstLayer() && doErrorRescale_);
 
     TrackCandidateCollection reducedOutput;
@@ -457,7 +460,7 @@ TrackCandidateCollection MkFitOutputConverter::convertCandidates(const MkFitOutp
     int scoreIndex = 0;
     for (const auto& score : dnnScores) {
       if (score > algoCandWorkingPoint_)
-        reducedOutput.push_back(output.at(scoreIndex));
+        reducedOutput.push_back(output[scoreIndex]);
       scoreIndex++;
     }
 
@@ -608,20 +611,18 @@ std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection co
                                                      const std::vector<float>& chi2,
                                                      const bool rescaledError) const {
   int size_in = (int)tkCC.size();
-  int bsize = 16;
-  int nbatches = size_in / bsize;
+  int nbatches = size_in / bsize_;
 
   std::vector<float> output(size_in, 0);
 
   TSCBLBuilderNoMaterial tscblBuilder;
 
-  for (auto nb = 0; nb < nbatches + 1; nb++) {
-    // tensorflow part
-    tensorflow::Tensor input1(tensorflow::DT_FLOAT, {bsize, 29});
-    tensorflow::Tensor input2(tensorflow::DT_FLOAT, {bsize, 1});
+  tensorflow::Tensor input1(tensorflow::DT_FLOAT, {bsize_, 29});
+  tensorflow::Tensor input2(tensorflow::DT_FLOAT, {bsize_, 1});
 
-    for (auto nt = 0; nt < bsize; nt++) {
-      int itrack = nt + bsize * nb;
+  for (auto nb = 0; nb < nbatches + 1; nb++) {
+    for (auto nt = 0; nt < bsize_; nt++) {
+      int itrack = nt + bsize_ * nb;
       if (itrack >= size_in)
         continue;
 
@@ -717,8 +718,8 @@ std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection co
     std::vector<tensorflow::Tensor> outputs;
     tensorflow::run(const_cast<tensorflow::Session*>(session), inputs, {"Identity"}, &outputs);
 
-    for (auto nt = 0; nt < bsize; nt++) {
-      int itrack = nt + bsize * nb;
+    for (auto nt = 0; nt < bsize_; nt++) {
+      int itrack = nt + bsize_ * nb;
       if (itrack >= size_in)
         continue;
 
