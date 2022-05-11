@@ -14,6 +14,11 @@ process.tpInputAnalyzer = cms.EDAnalyzer("EcalTPInputAnalyzer",
     Producer = cms.string('RecHits')
 )
 
+process.TFileService = cms.Service("TFileService",
+                                   fileName = cms.string('histos.root'),
+                                   closeFileFast = cms.untracked.bool(True)
+                                   )
+
 process.p = cms.Path(process.tpInputAnalyzer)
 
 
