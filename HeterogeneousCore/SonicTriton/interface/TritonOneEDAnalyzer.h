@@ -17,6 +17,13 @@ public:
     ts->addModel(this->clientPset_.template getParameter<std::string>("modelName"),
                  this->clientPset_.template getParameter<edm::FileInPath>("modelConfigPath").fullPath());
   }
+
+  //destroy client before destructor called to unregister any shared memory before TritonService shuts down fallback server
+  virtual void tritonEndJob() {}
+  void endJob() final {
+    tritonEndJob();
+    this->client_.reset();
+  }
 };
 
 #endif

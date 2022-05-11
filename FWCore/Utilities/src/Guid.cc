@@ -48,5 +48,11 @@ namespace edm {
     return *this;
   }
 
+  bool Guid::isValidString(std::string const& source) {
+    uuid_t tmp;
+    auto err = ::uuid_parse(source.c_str(), tmp);
+    return err == 0;
+  }
+
   bool Guid::operator<(Guid const& g) const { return ::uuid_compare(data_, g.data_) < 0; }
 }  // namespace edm
