@@ -35,7 +35,7 @@ namespace {
                      const GsfElectronAlgo::HeavyObjectCache* hoc,
                      reco::VertexCollection const& vertices,
                      bool dnnPFidEnabled,
-		     float extetaboundary,
+                     float extetaboundary,
                      const std::vector<tensorflow::Session*>& tfSessions) {
     std::vector<GsfElectron::MvaOutput> mva_outputs(electrons.size());
     size_t iele = 0;
@@ -744,7 +744,8 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     for (auto& el : electrons) {
       el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set Run2 MVA inputs
     }
-    setMVAOutputs(electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_, extetaboundary_, tfSessions_);
+    setMVAOutputs(
+        electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_, extetaboundary_, tfSessions_);
   }
 
   // all electrons
