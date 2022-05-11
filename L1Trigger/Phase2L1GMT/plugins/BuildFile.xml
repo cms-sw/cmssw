@@ -2,9 +2,6 @@
   <use name="DataFormats/L1TMuonPhase2"/>
   <use name="DataFormats/L1TMuon"/>
   <use name="DataFormats/L1Trigger"/>
-  <use name="SimGeneral/HepPDTRecord"/>
-  <use name="DataFormats/L1TrackTrigger"/>
-  <use name="DataFormats/L1TCorrelator"/>
   <use name="L1Trigger/Phase2L1GMT"/>
   <use name="hepmc"/>
   <use name="hls"/>

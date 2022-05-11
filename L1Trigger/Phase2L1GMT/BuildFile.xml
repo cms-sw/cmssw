@@ -1,6 +1,4 @@
-<use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/Utilities"/>
 <use name="DataFormats/L1TMuonPhase2"/>
 <use name="DataFormats/L1TMuon"/>
 <use name="DataFormats/L1Trigger"/>
