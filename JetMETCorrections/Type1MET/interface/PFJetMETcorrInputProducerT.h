@@ -89,7 +89,7 @@ public:
     jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
     jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
 
-    jetCorrEtaMax_ = cfg.getParameter<double>("jetCorrEtaMax") ;
+    jetCorrEtaMax_ = cfg.getParameter<double>("jetCorrEtaMax");
 
     type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
 
