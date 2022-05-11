@@ -225,12 +225,8 @@ void MkFitOutputConverter::produce(edm::StreamID iID, edm::Event& iEvent, const 
   const reco::VertexCollection* vertices = nullptr;
   const reco::BeamSpot* beamspot = nullptr;
   if (algoCandSelection_) {
-    edm::Handle<reco::VertexCollection> hVtx;
-    iEvent.getByToken(verticesToken_, hVtx);
-    vertices = hVtx.product();
-    edm::Handle<reco::BeamSpot> hBs;
-    iEvent.getByToken(bsToken_, hBs);
-    beamspot = hBs.product();
+    vertices = &iEvent.get(verticesToken_);
+    beamspot = &iEvent.get(bsToken_);
   }
 
   const tensorflow::Session* session = nullptr;
