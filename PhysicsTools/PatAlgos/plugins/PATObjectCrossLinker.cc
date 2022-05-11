@@ -182,22 +182,21 @@ void PATObjectCrossLinker::matchLowPtToElectron(const C1& refProdOne,
                                                 const std::string& nameMany) {
   size_t ji = 0;
   for (auto& j : itemsOne) {
-    std::vector<size_t> idxs;
-    std::vector<float> vdr2;
+    std::vector< std::pair<size_t,float> > idxs;
     size_t mi = 0;
     for (auto& m : itemsMany) {
       float dr2 = deltaR2(m, j);
       if (dr2 < 1.e-6) {  // deltaR < 1.e-3
         m.addUserCand(nameOne, reco::CandidatePtr(refProdOne.id(), ji, refProdOne.productGetter()));
-        idxs.push_back(mi);
-        vdr2.push_back(dr2);
+        idxs.push_back( std::make_pair(mi,dr2) );
       }
       mi++;
     }
-    std::sort(idxs.begin(), idxs.end(), [&](float a, float b) -> bool { return vdr2[a] < vdr2[b]; });
+    std::sort(idxs.begin(), idxs.end(), [](auto& left, auto& right){return left.second < right.second;});
+
     edm::PtrVector<reco::Candidate> overlaps(refProdMany.id());
     for (auto idx : idxs) {
-      overlaps.push_back(reco::CandidatePtr(refProdMany.id(), idx, refProdMany.productGetter()));
+      overlaps.push_back(reco::CandidatePtr(refProdMany.id(), idx.first, refProdMany.productGetter()));
     }
     j.setOverlaps(nameMany, overlaps);
     ji++;
