@@ -465,7 +465,7 @@ void HiPuRhoProducer::calculateOrphanInput(std::vector<fastjet::PseudoJet>& orph
     for (auto const& im : towermap_) {
       double dr2 = reco::deltaR2(im.eta, im.phi, jet_etaphi.first, jet_etaphi.second);
       if (dr2 < radiusPU_ * radiusPU_ && !excludedTowers[std::pair(im.ieta, im.iphi)] &&
-          (im.ieta - ntowersWithJets_[im.ieta]) > minimumTowersFraction_ * im.ieta) {
+          (geomtowers_[im.ieta] - ntowersWithJets_[im.ieta]) > minimumTowersFraction_ * geomtowers_[im.ieta]) {
         ntowersWithJets_[im.ieta]++;
         excludedTowers[std::pair(im.ieta, im.iphi)] = 1;
       }
