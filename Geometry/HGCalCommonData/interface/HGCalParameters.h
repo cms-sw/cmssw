@@ -186,6 +186,8 @@ public:
   tileInfo_map tileInfoMap_;
   std::vector<std::pair<double, double> > tileRingR_;
   std::vector<std::pair<int, int> > tileRingRange_;
+  int cassettes_;
+  std::vector<double> cassetteShift_;
 
   COND_SERIALIZABLE;
 
