@@ -140,4 +140,13 @@ nanoDQMQTester = DQMQualityTester(
 (run3_nanoAOD_devel).toModify(nanoDQM.vplots, Electron = None)
 (run3_nanoAOD_devel).toModify(nanoDQMMC.vplots, Electron = None)
 
+_modifiers = ( run2_miniAOD_80XLegacy |
+               run2_nanoAOD_94XMiniAODv1 |
+               run2_nanoAOD_94XMiniAODv2 |
+               run2_nanoAOD_94X2016 |
+               run2_nanoAOD_102Xv1 |
+               run2_nanoAOD_106Xv1 )
+_modifiers.toModify(nanoDQM.vplots, LowPtElectron = None)
+_modifiers.toModify(nanoDQMMC.vplots, LowPtElectron = None)
+
 nanoHarvest = cms.Sequence( nanoDQMQTester )
