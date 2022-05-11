@@ -58,6 +58,7 @@ public:
     std::string tempDir;
     std::string imageName;
     std::string sandboxName;
+    std::string command;
   };
   struct Server {
     Server(const edm::ParameterSet& pset)
@@ -116,6 +117,11 @@ private:
   void postModuleConstruction(edm::ModuleDescription const&);
   void preModuleDestruction(edm::ModuleDescription const&);
   void preBeginJob(edm::PathsAndConsumesOfModulesBase const&, edm::ProcessContext const&);
+  void postEndJob();
+
+  //helper
+  template <typename LOG>
+  void printFallbackServerLog() const;
 
   bool verbose_;
   FallbackOpts fallbackOpts_;

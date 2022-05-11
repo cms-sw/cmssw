@@ -25,6 +25,13 @@ public:
   }
 
   static void globalEndJob(G*) {}
+
+  //destroy client before destructor called to unregister any shared memory before TritonService shuts down fallback server
+  virtual void tritonEndStream() {}
+  void endStream() final {
+    tritonEndStream();
+    this->client_.reset();
+  }
 };
 
 template <typename... Capabilities>

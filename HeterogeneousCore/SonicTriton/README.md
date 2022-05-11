@@ -92,6 +92,9 @@ If an `edm::GlobalCache` of type `T` is needed, there are two changes:
     }
     ```
 
+For `TritonEDProducer` and `TritonEDFilter`, the function `tritonEndStream()` replaces the standard `endStream()`.
+For `TritonOneEDAnalyzer`, the function `tritonEndJob()` replaces the standard `endJob()`.
+
 In a SONIC Triton producer, the basic flow should follow this pattern:
 1. `acquire()`:  
     a. access input object(s) from `TritonInputMap`  
