@@ -118,10 +118,10 @@ DDHGCalMixRotatedLayer::DDHGCalMixRotatedLayer() {
 }
 
 void DDHGCalMixRotatedLayer::initialize(const DDNumericArguments& nArgs,
-					const DDVectorArguments& vArgs,
-					const DDMapArguments&,
-					const DDStringArguments& sArgs,
-					const DDStringVectorArguments& vsArgs) {
+                                        const DDVectorArguments& vArgs,
+                                        const DDMapArguments&,
+                                        const DDStringArguments& sArgs,
+                                        const DDStringVectorArguments& vsArgs) {
   waferTypes_ = static_cast<int>(nArgs["WaferTypes"]);
   facingTypes_ = static_cast<int>(nArgs["FacingTypes"]);
   orientationTypes_ = static_cast<int>(nArgs["OrientationTypes"]);
@@ -129,7 +129,8 @@ void DDHGCalMixRotatedLayer::initialize(const DDNumericArguments& nArgs,
   phiBinsScint_ = static_cast<int>(nArgs["NPhiBinScint"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer::Number of types of wafers: " << waferTypes_
-                                << " facings: " << facingTypes_ << " Orientations: " << orientationTypes_  << " PlaceOffset: " << placeOffset_ << "; number of cells along phi " << phiBinsScint_;
+                                << " facings: " << facingTypes_ << " Orientations: " << orientationTypes_
+                                << " PlaceOffset: " << placeOffset_ << "; number of cells along phi " << phiBinsScint_;
 #endif
   firstLayer_ = (int)(nArgs["FirstLayer"]);
   absorbMode_ = (int)(nArgs["AbsorberMode"]);
@@ -149,7 +150,8 @@ void DDHGCalMixRotatedLayer::initialize(const DDNumericArguments& nArgs,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: zStart " << zMinBlock_ << " wafer width " << waferSize_
                                 << " separations " << waferSepar_ << " sectors " << sectors_ << ":"
-                                << convertRadToDeg(alpha_) << ":" << cosAlpha_ << " with " << cassettes_ << " cassettes each having " << phiCassette_ << " phi bins";
+                                << convertRadToDeg(alpha_) << ":" << cosAlpha_ << " with " << cassettes_
+                                << " cassettes each having " << phiCassette_ << " phi bins";
 #endif
   slopeB_ = vArgs["SlopeBottom"];
   zFrontB_ = vArgs["ZFrontBottom"];
@@ -240,7 +242,8 @@ void DDHGCalMixRotatedLayer::initialize(const DDNumericArguments& nArgs,
   layerTypeTop_ = dbl_to_int(vArgs["TopLayerType"]);
   copyNumberTop_.resize(materialTop_.size(), firstLayer_);
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << materialTop_.size() << " types of volumes in the top part";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << materialTop_.size()
+                                << " types of volumes in the top part";
   for (unsigned int i = 0; i < materialTop_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "Volume [" << i << "] " << namesTop_[i] << " of thickness " << layerThickTop_[i]
                                   << " filled with " << materialTop_[i] << " first copy number " << copyNumberTop_[i];
@@ -265,7 +268,8 @@ void DDHGCalMixRotatedLayer::initialize(const DDNumericArguments& nArgs,
                                   << HGCalProperty::waferThick(waferProperty_[k]) << ":"
                                   << HGCalProperty::waferPartial(waferProperty_[k]) << ":"
                                   << HGCalProperty::waferOrient(waferProperty_[k]) << ")";
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << cassetteShift_.size() << " elements for cassette shifts";
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << cassetteShift_.size()
+                                << " elements for cassette shifts";
   unsigned int j1max = cassetteShift_.size();
   for (unsigned int j1 = 0; j1 < j1max; j1 += 6) {
     std::ostringstream st1;
@@ -343,8 +347,9 @@ void DDHGCalMixRotatedLayer::constructLayers(const DDLogicalPart& module, DDComp
 
       std::string name = names_[ii] + std::to_string(copy);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << ly << ":" << ii << " Front " << zi << ", " << routF
-                                    << " Back " << zo << ", " << rinB << " superlayer thickness " << layerThick_[i];
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << ly << ":" << ii << " Front " << zi << ", "
+                                    << routF << " Back " << zo << ", " << rinB << " superlayer thickness "
+                                    << layerThick_[i];
 #endif
       DDName matName(DDSplit(materials_[ii]).first, DDSplit(materials_[ii]).second);
       DDMaterial matter(matName);
@@ -401,8 +406,8 @@ void DDHGCalMixRotatedLayer::constructLayers(const DDLogicalPart& module, DDComp
       cpv.position(glog, module, copy, r1, rot);
       ++copyNumber_[ii];
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.name() << " number " << copy << " positioned in "
-                                    << module.name() << " at " << r1 << " with no rotation";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.name() << " number " << copy
+                                    << " positioned in " << module.name() << " at " << r1 << " with no rotation";
 #endif
       zz += hthick;
     }  // End of loop over layers in a block
@@ -422,11 +427,11 @@ void DDHGCalMixRotatedLayer::constructLayers(const DDLogicalPart& module, DDComp
 }
 
 void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
-                                  const std::string& nameM,
-                                  int copyM,
-                                  double thick,
-                                  const DDMaterial& matter,
-                                  DDCompactView& cpv) {
+                                         const std::string& nameM,
+                                         int copyM,
+                                         double thick,
+                                         const DDMaterial& matter,
+                                         DDCompactView& cpv) {
   DDRotation rot;
 
   // Make the top part first
@@ -451,8 +456,8 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
     int lastTile = ((layer + 1 < static_cast<int>(tileLayerStart_.size())) ? tileLayerStart_[layer + 1]
                                                                            : static_cast<int>(tileIndex_.size()));
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << ly << ":" << ii << " Copy " << copy << " Tiles "
-                                  << firstTile << ":" << lastTile;
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << ly << ":" << ii << " Copy " << copy
+                                  << " Tiles " << firstTile << ":" << lastTile;
 #endif
     for (int ti = firstTile; ti < lastTile; ++ti) {
       double r1 = tileRMin_[std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ti])) - 1];
@@ -471,7 +476,8 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
                                     << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":"
                                     << std::get<2>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << " R " << r1 << ":"
                                     << r2 << " Thick " << (2.0 * hthickl) << " phi " << fimin << ":" << fimax << ":"
-                                    << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette " << cassette << " Shift " << cshift.first << ":" << cshift.second;
+                                    << convertRadToDeg(phi1) << ":" << convertRadToDeg(phi2) << " cassette " << cassette
+                                    << " Shift " << cshift.first << ":" << cshift.second;
 #endif
       std::string name = namesTop_[ii] + "L" + std::to_string(copy) + "F" + std::to_string(k);
       ++k;
@@ -485,8 +491,8 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
       DDTranslation tran(cshift.first, cshift.second, zpos);
       cpv.position(glog1, glog, copy, tran, rot);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Position " << glog1.name() << " number " << copy << " in "
-                                    << glog.name() << " at " << tran << " with no rotation";
+      edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Position " << glog1.name() << " number " << copy
+                                    << " in " << glog.name() << " at " << tran << " with no rotation";
 #endif
     }
     ++copyNumberTop_[ii];
@@ -507,7 +513,8 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
   static const double sqrt3 = std::sqrt(3.0);
   int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
                         ? HGCalTypes::CornerCenterYp
-                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm : HGCalTypes::WaferCenter);
+                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
+                                                                               : HGCalTypes::WaferCenter);
   int layertype = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
@@ -519,8 +526,8 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), kount(0);
   std::vector<int> ntype(3, 0);
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.ddname() << "  r " << r << " R " << R << " dy " << dy
-                                << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.ddname() << "  r " << r << " R " << R << " dy "
+                                << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
                                 << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1);
 #endif
   for (int k = firstWafer; k < lastWafer; ++k) {
@@ -538,7 +545,9 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
     int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
     int place = HGCalCell::cellPlacementIndex(1, layertype, orien);
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << " index:Property:layertype:type:part:orien:cassette:place:offsets:ind "<< k << ":" << waferProperty_[k] << ":" << layertype << ":" << type << ":" << part << ":" << orien << ":" << cassette << ":" << place;
+    edm::LogVerbatim("HGCalGeom") << " index:Property:layertype:type:part:orien:cassette:place:offsets:ind " << k << ":"
+                                  << waferProperty_[k] << ":" << layertype << ":" << type << ":" << part << ":" << orien
+                                  << ":" << cassette << ":" << place;
 #endif
     auto cshift = cassette_.getShift(layer + 1, 1, cassette);
     double xpos = xyoff.first + cshift.first + nc * r;
@@ -548,14 +557,19 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
     if (part == HGCalTypes::WaferFull) {
       i = type * facingTypes_ * orientationTypes_ + place - placeOffset_;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " FullWafer type:place:ind " << type << ":" << place << ":" << i << ":" << waferFull_.size();
+      edm::LogVerbatim("HGCalGeom") << " FullWafer type:place:ind " << type << ":" << place << ":" << i << ":"
+                                    << waferFull_.size();
 #endif
       wafer = waferFull_[i];
     } else {
       int partoffset = (part >= HGCalTypes::WaferHDTop) ? HGCalTypes::WaferPartHDOffset : HGCalTypes::WaferPartLDOffset;
-      i = (part - partoffset) * facingTypes_ * orientationTypes_ + HGCalTypes::WaferTypeOffset[type] * facingTypes_ * orientationTypes_ + place - placeOffset_;
+      i = (part - partoffset) * facingTypes_ * orientationTypes_ +
+          HGCalTypes::WaferTypeOffset[type] * facingTypes_ * orientationTypes_ + place - placeOffset_;
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:cassette:place:offsets:ind " << layertype << ":" << type << ":" << part << ":" << orien << ":" << cassette << ":" << place << ":" << partoffset << ":" << HGCalTypes::WaferTypeOffset[type] << ":" << i << ":" << waferPart_.size();
+      edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:cassette:place:offsets:ind " << layertype << ":"
+                                    << type << ":" << part << ":" << orien << ":" << cassette << ":" << place << ":"
+                                    << partoffset << ":" << HGCalTypes::WaferTypeOffset[type] << ":" << i << ":"
+                                    << waferPart_.size();
 #endif
       wafer = waferPart_[i];
     }
@@ -578,14 +592,14 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
     cpv.position(name, glog.ddname(), copy, tran, rot);
 #ifdef EDM_ML_DEBUG
     ++ntype[type];
-    edm::LogVerbatim("HGCalGeom") << " DDHGCalMixRotatedLayer: " << name << " number " << copy << " type " << layertype << ":"
-                                  << type << " positioned in " << glog.ddname() << " at " << tran
+    edm::LogVerbatim("HGCalGeom") << " DDHGCalMixRotatedLayer: " << name << " number " << copy << " type " << layertype
+                                  << ":" << type << " positioned in " << glog.ddname() << " at " << tran
                                   << " with no rotation";
 #endif
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Maximum # of u " << ium << " # of v " << ivm << " and " << kount
-                                << " wafers (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ") for "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Maximum # of u " << ium << " # of v " << ivm << " and "
+                                << kount << " wafers (" << ntype[0] << ":" << ntype[1] << ":" << ntype[2] << ") for "
                                 << glog.ddname();
 #endif
 }
