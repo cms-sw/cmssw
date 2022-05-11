@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -54,15 +54,13 @@
 // class decleration
 //
 
-class WriteVHDL : public edm::EDAnalyzer {
+//need SharedResource since internally uses a static function variable
+class WriteVHDL : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit WriteVHDL(const edm::ParameterSet&);
-  ~WriteVHDL();
 
 private:
-  virtual void beginJob();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
   int getDCCNumber(int iTower, int iSec);
   int getDCC(int iSec);
   int getTBNumber(int iTower);
@@ -73,6 +71,11 @@ private:
   int m_sectorEnd;
   std::string m_templateName;
   std::string m_outdirName;
+  edm::ESGetToken<L1RPCConfig, L1RPCConfigRcd> m_confToken;
+  edm::ESGetToken<L1RPCConeBuilder, L1RPCConeBuilderRcd> m_coneBuilderToken;
+  edm::ESGetToken<RPCGeometry, MuonGeometryRecord> m_rpcGeomToken;
+  edm::ESGetToken<L1RPCConeDefinition, L1RPCConeDefinitionRcd> m_coneDefToken;
+  edm::ESGetToken<RPCEMap, RPCEMapRcd> m_nmapToken;
 
   struct TBLoc {
     TBLoc(int tb, int sec) : tbNum(tb), sector(sec){};
@@ -147,18 +150,20 @@ WriteVHDL::WriteVHDL(const edm::ParameterSet& iConfig)
   m_sectorEnd = iConfig.getParameter<int>("maxSector");
   m_templateName = iConfig.getParameter<std::string>("templateName");
   m_outdirName = iConfig.getParameter<std::string>("outDir");
-}
 
-WriteVHDL::~WriteVHDL() {}
+  m_confToken = esConsumes();
+  m_coneBuilderToken = esConsumes();
+  m_rpcGeomToken = esConsumes();
+  m_coneDefToken = esConsumes();
+  m_nmapToken = esConsumes();
+}
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void WriteVHDL::beginJob() {}
 
-// ------------ method called once each job just before starting event loop  ------------
 /*
 XXV -- version comment
 XXP -- pac/logplanes def
@@ -183,9 +188,7 @@ void WriteVHDL::writePats(const edm::EventSetup& evtSetup, int tower, int logsec
   std::ofstream fout(fname.str().c_str());
 
   // get PAC type
-  edm::ESHandle<L1RPCConfig> conf;
-  evtSetup.get<L1RPCConfigRcd>().get(conf);
-  const L1RPCConfig* rpcconf = conf.product();
+  const L1RPCConfig* rpcconf = &evtSetup.getData(m_confToken);
 
   RPCPattern::RPCPatVec::const_iterator it = rpcconf->m_pats.begin();
 
@@ -288,8 +291,7 @@ std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int se
   if (pacT == "E") {
     tower = std::abs(tower);
 
-    edm::ESHandle<L1RPCConfig> conf;
-    iSetup.get<L1RPCConfigRcd>().get(conf);
+    edm::ESHandle<L1RPCConfig> conf = iSetup.getHandle(m_confToken);
 
     const RPCPattern::RPCPatVec* pats = &conf.product()->m_pats;
     int ppt = conf.product()->getPPT();
@@ -332,11 +334,9 @@ std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower
   tower = std::abs(tower);
 
   // get logplane size
-  edm::ESHandle<L1RPCConeBuilder> coneBuilder;
-  iSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
+  edm::ESHandle<L1RPCConeBuilder> coneBuilder = iSetup.getHandle(m_coneBuilderToken);
 
-  edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
-  iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
+  edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition = iSetup.getHandle(m_coneDefToken);
 
   std::string coma = "";
   for (int seg = 0; seg < 12; ++seg) {
@@ -376,8 +376,7 @@ std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower
 std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, int sector) {
   std::stringstream ret;
 
-  edm::ESHandle<L1RPCConfig> conf;
-  iSetup.get<L1RPCConfigRcd>().get(conf);
+  edm::ESHandle<L1RPCConfig> conf = iSetup.getHandle(m_confToken);
 
   const RPCPattern::TQualityVec* qvec = &conf.product()->m_quals;
 
@@ -426,8 +425,7 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup, int tower, i
 
   tower = std::abs(tower);
 
-  edm::ESHandle<L1RPCConfig> conf;
-  iSetup.get<L1RPCConfigRcd>().get(conf);
+  edm::ESHandle<L1RPCConfig> conf = iSetup.getHandle(m_confToken);
 
   const RPCPattern::RPCPatVec* pats = &conf.product()->m_pats;
   int ppt = conf.product()->getPPT();
@@ -725,21 +723,17 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
 std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, int sector, std::string PACt) {
   std::stringstream ret;
 
-  edm::ESHandle<L1RPCConeBuilder> coneBuilder;
-  evtSetup.get<L1RPCConeBuilderRcd>().get(coneBuilder);
+  edm::ESHandle<L1RPCConeBuilder> coneBuilder = evtSetup.getHandle(m_coneBuilderToken);
 
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  evtSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  edm::ESHandle<RPCGeometry> rpcGeom = evtSetup.getHandle(m_rpcGeomToken);
 
-  edm::ESHandle<L1RPCConeDefinition> coneDef;
-  evtSetup.get<L1RPCConeDefinitionRcd>().get(coneDef);
+  edm::ESHandle<L1RPCConeDefinition> coneDef = evtSetup.getHandle(m_coneDefToken);
 
   static edm::ESHandle<RPCReadOutMapping> map;
   static bool isMapValid = false;
 
   if (!isMapValid) {
-    edm::ESHandle<RPCEMap> nmap;
-    evtSetup.get<RPCEMapRcd>().get(nmap);
+    edm::ESHandle<RPCEMap> nmap = evtSetup.getHandle(m_nmapToken);
     const RPCEMap* eMap = nmap.product();
     map = eMap->convert();  //*/
     isMapValid = true;
@@ -863,9 +857,6 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
 
   return ret.str();
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void WriteVHDL::endJob() {}
 
 // returns DCC channel for given tower, sec
 int WriteVHDL::getDCCNumber(int iTower, int iSec) {
