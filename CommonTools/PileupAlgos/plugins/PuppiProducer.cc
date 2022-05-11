@@ -284,11 +284,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
 
     //get an index to a pup in lCandidates: either fUseExistingWeights with no skips or get from fPuppiContainer
-    int iPuppiMatched = fUseExistingWeights ? val : fPuppiContainer->recoToPup()[val];
     if ( fUseExistingWeights ) {
       puppiP4s.emplace_back(lWeights[val]*aCand.px(), lWeights[val]*aCand.py(), lWeights[val]*aCand.pz(), lWeights[val]*aCand.energy());
     }
     else {
+      int iPuppiMatched = fPuppiContainer->recoToPup()[val];
       if ( iPuppiMatched >= 0 ) {
         auto const& puppiMatched = lCandidates[iPuppiMatched];
         puppiP4s.emplace_back(puppiMatched.px,puppiMatched.py,puppiMatched.pz,puppiMatched.e);
