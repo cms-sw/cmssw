@@ -1,6 +1,6 @@
 <use name="CondTools/RunInfo"/>
-<architecture name="(slc|cc).*_amd64_.*">
+<ifarch value="x86_64">
   <use name="py3-sqlalchemy"/>
   <test name="RunInfoStart_O2O_test" command="RunInfoStart_O2O_test.sh"/>
-</architecture>
+</ifarch>
 <test name="CondToolsRunInfoTest" command="test_runinfo.sh"/>
