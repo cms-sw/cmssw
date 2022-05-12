@@ -3548,7 +3548,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     //------------------------------------
     passMiniAODSelection = bestGsfElectron.pt() >= 5.;
     isEBflag = bestGsfElectron.isEB();
-    isEEflag = bestGsfElectron.isEE() && (std::abs(mcIter->eta()) < 2.5);
+    isEEflag = bestGsfElectron.isEE() && (std::abs(mcIter->eta()) < maxAbsEta_);
     isEEextendedflag = bestGsfElectron.isEE();
     if (isEEextendedflag) {
       h1_mc_Eta_Extended_matched->Fill(mcIter->eta());
