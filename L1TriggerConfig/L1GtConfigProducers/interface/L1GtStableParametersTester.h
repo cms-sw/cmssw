@@ -22,24 +22,25 @@
 
 // user include files
 //   base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
 class L1GtStableParameters;
+class L1GtStableParametersRcd;
 
 // class declaration
-class L1GtStableParametersTester : public edm::EDAnalyzer {
+class L1GtStableParametersTester : public edm::global::EDAnalyzer<> {
 public:
   // constructor
   explicit L1GtStableParametersTester(const edm::ParameterSet&);
 
-  // destructor
-  ~L1GtStableParametersTester() override;
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+private:
+  const edm::ESGetToken<L1GtStableParameters, L1GtStableParametersRcd> m_l1GtParToken;
 };
 
 #endif /*L1GtConfigProducers_L1GtStableParametersTester_h*/

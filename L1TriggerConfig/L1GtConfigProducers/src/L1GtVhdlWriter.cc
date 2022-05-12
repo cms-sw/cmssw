@@ -41,6 +41,7 @@ L1GtVhdlWriter::L1GtVhdlWriter(const edm::ParameterSet& parSet) {
   // directory in /data for the VHDL templates
   vhdlDir_ = parSet.getParameter<std::string>("VhdlTemplatesDir");
   outputDir_ = parSet.getParameter<std::string>("OutputDir");
+  menuToken_ = esConsumes();
 
   if (vhdlDir_[vhdlDir_.length() - 1] != '/')
     vhdlDir_ += "/";
@@ -58,18 +59,12 @@ L1GtVhdlWriter::L1GtVhdlWriter(const edm::ParameterSet& parSet) {
   edm::LogInfo("L1GtConfigProducers") << "\n\nL1 GT VHDL directory: " << vhdlDir_ << "\n\n" << std::endl;
 }
 
-// destructor
-L1GtVhdlWriter::~L1GtVhdlWriter() {
-  // empty
-}
-
 // loop over events
 void L1GtVhdlWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-  evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
+  edm::ESHandle<L1GtTriggerMenu> l1GtMenu = evSetup.getHandle(menuToken_);
 
-  std::vector<ConditionMap> conditionMap = l1GtMenu->gtConditionMap();
-  AlgorithmMap algorithmMap = l1GtMenu->gtAlgorithmMap();
+  std::vector<ConditionMap> const& conditionMap = l1GtMenu->gtConditionMap();
+  AlgorithmMap const& algorithmMap = l1GtMenu->gtAlgorithmMap();
 
   // print with various level of verbosities
   int printVerbosity = 0;
@@ -88,6 +83,7 @@ void L1GtVhdlWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
   headerParameters["designer_comments"] = "produced in CMSSW";
   headerParameters["gtl_setup_name"] = "L1Menu2007NovGR";
 
+  channelVector.reserve(10);
   channelVector.push_back("-- ca1: ieg");
   channelVector.push_back("-- ca2: eg");
   channelVector.push_back("-- ca3: jet");
