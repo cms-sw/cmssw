@@ -97,7 +97,7 @@ from RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi import pixelTracksCUDA
 pixelTracksSoA = SwitchProducerCUDA(
     # build pixel ntuplets and pixel tracks in SoA format on the CPU
     cpu = _pixelTracksCUDA.clone(
-        pixelRecHitSrc = "siPixelRecHitsPreSplitting",
+        pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
         idealConditions = False,
         onGPU = False
     )
@@ -123,9 +123,6 @@ from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import p
 
 # "Patatrack" sequence running on GPU (or CPU if not available)
 from Configuration.ProcessModifiers.gpu_cff import gpu
-
-(pixelNtupletFit & gpu).toModify(pixelTracksSoA.cpu,
-    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA")
 
 # build the pixel ntuplets and pixel tracks in SoA format on the GPU
 pixelTracksCUDA = _pixelTracksCUDA.clone(
