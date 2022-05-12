@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 
-pixelVTXMonitor = cms.EDAnalyzer("PixelVTXMonitor",
+pixelVTXMonitor = DQMEDAnalyzer("PixelVTXMonitor",
     ModuleName          = cms.string('BeamPixel'),
     FolderName          = cms.string('PixelVertex'),
     PixelClusterInputTag = cms.InputTag('siPixelClusters'),                                 
