@@ -10,6 +10,7 @@
 <use name="CondFormats/MFObjects"/>
 <use name="clhep"/>
 <use name="dd4hep"/>
+<use name="tbb"/>
 <export>
   <lib name="1"/>
 </export>

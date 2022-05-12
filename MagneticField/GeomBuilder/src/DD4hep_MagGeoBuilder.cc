@@ -39,6 +39,8 @@
 #include <map>
 #include <set>
 #include <boost/algorithm/string/replace.hpp>
+#include "oneapi/tbb/concurrent_hash_map.h"
+#include "oneapi/tbb/task_group.h"
 
 using namespace std;
 using namespace magneticfield;
@@ -142,6 +144,10 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   }
 
   // Loop over MAGF volumes and create volumeHandles.
+  oneapi::tbb::concurrent_hash_map<std::string, MagProviderInterpol*> c_bInterpolators;
+  oneapi::tbb::concurrent_hash_map<std::string, MagProviderInterpol*> c_eInterpolators;
+  oneapi::tbb::task_group taskGroup;
+
   bool doSubDets = fv.next(0);
   if (doSubDets == false) {
     LogError("MagGeoBuilder") << "Filtered view has no node. Cannot build.";
@@ -205,24 +211,37 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
       // not replicated in phi)
       // ASSUMPTION: copyno == sector.
       if (v->copyno == v->masterSector) {
-        auto i = buildInterpolator(v);
-        if (i) {
-          bInterpolators[v->magFile] = i;
-        }
+        taskGroup.run([v, this, &c_bInterpolators]() {
+          auto i = buildInterpolator(v);
+          if (i) {
+            c_bInterpolators.emplace(v->magFile, i);
+          }
+        });
         ++bVolCount;
       }
     } else {  // Endcaps
       LogTrace("MagGeoBuilder") << " (Endcaps)";
       eVolumes_.push_back(v);
       if (v->copyno == v->masterSector) {
-        auto i = buildInterpolator(v);
-        if (i) {
-          eInterpolators[v->magFile] = i;
-        }
+        taskGroup.run([v, this, &c_eInterpolators]() {
+          auto i = buildInterpolator(v);
+          if (i) {
+            c_eInterpolators.emplace(v->magFile, i);
+          }
+        });
         ++eVolCount;
       }
     }
     doSubDets = fv.next(0);  // end of loop over MAGF
+  }
+  taskGroup.wait();
+
+  for (auto& e : c_bInterpolators) {
+    bInterpolators.emplace(e.first, e.second);
+  }
+
+  for (auto& e : c_eInterpolators) {
+    eInterpolators.emplace(e.first, e.second);
   }
 
   LogTrace("MagGeoBuilder") << "Number of volumes (barrel): " << bVolumes_.size() << newln
