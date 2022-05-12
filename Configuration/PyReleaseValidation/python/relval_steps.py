@@ -513,6 +513,14 @@ Run2018Dml2={320822: [[1,2]]}
 steps['RunEGamma2018Dml1']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml1)}
 steps['RunEGamma2018Dml2']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',label='2018D',events=100000,location='STD', ls=Run2018Dml2)}
 
+#### Run2 TauEmbed ####
+steps['RunDoubleMuonTE2016C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016C-v2/RAW',label='2016C',events=10000,location='STD', ls=Run2016C)}
+dataTE = {'--conditions': 'auto:run2_data', '--scenario': 'pp'}
+mcTE = {'--conditions': 'auto:run2_mc', '--scenario': 'pp'}
+steps['RAWRECOTE16'] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,PAT', '--datatier': 'RAWRECO', '--eventcontent': 'RAWRECO', '--data': '', '--era': 'Run2_2016_HIPM', '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting',}, dataTE])
+steps['RAWRECOLHECLEANTE16'] = merge([{'-s': 'RAW2DIGI,RECO', '--data': '', '--eventcontent': 'RAWRECO', '--datatier': 'RAWRECO', '--era': 'Run2_2016_HIPM', '--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning',}, dataTE])
+steps['EMBEDHADTE16'] = merge([{'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO', '--processName': 'EmbeddingPythia8Hadronizer', '--eventcontent': 'RAWRECO', '--datatier': 'RAWRECO', '--beamspot': 'Realistic25ns13TeV2016Collision', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator', '--customise_commands': '\"process.generator.nAttempts = cms.uint32(1000)\"', '--era': 'Run2_2016_HIPM',}, mcTE])
+
 def gen(fragment,howMuch):
     global step1Defaults
     return merge([{'cfg':fragment},howMuch,step1Defaults])
