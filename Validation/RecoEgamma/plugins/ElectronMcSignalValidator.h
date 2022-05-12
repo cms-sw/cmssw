@@ -58,6 +58,7 @@ private:
 
   double maxPt_;
   double maxAbsEta_;
+  double maxAbsEtaExtended_;
   double deltaR2_;
   std::vector<int> matchingIDs_;
   std::vector<int> matchingMotherIDs_;
@@ -84,6 +85,10 @@ private:
   int eta2D_nbin;
   double eta_min;
   double eta_max;
+  int eta_nbin_extended;
+  int eta2D_nbin_extended;
+  double eta_min_extended;
+  double eta_max_extended;
   int deta_nbin;
   double deta_min;
   double deta_max;
@@ -159,6 +164,7 @@ private:
   MonitorElement *h2_mc_PtEta;
 
   MonitorElement *h1_mc_Eta_matched;
+  MonitorElement *h1_mc_Eta_Extended_matched;
   MonitorElement *h1_mc_AbsEta_matched;
   MonitorElement *h1_mc_Pt_matched;
   MonitorElement *h1_mc_Phi_matched;
@@ -364,6 +370,7 @@ private:
   MonitorElement *h1_ele_EoP_barrel;
   MonitorElement *h1_ele_EoP_endcaps;
   MonitorElement *h2_ele_EoPVsEta;
+  MonitorElement *h2_ele_EoPVsEtaExtended;
   MonitorElement *h2_ele_EoPVsPhi;
   MonitorElement *h2_ele_EoPVsE;
   MonitorElement *h1_ele_EseedOP;
