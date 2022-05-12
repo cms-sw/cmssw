@@ -86,137 +86,137 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
          npv++;
    }
 
-  //Fill the reco objects
-  fRecoObjCollection.clear();
-  fRecoObjCollection.reserve(pfCol->size());
-  for(auto const& aPF : *pfCol) {
-    RecoObj pReco;
-    pReco.pt  = aPF.pt();
-    pReco.eta = aPF.eta();
-    pReco.phi = aPF.phi();
-    pReco.m   = aPF.mass();
-    pReco.rapidity = aPF.rapidity();
-    pReco.charge = aPF.charge(); 
-    const reco::Vertex *closestVtx = nullptr;
-    double pDZ    = -9999; 
-    double pD0    = -9999; 
-    uint pVtxId = 0;
-    const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
-    if(lPack == nullptr ) {
-
-      const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
-      double curdz = 9999;
-      int closestVtxForUnassociateds = -9999;
-      const reco::TrackRef aTrackRef = pPF->trackRef();
-      bool lFirst = true;
-      for(auto const& aV : *pvCol) {
-        if(lFirst) {
-          if ( aTrackRef.isNonnull()) {
-            pDZ = aTrackRef->dz(aV.position());
-            pD0 = aTrackRef->d0();
-          } else if (pPF->gsfTrackRef().isNonnull()) {
-            pDZ = pPF->gsfTrackRef()->dz(aV.position());
-            pD0 = pPF->gsfTrackRef()->d0();
-          }
-          lFirst = false;
-          if(pDZ > -9999) pVtxId = 0;
-        }
-        if(aTrackRef.isNonnull() && aV.trackWeight(pPF->trackRef())>0) {
-            closestVtx  = &aV;
-            break;
-          }        
-        // in case it's unassocciated, keep more info
-        double tmpdz = 99999;
-        if      ( aTrackRef.isNonnull()    )       tmpdz = aTrackRef         ->dz(aV.position());
-        else if ( pPF->gsfTrackRef().isNonnull() ) tmpdz = pPF->gsfTrackRef()->dz(aV.position());
-        if (std::abs(tmpdz) < curdz){
-          curdz = std::abs(tmpdz);
-          closestVtxForUnassociateds = pVtxId;
-        }
-        pVtxId++;
-
-      }
-      int tmpFromPV = 0;  
-      // mocking the miniAOD definitions
-      if (std::abs(pReco.charge) > 0){
-        if (closestVtx != nullptr && pVtxId > 0) tmpFromPV = 0;
-        if (closestVtx != nullptr && pVtxId == 0) tmpFromPV = 3;
-        if (closestVtx == nullptr && closestVtxForUnassociateds == 0) tmpFromPV = 2;
-        if (closestVtx == nullptr && closestVtxForUnassociateds != 0) tmpFromPV = 1;
-      }
-      pReco.dZ      = pDZ;
-      pReco.d0      = pD0;
-      pReco.id = 0; 
-      if (std::abs(pReco.charge) == 0){ pReco.id = 0; }
-      else{
-        if (tmpFromPV == 0) {
-          pReco.id = 2;
-          if (fNumOfPUVtxsForCharged > 0 and (pVtxId <= fNumOfPUVtxsForCharged) and
-                (std::abs(pDZ) < fDZCutForChargedFromPUVtxs))
-            pReco.id = 1;
-        } else if (tmpFromPV == 3){ pReco.id = 1; }
-        else if (tmpFromPV == 1 || tmpFromPV == 2){ 
-          pReco.id = 0;
-          if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
-            pReco.id = 1;
-          else if (std::abs(pReco.eta) > fEtaMaxCharged)
-            pReco.id = 1;
-          else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
-            pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
-          else if (fUseFromPVLooseTight && tmpFromPV == 1)
-            pReco.id = 2;
-          else if (fUseFromPVLooseTight && tmpFromPV == 2)
-            pReco.id = 1;
-        }
-      }
-    } 
-    else if(lPack->vertexRef().isNonnull() )  {
-      pDZ        = lPack->dz();
-      pD0        = lPack->dxy();
-      pReco.dZ      = pDZ;
-      pReco.d0      = pD0;
-  
-      pReco.id = 0; 
-      if (std::abs(pReco.charge) == 0){ pReco.id = 0; }
-      if (std::abs(pReco.charge) > 0){
-        if (lPack->fromPV() == 0){
-          pReco.id = 2;
-          if ((fNumOfPUVtxsForCharged > 0) and (std::abs(pDZ) < fDZCutForChargedFromPUVtxs)) {
-            for (size_t puVtx_idx = 1; puVtx_idx <= fNumOfPUVtxsForCharged && puVtx_idx < pvCol->size();
-               ++puVtx_idx) {
-              if (lPack->fromPV(puVtx_idx) >= 2) {
-                pReco.id = 1;
-                break;
-              }
-            }
-          }
-        } else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)){ pReco.id = 1; }
-        else if (lPack->fromPV() == (pat::PackedCandidate::PVTight) || lPack->fromPV() == (pat::PackedCandidate::PVLoose)){ 
-          pReco.id = 0;
-          if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
-            pReco.id = 1;
-          else if (std::abs(pReco.eta) > fEtaMaxCharged)
-            pReco.id = 1;
-          else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
-            pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
-          else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
-            pReco.id = 2;
-          else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVTight))
-            pReco.id = 1;
-        }
-      }
-    }
-
-    fRecoObjCollection.push_back(pReco);
-      
-  }
-
-  fPuppiContainer->initialize(fRecoObjCollection);
-  fPuppiContainer->setNPV( npv );
-
   std::vector<double> lWeights;
   std::vector<PuppiCandidate> lCandidates;
   if (!fUseExistingWeights){
+    //Fill the reco objects
+    fRecoObjCollection.clear();
+    fRecoObjCollection.reserve(pfCol->size());
+    for(auto const& aPF : *pfCol) {
+      RecoObj pReco;
+      pReco.pt  = aPF.pt();
+      pReco.eta = aPF.eta();
+      pReco.phi = aPF.phi();
+      pReco.m   = aPF.mass();
+      pReco.rapidity = aPF.rapidity();
+      pReco.charge = aPF.charge(); 
+      const reco::Vertex *closestVtx = nullptr;
+      double pDZ    = -9999; 
+      double pD0    = -9999; 
+      uint pVtxId = 0;
+      const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
+      if(lPack == nullptr ) {
+
+        const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
+        double curdz = 9999;
+        int closestVtxForUnassociateds = -9999;
+        const reco::TrackRef aTrackRef = pPF->trackRef();
+        bool lFirst = true;
+        for(auto const& aV : *pvCol) {
+          if(lFirst) {
+            if ( aTrackRef.isNonnull()) {
+              pDZ = aTrackRef->dz(aV.position());
+              pD0 = aTrackRef->d0();
+            } else if (pPF->gsfTrackRef().isNonnull()) {
+              pDZ = pPF->gsfTrackRef()->dz(aV.position());
+              pD0 = pPF->gsfTrackRef()->d0();
+            }
+            lFirst = false;
+            if(pDZ > -9999) pVtxId = 0;
+          }
+          if(aTrackRef.isNonnull() && aV.trackWeight(pPF->trackRef())>0) {
+              closestVtx  = &aV;
+              break;
+            }        
+          // in case it's unassocciated, keep more info
+          double tmpdz = 99999;
+          if      ( aTrackRef.isNonnull()    )       tmpdz = aTrackRef         ->dz(aV.position());
+          else if ( pPF->gsfTrackRef().isNonnull() ) tmpdz = pPF->gsfTrackRef()->dz(aV.position());
+          if (std::abs(tmpdz) < curdz){
+            curdz = std::abs(tmpdz);
+            closestVtxForUnassociateds = pVtxId;
+          }
+          pVtxId++;
+
+        }
+        int tmpFromPV = 0;  
+        // mocking the miniAOD definitions
+        if (std::abs(pReco.charge) > 0){
+          if (closestVtx != nullptr && pVtxId > 0) tmpFromPV = 0;
+          if (closestVtx != nullptr && pVtxId == 0) tmpFromPV = 3;
+          if (closestVtx == nullptr && closestVtxForUnassociateds == 0) tmpFromPV = 2;
+          if (closestVtx == nullptr && closestVtxForUnassociateds != 0) tmpFromPV = 1;
+        }
+        pReco.dZ      = pDZ;
+        pReco.d0      = pD0;
+        pReco.id = 0; 
+        if (std::abs(pReco.charge) == 0){ pReco.id = 0; }
+        else{
+          if (tmpFromPV == 0) {
+            pReco.id = 2;
+            if (fNumOfPUVtxsForCharged > 0 and (pVtxId <= fNumOfPUVtxsForCharged) and
+                  (std::abs(pDZ) < fDZCutForChargedFromPUVtxs))
+              pReco.id = 1;
+          } else if (tmpFromPV == 3){ pReco.id = 1; }
+          else if (tmpFromPV == 1 || tmpFromPV == 2){ 
+            pReco.id = 0;
+            if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+              pReco.id = 1;
+            else if (std::abs(pReco.eta) > fEtaMaxCharged)
+              pReco.id = 1;
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
+              pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
+            else if (fUseFromPVLooseTight && tmpFromPV == 1)
+              pReco.id = 2;
+            else if (fUseFromPVLooseTight && tmpFromPV == 2)
+              pReco.id = 1;
+          }
+        }
+      } 
+      else if(lPack->vertexRef().isNonnull() )  {
+        pDZ        = lPack->dz();
+        pD0        = lPack->dxy();
+        pReco.dZ      = pDZ;
+        pReco.d0      = pD0;
+
+        pReco.id = 0; 
+        if (std::abs(pReco.charge) == 0){ pReco.id = 0; }
+        if (std::abs(pReco.charge) > 0){
+          if (lPack->fromPV() == 0){
+            pReco.id = 2;
+            if ((fNumOfPUVtxsForCharged > 0) and (std::abs(pDZ) < fDZCutForChargedFromPUVtxs)) {
+              for (size_t puVtx_idx = 1; puVtx_idx <= fNumOfPUVtxsForCharged && puVtx_idx < pvCol->size();
+                 ++puVtx_idx) {
+                if (lPack->fromPV(puVtx_idx) >= 2) {
+                  pReco.id = 1;
+                  break;
+                }
+              }
+            }
+          } else if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)){ pReco.id = 1; }
+          else if (lPack->fromPV() == (pat::PackedCandidate::PVTight) || lPack->fromPV() == (pat::PackedCandidate::PVLoose)){ 
+            pReco.id = 0;
+            if ((fPtMaxCharged > 0) and (pReco.pt > fPtMaxCharged))
+              pReco.id = 1;
+            else if (std::abs(pReco.eta) > fEtaMaxCharged)
+              pReco.id = 1;
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
+              pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
+            else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
+              pReco.id = 2;
+            else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVTight))
+              pReco.id = 1;
+          }
+        }
+      }
+
+      fRecoObjCollection.push_back(pReco);
+        
+    }
+
+    fPuppiContainer->initialize(fRecoObjCollection);
+    fPuppiContainer->setNPV( npv );
+
     //Compute the weights and get the particles
     lWeights = fPuppiContainer->puppiWeights();
     lCandidates = fPuppiContainer->puppiParticles();
@@ -224,6 +224,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   else{
     //Use the existing weights
     int lPackCtr = 0;
+    lWeights.reserve(pfCol->size());
     for(auto const& aPF : *pfCol) {  
       const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       float curpupweight = -1.;
@@ -236,17 +237,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         else{ curpupweight = lPack->puppiWeight();  }
       }
       lWeights.push_back(curpupweight);
-      PuppiCandidate curjet;
-      curjet.px = curpupweight*lPack->px();
-      curjet.py = curpupweight*lPack->py();
-      curjet.pz = curpupweight*lPack->pz();
-      curjet.e = curpupweight*lPack->energy();
-      curjet.pt = curpupweight*lPack->pt();
-      curjet.eta = lPack->eta();
-      curjet.rapidity = lPack->rapidity();
-      curjet.phi = lPack->phi();
-      curjet.m = curpupweight*lPack->mass();
-      lCandidates.push_back(curjet);
       lPackCtr++;
     }
   }
@@ -273,6 +263,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
 
   int val = -1;
+  puppiP4s.reserve(hPFProduct->size());
+  if (fUseExistingWeights || fClonePackedCands)
+    fPackedPuppiCandidates->reserve(hPFProduct->size());
+  else
+    fPuppiCandidates->reserve(hPFProduct->size());
   for ( auto const& aCand : *hPFProduct) {
     val++;
     std::unique_ptr<pat::PackedCandidate> pCand;
@@ -287,33 +282,36 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const reco::PFCandidate *cand = dynamic_cast<const reco::PFCandidate*>(&aCand);
       pfCand.reset( new reco::PFCandidate( cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id) ) );
     }
-    LorentzVector pVec;
 
     //get an index to a pup in lCandidates: either fUseExistingWeights with no skips or get from fPuppiContainer
-    int iPuppiMatched = fUseExistingWeights ? val : fPuppiContainer->recoToPup()[val];
-    if ( iPuppiMatched >= 0 ) {
-      auto const& puppiMatched = lCandidates[iPuppiMatched];
-      pVec.SetPxPyPzE(puppiMatched.px,puppiMatched.py,puppiMatched.pz,puppiMatched.e);
-      if(fClonePackedCands && (!fUseExistingWeights)) {
-        if(fPuppiForLeptons)
-          pCand->setPuppiWeight(pCand->puppiWeight(),lWeights[val]);
-        else
-          pCand->setPuppiWeight(lWeights[val],pCand->puppiWeightNoLep());
-      }
-    } else {
-      pVec.SetPxPyPzE( 0, 0, 0, 0);
-      if(fClonePackedCands && (!fUseExistingWeights)) {
-        pCand->setPuppiWeight(0,0);
+    if ( fUseExistingWeights ) {
+      puppiP4s.emplace_back(lWeights[val]*aCand.px(), lWeights[val]*aCand.py(), lWeights[val]*aCand.pz(), lWeights[val]*aCand.energy());
+    }
+    else {
+      int iPuppiMatched = fPuppiContainer->recoToPup()[val];
+      if ( iPuppiMatched >= 0 ) {
+        auto const& puppiMatched = lCandidates[iPuppiMatched];
+        puppiP4s.emplace_back(puppiMatched.px,puppiMatched.py,puppiMatched.pz,puppiMatched.e);
+        if(fClonePackedCands) {
+          if(fPuppiForLeptons)
+            pCand->setPuppiWeight(pCand->puppiWeight(),lWeights[val]);
+          else
+            pCand->setPuppiWeight(lWeights[val],pCand->puppiWeightNoLep());
+        }
+      } else {
+        puppiP4s.emplace_back( 0, 0, 0, 0);
+        if(fClonePackedCands) {
+          pCand->setPuppiWeight(0,0);
+        }
       }
     }
-    puppiP4s.push_back( pVec );
 
     if (fUseExistingWeights || fClonePackedCands) {
-      pCand->setP4(pVec);
+      pCand->setP4(puppiP4s.back());
       pCand->setSourceCandidatePtr( aCand.sourceCandidatePtr(0) );
       fPackedPuppiCandidates->push_back(*pCand);
     } else {
-      pfCand->setP4(pVec);
+      pfCand->setP4(puppiP4s.back());
       pfCand->setSourceCandidatePtr( aCand.sourceCandidatePtr(0) );
       fPuppiCandidates->push_back(*pfCand);
     }
