@@ -63,16 +63,17 @@ namespace magneticfield {
 
   private:
     // Build interpolator for the volume with "correct" rotation
-    void buildInterpolator(const volumeHandle* vol, std::map<std::string, MagProviderInterpol*>& interpolators);
+    MagProviderInterpol* buildInterpolator(const volumeHandle* vol) const;
 
     // Build all MagVolumes setting the MagProviderInterpol
-    void buildMagVolumes(const handles& volumes, std::map<std::string, MagProviderInterpol*>& interpolators);
+    void buildMagVolumes(const handles& volumes,
+                         const std::map<std::string, MagProviderInterpol*>& interpolators) const;
 
     // Print checksums for surfaces.
     void summary(handles& volumes) const;
 
     // Perform simple sanity checks
-    void testInside(handles& volumes);
+    void testInside(handles& volumes) const;
 
     handles bVolumes_;  // the barrel volumes.
     handles eVolumes_;  // the endcap volumes.
