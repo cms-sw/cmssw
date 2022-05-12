@@ -232,11 +232,15 @@ std::vector<std::vector<float>> DeepSCGraphEvaluation::evaluate(const DeepSCInpu
     for (size_t b = 0; b < nItems; b++) {
       uint ncls = inputs.clustersX[iB * cfg_.batchSize + b].size();
       std::vector<float> cl_output(ncls);
-      for (size_t c = 0; c < ncls; c++) {
-        //float y = y_cl[b * cfg_.maxNClusters + c];
-        float y = y_cl(b, c, 0);
-        // Applying sigmoid to logit
-        cl_output[c] = 1 / (1 + std::exp(-y));
+      for (size_t iC = 0; iC < ncls; iC++) {
+        if (iC < cfg_.maxNClusters) {
+          float y = y_cl(b, iC, 0);
+          // Applying sigmoid to logit
+          cl_output[iC] = 1 / (1 + std::exp(-y));
+        } else {
+          // The number of clusters is over the padding max dim
+          cl_output[iC] = 0;
+        }
       }
       outputs_clustering.push_back(cl_output);
     }
