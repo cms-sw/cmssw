@@ -1031,7 +1031,8 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
   // matched electrons
   setBookPrefix("h_mc");
   h1_mc_Eta_matched = bookH1withSumw2(iBooker, "Eta_matched", "Efficiency vs gen eta", eta_nbin, eta_min, eta_max);
-  h1_mc_Eta_Extended_matched = bookH1withSumw2(iBooker, "Eta_Extended_matched", "Efficiency vs gen eta", eta_nbin_extended, eta_min_extended, eta_max_extended);
+  h1_mc_Eta_Extended_matched = bookH1withSumw2(
+      iBooker, "Eta_Extended_matched", "Efficiency vs gen eta", eta_nbin_extended, eta_min_extended, eta_max_extended);
   h1_mc_AbsEta_matched =
       bookH1withSumw2(iBooker, "AbsEta_matched", "Efficiency vs gen |eta|", eta_nbin / 2, 0., eta_max);
   h1_mc_Pt_matched = bookH1(iBooker, "Pt_matched", "Efficiency vs gen transverse momentum", pteff_nbin, 5., pt_max);
@@ -1788,8 +1789,15 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                        "ELE_LOGY E1 P");
   h2_ele_EoPVsEta =
       bookH2(iBooker, "EoPVsEta", "ele E/P_{vertex} vs eta", eta2D_nbin, eta_min, eta_max, eop2D_nbin, 0., eopmaxsht);
-  h2_ele_EoPVsEtaExtended =
-      bookH2(iBooker, "EoPVsEtaExtended", "ele E/P_{vertex} vs eta", eta2D_nbin_extended, eta_min_extended, eta_max_extended, eop2D_nbin, 0., eopmaxsht);
+  h2_ele_EoPVsEtaExtended = bookH2(iBooker,
+                                   "EoPVsEtaExtended",
+                                   "ele E/P_{vertex} vs eta",
+                                   eta2D_nbin_extended,
+                                   eta_min_extended,
+                                   eta_max_extended,
+                                   eop2D_nbin,
+                                   0.,
+                                   eopmaxsht);
   h2_ele_EoPVsPhi =
       bookH2(iBooker, "EoPVsPhi", "ele E/P_{vertex} vs phi", phi2D_nbin, phi_min, phi_max, eop2D_nbin, 0., eopmaxsht);
   h2_ele_EoPVsE = bookH2(iBooker, "EoPVsE", "ele E/P_{vertex} vs E", 50, 0., p_max, 50, 0., 5.);
@@ -3440,7 +3448,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         }  // loop over rec ele to look for the best one
 
         // analysis when the mc track is found
-        if (okGsfFound) { //  && (std::abs(mcIter->eta())<maxAbsEta_)
+        if (okGsfFound) {  //  && (std::abs(mcIter->eta())<maxAbsEta_)
           // generated distributions for matched electrons
           h1_mc_Pt_matched_qmisid->Fill(mcIter->pt());
           h1_mc_Phi_matched_qmisid->Fill(mcIter->phi());
@@ -3493,7 +3501,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     }
 
     eleNum++;
-    if (std::abs(mcIter->eta())<maxAbsEta_) {
+    if (std::abs(mcIter->eta()) < maxAbsEta_) {
       h1_mc_Eta->Fill(mcIter->eta());
       h1_mc_AbsEta->Fill(std::abs(mcIter->eta()));
       h1_mc_P->Fill(mcIter->p());
@@ -3540,7 +3548,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     //------------------------------------
     passMiniAODSelection = bestGsfElectron.pt() >= 5.;
     isEBflag = bestGsfElectron.isEB();
-    isEEflag = bestGsfElectron.isEE() && (std::abs(mcIter->eta())<2.5);
+    isEEflag = bestGsfElectron.isEE() && (std::abs(mcIter->eta()) < 2.5);
     isEEextendedflag = bestGsfElectron.isEE();
     if (isEEextendedflag) {
       h1_mc_Eta_Extended_matched->Fill(mcIter->eta());
@@ -3549,7 +3557,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     if (!isEBflag && !isEEflag)
       continue;
-    
+
     // electron related distributions
     h1_ele_charge->Fill(bestGsfElectron.charge());
     h2_ele_chargeVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.charge());
