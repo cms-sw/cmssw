@@ -322,6 +322,7 @@ double PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef&
         nTracks++;
       }
     }
+    //MB: how to deal with tau@miniAOD case?
     if (nTracks < nProngs) {  //"lost track" probably used to build this tau
       for (const auto& track : tau->signalTracks()) {
         if (track.isNonnull()) {
@@ -330,7 +331,6 @@ double PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef&
         }
       }
     }
-    //FIXME: how to deal with @miniAOD case?
     if (!(numPixelHits >= minPixelHits_)) {
       if (verbosity_) {
         edm::LogPrint("PFTauByHPSSelect") << " fails cut on sum of pixel hits.";

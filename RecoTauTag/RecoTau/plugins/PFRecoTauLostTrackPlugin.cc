@@ -49,8 +49,9 @@ namespace reco {
     void PFRecoTauLostTrackPlugin::operator()(PFTau& tau) const {
       if (!tracks_.isValid()) {  //track collection not available in the event
         if (verbosity_) {
-          std::cout << "<PFRecoTauLostTrackPlugin::operator()>:" << std::endl;
-          std::cout << "Track collection " << tracks_.provenance() << " is not valid" << std::endl;
+          edm::LogPrint("<PFRecoTauLostTrackPlugin::operator()>:")
+              << " Track collection " << tracks_.provenance() << " is not valid."
+              << " No tracks will be added to tau.";
         }
         return;
       }
@@ -63,10 +64,10 @@ namespace reco {
         }
       }
       if (verbosity_) {
-        std::cout << "<PFRecoTauLostTrackPlugin::operator()>:" << std::endl;
-        std::cout << "tau: Pt = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi()
-                  << ", mass = " << tau.mass() << " (decayMode = " << tau.decayMode() << ")"
-                  << ", nChHadrs = " << chargedHadrons.size() << ", nLostTracks = " << lostTracks.size() << std::endl;
+        edm::LogPrint("<PFRecoTauLostTrackPlugin::operator()>:")
+            << " tau: Pt = " << tau.pt() << ", eta = " << tau.eta() << ", phi = " << tau.phi()
+            << ", mass = " << tau.mass() << " (decayMode = " << tau.decayMode() << ")"
+            << ", nChHadrs = " << chargedHadrons.size() << ", nLostTracks = " << lostTracks.size();
       }
       if (!lostTracks.empty())
         tau.setsignalTracks(lostTracks);
