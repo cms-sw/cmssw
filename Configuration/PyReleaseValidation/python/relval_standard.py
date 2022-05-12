@@ -445,6 +445,9 @@ workflows[138.5] = ['ExpressCollisions',['RunMinimumBias2021','TIER0EXPRUN3','AL
 workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
 workflows[136.8862] = ['',['RunEGamma2018Dml2','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
 
+#### Test of tau embed
+workflows[136.9] = ['', ['RunDoubleMuon2016C', 'RAWRECOTE16', 'RAWRECOLHECLEANTE16', 'EMBEDHADTE16']]
+
 ### run 2021 collisions ###
 workflows[139.001] = ['',['RunMinimumBias2021','HLTDR3_2021','RECODR3_MinBiasOffline','HARVESTD2021MB']]
 workflows[139.002] = ['',['RunZeroBias2021','HLTDR3_2021','RECODR3_ZBOffline','HARVESTD2021ZB']]
