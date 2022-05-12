@@ -5,7 +5,6 @@ particleFlowTmpBarrel = cms.EDProducer("PFProducer",
     GedPhotonValueMap = cms.InputTag("gedPhotonsTmp","valMapPFEgammaCandToPhoton"),
     PFEGammaCandidates = cms.InputTag("particleFlowEGamma"),
     PFEGammaFiltersParameters = cms.PSet(
-        allowEEEinPF = cms.bool(False),
         electronDnnBkgThresholds = cms.PSet(
             electronDnnBkgHighPtBarrelThr = cms.double(0.8),
             electronDnnBkgHighPtEndcapThr = cms.double(0.75),
