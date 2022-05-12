@@ -74,7 +74,6 @@ private:
   double waferSepar_;                     // Sensor separation
   int sectors_;                           // Sectors
   int cassettes_;                         // Cassettes
-  int phiCassette_;                       // Number of scintillator cells per cassette
   std::vector<double> slopeB_;            // Slope at the lower R
   std::vector<double> zFrontB_;           // Starting Z values for the slopes
   std::vector<double> rMinFront_;         // Corresponding rMin's
@@ -144,14 +143,13 @@ void DDHGCalMixRotatedLayer::initialize(const DDNumericArguments& nArgs,
   waferSepar_ = nArgs["SensorSeparation"];
   sectors_ = static_cast<int>(nArgs["Sectors"]);
   cassettes_ = static_cast<int>(nArgs["Cassettes"]);
-  phiCassette_ = phiBinsScint_ / cassettes_;
   alpha_ = (1._pi) / sectors_;
   cosAlpha_ = cos(alpha_);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: zStart " << zMinBlock_ << " wafer width " << waferSize_
                                 << " separations " << waferSepar_ << " sectors " << sectors_ << ":"
                                 << convertRadToDeg(alpha_) << ":" << cosAlpha_ << " with " << cassettes_
-                                << " cassettes each having " << phiCassette_ << " phi bins";
+                                << " cassettes";
 #endif
   slopeB_ = vArgs["SlopeBottom"];
   zFrontB_ = vArgs["ZFrontBottom"];
@@ -467,9 +465,6 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
       int fimax = std::get<2>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
       double phi1 = dphi * (fimin - 1);
       double phi2 = dphi * (fimax - fimin + 1);
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "Layer:Copy:Ly " << layer + 1 << ":" << copy << ":" << ly;
-#endif
       auto cshift = cassette_.getShift(layer + 1, 1, cassette);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << copy << " iR "
