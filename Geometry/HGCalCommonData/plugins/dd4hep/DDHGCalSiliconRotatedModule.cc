@@ -28,7 +28,9 @@
 using namespace angle_units::operators;
 
 struct HGCalSiliconRotatedModule {
-  HGCalSiliconRotatedModule() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalSiliconRotatedModule"; }
+  HGCalSiliconRotatedModule() {
+    throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalSiliconRotatedModule";
+  }
   HGCalSiliconRotatedModule(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
