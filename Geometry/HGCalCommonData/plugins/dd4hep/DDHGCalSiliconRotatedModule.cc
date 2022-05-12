@@ -24,12 +24,12 @@
 #include "DetectorDescription/DDCMS/interface/DDutils.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace angle_units::operators;
 
-struct HGCalSiliconModule {
-  HGCalSiliconModule() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalSiliconModule"; }
-  HGCalSiliconModule(cms::DDParsingContext& ctxt, xml_h e) {
+struct HGCalSiliconRotatedModule {
+  HGCalSiliconRotatedModule() { throw cms::Exception("HGCalGeom") << "Wrong initialization to HGCalSiliconRotatedModule"; }
+  HGCalSiliconRotatedModule(cms::DDParsingContext& ctxt, xml_h e) {
     cms::DDNamespace ns(ctxt, e, true);
     cms::DDAlgoArguments args(ctxt, e);
 
@@ -453,7 +453,7 @@ struct HGCalSiliconModule {
 };
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
-  HGCalSiliconModule eealgo(ctxt, e);
+  HGCalSiliconRotatedModule eealgo(ctxt, e);
   return cms::s_executed;
 }
 
