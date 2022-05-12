@@ -19,23 +19,25 @@
 
 // user include files
 //   base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
+class L1GtPsbSetup;
+class L1GtPsbSetupRcd;
 
 // class declaration
-class L1GtPsbSetupTester : public edm::EDAnalyzer {
+class L1GtPsbSetupTester : public edm::global::EDAnalyzer<> {
 public:
   // constructor
   explicit L1GtPsbSetupTester(const edm::ParameterSet&);
 
-  // destructor
-  ~L1GtPsbSetupTester() override;
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+private:
+  edm::ESGetToken<L1GtPsbSetup, L1GtPsbSetupRcd> m_getToken;
 };
 
 #endif /*L1GtConfigProducers_L1GtPsbSetupTester_h*/
