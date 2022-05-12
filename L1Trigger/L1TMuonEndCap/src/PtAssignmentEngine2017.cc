@@ -24,7 +24,7 @@ float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
   // TRG       = 1.2*XML / (1 - 0.015*XML)
   // TRG / XML = 1.2 / (1 - 0.015*XML)
 
-  if (ptLUTVersion_ >= 8) {   // First "physics" LUTs for 2022, will be deployed in June 2022
+  if (ptLUTVersion_ >= 8) {  // First "physics" LUTs for 2022, will be deployed in June 2022
     pt_xml = fmin(20., pt);  // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~32 GeV)
     pt_scale = 1.13 / (1 - 0.015 * pt_xml);
   } else if (ptLUTVersion_ >= 6) {  // First "physics" LUTs for 2017, deployed June 7
