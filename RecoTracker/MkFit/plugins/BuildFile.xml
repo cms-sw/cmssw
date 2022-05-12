@@ -30,5 +30,9 @@
   <use name="TrackingTools/TrajectoryState"/>
   <use name="TrackingTools/TransientTrackingRecHit"/>
   <use name="rootmath"/>
+  <use name="CondFormats/GBRForest"/>
+  <use name="PhysicsTools/TensorFlow"/>
+  <use name="TrackingTools/PatternTools"/>
+  <use name="RecoTracker/FinalTrackSelectors"/>
   <flags EDM_PLUGIN="1"/>
 </library>
