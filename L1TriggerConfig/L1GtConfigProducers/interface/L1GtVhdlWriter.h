@@ -20,13 +20,16 @@
 
 // base class
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 class Event;
 class EventSetup;
@@ -35,13 +38,10 @@ class ParameterSet;
 // forward declarations
 
 // class declaration
-class L1GtVhdlWriter : public edm::EDAnalyzer {
+class L1GtVhdlWriter : public edm::one::EDAnalyzer<> {
 public:
   /// constructor
   explicit L1GtVhdlWriter(const edm::ParameterSet&);
-
-  /// destructor
-  ~L1GtVhdlWriter() override;
 
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
@@ -51,5 +51,7 @@ private:
 
   /// output directory
   std::string outputDir_;
+
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> menuToken_;
 };
 #endif /*L1GtConfigProducers_L1GtVhdlWriter_h*/

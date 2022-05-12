@@ -31,20 +31,12 @@
 // forward declarations
 
 // constructor(s)
-L1GtPsbSetupTester::L1GtPsbSetupTester(const edm::ParameterSet& parSet) {
-  // empty
-}
-
-// destructor
-L1GtPsbSetupTester::~L1GtPsbSetupTester() {
+L1GtPsbSetupTester::L1GtPsbSetupTester(const edm::ParameterSet& parSet) : m_getToken(esConsumes()) {
   // empty
 }
 
 // loop over events
-void L1GtPsbSetupTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<L1GtPsbSetup> l1GtPsbSet;
-  evSetup.get<L1GtPsbSetupRcd>().get(l1GtPsbSet);
-
-  l1GtPsbSet->print(std::cout);
+void L1GtPsbSetupTester::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& evSetup) const {
+  evSetup.getData(m_getToken).print(std::cout);
   std::cout << std::endl;
 }
