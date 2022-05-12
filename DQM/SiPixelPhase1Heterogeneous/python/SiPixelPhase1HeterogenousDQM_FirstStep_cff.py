@@ -3,12 +3,10 @@ from DQM.SiPixelPhase1Heterogeneous.siPixelPhase1MonitorTrackSoA_cfi import *
 from DQM.SiPixelPhase1Heterogeneous.siPixelPhase1MonitorVertexSoA_cfi import *
 from DQM.SiPixelPhase1Heterogeneous.siPixelPhase1MonitorRecHitsSoA_cfi import *
 
-from Configuration.ProcessModifiers.gpu_cff import gpu
-gpu.toModify(siPixelPhase1MonitorRecHitsSoA, pixelHitsSrc = "siPixelRecHitsPreSplittingSoA")
-
+from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
+pixelNtupletFit.toModify(siPixelPhase1MonitorRecHitsSoA, pixelHitsSrc = "siPixelRecHitsPreSplittingSoA")
 
 monitorpixelSoASource = cms.Sequence(siPixelPhase1MonitorRecHitsSoA * siPixelPhase1MonitorTrackSoA * siPixelPhase1MonitorVertexSoA)
-
 
 #Define the sequence for GPU vs CPU validation
 #This should run:- individual monitor for the 2 collections + comparison module
@@ -35,8 +33,19 @@ siPixelPhase1MonitorVertexSoAGPU = siPixelPhase1MonitorVertexSoA.clone(
   topFolderName = 'SiPixelHeterogeneous/PixelVertexSoAGPU',
 )
 
+siPixelPhase1MonitorRecHitsSoACPU = siPixelPhase1MonitorRecHitsSoA.clone(
+ pixelHitsSrc = "siPixelRecHitsPreSplittingSoA@cpu",
+ TopFolderName = "SiPixelHeterogeneous/PixelRecHitsSoACPU"
+)
 
-monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorTrackSoAGPU *
+siPixelPhase1MonitorRecHitsSoAGPU = siPixelPhase1MonitorRecHitsSoA.clone(
+ pixelHitsSrc = "siPixelRecHitsPreSplittingSoA@cuda",
+ TopFolderName = "SiPixelHeterogeneous/PixelRecHitsSoAGPU"
+)
+
+monitorpixelSoACompareSource = cms.Sequence(siPixelPhase1MonitorRecHitsSoACPU *
+                                            siPixelPhase1MonitorRecHitsSoAGPU *
+                                            siPixelPhase1MonitorTrackSoAGPU *
                                             siPixelPhase1MonitorTrackSoACPU *
                                             siPixelPhase1CompareTrackSoA *
                                             siPixelPhase1MonitorVertexSoACPU *
