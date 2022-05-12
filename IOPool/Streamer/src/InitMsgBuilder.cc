@@ -72,7 +72,7 @@ InitMsgBuilder::InitMsgBuilder(void* buf,
   // header size was hard-coded.)
   std::vector<bool> dummyL1Bits(l1_names.size());
   std::vector<char> dummyHLTBits(hlt_names.size());
-  const uint32 TEMP_BUFFER_SIZE = 256;
+  const uint32 TEMP_BUFFER_SIZE = 640;
   char msgBuff[TEMP_BUFFER_SIZE];  // not large enough for a real event!
   uint32_t adler32 = 0;
   char host_name[255];
