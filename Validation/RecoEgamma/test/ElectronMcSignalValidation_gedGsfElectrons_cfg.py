@@ -89,7 +89,7 @@ from Configuration.AlCa.autoCond import autoCond
 
 # process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG'] + '::All'
 #process.GlobalTag.globaltag = '120X_mcRun3_2021_realistic_v1'
-process.GlobalTag.globaltag = '122X_mcRun4_realistic_v1'
+process.GlobalTag.globaltag = '123X_mcRun3_2021_realistic_v14'
 # process.GlobalTag.globaltag = '113X_mcRun3_2021_realistic_v4'
 # process.GlobalTag.globaltag = '93X_mc2017_realistic_v1'
 # process.GlobalTag.globaltag = '92X_upgrade2017_realistic_v10'

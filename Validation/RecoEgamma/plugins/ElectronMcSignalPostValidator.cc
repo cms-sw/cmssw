@@ -138,6 +138,7 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   profileX(iBooker, iGetter, "vertexPtVsEta", "mean ele transverse momentum vs eta", "#eta", "<p_{T}> (GeV/c)");
   profileX(iBooker, iGetter, "vertexPtVsPhi", "mean ele transverse momentum vs phi", "#phi (rad)", "<p_{T}> (GeV/c)");
   profileX(iBooker, iGetter, "EoPVsEta", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
+  profileX(iBooker, iGetter, "EoPVsEtaExtended", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
   profileX(iBooker, iGetter, "EoPVsPhi", "mean ele E/p vs phi", "#phi (rad)", "<E/P_{vertex}>");
   profileX(iBooker, iGetter, "EoPoutVsEta", "mean ele E/pout vs eta", "#eta", "<E_{seed}/P_{out}>");
   profileX(iBooker, iGetter, "EoPoutVsPhi", "mean ele E/pout vs phi", "#phi (rad)", "<E_{seed}/P_{out}>");

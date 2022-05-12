@@ -19,17 +19,17 @@ class env:
                 quit()
 
     def beginTag(self):
-        beginTag = 'Phase2'
-        # beginTag = 'Run2_2017'
+        #beginTag = 'Phase2'
+        beginTag = 'Run3'
         return beginTag
 
     def dd_tier(self):
         dd_tier = 'GEN-SIM-RECO'
-        dd_tier = 'MINIAODSIM'
+        #dd_tier = 'MINIAODSIM'
         return dd_tier
 
     def tag_startup(self):
-        tag_startup = '122X_mcRun4_realistic_v1_2026D77noPU'
+        tag_startup = '123X_mcRun3_2021_realistic_v14'
         # tag_startup = '113X_mcRun3_2021_realistic_v7'
         # tag_startup = '93X_upgrade2023_realistic_v2_2023D17PU140'
         # tag_startup = '93X_upgrade2023_realistic_v0_D17PU200'
