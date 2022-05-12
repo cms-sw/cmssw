@@ -112,6 +112,15 @@ void Tau::initFromBaseTau(const reco::BaseTau& aTau) {
 
       for (const auto& ptr : pfTau->isolationGammaCands())
         isolationGammaCandPtrs_.push_back(ptr);
+
+      std::vector<reco::CandidatePtr> signalLostTracks;
+      for (const auto& chargedHadron : pfTau->signalTauChargedHadronCandidates()) {
+        if (chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kTrack) &&
+            chargedHadron.getLostTrackCandidate().isNonnull()) {
+          signalLostTracks.push_back(chargedHadron.getLostTrackCandidate());
+        }
+      }
+      this->setSignalLostTracks(signalLostTracks);
     } else {
       pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
     }
