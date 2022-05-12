@@ -448,15 +448,16 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
     return;
   }
 
-  string fullPath;
-
-  try {
-    edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
-    fullPath = mydata.fullPath();
-  } catch (edm::Exception& exc) {
-    cerr << "MagGeoBuilder: exception in reading table; " << exc.what() << endl;
-    if (!debug_)
-      throw;
+  string fullPath = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
+  if (fullPath.empty()) {
+    //get the exact error info
+    try {
+      edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
+    } catch (edm::Exception& exc) {
+      cerr << "MagGeoBuilder: exception in reading table; " << exc.what() << endl;
+      if (!debug_)
+        throw;
+    }
     return;
   }
 
