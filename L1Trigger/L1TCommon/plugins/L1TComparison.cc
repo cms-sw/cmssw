@@ -6,7 +6,7 @@
 #include <iostream>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -62,7 +62,7 @@ static bool compare_l1candidate(const L1Candidate& a, const L1Candidate& b, int 
   return status;
 }
 
-class L1TComparison : public EDAnalyzer {
+class L1TComparison : public one::EDAnalyzer<> {
 public:
   explicit L1TComparison(const ParameterSet&);
   ~L1TComparison() override;
@@ -73,11 +73,6 @@ private:
   void beginJob() override;
   void analyze(Event const&, EventSetup const&) override;
   void endJob() override;
-
-  void beginRun(Run const&, EventSetup const&) override;
-  void endRun(Run const&, EventSetup const&) override;
-  void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-  void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
 
   // Tag string to mark summary with:
   string tag_;
@@ -460,14 +455,6 @@ void L1TComparison::endJob() {
     cout << "SUMMARY:  L1T Comparison for " << tag_ << " was SUCCESS\n";
   }
 }
-
-void L1TComparison::beginRun(Run const& run, EventSetup const& iSetup) {}
-
-void L1TComparison::endRun(Run const&, EventSetup const&) {}
-
-void L1TComparison::beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
-
-void L1TComparison::endLuminosityBlock(LuminosityBlock const&, EventSetup const&) {}
 
 void L1TComparison::fillDescriptions(ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
