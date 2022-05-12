@@ -24,9 +24,11 @@ float PtAssignmentEngine2017::scale_pt(const float pt, const int mode) const {
   // TRG       = 1.2*XML / (1 - 0.015*XML)
   // TRG / XML = 1.2 / (1 - 0.015*XML)
 
-  // First "physics" LUTs for 2017, deployed June 7
-  if (ptLUTVersion_ >= 6) {
-    pt_xml = fmin(20., pt);  // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~35 GeV)
+  if (ptLUTVersion_ >= 8) {  // First "physics" LUTs for 2022, will be deployed in June 2022
+    pt_xml = fmin(20., pt);  // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~32 GeV)
+    pt_scale = 1.13 / (1 - 0.015 * pt_xml);
+  } else if (ptLUTVersion_ >= 6) {  // First "physics" LUTs for 2017, deployed June 7
+    pt_xml = fmin(20., pt);         // Maximum scale set by muons with XML pT = 20 GeV (scaled pT ~35 GeV)
     pt_scale = 1.2 / (1 - 0.015 * pt_xml);
   }
 
@@ -38,8 +40,10 @@ float PtAssignmentEngine2017::unscale_pt(const float pt, const int mode) const {
 
   float pt_unscale = -99;
 
-  // First "physics" LUTs for 2017, deployed June 7
-  if (ptLUTVersion_ >= 6) {
+  if (ptLUTVersion_ >= 8) {  // First "physics" LUTs for 2022, will be deployed in June 2022
+    pt_unscale = 1 / (1.13 + 0.015 * pt);
+    pt_unscale = fmax(pt_unscale, (1 - 0.015 * 20) / 1.13);
+  } else if (ptLUTVersion_ >= 6) {  // First "physics" LUTs for 2017, deployed June 7
     pt_unscale = 1 / (1.2 + 0.015 * pt);
     pt_unscale = fmax(pt_unscale, (1 - 0.015 * 20) / 1.2);
   }
@@ -461,11 +465,13 @@ float PtAssignmentEngine2017::calculate_pt_xml(const address_t& address) const {
   forest.predictEvent(tree_event.get(), 400);
 
   // // Adjust this for different XMLs
-  // float log2_pt = tree_event->predictedValue;
-  // pt_xml = pow(2, fmax(0.0, log2_pt)); // Protect against negative values
-
-  float inv_pt = tree_event->predictedValue;
-  pt_xml = 1.0 / fmax(0.001, inv_pt);  // Protect against negative values
+  if (ptLUTVersion_ >= 8) {  // Run 3 2022 BDT uses log2(pT) target
+    float log2_pt = tree_event->predictedValue;
+    pt_xml = pow(2, fmax(0.0, log2_pt));  // Protect against negative values
+  } else if (ptLUTVersion_ >= 6) {        // Run 2 2017/2018 BDTs use 1/pT target
+    float inv_pt = tree_event->predictedValue;
+    pt_xml = 1.0 / fmax(0.001, inv_pt);  // Protect against negative values
+  }
 
   return pt_xml;
 
@@ -656,11 +662,13 @@ float PtAssignmentEngine2017::calculate_pt_xml(const EMTFTrack& track) const {
   forest.predictEvent(tree_event.get(), 400);
 
   // // Adjust this for different XMLs
-  // float log2_pt = tree_event->predictedValue;
-  // pt_xml = pow(2, fmax(0.0, log2_pt)); // Protect against negative values
-
-  float inv_pt = tree_event->predictedValue;
-  pt_xml = 1.0 / fmax(0.001, inv_pt);  // Protect against negative values
+  if (ptLUTVersion_ >= 8) {  // Run 3 2022 BDT uses log2(pT) target
+    float log2_pt = tree_event->predictedValue;
+    pt_xml = pow(2, fmax(0.0, log2_pt));  // Protect against negative values
+  } else if (ptLUTVersion_ >= 6) {        // Run 2 2017/2018 BDTs use 1/pT target
+    float inv_pt = tree_event->predictedValue;
+    pt_xml = 1.0 / fmax(0.001, inv_pt);  // Protect against negative values
+  }
 
   return pt_xml;
 
