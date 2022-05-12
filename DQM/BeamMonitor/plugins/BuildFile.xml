@@ -56,10 +56,10 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<ifarchitecture name="_amd64_">
+<ifarch value="x86_64">
 <library file="BeamSpotDipServer.cc" name="BeamSpotDipServer">
   <use name="dip"/>
   <use name="log4cplus"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-</ifarchitecture>
+</ifarch>
