@@ -55,11 +55,11 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
       if (debug)
         std::cout << "CSC \t \t Number of segments in this CSC = " << CSCSegmentsCounter[CSCId] << std::endl;
       if (debug)
-        std::cout << "CSC \t \t Is the only one in this CSC? is not ind the ring 1 or station 4? Are there more than 2 "
+        std::cout << "CSC \t \t Is the only one in this CSC? is not ind the ring 1? Are there more than 2 "
                      "segments in the event?"
                   << std::endl;
 
-      if (CSCSegmentsCounter[CSCId] == 1 && CSCId.station() != 4 && CSCId.ring() != 1 && allCSCSegments->size() >= 2) {
+      if (CSCSegmentsCounter[CSCId] == 1 && CSCId.ring() != 1 && allCSCSegments->size() >= 2) {
         if (debug)
           std::cout << "CSC \t \t yes" << std::endl;
         int cscEndCap = CSCId.endcap();
@@ -121,7 +121,7 @@ std::unique_ptr<RPCRecHitCollection> CSCSegtoRPC::thePoints(const CSCSegmentColl
           if (debug)
             std::cout << "CSC \t \t Printing The Id" << TheId << std::endl;
 
-          if (rpcRing != 1 && rpcStation != 4) {  //They don't exist!
+          if (rpcRing != 1) {  //They don't exist in Run3!
 
             assert(!rollsForThisCSC.empty());
 
