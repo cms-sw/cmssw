@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi
 ALCARECORandomHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
-    HLTPaths = cms.vstring("*Random*"),
+    HLTPaths = cms.vstring("AlCa_LumiPixelsCounts_Random_v*"),
     eventSetupPathsKey='',
     TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
     andOr = cms.bool(True), # choose logical OR between Triggerbits
