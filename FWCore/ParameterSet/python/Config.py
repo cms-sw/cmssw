@@ -101,6 +101,7 @@ def findProcess(module):
 
 class Process(object):
     """Root class for a CMS configuration process"""
+    _firstProcess = True
     def __init__(self,name,*Mods):
         """The argument 'name' will be the name applied to this Process
             Can optionally pass as additional arguments cms.Modifier instances
@@ -146,6 +147,13 @@ class Process(object):
         # FWCore.Message(Logger|Service).MessageLogger_cfi
         # use the very same MessageLogger object.
         self.MessageLogger = MessageLogger
+        if Process._firstProcess:
+            Process._firstProcess = False
+        else:
+            if len(Mods) > 0:
+                for m in self.__modifiers:
+                    if not m._isChosen():
+                        raise RuntimeError("The Process {} tried to redefine which Modifiers to use after another Process was already started".format(name))
         for m in self.__modifiers:
             m._setChosen()
 
@@ -4061,6 +4069,11 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.schedule_().dumpPython(), 'cms.Schedule(tasks=[cms.Task(process.h)])\n')
         def testModifier(self):
             m1 = Modifier()
+            Process._firstProcess = True
+            p = Process("test")
+            self.assertRaises(RuntimeError, lambda: Process("test2", m1))
+            m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
             def _mod_fred(obj):
@@ -4073,6 +4086,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertTrue(p.isUsingModifier(m1))
             #check that Modifier not attached to a process doesn't run
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toModify(p.a,_mod_fred)
@@ -4083,6 +4097,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.isUsingModifier(m1),False)
             #make sure clones get the changes
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             m1.toModify(p.a, fred = int32(2))
@@ -4093,6 +4108,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.b.wilma.value(),3)
             #test removal of parameter
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1), fintstones = PSet(fred = int32(1)))
             m1.toModify(p.a, fred = None, fintstones = dict(fred = None))
@@ -4101,6 +4117,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.a.wilma.value(),1)
             #test adding a parameter
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toModify(p.a, wilma = int32(2))
@@ -4108,6 +4125,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.a.wilma.value(),2)
             #test setting of value in PSet
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", flintstones = PSet(fred = int32(1), wilma = int32(1)))
             m1.toModify(p.a, flintstones = dict(fred = int32(2)))
@@ -4115,12 +4133,14 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.a.flintstones.wilma.value(),1)
             #test proper exception from nonexisting parameter name
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", flintstones = PSet(fred = PSet(wilma = int32(1))))
             self.assertRaises(KeyError, lambda: m1.toModify(p.a, flintstones = dict(imnothere = dict(wilma=2))))
             self.assertRaises(KeyError, lambda: m1.toModify(p.a, foo = 1))
             #test setting a value in a VPSet
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", flintstones = VPSet(PSet(fred = int32(1)), PSet(wilma = int32(1))))
             m1.toModify(p.a, flintstones = {1:dict(wilma = int32(2))})
@@ -4128,6 +4148,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.a.flintstones[1].wilma.value(),2)
             #test setting a value in a list of values
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1,2,3))
             m1.toModify(p.a, fred = {1:7})
@@ -4136,6 +4157,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.a.fred[2],3)
             #test IndexError setting a value in a list to an item key not in the list
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = vuint32(1,2,3))
             raised = False
@@ -4144,6 +4166,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(raised, True)
             #test TypeError setting a value in a list using a key that is not an int
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", flintstones = VPSet(PSet(fred = int32(1)), PSet(wilma = int32(1))))
             raised = False
@@ -4163,6 +4186,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             p.extend(testMod)
             self.assertTrue(hasattr(p,"a"))
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             testProcMod = ProcModifierMod(m1,_rem_a)
             p.extend(testMod)
@@ -4171,6 +4195,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             #test ModifierChain
             m1 = Modifier()
             mc = ModifierChain(m1)
+            Process._firstProcess = True
             p = Process("test",mc)
             self.assertTrue(p.isUsingModifier(m1))
             self.assertTrue(p.isUsingModifier(mc))
@@ -4198,6 +4223,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             #check combining
             m1 = Modifier()
             m2 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2).toModify(p.a, fred = int32(2))
@@ -4205,6 +4231,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.a.fred, 1)
             m1 = Modifier()
             m2 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1,m2)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2).toModify(p.a, fred = int32(2))
@@ -4212,6 +4239,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             m1 = Modifier()
             m2 = Modifier()
             m3 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1,m2,m3)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & m2 & m3).toModify(p.a, fred = int32(2))
@@ -4223,6 +4251,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             #check inverse
             m1 = Modifier()
             m2 = Modifier()
+            Process._firstProcess = True
             p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (~m1).toModify(p.a, fred=2)
@@ -4235,6 +4264,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             m1 = Modifier()
             m2 = Modifier()
             m3 = Modifier()
+            Process._firstProcess = True
             p = Process("test", m1)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 | m2).toModify(p.a, fred=2)
@@ -4256,6 +4286,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             m2 = Modifier()
             m3 = Modifier()
             m4 = Modifier()
+            Process._firstProcess = True
             p = Process("test", m1, m2)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             (m1 & ~m2).toModify(p.a, fred=2)
@@ -4272,6 +4303,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertEqual(p.a.fred, 5)
             #check toReplaceWith
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test",m1)
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
@@ -4310,6 +4342,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             self.assertTrue(p.td._collection == OrderedSet([p.e]))
             #check toReplaceWith doesn't activate not chosen
             m1 = Modifier()
+            Process._firstProcess = True
             p = Process("test")
             p.a =EDAnalyzer("MyAnalyzer", fred = int32(1))
             m1.toReplaceWith(p.a, EDAnalyzer("YourAnalyzer", wilma = int32(3)))
@@ -4319,6 +4352,7 @@ process.schedule = cms.Schedule(*[ process.path1, process.path2 ])""")
             m2 = Modifier()
             m3 = Modifier()
             m4 = Modifier()
+            Process._firstProcess = True
             p = Process("test", m1, m2)
             p.a = EDAnalyzer("MyAnalyzer", fred = int32(1), wilma = int32(1))
             self.assertRaises(TypeError, lambda: (m1 & m2).toReplaceWith(p.a, EDProducer("YourProducer")))
