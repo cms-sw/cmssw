@@ -20,8 +20,8 @@ TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet &parset
           ic.consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))) {}
 
 void TrackerMuonHitExtractor::init(const edm::Event &iEvent) {
-  const edm::Handle<DTRecSegment4DCollection>& dtSegmentCollectionH = iEvent.getHandle(inputDTRecSegment4DToken_);
-  const edm::Handle<CSCSegmentCollection>& cscSegmentCollectionH = iEvent.getHandle(inputCSCSegmentToken_);
+  const edm::Handle<DTRecSegment4DCollection> &dtSegmentCollectionH = iEvent.getHandle(inputDTRecSegment4DToken_);
+  const edm::Handle<CSCSegmentCollection> &cscSegmentCollectionH = iEvent.getHandle(inputCSCSegmentToken_);
 
   edm::LogVerbatim("TrackerMuonHitExtractor") << "\nThere are " << dtSegmentCollectionH->size() << " DT segments.";
   unsigned int index_dt_segment = 0;
