@@ -50,7 +50,7 @@ private:
   // ------------ member data ------------
 
   const std::string folder_;
-  const bool LocalPosDebug_;
+  const bool optionalPlots_;
 
   edm::EDGetTokenT<BTLDigiCollection> btlDigiHitsToken_;
 
@@ -90,7 +90,7 @@ private:
 // ------------ constructor and destructor --------------
 BtlDigiHitsValidation::BtlDigiHitsValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
-      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")) {
+      optionalPlots_(iConfig.getParameter<bool>("optionalPlots")) {
   btlDigiHitsToken_ = consumes<BTLDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
   mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
@@ -143,7 +143,7 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
 
       meOccupancy_[iside]->Fill(global_point.z(), global_point.phi());
 
-      if (LocalPosDebug_) {
+      if (optionalPlots_) {
         meLocalOccupancy_[iside]->Fill(local_point.x(), local_point.y());
         meHitXlocal_[iside]->Fill(local_point.x());
         meHitYlocal_[iside]->Fill(local_point.y());
@@ -206,7 +206,7 @@ void BtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                  126,
                                  -3.15,
                                  3.15);
-  if (LocalPosDebug_) {
+  if (optionalPlots_) {
     meLocalOccupancy_[0] = ibook.book2D("BtlLocalOccupancyL",
                                         "BTL DIGI hits local occupancy (L);X_{DIGI} [cm]; Y_{DIGI} [cm]",
                                         100,
@@ -292,7 +292,7 @@ void BtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
 
   desc.add<std::string>("folder", "MTD/BTL/DigiHits");
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "FTLBarrel"));
-  desc.add<bool>("LocalPositionDebug", false);
+  desc.add<bool>("optionalPlots", false);
 
   descriptions.add("btlDigiHitsDefaultValid", desc);
 }
