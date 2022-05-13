@@ -444,12 +444,6 @@ def miniAOD_customizeCommon(process):
         from PhysicsTools.PatAlgos.slimming.applyDeepBtagging_cff import applyDeepBtagging
         applyDeepBtagging( process )
 
-        addToProcessAndTask('slimmedJetsPuppi', process.slimmedJetsNoDeepFlavour.clone(
-            src = "selectedPatJetsPuppi", packedPFCandidates = "packedPFCandidates"),
-                            process, task)
-    
-        task.add(process.slimmedJetsPuppi)
-
         process.slimmedJetsNoDeepFlavour.dropTagInfos = '0'
         process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.addTagInfos = True
         process.updatedPatJetsTransientCorrectedSlimmedDeepFlavour.tagInfoSources = ["pixelClusterTagInfos"]
