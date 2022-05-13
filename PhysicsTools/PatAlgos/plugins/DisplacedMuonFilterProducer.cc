@@ -32,6 +32,7 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -43,7 +44,6 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
 
 namespace pat {
   class DisplacedMuonFilterProducer : public edm::stream::EDProducer<> {
@@ -112,23 +112,14 @@ pat::DisplacedMuonFilterProducer::DisplacedMuonFilterProducer(const edm::Paramet
 
   if (fillDetectorBasedIsolation_) {
     theTrackDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("TrackIsoDeposits"));
-
     theJetDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("JetIsoDeposits"));
-
     theEcalDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("EcalIsoDeposits"));
-
     theHcalDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("HcalIsoDeposits"));
-
     theHoDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("HoIsoDeposits"));
-
     produces<reco::IsoDepositMap>("tracker");
-
     produces<reco::IsoDepositMap>("ecal");
-
     produces<reco::IsoDepositMap>("hcal");
-
     produces<reco::IsoDepositMap>("ho");
-
     produces<reco::IsoDepositMap>("jets");
   }
 }
