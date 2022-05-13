@@ -41,10 +41,10 @@
 <bin file="testGroupSelection.cpp" name="testGroupSelection">
 </bin>
 
-<architecture name="(slc|cc).*_amd64_.*">
+<ifarch value="x86_64">
   <bin file="testConnectionPool.cpp" name="testConnectionPool">
     <use name="CondFormats/RunInfo"/>
   </bin>
 
   <test name="condTestRegression" command="condTestRegression.py"/>
-</architecture>
+</ifarch>
