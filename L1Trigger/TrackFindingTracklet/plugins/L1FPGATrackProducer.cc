@@ -29,6 +29,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/L1TrackTrigger/interface/TTBV.h"
 //
 #include "L1Trigger/TrackFindingTracklet/interface/SLHCEvent.h"
 #include "L1Trigger/TrackFindingTracklet/interface/L1TStub.h"
@@ -87,6 +88,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Residual.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
+#include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
 
 ////////////////
 // PHYSICS TOOLS
@@ -354,9 +356,10 @@ void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& i
   if (trackQuality_) {
     trackQualityModel_->setHPHSetup(setupHPH_);
   }
+  // Tracklet pattern reco output channel info.
   channelAssignment_ = &iSetup.getData(esGetTokenChannelAssignment_);
   // initialize the tracklet event processing (this sets all the processing & memory modules, wiring, etc)
-  eventProcessor.init(settings_, channelAssignment_, setup_);
+  eventProcessor.init(settings_, setup_);
 }
 
 //////////
@@ -586,8 +589,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                    ttPos.z(),
                    stubbend,
                    stub.first->innerClusterPosition(),
-                   assocTPs,
-                   stub.first);
+                   assocTPs);
 
         const trklet::L1TStub& lastStub = ev.lastStub();
         stubMap[lastStub] = stub.first;
@@ -604,8 +606,20 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   const std::vector<trklet::Track>& tracks = eventProcessor.tracks();
 
+  const unsigned int maxNumProjectionLayers = channelAssignment_->maxNumProjectionLayers();
+  // number of track channels
+  const unsigned int numStreamsTrack = N_SECTOR * channelAssignment_->numChannelsTrack();
+  // number of stub channels
+  const unsigned int numStreamsStub = N_SECTOR * channelAssignment_->numChannelsStub();
+  // number of stub channels if all seed types streams padded to have same number of stub channels (for coding simplicity)
+  const unsigned int numStreamsStubRaw = numStreamsTrack * maxNumProjectionLayers;
+
+  // Streams formatted to allow this code to run outside CMSSW.
+  vector<vector<string>> streamsTrackRaw(numStreamsTrack);
+  vector<vector<StubStreamData>> streamsStubRaw(numStreamsStubRaw);
+
   // this performs the actual tracklet event processing
-  eventProcessor.event(ev);
+  eventProcessor.event(ev, streamsTrackRaw, streamsStubRaw);
 
   int ntracks = 0;
 
@@ -682,14 +696,43 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   iEvent.put(std::move(L1TkTracksForOutput), "Level1TTTracks");
 
-  // produce clock and bit output tracks and stubs
-  // number of track channel
-  const int numStreamsTrack = N_SECTOR * channelAssignment_->numChannelsTrack();
-  // number of stub channel
-  const int numStreamsStub = N_SECTOR * channelAssignment_->numChannelsStub();
+  // produce clock and bit accurate stream output tracks and stubs.
+  // from end of tracklet pattern recognition.
+  // Convertion here is from stream format that allows this code to run
+  // outside CMSSW to the EDProduct one.
   Streams streamsTrack(numStreamsTrack);
   StreamsStub streamsStub(numStreamsStub);
-  eventProcessor.produce(streamsTrack, streamsStub);
+
+  for (unsigned int chanTrk = 0; chanTrk < numStreamsTrack; chanTrk++) {
+    for (unsigned int itk = 0; itk < streamsTrackRaw[chanTrk].size(); itk++) {
+      std::string bitsTrk = streamsTrackRaw[chanTrk][itk];
+      int iSeed = chanTrk % channelAssignment_->numChannelsTrack();  // seed type
+      streamsTrack[chanTrk].emplace_back(bitsTrk);
+
+      const unsigned int chanStubOffsetIn = chanTrk * maxNumProjectionLayers;
+      const unsigned int chanStubOffsetOut = channelAssignment_->offsetStub(chanTrk);
+      const unsigned int numProjLayers = channelAssignment_->numProjectionLayers(iSeed);
+      TTBV hitMap(0, numProjLayers);
+      // remove padding from stub stream
+      for (unsigned int iproj = 0; iproj < maxNumProjectionLayers; iproj++) {
+        // FW current has one (perhaps invalid) stub per layer per track.
+        const StubStreamData& stubdata = streamsStubRaw[chanStubOffsetIn + iproj][itk];
+        const L1TStub& stub = stubdata.stub();
+        if (stubdata.valid()) {
+          const TTStubRef ttStubRef = stubMap[stub];
+          int layerId(-1);
+          if (!channelAssignment_->layerId(stubdata.iSeed(), ttStubRef, layerId))
+            continue;
+          hitMap.set(layerId);
+          streamsStub[chanStubOffsetOut + layerId].emplace_back(ttStubRef, stubdata.dataBits());
+        }
+      }
+      for (int layerId : hitMap.ids(false)) {  // invalid stubs
+        streamsStub[chanStubOffsetOut + layerId].emplace_back(tt::FrameStub());
+      }
+    }
+  }
+
   iEvent.emplace(edPutTokenTracks_, move(streamsTrack));
   iEvent.emplace(edPutTokenStubs_, move(streamsStub));
 

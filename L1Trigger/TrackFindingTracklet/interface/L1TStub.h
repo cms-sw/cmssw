@@ -2,7 +2,6 @@
 #define L1Trigger_TrackFindingTracklet_interface_L1TStub_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/Settings.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <iostream>
 #include <fstream>
@@ -27,8 +26,7 @@ namespace trklet {
             double z,
             double bend,
             double strip,
-            std::vector<int> tps,
-            const TTStubRef& ttStubRef);
+            std::vector<int> tps);
 
     ~L1TStub() = default;
 
@@ -109,8 +107,6 @@ namespace trklet {
 
     const std::string& stubword() const { return stubword_; }
 
-    TTStubRef ttStubRef() const { return ttStubRef_; }
-
   private:
     int layerdisk_;
     std::string DTClink_;
@@ -135,7 +131,6 @@ namespace trklet {
 
     unsigned int isPSmodule_;
     unsigned int isFlipped_;
-    TTStubRef ttStubRef_;
   };
 };  // namespace trklet
 #endif
