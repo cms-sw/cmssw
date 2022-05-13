@@ -8,7 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DQM/BeamMonitor/plugins/OnlineBeamMonitor.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
@@ -32,7 +31,10 @@ OnlineBeamMonitor::OnlineBeamMonitor(const ParameterSet& ps)
       bsTransientToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       bsHLTToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
       bsLegacyToken_(esConsumes<edm::Transition::BeginLuminosityBlock>()),
-      numberOfValuesToSave_(0) {
+      numberOfValuesToSave_(0),
+      appendRunTxt_(ps.getUntrackedParameter<bool>("AppendRunToFileName")),
+      writeDIPTxt_(ps.getUntrackedParameter<bool>("WriteDIPAscii")),
+      outputDIPTxt_(ps.getUntrackedParameter<std::string>("DIPFileName")) {
   if (!monitorName_.empty())
     monitorName_ = monitorName_ + "/";
 
@@ -67,6 +69,10 @@ OnlineBeamMonitor::OnlineBeamMonitor(const ParameterSet& ps)
 void OnlineBeamMonitor::fillDescriptions(edm::ConfigurationDescriptions& iDesc) {
   edm::ParameterSetDescription ps;
   ps.addUntracked<std::string>("MonitorName", "YourSubsystemName");
+  ps.addUntracked<bool>("AppendRunToFileName", false);
+  ps.addUntracked<bool>("WriteDIPAscii", true);
+  ps.addUntracked<std::string>("DIPFileName", "BeamFitResultsForDIP.txt");
+
   iDesc.addWithDefaultLabel(ps);
 }
 
@@ -132,9 +138,25 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   ESHandle<BeamSpotOnlineObjects> bsHLTHandle;
   ESHandle<BeamSpotOnlineObjects> bsLegacyHandle;
   ESHandle<BeamSpotObjects> bsTransientHandle;
+  //int lastLumiHLT_ = 0;
+  //int lastLumiLegacy_ = 0;
+  std::string startTimeStamp_ = "0";
+  std::string startTimeStampHLT_ = "0";
+  std::string startTimeStampLegacy_ = "0";
+  std::string stopTimeStamp_ = "0";
+  std::string stopTimeStampHLT_ = "0";
+  std::string stopTimeStampLegacy_ = "0";
+  std::string lumiRange_ = "0 - 0";
+  std::string lumiRangeHLT_ = "0 - 0";
+  std::string lumiRangeLegacy_ = "0 - 0";
 
   if (auto bsHLTHandle = iSetup.getHandle(bsHLTToken_)) {
     auto const& spotDB = *bsHLTHandle;
+
+    //lastLumiHLT_ = spotDB.lastAnalyzedLumi();
+    startTimeStampHLT_ = spotDB.startTime();
+    stopTimeStampHLT_ = spotDB.endTime();
+    lumiRangeHLT_ = spotDB.lumiRange();
 
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
@@ -167,8 +189,14 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   }
   if (auto bsLegacyHandle = iSetup.getHandle(bsLegacyToken_)) {
     auto const& spotDB = *bsLegacyHandle;
+
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
+
+    //lastLumiLegacy_ = spotDB.lastAnalyzedLumi();
+    startTimeStampLegacy_ = spotDB.startTime();
+    stopTimeStampLegacy_ = spotDB.endTime();
+    lumiRangeLegacy_ = spotDB.lumiRange();
 
     BeamSpot::CovarianceMatrix matrix;
     for (int i = 0; i < 7; ++i) {
@@ -199,6 +227,7 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
   }
   if (auto bsTransientHandle = iSetup.getHandle(bsTransientToken_)) {
     auto const& spotDB = *bsTransientHandle;
+    //std::cout << " from the DB " << spotDB << std::endl;
 
     // translate from BeamSpotObjects to reco::BeamSpot
     BeamSpot::Point apoint(spotDB.x(), spotDB.y(), spotDB.z());
@@ -219,11 +248,71 @@ std::shared_ptr<onlinebeammonitor::NoCache> OnlineBeamMonitor::globalBeginLumino
     aSpot->setEmittanceX(spotDB.emittanceX());
     aSpot->setEmittanceY(spotDB.emittanceY());
     aSpot->setbetaStar(spotDB.betaStar());
-
     if (spotDB.beamType() == 2) {
       aSpot->setType(reco::BeamSpot::Tracker);
     } else {
       aSpot->setType(reco::BeamSpot::Fake);
+    }
+
+    if (writeDIPTxt_) {
+      std::ofstream outFile;
+
+      std::string tmpname = outputDIPTxt_;
+      int frun = iLumi.getRun().run();
+
+      char index[15];
+      if (appendRunTxt_ && writeDIPTxt_) {
+        sprintf(index, "%s%i", "_Run", frun);
+        tmpname.insert(outputDIPTxt_.length() - 4, index);
+      }
+      //int lastLumiAnalyzed_ = iLumi.id().luminosityBlock();
+
+      if (beamSpotsMap_.find("Transient") != beamSpotsMap_.end()) {
+        if (beamSpotsMap_.find("HLT") != beamSpotsMap_.end() &&
+            beamSpotsMap_["Transient"].x0() == beamSpotsMap_["HLT"].x0()) {
+          // lastLumiAnalyzed_ = lastLumiHLT_;
+          startTimeStamp_ = startTimeStampHLT_;
+          stopTimeStamp_ = stopTimeStampHLT_;
+          lumiRange_ = lumiRangeHLT_;
+
+        } else if (beamSpotsMap_.find("Legacy") != beamSpotsMap_.end() &&
+                   beamSpotsMap_["Transient"].x0() == beamSpotsMap_["Legacy"].x0()) {
+          //lastLumiAnalyzed_ = lastLumiLegacy_;
+          startTimeStamp_ = startTimeStampLegacy_;
+          stopTimeStamp_ = stopTimeStampLegacy_;
+          lumiRange_ = lumiRangeLegacy_;
+        }
+      }
+
+      outFile.open(tmpname.c_str());
+
+      outFile << "Runnumber " << frun << " bx " << 0 << std::endl;
+      outFile << "BeginTimeOfFit " << startTimeStamp_ << " " << 0 << std::endl;
+      outFile << "EndTimeOfFit " << stopTimeStamp_ << " " << 0 << std::endl;
+      //outFile << "LumiRange " << lumiRange_ << " - " << lastLumiAnalyzed_ << std::endl;
+      outFile << "LumiRange " << lumiRange_ << std::endl;
+      outFile << "Type " << aSpot->type() << std::endl;
+      outFile << "X0 " << aSpot->x0() << std::endl;
+      outFile << "Y0 " << aSpot->y0() << std::endl;
+      outFile << "Z0 " << aSpot->z0() << std::endl;
+      outFile << "sigmaZ0 " << aSpot->sigmaZ() << std::endl;
+      outFile << "dxdz " << aSpot->dxdz() << std::endl;
+      outFile << "dydz " << aSpot->dydz() << std::endl;
+      outFile << "BeamWidthX " << aSpot->BeamWidthX() << std::endl;
+      outFile << "BeamWidthY " << aSpot->BeamWidthY() << std::endl;
+      for (int i = 0; i < 6; ++i) {
+        outFile << "Cov(" << i << ",j) ";
+        for (int j = 0; j < 7; ++j) {
+          outFile << aSpot->covariance(i, j) << " ";
+        }
+        outFile << std::endl;
+      }
+      outFile << "Cov(6,j) 0 0 0 0 0 0 " << aSpot->covariance(6, 6) << std::endl;
+      outFile << "EmittanceX " << aSpot->emittanceX() << std::endl;
+      outFile << "EmittanceY " << aSpot->emittanceY() << std::endl;
+      outFile << "BetaStar " << aSpot->betaStar() << std::endl;
+
+      outFile.close();
     }
     //LogInfo("OnlineBeamMonitor")
     //  << *aSpot << std::endl;
@@ -364,4 +453,5 @@ void OnlineBeamMonitor::dqmEndRun(edm::Run const&, edm::EventSetup const&) {
     }
   }
 }
+
 DEFINE_FWK_MODULE(OnlineBeamMonitor);
