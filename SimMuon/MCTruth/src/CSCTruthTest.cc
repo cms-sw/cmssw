@@ -3,7 +3,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimMuon/MCTruth/interface/CSCTruthTest.h"
 
-CSCTruthTest::CSCTruthTest(const edm::ParameterSet &iConfig) : conf_(iConfig), consumeCollector_(consumesCollector()), cscRecHitToken_(consumes<CSCRecHit2DCollection>(edm::InputTag("csc2DRecHits"))) {}
+CSCTruthTest::CSCTruthTest(const edm::ParameterSet &iConfig)
+    : conf_(iConfig),
+      consumeCollector_(consumesCollector()),
+      cscRecHitToken_(consumes<CSCRecHit2DCollection>(edm::InputTag("csc2DRecHits"))) {}
 
 void CSCTruthTest::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   const edm::Handle<CSCRecHit2DCollection> &cscRecHits = iEvent.getHandle(cscRecHitToken_);

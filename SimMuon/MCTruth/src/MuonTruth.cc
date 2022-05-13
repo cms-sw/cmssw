@@ -51,18 +51,18 @@ void MuonTruth::initEvent(const edm::Event &event, const edm::EventSetup &setup)
   theWireDigiSimLinks = wireDigiSimLinks.product();
 
   // get CSC Geometry to use CSCLayer methods
-  const edm::ESHandle<CSCGeometry>& mugeom = setup.getHandle(geomToken_);
+  const edm::ESHandle<CSCGeometry> &mugeom = setup.getHandle(geomToken_);
   cscgeom = mugeom.product();
 
   // get CSC Bad Chambers (ME4/2)
-  const edm::ESHandle<CSCBadChambers>& badChambers = setup.getHandle(badToken_);
+  const edm::ESHandle<CSCBadChambers> &badChambers = setup.getHandle(badToken_);
   cscBadChambers = badChambers.product();
 
   theSimHitMap.clear();
 
   if (crossingframe) {
     LogTrace("MuonTruth") << "getting CrossingFrame<PSimHit> collection - " << CSCsimHitsXFTag;
-    const edm::Handle<CrossingFrame<PSimHit>>& cf = event.getHandle(simHitsXFToken_);
+    const edm::Handle<CrossingFrame<PSimHit>> &cf = event.getHandle(simHitsXFToken_);
 
     std::unique_ptr<MixCollection<PSimHit>> CSCsimhits(new MixCollection<PSimHit>(cf.product()));
     LogTrace("MuonTruth") << "... size = " << CSCsimhits->size();

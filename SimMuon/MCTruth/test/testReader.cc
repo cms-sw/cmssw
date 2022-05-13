@@ -1,7 +1,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/MCTruth/test/testReader.h"
 
-testReader::testReader(const edm::ParameterSet &parset)
+testReader::testReader(const edm::ParameterSet& parset)
     : tracksTag_(parset.getParameter<edm::InputTag>("tracksTag")),
       tpTag_(parset.getParameter<edm::InputTag>("tpTag")),
       assoMapsTag_(parset.getParameter<edm::InputTag>("assoMapsTag")),
@@ -10,7 +10,7 @@ testReader::testReader(const edm::ParameterSet &parset)
       recoToSimToken_(consumes<reco::RecoToSimCollection>(assoMapsTag_)),
       simToRecoToken_(consumes<reco::SimToRecoCollection>(assoMapsTag_)) {}
 
-void testReader::analyze(const edm::Event &event, const edm::EventSetup &setup) {
+void testReader::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   LogTrace("testReader") << "testReader::analyze : getting reco::Track collection, " << tracksTag_;
   edm::View<reco::Track> trackCollection;
   const edm::Handle<edm::View<reco::Track>>& trackCollectionH = event.getHandle(tracksToken_);

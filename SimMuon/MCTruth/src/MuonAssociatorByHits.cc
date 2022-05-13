@@ -78,7 +78,7 @@ namespace muonAssociatorByHitsDiagnostics {
     }
 
     if (crossingframe) {
-      const auto& cf_simtracks = event.getHandle(simtracksXFToken_);
+      const auto &cf_simtracks = event.getHandle(simtracksXFToken_);
       unique_ptr<MixCollection<SimTrack>> SimTk(new MixCollection<SimTrack>(cf_simtracks.product()));
       edm::LogVerbatim("MuonAssociatorByHits")
           << "\n"
@@ -92,7 +92,7 @@ namespace muonAssociatorByHitsDiagnostics {
             << ", pT = " << ITER->momentum().Pt() << ", eta = " << ITER->momentum().Eta()
             << ", phi = " << ITER->momentum().Phi() << "\n * " << *ITER << endl;
       }
-      const auto& cf_simvertices = event.getHandle(simvertexXFToken_);
+      const auto &cf_simvertices = event.getHandle(simvertexXFToken_);
       unique_ptr<MixCollection<SimVertex>> SimVtx(new MixCollection<SimVertex>(cf_simvertices.product()));
       edm::LogVerbatim("MuonAssociatorByHits")
           << "\n"
@@ -103,7 +103,7 @@ namespace muonAssociatorByHitsDiagnostics {
         edm::LogVerbatim("MuonAssociatorByHits") << "SimVertex " << kv << " : " << *VITER << endl;
       }
     } else {
-      const auto& simTrackCollection = event.getHandle(simtracksToken_);
+      const auto &simTrackCollection = event.getHandle(simtracksToken_);
       const edm::SimTrackContainer simTC = *(simTrackCollection.product());
       edm::LogVerbatim("MuonAssociatorByHits")
           << "\n"
@@ -117,7 +117,7 @@ namespace muonAssociatorByHitsDiagnostics {
             << ", pT = " << ITER->momentum().Pt() << ", eta = " << ITER->momentum().Eta()
             << ", phi = " << ITER->momentum().Phi() << "\n * " << *ITER << endl;
       }
-      const auto& simVertexCollection = event.getHandle(simvertexToken_);
+      const auto &simVertexCollection = event.getHandle(simvertexToken_);
       const edm::SimVertexContainer simVC = *(simVertexCollection.product());
       edm::LogVerbatim("MuonAssociatorByHits") << "\n"
                                                << "SimVertex collection with InputTag = "
