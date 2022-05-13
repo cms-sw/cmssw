@@ -50,8 +50,8 @@ displacedMuons1stStep = muons1stStep.clone(
                             'outer tracks'],
     fillGlobalTrackQuality = False
 )
-displacedMuons1stStep.TrackExtractorPSet.Diff_r = cms.double(0.2)
-displacedMuons1stStep.TrackExtractorPSet.Diff_z = cms.double(0.5)
+displacedMuons1stStep.TrackExtractorPSet.Diff_r = 0.2
+displacedMuons1stStep.TrackExtractorPSet.Diff_z = 0.5
 
 displacedMuonIdProducerTask = cms.Task(displacedMuons1stStep)
 

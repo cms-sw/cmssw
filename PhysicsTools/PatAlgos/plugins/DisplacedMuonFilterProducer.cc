@@ -43,11 +43,7 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DataFormats/Math/interface/deltaR.h"
 
 namespace pat {
   class DisplacedMuonFilterProducer : public edm::stream::EDProducer<> {
@@ -86,18 +82,6 @@ namespace pat {
     edm::EDGetTokenT<reco::MuonTimeExtraMap> timeMapCSCToken_;
 
     // detector based isolation
-    edm::InputTag theTrackDepositName;
-    edm::InputTag theEcalDepositName;
-    edm::InputTag theHcalDepositName;
-    edm::InputTag theHoDepositName;
-    edm::InputTag theJetDepositName;
-
-    std::string trackDepositName_;
-    std::string ecalDepositName_;
-    std::string hcalDepositName_;
-    std::string hoDepositName_;
-    std::string jetDepositName_;
-
     edm::EDGetTokenT<reco::IsoDepositMap> theTrackDepositToken_;
     edm::EDGetTokenT<reco::IsoDepositMap> theEcalDepositToken_;
     edm::EDGetTokenT<reco::IsoDepositMap> theHcalDepositToken_;
@@ -127,20 +111,15 @@ pat::DisplacedMuonFilterProducer::DisplacedMuonFilterProducer(const edm::Paramet
   }
 
   if (fillDetectorBasedIsolation_) {
-    theTrackDepositName = iConfig.getParameter<edm::InputTag>("TrackIsoDeposits");
-    theTrackDepositToken_ = consumes<reco::IsoDepositMap>(theTrackDepositName);
+    theTrackDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("TrackIsoDeposits"));
 
-    theJetDepositName = iConfig.getParameter<edm::InputTag>("JetIsoDeposits");
-    theJetDepositToken_ = consumes<reco::IsoDepositMap>(theJetDepositName);
+    theJetDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("JetIsoDeposits"));
 
-    theEcalDepositName = iConfig.getParameter<edm::InputTag>("EcalIsoDeposits");
-    theEcalDepositToken_ = consumes<reco::IsoDepositMap>(theEcalDepositName);
+    theEcalDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("EcalIsoDeposits"));
 
-    theHcalDepositName = iConfig.getParameter<edm::InputTag>("HcalIsoDeposits");
-    theHcalDepositToken_ = consumes<reco::IsoDepositMap>(theHcalDepositName);
+    theHcalDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("HcalIsoDeposits"));
 
-    theHoDepositName = iConfig.getParameter<edm::InputTag>("HoIsoDeposits");
-    theHoDepositToken_ = consumes<reco::IsoDepositMap>(theHoDepositName);
+    theHoDepositToken_ = consumes<reco::IsoDepositMap>(iConfig.getParameter<edm::InputTag>("HoIsoDeposits"));
 
     produces<reco::IsoDepositMap>("tracker");
 
