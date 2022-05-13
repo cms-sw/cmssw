@@ -62,15 +62,20 @@ private:
   const DigiSimLinks *theDigiSimLinks;
   const DigiSimLinks *theWireDigiSimLinks;
 
-  edm::InputTag linksTag;
-  edm::InputTag wireLinksTag;
+  const edm::InputTag linksTag;
+  const edm::InputTag wireLinksTag;
 
-  bool crossingframe;
-  edm::InputTag CSCsimHitsTag;
-  edm::InputTag CSCsimHitsXFTag;
+  const bool crossingframe;
+  const edm::InputTag CSCsimHitsTag;
+  const edm::InputTag CSCsimHitsXFTag;
 
-  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
-  edm::ESGetToken<CSCBadChambers, CSCBadChambersRcd> badToken_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
+  const edm::ESGetToken<CSCBadChambers, CSCBadChambersRcd> badToken_;
+
+  const edm::EDGetTokenT<DigiSimLinks> linksToken_;
+  const edm::EDGetTokenT<DigiSimLinks> wireLinksToken_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit>> simHitsXFToken_;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
 
   std::map<unsigned int, edm::PSimHitContainer> theSimHitMap;
 
