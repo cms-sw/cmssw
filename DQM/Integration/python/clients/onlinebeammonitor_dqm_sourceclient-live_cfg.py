@@ -126,7 +126,10 @@ process.dqmSaverPB.runNumber   = options.runNumber
 # BeamMonitor
 #-----------------------------
 process.dqmOnlineBeamMonitor = cms.EDProducer("OnlineBeamMonitor",
-MonitorName = cms.untracked.string("OnlineBeamMonitor")
+MonitorName         = cms.untracked.string("OnlineBeamMonitor"),
+AppendRunToFileName = cms.untracked.bool(False),
+WriteDIPAscii       = cms.untracked.bool(True),
+DIPFileName         = cms.untracked.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamFitResultsForDIP.txt")
 )
 
 #---------------
@@ -143,11 +146,11 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.GlobalTag.toGet = cms.VPSet(
   cms.PSet(
     record = cms.string("BeamSpotOnlineLegacyObjectsRcd"),
-    refreshTime = cms.uint64(1)
+    refreshTime = cms.uint64(2)
   ),
   cms.PSet(
     record = cms.string("BeamSpotOnlineHLTObjectsRcd"),
-    refreshTime = cms.uint64(1)
+    refreshTime = cms.uint64(2)
   )
 )
 
