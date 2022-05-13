@@ -1778,7 +1778,7 @@ upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
         'ALCA'
     ],
     PU = [],
-    suffix = '_Run3FStrackingOnly',
+    suffix = '_Run3FSTrackingOnly',
     offset = 0.302,
 )
 
