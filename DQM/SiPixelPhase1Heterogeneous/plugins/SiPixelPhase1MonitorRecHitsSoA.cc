@@ -193,7 +193,7 @@ void SiPixelPhase1MonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
 void SiPixelPhase1MonitorRecHitsSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelRecHitsSoA
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("pixelHitsSrc", edm::InputTag("siPixelRecHitsPreSplitting"));
+  desc.add<edm::InputTag>("pixelHitsSrc", edm::InputTag("siPixelRecHitsPreSplittingSoA"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelRecHitsSoA");
   descriptions.addWithDefaultLabel(desc);
 }
