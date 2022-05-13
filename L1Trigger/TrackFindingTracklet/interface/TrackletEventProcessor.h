@@ -3,7 +3,6 @@
 #define L1Trigger_TrackFindingTracklet_interface_TrackletEventProcessor_h
 
 #include "L1Trigger/TrackFindingTracklet/interface/Timer.h"
-#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 
 #include <map>
 #include <memory>
@@ -23,7 +22,7 @@ namespace trklet {
   class Sector;
   class HistBase;
   class Track;
-  class ChannelAssignment;
+  class StubStreamData;
 
   class TrackletEventProcessor {
   public:
@@ -31,23 +30,20 @@ namespace trklet {
 
     ~TrackletEventProcessor();
 
-    void init(Settings const& theSettings,
-              const ChannelAssignment* channelAssignment,
-              const tt::Setup* setup = nullptr);
+    void init(Settings const& theSettings, const tt::Setup* setup = nullptr);
 
-    void event(SLHCEvent& ev);
+    void event(SLHCEvent& ev,
+               std::vector<std::vector<std::string>>& streamsTrackRaw,
+               std::vector<std::vector<StubStreamData>>& streamsStubRaw);
 
     void printSummary();
 
     const std::vector<Track>& tracks() const { return tracks_; }
 
-    void produce(tt::Streams& streamsTrack, tt::StreamsStub& streamsStub);
-
   private:
     void configure(std::istream& inwire, std::istream& inmem, std::istream& inproc);
 
     const Settings* settings_{nullptr};
-    const ChannelAssignment* channelAssignment_{nullptr};
 
     std::unique_ptr<Globals> globals_;
 
@@ -75,8 +71,6 @@ namespace trklet {
     Timer PDTimer_;
 
     std::vector<Track> tracks_;
-    tt::Streams streamsTrack_;
-    tt::StreamsStub streamsStub_;
   };
 
 };  // namespace trklet

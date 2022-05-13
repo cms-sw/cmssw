@@ -110,6 +110,8 @@ namespace trklet {
     }
     auto bigger = [](const vector<int>& lhs, const vector<int>& rhs) { return lhs.size() < rhs.size(); };
     numSeedingLayers_ = max_element(seedTypesSeedLayers_.begin(), seedTypesSeedLayers_.end(), bigger)->size();
+    maxNumProjectionLayers_ =
+        max_element(seedTypesProjectionLayers_.begin(), seedTypesProjectionLayers_.end(), bigger)->size();
   }
 
   // sets channelId of given TTTrackRef, return false if track outside pt range

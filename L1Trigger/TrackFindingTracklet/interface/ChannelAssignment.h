@@ -28,18 +28,22 @@ namespace trklet {
     int numChannelsTrack() const { return numChannelsTrack_; }
     // number of used channels for stubs
     int numChannelsStub() const { return numChannelsStub_; }
+    // number of used seed types in tracklet algorithm
+    int numSeedTypes() const { return numSeedTypes_; }
     // sets layerId (0-7 in sequence the seed type projects to) of given TTStubRef and seedType, returns false if seeed stub
     bool layerId(int seedType, const TTStubRef& ttStubRef, int& layerId) const;
     // return tracklet layerId (barrel: [0-5], endcap: [6-10]) for given TTStubRef
     int trackletLayerId(const TTStubRef& ttStubRef) const;
     // number layers a given seed type projects to
     int numProjectionLayers(int seedType) const { return (int)seedTypesProjectionLayers_.at(seedType).size(); }
+    // max. no. layers that any seed type projects to
+    int maxNumProjectionLayers() const { return maxNumProjectionLayers_; }
     // map of used DTC tfp channels in InputRouter
-    std::vector<int> channelEncoding() const { return channelEncoding_; }
+    const std::vector<int>& channelEncoding() const { return channelEncoding_; }
     // index of first stub channel belonging to given track channel
     int offsetStub(int channelTrack) const;
     // seed layers for given seed type id
-    std::vector<int> seedingLayers(int seedType) const { return seedTypesSeedLayers_.at(seedType); }
+    const std::vector<int>& seedingLayers(int seedType) const { return seedTypesSeedLayers_.at(seedType); }
     //
     tt::SensorModule::Type type(const TTStubRef& ttStubRef) const { return setup_->type(ttStubRef); }
     //
@@ -68,6 +72,8 @@ namespace trklet {
     std::vector<std::vector<int>> seedTypesSeedLayers_;
     // layers a seed types can project to using default layer id [barrel: 1-6, discs: 11-15]
     std::vector<std::vector<int>> seedTypesProjectionLayers_;
+    // max. number of layers to which any seed type projects
+    int maxNumProjectionLayers_;
     // map of used DTC tfp channels in InputRouter
     std::vector<int> channelEncoding_;
     // accumulated number of projections layer from seed 0 to vector index

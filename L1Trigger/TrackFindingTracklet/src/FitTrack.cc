@@ -4,6 +4,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/HybridFit.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Tracklet.h"
 #include "L1Trigger/TrackFindingTracklet/interface/Stub.h"
+#include "L1Trigger/TrackFindingTracklet/interface/StubStreamData.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -873,9 +874,8 @@ std::vector<Tracklet*> FitTrack::orderedMatches(vector<FullMatchMemory*>& fullma
 // Also create output streams, that bypass these memories, (so can include gaps in time),
 // to be used by Hybrid case with exact New KF emulation.
 
-void FitTrack::execute(const ChannelAssignment* channelAssignment,
-                       deque<tt::Frame>& streamTrack,
-                       vector<deque<tt::FrameStub>>& streamsStub,
+void FitTrack::execute(deque<string>& streamTrackRaw,
+                       vector<deque<StubStreamData>>& streamsStubRaw,
                        unsigned int iSector) {
   // merge
   const std::vector<Tracklet*>& matches1 = orderedMatches(fullmatch1_);
@@ -1034,53 +1034,48 @@ void FitTrack::execute(const ChannelAssignment* channelAssignment,
         trackfit_->addTrack(bestTracklet);
       }
     }
+
     // store bit and clock accurate TB output
     if (settings_.storeTrackBuilderOutput() && bestTracklet) {
       // add gap if enough layer to form track
       if (!bestTracklet->fit()) {
-        streamTrack.emplace_back(tt::Frame());
-        for (auto& stream : streamsStub)
-          stream.emplace_back(tt::FrameStub());
+        static const string invalid = "0";
+        streamTrackRaw.emplace_back(invalid);
+        for (auto& stream : streamsStubRaw)
+          stream.emplace_back(StubStreamData());
         continue;
       }
       // convert Track word
-      const int seedType = bestTracklet->getISeed();
-      static const string valid = "1";
-      const string seed = TTBV(seedType, settings_.nbitsseed()).str();
       const string rinv = bestTracklet->fpgarinv().str();
       const string phi0 = bestTracklet->fpgaphi0().str();
       const string z0 = bestTracklet->fpgaz0().str();
       const string t = bestTracklet->fpgat().str();
-      streamTrack.emplace_back(valid + seed + rinv + phi0 + z0 + t);
-      // hitMap used to remember whcih layer had no stub to fill them with gaps
-      TTBV hitMap(0, streamsStub.size());
-      // convert and fill stubs on this track into streamsStub
-      for (const auto& stub : bestTracklet->getL1Stubs()) {
-        // get TTStubRef of this stub
-        const TTStubRef& ttStubRef = stub->ttStubRef();
-        // get layerId and skip over seeding layer
-        int layerId(-1);
-        if (!channelAssignment->layerId(seedType, ttStubRef, layerId))
-          continue;
-        // mark layerId
-        hitMap.set(layerId);
-        // tracklet layerId
-        const int trackletLayerId = channelAssignment->trackletLayerId(ttStubRef);
-        // get stub Residual
-        const Residual& resid = bestTracklet->resid(trackletLayerId);
-        // create bit accurate 64 bit word
-        string r = resid.stubptr()->r().str();
-        const string& phi = resid.fpgaphiresid().str();
-        const string& rz = resid.fpgarzresid().str();
-        static constexpr int widthDisk2Sidentifier = 8;
-        if (channelAssignment->type(ttStubRef) == tt::SensorModule::Disk2S)
-          r = string(widthDisk2Sidentifier, '0') + r;
-        // store TTStubRef and bit accurate 64 bit word in clock accurate output
-        streamsStub[layerId].emplace_back(ttStubRef, valid + r + phi + rz);
+      const int seedType = bestTracklet->getISeed();
+      const string seed = TTBV(seedType, settings_.nbitsseed()).str();
+      const string valid("1");
+      streamTrackRaw.emplace_back(valid + seed + rinv + phi0 + z0 + t);
+
+      unsigned int ihit(0);
+      for (unsigned int ilayer = 0; ilayer < N_LAYER + N_DISK; ilayer++) {
+        if (bestTracklet->match(ilayer)) {
+          const Residual& resid = bestTracklet->resid(ilayer);
+          // create bit accurate 64 bit word
+          const string valid("1");
+          string r = resid.stubptr()->r().str();
+          const string& phi = resid.fpgaphiresid().str();
+          const string& rz = resid.fpgarzresid().str();
+          const L1TStub* stub = resid.stubptr()->l1tstub();
+          static constexpr int widthDisk2Sidentifier = 8;
+          bool disk2S = (stub->disk() != 0) && (stub->isPSmodule() == 0);
+          if (disk2S)
+            r = string(widthDisk2Sidentifier, '0') + r;
+          // store seed, L1TStub, and bit accurate 64 bit word in clock accurate output
+          streamsStubRaw[ihit++].emplace_back(seedType, *stub, valid + r + phi + rz);
+        }
       }
       // fill all layer with no stubs with gaps
-      for (int layer : hitMap.ids(false)) {
-        streamsStub[layer].emplace_back(tt::FrameStub());
+      while (ihit < streamsStubRaw.size()) {
+        streamsStubRaw[ihit++].emplace_back();
       }
     }
 
