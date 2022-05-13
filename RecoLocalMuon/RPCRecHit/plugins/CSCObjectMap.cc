@@ -23,7 +23,7 @@ CSCObjectMap::CSCObjectMap(RPCGeometry const& rpcGeo) {
           int cscstation = station;
           RPCGeomServ rpcsrv(rpcId);
           int rpcsegment = rpcsrv.segment();
-          int cscchamber = rpcsegment;                        //FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
+          int cscchamber = rpcsegment;  //FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
           if ((station == 2 || station == 3 || station == 4) && ring == 3) {  //Adding Ring 3 of RPC to the CSC Ring 2
             cscring = 2;
           }
