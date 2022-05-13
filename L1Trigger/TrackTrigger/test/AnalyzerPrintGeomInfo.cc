@@ -33,11 +33,11 @@ class AnalyzerPrintGeomInfo : public edm::EDAnalyzer {
 public:
   /// Constructor/destructor
   explicit AnalyzerPrintGeomInfo(const edm::ParameterSet& iConfig);
-  virtual ~AnalyzerPrintGeomInfo();
+  ~AnalyzerPrintGeomInfo() override;
   // Typical methods used on Loops over events
-  virtual void beginJob();
-  virtual void endJob();
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void beginJob() override;
+  void endJob() override;
+  void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
 
   /// Private methods and variables
 private:
