@@ -1,5 +1,5 @@
 <use name="CondTools/Ecal"/>
-<architecture name="(slc|cc).*_amd64_.*">
+<ifarch value="x86_64">
   <ifcxx11_abi value="1">
     <flags SETENV="LD_PRELOAD=$(CMS_ORACLEOCCI_LIB)"/>
   </ifcxx11_abi>
@@ -24,4 +24,4 @@
   <test name="EcalTPGTowerStatus_O2O_test" command="EcalTPGTowerStatus_O2O_test.sh"/>
   <test name="EcalADCToGeV_update_test" command="EcalADCToGeV_update_test.sh"/>
   <test name="EcalIntercalibConstants_O2O_test" command="EcalIntercalibConstants_O2O_test.sh"/>
-</architecture>
+</ifarch>
