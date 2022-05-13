@@ -20,7 +20,11 @@
 
 // system include files
 #include <cstdlib>
+#include <string>
+
+// user include files
 #include "FWCore/Reflection/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/concatenate.h"
 
 // forward declarations
 
@@ -32,9 +36,6 @@
   static const std::string& classTypeName();                      \
   static const std::string& classPurpose();                       \
   static const std::string& classView()
-
-#define CONCATENATE_HIDDEN(a, b) a##b
-#define CONCATENATE(a, b) CONCATENATE_HIDDEN(a, b)
 
 #define DEFINE_PROXYBUILDER_METHODS(_builder_, _type_, _purpose_, _view_) \
   const std::string& _builder_::classTypeName() {                         \
@@ -53,6 +54,6 @@
     static std::string s_purpose(_purpose_);                              \
     return s_purpose;                                                     \
   }                                                                       \
-  enum { CONCATENATE(dummy_proxybuilder_methods_, __LINE__) }
+  enum { EDM_CONCATENATE(dummy_proxybuilder_methods_, __LINE__) }
 
 #endif
