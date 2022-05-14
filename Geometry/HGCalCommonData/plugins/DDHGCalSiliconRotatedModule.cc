@@ -60,6 +60,7 @@ private:
   int waferTypes_;                      // Number of wafer types
   int facingTypes_;                     // Types of facings of modules toward IP
   int orientationTypes_;                // Number of wafer orienations
+  int placeOffset_;                     // Offset for placement
   int firstLayer_;                      // Copy # of the first sensitive layer
   int absorbMode_;                      // Absorber mode
   int sensitiveMode_;                   // Sensitive mode
@@ -109,9 +110,10 @@ void DDHGCalSiliconRotatedModule::initialize(const DDNumericArguments& nArgs,
   waferTypes_ = static_cast<int>(nArgs["WaferTypes"]);
   facingTypes_ = static_cast<int>(nArgs["FacingTypes"]);
   orientationTypes_ = static_cast<int>(nArgs["OrientationTypes"]);
+  placeOffset_ = static_cast<int>(nArgs["PlaceOffset"]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Number of types of wafers: " << waferTypes_ << " facings: " << facingTypes_
-                                << " Orientations: " << orientationTypes_;
+                                << " Orientations: " << orientationTypes_ << " PlaceOffset: " << placeOffset_;
 #endif
   firstLayer_ = static_cast<int>(nArgs["FirstLayer"]);
   absorbMode_ = static_cast<int>(nArgs["AbsorberMode"]);
@@ -426,12 +428,12 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
     std::string wafer;
     int i(999);
     if (part == HGCalTypes::WaferFull) {
-      i = type * facingTypes_ * orientationTypes_ + place;
+      i = type * facingTypes_ * orientationTypes_ + place - placeOffset_;
       wafer = waferFull_[i];
     } else {
       int partoffset = (part >= HGCalTypes::WaferHDTop) ? HGCalTypes::WaferPartHDOffset : HGCalTypes::WaferPartLDOffset;
       i = (part - partoffset) * facingTypes_ * orientationTypes_ +
-          HGCalTypes::WaferTypeOffset[type] * facingTypes_ * orientationTypes_ + place;
+          HGCalTypes::WaferTypeOffset[type] * facingTypes_ * orientationTypes_ + place - placeOffset_;
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << " layertype:type:part:orien:cassette:place:offsets:ind " << layertype << ":"
                                     << type << ":" << part << ":" << orien << ":" << cassette << ":" << place << ":"

@@ -26,7 +26,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
@@ -75,7 +75,7 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>

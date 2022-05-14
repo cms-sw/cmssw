@@ -44,7 +44,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   for (unsigned int k = 0; k < tags.size(); ++k) {
     for (unsigned int m = 0; m < placementIndex.size(); ++m) {
       edm::LogVerbatim("HGCalGeom") << "Type[" << k << "] " << tags[k] << " Partial " << partialTypes[k]
-                                    << " Plecement Index " << placementIndex[m];
+                                    << " Placement Index " << placementIndex[m] << " Tag " << placementIndexTags[m];
     }
   }
 #endif
@@ -172,7 +172,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                 << "[" << j << "] " << cms::convert2mm(xL[j]) << ":" << cms::convert2mm(yL[j]);
 #endif
           auto posSense = HGCalCell::cellOrient(placementIndex[m]);
-          double zpos = (posSense.second < 0) ? -0.5 * (waferThick - senseT) : 0.5 * (waferThick - senseT);
+          double zpos = (posSense.second > 0) ? -0.5 * (waferThick - senseT) : 0.5 * (waferThick - senseT);
           dd4hep::Position tran(0, 0, zpos);
           int copy = 10 + senseType;
           glogs[i].placeVolume(glog, copy, tran);
