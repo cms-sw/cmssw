@@ -85,7 +85,7 @@ namespace memoryPool {
 
     template <typename T>
     Buffer<T> makeBuffer(uint64_t size, cudaStream_t const &stream, Where where) {
-      return makeBuffer<T>(size, Deleter(std::move(std::make_shared<DeleteOne>(stream, getPool(where)))));
+      return makeBuffer<T>(size, Deleter(std::make_shared<DeleteOne>(stream, getPool(where))));
     }
 
   }  // namespace cuda
