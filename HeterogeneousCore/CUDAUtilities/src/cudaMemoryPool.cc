@@ -23,7 +23,7 @@ namespace {
     }
     // std::cout << "free callaback for stream " << streamId << std::endl;
     auto payload = (memoryPool::Payload *)(p);
-    memoryPool::scheduleFree(payload);
+    poolDetails::freeAsync(payload);
   }
 
 }  // namespace
@@ -33,7 +33,10 @@ struct CudaAlloc {
     // std::cout    << "schedule free for stream " <<  stream <<std::endl;
     if (!stream)
       std::cout << "???? schedule free for stream " << stream << std::endl;
-    cudaCheck(cudaStreamAddCallback((cudaStream_t)(stream), freeCallback, payload, 0));
+    if (cudaStreamQuery((cudaStream_t)(stream)) == cudaSuccess)
+      poolDetails::freeAsync(payload);
+    else
+      cudaCheck(cudaStreamAddCallback((cudaStream_t)(stream), freeCallback, payload, 0));
     // cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
   }
 };
@@ -48,6 +51,8 @@ struct CudaDeviceAlloc : public CudaAlloc {
     return err == cudaSuccess ? p : nullptr;
   }
   static void free(Pointer ptr) {
+    if (ptr == nullptr)
+      std::cout << "free nullptr???" << std::endl;
     auto err = cudaFree(ptr);
     // std::cout << "free" << ((err == cudaSuccess) ? " ok" : " err") <<std::endl;
     if (err != cudaSuccess)
