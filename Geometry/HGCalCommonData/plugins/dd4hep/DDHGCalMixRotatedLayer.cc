@@ -447,18 +447,14 @@ struct HGCalMixRotatedLayer {
     int firstWafer = waferLayerStart_[layer];
     int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                              : static_cast<int>(waferIndex_.size()));
-    double r = 0.5 * (waferSize_ + waferSepar_);
-    double R = 2.0 * r / sqrt3;
-    double dy = 0.75 * R;
+    double delx = 0.5 * (waferSize_ + waferSepar_);
+    double dely = 2.0 * delx / sqrt3;
+    double dy = 0.75 * dely;
     const auto& xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), kount(0);
     std::vector<int> ntype(3, 0);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.name() << "  r " << cms::convert2mm(r) << " R "
-                                  << cms::convert2mm(R) << " dy " << cms::convert2mm(dy) << " Shift "
-                                  << cms::convert2mm(xyoff.first) << ":" << cms::convert2mm(xyoff.second)
-                                  << " WaferSize " << cms::convert2mm((waferSize_ + waferSepar_)) << " index "
-                                  << firstWafer << ":" << (lastWafer - 1);
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.name() << "  delx " << cms::convert2mm(delx) << " dely " << cms::convert2mm(dely) << " dy " << cms::convert2mm(dy) << " Shift " << cms::convert2mm(xyoff.first) << ":" << cms::convert2mm(xyoff.second) << " WaferSize " << cms::convert2mm((waferSize_ + waferSepar_)) << " index " << firstWafer << ":" << (lastWafer - 1);
 #endif
     for (int k = firstWafer; k < lastWafer; ++k) {
       int u = HGCalWaferIndex::waferU(waferIndex_[k]);
@@ -480,7 +476,7 @@ struct HGCalMixRotatedLayer {
                                     << orien << ":" << cassette << ":" << place;
 #endif
       auto cshift = cassette_.getShift(layer + 1, 1, cassette);
-      double xpos = xyoff.first + cshift.first + nc * r;
+      double xpos = xyoff.first + cshift.first + nc * delx;
       double ypos = xyoff.second + cshift.second + nr * dy;
       std::string wafer;
       int i(999);
