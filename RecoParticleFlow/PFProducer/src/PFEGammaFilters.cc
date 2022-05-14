@@ -35,6 +35,8 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
       useElePFidDNN_(cfg.getParameter<bool>("useElePFidDnn")),
       usePhotonPFidDNN_(cfg.getParameter<bool>("usePhotonPFidDnn")),
       useEBModelInGap_(cfg.getParameter<bool>("useEBModelInGap")),
+      endcapBoundary_(cfg.getParameter<double>("endcapBoundary")),
+      extEtaBoundary_(cfg.getParameter<double>("extEtaBoundary")),
       ele_iso_pt_(cfg.getParameter<double>("electron_iso_pt")),
       ele_iso_mva_eb_(cfg.getParameter<double>("electron_iso_mva_barrel")),
       ele_iso_mva_ee_(cfg.getParameter<double>("electron_iso_mva_endcap")),
@@ -43,8 +45,7 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
       ele_noniso_mva_(cfg.getParameter<double>("electron_noniso_mvaCut")),
       ele_missinghits_(cfg.getParameter<unsigned int>("electron_missinghits")),
       ele_ecalDrivenHademPreselCut_(cfg.getParameter<double>("electron_ecalDrivenHademPreselCut")),
-      ele_maxElePtForOnlyMVAPresel_(cfg.getParameter<double>("electron_maxElePtForOnlyMVAPresel")),
-      allowEEEinPF_(cfg.getParameter<bool>("allowEEEinPF")) {
+      ele_maxElePtForOnlyMVAPresel_(cfg.getParameter<double>("electron_maxElePtForOnlyMVAPresel")) {
   auto const& eleProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("electron_protectionsForBadHcal");
   auto const& eleProtectionsForJetMET = cfg.getParameter<edm::ParameterSet>("electron_protectionsForJetMET");
   auto const& phoProtectionsForBadHcal = cfg.getParameter<edm::ParameterSet>("photon_protectionsForBadHcal");
@@ -73,10 +74,14 @@ PFEGammaFilters::PFEGammaFilters(const edm::ParameterSet& cfg)
   ele_dnnLowPtThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnLowPtThr");
   ele_dnnHighPtBarrelThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnHighPtBarrelThr");
   ele_dnnHighPtEndcapThr_ = eleDNNIdThresholds.getParameter<double>("electronDnnHighPtEndcapThr");
+  ele_dnnExtEta1Thr_ = eleDNNIdThresholds.getParameter<double>("electronDnnExtEta1Thr");
+  ele_dnnExtEta2Thr_ = eleDNNIdThresholds.getParameter<double>("electronDnnExtEta2Thr");
 
   ele_dnnBkgLowPtThr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgLowPtThr");
   ele_dnnBkgHighPtBarrelThr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgHighPtBarrelThr");
   ele_dnnBkgHighPtEndcapThr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgHighPtEndcapThr");
+  ele_dnnBkgExtEta1Thr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgExtEta1Thr");
+  ele_dnnBkgExtEta2Thr_ = eleDNNBkgIdThresholds.getParameter<double>("electronDnnBkgExtEta2Thr");
 
   photon_dnnBarrelThr_ = photonDNNIdThresholds.getParameter<double>("photonDnnBarrelThr");
   photon_dnnEndcapThr_ = photonDNNIdThresholds.getParameter<double>("photonDnnEndcapThr");
@@ -178,19 +183,24 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
     const auto dnn_sig = electron.dnn_signal_Isolated() + electron.dnn_signal_nonIsolated();
     const auto dnn_bkg = electron.dnn_bkg_nonIsolated();
     const auto etaThreshold = (useEBModelInGap_) ? ecalBarrelMaxEtaWithGap : ecalBarrelMaxEtaNoGap;
-    if (electronPt > ele_iso_pt_) {
-      // using the Barrel model for electron in the EB-EE gap
-      if (eleEta <= etaThreshold) {
-        passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
-      } else if (eleEta > etaThreshold) {
-        passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
+    if (eleEta < endcapBoundary_) {
+      if (electronPt > ele_iso_pt_) {
+        // using the Barrel model for electron in the EB-EE gap
+        if (eleEta <= etaThreshold) {  //high pT barrel
+          passEleSelection = (dnn_sig > ele_dnnHighPtBarrelThr_) && (dnn_bkg < ele_dnnBkgHighPtBarrelThr_);
+        } else if (eleEta > etaThreshold) {  //high pT endcap (eleEta < 2.5)
+          passEleSelection = (dnn_sig > ele_dnnHighPtEndcapThr_) && (dnn_bkg < ele_dnnBkgHighPtEndcapThr_);
+        }
+      } else {  // pt < ele_iso_pt_ (eleEta < 2.5)
+        passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
       }
-    } else {  // pt < ele_iso_pt_
-      passEleSelection = (dnn_sig > ele_dnnLowPtThr_) && (dnn_bkg < ele_dnnBkgLowPtThr_);
+    } else if ((eleEta >= endcapBoundary_) && (eleEta <= extEtaBoundary_)) {  //First region in extended eta
+      passEleSelection = (dnn_sig > ele_dnnExtEta1Thr_) && (dnn_bkg < ele_dnnBkgExtEta1Thr_);
+    } else if (eleEta > extEtaBoundary_) {  //Second region in extended eta
+      passEleSelection = (dnn_sig > ele_dnnExtEta2Thr_) && (dnn_bkg < ele_dnnBkgExtEta2Thr_);
     }
     // TODO: For the moment do not evaluate further conditions on isolation and HCAL cleaning..
     // To be understood if they are needed
-
   } else {  // Use legacy MVA for ele pfID < CMSSW_12_1
     if (electronPt > ele_iso_pt_) {
       double isoDr03 = electron.dr03TkSumPt() + electron.dr03EcalRecHitSumEt() + electron.dr03HcalTowerSumEt();
@@ -219,15 +229,6 @@ bool PFEGammaFilters::passElectronSelection(const reco::GsfElectron& electron,
       }
     }
   }
-
-  //TEMPORARY hack for 12_1.
-  //Do not allow new EtaExtendedEle to enter PF, until ID, regression of EtaExtendedEle are in place.
-  //In 12_2, we expect to have EtaExtendedEle's ID/regression, then this switch can flip to True
-  //this is to be taken care of by EGM POG
-  //https://github.com/cms-sw/cmssw/issues/35374
-  if (thisEleIsNotAllowedInPF(electron, allowEEEinPF_))
-    passEleSelection = false;
-
   return passEleSelection && passGsfElePreSelWithOnlyConeHadem(electron);
 }
 
@@ -388,14 +389,6 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
     isSafeForJetMET = false;
   }
 
-  //TEMPORARY hack for 12_1.
-  //Do not allow new EtaExtendedEle to be SafeForJetMET, until ID, regression of EtaExtendedEle are in place.
-  //In 12_2, we expect to have EtaExtendedEle's ID/regression, then this switch can flip to True
-  //this is to be taken care of by EGM POG
-  //https://github.com/cms-sw/cmssw/issues/35374
-  if (thisEleIsNotAllowedInPF(electron, allowEEEinPF_))
-    isSafeForJetMET = false;
-
   return isSafeForJetMET;
 }
 bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon& photon, const reco::PFCandidate& pfcand) const {
@@ -473,18 +466,6 @@ bool PFEGammaFilters::passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron&
     return passCutBased || passMVA;
 }
 
-bool PFEGammaFilters::thisEleIsNotAllowedInPF(const reco::GsfElectron& electron, bool allowEtaExtEleinPF) const {
-  bool returnVal = false;
-  if (!allowEtaExtEleinPF) {
-    const auto nHitGsf = electron.gsfTrack()->numberOfValidHits();
-    const auto absEleEta = std::abs(electron.eta());
-    if ((absEleEta > 2.5) && (nHitGsf < 5)) {
-      returnVal = true;
-    }
-  }
-  return returnVal;
-}
-
 void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   // Electron selection cuts
   iDesc.add<double>("electron_iso_pt", 10.0);
@@ -496,13 +477,16 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
   iDesc.add<unsigned int>("electron_missinghits", 1);
   iDesc.add<double>("electron_ecalDrivenHademPreselCut", 0.15);
   iDesc.add<double>("electron_maxElePtForOnlyMVAPresel", 50.0);
-  iDesc.add<bool>("allowEEEinPF", false);
   iDesc.add<bool>("useElePFidDnn", false);
+  iDesc.add<double>("endcapBoundary", 2.5);
+  iDesc.add<double>("extEtaBoundary", 2.65);
   {
     edm::ParameterSetDescription psd;
     psd.add<double>("electronDnnLowPtThr", 0.5);
     psd.add<double>("electronDnnHighPtBarrelThr", 0.5);
     psd.add<double>("electronDnnHighPtEndcapThr", 0.5);
+    psd.add<double>("electronDnnExtEta1Thr", 0.5);
+    psd.add<double>("electronDnnExtEta2Thr", 0.5);
     iDesc.add<edm::ParameterSetDescription>("electronDnnThresholds", psd);
   }
   {
@@ -510,6 +494,8 @@ void PFEGammaFilters::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
     psd.add<double>("electronDnnBkgLowPtThr", 1);
     psd.add<double>("electronDnnBkgHighPtBarrelThr", 1);
     psd.add<double>("electronDnnBkgHighPtEndcapThr", 1);
+    psd.add<double>("electronDnnBkgExtEta1Thr", 1);
+    psd.add<double>("electronDnnBkgExtEta2Thr", 1);
     iDesc.add<edm::ParameterSetDescription>("electronDnnBkgThresholds", psd);
   }
   iDesc.add<bool>("usePhotonPFidDnn", false);

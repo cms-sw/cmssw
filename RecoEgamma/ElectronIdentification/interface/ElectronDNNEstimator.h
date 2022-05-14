@@ -31,6 +31,8 @@ public:
   static constexpr float ptThreshold = 10.;
   static constexpr float ecalBarrelMaxEtaWithGap = 1.566;
   static constexpr float ecalBarrelMaxEtaNoGap = 1.485;
+  static constexpr float endcapBoundary = 2.5;
+  static constexpr float extEtaBoundary = 2.65;
 
 private:
   const egammaTools::EgammaDNNHelper dnnHelper_;
