@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<DDDefinition>
+  <debug>
+<!-- 
+    <debug_shapes/>
+    <debug_includes/>
+    <debug_rotations/>
+    <debug_includes/>
+    <debug_volumes/>
+    <debug_constants/>
+    <debug_namespaces/>
+    <debug_placements/>
+    <debug_algorithms/>
+    <debug_materials/>
+    <debug_visattr/>
+-->
+  </debug>
+  
+  <open_geometry/>
+  <close_geometry/>
+
+  <IncludeSection>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/extend/v2/cmsextent.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cavernData/2021/v1/cavernData.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cms/2026/v5/cms.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/eta3/etaMax.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cmsMother.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/caloBase/2026/v6/caloBase.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/cmsCalo.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalMaterial/v2/hgcalMaterial.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcal/v17/hgcal.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v17/hgcalcell.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v17/hgcalwafer.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalEE/v17/hgcalEE.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/FieldParameters.xml"/>
+  </IncludeSection>
+  
+</DDDefinition>
+

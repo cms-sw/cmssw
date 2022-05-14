@@ -26,12 +26,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      00, 01, 02, 03, 04, 05 </Vector>  
+      06, 07, 08, 09, 10, 11 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="9">
       HGCalEEAirGap, HGCalEEMotherBoard, 
       HGCalEEConnector, HGCalEEPCB, HGCalEEEpoxy,
@@ -75,12 +75,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      00, 01, 02, 03, 04, 05 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="9">
       HGCalEEAirGap, HGCalEEMotherBoard, 
       HGCalEEConnector, HGCalEEPCB, HGCalEEEpoxy,
@@ -124,12 +124,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
     <String name="WaferTag" value="Coarse1"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      00, 01, 02, 03, 04, 05 </Vector>  
+      06, 07, 08, 09, 10, 11 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="9">
       HGCalEEAirGap, HGCalEEMotherBoard, 
       HGCalEEConnector, HGCalEEPCB, HGCalEEEpoxy,
@@ -173,12 +173,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
     <String name="WaferTag" value="Coarse1"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      00, 01, 02, 03, 04, 05 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="9">
       HGCalEEAirGap, HGCalEEMotherBoard, 
       HGCalEEConnector, HGCalEEPCB, HGCalEEEpoxy,
@@ -222,12 +222,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <String name="WaferTag" value="Coarse2"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      00, 01, 02, 03, 04, 05</Vector>  
+      06, 07, 08, 09, 10, 11</Vector>  
     <Vector name="LayerNames" type="string" nEntries="9">
       HGCalEEAirGap, HGCalEEMotherBoard, 
       HGCalEEConnector, HGCalEEPCB, HGCalEEEpoxy,
@@ -271,12 +271,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <String name="WaferTag" value="Coarse2"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      00, 01, 02, 03, 04, 05 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="9">
       HGCalEEAirGap, HGCalEEMotherBoard, 
       HGCalEEConnector, HGCalEEPCB, HGCalEEEpoxy,
@@ -320,12 +320,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      00, 01, 02, 03, 04, 05 </Vector>  
+      06, 07, 08, 09, 10, 11 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy,
@@ -369,12 +369,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessFine]"/>
     <String name="WaferTag" value="Fine"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      00, 01, 02, 03, 04, 05 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy,
@@ -418,12 +418,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
     <String name="WaferTag" value="Coarse1"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      00, 01, 02, 03, 04, 05 </Vector>  
+      06, 07, 08, 09, 10, 11 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy,
@@ -467,12 +467,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse1]"/>
     <String name="WaferTag" value="Coarse1"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      00, 01, 02, 03, 04, 05 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy,
@@ -516,12 +516,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <String name="WaferTag" value="Coarse2"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       0, 0, 0, 0, 0, 0 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      00, 01, 02, 03, 04, 05 </Vector>  
+      06, 07, 08, 09, 10, 11 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy,
@@ -565,12 +565,12 @@
     <Numeric name="SensorSeparation" value="[SensorSeparation]"/>
     <Numeric name="WaferThickness"   value="[WaferThicknessCoarse2]"/>
     <String name="WaferTag" value="Coarse2"/>
-    <Vector name="WaferOrinet" type="numeric" nEntries="6">
+    <Vector name="WaferOrient" type="numeric" nEntries="6">
       0, 1, 2, 3, 4, 5 </Vector>
     <Vector name="WaferFace" type="numeric" nEntries="6"> 
       1, 1, 1, 1, 1, 1 </Vector>
     <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      00, 01, 02, 03, 04, 05 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy,
@@ -637,7 +637,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="9"> 
       0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
+      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
     <String name="SenseName"    value="HGCalEECellSensitive"/>
     <Numeric name="SenseType"    value="0"/>
     <Numeric name="SenseThick"   value="[CellThicknessFine]"/>
@@ -672,8 +672,8 @@
       [WaferThickness], 1.40*mm </Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="9"> 
       0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
-    <Vector name="Layers" type="numeric" nEntries="10"> 
-      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
+    <Vector name="Layers" type="numeric" nEntries="10">
+      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
     <String name="SenseName"    value="HGCalEECellSensitive"/>
     <Numeric name="SenseType"    value="0"/>
     <Numeric name="SenseThick"   value="[CellThicknessFine]"/>
@@ -709,7 +709,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="9"> 
       0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
+      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
     <String name="SenseName"    value="HGCalEECellSensitive"/>
     <Numeric name="SenseType"    value="1"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse1]"/>
@@ -745,7 +745,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="9"> 
       0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
+      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
     <String name="SenseName"    value="HGCalEECellSensitive"/>
     <Numeric name="SenseType"    value="1"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse1]"/>
@@ -781,7 +781,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="9"> 
       0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
+      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
     <String name="SenseName"    value="HGCalEECellSensitive"/>
     <Numeric name="SenseType"    value="2"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse2]"/>
@@ -817,7 +817,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="9"> 
       0, 0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      8, 5, 6, 5, 7, 4, 3, 2, 1, 0 </Vector>
+      0, 1, 2, 3, 4, 7, 5, 6, 5, 8 </Vector>
     <String name="SenseName"    value="HGCalEECellSensitive"/>
     <Numeric name="SenseType"    value="2"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse2]"/>
@@ -853,7 +853,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="8"> 
       0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
+      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
     <String name="SenseName"    value="HGCalHECellSensitive"/>
     <Numeric name="SenseType"    value="0"/>
     <Numeric name="SenseThick"   value="[CellThicknessFine]"/>
@@ -871,8 +871,8 @@
     <Vector name="PartialTypes" type="numeric" nEntries="5">
       21, 22, 23, 24, 25</Vector>
     <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      1, 1, 1, 1, 1, 1 </Vector>
-    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
+      6, 7, 8, 9, 10, 11 </Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6"> 
       06, 07, 08, 09, 10, 11 </Vector>  
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
@@ -889,7 +889,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="8"> 
       0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
+      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
     <String name="SenseName"    value="HGCalHECellSensitive"/>
     <Numeric name="SenseType"    value="0"/>
     <Numeric name="SenseThick"   value="[CellThicknessFine]"/>
@@ -925,7 +925,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="8"> 
       0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
+      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
     <String name="SenseName"    value="HGCalHECellSensitive"/>
     <Numeric name="SenseType"    value="1"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse1]"/>
@@ -943,9 +943,9 @@
     <Vector name="PartialTypes" type="numeric" nEntries="6">
       11, 12, 13, 14, 15, 16</Vector>
     <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      1, 1, 1, 1, 1, 1 </Vector>
-    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      6, 7, 8, 9, 10, 11 </Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>    
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy, 
@@ -961,7 +961,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="8"> 
       0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
+      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
     <String name="SenseName"    value="HGCalHECellSensitive"/>
     <Numeric name="SenseType"    value="1"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse1]"/>
@@ -997,7 +997,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="8"> 
       0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
+      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
     <String name="SenseName"    value="HGCalHECellSensitive"/>
     <Numeric name="SenseType"    value="2"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse2]"/>
@@ -1015,9 +1015,9 @@
     <Vector name="PartialTypes" type="numeric" nEntries="6">
       11, 12, 13, 14, 15, 16</Vector>
     <Vector name="PlacementIndex" type="numeric" nEntries="6">
-      1, 1, 1, 1, 1, 1 </Vector>
-    <Vector name="WaferPlacementIndex" type="string" nEntries="6"> 
-      06, 07, 08, 09, 10, 11 </Vector>  
+      6, 7, 8, 9, 10, 11 </Vector>
+    <Vector name="PlacementIndexTags" type="string" nEntries="6"> 
+      06, 07, 08, 09, 10, 11 </Vector>   
     <Vector name="LayerNames" type="string" nEntries="8">
       HGCalHEAirGap, HGCalHEMotherBoard, 
       HGCalHEConnector, HGCalHEPCB, HGCalHEEpoxy,
@@ -1033,7 +1033,7 @@
     <Vector name="LayerTypes" type="numeric" nEntries="8"> 
       0, 0, 0, 0, 0, 0, 1, 0 </Vector>
     <Vector name="Layers" type="numeric" nEntries="10"> 
-      7, 4, 5, 4, 6, 4, 3, 2, 1, 0 </Vector>
+      0, 1, 2, 3, 4, 6, 4, 5, 4, 7 </Vector>
     <String name="SenseName"    value="HGCalHECellSensitive"/>
     <Numeric name="SenseType"    value="2"/>
     <Numeric name="SenseThick"   value="[CellThicknessCoarse2]"/>

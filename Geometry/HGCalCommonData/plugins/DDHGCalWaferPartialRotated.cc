@@ -85,7 +85,7 @@ void DDHGCalWaferPartialRotated::initialize(const DDNumericArguments& nArgs,
   for (unsigned int k = 0; k < tags_.size(); ++k) {
     for (unsigned int m = 0; m < placementIndex_.size(); ++m) {
       edm::LogVerbatim("HGCalGeom") << "Type[" << k << "] " << tags_[k] << " Partial " << partialTypes_[k]
-                                    << " Plecement Index " << placementIndex_[m];
+                                    << " Placement Index " << placementIndex_[m] << " Tag " << placementIndexTags_[m];
     }
   }
 #endif
@@ -211,7 +211,7 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
               edm::LogVerbatim("HGCalGeom") << "[" << j << "] " << xL[j] << ":" << yL[j];
 #endif
             auto posSense = HGCalCell::cellOrient(placementIndex_[m]);
-            double zpos = (posSense.second < 0) ? -0.5 * (waferThick_ - senseT_) : 0.5 * (waferThick_ - senseT_);
+            double zpos = (posSense.second > 0) ? -0.5 * (waferThick_ - senseT_) : 0.5 * (waferThick_ - senseT_);
             DDTranslation tran(0, 0, zpos);
             int copy = 10 + senseType_;
             cpv.position(glog, glogs[i], copy, tran, rot);
