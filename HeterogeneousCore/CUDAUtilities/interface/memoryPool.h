@@ -24,10 +24,11 @@ namespace memoryPool {
   class Deleter {
   public:
     Deleter() = default;
-    explicit Deleter(std::shared_ptr<DeleterBase> del) : me(del) {}
+    explicit Deleter(std::shared_ptr<DeleterBase> const& del) : me(del) {}
+    explicit Deleter(std::shared_ptr<DeleterBase>&& del) : me(del) {}
 
-    void set(std::shared_ptr<DeleterBase> del) { me = del; }
-    std::shared_ptr<DeleterBase> get() const { return me; }
+    void set(std::shared_ptr<DeleterBase> const& del) { me = del; }
+    std::shared_ptr<DeleterBase> const& get() const { return me; }
 
     void operator()(int bucket) {
       if (!me) {
@@ -57,6 +58,7 @@ namespace memoryPool {
     Buffer() = default;
     Buffer(T* p, int bucket) : m_p(p), m_bucket(bucket) {}
     Buffer(T* p, int bucket, Deleter const& del) : m_deleter(del), m_p(p), m_bucket(bucket) {}
+    Buffer(T* p, int bucket, Deleter&& del) : m_deleter(del), m_p(p), m_bucket(bucket) {}
     Buffer(std::pair<T*, int> const& rh, Deleter const& del) : m_deleter(del), m_p(rh.first), m_bucket(rh.second) {}
     Buffer(Buffer const&) = delete;
     Buffer& operator=(Buffer const&) = delete;
