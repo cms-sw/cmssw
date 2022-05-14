@@ -11,6 +11,8 @@
 #include <iostream>
 #include <chrono>
 
+// #define MEMORY_POOL_DEBUG
+
 namespace poolDetails {
 
   constexpr int bucket(uint64_t s) { return 64 - __builtin_clzl(s - 1); }
@@ -46,8 +48,12 @@ public:
 
   Pointer pointer(int i) const { return m_slots[i]; }
 
+  void dumpStat() const;
+
   void free(int i) {
+#ifdef MEMORY_POOL_DEBUG
     m_last[i] = -1;
+#endif
     m_used[i].v = false;
   }
 
@@ -58,10 +64,12 @@ public:
     // if(totBytes>4507964512) garbageCollect();
 
     if (i >= 0) {
+#ifdef MEMORY_POOL_DEBUG
       assert(m_used[i].v);
       if (nullptr == m_slots[i])
         std::cout << "race ??? " << i << ' ' << m_bucket[i] << ' ' << m_last[i] << std::endl;
       assert(m_slots[i]);
+#endif
       return i;
     }
     garbageCollect();
@@ -69,135 +77,25 @@ public:
     if (i >= 0) {
       assert(m_used[i].v);
       assert(m_slots[i]);
+#ifdef MEMORY_POOL_DEBUG
       assert(m_last[i] >= 0);
+#endif
     }
     return i;
   }
 
-  int allocImpl(uint64_t s) {
-    auto b = poolDetails::bucket(s);
-    assert(s <= poolDetails::bucketSize(b));
-    int ls = size();
-    // look for an existing slot
-    for (int i = 0; i < ls; ++i) {
-      if (b != m_bucket[i])
-        continue;
-      if (m_used[i].v)
-        continue;
-      bool exp = false;
-      if (m_used[i].v.compare_exchange_strong(exp, true)) {
-        // verify if in the mean time the garbage collector did operate
-        if (nullptr == m_slots[i]) {
-          assert(m_bucket[i] < 0);
-          m_used[i].v = false;
-          continue;
-        }
-        m_last[i] = 0;
-        return i;
-      }
-    }
-
-    // try to create in existing slot (if garbage has been collected)
-    ls = useOld(b);
-    if (ls >= 0)
-      return ls;
-
-    // try to allocate a new slot
-    if (m_size >= m_maxSlots)
-      return -1;
-    ls = m_size++;
-    if (ls >= m_maxSlots)
-      return -1;
-    m_last[ls] = 2;
-    return createAt(ls, b);
-  }
-
-  int createAt(int ls, int b) {
-    assert(m_used[ls].v);
-    assert(m_last[ls] > 0);
-    m_bucket[ls] = b;
-    auto as = poolDetails::bucketSize(b);
-    assert(nullptr == m_slots[ls]);
-    m_slots[ls] = doAlloc(as);
-    if (nullptr == m_slots[ls])
-      return -1;
-    totBytes += as;
-    nAlloc++;
-    return ls;
-  }
-
-  void garbageCollect() {
-    int ls = size();
-    for (int i = 0; i < ls; ++i) {
-      if (m_used[i].v)
-        continue;
-      if (m_bucket[i] < 0)
-        continue;
-      bool exp = false;
-      if (!m_used[i].v.compare_exchange_strong(exp, true))
-        continue;
-      assert(m_used[i].v);
-      if (nullptr != m_slots[i]) {
-        assert(m_bucket[i] >= 0);
-        doFree(m_slots[i]);
-        nFree++;
-        totBytes -= poolDetails::bucketSize(m_bucket[i]);
-      }
-      m_slots[i] = nullptr;
-      m_bucket[i] = -1;
-      m_last[i] = -3;
-      m_used[i].v = false;  // here memory fence as well
-    }
-  }
-
-  int useOld(int b) {
-    int ls = size();
-    for (int i = 0; i < ls; ++i) {
-      if (m_bucket[i] >= 0)
-        continue;
-      if (m_used[i].v)
-        continue;
-      bool exp = false;
-      if (!m_used[i].v.compare_exchange_strong(exp, true))
-        continue;
-      if (nullptr != m_slots[i]) {  // ops allocated and freed
-        assert(m_bucket[i] >= 0);
-        assert(m_last[i] = -1);
-        m_used[i].v = false;
-        continue;
-      }
-      assert(m_used[i].v);
-      m_last[i] = 1;
-      return createAt(i, b);
-    }
-    return -1;
-  }
-
-  void dumpStat() const {
-    uint64_t fn = 0;
-    uint64_t fs = 0;
-    int ls = size();
-    for (int i = 0; i < ls; ++i) {
-      if (m_used[i].v) {
-        auto b = m_bucket[i];
-        if (b < 0)
-          continue;
-        fn++;
-        fs += (1LL << b);
-      }
-    }
-    std::cout << "# slots " << size() << '\n'
-              << "# bytes " << totBytes << '\n'
-              << "# alloc " << nAlloc << '\n'
-              << "# free " << nFree << '\n'
-              << "# used " << fn << ' ' << fs << '\n'
-              << std::endl;
-  }
+private:
+  int allocImpl(uint64_t s);
+  int createAt(int ls, int b);
+  void garbageCollect();
+  int useOld(int b);
 
 private:
   const int m_maxSlots;
 
+#ifdef MEMORY_POOL_DEBUG
   std::vector<int> m_last = std::vector<int>(m_maxSlots, -2);
+#endif
 
   std::vector<int> m_bucket = std::vector<int>(m_maxSlots, -1);
   std::vector<Pointer> m_slots = std::vector<Pointer>(m_maxSlots, nullptr);
