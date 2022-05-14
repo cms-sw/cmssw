@@ -161,6 +161,7 @@ void go() {
           hp[k] = p;
         } catch (...) {
           std::cout << "\n\n!!!Failed " << me << " at " << iter << std::endl;
+          cudaStreamSynchronize(stream);
           memoryPool::cuda::dumpStat();
           return;
         }
@@ -212,6 +213,7 @@ void go() {
 
   threads.clear();
   monitor.join();
+  cudaDeviceSynchronize();
   std::cout << "\nfinished\n" << std::endl;
   memoryPool::cuda::dumpStat();
 }

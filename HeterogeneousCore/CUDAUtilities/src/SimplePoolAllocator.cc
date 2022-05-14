@@ -51,8 +51,11 @@ int SimplePoolAllocator::createAt(int ls, int b) {
   auto as = poolDetails::bucketSize(b);
   assert(nullptr == m_slots[ls]);
   m_slots[ls] = doAlloc(as);
-  if (nullptr == m_slots[ls])
+  if (nullptr == m_slots[ls]) {
+    m_bucket[ls] = -1;
+    m_used[ls].v = false;
     return -1;
+  }
   totBytes += as;
   nAlloc++;
   return ls;

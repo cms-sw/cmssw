@@ -84,7 +84,7 @@ public:
     return i;
   }
 
-private:
+protected:
   int allocImpl(uint64_t s);
   int createAt(int ls, int b);
   void garbageCollect();
@@ -110,9 +110,9 @@ private:
   std::atomic<uint64_t> nFree = 0;
 };
 
-namespace memoryPool {
+namespace poolDetails {
   //  free callback
-  inline void scheduleFree(Payload *payload) {
+  inline void freeAsync(memoryPool::Payload *payload) {
     auto &pool = *(payload->pool);
     auto const &buckets = payload->buckets;
     for (auto i : buckets) {
@@ -120,7 +120,7 @@ namespace memoryPool {
     }
     delete payload;
   }
-}  // namespace memoryPool
+}  // namespace poolDetails
 
 template <typename T>
 struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
@@ -128,7 +128,12 @@ struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
 
   SimplePoolAllocatorImpl(int maxSlots) : SimplePoolAllocator(maxSlots) {}
 
-  ~SimplePoolAllocatorImpl() override = default;
+  ~SimplePoolAllocatorImpl() override {
+//    garbageCollect();
+#ifdef MEMORY_POOL_DEBUG
+    dumpStat();
+#endif
+  }
 
   Pointer doAlloc(size_t size) override { return Traits::alloc(size); }
   void doFree(Pointer ptr) override { Traits::free(ptr); }
@@ -146,5 +151,5 @@ struct PosixAlloc {
   static Pointer alloc(size_t size) { return ::malloc(size); }
   static void free(Pointer ptr) { ::free(ptr); }
 
-  static void scheduleFree(memoryPool::Payload *payload, void *) { memoryPool::scheduleFree(payload); }
+  static void scheduleFree(memoryPool::Payload *payload, void *) { poolDetails::freeAsync(payload); }
 };
