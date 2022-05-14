@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.selectionLayer1.electronSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.lowPtElectronSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.muonSelector_cfi import *
+from PhysicsTools.PatAlgos.selectionLayer1.displacedMuonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.tauSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.photonSelector_cfi import *
 from PhysicsTools.PatAlgos.selectionLayer1.ootPhotonSelector_cff import *
@@ -16,6 +17,7 @@ selectedPatCandidateSummary = cms.EDAnalyzer("CandidateSummaryTable",
         cms.InputTag("selectedPatElectrons"),
         cms.InputTag("selectedPatLowPtElectrons"),
         cms.InputTag("selectedPatMuons"),
+        cms.InputTag("selectedPatDisplacedMuons"),
         cms.InputTag("selectedPatTaus"),
         cms.InputTag("selectedPatPhotons"),
         cms.InputTag("selectedPatOOTPhotons"),
@@ -27,6 +29,7 @@ selectedPatCandidatesTask = cms.Task(
     selectedPatElectrons,
     selectedPatLowPtElectrons,
     selectedPatMuons,
+    selectedPatDisplacedMuons,
     selectedPatTaus,
     selectedPatPhotons,
     selectedPatOOTPhotons,
@@ -46,3 +49,12 @@ _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
                                  selectedPatCandidatesTask.copyAndExclude([selectedPatLowPtElectrons]))
 (pp_on_AA | _mAOD).toModify(selectedPatCandidateSummary.candidates,
                             func = lambda list: list.remove(cms.InputTag("selectedPatLowPtElectrons")) )
+
+from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+(pp_on_AA | _mAOD | run2_miniAOD_UL).toReplaceWith(selectedPatCandidatesTask,
+                                                   selectedPatCandidatesTask.copyAndExclude([selectedPatDisplacedMuons]))
+(pp_on_AA | _mAOD | run2_miniAOD_UL).toModify(selectedPatCandidateSummary.candidates,
+                                              func = lambda list: list.remove(cms.InputTag("selectedPatDisplacedMuons")) )
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toReplaceWith(selectedPatCandidatesTask, selectedPatCandidatesTask.copyAndExclude([selectedPatDisplacedMuons]))
