@@ -454,7 +454,11 @@ struct HGCalMixRotatedLayer {
 #ifdef EDM_ML_DEBUG
     int ium(0), ivm(0), kount(0);
     std::vector<int> ntype(3, 0);
-    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.name() << "  delx " << cms::convert2mm(delx) << " dely " << cms::convert2mm(dely) << " dy " << cms::convert2mm(dy) << " Shift " << cms::convert2mm(xyoff.first) << ":" << cms::convert2mm(xyoff.second) << " WaferSize " << cms::convert2mm((waferSize_ + waferSepar_)) << " index " << firstWafer << ":" << (lastWafer - 1);
+    edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.name() << "  delx " << cms::convert2mm(delx)
+                                  << " dely " << cms::convert2mm(dely) << " dy " << cms::convert2mm(dy) << " Shift "
+                                  << cms::convert2mm(xyoff.first) << ":" << cms::convert2mm(xyoff.second)
+                                  << " WaferSize " << cms::convert2mm((waferSize_ + waferSepar_)) << " index "
+                                  << firstWafer << ":" << (lastWafer - 1);
 #endif
     for (int k = firstWafer; k < lastWafer; ++k) {
       int u = HGCalWaferIndex::waferU(waferIndex_[k]);
