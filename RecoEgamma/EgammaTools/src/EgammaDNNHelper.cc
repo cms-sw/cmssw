@@ -42,7 +42,7 @@ void EgammaDNNHelper::initScalerFiles(const std::vector<std::string>& availableV
     std::ifstream inputfile_scaler{edm::FileInPath(scaler_file).fullPath()};
     int ninputs = 0;
     if (inputfile_scaler.fail()) {
-      throw cms::Exception("MissingFile") << "Scaler file for Electron PFid DNN not found";
+      throw cms::Exception("MissingFile") << "Scaler file for PFid DNN not found";
     } else {
       // Now read mean, scale factors for each variable
       float par1, par2;
@@ -159,15 +159,19 @@ std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std:
     if (counts[m] == 0)
       continue;  //Skip model witout inputs
     std::vector<tensorflow::Tensor> output;
-    LogDebug("EgammaDNNHelper") << "Run model: " << m << " with " << counts[m] << " electrons";
+    LogDebug("EgammaDNNHelper") << "Run model: " << m << " with " << counts[m] << "objects";
     tensorflow::run(sessions[m], {{cfg_.inputTensorName, input_tensors[m]}}, {cfg_.outputTensorName}, &output);
     // Get the output and save the ElectronDNNEstimator::outputDim numbers along with the ele index
     const auto& r = output[0].tensor<float, 2>();
     // Iterate on the list of elements in the batch --> many electrons
+    LogDebug("EgammaDNNHelper") << "Model " << m << " has " << cfg_.outputDim[m] << " nodes!";
     for (uint b = 0; b < counts[m]; b++) {
-      std::vector<float> result(cfg_.outputDim);
-      for (size_t k = 0; k < cfg_.outputDim; k++)
+      //auto outputDim=cfg_.outputDim;
+      std::vector<float> result(cfg_.outputDim[m]);
+      for (size_t k = 0; k < cfg_.outputDim[m]; k++) {
         result[k] = r(b, k);
+        LogDebug("EgammaDNNHelper") << "For Object " << b + 1 << " : Node " << k + 1 << " score = " << r(b, k);
+      }
       // Get the original index of the electorn in the original order
       const auto cand_index = indexMap[m][b];
       outputs.push_back(std::make_pair(cand_index, result));

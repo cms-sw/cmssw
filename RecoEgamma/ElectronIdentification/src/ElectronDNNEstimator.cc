@@ -9,19 +9,28 @@
 
 using namespace std::placeholders;
 
-inline uint electronModelSelector(const std::map<std::string, float>& vars, float ptThr, float etaThr) {
+inline uint electronModelSelector(
+    const std::map<std::string, float>& vars, float ptThr, float etaThr, float endcapBoundary, float extEtaBoundary) {
   /* 
   Selection of the model to be applied on the electron based on pt/eta cuts or whatever selection
   */
   const auto pt = vars.at("pt");
   const auto absEta = std::abs(vars.at("eta"));
-  if (pt < ptThr)
-    return 0;
-  else {
-    if (absEta <= etaThr) {
-      return 1;
-    } else {
-      return 2;
+  if (absEta <= endcapBoundary) {
+    if (pt < ptThr)
+      return 0;
+    else {
+      if (absEta <= etaThr) {
+        return 1;
+      } else {
+        return 2;
+      }
+    }
+  } else {
+    if (absEta < extEtaBoundary)
+      return 3;
+    else {
+      return 4;
     }
   }
 }
@@ -32,7 +41,9 @@ ElectronDNNEstimator::ElectronDNNEstimator(const egammaTools::DNNConfiguration& 
                            _1,
                            ElectronDNNEstimator::ptThreshold,
                            (useEBModelInGap) ? ElectronDNNEstimator::ecalBarrelMaxEtaWithGap
-                                             : ElectronDNNEstimator::ecalBarrelMaxEtaNoGap),
+                                             : ElectronDNNEstimator::ecalBarrelMaxEtaNoGap,
+                           ElectronDNNEstimator::endcapBoundary,
+                           ElectronDNNEstimator::extEtaBoundary),
                  ElectronDNNEstimator::dnnAvaibleInputs),
       useEBModelInGap_(useEBModelInGap) {}
 
@@ -69,6 +80,8 @@ const std::vector<std::string> ElectronDNNEstimator::dnnAvaibleInputs = {
      "full5x5_e1x5_ratio_full5x5_e5x5",
      "full5x5_r9",
      "gsfTrack.trackerLayersWithMeasurement",
+     "gsfTrack.numberOfValidPixelBarrelHits",
+     "gsfTrack.numberOfValidPixelEndcapHits",
      "superCluster.energy",
      "superCluster.rawEnergy",
      "superClusterFbrem",
@@ -119,6 +132,8 @@ std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::Gsf
   variables["full5x5_e1x5_ratio_full5x5_e5x5"] = ele.full5x5_e1x5() / ele.full5x5_e5x5();
   variables["full5x5_r9"] = ele.full5x5_r9();
   variables["gsfTrack.trackerLayersWithMeasurement"] = ele.gsfTrack()->hitPattern().trackerLayersWithMeasurement();
+  variables["gsfTrack.numberOfValidPixelBarrelHits"] = ele.gsfTrack()->hitPattern().numberOfValidPixelBarrelHits();
+  variables["gsfTrack.numberOfValidPixelEndcapHits"] = ele.gsfTrack()->hitPattern().numberOfValidPixelEndcapHits();
   variables["superCluster.energy"] = ele.superCluster()->energy();
   variables["superCluster.rawEnergy"] = ele.superCluster()->rawEnergy();
   variables["superClusterFbrem"] = ele.superClusterFbrem();
