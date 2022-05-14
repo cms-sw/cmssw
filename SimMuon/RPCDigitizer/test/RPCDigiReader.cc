@@ -31,9 +31,9 @@ public:
   explicit RPCDigiReader(const edm::ParameterSet& pset)
       : label_(pset.getUntrackedParameter<std::string>("label")),
         tokGeom_(esConsumes<RPCGeometry, MuonGeometryRecord>()),
-	digiToken_(consumes<RPCDigiCollection>(edm::InputTag(label_))),
-	hitsToken_(consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonRPCHits"))),
-	linkToken_(consumes<edm::DetSetVector<RPCDigiSimLink> >(edm::InputTag("muonRPCDigis", "RPCDigiSimLink"))) {}
+        digiToken_(consumes<RPCDigiCollection>(edm::InputTag(label_))),
+        hitsToken_(consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonRPCHits"))),
+        linkToken_(consumes<edm::DetSetVector<RPCDigiSimLink> >(edm::InputTag("muonRPCDigis", "RPCDigiSimLink"))) {}
 
   ~RPCDigiReader() override = default;
 
@@ -45,7 +45,6 @@ public:
     const auto& thelinkDigis = event.getHandle(linkToken_);
 
     const auto& pDD = eventSetup.getHandle(tokGeom_);
-
 
     RPCDigiCollection::DigiRangeIterator detUnitIt;
     for (detUnitIt = rpcDigis->begin(); detUnitIt != rpcDigis->end(); ++detUnitIt) {
@@ -68,9 +67,8 @@ public:
         for (std::vector<PSimHit>::const_iterator simHit = simHits->begin(); simHit != simHits->end(); simHit++) {
           RPCDetId rpcId((*simHit).detUnitId());
           if (rpcId == id && abs((*simHit).particleType()) == 13) {
-            edm::LogVerbatim("RPCDump") << "entry: " << (*simHit).entryPoint()
-					<< "\nexit: " << (*simHit).exitPoint()
-					<< "\nTOF: " << (*simHit).timeOfFlight();
+            edm::LogVerbatim("RPCDump") << "entry: " << (*simHit).entryPoint() << "\nexit: " << (*simHit).exitPoint()
+                                        << "\nTOF: " << (*simHit).timeOfFlight();
           }
         }
       }  // for digis in layer
@@ -89,10 +87,10 @@ public:
         int bx = digi_iter->getBx();
 
         edm::LogVerbatim("RPCDump") << "DetUnit: " << detid << "  "
-				    << "Event ID: " << ev << "  "
-				    << "Pos X: " << xpos << "  "
-				    << "Strip: " << strip << "  "
-				    << "Bx: " << bx;
+                                    << "Event ID: " << ev << "  "
+                                    << "Pos X: " << xpos << "  "
+                                    << "Strip: " << strip << "  "
+                                    << "Bx: " << bx;
       }
     }
 
