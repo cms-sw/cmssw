@@ -74,51 +74,61 @@ struct CudaHostAlloc : public CudaAlloc {
 
 namespace {
 
-  constexpr int poolSize = 128 * 1024;
+  // FIXME : move it in its own place
+  std::unique_ptr<SimplePoolAllocatorImpl<PosixAlloc>> cpuPool;
 
-  SimplePoolAllocatorImpl<PosixAlloc> cpuPool(poolSize);
+  std::unique_ptr<SimplePoolAllocatorImpl<CudaHostAlloc>> hostPool;
 
-  SimplePoolAllocatorImpl<CudaHostAlloc> hostPool(poolSize);
+  using DevicePool = SimplePoolAllocatorImpl<CudaDeviceAlloc>;
+  std::vector<std::unique_ptr<DevicePool>> devicePools;
 
-  struct DevicePools {
-    using Pool = SimplePoolAllocatorImpl<CudaDeviceAlloc>;
-    DevicePools(int size) {
-      int devices = 0;
-      auto status = cudaGetDeviceCount(&devices);
-      if (status == cudaSuccess && devices > 0) {
-        m_devicePools.reserve(devices);
-        for (int i = 0; i < devices; ++i)
-          m_devicePools.emplace_back(new Pool(size));
-      }
+  void initDevicePools(int size) {
+    int devices = 0;
+    auto status = cudaGetDeviceCount(&devices);
+    if (status == cudaSuccess && devices > 0) {
+      devicePools.reserve(devices);
+      for (int i = 0; i < devices; ++i)
+        devicePools.emplace_back(new DevicePool(size));
     }
-    //return pool for current device
-    Pool &operator()() {
-      int dev = -1;
-      cudaGetDevice(&dev);
-      return *m_devicePools[dev];
-    }
+  }
 
-    std::vector<std::unique_ptr<Pool>> m_devicePools;
-  };
-
-  DevicePools devicePool(poolSize);
+  DevicePool *getDevicePool() {
+    int dev = -1;
+    cudaGetDevice(&dev);
+    return devicePools[dev].get();
+  }
 
 }  // namespace
 
 namespace memoryPool {
   namespace cuda {
 
+    void init(bool onlyCPU) {
+      constexpr int poolSize = 128 * 1024;
+      cpuPool = std::make_unique<SimplePoolAllocatorImpl<PosixAlloc>>(poolSize);
+      if (onlyCPU)
+        return;
+      initDevicePools(poolSize);
+      hostPool = std::make_unique<SimplePoolAllocatorImpl<CudaHostAlloc>>(poolSize);
+    }
+
+    void shutdown() {
+      cpuPool.reset();
+      devicePools.clear();
+      hostPool.reset();
+    }
+
     void dumpStat() {
       std::cout << "device pool" << std::endl;
-      devicePool().dumpStat();
+      getDevicePool()->dumpStat();
       std::cout << "host pool" << std::endl;
-      hostPool.dumpStat();
+      hostPool->dumpStat();
     }
 
     SimplePoolAllocator *getPool(Where where) {
-      return onCPU == where
-                 ? (SimplePoolAllocator *)(&cpuPool)
-                 : (onDevice == where ? (SimplePoolAllocator *)(&devicePool()) : (SimplePoolAllocator *)(&hostPool));
+      return onCPU == where ? (SimplePoolAllocator *)(cpuPool.get())
+                            : (onDevice == where ? (SimplePoolAllocator *)(getDevicePool())
+                                                 : (SimplePoolAllocator *)(hostPool.get()));
     }
 
     // allocate either on current device or on host (actually anywhere, not cuda specific)

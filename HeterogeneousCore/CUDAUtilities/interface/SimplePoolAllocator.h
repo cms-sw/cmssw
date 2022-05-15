@@ -129,10 +129,10 @@ struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
   SimplePoolAllocatorImpl(int maxSlots) : SimplePoolAllocator(maxSlots) {}
 
   ~SimplePoolAllocatorImpl() override {
-//    garbageCollect();
-#ifdef MEMORY_POOL_DEBUG
+    garbageCollect();
+    //#ifdef MEMORY_POOL_DEBUG
     dumpStat();
-#endif
+    //#endif
   }
 
   Pointer doAlloc(size_t size) override { return Traits::alloc(size); }

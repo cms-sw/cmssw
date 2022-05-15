@@ -81,6 +81,8 @@ void go() {
 
 #endif
 
+  memoryPool::cuda::init(false);
+
   bool stop = false;
   bool bin24 = false;
   Thread monitor([&] {
@@ -216,6 +218,8 @@ void go() {
   cudaDeviceSynchronize();
   std::cout << "\nfinished\n" << std::endl;
   memoryPool::cuda::dumpStat();
+  std::cout << "\nshutdown\n" << std::endl;
+  memoryPool::cuda::shutdown();
 }
 
 #ifdef __CUDACC__

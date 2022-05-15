@@ -29,6 +29,7 @@ int main() {
     cudaStreamCreate(&(streams[i]));
   }
 
+  memoryPool::cuda::init(false);
   memoryPool::cuda::dumpStat();
 
   auto& stream = streams[0];
@@ -94,6 +95,7 @@ int main() {
 
   cudaStreamSynchronize(stream);
   memoryPool::cuda::dumpStat();
+  memoryPool::cuda::shutdown();
 
   return 0;
 }
