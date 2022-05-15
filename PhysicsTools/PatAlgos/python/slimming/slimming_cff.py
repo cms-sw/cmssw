@@ -80,7 +80,8 @@ _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
                                  slimmingTask.copyAndExclude([slimmedLowPtElectronsTask]))
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
-(pp_on_AA | _mAOD | run2_miniAOD_UL).toReplaceWith(slimmingTask,
+from Configuration.Eras.Era_Run2_2016_HIPM_cff import Run2_2016_HIPM
+(pp_on_AA | _mAOD | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(slimmingTask,
                                                    slimmingTask.copyAndExclude([slimmedDisplacedMuons, slimmedDisplacedMuonTrackExtras]))
 
 from PhysicsTools.PatAlgos.slimming.hiPixelTracks_cfi import hiPixelTracks
