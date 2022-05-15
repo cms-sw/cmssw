@@ -230,10 +230,10 @@ BTagAndProbe::BTagAndProbe(const edm::ParameterSet& iConfig)
       bJetDeltaEtaMax_(iConfig.getParameter<double>("bJetDeltaEtaMax")),
       nbjets_(iConfig.getParameter<unsigned int>("nbjets")),
       workingpoint_(iConfig.getParameter<double>("workingpoint")),
-      lepPVcuts_(((iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dxy")), ((iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dz"))),
+      lepPVcuts_(((iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dxy")),
+                 ((iConfig.getParameter<edm::ParameterSet>("leptonPVcuts")).getParameter<double>("dz"))),
       applyLeptonPVcuts_(iConfig.getParameter<bool>("applyLeptonPVcuts")),
-      debug_(iConfig.getParameter<bool>("debug"))
-      {
+      debug_(iConfig.getParameter<bool>("debug")) {
   ObjME empty;
 }
 
@@ -258,8 +258,8 @@ void BTagAndProbe::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iR
     genTriggerEventFlag_->initRun(iRun, iSetup);
 
   // check if every HLT path specified in numerator and denominator has a valid match in the HLT Menu
-  hltPathsAreValid_ = (genTriggerEventFlag_ && genTriggerEventFlag_->on() &&
-                       genTriggerEventFlag_->allHLTPathsAreValid());
+  hltPathsAreValid_ =
+      (genTriggerEventFlag_ && genTriggerEventFlag_->on() && genTriggerEventFlag_->allHLTPathsAreValid());
 
   // if valid HLT paths are required,
   // create DQM outputs only if all paths are valid
