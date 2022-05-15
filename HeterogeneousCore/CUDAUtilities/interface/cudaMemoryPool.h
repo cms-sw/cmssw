@@ -10,6 +10,9 @@
 namespace memoryPool {
   namespace cuda {
 
+    void init(bool onlyCPU = false);
+    void shutdown();
+
     void dumpStat();
 
     SimplePoolAllocator *getPool(Where where);
