@@ -22,8 +22,7 @@ void CAHitNtupletGeneratorKernelsCPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 #endif
 
   // use "nhits" to heuristically dimension the workspace
-  memoryPool::Deleter deleter =
-      memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(nullptr, memoryPool::onCPU));
+  memoryPool::Deleter const &deleter = device_storage_.deleter();
   device_isOuterHitOfCell_ =
       memoryPool::cuda::makeBuffer<GPUCACell::OuterHitOfCellContainer>(std::max(1U, nhits), deleter);
   assert(device_isOuterHitOfCell_.get());

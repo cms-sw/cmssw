@@ -32,17 +32,9 @@ namespace memoryPool {
     }
 
     struct CudaDeleterBase : public DeleterBase {
-      CudaDeleterBase(cudaStream_t const &stream, Where where) : DeleterBase(getPool(where)), m_stream(stream) {
-        //         if (stream) return;
-        //         std::cout << "0 stream???" << std::endl;
-        //         throw std::bad_alloc();
-      }
+      CudaDeleterBase(cudaStream_t const &stream, Where where) : DeleterBase(getPool(where)), m_stream(stream) {}
 
-      CudaDeleterBase(cudaStream_t const &stream, SimplePoolAllocator *pool) : DeleterBase(pool), m_stream(stream) {
-        //           if (stream) return;
-        //            std::cout << "0 stream???" << std::endl;
-        //            throw std::bad_alloc();
-      }
+      CudaDeleterBase(cudaStream_t const &stream, SimplePoolAllocator *pool) : DeleterBase(pool), m_stream(stream) {}
 
       ~CudaDeleterBase() override = default;
 
@@ -57,7 +49,7 @@ namespace memoryPool {
     };
 
     struct BundleDelete final : public CudaDeleterBase {
-      using CudaDeleterBase::CudaDeleterBase;
+      BundleDelete(cudaStream_t const &stream, Where where) : CudaDeleterBase(stream, where) { m_buckets.reserve(8); }
 
       ~BundleDelete() override { free(m_stream, std::move(m_buckets), *pool()); }
 
@@ -88,7 +80,7 @@ namespace memoryPool {
 
     template <typename T>
     Buffer<T> makeBuffer(uint64_t size, cudaStream_t const &stream, Where where) {
-      return makeBuffer<T>(size, Deleter(std::make_shared<DeleteOne>(stream, getPool(where))));
+      return makeBuffer<T>(size, Deleter(std::make_shared<DeleteOne>(stream, where)));
     }
 
   }  // namespace cuda

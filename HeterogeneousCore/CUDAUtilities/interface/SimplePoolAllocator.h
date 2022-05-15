@@ -126,13 +126,13 @@ template <typename T>
 struct SimplePoolAllocatorImpl final : public SimplePoolAllocator {
   using Traits = T;
 
-  SimplePoolAllocatorImpl(int maxSlots) : SimplePoolAllocator(maxSlots) {}
+  using SimplePoolAllocator::SimplePoolAllocator;
 
   ~SimplePoolAllocatorImpl() override {
     garbageCollect();
-    //#ifdef MEMORY_POOL_DEBUG
+#ifdef MEMORY_POOL_DEBUG
     dumpStat();
-    //#endif
+#endif
   }
 
   Pointer doAlloc(size_t size) override { return Traits::alloc(size); }
