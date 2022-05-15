@@ -26,7 +26,7 @@ HltVertexValidationVertices= DQMEDAnalyzer('HLTVertexPerformanceAnalyzer',
 	'HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_',
 	'HLT_IsoMu24_eta2p1_v',
 	'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5',
-	'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5'
+	'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5',
 	'HLT_BTagMu_AK4DiJet20_Mu5_v',
 	),
 	Vertex = cms.VInputTag(
