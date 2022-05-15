@@ -53,6 +53,7 @@ _mAOD = (run2_miniAOD_94XFall17 | run2_miniAOD_80XLegacy)
                             func = lambda list: list.remove(cms.InputTag("patLowPtElectrons")) )
 
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
+from Configuration.Eras.Era_Run2_2016_HIPM_cff import Run2_2016_HIPM
 (pp_on_AA | _mAOD | run2_miniAOD_UL | Run2_2016_HIPM).toReplaceWith(patCandidatesTask,
                                                    patCandidatesTask.copyAndExclude([makePatDisplacedMuonsTask]))
 (pp_on_AA | _mAOD | run2_miniAOD_UL | Run2_2016_HIPM).toModify(patCandidateSummary.candidates,
