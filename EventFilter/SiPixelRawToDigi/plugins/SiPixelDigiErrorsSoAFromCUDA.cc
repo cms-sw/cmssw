@@ -9,7 +9,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 class SiPixelDigiErrorsSoAFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -27,7 +26,7 @@ private:
   edm::EDGetTokenT<cms::cuda::Product<SiPixelDigiErrorsCUDA>> digiErrorGetToken_;
   edm::EDPutTokenT<SiPixelErrorsSoA> digiErrorPutToken_;
 
-  cms::cuda::host::unique_ptr<SiPixelErrorCompact[]> data_;
+  memoryPool::Buffer<SiPixelErrorCompact> data_;
   cms::cuda::SimpleVector<SiPixelErrorCompact> error_;
   const SiPixelFormatterErrors* formatterErrors_ = nullptr;
 };

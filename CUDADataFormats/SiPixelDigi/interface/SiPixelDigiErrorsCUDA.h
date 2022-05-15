@@ -5,16 +5,15 @@
 
 #include "DataFormats/SiPixelRawData/interface/SiPixelErrorCompact.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelFormatterErrors.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/SimpleVector.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/host_unique_ptr.h"
 
 class SiPixelDigiErrorsCUDA {
 public:
   using SiPixelErrorCompactVector = cms::cuda::SimpleVector<SiPixelErrorCompact>;
 
   SiPixelDigiErrorsCUDA() = default;
-  explicit SiPixelDigiErrorsCUDA(size_t maxFedWords, SiPixelFormatterErrors errors, cudaStream_t stream);
+  SiPixelDigiErrorsCUDA(size_t maxFedWords, SiPixelFormatterErrors errors, cudaStream_t stream);
   ~SiPixelDigiErrorsCUDA() = default;
 
   SiPixelDigiErrorsCUDA(const SiPixelDigiErrorsCUDA&) = delete;
@@ -27,16 +26,16 @@ public:
   SiPixelErrorCompactVector* error() { return error_d.get(); }
   SiPixelErrorCompactVector const* error() const { return error_d.get(); }
 
-  using HostDataError = std::pair<SiPixelErrorCompactVector, cms::cuda::host::unique_ptr<SiPixelErrorCompact[]>>;
+  using HostDataError = std::pair<SiPixelErrorCompactVector, memoryPool::Buffer<SiPixelErrorCompact>>;
   HostDataError dataErrorToHostAsync(cudaStream_t stream) const;
 
   void copyErrorToHostAsync(cudaStream_t stream);
   int nErrorWords() const { return nErrorWords_; }
 
 private:
-  cms::cuda::device::unique_ptr<SiPixelErrorCompact[]> data_d;
-  cms::cuda::device::unique_ptr<SiPixelErrorCompactVector> error_d;
-  cms::cuda::host::unique_ptr<SiPixelErrorCompactVector> error_h;
+  memoryPool::Buffer<SiPixelErrorCompact> data_d;
+  memoryPool::Buffer<SiPixelErrorCompactVector> error_d;
+  memoryPool::Buffer<SiPixelErrorCompactVector> error_h;
   SiPixelFormatterErrors formatterErrors_h;
   int nErrorWords_ = 0;
 };

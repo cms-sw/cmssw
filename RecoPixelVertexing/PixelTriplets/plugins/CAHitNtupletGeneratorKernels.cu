@@ -135,8 +135,6 @@ template <>
 void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStream_t stream) {
   int32_t nhits = hh.nHits();
 
-  isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
-
 #ifdef NTUPLE_DEBUG
   std::cout << "building Doublets out of " << nhits << " Hits" << std::endl;
 #endif
@@ -147,16 +145,18 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
 #endif
 
   // in principle we can use "nhits" to heuristically dimension the workspace...
-  device_isOuterHitOfCell_ = cms::cuda::make_device_unique<GPUCACell::OuterHitOfCellContainer[]>(
-      std::max(1, nhits - hh.offsetBPIX2()), stream);
+  memoryPool::Deleter deleter =
+      memoryPool::Deleter(std::make_shared<memoryPool::cuda::BundleDelete>(stream, memoryPool::onDevice));
+  device_isOuterHitOfCell_ =
+      memoryPool::cuda::makeBuffer<GPUCACell::OuterHitOfCellContainer>(std::max(1, nhits), deleter);
   assert(device_isOuterHitOfCell_.get());
 
   isOuterHitOfCell_ = GPUCACell::OuterHitOfCell{device_isOuterHitOfCell_.get(), hh.offsetBPIX2()};
 
-  cellStorage_ = cms::cuda::make_device_unique<unsigned char[]>(
+  cellStorage_ = memoryPool::cuda::makeBuffer<unsigned char>(
       caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellNeighbors) +
           caConstants::maxNumOfActiveDoublets * sizeof(GPUCACell::CellTracks),
-      stream);
+      deleter);
   device_theCellNeighborsContainer_ = (GPUCACell::CellNeighbors *)cellStorage_.get();
   device_theCellTracksContainer_ = (GPUCACell::CellTracks *)(cellStorage_.get() + caConstants::maxNumOfActiveDoublets *
                                                                                       sizeof(GPUCACell::CellNeighbors));
@@ -174,7 +174,7 @@ void CAHitNtupletGeneratorKernelsGPU::buildDoublets(HitsOnCPU const &hh, cudaStr
     cudaCheck(cudaGetLastError());
   }
 
-  device_theCells_ = cms::cuda::make_device_unique<GPUCACell[]>(params_.maxNumberOfDoublets_, stream);
+  device_theCells_ = memoryPool::cuda::makeBuffer<GPUCACell>(params_.maxNumberOfDoublets_, deleter);
 
 #ifdef GPU_DEBUG
   cudaDeviceSynchronize();
@@ -325,6 +325,9 @@ void CAHitNtupletGeneratorKernelsGPU::classifyTuples(HitsOnCPU const &hh, TkSoA 
     cudaCheck(cudaGetLastError());
   }
 #ifdef GPU_DEBUG
+  //std::cout << "sync stream " << cudaStream << std::endl;
+  //cudaStreamSynchronize(cudaStream);
+  //std::cout << "sync stream done " << cudaStream <<    std::endl;
   cudaDeviceSynchronize();
   cudaCheck(cudaGetLastError());
 #endif

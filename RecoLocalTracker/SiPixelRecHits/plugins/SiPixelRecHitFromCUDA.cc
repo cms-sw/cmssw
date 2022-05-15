@@ -47,8 +47,8 @@ private:
 
   uint32_t nHits_;
   uint32_t nMaxModules_;
-  cms::cuda::host::unique_ptr<float[]> store32_;
-  cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStart_;
+  memoryPool::Buffer<float> store32_;
+  memoryPool::Buffer<uint32_t> hitsModuleStart_;
 };
 
 SiPixelRecHitFromCUDA::SiPixelRecHitFromCUDA(const edm::ParameterSet& iConfig)
@@ -84,7 +84,7 @@ void SiPixelRecHitFromCUDA::acquire(edm::Event const& iEvent,
 }
 
 void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& es) {
-  // allocate a buffer for the indices of the clusters
+  // allocate a Buffer for the indices of the clusters
   auto hmsp = std::make_unique<uint32_t[]>(nMaxModules_ + 1);
 
   SiPixelRecHitCollection output;
@@ -98,7 +98,7 @@ void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& e
   output.reserve(nMaxModules_, nHits_);
 
   std::copy(hitsModuleStart_.get(), hitsModuleStart_.get() + nMaxModules_ + 1, hmsp.get());
-  // wrap the buffer in a HostProduct, and move it to the Event, without reallocating the buffer or affecting hitsModuleStart
+  // wrap the Buffer in a HostProduct, and move it to the Event, without reallocating the Buffer or affecting hitsModuleStart
   iEvent.emplace(hostPutToken_, std::move(hmsp));
 
   auto xl = store32_.get();
@@ -124,8 +124,8 @@ void SiPixelRecHitFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& e
     const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
     assert(pixDet);
     SiPixelRecHitCollection::FastFiller recHitsOnDetUnit(output, detid);
-    auto fc = hitsModuleStart_[gind];
-    auto lc = hitsModuleStart_[gind + 1];
+    auto fc = hitsModuleStart_.get()[gind];
+    auto lc = hitsModuleStart_.get()[gind + 1];
     auto nhits = lc - fc;
 
     assert(lc > fc);

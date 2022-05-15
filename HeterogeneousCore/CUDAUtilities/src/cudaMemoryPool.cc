@@ -1,0 +1,133 @@
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
+
+#include "HeterogeneousCore/CUDAUtilities/interface/SimplePoolAllocator.h"
+
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"
+
+#include <cuda.h>
+#include <cuda_runtime.h>
+#include <cuda_runtime_api.h>
+
+#include <iostream>
+
+namespace {
+
+  //  free callback
+  void CUDART_CB freeCallback(cudaStream_t streamId, cudaError_t status, void *p) {
+    //void CUDART_CB freeCallback(void *p) {
+    if (status != cudaSuccess) {
+      std::cout << "Error in free callaback in stream " << streamId << std::endl;
+      auto error = cudaGetErrorName(status);
+      auto message = cudaGetErrorString(status);
+      std::cout << " error " << error << ": " << message << std::endl;
+    }
+    // std::cout << "free callaback for stream " << streamId << std::endl;
+    auto payload = (memoryPool::Payload *)(p);
+    memoryPool::scheduleFree(payload);
+  }
+
+}  // namespace
+
+struct CudaAlloc {
+  static void scheduleFree(memoryPool::Payload *payload, void *stream) {
+    // std::cout    << "schedule free for stream " <<  stream <<std::endl;
+    if (!stream)
+      std::cout << "???? schedule free for stream " << stream << std::endl;
+    cudaCheck(cudaStreamAddCallback((cudaStream_t)(stream), freeCallback, payload, 0));
+    // cudaCheck(cudaLaunchHostFunc(stream, freeCallback, payload));
+  }
+};
+
+struct CudaDeviceAlloc : public CudaAlloc {
+  using Pointer = void *;
+
+  static Pointer alloc(size_t size) {
+    Pointer p = nullptr;
+    auto err = cudaMalloc(&p, size);
+    // std::cout << "alloc " << size << ((err == cudaSuccess) ? " ok" : " err") << std::endl;
+    return err == cudaSuccess ? p : nullptr;
+  }
+  static void free(Pointer ptr) {
+    auto err = cudaFree(ptr);
+    // std::cout << "free" << ((err == cudaSuccess) ? " ok" : " err") <<std::endl;
+    if (err != cudaSuccess)
+      std::cout << " error in cudaFree??" << std::endl;
+  }
+};
+
+struct CudaHostAlloc : public CudaAlloc {
+  using Pointer = void *;
+
+  static Pointer alloc(size_t size) {
+    Pointer p = nullptr;
+    auto err = cudaMallocHost(&p, size);
+    // std::cout << "alloc H " << size << ((err == cudaSuccess) ? " ok" : " err") << std::endl;
+    return err == cudaSuccess ? p : nullptr;
+  }
+  static void free(Pointer ptr) { cudaFreeHost(ptr); }
+};
+
+namespace {
+
+  constexpr int poolSize = 128 * 1024;
+
+  SimplePoolAllocatorImpl<PosixAlloc> cpuPool(poolSize);
+
+  SimplePoolAllocatorImpl<CudaHostAlloc> hostPool(poolSize);
+
+  struct DevicePools {
+    using Pool = SimplePoolAllocatorImpl<CudaDeviceAlloc>;
+    DevicePools(int size) {
+      int devices = 0;
+      auto status = cudaGetDeviceCount(&devices);
+      if (status == cudaSuccess && devices > 0) {
+        m_devicePools.reserve(devices);
+        for (int i = 0; i < devices; ++i)
+          m_devicePools.emplace_back(new Pool(size));
+      }
+    }
+    //return pool for current device
+    Pool &operator()() {
+      int dev = -1;
+      cudaGetDevice(&dev);
+      return *m_devicePools[dev];
+    }
+
+    std::vector<std::unique_ptr<Pool>> m_devicePools;
+  };
+
+  DevicePools devicePool(poolSize);
+
+}  // namespace
+
+namespace memoryPool {
+  namespace cuda {
+
+    void dumpStat() {
+      std::cout << "device pool" << std::endl;
+      devicePool().dumpStat();
+      std::cout << "host pool" << std::endl;
+      hostPool.dumpStat();
+    }
+
+    SimplePoolAllocator *getPool(Where where) {
+      return onCPU == where
+                 ? (SimplePoolAllocator *)(&cpuPool)
+                 : (onDevice == where ? (SimplePoolAllocator *)(&devicePool()) : (SimplePoolAllocator *)(&hostPool));
+    }
+
+    // allocate either on current device or on host (actually anywhere, not cuda specific)
+    std::pair<void *, int> alloc(uint64_t size, SimplePoolAllocator &pool) {
+      int i = pool.alloc(size);
+      void *p = pool.pointer(i);
+      return std::pair<void *, int>(p, i);
+    }
+
+    // schedule free
+    void free(cudaStream_t stream, std::vector<int> buckets, SimplePoolAllocator &pool) {
+      auto payload = new Payload{&pool, std::move(buckets)};
+      pool.scheduleFree(payload, stream);
+    }
+
+  }  // namespace cuda
+}  // namespace memoryPool

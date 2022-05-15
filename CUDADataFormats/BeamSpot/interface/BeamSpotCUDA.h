@@ -4,15 +4,19 @@
 #include <cuda_runtime.h>
 
 #include "DataFormats/BeamSpot/interface/BeamSpotPOD.h"
-#include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/cudaMemoryPool.h"
 
 class BeamSpotCUDA {
 public:
+  using Buffer = memoryPool::Buffer<BeamSpotPOD>;
+
   // default constructor, required by cms::cuda::Product<BeamSpotCUDA>
   BeamSpotCUDA() = default;
 
   // constructor that allocates cached device memory on the given CUDA stream
-  BeamSpotCUDA(cudaStream_t stream) { data_d_ = cms::cuda::make_device_unique<BeamSpotPOD>(stream); }
+  BeamSpotCUDA(cudaStream_t stream) {
+    data_d_ = memoryPool::cuda::makeBuffer<BeamSpotPOD>(1, stream, memoryPool::onDevice);
+  }
 
   // movable, non-copiable
   BeamSpotCUDA(BeamSpotCUDA const&) = delete;
@@ -23,11 +27,11 @@ public:
   BeamSpotPOD* data() { return data_d_.get(); }
   BeamSpotPOD const* data() const { return data_d_.get(); }
 
-  cms::cuda::device::unique_ptr<BeamSpotPOD>& ptr() { return data_d_; }
-  cms::cuda::device::unique_ptr<BeamSpotPOD> const& ptr() const { return data_d_; }
+  Buffer& ptr() { return data_d_; }
+  Buffer const& ptr() const { return data_d_; }
 
 private:
-  cms::cuda::device::unique_ptr<BeamSpotPOD> data_d_;
+  Buffer data_d_;
 };
 
 #endif  // CUDADataFormats_BeamSpot_interface_BeamSpotCUDA_h
