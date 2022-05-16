@@ -1,7 +1,7 @@
 // Small Program to read Grid Files
 // by droll (29/02/04)
 // essential files
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
+#include "MagneticField/Interpolation/interface/binary_ifstream.h"
 
 // used libs
 #include <string>
@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
 
   bool fullDump = argv[2];
 
-  binary_ifstream inFile(filename);
+  magneticfield::interpolation::binary_ifstream inFile(filename);
   if (!inFile) {
     cout << "file open failed!" << endl;
     return EXIT_FAILURE;

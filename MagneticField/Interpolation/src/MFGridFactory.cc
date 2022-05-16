@@ -1,5 +1,5 @@
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
-#include "binary_ifstream.h"
+#include "MagneticField/Interpolation/interface/binary_ifstream.h"
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 #include "RectangularCartesianMFGrid.h"
@@ -14,7 +14,7 @@
 using namespace std;
 
 MFGrid* MFGridFactory::build(const string& name, const GloballyPositioned<float>& vol) {
-  binary_ifstream inFile(name);
+  magneticfield::interpolation::binary_ifstream inFile(name);
   int gridType;
   inFile >> gridType;
 
