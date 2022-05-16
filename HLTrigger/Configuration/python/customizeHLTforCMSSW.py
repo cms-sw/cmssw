@@ -130,6 +130,9 @@ def customisePixelL1ClusterThresholdForRun2Input(process):
     for producer in producers_by_type(process, "SiPixelRawToClusterCUDA"):
         if hasattr(producer,"clusterThreshold_layer1"):
             producer.clusterThreshold_layer1 = 2000
+    for producer in producers_by_type(process, "SiPixelDigisClustersFromSoA"):
+        if hasattr(producer,"clusterThreshold_layer1"):
+            producer.clusterThreshold_layer1 = 2000
 
     return process
 
