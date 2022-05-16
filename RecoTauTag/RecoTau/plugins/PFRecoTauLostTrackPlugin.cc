@@ -25,24 +25,21 @@ namespace reco {
     class PFRecoTauLostTrackPlugin : public RecoTauModifierPlugin {
     public:
       explicit PFRecoTauLostTrackPlugin(const edm::ParameterSet&, edm::ConsumesCollector&& iC);
-      ~PFRecoTauLostTrackPlugin() override;
+      ~PFRecoTauLostTrackPlugin() override = default;
       void operator()(PFTau&) const override;
       void beginEvent() override;
       void endEvent() override;
 
     private:
       edm::Handle<reco::TrackCollection> tracks_;
-      edm::EDGetTokenT<reco::TrackCollection> track_token_;
-      int verbosity_;
+      const edm::EDGetTokenT<reco::TrackCollection> track_token_;
+      const int verbosity_;
     };
 
     PFRecoTauLostTrackPlugin::PFRecoTauLostTrackPlugin(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
-        : RecoTauModifierPlugin(cfg, std::move(iC)) {
-      track_token_ = iC.consumes(cfg.getParameter<edm::InputTag>("trackSrc"));
-      verbosity_ = cfg.getParameter<int>("verbosity");
-    }
-
-    PFRecoTauLostTrackPlugin::~PFRecoTauLostTrackPlugin() {}
+        : RecoTauModifierPlugin(cfg, std::move(iC)),
+          track_token_(iC.consumes(cfg.getParameter<edm::InputTag>("trackSrc"))),
+          verbosity_(cfg.getParameter<int>("verbosity")) {}
 
     void PFRecoTauLostTrackPlugin::beginEvent() { evt()->getByToken(track_token_, tracks_); }
 
@@ -56,7 +53,7 @@ namespace reco {
         return;
       }
       reco::TrackRefVector lostTracks;
-      const std::vector<PFRecoTauChargedHadron>& chargedHadrons = tau.signalTauChargedHadronCandidates();
+      const PFRecoTauChargedHadronCollection& chargedHadrons = tau.signalTauChargedHadronCandidates();
       for (const auto& chargedHadron : chargedHadrons) {
         if (chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) && chargedHadron.getTrack().isNonnull()) {
           reco::TrackRef trackRef(tracks_, chargedHadron.getTrack().key());
