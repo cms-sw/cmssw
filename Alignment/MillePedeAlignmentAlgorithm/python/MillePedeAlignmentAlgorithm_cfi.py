@@ -69,7 +69,7 @@ MillePedeAlignmentAlgorithm = cms.PSet(
         # AlignmentProducer.ParameterBuilder.Selector, cf. Twiki page SWGuideMillepedeIIAlgorithm.
         Presigmas = cms.VPSet(),
         minHieraConstrCoeff = cms.double(1.e-10), # min abs value of coeff. in hierarchy constr.
-        minHieraParPerConstr = cms.uint32(2), # ignore hierarchy constraints with less params
+        minHieraParPerConstr = cms.uint32(1), # ignore hierarchy constraints with less params
         constrPrecision = cms.uint32(10), # precision for writing constraints to text file. Default is 6 and can be setup with constrPrecision = cms.uint32(0)
         # specify additional steering files
         additionalSteerFiles = cms.vstring(), # obsolete - can be given as entries in 'options'
