@@ -565,7 +565,7 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
         continue;
 
       bool isTrackCentral = false;
-      if (fabs(eta2) > MUON_BOUND)
+      if (fabs(eta2) < MUON_BOUND)
         isTrackCentral = true;
 
       if (itTrk.hitPattern().trackerLayersWithMeasurement() >= 6 && itTrk.hitPattern().numberOfValidPixelHits() >= 1) {
@@ -609,8 +609,8 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
   }
 
   // Good vertex requirement
-  if (nvtx == 0)
-    return;
+  //if (nvtx == 0)
+  //  return;
 
   //-------------------------------
   //--- Trigger
@@ -865,7 +865,20 @@ bool ZCounting::isMuonTriggerObj(const ZCountingTrigger::TTrigger& triggerMenu, 
 }
 
 //--------------------------------------------------------------------------------------------------
-// To build a new function
+// Definition of the CustomTightID function
+bool ZCounting::isCustomTightMuon(const reco::Muon& muon) {
+
+if(!muon.isPFMuon() || !muon.isGlobalMuon() ) return false;
+
+bool muID = isGoodMuon(muon,muon::GlobalMuonPromptTight) && (muon.numberOfMatchedStations() > 1);
+    
+  
+bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+  muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+
+
+return muID && hits;
+}
 
 //--------------------------------------------------------------------------------------------------
 bool ZCounting::passMuonID(
@@ -878,6 +891,8 @@ bool ZCounting::passMuonID(
   else if (idType == MediumID && muon::isMediumMuon(muon))
     return true;
   else if (idType == TightID && muon::isTightMuon(muon, vtx))
+    return true;
+  else if(idType == CustomTightID && isCustomTightMuon(muon))    
     return true;
   else if (idType == NoneID)
     return true;
