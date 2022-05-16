@@ -1,5 +1,4 @@
 // -*- C++ -*-
-///bookLayer
 // Package:    SiPixelPhase1CompareRecHitsSoA
 // Class:      SiPixelPhase1CompareRecHitsSoA
 //
