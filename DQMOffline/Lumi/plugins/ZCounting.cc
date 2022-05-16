@@ -865,6 +865,9 @@ bool ZCounting::isMuonTriggerObj(const ZCountingTrigger::TTrigger& triggerMenu, 
 }
 
 //--------------------------------------------------------------------------------------------------
+// To build a new function
+
+//--------------------------------------------------------------------------------------------------
 bool ZCounting::passMuonID(
     const reco::Muon& muon,
     const reco::Vertex& vtx,
