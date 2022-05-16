@@ -3,8 +3,8 @@ __date__ ="$2010-08-06 14.27.51$"
 
 import os
 from Utilities.ReleaseScripts.commentSkipper.commentSkipper import filter as comment
-from Utilities.ReleaseScripts.cmsCodeRules.cppFunctionSkipper import filterFiles as function
-ordering = ['1', '2', '3', '4', '5', '6']
+# from Utilities.ReleaseScripts.cmsCodeRules.cppFunctionSkipper import filterFiles as function
+ordering = ['2', '3', '4', '5', '6']
 
 # default values for directories
 
@@ -26,17 +26,18 @@ Configuration = {}
 # --------------------------------------------------------------------------------
 
 # configuration for rule 1
+# replaced with clang-tidy check google-build-using-namespace
 
-ruleName = '1'
-rulesNames.append(ruleName)
-Configuration[ruleName] = {}
+#ruleName = '1'
+#rulesNames.append(ruleName)
+#Configuration[ruleName] = {}
 
-Configuration[ruleName]['description'] = 'Search for "using namespace" or "using std::" in header files'
-Configuration[ruleName]['filesToMatch'] = ['*.h']
-Configuration[ruleName]['exceptPaths'] = ['HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h']
-Configuration[ruleName]['skip']  = [comment, function]
-Configuration[ruleName]['filter'] = '(\susing|\Ausing)\s+(namespace|std::)' #should be regular expression
-Configuration[ruleName]['exceptFilter'] = []
+#Configuration[ruleName]['description'] = 'Search for "using namespace" or "using std::" in header files'
+#Configuration[ruleName]['filesToMatch'] = ['*.h']
+#Configuration[ruleName]['exceptPaths'] = ['HeterogeneousCore/CUDAUtilities/interface/cudaCompat.h']
+#Configuration[ruleName]['skip']  = [comment, function]
+#Configuration[ruleName]['filter'] = '(\susing|\Ausing)\s+(namespace|std::)' #should be regular expression
+#Configuration[ruleName]['exceptFilter'] = []
 
 # --------------------------------------------------------------------------------
 
