@@ -201,6 +201,18 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   auto mtdTrkHitHandle = makeValid(iEvent.getHandle(mtdTrackingHitToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
 
+#ifdef EDM_ML_DEBUG
+  for (const auto& hits : *mtdTrkHitHandle) {
+    LogDebug("EtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
+    for (const auto& hit : hits) {
+      LogDebug("EtlLocalRecoValidation")
+          << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
+          << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
+          << hit.timeError();
+    }
+  }
+#endif
+
   // --- Loop over the ETL SIM hits
   std::unordered_map<uint32_t, MTDHit> m_etlSimHits[4];
   for (auto const& simHit : etlSimHits) {
