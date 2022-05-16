@@ -1,11 +1,12 @@
 // include header for MagneticFieldGrid (regular + extension for some trapezoids)
 #include "MagneticFieldGrid.h"
+#include "MagneticField/Interpolation/interface/binary_ifstream.h"
 #include <cassert>
 
 using namespace std;
 
 void MagneticFieldGrid::load(const string &name) {
-  binary_ifstream inFile(name);
+  magneticfield::interpolation::binary_ifstream inFile(name);
   inFile >> GridType;
   // reading the header
   switch (GridType) {
