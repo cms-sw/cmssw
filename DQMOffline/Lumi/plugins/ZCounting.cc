@@ -565,7 +565,7 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
         continue;
 
       bool isTrackCentral = false;
-      if (fabs(eta2) > MUON_BOUND)
+      if (fabs(eta2) < MUON_BOUND)
         isTrackCentral = true;
 
       if (itTrk.hitPattern().trackerLayersWithMeasurement() >= 6 && itTrk.hitPattern().numberOfValidPixelHits() >= 1) {
