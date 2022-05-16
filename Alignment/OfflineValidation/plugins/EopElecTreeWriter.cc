@@ -17,86 +17,69 @@
 //
 
 // framework include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
-#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-
-// user include files
-#include <DataFormats/TrackReco/interface/Track.h>
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include <TMath.h>
-#include <TH1.h>
-#include <TH2D.h>
-#include "TTree.h"
-#include <TCanvas.h>
-#include <TLorentzVector.h>
+#include "Alignment/OfflineValidation/interface/EopElecVariables.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
-
-#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
-#include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
-//#include "RecoParticleFlow/PFRootEvent/interface/JetRecoTypes.h"
-//#include "RecoParticleFlow/PFRootEvent/interface/JetMaker.h"
-//#include "RecoParticleFlow/PFRootEvent/interface/ProtoJet.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
-
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
-#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "Alignment/OfflineValidation/interface/EopElecVariables.h"
-
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-//Trigger
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DataFormats/Math/interface/deltaR.h"
-
-//Super cluster eta and phi width
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
+#include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrack.h"
+#include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
+#include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
+
+#include "TCanvas.h"
+#include "TH1.h"
+#include "TH2D.h"
+#include "TLorentzVector.h"
+#include "TMath.h"
+#include "TTree.h"
 
 struct EopTriggerType {
   bool fired;
@@ -121,166 +104,175 @@ public:
   ~EopElecTreeWriter() override;
 
 private:
-  // ES tokens
-  edm::ESGetToken<MagneticField,IdealMagneticFieldRecord> magFieldToken;
-  edm::ESGetToken<TrackerGeometry,TrackerDigiGeometryRecord> tkGeomToken;
-  edm::ESGetToken<CaloGeometry,CaloGeometryRecord> caloGeomToken;
-
-  // Cut flow (events number)
-  TH1D* nEvents;
-  TH1D* nEventsWithVertex;
-  TH1D* nEventsTriggered;
-  TH1D* nEventsHLTFilter;
-  TH1D* nEventsHLTelectron;
-  TH1D* nEventsHLTrejected;
-  TH1D* nEvents2Elec;
-
-  TH1D* nHLTelectrons;
-  TH1D* nTrkRejectedPerEvt;
-  TH1D* nTrkSelectedPerEvt;
-
-  // Cut flow (tracks number)
-  TH1D* nTracks;
-  TH1D* nTracksFiltered;
-  TH1D* cut_Ptmin;
-  TH1D* cut_OneSCmatch;
-
-  TH1D* counter1;
-  TH1D* counter2;
-
+  // methods
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override {};
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
   // ----------member data ---------------------------
+  // ES tokens
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tkGeomToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeomToken_;
+
+  // EDM tokens
+  const edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken_;
+  const edm::EDGetTokenT<HBHERecHitCollection> theHBHERecHitCollectionToken_;
+  const edm::EDGetTokenT<EcalRecHitCollection> theEcalRecHitCollectionToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> theBarrelSupClusCollectionToken_;
+  const edm::EDGetTokenT<reco::SuperClusterCollection> theEndCapSupClusCollectionToken_;
+  const edm::EDGetTokenT<edm::TriggerResults> theTriggerResultsToken_;
+  const edm::EDGetTokenT<trigger::TriggerEvent> theTriggerEventToken_;
+  const edm::EDGetTokenT<reco::GsfTrackCollection> theGsfTrackCollectionToken_;
+  const edm::EDGetTokenT<reco::GsfElectronCoreCollection> theGsfElectronCoreCollectionToken_;
+
+  // some static constants
+  static constexpr float k_etaBarrel = 1.55;
+  static constexpr float k_etaEndcap = 1.44;
+
+  // other member data
   edm::InputTag src_;
   std::string theTrigger_;
   std::string theFilter_;
   bool debugTriggerSelection_;
-
   edm::Service<TFileService> fs_;
   TTree* tree_;
   EopElecVariables* treeMemPtr_;
-
   HLTConfigProvider hltConfig_;
   std::vector<std::string> triggerNames_;
-  TH1D* distToClosestSCgsf;
-  TH1D* distToClosestSC;
-  TH1D* EcalEnergy;
-  TH1D* Momentum;
+  MultiTrajectoryStateTransform* mtsTransform_;
+
+  // histograms
+
+  // Cut flow (events number)
+  TH1D* h_nEvents;
+  TH1D* h_nEventsWithVertex;
+  TH1D* h_nEventsTriggered;
+  TH1D* h_nEventsHLTFilter;
+  TH1D* h_nEventsHLTelectron;
+  TH1D* h_nEventsHLTrejected;
+  TH1D* h_nEvents2Elec;
+  TH1D* h_nHLTelectrons;
+  TH1D* h_nTrkRejectedPerEvt;
+  TH1D* h_nTrkSelectedPerEvt;
+
+  // Cut flow (tracks number)
+  TH1D* h_nTracks;
+  TH1D* h_nTracksFiltered;
+  TH1D* h_cut_Ptmin;
+  TH1D* h_cut_OneSCmatch;
+
+  TH1D* h_counter1;
+  TH1D* h_counter2;
+
+  TH1D* h_distToClosestSCgsf;
+  TH1D* h_distToClosestSC;
+  TH1D* h_EcalEnergy;
+  TH1D* h_Momentum;
   TH1D* HcalEnergy;
-  TH1D* fBREM;
-  TH1D* Eop_InnerNegative;
-  TH1D* Eop_InnerPositive;
+  TH1D* h_fBREM;
+  TH1D* h_Eop_InnerNegative;
+  TH1D* h_Eop_InnerPositive;
 
   TH2D* HcalVSEcal;
-
-  MultiTrajectoryStateTransform* mtsTransform_;
-  edm::EDGetTokenT<reco::VertexCollection> theVertexCollectionToken;
-  edm::EDGetTokenT<HBHERecHitCollection> theHBHERecHitCollectionToken;
-  edm::EDGetTokenT<EcalRecHitCollection> theEcalRecHitCollectionToken;
-  edm::EDGetTokenT<reco::SuperClusterCollection> theBarrelSupClusCollectionToken;
-  edm::EDGetTokenT<reco::SuperClusterCollection> theEndCapSupClusCollectionToken;
-  edm::EDGetTokenT<edm::TriggerResults> theTriggerResultsToken;
-  edm::EDGetTokenT<trigger::TriggerEvent> theTriggerEventToken;
-  edm::EDGetTokenT<reco::GsfTrackCollection> theGsfTrackCollectionToken;
-  edm::EDGetTokenT<reco::GsfElectronCoreCollection> theGsfElectronCoreCollectionToken;
 };
 
-// Function to convert the eta of the track to a detector eta (for matching with SC)
-float ecalEta(float EtaParticle, float Zvertex, float RhoVertex) {
-  const float R_ECAL = 136.5;
-  const float Z_Endcap = 328.0;
-  const float etaBarrelEndcap = 1.479;
+namespace eopUtils {
 
-  if (EtaParticle != 0.) {
-    float Theta = 0.0;
-    float ZEcal = (R_ECAL - RhoVertex) * sinh(EtaParticle) + Zvertex;
+  static constexpr float R_ECAL = 136.5;
+  static constexpr float Z_Endcap = 328.0;
+  static constexpr float etaBarrelEndcap = 1.479;
 
-    if (ZEcal != 0.0)
-      Theta = atan(R_ECAL / ZEcal);
-    if (Theta < 0.0)
-      Theta = Theta + Geom::pi();
+  // Function to convert the eta of the track to a detector eta (for matching with SC)
+  float ecalEta(float EtaParticle, float Zvertex, float RhoVertex) {
+    if (EtaParticle != 0.) {
+      float Theta = 0.0;
+      float ZEcal = (R_ECAL - RhoVertex) * sinh(EtaParticle) + Zvertex;
 
-    float ETA = -log(tan(0.5 * Theta));
-
-    if (fabs(ETA) > etaBarrelEndcap) {
-      float Zend = Z_Endcap;
-      if (EtaParticle < 0.0)
-        Zend = -Zend;
-      float Zlen = Zend - Zvertex;
-      float RR = Zlen / sinh(EtaParticle);
-      Theta = atan((RR + RhoVertex) / Zend);
+      if (ZEcal != 0.0)
+        Theta = atan(R_ECAL / ZEcal);
       if (Theta < 0.0)
-        Theta = Theta + Geom::pi();
-      ETA = -log(tan(0.5 * Theta));
+        Theta = Theta + M_PI;
+
+      float ETA = -log(tan(0.5 * Theta));
+
+      if (fabs(ETA) > etaBarrelEndcap) {
+        float Zend = Z_Endcap;
+        if (EtaParticle < 0.0)
+          Zend = -Zend;
+        float Zlen = Zend - Zvertex;
+        float RR = Zlen / sinh(EtaParticle);
+        Theta = atan((RR + RhoVertex) / Zend);
+        if (Theta < 0.0)
+          Theta = Theta + M_PI;
+        ETA = -log(tan(0.5 * Theta));
+      }
+      return ETA;
+    } else {
+      edm::LogWarning("") << "[EcalPositionFromTrack::etaTransformation] Warning: Eta equals to zero, not correcting";
+      return EtaParticle;
     }
-    return ETA;
-  } else {
-    edm::LogWarning("") << "[EcalPositionFromTrack::etaTransformation] Warning: Eta equals to zero, not correcting";
-    return EtaParticle;
   }
-}
+}  // namespace eopUtils
 
 // constructors and destructor
 
-EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig):
-  magFieldToken(esConsumes()),
-  tkGeomToken(esConsumes()),
-  caloGeomToken(esConsumes()),
-  src_(iConfig.getParameter<edm::InputTag>("src")),
-  theTrigger_(iConfig.getParameter<std::string>("triggerPath")),
-  theFilter_(iConfig.getParameter<std::string>("hltFilter")),
-  debugTriggerSelection_(iConfig.getParameter<bool>("debugTriggerSelection"))
- {
-  theVertexCollectionToken = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
-  theHBHERecHitCollectionToken = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco", ""));
-  theEcalRecHitCollectionToken = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
-  theBarrelSupClusCollectionToken = consumes<reco::SuperClusterCollection>(edm::InputTag("hybridSuperClusters", ""));
-  theEndCapSupClusCollectionToken =
-      consumes<reco::SuperClusterCollection>(edm::InputTag("multi5x5SuperClusters", "multi5x5EndcapSuperClusters"));
-  theTriggerResultsToken = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"));
-  theTriggerEventToken = consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD"));
-
-  theGsfTrackCollectionToken = consumes<reco::GsfTrackCollection>(src_);
-  theGsfElectronCoreCollectionToken = consumes<reco::GsfElectronCoreCollection>(edm::InputTag("gedGsfElectronCores"));
-
+EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig)
+    : magFieldToken_(esConsumes()),
+      tkGeomToken_(esConsumes()),
+      caloGeomToken_(esConsumes()),
+      theVertexCollectionToken_(consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"))),
+      theHBHERecHitCollectionToken_(consumes<HBHERecHitCollection>(edm::InputTag("hbhereco", ""))),
+      theEcalRecHitCollectionToken_(consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", "EcalRecHitsEB"))),
+      theBarrelSupClusCollectionToken_(
+          consumes<reco::SuperClusterCollection>(edm::InputTag("hybridSuperClusters", ""))),
+      theEndCapSupClusCollectionToken_(consumes<reco::SuperClusterCollection>(
+          edm::InputTag("multi5x5SuperClusters", "multi5x5EndcapSuperClusters"))),
+      theTriggerResultsToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"))),
+      theTriggerEventToken_(consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD"))),
+      theGsfTrackCollectionToken_(consumes<reco::GsfTrackCollection>(src_)),
+      theGsfElectronCoreCollectionToken_(
+          consumes<reco::GsfElectronCoreCollection>(edm::InputTag("gedGsfElectronCores"))),
+      src_(iConfig.getParameter<edm::InputTag>("src")),
+      theTrigger_(iConfig.getParameter<std::string>("triggerPath")),
+      theFilter_(iConfig.getParameter<std::string>("hltFilter")),
+      debugTriggerSelection_(iConfig.getParameter<bool>("debugTriggerSelection")) {
   // TTree creation
   tree_ = fs_->make<TTree>("EopTree", "EopTree");
   treeMemPtr_ = new EopElecVariables;
   tree_->Branch("EopElecVariables", &treeMemPtr_);  // address of pointer!
 
   // Control histograms declaration
-  distToClosestSC = fs_->make<TH1D>("distToClosestSC", "distToClosestSC", 100, 0, 0.1);
-  distToClosestSCgsf = fs_->make<TH1D>("distToClosestSCgsf", "distToClosestSCgsf", 100, 0, 0.1);
-  EcalEnergy = fs_->make<TH1D>("EcalEnergy", "EcalEnergy", 100, 0, 200);
-  Momentum = fs_->make<TH1D>("Momentum", "Momentum", 100, 0, 200);
+  h_distToClosestSC = fs_->make<TH1D>("distToClosestSC", "distToClosestSC", 100, 0, 0.1);
+  h_distToClosestSCgsf = fs_->make<TH1D>("distToClosestSCgsf", "distToClosestSCgsf", 100, 0, 0.1);
+  h_EcalEnergy = fs_->make<TH1D>("EcalEnergy", "EcalEnergy", 100, 0, 200);
+  h_Momentum = fs_->make<TH1D>("Momentum", "Momentum", 100, 0, 200);
   HcalEnergy = fs_->make<TH1D>("HcalEnergy", "HcalEnergy", 100, 0, 40);
-  fBREM = fs_->make<TH1D>("fBREM", "fBREM", 100, -0.2, 1);
-  Eop_InnerNegative = fs_->make<TH1D>("Eop_InnerNegative", "Eop_InnerNegative", 100, 0, 3);
-  Eop_InnerPositive = fs_->make<TH1D>("Eop_InnerPositive", "Eop_InnerPositive", 100, 0, 3);
+  h_fBREM = fs_->make<TH1D>("fBREM", "fBREM", 100, -0.2, 1);
+  h_Eop_InnerNegative = fs_->make<TH1D>("Eop_InnerNegative", "Eop_InnerNegative", 100, 0, 3);
+  h_Eop_InnerPositive = fs_->make<TH1D>("Eop_InnerPositive", "Eop_InnerPositive", 100, 0, 3);
   HcalVSEcal = fs_->make<TH2D>("HcalVSEcal", "HcalVSEcal", 100, 0, 160, 100, 0, 10);
 
-  nEvents = fs_->make<TH1D>("nEvents", "nEvents", 1, 0, 1);
-  nEventsWithVertex = fs_->make<TH1D>("nEventsWithVertex", "nEventsWithVertex", 1, 0, 1);
-  nEventsTriggered = fs_->make<TH1D>("nEventsTriggered", "nEventsTriggered", 1, 0, 1);
-  nEventsHLTFilter = fs_->make<TH1D>("nEventsHLTFilter", "nEventsHLTFilter", 1, 0, 1);
-  nEventsHLTelectron = fs_->make<TH1D>("nEventsHLTelectron", "nEventsHLTelectron", 1, 0, 1);
-  nEventsHLTrejected = fs_->make<TH1D>("nEventsHLTrejected", "nEventsHLTrejected", 1, 0, 1);
-  nEvents2Elec = fs_->make<TH1D>("nEvents2Elec", "nEvents2Elec", 1, 0, 1);
+  h_nEvents = fs_->make<TH1D>("nEvents", "nEvents", 1, 0, 1);
+  h_nEventsWithVertex = fs_->make<TH1D>("nEventsWithVertex", "nEventsWithVertex", 1, 0, 1);
+  h_nEventsTriggered = fs_->make<TH1D>("nEventsTriggered", "nEventsTriggered", 1, 0, 1);
+  h_nEventsHLTFilter = fs_->make<TH1D>("nEventsHLTFilter", "nEventsHLTFilter", 1, 0, 1);
+  h_nEventsHLTelectron = fs_->make<TH1D>("nEventsHLTelectron", "nEventsHLTelectron", 1, 0, 1);
+  h_nEventsHLTrejected = fs_->make<TH1D>("nEventsHLTrejected", "nEventsHLTrejected", 1, 0, 1);
+  h_nEvents2Elec = fs_->make<TH1D>("nEvents2Elec", "nEvents2Elec", 1, 0, 1);
 
-  nHLTelectrons = fs_->make<TH1D>("nHLTelectrons", "nHLTelectrons", 20, 0, 20);
-  nTrkRejectedPerEvt = fs_->make<TH1D>("nTrkRejectedPerEvt", "nTrkRejectedPerEvt", 20, 0, 20);
-  nTrkSelectedPerEvt = fs_->make<TH1D>("nTrkSelectedPerEvt", "nTrkSelectedPerEvt", 20, 0, 20);
+  h_nHLTelectrons = fs_->make<TH1D>("nHLTelectrons", "nHLTelectrons", 20, 0, 20);
+  h_nTrkRejectedPerEvt = fs_->make<TH1D>("nTrkRejectedPerEvt", "nTrkRejectedPerEvt", 20, 0, 20);
+  h_nTrkSelectedPerEvt = fs_->make<TH1D>("nTrkSelectedPerEvt", "nTrkSelectedPerEvt", 20, 0, 20);
 
-  nTracks = fs_->make<TH1D>("nTracks", "nTracks", 1, 0, 1);
-  nTracksFiltered = fs_->make<TH1D>("nTracksFiltered", "nTracksFiltered", 1, 0, 1);
-  cut_Ptmin = fs_->make<TH1D>("cut_Ptmin", "cut_Ptmin", 1, 0, 1);
-  cut_OneSCmatch = fs_->make<TH1D>("cut_OneSCmatch", "cut_OneSCmatch", 1, 0, 1);
+  h_nTracks = fs_->make<TH1D>("nTracks", "nTracks", 1, 0, 1);
+  h_nTracksFiltered = fs_->make<TH1D>("nTracksFiltered", "nTracksFiltered", 1, 0, 1);
+  h_cut_Ptmin = fs_->make<TH1D>("cut_Ptmin", "cut_Ptmin", 1, 0, 1);
+  h_cut_OneSCmatch = fs_->make<TH1D>("cut_OneSCmatch", "cut_OneSCmatch", 1, 0, 1);
 
-  counter1 = fs_->make<TH1D>("counter1", "counter1", 1, 0, 1);
-  counter2 = fs_->make<TH1D>("counter2", "counter2", 1, 0, 1);
+  h_counter1 = fs_->make<TH1D>("counter1", "counter1", 1, 0, 1);
+  h_counter2 = fs_->make<TH1D>("counter2", "counter2", 1, 0, 1);
 }
 
 EopElecTreeWriter::~EopElecTreeWriter() {
@@ -288,30 +280,30 @@ EopElecTreeWriter::~EopElecTreeWriter() {
 
   // control histograms
 
-  distToClosestSC->SetXTitle("distance from track to closest SuperCluster in eta-phi plan (weighted matching)");
-  distToClosestSC->SetYTitle("# Tracks");
+  h_distToClosestSC->SetXTitle("distance from track to closest SuperCluster in eta-phi plan (weighted matching)");
+  h_distToClosestSC->SetYTitle("# Tracks");
 
-  distToClosestSCgsf->SetXTitle("distance from track to closest SuperCluster in eta-phi plan (gsfElectronCore)");
-  distToClosestSCgsf->SetYTitle("# Tracks");
+  h_distToClosestSCgsf->SetXTitle("distance from track to closest SuperCluster in eta-phi plan (gsfElectronCore)");
+  h_distToClosestSCgsf->SetYTitle("# Tracks");
 
-  EcalEnergy->SetXTitle("Ecal energy deposit (GeV)");
-  EcalEnergy->SetYTitle("# tracks");
+  h_EcalEnergy->SetXTitle("Ecal energy deposit (GeV)");
+  h_EcalEnergy->SetYTitle("# tracks");
 
   HcalEnergy->SetXTitle("Hcal energy deposit (GeV)");
   HcalEnergy->SetYTitle("# tracks");
 
-  Momentum->SetXTitle("Momentum magnitude (GeV)");
-  Momentum->SetYTitle("# tracks");
+  h_Momentum->SetXTitle("Momentum magnitude (GeV)");
+  h_Momentum->SetYTitle("# tracks");
 
-  Eop_InnerNegative->SetXTitle("E/p");
-  Eop_InnerNegative->SetYTitle("# tracks");
+  h_Eop_InnerNegative->SetXTitle("E/p");
+  h_Eop_InnerNegative->SetYTitle("# tracks");
 
-  Eop_InnerPositive->SetXTitle("E/p");
-  Eop_InnerPositive->SetYTitle("# tracks");
+  h_Eop_InnerPositive->SetXTitle("E/p");
+  h_Eop_InnerPositive->SetYTitle("# tracks");
 
   HcalVSEcal->SetXTitle("Ecal energy (GeV)");
   HcalVSEcal->SetYTitle("Hcal energy (GeV)");
-  cout << "Total number of events : " << nEvents->GetEntries() << endl;
+  cout << "Total number of events : " << h_nEvents->GetEntries() << endl;
 }
 
 //###########################################
@@ -319,8 +311,12 @@ EopElecTreeWriter::~EopElecTreeWriter() {
 //###########################################
 
 void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::LogInfo info("EopElecTreeWriter");
+  edm::LogWarning warn("EopElecTreeWriter");
+  edm::LogError error("EopElecTreeWriter");
+
   using namespace edm;
-  nEvents->Fill(0.5);
+  h_nEvents->Fill(0.5);
 
   Double_t EnergyHcalIn01;
   Double_t EnergyHcalIn02;
@@ -368,67 +364,49 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //---------------   for GsfTrack propagation through tracker  ---------------
 
-  const MagneticField* magField_ = &iSetup.getData(magFieldToken);
-  const TrackerGeometry* trackerGeom_ = &iSetup.getData(tkGeomToken);
+  const MagneticField* magField_ = &iSetup.getData(magFieldToken_);
+  const TrackerGeometry* trackerGeom_ = &iSetup.getData(tkGeomToken_);
   MultiTrajectoryStateTransform mtsTransform(trackerGeom_, magField_);
 
   //---------------    Super Cluster    -----------------
 
   // getting primary vertex (necessary to convert eta track to eta detector
-  edm::Handle<reco::VertexCollection> vertex;
-  iEvent.getByToken(theVertexCollectionToken, vertex);
+  const reco::VertexCollection& vertex = iEvent.get(theVertexCollectionToken_);
 
-  if (vertex->empty()) {
-    cout << "Error: no primary vertex found!" << endl;
+  if (vertex.empty()) {
+    error << "Error: no primary vertex found!";
     return;
   }
-  reco::Vertex vert;
-  vert = vertex->front();
-  nEventsWithVertex->Fill(0.5);
+  reco::Vertex vert = vertex.front();
+  h_nEventsWithVertex->Fill(0.5);
 
   // getting calorimeter geometry
-  const CaloGeometry* geo = &iSetup.getData(caloGeomToken);
+  const CaloGeometry* geo = &iSetup.getData(caloGeomToken_);
   const CaloSubdetectorGeometry* subGeo = geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   if (subGeo == nullptr)
-    cout << "ERROR: unable to find SubDetector geometry!!!" << std::endl;
+    error << "ERROR: unable to find SubDetector geometry!!!";
 
   // getting Hcal rechits
-  edm::Handle<HBHERecHitCollection> HcalHits;
-  iEvent.getByToken(theHBHERecHitCollectionToken, HcalHits);
+  const HBHERecHitCollection* HcalHits = &iEvent.get(theHBHERecHitCollectionToken_);
 
   // getting Ecal rechits
-  edm::Handle<EcalRecHitCollection> ecalrechitcollection;
-  iEvent.getByToken(theEcalRecHitCollectionToken, ecalrechitcollection);
-  const EcalRecHitCollection* rhc = ecalrechitcollection.product();
+  const EcalRecHitCollection* rhc = &iEvent.get(theEcalRecHitCollectionToken_);
   if (rhc == nullptr)
-    cout << "ERROR !!!" << std::endl;
+    error << "ERROR: unable to find the EcalRecHit collection !!!";
 
   // getting SuperCluster
-  edm::Handle<reco::SuperClusterCollection> BarrelSupClusCollection;
-  edm::Handle<reco::SuperClusterCollection> EndcapSupClusCollection;
-  iEvent.getByToken(theBarrelSupClusCollectionToken, BarrelSupClusCollection);
-  iEvent.getByToken(theEndCapSupClusCollectionToken, EndcapSupClusCollection);
-
-  //iEvent.getByLabel("hfEMClusters","", tmpSupClusCollection);
-  //iEvent.getByLabel("correctedHybridSuperClusters","", tmpSupClusCollection);
+  const reco::SuperClusterCollection* BarrelSupClusCollection = &iEvent.get(theBarrelSupClusCollectionToken_);
+  const reco::SuperClusterCollection* EndcapSupClusCollection = &iEvent.get(theEndCapSupClusCollectionToken_);
 
   // necessary to re-calculate phi and eta width of SuperClusters
   SuperClusterShapeAlgo SCShape(rhc, subGeo);
 
   //---------------    Trigger   -----------------
-
   TrigTag = false;
-  const edm::InputTag triggerTag("TriggerResults", "", "HLT");
-
-  edm::Handle<edm::TriggerResults> trigRes;
-  iEvent.getByToken(theTriggerResultsToken, trigRes);
+  const edm::TriggerResults* trigRes = &iEvent.get(theTriggerResultsToken_);
 
   // trigger event
-  edm::Handle<trigger::TriggerEvent> triggerEvent;
-  iEvent.getByToken(theTriggerEventToken, triggerEvent);
-
-  //std::string pattern = "HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v5";
-  //std::string pattern = "HLT_DiEle27_WPTightCaloOnly_L1DoubleEG_v4";
+  const trigger::TriggerEvent* triggerEvent = &iEvent.get(theTriggerEventToken_);
 
   // our trigger table
   std::map<std::string, EopTriggerType> HLTpaths;
@@ -449,45 +427,41 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (myTrigger.index == -1)
       continue;
     myTrigger.fired =
-      trigRes->wasrun(myTrigger.index) && trigRes->accept(myTrigger.index) && !trigRes->error(myTrigger.index);
+        trigRes->wasrun(myTrigger.index) && trigRes->accept(myTrigger.index) && !trigRes->error(myTrigger.index);
     HLTpaths[triggerNames_[i]] = myTrigger;
   }
 
   // First cut : trigger cut
   std::string firstFiredPath = "";
-  for (std::map<std::string, EopTriggerType>::const_iterator it = HLTpaths.begin(); it != HLTpaths.end(); it++) {
-    if (it->second.fired) {
+  for (const auto& it : HLTpaths) {
+    if (it.second.fired) {
       TrigTag = true;
-      firstFiredPath = it->first;
+      firstFiredPath = it.first;
       break;
     }
   }
   if (!TrigTag)
     return;
-  nEventsTriggered->Fill(0.5);
+  h_nEventsTriggered->Fill(0.5);
 
   // Displaying filters label from the first fired trigger
   // Useful for finding the good filter label
   std::vector<std::string> filters = hltConfig_.moduleLabels(firstFiredPath);
 
-  if( debugTriggerSelection_){
-    std::cout << "filters : ";
-    for (unsigned int i=0;i<filters.size();i++){
-      std::cout << filters[i]<<" ";
+  if (debugTriggerSelection_) {
+    info << "filters : ";
+    for (unsigned int i = 0; i < filters.size(); i++) {
+      info << filters[i] << " ";
     }
-    std::cout<<std::endl;
   }
 
   // Getting HLT electrons
-  //edm::InputTag testTag("hltEle32CaloIdVLCaloIsoVLTrkIdVLTrkIsoVLTrackIsoFilter","","HLT");
-  //edm::InputTag testTag("hltDiEle27L1DoubleEGWPTightHcalIsoFilter", "", "HLT");
   edm::InputTag testTag(theFilter_, "", "HLT");
-
   int testindex = triggerEvent->filterIndex(testTag);
 
   if (testindex >= triggerEvent->sizeFilters())
     return;
-  nEventsHLTFilter->Fill(0.5);
+  h_nEventsHLTFilter->Fill(0.5);
 
   const trigger::Keys& KEYS_el(triggerEvent->filterKeys(testindex));
 
@@ -497,11 +471,11 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     HLTelectrons.push_back(triggerObject_el);
   }
 
-  nHLTelectrons->Fill(HLTelectrons.size());
+  h_nHLTelectrons->Fill(HLTelectrons.size());
 
   if (HLTelectrons.empty())
     return;
-  nEventsHLTelectron->Fill(0.5);
+  h_nEventsHLTelectron->Fill(0.5);
 
   // finding the HLT electron with highest pt and saving the corresponding index
   unsigned int HighPtIndex = 0;
@@ -516,15 +490,14 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //-----------------   Tracks   -------------------
 
   // getting GsfTrack
-  edm::Handle<reco::GsfTrackCollection> tracks;
-  iEvent.getByToken(theGsfTrackCollectionToken, tracks);
+  const reco::GsfTrackCollection* tracks = &iEvent.get(theGsfTrackCollectionToken_);
 
   // filtering track
   int nRejected = 0;
   int nSelected = 0;
   std::vector<const reco::GsfTrack*> filterTracks;
   for (unsigned int i = 0; i < tracks->size(); i++) {
-    nTracks->Fill(0.5);
+    h_nTracks->Fill(0.5);
     double deltar = reco::deltaR(
         (*tracks)[i].eta(), (*tracks)[i].phi(), HLTelectrons[HighPtIndex]->eta(), HLTelectrons[HighPtIndex]->phi());
     // remove the triggered electron with highest pt
@@ -538,45 +511,39 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
     filterTracks.push_back(&(*tracks)[i]);  // we use all the others
     nSelected++;
-    nTracksFiltered->Fill(0.5);
+    h_nTracksFiltered->Fill(0.5);
   }
-  nTrkRejectedPerEvt->Fill(nRejected);
-  nTrkSelectedPerEvt->Fill(nSelected);
+  h_nTrkRejectedPerEvt->Fill(nRejected);
+  h_nTrkSelectedPerEvt->Fill(nSelected);
 
   if (nRejected == 0)
     return;
-  nEventsHLTrejected->Fill(0.5);
+  h_nEventsHLTrejected->Fill(0.5);
 
   if (filterTracks.empty())
     return;
-  nEvents2Elec->Fill(0.5);
+  h_nEvents2Elec->Fill(0.5);
 
   //-------- test:Matching SC/track using gsfElectonCore collection --------
 
-  edm::Handle<reco::GsfElectronCoreCollection> electrons;
-  iEvent.getByToken(theGsfElectronCoreCollectionToken, electrons);
-
-  for (std::vector<reco::GsfElectronCore>::const_iterator elec = electrons->begin(); elec != electrons->end(); elec++) {
-    double etaGSF = ecalEta((elec->gsfTrack())->eta(), vert.z(), (vert.position()).rho());
-    if ((elec->gsfTrack())->pt() < 10.)
+  const reco::GsfElectronCoreCollection* electrons = &iEvent.get(theGsfElectronCoreCollectionToken_);
+  for (const auto& elec : *electrons) {
+    double etaGSF = eopUtils::ecalEta((elec.gsfTrack())->eta(), vert.z(), (vert.position()).rho());
+    if ((elec.gsfTrack())->pt() < 10.)
       continue;
 
     double DELTAR = 0;
-    DELTAR =
-        reco::deltaR((elec->superCluster())->eta(), (elec->superCluster())->phi(), etaGSF, (elec->gsfTrack())->phi());
+    DELTAR = reco::deltaR((elec.superCluster())->eta(), (elec.superCluster())->phi(), etaGSF, (elec.gsfTrack())->phi());
 
     if (DELTAR < 0.1)
-      distToClosestSCgsf->Fill(DELTAR);
+      h_distToClosestSCgsf->Fill(DELTAR);
   }
 
   //------------------------------------------------------------
 
   //--------------    Loop on tracks   -----------------
 
-  for (std::vector<const reco::GsfTrack*>::const_iterator itrack = filterTracks.begin(); itrack != filterTracks.end();
-       ++itrack) {
-    const reco::GsfTrack* track = (*itrack);
-
+  for (const auto& track : filterTracks) {
     // initializing variables
     isEcalDriven = false;
     isTrackerDriven = false;
@@ -601,10 +568,10 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     nBasicClus = 0;
 
     // First cut on momentum magnitude
-    Momentum->Fill(track->p());
+    h_Momentum->Fill(track->p());
     if (track->pt() < 10.)
       continue;
-    cut_Ptmin->Fill(0.5);
+    h_cut_Ptmin->Fill(0.5);
 
     // calculating track parameters at innermost and outermost for Gsf tracks
     TrajectoryStateOnSurface inTSOS = mtsTransform.innerStateOnSurface(*track);
@@ -623,7 +590,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
       etaOut = outMom.eta();
       phiOut = outMom.phi();
       fbrem = (pin - pout) / pin;
-      fBREM->Fill(fbrem);
+      h_fBREM->Fill(fbrem);
     }
 
     // Matching track with Hcal rec hits
@@ -633,23 +600,24 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     EnergyHcalIn04 = 0;
     EnergyHcalIn05 = 0;
 
-    for (std::vector<HBHERecHit>::const_iterator hcal = (*HcalHits).begin(); hcal != (*HcalHits).end(); hcal++) {
-      GlobalPoint posH = geo->getPosition((*hcal).detid());
+    //for (std::vector<HBHERecHit>::const_iterator hcal = (*HcalHits).begin(); hcal != (*HcalHits).end(); hcal++) {
+    for (const auto& hcal : *HcalHits) {
+      GlobalPoint posH = geo->getPosition(hcal.detid());
       double phihit = posH.phi();
       double etahit = posH.eta();
       double dR = reco::deltaR(etahit, phihit, etaOut, phiOut);
 
       // saving Hcal energy deposit measured for different eta-phi radius
       if (dR < 0.1)
-        EnergyHcalIn01 += hcal->energy();
+        EnergyHcalIn01 += hcal.energy();
       if (dR < 0.2)
-        EnergyHcalIn02 += hcal->energy();
+        EnergyHcalIn02 += hcal.energy();
       if (dR < 0.3)
-        EnergyHcalIn03 += hcal->energy();
+        EnergyHcalIn03 += hcal.energy();
       if (dR < 0.4)
-        EnergyHcalIn04 += hcal->energy();
+        EnergyHcalIn04 += hcal.energy();
       if (dR < 0.5)
-        EnergyHcalIn05 += hcal->energy();
+        EnergyHcalIn05 += hcal.energy();
     }
 
     HcalEnergy->Fill(EnergyHcalIn02);
@@ -672,11 +640,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     NoTrackIn0035 = true;
     NoTrackIn0040 = true;
 
-    for (std::vector<const reco::GsfTrack*>::const_iterator itrack1 = filterTracks.begin();
-         itrack1 != filterTracks.end();
-         ++itrack1) {
-      const reco::GsfTrack* track1 = (*itrack1);
-
+    for (const auto& track1 : filterTracks) {
       if (track == track1)
         continue;
 
@@ -748,15 +712,13 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     double dRSC;
     double etaAtEcal = 0;  // to convert eta from track to detector frame
-    etaAtEcal = ecalEta(etaIn, vert.z(), (vert.position()).rho());
+    etaAtEcal = eopUtils::ecalEta(etaIn, vert.z(), (vert.position()).rho());
 
     //Barrel
-    if (track->eta() < 1.55 || track->eta() > -1.55) {
-      for (std::vector<reco::SuperCluster>::const_iterator SC = BarrelSupClusCollection->begin();
-           SC != BarrelSupClusCollection->end();
-           SC++) {
+    if (std::abs(track->eta()) < k_etaBarrel) {
+      for (const auto& SC : *BarrelSupClusCollection) {
         dRSC = 0;
-        dRSC = reco::deltaR(SC->eta(), SC->phi(), etaAtEcal, phiIn);
+        dRSC = reco::deltaR(SC.eta(), SC.phi(), etaAtEcal, phiIn);
 
         if (dRSC < dRSC_first) {
           dRSC_first = dRSC;
@@ -767,16 +729,16 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
         if (dRSC < 0.09) {
           //Calculate phiWidth & etaWidth for associated SuperClusters
-          SCShape.Calculate_Covariances(*SC);
+          SCShape.Calculate_Covariances(SC);
           phiWidth = SCShape.phiWidth();
           etaWidth = SCShape.etaWidth();
 
-          etaSC = SC->eta();
-          phiSC = SC->phi();
+          etaSC = SC.eta();
+          phiSC = SC.phi();
 
-          algo_ID = SC->algoID();
-          EnergyEcal = SC->energy();
-          nBasicClus = SC->clustersSize();
+          algo_ID = SC.algoID();
+          EnergyEcal = SC.energy();
+          nBasicClus = SC.clustersSize();
           nbSC++;
           isBarrel = true;
         }
@@ -784,12 +746,10 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 
     // Endcap
-    if (track->eta() < -1.44 || track->eta() > 1.44) {
-      for (std::vector<reco::SuperCluster>::const_iterator SC = EndcapSupClusCollection->begin();
-           SC != EndcapSupClusCollection->end();
-           SC++) {
+    if (std::abs(track->eta()) > k_etaEndcap) {
+      for (const auto& SC : *EndcapSupClusCollection) {
         dRSC = 0;
-        dRSC = reco::deltaR(SC->eta(), SC->phi(), etaAtEcal, phiIn);
+        dRSC = reco::deltaR(SC.eta(), SC.phi(), etaAtEcal, phiIn);
 
         if (dRSC < dRSC_first) {
           dRSC_first = dRSC;
@@ -800,16 +760,16 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
         if (dRSC < 0.09) {
           //Calculate phiWidth & etaWidth for associated SuperClusters
-          SCShape.Calculate_Covariances(*SC);
+          SCShape.Calculate_Covariances(SC);
           phiWidth = SCShape.phiWidth();
           etaWidth = SCShape.etaWidth();
 
-          etaSC = SC->eta();
-          phiSC = SC->phi();
+          etaSC = SC.eta();
+          phiSC = SC.phi();
 
-          algo_ID = SC->algoID();
-          EnergyEcal = SC->energy();
-          nBasicClus = SC->clustersSize();
+          algo_ID = SC.algoID();
+          EnergyEcal = SC.energy();
+          nBasicClus = SC.clustersSize();
           nbSC++;
           isEndcap = true;
         }
@@ -817,29 +777,29 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 
     if (dRSC_first < 0.1)
-      distToClosestSC->Fill(dRSC_first);
+      h_distToClosestSC->Fill(dRSC_first);
     if (nbSC == 1)
-      counter1->Fill(0.5);
+      h_counter1->Fill(0.5);
     if (nbSC == 0)
-      counter2->Fill(0.5);
+      h_counter2->Fill(0.5);
 
     if (nbSC > 1 || nbSC == 0)
       continue;
-    cut_OneSCmatch->Fill(0.5);
+    h_cut_OneSCmatch->Fill(0.5);
 
     if (isBarrel && isEndcap) {
-      cout << "Error: Super Cluster double matching!" << endl;
+      error << "Error: Super Cluster double matching!";
       return;
     }
 
-    EcalEnergy->Fill(EnergyEcal);
+    h_EcalEnergy->Fill(EnergyEcal);
     HcalVSEcal->Fill(EnergyEcal, EnergyHcalIn02);
 
     // E over p plots
     if (track->charge() < 0)
-      Eop_InnerNegative->Fill(EnergyEcal / pin);
+      h_Eop_InnerNegative->Fill(EnergyEcal / pin);
     if (track->charge() > 0)
-      Eop_InnerPositive->Fill(EnergyEcal / pin);
+      h_Eop_InnerPositive->Fill(EnergyEcal / pin);
 
     //Check if track-SuperCluster matching is Ecal or Tracker driven
     edm::RefToBase<TrajectorySeed> seed = track->extra()->seedRef();
@@ -939,10 +899,10 @@ void EopElecTreeWriter::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
   }
 
   // Displaying the trigger names
-  if( debugTriggerSelection_ ){
+  if (debugTriggerSelection_) {
     unsigned int i = 0;
-    for (std::vector<std::string>::const_iterator it = triggerNames_.begin(); it < triggerNames_.end(); ++it) {
-      std::cout << "HLTpath: " << (i++) << " = " << (*it) << std::endl;
+    for (const auto& it : triggerNames_) {
+      edm::LogInfo("EopElecTreeWriter") << "HLTpath: " << (i++) << " = " << it;
     }
   }
 }
