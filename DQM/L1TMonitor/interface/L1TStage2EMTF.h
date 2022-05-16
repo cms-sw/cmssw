@@ -16,7 +16,7 @@
 class L1TStage2EMTF : public DQMOneEDAnalyzer<> {
 public:
   L1TStage2EMTF(const edm::ParameterSet& ps);
-  ~L1TStage2EMTF() override;
+  ~L1TStage2EMTF() override = default;
 
 protected:
   void bookHistograms(DQMStore::IBooker&, const edm::Run&, const edm::EventSetup&) override;
@@ -85,7 +85,7 @@ private:
   MonitorElement* rpcChamberTheta[12];
 
   MonitorElement* rpcHitTimingInTrack;
-  MonitorElement* emtfTrackModeVsRPCBXDiff[6];  // Add mode vs BXdiff comparison Dec 07 2020
+  MonitorElement* emtfTrackModeVsRPCBXDiff[8];  // Add mode vs BXdiff comparison Dec 07 2020
 
   // Add GEMs Oct 27 2020
   MonitorElement* hitTypeBX;
