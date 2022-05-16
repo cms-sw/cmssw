@@ -865,7 +865,20 @@ bool ZCounting::isMuonTriggerObj(const ZCountingTrigger::TTrigger& triggerMenu, 
 }
 
 //--------------------------------------------------------------------------------------------------
-// To build a new function
+// Definition of the CustomTightID function
+bool ZCounting::isCustomTightMuon(const reco::Muon& muon) {
+
+if(!muon.isPFMuon() || !muon.isGlobalMuon() ) return false;
+
+bool muID = isGoodMuon(muon,muon::GlobalMuonPromptTight) && (muon.numberOfMatchedStations() > 1);
+    
+  
+bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+  muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+
+
+return muID && hits;
+}
 
 //--------------------------------------------------------------------------------------------------
 bool ZCounting::passMuonID(
@@ -878,6 +891,8 @@ bool ZCounting::passMuonID(
   else if (idType == MediumID && muon::isMediumMuon(muon))
     return true;
   else if (idType == TightID && muon::isTightMuon(muon, vtx))
+    return true;
+  else if(idType == CustomTightID && isCustomTightMuon(muon))    
     return true;
   else if (idType == NoneID)
     return true;
