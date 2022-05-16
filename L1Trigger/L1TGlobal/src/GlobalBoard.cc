@@ -1170,7 +1170,7 @@ void l1t::GlobalBoard::printGmtData(const int iBxInEvent) const {
 
 //initializer prescale counter using a semi-random value between [1, prescale value]
 const std::vector<double> l1t::GlobalBoard::semirandomNumber(const edm::Event& iEvent,
-                                                  const std::vector<double>& prescaleFactorsAlgoTrig) {
+                                                             const std::vector<double>& prescaleFactorsAlgoTrig) {
   auto out = prescaleFactorsAlgoTrig;
   // pick a random number from a combination of run, lumi, event numbers
   std::srand(iEvent.id().run());
