@@ -95,7 +95,7 @@ private:
   std::vector<double> layerThickTop_;     // Thickness of the top sections
   std::vector<int> layerTypeTop_;         // Type of the Top layer
   std::vector<int> copyNumberTop_;        // Initial copy numbers (top section)
-  std::vector<int> layerOrient_;           // Layer type of silicon layers
+  std::vector<int> layerOrient_;          // Layer type of silicon layers
   std::vector<int> waferIndex_;           // Wafer index for the types
   std::vector<int> waferProperty_;        // Wafer property
   std::vector<int> waferLayerStart_;      // Start index of wafers in each layer
@@ -509,7 +509,7 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
   int layercenter = (layerOrient_[layer] == HGCalTypes::CornerCenteredLambda)
                         ? HGCalTypes::CornerCenterYp
                         : ((layerOrient_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
-                                                                               : HGCalTypes::WaferCenter);
+                                                                                : HGCalTypes::WaferCenter);
   int layertype = (layerOrient_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
@@ -521,8 +521,8 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), kount(0);
   std::vector<int> ntype(3, 0);
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.ddname() << "  r " << delx << " R " << dely << " dy "
-                                << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.ddname() << "  r " << delx << " R " << dely
+                                << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
                                 << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1);
 #endif
   for (int k = firstWafer; k < lastWafer; ++k) {
