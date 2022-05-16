@@ -93,9 +93,11 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
 
       MTDTrackingDetSetVector::FastFiller recHitsOnDet(theoutputhits, detid);
 
+      LogDebug("MTDTrackingRecHitProducer") << "MTD cluster DetId " << detid << " # cluster " << DSVit.size();
+
       for (const auto& clustIt : DSVit) {
         LogDebug("MTDTrackingRecHitProducer") << "Cluster: size " << clustIt.size() << " " << clustIt.x() << ","
-                                             << clustIt.y() << " " << clustIt.energy() << " " << clustIt.time();
+                                              << clustIt.y() << " " << clustIt.energy() << " " << clustIt.time();
         MTDClusterParameterEstimator::ReturnType tuple = cpe.getParameters(clustIt, *genericDet);
         LocalPoint lp(std::get<0>(tuple));
         LocalError le(std::get<1>(tuple));

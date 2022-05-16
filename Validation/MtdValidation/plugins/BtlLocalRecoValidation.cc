@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 // -*- C++ -*-
 //
 // Package:    Validation/MtdValidation
@@ -217,12 +219,17 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   auto mtdTrkHitHandle = makeValid(iEvent.getHandle(mtdTrackingHitToken_));
   MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
 
-  for ( const auto& hits : *mtdTrkHitHandle) {
-    edm::LogPrint("BtlLocalRecoValidation") << "MTDRH DetId " << hits.id() << " size " << hits.size();
-    for ( const auto& hit : hits ) {
-       edm::LogPrint("BtlLocalRecoValidation") << "MTDRH pos " << hit.localPosition().x() << " " << hit.localPosition().y() <<  " err " << hit.localPositionError().xx() << " " << hit.localPositionError().yy();
+#ifdef EDM_ML_DEBUG
+  for (const auto& hits : *mtdTrkHitHandle) {
+    LogDebug("BtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
+    for (const auto& hit : hits) {
+      LogDebug("BtlLocalRecoValidation")
+          << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
+          << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
+          << hit.timeError();
     }
   }
+#endif
 
   // --- Loop over the BTL SIM hits
   std::unordered_map<uint32_t, MTDHit> m_btlSimHits;
@@ -448,9 +455,9 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           if (matchClu && comp != nullptr) {
             meCluLocalXRes_->Fill(xlocal_res);
             meCluLocalYRes_->Fill(ylocal_res);
-	    meCluLocalXPull_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
-	    meCluLocalYPull_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
-	    meCluZPull_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
+            meCluLocalXPull_->Fill(xlocal_res / std::sqrt(comp->localPositionError().xx()));
+            meCluLocalYPull_->Fill(ylocal_res / std::sqrt(comp->localPositionError().yy()));
+            meCluZPull_->Fill(z_res / std::sqrt(comp->globalPositionError().czz()));
             meCluXLocalErr_->Fill(std::sqrt(comp->localPositionError().xx()));
             meCluYLocalErr_->Fill(std::sqrt(comp->localPositionError().yy()));
           }
