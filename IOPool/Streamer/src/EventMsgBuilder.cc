@@ -1,3 +1,4 @@
+#include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
@@ -19,6 +20,13 @@ EventMsgBuilder::EventMsgBuilder(void* buf,
                                  uint32 adler_chksum,
                                  const char* host_name)
     : buf_((uint8*)buf), size_(size) {
+  uint32 expectedHeaderSize = computeHeaderSize(l1_bits.size(), hlt_bit_count);
+  if (expectedHeaderSize > size_) {
+    throw cms::Exception("EventMsgBuilder")
+        << "The buffer used to build the event message (" << size_
+        << " bytes) is not large enough to holde the event header (" << expectedHeaderSize << " bytes)";
+  }
+
   EventHeader* h = (EventHeader*)buf_;
   h->protocolVersion_ = 11;
   convert(run, h->run_);
@@ -85,6 +93,12 @@ EventMsgBuilder::EventMsgBuilder(void* buf,
 
   event_addr_ = pos + sizeof(char_uint32);
   setEventLength(0);
+
+  if (headerSize() != expectedHeaderSize) {
+    throw cms::Exception("EventMsgBuilder")
+        << "The event message header size (" << headerSize() << " bytes) does not match the computed value ("
+        << expectedHeaderSize << " bytes)";
+  }
 }
 
 void EventMsgBuilder::setOrigDataSize(uint32 value) {
@@ -101,4 +115,17 @@ void EventMsgBuilder::setEventLength(uint32 len) {
 uint32 EventMsgBuilder::size() const {
   HeaderView v(buf_);
   return v.size();
+}
+
+uint32 EventMsgBuilder::computeHeaderSize(uint32 l1t_bit_count, uint32 hlt_bit_count) {
+  uint32 size = sizeof(EventHeader);    // event header
+  size += sizeof(uint32);               // L1T triggers count
+  size += (l1t_bit_count + 8 - 1) / 8;  // L1T results (1 bit per trigger)
+  size += sizeof(uint32);               // HLT triggers count
+  size += (hlt_bit_count + 4 - 1) / 4;  // HLT results (2 bits per trigger)
+  size += sizeof(uint32);               // adler32 check sum
+  size += 1;                            // host name length
+  size += MAX_HOSTNAME_LEN;             // host name
+  size += sizeof(char_uint32);          // event address
+  return size;
 }
