@@ -14,6 +14,7 @@ namespace testTrackingRecHit2D {
 
 int main() {
   cms::cudatest::requireDevices();
+  memoryPool::cuda::init(false);
 
   cudaStream_t stream;
   cudaCheck(cudaStreamCreateWithFlags(&stream, cudaStreamNonBlocking));
@@ -67,6 +68,8 @@ int main() {
   }
   std::cout << "on CPU" << std::endl;
   ((SimplePoolAllocatorImpl<PosixAlloc>*)memoryPool::cuda::getPool(memoryPool::onCPU))->dumpStat();
+
+  memoryPool::cuda::shutdown();
 
   return 0;
 }
