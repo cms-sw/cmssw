@@ -86,7 +86,7 @@ private:
   std::vector<double> slopeT_;          // Slopes at the larger R
   std::vector<double> zFrontT_;         // Starting Z values for the slopes
   std::vector<double> rMaxFront_;       // Corresponding rMax's
-  std::vector<int> layerOrient_;        // Layer type (Centering, rotations..)
+  std::vector<int> layerOrient_;        // Layer orientation (Centering, rotations..)
   std::vector<int> waferIndex_;         // Wafer index for the types
   std::vector<int> waferProperty_;      // Wafer property
   std::vector<int> waferLayerStart_;    // Index of wafers in each layer
