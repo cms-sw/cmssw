@@ -8,17 +8,17 @@
 // simple class for associating calibrated energies
 class CalibratedPFCluster {
 public:
-  CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p) : cluptr(p) {}
+  CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p) : ptr_(p) {}
 
-  double energy() const { return cluptr->correctedEnergy(); }
-  double energy_nocalib() const { return cluptr->energy(); }
-  double eta() const { return cluptr->positionREP().eta(); }
-  double phi() const { return cluptr->positionREP().phi(); }
+  double energy() const { return ptr_->correctedEnergy(); }
+  double energy_nocalib() const { return ptr_->energy(); }
+  double eta() const { return ptr_->positionREP().eta(); }
+  double phi() const { return ptr_->positionREP().phi(); }
 
-  edm::Ptr<reco::PFCluster> the_ptr() const { return cluptr; }
+  edm::Ptr<reco::PFCluster> ptr() const { return ptr_; }
 
 private:
-  edm::Ptr<reco::PFCluster> cluptr;
+  edm::Ptr<reco::PFCluster> ptr_;
 };
 
 #endif

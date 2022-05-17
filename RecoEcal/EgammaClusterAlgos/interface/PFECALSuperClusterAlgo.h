@@ -109,8 +109,6 @@ public:
 
   void setTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);
 
-  void setTensorflowObjects();
-
   void update(const edm::EventSetup&);
   void updateSCParams(const edm::EventSetup&);
 
@@ -155,7 +153,7 @@ private:
   void buildAllSuperClusters(CalibratedClusterPtrVector&, double seedthresh);
   void buildAllSuperClustersMustache(CalibratedClusterPtrVector&, double seedthresh);
   void buildAllSuperClustersDeepSC(CalibratedClusterPtrVector&, double seedthresh);
-  void buildMustache(CalibratedClusterPtr&, CalibratedClusterPtrVector&);
+  void buildSuperClusterMustache(CalibratedClusterPtr&, CalibratedClusterPtrVector&);
   void finalizeSuperCluster(CalibratedClusterPtr& seed, CalibratedClusterPtrVector& clustered, bool isEE);
 
   bool verbose_;

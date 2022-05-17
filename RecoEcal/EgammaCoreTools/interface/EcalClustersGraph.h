@@ -108,7 +108,7 @@ namespace reco {
     const CaloSubdetectorGeometry* eeGeom_;
     const EcalRecHitCollection* recHitsEB_;
     const EcalRecHitCollection* recHitsEE_;
-    const reco::SCProducerCache* SCProducerCache_;
+    const reco::SCProducerCache* scProducerCache_;
 
     // GraphMap for handling all the windows and scores
     reco::GraphMap graphMap_;

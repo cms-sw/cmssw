@@ -24,7 +24,7 @@ EcalClustersGraph::EcalClustersGraph(CalibratedClusterPtrVector clusters,
       eeGeom_(eeGeom),
       recHitsEB_(recHitsEB),
       recHitsEE_(recHitsEE),
-      SCProducerCache_(cache),
+      scProducerCache_(cache),
       graphMap_(clusters.size()) {
   // Prepare the batch size of the tensor inputs == number of windows
   inputs_.clustersX.resize(nSeeds_);
@@ -41,13 +41,13 @@ EcalClustersGraph::EcalClustersGraph(CalibratedClusterPtrVector clusters,
   }
 
   // Select the collection strategy from the config
-  if (SCProducerCache_->config.collectionStrategy == "Cascade") {
+  if (scProducerCache_->config.collectionStrategy == "Cascade") {
     strategy_ = GraphMap::CollectionStrategy::Cascade;
-  } else if (SCProducerCache_->config.collectionStrategy == "CollectAndMerge") {
+  } else if (scProducerCache_->config.collectionStrategy == "CollectAndMerge") {
     strategy_ = GraphMap::CollectionStrategy::CollectAndMerge;
-  } else if (SCProducerCache_->config.collectionStrategy == "SeedsFirst") {
+  } else if (scProducerCache_->config.collectionStrategy == "SeedsFirst") {
     strategy_ = GraphMap::CollectionStrategy::SeedsFirst;
-  } else if (SCProducerCache_->config.collectionStrategy == "CascadeHighest") {
+  } else if (scProducerCache_->config.collectionStrategy == "CascadeHighest") {
     strategy_ = GraphMap::CollectionStrategy::CascadeHighest;
   } else {
     edm::LogWarning("EcalClustersGraph") << "GraphMap::CollectionStrategy not recognized. Default to Cascade";
@@ -135,7 +135,7 @@ std::array<double, 3> EcalClustersGraph::dynamicWindow(double seedEta) const {
 
 void EcalClustersGraph::initWindows() {
   for (uint is = 0; is < nSeeds_; is++) {
-    const auto& seedLocal = clusterPosition((*clusters_[is]).the_ptr().get());
+    const auto& seedLocal = clusterPosition((*clusters_[is]).ptr().get());
     double seed_eta = clusters_[is]->eta();
     double seed_phi = clusters_[is]->phi();
     const auto& width = dynamicWindow(seed_eta);
@@ -145,7 +145,7 @@ void EcalClustersGraph::initWindows() {
     for (uint icl = 0; icl < nCls_; icl++) {
       if (is == icl)
         continue;
-      const auto& clusterLocal = clusterPosition((*clusters_[icl]).the_ptr().get());
+      const auto& clusterLocal = clusterPosition((*clusters_[icl]).ptr().get());
       double cl_eta = clusters_[icl]->eta();
       double cl_phi = clusters_[icl]->phi();
       double dphi = deltaPhi(seed_phi, cl_phi);
@@ -190,8 +190,8 @@ std::vector<std::vector<float>> EcalClustersGraph::fillHits(const CaloCluster* c
     }
     // Use the method in DeepSCGraphEvaluation to get only the requested variables and possible a rescaling
     // (depends on configuration)
-    out[i] = SCProducerCache_->deepSCEvaluator->getScaledInputs(rechitsFeatures,
-                                                                SCProducerCache_->deepSCEvaluator->inputFeaturesHits);
+    out[i] = scProducerCache_->deepSCEvaluator->getScaledInputs(rechitsFeatures,
+                                                                scProducerCache_->deepSCEvaluator->inputFeaturesHits);
   }
   return out;
 }
@@ -356,7 +356,7 @@ std::vector<double> EcalClustersGraph::computeShowerShapes(const CaloCluster* cl
 
 void EcalClustersGraph::fillVariables() {
   LogDebug("EcalClustersGraph") << "Fill tensorflow input vector";
-  const auto& deepSCEval = SCProducerCache_->deepSCEvaluator;
+  const auto& deepSCEval = scProducerCache_->deepSCEvaluator;
   // Reserving the batch dimension
   inputs_.clustersX.reserve(nSeeds_);
   inputs_.hitsX.reserve(nSeeds_);
@@ -365,7 +365,7 @@ void EcalClustersGraph::fillVariables() {
 
   // Looping on all the seeds (window)
   for (uint is = 0; is < nSeeds_; is++) {
-    const auto seedPointer = (*clusters_[is]).the_ptr().get();
+    const auto seedPointer = (*clusters_[is]).ptr().get();
     std::vector<DeepSCInputs::FeaturesMap> unscaledClusterFeatures;
     const auto& outEdges = graphMap_.getOutEdges(is);
     size_t ncls = outEdges.size();
@@ -377,7 +377,7 @@ void EcalClustersGraph::fillVariables() {
     // Loop on all the clusters
     for (const auto ic : outEdges) {
       LogTrace("EcalClustersGraph") << "seed: " << is << ", out edge --> " << ic;
-      const auto clPointer = (*clusters_[ic]).the_ptr().get();
+      const auto clPointer = (*clusters_[ic]).ptr().get();
       const auto& clusterFeatures = computeVariables(seedPointer, clPointer);
       for (const auto& [key, val] : clusterFeatures) {
         LogTrace("EcalCluster") << key << "=" << val;
@@ -398,7 +398,7 @@ void EcalClustersGraph::fillVariables() {
 
 void EcalClustersGraph::evaluateScores() {
   // Evaluate model
-  const auto& scores = SCProducerCache_->deepSCEvaluator->evaluate(inputs_);
+  const auto& scores = scProducerCache_->deepSCEvaluator->evaluate(inputs_);
   for (uint i = 0; i < nSeeds_; ++i) {
     uint k = 0;
     LogTrace("EcalClustersGraph") << "Score) seed: " << i << ":";
