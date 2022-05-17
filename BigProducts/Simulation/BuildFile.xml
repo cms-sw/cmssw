@@ -24,7 +24,6 @@
 <use name="SimG4Core/SaveSimTrackAction"/>
 <use name="SimG4Core/SensitiveDetector"/>
 <use name="SimG4Core/TrackingVerbose"/>
-<use name="SimRomanPot/SimFP420"/>
 <use name="SimTracker/TrackerMaterialAnalysis"/>
 <use name="Validation/CheckOverlap"/>
 <use name="Validation/EcalHits"/>
