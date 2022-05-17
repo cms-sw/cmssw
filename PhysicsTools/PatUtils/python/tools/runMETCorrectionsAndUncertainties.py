@@ -305,7 +305,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 
     def toolCode(self, process):
+        ################################
         ### 1. read given parameters ###
+        ################################
+
         # MET type, corrections, and uncertainties
         metType                 = self._parameters['metType'].value
         correctionLevel         = self._parameters['correctionLevel'].value
@@ -358,8 +361,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         elif (jecUncertaintyTag!=None):
             jetUncInfos[ "jecUncTag" ] = jecUncertaintyTag
 
+        #############################
         ### 2. (re-)construct MET ###
-        patMetModuleSequence = cms.Sequence()
+        #############################
+
         # task for main MET construction modules
         patMetModuleTask = cms.Task()
 
@@ -435,16 +440,18 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                       postfix
                                       )
 
+        ###########################
         ### 3. (re-)correct MET ###
+        ###########################
+
         patMetCorrectionTask = cms.Task()
-        patMetCorrectionSequence, metModName = self.getCorrectedMET(process, metType, correctionLevel,
+        metModName = self.getCorrectedMET(process, metType, correctionLevel,
                                                                     produceIntermediateCorrections,
                                                                     jetCollection,
                                                                     patMetCorrectionTask, postfix )
-        setattr(process, "patMetCorrectionSequence"+postfix, patMetCorrectionSequence)
-        #fix the default jets for the type1 computation to those used to compute the uncertainties
-        #in order to be consistent with what is done in the correction and uncertainty step
-        #particularly true for miniAODs
+        # fix the default jets for the type1 computation to those used to compute the uncertainties
+        # in order to be consistent with what is done in the correction and uncertainty step
+        # particularly true for miniAODs
         if "T1" in metModName:
             getattr(process,"patPFMetT1T2Corr"+postfix).src = jetCollection
             getattr(process,"patPFMetT2Corr"+postfix).src = jetCollection
@@ -458,59 +465,58 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process,"patPFMetT1T2SmearCorr"+postfix).offsetCorrLabel = cms.InputTag("")
 
 
+        ####################################
         ### 4. compute MET uncertainties ###
-        patMetUncertaintySequence = cms.Sequence()
+        ####################################
+
         patMetUncertaintyTask = cms.Task()
-        tmpUncSequence =cms.Sequence()
         if not hasattr(process, "patMetUncertaintyTask"+postfix):
             if self._parameters["Puppi"].value:
                 patMetUncertaintyTask.add(cms.Task(getattr(process, "ak4PFPuppiL1FastL2L3CorrectorTask"),getattr(process, "ak4PFPuppiL1FastL2L3ResidualCorrectorTask")))
             else:
                 patMetUncertaintyTask.add(cms.Task(getattr(process, "ak4PFCHSL1FastL2L3CorrectorTask"),getattr(process, "ak4PFCHSL1FastL2L3ResidualCorrectorTask")))
-        patShiftedModuleSequence = cms.Sequence()
         patShiftedModuleTask = cms.Task()
         if computeUncertainties:
-            tmpUncSequence,patShiftedModuleSequence =  self.getMETUncertainties(process, metType, metModName,
-                                                                  electronCollection,
-                                                                  photonCollection,
-                                                                  muonCollection,
-                                                                  tauCollection,
-                                                                  pfCandCollection,
-                                                                  jetCollection,
-                                                                  jetUncInfos,
-                                                                  patMetUncertaintyTask,
-                                                                  postfix)
+            self.getMETUncertainties(process, metType, metModName,
+                                        electronCollection,
+                                        photonCollection,
+                                        muonCollection,
+                                        tauCollection,
+                                        pfCandCollection,
+                                        jetCollection,
+                                        jetUncInfos,
+                                        patMetUncertaintyTask,
+                                        postfix)
 
+        # add main MET tasks to process
         addTaskToProcess(process, "patMetCorrectionTask"+postfix, patMetCorrectionTask)
         addTaskToProcess(process, "patMetUncertaintyTask"+postfix, patMetUncertaintyTask)
         addTaskToProcess(process, "patShiftedModuleTask"+postfix, patShiftedModuleTask)
         addTaskToProcess(process, "patMetModuleTask"+postfix, patMetModuleTask)
 
-        #prepare and fill the final sequence containing all the sub-sequence
-        fullPatMetSequence = cms.Sequence()
+        # prepare and fill the final task containing all the sub-tasks
         fullPatMetTask = cms.Task()
-        #fullPatMetSequence += getattr(process, "patMetModuleSequence"+postfix)
         fullPatMetTask.add(getattr(process, "patMetModuleTask"+postfix))
-        #fullPatMetSequence += getattr(process, "patMetCorrectionSequence"+postfix)
         fullPatMetTask.add(getattr(process, "patMetCorrectionTask"+postfix))
-        #fullPatMetSequence += getattr(process, "patMetUncertaintySequence"+postfix)
         fullPatMetTask.add(getattr(process, "patMetUncertaintyTask"+postfix))
-        #fullPatMetSequence += getattr(process, "patShiftedModuleSequence"+postfix)
         fullPatMetTask.add(getattr(process, "patShiftedModuleTask"+postfix))
 
-        #adding the slimmed MET
+        # include calo MET in final MET task
         if hasattr(process, "patCaloMet"):
             fullPatMetTask.add(getattr(process, "patCaloMet"))
-        # include deepMETsResolutionTune and deepMETsResponseTune into fullPatMetSequence
+        # include deepMETsResolutionTune and deepMETsResponseTune into final MET task
         if hasattr(process, "deepMETsResolutionTune"):
             fullPatMetTask.add(getattr(process, "deepMETsResolutionTune"))
         if hasattr(process, "deepMETsResponseTune"):
             fullPatMetTask.add(getattr(process, "deepMETsResponseTune"))
+        # adding the slimmed MET module to final MET task
         if hasattr(process, "slimmedMETs"+postfix):
             fullPatMetTask.add(getattr(process, "slimmedMETs"+postfix))
 
-        setattr(process,"fullPatMetSequence"+postfix,fullPatMetSequence)
+        # add final MET task to the process
         addTaskToProcess(process, "fullPatMetTask"+postfix, fullPatMetTask)
+
+        # add final MET task to the complete PatAlgosTools task
         task = getPatAlgosToolsTask(process)
         task.add(getattr(process,"fullPatMetTask"+postfix))
 
@@ -785,7 +791,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #task = getPatAlgosToolsTask(process)
         metModuleTask.add(getattr(process, taskName+postfix))
 
-        return patMetCorrectionSequence, metModName
+        return metModName
 
 
 #====================================================================================================
@@ -830,7 +836,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 continue
 
             corName='pat'+metType+'Met' + corName + postfix
-            if configtools.contains(getattr(process,"patMetCorrectionSequence"+postfix), corName ) and hasattr(process, corName):
+            if configtools.contains(getattr(process,"patMetCorrectionTask"+postfix), corName ) and hasattr(process, corName):
                 continue
 
             interMets[corName] =  cms.EDProducer("CorrectedPATMETProducer",
