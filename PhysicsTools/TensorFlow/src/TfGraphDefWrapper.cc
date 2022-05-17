@@ -1,4 +1,4 @@
-#include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
+#include "PhysicsTools/TensorFlow/interface/TfGraphDefWrapper.h"
 
 TfGraphDefWrapper::TfGraphDefWrapper(tensorflow::Session* session, tensorflow::GraphDef* graph)
     : session_(session), graph_(graph) {}

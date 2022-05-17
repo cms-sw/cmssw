@@ -1,5 +1,5 @@
-#ifndef RecoTracker_FinalTrackSelectors_TfGraphDefWrapper_h
-#define RecoTracker_FinalTrackSelectors_TfGraphDefWrapper_h
+#ifndef PhysicsTools_TensorFlow_TfGraphDefWrapper_h
+#define PhysicsTools_TensorFlow_TfGraphDefWrapper_h
 
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
