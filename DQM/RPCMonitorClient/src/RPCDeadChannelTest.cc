@@ -138,7 +138,7 @@ void RPCDeadChannelTest::myBooker(DQMStore::IBooker& ibooker) {
 
     histoName.str("");
     histoName << "DeadChannelFraction_Ring_vs_Segment_Disk" << i;
-    auto me = RPCRollMapHisto::bookBarrel(ibooker, i, histoName.str(), histoName.str(), useRollInfo_);
+    auto me = RPCRollMapHisto::bookEndcap(ibooker, i, histoName.str(), histoName.str(), useRollInfo_);
     DEADDisk[i + offset] = dynamic_cast<MonitorElement*>(me);
   }  //end loop on wheels and disks
 }

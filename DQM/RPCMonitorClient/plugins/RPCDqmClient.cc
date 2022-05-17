@@ -26,6 +26,8 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& pset) {
   //check enabling
   enableDQMClients_ = pset.getUntrackedParameter<bool>("EnableRPCDqmClient", true);
   minimumEvents_ = pset.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
+  numberOfDisks_ = pset.getUntrackedParameter<int>("NumberOfEndcapDisks", 4);
+  numberOfRings_ = pset.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
 
   std::string subsystemFolder = pset.getUntrackedParameter<std::string>("RPCFolder", "RPC");
   std::string recHitTypeFolder = pset.getUntrackedParameter<std::string>("RecHitTypeFolder", "AllHits");
@@ -148,6 +150,9 @@ void RPCDqmClient::getMonitorElements(DQMStore::IGetter& igetter) {
 
     //loop on clients
     for (unsigned int cl = 0, nCL = clientModules_.size(); cl < nCL; ++cl) {
+      if (clientHisto_[cl] == "ClusterSize")
+        continue;
+
       MonitorElement* myMe = igetter.get(fmt::format("{}/{}/{}_{}", prefixDir_, folder, clientHisto_[cl], rollName));
       if (!myMe)
         continue;
@@ -158,9 +163,50 @@ void RPCDqmClient::getMonitorElements(DQMStore::IGetter& igetter) {
     }  //end loop on clients
   }    //end loop on all geometry and get all histos
 
+  //Clustersize
+  std::vector<MonitorElement*> myMeVectCl;
+  const std::array<std::string, 4> chNames = {{"CH01-CH09", "CH10-CH18", "CH19-CH27", "CH28-CH36"}};
+
+  //Retrieve barrel clustersize
+  for (int wheel = -2; wheel <= 2; wheel++) {
+    for (int sector = 1; sector <= 12; sector++) {
+      MonitorElement* myMeCl = igetter.get(fmt::format(
+          "{}/Barrel/Wheel_{}/SummaryBySectors/ClusterSize_Wheel_{}_Sector_{}", prefixDir_, wheel, wheel, sector));
+      myMeVectCl.push_back(myMeCl);
+    }
+  }
+  //Retrieve endcaps clustersize
+  for (int region = -1; region <= 1; region++) {
+    if (region == 0)
+      continue;
+
+    std::string regionName = "Endcap-";
+    if (region == 1)
+      regionName = "Endcap+";
+
+    for (int disk = 1; disk <= numberOfDisks_; disk++) {
+      for (int ring = numberOfRings_; ring <= 3; ring++) {
+        for (unsigned int ich = 0; ich < chNames.size(); ich++) {
+          MonitorElement* myMeCl =
+              igetter.get(fmt::format("{}/{}/Disk_{}/SummaryByRings/ClusterSize_Disk_{}_Ring_{}_{}",
+                                      prefixDir_,
+                                      regionName,
+                                      (region * disk),
+                                      (region * disk),
+                                      ring,
+                                      chNames[ich]));
+          myMeVectCl.push_back(myMeCl);
+        }
+      }
+    }
+  }
+
   RPCEvents_ = igetter.get(prefixDir_ + "/RPCEvents");
   for (unsigned int cl = 0; cl < clientModules_.size(); ++cl) {
-    clientModules_[cl]->getMonitorElements(myMeVect, myDetIds, clientHisto_[cl]);
+    if (clientHisto_[cl] == "ClusterSize")
+      clientModules_[cl]->getMonitorElements(myMeVectCl, myDetIds, clientHisto_[cl]);
+    else
+      clientModules_[cl]->getMonitorElements(myMeVect, myDetIds, clientHisto_[cl]);
   }
 }
 
