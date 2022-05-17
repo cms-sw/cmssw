@@ -442,7 +442,7 @@ struct HGCalMixRotatedLayer {
     int layercenter = (layerOrient_[layer] == HGCalTypes::CornerCenteredLambda)
                           ? HGCalTypes::CornerCenterYp
                           : ((layerOrient_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
-                                                                                 : HGCalTypes::WaferCenter);
+                                                                                  : HGCalTypes::WaferCenter);
     int layertype = (layerOrient_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
     int firstWafer = waferLayerStart_[layer];
     int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
