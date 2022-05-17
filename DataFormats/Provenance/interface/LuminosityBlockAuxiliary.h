@@ -23,11 +23,6 @@ namespace edm {
                              Timestamp const& theTime,
                              Timestamp const& theEndTime)
         : processHistoryID_(), id_(theRun, theLumi), beginTime_(theTime), endTime_(theEndTime) {}
-    LuminosityBlockAuxiliary(LuminosityBlockAuxiliary&&) = default;
-    LuminosityBlockAuxiliary(LuminosityBlockAuxiliary const&) = default;
-    ~LuminosityBlockAuxiliary() {}
-    LuminosityBlockAuxiliary& operator=(LuminosityBlockAuxiliary&&) = default;
-    LuminosityBlockAuxiliary& operator=(LuminosityBlockAuxiliary const&) = default;
     void write(std::ostream& os) const;
     ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
     void setProcessHistoryID(ProcessHistoryID const& phid) { processHistoryID_ = phid; }
@@ -56,7 +51,7 @@ namespace edm {
     // In cases where LuminosityBlock's are merged, the ID of the first process history encountered
     // is stored here.
     ProcessHistoryID processHistoryID_;
-    // LuminosityBlock ID
+
     LuminosityBlockID id_;
     // Times from DAQ
     Timestamp beginTime_;
