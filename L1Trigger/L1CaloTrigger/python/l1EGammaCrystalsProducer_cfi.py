@@ -7,10 +7,10 @@ l1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    debug = cms.untracked.bool(False),
    useRecHits = cms.untracked.bool(False),
    doBremClustering = cms.untracked.bool(True), # Should always be True when using for E/Gamma
-   ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
+   ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis"),
    ecalRecHitEB = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO"),
    hcalRecHit = cms.InputTag("hbhereco"),
-   hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis","","HLT"),
+   hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis"),
    useTowerMap = cms.untracked.bool(False)
 )
 
