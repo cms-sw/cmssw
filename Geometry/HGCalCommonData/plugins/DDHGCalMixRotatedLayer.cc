@@ -95,7 +95,7 @@ private:
   std::vector<double> layerThickTop_;     // Thickness of the top sections
   std::vector<int> layerTypeTop_;         // Type of the Top layer
   std::vector<int> copyNumberTop_;        // Initial copy numbers (top section)
-  std::vector<int> layerTypes_;           // Layer type of silicon layers
+  std::vector<int> layerOrient_;          // Layer orientation for the silicon component
   std::vector<int> waferIndex_;           // Wafer index for the types
   std::vector<int> waferProperty_;        // Wafer property
   std::vector<int> waferLayerStart_;      // Start index of wafers in each layer
@@ -208,10 +208,10 @@ void DDHGCalMixRotatedLayer::initialize(const DDNumericArguments& nArgs,
 #endif
   layerType_ = dbl_to_int(vArgs["LayerType"]);
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
-  layerTypes_ = dbl_to_int(vArgs["LayerTypes"]);
+  layerOrient_ = dbl_to_int(vArgs["LayerTypes"]);
 #ifdef EDM_ML_DEBUG
-  for (unsigned int i = 0; i < layerTypes_.size(); ++i)
-    edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
+  for (unsigned int i = 0; i < layerOrient_.size(); ++i)
+    edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerOrient_[i];
 #endif
   if (firstLayer_ > 0) {
     for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -506,23 +506,23 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
   // Make the bottom part next
   int layer = (copyM - firstLayer_);
   static const double sqrt3 = std::sqrt(3.0);
-  int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
+  int layercenter = (layerOrient_[layer] == HGCalTypes::CornerCenteredLambda)
                         ? HGCalTypes::CornerCenterYp
-                        : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
-                                                                               : HGCalTypes::WaferCenter);
-  int layertype = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
+                        : ((layerOrient_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
+                                                                                : HGCalTypes::WaferCenter);
+  int layertype = (layerOrient_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                            : static_cast<int>(waferIndex_.size()));
-  double r = 0.5 * (waferSize_ + waferSepar_);
-  double R = 2.0 * r / sqrt3;
-  double dy = 0.75 * R;
+  double delx = 0.5 * (waferSize_ + waferSepar_);
+  double dely = 2.0 * delx / sqrt3;
+  double dy = 0.75 * dely;
   const auto& xyoff = geomTools_.shiftXY(layercenter, (waferSize_ + waferSepar_));
 #ifdef EDM_ML_DEBUG
   int ium(0), ivm(0), kount(0);
   std::vector<int> ntype(3, 0);
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.ddname() << "  r " << r << " R " << R << " dy "
-                                << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: " << glog.ddname() << "  r " << delx << " R " << dely
+                                << " dy " << dy << " Shift " << xyoff.first << ":" << xyoff.second << " WaferSize "
                                 << (waferSize_ + waferSepar_) << " index " << firstWafer << ":" << (lastWafer - 1);
 #endif
   for (int k = firstWafer; k < lastWafer; ++k) {
@@ -545,7 +545,7 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
                                   << ":" << cassette << ":" << place;
 #endif
     auto cshift = cassette_.getShift(layer + 1, 1, cassette);
-    double xpos = xyoff.first + cshift.first + nc * r;
+    double xpos = xyoff.first + cshift.first + nc * delx;
     double ypos = xyoff.second + cshift.second + nr * dy;
     std::string wafer;
     int i(999);
