@@ -83,8 +83,11 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
     //TH2F ME providing a mapof values[0-1] to show if problems are localized or distributed
     MonitorElement* me = RPCSummaryMapHisto::book(ibooker, "reportSummaryMap", "RPC Report Summary Map");
+    MonitorElement* me2 = RPCSummaryMapHisto::book(ibooker, "noisySummaryMap", "RPC Noisy Chamber Summary Map");
     RPCSummaryMapHisto::setBinsBarrel(me, defaultValue);
     RPCSummaryMapHisto::setBinsEndcap(me, defaultValue);
+    RPCSummaryMapHisto::setBinsBarrel(me2, defaultValue);
+    RPCSummaryMapHisto::setBinsEndcap(me2, defaultValue);
 
     //the reportSummaryContents folder containins a collection of ME floats [0-1] (order of 5-10)
     // which describe the behavior of the respective subsystem sub-components.
@@ -104,8 +107,8 @@ void RPCEventSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
 
     for (const auto& segmentName : segmentNames) {
-      MonitorElement* me = ibooker.bookFloat(segmentName);
-      me->Fill(defaultValue);
+      MonitorElement* me3 = ibooker.bookFloat(segmentName);
+      me3->Fill(defaultValue);
     }
 
     lumiCounter_ = prescaleFactor_;
@@ -137,43 +140,47 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
     return;
 
   MonitorElement* reportMe = igetter.get(eventInfoPath_ + "/reportSummaryMap");
+  MonitorElement* reportMe2 = igetter.get(eventInfoPath_ + "/noisySummaryMap");
 
   //BARREL
   float barrelFactor = 0;
 
   for (int w = -2; w < 3; w++) {
-    const std::string meName = fmt::format("{}/RPCChamberQuality_Roll_vs_Sector_Wheel{}", globalFolder_, w);
-    MonitorElement* myMe = igetter.get(meName);
+    const std::string meName1 = fmt::format("{}/DeadChannelFraction_Roll_vs_Sector_Wheel{}", globalFolder_, w);
+    const std::string meName2 = fmt::format("{}/RPCNoisyStrips_Roll_vs_Sector_Wheel{}", globalFolder_, w);
+    MonitorElement* myMe1 = igetter.get(meName1);
+    MonitorElement* myMe2 = igetter.get(meName2);
 
-    if (myMe) {
+    if (myMe1 && myMe2) {
       float wheelFactor = 0;
 
-      for (int s = 1; s <= myMe->getNbinsX(); s++) {
+      for (int s = 1; s <= myMe1->getNbinsX(); s++) {
         float sectorFactor = 0;
+        float sectorFactor2 = 0;
         int rollInSector = 0;
 
-        for (int r = 1; r <= myMe->getNbinsY(); r++) {
-          if ((s != 4 && r > 17) || ((s == 9 || s == 10) && r > 15))
+        for (int r = 1; r <= myMe1->getNbinsY(); r++) {
+          if ((s != 4 && r > 17) || ((s == 9 || s == 11) && r > 15))
             continue;
           rollInSector++;
-
-          if (myMe->getBinContent(s, r) == PARTIALLY_DEAD)
-            sectorFactor += 0.8;
-          else if (myMe->getBinContent(s, r) == DEAD)
-            sectorFactor += 0;
-          else
-            sectorFactor += 1;
+          sectorFactor += 1 - myMe1->getBinContent(s, r);
+          sectorFactor2 += myMe2->getBinContent(s, r);
         }
-        if (rollInSector != 0)
+
+        if (rollInSector != 0) {
           sectorFactor = sectorFactor / rollInSector;
+          sectorFactor2 = sectorFactor2 / rollInSector;
+        }
 
         if (reportMe)
           reportMe->setBinContent(w + 8, s, sectorFactor);
+        if (reportMe2)
+          reportMe2->setBinContent(w + 8, s, sectorFactor2);
         wheelFactor += sectorFactor;
 
       }  //end loop on sectors
 
-      wheelFactor = wheelFactor / myMe->getNbinsX();
+      wheelFactor = wheelFactor / myMe1->getNbinsX();
 
       const std::string globalMEName = fmt::format("{}/reportSummaryContents/RPC_Wheel{}", eventInfoPath_, w);
       MonitorElement* globalMe = igetter.get(globalMEName);
@@ -194,30 +201,30 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
       if (d == 0)
         continue;
 
-      const std::string meName = fmt::format("{}/RPCChamberQuality_Ring_vs_Segment_Disk{}", globalFolder_, d);
-      MonitorElement* myMe = igetter.get(meName);
+      const std::string meName1 = fmt::format("{}/DeadChannelFraction_Ring_vs_Segment_Disk{}", globalFolder_, d);
+      const std::string meName2 = fmt::format("{}/RPCNoisyStrips_Ring_vs_Segment_Disk{}", globalFolder_, d);
+      MonitorElement* myMe1 = igetter.get(meName1);
+      MonitorElement* myMe2 = igetter.get(meName2);
 
-      if (myMe) {
+      if (myMe1 && myMe2) {
         float diskFactor = 0;
 
         float sectorFactor[6] = {0, 0, 0, 0, 0, 0};
+        float sectorFactor2[6] = {0, 0, 0, 0, 0, 0};
 
         for (int i = 0; i < 6; i++) {
           int firstSeg = (i * 6) + 1;
           int lastSeg = firstSeg + 6;
           int rollInSector = 0;
           for (int seg = firstSeg; seg < lastSeg; seg++) {
-            for (int y = 1; y <= myMe->getNbinsY(); y++) {
+            for (int y = 1; y <= myMe1->getNbinsY(); y++) {
               rollInSector++;
-              if (myMe->getBinContent(seg, y) == PARTIALLY_DEAD)
-                sectorFactor[i] += 0.8;
-              else if (myMe->getBinContent(seg, y) == DEAD)
-                sectorFactor[i] += 0;
-              else
-                sectorFactor[i] += 1;
+              sectorFactor[i] += 1 - myMe1->getBinContent(seg, y);
+              sectorFactor2[i] += myMe2->getBinContent(seg, y);
             }
           }
           sectorFactor[i] = sectorFactor[i] / rollInSector;
+          sectorFactor2[i] = sectorFactor2[i] / rollInSector;
         }  //end loop on Sectors
 
         for (int sec = 0; sec < 6; sec++) {
@@ -227,6 +234,12 @@ void RPCEventSummary::clientOperation(DQMStore::IGetter& igetter) {
               reportMe->setBinContent(d + 5, sec + 1, sectorFactor[sec]);
             else
               reportMe->setBinContent(d + 11, sec + 1, sectorFactor[sec]);
+          }
+          if (reportMe2) {
+            if (d < 0)
+              reportMe2->setBinContent(d + 5, sec + 1, sectorFactor2[sec]);
+            else
+              reportMe2->setBinContent(d + 11, sec + 1, sectorFactor2[sec]);
           }
         }
 

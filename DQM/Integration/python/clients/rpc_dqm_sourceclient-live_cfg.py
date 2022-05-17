@@ -148,16 +148,6 @@ process.qTesterRPC = DQMQualityTester(
     qtestOnEndRun = cms.untracked.bool(True)
 )
 
-############## Chamber Quality ##################
-process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")
-process.rpcChamberQuality.OfflineDQM = isOfflineDQM 
-process.rpcChamberQuality.RecHitTypeFolder = "AllHits"
-process.rpcChamberQuality.MinimumRPCEvents  = 10000
-### Merger
-process.rpcChamberQualityMerger = process.rpcChamberQuality.clone(
-  RecHitTypeFolder = "AllHitsMerger"
-)
-
 ###############  Sequences ######################
 process.rpcSource = cms.Sequence( process.rpcunpacker
                       * (process.rpcTwinMuxRawToDigi + process.rpcCPPFRawToDigi + process.omtfStage2Digis) 
@@ -167,7 +157,7 @@ process.rpcSource = cms.Sequence( process.rpcunpacker
                       * (process.rpcdigidqm + process.rpcMergerdigidqm)
                       * process.rpcMonitorRaw*process.qTesterRPC
                     )
-process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcChamberQuality*process.rpcChamberQualityMerger*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 process.p = cms.Path(process.hltTriggerTypeFilter*process.rpcSource*process.rpcClient)
 
 process.rpcunpacker.InputLabel = "rawDataCollector"
