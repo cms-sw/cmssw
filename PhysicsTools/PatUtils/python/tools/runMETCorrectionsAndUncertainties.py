@@ -440,7 +440,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         patMetCorrectionSequence, metModName = self.getCorrectedMET(process, metType, correctionLevel,
                                                                     produceIntermediateCorrections,
                                                                     jetCollection,
-                                                                    patMetModuleSequence, postfix )
+                                                                    patMetCorrectionTask, postfix )
         setattr(process, "patMetCorrectionSequence"+postfix, patMetCorrectionSequence)
         #fix the default jets for the type1 computation to those used to compute the uncertainties
         #in order to be consistent with what is done in the correction and uncertainty step
@@ -603,7 +603,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
 #====================================================================================================
     def getCorrectedMET(self, process, metType, correctionLevel,produceIntermediateCorrections,
-                        jetCollection, metModuleSequence, postfix ):
+                        jetCollection, metModuleTask, postfix ):
 
         # default outputs
         patMetCorrectionSequence = cms.Sequence()
@@ -624,8 +624,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         for cor in correctionLevel:
             if cor not in corNames.keys():
                 if cor != "":
-                    print("ERROR : ",cor," is not a proper MET correction name! aborting the MET correction production")
-                return patMetCorrectionSequence, metModName
+                    raise ValueError(cor+" is not a proper MET correction name! Aborting the MET correction production")
 
         # names of the tasks implementing a corretion level, see PatUtils/python/patPFMETCorrections_cff.py
         corModNames = {
@@ -683,16 +682,16 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             corrections.append(cms.InputTag(corTags[cor][0],corTags[cor][1]))
             correctionTask.append(corModules[cor])
 
-        #T2 and smearing corModuleTag switch, specific case
+        # T2 and smearing corModuleTag switch, specific case
         if "T2" in correctionLevel and "Smear" in correctionLevel:
             corrections.append(cms.InputTag(corTags["T2Smear"][0],corTags["T2Smear"][1]))
             correctionTask.append(corModules["T2Smear"])
 
-        #if both are here, consider smeared corJets for the full T1+Smear correction
+        # if both are here, consider smeared corJets for the full T1+Smear correction
         if "T1" in correctionLevel and "Smear" in correctionLevel:
             corrections.remove(cms.InputTag(corTags["T1"][0],corTags["T1"][1]))
 
-        #Txy parameter tuning
+        # Txy parameter tuning
         if "Txy" in correctionLevel:
             datamc = "DATA" if self.getvalue("runOnData") else "MC"
             self.tuneTxyParameters(process, corScheme, postfix, datamc, self.getvalue("campaign"), self.getvalue("era"))
@@ -701,7 +700,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process, "patPFMetTxyCorr"+postfix).srcWeights = "puppiNoLep"
 
 
-        #Enable MET significance if the type1 MET is computed
+        # Enable MET significance if the type1 MET is computed
         if "T1" in correctionLevel:
             _myPatMet = "pat"+metType+"Met"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
@@ -724,7 +723,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process, _myPatMet).srcJetResPt = 'AK4PFPuppi_pt'
                 getattr(process, _myPatMet).srcJetResPhi = 'AK4PFPuppi_phi'
 
-        #MET significance bypass for the patMETs from AOD
+        # MET significance bypass for the patMETs from AOD
         if not self._parameters["onMiniAOD"].value and not postfix=="NoHF":
             _myPatMet = "patMETs"+postfix
             getattr(process, _myPatMet).computeMETSignificance = cms.bool(self.getvalue("computeMETSignificance"))
@@ -741,7 +740,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if hasattr(process, "patCaloMet"):
             getattr(process, "patCaloMet").computeMETSignificance = cms.bool(False)
 
-        #T1 parameter tuning when CHS jets are not used
+        # T1 parameter tuning when CHS jets are not used
         if "T1" in correctionLevel and not self._parameters["CHS"].value and not self._parameters["Puppi"].value:
             addToProcessAndTask("corrPfMetType1"+postfix, getattr(process, "corrPfMetType1" ).clone(), process, getCorrectedMET_task)
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJets"+postfix)
@@ -761,7 +760,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "T1" in correctionLevel and self._parameters["CHS"].value and self._parameters["reclusterJets"].value:
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJetsCHS"+postfix)
 
-        #create the main MET producer
+        # create the main MET producer
         metModName = "pat"+metType+"Met"+corScheme+postfix
 
         taskName=""
@@ -788,7 +787,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                     print("blabla")
                     #getCorrectedMET_task.add(corModules[cor])
 
-        #plug the main patMetproducer
+        # plug the main patMetproducer
         getCorrectedMET_task.add(getattr(process, metModName))
 
         #create the intermediate MET steps
@@ -800,8 +799,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 #patMetCorrectionSequence += getattr(process, met)
         
         setattr(process, taskName+postfix, getCorrectedMET_task)
-        task = getPatAlgosToolsTask(process)
-        task.add(getattr(process, taskName+postfix))
+        #task = getPatAlgosToolsTask(process)
+        metModuleTask.add(getattr(process, taskName+postfix))
 
         return patMetCorrectionSequence, metModName
 
