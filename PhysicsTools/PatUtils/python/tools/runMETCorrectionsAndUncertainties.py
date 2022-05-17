@@ -458,7 +458,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 getattr(process,"patPFMetT1T2SmearCorr"+postfix).offsetCorrLabel = cms.InputTag("")
 
 
-        #compute the uncertainty on the MET
+        ### 4. compute MET uncertainties ###
         patMetUncertaintySequence = cms.Sequence()
         patMetUncertaintyTask = cms.Task()
         tmpUncSequence =cms.Sequence()
@@ -481,27 +481,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                                                   patMetUncertaintyTask,
                                                                   postfix)
 
-        if not hasattr(process, "patMetCorrectionTask"+postfix):
-            setattr(process, "patMetCorrectionTask"+postfix, patMetCorrectionTask)
-        if not hasattr(process, "patMetUncertaintyTask"+postfix):
-            #patMetUncertaintyTask.add(tmpUncSequence)
-            setattr(process, "patMetUncertaintyTask"+postfix, patMetUncertaintyTask)
-        else:
-            if not len(configtools.listModules(tmpUncSequence))==0:
-                setattr(process, metModName+"patMetUncertaintyTask"+postfix , tmpUncSequence)
-                tmpTask = getattr(process, "patMetUncertaintyTask"+postfix)
-                tmpTask.add(getattr(process, metModName+"patMetUncertaintyTask"+postfix))
-
-        if not hasattr(process, "patShiftedModuleTask"+postfix):
-            setattr(process, "patShiftedModuleTask"+postfix, patShiftedModuleTask)
-        else:
-            if not len(configtools.listModules(patShiftedModuleTask))==0:
-                setattr(process, metModName+"patShiftedModuleTask"+postfix , patShiftedModuleTask)
-                tmpTask = getattr(process, "patShiftedModuleTask"+postfix)
-                tmpTask.add(getattr(process, metModName+"patShiftedModuleTask"+postfix))
-
-        if not hasattr(process, "patMetModuleTask"+postfix):
-            setattr(process, "patMetModuleTask"+postfix, patMetModuleTask)
+        addTaskToProcess(process, "patMetCorrectionTask"+postfix, patMetCorrectionTask)
+        addTaskToProcess(process, "patMetUncertaintyTask"+postfix, patMetUncertaintyTask)
+        addTaskToProcess(process, "patShiftedModuleTask"+postfix, patShiftedModuleTask)
+        addTaskToProcess(process, "patMetModuleTask"+postfix, patMetModuleTask)
 
         #prepare and fill the final sequence containing all the sub-sequence
         fullPatMetSequence = cms.Sequence()
@@ -527,7 +510,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             fullPatMetTask.add(getattr(process, "slimmedMETs"+postfix))
 
         setattr(process,"fullPatMetSequence"+postfix,fullPatMetSequence)
-        setattr(process,"fullPatMetTask"+postfix,fullPatMetTask)
+        addTaskToProcess(process, "fullPatMetTask"+postfix, fullPatMetTask)
         task = getPatAlgosToolsTask(process)
         task.add(getattr(process,"fullPatMetTask"+postfix))
 
