@@ -1,5 +1,0 @@
-<use name="DataFormats/Common"/>
-<use name="DataFormats/FP420Digi"/>
-<export>
-  <lib name="1"/>
-</export>
