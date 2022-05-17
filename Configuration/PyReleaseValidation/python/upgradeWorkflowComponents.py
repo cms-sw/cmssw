@@ -524,7 +524,8 @@ class UpgradeWorkflow_ecalclustering(UpgradeWorkflow):
         if 'Reco' in step:
             stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="ZEE_14") and '2021PU' in key
+        return (fragment=="ZEE_14" or fragment=="TTbar_14TeV" or fragment=="WprimeTolNu_M3000_13TeV_pythia8"
+            or fragment=="DisplacedSUSY_stopToBottom_M_300_1000mm_13" or fragment=="RunEGamma2018D" ) 
 
 upgradeWFs['ecalDeepSC'] = UpgradeWorkflow_ecalclustering(
     steps = [
