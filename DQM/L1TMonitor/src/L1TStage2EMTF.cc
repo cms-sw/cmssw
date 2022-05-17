@@ -13,8 +13,6 @@ L1TStage2EMTF::L1TStage2EMTF(const edm::ParameterSet& ps)
       monitorDir(ps.getUntrackedParameter<std::string>("monitorDir", "")),
       verbose(ps.getUntrackedParameter<bool>("verbose", false)) {}
 
-L1TStage2EMTF::~L1TStage2EMTF() {}
-
 void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, const edm::EventSetup&) {
   // Monitor Dir
   ibooker.setCurrentFolder(monitorDir);
@@ -110,7 +108,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   rpcHitOccupancy = ibooker.book2D("rpcHitOccupancy", "RPC Chamber Occupancy", 42, 1, 43, 12, 0, 12);
   rpcHitOccupancy->setAxisTitle("Sector (N=neighbor)", 1);
-  for (int bin = 1; bin < 7; ++bin) {
+  for (int bin = 1; bin <= 6; ++bin) {
     rpcHitOccupancy->setBinLabel(bin * 7 - 6, std::to_string(bin), 1);
     rpcHitOccupancy->setBinLabel(bin * 7, "N", 1);
     rpcHitOccupancy->setBinLabel(bin, "RE-" + rpc_label[bin - 1], 2);
@@ -575,8 +573,9 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
   const std::array<std::string, 8> nameCSCStation{
       {"MENeg4", "MENeg3", "MENeg2", "MENeg1", "MEPos1", "MEPos2", "MEPos3", "MEPos4"}};
   const std::array<std::string, 8> labelCSCStation{{"ME-4", "ME-3", "ME-2", "ME-1", "ME+1", "ME+2", "ME+3", "ME+4"}};
-  const std::array<std::string, 6> nameRPCStation{{"RENeg4", "RENeg3", "RENeg2", "REPos2", "REPos3", "REPos4"}};
-  const std::array<std::string, 6> labelRPCStation{{"RE-4", "RE-3", "RE-2", "RE+2", "RE+3", "RE+4"}};
+  const std::array<std::string, 8> nameRPCStation{
+      {"RENeg4", "RENeg3", "RENeg2", "RENeg1", "REPos1", "REPos2", "REPos3", "REPos4"}};
+  const std::array<std::string, 8> labelRPCStation{{"RE-4", "RE-3", "RE-2", "RE-1", "RE+1", "RE+2", "RE+3", "RE+4"}};
 
   for (int iGEM = 0; iGEM < 2; iGEM++) {
     emtfTrackModeVsGEMBXDiff[iGEM] = ibooker.book2D("emtfTrackModeVsGEMBXDiff" + nameGEMStation[iGEM],
@@ -602,7 +601,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     emtfTrackModeVsCSCBXDiff[iCSC]->setAxisTitle("Track BX - LCT BX", 1);
     emtfTrackModeVsCSCBXDiff[iCSC]->setAxisTitle("Track Mode", 2);
   }
-  for (int iRPC = 0; iRPC < 6; iRPC++) {
+  for (int iRPC = 0; iRPC < 8; iRPC++) {
     emtfTrackModeVsRPCBXDiff[iRPC] = ibooker.book2D("emtfTrackModeVsRPCBXDiff" + nameRPCStation[iRPC],
                                                     "EMTF Track Mode vs (Track BX - RPC BX) " + labelRPCStation[iRPC],
                                                     9,
@@ -810,7 +809,10 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
                                                            {{4, 1}, 1},
                                                            {{4, 2}, 0}};
 
-  // Maps RPC staion and ring to the monitor element index and uses symmetry of the endcaps
+  // Maps CSC BX from -2 to 2 to monitor element cscLCTTIming
+  const std::map<int, int> histIndexBX = {{0, 4}, {-1, 0}, {1, 1}, {-2, 2}, {2, 3}};
+
+  // Maps RPC station and ring to the monitor element index and uses symmetry of the endcaps
   const std::map<std::pair<int, int>, int> histIndexRPC = {
       {{4, 3}, 0}, {{4, 2}, 1}, {{3, 3}, 2}, {{3, 2}, 3}, {{2, 2}, 4}, {{1, 2}, 5}};
 
@@ -963,22 +965,21 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
       // LCT and RPC Timing
       if (numHits < 2 || numHits > 4)
         continue;
-      l1t::EMTFHitCollection tmp_hits = Track->Hits();
       int numHitsInTrack_BX0 = 0;
       unsigned int hist_index2 = 4 - numHits;
 
       for (const auto& iTrkHit : Track->Hits()) {
-        if (iTrkHit.Is_CSC() == true) {
+        if (iTrkHit.Is_CSC()) {
           emtfTrackBXVsCSCLCT[hist_index2]->Fill(iTrkHit.BX(), Track->BX());
           int iCSC = (endcap > 0) ? (iTrkHit.Station() + 3) : (4 - iTrkHit.Station());
           emtfTrackModeVsCSCBXDiff[iCSC]->Fill(Track->BX() - iTrkHit.BX(),
                                                mode);  // Add mode vs BXdiff comparison Dec 07 2020
-        } else if (iTrkHit.Is_RPC() == true) {
+        } else if (iTrkHit.Is_RPC()) {
           emtfTrackBXVsRPCHit[hist_index2]->Fill(iTrkHit.BX(), Track->BX());
-          int iRPC = (endcap > 0) ? (iTrkHit.Station() + 2) : (4 - iTrkHit.Station());
+          int iRPC = (endcap > 0) ? (iTrkHit.Station() + 3) : (4 - iTrkHit.Station());
           emtfTrackModeVsRPCBXDiff[iRPC]->Fill(Track->BX() - iTrkHit.BX(),
                                                mode);  // Add mode vs BXdiff comparison Dec 07 2020
-        } else if (iTrkHit.Is_GEM() == true) {
+        } else if (iTrkHit.Is_GEM()) {
           emtfTrackBXVsGEMHit[hist_index2]->Fill(iTrkHit.BX(), Track->BX());
           int iGEM = (endcap > 0) ? 1 : 0;
           emtfTrackModeVsGEMBXDiff[iGEM]->Fill(Track->BX() - iTrkHit.BX(),
@@ -998,6 +999,8 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
       for (const auto& TrkHit : Track->Hits()) {
         int trackHitBX = TrkHit.BX();
+        if (std::abs(trackHitBX) > 2)
+          continue;  // Should never happen, but just to be safe ...
         //int cscid        = TrkHit.CSC_ID();
         int ring = TrkHit.Ring();
         int station = TrkHit.Station();
@@ -1009,10 +1012,6 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
         int hist_index = 0;
         float evt_wgt = (TrkHit.Station() > 1 && TrkHit.Ring() == 1) ? 0.5 : 1.0;
-        // Maps CSC BX from -2 to 2 to monitor element cscLCTTIming
-        const std::map<int, int> histIndexBX = {{0, 4}, {-1, 0}, {1, 1}, {-2, 2}, {2, 3}};
-        if (std::abs(trackHitBX) > 2)
-          continue;  // Should never happen, but just to be safe ...
 
         if (TrkHit.Is_CSC() == true) {
           hist_index = histIndexCSC.at({station, ring});
@@ -1086,10 +1085,6 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
             }  // End loop: for (auto Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit)
           }    // End conditional: if (trackHitBX == 0 && station == 1 && ring == 1)
         }      // End conditional: if (TrkHit.Is_CSC() == true)
-
-        // Maps RPC station and ring to monitor element index
-        const std::map<std::pair<int, int>, int> histIndexRPC = {
-            {{4, 3}, 0}, {{4, 2}, 1}, {{3, 3}, 2}, {{3, 2}, 3}, {{2, 2}, 4}, {{1, 2}, 5}};
 
         if (TrkHit.Is_RPC() == true && neighbor == false) {
           hist_index = histIndexRPC.at({station, ring});
