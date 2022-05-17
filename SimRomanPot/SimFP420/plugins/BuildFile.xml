@@ -1,5 +1,0 @@
-<use name="SimGeneral/HepPDTRecord"/>
-<use name="SimRomanPot/SimFP420"/>
-<library file="*.cc" name="SimRomanPotSimFP420Plugins">
-  <flags EDM_PLUGIN="1"/>
-</library>
