@@ -44,7 +44,7 @@ public:
 
   explicit myTrackAnalyzer(const edm::ParameterSet& conf);
 
-  ~myTrackAnalyzer() override;
+  ~myTrackAnalyzer() override = default;
 
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
@@ -53,6 +53,9 @@ private:
   const bool doPixel_, doStrip_;
   const edm::InputTag trackCollectionTag_;
   const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tokGeo_;
+  const edm::EDGetTokenT<reco::TrackCollection> tokTrack_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tokSimTk_;
+  const edm::EDGetTokenT<edm::SimVertexContainer> tokSimVtx_;
 };
 
 #endif
