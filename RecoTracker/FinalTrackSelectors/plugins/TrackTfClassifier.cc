@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "RecoTracker/FinalTrackSelectors/interface/getBestVertex.h"
 
-#include "TrackingTools/Records/interface/TfGraphRecord.h"
+#include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "PhysicsTools/TensorFlow/interface/TfGraphDefWrapper.h"
 
