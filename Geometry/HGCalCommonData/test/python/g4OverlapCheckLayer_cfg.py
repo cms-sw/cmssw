@@ -1,4 +1,4 @@
-1;2401;0cimport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
 process = cms.Process("OverlapTest",Phase2C11)
