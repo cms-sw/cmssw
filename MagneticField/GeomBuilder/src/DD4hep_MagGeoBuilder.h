@@ -31,6 +31,7 @@ class MagESector;
 class MagVolume6Faces;
 
 namespace magneticfield {
+  class InterpolatorBuilder;
 
   class MagGeoBuilder {
   public:
@@ -63,7 +64,7 @@ namespace magneticfield {
 
   private:
     // Build interpolator for the volume with "correct" rotation
-    MagProviderInterpol* buildInterpolator(const volumeHandle* vol) const;
+    MagProviderInterpol* buildInterpolator(const volumeHandle* vol, InterpolatorBuilder&) const;
 
     // Build all MagVolumes setting the MagProviderInterpol
     void buildMagVolumes(const handles& volumes,
