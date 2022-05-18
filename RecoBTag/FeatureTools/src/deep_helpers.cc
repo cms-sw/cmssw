@@ -230,7 +230,7 @@ namespace btagbtvdeep {
           double upper_bound = var_pset.at("upper_bound");
           double pad = var_pset.contains("pad") ? double(var_pset.at("pad")) : 0;
           prep_params.var_info_map[var_name] =
-	    PreprocessParams::VarInfo(median, norm_factor, replace_inf_value, lower_bound, upper_bound, pad);
+              PreprocessParams::VarInfo(median, norm_factor, replace_inf_value, lower_bound, upper_bound, pad);
         }
 
         if (doExtra && data_ != nullptr) {
@@ -258,7 +258,7 @@ namespace btagbtvdeep {
           double lower_bound = var_pset.getParameter<double>("lower_bound");
           double upper_bound = var_pset.getParameter<double>("upper_bound");
           prep_params.var_info_map[var_name] =
-	    PreprocessParams::VarInfo(median, norm_factor, replace_inf_value, lower_bound, upper_bound, 0);
+              PreprocessParams::VarInfo(median, norm_factor, replace_inf_value, lower_bound, upper_bound, 0);
         }
 
         if (doExtra && data_ != nullptr) {
