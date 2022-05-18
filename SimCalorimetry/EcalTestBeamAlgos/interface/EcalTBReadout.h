@@ -15,11 +15,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
+#include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 
 class EcalTBReadout {
 public:
-  EcalTBReadout(const std::string theEcalTBInfoLabel);
-  ~EcalTBReadout(){};
+  EcalTBReadout(const edm::EDGetTokenT<PEcalTBInfo> &token);
+  ~EcalTBReadout() = default;
 
   /// tell the readout which cells exist
   void setDetIds(const std::vector<DetId> &detIds) { theDetIds = &detIds; }
@@ -46,6 +47,8 @@ public:
                       EEDigiCollection &output);
 
 private:
+  const edm::EDGetTokenT<PEcalTBInfo> ecalTBInfoToken_;
+
   int theTargetCrystal_;
 
   std::vector<EcalTrigTowerDetId> theTTlist_;
@@ -53,8 +56,6 @@ private:
   static const int NCRYMATRIX = 7;
 
   const std::vector<DetId> *theDetIds;
-
-  std::string ecalTBInfoLabel_;
 };
 
 #endif
