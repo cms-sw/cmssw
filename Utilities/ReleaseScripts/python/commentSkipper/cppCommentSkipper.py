@@ -57,7 +57,7 @@ def filterFile(file): #ifstream& input)
                     else:
                         lines[i] = lines[i].replace(lines[i][commentStartColumn:j+2], '', 1) # [code..] /*comment*/ [.. code]
                         j = commentStartColumn - 1 #because of j+=1 at the ends
-            if j != len(lines[i]) - 1:
+            if j < len(lines[i]) - 1:
                 j += 1
             else:
                 j = 0
