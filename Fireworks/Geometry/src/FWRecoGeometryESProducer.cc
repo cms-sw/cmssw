@@ -488,6 +488,7 @@ void FWRecoGeometryESProducer::addTECGeometry(FWRecoGeometry& fwRecoGeometry) {
 
 void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
   std::vector<DetId> vid = m_caloGeom->getValidDetIds();  // Calo
+  std::set<DetId> cache;
   for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
     unsigned int id = insert_id(it->rawId(), fwRecoGeometry);
     if (!((DetId::Forward == it->det()) || (DetId::HGCalEE == it->det()) || (DetId::HGCalHSi == it->det()) ||
@@ -542,6 +543,70 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
 
       // Last EE layer
       fwRecoGeometry.idToName[id].topology[5] = rhtools.lastLayerEE();
+
+      // For each and every wafer in HGCal, add a "fake" DetId with cells'
+      // (u,v) bits set to 1 . Those DetIds will be used inside Fireworks to
+      // render the HGCal Geometry. Due to the huge number of cells involved,
+      // the HGCal geometry for the Silicon Sensor is wafer-based, not cells
+      // based. The representation of the single RecHits and of all quantities
+      // derived from those, is instead fully cells based. The geometry
+      // representation of the Scintillator is directly based on tiles,
+      // therefore no fake DetId creations is needed.
+      if ((det == DetId::HGCalEE) || (det == DetId::HGCalHSi)) {
+        // Avoid hard coding masks by using static data members from HGCSiliconDetId
+        auto maskZeroUV = (HGCSiliconDetId::kHGCalCellVMask << HGCSiliconDetId::kHGCalCellVOffset) |
+          (HGCSiliconDetId::kHGCalCellUMask << HGCSiliconDetId::kHGCalCellUOffset);
+        DetId wafer_detid = it->rawId() | maskZeroUV;
+        // Just be damn sure that's a fake id.
+        assert(wafer_detid != it->rawId());
+        auto [iter, is_new] = cache.insert(wafer_detid);
+        if (is_new) {
+          unsigned int local_id = insert_id(wafer_detid, fwRecoGeometry);
+          auto const & dddConstants = geom->topology().dddConstants();
+          auto wafer_size = static_cast<float>(dddConstants.waferSize(true));
+          auto R = wafer_size / std::sqrt(3.f);
+          auto r = wafer_size / 2.f;
+          float x[6] = {-r, -r, 0.f, r, r, 0.f};
+          float y[6] = {R/2.f, -R/2.f, -R, -R/2.f, R/2.f, R};
+          float z[6] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
+          for (unsigned int i = 0; i < 6; ++i) {
+            HepGeom::Point3D<float> wafer_corner(x[i], y[i], z[i]);
+            auto point = geom->topology().dddConstants().waferLocal2Global(wafer_corner, wafer_detid, true, true, false);
+            fwRecoGeometry.idToName[local_id].points[i * 3 + 0] = point.x();
+            fwRecoGeometry.idToName[local_id].points[i * 3 + 1] = point.y();
+            fwRecoGeometry.idToName[local_id].points[i * 3 + 2] = point.z();
+          }
+          // Nota Bene: rotations of full layers (and wafers therein) is taken
+          // care of internally by the call to the waferLocal2Global method.
+          // Therefore we set up the unit matrix for the rotation.
+          // roll = yaw = pitch = 0
+          fwRecoGeometry.idToName[local_id].matrix[0] = 1.0;
+          fwRecoGeometry.idToName[local_id].matrix[4] = 1.0;
+          fwRecoGeometry.idToName[local_id].matrix[8] = 1.0;
+
+          // thickness
+          fwRecoGeometry.idToName[local_id].shape[3] = cor[cor.size() - 1].z();
+
+          // total points
+          fwRecoGeometry.idToName[local_id].topology[0] = 6;
+
+          // Layer with Offset
+          fwRecoGeometry.idToName[local_id].topology[1] = rhtools.getLayerWithOffset(it->rawId());
+
+          // Zside, +/- 1
+          fwRecoGeometry.idToName[local_id].topology[2] = rhtools.zside(it->rawId());
+
+          // Is Silicon
+          fwRecoGeometry.idToName[local_id].topology[3] = rhtools.isSilicon(it->rawId());
+
+          // Silicon index
+          fwRecoGeometry.idToName[local_id].topology[4] =
+            rhtools.isSilicon(it->rawId()) ? rhtools.getSiThickIndex(it->rawId()) : -1.;
+
+          // Last EE layer
+          fwRecoGeometry.idToName[local_id].topology[5] = rhtools.lastLayerEE();
+        }
+      }
     }
   }
 }
