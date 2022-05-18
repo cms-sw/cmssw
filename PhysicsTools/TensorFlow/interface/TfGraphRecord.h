@@ -1,11 +1,11 @@
-#ifndef TrackingTools_Records_TfGraphRecord_h
-#define TrackingTools_Records_TfGraphRecord_h
+#ifndef PhysicsTools_TensorFlow_TfGraphRecord_h
+#define PhysicsTools_TensorFlow_TfGraphRecord_h
 // -*- C++ -*-
 //
-// Package:     TrackingTools/Records
+// Package:     PhysicsTools/TensorFlow
 // Class  :     TfGraphRecord
 //
-/**\class TfGraphRecord TfGraphRecord.h TrackingTools/Records/interface/TfGraphRecord.h
+/**\class TfGraphRecord TfGraphRecord.h PhysicsTools/TensorFlow/interface/TfGraphRecord.h
  Description: Class to hold Record of a Tensorflow GraphDef that can be used to serve a pretrained tensorflow model for inference
  Usage:
     Used by DataFormats/TrackTfGraph to produce the GraphRecord and RecoTrack/FinalTrackSelection/plugins/TrackTfClassifier.cc to evaluate a track using the graph.
