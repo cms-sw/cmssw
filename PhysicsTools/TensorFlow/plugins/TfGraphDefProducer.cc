@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "TrackingTools/Records/interface/TfGraphRecord.h"
+#include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TfGraphDefWrapper.h"
 
 // class declaration
