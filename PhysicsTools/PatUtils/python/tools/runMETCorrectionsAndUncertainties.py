@@ -271,33 +271,34 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('campaign',campaign),
         self.setParameter('era',era),
 
-        #if puppi MET, autoswitch to std jets
+        # if puppi MET, autoswitch to std jets
         if metType == "Puppi":
             self.setParameter('CHS',False),
 
-        #enabling puppi flag
+        # enabling puppi flag
+        # metType is set back to PF because the necessary adaptions are handled via a postfix and directly changing parameters when Puppi parameter is true
         self.setParameter('Puppi',self._defaultParameters['Puppi'].value)
         if metType == "Puppi":
             self.setParameter('metType',"PF")
             self.setParameter('Puppi',True)
 
-        #jet energy scale uncertainty needs
+        # jet energy scale uncertainty needs
         if manualJetConfig:
             self.setParameter('CHS',CHS)
             self.setParameter('jetCorLabelUpToL3',jetCorLabelUpToL3)
             self.setParameter('jetCorLabelL3Res',jetCorLabelL3Res)
             self.setParameter('reclusterJets',reclusterJets)
         else:
-             #internal jet configuration
+            # internal jet configuration
             self.jetConfiguration()
 
-        #defaults for 2017 fix
-        #(don't need to recluster, just uses a subset of the input jet coll)
+        # defaults for 2017 fix
+        # (don't need to recluster, just uses a subset of the input jet coll)
         if fixEE2017:
             if recoMetFromPFCsIsNone: self.setParameter('recoMetFromPFCs',True)
             if reclusterJetsIsNone: self.setParameter('reclusterJets',False)
 
-        #met reprocessing and jet reclustering
+        # met reprocessing and jet reclustering
         if recoMetFromPFCs and reclusterJetsIsNone and not fixEE2017:
             self.setParameter('reclusterJets',True)
 
@@ -583,15 +584,17 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         patMetModuleTask.add(getattr(process, produceMET_label))
 
 #====================================================================================================
-    def getCorrectedMET(self, process, metType, correctionLevel,produceIntermediateCorrections,
-                        jetCollection, metModuleTask, postfix ):
+    def getCorrectedMET(self, process, metType, correctionLevel, produceIntermediateCorrections,
+                        jetCollection, metModuleTask, postfix):
 
         # default outputs
-        getCorrectedMET_task = cms.Task()
+        getCorrectedMET_task, getCorrectedMET_label = cms.Task(), "getCorrectedMET_task{}".format(postfix)
+        # metModName -> metModuleName
         metModName = "pat"+metType+"Met"+postfix
 
-        # correction level names
-        corNames = { #not really needed but in case we have changes in the future....
+        # names of correction types
+        # not really needed but in case we have changes in the future ...
+        corTypeNames = {
             "T0":"T0pc",
             "T1":"T1",
             "T2":"T2",
@@ -600,14 +603,16 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             }
 
 
-        #if empty correction level, no need to try something
-        for cor in correctionLevel:
-            if cor not in corNames.keys():
-                if cor != "":
-                    raise ValueError(cor+" is not a proper MET correction name! Aborting the MET correction production")
+        # if empty correction level, no need to try something or stop if an unknown correction type is used
+        for corType in correctionLevel:
+            if corType not in corTypeNames.keys():
+                if corType != "":
+                    raise ValueError(corType+" is not a proper MET correction name! Aborting the MET correction production")
+                else:
+                    return metModName
 
-        # names of the tasks implementing a corretion level, see PatUtils/python/patPFMETCorrections_cff.py
-        corModNames = {
+        # names of the tasks implementing a specific corretion type, see PatUtils/python/patPFMETCorrections_cff.py
+        corTypeTaskNames = {
             "T0": "patPFMetT0CorrTask"+postfix,
             "T1": "patPFMetT1T2CorrTask"+postfix,
             "T2": "patPFMetT2CorrTask"+postfix,
@@ -617,6 +622,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             }
 
         # if a postfix is requested, clone the needed correction task to the configs and a add a postfix
+        # this adds all the correction tasks for all the other METs e.g. PuppiMET due to the postfix
         if postfix != "":
             noClonesTmp = [ "particleFlowDisplacedVertex", "pfCandidateToVertexAssociation" ]
             if not hasattr(process, "patPFMetT0CorrTask"+postfix):
@@ -638,13 +644,13 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 configtools.cloneProcessingSnippetTask(process, getattr(process,"patPFMetT2SmearCorrTask"), postfix)
                 getCorrectedMET_task.add(getattr(process,"patPFMetT2SmearCorrTask"+postfix))
 
-        # collect the MET correction tasks which have been added to the process in a dict
-        corModules = {}
-        for mod in corModNames.keys():
-            corModules[mod] = getattr(process, corModNames[mod] )
+        # collect the MET correction tasks, which have been added to the process, in a dict
+        corTypeTasks = {}
+        for corType in corTypeTaskNames.keys():
+            corTypeTasks[corType] = getattr(process, corTypeTaskNames[corType] )
 
-        # the names of the products which are created by the MET correction tasks
-        corTags = {
+        # the names of the products which are created by the MET correction tasks and added to the event
+        corTypeTags = {
             "T0":['patPFMetT0Corr'+postfix,''],
             "T1":['patPFMetT1T2Corr'+postfix, 'type1'],
             "T2":['patPFMetT2Corr'+postfix,   'type2'],
@@ -653,23 +659,23 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             "T2Smear":['patPFMetT2SmearCorr'+postfix, 'type2']
             }
 
-        # build the correction string, collect the corresponding corrections and tasks
-        corScheme=""
-        corrections = []
-        correctionTask = []
-        for cor in correctionLevel:
-            corScheme += corNames[cor]
-            corrections.append(cms.InputTag(corTags[cor][0],corTags[cor][1]))
-            correctionTask.append(corModules[cor])
+        # build the correction string (== correction level), collect the corresponding corrections, and collect the needed tasks
+        correctionScheme=""
+        correctionProducts = []
+        correctionTasks = []
+        for corType in correctionLevel:
+            correctionScheme += corTypeNames[corType]
+            correctionProducts.append(cms.InputTag(corTypeTags[corType][0],corTypeTags[corType][1]))
+            correctionTasks.append(corTypeTasks[corType])
 
         # T2 and smearing corModuleTag switch, specific case
         if "T2" in correctionLevel and "Smear" in correctionLevel:
-            corrections.append(cms.InputTag(corTags["T2Smear"][0],corTags["T2Smear"][1]))
-            correctionTask.append(corModules["T2Smear"])
+            correctionProducts.append(cms.InputTag(corTypeTags["T2Smear"][0],corTypeTags["T2Smear"][1]))
+            correctionTasks.append(corTypeTasks["T2Smear"])
 
         # if both are here, consider smeared corJets for the full T1+Smear correction
         if "T1" in correctionLevel and "Smear" in correctionLevel:
-            corrections.remove(cms.InputTag(corTags["T1"][0],corTags["T1"][1]))
+            correctionProducts.remove(cms.InputTag(corTypeTags["T1"][0],corTypeTags["T1"][1]))
 
         # Txy parameter tuning
         if "Txy" in correctionLevel:
@@ -740,45 +746,44 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "T1" in correctionLevel and self._parameters["CHS"].value and self._parameters["reclusterJets"].value:
             getattr(process, "corrPfMetType1"+postfix).src =  cms.InputTag("ak4PFJetsCHS"+postfix)
 
-        # create the main MET producer
-        metModName = "pat"+metType+"Met"+corScheme+postfix
+        # create the main MET producer with the applied correction scheme
+        metModName = "pat"+metType+"Met"+correctionScheme+postfix
 
         taskName=""
         corMetProducer=None
+        
+        # this should always be true due to the way e.g. PuppiMET is handled (metType is set back to PF and the puppi flag is set to true instead)
         if metType == "PF":
             corMetProducer = cms.EDProducer("CorrectedPATMETProducer",
                        src = cms.InputTag('pat'+metType+'Met' + postfix),
-                       srcCorrections = cms.VInputTag(corrections)
+                       srcCorrections = cms.VInputTag(correctionProducts)
                      )
             taskName="getCorrectedMET_task"
 
         addToProcessAndTask(metModName, corMetProducer, process, getCorrectedMET_task)
 
         # adding the full sequence only if it does not exist
-        if not hasattr(process, taskName+postfix):
-            for corModule in correctionTask:
-                print("bla")
-                #getCorrectedMET_task.add(corModule)
-        else: #if it exists, only add the missing correction modules, no need to redo everything
-            getCorrectedMET_task = getattr(process, "getCorrectedMET_task"+postfix)#cms.Sequence()
-            #setattr(process, taskName+postfix,getCorrectedMET_task)
-            for cor in corModNames.keys():
-                if not configtools.contains(getCorrectedMET_task, corTags[cor][0]) and cor in correctionLevel:
-                    print("blabla")
-                    #getCorrectedMET_task.add(corModules[cor])
+        if not hasattr(process, getCorrectedMET_label):
+            for corTask in correctionTasks:
+                getCorrectedMET_task.add(corTask)
+        # if it exists, only add the missing correction modules, no need to redo everything
+        else:
+            for corType in corTypeTaskNames.keys():
+                if not configtools.contains(getCorrectedMET_task, corTypeTags[corType][0]) and corType in correctionLevel:
+                    getCorrectedMET_task.add(corTypeTasks[corType])
 
         # plug the main patMetproducer
         getCorrectedMET_task.add(getattr(process, metModName))
+        
+        addTaskToProcess(process, getCorrectedMET_label, getCorrectedMET_task)
+        metModuleTask.add(getattr(process, getCorrectedMET_label))
 
-        #create the intermediate MET steps
-        #and finally add the met producers in the sequence for scheduled mode
+        # create the intermediate MET steps
+        # and finally add the met producers in the sequence for scheduled mode
         if produceIntermediateCorrections:
-            interMets = self.addIntermediateMETs(process, metType, correctionLevel, corScheme, corTags,corNames, postfix)
+            interMets = self.addIntermediateMETs(process, metType, correctionLevel, correctionScheme, corTypeTags,corTypeNames, postfix)
             for met in interMets.keys():
                 addToProcessAndTask(met, interMets[met], process, getCorrectedMET_task)
-
-        setattr(process, taskName+postfix, getCorrectedMET_task)
-        metModuleTask.add(getattr(process, taskName+postfix))
 
         return metModName
 
@@ -825,7 +830,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                 continue
 
             corName='pat'+metType+'Met' + corName + postfix
-            if configtools.contains(getattr(process,"patMetCorrectionTask"+postfix), corName ) and hasattr(process, corName):
+            if configtools.contains(getattr(process,"getCorrectedMET_task"+postfix), corName ) and hasattr(process, corName):
                 continue
 
             interMets[corName] =  cms.EDProducer("CorrectedPATMETProducer",
