@@ -29,7 +29,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -49,7 +49,7 @@ using namespace fftjetcms;
 //
 // class declaration
 //
-class FFTJetTreeDump : public edm::EDAnalyzer {
+class FFTJetTreeDump : public edm::stream::EDAnalyzer<> {
 public:
   explicit FFTJetTreeDump(const edm::ParameterSet&);
   FFTJetTreeDump() = delete;
@@ -64,13 +64,10 @@ private:
   typedef fftjet::OpenDXPeakTree<long, fftjet::AbsClusteringTree> DXFormatter;
   typedef fftjet::OpenDXPeakTree<long, fftjet::SparseClusteringTree> SparseFormatter;
   typedef fftjet::Functor1<double, fftjet::Peak> PeakProperty;
-  typedef reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > StoredTree;
+  typedef reco::PattRecoTree<float, reco::PattRecoPeak<float> > StoredTree;
 
-  void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
-  template <class Real>
   void processTreeData(const edm::Event&, std::ofstream&);
 
   template <class Ptr>
@@ -88,7 +85,6 @@ private:
 
   const std::string outputPrefix;
   const double etaMax;
-  const bool storeInSinglePrecision;
   const bool insertCompleteEvent;
   const double completeEventScale;
 
@@ -120,7 +116,6 @@ FFTJetTreeDump::FFTJetTreeDump(const edm::ParameterSet& ps)
       treeLabel(ps.getParameter<edm::InputTag>("treeLabel")),
       outputPrefix(ps.getParameter<std::string>("outputPrefix")),
       etaMax(ps.getParameter<double>("etaMax")),
-      storeInSinglePrecision(true),
       insertCompleteEvent(ps.getParameter<bool>("insertCompleteEvent")),
       completeEventScale(ps.getParameter<double>("completeEventScale")),
       counter(0) {
@@ -162,7 +157,6 @@ FFTJetTreeDump::~FFTJetTreeDump() { delete clusteringTree; }
 //
 // member functions
 //
-template <class Real>
 void FFTJetTreeDump::processTreeData(const edm::Event& iEvent, std::ofstream& file) {
   // Get the event number
   edm::RunNumber_t const runNum = iEvent.id().run();
@@ -195,17 +189,8 @@ void FFTJetTreeDump::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (!file)
     throw cms::Exception("FFTJetBadConfig") << "Failed to open file \"" << filename.str() << "\"" << std::endl;
 
-  if (storeInSinglePrecision)
-    processTreeData<float>(iEvent, file);
-  else
-    processTreeData<double>(iEvent, file);
+  processTreeData(iEvent, file);
 }
-
-// ------------ method called once each job just before starting event loop
-void FFTJetTreeDump::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop
-void FFTJetTreeDump::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetTreeDump);
