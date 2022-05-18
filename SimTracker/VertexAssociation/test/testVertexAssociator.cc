@@ -167,17 +167,17 @@ void testVertexAssociator::endJob() {
 }
 
 void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetup &setup) {
-
   //const auto &theMF = setup.getHandle(tokenMF_);
 
-  const edm::Handle<reco::VertexToTrackingVertexAssociator> &theTracksAssociator = event.getHandle(associatorByTracksToken);
+  const edm::Handle<reco::VertexToTrackingVertexAssociator> &theTracksAssociator =
+      event.getHandle(associatorByTracksToken);
   associatorByTracks = theTracksAssociator.product();
 
   ++n_event_;
 
   std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event_ << std::endl << std::endl;
 
-  const auto& TVCollection = event.getHandle(tokenTV_);
+  const auto &TVCollection = event.getHandle(tokenTV_);
   const TrackingVertexCollection tVC = *(TVCollection.product());
 
   // Vertex Collection
@@ -186,18 +186,18 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
 
   std::cout << std::endl;
   std::cout << "                      ****************** Before Assocs "
-          "****************** "
-       << std::endl
-       << std::endl;
+               "****************** "
+            << std::endl
+            << std::endl;
 
   std::cout << "vertexCollection.size() = " << vC.size() << std::endl;
   std::cout << "TVCollection.size()     = " << tVC.size() << std::endl;
 
   std::cout << std::endl;
   std::cout << "                      ****************** Reco To Sim "
-          "****************** "
-       << std::endl
-       << std::endl;
+               "****************** "
+            << std::endl
+            << std::endl;
 
   // std::cout << "-- Associator by hits --" << std::endl;
   reco::VertexRecoToSimCollection r2sVertices = associatorByTracks->associateRecoToSim(vertexCollection, TVCollection);
@@ -206,7 +206,7 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
 
   std::cout << std::endl;
   std::cout << "VertexRecoToSim size           = " << r2sVertices.size()
-       << " ; VertexSimToReco size           = " << r2sVertices.size() << " " << std::endl;
+            << " ; VertexSimToReco size           = " << r2sVertices.size() << " " << std::endl;
 
   std::cout << std::endl << " [testVertexAssociator] Analyzing Reco To Sim" << std::endl;
 
@@ -271,10 +271,10 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
   }  // end iR2S
 
   std::cout << std::endl
-       << "                      ****************** Sim To Reco "
-          "****************** "
-       << std::endl
-       << std::endl;
+            << "                      ****************** Sim To Reco "
+               "****************** "
+            << std::endl
+            << std::endl;
 
   std::cout << std::endl << "[testVertexAssociator] Analyzing Sim To Reco" << std::endl;
 
