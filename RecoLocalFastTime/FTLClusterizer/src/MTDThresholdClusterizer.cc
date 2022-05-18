@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 // Our own includes
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDArrayBuffer.h"
 #include "RecoLocalFastTime/FTLClusterizer/interface/MTDThresholdClusterizer.h"

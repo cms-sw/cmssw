@@ -203,12 +203,14 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
 #ifdef EDM_ML_DEBUG
   for (const auto& hits : *mtdTrkHitHandle) {
-    LogDebug("EtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
-    for (const auto& hit : hits) {
-      LogDebug("EtlLocalRecoValidation") << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y()
-                                         << " : " << hit.localPositionError().xx() << ","
-                                         << hit.localPositionError().yy() << " : " << hit.time() << " : "
-                                         << hit.timeError();
+    if (MTDDetId(hits.id()).mtdSubDetector() == MTDDetId::MTDType::ETL) {
+      LogDebug("EtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
+      for (const auto& hit : hits) {
+        LogDebug("EtlLocalRecoValidation")
+            << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
+            << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
+            << hit.timeError();
+      }
     }
   }
 #endif
