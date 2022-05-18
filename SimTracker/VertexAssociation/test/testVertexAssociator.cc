@@ -52,9 +52,11 @@ private:
   const reco::TrackToTrackingParticleAssociator *associatorByHits;
   const reco::VertexToTrackingVertexAssociator *associatorByTracks;
 
-  edm::InputTag vertexCollection_;
-  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> associatorByTracksToken;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenMF_;
+  const edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> associatorByTracksToken;
+  const edm::InputTag vertexCollection_;
+  const edm::EDGetTokenT<TrackingVertexCollection> tokenTV_;
+  const edm::EDGetTokenT<edm::View<reco::Vertex>> tokenVtx_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokenMF_;
 
   int n_event_;
   int n_rs_vertices_;
@@ -101,16 +103,14 @@ private:
 class TrackAssociatorByHits;
 class TrackerHitAssociator;
 
-using namespace reco;
-using namespace std;
-using namespace edm;
-
 testVertexAssociator::testVertexAssociator(edm::ParameterSet const &conf)
     : associatorByTracksToken(consumes<reco::VertexToTrackingVertexAssociator>(
-          conf.getUntrackedParameter<edm::InputTag>("vertexAssociation"))) {
+          conf.getUntrackedParameter<edm::InputTag>("vertexAssociation"))),
+      vertexCollection_(conf.getUntrackedParameter<edm::InputTag>("vertexCollection")),
+      tokenTV_(consumes<TrackingVertexCollection>(edm::InputTag("mix", "MergedTrackTruth"))),
+      tokenVtx_(consumes<edm::View<reco::Vertex>>(vertexCollection_)),
+      tokenMF_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {
   usesResource(TFileService::kSharedResource);
-  vertexCollection_ = conf.getUntrackedParameter<edm::InputTag>("vertexCollection");
-  tokenMF_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
 
   n_event_ = 0;
   n_rs_vertices_ = 0;
@@ -167,53 +167,48 @@ void testVertexAssociator::endJob() {
 }
 
 void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetup &setup) {
-  using namespace edm;
-  using namespace reco;
-
   //const auto &theMF = setup.getHandle(tokenMF_);
 
-  edm::Handle<VertexToTrackingVertexAssociator> theTracksAssociator;
-  event.getByToken(associatorByTracksToken, theTracksAssociator);
+  const edm::Handle<reco::VertexToTrackingVertexAssociator> &theTracksAssociator =
+      event.getHandle(associatorByTracksToken);
   associatorByTracks = theTracksAssociator.product();
 
   ++n_event_;
 
   std::cout << "*** Analyzing " << event.id() << " n_event = " << n_event_ << std::endl << std::endl;
 
-  edm::Handle<TrackingVertexCollection> TVCollection;
-  event.getByLabel("mix", "MergedTrackTruth", TVCollection);
+  const auto &TVCollection = event.getHandle(tokenTV_);
   const TrackingVertexCollection tVC = *(TVCollection.product());
 
   // Vertex Collection
-  edm::Handle<edm::View<reco::Vertex>> vertexCollection;
-  event.getByLabel(vertexCollection_, vertexCollection);
+  const edm::Handle<edm::View<reco::Vertex>> &vertexCollection = event.getHandle(tokenVtx_);
   const edm::View<reco::Vertex> vC = *(vertexCollection.product());
 
-  cout << endl;
-  cout << "                      ****************** Before Assocs "
-          "****************** "
-       << endl
-       << endl;
+  std::cout << std::endl;
+  std::cout << "                      ****************** Before Assocs "
+               "****************** "
+            << std::endl
+            << std::endl;
 
-  cout << "vertexCollection.size() = " << vC.size() << endl;
-  cout << "TVCollection.size()     = " << tVC.size() << endl;
+  std::cout << "vertexCollection.size() = " << vC.size() << std::endl;
+  std::cout << "TVCollection.size()     = " << tVC.size() << std::endl;
 
-  cout << endl;
-  cout << "                      ****************** Reco To Sim "
-          "****************** "
-       << endl
-       << endl;
+  std::cout << std::endl;
+  std::cout << "                      ****************** Reco To Sim "
+               "****************** "
+            << std::endl
+            << std::endl;
 
-  // cout << "-- Associator by hits --" << endl;
+  // std::cout << "-- Associator by hits --" << std::endl;
   reco::VertexRecoToSimCollection r2sVertices = associatorByTracks->associateRecoToSim(vertexCollection, TVCollection);
 
   reco::VertexSimToRecoCollection s2rVertices = associatorByTracks->associateSimToReco(vertexCollection, TVCollection);
 
-  cout << endl;
-  cout << "VertexRecoToSim size           = " << r2sVertices.size()
-       << " ; VertexSimToReco size           = " << r2sVertices.size() << " " << endl;
+  std::cout << std::endl;
+  std::cout << "VertexRecoToSim size           = " << r2sVertices.size()
+            << " ; VertexSimToReco size           = " << r2sVertices.size() << " " << std::endl;
 
-  cout << endl << " [testVertexAssociator] Analyzing Reco To Sim" << endl;
+  std::cout << std::endl << " [testVertexAssociator] Analyzing Reco To Sim" << std::endl;
 
   int cont_recvR2S = 0;
 
@@ -238,7 +233,7 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
 
       ++n_rs_vtxassocs_;
 
-      cout << "rec vertex " << cont_recvR2S << " has associated sim vertex " << cont_simvR2S << endl;
+      std::cout << "rec vertex " << cont_recvR2S << " has associated sim vertex " << cont_simvR2S << std::endl;
 
       double nsimtrk = simVertex->daughterTracks().size();
       double qual = iMatch->second;
@@ -254,7 +249,7 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
       double pullz = (recVertex->z() - simVertex->position().z()) / recVertex->zError();
       double dist = sqrt(resx * resx + resy * resy + resz * resz);
 
-      cout << "            R2S: recPos = " << recPos << " ; simPos = " << simPos << endl;
+      std::cout << "            R2S: recPos = " << recPos << " ; simPos = " << simPos << std::endl;
 
       rs_resx->Fill(resx);
       rs_resy->Fill(resy);
@@ -275,13 +270,13 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
 
   }  // end iR2S
 
-  cout << endl
-       << "                      ****************** Sim To Reco "
-          "****************** "
-       << endl
-       << endl;
+  std::cout << std::endl
+            << "                      ****************** Sim To Reco "
+               "****************** "
+            << std::endl
+            << std::endl;
 
-  cout << endl << "[testVertexAssociator] Analyzing Sim To Reco" << endl;
+  std::cout << std::endl << "[testVertexAssociator] Analyzing Sim To Reco" << std::endl;
 
   int cont_simvS2R = 0;
   for (reco::VertexSimToRecoCollection::const_iterator iS2R = s2rVertices.begin(); iS2R != s2rVertices.end();
@@ -294,19 +289,19 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
 
     double nsimtrk = simVertex->daughterTracks().size();
 
-    std::vector<std::pair<VertexBaseRef, double>> recoVertices = iS2R->val;
+    std::vector<std::pair<reco::VertexBaseRef, double>> recoVertices = iS2R->val;
 
     int cont_recvS2R = 0;
 
-    for (std::vector<std::pair<VertexBaseRef, double>>::const_iterator iMatch = recoVertices.begin();
+    for (std::vector<std::pair<reco::VertexBaseRef, double>>::const_iterator iMatch = recoVertices.begin();
          iMatch != recoVertices.end();
          ++iMatch, ++cont_recvS2R) {
-      VertexBaseRef recVertex = iMatch->first;
+      reco::VertexBaseRef recVertex = iMatch->first;
       math::XYZPoint recPos = recVertex->position();
 
       ++n_sr_vtxassocs_;
 
-      cout << "sim vertex " << cont_simvS2R << " has associated rec vertex " << cont_recvS2R << endl;
+      std::cout << "sim vertex " << cont_simvS2R << " has associated rec vertex " << cont_recvS2R << std::endl;
 
       double nrectrk = recVertex->tracksSize();
       double qual = iMatch->second;
@@ -322,7 +317,7 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
       double pullz = (recVertex->z() - simVertex->position().z()) / recVertex->zError();
       double dist = sqrt(resx * resx + resy * resy + resz * resz);
 
-      cout << "            S2R: simPos = " << simPos << " ; recPos = " << recPos << endl;
+      std::cout << "            S2R: simPos = " << simPos << " ; recPos = " << recPos << std::endl;
 
       sr_resx->Fill(resx);
       sr_resy->Fill(resy);
@@ -343,7 +338,7 @@ void testVertexAssociator::analyze(const edm::Event &event, const edm::EventSetu
 
   }  // end iS2R
 
-  cout << endl;
+  std::cout << std::endl;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
