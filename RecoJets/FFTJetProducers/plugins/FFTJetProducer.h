@@ -182,7 +182,8 @@ private:
 
   // Useful local utilities
   template <class Real>
-  void loadSparseTreeData(const edm::Event&, const edm::EDGetTokenT<reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > >& tok);
+  void loadSparseTreeData(const edm::Event&,
+                          const edm::EDGetTokenT<reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > >& tok);
 
   void removeFakePreclusters();
 

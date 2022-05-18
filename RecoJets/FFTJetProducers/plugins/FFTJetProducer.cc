@@ -174,11 +174,9 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
   std::sort(iniScales->begin(), iniScales->end(), std::greater<double>());
 
   if (storeInSinglePrecision())
-      input_recotree_token_f_ =
-          consumes<reco::PattRecoTree<float, reco::PattRecoPeak<float> > >(treeLabel);
+    input_recotree_token_f_ = consumes<reco::PattRecoTree<float, reco::PattRecoPeak<float> > >(treeLabel);
   else
-      input_recotree_token_d_ =
-          consumes<reco::PattRecoTree<double, reco::PattRecoPeak<double> > >(treeLabel);
+    input_recotree_token_d_ = consumes<reco::PattRecoTree<double, reco::PattRecoPeak<double> > >(treeLabel);
   input_genjet_token_ = consumes<std::vector<reco::FFTAnyJet<reco::GenJet> > >(genJetsLabel);
   input_energyflow_token_ = consumes<reco::DiscretizedEnergyFlow>(treeLabel);
   input_pusummary_token_ = consumes<reco::FFTJetPileupSummary>(pileupLabel);
@@ -196,8 +194,7 @@ FFTJetProducer::~FFTJetProducer() {}
 //
 template <class Real>
 void FFTJetProducer::loadSparseTreeData(
-    const edm::Event& iEvent,
-    const edm::EDGetTokenT<reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > >& tok) {
+    const edm::Event& iEvent, const edm::EDGetTokenT<reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > >& tok) {
   typedef reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > StoredTree;
 
   // Get the input
@@ -657,9 +654,9 @@ void FFTJetProducer::saveResults(edm::Event& ev, const edm::EventSetup& iSetup, 
 void FFTJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Load the clustering tree made by FFTJetPatRecoProducer
   if (storeInSinglePrecision())
-      loadSparseTreeData<float>(iEvent, input_recotree_token_f_);
+    loadSparseTreeData<float>(iEvent, input_recotree_token_f_);
   else
-      loadSparseTreeData<double>(iEvent, input_recotree_token_d_);
+    loadSparseTreeData<double>(iEvent, input_recotree_token_d_);
 
   // Do we need to load the candidate collection?
   if (assignConstituents || !(useGriddedAlgorithm && reuseExistingGrid))
