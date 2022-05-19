@@ -3,12 +3,15 @@ from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
 process = cms.Process("OverlapTest",Phase2C11)
 
-process.load('Geometry.HGCalCommonData.testHGCalWaferFRXML_cfi')
+process.load('Geometry.HGCalCommonData.testHGCalEEV17XML_cfi')
+#process.load('Geometry.HGCalCommonData.testHGCalHEsilV17XML_cfi')
+#process.load('Geometry.HGCalCommonData.testHGCalHEmixV17XML_cfi')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-#if hasattr(process,'MessageLogger'):
-#    process.MessageLogger.SimG4CoreGeometry=dict()
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.SimG4CoreGeometry=dict()
+    process.MessageLogger.HGCalGeom=dict()
 
 from SimG4Core.PrintGeomInfo.g4TestGeometry_cfi import *
 process = checkOverlap(process)
@@ -18,7 +21,7 @@ process.g4SimHits.CheckGeometry = True
 process.g4SimHits.OnlySDs = ['DreamSensitiveDetector']
 
 # Geant4 geometry check 
-process.g4SimHits.G4CheckOverlap.OutputBaseName = "hgcalwaferFR"
+process.g4SimHits.G4CheckOverlap.OutputBaseName = "hgcalEE"
 process.g4SimHits.G4CheckOverlap.OverlapFlag = True
 process.g4SimHits.G4CheckOverlap.Tolerance  = 0.01
 process.g4SimHits.G4CheckOverlap.Resolution = 10000
