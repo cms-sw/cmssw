@@ -175,37 +175,6 @@ def customiseFor2018Input(process):
     return process
 
 
-def customiseFor37231(process):
-    """ Customisation to fix the typo of Reccord in PR 37231 (https://github.com/cms-sw/cmssw/pull/37231) """
-
-    for prod in producers_by_type(process, 'DeDxEstimatorProducer'):
-        if hasattr(prod, 'Reccord'):
-            prod.Record = prod.Reccord
-            delattr(prod, 'Reccord')
-
-    return process
-
-def customiseFor37756(process):
-    """https://github.com/cms-sw/cmssw/pull/37756
-    Removal of use_preshower parameter from PFECALSuperClusterProducer
-    """
-    for prod in producers_by_type(process, 'PFECALSuperClusterProducer'):
-        if hasattr(prod, 'use_preshower'):
-            delattr(prod, 'use_preshower')
-
-    return process
-
-def customiseFor37646(process):
-    """ Customisation to remove a renamed parameter in HLTScoutingPFProducer
-     from PR 37646 (https://github.com/cms-sw/cmssw/pull/37646)
-    """
-    for prod in producers_by_type(process, 'HLTScoutingPFProducer'):
-        if hasattr(prod, 'doTrackRelVars'):
-            delattr(prod, 'doTrackRelVars')
-            
-    return process
-
-
 def customiseForOffline(process):
 
     # For running HLT offline on Run-3 Data, use "(OnlineBeamSpotESProducer).timeThreshold = 1e6",
@@ -227,9 +196,5 @@ def customizeHLTforCMSSW(process, menuType="GRun"):
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
-
-    process = customiseFor37231(process)
-    process = customiseFor37646(process)
-    process = customiseFor37756(process)
 
     return process
