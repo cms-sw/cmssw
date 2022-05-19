@@ -41,6 +41,9 @@ namespace magneticfield::interpolation {
     bool operator!() const;
     operator bool() const;
 
+    long tellg();
+    binary_ifstream& seekg(long);
+
   private:
     FILE* file_;
 
