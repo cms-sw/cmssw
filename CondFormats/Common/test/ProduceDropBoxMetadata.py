@@ -46,6 +46,10 @@ BeamSpotObjectsRcdHPByRun_prep_str = encodeJsonInString("BeamSpotObjectsRcdHPbyR
 SiStripBadStripRcd_prod_str = encodeJsonInString("SiStripBadStripRcd_prod.json")
 SiStripBadStripRcd_prep_str = encodeJsonInString("SiStripBadStripRcd_prep.json")
 
+#SiStripBadStripRcd from Hit Efficiency
+SiStripBadStripRcdHitEff_prod_str = encodeJsonInString("SiStripBadStripFromHitEffRcd_prod.json")
+SiStripBadStripRcdHitEff_prep_str = encodeJsonInString("SiStripBadStripFromHitEffRcd_prep.json")
+
 #SiStripApvGainRcd
 SiStripApvGainRcd_prod_str = encodeJsonInString("SiStripApvGainRcd_prod.json")
 SiStripApvGainRcd_multirun_prod_str = encodeJsonInString("SiStripApvGainRcd_multirun_prod.json") 
@@ -130,6 +134,12 @@ process.mywriter = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                                                FileClass           = cms.untracked.string("ALCA"),
                                                                prodMetaData        = cms.untracked.string(SiStripBadStripRcd_prod_str),
                                                                prepMetaData        = cms.untracked.string(SiStripBadStripRcd_prep_str),
+                                                               ),
+                                                      cms.PSet(record              = cms.untracked.string('SiStripBadStripFromHitEffRcd'),
+                                                               Source              = cms.untracked.string("AlcaHarvesting"),
+                                                               FileClass           = cms.untracked.string("ALCA"),
+                                                               prodMetaData        = cms.untracked.string(SiStripBadStripRcdHitEff_prod_str),
+                                                               prepMetaData        = cms.untracked.string(SiStripBadStripRcdHitEff_prep_str),
                                                                ),
                                                       cms.PSet(record              = cms.untracked.string('SiStripApvGainRcd'),
                                                                Source              = cms.untracked.string("AlcaHarvesting"),
@@ -242,5 +252,4 @@ if process.mywriter.write:
                                               )
     
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '121X_dataRun3_Express_Queue'
-
+process.GlobalTag.globaltag = '124X_dataRun3_Express_Queue'
