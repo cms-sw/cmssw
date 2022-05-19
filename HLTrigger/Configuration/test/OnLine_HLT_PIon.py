@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_3_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_12_3_0/PIon/V79 (CMSSW_12_3_0)
+# /dev/CMSSW_12_3_0/PIon/V84 (CMSSW_12_3_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/PIon/V79')
+  tableName = cms.string('/dev/CMSSW_12_3_0/PIon/V84')
 )
 
 process.transferSystem = cms.PSet( 
@@ -4765,6 +4765,11 @@ process.hltESPTrajectorySmootherRK = cms.ESProducer( "KFTrajectorySmootherESProd
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" ),
   errorRescaling = cms.double( 100.0 ),
   minHits = cms.int32( 3 ),
+  appendToDataLabel = cms.string( "" )
+)
+process.hltOnlineBeamSpotESProducer = cms.ESProducer( "OnlineBeamSpotESProducer",
+  timeThreshold = cms.int32( 48 ),
+  sigmaZThreshold = cms.double( 2.0 ),
   appendToDataLabel = cms.string( "" )
 )
 process.hltPixelTracksCleanerBySharedHits = cms.ESProducer( "PixelTrackCleanerBySharedHitsESProducer",
