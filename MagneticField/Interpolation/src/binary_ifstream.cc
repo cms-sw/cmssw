@@ -102,4 +102,11 @@ namespace magneticfield::interpolation {
 
   binary_ifstream::operator bool() const { return good(); }
 
+  long binary_ifstream::tellg() { return ftell(file_); }
+
+  binary_ifstream& binary_ifstream::seekg(long to) {
+    fseek(file_, to, 0);
+    return *this;
+  }
+
 }  // namespace magneticfield::interpolation
