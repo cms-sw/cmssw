@@ -274,7 +274,7 @@ std::vector<unsigned int> FWGeometry::getMatchedIds(Detector det) const {
     if (det == HGCalHSc) {
       ids.push_back(it.id);
     } else {
-      auto key = 0x3FF; // 10 bits mask of 1s.
+      auto key = 0x3FF;  // 10 bits mask of 1s.
       if ((it.id | key) == it.id) {
         ids.push_back(it.id);
       }
@@ -362,13 +362,13 @@ TEveGeoShape* FWGeometry::getHGCSiliconEveShape(unsigned int id) const {
   TGeoXtru* geoShape = new TGeoXtru(2);
   Double_t x[6];
   Double_t y[6];
-  for (unsigned int i = 0 ; i < 6; ++i) {
+  for (unsigned int i = 0; i < 6; ++i) {
     x[i] = info.points[i * 3];
     y[i] = info.points[3 * i + 1];
   }
   geoShape->DefinePolygon(6, x, y);
-  geoShape->DefineSection(0, info.points[2] - 0.0150); // First plane at the Z position of the wafer, minus 150um
-  geoShape->DefineSection(1, info.points[2] + 0.0150); // Second plane at the Z position of the wafer, minus 150um
+  geoShape->DefineSection(0, info.points[2] - 0.0150);  // First plane at the Z position of the wafer, minus 150um
+  geoShape->DefineSection(1, info.points[2] + 0.0150);  // Second plane at the Z position of the wafer, minus 150um
 
   shape->SetShape(geoShape);
   double array[16] = {info.matrix[0],
@@ -383,9 +383,9 @@ TEveGeoShape* FWGeometry::getHGCSiliconEveShape(unsigned int id) const {
                       info.matrix[5],
                       info.matrix[8],
                       0.,
-                      0., // translation x
-                      0., // translation y
-                      0., // translation z
+                      0.,  // translation x
+                      0.,  // translation y
+                      0.,  // translation z
                       1.};
   // Set transformation matrix from a column-major array
   shape->SetTransMatrix(array);

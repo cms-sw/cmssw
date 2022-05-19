@@ -562,9 +562,9 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
       // of 60 degrees wrt the Y axis. The default way in which an hexagon is
       // rendered inside Fireworks is with the vertex down.
       if (rhtools.isSilicon(it->rawId())) {
-        auto val_x = (cor[0].x()-cor[3].x());
-        auto val_y = (cor[0].y()-cor[3].y());
-        auto val = round(std::acos(val_y / std::sqrt(val_x*val_x + val_y*val_y))/M_PI*180.);
+        auto val_x = (cor[0].x() - cor[3].x());
+        auto val_y = (cor[0].y() - cor[3].y());
+        auto val = round(std::acos(val_y / std::sqrt(val_x * val_x + val_y * val_y)) / M_PI * 180.);
         // Pass down the chain the vaue of the rotation of the cell wrt the Y axis.
         fwRecoGeometry.idToName[id].shape[2] = val;
       }
@@ -580,23 +580,24 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
       if ((det == DetId::HGCalEE) || (det == DetId::HGCalHSi)) {
         // Avoid hard coding masks by using static data members from HGCSiliconDetId
         auto maskZeroUV = (HGCSiliconDetId::kHGCalCellVMask << HGCSiliconDetId::kHGCalCellVOffset) |
-          (HGCSiliconDetId::kHGCalCellUMask << HGCSiliconDetId::kHGCalCellUOffset);
+                          (HGCSiliconDetId::kHGCalCellUMask << HGCSiliconDetId::kHGCalCellUOffset);
         DetId wafer_detid = it->rawId() | maskZeroUV;
         // Just be damn sure that's a fake id.
         assert(wafer_detid != it->rawId());
         auto [iter, is_new] = cache.insert(wafer_detid);
         if (is_new) {
           unsigned int local_id = insert_id(wafer_detid, fwRecoGeometry);
-          auto const & dddConstants = geom->topology().dddConstants();
+          auto const& dddConstants = geom->topology().dddConstants();
           auto wafer_size = static_cast<float>(dddConstants.waferSize(true));
           auto R = wafer_size / std::sqrt(3.f);
           auto r = wafer_size / 2.f;
           float x[6] = {-r, -r, 0.f, r, r, 0.f};
-          float y[6] = {R/2.f, -R/2.f, -R, -R/2.f, R/2.f, R};
+          float y[6] = {R / 2.f, -R / 2.f, -R, -R / 2.f, R / 2.f, R};
           float z[6] = {0.f, 0.f, 0.f, 0.f, 0.f, 0.f};
           for (unsigned int i = 0; i < 6; ++i) {
             HepGeom::Point3D<float> wafer_corner(x[i], y[i], z[i]);
-            auto point = geom->topology().dddConstants().waferLocal2Global(wafer_corner, wafer_detid, true, true, false);
+            auto point =
+                geom->topology().dddConstants().waferLocal2Global(wafer_corner, wafer_detid, true, true, false);
             fwRecoGeometry.idToName[local_id].points[i * 3 + 0] = point.x();
             fwRecoGeometry.idToName[local_id].points[i * 3 + 1] = point.y();
             fwRecoGeometry.idToName[local_id].points[i * 3 + 2] = point.z();
@@ -626,7 +627,7 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
 
           // Silicon index
           fwRecoGeometry.idToName[local_id].topology[4] =
-            rhtools.isSilicon(it->rawId()) ? rhtools.getSiThickIndex(it->rawId()) : -1.;
+              rhtools.isSilicon(it->rawId()) ? rhtools.getSiThickIndex(it->rawId()) : -1.;
 
           // Last EE layer
           fwRecoGeometry.idToName[local_id].topology[5] = rhtools.lastLayerEE();
