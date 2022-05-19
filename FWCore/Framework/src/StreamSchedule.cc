@@ -599,19 +599,18 @@ namespace edm {
           }
         }
       }
-      //find SwitchProducers whose chosen case is an alias
+      //find SwitchProducers whose cases are aliases
       {
         auto const& all_modules = proc_pset.getParameter<std::vector<std::string>>("@all_modules");
         std::vector<std::string> switchEDAliases;
         for (auto const& module : all_modules) {
           auto const& mod_pset = proc_pset.getParameter<edm::ParameterSet>(module);
           if (mod_pset.getParameter<std::string>("@module_type") == "SwitchProducer") {
-            auto const& chosen_case = mod_pset.getUntrackedParameter<std::string>("@chosen_case");
-            auto range = aliasMap.equal_range(chosen_case);
-            if (range.first != range.second) {
-              switchEDAliases.push_back(chosen_case);
-              for (auto it = range.first; it != range.second; ++it) {
-                aliasMap.emplace(module, it->second);
+            auto const& all_cases = mod_pset.getParameter<std::vector<std::string>>("@all_cases");
+            for (auto const& case_label : all_cases) {
+              auto range = aliasMap.equal_range(case_label);
+              if (range.first != range.second) {
+                switchEDAliases.push_back(case_label);
               }
             }
           }
