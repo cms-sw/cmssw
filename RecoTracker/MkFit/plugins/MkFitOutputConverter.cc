@@ -617,6 +617,8 @@ std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection co
   tensorflow::Tensor input2(tensorflow::DT_FLOAT, {bsize_, 1});
 
   for (auto nb = 0; nb < nbatches + 1; nb++) {
+    std::vector<bool> invalidProp(bsize_, false);
+
     for (auto nt = 0; nt < bsize_; nt++) {
       int itrack = nt + bsize_ * nb;
       if (itrack >= size_in)
@@ -634,6 +636,7 @@ std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection co
 
       if (!(tsAtClosestApproachTrackCand.isValid())) {
         edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
+        invalidProp[nt] = true;
         continue;
       }
 
@@ -687,7 +690,7 @@ std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection co
       input1.matrix<float>()(nt, 13) = trk.dz(bs->position());
       input1.matrix<float>()(nt, 14) = trk.dxyError();
       input1.matrix<float>()(nt, 15) = trk.dzError();
-      input1.matrix<float>()(nt, 16) = chi2[itrack] / ndof;
+      input1.matrix<float>()(nt, 16) = ndof > 0 ? chi2[itrack] / ndof : chi2[itrack] * 1e6;
       input1.matrix<float>()(nt, 17) = trk.eta();
       input1.matrix<float>()(nt, 18) = trk.phi();
       input1.matrix<float>()(nt, 19) = trk.etaError();
@@ -720,6 +723,9 @@ std::vector<float> MkFitOutputConverter::computeDNNs(TrackCandidateCollection co
         continue;
 
       float out0 = 2.0 * outputs[0].matrix<float>()(nt, 0) - 1.0;
+      if (invalidProp[nt])
+        out0 = -1;
+
       output[itrack] = out0;
     }
   }
