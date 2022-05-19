@@ -402,7 +402,8 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid, bool 
       co[i] = GlobalPoint(
           (r + signr[i] * dr) * cos(fi + signf[i] * dfi), (r + signr[i] * dr) * sin(fi + signf[i] * dfi), (v.z() + dz));
     }
-    co[ncorner - 1] = co[0];
+    // Used to pass downstream the thickness of this cell
+    co[ncorner - 1] = GlobalPoint(0, 0, -2 * dz);
   } else if (cellIndex < m_cellVec.size() && m_det != DetId::HGCalHSc) {
     std::pair<float, float> xy;
     float dx = k_fac2 * m_cellVec[cellIndex].param()[FlatHexagon::k_r];
@@ -438,7 +439,8 @@ HGCalGeometry::CornersVec HGCalGeometry::getNewCorners(const DetId& detid, bool 
         co[i] = GlobalPoint(xx, xyglob.second, id.zSide * (zz + dz));
       }
     }
-    co[ncorner - 1] = co[0];
+    // Used to pass downstream the thickness of this cell
+    co[ncorner - 1] = GlobalPoint(0, 0, -2 * dz);
   }
   return co;
 }
