@@ -32,7 +32,8 @@ genParticlesForFilter = cms.EDProducer("GenParticleProducer",
                                        )
 
 bctoefilter = cms.EDFilter("BCToEFilter",
-                           filterAlgoPSet = cms.PSet(eTThreshold = cms.double(1),
+                           filterAlgoPSet = cms.PSet(maxAbsEta = cms.double(2.5), 
+                                                     eTThreshold = cms.double(1),
                                                      genParSource = cms.InputTag("genParticlesForFilter")
                                                      )
                            )
