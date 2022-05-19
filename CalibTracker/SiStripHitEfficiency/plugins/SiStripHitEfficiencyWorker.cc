@@ -159,6 +159,7 @@ private:
   };
 
   MonitorElement *h_bx, *h_instLumi, *h_PU;
+  MonitorElement *h_nTracks, *h_nTracksVsPU;
   EffME1 h_goodLayer;
   EffME1 h_allLayer;
   EffME1 h_layer;
@@ -254,6 +255,9 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   h_bx = booker.book1D("bx", "bx", 3600, 0, 3600);
   h_instLumi = booker.book1D("instLumi", "inst. lumi.", 250, 0, 25000);
   h_PU = booker.book1D("PU", "PU", 200, 0, 200);
+
+  h_nTracks = booker.book1D("ntracks", "n.tracks;n. tracks;n.events", 500, -0.5, 499.5);
+  h_nTracksVsPU = booker.bookProfile("nTracksVsPU", "n. tracks vs PU; PU; n.tracks ", 200, 0, 200, 500, -0.5, 499.5);
 
   h_goodLayer = EffME1(booker.book1D("goodlayer_total", "goodlayer_total", 35, 0., 35.),
                        booker.book1D("goodlayer_found", "goodlayer_found", 35, 0., 35.));
@@ -376,6 +380,10 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
   // Tracking
   LogDebug("SiStripHitEfficiencyWorker") << "number ckf tracks found = " << tracksCKF->size();
+
+  h_nTracks->Fill(tracksCKF->size());
+  h_nTracksVsPU->Fill(PU, tracksCKF->size());
+
   if (!tracksCKF->empty()) {
     if (cutOnTracks_ && (tracksCKF->size() >= trackMultiplicityCut_))
       return;
