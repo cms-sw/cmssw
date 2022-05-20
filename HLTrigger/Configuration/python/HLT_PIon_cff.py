@@ -1,6 +1,6 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/PIon --type PIon
+# hltGetConfiguration --cff --data /dev/CMSSW_12_4_0/PIon --type PIon
 
-# /dev/CMSSW_12_3_0/PIon/V84 (CMSSW_12_3_0)
+# /dev/CMSSW_12_4_0/PIon/V13 (CMSSW_12_4_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/PIon/V84')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V13')
 )
 
 fragment.transferSystem = cms.PSet( 
