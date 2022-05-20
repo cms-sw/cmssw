@@ -7,6 +7,7 @@ Module that generates standard repack configurations
 """
 
 import FWCore.ParameterSet.Config as cms
+from Configuration.EventContent.EventContent_cff import RAWEventContent
 
 
 def repackProcess(**args):
@@ -54,6 +55,7 @@ def repackProcess(**args):
 
         outputModule = cms.OutputModule(
             "PoolOutputModule",
+            RAWEventContent,
             fileName = cms.untracked.string("%s.root" % moduleLabel)
             )
 
