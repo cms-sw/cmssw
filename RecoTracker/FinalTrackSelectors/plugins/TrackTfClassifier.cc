@@ -53,7 +53,7 @@ namespace {
           int itrack = nt + bsize_ * nb;
           if (itrack >= size_in)
             continue;
-          const auto& trk = tracks.at(itrack);
+          const auto& trk = tracks[itrack];
 
           const auto& bestVertex = getBestVertex(trk, vertices);
 
@@ -132,7 +132,7 @@ void trackMVAClassifierImpl::ComputeMVA<void>::operator()(::TfDnn const& mva,
                                                           reco::BeamSpot const& beamSpot,
                                                           reco::VertexCollection const& vertices,
                                                           TrackMVAClassifierBase::MVAPairCollection& mvas) {
-  std::vector<float> scores = mva(tracks, beamSpot, vertices);
+  const auto& scores = mva(tracks, beamSpot, vertices);
   size_t current = 0;
 
   for (auto score : scores) {
