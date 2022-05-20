@@ -279,15 +279,17 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
       h_layer_vsCM.push_back(EffME1(booker.book1D(Form("layertotal_vsCM_layer_%i", layer), lyrName, 20, 0, 400),
                                     booker.book1D(Form("layerfound_vsCM_layer_%i", layer), lyrName, 20, 0, 400)));
     }
-    h_layer_vsBx.push_back(
-        EffME1(booker.book1D(Form("totalVsBx_layer%i", layer), Form("layer %i", layer), 3565, 0, 3565),
-               booker.book1D(Form("foundVsBx_layer%i", layer), Form("layer %i", layer), 3565, 0, 3565)));
+    h_layer_vsBx.push_back(EffME1(
+        booker.book1D(Form("totalVsBx_layer%i", layer), Form("layer %i (%s)", layer, lyrName.c_str()), 3565, 0, 3565),
+        booker.book1D(Form("foundVsBx_layer%i", layer), Form("layer %i (%s)", layer, lyrName.c_str()), 3565, 0, 3565)));
     if (layer < 10) {
       const bool isTIB = layer < 4;
       const auto partition = (isTIB ? "TIB" : "TOB");
       const auto yMax = (isTIB ? 100 : 120);
-      auto ihhotcold = booker.book2D(
-          Form("%s%i", partition, (isTIB ? layer + 1 : layer - 3)), partition, 100, -1, 361, 100, -yMax, yMax);
+
+      const auto tit = Form("%s%i", partition, (isTIB ? layer + 1 : layer - 3));
+
+      auto ihhotcold = booker.book2D(tit, tit, 100, -1, 361, 100, -yMax, yMax);
       ihhotcold->setAxisTitle("Phi", 1);
       ihhotcold->setBinLabel(1, "360", 1);
       ihhotcold->setBinLabel(50, "180", 1);
@@ -301,8 +303,9 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
           (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
       const auto axMax = (isTID ? 100 : 120);
       for (const auto& part : partitions) {
-        auto ihhotcold = booker.book2D(
-            Form("%s%i", part.c_str(), (isTID ? layer - 9 : layer - 12)), part, 100, -axMax, axMax, 100, -axMax, axMax);
+        const auto tit = Form("%s%i", part.c_str(), (isTID ? layer - 9 : layer - 12));
+
+        auto ihhotcold = booker.book2D(tit, tit, 100, -axMax, axMax, 100, -axMax, axMax);
         ihhotcold->setAxisTitle("Global Y", 1);
         ihhotcold->setBinLabel(1, "+Y", 1);
         ihhotcold->setBinLabel(50, "0", 1);
@@ -853,13 +856,30 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
 
         // hot/cold maps of hits that are expected but not found
         if (badflag) {
-          if (layer > 0 && layer <= 10) {
-            // 1-4: TIB, 4-10: TOB
-            h_hotcold[layer - 1]->Fill(360. - ::calcPhi(tm.globalX(), tm.globalY()), tm.globalZ(), 1.);
+          if (layer > 0 && layer <= 4) {
+            //We are in the TIB
+            float phi = ::calcPhi(tm.globalX(), tm.globalY());
+            h_hotcold[layer - 1]->Fill(360. - phi, tm.globalZ(), 1.);
+          } else if (layer > 4 && layer <= 10) {
+            //We are in the TOB
+            float phi = ::calcPhi(tm.globalX(), tm.globalY());
+            h_hotcold[layer - 1]->Fill(360. - phi, tm.globalZ(), 1.);
           } else if (layer > 10 && layer <= 13) {
-            // 11-13: TID, above: TEC
-            const int side = layer > 13 ? (iidd >> 13) & 0x3 : (iidd >> 18) & 0x3;
-            h_hotcold[2 * layer - 13 + side]->Fill(-tm.globalY(), tm.globalX(), 1.);
+            //We are in the TID
+            //There are 2 different maps here
+            int side = ((iidd >> 13) & 0x3);
+            if (side == 1)
+              h_hotcold[(layer - 1) + (layer - 11)]->Fill(-tm.globalY(), tm.globalX(), 1.);
+            else if (side == 2)
+              h_hotcold[(layer - 1) + (layer - 10)]->Fill(-tm.globalY(), tm.globalX(), 1.);
+          } else if (layer > 13) {
+            //We are in the TEC
+            //There are 2 different maps here
+            int side = ((iidd >> 18) & 0x3);
+            if (side == 1)
+              h_hotcold[(layer + 2) + (layer - 14)]->Fill(-tm.globalY(), tm.globalX(), 1.);
+            else if (side == 2)
+              h_hotcold[(layer + 2) + (layer - 13)]->Fill(-tm.globalY(), tm.globalX(), 1.);
           }
         }
 
