@@ -171,8 +171,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   std::vector<MonitorElement*> hEffInLayer(std::size_t(1), nullptr);
   hEffInLayer.reserve(23);
   for (std::size_t i = 1; i != 23; ++i) {
-    hEffInLayer.push_back(
-        booker.book1D(Form("eff_layer%i", int(i)), Form("Module efficiency in layer %i", int(i)), 201, 0, 1.005));
+    const auto lyrName = ::layerName(i, showRings_, nTEClayers_);
+    hEffInLayer.push_back(booker.book1D(
+        Form("eff_layer%i", int(i)), Form("Module efficiency in layer %s", lyrName.c_str()), 201, 0, 1.005));
   }
   std::array<long, 23> layerTotal{};
   std::array<long, 23> layerFound{};
