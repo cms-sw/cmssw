@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 interestingEgammaIsoESDetId = cms.EDProducer("EgammaIsoESDetIdCollectionProducer",
-                                             eeClusToESMapLabel=cms.InputTag("particleFlowClusterECALRemade"),
-                                             ecalPFClustersLabel=cms.InputTag("particleFlowClusterECALRemade"),
+                                             eeClusToESMapLabel=cms.InputTag(""),
+                                             ecalPFClustersLabel=cms.InputTag(""),
                                              elesLabel=cms.InputTag("gedGsfElectrons"),
                                              phosLabel=cms.InputTag("gedPhotons"),
                                              superClustersLabel=cms.InputTag("particleFlowEGamma"),
