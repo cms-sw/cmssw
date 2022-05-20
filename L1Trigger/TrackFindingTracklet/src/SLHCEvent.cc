@@ -16,13 +16,16 @@ bool SLHCEvent::addStub(string DTClink,
                         string stubword,
                         int isPSmodule,
                         int isFlipped,
+                        bool tiltedBarrel,
+                        unsigned int detId,
                         double x,
                         double y,
                         double z,
                         double bend,
                         double strip,
                         vector<int> tps) {
-  L1TStub stub(DTClink, region, layerdisk, stubword, isPSmodule, isFlipped, x, y, z, bend, strip, tps);
+  L1TStub stub(
+      DTClink, region, layerdisk, stubword, isPSmodule, isFlipped, tiltedBarrel, detId, x, y, z, bend, strip, tps);
 
   stubs_.push_back(stub);
   return true;
@@ -92,13 +95,18 @@ SLHCEvent::SLHCEvent(istream& in) {
 
     in >> DTClink >> region >> layerdisk >> stubword >> isPSmodule >> isFlipped >> x >> y >> z >> bend >> strip >> ntps;
 
+    // TO FIX: READ THESE FROM INPUT FILE
+    bool tiltedBarrel = false;
+    unsigned int detId = 999999;  // Lower sensor in module
+
     for (unsigned int itps = 0; itps < ntps; itps++) {
       int tp;
       in >> tp;
       tps.push_back(tp);
     }
 
-    L1TStub stub(DTClink, region, layerdisk, stubword, isPSmodule, isFlipped, x, y, z, bend, strip, tps);
+    L1TStub stub(
+        DTClink, region, layerdisk, stubword, isPSmodule, isFlipped, tiltedBarrel, detId, x, y, z, bend, strip, tps);
 
     in >> tmp;
 
