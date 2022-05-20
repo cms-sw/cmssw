@@ -106,20 +106,21 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   edm::Handle<edm::ValueMap<float>> weights;
   if (!weightsToken_.isUninitialized())
     evt.getByToken(weightsToken_, weights);
-  if(std::find(varType_.begin(),varType_.end(),0)!=varType_.end() || std::find(varType_.begin(),varType_.end(),2)!=varType_.end()) {
-      for (unsigned i = 0; i < particleFlow->size(); ++i) {
-        const reco::Candidate& c = particleFlow->at(i);
-        for (unsigned j = 0; j < type_.size(); j++) {
-          if (abs(c.pdgId()) == translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {
-            if ((c.eta() > etaMin_[j]) and (c.eta() < etaMax_[j])) {
-              float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
-              counts_[j] += (weight > 0);
-              sumPt_[j] += c.pt() * weight;
-              continue;
-            }
+  if (std::find(varType_.begin(), varType_.end(), 0) != varType_.end() ||
+      std::find(varType_.begin(), varType_.end(), 2) != varType_.end()) {
+    for (unsigned i = 0; i < particleFlow->size(); ++i) {
+      const reco::Candidate& c = particleFlow->at(i);
+      for (unsigned j = 0; j < type_.size(); j++) {
+        if (abs(c.pdgId()) == translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {
+          if ((c.eta() > etaMin_[j]) and (c.eta() < etaMax_[j])) {
+            float weight = (!weightsToken_.isUninitialized()) ? (*weights)[particleFlow->ptrAt(i)] : 1.0;
+            counts_[j] += (weight > 0);
+            sumPt_[j] += c.pt() * weight;
+            continue;
           }
         }
       }
+    }
   }
 
   //MM: loop over all constituent types and sum each correction
@@ -135,14 +136,11 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
     double val(0.);
     if (varType_[j] == 0) {
       val = counts_[j];
-    }
-    else if (varType_[j] == 1) {
+    } else if (varType_[j] == 1) {
       val = ngoodVertices;
-    }
-    else if (varType_[j] == 2) {
+    } else if (varType_[j] == 2) {
       val = sumPt_[j];
-    }
-    else if (varType_[j] == 3) {
+    } else if (varType_[j] == 3) {
       val = nVertices;
     }
 
