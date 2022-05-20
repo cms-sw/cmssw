@@ -189,10 +189,10 @@ bool BaseTnPEfficiencyTask::hasTrigger(std::vector<int>& trigIndices,
   for (int trigIdx : trigIndices) {
     const std::vector<std::string> trigModuleLabels = m_hltConfig.moduleLabels(trigIdx);
 
-    const unsigned trigModuleIndex = std::find(trigModuleLabels.begin(), trigModuleLabels.end(), "hltBoolEnd") - trigModuleLabels.begin() - 1;
+    const unsigned trigModuleIndex =
+        std::find(trigModuleLabels.begin(), trigModuleLabels.end(), "hltBoolEnd") - trigModuleLabels.begin() - 1;
     const unsigned hltFilterIndex = trigEvent->filterIndex(edm::InputTag(trigModuleLabels[trigModuleIndex], "", "HLT"));
     if (hltFilterIndex < trigEvent->sizeFilters()) {
-
       const trigger::Keys keys = trigEvent->filterKeys(hltFilterIndex);
       const trigger::Vids vids = trigEvent->filterIds(hltFilterIndex);
       const unsigned nTriggers = vids.size();
