@@ -77,9 +77,7 @@ protected:
   typedef fftjet::ClusteringTreeSparsifier<fftjet::Peak, long> Sparsifier;
 
   // methods
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   void buildKernelConvolver(const edm::ParameterSet&);
   fftjet::PeakFinder buildPeakFinder(const edm::ParameterSet&);
@@ -319,6 +317,8 @@ fftjet::PeakFinder FFTJetPatRecoProducer::buildPeakFinder(const edm::ParameterSe
 FFTJetPatRecoProducer::~FFTJetPatRecoProducer() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
+  if (storeGridsExternally)
+    externalGridStream.close();
   delete clusteringTree;
   delete extGrid;
 }
@@ -422,15 +422,6 @@ void FFTJetPatRecoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
           << "Failed to write grid data into an external file" << std::endl;
     }
   }
-}
-
-// ------------ method called once each job just before starting event loop
-void FFTJetPatRecoProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop
-void FFTJetPatRecoProducer::endJob() {
-  if (storeGridsExternally)
-    externalGridStream.close();
 }
 
 //define this as a plug-in
