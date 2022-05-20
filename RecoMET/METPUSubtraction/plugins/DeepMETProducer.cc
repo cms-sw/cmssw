@@ -151,7 +151,7 @@ void DeepMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("norm_factor", 50.);
   desc.add<unsigned int>("max_n_pf", 4500);
   desc.addOptionalUntracked<bool>("debugMode", false);
-  desc.add<std::string>("graph_path", "RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_2018.pb");
+  desc.add<std::string>("graph_path", "RecoMET/METPUSubtraction/data/models/deepmet/deepmet_v1_2018/model.graphdef");
   descriptions.add("deepMETProducer", desc);
 }
 

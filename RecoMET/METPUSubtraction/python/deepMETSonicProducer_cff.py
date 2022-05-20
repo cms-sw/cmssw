@@ -1,18 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-deepMETSonicProducer = cms.EDProducer("DeepMETSonicProducer",
-    Client = cms.PSet(
-        timeout = cms.untracked.uint32(300),
-        mode = cms.string("Async"),
-        modelName = cms.string("deepmet"),
-        modelConfigPath = cms.FileInPath("RecoMET/METPUSubtraction/data/models/deepmet/config.pbtxt"),
+from RecoMET.METPUSubtraction.deepMETSonicProducer_cfi import deepMETSonicProducer as _deepMETSonicProducer
+
+deepMETSonicProducer = _deepMETSonicProducer.clone(
+    Client = dict(
+        timeout = 300,
+        mode = "Async",
+        modelName = "deepmet",
+        modelConfigPath = "RecoMET/METPUSubtraction/data/models/deepmet/config.pbtxt",
         # version "1" is the resolutionTune
         # version "2" is the responeTune
-        modelVersion = cms.string("1"),
-        verbose = cms.untracked.bool(False),
-        allowedTries = cms.untracked.uint32(0),
-        useSharedMemory = cms.untracked.bool(True),
-        compression = cms.untracked.string(""),
+        modelVersion = "1",
     ),
     pf_src = cms.InputTag("packedPFCandidates"),
 )
