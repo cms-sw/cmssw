@@ -33,7 +33,12 @@ public:
   TotemTimingDetId(const CTPPSDetId& id) : CTPPSDetId(id) {}
 
   /// Construct from hierarchy indices.
-  TotemTimingDetId(uint32_t arm, uint32_t station, uint32_t romanPot = 0, uint32_t plane = 0, uint32_t channel = 0);
+  TotemTimingDetId(uint32_t arm,
+                   uint32_t station,
+                   uint32_t romanPot = 0,
+                   uint32_t plane = 0,
+                   uint32_t channel = 0,
+                   uint32_t subdet = sdTimingFastSilicon);
 
   static constexpr uint32_t startPlaneBit = 17, maskPlane = 0x3, maxPlane = 3, lowMaskPlane = 0x1FFFF;
   static constexpr uint32_t startDetBit = 12, maskChannel = 0x1F, maxChannel = 31, lowMaskChannel = 0xFFF;
@@ -41,7 +46,8 @@ public:
   /// returns true if the raw ID is a PPS-timing one
   static bool check(unsigned int raw) {
     return (((raw >> DetId::kDetOffset) & 0xF) == DetId::VeryForward &&
-            ((raw >> DetId::kSubdetOffset) & 0x7) == sdTimingFastSilicon);
+            (((raw >> DetId::kSubdetOffset) & 0x7) == sdTimingFastSilicon ||
+             ((raw >> DetId::kSubdetOffset) & 0x7) == sdTimingDiamond));
   }
   //-------------------- getting and setting methods --------------------
 
