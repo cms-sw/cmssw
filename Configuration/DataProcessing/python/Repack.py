@@ -55,8 +55,8 @@ def repackProcess(**args):
 
         outputModule = cms.OutputModule(
             "PoolOutputModule",
-            compressionAlgorithm=RAWEventContent.compressionAlgorithm,
-            compressionLevel=RAWEventContent.compressionLevel,
+            compressionAlgorithm=cms.untracked.string(RAWEventContent.compressionAlgorithm.value()),
+            compressionLevel=cms.untracked.int32(RAWEventContent.compressionLevel.value()),
             fileName = cms.untracked.string("%s.root" % moduleLabel)
             )
 
