@@ -9,6 +9,8 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include <TMatrixD.h>
 #include <HepMC3/GenEvent.h>
+#include <HepMC3/GenParticle.h>
+#include <HepMC3/GenVertex.h>
 #include <cstddef>
 
 namespace HepMC3 {
@@ -57,11 +59,11 @@ namespace edm {
   // This allows edm::Refs to work with HepMC3Product
   namespace refhelper {
     template <>
-    struct FindTrait<edm::HepMC3Product, HepMC3::GenParticle> {
+    struct FindTrait<edm::HepMC3Product, HepMC3::GenParticlePtr> {
       struct Find {
         using first_argument_type = edm::HepMC3Product const &;
         using second_argument_type = int;
-        using result_type = HepMC3::GenParticle const *;
+        using result_type = HepMC3::GenParticlePtr const *;
 
         result_type operator()(first_argument_type iContainer, second_argument_type iBarCode) {
           //return iContainer.getHepMCData().barcode_to_particle(iBarCode);
@@ -73,11 +75,11 @@ namespace edm {
     };
 
     template <>
-    struct FindTrait<edm::HepMC3Product, HepMC3::GenVertex> {
+    struct FindTrait<edm::HepMC3Product, HepMC3::GenVertexPtr> {
       struct Find {
         using first_argument_type = edm::HepMC3Product const &;
         using second_argument_type = int;
-        using result_type = HepMC3::GenVertex const *;
+        using result_type = HepMC3::GenVertexPtr const *;
 
         result_type operator()(first_argument_type iContainer, second_argument_type iBarCode) {
           //return iContainer.getHepMCData().barcode_to_vertex(iBarCode);

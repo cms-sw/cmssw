@@ -78,7 +78,7 @@
 	<!-- <class name="HepPDT::DecayDataT&lt;HepMCConfig&gt;"/> -->
 	<!-- <class name="HepPDT::ParticleDataT&lt;HepMCConfig&gt;"/> -->
 
-	<!-- HepMCProduct -->
+	  <!-- HepMCProduct -->
 
 	<class name="edm::Wrapper&lt;edm::HepMCProduct&gt;"/>
 	<class name="edm::HepMCProduct" ClassVersion="10">
@@ -96,6 +96,36 @@
 	<class name="std::pair&lt;const int,HepMC::GenParticle*&gt;"/>
 	<class name="std::pair&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
+
+	<!-- HepMC3 externals -->
+        <class name="HepMC3::GenEvent"/>
+	
+	<class name="HepMC3::GenParticlePtr"/>
+	<class name="HepMC3::GenVertexPtr"/>
+	
+        <class name="HepMC3::GenCrossSection"/>
+        <class name="HepMC3::FourVector"/>
+        <class name="HepMC3::HeavyIon"/>
+	<class name="HepMC3::GenHeavyIon"/>
+
+	<class name="std::vector&lt;HepMC3::GenParticlePtr*&gt;"/>
+
+	<!-- HepMC3Product -->
+	
+	<class name="edm::Wrapper&lt;edm::HepMC3Product&gt;"/>
+        <class name="edm::HepMC3Product"/>
+	<class name="std::vector&lt;const edm::HepMC3Product*&gt;"/>
+        <class name="edm::Ref&lt;edm::HepMC3Product,HepMC3::GenVertexPtr,edm::refhelper::FindTrait&lt;edm::HepMC3Product,HepMC3::GenVertexPtr&gt;::Find&gt;"/>
+        <class name="edm::Ref&lt;edm::HepMC3Product,HepMC3::GenParticlePtr,edm::refhelper::FindTrait&lt;edm::HepMC3Product,HepMC3::GenParticlePtr&gt;::Find&gt;"/>
+        <class name="edm::RefVector&lt;edm::HepMC3Product,HepMC3::GenVertexPtr,edm::refhelper::FindTrait&lt;edm::HepMC3Product,HepMC3::GenVertexPtr&gt;::Find&gt;"/>
+        <class name="edm::RefVector&lt;edm::HepMC3Product,HepMC3::GenParticlePtr,edm::refhelper::FindTrait&lt;edm::HepMC3Product,HepMC3::GenParticlePtr&gt;::Find&gt;"/>
+        <class name="std::map&lt;int,HepMC3::GenVertexPtr*&gt;"/>
+        <class name="std::pair&lt;const int,HepMC3::GenVertexPtr*&gt;"/>
+        <class name="std::pair&lt;int,HepMC3::GenVertexPtr*&gt;"/>
+        <class name="std::map&lt;int,HepMC3::GenParticlePtr*&gt;"/>
+        <class name="std::pair&lt;const int,HepMC3::GenParticlePtr*&gt;"/>
+        <class name="std::pair&lt;int,HepMC3::GenParticlePtr*&gt;"/>
+        <class name="std::map&lt;int,HepMC3::GenVertexPtr*,std::greater&lt;int&gt; &gt;"/>
 
 	<!-- Classes shared between different kinds of products -->
 
@@ -185,6 +215,19 @@
  </ioread> 
 	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>
 
+	<!-- GenEventInfoProduct3 -->
+	<class name="GenEventInfoProduct3"/>
+	<ioread sourceClass = "GenEventInfoProduct3" version="[11]" targetClass="GenEventInfoProduct3" source = "std::auto_ptr<gen::PdfInfo> pdf_;" target="pdf_">
+	<![CDATA[pdf_.reset(onfile.pdf_.get()); onfile.pdf_.release();]]>
+      </ioread>
+      <ioread sourceClass = "GenEventInfoProduct3" version="[-10]" targetClass="GenEventInfoProduct3" source = "" target="nMEPartons_">
+	<![CDATA[nMEPartons_ = -1;]]>
+      </ioread>
+      <ioread sourceClass = "GenEventInfoProduct3" version="[-10]" targetClass="GenEventInfoProduct3" source = "" target="nMEPartonsFiltered_">
+	<![CDATA[nMEPartonsFiltered_ = -1;]]>
+      </ioread>
+      <class name="edm::Wrapper&lt;GenEventInfoProduct3&gt;"/>
+      
 	<!-- LHE products -->
 
 	<class name="lhef::HEPEUP::FiveVector" ClassVersion="10">
