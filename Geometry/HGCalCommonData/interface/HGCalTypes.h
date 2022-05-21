@@ -100,6 +100,7 @@ public:
   static int32_t packCellType6(int type, int cell);
   static int32_t getUnpackedCellType6(int id);
   static int32_t getUnpackedCell6(int id);
+  static int32_t layerType(int type);
 
 private:
   static constexpr int32_t facu_ = 1;

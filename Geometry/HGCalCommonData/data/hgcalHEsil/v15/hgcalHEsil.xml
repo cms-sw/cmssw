@@ -134,7 +134,7 @@
       [hgcal:rMaxHGCal0], [hgcal:rMaxHGCal5], [hgcal:rMaxHGCal10], 
       [hgcal:rMaxHGCal11]</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="8">
-       3, 2, 3, 2, 3, 2, 3, 2 
+       2, 3, 2, 3, 2, 3, 2, 3
     </Vector>
     <Vector name="WaferIndex" type="numeric" nEntries="3153">
         262146,  262147,  262148,  262149,  262150,  262151,  262152,
