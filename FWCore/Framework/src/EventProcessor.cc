@@ -257,7 +257,7 @@ namespace edm {
         shouldWeStop_(false),
         fileModeNoMerge_(false),
         exceptionMessageFiles_(),
-        exceptionMessageRuns_(),
+        exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
@@ -293,12 +293,11 @@ namespace edm {
         shouldWeStop_(false),
         fileModeNoMerge_(false),
         exceptionMessageFiles_(),
-        exceptionMessageRuns_(),
+        exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
         forceESCacheClearOnNewRun_(false),
-        asyncStopRequestedWhileProcessingEvents_(false),
         eventSetupDataToExcludeFromPrefetching_() {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
@@ -330,12 +329,11 @@ namespace edm {
         shouldWeStop_(false),
         fileModeNoMerge_(false),
         exceptionMessageFiles_(),
-        exceptionMessageRuns_(),
+        exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
         forceESCacheClearOnNewRun_(false),
-        asyncStopRequestedWhileProcessingEvents_(false),
         eventSetupDataToExcludeFromPrefetching_() {
     init(processDesc, token, legacy);
   }
@@ -847,72 +845,68 @@ namespace edm {
   edm::LuminosityBlockNumber_t EventProcessor::nextLuminosityBlockID() { return input_->luminosityBlock(); }
 
   EventProcessor::StatusCode EventProcessor::runToCompletion() {
-    StatusCode returnCode = epSuccess;
-    asyncStopStatusCodeFromProcessingEvents_ = epSuccess;
-    {
-      beginJob();  //make sure this was called
+    beginJob();  //make sure this was called
 
-      // make the services available
-      ServiceRegistry::Operate operate(serviceToken_);
+    // make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
 
-      asyncStopRequestedWhileProcessingEvents_ = false;
-      try {
-        FilesProcessor fp(fileModeNoMerge_);
+    try {
+      FilesProcessor fp(fileModeNoMerge_);
 
-        convertException::wrap([&]() {
-          bool firstTime = true;
-          do {
-            if (not firstTime) {
-              prepareForNextLoop();
-              rewindInput();
-            } else {
-              firstTime = false;
-            }
-            startingNewLoop();
-
-            auto trans = fp.processFiles(*this);
-
-            fp.normalEnd();
-
-            if (deferredExceptionPtrIsSet_.load()) {
-              std::rethrow_exception(deferredExceptionPtr_);
-            }
-            if (trans != InputSource::IsStop) {
-              //problem with the source
-              doErrorStuff();
-
-              throw cms::Exception("BadTransition") << "Unexpected transition change " << trans;
-            }
-          } while (not endOfLoop());
-        });  // convertException::wrap
-
-      }  // Try block
-      catch (cms::Exception& e) {
-        if (exceptionMessageLumis_) {
-          std::string message(
-              "Another exception was caught while trying to clean up lumis after the primary fatal exception.");
-          e.addAdditionalInfo(message);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << message;
+      convertException::wrap([&]() {
+        bool firstTime = true;
+        do {
+          if (not firstTime) {
+            prepareForNextLoop();
+            rewindInput();
+          } else {
+            firstTime = false;
           }
-        }
-        if (!exceptionMessageRuns_.empty()) {
-          e.addAdditionalInfo(exceptionMessageRuns_);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageRuns_;
+          startingNewLoop();
+
+          auto trans = fp.processFiles(*this);
+
+          fp.normalEnd();
+
+          if (deferredExceptionPtrIsSet_.load()) {
+            std::rethrow_exception(deferredExceptionPtr_);
           }
-        }
-        if (!exceptionMessageFiles_.empty()) {
-          e.addAdditionalInfo(exceptionMessageFiles_);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageFiles_;
+          if (trans != InputSource::IsStop) {
+            //problem with the source
+            doErrorStuff();
+
+            throw cms::Exception("BadTransition") << "Unexpected transition change " << trans;
           }
+        } while (not endOfLoop());
+      });  // convertException::wrap
+
+    }  // Try block
+    catch (cms::Exception& e) {
+      if (exceptionMessageLumis_) {
+        std::string message(
+            "Another exception was caught while trying to clean up lumis after the primary fatal exception.");
+        e.addAdditionalInfo(message);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << message;
         }
-        throw;
       }
+      if (exceptionMessageRuns_) {
+        std::string message(
+            "Another exception was caught while trying to clean up runs after the primary fatal exception.");
+        e.addAdditionalInfo(message);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << message;
+        }
+      }
+      if (!exceptionMessageFiles_.empty()) {
+        e.addAdditionalInfo(exceptionMessageFiles_);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << exceptionMessageFiles_;
+        }
+      }
+      throw;
     }
-
-    return returnCode;
+    return epSuccess;
   }
 
   void EventProcessor::readFile() {
@@ -2026,7 +2020,7 @@ namespace edm {
 
   void EventProcessor::setExceptionMessageFiles(std::string& message) { exceptionMessageFiles_ = message; }
 
-  void EventProcessor::setExceptionMessageRuns(std::string& message) { exceptionMessageRuns_ = message; }
+  void EventProcessor::setExceptionMessageRuns() { exceptionMessageRuns_ = true; }
 
   void EventProcessor::setExceptionMessageLumis() { exceptionMessageLumis_ = true; }
 
