@@ -30,6 +30,7 @@ from RecoEgamma.EgammaPhotonProducers.reducedEgamma_cfi  import *
 from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import bunchSpacingProducer
 from HeavyFlavorAnalysis.Onia2MuMu.OniaPhotonConversionProducer_cfi import PhotonCandidates as oniaPhotonCandidates
 from RecoLocalCalo.HcalRecProducers.HcalHitSelection_cfi import *
+from CommonTools.ParticleFlow.pfEGammaToCandidateRemapper_cfi import *
 
 slimmingTask = cms.Task(
     packedPFCandidatesTask,
@@ -82,6 +83,10 @@ pp_on_AA.toReplaceWith(
     cms.Task(slimmingTask.copy(), packedCandidateMuonID, packedPFCandidateTrackChi2, lostTrackChi2, centralityBin, hiHFfilters))
 from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
 run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(primaryVertexAssociationCleaned,slimmingTask.copy()))
+#from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_Bugfix_cff import run2_miniAOD_pp_on_AA_103X_Bugfix
+#run2_miniAOD_pp_on_AA_103X_Bugfix.toReplaceWith(slimmingTask,cms.Task(pfEGammaToCandidateRemapperCleaned,slimmingTask.copy()))
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_cff import run2_miniAOD_pp_on_AA_103X
+run2_miniAOD_pp_on_AA_103X.toReplaceWith(slimmingTask,cms.Task(pfEGammaToCandidateRemapperCleaned,slimmingTask.copy()))
 
 from RecoHI.HiTracking.miniAODVertexRecovery_cff import offlinePrimaryVerticesRecovery, offlineSlimmedPrimaryVerticesRecovery
 pp_on_AA.toReplaceWith(
