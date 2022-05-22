@@ -104,12 +104,16 @@ void HiBadParticleCleaner::produce(edm::StreamID, edm::Event& iEvent, const edm:
       if (pfCandidate.pt() > minMuonPt_) {
         if (!pfCandidate.muonRef()->isGlobalMuon() || !pfCandidate.muonRef()->isTrackerMuon() ||
             !pfCandidate.trackRef().isNonnull()) {
+          pBadCandidateCollection->push_back(pfCandidate);
+          candidateIndexMapper[iPF] = -1 * (pBadCandidateCollection->size());
           foundBadCandidate = true;
           continue;
         }
         reco::TrackRef track = pfCandidate.trackRef();
 
         if (track->ptError() / track->pt() > minMuonTrackRelPtErr_ || track->pt() < pfCandidate.pt() / 2.) {
+          pBadCandidateCollection->push_back(pfCandidate);
+          candidateIndexMapper[iPF] = -1 * (pBadCandidateCollection->size());
           foundBadCandidate = true;
           continue;
         }
