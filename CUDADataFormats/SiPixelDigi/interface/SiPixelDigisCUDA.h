@@ -1,7 +1,7 @@
 #ifndef CUDADataFormats_SiPixelDigi_interface_SiPixelDigisCUDA_h
 #define CUDADataFormats_SiPixelDigi_interface_SiPixelDigisCUDA_h
 
-#include <cuda_runtime.h>
+#include <cuda.h>
 
 #include "HeterogeneousCore/CUDAUtilities/interface/memoryPool.h"
 #include "CUDADataFormats/SiPixelDigi/interface/SiPixelDigisCUDASOAView.h"
@@ -26,7 +26,7 @@ public:
   uint32_t nModules() const { return nModules_h; }
   uint32_t nDigis() const { return nDigis_h; }
 
-  /*inline*/ memoryPool::Buffer<StoreType> copyAllToHostAsync(cudaStream_t stream) const;
+  memoryPool::Buffer<StoreType> copyAllToHostAsync(cudaStream_t stream) const;
 
   SiPixelDigisCUDASOAView view() { return m_view; }
   SiPixelDigisCUDASOAView const view() const { return m_view; }
