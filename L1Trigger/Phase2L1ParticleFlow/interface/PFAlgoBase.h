@@ -16,7 +16,7 @@ namespace l1tpf_impl {
 
   protected:
     int debug_;
-    void initRegion(Region &r) const;
+    void initRegion(Region &r, bool doSort = true) const;
     PFParticle &addTrackToPF(Region &r, const PropagatedTrack &tk) const { return addTrackToPF(r.pf, tk); }
     PFParticle &addCaloToPF(Region &r, const CaloCluster &calo) const { return addCaloToPF(r.pf, calo); }
     PFParticle &addTrackToPF(std::vector<PFParticle> &pfs, const PropagatedTrack &tk) const;
