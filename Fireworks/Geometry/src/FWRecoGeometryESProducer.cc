@@ -560,7 +560,7 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
       // such that the cells are oriented with a vertex down (assuming those
       // layers will have a 30 degrees rotation): this will establish an angle
       // of 60 degrees wrt the Y axis. The default way in which an hexagon is
-      // rendered inside Fireworks is with the side down.
+      // rendered inside Fireworks is with the vertex down.
       if (rhtools.isSilicon(it->rawId())) {
         auto val_x = (cor[0].x()-cor[3].x());
         auto val_y = (cor[0].y()-cor[3].y());
