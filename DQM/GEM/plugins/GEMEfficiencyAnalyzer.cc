@@ -23,6 +23,11 @@ GEMEfficiencyAnalyzer::GEMEfficiencyAnalyzer(const edm::ParameterSet& ps)
       kFolder_(ps.getUntrackedParameter<std::string>("folder")),
       kScenario_(getScenarioOption(ps.getUntrackedParameter<std::string>("scenario"))),
       kStartingStateType_(getStartingStateType(ps.getUntrackedParameter<std::string>("startingStateType"))),
+      kMuonSubdetForGEM_({
+          ps.getUntrackedParameter<std::vector<int> >("muonSubdetForGE0"),
+          ps.getUntrackedParameter<std::vector<int> >("muonSubdetForGE11"),
+          ps.getUntrackedParameter<std::vector<int> >("muonSubdetForGE21"),
+      }),
       kCSCForGEM_({
           ps.getUntrackedParameter<std::vector<int> >("cscForGE0"),
           ps.getUntrackedParameter<std::vector<int> >("cscForGE11"),
@@ -132,6 +137,10 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<double>("muonEtaLowGE0", 1.9);
   desc.addUntracked<double>("muonEtaUpGE0", 3.1);
 
+  // https://github.com/cms-sw/cmssw/blob/CMSSW_12_4_0_pre3/DataFormats/MuonDetId/interface/MuonSubdetId.h
+  desc.addUntracked<std::vector<int> >("muonSubdetForGE0", {});  // allow all muon subdetectors. TODO optimzie.
+  desc.addUntracked<std::vector<int> >("muonSubdetForGE11", {});
+  desc.addUntracked<std::vector<int> >("muonSubdetForGE21", {});
   // INFO when muonTrackType is "CombinedTrack" or "OuterTrack"
   // https://github.com/cms-sw/cmssw/blob/CMSSW_12_4_0_pre3/DataFormats/MuonDetId/interface/CSCDetId.h#L187-L193
   // assumed to be the same area.
@@ -558,20 +567,28 @@ GEMEfficiencyAnalyzer::StartingState GEMEfficiencyAnalyzer::buildStartingState(
     }
   }
 
-  found &= state.isValid();
-
-  if (MuonHitHelper::isGEM(det_id)) {
-    const GEMDetId start_id{det_id};
-
-    const bool are_same_region = gem_layer.id.region() == start_id.region();
-    const bool are_same_station = gem_layer.id.station() == start_id.station();
-    const bool are_same_layer = gem_layer.id.layer() == start_id.layer();
-    if (are_same_region and are_same_station and are_same_layer) {
-      LogDebug(kLogCategory_)
-          << "The starting detector of the muon propagation is same with the destination. Skip this propagation.";
-      found = false;
-    }
+  if (found) {
+    found &= state.isValid();
   }
+
+  if (found and (det_id.det() == DetId::Detector::Muon)) {
+    found &= isMuonSubdetAllowed(det_id, gem_layer.id.station());
+  }
+
+  if (found) {
+    if (MuonHitHelper::isGEM(det_id)) {
+      const GEMDetId start_id{det_id};
+
+      const bool are_same_region = gem_layer.id.region() == start_id.region();
+      const bool are_same_station = gem_layer.id.station() == start_id.station();
+      const bool are_same_layer = gem_layer.id.layer() == start_id.layer();
+      if (are_same_region and are_same_station and are_same_layer) {
+        LogDebug(kLogCategory_)
+            << "The starting detector of the muon propagation is same with the destination. Skip this propagation.";
+        found = false;
+      }
+    }  // isGEM
+  }    // found
 
   return std::make_tuple(found, state, det_id);
 }
@@ -784,6 +801,23 @@ const CSCSegment* GEMEfficiencyAnalyzer::findCSCSegment(const reco::Muon& muon,
     // pp or HI
     return findCSCSegmentBeam(transient_track, gem_layer);
   }
+}
+
+// https://github.com/cms-sw/cmssw/blob/CMSSW_12_4_0_pre3/DataFormats/MuonDetId/interface/MuonSubdetId.h
+bool GEMEfficiencyAnalyzer::isMuonSubdetAllowed(const DetId& det_id, const int gem_station) {
+  if ((gem_station < 0) or (gem_station > 2)) {
+    edm::LogError(kLogCategory_) << "got unexpected gem station " << gem_station;
+    return false;
+  }
+
+  if (det_id.det() != DetId::Detector::Muon) {
+    edm::LogError(kLogCategory_) << Form(
+        "(Detector, Subdetector) = (%d, %d)", static_cast<int>(det_id.det()), det_id.subdetId());
+    return false;
+  }
+
+  const std::vector<int> allowed = kMuonSubdetForGEM_.at(gem_station);
+  return allowed.empty() or (std::find(allowed.begin(), allowed.end(), det_id.subdetId()) != allowed.end());
 }
 
 // Returns a bool value indicating whether or not the CSC detector can be used
@@ -1021,11 +1055,11 @@ void GEMEfficiencyAnalyzer::analyze(const edm::Event& event, const edm::EventSet
       // the trajectory state on the destination surface
       const auto [propagated_state, prop_path_length] = propagator->propagateWithPath(start_state, *(layer.disk));
       if (not propagated_state.isValid()) {
-        edm::LogError(kLogCategory_) << "failed to propagate a muon from "
-                                     << Form("(Detector, Subdetector) = (%d, %d)",
-                                             static_cast<int>(start_id.det()),
-                                             start_id.subdetId())
-                                     << " to " << layer.id << ". The path length is " << prop_path_length;
+        LogDebug(kLogCategory_) << "failed to propagate a muon from "
+                                << Form("(Detector, Subdetector) = (%d, %d)",
+                                        static_cast<int>(start_id.det()),
+                                        start_id.subdetId())
+                                << " to " << layer.id << ". The path length is " << prop_path_length;
         continue;
       }
 

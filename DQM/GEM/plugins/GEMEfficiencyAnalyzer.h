@@ -2,7 +2,7 @@
 #define DQM_GEM_GEMEfficiencyAnalyzer_h
 
 /** \class GEMEfficiencyAnalyzer
- * 
+ *
  * DQM monitoring source for GEM efficiency and resolution
  * based on https://github.com/CPLUOS/MuonPerformance/blob/master/MuonAnalyser/plugins/SliceTestEfficiencyAnalysis.cc
  *
@@ -90,6 +90,7 @@ private:
   const CSCSegment *findCSCSegment(const reco::Muon &, const reco::TransientTrack &, const GEMLayer &);
   const CSCSegment *findCSCSegmentBeam(const reco::TransientTrack &, const GEMLayer &);
   const CSCSegment *findCSCSegmentCosmics(const reco::Muon &, const GEMLayer &);
+  bool isMuonSubdetAllowed(const DetId &, const int);
   bool isCSCAllowed(const CSCDetId &, const int);
 
   bool checkBounds(const Plane &, const GlobalPoint &);
@@ -127,6 +128,7 @@ private:
   const ScenarioOption kScenario_;
   // cuts
   const StartingStateType kStartingStateType_;
+  const std::vector<std::vector<int> > kMuonSubdetForGEM_;
   const std::vector<std::vector<int> > kCSCForGEM_;  // when using StartingStateType::kStateOnSurfaceWithCSCSegment
   const float kMuonSegmentMatchDRCut_;               // for cosmics
 
