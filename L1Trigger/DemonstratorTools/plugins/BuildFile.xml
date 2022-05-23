@@ -1,12 +1,7 @@
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/L1TrackTrigger"/>
-<use name="DataFormats/L1TCorrelator"/>
-<use name="DataFormats/L1TMuon"/>
-<use name="DataFormats/GeometryVector"/>
-<use name="DataFormats/Math"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
-<use name="FWCore/PluginManager"/>
 <use name="L1Trigger/DemonstratorTools"/>
 <!--<use name="hls/2019.08"/>-->
 <use name="hls"/>

@@ -205,14 +205,20 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
       // not replicated in phi)
       // ASSUMPTION: copyno == sector.
       if (v->copyno == v->masterSector) {
-        buildInterpolator(v, bInterpolators);
+        auto i = buildInterpolator(v);
+        if (i) {
+          bInterpolators[v->magFile] = i;
+        }
         ++bVolCount;
       }
     } else {  // Endcaps
       LogTrace("MagGeoBuilder") << " (Endcaps)";
       eVolumes_.push_back(v);
       if (v->copyno == v->masterSector) {
-        buildInterpolator(v, eInterpolators);
+        auto i = buildInterpolator(v);
+        if (i) {
+          eInterpolators[v->magFile] = i;
+        }
         ++eVolCount;
       }
     }
@@ -384,12 +390,14 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
   }
 }
 
-void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProviderInterpol*>& interpolators) {
+void MagGeoBuilder::buildMagVolumes(const handles& volumes,
+                                    const map<string, MagProviderInterpol*>& interpolators) const {
   // Build all MagVolumes setting the MagProviderInterpol
   for (auto vol : volumes) {
     const MagProviderInterpol* mp = nullptr;
-    if (interpolators.find(vol->magFile) != interpolators.end()) {
-      mp = interpolators[vol->magFile];
+    auto found = interpolators.find(vol->magFile);
+    if (found != interpolators.end()) {
+      mp = found->second;
     } else {
       edm::LogError("MagGeoBuilder") << "No interpolator found for file " << vol->magFile << " vol: " << vol->volumeno
                                      << "\n"
@@ -428,7 +436,8 @@ void MagGeoBuilder::buildMagVolumes(const handles& volumes, map<string, MagProvi
   }
 }
 
-void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagProviderInterpol*>& interpolators) {
+MagProviderInterpol* MagGeoBuilder::buildInterpolator(const volumeHandle* vol) const {
+  MagProviderInterpol* retValue = nullptr;
   // Phi of the master sector
   double masterSectorPhi = (vol->masterSector - 1) * 1._pi / 6.;
 
@@ -444,20 +453,20 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
   }
 
   if (tableSet_ == "fake" || vol->magFile == "fake") {
-    interpolators[vol->magFile] = new magneticfield::FakeInterpolator();
-    return;
+    return new magneticfield::FakeInterpolator();
   }
 
-  string fullPath;
-
-  try {
-    edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
-    fullPath = mydata.fullPath();
-  } catch (edm::Exception& exc) {
-    cerr << "MagGeoBuilder: exception in reading table; " << exc.what() << endl;
-    if (!debug_)
-      throw;
-    return;
+  string fullPath = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
+  if (fullPath.empty()) {
+    //get the exact error info
+    try {
+      edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
+    } catch (edm::Exception& exc) {
+      cerr << "MagGeoBuilder: exception in reading table; " << exc.what() << endl;
+      if (!debug_)
+        throw;
+    }
+    return nullptr;
   }
 
   try {
@@ -481,22 +490,21 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
                                        vol->placement()->rotation() * rot);
       }
 
-      interpolators[vol->magFile] = MFGridFactory::build(fullPath, rf);
+      retValue = MFGridFactory::build(fullPath, rf);
     }
   } catch (MagException& exc) {
     LogTrace("MagGeoBuilder") << exc.what();
-    interpolators.erase(vol->magFile);
     if (!debug_)
       throw;
-    return;
+    return nullptr;
   }
 
   if (debug_) {
     // Check that all grid points of the interpolator are inside the volume.
     const MagVolume6Faces tempVolume(
-        vol->placement()->position(), vol->placement()->rotation(), vol->sides(), interpolators[vol->magFile]);
+        vol->placement()->position(), vol->placement()->rotation(), vol->sides(), retValue);
 
-    const MFGrid* grid = dynamic_cast<const MFGrid*>(interpolators[vol->magFile]);
+    const MFGrid* grid = dynamic_cast<const MFGrid*>(retValue);
     if (grid != nullptr) {
       Dimensions sizes = grid->dimensions();
       LogTrace("MagGeoBuilder") << "Grid has 3 dimensions "
@@ -525,9 +533,10 @@ void MagGeoBuilder::buildInterpolator(const volumeHandle* vol, map<string, MagPr
                                 << sizes.w * sizes.h * sizes.d;
     }
   }
+  return retValue;
 }
 
-void MagGeoBuilder::testInside(handles& volumes) {
+void MagGeoBuilder::testInside(handles& volumes) const {
   // test inside() for all volumes.
   LogTrace("MagGeoBuilder") << "--------------------------------------------------";
   LogTrace("MagGeoBuilder") << " inside(center) test";

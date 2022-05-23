@@ -27,6 +27,8 @@ namespace pat {
     const edm::EDGetTokenT<edm::View<pat::Tau>> src_;
     const bool linkToPackedPF_;
     const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
+    const bool linkToLostTracks_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> trk2lost_;
     const bool dropPiZeroRefs_;
     const bool dropTauChargedHadronRefs_;
     const bool dropPFSpecific_;
@@ -41,6 +43,9 @@ pat::PATTauSlimmer::PATTauSlimmer(const edm::ParameterSet &iConfig)
       linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
       pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(
           iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
+      linkToLostTracks_(iConfig.getParameter<bool>("linkToLostTracks")),
+      trk2lost_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(
+          iConfig.getParameter<edm::InputTag>("lostTracks"))),
       dropPiZeroRefs_(iConfig.exists("dropPiZeroRefs") ? iConfig.getParameter<bool>("dropPiZeroRefs") : true),
       dropTauChargedHadronRefs_(
           iConfig.exists("dropTauChargedHadronRefs") ? iConfig.getParameter<bool>("dropTauChargedHadronRefs") : true),
@@ -66,6 +71,10 @@ void pat::PATTauSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
   Handle<edm::Association<pat::PackedCandidateCollection>> pf2pc;
   if (linkToPackedPF_)
     iEvent.getByToken(pf2pc_, pf2pc);
+
+  Handle<edm::Association<pat::PackedCandidateCollection>> trk2lost;
+  if (linkToLostTracks_)
+    iEvent.getByToken(trk2lost_, trk2lost);
 
   auto out = std::make_unique<std::vector<pat::Tau>>();
   out->reserve(src->size());
@@ -120,6 +129,16 @@ void pat::PATTauSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
       }
       tau.setIsolationGammaCands(isolationGammaPtrs);
     }
+    if (linkToLostTracks_ && !tau.signalTracks().empty()) {
+      std::vector<reco::CandidatePtr> signalLostTracks;
+      for (const auto &trkRef : tau.signalTracks()) {
+        const auto &lostCandRef = (*trk2lost)[edm::refToPtr(trkRef)];
+        if (lostCandRef.isNonnull())
+          signalLostTracks.push_back(edm::refToPtr(lostCandRef));
+      }
+      tau.setSignalLostTracks(signalLostTracks);
+    }
+
     if (dropPiZeroRefs_) {
       tau.pfSpecific_[0].signalPiZeroCandidates_.clear();
       tau.pfSpecific_[0].isolationPiZeroCandidates_.clear();

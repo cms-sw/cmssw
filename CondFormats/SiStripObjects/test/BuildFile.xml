@@ -10,6 +10,5 @@
 </bin>
 
 <bin file="test_catch2_*.cpp" name="test_catch2_SiStripBadStrip_Phase2">
-  <use name="DataFormats/SiStripCommon"/>
   <use name="catch2"/>
 </bin>

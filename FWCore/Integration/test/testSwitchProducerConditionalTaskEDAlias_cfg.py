@@ -27,6 +27,7 @@ process.out = cms.OutputModule("PoolOutputModule",
     )
 )
 
+# Test that an alias case works
 process.intProducer1 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(1))
 process.intProducer2 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(2), values = cms.VPSet(cms.PSet(instance=cms.string("foo"),value=cms.int32(2))))
 process.intProducer3 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(3))
@@ -45,6 +46,9 @@ process.intProducerAlias = SwitchProducerTest(
                                                  cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )
 
+# Test
+# - SwitchProducer depending on other SwitchProducer
+# - EDAlias in SwitchProducer uses aliases for two different modules with different instance names
 process.intProducerDep = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer2"))
 if not enableTest2:
     process.intProducerDep.labels = ["intProducer1"]
@@ -65,3 +69,5 @@ process.p = cms.Path(process.intProducerAlias+process.intProducerDep +
 
 process.ct2 = cms.ConditionalTask(process.intProducerAlias, process.intProducerDep, process.intProducerDepAlias, process.ct)
 process.p2 = cms.Path(process.intProducerDepAliasDep, process.ct2)
+
+process.ep = cms.EndPath(process.out)

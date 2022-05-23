@@ -9,28 +9,18 @@
 
  Description: Holds run number
 
- Usage:
-    <usage>
-
 */
-//
-//
 
-// system include files
 #include <iosfwd>
 
-// user include files
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 
-// forward declarations
 namespace edm {
 
   class RunID {
   public:
     RunID() : run_(invalidRunNumber) {}
     explicit RunID(RunNumber_t iRun) : run_(iRun) {}
-
-    //virtual ~RunID();
 
     // ---------- const member functions ---------------------
     RunNumber_t run() const { return run_; }
@@ -56,13 +46,8 @@ namespace edm {
     static RunNumber_t maxRunNumber() { return 0xFFFFFFFFU; }
 
     static RunID firstValidRun() { return RunID(1); }
-    // ---------- member functions ---------------------------
 
   private:
-    //RunID(RunID const&); // stop default
-
-    //RunID const& operator=(RunID const&); // stop default
-
     // ---------- member data --------------------------------
     RunNumber_t run_;
   };
