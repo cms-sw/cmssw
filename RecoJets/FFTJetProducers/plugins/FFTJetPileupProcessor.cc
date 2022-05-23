@@ -60,9 +60,7 @@ public:
 
 protected:
   // methods
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
 private:
   void buildKernelConvolver(const edm::ParameterSet&);
@@ -316,12 +314,6 @@ void FFTJetPileupProcessor::mixExtraGrid() {
                                             << std::endl;
   }
 }
-
-// ------------ method called once each job just before starting event loop
-void FFTJetPileupProcessor::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop
-void FFTJetPileupProcessor::endJob() {}
 
 void FFTJetPileupProcessor::loadFlatteningFactors(const edm::EventSetup& iSetup) {
   edm::ESHandle<FFTJetLookupTableSequence> h;

@@ -1108,6 +1108,13 @@ public:
                              "Sum of genEventWeight * LHEPdfWeight[i], divided by genEventSumw" + doclabel,
                              sumPDFs,
                              runCounter->sumw);
+      auto sumPS = runCounter->sumPS;
+      for (auto& val : sumPS)
+        val *= norm;
+      out->addVFloatWithNorm("PSSumw" + label,
+                             "Sum of genEventWeight * PSWeight[i], divided by genEventSumw" + doclabel,
+                             sumPS,
+                             runCounter->sumw);
       if (!runCounter->sumRwgt.empty()) {
         auto sumRwgts = runCounter->sumRwgt;
         for (auto& val : sumRwgts)

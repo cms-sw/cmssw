@@ -1,6 +1,6 @@
-# hltGetConfiguration --cff --data /dev/CMSSW_12_3_0/PRef --type PRef
+# hltGetConfiguration --cff --data /dev/CMSSW_12_4_0/PRef --type PRef
 
-# /dev/CMSSW_12_3_0/PRef/V79 (CMSSW_12_3_0)
+# /dev/CMSSW_12_4_0/PRef/V13 (CMSSW_12_4_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_3_0/PRef/V79')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PRef/V13')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4654,6 +4654,11 @@ fragment.hltESPTrajectorySmootherRK = cms.ESProducer( "KFTrajectorySmootherESPro
   minHits = cms.int32( 3 ),
   appendToDataLabel = cms.string( "" )
 )
+fragment.hltOnlineBeamSpotESProducer = cms.ESProducer( "OnlineBeamSpotESProducer",
+  timeThreshold = cms.int32( 48 ),
+  sigmaZThreshold = cms.double( 2.0 ),
+  appendToDataLabel = cms.string( "" )
+)
 fragment.hltPixelTracksCleanerBySharedHits = cms.ESProducer( "PixelTrackCleanerBySharedHitsESProducer",
   ComponentName = cms.string( "hltPixelTracksCleanerBySharedHits" ),
   useQuadrupletAlgo = cms.bool( False ),
@@ -7559,7 +7564,8 @@ fragment.hltIterL3MuonTracks = cms.EDProducer( "HLTMuonTrackSelector",
     copyTrajectories = cms.untracked.bool( False )
 )
 fragment.hltIterL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducerFromMuons",
-    InputObjects = cms.InputTag( "hltIterL3Muons" )
+    InputObjects = cms.InputTag( "hltIterL3Muons" ),
+    DisplacedReconstruction = cms.bool( False )
 )
 fragment.hltIter0PFLowPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     InputCollection = cms.InputTag( "hltPixelTracks" ),
