@@ -17,6 +17,7 @@
 #include "FakeInterpolator.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "MagneticField/Interpolation/interface/binary_ifstream.h"
 #include "MagneticField/Interpolation/interface/MFGridFactory.h"
 #include "MagneticField/Interpolation/interface/MFGrid.h"
@@ -36,7 +37,22 @@ namespace magneticfield {
   //
   // constructors and destructor
   //
-  InterpolatorBuilder::InterpolatorBuilder(std::string iTableSet) : tableSet_(std::move(iTableSet)) {}
+  InterpolatorBuilder::InterpolatorBuilder(std::string iTableSet) : tableSet_(std::move(iTableSet)) {
+    auto indexFileName = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/merged.index");
+    if (not indexFileName.empty()) {
+      auto binaryFileName = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/merged.bin");
+      if (not binaryFileName.empty()) {
+        std::ifstream indexFile(indexFileName);
+        while (indexFile) {
+          std::string magFile;
+          unsigned int offset;
+          indexFile >> magFile >> offset;
+          offsets_.emplace(std::move(magFile), offset);
+        }
+        stream_ = interpolation::binary_ifstream(binaryFileName);
+      }
+    }
+  }
 
   //
   // member functions
@@ -44,13 +60,6 @@ namespace magneticfield {
   std::unique_ptr<MagProviderInterpol> InterpolatorBuilder::build(volumeHandle const* vol) {
     if (tableSet_ == "fake" || vol->magFile == "fake") {
       return std::make_unique<magneticfield::FakeInterpolator>();
-    }
-
-    auto fullPath = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
-    if (fullPath.empty()) {
-      //cause the exception to happen
-      edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
-      return {};
     }
 
     // If the table is in "local" coordinates, must create a reference
@@ -71,8 +80,27 @@ namespace magneticfield {
                                      vol->placement()->rotation() * rot);
     }
 
-    magneticfield::interpolation::binary_ifstream strm(fullPath);
-    return std::unique_ptr<MagProviderInterpol>(MFGridFactory::build(strm, rf));
+    if (not stream_) {
+      auto fullPath = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
+      if (fullPath.empty()) {
+        //cause the exception to happen
+        edm::FileInPath mydata("MagneticField/Interpolation/data/" + tableSet_ + "/" + vol->magFile);
+        return {};
+      }
+
+      magneticfield::interpolation::binary_ifstream strm(fullPath);
+      return std::unique_ptr<MagProviderInterpol>(MFGridFactory::build(strm, rf));
+    }
+
+    auto find = offsets_.find(vol->magFile);
+    if (find == offsets_.end()) {
+      throw cms::Exception("MissingMagFileEntry") << vol->magFile << " was not an entry in the index file";
+    }
+    stream_->seekg(find->second);
+    if (stream_->fail()) {
+      throw cms::Exception("SeekMagFileEntry") << " failed seekg within merged binary file";
+    }
+    return std::unique_ptr<MagProviderInterpol>(MFGridFactory::build(*stream_, rf));
   }
 
   //

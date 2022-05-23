@@ -15,7 +15,6 @@ using namespace std;
 
 MFGrid* MFGridFactory::build(const string& name, const GloballyPositioned<float>& vol) {
   magneticfield::interpolation::binary_ifstream inFile(name);
-
   return build(inFile, vol);
 }
 
@@ -49,7 +48,6 @@ MFGrid* MFGridFactory::build(binary_ifstream& inFile, const GloballyPositioned<f
       result = nullptr;
       break;
   }
-  inFile.close();
   return result;
 }
 
