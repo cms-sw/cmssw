@@ -348,10 +348,6 @@ void ZCounting::analyzeMuons(const edm::Event& iEvent, const edm::EventSetup& iS
 
   h_npv->Fill(iEvent.luminosityBlock(), nvtx);
 
-  // Good vertex requirement
-  if (nvtx == 0)
-    return;
-
   //-------------------------------
   //--- Trigger
   //-------------------------------
