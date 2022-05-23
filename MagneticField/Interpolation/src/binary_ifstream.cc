@@ -18,6 +18,16 @@ namespace magneticfield::interpolation {
     }
   }
 
+  binary_ifstream::binary_ifstream(binary_ifstream&& iOther): file_(iOther.file_) {
+    iOther.file_ = nullptr;
+  }
+
+  binary_ifstream& binary_ifstream::operator=(binary_ifstream&& iOther) {
+    binary_ifstream temp{std::move(iOther)};
+    std::swap(file_, temp.file_);
+    return *this;
+  }
+
   binary_ifstream::~binary_ifstream() { close(); }
   void binary_ifstream::close() {
     if (file_ != nullptr)
@@ -105,7 +115,8 @@ namespace magneticfield::interpolation {
   long binary_ifstream::tellg() { return ftell(file_); }
 
   binary_ifstream& binary_ifstream::seekg(long to) {
-    fseek(file_, to, 0);
+    //if there is a problem, calling fail() will return true;
+    fseek(file_, to, SEEK_SET);
     return *this;
   }
 
