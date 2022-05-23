@@ -22,9 +22,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Includes
 ////////////////////////////////////////////////////////////////////////////////
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/transform.h"
 
@@ -49,30 +51,42 @@
 ////////////////////////////////////////////////////////////////////////////////
 // class definition
 ////////////////////////////////////////////////////////////////////////////////
+namespace ovc {
+  template <typename T>
+  struct StreamCache {
+    StreamCache(std::string const& keep, std::string const& remove)
+        : objKeepCut_(keep, true), objRemoveCut_(remove, true) {}
+    StringCutObjectSelector<T, true>
+        objKeepCut_;  // lazy parsing, to allow cutting on variables not in reco::Candidate class
+    StringCutObjectSelector<reco::Candidate, true> objRemoveCut_;  // lazy parsing, to allow cutting on variables
+  };
+}  // namespace ovc
 template <typename T>
-class ObjectViewCleaner : public edm::EDProducer {
+class ObjectViewCleaner : public edm::global::EDProducer<edm::StreamCache<ovc::StreamCache<T>>> {
 public:
   // construction/destruction
   ObjectViewCleaner(const edm::ParameterSet& iConfig);
   ~ObjectViewCleaner() override;
 
   // member functions
-  void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+  std::unique_ptr<ovc::StreamCache<T>> beginStream(edm::StreamID) const override;
+  void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
   void endJob() override;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
   // member data
-  edm::EDGetTokenT<edm::View<T>> srcCandsToken_;
-  std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>> srcObjectsTokens_;
-  double deltaRMin_;
+  const edm::EDGetTokenT<edm::View<T>> srcCandsToken_;
+  const std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>> srcObjectsTokens_;
+  const double deltaRMin_;
 
-  std::string moduleLabel_;
-  StringCutObjectSelector<T, true>
-      objKeepCut_;  // lazy parsing, to allow cutting on variables not in reco::Candidate class
-  StringCutObjectSelector<reco::Candidate, true> objRemoveCut_;  // lazy parsing, to allow cutting on variables
+  const std::string moduleLabel_;
+  const std::string keep_;
+  const std::string remove_;
 
-  unsigned int nObjectsTot_;
-  unsigned int nObjectsClean_;
+  mutable std::atomic<unsigned int> nObjectsTot_;
+  mutable std::atomic<unsigned int> nObjectsClean_;
 };
 
 using namespace std;
@@ -84,23 +98,17 @@ using namespace std;
 //______________________________________________________________________________
 template <typename T>
 ObjectViewCleaner<T>::ObjectViewCleaner(const edm::ParameterSet& iConfig)
-    : srcCandsToken_(consumes<edm::View<T>>(iConfig.getParameter<edm::InputTag>("srcObject"))),
+    : srcCandsToken_(this->consumes(iConfig.getParameter<edm::InputTag>("srcObject"))),
       srcObjectsTokens_(edm::vector_transform(
           iConfig.getParameter<vector<edm::InputTag>>("srcObjectsToRemove"),
-          [this](edm::InputTag const& tag) { return consumes<edm::View<reco::Candidate>>(tag); })),
+          [this](edm::InputTag const& tag) { return this->template consumes<edm::View<reco::Candidate>>(tag); })),
       deltaRMin_(iConfig.getParameter<double>("deltaRMin")),
       moduleLabel_(iConfig.getParameter<string>("@module_label")),
-      objKeepCut_(iConfig.existsAs<std::string>("srcObjectSelection")
-                      ? iConfig.getParameter<std::string>("srcObjectSelection")
-                      : "",
-                  true),
-      objRemoveCut_(iConfig.existsAs<std::string>("srcObjectsToRemoveSelection")
-                        ? iConfig.getParameter<std::string>("srcObjectsToRemoveSelection")
-                        : "",
-                    true),
+      keep_(iConfig.getParameter<std::string>("srcObjectSelection")),
+      remove_(iConfig.getParameter<std::string>("srcObjectsToRemoveSelection")),
       nObjectsTot_(0),
       nObjectsClean_(0) {
-  produces<edm::RefToBaseVector<T>>();
+  this->template produces<edm::RefToBaseVector<T>>();
 }
 
 //______________________________________________________________________________
@@ -111,9 +119,13 @@ ObjectViewCleaner<T>::~ObjectViewCleaner() {}
 // implementation of member functions
 ////////////////////////////////////////////////////////////////////////////////
 
+template <typename T>
+std::unique_ptr<ovc::StreamCache<T>> ObjectViewCleaner<T>::beginStream(edm::StreamID) const {
+  return std::make_unique<ovc::StreamCache<T>>(keep_, remove_);
+}
 //______________________________________________________________________________
 template <typename T>
-void ObjectViewCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void ObjectViewCleaner<T>::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto cleanObjects = std::make_unique<edm::RefToBaseVector<T>>();
 
   edm::Handle<edm::View<T>> candidates;
@@ -123,18 +135,20 @@ void ObjectViewCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
   for (unsigned int iObject = 0; iObject < candidates->size(); iObject++)
     isClean[iObject] = true;
 
+  auto& objKeepCut = this->streamCache(streamID)->objKeepCut_;
+  auto& objRemoveCut = this->streamCache(streamID)->objRemoveCut_;
   for (unsigned int iSrc = 0; iSrc < srcObjectsTokens_.size(); iSrc++) {
     edm::Handle<edm::View<reco::Candidate>> objects;
     iEvent.getByToken(srcObjectsTokens_[iSrc], objects);
 
     for (unsigned int iObject = 0; iObject < candidates->size(); iObject++) {
       const T& candidate = candidates->at(iObject);
-      if (!objKeepCut_(candidate))
+      if (!objKeepCut(candidate))
         isClean[iObject] = false;
 
       for (unsigned int iObj = 0; iObj < objects->size(); iObj++) {
         const reco::Candidate& obj = objects->at(iObj);
-        if (!objRemoveCut_(obj))
+        if (!objRemoveCut(obj))
           continue;
 
         double deltaR = reco::deltaR(candidate, obj);
@@ -167,6 +181,16 @@ void ObjectViewCleaner<T>::endJob() {
                                     << ss.str() << "++++++++++++++++++++++++++++++++++++++++++++++++++";
 }
 
+template <typename T>
+void ObjectViewCleaner<T>::fillDescriptions(edm::ConfigurationDescriptions& desc) {
+  edm::ParameterSetDescription pset;
+  pset.add<edm::InputTag>("srcObject");
+  pset.add<std::vector<edm::InputTag>>("srcObjectsToRemove");
+  pset.add<double>("deltaRMin");
+  pset.add<std::string>("srcObjectSelection", "");
+  pset.add<std::string>("srcObjectsToRemoveSelection", "");
+  desc.addDefault(pset);
+}
 ////////////////////////////////////////////////////////////////////////////////
 // plugin definition
 ////////////////////////////////////////////////////////////////////////////////
