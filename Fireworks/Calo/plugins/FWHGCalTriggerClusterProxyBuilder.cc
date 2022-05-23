@@ -127,7 +127,7 @@ void FWHGCalTriggerClusterProxyBuilder::build(const l1t::HGCalMulticluster &iDat
         float centerX = (corners[6] + corners[6 + offset]) / 2;
         float centerY = (corners[7] + corners[7 + offset]) / 2;
         float radius = fabs(corners[6] - corners[6 + offset]) / 2;
-        hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]), radius, 90.0, shapes[3]);
+        hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]), radius, shapes[2], shapes[3]);
         hex_boxset->DigitColor(energy * 255, 0, 255 - energy * 255);
 
         h_hex = true;
