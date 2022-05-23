@@ -522,7 +522,10 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
       fwRecoGeometry.idToName[id].points[(cor.size() - 1) * 3 + 1] = center.y();
       fwRecoGeometry.idToName[id].points[(cor.size() - 1) * 3 + 2] = center.z();
 
-      // thickness
+      // Cells rotation (read few lines below)
+      fwRecoGeometry.idToName[id].shape[2] = 0.;
+
+      // Thickness
       fwRecoGeometry.idToName[id].shape[3] = cor[cor.size() - 1].z();
 
       // total points
@@ -543,6 +546,28 @@ void FWRecoGeometryESProducer::addCaloGeometry(FWRecoGeometry& fwRecoGeometry) {
 
       // Last EE layer
       fwRecoGeometry.idToName[id].topology[5] = rhtools.lastLayerEE();
+
+      // Compute the orientation of each cell. The orientation here is simply
+      // addressing the corner or side bottom layout of the cell and should not
+      // be confused with the concept of orientation embedded in the flat-file
+      // description. The default orientation of the cells within a wafer is
+      // with the side at the bottom. The points returned by the HGCal query
+      // will be ordered counter-clockwise, with the first corner in the
+      // uppermost-right position. The corners used to calculate the angle wrt
+      // the Y scale are corner 0 and corner 3, that are opposite in the cells.
+      // The angle should be 30 degrees wrt the Y axis for all cells in the
+      // default position. For the rotated layers in CE-H, the situation is
+      // such that the cells are oriented with a vertex down (assuming those
+      // layers will have a 30 degrees rotation): this will establish an angle
+      // of 60 degrees wrt the Y axis. The default way in which an hexagon is
+      // rendered inside Fireworks is with the side down.
+      if (rhtools.isSilicon(it->rawId())) {
+        auto val_x = (cor[0].x()-cor[3].x());
+        auto val_y = (cor[0].y()-cor[3].y());
+        auto val = round(std::acos(val_y / std::sqrt(val_x*val_x + val_y*val_y))/M_PI*180.);
+        // Pass down the chain the vaue of the rotation of the cell wrt the Y axis.
+        fwRecoGeometry.idToName[id].shape[2] = val;
+      }
 
       // For each and every wafer in HGCal, add a "fake" DetId with cells'
       // (u,v) bits set to 1 . Those DetIds will be used inside Fireworks to
