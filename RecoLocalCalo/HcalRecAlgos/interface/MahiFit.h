@@ -140,6 +140,8 @@ private:
   void onePulseMinimize() const;
   void updateCov(const SampleMatrix& invCovMat) const;
   void resetPulseShapeTemplate(int pulseShapeId, const HcalPulseShapes& ps, unsigned int nSamples);
+
+  float ccTime() const ;
   void updatePulseShape(const float itQ,
                         FullSampleVector& pulseShape,
                         FullSampleVector& pulseDeriv,

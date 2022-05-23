@@ -218,6 +218,23 @@ void MahiFit::doFit(std::array<float, 4>& correctedOutput, int nbx) const {
 
     correctedOutput.at(2) = chiSq;  //chi2
   }
+
+  if (foundintime) {
+
+    // those conditions are now on data time slices, can be done on the fitted pulse i.e. using nlsWork_.ampVec.coeff(ipulseintime);
+    // FIME: need to multiply amplitudes with gain to get the energy
+    // FIXME: remove hardcoded TS3, TS4, TS5 (soi is nnlsWork_.tsOffset)
+
+    // Selecting energetic hits - (Energy in TS[3] and TS[4]) > 20 GeV
+    bool cond1 = (nnlsWork_.amplitudes.coeffRef(3)+nnlsWork_.amplitudes.coeffRef(4) > 20 );
+    // Rejecting late hits  Energy in TS[3] > (Energy in TS[4] and TS[5])
+    bool cond2 = (nnlsWork_.amplitudes.coeffRef(3)>(nnlsWork_.amplitudes.coeffRef(4)+nnlsWork_.amplitudes.coeffRef(5)));
+    // With small OOTPU (Energy in TS[0] ,TS[1] and TS[2]) < 5 GeV
+    bool cond3 = ((nnlsWork_.amplitudes.coeffRef(0)+nnlsWork_.amplitudes.coeffRef(1)+nnlsWork_.amplitudes.coeffRef(2))<5 );
+
+    if (cond1 && cond2 && cond3) correctedOutput.at(1) = ccTime();
+
+  }
 }
 
 const float MahiFit::minimize() const {
@@ -343,6 +360,63 @@ void MahiFit::updateCov(const SampleMatrix& samplecov) const {
   }
 
   nnlsWork_.covDecomp.compute(invCovMat);
+}
+
+float MahiFit::ccTime() const {
+
+  // To speed up check around the fitted time (? to be checked with LLP)
+
+  // distanze as in formula of page 6
+  // https://indico.cern.ch/event/1142347/contributions/4793749/attachments/2412936/4129323/HCAL%20timing%20update.pdf
+
+  float t0 = meanTime_;
+
+  //  if (applyTimeSlew_) {
+  //    if (itQ <= 1.f)
+  //      t0 += tsDelay1GeV_;
+  //    else
+  //      t0 += hcalTimeSlewDelay_->delay(float(itQ), slewFlavor_);
+  //  }
+
+  float distance_delta_max = 0.f;
+  float ccTime_ = 0.;
+
+  std::array<double, hcal::constants::maxSamples> pulseN;
+
+  int TS_afterSOI = 25 * ( nnlsWork_.tsSize - nnlsWork_.tsOffset );
+  int TS_beforeSOI = - 25 * nnlsWork_.tsOffset;
+
+  for (int deltaNS = TS_beforeSOI; deltaNS < TS_afterSOI; ++deltaNS ) {
+
+    const float xx = t0+deltaNS;
+
+    psfPtr_->singlePulseShapeFuncMahi(&xx);
+    psfPtr_->getPulseShape(pulseN);
+
+    float pulse2 = 0;
+    float norm2 = 0;
+    float numerator = 0;
+    //
+
+    for (unsigned int iTS = 0; iTS < nnlsWork_.tsSize; ++iTS) {
+
+      //pulseN[iTS] is the area of the template
+      float norm = nnlsWork_.amplitudes.coeffRef(iTS);// * gains[iTS]; // normalization to energy of the data (full pulse or each time slide ?) + need to bring gain here 
+
+      //  Finding the distance after each iteration.
+      numerator += norm * pulseN[iTS];
+      pulse2 += pulseN[iTS]*pulseN[iTS];
+      norm2 += norm * norm;
+
+    }
+
+    float distance = numerator / sqrt(pulse2 * norm2);
+    if(distance > distance_delta_max ) { distance_delta_max = distance; ccTime_ = deltaNS; }
+
+  }
+
+  return ccTime_;
+
 }
 
 float MahiFit::calculateArrivalTime(const unsigned int itIndex) const {
