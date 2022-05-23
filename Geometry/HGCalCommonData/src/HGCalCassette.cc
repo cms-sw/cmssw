@@ -20,7 +20,7 @@ void HGCalCassette::setParameter(int cassette, const std::vector<double>& shifts
 
 std::pair<double, double> HGCalCassette::getShift(int layer, int zside, int cassette) {
   int locc = (zside < 0) ? (cassette - 1) : (typeHE_ ? positHE_[cassette - 1] : positEE_[cassette - 1]);
-  int loc = 2 * cassette_ * (layer - 1) + locc;
+  int loc = 2 * (cassette_ * (layer - 1) + locc);
   std::pair<double, double> xy = std::make_pair(shifts_[loc], shifts_[loc + 1]);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "HGCalCassette::getShift: Layer " << layer << " zside " << zside << " cassette "
