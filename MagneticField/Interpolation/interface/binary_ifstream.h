@@ -11,6 +11,11 @@ namespace magneticfield::interpolation {
     explicit binary_ifstream(const char* name);
     explicit binary_ifstream(const std::string& name);
 
+    binary_ifstream(const binary_ifstream&) = delete;
+    binary_ifstream(binary_ifstream&&);
+    binary_ifstream& operator=(const binary_ifstream&) = delete;
+    binary_ifstream& operator=(binary_ifstream&&);
+    
     ~binary_ifstream();
 
     binary_ifstream& operator>>(char& n);
