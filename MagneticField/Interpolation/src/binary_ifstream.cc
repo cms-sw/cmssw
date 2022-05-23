@@ -18,9 +18,7 @@ namespace magneticfield::interpolation {
     }
   }
 
-  binary_ifstream::binary_ifstream(binary_ifstream&& iOther): file_(iOther.file_) {
-    iOther.file_ = nullptr;
-  }
+  binary_ifstream::binary_ifstream(binary_ifstream&& iOther) : file_(iOther.file_) { iOther.file_ = nullptr; }
 
   binary_ifstream& binary_ifstream::operator=(binary_ifstream&& iOther) {
     binary_ifstream temp{std::move(iOther)};

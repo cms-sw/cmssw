@@ -15,7 +15,7 @@ namespace magneticfield::interpolation {
     binary_ifstream(binary_ifstream&&);
     binary_ifstream& operator=(const binary_ifstream&) = delete;
     binary_ifstream& operator=(binary_ifstream&&);
-    
+
     ~binary_ifstream();
 
     binary_ifstream& operator>>(char& n);
