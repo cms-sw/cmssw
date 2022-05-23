@@ -21,8 +21,9 @@ public:
 
   std::pair<int32_t, int32_t> cellUVFromXY4(
       double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug);
-  
-  std::pair<int32_t, int32_t> cellUVFromXY1(double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug);
+
+  std::pair<int32_t, int32_t> cellUVFromXY1(
+      double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug);
 
 private:
   std::pair<int32_t, int32_t> cellUVFromXY4(double xloc,
