@@ -16,7 +16,12 @@ pfTracksFromL1Tracks = cms.EDProducer("PFTrackProducerFromL1Tracks",
             offset  = cms.vdouble( 0.007,  0.009,  0.011,  0.015,  0.025),
             scale   = cms.vdouble( 0.275,  0.404,  0.512,  0.480,  1.132),
             kind    = cms.string('track'),
-    )
- 
+    ),
+    qualityBits = cms.vstring(
+        "momentum.perp > 2 && getStubRefs.size >= 4 && chi2Red < 15",
+        "momentum.perp > 2 && getStubRefs.size >= 6 && chi2Red < 15 && chi2 < 50", # historical reasons
+        "momentum.perp > 5 && getStubRefs.size >= 4"
+    ),
+    redigitizeTrackWord = cms.bool(True),
 )
 
