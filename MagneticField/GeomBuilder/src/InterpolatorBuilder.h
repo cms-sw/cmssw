@@ -20,9 +20,12 @@
 
 // system include files
 #include <string>
+#include <optional>
+#include <unordered_map>
 
 // user include files
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
+#include "MagneticField/Interpolation/interface/binary_ifstream.h"
 #include "DD4hep_volumeHandle.h"
 
 // forward declarations
@@ -45,6 +48,8 @@ namespace magneticfield {
   private:
     // ---------- member data --------------------------------
     std::string tableSet_;
+    std::unordered_map<std::string, unsigned int> offsets_;
+    std::optional<interpolation::binary_ifstream> stream_;
   };
 }  // namespace magneticfield
 #endif
