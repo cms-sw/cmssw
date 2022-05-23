@@ -59,9 +59,9 @@ namespace l1gt {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, pt);
-      _pack_into_bits(ret, start, phi);
-      _pack_into_bits(ret, start, eta);
+      pack_into_bits(ret, start, pt);
+      pack_into_bits(ret, start, phi);
+      pack_into_bits(ret, start, eta);
       return ret;
     }
 
@@ -73,9 +73,9 @@ namespace l1gt {
 
     inline void initFromBits(const ap_uint<BITWIDTH> &src) {
       unsigned int start = 0;
-      _unpack_from_bits(src, start, pt);
-      _unpack_from_bits(src, start, phi);
-      _unpack_from_bits(src, start, eta);
+      unpack_from_bits(src, start, pt);
+      unpack_from_bits(src, start, phi);
+      unpack_from_bits(src, start, eta);
     }
   };
 
@@ -90,9 +90,9 @@ namespace l1gt {
     inline ap_uint<BITWIDTH> pack_ap() const {
       ap_uint<BITWIDTH> ret = 0;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, valid);
-      _pack_into_bits(ret, start, v3.pack());
-      _pack_into_bits(ret, start, z0);
+      pack_into_bits(ret, start, valid);
+      pack_into_bits(ret, start, v3.pack());
+      pack_into_bits(ret, start, z0);
       return ret;
     }
 
@@ -112,11 +112,11 @@ namespace l1gt {
 
     inline void initFromBits(const ap_uint<BITWIDTH> &src) {
       unsigned int start = 0;
-      _unpack_from_bits(src, start, valid);
-      _unpack_from_bits(src, start, v3.pt);
-      _unpack_from_bits(src, start, v3.phi);
-      _unpack_from_bits(src, start, v3.eta);
-      _unpack_from_bits(src, start, z0);
+      unpack_from_bits(src, start, valid);
+      unpack_from_bits(src, start, v3.pt);
+      unpack_from_bits(src, start, v3.phi);
+      unpack_from_bits(src, start, v3.eta);
+      unpack_from_bits(src, start, z0);
     }
 
     inline static Jet unpack(const std::array<uint64_t, 2> &src) {
@@ -156,10 +156,10 @@ namespace l1gt {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, valid);
-      _pack_into_bits(ret, start, vector_pt);
-      _pack_into_bits(ret, start, vector_phi);
-      _pack_into_bits(ret, start, scalar_pt);
+      pack_into_bits(ret, start, valid);
+      pack_into_bits(ret, start, vector_pt);
+      pack_into_bits(ret, start, vector_phi);
+      pack_into_bits(ret, start, scalar_pt);
       return ret;
     }
 
@@ -171,10 +171,10 @@ namespace l1gt {
 
     inline void initFromBits(const ap_uint<BITWIDTH> &src) {
       unsigned int start = 0;
-      _unpack_from_bits(src, start, valid);
-      _unpack_from_bits(src, start, vector_pt);
-      _unpack_from_bits(src, start, vector_phi);
-      _unpack_from_bits(src, start, scalar_pt);
+      unpack_from_bits(src, start, valid);
+      unpack_from_bits(src, start, vector_pt);
+      unpack_from_bits(src, start, vector_phi);
+      unpack_from_bits(src, start, scalar_pt);
     }
   };  // struct Sum
 
@@ -193,15 +193,15 @@ namespace l1gt {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, valid);
-      _pack_into_bits(ret, start, v3.pack());
-      _pack_into_bits(ret, start, seed_pt);
-      _pack_into_bits(ret, start, seed_z0);
-      _pack_into_bits(ret, start, charge);
-      _pack_into_bits(ret, start, type);
-      _pack_into_bits(ret, start, isolation);
-      _pack_into_bits(ret, start, id0);
-      _pack_into_bits(ret, start, id1);
+      pack_into_bits(ret, start, valid);
+      pack_into_bits(ret, start, v3.pack());
+      pack_into_bits(ret, start, seed_pt);
+      pack_into_bits(ret, start, seed_z0);
+      pack_into_bits(ret, start, charge);
+      pack_into_bits(ret, start, type);
+      pack_into_bits(ret, start, isolation);
+      pack_into_bits(ret, start, id0);
+      pack_into_bits(ret, start, id1);
       return ret;
     }
   };  // struct Tau
@@ -218,12 +218,12 @@ namespace l1gt {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret(0);
       unsigned int start = 0;
-      _pack_into_bits(ret, start, valid);
-      _pack_into_bits(ret, start, v3.pack());
-      _pack_into_bits(ret, start, quality);
-      _pack_into_bits(ret, start, isolation);
-      _pack_into_bits(ret, start, charge);
-      _pack_into_bits(ret, start, z0);
+      pack_into_bits(ret, start, valid);
+      pack_into_bits(ret, start, v3.pack());
+      pack_into_bits(ret, start, quality);
+      pack_into_bits(ret, start, isolation);
+      pack_into_bits(ret, start, charge);
+      pack_into_bits(ret, start, z0);
       return ret;
     }
   };
@@ -237,10 +237,10 @@ namespace l1gt {
     inline ap_uint<96> pack() const {
       ap_uint<96> ret(0);
       unsigned int start = 0;
-      _pack_into_bits(ret, start, valid);
-      _pack_into_bits(ret, start, v3.pack());
-      _pack_into_bits(ret, start, quality);
-      _pack_into_bits(ret, start, isolation);
+      pack_into_bits(ret, start, valid);
+      pack_into_bits(ret, start, v3.pack());
+      pack_into_bits(ret, start, quality);
+      pack_into_bits(ret, start, isolation);
       return ret;
     }
   };

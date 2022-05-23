@@ -11,7 +11,7 @@ namespace edm {
 
 namespace l1ct {
   class EGInputSelectorEmulator;
-  class EGInputSelectorEmuConfig;
+  struct EGInputSelectorEmuConfig;
 }  // namespace l1ct
 
 namespace l1ct {

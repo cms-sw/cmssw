@@ -6,6 +6,5 @@ DeregionizerProducer = cms.EDProducer("DeregionizerProducer",
                            nPuppiPerClk        = cms.uint32(6),
                            nPuppiFirstBuffers  = cms.uint32(12),
                            nPuppiSecondBuffers = cms.uint32(32),
-                           nPuppiThirdBuffers  = cms.uint32(64),
-                           debug               = cms.untracked.bool(False)
+                           nPuppiThirdBuffers  = cms.uint32(64)
                          )

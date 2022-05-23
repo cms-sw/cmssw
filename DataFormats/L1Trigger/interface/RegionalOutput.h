@@ -1,5 +1,5 @@
-#ifndef DataFormats_L1TParticleFlow_RegionalOutput_h
-#define DataFormats_L1TParticleFlow_RegionalOutput_h
+#ifndef DataFormats_L1Trigger_RegionalOutput_h
+#define DataFormats_L1Trigger_RegionalOutput_h
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -123,7 +123,12 @@ namespace l1t {
     const_iterator begin() const { return const_iterator(this, 0); }
     const_iterator end() const { return const_iterator(this, values_.size()); }
 
-    Region region(unsigned int ireg) const { return Region(this, ireg == 0 ? 0 : regions_[ireg - 1], regions_[ireg]); }
+    Region region(unsigned int ireg) const {
+      if (ireg >= regions_.size())
+        throw cms::Exception("Region index out of bounds");
+      return Region(this, ireg == 0 ? 0 : regions_[ireg - 1], regions_[ireg]);
+    }
+
     const float eta(unsigned int ireg) const { return etas_[ireg]; }
     const float phi(unsigned int ireg) const { return phis_[ireg]; }
 
@@ -131,7 +136,7 @@ namespace l1t {
     const value_type& objAt(unsigned int idx) const { return (*refprod_)[values_[idx]]; }
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(3)
 
   protected:
     refprod refprod_;

@@ -91,9 +91,6 @@ namespace l1ct {
           emClusterPtMin(emClusterPtMin),
           dEtaMaxBrem(dEtaMaxBrem),
           dPhiMaxBrem(dPhiMaxBrem),
-          //absEtaBoundaries(std::move(absEtaBoundaries)),
-          //dEtaValues(std::move(dEtaValues)),
-          //dPhiValues(std::move(dPhiValues)),
           absEtaBoundaries(absEtaBoundaries),
           dEtaValues(dEtaValues),
           dPhiValues(dPhiValues),
@@ -185,10 +182,6 @@ namespace l1ct {
     // FIXME: reimplemented from PFAlgoEmulatorBase
     template <typename T>
     void ptsort_ref(int nIn, int nOut, const std::vector<T> &in, std::vector<T> &out) const {
-      // // std based sort
-      // out = in;
-      // std::sort(out.begin(), out.end(),  std::greater<T>());
-      // out.resize(nOut);
       out.resize(nOut);
       for (int iout = 0; iout < nOut; ++iout) {
         out[iout].clear();

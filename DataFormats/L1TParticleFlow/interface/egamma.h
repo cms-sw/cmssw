@@ -45,11 +45,11 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwPt);
-      _pack_into_bits(ret, start, hwEta);
-      _pack_into_bits(ret, start, hwPhi);
-      _pack_into_bits(ret, start, hwQual);
-      _pack_into_bits(ret, start, hwIso);
+      pack_into_bits(ret, start, hwPt);
+      pack_into_bits(ret, start, hwEta);
+      pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwQual);
+      pack_into_bits(ret, start, hwIso);
       return ret;
     }
     inline static EGIsoObj unpack(const ap_uint<BITWIDTH> &src) {
@@ -60,11 +60,11 @@ namespace l1ct {
 
     inline void initFromBits(const ap_uint<BITWIDTH> &src) {
       unsigned int start = 0;
-      _unpack_from_bits(src, start, hwPt);
-      _unpack_from_bits(src, start, hwEta);
-      _unpack_from_bits(src, start, hwPhi);
-      _unpack_from_bits(src, start, hwQual);
-      _unpack_from_bits(src, start, hwIso);
+      unpack_from_bits(src, start, hwPt);
+      unpack_from_bits(src, start, hwEta);
+      unpack_from_bits(src, start, hwPhi);
+      unpack_from_bits(src, start, hwQual);
+      unpack_from_bits(src, start, hwIso);
     }
 
     l1gt::Photon toGT() const {
@@ -124,15 +124,15 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwPt);
-      _pack_into_bits(ret, start, hwEta);
-      _pack_into_bits(ret, start, hwPhi);
-      _pack_into_bits(ret, start, hwQual);
-      _pack_into_bits(ret, start, hwIso);
-      _pack_into_bits(ret, start, hwDEta);
-      _pack_into_bits(ret, start, hwDPhi);
-      _pack_into_bits(ret, start, hwZ0);
-      _pack_bool_into_bits(ret, start, hwCharge);
+      pack_into_bits(ret, start, hwPt);
+      pack_into_bits(ret, start, hwEta);
+      pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwQual);
+      pack_into_bits(ret, start, hwIso);
+      pack_into_bits(ret, start, hwDEta);
+      pack_into_bits(ret, start, hwDPhi);
+      pack_into_bits(ret, start, hwZ0);
+      pack_bool_into_bits(ret, start, hwCharge);
       return ret;
     }
     inline static EGIsoEleObj unpack(const ap_uint<BITWIDTH> &src) {
@@ -143,15 +143,15 @@ namespace l1ct {
 
     inline void initFromBits(const ap_uint<BITWIDTH> &src) {
       unsigned int start = 0;
-      _unpack_from_bits(src, start, hwPt);
-      _unpack_from_bits(src, start, hwEta);
-      _unpack_from_bits(src, start, hwPhi);
-      _unpack_from_bits(src, start, hwQual);
-      _unpack_from_bits(src, start, hwIso);
-      _unpack_from_bits(src, start, hwDEta);
-      _unpack_from_bits(src, start, hwDPhi);
-      _unpack_from_bits(src, start, hwZ0);
-      _unpack_bool_from_bits(src, start, hwCharge);
+      unpack_from_bits(src, start, hwPt);
+      unpack_from_bits(src, start, hwEta);
+      unpack_from_bits(src, start, hwPhi);
+      unpack_from_bits(src, start, hwQual);
+      unpack_from_bits(src, start, hwIso);
+      unpack_from_bits(src, start, hwDEta);
+      unpack_from_bits(src, start, hwDPhi);
+      unpack_from_bits(src, start, hwZ0);
+      unpack_bool_from_bits(src, start, hwCharge);
     }
 
     l1gt::Electron toGT() const {

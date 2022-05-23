@@ -24,7 +24,6 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/w4.h"
 #include "L1Trigger/Phase2L1ParticleFlow/interface/taus/weights/b4.h"
 
-
 typedef ap_ufixed<16, 14> pt_t;
 typedef ap_fixed<10, 4> etaphi_t;
 

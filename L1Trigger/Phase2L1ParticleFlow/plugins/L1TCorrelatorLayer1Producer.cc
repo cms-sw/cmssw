@@ -46,7 +46,6 @@ public:
 
 private:
   edm::ParameterSet config_;
-  int debug_;
 
   bool hasTracks_;
   edm::EDGetTokenT<l1t::PFTrackCollection> tkCands_;
@@ -143,7 +142,6 @@ private:
 //
 L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet &iConfig)
     : config_(iConfig),
-      debug_(iConfig.getUntrackedParameter<int>("debug", 0)),
       hasTracks_(!iConfig.getParameter<edm::InputTag>("tracks").label().empty()),
       tkCands_(hasTracks_ ? consumes<l1t::PFTrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))
                           : edm::EDGetTokenT<l1t::PFTrackCollection>()),

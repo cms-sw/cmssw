@@ -21,13 +21,12 @@ private:
 
   edm::EDGetTokenT<edm::View<reco::Candidate>> jets_;
   l1tpf::corrector corrector_;
-  bool copyDaughters_;
 };
 
 L1TCorrectedPFJetProducer::L1TCorrectedPFJetProducer(const edm::ParameterSet& iConfig)
     : jets_(consumes<edm::View<reco::Candidate>>(iConfig.getParameter<edm::InputTag>("jets"))),
-      corrector_(iConfig.getParameter<std::string>("correctorFile"), iConfig.getParameter<std::string>("correctorDir")),
-      copyDaughters_(iConfig.getParameter<bool>("copyDaughters")) {
+      corrector_(iConfig.getParameter<std::string>("correctorFile"),
+                 iConfig.getParameter<std::string>("correctorDir")) {
   produces<std::vector<l1t::PFJet>>();
 }
 

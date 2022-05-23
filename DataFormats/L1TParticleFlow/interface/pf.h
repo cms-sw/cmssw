@@ -25,18 +25,18 @@ namespace l1ct {
 
     static const int _PFCOMMON_BITWIDTH = pt_t::width + eta_t::width + phi_t::width + 3;
     template <typename U>
-    inline void _pack_common(U &out, unsigned int &start) const {
-      _pack_into_bits(out, start, hwPt);
-      _pack_into_bits(out, start, hwEta);
-      _pack_into_bits(out, start, hwPhi);
-      _pack_into_bits(out, start, hwId.bits);
+    inline void pack_common(U &out, unsigned int &start) const {
+      pack_into_bits(out, start, hwPt);
+      pack_into_bits(out, start, hwEta);
+      pack_into_bits(out, start, hwPhi);
+      pack_into_bits(out, start, hwId.bits);
     }
     template <typename U>
-    inline void _unpack_common(const U &src, unsigned int &start) {
-      _unpack_from_bits(src, start, hwPt);
-      _unpack_from_bits(src, start, hwEta);
-      _unpack_from_bits(src, start, hwPhi);
-      _unpack_from_bits(src, start, hwId.bits);
+    inline void unpack_common(const U &src, unsigned int &start) {
+      unpack_from_bits(src, start, hwPt);
+      unpack_from_bits(src, start, hwEta);
+      unpack_from_bits(src, start, hwPhi);
+      unpack_from_bits(src, start, hwId.bits);
     }
   };
 
@@ -87,23 +87,23 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_common(ret, start);
-      _pack_into_bits(ret, start, hwDEta);
-      _pack_into_bits(ret, start, hwDPhi);
-      _pack_into_bits(ret, start, hwZ0);
-      _pack_into_bits(ret, start, hwDxy);
-      _pack_into_bits(ret, start, hwTkQuality);
+      pack_common(ret, start);
+      pack_into_bits(ret, start, hwDEta);
+      pack_into_bits(ret, start, hwDPhi);
+      pack_into_bits(ret, start, hwZ0);
+      pack_into_bits(ret, start, hwDxy);
+      pack_into_bits(ret, start, hwTkQuality);
       return ret;
     }
     inline static PFChargedObj unpack(const ap_uint<BITWIDTH> &src) {
       PFChargedObj ret;
       unsigned int start = 0;
-      ret._unpack_common(src, start);
-      _unpack_from_bits(src, start, ret.hwDEta);
-      _unpack_from_bits(src, start, ret.hwDPhi);
-      _unpack_from_bits(src, start, ret.hwZ0);
-      _unpack_from_bits(src, start, ret.hwDxy);
-      _unpack_from_bits(src, start, ret.hwTkQuality);
+      ret.unpack_common(src, start);
+      unpack_from_bits(src, start, ret.hwDEta);
+      unpack_from_bits(src, start, ret.hwDPhi);
+      unpack_from_bits(src, start, ret.hwZ0);
+      unpack_from_bits(src, start, ret.hwDxy);
+      unpack_from_bits(src, start, ret.hwTkQuality);
       return ret;
     }
   };
@@ -139,19 +139,19 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_common(ret, start);
-      _pack_into_bits(ret, start, hwEmPt);
-      _pack_into_bits(ret, start, hwEmID);
-      _pack_into_bits(ret, start, hwPUID);
+      pack_common(ret, start);
+      pack_into_bits(ret, start, hwEmPt);
+      pack_into_bits(ret, start, hwEmID);
+      pack_into_bits(ret, start, hwPUID);
       return ret;
     }
     inline static PFNeutralObj unpack(const ap_uint<BITWIDTH> &src) {
       PFNeutralObj ret;
       unsigned int start = 0;
-      ret._unpack_common(src, start);
-      _unpack_from_bits(src, start, ret.hwEmPt);
-      _unpack_from_bits(src, start, ret.hwEmID);
-      _unpack_from_bits(src, start, ret.hwPUID);
+      ret.unpack_common(src, start);
+      unpack_from_bits(src, start, ret.hwEmPt);
+      unpack_from_bits(src, start, ret.hwEmID);
+      unpack_from_bits(src, start, ret.hwPUID);
       return ret;
     }
   };
@@ -241,23 +241,23 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwEtaCenter);
-      _pack_into_bits(ret, start, hwPhiCenter);
-      _pack_into_bits(ret, start, hwEtaHalfWidth);
-      _pack_into_bits(ret, start, hwPhiHalfWidth);
-      _pack_into_bits(ret, start, hwEtaExtra);
-      _pack_into_bits(ret, start, hwPhiExtra);
+      pack_into_bits(ret, start, hwEtaCenter);
+      pack_into_bits(ret, start, hwPhiCenter);
+      pack_into_bits(ret, start, hwEtaHalfWidth);
+      pack_into_bits(ret, start, hwPhiHalfWidth);
+      pack_into_bits(ret, start, hwEtaExtra);
+      pack_into_bits(ret, start, hwPhiExtra);
       return ret;
     }
     inline static PFRegion unpack(const ap_uint<BITWIDTH> &src) {
       PFRegion ret;
       unsigned int start = 0;
-      _unpack_from_bits(src, start, ret.hwEtaCenter);
-      _unpack_from_bits(src, start, ret.hwPhiCenter);
-      _unpack_from_bits(src, start, ret.hwEtaHalfWidth);
-      _unpack_from_bits(src, start, ret.hwPhiHalfWidth);
-      _unpack_from_bits(src, start, ret.hwEtaExtra);
-      _unpack_from_bits(src, start, ret.hwPhiExtra);
+      unpack_from_bits(src, start, ret.hwEtaCenter);
+      unpack_from_bits(src, start, ret.hwPhiCenter);
+      unpack_from_bits(src, start, ret.hwEtaHalfWidth);
+      unpack_from_bits(src, start, ret.hwPhiHalfWidth);
+      unpack_from_bits(src, start, ret.hwEtaExtra);
+      unpack_from_bits(src, start, ret.hwPhiExtra);
       return ret;
     }
   };

@@ -6,7 +6,7 @@
 #include "DataFormats/L1TMuonPhase2/interface/SAMuon.h"
 #include "DataFormats/L1TParticleFlow/interface/PFCluster.h"
 #include "DataFormats/L1TParticleFlow/interface/PFTrack.h"
-#include "DataFormats/L1TParticleFlow/interface/RegionalOutput.h"
+#include "DataFormats/L1Trigger/interface/RegionalOutput.h"
 
 namespace l1t {
 

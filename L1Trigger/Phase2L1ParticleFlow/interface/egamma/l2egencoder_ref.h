@@ -93,12 +93,6 @@ namespace l1ct {
         packed64.push_back(packed96[i](63, 0));
         packed64.push_back((ap_uint<32>(packed96[i + 1](95, 64)), ap_uint<32>(packed96[i](95, 64))));
         packed64.push_back(packed96[i + 1](63, 0));
-        // std::cout << "REF"  << std::endl;
-        // std::cout << "obj [" << i << "]: " << std::hex << packed96[i] << std::endl;
-        // std::cout << "obj [" << i+1 << "]: " << std::hex << packed96[i+1] << std::endl;
-        // std::cout << "frame [" << std::dec << packed64.size()-3 << "]" << std::hex << packed64[packed64.size()-3] << std::dec << std::endl;
-        // std::cout << "frame [" << std::dec << packed64.size()-2 << "]" << std::hex << packed64[packed64.size()-2] << std::dec << std::endl;
-        // std::cout << "frame [" << std::dec << packed64.size()-1 << "]" << std::hex << packed64[packed64.size()-1] << std::dec << std::endl;
       }
     }
 

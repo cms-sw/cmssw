@@ -5,26 +5,26 @@
 #include "DataFormats/L1TParticleFlow/interface/datatypes.h"
 
 template <typename U, typename T>
-inline void _pack_into_bits(U& u, unsigned int& start, const T& data) {
+inline void pack_into_bits(U& u, unsigned int& start, const T& data) {
   const unsigned int w = T::width;
   u(start + w - 1, start) = data(w - 1, 0);
   start += w;
 }
 
 template <typename U, typename T>
-inline void _unpack_from_bits(const U& u, unsigned int& start, T& data) {
+inline void unpack_from_bits(const U& u, unsigned int& start, T& data) {
   const unsigned int w = T::width;
   data(w - 1, 0) = u(start + w - 1, start);
   start += w;
 }
 
 template <typename U>
-inline void _pack_bool_into_bits(U& u, unsigned int& start, bool data) {
+inline void pack_bool_into_bits(U& u, unsigned int& start, bool data) {
   u[start++] = data;
 }
 
 template <typename U>
-inline void _unpack_bool_from_bits(const U& u, unsigned int& start, bool& data) {
+inline void unpack_bool_from_bits(const U& u, unsigned int& start, bool& data) {
   data = u[start++];
 }
 

@@ -142,8 +142,8 @@ namespace l1ct {
   };
 
   namespace Scales {
-    const int INTPHI_PI = 720;
-    const int INTPHI_TWOPI = 2 * INTPHI_PI;
+    constexpr int INTPHI_PI = 720;
+    constexpr int INTPHI_TWOPI = 2 * INTPHI_PI;
     constexpr float INTPT_LSB = 0.25;
     constexpr float ETAPHI_LSB = M_PI / INTPHI_PI;
     constexpr float Z0_LSB = 0.05;

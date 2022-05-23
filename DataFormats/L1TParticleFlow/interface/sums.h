@@ -33,17 +33,17 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwPt);
-      _pack_into_bits(ret, start, hwPhi);
-      _pack_into_bits(ret, start, hwSumPt);
+      pack_into_bits(ret, start, hwPt);
+      pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwSumPt);
       return ret;
     }
     inline static Sum unpack(const ap_uint<BITWIDTH> &src) {
       Sum ret;
       unsigned int start = 0;
-      _unpack_from_bits(src, start, ret.hwPt);
-      _unpack_from_bits(src, start, ret.hwPhi);
-      _unpack_from_bits(src, start, ret.hwSumPt);
+      unpack_from_bits(src, start, ret.hwPt);
+      unpack_from_bits(src, start, ret.hwPhi);
+      unpack_from_bits(src, start, ret.hwSumPt);
       return ret;
     }
 

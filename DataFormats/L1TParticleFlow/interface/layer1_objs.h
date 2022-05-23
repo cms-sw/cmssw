@@ -44,21 +44,21 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwPt);
-      _pack_into_bits(ret, start, hwEta);
-      _pack_into_bits(ret, start, hwPhi);
-      _pack_into_bits(ret, start, hwEmPt);
-      _pack_into_bits(ret, start, hwEmID);
+      pack_into_bits(ret, start, hwPt);
+      pack_into_bits(ret, start, hwEta);
+      pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwEmPt);
+      pack_into_bits(ret, start, hwEmID);
       return ret;
     }
     inline static HadCaloObj unpack(const ap_uint<BITWIDTH> &src) {
       HadCaloObj ret;
       unsigned int start = 0;
-      _unpack_from_bits(src, start, ret.hwPt);
-      _unpack_from_bits(src, start, ret.hwEta);
-      _unpack_from_bits(src, start, ret.hwPhi);
-      _unpack_from_bits(src, start, ret.hwEmPt);
-      _unpack_from_bits(src, start, ret.hwEmID);
+      unpack_from_bits(src, start, ret.hwPt);
+      unpack_from_bits(src, start, ret.hwEta);
+      unpack_from_bits(src, start, ret.hwPhi);
+      unpack_from_bits(src, start, ret.hwEmPt);
+      unpack_from_bits(src, start, ret.hwEmID);
       return ret;
     }
   };
@@ -100,21 +100,21 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwPt);
-      _pack_into_bits(ret, start, hwEta);
-      _pack_into_bits(ret, start, hwPhi);
-      _pack_into_bits(ret, start, hwPtErr);
-      _pack_into_bits(ret, start, hwEmID);
+      pack_into_bits(ret, start, hwPt);
+      pack_into_bits(ret, start, hwEta);
+      pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwPtErr);
+      pack_into_bits(ret, start, hwEmID);
       return ret;
     }
     inline static EmCaloObj unpack(const ap_uint<BITWIDTH> &src) {
       EmCaloObj ret;
       unsigned int start = 0;
-      _unpack_from_bits(src, start, ret.hwPt);
-      _unpack_from_bits(src, start, ret.hwEta);
-      _unpack_from_bits(src, start, ret.hwPhi);
-      _unpack_from_bits(src, start, ret.hwPtErr);
-      _unpack_from_bits(src, start, ret.hwEmID);
+      unpack_from_bits(src, start, ret.hwPt);
+      unpack_from_bits(src, start, ret.hwEta);
+      unpack_from_bits(src, start, ret.hwPhi);
+      unpack_from_bits(src, start, ret.hwPtErr);
+      unpack_from_bits(src, start, ret.hwEmID);
       return ret;
     }
   };
@@ -179,29 +179,29 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwPt);
-      _pack_into_bits(ret, start, hwEta);
-      _pack_into_bits(ret, start, hwPhi);
-      _pack_into_bits(ret, start, hwDEta);
-      _pack_into_bits(ret, start, hwDPhi);
-      _pack_bool_into_bits(ret, start, hwCharge);
-      _pack_into_bits(ret, start, hwZ0);
-      _pack_into_bits(ret, start, hwDxy);
-      _pack_into_bits(ret, start, hwQuality);
+      pack_into_bits(ret, start, hwPt);
+      pack_into_bits(ret, start, hwEta);
+      pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwDEta);
+      pack_into_bits(ret, start, hwDPhi);
+      pack_bool_into_bits(ret, start, hwCharge);
+      pack_into_bits(ret, start, hwZ0);
+      pack_into_bits(ret, start, hwDxy);
+      pack_into_bits(ret, start, hwQuality);
       return ret;
     }
     inline static TkObj unpack(const ap_uint<BITWIDTH> &src) {
       TkObj ret;
       unsigned int start = 0;
-      _unpack_from_bits(src, start, ret.hwPt);
-      _unpack_from_bits(src, start, ret.hwEta);
-      _unpack_from_bits(src, start, ret.hwPhi);
-      _unpack_from_bits(src, start, ret.hwDEta);
-      _unpack_from_bits(src, start, ret.hwDPhi);
-      _unpack_bool_from_bits(src, start, ret.hwCharge);
-      _unpack_from_bits(src, start, ret.hwZ0);
-      _unpack_from_bits(src, start, ret.hwDxy);
-      _unpack_from_bits(src, start, ret.hwQuality);
+      unpack_from_bits(src, start, ret.hwPt);
+      unpack_from_bits(src, start, ret.hwEta);
+      unpack_from_bits(src, start, ret.hwPhi);
+      unpack_from_bits(src, start, ret.hwDEta);
+      unpack_from_bits(src, start, ret.hwDPhi);
+      unpack_bool_from_bits(src, start, ret.hwCharge);
+      unpack_from_bits(src, start, ret.hwZ0);
+      unpack_from_bits(src, start, ret.hwDxy);
+      unpack_from_bits(src, start, ret.hwQuality);
       return ret;
     }
   };
@@ -262,29 +262,29 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwPt);
-      _pack_into_bits(ret, start, hwEta);
-      _pack_into_bits(ret, start, hwPhi);
-      _pack_into_bits(ret, start, hwDEta);
-      _pack_into_bits(ret, start, hwDPhi);
-      _pack_bool_into_bits(ret, start, hwCharge);
-      _pack_into_bits(ret, start, hwZ0);
-      _pack_into_bits(ret, start, hwDxy);
-      _pack_into_bits(ret, start, hwQuality);
+      pack_into_bits(ret, start, hwPt);
+      pack_into_bits(ret, start, hwEta);
+      pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwDEta);
+      pack_into_bits(ret, start, hwDPhi);
+      pack_bool_into_bits(ret, start, hwCharge);
+      pack_into_bits(ret, start, hwZ0);
+      pack_into_bits(ret, start, hwDxy);
+      pack_into_bits(ret, start, hwQuality);
       return ret;
     }
     inline static MuObj unpack(const ap_uint<BITWIDTH> &src) {
       MuObj ret;
       unsigned int start = 0;
-      _unpack_from_bits(src, start, ret.hwPt);
-      _unpack_from_bits(src, start, ret.hwEta);
-      _unpack_from_bits(src, start, ret.hwPhi);
-      _unpack_from_bits(src, start, ret.hwDEta);
-      _unpack_from_bits(src, start, ret.hwDPhi);
-      _unpack_bool_from_bits(src, start, ret.hwCharge);
-      _unpack_from_bits(src, start, ret.hwZ0);
-      _unpack_from_bits(src, start, ret.hwDxy);
-      _unpack_from_bits(src, start, ret.hwQuality);
+      unpack_from_bits(src, start, ret.hwPt);
+      unpack_from_bits(src, start, ret.hwEta);
+      unpack_from_bits(src, start, ret.hwPhi);
+      unpack_from_bits(src, start, ret.hwDEta);
+      unpack_from_bits(src, start, ret.hwDPhi);
+      unpack_bool_from_bits(src, start, ret.hwCharge);
+      unpack_from_bits(src, start, ret.hwZ0);
+      unpack_from_bits(src, start, ret.hwDxy);
+      unpack_from_bits(src, start, ret.hwQuality);
       return ret;
     }
   };
@@ -303,13 +303,13 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwZ0);
+      pack_into_bits(ret, start, hwZ0);
       return ret;
     }
     inline static PVObj unpack(const ap_uint<BITWIDTH> &src) {
       PVObj ret;
       unsigned int start = 0;
-      _unpack_from_bits(src, start, ret.hwZ0);
+      unpack_from_bits(src, start, ret.hwZ0);
       return ret;
     }
   };

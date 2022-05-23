@@ -161,20 +161,20 @@ namespace l1ct {
     inline ap_uint<BITWIDTH> pack() const {
       ap_uint<BITWIDTH> ret;
       unsigned int start = 0;
-      _pack_into_bits(ret, start, hwPt);
-      _pack_into_bits(ret, start, hwEta);
-      _pack_into_bits(ret, start, hwPhi);
-      _pack_into_bits(ret, start, hwId.bits);
-      _pack_into_bits(ret, start, hwData);
+      pack_into_bits(ret, start, hwPt);
+      pack_into_bits(ret, start, hwEta);
+      pack_into_bits(ret, start, hwPhi);
+      pack_into_bits(ret, start, hwId.bits);
+      pack_into_bits(ret, start, hwData);
       return ret;
     }
     inline void initFromBits(const ap_uint<BITWIDTH> &src) {
       unsigned int start = 0;
-      _unpack_from_bits(src, start, hwPt);
-      _unpack_from_bits(src, start, hwEta);
-      _unpack_from_bits(src, start, hwPhi);
-      _unpack_from_bits(src, start, hwId.bits);
-      _unpack_from_bits(src, start, hwData);
+      unpack_from_bits(src, start, hwPt);
+      unpack_from_bits(src, start, hwEta);
+      unpack_from_bits(src, start, hwPhi);
+      unpack_from_bits(src, start, hwId.bits);
+      unpack_from_bits(src, start, hwData);
     }
     inline static PuppiObj unpack(const ap_uint<BITWIDTH> &src) {
       PuppiObj ret;

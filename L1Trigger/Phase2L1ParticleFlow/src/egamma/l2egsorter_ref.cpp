@@ -16,7 +16,6 @@ l1ct::L2EgSorterEmulator::L2EgSorterEmulator(const edm::ParameterSet &pset)
                          pset.getParameter<uint32_t>("nEGPerBoard"),
                          pset.getParameter<uint32_t>("nEGOut"),
                          pset.getUntrackedParameter<uint32_t>("debug", 0)) {}
-
 #endif
 
 void L2EgSorterEmulator::toFirmware(const std::vector<EGIsoObjEmu> &out_photons,

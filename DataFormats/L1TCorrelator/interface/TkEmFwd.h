@@ -10,7 +10,7 @@
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/L1TParticleFlow/interface/RegionalOutput.h"
+#include "DataFormats/L1Trigger/interface/RegionalOutput.h"
 
 namespace l1t {
 

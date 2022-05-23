@@ -57,18 +57,18 @@ namespace l1ct {
                  int glbeta,
                  unsigned int clk);
 
-      unsigned int getClock() { return linkobjclk_; }
+      const unsigned int getClock() { return linkobjclk_; }
       void setClock(unsigned int clock) { linkobjclk_ = clock; }
-      unsigned int getPhi() { return phiindex_; }
-      unsigned int getEta() { return etaindex_; }
-      bool getPhiOverlap() { return phioverlap_; }
-      bool getEtaOverlap() { return etaoverlap_; }
-      unsigned int getCount() { return objcount_; }
+      const unsigned int getPhi() { return phiindex_; }
+      const unsigned int getEta() { return etaindex_; }
+      const bool getPhiOverlap() { return phioverlap_; }
+      const bool getEtaOverlap() { return etaoverlap_; }
+      const unsigned int getCount() { return objcount_; }
       unsigned int getCountAndInc() { return objcount_++; }
       void incCount() { objcount_++; }
-      int getPt() { return obj_.hwPt.to_int(); }
-      int getGlbPhi() { return glbphi_; }
-      int getGlbEta() { return glbeta_; }
+      const int getPt() { return obj_.hwPt.to_int(); }
+      const int getGlbPhi() { return glbphi_; }
+      const int getGlbEta() { return glbeta_; }
 
       T getObj() { return obj_; }
 
