@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import os
 
 from RecoMET.METPUSubtraction.deepMETProducer_cfi import deepMETProducer as _deepMETProducer
 
@@ -32,8 +33,7 @@ from Configuration.ProcessModifiers.deepMETSonicTriton_cff import deepMETSonicTr
 _deepMETsResolutionTuneSonic = _deepMETSonicProducer.clone(
     max_n_pf = deepMETsResolutionTune.max_n_pf,
     Client = dict(
-        #modelVersion = deepMETsResolutionTune.graph_path.value().split('/')[-2],
-        modelVersion = "1"
+        modelVersion = os.readlink(os.environ['CMSSW_BASE']+'/src/'+'/'.join(deepMETsResolutionTune.graph_path.value().split('/')[:-1])).split('/')[-1], #model "1"
     ),
 )
 deepMETSonicTriton.toReplaceWith(deepMETsResolutionTune, _deepMETsResolutionTuneSonic)
@@ -41,8 +41,7 @@ deepMETSonicTriton.toReplaceWith(deepMETsResolutionTune, _deepMETsResolutionTune
 _deepMETsResponseTuneSonic = _deepMETSonicProducer.clone(
     max_n_pf = deepMETsResponseTune.max_n_pf,
     Client = dict(
-        #modelVersion = deepMETsResponseTune.graph_path.value().split('/')[-2],
-        modelVersion = "2"
+        modelVersion = os.readlink(os.environ['CMSSW_BASE']+'/src/'+'/'.join(deepMETsResponseTune.graph_path.value().split('/')[:-1])).split('/')[-1], #model "2"
     ),
 )
 deepMETSonicTriton.toReplaceWith(deepMETsResponseTune, _deepMETsResponseTuneSonic)
