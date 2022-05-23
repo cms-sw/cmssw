@@ -137,7 +137,7 @@ void GEMEfficiencyAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.addUntracked<double>("muonEtaLowGE0", 1.9);
   desc.addUntracked<double>("muonEtaUpGE0", 3.1);
 
-  // https://github.com/cms-sw/cmssw/blob/CMSSW_12_4_0_pre3/DataFormats/MuonDetId/interface/MuonSubdetId.h
+  // MuonSubdetId's are listed in DataFormats/MuonDetId/interface/MuonSubdetId.h
   desc.addUntracked<std::vector<int> >("muonSubdetForGE0", {});  // allow all muon subdetectors. TODO optimzie.
   desc.addUntracked<std::vector<int> >("muonSubdetForGE11", {});
   desc.addUntracked<std::vector<int> >("muonSubdetForGE21", {});
@@ -567,9 +567,7 @@ GEMEfficiencyAnalyzer::StartingState GEMEfficiencyAnalyzer::buildStartingState(
     }
   }
 
-  if (found) {
-    found &= state.isValid();
-  }
+  found &= state.isValid();
 
   if (found and (det_id.det() == DetId::Detector::Muon)) {
     found &= isMuonSubdetAllowed(det_id, gem_layer.id.station());
@@ -803,7 +801,6 @@ const CSCSegment* GEMEfficiencyAnalyzer::findCSCSegment(const reco::Muon& muon,
   }
 }
 
-// https://github.com/cms-sw/cmssw/blob/CMSSW_12_4_0_pre3/DataFormats/MuonDetId/interface/MuonSubdetId.h
 bool GEMEfficiencyAnalyzer::isMuonSubdetAllowed(const DetId& det_id, const int gem_station) {
   if ((gem_station < 0) or (gem_station > 2)) {
     edm::LogError(kLogCategory_) << "got unexpected gem station " << gem_station;
