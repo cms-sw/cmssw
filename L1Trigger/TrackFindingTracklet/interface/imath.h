@@ -1014,7 +1014,7 @@ namespace trklet {
         case mode::pos:
           return addr << shift_;
         case mode::neg:
-          return (addr - Nelements_) << shift_;
+          return (Nelements_ - addr) << shift_;
         case mode::both:
           return (addr << ashift_) >> (ashift_ - shift_);
       }
