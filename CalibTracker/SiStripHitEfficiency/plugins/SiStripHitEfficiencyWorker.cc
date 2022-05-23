@@ -105,6 +105,7 @@ private:
   const edm::ESGetToken<TkDetMap, TrackerTopologyRcd> tkDetMapToken_;
 
   // configurable parameters
+  std::string dqmDir_;
   unsigned int layers_;
   bool DEBUG_;
   bool addLumi_;
@@ -197,6 +198,7 @@ SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& 
       chi2EstimatorToken_(esConsumes(edm::ESInputTag{"", "Chi2"})),
       propagatorToken_(esConsumes(edm::ESInputTag{"", "PropagatorWithMaterial"})),
       tkDetMapToken_(esConsumes<edm::Transition::BeginRun>()),
+      dqmDir_(conf.getParameter<std::string>("dqmDir")),
       layers_(conf.getParameter<int>("Layer")),
       DEBUG_(conf.getUntrackedParameter<bool>("Debug", false)),
       addLumi_(conf.getUntrackedParameter<bool>("addLumi", false)),
@@ -250,8 +252,7 @@ void SiStripHitEfficiencyWorker::beginJob() {
 void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
                                                 const edm::Run& run,
                                                 const edm::EventSetup& setup) {
-  const std::string path = "AlCaReco/SiStripHitEfficiency";  // TODO make this configurable
-  booker.setCurrentFolder(path);
+  booker.setCurrentFolder(dqmDir_);
   h_bx = booker.book1D("bx", "bx", 3600, 0, 3600);
   h_instLumi = booker.book1D("instLumi", "inst. lumi.", 250, 0, 25000);
   h_PU = booker.book1D("PU", "PU", 200, 0, 200);
@@ -266,6 +267,7 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
 
   h_layer = EffME1(booker.book1D("layer_found", "layer_found", 23, 0., 23.),
                    booker.book1D("layer_total", "layer_total", 23, 0., 23.));
+
   for (int layer = 0; layer != 23; ++layer) {
     const auto lyrName = ::layerName(layer, showRings_, nTEClayers_);
     auto ihres = booker.book1D(Form("resol_layer_%i", layer), lyrName, 125, -125., 125.);
@@ -321,8 +323,8 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   }
 
   const TkDetMap* tkDetMap = &setup.getData(tkDetMapToken_);
-  h_module = EffTkMap(std::make_unique<TkHistoMap>(tkDetMap, booker, path, "perModule_total", 0, false, true),
-                      std::make_unique<TkHistoMap>(tkDetMap, booker, path, "perModule_found", 0, false, true));
+  h_module = EffTkMap(std::make_unique<TkHistoMap>(tkDetMap, booker, dqmDir_, "perModule_total", 0, false, true),
+                      std::make_unique<TkHistoMap>(tkDetMap, booker, dqmDir_, "perModule_found", 0, false, true));
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -937,6 +939,7 @@ void SiStripHitEfficiencyWorker::endJob() {
 
 void SiStripHitEfficiencyWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("dqmDir", "AlCaReco/SiStripHitEfficiency");
   desc.add<bool>("UseOnlyHighPurityTracks", true);
   desc.add<bool>("cutOnTracks", false);
   desc.add<bool>("useAllHitsFromTracksWithMissingHits", false);
