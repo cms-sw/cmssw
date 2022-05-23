@@ -39,13 +39,8 @@ BunchSpacingProducer::BunchSpacingProducer::BunchSpacingProducer(const edm::Para
   // register your products
   produces<unsigned int>();
   bunchSpacing_ = consumes<int>(edm::InputTag("addPileupInfo", "bunchSpacing"));
-  overRide_ = false;
-  if (iConfig.exists("overrideBunchSpacing")) {
-    overRide_ = iConfig.getParameter<bool>("overrideBunchSpacing");
-    if (overRide_) {
-      bunchSpacingOverride_ = iConfig.getParameter<unsigned int>("bunchSpacingOverride");
-    }
-  }
+  overRide_ = iConfig.getParameter<bool>("overrideBunchSpacing");
+  bunchSpacingOverride_ = iConfig.getParameter<unsigned int>("bunchSpacingOverride");
 }
 
 BunchSpacingProducer::~BunchSpacingProducer() {}
