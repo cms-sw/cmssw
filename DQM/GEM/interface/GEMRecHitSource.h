@@ -32,9 +32,8 @@ private:
 
   int nIdxFirstDigi_;
   int nClusterSizeBinNum_;
-  int nNumDivideEtaPartitionInRPhi_;
 
-  MEMap3Inf mapRecHitXY_layer_;
+  MEMap3Inf mapTotalRecHit_layer_;
   MEMap3Inf mapRecHitWheel_layer_;
   MEMap3Inf mapRecHitOcc_ieta_;
   MEMap3Inf mapRecHitOcc_phi_;
@@ -46,8 +45,6 @@ private:
 
   MEMap4Inf mapCLSPerCh_;
 
-  std::string strFolderMain_;
-
   Int_t nCLSMax_;
   Float_t fRadiusMin_;
   Float_t fRadiusMax_;
@@ -57,6 +54,8 @@ private:
   std::unordered_map<UInt_t, MonitorElement*> DigisFired_vs_eta_;
   std::unordered_map<UInt_t, MonitorElement*> rh_vs_eta_;
   std::unordered_map<UInt_t, MonitorElement*> recGlobalPos;
+
+  Bool_t bModeRelVal_;
 };
 
 #endif  // DQM_GEM_INTERFACE_GEMRecHitSource_h
