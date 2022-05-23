@@ -4,7 +4,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 zcounting = DQMEDAnalyzer('ZCounting',
                                  TriggerEvent    = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
                                  TriggerResults  = cms.InputTag('TriggerResults','','HLT'),
-				 edmPVName       = cms.untracked.string('offlinePrimaryVertices'),
+				                         edmPVName       = cms.untracked.string('offlinePrimaryVertices'),
                                  edmName       = cms.untracked.string('muons'),
                                  edmTrackName = cms.untracked.string('generalTracks'),
 
