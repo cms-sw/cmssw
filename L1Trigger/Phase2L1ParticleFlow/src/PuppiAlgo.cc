@@ -2,7 +2,7 @@
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #include "Math/ProbFunc.h"
 
@@ -42,16 +42,21 @@ const std::vector<std::string> &PuppiAlgo::puGlobalNames() const {
   static const std::vector<std::string> names_{"alphaCMed", "alphaCRms", "alphaFMed", "alphaFRms"};
   return names_;
 }
-void PuppiAlgo::doPUGlobals(const std::vector<Region> &rs, float npu, std::vector<float> &globals) const {
+void PuppiAlgo::doPUGlobals(const std::vector<Region> &rs, float z0, float npu, std::vector<float> &globals) const {
   globals.resize(4);
   computePuppiMedRMS(rs, globals[0], globals[1], globals[2], globals[3]);
 }
 
-void PuppiAlgo::runNeutralsPU(Region &r, float npu, const std::vector<float> &globals) const {
+void PuppiAlgo::runNeutralsPU(Region &r, float z0, float npu, const std::vector<float> &globals) const {
   std::vector<float> alphaC, alphaF;
   computePuppiAlphas(r, alphaC, alphaF);
   computePuppiWeights(r, alphaC, alphaF, globals[0], globals[1], globals[2], globals[3]);
   fillPuppi(r);
+}
+
+void PuppiAlgo::runNeutralsPU(Region &r, std::vector<float> &z0, float npu, const std::vector<float> &globals) const {
+  float z0tmp = 0;
+  runNeutralsPU(r, z0tmp, npu, globals);
 }
 
 void PuppiAlgo::computePuppiAlphas(const Region &r, std::vector<float> &alphaC, std::vector<float> &alphaF) const {
@@ -78,6 +83,8 @@ void PuppiAlgo::computePuppiAlphas(const Region &r, std::vector<float> &alphaC, 
       alphaC[ip] = 0;
       for (const PropagatedTrack &p2 : r.track) {
         if (!p2.fromPV)
+          continue;
+        if (!p2.quality(l1tpf_impl::InputTrack::PFLOOSE))
           continue;
         float dr2 = ::deltaR2(p.floatEta(), p.floatPhi(), p2.floatEta(), p2.floatPhi());
         if (dr2 > 0 && dr2 < puppiDr2) {

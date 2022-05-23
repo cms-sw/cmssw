@@ -1,5 +1,5 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/PFAlgo2HGC.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 
@@ -54,13 +54,12 @@ PFAlgo2HGC::PFAlgo2HGC(const edm::ParameterSet &iConfig) : PFAlgoBase(iConfig) {
   caloTrkWeightedAverage_ = linkcfg.getParameter<bool>("useCaloTrkWeightedAverage");
   sumTkCaloErr2_ = linkcfg.getParameter<bool>("sumTkCaloErr2");
   ecalPriority_ = linkcfg.getParameter<bool>("ecalPriority");
-  tightTrackMinStubs_ = linkcfg.getParameter<unsigned>("tightTrackMinStubs");
-  tightTrackMaxChi2_ = linkcfg.getParameter<double>("tightTrackMaxChi2");
   tightTrackMaxInvisiblePt_ = linkcfg.getParameter<double>("tightTrackMaxInvisiblePt");
+  sortInputs_ = iConfig.getParameter<bool>("sortInputs");
 }
 
 void PFAlgo2HGC::runPF(Region &r) const {
-  initRegion(r);
+  initRegion(r, sortInputs_);
 
   /// ------------- first step (can all go in parallel) ----------------
 
@@ -82,7 +81,7 @@ void PFAlgo2HGC::runPF(Region &r) const {
       const auto &tk = r.track[itk];
       dbgPrintf(
           "PFAlgo2HGC \t track %3d: pt %7.2f +- %5.2f  vtx eta %+5.2f  vtx phi %+5.2f  calo eta %+5.2f  calo phi "
-          "%+5.2f  fid %1d  calo ptErr %7.2f stubs %2d chi2 %7.1f\n",
+          "%+5.2f  fid %1d  calo ptErr %7.2f stubs %2d chi2 %7.1f quality %d\n",
           itk,
           tk.floatPt(),
           tk.floatPtErr(),
@@ -93,7 +92,8 @@ void PFAlgo2HGC::runPF(Region &r) const {
           int(r.fiducialLocal(tk.floatEta(), tk.floatPhi())),
           tk.floatCaloPtErr(),
           int(tk.hwStubs),
-          tk.hwChi2 * 0.1f);
+          tk.hwChi2 * 0.1f,
+          int(tk.hwFlags));
     }
     for (int ic = 0, nc = r.calo.size(); ic < nc; ++ic) {
       auto &calo = r.calo[ic];
@@ -193,6 +193,8 @@ void PFAlgo2HGC::link_tk2mu(Region &r, std::vector<int> &tk2mu, std::vector<int>
     int imatch = -1;
     for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
       const auto &tk = r.track[itk];
+      if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE))
+        continue;
       int deta = std::abs(mu.hwEta - tk.hwEta);
       int dphi = std::abs((mu.hwPhi - tk.hwPhi) % CaloCluster::PHI_WRAP);
       float dr = floatDR(mu, tk);
@@ -258,6 +260,8 @@ void PFAlgo2HGC::link_tk2calo(Region &r, std::vector<int> &tk2calo) const {
   // track to calo matching (first iteration, with a lower bound on the calo pt; there may be another one later)
   for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
     const auto &tk = r.track[itk];
+    if (!tk.quality(l1tpf_impl::InputTrack::PFLOOSE))
+      continue;
     if (tk.muonLink || tk.used)
       continue;  // not necessary but just a waste of CPU otherwise
     float drbest = drMatch_, dptscale = 0;
@@ -386,11 +390,9 @@ void PFAlgo2HGC::unlinkedtk_algo(Region &r, const std::vector<int> &tk2calo) con
   // in the meantime, promote unlinked low pt tracks to hadrons
   for (int itk = 0, ntk = r.track.size(); itk < ntk; ++itk) {
     auto &tk = r.track[itk];
-    if (tk2calo[itk] != -1 || tk.muonLink || tk.used)
+    if (tk2calo[itk] != -1 || tk.muonLink || tk.used || !tk.quality(l1tpf_impl::InputTrack::PFLOOSE))
       continue;
-    float maxPt = (tk.hwStubs >= tightTrackMinStubs_ && tk.hwChi2 < 10. * tightTrackMaxChi2_)
-                      ? tightTrackMaxInvisiblePt_
-                      : maxInvisiblePt_;
+    float maxPt = tk.quality(l1tpf_impl::InputTrack::PFTIGHT) ? tightTrackMaxInvisiblePt_ : maxInvisiblePt_;
     if (tk.floatPt() < maxPt) {
       if (debug_)
         dbgPrintf(
