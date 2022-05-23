@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalCellUV.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <array>
@@ -265,4 +266,51 @@ std::pair<int, int> HGCalCellUV::cellUVFromXY4(double xloc,
     edm::LogVerbatim("HGCalGeom") << "cellUVFromXY4: Input " << xloc << ":" << yloc << ":" << extend << " Output "
                                   << uv.first << ":" << uv.second;
   return uv;
+}
+
+
+std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug){
+  std::pair<int, int> uv = HGCalCellUV::cellUVFromXY1(xloc, yloc, placement, type, extend, debug);
+  int u = uv.first;
+  int v = uv.second;
+  if(partial == HGCalTypes::WaferLDTop){
+    if(u > 7){
+      double xloc1 = (placement >= 6) ? xloc : -xloc;
+      int rot = placement % 6;
+      static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
+      static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
+      double xprime = -1 * (xloc1 * fcos[rot] - yloc * fsin[rot]);
+      double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
+      double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX_[type];
+      double ycell = (v + u - 2 * ncell_[type] + 1) * cellY_[type];
+      if((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)){
+	u += -1;
+      }else{
+	u += -1;
+	v += -1;
+      }
+    }
+  }
+  if(partial == HGCalTypes::WaferHDBottom){
+    if(u<10){
+      double xloc1 = (placement >= 6) ? xloc : -xloc;
+      int rot = placement % 6;
+      static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
+      static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
+      double xprime = -1 * (xloc1 * fcos[rot] - yloc * fsin[rot]);
+      double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
+      double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX_[type];
+      double ycell = (v + u - 2 * ncell_[type] + 1) * cellY_[type];
+      if((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)){
+	u += 1;
+	v += 1;
+      }else{
+	u += 1;
+      }
+    }
+  }
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "cellUVFromXY5: Input " << xloc << ":" << yloc << ":" << extend << " Output " << u
+                                  << ":" << v;
+  return std::make_pair(u, v);
 }
