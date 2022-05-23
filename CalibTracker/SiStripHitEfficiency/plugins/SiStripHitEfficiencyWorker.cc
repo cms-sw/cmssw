@@ -268,7 +268,7 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   h_layer = EffME1(booker.book1D("layer_found", "layer_found", 23, 0., 23.),
                    booker.book1D("layer_total", "layer_total", 23, 0., 23.));
 
-  for (int layer = 0; layer != 23; ++layer) {
+  for (int layer = 1; layer != 23; ++layer) {
     const auto lyrName = ::layerName(layer, showRings_, nTEClayers_);
     auto ihres = booker.book1D(Form("resol_layer_%i", layer), lyrName, 125, -125., 125.);
     ihres->setAxisTitle("trajX-clusX [strip unit]");
@@ -284,12 +284,12 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
     h_layer_vsBx.push_back(EffME1(
         booker.book1D(Form("totalVsBx_layer%i", layer), Form("layer %i (%s)", layer, lyrName.c_str()), 3565, 0, 3565),
         booker.book1D(Form("foundVsBx_layer%i", layer), Form("layer %i (%s)", layer, lyrName.c_str()), 3565, 0, 3565)));
-    if (layer < 10) {
-      const bool isTIB = layer < 4;
+    if (layer <= 10) {
+      const bool isTIB = layer <= 4;
       const auto partition = (isTIB ? "TIB" : "TOB");
       const auto yMax = (isTIB ? 100 : 120);
 
-      const auto tit = Form("%s%i", partition, (isTIB ? layer + 1 : layer - 3));
+      const auto tit = Form("%s%i", partition, (isTIB ? layer : layer - 4));
 
       auto ihhotcold = booker.book2D(tit, tit, 100, -1, 361, 100, -yMax, yMax);
       ihhotcold->setAxisTitle("Phi", 1);
@@ -300,12 +300,12 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
       ihhotcold->setOption("colz");
       h_hotcold.push_back(ihhotcold);
     } else {
-      const bool isTID = layer < 13;
+      const bool isTID = layer <= 13;
       const auto partitions =
           (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
       const auto axMax = (isTID ? 100 : 120);
       for (const auto& part : partitions) {
-        const auto tit = Form("%s%i", part.c_str(), (isTID ? layer - 9 : layer - 12));
+        const auto tit = Form("%s%i", part.c_str(), (isTID ? layer - 10 : layer - 13));
 
         auto ihhotcold = booker.book2D(tit, tit, 100, -axMax, axMax, 100, -axMax, axMax);
         ihhotcold->setAxisTitle("Global Y", 1);
@@ -421,6 +421,11 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         unsigned int iidd = theInHit->geographicalId().rawId();
 
         unsigned int TKlayers = ::checkLayer(iidd, tTopo);
+
+        // do not bother with pixel hits
+        if (DetId(iidd).subdetId() < SiStripSubdetector::TIB)
+          continue;
+
         LogDebug("SiStripHitEfficiencyWorker") << "TKlayer from trajectory: " << TKlayers << "  from module = " << iidd
                                                << "   matched/stereo/rphi = " << ((iidd & 0x3) == 0) << "/"
                                                << ((iidd & 0x3) == 1) << "/" << ((iidd & 0x3) == 2);
@@ -818,7 +823,9 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       }
 
       if ((!badquality) && (layer < h_resolution.size())) {
-        h_resolution[layer]->Fill(finalCluster.xResidualPull != 1000.0 ? stripTrajMid - stripCluster : 1000);
+        LogDebug("SiStripHitEfficiencyWorker")
+            << "layer " << layer << " vector index " << layer - 1 << " before filling h_resolution" << std::endl;
+        h_resolution[layer - 1]->Fill(finalCluster.xResidualPull != 1000.0 ? stripTrajMid - stripCluster : 1000);
       }
 
       // New matching methods
@@ -885,13 +892,15 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           }
         }
 
-        h_layer_vsBx[layer].fill(bunchCrossing, !badflag);
+        LogDebug("SiStripHitEfficiencyWorker")
+            << "layer " << layer << " vector index " << layer - 1 << " before filling h_layer_vsSmthg" << std::endl;
+        h_layer_vsBx[layer - 1].fill(bunchCrossing, !badflag);
         if (addLumi_) {
-          h_layer_vsLumi[layer].fill(instLumi, !badflag);
-          h_layer_vsPU[layer].fill(PU, !badflag);
+          h_layer_vsLumi[layer - 1].fill(instLumi, !badflag);
+          h_layer_vsPU[layer - 1].fill(PU, !badflag);
         }
         if (addCommonMode_) {
-          h_layer_vsCM[layer].fill(commonMode, !badflag);
+          h_layer_vsCM[layer - 1].fill(commonMode, !badflag);
         }
         h_goodLayer.fill(layerWithSide, !badflag);
 
