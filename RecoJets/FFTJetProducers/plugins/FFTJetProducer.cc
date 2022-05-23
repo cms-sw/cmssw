@@ -173,14 +173,16 @@ FFTJetProducer::FFTJetProducer(const edm::ParameterSet& ps)
   checkConfig(iniScales, "invalid set of scales");
   std::sort(iniScales->begin(), iniScales->end(), std::greater<double>());
 
-  input_recotree_token_ =
-      consumes<reco::PattRecoTree<fftjetcms::Real, reco::PattRecoPeak<fftjetcms::Real> > >(treeLabel);
+  if (storeInSinglePrecision())
+    input_recotree_token_f_ = consumes<reco::PattRecoTree<float, reco::PattRecoPeak<float> > >(treeLabel);
+  else
+    input_recotree_token_d_ = consumes<reco::PattRecoTree<double, reco::PattRecoPeak<double> > >(treeLabel);
   input_genjet_token_ = consumes<std::vector<reco::FFTAnyJet<reco::GenJet> > >(genJetsLabel);
   input_energyflow_token_ = consumes<reco::DiscretizedEnergyFlow>(treeLabel);
   input_pusummary_token_ = consumes<reco::FFTJetPileupSummary>(pileupLabel);
 
   // Most of the configuration has to be performed inside
-  // the "beginJob" method. This is because chaining of the
+  // the "beginStream" method. This is because chaining of the
   // parsers between this base class and the derived classes
   // can not work from the constructor of the base class.
 }
@@ -191,12 +193,13 @@ FFTJetProducer::~FFTJetProducer() {}
 // member functions
 //
 template <class Real>
-void FFTJetProducer::loadSparseTreeData(const edm::Event& iEvent) {
+void FFTJetProducer::loadSparseTreeData(
+    const edm::Event& iEvent, const edm::EDGetTokenT<reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > >& tok) {
   typedef reco::PattRecoTree<Real, reco::PattRecoPeak<Real> > StoredTree;
 
   // Get the input
   edm::Handle<StoredTree> input;
-  iEvent.getByToken(input_recotree_token_, input);
+  iEvent.getByToken(tok, input);
 
   if (!input->isSparse())
     throw cms::Exception("FFTJetBadConfig") << "The stored clustering tree is not sparse" << std::endl;
@@ -651,9 +654,9 @@ void FFTJetProducer::saveResults(edm::Event& ev, const edm::EventSetup& iSetup, 
 void FFTJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Load the clustering tree made by FFTJetPatRecoProducer
   if (storeInSinglePrecision())
-    loadSparseTreeData<float>(iEvent);
+    loadSparseTreeData<float>(iEvent, input_recotree_token_f_);
   else
-    loadSparseTreeData<double>(iEvent);
+    loadSparseTreeData<double>(iEvent, input_recotree_token_d_);
 
   // Do we need to load the candidate collection?
   if (assignConstituents || !(useGriddedAlgorithm && reuseExistingGrid))
@@ -810,7 +813,7 @@ FFTJetProducer::parse_jetDistanceCalc(const edm::ParameterSet& ps) {
 void FFTJetProducer::assignMembershipFunctions(std::vector<fftjet::Peak>*) {}
 
 // ------------ method called once each job just before starting event loop
-void FFTJetProducer::beginJob() {
+void FFTJetProducer::beginStream(edm::StreamID) {
   const edm::ParameterSet& ps(myConfiguration);
 
   // Parse the peak selector definition
@@ -1107,9 +1110,6 @@ void FFTJetProducer::determinePileup() {
     }
   }
 }
-
-// ------------ method called once each job just after ending the event loop
-void FFTJetProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetProducer);

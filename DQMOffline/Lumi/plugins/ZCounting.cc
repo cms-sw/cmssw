@@ -605,8 +605,6 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
   }
 
   // Good vertex requirement
-  if (nvtx == 0)
-    return;
 
   //-------------------------------
   //--- Trigger

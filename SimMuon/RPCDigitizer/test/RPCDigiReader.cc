@@ -1,6 +1,3 @@
-#ifndef SimMuon_RPCDigiReader_h
-#define SimMuon_RPCDigiReader_h
-
 /** \class RPCDigiReader
  *  Analyse the RPC digitizer (derived from R. Bellan DTDigiReader. 
  *  
@@ -9,6 +6,7 @@
 
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -31,24 +29,22 @@
 class RPCDigiReader : public edm::one::EDAnalyzer<> {
 public:
   explicit RPCDigiReader(const edm::ParameterSet& pset)
-      : label(pset.getUntrackedParameter<std::string>("label")),
-        tokGeom_(esConsumes<RPCGeometry, MuonGeometryRecord>()) {}
+      : label_(pset.getUntrackedParameter<std::string>("label")),
+        tokGeom_(esConsumes<RPCGeometry, MuonGeometryRecord>()),
+        digiToken_(consumes<RPCDigiCollection>(edm::InputTag(label_))),
+        hitsToken_(consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits", "MuonRPCHits"))),
+        linkToken_(consumes<edm::DetSetVector<RPCDigiSimLink> >(edm::InputTag("muonRPCDigis", "RPCDigiSimLink"))) {}
 
   ~RPCDigiReader() override = default;
 
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {
-    std::cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << std::endl;
+    edm::LogVerbatim("RPCDump") << "--- Run: " << event.id().run() << " Event: " << event.id().event();
 
-    edm::Handle<RPCDigiCollection> rpcDigis;
-    event.getByLabel(label, rpcDigis);
-
-    edm::Handle<edm::PSimHitContainer> simHits;
-    event.getByLabel("g4SimHits", "MuonRPCHits", simHits);
+    const auto& rpcDigis = event.getHandle(digiToken_);
+    const auto& simHits = event.getHandle(hitsToken_);
+    const auto& thelinkDigis = event.getHandle(linkToken_);
 
     const auto& pDD = eventSetup.getHandle(tokGeom_);
-
-    edm::Handle<edm::DetSetVector<RPCDigiSimLink> > thelinkDigis;
-    event.getByLabel("muonRPCDigis", "RPCDigiSimLink", thelinkDigis);
 
     RPCDigiCollection::DigiRangeIterator detUnitIt;
     for (detUnitIt = rpcDigis->begin(); detUnitIt != rpcDigis->end(); ++detUnitIt) {
@@ -59,21 +55,20 @@ public:
       //     if(id.rawId() != 637567293) continue;
 
       // RPCDetId print-out
-      std::cout << "--------------" << std::endl;
-      std::cout << "id: " << id.rawId() << " number of strip " << roll->nstrips() << std::endl;
+      edm::LogVerbatim("RPCDump") << "--------------";
+      edm::LogVerbatim("RPCDump") << "id: " << id.rawId() << " number of strip " << roll->nstrips();
 
       // Loop over the digis of this DetUnit
       for (RPCDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
-        std::cout << " digi " << *digiIt << std::endl;
+        edm::LogVerbatim("RPCDump") << " digi " << *digiIt;
         if (digiIt->strip() < 1 || digiIt->strip() > roll->nstrips()) {
-          std::cout << " XXXXXXXXXXXXX Problemt with " << id << std::endl;
+          edm::LogVerbatim("RPCDump") << " XXXXXXXXXXXXX Problemt with " << id;
         }
         for (std::vector<PSimHit>::const_iterator simHit = simHits->begin(); simHit != simHits->end(); simHit++) {
           RPCDetId rpcId((*simHit).detUnitId());
           if (rpcId == id && abs((*simHit).particleType()) == 13) {
-            std::cout << "entry: " << (*simHit).entryPoint() << std::endl
-                      << "exit: " << (*simHit).exitPoint() << std::endl
-                      << "TOF: " << (*simHit).timeOfFlight() << std::endl;
+            edm::LogVerbatim("RPCDump") << "entry: " << (*simHit).entryPoint() << "\nexit: " << (*simHit).exitPoint()
+                                        << "\nTOF: " << (*simHit).timeOfFlight();
           }
         }
       }  // for digis in layer
@@ -91,21 +86,24 @@ public:
         int strip = digi_iter->getStrip();
         int bx = digi_iter->getBx();
 
-        std::cout << "DetUnit: " << detid << "  "
-                  << "Event ID: " << ev << "  "
-                  << "Pos X: " << xpos << "  "
-                  << "Strip: " << strip << "  "
-                  << "Bx: " << bx << std::endl;
+        edm::LogVerbatim("RPCDump") << "DetUnit: " << detid << "  "
+                                    << "Event ID: " << ev << "  "
+                                    << "Pos X: " << xpos << "  "
+                                    << "Strip: " << strip << "  "
+                                    << "Bx: " << bx;
       }
     }
 
-    std::cout << "--------------" << std::endl;
+    edm::LogVerbatim("RPCDump") << "--------------";
   }
 
 private:
-  const std::string label;
+  const std::string label_;
   const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> tokGeom_;
+  const edm::EDGetTokenT<RPCDigiCollection> digiToken_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> hitsToken_;
+  const edm::EDGetTokenT<edm::DetSetVector<RPCDigiSimLink> > linkToken_;
 };
-#endif
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(RPCDigiReader);

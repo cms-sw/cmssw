@@ -72,15 +72,14 @@ InputFile = cms.untracked.string('rfio:/castor/cern.ch/user/d/dlomidze/RPC/Globa
 process.RPCDeadChannelTest = DQMEDHarvester("RPCDeadChannelTest")
 process.RPCOccupancyTest = DQMEDHarvester("RPCOccupancyTest")
 process.RPCClusterSizeTest = DQMEDHarvester("RPCClusterSizeTest")
-process.RPCChamberQuality = DQMEDHarvester("RPCChamberQuality")
 #process.RPCDCSDataSimulator = DQMEDHarvester("RPCDCSDataSimulator")
 process.RPCMultiplicityTest = DQMEDHarvester("RPCMultiplicityTest")
 process.RPCOccupancyChipTest = DQMEDHarvester("RPCOccupancyChipTest");
 process.RPCNoisyStripTest = DQMEDHarvester("RPCNoisyStripTest");
 
-#process.p = cms.Path(process.ReadMeFromFile*process.qTesterRPC*process.RPCClusterSizeTest*process.RPCDeadChannelTest*process.RPCOccupancyTest*process.RPCDCSDataSimulator*process.RPCMultiplicityTest*process.RPCChamberQuality*process.dqmSaver)
+#process.p = cms.Path(process.ReadMeFromFile*process.qTesterRPC*process.RPCClusterSizeTest*process.RPCDeadChannelTest*process.RPCOccupancyTest*process.RPCDCSDataSimulator*process.RPCMultiplicityTest*process.dqmSaver)
 
-process.p = cms.Path(process.ReadMeFromFile*process.qTesterRPC*process.RPCClusterSizeTest*process.RPCDeadChannelTest*process.RPCOccupancyTest*process.RPCMultiplicityTest*process.RPCOccupancyChipTest*process.RPCNoisyStripTest*process.RPCChamberQuality*process.dqmSaver)
+process.p = cms.Path(process.ReadMeFromFile*process.qTesterRPC*process.RPCClusterSizeTest*process.RPCDeadChannelTest*process.RPCOccupancyTest*process.RPCMultiplicityTest*process.RPCOccupancyChipTest*process.RPCNoisyStripTest*process.dqmSaver)
 
 
 

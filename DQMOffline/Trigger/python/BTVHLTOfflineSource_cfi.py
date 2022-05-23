@@ -28,26 +28,17 @@ BTVHLTOfflineSource = DQMEDAnalyzer("BTVHLTOfflineSource",
     maxJetDistance          = cms.double(0.07),
     dRTrackMatch            = cms.double(0.01),
 
-
     pathPairs = cms.VPSet(
 
         cms.PSet(
-            pathname = cms.string("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5_v"),
-            pathtype = cms.string("PF"),
+            pathname = cms.string("HLT_Mu12_DoublePFJets40_PFBTagDeepCSV_p71_v"),
+            pathtype = cms.string("PF")
         ),
         cms.PSet(
-            pathname = cms.string("HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5_v"),
-            pathtype = cms.string("Calo"),
+            pathname = cms.string("HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepCSV_p71_v"),
+            pathtype = cms.string("Calo")
         ),
-        cms.PSet(
-            pathname = cms.string("HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v"),
-            pathtype = cms.string("PF"),
-        ),
-        cms.PSet(
-            pathname = cms.string("HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v"),
-            pathtype = cms.string("Calo"),
-        ),
-    ),
+   ),
 )
 
 #
@@ -60,44 +51,26 @@ referenceTracksForHLTBTag = cms.EDFilter('TrackSelector',
     cut = cms.string("quality('highPurity')")
 )
 
-bTagHLTTrackMonitoring_EmuCalo = trackToTrackComparisonHists.clone(
+bTagHLTTrackMonitoring_muPF1 = trackToTrackComparisonHists.clone(
     dzWRTPvCut               = 0.1,
-    monitoredTrack           = "hltMergedTracksForBTag",
+    monitoredTrack           = "hltMergedTracks",
     referenceTrack           = "referenceTracksForHLTBTag",
     monitoredBeamSpot        = "hltOnlineBeamSpot",
     referenceBeamSpot        = "offlineBeamSpot",
-    topDirName               = "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5Calo",
+    topDirName               = "HLT/BTV/HLT_Mu12_DoublePFJets40_PFBTagDeepCSV_p71PF",
     referencePrimaryVertices = "offlinePrimaryVertices",
-    monitoredPrimaryVertices = "hltVerticesL3",
-    genericTriggerEventPSet = dict(hltPaths = ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_CaloDiJet30_CaloBtagDeepCSV_1p5*"])
-)
-
-bTagHLTTrackMonitoring_SixJetCalo = bTagHLTTrackMonitoring_EmuCalo.clone(
-    topDirName               = "HLT/BTV/HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94PF",
-    genericTriggerEventPSet = dict(hltPaths = ["HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*"])
-)
-
-bTagHLTTrackMonitoring_EmuPF = bTagHLTTrackMonitoring_EmuCalo.clone(
-    monitoredTrack           = "hltMergedTracks",
     monitoredPrimaryVertices = "hltVerticesPFSelector",
-    topDirName               = "HLT/BTV/HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5PF",
-    genericTriggerEventPSet = dict(hltPaths = ["HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_PFDiJet30_PFBtagDeepCSV_1p5*"])
+    genericTriggerEventPSet = dict(hltPaths = ["HLT_Mu12_DoublePFJets40_PFBTagDeepCSV_p71*"])
 )
 
-bTagHLTTrackMonitoring_SixJetPF = bTagHLTTrackMonitoring_EmuPF.clone(
-    monitoredTrack           = "hltMergedTracks",
-    monitoredPrimaryVertices = "hltVerticesPFSelector",
-    topDirName               = "HLT/BTV/HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94PF",
-    genericTriggerEventPSet = dict(hltPaths = ["HLT_PFHT400_SixPFJet32_DoublePFBTagDeepCSV_2p94_v*"])
+bTagHLTTrackMonitoring_muPF2 = bTagHLTTrackMonitoring_muPF1.clone( 
+    topDirName = "HLT/BTV/HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepCSV_p71PF",
+    genericTriggerEventPSet = dict(hltPaths = ["HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepCSV_p71*"])
 )
 
 bTagHLTTrackMonitoringSequence = cms.Sequence(
     cms.ignore(referenceTracksForHLTBTag)
-    + bTagHLTTrackMonitoring_EmuCalo
-    + bTagHLTTrackMonitoring_SixJetCalo
-    + bTagHLTTrackMonitoring_EmuPF
-    + bTagHLTTrackMonitoring_SixJetPF
+    + bTagHLTTrackMonitoring_muPF1
+    + bTagHLTTrackMonitoring_muPF2
 )
-
-
 

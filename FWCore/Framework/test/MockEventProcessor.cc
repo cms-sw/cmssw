@@ -346,7 +346,7 @@ namespace edm {
   }
 
   void MockEventProcessor::setExceptionMessageFiles(std::string&) {}
-  void MockEventProcessor::setExceptionMessageRuns(std::string&) {}
+  void MockEventProcessor::setExceptionMessageRuns() {}
   void MockEventProcessor::setExceptionMessageLumis() {}
 
   bool MockEventProcessor::setDeferredException(std::exception_ptr) { return true; }

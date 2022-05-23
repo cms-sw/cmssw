@@ -4,7 +4,7 @@ from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 zcounting = DQMEDAnalyzer('ZCounting',
                                  TriggerEvent    = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
                                  TriggerResults  = cms.InputTag('TriggerResults','','HLT'),
-				 edmPVName       = cms.untracked.string('offlinePrimaryVertices'),
+				                         edmPVName       = cms.untracked.string('offlinePrimaryVertices'),
                                  edmName       = cms.untracked.string('muons'),
                                  edmTrackName = cms.untracked.string('generalTracks'),
 
@@ -20,7 +20,7 @@ zcounting = DQMEDAnalyzer('ZCounting',
                                  MuonTriggerNames = cms.vstring("HLT_IsoMu24_v*"),
                                  MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07"),
 
-                                 IDType   = cms.untracked.string("CustomTight"), # Tight, Medium, Loose, CustomTight
+                                 IDType   = cms.untracked.string("CustomTight"),# Tight, Medium, Loose, CustomTight
                                  IsoType  = cms.untracked.string("NULL"),  # Tracker-based, PF-based
                                  IsoCut   = cms.untracked.double(0.),     # {0.05, 0.10} for Tracker-based, {0.15, 0.25} for PF-based
 
