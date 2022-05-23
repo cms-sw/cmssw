@@ -37,6 +37,7 @@ linkedObjects = cms.EDProducer("PATObjectCrossLinker",
    jets=cms.InputTag("finalJets"),
    muons=cms.InputTag("finalMuons"),
    electrons=cms.InputTag("finalElectrons"),
+   lowPtElectrons=cms.InputTag("finalLowPtElectrons"),
    taus=cms.InputTag("finalTaus"),
    photons=cms.InputTag("finalPhotons"),
 )
@@ -47,14 +48,17 @@ simpleCleanerTable = cms.EDProducer("NanoAODSimpleCrossCleaner",
    jets=cms.InputTag("linkedObjects","jets"),
    muons=cms.InputTag("linkedObjects","muons"),
    electrons=cms.InputTag("linkedObjects","electrons"),
+   lowPtElectrons=cms.InputTag("linkedObjects","lowPtElectrons"),
    taus=cms.InputTag("linkedObjects","taus"),
    photons=cms.InputTag("linkedObjects","photons"),
    jetSel=cms.string("pt>15"),
    muonSel=cms.string("track.isNonnull && isLooseMuon && isPFMuon && innerTrack.validFraction >= 0.49 && ( isGlobalMuon && globalTrack.normalizedChi2 < 3 && combinedQuality.chi2LocalPosition < 12 && combinedQuality.trkKink < 20 && segmentCompatibility >= 0.303 || segmentCompatibility >= 0.451 )"),
    electronSel=cms.string(""),
+   lowPtElectronSel=cms.string(""),
    tauSel=cms.string(""),
    photonSel=cms.string(""),
    jetName=cms.string("Jet"),muonName=cms.string("Muon"),electronName=cms.string("Electron"),
+   lowPtElectronName=cms.string("LowPtElectron"),
    tauName=cms.string("Tau"),photonName=cms.string("Photon")
 )
 
@@ -398,3 +402,13 @@ def nanoWmassGenCustomize(process):
     etaPrecision="{} ? {} : {}".format(pdgSelection, CandVars.eta.precision.value(), genParticleTable.variables.eta.precision.value())
     process.genParticleTable.variables.eta.precision=cms.string(etaPrecision)
     return process
+
+# lowPtElectrons do not exsit for old nano campaigns (i.e. before v9)
+_modifiers = ( run2_miniAOD_80XLegacy |
+               run2_nanoAOD_94XMiniAODv1 |
+               run2_nanoAOD_94XMiniAODv2 |
+               run2_nanoAOD_94X2016 |
+               run2_nanoAOD_102Xv1 |
+               run2_nanoAOD_106Xv1 )
+_modifiers.toModify(linkedObjects,lowPtElectrons="")
+_modifiers.toModify(simpleCleanerTable,lowPtElectrons="")

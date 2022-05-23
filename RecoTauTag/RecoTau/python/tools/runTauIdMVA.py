@@ -2,6 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1
+from RecoTauTag.RecoTau.DPFTau2016v0_cfi import DPFTau2016v0
+from RecoTauTag.RecoTau.DeepTau_cfi import DeepTau
 import os
 import re
 
@@ -9,7 +11,7 @@ class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
     availableDiscriminators = [
         "2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
-        "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1",
+        "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1", "deepTau2018v2p5", 
         "DPFTau_2016_v0", "DPFTau_2016_v1",
         "againstEle2018",
         "newDMPhase2v1",
@@ -20,7 +22,7 @@ class TauIDEmbedder(object):
                  originalTauName = "slimmedTaus",
                  updatedTauName = "slimmedTausNewID",
                  postfix = "",
-                 toKeep =  ["deepTau2017v2p1"],
+                 toKeep =  ["deepTau2017v2p1", "deepTau2018v2p5"],
                  tauIdDiscrMVA_trainings_run2_2017 = { 'tauIdMVAIsoDBoldDMwLT2017' : "tauIdMVAIsoDBoldDMwLT2017", },
                  tauIdDiscrMVA_WPs_run2_2017 = {
                     'tauIdMVAIsoDBoldDMwLT2017' : {
@@ -596,18 +598,13 @@ class TauIDEmbedder(object):
                 }
             }
             file_names = ['RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb']
-            setattr(self.process,_deepTauName+self.postfix,cms.EDProducer("DeepTauId",
-                electrons              = cms.InputTag('slimmedElectrons'),
-                muons                  = cms.InputTag('slimmedMuons'),
-                taus                   = cms.InputTag(self.originalTauName),
-                pfcands                = cms.InputTag('packedPFCandidates'),
-                vertices               = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                rho                    = cms.InputTag('fixedGridRhoAll'),
-                graph_file             = cms.vstring(file_names),
-                mem_mapped             = cms.bool(False),
-                version                = cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
-                debug_level            = cms.int32(0),
-                disable_dxy_pca        = cms.bool(False)
+            full_version = self.getDeepTauVersion(file_names[0])
+            setattr(self.process,_deepTauName+self.postfix,DeepTau.clone(
+                Prediscriminants = noPrediscriminants,
+                taus             = self.originalTauName,
+                graph_file       = file_names,
+                version          = full_version[1],
+                sub_version      = full_version[2]
             ))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
@@ -655,18 +652,13 @@ class TauIDEmbedder(object):
                 'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_inner.pb',
                 'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_outer.pb',
             ]
-            setattr(self.process,_deepTauName+self.postfix,cms.EDProducer("DeepTauId",
-                electrons              = cms.InputTag('slimmedElectrons'),
-                muons                  = cms.InputTag('slimmedMuons'),
-                taus                   = cms.InputTag(self.originalTauName),
-                pfcands                = cms.InputTag('packedPFCandidates'),
-                vertices               = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                rho                    = cms.InputTag('fixedGridRhoAll'),
-                graph_file             = cms.vstring(file_names),
-                mem_mapped             = cms.bool(False),
-                version                = cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
-                debug_level            = cms.int32(0),
-                disable_dxy_pca        = cms.bool(False)
+            full_version = self.getDeepTauVersion(file_names[0])
+            setattr(self.process,_deepTauName+self.postfix,DeepTau.clone(
+                Prediscriminants = noPrediscriminants,
+                taus             = self.originalTauName,
+                graph_file       = file_names,
+                version          = full_version[1],
+                sub_version      = 0 #MB: subversion cannot be properly deduced from file names
             ))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
@@ -714,19 +706,14 @@ class TauIDEmbedder(object):
                 'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_inner.pb',
                 'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v2p6_e6_outer.pb',
             ]
-            setattr(self.process,_deepTauName+self.postfix,cms.EDProducer("DeepTauId",
-                electrons                = cms.InputTag('slimmedElectrons'),
-                muons                    = cms.InputTag('slimmedMuons'),
-                taus                     = cms.InputTag(self.originalTauName),
-                pfcands                  = cms.InputTag('packedPFCandidates'),
-                vertices                 = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                rho                      = cms.InputTag('fixedGridRhoAll'),
-                graph_file               = cms.vstring(file_names),
-                mem_mapped               = cms.bool(False),
-                version                  = cms.uint32(self.getDeepTauVersion(file_names[0])[1]),
-                debug_level              = cms.int32(0),
-                disable_dxy_pca          = cms.bool(True),
-                is_online                = cms.bool(False)
+            full_version = self.getDeepTauVersion(file_names[0])
+            setattr(self.process,_deepTauName+self.postfix,DeepTau.clone(
+                Prediscriminants = noPrediscriminants,
+                taus             = self.originalTauName,
+                graph_file       = file_names,
+                version          = full_version[1],
+                sub_version      = 1, #MB: subversion cannot be properly deduced from file names
+                disable_dxy_pca  = True
             ))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
@@ -735,11 +722,43 @@ class TauIDEmbedder(object):
             _rerunMvaIsolationTask.add(_deepTauProducer)
             _rerunMvaIsolationSequence += _deepTauProducer
 
+        if "deepTau2018v2p5" in self.toKeep:
+            if self.debug: print ("Adding DeepTau IDs")
+
+            _deepTauName = "deepTau2018v2p5"
+            workingPoints_ = {
+                "e": {},
+                "mu": {},
+                "jet": {},
+            }
+
+            file_names = [
+                'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_core.pb',
+                'inner:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_inner.pb',
+                'outer:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_outer.pb',
+            ]
+            full_version = self.getDeepTauVersion(file_names[0])
+            setattr(self.process,_deepTauName+self.postfix,DeepTau.clone(
+                Prediscriminants                = noPrediscriminants,
+                taus                            = self.originalTauName,
+                graph_file                      = file_names,
+                version                         = full_version[1],
+                sub_version                     = full_version[2],
+                disable_dxy_pca                 = True,
+                disable_hcalFraction_workaround = True,
+                disable_CellIndex_workaround    = True
+            ))
+
+            self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
+
+            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
+            _rerunMvaIsolationTask.add(_deepTauProducer)
+            _rerunMvaIsolationSequence += _deepTauProducer
 
         if "DPFTau_2016_v0" in self.toKeep:
             if self.debug: print ("Adding DPFTau isolation (v0)")
 
-            _deepTauName = "DPFTau_2016_v0"
+            _deepTauName = "DPFTau2016v0"
             workingPoints_ = {
                 "all": {
                     "Tight" : "if(decayMode == 0) return (0.898328 - 0.000160992 * pt);" + \
@@ -755,13 +774,11 @@ class TauIDEmbedder(object):
                 }
             }
             file_names = [ 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb' ]
-            setattr(self.process,_deepTauName+self.postfix,cms.EDProducer("DPFIsolation",
-                pfcands     = cms.InputTag('packedPFCandidates'),
-                taus        = cms.InputTag(self.originalTauName),
-                vertices    = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                graph_file  = cms.vstring(file_names),
-                version     = cms.uint32(self.getDpfTauVersion(file_names[0])),
-                mem_mapped  = cms.bool(False)
+            setattr(self.process,_deepTauName+self.postfix,DPFTau2016v0.clone(
+                Prediscriminants = noPrediscriminants,
+                taus             = self.originalTauName,
+                graph_file       = file_names,
+                version          = self.getDpfTauVersion(file_names[0])
             ))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
@@ -776,19 +793,17 @@ class TauIDEmbedder(object):
             print ("WARNING: WPs are not defined for DPFTau_2016_v1")
             print ("WARNING: The score of DPFTau_2016_v1 is inverted: i.e. for Sig->0, for Bkg->1 with -1 for undefined input (preselection not passed).")
 
-            _deepTauName = "DPFTau_2016_v1"
+            _deepTauName = "DPFTau2016v1"
             workingPoints_ = {
                 "all": {"Tight" : 0.123} #FIXME: define WP
             }
 
             file_names = [ 'RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v1_quantized.pb' ]
-            setattr(self.process,_deepTauName+self.postfix,cms.EDProducer("DPFIsolation",
-                pfcands     = cms.InputTag('packedPFCandidates'),
-                taus        = cms.InputTag(self.originalTauName),
-                vertices    = cms.InputTag('offlineSlimmedPrimaryVertices'),
-                graph_file  = cms.vstring(file_names),
-                version     = cms.uint32(self.getDpfTauVersion(file_names[0])),
-                mem_mapped  = cms.bool(False)
+            setattr(self.process,_deepTauName+self.postfix,DPFTau2016v0.clone(
+                Prediscriminants = noPrediscriminants,
+                taus             = self.originalTauName,
+                graph_file       = file_names,
+                version          = self.getDpfTauVersion(file_names[0])
             ))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
@@ -1032,8 +1047,8 @@ class TauIDEmbedder(object):
 
                 setattr(tauIDSources, 'by{}{}VS{}'.format(point, producer_name[0].upper()+producer_name[1:], target),
                         cms.PSet(inputTag = cms.InputTag(producer_name+self.postfix, 'VS{}'.format(target)), workingPointIndex = cms.int32(index)))
-
-            setattr(getattr(self.process, producer_name+self.postfix), 'VS{}WP'.format(target), cms.vstring(*cut_expressions))
+            if len(cut_expressions) > 0:
+                setattr(getattr(self.process, producer_name+self.postfix), 'VS{}WP'.format(target), cms.vstring(*cut_expressions))
 
 
     def getDpfTauVersion(self, file_name):
@@ -1050,7 +1065,7 @@ class TauIDEmbedder(object):
         """returns the DeepTau year, version, subversion. File name should contain a version label with data takig year \
         (2011-2, 2015-8), version number (vX) and subversion (pX), e.g. 2017v0p6, in general the following format: \
         {year}v{version}p{subversion}"""
-        version_search = re.search('(201[125678])v([0-9]+)(p[0-9]+|)[\._]', file_name)
+        version_search = re.search('(20[1,2][125678])v([0-9]+)(p[0-9]+|)[\._]', file_name)
         if not version_search:
             raise RuntimeError('File "{}" has an invalid name pattern, should be in the format "{year}v{version}p{subversion}". \
                                 Unable to extract version number.'.format(file_name))

@@ -89,7 +89,7 @@ def runRules(ruleNumberList, directory):
                     filesLinesList = skipper(filesLinesList)
             else:
                 for i,xFile in enumerate(filesLinesList):
-                    filesLinesList[i]=((xFile,open(xFile).readlines()))
+                    filesLinesList[i]=((xFile,open(xFile, errors='replace').readlines()))
 # ------------------------------------------------------------------------------
             for Nr, fileLine in enumerate(exceptRuleLines):
                 regEx, line, lineEx = fileLine

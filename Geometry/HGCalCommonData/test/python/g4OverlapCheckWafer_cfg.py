@@ -18,17 +18,17 @@ process.g4SimHits.CheckGeometry = True
 process.g4SimHits.OnlySDs = ['DreamSensitiveDetector']
 
 # Geant4 geometry check 
-process.g4SimHits.G4CheckOverlap.OutputBaseName = cms.string("hgcalwafer")
-process.g4SimHits.G4CheckOverlap.OverlapFlag = cms.bool(True)
-process.g4SimHits.G4CheckOverlap.Tolerance  = cms.double(0.01)
-process.g4SimHits.G4CheckOverlap.Resolution = cms.int32(10000)
-process.g4SimHits.G4CheckOverlap.Depth      = cms.int32(-1)
+process.g4SimHits.G4CheckOverlap.OutputBaseName = "hgcalwafer"
+process.g4SimHits.G4CheckOverlap.OverlapFlag = True
+process.g4SimHits.G4CheckOverlap.Tolerance  = 0.01
+process.g4SimHits.G4CheckOverlap.Resolution = 10000
+process.g4SimHits.G4CheckOverlap.Depth      = -1
 # tells if NodeName is G4Region or G4PhysicalVolume
-process.g4SimHits.G4CheckOverlap.RegionFlag = cms.bool(False)
+process.g4SimHits.G4CheckOverlap.RegionFlag = False
 # list of names
-process.g4SimHits.G4CheckOverlap.NodeNames  = cms.vstring('OCMS')
+process.g4SimHits.G4CheckOverlap.NodeNames  = ['OCMS']
 # enable dump gdml file 
-process.g4SimHits.G4CheckOverlap.gdmlFlag   = cms.bool(False)
+process.g4SimHits.G4CheckOverlap.gdmlFlag   = False
 # if defined a G4PhysicsVolume info is printed
 process.g4SimHits.G4CheckOverlap.PVname     = ''
 # if defined a list of daughter volumes is printed

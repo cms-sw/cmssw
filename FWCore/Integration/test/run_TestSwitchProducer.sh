@@ -71,6 +71,14 @@ pushd ${LOCAL_TMP_DIR}
   echo "SwitchProducer in a ConditionalTask, more extensive EDAlias tests, case test2 disabled"
   cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAlias_cfg.py disableTest2 || die "cmsRun ${test}ConditionalTaskEDAlias_cfg.py 2" $?
 
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, test EDAlias with all cases being explicitly consumed"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasConsumeAllCases_cfg.py || die "cmsRun ${test}ConditionalTaskEDAliasConsumeAllCases_cfg.py 1" $?
+
+  echo "*************************************************"
+  echo "SwitchProducer in a ConditionalTask, test EDAlias with all cases being explicitly consumed, case test2 disabled"
+  cmsRun -n ${NUMTHREADS} ${LOCAL_TEST_DIR}/${test}ConditionalTaskEDAliasConsumeAllCases_cfg.py disableTest2 || die "cmsRun ${test}ConditionalTaskEDAliasConsumeAllCases_cfg.py 2" $?
+
   
   echo "*************************************************"
   echo "SwitchProducer in a Path"
