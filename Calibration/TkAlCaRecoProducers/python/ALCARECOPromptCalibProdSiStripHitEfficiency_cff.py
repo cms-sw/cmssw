@@ -47,6 +47,7 @@ ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOMonitoringTracks +
 # This is the module actually doing the calibration
 from CalibTracker.SiStripHitEfficiency.siStripHitEfficiencyWorker_cfi import siStripHitEfficiencyWorker
 ALCARECOSiStripHitEff =  siStripHitEfficiencyWorker.clone(
+    dqmDir = "AlCaReco/SiStripHitEfficiency",
     lumiScalers= "scalersRawToDigi",
     addLumi = True,
     commonMode = "siStripDigis:CommonMode",
