@@ -135,7 +135,16 @@ _phase2_siml1emulator.add(L1VertexFinderEmulator)
 # ########################################################################
 
 from L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi import L1TkPrimaryVertex
+from L1Trigger.L1TTrackMatch.L1TkMuonProducer_cfi import L1TkMuons, L1TkMuonsTP
+from L1Trigger.L1TTrackMatch.L1TkGlbMuonProducer_cfi import L1TkGlbMuons
+
 _phase2_siml1emulator.add(L1TkPrimaryVertex)
+
+
+_phase2_siml1emulator.add( L1TkMuons )
+_phase2_siml1emulator.add( L1TkMuonsTP )
+_phase2_siml1emulator.add( L1TkGlbMuons )
+
 
 # Emulated GMT Muons (Tk + Stub, Tk + MuonTFT, StandaloneMuon)
 # ########################################################################
