@@ -42,8 +42,12 @@ using namespace magneticfield;
 using namespace edm;
 using namespace angle_units::operators;
 
-MagGeoBuilder::MagGeoBuilder(string tableSet, int geometryVersion, bool debug)
-    : tableSet_(tableSet), geometryVersion_(geometryVersion), theGridFiles_(nullptr), debug_(debug) {
+MagGeoBuilder::MagGeoBuilder(string tableSet, int geometryVersion, bool debug, bool mergeFile)
+    : tableSet_(tableSet),
+      geometryVersion_(geometryVersion),
+      theGridFiles_(nullptr),
+      debug_(debug),
+      useMergeFileIfAvailable_(mergeFile) {
   LogTrace("MagGeoBuilder") << "Constructing a MagGeoBuilder";
 }
 
@@ -144,7 +148,7 @@ void MagGeoBuilder::build(const cms::DDDetector* det) {
     LogError("MagGeoBuilder") << "Filtered view has no node. Cannot build.";
     return;
   }
-  InterpolatorBuilder interpolatorBuilder(tableSet_);
+  InterpolatorBuilder interpolatorBuilder(tableSet_, useMergeFileIfAvailable_);
   while (doSubDets) {
     string name = fv.volume().volume().name();
     LogTrace("MagGeoBuilder") << "Name: " << name;

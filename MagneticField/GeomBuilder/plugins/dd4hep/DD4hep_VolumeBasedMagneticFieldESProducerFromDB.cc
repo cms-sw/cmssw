@@ -74,12 +74,14 @@ namespace magneticfield {
 
     edm::ESGetToken<FileBlob, MFGeometryFileRcd> mayConsumeBlobToken_;
     const bool debug_;
+    const bool useMergeFileIfAvailable_;
   };
 }  // namespace magneticfield
 
 DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticFieldESProducerFromDB(
     const edm::ParameterSet& iConfig)
-    : debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")) {
+    : debug_(iConfig.getUntrackedParameter<bool>("debugBuilder")),
+      useMergeFileIfAvailable_(iConfig.getParameter<bool>("useMergeFileIfAvailable")) {
   std::string const myConfigLabel = "VBMFESChoice";
   usesResources({edm::ESSharedResourceNames::kDD4hep});
 
@@ -162,7 +164,7 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
   }
 
   // Full VolumeBased map + parametrization
-  MagGeoBuilder builder(conf->version, conf->geometryVersion, debug_);
+  MagGeoBuilder builder(conf->version, conf->geometryVersion, debug_, useMergeFileIfAvailable_);
 
   // Set scaling factors
   if (!conf->keys.empty()) {
@@ -216,6 +218,7 @@ std::string_view DD4hep_VolumeBasedMagneticFieldESProducerFromDB::closerNominalL
 void DD4hep_VolumeBasedMagneticFieldESProducerFromDB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.addUntracked<bool>("debugBuilder", false);
+  desc.add<bool>("useMergeFileIfAvailable", true);
   desc.add<int>("valueOverride", -1)->setComment("Force value of current (in A); take the value from DB if < 0.");
   desc.addUntracked<std::string>("label", "");
 

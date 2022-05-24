@@ -37,7 +37,10 @@ namespace magneticfield {
   //
   // constructors and destructor
   //
-  InterpolatorBuilder::InterpolatorBuilder(std::string iTableSet) : tableSet_(std::move(iTableSet)) {
+  InterpolatorBuilder::InterpolatorBuilder(std::string iTableSet, bool useMergeFileIfAvailable)
+      : tableSet_(std::move(iTableSet)) {
+    if (not useMergeFileIfAvailable)
+      return;
     auto indexFileName = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/merged.index");
     if (not indexFileName.empty()) {
       auto binaryFileName = edm::FileInPath::findFile("MagneticField/Interpolation/data/" + tableSet_ + "/merged.bin");
