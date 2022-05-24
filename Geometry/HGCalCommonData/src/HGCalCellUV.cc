@@ -47,7 +47,7 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) {
   //--- Reverse transform to placement=0, if placement index ≠ 6
   double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
-  int rot = placement %  HGCalCell::cellPlacementExtra;
+  int rot = placement % HGCalCell::cellPlacementExtra;
   static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
   static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
   double x = xloc1 * fcos[rot] - yloc * fsin[rot];
@@ -268,13 +268,13 @@ std::pair<int, int> HGCalCellUV::cellUVFromXY4(double xloc,
   return uv;
 }
 
-
-std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug){
+std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
+    double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug) {
   std::pair<int, int> uv = HGCalCellUV::cellUVFromXY1(xloc, yloc, placement, type, extend, debug);
   int u = uv.first;
   int v = uv.second;
-  if(partial == HGCalTypes::WaferLDTop){
-    if(u > edgeWaferLDTop){
+  if (partial == HGCalTypes::WaferLDTop) {
+    if (u > edgeWaferLDTop) {
       double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
       int rot = placement % HGCalCell::cellPlacementExtra;
       static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
@@ -283,16 +283,15 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(double xloc, double yloc,
       double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
       double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX_[type];
       double ycell = (v + u - 2 * ncell_[type] + 1) * cellY_[type];
-      if((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)){
-	u += -1;
-      }else{
-	u += -1;
-	v += -1;
+      if ((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)) {
+        u += -1;
+      } else {
+        u += -1;
+        v += -1;
       }
     }
-  }
-  else if(partial == HGCalTypes::WaferHDBottom){
-    if(u < edgeWaferHDBottom){
+  } else if (partial == HGCalTypes::WaferHDBottom) {
+    if (u < edgeWaferHDBottom) {
       double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
       int rot = placement % HGCalCell::cellPlacementExtra;
       static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
@@ -301,11 +300,11 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(double xloc, double yloc,
       double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
       double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX_[type];
       double ycell = (v + u - 2 * ncell_[type] + 1) * cellY_[type];
-      if((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)){
-	u += 1;
-	v += 1;
-      }else{
-	u += 1;
+      if ((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)) {
+        u += 1;
+        v += 1;
+      } else {
+        u += 1;
       }
     }
   }
