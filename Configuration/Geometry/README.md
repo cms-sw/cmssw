@@ -63,7 +63,6 @@ Tracker:
 * T24: Phase2 tilted tracker. Tracker detector description itself is identical to T21 (OT800 IT615). Change of paradigm, entire description reworked to be compatible with DD4hep library.
 * T25: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.2): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1. Compatible with DD4hep library.
 * T26: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v7.0.3): Based on (v6.1.5) (T24/T21), but with 3D sensors in TBPX L1 and 50x50 pixel aspect ratio in TFPX and TEPX. Compatible with DD4hep library.
-* T29: Phase2 tilted tracker. Outer Tracker (v8.0.0): same as T24/T21. Inner Tracker (v8.0.3): Based on (v7.0.2) (T25), but with bricked pixels in the central rod of TBPX L2+L3 and in the central 3 rods of TBPX L4, and with 50x50 mum pixels in TFPX and TEPX. Compatible with DD4hep library.
 * T30: Phase2 titled tracker. Exploratory geometry *only to be used in D91 for now*. Outer Tracker (v8.0.1): based on v8.0.0 with updated TB2S spacing. Inner Tracker (v6.4.0): based on v6.1.5 but TFPX with more realistic module positions.
 
 Calorimeters:
@@ -123,5 +122,4 @@ Several detector combinations have been generated:
 * D85 = T24+C14+M9+I14+O7+F6
 * D86 = T24+C17+M10+I14+O8+F6
 * D88 = T24+C17+M10+I15+O9+F6
-* D90 = T29+C14+M9+I13+O7+F8
 * D91 = T30+C17+M10+I15+O9+F6
