@@ -7,7 +7,7 @@ def newKFConfig(process):
 # configures track finding s/w to behave as track finding f/w
 def fwConfig(process):
   newKFConfig(process)
-  process.TrackTriggerSetup.Firmware.FreqBE = 240
+  process.TrackTriggerSetup.Firmware.FreqBE = 240 # Frequency of DTC & KF (determines truncation)
   process.TTTracksFromTrackletEmulation.RemovalType = ""
   process.TTTracksFromTrackletEmulation.DoMultipleMatches = False
   process.TTTracksFromTrackletEmulation.StoreTrackBuilderOutput = True
