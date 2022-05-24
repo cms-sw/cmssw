@@ -42,6 +42,7 @@ public:
 
   uint16_t BXNCount() const { return theHeaderFormat->BXNCount(); }
   uint16_t ALCTMatchTime() const { return theHeaderFormat->ALCTMatchTime(); }
+  void setALCTMatchTime(uint16_t alctmatchtime) { theHeaderFormat->setALCTMatchTime(alctmatchtime); }
   uint16_t CLCTOnly() const { return theHeaderFormat->CLCTOnly(); }
   uint16_t ALCTOnly() const { return theHeaderFormat->ALCTOnly(); }
   uint16_t TMBMatch() const { return theHeaderFormat->TMBMatch(); }
