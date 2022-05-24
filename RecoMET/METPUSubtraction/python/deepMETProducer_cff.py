@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.pfnInPath as pInP
 import os
 
 from RecoMET.METPUSubtraction.deepMETProducer_cfi import deepMETProducer as _deepMETProducer
@@ -30,10 +31,11 @@ from RecoMET.METPUSubtraction.deepMETSonicProducer_cff import deepMETSonicProduc
 from Configuration.ProcessModifiers.deepMETSonicTriton_cff import deepMETSonicTriton
 
 # propagate possible parameter updates
+#print(pInP.pfnInPath(deepMETsResolutionTune.graph_path.value()))
 _deepMETsResolutionTuneSonic = _deepMETSonicProducer.clone(
     max_n_pf = deepMETsResolutionTune.max_n_pf,
     Client = dict(
-        modelVersion = os.path.realpath(os.environ['CMSSW_BASE']+'/src/'+deepMETsResolutionTune.graph_path.value()).split('/')[-2], #model "1"
+        modelVersion = os.path.realpath(pInP.pfnInPath(deepMETsResolutionTune.graph_path.value()).split(':')[-1]).split('/')[-2], #model "1"
     ),
 )
 deepMETSonicTriton.toReplaceWith(deepMETsResolutionTune, _deepMETsResolutionTuneSonic)
@@ -41,7 +43,7 @@ deepMETSonicTriton.toReplaceWith(deepMETsResolutionTune, _deepMETsResolutionTune
 _deepMETsResponseTuneSonic = _deepMETSonicProducer.clone(
     max_n_pf = deepMETsResponseTune.max_n_pf,
     Client = dict(
-        modelVersion = os.path.realpath(os.environ['CMSSW_BASE']+'/src/'+deepMETsResponseTune.graph_path.value()).split('/')[-2], #model "2"
+        modelVersion = os.path.realpath(pInP.pfnInPath(deepMETsResponseTune.graph_path.value()).split(':')[-1]).split('/')[-2], #model "2"
     ),
 )
 deepMETSonicTriton.toReplaceWith(deepMETsResponseTune, _deepMETsResponseTuneSonic)
