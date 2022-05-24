@@ -97,7 +97,7 @@ namespace csc {
     unsigned me3Tbin(void) const { return m_me3Tbin; }
     unsigned me4Tbin(void) const { return m_me4Tbin; }
     unsigned mb1Tbin(void) const { return m_mbTbin; }
-    void setBits(unsigned se, unsigned bx0, unsigned bc0) {
+    void setBits(bool se, bool bx0, bool bc0) {
       m_se = se;
       m_bx0 = bx0;
       m_bc0 = bc0;
