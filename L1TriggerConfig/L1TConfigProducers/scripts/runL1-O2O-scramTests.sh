@@ -74,10 +74,12 @@ COPY_OPTIONS="copyNonO2OPayloads=1 copyDBConnect=sqlite_file:$local_db"
 ## =============== O2O Job ===============
 ##
 
-if cmsRun -e ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyListExt=1 ${TAG_UPDATE} | c++filt --types | grep "${tsckey}:${rskey}" ; then echo "TSC payloads present"
+L1TRIGGEREXT_DIR=${CMSSW_BASE}/src/CondTools/L1TriggerExt/test
+if [ ! -e ${L1TRIGGEREXT_DIR} ] ; then L1TRIGGEREXT_DIR=${CMSSW_RELEASE_BASE}/src/CondTools/L1TriggerExt/test ; fi
+if cmsRun -e ${L1TRIGGEREXT_DIR}/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyListExt=1 ${TAG_UPDATE} | c++filt --types | grep "${tsckey}:${rskey}" ; then echo "TSC payloads present"
 else
     echo "TSC payloads absent; writing $KEY_CONTENT now"
-    cmsRun -e ${CMSSW_BASE}/src/CondTools/L1TriggerExt/test/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${ONLINEDB_OPTIONS} ${PROTODB_OPTIONS} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} ${TAG_UPDATE} ${UNSAFE} ${DROPSYSTEMS} logTransactions=0 print | c++filt --types | tee -a lastLogForFM.txt
+    cmsRun -e ${L1TRIGGEREXT_DIR}/L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${ONLINEDB_OPTIONS} ${PROTODB_OPTIONS} ${OUTDB_OPTIONS} ${COPY_OPTIONS} ${KEY_CONTENT} ${TAG_UPDATE} ${UNSAFE} ${DROPSYSTEMS} logTransactions=0 print | c++filt --types | tee -a lastLogForFM.txt
     #cmsRun ./L1ConfigWritePayloadOnlineExt_cfg.py tscKey=${tsckey} rsKey=${rskey} ${OUTDB_OPTIONS1} ${COPY_OPTIONS} ${KEY_CONTENT} ${TAG_UPDATE} ${UNSAFE} logTransactions=0 print | tee -a lastLogForFM.txt
     o2ocode=${PIPESTATUS[0]}
 #    o2ocode=$?
@@ -89,14 +91,14 @@ else
     fi
 fi
 
-cmsRun $CMSSW_BASE/src/CondTools/L1TriggerExt/test/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} ${TAG_UPDATE} logTransactions=0 print | grep -Ev "CORAL.*Info|CORAL.*Debug" | c++filt --types | tee -a lastLogForFM.txt
+cmsRun ${L1TRIGGEREXT_DIR}/L1ConfigWriteIOVOnlineExt_cfg.py ${CMS_OPTIONS} tscKey=${tsckey} rsKey=${rskey} runNumber=${runnum} ${OUTDB_OPTIONS} ${TAG_UPDATE} logTransactions=0 print | grep -Ev "CORAL.*Info|CORAL.*Debug" | c++filt --types | tee -a lastLogForFM.txt
 o2ocode=${PIPESTATUS[0]}
 
 if [ ${o2ocode} -eq 0 ]
 then
     echo
     echo "`date` : checking O2O"
-    if cmsRun $CMSSW_BASE/src/CondTools/L1TriggerExt/test/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyExt=1 runNumber=${runnum} ${TAG_UPDATE} | c++filt --types | grep ${tsckey} ; then echo "L1-O2O-INFO: IOV OK"
+    if cmsRun ${L1TRIGGEREXT_DIR}/l1o2otestanalyzer_cfg.py ${INDB_OPTIONS} printL1TriggerKeyExt=1 runNumber=${runnum} ${TAG_UPDATE} | c++filt --types | grep ${tsckey} ; then echo "L1-O2O-INFO: IOV OK"
     else
 	echo "L1-O2O-ERROR: IOV NOT OK"
 	echo "L1-O2O-ERROR: IOV NOT OK" 1>&2
