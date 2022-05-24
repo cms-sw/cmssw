@@ -311,7 +311,9 @@ void L1MuGMTReadoutRecord::setQuietbit(int eta, int phi) {
   int idx_word = idx / 32;
   int idx_bit = idx % 32;
 
-  unsigned mask = 1 << (idx_bit - 1);
+  unsigned mask = 0;
+  if (idx_bit > 0)
+    mask = 1 << (idx_bit - 1);
 
   m_Quietbits[idx_word] |= mask;
 }
