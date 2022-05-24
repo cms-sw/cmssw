@@ -33,7 +33,7 @@
 namespace magneticfield {
   class InterpolatorBuilder {
   public:
-    InterpolatorBuilder(std::string iTableSet);
+    InterpolatorBuilder(std::string iTableSet, bool useMergeFileIfAvailable = true);
 
     InterpolatorBuilder(const InterpolatorBuilder&) = delete;                   // stop default
     const InterpolatorBuilder& operator=(const InterpolatorBuilder&) = delete;  // stop default

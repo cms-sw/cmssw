@@ -35,7 +35,7 @@ namespace magneticfield {
 
   class MagGeoBuilder {
   public:
-    MagGeoBuilder(std::string tableSet, int geometryVersion, bool debug = false);
+    MagGeoBuilder(std::string tableSet, int geometryVersion, bool debug = false, bool useMergeFileIfAvailable = true);
 
     ~MagGeoBuilder();
 
@@ -89,6 +89,7 @@ namespace magneticfield {
     const TableFileMap* theGridFiles_;  // Non-owned pointer assumed to be valid until build() is called
 
     const bool debug_;
+    const bool useMergeFileIfAvailable_;
   };
 }  // namespace magneticfield
 #endif
