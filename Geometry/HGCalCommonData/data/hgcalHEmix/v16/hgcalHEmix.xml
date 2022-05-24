@@ -159,7 +159,7 @@
     <Vector name="TopLayerType" type="numeric" nEntries="7"> 
       0, 1, 2, 3, 4, 5, 6</Vector>
     <Vector name="LayerTypes" type="numeric" nEntries="14">
-       2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3
+       3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2, 3, 2
     </Vector>
     <Vector name="WaferIndex" type="numeric" nEntries="2808">
        2097155, 2097156, 2097157, 2097158, 2097159, 2097160, 2097161,

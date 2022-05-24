@@ -38,3 +38,12 @@ int32_t HGCalTypes::packCellType6(int type, int cell) { return (type * faccell6_
 int32_t HGCalTypes::getUnpackedCellType6(int id) { return (id / faccell6_); }
 
 int32_t HGCalTypes::getUnpackedCell6(int id) { return (id % faccell6_); }
+
+int32_t HGCalTypes::layerType(int type) {
+  int types[5] = {HGCalTypes::WaferCenter,
+                  HGCalTypes::WaferCenterB,
+                  HGCalTypes::CornerCenterYp,
+                  HGCalTypes::CornerCenterYm,
+                  HGCalTypes::WaferCenterR};
+  return ((type >= 0 && type < 5) ? types[type] : HGCalTypes::WaferCenter);
+}
