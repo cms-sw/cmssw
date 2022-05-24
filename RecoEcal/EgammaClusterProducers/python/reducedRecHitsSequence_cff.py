@@ -143,8 +143,7 @@ reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                         cms.InputTag("interestingEcalDetIdOOTPFES"),
                                       ),
                                       interestingDetIdsNotToClean = cms.VInputTag(
-                                        cms.InputTag("interestingGedEgammaIsoESDetId"),
-                                        cms.InputTag("interestingOotEgammaIsoESDetId"),
+                                          cms.InputTag("interestingOotEgammaIsoESDetId"),
                                       )
 )
 
