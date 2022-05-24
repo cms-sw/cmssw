@@ -658,7 +658,8 @@ const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk,
                                           const double& t0,
                                           const double& st0) {
   bool match = false;
-  match = trk.pt() > pTcut_ && std::abs(trk.eta()) < etacutREC_ && (std::abs(trk.vz() - vtx.z()) <= deltaZcut_ || vtx.isFake());
+  match = trk.pt() > pTcut_ && std::abs(trk.eta()) < etacutREC_ &&
+          (std::abs(trk.vz() - vtx.z()) <= deltaZcut_ || vtx.isFake());
   if (st0 > 0.) {
     match = match && std::abs(t0 - vtx.t()) < 3. * st0;
   }
@@ -668,12 +669,12 @@ const bool MtdTracksValidation::mvaRecSel(const reco::TrackBase& trk,
 const bool MtdTracksValidation::mvaGenRecMatch(const HepMC::GenParticle& genP,
                                                const double& zsim,
                                                const reco::TrackBase& trk,
-					       const bool& vtxFake) {
+                                               const bool& vtxFake) {
   bool match = false;
   double dR = reco::deltaR(genP.momentum(), trk.momentum());
   double genPT = genP.momentum().perp();
-  match =
-      std::abs(genPT - trk.pt()) < trk.pt() * deltaPTcut_ && dR < deltaDRcut_ && ( std::abs(trk.vz() - zsim) < deltaZcut_ || vtxFake);
+  match = std::abs(genPT - trk.pt()) < trk.pt() * deltaPTcut_ && dR < deltaDRcut_ &&
+          (std::abs(trk.vz() - zsim) < deltaZcut_ || vtxFake);
   return match;
 }
 
