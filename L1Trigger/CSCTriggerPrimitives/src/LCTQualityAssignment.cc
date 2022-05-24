@@ -13,7 +13,7 @@ LCTQualityAssignment::LCTQualityAssignment(unsigned endcap,
 
 unsigned LCTQualityAssignment::findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT) const {
   // ALCT-CLCT matching without a cluster and ILT off
-  if (runCCLUT_ and !runILT_) {
+  if (run3_ and !runILT_) {
     return findQualityRun3(aLCT, cLCT);
   }
   // ALCT-CLCT matching without a cluster and ILT on

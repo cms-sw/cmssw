@@ -160,28 +160,19 @@ void CSCMotherboard::run(const CSCWireDigiCollection* wiredc, const CSCComparato
     return;
 
   // step 3: match the ALCTs to the CLCTs
-  bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS] = {false};
-  matchALCTCLCT(bunch_crossing_mask);
+  matchALCTCLCT();
 
   // Step 4: Select at most 2 LCTs per BX
   selectLCTs();
 }
 
-void CSCMotherboard::matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_ALCT_TBINS]) {
+void CSCMotherboard::matchALCTCLCT() {
   // array to mask CLCTs
   bool used_clct_mask[CSCConstants::MAX_CLCT_TBINS] = {false};
 
   // Step 3: ALCT-centric ALCT-to-CLCT matching
   int bx_clct_matched = 0;  // bx of last matched CLCT
   for (int bx_alct = 0; bx_alct < CSCConstants::MAX_ALCT_TBINS; bx_alct++) {
-    // do not consider LCT building in this BX if the mask was set
-    // this check should have no effect on the regular LCT finding
-    // it does play a role in the LCT finding for GEM-CSC ILTs
-    // namely, if a GEM-CSC ILT was found a bunch crossing, the
-    // algorithm would skip the bunch crossing for regular LCT finding
-    if (bunch_crossing_mask[bx_alct])
-      continue;
-
     // There should be at least one valid CLCT or ALCT for a
     // correlated LCT to be formed.  Decision on whether to reject
     // non-complete LCTs (and if yes of which type) is made further
@@ -230,7 +221,6 @@ void CSCMotherboard::matchALCTCLCT(bool bunch_crossing_mask[CSCConstants::MAX_AL
           if (allLCTs_(bx_alct, mbx, 0).isValid()) {
             is_matched = true;
             used_clct_mask[bx_clct] = true;
-            bunch_crossing_mask[bx_alct] = true;
             bx_clct_matched = bx_clct;
             if (match_earliest_clct_only_)
               break;
@@ -367,6 +357,9 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboard::readoutLCTs() const {
   qualityControl_->checkMultiplicityBX(tmpV);
   for (const auto& lct : tmpV) {
     qualityControl_->checkValid(lct);
+    /*std::cout << "\n########################################## Emu LCT ##########################################\n" << std::endl;
+    std::cout << "Emu LCT: " << lct << std::endl;
+    std::cout << "\n########################################## THE END ##########################################\n" << std::endl;*/
   }
 
   return tmpV;
@@ -395,10 +388,10 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
   if (secondCLCT.getQuality() <= 3)
     secondCLCT.clear();
 
-  // check which ALCTs and CLCTs are valid
   // if the best ALCT/CLCT is valid, but the second ALCT/CLCT is not,
   // the information is copied over
-  copyValidToInValid(bestALCT, secondALCT, bestCLCT, secondCLCT);
+  copyValidToInValidALCT(bestALCT, secondALCT);
+  copyValidToInValidCLCT(bestCLCT, secondCLCT);
 
   // ALCT-only LCTs
   const bool bestCase1(alct_trig_enable and bestALCT.isValid());
@@ -438,31 +431,21 @@ void CSCMotherboard::correlateLCTs(const CSCALCTDigi& bALCT,
   // at least one component must be different in order to consider the secondLCT
   if ((secondALCT != bestALCT) or (secondCLCT != bestCLCT)) {
     // at least one of the cases must be valid
-    if (secondCase1 or secondCase2 or secondCase3) {
+    if (secondCase1 or secondCase2 or secondCase3)
       constructLCTs(secondALCT, secondCLCT, type, 2, sLCT);
-    }
   }
 }
 
-void CSCMotherboard::copyValidToInValid(CSCALCTDigi& bestALCT,
-                                        CSCALCTDigi& secondALCT,
-                                        CSCCLCTDigi& bestCLCT,
-                                        CSCCLCTDigi& secondCLCT) const {
-  // check which ALCTs and CLCTs are valid
-  const bool anodeBestValid = bestALCT.isValid();
-  const bool anodeSecondValid = secondALCT.isValid();
-  const bool cathodeBestValid = bestCLCT.isValid();
-  const bool cathodeSecondValid = secondCLCT.isValid();
-
-  // copy the valid ALCT/CLCT information to the valid ALCT/CLCT
-  if (anodeBestValid && !anodeSecondValid)
+// copy the valid ALCT/CLCT information to the valid ALCT
+void CSCMotherboard::copyValidToInValidALCT(CSCALCTDigi& bestALCT, CSCALCTDigi& secondALCT) const {
+  if (bestALCT.isValid() and !secondALCT.isValid())
     secondALCT = bestALCT;
-  if (!anodeBestValid && anodeSecondValid)
-    bestALCT = secondALCT;
-  if (cathodeBestValid && !cathodeSecondValid)
+}
+
+// copy the valid CLCT information to the valid CLCT
+void CSCMotherboard::copyValidToInValidCLCT(CSCCLCTDigi& bestCLCT, CSCCLCTDigi& secondCLCT) const {
+  if (bestCLCT.isValid() and !secondCLCT.isValid())
     secondCLCT = bestCLCT;
-  if (!cathodeBestValid && cathodeSecondValid)
-    bestCLCT = secondCLCT;
 }
 
 bool CSCMotherboard::doesALCTCrossCLCT(const CSCALCTDigi& alct, const CSCCLCTDigi& clct) const {

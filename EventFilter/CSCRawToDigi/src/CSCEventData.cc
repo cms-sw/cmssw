@@ -548,6 +548,8 @@ void CSCEventData::add(const std::vector<GEMPadDigiCluster>& clusters, const GEM
     int gem_layer = gemdetid.layer();
     int eta_roll = gemdetid.roll();
     for (const auto& it : clusters) {
+      if (it.isValid())
+        theTMBData->tmbHeader()->setALCTMatchTime(it.alctMatchTime());
       theTMBData->gemData()->addEtaPadCluster(it, gem_layer - 1, 8 - eta_roll);
     }
   }
