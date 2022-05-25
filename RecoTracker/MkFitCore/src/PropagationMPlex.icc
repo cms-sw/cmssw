@@ -205,12 +205,16 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
     }
 
     if constexpr (Config::useTrigApprox) {
+#if !defined(__INTEL_COMPILER)
 #pragma omp simd
+#endif
       for (int n = nmin; n < nmax; ++n) {
         sincos4(id[n - nmin] * ipt[n - nmin] * kinv[n - nmin] * 0.5f, sinah[n - nmin], cosah[n - nmin]);
       }
     } else {
+#if !defined(__INTEL_COMPILER)
 #pragma omp simd
+#endif
       for (int n = nmin; n < nmax; ++n) {
         cosah[n - nmin] = std::cos(id[n - nmin] * ipt[n - nmin] * kinv[n - nmin] * 0.5f);
         sinah[n - nmin] = std::sin(id[n - nmin] * ipt[n - nmin] * kinv[n - nmin] * 0.5f);
