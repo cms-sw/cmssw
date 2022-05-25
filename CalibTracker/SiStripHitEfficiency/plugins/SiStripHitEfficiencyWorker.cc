@@ -252,14 +252,14 @@ void SiStripHitEfficiencyWorker::beginJob() {
 void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
                                                 const edm::Run& run,
                                                 const edm::EventSetup& setup) {
-  booker.setCurrentFolder(dqmDir_);
+  booker.setCurrentFolder(fmt::format("{}/EventInfo", dqmDir_));
   h_bx = booker.book1D("bx", "bx", 3600, 0, 3600);
   h_instLumi = booker.book1D("instLumi", "inst. lumi.", 250, 0, 25000);
   h_PU = booker.book1D("PU", "PU", 200, 0, 200);
-
   h_nTracks = booker.book1D("ntracks", "n.tracks;n. tracks;n.events", 500, -0.5, 499.5);
   h_nTracksVsPU = booker.bookProfile("nTracksVsPU", "n. tracks vs PU; PU; n.tracks ", 200, 0, 200, 500, -0.5, 499.5);
 
+  booker.setCurrentFolder(dqmDir_);
   h_goodLayer = EffME1(booker.book1D("goodlayer_total", "goodlayer_total", 35, 0., 35.),
                        booker.book1D("goodlayer_found", "goodlayer_found", 35, 0., 35.));
   h_allLayer = EffME1(booker.book1D("alllayer_total", "alllayer_total", 35, 0., 35.),
@@ -270,26 +270,43 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
 
   for (int layer = 1; layer != 23; ++layer) {
     const auto lyrName = ::layerName(layer, showRings_, nTEClayers_);
+
+    // book resolutions
+    booker.setCurrentFolder(fmt::format("{}/Resolutions", dqmDir_));
     auto ihres = booker.book1D(Form("resol_layer_%i", layer), lyrName, 125, -125., 125.);
     ihres->setAxisTitle("trajX-clusX [strip unit]");
     h_resolution.push_back(ihres);
+
+    // book plots vs Lumi
+    booker.setCurrentFolder(fmt::format("{}/VsLumi", dqmDir_));
     h_layer_vsLumi.push_back(EffME1(booker.book1D(Form("layertotal_vsLumi_layer_%i", layer), lyrName, 100, 0, 25000),
                                     booker.book1D(Form("layerfound_vsLumi_layer_%i", layer), lyrName, 100, 0, 25000)));
+
+    // book plots vs Lumi
+    booker.setCurrentFolder(fmt::format("{}/VsPu", dqmDir_));
     h_layer_vsPU.push_back(EffME1(booker.book1D(Form("layertotal_vsPU_layer_%i", layer), lyrName, 45, 0, 90),
                                   booker.book1D(Form("layerfound_vsPU_layer_%i", layer), lyrName, 45, 0, 90)));
     if (addCommonMode_) {
+      // book plots for common mode
+      booker.setCurrentFolder(fmt::format("{}/CommonMode", dqmDir_));
       h_layer_vsCM.push_back(EffME1(booker.book1D(Form("layertotal_vsCM_layer_%i", layer), lyrName, 20, 0, 400),
                                     booker.book1D(Form("layerfound_vsCM_layer_%i", layer), lyrName, 20, 0, 400)));
     }
+
+    // book plots vs Lumi
+    booker.setCurrentFolder(fmt::format("{}/VsBx", dqmDir_));
     h_layer_vsBx.push_back(EffME1(
         booker.book1D(Form("totalVsBx_layer%i", layer), Form("layer %i (%s)", layer, lyrName.c_str()), 3565, 0, 3565),
         booker.book1D(Form("foundVsBx_layer%i", layer), Form("layer %i (%s)", layer, lyrName.c_str()), 3565, 0, 3565)));
-    if (layer <= 10) {
-      const bool isTIB = layer <= 4;
+
+    // book hot and cold
+    booker.setCurrentFolder(fmt::format("{}/HotAndCold", dqmDir_));
+    if (layer <= bounds::k_LayersAtTOBEnd) {
+      const bool isTIB = layer <= bounds::k_LayersAtTIBEnd;
       const auto partition = (isTIB ? "TIB" : "TOB");
       const auto yMax = (isTIB ? 100 : 120);
 
-      const auto tit = Form("%s%i", partition, (isTIB ? layer : layer - 4));
+      const auto tit = Form("%s%i", partition, (isTIB ? layer : layer - bounds::k_LayersAtTIBEnd));
 
       auto ihhotcold = booker.book2D(tit, tit, 100, -1, 361, 100, -yMax, yMax);
       ihhotcold->setAxisTitle("Phi", 1);
@@ -300,12 +317,13 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
       ihhotcold->setOption("colz");
       h_hotcold.push_back(ihhotcold);
     } else {
-      const bool isTID = layer <= 13;
+      const bool isTID = layer <= bounds::k_LayersAtTIDEnd;
       const auto partitions =
           (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
       const auto axMax = (isTID ? 100 : 120);
       for (const auto& part : partitions) {
-        const auto tit = Form("%s%i", part.c_str(), (isTID ? layer - 10 : layer - 13));
+        const auto tit =
+            Form("%s%i", part.c_str(), (isTID ? layer - bounds::k_LayersAtTOBEnd : layer - bounds::k_LayersAtTIDEnd));
 
         auto ihhotcold = booker.book2D(tit, tit, 100, -axMax, axMax, 100, -axMax, axMax);
         ihhotcold->setAxisTitle("Global Y", 1);
@@ -322,9 +340,14 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
     }
   }
 
+  // come back to the main folder
+  booker.setCurrentFolder(dqmDir_);
+  const auto tkDetMapFolder = fmt::format("{}/TkDetMaps", dqmDir_);
+
   const TkDetMap* tkDetMap = &setup.getData(tkDetMapToken_);
-  h_module = EffTkMap(std::make_unique<TkHistoMap>(tkDetMap, booker, dqmDir_, "perModule_total", 0, false, true),
-                      std::make_unique<TkHistoMap>(tkDetMap, booker, dqmDir_, "perModule_found", 0, false, true));
+  h_module =
+      EffTkMap(std::make_unique<TkHistoMap>(tkDetMap, booker, tkDetMapFolder, "perModule_total", 0, false, true),
+               std::make_unique<TkHistoMap>(tkDetMap, booker, tkDetMapFolder, "perModule_found", 0, false, true));
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -438,7 +461,7 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
              theInHit->getType() != TrackingRecHit::Type::missing))
           continue;
         // If Trajectory measurement from TOB 6 or TEC 9, skip it because it's always valid they are filled later
-        if (TKlayers == 10 || TKlayers == 22) {
+        if (TKlayers == bounds::k_LayersAtTOBEnd || TKlayers == bounds::k_LayersAtTECEnd) {
           LogDebug("SiStripHitEfficiencyWorker") << "skipping original TM for TOB 6 or TEC 9";
           continue;
         }
@@ -598,8 +621,9 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
   const bool withinAcceptance =
       tm.withinAcceptance() && (!::isInBondingExclusionZone(iidd, TKlayers, yloc, yErr, tTopo));
 
-  if (                                              // (TKlayers > 0) && // FIXME confirm this
-      ((layers_ == TKlayers) || (layers_ == 0))) {  // Look at the layer not used to reconstruct the track
+  if (  // (TKlayers > 0) && // FIXME confirm this
+      ((layers_ == TKlayers) ||
+       (layers_ == bounds::k_LayersStart))) {  // Look at the layer not used to reconstruct the track
     LogDebug("SiStripHitEfficiencyWorker") << "Looking at layer under study";
     unsigned int ModIsBad = 2;
     unsigned int SiStripQualBad = 0;
@@ -623,7 +647,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
         float hapoth = 0.0;
         float uylfac = 0.0;
         float uxlden = 0.0;
-        if (TKlayers >= 11) {
+        if (TKlayers > bounds::k_LayersAtTOBEnd) {
           const BoundPlane& plane = stripdet->surface();
           const TrapezoidalPlaneBounds* trapezoidalBounds(
               dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
@@ -641,7 +665,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           float pitch = stripdet->surface().bounds().width() / nstrips;
           TrajStrip = xloc / pitch + nstrips / 2.0;
           // Need additionnal corrections for endcap
-          if (TKlayers >= 11) {
+          if (TKlayers > bounds::k_LayersAtTOBEnd) {
             const float TrajLocXMid = xloc / (1 + (htedge - hbedge) * yloc / (htedge + hbedge) /
                                                       hapoth);  // radialy extrapolated x loc position at middle
             TrajStrip = TrajLocXMid / pitch + nstrips / 2.0;
@@ -659,7 +683,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           //const Chi2MeasurementEstimator *theEstimator(100);
           //theEstimator->estimate(tm.tsos(), TransientTrackingRecHit);
 
-          if (TKlayers >= 11) {
+          if (TKlayers > bounds::k_LayersAtTOBEnd) {
             res = parameters.first.x() - xloc / uxlden;  // radialy extrapolated x loc position at middle
             sigma = abs(res) / sqrt(parameters.second.xx() + xErr * xErr / uxlden / uxlden +
                                     yErr * yErr * xloc * xloc * uylfac * uylfac / uxlden / uxlden / uxlden / uxlden);
@@ -753,20 +777,21 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           << ", withinAcceptance=" << withinAcceptance;
 
       unsigned int layer = TKlayers;
-      if (showRings_ && layer > 10) {        // use rings instead of wheels
-        if (layer < 14) {                    // TID
-          layer = 10 + ((iidd >> 9) & 0x3);  // 3 disks and also 3 rings -> use the same container
-        } else {                             // TEC
-          layer = 13 + ((iidd >> 5) & 0x7);
+      if (showRings_ && layer > bounds::k_LayersAtTOBEnd) {  // use rings instead of wheels
+        if (layer <= bounds::k_LayersAtTIDEnd) {             // TID
+          layer = bounds::k_LayersAtTOBEnd +
+                  tTopo->tidRing(iidd);  // ((iidd >> 9) & 0x3);  // 3 disks and also 3 rings -> use the same container
+        } else {                         // TEC
+          layer = bounds::k_LayersAtTIDEnd + tTopo->tecRing(iidd);  // ((iidd >> 5) & 0x7);
         }
       }
       unsigned int layerWithSide = layer;
-      if (layer > 10 && layer < 14) {
-        const auto side = (iidd >> 13) & 0x3;  // TID
+      if (layer > bounds::k_LayersAtTOBEnd && layer <= bounds::k_LayersAtTIDEnd) {
+        const auto side = tTopo->tidSide(iidd);  //(iidd >> 13) & 0x3;  // TID
         if (side == 2)
           layerWithSide = layer + 3;
-      } else if (layer > 13) {
-        const auto side = (iidd >> 18) & 0x3;  // TEC
+      } else if (layer > bounds::k_LayersAtTIDEnd) {
+        const auto side = tTopo->tecSide(iidd);  // (iidd >> 18) & 0x3;  // TEC
         if (side == 1) {
           layerWithSide = layer + 3;
         } else if (side == 2) {
@@ -775,7 +800,8 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       }
 
       if ((bunchX_ > 0 && bunchX_ != bunchCrossing) || (!withinAcceptance) ||
-          (useOnlyHighPurityTracks_ && !highPurity) || (!showTOB6TEC9_ && (TKlayers == 10 || TKlayers == 22)) ||
+          (useOnlyHighPurityTracks_ && !highPurity) ||
+          (!showTOB6TEC9_ && (TKlayers == bounds::k_LayersAtTOBEnd || TKlayers == bounds::k_LayersAtTECEnd)) ||
           (badModules_.end() != badModules_.find(iidd)))
         return;
 
@@ -811,7 +837,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
       double stripCluster = finalCluster.xLocal / Pitch + nstrips / 2.0;
       // For trapezoidal modules: extrapolation of x trajectory position to the y middle of the module
       //  for correct comparison with cluster position
-      if (stripdet && layer >= 11) {
+      if (stripdet && layer > bounds::k_LayersAtTOBEnd) {
         const auto& trapezoidalBounds = dynamic_cast<const TrapezoidalPlaneBounds&>(stripdet->surface().bounds());
         std::array<const float, 4> const& parameters = trapezoidalBounds.parameters();
         const float hbedge = parameters[0];
@@ -865,26 +891,26 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
 
         // hot/cold maps of hits that are expected but not found
         if (badflag) {
-          if (layer > 0 && layer <= 4) {
+          if (layer > bounds::k_LayersStart && layer <= bounds::k_LayersAtTIBEnd) {
             //We are in the TIB
             float phi = ::calcPhi(tm.globalX(), tm.globalY());
             h_hotcold[layer - 1]->Fill(360. - phi, tm.globalZ(), 1.);
-          } else if (layer > 4 && layer <= 10) {
+          } else if (layer > bounds::k_LayersAtTIBEnd && layer <= bounds::k_LayersAtTOBEnd) {
             //We are in the TOB
             float phi = ::calcPhi(tm.globalX(), tm.globalY());
             h_hotcold[layer - 1]->Fill(360. - phi, tm.globalZ(), 1.);
-          } else if (layer > 10 && layer <= 13) {
+          } else if (layer > bounds::k_LayersAtTOBEnd && layer <= bounds::k_LayersAtTIDEnd) {
             //We are in the TID
             //There are 2 different maps here
-            int side = ((iidd >> 13) & 0x3);
+            int side = tTopo->tidSide(iidd);  //((iidd >> 13) & 0x3);
             if (side == 1)
               h_hotcold[(layer - 1) + (layer - 11)]->Fill(-tm.globalY(), tm.globalX(), 1.);
             else if (side == 2)
               h_hotcold[(layer - 1) + (layer - 10)]->Fill(-tm.globalY(), tm.globalX(), 1.);
-          } else if (layer > 13) {
+          } else if (layer > bounds::k_LayersAtTIDEnd) {
             //We are in the TEC
             //There are 2 different maps here
-            int side = ((iidd >> 18) & 0x3);
+            int side = tTopo->tecSide(iidd);  //((iidd >> 18) & 0x3);
             if (side == 1)
               h_hotcold[(layer + 2) + (layer - 14)]->Fill(-tm.globalY(), tm.globalX(), 1.);
             else if (side == 2)
