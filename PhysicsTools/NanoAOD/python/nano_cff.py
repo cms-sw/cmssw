@@ -169,7 +169,7 @@ def nanoAOD_recalibrateMETs(process,isData):
     process.deepMETsResponseTune.graph_path = nanoAOD_DeepMET_switch.ResponseTune_Graph.value()
 
     runMetCorAndUncFromMiniAOD(process,isData=isData)
-    process.nanoSequenceCommon.insert(2,cms.Sequence(process.fullPatMetSequence))
+    process.nanoSequenceCommon.insert(2,cms.Sequence(process.fullPatMetTask))
 
 
     from PhysicsTools.PatAlgos.slimming.puppiForMET_cff import makePuppiesFromMiniAOD
@@ -213,7 +213,7 @@ def nanoAOD_recalibrateMETs(process,isData):
         print("nanoAOD_PuppiV15_switch.reclusterJets is true")
 
     runMetCorAndUncFromMiniAOD(process,isData=isData,metType="Puppi",postfix="Puppi",jetFlavor="AK4PFPuppi", recoMetFromPFCs=bool(nanoAOD_PuppiV15_switch.recoMetFromPFCs), reclusterJets=bool(nanoAOD_PuppiV15_switch.reclusterJets))
-    process.nanoSequenceCommon.insert(2,cms.Sequence(process.puppiMETSequence+process.fullPatMetSequencePuppi))
+    process.nanoSequenceCommon.insert(2,cms.Sequence(process.puppiMETSequence+cms.Sequence(process.fullPatMetTaskPuppi)))
 
     return process
 
@@ -249,7 +249,7 @@ def nanoAOD_runMETfixEE2017(process,isData):
                                fixEE2017 = True,
                                fixEE2017Params = {'userawPt': True, 'ptThreshold':50.0, 'minEtaThreshold':2.65, 'maxEtaThreshold': 3.139},
                                postfix = "FixEE2017")
-    process.nanoSequenceCommon.insert(2,process.fullPatMetSequenceFixEE2017)
+    process.nanoSequenceCommon.insert(2,cms.Sequence(process.fullPatMetTaskFixEE2017))
 
 
 def nanoAOD_customizeCommon(process):
