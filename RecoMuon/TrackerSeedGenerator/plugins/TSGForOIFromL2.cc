@@ -637,7 +637,7 @@ void TSGForOIFromL2::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("SFHd", 4.0);
   desc.add<double>("tsosDiff1", 0.2);
   desc.add<double>("tsosDiff2", 0.02);
-  desc.add<bool>("displacedReco", true);
+  desc.add<bool>("displacedReco", false);
   desc.add<std::string>("propagatorName", "PropagatorWithMaterialParabolicMf");
   descriptions.add("TSGForOIFromL2", desc);
 }
