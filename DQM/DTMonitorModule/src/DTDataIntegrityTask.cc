@@ -927,7 +927,6 @@ void DTDataIntegrityTask::processFED(DTuROSFEDData& data, int fed) {
   //Divide by 2 for egde FEDs to normalize per wheel
   sumNotOKFlag = sumNotOKFlag / ((wheel != 0) ? 2. : 1.);
   sumTDC = sumTDC / ((wheel != 0) ? 2. : 1.);
-
   if (sumNotOKFlag > nLinksForFatal || sumTDC > nLinksForFatal)
     hFEDFatal->Fill(fed);
 }
