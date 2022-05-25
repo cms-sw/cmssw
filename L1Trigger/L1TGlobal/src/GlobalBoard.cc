@@ -971,10 +971,13 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
   // prescale counters are reset at the beginning of the luminosity segment
   if (m_firstEv) {
     // prescale counters: numberPhysTriggers counters per bunch cross
-    m_prescaleCounterAlgoTrig.reserve(numberPhysTriggers * totalBxInEvent);
+    m_prescaleCounterAlgoTrig.reserve(totalBxInEvent);
+
+    auto const& prescaleCountersAlgoTrig =
+        m_semiRandomInitialPSCounters ? semirandomNumber(iEvent, prescaleFactorsAlgoTrig) : prescaleFactorsAlgoTrig;
 
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-      m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      m_prescaleCounterAlgoTrig.push_back(prescaleCountersAlgoTrig);
     }
     m_firstEv = false;
     m_currentLumi = iEvent.luminosityBlock();
@@ -984,7 +987,11 @@ void l1t::GlobalBoard::runFDL(edm::Event& iEvent,
   if (m_firstEvLumiSegment || (m_currentLumi != iEvent.luminosityBlock() && m_resetPSCountersEachLumiSec)) {
     m_prescaleCounterAlgoTrig.clear();
     for (int iBxInEvent = 0; iBxInEvent <= totalBxInEvent; ++iBxInEvent) {
-      m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      if (m_semiRandomInitialPSCounters) {
+        m_prescaleCounterAlgoTrig.push_back(semirandomNumber(iEvent, prescaleFactorsAlgoTrig));
+      } else {
+        m_prescaleCounterAlgoTrig.push_back(prescaleFactorsAlgoTrig);
+      }
     }
     m_firstEvLumiSegment = false;
     m_currentLumi = iEvent.luminosityBlock();
@@ -1159,4 +1166,37 @@ void l1t::GlobalBoard::printGmtData(const int iBxInEvent) const {
   LogTrace("L1TGlobal") << "Number of GMT muons = " << nrL1Mu << "\n" << std::endl;
 
   LogTrace("L1TGlobal") << std::endl;
+}
+
+//initializer prescale counter using a semi-random value between [1, prescale value]
+const std::vector<double> l1t::GlobalBoard::semirandomNumber(const edm::Event& iEvent,
+                                                             const std::vector<double>& prescaleFactorsAlgoTrig) {
+  auto out = prescaleFactorsAlgoTrig;
+  // pick a random number from a combination of run, lumi, event numbers
+  std::srand(iEvent.id().run());
+  std::srand(std::rand() + iEvent.id().luminosityBlock());
+  // this causes different (semi)random number number for different streams
+  // reminder: different streams have different initial event number
+  std::srand(std::rand() + iEvent.id().event());
+  // very large (semi)random number
+  double const semirandom = std::rand();
+  for (auto& ps : out) {
+    // if the ps is smaller than 1 (e.g. ps=0, ps=1), it is not changed
+    // else, replace ps with a semirandom integer in the [1,ps] range
+    if (ps > 1) {
+      auto nps = semirandom - floor(semirandom / ps) * ps;
+      // if nps=0 or a wrong value (<0,>ps) use PS value (standard method)
+      if (nps > 0 and nps <= ps)
+        ps = nps;
+      else {
+        if (nps != 0)  // complain only if nps <0 or nps >PS
+          edm::LogWarning("L1TGlobal::semirandomNumber")
+              << "\n The inital prescale counter obtained by L1TGlobal::semirandomNumber is wrong."
+              << "\n This is probably do to the floating-point precision. Using the PS value."
+              << "\n semirandom = " << semirandom << "\n PS = " << ps << "\n nps = " << nps
+              << " <-- it should be in the range [0 , " << ps << "]" << std::endl;
+      }
+    }
+  }
+  return out;
 }
