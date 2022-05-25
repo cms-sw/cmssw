@@ -361,8 +361,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         # get jet uncertainties from tag
         elif (jecUncertaintyTag!=None):
             jetUncInfos[ "jecUncTag" ] = jecUncertaintyTag
-        else:
-            raise ValueError("JEC options are not set correctly! Either need a JEC file or a JEC tag!")
 
         #############################
         ### 2. (re-)construct MET ###
@@ -1491,8 +1489,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                     process, ak4JetReclustering_task)
                 process.load("CommonTools.ParticleFlow.pfNoPileUpJME_cff")
                 ak4JetReclustering_task.add(process.pfNoPileUpJMETask)
-                configtools.cloneProcessingSnippetTask(process, getattr(process,"pfNoPileUpJMESequence"), postfix)
-                ak4JetReclustering_task.add(getattr(process,"pfNoPileUpJMESequence"+postfix))
+                configtools.cloneProcessingSnippetTask(process, getattr(process,"pfNoPileUpJMETask"), postfix)
+                ak4JetReclustering_task.add(getattr(process,"pfNoPileUpJMETask"+postfix))
                 getattr(process, "pfPileUpJME"+postfix).PFCandidates = "tmpPFCandCollPtr"+postfix
                 getattr(process, "pfNoPileUpJME"+postfix).bottomCollection = "tmpPFCandCollPtr"+postfix
                 pfCandColl = "pfNoPileUpJME"+postfix
@@ -1586,7 +1584,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process, "deepMETsResolutionTune").computeMETSignificance = cms.bool(False)
             miniAODConfigurationPre_task.add(getattr(process, "deepMETsResolutionTune"))
 
-        miniAODConfigurationPre_task = cms.Task()
 
         # obtain PFCHS MET and TRK MET
         # adding the necessary chs and track met configuration
