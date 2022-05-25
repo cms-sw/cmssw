@@ -10,7 +10,7 @@ class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
     availableDiscriminators = [
         "2017v1", "2017v2", "newDM2017v2", "dR0p32017v2", "2016v1", "newDM2016v1",
-        "deepTau2017v1", "deepTau2017v2", "deepTau2017v2p1", "deepTau2018v2p5", 
+        "deepTau2017v2", "deepTau2017v2p1", "deepTau2018v2p5",
         "againstEle2018",
         "newDMPhase2v1",
         "againstElePhase2v1"
@@ -557,60 +557,6 @@ class TauIDEmbedder(object):
             tauIDSources.byTightIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs(_byIsolationNewDMMVArun2016v1, "_WPEff60")
             tauIDSources.byVTightIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs(_byIsolationNewDMMVArun2016v1, "_WPEff50")
             tauIDSources.byVVTightIsolationMVArun2v1DBnewDMwLT2016 = self.tauIDMVAinputs(_byIsolationNewDMMVArun2016v1, "_WPEff40")
-
-        if "deepTau2017v1" in self.toKeep:
-            if self.debug: print ("Adding DeepTau IDs")
-
-            _deepTauName = "deepTau2017v1"
-            workingPoints_ = {
-                "e": {
-                    "VVVLoose" : 0.96424,
-                    "VVLoose" : 0.98992,
-                    "VLoose" : 0.99574,
-                    "Loose": 0.99831,
-                    "Medium": 0.99868,
-                    "Tight": 0.99898,
-                    "VTight": 0.99911,
-                    "VVTight": 0.99918
-                },
-                "mu": {
-                    "VVVLoose" : 0.959619,
-                    "VVLoose" : 0.997687,
-                    "VLoose" : 0.999392,
-                    "Loose": 0.999755,
-                    "Medium": 0.999854,
-                    "Tight": 0.999886,
-                    "VTight": 0.999944,
-                    "VVTight": 0.9999971
-                },
-
-                "jet": {
-                    "VVVLoose" : 0.5329,
-                    "VVLoose" : 0.7645,
-                    "VLoose" : 0.8623,
-                    "Loose": 0.9140,
-                    "Medium": 0.9464,
-                    "Tight": 0.9635,
-                    "VTight": 0.9760,
-                    "VVTight": 0.9859
-                }
-            }
-            file_names = ['RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2017v1_20L1024N_quantized.pb']
-            full_version = self.getDeepTauVersion(file_names[0])
-            setattr(self.process,_deepTauName+self.postfix,DeepTau.clone(
-                Prediscriminants = noPrediscriminants,
-                taus             = self.originalTauName,
-                graph_file       = file_names,
-                version          = full_version[1],
-                sub_version      = full_version[2]
-            ))
-
-            self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
-
-            _deepTauProducer = getattr(self.process,_deepTauName+self.postfix)
-            _rerunMvaIsolationTask.add(_deepTauProducer)
-            _rerunMvaIsolationSequence += _deepTauProducer
-
 
         if "deepTau2017v2" in self.toKeep:
             if self.debug: print ("Adding DeepTau IDs")
