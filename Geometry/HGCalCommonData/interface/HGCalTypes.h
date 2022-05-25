@@ -94,7 +94,7 @@ public:
   static int32_t getUnpackedType(int id);
   static int32_t getUnpackedU(int id);
   static int32_t getUnpackedV(int id);
-  // Packing and unpacking of type, u, v of wafer cells 
+  // Packing and unpacking of type, u, v of wafer cells
   static int32_t packCellTypeUV(int type, int u, int v);
   static int32_t getUnpackedCellType(int id);
   static int32_t getUnpackedCellU(int id);
@@ -106,12 +106,8 @@ public:
   // Translate from flat file format to CMSSW format of Layer type
   static int32_t layerType(int type);
   // Get the front-back index from the layer orientation index
-  static int32_t layerFrontBack(int32_t layerOrient) {
-    return ((layerOrient == WaferCenterB) ? 1 : -1);
-  }
-  static int32_t waferFrontBack(int32_t index) {
-    return ((index == 0) ? -1 : 1);
-  }
+  static int32_t layerFrontBack(int32_t layerOrient) { return ((layerOrient == WaferCenterB) ? 1 : -1); }
+  static int32_t waferFrontBack(int32_t index) { return ((index == 0) ? -1 : 1); }
 
 private:
   static constexpr int32_t facu_ = 1;
