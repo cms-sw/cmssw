@@ -209,6 +209,8 @@ void DDHGCalMixRotatedLayer::initialize(const DDNumericArguments& nArgs,
   layerType_ = dbl_to_int(vArgs["LayerType"]);
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
   layerOrient_ = dbl_to_int(vArgs["LayerTypes"]);
+  for (unsigned int k = 0; k < layerOrient_.size(); ++k)
+    layerOrient_[k] = HGCalTypes::layerType(layerOrient_[k]);
 #ifdef EDM_ML_DEBUG
   for (unsigned int i = 0; i < layerOrient_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerOrient_[i];
@@ -506,11 +508,8 @@ void DDHGCalMixRotatedLayer::positionMix(const DDLogicalPart& glog,
   // Make the bottom part next
   int layer = (copyM - firstLayer_);
   static const double sqrt3 = std::sqrt(3.0);
-  int layercenter = (layerOrient_[layer] == HGCalTypes::CornerCenteredLambda)
-                        ? HGCalTypes::CornerCenterYp
-                        : ((layerOrient_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
-                                                                                : HGCalTypes::WaferCenter);
-  int layertype = (layerOrient_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
+  int layercenter = layerOrient_[layer];
+  int layertype = HGCalTypes::layerFrontBack(layerOrient_[layer]);
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                            : static_cast<int>(waferIndex_.size()));
