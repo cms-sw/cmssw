@@ -1,6 +1,3 @@
-<architecture name="slc6_amd64">
-  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
-</architecture>
 <bin name="cmsRunGlibC" file="cmsRun.cpp">
   <use name="roothistmatrix"/>
   <use name="tbb"/>
@@ -76,7 +73,7 @@
   <use name="tbb"/>
   <use name="boost"/>
   <use name="boost_program_options"/>
-  <use name="jemalloc"/>
+  <use name="tcmalloc"/>
   <use name="gperf"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>

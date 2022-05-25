@@ -135,10 +135,11 @@ namespace mkfit {
 
     builder.begin_event(&job, &ev, __func__);
 
+    bool seeds_sorted = false;
     // CCCC builder.PrepareSeeds();
 
     // EventOfCandidates event_of_cands;
-    builder.find_tracks_load_seeds_BH(ev.seedTracks_);
+    builder.find_tracks_load_seeds_BH(ev.seedTracks_, seeds_sorted);
 
 #ifdef USE_VTUNE_PAUSE
     __SSC_MARK(0x111);  // use this to resume Intel SDE at the same point
@@ -221,9 +222,10 @@ namespace mkfit {
 
     builder.begin_event(&job, &ev, __func__);
 
+    bool seeds_sorted = false;
     // CCCC builder.PrepareSeeds();
 
-    builder.find_tracks_load_seeds(ev.seedTracks_);
+    builder.find_tracks_load_seeds(ev.seedTracks_, seeds_sorted);
 
 #ifdef USE_VTUNE_PAUSE
     __SSC_MARK(0x111);  // use this to resume Intel SDE at the same point
@@ -307,9 +309,10 @@ namespace mkfit {
 
     builder.begin_event(&job, &ev, __func__);
 
+    bool seeds_sorted = false;
     // CCCC builder.PrepareSeeds();
 
-    builder.find_tracks_load_seeds(ev.seedTracks_);
+    builder.find_tracks_load_seeds(ev.seedTracks_, seeds_sorted);
 
 #ifdef USE_VTUNE_PAUSE
     __SSC_MARK(0x111);  // use this to resume Intel SDE at the same point
@@ -446,7 +449,7 @@ namespace mkfit {
       if (seeds.size() <= 0)
         continue;
 
-      builder.find_tracks_load_seeds(seeds);
+      builder.find_tracks_load_seeds(seeds, itconf.m_requires_dupclean_tight);
 
       double time = dtime();
 

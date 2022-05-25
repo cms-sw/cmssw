@@ -43,18 +43,8 @@ ExternalDecayDriver::ExternalDecayDriver(const ParameterSet& pset, edm::Consumes
     } else if (curSet == "Tauola" || curSet == "Tauolapp" || curSet == "Tauolapp114") {
       fTauolaInterface = std::unique_ptr<TauolaInterfaceBase>(
           TauolaFactory::get()->create("Tauolapp114", pset.getUntrackedParameter<ParameterSet>(curSet), iCollector));
-      fPhotosInterface = std::unique_ptr<PhotosInterfaceBase>(
-          PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter<ParameterSet>(curSet)));
-      fPhotosInterface->configureOnlyFor(15);
-      fPhotosInterface->avoidTauLeptonicDecays();
       exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
       exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
-    } else if (curSet == "Photos" || curSet == "Photos2155") {
-      if (!fPhotosInterface) {
-        fPhotosInterface = std::unique_ptr<PhotosInterfaceBase>(
-            PhotosFactory::get()->create("Photos2155", pset.getUntrackedParameter<ParameterSet>(curSet)));
-        exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
-      }
     } else if (curSet == "Photospp" || curSet == "Photospp356") {
       if (!fPhotosInterface) {
         fPhotosInterface = std::unique_ptr<PhotosInterfaceBase>(

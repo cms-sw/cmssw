@@ -257,7 +257,7 @@ namespace edm {
         shouldWeStop_(false),
         fileModeNoMerge_(false),
         exceptionMessageFiles_(),
-        exceptionMessageRuns_(),
+        exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
@@ -293,12 +293,11 @@ namespace edm {
         shouldWeStop_(false),
         fileModeNoMerge_(false),
         exceptionMessageFiles_(),
-        exceptionMessageRuns_(),
+        exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
         forceESCacheClearOnNewRun_(false),
-        asyncStopRequestedWhileProcessingEvents_(false),
         eventSetupDataToExcludeFromPrefetching_() {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
@@ -330,12 +329,11 @@ namespace edm {
         shouldWeStop_(false),
         fileModeNoMerge_(false),
         exceptionMessageFiles_(),
-        exceptionMessageRuns_(),
+        exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
         forceESCacheClearOnNewRun_(false),
-        asyncStopRequestedWhileProcessingEvents_(false),
         eventSetupDataToExcludeFromPrefetching_() {
     init(processDesc, token, legacy);
   }
@@ -847,72 +845,68 @@ namespace edm {
   edm::LuminosityBlockNumber_t EventProcessor::nextLuminosityBlockID() { return input_->luminosityBlock(); }
 
   EventProcessor::StatusCode EventProcessor::runToCompletion() {
-    StatusCode returnCode = epSuccess;
-    asyncStopStatusCodeFromProcessingEvents_ = epSuccess;
-    {
-      beginJob();  //make sure this was called
+    beginJob();  //make sure this was called
 
-      // make the services available
-      ServiceRegistry::Operate operate(serviceToken_);
+    // make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
 
-      asyncStopRequestedWhileProcessingEvents_ = false;
-      try {
-        FilesProcessor fp(fileModeNoMerge_);
+    try {
+      FilesProcessor fp(fileModeNoMerge_);
 
-        convertException::wrap([&]() {
-          bool firstTime = true;
-          do {
-            if (not firstTime) {
-              prepareForNextLoop();
-              rewindInput();
-            } else {
-              firstTime = false;
-            }
-            startingNewLoop();
-
-            auto trans = fp.processFiles(*this);
-
-            fp.normalEnd();
-
-            if (deferredExceptionPtrIsSet_.load()) {
-              std::rethrow_exception(deferredExceptionPtr_);
-            }
-            if (trans != InputSource::IsStop) {
-              //problem with the source
-              doErrorStuff();
-
-              throw cms::Exception("BadTransition") << "Unexpected transition change " << trans;
-            }
-          } while (not endOfLoop());
-        });  // convertException::wrap
-
-      }  // Try block
-      catch (cms::Exception& e) {
-        if (exceptionMessageLumis_) {
-          std::string message(
-              "Another exception was caught while trying to clean up lumis after the primary fatal exception.");
-          e.addAdditionalInfo(message);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << message;
+      convertException::wrap([&]() {
+        bool firstTime = true;
+        do {
+          if (not firstTime) {
+            prepareForNextLoop();
+            rewindInput();
+          } else {
+            firstTime = false;
           }
-        }
-        if (!exceptionMessageRuns_.empty()) {
-          e.addAdditionalInfo(exceptionMessageRuns_);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageRuns_;
+          startingNewLoop();
+
+          auto trans = fp.processFiles(*this);
+
+          fp.normalEnd();
+
+          if (deferredExceptionPtrIsSet_.load()) {
+            std::rethrow_exception(deferredExceptionPtr_);
           }
-        }
-        if (!exceptionMessageFiles_.empty()) {
-          e.addAdditionalInfo(exceptionMessageFiles_);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageFiles_;
+          if (trans != InputSource::IsStop) {
+            //problem with the source
+            doErrorStuff();
+
+            throw cms::Exception("BadTransition") << "Unexpected transition change " << trans;
           }
+        } while (not endOfLoop());
+      });  // convertException::wrap
+
+    }  // Try block
+    catch (cms::Exception& e) {
+      if (exceptionMessageLumis_) {
+        std::string message(
+            "Another exception was caught while trying to clean up lumis after the primary fatal exception.");
+        e.addAdditionalInfo(message);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << message;
         }
-        throw;
       }
+      if (exceptionMessageRuns_) {
+        std::string message(
+            "Another exception was caught while trying to clean up runs after the primary fatal exception.");
+        e.addAdditionalInfo(message);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << message;
+        }
+      }
+      if (!exceptionMessageFiles_.empty()) {
+        e.addAdditionalInfo(exceptionMessageFiles_);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << exceptionMessageFiles_;
+        }
+      }
+      throw;
     }
-
-    return returnCode;
+    return epSuccess;
   }
 
   void EventProcessor::readFile() {
@@ -1146,7 +1140,9 @@ namespace edm {
     }
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
+      actReg_->preESSyncIOVSignal_.emit(ts);
       synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
+      actReg_->postESSyncIOVSignal_.emit(ts);
       eventSetupForInstanceSucceeded = true;
       sentry.completedSuccessfully();
     }
@@ -1232,17 +1228,19 @@ namespace edm {
       endRun(phid, run, globalBeginSucceeded, cleaningUpAfterException);
 
       if (globalBeginSucceeded) {
-        FinalWaitingTask t;
         RunPrincipal& runPrincipal = principalCache_.runPrincipal(phid, run);
-        MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
-        mergeableRunProductMetadata->preWriteRun();
-        writeRunAsync(edm::WaitingTaskHolder{taskGroup_, &t}, phid, run, mergeableRunProductMetadata);
-        do {
-          taskGroup_.wait();
-        } while (not t.done());
-        mergeableRunProductMetadata->postWriteRun();
-        if (t.exceptionPtr()) {
-          std::rethrow_exception(*t.exceptionPtr());
+        if (runPrincipal.shouldWriteRun() != RunPrincipal::kNo) {
+          FinalWaitingTask t;
+          MergeableRunProductMetadata* mergeableRunProductMetadata = runPrincipal.mergeableRunProductMetadata();
+          mergeableRunProductMetadata->preWriteRun();
+          writeRunAsync(edm::WaitingTaskHolder{taskGroup_, &t}, phid, run, mergeableRunProductMetadata);
+          do {
+            taskGroup_.wait();
+          } while (not t.done());
+          mergeableRunProductMetadata->postWriteRun();
+          if (t.exceptionPtr()) {
+            std::rethrow_exception(*t.exceptionPtr());
+          }
         }
       }
     }
@@ -1261,7 +1259,9 @@ namespace edm {
         runPrincipal.endTime());
     {
       SendSourceTerminationSignalIfException sentry(actReg_.get());
+      actReg_->preESSyncIOVSignal_.emit(ts);
       synchronousEventSetupForInstance(ts, taskGroup_, *espController_);
+      actReg_->postESSyncIOVSignal_.emit(ts);
       sentry.completedSuccessfully();
     }
     auto const& es = esp_->eventSetupImpl();
@@ -1344,6 +1344,7 @@ namespace edm {
       return;
     }
 
+    actReg_->esSyncIOVQueuingSignal_.emit(iSync);
     // We must be careful with the status object here and in code this function calls. IF we want
     // endRun to be called, then we must call resetResources before the things waiting on
     // iHolder are allowed to proceed. Otherwise, there will be race condition (possibly causing
@@ -1368,6 +1369,7 @@ namespace edm {
           // need to be processed and prepare IOVs for it.
           // Pass in the endIOVWaitingTasks so the lumi can notify them when the
           // lumi is done and no longer needs its EventSetup IOVs.
+          actReg->preESSyncIOVSignal_.emit(iSync);
           espController->eventSetupForInstanceAsync(
               iSync, task, status->endIOVWaitingTasks(), status->eventSetupImpls());
           sentry.completedSuccessfully();
@@ -1389,7 +1391,8 @@ namespace edm {
         asyncEventSetup(
             actReg_.get(), espController_.get(), queueWhichWaitsForIOVsToFinish_, std::move(nextTask), status, iSync);
       }
-    }) | chain::then([this, status](std::exception_ptr const* iPtr, auto nextTask) {
+    }) | chain::then([this, status, iSync](std::exception_ptr const* iPtr, auto nextTask) {
+      actReg_->postESSyncIOVSignal_.emit(iSync);
       //the call to doneWaiting will cause the count to decrement
       auto copyTask = nextTask;
       if (iPtr) {
@@ -1782,7 +1785,7 @@ namespace edm {
 
   void EventProcessor::writeLumiAsync(WaitingTaskHolder task, LuminosityBlockPrincipal& lumiPrincipal) {
     using namespace edm::waiting_task;
-    if (not lumiPrincipal.willBeContinued()) {
+    if (lumiPrincipal.shouldWriteLumi() != LuminosityBlockPrincipal::kNo) {
       chain::first([&](auto nextTask) {
         ServiceRegistry::Operate op(serviceToken_);
 
@@ -1801,6 +1804,7 @@ namespace edm {
     for (auto& s : subProcesses_) {
       s.deleteLumiFromCache(*iStatus.lumiPrincipal());
     }
+    iStatus.lumiPrincipal()->setShouldWriteLumi(LuminosityBlockPrincipal::kUninitialized);
     iStatus.lumiPrincipal()->clearPrincipal();
     //FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
@@ -2016,7 +2020,7 @@ namespace edm {
 
   void EventProcessor::setExceptionMessageFiles(std::string& message) { exceptionMessageFiles_ = message; }
 
-  void EventProcessor::setExceptionMessageRuns(std::string& message) { exceptionMessageRuns_ = message; }
+  void EventProcessor::setExceptionMessageRuns() { exceptionMessageRuns_ = true; }
 
   void EventProcessor::setExceptionMessageLumis() { exceptionMessageLumis_ = true; }
 

@@ -1,7 +1,6 @@
 #include "MkFinder.h"
 
 #include "CandCloner.h"
-#include "RecoTracker/MkFitCore/interface/HitStructures.h"
 #include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 #include "FindingFoos.h"
 
@@ -228,7 +227,8 @@ namespace mkfit {
 
   void MkFinder::selectHitIndices(const LayerOfHits &layer_of_hits, const int N_proc) {
     // bool debug = true;
-
+    using bidx_t = LayerOfHits::bin_index_t;
+    using bcnt_t = LayerOfHits::bin_content_t;
     const LayerOfHits &L = layer_of_hits;
     const IterationLayerConfig &ILC = *m_iteration_layer_config;
 
@@ -243,7 +243,7 @@ namespace mkfit {
             N_proc);
 
     float dqv[NN], dphiv[NN], qv[NN], phiv[NN];
-    int qb1v[NN], qb2v[NN], qbv[NN], pb1v[NN], pb2v[NN];
+    bidx_t qb1v[NN], qb2v[NN], qbv[NN], pb1v[NN], pb2v[NN];
 
     const auto assignbins = [&](int itrack,
                                 float q,
@@ -265,8 +265,8 @@ namespace mkfit {
       qbv[itrack] = L.qBinChecked(q);
       qb1v[itrack] = L.qBinChecked(q - dq);
       qb2v[itrack] = L.qBinChecked(q + dq) + 1;
-      pb1v[itrack] = L.phiBin(phi - dphi);
-      pb2v[itrack] = L.phiBin(phi + dphi) + 1;
+      pb1v[itrack] = L.phiBinChecked(phi - dphi);
+      pb2v[itrack] = L.phiMaskApply(L.phiBin(phi + dphi) + 1);
     };
 
     const auto calcdphi2 = [&](int itrack, float dphidx, float dphidy) {
@@ -363,30 +363,22 @@ namespace mkfit {
         continue;
       }
 
-      const int qb = qbv[itrack];
-      const int qb1 = qb1v[itrack];
-      const int qb2 = qb2v[itrack];
-      const int pb1 = pb1v[itrack];
-      const int pb2 = pb2v[itrack];
+      const bidx_t qb = qbv[itrack];
+      const bidx_t qb1 = qb1v[itrack];
+      const bidx_t qb2 = qb2v[itrack];
+      const bidx_t pb1 = pb1v[itrack];
+      const bidx_t pb2 = pb2v[itrack];
 
       // Used only by usePhiQArrays
       const float q = qv[itrack];
       const float phi = phiv[itrack];
       const float dphi = dphiv[itrack];
       const float dq = dqv[itrack];
-
-      dprintf("  %2d/%2d: %6.3f %6.3f %6.6f %7.5f %3d %3d %4d %4d\n",
-              L.layer_id(),
-              itrack,
-              q,
-              phi,
-              dq,
-              dphi,
-              qb1,
-              qb2,
-              pb1,
-              pb2);
-
+      // clang-format off
+      dprintf("  %2d/%2d: %6.3f %6.3f %6.6f %7.5f %3u %3u %4u %4u\n",
+              L.layer_id(), itrack, q, phi, dq, dphi,
+              qb1, qb2, pb1, pb2);
+      // clang-format on
       // MT: One could iterate in "spiral" order, to pick hits close to the center.
       // http://stackoverflow.com/questions/398299/looping-in-a-spiral
       // This would then work best with relatively small bin sizes.
@@ -417,13 +409,11 @@ namespace mkfit {
       }
 #endif
 
-      for (int qi = qb1; qi < qb2; ++qi) {
-        for (int pi = pb1; pi < pb2; ++pi) {
-          const int pb = L.phiMaskApply(pi);
-
+      for (bidx_t qi = qb1; qi != qb2; ++qi) {
+        for (bidx_t pi = pb1; pi != pb2; pi = L.phiMaskApply(pi + 1)) {
           // Limit to central Q-bin
-          if (qi == qb && L.phi_bin_dead(qi, pb) == true) {
-            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pb=" << pb << " q=" << q
+          if (qi == qb && L.isBinDead(pi, qi) == true) {
+            dprint("dead module for track in layer=" << L.layer_id() << " qb=" << qi << " pi=" << pi << " q=" << q
                                                      << " phi=" << phi);
             m_XWsrResult[itrack].m_in_gap = true;
           }
@@ -436,15 +426,15 @@ namespace mkfit {
 
           //SK: ~20x1024 bin sizes give mostly 1 hit per bin. Commented out for 128 bins or less
           // #pragma nounroll
-          auto pbi = L.phi_bin_info(qi, pb);
-          for (uint16_t hi = pbi.first; hi < pbi.second; ++hi) {
+          auto pbi = L.phiQBinContent(pi, qi);
+          for (bcnt_t hi = pbi.begin(); hi < pbi.end(); ++hi) {
             // MT: Access into m_hit_zs and m_hit_phis is 1% run-time each.
 
-            int hi_orig = L.getOriginalHitIndex(hi);
+            unsigned int hi_orig = L.getOriginalHitIndex(hi);
 
             if (m_iteration_hit_mask && (*m_iteration_hit_mask)[hi_orig]) {
               dprintf(
-                  "Yay, denying masked hit on layer %d, hi %d, orig idx %d\n", L.layer_info()->layer_id(), hi, hi_orig);
+                  "Yay, denying masked hit on layer %u, hi %u, orig idx %u\n", L.layer_info()->layer_id(), hi, hi_orig);
               continue;
             }
 
@@ -584,85 +574,44 @@ namespace mkfit {
 
                 if (!(std::isnan(phi)) && !(std::isnan(getEta(m_Par[iI].At(itrack, 5, 0))))) {
                   //|| std::isnan(ter) || std::isnan(her) || std::isnan(m_Chi2(itrack, 0, 0)) || std::isnan(hchi2)))
-                  printf(
-                      "HITWINDOWSEL "
-                      "%d "
-                      "%d %d %d "
-                      "%d %d %d "
-                      "%6.3f %6.3f %6.3f %6.3f "
-                      "%d "
-                      "%d %d %d %d "
-                      "%d "
-                      "%d %d %d "
-                      "%6.3f %6.3f %6.3f "
-                      "%d %d %6.3f %6.3f "
-                      "%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f "
-                      "%6.3f %6.3f %6.3f %6.3f %6.3f "
-                      "%6.6f %6.6f %6.6f %6.6f %6.6f "
-                      "%6.3f %6.3f %6.3f %6.3f %6.3f "
-                      "%6.6f %6.6f %6.6f %6.6f %6.6f "
-                      "%6.3f %6.3f %6.3f "
-                      "%6.3f"
-                      "\n",
-                      m_event->evtID(),
-                      L.layer_id(),
-                      L.is_barrel(),
-                      L.getOriginalHitIndex(hi),
-                      itrack,
-                      m_CandIdx(itrack, 0, 0),
-                      m_Label(itrack, 0, 0),
-                      1.0f / m_Par[iI].At(itrack, 3, 0),
-                      getEta(m_Par[iI].At(itrack, 5, 0)),
-                      m_Par[iI].At(itrack, 4, 0),
-                      m_Chi2(itrack, 0, 0),
-                      m_NFoundHits(itrack, 0, 0),
-                      m_SeedIdx(itrack, 0, 0),
-                      m_SeedLabel(itrack, 0, 0),
-                      m_SeedAlgo(itrack, 0, 0),
-                      thisseedmcid,
-                      mchid,
-                      st_isfindable,
-                      st_prodtype,
-                      st_label,
-                      st_pt,
-                      st_eta,
-                      st_phi,
-                      st_nhits,
-                      st_charge,
-                      st_r,
-                      st_z,
-                      q,
-                      L.hit_q(hi),
-                      ddq,
-                      dq,
-                      phi,
-                      L.hit_phi(hi),
-                      ddphi,
-                      dphi,
-                      tx,
-                      ty,
-                      tr,
-                      tphi,
-                      tz,
-                      tex,
-                      tey,
-                      ter,
-                      tephi,
-                      tez,
-                      hx,
-                      hy,
-                      hr,
-                      hphi,
-                      hz,
-                      hex,
-                      hey,
-                      her,
-                      hephi,
-                      hez,
-                      ht_dxy,
-                      ht_dz,
-                      ht_dphi,
-                      hchi2);
+                  // clang-format off
+                  printf("HITWINDOWSEL "
+                         "%d "
+                         "%d %d %d "
+                         "%d %d %d "
+                         "%6.3f %6.3f %6.3f %6.3f "
+                         "%d "
+                         "%d %d %d %d "
+                         "%d "
+                         "%d %d %d "
+                         "%6.3f %6.3f %6.3f "
+                         "%d %d %6.3f %6.3f "
+                         "%6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f %6.3f "
+                         "%6.3f %6.3f %6.3f %6.3f %6.3f "
+                         "%6.6f %6.6f %6.6f %6.6f %6.6f "
+                         "%6.3f %6.3f %6.3f %6.3f %6.3f "
+                         "%6.6f %6.6f %6.6f %6.6f %6.6f "
+                         "%6.3f %6.3f %6.3f "
+                         "%6.3f"
+                         "\n",
+                         m_event->evtID(),
+                         L.layer_id(), L.is_barrel(), L.getOriginalHitIndex(hi),
+                         itrack, m_CandIdx(itrack, 0, 0), m_Label(itrack, 0, 0),
+                         1.0f / m_Par[iI].At(itrack, 3, 0), getEta(m_Par[iI].At(itrack, 5, 0)), m_Par[iI].At(itrack, 4, 0), m_Chi2(itrack, 0, 0),
+                         m_NFoundHits(itrack, 0, 0),
+                         m_SeedIdx(itrack, 0, 0), m_SeedLabel(itrack, 0, 0), m_SeedAlgo(itrack, 0, 0), thisseedmcid,
+                         mchid,
+                         st_isfindable, st_prodtype, st_label,
+                         st_pt, st_eta, st_phi,
+                         st_nhits, st_charge, st_r, st_z,
+                         q, L.hit_q(hi), ddq, dq, phi, L.hit_phi(hi), ddphi, dphi,
+                         tx, ty, tr, tphi, tz,
+                         tex, tey, ter, tephi, tez,
+                         hx, hy, hr, hphi, hz,
+                         hex, hey, her, hephi, hez,
+                         ht_dxy, ht_dz, ht_dphi,
+                         hchi2);
+                  // clang-format on
                 }
               }
 #endif
@@ -671,17 +620,11 @@ namespace mkfit {
                 continue;
               if (ddphi >= dphi)
                 continue;
-
-              dprintf("     SHI %3d %4d %4d %5d  %6.3f %6.3f %6.4f %7.5f   %s\n",
-                      qi,
-                      pi,
-                      pb,
-                      hi,
-                      L.hit_q(hi),
-                      L.hit_phi(hi),
-                      ddq,
-                      ddphi,
-                      (ddq < dq && ddphi < dphi) ? "PASS" : "FAIL");
+              // clang-format off
+              dprintf("     SHI %3u %4u %5u  %6.3f %6.3f %6.4f %7.5f   %s\n",
+                      qi, pi, hi, L.hit_q(hi), L.hit_phi(hi),
+                      ddq, ddphi, (ddq < dq && ddphi < dphi) ? "PASS" : "FAIL");
+              // clang-format on
 
               // MT: Removing extra check gives full efficiency ...
               //     and means our error estimations are wrong!
@@ -808,16 +751,16 @@ namespace mkfit {
 
         add_hit(itrack, bestHit[itrack], layer_of_hits.layer_id());
       } else {
-        int fake_hit_idx = -1;
+        int fake_hit_idx = Hit::kHitMissIdx;
 
         if (m_XWsrResult[itrack].m_wsr == WSR_Edge) {
           // YYYYYY Config::store_missed_layers
-          fake_hit_idx = -3;
+          fake_hit_idx = Hit::kHitEdgeIdx;
         } else if (num_all_minus_one_hits(itrack)) {
-          fake_hit_idx = -2;
+          fake_hit_idx = Hit::kHitStopIdx;
         }
 
-        dprint("ADD FAKE HIT FOR TRACK #" << itrack << " withinBounds=" << (fake_hit_idx != -3)
+        dprint("ADD FAKE HIT FOR TRACK #" << itrack << " withinBounds=" << (fake_hit_idx != Hit::kHitEdgeIdx)
                                           << " r=" << std::hypot(m_Par[iP](itrack, 0, 0), m_Par[iP](itrack, 1, 0)));
 
         m_msErr.setDiagonal3x3(itrack, 666);
@@ -940,7 +883,9 @@ namespace mkfit {
     }
 
     dprintf("FindCandidates max hits to process=%d\n", maxSize);
+
     int nHitsAdded[NN]{};
+    bool isTooLargeCluster[NN]{false};
 
     for (int hit_cnt = 0; hit_cnt < maxSize; ++hit_cnt) {
       mhp.reset();
@@ -987,7 +932,7 @@ namespace mkfit {
           dprint("chi2=" << chi2);
           if (chi2 < max_c2) {
             bool isCompatible = true;
-            if (!layer_of_hits.is_pix_lyr()) {
+            if (!layer_of_hits.is_pixel()) {
               //check module compatibility via long strip side = L/sqrt(12)
               isCompatible =
                   isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
@@ -996,6 +941,15 @@ namespace mkfit {
               isCompatible &= passStripChargePCMfromTrack(
                   itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
             }
+            // Select only SiStrip hits with cluster size < maxClusterSize
+            if (!layer_of_hits.is_pixel()) {
+              if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+                  m_iteration_params->maxClusterSize) {
+                isTooLargeCluster[itrack] = true;
+                isCompatible = false;
+              }
+            }
+
             if (isCompatible) {
               oneCandPassCut = true;
               break;
@@ -1025,7 +979,7 @@ namespace mkfit {
                                    << "   updated track parameters x=" << m_Par[iC].constAt(0, 0, 0)
                                    << " y=" << m_Par[iC].constAt(0, 1, 0));
 
-        //create candidate with hit in case chi2 < m_iteration_params->chi2Cut_min
+        //create candidate with hit in case chi2 < max_c2
         //fixme: please vectorize me... (not sure it's possible in this case)
         for (int itrack = 0; itrack < N_proc; ++itrack) {
           float max_c2 = getHitSelDynamicChi2Cut(itrack, iP);
@@ -1035,7 +989,7 @@ namespace mkfit {
             dprint("chi2=" << chi2);
             if (chi2 < max_c2) {
               bool isCompatible = true;
-              if (!layer_of_hits.is_pix_lyr()) {
+              if (!layer_of_hits.is_pixel()) {
                 //check module compatibility via long strip side = L/sqrt(12)
                 isCompatible =
                     isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
@@ -1044,10 +998,17 @@ namespace mkfit {
                 isCompatible &= passStripChargePCMfromTrack(
                     itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
               }
+              // Select only SiStrip hits with cluster size < maxClusterSize
+              if (!layer_of_hits.is_pixel()) {
+                if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+                    m_iteration_params->maxClusterSize)
+                  isCompatible = false;
+              }
+
               if (isCompatible) {
                 bool hitExists = false;
                 int maxHits = m_NFoundHits(itrack, 0, 0);
-                if (layer_of_hits.is_pix_lyr()) {
+                if (layer_of_hits.is_pixel()) {
                   for (int i = 0; i <= maxHits; ++i) {
                     if (i > 2)
                       break;
@@ -1074,7 +1035,8 @@ namespace mkfit {
                 newcand.setScore(getScoreCand(newcand, true /*penalizeTailMissHits*/, true /*inFindCandidates*/));
                 newcand.setOriginIndex(m_CandIdx(itrack, 0, 0));
 
-                if (chi2 < m_iteration_params->chi2CutOverlap) {
+                // To apply a fixed cut instead of dynamic cut for overlap: m_iteration_params->chi2CutOverlap
+                if (chi2 < max_c2) {
                   CombCandidate &ccand = *newcand.combCandidate();
                   ccand[m_CandIdx(itrack, 0, 0)].considerHitForOverlap(
                       hit_idx, layer_of_hits.refHit(hit_idx).detIDinLayer(), chi2);
@@ -1104,19 +1066,23 @@ namespace mkfit {
 
       int fake_hit_idx = ((num_all_minus_one_hits(itrack) < m_iteration_params->maxHolesPerCand) &&
                           (m_NTailMinusOneHits(itrack, 0, 0) < m_iteration_params->maxConsecHoles))
-                             ? -1
-                             : -2;
+                             ? Hit::kHitMissIdx
+                             : Hit::kHitStopIdx;
 
       if (m_XWsrResult[itrack].m_wsr == WSR_Edge) {
         // YYYYYY m_iteration_params->store_missed_layers
-        fake_hit_idx = -3;
+        fake_hit_idx = Hit::kHitEdgeIdx;
       }
       //now add fake hit for tracks that passsed through inactive modules
       else if (m_XWsrResult[itrack].m_in_gap == true && nHitsAdded[itrack] == 0) {
-        fake_hit_idx = -7;
+        fake_hit_idx = Hit::kHitInGapIdx;
+      }
+      //now add fake hit for cases where hit cluster size is larger than maxClusterSize
+      else if (isTooLargeCluster[itrack] == true && nHitsAdded[itrack] == 0) {
+        fake_hit_idx = Hit::kHitMaxClusterIdx;
       }
 
-      dprint("ADD FAKE HIT FOR TRACK #" << itrack << " withinBounds=" << (fake_hit_idx != -3)
+      dprint("ADD FAKE HIT FOR TRACK #" << itrack << " withinBounds=" << (fake_hit_idx != Hit::kHitEdgeIdx)
                                         << " r=" << std::hypot(m_Par[iP](itrack, 0, 0), m_Par[iP](itrack, 1, 0)));
 
       // QQQ as above, only create and add if score better
@@ -1156,7 +1122,9 @@ namespace mkfit {
     }
 
     dprintf("FindCandidatesCloneEngine max hits to process=%d\n", maxSize);
+
     int nHitsAdded[NN]{};
+    bool isTooLargeCluster[NN]{false};
 
     for (int hit_cnt = 0; hit_cnt < maxSize; ++hit_cnt) {
       mhp.reset();
@@ -1201,7 +1169,7 @@ namespace mkfit {
           dprint("chi2=" << chi2 << " for trkIdx=" << itrack << " hitIdx=" << m_XHitArr.At(itrack, hit_cnt, 0));
           if (chi2 < max_c2) {
             bool isCompatible = true;
-            if (!layer_of_hits.is_pix_lyr()) {
+            if (!layer_of_hits.is_pixel()) {
               //check module compatibility via long strip side = L/sqrt(12)
               isCompatible =
                   isStripQCompatible(itrack, layer_of_hits.is_barrel(), m_Err[iP], propPar, m_msErr, m_msPar);
@@ -1211,11 +1179,20 @@ namespace mkfit {
                   itrack, layer_of_hits.is_barrel(), charge_pcm[itrack], Hit::minChargePerCM(), propPar, m_msErr);
             }
 
+            // Select only SiStrip hits with cluster size < maxClusterSize
+            if (!layer_of_hits.is_pixel()) {
+              if (layer_of_hits.refHit(m_XHitArr.At(itrack, hit_cnt, 0)).spanRows() >=
+                  m_iteration_params->maxClusterSize) {
+                isTooLargeCluster[itrack] = true;
+                isCompatible = false;
+              }
+            }
+
             if (isCompatible) {
               CombCandidate &ccand = cloner.combCandWithOriginalIndex(m_SeedIdx(itrack, 0, 0));
               bool hitExists = false;
               int maxHits = m_NFoundHits(itrack, 0, 0);
-              if (layer_of_hits.is_pix_lyr()) {
+              if (layer_of_hits.is_pixel()) {
                 for (int i = 0; i <= maxHits; ++i) {
                   if (i > 2)
                     break;
@@ -1231,8 +1208,9 @@ namespace mkfit {
               nHitsAdded[itrack]++;
               const int hit_idx = m_XHitArr.At(itrack, hit_cnt, 0);
 
-              // Register hit for overlap consideration, here we apply chi2 cut
-              if (chi2 < m_iteration_params->chi2CutOverlap) {
+              // Register hit for overlap consideration, if chi2 cut is passed
+              // To apply a fixed cut instead of dynamic cut for overlap: m_iteration_params->chi2CutOverlap
+              if (chi2 < max_c2) {
                 ccand[m_CandIdx(itrack, 0, 0)].considerHitForOverlap(
                     hit_idx, layer_of_hits.refHit(hit_idx).detIDinLayer(), chi2);
               }
@@ -1273,15 +1251,19 @@ namespace mkfit {
       // int fake_hit_idx = num_all_minus_one_hits(itrack) < m_iteration_params->maxHolesPerCand ? -1 : -2;
       int fake_hit_idx = ((num_all_minus_one_hits(itrack) < m_iteration_params->maxHolesPerCand) &&
                           (m_NTailMinusOneHits(itrack, 0, 0) < m_iteration_params->maxConsecHoles))
-                             ? -1
-                             : -2;
+                             ? Hit::kHitMissIdx
+                             : Hit::kHitStopIdx;
 
       if (m_XWsrResult[itrack].m_wsr == WSR_Edge) {
-        fake_hit_idx = -3;
+        fake_hit_idx = Hit::kHitEdgeIdx;
       }
       //now add fake hit for tracks that passsed through inactive modules
       else if (m_XWsrResult[itrack].m_in_gap == true && nHitsAdded[itrack] == 0) {
-        fake_hit_idx = -7;
+        fake_hit_idx = Hit::kHitInGapIdx;
+      }
+      //now add fake hit for cases where hit cluster size is larger than maxClusterSize
+      else if (isTooLargeCluster[itrack] == true && nHitsAdded[itrack] == 0) {
+        fake_hit_idx = Hit::kHitMaxClusterIdx;
       }
 
       IdxChi2List tmpList;
@@ -1289,8 +1271,8 @@ namespace mkfit {
       tmpList.hitIdx = fake_hit_idx;
       tmpList.module = -1;
       tmpList.nhits = m_NFoundHits(itrack, 0, 0);
-      tmpList.ntailholes =
-          (fake_hit_idx == -1 ? m_NTailMinusOneHits(itrack, 0, 0) + 1 : m_NTailMinusOneHits(itrack, 0, 0));
+      tmpList.ntailholes = (fake_hit_idx == Hit::kHitMissIdx ? m_NTailMinusOneHits(itrack, 0, 0) + 1
+                                                             : m_NTailMinusOneHits(itrack, 0, 0));
       tmpList.noverlaps = m_NOverlapHits(itrack, 0, 0);
       tmpList.nholes = num_inside_minus_one_hits(itrack);
       tmpList.pt = std::abs(1.0f / m_Par[iP].At(itrack, 3, 0));

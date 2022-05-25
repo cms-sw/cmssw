@@ -178,6 +178,19 @@ RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 #
 #
+# HLTONLY Data Tier definition
+#
+#
+HLTONLYEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
+)
+HLTONLYEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+HLTONLYEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+HLTONLYEventContent.outputCommands.extend(['drop  FEDRawDataCollection_rawDataCollector_*_*',
+                                           'drop  FEDRawDataCollection_source_*_*'])
+#
+#
 # RECO Data Tier definition
 #
 #
@@ -382,6 +395,12 @@ RAWRECODEBUGHLTEventContent = cms.PSet(
 RAWRECODEBUGHLTEventContent.outputCommands.extend(RAWRECOSIMHLTEventContent.outputCommands)
 RAWRECODEBUGHLTEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputCommands)
 RAWRECODEBUGHLTEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
+#
+#
+# HLTONLYSIM Data Tier definition
+#
+#
+HLTONLYSIMEventContent = HLTONLYEventContent.clone()
 #
 #
 # RECOSIM Data Tier definition

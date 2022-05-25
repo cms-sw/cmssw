@@ -92,6 +92,9 @@ If an `edm::GlobalCache` of type `T` is needed, there are two changes:
     }
     ```
 
+For `TritonEDProducer` and `TritonEDFilter`, the function `tritonEndStream()` replaces the standard `endStream()`.
+For `TritonOneEDAnalyzer`, the function `tritonEndJob()` replaces the standard `endJob()`.
+
 In a SONIC Triton producer, the basic flow should follow this pattern:
 1. `acquire()`:  
     a. access input object(s) from `TritonInputMap`  
@@ -123,7 +126,7 @@ The script has two operations (`start` and `stop`) and the following options:
 * `-s [dir]`: Singularity sandbox directory (default: /cvmfs/unpacked.cern.ch/registry.hub.docker.com/fastml/triton-torchgeo:20.09-py3-geometric)
 * `-t [dir]`: non-default hidden temporary dir
 * `-v`: (verbose) start: activate server debugging info; stop: keep server logs
-* `-w [time]`: maximum time to wait for server to start (default: 120 seconds)
+* `-w [time]`: maximum time to wait for server to start (default: 300 seconds)
 * `-h`: print help message and exit
 
 Additional details and caveats:

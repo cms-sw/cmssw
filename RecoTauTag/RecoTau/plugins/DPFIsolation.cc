@@ -9,7 +9,7 @@
 #include "RecoTauTag/RecoTau/interface/DeepTauBase.h"
 
 namespace {
-  inline int getPFCandidateIndex(const edm::Handle<pat::PackedCandidateCollection>& pfcands,
+  inline int getPFCandidateIndex(const edm::Handle<edm::View<reco::Candidate>>& pfcands,
                                  const reco::CandidatePtr& cptr) {
     for (unsigned int i = 0; i < pfcands->size(); ++i) {
       if (reco::CandidatePtr(pfcands, i) == cptr)
@@ -42,21 +42,22 @@ public:
     desc.add<edm::InputTag>("pfcands", edm::InputTag("packedPFCandidates"));
     desc.add<edm::InputTag>("taus", edm::InputTag("slimmedTaus"));
     desc.add<edm::InputTag>("vertices", edm::InputTag("offlineSlimmedPrimaryVertices"));
-    desc.add<std::string>("graph_file", "RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb");
+    desc.add<std::vector<std::string>>("graph_file",
+                                       {"RecoTauTag/TrainingFiles/data/DPFTauId/DPFIsolation_2017v0_quantized.pb"});
     desc.add<unsigned>("version", 0);
     desc.add<bool>("mem_mapped", false);
+    desc.add<bool>("is_online", false);
 
-    edm::ParameterSetDescription descWP;
-    descWP.add<std::string>("VVVLoose", "0");
-    descWP.add<std::string>("VVLoose", "0");
-    descWP.add<std::string>("VLoose", "0");
-    descWP.add<std::string>("Loose", "0");
-    descWP.add<std::string>("Medium", "0");
-    descWP.add<std::string>("Tight", "0");
-    descWP.add<std::string>("VTight", "0");
-    descWP.add<std::string>("VVTight", "0");
-    descWP.add<std::string>("VVVTight", "0");
-    desc.add<edm::ParameterSetDescription>("VSallWP", descWP);
+    //pre-discriminants
+    edm::ParameterSetDescription pset_Prediscriminants;
+    pset_Prediscriminants.add<std::string>("BooleanOperator", "and");
+    edm::ParameterSetDescription psd1;
+    psd1.add<double>("cut");
+    psd1.add<edm::InputTag>("Producer");
+    pset_Prediscriminants.addOptional<edm::ParameterSetDescription>("decayMode", psd1);
+    desc.add<edm::ParameterSetDescription>("Prediscriminants", pset_Prediscriminants);
+
+    desc.add<std::vector<std::string>>("VSallWP", {"0"});
     descriptions.add("DPFTau2016v0", desc);
   }
 
@@ -71,11 +72,16 @@ public:
           shape.dim(2).size() == GetNumberOfFeatures(graphVersion)))
       throw cms::Exception("DPFIsolation")
           << "number of inputs does not match the expected inputs for the given version";
+
+    if (is_online_) {
+      throw cms::Exception("DPFIsolation") << "Online version based on reco objects in not implemented. Use offline "
+                                              "version on top of miniAOD with pat objects.";
+    }
   }
 
 private:
   tensorflow::Tensor getPredictions(edm::Event& event, edm::Handle<TauCollection> taus) override {
-    edm::Handle<pat::PackedCandidateCollection> pfcands;
+    edm::Handle<edm::View<reco::Candidate>> pfcands;
     event.getByToken(pfcandToken_, pfcands);
 
     edm::Handle<reco::VertexCollection> vertices;
@@ -161,7 +167,7 @@ private:
       });
 
       for (size_t pf_index = 0; pf_index < pfcands->size() && iPF < max_iPF; pf_index++) {
-        pat::PackedCandidate p = pfcands->at(sorted_inds.at(pf_index));
+        const pat::PackedCandidate& p = static_cast<const pat::PackedCandidate&>(pfcands->at(sorted_inds.at(pf_index)));
         float deltaR_tau_p = deltaR(p.p4(), tau.p4());
 
         if (p.pt() < 0.5)

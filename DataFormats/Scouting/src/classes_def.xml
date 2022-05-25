@@ -33,24 +33,27 @@
   <class name="Run3ScoutingPFJet" ClassVersion="3">
       <version ClassVersion="3" checksum="3819751468"/>
   </class>
-  <class name="Run3ScoutingParticle" ClassVersion="4">
+  <class name="Run3ScoutingParticle" ClassVersion="5">
       <version ClassVersion="3" checksum="1672617274"/>
       <version ClassVersion="4" checksum="1541586682"/>
+      <version ClassVersion="5" checksum="2425016900"/>
   </class>
   <class name="Run3ScoutingVertex" ClassVersion="3">
       <version ClassVersion="3" checksum="316446070"/>
   </class>
-  <class name="Run3ScoutingElectron" ClassVersion="4">
+  <class name="Run3ScoutingElectron" ClassVersion="5">
       <version ClassVersion="3" checksum="1086011373"/>
       <version ClassVersion="4" checksum="1250202632"/>
+      <version ClassVersion="5" checksum="2230390721"/>
   </class>
   <class name="Run3ScoutingMuon" ClassVersion="4">
       <version ClassVersion="3" checksum="3882497397"/>
       <version ClassVersion="4" checksum="4206297195"/>
   </class>
-  <class name="Run3ScoutingPhoton" ClassVersion="4">
+  <class name="Run3ScoutingPhoton" ClassVersion="5">
       <version ClassVersion="3" checksum="1683146807"/>
       <version ClassVersion="4" checksum="1725280278"/>
+      <version ClassVersion="5" checksum="1238010495"/>
   </class>
   <class name="Run3ScoutingTrack" ClassVersion="3">
       <version ClassVersion="3" checksum="3352318277"/>

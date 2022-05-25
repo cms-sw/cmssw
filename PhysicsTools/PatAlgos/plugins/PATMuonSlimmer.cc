@@ -33,7 +33,8 @@ namespace pat {
     const edm::EDGetTokenT<pat::MuonCollection> src_;
     std::vector<edm::EDGetTokenT<reco::PFCandidateCollection>> pf_;
     std::vector<edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>>> pf2pc_;
-    const bool linkToPackedPF_;
+    edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> track2LostTrack_;
+    const bool linkToPackedPF_, linkToLostTrack_;
     const StringCutObjectSelector<pat::Muon> saveTeVMuons_, dropDirectionalIso_, dropPfP4_, slimCaloVars_,
         slimKinkVars_, slimCaloMETCorr_, slimMatches_, segmentsMuonSelection_;
     const bool saveSegments_, modifyMuon_;
@@ -46,6 +47,7 @@ namespace pat {
 pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet &iConfig)
     : src_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
+      linkToLostTrack_(iConfig.getParameter<bool>("linkToLostTrack")),
       saveTeVMuons_(iConfig.getParameter<std::string>("saveTeVMuons")),
       dropDirectionalIso_(iConfig.getParameter<std::string>("dropDirectionalIso")),
       dropPfP4_(iConfig.getParameter<std::string>("dropPfP4")),
@@ -65,6 +67,10 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet &iConfig)
       pf_.push_back(consumes<reco::PFCandidateCollection>(tag));
     for (const edm::InputTag &tag : pf2pc)
       pf2pc_.push_back(consumes<edm::Association<pat::PackedCandidateCollection>>(tag));
+  }
+  if (linkToLostTrack_) {
+    track2LostTrack_ =
+        consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("lostTracks"));
   }
 
   if (modifyMuon_) {
@@ -122,6 +128,17 @@ void pat::PATMuonSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       }
     }
   }
+  if (linkToLostTrack_) {
+    const auto &trk2LT = iEvent.get(track2LostTrack_);
+    for (const auto &mu : *src) {
+      const auto &track = dynamic_cast<const reco::Muon *>(mu.originalObject())->innerTrack();
+      if (track.isNonnull() && trk2LT.contains(track.id())) {
+        const auto &lostTrack = trk2LT[track];
+        if (lostTrack.isNonnull())
+          mu2pc[mu.refToOrig_] = lostTrack;
+      }
+    }
+  }
 
   std::vector<edm::Handle<edm::Association<reco::TrackExtraCollection>>> trackExtraAssocs(trackExtraAssocs_.size());
   for (unsigned int i = 0; i < trackExtraAssocs_.size(); ++i) {
@@ -141,7 +158,7 @@ void pat::PATMuonSlimmer::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       mu.embedTpfmsMuon();
       mu.embedDytMuon();
     }
-    if (linkToPackedPF_) {
+    if (linkToPackedPF_ || linkToLostTrack_) {
       mu.refToOrig_ = refToPtr(mu2pc[mu.refToOrig_]);
     }
     if (dropDirectionalIso_(mu)) {

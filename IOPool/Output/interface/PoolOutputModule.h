@@ -216,6 +216,7 @@ namespace edm {
     bool mergeJob_;
     edm::propagate_const<std::unique_ptr<RootOutputFile>> rootOutputFile_;
     std::string statusFileName_;
+    std::string overrideGUID_;
     std::vector<std::string> processesWithSelectedMergeableRunProducts_;
   };
 }  // namespace edm

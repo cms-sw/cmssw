@@ -29,7 +29,7 @@ namespace mkfit {
       eoh.reset();
       for (int i = 0; i < eoh.nLayers(); ++i) {
         auto &&l = eoh[i];
-        l.beginRegistrationOfHits(*orig_hitvectors[l.is_pix_lyr() ? 0 : 1]);
+        l.beginRegistrationOfHits(*orig_hitvectors[l.is_pixel() ? 0 : 1]);
       }
     }
 

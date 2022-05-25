@@ -51,6 +51,7 @@ SCEnergyCorrectorSemiParm::SCEnergyCorrectorSemiParm()
       caloGeom_(nullptr),
       isHLT_(false),
       isPhaseII_(false),
+      regTrainedWithPS_(true),
       applySigmaIetaIphiBug_(false),
       nHitsAboveThresholdEB_(0),
       nHitsAboveThresholdEE_(0),
@@ -66,6 +67,7 @@ SCEnergyCorrectorSemiParm::SCEnergyCorrectorSemiParm(const edm::ParameterSet& iC
 void SCEnergyCorrectorSemiParm::fillPSetDescription(edm::ParameterSetDescription& desc) {
   desc.add<bool>("isHLT", false);
   desc.add<bool>("isPhaseII", false);
+  desc.add<bool>("regTrainedWithPS", true);
   desc.add<bool>("applySigmaIetaIphiBug", false);
   desc.add<edm::InputTag>("ecalRecHitsEE", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
   desc.add<edm::InputTag>("ecalRecHitsEB", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
@@ -140,7 +142,7 @@ std::pair<double, double> SCEnergyCorrectorSemiParm::getCorrections(const reco::
   double sigma = regParam.sigma(regData);
 
   double energyCorr = mean * sc.rawEnergy();
-  if (isHLT_ && sc.seed()->seed().det() == DetId::Ecal && seedId.subdetId() == EcalEndcap) {
+  if (isHLT_ && sc.seed()->seed().det() == DetId::Ecal && seedId.subdetId() == EcalEndcap && !regTrainedWithPS_) {
     energyCorr += sc.preshowerEnergy();
   }
   double resolutionEst = sigma * energyCorr;

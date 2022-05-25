@@ -20,7 +20,6 @@ namespace edm {
         : processHistoryID_(), id_(theId), beginTime_(theTime), endTime_(theEndTime) {}
     RunAuxiliary(RunNumber_t const& run, Timestamp const& theTime, Timestamp const& theEndTime)
         : processHistoryID_(), id_(run), beginTime_(theTime), endTime_(theEndTime) {}
-    ~RunAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID const& processHistoryID() const { return processHistoryID_; }
     void setProcessHistoryID(ProcessHistoryID const& phid) { processHistoryID_ = phid; }
@@ -45,7 +44,6 @@ namespace edm {
     // is stored here.
     ProcessHistoryID processHistoryID_;
 
-    // Run ID
     RunID id_;
     // Times from DAQ
     Timestamp beginTime_;

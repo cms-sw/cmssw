@@ -19,7 +19,7 @@ namespace egammaTools {
     std::string outputTensorName;
     std::vector<std::string> modelsFiles;
     std::vector<std::string> scalersFiles;
-    uint outputDim = 1;
+    std::vector<unsigned int> outputDim;
   };
 
   struct ScalerConfiguration {

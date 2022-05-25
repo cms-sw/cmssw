@@ -38,6 +38,7 @@ class Eras (object):
                  'Run3_pp_on_PbPb',
                  'Run3_dd4hep',
                  'Run3_DDD',
+                 'Run3_FastSim',
                  'Phase2',
                  'Phase2C9',
                  'Phase2C10',
@@ -47,16 +48,12 @@ class Eras (object):
                  'Phase2C10_dd4hep',
                  'Phase2C11_dd4hep',
                  'Phase2C11I13',
-                 'Phase2C11T22',
-                 'Phase2C11T23',
                  'Phase2C12_dd4hep',
                  'Phase2C11M9',
                  'Phase2C11I13M9',
-                 'Phase2C11I13T22M9',
-                 'Phase2C11I13T23M9',
                  'Phase2C11I13T25M9',
                  'Phase2C11I13T26M9',
-                 'Phase2C11I13T27M9',
+                 'Phase2C11I13T29M9',
                  'Phase2C17I13M9'
         ]
 

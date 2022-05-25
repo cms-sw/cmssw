@@ -24,6 +24,7 @@
 #include "FWCore/ServiceRegistry/interface/ServicePluginFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/ServiceRegistry/interface/ServicesManager.h"
+#include "FWCore/Utilities/interface/stringize.h"
 
 // system include files
 #include <memory>
@@ -94,13 +95,14 @@ namespace edm {
 }  // namespace edm
 
 #define DEFINE_FWK_SERVICE(type)                                                                                  \
-  DEFINE_EDM_PLUGIN(edm::serviceregistry::ServicePluginFactory, edm::serviceregistry::ServiceMaker<type>, #type); \
+  DEFINE_EDM_PLUGIN(                                                                                              \
+      edm::serviceregistry::ServicePluginFactory, edm::serviceregistry::ServiceMaker<type>, EDM_STRINGIZE(type)); \
   DEFINE_DESC_FILLER_FOR_SERVICES(type, type)
 
-#define DEFINE_FWK_SERVICE_MAKER(concrete, maker)                                            \
-  typedef edm::serviceregistry::ServiceMaker<maker::interface_t, maker> concrete##_##_t;     \
-  DEFINE_EDM_PLUGIN(edm::serviceregistry::ServicePluginFactory, concrete##_##_t, #concrete); \
-  typedef maker::concrete_t concrete##_##_##_t;                                              \
-  DEFINE_DESC_FILLER_FOR_SERVICES(concrete, concrete##_##_##_t)
+#define DEFINE_FWK_SERVICE_MAKER(concrete, maker)                                          \
+  typedef edm::serviceregistry::ServiceMaker<maker::interface_t, maker> concrete##__t;     \
+  DEFINE_EDM_PLUGIN(edm::serviceregistry::ServicePluginFactory, concrete##__t, #concrete); \
+  typedef maker::concrete_t concrete##___t;                                                \
+  DEFINE_DESC_FILLER_FOR_SERVICES(concrete, concrete##___t)
 
 #endif

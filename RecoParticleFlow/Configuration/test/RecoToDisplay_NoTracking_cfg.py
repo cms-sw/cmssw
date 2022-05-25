@@ -4,7 +4,7 @@ process = cms.Process("REPROD")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_4T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 #from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = autoCond['mc']
@@ -81,7 +81,7 @@ process.genReReco = cms.Sequence(process.generator+
                                  process.recoGenMET+
                                  process.particleFlowSimParticle)
 
-process.load("RecoParticleFlow.PFProducer.particleFlowCandidateChecker_cfi")
+#process.load("RecoParticleFlow.PFProducer.particleFlowCandidateChecker_cfi")
 #process.particleFlowCandidateChecker.pfCandidatesReco = cms.InputTag("particleFlow","","REPROD")
 #process.particleFlowCandidateChecker.pfCandidatesReReco = cms.InputTag("particleFlow","","REPROD2")
 #process.particleFlowCandidateChecker.pfJetsReco = cms.InputTag("ak5PFJets","","REPROD")

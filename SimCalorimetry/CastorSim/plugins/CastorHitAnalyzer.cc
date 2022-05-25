@@ -27,7 +27,8 @@ private:
   CastorSimParameterMap simParameterMap_;
   CastorHitFilter castorFilter_;
   CaloHitAnalyzer castorAnalyzer_;
-  edm::InputTag castorRecHitCollectionTag_;
+  const edm::EDGetTokenT<CastorRecHitCollection> castorRecHitToken_;
+  const edm::EDGetTokenT<CrossingFrame<PCaloHit>> castorcfToken_;
 };
 
 CastorHitAnalyzer::CastorHitAnalyzer(edm::ParameterSet const &conf)
@@ -35,13 +36,14 @@ CastorHitAnalyzer::CastorHitAnalyzer(edm::ParameterSet const &conf)
       simParameterMap_(),
       castorFilter_(),
       castorAnalyzer_("CASTOR", 1., &simParameterMap_, &castorFilter_),
-      castorRecHitCollectionTag_(conf.getParameter<edm::InputTag>("castorRecHitCollectionTag")) {}
+      castorRecHitToken_(
+          consumes<CastorRecHitCollection>(conf.getParameter<edm::InputTag>("castorRecHitCollectionTag"))),
+      castorcfToken_(consumes<CrossingFrame<PCaloHit>>(edm::InputTag("mix", "g4SimHitsCastorFI"))) {}
 
 namespace CastorHitAnalyzerImpl {
   template <class Collection>
-  void analyze(edm::Event const &e, CaloHitAnalyzer &analyzer, edm::InputTag &tag) {
-    edm::Handle<Collection> recHits;
-    e.getByLabel(tag, recHits);
+  void analyze(edm::Event const &e, CaloHitAnalyzer &analyzer, const edm::EDGetTokenT<Collection> &token) {
+    const edm::Handle<Collection> &recHits = e.getHandle(token);
     if (!recHits.isValid()) {
       edm::LogError("CastorHitAnalyzer") << "Could not find Castor RecHitContainer ";
     } else {
@@ -53,13 +55,12 @@ namespace CastorHitAnalyzerImpl {
 }  // namespace CastorHitAnalyzerImpl
 
 void CastorHitAnalyzer::analyze(edm::Event const &e, edm::EventSetup const &c) {
-  edm::Handle<CrossingFrame<PCaloHit>> castorcf;
-  e.getByLabel("mix", "g4SimHitsCastorFI", castorcf);
+  const edm::Handle<CrossingFrame<PCaloHit>> &castorcf = e.getHandle(castorcfToken_);
 
   // access to SimHits
   std::unique_ptr<MixCollection<PCaloHit>> hits(new MixCollection<PCaloHit>(castorcf.product()));
   castorAnalyzer_.fillHits(*hits);
-  CastorHitAnalyzerImpl::analyze<CastorRecHitCollection>(e, castorAnalyzer_, castorRecHitCollectionTag_);
+  CastorHitAnalyzerImpl::analyze<CastorRecHitCollection>(e, castorAnalyzer_, castorRecHitToken_);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

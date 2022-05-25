@@ -26,9 +26,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& material = args.value<std::string>("ModuleMaterial");
   const auto& thick = args.value<double>("ModuleThickness");
   const auto& waferSize = args.value<double>("WaferSize");
-#ifdef EDM_ML_DEBUG
   const auto& waferSepar = args.value<double>("SensorSeparation");
-#endif
   const auto& waferThick = args.value<double>("WaferThickness");
   const auto& waferTag = args.value<std::string>("WaferTag");
 #ifdef EDM_ML_DEBUG
@@ -36,7 +34,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                                 << " T " << thick << " Wafer 2r " << waferSize << " Half Separation " << waferSepar
                                 << " T " << waferThick;
 #endif
-  const auto& orient = args.value<std::vector<int> >("WaferOrinet");
+  const auto& orient = args.value<std::vector<int> >("WaferOrient");
   const auto& face = args.value<std::vector<int> >("WaferFace");
   const auto& tag = args.value<std::vector<std::string> >("WaferPlacementIndex");
   const auto& layerNames = args.value<std::vector<std::string> >("LayerNames");
@@ -83,7 +81,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   double r2 = 0.5 * waferSize;
   double R2 = r2 / sqrt3;
   const int nFine(nCells), nCoarse(nCells);
-  HGCalCell wafer(waferSize, nFine, nCoarse);
+  HGCalCell wafer((waferSize + waferSepar), nFine, nCoarse);
   for (unsigned int k = 0; k < tag.size(); ++k) {
     // First the mother
     std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};

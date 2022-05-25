@@ -20,9 +20,7 @@ PFMETAlgo::PFMETAlgo(const edm::ParameterSet& iConfig) {
   hfCalibFactor_ = iConfig.getParameter<double>("hfCalibFactor");
 }
 
-PFMETAlgo::~PFMETAlgo() {}
-
-reco::MET PFMETAlgo::produce(const reco::PFCandidateCollection& pfCandidates) {
+reco::MET PFMETAlgo::produce(const reco::PFCandidateCollection& pfCandidates) const {
   double sumEx = 0;
   double sumEy = 0;
   double sumEt = 0;

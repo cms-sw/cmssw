@@ -36,6 +36,14 @@ namespace edm {
         usingGoToEvent_(false),
         enablePrefetching_(false),
         enforceGUIDInFileName_(pset.getUntrackedParameter<bool>("enforceGUIDInFileName")) {
+    if (noRunLumiSort_ && (remainingEvents() >= 0 || remainingLuminosityBlocks() >= 0)) {
+      // There would need to be some Framework development work to allow stopping
+      // early with noRunLumiSort set true related to closing lumis and runs that
+      // were supposed to be continued but were not... We cannot have events written
+      // to output with no run or lumi written to output.
+      throw Exception(errors::Configuration,
+                      "Illegal to configure noRunLumiSort and limit the number of events or luminosityBlocks");
+    }
     // The SiteLocalConfig controls the TTreeCache size and the prefetching settings.
     Service<SiteLocalConfig> pSLC;
     if (pSLC.isAvailable()) {

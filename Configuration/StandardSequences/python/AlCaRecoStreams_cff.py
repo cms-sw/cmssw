@@ -156,6 +156,7 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdBeamSpotHPLowPU_cff 
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStrip_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAAG_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripHitEfficiency_cff import *
 
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngle_cff import *
 
@@ -280,6 +281,7 @@ pathALCARECOPromptCalibProdBeamSpotHPLowPU = cms.Path(seqALCARECOPromptCalibProd
 pathALCARECOPromptCalibProdSiStrip = cms.Path(seqALCARECOPromptCalibProdSiStrip)
 pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiStripGains)
 pathALCARECOPromptCalibProdSiStripGainsAAG = cms.Path(seqALCARECOPromptCalibProdSiStripGainsAAG)
+pathALCARECOPromptCalibProdSiStripHitEfficiency = cms.Path(seqALCARECOPromptCalibProdSiStripHitEfficiency)
 pathALCARECOPromptCalibProdSiPixelLorentzAngle = cms.Path(seqALCARECOPromptCalibProdSiPixelLorentzAngle) 
 pathALCARECOPromptCalibProdSiPixelAli = cms.Path(seqALCARECOPromptCalibProdSiPixelAli)
 pathALCARECOPromptCalibProdSiPixel = cms.Path(seqALCARECOPromptCalibProdSiPixel)
@@ -1002,6 +1004,15 @@ ALCARECOStreamPromptCalibProdSiStripGainsAAG = cms.FilteredStream(
         paths  = (pathALCARECOPromptCalibProdSiStripGainsAAG),
         content = OutALCARECOPromptCalibProdSiStripGainsAAG.outputCommands,
         selectEvents = OutALCARECOPromptCalibProdSiStripGainsAAG.SelectEvents,
+        dataTier = cms.untracked.string('ALCARECO')
+        )
+
+ALCARECOStreamPromptCalibProdSiStripHitEfficiency = cms.FilteredStream(
+        responsible = 'Marco Musich',
+        name = 'PromptCalibProdSiStripHitEfficiency',
+        paths  = (pathALCARECOPromptCalibProdSiStripHitEfficiency),
+        content = OutALCARECOPromptCalibProdSiStripHitEfficiency.outputCommands,
+        selectEvents = OutALCARECOPromptCalibProdSiStripHitEfficiency.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 

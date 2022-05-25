@@ -43,6 +43,8 @@
 ++++ finished: begin process block
 ++++ starting: source run
 ++++ finished: source run
+++++ pre: EventSetup synchronizing run: 1 lumi: 0 event: 0
+++++ post: EventSetup synchronizing run: 1 lumi: 0 event: 0
 ++++ starting: global begin run 1 : time = 1000000
 ++++ finished: global begin run 1 : time = 1000000
 ++++ starting: begin run: stream = 0 run = 1 time = 1000000
@@ -51,6 +53,9 @@
 ++++++ starting: begin run for module: stream = 0 label = 'one' id = 3
 ++++++ finished: begin run for module: stream = 0 label = 'one' id = 3
 ++++ finished: begin run: stream = 0 run = 1 time = 1000000
+++++ queuing: EventSetup synchronization run: 1 lumi: 1 event: 0
+++++ pre: EventSetup synchronizing run: 1 lumi: 1 event: 0
+++++ post: EventSetup synchronizing run: 1 lumi: 1 event: 0
 ++++ starting: source lumi
 ++++ finished: source lumi
 ++++ starting: global begin lumi: run = 1 lumi = 1 time = 1000000
@@ -149,6 +154,8 @@
 ++++ finished: global end lumi: run = 1 lumi = 1 time = 1000000
 ++++ starting: global write lumi: run = 1 lumi = 1 time = 1000000
 ++++ finished: global write lumi: run = 1 lumi = 1 time = 1000000
+++++ pre: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
+++++ post: EventSetup synchronizing run: 1 lumi: 4294967295 event: 18446744073709551615
 ++++ starting: end run: stream = 0 run = 1 time = 1000030
 ++++++ starting: end run for module: stream = 0 label = 'two' id = 5
 ++++++ finished: end run for module: stream = 0 label = 'two' id = 5

@@ -27,7 +27,7 @@ class DDHGCalWaferFullRotated : public DDAlgorithm {
 public:
   // Constructor and Destructor
   DDHGCalWaferFullRotated();
-  ~DDHGCalWaferFullRotated() override;
+  ~DDHGCalWaferFullRotated() override = default;
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -65,8 +65,6 @@ DDHGCalWaferFullRotated::DDHGCalWaferFullRotated() {
 #endif
 }
 
-DDHGCalWaferFullRotated::~DDHGCalWaferFullRotated() {}
-
 void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
                                          const DDVectorArguments& vArgs,
                                          const DDMapArguments&,
@@ -83,7 +81,7 @@ void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
                                 << " T " << thick_ << " Wafer 2r " << waferSize_ << " Half Separation " << waferSepar_
                                 << " T " << waferThick_;
 #endif
-  orient_ = dbl_to_int(vArgs["WaferOrinet"]);
+  orient_ = dbl_to_int(vArgs["WaferOrient"]);
   face_ = dbl_to_int(vArgs["WaferFace"]);
   tag_ = vsArgs["WaferPlacementIndex"];
   layerNames_ = vsArgs["LayerNames"];
@@ -134,7 +132,7 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
   double r2 = 0.5 * waferSize_;
   double R2 = r2 / sqrt3;
   const int nFine(nCells_), nCoarse(nCells_);
-  HGCalCell wafer(waferSize_, nFine, nCoarse);
+  HGCalCell wafer((waferSize_ + waferSepar_), nFine, nCoarse);
   for (unsigned int k = 0; k < tag_.size(); ++k) {
     // First the mother
     std::vector<double> xM = {rM, 0, -rM, -rM, 0, rM};

@@ -1,9 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# modifiers
-from Configuration.ProcessModifiers.gpu_cff import gpu
-
-# helper fuctions
+# helper functions
 from HLTrigger.Configuration.common import *
 
 # add one customisation function per PR
@@ -133,6 +130,36 @@ def customisePixelL1ClusterThresholdForRun2Input(process):
     for producer in producers_by_type(process, "SiPixelRawToClusterCUDA"):
         if hasattr(producer,"clusterThreshold_layer1"):
             producer.clusterThreshold_layer1 = 2000
+    for producer in producers_by_type(process, "SiPixelDigisClustersFromSoA"):
+        if hasattr(producer,"clusterThreshold_layer1"):
+            producer.clusterThreshold_layer1 = 2000
+
+    return process
+
+def customiseCTPPSFor2018Input(process):
+    for prod in producers_by_type(process, 'CTPPSGeometryESModule'):
+        prod.isRun2 = True
+    for prod in producers_by_type(process, 'CTPPSPixelRawToDigi'):
+        prod.isRun3 = False
+
+    return process
+
+def customiseEGammaRecoFor2018Input(process):
+    for prod in producers_by_type(process, 'PFECALSuperClusterProducer'):
+        if hasattr(prod, 'regressionConfig'):
+            prod.regressionConfig.regTrainedWithPS = cms.bool(False)
+
+    return process
+
+def customiseBeamSpotFor2018Input(process):
+    # For Run-2 data, disable the use of the BS transient record, to read the BS record from SCAL.
+    # Additionally, remove all instances of OnlineBeamSpotESProducer (not needed if useTransientRecord=False).
+    # See CMSHLT-2271 and CMSHLT-2300 for further details.
+    for prod in producers_by_type(process, 'BeamSpotOnlineProducer'):
+        prod.useTransientRecord = False
+    onlineBeamSpotESPLabels = [prod.label_() for prod in esproducers_by_type(process, 'OnlineBeamSpotESProducer')]
+    for espLabel in onlineBeamSpotESPLabels:
+        delattr(process, espLabel)
 
     return process
 
@@ -141,30 +168,33 @@ def customiseFor2018Input(process):
     process = customisePixelGainForRun2Input(process)
     process = customisePixelL1ClusterThresholdForRun2Input(process)
     process = customiseHCALFor2018Input(process)
+    process = customiseCTPPSFor2018Input(process)
+    process = customiseEGammaRecoFor2018Input(process)
+    process = customiseBeamSpotFor2018Input(process)
 
     return process
 
-def customiseFor37231(process):
-    """ Customisation to fix the typo of Reccord in PR 37231 (https://github.com/cms-sw/cmssw/pull/37231) """
 
-    for prod in producers_by_type(process, 'DeDxEstimatorProducer'):
-        if hasattr(prod, 'Reccord'):
-            prod.Record = prod.Reccord
-            delattr(prod, 'Reccord')
+def customiseForOffline(process):
+
+    # For running HLT offline on Run-3 Data, use "(OnlineBeamSpotESProducer).timeThreshold = 1e6",
+    # in order to pick the beamspot that was actually used by the HLT (instead of a "fake" beamspot).
+    # These same settings can be used offline for Run-3 Data and Run-3 MC alike.
+    # Note: the products of the OnlineBeamSpotESProducer are used only
+    #       if the configuration uses "(BeamSpotOnlineProducer).useTransientRecord = True".
+    # See CMSHLT-2271 and CMSHLT-2300 for further details.
+    for prod in esproducers_by_type(process, 'OnlineBeamSpotESProducer'):
+        prod.timeThreshold = int(1e6)
 
     return process
+
 
 # CMSSW version specific customizations
 def customizeHLTforCMSSW(process, menuType="GRun"):
 
-    # if the gpu modifier is enabled, make the Pixel, ECAL and HCAL reconstruction offloadable to a GPU
-    from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack
-    gpu.makeProcessModifier(customizeHLTforPatatrack).apply(process)
+    process = customiseForOffline(process)
 
     # add call to action function in proper order: newest last!
     # process = customiseFor12718(process)
 
-    process = customiseFor37231(process)
-
     return process
-

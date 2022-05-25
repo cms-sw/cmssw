@@ -56,17 +56,6 @@ MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
       setDet(subdet, layer, stereoLayer, detId, lay);
     }
   }
-
-  // Create "short id" aka "unique id within layer"
-  detIdToShortId_.resize(lnc_->nLayers());
-  for (const auto& detId : geom.detIds()) {
-    const auto ilay = mkFitLayerNumber(detId);
-    auto& map = detIdToShortId_[ilay];
-    const unsigned int ind = map.size();
-    // Make sure the short id fits in the 12 bits...
-    assert(ind < (int)1 << 11);
-    map[detId.rawId()] = ind;
-  }
 }
 
 // Explicit out-of-line because of the mkfit::LayerNumberConverter is

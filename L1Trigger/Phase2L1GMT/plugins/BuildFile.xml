@@ -1,0 +1,10 @@
+<library   file="*.cc" name="Phase2L1GMTPlugins">
+  <use name="DataFormats/L1TMuonPhase2"/>
+  <use name="DataFormats/L1TMuon"/>
+  <use name="DataFormats/L1Trigger"/>
+  <use name="L1Trigger/Phase2L1GMT"/>
+  <use name="hepmc"/>
+  <use name="hls"/>
+  <use name="root"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

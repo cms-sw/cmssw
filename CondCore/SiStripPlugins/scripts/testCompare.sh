@@ -32,7 +32,7 @@ eval `scram run -sh`;
 # Go back to original working directory
 cd $W_DIR;
 
-plotTypes=(SiStripApvGainsComparatorSingleTag SiStripApvGainsValuesComparatorSingleTag SiStripApvGainsComparatorByRegionSingleTag SiStripApvGainsRatioComparatorByRegionSingleTag SiStripApvGainByPartition SiStripApvGainCompareByPartition SiStripApvGainDiffByPartition)
+plotTypes=(SiStripApvGainsComparatorSingleTag SiStripApvGainsValuesComparatorSingleTag SiStripApvGainsComparatorByRegionSingleTag SiStripApvGainsRatioComparatorByRegionSingleTag SiStripApvGainByPartition)
 
 mkdir -p $W_DIR/results_$2-$3
 
@@ -56,9 +56,29 @@ echo "Making plot ${i}"
     mv *.png $W_DIR/results_$2-$3/${i}_$1_$2-$3.png
 done
 
-plotTypes2=(SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap SiStripApvGainsMaxDeviationRatioWithPreviousIOVTrackerMap)
+plotTypes2=(SiStripApvGainCompareByPartition SiStripApvGainDiffByPartition)
 
-for i in "${plotTypes2[@]}"
+for i in "${plotTypes2[@]}" 
+do
+echo "Making plot ${i}"
+# Run get payload data script
+    getPayloadData.py \
+	--plugin pluginSiStripApvGain_PayloadInspector \
+	--plot plot_${i} \
+	--tag $1 \
+	--tagtwo $1 \
+	--time_type Run \
+	--iovs '{"start_iov": "'$STARTIOV'", "end_iov": "'$STARTIOV'"}' \
+	--iovstwo '{"start_iov": "'$ENDIOV'", "end_iov": "'$ENDIOV'"}' \
+	--db sqlite_file:$4 \
+	--test;
+
+    mv *.png $W_DIR/results_$2-$3/${i}_$1_$2-$3.png
+done
+
+plotTypes3=(SiStripApvGainsAvgDeviationRatioWithPreviousIOVTrackerMap SiStripApvGainsMaxDeviationRatioWithPreviousIOVTrackerMap)
+
+for i in "${plotTypes3[@]}"
 do
     for j in 1 2 3
     do

@@ -212,6 +212,7 @@ trackingMkFitDetachedQuadStep.toReplaceWith(detachedQuadStepTrackCandidates, mkF
     mkFitSeeds = 'detachedQuadStepTrackCandidatesMkFitSeeds',
     tracks = 'detachedQuadStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(detachedQuadStepTrackCandidatesMkFitConfig, minPt=0.9)
 
 #For FastSim phase1 tracking 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi

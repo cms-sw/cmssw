@@ -1,16 +1,126 @@
-/** \file EDMtoMEConverter.cc
- *
- *  See header file for description of class
+/** \class EDMtoMEConverter
+ *  
+ *  Class to take dqm monitor elements and convert into a
+ *  ROOT dataformat stored in Run tree of edm file
  *
  *  \author M. Strang SUNY-Buffalo
  */
 
-#include <cassert>
-
-#include "DQMServices/Components/plugins/EDMtoMEConverter.h"
-
-#include "FWCore/Framework/interface/ConsumesCollector.h"
+// framework & common header files
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Histograms/interface/DQMToken.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDPutToken.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+//DQM services
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+// data format
+#include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+#include "DataFormats/Histograms/interface/DQMToken.h"
+
+// helper files
+#include <cassert>
+#include <iostream>
+#include <cstdlib>
+#include <string>
+#include <memory>
+#include <vector>
+#include <map>
+#include <tuple>
+
+#include "TString.h"
+#include "TList.h"
+
+#include "classlib/utils/StringList.h"
+#include "classlib/utils/StringOps.h"
+
+class EDMtoMEConverter : public edm::one::EDProducer<edm::one::WatchRuns,
+                                                     edm::one::WatchLuminosityBlocks,
+                                                     edm::one::SharedResources,
+                                                     edm::EndLuminosityBlockProducer,
+                                                     edm::EndRunProducer> {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
+  explicit EDMtoMEConverter(const edm::ParameterSet &);
+  ~EDMtoMEConverter() override = default;
+
+  void beginRun(const edm::Run &, const edm::EventSetup &) final{};
+  void endRun(const edm::Run &, const edm::EventSetup &) final{};
+  void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) final{};
+  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) final{};
+  void produce(edm::Event &, edm::EventSetup const &) final{};
+
+  void endLuminosityBlockProduce(edm::LuminosityBlock &, edm::EventSetup const &) override;
+  void endRunProduce(edm::Run &run, edm::EventSetup const &setup) override;
+
+  template <class T>
+  void getData(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, T &iGetFrom);
+
+  using TagList = std::vector<uint32_t>;
+
+private:
+  std::string name;
+  int verbosity;
+  int frequency;
+
+  bool convertOnEndLumi;
+  bool convertOnEndRun;
+  MonitorElementData::Scope reScope;
+
+  template <typename T>
+  class Tokens {
+  public:
+    using type = T;
+    using Product = MEtoEDM<T>;
+
+    Tokens() = default;
+
+    void set(const edm::InputTag &runInputTag, const edm::InputTag &lumiInputTag, edm::ConsumesCollector &iC);
+
+    void getData(const edm::Run &iRun, edm::Handle<Product> &handle) const;
+    void getData(const edm::LuminosityBlock &iLumi, edm::Handle<Product> &handle) const;
+
+  private:
+    edm::EDGetTokenT<Product> runToken;
+    edm::EDGetTokenT<Product> lumiToken;
+  };
+
+  std::tuple<Tokens<TH1F>,
+             Tokens<TH1S>,
+             Tokens<TH1D>,
+             Tokens<TH1I>,
+             Tokens<TH2F>,
+             Tokens<TH2S>,
+             Tokens<TH2D>,
+             Tokens<TH2I>,
+             Tokens<TH3F>,
+             Tokens<TProfile>,
+             Tokens<TProfile2D>,
+             Tokens<double>,
+             Tokens<int>,
+             Tokens<long long>,
+             Tokens<TString> >
+      tokens_;
+
+  edm::EDPutTokenT<DQMToken> dqmLumiToken_;
+  edm::EDPutTokenT<DQMToken> dqmRunToken_;
+};  // end class declaration
 
 using namespace lat;
 using dqm::legacy::DQMStore;
@@ -87,6 +197,14 @@ namespace {
     }
   };
   template <>
+  struct HistoTraits<TH1I> {
+    static TH1I *get(MonitorElement *me) { return me->getTH1I(); }
+    template <typename... Args>
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
+      return iBooker.book1I(std::forward<Args>(args)...);
+    }
+  };
+  template <>
   struct HistoTraits<TH2F> {
     static TH2F *get(MonitorElement *me) { return me->getTH2F(); }
     template <typename... Args>
@@ -108,6 +226,14 @@ namespace {
     template <typename... Args>
     static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
       return iBooker.book2DD(std::forward<Args>(args)...);
+    }
+  };
+  template <>
+  struct HistoTraits<TH2I> {
+    static TH2I *get(MonitorElement *me) { return me->getTH2I(); }
+    template <typename... Args>
+    static MonitorElement *book(DQMStore::IBooker &iBooker, Args &&...args) {
+      return iBooker.book2I(std::forward<Args>(args)...);
     }
   };
   template <>
@@ -305,8 +431,6 @@ EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet &iPSet) : verbosity(0
   dqmRunToken_ = produces<DQMToken, edm::Transition::EndRun>("endRun");
 }  // end constructor
 
-EDMtoMEConverter::~EDMtoMEConverter() = default;
-
 void EDMtoMEConverter::endRunProduce(edm::Run &iRun, edm::EventSetup const &iSetup) {
   if (convertOnEndRun) {
     DQMStore *store = edm::Service<DQMStore>().operator->();
@@ -371,3 +495,7 @@ void EDMtoMEConverter::getData(DQMStore::IBooker &iBooker, DQMStore::IGetter &iG
     }  // end loop thorugh metoedmobject
   });
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(EDMtoMEConverter);

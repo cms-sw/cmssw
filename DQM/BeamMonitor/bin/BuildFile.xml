@@ -1,0 +1,7 @@
+<ifarchitecture name="_amd64_">
+<bin name="beamSpotDipStandalone" file="beamSpotDipStandalone.cc">
+  <use name="dip"/>
+  <use name="log4cplus"/>
+</bin>
+</ifarchitecture>
+

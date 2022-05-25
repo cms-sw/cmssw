@@ -93,17 +93,14 @@ from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
 
 from RecoPixelVertexing.PixelTriplets.pixelTracksCUDA_cfi import pixelTracksCUDA as _pixelTracksCUDA
 
-#Pixel tracks in SoA format on the CPU
-pixelTracksCPU = _pixelTracksCUDA.clone(
-    pixelRecHitSrc = "siPixelRecHitsPreSplitting",
-    idealConditions = False,
-    onGPU = False
-)
-
 # SwitchProducer providing the pixel tracks in SoA format on the CPU
 pixelTracksSoA = SwitchProducerCUDA(
     # build pixel ntuplets and pixel tracks in SoA format on the CPU
-    cpu = pixelTracksCPU
+    cpu = _pixelTracksCUDA.clone(
+        pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
+        idealConditions = False,
+        onGPU = False
+    )
 )
 # use quality cuts tuned for Run 2 ideal conditions for all Run 3 workflows
 run3_common.toModify(pixelTracksSoA.cpu,
@@ -117,12 +114,6 @@ from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import p
 ))
 
 (pixelNtupletFit & ~phase2_tracker).toReplaceWith(pixelTracksTask, cms.Task(
-    #pixelTracksTrackingRegions,
-    #pixelFitterByHelixProjections,
-    #pixelTrackFilterByKinematics,
-    #pixelTracksSeedLayers,
-    #pixelTracksHitDoublets,
-    #pixelTracksHitQuadruplets,
     # build the pixel ntuplets and the pixel tracks in SoA format on the GPU
     pixelTracksSoA,
     # convert the pixel tracks from SoA to legacy format
@@ -132,9 +123,6 @@ from RecoPixelVertexing.PixelTrackFitting.pixelTrackProducerFromSoA_cfi import p
 
 # "Patatrack" sequence running on GPU (or CPU if not available)
 from Configuration.ProcessModifiers.gpu_cff import gpu
-(pixelNtupletFit & gpu).toModify(pixelTracksCPU,
-    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA",
-)
 
 # build the pixel ntuplets and pixel tracks in SoA format on the GPU
 pixelTracksCUDA = _pixelTracksCUDA.clone(
@@ -162,3 +150,10 @@ from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
     # transfer the pixel tracks in SoA format to the CPU, and convert them to legacy format
     pixelTracksTask.copy()
 ))
+
+## GPU vs CPU validation
+# force CPU vertexing to use hit SoA from CPU chain and not the converted one from GPU chain
+from Configuration.ProcessModifiers.gpuValidationPixel_cff import gpuValidationPixel
+(pixelNtupletFit & gpu & gpuValidationPixel).toModify(pixelTracksSoA.cpu,
+    pixelRecHitSrc = "siPixelRecHitsPreSplittingSoA@cpu"
+    )

@@ -35,6 +35,7 @@ namespace {
                      const GsfElectronAlgo::HeavyObjectCache* hoc,
                      reco::VertexCollection const& vertices,
                      bool dnnPFidEnabled,
+                     float extetaboundary,
                      const std::vector<tensorflow::Session*>& tfSessions) {
     std::vector<GsfElectron::MvaOutput> mva_outputs(electrons.size());
     size_t iele = 0;
@@ -58,11 +59,20 @@ namespace {
         const auto& values = dnn_ele_pfid[jele];
         // get the previous values
         auto& mvaOutput = mva_outputs[jele];
-        mvaOutput.dnn_e_sigIsolated = values[0];
-        mvaOutput.dnn_e_sigNonIsolated = values[1];
-        mvaOutput.dnn_e_bkgNonIsolated = values[2];
-        mvaOutput.dnn_e_bkgTau = values[3];
-        mvaOutput.dnn_e_bkgPhoton = values[4];
+
+        if (abs(el.superCluster()->eta()) <= extetaboundary) {
+          mvaOutput.dnn_e_sigIsolated = values[0];
+          mvaOutput.dnn_e_sigNonIsolated = values[1];
+          mvaOutput.dnn_e_bkgNonIsolated = values[2];
+          mvaOutput.dnn_e_bkgTau = values[3];
+          mvaOutput.dnn_e_bkgPhoton = values[4];
+        } else {
+          mvaOutput.dnn_e_sigIsolated = values[0];
+          mvaOutput.dnn_e_sigNonIsolated = 0.0;
+          mvaOutput.dnn_e_bkgNonIsolated = values[1];
+          mvaOutput.dnn_e_bkgTau = 0.0;
+          mvaOutput.dnn_e_bkgPhoton = values[2];
+        }
         el.setMvaOutput(mvaOutput);
         jele++;
       }
@@ -151,6 +161,7 @@ private:
   const bool resetMvaValuesUsingPFCandidates_;
 
   bool dnnPFidEnabled_;
+  float extetaboundary_;
 
   std::vector<tensorflow::Session*> tfSessions_;
 };
@@ -289,19 +300,27 @@ void GsfElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   {
     edm::ParameterSetDescription psd1;
     psd1.add<bool>("enabled", false);
+    psd1.add<double>("extetaboundary", 2.65);
     psd1.add<std::string>("inputTensorName", "FirstLayer_input");
     psd1.add<std::string>("outputTensorName", "sequential/FinalLayer/Softmax");
-    psd1.add<uint>("outputDim", 5);  // Number of output nodes of DNN
+
     psd1.add<std::vector<std::string>>(
         "modelsFiles",
-        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/lowpT/lowpT_modelDNN.pb",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEB/highpTEB_modelDNN.pb",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_modelDNN.pb"});
+        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEB/highpTEB_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEE/highpTEE_modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/modelDNN.pb",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta2/modelDNN.pb"});
     psd1.add<std::vector<std::string>>(
         "scalersFiles",
-        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/lowpT/lowpT_scaler.txt",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEB/highpTEB_scaler.txt",
-         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/v1/highpTEE/highpTEE_scaler.txt"});
+        {"RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/lowpT/lowpT_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEB/highpTEB_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/highpTEE/highpTEE_scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/scaler.txt",
+         "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta2/scaler.txt"});
+    psd1.add<std::vector<unsigned int>>("outputDim",  //Number of output nodes for the above models
+                                        {5, 5, 5, 5, 3});
+
     psd1.add<bool>("useEBModelInGap", true);
     // preselection parameters
     desc.add<edm::ParameterSetDescription>("EleDNNPFid", psd1);
@@ -414,6 +433,7 @@ GsfElectronProducer::GsfElectronProducer(const edm::ParameterSet& cfg, const Gsf
   // Config for PFID dnn
   const auto& pset_dnn = cfg.getParameter<edm::ParameterSet>("EleDNNPFid");
   dnnPFidEnabled_ = pset_dnn.getParameter<bool>("enabled");
+  extetaboundary_ = pset_dnn.getParameter<double>("extetaboundary");
 
   strategyCfg_.useDefaultEnergyCorrection = cfg.getParameter<bool>("useDefaultEnergyCorrection");
 
@@ -724,7 +744,8 @@ void GsfElectronProducer::produce(edm::Event& event, const edm::EventSetup& setu
     for (auto& el : electrons) {
       el.setMvaInput(gsfMVAInputMap.find(el.gsfTrack())->second);  // set Run2 MVA inputs
     }
-    setMVAOutputs(electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_, tfSessions_);
+    setMVAOutputs(
+        electrons, globalCache(), event.get(inputCfg_.vtxCollectionTag), dnnPFidEnabled_, extetaboundary_, tfSessions_);
   }
 
   // all electrons

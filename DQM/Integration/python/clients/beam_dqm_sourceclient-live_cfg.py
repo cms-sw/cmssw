@@ -284,6 +284,10 @@ if ( process.runType.getRunType() == process.runType.cosmic_run or
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
+# Digitisation: produce the TCDS digis containing BST record
+from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
+process.tcdsDigis = tcdsRawToDigi.clone()
+
 #------------------------
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
@@ -305,6 +309,7 @@ process.muonRPCDigis.InputLabel          = rawDataInputTag
 process.scalersRawToDigi.scalersInputTag = rawDataInputTag
 process.siPixelDigis.cpu.InputLabel      = rawDataInputTag
 process.siStripDigis.ProductLabel        = rawDataInputTag
+process.tcdsDigis.InputLabel             = rawDataInputTag
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
@@ -422,11 +427,11 @@ else:
         frontierKey = cms.untracked.string(options.runUniqueKey)
     )
 print("Configured frontierKey", options.runUniqueKey)
-
 #---------
 # Final path
 if (not process.runType.getRunType() == process.runType.hi_run):
     process.p = cms.Path(process.scalersRawToDigi
+                       * process.tcdsDigis
                        * process.onlineMetaDataDigis
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
@@ -436,6 +441,7 @@ if (not process.runType.getRunType() == process.runType.hi_run):
                        * process.BeamSpotProblemModule)
 else:
     process.p = cms.Path(process.scalersRawToDigi
+                       * process.tcdsDigis
                        * process.onlineMetaDataDigis
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter

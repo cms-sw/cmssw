@@ -76,6 +76,7 @@ private:
   const unsigned int lowPtTracksPrescalePass_, lowPtTracksPrescaleFail_;
   GenericTruncatedAverageDeDxEstimator lowPtTracksEstimator_;
   const float lowPtTracksDeDxThreshold_;
+  const bool usePixelForPrescales_;
 
   const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;
   edm::ESHandle<TrackerGeometry> tkGeom_;
@@ -110,6 +111,7 @@ DeDxHitInfoProducer::DeDxHitInfoProducer(const edm::ParameterSet& iConfig)
       lowPtTracksPrescaleFail_(iConfig.getParameter<uint32_t>("lowPtTracksPrescaleFail")),
       lowPtTracksEstimator_(iConfig.getParameter<edm::ParameterSet>("lowPtTracksEstimatorParameters")),
       lowPtTracksDeDxThreshold_(iConfig.getParameter<double>("lowPtTracksDeDxThreshold")),
+      usePixelForPrescales_(iConfig.getParameter<bool>("usePixelForPrescales")),
       tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"))),
       tkGeomToken_(esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()) {
   produces<reco::DeDxHitInfoCollection>();
@@ -180,13 +182,19 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       std::vector<DeDxHit> hits;
       hits.reserve(hitDeDxInfo.size());
       for (unsigned int i = 0, n = hitDeDxInfo.size(); i < n; ++i) {
-        if (hitDeDxInfo.detId(i).subdetId() <= 2) {
+        if (hitDeDxInfo.detId(i).subdetId() <= 2 && usePixelForPrescales_) {
           hits.push_back(DeDxHit(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * theMeVperADCPixel_, 0, 0, 0));
-        } else {
+        } else if (hitDeDxInfo.detId(i).subdetId() > 2) {
           if (doShapeTest_ && !deDxTools::shapeSelection(*hitDeDxInfo.stripCluster(i)))
             continue;
           hits.push_back(DeDxHit(hitDeDxInfo.charge(i) / hitDeDxInfo.pathlength(i) * theMeVperADCStrip_, 0, 0, 0));
         }
+      }
+
+      // In case we have a pixel only track, but usePixelForPrescales_ is false
+      if (hits.empty()) {
+        indices.push_back(-1);
+        continue;
       }
       std::sort(hits.begin(), hits.end(), std::less<DeDxHit>());
       if (lowPtTracksEstimator_.dedx(hits).first < lowPtTracksDeDxThreshold_) {

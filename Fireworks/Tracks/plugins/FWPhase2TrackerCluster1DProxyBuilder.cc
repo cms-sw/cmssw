@@ -6,7 +6,6 @@
 //
 //
 
-#include "TEvePointSet.h"
 #include "TEveStraightLineSet.h"
 #include "TEveCompound.h"
 #include "TEveBox.h"
@@ -29,6 +28,11 @@ public:
   const FWPhase2TrackerCluster1DProxyBuilder& operator=(const FWPhase2TrackerCluster1DProxyBuilder&) = delete;
 
 private:
+  void localModelChanges(const FWModelId& iId,
+                         TEveElement* parent,
+                         FWViewType::EType viewType,
+                         const FWViewContext* vc) override;
+
   using FWProxyBuilderBase::build;
   void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
 };
@@ -61,24 +65,55 @@ void FWPhase2TrackerCluster1DProxyBuilder::build(const FWEventItem* iItem,
       TEveElement* itemHolder = createCompound();
       product->AddElement(itemHolder);
 
-      TEvePointSet* pointSet = new TEvePointSet;
-
       if (!geom->contains(id)) {
         fwLog(fwlog::kWarning) << "failed get geometry of Phase2TrackerCluster1D with detid: " << id << std::endl;
         continue;
       }
 
-      float localPoint[3] = {fireworks::phase2PixelLocalX((*itc).center(), pars, shape),
-                             fireworks::phase2PixelLocalY((*itc).column(), pars, shape),
-                             0.0};
+      float halfLength = shape[2];
+      float pitchSecond = pars[1];
 
-      float globalPoint[3];
-      geom->localToGlobal(id, localPoint, globalPoint);
+      // line
+      //
+      TEveStraightLineSet* lineSet = new TEveStraightLineSet;
+      float localPointBeg[3] = {fireworks::phase2PixelLocalX((*itc).center(), pars, shape),
+                                float((*itc).column()) * pitchSecond - halfLength,
+                                0.0};
+      float localPointEnd[3] = {fireworks::phase2PixelLocalX((*itc).center(), pars, shape),
+                                float((*itc).column() + 1.0) * pitchSecond - halfLength,
+                                0.0};
 
-      pointSet->SetNextPoint(globalPoint[0], globalPoint[1], globalPoint[2]);
+      float globalPointBeg[3];
+      float globalPointEnd[3];
+      geom->localToGlobal(id, localPointBeg, globalPointBeg);
+      geom->localToGlobal(id, localPointEnd, globalPointEnd);
 
-      setupAddElement(pointSet, itemHolder);
+      lineSet->AddLine(globalPointBeg, globalPointEnd);
+      lineSet->AddMarker(0, 0.5f);
+
+      const FWDisplayProperties& dp = FWProxyBuilderBase::item()->defaultDisplayProperties();
+      lineSet->SetMarkerColor(dp.color());
+
+      setupAddElement(lineSet, itemHolder);
     }
+  }
+}
+
+void FWPhase2TrackerCluster1DProxyBuilder::localModelChanges(const FWModelId& iId,
+                                                             TEveElement* parent,
+                                                             FWViewType::EType viewType,
+                                                             const FWViewContext* vc) {
+  if (TEveStraightLineSet* ls = dynamic_cast<TEveStraightLineSet*>(*parent->BeginChildren())) {
+    Color_t c = FWProxyBuilderBase::item()->modelInfo(iId.index()).displayProperties().color();
+    for (TEveProjectable::ProjList_i j = ls->BeginProjecteds(); j != ls->EndProjecteds(); ++j) {
+      if (TEveStraightLineSet* pls = dynamic_cast<TEveStraightLineSet*>(*j)) {
+        pls->SetMarkerColor(c);
+        pls->ElementChanged();
+      }
+    }
+
+    ls->SetMarkerColor(c);
+    ls->ElementChanged();
   }
 }
 

@@ -21,7 +21,7 @@ process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
 
 process.dtTriggerPhase2PrimitiveDigis.dump = True
 process.dtTriggerPhase2PrimitiveDigis.debug = True
-# process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.untracked.double(0.16)
+# process.dtTriggerPhase2PrimitiveDigis.chi2Th = cms.double(0.16)
 
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #

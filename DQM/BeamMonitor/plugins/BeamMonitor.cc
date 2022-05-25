@@ -122,7 +122,9 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
       resetHistos_(false),
       StartAverage_(false),
       firstAverageFit_(0),
-      countGapLumi_(0) {
+      countGapLumi_(0),
+      logToDb_(false),
+      loggerActive_(false) {
   monitorName_ = ps.getUntrackedParameter<string>("monitorName", "YourSubsystemName");
   recordName_ = ps.getUntrackedParameter<string>("recordName");
   bsSrc_ = consumes<reco::BeamSpot>(ps.getUntrackedParameter<InputTag>("beamSpot"));
@@ -163,6 +165,8 @@ BeamMonitor::BeamMonitor(const ParameterSet& ps)
   lastlumi_ = 0;
   nextlumi_ = 0;
   processed_ = false;
+
+  tcdsToken_ = consumes<TCDSRecord>(ps.getParameter<InputTag>("tcdsRecord"));
 }
 
 //--------------------------------------------------------
@@ -533,8 +537,9 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const Eve
   // start DB logger
   DBloggerReturn_ = 0;
   nAnalyzedLS_++;
-  if (onlineDbService_.isAvailable()) {
+  if (onlineDbService_.isAvailable() && logToDb_) {
     onlineDbService_->logger().start();
+    loggerActive_ = true;
     onlineDbService_->logger().logInfo() << "BeamMonitor::beginLuminosityBlock - LS: " << lumiSeg.luminosityBlock()
                                          << " - Run: " << lumiSeg.getRun().run();
   }
@@ -661,6 +666,11 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const Eve
 
 // ----------------------------------------------------------
 void BeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
+  const TCDSRecord& tcdsData = iEvent.get(tcdsToken_);
+  int beamMode = tcdsData.getBST().getBeamMode();
+  if (beamMode == BSTRecord::BeamMode::STABLE)
+    logToDb_ = true;
+
   const int nthlumi = iEvent.luminosityBlock();
   if (onlineMode_ && (nthlumi < nextlumi_)) {
     edm::LogInfo("BeamMonitor") << "analyze::  Spilt event from previous lumi section!" << std::endl;
@@ -809,7 +819,7 @@ void BeamMonitor::endLuminosityBlock(const LuminosityBlock& lumiSeg, const Event
   tmpTime = refBStime[1] = refPVtime[1] = fendtime;
 
   // end DB logger
-  if (onlineDbService_.isAvailable()) {
+  if (onlineDbService_.isAvailable() && logToDb_ && loggerActive_) {
     onlineDbService_->logger().logInfo() << "BeamMonitor::endLuminosityBlock";
     onlineDbService_->logger().end(DBloggerReturn_);
   }
@@ -1397,11 +1407,15 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       BSOnline.setEndTimeStamp(timeForDIP.second);
       BSOnline.setEndTime(getGMTstring(timeForDIP.second));
 
+      std::string lumiRangeForDIP = std::to_string(LSRange.first) + " - " + std::to_string(LSRange.second);
+      BSOnline.setLumiRange(lumiRangeForDIP);
+
       edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline object created: \n" << std::endl;
       edm::LogInfo("BeamMonitor") << BSOnline << std::endl;
 
       // Create the payload for BeamSpotOnlineObjects object
-      if (onlineDbService_.isAvailable() && (nAnalyzedLS_ < nLS_for_upload_ || nAnalyzedLS_ % nLS_for_upload_ == 0)) {
+      if (onlineDbService_.isAvailable() && (nAnalyzedLS_ < nLS_for_upload_ || nAnalyzedLS_ % nLS_for_upload_ == 0) &&
+          logToDb_) {
         edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] onlineDbService available \n" << std::endl;
         onlineDbService_->logger().logInfo() << "BeamMonitor::FitAndFill - Lumi of the current fit: " << currentlumi;
         onlineDbService_->logger().logInfo()
@@ -1454,7 +1468,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
       edm::LogInfo("BeamMonitor") << "FitAndFill::   [BeamMonitor] Output beam spot for DIP \n" << endl;
       edm::LogInfo("BeamMonitor") << bs << endl;
 
-      if (onlineDbService_.isAvailable()) {
+      if (onlineDbService_.isAvailable() && logToDb_) {
         onlineDbService_->logger().logInfo() << "BeamMonitor::FitAndFill - Beam fit fails!!!";
         onlineDbService_->logger().logInfo() << "BeamMonitor::FitAndFill - Output beam spot for DIP";
         onlineDbService_->logger().logInfo() << "\n" << bs;
@@ -1481,7 +1495,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
     edm::LogInfo("BeamMonitor") << "FitAndFill::  [BeamMonitor] Output fake beam spot for DIP \n" << endl;
     edm::LogInfo("BeamMonitor") << bs << endl;
 
-    if (onlineDbService_.isAvailable()) {
+    if (onlineDbService_.isAvailable() && logToDb_) {
       onlineDbService_->logger().logInfo() << "BeamMonitor::FitAndFill - No fitting";
       onlineDbService_->logger().logInfo() << "BeamMonitor::FitAndFill - Output fake beam spot for DIP";
       onlineDbService_->logger().logInfo() << "\n" << bs;

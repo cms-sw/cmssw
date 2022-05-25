@@ -12,12 +12,6 @@ class SwitchProducerTest(cms.SwitchProducer):
 
 process = cms.Process("PROD1")
 
-process.options = cms.untracked.PSet(
-    numberOfStreams = cms.untracked.uint32(1),
-    numberOfConcurrentRuns = cms.untracked.uint32(1),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
-)
-
 process.source = cms.Source("EmptySource")
 if enableTest2:
     process.source.firstLuminosityBlock = cms.untracked.uint32(2)

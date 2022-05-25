@@ -6,4 +6,6 @@ namespace edm {
     Guid guid;
     return binary ? guid.toBinary() : guid.toString();
   }
+
+  bool isValidGlobalIdentifier(std::string const& guid) { return Guid::isValidString(guid); }
 }  // namespace edm

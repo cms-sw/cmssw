@@ -249,6 +249,17 @@ SKIMStreamEXOMONOPOLE = cms.FilteredStream(
         dataTier = cms.untracked.string('USER')
         )
 
+from Configuration.Skimming.PDWG_EXOHighMET_cff import *
+EXOHighMETPath = cms.Path(EXOHighMETSequence)
+SKIMStreamEXOHighMET = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXOHighMET',
+    paths = (EXOHighMETPath),
+    content = skimContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('RAW-RECO')
+    )
+
 from Configuration.Skimming.PDWG_EXODisplacedJet_cff import *
 EXODisplacedJetPath = cms.Path(EXODisplacedJetSkimSequence)
 SKIMStreamEXODisplacedJet = cms.FilteredStream(
@@ -258,6 +269,28 @@ SKIMStreamEXODisplacedJet = cms.FilteredStream(
     content = skimRawAODContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('USER')
+    )
+
+from Configuration.Skimming.PDWG_EXODelayedJet_cff import *
+EXODelayedJetPath = cms.Path(EXODelayedJetSkimSequence)
+SKIMStreamEXODelayedJet = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODelayedJet',
+    paths = (EXODelayedJetPath),
+    content = skimRawAODContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
+from Configuration.Skimming.PDWG_EXODTCluster_cff import *
+EXODTClusterPath = cms.Path(EXODTClusterSkimSequence)
+SKIMStreamEXODTCluster = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODTCluster',
+    paths = (EXODTClusterPath),
+    content = skimRawAODContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
     )
 
 from Configuration.Skimming.PDWG_EXODisappTrk_cff import *

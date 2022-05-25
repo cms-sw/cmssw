@@ -27,16 +27,7 @@ TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig)
 TauGenJetProducer::~TauGenJetProducer() {}
 
 void TauGenJetProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const {
-  Handle<GenParticleCollection> genParticles;
-
-  bool found = iEvent.getByToken(tokenGenParticles_, genParticles);
-
-  if (!found) {
-    std::ostringstream err;
-    err << " cannot get collection: " << inputTagGenParticles_ << std::endl;
-    edm::LogError("TauGenJetProducer") << err.str();
-    throw cms::Exception("MissingProduct", err.str());
-  }
+  Handle<GenParticleCollection> genParticles = iEvent.getHandle(tokenGenParticles_);
 
   auto pOutVisTaus = std::make_unique<GenJetCollection>();
 
@@ -91,8 +82,9 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& 
     GenJet jet(sumVisMom, vertex, specific, constituents);
 
     if (charge != (*iTau)->charge())
-      std::cout << " charge of Tau: " << (*iTau) << " not equal to charge of sum of charge of all descendents. "
-                << std::endl;
+      edm::LogError("TauGenJetProducer") << " charge of Tau: " << (*iTau)
+                                         << " not equal to charge of sum of charge of all descendents.\n"
+                                         << " Tau's charge: " << (*iTau)->charge() << " sum: " << charge << "\n";
 
     jet.setCharge(charge);
     pOutVisTaus->push_back(jet);

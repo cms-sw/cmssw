@@ -16,8 +16,10 @@
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
-#include "L1TCaloTriggerNtupleBase.h"
+#include "L1Trigger/L1CaloTrigger/test/ntuples/L1TCaloTriggerNtupleBase.h"
 
 class L1TriggerNtupleTrackTrigger : public L1TCaloTriggerNtupleBase {
 public:
@@ -37,6 +39,7 @@ private:
   edm::EDGetTokenT<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>> track_token_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magf_token;
   edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geom_token;
+  edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord> trigGeom_token;
 
   int l1track_n_;
   std::vector<float> l1track_pt_;
@@ -68,6 +71,7 @@ void L1TriggerNtupleTrackTrigger::initialize(TTree& tree,
       collector.consumes<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>(conf.getParameter<edm::InputTag>("TTTracks"));
   magf_token = collector.esConsumes();
   geom_token = collector.esConsumes();
+  trigGeom_token = collector.esConsumes();
 
   tree.Branch(branch_name_w_prefix("n").c_str(), &l1track_n_, branch_name_w_prefix("n/I").c_str());
   tree.Branch(branch_name_w_prefix("pt").c_str(), &l1track_pt_);
@@ -98,7 +102,7 @@ void L1TriggerNtupleTrackTrigger::fill(const edm::Event& ev, const edm::EventSet
   const edm::ESHandle<TrackerGeometry>& geomHandle = es.getHandle(geom_token);
   const TrackerGeometry* tGeom = geomHandle.product();
 
-  triggerTools_.eventSetup(es);
+  triggerTools_.eventSetup(es, trigGeom_token);
 
   clear();
   for (auto trackIter = l1TTTrackHandle->begin(); trackIter != l1TTTrackHandle->end(); ++trackIter) {

@@ -6,6 +6,7 @@
 <use name="GeneratorInterface/LHEInterface"/>
 <use name="heppdt"/>
 <use name="boost"/>
+<use name="hepmc"/>
 <use name="clhep"/>
 <use name="lhapdf"/>
 <use name="f77compiler"/>

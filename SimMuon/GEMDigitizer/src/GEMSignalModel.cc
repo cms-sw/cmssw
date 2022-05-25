@@ -21,18 +21,10 @@ GEMSignalModel::GEMSignalModel(const edm::ParameterSet& config)
       timeJitter_(config.getParameter<double>("timeJitter")),
       signalPropagationSpeed_(config.getParameter<double>("signalPropagationSpeed")),
       bx0filter_(config.getParameter<bool>("bx0filter")),
-      digitizeOnlyMuons_(config.getParameter<bool>("digitizeOnlyMuons")),
       resolutionX_(config.getParameter<double>("resolutionX")),
-      muonPdgId(13),
       cspeed(geant_units::operators::convertMmToCm(CLHEP::c_light)),
-      momConvFact(1000.),
-      elecMomCut1(1.96e-03),
-      elecMomCut2(10.e-03),
-      elecEffLowCoeff(1.7e-05),
-      elecEffLowParam0(2.1),
-      elecEffMidCoeff(1.34),
-      elecEffMidParam0(-5.75e-01),
-      elecEffMidParam1(7.96e-01) {}
+      // average energy required to remove an electron due to ionization for an Ar/CO2 gas mixture (in the ratio of 70/30) is 28.1 eV
+      energyMinCut(28.1e-09) {}
 
 GEMSignalModel::~GEMSignalModel() {}
 
@@ -41,31 +33,9 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
                               CLHEP::HepRandomEngine* engine,
                               Strips& strips_,
                               DetectorHitMap& detectorHitMap_) {
-  bool digiMuon = false;
-  bool digiElec = false;
   const GEMStripTopology* top(dynamic_cast<const GEMStripTopology*>(&(roll->topology())));
   for (const auto& hit : simHits) {
-    if (std::abs(hit.particleType()) != muonPdgId && digitizeOnlyMuons_)
-      continue;
-    double elecEff = 0.;
-    double partMom = hit.pabs();
-    double checkMuonEff = CLHEP::RandFlat::shoot(engine, 0., 1.);
-    double checkElecEff = CLHEP::RandFlat::shoot(engine, 0., 1.);
-    if (std::abs(hit.particleType()) == muonPdgId && checkMuonEff < averageEfficiency_)
-      digiMuon = true;
-    if (std::abs(hit.particleType()) != muonPdgId)  //consider all non muon particles with gem efficiency to electrons
-    {
-      if (partMom <= elecMomCut1)
-        elecEff = elecEffLowCoeff * std::exp(elecEffLowParam0 * partMom * momConvFact);
-      if (partMom > elecMomCut1 && partMom < elecMomCut2)
-        elecEff = elecEffMidCoeff * log(elecEffMidParam1 * partMom * momConvFact + elecEffMidParam0) /
-                  (elecEffMidCoeff + log(elecEffMidParam1 * partMom * momConvFact + elecEffMidParam0));
-      if (partMom > elecMomCut2)
-        elecEff = 1.;
-      if (checkElecEff < elecEff)
-        digiElec = true;
-    }
-    if (!(digiMuon || digiElec))
+    if (hit.energyLoss() < energyMinCut)
       continue;
     const int bx(getSimHitBx(&hit, engine));
     if (bx != 0 and bx0filter_)

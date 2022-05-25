@@ -270,6 +270,7 @@ trackingMkFitLowPtTripletStep.toReplaceWith(lowPtTripletStepTrackCandidates, mkF
     mkFitSeeds = 'lowPtTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'lowPtTripletStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(lowPtTripletStepTrackCandidatesMkFitConfig, minPt=0.49)
 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(lowPtTripletStepTrackCandidates,

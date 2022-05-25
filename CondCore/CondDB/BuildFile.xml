@@ -1,6 +1,7 @@
 <use name="CondFormats/Serialization"/>
 <use name="CondFormats/Common"/>
 <use name="FWCore/Framework"/>
+<use name="Utilities/OpenSSL"/>
 <use name="boost"/>
 <use name="openssl"/>
 <use name="curl"/>

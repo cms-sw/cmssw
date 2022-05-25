@@ -1,19 +1,101 @@
-
-
-/** \file MEtoEDMConverter.cc
+/** \class MEtoEDMConverter
  *
- *  See header file for description of class
+ *  Class to take dqm monitor elements and convert into a
+ *  ROOT dataformat stored in Run tree of edm file
  *
  *  \author M. Strang SUNY-Buffalo
  */
 
-#include <cassert>
-
-#include "DQMServices/Components/plugins/MEtoEDMConverter.h"
-#include "classlib/utils/StringList.h"
-#include "classlib/utils/StringOps.h"
+// framework & common header files
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Histograms/interface/DQMToken.h"
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+//DQM services
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "classlib/utils/StringList.h"
+#include "classlib/utils/StringOps.h"
+
+// helper files
+#include <iostream>
+#include <cstdlib>
+#include <string>
+#include <memory>
+#include <vector>
+#include <map>
+#include <cassert>
+#include <cstdint>
+
+#include "TString.h"
+#include "TH1F.h"
+#include "TH1S.h"
+#include "TH1D.h"
+#include "TH1I.h"
+#include "TH2F.h"
+#include "TH2S.h"
+#include "TH2D.h"
+#include "TH2I.h"
+#include "TH3F.h"
+#include "TProfile.h"
+#include "TProfile2D.h"
+#include "TObjString.h"
+
+namespace meedm {
+  struct Void {};
+}  // namespace meedm
+
+//Using RunCache and LuminosityBlockCache tells the framework the module is able to
+// allow multiple concurrent Runs and LuminosityBlocks.
+
+class MEtoEDMConverter : public edm::one::EDProducer<edm::RunCache<meedm::Void>,
+                                                     edm::LuminosityBlockCache<meedm::Void>,
+                                                     edm::EndLuminosityBlockProducer,
+                                                     edm::EndRunProducer,
+                                                     edm::one::SharedResources> {
+public:
+  typedef dqm::legacy::DQMStore DQMStore;
+  typedef dqm::legacy::MonitorElement MonitorElement;
+
+  explicit MEtoEDMConverter(const edm::ParameterSet&);
+  ~MEtoEDMConverter() override;
+  void beginJob() override;
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  std::shared_ptr<meedm::Void> globalBeginRun(edm::Run const&, const edm::EventSetup&) const override;
+  void globalEndRun(edm::Run const&, const edm::EventSetup&) override;
+  void endRunProduce(edm::Run&, const edm::EventSetup&) override;
+  void endLuminosityBlockProduce(edm::LuminosityBlock&, const edm::EventSetup&) override;
+  void globalEndLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
+  std::shared_ptr<meedm::Void> globalBeginLuminosityBlock(edm::LuminosityBlock const&,
+                                                          edm::EventSetup const&) const override;
+
+  template <class T>
+  void putData(DQMStore::IGetter& g, T& iPutTo, bool iLumiOnly, uint32_t run, uint32_t lumi);
+
+  using TagList = std::vector<uint32_t>;
+
+private:
+  std::string fName;
+  int verbosity;
+  int frequency;
+  std::string path;
+
+  // private statistics information
+  std::map<int, int> iCount;
+
+};  // end class declaration
 
 using namespace lat;
 
@@ -48,9 +130,11 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
   produces<MEtoEDM<TH1F>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH1S>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH1D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH1I>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH2F>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH2S>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH2D>, edm::Transition::EndRun>(sName);
+  produces<MEtoEDM<TH2I>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TH3F>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TProfile>, edm::Transition::EndRun>(sName);
   produces<MEtoEDM<TProfile2D>, edm::Transition::EndRun>(sName);
@@ -62,9 +146,11 @@ MEtoEDMConverter::MEtoEDMConverter(const edm::ParameterSet& iPSet) : fName(""), 
   produces<MEtoEDM<TH1F>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH1S>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH1D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH1I>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH2F>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH2S>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH2D>, edm::Transition::EndLuminosityBlock>(sName);
+  produces<MEtoEDM<TH2I>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TH3F>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TProfile>, edm::Transition::EndLuminosityBlock>(sName);
   produces<MEtoEDM<TProfile2D>, edm::Transition::EndLuminosityBlock>(sName);
@@ -121,9 +207,11 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
   unsigned int n1F = 0;
   unsigned int n1S = 0;
   unsigned int n1D = 0;
+  unsigned int n1I = 0;
   unsigned int n2F = 0;
   unsigned int n2S = 0;
   unsigned int n2D = 0;
+  unsigned int n2I = 0;
   unsigned int n3F = 0;
   unsigned int nProf = 0;
   unsigned int nProf2 = 0;
@@ -166,6 +254,10 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
         ++n1D;
         break;
 
+      case MonitorElement::Kind::TH1I:
+        ++n1I;
+        break;
+
       case MonitorElement::Kind::TH2F:
         ++n2F;
         break;
@@ -176,6 +268,10 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
 
       case MonitorElement::Kind::TH2D:
         ++n2D;
+        break;
+
+      case MonitorElement::Kind::TH2I:
+        ++n2I;
         break;
 
       case MonitorElement::Kind::TH3F:
@@ -204,9 +300,11 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
   std::unique_ptr<MEtoEDM<TH1F> > pOut1(new MEtoEDM<TH1F>(n1F));
   std::unique_ptr<MEtoEDM<TH1S> > pOut1s(new MEtoEDM<TH1S>(n1S));
   std::unique_ptr<MEtoEDM<TH1D> > pOut1d(new MEtoEDM<TH1D>(n1D));
+  std::unique_ptr<MEtoEDM<TH1I> > pOut1i(new MEtoEDM<TH1I>(n1I));
   std::unique_ptr<MEtoEDM<TH2F> > pOut2(new MEtoEDM<TH2F>(n2F));
   std::unique_ptr<MEtoEDM<TH2S> > pOut2s(new MEtoEDM<TH2S>(n2S));
   std::unique_ptr<MEtoEDM<TH2D> > pOut2d(new MEtoEDM<TH2D>(n2D));
+  std::unique_ptr<MEtoEDM<TH2I> > pOut2i(new MEtoEDM<TH2I>(n2I));
   std::unique_ptr<MEtoEDM<TH3F> > pOut3(new MEtoEDM<TH3F>(n3F));
   std::unique_ptr<MEtoEDM<TProfile> > pOutProf(new MEtoEDM<TProfile>(nProf));
   std::unique_ptr<MEtoEDM<TProfile2D> > pOutProf2(new MEtoEDM<TProfile2D>(nProf2));
@@ -245,6 +343,10 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
         pOut1d->putMEtoEdmObject(me->getFullname(), *me->getTH1D());
         break;
 
+      case MonitorElement::Kind::TH1I:
+        pOut1i->putMEtoEdmObject(me->getFullname(), *me->getTH1I());
+        break;
+
       case MonitorElement::Kind::TH2F:
         pOut2->putMEtoEdmObject(me->getFullname(), *me->getTH2F());
         break;
@@ -255,6 +357,10 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
 
       case MonitorElement::Kind::TH2D:
         pOut2d->putMEtoEdmObject(me->getFullname(), *me->getTH2D());
+        break;
+
+      case MonitorElement::Kind::TH2I:
+        pOut2i->putMEtoEdmObject(me->getFullname(), *me->getTH2I());
         break;
 
       case MonitorElement::Kind::TH3F:
@@ -296,9 +402,14 @@ void MEtoEDMConverter::putData(DQMStore::IGetter& iGetter, T& iPutTo, bool iLumi
   iPutTo.put(std::move(pOut2), sName);
   iPutTo.put(std::move(pOut2s), sName);
   iPutTo.put(std::move(pOut2d), sName);
+  iPutTo.put(std::move(pOut2i), sName);
   iPutTo.put(std::move(pOut3), sName);
   iPutTo.put(std::move(pOutProf), sName);
   iPutTo.put(std::move(pOutProf2), sName);
 }
 
 void MEtoEDMConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {}
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(MEtoEDMConverter);

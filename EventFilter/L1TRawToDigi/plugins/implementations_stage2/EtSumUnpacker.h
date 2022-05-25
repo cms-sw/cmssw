@@ -12,7 +12,7 @@ namespace l1t {
 
       bool unpack(const Block& block, UnpackerCollections* coll) override;
 
-      inline void setEtSumCopy(const unsigned int copy) { EtSumCopy_ = copy; };
+      virtual inline void setEtSumCopy(const unsigned int copy) { EtSumCopy_ = copy; };
 
     private:
       unsigned int EtSumCopy_;

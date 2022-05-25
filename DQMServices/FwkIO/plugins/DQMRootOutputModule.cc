@@ -255,12 +255,16 @@ static TreeHelperBase* makeHelper(unsigned int iTypeIndex, TTree* iTree, std::st
       return new TreeHelper<TH1S>(iTree, iFullNameBufferPtr);
     case kTH1DIndex:
       return new TreeHelper<TH1D>(iTree, iFullNameBufferPtr);
+    case kTH1IIndex:
+      return new TreeHelper<TH1I>(iTree, iFullNameBufferPtr);
     case kTH2FIndex:
       return new TreeHelper<TH2F>(iTree, iFullNameBufferPtr);
     case kTH2SIndex:
       return new TreeHelper<TH2S>(iTree, iFullNameBufferPtr);
     case kTH2DIndex:
       return new TreeHelper<TH2D>(iTree, iFullNameBufferPtr);
+    case kTH2IIndex:
+      return new TreeHelper<TH2I>(iTree, iFullNameBufferPtr);
     case kTH3FIndex:
       return new TreeHelper<TH3F>(iTree, iFullNameBufferPtr);
     case kTProfileIndex:
@@ -376,9 +380,11 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH1F] = kTH1FIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH1S] = kTH1SIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH1D] = kTH1DIndex;
+  m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH1I] = kTH1IIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH2F] = kTH2FIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH2S] = kTH2SIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH2D] = kTH2DIndex;
+  m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH2I] = kTH2IIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TH3F] = kTH3FIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TPROFILE] = kTProfileIndex;
   m_dqmKindToTypeIndex[(int)MonitorElement::Kind::TPROFILE2D] = kTProfile2DIndex;
