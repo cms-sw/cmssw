@@ -144,9 +144,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
              << " and has at least " << nModsMin_ << " nModsMin.";
 
   auto h_module_total = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_total->loadTkHistoMap(inputFolder_, "perModule_total");
+  h_module_total->loadTkHistoMap(fmt::format("{}/TkDetMaps", inputFolder_), "perModule_total");
   auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_found->loadTkHistoMap(inputFolder_, "perModule_found");
+  h_module_found->loadTkHistoMap(fmt::format("{}/TkDetMaps", inputFolder_), "perModule_found");
 
   // collect how many layers are missing
   const auto& totalMaps = h_module_total->getAllMaps();
@@ -169,6 +169,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   LogDebug("SiStripHitEfficiencyHarvester")
       << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
       << h_module_found->getMap(3)->getEntries();
+
+  // come back to the main folder
+  booker.setCurrentFolder(inputFolder_);
 
   std::vector<MonitorElement*> hEffInLayer(std::size_t(1), nullptr);
   hEffInLayer.reserve(23);
@@ -396,16 +399,16 @@ void SiStripHitEfficiencyHarvester::makeSummaryVsBX(DQMStore::IGetter& getter, T
 
 void SiStripHitEfficiencyHarvester::makeSummaryVsLumi(DQMStore::IGetter& getter) const {
   for (unsigned int iLayer = 1; iLayer != (showRings_ ? 20 : 22); ++iLayer) {
-    auto hfound = getter.get(fmt::format("{}/layerfound_vsLumi_layer_{}", inputFolder_, iLayer))->getTH1F();
-    auto htotal = getter.get(fmt::format("{}/layertotal_vsLumi_layer_{}", inputFolder_, iLayer))->getTH1F();
+    auto hfound = getter.get(fmt::format("{}/VsLumi/layerfound_vsLumi_layer_{}", inputFolder_, iLayer))->getTH1F();
+    auto htotal = getter.get(fmt::format("{}/VsLumi/layertotal_vsLumi_layer_{}", inputFolder_, iLayer))->getTH1F();
 
     if (hfound == nullptr or htotal == nullptr) {
       if (hfound == nullptr)
         edm::LogError("SiStripHitEfficiencyHarvester")
-            << fmt::format("{}/layerfound_vsLumi_layer_{}", inputFolder_, iLayer) << " was not found!";
+            << fmt::format("{}/VsLumi/layerfound_vsLumi_layer_{}", inputFolder_, iLayer) << " was not found!";
       if (htotal == nullptr)
         edm::LogError("SiStripHitEfficiencyHarvester")
-            << fmt::format("{}/layertotal_vsLumi_layer_{}", inputFolder_, iLayer) << " was not found!";
+            << fmt::format("{}/VsLumi/layertotal_vsLumi_layer_{}", inputFolder_, iLayer) << " was not found!";
       // no input histograms -> continue in the loop
       continue;
     }
