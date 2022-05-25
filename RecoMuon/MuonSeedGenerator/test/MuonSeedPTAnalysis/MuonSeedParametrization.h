@@ -11,7 +11,7 @@
 #include "MuonSeedParaFillHisto.h"
 #include "MuonSeeddPhiScale.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <DataFormats/Common/interface/Handle.h>
 
@@ -70,7 +70,7 @@ class SegSelector;
 class MuonSeedParaFillHisto;
 class MuonSeeddPhiScale;
 
-class MuonSeedParametrization : public edm::EDAnalyzer {
+class MuonSeedParametrization : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   MuonSeedParametrization(const edm::ParameterSet &pset);
@@ -200,6 +200,9 @@ private:
   std::string simHitLabel;
   std::string simTrackLabel;
   std::string muonseedLabel;
+
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken;
+  edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken;
 };
 
 #endif

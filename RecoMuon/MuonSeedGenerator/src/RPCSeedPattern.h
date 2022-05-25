@@ -25,6 +25,8 @@
 #define lower_limit_pt 3.0
 #endif
 
+class RPCGeometry;
+
 class RPCSeedPattern {
   typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
@@ -45,18 +47,18 @@ public:
 
 private:
   friend class RPCSeedFinder;
-  weightedTrajectorySeed seed(const edm::EventSetup& eSetup, int& isGoodSeed);
+  weightedTrajectorySeed seed(const MagneticField& Field, const RPCGeometry& rpcGeom, int& isGoodSeed);
   void ThreePointsAlgorithm();
   void MiddlePointsAlgorithm();
   void SegmentAlgorithm();
-  void SegmentAlgorithmSpecial(const edm::EventSetup& eSetup);
+  void SegmentAlgorithmSpecial(const MagneticField& Field);
   bool checkSegment() const;
   ConstMuonRecHitPointer FirstRecHit() const;
   ConstMuonRecHitPointer BestRefRecHit() const;
   LocalTrajectoryError getSpecialAlgorithmErrorMatrix(const ConstMuonRecHitPointer& first,
                                                       const ConstMuonRecHitPointer& best);
-  weightedTrajectorySeed createFakeSeed(int& isGoodSeed, const edm::EventSetup& eSetup);
-  weightedTrajectorySeed createSeed(int& isGoodSeed, const edm::EventSetup& eSetup);
+  weightedTrajectorySeed createFakeSeed(int& isGoodSeed, const MagneticField&);
+  weightedTrajectorySeed createSeed(int& isGoodSeed, const MagneticField&);
   double getDistance(const ConstMuonRecHitPointer& precHit, const GlobalVector& Center) const;
   bool checkStraightwithThreerecHits(ConstMuonRecHitPointer (&precHit)[3], double MinDeltaPhi) const;
   GlobalVector computePtwithThreerecHits(double& pt, double& pt_err, ConstMuonRecHitPointer (&precHit)[3]) const;
@@ -65,14 +67,15 @@ private:
   bool checkStraightwithThreerecHits(double (&x)[3], double (&y)[3], double MinDeltaPhi) const;
   GlobalVector computePtWithThreerecHits(double& pt, double& pt_err, double (&x)[3], double (&y)[3]) const;
 
-  void checkSimplePattern(const edm::EventSetup& eSetup);
-  void checkSegmentAlgorithmSpecial(const edm::EventSetup& eSetup);
+  void checkSimplePattern(const MagneticField& Field);
+  void checkSegmentAlgorithmSpecial(const MagneticField& Field, const RPCGeometry& rpcGeometry);
   double extropolateStep(const GlobalPoint& startPosition,
                          const GlobalVector& startMomentum,
                          ConstMuonRecHitContainer::const_iterator iter,
                          const int ClockwiseDirection,
                          double& tracklength,
-                         const edm::EventSetup& eSetup);
+                         const MagneticField& Field,
+                         const RPCGeometry& rpcGeometry);
 
   //void computeBestPt(double* pt, double* spt, double& ptmean0, double& sptmean0, unsigned int NumberofPt) const;
 
