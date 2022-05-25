@@ -389,6 +389,7 @@ void DDHGCalSiliconRotatedModule::constructLayers(const DDLogicalPart& module, D
   }  // End of loop over blocks
 }
 
+// Position the silicon modules
 void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, int layer, DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
   int layercenter = layerOrient_[layer];
