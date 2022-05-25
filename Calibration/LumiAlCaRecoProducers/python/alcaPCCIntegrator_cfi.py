@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 alcaPCCIntegrator = cms.EDProducer("AlcaPCCIntegrator",
     AlcaPCCIntegratorParameters = cms.PSet(
-        inputPccLabel = cms.string("hltAlcaPixelClusterCounts"),
-        trigstring = cms.untracked.string("alcaPCCEvent"),
+        inputPccLabel = cms.InputTag("hltAlcaPixelClusterCounts","alcaPCCEvent"),
         ProdInst = cms.string("alcaPCCRandom")
     )
 )

@@ -47,19 +47,16 @@ public:
                                        reco::PixelClusterCounts const* iCounts) const override;
 
 private:
-  edm::EDPutTokenT<reco::PixelClusterCounts> lumiPutToken_;
-  edm::InputTag thePCCInputTag_;
-  edm::EDGetTokenT<reco::PixelClusterCountsInEvent> pccToken_;
+  const edm::EDPutTokenT<reco::PixelClusterCounts> lumiPutToken_;
+  const edm::EDGetTokenT<reco::PixelClusterCountsInEvent> pccToken_;
 };
 
 AlcaPCCIntegrator::AlcaPCCIntegrator(const edm::ParameterSet& iConfig)
     : lumiPutToken_(produces<reco::PixelClusterCounts, edm::Transition::EndLuminosityBlock>(
           iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters").getParameter<std::string>("ProdInst"))),
-      thePCCInputTag_(iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters")
-                          .getParameter<std::string>("inputPccLabel"),
-                      iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters")
-                          .getUntrackedParameter<std::string>("trigstring", "alcaPCC")),
-      pccToken_(consumes<reco::PixelClusterCountsInEvent>(thePCCInputTag_)) {}
+      pccToken_(consumes<reco::PixelClusterCountsInEvent>(
+          iConfig.getParameter<edm::ParameterSet>("AlcaPCCIntegratorParameters")
+              .getParameter<edm::InputTag>("inputPccLabel"))) {}
 
 std::unique_ptr<reco::PixelClusterCounts> AlcaPCCIntegrator::beginStream(edm::StreamID StreamID) const {
   return std::make_unique<reco::PixelClusterCounts>();
