@@ -87,7 +87,6 @@ private:
   edm::EDGetTokenT<std::vector<reco::Vertex>> RecVertexToken_;
 
   edm::EDGetTokenT<edm::HepMCProduct> HepMCProductToken_;
-  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<CrossingFrame<PSimHit>> btlSimHitsToken_;
@@ -168,8 +167,6 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
   HepMCProductToken_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("inputTagH"));
-  trackingParticleCollectionToken_ =
-      consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
   simToRecoAssociationToken_ =
       consumes<reco::SimToRecoCollection>(iConfig.getParameter<edm::InputTag>("TPtoRecoTrackAssoc"));
   recoToSimAssociationToken_ =
@@ -386,8 +383,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   auto pdt = iSetup.getHandle(particleTableToken_);
   const HepPDT::ParticleDataTable* pdTable = pdt.product();
-
-  auto TPCollectionH = makeValid(iEvent.getHandle(trackingParticleCollectionToken_));
 
   auto simToRecoH = makeValid(iEvent.getHandle(simToRecoAssociationToken_));
   s2r_ = simToRecoH.product();
@@ -611,7 +606,6 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("inputTagT", edm::InputTag("trackExtenderWithMTD"));
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));
   desc.add<edm::InputTag>("inputTagH", edm::InputTag("generatorSmeared"));
-  desc.add<edm::InputTag>("SimTag", edm::InputTag("mix", "MergedTrackTruth"));
   desc.add<edm::InputTag>("TPtoRecoTrackAssoc", edm::InputTag("trackingParticleRecoTrackAsssociation"));
   desc.add<edm::InputTag>("btlSimHits", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<edm::InputTag>("etlSimHits", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
