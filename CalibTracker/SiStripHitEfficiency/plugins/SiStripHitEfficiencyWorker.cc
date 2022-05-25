@@ -300,20 +300,20 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
         booker.book1D(Form("foundVsBx_layer%i", layer), Form("layer %i (%s)", layer, lyrName.c_str()), 3565, 0, 3565)));
 
     // book hot and cold
-    booker.setCurrentFolder(fmt::format("{}/HotAndCold", dqmDir_));
+    booker.setCurrentFolder(fmt::format("{}/MissingHits", dqmDir_));
     if (layer <= bounds::k_LayersAtTOBEnd) {
       const bool isTIB = layer <= bounds::k_LayersAtTIBEnd;
       const auto partition = (isTIB ? "TIB" : "TOB");
       const auto yMax = (isTIB ? 100 : 120);
 
-      const auto tit = Form("%s%i", partition, (isTIB ? layer : layer - bounds::k_LayersAtTIBEnd));
+      const auto tit = Form("%s%i: Map of missing hits", partition, (isTIB ? layer : layer - bounds::k_LayersAtTIBEnd));
 
       auto ihhotcold = booker.book2D(tit, tit, 100, -1, 361, 100, -yMax, yMax);
-      ihhotcold->setAxisTitle("Phi", 1);
+      ihhotcold->setAxisTitle("#phi [deg]", 1);
       ihhotcold->setBinLabel(1, "360", 1);
       ihhotcold->setBinLabel(50, "180", 1);
       ihhotcold->setBinLabel(100, "0", 1);
-      ihhotcold->setAxisTitle("Global Z", 2);
+      ihhotcold->setAxisTitle("Global Z [cm]", 2);
       ihhotcold->setOption("colz");
       h_hotcold.push_back(ihhotcold);
     } else {
@@ -322,8 +322,9 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
           (isTID ? std::vector<std::string>{"TID-", "TID+"} : std::vector<std::string>{"TEC-", "TEC+"});
       const auto axMax = (isTID ? 100 : 120);
       for (const auto& part : partitions) {
-        const auto tit =
-            Form("%s%i", part.c_str(), (isTID ? layer - bounds::k_LayersAtTOBEnd : layer - bounds::k_LayersAtTIDEnd));
+        const auto tit = Form("%s%i: Map of missing hits",
+                              part.c_str(),
+                              (isTID ? layer - bounds::k_LayersAtTOBEnd : layer - bounds::k_LayersAtTIDEnd));
 
         auto ihhotcold = booker.book2D(tit, tit, 100, -axMax, axMax, 100, -axMax, axMax);
         ihhotcold->setAxisTitle("Global Y", 1);
