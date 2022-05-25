@@ -1,6 +1,7 @@
 #include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 #include "TFile.h"
+#include "TTree.h"
 
 #include <filesystem>
 #include <iostream>
@@ -24,10 +25,15 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  auto gbrForest = createGBRForest(inputFileName);
+  std::vector<std::string> variableNames;
+  auto gbrForest = createGBRForest(inputFileName, variableNames);
   std::cout << "Read GBRForest " << inputFileName << " successfully." << std::endl;
 
-  TFile{outputFileName, "RECREATE"}.WriteObject(gbrForest.get(), "gbrForest");
+  {
+    TFile f{outputFileName, "RECREATE"};
+    f.WriteObject(gbrForest.get(), "gbrForest");
+    f.WriteObject(&variableNames, "variableNames");
+  }
   std::cout << "GBRForest written to " << outputFileName << " successfully." << std::endl;
 
   return 0;
