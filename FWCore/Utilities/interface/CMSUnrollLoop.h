@@ -30,9 +30,9 @@
 
 #elif defined(__INTEL_COMPILER)
 // Intel icc compiler
-#define CMS_UNROLL_LOOP _Pragma(EDM_STRINGIFY(unroll))
-#define CMS_UNROLL_LOOP_COUNT(N) _Pragma(EDM_STRINGIFY(unroll(N)))
-#define CMS_UNROLL_LOOP_DISABLE _Pragma(EDM_STRINGIFY(nounroll))
+#define CMS_UNROLL_LOOP _Pragma(EDM_STRINGIZE(unroll))
+#define CMS_UNROLL_LOOP_COUNT(N) _Pragma(EDM_STRINGIZE(unroll(N)))
+#define CMS_UNROLL_LOOP_DISABLE _Pragma(EDM_STRINGIZE(nounroll))
 
 #elif defined(__GNUC__)
 // GCC host compiler
