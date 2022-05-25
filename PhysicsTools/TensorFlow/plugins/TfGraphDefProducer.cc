@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:    RecoTracker/FinalTrackSelectors
+// Package:    PhysicsTools/TensorFlow
 // Class:      TFGraphDefProducer
 //
 /**\class TFGraphDefProducer
@@ -20,8 +20,8 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "TrackingTools/Records/interface/TfGraphRecord.h"
-#include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
+#include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
+#include "PhysicsTools/TensorFlow/interface/TfGraphDefWrapper.h"
 
 // class declaration
 
