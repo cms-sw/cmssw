@@ -10,7 +10,7 @@
 #include "MuonSeedValidatorHisto.h"
 #include "SegSelector.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <DataFormats/Common/interface/Handle.h>
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -72,7 +72,7 @@ class DTChamberId;
 class SegSelector;
 //class MuonSeedBuilder;
 
-class MuonSeedValidator : public edm::EDAnalyzer {
+class MuonSeedValidator : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   MuonSeedValidator(const edm::ParameterSet &pset);
@@ -267,6 +267,9 @@ private:
   double pTCutMin;
   double eta_Low;
   double eta_High;
+
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> cscGeomToken;
+  const edm::ESGetToken<DTGeometry, MuonGeometryRecord> dtGeomToken;
 };
 
 #endif

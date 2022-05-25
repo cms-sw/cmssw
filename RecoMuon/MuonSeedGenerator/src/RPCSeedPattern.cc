@@ -9,7 +9,6 @@
 #include "RecoMuon/MuonSeedGenerator/src/RPCSeedPattern.h"
 #include <RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h>
 #include <MagneticField/Engine/interface/MagneticField.h>
-#include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 #include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>
 #include <TrackingTools/DetLayers/interface/DetLayer.h>
 #include <DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h>
@@ -20,7 +19,6 @@
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/RPCGeometry/interface/RPCChamber.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 #include "gsl/gsl_statistics.h"
 #include "TH1F.h"
@@ -50,16 +48,19 @@ void RPCSeedPattern::configure(const edm::ParameterSet& iConfig) {
   isConfigured = true;
 }
 
-RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::seed(const edm::EventSetup& eSetup, int& isGoodSeed) {
+RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::seed(const MagneticField& Field,
+                                                            const RPCGeometry& rpcGeom,
+                                                            int& isGoodSeed) {
   if (isConfigured == false) {
     cout << "Configuration not set yet" << endl;
-    return createFakeSeed(isGoodSeed, eSetup);
+    return createFakeSeed(isGoodSeed, Field);
   }
 
   // Check recHit number, if fail we return a fake seed and set pattern to "wrong"
   unsigned int NumberofHitsinSeed = nrhit();
-  if (NumberofHitsinSeed < 3)
-    return createFakeSeed(isGoodSeed, eSetup);
+  if (NumberofHitsinSeed < 3) {
+    return createFakeSeed(isGoodSeed, Field);
+  }
   // If only three recHits, we don't have other choice
   if (NumberofHitsinSeed == 3)
     ThreePointsAlgorithm();
@@ -74,17 +75,17 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::seed(const edm::EventSetu
       if (AlgorithmType == 2)
         SegmentAlgorithm();
       if (AlgorithmType == 3) {
-        if (checkSegment())
-          SegmentAlgorithmSpecial(eSetup);
-        else {
+        if (checkSegment()) {
+          SegmentAlgorithmSpecial(Field);
+        } else {
           cout << "Not enough recHits for Special Segment Algorithm" << endl;
-          return createFakeSeed(isGoodSeed, eSetup);
+          return createFakeSeed(isGoodSeed, Field);
         }
       }
     } else {
       if (checkSegment()) {
         AlgorithmType = 3;
-        SegmentAlgorithmSpecial(eSetup);
+        SegmentAlgorithmSpecial(Field);
       } else {
         AlgorithmType = 2;
         SegmentAlgorithm();
@@ -95,13 +96,13 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::seed(const edm::EventSetu
   // Check the pattern
   if (isPatternChecked == false) {
     if (AlgorithmType != 3) {
-      checkSimplePattern(eSetup);
+      checkSimplePattern(Field);
     } else {
-      checkSegmentAlgorithmSpecial(eSetup);
+      checkSegmentAlgorithmSpecial(Field, rpcGeom);
     }
   }
 
-  return createSeed(isGoodSeed, eSetup);
+  return createSeed(isGoodSeed, Field);
 }
 
 void RPCSeedPattern::ThreePointsAlgorithm() {
@@ -274,11 +275,7 @@ void RPCSeedPattern::SegmentAlgorithm() {
   delete[] Segment;
 }
 
-void RPCSeedPattern::SegmentAlgorithmSpecial(const edm::EventSetup& eSetup) {
-  // Get magnetic field
-  edm::ESHandle<MagneticField> Field;
-  eSetup.get<IdealMagneticFieldRecord>().get(Field);
-
+void RPCSeedPattern::SegmentAlgorithmSpecial(const MagneticField& Field) {
   //unsigned int NumberofHitsinSeed = nrhit();
   if (!checkSegment()) {
     isPatternChecked = true;
@@ -297,7 +294,7 @@ void RPCSeedPattern::SegmentAlgorithmSpecial(const edm::EventSetup& eSetup) {
     for (unsigned int index = 0; index < sampleCount; index++) {
       gp[index] = GlobalPoint(
           (gpFirst.x() + dx * (index + 1)), (gpFirst.y() + dy * (index + 1)), (gpFirst.z() + dz * (index + 1)));
-      GlobalVector MagneticVec_temp = Field->inTesla(gp[index]);
+      GlobalVector MagneticVec_temp = Field.inTesla(gp[index]);
       cout << "Sampling magnetic field : " << MagneticVec_temp << endl;
       //BValue.push_back(MagneticVec_temp);
     }
@@ -320,24 +317,24 @@ void RPCSeedPattern::SegmentAlgorithmSpecial(const edm::EventSetup& eSetup) {
   // extrapolate the segment to find the Iron border which magnetic field is at large value
   entryPosition = (SegmentRB[0].second)->globalPosition();
   leavePosition = (SegmentRB[1].first)->globalPosition();
-  while (fabs(Field->inTesla(entryPosition).z()) < MagnecticFieldThreshold) {
+  while (fabs(Field.inTesla(entryPosition).z()) < MagnecticFieldThreshold) {
     cout << "Entry position is : " << entryPosition << ", and stepping into next point" << endl;
     entryPosition += segvec1.unit() * stepLength;
   }
   // Loop back for more accurate by stepLength/10
-  while (fabs(Field->inTesla(entryPosition).z()) >= MagnecticFieldThreshold) {
+  while (fabs(Field.inTesla(entryPosition).z()) >= MagnecticFieldThreshold) {
     cout << "Entry position is : " << entryPosition << ", and stepping back into next point" << endl;
     entryPosition -= segvec1.unit() * stepLength / 10;
   }
   entryPosition += 0.5 * segvec1.unit() * stepLength / 10;
   cout << "Final entry position is : " << entryPosition << endl;
 
-  while (fabs(Field->inTesla(leavePosition).z()) < MagnecticFieldThreshold) {
+  while (fabs(Field.inTesla(leavePosition).z()) < MagnecticFieldThreshold) {
     cout << "Leave position is : " << leavePosition << ", and stepping into next point" << endl;
     leavePosition -= segvec2.unit() * stepLength;
   }
   // Loop back for more accurate by stepLength/10
-  while (fabs(Field->inTesla(leavePosition).z()) >= MagnecticFieldThreshold) {
+  while (fabs(Field.inTesla(leavePosition).z()) >= MagnecticFieldThreshold) {
     cout << "Leave position is : " << leavePosition << ", and stepping back into next point" << endl;
     leavePosition += segvec2.unit() * stepLength / 10;
   }
@@ -355,7 +352,7 @@ void RPCSeedPattern::SegmentAlgorithmSpecial(const edm::EventSetup& eSetup) {
     gp[index] = GlobalPoint((entryPosition.x() + dx * (index + 1)),
                             (entryPosition.y() + dy * (index + 1)),
                             (entryPosition.z() + dz * (index + 1)));
-    GlobalVector MagneticVec_temp = Field->inTesla(gp[index]);
+    GlobalVector MagneticVec_temp = Field.inTesla(gp[index]);
     cout << "Sampling magnetic field : " << MagneticVec_temp << endl;
     BValue.push_back(MagneticVec_temp);
   }
@@ -604,13 +601,9 @@ GlobalVector RPCSeedPattern::computePtWithThreerecHits(double& pt,
   return Center;
 }
 
-void RPCSeedPattern::checkSimplePattern(const edm::EventSetup& eSetup) {
+void RPCSeedPattern::checkSimplePattern(const MagneticField& Field) {
   if (isPatternChecked == true)
     return;
-
-  // Get magnetic field
-  edm::ESHandle<MagneticField> Field;
-  eSetup.get<IdealMagneticFieldRecord>().get(Field);
 
   unsigned int NumberofHitsinSeed = nrhit();
 
@@ -630,7 +623,7 @@ void RPCSeedPattern::checkSimplePattern(const edm::EventSetup& eSetup) {
     for (unsigned int index = 0; index < sampleCount; index++) {
       gp[index] = GlobalPoint(
           (gpFirst.x() + dx * (index + 1)), (gpFirst.y() + dy * (index + 1)), (gpFirst.z() + dz * (index + 1)));
-      GlobalVector MagneticVec_temp = Field->inTesla(gp[index]);
+      GlobalVector MagneticVec_temp = Field.inTesla(gp[index]);
       cout << "Sampling magnetic field : " << MagneticVec_temp << endl;
       BzValue.push_back(MagneticVec_temp.z());
     }
@@ -745,7 +738,7 @@ void RPCSeedPattern::checkSimplePattern(const edm::EventSetup& eSetup) {
   isPatternChecked = true;
 }
 
-void RPCSeedPattern::checkSegmentAlgorithmSpecial(const edm::EventSetup& eSetup) {
+void RPCSeedPattern::checkSegmentAlgorithmSpecial(MagneticField const& Field, RPCGeometry const& rpcGeom) {
   if (isPatternChecked == true)
     return;
 
@@ -799,6 +792,7 @@ void RPCSeedPattern::checkSegmentAlgorithmSpecial(const edm::EventSetup& eSetup)
     GlobalPoint startPosition = (SegmentRB[1].first)->globalPosition();
     GlobalVector startMomentum = startSegment * (meanPt / startSegment.perp());
     unsigned int index = 0;
+
     for (ConstMuonRecHitContainer::const_iterator iter = theRecHits.begin(); iter != theRecHits.end(); iter++) {
       if (index < 4) {
         index++;
@@ -806,7 +800,7 @@ void RPCSeedPattern::checkSegmentAlgorithmSpecial(const edm::EventSetup& eSetup)
       }
       double tracklength = 0;
       cout << "Now checking recHit " << index << endl;
-      double Distance = extropolateStep(startPosition, startMomentum, iter, isClockwise, tracklength, eSetup);
+      double Distance = extropolateStep(startPosition, startMomentum, iter, isClockwise, tracklength, Field, rpcGeom);
       cout << "Final distance is " << Distance << endl;
       if (Distance > MaxRSD) {
         cout << "Pattern find error in distance for other recHits: " << Distance << endl;
@@ -864,7 +858,7 @@ void RPCSeedPattern::checkSegmentAlgorithmSpecial(const edm::EventSetup& eSetup)
       }
       double tracklength = 0;
       cout << "Now checking recHit " << index << endl;
-      double Distance = extropolateStep(startPosition, startMomentum, iter, isClockwise, tracklength, eSetup);
+      double Distance = extropolateStep(startPosition, startMomentum, iter, isClockwise, tracklength, Field, rpcGeom);
       cout << "Final distance is " << Distance << endl;
       if (Distance > MaxRSD) {
         cout << "Pattern find error in distance for other recHits: " << Distance << endl;
@@ -884,22 +878,16 @@ double RPCSeedPattern::extropolateStep(const GlobalPoint& startPosition,
                                        ConstMuonRecHitContainer::const_iterator iter,
                                        const int ClockwiseDirection,
                                        double& tracklength,
-                                       const edm::EventSetup& eSetup) {
-  // Get magnetic field
-  edm::ESHandle<MagneticField> Field;
-  eSetup.get<IdealMagneticFieldRecord>().get(Field);
-
+                                       const MagneticField& Field,
+                                       const RPCGeometry& rpcGeometry) {
   cout << "Extrapolating the track to check the pattern" << endl;
   tracklength = 0;
   // Get the iter recHit's detector geometry
   DetId hitDet = (*iter)->hit()->geographicalId();
   RPCDetId RPCId = RPCDetId(hitDet.rawId());
   //const RPCChamber* hitRPC = dynamic_cast<const RPCChamber*>(hitDet);
-  edm::ESHandle<RPCGeometry> pRPCGeom;
-  eSetup.get<MuonGeometryRecord>().get(pRPCGeom);
-  const RPCGeometry* rpcGeometry = (const RPCGeometry*)&*pRPCGeom;
 
-  const BoundPlane RPCSurface = rpcGeometry->chamber(RPCId)->surface();
+  const BoundPlane RPCSurface = rpcGeometry.chamber(RPCId)->surface();
   double startSide = RPCSurface.localZ(startPosition);
   cout << "Start side : " << startSide;
 
@@ -923,7 +911,7 @@ double RPCSeedPattern::extropolateStep(const GlobalPoint& startPosition,
     if (ClockwiseDirection == 0) {
       currentPosition += currentMomentum.unit() * stepLength;
     } else {
-      double Bz = Field->inTesla(currentPosition).z();
+      double Bz = Field.inTesla(currentPosition).z();
       double Radius = currentMomentum.perp() / fabs(Bz * 0.01 * 0.3);
       double deltaPhi = (stepLength * currentMomentum.perp() / currentMomentum.mag()) / Radius;
 
@@ -964,7 +952,7 @@ double RPCSeedPattern::extropolateStep(const GlobalPoint& startPosition,
   return currentDistance;
 }
 
-RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createFakeSeed(int& isGoodSeed, const edm::EventSetup& eSetup) {
+RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createFakeSeed(int& isGoodSeed, const MagneticField& Field) {
   // Create a fake seed and return
   cout << "Now create a fake seed" << endl;
   isPatternChecked = true;
@@ -992,10 +980,7 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createFakeSeed(int& isGoo
   mat[0][0] = meanSpt;
   LocalTrajectoryError error(asSMatrix<5>(mat));
 
-  edm::ESHandle<MagneticField> Field;
-  eSetup.get<IdealMagneticFieldRecord>().get(Field);
-
-  TrajectoryStateOnSurface tsos(param, error, best->det()->surface(), &*Field);
+  TrajectoryStateOnSurface tsos(param, error, best->det()->surface(), &Field);
 
   DetId id = best->geographicalId();
 
@@ -1014,14 +999,11 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createFakeSeed(int& isGoo
   return theweightedSeed;
 }
 
-RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createSeed(int& isGoodSeed, const edm::EventSetup& eSetup) {
+RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createSeed(int& isGoodSeed, const MagneticField& Field) {
   if (isPatternChecked == false || isGoodPattern == -1) {
     cout << "Pattern is not yet checked! Create a fake seed instead!" << endl;
-    return createFakeSeed(isGoodSeed, eSetup);
+    return createFakeSeed(isGoodSeed, Field);
   }
-
-  edm::ESHandle<MagneticField> Field;
-  eSetup.get<IdealMagneticFieldRecord>().get(Field);
 
   MuonPatternRecoDumper debug;
 
@@ -1077,7 +1059,7 @@ RPCSeedPattern::weightedTrajectorySeed RPCSeedPattern::createSeed(int& isGoodSee
 
   LocalTrajectoryError error = getSpecialAlgorithmErrorMatrix(first, best);
 
-  TrajectoryStateOnSurface tsos(param, error, best->det()->surface(), &*Field);
+  TrajectoryStateOnSurface tsos(param, error, best->det()->surface(), &Field);
   cout << "Trajectory State on Surface before the extrapolation" << endl;
   cout << debug.dumpTSOS(tsos);
   DetId id = best->geographicalId();
