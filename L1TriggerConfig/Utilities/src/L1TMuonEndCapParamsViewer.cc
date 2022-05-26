@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,27 +20,26 @@
 #include <iostream>
 using namespace std;
 
-class L1TMuonEndCapParamsViewer : public edm::EDAnalyzer {
+class L1TMuonEndCapParamsViewer : public edm::one::EDAnalyzer<> {
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1TMuonEndCapParamsViewer(const edm::ParameterSet&) : edm::EDAnalyzer() {}
-  ~L1TMuonEndCapParamsViewer(void) override {}
+  explicit L1TMuonEndCapParamsViewer(const edm::ParameterSet&) : token_{esConsumes()} {}
+
+private:
+  edm::ESGetToken<L1TMuonEndCapParams, L1TMuonEndCapParamsRcd> token_;
 };
 
 void L1TMuonEndCapParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<L1TMuonEndCapParams> handle1;
-  evSetup.get<L1TMuonEndCapParamsRcd>().get(handle1);
-  //    evSetup.get<L1TMuonEndCapParamsRcd>().get( handle1 ) ;
-  std::shared_ptr<L1TMuonEndCapParams> ptr1(new L1TMuonEndCapParams(*(handle1.product())));
+  L1TMuonEndCapParams const& ptr1 = evSetup.getData(token_);
 
   cout << "L1TMuonEndCapParams: " << endl;
-  cout << " PtAssignVersion_ = " << ptr1->PtAssignVersion_ << endl;
-  cout << " firmwareVersion_ = " << ptr1->firmwareVersion_ << endl;
-  cout << " PhiMatchWindowSt1_ = " << ptr1->PhiMatchWindowSt1_ << endl;
-  cout << " PhiMatchWindowSt2_ = " << ptr1->PhiMatchWindowSt2_ << endl;
-  cout << " PhiMatchWindowSt3_ = " << ptr1->PhiMatchWindowSt3_ << endl;
-  cout << " PhiMatchWindowSt4_ = " << ptr1->PhiMatchWindowSt4_ << endl;
+  cout << " PtAssignVersion_ = " << ptr1.PtAssignVersion_ << endl;
+  cout << " firmwareVersion_ = " << ptr1.firmwareVersion_ << endl;
+  cout << " PhiMatchWindowSt1_ = " << ptr1.PhiMatchWindowSt1_ << endl;
+  cout << " PhiMatchWindowSt2_ = " << ptr1.PhiMatchWindowSt2_ << endl;
+  cout << " PhiMatchWindowSt3_ = " << ptr1.PhiMatchWindowSt3_ << endl;
+  cout << " PhiMatchWindowSt4_ = " << ptr1.PhiMatchWindowSt4_ << endl;
 
   ///    edm::ESHandle<L1TMuonEndCapForest> handle2;
   ///    evSetup.get<L1TMuonEndCapForestRcd>().get( handle2 ) ;

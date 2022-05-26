@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -12,8 +12,10 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 #include <iomanip>
 
-class L1TCaloParamsViewer : public edm::EDAnalyzer {
+class L1TCaloParamsViewer : public edm::one::EDAnalyzer<> {
 private:
+  edm::ESGetToken<l1t::CaloParams, L1TCaloStage2ParamsRcd> stage2ParamsToken_;
+  edm::ESGetToken<l1t::CaloParams, L1TCaloParamsRcd> paramsToken_;
   bool printPUSParams;
   bool printTauCalibLUT;
   bool printTauCompressLUT;
@@ -44,7 +46,7 @@ private:
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1TCaloParamsViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer() {
+  explicit L1TCaloParamsViewer(const edm::ParameterSet& pset) {
     printPUSParams = pset.getUntrackedParameter<bool>("printPUSParams", false);
     printTauCalibLUT = pset.getUntrackedParameter<bool>("printTauCalibLUT", false);
     printTauCompressLUT = pset.getUntrackedParameter<bool>("printTauCompressLUT", false);
@@ -67,6 +69,11 @@ public:
     printEtSumEcalSumCalibrationLUT = pset.getUntrackedParameter<bool>("printEtSumEcalSumCalibrationLUT", false);
 
     useStage2Rcd = pset.getUntrackedParameter<bool>("useStage2Rcd", false);
+
+    if (useStage2Rcd)
+      stage2ParamsToken_ = esConsumes();
+    else
+      paramsToken_ = esConsumes();
   }
 
   ~L1TCaloParamsViewer(void) override {}
@@ -108,14 +115,14 @@ std::string L1TCaloParamsViewer::hash(void* buf, size_t len) const {
 void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<l1t::CaloParams> handle1;
   if (useStage2Rcd)
-    evSetup.get<L1TCaloStage2ParamsRcd>().get(handle1);
+    handle1 = evSetup.getHandle(stage2ParamsToken_);
   else
-    evSetup.get<L1TCaloParamsRcd>().get(handle1);
+    handle1 = evSetup.getHandle(paramsToken_);
 
-  std::shared_ptr<l1t::CaloParams> ptr(new l1t::CaloParams(*(handle1.product())));
+  l1t::CaloParams const& ptr = *handle1;
 
-  l1t::CaloParamsHelper* ptr1 = nullptr;
-  ptr1 = (l1t::CaloParamsHelper*)(&(*ptr));
+  l1t::CaloParamsHelper const* ptr1 = nullptr;
+  ptr1 = (l1t::CaloParamsHelper const*)(&(ptr));
 
   edm::LogInfo("") << "L1TCaloParamsViewer:";
 
