@@ -348,8 +348,8 @@ void HGCDigitizer::accumulate_forPreMix(edm::Event const& e,
 
   const edm::Handle<edm::PCaloHitContainer>& hits = e.getHandle(hitToken_);
   if (!hits.isValid()) {
-    edm::LogError("HGCDigitizer") << " @ accumulate_minbias : can't find " << hitCollection_
-                                  << " collection of " << hitsProducer_;
+    edm::LogError("HGCDigitizer") << " @ accumulate_minbias : can't find " << hitCollection_ << " collection of "
+                                  << hitsProducer_;
     return;
   }
 
@@ -366,7 +366,8 @@ void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventS
   //get inputs
   const edm::Handle<edm::PCaloHitContainer>& hits = e.getHandle(hitToken_);
   if (!hits.isValid()) {
-    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of " << hitsProducer_;
+    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of "
+                                  << hitsProducer_;
     return;
   }
 
@@ -387,7 +388,8 @@ void HGCDigitizer::accumulate_forPreMix(PileUpEventPrincipal const& e,
   e.getByLabel(hitTag, hits);
 
   if (!hits.isValid()) {
-    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of " << hitsProducer_;
+    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of "
+                                  << hitsProducer_;
     return;
   }
 
@@ -408,7 +410,8 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e,
   e.getByLabel(hitTag, hits);
 
   if (!hits.isValid()) {
-    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of " << hitsProducer_;
+    edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of "
+                                  << hitsProducer_;
     return;
   }
 
