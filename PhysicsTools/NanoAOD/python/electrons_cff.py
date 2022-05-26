@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
 import PhysicsTools.PatAlgos.producersLayer1.electronProducer_cfi
-from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL #addeed to select UL from run2
 from math import ceil,log
 #NOTE: All definitions of modules should point to the latest flavour of the electronTable in NanoAOD.
 #Common modifications for past eras are done at the end whereas modifications specific to a single era is done after the original definition.
@@ -310,13 +309,13 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
                       VIDNestedWPBitmapSpring15 = cms.InputTag("bitmapVIDForEleSpring15"),
                       VIDNestedWPBitmapSum16 = cms.InputTag("bitmapVIDForEleSum16"),
                       )
-(run2_egamma_2016 & run2_miniAOD_UL).toModify(slimmedElectronsWithUserData.userFloats,
+(~run2_nanoAOD_preUL & run2_egamma_2016).toModify(slimmedElectronsWithUserData.userFloats,
     mvaHZZIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer16ULIdIsoValues"), 
 )
-(run2_egamma_2017 & run2_miniAOD_UL).toModify(slimmedElectronsWithUserData.userFloats,
+(~run2_nanoAOD_preUL & run2_egamma_2017).toModify(slimmedElectronsWithUserData.userFloats,
     mvaHZZIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer17ULIdIsoValues") ,
 )
-(run2_egamma_2018 & run2_miniAOD_UL).toModify(slimmedElectronsWithUserData.userFloats,
+(~run2_nanoAOD_preUL & run2_egamma_2018).toModify(slimmedElectronsWithUserData.userFloats,
     mvaHZZIso = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Summer18ULIdIsoValues"), 
 )
 #################################################END slimmedElectrons with user data#####################
