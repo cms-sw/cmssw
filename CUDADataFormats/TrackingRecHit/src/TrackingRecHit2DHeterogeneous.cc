@@ -183,19 +183,21 @@ using namespace memoryPool::cuda;
 
 memoryPool::Buffer<float> TrackingRecHit2DGPU::localCoordToHostAsync(cudaStream_t stream) const {
   auto ret = makeBuffer<float>(5 * nHits(), stream, memoryPool::onHost);
-  cudaCheck(cudaMemcpyAsync(ret.get(), m_store32.get(), 5 * nHits(), cudaMemcpyDefault, stream));
+  cudaCheck(cudaMemcpyAsync(ret.get(), m_store32.get(), 5 * sizeof(float) * nHits(), cudaMemcpyDeviceToHost, stream));
   return ret;
 }
 
 memoryPool::Buffer<float> TrackingRecHit2DGPU::store32ToHostAsync(cudaStream_t stream) const {
   auto ret = makeBuffer<float>(static_cast<int>(n32) * nHits(), stream, memoryPool::onHost);
-  cudaCheck(cudaMemcpyAsync(ret.get(), m_store32.get(), static_cast<int>(n32) * nHits(), cudaMemcpyDefault, stream));
+  cudaCheck(cudaMemcpyAsync(
+      ret.get(), m_store32.get(), static_cast<int>(n32) * sizeof(float) * nHits(), cudaMemcpyDeviceToHost, stream));
   return ret;
 }
 
 memoryPool::Buffer<uint16_t> TrackingRecHit2DGPU::store16ToHostAsync(cudaStream_t stream) const {
   auto ret = makeBuffer<uint16_t>(static_cast<int>(n16) * nHits(), stream, memoryPool::onHost);
-  cudaCheck(cudaMemcpyAsync(ret.get(), m_store16.get(), static_cast<int>(n16) * nHits(), cudaMemcpyDefault, stream));
+  cudaCheck(cudaMemcpyAsync(
+      ret.get(), m_store16.get(), static_cast<int>(n16) * sizeof(uint16_t) * nHits(), cudaMemcpyDeviceToHost, stream));
   return ret;
 }
 
@@ -203,7 +205,7 @@ memoryPool::Buffer<uint32_t> TrackingRecHit2DGPU::hitsModuleStartToHostAsync(cud
   auto ret = makeBuffer<uint32_t>(nMaxModules() + 1, stream, memoryPool::onHost);
   if (m_hitsModuleStart)
     cudaCheck(cudaMemcpyAsync(
-        ret.get(), m_hitsModuleStart, sizeof(uint32_t) * (nMaxModules() + 1), cudaMemcpyDefault, stream));
+        ret.get(), m_hitsModuleStart, sizeof(uint32_t) * (nMaxModules() + 1), cudaMemcpyDeviceToHost, stream));
   return ret;
 }
 
