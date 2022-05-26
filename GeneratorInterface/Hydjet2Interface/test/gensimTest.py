@@ -1,15 +1,22 @@
 import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("ANA")
+process = cms.Process("Analysis")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("GeneratorInterface.Hydjet2Interface.hydjet2Default_cfi")
+#process.load("GeneratorInterface.Hydjet2Interface.hydjet2Default_cfi")
+
+process.source = cms.Source("PoolSource",
+    fileNames = cms.untracked.vstring(
+	'/store/himc/Run3Winter22PbPbNoMixGS/MinBias_Hydjet_Drum5F_5p02TeV/GEN-SIM/122X_mcRun3_2021_realistic_HI_v10-v1/2530000/000343c8-f986-4144-8573-7ba8b6df0b8b.root'
+    )
+)
+
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.ana = cms.EDAnalyzer('Hydjet2Analyzer',
 
+                src = cms.untracked.InputTag("generatorSmeared"),
 		doHistos = cms.untracked.bool(True),
                 userHistos = cms.untracked.bool(False),
 		doAnalysis = cms.untracked.bool(True),
@@ -58,7 +65,7 @@ process.ana = cms.EDAnalyzer('Hydjet2Analyzer',
 )
 
 #to separate hydro and jet parts of hydjet2	
-process.generator.separateHydjetComponents = cms.untracked.bool(False)
+#process.generator.separateHydjetComponents = cms.untracked.bool(False)
 Debug = None
 
 if Debug:
@@ -93,7 +100,7 @@ if Debug:
 		)
 
 process.TFileService = cms.Service('TFileService',
-	fileName = cms.string('Hydjet2_MB_5020GeV.root')
+	fileName = cms.string('HHydjet2_MB_5020Ge_GEN-SIM.root')
 )
 
-process.p = cms.Path(process.generator*process.ana)
+process.p = cms.Path(process.ana)
