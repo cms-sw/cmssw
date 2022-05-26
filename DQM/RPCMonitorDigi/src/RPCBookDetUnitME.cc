@@ -41,16 +41,10 @@ void RPCMonitorDigi::bookRollME(DQMStore::IBooker& ibooker,
   meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 7, -3.5, 3.5);
 
   if (detId.region() == 0) {
-    tmpStr = "ClusterSize_" + nameRoll;
-    meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 15, 0.5, 15.5);
-
     tmpStr = "Multiplicity_" + nameRoll;
     meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 30, 0.5, 30.5);
 
   } else {
-    tmpStr = "ClusterSize_" + nameRoll;
-    meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 10, 0.5, 10.5);
-
     tmpStr = "Multiplicity_" + nameRoll;
     meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 15, 0.5, 15.5);
   }
@@ -68,16 +62,29 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
 
     for (int sector = 1; sector <= 12; sector++) {
       const std::string meName = fmt::format("Occupancy_Wheel_{}_Sector_{}", wheel, sector);
+      const std::string meClus = fmt::format("ClusterSize_Wheel_{}_Sector_{}", wheel, sector);
 
-      if (sector == 9 || sector == 11)
+      if (sector == 9 || sector == 11) {
         meMap[meName] = ibooker.book2D(meName, meName, 91, 0.5, 91.5, 15, 0.5, 15.5);
-      else if (sector == 4)
+        meMap[meClus] = ibooker.book2D(meClus, meClus, 16, 1, 17, 15, 0.5, 15.5);
+      } else if (sector == 4) {
         meMap[meName] = ibooker.book2D(meName, meName, 91, 0.5, 91.5, 21, 0.5, 21.5);
-      else
+        meMap[meClus] = ibooker.book2D(meClus, meClus, 16, 1, 17, 21, 0.5, 21.5);
+      } else {
         meMap[meName] = ibooker.book2D(meName, meName, 91, 0.5, 91.5, 17, 0.5, 17.5);
+        meMap[meClus] = ibooker.book2D(meClus, meClus, 16, 1, 17, 17, 0.5, 17.5);
+      }
 
       meMap[meName]->setAxisTitle("strip", 1);
       RPCRollMapHisto::setBarrelRollAxis(meMap[meName], wheel, 2, true);
+
+      meMap[meClus]->setAxisTitle("Cluster size", 1);
+      meMap[meClus]->setBinLabel(1, "1", 1);
+      meMap[meClus]->setBinLabel(5, "5", 1);
+      meMap[meClus]->setBinLabel(10, "10", 1);
+      meMap[meClus]->setBinLabel(15, "15", 1);
+      meMap[meClus]->setBinLabel(meMap[meClus]->getNbinsX(), "Overflow", 1);
+      RPCRollMapHisto::setBarrelRollAxis(meMap[meClus], wheel, 2, true);
     }
   }
 
@@ -94,6 +101,7 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
           fmt::format("{}/{}/{}/Disk_{}/SummaryByRings/", subsystemFolder_, recHitType, regionName, region * disk));
 
       for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
+        //Occupancy
         const std::string meName1 = fmt::format("Occupancy_Disk_{}_Ring_{}_CH01-CH18", (region * disk), ring);
 
         auto me1 = ibooker.book2D(meName1, meName1, 96, 0.5, 96.5, 18, 0.5, 18.5);
@@ -136,6 +144,41 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
 
         meMap[meName1] = me1;
         meMap[meName2] = me2;
+
+        //Cluster size
+        const std::string meClus1 = fmt::format("ClusterSize_Disk_{}_Ring_{}_CH01-CH09", (region * disk), ring);
+        const std::string meClus2 = fmt::format("ClusterSize_Disk_{}_Ring_{}_CH10-CH18", (region * disk), ring);
+        const std::string meClus3 = fmt::format("ClusterSize_Disk_{}_Ring_{}_CH19-CH27", (region * disk), ring);
+        const std::string meClus4 = fmt::format("ClusterSize_Disk_{}_Ring_{}_CH28-CH36", (region * disk), ring);
+
+        auto mecl1 = ibooker.book2D(meClus1, meClus1, 11, 1, 12, 27, 0.5, 27.5);
+        auto mecl2 = ibooker.book2D(meClus2, meClus2, 11, 1, 12, 27, 27.5, 54.5);
+        auto mecl3 = ibooker.book2D(meClus3, meClus3, 11, 1, 12, 27, 54.5, 81.5);
+        auto mecl4 = ibooker.book2D(meClus4, meClus4, 11, 1, 12, 27, 81.5, 108.5);
+
+        std::array<MonitorElement*, 4> meCls = {{mecl1, mecl2, mecl3, mecl4}};
+
+        for (unsigned int icl = 0; icl < meCls.size(); icl++) {
+          meCls[icl]->setAxisTitle("Cluster size", 1);
+
+          for (int i = 1; i <= 9; i++) {
+            const std::string ylabel1 = fmt::format("R{}_CH{:02d}_C", ring, i);
+            const std::string ylabel2 = fmt::format("R{}_CH{:02d}_B", ring, i);
+            const std::string ylabel3 = fmt::format("R{}_CH{:02d}_A", ring, i);
+            meCls[icl]->setBinLabel(1 + (i - 1) * 3, ylabel1, 2);
+            meCls[icl]->setBinLabel(2 + (i - 1) * 3, ylabel2, 2);
+            meCls[icl]->setBinLabel(3 + (i - 1) * 3, ylabel3, 2);
+          }
+          meCls[icl]->setBinLabel(1, "1", 1);
+          meCls[icl]->setBinLabel(5, "5", 1);
+          meCls[icl]->setBinLabel(10, "10", 1);
+          meCls[icl]->setBinLabel(mecl1->getNbinsX(), "Overflow", 1);
+        }
+
+        meMap[meClus1] = mecl1;
+        meMap[meClus2] = mecl2;
+        meMap[meClus3] = mecl3;
+        meMap[meClus4] = mecl4;
       }  //loop ring
     }    //loop disk
   }      //loop region
@@ -161,12 +204,6 @@ void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker& ibooker,
     tmpStr = fmt::format("BxDistribution_Wheel_{}", wheel);
     meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 9, -4.5, 4.5);
 
-    for (int layer = 1; layer <= 6; layer++) {
-      const std::string name = fmt::format("ClusterSize_Wheel_{}_Layer{}", wheel, layer);
-      const std::string title = fmt::format("ClusterSize - Wheel {} Layer{}", wheel, layer);
-      meMap[name] = ibooker.book1D(name, title, 16, 0.5, 16.5);
-    }
-
   }  //end loop on wheel
 
   for (int disk = -RPCMonitorDigi::numberOfDisks_; disk <= RPCMonitorDigi::numberOfDisks_; disk++) {
@@ -178,12 +215,6 @@ void RPCMonitorDigi::bookWheelDiskME(DQMStore::IBooker& ibooker,
 
     tmpStr = fmt::format("BxDistribution_Disk_{}", disk);
     meMap[tmpStr] = ibooker.book1D(tmpStr, tmpStr, 9, -4.5, 4.5);
-
-    for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
-      const std::string name = fmt::format("ClusterSize_Disk_{}_Ring{}", disk, ring);
-      const std::string title = fmt::format("ClusterSize - Disk{} Ring{}", disk, ring);
-      meMap[name] = ibooker.book1D(name, title, 16, 0.5, 16.5);
-    }
   }
 
   for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
@@ -218,35 +249,6 @@ void RPCMonitorDigi::bookRegionME(DQMStore::IBooker& ibooker,
 
   std::stringstream name;
   std::stringstream title;
-  for (int r = 0; r < 3; r++) {  //RPC regions are E-, B, and E+
-
-    std::string regionName = RPCMonitorDigi::regionNames_[r];
-    //Cluster size
-    name.str("");
-    title.str("");
-    name << "ClusterSize_" << regionName;
-    title << "ClusterSize - " << regionName;
-    meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 16, 0.5, 16.5);
-  }
-
-  //Number of Cluster
-  name.str("");
-  title.str("");
-  name << "NumberOfClusters_Barrel";
-  title << "Number of Clusters per Event - Barrel";
-  meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 30, 0.5, 30.5);
-
-  name.str("");
-  title.str("");
-  name << "NumberOfClusters_Endcap+";
-  title << "Number of Clusters per Event - Endcap+";
-  meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 15, 0.5, 15.5);
-
-  name.str("");
-  title.str("");
-  name << "NumberOfClusters_Endcap-";
-  title << "Number of Clusters per Event - Endcap-";
-  meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 15, 0.5, 15.5);
 
   //Number of Digis
   name.str("");
@@ -266,22 +268,6 @@ void RPCMonitorDigi::bookRegionME(DQMStore::IBooker& ibooker,
   name << "Multiplicity_Endcap-";
   title << "Multiplicity per Event per Roll - Endcap-";
   meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 32, 0.5, 32.5);
-
-  for (int layer = 1; layer <= 6; layer++) {
-    name.str("");
-    title.str("");
-    name << "ClusterSize_Layer" << layer;
-    title << "ClusterSize - Layer" << layer;
-    meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 16, 0.5, 16.5);
-  }
-
-  for (int ring = RPCMonitorDigi::numberOfInnerRings_; ring <= 3; ring++) {
-    name.str("");
-    title.str("");
-    name << "ClusterSize_Ring" << ring;
-    title << "ClusterSize - Ring" << ring;
-    meMap[name.str()] = ibooker.book1D(name.str(), title.str(), 16, 0.5, 16.5);
-  }
 
   meMap["Occupancy_for_Endcap"] = ibooker.book2D("Occupancy_for_Endcap",
                                                  "Occupancy Endcap",

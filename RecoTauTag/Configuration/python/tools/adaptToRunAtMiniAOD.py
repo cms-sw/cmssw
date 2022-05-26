@@ -176,6 +176,9 @@ class adaptToRunAtMiniAOD(object):
 			elif mod.name.value() == 'TTIworkaround':
 				_modifiersToRemove.append(mod)
 				continue
+			elif mod.name.value() == 'tau_lost_tracks':
+				_modifiersToRemove.append(mod)
+				continue
 			for name,value in mod.parameters_().items():
 				if name == 'qualityCuts':
 					mod.qualityCuts.primaryVertexSrc = 'offlineSlimmedPrimaryVertices'

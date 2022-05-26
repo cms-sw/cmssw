@@ -313,6 +313,7 @@ if not args.fireMerge:
                                                      shell=True).decode()
                 except subprocess.CalledProcessError as e:
                     result = "" # -> check for successful job submission will fail
+                #print('      '+result, end=' ')
                 print(result)
                 result = result.strip()
 

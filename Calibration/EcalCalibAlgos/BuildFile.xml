@@ -18,7 +18,6 @@
 <use name="xerces-c"/>
 <use name="Calibration/Tools"/>
 <use name="CalibCalorimetry/CaloMiscalibTools"/>
-<use name="CondTools/Ecal"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="DQMServices/Core"/>
 <use name="CondCore/DBOutputService"/>

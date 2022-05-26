@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -84,15 +84,13 @@ namespace {
 //
 // class declaration
 //
-class FFTJetCorrectionProducer : public edm::EDProducer {
+class FFTJetCorrectionProducer : public edm::stream::EDProducer<> {
 public:
   explicit FFTJetCorrectionProducer(const edm::ParameterSet&);
   ~FFTJetCorrectionProducer() override;
 
 private:
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   template <typename Jet>
   void makeProduces(const std::string& alias, const std::string& tag);
@@ -343,12 +341,6 @@ FFTJetCorrectionProducer::~FFTJetCorrectionProducer() {}
 void FFTJetCorrectionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   jet_type_switch(applyCorrections, iEvent, iSetup);
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void FFTJetCorrectionProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void FFTJetCorrectionProducer::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetCorrectionProducer);
