@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,16 +19,16 @@
 #include <iostream>
 using namespace std;
 
-class L1TMuonBarrelParamsViewer : public edm::EDAnalyzer {
+class L1TMuonBarrelParamsViewer : public edm::one::EDAnalyzer<> {
 private:
   std::string hash(void *buf, size_t len) const;
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> token_;
   bool printPtaThreshold;
 
 public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  explicit L1TMuonBarrelParamsViewer(const edm::ParameterSet &) : edm::EDAnalyzer() { printPtaThreshold = false; }
-  ~L1TMuonBarrelParamsViewer(void) override {}
+  explicit L1TMuonBarrelParamsViewer(const edm::ParameterSet &) : token_{esConsumes()} { printPtaThreshold = false; }
 };
 
 #include "Utilities/OpenSSL/interface/openssl_init.h"
@@ -65,11 +65,9 @@ std::string L1TMuonBarrelParamsViewer::hash(void *buf, size_t len) const {
 }
 
 void L1TMuonBarrelParamsViewer::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetup) {
-  edm::ESHandle<L1TMuonBarrelParams> handle1;
-  evSetup.get<L1TMuonBarrelParamsRcd>().get(handle1);
-  std::shared_ptr<L1TMuonBarrelParams> ptr(new L1TMuonBarrelParams(*(handle1.product())));
+  L1TMuonBarrelParams const &ptr = evSetup.getData(token_);
 
-  L1TMuonBarrelParamsHelper *ptr1 = (L1TMuonBarrelParamsHelper *)ptr.get();
+  L1TMuonBarrelParamsHelper *ptr1 = (L1TMuonBarrelParamsHelper *)&ptr;
 
   cout << "AssLUTPath: " << ptr1->AssLUTPath() << endl;
 
