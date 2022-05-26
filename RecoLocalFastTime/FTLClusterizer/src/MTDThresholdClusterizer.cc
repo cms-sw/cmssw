@@ -10,6 +10,8 @@
 #include "Geometry/MTDGeometryBuilder/interface/RectangularMTDTopology.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // STL
 #include <stack>
 #include <vector>
@@ -17,16 +19,6 @@
 #include <atomic>
 #include <cmath>
 using namespace std;
-
-//#define DEBUG_ENABLED
-#ifdef DEBUG_ENABLED
-#define DEBUG(x)                 \
-  do {                           \
-    std::cout << x << std::endl; \
-  } while (0)
-#else
-#define DEBUG(x)
-#endif
 
 //----------------------------------------------------------------------------
 //! Constructor:
@@ -78,7 +70,7 @@ bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const MTDTopology* 
   theNumOfRows = nrows;  // Set new sizes
   theNumOfCols = ncols;
 
-  DEBUG("Buffer size [" << theNumOfRows + 1 << "," << theNumOfCols + 1 << "]");
+  LogDebug("MTDThresholdClusterizer") << "Buffer size [" << theNumOfRows + 1 << "," << theNumOfCols + 1 << "]";
 
   if (nrows > theBuffer.rows() || ncols > theBuffer.columns()) {  // change only when a larger is needed
     // Resize the buffer
@@ -108,7 +100,7 @@ void MTDThresholdClusterizer::clusterize(const FTLRecHitCollection& input,
     return;
   }
 
-  DEBUG("Input collection " << input.size());
+  LogDebug("MTDThresholdClusterizer") << "Input collection " << input.size();
   assert(output.empty());
 
   std::set<unsigned> geoIds;
@@ -148,8 +140,8 @@ void MTDThresholdClusterizer::clusterize(const FTLRecHitCollection& input,
       return;
 
     auto range = geoIdToIdx.equal_range(id);
-    DEBUG("Matching Ids for " << std::hex << id << std::dec << " [" << range.first->second << ","
-                              << range.second->second << "]");
+    LogDebug("MTDThresholdClusterizer") << "Matching Ids for " << std::hex << id << std::dec << " ["
+                                        << range.first->second << "," << range.second->second << "]";
 
     //  Copy MTDRecHits to the buffer array; select the seed hits
     //  on the way, and store them in theSeeds.
@@ -167,8 +159,9 @@ void MTDThresholdClusterizer::clusterize(const FTLRecHitCollection& input,
 
         //  Check if the cluster is above threshold
         if (cluster.energy() > theClusterThreshold) {
-          DEBUG("putting in this cluster " << i << " #hits:" << cluster.size() << " E:" << cluster.energy()
-                                           << " T:" << cluster.time() << " X:" << cluster.x() << " Y:" << cluster.y());
+          LogDebug("MTDThresholdClusterizer")
+              << "putting in this cluster " << i << " #hits:" << cluster.size() << " E:" << cluster.energy()
+              << " T:" << cluster.time() << " X:" << cluster.x() << " Y:" << cluster.y();
           clustersOnDet.push_back(cluster);
         }
       }
@@ -236,7 +229,7 @@ void MTDThresholdClusterizer::copy_to_buffer(RecHitIterator itr, const MTDGeomet
     global_point = det->toGlobal(lp);
   }
 
-  DEBUG("ROW " << row << " COL " << col << " ENERGY " << energy << " TIME " << time);
+  LogDebug("MTDThresholdClusterizer") << "ROW " << row << " COL " << col << " ENERGY " << energy << " TIME " << time;
   if (energy > theHitThreshold) {
     theBuffer.set(row, col, subDet, energy, time, timeError, local_error, global_point);
     if (energy > theSeedThreshold)

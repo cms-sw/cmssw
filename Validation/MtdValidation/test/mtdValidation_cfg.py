@@ -49,10 +49,10 @@ etlValidation = cms.Sequence(process.etlSimHitsValid + process.etlDigiHitsValid 
 process.load("Validation.MtdValidation.mtdTracksValid_cfi")
 process.load("Validation.MtdValidation.vertices4DValid_cfi")
 
-process.btlDigiHitsValid.LocalPositionDebug = True
-process.etlDigiHitsValid.LocalPositionDebug = True
-process.btlLocalRecoValid.LocalPositionDebug = True
-process.etlLocalRecoValid.LocalPositionDebug = True
+process.btlDigiHitsValid.optionalPlots = True
+process.etlDigiHitsValid.optionalPlots = True
+process.btlLocalRecoValid.optionalPlots = True
+process.etlLocalRecoValid.optionalPlots = True
 process.vertices4DValid.optionalPlots = True
 
 process.validation = cms.Sequence(btlValidation + etlValidation + process.mtdTracksValid + process.vertices4DValid)
