@@ -264,22 +264,21 @@ std::vector<unsigned int> FWGeometry::getMatchedIds(Detector det, SubDetector su
 
 std::vector<unsigned int> FWGeometry::getMatchedIds(Detector det) const {
   std::vector<unsigned int> ids;
-  std::set<unsigned int> cached_wafers;
   for (const auto& it : m_idToInfo) {
     if (((it.id >> kDetOffset) & 0xF) != det)
       continue;
 
-    // select only the first cell of each wafer
-    if (det != HGCalHSc) {
-      auto key = ~0x3FF & it.id;
-      if (cached_wafers.find(key) == cached_wafers.end()) {
-        cached_wafers.insert(key);
+    // select only the fake DetIds that have all the (u,v) bits set at 1.  This
+    // is used to draw the HGCal Geometry that is wafer-based for the silicon
+    // part. The Scintillators are treated on a tile-basis.
+    if (det == HGCalHSc) {
+      ids.push_back(it.id);
+    } else {
+      auto key = 0x3FF;  // 10 bits mask of 1s.
+      if ((it.id | key) == it.id) {
         ids.push_back(it.id);
       }
-      continue;
     }
-
-    ids.push_back(it.id);
   }
   return ids;
 }
@@ -349,25 +348,6 @@ TEveGeoShape* FWGeometry::getEveShape(unsigned int id) const {
 }
 
 TEveGeoShape* FWGeometry::getHGCSiliconEveShape(unsigned int id) const {
-#if 0
-   const unsigned int type = (id>>26)&0x3;
-   // select the middle cell of each waifer
-   id &= ~0x3FF;
-   id |= (type == 0) ? 0x16B : 0xE7;
-#else
-  float sideToSideWaferSize = 16.7441f;
-  float dx = sideToSideWaferSize / 2;
-  float sidey = dx / sqrt(3);
-  float dy = 2 * sidey;
-
-  int waferUint = (id >> 10) & 0xF;
-  int waferVint = (id >> 15) & 0xF;
-  float waferU = ((id >> 14) & 0x1) ? -sideToSideWaferSize * waferUint : sideToSideWaferSize * waferUint;
-  float waferV = ((id >> 19) & 0x1) ? -sideToSideWaferSize * waferVint : sideToSideWaferSize * waferVint;
-
-  float waferX = (-2 * waferU + waferV) / 2;
-  float waferY = waferV * sqrt(3) / 2;
-#endif
   IdToInfoItr it = FWGeometry::find(id);
   if (it == m_idToInfo.end()) {
     fwLog(fwlog::kWarning) << "no reco geometry found for id " << id << std::endl;
@@ -379,18 +359,16 @@ TEveGeoShape* FWGeometry::getHGCSiliconEveShape(unsigned int id) const {
   TEveGeoManagerHolder gmgr(TEveGeoShape::GetGeoMangeur());
   TEveGeoShape* shape = new TEveGeoShape(TString::Format("RecoGeom Id=%u", id));
 
-  float dz = fabs(info.points[14] - info.points[2]) * 0.5;
-
-  info.translation[2] = (info.points[14] + info.points[2]) / 2.0f;
-  info.translation[0] = waferX * ((0 < info.translation[2]) - (info.translation[2] < 0));
-  info.translation[1] = waferY;
-
   TGeoXtru* geoShape = new TGeoXtru(2);
-  Double_t x[6] = {-dx, -dx, 0.0, dx, dx, 0.0};
-  Double_t y[6] = {-sidey, sidey, dy, sidey, -sidey, -dy};
+  Double_t x[6];
+  Double_t y[6];
+  for (unsigned int i = 0; i < 6; ++i) {
+    x[i] = info.points[i * 3];
+    y[i] = info.points[3 * i + 1];
+  }
   geoShape->DefinePolygon(6, x, y);
-  geoShape->DefineSection(0, -dz);
-  geoShape->DefineSection(1, dz);
+  geoShape->DefineSection(0, info.points[2] - 0.0150);  // First plane at the Z position of the wafer, minus 150um
+  geoShape->DefineSection(1, info.points[2] + 0.0150);  // Second plane at the Z position of the wafer, minus 150um
 
   shape->SetShape(geoShape);
   double array[16] = {info.matrix[0],
@@ -405,9 +383,9 @@ TEveGeoShape* FWGeometry::getHGCSiliconEveShape(unsigned int id) const {
                       info.matrix[5],
                       info.matrix[8],
                       0.,
-                      info.translation[0],
-                      info.translation[1],
-                      info.translation[2],
+                      0.,  // translation x
+                      0.,  // translation y
+                      0.,  // translation z
                       1.};
   // Set transformation matrix from a column-major array
   shape->SetTransMatrix(array);
