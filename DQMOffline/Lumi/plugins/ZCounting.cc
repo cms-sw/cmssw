@@ -869,10 +869,11 @@ bool ZCounting::isCustomTightMuon(const reco::Muon& muon) {
 
   bool muID = isGoodMuon(muon, muon::GlobalMuonPromptTight) && (muon.numberOfMatchedStations() > 1);
 
-  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
-              muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
+  bool muIdAndHits = muID && muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+                     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
 
-  return muID && hits;
+  return muIdAndHits;
+
 }
 
 //--------------------------------------------------------------------------------------------------
