@@ -320,7 +320,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
     if (displacedReco_ && outerTkStateOutside.isValid()) {
       layerCount = 0;
       for (auto it = tob.rbegin(); it != tob.rend(); ++it) {
-        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TOB layer " << layerCount << std::endl;
+        LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TOB layer " << layerCount;
         if (useHitLessSeeds_ && hitlessSeedsMadeMuS < maxHitlessSeeds_ && numSeedsMade < maxSeeds_)
           makeSeedsWithoutHits(**it,
                                outerTkStateOutside,
@@ -343,8 +343,8 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
                             out);
       }
       LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade
-                                 << " , layerCount = " << layerCount << std::endl;
-      if (L2muonEta > 0.0) {
+                                 << " , layerCount = " << layerCount;
+      if (L2muonEta >= 0.0) {
         layerCount = 0;
         for (auto it = tecPositive.rbegin(); it != tecPositive.rend(); ++it) {
           LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC+ layer " << layerCount << std::endl;
@@ -370,13 +370,13 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
                               out);
         }
         LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade
-                                   << " , layerCount = " << layerCount << std::endl;
+                                   << " , layerCount = " << layerCount;
       }
 
-      if (L2muonEta < 0.0) {
+      else if (L2muonEta < 0.0) {
         layerCount = 0;
         for (auto it = tecNegative.rbegin(); it != tecNegative.rend(); ++it) {
-          LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC- layer " << layerCount << std::endl;
+          LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC- layer " << layerCount;
           if (useHitLessSeeds_ && hitlessSeedsMadeMuS < maxHitlessSeeds_ && numSeedsMade < maxSeeds_)
             makeSeedsWithoutHits(**it,
                                  outerTkStateOutside,
@@ -399,7 +399,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
                               out);
         }
         LogTrace("TSGForOIFromL2") << "TSGForOIFromL2:::produce: NumSeedsMade = " << numSeedsMade
-                                   << " , layerCount = " << layerCount << std::endl;
+                                   << " , layerCount = " << layerCount;
       }
     }
 
@@ -517,7 +517,7 @@ void TSGForOIFromL2::makeSeedsFromHits(const GeometricSearchDet& layer,
     hitSeedsMade++;
     if (found == numOfHitsToTry_)
       break;
-    if (hitSeedsMade > maxHitSeeds_)  //
+    if (hitSeedsMade > maxHitSeeds_)
       return;
   }
 
