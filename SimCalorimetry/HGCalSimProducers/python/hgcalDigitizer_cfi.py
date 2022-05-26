@@ -156,6 +156,7 @@ hgchebackDigitizer = cms.PSet(
 hfnoseDigitizer = cms.PSet(
     accumulatorType   = cms.string("HGCDigiProducer"),
     digitizer         = cms.string("HFNoseDigitizer"),
+    hitsProducer      = cms.string("g4SimHits"),
     hitCollection     = cms.string("HFNoseHits"),
     digiCollection    = cms.string("HFNoseDigis"),
     NoiseGeneration_Method = cms.bool(True),
