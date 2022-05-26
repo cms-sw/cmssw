@@ -98,7 +98,8 @@ private:
   const int maxSimHitsAccTime_;
   const double bxTime_;
   double ev_per_eh_pair_;
-  const edm::InputTag hitCollection_;
+  const std::string hitsProducer_;
+  const std::string hitCollection_;
   const edm::EDGetTokenT<std::vector<PCaloHit>> hitToken_;
   void resetSimHitDataAccumulator();
   void resetPUSimHitDataAccumulator();
