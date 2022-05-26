@@ -373,7 +373,7 @@ void TSGForOIFromL2::produce(edm::StreamID sid, edm::Event& iEvent, const edm::E
                                    << " , layerCount = " << layerCount;
       }
 
-      else if (L2muonEta < 0.0) {
+      else {
         layerCount = 0;
         for (auto it = tecNegative.rbegin(); it != tecNegative.rend(); ++it) {
           LogTrace("TSGForOIFromL2") << "TSGForOIFromL2::produce: looping in TEC- layer " << layerCount;
@@ -633,11 +633,11 @@ void TSGForOIFromL2::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("SF4", 7.0);
   desc.add<double>("SF5", 10.0);
   desc.add<double>("SF6", 2.0);
-  desc.add<double>("SFHld", 2.0);
-  desc.add<double>("SFHd", 4.0);
+  desc.add<double>("SFHld", 2.0)->setComment("Scale Factor used to rescale the TSOS error of the hitless seeds");
+  desc.add<double>("SFHd", 4.0)->setComment("Scale Factor used to rescale the TSOS error of the hit based seeds");
   desc.add<double>("tsosDiff1", 0.2);
   desc.add<double>("tsosDiff2", 0.02);
-  desc.add<bool>("displacedReco", false);
+  desc.add<bool>("displacedReco", false)->setComment("Flag to turn on the displaced seeding");
   desc.add<std::string>("propagatorName", "PropagatorWithMaterialParabolicMf");
   descriptions.add("TSGForOIFromL2", desc);
 }
