@@ -42,7 +42,7 @@ using namespace gen;
 
 int Hydjet2Hadronizer::convertStatusForComponents(int sta, int typ, int pySta) {
   int st = -1;
-  if (typ == 0) //soft
+  if (typ == 0)  //soft
     st = 2 - sta;
   else if (typ == 1)
     st = convertStatus(pySta);
@@ -95,75 +95,75 @@ Hydjet2Hadronizer::Hydjet2Hadronizer(const edm::ParameterSet &pset, edm::Consume
 {
   fParams.doPrintInfo = false;
   fParams.allowEmptyEvent = false;
-  fParams.fNevnt = 0;                                     //not used in CMSSW
-  fParams.femb = pset.getParameter<int>("embeddingMode"); //
-  fParams.fSqrtS = pset.getParameter<double>("fSqrtS");   // C.m.s. energy per nucleon pair
-  fParams.fAw = pset.getParameter<double>("fAw");         // Atomic weigth of nuclei, fAw
+  fParams.fNevnt = 0;                                      //not used in CMSSW
+  fParams.femb = pset.getParameter<int>("embeddingMode");  //
+  fParams.fSqrtS = pset.getParameter<double>("fSqrtS");    // C.m.s. energy per nucleon pair
+  fParams.fAw = pset.getParameter<double>("fAw");          // Atomic weigth of nuclei, fAw
   fParams.fIfb = pset.getParameter<int>(
-      "fIfb");                                        // Flag of type of centrality generation, fBfix (=0 is fixed by fBfix, >0 distributed [fBfmin, fBmax])
-  fParams.fBmin = pset.getParameter<double>("fBmin"); // Minimum impact parameter in units of nuclear radius, fBmin
-  fParams.fBmax = pset.getParameter<double>("fBmax"); // Maximum impact parameter in units of nuclear radius, fBmax
-  fParams.fBfix = pset.getParameter<double>("fBfix"); // Fixed impact parameter in units of nuclear radius, fBfix
-  fParams.fT = pset.getParameter<double>("fT");       // Temperature at chemical freeze-out, fT [GeV]
-  fParams.fMuB = pset.getParameter<double>("fMuB");   // Chemical baryon potential per unit charge, fMuB [GeV]
-  fParams.fMuS = pset.getParameter<double>("fMuS");   // Chemical strangeness potential per unit charge, fMuS [GeV]
+      "fIfb");  // Flag of type of centrality generation, fBfix (=0 is fixed by fBfix, >0 distributed [fBfmin, fBmax])
+  fParams.fBmin = pset.getParameter<double>("fBmin");  // Minimum impact parameter in units of nuclear radius, fBmin
+  fParams.fBmax = pset.getParameter<double>("fBmax");  // Maximum impact parameter in units of nuclear radius, fBmax
+  fParams.fBfix = pset.getParameter<double>("fBfix");  // Fixed impact parameter in units of nuclear radius, fBfix
+  fParams.fT = pset.getParameter<double>("fT");        // Temperature at chemical freeze-out, fT [GeV]
+  fParams.fMuB = pset.getParameter<double>("fMuB");    // Chemical baryon potential per unit charge, fMuB [GeV]
+  fParams.fMuS = pset.getParameter<double>("fMuS");    // Chemical strangeness potential per unit charge, fMuS [GeV]
   fParams.fMuC = pset.getParameter<double>(
-      "fMuC");                                        // Chemical charm potential per unit charge, fMuC [GeV] (used if charm production is turned on)
-  fParams.fMuI3 = pset.getParameter<double>("fMuI3"); // Chemical isospin potential per unit charge, fMuI3 [GeV]
-  fParams.fThFO = pset.getParameter<double>("fThFO"); // Temperature at thermal freeze-out, fThFO [GeV]
+      "fMuC");  // Chemical charm potential per unit charge, fMuC [GeV] (used if charm production is turned on)
+  fParams.fMuI3 = pset.getParameter<double>("fMuI3");  // Chemical isospin potential per unit charge, fMuI3 [GeV]
+  fParams.fThFO = pset.getParameter<double>("fThFO");  // Temperature at thermal freeze-out, fThFO [GeV]
   fParams.fMu_th_pip =
-      pset.getParameter<double>("fMu_th_pip"); // Chemical potential of pi+ at thermal freeze-out, fMu_th_pip [GeV]
+      pset.getParameter<double>("fMu_th_pip");  // Chemical potential of pi+ at thermal freeze-out, fMu_th_pip [GeV]
   fParams.fTau = pset.getParameter<double>(
-      "fTau"); // Proper time proper at thermal freeze-out for central collisions, fTau [fm/c]
+      "fTau");  // Proper time proper at thermal freeze-out for central collisions, fTau [fm/c]
   fParams.fSigmaTau = pset.getParameter<double>(
-      "fSigmaTau"); // Duration of emission at thermal freeze-out for central collisions, fSigmaTau [fm/c]
+      "fSigmaTau");  // Duration of emission at thermal freeze-out for central collisions, fSigmaTau [fm/c]
   fParams.fR = pset.getParameter<double>(
-      "fR"); // Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
+      "fR");  // Maximal transverse radius at thermal freeze-out for central collisions, fR [fm]
   fParams.fYlmax =
-      pset.getParameter<double>("fYlmax"); // Maximal longitudinal flow rapidity at thermal freeze-out, fYlmax
+      pset.getParameter<double>("fYlmax");  // Maximal longitudinal flow rapidity at thermal freeze-out, fYlmax
   fParams.fUmax = pset.getParameter<double>(
-      "fUmax");                                         // Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
-  fParams.frhou2 = pset.getParameter<double>("fRhou2"); //parameter to swich ON/OFF = 0) rhou2
-  fParams.frhou3 = pset.getParameter<double>("fRhou3"); //parameter to swich ON/OFF(0) rhou3
-  fParams.frhou4 = pset.getParameter<double>("fRhou4"); //parameter to swich ON/OFF(0) rhou4
+      "fUmax");  // Maximal transverse flow rapidity at thermal freeze-out for central collisions, fUmax
+  fParams.frhou2 = pset.getParameter<double>("fRhou2");  //parameter to swich ON/OFF = 0) rhou2
+  fParams.frhou3 = pset.getParameter<double>("fRhou3");  //parameter to swich ON/OFF(0) rhou3
+  fParams.frhou4 = pset.getParameter<double>("fRhou4");  //parameter to swich ON/OFF(0) rhou4
   fParams.fDelta =
-      pset.getParameter<double>("fDelta"); // Momentum azimuthal anizotropy parameter at thermal freeze-out, fDelta
+      pset.getParameter<double>("fDelta");  // Momentum azimuthal anizotropy parameter at thermal freeze-out, fDelta
   fParams.fEpsilon =
-      pset.getParameter<double>("fEpsilon");         // Spatial azimuthal anisotropy parameter at thermal freeze-out, fEpsilon
-  fParams.fv2 = pset.getParameter<double>("fKeps2"); //parameter to swich ON/OFF(0) epsilon2 fluctuations
-  fParams.fv3 = pset.getParameter<double>("fKeps3"); //parameter to swich ON/OFF(0) epsilon3 fluctuations
+      pset.getParameter<double>("fEpsilon");  // Spatial azimuthal anisotropy parameter at thermal freeze-out, fEpsilon
+  fParams.fv2 = pset.getParameter<double>("fKeps2");  //parameter to swich ON/OFF(0) epsilon2 fluctuations
+  fParams.fv3 = pset.getParameter<double>("fKeps3");  //parameter to swich ON/OFF(0) epsilon3 fluctuations
   fParams.fIfDeltaEpsilon = pset.getParameter<double>(
-      "fIfDeltaEpsilon"); // Flag to specify fDelta and fEpsilon values, fIfDeltaEpsilon (=0 user's ones, >=1 calculated)
+      "fIfDeltaEpsilon");  // Flag to specify fDelta and fEpsilon values, fIfDeltaEpsilon (=0 user's ones, >=1 calculated)
   fParams.fDecay =
-      pset.getParameter<int>("fDecay"); // Flag to switch on/off hadron decays, fDecay (=0 decays off, >=1 decays on)
+      pset.getParameter<int>("fDecay");  // Flag to switch on/off hadron decays, fDecay (=0 decays off, >=1 decays on)
   fParams.fWeakDecay = pset.getParameter<double>(
-      "fWeakDecay"); // Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
+      "fWeakDecay");  // Low decay width threshold fWeakDecay[GeV]: width<fWeakDecay decay off, width>=fDecayWidth decay on; can be used to switch off weak decays
   fParams.fEtaType = pset.getParameter<double>(
-      "fEtaType"); // Flag to choose longitudinal flow rapidity distribution, fEtaType (=0 uniform, >0 Gaussian with the dispersion Ylmax)
+      "fEtaType");  // Flag to choose longitudinal flow rapidity distribution, fEtaType (=0 uniform, >0 Gaussian with the dispersion Ylmax)
   fParams.fTMuType = pset.getParameter<double>(
-      "fTMuType"); // Flag to use calculated T_ch, mu_B and mu_S as a function of fSqrtS, fTMuType (=0 user's ones, >0 calculated)
+      "fTMuType");  // Flag to use calculated T_ch, mu_B and mu_S as a function of fSqrtS, fTMuType (=0 user's ones, >0 calculated)
   fParams.fCorrS = pset.getParameter<double>(
-      "fCorrS"); // Strangeness supression factor gamma_s with fCorrS value (0<fCorrS <=1, if fCorrS <= 0 then it is calculated)
+      "fCorrS");  // Strangeness supression factor gamma_s with fCorrS value (0<fCorrS <=1, if fCorrS <= 0 then it is calculated)
   fParams.fCharmProd = pset.getParameter<int>(
-      "fCharmProd"); // Flag to include thermal charm production, fCharmProd (=0 no charm production, >=1 charm production)
+      "fCharmProd");  // Flag to include thermal charm production, fCharmProd (=0 no charm production, >=1 charm production)
   fParams.fCorrC = pset.getParameter<double>(
-      "fCorrC"); // Charmness enhancement factor gamma_c with fCorrC value (fCorrC >0, if fCorrC<0 then it is calculated)
+      "fCorrC");  // Charmness enhancement factor gamma_c with fCorrC value (fCorrC >0, if fCorrC<0 then it is calculated)
   fParams.fNhsel = pset.getParameter<int>(
-      "fNhsel"); //Flag to include jet (J)/jet quenching (JQ) and hydro (H) state production, fNhsel (0 H on & J off, 1 H/J on & JQ off, 2 H/J/HQ on, 3 J on & H/JQ off, 4 H off & J/JQ on)
+      "fNhsel");  //Flag to include jet (J)/jet quenching (JQ) and hydro (H) state production, fNhsel (0 H on & J off, 1 H/J on & JQ off, 2 H/J/HQ on, 3 J on & H/JQ off, 4 H off & J/JQ on)
   fParams.fPyhist = pset.getParameter<int>(
-      "fPyhist"); // Flag to suppress the output of particle history from PYTHIA, fPyhist (=1 only final state particles; =0 full particle history from PYTHIA)
+      "fPyhist");  // Flag to suppress the output of particle history from PYTHIA, fPyhist (=1 only final state particles; =0 full particle history from PYTHIA)
   fParams.fIshad = pset.getParameter<int>(
-      "fIshad"); // Flag to switch on/off nuclear shadowing, fIshad (0 shadowing off, 1 shadowing on)
+      "fIshad");  // Flag to switch on/off nuclear shadowing, fIshad (0 shadowing off, 1 shadowing on)
   fParams.fPtmin =
-      pset.getParameter<double>("fPtmin"); // Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c]
+      pset.getParameter<double>("fPtmin");  // Minimal pt of parton-parton scattering in PYTHIA event, fPtmin [GeV/c]
   fParams.fT0 = pset.getParameter<double>(
-      "fT0");                                         // Initial QGP temperature for central Pb+Pb collisions in mid-rapidity, fT0 [GeV]
-  fParams.fTau0 = pset.getParameter<double>("fTau0"); // Proper QGP formation time in fm/c, fTau0 (0.01<fTau0<10)
-  fParams.fNf = pset.getParameter<int>("fNf");        // Number of active quark flavours in QGP, fNf (0, 1, 2 or 3)
+      "fT0");  // Initial QGP temperature for central Pb+Pb collisions in mid-rapidity, fT0 [GeV]
+  fParams.fTau0 = pset.getParameter<double>("fTau0");  // Proper QGP formation time in fm/c, fTau0 (0.01<fTau0<10)
+  fParams.fNf = pset.getParameter<int>("fNf");         // Number of active quark flavours in QGP, fNf (0, 1, 2 or 3)
   fParams.fIenglu = pset.getParameter<int>(
-      "fIenglu"); // Flag to fix type of partonic energy loss, fIenglu (0 radiative and collisional loss, 1 radiative loss only, 2 collisional loss only)
+      "fIenglu");  // Flag to fix type of partonic energy loss, fIenglu (0 radiative and collisional loss, 1 radiative loss only, 2 collisional loss only)
   fParams.fIanglu = pset.getParameter<int>(
-      "fIanglu"); // Flag to fix type of angular distribution of in-medium emitted gluons, fIanglu (0 small-angular, 1 wide-angular, 2 collinear).
+      "fIanglu");  // Flag to fix type of angular distribution of in-medium emitted gluons, fIanglu (0 small-angular, 1 wide-angular, 2 collinear).
 
   edm::FileInPath f1("externals/hydjet2/particles.data");
   strcpy(fParams.partDat, (f1.fullPath()).c_str());
@@ -343,8 +343,8 @@ bool Hydjet2Hadronizer::generatePartonsAndHadronize() {
   if (nhard_ > 0 || nsoft_ > 0)
     get_particles(evt.get());
 
-  evt->set_signal_process_id(pypars.msti[0]); // type of the process
-  evt->set_event_scale(pypars.pari[16]);      // Q^2
+  evt->set_signal_process_id(pypars.msti[0]);  // type of the process
+  evt->set_event_scale(pypars.pari[16]);       // Q^2
   add_heavy_ion_rec(evt.get());
 
   if (fVertex_) {
@@ -483,13 +483,13 @@ HepMC::GenParticle *Hydjet2Hadronizer::build_hyjet2(int index, int barcode) {
   double py = py0 * cosphi0_ + px0 * sinphi0_;
 
   HepMC::GenParticle *p = new HepMC::GenParticle(
-      HepMC::FourVector(px,                       // px
-                        py,                       // py
-                        (hj2->GetPz()).at(index), // pz
-                        (hj2->GetE()).at(index)), // E
-      (hj2->GetPdg()).at(index),                  // id
+      HepMC::FourVector(px,                        // px
+                        py,                        // py
+                        (hj2->GetPz()).at(index),  // pz
+                        (hj2->GetE()).at(index)),  // E
+      (hj2->GetPdg()).at(index),                   // id
       convertStatusForComponents(
-          (hj2->GetFinal()).at(index), (hj2->GetType()).at(index), (hj2->GetPythiaStatus()).at(index)) // status
+          (hj2->GetFinal()).at(index), (hj2->GetType()).at(index), (hj2->GetPythiaStatus()).at(index))  // status
   );
 
   p->suggest_barcode(barcode);
@@ -517,19 +517,19 @@ void Hydjet2Hadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt) {
   int nproj = static_cast<int>((hj2->GetNpart()) / 2);
   int ntarg = static_cast<int>((hj2->GetNpart()) - nproj);
 
-  HepMC::HeavyIon *hi = new HepMC::HeavyIon(nsub_,                             // Ncoll_hard/N of SubEvents
-                                            nproj,                             // Npart_proj
-                                            ntarg,                             // Npart_targ
-                                            hj2->GetNbcol(),                   // Ncoll
-                                            0,                                 // spectator_neutrons
-                                            0,                                 // spectator_protons
-                                            0,                                 // N_Nwounded_collisions
-                                            0,                                 // Nwounded_N_collisions
-                                            0,                                 // Nwounded_Nwounded_collisions
-                                            hj2->GetBgen() * nuclear_radius(), // impact_parameter in [fm]
-                                            phi0_,                             // event_plane_angle
-                                            hj2->GetPsiv3(),                   // eccentricity <<<---- psi for v3!!!
-                                            Sigin                              // sigma_inel_NN
+  HepMC::HeavyIon *hi = new HepMC::HeavyIon(nsub_,                              // Ncoll_hard/N of SubEvents
+                                            nproj,                              // Npart_proj
+                                            ntarg,                              // Npart_targ
+                                            hj2->GetNbcol(),                    // Ncoll
+                                            0,                                  // spectator_neutrons
+                                            0,                                  // spectator_protons
+                                            0,                                  // N_Nwounded_collisions
+                                            0,                                  // Nwounded_N_collisions
+                                            0,                                  // Nwounded_Nwounded_collisions
+                                            hj2->GetBgen() * nuclear_radius(),  // impact_parameter in [fm]
+                                            phi0_,                              // event_plane_angle
+                                            hj2->GetPsiv3(),                    // eccentricity <<<---- psi for v3!!!
+                                            Sigin                               // sigma_inel_NN
   );
 
   evt->set_heavy_ion(*hi);
