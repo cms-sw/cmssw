@@ -139,8 +139,9 @@ TrackingRecHit2DHeterogeneous::TrackingRecHit2DHeterogeneous(
 
   //store transfer
   if (memoryPool::onDevice == where) {
-    cudaCheck(cudaMemcpyAsync(m_store32.get(), store32, nHits * n32, cudaMemcpyHostToDevice, stream));
-    cudaCheck(cudaMemcpyAsync(m_store16.get(), store16, nHits * n16, cudaMemcpyHostToDevice, stream));
+    cudaCheck(cudaMemcpyAsync(m_store32.get(), store32, nHits * n32 * sizeof(float), cudaMemcpyHostToDevice, stream));
+    cudaCheck(
+        cudaMemcpyAsync(m_store16.get(), store16, nHits * n16 * sizeof(uint16_t), cudaMemcpyHostToDevice, stream));
   } else {
     std::copy(store32, store32 + nHits * n32, m_store32.get());  // want to copy it
     std::copy(store16, store16 + nHits * n16, m_store16.get());
