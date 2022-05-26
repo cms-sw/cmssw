@@ -1,9 +1,41 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalParametersVXDDD_cfg.py type=V17
+#
+#   Options for type V15, V16, V17
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
+
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('type',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "type of operations: V15, V16, V17")
+
+### get and parse the command line arguments
+options.parseArguments()
+print(options)
+
 from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
 process = cms.Process("HGCalParametersTest",Phase2C11)
+
+####################################################################
+# Use the options
+if (options.type == "V15"):
+    process.load("Geometry.HGCalCommonData.testHGCalV15XML_cfi")
+elif (options.type == "V16"):
+    process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
+else:
+    process.load("Geometry.HGCalCommonData.testHGCalV17XML_cfi")
+
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
 process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 

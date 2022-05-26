@@ -139,6 +139,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     edm::LogVerbatim("HGCalGeom") << "FirstMixedLayer: " << phgp->firstMixedLayer_;
     edm::LogVerbatim("HGCalGeom") << "LayerOffset: " << phgp->layerOffset_;
     edm::LogVerbatim("HGCalGeom") << "mode_: " << phgp->mode_;
+    edm::LogVerbatim("HGCalGeom") << "cassettes_: " << phgp->cassettes_;
 
     myPrint("waferUVMaxLayer", phgp->waferUVMaxLayer_, 20);
     myPrint("CellThickness", phgp->cellThickness_, 10);
@@ -206,6 +207,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
     printTrform(phgp);
     myPrint("levelTop", phgp->levelT_, 10);
     printWaferType(phgp);
+    myPrint("cassetteShift", phgp->cassetteShift_, 8);
 
     edm::LogVerbatim("HGCalGeom") << "MaskMode: " << phgp->waferMaskMode_;
     if (phgp->waferMaskMode_ > 1) {
