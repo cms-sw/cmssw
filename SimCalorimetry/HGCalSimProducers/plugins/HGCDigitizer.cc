@@ -231,24 +231,23 @@ namespace {
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC)
     : simHitAccumulator_(new HGCSimHitDataAccumulator()),
       pusimHitAccumulator_(new HGCPUSimHitDataAccumulator()),
-      hitTag_(edm::InputTag("g4SimHits", hitCollection_)),
-      hitToken_(iC.consumes<std::vector<PCaloHit>>(hitTag_)),
+      digiCollection_(ps.getParameter<std::string>("digiCollection")),
+      digitizationType_(ps.getParameter<uint32_t>("digitizationType")),
+      premixStage1_(ps.getParameter<bool>("premixStage1")),
+      premixStage1MinCharge_(ps.getParameter<double>("premixStage1MinCharge")),
+      premixStage1MaxCharge_(ps.getParameter<double>("premixStage1MaxCharge")),
+      maxSimHitsAccTime_(ps.getParameter<uint32_t>("maxSimHitsAccTime")),
+      bxTime_(ps.getParameter<double>("bxTime")),
+      hitCollection_(ps.getParameter<edm::InputTag>("hitCollection")),
+      hitToken_(iC.consumes<std::vector<PCaloHit>>(hitCollection_)),
       geomToken_(iC.esConsumes()),
+      verbosity_(ps.getUntrackedParameter<uint32_t>("verbosity", 0)),
       refSpeed_(0.1 * CLHEP::c_light),  //[CLHEP::c_light]=mm/ns convert to cm/ns
+      tofDelay_(ps.getParameter<double>("tofDelay")),
       averageOccupancies_(occupancyGuesses),
       nEvents_(1) {
+  
   //configure from cfg
-
-  hitCollection_ = ps.getParameter<std::string>("hitCollection");
-  digiCollection_ = ps.getParameter<std::string>("digiCollection");
-  maxSimHitsAccTime_ = ps.getParameter<uint32_t>("maxSimHitsAccTime");
-  bxTime_ = ps.getParameter<double>("bxTime");
-  digitizationType_ = ps.getParameter<uint32_t>("digitizationType");
-  verbosity_ = ps.getUntrackedParameter<uint32_t>("verbosity", 0);
-  tofDelay_ = ps.getParameter<double>("tofDelay");
-  premixStage1_ = ps.getParameter<bool>("premixStage1");
-  premixStage1MinCharge_ = ps.getParameter<double>("premixStage1MinCharge");
-  premixStage1MaxCharge_ = ps.getParameter<double>("premixStage1MaxCharge");
 
   const auto& myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
 
@@ -384,7 +383,7 @@ void HGCDigitizer::accumulate_forPreMix(PileUpEventPrincipal const& e,
                                         edm::EventSetup const& eventSetup,
                                         CLHEP::HepRandomEngine* hre) {
   edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(hitTag_, hits);
+  e.getByLabel(hitCollection_, hits);
 
   if (!hits.isValid()) {
     edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
@@ -404,7 +403,7 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e,
                               CLHEP::HepRandomEngine* hre) {
   //get inputs
   edm::Handle<edm::PCaloHitContainer> hits;
-  e.getByLabel(hitTag_, hits);
+  e.getByLabel(hitCollection_, hits);
 
   if (!hits.isValid()) {
     edm::LogError("HGCDigitizer") << " @ accumulate : can't find " << hitCollection_ << " collection of g4SimHits";
