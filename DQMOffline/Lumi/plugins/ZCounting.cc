@@ -608,7 +608,6 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
   if (nvtx == 0)
     return;
   
-
   //-------------------------------
   //--- Trigger
   //-------------------------------
@@ -873,7 +872,6 @@ bool ZCounting::isCustomTightMuon(const reco::Muon& muon) {
                      muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0;
 
   return muIdAndHits;
-
 }
 
 //--------------------------------------------------------------------------------------------------
