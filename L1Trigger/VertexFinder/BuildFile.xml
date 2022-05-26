@@ -1,4 +1,3 @@
-<use name="CommonTools/UtilAlgos"/>
 <use name="DataFormats/Common"/>
 <use name="DataFormats/L1TrackTrigger"/>
 <use name="DataFormats/L1Trigger"/>

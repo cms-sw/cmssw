@@ -172,6 +172,37 @@ private:
     MonitorElement* h_3d_ip_distance = nullptr;
     MonitorElement* h_3d_ip_error = nullptr;
     MonitorElement* h_3d_ip_sig = nullptr;
+
+    //NEW
+    MonitorElement* h_jetNSecondaryVertices = nullptr;
+    MonitorElement* h_jet_pt = nullptr;
+    MonitorElement* h_jet_eta = nullptr;
+    MonitorElement* h_trackSumJetEtRatio = nullptr;
+    MonitorElement* h_trackSip2dValAboveCharm = nullptr;
+    MonitorElement* h_trackSip2dSigAboveCharm = nullptr;
+    MonitorElement* h_trackSip3dValAboveCharm = nullptr;
+    MonitorElement* h_trackSip3dSigAboveCharm = nullptr;
+    MonitorElement* h_jetNSelectedTracks = nullptr;
+    MonitorElement* h_jetNTracksEtaRel = nullptr;
+    MonitorElement* h_vertexCategory = nullptr;
+    MonitorElement* h_trackSumJetDeltaR = nullptr;
+
+    MonitorElement* h_trackJetDistVal = nullptr;
+    MonitorElement* h_trackPtRel = nullptr;
+    MonitorElement* h_trackDeltaR = nullptr;
+    MonitorElement* h_trackPtRatio = nullptr;
+    MonitorElement* h_trackSip3dSig = nullptr;
+    MonitorElement* h_trackSip2dSig = nullptr;
+    MonitorElement* h_trackDecayLenVal = nullptr;
+    MonitorElement* h_trackEtaRel = nullptr;
+
+    MonitorElement* h_vertexEnergyRatio = nullptr;
+    MonitorElement* h_vertexJetDeltaR = nullptr;
+    MonitorElement* h_flightDistance2dVal = nullptr;
+    MonitorElement* h_flightDistance2dSig = nullptr;
+    MonitorElement* h_flightDistance3dVal = nullptr;
+    MonitorElement* h_flightDistance3dSig = nullptr;
+
     ObjME OnlineTrkEff_Pt;
     ObjME OnlineTrkEff_Eta;
     ObjME OnlineTrkEff_3d_ip_distance;
@@ -484,7 +515,7 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
           v.PVz_HLTMinusRECO->Fill(VertexHandler->begin()->z() - offlineVertexHandler->begin()->z());
         }
       }
-    }  // caloTagsValid
+    }  // caloTagsValid or PFTagsValid
 
     // specific to Calo b-tagging
     if (caloTags.isValid() && v.getTriggerType() == "Calo" && !caloTags->empty()) {
@@ -521,21 +552,99 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 
         // n secondary vertices and n selected tracks
         for (const auto& tagVar : tagVars.getList(reco::btau::jetNSecondaryVertices, false)) {
+          v.h_jetNSecondaryVertices->Fill(tagVar);
           v.n_vtx->Fill(tagVar);
         }
+
         for (const auto& tagVar : tagVars.getList(reco::btau::jetNSelectedTracks, false)) {
           v.n_sel_tracks->Fill(tagVar);
+          v.h_jetNSelectedTracks->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::jetPt, false)) {
+          v.h_jet_pt->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::jetEta, false)) {
+          v.h_jet_eta->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::trackSumJetEtRatio, false)) {
+          v.h_trackSumJetEtRatio->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::trackSumJetDeltaR, false)) {
+          v.h_trackSumJetDeltaR->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::vertexCategory, false)) {
+          v.h_vertexCategory->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::trackSip2dValAboveCharm, false)) {
+          v.h_trackSip2dValAboveCharm->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::trackSip2dSigAboveCharm, false)) {
+          v.h_trackSip2dSigAboveCharm->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::trackSip3dValAboveCharm, false)) {
+          v.h_trackSip3dValAboveCharm->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::trackSip3dSigAboveCharm, false)) {
+          v.h_trackSip3dSigAboveCharm->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::jetNTracksEtaRel, false)) {
+          v.h_jetNTracksEtaRel->Fill(tagVar);
         }
 
         // impact parameter
+        // and new info
         const auto& trackSip3dVal = tagVars.getList(reco::btau::trackSip3dVal, false);
         const auto& trackSip3dSig = tagVars.getList(reco::btau::trackSip3dSig, false);
+        const auto& trackJetDistVal = tagVars.getList(reco::btau::trackJetDistVal, false);
+        const auto& trackPtRel = tagVars.getList(reco::btau::trackPtRel, false);
+        const auto& trackSip2dSig = tagVars.getList(reco::btau::trackSip2dSig, false);
+        const auto& trackDeltaR = tagVars.getList(reco::btau::trackDeltaR, false);
+        const auto& trackPtRatio = tagVars.getList(reco::btau::trackPtRatio, false);
+        const auto& trackDecayLenVal = tagVars.getList(reco::btau::trackDecayLenVal, false);
+        const auto& trackEtaRel = tagVars.getList(reco::btau::trackEtaRel, false);
+
+        for (unsigned i_trk = 0; i_trk < trackEtaRel.size(); i_trk++) {
+          v.h_trackEtaRel->Fill(trackEtaRel[i_trk]);
+        }
+
+        for (unsigned i_trk = 0; i_trk < trackJetDistVal.size(); i_trk++) {
+          v.h_trackJetDistVal->Fill(trackJetDistVal[i_trk]);
+        }
+
+        for (unsigned i_trk = 0; i_trk < trackPtRel.size(); i_trk++) {
+          v.h_trackPtRel->Fill(trackPtRel[i_trk]);
+        }
+
+        for (unsigned i_trk = 0; i_trk < trackDeltaR.size(); i_trk++) {
+          v.h_trackDeltaR->Fill(trackDeltaR[i_trk]);
+        }
+
+        for (unsigned i_trk = 0; i_trk < trackPtRatio.size(); i_trk++) {
+          v.h_trackPtRatio->Fill(trackPtRatio[i_trk]);
+        }
+
+        for (unsigned i_trk = 0; i_trk < trackDecayLenVal.size(); i_trk++) {
+          v.h_trackDecayLenVal->Fill(trackDecayLenVal[i_trk]);
+        }
+
         for (unsigned i_trk = 0; i_trk < trackSip3dVal.size(); i_trk++) {
           float val = trackSip3dVal[i_trk];
           float sig = trackSip3dSig[i_trk];
           v.h_3d_ip_distance->Fill(val);
           v.h_3d_ip_error->Fill(val / sig);
           v.h_3d_ip_sig->Fill(sig);
+
+          v.h_trackSip2dSig->Fill(trackSip2dSig[i_trk]);
         }
 
         // vertex mass and tracks per vertex
@@ -544,6 +653,30 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
         for (const auto& tagVar : tagVars.getList(reco::btau::vertexNTracks, false)) {
           v.n_vtx_trks->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::vertexEnergyRatio, false)) {
+          v.h_vertexEnergyRatio->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::vertexJetDeltaR, false)) {
+          v.h_vertexJetDeltaR->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::flightDistance2dVal, false)) {
+          v.h_flightDistance2dVal->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::flightDistance2dSig, false)) {
+          v.h_flightDistance2dSig->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::flightDistance3dVal, false)) {
+          v.h_flightDistance3dVal->Fill(tagVar);
+        }
+
+        for (const auto& tagVar : tagVars.getList(reco::btau::flightDistance3dSig, false)) {
+          v.h_flightDistance3dSig->Fill(tagVar);
         }
 
         // // track N total/pixel hits
@@ -589,7 +722,7 @@ void BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetu
     //     }
     //   }
     // }
-  }
+  }  //end paths loop
 }
 
 std::vector<const reco::Track*> BTVHLTOfflineSource::getOfflineBTagTracks(float hltJetEta,
@@ -758,6 +891,111 @@ void BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
     histoname = "3d_ip_sig";
     title = "3D IP significance of tracks (cm)" + trigPath;
     v.h_3d_ip_sig = iBooker.book1D(histoname.c_str(), title.c_str(), 40, -40, 40);
+
+    //new
+    histoname = "jetNSecondaryVertices";
+    title = "jet N Secondary Vertices" + trigPath;
+    v.h_jetNSecondaryVertices = iBooker.book1D(histoname.c_str(), title.c_str(), 10, -0.5, 9.5);
+
+    histoname = "jet_pt";
+    title = "jet pt" + trigPath;
+    v.h_jet_pt = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.1, 100);
+
+    histoname = "jet_eta";
+    title = "jet eta" + trigPath;
+    v.h_jet_eta = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -2.5, 2.5);
+
+    histoname = "trackSumJetEtRatio";
+    title = "trackSumJetEtRatio" + trigPath;
+    v.h_trackSumJetEtRatio = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.1, 1.5);
+
+    histoname = "trackSip2dValAboveCharm";
+    title = "trackSip2dSigAboveCharm" + trigPath;
+    v.h_trackSip2dSigAboveCharm = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.2, 0.2);
+
+    histoname = "trackSip2dSigAboveCharm";
+    title = "trackSip2dSigAboveCharm" + trigPath;
+    v.h_trackSip2dValAboveCharm = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -50, 50);
+
+    histoname = "trackSip3dValAboveCharm";
+    title = "trackSip3dValAboveCharm" + trigPath;
+    v.h_trackSip3dValAboveCharm = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.2, 0.2);
+
+    histoname = "trackSip3dSigAboveCharm";
+    title = "trackSip3dSigAboveCharm" + trigPath;
+    v.h_trackSip3dSigAboveCharm = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -50, 50);
+
+    histoname = "jetNSelectedTracks";
+    title = "jet N Selected Tracks" + trigPath;
+    v.h_jetNSelectedTracks = iBooker.book1D(histoname.c_str(), title.c_str(), 42, -1.5, 40.5);
+
+    histoname = "jetNTracksEtaRel";
+    title = "jetNTracksEtaRel" + trigPath;
+    v.h_jetNTracksEtaRel = iBooker.book1D(histoname.c_str(), title.c_str(), 42, -1.5, 40.5);
+
+    histoname = "vertexCategory";
+    title = "vertex category" + trigPath;
+    v.h_vertexCategory = iBooker.book1D(histoname.c_str(), title.c_str(), 4, -1.5, 2.5);
+
+    histoname = "trackSumJetDeltaR";
+    title = "trackSumJetDeltaR" + trigPath;
+    v.h_trackSumJetDeltaR = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.1, 0.35);
+
+    //new 2 below
+    histoname = "trackJetDistVal";
+    title = "trackJetDistVal" + trigPath;
+    v.h_trackJetDistVal = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -1, 0.01);
+
+    histoname = "trackPtRel";
+    title = "track pt rel" + trigPath;
+    v.h_trackPtRel = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.1, 7);
+
+    histoname = "trackDeltaR";
+    title = "trackDeltaR" + trigPath;
+    v.h_trackDeltaR = iBooker.book1D(histoname.c_str(), title.c_str(), 160, -0.05, .47);
+
+    histoname = "trackPtRatio";
+    title = "trackPtRatio" + trigPath;
+    v.h_trackPtRatio = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.01, 0.3);
+
+    histoname = "trackSip2dSig";
+    title = "trackSip2dSig" + trigPath;
+    v.h_trackSip2dSig = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -55, 55);
+
+    histoname = "trackDecayLenVal";
+    title = "trackDecayLenVal" + trigPath;
+    v.h_trackDecayLenVal = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.1, 22);
+
+    histoname = "trackEtaRel";
+    title = "trackEtaRel" + trigPath;
+    v.h_trackEtaRel = iBooker.book1D(histoname.c_str(), title.c_str(), 31, 0, 30);
+
+    //new 3 below
+    histoname = "vertexEnergyRatio";
+    title = "vertexEnergyRatio" + trigPath;
+    v.h_vertexEnergyRatio = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.1, 3);
+
+    histoname = "vertexJetDeltaR";
+    title = "vertexJetDeltaR" + trigPath;
+    v.h_vertexJetDeltaR = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.01, 0.4);
+
+    histoname = "flightDistance2dVal";
+    title = "flightDistance2dVal" + trigPath;
+    v.h_flightDistance2dVal = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.1, 5);
+
+    histoname = "flightDistance2dSig";
+    title = "flightDistance2dSig" + trigPath;
+    v.h_flightDistance2dSig = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -10, 150);
+
+    histoname = "flightDistance3dVal";
+    title = "flightDistance3dVal" + trigPath;
+    v.h_flightDistance3dVal = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -0.1, 5);
+
+    histoname = "flightDistance3dSig";
+    title = "flightDistance3dSig" + trigPath;
+    v.h_flightDistance3dSig = iBooker.book1D(histoname.c_str(), title.c_str(), 100, -10, 150);
+
+    //end new
 
     histoname = "OnlineTrkEff_Pt";
     title = "Relative Online Trk Efficiency vs Pt " + trigPath;

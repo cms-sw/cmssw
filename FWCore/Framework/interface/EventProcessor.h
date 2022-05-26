@@ -253,7 +253,7 @@ namespace edm {
     bool shouldWeStop() const;
 
     void setExceptionMessageFiles(std::string& message);
-    void setExceptionMessageRuns(std::string& message);
+    void setExceptionMessageRuns();
     void setExceptionMessageLumis();
 
     bool setDeferredException(std::exception_ptr);
@@ -350,7 +350,7 @@ namespace edm {
     bool shouldWeStop_;
     bool fileModeNoMerge_;
     std::string exceptionMessageFiles_;
-    std::string exceptionMessageRuns_;
+    std::atomic<bool> exceptionMessageRuns_;
     std::atomic<bool> exceptionMessageLumis_;
     bool forceLooperToEnd_;
     bool looperBeginJobRun_;
@@ -358,8 +358,6 @@ namespace edm {
 
     PreallocationConfiguration preallocations_;
 
-    bool asyncStopRequestedWhileProcessingEvents_;
-    StatusCode asyncStopStatusCodeFromProcessingEvents_;
     bool firstEventInBlock_ = true;
 
     typedef std::set<std::pair<std::string, std::string>> ExcludedData;
