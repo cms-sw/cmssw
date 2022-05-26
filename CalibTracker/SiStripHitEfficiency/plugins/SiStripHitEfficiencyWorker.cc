@@ -265,10 +265,13 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   h_allLayer = EffME1(booker.book1D("alllayer_total", "alllayer_total", 35, 0., 35.),
                       booker.book1D("alllayer_found", "alllayer_found", 35, 0., 35.));
 
-  h_layer = EffME1(booker.book1D("layer_found", "layer_found", 23, 0., 23.),
-                   booker.book1D("layer_total", "layer_total", 23, 0., 23.));
+  h_layer = EffME1(
+      booker.book1D(
+          "layer_found", "layer_found", bounds::k_END_OF_LAYERS, 0., static_cast<float>(bounds::k_END_OF_LAYERS)),
+      booker.book1D(
+          "layer_total", "layer_total", bounds::k_END_OF_LAYERS, 0., static_cast<float>(bounds::k_END_OF_LAYERS)));
 
-  for (int layer = 1; layer != 23; ++layer) {
+  for (int layer = 1; layer != bounds::k_END_OF_LAYERS; ++layer) {
     const auto lyrName = ::layerName(layer, showRings_, nTEClayers_);
 
     // book resolutions
@@ -902,7 +905,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           } else if (layer > bounds::k_LayersAtTOBEnd && layer <= bounds::k_LayersAtTIDEnd) {
             //We are in the TID
             //There are 2 different maps here
-            int side = tTopo->tidSide(iidd);  //((iidd >> 13) & 0x3);
+            int side = tTopo->tidSide(iidd);
             if (side == 1)
               h_hotcold[(layer - 1) + (layer - 11)]->Fill(-tm.globalY(), tm.globalX(), 1.);
             else if (side == 2)
@@ -910,7 +913,7 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           } else if (layer > bounds::k_LayersAtTIDEnd) {
             //We are in the TEC
             //There are 2 different maps here
-            int side = tTopo->tecSide(iidd);  //((iidd >> 18) & 0x3);
+            int side = tTopo->tecSide(iidd);
             if (side == 1)
               h_hotcold[(layer + 2) + (layer - 14)]->Fill(-tm.globalY(), tm.globalX(), 1.);
             else if (side == 2)
