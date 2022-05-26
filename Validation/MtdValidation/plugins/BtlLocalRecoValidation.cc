@@ -68,7 +68,7 @@ private:
 
   const std::string folder_;
   const double hitMinEnergy_;
-  const bool LocalPosDebug_;
+  const bool optionalPlots_;
   const bool uncalibRecHitsPlots_;
   const double hitMinAmplitude_;
 
@@ -182,7 +182,7 @@ bool BtlLocalRecoValidation::isSameCluster(const FTLCluster& clu1, const FTLClus
 BtlLocalRecoValidation::BtlLocalRecoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy_(iConfig.getParameter<double>("HitMinimumEnergy")),
-      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")),
+      optionalPlots_(iConfig.getParameter<bool>("optionalPlots")),
       uncalibRecHitsPlots_(iConfig.getParameter<bool>("UncalibRecHitsPlots")),
       hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")) {
   btlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
@@ -216,6 +216,20 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   auto btlRecCluHandle = makeValid(iEvent.getHandle(btlRecCluToken_));
   auto mtdTrkHitHandle = makeValid(iEvent.getHandle(mtdTrackingHitToken_));
   MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
+
+#ifdef EDM_ML_DEBUG
+  for (const auto& hits : *mtdTrkHitHandle) {
+    if (MTDDetId(hits.id()).mtdSubDetector() == MTDDetId::MTDType::BTL) {
+      LogDebug("BtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
+      for (const auto& hit : hits) {
+        LogDebug("BtlLocalRecoValidation")
+            << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
+            << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
+            << hit.timeError();
+      }
+    }
+  }
+#endif
 
   // --- Loop over the BTL SIM hits
   std::unordered_map<uint32_t, MTDHit> m_btlSimHits;
@@ -267,7 +281,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     meOccupancy_->Fill(global_point.z(), global_point.phi());
 
-    if (LocalPosDebug_) {
+    if (optionalPlots_) {
       meLocalOccupancy_->Fill(local_point.x() + recHit.position(), local_point.y());
       meHitXlocal_->Fill(local_point.x());
       meHitYlocal_->Fill(local_point.y());
@@ -391,12 +405,14 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           cluEneSIM += m_btlSimHits[recHit.id().rawId()].energy;
           cluTimeSIM += m_btlSimHits[recHit.id().rawId()].time * m_btlSimHits[recHit.id().rawId()].energy;
 
+          break;
+
         }  // recHit loop
 
       }  // ihit loop
 
       // Find the MTDTrackingRecHit corresponding to the cluster
-      MTDTrackingRecHit* comp(nullptr);
+      const MTDTrackingRecHit* comp(nullptr);
       bool matchClu = false;
       const auto& trkHits = (*mtdTrkHitHandle)[detIdObject];
       for (const auto& trkHit : trkHits) {
@@ -435,7 +451,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
         meCluZRes_->Fill(z_res);
 
-        if (LocalPosDebug_) {
+        if (optionalPlots_) {
           if (matchClu && comp != nullptr) {
             meCluLocalXRes_->Fill(xlocal_res);
             meCluLocalYRes_->Fill(ylocal_res);
@@ -569,7 +585,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meHitTimeError_ = ibook.book1D("BtlHitTimeError", "BTL RECO hits ToA error;#sigma^{ToA}_{RECO} [ns]", 50, 0., 0.1);
   meOccupancy_ = ibook.book2D(
       "BtlOccupancy", "BTL RECO hits occupancy;Z_{RECO} [cm]; #phi_{RECO} [rad]", 65, -260., 260., 126, -3.2, 3.2);
-  if (LocalPosDebug_) {
+  if (optionalPlots_) {
     meLocalOccupancy_ = ibook.book2D(
         "BtlLocalOccupancy", "BTL RECO hits local occupancy;X_{RECO} [cm]; Y_{RECO} [cm]", 100, 10., 10., 60, -3., 3.);
     meHitXlocal_ = ibook.book1D("BtlHitXlocal", "BTL RECO local X;X_{RECO}^{LOC} [cm]", 100, -10., 10.);
@@ -687,7 +703,7 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
   meCluPhiRes_ =
       ibook.book1D("BtlCluPhiRes", "BTL cluster #phi resolution;#phi_{RECO}-#phi_{SIM} [rad]", 100, -0.03, 0.03);
   meCluZRes_ = ibook.book1D("BtlCluZRes", "BTL cluster Z resolution;Z_{RECO}-Z_{SIM} [cm]", 100, -0.2, 0.2);
-  if (LocalPosDebug_) {
+  if (optionalPlots_) {
     meCluLocalXRes_ =
         ibook.book1D("BtlCluLocalXRes", "BTL cluster local X resolution;X_{RECO}-X_{SIM} [cm]", 100, -3.1, 3.1);
     meCluLocalYRes_ =
@@ -763,7 +779,7 @@ void BtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("recCluTag", edm::InputTag("mtdClusters", "FTLBarrel"));
   desc.add<edm::InputTag>("trkHitTag", edm::InputTag("mtdTrackingRecHits"));
   desc.add<double>("HitMinimumEnergy", 1.);  // [MeV]
-  desc.add<bool>("LocalPositionDebug", false);
+  desc.add<bool>("optionalPlots", false);
   desc.add<bool>("UncalibRecHitsPlots", false);
   desc.add<double>("HitMinimumAmplitude", 30.);  // [pC]
 

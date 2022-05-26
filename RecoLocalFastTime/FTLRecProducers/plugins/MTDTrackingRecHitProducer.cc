@@ -74,7 +74,7 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
 
   for (auto const& theInput : inputHandle) {
     if (!theInput.isValid()) {
-      edm::LogWarning("MTDReco") << "MTDTrackingRecHitProducer: Invalid collection";
+      edm::LogWarning("MTDTrackingRecHitProducer") << "MTDTrackingRecHitProducer: Invalid collection";
       continue;
     }
     const edmNew::DetSetVector<FTLCluster>& input = *theInput;
@@ -91,9 +91,11 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
 
       MTDTrackingDetSetVector::FastFiller recHitsOnDet(theoutputhits, detid);
 
+      LogDebug("MTDTrackingRecHitProducer") << "MTD cluster DetId " << detid << " # cluster " << DSVit.size();
+
       for (const auto& clustIt : DSVit) {
-        LogDebug("MTDTrackingRcHitProducer") << "Cluster: size " << clustIt.size() << " " << clustIt.x() << ","
-                                             << clustIt.y() << " " << clustIt.energy() << " " << clustIt.time();
+        LogDebug("MTDTrackingRecHitProducer") << "Cluster: size " << clustIt.size() << " " << clustIt.x() << ","
+                                              << clustIt.y() << " " << clustIt.energy() << " " << clustIt.time();
         MTDClusterParameterEstimator::ReturnType tuple = cpe.getParameters(clustIt, *genericDet);
         LocalPoint lp(std::get<0>(tuple));
         LocalError le(std::get<1>(tuple));
@@ -102,7 +104,7 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
         edm::Ref<edmNew::DetSetVector<FTLCluster>, FTLCluster> cluster = edmNew::makeRefTo(theInput, &clustIt);
         // Make a RecHit and add it to the DetSet
         MTDTrackingRecHit hit(lp, le, *genericDet, cluster);
-        LogDebug("MTDTrackingRcHitProducer")
+        LogDebug("MTDTrackingRecHitProducer")
             << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
             << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
             << hit.timeError();
@@ -110,7 +112,7 @@ void MTDTrackingRecHitProducer::produce(edm::StreamID, edm::Event& evt, const ed
         recHitsOnDet.push_back(hit);
       }  //  <-- End loop on Clusters
     }    //    <-- End loop on DetUnits
-    LogDebug("MTDTrackingRcHitProducer") << "outputCollection " << theoutputhits.size();
+    LogDebug("MTDTrackingRecHitProducer") << "outputCollection " << theoutputhits.size();
   }
 
   evt.put(std::move(outputhits));
