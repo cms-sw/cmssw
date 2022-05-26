@@ -5,6 +5,6 @@ from DQM.GEM.gemEfficiencyHarvesterCosmics_cff import *
 
 gemClientsCosmics = cms.Sequence(
     GEMDQMHarvester *
-    gemEfficiencyHarvesterCosmicsTwoLeg *
-    gemEfficiencyHarvesterCosmicsOneLeg
+    gemEfficiencyHarvesterCosmicsGlb *
+    gemEfficiencyHarvesterCosmicsSta
 )

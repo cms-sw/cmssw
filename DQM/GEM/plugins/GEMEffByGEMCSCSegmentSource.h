@@ -9,7 +9,7 @@
  * \author Seungjin Yang <seungjin.yang@cern.ch>
  */
 
-#include "DQM/GEM/interface/GEMOfflineDQMBase.h"
+#include "DQM/GEM/interface/GEMDQMEfficiencySourceBase.h"
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -20,7 +20,7 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
-class GEMEffByGEMCSCSegmentSource : public GEMOfflineDQMBase {
+class GEMEffByGEMCSCSegmentSource : public GEMDQMEfficiencySourceBase {
 public:
   explicit GEMEffByGEMCSCSegmentSource(const edm::ParameterSet &);
   ~GEMEffByGEMCSCSegmentSource() override;
@@ -30,40 +30,44 @@ private:
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
 
-  void bookEfficiencyChamber(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
-  void bookMisc(DQMStore::IBooker &, const edm::ESHandle<GEMGeometry> &);
-  MonitorElement *bookNumerator1D(DQMStore::IBooker &, MonitorElement *);
+  MonitorElement *bookCSCChamberType(DQMStore::IBooker &, const TString &, const TString &);
 
-  // ME11-GE11 segments
-  void analyzeME11GE11Segment(const GEMCSCSegment &);
+  // GE11_ME11 segments
+  void analyzeGE11ME11Segment(const GEMCSCSegment &, const GEMOHStatusCollection *, const GEMVFATStatusCollection *);
   void checkCoincidenceGE11(const GEMRecHit *, const GEMRecHit *, const GEMCSCSegment &);
   void findMatchedME11Segments(const reco::MuonCollection *);
   bool isME11SegmentMatched(const CSCSegment &);
 
-  // const member data (mainly parameters)
-  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> kGEMTokenBeginRun_;
-  const edm::EDGetTokenT<GEMCSCSegmentCollection> kGEMCSCSegmentToken_;
-  const edm::EDGetTokenT<reco::MuonCollection> kMuonToken_;
-  const bool kUseMuon_;
-  const uint32_t kMinCSCRecHits_;
-  const std::string kFolder_;
-  const std::string kLogCategory_;
+  //////////////////////////////////////////////////////////////////////////////
+  // const member data
+  //////////////////////////////////////////////////////////////////////////////
 
-  // member data
+  const edm::ESGetToken<GEMGeometry, MuonGeometryRecord> kGEMGeometryTokenBeginRun_;
+  const edm::EDGetTokenT<GEMCSCSegmentCollection> kGEMCSCSegmentCollectionToken_;
+  const edm::EDGetTokenT<reco::MuonCollection> kMuonCollectionToken_;
+  const int kMinCSCRecHits_;
+  const bool kModeDev_;
+  const bool kUseMuonSegment_;
+  const std::string kFolder_;
+
+  //////////////////////////////////////////////////////////////////////////////
+  // non-const member data
+  //////////////////////////////////////////////////////////////////////////////
   std::vector<const CSCSegment *> matched_me11_segment_vector_;
 
   // MonitorElement
-  MEMap me_chamber_;  // 1D, (region, station, layer)
+  MEMap me_chamber_;
   MEMap me_chamber_matched_;
-  MEMap me_muon_chamber_;  // 1D, (region, station, layer)
-  MEMap me_muon_chamber_matched_;
-  // misc
+  //// dev
   MEMap me_num_csc_hits_;
   MEMap me_num_csc_hits_matched_;
-  MEMap me_reduced_chi2_;
-  MEMap me_reduced_chi2_matched_;
+  MEMap me_csc_reduced_chi2_;
+  MEMap me_csc_reduced_chi2_matched_;
   MEMap me_csc_chamber_type_;
   MEMap me_csc_chamber_type_matched_;
+  //// dev with muon
+  MEMap me_chamber_muon_segment_;
+  MEMap me_chamber_muon_segment_matched_;
 };
 
 #endif  // DQM_GEM_GEMEffByGEMCSCSegmentSource_h
