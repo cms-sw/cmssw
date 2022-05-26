@@ -2,17 +2,29 @@ import FWCore.ParameterSet.Config as cms
 from DQM.GEM.gemEfficiencyAnalyzer_cfi import *
 
 gemEfficiencyAnalyzerCosmics = gemEfficiencyAnalyzer.clone(
-    isCosmics = True,
+    scenario = "cosmics",
+    propagationErrorRCut = 0.5, # cm
+    propagationErrorPhiCut = 0.1, # degree
+    muonPtMinCutGE11 = 0, # GeV
+    muonEtaMinCutGE11 = 0.5,
+    muonEtaMaxCutGE11 = 10.0,
+    muonEtaNbinsGE11 = 30,
+    muonEtaLowGE11 = 0.0,
+    muonEtaUpGE11 = 3.0,
 )
 
-gemEfficiencyAnalyzerCosmicsTwoLeg = gemEfficiencyAnalyzerCosmics.clone(
+gemEfficiencyAnalyzerCosmicsGlb = gemEfficiencyAnalyzerCosmics.clone(
     muonTag = 'muons',
-    name = 'Cosmic 2-Leg STA Muon',
-    folder = 'GEM/Efficiency/type1'
+    muonTrackType = 'CombinedTrack',
+    startingStateType = "OutermostMeasurementState",
+    folder = 'GEM/Efficiency/muonGLB',
+    muonName = 'Cosmic 2-Leg GLB Muon',
 )
 
-gemEfficiencyAnalyzerCosmicsOneLeg = gemEfficiencyAnalyzerCosmics.clone(
-    muonTag = 'muons1Leg',
-    name = 'Cosmic 1-Leg STA Muon',
-    folder = 'GEM/Efficiency/type2'
+gemEfficiencyAnalyzerCosmicsSta = gemEfficiencyAnalyzerCosmics.clone(
+    muonTag = 'muons',
+    muonTrackType = 'OuterTrack',
+    startingStateType = "OutermostMeasurementState",
+    folder = 'GEM/Efficiency/muonSTA',
+    muonName = 'Cosmic 2-Leg STA Muon',
 )
