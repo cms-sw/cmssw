@@ -60,7 +60,8 @@ private:
   std::vector<DetId> stripDetIds_;
 
   void writeBadStripPayload(const SiStripQuality& quality) const;
-  void printTotalStatistics(const std::array<long, 23>& layerFound, const std::array<long, 23>& layerTotal) const;
+  void printTotalStatistics(const std::array<long, bounds::k_END_OF_LAYERS>& layerFound,
+                            const std::array<long, bounds::k_END_OF_LAYERS>& layerTotal) const;
   void printAndWriteBadModules(const SiStripQuality& quality, const SiStripDetInfo& detInfo) const;
   bool checkMapsValidity(const std::vector<MonitorElement*>& maps, const std::string& type) const;
   void makeSummary(DQMStore::IGetter& getter, TFileService& fs) const;
@@ -174,14 +175,14 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   booker.setCurrentFolder(inputFolder_);
 
   std::vector<MonitorElement*> hEffInLayer(std::size_t(1), nullptr);
-  hEffInLayer.reserve(23);
-  for (std::size_t i = 1; i != 23; ++i) {
+  hEffInLayer.reserve(bounds::k_END_OF_LAYERS);
+  for (std::size_t i = 1; i != bounds::k_END_OF_LAYERS; ++i) {
     const auto lyrName = ::layerName(i, showRings_, nTEClayers_);
     hEffInLayer.push_back(booker.book1D(
         Form("eff_layer%i", int(i)), Form("Module efficiency in layer %s", lyrName.c_str()), 201, 0, 1.005));
   }
-  std::array<long, 23> layerTotal{};
-  std::array<long, 23> layerFound{};
+  std::array<long, bounds::k_END_OF_LAYERS> layerTotal{};
+  std::array<long, bounds::k_END_OF_LAYERS> layerFound{};
   layerTotal.fill(0);
   layerFound.fill(0);
 
@@ -235,7 +236,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   }
 
   if (autoIneffModTagging_) {
-    for (Long_t i = 1; i <= 22; i++) {
+    for (Long_t i = 1; i <= k_LayersAtTECEnd; i++) {
       //Compute threshold to use for each layer
       hEffInLayer[i]->getTH1()->GetXaxis()->SetRange(
           3, hEffInLayer[i]->getNbinsX() + 1);  // Remove from the avg modules below 1%
@@ -324,8 +325,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   makeSummaryVsLumi(getter);  // TODO
 }
 
-void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 23>& layerFound,
-                                                         const std::array<long, 23>& layerTotal) const {
+void SiStripHitEfficiencyHarvester::printTotalStatistics(
+    const std::array<long, bounds::k_END_OF_LAYERS>& layerFound,
+    const std::array<long, bounds::k_END_OF_LAYERS>& layerTotal) const {
   //Calculate the statistics by layer
   int totalfound = 0;
   int totaltotal = 0;
@@ -338,25 +340,25 @@ void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 
     subdettotal[i] = 0;
   }
 
-  for (Long_t i = 1; i <= 22; i++) {
+  for (Long_t i = 1; i <= bounds::k_LayersAtTECEnd; i++) {
     layereff = double(layerFound[i]) / double(layerTotal[i]);
     LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers_) << ") has total efficiency "
              << layereff << " " << layerFound[i] << "/" << layerTotal[i];
     totalfound += layerFound[i];
     totaltotal += layerTotal[i];
-    if (i < 5) {
+    if (i <= bounds::k_LayersAtTIBEnd) {
       subdetfound[1] += layerFound[i];
       subdettotal[1] += layerTotal[i];
     }
-    if (i >= 5 && i < 11) {
+    if (i > bounds::k_LayersAtTIBEnd && i <= bounds::k_LayersAtTOBEnd) {
       subdetfound[2] += layerFound[i];
       subdettotal[2] += layerTotal[i];
     }
-    if (i >= 11 && i < 14) {
+    if (i > bounds::k_LayersAtTOBEnd && i <= bounds::k_LayersAtTIDEnd) {
       subdetfound[3] += layerFound[i];
       subdettotal[3] += layerTotal[i];
     }
-    if (i >= 14) {
+    if (i > bounds::k_LayersAtTIDEnd) {
       subdetfound[4] += layerFound[i];
       subdettotal[4] += layerTotal[i];
     }
