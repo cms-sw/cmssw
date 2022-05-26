@@ -608,7 +608,6 @@ void ZCounting::analyzeElectrons(const edm::Event& iEvent, const edm::EventSetup
   if (nvtx == 0)
     return;
   
-
   //-------------------------------
   //--- Trigger
   //-------------------------------
