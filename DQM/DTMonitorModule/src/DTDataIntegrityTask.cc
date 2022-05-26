@@ -731,7 +731,8 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
 
     if (uRos < 3) {
       int sector = link + 1;
-      errorX[5][link][wheel + 2] += 1;
+      if (tdcError_ROSSummary == 5)
+        errorX[5][link][wheel + 2] += 1;
       if (mode != 1) {
         if (sector == 9)
           sector = 10;
@@ -747,14 +748,17 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
     }                                                                                    //uRos<3
     else {                                                                               //uRos>2
       if (link < 24) {
-        errorX[5][ros - 1][wheel + 2] += 1;
+        if (tdcError_ROSSummary == 5)
+          errorX[5][ros - 1][wheel + 2] += 1;
         if (mode != 1)
           ROSSummary->Fill(tdcError_ROSSummary, ros);
       } else if (link < 48) {
-        if ((link == 46 || link == 57) && ros == 10)
-          errorX[5][sector4][wheel + 2] += 1;
-        else
-          errorX[5][ros][wheel + 2] += 1;
+        if (tdcError_ROSSummary == 5) {
+          if ((link == 46 || link == 57) && ros == 10)
+            errorX[5][sector4][wheel + 2] += 1;
+          else
+            errorX[5][ros][wheel + 2] += 1;
+        }
         if (mode != 1) {
           if ((link == 46 || link == 57) && ros == 10)
             ROSSummary->Fill(tdcError_ROSSummary, sector4);
@@ -762,7 +766,8 @@ void DTDataIntegrityTask::processuROS(DTuROSROSData& data, int fed, int uRos) {
             ROSSummary->Fill(tdcError_ROSSummary, ros + 1);
         }
       } else if (link < 72) {
-        errorX[5][ros + 1][wheel + 2] += 1;
+        if (tdcError_ROSSummary == 5)
+          errorX[5][ros + 1][wheel + 2] += 1;
         if (mode != 1)
           ROSSummary->Fill(tdcError_ROSSummary, ros + 2);
       }

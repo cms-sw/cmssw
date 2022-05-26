@@ -42,9 +42,9 @@
 #include "RecoTracker/MkFitCore/interface/HitStructures.h"
 
 //extra for DNN with cands
-#include "TrackingTools/Records/interface/TfGraphRecord.h"
+#include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
+#include "PhysicsTools/TensorFlow/interface/TfGraphDefWrapper.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
