@@ -246,7 +246,6 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& 
       tofDelay_(ps.getParameter<double>("tofDelay")),
       averageOccupancies_(occupancyGuesses),
       nEvents_(1) {
-  
   //configure from cfg
 
   const auto& myCfg_ = ps.getParameter<edm::ParameterSet>("digiCfg");
