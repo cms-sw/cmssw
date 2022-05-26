@@ -17,7 +17,8 @@ namespace {
     k_LayersAtTIBEnd = 4,
     k_LayersAtTOBEnd = 10,
     k_LayersAtTIDEnd = 13,
-    k_LayersAtTECEnd = 22
+    k_LayersAtTECEnd = 22,
+    k_END_OF_LAYERS = 23
   };
 
   inline unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
