@@ -15,6 +15,13 @@ using namespace std;
 
 TSGForOI::TSGForOI(const edm::ParameterSet& iConfig)
     : src_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+      estimatorToken_(esConsumes(edm::ESInputTag("", (iConfig.getParameter<std::string>("estimator"))))),
+      magfieldToken_(esConsumes()),
+      tmpTkGeometryToken_(esConsumes()),
+      geometryToken_(esConsumes()),
+      tTopoToken_(esConsumes()),
+      smartOppositeToken_(esConsumes(edm::ESInputTag("", "hltESPSmartPropagatorAnyOpposite"))),
+      shpOppositeToken_(esConsumes(edm::ESInputTag("", "hltESPSteppingHelixPropagatorOpposite"))),
       numOfMaxSeedsParam_(iConfig.getParameter<uint32_t>("maxSeeds")),
       numOfLayersToTry_(iConfig.getParameter<int32_t>("layersToTry")),
       numOfHitsToTry_(iConfig.getParameter<int32_t>("hitsToTry")),
@@ -22,7 +29,6 @@ TSGForOI::TSGForOI(const edm::ParameterSet& iConfig)
       fixedErrorRescalingForHitless_(iConfig.getParameter<double>("fixedErrorRescaleFactorForHitless")),
       adjustErrorsDynamicallyForHits_(iConfig.getParameter<bool>("adjustErrorsDynamicallyForHits")),
       adjustErrorsDynamicallyForHitless_(iConfig.getParameter<bool>("adjustErrorsDynamicallyForHitless")),
-      estimatorName_(iConfig.getParameter<std::string>("estimator")),
       minEtaForTEC_(iConfig.getParameter<double>("minEtaForTEC")),
       maxEtaForTOB_(iConfig.getParameter<double>("maxEtaForTOB")),
       useHitLessSeeds_(iConfig.getParameter<bool>("UseHitLessSeeds")),
@@ -42,7 +48,9 @@ TSGForOI::TSGForOI(const edm::ParameterSet& iConfig)
       SF5_(iConfig.getParameter<double>("SF5")),
       tsosDiff_(iConfig.getParameter<double>("tsosDiff")),
       propagatorName_(iConfig.getParameter<std::string>("propagatorName")),
-      theCategory(string("Muon|RecoMuon|TSGForOI")) {
+      theCategory(string("Muon|RecoMuon|TSGForOI")),
+      propagatorAlongToken_(esConsumes(edm::ESInputTag("", propagatorName_))),
+      propagatorOppositeToken_(esConsumes(edm::ESInputTag("", propagatorName_))) {
   produces<std::vector<TrajectorySeed> >();
 }
 
@@ -60,19 +68,13 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
 
   /// Read ESHandles
   edm::Handle<MeasurementTrackerEvent> measurementTrackerH;
-  edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorH;
-  edm::ESHandle<MagneticField> magfieldH;
-  edm::ESHandle<Propagator> propagatorAlongH;
-  edm::ESHandle<Propagator> propagatorOppositeH;
-  edm::ESHandle<TrackerGeometry> tmpTkGeometryH;
-  edm::ESHandle<GlobalTrackingGeometry> geometryH;
+  edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorH = iSetup.getHandle(estimatorToken_);
+  edm::ESHandle<MagneticField> magfieldH = iSetup.getHandle(magfieldToken_);
+  edm::ESHandle<Propagator> propagatorAlongH = iSetup.getHandle(propagatorAlongToken_);
+  edm::ESHandle<Propagator> propagatorOppositeH = iSetup.getHandle(propagatorOppositeToken_);
+  edm::ESHandle<TrackerGeometry> tmpTkGeometryH = iSetup.getHandle(tmpTkGeometryToken_);
+  edm::ESHandle<GlobalTrackingGeometry> geometryH = iSetup.getHandle(geometryToken_);
 
-  iSetup.get<IdealMagneticFieldRecord>().get(magfieldH);
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorOppositeH);
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName_, propagatorAlongH);
-  iSetup.get<GlobalTrackingGeometryRecord>().get(geometryH);
-  iSetup.get<TrackerDigiGeometryRecord>().get(tmpTkGeometryH);
-  iSetup.get<TrackingComponentsRecord>().get(estimatorName_, estimatorH);
   iEvent.getByToken(measurementTrackerTag_, measurementTrackerH);
 
   /// Read L2 track collection
@@ -92,18 +94,14 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       tmpTkGeometryH->isThere(GeomDetEnumerators::P2OTEC)
           ? measurementTrackerH->geometricSearchTracker()->negTidLayers()
           : measurementTrackerH->geometricSearchTracker()->negTecLayers();
-  edm::ESHandle<TrackerTopology> tTopo_handle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo_handle);
-  const TrackerTopology* tTopo = tTopo_handle.product();
+  const TrackerTopology* tTopo = &iSetup.getData(tTopoToken_);
 
   //	Get the suitable propagators:
   std::unique_ptr<Propagator> propagatorAlong = SetPropagationDirection(*propagatorAlongH, alongMomentum);
   std::unique_ptr<Propagator> propagatorOpposite = SetPropagationDirection(*propagatorOppositeH, oppositeToMomentum);
 
-  edm::ESHandle<Propagator> SmartOpposite;
-  edm::ESHandle<Propagator> SHPOpposite;
-  iSetup.get<TrackingComponentsRecord>().get("hltESPSmartPropagatorAnyOpposite", SmartOpposite);
-  iSetup.get<TrackingComponentsRecord>().get("hltESPSteppingHelixPropagatorOpposite", SHPOpposite);
+  edm::ESHandle<Propagator> SmartOpposite = iSetup.getHandle(smartOppositeToken_);
+  edm::ESHandle<Propagator> SHPOpposite = iSetup.getHandle(shpOppositeToken_);
 
   //	Loop over the L2's and make seeds for all of them:
   LogTrace(theCategory) << "TSGForOI::produce: Number of L2's: " << l2TrackCol->size();

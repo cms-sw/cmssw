@@ -22,6 +22,8 @@ class L1MuonPixelTrackFitter;
 class OrderedHitsGenerator;
 class PixelTrackFilter;
 class L1MuonSeedsMerger;
+class MagneticField;
+class IdealMagneticFieldRecord;
 
 class TSGFromL1Muon : public edm::stream::EDProducer<> {
 public:
@@ -34,6 +36,7 @@ private:
   edm::InputTag theSourceTag;
   edm::EDGetTokenT<l1extra::L1MuonParticleCollection> theSourceToken;
   edm::EDGetTokenT<PixelTrackFilter> theFilterToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
   const SeedFromProtoTrack::Config theSFPTConfig;
 
   std::unique_ptr<L1MuonRegionProducer> theRegionProducer;
