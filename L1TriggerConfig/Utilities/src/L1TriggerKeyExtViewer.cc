@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -8,41 +8,38 @@
 #include "CondFormats/DataRecord/interface/L1TriggerKeyExtRcd.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyExt.h"
 
-class L1TriggerKeyExtViewer : public edm::EDAnalyzer {
+class L1TriggerKeyExtViewer : public edm::one::EDAnalyzer<> {
 private:
   std::string label;
+  edm::ESGetToken<L1TriggerKeyExt, L1TriggerKeyExtRcd> token_;
 
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   explicit L1TriggerKeyExtViewer(const edm::ParameterSet& pset)
-      : edm::EDAnalyzer(), label(pset.getParameter<std::string>("label")) {}
-
-  ~L1TriggerKeyExtViewer(void) override {}
+      : label(pset.getParameter<std::string>("label")), token_{esConsumes()} {}
 };
 
 #include <iostream>
 using namespace std;
 
 void L1TriggerKeyExtViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<L1TriggerKeyExt> handle1;
-  evSetup.get<L1TriggerKeyExtRcd>().get(label, handle1);
-  std::shared_ptr<L1TriggerKeyExt> ptr1(new L1TriggerKeyExt(*(handle1.product())));
+  L1TriggerKeyExt const& ptr1 = evSetup.getData(token_);
 
-  cout << "L1TriggerKeyExt: parent key = " << ptr1->tscKey() << endl;
+  cout << "L1TriggerKeyExt: parent key = " << ptr1.tscKey() << endl;
 
-  cout << " uGT     key: " << ptr1->subsystemKey(L1TriggerKeyExt::kuGT) << endl;
-  cout << " uGMT    key: " << ptr1->subsystemKey(L1TriggerKeyExt::kuGMT) << endl;
-  cout << " CALO    key: " << ptr1->subsystemKey(L1TriggerKeyExt::kCALO) << endl;
-  cout << " BMTF    key: " << ptr1->subsystemKey(L1TriggerKeyExt::kBMTF) << endl;
-  cout << " OMTF    key: " << ptr1->subsystemKey(L1TriggerKeyExt::kOMTF) << endl;
-  cout << " EMTF    key: " << ptr1->subsystemKey(L1TriggerKeyExt::kEMTF) << endl;
-  cout << " TWINMUX key: " << ptr1->subsystemKey(L1TriggerKeyExt::kTWINMUX) << endl;
+  cout << " uGT     key: " << ptr1.subsystemKey(L1TriggerKeyExt::kuGT) << endl;
+  cout << " uGMT    key: " << ptr1.subsystemKey(L1TriggerKeyExt::kuGMT) << endl;
+  cout << " CALO    key: " << ptr1.subsystemKey(L1TriggerKeyExt::kCALO) << endl;
+  cout << " BMTF    key: " << ptr1.subsystemKey(L1TriggerKeyExt::kBMTF) << endl;
+  cout << " OMTF    key: " << ptr1.subsystemKey(L1TriggerKeyExt::kOMTF) << endl;
+  cout << " EMTF    key: " << ptr1.subsystemKey(L1TriggerKeyExt::kEMTF) << endl;
+  cout << " TWINMUX key: " << ptr1.subsystemKey(L1TriggerKeyExt::kTWINMUX) << endl;
 
   cout << "Records: " << endl;
 
-  L1TriggerKeyExt::RecordToKey::const_iterator itr = ptr1->recordToKeyMap().begin();
-  L1TriggerKeyExt::RecordToKey::const_iterator end = ptr1->recordToKeyMap().end();
+  L1TriggerKeyExt::RecordToKey::const_iterator itr = ptr1.recordToKeyMap().begin();
+  L1TriggerKeyExt::RecordToKey::const_iterator end = ptr1.recordToKeyMap().end();
 
   for (; itr != end; ++itr) {
     std::string recordType = itr->first;
