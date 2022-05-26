@@ -73,7 +73,9 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
   DDFilteredView fv(*cpv, filter);
   bool ok = fv.firstChild();
   HGCalGeometryMode::WaferMode mode(HGCalGeometryMode::Polyhedra);
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Volume " << name << " GeometryMode ";
+#endif
   if (ok) {
     DDsvalues_type sv(fv.mergedSpecifics());
     php.mode_ = getGeometryMode("GeometryMode", sv);
@@ -122,7 +124,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.minTileSize_ = 0;
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
-      if (php.mode_ == HGCalGeometryMode::Hexagon8Module)
+      if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette))
         php.layerRotation_ = getDDDValue("LayerRotation", sv);
       if ((php.waferMaskMode_ == HGCalGeomParameters::siliconCassetteEE) ||
           (php.waferMaskMode_ == HGCalGeomParameters::siliconCassetteHE))
@@ -282,6 +284,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
   }
   std::string sv = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Hexagon8Full";
   HGCalGeometryMode::WaferMode mode(HGCalGeometryMode::Polyhedra);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Volume " << name << " GeometryMode ";
+#endif
 
   if (ok) {
     php.mode_ = getGeometryMode(sv);
