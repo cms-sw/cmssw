@@ -1,4 +1,5 @@
 #include <memory>
+#include <algorithm>
 
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
@@ -30,18 +31,18 @@ namespace gen {
     double fConeRadius;
     double fConeH;
     double fDistanceToAPEX;
+    double fBackFraction;
   };
 
   // implementation
   //
   Py8PtAndLxyGun::Py8PtAndLxyGun(edm::ParameterSet const& ps) : Py8GunBase(ps) {
-    // ParameterSet defpset ;
-    edm::ParameterSet pgun_params = ps.getParameter<edm::ParameterSet>("PGunParameters");  // , defpset ) ;
-    fMinEta = pgun_params.getParameter<double>("MinEta");                                  // ,-2.2);
-    fMaxEta = pgun_params.getParameter<double>("MaxEta");                                  // , 2.2);
-    fMinPt = pgun_params.getParameter<double>("MinPt");                                    // ,  0.);
-    fMaxPt = pgun_params.getParameter<double>("MaxPt");                                    // ,  0.);
-    fAddAntiParticle = pgun_params.getParameter<bool>("AddAntiParticle");                  //, false) ;
+    edm::ParameterSet pgun_params = ps.getParameter<edm::ParameterSet>("PGunParameters");
+    fMinEta = pgun_params.getParameter<double>("MinEta");
+    fMaxEta = pgun_params.getParameter<double>("MaxEta");
+    fMinPt = pgun_params.getParameter<double>("MinPt");
+    fMaxPt = pgun_params.getParameter<double>("MaxPt");
+    fAddAntiParticle = pgun_params.getParameter<bool>("AddAntiParticle");
     fDxyMax = pgun_params.getParameter<double>("dxyMax");
     fDzMax = pgun_params.getParameter<double>("dzMax");
     fLxyMin = pgun_params.getParameter<double>("LxyMin");
@@ -50,6 +51,7 @@ namespace gen {
     fConeRadius = pgun_params.getParameter<double>("ConeRadius");
     fConeH = pgun_params.getParameter<double>("ConeH");
     fDistanceToAPEX = pgun_params.getParameter<double>("DistanceToAPEX");
+    fBackFraction = std::clamp(pgun_params.getParameter<double>("BackFraction"), 0., 1.);
   }
 
   bool Py8PtAndLxyGun::generatePartonsAndHadronize() {
@@ -85,6 +87,7 @@ namespace gen {
 
         lxy = (fLxyMax - fLxyMin) * randomEngine().flat() + fLxyMin;
 
+        int sign = 1;
         for (int i = 0; i < 10000; i++) {
           double vphi = 2 * M_PI * randomEngine().flat();
           vx = lxy * cos(vphi);
@@ -92,7 +95,11 @@ namespace gen {
 
           dxy = -vx * sin(phi) + vy * cos(phi);
 
-          if ((std::abs(dxy) < fDxyMax || fDxyMax < 0) && (vx * px + vy * py) > 0) {
+          sign = 1;
+          if (fBackFraction > 0 && randomEngine().flat() < fBackFraction) {
+            sign = -1;
+          }
+          if ((std::abs(dxy) < fDxyMax || fDxyMax < 0) && sign * (vx * px + vy * py) > 0) {
             passDxy = true;
             break;
           }
@@ -117,7 +124,7 @@ namespace gen {
             break;
           }
         }
-        if (pz < 0)
+        if (sign * pz < 0)
           vz = -vz;
 
         double dz = vz - (vx * cos(phi) + vy * sin(phi)) / tan(theta);
@@ -152,7 +159,10 @@ namespace gen {
 
       // Here also need to add anti-particle (if any)
       // otherwise just add a 2nd particle of the same type
-      // (for example, gamma)
+      // (for example, gamma).
+      // Added anti-particle has momentum opposite to corresponding
+      // particle, (px,py,pz)=>(-px,-py,-pz), and production vertex
+      // symmetric wrt (0,0,0), (vx, vy, vz)=>(-vx, -vy, -vz).
       //
       if (fAddAntiParticle) {
         if (1 <= std::abs(particleID) && std::abs(particleID) <= 6) {  // quarks
