@@ -23,7 +23,8 @@ generator = cms.EDFilter("Pythia8PtAndLxyGun",
         dzMax = cms.double(120.0),
         ConeRadius = cms.double(1000.0),
         ConeH = cms.double(3000.0),
-        DistanceToAPEX = cms.double(850.0)
+        DistanceToAPEX = cms.double(850.0),
+        BackFraction = cms.double(0.0) # fraction of particles going back towards to center; numbers outside the [0,1] range are set to 0 or 1
     ),
 
     Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
