@@ -202,7 +202,7 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
         for (int u = 0; u < 2 * nCells_; ++u) {
           for (int v = 0; v < 2 * nCells_; ++v) {
             if (((v - u) < nCells_) && ((u - v) <= nCells_)) {
-              int placeIndex = wafer.cellPlacementIndex(1, face_[k], orient_[k]);
+              int placeIndex = wafer.cellPlacementIndex(1, HGCalTypes::waferFrontBack(face_[k]), orient_[k]);
               std::pair<double, double> xy1 = wafer.cellUV2XY1(u, v, placeIndex, cellType_);
               double yp = xy1.second;
               double xp = xy1.first;
