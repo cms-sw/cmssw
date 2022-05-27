@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include "SimG4CMS/Forward/interface/MtdSD.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,7 +15,6 @@
 
 #include <iostream>
 
-//#define EDM_ML_DEBUG
 //-------------------------------------------------------------------
 MtdSD::MtdSD(const std::string& name,
              const SensitiveDetectorCatalog& clg,
