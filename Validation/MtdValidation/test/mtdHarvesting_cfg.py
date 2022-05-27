@@ -30,10 +30,11 @@ process.dqmsave_step = cms.Path(process.DQMSaver)
 # --- PostProcessing
 
 process.load("Validation.MtdValidation.btlSimHitsPostProcessor_cfi")
+process.load("Validation.MtdValidation.btlLocalRecoPostProcessor_cfi")
 process.load("Validation.MtdValidation.MtdTracksPostProcessor_cfi")
 process.load("Validation.MtdValidation.Primary4DVertexPostProcessor_cfi")
 
-process.harvesting = cms.Sequence(process.btlSimHitsPostProcessor + process.MtdTracksPostProcessor + process.Primary4DVertexPostProcessor)
+process.harvesting = cms.Sequence(process.btlSimHitsPostProcessor + process.btlLocalRecoPostProcessor + process.MtdTracksPostProcessor + process.Primary4DVertexPostProcessor)
 
 process.p = cms.Path( process.harvesting )
 
