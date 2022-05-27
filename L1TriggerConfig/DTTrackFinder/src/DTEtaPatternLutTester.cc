@@ -13,12 +13,6 @@
 
 #include "L1TriggerConfig/DTTrackFinder/interface/DTEtaPatternLutTester.h"
 
-DTEtaPatternLutTester::DTEtaPatternLutTester(const edm::ParameterSet& ps) {}
+DTEtaPatternLutTester::DTEtaPatternLutTester(const edm::ParameterSet& ps) : token_{esConsumes()} {}
 
-DTEtaPatternLutTester::~DTEtaPatternLutTester() {}
-
-void DTEtaPatternLutTester::analyze(const edm::Event& e, const edm::EventSetup& c) {
-  edm::ESHandle<L1MuDTEtaPatternLut> etalut;
-  c.get<L1MuDTEtaPatternLutRcd>().get(etalut);
-  etalut->print();
-}
+void DTEtaPatternLutTester::analyze(const edm::Event& e, const edm::EventSetup& c) { c.getData(token_).print(); }
