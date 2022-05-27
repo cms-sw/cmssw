@@ -88,6 +88,7 @@ private:
 
   edm::EDGetTokenT<edm::HepMCProduct> HepMCProductToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTracksCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<CrossingFrame<PSimHit>> btlSimHitsToken_;
@@ -155,6 +156,8 @@ private:
   MonitorElement* meMVATrackResTot_;
   MonitorElement* meMVATrackPullTot_;
   MonitorElement* meMVATrackZposResTot_;
+
+  MonitorElement* meUnassociatedSimHits_;
 };
 
 // ------------ constructor and destructor --------------
@@ -168,6 +171,7 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
   HepMCProductToken_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("inputTagH"));
+  simTracksCollectionToken_ = consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackTag"));
   trackingParticleCollectionToken_ =
       consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
   simToRecoAssociationToken_ =
@@ -387,8 +391,6 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   auto pdt = iSetup.getHandle(particleTableToken_);
   const HepPDT::ParticleDataTable* pdTable = pdt.product();
 
-  auto TPCollectionH = makeValid(iEvent.getHandle(trackingParticleCollectionToken_));
-
   auto simToRecoH = makeValid(iEvent.getHandle(simToRecoAssociationToken_));
   s2r_ = simToRecoH.product();
 
@@ -398,19 +400,45 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   // find all signal event trackId corresponding to an MTD simHit
   std::unordered_set<uint32_t> mtdTrackId;
 
+  std::unordered_set<uint32_t> tpTrackId;
+  auto tpHandle = makeValid(iEvent.getHandle(trackingParticleCollectionToken_));
+  TrackingParticleCollection tpColl = *(tpHandle.product());
+  for (const auto& tp : tpColl) {
+    if (tp.eventId().bunchCrossing() == 0 && tp.eventId().event() == 0) {
+      for (const auto& simTrk : tp.g4Tracks()) {
+        tpTrackId.insert(simTrk.trackId());
+        edm::LogPrint("MtdTracksValidation") << "TP simTrack id : " << simTrk.trackId();
+      }
+    }
+  }
+
+  auto simTrackHandle = makeValid(iEvent.getHandle(simTracksCollectionToken_));
+  edm::SimTrackContainer stColl = *(simTrackHandle.product());
+  for (const auto& st : stColl) {
+    edm::LogPrint("MtdTracksValidation") << "simTrack id : " << st.trackId();
+  }
+
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
   MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
   for (const auto& btlSH : btlSimHits) {
     if (btlSH.eventId().bunchCrossing() == 0 && btlSH.eventId().event() == 0) {
       mtdTrackId.insert(btlSH.trackId());
+      edm::LogPrint("MtdTracksValidation") << "BTL simTrack id : " << btlSH.trackId() << " " << btlSH.detUnitId();
+      if (tpTrackId.find(btlSH.trackId()) == tpTrackId.end()) {
+        meUnassociatedSimHits_->Fill(0.5);
+      }
     }
   }
 
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
-  for (const auto& etlSH : btlSimHits) {
+  for (const auto& etlSH : etlSimHits) {
     if (etlSH.eventId().bunchCrossing() == 0 && etlSH.eventId().event() == 0) {
       mtdTrackId.insert(etlSH.trackId());
+      edm::LogPrint("MtdTracksValidation") << "ETL simTrack id : " << etlSH.trackId() << " " << etlSH.detUnitId();
+      if (tpTrackId.find(etlSH.trackId()) == tpTrackId.end()) {
+        meUnassociatedSimHits_->Fill(1.5);
+      }
     }
   }
 
@@ -580,25 +608,32 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    110,
                    0.,
                    11.);
-  meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Pt of tracks associated to LV; track eta ", 66, 0., 3.3);
+  meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Eta of tracks associated to LV; track eta ", 66, 0., 3.3);
   meMVATrackMatchedEffEtaTot_ =
-      ibook.book1D("MVAMatchedEffEtaTot", "Pt of tracks associated to LV matched to GEN; track eta ", 66, 0., 3.3);
+      ibook.book1D("MVAMatchedEffEtaTot", "Eta of tracks associated to LV matched to GEN; track eta ", 66, 0., 3.3);
   meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
-      "MVAMatchedEffEtaMtd", "Pt of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
+      "MVAMatchedEffEtaMtd", "Eta of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffEtaTot_ =
-      ibook.book1D("MatchedTPEffEtaTot", "Pt of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
+      ibook.book1D("MatchedTPEffEtaTot", "Eta of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffEtaMtd_ = ibook.book1D(
-      "MatchedTPEffEtaMtd", "Pt of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
+      "MatchedTPEffEtaMtd", "Eta of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
   meTrackMatchedTPmtdEffEtaTot_ = ibook.book1D(
-      "MatchedTPmtdEffEtaTot", "Pt of tracks associated to LV matched to TP-mtd hit; track eta ", 66, 0., 3.3);
-  meTrackMatchedTPmtdEffEtaMtd_ = ibook.book1D(
-      "MatchedTPmtdEffEtaMtd", "Pt of tracks associated to LV matched to TP-mtd hit with time; track eta ", 66, 0., 3.3);
+      "MatchedTPmtdEffEtaTot", "Eta of tracks associated to LV matched to TP-mtd hit; track eta ", 66, 0., 3.3);
+  meTrackMatchedTPmtdEffEtaMtd_ =
+      ibook.book1D("MatchedTPmtdEffEtaMtd",
+                   "Eta of tracks associated to LV matched to TP-mtd hit with time; track eta ",
+                   66,
+                   0.,
+                   3.3);
   meMVATrackResTot_ = ibook.book1D(
       "MVATrackRes", "t_{rec} - t_{sim} for LV associated tracks; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
   meMVATrackPullTot_ =
       ibook.book1D("MVATrackPull", "Pull for associated tracks; (t_{rec}-t_{sim})/#sigma_{t}", 50, -5., 5.);
   meMVATrackZposResTot_ = ibook.book1D(
       "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
+
+  meUnassociatedSimHits_ =
+      ibook.book1D("UnassociatedSimHits", "Number of MTD sim hits not associated to any TP", 2, 0., 2.);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -612,6 +647,7 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));
   desc.add<edm::InputTag>("inputTagH", edm::InputTag("generatorSmeared"));
   desc.add<edm::InputTag>("SimTag", edm::InputTag("mix", "MergedTrackTruth"));
+  desc.add<edm::InputTag>("SimTrackTag", edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("TPtoRecoTrackAssoc", edm::InputTag("trackingParticleRecoTrackAsssociation"));
   desc.add<edm::InputTag>("btlSimHits", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<edm::InputTag>("etlSimHits", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
