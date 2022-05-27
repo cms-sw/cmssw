@@ -1,3 +1,5 @@
+#define EDM_ML_DEBUG
+
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -72,12 +74,13 @@ private:
   const float trackMinEtlEta_;
   const float trackMaxEtlEta_;
 
-  static constexpr double etacutGEN_ = 4.;     // |eta| < 4;
-  static constexpr double etacutREC_ = 3.;     // |eta| < 3;
-  static constexpr double pTcut_ = 0.7;        // PT > 0.7 GeV
-  static constexpr double deltaZcut_ = 0.1;    // dz separation 1 mm
-  static constexpr double deltaPTcut_ = 0.05;  // dPT < 5%
-  static constexpr double deltaDRcut_ = 0.03;  // DeltaR separation
+  static constexpr double etacutGEN_ = 4.;       // |eta| < 4;
+  static constexpr double etacutREC_ = 3.;       // |eta| < 3;
+  static constexpr double pTcut_ = 0.7;          // PT > 0.7 GeV
+  static constexpr double deltaZcut_ = 0.1;      // dz separation 1 mm
+  static constexpr double deltaPTcut_ = 0.05;    // dPT < 5%
+  static constexpr double deltaDRcut_ = 0.03;    // DeltaR separation
+  static constexpr double minBTLhitE_ = 0.0005;  // minimal BTL sim hit energy for association studies
 
   const reco::RecoToSimCollection* r2s_;
   const reco::SimToRecoCollection* s2r_;
@@ -88,7 +91,6 @@ private:
 
   edm::EDGetTokenT<edm::HepMCProduct> HepMCProductToken_;
   edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollectionToken_;
-  edm::EDGetTokenT<edm::SimTrackContainer> simTracksCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> simToRecoAssociationToken_;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoToSimAssociationToken_;
   edm::EDGetTokenT<CrossingFrame<PSimHit>> btlSimHitsToken_;
@@ -171,7 +173,6 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
   HepMCProductToken_ = consumes<edm::HepMCProduct>(iConfig.getParameter<edm::InputTag>("inputTagH"));
-  simTracksCollectionToken_ = consumes<edm::SimTrackContainer>(iConfig.getParameter<edm::InputTag>("SimTrackTag"));
   trackingParticleCollectionToken_ =
       consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("SimTag"));
   simToRecoAssociationToken_ =
@@ -407,40 +408,39 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     if (tp.eventId().bunchCrossing() == 0 && tp.eventId().event() == 0) {
       for (const auto& simTrk : tp.g4Tracks()) {
         tpTrackId.insert(simTrk.trackId());
-        edm::LogPrint("MtdTracksValidation") << "TP simTrack id : " << simTrk.trackId();
+        LogDebug("MtdTracksValidation") << "TP simTrack id : " << simTrk.trackId();
       }
     }
   }
 
-  auto simTrackHandle = makeValid(iEvent.getHandle(simTracksCollectionToken_));
-  edm::SimTrackContainer stColl = *(simTrackHandle.product());
-  for (const auto& st : stColl) {
-    edm::LogPrint("MtdTracksValidation") << "simTrack id : " << st.trackId();
-  }
-
+  uint32_t hcount(0);
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
   MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
   for (const auto& btlSH : btlSimHits) {
-    if (btlSH.eventId().bunchCrossing() == 0 && btlSH.eventId().event() == 0) {
+    if (btlSH.eventId().bunchCrossing() == 0 && btlSH.eventId().event() == 0 && btlSH.energyLoss() > minBTLhitE_) {
       mtdTrackId.insert(btlSH.trackId());
-      edm::LogPrint("MtdTracksValidation") << "BTL simTrack id : " << btlSH.trackId() << " " << btlSH.detUnitId();
+      LogDebug("MtdTracksValidation") << "BTL simTrack id : " << btlSH.trackId() << " " << btlSH.detUnitId() << " "
+                                      << btlSH.energyLoss();
       if (tpTrackId.find(btlSH.trackId()) == tpTrackId.end()) {
-        meUnassociatedSimHits_->Fill(0.5);
+        hcount++;
       }
     }
   }
+  meUnassociatedSimHits_->Fill(0.5, hcount);
 
+  hcount = 0;
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
   for (const auto& etlSH : etlSimHits) {
     if (etlSH.eventId().bunchCrossing() == 0 && etlSH.eventId().event() == 0) {
       mtdTrackId.insert(etlSH.trackId());
-      edm::LogPrint("MtdTracksValidation") << "ETL simTrack id : " << etlSH.trackId() << " " << etlSH.detUnitId();
+      LogDebug("MtdTracksValidation") << "ETL simTrack id : " << etlSH.trackId() << " " << etlSH.detUnitId();
       if (tpTrackId.find(etlSH.trackId()) == tpTrackId.end()) {
-        meUnassociatedSimHits_->Fill(1.5);
+        hcount++;
       }
     }
   }
+  meUnassociatedSimHits_->Fill(1.5, hcount);
 
   // select events with reco vertex close to true simulated primary vertex
 
@@ -632,8 +632,8 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackZposResTot_ = ibook.book1D(
       "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
 
-  meUnassociatedSimHits_ =
-      ibook.book1D("UnassociatedSimHits", "Number of MTD sim hits not associated to any TP", 2, 0., 2.);
+  meUnassociatedSimHits_ = ibook.bookProfile(
+      "UnassociatedSimHits", "Number of MTD sim hits not associated to any TP per event", 2, 0., 2., 0., 100000., "S");
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -647,7 +647,6 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<edm::InputTag>("inputTagV", edm::InputTag("offlinePrimaryVertices4D"));
   desc.add<edm::InputTag>("inputTagH", edm::InputTag("generatorSmeared"));
   desc.add<edm::InputTag>("SimTag", edm::InputTag("mix", "MergedTrackTruth"));
-  desc.add<edm::InputTag>("SimTrackTag", edm::InputTag("g4SimHits"));
   desc.add<edm::InputTag>("TPtoRecoTrackAssoc", edm::InputTag("trackingParticleRecoTrackAsssociation"));
   desc.add<edm::InputTag>("btlSimHits", edm::InputTag("mix", "g4SimHitsFastTimerHitsBarrel"));
   desc.add<edm::InputTag>("etlSimHits", edm::InputTag("mix", "g4SimHitsFastTimerHitsEndcap"));
