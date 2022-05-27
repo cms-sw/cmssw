@@ -180,6 +180,8 @@ void DDHGCalSiliconRotatedModule::initialize(const DDNumericArguments& nArgs,
   layerType_ = dbl_to_int(vArgs["LayerType"]);
   layerSense_ = dbl_to_int(vArgs["LayerSense"]);
   layerOrient_ = dbl_to_int(vArgs["LayerTypes"]);
+  for (unsigned int k = 0; k < layerOrient_.size(); ++k)
+    layerOrient_[k] = HGCalTypes::layerType(layerOrient_[k]);
 #ifdef EDM_ML_DEBUG
   for (unsigned int i = 0; i < layerOrient_.size(); ++i)
     edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerOrient_[i];
@@ -356,7 +358,7 @@ void DDHGCalSiliconRotatedModule::constructLayers(const DDLogicalPart& module, D
 #ifdef EDM_ML_DEBUG
       std::string rotName("Null");
 #endif
-      if ((layerSense_[ly] > 0) && (layerOrient_[copy - firstLayer_] == HGCalTypes::WaferCenteredRotated)) {
+      if ((layerSense_[ly] > 0) && (layerOrient_[copy - firstLayer_] == HGCalTypes::WaferCenterR)) {
         rot = DDRotation(DDName(DDSplit(rotstr_).first, DDSplit(rotstr_).second));
 #ifdef EDM_ML_DEBUG
         rotName = rotstr_;
@@ -387,13 +389,11 @@ void DDHGCalSiliconRotatedModule::constructLayers(const DDLogicalPart& module, D
   }  // End of loop over blocks
 }
 
+// Position the silicon modules
 void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, int layer, DDCompactView& cpv) {
   static const double sqrt3 = std::sqrt(3.0);
-  int layercenter = (layerOrient_[layer] == HGCalTypes::CornerCenteredLambda)
-                        ? HGCalTypes::CornerCenterYp
-                        : ((layerOrient_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
-                                                                                : HGCalTypes::WaferCenter);
-  int layertype = (layerOrient_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
+  int layercenter = layerOrient_[layer];
+  int layertype = (layerOrient_[layer] == HGCalTypes::WaferCenterB) ? 1 : 0;
   int firstWafer = waferLayerStart_[layer];
   int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                            : static_cast<int>(waferIndex_.size()));
@@ -422,7 +422,7 @@ void DDHGCalSiliconRotatedModule::positionSensitive(const DDLogicalPart& glog, i
     int orien = HGCalProperty::waferOrient(waferProperty_[k]);
     int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
     int place = HGCalCell::cellPlacementIndex(1, layertype, orien);
-    auto cshift = cassette_.getShift(layer, 1, cassette);
+    auto cshift = cassette_.getShift(layer + 1, 1, cassette);
     double xpos = xyoff.first + cshift.first + nc * delx;
     double ypos = xyoff.second + cshift.second + nr * dy;
     std::string wafer;

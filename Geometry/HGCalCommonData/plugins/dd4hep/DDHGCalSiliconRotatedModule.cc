@@ -116,6 +116,8 @@ struct HGCalSiliconRotatedModule {
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
     layerOrient_ = args.value<std::vector<int>>("LayerTypes");
+    for (unsigned int k = 0; k < layerOrient_.size(); ++k)
+      layerOrient_[k] = HGCalTypes::layerType(layerOrient_[k]);
 #ifdef EDM_ML_DEBUG
     for (unsigned int i = 0; i < layerOrient_.size(); ++i)
       edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerOrient_[i];
@@ -279,7 +281,7 @@ struct HGCalSiliconRotatedModule {
 #ifdef EDM_ML_DEBUG
         std::string rotName("Null");
 #endif
-        if ((layerSense_[ly] > 0) && (layerOrient_[copy - firstLayer_] == HGCalTypes::WaferCenteredRotated)) {
+        if ((layerSense_[ly] > 0) && (layerOrient_[copy - firstLayer_] == HGCalTypes::WaferCenterR)) {
           rot = ns.rotation(rotstr_);
 #ifdef EDM_ML_DEBUG
           rotName = rotstr_;
@@ -325,11 +327,8 @@ struct HGCalSiliconRotatedModule {
   void positionSensitive(cms::DDParsingContext& ctxt, xml_h e, const dd4hep::Volume& glog, int layer) {
     cms::DDNamespace ns(ctxt, e, true);
     static const double sqrt3 = std::sqrt(3.0);
-    int layercenter = (layerOrient_[layer] == HGCalTypes::CornerCenteredLambda)
-                          ? HGCalTypes::CornerCenterYp
-                          : ((layerOrient_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
-                                                                                  : HGCalTypes::WaferCenter);
-    int layertype = (layerOrient_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
+    int layercenter = layerOrient_[layer];
+    int layertype = (layerOrient_[layer] == HGCalTypes::WaferCenterB) ? 1 : 0;
     int firstWafer = waferLayerStart_[layer];
     int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                              : static_cast<int>(waferIndex_.size()));
@@ -360,7 +359,7 @@ struct HGCalSiliconRotatedModule {
       int orien = HGCalProperty::waferOrient(waferProperty_[k]);
       int cassette = HGCalProperty::waferCassette(waferProperty_[k]);
       int place = HGCalCell::cellPlacementIndex(1, layertype, orien);
-      auto cshift = cassette_.getShift(layer, 1, cassette);
+      auto cshift = cassette_.getShift(layer + 1, 1, cassette);
       double xpos = xyoff.first + cshift.first + nc * delx;
       double ypos = xyoff.second + cshift.second + nr * dy;
       std::string wafer;
