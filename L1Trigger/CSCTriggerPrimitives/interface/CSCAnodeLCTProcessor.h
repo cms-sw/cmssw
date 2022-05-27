@@ -87,12 +87,11 @@ public:
   CSCALCTDigi getBestALCT(int bx) const;
   CSCALCTDigi getSecondALCT(int bx) const;
 
-  /* get special bits for high multiplicity triggers */
-  unsigned getInTimeHMT() const { return inTimeHMT_; }
-  unsigned getOutTimeHMT() const { return outTimeHMT_; }
+  /* get array of high multiplicity triggers */
+  std::vector<CSCShowerDigi> getAllShower() const; 
 
   /** Returns shower bits */
-  CSCShowerDigi readoutShower() const;
+  std::vector<CSCShowerDigi> readoutShower() const;
 
 protected:
   /** Best LCTs in this chamber, as found by the processor.
@@ -107,7 +106,7 @@ protected:
 
   PulseArray pulse_;
 
-  CSCShowerDigi shower_;
+  CSCShowerDigi anode_showers_[CSCConstants::MAX_ALCT_TBINS];
 
   /** Access routines to wire digis. */
   bool getDigis(const CSCWireDigiCollection* wiredc);
@@ -127,15 +126,9 @@ protected:
   std::vector<CSCALCTPreTriggerDigi> thePreTriggerDigis;
 
   /* data members for high multiplicity triggers */
-  void encodeHighMultiplicityBits(
-      const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIREGROUPS]);
-  unsigned inTimeHMT_;
-  unsigned outTimeHMT_;
+  void encodeHighMultiplicityBits();
   std::vector<unsigned> thresholds_;
-  unsigned showerMinInTBin_;
-  unsigned showerMaxInTBin_;
-  unsigned showerMinOutTBin_;
-  unsigned showerMaxOutTBin_;
+  unsigned showerNumTBins_;
   unsigned minLayersCentralTBin_;
 
   /** Configuration parameters. */

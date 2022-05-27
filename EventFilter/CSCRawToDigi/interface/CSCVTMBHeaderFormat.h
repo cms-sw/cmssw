@@ -30,6 +30,7 @@ public:
   virtual uint16_t syncErrorCLCT() const = 0;
   virtual uint16_t syncErrorMPC0() const = 0;
   virtual uint16_t syncErrorMPC1() const = 0;
+  virtual uint16_t L1AMatchTime() const = 0;
 
   /// == Run 3 CSC-GEM Trigger Format
   virtual uint16_t clct0_ComparatorCode() const = 0;
@@ -84,6 +85,7 @@ public:
   virtual void addCathodeShower(const CSCShowerDigi& digi) = 0;
 
   virtual void print(std::ostream& os) const = 0;
+
 
 protected:
   void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
