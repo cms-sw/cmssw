@@ -46,6 +46,7 @@
 #include "CondCore/CondDB/interface/Session.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 
+#include <optional>
 // forward declarations
 
 template <class TRcd, class TData>
@@ -65,6 +66,7 @@ private:
 
 protected:
   l1t::OMDSReader m_omdsReader;
+  std::optional<edm::ESConsumesCollectorT<TRcd>> m_consumesCollector;
   bool m_forceGeneration;
 
   // Called from produce methods.
@@ -91,6 +93,8 @@ L1ConfigOnlineProdBase<TRcd, TData>::L1ConfigOnlineProdBase(const edm::Parameter
   //now do what ever other initialization is needed
   l1TriggerKeyListToken_ = cc.consumes();
   l1TriggerKeyToken_ = cc.consumes();
+
+  m_consumesCollector = std::move(cc);
 
   if (iConfig.exists("copyFromCondDB")) {
     m_copyFromCondDB = iConfig.getParameter<bool>("copyFromCondDB");
