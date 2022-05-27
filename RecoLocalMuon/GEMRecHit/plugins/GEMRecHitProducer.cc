@@ -29,6 +29,8 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config)
       gemGeomToken_(esConsumes<GEMGeometry, MuonGeometryRecord, edm::Transition::BeginRun>()) {
   produces<GEMRecHitCollection>();
 
+  // Turns off GE2/1 demonstrator reconstruction in Run3
+  ge21Off_ = config.getParameter<bool>("ge21Off");
   // Get masked- and dead-strip information from file
   applyMasking_ = config.getParameter<bool>("applyMasking");
   if (applyMasking_) {
@@ -81,6 +83,7 @@ void GEMRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<std::string>("recAlgo", "GEMRecHitStandardAlgo");
   desc.add<edm::InputTag>("gemDigiLabel", edm::InputTag("muonGEMDigis"));
   desc.add<bool>("applyMasking", false);
+  desc.add<bool>("ge21Off", false);
   desc.addOptional<edm::FileInPath>("maskFile");
   desc.addOptional<edm::FileInPath>("deadFile");
   descriptions.add("gemRecHitsDef", desc);
@@ -105,6 +108,9 @@ void GEMRecHitProducer::beginRun(const edm::Run& r, const edm::EventSetup& setup
     for (auto gems : gemGeom_->etaPartitions()) {
       // Getting the EtaPartitionMask mask, that includes dead strips, for the given GEMDet
       GEMDetId gemId = gems->id();
+      if (ge21Off_ && gemId.station() == 2) {
+        continue;
+      }
       EtaPartitionMask mask;
       const int rawId = gemId.rawId();
       for (const auto& tomask : theGEMMaskedStripsObj->getMaskVec()) {
@@ -142,6 +148,9 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
   for (auto gemdgIt = digis->begin(); gemdgIt != digis->end(); ++gemdgIt) {
     // The layerId
     const GEMDetId& gemId = (*gemdgIt).first;
+    if (ge21Off_ && gemId.station() == 2) {
+      continue;
+    }
 
     // Get the GeomDet from the setup
     const GEMEtaPartition* roll = gemGeom_->etaPartition(gemId);
