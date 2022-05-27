@@ -531,8 +531,9 @@ void L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::Inpu
     wedges[i] = std::vector<std::shared_ptr<GMTInternalMuon>>();
     wedges[i].reserve(3);
   }
-  if (bx < in->getFirstBX() || bx > in->getLastBX())
+  if (bx < in->getFirstBX() || bx > in->getLastBX()) {
     return;
+  }
   int muIdx = 0;
   int currentLink = 0;
   for (size_t i = 0; i < in->size(bx); ++i, ++muIdx) {
@@ -547,16 +548,19 @@ void L1TMuonProducer::convertMuons(const edm::Handle<MicroGMTConfiguration::Inpu
       }
       int gPhi = MicroGMTConfiguration::calcGlobalPhi(
           in->at(bx, i).hwPhi(), in->at(bx, i).trackFinderType(), in->at(bx, i).processor());
-      int tfMuonIdx = 3 * (currentLink - 36) + muIdx;
+      // If the muon index was set in the data format we should use that. Otherwise we use the value computed from the position in the vector.
+      int muIdxDF{in->at(bx, i).muIdx()};
+      int tfMuonIdx{3 * (currentLink - 36) + ((muIdxDF != -1) ? muIdxDF : muIdx)};
       std::shared_ptr<GMTInternalMuon> outMu = std::make_shared<GMTInternalMuon>(in->at(bx, i), gPhi, tfMuonIdx);
       out.emplace_back(outMu);
       wedges[in->at(bx, i).processor()].push_back(outMu);
     }
   }
   for (int i = 0; i < 12; ++i) {
-    if (wedges[i].size() > 3)
+    if (wedges[i].size() > 3) {
       edm::LogWarning("Input Mismatch") << " too many inputs per processor for barrel. Wedge " << i << ": Size "
                                         << wedges[i].size() << std::endl;
+    }
   }
 }
 
