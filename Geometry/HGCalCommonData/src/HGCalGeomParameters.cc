@@ -954,6 +954,9 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
             mytrf.h3v = h3v;
             mytrf.hr = hr;
             trforms[std::make_pair(lay, zside)] = mytrf;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "Translation " << h3v;
+#endif
           }
         }
       }
@@ -1084,6 +1087,9 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
             mytrf.h3v = h3v;
             mytrf.hr = hr;
             trforms[std::make_pair(lay, zside)] = mytrf;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "Translation " << h3v;
+#endif
           }
         }
       }
