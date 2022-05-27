@@ -313,11 +313,11 @@ void GEMDQMHarvester::copyLabels(MonitorElement *h2Src, MonitorElement *h2Dst) {
 }
 
 void GEMDQMHarvester::getGeometryInfo(edm::Service<DQMStore> &store, MonitorElement *h2Src) {
-  if (h2Src != nullptr) {  // For online and offline
-    listLayer_.clear();
-    mapIdxLayer_.clear();
-    mapNumChPerChamber_.clear();
+  listLayer_.clear();
+  mapIdxLayer_.clear();
+  mapNumChPerChamber_.clear();
 
+  if (h2Src != nullptr) {  // For online and offline
     Int_t nBinY = h2Src->getNbinsY();
     listLayer_.push_back("");
 
@@ -704,16 +704,9 @@ void GEMDQMHarvester::createInactiveChannelFracHist(edm::Service<DQMStore> &stor
 
     Int_t nNumBinX = h2SrcChamberOcc->getNbinsX();
     Int_t nNumBinY = h2SrcChamberOcc->getNbinsY();
-    Int_t nNumChannelInactive = 0;
-    for (Int_t i = 1; i <= nNumBinX; i++)
-      for (Int_t j = 1; j <= nNumBinY; j++) {
-        if (h2SrcChamberOcc->getBinContent(i, j) <= 0) {
-          nNumChannelInactive++;
-        }
-      }
-
     Int_t nNumAllChannel = nNumBinX * nNumBinY;
-    h2InactiveChannel->setBinContent(nIdxCh, ((Double_t)nNumChannelInactive) / nNumAllChannel);
+    Float_t fNumChannelInactive = h2SrcChamberOcc->getBinContent(0, 0);
+    h2InactiveChannel->setBinContent(nIdxCh, 1.0 - fNumChannelInactive / nNumAllChannel);
   }
 }
 

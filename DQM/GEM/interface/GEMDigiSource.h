@@ -44,6 +44,8 @@ private:
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
 
+  const static int nNumBitDigiOcc_ = 16384;
+
   edm::EDGetToken tagDigi_;
 
   edm::EDGetTokenT<LumiScalersCollection> lumiScalers_;
@@ -57,6 +59,8 @@ private:
   MEMap2Inf mapBX_;
 
   MEMap4Inf mapDigiOccPerCh_;
+
+  std::map<ME4IdsKey, std::bitset<nNumBitDigiOcc_>> mapBitDigiOccOn_;
 
   std::string strFolderMain_;
 
