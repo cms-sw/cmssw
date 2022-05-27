@@ -3,20 +3,12 @@ from Configuration.Eras.Era_Phase2C11_dd4hep_cff import Phase2C11_dd4hep
 
 process = cms.Process("HGCalParametersTest",Phase2C11_dd4hep)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
+process.load("Configuration.Geometry.GeometryDD4hepExtended2026D77Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
 
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/HGCalCommonData/data/dd4hep/testHGCalV15.xml'),
-                                            appendToDataLabel = cms.string('')
-                                            )
-
-process.DDCompactViewESProducer = cms.ESProducer("DDCompactViewESProducer",
-                                                 appendToDataLabel = cms.string('')
-)
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
