@@ -44,6 +44,8 @@ private:
   int ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) override;
   int ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key) override;
 
+  const static int nNumBitDigiOcc_ = 16384;
+
   edm::EDGetToken tagDigi_;
 
   edm::EDGetTokenT<LumiScalersCollection> lumiScalers_;
@@ -58,13 +60,13 @@ private:
 
   MEMap4Inf mapDigiOccPerCh_;
 
-  MonitorElement* h2SummaryOcc_;
+  std::map<ME4IdsKey, std::bitset<nNumBitDigiOcc_>> mapBitDigiOccOn_;
+
+  std::string strFolderMain_;
 
   Int_t nBXMin_, nBXMax_;
   Float_t fRadiusMin_;
   Float_t fRadiusMax_;
-
-  Bool_t bModeRelVal_;
 };
 
 #endif  // DQM_GEM_INTERFACE_GEMDigiSource_h

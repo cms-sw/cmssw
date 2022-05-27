@@ -101,6 +101,8 @@ private:
   MonitorElement *h2SummaryStatusAMCError;
   MonitorElement *h2SummaryStatusAMC13Error;
 
+  std::string strFolderMain_;
+
   Int_t nBXMin_, nBXMax_;
 
   std::map<UInt_t, int> mapFEDIdToRe_;
