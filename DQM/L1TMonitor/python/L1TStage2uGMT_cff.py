@@ -242,7 +242,7 @@ _run3_l1tStage2uGMTOnlineDQMSeq = cms.Sequence(l1tStage2uGMTOnlineDQMSeq.copy() 
     l1tStage2uGMTMuonVsuGMTMuonCopy3 +
     l1tStage2uGMTMuonVsuGMTMuonCopy4 +
     l1tStage2uGMTMuonVsuGMTMuonCopy5 +
-    # l1tStage2EmtfOutVsuGMTInShowers +
+    l1tStage2EmtfOutVsuGMTInShowers +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy2 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy3 +
