@@ -60,10 +60,11 @@ stage2L1Trigger_2021.toModify(l1tStage2uGMTIntermediateEMTFPos, displacedQuantit
 
 # List of bins to ignore
 ignoreBins = {
-    'Bmtf'        : [1],
-    'Omtf'        : [1],
-    'Emtf'        : [1],
-    'EmtfShowers' : [1]
+    'OutputCopies' : [1],
+    'Bmtf'         : [1],
+    'Omtf'         : [1],
+    'Emtf'         : [1],
+    'EmtfShowers'  : [1]
     }
 
 # compares the unpacked BMTF output regional muon collection with the unpacked uGMT input regional muon collection from BMTF
@@ -148,7 +149,7 @@ l1tStage2uGMTMuonVsuGMTMuonCopy1 = DQMEDAnalyzer(
 ## Era: Run3_2021; Displaced muons used in uGMT from Run-3
  # Additionally: Ignore BX range mismatches. This is necessary because we only read out the central BX for the output copies.
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(l1tStage2uGMTMuonVsuGMTMuonCopy1, displacedQuantities = cms.untracked.bool(True), ignoreBin = cms.untracked.vint32(1))
+stage2L1Trigger_2021.toModify(l1tStage2uGMTMuonVsuGMTMuonCopy1, displacedQuantities = cms.untracked.bool(True), ignoreBin = cms.untracked.vint32(ignoreBins['OutputCopies']))
 
 l1tStage2uGMTMuonVsuGMTMuonCopy2 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
     muonCollection2 = "gmtStage2Digis:MuonCopy2",
@@ -183,7 +184,7 @@ l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1= DQMEDAnalyzer("L1TStage2MuonShower
     muonShowerCollection2Title = cms.untracked.string("uGMT muon showers copy 1"),
     summaryTitle = cms.untracked.string("Summary of comparison between uGMT showers and uGMT shower copy 1"),
     verbose = cms.untracked.bool(False),
-    ignoreBin = cms.untracked.vint32(1), # Ignore BX range mismatches. This is necessary because we only read out the central BX for the output copies.
+    ignoreBin = cms.untracked.vint32(ignoreBins['OutputCopies']), # Ignore BX range mismatches. This is necessary because we only read out the central BX for the output copies.
 )
 
 l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy2 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
