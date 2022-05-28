@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
-bunchSpacingProducer = cms.EDProducer("BunchSpacingProducer")
+import RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi as _mod
+
+bunchSpacingProducer = _mod.bunchSpacingProducer.clone()
 
 from Configuration.Eras.Modifier_run2_50ns_specific_cff import run2_50ns_specific
-run2_50ns_specific.toModify( bunchSpacingProducer, bunchSpacingOverride = cms.uint32(50))
-run2_50ns_specific.toModify( bunchSpacingProducer, overrideBunchSpacing = cms.bool(True))
+run2_50ns_specific.toModify( bunchSpacingProducer, bunchSpacingOverride = 50)
+run2_50ns_specific.toModify( bunchSpacingProducer, overrideBunchSpacing = True)
