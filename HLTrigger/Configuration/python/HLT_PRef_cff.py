@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_4_0/PRef --type PRef
 
-# /dev/CMSSW_12_4_0/PRef/V13 (CMSSW_12_4_0_pre4)
+# /dev/CMSSW_12_4_0/PRef/V22 (CMSSW_12_4_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/PRef/V13')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PRef/V22')
 )
 
 fragment.transferSystem = cms.PSet( 
