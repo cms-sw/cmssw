@@ -5,7 +5,6 @@ from DQM.L1TMonitor.L1TStage2uGMT_cff import ignoreBins
 # directory path shortening
 ugmtDqmDir = 'L1T/L1TStage2uGMT'
 ugmtMuCpyDqmDir = ugmtDqmDir+'/uGMTMuonCopies'
-ugmtZSDqmDir = ugmtDqmDir+'/zeroSuppression'
 # input histograms
 errHistNumStr = 'errorSummaryNum'
 errHistDenStr = 'errorSummaryDen'
@@ -21,6 +20,9 @@ l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient = DQMEDHarvester("L1TStage2RatioClie
     binomialErr = cms.untracked.bool(True),
     ignoreBin = cms.untracked.vint32()                                                         
 )
+## Era: Run3_2021; Ignore BX range mismatches. This is necessary because we only read out the central BX for the output copies.
+from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
+stage2L1Trigger_2021.toModify(l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient, ignoreBin = cms.untracked.vint32(ignoreBins['OutputCopies']))
 
 l1tStage2uGMTMuonVsuGMTMuonCopy2RatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient.clone(
     monitorDir = ugmtMuCpyDqmDir+'/uGMTMuonCopy2',
@@ -68,20 +70,7 @@ l1tStage2EmtfOutVsuGMTInRatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClien
     ratioTitle = 'Summary of mismatch rates between EMTF output muons and uGMT input muons from EMTF',
     ignoreBin = ignoreBins['Emtf']
 )
-# zero suppression
-l1tStage2uGMTZeroSuppRatioClient = l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient.clone(
-    monitorDir = ugmtZSDqmDir+'/AllEvts',
-    inputNum = ugmtZSDqmDir+'/AllEvts/'+errHistNumStr,
-    inputDen = ugmtZSDqmDir+'/AllEvts/'+errHistDenStr,
-    ratioTitle = 'Summary of bad zero suppression rates',
-    yAxisTitle = '# fail / # total'
-)
-l1tStage2uGMTZeroSuppFatEvtsRatioClient = l1tStage2uGMTZeroSuppRatioClient.clone(
-    monitorDir = ugmtZSDqmDir+'/FatEvts',
-    inputNum = ugmtZSDqmDir+'/FatEvts/'+errHistNumStr,
-    inputDen = ugmtZSDqmDir+'/FatEvts/'+errHistDenStr,
-    ratioTitle = 'Summary of bad zero suppression rates'
-)
+
 # sequences
 l1tStage2uGMTMuonCompClient = cms.Sequence(
     l1tStage2uGMTMuonVsuGMTMuonCopy1RatioClient
@@ -97,14 +86,8 @@ l1tStage2uGMTRegionalMuonCandCompClient = cms.Sequence(
   + l1tStage2EmtfOutVsuGMTInRatioClient
 )
 
-l1tStage2uGMTZeroSuppCompClient = cms.Sequence(
-    l1tStage2uGMTZeroSuppRatioClient
-  + l1tStage2uGMTZeroSuppFatEvtsRatioClient
-)
-
 l1tStage2uGMTClient = cms.Sequence(
     l1tStage2uGMTMuonCompClient
   + l1tStage2uGMTRegionalMuonCandCompClient
-  + l1tStage2uGMTZeroSuppCompClient
 )
 
