@@ -715,6 +715,32 @@ HLT_PFMET105_IsoTrk50_v*                                                # CMSHLT
 HLT_PFMET105_PFJet100_looseRecoiling_v*                                 # CMSHLT-2211
 HLT_PFMET110_PFJet100_v*                                                # CMSHLT-2211
 HLT_PFMET110_PFJet100_looseRecoiling_v*                                 # CMSHLT-2211
+HLT_DoubleL3Iter4Mu16_10NoVtx_DxyMin0p01cm_v* # CMSHLT-2301
+HLT_L3Iter4Mu10_NoVtx_DxyMin0p01cm_v*         # CMSHLT-2301
+HLT_HT170_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v*           # CMSHLT-2280
+HLT_HT200_L1SingleLLPJet_DelayedJet40_DoubleDelay0p5nsTrackless_v*    # CMSHLT-2280
+HLT_HT200_L1SingleLLPJet_DelayedJet40_DoubleDelay1nsInclusive_v*      # CMSHLT-2280
+HLT_HT200_L1SingleLLPJet_DelayedJet40_SingleDelay1nsTrackless_v*      # CMSHLT-2280
+HLT_HT200_L1SingleLLPJet_DelayedJet40_SingleDelay2nsInclusive_v*      # CMSHLT-2280
+HLT_HT200_L1SingleLLPJet_DisplacedDijet30_Inclusive1PtrkShortSig5_v*  # CMSHLT-2280
+HLT_HT200_L1SingleLLPJet_DisplacedDijet35_Inclusive1PtrkShortSig5_v*  # CMSHLT-2280
+HLT_HT200_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v*           # CMSHLT-2280
+HLT_HT200_L1SingleLLPJet_DisplacedDijet40_Inclusive1PtrkShortSig5_v*  # CMSHLT-2280
+HLT_HT200_L1SingleLLPJet_DisplacedDijet60_DisplacedTrack_v*           # CMSHLT-2280
+HLT_HT270_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v*           # CMSHLT-2280
+HLT_HT320_L1SingleLLPJet_DisplacedDijet60_Inclusive_v*                # CMSHLT-2280
+HLT_HT420_L1SingleLLPJet_DisplacedDijet60_Inclusive_v*                # CMSHLT-2280
+HLT_DiPhoton10Time1ns_v*     # CMSHLT-2280
+HLT_DiPhoton10Time1p2ns_v*   # CMSHLT-2280
+HLT_DiPhoton10Time1p4ns_v*   # CMSHLT-2280
+HLT_DiPhoton10Time1p6ns_v*   # CMSHLT-2280
+HLT_DiPhoton10Time1p8ns_v*   # CMSHLT-2280
+HLT_DiPhoton10Time2ns_v*     # CMSHLT-2280
+HLT_DiPhoton10sminlt0p1_v*   # CMSHLT-2280
+HLT_DiPhoton10sminlt0p12_v*  # CMSHLT-2280
+HLT_DiPhoton10sminlt0p14_v*  # CMSHLT-2280
+HLT_DiPhoton10sminlt0p16_v*  # CMSHLT-2280
+HLT_DiPhoton10_CaloIdL_v*    # CMSHLT-2280
 
 HLT_L1SingleMuCosmics_v*							#	CMSHLT-2097
 
@@ -797,6 +823,7 @@ MC_PFBTagDeepCSV_v*                                      # CMSHLT-1241
 MC_CaloBTagDeepCSV_v*                                    # CMSHLT-1241
 MC_AK4CaloJetsFromPV_v*                                  # CMSHLT-1241
 MC_PFBTagDeepJet_v*                                      # CMSHLT-2184
+MC_Run3_PFScoutingPixelTracking_v*                       # CMSHLT-2302
 
 ######## paths that are different between GRun and online_grun ################################
 
