@@ -22,7 +22,19 @@ l1tStage2uGMTEmulatorCompRatioClient = DQMEDHarvester("L1TStage2RatioClient",
 )
 ## Era: Run3_2021; Ignore BX range mismatches. This is necessary because we only read out the central BX for the inputs, so that is what the emulator has to work on.
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(l1tStage2uGMTEmulatorCompRatioClient, ignoreBin = ignoreFinalsBinsRun3)
+stage2L1Trigger_2021.toModify(l1tStage2uGMTEmulatorCompRatioClient, ignoreBin = cms.untracked.vint32(ignoreFinalsBinsRun3))
+
+# Showers
+l1tStage2uGMTShowerEmulatorCompRatioClient = DQMEDHarvester("L1TStage2RatioClient",
+    monitorDir = cms.untracked.string(ugmtEmuDEDqmDir+"/Muon showers"),
+    inputNum = cms.untracked.string(ugmtEmuDEDqmDir+'/Muon showers/'+errHistNumStr),
+    inputDen = cms.untracked.string(ugmtEmuDEDqmDir+'/Muon showers/'+errHistDenStr),
+    ratioName = cms.untracked.string('mismatchRatio'),
+    ratioTitle = cms.untracked.string('Summary of mismatch rates between uGMT showers and uGMT emulator showers'),
+    yAxisTitle = cms.untracked.string('# mismatch / # total'),
+    binomialErr = cms.untracked.bool(True),
+    ignoreBin = cms.untracked.vint32(ignoreFinalsBinsRun3), # Ignore BX range mismatches. This is necessary because we only read out the central BX for the inputs, so that is what the emulator has to work on.
+)
 
 # intermediate muons
 titleStr = 'Summary of mismatch rates between uGMT intermediate muons and uGMT emulator intermediate muons from '
@@ -70,3 +82,6 @@ l1tStage2uGMTEmulatorClient = cms.Sequence(
   + l1tStage2uGMTEmulImdMuEMTFPosCompRatioClient
 )
 
+# Add shower tests for Run3
+_run3_l1tStage2uGMTEmulatorClient = cms.Sequence(l1tStage2uGMTEmulatorClient.copy() + l1tStage2uGMTShowerEmulatorCompRatioClient)
+stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTEmulatorClient, _run3_l1tStage2uGMTEmulatorClient)
