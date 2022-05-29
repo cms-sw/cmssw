@@ -84,7 +84,8 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& 
     if (charge != (*iTau)->charge())
       edm::LogError("TauGenJetProducer") << " charge of Tau: " << (*iTau)
                                          << " not equal to charge of sum of charge of all descendents.\n"
-                                         << " Tau's charge: " << (*iTau)->charge() << " sum: " << charge << "\n";
+                                         << " Tau's charge: " << (*iTau)->charge() << " sum: " << charge
+                                         << " # descendents: " << constituents.size() << "\n";
 
     jet.setCharge(charge);
     pOutVisTaus->push_back(jet);
