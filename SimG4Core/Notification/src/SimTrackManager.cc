@@ -60,7 +60,7 @@ void SimTrackManager::reset() {
 }
 
 void SimTrackManager::deleteTracks() {
-  for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++) {
+  for (unsigned int i = 0; i < m_trksForThisEvent->size(); ++i) {
     delete (*m_trksForThisEvent)[i];
   }
   delete m_trksForThisEvent;
@@ -113,8 +113,7 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent* simEvent) {
                               << m_trksForThisEvent->size();
 #endif
 
-  for (unsigned int it = 0; it < m_trksForThisEvent->size(); it++) {
-    TrackWithHistory* trkH = (*m_trksForThisEvent)[it];
+  for (auto& trkH : *m_trksForThisEvent) {
     // at this stage there is one vertex per track,
     // so the vertex id of track N is also N
     int ivertex = -1;
@@ -122,9 +121,9 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent* simEvent) {
 
     math::XYZVectorD pm(0., 0., 0.);
     unsigned int iParentID = trkH->parentID();
-    for (unsigned int iit = 0; iit < m_trksForThisEvent->size(); ++iit) {
-      if ((*m_trksForThisEvent)[iit]->trackID() == iParentID) {
-        pm = (*m_trksForThisEvent)[iit]->momentum();
+    for (auto& trk : *m_trksForThisEvent) {
+      if (trk->trackID() == iParentID) {
+        pm = trk->momentum();
         break;
       }
     }
@@ -151,40 +150,33 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent* simEvent) {
 }
 
 int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID, G4SimEvent* simEvent) {
-  int parent = iParentID;
-  int check = -1;
-
-  for (std::vector<TrackWithHistory*>::const_iterator it = (*m_trksForThisEvent).begin();
-       it != (*m_trksForThisEvent).end();
-       it++) {
-    if ((*it)->trackID() == uint32_t(parent)) {
-      check = 0;
+  int parent = -1;
+  for (auto& trk : *m_trksForThisEvent) {
+    int id = trk->trackID();
+    if (id == iParentID) {
+      parent = id;
       break;
     }
-  }
-
-  if (check == -1) {
-    parent = -1;
   }
 
   VertexMap::const_iterator iterator = m_vertexMap.find(parent);
   if (iterator != m_vertexMap.end()) {
     // loop over saved vertices
-    for (unsigned int k = 0; k < m_vertexMap[parent].size(); k++) {
-      if (sqrt((trkH->vertexPosition() - (((m_vertexMap[parent])[k]).second)).Mag2()) < 0.001) {
-        return (((m_vertexMap[parent])[k]).first);
+    for (auto& xx : m_vertexMap[parent]) {
+      if ((trkH->vertexPosition() - xx.second).Mag2() < 1.e-6) {
+        return xx.first;
       }
     }
   }
 
   unsigned int ptype = 0;
   const G4VProcess* pr = trkH->creatorProcess();
-  if (pr) {
+  if (nullptr != pr) {
     ptype = pr->GetProcessSubType();
   }
   simEvent->add(new G4SimVertex(trkH->vertexPosition(), trkH->globalTime(), parent, ptype));
   m_vertexMap[parent].push_back(MapVertexPosition(m_nVertices, trkH->vertexPosition()));
-  m_nVertices++;
+  ++m_nVertices;
   return (m_nVertices - 1);
 }
 
@@ -264,15 +256,15 @@ void SimTrackManager::fillMotherList() {
     edm::LogError("SimTrackManager") << " SimTrackManager::fillMotherList track index corrupted";
   }
   /*
-  std::cout << "### SimTrackManager::fillMotherList: "
+  edm::LogVerbatim("SimTrackManager") << "### SimTrackManager::fillMotherList: "
 	    << idsave.size() << " saved; ancestor: " << lastHist 
 	    << "  " << ancestorList.size() << std::endl;
   for (unsigned int i = 0; i< idsave.size(); ++i) { 
-    std::cout  << " ISV: Track ID = " << (idsave[i]).first 
+    edm::LogVerbatim("SimTrackManager")  << " ISV: Track ID = " << (idsave[i]).first 
 	       << " Mother ID = " << (idsave[i]).second << std::endl;
   }
   */
-  for (unsigned int n = lastHist; n < ancestorList.size(); n++) {
+  for (unsigned int n = lastHist; n < ancestorList.size(); ++n) {
     int theMotherId = idSavedTrack((ancestorList[n]).first);
     ancestorList[n].second = theMotherId;
     /*
@@ -320,23 +312,22 @@ void SimTrackManager::cleanTracksWithHistory() {
   }
 #endif
 
-  for (unsigned int it = lastTrack; it < m_trksForThisEvent->size(); it++) {
-    TrackWithHistory* t = (*m_trksForThisEvent)[it];
+  for (auto& t : *m_trksForThisEvent) {
     if (t->saved()) {
       saveTrackAndItsBranch(t);
     }
   }
   unsigned int num = lastTrack;
-  for (unsigned int it = lastTrack; it < m_trksForThisEvent->size(); it++) {
+  for (unsigned int it = lastTrack; it < m_trksForThisEvent->size(); ++it) {
     TrackWithHistory* t = (*m_trksForThisEvent)[it];
     int g4ID = t->trackID();
     if (t->saved() == true) {
       if (it > num)
         (*m_trksForThisEvent)[num] = t;
-      num++;
-      for (unsigned int itr = 0; itr < idsave.size(); itr++) {
-        if ((idsave[itr]).first == g4ID) {
-          (idsave[itr]).second = g4ID;
+      ++num;
+      for (auto& xx : idsave) {
+        if (xx.first == g4ID) {
+          xx.second = g4ID;
           break;
         }
       }
@@ -345,12 +336,12 @@ void SimTrackManager::cleanTracksWithHistory() {
     }
   }
 
-  (*m_trksForThisEvent).resize(num);
+  m_trksForThisEvent->resize(num);
 
 #ifdef DebugLog
   LogDebug("SimTrackManager") << " AFTER CLEANING, I GET " << (*m_trksForThisEvent).size()
                               << " tracks to be saved persistently";
-  for (unsigned int it = 0; it < (*m_trksForThisEvent).size(); it++) {
+  for (unsigned int it < (*m_trksForThisEvent).size(); ++it) {
     LogDebug("SimTrackManager") << " Track in position " << it << " G4 track number "
                                 << (*m_trksForThisEvent)[it]->trackID() << " mother "
                                 << (*m_trksForThisEvent)[it]->parentID() << " Status "
@@ -369,15 +360,14 @@ void SimTrackManager::resetGenID() {
   if (theLHCTlink == nullptr)
     return;
 
-  for (unsigned int it = 0; it < m_trksForThisEvent->size(); it++) {
-    TrackWithHistory* trkH = (*m_trksForThisEvent)[it];
-    int genParticleID_ = trkH->genParticleID();
-    if (genParticleID_ == -1) {
+  for (auto& trkH : *m_trksForThisEvent) {
+    int genParticleID = trkH->genParticleID();
+    if (genParticleID == -1) {
       continue;
     } else {
-      for (unsigned int itrlink = 0; itrlink < (*theLHCTlink).size(); itrlink++) {
-        if ((*theLHCTlink)[itrlink].afterHector() == genParticleID_) {
-          trkH->setGenParticleID((*theLHCTlink)[itrlink].beforeHector());
+      for (auto& xx : *theLHCTlink) {
+        if (xx.afterHector() == genParticleID) {
+          trkH->setGenParticleID(xx.beforeHector());
           continue;
         }
       }

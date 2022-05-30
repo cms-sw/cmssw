@@ -30,6 +30,7 @@
 
 #include "G4Timer.hh"
 #include "G4GeometryManager.hh"
+#include "G4ScoringManager.hh"
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
 #include "G4MTRunManagerKernel.hh"
@@ -74,6 +75,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_g4overlap(p.getUntrackedParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
+      m_G4CommandsEndRun(p.getParameter<std::vector<std::string> >("G4CommandsEndRun")),
       m_p(p) {
   m_currentRun = nullptr;
   m_UIsession = new CustomUIsession();
@@ -186,6 +188,12 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: PhysicsList and cuts are defined";
 
+  // Enable couple transportation
+  bool scorer = m_p.getParameter<bool>("UseCommandBaseScorer");
+  if (scorer) {
+    G4ScoringManager* scManager = G4ScoringManager::GetScoringManager();
+    scManager->SetVerboseLevel(1);
+  }
   // Geant4 UI commands before initialisation of physics
   if (!m_G4Commands.empty()) {
     edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Requested UI commands: ";
@@ -271,6 +279,14 @@ void RunManagerMT::Connect(RunAction* runAction) {
 void RunManagerMT::stopG4() {
   G4GeometryManager::GetInstance()->OpenGeometry();
   m_stateManager->SetNewState(G4State_Quit);
+  // Geant4 UI commands after the run
+  if (!m_G4CommandsEndRun.empty()) {
+    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Requested end of run UI commands: ";
+    for (const std::string& command : m_G4CommandsEndRun) {
+      edm::LogVerbatim("SimG4CoreApplication") << "    " << command;
+      G4UImanager::GetUIpointer()->ApplyCommand(command);
+    }
+  }
   if (!m_runTerminated) {
     terminateRun();
   }
