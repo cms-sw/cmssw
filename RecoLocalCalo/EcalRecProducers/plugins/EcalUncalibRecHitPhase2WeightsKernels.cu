@@ -28,7 +28,7 @@ namespace ecal {
         extern __shared__ char shared_mem[];
         double* shr_weights = (double*)&shared_mem[0];
         float* shr_amp = (float*)&shared_mem[nsamples * sizeof(double)];
-        uint16_t* shr_digis = (uint16_t*)&shared_mem[nsamples * sizeof(double)+ nchannels_per_block * sizeof(float)];
+        uint16_t* shr_digis = (uint16_t*)&shared_mem[nsamples * sizeof(double) + nchannels_per_block * sizeof(float)];
 
         shr_weights = weights;
 
@@ -45,8 +45,8 @@ namespace ecal {
         for (int sample = 0; sample < nsamples; ++sample) {
           const unsigned int idx = threadIdx.x * nsamples + sample;
           const auto shr_digi = shr_digis[idx];
-          shr_amp[btx] += (static_cast<float>(ecalLiteDTU::adc(shr_digi)) * ecalPh2::gains[ecalLiteDTU::gainId(shr_digi)] *
-                           shr_weights[sample]);
+          shr_amp[btx] += (static_cast<float>(ecalLiteDTU::adc(shr_digi)) *
+                           ecalPh2::gains[ecalLiteDTU::gainId(shr_digi)] * shr_weights[sample]);
         }
         amplitude[tx] = shr_amp[btx];
         amplitudeError[tx] = 1.0f;
