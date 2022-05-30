@@ -47,8 +47,8 @@ EcalPhase2DigiToGPUProducer::EcalPhase2DigiToGPUProducer(const edm::ParameterSet
           ps.getParameter<std::string>("digisLabelEB"))) {}
 
 void EcalPhase2DigiToGPUProducer::acquire(edm::Event const& event,
-                                       edm::EventSetup const& setup,
-                                       edm::WaitingTaskWithArenaHolder holder) {
+                                          edm::EventSetup const& setup,
+                                          edm::WaitingTaskWithArenaHolder holder) {
   cms::cuda::ScopedContextAcquire ctx{event.streamID(), std::move(holder), cudaState_};
 
   //input data from event
@@ -61,8 +61,8 @@ void EcalPhase2DigiToGPUProducer::acquire(edm::Event const& event,
   digis_.data = cms::cuda::make_device_unique<uint16_t[]>(size_ * EcalDataFrame_Ph2::MAXSAMPLES, ctx.stream());
 
   //allocate host pointers for holding product data and id vectors
-  auto idstmp = cms::cuda::make_host_unique<uint32_t[]>(size_,ctx.stream());
-  auto datatmp = cms::cuda::make_host_unique<uint16_t[]>(size_ * EcalDataFrame_Ph2::MAXSAMPLES,ctx.stream());
+  auto idstmp = cms::cuda::make_host_unique<uint32_t[]>(size_, ctx.stream());
+  auto datatmp = cms::cuda::make_host_unique<uint16_t[]>(size_ * EcalDataFrame_Ph2::MAXSAMPLES, ctx.stream());
 
   //iterate over digis
   uint32_t i = 0;
@@ -82,10 +82,13 @@ void EcalPhase2DigiToGPUProducer::acquire(edm::Event const& event,
 
   //copy output vectors into member variable device pointers for the output struct
 
-  cudaCheck(cudaMemcpyAsync(
-      digis_.ids.get(), idstmp.get(), size_ * sizeof(uint32_t), cudaMemcpyHostToDevice, ctx.stream()));
-  cudaCheck(cudaMemcpyAsync(
-      digis_.data.get(), datatmp.get(), size_ * EcalDataFrame_Ph2::MAXSAMPLES * sizeof(uint16_t), cudaMemcpyHostToDevice, ctx.stream()));
+  cudaCheck(
+      cudaMemcpyAsync(digis_.ids.get(), idstmp.get(), size_ * sizeof(uint32_t), cudaMemcpyHostToDevice, ctx.stream()));
+  cudaCheck(cudaMemcpyAsync(digis_.data.get(),
+                            datatmp.get(),
+                            size_ * EcalDataFrame_Ph2::MAXSAMPLES * sizeof(uint16_t),
+                            cudaMemcpyHostToDevice,
+                            ctx.stream()));
 }
 
 void EcalPhase2DigiToGPUProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
