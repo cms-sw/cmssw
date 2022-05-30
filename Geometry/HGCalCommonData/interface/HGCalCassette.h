@@ -11,7 +11,7 @@ public:
   HGCalCassette() {}
 
   void setParameter(int cassette, const std::vector<double>& shifts);
-  std::pair<double, double> getShift(int layer, int zside, int cassette);
+  std::pair<double, double> getShift(int layer, int zside, int cassette) const;
 
 private:
   const std::vector<int> positEE_ = {2, 1, 0, 5, 4, 3};
