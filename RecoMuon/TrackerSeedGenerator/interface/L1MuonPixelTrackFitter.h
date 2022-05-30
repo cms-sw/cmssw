@@ -11,9 +11,6 @@
 
 #include <vector>
 
-namespace edm {
-  class EventSetup;
-}
 namespace reco {
   class Track;
 }
@@ -23,6 +20,7 @@ class TrackingRecHit;
 class L1MuGMTCand;
 class PixelRecoLineRZ;
 class SeedingHitSet;
+class MagneticField;
 
 class L1MuonPixelTrackFitter {
 public:
@@ -59,7 +57,7 @@ public:
   void setL1Constraint(const L1MuGMTCand& muon);
   void setPxConstraint(const SeedingHitSet& hits);
 
-  virtual reco::Track* run(const edm::EventSetup& es,
+  virtual reco::Track* run(const MagneticField& field,
                            const std::vector<const TrackingRecHit*>& hits,
                            const TrackingRegion& region) const;
 
