@@ -1532,7 +1532,10 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
     int partial = HGCalProperty::waferPartial(waferProperties[k]);
     int orient = HGCalWaferMask::getRotation(php.waferZSide_, partial, HGCalProperty::waferOrient(waferProperties[k]));
-    php.waferInfoMap_[waferIndex[k]] = HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]), partial, orient, HGCalProperty::waferCassette(waferProperties[k]));
+    php.waferInfoMap_[waferIndex[k]] = HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]),
+                                                                  partial,
+                                                                  orient,
+                                                                  HGCalProperty::waferCassette(waferProperties[k]));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "[" << k << ":" << waferIndex[k] << ":"
                                   << HGCalWaferIndex::waferLayer(waferIndex[k]) << ":"
@@ -1601,7 +1604,7 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
     tileRingMax = dbl_to_int(fv.vector("TileRingMax"));
     if (php.waferMaskMode_ == scintillatorCassette) {
       if (php.cassettes_ > 0)
-	php.nphiCassette_ = php.nCellsCoarse_ / php.cassettes_;
+        php.nphiCassette_ = php.nCellsCoarse_ / php.cassettes_;
       cassetteShift = fv.vector("CassetteShiftHE");
       rescale(cassetteShift, HGCalParameters::k_ScaleFromDDD);
     }
