@@ -47,6 +47,9 @@ int Hydjet2Hadronizer::convertStatusForComponents(int sta, int typ, int pySta) {
   else if (typ == 1)
     st = convertStatus(pySta);
 
+  if (st == -1)
+    throw cms::Exception("ConvertStatus") << "Wrong status code!" << endl;
+
   if (separateHydjetComponents_) {
     if (st == 1 && typ == 0)
       return 6;
@@ -56,11 +59,8 @@ int Hydjet2Hadronizer::convertStatusForComponents(int sta, int typ, int pySta) {
       return 16;
     if (st == 2 && typ == 1)
       return 17;
-  }
-  if (st != -1)
-    return st;
-  else
-    throw cms::Exception("ConvertStatus") << "Wrong status code!" << endl;
+  } 
+  return st;
 }
 
 int Hydjet2Hadronizer::convertStatus(int st) {
