@@ -3,6 +3,7 @@
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexCandidateFinder.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
@@ -191,7 +192,7 @@ void PFDisplacedVertexCandidateFinder::link(const TrackBaseRef& el1,
     dist = -1;
     return;
   }
-  if (pt1 > 2 && pt2 > 2 && std::abs(phi1 - phi2) > 1) {
+  if (pt1 > 2 && pt2 > 2 && std::abs(::deltaPhi(phi1, phi2)) > 1) {
     dist = -1;
     return;
   }
