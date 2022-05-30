@@ -8,7 +8,6 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <fstream>
 #include "Randomize.hh"
 
 EventAction::EventAction(const edm::ParameterSet& p,

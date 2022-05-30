@@ -21,7 +21,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
-#include "SimG4Core/Notification/interface/G4SimEvent.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
@@ -150,7 +149,6 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
       m_LHCTransport(iConfig.getParameter<bool>("LHCTransport")),
       m_thread_index{get_new_thread_index()},
-      m_EvtMgrVerbosity(iConfig.getUntrackedParameter<int>("G4EventManagerVerbosity", 0)),
       m_pField(iConfig.getParameter<edm::ParameterSet>("MagneticField")),
       m_pRunAction(iConfig.getParameter<edm::ParameterSet>("RunAction")),
       m_pEventAction(iConfig.getParameter<edm::ParameterSet>("EventAction")),
@@ -378,8 +376,9 @@ void RunManagerMTWorker::initializeUserActions() {
   m_tls->userRunAction->SetMaster(false);
   Connect(m_tls->userRunAction.get());
 
+  G4int ver = m_p.getParameter<int>("EventVerbose");
   G4EventManager* eventManager = m_tls->kernel->GetEventManager();
-  eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
+  eventManager->SetVerboseLevel(ver);
 
   EventAction* userEventAction =
       new EventAction(m_pEventAction, m_tls->runInterface.get(), m_tls->trackManager.get(), m_sVerbose.get());
@@ -456,7 +455,6 @@ void RunManagerMTWorker::terminateRun() {
     m_tls->userRunAction.reset();
   }
   m_tls->currentEvent.reset();
-  m_simEvent = nullptr;
 
   if (m_tls->kernel) {
     m_tls->kernel->RunTermination();
@@ -465,9 +463,9 @@ void RunManagerMTWorker::terminateRun() {
   m_tls->runTerminated = true;
 }
 
-std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt,
-                                                        const edm::EventSetup& es,
-                                                        RunManagerMT& runManagerMaster) {
+G4SimEvent* RunManagerMTWorker::produce(const edm::Event& inpevt,
+                                        const edm::EventSetup& es,
+                                        RunManagerMT& runManagerMaster) {
   // The initialization and begin/end run is a bit convoluted due to
   // - Geant4 deals per-thread
   // - OscarMTProducer deals per-stream
@@ -494,16 +492,15 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
 
   m_tls->currentEvent.reset(generateEvent(inpevt));
 
-  auto simEvent = std::make_unique<G4SimEvent>();
-  m_simEvent = simEvent.get();
-  m_simEvent->hepEvent(m_generator.genEvent());
-  m_simEvent->weight(m_generator.eventWeight());
+  m_simEvent.clear();
+  m_simEvent.hepEvent(m_generator.genEvent());
+  m_simEvent.weight(m_generator.eventWeight());
   if (m_generator.genVertex() != nullptr) {
     auto genVertex = m_generator.genVertex();
-    m_simEvent->collisionPoint(math::XYZTLorentzVectorD(genVertex->x() / CLHEP::cm,
-                                                        genVertex->y() / CLHEP::cm,
-                                                        genVertex->z() / CLHEP::cm,
-                                                        genVertex->t() / CLHEP::second));
+    m_simEvent.collisionPoint(math::XYZTLorentzVectorD(genVertex->x() / CLHEP::cm,
+                                                       genVertex->y() / CLHEP::cm,
+                                                       genVertex->z() / CLHEP::cm,
+                                                       genVertex->t() / CLHEP::second));
   }
   if (m_tls->currentEvent->GetNumberOfPrimaryVertex() == 0) {
     throw cms::Exception("EventCorruption")
@@ -513,9 +510,9 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
   } else {
     edm::LogVerbatim("SimG4CoreApplication")
         << "RunManagerMTWorker::produce: start EventID=" << inpevt.id().event() << " StreamID=" << inpevt.streamID()
-        << " threadIndex=" << getThreadIndex() << " weight=" << m_simEvent->weight() << "; "
+        << " threadIndex=" << getThreadIndex() << " weight=" << m_simEvent.weight() << "; "
         << m_tls->currentEvent->GetNumberOfPrimaryVertex() << " vertices for Geant4; generator produced "
-        << m_simEvent->nGenParts() << " particles.";
+        << m_simEvent.nGenParts() << " particles.";
 
     m_tls->kernel->GetEventManager()->ProcessOneEvent(m_tls->currentEvent.get());
   }
@@ -527,8 +524,7 @@ std::unique_ptr<G4SimEvent> RunManagerMTWorker::produce(const edm::Event& inpevt
     sd->reset();
   }
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker::produce: ended Event " << inpevt.id().event();
-  m_simEvent = nullptr;
-  return simEvent;
+  return &m_simEvent;
 }
 
 void RunManagerMTWorker::abortEvent() {
@@ -558,7 +554,6 @@ void RunManagerMTWorker::abortRun(bool softAbort) {
 
 G4Event* RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   m_tls->currentEvent.reset();
-  m_simEvent = nullptr;
 
   // 64 bits event ID in CMSSW converted into Geant4 event ID
   G4int evtid = (G4int)inpevt.id().event();
