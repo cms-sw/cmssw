@@ -171,6 +171,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
     Int_t nNumDigiEta = stationInfo.nNumDigi_ * (stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_);
     Int_t nNumAllDigi = stationInfo.nNumDigi_ * stationInfo.nMaxVFAT_;
     const BoundPlane& surface = GEMGeometry_->idToDet(gid)->surface();
+    Int_t nOnStripPrev = mapBitDigiOccOn_[key4Ch].count();
     if (total_digi_layer.find(key3) == total_digi_layer.end())
       total_digi_layer[key3] = 0;
     for (auto iEta : ch.etaPartitions()) {
@@ -217,9 +218,9 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
         bTagVFAT[nIdxVFAT] = true;
       }
     }
-    auto* histChDigi = mapDigiOccPerCh_.FindHist(key4Ch);
-    if (histChDigi != nullptr) {
-      histChDigi->setBinContent(0, 0, mapBitDigiOccOn_[key4Ch].count());
+    Int_t nDiffOnStrip = mapBitDigiOccOn_[key4Ch].count() - nOnStripPrev;
+    if (nDiffOnStrip > 0) {
+      mapDigiOccPerCh_.Fill(key4Ch, -99, -99, nDiffOnStrip);
     }
   }
   for (auto [key, num_total_digi] : total_digi_layer)
