@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 
 // algorithm specific
 
@@ -27,14 +28,14 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-  bool isPhase2_;
+  const bool isPhase2_;
   using InputProduct = cms::cuda::Product<ecal::UncalibratedRecHit<calo::common::DevStoragePolicy>>;
-  edm::EDGetTokenT<InputProduct> recHitsInEBToken_, recHitsInEEToken_;
+  const edm::EDGetTokenT<InputProduct> recHitsInEBToken_, recHitsInEEToken_;
   using OutputProduct = ecal::UncalibratedRecHit<calo::common::VecStoragePolicy<calo::common::CUDAHostAllocatorAlias>>;
-  edm::EDPutTokenT<OutputProduct> recHitsOutEBToken_, recHitsOutEEToken_;
+  const edm::EDPutTokenT<OutputProduct> recHitsOutEBToken_, recHitsOutEEToken_;
 
   OutputProduct recHitsEB_, recHitsEE_;
-  bool containsTimingInformation_;
+  const bool containsTimingInformation_;
 };
 
 void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
@@ -42,12 +43,13 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
 
   desc.add<edm::InputTag>("recHitsInLabelEB", edm::InputTag{"ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEB"});
   desc.add<std::string>("recHitsOutLabelEB", "EcalUncalibRecHitsEB");
-
   desc.add<bool>("containsTimingInformation", false);
-  desc.add<bool>("isPhase2", false);
-
-  desc.add<edm::InputTag>("recHitsInLabelEE", edm::InputTag{"ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"});
-  desc.add<std::string>("recHitsOutLabelEE", "EcalUncalibRecHitsEE");
+  desc.ifValue(
+      edm::ParameterDescription<bool>("isPhase2", false, true),
+      false >> (edm::ParameterDescription<edm::InputTag>(
+                    "recHitsInLabelEE", edm::InputTag{"ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"}, true) and
+                edm::ParameterDescription<std::string>("recHitsOutLabelEE", "EcalUncalibRecHitsEE", true)) or
+          true >> edm::EmptyGroupDescription());
 
   confDesc.add("ecalCPUUncalibRecHitProducer", desc);
 }
@@ -55,13 +57,12 @@ void EcalCPUUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptio
 EcalCPUUncalibRecHitProducer::EcalCPUUncalibRecHitProducer(const edm::ParameterSet& ps)
     : isPhase2_{ps.getParameter<bool>("isPhase2")},
       recHitsInEBToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEB"))},
+      recHitsInEEToken_{isPhase2_ ? edm::EDGetTokenT<InputProduct>{}
+                                  : consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEE"))},
       recHitsOutEBToken_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEB"))},
-      containsTimingInformation_{ps.getParameter<bool>("containsTimingInformation")} {
-  if (!isPhase2_) {
-    recHitsInEEToken_ = consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsInLabelEE"));
-    recHitsOutEEToken_ = produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEE"));
-  }
-}
+      recHitsOutEEToken_{isPhase2_ ? edm::EDPutTokenT<OutputProduct>{}
+                                   : produces<OutputProduct>(ps.getParameter<std::string>("recHitsOutLabelEE"))},
+      containsTimingInformation_{ps.getParameter<bool>("containsTimingInformation")} {}
 
 EcalCPUUncalibRecHitProducer::~EcalCPUUncalibRecHitProducer() {}
 
@@ -84,11 +85,6 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
     cudaCheck(cudaMemcpyAsync(dest.data(), src, dest.size() * sizeof(type), cudaMemcpyDeviceToHost, ctx.stream()));
   };
 
-  if (!isPhase2_) {
-    auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
-    auto const& eeRecHits = ctx.get(eeRecHitsProduct);
-    recHitsEE_.resize(eeRecHits.size);
-  }
   // enqeue transfers
   lambdaToTransfer(recHitsEB_.did, ebRecHits.did.get());
   lambdaToTransfer(recHitsEB_.amplitudesAll, ebRecHits.amplitudesAll.get());
