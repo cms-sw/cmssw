@@ -11,19 +11,19 @@ public:
   HGCalCellUV(double waferSize, double separation, int32_t nFine, int32_t nCoarse);
 
   std::pair<int32_t, int32_t> cellUVFromXY1(
-      double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug);
+      double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const;
 
   std::pair<int32_t, int32_t> cellUVFromXY2(
-      double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug);
+      double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const;
 
   std::pair<int32_t, int32_t> cellUVFromXY3(
-      double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug);
+      double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const;
 
   std::pair<int32_t, int32_t> cellUVFromXY4(
       double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug);
 
   std::pair<int32_t, int32_t> cellUVFromXY1(
-      double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug);
+      double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug) const;
 
 private:
   std::pair<int32_t, int32_t> cellUVFromXY4(double xloc,
