@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # the uGMT DQM module
 from DQM.L1TMonitor.L1TStage2uGMT_cfi import *
+from DQM.L1TMonitor.L1TStage2uGMTInputBxDistributions_cfi import *
 
 # the uGMT intermediate muon DQM modules
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
@@ -215,6 +216,7 @@ l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy5 = l1tStage2uGMTMuonShowerVsuGMTMuon
 # sequences
 l1tStage2uGMTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMT +
+    l1tStage2uGMTInputBxDistributions +
     l1tStage2uGMTIntermediateBMTF +
     l1tStage2uGMTIntermediateOMTFNeg +
     l1tStage2uGMTIntermediateOMTFPos +
@@ -234,7 +236,7 @@ l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(
 )
 
 
-## Era: Run3_2021; Hadronic showers from EMTF used in uGMT from Run-3. Comparing output copies routinely, but moving the uGMT main DQM behind the fat event filter so the BX comparisons aren't biased.
+## Era: Run3_2021; Hadronic showers from EMTF used in uGMT from Run-3. Comparing output copies routinely, but moving the uGMT BX distribution plots behind the fat event filter so the BX comparisons aren't biased.
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
 
 _run3_l1tStage2uGMTOnlineDQMSeq = cms.Sequence(l1tStage2uGMTOnlineDQMSeq.copy() +
@@ -250,10 +252,9 @@ _run3_l1tStage2uGMTOnlineDQMSeq = cms.Sequence(l1tStage2uGMTOnlineDQMSeq.copy() 
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy4 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy5
 )
-_run3_l1tStage2uGMTOnlineDQMSeq.remove(l1tStage2uGMT)
+_run3_l1tStage2uGMTOnlineDQMSeq.remove(l1tStage2uGMTInputBxDistributions)
 stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTOnlineDQMSeq, _run3_l1tStage2uGMTOnlineDQMSeq)
 
 # The following needs to go after the fat events filter, because inputs are read out with only the central BX for the standard events, so the BX distributions would otherwise be heavily biased toward the central BX.
-_run3_l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(l1tStage2uGMT)
+_run3_l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(l1tStage2uGMTInputBxDistributions)
 stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTValidationEventOnlineDQMSeq, _run3_l1tStage2uGMTValidationEventOnlineDQMSeq)
-

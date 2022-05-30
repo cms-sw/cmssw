@@ -46,9 +46,6 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     // BMTF Input
     ibooker.setCurrentFolder(monitorDir_ + "/BMTFInput");
 
-    ugmtBMTFBX = ibooker.book1D("ugmtBMTFBX", "uGMT BMTF Input BX", 7, -3.5, 3.5);
-    ugmtBMTFBX->setAxisTitle("BX", 1);
-
     ugmtBMTFnMuons = ibooker.book1D("ugmtBMTFnMuons", "uGMT BMTF Input Muon Multiplicity", 37, -0.5, 36.5);
     ugmtBMTFnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
 
@@ -106,9 +103,6 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
     // OMTF Input
     ibooker.setCurrentFolder(monitorDir_ + "/OMTFInput");
-
-    ugmtOMTFBX = ibooker.book1D("ugmtOMTFBX", "uGMT OMTF Input BX", 7, -3.5, 3.5);
-    ugmtOMTFBX->setAxisTitle("BX", 1);
 
     ugmtOMTFnMuons = ibooker.book1D("ugmtOMTFnMuons", "uGMT OMTF Input Muon Multiplicity", 37, -0.5, 36.5);
     ugmtOMTFnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
@@ -173,9 +167,6 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
     // EMTF Input
     ibooker.setCurrentFolder(monitorDir_ + "/EMTFInput");
-
-    ugmtEMTFBX = ibooker.book1D("ugmtEMTFBX", "uGMT EMTF Input BX", 7, -3.5, 3.5);
-    ugmtEMTFBX->setAxisTitle("BX", 1);
 
     ugmtEMTFnMuons = ibooker.book1D("ugmtEMTFnMuons", "uGMT EMTF Input Muon Multiplicity", 37, -0.5, 36.5);
     ugmtEMTFnMuons->setAxisTitle("Muon Multiplicity (BX == 0)", 1);
@@ -269,30 +260,6 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       ugmtEMTFShowerTypeOccupancyPerSector->setAxisTitle("Shower type", 2);
       ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
       ugmtEMTFShowerTypeOccupancyPerSector->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
-
-      ugmtEMTFShowerTypeOccupancyPerBx =
-          ibooker.book2D("ugmtEMTFShowerTypeOccupancyPerBx", "Shower type occupancy per BX", 7, -3.5, 3.5, 2, 1, 3);
-      ugmtEMTFShowerTypeOccupancyPerBx->setAxisTitle("BX", 1);
-      ugmtEMTFShowerTypeOccupancyPerBx->setAxisTitle("Shower type", 2);
-      ugmtEMTFShowerTypeOccupancyPerBx->setBinLabel(IDX_TIGHT_SHOWER, "Tight", 2);
-      ugmtEMTFShowerTypeOccupancyPerBx->setBinLabel(IDX_NOMINAL_SHOWER, "Nominal", 2);
-
-      ugmtEMTFShowerSectorOccupancyPerBx = ibooker.book2D(
-          "ugmtEMTFShowerSectorOccupancyPerBx", "Shower BX occupancy per sector", 7, -3.5, 3.5, 12, 1, 13);
-      ugmtEMTFShowerSectorOccupancyPerBx->setAxisTitle("BX", 1);
-      ugmtEMTFShowerSectorOccupancyPerBx->setAxisTitle("Processor", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(12, "+6", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(11, "+5", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(10, "+4", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(9, "+3", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(8, "+2", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(7, "+1", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(6, "-6", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(5, "-5", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(4, "-4", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(3, "-3", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(2, "-2", 2);
-      ugmtEMTFShowerSectorOccupancyPerBx->setBinLabel(1, "-1", 2);
     }
 
     // inter-TF muon correlations
@@ -349,46 +316,6 @@ void L1TStage2uGMT::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
 
   // Subsystem Monitoring and Muon Output
   ibooker.setCurrentFolder(monitorDir_);
-
-  if (!emul_) {
-    ugmtBMTFBXvsProcessor =
-        ibooker.book2D("ugmtBXvsProcessorBMTF", "uGMT BMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
-    ugmtBMTFBXvsProcessor->setAxisTitle("Wedge", 1);
-    for (int bin = 1; bin <= 12; ++bin) {
-      ugmtBMTFBXvsProcessor->setBinLabel(bin, std::to_string(bin), 1);
-    }
-    ugmtBMTFBXvsProcessor->setAxisTitle("BX", 2);
-
-    ugmtOMTFBXvsProcessor =
-        ibooker.book2D("ugmtBXvsProcessorOMTF", "uGMT OMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
-    ugmtOMTFBXvsProcessor->setAxisTitle("Sector (Detector Side)", 1);
-    for (int bin = 1; bin <= 6; ++bin) {
-      ugmtOMTFBXvsProcessor->setBinLabel(bin, std::to_string(7 - bin) + " (-)", 1);
-      ugmtOMTFBXvsProcessor->setBinLabel(bin + 6, std::to_string(bin) + " (+)", 1);
-    }
-    ugmtOMTFBXvsProcessor->setAxisTitle("BX", 2);
-
-    ugmtEMTFBXvsProcessor =
-        ibooker.book2D("ugmtBXvsProcessorEMTF", "uGMT EMTF Input BX vs Processor", 12, -0.5, 11.5, 5, -2.5, 2.5);
-    ugmtEMTFBXvsProcessor->setAxisTitle("Sector (Detector Side)", 1);
-    for (int bin = 1; bin <= 6; ++bin) {
-      ugmtEMTFBXvsProcessor->setBinLabel(bin, std::to_string(7 - bin) + " (-)", 1);
-      ugmtEMTFBXvsProcessor->setBinLabel(bin + 6, std::to_string(bin) + " (+)", 1);
-    }
-    ugmtEMTFBXvsProcessor->setAxisTitle("BX", 2);
-
-    ugmtBXvsLink = ibooker.book2D("ugmtBXvsLink", "uGMT BX vs Input Links", 36, 35.5, 71.5, 5, -2.5, 2.5);
-    ugmtBXvsLink->setAxisTitle("Link", 1);
-    for (int bin = 1; bin <= 6; ++bin) {
-      ugmtBXvsLink->setBinLabel(bin, Form("E+%d", bin), 1);
-      ugmtBXvsLink->setBinLabel(bin + 6, Form("O+%d", bin), 1);
-      ugmtBXvsLink->setBinLabel(bin + 12, Form("B%d", bin), 1);
-      ugmtBXvsLink->setBinLabel(bin + 18, Form("B%d", bin + 6), 1);
-      ugmtBXvsLink->setBinLabel(bin + 24, Form("O-%d", bin), 1);
-      ugmtBXvsLink->setBinLabel(bin + 30, Form("E-%d", bin), 1);
-    }
-    ugmtBXvsLink->setAxisTitle("BX", 2);
-  }
 
   ugmtMuonBX = ibooker.book1D("ugmtMuonBX", "uGMT Muon BX", 7, -3.5, 3.5);
   ugmtMuonBX->setAxisTitle("BX", 1);
@@ -757,7 +684,6 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       for (l1t::RegionalMuonCandBxCollection::const_iterator BMTF = BMTFBxCollection->begin(itBX);
            BMTF != BMTFBxCollection->end(itBX);
            ++BMTF) {
-        ugmtBMTFBX->Fill(itBX);
         ugmtBMTFhwPt->Fill(BMTF->hwPt());
         if (displacedQuantities_) {
           ugmtBMTFhwPtUnconstrained->Fill(BMTF->hwPtUnconstrained());
@@ -774,9 +700,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
             l1t::MicroGMTConfiguration::calcGlobalPhi(BMTF->hwPhi(), BMTF->trackFinderType(), BMTF->processor());
         ugmtBMTFglbPhi->Fill(global_hw_phi);
 
-        ugmtBMTFBXvsProcessor->Fill(BMTF->processor(), itBX);
         ugmtBMTFProcvshwPhi->Fill(BMTF->hwPhi(), BMTF->processor());
-        ugmtBXvsLink->Fill(BMTF->link(), itBX);
 
         // Analyse muon correlations
         for (l1t::RegionalMuonCandBxCollection::const_iterator BMTF2 = BMTF + 1; BMTF2 != BMTFBxCollection->end(itBX);
@@ -806,7 +730,6 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF = OMTFBxCollection->begin(itBX);
            OMTF != OMTFBxCollection->end(itBX);
            ++OMTF) {
-        ugmtOMTFBX->Fill(itBX);
         ugmtOMTFhwPt->Fill(OMTF->hwPt());
         ugmtOMTFhwEta->Fill(OMTF->hwEta());
         ugmtOMTFhwSign->Fill(OMTF->hwSign());
@@ -820,18 +743,14 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
         l1t::tftype trackFinderType = OMTF->trackFinderType();
 
         if (trackFinderType == l1t::omtf_neg) {
-          ugmtOMTFBXvsProcessor->Fill(5 - OMTF->processor(), itBX);
           ugmtOMTFhwPhiNeg->Fill(OMTF->hwPhi());
           ugmtOMTFglbPhiNeg->Fill(global_hw_phi);
           ugmtOMTFProcvshwPhiNeg->Fill(OMTF->hwPhi(), OMTF->processor());
         } else {
-          ugmtOMTFBXvsProcessor->Fill(OMTF->processor() + 6, itBX);
           ugmtOMTFhwPhiPos->Fill(OMTF->hwPhi());
           ugmtOMTFglbPhiPos->Fill(global_hw_phi);
           ugmtOMTFProcvshwPhiPos->Fill(OMTF->hwPhi(), OMTF->processor());
         }
-
-        ugmtBXvsLink->Fill(OMTF->link(), itBX);
 
         // Analyse muon correlations
         for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF2 = OMTF + 1; OMTF2 != OMTFBxCollection->end(itBX);
@@ -861,7 +780,6 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       for (l1t::RegionalMuonCandBxCollection::const_iterator EMTF = EMTFBxCollection->begin(itBX);
            EMTF != EMTFBxCollection->end(itBX);
            ++EMTF) {
-        ugmtEMTFBX->Fill(itBX);
         ugmtEMTFhwPt->Fill(EMTF->hwPt());
         if (displacedQuantities_) {
           ugmtEMTFhwPtUnconstrained->Fill(EMTF->hwPtUnconstrained());
@@ -879,18 +797,14 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
         l1t::tftype trackFinderType = EMTF->trackFinderType();
 
         if (trackFinderType == l1t::emtf_neg) {
-          ugmtEMTFBXvsProcessor->Fill(5 - EMTF->processor(), itBX);
           ugmtEMTFhwPhiNeg->Fill(EMTF->hwPhi());
           ugmtEMTFglbPhiNeg->Fill(global_hw_phi);
           ugmtEMTFProcvshwPhiNeg->Fill(EMTF->hwPhi(), EMTF->processor());
         } else {
-          ugmtEMTFBXvsProcessor->Fill(EMTF->processor() + 6, itBX);
           ugmtEMTFhwPhiPos->Fill(EMTF->hwPhi());
           ugmtEMTFglbPhiPos->Fill(global_hw_phi);
           ugmtEMTFProcvshwPhiPos->Fill(EMTF->hwPhi(), EMTF->processor());
         }
-
-        ugmtBXvsLink->Fill(EMTF->link(), itBX);
 
         // Analyse muon correlations
         for (l1t::RegionalMuonCandBxCollection::const_iterator EMTF2 = EMTF + 1; EMTF2 != EMTFBxCollection->end(itBX);
@@ -924,20 +838,14 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
             continue;
           }
           if (shower->isOneNominalInTime()) {
-            ugmtEMTFShowerSectorOccupancyPerBx->Fill(
-                itBX, shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
             ugmtEMTFShowerTypeOccupancyPerSector->Fill(
                 shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0),
                 IDX_NOMINAL_SHOWER);
-            ugmtEMTFShowerTypeOccupancyPerBx->Fill(itBX, IDX_NOMINAL_SHOWER);
           }
           if (shower->isOneTightInTime()) {
-            ugmtEMTFShowerSectorOccupancyPerBx->Fill(
-                itBX, shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0));
             ugmtEMTFShowerTypeOccupancyPerSector->Fill(
                 shower->processor() + 1 + (shower->trackFinderType() == l1t::tftype::emtf_pos ? 6 : 0),
                 IDX_TIGHT_SHOWER);
-            ugmtEMTFShowerTypeOccupancyPerBx->Fill(itBX, IDX_TIGHT_SHOWER);
           }
         }
       }
@@ -1158,7 +1066,6 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       }
     }
   }
-
   // Fill shower plots
   if (hadronicShowers_) {
     edm::Handle<l1t::MuonShowerBxCollection> showersBxCollection;
