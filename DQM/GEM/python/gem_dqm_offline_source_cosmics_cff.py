@@ -10,6 +10,6 @@ GEMRecHitSource.runType = "offline"
 gemSourcesCosmics = cms.Sequence(
     GEMDigiSource *
     GEMRecHitSource *
-    gemEfficiencyAnalyzerCosmicsTwoLeg *
-    gemEfficiencyAnalyzerCosmicsOneLeg
+    gemEfficiencyAnalyzerCosmicsGlb *
+    gemEfficiencyAnalyzerCosmicsSta
 )
