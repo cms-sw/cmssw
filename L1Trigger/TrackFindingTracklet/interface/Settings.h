@@ -963,7 +963,7 @@ namespace trklet {
   };
 
   constexpr unsigned int N_TILTED_RINGS = 12;  // # of tilted rings per half-layer in TBPS layers
-  constexpr std::array<unsigned int, N_PSLAYER> N_MOD_PLANK = {{7, 11, 15}};  // # of modules/plank in TBPS
+  constexpr std::array<unsigned int, N_PSLAYER> N_MOD_PLANK = {{7, 11, 15}};  // # of flat barrel modules/plank in TBPS
 
   constexpr unsigned int N_TRKLSEED = 7;  // # of tracklet seeds
   constexpr unsigned int N_PROJ = 4;      // # of projections (beyond stubs from tracklet seed)

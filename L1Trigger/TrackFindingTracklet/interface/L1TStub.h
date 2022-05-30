@@ -21,6 +21,8 @@ namespace trklet {
             std::string stubword,
             int isPSmodule,
             int isFlipped,
+            bool tiltedBarrel,
+            unsigned int detId,
             double x,
             double y,
             double z,
@@ -49,8 +51,6 @@ namespace trklet {
       }
       return disk;
     }
-    unsigned int ladder() const { return ladder_; }
-    unsigned int module() const { return module_; }
 
     double x() const { return x_; }
     double y() const { return y_; }
@@ -94,7 +94,9 @@ namespace trklet {
     unsigned int isPSmodule() const { return isPSmodule_; }
     unsigned int isFlipped() const { return isFlipped_; }
 
-    bool isTilted() const;
+    bool isTilted() const { return tiltedBarrel_; }  // Tilted barrel
+
+    unsigned int detId() const { return detId_; }  // Lower sensor in module
 
     bool tpmatch(int tp) const;
     bool tpmatch2(int tp) const;
@@ -117,8 +119,6 @@ namespace trklet {
     unsigned int iphi_;
     unsigned int iz_;
     unsigned int layer_;
-    unsigned int ladder_;
-    unsigned int module_;
     unsigned int strip_;
     double x_;
     double y_;
@@ -131,6 +131,8 @@ namespace trklet {
 
     unsigned int isPSmodule_;
     unsigned int isFlipped_;
+    bool tiltedBarrel_;
+    unsigned int detId_;
   };
 };  // namespace trklet
 #endif

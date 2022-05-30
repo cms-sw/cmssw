@@ -151,7 +151,6 @@ elif (L1TRKALGO == 'HYBRID_DISPLACED'):
 
 # HYBRID_NEWKF: prompt tracking or reduced
 elif (L1TRKALGO == 'HYBRID_NEWKF' or L1TRKALGO == 'HYBRID_REDUCED'):
-    process.load("L1Trigger.TrackFindingTracklet.L1HybridEmulationTracks_cff")
     process.load( 'L1Trigger.TrackFindingTracklet.Producer_cff' )
     NHELIXPAR = 4
     L1TRK_NAME  = process.TrackFindingTrackletProducer_params.LabelTT.value()

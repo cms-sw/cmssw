@@ -459,12 +459,13 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // Process stubs in each region and channel within that tracking region
   for (const int& region : handleDTC->tfpRegions()) {
     for (const int& channel : handleDTC->tfpChannels()) {
-      // Get the DTC name form the channel
+      // Get the DTC name & ID from the channel
       unsigned int atcaSlot = channel % 12;
       string dtcname = settings_.slotToDTCname(atcaSlot);
       if (channel % 24 >= 12)
         dtcname = "neg" + dtcname;
       dtcname += (channel < 24) ? "_A" : "_B";  // which detector region
+      int dtcId = setup_->dtcId(region, channel);
 
       // Get the stubs from the DTC
       const tt::StreamStub& streamFromDTC{handleDTC->stream(region, channel)};
@@ -472,12 +473,12 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       // Prepare the DTC stubs for the IR
       for (size_t stubIndex = 0; stubIndex < streamFromDTC.size(); ++stubIndex) {
         const tt::FrameStub& stub{streamFromDTC[stubIndex]};
+        const TTStubRef& stubRef = stub.first;
 
-        if (stub.first.isNull()) {
+        if (stubRef.isNull())
           continue;
-        }
 
-        const GlobalPoint& ttPos = setup_->stubPos(stub.first);
+        const GlobalPoint& ttPos = setup_->stubPos(stubRef);
 
         //Get the 2 bits for the layercode
         string layerword = stub.second.to_string().substr(61, 2);
@@ -486,18 +487,19 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
         //translation from the two bit layercode to the layer/disk number of each of the
         //12 channels (dtcs)
-        static int layerdisktab[12][4] = {{0, 6, 8, 10},
-                                          {0, 7, 9, -1},
-                                          {1, 7, -1, -1},
-                                          {6, 8, 10, -1},
-                                          {2, 7, -1, -1},
-                                          {2, 9, -1, -1},
-                                          {3, 4, -1, -1},
-                                          {4, -1, -1, -1},
-                                          {5, -1, -1, -1},
-                                          {5, 8, -1, -1},
-                                          {6, 9, -1, -1},
-                                          {7, 10, -1, -1}};
+        // FIX: take this from DTC cabling map.
+        static const int layerdisktab[12][4] = {{0, 6, 8, 10},
+                                                {0, 7, 9, -1},
+                                                {1, 7, -1, -1},
+                                                {6, 8, 10, -1},
+                                                {2, 7, -1, -1},
+                                                {2, 9, -1, -1},
+                                                {3, 4, -1, -1},
+                                                {4, -1, -1, -1},
+                                                {5, -1, -1, -1},
+                                                {5, 8, -1, -1},
+                                                {6, 9, -1, -1},
+                                                {7, 10, -1, -1}};
 
         int layerdisk = layerdisktab[channel % 12][layercode];
         assert(layerdisk != -1);
@@ -551,7 +553,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
         for (unsigned int iClus = 0; iClus <= 1; iClus++) {  // Loop over both clusters that make up stub.
 
-          const TTClusterRef& ttClusterRef = stub.first->clusterRef(iClus);
+          const TTClusterRef& ttClusterRef = stubRef->clusterRef(iClus);
 
           // Now identify all TP's contributing to either cluster in stub.
           if (readMoreMcTruth_) {
@@ -573,26 +575,36 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
           }
         }
 
-        double stubbend = stub.first->bendFE();  //stub.first->rawBend()
+        double stubbend = stubRef->bendFE();  //stubRef->rawBend()
         if (ttPos.z() < -120) {
           stubbend = -stubbend;
         }
+
+        bool barrel = (layerdisk < N_LAYER);
+        // See  https://github.com/cms-sw/cmssw/tree/master/Geometry/TrackerNumberingBuilder
+        enum TypeBarrel { nonBarrel = 0, tiltedMinus = 1, tiltedPlus = 2, flat = 3 };
+        const TypeBarrel type = static_cast<TypeBarrel>(tTopo->tobSide(innerDetId));
+        bool tiltedBarrel = barrel && (type == tiltedMinus || type == tiltedPlus);
+
+        const unsigned int intDetId = innerDetId.rawId();
 
         ev.addStub(dtcname,
                    region,
                    layerdisk,
                    stubwordhex,
-                   setup_->psModule(setup_->dtcId(region, channel)),
+                   setup_->psModule(dtcId),
                    isFlipped,
+                   tiltedBarrel,
+                   intDetId,
                    ttPos.x(),
                    ttPos.y(),
                    ttPos.z(),
                    stubbend,
-                   stub.first->innerClusterPosition(),
+                   stubRef->innerClusterPosition(),
                    assocTPs);
 
         const trklet::L1TStub& lastStub = ev.lastStub();
-        stubMap[lastStub] = stub.first;
+        stubMap[lastStub] = stubRef;
       }
     }
   }
