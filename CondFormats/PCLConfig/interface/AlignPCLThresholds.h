@@ -45,7 +45,7 @@ public:
 
   void printAll() const;
 
-private:
+protected:
   threshold_map m_thresholds;
   int m_nrecords;
 
