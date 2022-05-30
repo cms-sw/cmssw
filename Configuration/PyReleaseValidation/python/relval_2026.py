@@ -36,7 +36,6 @@ numWFIB.extend([39434.5,39434.9,39434.501,39434.502]) #2026D88 pixelTrackingOnly
 numWFIB.extend([39634.99,39634.999]) #2026D88 premixing combined stage1+stage2 (ttbar+PU200, ttbar+PU50 for PR test)
 numWFIB.extend([39434.21,39634.21,39634.9921]) #2026D88 prodlike, prodlike PU, prodlike premix stage1+stage2
 numWFIB.extend([39634.114]) #2026D88 PU, with 10% OT ineffiency
-numWFIB.extend([40234.0]) #2026D90
 numWFIB.extend([40634.0]) #2026D91
 
 #Additional sample for short matrix and IB
