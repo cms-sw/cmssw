@@ -222,11 +222,9 @@ void PreMixingSiPixelWorker::addPileups(PileUpEventPrincipal const& pep, edm::Ev
         SiPixelExtraInfo::const_iterator jtest;
         jtest = SiHitExtraStorage_.find(detID);
         OneExtraInfoMap LocalSimHitExtraMap = jtest->second;
-        OneExtraInfoMap::const_iterator ilooper;
         std::vector<PixelSimHitExtraInfo> TempSimExtra;
-        for (OneExtraInfoMap::const_iterator iLocal = LocalSimHitExtraMap.begin(); iLocal != LocalSimHitExtraMap.end();
-             ++iLocal) {
-          TempSimExtra.push_back(iLocal->second);
+        for (auto& iLocal : LocalSimHitExtraMap) {
+          TempSimExtra.push_back(iLocal.second);
         }
 
         for (const auto& iu : pDD.detUnits()) {

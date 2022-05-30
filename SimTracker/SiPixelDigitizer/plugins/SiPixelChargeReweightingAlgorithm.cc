@@ -130,11 +130,7 @@ bool SiPixelChargeReweightingAlgorithm::hitSignalReweight(const PSimHit& hit,
 
   LocalPoint hitEntryPoint = hit.entryPoint();
 
-  float trajectoryScaleToPosition = hitEntryPoint.z() / direction.z();
-
-  if ((hitEntryPoint.z() > 0 && direction.z() < 0) || (hitEntryPoint.z() < 0 && direction.z() > 0)) {
-    trajectoryScaleToPosition *= -1;
-  }
+  float trajectoryScaleToPosition = std::abs(hitEntryPoint.z() / direction.z());
 
   LocalPoint hitPosition = hitEntryPoint + trajectoryScaleToPosition * direction;
 
@@ -618,10 +614,7 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
 
   LocalVector direction = loopTempSH.exitPoint() - loopTempSH.entryPoint();
   LocalPoint hitEntryPoint = loopTempSH.entryPoint();
-  float trajectoryScaleToPosition = hitEntryPoint.z() / direction.z();
-  if ((hitEntryPoint.z() > 0 && direction.z() < 0) || (hitEntryPoint.z() < 0 && direction.z() > 0)) {
-    trajectoryScaleToPosition *= -1;
-  }
+  float trajectoryScaleToPosition = std::abs(hitEntryPoint.z() / direction.z());
   LocalPoint hitPosition = hitEntryPoint + trajectoryScaleToPosition * direction;
 
   // addition as now the hit himself is not available
@@ -672,11 +665,13 @@ bool SiPixelChargeReweightingAlgorithm::lateSignalReweight(const PixelGeomDetUni
 
   array_2d pixrewgt(boost::extents[TXSIZE][TYSIZE]);
 
+  /*
   for (int row = 0; row < TXSIZE; ++row) {
     for (int col = 0; col < TYSIZE; ++col) {
       pixrewgt[row][col] = 0;
     }
   }
+*/
 
   for (int row = 0; row < TXSIZE; ++row) {
     xdouble[row] = topol->isItBigPixelInX(hitPixel.first + row - THX);

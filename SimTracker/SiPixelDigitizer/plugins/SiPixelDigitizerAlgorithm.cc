@@ -2601,7 +2601,7 @@ void SiPixelDigitizerAlgorithm::lateSignalReweight(const PixelGeomDetUnit* pixde
                 int(missCalibrate(detID, tTopo, pixdet, col, row, signalInADC * theElectronPerADC));  //full misscalib.
           }
 
-          if (signalInADC > theAdcFullScLateCR)
+          if (adc > theAdcFullScLateCR)
             adc = theAdcFullScLateCR;  // Check maximum value
 
 #ifdef TP_DEBUG
