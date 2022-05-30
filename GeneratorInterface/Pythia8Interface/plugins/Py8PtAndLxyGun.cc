@@ -31,7 +31,8 @@ namespace gen {
     double fConeRadius;
     double fConeH;
     double fDistanceToAPEX;
-    double fBackFraction;
+    double fLxyBackFraction;
+    double fLzOppositeFraction;
   };
 
   // implementation
@@ -51,7 +52,8 @@ namespace gen {
     fConeRadius = pgun_params.getParameter<double>("ConeRadius");
     fConeH = pgun_params.getParameter<double>("ConeH");
     fDistanceToAPEX = pgun_params.getParameter<double>("DistanceToAPEX");
-    fBackFraction = std::clamp(pgun_params.getParameter<double>("BackFraction"), 0., 1.);
+    fLxyBackFraction = std::clamp(pgun_params.getParameter<double>("LxyBackFraction"), 0., 1.);
+    fLzOppositeFraction = std::clamp(pgun_params.getParameter<double>("LzOppositeFraction"), 0., 1.);
   }
 
   bool Py8PtAndLxyGun::generatePartonsAndHadronize() {
@@ -96,7 +98,7 @@ namespace gen {
           dxy = -vx * sin(phi) + vy * cos(phi);
 
           sign = 1;
-          if (fBackFraction > 0 && randomEngine().flat() < fBackFraction) {
+          if (fLxyBackFraction > 0 && randomEngine().flat() <= fLxyBackFraction) {
             sign = -1;
           }
           if ((std::abs(dxy) < fDxyMax || fDxyMax < 0) && sign * (vx * px + vy * py) > 0) {
@@ -124,6 +126,9 @@ namespace gen {
             break;
           }
         }
+
+        if (fLzOppositeFraction > 0 && randomEngine().flat() <= fLzOppositeFraction)
+          sign *= -1;
         if (sign * pz < 0)
           vz = -vz;
 
@@ -133,7 +138,6 @@ namespace gen {
         }
 
         passLoop = (passDxy && passLz && passDz);
-
         if (passLoop)
           break;
       }

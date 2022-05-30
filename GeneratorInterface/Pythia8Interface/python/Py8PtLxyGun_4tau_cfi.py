@@ -24,7 +24,8 @@ generator = cms.EDFilter("Pythia8PtAndLxyGun",
         ConeRadius = cms.double(1000.0),
         ConeH = cms.double(3000.0),
         DistanceToAPEX = cms.double(850.0),
-        BackFraction = cms.double(0.0) # fraction of particles going back towards to center; numbers outside the [0,1] range are set to 0 or 1
+        LxyBackFraction = cms.double(0.0), # fraction of particles going back towards to center at transverse plan; numbers outside the [0,1] range are set to 0 or 1
+        LzOppositeFraction = cms.double(0.0), # fraction of particles going in opposite direction wrt to center along beam-line than in transverse plane; numbers outside the [0,1] range are set to 0 or 1
     ),
 
     Verbosity = cms.untracked.int32(0), ## set to 1 (or greater)  for printouts
