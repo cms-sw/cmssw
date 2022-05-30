@@ -7,7 +7,6 @@
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackBuilder.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 
 #include <cmath>
@@ -36,13 +35,9 @@ void L1MuonPixelTrackFitter::setPxConstraint(const SeedingHitSet& hits) {
   theHit1 = hits[1]->globalPosition();
 }
 
-reco::Track* L1MuonPixelTrackFitter::run(const edm::EventSetup& es,
+reco::Track* L1MuonPixelTrackFitter::run(const MagneticField& field,
                                          const std::vector<const TrackingRecHit*>& hits,
                                          const TrackingRegion& region) const {
-  edm::ESHandle<MagneticField> fieldESH;
-  es.get<IdealMagneticFieldRecord>().get(fieldESH);
-  const auto& field = *fieldESH;
-
   double phi_vtx_fromHits = (theHit2 - theHit1).phi();
 
   double invPt = valInversePt(phi_vtx_fromHits, thePhiL1, theEtaL1);
