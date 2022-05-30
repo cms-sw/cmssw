@@ -28,6 +28,7 @@
 #include "L1Trigger/TrackFindingTracklet/interface/TripletEngine.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculator.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessor.h"
+#include "L1Trigger/TrackFindingTracklet/interface/TrackletProcessorDisplaced.h"
 #include "L1Trigger/TrackFindingTracklet/interface/TrackletCalculatorDisplaced.h"
 #include "L1Trigger/TrackFindingTracklet/interface/ProjectionRouter.h"
 #include "L1Trigger/TrackFindingTracklet/interface/MatchEngine.h"
@@ -158,6 +159,8 @@ void Sector::addProc(string procType, string procName) {
     addProcToVec(TC_, procName, settings_, globals_);
   } else if (procType == "TrackletProcessor:") {
     addProcToVec(TP_, procName, settings_, globals_);
+  } else if (procType == "TrackletProcessorDisplaced:") {
+    addProcToVec(TPD_, procName, settings_, globals_);
   } else if (procType == "TrackletCalculatorDisplaced:") {
     addProcToVec(TCD_, procName, settings_, globals_);
   } else if (procType == "ProjectionRouter:") {
@@ -366,6 +369,12 @@ void Sector::executeTRE() {
 
 void Sector::executeTP() {
   for (auto& i : TP_) {
+    i->execute(isector_, phimin_, phimax_);
+  }
+}
+
+void Sector::executeTPD() {
+  for (auto& i : TPD_) {
     i->execute(isector_, phimin_, phimax_);
   }
 }

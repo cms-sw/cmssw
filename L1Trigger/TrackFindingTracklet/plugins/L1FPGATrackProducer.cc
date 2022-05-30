@@ -296,7 +296,7 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
     //FIXME: The TED and TRE tables are currently disabled by default, so we
     //need to allow for the additional tracklets that will eventually be
     //removed by these tables, once they are finalized
-    settings_.setNbitstrackletindex(10);
+    settings_.setNbitstrackletindex(15);
   }
 
   eventnum = 0;

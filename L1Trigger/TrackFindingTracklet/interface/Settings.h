@@ -634,14 +634,23 @@ namespace trklet {
          {{5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4}},    //outer
          {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 4}}}};  //outermost (triplets only)
 
+    // These are the number of bits to represent lutval for VM memories in TE
     std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtab_{{{{10, 10, 10, 10, 10, 10, 10, 10, 0, 0, 11, 0}},
                                                                   {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
                                                                   {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 6}}}};
 
+    // These are the number of bits to represent lutval for VM memories in TED
+    // TO DO: tune lutwidthtabextended_ values
+
+    /* std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtabextended_{ */
+    /*     {{{11, 11, 21, 21, 21, 21, 11, 11, 0, 0, 21, 0}}, */
+    /*      {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}}, */
+    /*      {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6}}}}; */
+
     std::array<std::array<unsigned int, N_SEED>, 3> lutwidthtabextended_{
-        {{{11, 11, 21, 21, 21, 21, 11, 11, 0, 0, 21, 0}},
-         {{6, 6, 6, 6, 10, 10, 10, 10, 0, 0, 6, 0}},
-         {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6}}}};
+        {{{21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21}},
+         {{21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21}},
+         {{21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21}}}};
 
     //layers/disks used by each seed
     std::array<std::array<int, 3>, N_SEED> seedlayers_{{{{0, 1, -1}},   //L1L2
