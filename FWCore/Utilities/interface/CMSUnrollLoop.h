@@ -28,6 +28,12 @@
 #define CMS_UNROLL_LOOP_COUNT(N) _Pragma(EDM_STRINGIZE(clang loop unroll_count(N)))
 #define CMS_UNROLL_LOOP_DISABLE _Pragma(EDM_STRINGIZE(clang loop unroll(disable)))
 
+#elif defined(__INTEL_COMPILER)
+// Intel icc compiler
+#define CMS_UNROLL_LOOP _Pragma(EDM_STRINGIZE(unroll))
+#define CMS_UNROLL_LOOP_COUNT(N) _Pragma(EDM_STRINGIZE(unroll(N)))
+#define CMS_UNROLL_LOOP_DISABLE _Pragma(EDM_STRINGIZE(nounroll))
+
 #elif defined(__GNUC__)
 // GCC host compiler
 
