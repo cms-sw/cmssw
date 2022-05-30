@@ -1,7 +1,8 @@
 <lcgdict>
  <selection>
 
-  <class name="l1t::RegionalMuonCand" ClassVersion="11">
+  <class name="l1t::RegionalMuonCand" ClassVersion="12">
+   <version ClassVersion="12" checksum="1761665561"/>
     <version ClassVersion="11" checksum="2292293737"/>
     <version ClassVersion="10" checksum="1070099328"/>
   </class>
@@ -81,7 +82,8 @@
 
 
 
-  <class name="L1MuBMTrack" ClassVersion="14">
+  <class name="L1MuBMTrack" ClassVersion="15">
+   <version ClassVersion="15" checksum="99482231"/>
    <version ClassVersion="14" checksum="2164413511"/>
     <version ClassVersion="10" checksum="955528069"/>
     <version ClassVersion="11" checksum="1941187557"/>
