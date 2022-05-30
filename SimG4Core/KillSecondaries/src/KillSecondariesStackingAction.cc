@@ -6,12 +6,13 @@
 
 G4ClassificationOfNewTrack KillSecondariesStackingAction::ClassifyNewTrack(const G4Track *aTrack) {
   NewTrackAction newTA;
+  auto track = const_cast<G4Track *>(aTrack);
   if (aTrack->GetCreatorProcess() == nullptr || aTrack->GetParentID() == 0) {
-    newTA.primary(aTrack);
+    newTA.primary(track);
     return fUrgent;
   } else {
     const G4Track *mother = CurrentG4Track::track();
-    newTA.secondary(aTrack, *mother, 0);
+    newTA.secondary(track, *mother, 0);
     return fKill;
   }
 }
