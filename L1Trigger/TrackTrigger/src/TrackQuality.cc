@@ -125,7 +125,7 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
 
   // bin bendchi2 variable (bins from https://twiki.cern.ch/twiki/bin/viewauth/CMS/HybridDataFormat#Fitted_Tracks_written_by_KalmanF)
   float tmp_trk_bendchi2 = aTrack.stubPtConsistency();
-  std::array<float, 8> bendchi2_bins{{0, 0.5, 1.25, 2, 3, 5, 10, 50}};
+  std::array<float, 8> bendchi2_bins{{0, 0.75, 1.0, 1.5, 2.25, 3.5, 5.0, 20.0}};
   int n_bendchi2 = static_cast<int>(bendchi2_bins.size());
   float tmp_trk_bendchi2_bin = -1;
   for (int i = 0; i < n_bendchi2; i++) {
@@ -138,8 +138,8 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
     tmp_trk_bendchi2_bin = n_bendchi2;
 
   // bin chi2rphi variable (bins from https://twiki.cern.ch/twiki/bin/viewauth/CMS/HybridDataFormat#Fitted_Tracks_written_by_KalmanF)
-  float tmp_trk_chi2rphi = aTrack.chi2XY();
-  std::array<float, 16> chi2rphi_bins{{0, 0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 40, 100, 200, 500, 1000, 3000}};
+  float tmp_trk_chi2rphi = aTrack.chi2XYRed();
+  std::array<float, 16> chi2rphi_bins{{0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 10.0, 15.0, 20.0, 35.0, 60.0, 200.0}};
   int n_chi2rphi = static_cast<int>(chi2rphi_bins.size());
   float tmp_trk_chi2rphi_bin = -1;
   for (int i = 0; i < n_chi2rphi; i++) {
@@ -152,8 +152,8 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
     tmp_trk_chi2rphi_bin = n_chi2rphi;
 
   // bin chi2rz variable (bins from https://twiki.cern.ch/twiki/bin/viewauth/CMS/HybridDataFormat#Fitted_Tracks_written_by_KalmanF)
-  float tmp_trk_chi2rz = aTrack.chi2Z();
-  std::array<float, 16> chi2rz_bins{{0, 0.25, 0.5, 1, 2, 3, 5, 7, 10, 20, 40, 100, 200, 500, 1000, 3000}};
+  float tmp_trk_chi2rz = aTrack.chi2ZRed();
+  std::array<float, 16> chi2rz_bins{{0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0, 8.0, 10.0, 20.0, 50.0}};
   int n_chi2rz = static_cast<int>(chi2rz_bins.size());
   float tmp_trk_chi2rz_bin = -1;
   for (int i = 0; i < n_chi2rz; i++) {
