@@ -4,11 +4,12 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "HeterogeneousCore/CUDACore/interface/ScopedContext.h"
+#include "HeterogeneousCore/CUDAUtilities/interface/HostAllocator.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDataFrame_Ph2.h"
 
 #include "EcalUncalibRecHitPhase2WeightsAlgoGPU.h"
-#include "DeclsForKernelsPh2.h"
+#include "DeclsForKernelsPhase2.h"
 
 class EcalUncalibRecHitPhase2WeightsProducerGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
@@ -21,7 +22,7 @@ private:
   void produce(edm::Event &, edm::EventSetup const &) override;
 
 private:
-  const std::vector<double> weights_;
+  const std::vector<double, cms::cuda::HostAllocator<double>> weights_;
 
   using InputProduct = cms::cuda::Product<ecal::DigisCollection<calo::common::DevStoragePolicy>>;
   const edm::EDGetTokenT<InputProduct> digisToken_;
@@ -33,12 +34,15 @@ private:
 
   cms::cuda::ContextState cudaState_;
 
-  uint32_t n_;
+  uint32_t size_;
 };
 
 // constructor with initialisation of elements
 EcalUncalibRecHitPhase2WeightsProducerGPU::EcalUncalibRecHitPhase2WeightsProducerGPU(const edm::ParameterSet &ps)
-    : weights_(ps.getParameter<std::vector<double>>("weights")),
+    :  // use lambda to initialise the vector with CUDA::HostAllocator from a normal vector
+      weights_([tmp = ps.getParameter<std::vector<double>>("weights")] {
+        return std::vector<double, cms::cuda::HostAllocator<double>>(tmp.begin(), tmp.end());
+      }()),
       digisToken_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("digisLabelEB"))},
       recHitsToken_{produces<OutputProduct>(ps.getParameter<std::string>("recHitsLabelEB"))} {}
 
@@ -81,16 +85,13 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
   // get actual obj
   auto const &digis = ctx.get(digisProduct);
 
-  n_ = digis.size;
+  size_ = digis.size;
 
   // if no digis stop here
-  if (n_ == 0)
+  if (size_ == 0)
     return;
 
-  // weights to GPU
-
-  cms::cuda::device::unique_ptr<double[]> weights_d =
-      cms::cuda::make_device_unique<double[]>(EcalDataFrame_Ph2::MAXSAMPLES, ctx.stream());
+  auto weights_d = cms::cuda::make_device_unique<double[]>(EcalDataFrame_Ph2::MAXSAMPLES, ctx.stream());
 
   cudaCheck(cudaMemcpyAsync(weights_d.get(),
                             weights_.data(),
@@ -99,7 +100,7 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
                             ctx.stream()));
 
   // output on GPU
-  eventOutputDataGPU_.allocate(n_, ctx.stream());
+  eventOutputDataGPU_.allocate(size_, ctx.stream());
 
   ecal::weights::entryPoint(digis, eventOutputDataGPU_, weights_d, ctx.stream());
 }
@@ -108,7 +109,7 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::produce(edm::Event &event, const
   cms::cuda::ScopedContextProduce ctx{cudaState_};
 
   // set the size of digis
-  eventOutputDataGPU_.recHits.size = n_;
+  eventOutputDataGPU_.recHits.size = size_;
 
   // put into the event
   ctx.emplace(event, recHitsToken_, std::move(eventOutputDataGPU_.recHits));
