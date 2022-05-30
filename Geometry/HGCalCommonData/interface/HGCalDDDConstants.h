@@ -100,7 +100,7 @@ public:
   std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug = false) const;
   std::pair<float, float> locateCell(const HGCScintillatorDetId&, bool debug = false) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;
-  std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco, bool debug=false) const;
+  std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco, bool debug = false) const;
   int levelTop(int ind = 0) const { return hgpar_->levelT_[ind]; }
   bool maskCell(const DetId& id, int corners) const;
   int maxCellUV() const { return (tileTrapezoid() ? hgpar_->nCellsFine_ : 2 * hgpar_->nCellsFine_); }
@@ -132,7 +132,8 @@ public:
     return ok;
   }
   std::pair<int, int> tileRings(int layer) const {
-    if ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) || (mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+    if ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
+        (mode_ == HGCalGeometryMode::TrapezoidCassette)) {
       int ll = layer - hgpar_->firstLayer_;
       if (ll >= 0 && ll < static_cast<int>(hgpar_->tileRingRange_.size()))
         return hgpar_->tileRingRange_[ll];
@@ -264,7 +265,14 @@ private:
               const double& cellR,
               const std::vector<double>& posX,
               const std::vector<double>& posY) const;
-  void cellHex(double xloc, double yloc, int cellType, int place, int& cellU, int& cellV, bool extend = false, bool debug = false) const;
+  void cellHex(double xloc,
+               double yloc,
+               int cellType,
+               int place,
+               int& cellU,
+               int& cellV,
+               bool extend = false,
+               bool debug = false) const;
   std::pair<int, float> getIndex(int lay, bool reco) const;
   int layerFromIndex(int index, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;

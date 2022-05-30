@@ -25,7 +25,7 @@ int32_t HGCalTileIndex::tileCassette(int32_t iphi, int32_t phiOffset, int32_t np
   int32_t cassette(0);
   if (nphiCassette > 1) {
     cassette = (iphi - phiOffset) / nphiCassette;
-    if (cassette < 0) 
+    if (cassette < 0)
       cassette += cassettes;
     else if (cassette >= cassettes)
       cassette = cassettes - 1;
