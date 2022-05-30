@@ -29,7 +29,7 @@ class PileUpEventPrincipal;
 class HGCDigitizer {
 public:
   HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
-  ~HGCDigitizer() {}
+  ~HGCDigitizer() = default;
 
   // index , det id, time
   typedef std::tuple<int, uint32_t, float> HGCCaloHitTuple_t;
@@ -77,24 +77,30 @@ public:
 
 private:
   uint32_t getType() const;
-  std::string hitCollection_, digiCollection_;
 
-  //digitization type (it's up to the specializations to decide it's meaning)
-  int digitizationType_;
-
-  // if true, we're running mixing in premixing stage1 and have to produce the output differently
-  bool premixStage1_;
-
-  // Minimum charge threshold for premixing stage1
-  double premixStage1MinCharge_;
-  // Maximum charge for packing in premixing stage1
-  double premixStage1MaxCharge_;
-
-  //handle sim hits
-  int maxSimHitsAccTime_;
-  double bxTime_, ev_per_eh_pair_;
   std::unique_ptr<hgc::HGCSimHitDataAccumulator> simHitAccumulator_;
   std::unique_ptr<hgc::HGCPUSimHitDataAccumulator> pusimHitAccumulator_;
+
+  const std::string digiCollection_;
+
+  //digitization type (it's up to the specializations to decide it's meaning)
+  const int digitizationType_;
+
+  // if true, we're running mixing in premixing stage1 and have to produce the output differently
+  const bool premixStage1_;
+
+  // Minimum charge threshold for premixing stage1
+  const double premixStage1MinCharge_;
+  // Maximum charge for packing in premixing stage1
+  const double premixStage1MaxCharge_;
+
+  //handle sim hits
+  const int maxSimHitsAccTime_;
+  const double bxTime_;
+  double ev_per_eh_pair_;
+  const std::string hitsProducer_;
+  const std::string hitCollection_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> hitToken_;
   void resetSimHitDataAccumulator();
   void resetPUSimHitDataAccumulator();
   //debug position
@@ -110,13 +116,13 @@ private:
   const HGCalGeometry* gHGCal_ = nullptr;
 
   //misc switches
-  uint32_t verbosity_;
+  const uint32_t verbosity_;
 
   //reference speed to evaluate time of arrival at the sensititive detector, assuming the center of CMS
-  float refSpeed_;
+  const float refSpeed_;
 
   //delay to apply after evaluating time of arrival at the sensitive detector
-  float tofDelay_;
+  const float tofDelay_;
 
   //average occupancies
   std::array<double, 4> averageOccupancies_;
@@ -126,8 +132,8 @@ private:
   static const unsigned int maxBx_ = 14;
   static const unsigned int thisBx_ = 9;
   std::vector<float> cce_;
-  std::unordered_map<uint32_t, std::vector<std::pair<float, float> > > hitRefs_bx0;
-  std::unordered_map<uint32_t, std::vector<std::tuple<float, float, float> > > PhitRefs_bx0;
+  std::unordered_map<uint32_t, std::vector<std::pair<float, float>>> hitRefs_bx0;
+  std::unordered_map<uint32_t, std::vector<std::tuple<float, float, float>>> PhitRefs_bx0;
   std::unordered_map<uint32_t, bool> hitOrder_monitor;
 };
 
