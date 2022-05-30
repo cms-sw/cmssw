@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/EmptyGroupDescription.h"
 
 class EcalUncalibRecHitConvertGPU2CPUFormat : public edm::stream::EDProducer<> {
 public:
@@ -19,39 +20,39 @@ private:
   void produce(edm::Event&, edm::EventSetup const&) override;
 
 private:
-  bool isPhase2_;
+  const bool isPhase2_;
   const edm::EDGetTokenT<InputProduct> recHitsGPUEB_;
-  edm::EDGetTokenT<InputProduct> recHitsGPUEE_;
+  const edm::EDGetTokenT<InputProduct> recHitsGPUEE_;
 
   const std::string recHitsLabelCPUEB_;
-  std::string recHitsLabelCPUEE_;
+  const std::string recHitsLabelCPUEE_;
 };
 
 void EcalUncalibRecHitConvertGPU2CPUFormat::fillDescriptions(edm::ConfigurationDescriptions& confDesc) {
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("recHitsLabelGPUEB", edm::InputTag("ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEB"));
-
   desc.add<std::string>("recHitsLabelCPUEB", "EcalUncalibRecHitsEB");
-
-  desc.add<bool>("isPhase2", false);
-
-  desc.add<edm::InputTag>("recHitsLabelGPUEE", edm::InputTag("ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"));
-  desc.add<std::string>("recHitsLabelCPUEE", "EcalUncalibRecHitsEE");
-
+  desc.ifValue(
+      edm::ParameterDescription<bool>("isPhase2", false, true),
+      false >>
+              (edm::ParameterDescription<edm::InputTag>(
+                   "recHitsLabelGPUEE", edm::InputTag("ecalUncalibRecHitProducerGPU", "EcalUncalibRecHitsEE"), true) and
+               edm::ParameterDescription<std::string>("recHitsLabelCPUEE", "EcalUncalibRecHitsEE", true)) or
+          true >> edm::EmptyGroupDescription());
   confDesc.add("ecalUncalibRecHitConvertGPU2CPUFormat", desc);
 }
 
 EcalUncalibRecHitConvertGPU2CPUFormat::EcalUncalibRecHitConvertGPU2CPUFormat(const edm::ParameterSet& ps)
     : isPhase2_{ps.getParameter<bool>("isPhase2")},
       recHitsGPUEB_{consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEB"))},
-      recHitsLabelCPUEB_{ps.getParameter<std::string>("recHitsLabelCPUEB")} {
+      recHitsGPUEE_{isPhase2_ ? edm::EDGetTokenT<InputProduct>{}
+                              : consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEE"))},
+      recHitsLabelCPUEB_{ps.getParameter<std::string>("recHitsLabelCPUEB")},
+      recHitsLabelCPUEE_{isPhase2_ ? std::string{""} : ps.getParameter<std::string>("recHitsLabelCPUEE")} {
   produces<EBUncalibratedRecHitCollection>(recHitsLabelCPUEB_);
-  if (!isPhase2_) {
-    recHitsGPUEE_ = consumes<InputProduct>(ps.getParameter<edm::InputTag>("recHitsLabelGPUEE"));
-    recHitsLabelCPUEE_ = ps.getParameter<std::string>("recHitsLabelCPUEE");
+  if (!isPhase2_)
     produces<EEUncalibratedRecHitCollection>(recHitsLabelCPUEE_);
-  }
 }
 
 EcalUncalibRecHitConvertGPU2CPUFormat::~EcalUncalibRecHitConvertGPU2CPUFormat() {}
