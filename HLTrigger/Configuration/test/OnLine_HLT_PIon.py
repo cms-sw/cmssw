@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_4_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_12_4_0/PIon/V13 (CMSSW_12_4_0_pre4)
+# /dev/CMSSW_12_4_0/PIon/V22 (CMSSW_12_4_0_pre4)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V13')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V22')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2620,11 +2620,12 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
       )
     ),
     DumpStat = cms.untracked.bool( False ),
-    ReconnectEachRun = cms.untracked.bool( False ),
+    ReconnectEachRun = cms.untracked.bool( True ),
     RefreshAlways = cms.untracked.bool( False ),
-    RefreshEachRun = cms.untracked.bool( False ),
+    RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
-    pfnPostfix = cms.untracked.string( "None" )
+    pfnPostfix = cms.untracked.string( "" ),
+    pfnPrefix = cms.untracked.string( "" )
 )
 process.HcalTimeSlewEP = cms.ESSource( "HcalTimeSlewEP",
     appendToDataLabel = cms.string( "HBHE" ),
