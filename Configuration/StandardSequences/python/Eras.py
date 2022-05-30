@@ -53,7 +53,6 @@ class Eras (object):
                  'Phase2C11I13M9',
                  'Phase2C11I13T25M9',
                  'Phase2C11I13T26M9',
-                 'Phase2C11I13T29M9',
                  'Phase2C17I13M9'
         ]
 
