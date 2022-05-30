@@ -4,7 +4,7 @@ l1tdeGEMTPGCommon = cms.PSet(
     monitorDir = cms.string("L1TEMU/L1TdeGEMTPG"),
     verbose = cms.bool(False),
     ## when multiple chambers are enabled, order them by station number!
-    chambers = cms.vstring("GE11"),
+    chambers = cms.vstring("GE11", "GE21"),
     dataEmul = cms.vstring("data","emul"),
     clusterVars = cms.vstring("size", "pad", "bx"),
     clusterNBin = cms.vuint32(20,384,10),
