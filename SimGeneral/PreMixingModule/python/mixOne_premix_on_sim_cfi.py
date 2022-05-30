@@ -319,7 +319,7 @@ phase2_hfnose.toModify(mixData,
 # Run-dependent MC
 from Configuration.ProcessModifiers.runDependent_cff import runDependent
 runDependent.toModify(mixData.workers.ecal, timeDependent=True)
-from Configuration.ProcessModifiers.runDependentForPixel_cff import runDependentForPixel  #CARO
+from Configuration.ProcessModifiers.runDependentForPixel_cff import runDependentForPixel  
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
 (runDependentForPixel & premix_stage2).toModify(mixData.workers.pixel,
          UseReweighting=False,
