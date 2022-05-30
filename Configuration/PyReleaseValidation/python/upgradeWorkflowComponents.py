@@ -55,8 +55,6 @@ upgradeKeys[2026] = [
     '2026D86PU',
     '2026D88',
     '2026D88PU',
-    '2026D90',
-    '2026D90PU',
     '2026D91',
     '2026D91PU',
 ]
@@ -68,7 +66,7 @@ numWFStart={
 }
 numWFSkip=200
 # temporary measure to keep other WF numbers the same
-numWFConflict = [[20000,23200],[23600,28200],[28600,31400],[31800,32200],[32600,34600],[35400,36200],[39000,39400],[39800,40200],[50000,51000]]
+numWFConflict = [[20000,23200],[23600,28200],[28600,31400],[31800,32200],[32600,34600],[35400,36200],[39000,39400],[39800,40600],[50000,51000]]
 numWFAll={
     2017: [],
     2026: []
@@ -2109,13 +2107,6 @@ upgradeProperties[2026] = {
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C17I13M9',
-        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
-    },
-    '2026D90' : {
-        'Geom' : 'Extended2026D90',
-        'HLTmenu': '@fake2',
-        'GT' : 'auto:phase2_realistic_T29',
-        'Era' : 'Phase2C11I13T29M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D91' : {
