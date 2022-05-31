@@ -269,6 +269,7 @@ private:
                double yloc,
                int cellType,
                int place,
+	       int part,
                int& cellU,
                int& cellV,
                bool extend = false,
