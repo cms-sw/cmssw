@@ -96,10 +96,10 @@ void EcalCPUUncalibRecHitProducer::acquire(edm::Event const& event,
     lambdaToTransfer(recHitsEB_.jitter, ebRecHits.jitter.get());
     lambdaToTransfer(recHitsEB_.jitterError, ebRecHits.jitterError.get());
   }
-  if (isPhase2_)
+  if (isPhase2_) {
     lambdaToTransfer(recHitsEB_.amplitudeError, ebRecHits.amplitudeError.get());
 
-  if (!isPhase2_) {
+  } else {
     auto const& eeRecHitsProduct = event.get(recHitsInEEToken_);
     auto const& eeRecHits = ctx.get(eeRecHitsProduct);
     recHitsEE_.resize(eeRecHits.size);
