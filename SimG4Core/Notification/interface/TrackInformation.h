@@ -67,7 +67,7 @@ public:
     momentumAtBoundary_ = math::XYZTLorentzVectorF(track->GetMomentum().x() / CLHEP::GeV,
                                                    track->GetMomentum().y() / CLHEP::GeV,
                                                    track->GetMomentum().z() / CLHEP::GeV,
-                                                   track->GetKineticEnergy() / CLHEP::GeV);
+                                                   track->GetTotalEnergy() / CLHEP::GeV);
   }
   bool crossedBoundary() const { return crossedBoundary_; }
   const math::XYZTLorentzVectorF &getPositionAtBoundary() const { return positionAtBoundary_; }
