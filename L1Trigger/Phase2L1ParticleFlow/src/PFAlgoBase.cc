@@ -8,8 +8,8 @@ PFAlgoBase::PFAlgoBase(const edm::ParameterSet &iConfig) : debug_(iConfig.getUnt
 
 PFAlgoBase::~PFAlgoBase() {}
 
-void PFAlgoBase::initRegion(Region &r) const {
-  r.inputSort();
+void PFAlgoBase::initRegion(Region &r, bool doSort) const {
+  r.inputCrop(doSort);
   r.pf.clear();
   r.puppi.clear();
   for (auto &c : r.calo)
