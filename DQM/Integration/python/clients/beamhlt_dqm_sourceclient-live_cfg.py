@@ -155,7 +155,7 @@ elif unitTest:
     rawDataInputTag = "rawDataCollector"
 else:
     # Use raw data from selected TCDS FEDs (1024, 1025)
-    rawDataInputTag = "hltFEDSelector"
+    rawDataInputTag = "hltFEDSelectorTCDS"
 
 process.tcdsDigis.InputLabel = rawDataInputTag
 
