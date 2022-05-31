@@ -1,5 +1,5 @@
-#ifndef DataFormats_HGCDigi_PHGCSimAccumulator_h
-#define DataFormats_HGCDigi_PHGCSimAccumulator_h
+#ifndef DataFormats_HGCalDigis_PHGCSimAccumulator_h
+#define DataFormats_HGCalDigis_PHGCSimAccumulator_h
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include <iostream>
