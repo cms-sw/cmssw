@@ -1298,7 +1298,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       auto ktr = hgpar_->waferInfoMap_.find(indx);
       if (ktr != hgpar_->waferInfoMap_.end()) {
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerType(layertype), (ktr->second).orient);
-	part = (ktr->second).part;
+        part = (ktr->second).part;
       }
     }
     cellHex(xx, yy, celltype, place, part, cellU, cellV, extend, debug);
@@ -1580,9 +1580,12 @@ int HGCalDDDConstants::cellHex(
   return num;
 }
 
-void HGCalDDDConstants::cellHex(double xloc, double yloc, int cellType, int place, int part, int& cellU, int& cellV, bool extend, bool debug) const {
+void HGCalDDDConstants::cellHex(
+    double xloc, double yloc, int cellType, int place, int part, int& cellU, int& cellV, bool extend, bool debug) const {
   if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
-    auto uv = (part == HGCalTypes::WaferFull) ? hgcellUV_->cellUVFromXY3(xloc, yloc, place, cellType, extend, debug) : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, extend, debug);
+    auto uv = (part == HGCalTypes::WaferFull)
+                  ? hgcellUV_->cellUVFromXY3(xloc, yloc, place, cellType, extend, debug)
+                  : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, extend, debug);
     cellU = uv.first;
     cellV = uv.second;
   } else if (waferHexagon8File()) {
