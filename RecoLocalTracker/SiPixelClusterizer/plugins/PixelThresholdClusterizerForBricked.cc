@@ -19,7 +19,8 @@
 #include <vector>
 #include <iostream>
 #include <atomic>
-using namespace std;
+#include <algorithm>
+#include <limits>
 
 //----------------------------------------------------------------------------
 //! Constructor:
@@ -119,8 +120,7 @@ void PixelThresholdClusterizerForBricked::clusterizeDetUnitT(const T& input,
 SiPixelCluster PixelThresholdClusterizerForBricked::make_cluster_bricked(
     const SiPixelCluster::PixelPos& pix, edmNew::DetSetVector<SiPixelCluster>::FastFiller& output, bool isbarrel) {
   //First we acquire the seeds for the clusters
-  int seed_adc;
-  stack<SiPixelCluster::PixelPos, vector<SiPixelCluster::PixelPos> > dead_pixel_stack;
+  std::stack<SiPixelCluster::PixelPos, std::vector<SiPixelCluster::PixelPos> > dead_pixel_stack;
 
   //The individual modules have been loaded into a buffer.
   //After each pixel has been considered by the clusterizer, we set the adc count to 1
@@ -128,7 +128,10 @@ SiPixelCluster PixelThresholdClusterizerForBricked::make_cluster_bricked(
   //The only difference between dead/noisy pixels and standard ones is that for dead/noisy pixels,
   //We consider the charge of the pixel to always be zero.
 
-  seed_adc = theBuffer(pix.row(), pix.col());
+  // Note: each ADC value is limited here to 65535 (std::numeric_limits<uint16_t>::max),
+  //       as it is later stored as uint16_t in SiPixelCluster and PixelClusterizerBase/AccretionCluster
+  //       (reminder: ADC values here may be expressed in number of electrons)
+  uint16_t seed_adc = std::min(theBuffer(pix.row(), pix.col()), int(std::numeric_limits<uint16_t>::max()));
   theBuffer.set_adc(pix, 1);
 
   AccretionCluster acluster;
@@ -167,7 +170,8 @@ SiPixelCluster PixelThresholdClusterizerForBricked::make_cluster_bricked(
       for (auto c = LowerAccLimity; c < UpperAccLimity; ++c) {
         if (theBuffer(r, c) >= thePixelThreshold) {
           SiPixelCluster::PixelPos newpix(r, c);
-          if (!acluster.add(newpix, theBuffer(r, c)))
+          auto const newpix_adc = std::min(theBuffer(r, c), int(std::numeric_limits<uint16_t>::max()));
+          if (!acluster.add(newpix, newpix_adc))
             goto endClus;
           if (isbarrel)
             edm::LogInfo("make_cluster_bricked()") << "add" << r << c << theBuffer(r, c);
@@ -210,9 +214,9 @@ endClus:
       //This loop adds the second cluster to the first.
       const std::vector<SiPixelCluster::Pixel>& branch_pixels = second_cluster.pixels();
       for (unsigned int i = 0; i < branch_pixels.size(); i++) {
-        int temp_x = branch_pixels[i].x;
-        int temp_y = branch_pixels[i].y;
-        int temp_adc = branch_pixels[i].adc;
+        auto const temp_x = branch_pixels[i].x;
+        auto const temp_y = branch_pixels[i].y;
+        auto const temp_adc = branch_pixels[i].adc;
         SiPixelCluster::PixelPos newpix(temp_x, temp_y);
         cluster.add(newpix, temp_adc);
       }
