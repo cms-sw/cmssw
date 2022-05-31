@@ -184,18 +184,17 @@ private:
   edm::InputTag MCTruthStubInputTag;
   edm::InputTag TrackingParticleInputTag;
 
-  const edm::EDGetTokenT<reco::BeamSpot> bsToken_;
-
-  edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> ttClusterMCTruthToken_;
-  edm::EDGetTokenT<std::vector<TrackingParticle>> TrackingParticleToken_;
-  edm::EDGetTokenT<TTDTC> tokenDTC_;
+  const edm::EDGetTokenT<reco::BeamSpot> getTokenBS_;
+  const edm::EDGetTokenT<TTDTC> getTokenDTC_;
+  edm::EDGetTokenT<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> getTokenTTClusterMCTruth_;
+  edm::EDGetTokenT<std::vector<TrackingParticle>> getTokenTrackingParticle_;
 
   // ED output token for clock and bit accurate tracks
-  EDPutTokenT<Streams> edPutTokenTracks_;
+  const edm::EDPutTokenT<Streams> putTokenTracks_;
   // ED output token for clock and bit accurate stubs
-  EDPutTokenT<StreamsStub> edPutTokenStubs_;
+  const edm::EDPutTokenT<StreamsStub> putTokenStubs_;
   // ChannelAssignment token
-  ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
+  const ESGetToken<ChannelAssignment, ChannelAssignmentRcd> esGetTokenChannelAssignment_;
   // helper class to assign tracks to channel
   const ChannelAssignment* channelAssignment_;
 
@@ -205,13 +204,11 @@ private:
   const hph::Setup* setupHPH_;
 
   // Setup token
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> esGetTokenBfield_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esGetTokenTGeom_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esGetTokenTTopo_;
   const edm::ESGetToken<tt::Setup, tt::SetupRcd> esGetToken_;
-  const edm::ESGetToken<trackerDTC::Setup, trackerDTC::SetupRcd> esGetToken_;
   const edm::ESGetToken<hph::Setup, hph::SetupRcd> esGetTokenHPH_;
-  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
-
-  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tGeomToken_;
-  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
 
   /// ///////////////// ///
   /// MANDATORY METHODS ///
@@ -231,14 +228,23 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
                                            : edm::InputTag()),
       TrackingParticleInputTag(readMoreMcTruth_ ? iConfig.getParameter<edm::InputTag>("TrackingParticleInputTag")
                                                 : edm::InputTag()),
-      bsToken_(consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotSource"))),
-      tokenDTC_(consumes<TTDTC>(edm::InputTag(iConfig.getParameter<edm::InputTag>("InputTagTTDTC")))),
-      magneticFieldToken_(esConsumes<edm::Transition::BeginRun>()),
-      tGeomToken_(esConsumes()),
-      tTopoToken_(esConsumes()) {
+      // book ED products
+      getTokenBS_(consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BeamSpotSource"))),
+      getTokenDTC_(consumes<TTDTC>(edm::InputTag(iConfig.getParameter<edm::InputTag>("InputTagTTDTC")))),
+      // book ED output token for clock and bit accurate tracks
+      putTokenTracks_(produces<Streams>("Level1TTTracks")),
+      // book ED output token for clock and bit accurate stubs
+      putTokenStubs_(produces<StreamsStub>("Level1TTTracks")),
+      // book ES products
+      esGetTokenChannelAssignment_(esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>()),
+      esGetTokenBfield_(esConsumes<edm::Transition::BeginRun>()),
+      esGetTokenTGeom_(esConsumes()),
+      esGetTokenTTopo_(esConsumes()),
+      esGetToken_(esConsumes<tt::Setup, tt::SetupRcd, edm::Transition::BeginRun>()),
+      esGetTokenHPH_(esConsumes<hph::Setup, hph::SetupRcd, edm::Transition::BeginRun>()) {
   if (readMoreMcTruth_) {
-    ttClusterMCTruthToken_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthClusterInputTag);
-    TrackingParticleToken_ = consumes<std::vector<TrackingParticle>>(TrackingParticleInputTag);
+    getTokenTTClusterMCTruth_ = consumes<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>>(MCTruthClusterInputTag);
+    getTokenTrackingParticle_ = consumes<std::vector<TrackingParticle>>(TrackingParticleInputTag);
   }
 
   produces<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>("Level1TTTracks").setBranchAlias("Level1TTTracks");
@@ -259,14 +265,6 @@ L1FPGATrackProducer::L1FPGATrackProducer(edm::ParameterSet const& iConfig)
     tableTREFile = iConfig.getParameter<edm::FileInPath>("tableTREFile");
   }
 
-  // book ED output token for clock and bit accurate tracks
-  edPutTokenTracks_ = produces<Streams>("Level1TTTracks");
-  // book ED output token for clock and bit accurate stubs
-  edPutTokenStubs_ = produces<StreamsStub>("Level1TTTracks");
-  // book ES product
-  esGetTokenChannelAssignment_ = esConsumes<ChannelAssignment, ChannelAssignmentRcd, Transition::BeginRun>();
-  esGetToken_ = esConsumes<tt::Setup, tt::SetupRcd, edm::Transition::BeginRun>();
-  esGetTokenHPH_ = esConsumes<hph::Setup, hph::SetupRcd, edm::Transition::BeginRun>();
   // initial ES products
   channelAssignment_ = nullptr;
   setup_ = nullptr;
@@ -347,7 +345,7 @@ void L1FPGATrackProducer::endRun(const edm::Run& run, const edm::EventSetup& iSe
 void L1FPGATrackProducer::beginRun(const edm::Run& run, const edm::EventSetup& iSetup) {
   ////////////////////////
   // GET MAGNETIC FIELD //
-  const MagneticField* theMagneticField = &iSetup.getData(magneticFieldToken_);
+  const MagneticField* theMagneticField = &iSetup.getData(esGetTokenBfield_);
   double mMagneticFieldStrength = theMagneticField->inTesla(GlobalPoint(0, 0, 0)).z();
   settings_.setBfield(mMagneticFieldStrength);
 
@@ -380,7 +378,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   ////////////
   // GET BS //
   edm::Handle<reco::BeamSpot> beamSpotHandle;
-  iEvent.getByToken(bsToken_, beamSpotHandle);
+  iEvent.getByToken(getTokenBS_, beamSpotHandle);
   math::XYZPoint bsPosition = beamSpotHandle->position();
 
   eventnum++;
@@ -391,16 +389,16 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // tracking particles
   edm::Handle<std::vector<TrackingParticle>> TrackingParticleHandle;
   if (readMoreMcTruth_)
-    iEvent.getByToken(TrackingParticleToken_, TrackingParticleHandle);
+    iEvent.getByToken(getTokenTrackingParticle_, TrackingParticleHandle);
 
   // tracker topology
-  const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
-  const TrackerGeometry* const theTrackerGeom = &iSetup.getData(tGeomToken_);
+  const TrackerTopology* const tTopo = &iSetup.getData(esGetTokenTTopo_);
+  const TrackerGeometry* const theTrackerGeom = &iSetup.getData(esGetTokenTGeom_);
 
   ////////////////////////
   // GET THE PRIMITIVES //
   edm::Handle<TTDTC> handleDTC;
-  iEvent.getByToken<TTDTC>(tokenDTC_, handleDTC);
+  iEvent.getByToken<TTDTC>(getTokenDTC_, handleDTC);
 
   // must be defined for code to compile, even if it's not used unless readMoreMcTruth_ is true
   map<edm::Ptr<TrackingParticle>, int> translateTP;
@@ -408,7 +406,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // MC truth association maps
   edm::Handle<TTClusterAssociationMap<Ref_Phase2TrackerDigi_>> MCTruthTTClusterHandle;
   if (readMoreMcTruth_) {
-    iEvent.getByToken(ttClusterMCTruthToken_, MCTruthTTClusterHandle);
+    iEvent.getByToken(getTokenTTClusterMCTruth_, MCTruthTTClusterHandle);
 
     ////////////////////////////////////////////////
     /// LOOP OVER TRACKING PARTICLES & GET SIMTRACKS
@@ -745,8 +743,8 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
   }
 
-  iEvent.emplace(edPutTokenTracks_, move(streamsTrack));
-  iEvent.emplace(edPutTokenStubs_, move(streamsStub));
+  iEvent.emplace(putTokenTracks_, move(streamsTrack));
+  iEvent.emplace(putTokenStubs_, move(streamsStub));
 
 }  /// End of produce()
 

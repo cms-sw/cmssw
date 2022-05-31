@@ -139,7 +139,8 @@ std::vector<float> TrackQuality::featureTransform(TTTrack<Ref_Phase2TrackerDigi_
 
   // bin chi2rphi variable (bins from https://twiki.cern.ch/twiki/bin/viewauth/CMS/HybridDataFormat#Fitted_Tracks_written_by_KalmanF)
   float tmp_trk_chi2rphi = aTrack.chi2XYRed();
-  std::array<float, 16> chi2rphi_bins{{0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 10.0, 15.0, 20.0, 35.0, 60.0, 200.0}};
+  std::array<float, 16> chi2rphi_bins{
+      {0, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 5.0, 6.0, 10.0, 15.0, 20.0, 35.0, 60.0, 200.0}};
   int n_chi2rphi = static_cast<int>(chi2rphi_bins.size());
   float tmp_trk_chi2rphi_bin = -1;
   for (int i = 0; i < n_chi2rphi; i++) {
