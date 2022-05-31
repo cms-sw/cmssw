@@ -91,10 +91,14 @@ private:
   const double pT1_, pT2_, pT3_;
   const double eta1_, eta2_, eta3_, eta4_, eta5_, eta6_, eta7_;
   const double SF1_, SF2_, SF3_, SF4_, SF5_, SF6_;
+  const double SFHld_, SFHd_;
 
   /// Distance of L2 TSOSs before and after updated with vertex
   const double tsosDiff1_;
   const double tsosDiff2_;
+
+  /// Displaced reconstruction
+  const bool displacedReco_;
 
   /// Counters and flags for the implementation
   const std::string propagatorName_;
