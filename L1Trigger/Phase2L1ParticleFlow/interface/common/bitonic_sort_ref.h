@@ -38,9 +38,8 @@ void bitonicMerge(T in[], int InSize, T out[], int OutSize, bool dir) {
     int LowerSize = PowerOf2LessThan(InSize);  //-- LowerSize >= Size / 2
     int UpperSize = InSize - LowerSize;        //-- UpperSize < LowerSiz
 
-    if (LowerSize < UpperSize)
-      dbgCout() << "[ERROR]" << __FUNCTION__ << " LowerSize (" << LowerSize << ") not > of UpperSize (" << UpperSize
-                << ")" << std::endl;
+    assert(UpperSize >= 0);
+    assert(UpperSize <= LowerSize);
 
     for (int i = 0; i < UpperSize; ++i) {
       if ((in[i] > in[i + LowerSize]) == dir) {
@@ -96,6 +95,7 @@ void bitonicMerge(T in[], int InSize, T out[], int OutSize, bool dir) {
 
 template <typename T>
 void bitonicSort(const T in[], int Start, int InSize, T out[], int OutSize, bool dir) {
+  assert(OutSize > 0);
   if (InSize <= 1)  // copy in-> out and exit
   {
     for (int i = 0; i < std::min(InSize, OutSize); ++i)
