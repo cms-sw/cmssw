@@ -15,7 +15,7 @@ pfParticleNetTagInfos = pfDeepBoostedJetTagInfos.clone(
 pfParticleNetJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/General/V01/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V01/particle-net.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/General/V01/modelfile/model.onnx',
     flav_names = ["probTbcq",  "probTbqq",  "probTbc",   "probTbq",  "probTbel", "probTbmu", "probTbta",
                   "probWcq",   "probWqq",   "probZbb",   "probZcc",  "probZqq",  "probHbb", "probHcc",
                   "probHqqqq", "probQCDbb", "probQCDcc", "probQCDb", "probQCDc", "probQCDothers"],
@@ -49,7 +49,7 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetJetTags, _particleNetSonicJetT
 pfMassDecorrelatedParticleNetJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V01/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V01/particle-net.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V01/modelfile/model.onnx',
     flav_names = ["probXbb", "probXcc", "probXqq", "probQCDbb", "probQCDcc",
                   "probQCDb", "probQCDc", "probQCDothers"],
 )
@@ -80,7 +80,7 @@ particleNetSonicTriton.toReplaceWith(pfMassDecorrelatedParticleNetJetTags, _part
 pfParticleNetMassRegressionJetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetTagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MassRegression/V01/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MassRegression/V01/particle-net.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK8/MassRegression/V01/modelfile/model.onnx',
     flav_names = ["mass"],
 )
 
