@@ -145,8 +145,6 @@ int GEMDigiSource::ProcessWithMEMap3WithChamber(BookingHelper& bh, ME4IdsKey key
   mapDigiOccPerCh_.bookND(bh, key);
   mapDigiOccPerCh_.SetLabelForIEta(key, 2);
 
-  mapBitDigiOccOn_[key] = std::bitset<nNumBitDigiOcc_>();
-
   bh.getBooker()->setCurrentFolder(strFolderMain_);
 
   return 0;
@@ -168,10 +166,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
     std::map<Int_t, bool> bTagVFAT;
     bTagVFAT.clear();
     MEStationInfo& stationInfo = mapStationInfo_[key3];
-    Int_t nNumDigiEta = stationInfo.nNumDigi_ * (stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_);
-    Int_t nNumAllDigi = stationInfo.nNumDigi_ * stationInfo.nMaxVFAT_;
     const BoundPlane& surface = GEMGeometry_->idToDet(gid)->surface();
-    Int_t nOnStripPrev = mapBitDigiOccOn_[key4Ch].count();
     if (total_digi_layer.find(key3) == total_digi_layer.end())
       total_digi_layer[key3] = 0;
     for (auto iEta : ch.etaPartitions()) {
@@ -198,12 +193,7 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
         Float_t fR = fRadiusMin_ + (fRadiusMax_ - fRadiusMin_) * (eId.ieta() - 0.5) / stationInfo.nNumEtaPartitions_;
         mapDigiWheel_layer_.Fill(key3, fPhiShift, fR);
 
-        Int_t nStrip = d->strip();
-        mapDigiOccPerCh_.Fill(key4Ch, nStrip, eId.ieta());  // Per chamber
-        Int_t nIdxDigi = nStrip + ((eId.ieta() - 1) * nNumDigiEta);
-        if (0 <= nIdxDigi && nIdxDigi < nNumAllDigi) {
-          mapBitDigiOccOn_[key4Ch].set(nIdxDigi);
-        }
+        mapDigiOccPerCh_.Fill(key4Ch, d->strip(), eId.ieta());  // Per chamber
 
         // For total digis
         total_digi_layer[key3]++;
@@ -217,10 +207,6 @@ void GEMDigiSource::analyze(edm::Event const& event, edm::EventSetup const& even
 
         bTagVFAT[nIdxVFAT] = true;
       }
-    }
-    Int_t nDiffOnStrip = mapBitDigiOccOn_[key4Ch].count() - nOnStripPrev;
-    if (nDiffOnStrip > 0) {
-      mapDigiOccPerCh_.Fill(key4Ch, -99, -99, nDiffOnStrip);
     }
   }
   for (auto [key, num_total_digi] : total_digi_layer)
