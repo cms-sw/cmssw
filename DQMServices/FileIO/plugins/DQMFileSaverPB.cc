@@ -259,9 +259,9 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
     } else {
       // Compress ME blob with zlib
       int maxOutputSize = this->getMaxCompressedSize(buffer.Length());
-      char compression_output[maxOutputSize];
-      uLong total_out = this->compressME(buffer, maxOutputSize, compression_output);
-      histo.set_streamed_histo(compression_output, total_out);
+      std::vector<char> compression_output(maxOutputSize);
+      uLong total_out = this->compressME(buffer, maxOutputSize, compression_output.data());
+      histo.set_streamed_histo(compression_output.data(), total_out);
     }
 
     // Save quality reports
