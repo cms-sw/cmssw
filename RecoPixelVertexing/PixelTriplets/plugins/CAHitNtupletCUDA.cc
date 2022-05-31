@@ -31,6 +31,9 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
+  void beginJob() override;
+  void endJob() override;
+
   void produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override;
 
   bool onGPU_;
@@ -65,6 +68,10 @@ void CAHitNtupletCUDA::fillDescriptions(edm::ConfigurationDescriptions& descript
   CAHitNtupletGeneratorOnGPU::fillDescriptions(desc);
   descriptions.add("pixelTracksCUDA", desc);
 }
+
+void CAHitNtupletCUDA::beginJob() { gpuAlgo_.beginJob(); }
+
+void CAHitNtupletCUDA::endJob() { gpuAlgo_.endJob(); }
 
 void CAHitNtupletCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const edm::EventSetup& es) const {
   auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
