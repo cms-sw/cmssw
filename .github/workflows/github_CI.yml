@@ -19,7 +19,7 @@ on: # Controls when the action will run.
   push: # Please specify your branch down here if you want CI to run for each push to it.
     branches: [myBranchUnderTest]
   pull_request: # Run CI if someone makes a PR to any branch
-    # branches: [L1TK-dev-12_0_0_pre4] # Optionally only run CI if PR is to this branch.
+    # branches: [L1TK-dev-12_2_4] # Optionally only run CI if PR is to this branch.
     
 env:
   mirror_repo: "https://gitlab.cern.ch/cms-l1tk/cmssw_CI" # gitlab mirror
