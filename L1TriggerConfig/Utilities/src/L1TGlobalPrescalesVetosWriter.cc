@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,34 +15,40 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TGlobalPrescalesVetosWriter : public edm::EDAnalyzer {
+class L1TGlobalPrescalesVetosWriter : public edm::one::EDAnalyzer<> {
 private:
+  edm::ESGetToken<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosO2ORcd> o2oToken_;
+  edm::ESGetToken<L1TGlobalPrescalesVetos, L1TGlobalPrescalesVetosRcd> token_;
   bool isO2Opayload;
 
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1TGlobalPrescalesVetosWriter(const edm::ParameterSet& pset) : edm::EDAnalyzer() {
+  explicit L1TGlobalPrescalesVetosWriter(const edm::ParameterSet& pset) {
     isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload", false);
+    if (isO2Opayload) {
+      o2oToken_ = esConsumes();
+    } else {
+      token_ = esConsumes();
+    }
   }
-  ~L1TGlobalPrescalesVetosWriter(void) override {}
 };
 
 void L1TGlobalPrescalesVetosWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TGlobalPrescalesVetos> handle1;
 
   if (isO2Opayload)
-    evSetup.get<L1TGlobalPrescalesVetosO2ORcd>().get(handle1);
+    handle1 = evSetup.getHandle(o2oToken_);
   else
-    evSetup.get<L1TGlobalPrescalesVetosRcd>().get(handle1);
+    handle1 = evSetup.getHandle(token_);
 
-  std::shared_ptr<L1TGlobalPrescalesVetos> ptr1(new L1TGlobalPrescalesVetos(*(handle1.product())));
+  L1TGlobalPrescalesVetos const& ptr1 = *handle1;
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
     poolDb->writeOneIOV(
-        *ptr1, firstSinceTime, (isO2Opayload ? "L1TGlobalPrescalesVetosO2ORcd" : "L1TGlobalPrescalesVetosRcd"));
+        ptr1, firstSinceTime, (isO2Opayload ? "L1TGlobalPrescalesVetosO2ORcd" : "L1TGlobalPrescalesVetosRcd"));
   }
 }
 

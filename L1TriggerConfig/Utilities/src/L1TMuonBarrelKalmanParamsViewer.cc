@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,15 +18,15 @@
 #include <iostream>
 using namespace std;
 
-class L1TMuonBarrelKalmanParamsViewer : public edm::EDAnalyzer {
+class L1TMuonBarrelKalmanParamsViewer : public edm::one::EDAnalyzer<> {
 private:
+  edm::ESGetToken<L1TMuonBarrelKalmanParams, L1TMuonBarrelKalmanParamsRcd> token_;
   std::string hash(void *buf, size_t len) const;
 
 public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  L1TMuonBarrelKalmanParamsViewer(const edm::ParameterSet &){};
-  ~L1TMuonBarrelKalmanParamsViewer(void) override {}
+  L1TMuonBarrelKalmanParamsViewer(const edm::ParameterSet &) : token_{esConsumes()} {};
 };
 
 #include "Utilities/OpenSSL/interface/openssl_init.h"
@@ -63,13 +63,11 @@ std::string L1TMuonBarrelKalmanParamsViewer::hash(void *buf, size_t len) const {
 }
 
 void L1TMuonBarrelKalmanParamsViewer::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetup) {
-  edm::ESHandle<L1TMuonBarrelKalmanParams> handle1;
-  evSetup.get<L1TMuonBarrelKalmanParamsRcd>().get(handle1);
-  std::shared_ptr<L1TMuonBarrelKalmanParams> ptr(new L1TMuonBarrelKalmanParams(*(handle1.product())));
+  L1TMuonBarrelKalmanParams const &ptr = evSetup.getData(token_);
 
   // Get the nodes and print out
-  auto pnodes = ptr->pnodes_[ptr->CONFIG];
-  cout << "version    : " << ptr->version_ << endl;
+  auto pnodes = ptr.pnodes_[ptr.CONFIG];
+  cout << "version    : " << ptr.version_ << endl;
   cout << "fwVersion  : " << hex << pnodes.fwVersion_ << dec << endl;
   cout << "LUTsPath   : " << pnodes.kalmanLUTsPath_ << endl;
 
