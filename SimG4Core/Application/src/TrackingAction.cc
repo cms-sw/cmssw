@@ -18,13 +18,17 @@
 
 TrackingAction::TrackingAction(EventAction* e, const edm::ParameterSet& p, CMSSteppingVerbose* sv)
     : eventAction_(e),
-      currentTrack_(nullptr),
       steppingVerbose_(sv),
-      g4Track_(nullptr),
       checkTrack_(p.getUntrackedParameter<bool>("CheckTrack", false)),
       doFineCalo_(p.getParameter<bool>("DoFineCalo")),
       saveCaloBoundaryInformation_(p.getParameter<bool>("SaveCaloBoundaryInformation")),
-      eMinFine_(p.getParameter<double>("EminFineTrack") * CLHEP::MeV) {}
+      eMinFine_(p.getParameter<double>("EminFineTrack") * CLHEP::MeV) {
+  if (!doFineCalo_) {
+    eMinFine_ = DBL_MAX;
+  }
+  edm::LogVerbatim("SimG4CoreApplication") << "TrackingAction: boundary: " << saveCaloBoundaryInformation_
+                                           << "; DoFineCalo: " << doFineCalo_ << "; EminFineTrack(MeV)=" << eMinFine_;
+}
 
 TrackingAction::~TrackingAction() {}
 
@@ -35,120 +39,104 @@ void TrackingAction::PreUserTrackingAction(const G4Track* aTrack) {
   BeginOfTrack bt(aTrack);
   m_beginOfTrackSignal(&bt);
 
-  TrackInformation* trkInfo = (TrackInformation*)aTrack->GetUserInformation();
-  if (trkInfo && trkInfo->isPrimary()) {
+  trkInfo_ = static_cast<TrackInformation*>(aTrack->GetUserInformation());
+
+  // Always save primaries
+  // Decays from primaries are marked as primaries (see NewTrackAction), but are not saved by
+  // default. The primary is the earliest ancestor, and it must be saved.
+  if (trkInfo_->isPrimary()) {
     eventAction_->prepareForNewPrimary();
+    currentTrack_->save();
   }
   if (nullptr != steppingVerbose_) {
     steppingVerbose_->TrackStarted(aTrack, false);
   }
+  double ekin = aTrack->GetKineticEnergy();
 
-  if (doFineCalo_) {
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("DoFineCalo") << "PreUserTrackingAction: Start processing track " << aTrack->GetTrackID()
-                                   << " pdgid=" << aTrack->GetDefinition()->GetPDGEncoding()
-                                   << " ekin[GeV]=" << aTrack->GetKineticEnergy() / CLHEP::GeV << " vertex[cm]=("
-                                   << aTrack->GetVertexPosition().x() / CLHEP::cm << ","
-                                   << aTrack->GetVertexPosition().y() / CLHEP::cm << ","
-                                   << aTrack->GetVertexPosition().z() / CLHEP::cm << ")"
-                                   << " parentid=" << aTrack->GetParentID();
+  edm::LogVerbatim("DoFineCalo") << "PreUserTrackingAction: Start processing track " << aTrack->GetTrackID()
+                                 << " pdgid=" << aTrack->GetDefinition()->GetPDGEncoding()
+                                 << " ekin[GeV]=" << ekin / CLHEP::GeV << " vertex[cm]=("
+                                 << aTrack->GetVertexPosition().x() / CLHEP::cm << ","
+                                 << aTrack->GetVertexPosition().y() / CLHEP::cm << ","
+                                 << aTrack->GetVertexPosition().z() / CLHEP::cm << ")"
+                                 << " parentid=" << aTrack->GetParentID();
 #endif
+  if (ekin > eMinFine_) {
     // It is impossible to tell whether daughter tracks if this track may need to be saved at
-    // this point; Therefore, *every* track is put in history, so that it can potentially be saved
-    // later.
-    trkInfo->putInHistory();
-    // Always save primaries
-    // Decays from primaries are marked as primaries (see NewTrackAction), but are not saved by
-    // default. The primary is the earliest ancestor, and it must be saved.
-    if (trkInfo->isPrimary())
-      currentTrack_->save();
+    // this point; Therefore, every track above the threshold is put in history,
+    // so that it can potentially be saved later.
+    trkInfo_->putInHistory();
   }
 }
 
 void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
-  if (eventAction_->trackContainer() != nullptr) {
-    uint32_t id = aTrack->GetTrackID();
-    math::XYZVectorD pos(aTrack->GetStep()->GetPostStepPoint()->GetPosition().x(),
-                         aTrack->GetStep()->GetPostStepPoint()->GetPosition().y(),
-                         aTrack->GetStep()->GetPostStepPoint()->GetPosition().z());
-    math::XYZTLorentzVectorD mom;
-    std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> p(pos, mom);
+  int id = aTrack->GetTrackID();
+  const auto& ppos = aTrack->GetStep()->GetPostStepPoint()->GetPosition();
+  math::XYZVectorD pos(ppos.x(), ppos.y(), ppos.z());
+  math::XYZTLorentzVectorD mom;
+  std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> p(pos, mom);
+
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("DoFineCalo") << "PostUserTrackingAction:"
+                                 << " aTrack->GetTrackID()=" << id
+                                 << " currentTrack_->saved()=" << currentTrack_->saved();
+#endif
+
+  bool boundary = false;
+  if (doFineCalo_) {
+    // Add the post-step position for _every_ track
+    // in history to the TrackManager. Tracks in history _may_ be upgraded to stored
+    // tracks, at which point the post-step position is needed again.
+    eventAction_->addTkCaloStateInfo(id, p);
+    boundary = true;
+  } else if (trkInfo_->storeTrack() || currentTrack_->saved() ||
+             (saveCaloBoundaryInformation_ && trkInfo_->crossedBoundary())) {
+    currentTrack_->save();
+    eventAction_->addTkCaloStateInfo(id, p);
+    boundary = true;
+  }
+  if (boundary && trkInfo_->crossedBoundary()) {
+    currentTrack_->setCrossedBoundaryPosMom(id, trkInfo_->getPositionAtBoundary(), trkInfo_->getMomentumAtBoundary());
+    currentTrack_->save();
 
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DoFineCalo") << "PostUserTrackingAction:"
-                                   << " aTrack->GetTrackID()=" << aTrack->GetTrackID()
-                                   << " currentTrack_->saved()=" << currentTrack_->saved() << " PostStepPosition=("
-                                   << pos.x() << "," << pos.y() << "," << pos.z() << ")";
+                                   << " Track " << id << " crossed boundary; pos=("
+                                   << trkInfo_->getPositionAtBoundary().x() << ","
+                                   << trkInfo_->getPositionAtBoundary().y() << ","
+                                   << trkInfo_->getPositionAtBoundary().z() << ")"
+                                   << " mom[GeV]=(" << trkInfo_->getMomentumAtBoundary().x() << ","
+                                   << trkInfo_->getMomentumAtBoundary().y() << ","
+                                   << trkInfo_->getMomentumAtBoundary().z() << ","
+                                   << trkInfo_->getMomentumAtBoundary().e() << ")";
 #endif
+  }
 
-    if (doFineCalo_) {
-      TrackInformation* trkInfo = (TrackInformation*)aTrack->GetUserInformation();
-      // Add the post-step position for _every_ track
-      // in history to the TrackManager. Tracks in history _may_ be upgraded to stored
-      // tracks, at which point the post-step position is needed again.
-      eventAction_->addTkCaloStateInfo(id, p);
-      if (trkInfo->crossedBoundary()) {
-        currentTrack_->save();
-        currentTrack_->setCrossedBoundaryPosMom(id, trkInfo->getPositionAtBoundary(), trkInfo->getMomentumAtBoundary());
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("DoFineCalo") << "PostUserTrackingAction:"
-                                       << " Track " << aTrack->GetTrackID() << " crossed boundary; pos=("
-                                       << trkInfo->getPositionAtBoundary().x() << ","
-                                       << trkInfo->getPositionAtBoundary().y() << ","
-                                       << trkInfo->getPositionAtBoundary().z() << ")"
-                                       << " mom[GeV]=(" << trkInfo->getMomentumAtBoundary().x() << ","
-                                       << trkInfo->getMomentumAtBoundary().y() << ","
-                                       << trkInfo->getMomentumAtBoundary().z() << ","
-                                       << trkInfo->getMomentumAtBoundary().e() << ")";
-#endif
-      }
+  bool withAncestor = (trkInfo_->getIDonCaloSurface() == id || trkInfo_->isAncestor());
+
+  if (trkInfo_->isInHistory()) {
+    // check with end-of-track information
+    if (checkTrack_) {
+      currentTrack_->checkAtEnd(aTrack);
     }
 
-    TrackInformation* trkInfo = (TrackInformation*)aTrack->GetUserInformation();
-    if (extractor_(aTrack).storeTrack() || currentTrack_->saved() ||
-        (saveCaloBoundaryInformation_ && trkInfo->crossedBoundary())) {
-      if (trkInfo->crossedBoundary()) {
-        currentTrack_->setCrossedBoundaryPosMom(id, trkInfo->getPositionAtBoundary(), trkInfo->getMomentumAtBoundary());
-      }
-      currentTrack_->save();
-
-      eventAction_->addTkCaloStateInfo(id, p);
-#ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SimTrackManager")
-          << "TrackingAction addTkCaloStateInfo " << id << " of momentum " << mom << " at " << pos;
-#endif
-    }
-
-    bool withAncestor =
-        ((extractor_(aTrack).getIDonCaloSurface() == aTrack->GetTrackID()) || (extractor_(aTrack).isAncestor()));
-
-    if (extractor_(aTrack).isInHistory()) {
-      // check with end-of-track information
-      if (checkTrack_) {
-        currentTrack_->checkAtEnd(aTrack);
-      }
-
-      eventAction_->addTrack(currentTrack_, true, withAncestor);
+    eventAction_->addTrack(currentTrack_, true, withAncestor);
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SimTrackManager")
-          << "TrackingAction addTrack " << currentTrack_->trackID() << " E(GeV)= " << aTrack->GetKineticEnergy() << "  "
-          << aTrack->GetDefinition()->GetParticleName() << " added= " << withAncestor << " at "
-          << aTrack->GetPosition();
-      edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << currentTrack_->trackID() << " added with "
-                                          << true << " and " << withAncestor << " at " << pos;
+    edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << id << " E(GeV)= " << ekin_ << "  "
+                                        << aTrack->GetDefinition()->GetParticleName() << " added= " << withAncestor
+                                        << " at " << aTrack->GetPosition();
 #endif
 
-    } else {
-      eventAction_->addTrack(currentTrack_, false, false);
+  } else {
+    eventAction_->addTrack(currentTrack_, false, false);
 
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("SimTrackManager")
-          << "TrackingAction addTrack " << currentTrack_->trackID() << " added with " << false << " and " << false;
+    edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << id << " added with " << false << " and "
+                                        << false;
 #endif
-
-      delete currentTrack_;
-    }
+    delete currentTrack_;
   }
   if (nullptr != steppingVerbose_) {
     steppingVerbose_->TrackEnded(aTrack);
@@ -156,6 +144,4 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
 
   EndOfTrack et(aTrack);
   m_endOfTrackSignal(&et);
-
-  currentTrack_ = nullptr;  // reset for next track
 }

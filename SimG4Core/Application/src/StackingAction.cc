@@ -174,6 +174,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
   G4ClassificationOfNewTrack classification = fUrgent;
   const int pdg = aTrack->GetDefinition()->GetPDGEncoding();
   const int abspdg = std::abs(pdg);
+  auto track = const_cast<G4Track*>(aTrack);
 
   // primary
   if (aTrack->GetCreatorProcess() == nullptr || aTrack->GetParentID() == 0) {
@@ -182,7 +183,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     } else if (worldSolid->Inside(aTrack->GetPosition()) == kOutside) {
       classification = fKill;
     } else {
-      newTA->primary(aTrack);
+      newTA->primary(track);
     }
   } else {
     // secondary
@@ -201,7 +202,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         classification = fKill;
       } else {
         const G4Track* mother = trackAction->geant4Track();
-        newTA->secondary(aTrack, *mother, 0);
+        newTA->secondary(track, *mother, 0);
       }
 
     } else if (isItOutOfTimeWindow(reg, time)) {
@@ -217,7 +218,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         auto ptr = static_cast<const G4GammaGeneralProcess*>(proc);
         proc = ptr->GetSelectedProcess();
         subType = proc->GetProcessSubType();
-        const_cast<G4Track*>(aTrack)->SetCreatorProcess(proc);
+        track->SetCreatorProcess(proc);
       }
       LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
                                        << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
@@ -329,7 +330,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
               }
               if (prob < 1.0 && aTrack->GetKineticEnergy() < elim) {
                 if (G4UniformRand() < prob) {
-                  const_cast<G4Track*>(aTrack)->SetWeight(currentWeight / prob);
+                  track->SetWeight(currentWeight / prob);
                 } else {
                   classification = fKill;
                 }
@@ -337,7 +338,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
           if (classification != fKill) {
-            newTA->secondary(aTrack, *mother, flag);
+            newTA->secondary(track, *mother, flag);
           }
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
