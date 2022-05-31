@@ -46,6 +46,7 @@ public:
   std::unique_ptr<L1CaloHcalScale> newObject(const std::string& objectKey) override;
 
 private:
+  edm::ESGetToken<HcalTrigTowerGeometry, CaloGeometryRecord> theTrigTowerGeometryToken;
   const HcalTrigTowerGeometry* theTrigTowerGeometry;
   CaloTPGTranscoderULUT* caloTPG;
   typedef std::vector<double> RCTdecompression;
@@ -71,6 +72,7 @@ private:
 //
 L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(const edm::ParameterSet& iConfig)
     : L1ConfigOnlineProdBase<L1CaloHcalScaleRcd, L1CaloHcalScale>(iConfig), theTrigTowerGeometry(nullptr) {
+  theTrigTowerGeometryToken = m_consumesCollector->consumes();
   caloTPG = new CaloTPGTranscoderULUT();
 }
 
@@ -294,9 +296,7 @@ std::unique_ptr<L1CaloHcalScale> L1CaloHcalScaleConfigOnlineProd::newObject(cons
 }
 
 std::unique_ptr<L1CaloHcalScale> L1CaloHcalScaleConfigOnlineProd::produce(const L1CaloHcalScaleRcd& iRecord) {
-  edm::ESHandle<HcalTrigTowerGeometry> pG;
-  iRecord.getRecord<CaloGeometryRecord>().get(pG);
-  theTrigTowerGeometry = pG.product();
+  theTrigTowerGeometry = &iRecord.get(theTrigTowerGeometryToken);
 
   return (L1ConfigOnlineProdBase<L1CaloHcalScaleRcd, L1CaloHcalScale>::produce(iRecord));
 }
