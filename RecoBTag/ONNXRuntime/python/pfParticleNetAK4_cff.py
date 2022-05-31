@@ -17,7 +17,7 @@ pfParticleNetAK4TagInfos = pfDeepBoostedJetTagInfos.clone(
 pfParticleNetAK4JetTags = boostedJetONNXJetTagsProducer.clone(
     src = 'pfParticleNetAK4TagInfos',
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK4/CHS/V00/preprocess.json',
-    model_path = 'RecoBTag/Combined/data/ParticleNetAK4/CHS/V00/particle-net.onnx',
+    model_path = 'RecoBTag/Combined/data/ParticleNetAK4/CHS/V00/modelfile/model.onnx',
     flav_names = ["probb",  "probbb",  "probc",   "probcc",  "probuds", "probg", "probundef", "probpu"],
 )
 
