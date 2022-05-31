@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,20 +19,21 @@
 #include <iostream>
 using namespace std;
 
-class L1TMuonGlobalParamsViewer : public edm::EDAnalyzer {
+class L1TMuonGlobalParamsViewer : public edm::one::EDAnalyzer<> {
 private:
   //    bool printLayerMap;
   std::string hash(void* buf, size_t len) const;
   void printLUT(l1t::LUT* lut, const char* name) const;
 
+  edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd> token_;
+
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   //    string hash(void *buf, size_t len) const ;
 
-  explicit L1TMuonGlobalParamsViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer() {
+  explicit L1TMuonGlobalParamsViewer(const edm::ParameterSet& pset) : token_{esConsumes()} {
     //       printLayerMap   = pset.getUntrackedParameter<bool>("printLayerMap",  false);
   }
-  ~L1TMuonGlobalParamsViewer(void) override {}
 };
 
 #include "Utilities/OpenSSL/interface/openssl_init.h"
@@ -82,71 +83,70 @@ void L1TMuonGlobalParamsViewer::printLUT(l1t::LUT* lut, const char* name) const 
 
 void L1TMuonGlobalParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   // Pull the config from the ES
-  edm::ESHandle<L1TMuonGlobalParams> handle1;
-  evSetup.get<L1TMuonGlobalParamsRcd>().get(handle1);
-  std::shared_ptr<L1TMuonGlobalParams> ptr1(new L1TMuonGlobalParams(*(handle1.product())));
+  //   has to be a copy as call non-const methods
+  L1TMuonGlobalParams ptr1 = evSetup.getData(token_);
 
   //    cout<<"Some fields in L1TMuonGlobalParams: "<<endl;
 
   //    ((L1TMuonGlobalParamsHelper*)ptr1.get())->print(cout);
 
-  printLUT(ptr1.get()->absIsoCheckMemLUT(), "absIsoCheckMemLUT");
-  printLUT(ptr1.get()->absIsoCheckMemLUT(), "absIsoCheckMemLUT");
-  printLUT(ptr1.get()->relIsoCheckMemLUT(), "relIsoCheckMemLUT");
-  printLUT(ptr1.get()->idxSelMemPhiLUT(), "idxSelMemPhiLUT");
-  printLUT(ptr1.get()->idxSelMemEtaLUT(), "idxSelMemEtaLUT");
+  printLUT(ptr1.absIsoCheckMemLUT(), "absIsoCheckMemLUT");
+  printLUT(ptr1.absIsoCheckMemLUT(), "absIsoCheckMemLUT");
+  printLUT(ptr1.relIsoCheckMemLUT(), "relIsoCheckMemLUT");
+  printLUT(ptr1.idxSelMemPhiLUT(), "idxSelMemPhiLUT");
+  printLUT(ptr1.idxSelMemEtaLUT(), "idxSelMemEtaLUT");
   //l1t::LUT* brlSingleMatchQualLUT();
-  printLUT(ptr1.get()->fwdPosSingleMatchQualLUT(), "fwdPosSingleMatchQualLUT");
-  printLUT(ptr1.get()->fwdNegSingleMatchQualLUT(), "fwdNegSingleMatchQualLUT");
-  printLUT(ptr1.get()->ovlPosSingleMatchQualLUT(), "ovlPosSingleMatchQualLUT");
-  printLUT(ptr1.get()->ovlNegSingleMatchQualLUT(), "ovlNegSingleMatchQualLUT");
-  printLUT(ptr1.get()->bOPosMatchQualLUT(), "bOPosMatchQualLUT");
-  printLUT(ptr1.get()->bONegMatchQualLUT(), "bONegMatchQualLUT");
-  printLUT(ptr1.get()->fOPosMatchQualLUT(), "fOPosMatchQualLUT");
-  printLUT(ptr1.get()->fONegMatchQualLUT(), "fONegMatchQualLUT");
-  printLUT(ptr1.get()->bPhiExtrapolationLUT(), "bPhiExtrapolationLUT");
-  printLUT(ptr1.get()->oPhiExtrapolationLUT(), "oPhiExtrapolationLUT");
-  printLUT(ptr1.get()->fPhiExtrapolationLUT(), "fPhiExtrapolationLUT");
-  printLUT(ptr1.get()->bEtaExtrapolationLUT(), "bEtaExtrapolationLUT");
-  printLUT(ptr1.get()->oEtaExtrapolationLUT(), "oEtaExtrapolationLUT");
-  printLUT(ptr1.get()->fEtaExtrapolationLUT(), "fEtaExtrapolationLUT");
-  printLUT(ptr1.get()->sortRankLUT(), "sortRankLUT");
+  printLUT(ptr1.fwdPosSingleMatchQualLUT(), "fwdPosSingleMatchQualLUT");
+  printLUT(ptr1.fwdNegSingleMatchQualLUT(), "fwdNegSingleMatchQualLUT");
+  printLUT(ptr1.ovlPosSingleMatchQualLUT(), "ovlPosSingleMatchQualLUT");
+  printLUT(ptr1.ovlNegSingleMatchQualLUT(), "ovlNegSingleMatchQualLUT");
+  printLUT(ptr1.bOPosMatchQualLUT(), "bOPosMatchQualLUT");
+  printLUT(ptr1.bONegMatchQualLUT(), "bONegMatchQualLUT");
+  printLUT(ptr1.fOPosMatchQualLUT(), "fOPosMatchQualLUT");
+  printLUT(ptr1.fONegMatchQualLUT(), "fONegMatchQualLUT");
+  printLUT(ptr1.bPhiExtrapolationLUT(), "bPhiExtrapolationLUT");
+  printLUT(ptr1.oPhiExtrapolationLUT(), "oPhiExtrapolationLUT");
+  printLUT(ptr1.fPhiExtrapolationLUT(), "fPhiExtrapolationLUT");
+  printLUT(ptr1.bEtaExtrapolationLUT(), "bEtaExtrapolationLUT");
+  printLUT(ptr1.oEtaExtrapolationLUT(), "oEtaExtrapolationLUT");
+  printLUT(ptr1.fEtaExtrapolationLUT(), "fEtaExtrapolationLUT");
+  printLUT(ptr1.sortRankLUT(), "sortRankLUT");
 
-  std::cout << "absIsoCheckMemLUTPath: " << ptr1.get()->absIsoCheckMemLUTPath() << std::endl;
-  std::cout << "relIsoCheckMemLUTPath: " << ptr1.get()->relIsoCheckMemLUTPath() << std::endl;
-  std::cout << "idxSelMemPhiLUTPath: " << ptr1.get()->idxSelMemPhiLUTPath() << std::endl;
-  std::cout << "idxSelMemEtaLUTPath: " << ptr1.get()->idxSelMemEtaLUTPath() << std::endl;
+  std::cout << "absIsoCheckMemLUTPath: " << ptr1.absIsoCheckMemLUTPath() << std::endl;
+  std::cout << "relIsoCheckMemLUTPath: " << ptr1.relIsoCheckMemLUTPath() << std::endl;
+  std::cout << "idxSelMemPhiLUTPath: " << ptr1.idxSelMemPhiLUTPath() << std::endl;
+  std::cout << "idxSelMemEtaLUTPath: " << ptr1.idxSelMemEtaLUTPath() << std::endl;
   //std::string brlSingleMatchQualLUTPath() const    { return pnodes_[brlSingleMatchQual].sparams_.size() > spIdx::fname ? pnodes_[brlSingleMatchQual].sparams_[spIdx::fname] : ""; }
-  std::cout << "fwdPosSingleMatchQualLUTPath: " << ptr1.get()->fwdPosSingleMatchQualLUTPath() << std::endl;
-  std::cout << "fwdNegSingleMatchQualLUTPath: " << ptr1.get()->fwdNegSingleMatchQualLUTPath() << std::endl;
-  std::cout << "ovlPosSingleMatchQualLUTPath: " << ptr1.get()->ovlPosSingleMatchQualLUTPath() << std::endl;
-  std::cout << "ovlNegSingleMatchQualLUTPath: " << ptr1.get()->ovlNegSingleMatchQualLUTPath() << std::endl;
-  std::cout << "bOPosMatchQualLUTPath: " << ptr1.get()->bOPosMatchQualLUTPath() << std::endl;
-  std::cout << "bONegMatchQualLUTPath: " << ptr1.get()->bONegMatchQualLUTPath() << std::endl;
-  std::cout << "fOPosMatchQualLUTPath: " << ptr1.get()->fOPosMatchQualLUTPath() << std::endl;
-  std::cout << "fONegMatchQualLUTPath: " << ptr1.get()->fONegMatchQualLUTPath() << std::endl;
-  std::cout << "bPhiExtrapolationLUTPath: " << ptr1.get()->bPhiExtrapolationLUTPath() << std::endl;
-  std::cout << "oPhiExtrapolationLUTPath: " << ptr1.get()->oPhiExtrapolationLUTPath() << std::endl;
-  std::cout << "fPhiExtrapolationLUTPath: " << ptr1.get()->fPhiExtrapolationLUTPath() << std::endl;
-  std::cout << "bEtaExtrapolationLUTPath: " << ptr1.get()->bEtaExtrapolationLUTPath() << std::endl;
-  std::cout << "oEtaExtrapolationLUTPath: " << ptr1.get()->oEtaExtrapolationLUTPath() << std::endl;
-  std::cout << "fEtaExtrapolationLUTPath: " << ptr1.get()->fEtaExtrapolationLUTPath() << std::endl;
-  std::cout << "sortRankLUTPath: " << ptr1.get()->sortRankLUTPath() << std::endl;
+  std::cout << "fwdPosSingleMatchQualLUTPath: " << ptr1.fwdPosSingleMatchQualLUTPath() << std::endl;
+  std::cout << "fwdNegSingleMatchQualLUTPath: " << ptr1.fwdNegSingleMatchQualLUTPath() << std::endl;
+  std::cout << "ovlPosSingleMatchQualLUTPath: " << ptr1.ovlPosSingleMatchQualLUTPath() << std::endl;
+  std::cout << "ovlNegSingleMatchQualLUTPath: " << ptr1.ovlNegSingleMatchQualLUTPath() << std::endl;
+  std::cout << "bOPosMatchQualLUTPath: " << ptr1.bOPosMatchQualLUTPath() << std::endl;
+  std::cout << "bONegMatchQualLUTPath: " << ptr1.bONegMatchQualLUTPath() << std::endl;
+  std::cout << "fOPosMatchQualLUTPath: " << ptr1.fOPosMatchQualLUTPath() << std::endl;
+  std::cout << "fONegMatchQualLUTPath: " << ptr1.fONegMatchQualLUTPath() << std::endl;
+  std::cout << "bPhiExtrapolationLUTPath: " << ptr1.bPhiExtrapolationLUTPath() << std::endl;
+  std::cout << "oPhiExtrapolationLUTPath: " << ptr1.oPhiExtrapolationLUTPath() << std::endl;
+  std::cout << "fPhiExtrapolationLUTPath: " << ptr1.fPhiExtrapolationLUTPath() << std::endl;
+  std::cout << "bEtaExtrapolationLUTPath: " << ptr1.bEtaExtrapolationLUTPath() << std::endl;
+  std::cout << "oEtaExtrapolationLUTPath: " << ptr1.oEtaExtrapolationLUTPath() << std::endl;
+  std::cout << "fEtaExtrapolationLUTPath: " << ptr1.fEtaExtrapolationLUTPath() << std::endl;
+  std::cout << "sortRankLUTPath: " << ptr1.sortRankLUTPath() << std::endl;
 
-  std::cout << "fwdPosSingleMatchQualLUTMaxDR: " << ptr1.get()->fwdPosSingleMatchQualLUTMaxDR() << std::endl;
-  std::cout << "fwdNegSingleMatchQualLUTMaxDR: " << ptr1.get()->fwdNegSingleMatchQualLUTMaxDR() << std::endl;
-  std::cout << "ovlPosSingleMatchQualLUTMaxDR: " << ptr1.get()->ovlPosSingleMatchQualLUTMaxDR() << std::endl;
-  std::cout << "ovlNegSingleMatchQualLUTMaxDR: " << ptr1.get()->ovlNegSingleMatchQualLUTMaxDR() << std::endl;
-  std::cout << "bOPosMatchQualLUTMaxDR: " << ptr1.get()->bOPosMatchQualLUTMaxDR() << std::endl;
-  std::cout << "bONegMatchQualLUTMaxDR: " << ptr1.get()->bONegMatchQualLUTMaxDR() << std::endl;
-  std::cout << "bOPosMatchQualLUTMaxDREtaFine: " << ptr1.get()->bOPosMatchQualLUTMaxDREtaFine() << std::endl;
-  std::cout << "bONegMatchQualLUTMaxDREtaFine: " << ptr1.get()->bONegMatchQualLUTMaxDREtaFine() << std::endl;
-  std::cout << "fOPosMatchQualLUTMaxDR: " << ptr1.get()->fOPosMatchQualLUTMaxDR() << std::endl;
-  std::cout << "fONegMatchQualLUTMaxDR: " << ptr1.get()->fONegMatchQualLUTMaxDR() << std::endl;
+  std::cout << "fwdPosSingleMatchQualLUTMaxDR: " << ptr1.fwdPosSingleMatchQualLUTMaxDR() << std::endl;
+  std::cout << "fwdNegSingleMatchQualLUTMaxDR: " << ptr1.fwdNegSingleMatchQualLUTMaxDR() << std::endl;
+  std::cout << "ovlPosSingleMatchQualLUTMaxDR: " << ptr1.ovlPosSingleMatchQualLUTMaxDR() << std::endl;
+  std::cout << "ovlNegSingleMatchQualLUTMaxDR: " << ptr1.ovlNegSingleMatchQualLUTMaxDR() << std::endl;
+  std::cout << "bOPosMatchQualLUTMaxDR: " << ptr1.bOPosMatchQualLUTMaxDR() << std::endl;
+  std::cout << "bONegMatchQualLUTMaxDR: " << ptr1.bONegMatchQualLUTMaxDR() << std::endl;
+  std::cout << "bOPosMatchQualLUTMaxDREtaFine: " << ptr1.bOPosMatchQualLUTMaxDREtaFine() << std::endl;
+  std::cout << "bONegMatchQualLUTMaxDREtaFine: " << ptr1.bONegMatchQualLUTMaxDREtaFine() << std::endl;
+  std::cout << "fOPosMatchQualLUTMaxDR: " << ptr1.fOPosMatchQualLUTMaxDR() << std::endl;
+  std::cout << "fONegMatchQualLUTMaxDR: " << ptr1.fONegMatchQualLUTMaxDR() << std::endl;
 
   // Sort rank LUT factors for pT and quality
-  std::cout << "sortRankLUTPtFactor: " << ptr1.get()->sortRankLUTPtFactor() << std::endl;
-  std::cout << "sortRankLUTQualFactor: " << ptr1.get()->sortRankLUTQualFactor() << std::endl;
+  std::cout << "sortRankLUTPtFactor: " << ptr1.sortRankLUTPtFactor() << std::endl;
+  std::cout << "sortRankLUTQualFactor: " << ptr1.sortRankLUTQualFactor() << std::endl;
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"

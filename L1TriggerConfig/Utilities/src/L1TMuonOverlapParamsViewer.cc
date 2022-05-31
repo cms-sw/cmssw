@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,18 +18,18 @@
 #include <iostream>
 using namespace std;
 
-class L1TMuonOverlapParamsViewer : public edm::EDAnalyzer {
+class L1TMuonOverlapParamsViewer : public edm::one::EDAnalyzer<> {
 private:
+  edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> token_;
   bool printLayerMap;
 
 public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
   string hash(void *buf, size_t len) const;
 
-  explicit L1TMuonOverlapParamsViewer(const edm::ParameterSet &pset) : edm::EDAnalyzer() {
+  explicit L1TMuonOverlapParamsViewer(const edm::ParameterSet &pset) : token_{esConsumes()} {
     printLayerMap = pset.getUntrackedParameter<bool>("printLayerMap", false);
   }
-  ~L1TMuonOverlapParamsViewer(void) override {}
 };
 
 #include "Utilities/OpenSSL/interface/openssl_init.h"
@@ -67,35 +67,33 @@ string L1TMuonOverlapParamsViewer::hash(void *buf, size_t len) const {
 
 void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetup) {
   // Pull the config from the ES
-  edm::ESHandle<L1TMuonOverlapParams> handle1;
-  evSetup.get<L1TMuonOverlapParamsRcd>().get(handle1);
-  std::shared_ptr<L1TMuonOverlapParams> ptr1(new L1TMuonOverlapParams(*(handle1.product())));
+  L1TMuonOverlapParams const &ptr1 = evSetup.getData(token_);
 
   cout << "Some fields in L1TMuonOverlapParamsParams: " << endl;
 
-  cout << " fwVersion() = " << ptr1->fwVersion() << endl;
-  cout << " nPdfAddrBits() = " << ptr1->nPdfAddrBits() << endl;
-  cout << " nPdfValBits() = " << ptr1->nPdfValBits() << endl;
-  cout << " nHitsPerLayer() = " << ptr1->nHitsPerLayer() << endl;
-  cout << " nPhiBits() = " << ptr1->nPhiBits() << endl;
-  cout << " nPhiBins() = " << ptr1->nPhiBins() << endl;
-  cout << " nRefHits() = " << ptr1->nRefHits() << endl;
-  cout << " nTestRefHits() = " << ptr1->nTestRefHits() << endl;
-  cout << " nProcessors() = " << ptr1->nProcessors() << endl;
-  cout << " nLogicRegions() = " << ptr1->nLogicRegions() << endl;
-  cout << " nInputs() = " << ptr1->nInputs() << endl;
-  cout << " nLayers() = " << ptr1->nLayers() << endl;
-  cout << " nRefLayers() = " << ptr1->nRefLayers() << endl;
-  cout << " nGoldenPatterns() = " << ptr1->nGoldenPatterns() << endl;
+  cout << " fwVersion() = " << ptr1.fwVersion() << endl;
+  cout << " nPdfAddrBits() = " << ptr1.nPdfAddrBits() << endl;
+  cout << " nPdfValBits() = " << ptr1.nPdfValBits() << endl;
+  cout << " nHitsPerLayer() = " << ptr1.nHitsPerLayer() << endl;
+  cout << " nPhiBits() = " << ptr1.nPhiBits() << endl;
+  cout << " nPhiBins() = " << ptr1.nPhiBins() << endl;
+  cout << " nRefHits() = " << ptr1.nRefHits() << endl;
+  cout << " nTestRefHits() = " << ptr1.nTestRefHits() << endl;
+  cout << " nProcessors() = " << ptr1.nProcessors() << endl;
+  cout << " nLogicRegions() = " << ptr1.nLogicRegions() << endl;
+  cout << " nInputs() = " << ptr1.nInputs() << endl;
+  cout << " nLayers() = " << ptr1.nLayers() << endl;
+  cout << " nRefLayers() = " << ptr1.nRefLayers() << endl;
+  cout << " nGoldenPatterns() = " << ptr1.nGoldenPatterns() << endl;
 
-  const std::vector<int> *gp = ptr1->generalParams();
+  const std::vector<int> *gp = ptr1.generalParams();
   cout << " number of general parameters: = " << gp->size() << endl;
   cout << "  ";
   for (auto a : *gp)
     cout << a << ", ";
   cout << endl;
 
-  const std::vector<L1TMuonOverlapParams::LayerMapNode> *lm = ptr1->layerMap();
+  const std::vector<L1TMuonOverlapParams::LayerMapNode> *lm = ptr1.layerMap();
   if (!lm->empty()) {
     cout << " layerMap() =              [" << lm->size() << "] ";
     L1TMuonOverlapParams::LayerMapNode *lm_ = new L1TMuonOverlapParams::LayerMapNode[lm->size()];
@@ -120,7 +118,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " layerMap() =              [0] " << endl;
   }
 
-  const std::vector<L1TMuonOverlapParams::RefLayerMapNode> *rlm = ptr1->refLayerMap();
+  const std::vector<L1TMuonOverlapParams::RefLayerMapNode> *rlm = ptr1.refLayerMap();
   if (!rlm->empty()) {
     cout << " refLayerMap() =           [" << rlm->size() << "] ";
     L1TMuonOverlapParams::RefLayerMapNode *rlm_ = new L1TMuonOverlapParams::RefLayerMapNode[rlm->size()];
@@ -132,7 +130,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " refLayerMap() =           [0] " << endl;
   }
 
-  const std::vector<L1TMuonOverlapParams::RefHitNode> *rhn = ptr1->refHitMap();
+  const std::vector<L1TMuonOverlapParams::RefHitNode> *rhn = ptr1.refHitMap();
   if (!rhn->empty()) {
     cout << " refHitMap() =             [" << rhn->size() << "] ";
     L1TMuonOverlapParams::RefHitNode *rhn_ = new L1TMuonOverlapParams::RefHitNode[rhn->size()];
@@ -144,7 +142,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " refHitMap() =             [0] " << endl;
   }
 
-  const std::vector<int> *gpsm = ptr1->globalPhiStartMap();
+  const std::vector<int> *gpsm = ptr1.globalPhiStartMap();
   if (!gpsm->empty()) {
     cout << " globalPhiStartMap() =     [" << gpsm->size() << "] ";
     int gpsm_[gpsm->size()];
@@ -155,7 +153,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " globalPhiStartMap() =     [0] " << endl;
   }
 
-  const std::vector<L1TMuonOverlapParams::LayerInputNode> *lim = ptr1->layerInputMap();
+  const std::vector<L1TMuonOverlapParams::LayerInputNode> *lim = ptr1.layerInputMap();
   if (!lim->empty()) {
     cout << " layerInputMap() =         [" << lim->size() << "] ";
     L1TMuonOverlapParams::LayerInputNode *lim_ = new L1TMuonOverlapParams::LayerInputNode[lim->size()];
@@ -167,7 +165,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " layerInputMap() =         [0] " << endl;
   }
 
-  const std::vector<int> *css = ptr1->connectedSectorsStart();
+  const std::vector<int> *css = ptr1.connectedSectorsStart();
   if (!css->empty()) {
     cout << " connectedSectorsStart() = [" << css->size() << "] ";
     int css_[css->size()];
@@ -178,7 +176,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " connectedSectorsStart() = [0] " << endl;
   }
 
-  const std::vector<int> *cse = ptr1->connectedSectorsEnd();
+  const std::vector<int> *cse = ptr1.connectedSectorsEnd();
   if (!cse->empty()) {
     cout << " connectedSectorsEnd() = [" << cse->size() << "] ";
     int cse_[cse->size()];
@@ -189,7 +187,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " connectedSectorsEnd() = [0] " << endl;
   }
 
-  const l1t::LUT *clut = ptr1->chargeLUT();
+  const l1t::LUT *clut = ptr1.chargeLUT();
   if (clut->maxSize()) {
     cout << " chargeLUT =      [" << clut->maxSize() << "] ";
     int clut_[clut->maxSize()];
@@ -200,7 +198,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " chargeLUT =      [0] " << endl;
   }
 
-  const l1t::LUT *elut = ptr1->etaLUT();
+  const l1t::LUT *elut = ptr1.etaLUT();
   if (elut->maxSize()) {
     cout << " etaLUT =         [" << elut->maxSize() << "] ";
     int elut_[elut->maxSize()];
@@ -211,7 +209,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " chargeLUT =      [0] " << endl;
   }
 
-  const l1t::LUT *ptlut = ptr1->ptLUT();
+  const l1t::LUT *ptlut = ptr1.ptLUT();
   if (ptlut->maxSize()) {
     cout << " ptLUT =          [" << ptlut->maxSize() << "] " << flush;
     int ptlut_[ptlut->maxSize()];
@@ -222,7 +220,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " ptLUT =          [0] " << endl;
   }
 
-  const l1t::LUT *plut = ptr1->pdfLUT();
+  const l1t::LUT *plut = ptr1.pdfLUT();
   if (plut->maxSize()) {
     cout << " pdfLUT =         [" << plut->maxSize() << "] " << flush;
     int plut_[plut->maxSize()];
@@ -233,7 +231,7 @@ void L1TMuonOverlapParamsViewer::analyze(const edm::Event &iEvent, const edm::Ev
     cout << " pdfLUT =         [0] " << endl;
   }
 
-  const l1t::LUT *mlut = ptr1->meanDistPhiLUT();
+  const l1t::LUT *mlut = ptr1.meanDistPhiLUT();
   if (mlut->maxSize()) {
     cout << " meanDistPhiLUT = [" << mlut->maxSize() << "] " << flush;
     int mlut_[mlut->maxSize()];

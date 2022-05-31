@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,23 +15,23 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TMuonOverlapParamsWriter : public edm::EDAnalyzer {
+class L1TMuonOverlapParamsWriter : public edm::one::EDAnalyzer<> {
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1TMuonOverlapParamsWriter(const edm::ParameterSet&) : edm::EDAnalyzer() {}
-  ~L1TMuonOverlapParamsWriter(void) override {}
+  explicit L1TMuonOverlapParamsWriter(const edm::ParameterSet&) : token_{esConsumes()} {}
+
+private:
+  edm::ESGetToken<L1TMuonOverlapParams, L1TMuonOverlapParamsRcd> token_;
 };
 
 void L1TMuonOverlapParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<L1TMuonOverlapParams> handle1;
-  evSetup.get<L1TMuonOverlapParamsRcd>().get(handle1);
-  std::shared_ptr<L1TMuonOverlapParams> ptr1(new L1TMuonOverlapParams(*(handle1.product())));
+  L1TMuonOverlapParams const& ptr1 = evSetup.getData(token_);
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOneIOV(*ptr1, firstSinceTime, "L1TMuonOverlapPatternParamsRcd");
+    poolDb->writeOneIOV(ptr1, firstSinceTime, "L1TMuonOverlapPatternParamsRcd");
   }
 }
 
