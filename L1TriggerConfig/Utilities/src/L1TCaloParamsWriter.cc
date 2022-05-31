@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,15 +15,22 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TCaloStage2ParamsWriter : public edm::EDAnalyzer {
+class L1TCaloStage2ParamsWriter : public edm::one::EDAnalyzer<> {
 private:
+  edm::ESGetToken<l1t::CaloParams, L1TCaloParamsO2ORcd> o2oParamsToken_;
+  edm::ESGetToken<l1t::CaloParams, L1TCaloParamsRcd> paramsToken_;
   bool isO2Opayload;
 
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1TCaloStage2ParamsWriter(const edm::ParameterSet& pset) : edm::EDAnalyzer() {
+  explicit L1TCaloStage2ParamsWriter(const edm::ParameterSet& pset) {
     isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload", false);
+    if (isO2Opayload) {
+      o2oParamsToken_ = esConsumes();
+    } else {
+      paramsToken_ = esConsumes();
+    }
   }
   ~L1TCaloStage2ParamsWriter(void) override {}
 };
@@ -32,16 +39,14 @@ void L1TCaloStage2ParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
   edm::ESHandle<l1t::CaloParams> handle1;
 
   if (isO2Opayload)
-    evSetup.get<L1TCaloParamsO2ORcd>().get(handle1);
+    handle1 = evSetup.getHandle(o2oParamsToken_);
   else
-    evSetup.get<L1TCaloParamsRcd>().get(handle1);
-
-  std::shared_ptr<l1t::CaloParams> ptr1(new l1t::CaloParams(*(handle1.product())));
+    handle1 = evSetup.getHandle(paramsToken_);
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOneIOV(*ptr1, firstSinceTime, (isO2Opayload ? "L1TCaloParamsO2ORcd" : "L1TCaloParamsRcd"));
+    poolDb->writeOneIOV(*handle1, firstSinceTime, (isO2Opayload ? "L1TCaloParamsO2ORcd" : "L1TCaloParamsRcd"));
   }
 }
 
