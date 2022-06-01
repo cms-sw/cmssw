@@ -63,6 +63,7 @@ private:
 
   // ----------member data ---------------------------
 
+  edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
   const EDGetTokenT<vector<TTTrack<Ref_Phase2TrackerDigi_>>> trackToken_;
   const edm::EDGetTokenT<std::vector<l1t::Vertex>> PVtxToken_;
   vector<Ptr<L1TTTrackType>> L1TrkPtrs_;
@@ -99,7 +100,8 @@ private:
 };
 
 L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
-    : trackToken_(consumes<vector<TTTrack<Ref_Phase2TrackerDigi_>>>(iConfig.getParameter<InputTag>("L1TrackInputTag"))),
+    :  tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
+      trackToken_(consumes<vector<TTTrack<Ref_Phase2TrackerDigi_>>>(iConfig.getParameter<InputTag>("L1TrackInputTag"))),
       PVtxToken_(consumes<vector<l1t::Vertex>>(iConfig.getParameter<InputTag>("L1PVertexCollection"))) {
   trkZMax_ = (float)iConfig.getParameter<double>("trk_zMax");
   trkPtMax_ = (float)iConfig.getParameter<double>("trk_ptMax");
@@ -144,11 +146,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
   unique_ptr<TkJetCollection> L1L1TrackJetProducer(new TkJetCollection);
 
   // Read inputs
-  ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  ESHandle<TrackerGeometry> tGeomHandle;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tGeomHandle);
-  const TrackerTopology *const tTopo = tTopoHandle.product();
+  const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
 
   edm::Handle<vector<TTTrack<Ref_Phase2TrackerDigi_>>> TTTrackHandle;
   iEvent.getByToken(trackToken_, TTTrackHandle);
@@ -172,8 +170,8 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     for (int istub = 0; istub < trk_nstubs; istub++) {  // loop over the stubs
       DetId detId(trkPtr->getStubRefs().at(istub)->getDetId());
       if (detId.det() == DetId::Detector::Tracker) {
-        if ((detId.subdetId() == StripSubdetector::TOB && tTopo->tobLayer(detId) <= 3) ||
-            (detId.subdetId() == StripSubdetector::TID && tTopo->tidRing(detId) <= 9))
+        if ((detId.subdetId() == StripSubdetector::TOB && tTopo.tobLayer(detId) <= 3) ||
+            (detId.subdetId() == StripSubdetector::TID && tTopo.tidRing(detId) <= 9))
           trk_nPS++;
       }
     }
@@ -356,14 +354,18 @@ void L1TrackJetProducer::endStream() {}
 bool L1TrackJetProducer::trackQualityCuts(int trk_nstub, float trk_chi2, float trk_bendchi2) {
   bool PassQuality = false;
   if (!displaced_) {
-    if (trk_nstub == 4 && trk_bendchi2 < nStubs4PromptBend_ && trk_chi2 < nStubs4PromptChi2_) // 4 stubs are the lowest track quality and have different cuts
+    if (trk_nstub == 4 && trk_bendchi2 < nStubs4PromptBend_ &&
+        trk_chi2 < nStubs4PromptChi2_)  // 4 stubs are the lowest track quality and have different cuts
       PassQuality = true;
-    if (trk_nstub > 4 && trk_bendchi2 < nStubs5PromptBend_ && trk_chi2 < nStubs5PromptChi2_) // above 4 stubs diffent selection imposed (genrally looser)
+    if (trk_nstub > 4 && trk_bendchi2 < nStubs5PromptBend_ &&
+        trk_chi2 < nStubs5PromptChi2_)  // above 4 stubs diffent selection imposed (genrally looser)
       PassQuality = true;
   } else {
-    if (trk_nstub == 4 && trk_bendchi2 < nStubs4DisplacedBend_ && trk_chi2 < nStubs4DisplacedChi2_) // 4 stubs are the lowest track quality and have different cuts
+    if (trk_nstub == 4 && trk_bendchi2 < nStubs4DisplacedBend_ &&
+        trk_chi2 < nStubs4DisplacedChi2_)  // 4 stubs are the lowest track quality and have different cuts
       PassQuality = true;
-    if (trk_nstub > 4 && trk_bendchi2 < nStubs5DisplacedBend_ && trk_chi2 < nStubs5DisplacedChi2_) // above 4 stubs diffent selection imposed (genrally looser)
+    if (trk_nstub > 4 && trk_bendchi2 < nStubs5DisplacedBend_ &&
+        trk_chi2 < nStubs5DisplacedChi2_)  // above 4 stubs diffent selection imposed (genrally looser)
       PassQuality = true;
   }
   return PassQuality;
