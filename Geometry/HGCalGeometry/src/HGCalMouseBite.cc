@@ -24,13 +24,13 @@ HGCalMouseBite::HGCalMouseBite(const HGCalDDDConstants& hgc, const bool rot) {
     static const double sqrt3 = std::sqrt(3.0);
     int nf(HGCSiliconDetId::HGCalFineN);
     int nf2 = nf / 2;
-    double Rf = wafersize / (3.0 * nf);
-    double rf = 0.5 * Rf * sqrt3;
+    double delXF = wafersize / (3.0 * nf);
+    double delYF = 0.5 * delXF * sqrt3;
     for (int u = 0; u < 2 * nf; ++u) {
       for (int v = 0; v < 2 * nf; ++v) {
         if (((v - u) < nf) && ((u - v) <= nf)) {
-          double yp = std::abs((u - 0.5 * v - nf2) * 2 * rf);
-          double xp = std::abs((1.5 * (v - nf) + 1.0) * Rf);
+          double yp = std::abs((u - 0.5 * v - nf2) * 2 * delYF);
+          double xp = std::abs((1.5 * (v - nf) + 1.0) * delXF);
           for (auto proj : projXY) {
             double dist = (rot ? (yp * proj.first + xp * proj.second) : (xp * proj.first + yp * proj.second));
             if (dist > cut) {
@@ -50,13 +50,13 @@ HGCalMouseBite::HGCalMouseBite(const HGCalDDDConstants& hgc, const bool rot) {
 #endif
     int nc(HGCSiliconDetId::HGCalCoarseN);
     int nc2 = nc / 2;
-    double Rc = hgc.getParameter()->waferSize_ / (3.0 * nc);
-    double rc = 0.5 * Rc * sqrt3;
+    double delXC = hgc.getParameter()->waferSize_ / (3.0 * nc);
+    double delYC = 0.5 * delXC * sqrt3;
     for (int u = 0; u < 2 * nc; ++u) {
       for (int v = 0; v < 2 * nc; ++v) {
         if (((v - u) < nc) && ((u - v) <= nc)) {
-          double yp = (u - 0.5 * v - nc2) * 2 * rc;
-          double xp = (1.5 * (v - nc) + 1.0) * Rc;
+          double yp = (u - 0.5 * v - nc2) * 2 * delYC;
+          double xp = (1.5 * (v - nc) + 1.0) * delXC;
           for (auto proj : projXY) {
             double dist = (rot ? (yp * proj.first + xp * proj.second) : (xp * proj.first + yp * proj.second));
             if (dist > cut)

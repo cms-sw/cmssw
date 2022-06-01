@@ -13,7 +13,7 @@ public:
   typedef std::vector<float> ParmVec;
 
   HGCalGeometryLoader();
-  ~HGCalGeometryLoader();
+  ~HGCalGeometryLoader() = default;
 
   HGCalGeometry* build(const HGCalTopology&);
 
