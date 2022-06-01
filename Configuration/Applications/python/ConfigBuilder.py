@@ -1274,8 +1274,13 @@ class ConfigBuilder(object):
         alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
         sequence = sequence.split('.')[-1]
 
+        MAXLEN=31 #the alca producer name should be shorter than 31 chars as per https://cms-talk.web.cern.ch/t/alcaprompt-datasets-not-loaded-in-dbs/11146/2
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
+        for alca in alcaList:
+            if (len(alca)>MAXLEN):
+                raise Exception("The following alca "+str(alca)+" name (with length "+str(len(alca))+" chars) cannot be accepted because it exceeds the DBS constraints on the length of the name of the ALCARECOs producers ("+str(MAXLEN)+")!")
+
         maxLevel=0
         from Configuration.AlCa.autoAlca import autoAlca, AlCaNoConcurrentLumis
         # support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
