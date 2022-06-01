@@ -22,6 +22,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include <CLHEP/Geometry/Point3D.h>
 
+#include <array>
 #include <string>
 #include <vector>
 #include <unordered_map>

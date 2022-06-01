@@ -16,6 +16,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
+#include <array>
 #include <algorithm>
 #include <bitset>
 #include <iterator>
