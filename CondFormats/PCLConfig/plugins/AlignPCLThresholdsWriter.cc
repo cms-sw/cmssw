@@ -15,6 +15,7 @@
 //
 
 // system include files
+#include <array>
 #include <memory>
 
 // user include files
