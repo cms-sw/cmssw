@@ -9,6 +9,7 @@
 #include "G4Electron.hh"
 #include "GFlashHitMaker.hh"
 #include "G4Region.hh"
+#include "G4Material.hh"
 #include "G4Positron.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4PhysicalConstants.hh"
@@ -23,6 +24,19 @@ LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* reg
       fTailPos(0., 0., 0.) {
   fEmax = parSet.getParameter<double>("LowEnergyGflashEcalEmax") * CLHEP::GeV;
   fPositron = G4Positron::Positron();
+  fMaterial = nullptr;
+  auto table = G4Material::GetMaterialTable();
+  for(auto & mat : *table) {
+    G4String nam = mat->GetName();
+    size_t n = nam.size();
+    if(n > 4) {
+      G4String sn = nam.substr(n - 5, 5);
+      if(sn == "PbW04") {
+	fMaterial = mat;
+	break;
+      }
+    }
+  } 
 }
 
 G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle) {
@@ -40,7 +54,7 @@ G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
       return false;
   }
   G4double energy = track->GetKineticEnergy();
-  return (energy < fEmax && fRegion == fastTrack.GetEnvelope());
+  return (fMaterial == track->GetMaterial() && energy < fEmax);
 }
 
 void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
@@ -66,10 +80,18 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
   fHitMaker.make(&spot, &fastTrack);
 
   // tail energy deposition
-  G4double etail = energy - inPointEnergy;
-  const G4int nspots = (G4int)(etail) + 1;
-  const G4double tailEnergy = etail / (G4double)nspots;
-  for (G4int i = 0; i < nspots; ++i) {
+  const G4double etail = energy - inPointEnergy;
+  const G4int nspots = etail;
+  const G4double tailEnergy = etail/(nspots + 1);
+  /*
+  edm::LogVerbatim("LowEnergyFastSimModel") << track->GetDefinition()->GetParticleName()
+					    << " Ekin(MeV)=" << energy << " material: <"
+                                            << track->GetMaterial()->GetName() 
+					    << "> Elocal=" << inPointEnergy
+					    << " Etail=" << tailEnergy
+					    << " Nspots=" << nspots+1;
+  */
+  for (G4int i = 0; i <= nspots; ++i) {
     const G4double r = fParam.GetRadius(energy);
     const G4double z = fParam.GetZ();
 
