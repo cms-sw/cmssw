@@ -130,7 +130,6 @@ HGCalTriggerValidator::HGCalTriggerValidator(const edm::ParameterSet &iConfig)
   triggerTools_ = std::make_shared<HGCalTriggerTools>();
 }
 
-
 void HGCalTriggerValidator::dqmBeginRun(edm::Run const &iRun,
                                         edm::EventSetup const &iSetup,
                                         Histograms &histograms) const {
