@@ -1007,18 +1007,18 @@ ALCARECOStreamPromptCalibProdSiStripGainsAAG = cms.FilteredStream(
         dataTier = cms.untracked.string('ALCARECO')
         )
 
-ALCARECOStreamPromptCalibProdSiStripHitEfficiency = cms.FilteredStream(
+ALCARECOStreamPromptCalibProdSiStripHitEff = cms.FilteredStream(
         responsible = 'Marco Musich',
-        name = 'PromptCalibProdSiStripHitEfficiency',
+        name = 'PromptCalibProdSiStripHitEff',
         paths  = (pathALCARECOPromptCalibProdSiStripHitEfficiency),
         content = OutALCARECOPromptCalibProdSiStripHitEfficiency.outputCommands,
         selectEvents = OutALCARECOPromptCalibProdSiStripHitEfficiency.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
 
-ALCARECOStreamPromptCalibProdSiPixelLorentzAngle = cms.FilteredStream(
+ALCARECOStreamPromptCalibProdSiPixelLA = cms.FilteredStream(
         responsible = 'Marco Musich',
-        name = 'PromptCalibProdSiPixelLorentzAngle',
+        name = 'PromptCalibProdSiPixelLA',
         paths  = (pathALCARECOPromptCalibProdSiPixelLorentzAngle),
         content = OutALCARECOPromptCalibProdSiPixelLorentzAngle.outputCommands,
         selectEvents = OutALCARECOPromptCalibProdSiPixelLorentzAngle.SelectEvents,
