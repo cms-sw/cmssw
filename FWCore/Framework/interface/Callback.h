@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <array>
 #include <vector>
 #include <type_traits>
 #include <atomic>

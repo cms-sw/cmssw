@@ -82,6 +82,7 @@
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
+#include <array>
 #include <map>
 #include <memory>
 #include <set>
