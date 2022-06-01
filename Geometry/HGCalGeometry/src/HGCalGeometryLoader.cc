@@ -143,8 +143,9 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
           int u = HGCalWaferIndex::waferU(copy);
           int v = HGCalWaferIndex::waferV(copy);
           int type = topology.dddConstants().getTypeHex(layer, u, v);
-          DetId detId = (topology.isHFNose() ? static_cast<DetId>(HFNoseDetId(zside, type, layer, u, v, 0, 0))
-                                             : static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, u, v, 0, 0)));
+          DetId detId =
+              (topology.isHFNose() ? static_cast<DetId>(HFNoseDetId(zside, type, layer, u, v, 0, 0))
+                                   : static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, u, v, 0, 0)));
           const auto& w = topology.dddConstants().waferPosition(layer, u, v, true, true);
           double xx = (zside > 0) ? w.first : -w.first;
           CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());
