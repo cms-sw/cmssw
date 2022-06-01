@@ -177,15 +177,15 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     if (getFromLibrary(aStep)) {
       // for parameterized showers the primary track should be killed
       // secondary tracks should be killed if they are in the same volume
-      const_cast<G4Track *>(aStep->GetTrack())->SetTrackStatus(fStopAndKill);
-      if(0 < aStep->GetNumberOfSecondariesInCurrentStep()) {
-	auto tv = aStep->GetSecondaryInCurrentStep();
-	auto vol = aStep->GetPreStepPoint()->GetPhysicalVolume();
-	for (auto& tk : *tv) {
-	  if (tk->GetVolume() == vol) {
-	    const_cast<G4Track *>(tk)->SetTrackStatus(fStopAndKill);
-	  }
-	}
+      const_cast<G4Track*>(aStep->GetTrack())->SetTrackStatus(fStopAndKill);
+      if (0 < aStep->GetNumberOfSecondariesInCurrentStep()) {
+        auto tv = aStep->GetSecondaryInCurrentStep();
+        auto vol = aStep->GetPreStepPoint()->GetPhysicalVolume();
+        for (auto& tk : *tv) {
+          if (tk->GetVolume() == vol) {
+            const_cast<G4Track*>(tk)->SetTrackStatus(fStopAndKill);
+          }
+        }
       }
       return true;
     }
@@ -208,8 +208,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   } else {
     if (!ignoreReject) {
       const G4TouchableHistory* touch = static_cast<const G4TouchableHistory*>(theTrack->GetTouchable());
-      edm::LogVerbatim("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID 
-                                  << " currUnit=   " << currentID.unitID()
+      edm::LogVerbatim("CaloSim") << "CaloSD::ProcessHits: unitID= " << unitID << " currUnit=   " << currentID.unitID()
                                   << " Detector: " << GetName() << " trackID= " << theTrack->GetTrackID() << " "
                                   << theTrack->GetDefinition()->GetParticleName()
                                   << "\n Edep= " << aStep->GetTotalEnergyDeposit()
@@ -237,12 +236,12 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
 #ifdef EDM_ML_DEBUG
   G4TouchableHistory* touch = (G4TouchableHistory*)(theTrack->GetTouchable());
   edm::LogVerbatim("CaloSim") << "CaloSD::" << GetName() << " PV:" << touch->GetVolume(0)->GetName()
-			      << " PVid=" << touch->GetReplicaNumber(0) << " MVid=" << touch->GetReplicaNumber(1)
-			      << " Unit:" << std::hex << unitID << std::dec << " Edep=" << edepositEM << " "
-			      << edepositHAD << " ID=" << theTrack->GetTrackID() << " pID=" << theTrack->GetParentID()
-			      << " E=" << theTrack->GetKineticEnergy() << " S=" << aStep->GetStepLength() << "\n "
-			      << theTrack->GetDefinition()->GetParticleName() << " primaryID= " << primaryID
-			      << " currentID= (" << currentID << ") previousID= (" << previousID << ")";
+                              << " PVid=" << touch->GetReplicaNumber(0) << " MVid=" << touch->GetReplicaNumber(1)
+                              << " Unit:" << std::hex << unitID << std::dec << " Edep=" << edepositEM << " "
+                              << edepositHAD << " ID=" << theTrack->GetTrackID() << " pID=" << theTrack->GetParentID()
+                              << " E=" << theTrack->GetKineticEnergy() << " S=" << aStep->GetStepLength() << "\n "
+                              << theTrack->GetDefinition()->GetParticleName() << " primaryID= " << primaryID
+                              << " currentID= (" << currentID << ") previousID= (" << previousID << ")";
 #endif
   if (!hitExists(aStep)) {
     currentHit = createNewHit(aStep, aStep->GetTrack());

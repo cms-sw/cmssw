@@ -26,17 +26,17 @@ LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* reg
   fPositron = G4Positron::Positron();
   fMaterial = nullptr;
   auto table = G4Material::GetMaterialTable();
-  for(auto & mat : *table) {
+  for (auto& mat : *table) {
     G4String nam = mat->GetName();
     size_t n = nam.size();
-    if(n > 4) {
+    if (n > 4) {
       G4String sn = nam.substr(n - 5, 5);
-      if(sn == "PbW04") {
-	fMaterial = mat;
-	break;
+      if (sn == "PbW04") {
+        fMaterial = mat;
+        break;
       }
     }
-  } 
+  }
 }
 
 G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle) {
@@ -82,7 +82,7 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
   // tail energy deposition
   const G4double etail = energy - inPointEnergy;
   const G4int nspots = etail;
-  const G4double tailEnergy = etail/(nspots + 1);
+  const G4double tailEnergy = etail / (nspots + 1);
   /*
   edm::LogVerbatim("LowEnergyFastSimModel") << track->GetDefinition()->GetParticleName()
 					    << " Ekin(MeV)=" << energy << " material: <"
