@@ -117,7 +117,7 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   py -= py_leptons;
 
   LogDebug("produce") << "<DeepMETProducer::produce>:" << std::endl
-		      << " MET from DeepMET Producer is MET_x " << px << " and MET_y " << py << std::endl;
+                      << " MET from DeepMET Producer is MET_x " << px << " and MET_y " << py << std::endl;
 
   auto pf_mets = std::make_unique<pat::METCollection>();
   const reco::Candidate::LorentzVector p4(px, py, 0., std::hypot(px, py));
