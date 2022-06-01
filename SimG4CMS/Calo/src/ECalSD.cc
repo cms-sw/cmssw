@@ -229,7 +229,8 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
 double ECalSD::EnergyCorrected(const G4Step& step, const G4Track* track) {
   const G4StepPoint* hitPoint = step.GetPreStepPoint();
   const G4LogicalVolume* lv = hitPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
-  if(lv->GetSensitiveDetector() != this) return 0.0;
+  if (lv->GetSensitiveDetector() != this)
+    return 0.0;
 
   double edep = step.GetTotalEnergyDeposit();
   if (useWeight && !any(noWeight, lv)) {
