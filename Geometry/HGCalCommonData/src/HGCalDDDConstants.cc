@@ -504,9 +504,9 @@ bool HGCalDDDConstants::isValidHex(int lay, int mod, int cell, bool reco) const 
 #ifdef EDM_ML_DEBUG
   if (!result)
     edm::LogVerbatim("HGCalGeom") << "HGCalDDDConstants: Layer " << lay << ":"
-                                  << (lay > 0 && (lay <= static_cast<int>(layers(reco)))) << " Module " << mod << ":" << resultMod
-                                  << " Cell " << cell << ":" << cellmax << ":" << (cell >= 0 && cell <= cellmax) << ":"
-                                  << maxCells(reco);
+                                  << (lay > 0 && (lay <= static_cast<int>(layers(reco)))) << " Module " << mod << ":"
+                                  << resultMod << " Cell " << cell << ":" << cellmax << ":"
+                                  << (cell >= 0 && cell <= cellmax) << ":" << maxCells(reco);
 #endif
   return result;
 }
@@ -584,7 +584,9 @@ bool HGCalDDDConstants::isValidTrap(int layer, int irad, int iphi) const {
           (iphi <= hgpar_->scintCells(layer)));
 }
 
-int HGCalDDDConstants::lastLayer(bool reco) const { return (hgpar_->firstLayer_ + tot_layers_[static_cast<int>(reco)] - 1); }
+int HGCalDDDConstants::lastLayer(bool reco) const {
+  return (hgpar_->firstLayer_ + tot_layers_[static_cast<int>(reco)] - 1);
+}
 
 unsigned int HGCalDDDConstants::layers(bool reco) const { return tot_layers_[static_cast<int>(reco)]; }
 
@@ -1616,17 +1618,18 @@ void HGCalDDDConstants::cellHex(
       cellU = cu0 + shift[i1];
       for (int i2 = 0; i2 < 3; ++i2) {
         cellV = cv0 + shift[i2];
-        if (((cellV - cellU) < ncell) && ((cellU - cellV) <= ncell) && (cellU >= 0) && (cellV >= 0) && (cellU < 2 * ncell) &&
-            (cellV < 2 * ncell)) {
+        if (((cellV - cellU) < ncell) && ((cellU - cellV) <= ncell) && (cellU >= 0) && (cellV >= 0) &&
+            (cellU < 2 * ncell) && (cellV < 2 * ncell)) {
           double xc = (1.5 * (cellV - ncell) + 1.0) * delY;
           double yc = (2 * cellU - cellV - ncell) * delX;
           if ((std::abs(yloc - yc) <= delXT) && (std::abs(xloc - xc) <= delYT) &&
-              ((std::abs(xloc - xc) <= 0.5 * delYT) || (std::abs(yloc - yc) <= sqrt3_ * (delYT - std::abs(xloc - xc))))) {
+              ((std::abs(xloc - xc) <= 0.5 * delYT) ||
+               (std::abs(yloc - yc) <= sqrt3_ * (delYT - std::abs(xloc - xc))))) {
             if (debug)
               edm::LogVerbatim("HGCalGeom")
                   << "cellHex: local " << xc << ":" << yc << " difference " << std::abs(xloc - xc) << ":"
-                  << std::abs(yloc - yc) << ":" << sqrt3_ * (delY - std::abs(yloc - yc)) << " comparator " << delX << ":"
-                  << delY << " (u,v) = (" << cellU << "," << cellV << ")";
+                  << std::abs(yloc - yc) << ":" << sqrt3_ * (delY - std::abs(yloc - yc)) << " comparator " << delX
+                  << ":" << delY << " (u,v) = (" << cellU << "," << cellV << ")";
             found = true;
             break;
           }
@@ -1663,11 +1666,12 @@ int HGCalDDDConstants::layerFromIndex(int index, bool reco) const {
   int ll(-1);
   if (waferHexagon6() && reco) {
     ll = static_cast<int>(std::find(hgpar_->depthLayerF_.begin(), hgpar_->depthLayerF_.end(), index) -
-               hgpar_->depthLayerF_.begin());
+                          hgpar_->depthLayerF_.begin());
     if (ll == static_cast<int>(hgpar_->depthLayerF_.size()))
       ll = -1;
   } else {
-    ll = static_cast<int>(std::find(hgpar_->layerIndex_.begin(), hgpar_->layerIndex_.end(), index) - hgpar_->layerIndex_.begin());
+    ll = static_cast<int>(std::find(hgpar_->layerIndex_.begin(), hgpar_->layerIndex_.end(), index) -
+                          hgpar_->layerIndex_.begin());
     if (ll == static_cast<int>(hgpar_->layerIndex_.size()))
       ll = -1;
   }
