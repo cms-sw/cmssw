@@ -31,12 +31,14 @@ LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* reg
     size_t n = nam.size();
     if (n > 4) {
       G4String sn = nam.substr(n - 5, 5);
-      if (sn == "PbW04") {
+      if (sn == "PbWO4") {
         fMaterial = mat;
         break;
       }
     }
   }
+  G4String nm = (nullptr == fMaterial) ? "not found!" : fMaterial->GetName();
+  edm::LogVerbatim("LowEnergyFastSimModel") << "LowEGFlash material: <" << nm << ">";
 }
 
 G4bool LowEnergyFastSimModel::IsApplicable(const G4ParticleDefinition& particle) {
@@ -54,7 +56,12 @@ G4bool LowEnergyFastSimModel::ModelTrigger(const G4FastTrack& fastTrack) {
       return false;
   }
   G4double energy = track->GetKineticEnergy();
-  return (fMaterial == track->GetMaterial() && energy < fEmax);
+  /*
+  edm::LogVerbatim("LowEnergyFastSimModel") << track->GetDefinition()->GetParticleName()
+					    << " Ekin(MeV)=" << energy << " material: <"
+                                            << track->GetMaterial()->GetName() << ">";
+  */
+  return (energy < fEmax && fMaterial == track->GetMaterial());
 }
 
 void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep) {
@@ -83,7 +90,7 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
   const G4double etail = energy - inPointEnergy;
   const G4int nspots = etail;
   const G4double tailEnergy = etail / (nspots + 1);
-  /*
+  /*  
   edm::LogVerbatim("LowEnergyFastSimModel") << track->GetDefinition()->GetParticleName()
 					    << " Ekin(MeV)=" << energy << " material: <"
                                             << track->GetMaterial()->GetName() 

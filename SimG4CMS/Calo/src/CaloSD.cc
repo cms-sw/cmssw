@@ -192,6 +192,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
   }
 
   // ignore steps without energy deposit
+  edepositEM = edepositHAD = 0.f;
   if (aStep->GetTotalEnergyDeposit() <= 0.0) {
     return false;
   }
@@ -227,7 +228,6 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
     currentID.markAsFinecaloTrackID();
   }
 
-  edepositEM = edepositHAD = 0.f;
   if (G4TrackToParticleID::isGammaElectronPositron(theTrack)) {
     edepositEM = energy;
   } else {
@@ -244,7 +244,7 @@ G4bool CaloSD::ProcessHits(G4Step* aStep, G4TouchableHistory*) {
                               << " currentID= (" << currentID << ") previousID= (" << previousID << ")";
 #endif
   if (!hitExists(aStep)) {
-    currentHit = createNewHit(aStep, aStep->GetTrack());
+    currentHit = createNewHit(aStep, theTrack);
   } else {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("DoFineCalo") << "Not creating new hit, only updating " << shortreprID(currentHit);
