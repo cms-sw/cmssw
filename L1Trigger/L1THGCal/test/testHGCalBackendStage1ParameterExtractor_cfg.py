@@ -51,12 +51,25 @@ process = custom_geometry_V11_Imp3(process)
 # Fetch stage 1 truncation parameters
 from L1Trigger.L1THGCal.hgcalBackEndLayer1Producer_cfi import stage1truncation_proc
 
+
+# setup options
+import FWCore.ParameterSet.VarParsing as VarParsing
+opt = VarParsing.VarParsing('analysis')
+opt.register('outputJSON','geometryConfig_backendStage1.json',
+             VarParsing.VarParsing.multiplicity.singleton,
+             VarParsing.VarParsing.varType.string,
+             'output JSON configuration'
+)
+opt.register('fpgaId',0,
+             VarParsing.VarParsing.multiplicity.singleton,
+             VarParsing.VarParsing.varType.int,
+             'FPGA ID'
+)
+opt.parseArguments()
+
 # ordered u/v coordinated of TCs in a module, for consistent TC index definition
 ordered_tcu = [4, 5, 4, 3, 6, 7, 6, 5, 4, 5, 4, 3, 2, 3, 2, 1, 7, 6, 6, 7, 5, 4, 4, 5, 5, 4, 4, 5, 7, 6, 6, 7, 0, 0, 1, 1, 0, 0, 1, 1, 2, 2, 3, 3, 2, 2, 3, 3]
 ordered_tcv = [0, 1, 1, 0, 2, 3, 3, 2, 2, 3, 3, 2, 0, 1, 1, 0, 7, 7, 6, 6, 7, 7, 6, 6, 5, 5, 4, 4, 5, 5, 4, 4, 3, 2, 3, 4, 1, 0, 1, 2, 3, 2, 3, 4, 5, 4, 5, 6]
-
-# ID of tested FPGA
-fpga_id = 1
 
 # geometry version
 from re import match
@@ -70,8 +83,8 @@ geometry_version = geometry_version[0].split('/')[4]
 
 process.hgcalbackendstage1parameterextractor = cms.EDAnalyzer(
     "HGCalBackendStage1ParameterExtractor",
-    outJSONname = cms.string("geometryConfig_backendStage1.json"),
-    testedFpga = cms.int32(fpga_id),
+    outJSONname = cms.string(opt.outputJSON),
+    testedFpga = cms.int32(opt.fpgaId),
     BackendStage1Params = stage1truncation_proc.truncation_parameters,
     TriggerGeometryParam = process.hgcalTriggerGeometryESProducer.TriggerGeometry,
     TCcoord_UV = cms.PSet(
