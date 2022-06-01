@@ -233,8 +233,20 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
                     (ideltaz * fact_ < (int)zmatchcuttable_.lookup(seedindex)) &&
                     (ideltaz * fact_ >= -(int)zmatchcuttable_.lookup(seedindex));
 
+      bool keep = true;
+      if (!settings_.doKF() || !settings_.doMultipleMatches()) {
+        // Case of allowing only one stub per track per layer (or no KF which implies the same).        
+        if (imatch && tracklet->match(layerdisk_)) {
+          // Veto match if is not the best one for this tracklet (in given layer)
+          auto res = tracklet->resid(layerdisk_);
+          keep = abs(ideltaphi) < abs(res.fpgaphiresid().value());
+          imatch = keep;
+        }
+      }
+
       if (settings_.debugTracklet()) {
-        edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " ideltaphi cut " << ideltaphi << " "
+        edm::LogVerbatim("Tracklet") << getName() << " imatch = " << imatch << " keep = " << keep 
+                                     <<" ideltaphi cut " << ideltaphi << " "
                                      << phimatchcuttable_.lookup(seedindex) << " ideltaz*fact cut " << ideltaz * fact_
                                      << " " << zmatchcuttable_.lookup(seedindex);
       }
@@ -289,7 +301,6 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
       ir += ircorr;
 
       int ideltaphi = fpgastub->phi().value() * settings_.kphi() / settings_.kphi() - iphi;
-
       int irstub = fpgastub->r().value();
       int ialphafact = 0;
       if (!stub->isPSmodule()) {
@@ -395,8 +406,22 @@ void MatchCalculator::execute(unsigned int iSector, double phioffset) {
         match = false;
         imatch = false;
       }
+
+      bool keep = true;
+      if (!settings_.doKF() || !settings_.doMultipleMatches()) {
+        // Case of allowing only one stub per track per layer (or no KF which implies the same).        
+        if(imatch && tracklet->match(layerdisk_)) {
+          // Veto match if is not the best one for this tracklet (in given layer)
+          auto res = tracklet->resid(layerdisk_);
+          keep = abs(ideltaphi) < abs(res.fpgaphiresid().value());
+          imatch = keep;
+        }
+      }
+      if (not keep) match = false; // FIX: should calc keep with float point here.
+
       if (settings_.debugTracklet()) {
-        edm::LogVerbatim("Tracklet") << "imatch match disk: " << imatch << " " << match << " " << std::abs(ideltaphi)
+        edm::LogVerbatim("Tracklet") << "imatch match disk: " << imatch << " " << match << " keep = " << keep 
+                                     << " " << std::abs(ideltaphi)
                                      << " " << drphicut / (settings_.kphi() * stub->r()) << " " << std::abs(ideltar)
                                      << " " << drcut / settings_.krprojshiftdisk() << " r = " << stub->r();
       }
