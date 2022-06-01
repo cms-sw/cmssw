@@ -32,8 +32,6 @@ from Configuration.ProcessModifiers.deepMETSonicTriton_cff import deepMETSonicTr
 
 def split_model_path(path):
     Client = dict(
-        timeout = 300,
-        mode = "Async",
         modelName = path.split('/')[-3],
         modelConfigPath = '/'.join(path.split('/')[:-2])+'/config.pbtxt',
         # version "1" is the resolutionTune
