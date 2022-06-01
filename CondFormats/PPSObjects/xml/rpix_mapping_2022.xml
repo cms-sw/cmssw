@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<top>
+  <arm id="0">
+    <station id="0">
+      <!--45 210 hor far-->
+      <rp_detector_set id="3" doCorrelations="0">
+        <rpix_plane id="0">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="35" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="35" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="36" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="36" />
+        </rpix_plane>
+        <rpix_plane id="1">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="33" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="33" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="34" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="34" />
+        </rpix_plane>
+        <rpix_plane id="2">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="31" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="31" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="32" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="32" />
+        </rpix_plane>
+        <rpix_plane id="3">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="29" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="29" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="30" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="30" />
+        </rpix_plane>
+        <rpix_plane id="4">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="27" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="27" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="28" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="28" />
+        </rpix_plane>
+        <rpix_plane id="5">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="25" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="25" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="26" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="26" />
+        </rpix_plane>
+      </rp_detector_set>
+    </station>
+    <station id="2">
+      <!--4a -->
+      <!--45 220 hor far-->
+      <rp_detector_set id="3" doCorrelations="0">
+        <rpix_plane id="0">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="11" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="11" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="12" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="12" />
+        </rpix_plane>
+        <rpix_plane id="1">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="9" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="9" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="10" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="10" />
+        </rpix_plane>
+        <rpix_plane id="2">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="7" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="7" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="8" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="8" />
+        </rpix_plane>
+        <rpix_plane id="3">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="5" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="5" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="6" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="6" />
+        </rpix_plane>
+        <rpix_plane id="4">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="3" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="3" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="4" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="4" />
+        </rpix_plane>
+        <rpix_plane id="5">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="1" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="1" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1462" FMC="0" FEDChannel="2" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1462" FMC="0" FEDChannel="2" />
+        </rpix_plane>
+      </rp_detector_set>
+    </station>
+  </arm>
+  <arm id="1">
+    <station id="0">
+      <!--56 210 hor far-->
+      <rp_detector_set id="3" doCorrelations="0">
+        <rpix_plane id="0">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="35" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="35" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="36" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="36" />
+        </rpix_plane>
+        <rpix_plane id="1">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="33" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="33" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="34" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="34" />
+        </rpix_plane>
+        <rpix_plane id="2">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="31" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="31" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="32" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="32" />
+        </rpix_plane>
+        <rpix_plane id="3">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="29" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="29" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="30" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="30" />
+        </rpix_plane>
+        <rpix_plane id="4">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="27" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="27" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="28" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="28" />
+        </rpix_plane>
+        <rpix_plane id="5">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="25" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="25" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="26" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="26" />
+        </rpix_plane>
+      </rp_detector_set>
+    </station>
+    <station id="2">
+      <!--56 220 hor far-->
+      <rp_detector_set id="3" doCorrelations="0">
+        <rpix_plane id="0">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="11" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="11" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="12" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="12" />
+        </rpix_plane>
+        <rpix_plane id="1">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="9" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="9" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="10" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="10" />
+        </rpix_plane>
+        <rpix_plane id="2">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="7" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="7" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="8" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="8" />
+        </rpix_plane>
+        <rpix_plane id="3">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="5" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="5" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="6" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="6" />
+        </rpix_plane>
+        <rpix_plane id="4">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="3" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="3" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="4" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="4" />
+        </rpix_plane>
+        <rpix_plane id="5">
+          <roc id="0" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="1" />
+          <roc id="1" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="1" />
+          <roc id="4" hw_id="" SubSystemId="RPix" ROCinChannel="0" FEDId="1463" FMC="0" FEDChannel="2" />
+          <roc id="5" hw_id="" SubSystemId="RPix" ROCinChannel="1" FEDId="1463" FMC="0" FEDChannel="2" />
+        </rpix_plane>
+      </rp_detector_set>
+    </station>
+  </arm>
+</top>
