@@ -81,10 +81,8 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory* trkWHist) {
   TrackContainer::const_iterator tk_itr = std::lower_bound(
       (*m_trksForThisEvent).begin(), (*m_trksForThisEvent).end(), parent, SimTrackManager::StrictWeakOrdering());
 
-  TrackWithHistory* tempTk = *tk_itr;
-
   if (tk_itr != m_trksForThisEvent->end() && (*tk_itr)->trackID() == parent) {
-    saveTrackAndItsBranch(tempTk);
+    saveTrackAndItsBranch(*tk_itr);
   }
 }
 
