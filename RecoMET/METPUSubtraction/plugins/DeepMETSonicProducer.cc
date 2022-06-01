@@ -92,8 +92,9 @@ void DeepMETSonicProducer::acquire(edm::Event const& iEvent, edm::EventSetup con
 
     ++i_pf;
     if (i_pf == max_n_pf_) {
-      edm::LogWarning("acquire") << "<DeepMETSonicProducer::acquire>:" << std::endl
-				 << " The number of particles is equal to or exceeds the maximum considerable for DeepMET" << std::endl;
+      edm::LogWarning("acquire")
+          << "<DeepMETSonicProducer::acquire>:" << std::endl
+          << " The number of particles is equal to or exceeds the maximum considerable for DeepMET" << std::endl;
       break;
     }
   }
@@ -124,7 +125,7 @@ void DeepMETSonicProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
   py -= py_leptons_;
 
   LogDebug("produce") << "<DeepMETSonicProducer::produce>:" << std::endl
-		      << " MET from DeepMET Sonic Producer is MET_x " << px << " and MET_y " << py << std::endl;
+                      << " MET from DeepMET Sonic Producer is MET_x " << px << " and MET_y " << py << std::endl;
 
   auto pf_mets = std::make_unique<pat::METCollection>();
   const reco::Candidate::LorentzVector p4(px, py, 0., std::hypot(px, py));
