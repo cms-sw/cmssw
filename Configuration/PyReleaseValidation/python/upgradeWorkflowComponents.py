@@ -390,7 +390,13 @@ upgradeWFs['seedingDeepCore'] = UpgradeWorkflow_seedingDeepCore(
         'Nano',
         'ALCA',
     ],
-    PU = [],
+    PU = [
+        'Reco',
+        'RecoGlobal',
+        'HARVESTGlobal',
+        'RecoNano',
+        'HARVESTNano',
+    ],
     suffix = '_seedingDeepCore',
     offset = 0.17,
 )
