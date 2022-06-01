@@ -30,24 +30,28 @@ run2_jme_2016.toModify(
 from RecoMET.METPUSubtraction.deepMETSonicProducer_cff import deepMETSonicProducer as _deepMETSonicProducer
 from Configuration.ProcessModifiers.deepMETSonicTriton_cff import deepMETSonicTriton
 
+def split_model_path(path):
+    Client = dict(
+        timeout = 300,
+        mode = "Async",
+        modelName = path.split('/')[-3],
+        modelConfigPath = '/'.join(path.split('/')[:-2])+'/config.pbtxt',
+        # version "1" is the resolutionTune
+        # version "2" is the responeTune
+        modelVersion = os.path.realpath(pfnInPath(path).split(':')[-1]).split('/')[-2],
+    )
+    return Client
+
 # propagate possible parameter updates
 _deepMETsResolutionTuneSonic = _deepMETSonicProducer.clone(
     max_n_pf = deepMETsResolutionTune.max_n_pf,
-    Client = dict(
-        modelName = deepMETsResolutionTune.graph_path.value().split('/')[-3],
-        modelConfigPath = '/'.join(deepMETsResolutionTune.graph_path.value().split('/')[:-2])+'/config.pbtxt',
-        modelVersion = os.path.realpath(pfnInPath(deepMETsResolutionTune.graph_path.value()).split(':')[-1]).split('/')[-2], #model "1"
-    ),
+    Client = split_model_path(deepMETsResolutionTune.graph_path.value()),
 )
 deepMETSonicTriton.toReplaceWith(deepMETsResolutionTune, _deepMETsResolutionTuneSonic)
 
 _deepMETsResponseTuneSonic = _deepMETSonicProducer.clone(
     max_n_pf = deepMETsResponseTune.max_n_pf,
-    Client = dict(
-        modelName = deepMETsResponseTune.graph_path.value().split('/')[-3],
-        modelConfigPath = '/'.join(deepMETsResponseTune.graph_path.value().split('/')[:-2])+'/config.pbtxt',
-        modelVersion = os.path.realpath(pfnInPath(deepMETsResponseTune.graph_path.value()).split(':')[-1]).split('/')[-2], #model "2"
-    ),
+    Client = split_model_path(deepMETsResponseTune.graph_path.value()),
 )
 deepMETSonicTriton.toReplaceWith(deepMETsResponseTune, _deepMETsResponseTuneSonic)
 
