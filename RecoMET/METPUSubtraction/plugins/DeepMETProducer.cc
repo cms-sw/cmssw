@@ -30,7 +30,6 @@ private:
   const float norm_;
   const bool ignore_leptons_;
   const unsigned int max_n_pf_;
-  const bool debug_;
 
   tensorflow::Session* session_;
 
@@ -45,7 +44,6 @@ DeepMETProducer::DeepMETProducer(const edm::ParameterSet& cfg, const DeepMETCach
       norm_(cfg.getParameter<double>("norm_factor")),
       ignore_leptons_(cfg.getParameter<bool>("ignore_leptons")),
       max_n_pf_(cfg.getParameter<unsigned int>("max_n_pf")),
-      debug_(cfg.getUntrackedParameter<bool>("debugMode", false)),
       session_(tensorflow::createSession(cache->graph_def)) {
   produces<pat::METCollection>();
 
@@ -118,9 +116,8 @@ void DeepMETProducer::produce(edm::Event& event, const edm::EventSetup& setup) {
   px -= px_leptons;
   py -= py_leptons;
 
-  if (debug_) {
-    std::cout << "MET from DeepMET Producer is MET_x " << px << " and MET_y " << py << std::endl;
-  }
+  LogDebug("produce") << "<DeepMETProducer::produce>:" << std::endl
+		      << " MET from DeepMET Producer is MET_x " << px << " and MET_y " << py << std::endl;
 
   auto pf_mets = std::make_unique<pat::METCollection>();
   const reco::Candidate::LorentzVector p4(px, py, 0., std::hypot(px, py));
@@ -150,7 +147,6 @@ void DeepMETProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<bool>("ignore_leptons", false);
   desc.add<double>("norm_factor", 50.);
   desc.add<unsigned int>("max_n_pf", 4500);
-  desc.addOptionalUntracked<bool>("debugMode", false);
   desc.add<std::string>("graph_path", "RecoMET/METPUSubtraction/data/models/deepmet/deepmet_v1_2018/model.graphdef");
   descriptions.add("deepMETProducer", desc);
 }

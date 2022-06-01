@@ -24,7 +24,6 @@ private:
   const float norm_;
   const bool ignore_leptons_;
   const unsigned int max_n_pf_;
-  const bool debug_;
   const float scale_;
   float px_leptons_;
   float py_leptons_;
@@ -36,7 +35,6 @@ DeepMETSonicProducer::DeepMETSonicProducer(const edm::ParameterSet& cfg)
       norm_(cfg.getParameter<double>("norm_factor")),
       ignore_leptons_(cfg.getParameter<bool>("ignore_leptons")),
       max_n_pf_(cfg.getParameter<unsigned int>("max_n_pf")),
-      debug_(cfg.getUntrackedParameter<bool>("debugMode", false)),
       scale_(1.0 / norm_) {
   produces<pat::METCollection>();
 }
@@ -94,7 +92,9 @@ void DeepMETSonicProducer::acquire(edm::Event const& iEvent, edm::EventSetup con
 
     ++i_pf;
     if (i_pf == max_n_pf_) {
-      break;  // output a warning?
+      edm::LogWarning("acquire") << "<DeepMETSonicProducer::acquire>:" << std::endl
+				 << " The number of particles is equal to or exceeds the maximum considerable for DeepMET" << std::endl;
+      break;
     }
   }
 
@@ -123,9 +123,8 @@ void DeepMETSonicProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
   px -= px_leptons_;
   py -= py_leptons_;
 
-  if (debug_) {
-    std::cout << "MET from DeepMET Sonic Producer is MET_x " << px << " and MET_y " << py << std::endl;
-  }
+  LogDebug("produce") << "<DeepMETSonicProducer::produce>:" << std::endl
+		      << " MET from DeepMET Sonic Producer is MET_x " << px << " and MET_y " << py << std::endl;
 
   auto pf_mets = std::make_unique<pat::METCollection>();
   const reco::Candidate::LorentzVector p4(px, py, 0., std::hypot(px, py));
@@ -140,7 +139,6 @@ void DeepMETSonicProducer::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.add<bool>("ignore_leptons", false);
   desc.add<double>("norm_factor", 50.);
   desc.add<unsigned int>("max_n_pf", 4500);
-  desc.addOptionalUntracked<bool>("debugMode", false);
   descriptions.add("deepMETSonicProducer", desc);
 }
 
