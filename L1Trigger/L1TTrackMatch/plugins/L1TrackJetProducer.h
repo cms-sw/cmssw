@@ -29,7 +29,7 @@ struct MaxZBin {
   float ht;                         //sum of all cluster pTs--only the zbin with the maximum ht is stored
 };
 
-std::vector<EtaPhiBin> L1_clustering(EtaPhiBin *phislice, int etaBins_, float etaStep_) {
+inline std::vector<EtaPhiBin> L1_clustering(EtaPhiBin *phislice, int etaBins_, float etaStep_) {
   std::vector<EtaPhiBin> clusters;
   // Find eta-phibin with maxpT, make center of cluster, add neighbors if not already used
   int nclust = 0;
@@ -117,7 +117,7 @@ std::vector<EtaPhiBin> L1_clustering(EtaPhiBin *phislice, int etaBins_, float et
   return clusters;
 }
 
-void Fill_L2Cluster(EtaPhiBin &bin, float pt, int ntrk, int ndtrk, std::vector<unsigned int> trkidx) {
+inline void Fill_L2Cluster(EtaPhiBin &bin, float pt, int ntrk, int ndtrk, std::vector<unsigned int> trkidx) {
   bin.pTtot += pt;
   bin.numtracks += ntrk;
   bin.numtdtrks += ndtrk;
@@ -125,7 +125,7 @@ void Fill_L2Cluster(EtaPhiBin &bin, float pt, int ntrk, int ndtrk, std::vector<u
     bin.trackidx.push_back(trkidx[itrk]);
 }
 
-float DPhi(float phi1, float phi2) {
+inline float DPhi(float phi1, float phi2) {
   float x = phi1 - phi2;
   if (x >= M_PI)
     x -= 2 * M_PI;
@@ -134,13 +134,13 @@ float DPhi(float phi1, float phi2) {
   return x;
 }
 
-std::vector<EtaPhiBin> L2_clustering(std::vector<std::vector<EtaPhiBin>> &L1clusters,
-                                     int phiBins_,
-                                     float phiStep_,
-                                     float etaStep_) {
+inline std::vector<EtaPhiBin> L2_clustering(std::vector<std::vector<EtaPhiBin>> &L1clusters,
+                                            int phiBins_,
+                                            float phiStep_,
+                                            float etaStep_) {
   std::vector<EtaPhiBin> clusters;
   for (int phibin = 0; phibin < phiBins_; ++phibin) {  //Find eta-phibin with highest pT
-    if (L1clusters[phibin].size() == 0)
+    if (L1clusters[phibin].empty())
       continue;
 
     // sort L1 clusters max -> min
