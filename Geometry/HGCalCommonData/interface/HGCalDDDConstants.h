@@ -15,6 +15,9 @@
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCassette.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCell.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCellUV.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
@@ -22,6 +25,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include <CLHEP/Geometry/Point3D.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -96,7 +100,7 @@ public:
   std::pair<float, float> locateCell(const HGCSiliconDetId&, bool debug = false) const;
   std::pair<float, float> locateCell(const HGCScintillatorDetId&, bool debug = false) const;
   std::pair<float, float> locateCellHex(int cell, int wafer, bool reco) const;
-  std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco) const;
+  std::pair<float, float> locateCellTrap(int lay, int ieta, int iphi, bool reco, bool debug = false) const;
   int levelTop(int ind = 0) const { return hgpar_->levelT_[ind]; }
   bool maskCell(const DetId& id, int corners) const;
   int maxCellUV() const { return (tileTrapezoid() ? hgpar_->nCellsFine_ : 2 * hgpar_->nCellsFine_); }
@@ -128,7 +132,8 @@ public:
     return ok;
   }
   std::pair<int, int> tileRings(int layer) const {
-    if (mode_ == HGCalGeometryMode::TrapezoidFile) {
+    if ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
+        (mode_ == HGCalGeometryMode::TrapezoidCassette)) {
       int ll = layer - hgpar_->firstLayer_;
       if (ll >= 0 && ll < static_cast<int>(hgpar_->tileRingRange_.size()))
         return hgpar_->tileRingRange_[ll];
@@ -138,7 +143,7 @@ public:
   int tileSiPM(int sipm) const { return ((sipm > 0) ? HGCalTypes::SiPMSmall : HGCalTypes::SiPMLarge); }
   bool tileTrapezoid() const {
     return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
-            (mode_ == HGCalGeometryMode::TrapezoidModule));
+            (mode_ == HGCalGeometryMode::TrapezoidModule) || (mode_ == HGCalGeometryMode::TrapezoidCassette));
   }
   std::pair<int, int> tileType(int layer, int ring, int phi) const {
     int indx = HGCalTileIndex::tileIndex(layer, ring, phi);
@@ -169,7 +174,12 @@ public:
   }
   bool waferHexagon8() const {
     return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) ||
-            (mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module));
+            (mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module) ||
+            (mode_ == HGCalGeometryMode::Hexagon8Cassette));
+  }
+  bool waferHexagon8File() const {
+    return ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module) ||
+            (mode_ == HGCalGeometryMode::Hexagon8Cassette));
   }
   bool waferInLayer(int wafer, int lay, bool reco) const;
   bool waferFullInLayer(int wafer, int lay, bool reco) const;
@@ -255,8 +265,15 @@ private:
               const double& cellR,
               const std::vector<double>& posX,
               const std::vector<double>& posY) const;
-  void cellHex(
-      double xloc, double yloc, int cellType, int& cellU, int& cellV, bool extend = false, bool debug = false) const;
+  void cellHex(double xloc,
+               double yloc,
+               int cellType,
+               int place,
+               int part,
+               int& cellU,
+               int& cellV,
+               bool extend = false,
+               bool debug = false) const;
   std::pair<int, float> getIndex(int lay, bool reco) const;
   int layerFromIndex(int index, bool reco) const;
   bool isValidCell(int layindex, int wafer, int cell) const;
@@ -266,6 +283,9 @@ private:
   std::pair<double, double> waferPositionNoRot(int lay, int waferU, int waferV, bool reco, bool debug = false) const;
   std::pair<double, double> waferPosition(int waferU, int waferV, bool reco) const;
 
+  HGCalCassette hgcassette_;
+  std::unique_ptr<HGCalCell> hgcell_;
+  std::unique_ptr<HGCalCellUV> hgcellUV_;
   HGCalGeomTools geomTools_;
   const double k_horizontalShift = 1.0;
   const float dPhiMin = 0.02;
