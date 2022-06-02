@@ -456,109 +456,121 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    if (nStreams > 1) {
-      edm::Service<RootHandlers> handler;
-      handler->willBeUsingThreads();
-    }
+    CMS_SA_ALLOW try {
+      if (nStreams > 1) {
+        edm::Service<RootHandlers> handler;
+        handler->willBeUsingThreads();
+      }
 
-    // intialize miscellaneous items
-    std::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
+      // intialize miscellaneous items
+      std::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
 
-    // intialize the event setup provider
-    ParameterSet const& eventSetupPset(optionsPset.getUntrackedParameterSet("eventSetup"));
-    esp_ = espController_->makeProvider(
-        *parameterSet, items.actReg_.get(), &eventSetupPset, maxConcurrentIOVs, dumpOptions);
+      // intialize the event setup provider
+      ParameterSet const& eventSetupPset(optionsPset.getUntrackedParameterSet("eventSetup"));
+      esp_ = espController_->makeProvider(
+          *parameterSet, items.actReg_.get(), &eventSetupPset, maxConcurrentIOVs, dumpOptions);
 
-    // initialize the looper, if any
-    if (!loopers.empty()) {
-      looper_ = fillLooper(*espController_, *esp_, *parameterSet, loopers);
-      looper_->setActionTable(items.act_table_.get());
-      looper_->attachTo(*items.actReg_);
+      // initialize the looper, if any
+      if (!loopers.empty()) {
+        looper_ = fillLooper(*espController_, *esp_, *parameterSet, loopers);
+        looper_->setActionTable(items.act_table_.get());
+        looper_->attachTo(*items.actReg_);
 
-      // in presence of looper do not delete modules
-      deleteNonConsumedUnscheduledModules_ = false;
-    }
+        // in presence of looper do not delete modules
+        deleteNonConsumedUnscheduledModules_ = false;
+      }
 
-    preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
+      preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
 
-    lumiQueue_ = std::make_unique<LimitedTaskQueue>(nConcurrentLumis);
-    streamQueues_.resize(nStreams);
-    streamLumiStatus_.resize(nStreams);
+      lumiQueue_ = std::make_unique<LimitedTaskQueue>(nConcurrentLumis);
+      streamQueues_.resize(nStreams);
+      streamLumiStatus_.resize(nStreams);
 
-    processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
+      processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
 
-    // initialize the input source
-    input_ = makeInput(*parameterSet,
-                       *common,
-                       items.preg(),
-                       items.branchIDListHelper(),
-                       get_underlying_safe(processBlockHelper_),
-                       items.thinnedAssociationsHelper(),
-                       items.actReg_,
-                       items.processConfiguration(),
-                       preallocations_);
+      // initialize the input source
+      input_ = makeInput(*parameterSet,
+                         *common,
+                         items.preg(),
+                         items.branchIDListHelper(),
+                         get_underlying_safe(processBlockHelper_),
+                         items.thinnedAssociationsHelper(),
+                         items.actReg_,
+                         items.processConfiguration(),
+                         preallocations_);
 
-    // initialize the Schedule
-    schedule_ =
-        items.initSchedule(*parameterSet, hasSubProcesses, preallocations_, &processContext_, *processBlockHelper_);
+      // initialize the Schedule
+      schedule_ =
+          items.initSchedule(*parameterSet, hasSubProcesses, preallocations_, &processContext_, *processBlockHelper_);
 
-    // set the data members
-    act_table_ = std::move(items.act_table_);
-    actReg_ = items.actReg_;
-    preg_ = items.preg();
-    mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
-    branchIDListHelper_ = items.branchIDListHelper();
-    thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
-    processConfiguration_ = items.processConfiguration();
-    processContext_.setProcessConfiguration(processConfiguration_.get());
-    principalCache_.setProcessHistoryRegistry(input_->processHistoryRegistry());
+      // set the data members
+      act_table_ = std::move(items.act_table_);
+      actReg_ = items.actReg_;
+      preg_ = items.preg();
+      mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
+      branchIDListHelper_ = items.branchIDListHelper();
+      thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
+      processConfiguration_ = items.processConfiguration();
+      processContext_.setProcessConfiguration(processConfiguration_.get());
+      principalCache_.setProcessHistoryRegistry(input_->processHistoryRegistry());
 
-    FDEBUG(2) << parameterSet << std::endl;
+      FDEBUG(2) << parameterSet << std::endl;
 
-    principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
-    for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
-      // Reusable event principal
-      auto ep = std::make_shared<EventPrincipal>(preg(),
-                                                 branchIDListHelper(),
-                                                 thinnedAssociationsHelper(),
-                                                 *processConfiguration_,
-                                                 historyAppender_.get(),
-                                                 index,
-                                                 true /*primary process*/,
-                                                 &*processBlockHelper_);
-      principalCache_.insert(std::move(ep));
-    }
+      principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
+      for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
+        // Reusable event principal
+        auto ep = std::make_shared<EventPrincipal>(preg(),
+                                                   branchIDListHelper(),
+                                                   thinnedAssociationsHelper(),
+                                                   *processConfiguration_,
+                                                   historyAppender_.get(),
+                                                   index,
+                                                   true /*primary process*/,
+                                                   &*processBlockHelper_);
+        principalCache_.insert(std::move(ep));
+      }
 
-    for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
-      auto lp =
-          std::make_unique<LuminosityBlockPrincipal>(preg(), *processConfiguration_, historyAppender_.get(), index);
-      principalCache_.insert(std::move(lp));
-    }
+      for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
+        auto lp =
+            std::make_unique<LuminosityBlockPrincipal>(preg(), *processConfiguration_, historyAppender_.get(), index);
+        principalCache_.insert(std::move(lp));
+      }
 
-    {
-      auto pb = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
-      principalCache_.insert(std::move(pb));
+      {
+        auto pb = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        principalCache_.insert(std::move(pb));
 
-      auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
-      principalCache_.insertForInput(std::move(pbForInput));
-    }
+        auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        principalCache_.insertForInput(std::move(pbForInput));
+      }
 
-    // fill the subprocesses, if there are any
-    subProcesses_.reserve(subProcessVParameterSet.size());
-    for (auto& subProcessPSet : subProcessVParameterSet) {
-      subProcesses_.emplace_back(subProcessPSet,
-                                 *parameterSet,
-                                 preg(),
-                                 branchIDListHelper(),
-                                 *processBlockHelper_,
-                                 *thinnedAssociationsHelper_,
-                                 SubProcessParentageHelper(),
-                                 *espController_,
-                                 *actReg_,
-                                 token,
-                                 serviceregistry::kConfigurationOverrides,
-                                 preallocations_,
-                                 &processContext_);
+      // fill the subprocesses, if there are any
+      subProcesses_.reserve(subProcessVParameterSet.size());
+      for (auto& subProcessPSet : subProcessVParameterSet) {
+        subProcesses_.emplace_back(subProcessPSet,
+                                   *parameterSet,
+                                   preg(),
+                                   branchIDListHelper(),
+                                   *processBlockHelper_,
+                                   *thinnedAssociationsHelper_,
+                                   SubProcessParentageHelper(),
+                                   *espController_,
+                                   *actReg_,
+                                   token,
+                                   serviceregistry::kConfigurationOverrides,
+                                   preallocations_,
+                                   &processContext_);
+      }
+    } catch (...) {
+      //in case of an exception, make sure Services are available
+      // during the following destructors
+      espController_ = nullptr;
+      esp_ = nullptr;
+      schedule_ = nullptr;
+      input_ = nullptr;
+      looper_ = nullptr;
+      actReg_ = nullptr;
+      throw;
     }
   }
 
