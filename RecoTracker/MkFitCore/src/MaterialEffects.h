@@ -19,8 +19,12 @@ namespace mkfit {
   public:
     MaterialEffects();
 
-    int getZbin(const float z) const { return (std::abs(z) * Config::nBinsZME) / (Config::rangeZME); }
-    int getRbin(const float r) const { return (r * Config::nBinsRME) / (Config::rangeRME); }
+    int __attribute__((optimize("no-inline"))) getZbin(const float z) const {
+      return (std::abs(z) * Config::nBinsZME) / (Config::rangeZME);
+    }
+    int __attribute__((optimize("no-inline"))) getRbin(const float r) const {
+      return (r * Config::nBinsRME) / (Config::rangeRME);
+    }
     float getRlVal(const int zb, const int rb) const { return mRlgridME[zb][rb]; }
     float getXiVal(const int zb, const int rb) const { return mXigridME[zb][rb]; }
 
