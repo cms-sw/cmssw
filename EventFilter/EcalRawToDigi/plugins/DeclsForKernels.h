@@ -17,7 +17,10 @@ namespace ecal {
 
     constexpr auto empty_event_size = EMPTYEVENTSIZE;
     constexpr uint32_t nfeds_max = 54;
-    constexpr uint32_t nbytes_per_fed_max = 10 * 1024;
+    constexpr uint32_t nbytes_per_fed_max = 41616;  // max FED size in full readout mode
+                                                    // DCC header and trailer: 10 words (64bit),
+                                                    // TCC block: 18 words, SR block 6 words,
+                                                    // (25 channels per tower * 3 words + 1 header word) * 68 towers
 
     struct InputDataCPU {
       cms::cuda::host::unique_ptr<unsigned char[]> data;
