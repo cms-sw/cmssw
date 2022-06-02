@@ -43,7 +43,7 @@ public:
   ZCounting(const edm::ParameterSet& ps);
   ~ZCounting() override;
 
-  enum MuonIDTypes { NoneID, LooseID, MediumID, TightID };
+  enum MuonIDTypes { NoneID, LooseID, MediumID, TightID, CustomTightID };
   enum MuonIsoTypes { NoneIso, TrackerIso, PFIso };
 
 protected:
@@ -59,6 +59,7 @@ private:
   bool isMuonTriggerObj(const ZCountingTrigger::TTrigger& triggerMenu, const TriggerObjects& hltMatchBits);
   bool passMuonID(const reco::Muon& muon, const reco::Vertex& vtx, const MuonIDTypes& idType);
   bool passMuonIso(const reco::Muon& muon, const MuonIsoTypes& isoType, const float isoCut);
+  bool isCustomTightMuon(const reco::Muon& muon);
 
   // Electron-specific functions
   bool isElectronTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBits hltBits);

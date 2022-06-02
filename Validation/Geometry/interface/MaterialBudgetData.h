@@ -11,6 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <memory>
+#include <array>
 
 class MaterialBudgetData;
 class G4Step;
