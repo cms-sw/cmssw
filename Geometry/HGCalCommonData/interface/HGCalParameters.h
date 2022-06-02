@@ -14,11 +14,11 @@
 class HGCalParameters {
 public:
   struct waferInfo {
-    int32_t type, part, orient;
-    waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0) : type(t), part(p), orient(o){};
+    int32_t type, part, orient, cassette;
+    waferInfo(int32_t t = 0, int32_t p = 0, int32_t o = 0, int32_t c = 0) : type(t), part(p), orient(o), cassette(c){};
   };
   struct tileInfo {
-    int32_t type, sipm, hex[4];
+    int32_t type, sipm, cassette, hex[4];
     tileInfo(int32_t t = 0, int32_t s = 0, int32_t h1 = 0, int32_t h2 = 0, int32_t h3 = 0, int32_t h4 = 0)
         : type(t), sipm(s) {
       hex[0] = h1;
@@ -188,6 +188,8 @@ public:
   std::vector<std::pair<double, double> > tileRingR_;
   std::vector<std::pair<int, int> > tileRingRange_;
   int cassettes_;
+  int nphiCassette_;
+  int phiOffset_;
   std::vector<double> cassetteShift_;
 
   COND_SERIALIZABLE;
