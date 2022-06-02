@@ -148,7 +148,6 @@ void TEcnaRead::Init() {
 
   //................................. path for .root files
   Int_t MaxCar = fgMaxCar;
-  MaxCar = fgMaxCar;
   fPathRoot.Resize(MaxCar);
   fPathRoot = "fPathRoot not defined";
 
@@ -160,11 +159,9 @@ void TEcnaRead::Init() {
   fLookAtRootFile = 0;
 
   //................................. currently open file
-  MaxCar = fgMaxCar;
   fFlagNoFileOpen.Resize(MaxCar);
   fFlagNoFileOpen = "No file is open";
 
-  MaxCar = fgMaxCar;
   fCurrentlyOpenFileName.Resize(MaxCar);
   fCurrentlyOpenFileName = fFlagNoFileOpen;
 
@@ -1290,7 +1287,6 @@ TVectorD TEcnaRead::ReadStinNumbers(const Int_t &VecDim) {
         std::cout << "!TEcnaRead::ReadStinNumbers(...) *** ERROR ***> Open .root file failed for file: " << file_name
                   << fTTBELL << std::endl;
         allowed_to_read = kFALSE;
-        ok_read = kFALSE;
       }
     }
 
@@ -1393,7 +1389,6 @@ TVectorD TEcnaRead::ReadSampleAdcValues(const Int_t &n1StexStin,
       std::cout << "!TEcnaRead::ReadSampleAdcValues(...) *** ERROR ***> Open .root file failed for file: " << file_name
                 << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -1469,7 +1464,6 @@ TVectorD TEcnaRead::ReadSampleMeans(const Int_t &n1StexStin, const Int_t &i0Stin
       std::cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> Open .root file failed for file: " << file_name
                 << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -1542,7 +1536,6 @@ TVectorD TEcnaRead::ReadSampleMeans(const Int_t &n1StexStin, const Int_t &VecDim
       std::cout << "!TEcnaRead::ReadSampleMeans(...) *** ERROR ***> Open .root file failed for file: " << file_name
                 << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -1681,7 +1674,6 @@ TVectorD TEcnaRead::ReadSampleSigmas(const Int_t &n1StexStin, const Int_t &VecDi
       std::cout << "!TEcnaRead::ReadSampleSigmas(...) *** ERROR ***> Open .root file failed for file: " << file_name
                 << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -1809,7 +1801,6 @@ TMatrixD TEcnaRead::ReadNumberOfEventsForSamples(const Int_t &n1StexStin, const 
           std::cout << "!TEcnaRead::ReadNumberOfEventsForSamples(...) *** ERROR ***> Open .root file failed for file: "
                     << file_name << fTTBELL << std::endl;
           allowed_to_read = kFALSE;
-          ok_read = kFALSE;
         }
       }
 
@@ -1892,7 +1883,6 @@ TVectorD TEcnaRead::ReadPedestals(const Int_t &VecDim) {
       std::cout << "!TEcnaRead::ReadPedestals(...) *** ERROR ***> Open .root file failed for file: " << file_name
                 << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -1964,7 +1954,6 @@ TVectorD TEcnaRead::ReadTotalNoise(const Int_t &VecDim) {
       std::cout << "!TEcnaRead::ReadTotalNoise(...) *** ERROR ***> Open .root file failed for file: " << file_name
                 << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2037,7 +2026,6 @@ TVectorD TEcnaRead::ReadMeanCorrelationsBetweenSamples(const Int_t &VecDim) {
           << "!TEcnaRead::ReadMeanCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
           << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2110,7 +2098,6 @@ TVectorD TEcnaRead::ReadLowFrequencyNoise(const Int_t &VecDim) {
       std::cout << "!TEcnaRead::ReadLowFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2183,7 +2170,6 @@ TVectorD TEcnaRead::ReadHighFrequencyNoise(const Int_t &VecDim) {
       std::cout << "!TEcnaRead::ReadHighFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2258,7 +2244,6 @@ TVectorD TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(const Int_t &VecDim) {
           << "!TEcnaRead::ReadSigmaOfCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
           << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2404,7 +2389,6 @@ TVectorD TEcnaRead::ReadAveragePedestals(const Int_t &VecDim) {
       std::cout << "!TEcnaRead::ReadAveragePedestals(...) *** ERROR ***> Open .root file failed for file: " << file_name
                 << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2478,7 +2462,6 @@ TVectorD TEcnaRead::ReadAverageTotalNoise(const Int_t &VecDim) {
       std::cout << "!TEcnaRead::ReadAverageTotalNoise(...) *** ERROR ***> Open .root file failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2552,7 +2535,6 @@ TVectorD TEcnaRead::ReadAverageLowFrequencyNoise(const Int_t &VecDim) {
       std::cout << "!TEcnaRead::ReadAverageLowFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2626,7 +2608,6 @@ TVectorD TEcnaRead::ReadAverageHighFrequencyNoise(const Int_t &VecDim) {
       std::cout << "!TEcnaRead::ReadAverageHighFrequencyNoise(...) *** ERROR ***> Open .root file failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2702,7 +2683,6 @@ TVectorD TEcnaRead::ReadAverageMeanCorrelationsBetweenSamples(const Int_t &VecDi
                    "for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2778,7 +2758,6 @@ TVectorD TEcnaRead::ReadAverageSigmaOfCorrelationsBetweenSamples(const Int_t &Ve
                    "failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2863,7 +2842,6 @@ TMatrixD TEcnaRead::ReadCovariancesBetweenSamples(const Int_t &n1StexStin,
       std::cout << "!TEcnaRead::ReadCovariancesBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -2942,7 +2920,6 @@ TMatrixD TEcnaRead::ReadCorrelationsBetweenSamples(const Int_t &n1StexStin,
       std::cout << "!TEcnaRead::ReadCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3022,7 +2999,6 @@ TVectorD TEcnaRead::ReadRelevantCorrelationsBetweenSamples(const Int_t &n1StexSt
           << "!TEcnaRead::ReadRelevantCorrelationsBetweenSamples(...) *** ERROR ***> Open .root file failed for file: "
           << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3109,7 +3085,6 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t &n1St
                    "for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3197,7 +3172,6 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t &n1S
                    "for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3286,7 +3260,6 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t &n1S
                    "for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3374,7 +3347,6 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t &n1
                    "failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3465,7 +3437,6 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t &MatD
                    "for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3565,7 +3536,6 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t &Mat
                    "for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3665,7 +3635,6 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t &Mat
                    "for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3765,7 +3734,6 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t &Ma
                    "failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3864,7 +3832,6 @@ TMatrixD TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins(const Int_t &Ma
                    "failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
@@ -3959,7 +3926,6 @@ TMatrixD TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins(const Int_t &M
                    "failed for file: "
                 << file_name << fTTBELL << std::endl;
       allowed_to_read = kFALSE;
-      ok_read = kFALSE;
     }
   }
 
