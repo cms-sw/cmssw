@@ -15,6 +15,7 @@
 // user include files
 #include "SimG4Core/Application/interface/ThreadHandoff.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <array>
 
 //
 // constants, enums and typedefs
