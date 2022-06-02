@@ -136,10 +136,10 @@ process.preScaler.prescaleFactor = 1
 process.tcdsDigis = tcdsRawToDigi.clone(
   InputLabel = "rawDataCollector"
 )
-###### LumiScalars to get the PU/luminosity info ######
-process.hltScalersRawToDigi = cms.EDProducer( "ScalersRawToDigi",
-    scalersInputTag = cms.InputTag( "rawDataCollector" )
-)
+
+###### For OnlineLuminosityRecord to get the PU/luminosity info ######
+process.load('EventFilter.OnlineMetaDataRawToDigi.onlineMetaDataRawToDigi_cfi')
+process.onlineMetaDataDigis = cms.EDProducer('OnlineMetaDataRawToDigi')
 
 process.dqmEnv.subSystemFolder = 'Ecal'
 process.dqmSaver.tag = 'Ecal'
@@ -173,7 +173,7 @@ process.hybridClusteringSequence = cms.Sequence(process.cleanedHybridSuperCluste
 
 ### Paths ###
 
-process.ecalMonitorPath = cms.Path(process.hltScalersRawToDigi+process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalRecoSequence+process.tcdsDigis+process.ecalMonitorTask)
+process.ecalMonitorPath = cms.Path(process.onlineMetaDataDigis+process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalRecoSequence+process.tcdsDigis+process.ecalMonitorTask)
 process.ecalClientPath = cms.Path(process.preScaler+process.ecalPreRecoSequence+process.ecalPhysicsFilter+process.ecalMonitorClient)
 
 process.dqmEndPath = cms.EndPath(process.dqmEnv)
