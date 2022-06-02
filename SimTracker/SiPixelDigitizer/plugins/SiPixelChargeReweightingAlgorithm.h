@@ -29,12 +29,20 @@ public:
   bool hitSignalReweight(const PSimHit& hit,
                          std::map<int, float, std::less<int> >& hit_signal,
                          const size_t hitIndex,
+                         const size_t hitIndex4CR,
                          const unsigned int tofBin,
                          const PixelTopology* topol,
                          uint32_t detID,
                          signal_map_type& theSignal,
                          unsigned short int processType,
                          const bool& boolmakeDigiSimLinks);
+
+  bool lateSignalReweight(const PixelGeomDetUnit* pixdet,
+                          std::vector<PixelDigi>& digis,
+                          PixelSimHitExtraInfo& loopTempSH,
+                          signal_map_type& theNewDigiSignal,
+                          const TrackerTopology* tTopo,
+                          CLHEP::HepRandomEngine* engine);
 
 private:
   // Internal typedef
@@ -51,8 +59,11 @@ private:
   int IDnum, IDden;
 
   const bool UseReweighting;
+  bool applyLateReweighting_;
   const bool PrintClusters;
   const bool PrintTemplates;
+
+  static constexpr float cmToMicrons = 10000.f;
 
   std::vector<SiPixelTemplateStore2D> templateStores_;
 
