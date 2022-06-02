@@ -2215,7 +2215,7 @@ steps['ALCAHARVDSIPIXELCALRUN1']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibPro
                         '--data':'',
                         '--filein':'file:PromptCalibProdSiPixel.root'}
 
-steps['ALCAHARVDSIPIXELCALLA']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLorentzAngle']),
+steps['ALCAHARVDSIPIXELCALLA']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLA']),
                         '--conditions':'auto:run3_data_express',
                         '--scenario':'pp',
                         '--data':'',
@@ -2847,13 +2847,13 @@ steps['ALCAHARVD6']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixel']),
                      '--data':'',
                      '--filein':'file:PromptCalibProdSiPixel.root'}
 
-steps['ALCAHARVD7']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLorentzAngle']),
+steps['ALCAHARVD7']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelLA']),
                      '--conditions':'auto:run1_data',
                      '--scenario':'pp',
                      '--data':'',
                      '--filein':'file:PromptCalibProdSiPixelLA.root'}
 
-steps['ALCAHARVD8']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripHitEfficiency']),
+steps['ALCAHARVD8']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiStripHitEff']),
                      '--conditions':'auto:run1_data',
                      '--scenario':'pp',
                      '--data':'',
