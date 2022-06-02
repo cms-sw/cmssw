@@ -4,6 +4,7 @@
 #include "CondFormats/PCLConfig/interface/AlignPCLThreshold.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
