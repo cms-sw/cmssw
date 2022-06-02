@@ -1,6 +1,7 @@
 <use name="DataFormats/Common"/>
 <use name="SimDataFormats/EncodedEventId"/>
 <use name="boost"/>
+<use name="DataFormats/GeometryVector"/>
 <export>
   <lib name="1"/>
 </export>
