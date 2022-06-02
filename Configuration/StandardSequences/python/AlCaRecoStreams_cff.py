@@ -925,12 +925,12 @@ ALCARECOStreamPromptCalibProdPPSTimingCalib = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 	
-ALCARECOStreamPromptCalibProdPPSDiamondSampicTimingCalib = cms.FilteredStream(
+ALCARECOStreamPromptCalibProdPPSDiamondSampic = cms.FilteredStream(
 	responsible = 'Christopher Misan',
-	name = 'ALCARECOStreamPromptCalibProdPPSDiamondSampicTimingCalib',
+	name = 'ALCARECOStreamPromptCalibProdPPSDiamondSampic',
 	paths  = (pathALCARECOPromptCalibProdPPSDiamondSampicTimingCalib),
-	content = OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib.outputCommands,
-	selectEvents = OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib.SelectEvents,
+	content = OutALCARECOPromptCalibProdPPSDiamondSampic.outputCommands,
+	selectEvents = OutALCARECOPromptCalibProdPPSDiamondSampic.SelectEvents,
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
