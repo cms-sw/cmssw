@@ -668,6 +668,13 @@ void BeamMonitor::beginLuminosityBlock(const LuminosityBlock& lumiSeg, const Eve
 void BeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup) {
   const TCDSRecord& tcdsData = iEvent.get(tcdsToken_);
   int beamMode = tcdsData.getBST().getBeamMode();
+
+  // Check that the beamMode information is available in the event content
+  if (beamMode == BSTRecord::BeamMode::NOMODE)
+    edm::LogError("BeamMonitor") << "No BeamMode identified from BSTRecord!"
+                                    "Please check that the event content has the raw data from TCDS FEDs (1024,1025)!";
+
+  // Check if stable beams are present
   if (beamMode == BSTRecord::BeamMode::STABLE)
     logToDb_ = true;
 
