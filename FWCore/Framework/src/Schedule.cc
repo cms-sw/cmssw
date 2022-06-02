@@ -36,6 +36,7 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
+#include <array>
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
