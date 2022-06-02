@@ -43,7 +43,7 @@ private:
   //    GPU reco test verification
   hcaldqm::Container2D energyGPUvsCPU_subdet_;
   hcaldqm::Container1D energyDiffGPUCPU_subdet_;
-  hcaldqm::Container2D energyDiffGPUCPU_depth_;
+  hcaldqm::ContainerProf2D energyDiffGPUCPU_depth_;
 };
 
 HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
@@ -127,13 +127,16 @@ HcalGPUComparisonTask::HcalGPUComparisonTask(edm::ParameterSet const& ps)
 
       if (mRecHitEnergy[did] != 0.) {
         energyDiffGPUCPU_subdet_.fill(did, (energy - mRecHitEnergy[did]) / mRecHitEnergy[did]);
-        energyDiffGPUCPU_depth_.fill(did, (energy - mRecHitEnergy[did]) / mRecHitEnergy[did]);
+        if (energy > 0.1)
+          energyDiffGPUCPU_depth_.fill(did, (energy - mRecHitEnergy[did]) / mRecHitEnergy[did]);
       } else if (mRecHitEnergy[did] == 0. && energy == 0.) {
         energyDiffGPUCPU_subdet_.fill(did, 0.);
-        energyDiffGPUCPU_depth_.fill(did, 0.);
+        if (energy > 0.1)
+          energyDiffGPUCPU_depth_.fill(did, 0.);
       } else {
         energyDiffGPUCPU_subdet_.fill(did, -1.);
-        energyDiffGPUCPU_depth_.fill(did, -1.);
+        if (energy > 0.1)
+          energyDiffGPUCPU_depth_.fill(did, -1.);
       }
 
       mRecHitEnergy.erase(did);
