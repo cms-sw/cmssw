@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/ModuleProcessName.h"
 #include "FWCore/Utilities/interface/BranchType.h"
 
+#include <array>
 #include <memory>
 #include <string>
 #include <utility>
