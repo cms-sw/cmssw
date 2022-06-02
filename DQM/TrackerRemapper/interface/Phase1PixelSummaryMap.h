@@ -10,6 +10,7 @@
 #include "TLatex.h"
 #include "TStyle.h"
 
+#include <array>
 #include <fmt/printf.h>
 #include <fstream>
 #include <memory>

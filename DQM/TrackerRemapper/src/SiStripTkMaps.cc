@@ -19,6 +19,7 @@
 #include "TStyle.h"
 
 // STL includes
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <map>
