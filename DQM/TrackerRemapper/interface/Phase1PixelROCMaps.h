@@ -8,6 +8,7 @@
 #include "TLine.h"
 #include "TLatex.h"
 
+#include <array>
 #include <bitset>
 #include <fmt/printf.h>
 #include <fstream>
