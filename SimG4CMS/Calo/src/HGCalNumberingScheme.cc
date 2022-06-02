@@ -8,6 +8,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
+#include <array>
 #include <iostream>
 
 //#define EDM_ML_DEBUG
