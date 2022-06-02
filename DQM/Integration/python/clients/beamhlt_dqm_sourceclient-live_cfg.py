@@ -150,8 +150,12 @@ process.tcdsDigis = tcdsRawToDigi.clone()
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
     rawDataInputTag = "rawDataRepacker"
-else:
+elif unitTest:
+    # This is needed until we update the streamer files used for the unitTest
     rawDataInputTag = "rawDataCollector"
+else:
+    # Use raw data from selected TCDS FEDs (1024, 1025)
+    rawDataInputTag = "hltFEDSelectorTCDS"
 
 process.tcdsDigis.InputLabel = rawDataInputTag
 
