@@ -79,12 +79,12 @@ public:
 
   TEcnaParHistos();
   TEcnaParHistos(TEcnaObject*, const TString&);
-  TEcnaParHistos(const TString&, const TEcnaParEcal*, const TEcnaNumbering*);
+  TEcnaParHistos(const TString&, TEcnaParEcal*, TEcnaNumbering*);
   ~TEcnaParHistos() override;
 
   void Init();
   void SetEcalSubDetector(const TString&);
-  void SetEcalSubDetector(const TString&, const TEcnaParEcal*, const TEcnaNumbering*);
+  void SetEcalSubDetector(const TString&, TEcnaParEcal*, TEcnaNumbering*);
 
   //...................................................... PLOT methods
   UInt_t SetCanvasWidth(const TString&, const TString&);
