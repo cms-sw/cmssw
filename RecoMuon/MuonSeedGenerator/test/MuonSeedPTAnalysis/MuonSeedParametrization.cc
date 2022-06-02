@@ -28,7 +28,8 @@ using namespace std;
 using namespace edm;
 
 // constructors
-MuonSeedParametrization::MuonSeedParametrization(const ParameterSet& pset) {
+MuonSeedParametrization::MuonSeedParametrization(const ParameterSet& pset)
+    : cscGeomToken(esConsumes()), dtGeomToken(esConsumes()) {
   debug = pset.getUntrackedParameter<bool>("debug");
   scale = pset.getUntrackedParameter<bool>("scale");
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -192,12 +193,10 @@ MuonSeedParametrization::~MuonSeedParametrization() {
 
 void MuonSeedParametrization::analyze(const Event& event, const EventSetup& eventSetup) {
   //Get the CSC Geometry :
-  ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
+  ESHandle<CSCGeometry> cscGeom = eventSetup.getHandle(cscGeomToken);
 
   //Get the DT Geometry :
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  ESHandle<DTGeometry> dtGeom = eventSetup.getHandle(dtGeomToken);
 
   // Get the RecHits collection :
   Handle<CSCRecHit2DCollection> csc2DRecHits;
