@@ -2,6 +2,7 @@
 <use name="json"/>
 <use name="tbb"/>
 <flags CXXFLAGS="-fopenmp-simd"/>
+<flags CXXFLAGS="-ffast-math"/>
 <flags ADD_SUBDIR="1"/>
 <export>
   <lib name="RecoTrackerMkFitCore"/>
