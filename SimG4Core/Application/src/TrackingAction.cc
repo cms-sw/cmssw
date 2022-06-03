@@ -124,7 +124,7 @@ void TrackingAction::PostUserTrackingAction(const G4Track* aTrack) {
     eventAction_->addTrack(currentTrack_, true, withAncestor);
 
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << id << " E(GeV)= " << ekin_ << "  "
+    edm::LogVerbatim("SimTrackManager") << "TrackingAction addTrack " << id << "  "
                                         << aTrack->GetDefinition()->GetParticleName() << " added= " << withAncestor
                                         << " at " << aTrack->GetPosition();
 #endif
