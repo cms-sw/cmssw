@@ -15,7 +15,9 @@ class TritonIdentityProducer : public TritonEDProducer<> {
 public:
   explicit TritonIdentityProducer(edm::ParameterSet const& cfg)
       : TritonEDProducer<>(cfg),
-        batchSize_(4) { }
+        batchSizes_{1,2,0},
+        batchSize_(0),
+        batchCounter_(0) {}
   void acquire(edm::Event const& iEvent, edm::EventSetup const& iSetup, Input& iInput) override {
     //follow Triton QA tests for ragged input
     std::vector<std::vector<float>> value_lists{
@@ -25,6 +27,8 @@ public:
       {3,3,3}
     };
 
+    batchSize_ = batchSizes_[batchCounter_];
+    batchCounter_ = (batchCounter_+1) % batchSizes_.size();
     client_->setBatchSize(batchSize_);
     auto& input1 = iInput.at("INPUT0");
     auto data1 = input1.allocate<float>();
@@ -34,9 +38,12 @@ public:
     }
 
     // convert to server format
-    input1.toServer(data1);
+    if (batchSize_>0)
+      input1.toServer(data1);
   }
   void produce(edm::Event& iEvent, edm::EventSetup const& iSetup, Output const& iOutput) override {
+    if (batchSize_==0)
+      return;
     // check the results
     const auto& output1 = iOutput.at("OUTPUT0");
     // convert from server format
@@ -60,7 +67,8 @@ public:
   }
 
 private:
-  int batchSize_;
+  std::vector<int> batchSizes_;
+  int batchSize_, batchCounter_;
 };
 
 DEFINE_FWK_MODULE(TritonIdentityProducer);
