@@ -40,8 +40,6 @@ private:
   static constexpr double sqrt3_ = 1.732050807568877;  // std::sqrt(3.0) in double precision
   static constexpr double sin60_ = 0.5 * sqrt3_;
   static constexpr double cos60_ = 0.5;
-  static constexpr int edgeWaferLDTop = 7;      // The edge of wafer defined by u=7
-  static constexpr int edgeWaferHDBottom = 10;  // The edge of wafer defined by u=10
 
   int32_t ncell_[2];
   double cellX_[2], cellY_[2], cellXTotal_[2], cellYTotal_[2], waferSize;
