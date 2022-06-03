@@ -58,6 +58,7 @@ namespace l1t {
 
     bool isEM() const { return hwQual(); }
     void setIsEM(bool isEM) { setHwQual(isEM); }
+    unsigned int hwEmID() const { return hwQual(); }
 
     float egVsPionMVAOut() const { return egVsPionMVAOut_; }
     void setEgVsPionMVAOut(float egVsPionMVAOut) { egVsPionMVAOut_ = egVsPionMVAOut; }
