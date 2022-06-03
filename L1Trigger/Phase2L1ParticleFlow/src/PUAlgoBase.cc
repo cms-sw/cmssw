@@ -112,6 +112,8 @@ void PUAlgoBase::doVertexings(std::vector<Region> &rs, VertexAlgo algo, std::vec
   switch (algo) {
     case VertexAlgo::External: {
       int lBin[nVtx_];
+      for (int vtx = 0; vtx < int(nVtx_); vtx++)
+        lBin[vtx] = -1;
       for (int vtx = 0; vtx < int(nVtx_) - int(pvdz.size()); vtx++) {
         float max = 0;
         for (int b = 1; b <= lNBins; ++b) {
@@ -147,7 +149,7 @@ void PUAlgoBase::doVertexings(std::vector<Region> &rs, VertexAlgo algo, std::vec
             continue;
           float pVal = h_dz->GetBinContent(b);
           if (pMax < pVal || lBin[vtx] == -1) {
-            pVal = pMax;
+            pMax = pVal;
             lBin[vtx] = b;
           }
         }
@@ -157,6 +159,8 @@ void PUAlgoBase::doVertexings(std::vector<Region> &rs, VertexAlgo algo, std::vec
     }; break;
     case VertexAlgo::TP: {
       int lBin[nVtx_];
+      for (int vtx = 0; vtx < int(nVtx_); vtx++)
+        lBin[vtx] = -1;
       for (int vtx = 0; vtx < nVtx_; vtx++) {
         float max = 0;
         for (int b = 1; b <= lNBins; ++b) {
