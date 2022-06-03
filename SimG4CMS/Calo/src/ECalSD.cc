@@ -127,7 +127,7 @@ ECalSD::ECalSD(const std::string& name,
   int type0 = dumpGeom / 1000;
   type += (10 * type0);
 
-  if (scheme)
+  if (nullptr != scheme)
     setNumberingScheme(scheme);
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "Constructing a ECalSD  with name " << GetName();
@@ -227,10 +227,12 @@ double ECalSD::getEnergyDeposit(const G4Step* aStep) {
 }
 
 double ECalSD::EnergyCorrected(const G4Step& step, const G4Track* track) {
-  double edep = step.GetTotalEnergyDeposit();
   const G4StepPoint* hitPoint = step.GetPreStepPoint();
   const G4LogicalVolume* lv = hitPoint->GetTouchable()->GetVolume(0)->GetLogicalVolume();
+  if (lv->GetSensitiveDetector() != this)
+    return 0.0;
 
+  double edep = step.GetTotalEnergyDeposit();
   if (useWeight && !any(noWeight, lv)) {
     currentLocalPoint = setToLocal(hitPoint->GetPosition(), hitPoint->GetTouchable());
     auto ite = xtalLMap.find(lv);
