@@ -119,8 +119,14 @@ template <typename IO>
 void TritonData<IO>::setBatchSize(unsigned bsize) {
   batchSize_ = bsize;
   if (!noBatch_) {
+    //zero disables inference in TritonClient: remove all entries
+    if (batchSize_==0)
+      entries_.clear();
     //should only be set to 1 in cases when entries > 1
-    if (batchSize_==1 or entries_.size()==1) {
+    else if (batchSize_==1 or entries_.size()==1) {
+      //in case batch size was previously zero for some reason
+      if (entries_.empty())
+        addEntryImpl(0);
       for (auto& entry : entries_) {
         entry.fullShape_[0] = batchSize_;
       }
