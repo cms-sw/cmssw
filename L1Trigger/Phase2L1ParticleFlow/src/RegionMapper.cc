@@ -1,4 +1,12 @@
 #include "L1Trigger/Phase2L1ParticleFlow/interface/RegionMapper.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
+
+#include "DataFormats/L1TCorrelator/interface/TkElectron.h"
+#include "DataFormats/L1TCorrelator/interface/TkElectronFwd.h"
+#include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1TCorrelator/interface/TkEm.h"
+#include "DataFormats/L1TCorrelator/interface/TkEmFwd.h"
 
 using namespace l1tpf_impl;
 
@@ -26,7 +34,8 @@ RegionMapper::RegionMapper(const edm::ParameterSet &iConfig) : useRelativeRegion
         npuppimax = preg.getParameter<uint32_t>("puppiNMax");
       for (unsigned int ieta = 0, neta = etaBoundaries.size() - 1; ieta < neta; ++ieta) {
         for (unsigned int iphi = 0; iphi < phiSlices; ++iphi) {
-          float phiCenter = (iphi + 0.5) * phiWidth - M_PI;
+          //float phiCenter = (iphi + 0.5) * phiWidth - M_PI;
+          float phiCenter = reco::reduceRange(iphi * phiWidth);  //align with L1 TrackFinder phi sector indexing for now
           regions_.push_back(Region(etaBoundaries[ieta],
                                     etaBoundaries[ieta + 1],
                                     phiCenter,
@@ -80,7 +89,6 @@ void RegionMapper::clear() {
     r.zero();
   clusterRefMap_.clear();
   trackRefMap_.clear();
-  muonRefMap_.clear();
 }
 
 void RegionMapper::addTrack(const l1t::PFTrack &t) {
@@ -145,11 +153,6 @@ void RegionMapper::addMuon(const l1t::TkMuon &mu) {
   }
 }
 
-void RegionMapper::addMuon(const l1t::Muon &mu, l1t::PFCandidate::MuonRef ref) {
-  addMuon(mu);
-  muonRefMap_[&mu] = ref;
-}
-
 void RegionMapper::addCalo(const l1t::PFCluster &p) {
   if (p.pt() == 0)
     return;
@@ -172,7 +175,7 @@ void RegionMapper::addEmCalo(const l1t::PFCluster &p) {
   for (Region &r : regions_) {
     if (r.contains(p.eta(), p.phi())) {
       CaloCluster calo;
-      calo.fill(p.pt(), p.emEt(), p.ptError(), r.localEta(p.eta()), r.localPhi(p.phi()), p.isEM(), 0, &p);
+      calo.fill(p.pt(), p.emEt(), p.ptError(), r.localEta(p.eta()), r.localPhi(p.phi()), p.isEM(), p.hwQual(), &p);
       r.emcalo.push_back(calo);
     }
   }
@@ -203,8 +206,10 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetch(bool puppi, floa
       if (p.floatPt() > ptMin) {
         reco::Particle::PolarLorentzVector p4(
             p.floatPt(), r.globalEta(p.floatVtxEta()), r.globalPhi(p.floatVtxPhi()), 0.13f);
-        ret->emplace_back(l1t::PFCandidate::ParticleType(p.hwId), p.intCharge(), p4, p.floatPuppiW());
-        ret->back().setVertex(reco::Particle::Point(0, 0, p.floatDZ()));
+        ret->emplace_back(
+            l1t::PFCandidate::ParticleType(p.hwId), p.intCharge(), p4, p.floatPuppiW(), p.hwPt, p.hwEta, p.hwPhi);
+        ret->back().setZ0(p.floatDZ());
+        ret->back().setHwZ0(p.track.hwZ0);
         ret->back().setStatus(p.hwStatus);
         if (p.cluster.src) {
           auto match = clusterRefMap_.find(p.cluster.src);
@@ -222,14 +227,6 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetch(bool puppi, floa
           }
           ret->back().setPFTrack(match->second);
         }
-        if (p.muonsrc) {
-          auto match = muonRefMap_.find(p.muonsrc);
-          if (match == muonRefMap_.end()) {
-            throw cms::Exception("CorruptData") << "Invalid muon pointer in PF candidate id " << p.hwId << " pt "
-                                                << p4.pt() << " eta " << p4.eta() << " phi " << p4.phi();
-          }
-          ret->back().setMuon(match->second);
-        }
       }
     }
   }
@@ -246,7 +243,7 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchCalo(float ptMin,
         reco::Particle::PolarLorentzVector p4(p.floatPt(), r.globalEta(p.floatEta()), r.globalPhi(p.floatPhi()), 0.13f);
         l1t::PFCandidate::ParticleType kind =
             (p.isEM || emcalo) ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
-        ret->emplace_back(kind, 0, p4);
+        ret->emplace_back(kind, /*charge=*/0, p4, /*puppiW=*/1, p.hwPt, p.hwEta, p.hwPhi);
         if (p.src) {
           auto match = clusterRefMap_.find(p.src);
           if (match == clusterRefMap_.end()) {
@@ -285,8 +282,9 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchTracks(float ptMi
         reco::Particle::PolarLorentzVector p4(
             p.floatVtxPt(), r.globalEta(p.floatVtxEta()), r.globalPhi(p.floatVtxPhi()), 0.13f);
         l1t::PFCandidate::ParticleType kind = p.muonLink ? l1t::PFCandidate::Muon : l1t::PFCandidate::ChargedHadron;
-        ret->emplace_back(kind, p.intCharge(), p4);
-        ret->back().setVertex(reco::Particle::Point(0, 0, p.floatDZ()));
+        ret->emplace_back(kind, p.intCharge(), p4, /*puppiW=*/float(p.fromPV), p.hwPt, p.hwEta, p.hwPhi);
+        ret->back().setZ0(p.floatDZ());
+        ret->back().setHwZ0(p.hwZ0);
         if (p.src) {
           auto match = trackRefMap_.find(p.src);
           if (match == trackRefMap_.end()) {
@@ -299,6 +297,73 @@ std::unique_ptr<l1t::PFCandidateCollection> RegionMapper::fetchTracks(float ptMi
     }
   }
   return ret;
+}
+
+void RegionMapper::putEgObjects(edm::Event &iEvent,
+                                const bool writeEgSta,
+                                const std::string &egLablel,
+                                const std::string &tkEmLabel,
+                                const std::string &tkEleLabel,
+                                const float ptMin) const {
+  auto egs = std::make_unique<BXVector<l1t::EGamma>>();
+  auto tkems = std::make_unique<l1t::TkEmCollection>();
+  auto tkeles = std::make_unique<l1t::TkElectronCollection>();
+
+  edm::RefProd<BXVector<l1t::EGamma>> ref_egs;
+  if (writeEgSta)
+    ref_egs = iEvent.getRefBeforePut<BXVector<l1t::EGamma>>(egLablel);
+
+  edm::Ref<BXVector<l1t::EGamma>>::key_type idx = 0;
+
+  for (const Region &r : regions_) {
+    for (const auto &egphoton : r.egphotons) {
+      if (egphoton.floatPt() < ptMin)
+        continue;
+
+      if (!r.fiducialLocal(egphoton.floatEta(), egphoton.floatPhi()))
+        continue;
+
+      edm::Ref<BXVector<l1t::EGamma>> reg;
+      auto mom = reco::Candidate::PolarLorentzVector(
+          egphoton.floatPt(), r.globalEta(egphoton.floatEta()), r.globalPhi(egphoton.floatPhi()), 0.);
+      if (writeEgSta) {
+        l1t::EGamma eg(mom);
+        eg.setHwQual(egphoton.hwQual);
+        egs->push_back(0, eg);
+        reg = edm::Ref<BXVector<l1t::EGamma>>(ref_egs, idx++);
+      } else {
+        auto egptr = egphoton.cluster.src->constituentsAndFractions()[0].first;
+        reg = edm::Ref<BXVector<l1t::EGamma>>(egptr.id(), dynamic_cast<const l1t::EGamma *>(egptr.get()), egptr.key());
+      }
+
+      l1t::TkEm tkem(reco::Candidate::LorentzVector(mom), reg, egphoton.floatIso(), egphoton.floatIsoPV());
+      tkem.setHwQual(egphoton.hwQual);
+      tkem.setPFIsol(egphoton.floatPFIso());
+      tkem.setPFIsolPV(egphoton.floatPFIsoPV());
+      tkems->push_back(tkem);
+
+      if (egphoton.ele_idx == -1)
+        continue;
+
+      const auto &egele = r.egeles[egphoton.ele_idx];
+
+      if (!r.fiducialLocal(egele.floatEta(), egele.floatPhi()))
+        continue;
+
+      auto mom_ele = reco::Candidate::PolarLorentzVector(
+          egele.floatPt(), r.globalEta(egele.floatEta()), r.globalPhi(egele.floatPhi()), 0.);
+
+      l1t::TkElectron tkele(
+          reco::Candidate::LorentzVector(mom_ele), reg, edm::refToPtr(egele.track.src->track()), egele.floatIso());
+      tkele.setHwQual(egele.hwQual);
+      tkele.setPFIsol(egele.floatPFIso());
+      tkeles->push_back(tkele);
+    }
+  }
+  if (writeEgSta)
+    iEvent.put(std::move(egs), egLablel);
+  iEvent.put(std::move(tkems), tkEmLabel);
+  iEvent.put(std::move(tkeles), tkEleLabel);
 }
 
 std::pair<unsigned, unsigned> RegionMapper::totAndMaxInput(int type) const {

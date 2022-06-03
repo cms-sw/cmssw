@@ -10,6 +10,7 @@
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/L1Trigger/interface/RegionalOutput.h"
 
 namespace l1t {
 
@@ -20,6 +21,8 @@ namespace l1t {
   typedef edm::Ref<TkEmCollection> TkEmRef;
   typedef edm::RefVector<TkEmCollection> TkEmRefVector;
   typedef std::vector<TkEmRef> TkEmVectorRef;
+  typedef l1t::RegionalOutput<l1t::TkEmCollection> TkEmRegionalOutput;
+
 }  // namespace l1t
 
 #endif
