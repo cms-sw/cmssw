@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # the uGMT DQM module
 from DQM.L1TMonitor.L1TStage2uGMT_cfi import *
+from DQM.L1TMonitor.L1TStage2uGMTInputBxDistributions_cfi import *
 
 # the uGMT intermediate muon DQM modules
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
@@ -58,64 +59,13 @@ l1tStage2uGMTIntermediateEMTFPos = DQMEDAnalyzer(
 stage2L1Trigger_2021.toModify(l1tStage2uGMTIntermediateEMTFNeg, displacedQuantities = cms.untracked.bool(True))
 stage2L1Trigger_2021.toModify(l1tStage2uGMTIntermediateEMTFPos, displacedQuantities = cms.untracked.bool(True))
 
-# zero suppression DQM
-l1tStage2uGMTZeroSupp = DQMEDAnalyzer(
-    "L1TMP7ZeroSupp",
-    fedIds = cms.vint32(1402),
-    rawData = cms.InputTag("rawDataCollector"),
-    # mask for inputs (pt==0 defines empty muon)
-    maskCapId1 = cms.untracked.vint32(0x000001FF,
-                                      0x00000000,
-                                      0x000001FF,
-                                      0x00000000,
-                                      0x000001FF,
-                                      0x00000000),
-    # mask for outputs (pt==0 defines empty muon)
-    maskCapId2 = cms.untracked.vint32(0x0007FC00,
-                                      0x00000000,
-                                      0x0007FC00,
-                                      0x00000000,
-                                      0x0007FC00,
-                                      0x00000000),
-    # mask for validation event outputs (pt==0 defines empty muon)
-    maskCapId3 = cms.untracked.vint32(0x0007FC00,
-                                      0x00000000,
-                                      0x0007FC00,
-                                      0x00000000,
-                                      0x0007FC00,
-                                      0x00000000),
-    # no masks defined for caption IDs 0 and 4-11
-    maxFEDReadoutSize = cms.untracked.int32(10000),
-    monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/AllEvts"),
-    verbose = cms.untracked.bool(False),
-)
-
-## Era: Run3_2021; Changed data format for Run-3
-from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(l1tStage2uGMTZeroSupp, maskCapId2 = cms.untracked.vint32(0x00000000,
-                                                                                       0x00000000,
-                                                                                       0x0007FC00,
-                                                                                       0x00000000,
-                                                                                       0x0007FC00,
-                                                                                       0x00000000),
-                                                     # mask for validation event outputs (pt==0 defines empty muon)
-                                                     maskCapId3 = cms.untracked.vint32(0x00000000,
-                                                                                       0x00000000,
-                                                                                       0x0007FC00,
-                                                                                       0x00000000,
-                                                                                       0x0007FC00,
-                                                                                       0x00000000))
-
-# ZS of validation events (to be used after fat event filter)
-l1tStage2uGMTZeroSuppFatEvts = l1tStage2uGMTZeroSupp.clone()
-l1tStage2uGMTZeroSuppFatEvts.monitorDir = cms.untracked.string("L1T/L1TStage2uGMT/zeroSuppression/FatEvts")
-
 # List of bins to ignore
 ignoreBins = {
-    'Bmtf'        : [1],
-    'Omtf'        : [1],
-    'Emtf'        : [1],
-    'EmtfShowers' : [1]
+    'OutputCopies' : [1],
+    'Bmtf'         : [1],
+    'Omtf'         : [1],
+    'Emtf'         : [1],
+    'EmtfShowers'  : [1]
     }
 
 # compares the unpacked BMTF output regional muon collection with the unpacked uGMT input regional muon collection from BMTF
@@ -193,12 +143,14 @@ l1tStage2uGMTMuonVsuGMTMuonCopy1 = DQMEDAnalyzer(
     muonCollection2Title = cms.untracked.string("uGMT muons copy 1"),
     summaryTitle = cms.untracked.string("Summary of comparison between uGMT muons and uGMT muon copy 1"),
     verbose = cms.untracked.bool(False),
-    displacedQuantities = cms.untracked.bool(False)
+    displacedQuantities = cms.untracked.bool(False),
+    ignoreBin = cms.untracked.vint32(),
 )
 
-## Era: Run3_2021; Displaced muons from BMTF used in uGMT from Run-3
+## Era: Run3_2021; Displaced muons used in uGMT from Run-3
+ # Additionally: Ignore BX range mismatches. This is necessary because we only read out the central BX for the output copies.
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
-stage2L1Trigger_2021.toModify(l1tStage2uGMTMuonVsuGMTMuonCopy1, displacedQuantities = cms.untracked.bool(True))
+stage2L1Trigger_2021.toModify(l1tStage2uGMTMuonVsuGMTMuonCopy1, displacedQuantities = cms.untracked.bool(True), ignoreBin = cms.untracked.vint32(ignoreBins['OutputCopies']))
 
 l1tStage2uGMTMuonVsuGMTMuonCopy2 = l1tStage2uGMTMuonVsuGMTMuonCopy1.clone(
     muonCollection2 = "gmtStage2Digis:MuonCopy2",
@@ -232,7 +184,8 @@ l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1= DQMEDAnalyzer("L1TStage2MuonShower
     muonShowerCollection1Title = cms.untracked.string("uGMT muon showers"),
     muonShowerCollection2Title = cms.untracked.string("uGMT muon showers copy 1"),
     summaryTitle = cms.untracked.string("Summary of comparison between uGMT showers and uGMT shower copy 1"),
-    verbose = cms.untracked.bool(False)
+    verbose = cms.untracked.bool(False),
+    ignoreBin = cms.untracked.vint32(ignoreBins['OutputCopies']), # Ignore BX range mismatches. This is necessary because we only read out the central BX for the output copies.
 )
 
 l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy2 = l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1.clone(
@@ -263,19 +216,18 @@ l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy5 = l1tStage2uGMTMuonShowerVsuGMTMuon
 # sequences
 l1tStage2uGMTOnlineDQMSeq = cms.Sequence(
     l1tStage2uGMT +
+    l1tStage2uGMTInputBxDistributions +
     l1tStage2uGMTIntermediateBMTF +
     l1tStage2uGMTIntermediateOMTFNeg +
     l1tStage2uGMTIntermediateOMTFPos +
     l1tStage2uGMTIntermediateEMTFNeg +
     l1tStage2uGMTIntermediateEMTFPos +
-    l1tStage2uGMTZeroSupp +
     l1tStage2BmtfOutVsuGMTIn +
     l1tStage2OmtfOutVsuGMTIn +
     l1tStage2EmtfOutVsuGMTIn
 )
 
 l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(
-    l1tStage2uGMTZeroSuppFatEvts +
     l1tStage2uGMTMuonVsuGMTMuonCopy1 +
     l1tStage2uGMTMuonVsuGMTMuonCopy2 +
     l1tStage2uGMTMuonVsuGMTMuonCopy3 +
@@ -284,19 +236,25 @@ l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(
 )
 
 
-## Era: Run3_2021; Hadronic showers from EMTF used in uGMT from Run-3
+## Era: Run3_2021; Hadronic showers from EMTF used in uGMT from Run-3. Comparing output copies routinely, but moving the uGMT BX distribution plots behind the fat event filter so the BX comparisons aren't biased.
 from Configuration.Eras.Modifier_stage2L1Trigger_2021_cff import stage2L1Trigger_2021
 
-## TODO: To be enabled once we have unpacked EMTF showers
-# _run3_l1tStage2uGMTOnlineDQMSeq = cms.Sequence(l1tStage2uGMTOnlineDQMSeq.copy() + l1tStage2EmtfOutVsuGMTInShowers)
-# stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTOnlineDQMSeq, _run3_l1tStage2uGMTOnlineDQMSeq)
-
-_run3_l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(l1tStage2uGMTValidationEventOnlineDQMSeq.copy() +
+_run3_l1tStage2uGMTOnlineDQMSeq = cms.Sequence(l1tStage2uGMTOnlineDQMSeq.copy() +
+    l1tStage2uGMTMuonVsuGMTMuonCopy1 +
+    l1tStage2uGMTMuonVsuGMTMuonCopy2 +
+    l1tStage2uGMTMuonVsuGMTMuonCopy3 +
+    l1tStage2uGMTMuonVsuGMTMuonCopy4 +
+    l1tStage2uGMTMuonVsuGMTMuonCopy5 +
+    l1tStage2EmtfOutVsuGMTInShowers +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy1 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy2 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy3 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy4 +
     l1tStage2uGMTMuonShowerVsuGMTMuonShowerCopy5
 )
-stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTValidationEventOnlineDQMSeq, _run3_l1tStage2uGMTValidationEventOnlineDQMSeq)
+_run3_l1tStage2uGMTOnlineDQMSeq.remove(l1tStage2uGMTInputBxDistributions)
+stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTOnlineDQMSeq, _run3_l1tStage2uGMTOnlineDQMSeq)
 
+# The following needs to go after the fat events filter, because inputs are read out with only the central BX for the standard events, so the BX distributions would otherwise be heavily biased toward the central BX.
+_run3_l1tStage2uGMTValidationEventOnlineDQMSeq = cms.Sequence(l1tStage2uGMTInputBxDistributions)
+stage2L1Trigger_2021.toReplaceWith(l1tStage2uGMTValidationEventOnlineDQMSeq, _run3_l1tStage2uGMTValidationEventOnlineDQMSeq)
