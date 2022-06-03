@@ -395,7 +395,7 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
   return good;
 }
 
-bool HGCalWaferMask::goodCell(int u, int v, int waferType) {
+bool HGCalWaferMask::goodCell(int u, int v, int waferType){
   // for V17
   bool good(false);
   switch (waferType) {
@@ -449,11 +449,13 @@ bool HGCalWaferMask::goodCell(int u, int v, int waferType) {
     }
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "u|v " << u << ":" << v << " N " << n << " type " << type << " rot " << rotn
-                                << " good " << good;
+  edm::LogVerbatim("HGCalGeom") << "u|v " << u << ":" << v << " WaferType " << waferType << " good " << good;
 #endif
   return good;
 }
+  
+
+
 
 int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
   // Needs extension for V17
