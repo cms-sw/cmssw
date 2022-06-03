@@ -106,7 +106,7 @@ The argument 'corners' controls the types of wafers the user wants: for instance
 }
 
 bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
-  // Needs extension for V17
+  // for V15 and V16
   bool good(false);
   int n2 = n / 2;
   int n4 = n / 4;
@@ -394,6 +394,68 @@ bool HGCalWaferMask::goodCell(int u, int v, int n, int type, int rotn) {
 #endif
   return good;
 }
+
+bool HGCalWaferMask::goodCell(int u, int v, int waferType){
+  // for V17
+  bool good(false);
+  switch (waferType) {
+    case (HGCalTypes::WaferFull): {  //WaferFull
+      good = true;
+      break;
+    }
+    case (HGCalTypes::WaferLDTop): {
+      good = (u * edgeWaferLDTop[0] + v * edgeWaferLDTop[1] <= edgeWaferLDTop[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDBottom): {
+      good = (u * edgeWaferLDBottom[0] + v * edgeWaferLDBottom[1] <= edgeWaferLDBottom[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDLeft): {
+      good = (u * edgeWaferLDLeft[0] + v * edgeWaferLDLeft[1] <= edgeWaferLDLeft[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDRight): {
+      good = (u * edgeWaferLDRight[0] + v * edgeWaferLDRight[1] <= edgeWaferLDRight[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDFive): {
+      good = (u * edgeWaferLDFive[0] + v * edgeWaferLDFive[1] <= edgeWaferLDFive[2]);
+      break;
+    }
+    case (HGCalTypes::WaferLDThree): {
+      good = (u * edgeWaferLDThree[0] + v * edgeWaferLDThree[1] <= edgeWaferLDThree[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDTop): {
+      good = (u * edgeWaferHDTop[0] + v * edgeWaferHDTop[1] <= edgeWaferHDTop[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDBottom): {
+      good = (u * edgeWaferHDBottom[0] + v * edgeWaferHDBottom[1] <= edgeWaferHDBottom[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDLeft): {
+      good = (u * edgeWaferHDLeft[0] + v * edgeWaferHDLeft[1] <= edgeWaferHDLeft[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDRight): {
+      good = (u * edgeWaferHDRight[0] + v * edgeWaferHDRight[1] <= edgeWaferHDRight[2]);
+      break;
+    }
+    case (HGCalTypes::WaferHDFive): {
+      good = (u * edgeWaferHDFive[0] + v * edgeWaferHDFive[1] <= edgeWaferHDFive[2]);
+      break;
+    }
+  }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "u|v " << u << ":" << v << " WaferType " << waferType << " good " << good;
+#endif
+  return good;
+}
+  
+
+
 
 int HGCalWaferMask::getRotation(int zside, int type, int rotn) {
   // Needs extension for V17
