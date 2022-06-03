@@ -404,47 +404,47 @@ bool HGCalWaferMask::goodCell(int u, int v, int waferType) {
       break;
     }
     case (HGCalTypes::WaferLDTop): {
-      good = (u * edgeWaferLDTop[0] + v * edgeWaferLDTop[1] <= edgeWaferLDTop[2]);
+      good = (u * HGCalTypes::edgeWaferLDTop[0] + v * HGCalTypes::edgeWaferLDTop[1] <= HGCalTypes::edgeWaferLDTop[2]);
       break;
     }
     case (HGCalTypes::WaferLDBottom): {
-      good = (u * edgeWaferLDBottom[0] + v * edgeWaferLDBottom[1] <= edgeWaferLDBottom[2]);
+      good = (u * HGCalTypes::edgeWaferLDBottom[0] + v * HGCalTypes::edgeWaferLDBottom[1] <= HGCalTypes::edgeWaferLDBottom[2]);
       break;
     }
     case (HGCalTypes::WaferLDLeft): {
-      good = (u * edgeWaferLDLeft[0] + v * edgeWaferLDLeft[1] <= edgeWaferLDLeft[2]);
+      good = (u * HGCalTypes::edgeWaferLDLeft[0] + v * HGCalTypes::edgeWaferLDLeft[1] <= HGCalTypes::edgeWaferLDLeft[2]);
       break;
     }
     case (HGCalTypes::WaferLDRight): {
-      good = (u * edgeWaferLDRight[0] + v * edgeWaferLDRight[1] <= edgeWaferLDRight[2]);
+      good = (u * HGCalTypes::edgeWaferLDRight[0] + v * HGCalTypes::edgeWaferLDRight[1] <= HGCalTypes::edgeWaferLDRight[2]);
       break;
     }
     case (HGCalTypes::WaferLDFive): {
-      good = (u * edgeWaferLDFive[0] + v * edgeWaferLDFive[1] <= edgeWaferLDFive[2]);
+      good = (u * HGCalTypes::edgeWaferLDFive[0] + v * HGCalTypes::edgeWaferLDFive[1] <= HGCalTypes::edgeWaferLDFive[2]);
       break;
     }
     case (HGCalTypes::WaferLDThree): {
-      good = (u * edgeWaferLDThree[0] + v * edgeWaferLDThree[1] <= edgeWaferLDThree[2]);
+      good = (u * HGCalTypes::edgeWaferLDThree[0] + v * HGCalTypes::edgeWaferLDThree[1] <= HGCalTypes::edgeWaferLDThree[2]);
       break;
     }
     case (HGCalTypes::WaferHDTop): {
-      good = (u * edgeWaferHDTop[0] + v * edgeWaferHDTop[1] <= edgeWaferHDTop[2]);
+      good = (u * HGCalTypes::edgeWaferHDTop[0] + v * HGCalTypes::edgeWaferHDTop[1] <= HGCalTypes::edgeWaferHDTop[2]);
       break;
     }
     case (HGCalTypes::WaferHDBottom): {
-      good = (u * edgeWaferHDBottom[0] + v * edgeWaferHDBottom[1] <= edgeWaferHDBottom[2]);
+      good = (u * HGCalTypes::edgeWaferHDBottom[0] + v * HGCalTypes::edgeWaferHDBottom[1] <= HGCalTypes::edgeWaferHDBottom[2]);
       break;
     }
     case (HGCalTypes::WaferHDLeft): {
-      good = (u * edgeWaferHDLeft[0] + v * edgeWaferHDLeft[1] <= edgeWaferHDLeft[2]);
+      good = (u * HGCalTypes::edgeWaferHDLeft[0] + v * HGCalTypes::edgeWaferHDLeft[1] <= HGCalTypes::edgeWaferHDLeft[2]);
       break;
     }
     case (HGCalTypes::WaferHDRight): {
-      good = (u * edgeWaferHDRight[0] + v * edgeWaferHDRight[1] <= edgeWaferHDRight[2]);
+      good = (u * HGCalTypes::edgeWaferHDRight[0] + v * HGCalTypes::edgeWaferHDRight[1] <= HGCalTypes::edgeWaferHDRight[2]);
       break;
     }
     case (HGCalTypes::WaferHDFive): {
-      good = (u * edgeWaferHDFive[0] + v * edgeWaferHDFive[1] <= edgeWaferHDFive[2]);
+      good = (u * HGCalTypes::edgeWaferHDFive[0] + v * HGCalTypes::edgeWaferHDFive[1] <= HGCalTypes::edgeWaferHDFive[2]);
       break;
     }
   }
