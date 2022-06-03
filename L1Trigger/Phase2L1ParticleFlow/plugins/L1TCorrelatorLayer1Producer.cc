@@ -353,7 +353,6 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
       ptsums.push_back(std::pair<float, float>(vtx.pt(), vtx.z0()));
       if (ptsum == 0 || vtx.pt() > ptsum) {
         ptsum = vtx.pt();
-        z0 = vtx.z0();
         pvwd = vtx;
       }
     }
