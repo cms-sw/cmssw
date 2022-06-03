@@ -26,7 +26,7 @@ run2_miniAOD_80XLegacy.toModify(isoForMu, EAFile_MiniIso = "PhysicsTools/NanoAOD
 run2_nanoAOD_94X2016.toModify(isoForMu, EAFile_MiniIso = "PhysicsTools/NanoAOD/data/effAreaMuons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 
 ptRatioRelForMu = cms.EDProducer("MuonJetVarProducer",
-    srcJet = cms.InputTag("updatedJets"),
+    srcJet = cms.InputTag("updatedJetsPuppi"),
     srcLep = cms.InputTag("slimmedMuonsUpdated"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
@@ -153,6 +153,9 @@ for modifier in  run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XM
     modifier.toModify(muonTable.variables, puppiIsoId = None, softMva = None)
 
 run2_nanoAOD_102Xv1.toModify(muonTable.variables, puppiIsoId = None)
+
+# Revert back to AK4 CHS jets for Run 2
+run2_nanoAOD_ANY.toModify(ptRatioRelForMu,srcJet="updatedJets")
 
 
 muonsMCMatchForTable = cms.EDProducer("MCMatcher",       # cut on deltaR, deltaPt/Pt; pick best by deltaR
