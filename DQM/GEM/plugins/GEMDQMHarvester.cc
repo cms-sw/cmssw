@@ -639,14 +639,14 @@ void GEMDQMHarvester::createLumiFuncHist(edm::Service<DQMStore> &store,
 }
 
 std::string getNameChamberOccGE11(std::string strSuffix, Int_t nIdxCh) {
-  std::string strRegion;
-  std::string strChType = (nIdxCh % 2 == 0 ? "L" : "S");
+  char cRegion;
+  char cChType = (nIdxCh % 2 == 0 ? 'L' : 'S');
   Int_t nLayer;
 
   if (strSuffix.find("-M-") != std::string::npos)
-    strRegion = "M";
+    cRegion = 'M';
   else if (strSuffix.find("-P-") != std::string::npos)
-    strRegion = "P";
+    cRegion = 'P';
   else
     return "";
 
@@ -657,13 +657,8 @@ std::string getNameChamberOccGE11(std::string strSuffix, Int_t nIdxCh) {
   else
     return "";
 
-  return Form("GEM/Digis/occupancy_GE11-%s-L%i/occ_GE11-%s-%02iL%i-%s",
-              strRegion.c_str(),
-              nLayer,
-              strRegion.c_str(),
-              nIdxCh,
-              nLayer,
-              strChType.c_str());
+  return Form(
+      "GEM/Digis/occupancy_GE11-%c-L%i/occ_GE11-%c-%02iL%i-%c", cRegion, nLayer, cRegion, nIdxCh, nLayer, cChType);
 }
 
 std::string getNameChamberOccGE21(std::string strSuffix, Int_t nIdxChamber) {
