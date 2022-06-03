@@ -92,6 +92,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     php.firstMixedLayer_ = -1;  // defined for post TDR geometry
     php.layerRotation_ = 0;     // default layer rotation angle
     php.cassettes_ = 0;         // default number of cassettes
+    php.nphiCassette_ = 0;      // default number of phi's per cassette
+    php.phiOffset_ = 0;         // default value of phi offset for cassette
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute = "OnlyForHGCalNumbering";
