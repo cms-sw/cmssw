@@ -519,7 +519,7 @@ void SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker& ibooker,
   // this MonitorElement is created to log the number of events / tracks and clusters used
   // by the calibration algorithm
 
-  histograms.EventStats = ibooker.book2S("EventStats", "Statistics", 3, -0.5, 2.5, 1, 0, 1);
+  histograms.EventStats = ibooker.book2I("EventStats", "Statistics", 3, -0.5, 2.5, 1, 0, 1);
   histograms.EventStats->setBinLabel(1, "events count", 1);
   histograms.EventStats->setBinLabel(2, "tracks count", 1);
   histograms.EventStats->setBinLabel(3, "clusters count", 1);
