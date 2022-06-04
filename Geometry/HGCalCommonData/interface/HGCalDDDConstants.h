@@ -25,6 +25,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include <CLHEP/Geometry/Point3D.h>
 
+#include <array>
 #include <memory>
 #include <string>
 #include <vector>
