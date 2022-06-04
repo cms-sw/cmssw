@@ -5,10 +5,14 @@
 #include "Trapezoid2RectangleMappingX.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 
-class binary_ifstream;
+namespace magneticfield::interpolation {
+  class binary_ifstream;
+}
 
 class dso_internal TrapezoidalCylindricalMFGrid : public MFGrid3D {
 public:
+  using binary_ifstream = magneticfield::interpolation::binary_ifstream;
+
   TrapezoidalCylindricalMFGrid(binary_ifstream& istr, const GloballyPositioned<float>& vol);
 
   LocalVector uncheckedValueInTesla(const LocalPoint& p) const override;
