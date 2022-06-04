@@ -1,5 +1,5 @@
 #include "SpecialCylindricalMFGrid.h"
-#include "binary_ifstream.h"
+#include "MagneticField/Interpolation/interface/binary_ifstream.h"
 #include "LinearGridInterpolator3D.h"
 
 #include <iostream>

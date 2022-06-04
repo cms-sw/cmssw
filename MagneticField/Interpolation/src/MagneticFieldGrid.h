@@ -19,7 +19,6 @@
 // interpolation package
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "VectorFieldInterpolation.h"
-#include "binary_ifstream.h"
 
 // used libs
 #include <vector>
