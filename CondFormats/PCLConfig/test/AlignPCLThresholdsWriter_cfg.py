@@ -19,7 +19,8 @@ process.MessageLogger.cout = cms.untracked.PSet(
                                    reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
     AlignPCLThresholdsWriter = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
-    AlignPCLThresholds       = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+    AlignPCLThresholds       = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    AlignPCLThresholdsHG     = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
 
 ##
@@ -43,7 +44,7 @@ process.CondDB.connect = 'sqlite_file:mythresholds.db'
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           timetype = cms.untracked.string('runnumber'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('AlignPCLThresholdsRcd'),
+                                          toPut = cms.VPSet(cms.PSet(record = cms.string('FooRcd'),
                                                                      tag = cms.string('PCLThresholds_express_v0')
                                                                      )
                                                             )
@@ -52,7 +53,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 ##
 ## Impot the thresholds configuration
 ##
-import CondFormats.PCLConfig.Thresholds_cff as Thresholds
+import CondFormats.PCLConfig.ThresholdsHG_cff as Thresholds
 
 ##
 ## Example on how to add to the default extra degrees of freedom
@@ -72,7 +73,7 @@ DefaultPlusSurface = AddSurfaceThresholds+BPixSurface
 #print DefaultPlusSurface.dumpPython()
 
 process.WriteInDB = cms.EDAnalyzer("AlignPCLThresholdsWriter",
-                                   record= cms.string('AlignPCLThresholdsRcd'),
+                                   record= cms.string('FooRcd'),
                                    ### minimum number of records found in pede output 
                                    minNRecords = cms.uint32(25000), 
                                    #thresholds  = cms.VPSet()         # empty object
