@@ -1,29 +1,76 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalSimHitSTudy_cfg.py geometry=D77
+#
+#   Options for geometry D49, D68, D77, D83, D84, D88, D92
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-#from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
-#process = cms.Process('HGCGeomAnalysis',Phase2C9)
-#process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "D88",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: D49, D68, D84, D77, D83, D88, D92")
 
-#from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
-#process = cms.Process('HGCGeomAnalysis',Phase2C12)
-#process.load('Configuration.Geometry.GeometryExtended2026D68_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
+### get and parse the command line arguments
+options.parseArguments()
 
-#from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-#process = cms.Process('HGCGeomAnalysis',Phase2C11)
-#process.load('Configuration.Geometry.GeometryExtended2026D70_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D70Reco_cff')
+print(options)
 
-#from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-#process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-#process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+####################################################################
+# Use the options
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+if (options.geometry == "D49"):
+    from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
+    process = cms.Process('HGCSimHitStudy',Phase2C9)
+    process.load('Configuration.Geometry.GeometryExtended2026D49_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D49Reco_cff')
+    fileName = 'HGCSimHitV11.root'
+elif (options.geometry == "D68"):
+    from Configuration.Eras.Era_Phase2C12_cff import Phase2C12
+    process = cms.Process('HGCSimHitStudy',Phase2C12)
+    process.load('Configuration.Geometry.GeometryExtended2026D68_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D68Reco_cff')
+    fileName = 'HGCSimHitV12.root'
+elif (options.geometry == "D83"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('HGCSimHitStudy',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+    fileName = 'HGCSimHitV15.root'
+elif (options.geometry == "D84"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('HGCSimHitStudy',Phase2C11)
+    process.load('Configuration.Geometry.GeometryExtended2026D84_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D84Reco_cff')
+    fileName = 'HGCSimHitV13.root'
+elif (options.geometry == "D88"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('HGCSimHitStudy',Phase2C11)
+    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    fileName = 'HGCSimHitV16.root'
+elif (options.geometry == "D92"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('HGCSimHitStudy',Phase2C11)
+    process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+    fileName = 'HGCSimHitV17.root'
+else:
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('HGCSimHitStudy',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+    fileName = 'HGCSimHitV14.root'
+    runMode = 0
+
+print("Output file: ", fileName)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
@@ -36,11 +83,6 @@ process.load('Validation.HGCalValidation.hgcSimHitStudy_cfi')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['phase2_realistic']
-
-#
-#    
-#    
-#    
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -78,7 +120,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 )
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('hgcSimHit83.root'),
+                                   fileName = cms.string(fileName),
                                    closeFileFast = cms.untracked.bool(True)
                                    )
 
