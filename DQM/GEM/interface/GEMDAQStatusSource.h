@@ -16,9 +16,8 @@
 
 #include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
-#include "CondFormats/DataRecord/interface/GEMeMapRcd.h"
-#include "CondFormats/GEMObjects/interface/GEMeMap.h"
-#include "CondFormats/GEMObjects/interface/GEMROMapping.h"
+#include "CondFormats/DataRecord/interface/GEMChMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMChMap.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
@@ -70,9 +69,7 @@ private:
   void SetLabelOHStatus(MonitorElement *h2Status);
   void SetLabelVFATStatus(MonitorElement *h2Status);
 
-  edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
-  //std::shared_ptr<GEMROMapping> gemROMap_;
-  const GEMeMap *gemEMap_;
+  const edm::ESGetToken<GEMChMap, GEMChMapRcd> gemChMapToken_;
 
   edm::EDGetToken tagVFAT_;
   edm::EDGetToken tagOH_;
