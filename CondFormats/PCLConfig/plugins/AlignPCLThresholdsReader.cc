@@ -7,9 +7,13 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
 #include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsHGRcd.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 namespace edmtest {
+  template <typename T, typename R>
   class AlignPCLThresholdsReader : public edm::one::EDAnalyzer<> {
   public:
     explicit AlignPCLThresholdsReader(edm::ParameterSet const& p);
@@ -21,38 +25,42 @@ namespace edmtest {
     void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
     // ----------member data ---------------------------
-    const edm::ESGetToken<AlignPCLThresholds, AlignPCLThresholdsRcd> thresholdToken_;
+    const edm::ESGetToken<T, R> thresholdToken_;
     const bool printdebug_;
     const std::string formatedOutput_;
   };
 
-  AlignPCLThresholdsReader::AlignPCLThresholdsReader(edm::ParameterSet const& p)
+  template <typename T, typename R>
+  AlignPCLThresholdsReader<T, R>::AlignPCLThresholdsReader(edm::ParameterSet const& p)
       : thresholdToken_(esConsumes()),
         printdebug_(p.getUntrackedParameter<bool>("printDebug", true)),
         formatedOutput_(p.getUntrackedParameter<std::string>("outputFile", "")) {
     edm::LogInfo("AlignPCLThresholdsReader") << "AlignPCLThresholdsReader" << std::endl;
   }
 
-  AlignPCLThresholdsReader::~AlignPCLThresholdsReader() {
+  template <typename T, typename R>
+  AlignPCLThresholdsReader<T, R>::~AlignPCLThresholdsReader() {
     edm::LogInfo("AlignPCLThresholdsReader") << "~AlignPCLThresholdsReader " << std::endl;
   }
 
-  void AlignPCLThresholdsReader::analyze(const edm::Event& e, const edm::EventSetup& context) {
+  template <typename T, typename R>
+  void AlignPCLThresholdsReader<T, R>::analyze(const edm::Event& e, const edm::EventSetup& context) {
     edm::LogInfo("AlignPCLThresholdsReader") << "### AlignPCLThresholdsReader::analyze  ###" << std::endl;
     edm::LogInfo("AlignPCLThresholdsReader") << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
     edm::LogInfo("AlignPCLThresholdsReader") << " ---EVENT NUMBER " << e.id().event() << std::endl;
 
+    edm::eventsetup::EventSetupRecordKey inputKey = edm::eventsetup::EventSetupRecordKey::makeKey<R>();
     edm::eventsetup::EventSetupRecordKey recordKey(
-        edm::eventsetup::EventSetupRecordKey::TypeTag::findType("AlignPCLThresholdsRcd"));
+        edm::eventsetup::EventSetupRecordKey::TypeTag::findType(inputKey.type().name()));
 
     if (recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
       //record not found
-      edm::LogInfo("AlignPCLThresholdsReader") << "Record \"AlignPCLThresholdsRcd"
-                                               << "\" does not exist " << std::endl;
+      edm::LogInfo("AlignPCLThresholdsReader")
+          << "Record \"" << inputKey.type().name() << "\" does not exist " << std::endl;
     }
 
     //this part gets the handle of the event source and the record (i.e. the Database)
-    edm::ESHandle<AlignPCLThresholds> thresholdHandle = context.getHandle(thresholdToken_);
+    edm::ESHandle<T> thresholdHandle = context.getHandle(thresholdToken_);
     edm::LogInfo("AlignPCLThresholdsReader") << "got eshandle" << std::endl;
 
     if (!thresholdHandle.isValid()) {
@@ -60,7 +68,7 @@ namespace edmtest {
       return;
     }
 
-    const AlignPCLThresholds* thresholds = thresholdHandle.product();
+    const T* thresholds = thresholdHandle.product();
     edm::LogInfo("AlignPCLThresholdsReader") << "got AlignPCLThresholds* " << std::endl;
     edm::LogInfo("AlignPCLThresholdsReader") << "print  pointer address : ";
     edm::LogInfo("AlignPCLThresholdsReader") << thresholds << std::endl;
@@ -70,6 +78,10 @@ namespace edmtest {
     // use built-in method in the CondFormat to print the content
     if (printdebug_) {
       thresholds->printAll();
+      // print additional thresholds if HG payload is used
+      if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+        thresholds->printAllHG();
+      }
     }
 
     FILE* pFile = nullptr;
@@ -133,16 +145,51 @@ namespace edmtest {
           }
         }
       }
+
+      // print additional thresholds for HG payload
+      if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+        fprintf(pFile, "AlignPCLThresholdsHG::printAllHG() \n");
+        fprintf(pFile, " ======================================= \n");
+        const std::unordered_map<std::string, std::vector<float>>& floatMap = thresholds->getFloatMap();
+        for (auto it = floatMap.begin(); it != floatMap.end(); ++it) {
+          fprintf(pFile, " ======================================= \n");
+
+          fprintf(pFile, "key : %s \n", (it->first).c_str());
+          fprintf(pFile,
+                  "- X_fractionCut             : %8.3f    \n",
+                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::X));
+          fprintf(pFile,
+                  "- thetaX_fractionCut        : %8.3f    \n",
+                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::theta_X));
+          fprintf(pFile,
+                  "- Y_fractionCut             : %8.3f    \n",
+                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::Y));
+          fprintf(pFile,
+                  "- thetaY_fractionCut        : %8.3f    \n",
+                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::theta_Y));
+          fprintf(pFile,
+                  "- Z_fractionCut             : %8.3f    \n",
+                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::Z));
+          fprintf(pFile,
+                  "- thetaZ_fractionCut        : %8.3f    \n",
+                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::theta_Z));
+        }
+      }
     }
   }
 
-  void AlignPCLThresholdsReader::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  template <typename T, typename R>
+  void AlignPCLThresholdsReader<T, R>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
     desc.setComment("Reads payloads of type AlignPCLThresholds");
     desc.addUntracked<bool>("printDebug", true);
     desc.addUntracked<std::string>("outputFile", "");
-    descriptions.add("AlignPCLThresholdsReader", desc);
+    descriptions.add(defaultModuleLabel<AlignPCLThresholdsReader<T, R>>(), desc);
   }
 
-  DEFINE_FWK_MODULE(AlignPCLThresholdsReader);
+  typedef AlignPCLThresholdsReader<AlignPCLThresholds, AlignPCLThresholdsRcd> AlignPCLThresholdsLGReader;
+  typedef AlignPCLThresholdsReader<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd> AlignPCLThresholdsHGReader;
+
+  DEFINE_FWK_MODULE(AlignPCLThresholdsLGReader);
+  DEFINE_FWK_MODULE(AlignPCLThresholdsHGReader);
 }  // namespace edmtest
