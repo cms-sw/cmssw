@@ -2,6 +2,7 @@
 #define Geometry_HGCalCommonData_HGCalParameters_h
 
 #include <CLHEP/Geometry/Transform3D.h>
+#include <array>
 #include <cstdint>
 #include <string>
 #include <unordered_map>
