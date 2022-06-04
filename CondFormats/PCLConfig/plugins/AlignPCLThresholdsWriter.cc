@@ -27,6 +27,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
@@ -49,6 +50,10 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   DOFs::dof mapOntoEnum(std::string coord);
 
+  template <typename T>
+  void writePayload(T& myThresholds);
+  void storeHGthresholds(AlignPCLThresholdsHG& myThresholds, const std::vector<std::string>& alignables);
+
   // ----------member data ---------------------------
   const std::string m_record;
   const unsigned int m_minNrecords;
@@ -69,10 +74,47 @@ AlignPCLThresholdsWriter::AlignPCLThresholdsWriter(const edm::ParameterSet& iCon
 
 // ------------ method called for each event  ------------
 void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  using namespace edm;
+  // detect if new payload is used
+  bool newClass = false;
+  for (auto& thePSet : m_parameters) {
+    if (thePSet.exists("fractionCut")) {
+      newClass = true;
+      break;
+    }
+  }
 
-  // output object
-  AlignPCLThresholds myThresholds{};
+  // use templated method depending on new/old payload
+  if (newClass) {
+    AlignPCLThresholdsHG myThresholds{};
+    writePayload(myThresholds);
+  } else {
+    AlignPCLThresholds myThresholds{};
+    writePayload(myThresholds);
+  }
+}
+
+DOFs::dof AlignPCLThresholdsWriter::mapOntoEnum(std::string coord) {
+  if (coord == "X") {
+    return DOFs::X;
+  } else if (coord == "Y") {
+    return DOFs::Y;
+  } else if (coord == "Z") {
+    return DOFs::Z;
+  } else if (coord == "thetaX") {
+    return DOFs::thetaX;
+  } else if (coord == "thetaY") {
+    return DOFs::thetaY;
+  } else if (coord == "thetaZ") {
+    return DOFs::thetaZ;
+  } else {
+    return DOFs::extraDOF;
+  }
+}
+
+// ------------ templated method to write the payload  ------------
+template <typename T>
+void AlignPCLThresholdsWriter::writePayload(T& myThresholds) {
+  using namespace edm;
 
   edm::LogInfo("AlignPCLThresholdsWriter") << "Size of AlignPCLThresholds object " << myThresholds.size() << std::endl;
 
@@ -168,6 +210,11 @@ void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::Even
   // use buil-in method in the CondFormat
   myThresholds.printAll();
 
+  // additional thresholds for AlignPCLThresholdsHG
+  if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+    storeHGthresholds(myThresholds, alignables);
+  }
+
   // Form the data here
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
@@ -177,22 +224,34 @@ void AlignPCLThresholdsWriter::analyze(const edm::Event& iEvent, const edm::Even
   }
 }
 
-DOFs::dof AlignPCLThresholdsWriter::mapOntoEnum(std::string coord) {
-  if (coord == "X") {
-    return DOFs::X;
-  } else if (coord == "Y") {
-    return DOFs::Y;
-  } else if (coord == "Z") {
-    return DOFs::Z;
-  } else if (coord == "thetaX") {
-    return DOFs::thetaX;
-  } else if (coord == "thetaY") {
-    return DOFs::thetaY;
-  } else if (coord == "thetaZ") {
-    return DOFs::thetaZ;
-  } else {
-    return DOFs::extraDOF;
+// ------------ method to store additional HG thresholds ------------
+void AlignPCLThresholdsWriter::storeHGthresholds(AlignPCLThresholdsHG& myThresholds,
+                                                 const std::vector<std::string>& alignables) {
+  edm::LogInfo("AlignPCLThresholdsWriter")
+      << "Found type AlignPCLThresholdsHG, additional thresholds are written" << std::endl;
+
+  for (auto& alignable : alignables) {
+    for (auto& thePSet : m_parameters) {
+      const std::string alignableId(thePSet.getParameter<std::string>("alignableId"));
+      const std::string DOF(thePSet.getParameter<std::string>("DOF"));
+
+      // Get coordType from DOF
+      AlignPCLThresholds::coordType type = static_cast<AlignPCLThresholds::coordType>(mapOntoEnum(DOF));
+
+      if (alignableId == alignable) {
+        if (thePSet.exists("fractionCut")) {
+          const double fractionCut(thePSet.getParameter<double>("fractionCut"));
+          myThresholds.SetFractionCut(alignableId, type, fractionCut);
+        } else {
+          myThresholds.SetFractionCut(alignableId, type, -1.);  // better way to define default fraction cut??
+        }
+      }
+    }
   }
+
+  // print additional tresholds
+  edm::LogInfo("AlignPCLThresholdsWriter") << "Additonal content of AlignPCLThresholdsHG " << std::endl;
+  myThresholds.printAllHG();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -209,6 +268,8 @@ void AlignPCLThresholdsWriter::fillDescriptions(edm::ConfigurationDescriptions& 
   desc_thresholds.add<double>("sigCut");
   desc_thresholds.add<double>("maxMoveCut");
   desc_thresholds.add<double>("maxErrorCut");
+  // optional thresholds from new payload version
+  desc_thresholds.addOptional<double>("fractionCut");
 
   std::vector<edm::ParameterSet> default_thresholds(1);
   desc.addVPSet("thresholds", desc_thresholds, default_thresholds);
