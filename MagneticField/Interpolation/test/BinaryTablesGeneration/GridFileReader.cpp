@@ -1,7 +1,7 @@
 // Small Program to read Grid Files
 // by droll (29/02/04)
 // essential files
-#include "MagneticField/Interpolation/src/binary_ifstream.h"
+#include "MagneticField/Interpolation/interface/binary_ifstream.h"
 
 // used libs
 #include <string>
@@ -10,6 +10,7 @@
 #include <iomanip>
 #include <cmath>
 #include <stdlib.h>
+#include <optional>
 #include "DataFormats/Math/interface/approx_exp.h"
 inline int bits(int a) {
   unsigned int aa = abs(a);
@@ -24,8 +25,8 @@ inline int bits(int a) {
 using namespace std;
 using namespace approx_math;
 int main(int argc, char **argv) {
-  if (argc > 3) {
-    cout << "SYNOPSIS:" << endl << " GridFileReader input.bin [fullDump=true|false]" << endl;
+  if (argc < 3 or argc > 4) {
+    cout << "SYNOPSIS:" << endl << " GridFileReader input.bin [fullDump=true|false] [file.index]" << endl;
     cout << "Example:" << endl << " GridFileReader grid.217.bin false" << endl;
     return 1;
   }
@@ -33,10 +34,43 @@ int main(int argc, char **argv) {
 
   bool fullDump = argv[2];
 
-  binary_ifstream inFile(filename);
+  string indexFile;
+  if (argc == 4) {
+    indexFile = argv[3];
+  }
+
+  std::optional<magneticfield::interpolation::binary_ifstream> tempFile;
+  if (indexFile.empty()) {
+    tempFile = magneticfield::interpolation::binary_ifstream(filename);
+  } else {
+    auto pos = indexFile.find('.');
+    tempFile = magneticfield::interpolation::binary_ifstream(indexFile.substr(0, pos) + ".bin");
+  }
+  auto inFile = std::move(*tempFile);
   if (!inFile) {
     cout << "file open failed!" << endl;
     return EXIT_FAILURE;
+  }
+
+  if (not indexFile.empty()) {
+    std::ifstream index(indexFile);
+
+    bool found = true;
+    while (index) {
+      std::string magFile;
+      unsigned int offset;
+      index >> magFile >> offset;
+
+      if (magFile == filename) {
+        inFile.seekg(offset);
+        break;
+      }
+    }
+    if (not found) {
+      cout << "failed to find entry " << filename << " in index file " << indexFile << endl;
+      return EXIT_FAILURE;
+    }
+    cout << "Using index file: " << indexFile << endl;
   }
 
   cout << "Data File: " << filename << endl;

@@ -14,7 +14,6 @@
 
 #include <string>
 
-class binary_ifstream;
 class MagneticFieldGrid;
 
 class dso_internal GlobalGridWrapper : public MFGrid {
