@@ -14,7 +14,7 @@ void checkDQMHarvesting(TString filename) {
     exit(EXIT_FAILURE);
   } else {
     std::string searchstring = "DQMData/Run 999999/AlCaReco/Run summary/SiStripGains/EventStats";
-    TH2S *h2 = (TH2S *)f->Get(searchstring.c_str());
+    TH2I *h2 = (TH2I *)f->Get(searchstring.c_str());
     if (!h2) {
       std::cout << "checkMultiRunHarvesting: ERROR. Could not find the histogram " << searchstring << std::endl;
       exit(EXIT_FAILURE);
