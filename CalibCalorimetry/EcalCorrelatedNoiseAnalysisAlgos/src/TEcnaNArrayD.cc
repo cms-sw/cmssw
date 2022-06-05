@@ -366,19 +366,3 @@ Double_t &TEcnaNArrayD::operator()(Int_t i1, Int_t i2, Int_t i3, Int_t i4, Int_t
   i = OneDim(i1, i2, i3, i4, i5, i6);
   return fA[i];
 }
-const Double_t &TEcnaNArrayD::operator()(Int_t i1) const { return const_cast<TEcnaNArrayD *>(this)->operator()(i1); }
-const Double_t &TEcnaNArrayD::operator()(Int_t i1, Int_t i2) const {
-  return const_cast<TEcnaNArrayD *>(this)->operator()(i1, i2);
-}
-const Double_t &TEcnaNArrayD::operator()(Int_t i1, Int_t i2, Int_t i3) const {
-  return const_cast<TEcnaNArrayD *>(this)->operator()(i1, i2, i3);
-}
-const Double_t &TEcnaNArrayD::operator()(Int_t i1, Int_t i2, Int_t i3, Int_t i4) const {
-  return const_cast<TEcnaNArrayD *>(this)->operator()(i1, i2, i3, i4);
-}
-const Double_t &TEcnaNArrayD::operator()(Int_t i1, Int_t i2, Int_t i3, Int_t i4, Int_t i5) const {
-  return const_cast<TEcnaNArrayD *>(this)->operator()(i1, i2, i3, i4, i5);
-}
-const Double_t &TEcnaNArrayD::operator()(Int_t i1, Int_t i2, Int_t i3, Int_t i4, Int_t i5, Int_t i6) const {
-  return const_cast<TEcnaNArrayD *>(this)->operator()(i1, i2, i3, i4, i5, i6);
-}
