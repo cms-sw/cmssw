@@ -145,13 +145,13 @@ public:
 
   TEcnaWrite();
   TEcnaWrite(TEcnaObject*, const TString&);
-  TEcnaWrite(const TString&, const TEcnaParPaths*, const TEcnaParCout*, const TEcnaParEcal*, const TEcnaNumbering*);
+  TEcnaWrite(const TString&, TEcnaParPaths*, TEcnaParCout*, TEcnaParEcal*, TEcnaNumbering*);
 
   ~TEcnaWrite() override;
 
   void Init();
   void SetEcalSubDetector(const TString&);
-  void SetEcalSubDetector(const TString&, const TEcnaParEcal*, const TEcnaNumbering*);
+  void SetEcalSubDetector(const TString&, TEcnaParEcal*, TEcnaNumbering*);
 
   //...................................................... making file name method
   void fMakeResultsFileName();  // => default: arg = fCodeRoot
