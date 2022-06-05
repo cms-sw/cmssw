@@ -38,7 +38,8 @@ private:
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
 };
 
-testMagGeometryAnalyzer::testMagGeometryAnalyzer(const edm::ParameterSet&) : magfieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {}
+testMagGeometryAnalyzer::testMagGeometryAnalyzer(const edm::ParameterSet&)
+    : magfieldToken_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {}
 
 void testMagGeometryAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   const edm::ESHandle<MagneticField>& magfield = eventSetup.getHandle(magfieldToken_);
