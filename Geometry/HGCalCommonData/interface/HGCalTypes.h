@@ -1,10 +1,10 @@
 #ifndef Geometry_HGCalCommonData_HGCalTypes_h
 #define Geometry_HGCalCommonData_HGCalTypes_h
 
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <vector>
-#include <array>
 
 class HGCalTypes {
 public:
@@ -75,17 +75,6 @@ public:
   static constexpr int32_t WaferCornerMax = 6;
   static constexpr int32_t WaferSizeMax = 9;
 
-  static constexpr double c00 = 0.0;
-  static constexpr double c22 = 0.225;
-  static constexpr double c25 = 0.25;
-  static constexpr double c27 = 0.275;
-  static constexpr double c50 = 0.5;
-  static constexpr double c61 = 0.6125;
-  static constexpr double c75 = 0.75;
-  static constexpr double c77 = 0.775;
-  static constexpr double c88 = 0.8875;
-  static constexpr double c10 = 1.0;
-
   // Condition for cells in partial wafer: arr[0]*u + arr[1]*v <= arr[2]
   static constexpr std::array<int, 3> edgeWaferLDTop = {{1, 0, 7}};
   static constexpr std::array<int, 3> edgeWaferLDBottom = {{-1, 0, -8}};
@@ -98,6 +87,19 @@ public:
   static constexpr std::array<int, 3> edgeWaferHDLeft = {{-1, 2, 4}};
   static constexpr std::array<int, 3> edgeWaferHDRight = {{1, -2, -18}};
   static constexpr std::array<int, 3> edgeWaferHDFive = {{-1, 2, 18}};
+
+  static constexpr int k_OffsetRotation = 10;
+
+  static constexpr double c00 = 0.0;
+  static constexpr double c22 = 0.225;
+  static constexpr double c25 = 0.25;
+  static constexpr double c27 = 0.275;
+  static constexpr double c50 = 0.5;
+  static constexpr double c61 = 0.6125;
+  static constexpr double c75 = 0.75;
+  static constexpr double c77 = 0.775;
+  static constexpr double c88 = 0.8875;
+  static constexpr double c10 = 1.0;
 
   enum TileType { TileFine = 0, TileCoarseCast = 1, TileCoarseMould = 2 };
 
