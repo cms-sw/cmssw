@@ -20,32 +20,8 @@ process.maxEvents = cms.untracked.PSet(
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        DEBUG = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        ERROR = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        INFO = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        WARNING = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        enable = cms.untracked.bool(True),
-        noLineBreaks = cms.untracked.bool(True),
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    debugModules = cms.untracked.vstring('*')
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.MagGeometry=dict()
 
 process.magfield = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/normal/cmsextent.xml', 
