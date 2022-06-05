@@ -746,7 +746,7 @@ std::pair<int, int> HGCalWaferMask::getTypeMode(const double& xpos,
     edm::LogVerbatim("HGCalGeom") << "I/p " << xpos << ":" << ypos << ":" << delX << ":" << delY << ":" << rin << ":"
                                   << rout << ":" << wType << ":" << mode << " o/p " << iok << ":" << ncor << ":" << type
                                   << ":" << rotn;
-  return ((mode == 0) ? std::make_pair(ncor, rotn) : std::make_pair(type, (rotn + HGCalWaferMask::k_OffsetRotation)));
+  return ((mode == 0) ? std::make_pair(ncor, rotn) : std::make_pair(type, (rotn + HGCalTypes::k_OffsetRotation)));
 }
 
 bool HGCalWaferMask::goodTypeMode(
