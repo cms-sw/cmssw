@@ -45,7 +45,7 @@ process.source = cms.Source(
 ## global tag
 from Configuration.AlCa.GlobalTag import GlobalTag
 if options.mc:
-      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 else:
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
