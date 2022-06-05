@@ -1,7 +1,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalCellUV.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include <iostream>
 #include <array>
 #include <algorithm>
