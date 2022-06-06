@@ -24,11 +24,11 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'                   : '123X_mcRun2_pA_v1',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'                    : '123X_dataRun2_v3',
+    'run2_data'                    : '124X_dataRun2_v1',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_HEfail'             : '123X_dataRun2_HEfail_v3',
+    'run2_data_HEfail'             : '124X_dataRun2_HEfail_v1',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'             : '123X_dataRun2_relval_v4',
+    'run2_data_relval'             : '124X_dataRun2_relval_v1',
     # GlobalTag for Run2 HI data
     'run2_data_promptlike_hi'      : '123X_dataRun2_PromptLike_HI_v3',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
@@ -42,9 +42,9 @@ autoCond = {
     # GlobalTag for Run3 data relvals (prompt GT) - identical to 123X_dataRun3_Prompt_v10 but with snapshot at 2022-05-31 20:00:00 (UTC)
     'run3_data_prompt'             : '123X_dataRun3_Prompt_frozen_v4',
     # GlobalTag for Run3 offline data reprocessing
-    'run3_data'                    : '123X_dataRun3_v7',
+    'run3_data'                    : '124X_dataRun3_v1',
     # GlobalTag for Run3 data relvals: allows customization to run with fixed L1 menu
-    'run3_data_relval'             : '123X_dataRun3_relval_v6',
+    'run3_data_relval'             : '124X_dataRun3_relval_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'           : '123X_mc2017_design_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
