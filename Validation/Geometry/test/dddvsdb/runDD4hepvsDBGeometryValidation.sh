@@ -69,8 +69,8 @@ echo "Start compare the content of GT and the local DB" | tee -a GeometryValidat
 # sure that the Global Tag (GT) and Local DB XML file blobs are fine... 
 # meaning that the full simulation geometry source is fine (XML blob)
 # as well as the reco geometries.
-cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrytest_local.py .
-# cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrytest_local.py .
+# cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrytest_local.py .
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrytest_local.py .
 sed -i "{/process.GlobalTag.globaltag/d}" geometrytest_local.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" geometrytest_local.py >> GeometryValidation.log
 set geomabbrev = `(echo $geometry | sed -e '{s/Geometry//g}')`
@@ -87,8 +87,8 @@ else
     exit
 endif
 
-# cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrytestDD4hep_db.py .
-cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrytestDD4hep_db.py .
+cp $CMSSW_RELEASE_BASE/src/CondTools/Geometry/test/geometrytestDD4hep_db.py .
+# cp $CMSSW_BASE/src/CondTools/Geometry/test/geometrytestDD4hep_db.py .
 sed -i "{/process.GlobalTag.globaltag/d}" geometrytestDD4hep_db.py >> GeometryValidation.log 
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" geometrytestDD4hep_db.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\process.DDDetectorESProducerFromDB.label = cms.string('${condlabel}')" geometrytestDD4hep_db.py >> GeometryValidation.log 
@@ -131,8 +131,8 @@ mkdir tkxml
 cp myfile.db tkdblocal
 
 cd tkdb
-cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/python/testTrackerModuleInfoDBDD4hep_cfg.py .
-# cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/python/testTrackerModuleInfoDBDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/python/testTrackerModuleInfoDBDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/python/testTrackerModuleInfoDBDD4hep_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testTrackerModuleInfoDBDD4hep_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testTrackerModuleInfoDBDD4hep_cfg.py >> ../GeometryValidation.log 
 if ( "${roundFlag}" == round ) then                                                               
@@ -148,8 +148,8 @@ else
 endif
 
 cd ../tkdblocal
-# cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/python/trackerModuleInfoLocalDBDD4hep_cfg.py .
-cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/python/trackerModuleInfoLocalDBDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/python/trackerModuleInfoLocalDBDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/python/trackerModuleInfoLocalDBDD4hep_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" trackerModuleInfoLocalDBDD4hep_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" trackerModuleInfoLocalDBDD4hep_cfg.py >> ../GeometryValidation.log 
 if ( "${roundFlag}" == round ) then                                                               
@@ -166,8 +166,8 @@ else
 endif
 
 cd ../tkxml
-cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/python/testTrackerModuleInfoDD4hep_cfg.py .
-# cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/python/testTrackerModuleInfoDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/TrackerGeometryBuilder/test/python/testTrackerModuleInfoDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/TrackerGeometryBuilder/test/python/testTrackerModuleInfoDD4hep_cfg.py .
 sed -i "{s/Extended2021/${geomabbrev}/}" testTrackerModuleInfoDD4hep_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" testTrackerModuleInfoDD4hep_cfg.py >> ../GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testTrackerModuleInfoDD4hep_cfg.py >> ../GeometryValidation.log 
@@ -204,8 +204,8 @@ echo "End Tracker RECO geometry validation" | tee -a GeometryValidation.log
 
 echo "Start DT RECO geometry validation" | tee -a GeometryValidation.log
 
-cp $CMSSW_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromDBDD4hep_cfg.py .  
-# cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromDBDD4hep_cfg.py .  
+# cp $CMSSW_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromDBDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromDBDD4hep_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometryFromDBDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testDTGeometryFromDBDD4hep_cfg.py >> GeometryValidation.log 
 if ( "${roundFlag}" == round ) then                                                               
@@ -219,8 +219,8 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromLocalDBDD4hep_cfg.py .  
-# cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromLocalDBDD4hep_cfg.py .  
+# cp $CMSSW_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromLocalDBDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryFromLocalDBDD4hep_cfg.py .
 sed -i "{s/Extended2021/${geomabbrev}/}" testDTGeometryFromLocalDBDD4hep_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometryFromLocalDBDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testDTGeometryFromLocalDBDD4hep_cfg.py >> GeometryValidation.log 
@@ -235,8 +235,8 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/DTGeometry/test/testDTGeometryDD4hep_cfg.py .
-# cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/DTGeometry/test/testDTGeometryDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/DTGeometry/test/testDTGeometryDD4hep_cfg.py .
 sed -i "{s/Extended2021/${geomabbrev}/}" testDTGeometryDD4hep_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" testDTGeometryDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testDTGeometryDD4hep_cfg.py >> GeometryValidation.log 
@@ -270,8 +270,8 @@ echo "End DT RECO geometry validation" | tee -a GeometryValidation.log
 
 echo "Start CSC RECO geometry validation" | tee -a GeometryValidation.log
 
-# cp $CMSSW_RELEASE_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromDBDD4hep_cfg.py .  
-cp $CMSSW_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromDBDD4hep_cfg.py .  
+cp $CMSSW_RELEASE_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromDBDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromDBDD4hep_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testCSCGeometryFromDBDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testCSCGeometryFromDBDD4hep_cfg.py >> GeometryValidation.log 
 cmsRun testCSCGeometryFromDBDD4hep_cfg.py > outDB_CSC.log
@@ -282,8 +282,8 @@ else
     exit
 endif
 
-# cp $CMSSW_RELEASE_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromLocalDBDD4hep_cfg.py .  
-cp $CMSSW_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromLocalDBDD4hep_cfg.py .  
+cp $CMSSW_RELEASE_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromLocalDBDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryFromLocalDBDD4hep_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testCSCGeometryFromLocalDBDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testCSCGeometryFromLocalDBDD4hep_cfg.py >> GeometryValidation.log 
 cmsRun testCSCGeometryFromLocalDBDD4hep_cfg.py > outLocalDB_CSC.log
@@ -294,8 +294,8 @@ else
     exit
 endif
 
-# cp $CMSSW_RELEASE_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryDD4hep_cfg.py .
-cp $CMSSW_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/CSCGeometry/test/testCSCGeometryDD4hep_cfg.py .
 sed -i "{s/GeometryExtended/${geometry}/}" testCSCGeometryDD4hep_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" testCSCGeometryDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testCSCGeometryDD4hep_cfg.py >> GeometryValidation.log 
@@ -326,8 +326,8 @@ echo "End CSC RECO geometry validation" | tee -a GeometryValidation.log
 
 echo "Start RPC RECO geometry validation" | tee -a GeometryValidation.log
 
-cp $CMSSW_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromDBDD4hep_cfg.py .  
-# cp $CMSSW_RELEASE_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromDBDD4hep_cfg.py .  
+# cp $CMSSW_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromDBDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromDBDD4hep_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testRPCGeometryFromDBDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testRPCGeometryFromDBDD4hep_cfg.py >> GeometryValidation.log 
 cmsRun testRPCGeometryFromDBDD4hep_cfg.py > outDB_RPC.log
@@ -338,8 +338,8 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromLocalDBDD4hep_cfg.py .  
-# cp $CMSSW_RELEASE_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromLocalDBDD4hep_cfg.py .  
+# cp $CMSSW_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromLocalDBDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryFromLocalDBDD4hep_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testRPCGeometryFromLocalDBDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testRPCGeometryFromLocalDBDD4hep_cfg.py >> GeometryValidation.log 
 cmsRun testRPCGeometryFromLocalDBDD4hep_cfg.py > outLocalDB_RPC.log
@@ -350,8 +350,8 @@ else
     exit
 endif
 
-cp $CMSSW_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryDD4hep_cfg.py .
-# cp $CMSSW_RELEASE_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/RPCGeometry/test/testRPCGeometryDD4hep_cfg.py .
 sed -i "{s/GeometryExtended/${geometry}/}" testRPCGeometryDD4hep_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag.globaltag/d}" testRPCGeometryDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testRPCGeometryDD4hep_cfg.py >> GeometryValidation.log 
@@ -382,8 +382,8 @@ echo "End RPC RECO geometry validation" | tee -a GeometryValidation.log
 
 echo "Start GEM RECO geometry validation" | tee -a GeometryValidation.log
 
-cp $CMSSW_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryFromDBDD4hep_cfg.py .  
-# cp $CMSSW_RELEASE_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryFromDBDD4hep_cfg.py .  
+# cp $CMSSW_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryFromDBDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryFromDBDD4hep_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testGEMGeometryFromDBDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testGEMGeometryFromDBDD4hep_cfg.py >> GeometryValidation.log 
 cmsRun testGEMGeometryFromDBDD4hep_cfg.py
@@ -395,8 +395,8 @@ else
     exit
 endif
 
-# cp $CMSSW_RELEASE_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryFromLocalDBDD4hep_cfg.py .  
-cp $CMSSW_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryFromLocalDBDD4hep_cfg.py .  
+cp $CMSSW_RELEASE_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryFromLocalDBDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryFromLocalDBDD4hep_cfg.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testGEMGeometryFromLocalDBDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testGEMGeometryFromLocalDBDD4hep_cfg.py >> GeometryValidation.log 
 cmsRun testGEMGeometryFromLocalDBDD4hep_cfg.py
@@ -408,8 +408,8 @@ else
     exit
 endif
 
-# cp $CMSSW_RELEASE_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryDD4hep_cfg.py .
-cp $CMSSW_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryDD4hep_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryDD4hep_cfg.py .
+# cp $CMSSW_BASE/src/Geometry/GEMGeometry/test/testGEMGeometryDD4hep_cfg.py .
 sed -i "{s/GeometryExtended/${geometry}/}" testGEMGeometryDD4hep_cfg.py >>  GeometryValidation.log
 sed -i "{/process.GlobalTag/d}" testGEMGeometryDD4hep_cfg.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testGEMGeometryDD4hep_cfg.py >> GeometryValidation.log 
@@ -512,8 +512,8 @@ echo "End CALO RECO geometry validation" | tee -a GeometryValidation.log
 
 echo "Start Simulation geometry validation" | tee -a GeometryValidation.log
 
-# cp $CMSSW_RELEASE_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepXML_cfg.py .
-cp $CMSSW_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepXML_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepXML_cfg.py .
+# cp $CMSSW_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepXML_cfg.py .
 sed -i "{s/Extended2021/${geomabbrev}/}" runDD4hepXML_cfg.py >>  GeometryValidation.log
 sed -i "{s/DumpSummary      = cms.untracked.bool(True/DumpSummary      = cms.untracked.bool(False/}" runDD4hepXML_cfg.py >>  GeometryValidation.log
 sed -i "{s/DumpSense      = cms.untracked.bool(False/DumpSense      = cms.untracked.bool(True/}" runDD4hepXML_cfg.py >>  GeometryValidation.log
@@ -525,8 +525,8 @@ sed -i "{/PVFileName/d}" runDD4hepXML_cfg.py >> GeometryValidation.log
 sed -i "{/TouchFileName/d}" runDD4hepXML_cfg.py >> GeometryValidation.log
 ( cmsRun runDD4hepXML_cfg.py > readXMLAndDump.log ) >>& GeometryValidation.log
 
-# cp $CMSSW_RELEASE_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepDB_cfg.py .
-cp $CMSSW_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepDB_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepDB_cfg.py .
+# cp $CMSSW_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepDB_cfg.py .
 sed -i "{s/Extended2021/${geomabbrev}/}" runDD4hepDB_cfg.py >>  GeometryValidation.log
 sed -i "{s/DumpSummary      = cms.untracked.bool(True/DumpSummary      = cms.untracked.bool(False/}" runDD4hepDB_cfg.py >>  GeometryValidation.log
 sed -i "{s/DumpSense      = cms.untracked.bool(False/DumpSense      = cms.untracked.bool(True/}" runDD4hepDB_cfg.py >>  GeometryValidation.log
@@ -540,8 +540,8 @@ sed -i "{/process.GlobalTag.globaltag/d}" runDD4hepDB_cfg.py >> GeometryValidati
 sed -i "/from Configuration.AlCa.GlobalTag/ a\process.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" runDD4hepDB_cfg.py >> GeometryValidation.log
 ( cmsRun runDD4hepDB_cfg.py > readXMLfromGTDB.log) >& /dev/null
 
-# cp $CMSSW_RELEASE_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepLocalDB_cfg.py .
-cp $CMSSW_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepLocalDB_cfg.py .
+cp $CMSSW_RELEASE_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepLocalDB_cfg.py .
+# cp $CMSSW_BASE/src/SimG4Core/PrintGeomInfo/test/python/runDD4hepLocalDB_cfg.py .
 ( cmsRun runDD4hepLocalDB_cfg.py > readXMLfromLocDB.log ) >>& GeometryValidation.log
 
 if ( ! -s readXMLAndDump.log ) then
@@ -585,8 +585,8 @@ if ( -s tcdfLocDBvsDB.log ) then
     echo See tcdfLocDBvsDB.log  for differences | tee -a GeometryValidation.log
 endif
 
-# cp $CMSSW_RELEASE_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIterator.py .
-cp $CMSSW_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIterator.py .
+cp $CMSSW_RELEASE_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIterator.py .
+# cp $CMSSW_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIterator.py .
 sed -i "{s/ExtendedGeometry2021/${geometry}/}" testTGeoIterator.py >> GeometryValidation.log
 cmsRun testTGeoIterator.py
 if ( -s navGeometry.log ) then
@@ -595,8 +595,8 @@ else
   echo Failed to dump paths from XML files | tee -a GeometryValidation.log
 endif
 
-# cp $CMSSW_RELEASE_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIteratorDB.py .
-cp $CMSSW_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIteratorDB.py .
+cp $CMSSW_RELEASE_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIteratorDB.py .
+# cp $CMSSW_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIteratorDB.py .
 sed -i "{/process.GlobalTag.globaltag/d}" testTGeoIteratorDB.py >> GeometryValidation.log
 sed -i "{/from Configuration.AlCa.autoCond/d}" testTGeoIteratorDB.py >> GeometryValidation.log
 sed -i "/FrontierConditions_GlobalTag_cff/ a\from Configuration.AlCa.GlobalTag import GlobalTag\nprocess.GlobalTag = GlobalTag(process.GlobalTag, '${gtag}', '')" testTGeoIteratorDB.py >> GeometryValidation.log 
@@ -607,8 +607,8 @@ else
   echo Failed to dump paths from DB | tee -a GeometryValidation.log
 endif
 
-# cp $CMSSW_RELEASE_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIteratorLocalDB.py .
-cp $CMSSW_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIteratorLocalDB.py .
+cp $CMSSW_RELEASE_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIteratorLocalDB.py .
+# cp $CMSSW_BASE/src/DetectorDescription/DDCMS/test/python/testTGeoIteratorLocalDB.py .
 sed -i "{s/Extended2021/${geomabbrev}/g}" testTGeoIteratorLocalDB.py >> GeometryValidation.log
 cmsRun testTGeoIteratorLocalDB.py
 if ( -s navGeometry.log ) then
