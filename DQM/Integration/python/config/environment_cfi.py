@@ -43,8 +43,8 @@ dqmRunConfigType = "userarea"
 if dqmFileConfig.has_option("host", "type"):
     dqmRunConfigType = dqmFileConfig.get("host", "type")
     
-isDqmPlayback = cms.PSet( value = cms.untracked.bool( dqmRunConfigType != "playback" ) )
-isDqmProduction = cms.PSet( value = cms.untracked.bool( dqmRunConfigType != "production" ) )
+isDqmPlayback = cms.PSet( value = cms.untracked.bool( dqmRunConfigType == "playback" ) )
+isDqmProduction = cms.PSet( value = cms.untracked.bool( dqmRunConfigType == "production" ) )
 
 dqmRunConfig = dqmRunConfigDefaults[dqmRunConfigType]
 
