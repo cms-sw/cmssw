@@ -159,6 +159,11 @@ if (options.useB904GE11Long or options.useB904GE11Short):
     )
     process.muonGEMDigis.useDBEMap = True
 
+## for the time being the mapping does not work with the data label. Use MC instead
+if options.useB904Data:
+    process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
+>>>>>>> a607580e7d2 (Rename phase1_2021 to phase1_2022)
+
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer(
     "DumpFEDRawDataProduct",
