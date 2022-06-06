@@ -37,15 +37,10 @@ options.parseArguments()
 ##
 ## Define record, class and module based on option
 ##
-rcdName = "AlignPCLThresholdsHGRcd"
-className = "AlignPCLThresholdsHG"
-moduleName = "AlignPCLThresholdsHGReader"
+[rcdName, className, moduleName] = ["AlignPCLThresholdsRcd","AlignPCLThresholds","AlignPCLThresholdsLGReader"] \
+                                   if (options.readLGpayload) else ["AlignPCLThresholdsHGRcd","AlignPCLThresholdsHG","AlignPCLThresholdsHGReader"]
 
-if options.readLGpayload:
-    rcdName = "AlignPCLThresholdsRcd"
-    className = "AlignPCLThresholds"
-    moduleName = "AlignPCLThresholdsLGReader"
-
+print("using %s %s %s" % (rcdName, className, moduleName))
 ##
 ## Empty Source
 ##
