@@ -24,6 +24,18 @@ process.MessageLogger.cout = cms.untracked.PSet(
     )
 
 ##
+## Var Parsing
+##
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('writeLGpayload',
+                False,
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.bool,
+                "Write old payload type used for LG thresholds")
+options.parseArguments()
+
+##
 ## Empty source
 ##
 process.source = cms.Source("EmptyIOVSource",
@@ -53,12 +65,15 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 ##
 ## Impot the thresholds configuration
 ##
-import CondFormats.PCLConfig.ThresholdsHG_cff as Thresholds
+import CondFormats.PCLConfig.Thresholds_cff as Thresholds
+import CondFormats.PCLConfig.ThresholdsHG_cff as ThresholdsHG
 
 ##
 ## Example on how to add to the default extra degrees of freedom
 ##
 AddSurfaceThresholds = copy.deepcopy(Thresholds.default)
+AddSurfaceThresholdsHG = copy.deepcopy(ThresholdsHG.default)
+
 BPixSurface= cms.VPSet(
     cms.PSet(alignableId       = cms.string("TPBModule"),
              DOF               = cms.string("Surface1"),
@@ -72,13 +87,16 @@ BPixSurface= cms.VPSet(
 DefaultPlusSurface = AddSurfaceThresholds+BPixSurface
 #print DefaultPlusSurface.dumpPython()
 
-process.WriteInDB = cms.EDAnalyzer("AlignPCLThresholdsWriter",
+[MODULE_NAME, THRS_NAME] = ["AlignPCLThresholdsLGWriter",AddSurfaceThresholds] if(options.writeLGpayload) else ["AlignPCLThresholdsHGWriter",AddSurfaceThresholdsHG]
+
+
+process.WriteInDB = cms.EDAnalyzer(MODULE_NAME,
                                    record= cms.string('FooRcd'),
                                    ### minimum number of records found in pede output 
                                    minNRecords = cms.uint32(25000), 
                                    #thresholds  = cms.VPSet()         # empty object
                                    #thresholds = DefaultPlusSurface   # add extra deegree of freedom
-                                   thresholds = Thresholds.default   # as a cms.VPset
+                                   thresholds =  THRS_NAME #Thresholds.default   # as a cms.VPset
                                    )
 
 process.p = cms.Path(process.WriteInDB)
