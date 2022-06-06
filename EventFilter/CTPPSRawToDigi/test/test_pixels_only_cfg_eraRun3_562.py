@@ -50,7 +50,7 @@ process.ctppsPixelDigis.inputLabel = cms.InputTag("source")
 
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 
 process.load("CondCore.CondDB.CondDB_cfi")
