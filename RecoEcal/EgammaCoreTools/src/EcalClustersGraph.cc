@@ -142,7 +142,13 @@ void EcalClustersGraph::initWindows() {
     // Add a self loop on the seed node
     graphMap_.addEdge(is, is);
 
-    for (uint icl = 0; icl < nCls_; icl++) {
+    // The graph associated to each seed includes only other seeds if they have a smaller energy.
+    // This is imposed to be consistent with the current trained model, which has been training on "non-overalapping windows".
+    // The effect of connecting all the seeds, and not only the smaller energy ones has been already tested: the reconstruction
+    // differences are negligible (tested with Cascade collection algo).
+    // In the next version of the training this requirement will be relaxed to have a model that fully matches the reconstruction
+    // mechanism in terms of overlapping seeds.
+    for (uint icl = is + 1; icl < nCls_; icl++) {
       if (is == icl)
         continue;
       const auto& clusterLocal = clusterPosition((*clusters_[icl]).ptr().get());
