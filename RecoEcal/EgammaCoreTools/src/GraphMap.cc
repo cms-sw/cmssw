@@ -211,8 +211,9 @@ std::pair<GraphMap::GraphOutput, GraphMap::GraphOutputMap> GraphMap::collectSepa
       continue;
     // Loop on the out-coming edges
     for (const auto &out : edgesOut_[s]) {
+      // Check if it is another seed
+      // if out is a seed adjMatrix[self-loop] > 0
       if (out != s && adjMatrix_[{out, out}] > 0) {
-        // Check if it is another seed
         // DO NOT CHECK the score of the edge, it will be checked during the merging
         collectedSeeds.push_back(out);
         // No self-loops are saved in the seed graph output
@@ -270,6 +271,9 @@ void GraphMap::mergeSubGraphs(float threshold, GraphOutput seedsGraph, GraphOutp
         // Other seeds linked to the disable seed won't be collected, but analyzed independently.
       }
     }
+    // Now remove the current seed from the available ones,
+    // if not other seeds could take it and we would have a double use of objects.
+    adjMatrix_[{s, s}] = 0;
     graphOutput_.push_back({s, collectedNodes});
   }
 }
