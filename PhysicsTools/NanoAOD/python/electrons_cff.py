@@ -331,7 +331,7 @@ electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
     weightFile =  cms.FileInPath("PhysicsTools/NanoAOD/data/el_BDTG_2017.weights.xml"),
     name = cms.string("electronMVATTH"),
     isClassifier = cms.bool(True),
-    variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_dxy","LepGood_sip3d","LepGood_dz","LepGood_mvaNoIso"]),
+    variablesOrder = cms.vstring(["LepGood_pt","LepGood_eta","LepGood_jetNDauChargedMVASel","LepGood_miniRelIsoCharged","LepGood_miniRelIsoNeutral","LepGood_jetPtRelv2","LepGood_jetDF","LepGood_jetPtRatio","LepGood_dxy","LepGood_sip3d","LepGood_dz","LepGood_mvaFall17V2noIso"]),
     variables = cms.PSet(
         LepGood_pt = cms.string("pt"),
         LepGood_eta = cms.string("eta"),
@@ -344,7 +344,7 @@ electronMVATTH= cms.EDProducer("EleBaseMVAValueMapProducer",
         LepGood_dxy = cms.string("log(abs(dB('PV2D')))"),
         LepGood_sip3d = cms.string("abs(dB('PV3D')/edB('PV3D'))"),
         LepGood_dz = cms.string("log(abs(dB('PVDZ')))"),
-        LepGood_mvaNoIso = cms.string("userFloat('mvaNoIso')"),
+        LepGood_mvaFall17V2noIso = cms.string("userFloat('mvaNoIso')"),
     )
 )
 run2_egamma_2016.toModify(electronMVATTH,
