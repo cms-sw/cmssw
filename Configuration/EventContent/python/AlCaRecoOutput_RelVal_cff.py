@@ -22,6 +22,7 @@ ALCARECOEventContent = cms.PSet(
         'keep *_ALCARECOTkAlDiMuonVertexTracks_*_*',
         'keep *_ALCARECOTkAlUpsilonMuMu_*_*',
         'keep *_ALCARECOTkAlMinBias_*_*',
+        'keep *_ALCARECOTkAlJetHT_*_*',
 	'keep *_ALCARECOTkAlBeamHalo_*_*', 
         'keep *_ALCARECOMuAlBeamHalo_*_*', 
 	'keep *_ALCARECOMuAlBeamHaloOverlaps_*_*',
