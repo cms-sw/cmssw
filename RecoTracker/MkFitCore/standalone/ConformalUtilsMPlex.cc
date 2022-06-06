@@ -114,7 +114,8 @@ namespace mkfit {
                          MPlexLV& outPar,
                          const MPlexHV& msPar0,
                          const MPlexHV& msPar1,
-                         const MPlexHV& msPar2) {
+                         const MPlexHV& msPar2,
+                         const float bScale) {
     bool debug(false);
 
     using idx_t = Matriplex::idx_t;
@@ -215,7 +216,7 @@ namespace mkfit {
     }
 
     // constant used throughtout
-    const float k = (Const::sol * Config::Bfield) / 100.0f;
+    const float k = (Const::sol * bScale * Config::Bfield) / 100.0f;
 
     MPlexQF vrx, vry, pT, px, py, pz;
 #pragma omp simd

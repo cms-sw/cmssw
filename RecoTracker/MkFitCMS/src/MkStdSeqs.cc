@@ -105,6 +105,8 @@ namespace mkfit {
       const float dzmax2_inv_el = 1.f / (dzmax_el * dzmax_el);
       const float drmax2_inv_el = 1.f / (drmax_el * drmax_el);
 
+      const float bScale = itrcfg.m_bScale;
+
       // Merge hits from overlapping seeds?
       // For now always true, we require extra hits after seed.
       const bool merge_hits = true;  // itrcfg.merge_seed_hits_during_cleaning();
@@ -156,7 +158,7 @@ namespace mkfit {
         x[ts] = tk.x();
         y[ts] = tk.y();
         z[ts] = tk.z();
-        d0[ts] = tk.d0BeamSpot(bspot.x, bspot.y);
+        d0[ts] = tk.d0BeamSpot(bspot.x, bspot.y, bScale);
 
         phi_eta_binnor.register_entry_safe(oldPhi[ts], eta[ts]);
         // If one is sure values are *within* axis ranges: b.register_entry(oldPhi[ts], eta[ts]);

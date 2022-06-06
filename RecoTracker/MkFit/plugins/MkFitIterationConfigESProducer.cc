@@ -1,7 +1,12 @@
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+#include "RecoTracker/Record/interface/MkFitComponentsRecord.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 
@@ -17,7 +22,8 @@ namespace {
   [[maybe_unused]] void partitionSeeds0(const TrackerInfo &trk_info,
                                         const TrackVec &in_seeds,
                                         const EventOfHits &eoh,
-                                        IterationSeedPartition &part) {
+                                        IterationSeedPartition &part,
+                                        const float bScale) {
     const size_t size = in_seeds.size();
 
     for (size_t i = 0; i < size; ++i) {
@@ -47,20 +53,20 @@ namespace {
 
       const LayerInfo &tec_first = z_dir_pos ? tecp1 : tecn1;
 
-      const float maxR = S.maxReachRadius();
+      const float maxR = S.maxReachRadius(bScale);
       float z_at_maxr;
 
-      bool can_reach_outer_brl = S.canReachRadius(outer_brl.rout());
+      bool can_reach_outer_brl = S.canReachRadius(outer_brl.rout(), bScale);
       float z_at_outer_brl;
       bool misses_first_tec;
       if (can_reach_outer_brl) {
-        z_at_outer_brl = S.zAtR(outer_brl.rout());
+        z_at_outer_brl = S.zAtR(outer_brl.rout(), bScale);
         if (z_dir_pos)
           misses_first_tec = z_at_outer_brl < tec_first.zmin();
         else
           misses_first_tec = z_at_outer_brl > tec_first.zmax();
       } else {
-        z_at_maxr = S.zAtR(maxR);
+        z_at_maxr = S.zAtR(maxR, bScale);
         if (z_dir_pos)
           misses_first_tec = z_at_maxr < tec_first.zmin();
         else
@@ -70,8 +76,8 @@ namespace {
       if (misses_first_tec) {
         reg = TrackerInfo::Reg_Barrel;
       } else {
-        if ((S.canReachRadius(tib1.rin()) && tib1.is_within_z_limits(S.zAtR(tib1.rin()))) ||
-            (S.canReachRadius(tob1.rin()) && tob1.is_within_z_limits(S.zAtR(tob1.rin())))) {
+        if ((S.canReachRadius(tib1.rin(), bScale) && tib1.is_within_z_limits(S.zAtR(tib1.rin(), bScale))) ||
+            (S.canReachRadius(tob1.rin(), bScale) && tob1.is_within_z_limits(S.zAtR(tob1.rin(), bScale)))) {
           reg = z_dir_pos ? TrackerInfo::Reg_Transition_Pos : TrackerInfo::Reg_Transition_Neg;
         } else {
           reg = z_dir_pos ? TrackerInfo::Reg_Endcap_Pos : TrackerInfo::Reg_Endcap_Neg;
@@ -87,7 +93,8 @@ namespace {
   [[maybe_unused]] void partitionSeeds1(const TrackerInfo &trk_info,
                                         const TrackVec &in_seeds,
                                         const EventOfHits &eoh,
-                                        IterationSeedPartition &part) {
+                                        IterationSeedPartition &part,
+                                        const float bScale) {
     // Define first (mkFit) layer IDs for each strip subdetector.
     constexpr int tib1_id = 4;
     constexpr int tob1_id = 10;
@@ -124,23 +131,23 @@ namespace {
 
     const size_t size = in_seeds.size();
 
-    auto barrel_pos_check = [](const Track &S, float maxR, float rin, float zmax) -> bool {
-      bool inside = maxR > rin && S.zAtR(rin) < zmax;
+    auto barrel_pos_check = [&bScale](const Track &S, float maxR, float rin, float zmax) -> bool {
+      bool inside = maxR > rin && S.zAtR(rin, bScale) < zmax;
       return inside;
     };
 
-    auto barrel_neg_check = [](const Track &S, float maxR, float rin, float zmin) -> bool {
-      bool inside = maxR > rin && S.zAtR(rin) > zmin;
+    auto barrel_neg_check = [&bScale](const Track &S, float maxR, float rin, float zmin) -> bool {
+      bool inside = maxR > rin && S.zAtR(rin, bScale) > zmin;
       return inside;
     };
 
-    auto endcap_pos_check = [](const Track &S, float maxR, float rout, float rin, float zmin) -> bool {
-      bool inside = maxR > rout ? S.zAtR(rout) > zmin : (maxR > rin && S.zAtR(maxR) > zmin);
+    auto endcap_pos_check = [&bScale](const Track &S, float maxR, float rout, float rin, float zmin) -> bool {
+      bool inside = maxR > rout ? S.zAtR(rout, bScale) > zmin : (maxR > rin && S.zAtR(maxR, bScale) > zmin);
       return inside;
     };
 
-    auto endcap_neg_check = [](const Track &S, float maxR, float rout, float rin, float zmax) -> bool {
-      bool inside = maxR > rout ? S.zAtR(rout) < zmax : (maxR > rin && S.zAtR(maxR) < zmax);
+    auto endcap_neg_check = [&bScale](const Track &S, float maxR, float rout, float rin, float zmax) -> bool {
+      bool inside = maxR > rout ? S.zAtR(rout, bScale) < zmax : (maxR > rin && S.zAtR(maxR, bScale) < zmax);
       return inside;
     };
 
@@ -154,7 +161,7 @@ namespace {
       TrackerInfo::EtaRegion reg;
 
       const bool z_dir_pos = S.pz() > 0;
-      const float maxR = S.maxReachRadius();
+      const float maxR = S.maxReachRadius(bScale);
 
       if (z_dir_pos) {
         const bool in_tib = barrel_pos_check(S, maxR, tib1.rin(), tib1.zmax());
@@ -203,17 +210,21 @@ public:
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
-  std::unique_ptr<mkfit::IterationConfig> produce(const TrackerRecoGeometryRecord &iRecord);
+  std::unique_ptr<mkfit::IterationConfig> produce(const MkFitComponentsRecord &iRecord);
 
 private:
+  MkFitIterationConfigESProducer(const edm::ParameterSet &iConfig, edm::ESConsumesCollectorT<MkFitComponentsRecord>&&);
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> geomToken_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
   const std::string configFile_;
   const float minPtCut_;
   const unsigned int maxClusterSize_;
 };
 
-MkFitIterationConfigESProducer::MkFitIterationConfigESProducer(const edm::ParameterSet &iConfig)
-    : geomToken_{setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName")).consumes()},
+MkFitIterationConfigESProducer::MkFitIterationConfigESProducer(const edm::ParameterSet &iConfig) : MkFitIterationConfigESProducer(iConfig, setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName"))) {}
+MkFitIterationConfigESProducer::MkFitIterationConfigESProducer(const edm::ParameterSet &iConfig, edm::ESConsumesCollectorT<MkFitComponentsRecord>&& cc)
+    : geomToken_{cc.consumes()},
+      mfToken_{cc.consumes(iConfig.getParameter<edm::ESInputTag>("magField"))},
       configFile_{iConfig.getParameter<edm::FileInPath>("config").fullPath()},
       minPtCut_{(float)iConfig.getParameter<double>("minPt")},
       maxClusterSize_{iConfig.getParameter<unsigned int>("maxClusterSize")} {}
@@ -221,6 +232,7 @@ MkFitIterationConfigESProducer::MkFitIterationConfigESProducer(const edm::Parame
 void MkFitIterationConfigESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("ComponentName")->setComment("Product label");
+  desc.add<edm::ESInputTag>("magField", edm::ESInputTag{"", "ParabolicMf"})->setComment("used only to get the value at (0,0,0)");
   desc.add<edm::FileInPath>("config")->setComment("Path to the JSON file for the mkFit configuration parameters");
   desc.add<double>("minPt", 0.0)->setComment("min pT cut applied during track building");
   desc.add<unsigned int>("maxClusterSize", 8)->setComment("Max cluster size of SiStrip hits");
@@ -228,7 +240,7 @@ void MkFitIterationConfigESProducer::fillDescriptions(edm::ConfigurationDescript
 }
 
 std::unique_ptr<mkfit::IterationConfig> MkFitIterationConfigESProducer::produce(
-    const TrackerRecoGeometryRecord &iRecord) {
+    const MkFitComponentsRecord &iRecord) {
   mkfit::ConfigJson cj;
   auto it_conf = cj.load_File(configFile_);
   it_conf->m_params.minPtCut = minPtCut_;
@@ -236,6 +248,11 @@ std::unique_ptr<mkfit::IterationConfig> MkFitIterationConfigESProducer::produce(
   it_conf->m_partition_seeds = partitionSeeds1;
   it_conf->m_params.maxClusterSize = maxClusterSize_;
   it_conf->m_backward_params.maxClusterSize = maxClusterSize_;
+
+  const float bz0 = iRecord.get(mfToken_).inTesla(GlobalPoint(0,0,0)).z();
+  const float bScale = std::abs(bz0)/Config::mag_c1;
+  edm::LogWarning("MYDEBUG")<<"Loaded field scale "<<bScale;
+  it_conf->m_bScale = bScale;
   return it_conf;
 }
 

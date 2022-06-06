@@ -194,7 +194,7 @@ namespace mkfit {
 
     bool hasNanNSillyValues() const;
 
-    float d0BeamSpot(const float x_bs, const float y_bs, bool linearize = false) const;
+    float d0BeamSpot(const float x_bs, const float y_bs, const float bScale /*= 1.f*/, bool linearize = false) const;
 
     // ------------------------------------------------------------------------
 
@@ -388,10 +388,10 @@ namespace mkfit {
     // used for swimming cmssw rec tracks to mkFit position
     float swimPhiToR(const float x, const float y) const;
 
-    bool canReachRadius(float R) const;
-    float maxReachRadius() const;
-    float zAtR(float R, float* r_reached = nullptr) const;
-    float rAtZ(float Z) const;
+    bool canReachRadius(float R, float bScale) const;
+    float maxReachRadius(float bScale) const;
+    float zAtR(float R, float bScale, float* r_reached = nullptr) const;
+    float rAtZ(float Z, float bScale) const;
 
     //this function is very inefficient, use only for debug and validation!
     HitVec hitsVector(const std::vector<HitVec>& globalHitVec) const {

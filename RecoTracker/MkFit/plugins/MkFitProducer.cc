@@ -15,6 +15,8 @@
 #include "RecoTracker/MkFit/interface/MkFitSeedWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitOutputWrapper.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
+
+#include "RecoTracker/Record/interface/MkFitComponentsRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 // mkFit includes
@@ -52,7 +54,7 @@ private:
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>> pixelMaskToken_;
   edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>> stripMaskToken_;
   const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> mkFitGeomToken_;
-  const edm::ESGetToken<mkfit::IterationConfig, TrackerRecoGeometryRecord> mkFitIterConfigToken_;
+  const edm::ESGetToken<mkfit::IterationConfig, MkFitComponentsRecord> mkFitIterConfigToken_;
   const edm::EDPutTokenT<MkFitOutputWrapper> putToken_;
   const float minGoodStripCharge_;
   const bool seedCleaning_;

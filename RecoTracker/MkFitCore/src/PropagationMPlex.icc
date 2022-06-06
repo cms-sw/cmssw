@@ -12,7 +12,7 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
                                                  const int nmin,
                                                  const int nmax,
                                                  const int N_proc,
-                                                 const PropagationFlags pf) {
+                                                 const PropagationFlags pf, const float bScale) {
   // bool debug = true;
 
 #pragma omp simd
@@ -35,12 +35,12 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
   if (pf.use_param_b_field) {
 #pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
-      k[n - nmin] = inChg(n, 0, 0) * 100.f / (-Const::sol * Config::bFieldFromZR(inPar(n, 2, 0), r0[n - nmin]));
+      k[n - nmin] = inChg(n, 0, 0) * 100.f / (-Const::sol * bScale * Config::bFieldFromZR(inPar(n, 2, 0), r0[n - nmin]));
     }
   } else {
 #pragma omp simd
     for (int n = nmin; n < nmax; ++n) {
-      k[n - nmin] = inChg(n, 0, 0) * 100.f / (-Const::sol * Config::Bfield);
+      k[n - nmin] = inChg(n, 0, 0) * 100.f / (-Const::sol * bScale * Config::Bfield);
     }
   }
   float r[nmax - nmin];

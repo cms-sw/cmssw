@@ -5,6 +5,7 @@
 #include "RecoTracker/MkFitCore/interface/Hit.h"
 #include "RecoTracker/MkFitCore/interface/Track.h"
 #include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
+#include "RecoTracker/MkFitCore/interface/IterationConfig.h"
 
 namespace mkfit {
 
@@ -53,7 +54,7 @@ namespace mkfit {
 
     // layer-dependent quality filter
     template <class TRACK>
-    bool qfilter_n_layers(const TRACK &t, const BeamSpot &bspot, const TrackerInfo &trk_inf) {
+    bool qfilter_n_layers(const TRACK &t, const BeamSpot &bspot, const TrackerInfo &trk_inf, const IterationConfig &itc) {
       int enhits = t.nHitsByTypeEncoded(trk_inf);
       int npixhits = t.nPixelDecoded(enhits);
       int enlyrs = t.nLayersByTypeEncoded(trk_inf);
@@ -63,7 +64,7 @@ namespace mkfit {
       int lplyr = t.getLastFoundPixelHitLyr();
       float invpt = t.invpT();
       float invptmin = 1.43;  // min 1/pT (=1/0.7) for full filter on (npixhits<=3 .or. npixlyrs<=3)
-      float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
+      float d0BS = t.d0BeamSpot(bspot.x, bspot.y, itc.m_bScale);
       float d0_max = 0.1;  // 1 mm
 
       bool endsInsidePix = (llyr == 2 || llyr == 18 || llyr == 45);
@@ -75,8 +76,8 @@ namespace mkfit {
 
     /// quality filter tuned for pixelLess iteration during forward search
     template <class TRACK>
-    bool qfilter_pixelLessFwd(const TRACK &t, const BeamSpot &bspot, const TrackerInfo &tk_info) {
-      float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
+    bool qfilter_pixelLessFwd(const TRACK &t, const BeamSpot &bspot, const TrackerInfo &tk_info, const IterationConfig &itc) {
+      float d0BS = t.d0BeamSpot(bspot.x, bspot.y, itc.m_bScale);
       float d0_max = 0.05;  // 0.5 mm
 
       int encoded;
@@ -101,8 +102,8 @@ namespace mkfit {
 
     /// quality filter tuned for pixelLess iteration during backward search
     template <class TRACK>
-    bool qfilter_pixelLessBkwd(const TRACK &t, const BeamSpot &bspot, const TrackerInfo &tk_info) {
-      float d0BS = t.d0BeamSpot(bspot.x, bspot.y);
+    bool qfilter_pixelLessBkwd(const TRACK &t, const BeamSpot &bspot, const TrackerInfo &tk_info, const IterationConfig &itc) {
+      float d0BS = t.d0BeamSpot(bspot.x, bspot.y, itc.m_bScale);
       float d0_max = 0.1;  // 1 mm
 
       int encoded;

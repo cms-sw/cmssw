@@ -187,11 +187,11 @@ namespace mkfit {
   }
 
   // If linearize=true, use linear estimate of d0: suitable at pT>~10 GeV (--> 10 micron error)
-  float TrackBase::d0BeamSpot(const float x_bs, const float y_bs, bool linearize) const {
+  float TrackBase::d0BeamSpot(const float x_bs, const float y_bs, const float bScale, bool linearize) const {
     if (linearize) {
       return std::abs(std::cos(momPhi()) * (y() - y_bs) - std::sin(momPhi()) * (x() - x_bs));
     } else {
-      const float k = ((charge() < 0) ? 100.0f : -100.0f) / (Const::sol * Config::Bfield);
+      const float k = ((charge() < 0) ? 100.0f : -100.0f) / (Const::sol * bScale * Config::Bfield);
       const float abs_ooc_half = std::abs(k * pT());
       // center of helix in x,y plane
       const float x_center = x() - k * py();
@@ -279,14 +279,14 @@ namespace mkfit {
     return squashPhiGeneral(momPhi() - dPhi);
   }
 
-  bool Track::canReachRadius(float R) const {
-    const float k = ((charge() < 0) ? 100.0f : -100.0f) / (Const::sol * Config::Bfield);
+  bool Track::canReachRadius(float R, float bScale) const {
+    const float k = ((charge() < 0) ? 100.0f : -100.0f) / (Const::sol * bScale * Config::Bfield);
     const float ooc = 2.0f * k * pT();
     return std::abs(ooc) > R - std::hypot(x(), y());
   }
 
-  float Track::maxReachRadius() const {
-    const float k = ((charge() < 0) ? 100.0f : -100.0f) / (Const::sol * Config::Bfield);
+  float Track::maxReachRadius(float bScale) const {
+    const float k = ((charge() < 0) ? 100.0f : -100.0f) / (Const::sol * bScale * Config::Bfield);
     const float abs_ooc_half = std::abs(k * pT());
     // center of helix in x,y plane
     const float x_center = x() - k * py();
@@ -294,14 +294,14 @@ namespace mkfit {
     return std::hypot(x_center, y_center) + abs_ooc_half;
   }
 
-  float Track::zAtR(float R, float* r_reached) const {
+  float Track::zAtR(float R, float bScale, float* r_reached) const {
     float xc = x();
     float yc = y();
     float pxc = px();
     float pyc = py();
 
     const float ipt = invpT();
-    const float kinv = ((charge() < 0) ? 0.01f : -0.01f) * Const::sol * Config::Bfield;
+    const float kinv = ((charge() < 0) ? 0.01f : -0.01f) * Const::sol * bScale * Config::Bfield;
     const float k = 1.0f / kinv;
 
     const float c = 0.5f * kinv * ipt;
@@ -371,14 +371,14 @@ namespace mkfit {
     // ----------------------------------------------------------------
   }
 
-  float Track::rAtZ(float Z) const {
+  float Track::rAtZ(float Z, float bScale) const {
     float xc = x();
     float yc = y();
     float pxc = px();
     float pyc = py();
 
     const float ipt = invpT();
-    const float kinv = ((charge() < 0) ? 0.01f : -0.01f) * Const::sol * Config::Bfield;
+    const float kinv = ((charge() < 0) ? 0.01f : -0.01f) * Const::sol * bScale * Config::Bfield;
     const float k = 1.0f / kinv;
 
     const float dz = Z - z();

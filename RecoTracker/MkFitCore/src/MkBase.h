@@ -33,7 +33,7 @@ namespace mkfit {
         msRad.At(n, 0, 0) = r;
       }
 
-      propagateHelixToRMPlex(m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], N_proc, pf);
+      propagateHelixToRMPlex(m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], N_proc, pf, m_bScale);
     }
 
     void propagateTracksToHitR(const MPlexHV& par,
@@ -46,7 +46,7 @@ namespace mkfit {
         msRad.At(n, 0, 0) = std::hypot(par.constAt(n, 0, 0), par.constAt(n, 1, 0));
       }
 
-      propagateHelixToRMPlex(m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], N_proc, pf, noMatEffPtr);
+      propagateHelixToRMPlex(m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], N_proc, pf, m_bScale, noMatEffPtr);
     }
 
     //----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ namespace mkfit {
         msZ.At(n, 0, 0) = z;
       }
 
-      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], N_proc, pf);
+      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], N_proc, pf, m_bScale);
     }
 
     void propagateTracksToHitZ(const MPlexHV& par,
@@ -71,7 +71,7 @@ namespace mkfit {
         msZ.At(n, 0, 0) = par.constAt(n, 2, 0);
       }
 
-      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], N_proc, pf, noMatEffPtr);
+      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], N_proc, pf, m_bScale, noMatEffPtr);
     }
 
     void propagateTracksToPCAZ(const int N_proc, const PropagationFlags pf) {
@@ -85,7 +85,7 @@ namespace mkfit {
                           (1 + slope * slope);  // PCA to origin
       }
 
-      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], N_proc, pf);
+      propagateHelixToZMPlex(m_Err[iC], m_Par[iC], m_Chg, msZ, m_Err[iP], m_Par[iP], N_proc, pf, m_bScale);
     }
 
     //----------------------------------------------------------------------------
@@ -94,6 +94,7 @@ namespace mkfit {
     MPlexLS m_Err[2];
     MPlexLV m_Par[2];
     MPlexQI m_Chg;
+    float m_bScale = 0.f; // implies the value is consistently (re)set where needed
   };
 
 }  // end namespace mkfit

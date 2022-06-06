@@ -28,7 +28,7 @@ namespace mkfit {
                                 MPlexLS& outErr,
                                 MPlexLV& outPar,
                                 const int N_proc,
-                                const PropagationFlags propFlags,
+                                const PropagationFlags propFlags, const float bScale,
                                 const bool propToHit);
 
   void kalmanComputeChi2(const MPlexLS& psErr,
@@ -47,7 +47,7 @@ namespace mkfit {
                                      MPlexQF& outChi2,
                                      MPlexLV& propPar,
                                      const int N_proc,
-                                     const PropagationFlags propFlags,
+                                     const PropagationFlags propFlags, const float bScale,
                                      const bool propToHit);
 
   void kalmanOperation(const int kfOp,
@@ -78,7 +78,7 @@ namespace mkfit {
                                       MPlexLS& outErr,
                                       MPlexLV& outPar,
                                       const int N_proc,
-                                      const PropagationFlags propFlags,
+                                      const PropagationFlags propFlags, const float bScale,
                                       const bool propToHit);
 
   void kalmanComputeChi2Endcap(const MPlexLS& psErr,
@@ -97,7 +97,7 @@ namespace mkfit {
                                            MPlexQF& outChi2,
                                            MPlexLV& propPar,
                                            const int N_proc,
-                                           const PropagationFlags propFlags,
+                                           const PropagationFlags propFlags, const float bScale,
                                            const bool propToHit);
 
   void kalmanOperationEndcap(const int kfOp,

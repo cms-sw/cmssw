@@ -292,7 +292,8 @@ namespace mkfit {
                                        const MPlexQF& msRad,
                                        MPlexLV& outPar,
                                        MPlexLL& errorProp,
-                                       const int N_proc) {
+                                       const int N_proc,
+                                       const PropagationFlags pflags, const float bScale) {
     errorProp.setVal(0.f);
     MPlexLL errorPropTmp(0.f);   //initialize to zero
     MPlexLL errorPropSwap(0.f);  //initialize to zero
@@ -307,14 +308,17 @@ namespace mkfit {
       errorProp(n, 4, 4) = 1.f;
       errorProp(n, 5, 5) = 1.f;
 
-      const float k = inChg.constAt(n, 0, 0) * 100.f / (-Const::sol * Config::Bfield);
-      const float r = msRad.constAt(n, 0, 0);
       float r0 = hipo(inPar.constAt(n, 0, 0), inPar.constAt(n, 1, 0));
+      const float r = msRad.constAt(n, 0, 0);
 
       if (std::abs(r - r0) < 0.0001f) {
         dprint_np(n, "distance less than 1mum, skip");
         continue;
       }
+      const float k = inChg.constAt(n, 0, 0) * 100.f /
+        (-Const::sol * bScale * (pflags.use_param_b_field
+                        ? Config::bFieldFromZR(inPar.constAt(n, 2, 0), r0)
+                        : Config::Bfield));
 
       const float ipt = inPar.constAt(n, 3, 0);
       const float phiin = inPar.constAt(n, 4, 0);
@@ -477,11 +481,11 @@ namespace mkfit {
                                 MPlexLL& errorProp,
                                 MPlexQI& outFailFlag,
                                 const int N_proc,
-                                const PropagationFlags pflags) {
+                                const PropagationFlags pflags, const float bScale) {
     errorProp.setVal(0.f);
     outFailFlag.setVal(0.f);
 
-    helixAtRFromIterativeCCS_impl(inPar, inChg, msRad, outPar, errorProp, outFailFlag, 0, NN, N_proc, pflags);
+    helixAtRFromIterativeCCS_impl(inPar, inChg, msRad, outPar, errorProp, outFailFlag, 0, NN, N_proc, pflags, bScale);
   }
 
   void propagateHelixToRMPlex(const MPlexLS& inErr,
@@ -491,7 +495,7 @@ namespace mkfit {
                               MPlexLS& outErr,
                               MPlexLV& outPar,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags pflags, const float bScale,
                               const MPlexQI* noMatEffPtr) {
     // bool debug = true;
 
@@ -505,7 +509,7 @@ namespace mkfit {
     MPlexLL errorProp;
     MPlexQI failFlag;
 
-    helixAtRFromIterativeCCS(inPar, inChg, msRad, outPar, errorProp, failFlag, N_proc, pflags);
+    helixAtRFromIterativeCCS(inPar, inChg, msRad, outPar, errorProp, failFlag, N_proc, pflags, bScale);
 
 #ifdef DEBUG
     {
@@ -599,7 +603,7 @@ namespace mkfit {
                               MPlexLS& outErr,
                               MPlexLV& outPar,
                               const int N_proc,
-                              const PropagationFlags pflags,
+                              const PropagationFlags pflags, const float bScale,
                               const MPlexQI* noMatEffPtr) {
     // debug = true;
 
@@ -608,7 +612,7 @@ namespace mkfit {
 
     MPlexLL errorProp;
 
-    helixAtZ(inPar, inChg, msZ, outPar, errorProp, N_proc, pflags);
+    helixAtZ(inPar, inChg, msZ, outPar, errorProp, N_proc, pflags, bScale);
 
 #ifdef DEBUG
     {
@@ -700,7 +704,7 @@ namespace mkfit {
                 MPlexLV& outPar,
                 MPlexLL& errorProp,
                 const int N_proc,
-                const PropagationFlags pflags) {
+                const PropagationFlags pflags, const float bScale) {
     errorProp.setVal(0.f);
 
 #pragma omp simd
@@ -732,12 +736,12 @@ namespace mkfit {
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
         k[n] = inChg.constAt(n, 0, 0) * 100.f /
-               (-Const::sol * Config::bFieldFromZR(zin[n], hipo(inPar.constAt(n, 0, 0), inPar.constAt(n, 1, 0))));
+               (-Const::sol * bScale * Config::bFieldFromZR(zin[n], hipo(inPar.constAt(n, 0, 0), inPar.constAt(n, 1, 0))));
       }
     } else {
 #pragma omp simd
       for (int n = 0; n < NN; ++n) {
-        k[n] = inChg.constAt(n, 0, 0) * 100.f / (-Const::sol * Config::Bfield);
+        k[n] = inChg.constAt(n, 0, 0) * 100.f / (-Const::sol * bScale * Config::Bfield);
       }
     }
 

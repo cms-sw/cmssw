@@ -701,6 +701,7 @@ namespace mkfit {
                                      tmpPropPar,
                                      N_proc,
                                      m_prop_config->finding_intra_layer_pflags,
+                                     m_bScale,
                                      m_prop_config->finding_requires_propagation_to_hit_pos);
 
       //update best hit in case chi2<minChi2
@@ -786,6 +787,7 @@ namespace mkfit {
                                    m_Par[iC],
                                    N_proc,
                                    m_prop_config->finding_intra_layer_pflags,
+                                   m_bScale,
                                    m_prop_config->finding_requires_propagation_to_hit_pos);
 
     dprint("m_Par[iP](0,0,0)=" << m_Par[iP](0, 0, 0) << " m_Par[iC](0,0,0)=" << m_Par[iC](0, 0, 0));
@@ -915,6 +917,7 @@ namespace mkfit {
                                      propPar,
                                      N_proc,
                                      m_prop_config->finding_intra_layer_pflags,
+                                     m_bScale,
                                      m_prop_config->finding_requires_propagation_to_hit_pos);
 
       // Now update the track parameters with this hit (note that some
@@ -969,6 +972,7 @@ namespace mkfit {
                                        m_Par[iC],
                                        N_proc,
                                        m_prop_config->finding_intra_layer_pflags,
+                                       m_bScale,
                                        m_prop_config->finding_requires_propagation_to_hit_pos);
 
         dprint("update parameters" << std::endl
@@ -1154,6 +1158,7 @@ namespace mkfit {
                                      propPar,
                                      N_proc,
                                      m_prop_config->finding_intra_layer_pflags,
+                                     m_bScale,
                                      m_prop_config->finding_requires_propagation_to_hit_pos);
 
 #pragma omp simd  // DOES NOT VECTORIZE AS IT IS NOW
@@ -1309,6 +1314,7 @@ namespace mkfit {
                                    m_Par[iC],
                                    N_proc,
                                    m_prop_config->finding_inter_layer_pflags,
+                                   m_bScale,
                                    m_prop_config->finding_requires_propagation_to_hit_pos);
   }
 
