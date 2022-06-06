@@ -380,6 +380,37 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_cff import ALCARECOTk
 #ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM+ALCARECOTkAlMinBiasHLTDQM+ALCARECOTkAlMinBiasNOTHLTDQM)
 ALCARECOTkAlMinBiasDQM = cms.Sequence( ALCARECOTkAlMinBiasTrackingDQM + ALCARECOTkAlMinBiasTkAlDQM )
 
+########################################################
+#############---  TkAlJetHT ---#######################
+########################################################
+__selectionName = 'TkAlJetHT'
+ALCARECOTkAlJetHTTrackingDQM = ALCARECOTkAlZMuMuTrackingDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    BSFolderName = "AlCaReco/"+__selectionName+"/BeamSpot",
+    # margins and settings
+    TkSizeBin = 71,
+    TkSizeMin = -0.5,
+    TkSizeMax = 70.5,
+    TrackPtMax = 30
+)
+
+ALCARECOTkAlJetHTTkAlDQM = ALCARECOTkAlZMuMuTkAlDQM.clone(
+    #names and desigantions
+    TrackProducer = 'ALCARECO'+__selectionName,
+    AlgoName = 'ALCARECO'+__selectionName,
+    FolderName = "AlCaReco/"+__selectionName,
+    # margins and settings
+    fillInvariantMass = False,
+    TrackPtMax = 30,
+    SumChargeBin = 101,
+    SumChargeMin = -50.5,
+    SumChargeMax = 50.5
+)
+
+ALCARECOTkAlJetHTDQM = cms.Sequence( ALCARECOTkAlJetHTTrackingDQM + ALCARECOTkAlJetHTTkAlDQM)
 
 ########################################################
 #############---  TkAlMinBiasHI ---#####################
