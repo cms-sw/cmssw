@@ -12,7 +12,7 @@
 
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
-#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
 
 struct mpPCLresults {
 private:
@@ -59,7 +59,7 @@ class MillePedeFileReader {
 public:  //====================================================================
   explicit MillePedeFileReader(const edm::ParameterSet&,
                                const std::shared_ptr<const PedeLabelerBase>&,
-                               const std::shared_ptr<const AlignPCLThresholds>&);
+                               const std::shared_ptr<const AlignPCLThresholdsHG>&);
 
   virtual ~MillePedeFileReader() = default;
 
@@ -81,7 +81,7 @@ public:  //====================================================================
   const std::array<double, 6>& getTZobs() const { return tZobs_; }
   const std::array<double, 6>& getTZobsErr() const { return tZobsErr_; }
 
-  const AlignPCLThresholds::threshold_map getThresholdMap() const { return theThresholds_.get()->getThreshold_Map(); }
+  const AlignPCLThresholdsHG::threshold_map getThresholdMap() const { return theThresholds_.get()->getThreshold_Map(); }
 
   const int binariesAmount() const { return binariesAmount_; }
 
@@ -119,7 +119,7 @@ private:
   const std::shared_ptr<const PedeLabelerBase> pedeLabeler_;
 
   // thresholds from DB
-  const std::shared_ptr<const AlignPCLThresholds> theThresholds_;
+  const std::shared_ptr<const AlignPCLThresholdsHG> theThresholds_;
 
   // file-names
   const std::string millePedeEndFile_;
@@ -168,8 +168,8 @@ private:
 };
 
 const std::array<std::string, 8> coord_str = {{"X", "Y", "Z", "theta_X", "theta_Y", "theta_Z", "extra_DOF", "none"}};
-inline std::ostream& operator<<(std::ostream& os, const AlignPCLThresholds::coordType& c) {
-  if (c >= AlignPCLThresholds::endOfTypes || c < AlignPCLThresholds::X)
+inline std::ostream& operator<<(std::ostream& os, const AlignPCLThresholdsHG::coordType& c) {
+  if (c >= AlignPCLThresholdsHG::endOfTypes || c < AlignPCLThresholdsHG::X)
     return os << "unrecongnized coordinate";
   return os << coord_str[c];
 }
