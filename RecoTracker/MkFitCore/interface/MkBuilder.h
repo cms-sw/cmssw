@@ -32,7 +32,6 @@ namespace mkfit {
     const EventOfHits &m_event_of_hits;
 
     const IterationMaskIfcBase *m_iter_mask_ifc = nullptr;
-    const float bScale = 1.f; // B-field scaling parameter
 
     int num_regions() const { return m_iter_config.m_n_regions; }
     const auto regions_begin() const { return m_iter_config.m_region_order.begin(); }

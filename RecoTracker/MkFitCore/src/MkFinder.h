@@ -44,7 +44,8 @@ namespace mkfit {
     void setup(const PropagationConfig &pc,
                const IterationParams &ip,
                const IterationLayerConfig &ilc,
-               const std::vector<bool> *ihm);
+               const std::vector<bool> *ihm,
+               const float bScale);
     void setup_bkfit(const PropagationConfig &pc);
     void release();
 

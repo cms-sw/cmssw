@@ -526,7 +526,8 @@ namespace mkfit {
             mkfndr->setup(prop_config,
                           m_job->m_iter_config.m_params,
                           m_job->m_iter_config.m_layer_configs[curr_layer],
-                          m_job->get_mask_for_layer(curr_layer));
+                          m_job->get_mask_for_layer(curr_layer),
+                          m_job->m_iter_config.m_bScale);
 
             const LayerOfHits &layer_of_hits = m_job->m_event_of_hits[curr_layer];
             const LayerInfo &layer_info = trk_info.layer(curr_layer);
@@ -809,7 +810,8 @@ namespace mkfit {
           mkfndr->setup(prop_config,
                         iter_params,
                         m_job->m_iter_config.m_layer_configs[curr_layer],
-                        m_job->get_mask_for_layer(curr_layer));
+                        m_job->get_mask_for_layer(curr_layer),
+                        m_job->m_iter_config.m_bScale);
 
           dprintf("\n* Processing layer %d\n", curr_layer);
 
@@ -1016,7 +1018,8 @@ namespace mkfit {
       mkfndr->setup(prop_config,
                     iter_params,
                     m_job->m_iter_config.m_layer_configs[curr_layer],
-                    m_job->get_mask_for_layer(curr_layer));
+                    m_job->get_mask_for_layer(curr_layer),
+                    m_job->m_iter_config.m_bScale);
 
       const bool pickup_only = layer_plan_it.is_pickup_only();
 

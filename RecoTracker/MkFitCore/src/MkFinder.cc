@@ -36,11 +36,13 @@ namespace mkfit {
   void MkFinder::setup(const PropagationConfig &pc,
                        const IterationParams &ip,
                        const IterationLayerConfig &ilc,
-                       const std::vector<bool> *ihm) {
+                       const std::vector<bool> *ihm,
+                       const float bScale) {
     m_prop_config = &pc;
     m_iteration_params = &ip;
     m_iteration_layer_config = &ilc;
     m_iteration_hit_mask = ihm;
+    m_bScale = bScale;
   }
 
   void MkFinder::setup_bkfit(const PropagationConfig &pc) { m_prop_config = &pc; }
@@ -50,6 +52,7 @@ namespace mkfit {
     m_iteration_params = nullptr;
     m_iteration_layer_config = nullptr;
     m_iteration_hit_mask = nullptr;
+    m_bScale = 0.f;
   }
 
   //==============================================================================
