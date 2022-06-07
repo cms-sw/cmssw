@@ -1,57 +1,7 @@
-###############################################################################
-# Way to use this:
-#   cmsRun runHGCalBHValid_cfg.py geometry=D88
-#
-#   Options for geometry D77, D83, D88, D92
-#
-###############################################################################
 import FWCore.ParameterSet.Config as cms
-import os, sys, imp, re
-import FWCore.ParameterSet.VarParsing as VarParsing
 
-####################################################################
-### SETUP OPTIONS
-options = VarParsing.VarParsing('standard')
-options.register('geometry',
-                 "D77",
-                  VarParsing.VarParsing.multiplicity.singleton,
-                  VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D77, D83, D88, D92")
-
-### get and parse the command line arguments
-options.parseArguments()
-
-print(options)
-
-####################################################################
-# Use the options
-
-if (options.geometry == "D83"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
-    fileName = 'hgcBHValidD83.root'
-elif (options.geometry == "D88"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
-    fileName = 'hgcBHValidD88.root'
-elif (options.geometry == "D92"):
-    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
-    process = cms.Process('HGCGeomAnalysis',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
-    fileName = 'hgcBHValidD92.root'
-else:
-    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-    process = cms.Process('HGCGeomAnalysis',Phase2C11)
-    process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
-    fileName = 'hgcBHValidD77.root'
-
-print("Output file: ", fileName)
+from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+process = cms.Process('testHGCalRecoLocal',Phase2C11I13M9)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -59,6 +9,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic50ns13TeVCollision_cfi')
@@ -78,15 +30,24 @@ process.load('Configuration.StandardSequences.RecoSim_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2000)
+    input = cms.untracked.int32(1000)
 )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 5
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.ValidHGCal=dict()
+    process.MessageLogger.HGCalGeom=dict()
+
 # Input source
 process.source = cms.Source("EmptySource")
 
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+    wantSummary = cms.untracked.bool(True),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfStreams = cms.untracked.uint32(0),
+    numberOfThreads = cms.untracked.uint32(1),
+    printDependencies = cms.untracked.bool(False),
+    sizeOfStackForThreadsInKB = cms.optional.untracked.uint32,
 )
 
 # Production Info
@@ -96,18 +57,42 @@ process.configurationMetadata = cms.untracked.PSet(
     name = cms.untracked.string('Applications')
 )
 
-if hasattr(process,'MessageLogger'):
-    process.MessageLogger.ValidHGCal=dict()
-    process.MessageLogger.HcalSim=dict()
+
+# Output definition
+process.output = cms.OutputModule("PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+    outputCommands = cms.untracked.vstring(
+        'keep *_*hbhe*_*_*',
+	'keep *_g4SimHits_*_*',
+#       'keep *_mix_*_*',
+	'keep *_*HGC*_*_*',
+        ),
+    fileName = cms.untracked.string('file:testHGCalSimWatcherV17.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('GEN-SIM-DIGI-RAW-RECO')
+    ),
+    SelectEvents = cms.untracked.PSet(
+        SelectEvents = cms.vstring('generation_step')
+    )
+)
 
 # Additional output definition
-process.load('Validation.HGCalValidation.hgcalBHValidation_cfi')
-
-process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string(fileName),
-                                   closeFileFast = cms.untracked.bool(True)
-                                   )
-
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+    SimG4HGCalValidation = cms.PSet(
+        Names = cms.vstring(
+		'HGCalEECellSensitive',  
+                'HGCalHESiliconCellSensitive',
+		'HGCalHEScintillatorSensitive',
+		),
+	Types          = cms.vint32(0,0,0),
+	DetTypes       = cms.vint32(0,1,2),
+	LabelLayerInfo = cms.string("HGCalInfoLayer"),
+	Verbosity      = cms.untracked.int32(0),
+    ),
+    type = cms.string('SimG4HGCalValidation')
+))
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
@@ -116,29 +101,27 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', ''
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
-        MaxPt = cms.double(35.0),
-        MinPt = cms.double(35.0),
+        MaxPt = cms.double(20.0),
+        MinPt = cms.double(20.0),
+        #PartID = cms.vint32(11), #--->electron
         PartID = cms.vint32(13), #--->muon
-        MinPhi = cms.double(-3.14159265359),
+        #PartID = cms.vint32(211), #--->pion
+        MaxEta = cms.double(3.0),
         MaxPhi = cms.double(3.14159265359),
         MinEta = cms.double(1.2),
-        MaxEta = cms.double(3.0)
+        MinPhi = cms.double(-3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
     psethack = cms.string('single muon pt 35'),
-    AddAntiParticle = cms.bool(True),
+    AddAntiParticle = cms.bool(False),
     firstRun = cms.untracked.uint32(1)
 )
 
 
 #Modified to produce hgceedigis
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
+
 process.ProductionFilterSequence = cms.Sequence(process.generator)
-
-#Following Removes Mag Field
-process.g4SimHits.UseMagneticField = False
-process.g4SimHits.Physics.bField = cms.double(0.0)
-
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -152,7 +135,7 @@ process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.localreco)
 process.recosim_step = cms.Path(process.recosim)
-process.analysis_step = cms.Path(process.hgcalBHAnalysis)
+process.out_step = cms.EndPath(process.output)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
@@ -161,11 +144,11 @@ process.schedule = cms.Schedule(process.generation_step,
                                 process.L1simulation_step,
                                 process.L1TrackTrigger_step,
                                 process.digi2raw_step,
-                                process.raw2digi_step,
-                                process.L1Reco_step,
-                                process.reconstruction_step,
-                                process.recosim_step,
-                                process.analysis_step,
+#                                process.raw2digi_step,
+#                                process.L1Reco_step,
+#                                process.reconstruction_step,
+#                                process.recosim_step,
+                                process.out_step
 				)
 
 # filter all path with the production filter sequence
