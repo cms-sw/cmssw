@@ -39,6 +39,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMuPA_Output_cff impo
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_Output_cff import *
 # AlCaReco for track based alignment using MinBias events for PbPb data-taking
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_Output_cff import *
+# AlCaReco for track based alignment using JetHT events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlJetHT_Output_cff import *
 
 # AlCaReco for pixel calibration using muons
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_Output_cff import *
