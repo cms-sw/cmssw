@@ -492,6 +492,7 @@ namespace mkfit {
                                                tmpPropPar,
                                                N_proc,
                                                m_prop_config->finding_intra_layer_pflags,
+                                               m_bScale,
                                                m_prop_config->finding_requires_propagation_to_hit_pos);
 
                 float hx = thishit.x();
