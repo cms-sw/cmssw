@@ -470,7 +470,7 @@ namespace mkfit {
           builder.filter_comb_cands([&](const TrackCand &t) { return StdSeq::qfilter_n_hits_pixseed(t, 3); });
         } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
           builder.filter_comb_cands(
-              [&](const TrackCand &t) { return StdSeq::qfilter_pixelLessFwd(t, eoh.refBeamSpot(), Config::TrkInfo); });
+              [&](const TrackCand &t) { return StdSeq::qfilter_pixelLessFwd(t, eoh.refBeamSpot(), Config::TrkInfo, itconf); });
         } else {
           builder.filter_comb_cands(
               [&](const TrackCand &t) { return StdSeq::qfilter_n_hits(t, itconf.m_params.minHitsQF); });
@@ -516,10 +516,10 @@ namespace mkfit {
                                                  Algo(itconf.m_track_algorithm) == Algo::pixelLessStep)) {
           if (Algo(itconf.m_track_algorithm) == Algo::detachedTripletStep) {
             builder.filter_comb_cands(
-                [&](const TrackCand &t) { return StdSeq::qfilter_n_layers(t, eoh.refBeamSpot(), Config::TrkInfo); });
+                [&](const TrackCand &t) { return StdSeq::qfilter_n_layers(t, eoh.refBeamSpot(), Config::TrkInfo, itconf); });
           } else if (Algo(itconf.m_track_algorithm) == Algo::pixelLessStep) {
             builder.filter_comb_cands([&](const TrackCand &t) {
-              return StdSeq::qfilter_pixelLessBkwd(t, eoh.refBeamSpot(), Config::TrkInfo);
+              return StdSeq::qfilter_pixelLessBkwd(t, eoh.refBeamSpot(), Config::TrkInfo, itconf);
             });
           }
         }
