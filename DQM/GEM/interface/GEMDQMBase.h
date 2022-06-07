@@ -658,9 +658,9 @@ inline Float_t GEMDQMBase::restrictAngle(const Float_t fTheta, const Float_t fSt
 
 inline std::string GEMDQMBase::getNameDirLayer(ME3IdsKey key3) {
   auto nStation = keyToStation(key3);
-  const char *szRegion = (keyToRegion(key3) > 0 ? "P" : "M");
+  char cRegion = (keyToRegion(key3) > 0 ? 'P' : 'M');
   auto nLayer = keyToLayer(key3);
-  return std::string(Form("GE%i1-%s-L%i", nStation, szRegion, nLayer));
+  return std::string(Form("GE%i1-%c-L%i", nStation, cRegion, nLayer));
 }
 
 #endif  // DQM_GEM_INTERFACE_GEMDQMBase_h
