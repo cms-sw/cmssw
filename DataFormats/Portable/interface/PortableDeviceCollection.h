@@ -17,16 +17,18 @@ class PortableDeviceCollection {
 
 public:
   using Layout = T;
+  using View = typename Layout::TrivialView;
   using Buffer = alpaka::Buf<TDev, std::byte, alpaka::DimInt<1u>, uint32_t>;
 
-  PortableDeviceCollection() : buffer_{}, layout_{} {
+  PortableDeviceCollection() : buffer_{}, layout_{}, view_{} {
     edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
   }
 
   PortableDeviceCollection(int32_t elements, TDev const &device)
       : buffer_{alpaka::allocBuf<std::byte, uint32_t>(
-            device, alpaka::Vec<alpaka::DimInt<1u>, uint32_t>{Layout::compute_size(elements)})},
-        layout_{elements, buffer_->data()} {
+            device, alpaka::Vec<alpaka::DimInt<1u>, uint32_t>{Layout::computeDataSize(elements)})},
+        layout_{buffer_->data(), elements},
+        view_{layout_} {
     // Alpaka set to a default alignment of 128 bytes defining ALPAKA_DEFAULT_HOST_MEMORY_ALIGNMENT=128
     assert(reinterpret_cast<uintptr_t>(buffer_->data()) % Layout::alignment == 0);
     alpaka::pin(*buffer_);
@@ -44,20 +46,20 @@ public:
 
   // movable
   PortableDeviceCollection(PortableDeviceCollection &&other)
-      : buffer_{std::move(other.buffer_)}, layout_{std::move(other.layout_)} {
+      : buffer_{std::move(other.buffer_)}, layout_{std::move(other.layout_)}, view_{std::move(other.view_)} {
     // the default implementation would work correctly, but we want to add a call to the MessageLogger
     edm::LogVerbatim("PortableCollection") << __PRETTY_FUNCTION__ << " [this=" << this << "]";
   }
 
   PortableDeviceCollection &operator=(PortableDeviceCollection &&other) = default;
 
-  Layout &operator*() { return layout_; }
+  View &operator*() { return view_; }
 
-  Layout const &operator*() const { return layout_; }
+  View const &operator*() const { return view_; }
 
-  Layout *operator->() { return &layout_; }
+  View *operator->() { return &view_; }
 
-  Layout const *operator->() const { return &layout_; }
+  View const *operator->() const { return &view_; }
 
   Buffer &buffer() { return *buffer_; }
 
@@ -66,6 +68,7 @@ public:
 private:
   std::optional<Buffer> buffer_;  //!
   Layout layout_;                 //
+  View view_;                     //!
 };
 
 #endif  // DataFormats_Portable_interface_PortableDeviceCollection_h
