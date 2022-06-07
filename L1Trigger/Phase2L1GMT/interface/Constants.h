@@ -70,19 +70,11 @@ namespace Phase2L1GMT {
   const float maxTanl_ = 8.0;
   const float maxZ0_ = 30.;
   const float maxD0_ = 15.4;
-
   const int barrelLimit0_ = 181 / 4;
   const int barrelLimit1_ = 160 / 4;
   const int barrelLimit2_ = 140 / 4;
   const int barrelLimit3_ = 110 / 4;
   const int barrelLimit4_ = 0;
-
-/*
-  const int barrelLimit0_ = 228;
-  const int barrelLimit1_ = 179;
-  const int barrelLimit2_ = 154;
-  const int barrelLimit3_ = 154;
-*/
 
   // LSB
   const float LSBpt = 0.03125;
@@ -1312,7 +1304,7 @@ namespace Phase2L1GMT {
 //      64, 64, 64, 64, 64, 64, 64, 64, 64, 64,  64,  64,  64,  64,  64, 64, 64, 64,  64, 64,  64,  64};
 
 
-// LUT with Low Pt (Bin 0, Pt<8 GeV) increased quality requirement. No changes for Pt>8
+// NEW LUT with Low Pt (Bin 0, Pt<8 GeV) increased quality requirement. WP95. No changes for Pt>8
   const ap_uint<8> lt_tpsID[256] = {59, 56, 64, 88, 64, 32, 60, 56, 56, 56, 56, 56, 56, 56, 56, 56,
                                     33, 56, 56, 54, 36, 36, 36, 36, 36, 36, 36, 36, 32, 28, 28, 28,
                                     53, 52, 56, 52, 52, 56, 56, 56, 56, 56, 56, 56, 56, 56, 56, 56,
