@@ -251,7 +251,6 @@ std::unique_ptr<mkfit::IterationConfig> MkFitIterationConfigESProducer::produce(
 
   const float bz0 = iRecord.get(mfToken_).inTesla(GlobalPoint(0, 0, 0)).z();
   const float bScale = std::abs(bz0) / Config::mag_c1;
-  edm::LogWarning("MYDEBUG") << "Loaded field scale " << bScale;
   it_conf->m_bScale = bScale;
   return it_conf;
 }
