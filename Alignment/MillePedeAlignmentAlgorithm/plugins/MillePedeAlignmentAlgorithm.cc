@@ -87,7 +87,7 @@ using namespace gbl;
 MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg, edm::ConsumesCollector &iC)
     : AlignmentAlgorithmBase(cfg, iC),
       topoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
-      aliThrToken_(iC.esConsumes<AlignPCLThresholds, AlignPCLThresholdsRcd, edm::Transition::BeginRun>()),
+      aliThrToken_(iC.esConsumes<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd, edm::Transition::BeginRun>()),
       theConfig(cfg),
       theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
       theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),
@@ -183,7 +183,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   //Retrieve the thresolds cuts from DB for the PCL
   if (runAtPCL_) {
     const auto &th = &setup.getData(aliThrToken_);
-    theThresholds = std::make_shared<AlignPCLThresholds>();
+    theThresholds = std::make_shared<AlignPCLThresholdsHG>();
     storeThresholds(th->getNrecords(), th->getThreshold_Map());
   }
 
@@ -301,7 +301,7 @@ bool MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCa
 
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm::storeThresholds(const int &nRecords,
-                                                  const AlignPCLThresholds::threshold_map &thresholdMap) {
+                                                  const AlignPCLThresholdsHG::threshold_map &thresholdMap) {
   theThresholds->setAlignPCLThresholds(nRecords, thresholdMap);
   return true;
 }
