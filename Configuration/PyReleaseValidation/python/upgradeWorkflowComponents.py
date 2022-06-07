@@ -1840,7 +1840,7 @@ upgradeWFs['DD4hep'].allowReuse = False
 class UpgradeWorkflow_DD4hepDB(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
         if 'Run3' in stepDict[step][k]['--era']:
-            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2021_realistic', '--geometry': 'DB:Extended'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2022_realistic', '--geometry': 'DB:Extended'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021' in key
 upgradeWFs['DD4hepDB'] = UpgradeWorkflow_DD4hepDB(
@@ -1871,7 +1871,7 @@ class UpgradeWorkflow_DDDDB(UpgradeWorkflow):
             tmp_eras = stepDict[step][k]['--era'].split(',')
             tmp_eras[tmp_eras.index("Run3")] = 'Run3_DDD'
             tmp_eras = ','.join(tmp_eras)
-            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2021_realistic_ddd', '--geometry': 'DB:Extended', '--era': tmp_eras}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'--conditions': 'auto:phase1_2022_realistic_ddd', '--geometry': 'DB:Extended', '--era': tmp_eras}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021' in key
 upgradeWFs['DDDDB'] = UpgradeWorkflow_DDDDB(
@@ -1977,7 +1977,7 @@ upgradeProperties[2017] = {
     },
     '2021' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2021_realistic',
+        'GT' : 'auto:phase1_2022_realistic',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
@@ -1985,7 +1985,7 @@ upgradeProperties[2017] = {
     },
     '2021Design' : {
         'Geom' : 'DB:Extended',
-        'GT' : 'auto:phase1_2021_design',
+        'GT' : 'auto:phase1_2022_design',
         'HLTmenu': '@relval2021',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',

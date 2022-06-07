@@ -37,7 +37,7 @@ process.load("Alignment.MuonAlignment.muonGeometryDBConverter_cfi")
 ################################################################################
 # parameters to configure:
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2021_design")
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2022_design")
 process.muonGeometryDBConverter.input = options.input
 process.muonGeometryDBConverter.output = options.output
 
