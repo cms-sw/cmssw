@@ -60,8 +60,6 @@ private:
 
   MEMap4Inf mapDigiOccPerCh_;
 
-  std::map<ME4IdsKey, std::bitset<nNumBitDigiOcc_>> mapBitDigiOccOn_;
-
   std::string strFolderMain_;
 
   Int_t nBXMin_, nBXMax_;
