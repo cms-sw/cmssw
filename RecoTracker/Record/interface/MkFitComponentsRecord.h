@@ -8,9 +8,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
-
-class MkFitComponentsRecord
-    : public edm::eventsetup::DependentRecordImplementation<MkFitComponentsRecord,
-                                                            edm::mpl::Vector<TrackerRecoGeometryRecord,
-                                                                             IdealMagneticFieldRecord> > {};
+class MkFitComponentsRecord : public edm::eventsetup::DependentRecordImplementation<
+                                  MkFitComponentsRecord,
+                                  edm::mpl::Vector<TrackerRecoGeometryRecord, IdealMagneticFieldRecord> > {};
 #endif
