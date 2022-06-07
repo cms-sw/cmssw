@@ -17,7 +17,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(None, 'auto:phase1_2021_cosmics', '')
+process.GlobalTag = GlobalTag(None, 'auto:phase1_2022_cosmics', '')
 #process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 
