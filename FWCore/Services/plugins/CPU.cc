@@ -8,8 +8,6 @@
 // Original Author:  Natalia Garcia
 // CPU.cc: v 1.0 2009/01/08 11:31:07
 
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -283,6 +281,8 @@ namespace edm {
     }
   }  // namespace service
 }  // namespace edm
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 using edm::service::CPU;
 typedef edm::serviceregistry::AllArgsMaker<edm::CPUServiceBase, CPU> CPUMaker;
