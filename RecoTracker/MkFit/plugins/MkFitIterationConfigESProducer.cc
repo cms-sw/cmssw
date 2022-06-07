@@ -213,21 +213,21 @@ public:
   std::unique_ptr<mkfit::IterationConfig> produce(const MkFitComponentsRecord &iRecord);
 
 private:
-  MkFitIterationConfigESProducer(const edm::ParameterSet &iConfig, edm::ESConsumesCollectorT<MkFitComponentsRecord>&&);
-  const edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> geomToken_;
-  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
+  edm::ESGetToken<MkFitGeometry, TrackerRecoGeometryRecord> geomToken_;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken_;
   const std::string configFile_;
   const float minPtCut_;
   const unsigned int maxClusterSize_;
 };
 
-MkFitIterationConfigESProducer::MkFitIterationConfigESProducer(const edm::ParameterSet &iConfig) : MkFitIterationConfigESProducer(iConfig, setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName"))) {}
-MkFitIterationConfigESProducer::MkFitIterationConfigESProducer(const edm::ParameterSet &iConfig, edm::ESConsumesCollectorT<MkFitComponentsRecord>&& cc)
-    : geomToken_{cc.consumes()},
-      mfToken_{cc.consumes(iConfig.getParameter<edm::ESInputTag>("magField"))},
-      configFile_{iConfig.getParameter<edm::FileInPath>("config").fullPath()},
+MkFitIterationConfigESProducer::MkFitIterationConfigESProducer(const edm::ParameterSet &iConfig)
+    : configFile_{iConfig.getParameter<edm::FileInPath>("config").fullPath()},
       minPtCut_{(float)iConfig.getParameter<double>("minPt")},
-      maxClusterSize_{iConfig.getParameter<unsigned int>("maxClusterSize")} {}
+      maxClusterSize_{iConfig.getParameter<unsigned int>("maxClusterSize")} {
+        auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName"));
+        geomToken_ = cc.consumes();
+        mfToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("magField"));
+      }
 
 void MkFitIterationConfigESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
