@@ -436,7 +436,8 @@ namespace mkfit {
                                 MPlexLS& outErr,
                                 MPlexLV& outPar,
                                 const int N_proc,
-                                const PropagationFlags propFlags, const float bScale,
+                                const PropagationFlags propFlags,
+                                const float bScale,
                                 const bool propToHit) {
     if (propToHit) {
       MPlexLS propErr;
@@ -481,7 +482,8 @@ namespace mkfit {
                                      MPlexQF& outChi2,
                                      MPlexLV& propPar,
                                      const int N_proc,
-                                     const PropagationFlags propFlags, const float bScale,
+                                     const PropagationFlags propFlags,
+                                     const float bScale,
                                      const bool propToHit) {
     propPar = psPar;
     if (propToHit) {
@@ -687,7 +689,8 @@ namespace mkfit {
                                       MPlexLS& outErr,
                                       MPlexLV& outPar,
                                       const int N_proc,
-                                      const PropagationFlags propFlags, const float bScale,
+                                      const PropagationFlags propFlags,
+                                      const float bScale,
                                       const bool propToHit) {
     if (propToHit) {
       MPlexLS propErr;
@@ -732,7 +735,8 @@ namespace mkfit {
                                            MPlexQF& outChi2,
                                            MPlexLV& propPar,
                                            const int N_proc,
-                                           const PropagationFlags propFlags, const float bScale,
+                                           const PropagationFlags propFlags,
+                                           const float bScale,
                                            const bool propToHit) {
     propPar = psPar;
     if (propToHit) {

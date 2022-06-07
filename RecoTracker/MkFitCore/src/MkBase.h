@@ -46,7 +46,8 @@ namespace mkfit {
         msRad.At(n, 0, 0) = std::hypot(par.constAt(n, 0, 0), par.constAt(n, 1, 0));
       }
 
-      propagateHelixToRMPlex(m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], N_proc, pf, m_bScale, noMatEffPtr);
+      propagateHelixToRMPlex(
+          m_Err[iC], m_Par[iC], m_Chg, msRad, m_Err[iP], m_Par[iP], N_proc, pf, m_bScale, noMatEffPtr);
     }
 
     //----------------------------------------------------------------------------
@@ -94,7 +95,7 @@ namespace mkfit {
     MPlexLS m_Err[2];
     MPlexLV m_Par[2];
     MPlexQI m_Chg;
-    float m_bScale = 0.f; // implies the value is consistently (re)set where needed
+    float m_bScale = 0.f;  // implies the value is consistently (re)set where needed
   };
 
 }  // end namespace mkfit

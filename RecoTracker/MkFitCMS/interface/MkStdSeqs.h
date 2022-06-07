@@ -54,7 +54,10 @@ namespace mkfit {
 
     // layer-dependent quality filter
     template <class TRACK>
-    bool qfilter_n_layers(const TRACK &t, const BeamSpot &bspot, const TrackerInfo &trk_inf, const IterationConfig &itc) {
+    bool qfilter_n_layers(const TRACK &t,
+                          const BeamSpot &bspot,
+                          const TrackerInfo &trk_inf,
+                          const IterationConfig &itc) {
       int enhits = t.nHitsByTypeEncoded(trk_inf);
       int npixhits = t.nPixelDecoded(enhits);
       int enlyrs = t.nLayersByTypeEncoded(trk_inf);
@@ -76,7 +79,10 @@ namespace mkfit {
 
     /// quality filter tuned for pixelLess iteration during forward search
     template <class TRACK>
-    bool qfilter_pixelLessFwd(const TRACK &t, const BeamSpot &bspot, const TrackerInfo &tk_info, const IterationConfig &itc) {
+    bool qfilter_pixelLessFwd(const TRACK &t,
+                              const BeamSpot &bspot,
+                              const TrackerInfo &tk_info,
+                              const IterationConfig &itc) {
       float d0BS = t.d0BeamSpot(bspot.x, bspot.y, itc.m_bScale);
       float d0_max = 0.05;  // 0.5 mm
 
@@ -102,7 +108,10 @@ namespace mkfit {
 
     /// quality filter tuned for pixelLess iteration during backward search
     template <class TRACK>
-    bool qfilter_pixelLessBkwd(const TRACK &t, const BeamSpot &bspot, const TrackerInfo &tk_info, const IterationConfig &itc) {
+    bool qfilter_pixelLessBkwd(const TRACK &t,
+                               const BeamSpot &bspot,
+                               const TrackerInfo &tk_info,
+                               const IterationConfig &itc) {
       float d0BS = t.d0BeamSpot(bspot.x, bspot.y, itc.m_bScale);
       float d0_max = 0.1;  // 1 mm
 

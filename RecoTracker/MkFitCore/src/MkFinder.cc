@@ -45,7 +45,10 @@ namespace mkfit {
     m_bScale = bScale;
   }
 
-  void MkFinder::setup_bkfit(const PropagationConfig &pc) { m_prop_config = &pc; }
+  void MkFinder::setup_bkfit(const PropagationConfig &pc, const float bScale) {
+    m_prop_config = &pc;
+    m_bScale = bScale;
+  }
 
   void MkFinder::release() {
     m_prop_config = nullptr;

@@ -244,11 +244,13 @@ namespace mkfit {
       part.m_phi_eta_foo = [&](float phi, float eta) { phi_eta_binnor.register_entry_safe(phi, eta); };
 
       phi_eta_binnor.begin_registration(size);
-      m_job->m_iter_config.m_partition_seeds(m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part, m_job->m_iter_config.m_bScale);
+      m_job->m_iter_config.m_partition_seeds(
+          m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part, m_job->m_iter_config.m_bScale);
       phi_eta_binnor.finalize_registration();
       ranks.swap(phi_eta_binnor.m_ranks);
     } else {
-      m_job->m_iter_config.m_partition_seeds(m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part, m_job->m_iter_config.m_bScale);
+      m_job->m_iter_config.m_partition_seeds(
+          m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part, m_job->m_iter_config.m_bScale);
     }
 
     for (int i = 0; i < size; ++i) {
@@ -1317,7 +1319,7 @@ namespace mkfit {
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
     const SteeringParams &st_par = m_job->steering_params(region);
     const PropagationConfig &prop_config = PropagationConfig::get_default();
-    mkfndr->setup_bkfit(prop_config);
+    mkfndr->setup_bkfit(prop_config, m_job->m_iter_config.m_bScale);
 
     int step = NN;
     for (int icand = start_cand; icand < end_cand; icand += step) {

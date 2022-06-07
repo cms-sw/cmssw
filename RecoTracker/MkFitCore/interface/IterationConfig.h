@@ -140,11 +140,8 @@ namespace mkfit {
 
   class IterationConfig {
   public:
-    using partition_seeds_foo = void(const TrackerInfo &,
-                                     const TrackVec &,
-                                     const EventOfHits &,
-                                     IterationSeedPartition &,
-                                     const float bScale);
+    using partition_seeds_foo =
+        void(const TrackerInfo &, const TrackVec &, const EventOfHits &, IterationSeedPartition &, const float bScale);
 
     int m_iteration_index = -1;
     int m_track_algorithm = -1;
@@ -158,7 +155,7 @@ namespace mkfit {
 
     int m_backward_fit_min_hits = -1;  // Min number of hits to keep when m_backward_drop_seed_hits is true
 
-    float m_bScale = 1.f; // B-field scaling parameter
+    float m_bScale = 1.f;  // B-field scaling parameter
     // Iteration parameters (could be a ptr)
     IterationParams m_params;
     IterationParams m_backward_params;

@@ -12,7 +12,8 @@ static inline void helixAtRFromIterativeCCS_impl(const Tf& __restrict__ inPar,
                                                  const int nmin,
                                                  const int nmax,
                                                  const int N_proc,
-                                                 const PropagationFlags pf, const float bScale) {
+                                                 const PropagationFlags pf,
+                                                 const float bScale) {
   // bool debug = true;
 
 #pragma omp simd

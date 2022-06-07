@@ -224,23 +224,23 @@ MkFitIterationConfigESProducer::MkFitIterationConfigESProducer(const edm::Parame
     : configFile_{iConfig.getParameter<edm::FileInPath>("config").fullPath()},
       minPtCut_{(float)iConfig.getParameter<double>("minPt")},
       maxClusterSize_{iConfig.getParameter<unsigned int>("maxClusterSize")} {
-        auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName"));
-        geomToken_ = cc.consumes();
-        mfToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("magField"));
-      }
+  auto cc = setWhatProduced(this, iConfig.getParameter<std::string>("ComponentName"));
+  geomToken_ = cc.consumes();
+  mfToken_ = cc.consumes(iConfig.getParameter<edm::ESInputTag>("magField"));
+}
 
 void MkFitIterationConfigESProducer::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<std::string>("ComponentName")->setComment("Product label");
-  desc.add<edm::ESInputTag>("magField", edm::ESInputTag{"", "ParabolicMf"})->setComment("used only to get the value at (0,0,0)");
+  desc.add<edm::ESInputTag>("magField", edm::ESInputTag{"", "ParabolicMf"})
+      ->setComment("used only to get the value at (0,0,0)");
   desc.add<edm::FileInPath>("config")->setComment("Path to the JSON file for the mkFit configuration parameters");
   desc.add<double>("minPt", 0.0)->setComment("min pT cut applied during track building");
   desc.add<unsigned int>("maxClusterSize", 8)->setComment("Max cluster size of SiStrip hits");
   descriptions.addWithDefaultLabel(desc);
 }
 
-std::unique_ptr<mkfit::IterationConfig> MkFitIterationConfigESProducer::produce(
-    const MkFitComponentsRecord &iRecord) {
+std::unique_ptr<mkfit::IterationConfig> MkFitIterationConfigESProducer::produce(const MkFitComponentsRecord &iRecord) {
   mkfit::ConfigJson cj;
   auto it_conf = cj.load_File(configFile_);
   it_conf->m_params.minPtCut = minPtCut_;
@@ -249,9 +249,9 @@ std::unique_ptr<mkfit::IterationConfig> MkFitIterationConfigESProducer::produce(
   it_conf->m_params.maxClusterSize = maxClusterSize_;
   it_conf->m_backward_params.maxClusterSize = maxClusterSize_;
 
-  const float bz0 = iRecord.get(mfToken_).inTesla(GlobalPoint(0,0,0)).z();
-  const float bScale = std::abs(bz0)/Config::mag_c1;
-  edm::LogWarning("MYDEBUG")<<"Loaded field scale "<<bScale;
+  const float bz0 = iRecord.get(mfToken_).inTesla(GlobalPoint(0, 0, 0)).z();
+  const float bScale = std::abs(bz0) / Config::mag_c1;
+  edm::LogWarning("MYDEBUG") << "Loaded field scale " << bScale;
   it_conf->m_bScale = bScale;
   return it_conf;
 }

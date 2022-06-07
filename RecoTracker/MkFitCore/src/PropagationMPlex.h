@@ -37,7 +37,8 @@ namespace mkfit {
                               MPlexLS& outErr,
                               MPlexLV& outPar,
                               const int N_proc,
-                              const PropagationFlags pflags, const float bScale,
+                              const PropagationFlags pflags,
+                              const float bScale,
                               const MPlexQI* noMatEffPtr = nullptr);
 
   void helixAtRFromIterativeCCSFullJac(const MPlexLV& inPar,
@@ -45,7 +46,8 @@ namespace mkfit {
                                        const MPlexQF& msRad,
                                        MPlexLV& outPar,
                                        MPlexLL& errorProp,
-                                       const PropagationFlags pflags, const float bScale,
+                                       const PropagationFlags pflags,
+                                       const float bScale,
                                        const int N_proc);
 
   void helixAtRFromIterativeCCS(const MPlexLV& inPar,
@@ -55,7 +57,8 @@ namespace mkfit {
                                 MPlexLL& errorProp,
                                 MPlexQI& outFailFlag,
                                 const int N_proc,
-                                const PropagationFlags pflags, const float bScale);
+                                const PropagationFlags pflags,
+                                const float bScale);
 
   void propagateHelixToZMPlex(const MPlexLS& inErr,
                               const MPlexLV& inPar,
@@ -64,7 +67,8 @@ namespace mkfit {
                               MPlexLS& outErr,
                               MPlexLV& outPar,
                               const int N_proc,
-                              const PropagationFlags pflags, const float bScale,
+                              const PropagationFlags pflags,
+                              const float bScale,
                               const MPlexQI* noMatEffPtr = nullptr);
 
   void helixAtZ(const MPlexLV& inPar,
@@ -73,7 +77,8 @@ namespace mkfit {
                 MPlexLV& outPar,
                 MPlexLL& errorProp,
                 const int N_proc,
-                const PropagationFlags pflags, const float bScale);
+                const PropagationFlags pflags,
+                const float bScale);
 
   void applyMaterialEffects(const MPlexQF& hitsRl,
                             const MPlexQF& hitsXi,

@@ -29,7 +29,7 @@ namespace mkfit {
 
     void setNhits(int newnhits) { m_Nhits = std::min(newnhits, Config::nMaxTrkHits - 1); }
 
-    void setBscale(float bScale) { m_bScale = bScale;}
+    void setBscale(float bScale) { m_bScale = bScale; }
 
     int countValidHits(int itrack, int end_hit) const;
     int countInvalidHits(int itrack, int end_hit) const;
