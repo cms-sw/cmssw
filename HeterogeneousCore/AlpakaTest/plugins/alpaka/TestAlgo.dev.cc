@@ -15,10 +15,10 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   class TestAlgoKernel {
   public:
     template <typename TAcc>
-    ALPAKA_FN_ACC void operator()(TAcc const& acc, int32_t* id, int32_t size) const {
+    ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::View view, int32_t size) const {
       int32_t idx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
       if (idx < size) {
-        id[idx] = idx;
+        view[idx].id() = idx;
       }
     }
   };
@@ -28,11 +28,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t maxThreadsPerBlock = deviceProperties.m_blockThreadExtentMax[0];
 
     uint32_t threadsPerBlock = maxThreadsPerBlock;
-    uint32_t blocksPerGrid = (collection->size() + threadsPerBlock - 1) / threadsPerBlock;
+    uint32_t blocksPerGrid = (collection->metadata().size() + threadsPerBlock - 1) / threadsPerBlock;
     uint32_t elementsPerThread = 1;
     auto workDiv = WorkDiv1D{blocksPerGrid, threadsPerBlock, elementsPerThread};
 
-    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, &collection->id(0), collection->size());
+    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, *collection, collection->metadata().size());
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE
