@@ -144,18 +144,18 @@ void SiPixelPhase1MonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
 
   toRep = "Number of all RecHits per track (quality #geq loose)";
   hnHits = iBook.book1D("nRecHits", fmt::sprintf(";%s;#tracks",toRep), 15, -0.5, 14.5);
-  hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 15.);
-  hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30,-M_PI,-M_PI,0.,15.);
+  hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
+  hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 15.);
 
   toRep = "Number of all layers per track (quality #geq loose)";
   hnLayers = iBook.book1D("nLayers", fmt::sprintf(";%s;#tracks",toRep), 15, -0.5, 14.5);
-  hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 15.);
-  hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30,-M_PI,-M_PI,0.,15.);
+  hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
+  hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 15.);
 
   toRep = "Track (quality #geq loose) #chi^{2}/ndof";
   hchi2 = iBook.book1D("nChi2ndof", fmt::sprintf(";%s;#tracks",toRep), 40, 0., 20.);
-  hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 20.);
-  hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, -M_PI, 0., 20.);
+  hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, M_PI, 0., 20.);
+  hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 20.);
   // clang-format on
 
   hpt = iBook.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#tracks", 200, 0., 200.);
