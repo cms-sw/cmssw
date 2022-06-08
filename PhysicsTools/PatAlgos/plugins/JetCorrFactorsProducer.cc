@@ -181,8 +181,8 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg)
   // mary vertex collection. The size of this collection is needed for the
   // L1Offset correction.
   if (useNPV_) {
-   primaryVertices_ = cfg.getParameter<edm::InputTag>("primaryVertices");
-   primaryVerticesToken_ = mayConsume<std::vector<reco::Vertex> >(primaryVertices_);
+    primaryVertices_ = cfg.getParameter<edm::InputTag>("primaryVertices");
+    primaryVerticesToken_ = mayConsume<std::vector<reco::Vertex> >(primaryVertices_);
   }
   // if the std::string L1FastJet can be found in levels an additional
   // parameter rho is needed, which should pass on the energy density
@@ -190,8 +190,8 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg)
   if (useRho_) {
     if ((!extraJPTOffset_.empty() && extraJPTOffset_.front() == std::string("L1FastJet")) ||
         std::find(levels.begin(), levels.end(), "L1FastJet") != levels.end()) {
-     rho_ = cfg.getParameter<edm::InputTag>("rho");
-     rhoToken_ = mayConsume<double>(rho_);
+      rho_ = cfg.getParameter<edm::InputTag>("rho");
+      rhoToken_ = mayConsume<double>(rho_);
     } else {
       edm::LogInfo message("Parameter rho not used");
       message << "Module is configured to use the parameter rho, but rho is only used     \n"
