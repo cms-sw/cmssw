@@ -79,8 +79,18 @@ process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
 ##
 ## Read it back
 ##
-process.ReadDB = cms.EDAnalyzer(moduleName)
-process.ReadDB.printDebug = cms.untracked.bool(True)
-process.ReadDB.outputFile = cms.untracked.string('AlignPCLThresholds_%s.log' % ("LG" if(options.readLGpayload) else "HG"))
+from CondFormats.PCLConfig.edmtestAlignPCLThresholdsReaderAlignPCLThresholdsAlignPCLThresholdsRcd_cfi import *
+from CondFormats.PCLConfig.edmtestAlignPCLThresholdsReaderAlignPCLThresholdsHGAlignPCLThresholdsHGRcd_cfi import *
+
+if(options.readLGpayload):
+    process.ReadDB = edmtestAlignPCLThresholdsReaderAlignPCLThresholdsAlignPCLThresholdsRcd.clone(
+        printDebug = True,
+        outputFile = 'AlignPCLThresholds_%s.log' % ("LG" if(options.readLGpayload) else "HG")
+    )
+else:
+    process.ReadDB = edmtestAlignPCLThresholdsReaderAlignPCLThresholdsHGAlignPCLThresholdsHGRcd.clone(
+        printDebug = True,
+        outputFile = 'AlignPCLThresholds_%s.log' % ("LG" if(options.readLGpayload) else "HG")
+    )
 
 process.p = cms.Path(process.get+process.ReadDB)
