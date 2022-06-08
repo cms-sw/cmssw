@@ -194,12 +194,8 @@ using namespace pat;
 
 PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet& iConfig)
     :
-
       ecalClusterToolsESGetTokens_{consumesCollector()},
-      isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation")
-                                                : edm::ParameterSet(),
-                consumesCollector(),
-                false),
+      isolator_(iConfig.getParameter<edm::ParameterSet>("userIsolation"), consumesCollector(), false),
       useUserData_(iConfig.exists("userData")),
       ecalTopologyToken_{esConsumes()},
       ecalGeometryToken_{esConsumes()} {
@@ -221,14 +217,8 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet& iConfig)
   addGenMatch_ = iConfig.getParameter<bool>("addGenMatch");
   if (addGenMatch_) {
     embedGenMatch_ = iConfig.getParameter<bool>("embedGenMatch");
-    if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
-      genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection>>(
-          iConfig.getParameter<edm::InputTag>("genParticleMatch")));
-    } else {
-      genMatchTokens_ = edm::vector_transform(
-          iConfig.getParameter<std::vector<edm::InputTag>>("genParticleMatch"),
-          [this](edm::InputTag const& tag) { return consumes<edm::Association<reco::GenParticleCollection>>(tag); });
-    }
+    genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection>>(
+      iConfig.getParameter<edm::InputTag>("genParticleMatch")));
   }
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
