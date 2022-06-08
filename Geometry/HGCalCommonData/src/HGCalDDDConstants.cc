@@ -16,7 +16,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
-#include <array>
 #include <algorithm>
 #include <bitset>
 #include <iterator>
@@ -235,7 +234,12 @@ std::pair<double, double> HGCalDDDConstants::cellEtaPhiTrap(int type, int irad) 
 bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV, int lay, bool reco) const {
   const auto& indx = getIndex(lay, true);
   if (indx.first >= 0) {
-    if (waferHexagon8() || waferHexagon6()) {
+    if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
+      int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
+      auto ktr = hgpar_->waferInfoMap_.find(indx);
+      int part = (ktr != hgpar_->waferInfoMap_.end()) ? (ktr->second).part : HGCalTypes::WaferFull;
+      return HGCalWaferMask::goodCell(cellU, cellV, part);
+    } else if (waferHexagon8() || waferHexagon6()) {
       const auto& xy = ((waferHexagon8()) ? locateCell(lay, waferU, waferV, cellU, cellV, reco, true, false, false)
                                           : locateCell(cellU, lay, waferU, reco));
       double rpos = sqrt(xy.first * xy.first + xy.second * xy.second);
@@ -843,11 +847,11 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
                                     << wl << ":" << (itr != hgpar_->waferTypes_.end());
 #endif
       if (itr != hgpar_->waferTypes_.end()) {
-        if ((itr->second).second <= HGCalWaferMask::k_OffsetRotation)
+        if ((itr->second).second <= HGCalTypes::k_OffsetRotation)
           mask = HGCalWaferMask::maskCell(u, v, N, (itr->second).first, (itr->second).second, corners);
         else
           mask = !(HGCalWaferMask::goodCell(
-              u, v, N, (itr->second).first, ((itr->second).second - HGCalWaferMask::k_OffsetRotation)));
+              u, v, N, (itr->second).first, ((itr->second).second - HGCalTypes::k_OffsetRotation)));
       }
     }
   }
@@ -1447,7 +1451,7 @@ std::tuple<int, int, int> HGCalDDDConstants::waferType(HGCSiliconDetId const& id
       type = hgpar_->waferTypeL_[ktr->second];
     auto itr = hgpar_->waferTypes_.find(index);
     if (itr != hgpar_->waferTypes_.end()) {
-      if ((itr->second).second < HGCalWaferMask::k_OffsetRotation) {
+      if ((itr->second).second < HGCalTypes::k_OffsetRotation) {
         orient = (itr->second).second;
         if ((itr->second).first == HGCalGeomTools::k_allCorners) {
           part = HGCalTypes::WaferFull;
@@ -1460,7 +1464,7 @@ std::tuple<int, int, int> HGCalDDDConstants::waferType(HGCSiliconDetId const& id
         }
       } else {
         part = (itr->second).first;
-        orient = ((itr->second).second - HGCalWaferMask::k_OffsetRotation);
+        orient = ((itr->second).second - HGCalTypes::k_OffsetRotation);
       }
     } else {
       part = HGCalTypes::WaferFull;
@@ -1487,7 +1491,7 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(
     if (waferHexagon8()) {
       withinList = (itr != hgpar_->waferTypes_.end());
       if (withinList) {
-        if ((itr->second).second < HGCalWaferMask::k_OffsetRotation) {
+        if ((itr->second).second < HGCalTypes::k_OffsetRotation) {
           rotn = (itr->second).second;
           if ((itr->second).first == HGCalGeomTools::k_allCorners) {
             type = HGCalTypes::WaferFull;
@@ -1500,7 +1504,7 @@ std::pair<int, int> HGCalDDDConstants::waferTypeRotation(
           }
         } else {
           type = (itr->second).first;
-          rotn = ((itr->second).second - HGCalWaferMask::k_OffsetRotation);
+          rotn = ((itr->second).second - HGCalTypes::k_OffsetRotation);
         }
       } else {
         type = HGCalTypes::WaferFull;
