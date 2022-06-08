@@ -31,10 +31,11 @@ class MagESector;
 class MagVolume6Faces;
 
 namespace magneticfield {
+  class InterpolatorBuilder;
 
   class MagGeoBuilder {
   public:
-    MagGeoBuilder(std::string tableSet, int geometryVersion, bool debug = false);
+    MagGeoBuilder(std::string tableSet, int geometryVersion, bool debug = false, bool useMergeFileIfAvailable = true);
 
     ~MagGeoBuilder();
 
@@ -63,16 +64,17 @@ namespace magneticfield {
 
   private:
     // Build interpolator for the volume with "correct" rotation
-    void buildInterpolator(const volumeHandle* vol, std::map<std::string, MagProviderInterpol*>& interpolators);
+    MagProviderInterpol* buildInterpolator(const volumeHandle* vol, InterpolatorBuilder&) const;
 
     // Build all MagVolumes setting the MagProviderInterpol
-    void buildMagVolumes(const handles& volumes, std::map<std::string, MagProviderInterpol*>& interpolators);
+    void buildMagVolumes(const handles& volumes,
+                         const std::map<std::string, MagProviderInterpol*>& interpolators) const;
 
     // Print checksums for surfaces.
     void summary(handles& volumes) const;
 
     // Perform simple sanity checks
-    void testInside(handles& volumes);
+    void testInside(handles& volumes) const;
 
     handles bVolumes_;  // the barrel volumes.
     handles eVolumes_;  // the endcap volumes.
@@ -87,6 +89,7 @@ namespace magneticfield {
     const TableFileMap* theGridFiles_;  // Non-owned pointer assumed to be valid until build() is called
 
     const bool debug_;
+    const bool useMergeFileIfAvailable_;
   };
 }  // namespace magneticfield
 #endif

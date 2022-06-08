@@ -34,6 +34,11 @@ from DQMOffline.Trigger.JetMETPromptMonitor_cff import *
 from DQMOffline.Trigger.BTVHLTOfflineSource_cfi import *
 from DQMOffline.Trigger.BTaggingMonitoring_cff import *
 
+#BTag and Probe monitoring
+from DQMOffline.Trigger.BTagAndProbeMonitor_cfi import *
+from DQMOffline.Trigger.BTagAndProbeMonitoring_cff import *
+
+
 # vertexing
 from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
 
@@ -187,8 +192,9 @@ offlineHLTSource4HLTMonitorPD = cms.Sequence(
     sistripMonitorHLTsequence *       # strip
     sipixelMonitorHLTsequence *       # pixel
     BTVHLTOfflineSource *             # BTV
-    bTagHLTTrackMonitoringSequence *  # BTV relative track efficeicies
+    bTagHLTTrackMonitoringSequence *  # BTV relative track efficiencies
     trackingMonitorHLT *              # tracking
+    BTagAndProbeHLT *                 #BTag and Probe
     trackingMonitorHLTDisplacedJet*   # EXO : DisplacedJet Tracking 
     egmTrackingMonitorHLT *           # EGM tracking
     hltToOfflineTrackValidatorSequence *  # Relative Online to Offline performace

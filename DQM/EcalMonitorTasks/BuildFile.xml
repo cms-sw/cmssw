@@ -9,7 +9,8 @@
 <use name="DataFormats/TCDS"/>
 <use name="DataFormats/L1GlobalTrigger"/>
 <use name="DataFormats/L1GlobalMuonTrigger"/>
-<use name="DataFormats/Scalers"/> <!-- needed in UBSAN builds for typeinfo for LumiScalers -->
+<use name="DataFormats/Luminosity"/>
+<use name="DataFormats/OnlineMetaData"/>
 <use name="FWCore/Framework"/>
 <use name="FWCore/MessageLogger"/>
 <use name="FWCore/ParameterSet"/>

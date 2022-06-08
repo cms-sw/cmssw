@@ -27,7 +27,7 @@
 #include <string>
 
 // user include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,7 +38,7 @@
 // class decleration
 //
 
-class TextToRaw : public edm::EDProducer {
+class TextToRaw : public edm::one::EDProducer<> {
 public:
   explicit TextToRaw(const edm::ParameterSet &);
   ~TextToRaw() override;
@@ -57,7 +57,7 @@ private:
   std::ifstream file_;
 
   // array to store the data
-  static const unsigned EVT_MAX_SIZE = 8192;
+  static constexpr unsigned EVT_MAX_SIZE = 8192;
   char data_[EVT_MAX_SIZE];
 
   int fileEventOffset_;

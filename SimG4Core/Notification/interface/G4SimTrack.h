@@ -5,7 +5,6 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimG4Core/Notification/interface/TrackWithHistory.h"
-#include <vector>
 #include <cmath>
 
 class G4SimTrack {
@@ -57,7 +56,7 @@ public:
         tkSurfaceMomentum_(tkmom),
         crossedBoundary_(false) {}
 
-  ~G4SimTrack() {}
+  ~G4SimTrack() = default;
 
   int id() const { return id_; }
   int part() const { return ipart_; }

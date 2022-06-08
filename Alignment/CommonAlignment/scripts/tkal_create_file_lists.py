@@ -916,6 +916,7 @@ def das_client(query, check_key = None):
     """
 
     error = True
+    das_data = {'status': 'error'}
     for i in range(5):         # maximum of 5 tries
         try:
             das_data = cmssw_das_client.get_data(query, limit = 0)
@@ -924,6 +925,7 @@ def das_client(query, check_key = None):
                 continue
         except ValueError as e:
             if str(e) == "No JSON object could be decoded":
+                das_data['reason'] = str(e)
                 continue
 
         if das_data["status"] == "ok":
@@ -945,7 +947,7 @@ def das_client(query, check_key = None):
     if das_data["status"] == "error":
         print_msg("DAS query '{}' failed 5 times. "
                   "The last time for the the following reason:".format(query))
-        print(das_data["reason"])
+        print(das_data.get("reason", "ERROR:UNKNOWN"))
         sys.exit(1)
     return das_data["data"]
 

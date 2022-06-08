@@ -144,6 +144,8 @@ namespace l1t {
     void setTFIdentifiers(int processor, tftype trackFinder);
     // this is left to still be compatible with OMTF
     void setLink(int link) { m_link = link; };
+    // Set the muon index on the link (i.e., 0, 1, or 2)
+    void setMuIdx(int muIdx) { m_muIdx = muIdx; };
     // Set the 64 bit word from two 32 words. bits 0-31->lsbs, bits 32-63->msbs
     void setDataword(uint32_t msbs, uint32_t lsbs) { m_dataword = (((uint64_t)msbs) << 32) + lsbs; };
     // Set the 64 bit word coming from HW directly
@@ -175,6 +177,8 @@ namespace l1t {
     const int hwQual() const { return m_hwQuality; };
     /// Get link on which the MicroGMT receives the candidate
     const int link() const { return m_link; };
+    /// Get muon index (i.e., 0, 1, or 2)
+    const int muIdx() const { return m_muIdx; };
     /// Get processor ID on which the candidate was found (0..5 for OMTF/EMTF; 0..11 for BMTF)
     const int processor() const { return m_processor; };
     /// Get track-finder which found the muon (bmtf, emtf_pos/emtf_neg or omtf_pos/omtf_neg)
@@ -216,6 +220,7 @@ namespace l1t {
 
     /// This is the 64 bit word as transmitted in HW
     uint64_t m_dataword;
+    int m_muIdx{-1};
   };
 
 }  // namespace l1t

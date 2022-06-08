@@ -101,7 +101,7 @@ namespace cond {
       pSet.addParameter("@service_type", std::string("SiteLocalConfigService"));
       psets.push_back(pSet);
       static const edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-      static const edm::ServiceRegistry::Operate operate(services);
+      const edm::ServiceRegistry::Operate operate(services);
       bool ret = false;
       size_t nt = tagsWithTimeBoundaries.size();
       if (nt) {

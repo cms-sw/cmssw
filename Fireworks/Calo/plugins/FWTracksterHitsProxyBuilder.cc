@@ -232,7 +232,7 @@ void FWTracksterHitsProxyBuilder::build(const ticl::Trackster &iData,
         float centerX = (corners[6] + corners[6 + offset]) / 2;
         float centerY = (corners[7] + corners[7 + offset]) / 2;
         float radius = fabs(corners[6] - corners[6 + offset]) / 2;
-        hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]), radius, 90.0, shapes[3]);
+        hex_boxset->AddHex(TEveVector(centerX, centerY, corners[2]), radius, shapes[2], shapes[3]);
         if (heatmap_) {
           energy ? hex_boxset->DigitColor(
                        gradient[0][colorFactor], gradient[1][colorFactor], gradient[2][colorFactor], alpha)

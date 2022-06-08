@@ -27,7 +27,7 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -48,7 +48,7 @@ using namespace fftjetcms;
 //
 // class declaration
 //
-class FFTJetDijetFilter : public edm::EDFilter {
+class FFTJetDijetFilter : public edm::stream::EDFilter<> {
 public:
   typedef fftjet::ProximityClusteringTree<fftjet::Peak, long> ClusteringTree;
   typedef fftjet::SparseClusteringTree<fftjet::Peak, long> SparseTree;
@@ -62,9 +62,7 @@ public:
 private:
   typedef reco::PattRecoTree<float, reco::PattRecoPeak<float> > StoredTree;
 
-  void beginJob() override;
   bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
-  void endJob() override;
 
   template <class Ptr>
   inline void checkConfig(const Ptr& ptr, const char* message) const {
@@ -129,7 +127,9 @@ FFTJetDijetFilter::FFTJetDijetFilter(const edm::ParameterSet& ps)
       init_param(double, maxPeakEta),
       init_param(bool, insertCompleteEvent),
       clusteringTree(nullptr),
-      sparseTree(nullptr) {
+      sparseTree(nullptr),
+      nPassed(0),
+      nRejected(0) {
   // Parse the set of scales
   iniScales = fftjet_ScaleSet_parser(ps.getParameter<edm::ParameterSet>("InitialScales"));
   checkConfig(iniScales, "invalid set of scales");
@@ -150,16 +150,6 @@ FFTJetDijetFilter::FFTJetDijetFilter(const edm::ParameterSet& ps)
 FFTJetDijetFilter::~FFTJetDijetFilter() {
   delete sparseTree;
   delete clusteringTree;
-}
-
-void FFTJetDijetFilter::beginJob() {
-  nPassed = 0;
-  nRejected = 0;
-}
-
-void FFTJetDijetFilter::endJob() {
-  //     std::cout << "In FTJetDijetFilter::endJob: nPassed = " << nPassed
-  //               << ", nRejected = " << nRejected << std::endl;
 }
 
 // ------------ method called to produce the data  ------------

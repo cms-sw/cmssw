@@ -1,6 +1,6 @@
 <use name="openmpi"/>
-<use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
+<use name="FWCore/ServiceRegistry"/>
 <export>
   <lib name="1"/>
 </export>

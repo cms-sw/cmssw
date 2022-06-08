@@ -86,7 +86,7 @@ namespace edm {
     bool shouldWeStop() const;
 
     void setExceptionMessageFiles(std::string& message);
-    void setExceptionMessageRuns(std::string& message);
+    void setExceptionMessageRuns();
     void setExceptionMessageLumis();
 
     bool setDeferredException(std::exception_ptr);

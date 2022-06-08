@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
-from DQM.L1TMonitor.L1TdeStage2uGMT_cff import ignoreBins
 
 # directories
 ugmtEmuDqmDir = "L1TEMU/L1TdeStage2uGT"

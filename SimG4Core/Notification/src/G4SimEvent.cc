@@ -9,34 +9,32 @@ public:
 };
 
 G4SimEvent::G4SimEvent()
-    : hepMCEvent(nullptr),
+    : hepMCEvent_(nullptr),
       weight_(0),
       collisionPoint_(math::XYZTLorentzVectorD(0., 0., 0., 0.)),
       nparam_(0),
-      param_(0) {}
+      param_(0) {
+  g4vertices_.reserve(2000);
+  g4tracks_.reserve(4000);
+}
 
-G4SimEvent::~G4SimEvent() {
+G4SimEvent::~G4SimEvent() { clear(); }
+
+void G4SimEvent::clear() {
   // per suggestion by Chris Jones, it's faster
   // that delete back() and pop_back()
-  //
-  unsigned int i = 0;
-
-  for (i = 0; i < g4tracks.size(); i++) {
-    delete g4tracks[i];
-    g4tracks[i] = nullptr;
+  for (auto& ptr : g4tracks_) {
+    delete ptr;
   }
-  g4tracks.clear();
-
-  for (i = 0; i < g4vertices.size(); i++) {
-    delete g4vertices[i];
-    g4vertices[i] = nullptr;
+  g4tracks_.clear();
+  for (auto& ptr : g4vertices_) {
+    delete ptr;
   }
-  g4vertices.clear();
+  g4vertices_.clear();
 }
 
 void G4SimEvent::load(edm::SimTrackContainer& c) const {
-  for (unsigned int i = 0; i < g4tracks.size(); i++) {
-    G4SimTrack* trk = g4tracks[i];
+  for (auto& trk : g4tracks_) {
     int ip = trk->part();
     math::XYZTLorentzVectorD p(
         trk->momentum().x() / GeV, trk->momentum().y() / GeV, trk->momentum().z() / GeV, trk->energy() / GeV);
@@ -66,8 +64,8 @@ void G4SimEvent::load(edm::SimTrackContainer& c) const {
 }
 
 void G4SimEvent::load(edm::SimVertexContainer& c) const {
-  for (unsigned int i = 0; i < g4vertices.size(); i++) {
-    G4SimVertex* vtx = g4vertices[i];
+  for (unsigned int i = 0; i < g4vertices_.size(); ++i) {
+    G4SimVertex* vtx = g4vertices_[i];
     //
     // starting 1_1_0_pre3, SimVertex stores in cm !!!
     //

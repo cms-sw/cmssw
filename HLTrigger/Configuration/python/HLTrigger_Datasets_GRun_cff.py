@@ -1,4 +1,4 @@
-# /dev/CMSSW_12_3_0/GRun
+# /dev/CMSSW_12_4_0/GRun
 
 import FWCore.ParameterSet.Config as cms
 
@@ -193,7 +193,8 @@ streamPhysicsCommissioning_datasetMonteCarlo_selector.triggerConditions = cms.vs
     'MC_PFHT_v16',
     'MC_PFMET_v17',
     'MC_PFMHT_v16',
-    'MC_ReducedIterativeTracking_v12'
+    'MC_ReducedIterativeTracking_v12',
+    'MC_Run3_PFScoutingPixelTracking_v16'
 )
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsCommissioning_datasetNoBPTX_selector
@@ -237,6 +238,17 @@ streamPhysicsEGamma_datasetEGamma_selector.l1tResults = cms.InputTag('')
 streamPhysicsEGamma_datasetEGamma_selector.throw      = cms.bool(False)
 streamPhysicsEGamma_datasetEGamma_selector.triggerConditions = cms.vstring(
     'HLT_DiEle27_WPTightCaloOnly_L1DoubleEG_v4',
+    'HLT_DiPhoton10Time1ns_v1',
+    'HLT_DiPhoton10Time1p2ns_v1',
+    'HLT_DiPhoton10Time1p4ns_v1',
+    'HLT_DiPhoton10Time1p6ns_v1',
+    'HLT_DiPhoton10Time1p8ns_v1',
+    'HLT_DiPhoton10Time2ns_v1',
+    'HLT_DiPhoton10_CaloIdL_v1',
+    'HLT_DiPhoton10sminlt0p12_v1',
+    'HLT_DiPhoton10sminlt0p14_v1',
+    'HLT_DiPhoton10sminlt0p16_v1',
+    'HLT_DiPhoton10sminlt0p1_v1',
     'HLT_DiSC30_18_EIso_AND_HE_Mass70_v13',
     'HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v13',
     'HLT_Diphoton30_18_R9IdL_AND_HE_AND_IsoCaloId_NoPixelVeto_Mass55_v2',
@@ -389,64 +401,64 @@ streamPhysicsEndOfFill_datasetHINPFJets_selector.triggerConditions = cms.vstring
 )
 
 
-# stream PhysicsHLTPhysics1
+# stream PhysicsHLTPhysics0
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics1_selector
-streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics1_selector.l1tResults = cms.InputTag('')
-streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics1_selector.throw      = cms.bool(False)
-streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics1_selector.triggerConditions = cms.vstring('HLT_Physics_part0_v7')
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics0_selector
+streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics0_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics0_selector.l1tResults = cms.InputTag('')
+streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics0_selector.throw      = cms.bool(False)
+streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics0_selector.triggerConditions = cms.vstring('HLT_EphemeralPhysics_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics1_selector
+streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics1_selector.l1tResults = cms.InputTag('')
+streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics1_selector.throw      = cms.bool(False)
+streamPhysicsHLTPhysics0_datasetEphemeralHLTPhysics1_selector.triggerConditions = cms.vstring('HLT_EphemeralPhysics_v1')
+
+
+# stream PhysicsHLTPhysics1
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics2_selector
 streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics2_selector.l1tResults = cms.InputTag('')
 streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics2_selector.throw      = cms.bool(False)
-streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics2_selector.triggerConditions = cms.vstring('HLT_Physics_part1_v7')
+streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics2_selector.triggerConditions = cms.vstring('HLT_EphemeralPhysics_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics3_selector
+streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics3_selector.l1tResults = cms.InputTag('')
+streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics3_selector.throw      = cms.bool(False)
+streamPhysicsHLTPhysics1_datasetEphemeralHLTPhysics3_selector.triggerConditions = cms.vstring('HLT_EphemeralPhysics_v1')
 
 
 # stream PhysicsHLTPhysics2
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics3_selector
-streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics3_selector.l1tResults = cms.InputTag('')
-streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics3_selector.throw      = cms.bool(False)
-streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics3_selector.triggerConditions = cms.vstring('HLT_Physics_part2_v7')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics4_selector
 streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics4_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics4_selector.l1tResults = cms.InputTag('')
 streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics4_selector.throw      = cms.bool(False)
-streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics4_selector.triggerConditions = cms.vstring('HLT_Physics_part3_v7')
+streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics4_selector.triggerConditions = cms.vstring('HLT_EphemeralPhysics_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics5_selector
+streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics5_selector.l1tResults = cms.InputTag('')
+streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics5_selector.throw      = cms.bool(False)
+streamPhysicsHLTPhysics2_datasetEphemeralHLTPhysics5_selector.triggerConditions = cms.vstring('HLT_EphemeralPhysics_v1')
 
 
 # stream PhysicsHLTPhysics3
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics5_selector
-streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics5_selector.l1tResults = cms.InputTag('')
-streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics5_selector.throw      = cms.bool(False)
-streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics5_selector.triggerConditions = cms.vstring('HLT_Physics_part4_v7')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics6_selector
 streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics6_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics6_selector.l1tResults = cms.InputTag('')
 streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics6_selector.throw      = cms.bool(False)
-streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics6_selector.triggerConditions = cms.vstring('HLT_Physics_part5_v7')
+streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics6_selector.triggerConditions = cms.vstring('HLT_EphemeralPhysics_v1')
 
-
-# stream PhysicsHLTPhysics4
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics7_selector
-streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics7_selector.l1tResults = cms.InputTag('')
-streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics7_selector.throw      = cms.bool(False)
-streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics7_selector.triggerConditions = cms.vstring('HLT_Physics_part6_v7')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics8_selector
-streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics8_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics8_selector.l1tResults = cms.InputTag('')
-streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics8_selector.throw      = cms.bool(False)
-streamPhysicsHLTPhysics4_datasetEphemeralHLTPhysics8_selector.triggerConditions = cms.vstring('HLT_Physics_part7_v7')
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics7_selector
+streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics7_selector.l1tResults = cms.InputTag('')
+streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics7_selector.throw      = cms.bool(False)
+streamPhysicsHLTPhysics3_datasetEphemeralHLTPhysics7_selector.triggerConditions = cms.vstring('HLT_EphemeralPhysics_v1')
 
 
 # stream PhysicsHadronsTaus
@@ -477,7 +489,20 @@ streamPhysicsHadronsTaus_datasetDisplacedJet_selector.triggerConditions = cms.vs
     'HLT_CscCluster_Loose_v1',
     'HLT_CscCluster_Medium_v1',
     'HLT_CscCluster_Tight_v1',
+    'HLT_HT170_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v1',
+    'HLT_HT200_L1SingleLLPJet_DelayedJet40_DoubleDelay0p5nsTrackless_v1',
+    'HLT_HT200_L1SingleLLPJet_DelayedJet40_DoubleDelay1nsInclusive_v1',
+    'HLT_HT200_L1SingleLLPJet_DelayedJet40_SingleDelay1nsTrackless_v1',
+    'HLT_HT200_L1SingleLLPJet_DelayedJet40_SingleDelay2nsInclusive_v1',
+    'HLT_HT200_L1SingleLLPJet_DisplacedDijet30_Inclusive1PtrkShortSig5_v1',
+    'HLT_HT200_L1SingleLLPJet_DisplacedDijet35_Inclusive1PtrkShortSig5_v1',
+    'HLT_HT200_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v1',
+    'HLT_HT200_L1SingleLLPJet_DisplacedDijet40_Inclusive1PtrkShortSig5_v1',
+    'HLT_HT200_L1SingleLLPJet_DisplacedDijet60_DisplacedTrack_v1',
+    'HLT_HT270_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v1',
+    'HLT_HT320_L1SingleLLPJet_DisplacedDijet60_Inclusive_v1',
     'HLT_HT400_DisplacedDijet40_DisplacedTrack_v13',
+    'HLT_HT420_L1SingleLLPJet_DisplacedDijet60_Inclusive_v1',
     'HLT_HT425_v9',
     'HLT_HT430_DelayedJet40_DoubleDelay0p5nsTrackless_v1',
     'HLT_HT430_DelayedJet40_DoubleDelay1nsInclusive_v1',
@@ -794,6 +819,7 @@ streamPhysicsMuons_datasetDoubleMuon_selector.triggerConditions = cms.vstring(
     'HLT_DoubleL2Mu30NoVtx_2Cha_CosmicSeed_Eta2p4_v2',
     'HLT_DoubleL2Mu30NoVtx_2Cha_Eta2p4_v2',
     'HLT_DoubleL2Mu50_v2',
+    'HLT_DoubleL3Iter4Mu16_10NoVtx_DxyMin0p01cm_v1',
     'HLT_DoubleL3Mu16_10NoVtx_DxyMin0p01cm_v1',
     'HLT_DoubleMu3_DCA_PFMET50_PFMHT60_v10',
     'HLT_DoubleMu3_DZ_PFMET50_PFMHT60_v10',
@@ -803,6 +829,7 @@ streamPhysicsMuons_datasetDoubleMuon_selector.triggerConditions = cms.vstring(
     'HLT_DoubleMu43NoFiltersNoVtx_v4',
     'HLT_DoubleMu48NoFiltersNoVtx_v4',
     'HLT_DoubleMu4_Mass3p8_DZ_PFHT350_v8',
+    'HLT_L3Iter4Mu10_NoVtx_DxyMin0p01cm_v1',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v5',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v5',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v15',
@@ -1014,62 +1041,62 @@ streamPhysicsScoutingPFMonitor_datasetScoutingPFMonitor_selector.triggerConditio
 )
 
 
-# stream PhysicsZeroBias1
+# stream PhysicsZeroBias0
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias1_datasetEphemeralZeroBias1_selector
-streamPhysicsZeroBias1_datasetEphemeralZeroBias1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsZeroBias1_datasetEphemeralZeroBias1_selector.l1tResults = cms.InputTag('')
-streamPhysicsZeroBias1_datasetEphemeralZeroBias1_selector.throw      = cms.bool(False)
-streamPhysicsZeroBias1_datasetEphemeralZeroBias1_selector.triggerConditions = cms.vstring('HLT_ZeroBias_part0_v6')
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias0_datasetEphemeralZeroBias0_selector
+streamPhysicsZeroBias0_datasetEphemeralZeroBias0_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsZeroBias0_datasetEphemeralZeroBias0_selector.l1tResults = cms.InputTag('')
+streamPhysicsZeroBias0_datasetEphemeralZeroBias0_selector.throw      = cms.bool(False)
+streamPhysicsZeroBias0_datasetEphemeralZeroBias0_selector.triggerConditions = cms.vstring('HLT_EphemeralZeroBias_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias0_datasetEphemeralZeroBias1_selector
+streamPhysicsZeroBias0_datasetEphemeralZeroBias1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsZeroBias0_datasetEphemeralZeroBias1_selector.l1tResults = cms.InputTag('')
+streamPhysicsZeroBias0_datasetEphemeralZeroBias1_selector.throw      = cms.bool(False)
+streamPhysicsZeroBias0_datasetEphemeralZeroBias1_selector.triggerConditions = cms.vstring('HLT_EphemeralZeroBias_v1')
+
+
+# stream PhysicsZeroBias1
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias1_datasetEphemeralZeroBias2_selector
 streamPhysicsZeroBias1_datasetEphemeralZeroBias2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsZeroBias1_datasetEphemeralZeroBias2_selector.l1tResults = cms.InputTag('')
 streamPhysicsZeroBias1_datasetEphemeralZeroBias2_selector.throw      = cms.bool(False)
-streamPhysicsZeroBias1_datasetEphemeralZeroBias2_selector.triggerConditions = cms.vstring('HLT_ZeroBias_part1_v6')
+streamPhysicsZeroBias1_datasetEphemeralZeroBias2_selector.triggerConditions = cms.vstring('HLT_EphemeralZeroBias_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias1_datasetEphemeralZeroBias3_selector
+streamPhysicsZeroBias1_datasetEphemeralZeroBias3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsZeroBias1_datasetEphemeralZeroBias3_selector.l1tResults = cms.InputTag('')
+streamPhysicsZeroBias1_datasetEphemeralZeroBias3_selector.throw      = cms.bool(False)
+streamPhysicsZeroBias1_datasetEphemeralZeroBias3_selector.triggerConditions = cms.vstring('HLT_EphemeralZeroBias_v1')
 
 
 # stream PhysicsZeroBias2
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias2_datasetEphemeralZeroBias3_selector
-streamPhysicsZeroBias2_datasetEphemeralZeroBias3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsZeroBias2_datasetEphemeralZeroBias3_selector.l1tResults = cms.InputTag('')
-streamPhysicsZeroBias2_datasetEphemeralZeroBias3_selector.throw      = cms.bool(False)
-streamPhysicsZeroBias2_datasetEphemeralZeroBias3_selector.triggerConditions = cms.vstring('HLT_ZeroBias_part2_v6')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias2_datasetEphemeralZeroBias4_selector
 streamPhysicsZeroBias2_datasetEphemeralZeroBias4_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsZeroBias2_datasetEphemeralZeroBias4_selector.l1tResults = cms.InputTag('')
 streamPhysicsZeroBias2_datasetEphemeralZeroBias4_selector.throw      = cms.bool(False)
-streamPhysicsZeroBias2_datasetEphemeralZeroBias4_selector.triggerConditions = cms.vstring('HLT_ZeroBias_part3_v6')
+streamPhysicsZeroBias2_datasetEphemeralZeroBias4_selector.triggerConditions = cms.vstring('HLT_EphemeralZeroBias_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias2_datasetEphemeralZeroBias5_selector
+streamPhysicsZeroBias2_datasetEphemeralZeroBias5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsZeroBias2_datasetEphemeralZeroBias5_selector.l1tResults = cms.InputTag('')
+streamPhysicsZeroBias2_datasetEphemeralZeroBias5_selector.throw      = cms.bool(False)
+streamPhysicsZeroBias2_datasetEphemeralZeroBias5_selector.triggerConditions = cms.vstring('HLT_EphemeralZeroBias_v1')
 
 
 # stream PhysicsZeroBias3
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias3_datasetEphemeralZeroBias5_selector
-streamPhysicsZeroBias3_datasetEphemeralZeroBias5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsZeroBias3_datasetEphemeralZeroBias5_selector.l1tResults = cms.InputTag('')
-streamPhysicsZeroBias3_datasetEphemeralZeroBias5_selector.throw      = cms.bool(False)
-streamPhysicsZeroBias3_datasetEphemeralZeroBias5_selector.triggerConditions = cms.vstring('HLT_ZeroBias_part4_v6')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias3_datasetEphemeralZeroBias6_selector
 streamPhysicsZeroBias3_datasetEphemeralZeroBias6_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamPhysicsZeroBias3_datasetEphemeralZeroBias6_selector.l1tResults = cms.InputTag('')
 streamPhysicsZeroBias3_datasetEphemeralZeroBias6_selector.throw      = cms.bool(False)
-streamPhysicsZeroBias3_datasetEphemeralZeroBias6_selector.triggerConditions = cms.vstring('HLT_ZeroBias_part5_v6')
+streamPhysicsZeroBias3_datasetEphemeralZeroBias6_selector.triggerConditions = cms.vstring('HLT_EphemeralZeroBias_v1')
 
-
-# stream PhysicsZeroBias4
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias4_datasetEphemeralZeroBias7_selector
-streamPhysicsZeroBias4_datasetEphemeralZeroBias7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsZeroBias4_datasetEphemeralZeroBias7_selector.l1tResults = cms.InputTag('')
-streamPhysicsZeroBias4_datasetEphemeralZeroBias7_selector.throw      = cms.bool(False)
-streamPhysicsZeroBias4_datasetEphemeralZeroBias7_selector.triggerConditions = cms.vstring('HLT_ZeroBias_part6_v6')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias4_datasetEphemeralZeroBias8_selector
-streamPhysicsZeroBias4_datasetEphemeralZeroBias8_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamPhysicsZeroBias4_datasetEphemeralZeroBias8_selector.l1tResults = cms.InputTag('')
-streamPhysicsZeroBias4_datasetEphemeralZeroBias8_selector.throw      = cms.bool(False)
-streamPhysicsZeroBias4_datasetEphemeralZeroBias8_selector.triggerConditions = cms.vstring('HLT_ZeroBias_part7_v6')
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamPhysicsZeroBias3_datasetEphemeralZeroBias7_selector
+streamPhysicsZeroBias3_datasetEphemeralZeroBias7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamPhysicsZeroBias3_datasetEphemeralZeroBias7_selector.l1tResults = cms.InputTag('')
+streamPhysicsZeroBias3_datasetEphemeralZeroBias7_selector.throw      = cms.bool(False)
+streamPhysicsZeroBias3_datasetEphemeralZeroBias7_selector.triggerConditions = cms.vstring('HLT_EphemeralZeroBias_v1')
 

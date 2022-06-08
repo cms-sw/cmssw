@@ -21,6 +21,8 @@ public:
   static bool maskCell(int u, int v, int N, int ncor, int fcor, int corners);
   // Decides if the cell is present or not from # oc corners (for V15, V16)
   static bool goodCell(int u, int v, int N, int type, int rotn);
+  // Decides if the cell is present or not (for v17)
+  static bool goodCell(int u, int v, int waferType);
   // Converts rotation index (as otained from flat file) depending on
   // zside and type (for V15, V16)
   static int getRotation(int zside, int type, int rotn);
@@ -52,8 +54,6 @@ public:
   // (Good for V17 geometry)
   static std::vector<std::pair<double, double> > waferXY(
       int part, int placement, double delX, double delY, double xpos, double ypos);
-
-  static constexpr int k_OffsetRotation = 10;
 };
 
 #endif

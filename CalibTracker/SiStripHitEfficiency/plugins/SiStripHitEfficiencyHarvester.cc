@@ -40,6 +40,7 @@ public:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
+  const std::string inputFolder_;
   const bool isAtPCL_;
   const bool showRings_, autoIneffModTagging_, doStoreOnDB_;
   const unsigned int nTEClayers_;
@@ -59,7 +60,8 @@ private:
   std::vector<DetId> stripDetIds_;
 
   void writeBadStripPayload(const SiStripQuality& quality) const;
-  void printTotalStatistics(const std::array<long, 23>& layerFound, const std::array<long, 23>& layerTotal) const;
+  void printTotalStatistics(const std::array<long, bounds::k_END_OF_LAYERS>& layerFound,
+                            const std::array<long, bounds::k_END_OF_LAYERS>& layerTotal) const;
   void printAndWriteBadModules(const SiStripQuality& quality, const SiStripDetInfo& detInfo) const;
   bool checkMapsValidity(const std::vector<MonitorElement*>& maps, const std::string& type) const;
   void makeSummary(DQMStore::IGetter& getter, TFileService& fs) const;
@@ -69,7 +71,8 @@ private:
 };
 
 SiStripHitEfficiencyHarvester::SiStripHitEfficiencyHarvester(const edm::ParameterSet& conf)
-    : isAtPCL_(conf.getParameter<bool>("isAtPCL")),
+    : inputFolder_(conf.getParameter<std::string>("inputFolder")),
+      isAtPCL_(conf.getParameter<bool>("isAtPCL")),
       showRings_(conf.getUntrackedParameter<bool>("ShowRings", false)),
       autoIneffModTagging_(conf.getUntrackedParameter<bool>("AutoIneffModTagging", false)),
       doStoreOnDB_(conf.getParameter<bool>("doStoreOnDB")),
@@ -142,9 +145,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
              << " and has at least " << nModsMin_ << " nModsMin.";
 
   auto h_module_total = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_total->loadTkHistoMap("AlCaReco/SiStripHitEfficiency", "perModule_total");
+  h_module_total->loadTkHistoMap(fmt::format("{}/TkDetMaps", inputFolder_), "perModule_total");
   auto h_module_found = std::make_unique<TkHistoMap>(tkDetMap_.get());
-  h_module_found->loadTkHistoMap("AlCaReco/SiStripHitEfficiency", "perModule_found");
+  h_module_found->loadTkHistoMap(fmt::format("{}/TkDetMaps", inputFolder_), "perModule_found");
 
   // collect how many layers are missing
   const auto& totalMaps = h_module_total->getAllMaps();
@@ -168,14 +171,18 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
       << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
       << h_module_found->getMap(3)->getEntries();
 
+  // come back to the main folder
+  booker.setCurrentFolder(inputFolder_);
+
   std::vector<MonitorElement*> hEffInLayer(std::size_t(1), nullptr);
-  hEffInLayer.reserve(23);
-  for (std::size_t i = 1; i != 23; ++i) {
-    hEffInLayer.push_back(
-        booker.book1D(Form("eff_layer%i", int(i)), Form("Module efficiency in layer %i", int(i)), 201, 0, 1.005));
+  hEffInLayer.reserve(bounds::k_END_OF_LAYERS);
+  for (std::size_t i = 1; i != bounds::k_END_OF_LAYERS; ++i) {
+    const auto lyrName = ::layerName(i, showRings_, nTEClayers_);
+    hEffInLayer.push_back(booker.book1D(
+        Form("eff_layer%i", int(i)), Form("Module efficiency in layer %s", lyrName.c_str()), 201, 0, 1.005));
   }
-  std::array<long, 23> layerTotal{};
-  std::array<long, 23> layerFound{};
+  std::array<long, bounds::k_END_OF_LAYERS> layerTotal{};
+  std::array<long, bounds::k_END_OF_LAYERS> layerFound{};
   layerTotal.fill(0);
   layerFound.fill(0);
 
@@ -229,7 +236,7 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   }
 
   if (autoIneffModTagging_) {
-    for (Long_t i = 1; i <= 22; i++) {
+    for (Long_t i = 1; i <= k_LayersAtTECEnd; i++) {
       //Compute threshold to use for each layer
       hEffInLayer[i]->getTH1()->GetXaxis()->SetRange(
           3, hEffInLayer[i]->getNbinsX() + 1);  // Remove from the avg modules below 1%
@@ -318,8 +325,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   makeSummaryVsLumi(getter);  // TODO
 }
 
-void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 23>& layerFound,
-                                                         const std::array<long, 23>& layerTotal) const {
+void SiStripHitEfficiencyHarvester::printTotalStatistics(
+    const std::array<long, bounds::k_END_OF_LAYERS>& layerFound,
+    const std::array<long, bounds::k_END_OF_LAYERS>& layerTotal) const {
   //Calculate the statistics by layer
   int totalfound = 0;
   int totaltotal = 0;
@@ -332,25 +340,25 @@ void SiStripHitEfficiencyHarvester::printTotalStatistics(const std::array<long, 
     subdettotal[i] = 0;
   }
 
-  for (Long_t i = 1; i <= 22; i++) {
+  for (Long_t i = 1; i <= bounds::k_LayersAtTECEnd; i++) {
     layereff = double(layerFound[i]) / double(layerTotal[i]);
     LOGPRINT << "Layer " << i << " (" << ::layerName(i, showRings_, nTEClayers_) << ") has total efficiency "
              << layereff << " " << layerFound[i] << "/" << layerTotal[i];
     totalfound += layerFound[i];
     totaltotal += layerTotal[i];
-    if (i < 5) {
+    if (i <= bounds::k_LayersAtTIBEnd) {
       subdetfound[1] += layerFound[i];
       subdettotal[1] += layerTotal[i];
     }
-    if (i >= 5 && i < 11) {
+    if (i > bounds::k_LayersAtTIBEnd && i <= bounds::k_LayersAtTOBEnd) {
       subdetfound[2] += layerFound[i];
       subdettotal[2] += layerTotal[i];
     }
-    if (i >= 11 && i < 14) {
+    if (i > bounds::k_LayersAtTOBEnd && i <= bounds::k_LayersAtTIDEnd) {
       subdetfound[3] += layerFound[i];
       subdettotal[3] += layerTotal[i];
     }
-    if (i >= 14) {
+    if (i > bounds::k_LayersAtTIDEnd) {
       subdetfound[4] += layerFound[i];
       subdettotal[4] += layerTotal[i];
     }
@@ -393,18 +401,16 @@ void SiStripHitEfficiencyHarvester::makeSummaryVsBX(DQMStore::IGetter& getter, T
 
 void SiStripHitEfficiencyHarvester::makeSummaryVsLumi(DQMStore::IGetter& getter) const {
   for (unsigned int iLayer = 1; iLayer != (showRings_ ? 20 : 22); ++iLayer) {
-    auto hfound =
-        getter.get(fmt::format("AlCaReco/SiStripHitEfficiency/layerfound_vsLumi_layer_{}", iLayer))->getTH1F();
-    auto htotal =
-        getter.get(fmt::format("AlCaReco/SiStripHitEfficiency/layertotal_vsLumi_layer_{}", iLayer))->getTH1F();
+    auto hfound = getter.get(fmt::format("{}/VsLumi/layerfound_vsLumi_layer_{}", inputFolder_, iLayer))->getTH1F();
+    auto htotal = getter.get(fmt::format("{}/VsLumi/layertotal_vsLumi_layer_{}", inputFolder_, iLayer))->getTH1F();
 
     if (hfound == nullptr or htotal == nullptr) {
       if (hfound == nullptr)
         edm::LogError("SiStripHitEfficiencyHarvester")
-            << fmt::format("AlCaReco/SiStripHitEfficiency/layerfound_vsLumi_layer_{}", iLayer) << " was not found!";
+            << fmt::format("{}/VsLumi/layerfound_vsLumi_layer_{}", inputFolder_, iLayer) << " was not found!";
       if (htotal == nullptr)
         edm::LogError("SiStripHitEfficiencyHarvester")
-            << fmt::format("AlCaReco/SiStripHitEfficiency/layertotal_vsLumi_layer_{}", iLayer) << " was not found!";
+            << fmt::format("{}/VsLumi/layertotal_vsLumi_layer_{}", inputFolder_, iLayer) << " was not found!";
       // no input histograms -> continue in the loop
       continue;
     }
@@ -653,6 +659,7 @@ void SiStripHitEfficiencyHarvester::printAndWriteBadModules(const SiStripQuality
 
 void SiStripHitEfficiencyHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
+  desc.add<std::string>("inputFolder", "AlCaReco/SiStripHitEfficiency");
   desc.add<bool>("isAtPCL", false);
   desc.add<bool>("doStoreOnDB", false);
   desc.add<std::string>("Record", "SiStripBadStrip");

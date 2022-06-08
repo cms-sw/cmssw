@@ -18,8 +18,6 @@ typedef std::vector<float> ParmVec;
 
 HGCalGeometryLoader::HGCalGeometryLoader() : twoBysqrt3_(2.0 / std::sqrt(3.0)) {}
 
-HGCalGeometryLoader::~HGCalGeometryLoader() {}
-
 HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
   // allocate geometry
   HGCalGeometry* geom = new HGCalGeometry(topology);
@@ -30,7 +28,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
   uint32_t numberOfShapes =
       (topology.tileTrapezoid() ? HGCalGeometry::k_NumberOfShapesTrd : HGCalGeometry::k_NumberOfShapes);
   HGCalGeometryMode::GeometryMode mode = topology.geomMode();
-  bool test = (mode == HGCalGeometryMode::TrapezoidModule);
+  bool test = ((mode == HGCalGeometryMode::TrapezoidModule) || (mode == HGCalGeometryMode::TrapezoidCassette));
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Number of Cells " << numberOfCells << ":" << numberExpected << " for sub-detector "
                                 << topology.subDetector() << " Shapes " << numberOfShapes << ":" << parametersPerShape_
@@ -145,8 +143,9 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
           int u = HGCalWaferIndex::waferU(copy);
           int v = HGCalWaferIndex::waferV(copy);
           int type = topology.dddConstants().getTypeHex(layer, u, v);
-          DetId detId = (topology.isHFNose() ? (DetId)(HFNoseDetId(zside, type, layer, u, v, 0, 0))
-                                             : (DetId)(HGCSiliconDetId(det, zside, type, layer, u, v, 0, 0)));
+          DetId detId =
+              (topology.isHFNose() ? static_cast<DetId>(HFNoseDetId(zside, type, layer, u, v, 0, 0))
+                                   : static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, u, v, 0, 0)));
           const auto& w = topology.dddConstants().waferPosition(layer, u, v, true, true);
           double xx = (zside > 0) ? w.first : -w.first;
           CLHEP::Hep3Vector h3v(xx, w.second, mytr.h3v.z());

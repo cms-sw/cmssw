@@ -562,7 +562,9 @@ protected:
   inline int getVFATNumberGE11(const int, const int, const int);
   inline int getVFATNumberByDigi(const int, const int, const int);
   inline int getIEtaFromVFAT(const int station, const int vfat);
+  inline int getIEtaFromVFATGE0(const int vfat);
   inline int getIEtaFromVFATGE11(const int vfat);
+  inline int getIEtaFromVFATGE21(const int vfat);
   inline int getMaxVFAT(const int);
   inline int getDetOccXBin(const int, const int, const int);
   inline Float_t restrictAngle(const Float_t fTheta, const Float_t fStart);
@@ -583,10 +585,6 @@ protected:
   int nMaxNumCh_;
   std::map<ME3IdsKey, int> mapStationToIdx_;
   std::map<ME3IdsKey, MEStationInfo> mapStationInfo_;
-
-  Int_t nNumEtaPartitionGE0_;
-  Int_t nNumEtaPartitionGE11_;
-  Int_t nNumEtaPartitionGE21_;
 };
 
 // Borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
@@ -601,6 +599,8 @@ inline bool GEMDQMBase::checkRefs(const std::vector<T *> &refs) {
 
 // The 'get...' functions in the below are borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
 inline int GEMDQMBase::getMaxVFAT(const int station) {
+  if (station == 0)
+    return GEMeMap::maxVFatGE0_;
   if (station == 1)
     return GEMeMap::maxVFatGE11_;
   else if (station == 2)
@@ -616,7 +616,7 @@ inline int GEMDQMBase::getVFATNumber(const int station, const int ieta, const in
 }
 
 inline int GEMDQMBase::getVFATNumberGE11(const int station, const int ieta, const int vfat_phi) {
-  return vfat_phi * nNumEtaPartitionGE11_ + (nNumEtaPartitionGE11_ - ieta);
+  return vfat_phi * GEMeMap::maxiEtaIdGE11_ + (GEMeMap::maxiEtaIdGE11_ - ieta);
 }
 
 inline int GEMDQMBase::getVFATNumberByDigi(const int station, const int ieta, const int digi) {
@@ -625,12 +625,26 @@ inline int GEMDQMBase::getVFATNumberByDigi(const int station, const int ieta, co
 }
 
 inline int GEMDQMBase::getIEtaFromVFAT(const int station, const int vfat) {
+  if (station == 0)
+    return getIEtaFromVFATGE0(vfat);
   if (station == 1)
     return getIEtaFromVFATGE11(vfat);
+  if (station == 2)
+    return getIEtaFromVFATGE21(vfat);
   return getIEtaFromVFATGE11(vfat);  // FIXME: What about GE21 and GE0?
 }
 
-inline int GEMDQMBase::getIEtaFromVFATGE11(const int vfat) { return 8 - (vfat % nNumEtaPartitionGE11_); }
+inline int GEMDQMBase::getIEtaFromVFATGE0(const int vfat) {
+  return GEMeMap::maxiEtaIdGE0_ - (vfat % GEMeMap::maxiEtaIdGE0_);
+}
+
+inline int GEMDQMBase::getIEtaFromVFATGE11(const int vfat) {
+  return GEMeMap::maxiEtaIdGE11_ - (vfat % GEMeMap::maxiEtaIdGE11_);
+}
+
+inline int GEMDQMBase::getIEtaFromVFATGE21(const int vfat) {
+  return GEMeMap::maxiEtaIdGE21_ - (vfat % GEMeMap::maxiEtaIdGE21_);
+}
 
 inline int GEMDQMBase::getDetOccXBin(const int chamber, const int layer, const int n_chambers) {
   return n_chambers * (chamber - 1) + layer;

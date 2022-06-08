@@ -1,10 +1,5 @@
-<use name="CommonTools/UtilAlgos"/>
-<use name="DataFormats/DetId"/>
-<use name="DataFormats/Scalers"/>
 <use name="DataFormats/SiStripDetId"/>
-<use name="DataFormats/TrackingRecHit"/>
 <use name="Geometry/CommonDetUnit" source_only="1"/>
-<use name="RecoLocalTracker/SiStripClusterizer"/>
 <use name="RecoTracker/TransientTrackingRecHit"/>
 <use name="TrackingTools/TrackFitters"/>
 <export>

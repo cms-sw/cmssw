@@ -46,7 +46,7 @@ private:
   // ------------ member data ------------
 
   const std::string folder_;
-  const bool LocalPosDebug_;
+  const bool optionalPlots_;
 
   edm::EDGetTokenT<ETLDigiCollection> etlDigiHitsToken_;
 
@@ -82,7 +82,7 @@ private:
 // ------------ constructor and destructor --------------
 EtlDigiHitsValidation::EtlDigiHitsValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
-      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")) {
+      optionalPlots_(iConfig.getParameter<bool>("optionalPlots")) {
   etlDigiHitsToken_ = consumes<ETLDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTag"));
   mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
@@ -167,7 +167,7 @@ void EtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     meHitTime_[idet]->Fill(sample.toa());
     meOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
 
-    if (LocalPosDebug_) {
+    if (optionalPlots_) {
       if ((idet == 0) || (idet == 1)) {
         meLocalOccupancy_[0]->Fill(local_point.x(), local_point.y());
         meHitXlocal_[0]->Fill(local_point.x());
@@ -294,7 +294,7 @@ void EtlDigiHitsValidation::bookHistograms(DQMStore::IBooker& ibook,
                                  135,
                                  -135.,
                                  135.);
-  if (LocalPosDebug_) {
+  if (optionalPlots_) {
     meLocalOccupancy_[0] = ibook.book2D("EtlLocalOccupancyZneg",
                                         "ETL DIGI hits local occupancy (-Z);X_{DIGI} [cm];Y_{DIGI} [cm]",
                                         100,
@@ -519,7 +519,7 @@ void EtlDigiHitsValidation::fillDescriptions(edm::ConfigurationDescriptions& des
 
   desc.add<std::string>("folder", "MTD/ETL/DigiHits");
   desc.add<edm::InputTag>("inputTag", edm::InputTag("mix", "FTLEndcap"));
-  desc.add<bool>("LocalPositionDebug", false);
+  desc.add<bool>("optionalPlots", false);
 
   descriptions.add("etlDigiHitsDefaultValid", desc);
 }

@@ -4,6 +4,7 @@
 #include "CondFormats/PCLConfig/interface/AlignPCLThreshold.h"
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
@@ -45,7 +46,7 @@ public:
 
   void printAll() const;
 
-private:
+protected:
   threshold_map m_thresholds;
   int m_nrecords;
 

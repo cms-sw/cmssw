@@ -1,3 +1,5 @@
+#include "FWCore/Utilities/interface/CMSUnrollLoop.h"
+
 #include "MaterialEffects.h"
 #include "PropagationMPlex.h"
 
@@ -331,6 +333,7 @@ namespace mkfit {
       float pxin = cosP / ipt;
       float pyin = sinP / ipt;
 
+      CMS_UNROLL_LOOP_COUNT(Config::Niter)
       for (int i = 0; i < Config::Niter; ++i) {
         dprint_np(n,
                   std::endl
@@ -343,7 +346,7 @@ namespace mkfit {
         const float ialpha = (r - r0) * ipt / k;
         //alpha+=ialpha;
 
-        if (Config::useTrigApprox) {
+        if constexpr (Config::useTrigApprox) {
           sincos4(ialpha * 0.5f, sinah, cosah);
         } else {
           cosah = std::cos(ialpha * 0.5f);
@@ -708,21 +711,44 @@ namespace mkfit {
       errorProp(n, 3, 3) = 1.f;
       errorProp(n, 4, 4) = 1.f;
       errorProp(n, 5, 5) = 1.f;
+    }
+    float zout[NN];
+    float zin[NN];
+    float ipt[NN];
+    float phiin[NN];
+    float theta[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      //initialize erroProp to identity matrix, except element 2,2 which is zero
+      zout[n] = msZ.constAt(n, 0, 0);
+      zin[n] = inPar.constAt(n, 2, 0);
+      ipt[n] = inPar.constAt(n, 3, 0);
+      phiin[n] = inPar.constAt(n, 4, 0);
+      theta[n] = inPar.constAt(n, 5, 0);
+    }
 
-      const float zout = msZ.constAt(n, 0, 0);
+    float k[NN];
+    if (pflags.use_param_b_field) {
+#pragma omp simd
+      for (int n = 0; n < NN; ++n) {
+        k[n] = inChg.constAt(n, 0, 0) * 100.f /
+               (-Const::sol * Config::bFieldFromZR(zin[n], hipo(inPar.constAt(n, 0, 0), inPar.constAt(n, 1, 0))));
+      }
+    } else {
+#pragma omp simd
+      for (int n = 0; n < NN; ++n) {
+        k[n] = inChg.constAt(n, 0, 0) * 100.f / (-Const::sol * Config::Bfield);
+      }
+    }
 
-      const float zin = inPar.constAt(n, 2, 0);
-      const float ipt = inPar.constAt(n, 3, 0);
-      const float phiin = inPar.constAt(n, 4, 0);
-      const float theta = inPar.constAt(n, 5, 0);
+    float kinv[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      kinv[n] = 1.f / k[n];
+    }
 
-      const float k =
-          inChg.constAt(n, 0, 0) * 100.f /
-          (-Const::sol * (pflags.use_param_b_field
-                              ? Config::bFieldFromZR(zin, hipo(inPar.constAt(n, 0, 0), inPar.constAt(n, 1, 0)))
-                              : Config::Bfield));
-      const float kinv = 1.f / k;
-
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
       dprint_np(n,
                 std::endl
                     << "input parameters"
@@ -732,66 +758,160 @@ namespace mkfit {
                     << " inPar.constAt(n, 3, 0)=" << std::setprecision(9) << inPar.constAt(n, 3, 0)
                     << " inPar.constAt(n, 4, 0)=" << std::setprecision(9) << inPar.constAt(n, 4, 0)
                     << " inPar.constAt(n, 5, 0)=" << std::setprecision(9) << inPar.constAt(n, 5, 0));
+    }
 
-      const float pt = 1.f / ipt;
+    float pt[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      pt[n] = 1.f / ipt[n];
+    }
 
-      float cosahTmp = 0., sinahTmp = 0.;
-      //no trig approx here, phi can be large
-      const float cosP = std::cos(phiin), sinP = std::sin(phiin);
-      const float cosT = std::cos(theta), sinT = std::sin(theta);
-      const float tanT = sinT / cosT;
-      const float icos2T = 1.f / (cosT * cosT);
-      const float pxin = cosP * pt;
-      const float pyin = sinP * pt;
+    //no trig approx here, phi can be large
+    float cosP[NN];
+    float sinP[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      cosP[n] = std::cos(phiin[n]);
+    }
 
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      sinP[n] = std::sin(phiin[n]);
+    }
+
+    float cosT[NN];
+    float sinT[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      cosT[n] = std::cos(theta[n]);
+    }
+
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      sinT[n] = std::sin(theta[n]);
+    }
+
+    float tanT[NN];
+    float icos2T[NN];
+    float pxin[NN];
+    float pyin[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      tanT[n] = sinT[n] / cosT[n];
+      icos2T[n] = 1.f / (cosT[n] * cosT[n]);
+      pxin[n] = cosP[n] * pt[n];
+      pyin[n] = sinP[n] * pt[n];
+    }
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
       //fixme, make this printout useful for propagation to z
       dprint_np(n,
                 std::endl
-                    << "k=" << std::setprecision(9) << k << " pxin=" << std::setprecision(9) << pxin
-                    << " pyin=" << std::setprecision(9) << pyin << " cosP=" << std::setprecision(9) << cosP
-                    << " sinP=" << std::setprecision(9) << sinP << " pt=" << std::setprecision(9) << pt);
+                    << "k=" << std::setprecision(9) << k[n] << " pxin=" << std::setprecision(9) << pxin[n]
+                    << " pyin=" << std::setprecision(9) << pyin[n] << " cosP=" << std::setprecision(9) << cosP[n]
+                    << " sinP=" << std::setprecision(9) << sinP[n] << " pt=" << std::setprecision(9) << pt[n]);
+    }
+    float deltaZ[NN];
+    float alpha[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      deltaZ[n] = zout[n] - zin[n];
+      alpha[n] = deltaZ[n] * tanT[n] * ipt[n] * kinv[n];
+    }
 
-      const float deltaZ = zout - zin;
-      const float alpha = deltaZ * tanT * ipt * kinv;
-
-      if (Config::useTrigApprox) {
-        sincos4(alpha * 0.5f, sinahTmp, cosahTmp);
-      } else {
-        cosahTmp = std::cos(alpha * 0.5f);
-        sinahTmp = std::sin(alpha * 0.5f);
+    float cosahTmp[NN];
+    float sinahTmp[NN];
+    if constexpr (Config::useTrigApprox) {
+#if !defined(__INTEL_COMPILER)
+#pragma omp simd
+#endif
+      for (int n = 0; n < NN; ++n) {
+        sincos4(alpha[n] * 0.5f, sinahTmp[n], cosahTmp[n]);
       }
-      const float cosah = cosahTmp;
-      const float sinah = sinahTmp;
-      const float cosa = 1.f - 2.f * sinah * sinah;
-      const float sina = 2.f * sinah * cosah;
+    } else {
+#if !defined(__INTEL_COMPILER)
+#pragma omp simd
+#endif
+      for (int n = 0; n < NN; ++n) {
+        cosahTmp[n] = std::cos(alpha[n] * 0.5f);
+      }
+#if !defined(__INTEL_COMPILER)
+#pragma omp simd
+#endif
+      for (int n = 0; n < NN; ++n) {
+        sinahTmp[n] = std::sin(alpha[n] * 0.5f);
+      }
+    }
 
-      //update parameters
-      outPar.At(n, 0, 0) = outPar.At(n, 0, 0) + 2.f * k * sinah * (pxin * cosah - pyin * sinah);
-      outPar.At(n, 1, 0) = outPar.At(n, 1, 0) + 2.f * k * sinah * (pyin * cosah + pxin * sinah);
-      outPar.At(n, 2, 0) = zout;
-      outPar.At(n, 4, 0) = phiin + alpha;
+    float cosah[NN];
+    float sinah[NN];
+    float cosa[NN];
+    float sina[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      cosah[n] = cosahTmp[n];
+      sinah[n] = sinahTmp[n];
+      cosa[n] = 1.f - 2.f * sinah[n] * sinah[n];
+      sina[n] = 2.f * sinah[n] * cosah[n];
+    }
+//update parameters
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      outPar.At(n, 0, 0) = outPar.At(n, 0, 0) + 2.f * k[n] * sinah[n] * (pxin[n] * cosah[n] - pyin[n] * sinah[n]);
+      outPar.At(n, 1, 0) = outPar.At(n, 1, 0) + 2.f * k[n] * sinah[n] * (pyin[n] * cosah[n] + pxin[n] * sinah[n]);
+      outPar.At(n, 2, 0) = zout[n];
+      outPar.At(n, 4, 0) = phiin[n] + alpha[n];
+    }
 
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
       dprint_np(n,
                 std::endl
                     << "outPar.At(n, 0, 0)=" << outPar.At(n, 0, 0) << " outPar.At(n, 1, 0)=" << outPar.At(n, 1, 0)
-                    << " pxin=" << pxin << " pyin=" << pyin);
+                    << " pxin=" << pxin[n] << " pyin=" << pyin[n]);
+    }
 
-      const float pxcaMpysa = pxin * cosa - pyin * sina;
-      errorProp(n, 0, 2) = -tanT * ipt * pxcaMpysa;
-      errorProp(n, 0, 3) = k * pt * pt * (cosP * (alpha * cosa - sina) + sinP * 2.f * sinah * (sinah - alpha * cosah));
-      errorProp(n, 0, 4) = -2 * k * pt * sinah * (sinP * cosah + cosP * sinah);
-      errorProp(n, 0, 5) = deltaZ * ipt * pxcaMpysa * icos2T;
+    float pxcaMpysa[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      pxcaMpysa[n] = pxin[n] * cosa[n] - pyin[n] * sina[n];
+    }
 
-      const float pycaPpxsa = pyin * cosa + pxin * sina;
-      errorProp(n, 1, 2) = -tanT * ipt * pycaPpxsa;
-      errorProp(n, 1, 3) = k * pt * pt * (sinP * (alpha * cosa - sina) - cosP * 2.f * sinah * (sinah - alpha * cosah));
-      errorProp(n, 1, 4) = 2 * k * pt * sinah * (cosP * cosah - sinP * sinah);
-      errorProp(n, 1, 5) = deltaZ * ipt * pycaPpxsa * icos2T;
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      errorProp(n, 0, 2) = -tanT[n] * ipt[n] * pxcaMpysa[n];
+      errorProp(n, 0, 3) =
+          k[n] * pt[n] * pt[n] *
+          (cosP[n] * (alpha[n] * cosa[n] - sina[n]) + sinP[n] * 2.f * sinah[n] * (sinah[n] - alpha[n] * cosah[n]));
+      errorProp(n, 0, 4) = -2.f * k[n] * pt[n] * sinah[n] * (sinP[n] * cosah[n] + cosP[n] * sinah[n]);
+      errorProp(n, 0, 5) = deltaZ[n] * ipt[n] * pxcaMpysa[n] * icos2T[n];
+    }
 
-      errorProp(n, 4, 2) = -ipt * tanT * kinv;
-      errorProp(n, 4, 3) = tanT * deltaZ * kinv;
-      errorProp(n, 4, 5) = ipt * deltaZ * kinv * icos2T;
+    float pycaPpxsa[NN];
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      pycaPpxsa[n] = pyin[n] * cosa[n] + pxin[n] * sina[n];
+    }
 
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      errorProp(n, 1, 2) = -tanT[n] * ipt[n] * pycaPpxsa[n];
+      errorProp(n, 1, 3) =
+          k[n] * pt[n] * pt[n] *
+          (sinP[n] * (alpha[n] * cosa[n] - sina[n]) - cosP[n] * 2.f * sinah[n] * (sinah[n] - alpha[n] * cosah[n]));
+      errorProp(n, 1, 4) = 2.f * k[n] * pt[n] * sinah[n] * (cosP[n] * cosah[n] - sinP[n] * sinah[n]);
+      errorProp(n, 1, 5) = deltaZ[n] * ipt[n] * pycaPpxsa[n] * icos2T[n];
+    }
+
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
+      errorProp(n, 4, 2) = -ipt[n] * tanT[n] * kinv[n];
+      errorProp(n, 4, 3) = tanT[n] * deltaZ[n] * kinv[n];
+      errorProp(n, 4, 5) = ipt[n] * deltaZ[n] * kinv[n] * icos2T[n];
+    }
+
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
       dprint_np(
           n,
           "propagation end, dump parameters"
@@ -802,8 +922,11 @@ namespace mkfit {
               << 1. / (outPar.At(n, 3, 0) * tan(outPar.At(n, 5, 0)))
               << " r=" << std::sqrt(outPar.At(n, 0, 0) * outPar.At(n, 0, 0) + outPar.At(n, 1, 0) * outPar.At(n, 1, 0))
               << " pT=" << 1. / std::abs(outPar.At(n, 3, 0)) << std::endl);
+    }
 
 #ifdef DEBUG
+#pragma omp simd
+    for (int n = 0; n < NN; ++n) {
       if (n < N_proc) {
         dmutex_guard;
         std::cout << n << ": jacobian" << std::endl;
@@ -850,8 +973,8 @@ namespace mkfit {
                errorProp(n, 5, 4),
                errorProp(n, 5, 5));
       }
-#endif
     }
+#endif
   }
 
   //==============================================================================

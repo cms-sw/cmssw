@@ -10,5 +10,9 @@ gemRecHits = gemRecHitsDef.clone(
     #deadFile = cms.FileInPath("RecoLocalMuon/GEMRecHit/data/deadStrips.txt")
     )
 
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 from Configuration.Eras.Modifier_phase2_GEM_cff import phase2_GEM
-phase2_GEM.toModify(gemRecHits, gemDigiLabel = "simMuonGEMDigis")
+
+run3_GEM.toModify(gemRecHits, ge21Off=True)
+phase2_GEM.toModify(gemRecHits, gemDigiLabel = "simMuonGEMDigis", ge21Off=False)

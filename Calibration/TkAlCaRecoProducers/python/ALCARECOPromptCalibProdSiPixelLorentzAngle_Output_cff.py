@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-OutALCARECOPromptCalibProdSiPixelLorentzAngle_noDrop = cms.PSet(
+OutALCARECOPromptCalibProdSiPixelLA_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOPromptCalibProdSiPixelLorentzAngle')
     ),
@@ -9,5 +9,5 @@ OutALCARECOPromptCalibProdSiPixelLorentzAngle_noDrop = cms.PSet(
         'keep *_MEtoEDMConvertSiPixelLorentzAngle_*_*',
     )
 )
-OutALCARECOPromptCalibProdSiPixelLorentzAngle=OutALCARECOPromptCalibProdSiPixelLorentzAngle_noDrop.clone()
-OutALCARECOPromptCalibProdSiPixelLorentzAngle.outputCommands.insert(0, "drop *")
+OutALCARECOPromptCalibProdSiPixelLA=OutALCARECOPromptCalibProdSiPixelLA_noDrop.clone()
+OutALCARECOPromptCalibProdSiPixelLA.outputCommands.insert(0, "drop *")

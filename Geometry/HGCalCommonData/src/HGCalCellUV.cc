@@ -1,4 +1,5 @@
 #include "Geometry/HGCalCommonData/interface/HGCalCellUV.h"
+#include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <array>
@@ -43,10 +44,10 @@ HGCalCellUV::HGCalCellUV(double waferSize, double separation, int32_t nFine, int
 }
 
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
-    double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) {
+    double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
   //--- Reverse transform to placement=0, if placement index ≠ 6
-  double xloc1 = (placement >= 6) ? xloc : -xloc;
-  int rot = placement % 6;
+  double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
+  int rot = placement % HGCalCell::cellPlacementExtra;
   static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
   static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
   double x = xloc1 * fcos[rot] - yloc * fsin[rot];
@@ -83,11 +84,11 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
 }
 
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(
-    double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) {
+    double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
   //--- Using multiple inequalities to find (u, v)
   //--- Reverse transform to placement=0, if placement index ≠ 7
-  double xloc1 = (placement >= 6) ? xloc : -1 * xloc;
-  int rot = placement % 6;
+  double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -1 * xloc;
+  int rot = placement % HGCalCell::cellPlacementExtra;
   static constexpr std::array<double, 6> fcos = {{cos60_, 1.0, cos60_, -cos60_, -1.0, -cos60_}};
   static constexpr std::array<double, 6> fsin = {{-sin60_, 0.0, sin60_, sin60_, 0.0, -sin60_}};
   double x = xloc1 * fcos[rot] - yloc * fsin[rot];
@@ -150,11 +151,11 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(
 }
 
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY3(
-    double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) {
+    double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
   //--- Using Cube coordinates to find the (u, v)
   //--- Reverse transform to placement=0, if placement index ≠ 6
-  double xloc1 = (placement >= 6) ? xloc : -xloc;
-  int rot = placement % 6;
+  double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
+  int rot = placement % HGCalCell::cellPlacementExtra;
   static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
   static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
   double xprime = xloc1 * fcos[rot] - yloc * fsin[rot];
@@ -265,4 +266,51 @@ std::pair<int, int> HGCalCellUV::cellUVFromXY4(double xloc,
     edm::LogVerbatim("HGCalGeom") << "cellUVFromXY4: Input " << xloc << ":" << yloc << ":" << extend << " Output "
                                   << uv.first << ":" << uv.second;
   return uv;
+}
+
+std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
+    double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug) const {
+  std::pair<int, int> uv = HGCalCellUV::cellUVFromXY1(xloc, yloc, placement, type, extend, debug);
+  int u = uv.first;
+  int v = uv.second;
+  if (partial == HGCalTypes::WaferLDTop) {
+    if (u * HGCalTypes::edgeWaferLDTop[0] + v * HGCalTypes::edgeWaferLDTop[1] == HGCalTypes::edgeWaferLDTop[2] + 1) {
+      double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
+      int rot = placement % HGCalCell::cellPlacementExtra;
+      static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
+      static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
+      double xprime = -1 * (xloc1 * fcos[rot] - yloc * fsin[rot]);
+      double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
+      double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX_[type];
+      double ycell = (v + u - 2 * ncell_[type] + 1) * cellY_[type];
+      if ((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)) {
+        u += -1;
+      } else {
+        u += -1;
+        v += -1;
+      }
+    }
+  } else if (partial == HGCalTypes::WaferHDBottom) {
+    if (u * HGCalTypes::edgeWaferHDBottom[0] + v * HGCalTypes::edgeWaferHDBottom[1] ==
+        HGCalTypes::edgeWaferHDBottom[2] + 1) {
+      double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
+      int rot = placement % HGCalCell::cellPlacementExtra;
+      static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
+      static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
+      double xprime = -1 * (xloc1 * fcos[rot] - yloc * fsin[rot]);
+      double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
+      double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX_[type];
+      double ycell = (v + u - 2 * ncell_[type] + 1) * cellY_[type];
+      if ((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)) {
+        u += 1;
+        v += 1;
+      } else {
+        u += 1;
+      }
+    }
+  }
+  if (debug)
+    edm::LogVerbatim("HGCalGeom") << "cellUVFromXY5: Input " << xloc << ":" << yloc << ":" << extend << " Output " << u
+                                  << ":" << v;
+  return std::make_pair(u, v);
 }

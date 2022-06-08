@@ -41,10 +41,11 @@ public:
       : CAHitNtupletGeneratorOnGPU(cfg, iC) {}
   CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  ~CAHitNtupletGeneratorOnGPU();
-
   static void fillDescriptions(edm::ParameterSetDescription& desc);
   static const char* fillDescriptionsLabel() { return "caHitNtupletOnGPU"; }
+
+  void beginJob();
+  void endJob();
 
   PixelTrackHeterogeneous makeTuplesAsync(TrackingRecHit2DGPU const& hits_d, float bfield, cudaStream_t stream) const;
 

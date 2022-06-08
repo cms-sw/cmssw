@@ -44,7 +44,6 @@ private:
   const float etaScale_;
   const float phiScale_;
 
-  MonitorElement* ugmtBMTFBX;
   MonitorElement* ugmtBMTFnMuons;
   MonitorElement* ugmtBMTFhwPt;
   MonitorElement* ugmtBMTFhwPtUnconstrained;
@@ -61,7 +60,6 @@ private:
   MonitorElement* ugmtBMTFMuMuDPhi;
   MonitorElement* ugmtBMTFMuMuDR;
 
-  MonitorElement* ugmtOMTFBX;
   MonitorElement* ugmtOMTFnMuons;
   MonitorElement* ugmtOMTFhwPt;
   MonitorElement* ugmtOMTFhwEta;
@@ -79,7 +77,6 @@ private:
   MonitorElement* ugmtOMTFMuMuDPhi;
   MonitorElement* ugmtOMTFMuMuDR;
 
-  MonitorElement* ugmtEMTFBX;
   MonitorElement* ugmtEMTFnMuons;
   MonitorElement* ugmtEMTFhwPt;
   MonitorElement* ugmtEMTFhwPtUnconstrained;
@@ -100,8 +97,6 @@ private:
   MonitorElement* ugmtEMTFMuMuDR;
 
   MonitorElement* ugmtEMTFShowerTypeOccupancyPerSector;
-  MonitorElement* ugmtEMTFShowerTypeOccupancyPerBx;
-  MonitorElement* ugmtEMTFShowerSectorOccupancyPerBx;
 
   MonitorElement* ugmtBOMTFposMuMuDEta;
   MonitorElement* ugmtBOMTFposMuMuDPhi;
@@ -116,11 +111,6 @@ private:
   MonitorElement* ugmtEOMTFnegMuMuDEta;
   MonitorElement* ugmtEOMTFnegMuMuDPhi;
   MonitorElement* ugmtEOMTFnegMuMuDR;
-
-  MonitorElement* ugmtBMTFBXvsProcessor;
-  MonitorElement* ugmtOMTFBXvsProcessor;
-  MonitorElement* ugmtEMTFBXvsProcessor;
-  MonitorElement* ugmtBXvsLink;
 
   MonitorElement* ugmtMuonBX;
   MonitorElement* ugmtnMuons;

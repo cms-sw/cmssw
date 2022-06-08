@@ -9,7 +9,7 @@
 </library>
 <test name="test_PrepareInputDb" command="mps_prepare_input_db.py -g auto:run2_data -r 1 -o ${LOCALTOP}/tmp/test_input.db"/>
 <test name="test_MpsWorkFlow" command="test_mps-workflow.sh"/>
-<test name="test_CreateFileLists" command="mps_create_file_lists.py --test-mode --force -i /OVERRIDDEN/IN/TESTMODE -o ${LOCALTOP}/tmp/mps_create_file_lists -n 200000 --iov 42 --iov 174"/>
+<test name="test_CreateFileLists" command="tkal_create_file_lists.py --test-mode --force -i /OVERRIDDEN/IN/TESTMODE -o ${LOCALTOP}/tmp/mps_create_file_lists -n 200000 --iov 42 --iov 174"/>
 <test name="test-pede" command="pede -t">
   <use name="millepede"/>
   <flags USE_UNITTEST_DIR="1"/>

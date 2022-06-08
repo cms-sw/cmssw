@@ -60,7 +60,7 @@ TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString& SubDe
   SetEcalSubDetector(SubDet.Data());
 }
 
-TEcnaNumbering::TEcnaNumbering(const TString& SubDet, const TEcnaParEcal* pEcal) {
+TEcnaNumbering::TEcnaNumbering(const TString& SubDet, TEcnaParEcal* pEcal) {
   // Constructor with argument: call to methods Init() and SetEcalSubDetector(const TString&)
 
   // std::cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << std::endl;
@@ -219,15 +219,14 @@ void TEcnaNumbering::Init() {
 }
 // end of Init()
 //------------------------------------------------------------- SetEcalSubDetector(...)
-void TEcnaNumbering::SetEcalSubDetector(const TString& SubDet, const TEcnaParEcal* pEcal) {
+void TEcnaNumbering::SetEcalSubDetector(const TString& SubDet, TEcnaParEcal* pEcal) {
   //Set the current subdetector flag and the current subdetector parameters
 
   fEcal = nullptr;
   if (pEcal == nullptr) {
     fEcal = new TEcnaParEcal(SubDet.Data()); /*fCnew++*/
-    ;
   } else {
-    fEcal = (TEcnaParEcal*)pEcal;
+    fEcal = pEcal;
   }
 
   Int_t MaxCar = fgMaxCar;

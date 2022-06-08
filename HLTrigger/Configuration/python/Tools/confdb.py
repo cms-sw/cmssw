@@ -333,11 +333,9 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 
     self.data += """
 # enable TrigReport, TimeReport and MultiThreading
-%(process)s.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True ),
-    numberOfThreads = cms.untracked.uint32( 4 ),
-    numberOfStreams = cms.untracked.uint32( 0 ),
-)
+%(process)s.options.wantSummary = True
+%(process)s.options.numberOfThreads = 4
+%(process)s.options.numberOfStreams = 0
 """
 
   def _fix_parameter(self, **args):

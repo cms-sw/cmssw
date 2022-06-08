@@ -2,7 +2,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -16,19 +16,18 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TCaloParamsUpdater : public edm::EDAnalyzer {
+class L1TCaloParamsUpdater : public edm::one::EDAnalyzer<> {
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1TCaloParamsUpdater(const edm::ParameterSet&) : edm::EDAnalyzer() {}
-  ~L1TCaloParamsUpdater(void) override {}
+  explicit L1TCaloParamsUpdater(const edm::ParameterSet&) : token_{esConsumes()} {}
+
+private:
+  edm::ESGetToken<l1t::CaloParams, L1TCaloStage2ParamsRcd> token_;
 };
 
 void L1TCaloParamsUpdater::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<l1t::CaloParams> handle1;
-  //    evSetup.get<L1TCaloParamsRcd>().get( "l1conddb", handle1 ) ;
-  evSetup.get<L1TCaloStage2ParamsRcd>().get(handle1);
-  l1t::CaloParamsHelper m_params_helper(*(handle1.product()));
+  l1t::CaloParamsHelper m_params_helper(evSetup.getData(token_));
 
   //    std::ifstream is("tauL1CalibLUT_V2.txt");
   //    l1t::LUT lut;

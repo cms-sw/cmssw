@@ -4,7 +4,9 @@
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/TrackingHit"/>
 <use name="SimDataFormats/Vertex"/>
+<use name="SimG4Core/Notification"/>
 <use name="geant4core"/>
+<use name="clhep"/>
 <use name="hepmc"/>
 <library file="*.cc" name="SimG4CoreApplicationPlugins">
   <use name="SimG4Core/Application"/>

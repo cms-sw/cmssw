@@ -1,8 +1,6 @@
 <library file="Synchronization/*.cc" name="SyncCalibTrackerSiStripDCSPlugins">
   <use name="FWCore/Framework"/>
-  <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
-  <use name="FWCore/ServiceRegistry"/>
   <use name="CondFormats/DataRecord"/>
   <use name="CondFormats/SiStripObjects"/>
   <use name="CoralCommon"/>

@@ -62,9 +62,7 @@ struct RunResources {
                            eventSetupForInstanceSucceeded_);
     } catch (...) {
       if (cleaningUpAfterException_ or not ep_.setDeferredException(std::current_exception())) {
-        std::string message(
-            "Another exception was caught while trying to clean up runs after the primary fatal exception.");
-        ep_.setExceptionMessageRuns(message);
+        ep_.setExceptionMessageRuns();
       }
     }
   }

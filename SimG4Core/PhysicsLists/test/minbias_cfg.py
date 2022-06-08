@@ -20,7 +20,7 @@ process.load('SimG4Core.PhysicsLists.physicsQGSP_FTFP_BERT_G4106_cfi')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.PhysicsList=dict()

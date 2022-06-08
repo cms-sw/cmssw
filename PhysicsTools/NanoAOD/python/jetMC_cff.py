@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.NanoAOD.nano_eras_cff import *
 from PhysicsTools.NanoAOD.common_cff import *
-from PhysicsTools.NanoAOD.jets_cff import fatJetTable as _fatJetTable
-from PhysicsTools.NanoAOD.jets_cff import subJetTable as _subJetTable
+from PhysicsTools.NanoAOD.jetsAK8_cff import fatJetTable as _fatJetTable
+from PhysicsTools.NanoAOD.jetsAK8_cff import subJetTable as _subJetTable
 
 jetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","jets"),
@@ -134,7 +134,6 @@ jetMCTask.add(jetMCTaskak8)
 
 ### Era dependent customization
 run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
-
 
 _jetMCTaskak8 = jetMCTaskak8.copyAndExclude([genSubJetAK8Table])
 

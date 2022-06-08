@@ -66,7 +66,7 @@ private:
   const std::string folder_;
   const float hitMinEnergy1Dis_;
   const float hitMinEnergy2Dis_;
-  const bool LocalPosDebug_;
+  const bool optionalPlots_;
   const bool uncalibRecHitsPlots_;
   const double hitMinAmplitude_;
 
@@ -157,7 +157,7 @@ EtlLocalRecoValidation::EtlLocalRecoValidation(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
       hitMinEnergy1Dis_(iConfig.getParameter<double>("hitMinimumEnergy1Dis")),
       hitMinEnergy2Dis_(iConfig.getParameter<double>("hitMinimumEnergy2Dis")),
-      LocalPosDebug_(iConfig.getParameter<bool>("LocalPositionDebug")),
+      optionalPlots_(iConfig.getParameter<bool>("optionalPlots")),
       uncalibRecHitsPlots_(iConfig.getParameter<bool>("UncalibRecHitsPlots")),
       hitMinAmplitude_(iConfig.getParameter<double>("HitMinimumAmplitude")) {
   etlRecHitsToken_ = consumes<FTLRecHitCollection>(iConfig.getParameter<edm::InputTag>("recHitsTag"));
@@ -200,6 +200,20 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
   auto etlRecCluHandle = makeValid(iEvent.getHandle(etlRecCluToken_));
   auto mtdTrkHitHandle = makeValid(iEvent.getHandle(mtdTrackingHitToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
+
+#ifdef EDM_ML_DEBUG
+  for (const auto& hits : *mtdTrkHitHandle) {
+    if (MTDDetId(hits.id()).mtdSubDetector() == MTDDetId::MTDType::ETL) {
+      LogDebug("EtlLocalRecoValidation") << "MTD cluster DetId " << hits.id() << " # cluster " << hits.size();
+      for (const auto& hit : hits) {
+        LogDebug("EtlLocalRecoValidation")
+            << "MTD_TRH: " << hit.localPosition().x() << "," << hit.localPosition().y() << " : "
+            << hit.localPositionError().xx() << "," << hit.localPositionError().yy() << " : " << hit.time() << " : "
+            << hit.timeError();
+      }
+    }
+  }
+#endif
 
   // --- Loop over the ETL SIM hits
   std::unordered_map<uint32_t, MTDHit> m_etlSimHits[4];
@@ -293,7 +307,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
     meOccupancy_[idet]->Fill(global_point.x(), global_point.y(), weight);
 
-    if (LocalPosDebug_) {
+    if (optionalPlots_) {
       if ((idet == 0) || (idet == 1)) {
         meLocalOccupancy_[0]->Fill(local_point.x(), local_point.y());
         meHitXlocal_[0]->Fill(local_point.x());
@@ -450,6 +464,8 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
           cluEneSIM += m_etlSimHits[idet][recHit.id().rawId()].energy;
           cluTimeSIM += m_etlSimHits[idet][recHit.id().rawId()].time * m_etlSimHits[idet][recHit.id().rawId()].energy;
 
+          break;
+
         }  // recHit loop
 
       }  // ihit loop
@@ -493,7 +509,7 @@ void EtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         meCluTPullvsEta_[iside]->Fill(cluGlobalPosSIM.eta(), time_res / cluster.timeError());
         meCluTPullvsE_[iside]->Fill(cluEneSIM, time_res / cluster.timeError());
 
-        if (LocalPosDebug_) {
+        if (optionalPlots_) {
           if (matchClu && comp != nullptr) {
             meCluXPull_[iside]->Fill(x_res / std::sqrt(comp->globalPositionError().cxx()));
             meCluYPull_[iside]->Fill(y_res / std::sqrt(comp->globalPositionError().cyy()));
@@ -648,7 +664,7 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                  135,
                                  -135.,
                                  135.);
-  if (LocalPosDebug_) {
+  if (optionalPlots_) {
     meLocalOccupancy_[0] = ibook.book2D("EtlLocalOccupancyZneg",
                                         "ETL RECO hits local occupancy (-Z);X_{RECO} [cm];Y_{RECO} [cm]",
                                         100,
@@ -1002,7 +1018,7 @@ void EtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
       ibook.book1D("EtlCluZResZneg", "ETL cluster Z resolution (-Z);Z_{RECO}-Z_{SIM} [cm]", 100, -0.003, 0.003);
   meCluZRes_[1] =
       ibook.book1D("EtlCluZResZpos", "ETL cluster Z resolution (+Z);Z_{RECO}-Z_{SIM} [cm]", 100, -0.003, 0.003);
-  if (LocalPosDebug_) {
+  if (optionalPlots_) {
     meCluXPull_[0] =
         ibook.book1D("EtlCluXPullZneg", "ETL cluster X pull (-Z);X_{RECO}-X_{SIM}/sigmaX_[RECO] [cm]", 100, -5., 5.);
     meCluXPull_[1] =
@@ -1093,7 +1109,7 @@ void EtlLocalRecoValidation::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<edm::InputTag>("trkHitTag", edm::InputTag("mtdTrackingRecHits"));
   desc.add<double>("hitMinimumEnergy1Dis", 1.);     // [MeV]
   desc.add<double>("hitMinimumEnergy2Dis", 0.001);  // [MeV]
-  desc.add<bool>("LocalPositionDebug", false);
+  desc.add<bool>("optionalPlots", false);
   desc.add<bool>("UncalibRecHitsPlots", false);
   desc.add<double>("HitMinimumAmplitude", 0.33);  // [MIP]
 

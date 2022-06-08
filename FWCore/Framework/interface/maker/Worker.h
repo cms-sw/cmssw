@@ -58,6 +58,7 @@ the worker is reset().
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
+#include <array>
 #include <atomic>
 #include <cassert>
 #include <map>

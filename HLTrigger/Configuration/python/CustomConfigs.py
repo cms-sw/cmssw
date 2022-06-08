@@ -17,15 +17,15 @@ def ProcessName(process):
 def Base(process):
 #   default modifications
 
-    process.options.wantSummary = cms.untracked.bool(True)
-    process.options.numberOfThreads = cms.untracked.uint32( 4 )
-    process.options.numberOfStreams = cms.untracked.uint32( 0 )
-    process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
+    process.options.wantSummary = True
+    process.options.numberOfThreads = 4
+    process.options.numberOfStreams = 0
+    process.options.sizeOfStackForThreadsInKB = 10*1024
 
-    process.MessageLogger.TriggerSummaryProducerAOD=cms.untracked.PSet()
-    process.MessageLogger.L1GtTrigReport=cms.untracked.PSet()
-    process.MessageLogger.L1TGlobalSummary=cms.untracked.PSet()
-    process.MessageLogger.HLTrigReport=cms.untracked.PSet()
+    process.MessageLogger.TriggerSummaryProducerAOD = cms.untracked.PSet()
+    process.MessageLogger.L1GtTrigReport = cms.untracked.PSet()
+    process.MessageLogger.L1TGlobalSummary = cms.untracked.PSet()
+    process.MessageLogger.HLTrigReport = cms.untracked.PSet()
 
 # No longer override - instead use GT config as provided via cmsDriver
 ## override the GlobalTag, connection string and pfnPrefix
@@ -107,21 +107,19 @@ def L1THLT(process):
 
 
 def HLTRECO(process):
-
-    # --------------------------------------------
-    # remove ESSources and ESProducers from Tasks:
-    #  - needed for HLT+RECO tests on GPU
-    # --------------------------------------------
-    #  - when Reconstruction_cff is loaded, it brings in Tasks that include
-    #    GPU-related ES modules with the same names as they have in HLT configs
-    #  - in TSG tests, these GPU-related RECO Tasks are not included in the Schedule
-    #    (because the "gpu" process-modifier is not used);
-    #    this causes the ES modules not to be executed, thus making them unavailable to HLT producers
-    #  - this workaround removes ES modules from Tasks, making their execution independent of the content of the Schedule;
-    #    with reference to https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideAboutPythonConfigFile?rev=92#Behavior_when_an_ESProducer_ESSo,
-    #    this workaround avoids "Case 3" by reverting to "Case 2"
-    #  - this workaround only affects Tasks of non-HLT steps, as the addition of ES modules to Tasks is not supported in ConfDB
-    #    (none of the Tasks used in the HLT step can contain ES modules in the first place, modulo customisations outside ConfDB)
+    """Customisations for running HLT+RECO in the same job
+       - remove ESSources and ESProducers from Tasks (needed to run HLT+RECO tests on GPU)
+         - when Reconstruction_cff is loaded, it brings in Tasks that include
+           GPU-related ES modules with the same names as they have in HLT configs
+         - in TSG tests, these GPU-related RECO Tasks are not included in the Schedule
+           (because the "gpu" process-modifier is not used);
+           this causes the ES modules not to be executed, thus making them unavailable to HLT producers
+         - this workaround removes ES modules from Tasks, making their execution independent of the content of the Schedule;
+           with reference to https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideAboutPythonConfigFile?rev=92#Behavior_when_an_ESProducer_ESSo,
+           this workaround avoids "Case 3" by reverting to "Case 2"
+         - this workaround only affects Tasks of non-HLT steps, as the addition of ES modules to Tasks is not supported in ConfDB
+           (none of the Tasks used in the HLT step can contain ES modules in the first place, modulo customisations outside ConfDB)
+    """
     for taskName in process.tasks_():
         task = process.tasks_()[taskName]
         esModulesToRemove = set()
@@ -131,7 +129,30 @@ def HLTRECO(process):
                 esModulesToRemove.add(module)
         for esModule in esModulesToRemove:
             task.remove(esModule)
-    # --------------------------------------------
+
+    return process
+
+
+def customiseGlobalTagForOnlineBeamSpot(process):
+    """Customisation of GlobalTag for Online BeamSpot
+       - edits the GlobalTag ESSource to load the tags used to produce the HLT beamspot
+       - these tags are not available in the Offline GT, which is the GT presently used in HLT+RECO tests
+       - not loading these tags (i.e. not using this customisation) does not result in a runtime error,
+         but it leads to an HLT beamspot different to the one obtained when running HLT alone
+    """
+    if hasattr(process, 'GlobalTag'):
+      if not hasattr(process.GlobalTag, 'toGet'):
+        process.GlobalTag.toGet = cms.VPSet()
+      process.GlobalTag.toGet += [
+        cms.PSet(
+          record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
+          tag = cms.string('BeamSpotOnlineLegacy')
+        ),
+        cms.PSet(
+          record = cms.string('BeamSpotOnlineHLTObjectsRcd'),
+          tag = cms.string('BeamSpotOnlineHLT')
+        )
+      ]
 
     return process
 

@@ -11,7 +11,6 @@
   <use name="FWCore/ParameterSet"/>
   <use name="Geometry/Records"/>
   <use name="SimDataFormats/CaloAnalysis"/>
-  <use name="SimDataFormats/CaloTest"/>
   <use name="DataFormats/L1THGCal"/>
   <use name="L1Trigger/L1THGCal"/>
   <flags EDM_PLUGIN="1"/>

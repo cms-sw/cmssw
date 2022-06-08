@@ -139,7 +139,7 @@ public:
 
   const std::vector<uint16_t> getVfats(const int type) const { return chamVfats_.at(type); }
   void add(int type, uint16_t d) {
-    if (std::find(chamVfats_[type].begin(), chamVfats_[type].end(), d) != chamVfats_[type].end())
+    if (std::find(chamVfats_[type].begin(), chamVfats_[type].end(), d) == chamVfats_[type].end())
       chamVfats_[type].push_back(d);
   }
 
@@ -147,7 +147,7 @@ public:
     return chamIEtas_.at({chamberType, vfatAdd});
   }
   void add(vfatEC d, int iEta) {
-    if (std::find(chamIEtas_[d].begin(), chamIEtas_[d].end(), iEta) != chamIEtas_[d].end())
+    if (std::find(chamIEtas_[d].begin(), chamIEtas_[d].end(), iEta) == chamIEtas_[d].end())
       chamIEtas_[d].push_back(iEta);
   }
 

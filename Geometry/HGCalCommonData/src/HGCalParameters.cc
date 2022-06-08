@@ -2,6 +2,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 
+#include <array>
+
 //#define EDM_ML_DEBUG
 
 HGCalParameters::HGCalParameters(const std::string& nam) : name_(nam), nCells_(0), waferMaskMode_(0) {

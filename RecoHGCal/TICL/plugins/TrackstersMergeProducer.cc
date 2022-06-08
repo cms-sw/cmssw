@@ -14,9 +14,9 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/RecHitTools.h"
 #include "RecoHGCal/TICL/interface/GlobalCache.h"
 
-#include "TrackingTools/Records/interface/TfGraphRecord.h"
+#include "PhysicsTools/TensorFlow/interface/TfGraphRecord.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
-#include "RecoTracker/FinalTrackSelectors/interface/TfGraphDefWrapper.h"
+#include "PhysicsTools/TensorFlow/interface/TfGraphDefWrapper.h"
 
 #include "DataFormats/HGCalReco/interface/TICLCandidate.h"
 

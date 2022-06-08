@@ -100,25 +100,16 @@ interestingOotEgammaIsoHCALDetId = interestingGedEgammaIsoHCALDetId.clone(
 )
 
 import RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoESDetIdModule_cff
-interestingGedEgammaIsoESDetId = RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoESDetIdModule_cff.interestingEgammaIsoESDetId.clone(
-    eeClusToESMapLabel = "particleFlowClusterECALRemade",
-    ecalPFClustersLabel= "particleFlowClusterECALRemade",
-    elesLabel          = "gedGsfElectrons",
-    phosLabel          = "gedPhotons",
-    superClustersLabel = "particleFlowEGamma",
-    minSCEt            = 500,
-    minEleEt           = 20,
-    minPhoEt           = 20,
-    maxDR              = 0.4
-)
-
-## OOT Photons
-interestingOotEgammaIsoESDetId = interestingGedEgammaIsoESDetId.clone(
+interestingOotEgammaIsoESDetId = RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoESDetIdModule_cff.interestingEgammaIsoESDetId.clone(
     eeClusToESMapLabel = "particleFlowClusterOOTECAL",
     ecalPFClustersLabel= "particleFlowClusterOOTECAL",
     phosLabel          = "ootPhotons",
     elesLabel          = "",
-    superClustersLabel = ""
+    superClustersLabel = "",
+    minSCEt            = 500,
+    minEleEt           = 20,
+    minPhoEt           = 20,
+    maxDR              = 0.4
 )
 
 interestingEgammaIsoDetIdsTask = cms.Task(
@@ -132,7 +123,6 @@ interestingEgammaIsoDetIdsTask = cms.Task(
     interestingGamIsoDetIdEE ,
     interestingGedEgammaIsoHCALDetId,
     interestingOotEgammaIsoHCALDetId,
-    interestingGedEgammaIsoESDetId,
     interestingOotEgammaIsoESDetId
 )
 interestingEgammaIsoDetIds = cms.Sequence(interestingEgammaIsoDetIdsTask)
@@ -147,11 +137,7 @@ from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toReplaceWith(interestingEgammaIsoDetIdsTask, _pp_on_AA_interestingEgammaIsoDetIdsTask)
 
 from Configuration.ProcessModifiers.egamma_lowPt_exclusive_cff import egamma_lowPt_exclusive
-egamma_lowPt_exclusive.toModify(interestingGedEgammaIsoESDetId,
-			   minSCEt   = 1.0, #default 500
-			   minEleEt  = 1.0, #default 20
-			   minPhoEt  = 1.0 #default 20
-)
+
 egamma_lowPt_exclusive.toModify(interestingGedEgammaIsoHCALDetId, 
 		           minSCEt = 1.0, #default 20
 		           minEleEt= 1.0, #default 20

@@ -24,7 +24,6 @@ DDCompactViewMFESProducer = cms.ESProducer("DDCompactViewMFESProducer",
 
 VolumeBasedMagneticFieldESProducer = cms.ESProducer("DD4hep_VolumeBasedMagneticFieldESProducer",
     VBFConfig_160812,
-    DDDetector = cms.ESInputTag('', 'magfield'),
     appendToDataLabel = cms.string(''),
 )
 
