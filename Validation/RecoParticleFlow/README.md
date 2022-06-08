@@ -145,7 +145,7 @@ Take note that the CMSSW python3 configuration for running the RECO sequence is 
 ~~~
 # For example (default for 2021):
 #CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 # for 2018 scenarios
-CONDITIONS=auto:phase1_2021_realistic ERA=Run3 # for run 3
+CONDITIONS=auto:phase1_2022_realistic ERA=Run3 # for run 3
 #CONDITIONS=auto:phase2_realistic ERA=Phase2C9 # for phase2
 #Running with 2 threads allows to use more memory on grid
 NTHREADS=2 TMPDIR=tmp

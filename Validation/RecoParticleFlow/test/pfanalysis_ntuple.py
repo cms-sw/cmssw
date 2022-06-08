@@ -20,7 +20,7 @@ process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cfi")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2021_realistic")
+process.GlobalTag = GlobalTag(process.GlobalTag, "auto:phase1_2022_realistic")
 from FastSimulation.Event.ParticleFilter_cfi import *
 
 process.maxEvents = cms.untracked.PSet(input=cms.untracked.int32(-1))
