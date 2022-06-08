@@ -46,6 +46,8 @@ HGCalCellUV::HGCalCellUV(double waferSize, double separation, int32_t nFine, int
 
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
+  if (type != 0) 
+    type = 1;
   //--- Reverse transform to placement=0, if placement index ≠ 6
   double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
   int rot = placement % HGCalCell::cellPlacementExtra;
@@ -86,6 +88,7 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
 
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
+
   //--- Using multiple inequalities to find (u, v)
   //--- Reverse transform to placement=0, if placement index ≠ 7
   double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -1 * xloc;
@@ -155,6 +158,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY3(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
   //--- Using Cube coordinates to find the (u, v)
   //--- Reverse transform to placement=0, if placement index ≠ 6
+  if (type != 0) 
+    type = 1;
   double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
   int rot = placement % HGCalCell::cellPlacementExtra;
   static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
@@ -271,6 +276,8 @@ std::pair<int, int> HGCalCellUV::cellUVFromXY4(double xloc,
 
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
     double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug) const {
+  if (type != 0) 
+    type = 1;
   std::pair<int, int> uv = HGCalCellUV::cellUVFromXY1(xloc, yloc, placement, type, extend, debug);
   int u = uv.first;
   int v = uv.second;
