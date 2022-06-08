@@ -82,7 +82,9 @@ void SiPixelRecHitSoAFromCUDA::acquire(edm::Event const& iEvent,
 
 void SiPixelRecHitSoAFromCUDA::produce(edm::Event& iEvent, edm::EventSetup const& es) {
   auto hmsp = std::make_unique<uint32_t[]>(nMaxModules_ + 1);
-  std::copy(hitsModuleStart_.get(), hitsModuleStart_.get() + nMaxModules_ + 1, hmsp.get());
+
+  if (nHits_ > 0)
+    std::copy(hitsModuleStart_.get(), hitsModuleStart_.get() + nMaxModules_ + 1, hmsp.get());
 
   iEvent.emplace(hostPutToken_, std::move(hmsp));
   iEvent.emplace(hitsPutTokenCPU_, store32_.get(), store16_.get(), hitsModuleStart_.get(), nHits_);

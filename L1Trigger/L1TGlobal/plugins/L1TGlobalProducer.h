@@ -188,6 +188,8 @@ private:
 
   //disables reseting the prescale counters each lumisection (needed for offline)
   bool m_resetPSCountersEachLumiSec;
+  // start the PS counter from a random value between [1,PS] instead of PS
+  bool m_semiRandomInitialPSCounters;
   // switch to load muon showers in the global board
   bool m_useMuonShowers;
 };

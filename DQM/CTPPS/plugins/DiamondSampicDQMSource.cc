@@ -546,7 +546,8 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
           if (channelsPerPlane.find(detId_plane) != channelsPerPlane.end())
             channelsPerPlane[detId_plane]++;
           else
-            channelsPerPlane[detId_plane] = 0;
+            //if it's the first channel, create new map element with the value of 1
+            channelsPerPlane[detId_plane] = 1;
         }
 
         // Channel Plots
@@ -620,7 +621,8 @@ void DiamondSampicDQMSource::analyze(const edm::Event &event, const edm::EventSe
               if (channelsPerPlaneWithTime.find(detId_plane) != channelsPerPlaneWithTime.end())
                 channelsPerPlaneWithTime[detId_plane]++;
               else
-                channelsPerPlaneWithTime[detId_plane] = 0;
+                //if it's the first channel, create new map element with the value of 1
+                channelsPerPlaneWithTime[detId_plane] = 1;
             }
 
             if (channelPlots_.find(detId) != channelPlots_.end()) {

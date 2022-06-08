@@ -18,7 +18,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimG4CMS.Calo.hcalSimHitAnalysis_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag 
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:singlePion_dd4hep.root')
