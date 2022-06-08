@@ -8,14 +8,14 @@
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/EcalRawData/interface/EcalRawDataCollections.h>
 #include <iostream>
 #include <vector>
 
-class EcalDCCHeaderDumperModule : public edm::EDAnalyzer {
+class EcalDCCHeaderDumperModule : public edm::one::EDAnalyzer<> {
 public:
   EcalDCCHeaderDumperModule(const edm::ParameterSet& ps) {}
 
