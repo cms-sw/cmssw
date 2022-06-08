@@ -262,7 +262,6 @@ template <typename T>
 void AlignPCLThresholdsWriter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.setComment("Plugin to write payloads of type AlignPCLThresholds");
-  desc.add<std::string>("record", "AlignPCLThresholdsRcd");
   desc.add<unsigned int>("minNRecords", 25000);
   edm::ParameterSetDescription desc_thresholds;
 
@@ -273,8 +272,11 @@ void AlignPCLThresholdsWriter<T>::fillDescriptions(edm::ConfigurationDescription
   desc_thresholds.add<double>("maxMoveCut");
   desc_thresholds.add<double>("maxErrorCut");
   if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+    desc.add<std::string>("record", "AlignPCLThresholdsHGRcd");
     //optional thresholds from new payload version (not for all the alignables)
     desc_thresholds.addOptional<double>("fractionCut");
+  } else {
+    desc.add<std::string>("record", "AlignPCLThresholdsRcd");
   }
 
   std::vector<edm::ParameterSet> default_thresholds(1);

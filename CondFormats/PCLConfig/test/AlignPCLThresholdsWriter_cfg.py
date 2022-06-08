@@ -88,15 +88,26 @@ DefaultPlusSurface = AddSurfaceThresholds+BPixSurface
 #print DefaultPlusSurface.dumpPython()
 
 [MODULE_NAME, THRS_NAME] = ["AlignPCLThresholdsLGWriter",AddSurfaceThresholds] if(options.writeLGpayload) else ["AlignPCLThresholdsHGWriter",AddSurfaceThresholdsHG]
+print("Writing payload with",MODULE_NAME)
 
+from CondFormats.PCLConfig.alignPCLThresholdsHGWriter_cfi import alignPCLThresholdsHGWriter
+from CondFormats.PCLConfig.alignPCLThresholdsLGWriter_cfi import alignPCLThresholdsLGWriter
 
-process.WriteInDB = cms.EDAnalyzer(MODULE_NAME,
-                                   record= cms.string('FooRcd'),
-                                   ### minimum number of records found in pede output 
-                                   minNRecords = cms.uint32(25000), 
-                                   #thresholds  = cms.VPSet()         # empty object
-                                   #thresholds = DefaultPlusSurface   # add extra deegree of freedom
-                                   thresholds =  THRS_NAME #Thresholds.default   # as a cms.VPset
-                                   )
+if(options.writeLGpayload):
+    process.WriteInDB = alignPCLThresholdsLGWriter.clone(
+        record = 'FooRcd',
+        ### minimum number of records found in pede output
+        minNRecords = 25000,
+        #thresholds  = cms.VPSet()         # empty object
+        #thresholds = DefaultPlusSurface   # add extra deegree of freedom
+        thresholds =  THRS_NAME
+    )
+else:
+    process.WriteInDB = alignPCLThresholdsHGWriter.clone(
+        record = 'FooRcd',
+        ### minimum number of records found in pede output
+        minNRecords = 25000,
+        thresholds =  THRS_NAME
+    )
 
 process.p = cms.Path(process.WriteInDB)

@@ -75,7 +75,7 @@ namespace edmtest {
     edm::LogInfo("AlignPCLThresholdsReader") << "Size " << thresholds->size() << std::endl;
     edm::LogInfo("AlignPCLThresholdsReader") << "Content of myThresholds " << std::endl;
     // use built-in method in the CondFormat to print the content
-    if (printdebug_) {
+    if (thresholds && printdebug_) {
       thresholds->printAll();
     }
 
