@@ -10,6 +10,7 @@
 
 class AlignPCLThresholdsHG : public AlignPCLThresholds {
 public:
+  typedef std::unordered_map<std::string, std::vector<float>> param_map;
   AlignPCLThresholdsHG() {}
 
   enum FloatParamIndex {
@@ -22,24 +23,28 @@ public:
     FSIZE = 6
   };
 
-  void SetFractionCut(const std::string &AlignableId, const coordType &type, const float &cut);
+  enum IntParamIndex { ISIZE = 0 };
+  enum StringParamIndex { SSIZE = 0 };
 
-  const std::unordered_map<std::string, std::vector<float>> &getFloatMap() const { return floatMap; }
+  void setFractionCut(const std::string &AlignableId, const coordType &type, const float &cut);
+
+  const param_map &getFloatMap() const { return floatMap_; }
   const std::vector<float> &getFloatVec(const std::string &AlignableId) const;
 
   float getFractionCut(const std::string &AlignableId, const coordType &type) const;
   std::array<float, 6> getFractionCut(const std::string &AlignableId) const;
 
-  int payloadVersion() const;
+  const int payloadVersion() const;
 
-  void printAllHG() const;
+  void printAll() const;
 
-  ~AlignPCLThresholdsHG() override {}
+  ~AlignPCLThresholdsHG() override = default;
 
 private:
-  std::unordered_map<std::string, std::vector<float>> floatMap;
-  std::unordered_map<std::string, std::vector<int>> intMap;
-  std::unordered_map<std::string, std::vector<std::string>> stringMap;
+  param_map floatMap_;
+  // yet unused, but kept for possible extensions
+  std::unordered_map<std::string, std::vector<int>> intMap_;
+  std::unordered_map<std::string, std::vector<std::string>> stringMap_;
 
   COND_SERIALIZABLE;
 };

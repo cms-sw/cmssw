@@ -52,7 +52,7 @@ process.load("CondCore.CondDB.CondDB_cfi")
 ##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDB.connect = 'sqlite_file:mythresholds.db'
+process.CondDB.connect = 'sqlite_file:mythresholds_%s.db' % ("LG" if(options.writeLGpayload) else "HG")
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                           process.CondDB,
                                           timetype = cms.untracked.string('runnumber'),

@@ -54,7 +54,9 @@ process.source = cms.Source("EmptyIOVSource",
 ## Get the payload
 ##
 from CondCore.CondDB.CondDB_cfi import *
-CondDBThresholds = CondDB.clone(connect = cms.string("sqlite_file:mythresholds.db"))
+inputDBfile = 'sqlite_file:mythresholds_%s.db' % ("LG" if(options.readLGpayload) else "HG") 
+
+CondDBThresholds = CondDB.clone(connect = cms.string(inputDBfile))
 
 process.dbInput = cms.ESSource("PoolDBESSource",
                                CondDBThresholds,
@@ -79,6 +81,6 @@ process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
 ##
 process.ReadDB = cms.EDAnalyzer(moduleName)
 process.ReadDB.printDebug = cms.untracked.bool(True)
-process.ReadDB.outputFile = cms.untracked.string('AlignPCLThresholds.log')
+process.ReadDB.outputFile = cms.untracked.string('AlignPCLThresholds_%s.log' % ("LG" if(options.readLGpayload) else "HG"))
 
 process.p = cms.Path(process.get+process.ReadDB)
