@@ -215,13 +215,13 @@ void AlignPCLThresholdsWriter<T>::writePayload(T& myThresholds) {
   myThresholds.setNRecords(m_minNrecords);
   edm::LogInfo("AlignPCLThresholdsWriter") << "Content of AlignPCLThresholds " << std::endl;
 
-  // use buil-in method in the CondFormat
-  myThresholds.printAll();
-
   // additional thresholds for AlignPCLThresholdsHG
   if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
     storeHGthresholds(myThresholds, alignables);
   }
+
+  // use built-in method in the CondFormat
+  myThresholds.printAll();
 
   // Form the data here
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
@@ -250,17 +250,11 @@ void AlignPCLThresholdsWriter<T>::storeHGthresholds(AlignPCLThresholdsHG& myThre
       if (alignableId == alignable) {
         if (thePSet.exists("fractionCut")) {
           const double fractionCut(thePSet.getParameter<double>("fractionCut"));
-          myThresholds.SetFractionCut(alignableId, type, fractionCut);
-        } else {
-          myThresholds.SetFractionCut(alignableId, type, -1.);  // better way to define default fraction cut??
+          myThresholds.setFractionCut(alignableId, type, fractionCut);
         }
       }
     }
   }
-
-  // print additional tresholds
-  edm::LogInfo("AlignPCLThresholdsWriter") << "Additonal content of AlignPCLThresholdsHG " << std::endl;
-  myThresholds.printAllHG();
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
