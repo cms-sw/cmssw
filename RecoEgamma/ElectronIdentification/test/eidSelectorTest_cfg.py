@@ -4,7 +4,7 @@ process = cms.Process("runElectronID")
 
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration/StandardSequences/Geometry_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
