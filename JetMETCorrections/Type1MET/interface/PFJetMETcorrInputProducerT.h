@@ -82,7 +82,6 @@ public:
         skipMuonSelection_(nullptr) {
     token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
 
-    offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
     offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
     jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");        //for MC
     jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes");  //for data
@@ -263,7 +262,6 @@ private:
     }
   }
 
-  std::string moduleLabel_;
 
   edm::EDGetTokenT<std::vector<T> > token_;
 
