@@ -17,6 +17,7 @@ public:
   };
   union AMCheader2 {
     uint64_t word;
+    // v301 dataformat
     struct {
       uint64_t boardID : 16;   // 8bit long GLIB serial number
       uint64_t orbitNum : 16;  // Orbit number, Reset by EC0
@@ -26,14 +27,22 @@ public:
       uint64_t runType : 4;    // run types like physics, cosmics, threshold scan, latency scan, etc..
       uint64_t formatVer : 4;  // Current format version = 0x0
     };
+    // v302 dataformat
+    struct {
+      uint64_t softSrcId : 12;     // FED ID - Configruation Error if does not match with CDF header
+      uint64_t softSlot : 4;       // AMC slot number - Configuation Error if does not match with AMC13 AHn header
+      uint64_t orbitNumV302 : 32;  // Orbit counter, Reset by EC0 - Error if does not match AMC BH header
+      uint64_t : 12;               // unused
+      uint64_t FVv302 : 4;         // Current version = 0x1
+    };
   };
   union AMCTrailer {
     uint64_t word;
     struct {
       uint64_t dataLength : 20;  // Number of 64bit words in this event
-      uint64_t : 4;
-      uint64_t l1AID : 8;  // L1A number (first 8 bits)
-      uint64_t crc : 32;   // CRC added by the AMC13
+      uint64_t : 4;              // unused
+      uint64_t l1AID : 8;        // L1A number (first 8 bits)
+      uint64_t crc : 32;         // CRC added by the AMC13
     };
   };
   union EventHeader {
@@ -51,6 +60,7 @@ public:
   };
   union EventTrailer {
     uint64_t word;
+    // v301 dataformat
     struct {
       uint64_t BCL : 4;  // 1st bit, BC0 locked - If 0, this is a bad condition indicating a
       // problem in the clock or TTC command stream (critical condition)
@@ -61,6 +71,25 @@ public:
       uint64_t oosGlib : 32;  // GLIB is out‐of‐sync (critical): L1A ID is different for
       // different chambers in this event (1 bit)
       uint64_t linkTo : 24;  // Link timeout flags (one bit for each link indicating timeout condition)
+    };
+    // v302 dataformat
+    struct {
+      uint64_t L1aNF : 1;    // L1A FIFO near full - Warning
+      uint64_t L1aF : 1;     // L1A FIFO full - Error
+      uint64_t : 1;          // unused
+      uint64_t BCLv302 : 1;  // BC0 locked - If 0, this is a bad condition indicating a
+      // problem in the clock or TTC command stream (critical condition)
+      uint64_t DRv302 : 1;   // DAQ Ready - If 0, this means that AMC13 is not ready to take data (critical condition)
+      uint64_t CLv302 : 1;   // DAQ clock locked- If 0, this indicates a problem in the DAQ clock (critical condition)
+      uint64_t MLv302 : 1;   // MMCM locked - Should always be 1
+      uint64_t BPv302 : 1;   // Backpressure - If this is 1, it means that we are receiving backpressure from AMC13
+      uint64_t param3 : 8;   // RunPar - Controlled by software, normally used only for calibrations
+      uint64_t param2 : 8;   // RunPar - Controlled by software, normally used only for calibrations
+      uint64_t param1 : 8;   // RunPar - Controlled by software, normally used only for calibrations
+      uint64_t runType : 4;  // Type of Run - Controlled by software, “physics” is assigned 0x1,
+      // hits from events with other run types should be discarded
+      uint64_t : 4;              // unused
+      uint64_t linkToV302 : 24;  // Link timeout flags (one bit for each link indicating timeout condition)
     };
   };
 
@@ -87,17 +116,39 @@ public:
   void setGEMeventTrailer(uint64_t word) { et_ = word; }
   uint64_t getGEMeventTrailer() const { return et_; }
 
+  // v301
   uint32_t dataLength() const { return AMCTrailer{amct_}.dataLength; }
   uint16_t bunchCrossing() const { return AMCheader1{amch1_}.bxID; }
   uint32_t lv1Id() const { return AMCheader1{amch1_}.l1AID; }
   uint8_t amcNum() const { return AMCheader1{amch1_}.AMCnum; }
 
   uint16_t boardId() const { return AMCheader2{amch2_}.boardID; }
-  uint16_t orbitNumber() const { return AMCheader2{amch2_}.orbitNum; }
-  uint8_t param3() const { return AMCheader2{amch2_}.param3; }
-  uint8_t param2() const { return AMCheader2{amch2_}.param2; }
-  uint8_t param1() const { return AMCheader2{amch2_}.param1; }
-  uint8_t runType() const { return AMCheader2{amch2_}.runType; }
+  uint32_t orbitNumber() const {
+    if (formatVer() == 0)
+      return AMCheader2{amch2_}.orbitNum;
+    return AMCheader2{amch2_}.orbitNumV302;
+  }
+  uint8_t param3() const {
+    if (formatVer() == 0)
+      return AMCheader2{amch2_}.param3;
+    return EventTrailer{et_}.param3;
+  }
+  uint8_t param2() const {
+    if (formatVer() == 0)
+      return AMCheader2{amch2_}.param2;
+    return EventTrailer{et_}.param2;
+  }
+  uint8_t param1() const {
+    if (formatVer() == 0)
+      return AMCheader2{amch2_}.param1;
+    return EventTrailer{et_}.param1;
+  }
+  uint8_t runType() const {
+    if (formatVer() == 0)
+      return AMCheader2{amch2_}.runType;
+    return EventTrailer{et_}.runType;
+  }
+  // SAME in V301 and V302
   uint8_t formatVer() const { return AMCheader2{amch2_}.formatVer; }
 
   uint8_t lv1Idt() const { return AMCTrailer{amct_}.l1AID; }
@@ -115,6 +166,13 @@ public:
   uint8_t backPressure() const { return EventTrailer{et_}.BP; }
   uint8_t oosGlib() const { return EventTrailer{et_}.oosGlib; }
   uint32_t linkTo() const { return EventTrailer{et_}.linkTo; }
+
+  // v302
+  uint16_t softSrcId() const { return AMCheader2{amch2_}.softSrcId; }
+  uint8_t softSlot() const { return AMCheader2{amch2_}.softSlot; }
+
+  uint8_t l1aNF() const { return EventTrailer{et_}.L1aNF; }
+  uint8_t l1aF() const { return EventTrailer{et_}.L1aF; }
 
   //!Adds GEB data to vector
   void addGEB(GEMOptoHybrid g) { gebd_.push_back(g); }
