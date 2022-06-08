@@ -391,8 +391,14 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   addGenMatch_ = iConfig.getParameter<bool>("addGenMatch");
   if (addGenMatch_) {
     embedGenMatch_ = iConfig.getParameter<bool>("embedGenMatch");
-    genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection>>(
-        iConfig.getParameter<edm::InputTag>("genParticleMatch")));
+    if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
+      genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection>>(
+          iConfig.getParameter<edm::InputTag>("genParticleMatch")));
+    } else {
+      genMatchTokens_ = edm::vector_transform(
+          iConfig.getParameter<std::vector<edm::InputTag>>("genParticleMatch"),
+          [this](edm::InputTag const& tag) { return consumes<edm::Association<reco::GenParticleCollection>>(tag); });
+    }
   }
   // efficiencies
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
