@@ -154,10 +154,6 @@ EcalDCCTB07UnpackingModule::EcalDCCTB07UnpackingModule(const edm::ParameterSet& 
 
 EcalDCCTB07UnpackingModule::~EcalDCCTB07UnpackingModule() { delete formatter_; }
 
-void EcalDCCTB07UnpackingModule::beginJob() {}
-
-void EcalDCCTB07UnpackingModule::endJob() {}
-
 void EcalDCCTB07UnpackingModule::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByLabel(fedRawDataCollectionTag_, rawdata);
