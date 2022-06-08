@@ -22,7 +22,7 @@ Implementation:
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -41,7 +41,7 @@ Implementation:
 // class declaration
 //
 
-class HcalCalibTypeFilter : public edm::EDFilter {
+class HcalCalibTypeFilter : public edm::one::EDFilter<> {
 public:
   explicit HcalCalibTypeFilter(const edm::ParameterSet&);
   ~HcalCalibTypeFilter() override;
