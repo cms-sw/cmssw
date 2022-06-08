@@ -8,7 +8,7 @@
  *
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <DataFormats/EcalDigi/interface/EcalDigiCollections.h>
@@ -21,7 +21,7 @@
 #include "TFile.h"
 #include "TGraph.h"
 
-class EcalGraphDumperModule : public edm::EDAnalyzer {
+class EcalGraphDumperModule : public edm::one::EDAnalyzer<> {
 public:
   EcalGraphDumperModule(const edm::ParameterSet& ps);
   ~EcalGraphDumperModule();
