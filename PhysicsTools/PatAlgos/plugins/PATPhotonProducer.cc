@@ -193,8 +193,7 @@ void pat::PATPhotonProducer::readIsolationLabels(const edm::ParameterSet& iConfi
 using namespace pat;
 
 PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet& iConfig)
-    :
-      ecalClusterToolsESGetTokens_{consumesCollector()},
+    : ecalClusterToolsESGetTokens_{consumesCollector()},
       isolator_(iConfig.getParameter<edm::ParameterSet>("userIsolation"), consumesCollector(), false),
       useUserData_(iConfig.exists("userData")),
       ecalTopologyToken_{esConsumes()},
@@ -218,7 +217,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet& iConfig)
   if (addGenMatch_) {
     embedGenMatch_ = iConfig.getParameter<bool>("embedGenMatch");
     genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection>>(
-      iConfig.getParameter<edm::InputTag>("genParticleMatch")));
+        iConfig.getParameter<edm::InputTag>("genParticleMatch")));
   }
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
