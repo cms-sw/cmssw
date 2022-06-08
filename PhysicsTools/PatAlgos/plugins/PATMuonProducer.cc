@@ -392,7 +392,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
   if (addGenMatch_) {
     embedGenMatch_ = iConfig.getParameter<bool>("embedGenMatch");
     genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection>>(
-          iConfig.getParameter<edm::InputTag>("genParticleMatch")));
+        iConfig.getParameter<edm::InputTag>("genParticleMatch")));
   }
   // efficiencies
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");

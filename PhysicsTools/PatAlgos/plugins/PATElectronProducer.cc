@@ -326,7 +326,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet& iConfig)
 
   if (addGenMatch_) {
     genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection>>(
-          iConfig.getParameter<edm::InputTag>("genParticleMatch")));
+        iConfig.getParameter<edm::InputTag>("genParticleMatch")));
   }
   // resolution configurables
   if (addResolutions_) {
