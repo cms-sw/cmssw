@@ -5,6 +5,7 @@ PAYLOAD_2XML_MODULE(pluginUtilities_payload2xml) {
   m.def("boost_version_label", &cond::boost_version_label, "Get boost version for this release");
   PAYLOAD_2XML_CLASS(AlCaRecoTriggerBits);
   PAYLOAD_2XML_CLASS(AlignPCLThresholds);
+  PAYLOAD_2XML_CLASS(AlignPCLThresholdsHG);
   PAYLOAD_2XML_CLASS(AlignmentErrors);
   PAYLOAD_2XML_CLASS(AlignmentErrorsExtended);
   PAYLOAD_2XML_CLASS(AlignmentSurfaceDeformations);

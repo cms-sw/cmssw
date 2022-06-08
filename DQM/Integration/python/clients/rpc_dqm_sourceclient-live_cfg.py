@@ -100,11 +100,11 @@ process.rpcMergerRecHits = process.rpcRecHits.clone(
 ### DQM - from legacy
 process.load("DQM.RPCMonitorDigi.RPCDigiMonitoring_cfi")
 process.rpcdigidqm.UseMuon =  useMuons
-process.rpcdigidqm.NoiseFolder = "AllHits"
+process.rpcdigidqm.NoiseFolder = "AllHitsLegacy"
 process.rpcdigidqm.RecHitLabel = "rpcRecHits"
 ### DQM - from Merger
 process.rpcMergerdigidqm = process.rpcdigidqm.clone(
-  NoiseFolder = "AllHitsMerger",
+  NoiseFolder = "AllHits",
   RecHitLabel = "rpcMergerRecHits"
 )
 
@@ -116,10 +116,10 @@ process.rpcdqmclient.RPCDqmClientList = ["RPCMultiplicityTest", "RPCDeadChannelT
 process.rpcdqmclient.DiagnosticPrescale = 1
 process.rpcdqmclient.MinimumRPCEvents  = 100
 process.rpcdqmclient.OfflineDQM = isOfflineDQM
-process.rpcdqmclient.RecHitTypeFolder = "AllHits"
+process.rpcdqmclient.RecHitTypeFolder = "AllHitsLegacy"
 ### Merger
 process.rpcMergerdqmclient = process.rpcdqmclient.clone(
-  RecHitTypeFolder = "AllHitsMerger"
+  RecHitTypeFolder = "AllHits"
 )
 ################# Other Clients #################
 #process.load("DQM.RPCMonitorClient.RPCMon_SS_Dbx_Global_cfi")
@@ -133,10 +133,10 @@ process.load("DQM.RPCMonitorClient.RPCMonitorLinkSynchro_cfi")
 process.load("DQM.RPCMonitorClient.RPCEventSummary_cfi")
 process.rpcEventSummary.OfflineDQM = isOfflineDQM 
 process.rpcEventSummary.MinimumRPCEvents  = 10000
-process.rpcEventSummary.RecHitTypeFolder = "AllHits"
+process.rpcEventSummary.RecHitTypeFolder = "AllHitsLegacy"
 ### Merger
 process.rpcEventSummaryMerger = process.rpcEventSummary.clone(
-   RecHitTypeFolder = "AllHitsMerger"
+   RecHitTypeFolder = "AllHits"
 )
 
 ################# Quality Tests #################
@@ -148,16 +148,6 @@ process.qTesterRPC = DQMQualityTester(
     qtestOnEndRun = cms.untracked.bool(True)
 )
 
-############## Chamber Quality ##################
-process.load("DQM.RPCMonitorClient.RPCChamberQuality_cfi")
-process.rpcChamberQuality.OfflineDQM = isOfflineDQM 
-process.rpcChamberQuality.RecHitTypeFolder = "AllHits"
-process.rpcChamberQuality.MinimumRPCEvents  = 10000
-### Merger
-process.rpcChamberQualityMerger = process.rpcChamberQuality.clone(
-  RecHitTypeFolder = "AllHitsMerger"
-)
-
 ###############  Sequences ######################
 process.rpcSource = cms.Sequence( process.rpcunpacker
                       * (process.rpcTwinMuxRawToDigi + process.rpcCPPFRawToDigi + process.omtfStage2Digis) 
@@ -167,7 +157,7 @@ process.rpcSource = cms.Sequence( process.rpcunpacker
                       * (process.rpcdigidqm + process.rpcMergerdigidqm)
                       * process.rpcMonitorRaw*process.qTesterRPC
                     )
-process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcChamberQuality*process.rpcChamberQualityMerger*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
+process.rpcClient = cms.Sequence(process.rpcdqmclient*process.rpcMergerdqmclient*process.rpcEventSummary*process.rpcEventSummaryMerger*process.dqmEnv*process.dqmSaver*process.dqmSaverPB)
 process.p = cms.Path(process.hltTriggerTypeFilter*process.rpcSource*process.rpcClient)
 
 process.rpcunpacker.InputLabel = "rawDataCollector"

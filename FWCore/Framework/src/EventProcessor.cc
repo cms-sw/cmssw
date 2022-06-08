@@ -257,7 +257,7 @@ namespace edm {
         shouldWeStop_(false),
         fileModeNoMerge_(false),
         exceptionMessageFiles_(),
-        exceptionMessageRuns_(),
+        exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
@@ -293,12 +293,11 @@ namespace edm {
         shouldWeStop_(false),
         fileModeNoMerge_(false),
         exceptionMessageFiles_(),
-        exceptionMessageRuns_(),
+        exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
         forceESCacheClearOnNewRun_(false),
-        asyncStopRequestedWhileProcessingEvents_(false),
         eventSetupDataToExcludeFromPrefetching_() {
     auto processDesc = std::make_shared<ProcessDesc>(std::move(parameterSet));
     processDesc->addServices(defaultServices, forcedServices);
@@ -330,12 +329,11 @@ namespace edm {
         shouldWeStop_(false),
         fileModeNoMerge_(false),
         exceptionMessageFiles_(),
-        exceptionMessageRuns_(),
+        exceptionMessageRuns_(false),
         exceptionMessageLumis_(false),
         forceLooperToEnd_(false),
         looperBeginJobRun_(false),
         forceESCacheClearOnNewRun_(false),
-        asyncStopRequestedWhileProcessingEvents_(false),
         eventSetupDataToExcludeFromPrefetching_() {
     init(processDesc, token, legacy);
   }
@@ -458,109 +456,121 @@ namespace edm {
     //make the services available
     ServiceRegistry::Operate operate(serviceToken_);
 
-    if (nStreams > 1) {
-      edm::Service<RootHandlers> handler;
-      handler->willBeUsingThreads();
-    }
+    CMS_SA_ALLOW try {
+      if (nStreams > 1) {
+        edm::Service<RootHandlers> handler;
+        handler->willBeUsingThreads();
+      }
 
-    // intialize miscellaneous items
-    std::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
+      // intialize miscellaneous items
+      std::shared_ptr<CommonParams> common(items.initMisc(*parameterSet));
 
-    // intialize the event setup provider
-    ParameterSet const& eventSetupPset(optionsPset.getUntrackedParameterSet("eventSetup"));
-    esp_ = espController_->makeProvider(
-        *parameterSet, items.actReg_.get(), &eventSetupPset, maxConcurrentIOVs, dumpOptions);
+      // intialize the event setup provider
+      ParameterSet const& eventSetupPset(optionsPset.getUntrackedParameterSet("eventSetup"));
+      esp_ = espController_->makeProvider(
+          *parameterSet, items.actReg_.get(), &eventSetupPset, maxConcurrentIOVs, dumpOptions);
 
-    // initialize the looper, if any
-    if (!loopers.empty()) {
-      looper_ = fillLooper(*espController_, *esp_, *parameterSet, loopers);
-      looper_->setActionTable(items.act_table_.get());
-      looper_->attachTo(*items.actReg_);
+      // initialize the looper, if any
+      if (!loopers.empty()) {
+        looper_ = fillLooper(*espController_, *esp_, *parameterSet, loopers);
+        looper_->setActionTable(items.act_table_.get());
+        looper_->attachTo(*items.actReg_);
 
-      // in presence of looper do not delete modules
-      deleteNonConsumedUnscheduledModules_ = false;
-    }
+        // in presence of looper do not delete modules
+        deleteNonConsumedUnscheduledModules_ = false;
+      }
 
-    preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
+      preallocations_ = PreallocationConfiguration{nThreads, nStreams, nConcurrentLumis, nConcurrentRuns};
 
-    lumiQueue_ = std::make_unique<LimitedTaskQueue>(nConcurrentLumis);
-    streamQueues_.resize(nStreams);
-    streamLumiStatus_.resize(nStreams);
+      lumiQueue_ = std::make_unique<LimitedTaskQueue>(nConcurrentLumis);
+      streamQueues_.resize(nStreams);
+      streamLumiStatus_.resize(nStreams);
 
-    processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
+      processBlockHelper_ = std::make_shared<ProcessBlockHelper>();
 
-    // initialize the input source
-    input_ = makeInput(*parameterSet,
-                       *common,
-                       items.preg(),
-                       items.branchIDListHelper(),
-                       get_underlying_safe(processBlockHelper_),
-                       items.thinnedAssociationsHelper(),
-                       items.actReg_,
-                       items.processConfiguration(),
-                       preallocations_);
+      // initialize the input source
+      input_ = makeInput(*parameterSet,
+                         *common,
+                         items.preg(),
+                         items.branchIDListHelper(),
+                         get_underlying_safe(processBlockHelper_),
+                         items.thinnedAssociationsHelper(),
+                         items.actReg_,
+                         items.processConfiguration(),
+                         preallocations_);
 
-    // initialize the Schedule
-    schedule_ =
-        items.initSchedule(*parameterSet, hasSubProcesses, preallocations_, &processContext_, *processBlockHelper_);
+      // initialize the Schedule
+      schedule_ =
+          items.initSchedule(*parameterSet, hasSubProcesses, preallocations_, &processContext_, *processBlockHelper_);
 
-    // set the data members
-    act_table_ = std::move(items.act_table_);
-    actReg_ = items.actReg_;
-    preg_ = items.preg();
-    mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
-    branchIDListHelper_ = items.branchIDListHelper();
-    thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
-    processConfiguration_ = items.processConfiguration();
-    processContext_.setProcessConfiguration(processConfiguration_.get());
-    principalCache_.setProcessHistoryRegistry(input_->processHistoryRegistry());
+      // set the data members
+      act_table_ = std::move(items.act_table_);
+      actReg_ = items.actReg_;
+      preg_ = items.preg();
+      mergeableRunProductProcesses_.setProcessesWithMergeableRunProducts(*preg_);
+      branchIDListHelper_ = items.branchIDListHelper();
+      thinnedAssociationsHelper_ = items.thinnedAssociationsHelper();
+      processConfiguration_ = items.processConfiguration();
+      processContext_.setProcessConfiguration(processConfiguration_.get());
+      principalCache_.setProcessHistoryRegistry(input_->processHistoryRegistry());
 
-    FDEBUG(2) << parameterSet << std::endl;
+      FDEBUG(2) << parameterSet << std::endl;
 
-    principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
-    for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
-      // Reusable event principal
-      auto ep = std::make_shared<EventPrincipal>(preg(),
-                                                 branchIDListHelper(),
-                                                 thinnedAssociationsHelper(),
-                                                 *processConfiguration_,
-                                                 historyAppender_.get(),
-                                                 index,
-                                                 true /*primary process*/,
-                                                 &*processBlockHelper_);
-      principalCache_.insert(std::move(ep));
-    }
+      principalCache_.setNumberOfConcurrentPrincipals(preallocations_);
+      for (unsigned int index = 0; index < preallocations_.numberOfStreams(); ++index) {
+        // Reusable event principal
+        auto ep = std::make_shared<EventPrincipal>(preg(),
+                                                   branchIDListHelper(),
+                                                   thinnedAssociationsHelper(),
+                                                   *processConfiguration_,
+                                                   historyAppender_.get(),
+                                                   index,
+                                                   true /*primary process*/,
+                                                   &*processBlockHelper_);
+        principalCache_.insert(std::move(ep));
+      }
 
-    for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
-      auto lp =
-          std::make_unique<LuminosityBlockPrincipal>(preg(), *processConfiguration_, historyAppender_.get(), index);
-      principalCache_.insert(std::move(lp));
-    }
+      for (unsigned int index = 0; index < preallocations_.numberOfLuminosityBlocks(); ++index) {
+        auto lp =
+            std::make_unique<LuminosityBlockPrincipal>(preg(), *processConfiguration_, historyAppender_.get(), index);
+        principalCache_.insert(std::move(lp));
+      }
 
-    {
-      auto pb = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
-      principalCache_.insert(std::move(pb));
+      {
+        auto pb = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        principalCache_.insert(std::move(pb));
 
-      auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
-      principalCache_.insertForInput(std::move(pbForInput));
-    }
+        auto pbForInput = std::make_unique<ProcessBlockPrincipal>(preg(), *processConfiguration_);
+        principalCache_.insertForInput(std::move(pbForInput));
+      }
 
-    // fill the subprocesses, if there are any
-    subProcesses_.reserve(subProcessVParameterSet.size());
-    for (auto& subProcessPSet : subProcessVParameterSet) {
-      subProcesses_.emplace_back(subProcessPSet,
-                                 *parameterSet,
-                                 preg(),
-                                 branchIDListHelper(),
-                                 *processBlockHelper_,
-                                 *thinnedAssociationsHelper_,
-                                 SubProcessParentageHelper(),
-                                 *espController_,
-                                 *actReg_,
-                                 token,
-                                 serviceregistry::kConfigurationOverrides,
-                                 preallocations_,
-                                 &processContext_);
+      // fill the subprocesses, if there are any
+      subProcesses_.reserve(subProcessVParameterSet.size());
+      for (auto& subProcessPSet : subProcessVParameterSet) {
+        subProcesses_.emplace_back(subProcessPSet,
+                                   *parameterSet,
+                                   preg(),
+                                   branchIDListHelper(),
+                                   *processBlockHelper_,
+                                   *thinnedAssociationsHelper_,
+                                   SubProcessParentageHelper(),
+                                   *espController_,
+                                   *actReg_,
+                                   token,
+                                   serviceregistry::kConfigurationOverrides,
+                                   preallocations_,
+                                   &processContext_);
+      }
+    } catch (...) {
+      //in case of an exception, make sure Services are available
+      // during the following destructors
+      espController_ = nullptr;
+      esp_ = nullptr;
+      schedule_ = nullptr;
+      input_ = nullptr;
+      looper_ = nullptr;
+      actReg_ = nullptr;
+      throw;
     }
   }
 
@@ -847,72 +857,68 @@ namespace edm {
   edm::LuminosityBlockNumber_t EventProcessor::nextLuminosityBlockID() { return input_->luminosityBlock(); }
 
   EventProcessor::StatusCode EventProcessor::runToCompletion() {
-    StatusCode returnCode = epSuccess;
-    asyncStopStatusCodeFromProcessingEvents_ = epSuccess;
-    {
-      beginJob();  //make sure this was called
+    beginJob();  //make sure this was called
 
-      // make the services available
-      ServiceRegistry::Operate operate(serviceToken_);
+    // make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
 
-      asyncStopRequestedWhileProcessingEvents_ = false;
-      try {
-        FilesProcessor fp(fileModeNoMerge_);
+    try {
+      FilesProcessor fp(fileModeNoMerge_);
 
-        convertException::wrap([&]() {
-          bool firstTime = true;
-          do {
-            if (not firstTime) {
-              prepareForNextLoop();
-              rewindInput();
-            } else {
-              firstTime = false;
-            }
-            startingNewLoop();
-
-            auto trans = fp.processFiles(*this);
-
-            fp.normalEnd();
-
-            if (deferredExceptionPtrIsSet_.load()) {
-              std::rethrow_exception(deferredExceptionPtr_);
-            }
-            if (trans != InputSource::IsStop) {
-              //problem with the source
-              doErrorStuff();
-
-              throw cms::Exception("BadTransition") << "Unexpected transition change " << trans;
-            }
-          } while (not endOfLoop());
-        });  // convertException::wrap
-
-      }  // Try block
-      catch (cms::Exception& e) {
-        if (exceptionMessageLumis_) {
-          std::string message(
-              "Another exception was caught while trying to clean up lumis after the primary fatal exception.");
-          e.addAdditionalInfo(message);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << message;
+      convertException::wrap([&]() {
+        bool firstTime = true;
+        do {
+          if (not firstTime) {
+            prepareForNextLoop();
+            rewindInput();
+          } else {
+            firstTime = false;
           }
-        }
-        if (!exceptionMessageRuns_.empty()) {
-          e.addAdditionalInfo(exceptionMessageRuns_);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageRuns_;
+          startingNewLoop();
+
+          auto trans = fp.processFiles(*this);
+
+          fp.normalEnd();
+
+          if (deferredExceptionPtrIsSet_.load()) {
+            std::rethrow_exception(deferredExceptionPtr_);
           }
-        }
-        if (!exceptionMessageFiles_.empty()) {
-          e.addAdditionalInfo(exceptionMessageFiles_);
-          if (e.alreadyPrinted()) {
-            LogAbsolute("Additional Exceptions") << exceptionMessageFiles_;
+          if (trans != InputSource::IsStop) {
+            //problem with the source
+            doErrorStuff();
+
+            throw cms::Exception("BadTransition") << "Unexpected transition change " << trans;
           }
+        } while (not endOfLoop());
+      });  // convertException::wrap
+
+    }  // Try block
+    catch (cms::Exception& e) {
+      if (exceptionMessageLumis_) {
+        std::string message(
+            "Another exception was caught while trying to clean up lumis after the primary fatal exception.");
+        e.addAdditionalInfo(message);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << message;
         }
-        throw;
       }
+      if (exceptionMessageRuns_) {
+        std::string message(
+            "Another exception was caught while trying to clean up runs after the primary fatal exception.");
+        e.addAdditionalInfo(message);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << message;
+        }
+      }
+      if (!exceptionMessageFiles_.empty()) {
+        e.addAdditionalInfo(exceptionMessageFiles_);
+        if (e.alreadyPrinted()) {
+          LogAbsolute("Additional Exceptions") << exceptionMessageFiles_;
+        }
+      }
+      throw;
     }
-
-    return returnCode;
+    return epSuccess;
   }
 
   void EventProcessor::readFile() {
@@ -2026,7 +2032,7 @@ namespace edm {
 
   void EventProcessor::setExceptionMessageFiles(std::string& message) { exceptionMessageFiles_ = message; }
 
-  void EventProcessor::setExceptionMessageRuns(std::string& message) { exceptionMessageRuns_ = message; }
+  void EventProcessor::setExceptionMessageRuns() { exceptionMessageRuns_ = true; }
 
   void EventProcessor::setExceptionMessageLumis() { exceptionMessageLumis_ = true; }
 

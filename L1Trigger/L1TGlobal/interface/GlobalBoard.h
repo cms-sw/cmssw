@@ -14,6 +14,7 @@
 
 // system include files
 #include <bitset>
+#include <cassert>
 #include <vector>
 
 // user include files
@@ -37,7 +38,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
@@ -164,6 +165,10 @@ namespace l1t {
     /// pointer to Tau data list
     inline const BXVector<const GlobalExtBlk*>* getCandL1External() const { return m_candL1External; }
 
+    //initializer prescale counter using a semi-random value between [1, prescale value]
+    static const std::vector<double> semirandomNumber(const edm::Event& iEvent,
+                                                      const std::vector<double>& prescaleFactorsAlgoTrig);
+
     /*  Drop individual EtSums for Now
     /// pointer to ETM data list
     inline const l1t::EtSum* getCandL1ETM() const
@@ -194,6 +199,7 @@ namespace l1t {
     void setBxLast(int bx);
 
     void setResetPSCountersEachLumiSec(bool val) { m_resetPSCountersEachLumiSec = val; }
+    void setSemiRandomInitialPSCounters(bool val) { m_semiRandomInitialPSCounters = val; }
 
   public:
     inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
@@ -268,6 +274,9 @@ namespace l1t {
 
     //whether we reset the prescales each lumi or not
     bool m_resetPSCountersEachLumiSec = true;
+
+    // start the PS counter from a random value between [1,PS] instead of PS
+    bool m_semiRandomInitialPSCounters = false;
   };
 
 }  // namespace l1t

@@ -12,9 +12,7 @@ ALCARECORandomHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 
 from Calibration.LumiAlCaRecoProducers.alcaPCCIntegrator_cfi import alcaPCCIntegrator
 alcaPCCIntegratorRandom = alcaPCCIntegrator.clone()
-alcaPCCIntegratorRandom.AlcaPCCIntegratorParameters.inputPccLabel="hltAlcaPixelClusterCounts"
-alcaPCCIntegratorRandom.AlcaPCCIntegratorParameters.trigstring    = "alcaPCCEvent"
-alcaPCCIntegratorRandom.AlcaPCCIntegratorParameters.ProdInst      = "alcaPCCRandom"
+alcaPCCIntegratorRandom.AlcaPCCIntegratorParameters.ProdInst = "alcaPCCRandom"
 
 
 # Sequence #

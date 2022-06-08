@@ -112,6 +112,15 @@ void Tau::initFromBaseTau(const reco::BaseTau& aTau) {
 
       for (const auto& ptr : pfTau->isolationGammaCands())
         isolationGammaCandPtrs_.push_back(ptr);
+
+      std::vector<reco::CandidatePtr> signalLostTracks;
+      for (const auto& chargedHadron : pfTau->signalTauChargedHadronCandidates()) {
+        if (chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kTrack) &&
+            chargedHadron.getLostTrackCandidate().isNonnull()) {
+          signalLostTracks.push_back(chargedHadron.getLostTrackCandidate());
+        }
+      }
+      this->setSignalLostTracks(signalLostTracks);
     } else {
       pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
     }
@@ -1014,6 +1023,27 @@ reco::CandidatePtrVector Tau::isolationGammaCands() const {
     return ret;
   } else {
     return isolationGammaCandPtrs_;
+  }
+}
+
+std::vector<reco::CandidatePtr> Tau::signalLostTracks() const {
+  std::vector<reco::CandidatePtr> ret;
+  unsigned int i = 0;
+  std::string label = "_lostTrack_" + std::to_string(i);
+  while (this->hasUserCand(label)) {
+    ret.push_back(userCand(label));
+    i++;
+    label = "_lostTrack_" + std::to_string(i);
+  }
+  return ret;
+}
+
+void Tau::setSignalLostTracks(const std::vector<reco::CandidatePtr>& ptrs) {
+  unsigned int i = 0;
+  for (const auto& ptr : ptrs) {
+    std::string label = "_lostTrack_" + std::to_string(i);
+    addUserCand(label, ptr);
+    i++;
   }
 }
 

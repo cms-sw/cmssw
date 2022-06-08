@@ -67,33 +67,8 @@ InitMsgBuilder::InitMsgBuilder(void* buf,
   //Set the size of Init Header Start of buf to Start of desc.
   convert((uint32)(data_addr_ - buf_), h->init_header_size_);
 
-  // 18-Apr-2008, KAB:  create a dummy event message so that we can
-  // determine the expected event header size.  (Previously, the event
-  // header size was hard-coded.)
-  std::vector<bool> dummyL1Bits(l1_names.size());
-  std::vector<char> dummyHLTBits(hlt_names.size());
-  const uint32 TEMP_BUFFER_SIZE = 640;
-  char msgBuff[TEMP_BUFFER_SIZE];  // not large enough for a real event!
-  uint32_t adler32 = 0;
-  char host_name[255];
-  int got_host = gethostname(host_name, 255);
-  if (got_host != 0)
-    strcpy(host_name, "noHostNameFoundOrTooLong");
-  EventMsgBuilder dummyMsg(&msgBuff[0],
-                           TEMP_BUFFER_SIZE,
-                           0,
-                           0,
-                           0,
-                           0,
-                           0,
-                           dummyL1Bits,
-                           (uint8*)&dummyHLTBits[0],
-                           hlt_names.size(),
-                           adler32,
-                           host_name);
-
   //Size of Event Header
-  uint32 eventHeaderSize = dummyMsg.headerSize();
+  uint32 eventHeaderSize = EventMsgBuilder::computeHeaderSize(l1_names.size(), hlt_names.size());
   convert(eventHeaderSize, h->event_header_size_);
 }
 

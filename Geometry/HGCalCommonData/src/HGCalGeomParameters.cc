@@ -954,6 +954,9 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const DDCompactView* cpv,
             mytrf.h3v = h3v;
             mytrf.hr = hr;
             trforms[std::make_pair(lay, zside)] = mytrf;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "Translation " << h3v;
+#endif
           }
         }
       }
@@ -1084,6 +1087,9 @@ void HGCalGeomParameters::loadGeometryHexagonModule(const cms::DDCompactView* cp
             mytrf.h3v = h3v;
             mytrf.hr = hr;
             trforms[std::make_pair(lay, zside)] = mytrf;
+#ifdef EDM_ML_DEBUG
+            edm::LogVerbatim("HGCalGeom") << "Translation " << h3v;
+#endif
           }
         }
       }
@@ -1333,7 +1339,7 @@ void HGCalGeomParameters::loadSpecParsHexagon8(const DDFilteredView& fv, HGCalPa
     }
 
     php.cassetteShift_ = cassetteShift;
-    rescale(php.cassetteShift_, HGCalParameters::k_ScaleFromDD4hep);
+    rescale(php.cassetteShift_, HGCalParameters::k_ScaleFromDDD);
     loadSpecParsHexagon8(php, layerType, waferIndex, waferProperties);
   }
 }
@@ -1508,13 +1514,8 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
                                                const std::vector<int>& waferIndex,
                                                const std::vector<int>& waferProperties) {
   // Store parameters from Philip's file
-  int types[5] = {HGCalTypes::WaferCenter,
-                  HGCalTypes::WaferCenterB,
-                  HGCalTypes::CornerCenterYm,
-                  HGCalTypes::CornerCenterYp,
-                  HGCalTypes::WaferCenterR};
   for (unsigned int k = 0; k < layerType.size(); ++k) {
-    php.layerType_.emplace_back(types[layerType[k]]);
+    php.layerType_.emplace_back(HGCalTypes::layerType(layerType[k]));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Layer[" << k << "] Type " << layerType[k] << ":" << php.layerType_[k];
 #endif
@@ -1531,8 +1532,10 @@ void HGCalGeomParameters::loadSpecParsHexagon8(HGCalParameters& php,
   for (unsigned int k = 0; k < waferIndex.size(); ++k) {
     int partial = HGCalProperty::waferPartial(waferProperties[k]);
     int orient = HGCalWaferMask::getRotation(php.waferZSide_, partial, HGCalProperty::waferOrient(waferProperties[k]));
-    php.waferInfoMap_[waferIndex[k]] =
-        HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]), partial, orient);
+    php.waferInfoMap_[waferIndex[k]] = HGCalParameters::waferInfo(HGCalProperty::waferThick(waferProperties[k]),
+                                                                  partial,
+                                                                  orient,
+                                                                  HGCalProperty::waferCassette(waferProperties[k]));
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "[" << k << ":" << waferIndex[k] << ":"
                                   << HGCalWaferIndex::waferLayer(waferIndex[k]) << ":"
@@ -1600,6 +1603,8 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const DDFilteredView& fv, HGCalP
     tileRingMin = dbl_to_int(fv.vector("TileRingMin"));
     tileRingMax = dbl_to_int(fv.vector("TileRingMax"));
     if (php.waferMaskMode_ == scintillatorCassette) {
+      if (php.cassettes_ > 0)
+        php.nphiCassette_ = php.nCellsCoarse_ / php.cassettes_;
       cassetteShift = fv.vector("CassetteShiftHE");
       rescale(cassetteShift, HGCalParameters::k_ScaleFromDDD);
     }
@@ -1714,7 +1719,7 @@ void HGCalGeomParameters::loadSpecParsTrapezoid(const cms::DDFilteredView& fv,
       }
     }
 
-    rescale(cassetteShift, HGCalParameters::k_ScaleFromDDD);
+    rescale(cassetteShift, HGCalParameters::k_ScaleFromDD4hep);
     php.cassetteShift_ = cassetteShift;
     loadSpecParsTrapezoid(php,
                           tileIndx,
@@ -2005,7 +2010,7 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
                 bool ok = HGCalWaferMask::goodTypeMode(
                     xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], part, orient, false);
                 if (ok)
-                  corner0 = std::make_pair(part, (HGCalWaferMask::k_OffsetRotation + orient));
+                  corner0 = std::make_pair(part, (HGCalTypes::k_OffsetRotation + orient));
 #ifdef EDM_ML_DEBUG
                 edm::LogVerbatim("HGCalGeom")
                     << "Layer:u:v " << i << ":" << lay << ":" << u << ":" << v << " Part " << corner0.first << ":"

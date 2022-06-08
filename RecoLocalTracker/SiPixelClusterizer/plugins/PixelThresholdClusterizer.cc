@@ -33,7 +33,8 @@
 #include <vector>
 #include <iostream>
 #include <atomic>
-using namespace std;
+#include <algorithm>
+#include <limits>
 
 //----------------------------------------------------------------------------
 //! Constructor:
@@ -408,8 +409,8 @@ int PixelThresholdClusterizer::calibrate(int adc, int col, int row) {
 SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::PixelPos& pix,
                                                        edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
   //First we acquire the seeds for the clusters
-  int seed_adc;
-  stack<SiPixelCluster::PixelPos, vector<SiPixelCluster::PixelPos> > dead_pixel_stack;
+  uint16_t seed_adc;
+  std::stack<SiPixelCluster::PixelPos, std::vector<SiPixelCluster::PixelPos> > dead_pixel_stack;
 
   //The individual modules have been loaded into a buffer.
   //After each pixel has been considered by the clusterizer, we set the adc count to 1
@@ -428,7 +429,10 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
     }
     else {
   */
-  seed_adc = theBuffer(pix.row(), pix.col());
+  // Note: each ADC value is limited here to 65535 (std::numeric_limits<uint16_t>::max),
+  //       as it is later stored as uint16_t in SiPixelCluster and PixelClusterizerBase/AccretionCluster
+  //       (reminder: ADC values here may be expressed in number of electrons)
+  seed_adc = std::min(theBuffer(pix.row(), pix.col()), int(std::numeric_limits<uint16_t>::max()));
   theBuffer.set_adc(pix, 1);
   //  }
 
@@ -450,11 +454,12 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
            ++r) {
         if (theBuffer(r, c) >= thePixelThreshold) {
           SiPixelCluster::PixelPos newpix(r, c);
-          if (!acluster.add(newpix, theBuffer(r, c)))
+          auto const newpix_adc = std::min(theBuffer(r, c), int(std::numeric_limits<uint16_t>::max()));
+          if (!acluster.add(newpix, newpix_adc))
             goto endClus;
           // VV: no fake pixels in cluster, leads to non-contiguous clusters
           if (!theFakePixels[r * theNumOfCols + c]) {
-            cldata.add(newpix, theBuffer(r, c));
+            cldata.add(newpix, newpix_adc);
           }
           theBuffer.set_adc(newpix, 1);
         }
@@ -471,8 +476,8 @@ SiPixelCluster PixelThresholdClusterizer::make_cluster(const SiPixelCluster::Pix
 	      
 	      SiPixelCluster::PixelPos newpix(r,c);
 	      if(!doSplitClusters){
-	      
-	      cluster.add(newpix, theBuffer(r,c));}
+
+	      cluster.add(newpix, std::min(theBuffer(r, c), int(std::numeric_limits<uint16_t>::max())));}
 	      else if(doSplitClusters){
 	      dead_pixel_stack.push(newpix);
 	      dead_flag = true;}
@@ -518,9 +523,9 @@ endClus:
       //This loop adds the second cluster to the first.
       const std::vector<SiPixelCluster::Pixel>& branch_pixels = second_cluster.pixels();
       for (unsigned int i = 0; i < branch_pixels.size(); i++) {
-        int temp_x = branch_pixels[i].x;
-        int temp_y = branch_pixels[i].y;
-        int temp_adc = branch_pixels[i].adc;
+        auto const temp_x = branch_pixels[i].x;
+        auto const temp_y = branch_pixels[i].y;
+        auto const temp_adc = branch_pixels[i].adc;
         SiPixelCluster::PixelPos newpix(temp_x, temp_y);
         cluster.add(newpix, temp_adc);
       }

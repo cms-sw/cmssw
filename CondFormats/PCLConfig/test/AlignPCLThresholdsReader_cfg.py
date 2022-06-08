@@ -18,8 +18,33 @@ process.MessageLogger.cout = cms.untracked.PSet(
                                    reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
     AlignPCLThresholdsReader = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
-    AlignPCLThresholds       = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+    AlignPCLThresholds       = cms.untracked.PSet( limit = cms.untracked.int32(-1)),
+    AlignPCLThresholdsHG     = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
+
+##
+## Var Parsing
+##
+import FWCore.ParameterSet.VarParsing as VarParsing
+options = VarParsing.VarParsing()
+options.register('readLGpayload',
+                False,
+                VarParsing.VarParsing.multiplicity.singleton,
+                VarParsing.VarParsing.varType.bool,
+                "Read old payload type used for LG thresholds")
+options.parseArguments()
+
+##
+## Define record, class and module based on option
+##
+rcdName = "AlignPCLThresholdsHGRcd"
+className = "AlignPCLThresholdsHG"
+moduleName = "AlignPCLThresholdsHGReader"
+
+if options.readLGpayload:
+    rcdName = "AlignPCLThresholdsRcd"
+    className = "AlignPCLThresholds"
+    moduleName = "AlignPCLThresholdsLGReader"
 
 ##
 ## Empty Source
@@ -38,7 +63,7 @@ CondDBThresholds = CondDB.clone(connect = cms.string("sqlite_file:mythresholds.d
 
 process.dbInput = cms.ESSource("PoolDBESSource",
                                CondDBThresholds,
-                               toGet = cms.VPSet(cms.PSet(record = cms.string('AlignPCLThresholdsRcd'),
+                               toGet = cms.VPSet(cms.PSet(record = cms.string(rcdName),
                                                           tag = cms.string('PCLThresholds_express_v0') # choose tag you want
                                                           )
                                                  )
@@ -47,16 +72,17 @@ process.dbInput = cms.ESSource("PoolDBESSource",
 ## Retrieve it and check it's available in the ES
 ##
 process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
-                             toGet = cms.VPSet(cms.PSet(record = cms.string('AlignPCLThresholdsRcd'),
-                                                        data = cms.vstring('AlignPCLThresholds')
+                             toGet = cms.VPSet(cms.PSet(record = cms.string(rcdName),
+                                                        data = cms.vstring(className)
                                                         )
                                                ),
                              verbose = cms.untracked.bool(True)
                              )
+
 ##
 ## Read it back
 ##
-process.ReadDB = cms.EDAnalyzer("AlignPCLThresholdsReader")
+process.ReadDB = cms.EDAnalyzer(moduleName)
 process.ReadDB.printDebug = cms.untracked.bool(True)
 process.ReadDB.outputFile = cms.untracked.string('AlignPCLThresholds.log')
 

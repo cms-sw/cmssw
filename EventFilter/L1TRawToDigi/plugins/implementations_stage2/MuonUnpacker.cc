@@ -66,7 +66,7 @@ namespace l1t {
       if (startIdx + nWords_ <= payload.size()) {
         // Unpacking showers.
         // The shower from uGMT is transmitted via four links, each link
-        // carrying on of the bits of the shower. We therefore have to
+        // carrying one of the bits of the shower. We therefore have to
         // determine which link we're looking at and act accordingly.
         // Output links are odd and input links are even.
         int link_offset{0};  // This is correct for the uGT unpacker

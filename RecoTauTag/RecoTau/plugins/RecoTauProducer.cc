@@ -266,6 +266,7 @@ void RecoTauProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     vpsd_modifiers.addOptional<double>("dRaddPhoton");
     vpsd_modifiers.addOptional<double>("minNeutralHadronEt");
     vpsd_modifiers.addOptional<edm::InputTag>("pfTauTagInfoSrc");
+    vpsd_modifiers.addOptional<edm::InputTag>("trackSrc");
 
     desc.addVPSet("modifiers", vpsd_modifiers);
   }

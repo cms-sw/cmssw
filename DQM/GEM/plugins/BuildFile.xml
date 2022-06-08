@@ -5,8 +5,6 @@
   <use name="DQMServices/Core"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
-  <use name="CondFormats/DataRecord"/>
-  <use name="CondFormats/GEMObjects"/>
   <use name="RecoMuon/TrackingTools"/>
   <use name="TrackingTools/TransientTrack"/>
   <use name="Validation/MuonHits"/>

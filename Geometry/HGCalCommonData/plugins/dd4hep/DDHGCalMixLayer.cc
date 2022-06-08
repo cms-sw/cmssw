@@ -127,10 +127,12 @@ struct HGCalMixLayer {
 #endif
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
-    layerTypes_ = args.value<std::vector<int>>("LayerTypes");
+    layerOrient_ = args.value<std::vector<int>>("LayerTypes");
+    for (unsigned int k = 0; k < layerOrient_.size(); ++k)
+      layerOrient_[k] = HGCalTypes::layerType(layerOrient_[k]);
 #ifdef EDM_ML_DEBUG
-    for (unsigned int i = 0; i < layerTypes_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
+    for (unsigned int i = 0; i < layerOrient_.size(); ++i)
+      edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerOrient_[i];
 #endif
     if (firstLayer_ > 0) {
       for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -417,10 +419,8 @@ struct HGCalMixLayer {
     // Make the bottom part next
     int layer = (copyM - firstLayer_);
     static const double sqrt3 = std::sqrt(3.0);
-    int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
-                          ? 1
-                          : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? 2 : 0);
-    int layerType = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
+    int layercenter = layerOrient_[layer];
+    int layerType = (layerOrient_[layer] == HGCalTypes::WaferCenterB) ? 1 : 0;
     int firstWafer = waferLayerStart_[layer];
     int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                              : static_cast<int>(waferIndex_.size()));
@@ -533,7 +533,7 @@ struct HGCalMixLayer {
   std::vector<double> layerThickTop_;     // Thickness of the top sections
   std::vector<int> layerTypeTop_;         // Type of the Top layer
   std::vector<int> copyNumberTop_;        // Initial copy numbers (top section)
-  std::vector<int> layerTypes_;           // Layer type of silicon layers
+  std::vector<int> layerOrient_;          // Layer orientation of silicon layers
   std::vector<int> waferIndex_;           // Wafer index for the types
   std::vector<int> waferProperty_;        // Wafer property
   std::vector<int> waferLayerStart_;      // Start index of wafers in each layer

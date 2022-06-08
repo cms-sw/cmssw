@@ -13,12 +13,6 @@
 
 #include "L1TriggerConfig/DTTrackFinder/interface/DTExtLutTester.h"
 
-DTExtLutTester::DTExtLutTester(const edm::ParameterSet& ps) {}
+DTExtLutTester::DTExtLutTester(const edm::ParameterSet& ps) : token_{esConsumes()} {}
 
-DTExtLutTester::~DTExtLutTester() {}
-
-void DTExtLutTester::analyze(const edm::Event& e, const edm::EventSetup& c) {
-  edm::ESHandle<L1MuDTExtLut> extlut;
-  c.get<L1MuDTExtLutRcd>().get(extlut);
-  extlut->print();
-}
+void DTExtLutTester::analyze(const edm::Event& e, const edm::EventSetup& c) { c.getData(token_).print(); }

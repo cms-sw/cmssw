@@ -320,19 +320,4 @@
       <TestName activate="true">uGMTCopies_MismatchRatioMax0</TestName>
   </LINK>
 
-  <!-- Bad Zero Suppression Rates -->
-
-  <QTEST name="zeroSupp_MismatchRatioMax0">
-    <TYPE>ContentsYRange</TYPE>
-    <PARAM name="ymin">0.00</PARAM>
-    <PARAM name="ymax">0.00</PARAM>
-    <PARAM name="error">0.95</PARAM>
-    <PARAM name="warning">0.99</PARAM>
-    <PARAM name="useEmptyBins">1</PARAM>
-  </QTEST>
-  
-  <LINK name="*/L1TStage2uGMT/zeroSuppression/*/mismatchRatio">
-      <TestName activate="true">zeroSupp_MismatchRatioMax0</TestName>
-  </LINK>
-
 </TESTSCONFIGURATION>

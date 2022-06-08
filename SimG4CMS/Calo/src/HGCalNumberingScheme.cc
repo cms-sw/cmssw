@@ -8,6 +8,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
+#include <array>
 #include <iostream>
 
 //#define EDM_ML_DEBUG
@@ -52,7 +53,7 @@ uint32_t HGCalNumberingScheme::getUnitID(int layer, int module, int cell, int iz
       hgcons_.waferFromPosition(xx, pos.y(), layer, waferU, waferV, cellU, cellV, waferType, wt, false, false);
     }
     if (waferType >= 0) {
-      if ((mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module)) {
+      if (hgcons_.waferHexagon8File()) {
         int type = hgcons_.waferType(layer, waferU, waferV, true);
         if (type != waferType) {
 #ifdef EDM_ML_DEBUG

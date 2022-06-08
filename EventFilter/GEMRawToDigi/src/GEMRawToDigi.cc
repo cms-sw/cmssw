@@ -27,6 +27,7 @@ std::unique_ptr<GEMAMC13> GEMRawToDigi::convertWordToGEMAMC13(const uint64_t* wo
     // Fill GEB
     for (uint8_t j = 0; j < amc.davCnt(); ++j) {
       auto oh = GEMOptoHybrid();
+      oh.setVersion(amc.formatVer());
       oh.setChamberHeader(*(++word));
 
       // Fill vfat

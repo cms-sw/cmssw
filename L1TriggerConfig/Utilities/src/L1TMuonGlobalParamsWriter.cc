@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,33 +15,39 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TMuonGlobalParamsWriter : public edm::EDAnalyzer {
+class L1TMuonGlobalParamsWriter : public edm::one::EDAnalyzer<> {
 private:
+  edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsO2ORcd> o2oToken_;
+  edm::ESGetToken<L1TMuonGlobalParams, L1TMuonGlobalParamsRcd> token_;
   bool isO2Opayload;
 
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1TMuonGlobalParamsWriter(const edm::ParameterSet& pset) : edm::EDAnalyzer() {
+  explicit L1TMuonGlobalParamsWriter(const edm::ParameterSet& pset) {
     isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload", false);
+    if (isO2Opayload) {
+      o2oToken_ = esConsumes();
+    } else {
+      token_ = esConsumes();
+    }
   }
-  ~L1TMuonGlobalParamsWriter(void) override {}
 };
 
 void L1TMuonGlobalParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   edm::ESHandle<L1TMuonGlobalParams> handle1;
 
   if (isO2Opayload)
-    evSetup.get<L1TMuonGlobalParamsO2ORcd>().get(handle1);
+    handle1 = evSetup.getHandle(o2oToken_);
   else
-    evSetup.get<L1TMuonGlobalParamsRcd>().get(handle1);
+    handle1 = evSetup.getHandle(token_);
 
-  std::shared_ptr<L1TMuonGlobalParams> ptr1(new L1TMuonGlobalParams(*(handle1.product())));
+  L1TMuonGlobalParams const& ptr1 = *handle1;
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOneIOV(*ptr1, firstSinceTime, (isO2Opayload ? "L1TMuonGlobalParamsO2ORcd" : "L1TMuonGlobalParamsRcd"));
+    poolDb->writeOneIOV(ptr1, firstSinceTime, (isO2Opayload ? "L1TMuonGlobalParamsO2ORcd" : "L1TMuonGlobalParamsRcd"));
   }
 }
 

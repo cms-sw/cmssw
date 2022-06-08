@@ -12,31 +12,40 @@
 
 namespace {
 
+  enum bounds {
+    k_LayersStart = 0,
+    k_LayersAtTIBEnd = 4,
+    k_LayersAtTOBEnd = 10,
+    k_LayersAtTIDEnd = 13,
+    k_LayersAtTECEnd = 22,
+    k_END_OF_LAYERS = 23
+  };
+
   inline unsigned int checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
     switch (DetId(iidd).subdetId()) {
       case SiStripSubdetector::TIB:
         return tTopo->tibLayer(iidd);
       case SiStripSubdetector::TOB:
-        return tTopo->tobLayer(iidd) + 4;
+        return tTopo->tobLayer(iidd) + bounds::k_LayersAtTIBEnd;
       case SiStripSubdetector::TID:
-        return tTopo->tidWheel(iidd) + 10;
+        return tTopo->tidWheel(iidd) + bounds::k_LayersAtTOBEnd;
       case SiStripSubdetector::TEC:
-        return tTopo->tecWheel(iidd) + 13;
+        return tTopo->tecWheel(iidd) + bounds::k_LayersAtTIDEnd;
       default:
-        return 0;
+        return bounds::k_LayersStart;
     }
   }
 
   inline std::string layerName(unsigned int k, const bool showRings, const unsigned int nTEClayers) {
     const std::string ringlabel{showRings ? "R" : "D"};
-    if (k > 0 && k < 5) {
+    if (k > bounds::k_LayersStart && k <= bounds::k_LayersAtTIBEnd) {
       return fmt::format("TIB L{:d}", k);
-    } else if (k > 4 && k < 11) {
-      return fmt::format("TOB L{:d}", k - 4);
-    } else if (k > 10 && k < 14) {
-      return fmt::format("TID {0}{1:d}", ringlabel, k - 10);
-    } else if (k > 13 && k < 14 + nTEClayers) {
-      return fmt::format("TEC {0}{1:d}", ringlabel, k - 13);
+    } else if (k > bounds::k_LayersAtTIBEnd && k <= bounds::k_LayersAtTOBEnd) {
+      return fmt::format("TOB L{:d}", k - bounds::k_LayersAtTIBEnd);
+    } else if (k > bounds::k_LayersAtTOBEnd && k <= bounds::k_LayersAtTIDEnd) {
+      return fmt::format("TID {0}{1:d}", ringlabel, k - bounds::k_LayersAtTOBEnd);
+    } else if (k > bounds::k_LayersAtTIDEnd && k <= bounds::k_LayersAtTIDEnd + nTEClayers) {
+      return fmt::format("TEC {0}{1:d}", ringlabel, k - bounds::k_LayersAtTIDEnd);
     } else {
       return "";
     }

@@ -106,6 +106,11 @@ namespace edm {
     /// Should only be called while the edmWriteConfigs executable runs
     static void disableFileLookup();
 
+    /** Uses the same algorithm to find the file but does not determine
+        the location. Returns an empty string if unfound.
+     */
+    static std::string findFile(std::string const&);
+
   private:
     std::string relativePath_;
     std::string canonicalFilename_;
@@ -118,6 +123,7 @@ namespace edm {
     // Helper function for construction.
     void getEnvironment();
     void initialize_();
+    static std::string const& searchPath();
   };
 
   // Free swap function

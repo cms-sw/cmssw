@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib_noDrop = cms.PSet(
+OutALCARECOPromptCalibProdPPSDiamondSampic_noDrop = cms.PSet(
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('pathALCARECOPromptCalibProdPPSDiamondSampicTiming')
     ),
@@ -9,5 +9,5 @@ OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib_noDrop = cms.PSet(
     )
 )
 
-OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib = OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib_noDrop.clone()
-OutALCARECOPromptCalibProdPPSDiamondSampicTimingCalib.outputCommands.insert(0, 'drop *')
+OutALCARECOPromptCalibProdPPSDiamondSampic = OutALCARECOPromptCalibProdPPSDiamondSampic_noDrop.clone()
+OutALCARECOPromptCalibProdPPSDiamondSampic.outputCommands.insert(0, 'drop *')

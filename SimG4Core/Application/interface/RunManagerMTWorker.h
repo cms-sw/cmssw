@@ -9,6 +9,7 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "SimG4Core/Notification/interface/G4SimEvent.h"
 
 #include <memory>
 #include <unordered_map>
@@ -26,7 +27,6 @@ class Generator;
 class RunManagerMT;
 
 class G4Event;
-class G4SimEvent;
 class G4Run;
 class SimTrackManager;
 class CustomUIsession;
@@ -53,14 +53,12 @@ public:
   void beginRun(const edm::EventSetup&);
   void endRun();
 
-  std::unique_ptr<G4SimEvent> produce(const edm::Event& inpevt,
-                                      const edm::EventSetup& es,
-                                      RunManagerMT& runManagerMaster);
+  G4SimEvent* produce(const edm::Event& inpevt, const edm::EventSetup& es, RunManagerMT& runManagerMaster);
 
   void abortEvent();
   void abortRun(bool softAbort = false);
 
-  inline G4SimEvent* simEvent() { return m_simEvent; }
+  inline G4SimEvent* simEvent() { return &m_simEvent; }
 
   void Connect(RunAction*);
   void Connect(EventAction*);
@@ -101,7 +99,6 @@ private:
   bool m_dumpMF{false};
 
   const int m_thread_index{-1};
-  int m_EvtMgrVerbosity{0};
 
   edm::ParameterSet m_pField;
   edm::ParameterSet m_pRunAction;
@@ -116,7 +113,7 @@ private:
   TLSData* m_tls{nullptr};
 
   CustomUIsession* m_UIsession{nullptr};
-  G4SimEvent* m_simEvent{nullptr};
+  G4SimEvent m_simEvent;
   std::unique_ptr<CMSSteppingVerbose> m_sVerbose;
   std::unordered_map<std::string, std::unique_ptr<SensitiveDetectorMakerBase>> m_sdMakers;
 };

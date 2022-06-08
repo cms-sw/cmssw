@@ -126,7 +126,11 @@ namespace {
     if (reco::details::hasEnding(weightsFileFullPath, ".root")) {
       TFile gbrForestFile(weightsFileFullPath.c_str());
       std::unique_ptr<GBRForest> up(gbrForestFile.Get<GBRForest>("gbrForest"));
+      std::unique_ptr<std::vector<std::string>> vars(gbrForestFile.Get<std::vector<std::string>>("variableNames"));
       gbrForestFile.Close("nodelete");
+      if (vars) {
+        varNames = std::move(*vars);
+      }
       return up;
     }
 

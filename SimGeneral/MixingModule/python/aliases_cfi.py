@@ -33,8 +33,9 @@ simHcalUnsuppressedDigis = cms.EDAlias(
 )
 _pixelCommon = cms.VPSet(
     cms.PSet(type = cms.string('PixelDigiedmDetSetVector')),
-    cms.PSet(type = cms.string('PixelDigiSimLinkedmDetSetVector'))
+    cms.PSet(type = cms.string('PixelDigiSimLinkedmDetSetVector')),
 )
+
 simSiPixelDigis = cms.EDAlias(
     mix = _pixelCommon
 ) 
@@ -94,12 +95,15 @@ from Configuration.ProcessModifiers.premix_stage1_cff import premix_stage1
         2 : dict(type = "PHGCSimAccumulator"),
     }
 )
+from Configuration.ProcessModifiers.runDependentForPixel_cff import runDependentForPixel
+(runDependentForPixel).toModify(simSiPixelDigis, mix = _pixelCommon + [cms.PSet(type = cms.string('PixelSimHitExtraInfoedmDetSetVector'))])
 
 from Configuration.Eras.Modifier_phase2_hfnose_cff import phase2_hfnose
 (~phase2_hfnose).toModify(simHFNoseUnsuppressedDigis, mix = None)
 
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(simSiPixelDigis, mix = _pixelCommon + [cms.PSet(type = cms.string('PixelFEDChanneledmNewDetSetVector'))])
+(phase1Pixel & runDependentForPixel).toModify(simSiPixelDigis, mix = _pixelCommon + [cms.PSet(type = cms.string('PixelSimHitExtraInfoedmDetSetVector'))] + [cms.PSet(type = cms.string('PixelFEDChanneledmNewDetSetVector'))])
 
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(simSiStripDigis, mix = None)

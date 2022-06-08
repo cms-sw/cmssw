@@ -21,7 +21,7 @@
 
 // framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -42,7 +42,7 @@
 //
 // class declaration
 //
-class FFTJetVertexAdder : public edm::EDProducer {
+class FFTJetVertexAdder : public edm::stream::EDProducer<> {
 public:
   explicit FFTJetVertexAdder(const edm::ParameterSet&);
   FFTJetVertexAdder() = delete;
@@ -52,9 +52,8 @@ public:
 
 protected:
   // methods
-  void beginJob() override;
+  void beginStream(edm::StreamID) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
 private:
   const edm::InputTag beamSpotLabel;
@@ -183,7 +182,7 @@ void FFTJetVertexAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 }
 
 // ------------ method called once each job just before starting event loop
-void FFTJetVertexAdder::beginJob() {
+void FFTJetVertexAdder::beginStream(edm::StreamID) {
   edm::Service<edm::RandomNumberGenerator> rng;
   if (!rng.isAvailable()) {
     throw cms::Exception("FFTJetBadConfig") << "ERROR in FFTJetVertexAdder:"
@@ -191,9 +190,6 @@ void FFTJetVertexAdder::beginJob() {
                                             << std::endl;
   }
 }
-
-// ------------ method called once each job just after ending the event loop
-void FFTJetVertexAdder::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FFTJetVertexAdder);

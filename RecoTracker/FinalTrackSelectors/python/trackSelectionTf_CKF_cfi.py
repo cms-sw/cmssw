@@ -1,4 +1,4 @@
-from RecoTracker.FinalTrackSelectors.tfGraphDefProducer_cfi import tfGraphDefProducer as _tfGraphDefProducer
+from PhysicsTools.TensorFlow.tfGraphDefProducer_cfi import tfGraphDefProducer as _tfGraphDefProducer
 
 trackSelectionTf_CKF = _tfGraphDefProducer.clone(
     ComponentName = "trackSelectionTf_CKF",

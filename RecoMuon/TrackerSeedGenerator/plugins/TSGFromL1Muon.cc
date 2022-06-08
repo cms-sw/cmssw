@@ -18,6 +18,8 @@
 
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackFilter.h"
 
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -38,7 +40,8 @@ namespace {
   }
 }  // namespace
 
-TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg) : theSFPTConfig(consumesCollector()) {
+TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
+    : theFieldToken(esConsumes()), theSFPTConfig(consumesCollector()) {
   produces<L3MuonTrajectorySeedCollection>();
   theSourceTag = cfg.getParameter<edm::InputTag>("L1MuonLabel");
 
@@ -71,6 +74,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
   ev.getByToken(theFilterToken, hfilter);
   const PixelTrackFilter& filter = *hfilter;
 
+  const auto& field = es.getData(theFieldToken);
   LogDebug("TSGFromL1Muon") << l1muon->size() << " l1 muons to seed from.";
 
   L1MuonParticleCollection::const_iterator muItr = l1muon->begin();
@@ -100,7 +104,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
           trh.push_back(hits[i]->hit());
 
         theFitter->setPxConstraint(hits);
-        reco::Track* track = theFitter->run(es, trh, region);
+        reco::Track* track = theFitter->run(field, trh, region);
         if (!track)
           continue;
 

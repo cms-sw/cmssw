@@ -107,6 +107,7 @@ namespace l1t {
             }
 
             RegionalMuonCand mu;
+            mu.setMuIdx(nWord / 2);
 
             RegionalMuonRawDigiTranslator::fillRegionalMuonCand(
                 mu, raw_data_00_31, raw_data_32_63, processor, trackFinder, isKbmtf_, useEmtfDisplacementInfo_);

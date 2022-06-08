@@ -20,6 +20,8 @@ namespace HGCalTileIndex {
   int32_t tileType(int32_t);
   // Unpacks SiPM size from the packed word
   int32_t tileSiPM(int32_t);
+  // Gets cassette number from phi position
+  int32_t tileCassette(int32_t, int32_t, int32_t, int32_t);
   // Packs 3 information for usage in xml file
   int32_t tilePack(int32_t ly, int32_t k1, int32_t k2);
   // Unpacks thos three information from the packed word

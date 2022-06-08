@@ -3,9 +3,7 @@ from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
 
 process = cms.Process("HGCalParametersTest",Phase2C11)
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D83XML_cfi")
-process.load("Geometry.HGCalCommonData.testHGCalV15XML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
+process.load("Configuration.Geometry.GeometryExtended2026D82Reco_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
@@ -36,7 +34,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
  
 process.load("Geometry.HGCalCommonData.hgcParameterTesterEE_cfi")
-#process.hgcParameterTesterEE.Mode = 0
 
 process.hgcParameterTesterHESil = process.hgcParameterTesterEE.clone(
     Name = cms.string("HGCalHESiliconSensitive")
@@ -48,4 +45,3 @@ process.hgcParameterTesterHESci = process.hgcParameterTesterEE.clone(
 )
 
 process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE*process.hgcParameterTesterHESil*process.hgcParameterTesterHESci)
-#process.p1 = cms.Path(process.generator*process.hgcParameterTesterEE*process.hgcParameterTesterHESil)

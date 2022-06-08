@@ -36,6 +36,7 @@ protected:
 private:
   bool offlineDQM_;
   int prescaleGlobalFactor_, minimumEvents_, numLumBlock_;
+  int numberOfDisks_, numberOfRings_;
 
   bool useRollInfo_, enableDQMClients_;
   std::string prefixDir_;

@@ -11,10 +11,14 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "MFGrid3D.h"
 
-class binary_ifstream;
+namespace magneticfield::interpolation {
+  class binary_ifstream;
+}
 
 class dso_internal SpecialCylindricalMFGrid : public MFGrid3D {
 public:
+  using binary_ifstream = magneticfield::interpolation::binary_ifstream;
+
   /// Constructor.
   /// gridType = 5 => 1/sin(phi); i.e. master sector is #4
   /// gridType = 6 => 1/cos(phi); i.e. master sector is #1

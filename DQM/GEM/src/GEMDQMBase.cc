@@ -22,10 +22,6 @@ GEMDQMBase::GEMDQMBase(const edm::ParameterSet& cfg) : geomToken_(esConsumes<edm
   }
 
   log_category_ = cfg.getUntrackedParameter<std::string>("logCategory");
-
-  nNumEtaPartitionGE0_ = 0;
-  nNumEtaPartitionGE11_ = 0;
-  nNumEtaPartitionGE21_ = 0;
 }
 
 int GEMDQMBase::initGeometry(edm::EventSetup const& iSetup) {
@@ -109,13 +105,6 @@ int GEMDQMBase::loadChambers() {
       }
     }
   }
-
-  if (mapStationInfo_.find(ME3IdsKey(-1, 0, 1)) != mapStationInfo_.end())
-    nNumEtaPartitionGE0_ = mapStationInfo_[ME3IdsKey(-1, 0, 1)].nNumEtaPartitions_;
-  if (mapStationInfo_.find(ME3IdsKey(-1, 1, 1)) != mapStationInfo_.end())
-    nNumEtaPartitionGE11_ = mapStationInfo_[ME3IdsKey(-1, 1, 1)].nNumEtaPartitions_;
-  if (mapStationInfo_.find(ME3IdsKey(-1, 2, 1)) != mapStationInfo_.end())
-    nNumEtaPartitionGE21_ = mapStationInfo_[ME3IdsKey(-1, 2, 1)].nNumEtaPartitions_;
 
   return 0;
 }
@@ -301,7 +290,6 @@ int GEMDQMBase::readGeometryRadiusInfoChamber(const GEMStation* station, MEStati
 
 int GEMDQMBase::readGeometryPhiInfoChamber(const GEMStation* station, MEStationInfo& stationInfo) {
   auto listSuperChambers = station->superChambers();
-  //Int_t nNumStripVFAT = stationInfo.nNumDigi_ / ( stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_ );
   Int_t nNumStripEta = stationInfo.nNumDigi_ * (stationInfo.nMaxVFAT_ / stationInfo.nNumEtaPartitions_);
 
   std::vector<std::pair<Int_t, std::pair<std::pair<Float_t, Float_t>, Bool_t>>> listDivPhi;

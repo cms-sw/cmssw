@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <algorithm>
+#include <limits>
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelGainForHLTonGPU.h"
@@ -69,7 +71,7 @@ namespace gpuCalibPixel {
           float offset = id[i] < 96 ? VCaltoElectronOffset_L1 : VCaltoElectronOffset;
           vcal = vcal * conversionFactor + offset;
         }
-        adc[i] = std::max(100, int(vcal));
+        adc[i] = std::clamp(int(vcal), 100, int(std::numeric_limits<uint16_t>::max()));
       }
     }
   }
@@ -96,24 +98,28 @@ namespace gpuCalibPixel {
 
       constexpr int mode = (Phase2ReadoutMode < -1 ? -1 : Phase2ReadoutMode);
 
+      int adc_int = adc[i];
+
       if constexpr (mode < 0)
-        adc[i] = int(adc[i] * ElectronPerADCGain);
+        adc_int = int(adc_int * ElectronPerADCGain);
       else {
-        if (adc[i] < Phase2KinkADC)
-          adc[i] = int((adc[i] - 0.5) * ElectronPerADCGain);
+        if (adc_int < Phase2KinkADC)
+          adc_int = int((adc_int - 0.5) * ElectronPerADCGain);
         else {
           constexpr int8_t dspp = (Phase2ReadoutMode < 10 ? Phase2ReadoutMode : 10);
           constexpr int8_t ds = int8_t(dspp <= 1 ? 1 : (dspp - 1) * (dspp - 1));
 
-          adc[i] -= (Phase2KinkADC - 1);
-          adc[i] *= ds;
-          adc[i] += (Phase2KinkADC - 1);
+          adc_int -= (Phase2KinkADC - 1);
+          adc_int *= ds;
+          adc_int += (Phase2KinkADC - 1);
 
-          adc[i] = uint16_t((adc[i] + 0.5 * ds) * ElectronPerADCGain);
+          adc_int = ((adc_int + 0.5 * ds) * ElectronPerADCGain);
         }
 
-        adc[i] += int(Phase2DigiBaseline);
+        adc_int += int(Phase2DigiBaseline);
       }
+
+      adc[i] = std::min(adc_int, int(std::numeric_limits<uint16_t>::max()));
     }
   }
 

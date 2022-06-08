@@ -15,7 +15,7 @@ public:
   HGCalTopology(const HGCalDDDConstants& hdcons, int subdet);
 
   /// virtual destructor
-  ~HGCalTopology() override {}
+  ~HGCalTopology() override = default;
 
   /// move the Topology north (increment iy)
   DetId goNorth(const DetId& id) const override { return changeXY(id, 0, +1); }
@@ -121,17 +121,9 @@ public:
     return (((det_ == DetId::Forward) && (subdet_ == ForwardSubdetector::HFNose)) ? true : false);
   }
 
-  bool tileTrapezoid() const {
-    return ((mode_ == HGCalGeometryMode::Trapezoid) || (mode_ == HGCalGeometryMode::TrapezoidFile) ||
-            (mode_ == HGCalGeometryMode::TrapezoidModule));
-  }
-  bool waferHexagon6() const {
-    return ((mode_ == HGCalGeometryMode::Hexagon) || (mode_ == HGCalGeometryMode::HexagonFull));
-  }
-  bool waferHexagon8() const {
-    return ((mode_ == HGCalGeometryMode::Hexagon8) || (mode_ == HGCalGeometryMode::Hexagon8Full) ||
-            (mode_ == HGCalGeometryMode::Hexagon8File) || (mode_ == HGCalGeometryMode::Hexagon8Module));
-  }
+  bool tileTrapezoid() const { return hdcons_.tileTrapezoid(); }
+  bool waferHexagon6() const { return hdcons_.waferHexagon6(); }
+  bool waferHexagon8() const { return hdcons_.waferHexagon8(); }
 
 private:
   /// add DetId of Scintillator and Silicon type if valid

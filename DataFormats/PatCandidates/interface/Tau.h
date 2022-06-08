@@ -256,6 +256,10 @@ namespace pat {
     /// note that the vector is returned by value.
     reco::CandidatePtrVector isolationGammaCands() const;
 
+    /// return the PackedCandidates on miniAOD corresponding with tau "lost" tracks
+    /// note that the vector is returned by value.
+    std::vector<reco::CandidatePtr> signalLostTracks() const;
+
     /// setters for the PtrVectors (for miniAOD)
     void setSignalChargedHadrCands(const reco::CandidatePtrVector& ptrs) { signalChargedHadrCandPtrs_ = ptrs; }
     void setSignalNeutralHadrCands(const reco::CandidatePtrVector& ptrs) { signalNeutralHadrCandPtrs_ = ptrs; }
@@ -263,6 +267,7 @@ namespace pat {
     void setIsolationChargedHadrCands(const reco::CandidatePtrVector& ptrs) { isolationChargedHadrCandPtrs_ = ptrs; }
     void setIsolationNeutralHadrCands(const reco::CandidatePtrVector& ptrs) { isolationNeutralHadrCandPtrs_ = ptrs; }
     void setIsolationGammaCands(const reco::CandidatePtrVector& ptrs) { isolationGammaCandPtrs_ = ptrs; }
+    void setSignalLostTracks(const std::vector<reco::CandidatePtr>& ptrs);
 
     /// ----- Top Projection business -------
     /// get the number of non-null PFCandidates

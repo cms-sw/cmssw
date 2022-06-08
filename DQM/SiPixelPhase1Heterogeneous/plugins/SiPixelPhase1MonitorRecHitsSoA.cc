@@ -52,7 +52,6 @@ private:
   MonitorElement* hBcharge;
   MonitorElement* hBsizex;
   MonitorElement* hBsizey;
-  MonitorElement* hBposXYL[4];
   MonitorElement* hBposZPL[4];
   MonitorElement* hBchargeL[4];
   MonitorElement* hBsizexL[4];
@@ -63,7 +62,6 @@ private:
   MonitorElement* hFsizex;
   MonitorElement* hFsizey;
   MonitorElement* hFposXYD[2][3];
-  MonitorElement* hFposZPD[2][3];
   MonitorElement* hFchargeD[2][3];
   MonitorElement* hFsizexD[2][3];
   MonitorElement* hFsizeyD[2][3];
@@ -121,7 +119,6 @@ void SiPixelPhase1MonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm
         hBcharge->Fill(charge);
         hBsizex->Fill(sizeX);
         hBsizey->Fill(sizeY);
-        hBposXYL[tTopo_->pxbLayer(id) - 1]->Fill(xG, yG);
         hBposZPL[tTopo_->pxbLayer(id) - 1]->Fill(zG, fphi);
         hBchargeL[tTopo_->pxbLayer(id) - 1]->Fill(charge);
         hBsizexL[tTopo_->pxbLayer(id) - 1]->Fill(sizeX);
@@ -134,7 +131,6 @@ void SiPixelPhase1MonitorRecHitsSoA::analyze(const edm::Event& iEvent, const edm
         hFsizex->Fill(sizeX);
         hFsizey->Fill(sizeY);
         hFposXYD[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(xG, yG);
-        hFposZPD[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(zG, fphi);
         hFchargeD[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(charge);
         hFsizexD[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(sizeX);
         hFsizeyD[tTopo_->pxfSide(id) - 1][tTopo_->pxfDisk(id) - 1]->Fill(sizeY);
@@ -165,7 +161,6 @@ void SiPixelPhase1MonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
   hBsizey = iBook.book1D("recHitsBarrelSizey", "RecHits SizeY Barrel;SizeY;#events", 50, 0, 50);
   //Barrel Layer
   for(unsigned int il=0;il<tkGeom_->numberOfLayers(PixelSubdetector::PixelBarrel);il++){
-    hBposXYL[il] = iBook.book2D(Form("recHitsBLay%dPosXY",il+1), Form("RecHits position Barrel Layer%d;X;Y",il+1), 200, -20, 20, 200,-20,20);
     hBposZPL[il] = iBook.book2D(Form("recHitsBLay%dPosZP",il+1), Form("RecHits position Barrel Layer%d;Z;#phi",il+1), 300, -30, 30, 200,-3.2,3.2);
     hBchargeL[il] = iBook.book1D(Form("recHitsBLay%dCharge",il+1), Form("RecHits Charge Barrel Layer%d;Charge;#events",il+1), 250, 0, 100000);
     hBsizexL[il] = iBook.book1D(Form("recHitsBLay%dSizex",il+1), Form("RecHits SizeX Barrel Layer%d;SizeX;#events",il+1), 50, 0, 50);
@@ -182,7 +177,6 @@ void SiPixelPhase1MonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
     int sign=is==0? -1:1;
     for(unsigned int id=0;id<tkGeom_->numberOfLayers(PixelSubdetector::PixelEndcap);id++){
       hFposXYD[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosXY",id*sign+sign), Form("RecHits position Endcaps Disk%+d;X;Y",id*sign+sign), 200, -20, 20, 200,-20,20);
-      hFposZPD[is][id] = iBook.book2D(Form("recHitsFDisk%+dPosZP",id*sign+sign), Form("RecHits position Endcaps Disk%+d;Z;#phi",id*sign+sign), 600, -60, 60, 200,-3.2,3.2);
       hFchargeD[is][id] = iBook.book1D(Form("recHitsFDisk%+dCharge",id*sign+sign), Form("RecHits Charge Endcaps Disk%+d;Charge;#events",id*sign+sign), 250, 0, 100000);
       hFsizexD[is][id] = iBook.book1D(Form("recHitsFDisk%+dSizex",id*sign+sign), Form("RecHits SizeX Endcaps Disk%+d;SizeX;#events",id*sign+sign), 50, 0, 50);
       hFsizeyD[is][id] = iBook.book1D(Form("recHitsFDisk%+dSizey",id*sign+sign), Form("RecHits SizeY Endcaps Disk%+d;SizeY;#events",id*sign+sign), 50, 0, 50);
@@ -193,7 +187,7 @@ void SiPixelPhase1MonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
 void SiPixelPhase1MonitorRecHitsSoA::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   // monitorpixelRecHitsSoA
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("pixelHitsSrc", edm::InputTag("siPixelRecHitsPreSplitting"));
+  desc.add<edm::InputTag>("pixelHitsSrc", edm::InputTag("siPixelRecHitsPreSplittingSoA"));
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelRecHitsSoA");
   descriptions.addWithDefaultLabel(desc);
 }

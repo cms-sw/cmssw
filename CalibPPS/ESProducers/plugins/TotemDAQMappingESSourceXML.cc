@@ -754,8 +754,13 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType,
       unsigned int StationNum = (parentID / 1000) % 10;
       unsigned int RpNum = (parentID / 100) % 10;
 
-      vfatInfo.symbolicID.symbolicID = TotemTimingDetId(
-          ArmNum, StationNum, RpNum, 0, TotemTimingDetId::ID_NOT_SET);  //Dynamical: it is encoded in the frame
+      vfatInfo.symbolicID.symbolicID =
+          TotemTimingDetId(ArmNum,
+                           StationNum,
+                           RpNum,
+                           0,
+                           TotemTimingDetId::ID_NOT_SET,
+                           TotemTimingDetId::sdTimingDiamond);  //Dynamical: it is encoded in the frame
 
       mapping->insert(framepos, vfatInfo);
 

@@ -47,6 +47,7 @@ ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOMonitoringTracks +
 # This is the module actually doing the calibration
 from CalibTracker.SiStripHitEfficiency.siStripHitEfficiencyWorker_cfi import siStripHitEfficiencyWorker
 ALCARECOSiStripHitEff =  siStripHitEfficiencyWorker.clone(
+    dqmDir = "AlCaReco/SiStripHitEfficiency",
     lumiScalers= "scalersRawToDigi",
     addLumi = True,
     commonMode = "siStripDigis:CommonMode",
@@ -60,8 +61,8 @@ ALCARECOSiStripHitEff =  siStripHitEfficiencyWorker.clone(
     Layer = 0, # =0 means do all layers
     Debug = True,
     # do not cut on the total number of tracks
-    cutOnTracks = True,
-    trackMultiplicity = 100,
+    cutOnTracks = False,
+    trackMultiplicity = 1000,
     # use or not first and last measurement of a trajectory (biases), default is false
     useFirstMeas = False,
     useLastMeas = False,

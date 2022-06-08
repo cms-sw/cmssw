@@ -14,7 +14,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -27,7 +27,7 @@
 
 const static unsigned NUM_RCT_CRATES = 18;
 
-class RctDigiToRctText : public edm::EDAnalyzer {
+class RctDigiToRctText : public edm::one::EDAnalyzer<> {
 public:
   explicit RctDigiToRctText(const edm::ParameterSet &);
   ~RctDigiToRctText() override;
@@ -49,6 +49,8 @@ private:
 
   /// handle for debug file
   std::ofstream fdebug;
+
+  int nevt = -1;
 };
 
 #endif

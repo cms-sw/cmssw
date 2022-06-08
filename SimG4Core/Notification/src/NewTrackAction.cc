@@ -1,6 +1,6 @@
+
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -17,18 +17,10 @@ void NewTrackAction::secondary(const G4Track *aSecondary, const G4Track &mother,
 }
 
 void NewTrackAction::secondary(G4Track *aSecondary, const G4Track &mother, int flag) const {
-  if (aSecondary->GetParentID() != mother.GetTrackID()) {
-    G4Exception("SimG4Core/Notification",
-                "mc001",
-                FatalException,
-                "NewTrackAction: secondary parent ID does not match mother id");
-  } else {
-    TrackInformationExtractor extractor;
-    const TrackInformation &motherInfo(extractor(mother));
-    addUserInfoToSecondary(aSecondary, motherInfo, flag);
-    LogDebug("SimTrackManager") << "NewTrackAction: Add track " << aSecondary->GetTrackID() << " from mother "
-                                << mother.GetTrackID();
-  }
+  const TrackInformation *motherInfo = static_cast<const TrackInformation *>(mother.GetUserInformation());
+  addUserInfoToSecondary(aSecondary, *motherInfo, flag);
+  LogDebug("SimTrackManager") << "NewTrackAction: Add track " << aSecondary->GetTrackID() << " from mother "
+                              << mother.GetTrackID();
 }
 
 void NewTrackAction::addUserInfoToPrimary(G4Track *aTrack) const {

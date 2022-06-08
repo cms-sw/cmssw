@@ -5,7 +5,7 @@ USEDOCKER=""
 GPU=""
 VERBOSE=""
 VERBOSE_ARGS="--log-verbose=1 --log-error=1 --log-warning=1 --log-info=1"
-WTIME=120
+WTIME=300
 SERVER=triton_server_instance
 RETRIES=3
 REPOS=()

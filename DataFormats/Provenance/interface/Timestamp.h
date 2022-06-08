@@ -9,21 +9,14 @@
 
  Description: Defines an instance in time from the Online system
 
- Usage:
-    <usage>
-
 */
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 24 16:23:05 EST 2005
 //
 
-// system include files
 #include <limits>
 
-// user include files
-
-// forward declarations
 namespace edm {
   typedef unsigned long long TimeValue_t;
 
@@ -83,13 +76,7 @@ namespace edm {
     static Timestamp endOfTime() { return Timestamp(std::numeric_limits<TimeValue_t>::max()); }
     static Timestamp beginOfTime() { return Timestamp(1); }
 
-    // ---------- member functions ---------------------------
-
   private:
-    //Timestamp(Timestamp const&); // allow default
-
-    //Timestamp const& operator=(Timestamp const&); // allow default
-
     // ---------- member data --------------------------------
     // ROOT does not support ULL
     //TimeValue_t time_;

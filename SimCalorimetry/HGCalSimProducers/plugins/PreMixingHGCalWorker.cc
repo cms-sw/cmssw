@@ -30,8 +30,8 @@ public:
   void put(edm::Event& e, const edm::EventSetup& ES, std::vector<PileupSummaryInfo> const& ps, int bs) override;
 
 private:
-  edm::EDGetTokenT<PHGCSimAccumulator> signalToken_;
-  edm::InputTag pileupInputTag_;
+  const edm::EDGetTokenT<PHGCSimAccumulator> signalToken_;
+  const edm::InputTag pileupInputTag_;
 
   HGCDigitizer digitizer_;
 };
@@ -50,8 +50,7 @@ void PreMixingHGCalWorker::initializeEvent(const edm::Event& e, const edm::Event
 }
 
 void PreMixingHGCalWorker::addSignals(const edm::Event& e, const edm::EventSetup& ES) {
-  edm::Handle<PHGCSimAccumulator> handle;
-  e.getByToken(signalToken_, handle);
+  const edm::Handle<PHGCSimAccumulator>& handle = e.getHandle(signalToken_);
   digitizer_.accumulate_forPreMix(*handle, false);
 }
 

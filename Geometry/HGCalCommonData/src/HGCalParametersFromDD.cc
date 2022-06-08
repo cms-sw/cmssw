@@ -8,7 +8,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 using namespace geant_units::operators;
 
 namespace {
@@ -73,7 +73,9 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
   DDFilteredView fv(*cpv, filter);
   bool ok = fv.firstChild();
   HGCalGeometryMode::WaferMode mode(HGCalGeometryMode::Polyhedra);
+#ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "Volume " << name << " GeometryMode ";
+#endif
   if (ok) {
     DDsvalues_type sv(fv.mergedSpecifics());
     php.mode_ = getGeometryMode("GeometryMode", sv);
@@ -90,6 +92,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
     php.firstMixedLayer_ = -1;  // defined for post TDR geometry
     php.layerRotation_ = 0;     // default layer rotation angle
     php.cassettes_ = 0;         // default number of cassettes
+    php.nphiCassette_ = 0;      // default number of phi's per cassette
+    php.phiOffset_ = 0;         // default value of phi offset for cassette
     std::unique_ptr<HGCalGeomParameters> geom = std::make_unique<HGCalGeomParameters>();
     if ((php.mode_ == HGCalGeometryMode::Hexagon) || (php.mode_ == HGCalGeometryMode::HexagonFull)) {
       attribute = "OnlyForHGCalNumbering";
@@ -122,7 +126,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.minTileSize_ = 0;
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
-      if (php.mode_ == HGCalGeometryMode::Hexagon8Module)
+      if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette))
         php.layerRotation_ = getDDDValue("LayerRotation", sv);
       if ((php.waferMaskMode_ == HGCalGeomParameters::siliconCassetteEE) ||
           (php.waferMaskMode_ == HGCalGeomParameters::siliconCassetteHE))
@@ -282,6 +286,9 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
   }
   std::string sv = (!tempS.empty()) ? tempS[0] : "HGCalGeometryMode::Hexagon8Full";
   HGCalGeometryMode::WaferMode mode(HGCalGeometryMode::Polyhedra);
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "Volume " << name << " GeometryMode ";
+#endif
 
   if (ok) {
     php.mode_ = getGeometryMode(sv);

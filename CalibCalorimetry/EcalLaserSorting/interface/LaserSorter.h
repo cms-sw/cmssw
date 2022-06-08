@@ -162,7 +162,7 @@ private:
    * @param lumiBlock luminositu block of the event
    * @return pointer of the output stream record or null if not found.
    */
-  std::unique_ptr<OutStreamRecord>& getStream(int fedId, edm::LuminosityBlockNumber_t lumiBlock);
+  const std::unique_ptr<OutStreamRecord>& getStream(int fedId, edm::LuminosityBlockNumber_t lumiBlock);
 
   /** Writes a monitoring events to an output stream.
    * @param out stream to write the event out

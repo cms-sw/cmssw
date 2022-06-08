@@ -366,7 +366,7 @@ def miniAOD_customizeCommon(process):
         process.makePatTausTask, _makePatTausTaskWithRetrainedMVATauID
         )
     #-- Adding DeepTauID
-    # deepTau v2p1
+    # deepTau v2p1 and v2p5
     _updatedTauName = 'slimmedTausDeepIDsv2p1'
     _noUpdatedTauName = 'slimmedTausNoDeepIDs'
     import RecoTauTag.RecoTau.tools.runTauIdMVA as tauIdConfig
@@ -374,7 +374,7 @@ def miniAOD_customizeCommon(process):
         process, debug = False,
         originalTauName = _noUpdatedTauName,
         updatedTauName = _updatedTauName,
-        toKeep = ['deepTau2017v2p1']
+        toKeep = ['deepTau2017v2p1','deepTau2018v2p5']
     )
     from Configuration.Eras.Modifier_phase2_common_cff import phase2_common #Phase2 Tau MVA
     phase2_common.toModify(tauIdEmbedder.toKeep, func=lambda t:t.append('newDMPhase2v1')) #Phase2 Tau isolation MVA

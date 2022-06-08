@@ -209,6 +209,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
         << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
   }
 
+  // avoid filling weights twice (from v8.30x)
+  toHepMC.set_store_weights(false);
+
   // Reweight user hook
   //
   if (params.exists("reweightGen")) {
@@ -741,6 +744,9 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
     return false;
   }
 
+  // 0th weight is not filled anymore since v8.30x, pushback manually
+  event()->weights().push_back(fMasterGen->info.weight());
+
   //add ckkw/umeps/unlops merging weight
   if (mergeweight != 1.) {
     event()->weights()[0] *= mergeweight;
@@ -850,10 +856,15 @@ bool Pythia8Hadronizer::hadronize() {
     evtgenDecays->decay();
 
   event() = std::make_unique<HepMC::GenEvent>();
+
   bool py8hepmc = toHepMC.fill_next_event(*(fMasterGen.get()), event().get());
+
   if (!py8hepmc) {
     return false;
   }
+
+  // 0th weight is not filled anymore since v8.30x, pushback manually
+  event()->weights().push_back(fMasterGen->info.weight());
 
   //add ckkw/umeps/unlops merging weight
   if (mergeweight != 1.) {

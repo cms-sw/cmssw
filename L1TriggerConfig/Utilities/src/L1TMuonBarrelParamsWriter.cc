@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -17,17 +17,25 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1TMuonBarrelParamsWriter : public edm::EDAnalyzer {
+class L1TMuonBarrelParamsWriter : public edm::one::EDAnalyzer<> {
 private:
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsO2ORcd> o2oParamsToken_;
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> paramsToken_;
+  edm::ESGetToken<L1TMuonBarrelKalmanParams, L1TMuonBarrelKalmanParamsRcd> kalmanToken_;
   bool isO2Opayload;
 
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1TMuonBarrelParamsWriter(const edm::ParameterSet& pset) : edm::EDAnalyzer() {
+  explicit L1TMuonBarrelParamsWriter(const edm::ParameterSet& pset) {
     isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload", false);
+    if (isO2Opayload) {
+      o2oParamsToken_ = esConsumes();
+    } else {
+      paramsToken_ = esConsumes();
+      kalmanToken_ = esConsumes();
+    }
   }
-  ~L1TMuonBarrelParamsWriter(void) override {}
 };
 
 void L1TMuonBarrelParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
@@ -35,21 +43,19 @@ void L1TMuonBarrelParamsWriter::analyze(const edm::Event& iEvent, const edm::Eve
   edm::ESHandle<L1TMuonBarrelKalmanParams> handle2;
 
   if (isO2Opayload)
-    evSetup.get<L1TMuonBarrelParamsO2ORcd>().get(handle1);
+    handle1 = evSetup.getHandle(o2oParamsToken_);
   else {
-    evSetup.get<L1TMuonBarrelParamsRcd>().get(handle1);
-    evSetup.get<L1TMuonBarrelKalmanParamsRcd>().get(handle2);
+    handle1 = evSetup.getHandle(paramsToken_);
+    handle2 = evSetup.getHandle(kalmanToken_);
   }
-
-  std::shared_ptr<L1TMuonBarrelParams> ptr1(new L1TMuonBarrelParams(*(handle1.product())));
-  std::shared_ptr<L1TMuonBarrelKalmanParams> ptr2(new L1TMuonBarrelKalmanParams(*(handle2.product())));
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOneIOV(*ptr1, firstSinceTime, (isO2Opayload ? "L1TMuonBarrelParamsO2ORcd" : "L1TMuonBarrelParamsRcd"));
+    poolDb->writeOneIOV(
+        *handle1, firstSinceTime, (isO2Opayload ? "L1TMuonBarrelParamsO2ORcd" : "L1TMuonBarrelParamsRcd"));
     if (not isO2Opayload)
-      poolDb->writeOneIOV(*ptr2, firstSinceTime, ("L1TMuonBarrelKalmanParamsRcd"));
+      poolDb->writeOneIOV(*handle2, firstSinceTime, ("L1TMuonBarrelKalmanParamsRcd"));
   }
 }
 

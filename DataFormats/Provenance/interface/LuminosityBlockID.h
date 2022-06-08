@@ -9,23 +9,15 @@
 
  Description: Holds run and luminosityBlock number.
 
- Usage:
-    <usage>
-
 */
-//
-//
 
-// system include files
 #include <functional>
 #include <iosfwd>
 
-// user include files
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include <cstdint>
 
-// forward declarations
 namespace edm {
 
   class LuminosityBlockID {
@@ -34,8 +26,6 @@ namespace edm {
     explicit LuminosityBlockID(uint64_t id);
     LuminosityBlockID(RunNumber_t iRun, LuminosityBlockNumber_t iLuminosityBlock)
         : run_(iRun), luminosityBlock_(iLuminosityBlock) {}
-
-    //virtual ~LuminosityBlockID();
 
     // ---------- const member functions ---------------------
     RunNumber_t run() const { return run_; }
@@ -84,7 +74,6 @@ namespace edm {
     static LuminosityBlockNumber_t maxLuminosityBlockNumber() { return 0xFFFFFFFFU; }
 
     static LuminosityBlockID firstValidLuminosityBlock() { return LuminosityBlockID(1, 1); }
-    // ---------- member functions ---------------------------
 
   private:
     template <template <typename> class Op>
@@ -97,9 +86,6 @@ namespace edm {
       Op<RunNumber_t> op;
       return op(run_, iRHS.run_);
     }
-    //LuminosityBlockID(LuminosityBlockID const&); // stop default
-
-    //LuminosityBlockID const& operator=(LuminosityBlockID const&); // stop default
 
     // ---------- member data --------------------------------
     RunNumber_t run_;

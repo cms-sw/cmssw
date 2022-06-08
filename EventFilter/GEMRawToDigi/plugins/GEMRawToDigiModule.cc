@@ -4,9 +4,8 @@
  *  \author J. Lee - UoS
  */
 
-#include "CondFormats/DataRecord/interface/GEMeMapRcd.h"
-#include "CondFormats/GEMObjects/interface/GEMeMap.h"
-#include "CondFormats/GEMObjects/interface/GEMROMapping.h"
+#include "CondFormats/DataRecord/interface/GEMChMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMChMap.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -29,13 +28,13 @@
 #include "FWCore/Utilities/interface/Transition.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-class GEMRawToDigiModule : public edm::global::EDProducer<edm::RunCache<GEMROMapping> > {
+class GEMRawToDigiModule : public edm::global::EDProducer<edm::RunCache<GEMChMap>> {
 public:
   /// Constructor
   GEMRawToDigiModule(const edm::ParameterSet& pset);
 
   // global::EDProducer
-  std::shared_ptr<GEMROMapping> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
+  std::shared_ptr<GEMChMap> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override;
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
   void globalEndRun(edm::Run const&, edm::EventSetup const&) const override{};
 
@@ -44,7 +43,7 @@ public:
 
 private:
   edm::EDGetTokenT<FEDRawDataCollection> fed_token;
-  edm::ESGetToken<GEMeMap, GEMeMapRcd> gemEMapToken_;
+  edm::ESGetToken<GEMChMap, GEMChMapRcd> gemChMapToken_;
   bool useDBEMap_, keepDAQStatus_, readMultiBX_, ge21Off_;
   unsigned int fedIdStart_, fedIdEnd_;
   std::unique_ptr<GEMRawToDigi> gemRawToDigi_;
@@ -70,7 +69,7 @@ GEMRawToDigiModule::GEMRawToDigiModule(const edm::ParameterSet& pset)
     produces<GEMVFATStatusCollection>("VFATStatus");
   }
   if (useDBEMap_) {
-    gemEMapToken_ = esConsumes<GEMeMap, GEMeMapRcd, edm::Transition::BeginRun>();
+    gemChMapToken_ = esConsumes<GEMChMap, GEMChMapRcd, edm::Transition::BeginRun>();
   }
   if (ge21Off_ && fedIdStart_ == FEDNumbering::MINGEMFEDID && fedIdEnd_ == FEDNumbering::MAXGEMFEDID) {
     fedIdEnd_ = FEDNumbering::MINGE21FEDID - 1;
@@ -92,20 +91,17 @@ void GEMRawToDigiModule::fillDescriptions(edm::ConfigurationDescriptions& descri
   descriptions.add("muonGEMDigisDefault", desc);
 }
 
-std::shared_ptr<GEMROMapping> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const {
-  auto gemROmap = std::make_shared<GEMROMapping>();
+std::shared_ptr<GEMChMap> GEMRawToDigiModule::globalBeginRun(edm::Run const&, edm::EventSetup const& iSetup) const {
   if (useDBEMap_) {
-    const auto& eMap = iSetup.getData(gemEMapToken_);
-    auto gemEMap = std::make_unique<GEMeMap>(eMap);
-    gemEMap->convert(*gemROmap);
-    gemEMap.reset();
+    const auto& eMap = iSetup.getData(gemChMapToken_);
+    auto gemChMap = std::make_shared<GEMChMap>(eMap);
+    return gemChMap;
   } else {
     // no EMap in DB, using dummy
-    auto gemEMap = std::make_unique<GEMeMap>();
-    gemEMap->convertDummy(*gemROmap);
-    gemEMap.reset();
+    auto gemChMap = std::make_shared<GEMChMap>();
+    gemChMap->setDummy();
+    return gemChMap;
   }
-  return gemROmap;
 }
 
 void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
@@ -119,7 +115,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
   edm::Handle<FEDRawDataCollection> fed_buffers;
   iEvent.getByToken(fed_token, fed_buffers);
 
-  auto gemROMap = runCache(iEvent.getRun().index());
+  auto gemChMap = runCache(iEvent.getRun().index());
 
   for (unsigned int fedId = fedIdStart_; fedId <= fedIdEnd_; ++fedId) {
     const FEDRawData& fedData = fed_buffers->FEDData(fedId);
@@ -145,8 +141,7 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
     // Read AMC data
     for (const auto& amc : *(amc13->getAMCpayloads())) {
       uint8_t amcNum = amc.amcNum();
-      GEMROMapping::sectorEC amcEC{fedId, amcNum};
-      if (!gemROMap->isValidAMC(amcEC)) {
+      if (!gemChMap->isValidAMC(fedId, amcNum)) {
         st_amc13.inValidAMC();
         continue;
       }
@@ -167,45 +162,43 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
       // Read GEB data
       for (const auto& optoHybrid : *amc.gebs()) {
         uint8_t gebId = optoHybrid.inputID();
-        GEMROMapping::chamEC geb_ec{fedId, amcNum, gebId};
 
-        bool isValidChamber = gemROMap->isValidChamber(geb_ec);
+        bool isValidChamber = gemChMap->isValidChamber(fedId, amcNum, gebId);
         if (!isValidChamber) {
           st_amc.inValidOH();
           continue;
         }
-        GEMROMapping::chamDC geb_dc = gemROMap->chamberPos(geb_ec);
-        GEMDetId gemChId = geb_dc.detId;
+        auto geb_dc = gemChMap->chamberPos(fedId, amcNum, gebId);
+        GEMDetId cId(geb_dc.detId);
+        int chamberType = geb_dc.chamberType;
 
         GEMOHStatus st_oh(optoHybrid);
         if (st_oh.isBad()) {
           LogDebug("GEMRawToDigiModule") << st_oh;
           if (keepDAQStatus_) {
-            outOHStatus.get()->insertDigi(gemChId, st_oh);
+            outOHStatus.get()->insertDigi(cId, st_oh);
           }
         }
 
         //Read vfat data
         for (auto vfat : *optoHybrid.vFATs()) {
           // set vfat fw version
-          vfat.setVersion(geb_dc.vfatVer);
+          if (chamberType < 10)
+            vfat.setVersion(2);
+          else
+            vfat.setVersion(3);
           uint16_t vfatId = vfat.vfatId();
-          GEMROMapping::vfatEC vfat_ec{vfatId, gemChId};
 
-          if (!gemROMap->isValidChipID(vfat_ec)) {
+          if (!gemChMap->isValidVFAT(chamberType, vfatId)) {
             st_oh.inValidVFAT();
             continue;
           }
-
-          GEMROMapping::vfatDC vfat_dc = gemROMap->vfatPos(vfat_ec);
-          vfat.setPhi(vfat_dc.localPhi);
-          GEMDetId gemId = vfat_dc.detId;
 
           GEMVFATStatus st_vfat(amc, vfat, vfat.phi(), readMultiBX_);
           if (st_vfat.isBad()) {
             LogDebug("GEMRawToDigiModule") << st_vfat;
             if (keepDAQStatus_) {
-              outVFATStatus.get()->insertDigi(gemId, st_vfat);
+              outVFATStatus.get()->insertDigi(cId, st_vfat);
             }
             continue;
           }
@@ -223,30 +216,31 @@ void GEMRawToDigiModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             if (chan0xf == 0)
               continue;
 
-            GEMROMapping::channelNum chMap{vfat_dc.vfatType, chan};
-            GEMROMapping::stripNum stMap = gemROMap->hitPos(chMap);
+            auto stMap = gemChMap->getStrip(chamberType, vfatId, chan);
 
-            int stripId = stMap.stNum + vfat.phi() * GEMeMap::maxChan_;
+            int stripId = stMap.stNum;
+            int ieta = stMap.iEta;
+
+            GEMDetId gemId(cId.region(), cId.ring(), cId.station(), cId.layer(), cId.chamber(), ieta);
 
             GEMDigi digi(stripId, bx);
 
-            LogDebug("GEMRawToDigiModule")
-                << "fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId) << " vfat id:" << int(vfatId)
-                << ",type:" << vfat_dc.vfatType << " id:" << gemId << " ch:" << chMap.chNum << " st:" << digi.strip()
-                << " bx:" << digi.bx();
+            LogDebug("GEMRawToDigiModule") << "fed: " << fedId << " amc:" << int(amcNum) << " geb:" << int(gebId)
+                                           << " vfat id:" << int(vfatId) << ",type:" << chamberType << " id:" << gemId
+                                           << " ch:" << chan << " st:" << digi.strip() << " bx:" << digi.bx();
 
             outGEMDigis.get()->insertDigi(gemId, digi);
 
           }  // end of channel loop
 
           if (keepDAQStatus_) {
-            outVFATStatus.get()->insertDigi(gemId, st_vfat);
+            outVFATStatus.get()->insertDigi(cId, st_vfat);
           }
 
         }  // end of vfat loop
 
         if (keepDAQStatus_) {
-          outOHStatus.get()->insertDigi(gemChId, st_oh);
+          outOHStatus.get()->insertDigi(cId, st_oh);
         }
 
       }  // end of optohybrid loop

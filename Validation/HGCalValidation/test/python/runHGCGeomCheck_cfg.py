@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runHGCGeomCheck_cfg.py geometry=D77
 #
-#   Options for geometry D49, D68, D77, D83, D84, D86
+#   Options for geometry D49, D68, D77, D83, D84, D88, D92
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -16,7 +16,7 @@ options.register('geometry',
                  "D86",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D68, D84, D77, D83, D86")
+                  "geometry of operations: D49, D68, D84, D77, D83, D88, D92")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -54,13 +54,20 @@ elif (options.geometry == "D84"):
     process.load('Configuration.Geometry.GeometryExtended2026D84Reco_cff')
     inFile = 'file:testHGCalSimWatcherV13.root'
     outFile = 'hgcGeomCheckD84.root'
-elif (options.geometry == "D86"):
+elif (options.geometry == "D88"):
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
     inFile = 'file:testHGCalSimWatcherV16.root'
-    outFile = 'hgcGeomCheckD86.root'
+    outFile = 'hgcGeomCheckD88.root'
+elif (options.geometry == "D92"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+    inFile = 'file:testHGCalSimWatcherV17.root'
+    outFile = 'hgcGeomCheckD92.root'
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('PROD',Phase2C11M9)

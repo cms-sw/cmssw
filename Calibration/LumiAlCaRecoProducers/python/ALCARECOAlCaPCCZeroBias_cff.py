@@ -11,9 +11,7 @@ ALCARECOZeroBiasHLT = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 
 from Calibration.LumiAlCaRecoProducers.alcaPCCIntegrator_cfi import alcaPCCIntegrator
 alcaPCCIntegratorZeroBias = alcaPCCIntegrator.clone()
-alcaPCCIntegratorZeroBias.AlcaPCCIntegratorParameters.inputPccLabel="hltAlcaPixelClusterCounts"
-alcaPCCIntegratorZeroBias.AlcaPCCIntegratorParameters.trigstring    = "alcaPCCEvent"
-alcaPCCIntegratorZeroBias.AlcaPCCIntegratorParameters.ProdInst      = "alcaPCCZeroBias"
+alcaPCCIntegratorZeroBias.AlcaPCCIntegratorParameters.ProdInst = "alcaPCCZeroBias"
 
 
 seqALCARECOAlCaPCCZeroBias = cms.Sequence(ALCARECOZeroBiasHLT + alcaPCCIntegratorZeroBias)

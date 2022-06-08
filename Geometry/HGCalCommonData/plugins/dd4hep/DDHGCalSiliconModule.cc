@@ -110,10 +110,12 @@ struct HGCalSiliconModule {
 #endif
     layerType_ = args.value<std::vector<int>>("LayerType");
     layerSense_ = args.value<std::vector<int>>("LayerSense");
-    layerTypes_ = args.value<std::vector<int>>("LayerTypes");
+    layerOrient_ = args.value<std::vector<int>>("LayerTypes");
+    for (unsigned int k = 0; k < layerOrient_.size(); ++k)
+      layerOrient_[k] = HGCalTypes::layerType(layerOrient_[k]);
 #ifdef EDM_ML_DEBUG
-    for (unsigned int i = 0; i < layerTypes_.size(); ++i)
-      edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerTypes_[i];
+    for (unsigned int i = 0; i < layerOrient_.size(); ++i)
+      edm::LogVerbatim("HGCalGeom") << "LayerTypes [" << i << "] " << layerOrient_[i];
 #endif
     if (firstLayer_ > 0) {
       for (unsigned int i = 0; i < layerType_.size(); ++i) {
@@ -250,7 +252,7 @@ struct HGCalSiliconModule {
                                         << " of dimensions " << cms::convert2mm(rinB) << ":" << cms::convert2mm(rins)
                                         << ", " << cms::convert2mm(routF) << ":" << cms::convert2mm(routs) << ", "
                                         << cms::convert2mm(hthick) << ", 0.0, 360.0 and position " << glog.name()
-                                        << " number " << copy << ":" << layerTypes_[copy - firstLayer_];
+                                        << " number " << copy << ":" << layerOrient_[copy - firstLayer_];
 #endif
           positionSensitive(ctxt, e, glog, (copy - firstLayer_));
         }
@@ -260,7 +262,7 @@ struct HGCalSiliconModule {
 #ifdef EDM_ML_DEBUG
         std::string rotName("Null");
 #endif
-        if ((layerSense_[ly] > 0) && (layerTypes_[copy - firstLayer_] == HGCalTypes::WaferCenteredRotated)) {
+        if ((layerSense_[ly] > 0) && (layerOrient_[copy - firstLayer_] == HGCalTypes::WaferCenterR)) {
           rot = ns.rotation(rotstr_);
 #ifdef EDM_ML_DEBUG
           rotName = rotstr_;
@@ -305,11 +307,8 @@ struct HGCalSiliconModule {
   void positionSensitive(cms::DDParsingContext& ctxt, xml_h e, const dd4hep::Volume& glog, int layer) {
     cms::DDNamespace ns(ctxt, e, true);
     static const double sqrt3 = std::sqrt(3.0);
-    int layercenter = (layerTypes_[layer] == HGCalTypes::CornerCenteredLambda)
-                          ? HGCalTypes::CornerCenterYp
-                          : ((layerTypes_[layer] == HGCalTypes::CornerCenteredY) ? HGCalTypes::CornerCenterYm
-                                                                                 : HGCalTypes::WaferCenter);
-    int layertype = (layerTypes_[layer] == HGCalTypes::WaferCenteredBack) ? 1 : 0;
+    int layercenter = layerOrient_[layer];
+    int layertype = (layerOrient_[layer] == HGCalTypes::WaferCenterB) ? 1 : 0;
     int firstWafer = waferLayerStart_[layer];
     int lastWafer = ((layer + 1 < static_cast<int>(waferLayerStart_.size())) ? waferLayerStart_[layer + 1]
                                                                              : static_cast<int>(waferIndex_.size()));
@@ -416,7 +415,7 @@ struct HGCalSiliconModule {
   std::vector<double> slopeT_;          // Slopes at the larger R
   std::vector<double> zFrontT_;         // Starting Z values for the slopes
   std::vector<double> rMaxFront_;       // Corresponding rMax's
-  std::vector<int> layerTypes_;         // Layer type (Centering, rotations..)
+  std::vector<int> layerOrient_;        // Layer orientation (Centering, rotations..)
   std::vector<int> waferIndex_;         // Wafer index for the types
   std::vector<int> waferProperty_;      // Wafer property
   std::vector<int> waferLayerStart_;    // Index of wafers in each layer

@@ -281,7 +281,8 @@ void AlCaHcalHBHEMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup
   const EcalSeverityLevelAlgo* sevlv = &iSetup.getData(tok_sevlv_);
   const CaloTopology* caloTopology = &iSetup.getData(tok_topo_);
   const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
-  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp);
+  HcalRespCorrs respCorrsObj(*resp);
+  HcalRespCorrs* respCorrs = &respCorrsObj;
   respCorrs->setTopo(theHBHETopology);
 
   // Relevant blocks from iEvent
@@ -1014,7 +1015,8 @@ void AlCaHcalHBHEMuonProducer::beginRun(edm::Run const& iRun, edm::EventSetup co
   const HcalRespCorrs* resp = &iSetup.getData(tok_respcorr0_);
   const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo0_);
   const CaloGeometry* geo = &iSetup.getData(tok_geom0_);
-  HcalRespCorrs* respCorrs = new HcalRespCorrs(*resp);
+  HcalRespCorrs respCorrsObj(*resp);
+  HcalRespCorrs* respCorrs = &respCorrsObj;
   respCorrs->setTopo(theHBHETopology);
 
   // Write correction factors for all HB/HE events

@@ -22,6 +22,8 @@
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Notification/interface/G4SimEvent.h"
+#include "SimG4Core/Notification/interface/G4SimVertex.h"
+#include "SimG4Core/Notification/interface/G4SimTrack.h"
 
 #include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
@@ -60,6 +62,7 @@ private:
   omt::ThreadHandoff m_handoff;
   std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
   const OscarMTMasterThread* m_masterThread = nullptr;
+  int m_verbose;
 };
 
 namespace edm {
@@ -99,6 +102,7 @@ namespace {
 
 OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread* ms)
     : m_handoff{p.getUntrackedParameter<int>("workerThreadStackSize", 10 * 1024 * 1024)} {
+  m_verbose = p.getParameter<int>("EventVerbose");
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
@@ -239,13 +243,15 @@ void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
 void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   StaticRandomEngineSetUnset random(e.streamID());
   auto engine = random.currentEngine();
-  edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID();
-  //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
+  if (0 < m_verbose) {
+    edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID();
+    //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
+  }
 
   auto& sTk = m_runManagerWorker->sensTkDetectors();
   auto& sCalo = m_runManagerWorker->sensCaloDetectors();
 
-  std::unique_ptr<G4SimEvent> evt;
+  G4SimEvent* evt = nullptr;
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, &e, &es, &evt, token, engine]() {
     edm::ServiceRegistry::Operate guard{token};
@@ -258,6 +264,23 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   evt->load(*p1);
   evt->load(*p2);
 
+  if (0 < m_verbose) {
+    edm::LogVerbatim("SimG4CoreApplication") << "Produced " << p2->size() << " SimVertex objects";
+    if (1 < m_verbose) {
+      int nn = p2->size();
+      for (int i = 0; i < nn; ++i) {
+        edm::LogVerbatim("Vertex") << " " << (*p2)[i] << " " << (*p2)[i].processType();
+      }
+    }
+    edm::LogVerbatim("SimG4CoreApplication") << "Produced " << p1->size() << " SimTrack objects";
+    if (1 < m_verbose) {
+      int nn = p1->size();
+      for (int i = 0; i < nn; ++i) {
+        edm::LogVerbatim("Track") << " " << i << ". " << (*p1)[i] << " " << (*p1)[i].crossedBoundary() << " "
+                                  << (*p1)[i].getIDAtBoundary();
+      }
+    }
+  }
   e.put(std::move(p1));
   e.put(std::move(p2));
 
@@ -266,7 +289,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     for (auto& name : v) {
       std::unique_ptr<edm::PSimHitContainer> product(new edm::PSimHitContainer);
       tracker->fillHits(*product, name);
-      if (product != nullptr && !product->empty())
+      if (0 < m_verbose && product != nullptr && !product->empty())
         edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " tracker hits <" << name << ">";
       e.put(std::move(product), name);
     }
@@ -276,7 +299,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     for (auto& name : v) {
       std::unique_ptr<edm::PCaloHitContainer> product(new edm::PCaloHitContainer);
       calo->fillHits(*product, name);
-      if (product != nullptr && !product->empty())
+      if (0 < m_verbose && product != nullptr && !product->empty())
         edm::LogVerbatim("SimG4CoreApplication") << "Produced " << product->size() << " calo hits <" << name << ">";
       e.put(std::move(product), name);
     }
@@ -286,8 +309,10 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   for (auto& prod : producers) {
     prod.get()->produce(e, es);
   }
-  edm::LogVerbatim("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID();
-  //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
+  if (0 < m_verbose) {
+    edm::LogVerbatim("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID();
+    //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
+  }
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(edm::StreamID const& streamID) {

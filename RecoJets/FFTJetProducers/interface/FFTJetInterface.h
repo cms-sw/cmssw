@@ -28,7 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
 
@@ -49,7 +49,7 @@
 // class declaration
 //
 namespace fftjetcms {
-  class FFTJetInterface : public edm::EDProducer {
+  class FFTJetInterface : public edm::stream::EDProducer<> {
   public:
     // Explicitly disable other ways to construct this object
     FFTJetInterface() = delete;
