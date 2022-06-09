@@ -610,20 +610,3 @@ private:
 
 #endif
 
-/*
-OK :: KO : empty > OK Ele ecal energy / gen energy [1] : EtotoEtrue
-KO : empty > OK > Ele seed dphi vs eta[0] car on étend le range de l'existant : h_ele_seedDphi2_VsEta_pfx
-KO : empty > OK > Ele seed dr/z vs eta [0] car on étend le range de l'existant : h_ele_seedDrz2_VsEta_pfx
-OK :: KO : empty > OK > Ele provenance [1] : provenance
-OK : full > OK > E/p[1] : EoEtrue_barrel_new*/
-
-//EoEtrue_endcaps_new
-
-/*OK : full > OK > dEta_in_seed,[1] : dEtaSc_propVtx
-OK : full > OK > dPhi_in[1] : dPhiSc_propVtx
-OK : full > OK > full5x5_sigmaIetaIeta[1] : full5x5_sigietaieta
-OK : full > OK > H/E[1] : HoE
-OK : full > OK > PF charged hadron iso[1] : chargedHadronRelativeIso (mais la, je ne comprends pas pourquoi elle se limite aux charged hadrons, on pourrait mettre les 2 autres) -> [3]
-OK : full > OK > Ele track number of found hits [0] car on étend le range de l'existant : h_ele_foundHitsVsEta_pfx
-OK : full > OK > fBrem [1] : fbrem
-*/
