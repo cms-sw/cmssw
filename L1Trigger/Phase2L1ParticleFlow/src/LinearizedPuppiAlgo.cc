@@ -2,7 +2,7 @@
 #include "DataFormats/L1TParticleFlow/interface/PFCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "L1Trigger/Phase2L1ParticleFlow/src/dbgPrintf.h"
+#include "L1Trigger/Phase2L1ParticleFlow/interface/dbgPrintf.h"
 
 #include "Math/ProbFunc.h"
 
@@ -62,10 +62,13 @@ const std::vector<std::string> &LinearizedPuppiAlgo::puGlobalNames() const {
   static const std::vector<std::string> names_{};
   return names_;
 }
-void LinearizedPuppiAlgo::doPUGlobals(const std::vector<Region> &rs, float npu, std::vector<float> &globals) const {
+void LinearizedPuppiAlgo::doPUGlobals(const std::vector<Region> &rs,
+                                      float z0,
+                                      float npu,
+                                      std::vector<float> &globals) const {
   globals.clear();
 }
-void LinearizedPuppiAlgo::runNeutralsPU(Region &r, float npu, const std::vector<float> &globals) const {
+void LinearizedPuppiAlgo::runNeutralsPU(Region &r, float z0, float npu, const std::vector<float> &globals) const {
   std::vector<float> alphaC, alphaF;
   PuppiAlgo::computePuppiAlphas(r, alphaC, alphaF);
   computePuppiWeights(r, npu, alphaC, alphaF);

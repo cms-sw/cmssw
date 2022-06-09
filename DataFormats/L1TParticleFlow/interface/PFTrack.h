@@ -36,7 +36,8 @@ namespace l1t {
           trkPtError_(trkPtError),
           caloPtError_(caloPtError),
           isMuon_(isMuon),
-          nPar_(nPar) {
+          nPar_(nPar),
+          trackWord_(*tkPtr) {
       setCharge(charge);
       setVertex(vtx);
     }
@@ -72,6 +73,9 @@ namespace l1t {
     float normalizedChi2() const { return track()->chi2Red(); }
     float chi2() const { return track()->chi2(); }
 
+    const TTTrack_TrackWord& trackWord() const { return trackWord_; }
+    TTTrack_TrackWord& trackWord() { return trackWord_; }
+
   private:
     TrackRef trackRef_;
     float caloEta_, caloPhi_;
@@ -79,6 +83,7 @@ namespace l1t {
     float caloPtError_;
     bool isMuon_;
     unsigned int nPar_;
+    TTTrack_TrackWord trackWord_;
   };
 
   typedef std::vector<l1t::PFTrack> PFTrackCollection;
