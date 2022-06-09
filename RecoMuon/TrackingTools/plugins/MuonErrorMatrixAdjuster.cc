@@ -16,7 +16,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-MuonErrorMatrixAdjuster::MuonErrorMatrixAdjuster(const edm::ParameterSet& iConfig) {
+MuonErrorMatrixAdjuster::MuonErrorMatrixAdjuster(const edm::ParameterSet& iConfig)
+    : theFieldToken{esConsumes()}, theHttopoToken{esConsumes()} {
   theCategory = "MuonErrorMatrixAdjuster";
   theInstanceName = iConfig.getParameter<std::string>("instanceName");
   //register your products
@@ -25,9 +26,12 @@ MuonErrorMatrixAdjuster::MuonErrorMatrixAdjuster(const edm::ParameterSet& iConfi
   produces<reco::TrackExtraCollection>();
 
   theTrackLabel = iConfig.getParameter<edm::InputTag>("trackLabel");
+  consumes<reco::TrackCollection>(theTrackLabel);
   theRescale = iConfig.getParameter<bool>("rescale");
 
-  theMatrixProvider_pset = iConfig.getParameter<edm::ParameterSet>("errorMatrix_pset");
+  auto matrixProvider_pset = iConfig.getParameter<edm::ParameterSet>("errorMatrix_pset");
+
+  theMatrixProvider = std::make_unique<MuonErrorMatrix>(matrixProvider_pset);
 }
 
 MuonErrorMatrixAdjuster::~MuonErrorMatrixAdjuster() {
@@ -179,11 +183,9 @@ void MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup&
                         << theTrackLabel << ")";
 
   //get the mag field
-  iSetup.get<IdealMagneticFieldRecord>().get(theField);
+  theField = iSetup.getHandle(theFieldToken);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  iSetup.get<TrackerTopologyRcd>().get(httopo);
-  const TrackerTopology& ttopo = *httopo;
+  const TrackerTopology& ttopo = iSetup.getData(theHttopoToken);
 
   //prepare the output collection
   auto Toutput = std::make_unique<reco::TrackCollection>();
@@ -239,13 +241,4 @@ void MuonErrorMatrixAdjuster::produce(edm::Event& iEvent, const edm::EventSetup&
   iEvent.put(std::move(Toutput), theInstanceName);
   iEvent.put(std::move(TEoutput));
   iEvent.put(std::move(TRHoutput));
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void MuonErrorMatrixAdjuster::beginJob() { theMatrixProvider = new MuonErrorMatrix(theMatrixProvider_pset); }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void MuonErrorMatrixAdjuster::endJob() {
-  if (theMatrixProvider)
-    delete theMatrixProvider;
 }
