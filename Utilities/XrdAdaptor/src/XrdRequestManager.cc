@@ -142,7 +142,7 @@ static void TracerouteRedirections(const XrdCl::HostList *hostList) {
 
     // Organize redirection info
     std::string redirection = std::to_string(idx_redirection) + ". || ";
-    redirection = redirection + " / " + hostname_method->c_str() + " / " + stack_ip_method->c_str() + " / " + ip_method->c_str() + " / " std::to_string(itr->url.GetPort());
+    redirection = redirection + " / " + hostname_method->c_str() + " / " + stack_ip_method->c_str() + " / " + ip_method->c_str() + " / " + std::to_string(itr->url.GetPort());
     if (!auth_method->empty()){
       redirection = redirection + " / " + auth_method->c_str();
     } else{
