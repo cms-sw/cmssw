@@ -101,6 +101,7 @@ void RawToDigiConverter::runCommon(const VFATFrameCollection &input,
         stopProcessing = true;
       }
     }
+
     // check the id mismatch
     if (testID != tfNoTest && record.frame->isIDPresent() &&
         (record.frame->getChipID() & 0xFFF) != (record.info->hwID & 0xFFF)) {
@@ -331,11 +332,10 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
                                   eventInfoTmp);
           // calculate ids
           TotemTimingDetId detId(record.info->symbolicID.symbolicID);
-
           const TotemDAQMapping::TotemTimingPlaneChannelPair SWpair =
               mapping.getTimingChannel(totemSampicFrame.getHardwareId());
           // for FW Version > 0 plane and channel are encoded in the dataframe
-          if (totemSampicFrame.getFWVersion() < 0x30)  // Mapping not present in HW, read from SW for FW versions < 3.0
+          if (totemSampicFrame.getFWVersion() == 0)  // Mapping not present in HW, read from SW for FW versions == 0
           {
             if (SWpair.plane == -1 || SWpair.channel == -1) {
               if (verbosity > 0)
@@ -345,7 +345,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
             } else {
               detId.setPlane(SWpair.plane % 4);
               detId.setChannel(SWpair.channel);
-              detId.setRP(SWpair.plane / 4);  // Top:0 or Bottom:1
             }
           } else  // Mapping read from HW, checked by SW
           {
@@ -368,7 +367,6 @@ void RawToDigiConverter::run(const VFATFrameCollection &coll,
             }
             detId.setPlane(HWplane % 4);
             detId.setChannel(HWchannel);
-            detId.setRP(HWplane / 4);  // Top:0 or Bottom:1
           }
 
           DetSet<TotemTimingDigi> &digiDetSet = digi.find_or_insert(detId);
