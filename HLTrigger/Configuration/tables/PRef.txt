@@ -64,8 +64,8 @@ EcalCalibrationOutput
 RPCMONOutput
 ALCAP0Output
 ALCAPHISYMOutput
-ALCALumiPixelCountsExpressOutput	#	CMSHLT-2114
-ALCALumiPixelCountsPromptOutput		#	CMSHLT-2114
+ALCALumiPixelsCountsExpressOutput # CMSHLT-2114, CMSHLT-2324
+ALCALumiPixelsCountsPromptOutput  # CMSHLT-2114, CMSHLT-2324
 ExpressOutput
 ExpressAlignmentOutput
 NanoDSTOutput
