@@ -17,6 +17,8 @@ namespace l1t {
   static constexpr float PFTAU_PF_LOOSE_CUT = 10.0;
   static constexpr float PFTAU_PF_TIGHT_CUT = 5.0;
 
+  static constexpr float PTSCALING_MASSCUT = 40.0;
+
   static constexpr double PFTAU_NN_PT_CUTOFF = 100.0;
 
   class PFTau : public L1Candidate {
@@ -41,14 +43,32 @@ namespace l1t {
     float chargedIso() const { return iso_; }
     float fullIso() const { return fullIso_; }
     int id() const { return id_; }
+
+    void setZ0(float z0) { setVertex(reco::Particle::Point(0, 0, z0)); }
+    void setDxy(float dxy) { dxy_ = dxy; }
+
+    float z0() const { return vz(); }
+    float dxy() const { return dxy_; }
+
+    bool passMass() const { return (mass() < 2 + pt() / PTSCALING_MASSCUT); }
     bool passLooseNN() const {
       return iso_ * (PFTAU_NN_OFFSET + PFTAU_NN_SLOPE * (min(pt(), PFTAU_NN_PT_CUTOFF))) * PFTAU_NN_OVERALL_SCALE >
              PFTAU_NN_LOOSE_CUT;
+    }
+    bool passLooseNNMass() const {
+      if (!passMass())
+        return false;
+      return passLooseNN();
     }
     bool passLoosePF() const { return fullIso_ < PFTAU_PF_LOOSE_CUT; }
     bool passTightNN() const {
       return iso_ * (PFTAU_NN_OFFSET + PFTAU_NN_SLOPE * (min(pt(), PFTAU_NN_PT_CUTOFF))) * PFTAU_NN_OVERALL_SCALE >
              PFTAU_NN_TIGHT_CUT;
+    }
+    bool passTightNNMass() const {
+      if (!passMass())
+        return false;
+      return passTightNN();
     }
     bool passTightPF() const { return fullIso_ < PFTAU_PF_TIGHT_CUT; }
 
@@ -56,6 +76,7 @@ namespace l1t {
     float iso_;
     float fullIso_;
     int id_;
+    float dxy_;
   };
 
   typedef std::vector<l1t::PFTau> PFTauCollection;

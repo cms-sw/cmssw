@@ -2,7 +2,15 @@
 
 l1t::PFCandidate::PFCandidate(
     ParticleType kind, int charge, const PolarLorentzVector& p, float puppiWeight, int hwpt, int hweta, int hwphi)
-    : L1Candidate(p, hwpt, hweta, hwphi, /*hwQuality=*/int(kind)), puppiWeight_(puppiWeight) {
+    : L1Candidate(p, hwpt, hweta, hwphi, /*hwQuality=*/int(kind)),
+      dxy_(0),
+      puppiWeight_(puppiWeight),
+      hwZ0_(0),
+      hwDxy_(0),
+      hwTkQuality_(0),
+      hwPuppiWeight_(0),
+      hwEmID_(0),
+      encodedPuppi64_(0) {
   setCharge(charge);
   setPdgIdFromParticleType(charge, kind);
 }
