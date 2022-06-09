@@ -60,32 +60,32 @@ ParticleNetSonicJetTagsProducer::ParticleNetSonicJetTagsProducer(const edm::Para
   ParticleNetConstructor(iConfig, false, input_names_, prep_info_map_, input_shapes_, input_sizes_, nullptr);
 
   if (debug_) {
+    LogDebug("ParticleNetSonicJetTagsProducer") << "<ParticleNetSonicJetTagsProducer::produce>:" << std::endl;
     for (unsigned i = 0; i < input_names_.size(); ++i) {
       const auto &group_name = input_names_.at(i);
       if (!input_shapes_.empty()) {
-        std::cout << group_name << "\nshapes: ";
+        LogDebug("ParticleNetSonicJetTagsProducer") << group_name << "\nshapes: ";
         for (const auto &x : input_shapes_.at(i)) {
-          std::cout << x << ", ";
+          LogDebug("ParticleNetSonicJetTagsProducer") << x << ", ";
         }
       }
-      std::cout << "\nvariables: ";
+      LogDebug("ParticleNetSonicJetTagsProducer") << "\nvariables: ";
       for (const auto &x : prep_info_map_.at(group_name).var_names) {
-        std::cout << x << ", ";
+        LogDebug("ParticleNetSonicJetTagsProducer") << x << ", ";
       }
-      std::cout << "\n";
+      LogDebug("ParticleNetSonicJetTagsProducer") << "\n";
     }
-    std::cout << "flav_names: ";
+    LogDebug("ParticleNetSonicJetTagsProducer") << "flav_names: ";
     for (const auto &flav_name : flav_names_) {
-      std::cout << flav_name << ", ";
+      LogDebug("ParticleNetSonicJetTagsProducer") << flav_name << ", ";
     }
-    std::cout << "\n";
+    LogDebug("ParticleNetSonicJetTagsProducer") << "\n";
   }
 
   // get output names from flav_names
   for (const auto &flav_name : flav_names_) {
     produces<JetTagCollection>(flav_name);
   }
-  //preprocessInfoLoader(&iConfig);
 }
 
 ParticleNetSonicJetTagsProducer::~ParticleNetSonicJetTagsProducer() {}
@@ -190,12 +190,13 @@ void ParticleNetSonicJetTagsProducer::acquire(edm::Event const &iEvent, edm::Eve
           }
 
           if (debug_) {
-            std::cout << " -- var=" << varname << ", center=" << info.center << ", scale=" << info.norm_factor
-                      << ", replace=" << info.replace_inf_value << ", pad=" << info.pad << std::endl;
+            LogDebug("acquire") << "<ParticleNetSonicJetTagsProducer::produce>:" << std::endl
+                                << " -- var=" << varname << ", center=" << info.center << ", scale=" << info.norm_factor
+                                << ", replace=" << info.replace_inf_value << ", pad=" << info.pad << std::endl;
             for (unsigned i = curr_pos - insize; i < curr_pos; i++) {
-              std::cout << vdata[i] << ",";
+              LogDebug("acquire") << vdata[i] << ",";
             }
-            std::cout << std::endl;
+            LogDebug("acquire") << std::endl;
           }
         }
       }
@@ -254,14 +255,16 @@ void ParticleNetSonicJetTagsProducer::produce(edm::Event &iEvent,
   }
 
   if (debug_) {
-    std::cout << "=== " << iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":" << iEvent.id().event()
-              << " ===" << std::endl;
+    LogDebug("produce") << "<ParticleNetSonicJetTagsProducer::produce>:" << std::endl
+                        << "=== " << iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":"
+                        << iEvent.id().event() << " ===" << std::endl;
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto &jet_ref = tag_infos->at(jet_n).jet();
-      std::cout << " - Jet #" << jet_n << ", pt=" << jet_ref->pt() << ", eta=" << jet_ref->eta()
-                << ", phi=" << jet_ref->phi() << std::endl;
+      LogDebug("produce") << " - Jet #" << jet_n << ", pt=" << jet_ref->pt() << ", eta=" << jet_ref->eta()
+                          << ", phi=" << jet_ref->phi() << std::endl;
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
-        std::cout << "    " << flav_names_.at(flav_n) << " = " << (*(output_tags.at(flav_n)))[jet_ref] << std::endl;
+        LogDebug("produce") << "    " << flav_names_.at(flav_n) << " = " << (*(output_tags.at(flav_n)))[jet_ref]
+                            << std::endl;
       }
     }
   }
