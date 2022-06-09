@@ -42,9 +42,9 @@ autoCond = {
     # GlobalTag for Run3 data relvals (prompt GT) - identical to 123X_dataRun3_Prompt_v10 but with snapshot at 2022-05-31 20:00:00 (UTC)
     'run3_data_prompt'             : '123X_dataRun3_Prompt_frozen_v4',
     # GlobalTag for Run3 offline data reprocessing
-    'run3_data'                    : '123X_dataRun3_v7',
+    'run3_data'                    : '123X_dataRun3_v8',
     # GlobalTag for Run3 data relvals: allows customization to run with fixed L1 menu
-    'run3_data_relval'             : '123X_dataRun3_relval_v6',
+    'run3_data_relval'             : '123X_dataRun3_relval_v7',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'           : '123X_mc2017_design_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
