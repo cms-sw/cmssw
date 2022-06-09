@@ -11,6 +11,7 @@
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <set>
 
 // Framework
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
