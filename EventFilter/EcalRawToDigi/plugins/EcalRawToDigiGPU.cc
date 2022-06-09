@@ -18,7 +18,7 @@
 class EcalRawToDigiGPU : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
   explicit EcalRawToDigiGPU(edm::ParameterSet const& ps);
-  ~EcalRawToDigiGPU() override;
+  ~EcalRawToDigiGPU() override = default;
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
 private:
@@ -33,7 +33,6 @@ private:
 
   cms::cuda::ContextState cudaState_;
 
-  const uint32_t maxFedSize_;
   std::vector<int> fedsToUnpack_;
 
   ecal::raw::ConfigurationParameters config_;
@@ -45,7 +44,6 @@ void EcalRawToDigiGPU::fillDescriptions(edm::ConfigurationDescriptions& confDesc
   edm::ParameterSetDescription desc;
 
   desc.add<edm::InputTag>("InputLabel", edm::InputTag("rawDataCollector"));
-  desc.add<uint32_t>("maxFedSize", ecal::raw::nbytes_per_fed_max);
   std::vector<int> feds(54);
   for (uint32_t i = 0; i < 54; ++i)
     feds[i] = i + 601;
@@ -64,13 +62,10 @@ EcalRawToDigiGPU::EcalRawToDigiGPU(const edm::ParameterSet& ps)
       digisEBToken_{produces<OutputProduct>(ps.getParameter<std::string>("digisLabelEB"))},
       digisEEToken_{produces<OutputProduct>(ps.getParameter<std::string>("digisLabelEE"))},
       eMappingToken_{esConsumes<ecal::raw::ElectronicsMappingGPU, EcalMappingElectronicsRcd>()},
-      maxFedSize_{ps.getParameter<uint32_t>("maxFedSize")},
       fedsToUnpack_{ps.getParameter<std::vector<int>>("FEDs")} {
   config_.maxChannelsEB = ps.getParameter<uint32_t>("maxChannelsEB");
   config_.maxChannelsEE = ps.getParameter<uint32_t>("maxChannelsEE");
 }
-
-EcalRawToDigiGPU::~EcalRawToDigiGPU() {}
 
 void EcalRawToDigiGPU::acquire(edm::Event const& event,
                                edm::EventSetup const& setup,
@@ -92,17 +87,30 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
   // scratch
   ecal::raw::ScratchDataGPU scratchGPU = {cms::cuda::make_device_unique<uint32_t[]>(2, ctx.stream())};
 
+  // make a first iteration over the FEDs to compute the total buffer size
+  uint32_t size = 0;
+  uint32_t feds = 0;
+  for (auto const& fed : fedsToUnpack_) {
+    auto const& data = rawDataHandle->FEDData(fed);
+    auto const nbytes = data.size();
+
+    // skip empty FEDs
+    if (nbytes < globalFieds::EMPTYEVENTSIZE)
+      continue;
+
+    size += nbytes;
+    ++feds;
+  }
+
   // input cpu data
-  ecal::raw::InputDataCPU inputCPU = {
-      cms::cuda::make_host_unique<unsigned char[]>(ecal::raw::nfeds_max * maxFedSize_, ctx.stream()),
-      cms::cuda::make_host_unique<uint32_t[]>(ecal::raw::nfeds_max, ctx.stream()),
-      cms::cuda::make_host_unique<int[]>(ecal::raw::nfeds_max, ctx.stream())};
+  ecal::raw::InputDataCPU inputCPU = {cms::cuda::make_host_unique<unsigned char[]>(size, ctx.stream()),
+                                      cms::cuda::make_host_unique<uint32_t[]>(feds, ctx.stream()),
+                                      cms::cuda::make_host_unique<int[]>(feds, ctx.stream())};
 
   // input data gpu
-  ecal::raw::InputDataGPU inputGPU = {
-      cms::cuda::make_device_unique<unsigned char[]>(ecal::raw::nfeds_max * maxFedSize_, ctx.stream()),
-      cms::cuda::make_device_unique<uint32_t[]>(ecal::raw::nfeds_max, ctx.stream()),
-      cms::cuda::make_device_unique<int[]>(ecal::raw::nfeds_max, ctx.stream())};
+  ecal::raw::InputDataGPU inputGPU = {cms::cuda::make_device_unique<unsigned char[]>(size, ctx.stream()),
+                                      cms::cuda::make_device_unique<uint32_t[]>(feds, ctx.stream()),
+                                      cms::cuda::make_device_unique<int[]>(feds, ctx.stream())};
 
   // output cpu
   outputCPU_ = {cms::cuda::make_host_unique<uint32_t[]>(2, ctx.stream())};
@@ -113,20 +121,15 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
   // output gpu
   outputGPU_.allocate(config_, ctx.stream());
 
-  // iterate over feds
-  // TODO: another idea
-  //   - loop over all feds to unpack and enqueue cuda memcpy
-  //   - accumulate the sizes
-  //   - after the loop launch cuda memcpy for sizes
-  //   - enqueue the kernel
+  // iterate over FEDs to fill the cpu buffer
   uint32_t currentCummOffset = 0;
   uint32_t counter = 0;
   for (auto const& fed : fedsToUnpack_) {
     auto const& data = rawDataHandle->FEDData(fed);
     auto const nbytes = data.size();
 
-    // skip empty feds
-    if (nbytes < ecal::raw::empty_event_size)
+    // skip empty FEDs
+    if (nbytes < globalFieds::EMPTYEVENTSIZE)
       continue;
 
     // copy raw data into plain buffer
@@ -139,6 +142,8 @@ void EcalRawToDigiGPU::acquire(edm::Event const& event,
     currentCummOffset += nbytes;
     ++counter;
   }
+  assert(currentCummOffset == size);
+  assert(counter == feds);
 
   // unpack if at least one FED has data
   if (counter > 0) {
