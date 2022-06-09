@@ -10,7 +10,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,7 +29,7 @@
 #include <ostream>
 #include <vector>
 
-class GenericBenchmarkAnalyzer : public edm::EDAnalyzer, public GenericBenchmark {
+class GenericBenchmarkAnalyzer : public edm::one::EDAnalyzer<>, public GenericBenchmark {
 public:
   explicit GenericBenchmarkAnalyzer(const edm::ParameterSet &);
   ~GenericBenchmarkAnalyzer() override;
