@@ -76,8 +76,7 @@ namespace PFJetMETcorrInputProducer_namespace {
 template <typename T, typename Textractor>
 class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<> {
 public:
-  explicit PFJetMETcorrInputProducerT(const edm::ParameterSet& cfg)
-      : skipMuonSelection_(nullptr) {
+  explicit PFJetMETcorrInputProducerT(const edm::ParameterSet& cfg) : skipMuonSelection_(nullptr) {
     token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
     offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
     offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
