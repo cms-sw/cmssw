@@ -13,13 +13,6 @@ import sys
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("BeamMonitor", Run3)
 
-# Configure tag and jobName if running Playback system
-if "dqm_cmssw/playback" in str(sys.argv[1]):
-  BSOnlineTag = BSOnlineTag + 'Playback'
-  BSOnlineJobName = BSOnlineJobName + 'Playback'
-  BSOnlineOmsServiceUrl = ''
-  useLockRecords = False
-
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #process.MessageLogger = cms.Service("MessageLogger",
@@ -103,6 +96,13 @@ process.dqmSaver.tag           = 'BeamMonitorHLT'
 process.dqmSaver.runNumber     = options.runNumber
 process.dqmSaverPB.tag         = 'BeamMonitorHLT'
 process.dqmSaverPB.runNumber   = options.runNumber
+
+# Configure tag and jobName if running Playback system
+if process.isDqmPlayback.value :
+  BSOnlineTag = BSOnlineTag + 'Playback'
+  BSOnlineJobName = BSOnlineJobName + 'Playback'
+  BSOnlineOmsServiceUrl = ''
+  useLockRecords = False
 
 #-----------------------------
 # BeamMonitor
