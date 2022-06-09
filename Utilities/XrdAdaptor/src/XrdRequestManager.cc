@@ -142,10 +142,17 @@ static void TracerouteRedirections(const XrdCl::HostList *hostList) {
 
     // Organize redirection info
     std::string redirection = std::to_string(idx_redirection) + ". || ";
-    redirection = redirection + hostname_method->c_str() + " / " + std::to_string(itr->url.GetPort());
-    redirection = redirection + " / " + stack_ip_method->c_str() + " / " + ip_method->c_str();
-    if (!auth_method->empty()){redirection = redirection + " / " + auth_method->c_str();}
-    if (itr->loadBalancer == 1){redirection = redirection + " / load balancer";}
+    redirection = redirection + " / " + hostname_method->c_str() + " / " + stack_ip_method->c_str() + " / " + ip_method->c_str() + " / " std::to_string(itr->url.GetPort());
+    if (!auth_method->empty()){
+      redirection = redirection + " / " + auth_method->c_str();
+    } else{
+      redirection = redirection + " / " + "no auth";
+    };
+    if (itr->loadBalancer == 1){
+      redirection = redirection + " / load balancer";
+    } else {
+      redirection = redirection + " / " + "endpoint";
+    };
     redirection = redirection + " ||" + " \n";
     traceroute_str = traceroute_str + redirection;
     delete stack_ip_method;
@@ -343,7 +350,7 @@ void RequestManager::reportSiteChange(std::vector<std::shared_ptr<Source>> const
   for (int i = 0; i < size_active_sources ; i++){
     std::string quality = std::to_string(iNew[i]->getQuality());
     std::string hostname_a;
-    Source::getHostname(iNew[i]->ID(), hostname_a);
+    Source::getHostname(iNew[i]->PrettyID(), hostname_a);
 
     all_active_endpoints.append("   [" + std::to_string(i+1) + "] "+ hostname_a);
     all_active_endpoints_quality.append("   [" + std::to_string(i+1) + "] " + quality + " for " + hostname_a);    
