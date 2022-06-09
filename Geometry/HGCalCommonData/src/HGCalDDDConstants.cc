@@ -244,9 +244,9 @@ bool HGCalDDDConstants::cellInLayer(int waferU, int waferV, int cellU, int cellV
       auto ktr = hgpar_->waferInfoMap_.find(indx);
       int thck(HGCalTypes::WaferFineThin), part(HGCalTypes::WaferFull), rotn(HGCalTypes::WaferOrient0);
       if (ktr != hgpar_->waferInfoMap_.end()) {
-	thck = (ktr->second).type;
-	part = (ktr->second).part;
-	rotn = (ktr->second).orient;
+        thck = (ktr->second).type;
+        part = (ktr->second).part;
+        rotn = (ktr->second).orient;
       }
       int ncell = (thck == HGCalTypes::WaferFineThin) ? hgpar_->nCellsFine_ : hgpar_->nCellsCoarse_;
       return HGCalWaferMask::goodCell(cellU, cellV, ncell, part, rotn);
@@ -856,11 +856,12 @@ bool HGCalDDDConstants::maskCell(const DetId& detId, int corners) const {
       auto ktr = hgpar_->waferInfoMap_.find(wl);
 #ifdef EDM_ML_DEBUG
       edm::LogVerbatim("HGCalGeom") << "MaskCell: Layer " << layer << " Wafer " << waferU << ":" << waferV << " Index "
-                                    << wl << ":" << (itr != hgpar_->waferTypes_.end()) << ":" << (ktr != hgpar_->waferInfoMap_.end());
+                                    << wl << ":" << (itr != hgpar_->waferTypes_.end()) << ":"
+                                    << (ktr != hgpar_->waferInfoMap_.end());
 #endif
       if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
-	int part = (ktr != hgpar_->waferInfoMap_.end()) ? (ktr->second).part : HGCalTypes::WaferFull;
-	mask = !(HGCalWaferMask::goodCell(u, v, part));
+        int part = (ktr != hgpar_->waferInfoMap_.end()) ? (ktr->second).part : HGCalTypes::WaferFull;
+        mask = !(HGCalWaferMask::goodCell(u, v, part));
       } else if (itr != hgpar_->waferTypes_.end()) {
         if ((itr->second).second <= HGCalTypes::k_OffsetRotation)
           mask = HGCalWaferMask::maskCell(u, v, N, (itr->second).first, (itr->second).second, corners);
