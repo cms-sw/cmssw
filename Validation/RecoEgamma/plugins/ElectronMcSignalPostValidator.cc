@@ -82,6 +82,10 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   if (h1_ele_provenance->getBinContent(3) > 0) {
     h1_ele_provenance->getTH1F()->Scale(1. / h1_ele_provenance->getBinContent(3));
   }
+  MonitorElement* h1_ele_provenance_Extended = get(iGetter, "provenance_Extended");
+  if (h1_ele_provenance_Extended->getBinContent(3) > 0) {
+    h1_ele_provenance_Extended->getTH1F()->Scale(1. / h1_ele_provenance_Extended->getBinContent(3));
+  }
   MonitorElement* h1_ele_provenance_barrel = get(iGetter, "provenance_barrel");
   if (h1_ele_provenance_barrel->getBinContent(3) > 0) {
     h1_ele_provenance_barrel->getTH1F()->Scale(1. / h1_ele_provenance_barrel->getBinContent(3));
@@ -138,7 +142,7 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   profileX(iBooker, iGetter, "vertexPtVsEta", "mean ele transverse momentum vs eta", "#eta", "<p_{T}> (GeV/c)");
   profileX(iBooker, iGetter, "vertexPtVsPhi", "mean ele transverse momentum vs phi", "#phi (rad)", "<p_{T}> (GeV/c)");
   profileX(iBooker, iGetter, "EoPVsEta", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
-  profileX(iBooker, iGetter, "EoPVsEtaExtended", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
+  profileX(iBooker, iGetter, "EoPVsEta_Extended", "mean ele E/p vs eta", "#eta", "<E/P_{vertex}>");
   profileX(iBooker, iGetter, "EoPVsPhi", "mean ele E/p vs phi", "#phi (rad)", "<E/P_{vertex}>");
   profileX(iBooker, iGetter, "EoPoutVsEta", "mean ele E/pout vs eta", "#eta", "<E_{seed}/P_{out}>");
   profileX(iBooker, iGetter, "EoPoutVsPhi", "mean ele E/pout vs phi", "#phi (rad)", "<E_{seed}/P_{out}>");
@@ -150,6 +154,7 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   profileX(iBooker, iGetter, "chi2VsPhi", "mean ele track chi2 vs phi", "#phi (rad)", "<#Chi^{2}>");
   profileX(iBooker, iGetter, "ambiguousTracksVsEta", "mean ele # ambiguous tracks  vs eta", "#eta", "<N_{ambiguous}>");
   profileX(iBooker, iGetter, "foundHitsVsEta", "mean ele track # found hits vs eta", "#eta", "<N_{hits}>");
+  profileX(iBooker, iGetter, "foundHitsVsEta_Extended", "mean ele track # found hits vs eta", "#eta", "<N_{hits}>");
   profileX(iBooker, iGetter, "foundHitsVsEta_mAOD", "mean ele track # found hits vs eta", "#eta", "<N_{hits}>");
   profileX(iBooker, iGetter, "foundHitsVsPhi", "mean ele track # found hits vs phi", "#phi (rad)", "<N_{hits}>");
   profileX(iBooker, iGetter, "lostHitsVsEta", "mean ele track # lost hits vs eta", "#eta", "<N_{hits}>");
@@ -167,6 +172,14 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
            0.004);
   profileX(iBooker,
            iGetter,
+           "seedDphi2_VsEta_Extended",
+           "mean ele seed dphi 2nd layer vs eta",
+           "#eta",
+           "<#phi_{pred} - #phi_{hit}, 2nd layer> (rad)",
+           -0.004,
+           0.004);
+  profileX(iBooker,
+           iGetter,
            "seedDphi2_VsPt",
            "mean ele seed dphi 2nd layer vs pt",
            "p_{T} (GeV/c)",
@@ -176,6 +189,14 @@ void ElectronMcSignalPostValidator::finalize(DQMStore::IBooker& iBooker, DQMStor
   profileX(iBooker,
            iGetter,
            "seedDrz2_VsEta",
+           "mean ele seed dr(dz) 2nd layer vs eta",
+           "#eta",
+           "<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",
+           -0.15,
+           0.15);
+  profileX(iBooker,
+           iGetter,
+           "seedDrz2_VsEta_Extended",
            "mean ele seed dr(dz) 2nd layer vs eta",
            "#eta",
            "<r(z)_{pred} - r(z)_{hit}, 2nd layer> (cm)",

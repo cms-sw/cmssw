@@ -258,6 +258,7 @@ private:
   MonitorElement *h1_scl_EoEtrue_endcaps_deegap;
   MonitorElement *h1_scl_EoEtrue_endcaps_ringgap;
   MonitorElement *h1_scl_EoEtrue_barrel_new;
+  MonitorElement *h1_scl_EoEtrue_endcaps_new_Extended;// h1_scl_EoEtrue_endcaps_new_Extended
   MonitorElement *h1_scl_EoEtrue_endcaps_new;
   MonitorElement *h1_scl_EoEtrue_barrel_new_etagap;
   MonitorElement *h1_scl_EoEtrue_barrel_new_phigap;
@@ -284,6 +285,7 @@ private:
   MonitorElement *h1_scl_SigIEtaIEta_mAOD_barrel;
   MonitorElement *h1_scl_SigIEtaIEta_mAOD_endcaps;
   MonitorElement *h1_scl_full5x5_sigmaIetaIeta;
+  MonitorElement *h1_scl_full5x5_sigmaIetaIeta_Extended;
   MonitorElement *h1_scl_full5x5_sigmaIetaIeta_barrel;
   MonitorElement *h1_scl_full5x5_sigmaIetaIeta_endcaps;
   MonitorElement *h1_scl_E1x5;
@@ -296,6 +298,7 @@ private:
   MonitorElement *h1_scl_E5x5_barrel;
   MonitorElement *h1_scl_E5x5_endcaps;
   MonitorElement *h1_scl_bcl_EtotoEtrue;
+  MonitorElement *h1_scl_bcl_EtotoEtrue_Extended;
   MonitorElement *h1_scl_bcl_EtotoEtrue_barrel;
   MonitorElement *h1_scl_bcl_EtotoEtrue_endcaps;
 
@@ -307,6 +310,7 @@ private:
   MonitorElement *h1_ele_foundHits_barrel;
   MonitorElement *h1_ele_foundHits_endcaps;
   MonitorElement *h2_ele_foundHitsVsEta;
+  MonitorElement *h2_ele_foundHitsVsEta_Extended;
   MonitorElement *h2_ele_foundHitsVsEta_mAOD;
   MonitorElement *h2_ele_foundHitsVsPhi;
   MonitorElement *h2_ele_foundHitsVsPt;
@@ -370,7 +374,7 @@ private:
   MonitorElement *h1_ele_EoP_barrel;
   MonitorElement *h1_ele_EoP_endcaps;
   MonitorElement *h2_ele_EoPVsEta;
-  MonitorElement *h2_ele_EoPVsEtaExtended;
+  MonitorElement *h2_ele_EoPVsEta_Extended;
   MonitorElement *h2_ele_EoPVsPhi;
   MonitorElement *h2_ele_EoPVsE;
   MonitorElement *h1_ele_EseedOP;
@@ -393,6 +397,7 @@ private:
   MonitorElement *h2_ele_EeleOPoutVsE;
 
   MonitorElement *h1_ele_dEtaSc_propVtx;
+  MonitorElement *h1_ele_dEtaSc_propVtx_Extended;
   MonitorElement *h1_ele_dEtaSc_propVtx_barrel;
   MonitorElement *h1_ele_dEtaSc_propVtx_endcaps;
   MonitorElement *h1_ele_dEtaSc_propVtx_mAOD;
@@ -402,6 +407,7 @@ private:
   MonitorElement *h2_ele_dEtaScVsPhi_propVtx;
   MonitorElement *h2_ele_dEtaScVsPt_propVtx;
   MonitorElement *h1_ele_dPhiSc_propVtx;
+  MonitorElement *h1_ele_dPhiSc_propVtx_Extended;
   MonitorElement *h1_ele_dPhiSc_propVtx_barrel;
   MonitorElement *h1_ele_dPhiSc_propVtx_endcaps;
   MonitorElement *h2_ele_dPhiScVsEta_propVtx;
@@ -442,12 +448,14 @@ private:
   MonitorElement *h1_ele_seed_mask_tec;
   MonitorElement *h1_ele_seed_dphi2;
   MonitorElement *h2_ele_seed_dphi2VsEta;
+  MonitorElement *h2_ele_seed_dphi2VsEta_Extended;
   MonitorElement *h2_ele_seed_dphi2VsPt;
   MonitorElement *h1_ele_seed_dphi2pos;
   MonitorElement *h2_ele_seed_dphi2posVsEta;
   MonitorElement *h2_ele_seed_dphi2posVsPt;
   MonitorElement *h1_ele_seed_drz2;
   MonitorElement *h2_ele_seed_drz2VsEta;
+  MonitorElement *h2_ele_seed_drz2VsEta_Extended;
   MonitorElement *h2_ele_seed_drz2VsPt;
   MonitorElement *h1_ele_seed_drz2pos;
   MonitorElement *h2_ele_seed_drz2posVsEta;
@@ -460,6 +468,7 @@ private:
   MonitorElement *h1_ele_eta_shower;
 
   MonitorElement *h1_ele_HoE;
+  MonitorElement *h1_ele_HoE_Extended;
   MonitorElement *h1_ele_HoE_bc;
   MonitorElement *h1_ele_HoE_barrel;
   MonitorElement *h1_ele_HoE_endcaps;
@@ -474,6 +483,7 @@ private:
   MonitorElement *h1_ele_HoE_mAOD_endcaps;
 
   MonitorElement *h1_ele_fbrem;
+  MonitorElement *h1_ele_fbrem_Extended;
   MonitorElement *h1_ele_fbrem_barrel;
   MonitorElement *h1_ele_fbrem_endcaps;
   MonitorElement *h1_ele_fbrem_mAOD;
@@ -505,6 +515,7 @@ private:
   MonitorElement *h1_ele_mva_barrel_isolated;
   MonitorElement *h1_ele_mva_endcaps_isolated;
   MonitorElement *h1_ele_provenance;
+  MonitorElement *h1_ele_provenance_Extended;
   MonitorElement *h1_ele_provenance_barrel;
   MonitorElement *h1_ele_provenance_endcaps;
 
@@ -520,12 +531,15 @@ private:
   MonitorElement *h1_ele_photonIso_endcaps;
   // -- pflow over pT
   MonitorElement *h1_ele_chargedHadronRelativeIso;
+  MonitorElement *h1_ele_chargedHadronRelativeIso_Extended;
   MonitorElement *h1_ele_chargedHadronRelativeIso_barrel;
   MonitorElement *h1_ele_chargedHadronRelativeIso_endcaps;
   MonitorElement *h1_ele_neutralHadronRelativeIso;
+  MonitorElement *h1_ele_neutralHadronRelativeIso_Extended;
   MonitorElement *h1_ele_neutralHadronRelativeIso_barrel;
   MonitorElement *h1_ele_neutralHadronRelativeIso_endcaps;
   MonitorElement *h1_ele_photonRelativeIso;
+  MonitorElement *h1_ele_photonRelativeIso_Extended;
   MonitorElement *h1_ele_photonRelativeIso_barrel;
   MonitorElement *h1_ele_photonRelativeIso_endcaps;
   MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD;
@@ -595,3 +609,21 @@ private:
 };
 
 #endif
+
+/*
+OK :: KO : empty > OK Ele ecal energy / gen energy [1] : EtotoEtrue
+KO : empty > OK > Ele seed dphi vs eta[0] car on étend le range de l'existant : h_ele_seedDphi2_VsEta_pfx
+KO : empty > OK > Ele seed dr/z vs eta [0] car on étend le range de l'existant : h_ele_seedDrz2_VsEta_pfx
+OK :: KO : empty > OK > Ele provenance [1] : provenance
+OK : full > OK > E/p[1] : EoEtrue_barrel_new*/
+
+//EoEtrue_endcaps_new
+
+/*OK : full > OK > dEta_in_seed,[1] : dEtaSc_propVtx
+OK : full > OK > dPhi_in[1] : dPhiSc_propVtx
+OK : full > OK > full5x5_sigmaIetaIeta[1] : full5x5_sigietaieta
+OK : full > OK > H/E[1] : HoE
+OK : full > OK > PF charged hadron iso[1] : chargedHadronRelativeIso (mais la, je ne comprends pas pourquoi elle se limite aux charged hadrons, on pourrait mettre les 2 autres) -> [3]
+OK : full > OK > Ele track number of found hits [0] car on étend le range de l'existant : h_ele_foundHitsVsEta_pfx
+OK : full > OK > fBrem [1] : fbrem
+*/
