@@ -63,25 +63,26 @@ BoostedJetONNXJetTagsProducer::BoostedJetONNXJetTagsProducer(const edm::Paramete
   ParticleNetConstructor(iConfig, true, input_names_, prep_info_map_, input_shapes_, input_sizes_, &data_);
 
   if (debug_) {
+    LogDebug("BoostedJetONNXJetTagsProducer") << "<BoostedJetONNXJetTagsProducer::produce>:" << std::endl;
     for (unsigned i = 0; i < input_names_.size(); ++i) {
       const auto &group_name = input_names_.at(i);
       if (!input_shapes_.empty()) {
-        std::cout << group_name << "\nshapes: ";
+        LogDebug("BoostedJetONNXJetTagsProducer") << group_name << "\nshapes: ";
         for (const auto &x : input_shapes_.at(i)) {
-          std::cout << x << ", ";
+          LogDebug("BoostedJetONNXJetTagsProducer") << x << ", ";
         }
       }
-      std::cout << "\nvariables: ";
+      LogDebug("BoostedJetONNXJetTagsProducer") << "\nvariables: ";
       for (const auto &x : prep_info_map_.at(group_name).var_names) {
-        std::cout << x << ", ";
+        LogDebug("BoostedJetONNXJetTagsProducer") << x << ", ";
       }
-      std::cout << "\n";
+      LogDebug("BoostedJetONNXJetTagsProducer") << "\n";
     }
-    std::cout << "flav_names: ";
+    LogDebug("BoostedJetONNXJetTagsProducer") << "flav_names: ";
     for (const auto &flav_name : flav_names_) {
-      std::cout << flav_name << ", ";
+      LogDebug("BoostedJetONNXJetTagsProducer") << flav_name << ", ";
     }
-    std::cout << "\n";
+    LogDebug("BoostedJetONNXJetTagsProducer") << "\n";
   }
 
   // get output names from flav_names
@@ -172,14 +173,16 @@ void BoostedJetONNXJetTagsProducer::produce(edm::Event &iEvent, const edm::Event
   }
 
   if (debug_) {
-    std::cout << "=== " << iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":" << iEvent.id().event()
-              << " ===" << std::endl;
+    LogDebug("produce") << "<BoostedJetONNXJetTagsProducer::produce>:" << std::endl
+                        << "=== " << iEvent.id().run() << ":" << iEvent.id().luminosityBlock() << ":"
+                        << iEvent.id().event() << " ===" << std::endl;
     for (unsigned jet_n = 0; jet_n < tag_infos->size(); ++jet_n) {
       const auto &jet_ref = tag_infos->at(jet_n).jet();
-      std::cout << " - Jet #" << jet_n << ", pt=" << jet_ref->pt() << ", eta=" << jet_ref->eta()
-                << ", phi=" << jet_ref->phi() << std::endl;
+      LogDebug("produce") << " - Jet #" << jet_n << ", pt=" << jet_ref->pt() << ", eta=" << jet_ref->eta()
+                          << ", phi=" << jet_ref->phi() << std::endl;
       for (std::size_t flav_n = 0; flav_n < flav_names_.size(); ++flav_n) {
-        std::cout << "    " << flav_names_.at(flav_n) << " = " << (*(output_tags.at(flav_n)))[jet_ref] << std::endl;
+        LogDebug("produce") << "    " << flav_names_.at(flav_n) << " = " << (*(output_tags.at(flav_n)))[jet_ref]
+                            << std::endl;
       }
     }
   }
@@ -221,12 +224,13 @@ void BoostedJetONNXJetTagsProducer::make_inputs(const reco::DeepBoostedJetTagInf
       }
 
       if (debug_) {
-        std::cout << " -- var=" << varname << ", center=" << info.center << ", scale=" << info.norm_factor
-                  << ", replace=" << info.replace_inf_value << ", pad=" << info.pad << std::endl;
+        LogDebug("make_inputs") << "<BoostedJetONNXJetTagsProducer::make_inputs>:" << std::endl
+                                << " -- var=" << varname << ", center=" << info.center << ", scale=" << info.norm_factor
+                                << ", replace=" << info.replace_inf_value << ", pad=" << info.pad << std::endl;
         for (unsigned i = curr_pos - insize; i < curr_pos; i++) {
-          std::cout << group_values[i] << ",";
+          LogDebug("make_inputs") << group_values[i] << ",";
         }
-        std::cout << std::endl;
+        LogDebug("make_inputs") << std::endl;
       }
     }
     group_values.resize(curr_pos);
