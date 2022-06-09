@@ -114,7 +114,8 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
       }
       //
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("FP420") << "FP420NumberingScheme  " << "ich=" << ich  << "copyno" << copyno[ich] << "name="  << name[ich];
+      edm::LogVerbatim("FP420") << "FP420NumberingScheme  "
+                                << "ich=" << ich << "copyno" << copyno[ich] << "name=" << name[ich];
 #endif
     }
     // det = 1 for +FP420 ,  = 2 for -FP420  / (det-1) = 0,1
@@ -129,9 +130,10 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
     intindex = packFP420Index(det, zside, station, plane);
     //
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("FP420") << "FP420NumberingScheme det=" << det << " zside=" << zside << " station=" <<station  << " plane=" << plane;
+    edm::LogVerbatim("FP420") << "FP420NumberingScheme det=" << det << " zside=" << zside << " station=" << station
+                              << " plane=" << plane;
     for (int ich = 0; ich < level; ich++) {
-      edm::LogVerbatim("FP420") <<" name = " << name[ich] <<" copy = " << copyno[ich];
+      edm::LogVerbatim("FP420") << " name = " << name[ich] << " copy = " << copyno[ich];
       edm::LogVerbatim("FP420") << " packed index = intindex" << intindex;
     }
 #endif
@@ -155,7 +157,8 @@ unsigned FP420NumberingScheme::packFP420Index(int det, int zside, int station, i
   //
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("FP420") << "FP420 packing: det " << det  << " zside  " << zside << " station " << station  << " plane " <<  plane << " idx " << idx;
+  edm::LogVerbatim("FP420") << "FP420 packing: det " << det << " zside  " << zside << " station " << station
+                            << " plane " << plane << " idx " << idx;
 #endif
   //  int newdet, newzside, newstation,newplane;
   //  unpackFP420Index(idx, newdet, newzside, newstation,newplane);
@@ -176,7 +179,8 @@ void FP420NumberingScheme::unpackFP420Index(const unsigned int& idx, int& det, i
   //
 
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("FP420")  << " FP420unpacking: idx=" << idx << " zside  " << zside << " station " << station  << " plane " <<  plane;
+  edm::LogVerbatim("FP420") << " FP420unpacking: idx=" << idx << " zside  " << zside << " station " << station
+                            << " plane " << plane;
 #endif
   //
 }

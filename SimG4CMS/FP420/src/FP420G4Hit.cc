@@ -99,7 +99,7 @@ void FP420G4Hit::addEnergyDeposit(const FP420G4Hit& aHit) {
   hadr += aHit.getHadr();
 }
 
-void FP420G4Hit::Print() {   edm::LogVerbatim("FP420") << (*this); }
+void FP420G4Hit::Print() { edm::LogVerbatim("FP420") << (*this); }
 
 G4ThreeVector FP420G4Hit::getEntry() const { return entry; }
 void FP420G4Hit::setEntry(const G4ThreeVector& xyz) { entry = xyz; }
