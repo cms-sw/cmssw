@@ -162,9 +162,9 @@ void RPCMonitorDigi::bookSectorRingME(DQMStore::IBooker& ibooker,
           meCls[icl]->setAxisTitle("Cluster size", 1);
 
           for (int i = 1; i <= 9; i++) {
-            const std::string ylabel1 = fmt::format("R{}_CH{:02d}_C", ring, i);
-            const std::string ylabel2 = fmt::format("R{}_CH{:02d}_B", ring, i);
-            const std::string ylabel3 = fmt::format("R{}_CH{:02d}_A", ring, i);
+            const std::string ylabel1 = fmt::format("R{}_CH{:02d}_C", ring, (icl * 9) + i);
+            const std::string ylabel2 = fmt::format("R{}_CH{:02d}_B", ring, (icl * 9) + i);
+            const std::string ylabel3 = fmt::format("R{}_CH{:02d}_A", ring, (icl * 9) + i);
             meCls[icl]->setBinLabel(1 + (i - 1) * 3, ylabel1, 2);
             meCls[icl]->setBinLabel(2 + (i - 1) * 3, ylabel2, 2);
             meCls[icl]->setBinLabel(3 + (i - 1) * 3, ylabel3, 2);
