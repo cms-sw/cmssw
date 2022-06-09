@@ -37,15 +37,10 @@ options.parseArguments()
 ##
 ## Define record, class and module based on option
 ##
-rcdName = "AlignPCLThresholdsHGRcd"
-className = "AlignPCLThresholdsHG"
-moduleName = "AlignPCLThresholdsHGReader"
+[rcdName, className, moduleName] = ["AlignPCLThresholdsRcd","AlignPCLThresholds","AlignPCLThresholdsLGReader"] \
+                                   if (options.readLGpayload) else ["AlignPCLThresholdsHGRcd","AlignPCLThresholdsHG","AlignPCLThresholdsHGReader"]
 
-if options.readLGpayload:
-    rcdName = "AlignPCLThresholdsRcd"
-    className = "AlignPCLThresholds"
-    moduleName = "AlignPCLThresholdsLGReader"
-
+print("using %s %s %s" % (rcdName, className, moduleName))
 ##
 ## Empty Source
 ##
@@ -59,7 +54,9 @@ process.source = cms.Source("EmptyIOVSource",
 ## Get the payload
 ##
 from CondCore.CondDB.CondDB_cfi import *
-CondDBThresholds = CondDB.clone(connect = cms.string("sqlite_file:mythresholds.db"))
+inputDBfile = 'sqlite_file:mythresholds_%s.db' % ("LG" if(options.readLGpayload) else "HG") 
+
+CondDBThresholds = CondDB.clone(connect = cms.string(inputDBfile))
 
 process.dbInput = cms.ESSource("PoolDBESSource",
                                CondDBThresholds,
@@ -82,8 +79,18 @@ process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
 ##
 ## Read it back
 ##
-process.ReadDB = cms.EDAnalyzer(moduleName)
-process.ReadDB.printDebug = cms.untracked.bool(True)
-process.ReadDB.outputFile = cms.untracked.string('AlignPCLThresholds.log')
+from CondFormats.PCLConfig.edmtestAlignPCLThresholdsReaderAlignPCLThresholdsAlignPCLThresholdsRcd_cfi import *
+from CondFormats.PCLConfig.edmtestAlignPCLThresholdsReaderAlignPCLThresholdsHGAlignPCLThresholdsHGRcd_cfi import *
+
+if(options.readLGpayload):
+    process.ReadDB = edmtestAlignPCLThresholdsReaderAlignPCLThresholdsAlignPCLThresholdsRcd.clone(
+        printDebug = True,
+        outputFile = 'AlignPCLThresholds_%s.log' % ("LG" if(options.readLGpayload) else "HG")
+    )
+else:
+    process.ReadDB = edmtestAlignPCLThresholdsReaderAlignPCLThresholdsHGAlignPCLThresholdsHGRcd.clone(
+        printDebug = True,
+        outputFile = 'AlignPCLThresholds_%s.log' % ("LG" if(options.readLGpayload) else "HG")
+    )
 
 process.p = cms.Path(process.get+process.ReadDB)
