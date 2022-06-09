@@ -1054,7 +1054,8 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
   // matched electrons
   setBookPrefix("h_mc");
   h1_mc_Eta_matched = bookH1withSumw2(iBooker, "Eta_matched", "Efficiency vs gen eta", eta_nbin, eta_min, eta_max);
-  h1_mc_Eta_Extended_matched = bookH1withSumw2(iBooker, "Eta_Extended_matched", "Efficiency vs gen eta", eta_nbin_extended, eta_min_extended, eta_max_extended);
+  h1_mc_Eta_Extended_matched = bookH1withSumw2(
+      iBooker, "Eta_Extended_matched", "Efficiency vs gen eta", eta_nbin_extended, eta_min_extended, eta_max_extended);
   h1_mc_AbsEta_matched =
       bookH1withSumw2(iBooker, "AbsEta_matched", "Efficiency vs gen |eta|", eta_nbin / 2, 0., eta_max);
   h1_mc_Pt_matched = bookH1(iBooker, "Pt_matched", "Efficiency vs gen transverse momentum", pteff_nbin, 5., pt_max);
@@ -1374,12 +1375,12 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                                poptrue_max,
                                                "E/E_{gen}");
   h1_scl_EoEtrue_endcaps_new_Extended = bookH1withSumw2(iBooker,
-                                              "EoEtrue_endcaps_new_Extended",
-                                              "ele ecal energy / gen energy, endcaps, extended",
-                                              poptrue_nbin,
-                                              poptrue_min,
-                                              poptrue_max,
-                                              "E/E_{gen}");
+                                                        "EoEtrue_endcaps_new_Extended",
+                                                        "ele ecal energy / gen energy, endcaps, extended",
+                                                        poptrue_nbin,
+                                                        poptrue_min,
+                                                        poptrue_max,
+                                                        "E/E_{gen}");
   h1_scl_EoEtrue_endcaps_new_deegap = bookH1withSumw2(iBooker,
                                                       "EoEtrue_endcaps_new_deegap",
                                                       "ele ecal energy / gen energy, endcaps, deegap",
@@ -1508,14 +1509,14 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                                  "Events",
                                                  "ELE_LOGY E1 P");
   h1_scl_full5x5_sigmaIetaIeta_Extended = bookH1withSumw2(iBooker,
-                                                 "full5x5_sigietaieta_Extended",
-                                                 "ele supercluster full5x5 sigma ieta ieta",
-                                                 100,
-                                                 0.,
-                                                 0.05,
-                                                 "#sigma_{i#eta i#eta}",
-                                                 "Events",
-                                                 "ELE_LOGY E1 P");
+                                                          "full5x5_sigietaieta_Extended",
+                                                          "ele supercluster full5x5 sigma ieta ieta",
+                                                          100,
+                                                          0.,
+                                                          0.05,
+                                                          "#sigma_{i#eta i#eta}",
+                                                          "Events",
+                                                          "ELE_LOGY E1 P");
   h1_scl_full5x5_sigmaIetaIeta_barrel = bookH1withSumw2(iBooker,
                                                         "full5x5_sigietaieta_barrel",
                                                         "ele supercluster full5x5 sigma ieta ieta, barrel",
@@ -1663,14 +1664,14 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                  0.,
                                  fhits_max);
   h2_ele_foundHitsVsEta_Extended = bookH2(iBooker,
-                                 "foundHitsVsEta_Extended",
-                                 "ele track # found hits vs eta",
-                                 eta2D_nbin_extended,
-                                 eta_min_extended,
-                                 eta_max_extended,
-                                 fhits_nbin,
-                                 0.,
-                                 fhits_max);
+                                          "foundHitsVsEta_Extended",
+                                          "ele track # found hits vs eta",
+                                          eta2D_nbin_extended,
+                                          eta_min_extended,
+                                          eta_max_extended,
+                                          fhits_nbin,
+                                          0.,
+                                          fhits_max);
   h2_ele_foundHitsVsEta_mAOD = bookH2(iBooker,
                                       "foundHitsVsEta_mAOD",
                                       "ele track # found hits vs eta",
@@ -1838,8 +1839,15 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                        "ELE_LOGY E1 P");
   h2_ele_EoPVsEta =
       bookH2(iBooker, "EoPVsEta", "ele E/P_{vertex} vs eta", eta2D_nbin, eta_min, eta_max, eop2D_nbin, 0., eopmaxsht);
-  h2_ele_EoPVsEta_Extended =
-      bookH2(iBooker, "EoPVsEta_Extended", "ele E/P_{vertex} vs eta", eta2D_nbin_extended, eta_min_extended, eta_max_extended, eop2D_nbin, 0., eopmaxsht);
+  h2_ele_EoPVsEta_Extended = bookH2(iBooker,
+                                    "EoPVsEta_Extended",
+                                    "ele E/P_{vertex} vs eta",
+                                    eta2D_nbin_extended,
+                                    eta_min_extended,
+                                    eta_max_extended,
+                                    eop2D_nbin,
+                                    0.,
+                                    eopmaxsht);
   h2_ele_EoPVsPhi =
       bookH2(iBooker, "EoPVsPhi", "ele E/P_{vertex} vs phi", phi2D_nbin, phi_min, phi_max, eop2D_nbin, 0., eopmaxsht);
   h2_ele_EoPVsE = bookH2(iBooker, "EoPVsE", "ele E/P_{vertex} vs E", 50, 0., p_max, 50, 0., 5.);
@@ -1951,14 +1959,14 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                           "Events",
                                           "ELE_LOGY E1 P");
   h1_ele_dEtaSc_propVtx_Extended = bookH1withSumw2(iBooker,
-                                          "dEtaSc_propVtx_Extended",
-                                          "ele #eta_{sc} - #eta_{tr}, prop from vertex",
-                                          detamatch_nbin,
-                                          detamatch_min,
-                                          detamatch_max,
-                                          "#eta_{sc} - #eta_{tr}",
-                                          "Events",
-                                          "ELE_LOGY E1 P");
+                                                   "dEtaSc_propVtx_Extended",
+                                                   "ele #eta_{sc} - #eta_{tr}, prop from vertex",
+                                                   detamatch_nbin,
+                                                   detamatch_min,
+                                                   detamatch_max,
+                                                   "#eta_{sc} - #eta_{tr}",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
   h1_ele_dEtaSc_propVtx_barrel = bookH1withSumw2(iBooker,
                                                  "dEtaSc_propVtx_barrel",
                                                  "ele #eta_{sc} - #eta_{tr}, prop from vertex, barrel",
@@ -2041,14 +2049,14 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                           "Events",
                                           "ELE_LOGY E1 P");
   h1_ele_dPhiSc_propVtx_Extended = bookH1withSumw2(iBooker,
-                                          "dPhiSc_propVtx_Extended",
-                                          "ele #phi_{sc} - #phi_{tr}, prop from vertex",
-                                          dphimatch_nbin,
-                                          dphimatch_min,
-                                          dphimatch_max,
-                                          "#phi_{sc} - #phi_{tr} (rad)",
-                                          "Events",
-                                          "ELE_LOGY E1 P");
+                                                   "dPhiSc_propVtx_Extended",
+                                                   "ele #phi_{sc} - #phi_{tr}, prop from vertex",
+                                                   dphimatch_nbin,
+                                                   dphimatch_min,
+                                                   dphimatch_max,
+                                                   "#phi_{sc} - #phi_{tr} (rad)",
+                                                   "Events",
+                                                   "ELE_LOGY E1 P");
   h1_ele_dPhiSc_propVtx_barrel = bookH1withSumw2(iBooker,
                                                  "dPhiSc_propVtx_barrel",
                                                  "ele #phi_{sc} - #phi_{tr}, prop from vertex, barrel",
@@ -2339,8 +2347,15 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                         dphimatch_max);
   h1_ele_HoE = bookH1withSumw2(
       iBooker, "HoE", "ele hadronic energy / em energy", hoe_nbin, hoe_min, hoe_max, "H/E", "Events", "ELE_LOGY E1 P");
-  h1_ele_HoE_Extended = bookH1withSumw2(
-      iBooker, "HoE_Extended", "ele hadronic energy / em energy", hoe_nbin, hoe_min, hoe_max, "H/E", "Events", "ELE_LOGY E1 P");
+  h1_ele_HoE_Extended = bookH1withSumw2(iBooker,
+                                        "HoE_Extended",
+                                        "ele hadronic energy / em energy",
+                                        hoe_nbin,
+                                        hoe_min,
+                                        hoe_max,
+                                        "H/E",
+                                        "Events",
+                                        "ELE_LOGY E1 P");
   h1_ele_HoE_barrel = bookH1withSumw2(iBooker,
                                       "HoE_barrel",
                                       "ele hadronic energy / em energy, barrel",
@@ -2512,8 +2527,15 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
       iBooker, "seedDphi2", "ele seed dphi 2nd layer", 50, -0.010, +0.010, "#phi_{hit}-#phi_{pred} (rad)");
   h2_ele_seed_dphi2VsEta = bookH2(
       iBooker, "seedDphi2_VsEta", "ele seed dphi 2nd layer vs eta", eta2D_nbin, eta_min, eta_max, 50, -0.003, +0.003);
-  h2_ele_seed_dphi2VsEta_Extended = bookH2(
-      iBooker, "seedDphi2_VsEta_Extended", "ele seed dphi 2nd layer vs eta", eta2D_nbin_extended, eta_min_extended , eta_max_extended, 50, -0.003, +0.003);
+  h2_ele_seed_dphi2VsEta_Extended = bookH2(iBooker,
+                                           "seedDphi2_VsEta_Extended",
+                                           "ele seed dphi 2nd layer vs eta",
+                                           eta2D_nbin_extended,
+                                           eta_min_extended,
+                                           eta_max_extended,
+                                           50,
+                                           -0.003,
+                                           +0.003);
   h2_ele_seed_dphi2VsPt =
       bookH2(iBooker, "seedDphi2_VsPt", "ele seed dphi 2nd layer vs pt", pt2D_nbin, 0., pt_max, 50, -0.003, +0.003);
   h1_ele_seed_dphi2pos = bookH1withSumw2(
@@ -2533,8 +2555,15 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
       iBooker, "seedDrz2", "ele seed dr (dz) 2nd layer", 50, -0.03, +0.03, "r(z)_{hit}-r(z)_{pred} (cm)");
   h2_ele_seed_drz2VsEta = bookH2(
       iBooker, "seedDrz2_VsEta", "ele seed dr/dz 2nd layer vs eta", eta2D_nbin, eta_min, eta_max, 50, -0.03, +0.03);
-  h2_ele_seed_drz2VsEta_Extended = bookH2(
-      iBooker, "seedDrz2_VsEta_Extended", "ele seed dr/dz 2nd layer vs eta", eta2D_nbin_extended, eta_min_extended, eta_max_extended, 50, -0.03, +0.03);
+  h2_ele_seed_drz2VsEta_Extended = bookH2(iBooker,
+                                          "seedDrz2_VsEta_Extended",
+                                          "ele seed dr/dz 2nd layer vs eta",
+                                          eta2D_nbin_extended,
+                                          eta_min_extended,
+                                          eta_max_extended,
+                                          50,
+                                          -0.03,
+                                          +0.03);
   h2_ele_seed_drz2VsPt =
       bookH2(iBooker, "seedDrz2_VsPt", "ele seed dr/dz 2nd layer vs pt", pt2D_nbin, 0., pt_max, 50, -0.03, +0.03);
   h1_ele_seed_drz2pos = bookH1withSumw2(
@@ -3143,14 +3172,14 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                                     "Events",
                                                     "ELE_LOGY E1 P");
   h1_ele_chargedHadronRelativeIso_Extended = bookH1withSumw2(iBooker,
-                                                    "chargedHadronRelativeIso_Extended",
-                                                    "chargedHadronRelativeIso_Extended",
-                                                    100,
-                                                    0.0,
-                                                    2.,
-                                                    "chargedHadronRelativeIso_Extended",
-                                                    "Events",
-                                                    "ELE_LOGY E1 P");
+                                                             "chargedHadronRelativeIso_Extended",
+                                                             "chargedHadronRelativeIso_Extended",
+                                                             100,
+                                                             0.0,
+                                                             2.,
+                                                             "chargedHadronRelativeIso_Extended",
+                                                             "Events",
+                                                             "ELE_LOGY E1 P");
   h1_ele_chargedHadronRelativeIso_barrel = bookH1withSumw2(iBooker,
                                                            "chargedHadronRelativeIso_barrel",
                                                            "chargedHadronRelativeIso for barrel",
@@ -3179,14 +3208,14 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                                     "Events",
                                                     "ELE_LOGY E1 P");
   h1_ele_neutralHadronRelativeIso_Extended = bookH1withSumw2(iBooker,
-                                                    "neutralHadronRelativeIso_Extended",
-                                                    "neutralHadronRelativeIso_Extended",
-                                                    100,
-                                                    0.0,
-                                                    2.,
-                                                    "neutralHadronRelativeIso_Extended",
-                                                    "Events",
-                                                    "ELE_LOGY E1 P");
+                                                             "neutralHadronRelativeIso_Extended",
+                                                             "neutralHadronRelativeIso_Extended",
+                                                             100,
+                                                             0.0,
+                                                             2.,
+                                                             "neutralHadronRelativeIso_Extended",
+                                                             "Events",
+                                                             "ELE_LOGY E1 P");
   h1_ele_neutralHadronRelativeIso_barrel = bookH1withSumw2(iBooker,
                                                            "neutralHadronRelativeIso_barrel",
                                                            "neutralHadronRelativeIso for barrel",
@@ -3207,8 +3236,15 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                                             "ELE_LOGY E1 P");
   h1_ele_photonRelativeIso = bookH1withSumw2(
       iBooker, "photonRelativeIso", "photonRelativeIso", 100, 0.0, 2., "photonRelativeIso", "Events", "ELE_LOGY E1 P");
-  h1_ele_photonRelativeIso_Extended = bookH1withSumw2(
-      iBooker, "photonRelativeIso_Extended", "photonRelativeIso_Extended", 100, 0.0, 2., "photonRelativeIso_Extended", "Events", "ELE_LOGY E1 P");
+  h1_ele_photonRelativeIso_Extended = bookH1withSumw2(iBooker,
+                                                      "photonRelativeIso_Extended",
+                                                      "photonRelativeIso_Extended",
+                                                      100,
+                                                      0.0,
+                                                      2.,
+                                                      "photonRelativeIso_Extended",
+                                                      "Events",
+                                                      "ELE_LOGY E1 P");
   h1_ele_photonRelativeIso_barrel = bookH1withSumw2(iBooker,
                                                     "photonRelativeIso_barrel",
                                                     "photonRelativeIso for barrel",
@@ -3537,7 +3573,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         }  // loop over rec ele to look for the best one
 
         // analysis when the mc track is found
-        if (okGsfFound) { //  && (std::abs(mcIter->eta())<maxAbsEta_)
+        if (okGsfFound) {  //  && (std::abs(mcIter->eta())<maxAbsEta_)
           // generated distributions for matched electrons
           h1_mc_Pt_matched_qmisid->Fill(mcIter->pt());
           h1_mc_Phi_matched_qmisid->Fill(mcIter->phi());
@@ -3590,7 +3626,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     }
 
     eleNum++;
-    if (std::abs(mcIter->eta())<maxAbsEta_) {
+    if (std::abs(mcIter->eta()) < maxAbsEta_) {
       h1_mc_Eta->Fill(mcIter->eta());
       h1_mc_AbsEta->Fill(std::abs(mcIter->eta()));
       h1_mc_P->Fill(mcIter->p());
@@ -3637,9 +3673,9 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     //------------------------------------
     passMiniAODSelection = bestGsfElectron.pt() >= 5.;
     isEBflag = bestGsfElectron.isEB();
-    isEEflag = bestGsfElectron.isEE() && (std::abs(mcIter->eta())<maxAbsEta_);
+    isEEflag = bestGsfElectron.isEE() && (std::abs(mcIter->eta()) < maxAbsEta_);
     isEEextendedflag = bestGsfElectron.isEE();
-    
+
     float Etot = 0.;
     CaloCluster_iterator it = bestGsfElectron.superCluster()->clustersBegin();
     CaloCluster_iterator itend = bestGsfElectron.superCluster()->clustersEnd();
@@ -3647,21 +3683,22 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       Etot += (*it)->energy();
     }
 
-    if (isEEextendedflag) { // Extended flag
+    if (isEEextendedflag) {  // Extended flag
       if (!isEEflag) {
         h1_mc_Eta_Extended_matched->Fill(mcIter->eta());
         h2_ele_EoPVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.eSuperClusterOverP());
-        h1_scl_bcl_EtotoEtrue_Extended->Fill(Etot / mcIter->p()); // 
+        h1_scl_bcl_EtotoEtrue_Extended->Fill(Etot / mcIter->p());  //
         h1_scl_EoEtrue_endcaps_new_Extended->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
         h1_ele_dEtaSc_propVtx_Extended->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
         h1_ele_dPhiSc_propVtx_Extended->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
         h1_scl_full5x5_sigmaIetaIeta_Extended->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
         h1_ele_HoE_Extended->Fill(bestGsfElectron.hcalOverEcal());
-        h1_ele_photonRelativeIso_Extended->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+        h1_ele_photonRelativeIso_Extended->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt /
+                                                bestGsfElectron.pt());
         h1_ele_chargedHadronRelativeIso_Extended->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
-                                            bestGsfElectron.pt());
+                                                       bestGsfElectron.pt());
         h1_ele_neutralHadronRelativeIso_Extended->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
-                                            bestGsfElectron.pt());
+                                                       bestGsfElectron.pt());
         double fbrem_mode = bestGsfElectron.fbrem();
         h1_ele_fbrem_Extended->Fill(fbrem_mode);
         if (!readAOD_) {
@@ -3673,7 +3710,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
           if (bestGsfElectron.trackerDrivenSeed() || bestGsfElectron.ecalDrivenSeed()) {
             h1_ele_provenance_Extended->Fill(0.);
           }
-          if (bestGsfElectron.trackerDrivenSeed() && !bestGsfElectron.ecalDrivenSeed()){
+          if (bestGsfElectron.trackerDrivenSeed() && !bestGsfElectron.ecalDrivenSeed()) {
             h1_ele_provenance_Extended->Fill(-2.);
           }
           if (!bestGsfElectron.trackerDrivenSeed() && bestGsfElectron.ecalDrivenSeed()) {
@@ -3681,25 +3718,24 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
           }
         }
       }
-      
+
       if (!readAOD_) {
         h2_ele_foundHitsVsEta_Extended->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
-        
+
         edm::RefToBase<TrajectorySeed> seed_Ext = bestGsfElectron.gsfTrack()->extra()->seedRef();
         ElectronSeedRef elseed_Ext = seed_Ext.castTo<ElectronSeedRef>();
         if (elseed_Ext->dPhiNeg(1) != std::numeric_limits<float>::infinity()) {
           h2_ele_seed_dphi2VsEta_Extended->Fill(bestGsfElectron.eta(), elseed_Ext->dPhiNeg(1));
-        } 
+        }
         if (elseed_Ext->dRZNeg(1) != std::numeric_limits<float>::infinity()) {
           h2_ele_seed_drz2VsEta_Extended->Fill(bestGsfElectron.eta(), elseed_Ext->dRZNeg(1));
         }
-
       }
-    } // end of Extended flag
+    }  // end of Extended flag
 
     if (!isEBflag && !isEEflag)
       continue;
-    
+
     // electron related distributions
     h1_ele_charge->Fill(bestGsfElectron.charge());
     h2_ele_chargeVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.charge());
@@ -3952,7 +3988,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         h2_ele_seed_dphi2VsEta->Fill(bestGsfElectron.eta(), elseed->dPhiNeg(1));
         h2_ele_seed_dphi2VsEta_Extended->Fill(bestGsfElectron.eta(), elseed->dPhiNeg(1));
         h2_ele_seed_dphi2VsPt->Fill(bestGsfElectron.pt(), elseed->dPhiNeg(1));
-      } 
+      }
       if (elseed->dPhiPos(1) != std::numeric_limits<float>::infinity()) {
         h1_ele_seed_dphi2pos->Fill(elseed->dPhiPos(1));
         h2_ele_seed_dphi2posVsEta->Fill(bestGsfElectron.eta(), elseed->dPhiPos(1));
@@ -4182,7 +4218,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     if (bestGsfElectron.trackerDrivenSeed() || bestGsfElectron.ecalDrivenSeed()) {
       h1_ele_provenance->Fill(0.);
     }
-    if (bestGsfElectron.trackerDrivenSeed() && !bestGsfElectron.ecalDrivenSeed()){
+    if (bestGsfElectron.trackerDrivenSeed() && !bestGsfElectron.ecalDrivenSeed()) {
       h1_ele_provenance->Fill(-2.);
     }
     if (!bestGsfElectron.trackerDrivenSeed() && bestGsfElectron.ecalDrivenSeed()) {

@@ -258,7 +258,7 @@ private:
   MonitorElement *h1_scl_EoEtrue_endcaps_deegap;
   MonitorElement *h1_scl_EoEtrue_endcaps_ringgap;
   MonitorElement *h1_scl_EoEtrue_barrel_new;
-  MonitorElement *h1_scl_EoEtrue_endcaps_new_Extended;// h1_scl_EoEtrue_endcaps_new_Extended
+  MonitorElement *h1_scl_EoEtrue_endcaps_new_Extended;
   MonitorElement *h1_scl_EoEtrue_endcaps_new;
   MonitorElement *h1_scl_EoEtrue_barrel_new_etagap;
   MonitorElement *h1_scl_EoEtrue_barrel_new_phigap;
