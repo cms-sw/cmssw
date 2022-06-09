@@ -260,7 +260,6 @@ private:
     }
   }
 
-
   edm::EDGetTokenT<std::vector<T> > token_;
 
   edm::InputTag offsetCorrLabel_;
