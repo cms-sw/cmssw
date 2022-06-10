@@ -114,7 +114,7 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
     EBDetId hitDetId = hit.id();
     uint16_t statusCode = 0;
     if (useRecoFlag_)
-      statusCode = (*EBRechits->find(hit.id())).recoFlag();
+      statusCode = EBRechits->find(hitDetId)->recoFlag();
     else
       statusCode = channelStatus[itunb->id().rawId()].getStatusCode();
     int iRing = CalibRing.getRingIndex(hitDetId);
@@ -125,7 +125,8 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
       ampCut = ampCut_barlP_[iRing - N_RING_BARREL / 2];
     float amplitude = hit.amplitude();
     if (statusCode <= statusThreshold_ && amplitude > ampCut) {
-      phiSymEBDigiCollection->push_back((*EBDigis->find(hit.id())).id(), (*EBDigis->find(hit.id())).begin());
+      const auto digiIt = EBDigis->find(hitDetId);
+      phiSymEBDigiCollection->push_back(digiIt->id(), digiIt->begin());
     }
   }
 
@@ -136,7 +137,7 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
     EEDetId hitDetId = hit.id();
     uint16_t statusCode = 0;
     if (useRecoFlag_)
-      statusCode = (*EERechits->find(hit.id())).recoFlag();
+      statusCode = EERechits->find(hitDetId)->recoFlag();
     else
       statusCode = channelStatus[itune->id().rawId()].getStatusCode();
     int iRing = CalibRing.getRingIndex(hitDetId);
@@ -147,7 +148,8 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
       ampCut = ampCut_endcP_[iRing - N_RING_BARREL - N_RING_ENDCAP / 2];
     float amplitude = hit.amplitude();
     if (statusCode <= statusThreshold_ && amplitude > ampCut) {
-      phiSymEEDigiCollection->push_back((*EEDigis->find(hit.id())).id(), (*EEDigis->find(hit.id())).begin());
+      const auto digiIt = EEDigis->find(hitDetId);
+      phiSymEEDigiCollection->push_back(digiIt->id(), digiIt->begin());
     }
   }
 
