@@ -214,8 +214,8 @@ _phase2_siml1emulator.add(l1PFJetsPhase1Task_9x9)
 
 # PF MET
 # ########################################################################
-from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
-_phase2_siml1emulator.add(l1PFJetsTask)
+#from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
+#_phase2_siml1emulator.add(l1PFJetsTask)
 
 from L1Trigger.Phase2L1ParticleFlow.L1MetPfProducer_cfi import *
 _phase2_siml1emulator.add(L1MetPfProducer)
