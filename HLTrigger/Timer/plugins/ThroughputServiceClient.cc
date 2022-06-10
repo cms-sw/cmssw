@@ -121,12 +121,12 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
     width = avg_max - avg_min;
 
     // define the range for .../average_sourced
-    uint64_t first = sourced->FindFirstBinAbove(0.);
-    uint64_t last = sourced->FindLastBinAbove(0.);
+    int64_t first = sourced->FindFirstBinAbove(0.);
+    int64_t last = sourced->FindLastBinAbove(0.);
     booker.setCurrentFolder(folder);
     // (re)book and fill .../average_sourced
     average = booker.book1D("average_sourced", "Throughput (sourced events)", (int)width, avg_min, avg_max)->getTH1F();
-    for (unsigned int i = first; i <= last; ++i)
+    for (int64_t i = std::max(first, (int64_t)0); i <= last; ++i)
       average->Fill(sourced->GetBinContent(i));
 
     // define the range for .../average_retired
@@ -135,7 +135,7 @@ void ThroughputServiceClient::fillSummaryPlots(DQMStore::IBooker &booker, DQMSto
     booker.setCurrentFolder(folder);
     // (re)book and fill .../average_retired
     average = booker.book1D("average_retired", "Throughput (retired events)", (int)width, avg_min, avg_max)->getTH1F();
-    for (unsigned int i = first; i <= last; ++i)
+    for (int64_t i = std::max(first, (int64_t)0); i <= last; ++i)
       average->Fill(retired->GetBinContent(i));
   }
 }
