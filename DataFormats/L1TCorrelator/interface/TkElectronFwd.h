@@ -21,6 +21,7 @@ namespace l1t {
   typedef edm::RefVector<TkElectronCollection> TkElectronRefVector;
   typedef std::vector<TkElectronRef> TkElectronVectorRef;
   typedef l1t::RegionalOutput<l1t::TkElectronCollection> TkElectronRegionalOutput;
+  typedef l1t::RegionalOutput<l1t::TkElectronCollection> TkElectronRegionalOutput;
 
 }  // namespace l1t
 #endif
