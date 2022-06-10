@@ -226,9 +226,6 @@ _phase2_siml1emulator.add(L1MetPfProducer)
 from L1Trigger.Phase2L1ParticleFlow.L1NNTauProducer_cff import *
 
 _phase2_siml1emulator.add(L1NNTauProducerPuppi)
-#_phase2_siml1emulator.add(L1NNTauProducerPuppi2Vtx)
-_phase2_siml1emulator.add(tau2VtxTaskHW)
-
 
 # --> add modules
 from Configuration.Eras.Modifier_phase2_trigger_cff import phase2_trigger
