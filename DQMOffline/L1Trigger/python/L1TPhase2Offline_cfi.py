@@ -93,9 +93,9 @@ l1tPhase2CorrelatorOfflineDQM = DQMEDAnalyzer(
     genParticlesInputTag = cms.untracked.InputTag("genParticles"),
     isParticleGun = cms.bool(False),
     objects = cms.PSet(
-        L1PF = cms.VInputTag("l1pfCandidates:PF",),
+        L1PF = cms.VInputTag("l1ctLayer1:PF",),
         L1PF_sel = cms.string("pt > 0"),
-        L1Puppi = cms.VInputTag("l1pfCandidates:Puppi",),
+        L1Puppi = cms.VInputTag("l1ctLayer1:Puppi",),
         L1Puppi_sel = cms.string("pt > 0"),
     ),
 
