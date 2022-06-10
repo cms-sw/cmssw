@@ -61,6 +61,7 @@ process.source = cms.Source ("PoolSource",
                             duplicateCheckMode = cms.untracked.string('noDuplicateCheck'),
                             )
 
+process.source.inputCommands = cms.untracked.vstring("keep *","drop l1tTkPrimaryVertexs_L1TkPrimaryVertex__*")
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string('GTTObjects_ttbar200PU.root'), closeFileFast = cms.untracked.bool(True))
 
