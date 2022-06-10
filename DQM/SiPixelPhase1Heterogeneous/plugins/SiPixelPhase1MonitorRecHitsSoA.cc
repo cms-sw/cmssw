@@ -167,7 +167,7 @@ void SiPixelPhase1MonitorRecHitsSoA::bookHistograms(DQMStore::IBooker& iBook,
     hBsizeyL[il] = iBook.book1D(Form("recHitsBLay%dSizey",il+1), Form("RecHits SizeY Barrel Layer%d;SizeY;#events",il+1), 50, 0, 50);
   }
   //Endcaps
-  hFposXY = iBook.book2D("recHitsEndcapsPosXY", "RecHits position Endcaps;X;Y", 200, -20, 20, 200,-20,-20);
+  hFposXY = iBook.book2D("recHitsEndcapsPosXY", "RecHits position Endcaps;X;Y", 200, -20, 20, 200,-20, 20);
   hFposZP = iBook.book2D("recHitsEndcapsPosZP", "RecHits position Endcaps;Z;#phi", 600, -60, 60, 200,-3.2,3.2);
   hFcharge = iBook.book1D("recHitsEndcapsCharge", "RecHits Charge Endcaps;Charge;#events", 250, 0, 100000);
   hFsizex = iBook.book1D("recHitsEndcapsSizex", "RecHits SizeX Endcaps;SizeX;#events", 50, 0, 50);
