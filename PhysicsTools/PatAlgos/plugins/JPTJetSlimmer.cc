@@ -63,15 +63,12 @@ public:
           tmp_specific.theCaloJetRef = edm::RefToBase<reco::Jet>(myjet);
           reco::CaloJet const* rawcalojetc = dynamic_cast<reco::CaloJet const*>(&*rawcalojet);
           caloJets->push_back(*rawcalojetc);
-        } else {
-          //  Add reference to existing slimmedCaloJet Collection to JPTJet
-          tmp_specific.theCaloJetRef = edm::RefToBase<reco::Jet>(h_calojets.refAt(icalo));
+          const reco::Candidate::Point& orivtx = ijet.vertex();
+          reco::JPTJet newJPTJet(ijet.p4(), orivtx, tmp_specific, ijet.getJetConstituents());
+          float jetArea = ijet.jetArea();
+          newJPTJet.setJetArea(fabs(jetArea));
+          jptJets->push_back(newJPTJet);
         }
-        const reco::Candidate::Point& orivtx = ijet.vertex();
-        reco::JPTJet newJPTJet(ijet.p4(), orivtx, tmp_specific, ijet.getJetConstituents());
-        float jetArea = ijet.jetArea();
-        newJPTJet.setJetArea(fabs(jetArea));
-        jptJets->push_back(newJPTJet);
       }
     }
     iEvent.put(std::move(caloJets));
