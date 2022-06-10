@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_4_0/HIon --type HIon --unprescale --process HLTHIon --globaltag auto:run3_hlt_HIon --input file:RelVal_Raw_HIon_DATA.root
 
-# /dev/CMSSW_12_4_0/HIon/V22 (CMSSW_12_4_0_pre4)
+# /dev/CMSSW_12_4_0/HIon/V42 (CMSSW_12_4_0_pre4_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTHIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/HIon/V22')
+  tableName = cms.string('/dev/CMSSW_12_4_0/HIon/V42')
 )
 
 process.transferSystem = cms.PSet( 
@@ -32319,9 +32319,9 @@ process.hltPreHIMinimumBiasSinglePixelTrackNpixGatedpart19 = cms.EDFilter( "HLTP
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
-process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
+process.hltFEDSelectorTCDS = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataRepacker" ),
-    fedList = cms.vuint32( 1023, 1024 )
+    fedList = cms.vuint32( 1024, 1025 )
 )
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     throw = cms.bool( False ),
@@ -33477,11 +33477,11 @@ process.hltPreDatasetTestEnablesEcalHcalDQM = cms.EDFilter( "HLTPrescaler",
 )
 
 process.statusOnGPU = SwitchProducerCUDA(
-   cuda = cms.EDProducer( "BooleanProducer",
-       value = cms.bool( True )
-   ),
-  cpu = cms.EDProducer( "BooleanProducer",
+   cpu = cms.EDProducer( "BooleanProducer",
        value = cms.bool( False )
+   ),
+  cuda = cms.EDProducer( "BooleanProducer",
+       value = cms.bool( True )
    ),
  )
 process.hltEcalDigis = SwitchProducerCUDA(
@@ -33661,7 +33661,7 @@ process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'Dataset_L1Accept' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltFEDSelector_*_*',
+      'keep *_hltFEDSelectorTCDS_*_*',
       'keep *_hltGtStage2Digis_*_*',
       'keep edmTriggerResults_*_*_*' )
 )
@@ -35049,7 +35049,7 @@ process.HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part16_v1 = cms.Path( proce
 process.HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part17_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1MinimumBiasHF1AND + process.hltPreHIMinimumBiasSinglePixelTrackNpixGatedpart17 + process.HLTHISinglePixelTrackNpix + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part18_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1MinimumBiasHF1AND + process.hltPreHIMinimumBiasSinglePixelTrackNpixGatedpart18 + process.HLTHISinglePixelTrackNpix + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIMinimumBias_SinglePixelTrack_NpixGated_part19_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1MinimumBiasHF1AND + process.hltPreHIMinimumBiasSinglePixelTrackNpixGatedpart19 + process.HLTHISinglePixelTrackNpix + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
+process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelectorTCDS + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreHLTAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.DQMCalibrationOutput = cms.FinalPath( process.hltOutputDQMCalibration )
 process.RPCMONOutput = cms.FinalPath( process.hltOutputRPCMON )
@@ -35184,11 +35184,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # enable TrigReport, TimeReport and MultiThreading
-process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True ),
-    numberOfThreads = cms.untracked.uint32( 4 ),
-    numberOfStreams = cms.untracked.uint32( 0 ),
-)
+process.options.wantSummary = True
+process.options.numberOfThreads = 4
+process.options.numberOfStreams = 0
 
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
