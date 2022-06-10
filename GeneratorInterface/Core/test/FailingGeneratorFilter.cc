@@ -13,6 +13,7 @@
 // system include files
 
 // user include files
+#include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -41,13 +42,17 @@ namespace test {
     }
     bool decay() const { return true; }
 
+    unsigned int getVHepMC() { return ivhepmc; }
     std::unique_ptr<HepMC::GenEvent> getGenEvent() { return std::move(event_); }
+    std::unique_ptr<HepMC3::GenEvent> getGenEvent3() { return std::move(event3_); }
 
     bool select(HepMC::GenEvent*) const { return true; }
     void resetEvent(std::unique_ptr<HepMC::GenEvent> iEvent) { event_ = std::move(iEvent); }
+    void resetEvent3(std::unique_ptr<HepMC3::GenEvent> iEvent) { event3_ = std::move(iEvent); }
     bool residualDecay() const { return true; }
     void finalizeEvent() const {}
     std::unique_ptr<GenEventInfoProduct> getGenEventInfo() const { return std::make_unique<GenEventInfoProduct>(); }
+    std::unique_ptr<GenEventInfoProduct3> getGenEventInfo3() const { return std::make_unique<GenEventInfoProduct3>(); }
 
     //caled at endRunProduce, endLumiProduce
     void statistics() const {}
@@ -102,8 +107,10 @@ namespace test {
       }
     }
     std::unique_ptr<HepMC::GenEvent> event_;
+    std::unique_ptr<HepMC3::GenEvent> event3_;
     int failAt_;
     int failureType_;
+    unsigned int ivhepmc = 2;
   };
 
   class DummyDec {
