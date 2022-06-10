@@ -28,7 +28,7 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetJetTags, _particleNetSonicJetT
         timeout = cms.untracked.uint32(300),
         mode = cms.string("Async"),
         modelName = cms.string("particlenet"),
-        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/particlenet_modelsForSonic/particlenet/config.pbtxt"),
+        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
         allowedTries = cms.untracked.uint32(0),
@@ -42,7 +42,7 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetJetTags, _particleNetSonicJetT
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/General/V01/preprocess_PT.json',
     Client = dict(
         modelName = "particlenet_PT",
-        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/particlenet_modelsForSonic/particlenet_PT/config.pbtxt"),
+        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_PT/config.pbtxt"),
     )
 )
 
@@ -61,7 +61,7 @@ particleNetSonicTriton.toReplaceWith(pfMassDecorrelatedParticleNetJetTags, _part
         timeout = cms.untracked.uint32(300),
         modelName = cms.string("particlenet_AK8_MD-2prong"),
         mode = cms.string("Async"),
-        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/particlenet_modelsForSonic/particlenet_AK8_MD-2prong/config.pbtxt"),
+        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_AK8_MD-2prong/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
         allowedTries = cms.untracked.uint32(0),
@@ -73,7 +73,7 @@ particleNetSonicTriton.toReplaceWith(pfMassDecorrelatedParticleNetJetTags, _part
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MD-2prong/V01/preprocess_PT.json',
     Client = dict(
         modelName = "particlenet_AK8_MD-2prong_PT",
-        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/particlenet_modelsForSonic/particlenet_AK8_MD-2prong_PT/config.pbtxt"),
+        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_AK8_MD-2prong_PT/config.pbtxt"),
     )
 )
 
@@ -91,7 +91,7 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetMassRegressionJetTags, _partic
         timeout = cms.untracked.uint32(300),
         modelName = cms.string("particlenet_AK8_MassRegression"),
         mode = cms.string("Async"),
-        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/particlenet_modelsForSonic/particlenet_AK8_MassRegression/config.pbtxt"),
+        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_AK8_MassRegression/config.pbtxt"),
         modelVersion = cms.string(""),
         verbose = cms.untracked.bool(False),
         allowedTries = cms.untracked.uint32(0),
@@ -103,7 +103,7 @@ particleNetSonicTriton.toReplaceWith(pfParticleNetMassRegressionJetTags, _partic
     preprocess_json = 'RecoBTag/Combined/data/ParticleNetAK8/MassRegression/V01/preprocess_PT.json',
     Client = dict(
         modelName = "particlenet_AK8_MassRegression_PT",
-        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/particlenet_modelsForSonic/particlenet_AK8_MassRegression_PT/config.pbtxt"),
+        modelConfigPath = cms.FileInPath("RecoBTag/Combined/data/models/particlenet_AK8_MassRegression_PT/config.pbtxt"),
     )
 )
 
