@@ -5,20 +5,23 @@
 // Modifications: 08.2008  mside and fside added
 ///////////////////////////////////////////////////////////////////////////////
 #include "SimG4CMS/FP420/interface/FP420NumberingScheme.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "globals.hh"
 #include "G4Step.hh"
 #include <iostream>
 
-//UserVerbosity FP420NumberingScheme::cout("FP420NumberingScheme","silent","FP420NumberingScheme");
+//#define EDM_ML_DEBUG
 
 FP420NumberingScheme::FP420NumberingScheme() {
   //  sn0=3, pn0=6, rn0=7;
 }
 
 FP420NumberingScheme::~FP420NumberingScheme() {
-  //  std::cout << " Deleting FP420NumberingScheme" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("FP420") << " Deleting FP420NumberingScheme";
+#endif
 }
 
 int FP420NumberingScheme::detectorLevel(const G4Step* aStep) const {
@@ -46,8 +49,9 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
   unsigned intindex = 0;
   int level = detectorLevel(aStep);
 
-  // std::cout << "FP420NumberingScheme number of levels= " << level << std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("FP420") << "FP420NumberingScheme number of levels= " << level;
+#endif
   //  unsigned int intIndex = 0;
   if (level > 0) {
     int* copyno = new int[level];
@@ -109,8 +113,10 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
         zside = copyno[ich];  //= 1   2 (copyno=1,2)
       }
       //
-      //  std::cout << "FP420NumberingScheme  " << "ich=" << ich  << "copyno" << copyno[ich] << "name="  << name[ich] << std::endl;
-      //
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("FP420") << "FP420NumberingScheme  "
+                                << "ich=" << ich << "copyno" << copyno[ich] << "name=" << name[ich];
+#endif
     }
     // det = 1 for +FP420 ,  = 2 for -FP420  / (det-1) = 0,1
     // det = 3 for +HPS240 , = 4 for -HPS240 / (det-1) = 2,3
@@ -122,16 +128,15 @@ unsigned int FP420NumberingScheme::getUnitID(const G4Step* aStep) const {
     // intindex = myPacker.packEcalIndex (det, zside, station, plane);// see examples
     // intindex = myPacker.packCastorIndex (det, zside, station, plane);// see examples
     intindex = packFP420Index(det, zside, station, plane);
-    /*
     //
-    std::cout << "FP420NumberingScheme det=" << det << " zside=" << zside << " station=" <<station  << " plane=" << plane << std::endl;
-    
+#ifdef EDM_ML_DEBUG
+    edm::LogVerbatim("FP420") << "FP420NumberingScheme det=" << det << " zside=" << zside << " station=" << station
+                              << " plane=" << plane;
     for (int ich = 0; ich < level; ich++) {
-    std::cout <<" name = " << name[ich] <<" copy = " << copyno[ich] << std::endl;
-    std::cout << " packed index = intindex" << intindex << std::endl;
+      edm::LogVerbatim("FP420") << " name = " << name[ich] << " copy = " << copyno[ich];
+      edm::LogVerbatim("FP420") << " packed index = intindex" << intindex;
     }
-    //    
-    */
+#endif
 
     delete[] copyno;
     delete[] name;
@@ -151,7 +156,10 @@ unsigned FP420NumberingScheme::packFP420Index(int det, int zside, int station, i
 
   //
 
-  //  std::cout << "FP420 packing: det " << det  << " zside  " << zside << " station " << station  << " plane " <<  plane << " idx " << idx <<  std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("FP420") << "FP420 packing: det " << det << " zside  " << zside << " station " << station
+                            << " plane " << plane << " idx " << idx;
+#endif
   //  int newdet, newzside, newstation,newplane;
   //  unpackFP420Index(idx, newdet, newzside, newstation,newplane);
 
@@ -170,7 +178,9 @@ void FP420NumberingScheme::unpackFP420Index(const unsigned int& idx, int& det, i
   plane = idx & 15;
   //
 
-  //  std::cout  << " FP420unpacking: idx=" << idx << " zside  " << zside << " station " << station  << " plane " <<  plane << std::endl;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("FP420") << " FP420unpacking: idx=" << idx << " zside  " << zside << " station " << station
+                            << " plane " << plane;
+#endif
   //
 }
