@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Calibration/Tools/interface/EcalRingCalibrationTools.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -126,7 +127,12 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
     float amplitude = hit.amplitude();
     if (statusCode <= statusThreshold_ && amplitude > ampCut) {
       const auto digiIt = EBDigis->find(hitDetId);
-      phiSymEBDigiCollection->push_back(digiIt->id(), digiIt->begin());
+      if (digiIt != EBDigis->end()) {
+        phiSymEBDigiCollection->push_back(digiIt->id(), digiIt->begin());
+      } else {
+        throw cms::Exception("DetIdNotFound") << "The detector ID " << hitDetId.rawId()
+                                              << " is not in the EB digis collection or the collection is not sorted.";
+      }
     }
   }
 
@@ -149,7 +155,12 @@ bool HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event& event, const edm::Ev
     float amplitude = hit.amplitude();
     if (statusCode <= statusThreshold_ && amplitude > ampCut) {
       const auto digiIt = EEDigis->find(hitDetId);
-      phiSymEEDigiCollection->push_back(digiIt->id(), digiIt->begin());
+      if (digiIt != EEDigis->end()) {
+        phiSymEEDigiCollection->push_back(digiIt->id(), digiIt->begin());
+      } else {
+        throw cms::Exception("DetIdNotFound") << "The detector ID " << hitDetId.rawId()
+                                              << " is not in the EE digis collection or the collection is not sorted.";
+      }
     }
   }
 
