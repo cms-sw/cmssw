@@ -367,7 +367,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
       gemChamberPad[hist]->setBinLabel(bin, std::to_string(bin), 1);
       gemChamberPartition[hist]->setBinLabel(bin, std::to_string(bin), 1);
     }
-    //Added 06-01-22 ***
+    //Added 06-01-22 **
     for (int ch = 0; ch < 36; ch++){
       for (int lyr = 0; lyr < 2; lyr++){
           gemBXVFATPerChamber[ch][hist][lyr] = ibooker.book2D("gemBXVFATPerChamber_" + std::to_string(ch) + "_" + std::to_string(hist) + "_" + std::to_string(lyr), "GEM BX vs VFAT in Chamber " + std::to_string(ch+1) + " " + label + " Layer " + std::to_string(lyr), 7, -3, 4, 48, 0, 48);
