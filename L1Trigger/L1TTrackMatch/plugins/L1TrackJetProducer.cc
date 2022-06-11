@@ -100,7 +100,7 @@ private:
 };
 
 L1TrackJetProducer::L1TrackJetProducer(const ParameterSet &iConfig)
-    :  tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
+    : tTopoToken_(esConsumes<TrackerTopology, TrackerTopologyRcd>(edm::ESInputTag("", ""))),
       trackToken_(consumes<vector<TTTrack<Ref_Phase2TrackerDigi_>>>(iConfig.getParameter<InputTag>("L1TrackInputTag"))),
       PVtxToken_(consumes<vector<l1t::Vertex>>(iConfig.getParameter<InputTag>("L1PVertexCollection"))) {
   trkZMax_ = (float)iConfig.getParameter<double>("trk_zMax");
@@ -146,7 +146,7 @@ void L1TrackJetProducer::produce(Event &iEvent, const EventSetup &iSetup) {
   unique_ptr<TkJetCollection> L1L1TrackJetProducer(new TkJetCollection);
 
   // Read inputs
-  const TrackerTopology& tTopo = iSetup.getData(tTopoToken_);
+  const TrackerTopology &tTopo = iSetup.getData(tTopoToken_);
 
   edm::Handle<vector<TTTrack<Ref_Phase2TrackerDigi_>>> TTTrackHandle;
   iEvent.getByToken(trackToken_, TTTrackHandle);
