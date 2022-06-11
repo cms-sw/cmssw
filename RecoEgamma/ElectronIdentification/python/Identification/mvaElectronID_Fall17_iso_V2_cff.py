@@ -10,12 +10,12 @@ mvaTag = "Fall17IsoV2"
 weightFileDir = "RecoEgamma/ElectronIdentification/data/MVAWeightFiles/Fall17IsoV2"
 
 mvaWeightFiles = [
-     path.join(weightFileDir, "EB1_5.weights.xml.gz"), # EB1_5
-     path.join(weightFileDir, "EB2_5.weights.xml.gz"), # EB2_5
-     path.join(weightFileDir, "EE_5.weights.xml.gz"), # EE_5
-     path.join(weightFileDir, "EB1_10.weights.xml.gz"), # EB1_10
-     path.join(weightFileDir, "EB2_10.weights.xml.gz"), # EB2_10
-     path.join(weightFileDir, "EE_10.weights.xml.gz"), # EE_10
+     path.join(weightFileDir, "EB1_5.weights.root"), # EB1_5
+     path.join(weightFileDir, "EB2_5.weights.root"), # EB2_5
+     path.join(weightFileDir, "EE_5.weights.root"), # EE_5
+     path.join(weightFileDir, "EB1_10.weights.root"), # EB1_10
+     path.join(weightFileDir, "EB2_10.weights.root"), # EB2_10
+     path.join(weightFileDir, "EE_10.weights.root"), # EE_10
      ]
 
 mvaEleID_Fall17_iso_V2_wpHZZ_container = EleMVARaw_WP(
