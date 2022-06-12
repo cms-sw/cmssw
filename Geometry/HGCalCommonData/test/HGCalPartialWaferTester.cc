@@ -43,7 +43,8 @@ HGCalPartialWaferTester::HGCalPartialWaferTester(const edm::ParameterSet& iC)
       partialType_(iC.getParameter<int>("partialType")),
       nTrials_(iC.getParameter<int>("numberOfTrials")),
       dddToken_(esConsumes<HGCalDDDConstants, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
-  edm::LogVerbatim("HGCalGeom") << "Test positions for partial wafer type " << partialType_ << " Orientation " << orientation_ << " for " << nameSense_;
+  edm::LogVerbatim("HGCalGeom") << "Test positions for partial wafer type " << partialType_ << " Orientation "
+                                << orientation_ << " for " << nameSense_;
 }
 
 void HGCalPartialWaferTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -72,26 +73,45 @@ void HGCalPartialWaferTester::analyze(const edm::Event&, const edm::EventSetup& 
     int waferU = HGCalWaferIndex::waferU(indx);
     int waferV = HGCalWaferIndex::waferV(indx);
     auto xy = hgdc.waferPosition(layer, waferU, waferV, true, false);
-    edm::LogVerbatim("HGCalGeom") << "Wafer " << waferU << ":" << waferV << " in layer " << layer << " at " << xy.first << ":" << xy.second << "\n\n";
+    edm::LogVerbatim("HGCalGeom") << "Wafer " << waferU << ":" << waferV << " in layer " << layer << " at " << xy.first
+                                  << ":" << xy.second << "\n\n";
     int nCells = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
     for (int i = 0; i < nTrials_; i++) {
       int ui = (2 * nCells * (float)rand() / RAND_MAX);
       int vi = (2 * nCells * (float)rand() / RAND_MAX);
-      if ((ui < 2 * nCells) && (vi < 2 * nCells) && ((vi-ui) < nCells) && ((ui-vi) <= nCells) && HGCalWaferMask::goodCell(ui, vi, partialType_)) { 
-	++all;
-	auto xy = hgdc.locateCell(layer, waferU, waferV, ui, vi, true, true, false, false);
-	int lay(layer), cU(0), cV(0), wType(-1), wU(0), wV(0);
-	double wt(0);
-	hgdc.waferFromPosition(HGCalParameters::k_ScaleToDDD * xy.first, HGCalParameters::k_ScaleToDDD * xy.second, lay, wU, wV, cU, cV, wType, wt, false, true);
-	std::string comment = ((wType == type) &&(layer == lay) && (waferU == wU) && (waferV == wV) && (ui == cU) && (vi == cV)) ? "" : " ***** ERROR *****";
-        edm::LogVerbatim("HGCalGeom") << "Layer " << layer << ":" << lay << " waferU " << waferU << ":" << wU << " waferV " << waferV << ":" << wV << " Type " << type << ":" << wType << " cellU " << ui << ":" << cU << " cellV " << vi << ":" << cV << " position " << xy.first << ":" << xy.second << comment;
-	if (comment != "")
-	  ++error;
+      if ((ui < 2 * nCells) && (vi < 2 * nCells) && ((vi - ui) < nCells) && ((ui - vi) <= nCells) &&
+          HGCalWaferMask::goodCell(ui, vi, partialType_)) {
+        ++all;
+        auto xy = hgdc.locateCell(layer, waferU, waferV, ui, vi, true, true, false, false);
+        int lay(layer), cU(0), cV(0), wType(-1), wU(0), wV(0);
+        double wt(0);
+        hgdc.waferFromPosition(HGCalParameters::k_ScaleToDDD * xy.first,
+                               HGCalParameters::k_ScaleToDDD * xy.second,
+                               lay,
+                               wU,
+                               wV,
+                               cU,
+                               cV,
+                               wType,
+                               wt,
+                               false,
+                               true);
+        std::string comment =
+            ((wType == type) && (layer == lay) && (waferU == wU) && (waferV == wV) && (ui == cU) && (vi == cV))
+                ? ""
+                : " ***** ERROR *****";
+        edm::LogVerbatim("HGCalGeom") << "Layer " << layer << ":" << lay << " waferU " << waferU << ":" << wU
+                                      << " waferV " << waferV << ":" << wV << " Type " << type << ":" << wType
+                                      << " cellU " << ui << ":" << cU << " cellV " << vi << ":" << cV << " position "
+                                      << xy.first << ":" << xy.second << comment;
+        if (comment != "")
+          ++error;
       }
     }
     edm::LogVerbatim("HGCalGeom") << "\n\nFound " << error << " errors among " << all << ":" << nTrials_ << " trials";
   } else {
-    edm::LogVerbatim("HGCalGeom") << "\n\nCannot find a wafer of type " << partialType_ << " and orientation " << orientation_ << " for " << nameSense_; 
+    edm::LogVerbatim("HGCalGeom") << "\n\nCannot find a wafer of type " << partialType_ << " and orientation "
+                                  << orientation_ << " for " << nameSense_;
   }
 }
 
