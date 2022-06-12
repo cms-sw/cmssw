@@ -91,6 +91,9 @@ _phase2_siml1emulator.add(hgcalTriggerPrimitivesTask)
 from L1Trigger.L1CaloTrigger.L1EGammaCrystalsEmulatorProducer_cfi import *
 _phase2_siml1emulator.add(L1EGammaClusterEmuProducer)
 
+from L1Trigger.L1CaloTrigger.l1EGammaEEProducer_cfi import *
+_phase2_siml1emulator.add(l1EGammaEEProducer)
+
 # Barrel and EndCap CaloJet/HT
 # ########################################################################
 # ----    Produce the calibrated tower collection combining Barrel, HGCal, HF
@@ -134,14 +137,36 @@ _phase2_siml1emulator.add(L1VertexFinderEmulator)
 # ########################################################################
 
 from L1Trigger.L1TTrackMatch.L1TkPrimaryVertexProducer_cfi import L1TkPrimaryVertex
+from L1Trigger.L1TTrackMatch.L1TkElectronTrackProducer_cfi import L1TkElectronsCrystal, L1TkElectronsLooseCrystal, L1TkElectronsEllipticMatchCrystal, L1TkIsoElectronsCrystal, L1TkElectronsHGC, L1TkElectronsEllipticMatchHGC, L1TkIsoElectronsHGC, L1TkElectronsLooseHGC
+from L1Trigger.L1TTrackMatch.L1TkEmParticleProducer_cfi import L1TkPhotonsCrystal, L1TkPhotonsHGC
+from L1Trigger.L1TTrackMatch.L1TkMuonProducer_cfi import L1TkMuons, L1TkMuonsTP
+from L1Trigger.L1TTrackMatch.L1TkGlbMuonProducer_cfi import L1TkGlbMuons
+
 _phase2_siml1emulator.add(L1TkPrimaryVertex)
+
+_phase2_siml1emulator.add(L1TkElectronsCrystal)
+_phase2_siml1emulator.add(L1TkElectronsLooseCrystal)
+_phase2_siml1emulator.add(L1TkElectronsEllipticMatchCrystal)
+_phase2_siml1emulator.add(L1TkIsoElectronsCrystal)
+_phase2_siml1emulator.add(L1TkPhotonsCrystal)
+
+_phase2_siml1emulator.add(L1TkElectronsHGC)
+_phase2_siml1emulator.add(L1TkElectronsEllipticMatchHGC)
+_phase2_siml1emulator.add(L1TkElectronsLooseHGC)
+_phase2_siml1emulator.add(L1TkIsoElectronsHGC)
+_phase2_siml1emulator.add(L1TkPhotonsHGC)
+
+_phase2_siml1emulator.add( L1TkMuons )
+_phase2_siml1emulator.add( L1TkMuonsTP )
+_phase2_siml1emulator.add( L1TkGlbMuons )
+
 
 # Emulated GMT Muons (Tk + Stub, Tk + MuonTFT, StandaloneMuon)
 # ########################################################################
 from L1Trigger.Phase2L1GMT.gmt_cfi  import *
 L1TkStubsGmt = gmtStubs.clone()
 L1TkMuonsGmt = gmtMuons.clone(
-    srcStubs  = ('L1TkStubsGmt')
+    srcStubs  = 'L1TkStubsGmt'
 )
 L1SAMuonsGmt = standaloneMuons.clone()
 _phase2_siml1emulator.add( L1TkStubsGmt )
@@ -173,10 +198,6 @@ from L1Trigger.L1TTrackMatch.L1TrackJetEmulationProducer_cfi import *
 _phase2_siml1emulator.add(L1TrackJetsEmulation)
 _phase2_siml1emulator.add(L1TrackJetsExtendedEmulation)
 
-from L1Trigger.L1TTrackMatch.L1TrackSelectionProducer_cfi import L1TrackSelectionProducer, L1TrackSelectionProducerExtended
-_phase2_siml1emulator.add(L1TrackSelectionProducer)
-_phase2_siml1emulator.add(L1TrackSelectionProducerExtended)
-
 from L1Trigger.L1TTrackMatch.L1TrackerEtMissEmulatorProducer_cfi import *
 L1TrackerEmuEtMiss.L1VertexInputTag = ("L1VertexFinderEmulator","l1verticesEmulation")
 _phase2_siml1emulator.add(L1TrackerEmuEtMiss)
@@ -187,6 +208,8 @@ _phase2_siml1emulator.add(L1TrackerEmuHTMissExtended)
 
 # PF Candidates
 # ########################################################################
+from L1Trigger.Phase2L1ParticleFlow.l1ParticleFlow_cff import *
+_phase2_siml1emulator.add(l1ParticleFlowTask)
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer1_cff import *
 from L1Trigger.Phase2L1ParticleFlow.l1ctLayer2EG_cff import *
 _phase2_siml1emulator.add(l1ctLayer1TaskInputsTask, l1ctLayer1Task, l1ctLayer2EGTask)
@@ -213,7 +236,8 @@ _phase2_siml1emulator.add(l1PFJetsPhase1Task_9x9)
 # PF MET
 # ########################################################################
 from L1Trigger.Phase2L1ParticleFlow.l1pfJetMet_cff import *
-###_phase2_siml1emulator.add(l1PFJetsTask) #FIXME
+#_phase2_siml1emulator.add(l1PFJetsTask)
+#_phase2_siml1emulator.add(l1PFMetsTask)
 
 from L1Trigger.Phase2L1ParticleFlow.L1MetPfProducer_cfi import *
 _phase2_siml1emulator.add(L1MetPfProducer)
