@@ -99,7 +99,7 @@ private:
   MonitorElement* emtfTrackBXVsGEMHit[3];
   MonitorElement* emtfTrackModeVsGEMBXDiff[2];  // Add mode vs BXdiff comparison Dec 07 2020
 
-  // GEM vs CSC Dec 06 2020 
+  // GEM vs CSC Dec 06 2020  
   MonitorElement* gemHitPhi[2];
   MonitorElement* gemHitTheta[2];
   MonitorElement* gemHitVScscLCTPhi[2];
