@@ -152,14 +152,36 @@ def customiseEGammaRecoFor2018Input(process):
     return process
 
 def customiseBeamSpotFor2018Input(process):
-    # For Run-2 data, disable the use of the BS transient record, to read the BS record from SCAL.
-    # Additionally, remove all instances of OnlineBeamSpotESProducer (not needed if useTransientRecord=False).
-    # See CMSHLT-2271 and CMSHLT-2300 for further details.
+    """Customisation for the HLT BeamSpot when running on Run-2 (2018) data:
+       - For Run-2 data, disable the use of the BS transient record, in order to read the BS record from SCAL.
+       - Additionally, remove all instances of OnlineBeamSpotESProducer (not needed if useTransientRecord=False).
+       - See CMSHLT-2271 and CMSHLT-2300 for further details.
+    """
     for prod in producers_by_type(process, 'BeamSpotOnlineProducer'):
         prod.useTransientRecord = False
     onlineBeamSpotESPLabels = [prod.label_() for prod in esproducers_by_type(process, 'OnlineBeamSpotESProducer')]
     for espLabel in onlineBeamSpotESPLabels:
         delattr(process, espLabel)
+
+    return process
+
+def customiseECALCalibrationsFor2018Input(process):
+    """Customisation to apply the ECAL Run-2 Ultra-Legacy calibrations (CMSHLT-2339)"""
+    if hasattr(process, 'GlobalTag'):
+      if not hasattr(process.GlobalTag, 'toGet'):
+        process.GlobalTag.toGet = cms.VPSet()
+      process.GlobalTag.toGet += [
+        cms.PSet(
+          record = cms.string('EcalLaserAlphasRcd'),
+          tag = cms.string('EcalLaserAlphas_UL_Run1_Run2_2018_lastIOV_movedTo1')
+        ),
+        cms.PSet(
+          record = cms.string('EcalIntercalibConstantsRcd'),
+          tag = cms.string('EcalIntercalibConstants_UL_Run1_Run2_2018_lastIOV_movedTo1')
+        )
+      ]
+    else:
+      print('# customiseECALCalibrationsFor2018Input -- the process.GlobalTag ESSource does not exist: no customisation applied.')
 
     return process
 
@@ -171,12 +193,12 @@ def customiseFor2018Input(process):
     process = customiseCTPPSFor2018Input(process)
     process = customiseEGammaRecoFor2018Input(process)
     process = customiseBeamSpotFor2018Input(process)
+    process = customiseECALCalibrationsFor2018Input(process)
 
     return process
 
 
 def customiseForOffline(process):
-
     # For running HLT offline on Run-3 Data, use "(OnlineBeamSpotESProducer).timeThreshold = 1e6",
     # in order to pick the beamspot that was actually used by the HLT (instead of a "fake" beamspot).
     # These same settings can be used offline for Run-3 Data and Run-3 MC alike.
