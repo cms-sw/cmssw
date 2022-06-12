@@ -386,7 +386,7 @@ void L1TStage2EMTF::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&, 
     gemChamberVFATBX[hist] = ibooker.book2D("gemChamberVFATBX" + name, "GEM Chamber vs VFAT * BX" + label, 42, 1, 43, 210, 0, 210); // 8* (0-2) phi part + (0-7) eta part
     gemChamberVFATBX[hist]->setAxisTitle("Chamber, " + label, 1);
   }
-  // CSC LCT and RPC Hit Timing
+  // CSC LCT and RPC Hit Timing 
   ibooker.setCurrentFolder(monitorDir + "/Timing");
 
   cscTimingTot = ibooker.book2D("cscTimingTotal", "CSC Total BX ", 42, 1, 43, 20, 0, 20);
