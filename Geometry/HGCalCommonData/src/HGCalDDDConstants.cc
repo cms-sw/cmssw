@@ -710,7 +710,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
     if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
       ktr = hgpar_->waferInfoMap_.find(indx);
       if (ktr != hgpar_->waferInfoMap_.end())
-        place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerType(layertype), (ktr->second).orient);
+        place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
     }
     auto xy = hgcell_->cellUV2XY2(cellU, cellV, place, type);
     x = xy.first;
@@ -1321,8 +1321,10 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       int indx = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
       auto ktr = hgpar_->waferInfoMap_.find(indx);
       if (ktr != hgpar_->waferInfoMap_.end()) {
-        place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerType(layertype), (ktr->second).orient);
+        place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
         part = (ktr->second).part;
+	if (debug)
+	  edm::LogVerbatim("HGCalGeom") << "waferfFromPosition: frontback " << layertype << ":" << HGCalTypes::layerFrontBack(layertype) << " Orient " << (ktr->second).orient << " place " << place << " part " << part;
       }
     }
     cellHex(xx, yy, celltype, place, part, cellU, cellV, extend, debug);
@@ -1608,8 +1610,8 @@ void HGCalDDDConstants::cellHex(
     double xloc, double yloc, int cellType, int place, int part, int& cellU, int& cellV, bool extend, bool debug) const {
   if (mode_ == HGCalGeometryMode::Hexagon8Cassette) {
     auto uv = (part == HGCalTypes::WaferFull)
-                  ? hgcellUV_->cellUVFromXY3(xloc, yloc, place, cellType, extend, debug)
-                  : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, extend, debug);
+                  ? hgcellUV_->cellUVFromXY3(xloc, yloc, place, cellType, true, debug)
+                  : hgcellUV_->cellUVFromXY1(xloc, yloc, place, cellType, part, true, debug);
     cellU = uv.first;
     cellV = uv.second;
   } else if (waferHexagon8File()) {
