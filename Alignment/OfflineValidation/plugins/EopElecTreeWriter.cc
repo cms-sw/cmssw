@@ -103,6 +103,8 @@ public:
   explicit EopElecTreeWriter(const edm::ParameterSet&);
   ~EopElecTreeWriter() override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions&);
+
 private:
   // methods
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -238,6 +240,8 @@ EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig)
       theTrigger_(iConfig.getParameter<std::string>("triggerPath")),
       theFilter_(iConfig.getParameter<std::string>("hltFilter")),
       debugTriggerSelection_(iConfig.getParameter<bool>("debugTriggerSelection")) {
+  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
+
   // TTree creation
   tree_ = fs_->make<TTree>("EopTree", "EopTree");
   treeMemPtr_ = new EopElecVariables;
@@ -273,6 +277,8 @@ EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig)
 
   h_counter1 = fs_->make<TH1D>("counter1", "counter1", 1, 0, 1);
   h_counter2 = fs_->make<TH1D>("counter2", "counter2", 1, 0, 1);
+
+  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
 }
 
 EopElecTreeWriter::~EopElecTreeWriter() {
@@ -401,6 +407,8 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // necessary to re-calculate phi and eta width of SuperClusters
   SuperClusterShapeAlgo SCShape(rhc, subGeo);
 
+  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
+
   //---------------    Trigger   -----------------
   TrigTag = false;
   const edm::TriggerResults* trigRes = &iEvent.get(theTriggerResultsToken_);
@@ -431,6 +439,8 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     HLTpaths[triggerNames_[i]] = myTrigger;
   }
 
+  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
+
   // First cut : trigger cut
   std::string firstFiredPath = "";
   for (const auto& it : HLTpaths) {
@@ -454,6 +464,8 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
       info << filters[i] << " ";
     }
   }
+
+  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
 
   // Getting HLT electrons
   edm::InputTag testTag(theFilter_, "", "HLT");
@@ -491,6 +503,8 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // getting GsfTrack
   const reco::GsfTrackCollection* tracks = &iEvent.get(theGsfTrackCollectionToken_);
+
+  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
 
   // filtering track
   int nRejected = 0;
@@ -540,7 +554,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   //------------------------------------------------------------
-
+  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
   //--------------    Loop on tracks   -----------------
 
   for (const auto& track : filterTracks) {
@@ -905,6 +919,19 @@ void EopElecTreeWriter::beginRun(const edm::Run& iRun, const edm::EventSetup& iS
       edm::LogInfo("EopElecTreeWriter") << "HLTpath: " << (i++) << " = " << it;
     }
   }
+}
+
+//*************************************************************
+void EopElecTreeWriter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+//*************************************************************
+{
+  edm::ParameterSetDescription desc;
+  desc.setComment("Generate tree for Tracker Alignment E/p validation");
+  desc.add<edm::InputTag>("src", edm::InputTag("electronGsfTracks"));
+  desc.add<std::string>("triggerPath", "HLT_Ele");
+  desc.add<std::string>("hltFilter", "hltDiEle27L1DoubleEGWPTightHcalIsoFilter");
+  desc.add<bool>("debugTriggerSelection", false);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 //define this as a plug-in
