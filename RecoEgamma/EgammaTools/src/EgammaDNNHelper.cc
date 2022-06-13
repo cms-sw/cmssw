@@ -97,8 +97,9 @@ std::pair<uint, std::vector<float>> EgammaDNNHelper::getScaledInputs(
   return std::make_pair(modelIndex, inputs);
 }
 
-std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std::map<std::string, float>>& candidates,
-                                                          const std::vector<tensorflow::Session*>& sessions) const {
+std::vector<std::pair<uint, std::vector<float>>> EgammaDNNHelper::evaluate(
+    const std::vector<std::map<std::string, float>>& candidates,
+    const std::vector<tensorflow::Session*>& sessions) const {
   /*
     Evaluate the PFID DNN for all the electrons/photons. 
     nModels_ are defined depending on modelIndex  --> we need to build N input tensors to evaluate
@@ -109,17 +110,17 @@ std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std:
     2) Prepare the input tensors for the  models
     3) Run the models and get the output for each candidate
     4) Sort the output by candidate index
-    5) Return the DNN outputs 
+    5) Return the DNN outputs along with the model index used on it
 
     */
   size_t nCandidates = candidates.size();
-  std::vector<std::vector<int>> indexMap(nModels_);  // for each model; the list of candidate index is saved
+  std::vector<std::vector<uint>> indexMap(nModels_);  // for each model; the list of candidate index is saved
   std::vector<std::vector<float>> inputsVectors(nCandidates);
   std::vector<uint> counts(nModels_);
 
   LogDebug("EgammaDNNHelper") << "Working on " << nCandidates << " candidates";
 
-  int icand = 0;
+  uint icand = 0;
   for (auto& candidate : candidates) {
     LogDebug("EgammaDNNHelper") << "Working on candidate: " << icand;
     const auto& [model_index, inputs] = getScaledInputs(candidate);
@@ -152,8 +153,8 @@ std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std:
   }
 
   // Define the output and run
-  // Define the output and run
-  std::vector<std::pair<int, std::vector<float>>> outputs;
+  // The initial output is [(cand_index,(model_index, outputs)),.. ]
+  std::vector<std::pair<uint, std::pair<uint, std::vector<float>>>> outputs;
   // Run all the models
   for (size_t m = 0; m < nModels_; m++) {
     if (counts[m] == 0)
@@ -174,12 +175,12 @@ std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std:
       }
       // Get the original index of the electorn in the original order
       const auto cand_index = indexMap[m][b];
-      outputs.push_back(std::make_pair(cand_index, result));
+      outputs.push_back(std::make_pair(cand_index, std::make_pair(m, result)));
     }
   }
   // Now we have just to re-order the outputs
   std::sort(outputs.begin(), outputs.end());
-  std::vector<std::vector<float>> final_outputs(outputs.size());
+  std::vector<std::pair<uint, std::vector<float>>> final_outputs(outputs.size());
   std::transform(outputs.begin(), outputs.end(), final_outputs.begin(), [](auto a) { return a.second; });
 
   return final_outputs;
