@@ -21,6 +21,7 @@ int EcalFenixStripFormatEB::process() {
   int even_output = 0;
   int odd_output = 0;
 
+  // Applying sliding window on the strip output after the peak finder
   if (ecaltpgTPMode_->DisableEBEvenPeakFinder) {
     even_output = input_even_ >> shift_;
   } else {
@@ -34,6 +35,12 @@ int EcalFenixStripFormatEB::process() {
   } else {
     odd_output = input_odd_ >> shift_;
   }
+
+  // Truncating the signals to 12 bit after peak finder sliding window
+  if (odd_output > 0XFFF)
+    odd_output = 0XFFF;
+  if (even_output > 0XFFF)
+    even_output = 0XFFF;
 
   // Prepare the amplitude output for the strip looking at the TPmode options
   int output = 0;
