@@ -88,6 +88,9 @@ private:
   /// label of the CTPPS sub-system
   string subSystemName;
 
+  //subdetector id for sampic
+  unsigned int sampicSubDetId;
+
   /// the mapping files
   std::vector<std::string> mappingFileNames;
 
@@ -245,6 +248,7 @@ const string TotemDAQMappingESSourceXML::tagTotemTimingPlane = "timing_plane";
 TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet &conf)
     : verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
       subSystemName(conf.getUntrackedParameter<string>("subSystem")),
+      sampicSubDetId(conf.getUntrackedParameter<unsigned int>("sampicSubDetId", 5)),
       currentBlock(0),
       currentBlockValid(false) {
   for (const auto &it : conf.getParameter<vector<ParameterSet>>("configuration")) {
@@ -754,13 +758,12 @@ void TotemDAQMappingESSourceXML::ParseTreeTotemTiming(ParseType pType,
       unsigned int StationNum = (parentID / 1000) % 10;
       unsigned int RpNum = (parentID / 100) % 10;
 
-      vfatInfo.symbolicID.symbolicID =
-          TotemTimingDetId(ArmNum,
-                           StationNum,
-                           RpNum,
-                           0,
-                           TotemTimingDetId::ID_NOT_SET,
-                           TotemTimingDetId::sdTimingDiamond);  //Dynamical: it is encoded in the frame
+      vfatInfo.symbolicID.symbolicID = TotemTimingDetId(ArmNum,
+                                                        StationNum,
+                                                        RpNum,
+                                                        0,
+                                                        TotemTimingDetId::ID_NOT_SET,
+                                                        sampicSubDetId);  //Dynamical: it is encoded in the frame
 
       mapping->insert(framepos, vfatInfo);
 
