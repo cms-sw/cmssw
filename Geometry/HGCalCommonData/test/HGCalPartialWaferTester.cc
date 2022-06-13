@@ -77,8 +77,8 @@ void HGCalPartialWaferTester::analyze(const edm::Event&, const edm::EventSetup& 
                                   << ":" << xy.second << "\n\n";
     int nCells = (type == 0) ? HGCSiliconDetId::HGCalFineN : HGCSiliconDetId::HGCalCoarseN;
     for (int i = 0; i < nTrials_; i++) {
-      int ui = (2 * nCells * (float)rand() / RAND_MAX);
-      int vi = (2 * nCells * (float)rand() / RAND_MAX);
+      int ui = std::floor(2 * nCells * rand() / RAND_MAX);
+      int vi = std::floor(2 * nCells * rand() / RAND_MAX);
       if ((ui < 2 * nCells) && (vi < 2 * nCells) && ((vi - ui) < nCells) && ((ui - vi) <= nCells) &&
           HGCalWaferMask::goodCell(ui, vi, partialType_)) {
         ++all;

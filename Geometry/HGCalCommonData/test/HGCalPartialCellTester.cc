@@ -98,8 +98,8 @@ void HGCalPartialCellTester::analyze(const edm::Event&, const edm::EventSetup&) 
 
   if (modeUV_ <= 0) {
     for (int i = 0; i < nTrials_; i++) {
-      double xi = (2 * r2 * static_cast<float>(rand()) / RAND_MAX) - r2;
-      double yi = (2 * R2 * static_cast<float>(rand()) / RAND_MAX) - R2;
+      double xi = (2 * r2 * static_cast<double>(rand()) / RAND_MAX) - r2;
+      double yi = (2 * R2 * static_cast<double>(rand()) / RAND_MAX) - R2;
       double c1 = yi + xi / sqrt(3);
       double c2 = yi - (xi / sqrt(3));
       if ((xi < r2) && (xi > -1 * r2) && (c1 < R2) && (c1 > -1 * R2) && (c2 < R2) && (c2 > -1 * R2) &&
@@ -117,8 +117,8 @@ void HGCalPartialCellTester::analyze(const edm::Event&, const edm::EventSetup&) 
     }
   } else {
     for (int i = 0; i < nTrials_; i++) {
-      int ui = (2 * nCells * (float)rand() / RAND_MAX);
-      int vi = (2 * nCells * (float)rand() / RAND_MAX);
+      int ui = std::floor(2 * nCells * rand() / RAND_MAX);
+      int vi = std::floor(2 * nCells * rand() / RAND_MAX);
       if ((ui < 2 * nCells) && (vi < 2 * nCells) && ((vi - ui) < nCells) && ((ui - vi) <= nCells) &&
           HGCalWaferMask::goodCell(ui, vi, partialType_)) {
         //Only allowing (U, V) inside a wafer
