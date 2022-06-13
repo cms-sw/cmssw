@@ -1,5 +1,5 @@
-REFIT = True
-MISALIGN = True
+REFIT = False
+MISALIGN = False
 
 if not REFIT and not MISALIGN:
     print( "Normal mode")
@@ -45,11 +45,15 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 # define input files
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(
-                                '/store/relval/CMSSW_10_5_0/RelValZEE_13/GEN-SIM-RECO/PU25ns_105X_upgrade2018_realistic_EcalHcal_v2_HS-v1/10000/03CA556E-7056-394F-A105-5270966A8CF6.root',
-'/store/relval/CMSSW_10_5_0/RelValZEE_13/GEN-SIM-RECO/PU25ns_105X_upgrade2018_realistic_EcalHcal_v2_HS-v1/10000/8E8874B1-A3BC-9F4A-AF74-AE65F9B6634D.root',
-'/store/relval/CMSSW_10_5_0/RelValZEE_13/GEN-SIM-RECO/PU25ns_105X_upgrade2018_realistic_EcalHcal_v2_HS-v1/10000/06228194-EA17-354B-9114-89E67DEF2131.root',
-'/store/relval/CMSSW_10_5_0/RelValZEE_13/GEN-SIM-RECO/PU25ns_105X_upgrade2018_realistic_EcalHcal_v2_HS-v1/10000/DE56DFA4-DBF1-3D4A-A9F3-50ADDCFF3D93.root',
-'/store/relval/CMSSW_10_5_0/RelValZEE_13/GEN-SIM-RECO/PU25ns_105X_upgrade2018_realistic_EcalHcal_v2_HS-v1/10000/FE109BAC-006F-4E43-890F-CFD14491E207.root'))
+                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/4a1ae43b-f4b3-4ad9-b86e-a7d9f6fc5c40.root',
+                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/33565608-3cac-47fe-a1fc-aef60f866b3a.root',
+                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/87fa96e1-925f-4cd3-878d-98a735737e55.root',
+                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/ea3a1cc8-720f-4392-9f0b-bd04d7f236a8.root',
+                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/3b3e7330-6174-43f3-8a49-c12eeae4d7f2.root',
+                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/ddc48c68-781c-485b-887e-4fcd6f0e0772.root',
+                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/a366a7ca-b71c-457a-8b64-09040f5b5819.root',
+                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/4758604c-b0c1-4e09-a0d4-38dd0da16789.root',
+                                '/store/relval/CMSSW_12_4_0_pre4/RelValZEE_14/GEN-SIM-RECO/PU_124X_mcRun3_2021_realistic_v1-v1/2580000/48985150-6f47-4a7f-b09f-b6301b7ec6ff.root'))
                         
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(options.maxEvents)
@@ -86,23 +90,23 @@ process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 # choose geometry
 if MISALIGN:
     print( "MISALIGN")
-    from CondCore.DBCommon.CondDBSetup_cfi import *
+    from CondCore.CondDB.CondDB_cfi import CondDB
+    CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
     process.trackerAlignment = cms.ESSource("PoolDBESSource",
-                                            CondDBSetup,
+                                            CondDB,
                                             toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-									tag = cms.string("TrackerAlignment_2017_ultralegacymc_v2")
-                                                                   )
-                                                               ),
-					connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-                                            )
+                                                                       tag = cms.string("TrackerAlignment_2017_ultralegacymc_v2")
+                                                                       )
+                                                          )
+    )
     process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 
-    process.trackerAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
+    process.trackerAPE = cms.ESSource("PoolDBESSource",
+                                      CondDB,
                                       toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-								tag = cms.string("TrackerAlignmentExtendedErrors_2017_ultralegacymc_v2")
-                                                             )
-                                                    ),
-				connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+                                                                 tag = cms.string("TrackerAlignmentExtendedErrors_2017_ultralegacymc_v2")
+                                                                 )
+                                                        )
     )
     process.es_prefer_TrackerAPE = cms.ESPrefer("PoolDBESSource", "trackerAPE")
     
@@ -138,10 +142,10 @@ process.TFileService = cms.Service("TFileService",
  
 if REFIT:
     print( "REFIT")
-    process.p = cms.Path(process.offlineBeamSpot*
-                         process.GsfTrackRefitter*
-                         process.energyOverMomentumTree)    
+    process.p = cms.Path(process.offlineBeamSpot
+                         *process.GsfTrackRefitter
+                         *process.energyOverMomentumTree)
 else:
     print( "NO REFIT")
-    process.p = cms.Path(process.offlineBeamSpot*
-                         process.energyOverMomentumTree)
+    process.p = cms.Path(process.offlineBeamSpot
+                         *process.energyOverMomentumTree)
