@@ -2,16 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D49XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D68XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D70XML_cfi")
-#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D88XML_cfi")
-process.load("Geometry.CMSCommonData.cmsExtendedGeometry2026D92XML_cfi")
-#process.load("Geometry.HGCalCommonData.testHGCalV14XML_cfi")
-process.load("Geometry.HGCalCommonData.hgcalParametersInitialization_cfi")
-process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
-process.load("Geometry.EcalCommonData.ecalSimulationParameters_cff")
-process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
@@ -41,6 +31,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.load("Geometry.HGCalCommonData.hgcalValidHexTesterHEF_cfi")
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+                                        ignoreTotal = cms.untracked.int32(1),
+                                        moduleMemorySummary = cms.untracked.bool(True)
+)
+
+process.load("Geometry.HGCalCommonData.hgcalPartialCellTester_cfi")
+
  
-process.p1 = cms.Path(process.generator*process.hgcalValidHexTesterHEF)
+process.p1 = cms.Path(process.generator*process.hgcalPartialCellTester)
