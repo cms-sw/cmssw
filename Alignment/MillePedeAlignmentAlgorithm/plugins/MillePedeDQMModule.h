@@ -30,7 +30,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 /*** Thresholds from DB ***/
-#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsHGRcd.h"
 
 /*** DQM ***/
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
@@ -82,7 +82,7 @@ private:  //===================================================================
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> gDetToken_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
   const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
-  const edm::ESGetToken<AlignPCLThresholds, AlignPCLThresholdsRcd> aliThrToken_;
+  const edm::ESGetToken<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd> aliThrToken_;
 
   const edm::ParameterSet mpReaderConfig_;
   std::unique_ptr<AlignableTracker> tracker_;

@@ -93,7 +93,7 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
   // take the thresholds from DB
   const auto& thresholds_ = &setup.getData(aliThrToken_);
 
-  auto myThresholds = std::make_shared<AlignPCLThresholds>();
+  auto myThresholds = std::make_shared<AlignPCLThresholdsHG>();
   myThresholds->setAlignPCLThresholds(thresholds_->getNrecords(), thresholds_->getThreshold_Map());
 
   TrackerGeomBuilderFromGeometricDet builder;
@@ -110,7 +110,7 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
       labelerPlugin, PedeLabelerBase::TopLevelAlignables(tracker_.get(), nullptr, nullptr), labelerConfig)};
 
   mpReader_ = std::make_unique<MillePedeFileReader>(
-      mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholds>(myThresholds));
+      mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholdsHG>(myThresholds));
 }
 
 void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
@@ -264,6 +264,10 @@ int MillePedeDQMModule ::getIndexFromString(const std::string& alignableId) {
     return 5;
   } else if (alignableId == "TPEHalfCylinderXplusZplus") {
     return 4;
+  } else if (alignableId.rfind("TPBLadder", 0) == 0) {
+    return 6;
+  } else if (alignableId.rfind("TPEPanel", 0) == 0) {
+    return 7;
   } else {
     throw cms::Exception("LogicError") << "@SUB=MillePedeDQMModule::getIndexFromString\n"
                                        << "Retrieving conversion for not supported Alignable partition" << alignableId;
