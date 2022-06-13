@@ -1,90 +1,60 @@
 import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("EnergyOverMomentumTree")
-
-# initialize MessageLogger and output report
-process.load("FWCore.MessageService.MessageLogger_cfi")
-#process.MessageLogger.cerr.threshold = 'ERROR'
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
-process.MessageLogger.TrackRefitter=dict()
-
-process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
-
-# define input files
-process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-'/store/relval/CMSSW_11_3_0_pre3/RelValMinBias_13/GEN-SIM-RECO/113X_upgrade2018_realistic_v3-v1/00000/00971a25-0d77-4a54-8b38-4ee45f26ac27.root',
-'/store/relval/CMSSW_11_3_0_pre3/RelValMinBias_13/GEN-SIM-RECO/113X_upgrade2018_realistic_v3-v1/00000/014ac00e-38df-45ac-9501-82944400515e.root',
-'/store/relval/CMSSW_11_3_0_pre3/RelValMinBias_13/GEN-SIM-RECO/113X_upgrade2018_realistic_v3-v1/00000/05a0879c-eca2-4a7e-89c3-f0f20a05c73d.root',
-'/store/relval/CMSSW_11_3_0_pre3/RelValMinBias_13/GEN-SIM-RECO/113X_upgrade2018_realistic_v3-v1/00000/05c96563-4f60-40ad-9eb3-cfdd2dad1c09.root',
-'/store/relval/CMSSW_11_3_0_pre3/RelValMinBias_13/GEN-SIM-RECO/113X_upgrade2018_realistic_v3-v1/00000/72009661-4aa4-4a0d-84f7-f1279dadffe4.root'
-    )
-)
-
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
-
-# load configuration files
-####################################################################
-# Get the Magnetic Field
-####################################################################
-process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
-process.load("Configuration.StandardSequences.MagneticField_cff")
-
-from Configuration.Geometry.GeometryRecoDB_cff import *
-process.load("Configuration.Geometry.GeometryRecoDB_cff")
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-#process.GlobalTag.globaltag = '113X_dataRun2_v6'
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing("analysis")
 
 options.register ('GlobalTag',
-                  'auto:phase1_2021_realistic',
+                  'auto:run2_data',
                   VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Global Tag to be used")
 
 options.parseArguments()
 
+process = cms.Process("EnergyOverMomentumTree")
+
+####################################################################
+# initialize MessageLogger and output report
+####################################################################
+process.load("FWCore.MessageService.MessageLogger_cfi")
+#process.MessageLogger.cerr.threshold = 'ERROR'
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
+process.MessageLogger.TrackRefitter=dict()
+
+process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False) )
+
+# define input files
+process.source = cms.Source("PoolSource",
+                            fileNames = cms.untracked.vstring(
+                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/075A1F1E-20B4-134D-9794-AD764DA6730D.root',
+                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/1B7906DB-A233-0143-ACF0-BB29D9FCFB24.root',
+                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/441F40BB-325E-5D46-9F1D-3C8BBAB8AE58.root',
+                                'root://cmsxrootd.fnal.gov//store/data/Run2018D/JetHT/ALCARECO/HcalCalIsoTrkFilter-12Nov2019_UL2018-v3/100000/B624B687-53C9-1C49-A19E-25FC808C9D88.root'))
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(options.maxEvents)
+)
+
 print( "conditionGT       : ", options.GlobalTag)
 print( "maxEvents         : ", options.maxEvents)
 
+####################################################################
+# load configuration files
+####################################################################
+process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
-## jsonFile =  'json_Apr21_May10v2_Promptv4_136035_167913.txt'
-## import PhysicsTools.PythonAnalysis.LumiList as LumiList
-## import FWCore.ParameterSet.Types as CfgTypes
-## print "JSON used: ", jsonFile
-## myLumis = LumiList.LumiList(filename = jsonFile).getCMSSWString().split(',')
-## process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-## process.source.lumisToProcess.extend(myLumis)
+jsonFile = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt'
+import FWCore.PythonUtilities.LumiList as LumiList
+import FWCore.ParameterSet.Types as CfgTypes
+print("JSON used: %s " % jsonFile)
+myLumis = LumiList.LumiList(filename = jsonFile).getCMSSWString().split(',')
+process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
+process.source.lumisToProcess.extend(myLumis)
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-
-#process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
-
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
-
-process.load("Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi")
-
-#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-
-#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
-process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
-
-process.load("Geometry.DTGeometry.dtGeometry_cfi")
-
-process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
-
-process.load("Geometry.CSCGeometry.cscGeometry_cfi")
-
-process.load("Geometry.CommonTopologies.bareGlobalTrackingGeometry_cfi")
 #from TrackingTools.TrackAssociator.default_cfi import *
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagator_cfi")
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi")
@@ -94,36 +64,33 @@ process.load("TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff")
 from TrackingTools.TrackAssociator.default_cfi import *
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
 
+####################################################################
 # choose geometry
-from CondCore.DBCommon.CondDBSetup_cfi import *
+####################################################################
+from CondCore.CondDB.CondDB_cfi import CondDB
+CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+
 process.trackerAlignment = cms.ESSource("PoolDBESSource",
-					CondDBSetup,
-                                        #connect = cms.string("frontier://FrontierArc/CMS_COND_31X_ALIGNMENT_BD19"),
+					CondDB,
                                         toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"),
-								tag = cms.string("TrackerAlignment_2017_ultralegacymc_v2")
-                                                                   )
-								),
-					connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-						)
-                                           
+                                                                   tag = cms.string("TrackerAlignment_v28_offline")
+                                                               )))
 process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 
-process.trackerAPE = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                      toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
-                                                                 tag = cms.string("TrackerAlignmentExtendedErrors_2017_ultralegacymc_v2")
-                                              			#tag = cms.string("TrackerAlignmentExtendedErrors_v16_offline_IOVs")
-                                                             )
-                                                    ),
-                                      connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
-    )
-process.es_prefer_TrackerAPE = cms.ESPrefer("PoolDBESSource", "trackerAPE")
-#process.prefer("trackerAlignment")
+process.trackerAPE = cms.ESSource("PoolDBESSource",
+                                  CondDB,
+                                  toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"),
+                                                                 tag = cms.string("TrackerAlignmentExtendedErrors_v15_offline_IOVs")
+                                                         )))
+#process.es_prefer_TrackerAPE = cms.ESPrefer("PoolDBESSource", "trackerAPE")
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
+####################################################################
 # configure alignment track selector
+####################################################################
 process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
-process.AlignmentTrackSelector.src = cms.InputTag('generalTracks:') # 'TkAlIsoProd' # trackCollection' # 'ALCARECOTkAlZMuMu' # 'ALCARECOTkAlMinBias' # adjust to input file
+process.AlignmentTrackSelector.src = cms.InputTag('TkAlIsoProdFilter') # 'TkAlIsoProd' # trackCollection' # 'ALCARECOTkAlZMuMu' # 'ALCARECOTkAlMinBias' # adjust to input file
 process.AlignmentTrackSelector.ptMin = 1.
 process.AlignmentTrackSelector.etaMin = -5.
 process.AlignmentTrackSelector.etaMax = 5.
@@ -132,31 +99,45 @@ process.AlignmentTrackSelector.chi2nMax = 100.
 #process.AlignmentTrackSelector.applyNHighestPt = True
 #process.AlignmentTrackSelector.nHighestPt = 2
 
+####################################################################
 # configure track refitter
+####################################################################
+process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi")
+process.MeasurementTrackerEvent.pixelClusterProducer = "TkAlIsoProdFilter"
+process.MeasurementTrackerEvent.stripClusterProducer = "TkAlIsoProdFilter"
+#process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag([''])
+#process.MeasurementTrackerEvent.inactiveStripDetectorLabels = cms.VInputTag([''])
+
 import RecoTracker.TrackProducer.TrackRefitters_cff
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
-process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi")
-process.TrackRefitter.src = cms.InputTag('generalTracks')
-#process.TrackRefitter.src = cms.InputTag('AlignmentTrackSelector')
+process.TrackRefitter.src = cms.InputTag('AlignmentTrackSelector')
 process.TrackRefitter.TrajectoryInEvent = True
+process.TrackRefitter.NavigationSchool = ''
 
+####################################################################
 # configure tree writer
-#TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackEcalRecHitCollection")
+####################################################################
 TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
-#TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackEcalRecHitCollection")
 TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
-#TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackHBHERecHitCollection")
-#TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackHORecHitCollection")
+TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("hbhereco")
+TrackAssociatorParameterBlock.TrackAssociatorParameters.useHO = cms.bool(False)  # no HO hits saved in the alcareco
 
 process.energyOverMomentumTree = cms.EDAnalyzer('EopTreeWriter',
-    TrackAssociatorParameterBlock
-)
-process.energyOverMomentumTree.src = cms.InputTag('TrackRefitter')
-#process.energyOverMomentumTree.src = cms.InputTag('TkAlIsoProd:')
+                                                TrackAssociatorParameterBlock,
+                                                src = cms.InputTag('TrackRefitter'))
 
+####################################################################
+# output file
+####################################################################
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('test_EopTree.root')
 )
 
-process.p = cms.Path(process.MeasurementTrackerEvent*process.offlineBeamSpot*process.TrackRefitter*process.energyOverMomentumTree)
-#process.p = cms.Path(process.offlineBeamSpot*process.AlignmentTrackSelector*process.TrackRefitter*process.energyOverMomentumTree)
+####################################################################
+# Path
+####################################################################
+process.p = cms.Path(process.MeasurementTrackerEvent*
+                     process.offlineBeamSpot*
+                     process.AlignmentTrackSelector*
+                     process.TrackRefitter*
+                     process.energyOverMomentumTree)
