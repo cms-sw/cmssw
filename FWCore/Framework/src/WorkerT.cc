@@ -696,22 +696,6 @@ namespace edm {
       iProd->resolvePutIndicies(iBranchType, iIndicies, iModuleLabel);
     }
 
-    std::vector<ProductResolverIndex> s_emptyIndexList;
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(void const*) { return s_emptyIndexList; }
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(ProducerBase const* iProd) {
-      return iProd->indiciesForPutProducts(edm::InEvent);
-    }
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(edm::stream::EDProducerAdaptorBase const* iProd) {
-      return iProd->indiciesForPutProducts(edm::InEvent);
-    }
-
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEventImpl(edm::stream::EDFilterAdaptorBase const* iProd) {
-      return iProd->indiciesForPutProducts(edm::InEvent);
-    }
-
   }  // namespace
 
   template <typename T>
@@ -720,11 +704,6 @@ namespace edm {
       std::unordered_multimap<std::string, std::tuple<TypeID const*, const char*, edm::ProductResolverIndex>> const&
           iIndicies) {
     resolvePutIndiciesImpl(&module(), iBranchType, iIndicies, description()->moduleLabel());
-  }
-
-  template <typename T>
-  std::vector<ProductResolverIndex> const& WorkerT<T>::itemsShouldPutInEvent() const {
-    return itemsShouldPutInEventImpl(&module());
   }
 
   template <>

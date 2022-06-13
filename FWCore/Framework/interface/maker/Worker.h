@@ -289,7 +289,6 @@ namespace edm {
 
     virtual std::vector<ESProxyIndex> const& esItemsToGetFrom(Transition) const = 0;
     virtual std::vector<ESRecordIndex> const& esRecordsToGetFrom(Transition) const = 0;
-    virtual std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const = 0;
 
     virtual void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                               ModuleCallingContext const& moduleCallingContext,

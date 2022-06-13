@@ -149,8 +149,6 @@ namespace edm {
       return module_->esGetTokenRecordIndicesVector(iTransition);
     }
 
-    std::vector<ProductResolverIndex> const& itemsShouldPutInEvent() const override;
-
     void preActionBeforeRunEventAsync(WaitingTaskHolder iTask,
                                       ModuleCallingContext const& iModuleCallingContext,
                                       Principal const& iPrincipal) const override {
