@@ -6,7 +6,21 @@ uncalibOOTAmps_ = [4,6]
 ecalGpuTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
         runGpuTask = cms.untracked.bool(False),
-        gpuOnlyPlots = cms.untracked.bool(True),
+
+        # Default plots for each object are 1D CPU distributions and 1D GPU-CPU diff
+        enableDigi = cms.untracked.bool(True),
+        enableUncalib = cms.untracked.bool(True),
+        enableRecHit = cms.untracked.bool(True),
+
+        # 1D flags enable distributions of GPU values
+        # 2D flags enable 2D comparison maps
+        digi1D = cms.untracked.bool(True),
+        digi2D = cms.untracked.bool(True),
+        uncalib1D = cms.untracked.bool(True),
+        uncalib2D = cms.untracked.bool(True),
+        rechit1D = cms.untracked.bool(True),
+        rechit2D = cms.untracked.bool(True),
+
         uncalibOOTAmps = cms.untracked.vint32(uncalibOOTAmps_)
     ),
     MEs = cms.untracked.PSet(
