@@ -165,6 +165,15 @@ namespace edm {
                                          ParentContext const&,
                                          typename T::Context const*);
 
+    virtual size_t transformIndex(edm::BranchDescription const&) const = 0;
+    void doTransformAsync(WaitingTaskHolder,
+                          size_t iTransformIndex,
+                          EventPrincipal const&,
+                          ServiceToken const&,
+                          StreamID,
+                          ModuleCallingContext const&,
+                          StreamContext const*);
+
     void callWhenDoneAsync(WaitingTaskHolder task) { waitingTasks_.add(std::move(task)); }
     void skipOnPath(EventPrincipal const& iEvent);
     void beginJob();
@@ -256,6 +265,9 @@ namespace edm {
     virtual void implDoAcquire(EventTransitionInfo const&,
                                ModuleCallingContext const*,
                                WaitingTaskWithArenaHolder&) = 0;
+
+    virtual void implDoTransform(size_t iTransformIndex, EventPrincipal const&, ParentContext const&) = 0;
+    virtual ProductResolverIndex itemToGetForTransform(size_t iTransformIndex) const = 0;
 
     virtual bool implDoPrePrefetchSelection(StreamID, EventPrincipal const&, ModuleCallingContext const*) = 0;
     virtual bool implDoBeginProcessBlock(ProcessBlockPrincipal const&, ModuleCallingContext const*) = 0;

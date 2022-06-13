@@ -98,6 +98,11 @@ namespace edm {
       };
 
       template <>
+      struct AbilityToImplementor<edm::Transformer> {
+        using Type = edm::limited::impl::Transformer<edm::limited::EDProducerBase>;
+      };
+
+      template <>
       struct AbilityToImplementor<edm::Accumulator> {
         using Type = edm::limited::impl::Accumulator<edm::limited::EDProducerBase>;
       };

@@ -31,6 +31,7 @@
 #include "FWCore/Framework/interface/stream/EDProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputProcessBlockCacheImpl.h"
+#include "FWCore/Framework/interface/TransformerBase.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/StreamID.h"
@@ -287,6 +288,52 @@ namespace edm {
         virtual ~ExternalWork() noexcept(false){};
 
         virtual void acquire(Event const&, edm::EventSetup const&, WaitingTaskWithArenaHolder) = 0;
+      };
+
+      class Transformer : private TransformerBase, public EDProducerBase {
+      public:
+        Transformer() = default;
+        Transformer(Transformer const&) = delete;
+        Transformer& operator=(Transformer const&) = delete;
+        ~Transformer() noexcept(false) override{};
+
+        template <typename G, typename F>
+        void registerTransform(ProducerBase::BranchAliasSetterT<G> iSetter,
+                               F&& iF,
+                               std::string productInstance = std::string()) {
+          registerTransform(edm::EDPutTokenT<G>(iSetter), std::forward<F>(iF), std::move(productInstance));
+        }
+
+        template <typename G, typename F>
+        void registerTransform(edm::EDPutTokenT<G> iToken, F iF, std::string productInstance = std::string()) {
+          using ReturnTypeT = decltype(iF(std::declval<G>()));
+          TypeID returnType(typeid(ReturnTypeT));
+          TransformerBase::registerTransformImp(*this,
+                                                EDPutToken(iToken),
+                                                returnType,
+                                                std::move(productInstance),
+                                                [f = std::move(iF)](edm::WrapperBase const& iGotProduct) {
+                                                  return std::make_unique<edm::Wrapper<ReturnTypeT>>(
+                                                      WrapperBase::Emplace{},
+                                                      f(*static_cast<edm::Wrapper<G> const&>(iGotProduct).product()));
+                                                });
+        }
+
+      private:
+        size_t transformIndex_(edm::BranchDescription const& iBranch) const final {
+          return TransformerBase::findMatchingIndex(*this, iBranch);
+        }
+        ProductResolverIndex transformPrefetch_(std::size_t iIndex) const final {
+          return TransformerBase::prefetchImp(iIndex);
+        }
+        void transform_(std::size_t iIndex, edm::EventForTransformer& iEvent) const final {
+          return TransformerBase::transformImp(iIndex, *this, iEvent);
+        }
+        void extendUpdateLookup(BranchType iBranchType, ProductResolverIndexHelper const& iHelper) override {
+          if (iBranchType == InEvent) {
+            TransformerBase::extendUpdateLookup(*this, this->moduleDescription(), iHelper);
+          }
+        }
       };
 
       class Accumulator : public EDProducerBase {
