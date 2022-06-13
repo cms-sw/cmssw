@@ -4,8 +4,8 @@ from DQM.GEM.GEMDigiSource_cfi import *
 from DQM.GEM.GEMRecHitSource_cfi import *
 from DQM.GEM.gemEfficiencyAnalyzer_cff import *
 
-GEMDigiSource.modeRelVal = True
-GEMRecHitSource.modeRelVal = True
+GEMDigiSource.runType   = "offline"
+GEMRecHitSource.runType = "offline"
 
 gemSources = cms.Sequence(
     GEMDigiSource *
