@@ -42,8 +42,12 @@ namespace ecaldqm {
     uncalibOOTAmps_ = params.getUntrackedParameter<std::vector<int> >("uncalibOOTAmps");
 
     if (!runGpuTask_) {
+      MEs_.erase(std::string("DigiCpu"));
       MEs_.erase(std::string("DigiCpuAmplitude"));
+      MEs_.erase(std::string("DigiGpuCpu"));
       MEs_.erase(std::string("DigiGpuCpuAmplitude"));
+      MEs_.erase(std::string("Digi2D"));
+      MEs_.erase(std::string("Digi2DAmplitude"));
       MEs_.erase(std::string("UncalibCpu"));
       MEs_.erase(std::string("UncalibCpuAmp"));
       MEs_.erase(std::string("UncalibCpuAmpError"));
@@ -62,6 +66,15 @@ namespace ecaldqm {
       MEs_.erase(std::string("UncalibGpuCpuChi2"));
       MEs_.erase(std::string("UncalibGpuCpuOOTAmp"));
       MEs_.erase(std::string("UncalibGpuCpuFlags"));
+      MEs_.erase(std::string("Uncalib2D"));
+      MEs_.erase(std::string("Uncalib2DAmp"));
+      MEs_.erase(std::string("Uncalib2DAmpError"));
+      MEs_.erase(std::string("Uncalib2DPedestal"));
+      MEs_.erase(std::string("Uncalib2DJitter"));
+      MEs_.erase(std::string("Uncalib2DJitterError"));
+      MEs_.erase(std::string("Uncalib2DChi2"));
+      MEs_.erase(std::string("Uncalib2DOOTAmp"));
+      MEs_.erase(std::string("Uncalib2DFlags"));
       MEs_.erase(std::string("RecHitCpu"));
       MEs_.erase(std::string("RecHitCpuEnergy"));
       MEs_.erase(std::string("RecHitCpuTime"));
@@ -70,8 +83,13 @@ namespace ecaldqm {
       MEs_.erase(std::string("RecHitGpuCpuEnergy"));
       MEs_.erase(std::string("RecHitGpuCpuTime"));
       MEs_.erase(std::string("RecHitGpuCpuFlags"));
+      MEs_.erase(std::string("RecHit2D"));
+      MEs_.erase(std::string("RecHit2DEnergy"));
+      MEs_.erase(std::string("RecHit2DTime"));
+      MEs_.erase(std::string("RecHit2DFlags"));
     }
     if (!gpuOnlyPlots_) {
+      MEs_.erase(std::string("DigiGpu"));
       MEs_.erase(std::string("DigiGpuAmplitude"));
       MEs_.erase(std::string("RecHitGpu"));
       MEs_.erase(std::string("RecHitGpuEnergy"));
@@ -146,6 +164,8 @@ namespace ecaldqm {
   void GpuTask::runOnGpuDigis(DigiCollection const& gpuDigis, Collections collection) {
     MESet& meDigiGpuCpu(MEs_.at("DigiGpuCpu"));
     MESet& meDigiGpuCpuAmplitude(MEs_.at("DigiGpuCpuAmplitude"));
+    MESet& meDigi2D(MEs_.at("Digi2D"));
+    MESet& meDigi2DAmplitude(MEs_.at("Digi2DAmplitude"));
 
     int iSubdet(collection == kEBGpuDigi ? EcalBarrel : EcalEndcap);
 
@@ -175,6 +195,7 @@ namespace ecaldqm {
     if (gpuOnlyPlots_) {
       MESet& meDigiGpu(MEs_.at("DigiGpu"));
       meDigiGpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuDigis);
+      meDigi2D.fill(getEcalDQMSetupObjects(), iSubdet, nCpuDigis, nGpuDigis);
     }
 
     for (auto const& gpuDigi : gpuDigis) {
@@ -192,11 +213,13 @@ namespace ecaldqm {
 
       for (unsigned iSample = 0; iSample < ecalPh1::sampleSize; iSample++) {
         static_cast<MESetMulti&>(meDigiGpuCpuAmplitude).use(iSample);
+        static_cast<MESetMulti&>(meDigi2DAmplitude).use(iSample);
 
         int gpuAmp(gpuDataFrame.sample(iSample).adc());
         int cpuAmp(cpuDataFrame.sample(iSample).adc());
 
         meDigiGpuCpuAmplitude.fill(getEcalDQMSetupObjects(), iSubdet, gpuAmp - cpuAmp);
+        meDigi2DAmplitude.fill(getEcalDQMSetupObjects(), iSubdet, cpuAmp, gpuAmp);
 
         if (gpuOnlyPlots_) {
           MESet& meDigiGpuAmplitude(MEs_.at("DigiGpuAmplitude"));
@@ -269,6 +292,15 @@ namespace ecaldqm {
     MESet& meUncalibGpuCpuChi2(MEs_.at("UncalibGpuCpuChi2"));
     MESet& meUncalibGpuCpuOOTAmp(MEs_.at("UncalibGpuCpuOOTAmp"));
     MESet& meUncalibGpuCpuFlags(MEs_.at("UncalibGpuCpuFlags"));
+    MESet& meUncalib2D(MEs_.at("Uncalib2D"));
+    MESet& meUncalib2DAmp(MEs_.at("Uncalib2DAmp"));
+    MESet& meUncalib2DAmpError(MEs_.at("Uncalib2DAmpError"));
+    MESet& meUncalib2DPedestal(MEs_.at("Uncalib2DPedestal"));
+    MESet& meUncalib2DJitter(MEs_.at("Uncalib2DJitter"));
+    MESet& meUncalib2DJitterError(MEs_.at("Uncalib2DJitterError"));
+    MESet& meUncalib2DChi2(MEs_.at("Uncalib2DChi2"));
+    MESet& meUncalib2DOOTAmp(MEs_.at("Uncalib2DOOTAmp"));
+    MESet& meUncalib2DFlags(MEs_.at("Uncalib2DFlags"));
 
     int iSubdet(collection == kEBGpuUncalibRecHit ? EcalBarrel : EcalEndcap);
 
@@ -286,6 +318,7 @@ namespace ecaldqm {
     unsigned nCpuHits(cpuHits->size());
 
     meUncalibGpuCpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits - nCpuHits);
+    meUncalib2D.fill(getEcalDQMSetupObjects(), iSubdet, nCpuHits, nGpuHits);
 
     if (gpuOnlyPlots_) {
       MESet& meUncalibGpu(MEs_.at("UncalibGpu"));
@@ -332,6 +365,14 @@ namespace ecaldqm {
       meUncalibGpuCpuChi2.fill(getEcalDQMSetupObjects(), iSubdet, gpuChi2 - cpuChi2);
       meUncalibGpuCpuFlags.fill(getEcalDQMSetupObjects(), iSubdet, gpuFlags - cpuFlags);
 
+      meUncalib2DAmp.fill(getEcalDQMSetupObjects(), iSubdet, cpuAmp, gpuAmp);
+      meUncalib2DAmpError.fill(getEcalDQMSetupObjects(), iSubdet, cpuAmpError, gpuAmpError);
+      meUncalib2DPedestal.fill(getEcalDQMSetupObjects(), iSubdet, cpuPedestal, gpuPedestal);
+      meUncalib2DJitter.fill(getEcalDQMSetupObjects(), iSubdet, cpuJitter, gpuJitter);
+      meUncalib2DJitterError.fill(getEcalDQMSetupObjects(), iSubdet, cpuJitterError, gpuJitterError);
+      meUncalib2DChi2.fill(getEcalDQMSetupObjects(), iSubdet, cpuChi2, gpuChi2);
+      meUncalib2DFlags.fill(getEcalDQMSetupObjects(), iSubdet, cpuFlags, gpuFlags);
+
       if (gpuOnlyPlots_) {
         MESet& meUncalibGpuAmp(MEs_.at("UncalibGpuAmp"));
         MESet& meUncalibGpuAmpError(MEs_.at("UncalibGpuAmpError"));
@@ -352,12 +393,14 @@ namespace ecaldqm {
 
       for (unsigned iAmp = 0; iAmp < uncalibOOTAmps_.size(); iAmp++) {
         static_cast<MESetMulti&>(meUncalibGpuCpuOOTAmp).use(iAmp);
+        static_cast<MESetMulti&>(meUncalib2DOOTAmp).use(iAmp);
 
         // Get corresponding OOT Amplitude
         int gpuOOTAmp(gpuHit.outOfTimeAmplitude(uncalibOOTAmps_[iAmp]));
         int cpuOOTAmp(cpuItr->outOfTimeAmplitude(uncalibOOTAmps_[iAmp]));
 
         meUncalibGpuCpuOOTAmp.fill(getEcalDQMSetupObjects(), iSubdet, gpuOOTAmp - cpuOOTAmp);
+        meUncalib2DOOTAmp.fill(getEcalDQMSetupObjects(), iSubdet, cpuOOTAmp, gpuOOTAmp);
 
         if (gpuOnlyPlots_) {
           MESet& meUncalibGpuOOTAmp(MEs_.at("UncalibGpuOOTAmp"));
@@ -401,6 +444,10 @@ namespace ecaldqm {
     MESet& meRecHitGpuCpuEnergy(MEs_.at("RecHitGpuCpuEnergy"));
     MESet& meRecHitGpuCpuTime(MEs_.at("RecHitGpuCpuTime"));
     MESet& meRecHitGpuCpuFlags(MEs_.at("RecHitGpuCpuFlags"));
+    MESet& meRecHit2D(MEs_.at("RecHit2D"));
+    MESet& meRecHit2DEnergy(MEs_.at("RecHit2DEnergy"));
+    MESet& meRecHit2DTime(MEs_.at("RecHit2DTime"));
+    MESet& meRecHit2DFlags(MEs_.at("RecHit2DFlags"));
 
     int iSubdet(collection == kEBGpuRecHit ? EcalBarrel : EcalEndcap);
 
@@ -417,6 +464,7 @@ namespace ecaldqm {
     unsigned nCpuHits(cpuHits->size());
 
     meRecHitGpuCpu.fill(getEcalDQMSetupObjects(), iSubdet, nGpuHits - nCpuHits);
+    meRecHit2D.fill(getEcalDQMSetupObjects(), iSubdet, nCpuHits, nGpuHits);
 
     if (gpuOnlyPlots_) {
       MESet& meRecHitGpu(MEs_.at("RecHitGpu"));
@@ -444,6 +492,10 @@ namespace ecaldqm {
       meRecHitGpuCpuEnergy.fill(getEcalDQMSetupObjects(), iSubdet, gpuEnergy - cpuEnergy);
       meRecHitGpuCpuTime.fill(getEcalDQMSetupObjects(), iSubdet, gpuTime - cpuTime);
       meRecHitGpuCpuFlags.fill(getEcalDQMSetupObjects(), iSubdet, gpuFlags - cpuFlags);
+
+      meRecHit2DEnergy.fill(getEcalDQMSetupObjects(), iSubdet, cpuEnergy, gpuEnergy);
+      meRecHit2DTime.fill(getEcalDQMSetupObjects(), iSubdet, cpuTime, gpuTime);
+      meRecHit2DFlags.fill(getEcalDQMSetupObjects(), iSubdet, cpuFlags, gpuFlags);
 
       if (gpuOnlyPlots_) {
         MESet& meRecHitGpuEnergy(MEs_.at("RecHitGpuEnergy"));
