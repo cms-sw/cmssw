@@ -100,6 +100,48 @@ ecalGpuTask = cms.untracked.PSet(
             ),
             description = cms.untracked.string('GPU-CPU difference of digi amplitude for individual digi samples (1-10)')
         ),
+        # Digi 2D plots
+        Digi2D = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT digi nDigis gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5000),
+                title = cms.untracked.string('CPU Digis per Event')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5000),
+                title = cms.untracked.string('GPU Digis per Event')
+            ),
+            description = cms.untracked.string('Number of Digis per Event. GPU vs CPU comparison')
+        ),
+        Digi2DAmplitude = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT digi amplitude sample %(sample)s gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            multi = cms.untracked.PSet(
+                sample = cms.untracked.vint32(digiSamples_)
+            ),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(4096),
+                title = cms.untracked.string('CPU ADC Counts')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(4096),
+                title = cms.untracked.string('GPU ADC Counts')
+            ),
+            description = cms.untracked.string('Digi amplitudes for individual digi samples (1-10). GPU vs CPU comparison')
+        ),
         # CPU UncalibRecHit
         UncalibCpu = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit nHits cpu'),
@@ -463,6 +505,181 @@ ecalGpuTask = cms.untracked.PSet(
             ),
             description = cms.untracked.string('GPU-CPU difference of Uncalibrated Rec Hit flag to be propagated to RecHit')
         ),
+        # UncalibRecHit 2D plots
+        Uncalib2D = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit nHits gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5000),
+                title = cms.untracked.string('CPU Uncalibrated Rec Hits per Event')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5000),
+                title = cms.untracked.string('GPU Uncalibrated Rec Hits per Event')
+            ),
+            description = cms.untracked.string('Number of Uncalibrated Rec Hits per Event. GPU vs CPU comparison')
+        ),
+        Uncalib2DAmp = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit amplitude gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5000),
+                title = cms.untracked.string('CPU Amplitude')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5000),
+                title = cms.untracked.string('GPU Amplitude')
+            ),
+            description = cms.untracked.string('Uncalibrated Rec Hit reconstructed amplitude. GPU vs CPU comparison')
+        ),
+        Uncalib2DAmpError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit amplitudeError gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(200),
+                title = cms.untracked.string('CPU Amplitude Error')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(200),
+                title = cms.untracked.string('GPU Amplitude Error')
+            ),
+            description = cms.untracked.string('Uncalibrated Rec Hit reconstructed amplitude uncertainty. GPU vs CPU comparison')
+        ),
+        Uncalib2DPedestal = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit pedestal gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(1000),
+                title = cms.untracked.string('CPU Pedestal')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(1000),
+                title = cms.untracked.string('GPU Pedestal')
+            ),
+            description = cms.untracked.string('Uncalibrated Rec Hit reconstructed pedestal. GPU vs CPU comparison')
+        ),
+        Uncalib2DJitter = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit jitter gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-5),
+                high = cms.untracked.double(5),
+                title = cms.untracked.string('CPU Jitter')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-5),
+                high = cms.untracked.double(5),
+                title = cms.untracked.string('GPU Jitter')
+            ),
+            description = cms.untracked.string('Uncalibrated Rec Hit reconstructed time jitter. GPU vs CPU comparison')
+        ),
+        Uncalib2DJitterError = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit jitterError gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(25),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(0.25), # If you edit this, also change 10k bin in GpuTask.cc
+                title = cms.untracked.string('CPU Jitter Error')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(25),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(0.25), # If you edit this, also change 10k bin in GpuTask.cc
+                title = cms.untracked.string('GPU Jitter Error')
+            ),
+            description = cms.untracked.string('Uncalibrated Rec Hit reconstructed time jitter uncertainty. GPU vs CPU comparison. 10000 is special value, shown in last bin')
+        ),
+        Uncalib2DChi2 = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit chi2 gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(200),
+                title = cms.untracked.string('CPU Chi2')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(200),
+                title = cms.untracked.string('GPU Chi2')
+            ),
+            description = cms.untracked.string('Uncalibrated Rec Hit chi2 of the pulse. GPU vs CPU comparison')
+        ),
+        Uncalib2DOOTAmp = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit OOT amplitude %(OOTAmp)s gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            multi = cms.untracked.PSet(
+                OOTAmp = cms.untracked.vint32(uncalibOOTAmps_)
+            ),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(500),
+                title = cms.untracked.string('CPU OOT Amplitude')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(500),
+                title = cms.untracked.string('GPU OOT Amplitude')
+            ),
+            description = cms.untracked.string('Uncalibrated Rec Hit out-of-time reconstructed amplitude. GPU vs CPU comparison. Indicies go from 0 to 9, with event BX at index 5. Index 4 == BX-1, index 6 == BX+1, etc.')
+        ),
+        Uncalib2DFlags = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT uncalib rec hit flags gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(64),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(64),
+                title = cms.untracked.string('CPU Flags')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(64),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(64),
+                title = cms.untracked.string('GPU Flags')
+            ),
+            description = cms.untracked.string('Uncalibrated Rec Hit flag to be propagated to RecHit. GPU vs CPU comparison')
+        ),
         # CPU RecHit
         RecHitCpu = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT rec hit nHits cpu'),
@@ -621,6 +838,83 @@ ecalGpuTask = cms.untracked.PSet(
                 title = cms.untracked.string('GPU-CPU Flags')
             ),
             description = cms.untracked.string('GPU-CPU differnece of Rec Hit Flags')
+        ),
+        # RecHit 2D plots
+        RecHit2D = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT rec hit nHits gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5000),
+                title = cms.untracked.string('CPU Rec Hits per Event')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5000),
+                title = cms.untracked.string('GPU Rec Hits per Event')
+            ),
+            description = cms.untracked.string('Number of Rec Hits per Event. GPU vs CPU comparison')
+        ),
+        RecHit2DEnergy = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT rec hit energy gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('CPU Energy (Gev)')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(5.0),
+                title = cms.untracked.string('GPU Energy (Gev)')
+            ),
+            description = cms.untracked.string('Rec Hit Energy (GeV). GPU vs CPU comparison')
+        ),
+        RecHit2DTime = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT rec hit time gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-25.0),
+                high = cms.untracked.double(25.0),
+                title = cms.untracked.string('CPU Time (ns)')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(-25.0),
+                high = cms.untracked.double(25.0),
+                title = cms.untracked.string('GPU Time (ns)')
+            ),
+            description = cms.untracked.string('Rec Hit Time. GPU vs CPU comparison')
+        ),
+        RecHit2DFlags = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sGpuTask/%(prefix)sGT rec hit flags gpu-cpu map2D'),
+            kind = cms.untracked.string('TH2F'),
+            otype = cms.untracked.string('Ecal2P'),
+            btype = cms.untracked.string('User'),
+            xaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(1024),
+                title = cms.untracked.string('CPU Flags')
+            ),
+            yaxis = cms.untracked.PSet(
+                nbins = cms.untracked.int32(100),
+                low = cms.untracked.double(0),
+                high = cms.untracked.double(1024),
+                title = cms.untracked.string('GPU Flags')
+            ),
+            description = cms.untracked.string('Rec Hit Flags. GPU vs CPU comparison')
         )
     )
 )
