@@ -352,6 +352,21 @@ private:
       m_globalEndLuminosityBlockSummaryCalled = false;
     }
   };
+  class TransformProd : public edm::limited::EDProducer<edm::Transformer> {
+  public:
+    TransformProd(edm::ParameterSet const&)
+        : edm::limited::EDProducerBase(s_pset), edm::limited::EDProducer<edm::Transformer>(s_pset) {
+      token_ = produces<float>();
+      registerTransform(token_, [](float iV) { return int(iV); });
+    }
+
+    void produce(edm::StreamID, edm::Event& iEvent, edm::EventSetup const&) const {
+      //iEvent.emplace(token_, 3.625);
+    }
+
+  private:
+    edm::EDPutTokenT<float> token_;
+  };
 };
 
 ///registration of the test so that the runner can find it

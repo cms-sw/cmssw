@@ -123,6 +123,11 @@ namespace edm {
     typedef module::Empty Type;
   };
 
+  struct Transformer {
+    static constexpr module::Abilities kAbilities = module::Abilities::kTransformer;
+    using Type = module::Empty;
+  };
+
   //Recursively checks VArgs template arguments looking for the ABILITY
   template <module::Abilities ABILITY, typename... VArgs>
   struct CheckAbility;
