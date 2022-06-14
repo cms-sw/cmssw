@@ -1,0 +1,47 @@
+import FWCore.ParameterSet.Config as cms
+
+from ..modules.hltHpsPFTauAK4PFJets8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauBasicDiscriminators8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauBasicDiscriminatorsdR038HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauCleaner8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauCombinatoricProducer8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauDiscriminationByDecayModeFinding8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauDiscriminationByDecayModeFindingNewDMs8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauDiscriminationByTrackFinding8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauDiscriminationByTrackPt8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauPFJets08Region8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauPFJetsRecoTauChargedHadrons8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauPiZeros8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauPrimaryVertexProducer8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauSecondaryVertexProducer8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauSelectionDiscriminationByHPS8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTauTransverseImpactParameters8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltHpsPFTaus8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltSelectedHpsPFTauChargedIsoPtSumHGCalFix8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltSelectedHpsPFTauChargedIsoPtSumdR03HGCalFix8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltSelectedHpsPFTauNeutralIsoPtSumHGCalFix8HitsMaxDeltaZWithOfflineVertices_cfi import *
+from ..modules.hltSelectedHpsPFTauNeutralIsoPtSumdR03HGCalFix8HitsMaxDeltaZWithOfflineVertices_cfi import *
+
+HLTTauTask = cms.Task(
+    hltHpsPFTauAK4PFJets8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauPFJets08Region8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauPFJetsRecoTauChargedHadrons8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauPiZeros8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauCombinatoricProducer8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauSelectionDiscriminationByHPS8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauCleaner8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTaus8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauDiscriminationByTrackFinding8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauDiscriminationByTrackPt8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauDiscriminationByDecayModeFinding8HitsMaxDeltaZWithOfflineVertices,
+    hltSelectedHpsPFTauChargedIsoPtSumHGCalFix8HitsMaxDeltaZWithOfflineVertices,
+    hltSelectedHpsPFTauChargedIsoPtSumdR03HGCalFix8HitsMaxDeltaZWithOfflineVertices,
+    hltSelectedHpsPFTauNeutralIsoPtSumHGCalFix8HitsMaxDeltaZWithOfflineVertices,
+    hltSelectedHpsPFTauNeutralIsoPtSumdR03HGCalFix8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauDiscriminationByDecayModeFindingNewDMs8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauBasicDiscriminators8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauBasicDiscriminatorsdR038HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauPrimaryVertexProducer8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauSecondaryVertexProducer8HitsMaxDeltaZWithOfflineVertices,
+    hltHpsPFTauTransverseImpactParameters8HitsMaxDeltaZWithOfflineVertices
+)
