@@ -151,9 +151,9 @@ private:
   clustering_type _clustype;
   energy_weight _eweight;
   void buildAllSuperClusters(CalibratedClusterPtrVector&, double seedthresh);
-  void buildAllSuperClustersMustache(CalibratedClusterPtrVector&, double seedthresh);
+  void buildAllSuperClustersMustacheOrBox(CalibratedClusterPtrVector&, double seedthresh);
   void buildAllSuperClustersDeepSC(CalibratedClusterPtrVector&, double seedthresh);
-  void buildSuperClusterMustache(CalibratedClusterPtr&, CalibratedClusterPtrVector&);
+  void buildSuperClusterMustacheOrBox(CalibratedClusterPtr&, CalibratedClusterPtrVector&);
   void finalizeSuperCluster(CalibratedClusterPtr& seed, CalibratedClusterPtrVector& clustered, bool isEE);
 
   bool verbose_;
