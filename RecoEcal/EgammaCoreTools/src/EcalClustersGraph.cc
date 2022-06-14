@@ -254,8 +254,7 @@ DeepSCInputs::FeaturesMap EcalClustersGraph::computeWindowVariables(
 std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluster* cluster) {
   double numeratorEtaWidth = 0;
   double numeratorPhiWidth = 0;
-  double clEnergy = cluster->energy();
-  double denominator = clEnergy;
+  double denominator = cluster->energy();
   double clEta = cluster->position().eta();
   double clPhi = cluster->position().phi();
   std::shared_ptr<const CaloCellGeometry> this_cell;
@@ -263,31 +262,26 @@ std::pair<double, double> EcalClustersGraph::computeCovariances(const CaloCluste
 
   const std::vector<std::pair<DetId, float>>& detId = cluster->hitsAndFractions();
   // Loop over recHits associated with the given SuperCluster
-  for (std::vector<std::pair<DetId, float>>::const_iterator hit = detId.begin(); hit != detId.end(); ++hit) {
+  for (const auto& hit : detId) {
     if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
-      rHit = recHitsEB_->find((*hit).first);
+      rHit = recHitsEB_->find(hit.first);
       if (rHit == recHitsEB_->end()) {
         continue;
       }
+      this_cell = ebGeom_->getGeometry(rHit->id());
     } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
-      rHit = recHitsEE_->find((*hit).first);
+      rHit = recHitsEE_->find(hit.first);
       if (rHit == recHitsEE_->end()) {
         continue;
       }
-    }
-
-    if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_BARREL) {
-      this_cell = ebGeom_->getGeometry(rHit->id());
-    } else if (PFLayer::fromCaloID(cluster->caloID()) == PFLayer::ECAL_ENDCAP) {
       this_cell = eeGeom_->getGeometry(rHit->id());
-    }
-    if (this_cell == nullptr) {
+    } else {
       continue;
     }
 
     GlobalPoint position = this_cell->getPosition();
     //take into account energy fractions
-    double energyHit = rHit->energy() * hit->second;
+    double energyHit = rHit->energy() * hit.second;
     //form differences
     double dPhi = deltaPhi(position.phi(), clPhi);
     double dEta = position.eta() - clEta;

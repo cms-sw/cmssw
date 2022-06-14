@@ -269,13 +269,14 @@ void PFECALSuperClusterAlgo::run() {
 }
 
 void PFECALSuperClusterAlgo::buildAllSuperClusters(CalibratedClusterPtrVector& clusters, double seedthresh) {
-  if (_clustype == PFECALSuperClusterAlgo::kMustache)
-    buildAllSuperClustersMustache(clusters, seedthresh);
+  if (_clustype == PFECALSuperClusterAlgo::kMustache || _clustype == PFECALSuperClusterAlgo::kBOX)
+    buildAllSuperClustersMustacheOrBox(clusters, seedthresh);
   else if (_clustype == PFECALSuperClusterAlgo::kDeepSC)
     buildAllSuperClustersDeepSC(clusters, seedthresh);
 }
 
-void PFECALSuperClusterAlgo::buildAllSuperClustersMustache(CalibratedClusterPtrVector& clusters, double seedthresh) {
+void PFECALSuperClusterAlgo::buildAllSuperClustersMustacheOrBox(CalibratedClusterPtrVector& clusters,
+                                                                double seedthresh) {
   auto seedable = std::bind(isSeed, _1, seedthresh, threshIsET_);
 
   // make sure only seeds appear at the front of the list of clusters
@@ -286,7 +287,7 @@ void PFECALSuperClusterAlgo::buildAllSuperClustersMustache(CalibratedClusterPtrV
   // NB: since clusters is sorted in loadClusters any_of has O(1)
   //     timing until you run out of seeds!
   while (std::any_of(clusters.cbegin(), clusters.cend(), seedable)) {
-    buildSuperClusterMustache(clusters.front(), clusters);
+    buildSuperClusterMustacheOrBox(clusters.front(), clusters);
   }
 }
 
@@ -323,8 +324,8 @@ void PFECALSuperClusterAlgo::buildAllSuperClustersDeepSC(CalibratedClusterPtrVec
   }
 }
 
-void PFECALSuperClusterAlgo::buildSuperClusterMustache(CalibratedClusterPtr& seed,
-                                                       CalibratedClusterPtrVector& clusters) {
+void PFECALSuperClusterAlgo::buildSuperClusterMustacheOrBox(CalibratedClusterPtr& seed,
+                                                            CalibratedClusterPtrVector& clusters) {
   CalibratedClusterPtrVector clustered;
 
   double etawidthSuperCluster = 0.0;
