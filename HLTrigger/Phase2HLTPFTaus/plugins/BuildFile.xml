@@ -1,0 +1,16 @@
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/TauReco"/>
+<!--use   name="DataFormats/Phase2HLTPFTaus"/-->
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="RecoTauTag/RecoTau"/>
+<use   name="SimGeneral/HepPDTRecord"/>
+<use   name="L1Trigger/L1TTrackMatch"/>
+<use   name="HLTrigger/Configuration"/>
+<use   name="root"/>
+<!--Flags CXXFLAGS="-ggdb3 -Og" /-->
+<export>
+  <lib   name="1"/>
+</export>
+
