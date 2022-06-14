@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DDCMSDetectorTest")
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
+
+process = cms.Process("DDCMSDetectorTest", Run3_dd4hep)
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
@@ -41,10 +43,19 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load('CondCore.CondDB.CondDB_cfi')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['upgrade2021']
+
 process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2021.xml'),
+                                            rootDDName = cms.string('cms:OCMS'),
+                                            label = cms.string('Extended'),
+                                            fromDB = cms.bool(True),
                                             appendToDataLabel = cms.string('CMS')
-                                            )
+)
+
 process.test = cms.EDAnalyzer("DDTestDumpGeometry",
                               DDDetector = cms.ESInputTag('','CMS')
                               )

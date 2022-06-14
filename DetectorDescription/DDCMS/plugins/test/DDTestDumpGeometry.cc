@@ -46,7 +46,10 @@ void DDTestDumpGeometry::analyze(const Event&, const EventSetup& iEventSetup) {
   TString path;
   while ((node = next())) {
     next.GetPath(path);
-    LogVerbatim("Geometry") << path << ": " << node->GetVolume()->GetName();
+    path.ReplaceAll("xml-memory-buffer:", "");  // Remove artifact of DB reading
+    TString nodeName(node->GetVolume()->GetName());
+    nodeName.ReplaceAll("xml-memory-buffer:", "");  // Remove artifact of DB reading
+    LogVerbatim("DumpGeometry") << path << ": " << nodeName;
   }
 }
 

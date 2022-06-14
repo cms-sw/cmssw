@@ -84,7 +84,7 @@ namespace {
     bool m_xmltest, m_tktest, m_ecaltest;
     bool m_hcaltest, m_hgcaltest, m_calotowertest;
     bool m_castortest, m_zdctest, m_csctest;
-    bool m_dttest, m_rpctest;
+    bool m_dttest, m_rpctest, m_round;
     std::string m_geomLabel;
     edm::ESGetToken<FileBlob, GeometryFileRcd> m_xmlGeoToken;
     edm::ESGetToken<PGeometricDet, IdealGeometryRecord> m_tkGeoToken;
@@ -115,6 +115,7 @@ GeometryTester::GeometryTester(const edm::ParameterSet &iConfig)
       m_csctest(iConfig.getUntrackedParameter<bool>("CSCTest", true)),
       m_dttest(iConfig.getUntrackedParameter<bool>("DTTest", true)),
       m_rpctest(iConfig.getUntrackedParameter<bool>("RPCTest", true)),
+      m_round(iConfig.getUntrackedParameter<bool>("roundValues", false)),
       m_geomLabel(iConfig.getUntrackedParameter<std::string>("geomLabel", "Extended")),
       m_xmlGeoToken(esConsumes(edm::ESInputTag("", m_geomLabel))),
       m_tkGeoToken(esConsumes()),
@@ -191,10 +192,31 @@ void GeometryTester::analyze(const edm::Event &, const edm::EventSetup &iSetup) 
     std::cout << "Translations " << tsee.size() << "\n";
     std::cout << "Dimensions " << dimee.size() << "\n";
     std::cout << "Indices " << indee.size() << "\n";
-    std::cout << "ecale ";
-    for (auto it : tsee)
+    std::cout << "ecale " << std::endl;
+    int cnt = 1;
+    for (auto it : tsee) {
+      if (cnt % 6 == 1) {
+        outStream << "ecale xyz ";
+        if (m_round)
+          std::cout << std::defaultfloat << std::setprecision(6);
+      } else if (cnt % 3 == 1) {
+        outStream << "ecale phi/theta/psi ";
+        if (m_round) {
+          std::cout << std::setprecision(4);
+          // Angles show fluctuations beyond four digits
+          if (std::abs(it) < 1.e-4) {
+            it = 0.0;
+            // Show tiny phi values as 0 to avoid fluctuations
+          }
+        }
+      }
       outStream << it;
+      if ((cnt++) % 3 == 0)
+        std::cout << "\n";
+    }
     std::cout << "\n";
+    if (m_round)
+      std::cout << std::setprecision(6);
     std::cout << "ecale ";
     for (auto it : dimee)
       outStream << it;
