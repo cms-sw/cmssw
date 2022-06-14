@@ -132,14 +132,14 @@ void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
 }
 
 void MillePedeDQMModule ::fillExpertHistos() {
-  std::array<double, 6> Xcut_, sigXcut_, maxMoveXcut_, maxErrorXcut_;
-  std::array<double, 6> tXcut_, sigtXcut_, maxMovetXcut_, maxErrortXcut_;
+  std::array<double, 8> Xcut_, sigXcut_, maxMoveXcut_, maxErrorXcut_;
+  std::array<double, 8> tXcut_, sigtXcut_, maxMovetXcut_, maxErrortXcut_;
 
-  std::array<double, 6> Ycut_, sigYcut_, maxMoveYcut_, maxErrorYcut_;
-  std::array<double, 6> tYcut_, sigtYcut_, maxMovetYcut_, maxErrortYcut_;
+  std::array<double, 8> Ycut_, sigYcut_, maxMoveYcut_, maxErrorYcut_;
+  std::array<double, 8> tYcut_, sigtYcut_, maxMovetYcut_, maxErrortYcut_;
 
-  std::array<double, 6> Zcut_, sigZcut_, maxMoveZcut_, maxErrorZcut_;
-  std::array<double, 6> tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_;
+  std::array<double, 8> Zcut_, sigZcut_, maxMoveZcut_, maxErrorZcut_;
+  std::array<double, 8> tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_;
 
   auto myMap = mpReader_->getThresholdMap();
 
@@ -196,10 +196,10 @@ void MillePedeDQMModule ::fillExpertHistos() {
 }
 
 void MillePedeDQMModule ::fillExpertHisto(MonitorElement* histo,
-                                          const std::array<double, 6>& cut,
-                                          const std::array<double, 6>& sigCut,
-                                          const std::array<double, 6>& maxMoveCut,
-                                          const std::array<double, 6>& maxErrorCut,
+                                          const std::array<double, 8>& cut,
+                                          const std::array<double, 8>& sigCut,
+                                          const std::array<double, 8>& maxMoveCut,
+                                          const std::array<double, 8>& maxErrorCut,
                                           const std::array<double, 6>& obs,
                                           const std::array<double, 6>& obsErr) {
   TH1F* histo_0 = histo->getTH1F();

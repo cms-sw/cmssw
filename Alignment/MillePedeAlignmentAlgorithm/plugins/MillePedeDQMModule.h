@@ -64,10 +64,10 @@ private:  //===================================================================
   void fillExpertHistos();
 
   void fillExpertHisto(MonitorElement* histo,
-                       const std::array<double, 6>& cut,
-                       const std::array<double, 6>& sigCut,
-                       const std::array<double, 6>& maxMoveCut,
-                       const std::array<double, 6>& maxErrorCut,
+                       const std::array<double, 8>& cut,
+                       const std::array<double, 8>& sigCut,
+                       const std::array<double, 8>& maxMoveCut,
+                       const std::array<double, 8>& maxErrorCut,
                        const std::array<double, 6>& obs,
                        const std::array<double, 6>& obsErr);
 
