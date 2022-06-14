@@ -13,8 +13,8 @@ pythia8CP1TuneDownSettingsBlock = cms.PSet(
 	'SigmaTotal:zeroAXB=off',
 	'SpaceShower:rapidityOrder=off',
         'SigmaTotal:mode = 0',
-        'SigmaTotal:sigmaEl = 22.08',
-        'SigmaTotal:sigmaTot = 101.037',
+        'SigmaTotal:sigmaEl = 21.89',
+        'SigmaTotal:sigmaTot = 100.309',
         'PDF:pSet=LHAPDF6:NNPDF31_lo_as_0130',
 	)
 )
