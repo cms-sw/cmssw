@@ -248,7 +248,7 @@ const string TotemDAQMappingESSourceXML::tagTotemTimingPlane = "timing_plane";
 TotemDAQMappingESSourceXML::TotemDAQMappingESSourceXML(const edm::ParameterSet &conf)
     : verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0)),
       subSystemName(conf.getUntrackedParameter<string>("subSystem")),
-      sampicSubDetId(conf.getUntrackedParameter<unsigned int>("sampicSubDetId", 5)),
+      sampicSubDetId(conf.getParameter<unsigned int>("sampicSubDetId")),
       currentBlock(0),
       currentBlockValid(false) {
   for (const auto &it : conf.getParameter<vector<ParameterSet>>("configuration")) {
