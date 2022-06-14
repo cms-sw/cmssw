@@ -132,14 +132,14 @@ void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
 }
 
 void MillePedeDQMModule ::fillExpertHistos() {
-  std::array<double, 8> Xcut_, sigXcut_, maxMoveXcut_, maxErrorXcut_;
-  std::array<double, 8> tXcut_, sigtXcut_, maxMovetXcut_, maxErrortXcut_;
+  std::array<double, SIZE_INDEX> Xcut_, sigXcut_, maxMoveXcut_, maxErrorXcut_;
+  std::array<double, SIZE_INDEX> tXcut_, sigtXcut_, maxMovetXcut_, maxErrortXcut_;
 
-  std::array<double, 8> Ycut_, sigYcut_, maxMoveYcut_, maxErrorYcut_;
-  std::array<double, 8> tYcut_, sigtYcut_, maxMovetYcut_, maxErrortYcut_;
+  std::array<double, SIZE_INDEX> Ycut_, sigYcut_, maxMoveYcut_, maxErrorYcut_;
+  std::array<double, SIZE_INDEX> tYcut_, sigtYcut_, maxMovetYcut_, maxErrortYcut_;
 
-  std::array<double, 8> Zcut_, sigZcut_, maxMoveZcut_, maxErrorZcut_;
-  std::array<double, 8> tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_;
+  std::array<double, SIZE_INDEX> Zcut_, sigZcut_, maxMoveZcut_, maxErrorZcut_;
+  std::array<double, SIZE_INDEX> tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_;
 
   auto myMap = mpReader_->getThresholdMap();
 
@@ -196,12 +196,12 @@ void MillePedeDQMModule ::fillExpertHistos() {
 }
 
 void MillePedeDQMModule ::fillExpertHisto(MonitorElement* histo,
-                                          const std::array<double, 8>& cut,
-                                          const std::array<double, 8>& sigCut,
-                                          const std::array<double, 8>& maxMoveCut,
-                                          const std::array<double, 8>& maxErrorCut,
-                                          const std::array<double, 6>& obs,
-                                          const std::array<double, 6>& obsErr) {
+                                          const std::array<double, SIZE_INDEX>& cut,
+                                          const std::array<double, SIZE_INDEX>& sigCut,
+                                          const std::array<double, SIZE_INDEX>& maxMoveCut,
+                                          const std::array<double, SIZE_INDEX>& maxErrorCut,
+                                          const std::array<double, SIZE_LG_STRUCTS>& obs,
+                                          const std::array<double, SIZE_LG_STRUCTS>& obsErr) {
   TH1F* histo_0 = histo->getTH1F();
 
   double max_ = *std::max_element(maxMoveCut.begin(), maxMoveCut.end());
