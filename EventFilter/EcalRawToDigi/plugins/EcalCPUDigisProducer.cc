@@ -181,6 +181,9 @@ void EcalCPUDigisProducer::produce(edm::Event& event, edm::EventSetup const& set
   std::memcpy(idsEB, idsebtmp.data(), idsebtmp.size() * sizeof(uint32_t));
   std::memcpy(idsEE, idseetmp.data(), idseetmp.size() * sizeof(uint32_t));
 
+  digisEB->sort();
+  digisEE->sort();
+
   event.put(digisOutEBToken_, std::move(digisEB));
   event.put(digisOutEEToken_, std::move(digisEE));
 
