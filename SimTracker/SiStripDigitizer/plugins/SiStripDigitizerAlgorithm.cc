@@ -60,7 +60,6 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
       inefficiency(conf.getParameter<double>("Inefficiency")),
       pedOffset((unsigned int)conf.getParameter<double>("PedestalsOffset")),
       PreMixing_(conf.getParameter<bool>("PreMixingMode")),
-      deadChannelToken_(iC.esConsumes()),
       pdtToken_(iC.esConsumes()),
       lorentzAngleToken_(iC.esConsumes(edm::ESInputTag("", conf.getParameter<std::string>("LorentzAngle")))),
       theSiHitDigitizer(new SiHitDigitizer(conf)),
@@ -108,9 +107,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
 
 SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm() {}
 
-void SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const* det, const edm::EventSetup& iSetup) {
-  auto const& deadChannel = iSetup.getData(deadChannelToken_);
-
+void SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const* det, const SiStripBadStrip& deadChannel) {
   unsigned int detId = det->geographicalId().rawId();
   int numStrips = (det->specificTopology()).nstrips();
 
