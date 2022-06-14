@@ -20,8 +20,8 @@ pythia8CP5TuneUpSettingsBlock = cms.PSet(
         'TimeShower:alphaSorder=2',
         'TimeShower:alphaSvalue=0.118',
         'SigmaTotal:mode = 0',
-        'SigmaTotal:sigmaEl = 22.08',
-        'SigmaTotal:sigmaTot = 101.037',
+        'SigmaTotal:sigmaEl = 21.89',
+        'SigmaTotal:sigmaTot = 100.309',
         'PDF:pSet=LHAPDF6:NNPDF31_nnlo_as_0118',
         )
 )
