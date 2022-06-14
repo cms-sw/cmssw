@@ -163,6 +163,73 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
   //The loop stops when the number of planes with recorded hits is less than the minimum number of planes required
   //or if the track with minimum chiSquare found has a chiSquare higher than the maximum required
 
+  // bad Pot patch 45-220-fr 2022 -- beginning
+  // check number of hits in road
+  unsigned int hitNum = 0;
+  for (const auto &plane : *hitMap_) {
+    hitNum += plane.second.size();
+  }
+
+  if (hitMap_->size() == 2 && hitNum == 2) {  // look for roads with 2 hits in 2 different planes
+
+    // std::cout << " hitMap size = " << hitMap_->size() << std::endl;
+
+    GlobalPoint hit[2];
+    PointInPlaneList pIPL;
+
+    unsigned int i = 0;
+    for (const auto &plane : *hitMap_) {
+      // std::cout << "            \tarm " << plane.first.arm() << " station " << plane.first.station() << " rp "                << plane.first.rp() << " plane " << plane.first.plane() << " : " << plane.second.size() << std::endl;
+
+      if (plane.second.size() > 1)
+        break;  // only 1 hit per plane per road allowed
+      GlobalPoint gP(plane.second[0].globalPoint.x(), plane.second[0].globalPoint.y(), plane.second[0].globalPoint.z());
+      hit[i] = gP;
+      i++;
+      //      std::cout << plane.second[0].globalPoint.x() << std::endl;
+      pIPL.push_back(plane.second[0]);
+    }
+
+    // calculate 2 point track parameters (no need of fits)
+    double tx = (hit[0].x() - hit[1].x()) / (hit[0].z() - hit[1].z());
+    double ty = (hit[0].y() - hit[1].y()) / (hit[0].z() - hit[1].z());
+    double xat0 = (hit[1].x() * hit[0].z() - hit[0].x() * hit[1].z()) / (hit[0].z() - hit[1].z());
+    double yat0 = (hit[1].y() * hit[0].z() - hit[0].y() * hit[1].z()) / (hit[0].z() - hit[1].z());
+    double z0 = geometry_->rpTranslation(romanPotId_).z();
+    double xatz0 = xat0 + tx * z0;
+    double yatz0 = yat0 + ty * z0;
+
+    math::Vector<4>::type parameterVector{xatz0, yatz0, tx, ty};
+    math::Error<4>::type covarianceMatrix;
+
+    // std::cout << "    RP zeta  = " << geometry_->rpTranslation(romanPotId_).z() << std::endl;
+
+    CTPPSPixelLocalTrack track(z0, parameterVector, covarianceMatrix, 0);
+
+    // printout -----
+    // std::cout << hit[0].x() << " " << hit[0].y() << " " << hit[0].z() << " " << std::endl;
+    // std::cout << hit[1].x() << " " << hit[1].y() << " " << hit[1].z() << " " << std::endl;
+    // std::cout << xatz0 << " " << yatz0 << " " << tx << " " << ty << std::endl;
+
+    // std::cout << track.x0() << " " << track.y0() << " " << track.tx() << " " << track.ty() << std::endl;
+    // std::cout << track.x0Sigma() << " " << track.y0Sigma() << " " << track.txSigma() << " " << track.tySigma()              << std::endl;
+    // std::cout << std::endl;
+    // ------
+
+    // save used points into track
+    for (const auto &hhit : pIPL) {
+      GlobalPoint pOD(hhit.globalPoint.x(), hhit.globalPoint.y(), hhit.globalPoint.z());
+      LocalPoint res(0, 0);
+      LocalPoint pulls(0, 0);
+      CTPPSPixelFittedRecHit usedRecHit(hhit.recHit, pOD, res, pulls);
+      track.addHit(hhit.detId, usedRecHit);
+    }
+
+    // save track in collection
+    localTrackVector_.push_back(track);
+  }
+  // bad Pot patch 45-220-fr 2022 -- end
+
   while (hitMap_->size() >= trackMinNumberOfPoints_) {
     if (verbosity_ >= 1)
       edm::LogInfo("RPixPlaneCombinatoryTracking") << "Number of plane with hits " << hitMap_->size();
