@@ -19,6 +19,7 @@ def customise(process):
         DumpReplica    = cms.untracked.bool(False),
         DumpTouch      = cms.untracked.bool(False),
         DumpSense      = cms.untracked.bool(False),
+        DumpParams     = cms.untracked.bool(False),
         DD4hep         = cms.untracked.bool(False),
         Name           = cms.untracked.string('CMS*'),
         Names          = cms.untracked.vstring(' '),
