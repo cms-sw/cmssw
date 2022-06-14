@@ -143,6 +143,9 @@ void CTPPSPixelLocalTrackProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<double>("roadRadius", 1.0)->setComment("radius of pattern search window");
   desc.add<int>("minRoadSize", 3)->setComment("minimum number of points in a pattern");
   desc.add<int>("maxRoadSize", 20)->setComment("maximum number of points in a pattern");
+  //parameters for bad pot reconstruction patch 45-220-fr 2022
+  desc.add<double>("roadRadiusBadPot", 0.5)->setComment("radius of pattern search window for bad Pot");
+  desc.add<bool>("isBadPot", true)->setComment("flag to enable road search for bad pot");
 
   descriptions.add("ctppsPixelLocalTracks", desc);
 }
