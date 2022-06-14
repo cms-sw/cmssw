@@ -47,6 +47,14 @@
 #include "HepMC/GenRanges.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
+struct MTDHit {
+  float energy;
+  float time;
+  float x;
+  float y;
+  float z;
+};
+
 class MtdTracksValidation : public DQMEDAnalyzer {
 public:
   explicit MtdTracksValidation(const edm::ParameterSet&);
@@ -81,6 +89,12 @@ private:
   static constexpr double deltaPTcut_ = 0.05;    // dPT < 5%
   static constexpr double deltaDRcut_ = 0.03;    // DeltaR separation
   static constexpr double minBTLhitE_ = 0.0005;  // minimal BTL sim hit energy for association studies
+  static constexpr double depositBTLthreshold_ = 1;   // threshold for energy deposit in BTL cell [MeV]
+  static constexpr double depositETLthreshold_ = 0.001;   // threshold for energy deposit in ETL cell [MeV]
+  static constexpr double rBTL_ = 110.0;
+  static constexpr double zETL_ = 290.0;
+  
+  bool optionalPlots_;
 
   const reco::RecoToSimCollection* r2s_;
   const reco::SimToRecoCollection* s2r_;
@@ -109,6 +123,7 @@ private:
   edm::EDGetTokenT<edm::ValueMap<float>> Sigmat0SafePidToken_;
   edm::EDGetTokenT<edm::ValueMap<float>> trackMVAQualToken_;
 
+  edm::ESGetToken<MTDGeometry, MTDDigiGeometryRecord> mtdgeoToken_;
   edm::ESGetToken<MTDTopology, MTDTopologyRcd> mtdtopoToken_;
   edm::ESGetToken<HepPDT::ParticleDataTable, edm::DefaultRecord> particleTableToken_;
 
@@ -159,7 +174,11 @@ private:
   MonitorElement* meMVATrackPullTot_;
   MonitorElement* meMVATrackZposResTot_;
 
-  MonitorElement* meUnassociatedSimHits_;
+  MonitorElement* meUnassociatedDetId_;
+  MonitorElement* meUnassCrysEnergy_;
+  MonitorElement* meUnassLgadsEnergy_;
+  MonitorElement* meUnassDeposit_;
+  MonitorElement* meNTrackingParticles_;
 };
 
 // ------------ constructor and destructor --------------
@@ -168,7 +187,8 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
       trackMinPt_(iConfig.getParameter<double>("trackMinimumPt")),
       trackMaxBtlEta_(iConfig.getParameter<double>("trackMaximumBtlEta")),
       trackMinEtlEta_(iConfig.getParameter<double>("trackMinimumEtlEta")),
-      trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")) {
+      trackMaxEtlEta_(iConfig.getParameter<double>("trackMaximumEtlEta")),
+      optionalPlots_(iConfig.getUntrackedParameter<bool>("optionalPlots")) {
   GenRecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagG"));
   RecTrackToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("inputTagT"));
   RecVertexToken_ = consumes<std::vector<reco::Vertex>>(iConfig.getParameter<edm::InputTag>("inputTagV"));
@@ -192,6 +212,7 @@ MtdTracksValidation::MtdTracksValidation(const edm::ParameterSet& iConfig)
   t0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("t0SafePID"));
   Sigmat0SafePidToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("sigmat0SafePID"));
   trackMVAQualToken_ = consumes<edm::ValueMap<float>>(iConfig.getParameter<edm::InputTag>("trackMVAQual"));
+  mtdgeoToken_ = esConsumes<MTDGeometry, MTDDigiGeometryRecord>();
   mtdtopoToken_ = esConsumes<MTDTopology, MTDTopologyRcd>();
   particleTableToken_ = esConsumes<HepPDT::ParticleDataTable, edm::DefaultRecord>();
 }
@@ -204,6 +225,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace geant_units::operators;
   using namespace std;
 
+  auto geometryHandle = iSetup.getTransientHandle(mtdgeoToken_);
+  const MTDGeometry* geom = geometryHandle.product();
   auto topologyHandle = iSetup.getTransientHandle(mtdtopoToken_);
   const MTDTopology* topology = topologyHandle.product();
 
@@ -219,6 +242,11 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   auto GenRecTrackHandle = makeValid(iEvent.getHandle(GenRecTrackToken_));
   auto RecVertexHandle = makeValid(iEvent.getHandle(RecVertexToken_));
 
+  std::unordered_map<uint32_t, MTDHit> m_btlHits;
+  std::unordered_map<uint32_t, MTDHit> m_etlHits;
+  std::unordered_map<uint32_t, std::set<int> > m_btlTrkPerCell;
+  std::unordered_map<uint32_t, std::set<int> > m_etlTrkPerCell;
+ 
   const auto& tMtd = iEvent.get(tmtdToken_);
   const auto& SigmatMtd = iEvent.get(SigmatmtdToken_);
   const auto& t0Src = iEvent.get(t0SrcToken_);
@@ -406,41 +434,164 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   TrackingParticleCollection tpColl = *(tpHandle.product());
   for (const auto& tp : tpColl) {
     if (tp.eventId().bunchCrossing() == 0 && tp.eventId().event() == 0) {
+      if (!mvaTPSel(tp)) continue;
+      if (optionalPlots_) {
+        if (std::abs(tp.eta()) < trackMaxBtlEta_) {
+          meNTrackingParticles_->Fill(0.5);
+        }
+        else if ( (std::abs(tp.eta()) < trackMaxEtlEta_) && (std::abs(tp.eta()) > trackMinEtlEta_) ) {
+          meNTrackingParticles_->Fill(1.5);
+        }
+      }
       for (const auto& simTrk : tp.g4Tracks()) {
         tpTrackId.insert(simTrk.trackId());
         LogDebug("MtdTracksValidation") << "TP simTrack id : " << simTrk.trackId();
       }
     }
   }
-
-  uint32_t hcount(0);
   auto btlSimHitsHandle = makeValid(iEvent.getHandle(btlSimHitsToken_));
   MixCollection<PSimHit> btlSimHits(btlSimHitsHandle.product());
-  for (const auto& btlSH : btlSimHits) {
-    if (btlSH.eventId().bunchCrossing() == 0 && btlSH.eventId().event() == 0 && btlSH.energyLoss() > minBTLhitE_) {
-      mtdTrackId.insert(btlSH.trackId());
-      LogDebug("MtdTracksValidation") << "BTL simTrack id : " << btlSH.trackId() << " " << btlSH.detUnitId() << " "
-                                      << btlSH.energyLoss();
-      if (tpTrackId.find(btlSH.trackId()) == tpTrackId.end()) {
+  for (auto const& simHit : btlSimHits) {
+    if (simHit.tof() < 0 || simHit.tof() > 25.) continue;
+    DetId id = simHit.detUnitId(); 
+    m_btlTrkPerCell[id.rawId()].insert(simHit.trackId());
+    auto simHitIt = m_btlHits.emplace(id.rawId(), MTDHit()).first;
+    // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
+    (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
+  }
+
+  uint32_t hcount(0);
+  for (auto const& cell : m_btlTrkPerCell) {
+    bool foundAssocTP = false;
+    auto detId_key = cell.first;
+    for (auto const& simtrack : cell.second) {
+      if (tpTrackId.find(simtrack) != tpTrackId.end()) {
+         foundAssocTP = true;
+         break;
+      }
+    }
+    if (foundAssocTP == false) {
+      meUnassCrysEnergy_->Fill(log10(m_btlHits[detId_key].energy));
+      if (m_btlHits[detId_key].energy > depositBTLthreshold_) {
         hcount++;
       }
     }
   }
-  meUnassociatedSimHits_->Fill(0.5, hcount);
+  meUnassociatedDetId_->Fill(0.5, hcount);
 
-  hcount = 0;
+  if (optionalPlots_) {
+    for (const auto& tp : tpColl) {
+      if (tp.eventId().bunchCrossing() == 0 && tp.eventId().event() == 0) {
+        if (!mvaTPSel(tp)) continue;
+        bool tpIsAssoc = false;
+        bool goodCell = false;
+        for (auto const& cell : m_btlTrkPerCell) {
+          auto detId_key = cell.first;
+          if (m_btlHits[detId_key].energy < depositBTLthreshold_) continue;
+ 
+          BTLDetId detId(detId_key);
+          DetId geoId = detId.geographicalId(MTDTopologyMode::crysLayoutFromTopoMode(topology->getMTDTopologyMode()));
+          const MTDGeomDet* thedet = geom->idToDet(geoId);
+          if (thedet == nullptr)
+            throw cms::Exception("MtdTracksValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
+                                                       << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+          const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+          const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+
+          Local3DPoint local_point(
+              convertMmToCm(m_btlHits[detId_key].x), convertMmToCm(m_btlHits[detId_key].y), convertMmToCm(m_btlHits[detId_key].z));
+
+          local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
+          const auto& global_point = thedet->toGlobal(local_point);
+
+          if (std::abs(tp.eta() - global_point.eta()) > 0.3) continue;
+          goodCell = true;
+          for (auto const& simtrack : cell.second) {
+            for (auto const& TPsimtrack : tp.g4Tracks()) {
+              const int test = TPsimtrack.trackId();
+              if (simtrack == test) {
+                tpIsAssoc=true;
+                break;
+              }
+            }
+          }
+        } //cell Loop
+        if (!tpIsAssoc && goodCell) {
+          meUnassDeposit_->Fill(0.5);
+        }
+      } 
+    } //tp Loop
+  } //optionalPlots
+
   auto etlSimHitsHandle = makeValid(iEvent.getHandle(etlSimHitsToken_));
   MixCollection<PSimHit> etlSimHits(etlSimHitsHandle.product());
-  for (const auto& etlSH : etlSimHits) {
-    if (etlSH.eventId().bunchCrossing() == 0 && etlSH.eventId().event() == 0) {
-      mtdTrackId.insert(etlSH.trackId());
-      LogDebug("MtdTracksValidation") << "ETL simTrack id : " << etlSH.trackId() << " " << etlSH.detUnitId();
-      if (tpTrackId.find(etlSH.trackId()) == tpTrackId.end()) {
+  for (auto const& simHit : etlSimHits) {
+    if (simHit.tof() < 0 || simHit.tof() > 25.) continue;
+    DetId id = simHit.detUnitId();
+    m_etlTrkPerCell[id.rawId()].insert(simHit.trackId());
+    auto simHitIt = m_etlHits.emplace(id.rawId(), MTDHit()).first;
+    // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
+    (simHitIt->second).energy += convertUnitsTo(0.001_MeV, simHit.energyLoss());
+  }
+    
+  hcount=0;
+  for (auto const& cell : m_etlTrkPerCell) {
+    bool foundAssocTP = false;
+    auto detId_key = cell.first;
+    for (auto const& simtrack : cell.second) {
+      if (tpTrackId.find(simtrack) != tpTrackId.end()) {
+         foundAssocTP = true;
+         break;
+      }
+    }
+    if (foundAssocTP == false) {
+      meUnassLgadsEnergy_->Fill(log10(m_etlHits[detId_key].energy));
+      if (m_etlHits[detId_key].energy > depositETLthreshold_) {
         hcount++;
       }
     }
   }
-  meUnassociatedSimHits_->Fill(1.5, hcount);
+  meUnassociatedDetId_->Fill(1.5, hcount);
+  
+  if (optionalPlots_) {
+    for (const auto& tp : tpColl) {
+      if (tp.eventId().bunchCrossing() == 0 && tp.eventId().event() == 0) {
+        if (!mvaTPSel(tp)) continue;
+        bool tpIsAssoc = false;
+        bool goodCell = false;
+        for (auto const& cell : m_etlTrkPerCell) {
+          auto detId_key = cell.first;
+          if (m_etlHits[detId_key].energy < depositETLthreshold_) continue;
+
+          ETLDetId detId(detId_key);
+          DetId geoId = detId.geographicalId();
+          const MTDGeomDet* thedet = geom->idToDet(geoId);
+          if (thedet == nullptr)
+            throw cms::Exception("MtdTracksValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
+                                                        << detId.rawId() << ") is invalid!" << std::dec << std::endl;
+   
+          Local3DPoint local_point(
+              convertMmToCm(m_etlHits[detId_key].x), convertMmToCm(m_etlHits[detId_key].y), convertMmToCm(m_etlHits[detId_key].z));
+          const auto& global_point = thedet->toGlobal(local_point);
+    
+           if (std::abs(tp.eta() - global_point.eta()) > 0.3) continue;
+           goodCell = true;
+           for (auto const& simtrack : cell.second) {
+             for (auto const& TPsimtrack : tp.g4Tracks()) {
+               const int test = TPsimtrack.trackId();
+               if (simtrack == test) {
+                 tpIsAssoc=true;
+                 break;
+               }
+             }
+           }
+        } //cell Loop
+        if (!tpIsAssoc && goodCell) {
+         meUnassDeposit_->Fill(1.5);
+        }
+      }
+    }
+  } //optionalPlots
 
   // select events with reco vertex close to true simulated primary vertex
 
@@ -632,8 +783,16 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meMVATrackZposResTot_ = ibook.book1D(
       "MVATrackZposResTot", "Z_{PCA} - Z_{sim} for associated tracks;Z_{PCA} - Z_{sim} [cm] ", 100, -0.1, 0.1);
 
-  meUnassociatedSimHits_ = ibook.bookProfile(
-      "UnassociatedSimHits", "Number of MTD sim hits not associated to any TP per event", 2, 0., 2., 0., 100000., "S");
+  meUnassociatedDetId_ = ibook.bookProfile(
+      "UnassociatedDetId", "Number of MTD cell not associated to any TP per event", 2, 0., 2., 0., 100000., "S");
+  meNTrackingParticles_ = ibook.book1D(
+      "NTrackingParticles", "Total #Tracking particles", 2, 0, 2);
+  meUnassDeposit_ = ibook.book1D(
+      "UnassDeposit", "#Tracking particles with deposit over threshold in MTD cell, but with no cell associated to TP;", 2, 0, 2);
+  meUnassCrysEnergy_ = ibook.book1D(
+      "UnassCrysEnergy", "Energy deposit in BTL crystal with no associated SimTracks;log_{10}(Energy [MeV]) ", 100, -3.5, 1.5);
+  meUnassLgadsEnergy_ = ibook.book1D(
+      "UnassLgadsEnergy", "Energy deposit in ETL LGADs with no associated SimTracks;log_{10}(Energy [MeV]) ", 100, -3.5, 1.5);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
@@ -666,6 +825,7 @@ void MtdTracksValidation::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("trackMaximumBtlEta", 1.5);
   desc.add<double>("trackMinimumEtlEta", 1.6);
   desc.add<double>("trackMaximumEtlEta", 3.);
+  desc.addUntracked<bool>("optionalPlots", true);
 
   descriptions.add("mtdTracksValid", desc);
 }
@@ -684,7 +844,13 @@ const bool MtdTracksValidation::mvaTPSel(const TrackingParticle& tp) {
   if (tp.status() != 1) {
     return match;
   }
-  match = tp.charge() != 0 && tp.pt() > pTcut_ && std::abs(tp.eta()) < etacutGEN_;
+  auto x_pv = tp.parentVertex()->position().x();
+  auto y_pv = tp.parentVertex()->position().y();
+  auto z_pv = tp.parentVertex()->position().z();
+
+  auto r_pv = std::sqrt(x_pv*x_pv + y_pv*y_pv);
+
+  match = tp.charge() != 0 && tp.pt() > pTcut_ && std::abs(tp.eta()) < etacutGEN_ && r_pv < rBTL_ && z_pv < zETL_;
   return match;
 }
 
