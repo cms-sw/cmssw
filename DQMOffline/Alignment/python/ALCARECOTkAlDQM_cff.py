@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 import DQMOffline.Alignment.TkAlCaRecoMonitor_cfi
+import DQMOffline.Alignment.DiMuonVertexMonitor_cfi
 
 #Below all DQM modules for TrackerAlignment AlCaRecos are instantiated.
 ######################################################
@@ -56,6 +57,40 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlZMuMu_cff import ALCARECOTkAl
 
 #ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM + ALCARECOTkAlZMuMuHLTDQM )
 ALCARECOTkAlZMuMuDQM = cms.Sequence( ALCARECOTkAlZMuMuTrackingDQM + ALCARECOTkAlZMuMuTkAlDQM )
+
+#########################################################
+#############--- TkAlDiMuonAndVertex ---#################
+#########################################################
+__selectionName = 'TkAlDiMuonAndVertex'
+__trackCollName = 'TkAlDiMuon'
+
+ALCARECOTkAlDiMuonAndVertexTkAlDQM =  DQMOffline.Alignment.TkAlCaRecoMonitor_cfi.TkAlCaRecoMonitor.clone(
+#names and desigantions
+    TrackProducer = 'ALCARECO'+__trackCollName,
+    AlgoName = 'ALCARECO'+__trackCollName,
+    FolderName = "AlCaReco/"+__selectionName,
+# margins and settings
+    runsOnReco = True,
+    fillInvariantMass = True,
+    MassBin = 300,
+    MassMin = 50.0,
+    MassMax = 150.0,
+    SumChargeBin = 11,
+    SumChargeMin = -5.5,
+    SumChargeMax = 5.5,
+    TrackPtBin= 150,
+    TrackPtMin = 0.0,
+    TrackPtMax = 150.0
+)
+
+ALCARECOTkAlDiMuonAndVertexVtxDQM = DQMOffline.Alignment.DiMuonVertexMonitor_cfi.DiMuonVertexMonitor.clone(
+    muonTracks = 'ALCARECO'+__trackCollName,
+    vertices = 'offlinePrimaryVertices',
+    FolderName = "AlCaReco/"+__selectionName,
+    maxSVdist = 50
+)
+
+ALCARECOTkAlDiMuonAndVertexDQM = cms.Sequence(ALCARECOTkAlDiMuonAndVertexTkAlDQM + ALCARECOTkAlDiMuonAndVertexVtxDQM)
 
 #########################################################
 #############---  TkAlZMuMuHI ---########################
