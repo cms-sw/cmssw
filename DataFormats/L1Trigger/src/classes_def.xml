@@ -295,6 +295,8 @@
   <class name="std::vector<l1t::VertexWord>"/>
   <class name="edm::Wrapper<std::vector<l1t::VertexWord> >"/>
   <class name="l1t::VertexWord::VertexRef"/>
+  <class name="edm::Wrapper<l1t::VertexWordCollection>"/>
+  <class name="edm::Ref<l1t::VertexWordCollection>" />
 
   <class name="l1t::TkJetWord" ClassVersion="3">
     <version ClassVersion="3" checksum="3521396532"/>
