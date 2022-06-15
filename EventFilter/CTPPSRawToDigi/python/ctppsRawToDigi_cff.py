@@ -8,6 +8,7 @@ totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TrackingStrip"),
+  sampicSubDetId = cms.uint32(6),
   configuration = cms.VPSet(
     # 2016, before TS2
     cms.PSet(
@@ -62,6 +63,7 @@ totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TimingDiamond"),
+  sampicSubDetId = cms.uint32(6),
   configuration = cms.VPSet(
     # 2016, before diamonds inserted in DAQ
     cms.PSet(
@@ -102,7 +104,7 @@ ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # ---------- Totem Timing ----------
 totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXML",
-  verbosity = cms.untracked.uint32(10),
+  verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TotemTiming"),
   sampicSubDetId = cms.uint32(5),
   configuration = cms.VPSet(
