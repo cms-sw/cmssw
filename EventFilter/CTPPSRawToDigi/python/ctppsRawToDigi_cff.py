@@ -8,6 +8,7 @@ totemTriggerRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 totemDAQMappingESSourceXML_TrackingStrip = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TrackingStrip"),
+  sampicSubDetId = cms.uint32(6),
   configuration = cms.VPSet(
     # 2016, before TS2
     cms.PSet(
@@ -62,6 +63,7 @@ totemRPRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 totemDAQMappingESSourceXML_TimingDiamond = cms.ESSource("TotemDAQMappingESSourceXML",
   verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TimingDiamond"),
+  sampicSubDetId = cms.uint32(6),
   configuration = cms.VPSet(
     # 2016, before diamonds inserted in DAQ
     cms.PSet(
@@ -102,9 +104,9 @@ ctppsDiamondRawToDigi.rawDataTag = cms.InputTag("rawDataCollector")
 
 # ---------- Totem Timing ----------
 totemDAQMappingESSourceXML_TotemTiming = cms.ESSource("TotemDAQMappingESSourceXML",
-  verbosity = cms.untracked.uint32(10),
+  verbosity = cms.untracked.uint32(0),
   subSystem = cms.untracked.string("TotemTiming"),
-  sampicSubDetId = cms.untracked.uint32(5),
+  sampicSubDetId = cms.uint32(5),
   configuration = cms.VPSet(
     # 2017, before detector inserted in DAQ
     cms.PSet(
@@ -138,7 +140,7 @@ from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
 from Configuration.Eras.Modifier_ctpps_2017_cff import ctpps_2017
 from Configuration.Eras.Modifier_ctpps_2018_cff import ctpps_2018
 (ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(ctppsPixelDigis, isRun3 = False )
-(ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(totemDAQMappingESSourceXML_TotemTiming, sampicSubDetId = cms.untracked.uint32(6) )
+(ctpps_2016 | ctpps_2017 | ctpps_2018).toModify(totemDAQMappingESSourceXML_TotemTiming, sampicSubDetId = 6)
 
 # raw-to-digi task and sequence
 ctppsRawToDigiTask = cms.Task(
