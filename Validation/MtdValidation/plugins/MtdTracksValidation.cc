@@ -49,15 +49,15 @@
 
 namespace {
 
-struct MTDHit {
-  float energy;
-  float time;
-  float x;
-  float y;
-  float z;
-};
+  struct MTDHit {
+    float energy;
+    float time;
+    float x;
+    float y;
+    float z;
+  };
 
-}
+}  // namespace
 
 class MtdTracksValidation : public DQMEDAnalyzer {
 public:
@@ -79,11 +79,13 @@ private:
   const bool tpWithMTD(const TrackingParticle&, const std::unordered_set<unsigned long int>&);
 
   const unsigned long int uniqueId(const uint32_t x, const EncodedEventId& y) {
-      const uint64_t a = static_cast<uint64_t>(x);
-      const uint64_t b = static_cast<uint64_t>(y.rawId());
+    const uint64_t a = static_cast<uint64_t>(x);
+    const uint64_t b = static_cast<uint64_t>(y.rawId());
 
-      if (x < y.rawId()) return (b << 32) | a;
-      else return (a << 32) | b;
+    if (x < y.rawId())
+      return (b << 32) | a;
+    else
+      return (a << 32) | b;
   }
 
   // ------------ member data ------------
@@ -152,9 +154,12 @@ private:
   MonitorElement* meETLTrackEffEtaTot_[2];
   MonitorElement* meETLTrackEffPhiTot_[2];
   MonitorElement* meETLTrackEffPtTot_[2];
-  MonitorElement* meETLTrackEffEtaMtd_[2];
-  MonitorElement* meETLTrackEffPhiMtd_[2];
-  MonitorElement* meETLTrackEffPtMtd_[2];
+  MonitorElement* meETLTrackEffEta1Mtd_[2];
+  MonitorElement* meETLTrackEffPhi1Mtd_[2];
+  MonitorElement* meETLTrackEffPt1Mtd_[2];
+  MonitorElement* meETLTrackEffEta2Mtd_[2];
+  MonitorElement* meETLTrackEffPhi2Mtd_[2];
+  MonitorElement* meETLTrackEffPt2Mtd_[2];
   MonitorElement* meETLTrackPtRes_;
 
   MonitorElement* meTracktmtd_;
@@ -405,17 +410,31 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
       // --- keeping only tracks with last hit in MTD ---
       if ((track.eta() < -trackMinEtlEta_) && (track.eta() > -trackMaxEtlEta_)) {
+        bool twoDiscs = (MTDEtlZnegD1 == true) && (MTDEtlZnegD2 == true);
         if ((MTDEtlZnegD1 == true) || (MTDEtlZnegD2 == true)) {
-          meETLTrackEffEtaMtd_[0]->Fill(track.eta());
-          meETLTrackEffPhiMtd_[0]->Fill(track.phi());
-          meETLTrackEffPtMtd_[0]->Fill(track.pt());
+          if (twoDiscs) {
+            meETLTrackEffEta2Mtd_[0]->Fill(track.eta());
+            meETLTrackEffPhi2Mtd_[0]->Fill(track.phi());
+            meETLTrackEffPt2Mtd_[0]->Fill(track.pt());
+          } else {
+            meETLTrackEffEta1Mtd_[0]->Fill(track.eta());
+            meETLTrackEffPhi1Mtd_[0]->Fill(track.phi());
+            meETLTrackEffPt1Mtd_[0]->Fill(track.pt());
+          }
         }
       }
       if ((track.eta() > trackMinEtlEta_) && (track.eta() < trackMaxEtlEta_)) {
+        bool twoDiscs = (MTDEtlZposD1 == true) && (MTDEtlZposD2 == true);
         if ((MTDEtlZposD1 == true) || (MTDEtlZposD2 == true)) {
-          meETLTrackEffEtaMtd_[1]->Fill(track.eta());
-          meETLTrackEffPhiMtd_[1]->Fill(track.phi());
-          meETLTrackEffPtMtd_[1]->Fill(track.pt());
+          if (twoDiscs) {
+            meETLTrackEffEta2Mtd_[1]->Fill(track.eta());
+            meETLTrackEffPhi2Mtd_[1]->Fill(track.phi());
+            meETLTrackEffPt2Mtd_[1]->Fill(track.pt());
+          } else {
+            meETLTrackEffEta1Mtd_[1]->Fill(track.eta());
+            meETLTrackEffPhi1Mtd_[1]->Fill(track.phi());
+            meETLTrackEffPt1Mtd_[1]->Fill(track.pt());
+          }
         }
       }
     }
@@ -456,7 +475,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
         }
       }
       for (const auto& simTrk : tp.g4Tracks()) {
-        auto const thisTId = uniqueId(simTrk.trackId(),simTrk.eventId());
+        auto const thisTId = uniqueId(simTrk.trackId(), simTrk.eventId());
         tpTrackId.insert(thisTId);
         LogDebug("MtdTracksValidation") << "TP simTrack id : " << thisTId;
       }
@@ -468,7 +487,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     if (simHit.tof() < 0 || simHit.tof() > 25.)
       continue;
     DetId id = simHit.detUnitId();
-    auto const thisHId = uniqueId(simHit.trackId(),simHit.eventId());
+    auto const thisHId = uniqueId(simHit.trackId(), simHit.eventId());
     m_btlTrkPerCell[id.rawId()].insert(thisHId);
     auto simHitIt = m_btlHits.emplace(id.rawId(), MTDHit()).first;
     // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
@@ -531,7 +550,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           goodCell = true;
           for (auto const& simtrack : cell.second) {
             for (auto const& TPsimtrack : tp.g4Tracks()) {
-              auto const testId = uniqueId(TPsimtrack.trackId(),TPsimtrack.eventId());
+              auto const testId = uniqueId(TPsimtrack.trackId(), TPsimtrack.eventId());
               if (simtrack == testId) {
                 tpIsAssoc = true;
                 break;
@@ -553,7 +572,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
       continue;
     }
     DetId id = simHit.detUnitId();
-    auto const thisHId = uniqueId(simHit.trackId(),simHit.eventId());
+    auto const thisHId = uniqueId(simHit.trackId(), simHit.eventId());
     m_etlTrkPerCell[id.rawId()].insert(thisHId);
     auto simHitIt = m_etlHits.emplace(id.rawId(), MTDHit()).first;
     // --- Accumulate the energy (in MeV) of SIM hits in the same detector cell
@@ -611,7 +630,7 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           goodCell = true;
           for (auto const& simtrack : cell.second) {
             for (auto const& TPsimtrack : tp.g4Tracks()) {
-              auto const testId = uniqueId(TPsimtrack.trackId(),TPsimtrack.eventId());
+              auto const testId = uniqueId(TPsimtrack.trackId(), TPsimtrack.eventId());
               if (simtrack == testId) {
                 tpIsAssoc = true;
                 break;
@@ -746,18 +765,30 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       ibook.book1D("TrackETLEffPtTotZneg", "Track efficiency vs pt (Tot) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
   meETLTrackEffPtTot_[1] =
       ibook.book1D("TrackETLEffPtTotZpos", "Track efficiency vs pt (Tot) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
-  meETLTrackEffEtaMtd_[0] =
-      ibook.book1D("TrackETLEffEtaMtdZneg", "Track efficiency vs eta (Mtd) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
-  meETLTrackEffEtaMtd_[1] =
-      ibook.book1D("TrackETLEffEtaMtdZpos", "Track efficiency vs eta (Mtd) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
-  meETLTrackEffPhiMtd_[0] =
-      ibook.book1D("TrackETLEffPhiMtdZneg", "Track efficiency vs phi (Mtd) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meETLTrackEffPhiMtd_[1] =
-      ibook.book1D("TrackETLEffPhiMtdZpos", "Track efficiency vs phi (Mtd) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
-  meETLTrackEffPtMtd_[0] =
-      ibook.book1D("TrackETLEffPtMtdZneg", "Track efficiency vs pt (Mtd) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
-  meETLTrackEffPtMtd_[1] =
-      ibook.book1D("TrackETLEffPtMtdZpos", "Track efficiency vs pt (Mtd) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meETLTrackEffEta1Mtd_[0] =
+      ibook.book1D("TrackETLEffEta1MtdZneg", "Track efficiency vs eta (Mtd 1 hit) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
+  meETLTrackEffEta1Mtd_[1] =
+      ibook.book1D("TrackETLEffEta1MtdZpos", "Track efficiency vs eta (Mtd 1 hit) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+  meETLTrackEffPhi1Mtd_[0] = ibook.book1D(
+      "TrackETLEffPhi1MtdZneg", "Track efficiency vs phi (Mtd 1 hit) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meETLTrackEffPhi1Mtd_[1] = ibook.book1D(
+      "TrackETLEffPhi1MtdZpos", "Track efficiency vs phi (Mtd 1 hit) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meETLTrackEffPt1Mtd_[0] =
+      ibook.book1D("TrackETLEffPt1MtdZneg", "Track efficiency vs pt (Mtd 1 hit) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meETLTrackEffPt1Mtd_[1] =
+      ibook.book1D("TrackETLEffPt1MtdZpos", "Track efficiency vs pt (Mtd 1 hit) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meETLTrackEffEta2Mtd_[0] =
+      ibook.book1D("TrackETLEffEta2MtdZneg", "Track efficiency vs eta (Mtd 2 hit) (-Z);#eta_{RECO}", 100, -3.2, -1.4);
+  meETLTrackEffEta2Mtd_[1] =
+      ibook.book1D("TrackETLEffEta2MtdZpos", "Track efficiency vs eta (Mtd 2 hit) (+Z);#eta_{RECO}", 100, 1.4, 3.2);
+  meETLTrackEffPhi2Mtd_[0] = ibook.book1D(
+      "TrackETLEffPhi2MtdZneg", "Track efficiency vs phi (Mtd 2 hit) (-Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meETLTrackEffPhi2Mtd_[1] = ibook.book1D(
+      "TrackETLEffPhi2MtdZpos", "Track efficiency vs phi (Mtd 2 hit) (+Z);#phi_{RECO} [rad]", 100, -3.2, 3.2);
+  meETLTrackEffPt2Mtd_[0] =
+      ibook.book1D("TrackETLEffPt2MtdZneg", "Track efficiency vs pt (Mtd 2 hit) (-Z);pt_{RECO} [GeV]", 50, 0, 10);
+  meETLTrackEffPt2Mtd_[1] =
+      ibook.book1D("TrackETLEffPt2MtdZpos", "Track efficiency vs pt (Mtd 2 hit) (+Z);pt_{RECO} [GeV]", 50, 0, 10);
   meETLTrackPtRes_ =
       ibook.book1D("TrackETLPtRes", "Track pT resolution;pT_{Gentrack}-pT_{MTDtrack}/pT_{Gentrack} ", 100, -0.1, 0.1);
 
@@ -942,10 +973,11 @@ const edm::Ref<std::vector<TrackingParticle>>* MtdTracksValidation::getMatchedTP
   return nullptr;
 }
 
-const bool MtdTracksValidation::tpWithMTD(const TrackingParticle& tp, const std::unordered_set<unsigned long int>& trkList) {
+const bool MtdTracksValidation::tpWithMTD(const TrackingParticle& tp,
+                                          const std::unordered_set<unsigned long int>& trkList) {
   for (const auto& simTrk : tp.g4Tracks()) {
     for (const auto& mtdTrk : trkList) {
-      if (uniqueId(simTrk.trackId(),simTrk.eventId()) == mtdTrk) {
+      if (uniqueId(simTrk.trackId(), simTrk.eventId()) == mtdTrk) {
         return true;
       }
     }
