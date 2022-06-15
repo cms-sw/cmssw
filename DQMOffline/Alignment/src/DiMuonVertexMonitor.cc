@@ -20,19 +20,18 @@
 #include "TLorentzVector.h"
 
 namespace {
-  static constexpr float cmToum = 10e4;
-  static constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (GeV^2/c^4)
-}
+  constexpr float cmToum = 10e4;
+  constexpr float mumass2 = 0.105658367 * 0.105658367;  //mu mass squared (GeV^2/c^4)
+}  // namespace
 
-DiMuonVertexMonitor::DiMuonVertexMonitor(const edm::ParameterSet &iConfig)
-  : ttbESToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
-    tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"))),
-    vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
-    MEFolderName_(iConfig.getParameter<std::string>("FolderName")),
-    maxSVdist_(iConfig.getParameter<double>("maxSVdist")){}
+DiMuonVertexMonitor::DiMuonVertexMonitor(const edm::ParameterSet& iConfig)
+    : ttbESToken_(esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))),
+      tracksToken_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("muonTracks"))),
+      vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
+      MEFolderName_(iConfig.getParameter<std::string>("FolderName")),
+      maxSVdist_(iConfig.getParameter<double>("maxSVdist")) {}
 
-void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
-
+void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   iBooker.setCurrentFolder(MEFolderName_ + "/DiMuonVertexMonitor");
   hSVProb_ = iBooker.book1D("VtxProb", ";ZV vertex probability;N(#mu#mu pairs)", 100, 0., 1.);
   hSVDist_ = iBooker.book1D("VtxDist", ";PV-ZV xy distance [#mum];N(#mu#mu pairs)", 100, 0., 300.);
@@ -48,11 +47,10 @@ void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   hCosPhiInv3D_ = iBooker.book1D("CosPhiInv3D", ";inverted cos(#phi_{3D});N(#mu#mu pairs)", 50, -1., 1.);
 }
 
-void DiMuonVertexMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-
+void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<const reco::Track*> myTracks;
   const auto trackHandle = iEvent.getHandle(tracksToken_);
-  if(!trackHandle.isValid()){
+  if (!trackHandle.isValid()) {
     edm::LogError("DiMuonVertexMonitor") << "invalid track collection encountered!";
     return;
   }
@@ -60,13 +58,13 @@ void DiMuonVertexMonitor::analyze(const edm::Event &iEvent, const edm::EventSetu
   for (const auto& muonTrk : *trackHandle) {
     myTracks.emplace_back(&muonTrk);
   }
-  
+
   const TransientTrackBuilder* theB = &iSetup.getData(ttbESToken_);
   TransientVertex mumuTransientVtx;
   std::vector<reco::TransientTrack> tks;
 
-  if (myTracks.size() != 2){
-    edm::LogWarning("DiMuonVertexMonitor") << "There are not enough tracks to monitor!"; 
+  if (myTracks.size() != 2) {
+    edm::LogWarning("DiMuonVertexMonitor") << "There are not enough tracks to monitor!";
     return;
   }
 
@@ -126,7 +124,7 @@ void DiMuonVertexMonitor::analyze(const edm::Event &iEvent, const edm::EventSetu
       mumuTransientVtx.position().x(), mumuTransientVtx.position().y(), mumuTransientVtx.position().z());
   const math::XYZPoint deltaVtx(
       theMainVtxPos.x() - myVertex.x(), theMainVtxPos.y() - myVertex.y(), theMainVtxPos.z() - myVertex.z());
-  
+
   if (theMainVertex.isValid()) {
     // Z Vertex distance in the xy plane
 
@@ -172,7 +170,7 @@ void DiMuonVertexMonitor::fillDescriptions(edm::ConfigurationDescriptions& descr
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("muonTracks", edm::InputTag("ALCARECOTkAlDiMuon"));
   desc.add<edm::InputTag>("vertices", edm::InputTag("offlinePrimaryVertices"));
-  desc.add<std::string>("FolderName","DiMuonVertexMonitor");
+  desc.add<std::string>("FolderName", "DiMuonVertexMonitor");
   desc.add<double>("maxSVdist", 50.);
   descriptions.addWithDefaultLabel(desc);
 }
