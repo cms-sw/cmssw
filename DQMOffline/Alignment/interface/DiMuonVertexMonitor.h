@@ -33,32 +33,34 @@ public:
   explicit DiMuonVertexMonitor(const edm::ParameterSet &);
   ~DiMuonVertexMonitor() override = default;
 
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
   // ----------member data ---------------------------
-  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;  
-  const edm::EDGetTokenT<reco::TrackCollection> tracksToken_;   //used to select what tracks to read from configuration file
-  const edm::EDGetTokenT<reco::VertexCollection> vertexToken_;  //used to select what vertices to read from configuration file
-  const std::string MEFolderName_; // Top-level folder name
+  const edm::ESGetToken<TransientTrackBuilder, TransientTrackRecord> ttbESToken_;
+  const edm::EDGetTokenT<reco::TrackCollection>
+      tracksToken_;  //used to select what tracks to read from configuration file
+  const edm::EDGetTokenT<reco::VertexCollection>
+      vertexToken_;                 //used to select what vertices to read from configuration file
+  const std::string MEFolderName_;  // Top-level folder name
   const float maxSVdist_;
 
   // 1D
-  MonitorElement *hSVProb_;	  
-  MonitorElement *hSVDist_;	  
-  MonitorElement *hSVDistErr_;	  
-  MonitorElement *hSVDistSig_;	  
-  MonitorElement *hSVDist3D_;	  
-  MonitorElement *hSVDist3DErr_;	  
-  MonitorElement *hSVDist3DSig_;	  
-  MonitorElement *hCosPhi_;	                  
-  MonitorElement *hCosPhi3D_;	  
-  MonitorElement *hCosPhiInv_;	  
-  MonitorElement *hCosPhiInv3D_;  	 	  
-  MonitorElement *hTrackInvMass_;                  
-  MonitorElement *hCutFlow_;		  	  
-};		                    
-#endif		          
+  MonitorElement *hSVProb_;
+  MonitorElement *hSVDist_;
+  MonitorElement *hSVDistErr_;
+  MonitorElement *hSVDistSig_;
+  MonitorElement *hSVDist3D_;
+  MonitorElement *hSVDist3DErr_;
+  MonitorElement *hSVDist3DSig_;
+  MonitorElement *hCosPhi_;
+  MonitorElement *hCosPhi3D_;
+  MonitorElement *hCosPhiInv_;
+  MonitorElement *hCosPhiInv3D_;
+  MonitorElement *hTrackInvMass_;
+  MonitorElement *hCutFlow_;
+};
+#endif
