@@ -113,8 +113,7 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
       !meETLTrackEffPhiMtdZpos || !meETLTrackEffPtMtdZpos || !meMVATrackEffPtTot || !meMVATrackMatchedEffPtTot ||
       !meMVATrackMatchedEffPtMtd || !meMVATrackEffEtaTot || !meMVATrackMatchedEffEtaTot ||
       !meMVATrackMatchedEffEtaMtd || !meTrackMatchedTPEffPtTot || !meTrackMatchedTPEffPtMtd ||
-      !meTrackMatchedTPmtdEffPtTot || !meTrackMatchedTPmtdEffPtMtd ||
-      !meNTrackingParticles || !meUnassDeposit) {
+      !meTrackMatchedTPmtdEffPtTot || !meTrackMatchedTPmtdEffPtMtd || !meNTrackingParticles || !meUnassDeposit) {
     edm::LogError("MtdTracksHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
   }
@@ -289,11 +288,12 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
   meTPmtdEtaMatchEff_->getTH1()->SetMinimum(0.);
   computeEfficiency1D(meTrackMatchedTPmtdEffEtaMtd, meTrackMatchedTPmtdEffEtaTot, meTPmtdEtaMatchEff_);
 
-  meTPAssocEff_ = ibook.book1D("TPAssocEff",
-                               "Tracking particles not associated to any MTD cell in events with at least one cell over threshold",
-                               meNTrackingParticles->getNbinsX(),
-                               meNTrackingParticles->getTH1()->GetXaxis()->GetXmin(),
-                               meNTrackingParticles->getTH1()->GetXaxis()->GetXmax());
+  meTPAssocEff_ =
+      ibook.book1D("TPAssocEff",
+                   "Tracking particles not associated to any MTD cell in events with at least one cell over threshold",
+                   meNTrackingParticles->getNbinsX(),
+                   meNTrackingParticles->getTH1()->GetXaxis()->GetXmin(),
+                   meNTrackingParticles->getTH1()->GetXaxis()->GetXmax());
   meTPAssocEff_->getTH1()->SetMinimum(0.);
   computeEfficiency1D(meUnassDeposit, meNTrackingParticles, meTPAssocEff_);
 
