@@ -24,23 +24,23 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run2
     'run2_mc_pa'                   : '123X_mcRun2_pA_v1',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'                    : '124X_dataRun2_v1',
+    'run2_data'                    : '124X_dataRun2_v2',
     # GlobalTag for Run2 data 2018B relvals only: HEM-15-16 fail
-    'run2_data_HEfail'             : '124X_dataRun2_HEfail_v1',
+    'run2_data_HEfail'             : '124X_dataRun2_HEfail_v2',
     # GlobalTag for Run2 data relvals: allows customization to run with fixed L1 menu
-    'run2_data_relval'             : '124X_dataRun2_relval_v1',
+    'run2_data_relval'             : '124X_dataRun2_relval_v2',
     # GlobalTag for Run2 HI data
-    'run2_data_promptlike_hi'      : '123X_dataRun2_PromptLike_HI_v3',
+    'run2_data_promptlike_hi'      : '124X_dataRun2_PromptLike_HI_v1',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'              : '123X_dataRun2_HLT_relval_v3',
     # GlobalTag for Run3 HLT: identical to the online GT (124X_dataRun3_HLT_v1) but with snapshot at 2022-06-08 15:00:00 (UTC)
     'run3_hlt'                     : '124X_dataRun3_HLT_frozen_v1',
     # GlobalTag with fixed snapshot time for Run3 HLT RelVals: customizations to run with fixed L1 Menu
     'run3_hlt_relval'              : '124X_dataRun3_HLT_relval_v2',
-    # GlobalTag for Run3 data relvals (express GT) - identical to 123X_dataRun3_Express_v8 but with snapshot at 2022-05-31 20:00:00 (UTC)
-    'run3_data_express'            : '123X_dataRun3_Express_frozen_v4',
-    # GlobalTag for Run3 data relvals (prompt GT) - identical to 123X_dataRun3_Prompt_v10 but with snapshot at 2022-05-31 20:00:00 (UTC)
-    'run3_data_prompt'             : '123X_dataRun3_Prompt_frozen_v4',
+    # GlobalTag for Run3 data relvals (express GT) - identical to 124X_dataRun3_Express_v1 but with snapshot at 2022-06-09 20:00:00 (UTC)
+    'run3_data_express'            : '124X_dataRun3_Express_frozen_v1',
+    # GlobalTag for Run3 data relvals (prompt GT) - identical to 124X_dataRun3_Prompt_v1 but with snapshot at 2022-06-09 20:00:00 (UTC)
+    'run3_data_prompt'             : '124X_dataRun3_Prompt_frozen_v1',
     # GlobalTag for Run3 offline data reprocessing
     'run3_data'                    : '124X_dataRun3_v2',
     # GlobalTag for Run3 data relvals: allows customization to run with fixed L1 menu
