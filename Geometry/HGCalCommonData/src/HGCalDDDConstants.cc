@@ -1146,7 +1146,8 @@ int HGCalDDDConstants::tileCount(int layer, int ring) const {
     laymax = lastLayer(true);
   }
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "tileCount: layer " << layer << " ring " << ring << " layerMin/Max " << laymin << ":" << laymax;
+  edm::LogVerbatim("HGCalGeom") << "tileCount: layer " << layer << " ring " << ring << " layerMin/Max " << laymin << ":"
+                                << laymax;
 #endif
   for (int lay = laymin; lay <= laymax; ++lay) {
     if (ring < 0) {
@@ -1155,13 +1156,15 @@ int HGCalDDDConstants::tileCount(int layer, int ring) const {
       ringmax = hgpar_->tileRingRange_[ll].second;
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCalGeom") << "tileCount: lay " << lay << ":" << (lay- hgpar_->firstLayer_) << " rings " << ringmin << ":" << ringmax;
+    edm::LogVerbatim("HGCalGeom") << "tileCount: lay " << lay << ":" << (lay - hgpar_->firstLayer_) << " rings "
+                                  << ringmin << ":" << ringmax;
 #endif
     for (int rin = ringmin; rin <= ringmax; ++rin) {
       int indx = HGCalTileIndex::tileIndex(lay, rin + 1, 0);
       auto itr = hgpar_->tileInfoMap_.find(indx);
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HGCalGeom") << "tileCount: rin  " << rin << " indx " << indx << " itr " << (itr != hgpar_->tileInfoMap_.end());
+      edm::LogVerbatim("HGCalGeom") << "tileCount: rin  " << rin << " indx " << indx << " itr "
+                                    << (itr != hgpar_->tileInfoMap_.end());
 #endif
       if (itr != hgpar_->tileInfoMap_.end()) {
         for (int k = 0; k < 4; ++k) {
