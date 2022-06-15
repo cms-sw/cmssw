@@ -36,8 +36,8 @@ gedGsfElectronsTmp = ecalDrivenGsfElectrons.clone(
             "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Summer21_120X/EE_highpT/endcap_highpT_scaler.txt",
             "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta1/scaler.txt",
             "RecoEgamma/ElectronIdentification/data/Ele_PFID_dnn/Run3Winter22_122X/exteta2/scaler.txt"
-
-        ]
+        ],
+        outputDim = [5,5,5,5,3]
     )    
 )
 
