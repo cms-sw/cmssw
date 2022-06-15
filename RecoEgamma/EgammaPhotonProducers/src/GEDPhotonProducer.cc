@@ -1030,8 +1030,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     const auto& dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, tfSessions_);
     size_t ipho = 0;
     for (auto& photon : outputPhotonCollection) {
-      const auto& values = dnn_photon_pfid[ipho];
+      const auto& [iModel, values] = dnn_photon_pfid[ipho];
       reco::Photon::PflowIDVariables pfID;
+      // The model index it is not useful for the moment
       pfID.dnn = values[0];
       photon.setPflowIDVariables(pfID);
       ipho++;
