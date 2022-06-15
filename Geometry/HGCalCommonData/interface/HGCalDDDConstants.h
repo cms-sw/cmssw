@@ -156,6 +156,10 @@ public:
     }
     return std::make_pair(type, sipm);
   }
+  bool trapezoidFile() const {
+    return ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
+            (mode_ == HGCalGeometryMode::TrapezoidCassette));
+  }
   unsigned int volumes() const { return hgpar_->moduleLayR_.size(); }
   int waferFromCopy(int copy) const;
   void waferFromPosition(const double x, const double y, int& wafer, int& icell, int& celltyp) const;

@@ -68,7 +68,6 @@ else:
     process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
     fileName = 'HGCSimHitV14.root'
-    runMode = 0
 
 print("Output file: ", fileName)
 
