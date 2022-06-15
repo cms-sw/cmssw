@@ -1958,7 +1958,8 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
       wafersInLayers[indx] = ipos;
       ++ipos;
       std::pair<int, int> corner = HGCalGeomTools::waferCorner(xpos, ypos, r1, R1, 0, rout, false);
-      if ((corner.first == static_cast<int>(HGCalParameters::k_CornerSize)) || ((corner.first > 0) && php.defineFull_)) {
+      if ((corner.first == static_cast<int>(HGCalParameters::k_CornerSize)) ||
+          ((corner.first > 0) && php.defineFull_)) {
         uvmax = std::max(uvmax, std::max(std::abs(u), std::abs(v)));
       }
       for (unsigned int i = 0; i < php.zLayerHex_.size(); ++i) {
@@ -1970,7 +1971,8 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
         double zpos = php.zLayerHex_[i];
         int kndx = HGCalWaferIndex::waferIndex(lay, u, v);
         int type(-1);
-        if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette))
+        if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module) ||
+            (php.mode_ == HGCalGeometryMode::Hexagon8Cassette))
           type = wType->getType(kndx, php.waferInfoMap_);
         if (type < 0)
           type = wType->getType(HGCalParameters::k_ScaleToDDD * xpos0,
@@ -1990,7 +1992,8 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
                                         << " u " << u << " v " << v << " with " << corner.first << " corners";
         }
 #endif
-        if ((corner.first == static_cast<int>(HGCalParameters::k_CornerSize)) || ((corner.first > 0) && php.defineFull_)) {
+        if ((corner.first == static_cast<int>(HGCalParameters::k_CornerSize)) ||
+            ((corner.first > 0) && php.defineFull_)) {
           uvmx[i] = std::max(uvmx[i], std::max(std::abs(u), std::abs(v)));
         }
         if ((corner.first < static_cast<int>(HGCalParameters::k_CornerSize)) && (corner.first > 0)) {
@@ -2002,12 +2005,16 @@ void HGCalGeomParameters::loadWaferHexagon8(HGCalParameters& php) {
           if (php.waferMaskMode_ > 0) {
             std::pair<int, int> corner0 = HGCalWaferMask::getTypeMode(
                 xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], type, php.waferMaskMode_);
-            if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
+            if ((php.mode_ == HGCalGeometryMode::Hexagon8File) || (php.mode_ == HGCalGeometryMode::Hexagon8Module) ||
+                (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
               auto itr = php.waferInfoMap_.find(wl);
               if (itr != php.waferInfoMap_.end()) {
                 int part = (itr->second).part;
                 int orient = (itr->second).orient;
-                bool ok = (php.mode_ == HGCalGeometryMode::Hexagon8Cassette) ? true : HGCalWaferMask::goodTypeMode(xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], part, orient, false);
+                bool ok = (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)
+                              ? true
+                              : HGCalWaferMask::goodTypeMode(
+                                    xpos0, ypos0, r1, R1, php.rMinLayHex_[i], php.rMaxLayHex_[i], part, orient, false);
                 if (ok)
                   corner0 = std::make_pair(part, (HGCalTypes::k_OffsetRotation + orient));
 #ifdef EDM_ML_DEBUG
@@ -2157,7 +2164,8 @@ void HGCalGeomParameters::loadCellTrapezoid(HGCalParameters& php) {
 #endif
   // Find the radius of each eta-partitions
 
-  if ((php.mode_ == HGCalGeometryMode::TrapezoidFile) || (php.mode_ == HGCalGeometryMode::TrapezoidModule) || (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+  if ((php.mode_ == HGCalGeometryMode::TrapezoidFile) || (php.mode_ == HGCalGeometryMode::TrapezoidModule) ||
+      (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
     //Ring radii for each partition
     for (unsigned int k = 0; k < 2; ++k) {
       for (unsigned int kk = 0; kk < php.tileRingR_.size(); ++kk) {
