@@ -20,6 +20,9 @@ tracker detector. Support for the phase2 tracker will be added later.
      * DetachedTripletStep
      * PixelLessStep
 
+* `Configuration/ProcessModifiers/python/trackingMkFitDevel_cff.py`
+  * Replaces track building module with `mkFit` for all tracking iterations
+
 ## Customize functions for runTheMatrix workflows (offline reconstruction)
 
 * `RecoTracker/MkFit/customizeInitialStepOnly.customizeInitialStepOnly`
@@ -35,7 +38,7 @@ tracker detector. Support for the phase2 tracker will be added later.
 
 These can be used with e.g.
 ```bash
-$ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers trackingMkFit --customise RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepOnly"
+$ runTheMatrix.py -l <workflow(s)> --apply 2 --command "--procModifiers trackingMkFitDevel --customise RecoTracker/MkFit/customizeInitialStepToMkFit.customizeInitialStepOnly"
 ```
 
 ## Description of configuration parameters
