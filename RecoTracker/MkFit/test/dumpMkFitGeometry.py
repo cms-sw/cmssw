@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
-from Configuration.Eras.ModifierChain_trackingMkFitProd_cff import trackingMkFitProd
+from Configuration.ProcessModifiers.trackingMkFitDevel_cff import trackingMkFitDevel
 
-process = cms.Process('DUMP',Run3,trackingMkFitProd) # though should not be necessary?
+process = cms.Process('DUMP',Run3,trackingMkFitDevel)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
