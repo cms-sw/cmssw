@@ -43,6 +43,8 @@ private:
   MonitorElement* meTPEtaSelEff_;
   MonitorElement* meTPPtMatchEff_;
   MonitorElement* meTPEtaMatchEff_;
+  MonitorElement* meTPPtMatchEtl2Eff_;
+  MonitorElement* meTPEtaMatchEtl2Eff_;
   MonitorElement* meTPmtdPtSelEff_;
   MonitorElement* meTPmtdEtaSelEff_;
   MonitorElement* meTPmtdPtMatchEff_;
@@ -103,6 +105,7 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
   MonitorElement* meMVATrackMatchedEffPtMtd = igetter.get(folder_ + "MVAMatchedEffPtMtd");
   MonitorElement* meTrackMatchedTPEffPtTot = igetter.get(folder_ + "MatchedTPEffPtTot");
   MonitorElement* meTrackMatchedTPEffPtMtd = igetter.get(folder_ + "MatchedTPEffPtMtd");
+  MonitorElement* meTrackMatchedTPEffPtEtl2Mtd = igetter.get(folder_ + "MatchedTPEffPtEtl2Mtd");
   MonitorElement* meTrackMatchedTPmtdEffPtTot = igetter.get(folder_ + "MatchedTPmtdEffPtTot");
   MonitorElement* meTrackMatchedTPmtdEffPtMtd = igetter.get(folder_ + "MatchedTPmtdEffPtMtd");
   MonitorElement* meMVATrackEffEtaTot = igetter.get(folder_ + "MVAEffEtaTot");
@@ -110,6 +113,7 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
   MonitorElement* meMVATrackMatchedEffEtaMtd = igetter.get(folder_ + "MVAMatchedEffEtaMtd");
   MonitorElement* meTrackMatchedTPEffEtaTot = igetter.get(folder_ + "MatchedTPEffEtaTot");
   MonitorElement* meTrackMatchedTPEffEtaMtd = igetter.get(folder_ + "MatchedTPEffEtaMtd");
+  MonitorElement* meTrackMatchedTPEffEtaEtl2Mtd = igetter.get(folder_ + "MatchedTPEffEtaEtl2Mtd");
   MonitorElement* meTrackMatchedTPmtdEffEtaTot = igetter.get(folder_ + "MatchedTPmtdEffEtaTot");
   MonitorElement* meTrackMatchedTPmtdEffEtaMtd = igetter.get(folder_ + "MatchedTPmtdEffEtaMtd");
   MonitorElement* meNTrackingParticles = igetter.get(folder_ + "NTrackingParticles");
@@ -123,7 +127,9 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
       !meETLTrackEffPt1MtdZpos || !meETLTrackEffEta2MtdZpos || !meETLTrackEffPhi2MtdZpos || !meETLTrackEffPt2MtdZpos ||
       !meMVATrackEffPtTot || !meMVATrackMatchedEffPtTot || !meMVATrackMatchedEffPtMtd || !meMVATrackEffEtaTot ||
       !meMVATrackMatchedEffEtaTot || !meMVATrackMatchedEffEtaMtd || !meTrackMatchedTPEffPtTot ||
-      !meTrackMatchedTPEffPtMtd || !meTrackMatchedTPmtdEffPtTot || !meTrackMatchedTPmtdEffPtMtd ||
+      !meTrackMatchedTPEffPtMtd || !meTrackMatchedTPEffPtEtl2Mtd || !meTrackMatchedTPmtdEffPtTot ||
+      !meTrackMatchedTPmtdEffPtMtd || !meTrackMatchedTPEffEtaTot || !meTrackMatchedTPEffEtaMtd ||
+      !meTrackMatchedTPEffEtaEtl2Mtd || !meTrackMatchedTPmtdEffEtaTot || !meTrackMatchedTPmtdEffEtaMtd ||
       !meNTrackingParticles || !meUnassDeposit) {
     edm::LogError("MtdTracksHarvester") << "Monitoring histograms not found!" << std::endl;
     return;
@@ -314,6 +320,22 @@ void MtdTracksHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& 
                                   meTrackMatchedTPEffEtaTot->getTH1()->GetXaxis()->GetXmax());
   meTPEtaMatchEff_->getTH1()->SetMinimum(0.);
   computeEfficiency1D(meTrackMatchedTPEffEtaMtd, meTrackMatchedTPEffEtaTot, meTPEtaMatchEff_);
+
+  meTPPtMatchEtl2Eff_ = ibook.book1D("TPPtMatchEtl2Eff",
+                                     "Track matched to TP efficiency VS Pt, 2 ETL hits;Pt [GeV];Efficiency",
+                                     meTrackMatchedTPEffPtTot->getNbinsX(),
+                                     meTrackMatchedTPEffPtTot->getTH1()->GetXaxis()->GetXmin(),
+                                     meTrackMatchedTPEffPtTot->getTH1()->GetXaxis()->GetXmax());
+  meTPPtMatchEtl2Eff_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meTrackMatchedTPEffPtEtl2Mtd, meTrackMatchedTPEffPtTot, meTPPtMatchEtl2Eff_);
+
+  meTPEtaMatchEtl2Eff_ = ibook.book1D("TPEtaMatchEtl2Eff",
+                                      "Track matched to TP efficiency VS Eta, 2 ETL hits;Eta;Efficiency",
+                                      meTrackMatchedTPEffEtaTot->getNbinsX(),
+                                      meTrackMatchedTPEffEtaTot->getTH1()->GetXaxis()->GetXmin(),
+                                      meTrackMatchedTPEffEtaTot->getTH1()->GetXaxis()->GetXmax());
+  meTPEtaMatchEtl2Eff_->getTH1()->SetMinimum(0.);
+  computeEfficiency1D(meTrackMatchedTPEffEtaEtl2Mtd, meTrackMatchedTPEffEtaTot, meTPEtaMatchEtl2Eff_);
 
   meTPmtdPtSelEff_ = ibook.book1D("TPmtdPtSelEff",
                                   "Track selected efficiency TP-mtd hit VS Pt;Pt [GeV];Efficiency",
