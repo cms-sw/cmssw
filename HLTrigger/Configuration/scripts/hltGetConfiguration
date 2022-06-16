@@ -45,7 +45,7 @@ parser.add_argument('--type',
                     metavar = 'TYPE',
                     choices = options.globalTag,
                     default = defaults.type,
-                    help    = 'Set global options acording to a specific HLT luminosity and type (%(choices)s).' )
+                    help    = 'Set global options according to a specific HLT luminosity and type (%(choices)s).' )
 parser.add_argument('--globaltag',
                     dest    = 'globaltag',
                     action  = 'store',
