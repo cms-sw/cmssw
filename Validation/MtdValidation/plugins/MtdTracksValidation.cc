@@ -88,6 +88,8 @@ private:
       return (a << 32) | b;
   }
 
+  bool isETL(const double eta) const { return std::abs(eta) > trackMinEtlEta_ && std::abs(eta) < trackMaxEtlEta_; }
+
   // ------------ member data ------------
 
   const std::string folder_;
@@ -178,6 +180,7 @@ private:
   MonitorElement* meMVATrackMatchedEffPtMtd_;
   MonitorElement* meTrackMatchedTPEffPtTot_;
   MonitorElement* meTrackMatchedTPEffPtMtd_;
+  MonitorElement* meTrackMatchedTPEffPtEtl2Mtd_;
   MonitorElement* meTrackMatchedTPmtdEffPtTot_;
   MonitorElement* meTrackMatchedTPmtdEffPtMtd_;
   MonitorElement* meMVATrackEffEtaTot_;
@@ -185,6 +188,7 @@ private:
   MonitorElement* meMVATrackMatchedEffEtaMtd_;
   MonitorElement* meTrackMatchedTPEffEtaTot_;
   MonitorElement* meTrackMatchedTPEffEtaMtd_;
+  MonitorElement* meTrackMatchedTPEffEtaEtl2Mtd_;
   MonitorElement* meTrackMatchedTPmtdEffEtaTot_;
   MonitorElement* meTrackMatchedTPmtdEffEtaMtd_;
   MonitorElement* meMVATrackResTot_;
@@ -275,6 +279,8 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   const auto& mtdQualMVA = iEvent.get(trackMVAQualToken_);
   const auto& trackAssoc = iEvent.get(trackAssocToken_);
   const auto& pathLength = iEvent.get(pathLengthToken_);
+
+  std::vector<uint32_t> nETLdiscs((*GenRecTrackHandle).size(), 0);
 
   unsigned int index = 0;
   // --- Loop over all RECO tracks ---
@@ -416,10 +422,12 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             meETLTrackEffEta2Mtd_[0]->Fill(track.eta());
             meETLTrackEffPhi2Mtd_[0]->Fill(track.phi());
             meETLTrackEffPt2Mtd_[0]->Fill(track.pt());
+            nETLdiscs[index] = 2;
           } else {
             meETLTrackEffEta1Mtd_[0]->Fill(track.eta());
             meETLTrackEffPhi1Mtd_[0]->Fill(track.phi());
             meETLTrackEffPt1Mtd_[0]->Fill(track.pt());
+            nETLdiscs[index] = 1;
           }
         }
       }
@@ -430,10 +438,12 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
             meETLTrackEffEta2Mtd_[1]->Fill(track.eta());
             meETLTrackEffPhi2Mtd_[1]->Fill(track.phi());
             meETLTrackEffPt2Mtd_[1]->Fill(track.pt());
+            nETLdiscs[index] = 2;
           } else {
             meETLTrackEffEta1Mtd_[1]->Fill(track.eta());
             meETLTrackEffPhi1Mtd_[1]->Fill(track.phi());
             meETLTrackEffPt1Mtd_[1]->Fill(track.pt());
+            nETLdiscs[index] = 1;
           }
         }
       }
@@ -721,11 +731,17 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
           if (pullT > -9999.) {
             if (noCrack) {
               meTrackMatchedTPEffPtMtd_->Fill(trackGen.pt());
+              if (isETL(trackGen.eta()) && nETLdiscs[index] == 2) {
+                meTrackMatchedTPEffPtEtl2Mtd_->Fill(trackGen.pt());
+              }
               if (withMTD) {
                 meTrackMatchedTPmtdEffPtMtd_->Fill(trackGen.pt());
               }
             }
             meTrackMatchedTPEffEtaMtd_->Fill(std::abs(trackGen.eta()));
+            if (isETL(trackGen.eta()) && nETLdiscs[index] == 2) {
+              meTrackMatchedTPEffEtaEtl2Mtd_->Fill(std::abs(trackGen.eta()));
+            }
             if (withMTD) {
               meTrackMatchedTPmtdEffEtaMtd_->Fill(std::abs(trackGen.eta()));
             }
@@ -806,15 +822,24 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
   meTrackMVAQual_ = ibook.book1D("TrackMVAQual", "Track MVA Quality as stored in Value Map ; MVAQual", 100, 0, 1);
   meTrackPathLenghtvsEta_ = ibook.bookProfile(
       "TrackPathLenghtvsEta", "MTD Track pathlength vs MTD track Eta;|#eta|;Pathlength", 100, 0, 3.2, 100.0, 400.0, "S");
+
   meMVATrackEffPtTot_ = ibook.book1D("MVAEffPtTot", "Pt of tracks associated to LV; track pt [GeV] ", 110, 0., 11.);
   meMVATrackMatchedEffPtTot_ =
       ibook.book1D("MVAMatchedEffPtTot", "Pt of tracks associated to LV matched to GEN; track pt [GeV] ", 110, 0., 11.);
   meMVATrackMatchedEffPtMtd_ = ibook.book1D(
       "MVAMatchedEffPtMtd", "Pt of tracks associated to LV matched to GEN with time; track pt [GeV] ", 110, 0., 11.);
+
   meTrackMatchedTPEffPtTot_ =
       ibook.book1D("MatchedTPEffPtTot", "Pt of tracks associated to LV matched to TP; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPEffPtMtd_ = ibook.book1D(
       "MatchedTPEffPtMtd", "Pt of tracks associated to LV matched to TP with time; track pt [GeV] ", 110, 0., 11.);
+  meTrackMatchedTPEffPtEtl2Mtd_ =
+      ibook.book1D("MatchedTPEffPtEtl2Mtd",
+                   "Pt of tracks associated to LV matched to TP with time, 2 ETL hits; track pt [GeV] ",
+                   110,
+                   0.,
+                   11.);
+
   meTrackMatchedTPmtdEffPtTot_ = ibook.book1D(
       "MatchedTPmtdEffPtTot", "Pt of tracks associated to LV matched to TP-mtd hit; track pt [GeV] ", 110, 0., 11.);
   meTrackMatchedTPmtdEffPtMtd_ =
@@ -823,15 +848,24 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    110,
                    0.,
                    11.);
+
   meMVATrackEffEtaTot_ = ibook.book1D("MVAEffEtaTot", "Eta of tracks associated to LV; track eta ", 66, 0., 3.3);
   meMVATrackMatchedEffEtaTot_ =
       ibook.book1D("MVAMatchedEffEtaTot", "Eta of tracks associated to LV matched to GEN; track eta ", 66, 0., 3.3);
   meMVATrackMatchedEffEtaMtd_ = ibook.book1D(
       "MVAMatchedEffEtaMtd", "Eta of tracks associated to LV matched to GEN with time; track eta ", 66, 0., 3.3);
+
   meTrackMatchedTPEffEtaTot_ =
       ibook.book1D("MatchedTPEffEtaTot", "Eta of tracks associated to LV matched to TP; track eta ", 66, 0., 3.3);
   meTrackMatchedTPEffEtaMtd_ = ibook.book1D(
       "MatchedTPEffEtaMtd", "Eta of tracks associated to LV matched to TP with time; track eta ", 66, 0., 3.3);
+  meTrackMatchedTPEffEtaEtl2Mtd_ =
+      ibook.book1D("MatchedTPEffEtaEtl2Mtd",
+                   "Eta of tracks associated to LV matched to TP with time, 2 ETL hits; track eta ",
+                   66,
+                   0.,
+                   3.3);
+
   meTrackMatchedTPmtdEffEtaTot_ = ibook.book1D(
       "MatchedTPmtdEffEtaTot", "Eta of tracks associated to LV matched to TP-mtd hit; track eta ", 66, 0., 3.3);
   meTrackMatchedTPmtdEffEtaMtd_ =
@@ -840,6 +874,7 @@ void MtdTracksValidation::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
                    66,
                    0.,
                    3.3);
+
   meMVATrackResTot_ = ibook.book1D(
       "MVATrackRes", "t_{rec} - t_{sim} for LV associated tracks; t_{rec} - t_{sim} [ns] ", 120, -0.15, 0.15);
   meMVATrackPullTot_ =
