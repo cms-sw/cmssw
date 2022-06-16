@@ -16,16 +16,7 @@
  *     the z-coordinates on the 2 tracks are the closest is chosen. 
  */
 
-// Function for testing ClosestApproachInRPhi
-namespace test {
-  namespace ClosestApproachInRPhi_t {
-    int test();
-  }
-}  // namespace test
-
 class ClosestApproachInRPhi final : public ClosestApproachOnHelices {
-  friend int test::ClosestApproachInRPhi_t::test();
-
 public:
   ClosestApproachInRPhi() { status_ = false; }
   ~ClosestApproachInRPhi() override {}
@@ -56,6 +47,13 @@ public:
    */
   ClosestApproachInRPhi* clone() const override { return new ClosestApproachInRPhi(*this); }
 
+  // given the old Parameters, and a new GlobalPoint,
+  // we return the full new GlobalTrajectoryParameters at the
+  // Point.
+  static GlobalTrajectoryParameters newTrajectory(const GlobalPoint& newpt,
+                                                  const GlobalTrajectoryParameters& oldpar,
+                                                  double bz);
+
 private:
   bool compute(const TrackCharge& chargeA,
                const GlobalVector& momentumA,
@@ -63,13 +61,6 @@ private:
                const TrackCharge& chargeB,
                const GlobalVector& momentumB,
                const GlobalPoint& positionB) dso_internal;
-
-  // given the old Parameters, and a new GlobalPoint,
-  // we return the full new GlobalTrajectoryParameters at the
-  // Point.
-  static GlobalTrajectoryParameters newTrajectory(const GlobalPoint& newpt,
-                                                  const GlobalTrajectoryParameters& oldpar,
-                                                  double bz) dso_internal;
 
   // Computes center coordinates and unsigned radius of circle;
   static void circleParameters(const TrackCharge& charge,
