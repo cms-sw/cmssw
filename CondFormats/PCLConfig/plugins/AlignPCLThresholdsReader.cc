@@ -76,12 +76,8 @@ namespace edmtest {
     edm::LogInfo("AlignPCLThresholdsReader") << "Size " << thresholds->size() << std::endl;
     edm::LogInfo("AlignPCLThresholdsReader") << "Content of myThresholds " << std::endl;
     // use built-in method in the CondFormat to print the content
-    if (printdebug_) {
+    if (thresholds && printdebug_) {
       thresholds->printAll();
-      // print additional thresholds if HG payload is used
-      if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
-        thresholds->printAllHG();
-      }
     }
 
     FILE* pFile = nullptr;
@@ -91,45 +87,118 @@ namespace edmtest {
       fprintf(pFile, "AlignPCLThresholds::printAll() \n");
       fprintf(pFile,
               " ======================================================================================================="
-              "============ \n");
+              "============\n");
       fprintf(pFile, "N records cut: %i \n", thresholds->getNrecords());
 
       AlignPCLThresholds::threshold_map m_thresholds = thresholds->getThreshold_Map();
+      AlignPCLThresholdsHG::param_map m_floatMap{};
+
+      if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+        m_floatMap = thresholds->getFloatMap();
+      }
 
       for (auto it = m_thresholds.begin(); it != m_thresholds.end(); ++it) {
+        bool hasFractionCut = (m_floatMap.find(it->first) != m_floatMap.end());
+
         fprintf(pFile,
                 " ====================================================================================================="
-                "============== \n");
-        fprintf(pFile, "key : %s \n ", (it->first).c_str());
+                "==============\n");
+        fprintf(pFile, "key : %s \n", (it->first).c_str());
         fprintf(pFile, "- Xcut             : %8.3f   um   ", (it->second).getXcut());
         fprintf(pFile, "| sigXcut          : %8.3f        ", (it->second).getSigXcut());
         fprintf(pFile, "| maxMoveXcut      : %8.3f   um   ", (it->second).getMaxMoveXcut());
-        fprintf(pFile, "| ErrorXcut        : %8.3f   um\n ", (it->second).getErrorXcut());
+        fprintf(pFile, "| ErrorXcut        : %8.3f   um   ", (it->second).getErrorXcut());
+        if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+          if (hasFractionCut) {
+            fprintf(pFile,
+                    "| X_fractionCut      : %8.3f    \n",
+                    thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::X));
+          } else {
+            fprintf(pFile, "\n");
+          }
+        } else {
+          fprintf(pFile, "\n");
+        }
 
         fprintf(pFile, "- thetaXcut        : %8.3f urad   ", (it->second).getThetaXcut());
         fprintf(pFile, "| sigThetaXcut     : %8.3f        ", (it->second).getSigThetaXcut());
         fprintf(pFile, "| maxMoveThetaXcut : %8.3f urad   ", (it->second).getMaxMoveThetaXcut());
-        fprintf(pFile, "| ErrorThetaXcut   : %8.3f urad\n ", (it->second).getErrorThetaXcut());
+        fprintf(pFile, "| ErrorThetaXcut   : %8.3f urad   ", (it->second).getErrorThetaXcut());
+        if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+          if (hasFractionCut) {
+            fprintf(pFile,
+                    "| thetaX_fractionCut : %8.3f    \n",
+                    thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::theta_X));
+          } else {
+            fprintf(pFile, "\n");
+          }
+        } else {
+          fprintf(pFile, "\n");
+        }
 
         fprintf(pFile, "- Ycut             : %8.3f   um   ", (it->second).getYcut());
         fprintf(pFile, "| sigYcut          : %8.3f        ", (it->second).getSigXcut());
         fprintf(pFile, "| maxMoveYcut      : %8.3f   um   ", (it->second).getMaxMoveYcut());
-        fprintf(pFile, "| ErrorYcut        : %8.3f   um\n ", (it->second).getErrorYcut());
+        fprintf(pFile, "| ErrorYcut        : %8.3f   um   ", (it->second).getErrorYcut());
+        if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+          if (hasFractionCut) {
+            fprintf(pFile,
+                    "| Y_fractionCut      : %8.3f    \n",
+                    thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::Y));
+          } else {
+            fprintf(pFile, "\n");
+          }
+        } else {
+          fprintf(pFile, "\n");
+        }
 
         fprintf(pFile, "- thetaYcut        : %8.3f urad   ", (it->second).getThetaYcut());
         fprintf(pFile, "| sigThetaYcut     : %8.3f        ", (it->second).getSigThetaYcut());
         fprintf(pFile, "| maxMoveThetaYcut : %8.3f urad   ", (it->second).getMaxMoveThetaYcut());
-        fprintf(pFile, "| ErrorThetaYcut   : %8.3f urad\n ", (it->second).getErrorThetaYcut());
+        fprintf(pFile, "| ErrorThetaYcut   : %8.3f urad   ", (it->second).getErrorThetaYcut());
+        if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+          if (hasFractionCut) {
+            fprintf(pFile,
+                    "| thetaY_fractionCut : %8.3f    \n",
+                    thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::theta_Y));
+          } else {
+            fprintf(pFile, "\n");
+          }
+        } else {
+          fprintf(pFile, "\n");
+        }
 
         fprintf(pFile, "- Zcut             : %8.3f   um   ", (it->second).getZcut());
         fprintf(pFile, "| sigZcut          : %8.3f        ", (it->second).getSigZcut());
         fprintf(pFile, "| maxMoveZcut      : %8.3f   um   ", (it->second).getMaxMoveZcut());
-        fprintf(pFile, "| ErrorZcut        : %8.3f   um\n ", (it->second).getErrorZcut());
+        fprintf(pFile, "| ErrorZcut        : %8.3f   um   ", (it->second).getErrorZcut());
+        if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+          if (hasFractionCut) {
+            fprintf(pFile,
+                    "| Z_fractionCut      : %8.3f    \n",
+                    thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::Z));
+          } else {
+            fprintf(pFile, "\n");
+          }
+        } else {
+          fprintf(pFile, "\n");
+        }
 
         fprintf(pFile, "- thetaZcut        : %8.3f urad   ", (it->second).getThetaZcut());
         fprintf(pFile, "| sigThetaZcut     : %8.3f        ", (it->second).getSigThetaZcut());
         fprintf(pFile, "| maxMoveThetaZcut : %8.3f urad   ", (it->second).getMaxMoveThetaZcut());
-        fprintf(pFile, "| ErrorThetaZcut   : %8.3f urad\n ", (it->second).getErrorThetaZcut());
+        fprintf(pFile, "| ErrorThetaZcut   : %8.3f urad   ", (it->second).getErrorThetaZcut());
+        if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
+          if (hasFractionCut) {
+            fprintf(pFile,
+                    "| thetaZ_fractionCut : %8.3f    \n",
+                    thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::theta_Z));
+          } else {
+            fprintf(pFile, "\n");
+          }
+        } else {
+          fprintf(pFile, "\n");
+        }
 
         if ((it->second).hasExtraDOF()) {
           for (unsigned int j = 0; j < (it->second).extraDOFSize(); j++) {
@@ -143,36 +212,6 @@ namespace edmtest {
             fprintf(pFile, "| maxMoveCut       : %8.3f        ", extraDOFCuts.at(2));
             fprintf(pFile, "| maxErrorCut      : %8.3f     \n ", extraDOFCuts.at(3));
           }
-        }
-      }
-
-      // print additional thresholds for HG payload
-      if constexpr (std::is_same_v<T, AlignPCLThresholdsHG>) {
-        fprintf(pFile, "AlignPCLThresholdsHG::printAllHG() \n");
-        fprintf(pFile, " ======================================= \n");
-        const std::unordered_map<std::string, std::vector<float>>& floatMap = thresholds->getFloatMap();
-        for (auto it = floatMap.begin(); it != floatMap.end(); ++it) {
-          fprintf(pFile, " ======================================= \n");
-
-          fprintf(pFile, "key : %s \n", (it->first).c_str());
-          fprintf(pFile,
-                  "- X_fractionCut             : %8.3f    \n",
-                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::X));
-          fprintf(pFile,
-                  "- thetaX_fractionCut        : %8.3f    \n",
-                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::theta_X));
-          fprintf(pFile,
-                  "- Y_fractionCut             : %8.3f    \n",
-                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::Y));
-          fprintf(pFile,
-                  "- thetaY_fractionCut        : %8.3f    \n",
-                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::theta_Y));
-          fprintf(pFile,
-                  "- Z_fractionCut             : %8.3f    \n",
-                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::Z));
-          fprintf(pFile,
-                  "- thetaZ_fractionCut        : %8.3f    \n",
-                  thresholds->getFractionCut(it->first, AlignPCLThresholds::coordType::theta_Z));
         }
       }
     }

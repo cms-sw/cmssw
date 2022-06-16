@@ -20,7 +20,7 @@ fi
 
 #
 #set default conditions - run3 2021
-CONDITIONS=auto:phase1_2021_realistic ERA=Run3 GEOM=DB.Extended CUSTOM=
+CONDITIONS=auto:phase1_2022_realistic ERA=Run3 GEOM=DB.Extended CUSTOM=
 #
 #conditions - 2018
 #CONDITIONS=auto:phase1_2018_realistic ERA=Run2_2018 GEOM=DB.Extended CUSTOM=

@@ -35,6 +35,7 @@
 
 // include ROOT
 #include "TH2F.h"
+#include "TGaxis.h"
 #include "TLegend.h"
 #include "TCanvas.h"
 #include "TLine.h"
@@ -72,6 +73,8 @@ namespace {
                                               " coordinate between two geometries") {}
 
     bool fill() override {
+      TGaxis::SetExponentOffset(-0.12, 0.01, "y");  // Y offset
+
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
@@ -192,15 +195,21 @@ namespace {
               compare->SetBinContent(
                   i + 1, (target_ali[i].translation().z() - ref_ali[i].translation().z()) * AlignmentPI::cmToUm);
               break;
-            case AlignmentPI::rot_alpha:
-              compare->SetBinContent(i + 1, (target_eulerAngles[0] - ref_eulerAngles[0]) * 1000.);
+            case AlignmentPI::rot_alpha: {
+              auto deltaRot = target_eulerAngles[0] - ref_eulerAngles[0];
+              compare->SetBinContent(i + 1, AlignmentPI::returnZeroIfNear2PI(deltaRot) * AlignmentPI::tomRad);
               break;
-            case AlignmentPI::rot_beta:
-              compare->SetBinContent(i + 1, (target_eulerAngles[1] - ref_eulerAngles[1]) * 1000.);
+            }
+            case AlignmentPI::rot_beta: {
+              auto deltaRot = target_eulerAngles[1] - ref_eulerAngles[1];
+              compare->SetBinContent(i + 1, AlignmentPI::returnZeroIfNear2PI(deltaRot) * AlignmentPI::tomRad);
               break;
-            case AlignmentPI::rot_gamma:
-              compare->SetBinContent(i + 1, (target_eulerAngles[2] - ref_eulerAngles[2]) * 1000.);
+            }
+            case AlignmentPI::rot_gamma: {
+              auto deltaRot = target_eulerAngles[2] - ref_eulerAngles[2];
+              compare->SetBinContent(i + 1, AlignmentPI::returnZeroIfNear2PI(deltaRot) * AlignmentPI::tomRad);
               break;
+            }
             default:
               edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << coord << std::endl;
               break;
@@ -218,8 +227,12 @@ namespace {
       auto max = compare->GetMaximum();
       auto min = compare->GetMinimum();
       auto range = std::abs(max) > std::abs(min) ? std::abs(max) : std::abs(min);
+      if (range == 0.f)
+        range = 0.1;
       //auto newMax = (max > 0.) ? max*1.2 : max*0.8;
-      compare->GetYaxis()->SetRangeUser(-range * 1.3, range * 1.2);
+
+      compare->GetYaxis()->SetRangeUser(-range * 1.5, range * 1.5);
+      compare->GetYaxis()->SetTitleOffset(1.5);
       compare->SetMarkerStyle(20);
       compare->SetMarkerSize(0.5);
       compare->Draw("P");
@@ -277,7 +290,7 @@ namespace {
       ltx.SetTextAlign(11);
       ltx.DrawLatexNDC(gPad->GetLeftMargin(),
                        1 - gPad->GetTopMargin() + 0.01,
-                       ("Tracker Alignment Comparison:#color[4]{" + s_coord + "}").c_str());
+                       ("Tracker Alignment Compare :#color[4]{" + s_coord + "}").c_str());
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -438,15 +451,21 @@ namespace {
                 diffs[coord]->Fill((target_ali[i].translation().z() - ref_ali[i].translation().z()) *
                                    AlignmentPI::cmToUm);
                 break;
-              case AlignmentPI::rot_alpha:
-                diffs[coord]->Fill((target_eulerAngles[0] - ref_eulerAngles[0]) * 1000.);
+              case AlignmentPI::rot_alpha: {
+                auto deltaRot = target_eulerAngles[0] - ref_eulerAngles[0];
+                diffs[coord]->Fill(AlignmentPI::returnZeroIfNear2PI(deltaRot) * AlignmentPI::tomRad);
                 break;
-              case AlignmentPI::rot_beta:
-                diffs[coord]->Fill((target_eulerAngles[1] - ref_eulerAngles[1]) * 1000.);
+              }
+              case AlignmentPI::rot_beta: {
+                auto deltaRot = target_eulerAngles[1] - ref_eulerAngles[1];
+                diffs[coord]->Fill(AlignmentPI::returnZeroIfNear2PI(deltaRot) * AlignmentPI::tomRad);
                 break;
-              case AlignmentPI::rot_gamma:
-                diffs[coord]->Fill((target_eulerAngles[2] - ref_eulerAngles[2]) * 1000.);
+              }
+              case AlignmentPI::rot_gamma: {
+                auto deltaRot = target_eulerAngles[2] - ref_eulerAngles[2];
+                diffs[coord]->Fill(AlignmentPI::returnZeroIfNear2PI(deltaRot) * AlignmentPI::tomRad);
                 break;
+              }
               default:
                 edm::LogError("TrackerAlignment_PayloadInspector") << "Unrecognized coordinate " << coord << std::endl;
                 break;

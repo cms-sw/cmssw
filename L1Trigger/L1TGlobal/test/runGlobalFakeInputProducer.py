@@ -105,13 +105,7 @@ process.TFileService.fileName = cms.string('l1t_histos.root')
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-## process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, '106X_upgrade2018_realistic_v11', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, '112X_mcRun2_asymptotic_v2', '')
-## process.GlobalTag = GlobalTag(process.GlobalTag, '90X_upgrade2017_realistic_PerfectEcalIc_EGM_PFCalib', '')
-## auto:upgradePLS1
-## 81X_upgrade2017_realistic_v26
-## 80X_mcRun2_asymptotic_v14
+process.GlobalTag = GlobalTag(process.GlobalTag, '123X_mcRun3_2021_realistic_v13', '')
 
 ## ## needed until prescales go into GlobalTag ########################
 ## from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
@@ -210,7 +204,7 @@ process.load('L1Trigger.L1TGlobal.GlobalParameters_cff')
 
 process.load("L1Trigger.L1TGlobal.TriggerMenu_cff")
 
-xmlMenu="L1Menu_Collisions2022_v1_0_0.xml"
+xmlMenu="L1Menu_Collisions2022_v1_1_0.xml"
 process.TriggerMenu.L1TriggerMenuFile = cms.string(xmlMenu)
 process.ESPreferL1TXML = cms.ESPrefer("L1TUtmTriggerMenuESProducer","TriggerMenu")
 

@@ -76,22 +76,16 @@ namespace PFJetMETcorrInputProducer_namespace {
 template <typename T, typename Textractor>
 class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<> {
 public:
-  explicit PFJetMETcorrInputProducerT(const edm::ParameterSet& cfg)
-      : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-        offsetCorrLabel_(""),
-        skipMuonSelection_(nullptr) {
+  explicit PFJetMETcorrInputProducerT(const edm::ParameterSet& cfg) : skipMuonSelection_(nullptr) {
     token_ = consumes<std::vector<T> >(cfg.getParameter<edm::InputTag>("src"));
-
-    if (cfg.exists("offsetCorrLabel")) {
-      offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
-      offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
-    }
+    offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
+    offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
     jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");        //for MC
     jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes");  //for data
     jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
     jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
 
-    jetCorrEtaMax_ = (cfg.exists("jetCorrEtaMax")) ? cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
+    jetCorrEtaMax_ = cfg.getParameter<double>("jetCorrEtaMax");
 
     type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
 
@@ -264,8 +258,6 @@ private:
               (*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }
-
-  std::string moduleLabel_;
 
   edm::EDGetTokenT<std::vector<T> > token_;
 

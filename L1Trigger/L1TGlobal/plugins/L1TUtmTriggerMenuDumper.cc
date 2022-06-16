@@ -19,7 +19,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,7 +33,7 @@ using namespace edm;
 using namespace std;
 using namespace tmeventsetup;
 
-class L1TUtmTriggerMenuDumper : public EDAnalyzer {
+class L1TUtmTriggerMenuDumper : public one::EDAnalyzer<edm::one::WatchLuminosityBlocks, edm::one::WatchRuns> {
 public:
   explicit L1TUtmTriggerMenuDumper(const ParameterSet&);
   ~L1TUtmTriggerMenuDumper() override;

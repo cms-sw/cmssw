@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: skims -s SKIM:TopMuEG --mc --dasquery=file dataset=/RelValTTbar_14TeV/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-RECO -n 100 --conditions auto:phase1_2021_realistic --eventcontent=FEVTDEBUGHLT --datatier=RAW-RECO --python_filename=test_TopMuEG_SKIM.py --processName=SKIMTopMuEG --no_exec --era=Run3
+# with command line options: skims -s SKIM:TopMuEG --mc --dasquery=file dataset=/RelValTTbar_14TeV/CMSSW_12_1_0_pre2-PU_121X_mcRun3_2021_realistic_v1-v1/GEN-SIM-RECO -n 100 --conditions auto:phase1_2022_realistic --eventcontent=FEVTDEBUGHLT --datatier=RAW-RECO --python_filename=test_TopMuEG_SKIM.py --processName=SKIMTopMuEG --no_exec --era=Run3
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
@@ -568,7 +568,7 @@ process.SKIMStreamTopMuEG = cms.OutputModule("PoolOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 # Path and EndPath definitions
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)

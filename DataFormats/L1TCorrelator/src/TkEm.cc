@@ -21,4 +21,7 @@ TkEm::TkEm(const LorentzVector& p4, const edm::Ref<EGammaBxCollection>& egRef, f
       pfIsol_(-999),
       pfIsolPV_(-999),
       puppiIsol_(-999),
-      puppiIsolPV_(-999) {}
+      puppiIsolPV_(-999),
+      egBinaryWord0_(0),
+      egBinaryWord1_(0),
+      egBinaryWord2_(0) {}

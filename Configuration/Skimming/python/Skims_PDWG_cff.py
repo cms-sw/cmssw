@@ -282,6 +282,17 @@ SKIMStreamEXODelayedJet = cms.FilteredStream(
     dataTier = cms.untracked.string('AOD')
     )
 
+from Configuration.Skimming.PDWG_EXODelayedJetMET_cff import *
+EXODelayedJetMETPath = cms.Path(EXODelayedJetMETSkimSequence)
+SKIMStreamEXODelayedJetMET = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXODelayedJetMET',
+    paths = (EXODelayedJetMETPath),
+    content = skimRawAODContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
+
 from Configuration.Skimming.PDWG_EXODTCluster_cff import *
 EXODTClusterPath = cms.Path(EXODTClusterSkimSequence)
 SKIMStreamEXODTCluster = cms.FilteredStream(
