@@ -23,6 +23,12 @@
 <use name="RecoLocalTracker/Records"/>
 <use name="RecoPixelVertexing/PixelVertexFinding"/>
 <use name="SimDataFormats/PileupSummaryInfo"/>
-<library file="*.cc *.cu" name="RecoPixelVertexingPixelVertexFindingPlugins">
+<iftool name="cuda-gcc-support">
+  <use name="cuda"/>
+  <set name="cuda_src" value="*.cu"/>
+<else/>
+  <set name="cuda_src" value=""/>
+</iftool>
+<library file="*.cc ${cuda_src}" name="RecoPixelVertexingPixelVertexFindingPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
