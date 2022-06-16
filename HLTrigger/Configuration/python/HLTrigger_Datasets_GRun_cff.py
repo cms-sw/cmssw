@@ -22,21 +22,6 @@ streamParkingBPH1_datasetParkingBPH1_selector.triggerConditions = cms.vstring(
     'HLT_Mu9_IP6_part0_v3'
 )
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamParkingBPH1_datasetParkingBPHPromptCSCS_selector
-streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.l1tResults = cms.InputTag('')
-streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.throw      = cms.bool(False)
-streamParkingBPH1_datasetParkingBPHPromptCSCS_selector.triggerConditions = cms.vstring(
-    'HLT_Mu12_IP6_ToCSCS_v1',
-    'HLT_Mu7_IP4_ToCSCS_v1',
-    'HLT_Mu8_IP3_ToCSCS_v1',
-    'HLT_Mu8_IP5_ToCSCS_v1',
-    'HLT_Mu8_IP6_ToCSCS_v1',
-    'HLT_Mu9_IP4_ToCSCS_v1',
-    'HLT_Mu9_IP5_ToCSCS_v1',
-    'HLT_Mu9_IP6_ToCSCS_v1'
-)
-
 
 # stream ParkingBPH2
 
@@ -834,10 +819,10 @@ streamPhysicsMuons_datasetDoubleMuon_selector.triggerConditions = cms.vstring(
     'HLT_DoubleL2Mu30NoVtx_2Cha_CosmicSeed_Eta2p4_v2',
     'HLT_DoubleL2Mu30NoVtx_2Cha_Eta2p4_v2',
     'HLT_DoubleL2Mu50_v2',
-    'HLT_DoubleL3Iter4Mu16_10NoVtx_DxyMin0p01cm_v1',
     'HLT_DoubleL3Mu16_10NoVtx_DxyMin0p01cm_v1',
     'HLT_DoubleL3Mu18_10NoVtx_DxyMin0p01cm_v1',
     'HLT_DoubleL3Mu20_10NoVtx_DxyMin0p01cm_v1',
+    'HLT_DoubleL3dTksMu16_10NoVtx_DxyMin0p01cm_v1',
     'HLT_DoubleMu3_DCA_PFMET50_PFMHT60_v10',
     'HLT_DoubleMu3_DZ_PFMET50_PFMHT60_v10',
     'HLT_DoubleMu3_DZ_PFMET70_PFMHT70_v10',
@@ -846,7 +831,7 @@ streamPhysicsMuons_datasetDoubleMuon_selector.triggerConditions = cms.vstring(
     'HLT_DoubleMu43NoFiltersNoVtx_v4',
     'HLT_DoubleMu48NoFiltersNoVtx_v4',
     'HLT_DoubleMu4_Mass3p8_DZ_PFHT350_v8',
-    'HLT_L3Iter4Mu10_NoVtx_DxyMin0p01cm_v1',
+    'HLT_L3dTksMu10_NoVtx_DxyMin0p01cm_v1',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass3p8_v5',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8_v5',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v15',
@@ -947,12 +932,6 @@ streamPhysicsMuons_datasetDoubleMuonLowMass_selector.triggerConditions = cms.vst
     'HLT_Mu4_L1DoubleMu_v1',
     'HLT_Mu7p5_L2Mu2_Jpsi_v10',
     'HLT_Mu7p5_L2Mu2_Upsilon_v10',
-    'HLT_Mu7p5_Track2_Jpsi_v11',
-    'HLT_Mu7p5_Track2_Upsilon_v11',
-    'HLT_Mu7p5_Track3p5_Jpsi_v11',
-    'HLT_Mu7p5_Track3p5_Upsilon_v11',
-    'HLT_Mu7p5_Track7_Jpsi_v11',
-    'HLT_Mu7p5_Track7_Upsilon_v11',
     'HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_Charge1_v4',
     'HLT_Tau3Mu_Mu7_Mu1_TkMu1_IsoTau15_v4',
     'HLT_Tau3Mu_Mu7_Mu1_TkMu1_Tau15_Charge1_v4',
