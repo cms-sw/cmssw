@@ -5,3 +5,9 @@
   <use name="RecoTracker/MkFitCore"/>
   <use name="RecoTracker/Record"/>
 </library>
+
+<bin file="TestDriver.cpp" name="testDumpMkFitGeometry">
+  <use name="FWCore/Utilities"/>
+  <flags TEST_RUNNER_ARGS="/bin/bash RecoTracker/MkFit/test testDumpMkFitGeometry.sh"/>
+</bin>
+
