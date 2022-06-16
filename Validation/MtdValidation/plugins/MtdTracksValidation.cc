@@ -1,5 +1,3 @@
-#define EDM_ML_DEBUG
-
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -506,154 +504,154 @@ void MtdTracksValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     const reco::TrackRef mtdTrackref = reco::TrackRef(iEvent.getHandle(RecTrackToken_), trackAssoc[trackref]);
     const reco::Track track = *mtdTrackref;
 
-    if (track.pt() < trackMinPt_ || std::abs(track.eta()) > trackMaxEtlEta_)
-      continue;
-
-    meTracktmtd_->Fill(tMtd[trackref]);
-    if (std::round(SigmatMtd[trackref] - Sigmat0Pid[trackref]) != 0) {
-      LogWarning("mtdTracks") << "TimeError associated to refitted track is different from TimeError stored in tofPID "
-                                 "sigmat0 ValueMap: this should not happen";
-    }
-
-    meTrackt0Src_->Fill(t0Src[trackref]);
-    meTrackSigmat0Src_->Fill(Sigmat0Src[trackref]);
-
-    meTrackt0Pid_->Fill(t0Pid[trackref]);
-    meTrackSigmat0Pid_->Fill(Sigmat0Pid[trackref]);
-    meTrackt0SafePid_->Fill(t0Safe[trackref]);
-    meTrackSigmat0SafePid_->Fill(Sigmat0Safe[trackref]);
-    meTrackMVAQual_->Fill(mtdQualMVA[trackref]);
-
-    meTrackPathLenghtvsEta_->Fill(std::abs(track.eta()), pathLength[trackref]);
-
     bool isBTL = false;
     bool twoETLdiscs = false;
 
-    if (std::abs(track.eta()) < trackMaxBtlEta_) {
-      // --- all BTL tracks (with and without hit in MTD) ---
-      meBTLTrackEffEtaTot_->Fill(track.eta());
-      meBTLTrackEffPhiTot_->Fill(track.phi());
-      meBTLTrackEffPtTot_->Fill(track.pt());
-
-      bool MTDBtl = false;
-      int numMTDBtlvalidhits = 0;
-      for (const auto hit : track.recHits()) {
-        if (hit->isValid() == false)
-          continue;
-        MTDDetId Hit = hit->geographicalId();
-        if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 1)) {
-          MTDBtl = true;
-          numMTDBtlvalidhits++;
-        }
-      }
-      meTrackNumHits_->Fill(numMTDBtlvalidhits);
-
-      // --- keeping only tracks with last hit in MTD ---
-      if (MTDBtl == true) {
-        isBTL = true;
-        meBTLTrackEffEtaMtd_->Fill(track.eta());
-        meBTLTrackEffPhiMtd_->Fill(track.phi());
-        meBTLTrackEffPtMtd_->Fill(track.pt());
-        meBTLTrackRPTime_->Fill(track.t0());
-        meBTLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
-      }
-    }  //loop over (geometrical) BTL tracks
-
-    else {
-      // --- all ETL tracks (with and without hit in MTD) ---
-      if ((track.eta() < -trackMinEtlEta_) && (track.eta() > -trackMaxEtlEta_)) {
-        meETLTrackEffEtaTot_[0]->Fill(track.eta());
-        meETLTrackEffPhiTot_[0]->Fill(track.phi());
-        meETLTrackEffPtTot_[0]->Fill(track.pt());
+    if (track.pt() >= trackMinPt_ && std::abs(track.eta()) <= trackMaxEtlEta_) {
+      meTracktmtd_->Fill(tMtd[trackref]);
+      if (std::round(SigmatMtd[trackref] - Sigmat0Pid[trackref]) != 0) {
+        LogWarning("mtdTracks")
+            << "TimeError associated to refitted track is different from TimeError stored in tofPID "
+               "sigmat0 ValueMap: this should not happen";
       }
 
-      if ((track.eta() > trackMinEtlEta_) && (track.eta() < trackMaxEtlEta_)) {
-        meETLTrackEffEtaTot_[1]->Fill(track.eta());
-        meETLTrackEffPhiTot_[1]->Fill(track.phi());
-        meETLTrackEffPtTot_[1]->Fill(track.pt());
-      }
+      meTrackt0Src_->Fill(t0Src[trackref]);
+      meTrackSigmat0Src_->Fill(Sigmat0Src[trackref]);
 
-      bool MTDEtlZnegD1 = false;
-      bool MTDEtlZnegD2 = false;
-      bool MTDEtlZposD1 = false;
-      bool MTDEtlZposD2 = false;
-      int numMTDEtlvalidhits = 0;
-      for (const auto hit : track.recHits()) {
-        if (hit->isValid() == false)
-          continue;
-        MTDDetId Hit = hit->geographicalId();
-        if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2)) {
-          ETLDetId ETLHit = hit->geographicalId();
+      meTrackt0Pid_->Fill(t0Pid[trackref]);
+      meTrackSigmat0Pid_->Fill(Sigmat0Pid[trackref]);
+      meTrackt0SafePid_->Fill(t0Safe[trackref]);
+      meTrackSigmat0SafePid_->Fill(Sigmat0Safe[trackref]);
+      meTrackMVAQual_->Fill(mtdQualMVA[trackref]);
 
-          if (topo2Dis) {
-            if ((ETLHit.zside() == -1) && (ETLHit.nDisc() == 1)) {
-              MTDEtlZnegD1 = true;
-              meETLTrackRPTime_->Fill(track.t0());
-              meETLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
-              numMTDEtlvalidhits++;
-            }
-            if ((ETLHit.zside() == -1) && (ETLHit.nDisc() == 2)) {
-              MTDEtlZnegD2 = true;
-              meETLTrackRPTime_->Fill(track.t0());
-              meETLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
-              numMTDEtlvalidhits++;
-            }
-            if ((ETLHit.zside() == 1) && (ETLHit.nDisc() == 1)) {
-              MTDEtlZposD1 = true;
-              meETLTrackRPTime_->Fill(track.t0());
-              meETLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
-              numMTDEtlvalidhits++;
-            }
-            if ((ETLHit.zside() == 1) && (ETLHit.nDisc() == 2)) {
-              MTDEtlZposD2 = true;
-              meETLTrackRPTime_->Fill(track.t0());
-              meETLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
-              numMTDEtlvalidhits++;
-            }
-          }
+      meTrackPathLenghtvsEta_->Fill(std::abs(track.eta()), pathLength[trackref]);
 
-          if (topo1Dis) {
-            if (ETLHit.zside() == -1) {
-              MTDEtlZnegD1 = true;
-              meETLTrackRPTime_->Fill(track.t0());
-              numMTDEtlvalidhits++;
-            }
-            if (ETLHit.zside() == 1) {
-              MTDEtlZposD1 = true;
-              meETLTrackRPTime_->Fill(track.t0());
-              numMTDEtlvalidhits++;
-            }
+      if (std::abs(track.eta()) < trackMaxBtlEta_) {
+        // --- all BTL tracks (with and without hit in MTD) ---
+        meBTLTrackEffEtaTot_->Fill(track.eta());
+        meBTLTrackEffPhiTot_->Fill(track.phi());
+        meBTLTrackEffPtTot_->Fill(track.pt());
+
+        bool MTDBtl = false;
+        int numMTDBtlvalidhits = 0;
+        for (const auto hit : track.recHits()) {
+          if (hit->isValid() == false)
+            continue;
+          MTDDetId Hit = hit->geographicalId();
+          if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 1)) {
+            MTDBtl = true;
+            numMTDBtlvalidhits++;
           }
         }
-      }
-      meTrackNumHits_->Fill(-numMTDEtlvalidhits);
+        meTrackNumHits_->Fill(numMTDBtlvalidhits);
 
-      // --- keeping only tracks with last hit in MTD ---
-      if ((track.eta() < -trackMinEtlEta_) && (track.eta() > -trackMaxEtlEta_)) {
-        twoETLdiscs = (MTDEtlZnegD1 == true) && (MTDEtlZnegD2 == true);
-        if ((MTDEtlZnegD1 == true) || (MTDEtlZnegD2 == true)) {
-          if (twoETLdiscs) {
-            meETLTrackEffEta2Mtd_[0]->Fill(track.eta());
-            meETLTrackEffPhi2Mtd_[0]->Fill(track.phi());
-            meETLTrackEffPt2Mtd_[0]->Fill(track.pt());
-          } else {
-            meETLTrackEffEta1Mtd_[0]->Fill(track.eta());
-            meETLTrackEffPhi1Mtd_[0]->Fill(track.phi());
-            meETLTrackEffPt1Mtd_[0]->Fill(track.pt());
+        // --- keeping only tracks with last hit in MTD ---
+        if (MTDBtl == true) {
+          isBTL = true;
+          meBTLTrackEffEtaMtd_->Fill(track.eta());
+          meBTLTrackEffPhiMtd_->Fill(track.phi());
+          meBTLTrackEffPtMtd_->Fill(track.pt());
+          meBTLTrackRPTime_->Fill(track.t0());
+          meBTLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
+        }
+      }  //loop over (geometrical) BTL tracks
+
+      else {
+        // --- all ETL tracks (with and without hit in MTD) ---
+        if ((track.eta() < -trackMinEtlEta_) && (track.eta() > -trackMaxEtlEta_)) {
+          meETLTrackEffEtaTot_[0]->Fill(track.eta());
+          meETLTrackEffPhiTot_[0]->Fill(track.phi());
+          meETLTrackEffPtTot_[0]->Fill(track.pt());
+        }
+
+        if ((track.eta() > trackMinEtlEta_) && (track.eta() < trackMaxEtlEta_)) {
+          meETLTrackEffEtaTot_[1]->Fill(track.eta());
+          meETLTrackEffPhiTot_[1]->Fill(track.phi());
+          meETLTrackEffPtTot_[1]->Fill(track.pt());
+        }
+
+        bool MTDEtlZnegD1 = false;
+        bool MTDEtlZnegD2 = false;
+        bool MTDEtlZposD1 = false;
+        bool MTDEtlZposD2 = false;
+        int numMTDEtlvalidhits = 0;
+        for (const auto hit : track.recHits()) {
+          if (hit->isValid() == false)
+            continue;
+          MTDDetId Hit = hit->geographicalId();
+          if ((Hit.det() == 6) && (Hit.subdetId() == 1) && (Hit.mtdSubDetector() == 2)) {
+            ETLDetId ETLHit = hit->geographicalId();
+
+            if (topo2Dis) {
+              if ((ETLHit.zside() == -1) && (ETLHit.nDisc() == 1)) {
+                MTDEtlZnegD1 = true;
+                meETLTrackRPTime_->Fill(track.t0());
+                meETLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
+                numMTDEtlvalidhits++;
+              }
+              if ((ETLHit.zside() == -1) && (ETLHit.nDisc() == 2)) {
+                MTDEtlZnegD2 = true;
+                meETLTrackRPTime_->Fill(track.t0());
+                meETLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
+                numMTDEtlvalidhits++;
+              }
+              if ((ETLHit.zside() == 1) && (ETLHit.nDisc() == 1)) {
+                MTDEtlZposD1 = true;
+                meETLTrackRPTime_->Fill(track.t0());
+                meETLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
+                numMTDEtlvalidhits++;
+              }
+              if ((ETLHit.zside() == 1) && (ETLHit.nDisc() == 2)) {
+                MTDEtlZposD2 = true;
+                meETLTrackRPTime_->Fill(track.t0());
+                meETLTrackPtRes_->Fill((trackGen.pt() - track.pt()) / trackGen.pt());
+                numMTDEtlvalidhits++;
+              }
+            }
+
+            if (topo1Dis) {
+              if (ETLHit.zside() == -1) {
+                MTDEtlZnegD1 = true;
+                meETLTrackRPTime_->Fill(track.t0());
+                numMTDEtlvalidhits++;
+              }
+              if (ETLHit.zside() == 1) {
+                MTDEtlZposD1 = true;
+                meETLTrackRPTime_->Fill(track.t0());
+                numMTDEtlvalidhits++;
+              }
+            }
           }
         }
-      }
-      if ((track.eta() > trackMinEtlEta_) && (track.eta() < trackMaxEtlEta_)) {
-        twoETLdiscs = (MTDEtlZposD1 == true) && (MTDEtlZposD2 == true);
-        if ((MTDEtlZposD1 == true) || (MTDEtlZposD2 == true)) {
-          if (twoETLdiscs) {
-            meETLTrackEffEta2Mtd_[1]->Fill(track.eta());
-            meETLTrackEffPhi2Mtd_[1]->Fill(track.phi());
-            meETLTrackEffPt2Mtd_[1]->Fill(track.pt());
-          } else {
-            meETLTrackEffEta1Mtd_[1]->Fill(track.eta());
-            meETLTrackEffPhi1Mtd_[1]->Fill(track.phi());
-            meETLTrackEffPt1Mtd_[1]->Fill(track.pt());
+        meTrackNumHits_->Fill(-numMTDEtlvalidhits);
+
+        // --- keeping only tracks with last hit in MTD ---
+        if ((track.eta() < -trackMinEtlEta_) && (track.eta() > -trackMaxEtlEta_)) {
+          twoETLdiscs = (MTDEtlZnegD1 == true) && (MTDEtlZnegD2 == true);
+          if ((MTDEtlZnegD1 == true) || (MTDEtlZnegD2 == true)) {
+            if (twoETLdiscs) {
+              meETLTrackEffEta2Mtd_[0]->Fill(track.eta());
+              meETLTrackEffPhi2Mtd_[0]->Fill(track.phi());
+              meETLTrackEffPt2Mtd_[0]->Fill(track.pt());
+            } else {
+              meETLTrackEffEta1Mtd_[0]->Fill(track.eta());
+              meETLTrackEffPhi1Mtd_[0]->Fill(track.phi());
+              meETLTrackEffPt1Mtd_[0]->Fill(track.pt());
+            }
+          }
+        }
+        if ((track.eta() > trackMinEtlEta_) && (track.eta() < trackMaxEtlEta_)) {
+          twoETLdiscs = (MTDEtlZposD1 == true) && (MTDEtlZposD2 == true);
+          if ((MTDEtlZposD1 == true) || (MTDEtlZposD2 == true)) {
+            if (twoETLdiscs) {
+              meETLTrackEffEta2Mtd_[1]->Fill(track.eta());
+              meETLTrackEffPhi2Mtd_[1]->Fill(track.phi());
+              meETLTrackEffPt2Mtd_[1]->Fill(track.pt());
+            } else {
+              meETLTrackEffEta1Mtd_[1]->Fill(track.eta());
+              meETLTrackEffPhi1Mtd_[1]->Fill(track.phi());
+              meETLTrackEffPt1Mtd_[1]->Fill(track.pt());
+            }
           }
         }
       }

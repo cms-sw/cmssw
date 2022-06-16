@@ -5,8 +5,6 @@
 // Modifications:
 ///////////////////////////////////////////////////////////////////////////////
 
-#define EDM_ML_DEBUG
-
 #include "SimG4CMS/Forward/interface/TimingSD.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
@@ -28,6 +26,8 @@
 
 #include <vector>
 #include <iostream>
+
+//#define EDM_ML_DEBUG
 
 static const float invgev = 1.0 / CLHEP::GeV;
 static const double invns = 1.0 / CLHEP::nanosecond;
