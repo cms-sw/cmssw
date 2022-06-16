@@ -1919,8 +1919,8 @@ steps['HLTDR2_2017']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2017,},{'--con
 hltKey2018='relval2018'
 steps['HLTDR2_2018']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2018,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2018'},steps['HLTD'] ] )
 
-hltKey2021='relval2021'
-steps['HLTDR3_2021']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2021,},{'--conditions':'auto:run3_hlt_relval'},{'--era':'Run3'},steps['HLTD'] ] )
+hltKey2022='relval2022'
+steps['HLTDR3_2021']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2022,},{'--conditions':'auto:run3_hlt_relval'},{'--era':'Run3'},steps['HLTD'] ] )
 
 # special setting for lumi section boundary crossing in RunEGamma2018Dml
 steps['HLTDR2_2018ml']=merge( [ {'--customise_commands':'"process.source.skipEvents=cms.untracked.uint32(7000)"'},steps['HLTDR2_2018'] ] )
