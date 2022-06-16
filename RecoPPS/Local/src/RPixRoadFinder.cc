@@ -86,7 +86,6 @@ void RPixRoadFinder::findPattern() {
       if (isBadPot_ == true && myid.arm() == 0 && myid.station() == 2 && (myid.plane() == 0 || myid.plane() == 5) 
 //          && localV.x() > 0 
 	  ){  // 45-220-far
-      //	std::cout << localV << std::endl;
 
         temp_all_hits_badPot.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
 
@@ -95,8 +94,6 @@ void RPixRoadFinder::findPattern() {
       }
     }
   }
-
-  // std::cout << temp_all_hits_badPot.size() << std::endl;
 
   Road::iterator it_gh1 = temp_all_hits.begin();
   Road::iterator it_gh2;
@@ -146,7 +143,7 @@ void RPixRoadFinder::findPattern() {
 
     while (it_gh2_bP != temp_all_hits_badPot.end()) {
       const auto subtraction = currPoint - it_gh2_bP->globalPoint;
-      // std::cout << "    currpoint   " << it_gh2_bP->globalPoint << std::endl;
+
       if (subtraction.Rho() < roadRadiusBadPot_) {
         temp_road.push_back(*it_gh2_bP);
         temp_all_hits_badPot.erase(it_gh2_bP);
@@ -154,11 +151,9 @@ void RPixRoadFinder::findPattern() {
         ++it_gh2_bP;
       }
     }
-    // std::cout << "temp road size bad pot before cut " << temp_road.size() << std::endl;
+
     if (temp_road.size() == 2) {  // look for isolated tracks
       patternVector_.push_back(temp_road);
-      // std::cout << "temp road size bad pot " << temp_road.size() << std::endl;
     }
   }
-  // std::cout << " ------------ END event " << std::endl;
 }
