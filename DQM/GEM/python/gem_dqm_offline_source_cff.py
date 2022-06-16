@@ -10,6 +10,7 @@ GEMRecHitSource.runType = "offline"
 gemSources = cms.Sequence(
     GEMDigiSource *
     GEMRecHitSource *
+    GEMDAQStatusSource *
     gemEfficiencyAnalyzerTightGlbSeq *
     gemEfficiencyAnalyzerStaSeq
 )

@@ -66,7 +66,6 @@ void GEMDigiSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE) {
     mapDigiWheel_layer_.TurnOff();
     mapBX_.TurnOff();
-    mapTotalDigi_layer_.TurnOff();
   }
 
   if (nRunType_ == GEMDQM_RUNTYPE_RELVAL) {
@@ -110,7 +109,7 @@ int GEMDigiSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   mapTotalDigi_layer_.SetBinConfX(stationInfo.nNumChambers_);
   mapTotalDigi_layer_.SetBinConfY(stationInfo.nMaxVFAT_, -0.5);
   mapTotalDigi_layer_.bookND(bh, key);
-  mapTotalDigi_layer_.SetLabelForChambers(key, 1);
+  mapTotalDigi_layer_.SetLabelForChambers(key, 1, -1, stationInfo.nMinIdxChamber_);
   mapTotalDigi_layer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   mapDigiWheel_layer_.SetBinLowEdgeX(stationInfo.fMinPhi_);

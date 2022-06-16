@@ -213,13 +213,11 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
 
   std::string strTitleSummary = "summary";
 
-  getGeometryInfo(store, h2SrcStatusEOH);
+  getGeometryInfo(store, h2SrcStatusE);
 
-  if (h2SrcStatusA != nullptr && h2SrcStatusE != nullptr && h2SrcStatusW != nullptr && h2SrcStatusEVFAT != nullptr &&
-      h2SrcStatusWVFAT != nullptr && h2SrcStatusEOH != nullptr && h2SrcStatusWOH != nullptr &&
-      h2SrcStatusEAMC != nullptr && h2SrcStatusWAMC != nullptr && h2SrcStatusEAMC13 != nullptr) {
+  if (h2SrcStatusA != nullptr && h2SrcStatusE != nullptr && h2SrcStatusW != nullptr) {
     MonitorElement *h2Sum = nullptr;
-    createSummaryHist(store, h2SrcStatusEOH, h2Sum);
+    createSummaryHist(store, h2SrcStatusE, h2Sum);
     createTableWatchingSummary();
 
     std::vector<MonitorElement *> listOccPlots(listLayer_.size() + 1);  // The index starts at 1
@@ -273,7 +271,8 @@ void GEMDQMHarvester::drawSummaryHistogram(edm::Service<DQMStore> &store, Int_t 
   for (const auto &strSuffix : listLayer_) {
     if (mapIdxLayer_.find(strSuffix) == mapIdxLayer_.end())
       continue;
-    auto nNumChamber = mapNumChPerChamber_[mapIdxLayer_[strSuffix]];
+    //auto nNumChamber = mapNumChPerChamber_[mapIdxLayer_[strSuffix]];
+    Int_t nNumChamber = 36;
     createInactiveChannelFracHist(store, strSuffix, nNumChamber);
   }
 
@@ -426,13 +425,13 @@ Float_t GEMDQMHarvester::refineSummaryHistogram(std::string strName,
       Float_t fStatusAll = h2SrcStatusA->getBinContent(i, j);
       Float_t fStatusErr = h2SrcStatusE->getBinContent(i, j);
       Float_t fStatusWarn = h2SrcStatusW->getBinContent(i, j);
-      Float_t fStatusErrVFAT = h2SrcStatusEVFAT->getBinContent(i, j);
-      Float_t fStatusWarnVFAT = h2SrcStatusWVFAT->getBinContent(i, j);
-      Float_t fStatusErrOH = h2SrcStatusEOH->getBinContent(i, j);
-      Float_t fStatusWarnOH = h2SrcStatusWOH->getBinContent(i, j);
-      Float_t fStatusErrAMC = h2SrcStatusEAMC->getBinContent(i, j);
-      Float_t fStatusWarnAMC = h2SrcStatusWAMC->getBinContent(i, j);
-      Float_t fStatusErrAMC13 = h2SrcStatusEAMC13->getBinContent(i, j);
+      Float_t fStatusErrVFAT = h2SrcStatusEVFAT != nullptr ? h2SrcStatusEVFAT->getBinContent(i, j) : 0;
+      Float_t fStatusWarnVFAT = h2SrcStatusWVFAT != nullptr ? h2SrcStatusWVFAT->getBinContent(i, j) : 0;
+      Float_t fStatusErrOH = h2SrcStatusEOH != nullptr ? h2SrcStatusEOH->getBinContent(i, j) : 0;
+      Float_t fStatusWarnOH = h2SrcStatusWOH != nullptr ? h2SrcStatusWOH->getBinContent(i, j) : 0;
+      Float_t fStatusErrAMC = h2SrcStatusEAMC != nullptr ? h2SrcStatusEAMC->getBinContent(i, j) : 0;
+      Float_t fStatusWarnAMC = h2SrcStatusWAMC != nullptr ? h2SrcStatusWAMC->getBinContent(i, j) : 0;
+      Float_t fStatusErrAMC13 = h2SrcStatusEAMC13 != nullptr ? h2SrcStatusEAMC13->getBinContent(i, j) : 0;
       NumStatus numStatus(fStatusAll,
                           fOcc,
                           fStatusErrVFAT,
@@ -661,8 +660,28 @@ std::string getNameChamberOccGE11(std::string strSuffix, Int_t nIdxCh) {
       "GEM/Digis/occupancy_GE11-%c-L%i/occ_GE11-%c-%02iL%i-%c", cRegion, nLayer, cRegion, nIdxCh, nLayer, cChType);
 }
 
-std::string getNameChamberOccGE21(std::string strSuffix, Int_t nIdxChamber) {
-  return "";  // FIXME
+// FIXME: The naming convention of GE21 could be changed to be different from GE11
+std::string getNameChamberOccGE21(std::string strSuffix, Int_t nIdxCh) {
+  char cRegion;
+  char cChType = (nIdxCh % 2 == 0 ? 'L' : 'S');
+  Int_t nLayer;
+
+  if (strSuffix.find("-M-") != std::string::npos)
+    cRegion = 'M';
+  else if (strSuffix.find("-P-") != std::string::npos)
+    cRegion = 'P';
+  else
+    return "";
+
+  if (strSuffix.find("-L1") != std::string::npos)
+    nLayer = 1;
+  else if (strSuffix.find("-L2") != std::string::npos)
+    nLayer = 2;
+  else
+    return "";
+
+  return Form(
+      "GEM/Digis/occupancy_GE21-%c-L%i/occ_GE21-%c-%02iL%i-%c", cRegion, nLayer, cRegion, nIdxCh, nLayer, cChType);
 }
 
 std::string getNameChamberOccNull(std::string strSuffix, Int_t nIdxChamber) {
