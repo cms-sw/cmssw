@@ -83,16 +83,13 @@ void RPixRoadFinder::findPattern() {
 
       // create new collection for planes 0 and 5 of pot 45-220-fr
 
-      if (isBadPot_ == true && myid.arm() == 0 && myid.station() == 2 && (myid.plane() == 0 || myid.plane() == 5) 
-//          && localV.x() > 0 
-	  ){  // 45-220-far
+      if (isBadPot_ == true && myid.arm() == 0 && myid.station() == 2 && (myid.plane() == 0 || myid.plane() == 5) ){  // 45-220-far
 
         temp_all_hits_badPot.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
 
-      } else {
+      } 
         temp_all_hits.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
-      }
-    }
+     }
   }
 
   Road::iterator it_gh1 = temp_all_hits.begin();
