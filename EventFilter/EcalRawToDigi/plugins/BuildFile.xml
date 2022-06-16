@@ -1,4 +1,3 @@
-<use name="cuda"/>
 <use name="root"/>
 <use name="CUDADataFormats/EcalDigi" />
 <use name="CondFormats/DataRecord"/>
@@ -10,6 +9,12 @@
 <use name="HeterogeneousCore/CUDACore"/>
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="Utilities/StorageFactory"/>
-<library file="*.cc *.cu" name="EventFilterEcalRawToDigiPlugins">
+<iftool name="cuda-gcc-support">
+  <use name="cuda"/>
+  <set name="cuda_src" value="*.cu"/>
+<else/>
+  <set name="cuda_src" value=""/>
+</iftool>
+<library file="*.cc ${cuda_src}" name="EventFilterEcalRawToDigiPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>
