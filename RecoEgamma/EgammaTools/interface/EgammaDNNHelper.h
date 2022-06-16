@@ -49,8 +49,9 @@ namespace egammaTools {
     // which has access to all the variables.
     std::pair<uint, std::vector<float>> getScaledInputs(const std::map<std::string, float>& variables) const;
 
-    std::vector<std::vector<float>> evaluate(const std::vector<std::map<std::string, float>>& candidates,
-                                             const std::vector<tensorflow::Session*>& sessions) const;
+    std::vector<std::pair<uint, std::vector<float>>> evaluate(
+        const std::vector<std::map<std::string, float>>& candidates,
+        const std::vector<tensorflow::Session*>& sessions) const;
 
   private:
     void initTensorFlowGraphs();

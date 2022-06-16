@@ -30,7 +30,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 
 /*** Thresholds from DB ***/
-#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsHGRcd.h"
 
 /*** DQM ***/
 #include "DQMServices/Core/interface/DQMEDHarvester.h"
@@ -53,6 +53,8 @@ public:  //====================================================================
 
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
+  enum { SIZE_LG_STRUCTS = 6, SIZE_INDEX = 8 };
+
   //========================= PRIVATE METHODS ==================================
 private:  //===================================================================
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
@@ -64,12 +66,12 @@ private:  //===================================================================
   void fillExpertHistos();
 
   void fillExpertHisto(MonitorElement* histo,
-                       const std::array<double, 6>& cut,
-                       const std::array<double, 6>& sigCut,
-                       const std::array<double, 6>& maxMoveCut,
-                       const std::array<double, 6>& maxErrorCut,
-                       const std::array<double, 6>& obs,
-                       const std::array<double, 6>& obsErr);
+                       const std::array<double, SIZE_INDEX>& cut,
+                       const std::array<double, SIZE_INDEX>& sigCut,
+                       const std::array<double, SIZE_INDEX>& maxMoveCut,
+                       const std::array<double, SIZE_INDEX>& maxErrorCut,
+                       const std::array<double, SIZE_LG_STRUCTS>& obs,
+                       const std::array<double, SIZE_LG_STRUCTS>& obsErr);
 
   bool setupChanged(const edm::EventSetup&);
   int getIndexFromString(const std::string& alignableId);
@@ -82,7 +84,7 @@ private:  //===================================================================
   const edm::ESGetToken<GeometricDet, IdealGeometryRecord> gDetToken_;
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
   const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
-  const edm::ESGetToken<AlignPCLThresholds, AlignPCLThresholdsRcd> aliThrToken_;
+  const edm::ESGetToken<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd> aliThrToken_;
 
   const edm::ParameterSet mpReaderConfig_;
   std::unique_ptr<AlignableTracker> tracker_;

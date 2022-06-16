@@ -31,8 +31,6 @@ public:
 
   //  private:
   //
-  ////////////  static UserVerbosity cout;
-  // int sn0, pn0, rn0;
 
   static unsigned packMYIndex(int rn0, int pn0, int sn0, int det, int zside, int sector, int zmodule) {
     int zScale = (rn0 - 1);           // rn0=3 - current --> for update  rn0=7

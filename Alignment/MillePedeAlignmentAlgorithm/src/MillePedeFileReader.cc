@@ -14,7 +14,7 @@
 
 MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
                                           const std::shared_ptr<const PedeLabelerBase>& pedeLabeler,
-                                          const std::shared_ptr<const AlignPCLThresholds>& theThresholds)
+                                          const std::shared_ptr<const AlignPCLThresholdsHG>& theThresholds)
     : pedeLabeler_(pedeLabeler),
       theThresholds_(theThresholds),
       millePedeEndFile_(config.getParameter<std::string>("millePedeEndFile")),
@@ -142,32 +142,32 @@ void MillePedeFileReader ::readMillePedeResultFile() {
 
         auto det = getHLS(alignable);
         int detIndex = static_cast<int>(det);
-        auto coord = static_cast<AlignPCLThresholds::coordType>(alignableIndex);
+        auto coord = static_cast<AlignPCLThresholdsHG::coordType>(alignableIndex);
         std::string detLabel = getStringFromHLS(det);
 
         if (det != PclHLS::NotInPCL) {
           switch (coord) {
-            case AlignPCLThresholds::X:
+            case AlignPCLThresholdsHG::X:
               Xobs_[detIndex] = ObsMove;
               XobsErr_[detIndex] = ObsErr;
               break;
-            case AlignPCLThresholds::Y:
+            case AlignPCLThresholdsHG::Y:
               Yobs_[detIndex] = ObsMove;
               YobsErr_[detIndex] = ObsErr;
               break;
-            case AlignPCLThresholds::Z:
+            case AlignPCLThresholdsHG::Z:
               Zobs_[detIndex] = ObsMove;
               ZobsErr_[detIndex] = ObsErr;
               break;
-            case AlignPCLThresholds::theta_X:
+            case AlignPCLThresholdsHG::theta_X:
               tXobs_[detIndex] = ObsMove;
               tXobsErr_[detIndex] = ObsErr;
               break;
-            case AlignPCLThresholds::theta_Y:
+            case AlignPCLThresholdsHG::theta_Y:
               tYobs_[detIndex] = ObsMove;
               tYobsErr_[detIndex] = ObsErr;
               break;
-            case AlignPCLThresholds::theta_Z:
+            case AlignPCLThresholdsHG::theta_Z:
               tZobs_[detIndex] = ObsMove;
               tZobsErr_[detIndex] = ObsErr;
               break;

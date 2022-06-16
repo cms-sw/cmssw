@@ -72,6 +72,7 @@
 using namespace std;
 HitEff::HitEff(const edm::ParameterSet& conf)
     : scalerToken_(consumes<LumiScalersCollection>(conf.getParameter<edm::InputTag>("lumiScalers"))),
+      metaDataToken_(consumes<OnlineLuminosityRecord>(conf.getParameter<edm::InputTag>("metadata"))),
       commonModeToken_(mayConsume<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>("commonMode"))),
       siStripClusterInfo_(consumesCollector()),
       combinatorialTracks_token_(
@@ -181,14 +182,22 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
   int bunch_nr = e.bunchCrossing();
 
   // Luminosity informations
-  edm::Handle<LumiScalersCollection> lumiScalers;
+  edm::Handle<LumiScalersCollection> lumiScalers = e.getHandle(scalerToken_);
+  edm::Handle<OnlineLuminosityRecord> metaData = e.getHandle(metaDataToken_);
+
   instLumi = 0;
   PU = 0;
   if (addLumi_) {
-    e.getByToken(scalerToken_, lumiScalers);
-    if (lumiScalers->begin() != lumiScalers->end()) {
-      instLumi = lumiScalers->begin()->instantLumi();
-      PU = lumiScalers->begin()->pileup();
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      if (lumiScalers->begin() != lumiScalers->end()) {
+        instLumi = lumiScalers->begin()->instantLumi();
+        PU = lumiScalers->begin()->pileup();
+      }
+    } else if (metaData.isValid()) {
+      instLumi = metaData->instLumi();
+      PU = metaData->avgPileUp();
+    } else {
+      edm::LogWarning("SiStripHitEfficiencyWorker") << "could not find a source for the Luminosity and PU";
     }
   }
 

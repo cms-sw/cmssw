@@ -54,8 +54,6 @@ public:
   // (Good for V17 geometry)
   static std::vector<std::pair<double, double> > waferXY(
       int part, int placement, double delX, double delY, double xpos, double ypos);
-
-  static constexpr int k_OffsetRotation = 10;
 };
 
 #endif

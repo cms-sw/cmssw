@@ -190,7 +190,7 @@ bool L1TGlobalPrescaler::filter(edm::Event& event, edm::EventSetup const& setup)
   // apply prescales equal to ratio between the given values and the ones read from the EventSetup
   if (m_mode == Mode::ApplyPrescaleRatios and m_oldIndex != index) {
     edm::ESHandle<L1TGlobalPrescalesVetos> h = setup.getHandle(m_l1tGtPrescalesVetosToken);
-    setup.get<L1TGlobalPrescalesVetosRcd>().get(h);
+
     auto const& prescaleTable = h->prescale_table_;
     if (index >= (int)prescaleTable.size())
       throw edm::Exception(edm::errors::LogicError)

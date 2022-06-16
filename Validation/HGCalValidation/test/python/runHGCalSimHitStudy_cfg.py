@@ -1,8 +1,8 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun runHGCalSimHitStudy_cfg.py geometry=D86
+#   cmsRun runHGCalSimHitStudy_cfg.py geometry=D92
 #
-#   Options for geometry D77, D83, D86
+#   Options for geometry D77, D83, D88, D92
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +13,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D86",
+                 "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D77, D83, D86")
+                  "geometry of operations: D77, D83, D88, D92")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -31,20 +31,31 @@ if (options.geometry == "D83"):
     process = cms.Process('PROD',Phase2C11M9)
     process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
+    fileInput = 'file:step1D83tt.root'
     fileName = 'hgcSimHitD83tt.root'
-elif (options.geometry == "D86"):
+elif (options.geometry == "D88"):
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('PROD',Phase2C11M9)
-    process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
-    process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
-    fileName = 'hgcSimHitD86tt.root'
+    process.load('Configuration.Geometry.GeometryExtended2026D88_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+    fileInput = 'file:step1D88tt.root'
+    fileName = 'hgcSimHitD88tt.root'
+elif (options.geometry == "D92"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+    fileInput = 'file:step1D92tt.root'
+    fileName = 'hgcSimHitD92tt.root'
 else:
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('PROD',Phase2C11)
     process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
+    fileInput = 'file:step1D77tt.root'
     fileName = 'hgcSimHitD77tt.root'
 
+print("Input file: ", fileInput)
 print("Output file: ", fileName)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -57,12 +68,9 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase2_realistic_T21', '')
 
 process.source = cms.Source("PoolSource",
-                            fileNames = cms.untracked.vstring('file:step1.root')
-)
+                            fileNames = cms.untracked.vstring(fileInput) )
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
-)
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string(fileName),

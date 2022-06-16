@@ -23,6 +23,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/OnlineMetaData/interface/OnlineLuminosityRecord.h"
 #include "DataFormats/Scalers/interface/LumiScalers.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h" /* for STRIPS_PER_APV*/
@@ -85,6 +86,7 @@ private:
 
   // event data tokens
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
+  const edm::EDGetTokenT<OnlineLuminosityRecord> metaDataToken_;
   const edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi>> commonModeToken_;
   const edm::EDGetTokenT<reco::TrackCollection> combinatorialTracks_token_;
   const edm::EDGetTokenT<std::vector<Trajectory>> trajectories_token_;
@@ -180,6 +182,7 @@ private:
 
 SiStripHitEfficiencyWorker::SiStripHitEfficiencyWorker(const edm::ParameterSet& conf)
     : scalerToken_(consumes<LumiScalersCollection>(conf.getParameter<edm::InputTag>("lumiScalers"))),
+      metaDataToken_(consumes<OnlineLuminosityRecord>(conf.getParameter<edm::InputTag>("metadata"))),
       commonModeToken_(mayConsume<edm::DetSetVector<SiStripRawDigi>>(conf.getParameter<edm::InputTag>("commonMode"))),
       combinatorialTracks_token_(
           consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("combinatorialTracks"))),
@@ -364,16 +367,25 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   // Step A: Get Inputs
 
   // Luminosity informations
-  edm::Handle<LumiScalersCollection> lumiScalers;
+  edm::Handle<LumiScalersCollection> lumiScalers = e.getHandle(scalerToken_);
+  edm::Handle<OnlineLuminosityRecord> metaData = e.getHandle(metaDataToken_);
+
   float instLumi = 0;
   float PU = 0;
   if (addLumi_) {
-    e.getByToken(scalerToken_, lumiScalers);
-    if (lumiScalers->begin() != lumiScalers->end()) {
-      instLumi = lumiScalers->begin()->instantLumi();
-      PU = lumiScalers->begin()->pileup();
+    if (lumiScalers.isValid() && !lumiScalers->empty()) {
+      if (lumiScalers->begin() != lumiScalers->end()) {
+        instLumi = lumiScalers->begin()->instantLumi();
+        PU = lumiScalers->begin()->pileup();
+      }
+    } else if (metaData.isValid()) {
+      instLumi = metaData->instLumi();
+      PU = metaData->avgPileUp();
+    } else {
+      edm::LogWarning("SiStripHitEfficiencyWorker") << "could not find a source for the Luminosity and PU";
     }
   }
+
   h_bx->Fill(e.bunchCrossing());
   h_instLumi->Fill(instLumi);
   h_PU->Fill(PU);
@@ -990,6 +1002,7 @@ void SiStripHitEfficiencyWorker::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<edm::InputTag>("combinatorialTracks", edm::InputTag{"generalTracks"});
   desc.add<edm::InputTag>("commonMode", edm::InputTag{"siStripDigis", "CommonMode"});
   desc.add<edm::InputTag>("lumiScalers", edm::InputTag{"scalersRawToDigi"});
+  desc.add<edm::InputTag>("metadata", edm::InputTag{"onlineMetaDataDigis"});
   desc.add<edm::InputTag>("siStripClusters", edm::InputTag{"siStripClusters"});
   desc.add<edm::InputTag>("siStripDigis", edm::InputTag{"siStripDigis"});
   desc.add<edm::InputTag>("trackerEvent", edm::InputTag{"MeasurementTrackerEvent"});
