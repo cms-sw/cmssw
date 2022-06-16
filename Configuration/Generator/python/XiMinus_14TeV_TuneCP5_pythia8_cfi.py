@@ -9,7 +9,7 @@ from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 ### == CMSSW: Filter efficiency (event-level)= (487) / (25000) = 1.948e-02 +- 8.741e-04    [TO BE USED IN MCM]
 ##################################################################################################################
 generator = cms.EDFilter("Pythia8GeneratorFilter",
-                         crossSection = cms.untracked.double(71.39e+09),
+#                         crossSection = cms.untracked.double(71.39e+09),
                          maxEventsToPrint = cms.untracked.int32(0),
                          pythiaPylistVerbosity = cms.untracked.int32(1),
                          filterEfficiency = cms.untracked.double(1.0),
