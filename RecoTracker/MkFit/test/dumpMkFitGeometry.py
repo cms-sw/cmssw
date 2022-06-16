@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Run3_cff import Run3
-from Configuration.ProcessModifiers.trackingMkFit_cff import trackingMkFit
+from Configuration.Eras.ModifierChain_trackingMkFitProd_cff import trackingMkFitProd
 
-process = cms.Process('DUMP',Run3,trackingMkFit)
+process = cms.Process('DUMP',Run3,trackingMkFitProd) # though should not be necessary?
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -31,7 +31,7 @@ defaultOutputFileName="phase1-trackerinfo.bin"
 # outputFileName: binary dump file; no dump if empty string
 process.dump = cms.EDAnalyzer("DumpMkFitGeometry",
                               level   = cms.untracked.int32(1),
-                       outputFileName = cms.untracked.string(defaultOutputFileName)
+                              outputFileName = cms.untracked.string(defaultOutputFileName)
                               )
 
 print("Requesting MkFit geometry dump into file:", defaultOutputFileName, "\n");
