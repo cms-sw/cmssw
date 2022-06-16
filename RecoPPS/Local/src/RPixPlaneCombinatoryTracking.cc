@@ -172,21 +172,16 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
 
   if (hitMap_->size() == 2 && hitNum == 2) {  // look for roads with 2 hits in 2 different planes
 
-    // std::cout << " hitMap size = " << hitMap_->size() << std::endl;
-
     GlobalPoint hit[2];
     PointInPlaneList pIPL;
 
     unsigned int i = 0;
     for (const auto &plane : *hitMap_) {
-      // std::cout << "            \tarm " << plane.first.arm() << " station " << plane.first.station() << " rp "                << plane.first.rp() << " plane " << plane.first.plane() << " : " << plane.second.size() << std::endl;
-
       if (plane.second.size() > 1)
         break;  // only 1 hit per plane per road allowed
       GlobalPoint gP(plane.second[0].globalPoint.x(), plane.second[0].globalPoint.y(), plane.second[0].globalPoint.z());
       hit[i] = gP;
       i++;
-      //      std::cout << plane.second[0].globalPoint.x() << std::endl;
       pIPL.push_back(plane.second[0]);
     }
 
@@ -202,19 +197,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     math::Vector<4>::type parameterVector{xatz0, yatz0, tx, ty};
     math::Error<4>::type covarianceMatrix;
 
-    // std::cout << "    RP zeta  = " << geometry_->rpTranslation(romanPotId_).z() << std::endl;
-
     CTPPSPixelLocalTrack track(z0, parameterVector, covarianceMatrix, 0);
-
-    // printout -----
-    // std::cout << hit[0].x() << " " << hit[0].y() << " " << hit[0].z() << " " << std::endl;
-    // std::cout << hit[1].x() << " " << hit[1].y() << " " << hit[1].z() << " " << std::endl;
-    // std::cout << xatz0 << " " << yatz0 << " " << tx << " " << ty << std::endl;
-
-    // std::cout << track.x0() << " " << track.y0() << " " << track.tx() << " " << track.ty() << std::endl;
-    // std::cout << track.x0Sigma() << " " << track.y0Sigma() << " " << track.txSigma() << " " << track.tySigma()              << std::endl;
-    // std::cout << std::endl;
-    // ------
 
     // save used points into track
     for (const auto &hhit : pIPL) {
@@ -222,6 +205,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
       LocalPoint res(0, 0);
       LocalPoint pulls(0, 0);
       CTPPSPixelFittedRecHit usedRecHit(hhit.recHit, pOD, res, pulls);
+      usedRecHit.setIsRealHit(true);
       track.addHit(hhit.detId, usedRecHit);
     }
 
