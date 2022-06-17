@@ -1,10 +1,56 @@
+###############################################################################
+# Way to use this:
+#   cmsRun testHGCalHGCalGeometry_cfg.py geometry=V17
+#
+#   Options for geometry V14, V15, V16, V17
+#
+###############################################################################
 import FWCore.ParameterSet.Config as cms
+import os, sys, imp, re
+import FWCore.ParameterSet.VarParsing as VarParsing
 
-from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
-process = cms.Process('PROD',Phase2C11)
+####################################################################
+### SETUP OPTIONS
+options = VarParsing.VarParsing('standard')
+options.register('geometry',
+                 "V17",
+                  VarParsing.VarParsing.multiplicity.singleton,
+                  VarParsing.VarParsing.varType.string,
+                  "geometry of operations: V14, V15, V16, V17")
+
+### get and parse the command line arguments
+options.parseArguments()
+
+print(options)
+
+####################################################################
+# Use the options
+
+if (options.geometry == "V15"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('HGCHGCalGeometry',Phase2C11M9)
+    process.load("Geometry.HGCalCommonData.testHGCalV15XML_cfi")
+    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
+elif (options.geometry == "V16"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('HGCHGCalGeometry',Phase2C11)
+    process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
+    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
+elif (options.geometry == "V14"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('HGCHGCalGeometry',Phase2C11)
+    process.load("Geometry.HGCalCommonData.testHGCalV16XML_cfi")
+    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
+else:
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('HGCHGCalGeometry',Phase2C11)
+    process.load("Geometry.HGCalCommonData.testHGCalV17XML_cfi")
+    process.load("Geometry.HGCalCommonData.hgcalV15ParametersInitialization_cfi")
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
-process.load("Configuration.Geometry.GeometryExtended2026D76Reco_cff")
+process.load("Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi")
+process.load("Geometry.CaloEventSetup.HGCalV9Topology_cfi")
+process.load("Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
@@ -35,18 +81,16 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prodEE = cms.EDAnalyzer("HGCalGeometryTester",
-                                Detector   = cms.string("HGCalEESensitive"),
-                                )
+process.load("Geometry.HGCalGeometry.hgcalGeometryTesterEE_cfi")
 
-process.prodHEF = process.prodEE.clone(
+process.hgcalGeometryTesterHEF = process.hgcalGeometryTesterEE.clone(
     Detector   = "HGCalHESiliconSensitive",
 )
 
-process.prodHEB = process.prodEE.clone(
+process.hgcalGeometryTesterHEB = process.hgcalGeometryTesterEE.clone(
     Detector   = "HGCalHEScintillatorSensitive",
 )
 
-#process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF)
-process.p1 = cms.Path(process.generator*process.prodEE*process.prodHEF*process.prodHEB)
-#process.p1 = cms.Path(process.generator*process.prodHEB)
+#process.p1 = cms.Path(process.generator*process.hgcalGeometryTesterEE*process.hgcalGeometryTesterHEF*process.hgcalGeometryTesterHEB)
+process.p1 = cms.Path(process.generator*process.hgcalGeometryTesterEE*process.hgcalGeometryTesterHEF)
+#process.p1 = cms.Path(process.generator*process.hgcalGeometryTesterHEB)
