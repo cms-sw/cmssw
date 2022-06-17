@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -22,6 +23,8 @@ class HGCalGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalGeometryTester(const edm::ParameterSet&);
   ~HGCalGeometryTester() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
 
@@ -67,6 +70,12 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
       doTestWafer(geom, det);
     }
   }
+}
+
+void HGCalGeometryTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("Detector", "HGCalEESensitive");
+  descriptions.add("hgcalGeometryTesterEE", desc);
 }
 
 void HGCalGeometryTester::doTest(const HGCalGeometry* geom, ForwardSubdetector subdet) {
@@ -163,7 +172,7 @@ void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom, DetId::Detector
 void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom, DetId::Detector det) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
   edm::LogVerbatim("HGCalGeomX") << "doTestScint: " << ids.size() << " valid ids for " << geom->cellElement();
-  int layers[] = {9, 15, 22};
+  int layers[] = {9, 14, 21};
   int zsides[] = {1, -1};
   int iphis[] = {1, 51, 101, 151, 201};
   int ietas[] = {11, 20, 29};
