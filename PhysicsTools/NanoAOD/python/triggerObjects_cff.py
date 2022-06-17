@@ -166,7 +166,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
         ),
         cms.PSet(
             name = cms.string("FatJet"),
-            id = cms.int32(6),
+            id = cms.int32(7),
             sel = cms.string("type(85) && pt > 120 && coll('hltAK8PFJetsCorrected')"), 
             l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(85)  && coll('hltAK8CaloJetsCorrectedIDPassed')"),  l2deltaR = cms.double(0.3),
