@@ -82,7 +82,7 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
         cms.PSet(
             name = cms.string("Tau"),
             id = cms.int32(15),
-            sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseChargedIso*') || filter('*MediumChargedIso*') || filter('*DeepTau*') || filter('*TightChargedIso*') || filter('*TightOOSCPhotons*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilterIsoMu*') || filter('*OverlapFilterIsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') || filter('*DoublePFTau*') || filter('*SinglePFTau*') || filter('hlt*SelectedPFTau') || filter('ParticleNetTauTau') )"), #All trigger objects from a Tau collection + passing at least one filter
+            sel = cms.string("type(84) && pt > 5 && coll('*Tau*') && ( filter('*LooseChargedIso*') || filter('*MediumChargedIso*') || filter('*DeepTau*') || filter('*TightChargedIso*') || filter('*TightOOSCPhotons*') || filter('hltL2TauIsoFilter') || filter('*OverlapFilterIsoMu*') || filter('*OverlapFilterIsoEle*') || filter('*L1HLTMatched*') || filter('*Dz02*') || filter('*DoublePFTau*') || filter('*SinglePFTau*') || filter('hlt*SelectedPFTau') || filter('DisplPFTau') )"), #All trigger objects from a Tau collection + passing at least one filter
             l1seed = cms.string("type(-100)"), l1deltaR = cms.double(0.3),
             l2seed = cms.string("type(84) && coll('hltL2TauJetsL1IsoTauSeeded')"),  l2deltaR = cms.double(0.3),
             skipObjectsNotPassingQualityBits = cms.bool(True),
@@ -102,12 +102,24 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                             "4096*filter('hlt*DoublePFTau*Track*ChargedIso*AgainstMuon') + " \
                             "8192*filter('hltHpsSinglePFTau*HLTMatched') + " \
                             "16384*filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*') + " \
-                            "32768*filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau') + " \
+                            "32768*filter('hlt*Double*ChargedIsoDisplPFTau*Dxy*') + " \
                             "65536*filter('*Monitoring') + " \
                             "131072*filter('*Reg') + " \
                             "262144*filter('*L1Seeded') + " \
                             "524288*filter('*1Prong')"),
-            qualityBitsDoc = cms.string("1 = LooseChargedIso, 2 = MediumChargedIso, 4 = TightChargedIso, 8 = DeepTau, 16 = TightID OOSC photons, 32 = HPS, 64 = charged iso di-tau, 128 = deeptau di-tau, 256 = e-tau, 512 = mu-tau, 1024 = single-tau/tau+MET, 2048 = run 2 VBF+ditau, 4096 = run 3 VBF+ditau, 8192 = run 3 double PF jets + ditau, 16384 = di-tau + PFJet, 32768 = PFJetParticleNetTau, 65536 = Monitoring, 131072 = regional paths, 262144 = L1 seeded paths, 524288 = 1 prong tau paths"),            
+            qualityBitsDoc = cms.string("1 = LooseChargedIso, 2 = MediumChargedIso, 4 = TightChargedIso, 8 = DeepTau, 16 = TightID OOSC photons, 32 = HPS, 64 = charged iso di-tau, 128 = deeptau di-tau, 256 = e-tau, 512 = mu-tau, 1024 = single-tau/tau+MET, 2048 = run 2 VBF+ditau, 4096 = run 3 VBF+ditau, 8192 = run 3 double PF jets + ditau, 16384 = di-tau + PFJet, 32768 = Displaced Tau, 65536 = Monitoring, 131072 = regional paths, 262144 = L1 seeded paths, 524288 = 1 prong tau paths"),            
+        ),
+        cms.PSet(
+            name = cms.string("BoostedTau"),
+            id = cms.int32(7),
+            sel = cms.string("type(85) && pt > 120 && coll('hltAK8PFJetsCorrected')"), 
+            l1seed = cms.string("type(-99)"), l1deltaR = cms.double(0.3),
+            l2seed = cms.string("type(85)  && coll('hltAK8CaloJetsCorrectedIDPassed')"),  l2deltaR = cms.double(0.3),
+            skipObjectsNotPassingQualityBits = cms.bool(True),
+            qualityBits = cms.string(
+                "filter('hltAK8SinglePFJets*SoftDropMass40*ParticleNetTauTau')"
+                ), 
+            qualityBitsDoc = cms.string("Bit 0 for HLT_AK8PFJetX_SoftDropMass40_PFAK8ParticleNetTauTau0p30"),
         ),
         cms.PSet(
             name = cms.string("Jet"),
@@ -134,7 +146,10 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                 "16384     * filter('hlt2PFCentralJetLooseID60') + " \
                 "32768     * filter('hlt3PFCentralJetLooseID45') + " \
                 "65536     * filter('hlt4PFCentralJetLooseID40') + " \
-                "131072    * max(filter('hltBTagPFCSVp070Triple'), max(filter('hltBTagPFDeepCSVp24Triple'), filter('hltBTagPFDeepCSV4p5Triple')) )"
+                "131072    * max(filter('hltBTagPFCSVp070Triple'), max(filter('hltBTagPFDeepCSVp24Triple'), filter('hltBTagPFDeepCSV4p5Triple')) )+ " \
+                "262144    * filter('hltHpsOverlapFilterDeepTauDoublePFTau*PFJet*') + " \
+                "524288   * filter('*CrossCleaned*MediumDeepTauDitauWPPFTau*') + " \
+                "1048576   * filter('*CrossCleanedUsingDiJetCorrChecker*')"
                 ), 
             qualityBitsDoc = cms.string(
                 "Jet bits: bit 0 for VBF cross-cleaned from loose iso PFTau, bit 1 for hltBTagCaloCSVp087Triple, bit 2 for hltDoubleCentralJet90, bit 3 for hltDoublePFCentralJetLooseID90," \
@@ -144,7 +159,10 @@ triggerObjectTable = cms.EDProducer("TriggerObjectTableProducer",
                 " bit 10  for hltL1sQuadJetC60IorHTT380IorHTT280QuadJetIorHTT300QuadJet or hltL1sQuadJetC50to60IorHTT280to500IorHTT250to340QuadJet" \
                 " bit 11 for hltBTagCaloCSVp05Double or hltBTagCaloDeepCSVp17Double, bit 12 for hltPFCentralJetLooseIDQuad30, bit 13 for hlt1PFCentralJetLooseID75," \
                 " bit 14 for hlt2PFCentralJetLooseID60, bit 15 for hlt3PFCentralJetLooseID45, bit 16 for hlt4PFCentralJetLooseID40," \
-                " bit 17 for hltBTagPFCSVp070Triple or hltBTagPFDeepCSVp24Triple or hltBTagPFDeepCSV4p5Triple "),
+                " bit 17 for hltBTagPFCSVp070Triple or hltBTagPFDeepCSVp24Triple or hltBTagPFDeepCSV4p5Triple,"\
+                " bit 18 for Double tau + jet,"\
+                " bit 19 for VBF cross-cleaned from medium deeptau PFTau,"+
+                " bit 20 for VBF cross-cleaned using dijet correlation checker ")
         ),
         cms.PSet(
             name = cms.string("FatJet"),
