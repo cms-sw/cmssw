@@ -1,6 +1,6 @@
 ###############################################################################
 # Way to use this:
-#   cmsRun g4OverlapCheck2026_cfg.py geometry=D86 tol=0.1
+#   cmsRun g4OverlapCheck2026DDD_cfg.py geometry=D86 tol=0.1
 #
 #   Options for geometry D77, D83, D86, D88, D92
 #
