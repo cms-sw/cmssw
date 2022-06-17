@@ -11,6 +11,8 @@ GEMDAQStatusSource::GEMDAQStatusSource(const edm::ParameterSet &cfg)
   tagAMC13_ = consumes<GEMAMC13StatusCollection>(cfg.getParameter<edm::InputTag>("AMC13InputLabel"));
 
   nAMCSlots_ = cfg.getParameter<Int_t>("AMCSlots");
+
+  bWarnedNotFound_ = false;
 }
 
 void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -295,6 +297,14 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
   edm::Handle<GEMOHStatusCollection> gemOH;
   edm::Handle<GEMAMCStatusCollection> gemAMC;
   edm::Handle<GEMAMC13StatusCollection> gemAMC13;
+
+  if (!(gemVFAT.isValid() && gemOH.isValid() && gemAMC.isValid() && gemAMC13.isValid())) {
+    if (!bWarnedNotFound_) {
+      edm::LogWarning(log_category_) << "DAQ sources from muonGEMDigis are not found";
+      bWarnedNotFound_ = true;
+    }
+    return;
+  }
 
   event.getByToken(tagVFAT_, gemVFAT);
   event.getByToken(tagOH_, gemOH);

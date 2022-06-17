@@ -76,6 +76,8 @@ private:
   edm::EDGetToken tagAMC_;
   edm::EDGetToken tagAMC13_;
 
+  Bool_t bWarnedNotFound_;
+
   MonitorElement *h2AMC13Status_;
 
   MEMap3Inf mapStatusOH_;
