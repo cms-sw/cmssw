@@ -154,21 +154,21 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
     jpt::MatchedTracks pions;
     jpt::MatchedTracks muons;
     jpt::MatchedTracks elecs;
-    bool ok = false;
+    bool validMatches = false;
 
     if (!vectorial_) {
-      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, pions, muons, elecs, ok);
+      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, pions, muons, elecs, validMatches);
       p4 = math::XYZTLorentzVector(corrected.px() * scaleJPT,
                                    corrected.py() * scaleJPT,
                                    corrected.pz() * scaleJPT,
                                    corrected.energy() * scaleJPT);
     } else {
-      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, p4, pions, muons, elecs, ok);
+      scaleJPT = mJPTalgo->correction(corrected, oldjet, iEvent, iSetup, p4, pions, muons, elecs, validMatches);
     }
 
     reco::JPTJet::Specific specific;
 
-    if (ok) {
+    if (validMatches) {
       specific.pionsInVertexInCalo = pions.inVertexInCalo_;
       specific.pionsInVertexOutCalo = pions.inVertexOutOfCalo_;
       specific.pionsOutVertexInCalo = pions.outOfVertexInCalo_;
