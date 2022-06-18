@@ -109,10 +109,29 @@ _tobTecStepSeedComparitorPSet = dict(
         _StripSubClusterShapeSeedFilter.clone()
     )
 )
+_tobTecStepSeedComparitorNoSubClusterFilterPSet = dict(
+    ComponentName = 'CombinedSeedComparitor',
+    mode          = cms.string('and'),
+    comparitors   = cms.VPSet(
+        cms.PSet(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
+            ComponentName      = cms.string('PixelClusterShapeSeedComparitor'),
+            FilterAtHelixStage = cms.bool(True),
+            FilterPixelHits    = cms.bool(False),
+            FilterStripHits    = cms.bool(True),
+            ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
+            ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
+        ),
+    )
+)
+
 tobTecStepSeedsTripl = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.clone(#empirically better than 'SeedFromConsecutiveHitsTripletOnlyCreator'
     seedingHitSets     = 'tobTecStepHitTripletsTripl',
     SeedComparitorPSet = _tobTecStepSeedComparitorPSet,
 )
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(tobTecStepSeedsTripl,SeedComparitorPSet = _tobTecStepSeedComparitorNoSubClusterFilterPSet)
+
 #fastsim
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 from FastSimulation.Tracking.SeedingMigration import _hitSetProducerToFactoryPSet

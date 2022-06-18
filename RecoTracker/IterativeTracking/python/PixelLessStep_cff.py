@@ -206,6 +206,25 @@ pixelLessStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.
         )
     )
 )
+
+from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
+pp_on_AA.toModify(pixelLessStepSeeds,
+    SeedComparitorPSet = dict(
+        ComponentName = 'CombinedSeedComparitor',
+        mode = cms.string('and'),
+        comparitors = cms.VPSet(
+            cms.PSet(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
+                ComponentName      = cms.string('PixelClusterShapeSeedComparitor'),
+                FilterAtHelixStage = cms.bool(True),
+                FilterPixelHits    = cms.bool(False),
+                FilterStripHits    = cms.bool(True),
+                ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter'),
+                ClusterShapeCacheSrc      = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
+            ), 
+        )
+    )
+)
+
 trackingLowPU.toModify(pixelLessStepHitDoublets, produceSeedingHitSets=True, produceIntermediateHitDoublets=False)
 trackingLowPU.toModify(pixelLessStepSeeds,
     seedingHitSets = 'pixelLessStepHitDoublets',
