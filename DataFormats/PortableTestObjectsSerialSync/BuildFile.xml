@@ -1,0 +1,12 @@
+<use name="alpaka-serial"/>
+<flags CXXFLAGS="-DALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED"/>
+<flags GENREFLEX_ARGS="-DALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLED"/>
+<use name="rootcore"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/PortableTestObjects"/>
+<use name="FWCore/MessageLogger"/>
+<flags LCG_DICT_HEADER="classes_serial.h"/>
+<flags LCG_DICT_XML="classes_serial_def.xml"/>
+<export>
+  <lib name="1"/>
+</export>

@@ -1,0 +1,15 @@
+<use name="alpaka-cuda"/>
+<!-- host comiplation should run with ALPAKA_HOST_ONLY defined -->
+<flags CXXFLAGS="-DALPAKA_ACC_GPU_CUDA_ENABLED -DALPAKA_HOST_ONLY"/>
+<flags GENREFLEX_ARGS="-DALPAKA_ACC_GPU_CUDA_ENABLED  -DALPAKA_HOST_ONLY"/>
+<!-- device comiplation should run without ALPAKA_HOST_ONLY defined -->
+<flags CUDA_FLAGS="-DALPAKA_ACC_GPU_CUDA_ENABLED -UALPAKA_HOST_ONLY"/>
+<use name="rootcore"/>
+<use name="DataFormats/Common"/>
+<use name="DataFormats/PortableTestObjects"/>
+<use name="FWCore/MessageLogger"/>
+<flags LCG_DICT_HEADER="classes_cuda.h"/>
+<flags LCG_DICT_XML="classes_cuda_def.xml"/>
+<export>
+  <lib name="1"/>
+</export>

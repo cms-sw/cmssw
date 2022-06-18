@@ -1,0 +1,1 @@
+../../AlpakaTest/plugins/alpaka/TestAlpakaTranscriber.cc

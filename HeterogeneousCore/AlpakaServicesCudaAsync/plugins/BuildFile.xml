@@ -1,0 +1,16 @@
+<library file="*.cc" name="HeterogeneousCoreAlpakaServicesCudaAsyncPlugins">
+  <use name="alpaka-cuda"/>
+  <!-- host comiplation should run with ALPAKA_HOST_ONLY defined -->
+  <flags CXXFLAGS="-DALPAKA_ACC_GPU_CUDA_ENABLED -DALPAKA_HOST_ONLY"/>
+  <!-- device comiplation should run without ALPAKA_HOST_ONLY defined -->
+  <flags CUDA_FLAGS="-DALPAKA_ACC_GPU_CUDA_ENABLED -UALPAKA_HOST_ONLY"/>
+  <use name="FWCore/ServiceRegistry"/>
+  <use name="HeterogeneousCore/AlpakaCore" source_only="1"/>
+  <!--
+  The dependency on "HeterogeneousCore/AlpakaServices" should automatically expand to
+  "HeterogeneousCore/AlpakaServices" and "HeterogeneousCore/AlpakaServicesCudaAsync"
+  (if they exist)
+  -->
+  <use name="HeterogeneousCore/AlpakaServicesCudaAsync"/>
+  <flags EDM_PLUGIN="1"/>
+</library>

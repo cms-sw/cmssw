@@ -1,0 +1,1 @@
+../../AlpakaServices/plugins/alpaka/plugins.cc

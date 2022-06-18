@@ -1,0 +1,15 @@
+<use name="alpaka-cuda"/>
+<!-- host comiplation should run with ALPAKA_HOST_ONLY defined -->
+<flags CXXFLAGS="-DALPAKA_ACC_GPU_CUDA_ENABLED -DALPAKA_HOST_ONLY"/>
+<!-- device comiplation should run without ALPAKA_HOST_ONLY defined -->
+<flags CUDA_FLAGS="-DALPAKA_ACC_GPU_CUDA_ENABLED -UALPAKA_HOST_ONLY"/>
+<use name="boost"/>
+<use name="FWCore/MessageLogger"/>
+<use name="FWCore/ParameterSet"/>
+<use name="HeterogeneousCore/AlpakaCore" source_only="1"/>
+<use name="HeterogeneousCore/AlpakaInterface" source_only="1"/>
+<!-- this dependency is added only for the CUDA backend -->
+<use name="HeterogeneousCore/CUDAServices"/>
+<export>
+  <lib name="1"/>
+</export>
