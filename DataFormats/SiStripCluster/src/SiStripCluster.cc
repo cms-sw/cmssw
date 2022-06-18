@@ -22,7 +22,25 @@ SiStripCluster::SiStripCluster(const SiStripDigiRange& range) : firstStrip_(rang
   amplitudes_ = v;
 }
 
+SiStripCluster::SiStripCluster(const SiStripApproximateCluster cluster) : error_x(-99999.9) {
+  barycenter_ = cluster.barycenter();
+  charge_ = cluster.width() * cluster.avgCharge();
+  amplitudes_.resize(cluster.width(), cluster.avgCharge());
+
+  //initialize firstStrip_
+  firstStrip_ = cluster.barycenter() - cluster.width() / 2;
+}
+
+int SiStripCluster::charge() const {
+  if (barycenter_ > 0)
+    return charge_;
+  return std::accumulate(begin(), end(), int(0));
+}
+
 float SiStripCluster::barycenter() const {
+  if (barycenter_ > 0)
+    return barycenter_;
+
   int sumx = 0;
   int suma = 0;
   auto asize = size();
