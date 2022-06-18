@@ -3,21 +3,15 @@
  *
  */
 
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "DQMOffline/Alignment/interface/TkAlCaRecoMonitor.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/TrackReco/interface/TrackBase.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include <string>
 #include "TLorentzVector.h"
@@ -30,8 +24,6 @@ TkAlCaRecoMonitor::TkAlCaRecoMonitor(const edm::ParameterSet &iConfig)
       consumes<reco::TrackCollection>(conf_.getParameter<edm::InputTag>("ReferenceTrackProducer"));
   jetCollection_ = mayConsume<reco::CaloJetCollection>(conf_.getParameter<edm::InputTag>("CaloJetCollection"));
 }
-
-TkAlCaRecoMonitor::~TkAlCaRecoMonitor() {}
 
 void TkAlCaRecoMonitor::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
   std::string histname;  // for naming the histograms according to algorithm used
