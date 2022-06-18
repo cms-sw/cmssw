@@ -11,13 +11,11 @@ siStripClusters = cms.EDProducer("SiStripClusterizer",
     cms.InputTag('siStripZeroSuppression','ScopeMode')),
                                )
 
-
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toReplaceWith(siStripClusters,
-                       cms.EDProducer("SiStripApprox2Clusters",
-                            inputApproxClusters = cms.InputTag('SiStripClusters2ApproxClusters')
-                       ) 
-)
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+from RecoLocalTracker.SiStripClusterizer.SiStripApprox2Clusters_cfi import SiStripApprox2Clusters
+SiStripApprox2Clusters.inputApproxClusters = 'SiStripClusters2ApproxClusters'
+approxSiStripClusters.toModify(SiStripApprox2Clusters, inputApproxClusters = 'SiStripClusters2ApproxClustersHLT')
+approxSiStripClusters.toReplaceWith(siStripClusters,SiStripApprox2Clusters)
 
 # The SiStripClusters are not used anymore in phase2 tracking
 # This part has to be clean up when they will be officially removed from the entire flow
