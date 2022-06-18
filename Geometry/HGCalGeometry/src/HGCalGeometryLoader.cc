@@ -103,7 +103,7 @@ HGCalGeometry* HGCalGeometryLoader::build(const HGCalTopology& topology) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("HGCalGeom") << "HGCalGeometryLoader::layer:rad:phi:type:sipm " << layer << ":"
                                         << ring * zside << ":" << iphi << ":" << type << ":" << typm.first << ":"
-                                        << typm.second << " Test " << test << ":" << ok;
+                                        << typm.second << " Test " << test << ":" << ok << " ID " << id;
 #endif
           if (ok) {
             DetId detId = static_cast<DetId>(id);
