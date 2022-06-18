@@ -93,7 +93,6 @@ tobTecStepHitTripletsTripl = _multiHitFromChi2EDProducer.clone(
     extraPhiKDBox = 0.01,
 )
 from RecoTracker.TkSeedGenerator.seedCreatorFromRegionConsecutiveHitsEDProducer_cff import seedCreatorFromRegionConsecutiveHitsEDProducer as _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer
-from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
 _tobTecStepSeedComparitorPSet = dict(
     ComponentName = 'CombinedSeedComparitor',
     mode          = cms.string('and'),
@@ -105,22 +104,7 @@ _tobTecStepSeedComparitorPSet = dict(
             FilterStripHits    = cms.bool(True),
             ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
             ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
-        ),
-        _StripSubClusterShapeSeedFilter.clone()
-    )
-)
-_tobTecStepSeedComparitorNoSubClusterFilterPSet = dict(
-    ComponentName = 'CombinedSeedComparitor',
-    mode          = cms.string('and'),
-    comparitors   = cms.VPSet(
-        cms.PSet(# FIXME: is this defined in any cfi that could be imported instead of copy-paste?
-            ComponentName      = cms.string('PixelClusterShapeSeedComparitor'),
-            FilterAtHelixStage = cms.bool(True),
-            FilterPixelHits    = cms.bool(False),
-            FilterStripHits    = cms.bool(True),
-            ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
-            ClusterShapeCacheSrc = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
-        ),
+        )
     )
 )
 
@@ -129,8 +113,9 @@ tobTecStepSeedsTripl = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProduce
     SeedComparitorPSet = _tobTecStepSeedComparitorPSet,
 )
 
-from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
-pp_on_AA.toModify(tobTecStepSeedsTripl,SeedComparitorPSet = _tobTecStepSeedComparitorNoSubClusterFilterPSet)
+from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+(~approxSiStripClusters).toModify(tobTecStepSeedsTripl.SeedComparitorPSet.comparitors, func = lambda list: list.append(_StripSubClusterShapeSeedFilter.clone()) )
 
 #fastsim
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
