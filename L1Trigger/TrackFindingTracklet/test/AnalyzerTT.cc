@@ -95,9 +95,8 @@ namespace trklet {
     iEvent.getByToken<TTTrackRefMap>(edGetTokenTTTrackMap_, handleTTTrackMap);
     Handle<StubAssociation> handleStubAssociation;
     iEvent.getByToken<StubAssociation>(edGetTokenStubAssociation_, handleStubAssociation);
-    for (const pair<TTTrackRef, TTTrackRef>& p : *handleTTTrackMap) {
+    for (const auto& p : *handleTTTrackMap) {
       const TTTrackRef& ttTrackRef = p.first;
-      //const TTTrackRef& ttTrackRef = p.second;
       const vector<TTStubRef>& ttStubRefs = ttTrackRef->getStubRefs();
       const vector<TPPtr>& tpPtrs = handleStubAssociation->associate(ttStubRefs);
       if (tpPtrs.empty())
@@ -108,7 +107,6 @@ namespace trklet {
       const double qOverPtTP = tpPtr->charge() / tpPtr->pt();
       const double qOverPtDiff = qOverPtTP - qOverPtTT;
       const double phi0TT = deltaPhi(ttTrackRef->phi() + ttTrackRef->phiSector() * setup_->baseRegion());
-      //const double phi0TT = ttTrackRef->phi();
       const double phi0TP = tpPtr->phi();
       const double phi0Diff = phi0TP - phi0TT;
       const double etaTT = asinh(ttTrackRef->tanL());
@@ -125,25 +123,6 @@ namespace trklet {
       profResPhi0OverEta_->Fill(abs(etaTP), abs(phi0Diff));
       profResEtaOverEta_->Fill(abs(etaTP), abs(etaDiff));
       profResZ0OverEta_->Fill(abs(etaTP), abs(z0Diff));
-      /*cout << etaTT << " " << etaTP << " " << etaDiff << " " << ttTrackRef->etaSector() << endl;
-      cout << "m0TT = " << -.5 * ttTrackRef->rInv() << endl;
-      cout << "m0TP = " << -qOverPtTP * setup_->invPtToDphi() << endl;
-      cout << "c0TT = " << phi0TT << endl;
-      cout << "c0TP = " << phi0TP << endl;
-      cout << "m1TT = " << ttTrackRef->tanL() << endl;
-      cout << "m1TP = " << sinh(tpPtr->eta()) << endl;
-      cout << "c1TT = " << z0TT << endl;
-      cout << "c1TP = " << z0TP << endl;
-      const vector<TTStubRef>& ttStubRefsTP = handleStubAssociation->findTTStubRefs(tpPtr);
-      for (const TTStubRef stub : ttStubRefs) {
-        const GlobalPoint& gp = setup_->stubPos(stub);
-        cout << gp.perp() << " " << gp.phi() << " " << gp.z() << endl;
-      }
-      cout << endl;
-      for (const TTStubRef stub : ttStubRefsTP) {
-        const GlobalPoint& gp = setup_->stubPos(stub);
-        cout << gp.perp() << " " << gp.phi() << " " << gp.z() << " " << setup_->dPhi(stub, 0.5*ttTrackRef->rInv()) << " " << setup_->dZ(stub, ttTrackRef->tanL()) << endl;
-      }*/
     }
   }
 

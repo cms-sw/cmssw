@@ -317,8 +317,6 @@ void TrackletProcessorDisplaced::execute(unsigned int iSector, double phimin, do
       // assert(lutwidth > 0);
 
       FPGAWord binlookup(lutval, lutwidth, true, __LINE__, __FILE__);
-      FPGAWord finephi =
-          firstallstub->iphivmFineBins(settings_.nphireg(inner, iSeed_), settings_.nfinephi(inner, iSeed_));
 
       if ((layer1_ == 3 && layer2_ == 4) || (layer1_ == 5 && layer2_ == 6)) {
         if (settings_.debugTracklet()) {

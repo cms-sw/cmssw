@@ -145,7 +145,7 @@ namespace trklet {
   }
 
   void AnalyzerTracklet::analyze(const Event& iEvent, const EventSetup& iSetup) {
-    auto fill = [this](const TPPtr& tpPtr, TH1F* his) { his->Fill(tpPtr->eta()); };
+    auto fill = [](const TPPtr& tpPtr, TH1F* his) { his->Fill(tpPtr->eta()); };
     // read in tracklet products
     Handle<TTTracks> handle;
     iEvent.getByToken<TTTracks>(edGetToken_, handle);

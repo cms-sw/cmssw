@@ -23,7 +23,7 @@ namespace trackerTFP {
 
   void KalmanFilterFormats::endJob() {
     const int wName =
-        strlen(*max_element(variableKFstrs_.begin(), variableKFstrs_.end(), [this](const auto& a, const auto& b) {
+        strlen(*max_element(variableKFstrs_.begin(), variableKFstrs_.end(), [](const auto& a, const auto& b) {
           return strlen(a) < strlen(b);
         }));
     static constexpr int wWidth = 3;
