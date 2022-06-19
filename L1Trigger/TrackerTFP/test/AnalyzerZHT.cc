@@ -144,7 +144,7 @@ namespace trackerTFP {
   }
 
   void AnalyzerZHT::analyze(const Event& iEvent, const EventSetup& iSetup) {
-    auto fill = [this](const TPPtr& tpPtr, TH1F* his) { his->Fill(tpPtr->eta()); };
+    auto fill = [](const TPPtr& tpPtr, TH1F* his) { his->Fill(tpPtr->eta()); };
     // read in ht products
     Handle<StreamsStub> handleAccepted;
     iEvent.getByToken<StreamsStub>(edGetTokenAccepted_, handleAccepted);

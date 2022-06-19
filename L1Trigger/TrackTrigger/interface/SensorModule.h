@@ -68,7 +68,7 @@ namespace tt {
     // bend window size in half strip units
     int windowSize() const { return windowSize_; }
     //
-    double tiltCorrection(double cot) const { return abs(tiltCorrectionSlope_ * cot) + tiltCorrectionIntercept_; }
+    double tiltCorrection(double cot) const { return std::abs(tiltCorrectionSlope_ * cot) + tiltCorrectionIntercept_; }
 
   private:
     enum TypeTilt { nonBarrel = 0, tiltedMinus = 1, tiltedPlus = 2, flat = 3 };

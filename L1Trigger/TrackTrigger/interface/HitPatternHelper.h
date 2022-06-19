@@ -34,9 +34,8 @@
 #include <bitset>
 #include <iostream>
 #include <vector>
-
-using namespace std;
-using namespace edm;
+#include <utility>
+#include <map>
 
 namespace hph {
 

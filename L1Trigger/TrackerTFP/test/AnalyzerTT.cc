@@ -68,7 +68,7 @@ namespace trackerTFP {
     iEvent.getByToken<StubAssociation>(edGetTokenStubAssociation_, handleStubAssociation);
     if (false)
       return;
-    for (const pair<TTTrackRef, TTTrackRef>& p : *handleTTTrackMap) {
+    for (const auto& p : *handleTTTrackMap) {
       const TTTrackRef& found = p.second;
       const TTTrackRef& fitted = p.first;
       const vector<TTStubRef>& ttStubRefsFound = found->getStubRefs();
