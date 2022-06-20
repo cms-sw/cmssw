@@ -74,7 +74,7 @@ namespace gen {
 
     inline double nuclear_radius() const;
 
-    int convertStatusForComponents(int, int);
+    int convertStatusForComponents(int, int, int);
     int convertStatus(int);
 
     InitialParamsHydjet_t fParams;

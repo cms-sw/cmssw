@@ -40,32 +40,40 @@ using namespace edm;
 using namespace std;
 using namespace gen;
 
-int Hydjet2Hadronizer::convertStatusForComponents(int sta, int typ) {
-  if (sta == 1 && typ == 0)
-    return 6;
-  if (sta == 1 && typ == 1)
-    return 7;
-  if (sta == 2 && typ == 0)
-    return 16;
-  if (sta == 2 && typ == 1)
-    return 17;
+int Hydjet2Hadronizer::convertStatusForComponents(int sta, int typ, int pySta) {
+  int st = -1;
+  if (typ == 0)  //soft
+    st = 2 - sta;
+  else if (typ == 1)
+    st = convertStatus(pySta);
 
+  if (separateHydjetComponents_) {
+    if (st == 1 && typ == 0)
+      return 6;
+    if (st == 1 && typ == 1)
+      return 7;
+    if (st == 2 && typ == 0)
+      return 16;
+    if (st == 2 && typ == 1)
+      return 17;
+  }
+  if (st != -1)
+    return st;
   else
-    return sta;
+    throw cms::Exception("ConvertStatus") << "Wrong status code!" << endl;
 }
 
 int Hydjet2Hadronizer::convertStatus(int st) {
-  if (!separateHydjetComponents_) {
-    if (st <= 0)
-      return 0;
-    if (st <= 10)
-      return 1;
-    if (st <= 20)
-      return 2;
-    if (st <= 30)
-      return 3;
-  }
-  return st;
+  if (st <= 0)
+    return 0;
+  if (st <= 10)
+    return 1;
+  if (st <= 20)
+    return 2;
+  if (st <= 30)
+    return 3;
+  else
+    return -1;
 }
 
 const std::vector<std::string> Hydjet2Hadronizer::theSharedResources = {edm::SharedResourceNames::kPythia6};
@@ -408,7 +416,10 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt) {
       isub_l = hj2->GetiJet().at(ihy);
     }
 
-    if ((hj2->GetFinal().at(ihy)) == 1)  //convertStatus(hj2->GetPythiaStatus().at(ihy)) == 1)
+    //if ((hj2->GetType().at(ihy)) == 1)//hydro (hj2->GetFinal()): 1 - stable, 0 - decayed
+    // cout<<" PDG: " << hj2->GetPdg().at(ihy) << " py st: "<< hj2->GetPythiaStatus().at(ihy) <<" (" << convertStatus(hj2->GetPythiaStatus().at(ihy)) <<"), type = "<< hj2->GetType().at(ihy)<<" status = "<< hj2->GetFinal().at(ihy) << "/" << convertStatusForComponents((hj2->GetFinal()).at(ihy),(hj2->GetType()).at(ihy), hj2->GetPythiaStatus().at(ihy))<< endl;
+    if ((convertStatusForComponents(
+            (hj2->GetFinal()).at(ihy), (hj2->GetType()).at(ihy), (hj2->GetPythiaStatus().at(ihy)))) == 1)
       stab++;
     LogDebug("Hydjet2_array") << ihy << " MULTin ev.:" << hj2->GetNtot() << " SubEv.#" << hj2->GetiJet().at(ihy)
                               << " Part #" << ihy + 1 << ", PDG: " << hj2->GetPdg().at(ihy) << " (st. "
@@ -471,15 +482,15 @@ HepMC::GenParticle *Hydjet2Hadronizer::build_hyjet2(int index, int barcode) {
   double px = px0 * cosphi0_ - py0 * sinphi0_;
   double py = py0 * cosphi0_ + px0 * sinphi0_;
 
-  HepMC::GenParticle *p =
-      new HepMC::GenParticle(HepMC::FourVector(px,                        // px
-                                               py,                        // py
-                                               (hj2->GetPz()).at(index),  // pz
-                                               (hj2->GetE()).at(index)),  // E
-                             (hj2->GetPdg()).at(index),                   // id
-                             convertStatus(convertStatusForComponents((hj2->GetFinal()).at(index),
-                                                                      (hj2->GetType()).at(index)))  // status
-      );
+  HepMC::GenParticle *p = new HepMC::GenParticle(
+      HepMC::FourVector(px,                        // px
+                        py,                        // py
+                        (hj2->GetPz()).at(index),  // pz
+                        (hj2->GetE()).at(index)),  // E
+      (hj2->GetPdg()).at(index),                   // id
+      convertStatusForComponents(
+          (hj2->GetFinal()).at(index), (hj2->GetType()).at(index), (hj2->GetPythiaStatus()).at(index))  // status
+  );
 
   p->suggest_barcode(barcode);
   return p;
@@ -490,10 +501,12 @@ HepMC::GenVertex *Hydjet2Hadronizer::build_hyjet2_vertex(int i, int id) {
   // build verteces for the hyjets stored events
   double x0 = (hj2->GetX()).at(i);
   double y0 = (hj2->GetY()).at(i);
-  double x = x0 * cosphi0_ - y0 * sinphi0_;
-  double y = y0 * cosphi0_ + x0 * sinphi0_;
-  double z = (hj2->GetZ()).at(i);
-  double t = (hj2->GetT()).at(i);
+
+  // convert to mm (as in PYTHIA6)
+  double x = 0.000000000001 * (x0 * cosphi0_ - y0 * sinphi0_);
+  double y = 0.000000000001 * (y0 * cosphi0_ + x0 * sinphi0_);
+  double z = 0.000000000001 * (hj2->GetZ()).at(i);
+  double t = 0.000000000001 * (hj2->GetT()).at(i);
 
   HepMC::GenVertex *vertex = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t), id);
 
