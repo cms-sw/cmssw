@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-import copy
 
 SiPixelAliMilleFileExtractorHG = cms.EDAnalyzer("MillePedeFileExtractor",
     fileBlobInputTag = cms.InputTag("SiPixelAliMillePedeFileConverterHG",''),
@@ -12,59 +11,59 @@ SiPixelAliMilleFileExtractorHG = cms.EDAnalyzer("MillePedeFileExtractor",
 
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentProducer.AlignmentProducerAsAnalyzer_cff import AlignmentProducer
-SiPixelAliPedeAlignmentProducerHG = copy.deepcopy(AlignmentProducer)
-
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeDQMModule_cff import *
 
-
-SiPixelAliPedeAlignmentProducerHG.ParameterBuilder.Selector = cms.PSet(
-    alignParams = cms.vstring(
-        "TrackerP1PXBLadder,111111",
-        "TrackerP1PXECPanel,111111",
+SiPixelAliPedeAlignmentProducerHG = AlignmentProducer.clone(
+    ParameterBuilder = dict(
+        Selector = cms.PSet(
+            alignParams = cms.vstring(
+                "TrackerP1PXBLadder,111111",
+                "TrackerP1PXECPanel,111111",
+            )
         )
+    ),
+    doMisalignmentScenario = False,
+    checkDbAlignmentValidity = False,
+    applyDbAlignment = True,
+    tjTkAssociationMapTag = 'TrackRefitter2',
+    saveToDB = True,
+    trackerAlignmentRcdName = "TrackerAlignmentHGRcd"
+)
+
+SiPixelAliPedeAlignmentProducerHG.algoConfig = MillePedeAlignmentAlgorithm.clone(
+    mode = 'pede',
+    runAtPCL = True,
+    mergeBinaryFiles = [SiPixelAliMilleFileExtractorHG.outputBinaryFile.value()],
+    binaryFile = '',
+    TrajectoryFactory = cms.PSet(BrokenLinesTrajectoryFactory),
+    minNumHits = 10,
+    fileDir = 'HGalignment/',
+    pedeSteerer = dict(
+        pedeCommand = 'pede',
+        method = 'inversion  5  0.8',
+        options = cms.vstring(
+            #'regularisation 1.0 0.05', # non-stated pre-sigma 50 mrad or 500 mum
+            'entries 500',
+            'chisqcut  30.0  4.5',
+            'threads 1 1',
+            'closeandreopen',
+            'skipemptycons' 
+            #'outlierdownweighting 3','dwfractioncut 0.1'
+            #'outlierdownweighting 5','dwfractioncut 0.2'
+        ),
+        fileDir = 'HGalignment/',
+        runDir = cms.untracked.string('HGalignment/'),
+        steerFile = 'pedeSteerHG',
+        pedeDump = 'pedeHG.dump'
+    ),
+    pedeReader = dict(
+        fileDir = 'HGalignment/'
+    ),
+    MillePedeFileReader = dict(
+        fileDir = "HGalignment/",
+        isHG = True
     )
-
-SiPixelAliPedeAlignmentProducerHG.doMisalignmentScenario = False #True
-
-SiPixelAliPedeAlignmentProducerHG.checkDbAlignmentValidity = False
-SiPixelAliPedeAlignmentProducerHG.applyDbAlignment = True
-SiPixelAliPedeAlignmentProducerHG.tjTkAssociationMapTag = 'TrackRefitter2'
-
-SiPixelAliPedeAlignmentProducerHG.algoConfig = MillePedeAlignmentAlgorithm.clone()
-SiPixelAliPedeAlignmentProducerHG.algoConfig.mode = 'pede'
-SiPixelAliPedeAlignmentProducerHG.algoConfig.runAtPCL = True
-SiPixelAliPedeAlignmentProducerHG.algoConfig.mergeBinaryFiles = [SiPixelAliMilleFileExtractorHG.outputBinaryFile.value()]
-SiPixelAliPedeAlignmentProducerHG.algoConfig.binaryFile = ''
-SiPixelAliPedeAlignmentProducerHG.algoConfig.TrajectoryFactory = cms.PSet(
-      #process.BrokenLinesBzeroTrajectoryFactory
-      BrokenLinesTrajectoryFactory
-      )
-SiPixelAliPedeAlignmentProducerHG.algoConfig.pedeSteerer.pedeCommand = 'pede'
-SiPixelAliPedeAlignmentProducerHG.algoConfig.pedeSteerer.method = 'inversion  5  0.8'
-SiPixelAliPedeAlignmentProducerHG.algoConfig.pedeSteerer.options = cms.vstring(
-    #'regularisation 1.0 0.05', # non-stated pre-sigma 50 mrad or 500 mum
-     #  ~'entries 500',
-     'entries 10',
-     'chisqcut  30.0  4.5',
-     'threads 1 1',
-     'closeandreopen',
-     'skipemptycons' 
-     #'outlierdownweighting 3','dwfractioncut 0.1'
-     #'outlierdownweighting 5','dwfractioncut 0.2'
-    )
-#  ~SiPixelAliPedeAlignmentProducerHG.algoConfig.minNumHits = 10
-SiPixelAliPedeAlignmentProducerHG.algoConfig.minNumHits = 0
-SiPixelAliPedeAlignmentProducerHG.saveToDB = True
-
-SiPixelAliPedeAlignmentProducerHG.algoConfig.fileDir = 'HGalignment/'
-SiPixelAliPedeAlignmentProducerHG.algoConfig.pedeSteerer.fileDir = 'HGalignment/'
-SiPixelAliPedeAlignmentProducerHG.algoConfig.pedeSteerer.runDir = cms.untracked.string('HGalignment/')
-SiPixelAliPedeAlignmentProducerHG.algoConfig.pedeReader.fileDir = 'HGalignment/'
-SiPixelAliPedeAlignmentProducerHG.algoConfig.MillePedeFileReader.fileDir = "HGalignment/"
-SiPixelAliPedeAlignmentProducerHG.algoConfig.MillePedeFileReader.isHG = True
-
-SiPixelAliPedeAlignmentProducerHG.algoConfig.pedeSteerer.steerFile = 'pedeSteerHG'
-SiPixelAliPedeAlignmentProducerHG.algoConfig.pedeSteerer.pedeDump = 'pedeHG.dump'
+)
 
 SiPixelAliDQMModuleHG = SiPixelAliDQMModule.clone()
 SiPixelAliDQMModuleHG.MillePedeFileReader.fileDir = "HGalignment/"

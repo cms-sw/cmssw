@@ -13,6 +13,7 @@
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
 
 struct mpPCLresults {
 private:
@@ -59,7 +60,8 @@ class MillePedeFileReader {
 public:  //====================================================================
   explicit MillePedeFileReader(const edm::ParameterSet&,
                                const std::shared_ptr<const PedeLabelerBase>&,
-                               const std::shared_ptr<const AlignPCLThresholdsHG>&);
+                               const std::shared_ptr<const AlignPCLThresholdsHG>&,
+                               const std::shared_ptr<const PixelTopologyMap>&);
 
   virtual ~MillePedeFileReader() = default;
 
@@ -138,7 +140,8 @@ private:
   void readMillePedeResultFile();
   PclHLS getHLS(const Alignable*);
   std::string getStringFromHLS(PclHLS HLS);
-  int getIndexForHG(align::ID id, int detIndex);
+  int getIndexForHG(align::ID id, PclHLS HLS);
+  void initializeIndexHelper();
 
   //========================== PRIVATE DATA ====================================
   //============================================================================
@@ -148,6 +151,9 @@ private:
 
   // thresholds from DB
   const std::shared_ptr<const AlignPCLThresholdsHG> theThresholds_;
+
+  // PixelTopologyMap
+  const std::shared_ptr<const PixelTopologyMap> pixelTopologyMap_;
 
   // input directory name
   std::string dirName_;
@@ -212,6 +218,8 @@ private:
   std::array<double, SIZE_HG_STRUCTS> ZobsErr_HG_ = std::array<double, SIZE_HG_STRUCTS>();
   std::array<double, SIZE_HG_STRUCTS> tZobs_HG_ = std::array<double, SIZE_HG_STRUCTS>();
   std::array<double, SIZE_HG_STRUCTS> tZobsErr_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+
+  std::unordered_map<PclHLS, std::pair<int, int>> indexHelper;
 };
 
 const std::array<std::string, 8> coord_str = {{"X", "Y", "Z", "theta_X", "theta_Y", "theta_Z", "extra_DOF", "none"}};

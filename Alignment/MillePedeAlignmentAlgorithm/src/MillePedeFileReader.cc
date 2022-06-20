@@ -15,9 +15,11 @@
 
 MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
                                           const std::shared_ptr<const PedeLabelerBase>& pedeLabeler,
-                                          const std::shared_ptr<const AlignPCLThresholdsHG>& theThresholds)
+                                          const std::shared_ptr<const AlignPCLThresholdsHG>& theThresholds,
+                                          const std::shared_ptr<const PixelTopologyMap>& pixelTopologyMap)
     : pedeLabeler_(pedeLabeler),
       theThresholds_(theThresholds),
+      pixelTopologyMap_(pixelTopologyMap),
       dirName_(config.getParameter<std::string>("fileDir")),
       millePedeEndFile_(config.getParameter<std::string>("millePedeEndFile")),
       millePedeLogFile_(config.getParameter<std::string>("millePedeLogFile")),
@@ -28,6 +30,9 @@ MillePedeFileReader ::MillePedeFileReader(const edm::ParameterSet& config,
 }
 
 void MillePedeFileReader ::read() {
+  if (isHG_) {
+    initializeIndexHelper();
+  }
   readMillePedeEndFile();
   readMillePedeLogFile();
   readMillePedeResultFile();
@@ -201,7 +206,7 @@ void MillePedeFileReader ::readMillePedeResultFile() {
                 break;
             }
           } else {
-            auto hgIndex = getIndexForHG(id, detIndex);
+            auto hgIndex = getIndexForHG(id, det);
             switch (coord) {
               case AlignPCLThresholdsHG::X:
                 Xobs_HG_[hgIndex - 1] = ObsMove;
@@ -303,8 +308,9 @@ void MillePedeFileReader ::readMillePedeResultFile() {
     Nrec_ = 0;
   }
 
-  if (isHG_) {  // check fractionCut
-    updateDB_ = false;
+  if (isHG_) {          // check fractionCut
+    updateDB_ = false;  // reset both booleans since only fractionCut is considered for HG
+    vetoUpdateDB_ = false;
     std::stringstream ss;
     for (auto& ali : alignables_) {
       ss << ali << std::endl;
@@ -464,44 +470,77 @@ std::string MillePedeFileReader::getStringFromHLS(MillePedeFileReader::PclHLS HL
   }
 }
 
-int MillePedeFileReader::getIndexForHG(align::ID id, int detIndex) {
+void MillePedeFileReader::initializeIndexHelper() {
+  int currentSum = 0;
+
+  indexHelper[PclHLS::TPBLadderLayer1] =
+      std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXBLadders(1) / 2);
+  currentSum += pixelTopologyMap_->getPXBLadders(1);
+  indexHelper[PclHLS::TPBLadderLayer2] =
+      std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXBLadders(2) / 2);
+  currentSum += pixelTopologyMap_->getPXBLadders(2);
+  indexHelper[PclHLS::TPBLadderLayer3] =
+      std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXBLadders(3) / 2);
+  currentSum += pixelTopologyMap_->getPXBLadders(3);
+  indexHelper[PclHLS::TPBLadderLayer4] =
+      std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXBLadders(4) / 2);
+  currentSum += pixelTopologyMap_->getPXBLadders(4);
+
+  indexHelper[PclHLS::TPEPanelDiskM3] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(-3));
+  currentSum += pixelTopologyMap_->getPXFBlades(-3) * 2;
+  indexHelper[PclHLS::TPEPanelDiskM2] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(-2));
+  currentSum += pixelTopologyMap_->getPXFBlades(-2) * 2;
+  indexHelper[PclHLS::TPEPanelDiskM1] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(-1));
+  currentSum += pixelTopologyMap_->getPXFBlades(-1) * 2;
+
+  indexHelper[PclHLS::TPEPanelDisk1] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(1));
+  currentSum += pixelTopologyMap_->getPXFBlades(1) * 2;
+  indexHelper[PclHLS::TPEPanelDisk2] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(2));
+  currentSum += pixelTopologyMap_->getPXFBlades(2) * 2;
+  indexHelper[PclHLS::TPEPanelDisk3] = std::make_pair(currentSum, currentSum + pixelTopologyMap_->getPXFBlades(3));
+  currentSum += pixelTopologyMap_->getPXFBlades(3) * 2;
+}
+
+int MillePedeFileReader::getIndexForHG(align::ID id, PclHLS HLS) {
   const auto& tns = pedeLabeler_->alignableTracker()->trackerNameSpace();
-  switch (detIndex) {
-    case 6:
-      return (tns.tpb().halfBarrelNumber(id) == 1) ? tns.tpb().ladderNumber(id) : tns.tpb().ladderNumber(id) + 6;
-    case 7:
-      return (tns.tpb().halfBarrelNumber(id) == 1) ? (tns.tpb().ladderNumber(id) + 12)
-                                                   : (tns.tpb().ladderNumber(id) + 12) + 14;
-    case 8:
-      return (tns.tpb().halfBarrelNumber(id) == 1) ? (tns.tpb().ladderNumber(id) + 40)
-                                                   : (tns.tpb().ladderNumber(id) + 40) + 22;
-    case 9:
-      return (tns.tpb().halfBarrelNumber(id) == 1) ? (tns.tpb().ladderNumber(id) + 84)
-                                                   : (tns.tpb().ladderNumber(id) + 84) + 32;
-    case 10:
+
+  switch (HLS) {
+    case PclHLS::TPBLadderLayer1:
+      return (tns.tpb().halfBarrelNumber(id) == 1) ? tns.tpb().ladderNumber(id) + indexHelper[HLS].first
+                                                   : tns.tpb().ladderNumber(id) + indexHelper[HLS].second;
+    case PclHLS::TPBLadderLayer2:
+      return (tns.tpb().halfBarrelNumber(id) == 1) ? tns.tpb().ladderNumber(id) + indexHelper[HLS].first
+                                                   : tns.tpb().ladderNumber(id) + indexHelper[HLS].second;
+    case PclHLS::TPBLadderLayer3:
+      return (tns.tpb().halfBarrelNumber(id) == 1) ? tns.tpb().ladderNumber(id) + indexHelper[HLS].first
+                                                   : tns.tpb().ladderNumber(id) + indexHelper[HLS].second;
+    case PclHLS::TPBLadderLayer4:
+      return (tns.tpb().halfBarrelNumber(id) == 1) ? tns.tpb().ladderNumber(id) + indexHelper[HLS].first
+                                                   : tns.tpb().ladderNumber(id) + indexHelper[HLS].second;
+    case PclHLS::TPEPanelDisk1:
       return (tns.tpe().halfCylinderNumber(id) == 1)
-                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 336
-                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 336 + 56;
-    case 11:
+                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].first
+                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].second;
+    case PclHLS::TPEPanelDisk2:
       return (tns.tpe().halfCylinderNumber(id) == 1)
-                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 448
-                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 448 + 56;
-    case 12:
+                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].first
+                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].second;
+    case PclHLS::TPEPanelDisk3:
       return (tns.tpe().halfCylinderNumber(id) == 1)
-                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 560
-                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 560 + 56;
-    case 13:
+                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].first
+                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].second;
+    case PclHLS::TPEPanelDiskM1:
       return (tns.tpe().halfCylinderNumber(id) == 1)
-                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 224
-                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 224 + 56;
-    case 14:
+                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].first
+                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].second;
+    case PclHLS::TPEPanelDiskM2:
       return (tns.tpe().halfCylinderNumber(id) == 1)
-                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 112
-                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 112 + 56;
-    case 15:
+                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].first
+                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].second;
+    case PclHLS::TPEPanelDiskM3:
       return (tns.tpe().halfCylinderNumber(id) == 1)
-                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148
-                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + 148 + 56;
+                 ? (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].first
+                 : (tns.tpe().bladeNumber(id) * 2 - (tns.tpe().panelNumber(id) % 2)) + indexHelper[HLS].second;
     default:
       return -200;
   }

@@ -170,10 +170,10 @@ ALCAHARVESTSiPixelAli_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentR
 
 # --------------------------------------------------------------------------------------
 # SiPixel Alignment HG
-ALCAHARVESTSiPixelAliHG_metadata = cms.PSet(record = cms.untracked.string('TrackerAlignmentRcd'))
+ALCAHARVESTSiPixelAliHG_metadata = cms.PSet(record = cms.untracked.string('TrackerAlignmentHGRcd'))
 
-ALCAHARVESTSiPixelAliHG_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentRcd'),
-                                          tag = cms.string('SiPixelAli_pclHG'),
+ALCAHARVESTSiPixelAliHG_dbOutput = cms.PSet(record = cms.string('TrackerAlignmentHGRcd'),
+                                          tag = cms.string('SiPixelAliHG_pcl'),
                                           timetype   = cms.untracked.string('runnumber')
                                           )
 

@@ -31,6 +31,7 @@ MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
       ptpToken_(esConsumes<edm::Transition::BeginRun>()),
       ptitpToken_(esConsumes<edm::Transition::BeginRun>()),
       aliThrToken_(esConsumes<edm::Transition::BeginRun>()),
+      geomToken_(esConsumes<edm::Transition::BeginRun>()),
       mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")),
       isHG_(mpReaderConfig_.getParameter<bool>("isHG")) {
   consumes<AlignmentToken, edm::InProcess>(config.getParameter<edm::InputTag>("alignmentTokenSrc"));
@@ -57,16 +58,16 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
   } else {
     booker.setCurrentFolder("AlCaReco/SiPixelAliHG/");
 
-    layerVec = {{"Layer1", 12},
-                {"Layer2", 28},
-                {"Layer3", 44},
-                {"Layer4", 64},
-                {"Disk-3", 112},
-                {"Disk-2", 112},
-                {"Disk-1", 112},
-                {"Disk1", 112},
-                {"Disk2", 112},
-                {"Disk3", 112}};
+    layerVec = {{"Layer1", pixelTopologyMap_->getPXBLadders(1)},
+                {"Layer2", pixelTopologyMap_->getPXBLadders(2)},
+                {"Layer3", pixelTopologyMap_->getPXBLadders(3)},
+                {"Layer4", pixelTopologyMap_->getPXBLadders(4)},
+                {"Disk-3", pixelTopologyMap_->getPXFBlades(-3) * 2},
+                {"Disk-2", pixelTopologyMap_->getPXFBlades(-2) * 2},
+                {"Disk-1", pixelTopologyMap_->getPXFBlades(-1) * 2},
+                {"Disk1", pixelTopologyMap_->getPXFBlades(1) * 2},
+                {"Disk2", pixelTopologyMap_->getPXFBlades(2) * 2},
+                {"Disk3", pixelTopologyMap_->getPXFBlades(3) * 2}};
 
     for (const auto& layer : layerVec) {
       h_xPos_HG[layer.first] = booker.book1D("Xpos_HG_" + layer.first,
@@ -141,6 +142,9 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
   const GeometricDet* geometricDet = &setup.getData(gDetToken_);
   const PTrackerParameters* ptp = &setup.getData(ptpToken_);
   const PTrackerAdditionalParametersPerDet* ptitp = &setup.getData(ptitpToken_);
+  const TrackerGeometry* geom = &setup.getData(geomToken_);
+
+  pixelTopologyMap_ = std::make_shared<PixelTopologyMap>(geom, tTopo);
 
   // take the thresholds from DB
   const auto& thresholds_ = &setup.getData(aliThrToken_);
@@ -163,7 +167,7 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
       labelerPlugin, PedeLabelerBase::TopLevelAlignables(tracker_.get(), nullptr, nullptr), labelerConfig)};
 
   mpReader_ = std::make_unique<MillePedeFileReader>(
-      mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholdsHG>(myThresholds));
+      mpReaderConfig_, pedeLabeler, std::shared_ptr<const AlignPCLThresholdsHG>(myThresholds), pixelTopologyMap_);
 }
 
 void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {

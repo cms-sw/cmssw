@@ -30,19 +30,20 @@ void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLum
   if (enoughBinaries())
     return;
 
+  // Create output directory if not available
+  if (!outputDir_.empty()) {
+    std::string command = "mkdir -p " + outputDir_;
+    int shellReturn = gSystem->Exec(command.c_str());
+    edm::LogInfo("MillePedeFileActions") << "@SUB=MillePedeFileExtractor::endLuminosityBlock"
+                                         << "Command returns " << shellReturn;
+  }
+
   // Getting our hands on the vector of FileBlobs
   edm::Handle<FileBlobCollection> fileBlobCollection;
   iLumi.getByToken(fileBlobToken_, fileBlobCollection);
   if (fileBlobCollection.isValid()) {
     // Logging the amount of FileBlobs in the vector
     edm::LogInfo("MillePedeFileActions") << "Root file contains " << fileBlobCollection->size() << " FileBlob(s).";
-    // Create output directory if not available
-    if (!outputDir_.empty()) {
-      std::string command = "mkdir -p " + outputDir_;
-      int shellReturn = gSystem->Exec(command.c_str());
-      edm::LogInfo("MillePedeFileActions") << "@SUB=MillePedeFileExtractor::endLuminosityBlock"
-                                           << "Command returns " << shellReturn;
-    }
     // Loop over the FileBlobs in the vector, and write them to files:
     for (const auto& blob : *fileBlobCollection) {
       if (enoughBinaries())
