@@ -14,17 +14,17 @@ from Configuration.ProcessModifiers.trackingMkFitPixelLessStep_cff import *
 from Configuration.ProcessModifiers.trackingMkFitTobTecStep_cff import *
 
 # Use mkFit in selected iterations
-trackingMkFit = cms.ModifierChain(
+trackingMkFitDevel = cms.ModifierChain(
     trackingMkFitCommon,
     trackingMkFitInitialStepPreSplitting,
     trackingMkFitInitialStep,
-#    trackingMkFitLowPtQuadStep,       # to be enabled later
+    trackingMkFitLowPtQuadStep,       
     trackingMkFitHighPtTripletStep,
-#    trackingMkFitLowPtTripletStep,    # to be enabled later
+    trackingMkFitLowPtTripletStep,    
     trackingMkFitDetachedQuadStep,
-#    trackingMkFitDetachedTripletStep, # to be enabled later
-#    trackingMkFitPixelPairStep,       # to be enabled later
-#    trackingMkFitMixedTripletStep,    # to be enabled later
-#    trackingMkFitPixelLessStep,       # to be enabled later
-#    trackingMkFitTobTecStep,          # to be enabled later
+    trackingMkFitDetachedTripletStep, 
+    trackingMkFitPixelPairStep,       
+    trackingMkFitMixedTripletStep,    
+    trackingMkFitPixelLessStep,       
+    trackingMkFitTobTecStep
 )
