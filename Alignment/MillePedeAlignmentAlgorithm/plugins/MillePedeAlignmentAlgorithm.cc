@@ -184,7 +184,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   if (runAtPCL_) {
     const auto &th = &setup.getData(aliThrToken_);
     theThresholds = std::make_shared<AlignPCLThresholdsHG>();
-    storeThresholds(th->getNrecords(), th->getThreshold_Map());
+    storeThresholds(th->getNrecords(), th->getThreshold_Map(), th->getFloatMap());
   }
 
   theAlignableNavigator = std::make_unique<AlignableNavigator>(extras, tracker, muon);
@@ -301,8 +301,10 @@ bool MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCa
 
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm::storeThresholds(const int &nRecords,
-                                                  const AlignPCLThresholdsHG::threshold_map &thresholdMap) {
+                                                  const AlignPCLThresholdsHG::threshold_map &thresholdMap,
+                                                  const AlignPCLThresholdsHG::param_map &floatMap) {
   theThresholds->setAlignPCLThresholds(nRecords, thresholdMap);
+  theThresholds->setFloatMap(floatMap);
   return true;
 }
 

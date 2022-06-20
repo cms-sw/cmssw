@@ -76,7 +76,9 @@ public:
   /// Pass integrated calibrations to Millepede (they are not owned by Millepede!)
   bool addCalibrations(const std::vector<IntegratedCalibrationBase *> &iCals) override;
 
-  virtual bool storeThresholds(const int &nRecords, const AlignPCLThresholdsHG::threshold_map &thresholdMap);
+  virtual bool storeThresholds(const int &nRecords,
+                               const AlignPCLThresholdsHG::threshold_map &thresholdMap,
+                               const AlignPCLThresholdsHG::param_map &floatMap);
 
   /// Called at end of job
   void terminate(const edm::EventSetup &iSetup) override;
