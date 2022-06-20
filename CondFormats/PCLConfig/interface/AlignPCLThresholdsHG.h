@@ -26,7 +26,7 @@ public:
   enum IntParamIndex { ISIZE = 0 };
   enum StringParamIndex { SSIZE = 0 };
 
-  void setFloatMap(const std::unordered_map<std::string, std::vector<float>> &floatMap);
+  void setFloatMap(const param_map &floatMap);
   void setFractionCut(const std::string &AlignableId, const coordType &type, const float &cut);
 
   const param_map &getFloatMap() const { return floatMap_; }
