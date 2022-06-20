@@ -31,18 +31,22 @@ SiPixelAliTrackRefitterHG1 = SiPixelAliTrackRefitterHG0.clone(
 )
 
 #-- Alignment producer
-SiPixelAliMilleAlignmentProducerHG = SiPixelAliMilleAlignmentProducer.clone()
-SiPixelAliMilleAlignmentProducerHG.ParameterBuilder.Selector = cms.PSet(
-    alignParams = cms.vstring(
-	"TrackerP1PXBLadder,111111",
-	"TrackerP1PXECPanel,111111",
-        )
+SiPixelAliMilleAlignmentProducerHG = SiPixelAliMilleAlignmentProducer.clone(
+    ParameterBuilder = dict(
+      Selector = cms.PSet(
+	alignParams = cms.vstring(
+	  "TrackerP1PXBLadder,111111",
+	  "TrackerP1PXECPanel,111111",
+	)
+      )
+    ),
+    tjTkAssociationMapTag = 'SiPixelAliTrackRefitterHG1',
+    algoConfig = MillePedeAlignmentAlgorithm.clone(
+	binaryFile = 'milleBinaryHG_0.dat',
+	treeFile = 'treeFileHG.root',
+	monitorFile = 'millePedeMonitorHG.root'
     )
-SiPixelAliMilleAlignmentProducerHG.tjTkAssociationMapTag = 'SiPixelAliTrackRefitterHG1'
-SiPixelAliMilleAlignmentProducerHG.algoConfig = MillePedeAlignmentAlgorithm.clone()
-SiPixelAliMilleAlignmentProducerHG.algoConfig.binaryFile = 'milleBinaryHG_0.dat'
-SiPixelAliMilleAlignmentProducerHG.algoConfig.treeFile = 'treeFileHG.root'
-SiPixelAliMilleAlignmentProducerHG.algoConfig.monitorFile = 'millePedeMonitorHG.root'
+)
 
 # Ingredient: SiPixelAliTrackerTrackHitFilter
 SiPixelAliTrackerTrackHitFilterHG = SiPixelAliTrackerTrackHitFilter.clone(
@@ -55,10 +59,8 @@ SiPixelAliTrackFitterHG = SiPixelAliTrackFitter.clone(
 )
 
 SiPixelAliMillePedeFileConverterHG = cms.EDProducer("MillePedeFileConverter",
-                                                  #FIXME: convert to untracked?
                                                   fileDir = cms.string(SiPixelAliMilleAlignmentProducerHG.algoConfig.fileDir.value()),
                                                   inputBinaryFile = cms.string(SiPixelAliMilleAlignmentProducerHG.algoConfig.binaryFile.value()),
-                                                  #FIXME: why was the label removed? Don't we want a label?
                                                   fileBlobLabel = cms.string(''),
                                                  )
 
@@ -71,7 +73,7 @@ seqALCARECOPromptCalibProdSiPixelAliHG = cms.Sequence(ALCARECOTkAlMinBiasFilterF
                                                     SiPixelAliTrackRefitterHG0*
                                                     SiPixelAliTrackerTrackHitFilterHG*
                                                     SiPixelAliTrackFitterHG*
-						    SiPixelAliTrackSelectorHG*
-						    SiPixelAliTrackRefitterHG1*
+                                                    SiPixelAliTrackSelectorHG*
+                                                    SiPixelAliTrackRefitterHG1*
                                                     SiPixelAliMilleAlignmentProducerHG*
                                                     SiPixelAliMillePedeFileConverterHG)
