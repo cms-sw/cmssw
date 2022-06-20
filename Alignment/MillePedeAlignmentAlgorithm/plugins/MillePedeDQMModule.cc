@@ -31,7 +31,8 @@ MillePedeDQMModule ::MillePedeDQMModule(const edm::ParameterSet& config)
       ptpToken_(esConsumes<edm::Transition::BeginRun>()),
       ptitpToken_(esConsumes<edm::Transition::BeginRun>()),
       aliThrToken_(esConsumes<edm::Transition::BeginRun>()),
-      mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")) {
+      mpReaderConfig_(config.getParameter<edm::ParameterSet>("MillePedeFileReader")),
+      isHG_(mpReaderConfig_.getParameter<bool>("isHG")) {
   consumes<AlignmentToken, edm::InProcess>(config.getParameter<edm::InputTag>("alignmentTokenSrc"));
 }
 
@@ -45,14 +46,61 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
   edm::LogInfo("MillePedeDQMModule") << "Booking histograms";
 
   booker.cd();
-  booker.setCurrentFolder("AlCaReco/SiPixelAli/");
+  if (!isHG_) {
+    booker.setCurrentFolder("AlCaReco/SiPixelAli/");
+    h_xPos = booker.book1D("Xpos", "Alignment fit #DeltaX;;#mum", 36, 0., 36.);
+    h_xRot = booker.book1D("Xrot", "Alignment fit #Delta#theta_{X};;#murad", 36, 0., 36.);
+    h_yPos = booker.book1D("Ypos", "Alignment fit #DeltaY;;#mum", 36, 0., 36.);
+    h_yRot = booker.book1D("Yrot", "Alignment fit #Delta#theta_{Y};;#murad", 36, 0., 36.);
+    h_zPos = booker.book1D("Zpos", "Alignment fit #DeltaZ;;#mum", 36, 0., 36.);
+    h_zRot = booker.book1D("Zrot", "Alignment fit #Delta#theta_{Z};;#murad", 36, 0., 36.);
+  } else {
+    booker.setCurrentFolder("AlCaReco/SiPixelAliHG/");
 
-  h_xPos = booker.book1D("Xpos", "Alignment fit #DeltaX;;#mum", 36, 0., 36.);
-  h_xRot = booker.book1D("Xrot", "Alignment fit #Delta#theta_{X};;#murad", 36, 0., 36.);
-  h_yPos = booker.book1D("Ypos", "Alignment fit #DeltaY;;#mum", 36, 0., 36.);
-  h_yRot = booker.book1D("Yrot", "Alignment fit #Delta#theta_{Y};;#murad", 36, 0., 36.);
-  h_zPos = booker.book1D("Zpos", "Alignment fit #DeltaZ;;#mum", 36, 0., 36.);
-  h_zRot = booker.book1D("Zrot", "Alignment fit #Delta#theta_{Z};;#murad", 36, 0., 36.);
+    layerVec = {{"Layer1", 12},
+                {"Layer2", 28},
+                {"Layer3", 44},
+                {"Layer4", 64},
+                {"Disk-3", 112},
+                {"Disk-2", 112},
+                {"Disk-1", 112},
+                {"Disk1", 112},
+                {"Disk2", 112},
+                {"Disk3", 112}};
+
+    for (const auto& layer : layerVec) {
+      h_xPos_HG[layer.first] = booker.book1D("Xpos_HG_" + layer.first,
+                                             "Alignment fit #DeltaX for " + layer.first + ";;#mum",
+                                             layer.second,
+                                             0.,
+                                             layer.second);
+      h_xRot_HG[layer.first] = booker.book1D("Xrot_HG_" + layer.first,
+                                             "Alignment fit #Delta#theta_{X} for " + layer.first + ";;#murad",
+                                             layer.second,
+                                             0.,
+                                             layer.second);
+      h_yPos_HG[layer.first] = booker.book1D("Ypos_HG_" + layer.first,
+                                             "Alignment fit #DeltaY for " + layer.first + ";;#mum",
+                                             layer.second,
+                                             0.,
+                                             layer.second);
+      h_yRot_HG[layer.first] = booker.book1D("Yrot_HG_" + layer.first,
+                                             "Alignment fit #Delta#theta_{Y} for " + layer.first + ";;#murad",
+                                             layer.second,
+                                             0.,
+                                             layer.second);
+      h_zPos_HG[layer.first] = booker.book1D("Zpos_HG_" + layer.first,
+                                             "Alignment fit #DeltaZ for " + layer.first + ";;#mum",
+                                             layer.second,
+                                             0.,
+                                             layer.second);
+      h_zRot_HG[layer.first] = booker.book1D("Zrot_HG_" + layer.first,
+                                             "Alignment fit #Delta#theta_{Z} for " + layer.first + ";;#murad",
+                                             layer.second,
+                                             0.,
+                                             layer.second);
+    }
+  }
 
   statusResults = booker.book2D("statusResults", "Status of SiPixelAli PCL workflow;;", 6, 0., 6., 1, 0., 1.);
   binariesAvalaible = booker.bookInt("BinariesFound");
@@ -69,7 +117,11 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
     throw cms::Exception("LogicError") << "@SUB=MillePedeDQMModule::dqmEndJob\n"
                                        << "Try to read MillePede results before initializing MillePedeFileReader";
   }
-  fillExpertHistos();
+  if (!isHG_) {
+    fillExpertHistos();
+  } else {
+    fillExpertHistos_HG();
+  }
   fillStatusHisto(statusResults);
   binariesAvalaible->Fill(mpReader_->binariesAmount());
   auto theResults = mpReader_->getResults();
@@ -95,6 +147,7 @@ void MillePedeDQMModule ::beginRun(const edm::Run&, const edm::EventSetup& setup
 
   auto myThresholds = std::make_shared<AlignPCLThresholdsHG>();
   myThresholds->setAlignPCLThresholds(thresholds_->getNrecords(), thresholds_->getThreshold_Map());
+  myThresholds->setFloatMap(thresholds_->getFloatMap());
 
   TrackerGeomBuilderFromGeometricDet builder;
 
@@ -235,6 +288,110 @@ void MillePedeDQMModule ::fillExpertHisto(MonitorElement* histo,
 
     // then at bin 11,11+5,11+10,... for maximum errors
     histo_0->SetBinContent(11 + i * 5, maxErrorCut[i]);
+  }
+}
+
+void MillePedeDQMModule ::fillExpertHistos_HG() {
+  std::array<double, SIZE_INDEX> Xcut_, sigXcut_, maxMoveXcut_, maxErrorXcut_;
+  std::array<double, SIZE_INDEX> tXcut_, sigtXcut_, maxMovetXcut_, maxErrortXcut_;
+
+  std::array<double, SIZE_INDEX> Ycut_, sigYcut_, maxMoveYcut_, maxErrorYcut_;
+  std::array<double, SIZE_INDEX> tYcut_, sigtYcut_, maxMovetYcut_, maxErrortYcut_;
+
+  std::array<double, SIZE_INDEX> Zcut_, sigZcut_, maxMoveZcut_, maxErrorZcut_;
+  std::array<double, SIZE_INDEX> tZcut_, sigtZcut_, maxMovetZcut_, maxErrortZcut_;
+
+  auto myMap = mpReader_->getThresholdMap();
+
+  std::vector<std::string> alignablesList;
+  for (auto it = myMap.begin(); it != myMap.end(); ++it) {
+    alignablesList.push_back(it->first);
+  }
+
+  for (auto& alignable : alignablesList) {
+    int detIndex = getIndexFromString(alignable);
+
+    Xcut_[detIndex] = myMap[alignable].getXcut();
+    sigXcut_[detIndex] = myMap[alignable].getSigXcut();
+    maxMoveXcut_[detIndex] = myMap[alignable].getMaxMoveXcut();
+    maxErrorXcut_[detIndex] = myMap[alignable].getErrorXcut();
+
+    Ycut_[detIndex] = myMap[alignable].getYcut();
+    sigYcut_[detIndex] = myMap[alignable].getSigYcut();
+    maxMoveYcut_[detIndex] = myMap[alignable].getMaxMoveYcut();
+    maxErrorYcut_[detIndex] = myMap[alignable].getErrorYcut();
+
+    Zcut_[detIndex] = myMap[alignable].getZcut();
+    sigZcut_[detIndex] = myMap[alignable].getSigZcut();
+    maxMoveZcut_[detIndex] = myMap[alignable].getMaxMoveZcut();
+    maxErrorZcut_[detIndex] = myMap[alignable].getErrorZcut();
+
+    tXcut_[detIndex] = myMap[alignable].getThetaXcut();
+    sigtXcut_[detIndex] = myMap[alignable].getSigThetaXcut();
+    maxMovetXcut_[detIndex] = myMap[alignable].getMaxMoveThetaXcut();
+    maxErrortXcut_[detIndex] = myMap[alignable].getErrorThetaXcut();
+
+    tYcut_[detIndex] = myMap[alignable].getThetaYcut();
+    sigtYcut_[detIndex] = myMap[alignable].getSigThetaYcut();
+    maxMovetYcut_[detIndex] = myMap[alignable].getMaxMoveThetaYcut();
+    maxErrortYcut_[detIndex] = myMap[alignable].getErrorThetaYcut();
+
+    tZcut_[detIndex] = myMap[alignable].getThetaZcut();
+    sigtZcut_[detIndex] = myMap[alignable].getSigThetaZcut();
+    maxMovetZcut_[detIndex] = myMap[alignable].getMaxMoveThetaZcut();
+    maxErrortZcut_[detIndex] = myMap[alignable].getErrorThetaZcut();
+  }
+
+  fillExpertHisto_HG(
+      h_xPos_HG, Xcut_, sigXcut_, maxMoveXcut_, maxErrorXcut_, mpReader_->getXobs_HG(), mpReader_->getXobsErr_HG());
+  fillExpertHisto_HG(h_xRot_HG,
+                     tXcut_,
+                     sigtXcut_,
+                     maxMovetXcut_,
+                     maxErrortXcut_,
+                     mpReader_->getTXobs_HG(),
+                     mpReader_->getTXobsErr_HG());
+
+  fillExpertHisto_HG(
+      h_yPos_HG, Ycut_, sigYcut_, maxMoveYcut_, maxErrorYcut_, mpReader_->getYobs_HG(), mpReader_->getYobsErr_HG());
+  fillExpertHisto_HG(h_yRot_HG,
+                     tYcut_,
+                     sigtYcut_,
+                     maxMovetYcut_,
+                     maxErrortYcut_,
+                     mpReader_->getTYobs_HG(),
+                     mpReader_->getTYobsErr_HG());
+
+  fillExpertHisto_HG(
+      h_zPos_HG, Zcut_, sigZcut_, maxMoveZcut_, maxErrorZcut_, mpReader_->getZobs_HG(), mpReader_->getZobsErr_HG());
+  fillExpertHisto_HG(h_zRot_HG,
+                     tZcut_,
+                     sigtZcut_,
+                     maxMovetZcut_,
+                     maxErrortZcut_,
+                     mpReader_->getTZobs_HG(),
+                     mpReader_->getTZobsErr_HG());
+}
+
+void MillePedeDQMModule ::fillExpertHisto_HG(std::map<std::string, MonitorElement*>& histo_map,
+                                             const std::array<double, SIZE_INDEX>& cut,
+                                             const std::array<double, SIZE_INDEX>& sigCut,
+                                             const std::array<double, SIZE_INDEX>& maxMoveCut,
+                                             const std::array<double, SIZE_INDEX>& maxErrorCut,
+                                             const std::array<double, SIZE_HG_STRUCTS>& obs,
+                                             const std::array<double, SIZE_HG_STRUCTS>& obsErr) {
+  int currentStart = 0;
+
+  for (const auto& layer : layerVec) {
+    TH1F* histo_0 = histo_map[layer.first]->getTH1F();
+
+    for (int i = currentStart; i < (currentStart + layer.second); ++i) {
+      // first obs.size() bins for observed movements
+      int bin = i - currentStart + 1;
+      histo_0->SetBinContent(bin, obs[i]);
+      histo_0->SetBinError(bin, obsErr[i]);
+    }
+    currentStart += layer.second;
   }
 }
 

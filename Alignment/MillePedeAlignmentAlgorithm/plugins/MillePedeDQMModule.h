@@ -53,7 +53,7 @@ public:  //====================================================================
 
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
-  enum { SIZE_LG_STRUCTS = 6, SIZE_INDEX = 8 };
+  enum { SIZE_LG_STRUCTS = 6, SIZE_HG_STRUCTS = 820, SIZE_INDEX = 8 };
 
   //========================= PRIVATE METHODS ==================================
 private:  //===================================================================
@@ -65,6 +65,8 @@ private:  //===================================================================
 
   void fillExpertHistos();
 
+  void fillExpertHistos_HG();
+
   void fillExpertHisto(MonitorElement* histo,
                        const std::array<double, SIZE_INDEX>& cut,
                        const std::array<double, SIZE_INDEX>& sigCut,
@@ -72,6 +74,14 @@ private:  //===================================================================
                        const std::array<double, SIZE_INDEX>& maxErrorCut,
                        const std::array<double, SIZE_LG_STRUCTS>& obs,
                        const std::array<double, SIZE_LG_STRUCTS>& obsErr);
+
+  void fillExpertHisto_HG(std::map<std::string, MonitorElement*>& histo_map,
+                          const std::array<double, SIZE_INDEX>& cut,
+                          const std::array<double, SIZE_INDEX>& sigCut,
+                          const std::array<double, SIZE_INDEX>& maxMoveCut,
+                          const std::array<double, SIZE_INDEX>& maxErrorCut,
+                          const std::array<double, SIZE_HG_STRUCTS>& obs,
+                          const std::array<double, SIZE_HG_STRUCTS>& obsErr);
 
   bool setupChanged(const edm::EventSetup&);
   int getIndexFromString(const std::string& alignableId);
@@ -90,6 +100,8 @@ private:  //===================================================================
   std::unique_ptr<AlignableTracker> tracker_;
   std::unique_ptr<MillePedeFileReader> mpReader_;
 
+  std::vector<std::pair<std::string, int>> layerVec;
+
   edm::ESWatcher<TrackerTopologyRcd> watchTrackerTopologyRcd_;
   edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
   edm::ESWatcher<PTrackerParametersRcd> watchPTrackerParametersRcd_;
@@ -102,9 +114,18 @@ private:  //===================================================================
   MonitorElement* h_zPos;
   MonitorElement* h_zRot;
 
+  std::map<std::string, MonitorElement*> h_xPos_HG;
+  std::map<std::string, MonitorElement*> h_xRot_HG;
+  std::map<std::string, MonitorElement*> h_yPos_HG;
+  std::map<std::string, MonitorElement*> h_yRot_HG;
+  std::map<std::string, MonitorElement*> h_zPos_HG;
+  std::map<std::string, MonitorElement*> h_zRot_HG;
+
   MonitorElement* statusResults;
   MonitorElement* binariesAvalaible;
   MonitorElement* exitCode;
+
+  bool isHG_;
 };
 
 // define this as a plug-in

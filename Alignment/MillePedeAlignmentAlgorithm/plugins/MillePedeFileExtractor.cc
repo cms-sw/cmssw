@@ -11,6 +11,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include <TSystem.h>
+
 MillePedeFileExtractor::MillePedeFileExtractor(const edm::ParameterSet& iConfig)
     : outputDir_(iConfig.getParameter<std::string>("fileDir")),
       outputFileName_(iConfig.getParameter<std::string>("outputBinaryFile")),
@@ -34,6 +36,13 @@ void MillePedeFileExtractor::endLuminosityBlock(const edm::LuminosityBlock& iLum
   if (fileBlobCollection.isValid()) {
     // Logging the amount of FileBlobs in the vector
     edm::LogInfo("MillePedeFileActions") << "Root file contains " << fileBlobCollection->size() << " FileBlob(s).";
+    // Create output directory if not available
+    if (!outputDir_.empty()) {
+      std::string command = "mkdir -p " + outputDir_;
+      int shellReturn = gSystem->Exec(command.c_str());
+      edm::LogInfo("MillePedeFileActions") << "@SUB=MillePedeFileExtractor::endLuminosityBlock"
+                                           << "Command returns " << shellReturn;
+    }
     // Loop over the FileBlobs in the vector, and write them to files:
     for (const auto& blob : *fileBlobCollection) {
       if (enoughBinaries())
