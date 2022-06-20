@@ -1,6 +1,6 @@
 /**
  *    \brief Interface to the HYDJET++ (Hydjet2) generator (since core v. 2.4.3), produces HepMC events
- *    \version 1.2
+ *    \version 1.3
  *    \author Andrey Belyaev
  */
 
@@ -47,6 +47,9 @@ int Hydjet2Hadronizer::convertStatusForComponents(int sta, int typ, int pySta) {
   else if (typ == 1)
     st = convertStatus(pySta);
 
+  if (st == -1)
+    throw cms::Exception("ConvertStatus") << "Wrong status code!" << endl;
+
   if (separateHydjetComponents_) {
     if (st == 1 && typ == 0)
       return 6;
@@ -57,10 +60,7 @@ int Hydjet2Hadronizer::convertStatusForComponents(int sta, int typ, int pySta) {
     if (st == 2 && typ == 1)
       return 17;
   }
-  if (st != -1)
-    return st;
-  else
-    throw cms::Exception("ConvertStatus") << "Wrong status code!" << endl;
+  return st;
 }
 
 int Hydjet2Hadronizer::convertStatus(int st) {
@@ -416,8 +416,6 @@ bool Hydjet2Hadronizer::get_particles(HepMC::GenEvent *evt) {
       isub_l = hj2->GetiJet().at(ihy);
     }
 
-    //if ((hj2->GetType().at(ihy)) == 1)//hydro (hj2->GetFinal()): 1 - stable, 0 - decayed
-    // cout<<" PDG: " << hj2->GetPdg().at(ihy) << " py st: "<< hj2->GetPythiaStatus().at(ihy) <<" (" << convertStatus(hj2->GetPythiaStatus().at(ihy)) <<"), type = "<< hj2->GetType().at(ihy)<<" status = "<< hj2->GetFinal().at(ihy) << "/" << convertStatusForComponents((hj2->GetFinal()).at(ihy),(hj2->GetType()).at(ihy), hj2->GetPythiaStatus().at(ihy))<< endl;
     if ((convertStatusForComponents(
             (hj2->GetFinal()).at(ihy), (hj2->GetType()).at(ihy), (hj2->GetPythiaStatus().at(ihy)))) == 1)
       stab++;
