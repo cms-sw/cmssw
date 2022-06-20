@@ -164,7 +164,8 @@ namespace ecaldqm {
   template <typename DigiCollection>
   void GpuTask::runOnCpuDigis(DigiCollection const& cpuDigis, Collections collection) {
     // Return if not enabled
-    if (!enableDigi_) return;
+    if (!enableDigi_)
+      return;
 
     MESet& meDigiCpu(MEs_.at("DigiCpu"));
     MESet& meDigiCpuAmplitude(MEs_.at("DigiCpuAmplitude"));
@@ -200,7 +201,8 @@ namespace ecaldqm {
   template <typename DigiCollection>
   void GpuTask::runOnGpuDigis(DigiCollection const& gpuDigis, Collections collection) {
     // Return if not enabled
-    if (!enableDigi_) return;
+    if (!enableDigi_)
+      return;
 
     MESet& meDigiGpuCpu(MEs_.at("DigiGpuCpu"));
     MESet& meDigiGpuCpuAmplitude(MEs_.at("DigiGpuCpuAmplitude"));
@@ -278,7 +280,8 @@ namespace ecaldqm {
 
   void GpuTask::runOnCpuUncalibRecHits(EcalUncalibratedRecHitCollection const& cpuHits, Collections collection) {
     // Return if not enabled
-    if (!enableUncalib_) return;
+    if (!enableUncalib_)
+      return;
 
     MESet& meUncalibCpu(MEs_.at("UncalibCpu"));
     MESet& meUncalibCpuAmp(MEs_.at("UncalibCpuAmp"));
@@ -333,7 +336,8 @@ namespace ecaldqm {
 
   void GpuTask::runOnGpuUncalibRecHits(EcalUncalibratedRecHitCollection const& gpuHits, Collections collection) {
     // Return if not enabled
-    if (!enableUncalib_) return;
+    if (!enableUncalib_)
+      return;
 
     MESet& meUncalibGpuCpu(MEs_.at("UncalibGpuCpu"));
     MESet& meUncalibGpuCpuAmp(MEs_.at("UncalibGpuCpuAmp"));
@@ -474,7 +478,8 @@ namespace ecaldqm {
 
   void GpuTask::runOnCpuRecHits(EcalRecHitCollection const& cpuHits, Collections collection) {
     // Return if not enabled
-    if (!enableRecHit_) return;
+    if (!enableRecHit_)
+      return;
 
     MESet& meRecHitCpu(MEs_.at("RecHitCpu"));
     MESet& meRecHitCpuEnergy(MEs_.at("RecHitCpuEnergy"));
@@ -505,7 +510,8 @@ namespace ecaldqm {
 
   void GpuTask::runOnGpuRecHits(EcalRecHitCollection const& gpuHits, Collections collection) {
     // Return if not enabled
-    if (!enableRecHit_) return;
+    if (!enableRecHit_)
+      return;
 
     MESet& meRecHitGpuCpu(MEs_.at("RecHitGpuCpu"));
     MESet& meRecHitGpuCpuEnergy(MEs_.at("RecHitGpuCpuEnergy"));
