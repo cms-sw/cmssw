@@ -395,7 +395,10 @@ def output(args, string, *parameters, **kwargs):
 
     output_file = kwargs.get('output_file', sys.stdout)
 
-    print(string % parameters + colors.end, end=' ', file=output_file)
+    to_print = string + colors.end
+    if len(parameters)>0:
+        to_print = string % parameters + colors.end
+    print(to_print, end=' ', file=output_file)
 
     if kwargs.get('newline', True):
         print(file=output_file)
