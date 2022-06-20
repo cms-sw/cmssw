@@ -154,7 +154,7 @@ void HPSPFTauProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
           std::fabs(l1PFTau.leadChargedPFCand()->eta()) < maxLeadChargedPFCandEta_ &&
           (srcL1Vertices_.label().empty() ||
            (primaryVertex.isNonnull() && l1PFTau.leadChargedPFCand()->pfTrack().isNonnull() &&
-	    std::fabs(l1PFTau.leadChargedPFCand()->pfTrack()->vertex().z() - primaryVertex->z0()) <
+            std::fabs(l1PFTau.leadChargedPFCand()->pfTrack()->vertex().z() - primaryVertex->z0()) <
                 maxLeadChargedPFCandDz_)) &&
           l1PFTau.sumChargedIso() < maxChargedIso_ && l1PFTau.sumChargedIso() < maxChargedRelIso_ * l1PFTau.pt()))
       continue;

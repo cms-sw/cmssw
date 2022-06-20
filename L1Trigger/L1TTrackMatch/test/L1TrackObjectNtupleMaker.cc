@@ -2377,8 +2377,7 @@ void L1TrackObjectNtupleMaker::analyze(const edm::Event& iEvent, const edm::Even
     edm::LogWarning("DataNotFound") << "\nWarning: L1PrimaryVertexHandle not found" << std::endl;
 
   if (L1PrimaryVertexEmuHandle.isValid()) {
-    for (vtxEmuIter = L1PrimaryVertexEmuHandle->begin(); vtxEmuIter != L1PrimaryVertexEmuHandle->end();
-         ++vtxEmuIter) {
+    for (vtxEmuIter = L1PrimaryVertexEmuHandle->begin(); vtxEmuIter != L1PrimaryVertexEmuHandle->end(); ++vtxEmuIter) {
       m_pv_L1reco_emu->push_back(vtxEmuIter->z0());
     }
   } else
