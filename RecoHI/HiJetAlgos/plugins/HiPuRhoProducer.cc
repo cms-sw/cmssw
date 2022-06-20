@@ -90,6 +90,7 @@ private:
   bool setInitialValue_;
 
   const bool dropZeroTowers_;
+  const bool reMiniAODBugFix_;
   const int medianWindowWidth_;
   const double minimumTowersFraction_;
   const double nSigmaPU_;  // number of sigma for pileup
@@ -149,6 +150,7 @@ private:
 
 HiPuRhoProducer::HiPuRhoProducer(const edm::ParameterSet& iConfig)
     : dropZeroTowers_(iConfig.getParameter<bool>("dropZeroTowers")),
+      reMiniAODBugFix_(iConfig.getParameter<bool>("reMiniAODBugFix")),
       medianWindowWidth_(iConfig.getParameter<int>("medianWindowWidth")),
       minimumTowersFraction_(iConfig.getParameter<double>("minimumTowersFraction")),
       nSigmaPU_(iConfig.getParameter<double>("nSigmaPU")),
@@ -464,8 +466,11 @@ void HiPuRhoProducer::calculateOrphanInput(std::vector<fastjet::PseudoJet>& orph
 
     for (auto const& im : towermap_) {
       double dr2 = reco::deltaR2(im.eta, im.phi, jet_etaphi.first, jet_etaphi.second);
+      double nTowers = im.ieta;
+      if (reMiniAODBugFix_)
+        nTowers = geomtowers_[im.ieta];
       if (dr2 < radiusPU_ * radiusPU_ && !excludedTowers[std::pair(im.ieta, im.iphi)] &&
-          (im.ieta - ntowersWithJets_[im.ieta]) > minimumTowersFraction_ * im.ieta) {
+          (nTowers - ntowersWithJets_[im.ieta]) > minimumTowersFraction_ * nTowers) {
         ntowersWithJets_[im.ieta]++;
         excludedTowers[std::pair(im.ieta, im.iphi)] = 1;
       }
@@ -572,6 +577,7 @@ void HiPuRhoProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
   desc.add<double>("radiusPU", 0.5);
   desc.add<double>("minimumTowersFraction", 0.7);
   desc.add<bool>("dropZeroTowers", true);
+  desc.add<bool>("reMiniAODBugFix", false);
   descriptions.add("hiPuRhoProducer", desc);
 }
 

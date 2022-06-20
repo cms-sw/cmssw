@@ -14,5 +14,9 @@ cleanedParticleFlow = cms.EDProducer(
     minTrackNHits = cms.uint32(10),
     minPixelNHits = cms.uint32(3),
     minTrackerLayersForMuonLoose  = cms.int32(7),  
-    minTrackerLayersForMuonTight  = cms.int32(10)  
+    minTrackerLayersForMuonTight  = cms.int32(10),
+    reMiniAODBugFix = cms.bool(False)
 )
+
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_Bugfix_cff import run2_miniAOD_pp_on_AA_103X_Bugfix
+run2_miniAOD_pp_on_AA_103X_Bugfix.toModify(cleanedParticleFlow,reMiniAODBugFix = True)

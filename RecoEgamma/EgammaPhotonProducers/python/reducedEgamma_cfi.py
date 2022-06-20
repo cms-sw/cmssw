@@ -128,3 +128,10 @@ pp_on_AA.toModify(
     hiPhotonIsolationMapInput = "photonIsolationHIProducerppGED",
     hiPhotonIsolationMapOutput = "photonIsolationHIProducerppGED"
 )
+
+from Configuration.ProcessModifiers.run2_miniAOD_pp_on_AA_103X_Bugfix_cff import run2_miniAOD_pp_on_AA_103X_Bugfix
+run2_miniAOD_pp_on_AA_103X_Bugfix.toModify(
+    reducedEgamma,
+    photonsPFValMap = "pfEGammaToCandidateRemapperCleaned:photons",
+    gsfElectronsPFValMap = "pfEGammaToCandidateRemapperCleaned:electrons"
+)
