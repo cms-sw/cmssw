@@ -275,7 +275,7 @@ namespace cms::soa {
   // Helper template managing the value within it column
   // TODO Create a const variant to avoid leaking mutable access.
 #ifdef EIGEN_WORLD_VERSION
-  template <class C, byte_size_type ALIGNMENT, RestrictQualify RESTRICT_QUALIFY>
+  template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
   class SoAValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
   public:
     typedef C Type;
@@ -380,7 +380,7 @@ namespace cms::soa {
 #ifdef EIGEN_WORLD_VERSION
   // Helper template managing the value within it column
   // TODO Create a const variant to avoid leaking mutable access.
-  template <class C, byte_size_type ALIGNMENT, RestrictQualify RESTRICT_QUALIFY>
+  template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
   class SoAConstValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
   public:
     typedef C Type;

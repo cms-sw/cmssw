@@ -1,0 +1,12 @@
+<iftool name="cuda-gcc-support">
+  <bin file="SoALayoutAndView_t.cu">
+    <use name="eigen"/>
+    <use name="boost"/>
+    <use name="cuda"/>
+  </bin>
+
+  <bin file="SoAStreamer_t.cu" name="SoAStreamer_t">
+    <use name="root"/>
+  </bin>
+
+</iftool>
