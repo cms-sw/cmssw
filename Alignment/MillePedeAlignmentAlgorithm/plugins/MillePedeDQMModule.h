@@ -28,6 +28,8 @@
 #include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 /*** Thresholds from DB ***/
 #include "CondFormats/DataRecord/interface/AlignPCLThresholdsHGRcd.h"
@@ -41,6 +43,7 @@
 #include "Geometry/Records/interface/PTrackerParametersRcd.h"
 #include "Geometry/Records/interface/PTrackerAdditionalParametersPerDetRcd.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 /*** MillePede ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeFileReader.h"
@@ -95,10 +98,12 @@ private:  //===================================================================
   const edm::ESGetToken<PTrackerParameters, PTrackerParametersRcd> ptpToken_;
   const edm::ESGetToken<PTrackerAdditionalParametersPerDet, PTrackerAdditionalParametersPerDetRcd> ptitpToken_;
   const edm::ESGetToken<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd> aliThrToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 
   const edm::ParameterSet mpReaderConfig_;
   std::unique_ptr<AlignableTracker> tracker_;
   std::unique_ptr<MillePedeFileReader> mpReader_;
+  std::shared_ptr<PixelTopologyMap> pixelTopologyMap_;
 
   std::vector<std::pair<std::string, int>> layerVec;
 

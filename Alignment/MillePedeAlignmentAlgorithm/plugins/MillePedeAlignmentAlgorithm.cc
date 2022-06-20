@@ -88,6 +88,7 @@ MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet
     : AlignmentAlgorithmBase(cfg, iC),
       topoToken_(iC.esConsumes<TrackerTopology, TrackerTopologyRcd, edm::Transition::BeginRun>()),
       aliThrToken_(iC.esConsumes<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd, edm::Transition::BeginRun>()),
+      geomToken_(iC.esConsumes<TrackerGeometry, TrackerDigiGeometryRecord, edm::Transition::BeginRun>()),
       theConfig(cfg),
       theMode(this->decodeMode(theConfig.getUntrackedParameter<std::string>("mode"))),
       theDir(theConfig.getUntrackedParameter<std::string>("fileDir")),
@@ -179,6 +180,12 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 
   //Retrieve tracker topology from geometry
   const TrackerTopology *const tTopo = &setup.getData(topoToken_);
+
+  //Retrieve tracker geometry
+  const TrackerGeometry *tGeom = &setup.getData(geomToken_);
+
+  //Retrieve PixelTopologyMap
+  pixelTopologyMap = std::make_shared<PixelTopologyMap>(tGeom, tTopo);
 
   //Retrieve the thresolds cuts from DB for the PCL
   if (runAtPCL_) {
@@ -321,8 +328,10 @@ bool MillePedeAlignmentAlgorithm::processesEvents() {
 bool MillePedeAlignmentAlgorithm::storeAlignments() {
   if (isMode(myPedeReadBit)) {
     if (runAtPCL_) {
-      MillePedeFileReader mpReader(
-          theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"), thePedeLabels, theThresholds);
+      MillePedeFileReader mpReader(theConfig.getParameter<edm::ParameterSet>("MillePedeFileReader"),
+                                   thePedeLabels,
+                                   theThresholds,
+                                   pixelTopologyMap);
       mpReader.read();
       return mpReader.storeAlignments();
     } else {
