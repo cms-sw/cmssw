@@ -57,6 +57,7 @@ The offsets currently in use are:
 * 0.13: MLPF algorithm
 * 0.15: JME NanoAOD
 * 0.17: Run-3 deep core seeding for JetCore iteration
+* 0.19: ECAL SuperClustering with DeepSC algorithm
 * 0.21: Production-like sequence
 * 0.24: 0 Tesla (Run-2, Run-3)
 * 0.31: Photon energy corrections with DRN architecture
