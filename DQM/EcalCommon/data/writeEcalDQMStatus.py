@@ -47,7 +47,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
 
 process.write = cms.EDAnalyzer("EcalDQMStatusWriter",
     firstRun = cms.untracked.uint32(350000),
-    inputFile = cms.untracked.string('mask-EB.txt')
+    inputFile = cms.untracked.string('mask-ECAL.txt')
     #inputFile = cms.untracked.string('mask-EE.txt')
 )
 
