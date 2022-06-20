@@ -126,6 +126,7 @@ private:
 
   const edm::ParameterSet myConfig;
   std::string myDirectory;               /// directory of all files
+  std::string myRunDirectory;            /// directory where pede is executed
   bool myNoSteerFiles;                   /// flag to write steering files to /dev/null
   bool myIsSteerFileDebug;               /// whether or not to fill pede steering files with debug info
   int myParameterSign;                   /// old pede versions (before May '07) need a sign flip...
