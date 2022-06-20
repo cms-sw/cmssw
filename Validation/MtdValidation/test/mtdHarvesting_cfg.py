@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('mtdHarvesting',Phase2C11I13M9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('mtdHarvesting',Phase2C17I13M9)
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
-process.load("Configuration.Geometry.GeometryExtended2026D77Reco_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D88Reco_cff")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
