@@ -21,8 +21,8 @@ public:
   std::map<std::string, float> getInputsVars(const reco::Photon& ele) const;
 
   // Evaluate the DNN on all the electrons with the correct model
-  std::vector<std::vector<float>> evaluate(const reco::PhotonCollection& ele,
-                                           const std::vector<tensorflow::Session*>& sessions) const;
+  std::vector<std::pair<uint, std::vector<float>>> evaluate(const reco::PhotonCollection& ele,
+                                                            const std::vector<tensorflow::Session*>& sessions) const;
 
   // List of input variables names used to check the variables request as
   // inputs in a dynamic way from configuration file.
