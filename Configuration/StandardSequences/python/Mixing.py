@@ -123,6 +123,7 @@ addMixingScenario("2018_25ns_ProjectedPileup_PoissonOOTPU",{'file': 'SimGeneral.
 addMixingScenario("2018_25ns_JuneProjectionFull18_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_JuneProjectionFull18_PoissonOOTPU_cfi'})
 addMixingScenario("2018_25ns_UltraLegacy_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_2018_25ns_UltraLegacy_PoissonOOTPU_cfi'})
 addMixingScenario("Run3_Flat55To75_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_Run3_Flat55To75_PoissonOOTPU_cfi'})
+addMixingScenario("Flat0To200_PoissonOOTPU",{'file': 'SimGeneral.MixingModule.mix_Flat0To200_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 addMixingScenario("2022_LHC_Simulation_10h_2h",{'file': 'SimGeneral.MixingModule.Run3_2022_LHC_Simulation_10h_2h_cfi'})
