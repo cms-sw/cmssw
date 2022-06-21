@@ -899,8 +899,8 @@ bool Pythia8HepMC3Hadronizer::residualDecay() {
                                                      // get translated by the HepMCInterface to the
                                                      // HepMC::GenEvent record !!!
   //int NPartsAfterDecays = event().get()->particles_size();
-  int NPartsAfterDecays=0;
-  for (auto p: (event3().get())->particles()) {
+  int NPartsAfterDecays = 0;
+  for (auto p : (event3().get())->particles()) {
     NPartsAfterDecays++;
   }
 
@@ -993,7 +993,7 @@ void Pythia8HepMC3Hadronizer::finalizeEvent() {
       std::cout << "Event process = " << fMasterGen->info.code() << "\n"
                 << "----------------------" << std::endl;
       //ascii_io->write_event(event().get());
-      for (const auto p : (event3().get())->particles()) {
+      for (const auto &p : (event3().get())->particles()) {
         HepMC3::Print::line(p, true);
       }
     }
