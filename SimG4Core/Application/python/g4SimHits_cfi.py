@@ -180,7 +180,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         G4MscSafetyFactor = cms.double(0.6), 
         G4MscLambdaLimit = cms.double(1.0), # mm 
         G4MscStepLimit = cms.string("UseSafety"), 
-        G4GeneralProcess = cms.bool(False),
+        G4GeneralProcess = cms.bool(True),
         ReadMuonData = cms.bool(False), 
         Verbosity = cms.untracked.int32(0),
         # 1 will print cuts as they get set from DD
