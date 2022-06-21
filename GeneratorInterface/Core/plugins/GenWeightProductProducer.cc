@@ -95,8 +95,7 @@ std::shared_ptr<GenWeightInfoProdData> GenWeightProductProducer::globalBeginLumi
     if (weightInfoHandle.isValid()) {
       productInfo.makeNewProduct = false;
       break;
-    } else
-      productInfo.makeNewProduct = false;
+    }
   }
 
   edm::Handle<GenLumiInfoHeader> genLumiInfoHandle;
@@ -105,6 +104,9 @@ std::shared_ptr<GenWeightInfoProdData> GenWeightProductProducer::globalBeginLumi
   if (genLumiInfoHandle.isValid()) {
     auto weightGroups = weightHelper_.parseWeightGroupsFromNames(genLumiInfoHandle->weightNames(), allowUnassociated_);
     productInfo.product = GenWeightInfoProduct(weightGroups);
+  } else if (allowUnassociated_) {
+    auto group = std::make_unique<gen::UnknownWeightGroupInfo>("unassociated");
+    productInfo.product.addWeightGroupInfo(std::move(group));
   }
   return std::make_shared<GenWeightInfoProdData>(productInfo);
 }

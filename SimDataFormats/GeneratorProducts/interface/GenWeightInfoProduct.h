@@ -48,7 +48,6 @@ public:
   std::vector<gen::WeightGroupData> weightGroupsAndIndicesByType(gen::WeightType type, int maxStore = -1) const;
   std::optional<gen::WeightGroupData> pdfGroupWithIndexByLHAID(int lhaid) const;
   std::vector<gen::WeightGroupData> pdfGroupsWithIndicesByLHAIDs(const std::vector<int>& lhaids) const;
-  void addWeightGroupInfo(gen::WeightGroupInfo info);
   void addWeightGroupInfo(std::unique_ptr<gen::WeightGroupInfo> info);
   const int numberOfGroups() const { return weightGroupsInfo_.size(); }
   // If there are unassociated weights, the number of filled groups will be less

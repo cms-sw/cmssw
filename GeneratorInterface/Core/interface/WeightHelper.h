@@ -95,47 +95,55 @@ namespace gen {
     auto weightProduct = std::make_unique<GenWeightProduct>(w0);
     weightProduct->setNumWeightSets(weightsInfo.numberOfGroups());
     gen::WeightGroupData groupData = {0, nullptr};
-    int i = 0;
     // size=1 happens if there are no PS weights, so the weights vector contains
-    // only the central GEN weight.
-    if (weights.size() > 1) {
-      // This gets remade every event to avoid having state-dependence in the
-      // helper class could think about doing caching instead
-      int unassociatedIdx = weightsInfo.unassociatedIdx();
-      std::unique_ptr<gen::UnknownWeightGroupInfo> unassociatedGroup;
-      if (unassociatedIdx != -1)
-        unassociatedGroup = std::make_unique<gen::UnknownWeightGroupInfo>("unassociated");
-      for (const auto& weight : weights) {
-        double wgtval;
-        std::string wgtid;
-        if constexpr (std::is_same<T, gen::WeightsInfo>::value) {
-          wgtid = weight.id;
-          wgtval = weight.wgt;
-        } else if (std::is_same<T, double>::value) {
-          wgtid = std::to_string(i);
-          wgtval = weight;
-        }
-        try {
-          groupData = weightsInfo.containingWeightGroupInfo(i, groupData.index);
-        } catch (const cms::Exception& e) {
-          if (unassociatedIdx == -1)
-            throw e;
-          if (debug_) {
-            std::cout << "WARNING: " << e.what() << std::endl;
-          }
-          // Access the unassociated group separately so it can be modified
-          unassociatedGroup->addContainedId(i, wgtid, wgtid);
-          groupData = {static_cast<size_t>(unassociatedIdx), unassociatedGroup.get()};
-        }
-        int entry = groupData.group->weightVectorEntry(wgtid, i);
+    // only the central GEN weight. Size = 2 happens when Pythia produces a separate weight for the hadronization
+    // In general this can also be handled by the "unassociated" group, but this avoids the requirement
+    // that that setting always be true for workflows without the GenLumiInfoProduct (which can reasonably not exist
+    // for special GEN workflows)
+    if (!weightsInfo.numberOfGroups()) {
+      if (weights.size() <= 2)
+        return weightProduct;
+      else
+        throw cms::Exception("WeightHelper")
+            << "Found more than 2 weights in the event, but found no weight groups in the header.";
+    }
 
-        // TODO: is this too slow?
-        if (debug_)
-          std::cout << "Adding weight num " << i << " EntryNum " << entry << " to group " << groupData.index
-                    << std::endl;
-        weightProduct->addWeight(wgtval, groupData.index, entry);
-        i++;
+    // This gets remade every event to avoid having state-dependence in the
+    // helper class could think about doing caching instead
+    int unassociatedIdx = weightsInfo.unassociatedIdx();
+    std::unique_ptr<gen::UnknownWeightGroupInfo> unassociatedGroup;
+    if (unassociatedIdx != -1)
+      unassociatedGroup = std::make_unique<gen::UnknownWeightGroupInfo>("unassociated");
+    int i = 0;
+    for (const auto& weight : weights) {
+      double wgtval;
+      std::string wgtid;
+      if constexpr (std::is_same<T, gen::WeightsInfo>::value) {
+        wgtid = weight.id;
+        wgtval = weight.wgt;
+      } else if (std::is_same<T, double>::value) {
+        wgtid = std::to_string(i);
+        wgtval = weight;
       }
+      try {
+        groupData = weightsInfo.containingWeightGroupInfo(i, groupData.index);
+      } catch (const cms::Exception& e) {
+        if (unassociatedIdx == -1)
+          throw e;
+        if (debug_) {
+          std::cout << "WARNING: " << e.what() << std::endl;
+        }
+        // Access the unassociated group separately so it can be modified
+        unassociatedGroup->addContainedId(i, wgtid, wgtid);
+        groupData = {static_cast<size_t>(unassociatedIdx), unassociatedGroup.get()};
+      }
+      int entry = groupData.group->weightVectorEntry(wgtid, i);
+
+      // TODO: is this too slow?
+      if (debug_)
+        std::cout << "Adding weight num " << i << " EntryNum " << entry << " to group " << groupData.index << std::endl;
+      weightProduct->addWeight(wgtval, groupData.index, entry);
+      i++;
     }
     return weightProduct;
   }
