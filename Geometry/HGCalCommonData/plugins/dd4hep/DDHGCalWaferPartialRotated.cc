@@ -17,7 +17,7 @@
 #include <vector>
 #include <sstream>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext& ctxt, xml_h e) {
   cms::DDNamespace ns(ctxt, e, true);
@@ -151,7 +151,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
                 << "[" << j << "] " << cms::convert2mm(xL[j]) << ":" << cms::convert2mm(yL[j]);
 #endif
         }
-        if (layerType[i] > 0) {
+        if ((layerType[i] > 0) && (senseType >= 0)) {
           std::string sname = senseName + placementIndexTags[m] + waferTag + tags[k];
           zw[0] = -0.5 * senseT;
           zw[1] = 0.5 * senseT;

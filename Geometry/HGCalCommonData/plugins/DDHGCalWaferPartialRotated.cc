@@ -17,7 +17,7 @@
 #include <vector>
 #include <sstream>
 
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 class DDHGCalWaferPartialRotated : public DDAlgorithm {
 public:
@@ -195,7 +195,7 @@ void DDHGCalWaferPartialRotated::execute(DDCompactView& cpv) {
           for (unsigned int j = 0; j < xL.size(); ++j)
             edm::LogVerbatim("HGCalGeom") << "[" << j << "] " << xL[j] << ":" << yL[j];
 #endif
-          if (layerType_[i] > 0) {
+          if ((layerType_[i] > 0) && (senseType_ >= 0)) {
             std::string sname = senseName_ + placementIndexTags_[m] + waferTag_ + tags_[k];
             zw[0] = -0.5 * senseT_;
             zw[1] = 0.5 * senseT_;
