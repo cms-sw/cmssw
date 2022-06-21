@@ -791,6 +791,9 @@ bool MuonIdProducer::isGoodRPCMuon(const reco::Muon& muon) {
 }
 
 bool MuonIdProducer::isGoodGEMMuon(const reco::Muon& muon) {
+  // require GEMMuon to be a TrackerMuon
+  if (!isGoodTrackerMuon(muon))
+    return false;
   if (muon.track()->pt() < minPt_ || muon.track()->p() < minP_)
     return false;
   return (muon.numberOfMatches(reco::Muon::GEMSegmentAndTrackArbitration) >= 1);
@@ -1078,7 +1081,7 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent,
 
         const double absDx = std::abs(gemRecHit.localPosition().x() - chamber.tState.localPosition().x());
         //std::cout << " absdx " << absDx << "  :";
-        if (absDx <= 20 or absDx * absDx <= 16 * localError.xx())
+        if (absDx <= 5 or absDx * absDx <= 16 * localError.xx())
           matchedChamber.gemHitMatches.push_back(gemHitMatch);
       }
       //std::cout << ":" << std::endl;
