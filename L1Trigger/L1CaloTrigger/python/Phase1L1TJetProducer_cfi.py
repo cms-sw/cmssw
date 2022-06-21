@@ -18,7 +18,7 @@ caloEtaSegmentation = cms.vdouble(
   4.0, 4.083, 4.167, 4.25, 4.333, 4.417, 4.5, 4.583, 4.667, 4.75, 4.833, 4.917, 5.0)
 
 Phase1L1TJetProducer = cms.EDProducer('Phase1L1TJetProducer',
-  inputCollectionTag = cms.InputTag("l1pfCandidates", "Puppi"),
+  inputCollectionTag = cms.InputTag("l1ctLayer1", "Puppi"),
   etaBinning = caloEtaSegmentation,
   nBinsPhi = cms.uint32(72),
   phiLow = cms.double(-pi),

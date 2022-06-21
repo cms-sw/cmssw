@@ -152,8 +152,8 @@ from L1Trigger.L1TTrackMatch.L1TkHTMissProducer_cfi import *
 # make the input tags consistent with the choice L1VertexFinder above
 L1TrackJets.L1PVertexCollection  = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
 L1TrackJetsExtended.L1PVertexCollection  = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
-L1TrackerEtMiss.L1VertexInputTag = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
-L1TrackerEtMissExtended.L1VertexInputTag = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
+#L1TrackerEtMiss.L1VertexInputTag = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
+#L1TrackerEtMissExtended.L1VertexInputTag = ("L1VertexFinder", L1VertexFinder.l1VertexCollectionName.value())
 _phase2_siml1emulator.add(L1TrackJets)
 _phase2_siml1emulator.add(L1TrackJetsExtended)
 _phase2_siml1emulator.add(L1TrackFastJets)
