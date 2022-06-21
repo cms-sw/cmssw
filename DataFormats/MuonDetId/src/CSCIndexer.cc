@@ -1,24 +1,32 @@
 #include <DataFormats/MuonDetId/interface/CSCIndexer.h>
 #include <iostream>
 
-void CSCIndexer::fillChamberLabel() const {
+std::vector<CSCIndexer::IndexType> CSCIndexer::fillChamberLabel() {
   // Fill the member vector which permits decoding of the linear chamber index
   // Logically const since initializes cache only,
   // Beware that the ME42 indices 235-270 within this vector do NOT correspond to
   // their 'real' linear indices (which are 469-504 for +z)
-  chamberLabel.resize(271);  // one more than #chambers per endcap. Includes ME42.
+  std::vector<IndexType> tChamberLabel;
+
+  tChamberLabel.resize(271);  // one more than #chambers per endcap. Includes ME42.
   IndexType count = 0;
-  chamberLabel[count] = 0;
+  tChamberLabel[count] = 0;
 
   for (IndexType is = 1; is != 5; ++is) {
     IndexType irmax = ringsInStation(is);
     for (IndexType ir = 1; ir != irmax + 1; ++ir) {
       IndexType icmax = chambersInRingOfStation(is, ir);
       for (IndexType ic = 1; ic != icmax + 1; ++ic) {
-        chamberLabel[++count] = is * 1000 + ir * 100 + ic;
+        tChamberLabel[++count] = is * 1000 + ir * 100 + ic;
       }
     }
   }
+  return tChamberLabel;
+}
+
+const std::vector<CSCIndexer::IndexType>& CSCIndexer::chamberLabel() {
+  static const auto s_chamberLabel = fillChamberLabel();
+  return s_chamberLabel;
 }
 
 CSCDetId CSCIndexer::detIdFromChamberIndex_OLD(IndexType ici) const {
@@ -76,9 +84,7 @@ CSCDetId CSCIndexer::detIdFromChamberIndex(IndexType ici) const {
       ici -= 234;  // now in range 1-234
     }
   }
-  if (chamberLabel.empty())
-    fillChamberLabel();
-  IndexType label = chamberLabel[ici];
+  IndexType label = chamberLabel()[ici];
   return detIdFromChamberLabel(ie, label);
 }
 
@@ -99,9 +105,7 @@ CSCIndexer::IndexType CSCIndexer::chamberLabelFromChamberIndex(IndexType ici) co
       ici -= 234;     // now in range 1-234
     }
   }
-  if (chamberLabel.empty())
-    fillChamberLabel();
-  return chamberLabel[ici];
+  return chamberLabel()[ici];
 }
 
 CSCDetId CSCIndexer::detIdFromChamberLabel(IndexType ie, IndexType label) const {
