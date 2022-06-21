@@ -123,10 +123,9 @@ std::vector<int> GenWeightInfoProduct::weightGroupIndicesByType(gen::WeightType 
   return matchingGroupIndices;
 }
 
-void GenWeightInfoProduct::addWeightGroupInfo(gen::WeightGroupInfo info) {
-  weightGroupsInfo_.push_back(std::make_unique<gen::WeightGroupInfo>(info));
-}
-
 void GenWeightInfoProduct::addWeightGroupInfo(std::unique_ptr<gen::WeightGroupInfo> info) {
+  if (info->name() == "unassociated") {
+    unassociatedIdx_ = weightGroupsInfo_.size();
+  }
   weightGroupsInfo_.push_back(std::move(info));
 }
