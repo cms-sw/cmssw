@@ -894,13 +894,15 @@ bool Pythia8HepMC3Hadronizer::hadronize() {
 bool Pythia8HepMC3Hadronizer::residualDecay() {
   Event *pythiaEvent = &(fMasterGen->event);
 
-  int NPartsBeforeDecays = pythiaEvent->size() - 1; // do NOT count the very 1st "system" particle
-                                                    // in Pythia8::Event record; it does NOT even
-                                                    // get translated by the HepMCInterface to the
-                                                    // HepMC::GenEvent record !!!
+  int NPartsBeforeDecays = pythiaEvent->size() - 1;  // do NOT count the very 1st "system" particle
+                                                     // in Pythia8::Event record; it does NOT even
+                                                     // get translated by the HepMCInterface to the
+                                                     // HepMC::GenEvent record !!!
   //int NPartsAfterDecays = event().get()->particles_size();
   int NPartsAfterDecays=0;
-  for (auto p: (event3().get())->particles() ) {NPartsAfterDecays++;}
+  for (auto p: (event3().get())->particles()) {
+    NPartsAfterDecays++;
+  }
 
   if (NPartsAfterDecays == NPartsBeforeDecays)
     return true;
@@ -986,13 +988,12 @@ void Pythia8HepMC3Hadronizer::finalizeEvent() {
                 << "----------------------" << std::endl;
       //event3()->print();
       HepMC3::Print::listing(*(event3().get()));
-
     }
     if (pythiaHepMCVerbosityParticles) {
       std::cout << "Event process = " << fMasterGen->info.code() << "\n"
                 << "----------------------" << std::endl;
       //ascii_io->write_event(event().get());
-      for (auto p: (event3().get())->particles() ) {
+      for (const auto p : (event3().get())->particles()) {
         HepMC3::Print::line(p, true);
       }
     }
