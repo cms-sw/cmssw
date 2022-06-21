@@ -122,15 +122,6 @@ process.ecalMonitorClient.workers = ['IntegrityClient', 'OccupancyClient', 'Pres
 process.ecalMonitorClient.workerParameters.SummaryClient.params.activeSources = ['Integrity', 'RawData', 'Presample', 'TriggerPrimitives', 'Timing', 'HotCell']
 process.ecalMonitorClient.commonParameters.onlineMode = True
 
-process.GlobalTag.toGet = cms.VPSet(cms.PSet(
-    record = cms.string('EcalDQMChannelStatusRcd'),
-    tag = cms.string('EcalDQMChannelStatus_v1_hlt'),
-), 
-    cms.PSet(
-        record = cms.string('EcalDQMTowerStatusRcd'),
-        tag = cms.string('EcalDQMTowerStatus_v1_hlt'),
-    ))
-
 process.preScaler.prescaleFactor = 1
 
 process.tcdsDigis = tcdsRawToDigi.clone(
