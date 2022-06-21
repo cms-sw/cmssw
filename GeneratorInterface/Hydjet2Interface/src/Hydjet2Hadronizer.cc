@@ -501,10 +501,11 @@ HepMC::GenVertex *Hydjet2Hadronizer::build_hyjet2_vertex(int i, int id) {
   double y0 = (hj2->GetY()).at(i);
 
   // convert to mm (as in PYTHIA6)
-  double x = 0.000000000001 * (x0 * cosphi0_ - y0 * sinphi0_);
-  double y = 0.000000000001 * (y0 * cosphi0_ + x0 * sinphi0_);
-  double z = 0.000000000001 * (hj2->GetZ()).at(i);
-  double t = 0.000000000001 * (hj2->GetT()).at(i);
+  const double fm_to_mm = 1e-12;
+  double x = fm_to_mm * (x0 * cosphi0_ - y0 * sinphi0_);
+  double y = fm_to_mm * (y0 * cosphi0_ + x0 * sinphi0_);
+  double z = fm_to_mm * (hj2->GetZ()).at(i);
+  double t = fm_to_mm * (hj2->GetT()).at(i);
 
   HepMC::GenVertex *vertex = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t), id);
 
