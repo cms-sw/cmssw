@@ -208,7 +208,6 @@ namespace mkfit {
       m_NInsideMinusOneHits(mslot, 0, 0) = trk.nInsideMinusOneHits();
       m_NTailMinusOneHits(mslot, 0, 0) = trk.nTailMinusOneHits();
 
-      m_LastHoT[mslot] = trk.getLastHitOnTrack();
       m_CombCand[mslot] = trk.combCandidate();
       m_TrkStatus[mslot] = trk.getStatus();
     }
@@ -304,7 +303,6 @@ namespace mkfit {
     MPlexQI m_NTailMinusOneHits;        // sub: before we copied all hit idcs and had a loop counting them only
     MPlexQI m_LastHitCcIndex;           // add: index of last hit in m_CombCand hit tree, STD only
     TrackBase::Status m_TrkStatus[NN];  // STD only, status bits
-    HitOnTrack m_LastHoT[NN];
     CombCandidate *m_CombCand[NN];
     // const TrackCand *m_TrkCand[NN]; // hmmh, could get all data through this guy ... but scattered
     // storing it in now for bkfit debug printouts
