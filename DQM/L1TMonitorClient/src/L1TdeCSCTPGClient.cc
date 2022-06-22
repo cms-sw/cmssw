@@ -199,6 +199,13 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
         dataMon = igetter.get(monitorDir_ + "/" + histData);
         emulMon = igetter.get(monitorDir_ + "/" + histEmul);
 
+        if (dataMon == nullptr or emulMon == nullptr) {
+          edm::LogWarning("L1TdeCSCTPGClient")
+              << __PRETTY_FUNCTION__ << " could not load the necessary histograms for harvesting " << histData << " / "
+              << histEmul;
+          continue;
+        }
+
         TH1F *hDiff = chamberHistos_[iType][key + "_diff"]->getTH1F();
 
         if (dataMon && emulMon) {
@@ -217,6 +224,13 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
         dataMon = igetter.get(monitorDir_ + "/" + histData);
         emulMon = igetter.get(monitorDir_ + "/" + histEmul);
 
+        if (dataMon == nullptr or emulMon == nullptr) {
+          edm::LogWarning("L1TdeCSCTPGClient")
+              << __PRETTY_FUNCTION__ << " could not load the necessary histograms for harvesting " << histData << " / "
+              << histEmul;
+          continue;
+        }
+
         TH1F *hDiff = chamberHistos_[iType][key + "_diff"]->getTH1F();
 
         if (dataMon && emulMon) {
@@ -234,6 +248,13 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
 
         dataMon = igetter.get(monitorDir_ + "/" + histData);
         emulMon = igetter.get(monitorDir_ + "/" + histEmul);
+
+        if (dataMon == nullptr or emulMon == nullptr) {
+          edm::LogWarning("L1TdeCSCTPGClient")
+              << __PRETTY_FUNCTION__ << " could not load the necessary histograms for harvesting " << histData << " / "
+              << histEmul;
+          continue;
+        }
 
         TH1F *hDiff = chamberHistos_[iType][key + "_diff"]->getTH1F();
 
@@ -254,12 +275,26 @@ void L1TdeCSCTPGClient::processHistograms(DQMStore::IGetter &igetter) {
   MonitorElement *clctDataSummary_denom_ = igetter.get(monitorDir_ + "/clct_csctp_data_summary_denom");
   MonitorElement *clctDataSummary_num_ = igetter.get(monitorDir_ + "/clct_csctp_data_summary_num");
 
+  if (lctDataSummary_denom_ == nullptr or lctDataSummary_num_ == nullptr or alctDataSummary_denom_ == nullptr or
+      alctDataSummary_num_ == nullptr or clctDataSummary_denom_ == nullptr or clctDataSummary_num_ == nullptr) {
+    edm::LogWarning("L1TdeCSCTPGClient") << __PRETTY_FUNCTION__
+                                         << " could not load the necessary data histograms for 2D summary plots";
+    return;
+  }
+
   MonitorElement *lctEmulSummary_denom_ = igetter.get(monitorDir_ + "/lct_csctp_emul_summary_denom");
   MonitorElement *lctEmulSummary_num_ = igetter.get(monitorDir_ + "/lct_csctp_emul_summary_num");
   MonitorElement *alctEmulSummary_denom_ = igetter.get(monitorDir_ + "/alct_csctp_emul_summary_denom");
   MonitorElement *alctEmulSummary_num_ = igetter.get(monitorDir_ + "/alct_csctp_emul_summary_num");
   MonitorElement *clctEmulSummary_denom_ = igetter.get(monitorDir_ + "/clct_csctp_emul_summary_denom");
   MonitorElement *clctEmulSummary_num_ = igetter.get(monitorDir_ + "/clct_csctp_emul_summary_num");
+
+  if (lctEmulSummary_denom_ == nullptr or lctEmulSummary_num_ == nullptr or alctEmulSummary_denom_ == nullptr or
+      alctEmulSummary_num_ == nullptr or clctEmulSummary_denom_ == nullptr or clctEmulSummary_num_ == nullptr) {
+    edm::LogWarning("L1TdeCSCTPGClient")
+        << __PRETTY_FUNCTION__ << " could not load the necessary emulation histograms for the 2D summary plots";
+    return;
+  }
 
   lctDataSummary_eff_->getTH2F()->Divide(lctDataSummary_num_->getTH2F(), lctDataSummary_denom_->getTH2F(), 1, 1, "");
   alctDataSummary_eff_->getTH2F()->Divide(alctDataSummary_num_->getTH2F(), alctDataSummary_denom_->getTH2F(), 1, 1, "");
