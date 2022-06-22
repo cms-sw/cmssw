@@ -137,7 +137,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE_INLINE SoAConstParametersImpl(const TupleOrPointerType tuple)
         : addr_(std::get<0>(tuple)), stride_(std::get<1>(tuple)) {}
     SOA_HOST_DEVICE_INLINE SoAConstParametersImpl(const ScalarType* addr) : addr_(addr) {}
-    // Trick setter + return self-reference allowing commat-free 2-stage construction in macro contexts (in combination with the
+    // Trick setter + return self-reference allowing comma-free 2-stage construction in macro contexts (in combination with the
     // addr-only constructor.
     SoAConstParametersImpl& setStride(byte_size_type stride) {
       stride_ = stride;
