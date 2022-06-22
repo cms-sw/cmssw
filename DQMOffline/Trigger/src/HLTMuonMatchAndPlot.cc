@@ -109,7 +109,8 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
     book1D(iBooker, "efficiencyEta_" + suffix, "eta", ";#eta;");
     book1D(iBooker, "efficiencyPhi_" + suffix, "phi", ";#phi;");
     book1D(iBooker, "efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
-
+    book1D(iBooker, "efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
+    
     if (isLastFilter_)
       iBooker.setCurrentFolder(baseDir + pathSansSuffix);
     else
@@ -119,6 +120,9 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
       continue;  //this will be plotted only for the last filter
 
     book1D(iBooker, "efficiencyCharge_" + suffix, "charge", ";charge;");
+    book1D(iBooker, "efficiencyZ0_" + suffix, "z0", ";z0;");
+    book1D(iBooker, "efficiency_DZ_Mu_" + suffix, "z0", ";z0;");    
+    
   }
 }
 
@@ -207,9 +211,12 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
         else if (muon.isStandAloneMuon())
           track = &*muon.outerTrack();
         if (track) {
+		  hists_["efficiencyVertex_" + suffix]->Fill(vertices->size());
           hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
 
           if (isLastFilter_) {
+            double z0 = track->dz(beamSpot->position());
+            hists_["efficiencyZ0_" + suffix]->Fill(z0);
             hists_["efficiencyCharge_" + suffix]->Fill(muon.charge());
           }
         }
@@ -273,10 +280,32 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
     nonDZPath = nonDZPath.substr(0, nonDZPath.rfind("_v") + 2);
   }
   bool passTriggerDZ = false;
+  
   if (dzPath) {
     for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
       passTriggerDZ = passTriggerDZ || (trigNames.triggerName(hltIndex).find(nonDZPath) != std::string::npos &&
                                         triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
+    }
+  }
+  if (dzPath && targetMuons.size() > 1 && passTriggerDZ) {
+    const Track* track0 = nullptr;
+    const Track* track1 = nullptr;
+    if (targetMuons.at(0).isTrackerMuon())
+      track0 = &*targetMuons.at(0).innerTrack();
+    else if (targetMuons.at(0).isTrackerMuon())
+      track0 = &*targetMuons.at(0).outerTrack();
+    if (targetMuons.at(1).isTrackerMuon())
+      track1 = &*targetMuons.at(1).innerTrack();
+    else if (targetMuons.at(1).isTrackerMuon())
+      track1 = &*targetMuons.at(1).outerTrack();
+
+    if (track0 && track1) {
+      hists_["efficiency_DZ_Mu_denom"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
+    }
+    if (nMatched > 1) {
+      if (track0 && track1) {
+        hists_["efficiency_DZ_Mu_numer"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
+      }
     }
   }
 
