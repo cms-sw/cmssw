@@ -387,7 +387,8 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 
   bool VinciaShower = fMasterGen->settings.mode("PartonShowers:Model") == 2;
 
-  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !VinciaShower) {
+  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) &&
+      !VinciaShower) {
     if (fJetMatchingHook.get() || fEmissionVetoHook1.get())
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
@@ -555,7 +556,8 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
   bool VinciaShower = fMasterGen->settings.mode("PartonShowers:Model") == 2;
 
-  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !VinciaShower) {
+  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) &&
+      !VinciaShower) {
     if (fJetMatchingHook.get() || fEmissionVetoHook1.get())
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
