@@ -110,6 +110,38 @@ namespace mkfit {
     }
   }
 
+  void MkFinder::inputTracksAndHits(const std::vector<CombCandidate> &tracks,
+                                    const LayerOfHits &layer_of_hits,
+                                    const std::vector<UpdateIndices> &idxs,
+                                    int beg,
+                                    int end,
+                                    bool inputProp) {
+    // Assign track parameters to initial state and copy hit values in.
+
+    // This might not be true for the last chunk!
+    // assert(end - beg == NN);
+
+    const int iI = inputProp ? iP : iC;
+
+    for (int i = beg, imp = 0; i < end; ++i, ++imp) {
+      const TrackCand &trk = tracks[idxs[i].seed_idx][idxs[i].cand_idx];
+
+      copy_in(trk, imp, iI);
+
+#ifdef DUMPHITWINDOW
+      m_SeedAlgo(imp, 0, 0) = tracks[idxs[i].seed_idx].seed_algo();
+      m_SeedLabel(imp, 0, 0) = tracks[idxs[i].seed_idx.seed_label();
+#endif
+
+      m_SeedIdx(imp, 0, 0) = idxs[i].seed_idx;
+      m_CandIdx(imp, 0, 0) = idxs[i].cand_idx;
+
+      const Hit &hit = layer_of_hits.refHit(idxs[i].hit_idx);
+      m_msErr.copyIn(i, hit.errArray());
+      m_msPar.copyIn(i, hit.posArray());
+    }
+  }
+
   void MkFinder::inputTracksAndHitIdx(const std::vector<CombCandidate> &tracks,
                                       const std::vector<std::pair<int, IdxChi2List>> &idxs,
                                       int beg,
@@ -1288,16 +1320,7 @@ namespace mkfit {
   // UpdateWithLastHit
   //==============================================================================
 
-  void MkFinder::updateWithLastHit(const LayerOfHits &layer_of_hits, int N_proc, const FindingFoos &fnd_foos) {
-    for (int i = 0; i < N_proc; ++i) {
-      const HitOnTrack &hot = m_LastHoT[i];
-
-      const Hit &hit = layer_of_hits.refHit(hot.index);
-
-      m_msErr.copyIn(i, hit.errArray());
-      m_msPar.copyIn(i, hit.posArray());
-    }
-
+  void MkFinder::updateWithLoadedHit(int N_proc, const FindingFoos &fnd_foos) {
     // See comment in MkBuilder::find_tracks_in_layer() about intra / inter flags used here
     // for propagation to the hit.
     (*fnd_foos.m_update_param_foo)(m_Err[iP],
