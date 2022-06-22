@@ -398,6 +398,9 @@ trackdnn.toReplaceWith(pixelLessStep, trackTfClassifier.clone(
 ))
 (trackdnn & fastSim).toModify(pixelLessStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
 
+((~trackingMkFitPixelLessStep) & trackdnn).toModify(pixelLessStep, mva = dict(tfDnnLabel  = 'trackSelectionTf_CKF'),
+                                                    qualityCuts = [-0.81, -0.61, -0.17])
+
 pp_on_AA.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
 
 # For LowPU
