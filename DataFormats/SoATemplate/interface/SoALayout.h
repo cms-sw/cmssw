@@ -468,6 +468,17 @@ namespace cms::soa {
                                                                                                                                           \
     using TrivialView = TrivialViewTemplate<cms::soa::RestrictQualify::Disabled,                                                          \
                                      cms::soa::RangeChecking::Disabled>;                                                                  \
+                                                                                                                                          \
+  _GENERATE_SOA_TRIVIAL_CONST_VIEW(CLASS,                                                                                                 \
+                    SOA_VIEW_LAYOUT_LIST( SOA_VIEW_LAYOUT(BOOST_PP_CAT(CLASS, _parametrized) , BOOST_PP_CAT(instance_, CLASS))),          \
+                    SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                                            \
+                    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, CLASS), __VA_ARGS__)))                                               \
+    template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                                                 \
+    using TrivialConstViewTemplate = TrivialConstViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT,                                 \
+      RESTRICT_QUALIFY, RANGE_CHECKING>;                                                                                                  \
+                                                                                                                                          \
+    using TrivialConstView = TrivialConstViewTemplate<cms::soa::RestrictQualify::Disabled,                                                \
+                                     cms::soa::RangeChecking::Disabled>;                                                                  \
   };
 // clang-format on
 

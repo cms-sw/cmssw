@@ -28,9 +28,10 @@ GENERATE_SOA_LAYOUT(SoAHostDeviceLayoutTemplate,
                     // scalars: one value for the whole structure
                     SOA_SCALAR(const char*, description),
                     SOA_SCALAR(uint32_t, someNumber))
-
+        
 using SoAHostDeviceLayout = SoAHostDeviceLayoutTemplate<>;
 using SoAHostDeviceView = SoAHostDeviceLayout::TrivialView;
+using SoAHostDeviceConstView = SoAHostDeviceLayout::TrivialConstView;
 
 GENERATE_SOA_LAYOUT(SoADeviceOnlyLayoutTemplate,
                     /*SoADeviceOnlyViewTemplate,*/
@@ -115,6 +116,7 @@ int main(void) {
   cudaCheck(cudaMallocHost(&h_buf, hostDeviceSize));
   SoAHostDeviceLayout h_soahdLayout(h_buf, numElements);
   SoAHostDeviceView h_soahd(h_soahdLayout);
+  SoAHostDeviceConstView h_soahd_c(h_soahdLayout);
 
   // Alocate buffer, stores and views on the device (single, shared buffer).
   size_t deviceOnlySize = SoADeviceOnlyLayout::computeDataSize(numElements);
@@ -219,7 +221,7 @@ int main(void) {
   // Wait and validate.
   cudaCheck(cudaStreamSynchronize(stream));
   for (size_t i = 0; i < numElements; ++i) {
-    auto si = h_soahd[i];
+    auto si = h_soahd_c[i];
     assert(si.r() == si.a().cross(si.b()));
     double initialX = 1.0 * i + 1.0;
     double initialY = 2.0 * i;

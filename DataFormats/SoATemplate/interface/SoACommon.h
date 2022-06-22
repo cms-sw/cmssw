@@ -274,13 +274,14 @@ namespace cms::soa {
 
   // Helper template managing the value within it column
   // TODO Create a const variant to avoid leaking mutable access.
+//#define EIGEN_WORLD_VERSION
 #ifdef EIGEN_WORLD_VERSION
   template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
   class SoAValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
   public:
     typedef C Type;
     typedef Eigen::Map<C, 0, Eigen::InnerStride<Eigen::Dynamic>> MapType;
-    typedef Eigen::Map<const C, 0, Eigen::InnerStride<Eigen::Dynamic>> CMapType;
+    typedef const Eigen::Map<const C, 0, Eigen::InnerStride<Eigen::Dynamic>> CMapType;
     typedef add_restrict<typename C::Scalar, RESTRICT_QUALIFY> Restr;
     typedef typename Restr::Value Val;
     typedef typename Restr::Pointer Ptr;
@@ -385,7 +386,7 @@ namespace cms::soa {
   public:
     typedef C Type;
     typedef Eigen::Map<const C, 0, Eigen::InnerStride<Eigen::Dynamic>> CMapType;
-    typedef CMapType& RefToConst;
+    typedef const CMapType& RefToConst;
     typedef SoAConstParametersImpl<SoAColumnType::eigen, C> ConstParams;
     SOA_HOST_DEVICE_INLINE SoAConstValue(size_type i, typename C::Scalar* col, byte_size_type stride)
         : crCol_(col),

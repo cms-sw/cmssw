@@ -225,8 +225,8 @@ namespace cms::soa {
 // clang-format off
 #define _DECLARE_VIEW_CONST_ELEMENT_ACCESSOR_IMPL(LAYOUT_NAME, LAYOUT_MEMBER, LOCAL_NAME)                 \
   SOA_HOST_DEVICE_INLINE                                                                                  \
-      typename SoAConstValueWithConf<BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, LOCAL_NAME),                \
-                                     typename BOOST_PP_CAT(SoAMetadata::TypeOf_, LOCAL_NAME)>::RefToConst \
+      const typename SoAConstValueWithConf<BOOST_PP_CAT(SoAMetadata::ColumnTypeOf_, LOCAL_NAME),          \
+      const typename BOOST_PP_CAT(SoAMetadata::TypeOf_, LOCAL_NAME)>::RefToConst                          \
       LOCAL_NAME() const {                                                                                \
     return BOOST_PP_CAT(LOCAL_NAME, _)();                                                                 \
   }
@@ -405,7 +405,7 @@ namespace cms::soa {
    */                                                                                                                                       \
     struct SoAMetadata {                                                                                                                    \
       friend CLASS;                                                                                                                         \
-      SOA_HOST_DEVICE_INLINE size_type size() const { return parent_.nElements_; }                                                             \
+      SOA_HOST_DEVICE_INLINE size_type size() const { return parent_.nElements_; }                                                          \
       /* Alias layout or view types to name-derived identifyer to allow simpler definitions */                                              \
       _ITERATE_ON_ALL(_DECLARE_VIEW_LAYOUT_TYPE_ALIAS, ~, LAYOUTS_LIST)                                                                     \
                                                                                                                                             \
@@ -429,16 +429,16 @@ namespace cms::soa {
                                                                                                                                             \
     /* Constructor relying on user provided layouts or views */                                                                             \
     SOA_HOST_ONLY CLASS(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_PARAMETERS, BOOST_PP_EMPTY(), LAYOUTS_LIST))                       \
-        : nElements_([&]() -> size_type {                                                                                                      \
+        : nElements_([&]() -> size_type {                                                                                                   \
             bool set = false;                                                                                                               \
-            size_type ret = 0;                                                                                                                 \
+            size_type ret = 0;                                                                                                              \
             _ITERATE_ON_ALL(_UPDATE_SIZE_OF_VIEW, BOOST_PP_EMPTY(), LAYOUTS_LIST)                                                           \
             return ret;                                                                                                                     \
           }()),                                                                                                                             \
           _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS, ~, VALUE_LIST) {}                                                        \
                                                                                                                                             \
     /* Constructor relying on individually provided column addresses */                                                                     \
-    SOA_HOST_ONLY CLASS(size_type nElements,                                                                                                   \
+    SOA_HOST_ONLY CLASS(size_type nElements,                                                                                                \
                         _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS,                                               \
                                               BOOST_PP_EMPTY(),                                                                             \
                                               VALUE_LIST))                                                                                  \
@@ -446,7 +446,7 @@ namespace cms::soa {
                                                                                                                                             \
     struct const_element {                                                                                                                  \
       SOA_HOST_DEVICE_INLINE                                                                                                                \
-      const_element(size_type index, /* Declare parameters */                                                                                  \
+      const_element(size_type index, /* Declare parameters */                                                                               \
                     _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_VALUE_ARG, const, VALUE_LIST))                                              \
           : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEM_MEMBER_INIT, index, VALUE_LIST) {}                                               \
       _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_ACCESSOR, ~, VALUE_LIST)                                                                  \
@@ -457,7 +457,7 @@ namespace cms::soa {
                                                                                                                                             \
     struct element {                                                                                                                        \
       SOA_HOST_DEVICE_INLINE                                                                                                                \
-      element(size_type index, /* Declare parameters */                                                                                        \
+      element(size_type index, /* Declare parameters */                                                                                     \
               _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEMENT_VALUE_ARG, BOOST_PP_EMPTY(), VALUE_LIST))                                         \
           : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_ELEM_MEMBER_INIT, index, VALUE_LIST) {}                                                     \
       SOA_HOST_DEVICE_INLINE                                                                                                                \
@@ -470,7 +470,7 @@ namespace cms::soa {
                                                                                                                                             \
     /* AoS-like accessor (non-const) */                                                                                                     \
     SOA_HOST_DEVICE_INLINE                                                                                                                  \
-    element operator[](size_type index) {                                                                                                      \
+    element operator[](size_type index) {                                                                                                   \
       if constexpr (rangeChecking == cms::soa::RangeChecking::Enabled) {                                                                    \
         if (index >= nElements_)                                                                                                            \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #CLASS "::operator[]")                                                            \
@@ -480,7 +480,7 @@ namespace cms::soa {
                                                                                                                                             \
     /* AoS-like accessor (const) */                                                                                                         \
     SOA_HOST_DEVICE_INLINE                                                                                                                  \
-    const_element operator[](size_type index) const {                                                                                          \
+    const_element operator[](size_type index) const {                                                                                       \
       if constexpr (rangeChecking == cms::soa::RangeChecking::Enabled) {                                                                    \
         if (index >= nElements_)                                                                                                            \
           SOA_THROW_OUT_OF_RANGE("Out of range index in " #CLASS "::operator[]")                                                            \
@@ -507,19 +507,19 @@ namespace cms::soa {
 #define _GENERATE_SOA_CONST_VIEW_PART_0(CLASS, LAYOUTS_LIST, VALUE_LIST)                                                                  \
   template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT = cms::soa::CacheLineSize::defaultSize,                                                 \
             bool VIEW_ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::Relaxed,                                                    \
-            cms::soa::RestrictQualify RESTRICT_QUALIFY = cms::soa::RestrictQualify::Enabled,                                              \
-            cms::soa::RangeChecking RANGE_CHECKING = cms::soa::RangeChecking::Disabled>                                                   \
+            bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Enabled,                                                                   \
+            bool RANGE_CHECKING = cms::soa::RangeChecking::Disabled>                                                                      \
   struct CLASS {                                                                                                                          \
     /* these could be moved to an external type trait to free up the symbol names */                                                      \
     using self_type = CLASS;
 // clang-format on
 
 // clang-format off
-#define _GENERATE_SOA_CONST_VIEW_PART_0_NO_DEFAULTS(CLASS, LAYOUTS_LIST, VALUE_LIST)                                                                  \
+#define _GENERATE_SOA_CONST_VIEW_PART_0_NO_DEFAULTS(CLASS, LAYOUTS_LIST, VALUE_LIST)                                                      \
   template <CMS_SOA_BYTE_SIZE_TYPE VIEW_ALIGNMENT,                                                                                        \
             bool VIEW_ALIGNMENT_ENFORCEMENT,                                                                                              \
-            cms::soa::RestrictQualify RESTRICT_QUALIFY,                                                                                   \
-            cms::soa::RangeChecking RANGE_CHECKING>                                                                                       \
+            bool RESTRICT_QUALIFY,                                                                                                        \
+            bool RANGE_CHECKING>                                                                                                          \
   struct CLASS {                                                                                                                          \
     /* these could be moved to an external type trait to free up the symbol names */                                                      \
     using self_type = CLASS;
@@ -537,13 +537,13 @@ namespace cms::soa {
    * See https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#global-memory-3-0 this is still valid                           \
    * up to compute capability 8.X.                                                                                                        \
    */                                                                                                                                     \
-    constexpr static byte_size_type defaultAlignment = cms::soa::CacheLineSize::defaultSize;                                                      \
-    constexpr static byte_size_type alignment = VIEW_ALIGNMENT;                                                                                    \
-    constexpr static bool alignmentEnforcement = VIEW_ALIGNMENT_ENFORCEMENT;                                                   \
-    constexpr static byte_size_type conditionalAlignment =                                                                                        \
-        alignmentEnforcement == AlignmentEnforcement::Enforced ? alignment : 0;                                                       \
-    constexpr static cms::soa::RestrictQualify restrictQualify = RESTRICT_QUALIFY;                                                        \
-    constexpr static cms::soa::RangeChecking rangeChecking = RANGE_CHECKING;                                                              \
+    constexpr static byte_size_type defaultAlignment = cms::soa::CacheLineSize::defaultSize;                                              \
+    constexpr static byte_size_type alignment = VIEW_ALIGNMENT;                                                                           \
+    constexpr static bool alignmentEnforcement = VIEW_ALIGNMENT_ENFORCEMENT;                                                              \
+    constexpr static byte_size_type conditionalAlignment =                                                                                \
+        alignmentEnforcement == AlignmentEnforcement::Enforced ? alignment : 0;                                                           \
+    constexpr static bool restrictQualify = RESTRICT_QUALIFY;                                                                             \
+    constexpr static bool rangeChecking = RANGE_CHECKING;                                                                                 \
     /* Those typedefs avoid having commas in macros (which is problematic) */                                                             \
     template <cms::soa::SoAColumnType COLUMN_TYPE, class C>                                                                               \
     using SoAValueWithConf = cms::soa::SoAValue<COLUMN_TYPE, C, conditionalAlignment, restrictQualify>;                                   \
@@ -555,7 +555,7 @@ namespace cms::soa {
    */                                                                                                                                     \
     struct SoAMetadata {                                                                                                                  \
       friend CLASS;                                                                                                                       \
-      SOA_HOST_DEVICE_INLINE size_type size() const { return parent_.nElements_; }                                                           \
+      SOA_HOST_DEVICE_INLINE size_type size() const { return parent_.nElements_; }                                                        \
       /* Alias layout/view types to name-derived identifyer to allow simpler definitions */                                               \
       _ITERATE_ON_ALL(_DECLARE_VIEW_LAYOUT_TYPE_ALIAS, ~, LAYOUTS_LIST)                                                                   \
                                                                                                                                           \
@@ -577,22 +577,22 @@ namespace cms::soa {
                                                                                                                                           \
     /* Constructor relying on user provided layouts or views */                                                                           \
     SOA_HOST_ONLY CLASS(_ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_PARAMETERS, const, LAYOUTS_LIST))                                \
-        : nElements_([&]() -> size_type {                                                                                                    \
+        : nElements_([&]() -> size_type {                                                                                                 \
             bool set = false;                                                                                                             \
-            size_type ret = 0;                                                                                                               \
+            size_type ret = 0;                                                                                                            \
             _ITERATE_ON_ALL(_UPDATE_SIZE_OF_VIEW, BOOST_PP_EMPTY(), LAYOUTS_LIST)                                                         \
             return ret;                                                                                                                   \
           }()),                                                                                                                           \
           _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS, ~, VALUE_LIST) {}                                                      \
                                                                                                                                           \
     /* Constructor relying on individually provided column addresses */                                                                   \
-    SOA_HOST_ONLY CLASS(size_type nElements,                                                                                                 \
+    SOA_HOST_ONLY CLASS(size_type nElements,                                                                                              \
                         _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONSTRUCTION_BYCOLUMN_PARAMETERS, const, VALUE_LIST))                         \
         : nElements_(nElements), _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_MEMBER_INITIALIZERS_BYCOLUMN, ~, VALUE_LIST) {}                      \
                                                                                                                                           \
     struct const_element {                                                                                                                \
       SOA_HOST_DEVICE_INLINE                                                                                                              \
-      const_element(size_type index, /* Declare parameters */                                                                                \
+      const_element(size_type index, /* Declare parameters */                                                                             \
                     _ITERATE_ON_ALL_COMMA(_DECLARE_CONST_VIEW_ELEMENT_VALUE_ARG, const, VALUE_LIST))                                      \
           : _ITERATE_ON_ALL_COMMA(_DECLARE_VIEW_CONST_ELEM_MEMBER_INIT, index, VALUE_LIST) {}                                             \
       _ITERATE_ON_ALL(_DECLARE_VIEW_CONST_ELEMENT_ACCESSOR, ~, VALUE_LIST)                                                                \
@@ -631,7 +631,8 @@ namespace cms::soa {
    _GENERATE_SOA_VIEW_PART_1(CLASS, SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))
 
 #define _GENERATE_SOA_TRIVIAL_VIEW(CLASS, LAYOUTS_LIST, VALUE_LIST)                                                                       \
-   _GENERATE_SOA_VIEW_PART_0_NO_DEFAULTS(TrivialViewTemplateFreeParams, SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))          \
+   _GENERATE_SOA_VIEW_PART_0_NO_DEFAULTS(TrivialViewTemplateFreeParams,                                                                   \
+     SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))                                                                 \
    using  BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                                         \
    _GENERATE_SOA_VIEW_PART_1(TrivialViewTemplateFreeParams, SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))
 
@@ -640,9 +641,11 @@ namespace cms::soa {
    _GENERATE_SOA_CONST_VIEW_PART_1(CLASS, SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))
 
 #define _GENERATE_SOA_TRIVIAL_CONST_VIEW(CLASS, LAYOUTS_LIST, VALUE_LIST)                                                                 \
-   _GENERATE_SOA_CONST_VIEW_PART_0_NO_DEFAULTS(TrivialConstViewTemplateFreeParams, SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST)) \
-   using  BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>                                          \
-   _GENERATE_SOA_CONST_VIEW_PART_1(CLASS, SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))
+   _GENERATE_SOA_CONST_VIEW_PART_0_NO_DEFAULTS(TrivialConstViewTemplateFreeParams,                                                        \
+     SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))                                                                 \
+   using  BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                                         \
+   _GENERATE_SOA_CONST_VIEW_PART_1(TrivialConstViewTemplateFreeParams,                                                                    \
+     SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))
 // clang-format on
 /**
  * Helper macro turning layout field declaration into view field declaration.
@@ -660,14 +663,14 @@ namespace cms::soa {
   GENERATE_SOA_LAYOUT(LAYOUT_NAME, __VA_ARGS__)                                                                        \
   using BOOST_PP_CAT(LAYOUT_NAME, _default) = LAYOUT_NAME<>;                                                           \
   GENERATE_SOA_VIEW(VIEW_NAME,                                                                                         \
-                    SOA_VIEW_LAYOUT_LIST((BOOST_PP_CAT(LAYOUT_NAME, _default), BOOST_PP_CAT(instance_, LAYOUT_NAME))), \
-                    SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                         \
-                        _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, LAYOUT_NAME), __VA_ARGS__)))                  \
+    SOA_VIEW_LAYOUT_LIST((BOOST_PP_CAT(LAYOUT_NAME, _default), BOOST_PP_CAT(instance_, LAYOUT_NAME))),                 \
+    SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                                         \
+    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, LAYOUT_NAME), __VA_ARGS__)))                                      \
   GENERATE_SOA_CONST_VIEW(                                                                                             \
-      CONST_VIEW_NAME,                                                                                                 \
-      SOA_VIEW_LAYOUT_LIST((BOOST_PP_CAT(LAYOUT_NAME, _default), BOOST_PP_CAT(instance_, LAYOUT_NAME))),               \
-      SOA_VIEW_VALUE_LIST(                                                                                             \
-          _ITERATE_ON_ALL_COMMA(_VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, LAYOUT_NAME), __VA_ARGS__)))
+    CONST_VIEW_NAME,                                                                                                   \
+    SOA_VIEW_LAYOUT_LIST((BOOST_PP_CAT(LAYOUT_NAME, _default), BOOST_PP_CAT(instance_, LAYOUT_NAME))),                 \
+    SOA_VIEW_VALUE_LIST(                                                                                               \
+      _ITERATE_ON_ALL_COMMA(_VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, LAYOUT_NAME), __VA_ARGS__)))
 // clang-format on
 
 // clang-format off
@@ -675,10 +678,11 @@ namespace cms::soa {
   GENERATE_SOA_LAYOUT(LAYOUT_NAME, __VA_ARGS__)                                                          \
   using BOOST_PP_CAT(LAYOUT_NAME, _default) = LAYOUT_NAME<>;                                             \
   GENERATE_SOA_CONST_VIEW(                                                                               \
-      CONST_VIEW_NAME,                                                                                   \
-      SOA_VIEW_LAYOUT_LIST((BOOST_PP_CAT(LAYOUT_NAME, _default), BOOST_PP_CAT(instance_, LAYOUT_NAME))), \
-      SOA_VIEW_VALUE_LIST(                                                                               \
-          _ITERATE_ON_ALL_COMMA(_VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, LAYOUT_NAME), __VA_ARGS__)))
+    CONST_VIEW_NAME,                                                                                     \
+    SOA_VIEW_LAYOUT_LIST((BOOST_PP_CAT(LAYOUT_NAME, _default), BOOST_PP_CAT(instance_, LAYOUT_NAME))),   \
+    SOA_VIEW_VALUE_LIST(                                                                                 \
+      _ITERATE_ON_ALL_COMMA(_VIEW_FIELD_FROM_LAYOUT,                                                     \
+        BOOST_PP_CAT(instance_, LAYOUT_NAME), __VA_ARGS__)))
 // clang-format on
 
 #endif  // ndef DataStructures_SoAView_h
