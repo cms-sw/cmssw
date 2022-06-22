@@ -110,7 +110,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
     book1D(iBooker, "efficiencyPhi_" + suffix, "phi", ";#phi;");
     book1D(iBooker, "efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
     book1D(iBooker, "efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
-    
+
     if (isLastFilter_)
       iBooker.setCurrentFolder(baseDir + pathSansSuffix);
     else
@@ -121,8 +121,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
 
     book1D(iBooker, "efficiencyCharge_" + suffix, "charge", ";charge;");
     book1D(iBooker, "efficiencyZ0_" + suffix, "z0", ";z0;");
-    book1D(iBooker, "efficiency_DZ_Mu_" + suffix, "z0", ";z0;");    
-    
+    book1D(iBooker, "efficiency_DZ_Mu_" + suffix, "z0", ";z0;");
   }
 }
 
@@ -211,7 +210,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
         else if (muon.isStandAloneMuon())
           track = &*muon.outerTrack();
         if (track) {
-		  hists_["efficiencyVertex_" + suffix]->Fill(vertices->size());
+          hists_["efficiencyVertex_" + suffix]->Fill(vertices->size());
           hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
 
           if (isLastFilter_) {
@@ -280,7 +279,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
     nonDZPath = nonDZPath.substr(0, nonDZPath.rfind("_v") + 2);
   }
   bool passTriggerDZ = false;
-  
+
   if (dzPath) {
     for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
       passTriggerDZ = passTriggerDZ || (trigNames.triggerName(hltIndex).find(nonDZPath) != std::string::npos &&
