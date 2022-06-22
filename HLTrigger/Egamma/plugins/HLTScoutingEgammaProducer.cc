@@ -62,12 +62,30 @@ HLTScoutingEgammaProducer::HLTScoutingEgammaProducer(const edm::ParameterSet& iC
       egammaPtCut(iConfig.getParameter<double>("egammaPtCut")),
       egammaEtaCut(iConfig.getParameter<double>("egammaEtaCut")),
       egammaHoverECut(iConfig.getParameter<double>("egammaHoverECut")),
+      egammaSigmaIEtaIEtaCut(iConfig.getParameter<std::vector<double>>("egammaSigmaIEtaIEtaCut")),
+      absEtaLowEdges(iConfig.getParameter<std::vector<double>>("absEtaLowEdges")),
       mantissaPrecision(iConfig.getParameter<int>("mantissaPrecision")),
       saveRecHitTiming(iConfig.getParameter<bool>("saveRecHitTiming")),
       rechitMatrixSize(iConfig.getParameter<int>("rechitMatrixSize")),  //(2n+1)^2
       rechitZeroSuppression(iConfig.getParameter<bool>("rechitZeroSuppression")),
       ecalRechitEB_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRechitEB"))),
       ecalRechitEE_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRechitEE"))) {
+  // cross-check for compatibility in input vectors
+  if (absEtaLowEdges.size() != egammaSigmaIEtaIEtaCut.size()) {
+    throw cms::Exception("IncompatibleVects")
+        << "size of \"absEtaLowEdges\" (" << absEtaLowEdges.size() << ") and \"egammaSigmaIEtaIEtaCut\" ("
+        << egammaSigmaIEtaIEtaCut.size() << ") differ";
+  }
+
+  for (unsigned int aIt = 0; aIt < absEtaLowEdges.size() - 1; aIt++) {
+    if (absEtaLowEdges[aIt] < 0 || absEtaLowEdges[aIt + 1] < 0) {
+      throw cms::Exception("IncorrectValue") << "absEtaLowEdges entries should be greater than or equal to zero.";
+    }
+    if (absEtaLowEdges[aIt] > absEtaLowEdges[aIt + 1]) {
+      throw cms::Exception("ImproperBinning") << "absEtaLowEdges entries should be in increasing order.";
+    }
+  }
+
   //register products
   produces<Run3ScoutingElectronCollection>();
   produces<Run3ScoutingPhotonCollection>();
@@ -107,6 +125,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     return;
   }
 
+  // Get R9Map
   Handle<RecoEcalCandMap> R9Map;
   if (!iEvent.getByToken(R9Map_, R9Map)) {
     iEvent.put(std::move(outElectrons));
@@ -232,9 +251,21 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
       }
     }
 
-    float HoE = 999.;
-    if (candidate.superCluster()->energy() != 0.)
+    float HoE = 999., sinin = 999.;
+    if (candidate.superCluster()->energy() != 0.) {
       HoE = (*HoverEMap)[candidateRef] / candidate.superCluster()->energy();
+      sinin = (*SigmaIEtaIEtaMap)[candidateRef];
+    }
+
+    if (HoE > egammaHoverECut)
+      continue;
+
+    auto bIt = std::lower_bound(absEtaLowEdges.begin(), absEtaLowEdges.end(), std::abs(candidate.eta())) - 1;
+    auto etabinpos = std::distance(absEtaLowEdges.begin(), bIt);
+
+    if (etabinpos >= 0)
+      if (sinin > egammaSigmaIEtaIEtaCut[etabinpos])
+        continue;
 
     float d0 = 0.0;
     float dz = 0.0;
@@ -319,6 +350,8 @@ void HLTScoutingEgammaProducer::fillDescriptions(edm::ConfigurationDescriptions&
   desc.add<double>("egammaPtCut", 4.0);
   desc.add<double>("egammaEtaCut", 2.5);
   desc.add<double>("egammaHoverECut", 1.0);
+  desc.add<std::vector<double>>("egammaSigmaIEtaIEtaCut", {99999.0, 99999.0});
+  desc.add<std::vector<double>>("absEtaLowEdges", {0.0, 1.479});
   desc.add<bool>("saveRecHitTiming", false);
   desc.add<int>("mantissaPrecision", 10)->setComment("default float16, change to 23 for float32");
   desc.add<int>("rechitMatrixSize", 10);
