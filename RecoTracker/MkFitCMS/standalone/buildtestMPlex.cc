@@ -440,7 +440,9 @@ namespace mkfit {
         }
       }
 
-      if (itconf.m_requires_dupclean_tight)
+      bool do_seed_clean = itconf.m_requires_dupclean_tight;
+
+      if (do_seed_clean)
         StdSeq::clean_cms_seedtracks_iter(&seeds, itconf, eoh.refBeamSpot());
 
       builder.seed_post_cleaning(seeds);
@@ -449,7 +451,7 @@ namespace mkfit {
       if (seeds.size() <= 0)
         continue;
 
-      builder.find_tracks_load_seeds(seeds, itconf.m_requires_dupclean_tight);
+      builder.find_tracks_load_seeds(seeds, do_seed_clean);
 
       double time = dtime();
 
