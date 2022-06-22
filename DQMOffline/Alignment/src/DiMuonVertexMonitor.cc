@@ -16,6 +16,7 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
 
 #include "TLorentzVector.h"
 
@@ -45,6 +46,15 @@ void DiMuonVertexMonitor::bookHistograms(DQMStore::IBooker& iBooker, edm::Run co
   hCosPhi3D_ = iBooker.book1D("CosPhi3D", ";cos(#phi_{3D});N(#mu#mu pairs)", 50, -1., 1.);
   hCosPhiInv_ = iBooker.book1D("CosPhiInv", ";inverted cos(#phi_{xy});N(#mu#mu pairs)", 50, -1., 1.);
   hCosPhiInv3D_ = iBooker.book1D("CosPhiInv3D", ";inverted cos(#phi_{3D});N(#mu#mu pairs)", 50, -1., 1.);
+
+  hdxy_ = iBooker.book1D("dxy", ";muon track d_{xy}(PV) [#mum];muon tracks", 150, -300, 300);
+  hdz_ = iBooker.book1D("dz", ";muon track d_{z}(PV) [#mum];muon tracks", 150, -300, 300);
+  hdxyErr_ = iBooker.book1D("dxyErr", ";muon track err_{dxy} [#mum];muon tracks", 250, 0., 500.);
+  hdzErr_ = iBooker.book1D("dzErr", ";muon track err_{dz} [#mum];muon tracks", 250, 0., 500.);
+  hIP2d_ = iBooker.book1D("IP2d", ";muon track IP_{2D} [#mum];muon tracks", 150, -300, 300);
+  hIP3d_ = iBooker.book1D("IP3d", ";muon track IP_{3D} [#mum];muon tracks", 150, -300, 300);
+  hIP2dsig_ = iBooker.book1D("IP2Dsig", ";muon track IP_{2D} significance;muon tracks", 100, 0., 5.);
+  hIP3dsig_ = iBooker.book1D("IP3Dsig", ";muon track IP_{3D} significance;muon tracks", 100, 0., 5.);
 }
 
 void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -126,8 +136,25 @@ void DiMuonVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetu
       theMainVtxPos.x() - myVertex.x(), theMainVtxPos.y() - myVertex.y(), theMainVtxPos.z() - myVertex.z());
 
   if (theMainVertex.isValid()) {
-    // Z Vertex distance in the xy plane
+    // fill the impact parameter plots
+    for (const auto& track : myTracks) {
+      hdxy_->Fill(track->dxy(theMainVtxPos) * cmToum);
+      hdz_->Fill(track->dz(theMainVtxPos) * cmToum);
+      hdxyErr_->Fill(track->dxyError() * cmToum);
+      hdzErr_->Fill(track->dzError() * cmToum);
 
+      const auto& ttrk = theB->build(track);
+      Global3DVector dir(track->px(), track->py(), track->pz());
+      const auto& ip2d = IPTools::signedTransverseImpactParameter(ttrk, dir, theMainVertex);
+      const auto& ip3d = IPTools::signedImpactParameter3D(ttrk, dir, theMainVertex);
+
+      hIP2d_->Fill(ip2d.second.value() * cmToum);
+      hIP3d_->Fill(ip3d.second.value() * cmToum);
+      hIP2dsig_->Fill(ip2d.second.significance());
+      hIP3dsig_->Fill(ip3d.second.significance());
+    }
+
+    // Z Vertex distance in the xy plane
     VertexDistanceXY vertTool;
     double distance = vertTool.distance(mumuTransientVtx, theMainVertex).value();
     double dist_err = vertTool.distance(mumuTransientVtx, theMainVertex).error();
