@@ -22,7 +22,7 @@
 class DDHGCalWaferPartialRotated : public DDAlgorithm {
 public:
   // Constructor and Destructor
-  DDHGCalWaferPartialRotated() {}
+  DDHGCalWaferPartialRotated() = default;
   ~DDHGCalWaferPartialRotated() override = default;
 
   void initialize(const DDNumericArguments& nArgs,
