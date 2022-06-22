@@ -418,6 +418,7 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     ],
     PU = [
         'RecoGlobal',
+        'HARVESTGlobal'
     ],
     suffix = '_vectorHits',
     offset = 0.9,
