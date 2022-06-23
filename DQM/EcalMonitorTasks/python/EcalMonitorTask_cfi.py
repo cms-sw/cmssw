@@ -14,7 +14,6 @@ from DQM.EcalMonitorTasks.RecoSummaryTask_cfi import ecalRecoSummaryTask
 from DQM.EcalMonitorTasks.SelectiveReadoutTask_cfi import ecalSelectiveReadoutTask
 from DQM.EcalMonitorTasks.TimingTask_cfi import ecalTimingTask
 from DQM.EcalMonitorTasks.TrigPrimTask_cfi import ecalTrigPrimTask
-from DQM.EcalMonitorTasks.ecalGpuTask_cfi import ecalGpuTask
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer
 ecalMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
@@ -29,8 +28,7 @@ ecalMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
         "RawDataTask",
         "RecoSummaryTask",
         "TimingTask",
-        "TrigPrimTask",
-        "GpuTask"
+        "TrigPrimTask"
     ),
     # task parameters (included from indivitual cfis)
     workerParameters =  cms.untracked.PSet(
@@ -43,8 +41,7 @@ ecalMonitorTask = DQMEDAnalyzer('EcalDQMonitorTask',
         RecoSummaryTask = ecalRecoSummaryTask,
         SelectiveReadoutTask = ecalSelectiveReadoutTask,
         TimingTask = ecalTimingTask,
-        TrigPrimTask = ecalTrigPrimTask,
-        GpuTask = ecalGpuTask
+        TrigPrimTask = ecalTrigPrimTask
     ),
     commonParameters = ecalCommonParams,
     collectionTags = ecalDQMCollectionTags,
