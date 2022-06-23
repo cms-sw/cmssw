@@ -291,11 +291,11 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
     const Track* track1 = nullptr;
     if (targetMuons.at(0).isTrackerMuon())
       track0 = &*targetMuons.at(0).innerTrack();
-    else if (targetMuons.at(0).isTrackerMuon())
+    else if (targetMuons.at(0).isStandAloneMuon())
       track0 = &*targetMuons.at(0).outerTrack();
     if (targetMuons.at(1).isTrackerMuon())
       track1 = &*targetMuons.at(1).innerTrack();
-    else if (targetMuons.at(1).isTrackerMuon())
+    else if (targetMuons.at(1).isStandAloneMuon())
       track1 = &*targetMuons.at(1).outerTrack();
 
     if (track0 && track1) {
