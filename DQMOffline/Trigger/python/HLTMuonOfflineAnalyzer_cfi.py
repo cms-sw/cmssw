@@ -21,7 +21,7 @@ hltMuonOfflineAnalyzer = DQMEDAnalyzer('HLTMuonOfflineAnalyzer',
       "HLT_HIL3Mu15_v", #for HI
       "HLT_HIL3Mu20_v", #for HI
       "HLT_CascadeMu100_v",
-      "HLT_HighPtTkMu100"
+      "HLT_HighPtTkMu100_v"
     ),
 
 #HLT_Mu15_eta2p1_TriCentral_40_20_20_BTagIP3D1stTrack_v3 matches HLT_Mu15_eta2p1_v
