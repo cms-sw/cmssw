@@ -214,8 +214,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
           hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
 
           if (isLastFilter_) {
-            double z0 = track->dz(beamSpot->position());
-            hists_["efficiencyZ0_" + suffix]->Fill(z0);
+            hists_["efficiencyZ0_" + suffix]->Fill(track->dz(beamSpot->position()));
             hists_["efficiencyCharge_" + suffix]->Fill(muon.charge());
           }
         }
