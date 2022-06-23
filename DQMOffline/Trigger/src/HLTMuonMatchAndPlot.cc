@@ -210,7 +210,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
         else if (muon.isStandAloneMuon())
           track = &*muon.outerTrack();
         if (track) {
-          hists_["efficiencyVertex_" + suffix]->Fill(vertices->size());
+          hists_["efficiencyNVertex_" + suffix]->Fill(vertices->size());
           hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
 
           if (isLastFilter_) {
