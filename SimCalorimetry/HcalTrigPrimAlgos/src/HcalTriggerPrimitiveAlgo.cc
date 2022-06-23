@@ -505,12 +505,12 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
         output[ibin] = 0;
       }
     } else {
-        output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
+      output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
 
-        if (fix_saturation_ && force_saturation[idx] && ids.size() == 2)
-          output[ibin] = QIE11_MAX_LINEARIZATION_ET * 0.5;
-        else if (fix_saturation_ && force_saturation[idx])
-          output[ibin] = QIE11_MAX_LINEARIZATION_ET;
+      if (fix_saturation_ && force_saturation[idx] && ids.size() == 2)
+        output[ibin] = QIE11_MAX_LINEARIZATION_ET * 0.5;
+      else if (fix_saturation_ && force_saturation[idx])
+        output[ibin] = QIE11_MAX_LINEARIZATION_ET;
     }
     // peak-finding is not applied for FG bits
     // compute(msb) returns two bits (MIP). compute(timingTDC,ids) returns 6 bits (1 depth, 1 prompt, 1 delayed 01, 1 delayed 10, 2 reserved)
