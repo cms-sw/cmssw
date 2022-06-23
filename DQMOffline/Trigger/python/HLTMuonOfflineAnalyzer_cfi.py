@@ -17,9 +17,9 @@ hltMuonOfflineAnalyzer = DQMEDAnalyzer('HLTMuonOfflineAnalyzer',
       "HLT_IsoMu24_v",
       "HLT_IsoMu27_v",
       "HLT_IsoMu20_v",
-      "HLT_HIL3Mu12_v1", #for HI
-      "HLT_HIL3Mu15_v1", #for HI
-      "HLT_HIL3Mu20_v1", #for HI
+      "HLT_HIL3Mu12_v", #for HI
+      "HLT_HIL3Mu15_v", #for HI
+      "HLT_HIL3Mu20_v", #for HI
       "HLT_CascadeMu100_v",
       "HLT_HighPtTkMu100"
     ),
