@@ -5,7 +5,7 @@ uncalibOOTAmps_ = [4,6]
 
 ecalGpuTask = cms.untracked.PSet(
     params = cms.untracked.PSet(
-        runGpuTask = cms.untracked.bool(True),
+        runGpuTask = cms.untracked.bool(False),
 
         # Default plots for each object are 1D CPU distributions and 1D GPU-CPU diff
         enableDigi = cms.untracked.bool(True),
