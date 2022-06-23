@@ -23,6 +23,7 @@
 
 //system includes
 #include <sstream>
+#include <numeric>  // for std::accumulate
 
 // ROOT includes
 #include "TEfficiency.h"
@@ -64,6 +65,7 @@ private:
                             const std::array<long, bounds::k_END_OF_LAYERS>& layerTotal) const;
   void printAndWriteBadModules(const SiStripQuality& quality, const SiStripDetInfo& detInfo) const;
   bool checkMapsValidity(const std::vector<MonitorElement*>& maps, const std::string& type) const;
+  unsigned int countTotalHits(const std::vector<MonitorElement*>& maps); /* to check if TK was ON */
   void makeSummary(DQMStore::IGetter& getter, TFileService& fs) const;
   void makeSummaryVsBX(DQMStore::IGetter& getter, TFileService& fs) const;
   void makeSummaryVsLumi(DQMStore::IGetter& getter) const;
@@ -137,6 +139,12 @@ bool SiStripHitEfficiencyHarvester::checkMapsValidity(const std::vector<MonitorE
   return areMapsAvailable;
 }
 
+unsigned int SiStripHitEfficiencyHarvester::countTotalHits(const std::vector<MonitorElement*>& maps) {
+  return std::accumulate(maps.begin() + 1, maps.end(), 0, [](unsigned int total, MonitorElement* item) {
+    return total + item->getEntries();
+  });
+}
+
 void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
   if (!autoIneffModTagging_)
     LOGPRINT << "A module is bad if efficiency < " << threshold_ << " and has at least " << nModsMin_ << " nModsMin.";
@@ -170,6 +178,9 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   LogDebug("SiStripHitEfficiencyHarvester")
       << "Entries in total TkHistoMap for layer 3: " << h_module_total->getMap(3)->getEntries() << ", found "
       << h_module_found->getMap(3)->getEntries();
+
+  // count how many hits in the denominator we have
+  const unsigned int totalHits = this->countTotalHits(totalMaps);
 
   // come back to the main folder
   booker.setCurrentFolder(inputFolder_);
@@ -305,7 +316,12 @@ void SiStripHitEfficiencyHarvester::dqmEndJob(DQMStore::IBooker& booker, DQMStor
   }
   pQuality.fillBadComponents();
   if (doStoreOnDB_) {
-    writeBadStripPayload(pQuality);
+    if (totalHits > 0u) {
+      writeBadStripPayload(pQuality);
+    } else {
+      edm::LogPrint("SiStripHitEfficiencyHarvester")
+          << __PRETTY_FUNCTION__ << " There are no SiStrip hits for a valid measurement, skipping!";
+    }
   } else {
     edm::LogInfo("SiStripHitEfficiencyHarvester") << "Will not produce payload!";
   }
