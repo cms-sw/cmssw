@@ -1,10 +1,4 @@
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
-#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
@@ -136,7 +130,7 @@ void DeepMETSonicProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
 void DeepMETSonicProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   TritonClient::fillPSetDescription(desc);
-  desc.add<edm::InputTag>("pf_src");
+  desc.add<edm::InputTag>("pf_src", edm::InputTag("packedPFCandidates"));
   desc.add<bool>("ignore_leptons", false);
   desc.add<double>("norm_factor", 50.);
   desc.add<unsigned int>("max_n_pf", 4500);
