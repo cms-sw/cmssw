@@ -109,7 +109,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
     book1D(iBooker, "efficiencyEta_" + suffix, "eta", ";#eta;");
     book1D(iBooker, "efficiencyPhi_" + suffix, "phi", ";#phi;");
     book1D(iBooker, "efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
-    book1D(iBooker, "efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
+    book1D(iBooker, "efficiencyNVertex_" + suffix, "NVertex", ";NVertex;");
 
     if (isLastFilter_)
       iBooker.setCurrentFolder(baseDir + pathSansSuffix);
