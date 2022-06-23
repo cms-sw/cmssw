@@ -299,9 +299,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
 
     if (track0 && track1) {
       hists_["efficiency_DZ_Mu_denom"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
-    }
-    if (nMatched > 1) {
-      if (track0 && track1) {
+      if (nMatched > 1) {
         hists_["efficiency_DZ_Mu_numer"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
       }
     }
