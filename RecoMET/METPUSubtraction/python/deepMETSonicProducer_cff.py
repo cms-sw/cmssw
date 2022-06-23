@@ -12,5 +12,5 @@ deepMETSonicProducer = _deepMETSonicProducer.clone(
         # version "2" is the responeTune
         modelVersion = "1",
     ),
-    pf_src = cms.InputTag("packedPFCandidates"),
+    pf_src = "packedPFCandidates",
 )

@@ -159,7 +159,7 @@ def nanoAOD_recalibrateMETs(process,isData):
         ResponseTune_Graph = cms.untracked.string('RecoMET/METPUSubtraction/data/models/deepmet/deepmet_resp_v1_2018/model.graphdef')
     )
     for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-        modifier.toModify(nanoAOD_DeepMET_switch, ResponseTune_Graph=cms.untracked.string("RecoMET/METPUSubtraction/data/models/deepmet/deepmet_resp_v1_2016/model.graphdef"))
+        modifier.toModify(nanoAOD_DeepMET_switch, ResponseTune_Graph="RecoMET/METPUSubtraction/data/models/deepmet/deepmet_resp_v1_2016/model.graphdef")
 
     print("add DeepMET Producers")
     process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
