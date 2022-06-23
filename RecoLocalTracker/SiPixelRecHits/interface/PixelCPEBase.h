@@ -49,7 +49,8 @@ public:
     const PixelTopology* theTopol;
     const RectangularPixelTopology* theRecTopol;
 
-    GeomDetType::SubDetector thePart;
+    //set default value of enum to avoid USBAN errors
+    GeomDetType::SubDetector thePart = GeomDetEnumerators::invalidDet;
     Local3DPoint theOrigin;
     float theThickness;
     float thePitchX;
