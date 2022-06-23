@@ -22,7 +22,7 @@
 class DDHGCalWaferPartialRotated : public DDAlgorithm {
 public:
   // Constructor and Destructor
-  DDHGCalWaferPartialRotated();
+  DDHGCalWaferPartialRotated() = default;
   ~DDHGCalWaferPartialRotated() override = default;
 
   void initialize(const DDNumericArguments& nArgs,
@@ -53,12 +53,6 @@ private:
   int senseType_;                                // Cell Type (0,1,2: Fine, Course 2/3)
   std::string nameSpace_;                        // Namespace to be used
 };
-
-DDHGCalWaferPartialRotated::DDHGCalWaferPartialRotated() {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: Creating an instance";
-#endif
-}
 
 void DDHGCalWaferPartialRotated::initialize(const DDNumericArguments& nArgs,
                                             const DDVectorArguments& vArgs,
@@ -111,7 +105,7 @@ void DDHGCalWaferPartialRotated::initialize(const DDNumericArguments& nArgs,
   senseType_ = static_cast<int>(nArgs["SenseType"]);
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: NameSpace " << nameSpace_ << " Sensitive Layer Name "
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferPartialRotated: NameSpace " << nameSpace_ << ": Sensitive Layer Name "
                                 << senseName_ << " Thickness " << senseT_ << " Type " << senseType_;
 #endif
 }
