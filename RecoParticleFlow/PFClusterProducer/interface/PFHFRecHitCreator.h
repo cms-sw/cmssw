@@ -161,6 +161,7 @@ public:
           //only short hit!
           if (abs(detid.ieta()) <= 32)
             energy *= HFCalib_;
+	  energy /= 2.;
           newHit.setEnergy(energy);
           if (energy > thresh_HF_)
             out->push_back(newHit);
