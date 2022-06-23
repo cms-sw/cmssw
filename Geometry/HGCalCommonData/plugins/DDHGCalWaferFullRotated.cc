@@ -21,7 +21,7 @@
 #include <vector>
 #include <sstream>
 
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 class DDHGCalWaferFullRotated : public DDAlgorithm {
 public:
