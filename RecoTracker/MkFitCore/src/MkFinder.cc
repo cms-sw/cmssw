@@ -137,8 +137,8 @@ namespace mkfit {
       m_CandIdx(imp, 0, 0) = idxs[i].cand_idx;
 
       const Hit &hit = layer_of_hits.refHit(idxs[i].hit_idx);
-      m_msErr.copyIn(i, hit.errArray());
-      m_msPar.copyIn(i, hit.posArray());
+      m_msErr.copyIn(imp, hit.errArray());
+      m_msPar.copyIn(imp, hit.posArray());
     }
   }
 
