@@ -1,4 +1,8 @@
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "HeterogeneousCore/SonicTriton/interface/TritonEDProducer.h"
