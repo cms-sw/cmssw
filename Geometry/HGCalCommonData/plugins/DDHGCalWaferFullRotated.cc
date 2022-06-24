@@ -102,14 +102,18 @@ void DDHGCalWaferFullRotated::initialize(const DDNumericArguments& nArgs,
     st1 << " [" << i << "] " << layers_[i];
   edm::LogVerbatim("HGCalGeom") << "There are " << layers_.size() << " blocks" << st1.str();
 #endif
-  nCells_ = (int)(nArgs["NCells"]);
-  cellType_ = (int)(nArgs["CellType"]);
-  cellNames_ = vsArgs["CellNames"];
-  cellOffset_ = dbl_to_int(vArgs["CellOffset"]);
+  nCells_ = static_cast<int>(nArgs["NCells"]);
+  if (nCells_ > 0) {
+    cellType_ = static_cast<int>(nArgs["CellType"]);
+    cellNames_ = vsArgs["CellNames"];
+    cellOffset_ = dbl_to_int(vArgs["CellOffset"]);
+  } else {
+    cellType_ = -1;
+  }
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Cells/Wafer " << nCells_ << " Cell Type " << cellType_
-                                << " NameSpace " << nameSpace_ << " # of cells " << cellNames_.size();
+                                << " NameSpace " << nameSpace_ << ": # of cells " << cellNames_.size();
   std::ostringstream st2;
   for (unsigned int i = 0; i < cellOffset_.size(); ++i)
     st2 << " [" << i << "] " << cellOffset_[i];
@@ -197,8 +201,7 @@ void DDHGCalWaferFullRotated::execute(DDCompactView& cpv) {
       ++copyNumber_[i];
       zi += layerThick_[i];
       thickTot += layerThick_[i];
-      if (layerType_[i] > 0) {
-        //int n2 = nCells_ / 2;
+      if ((layerType_[i] > 0) && (nCells_ > 0)) {
         for (int u = 0; u < 2 * nCells_; ++u) {
           for (int v = 0; v < 2 * nCells_; ++v) {
             if (((v - u) < nCells_) && ((u - v) <= nCells_)) {
