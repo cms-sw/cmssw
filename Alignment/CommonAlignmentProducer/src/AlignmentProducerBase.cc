@@ -854,14 +854,7 @@ void AlignmentProducerBase::writeForRunRange(cond::Time_t time) {
 
     auto alignments = alignableTracker_->alignments();
     auto alignmentErrors = alignableTracker_->alignmentErrors();
-    this->writeDB(
-        // ~alignments, "TrackerAlignmentRcd", alignmentErrors, "TrackerAlignmentErrorExtendedRcd", trackerGlobal, time);
-        alignments,
-        tkAliRcdName_,
-        alignmentErrors,
-        "TrackerAlignmentErrorExtendedRcd",
-        trackerGlobal,
-        time);
+    this->writeDB(alignments, tkAliRcdName_, alignmentErrors, "TrackerAlignmentErrorExtendedRcd", trackerGlobal, time);
 
     // Save surface deformations to database
     if (saveDeformationsToDB_) {
