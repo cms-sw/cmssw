@@ -57,9 +57,14 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   edm::LogVerbatim("HGCalGeom") << "There are " << layers.size() << " blocks" << st1.str();
 #endif
   const auto& nCells = args.value<int>("NCells");
-  const auto& cellType = args.value<int>("CellType");
-  const auto& cellNames = args.value<std::vector<std::string> >("CellNames");
-  const auto& cellOffset = args.value<std::vector<int> >("CellOffset");
+  int cellType(-1);
+  std::vector<std::string> cellNames;
+  std::vector<int> cellOffset;
+  if (nCells > 0) {
+    cellType = args.value<int>("CellType");
+    cellNames = args.value<std::vector<std::string> >("CellNames");
+    cellOffset = args.value<std::vector<int> >("CellOffset");
+  }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Cells/Wafer " << nCells << " Cell Type " << cellType
                                 << " # of cells " << cellNames.size();
@@ -145,8 +150,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
       ++copyNumber[i];
       zi += layerThick[i];
       thickTot += layerThick[i];
-      if (layerType[i] > 0) {
-        //int n2 = nCells / 2;
+      if ((layerType[i] > 0) && (nCells > 0)) {
         for (int u = 0; u < 2 * nCells; ++u) {
           for (int v = 0; v < 2 * nCells; ++v) {
             if (((v - u) < nCells) && ((u - v) <= nCells)) {
