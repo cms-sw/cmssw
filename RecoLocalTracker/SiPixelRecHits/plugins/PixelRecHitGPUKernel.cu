@@ -13,6 +13,8 @@
 #include "PixelRecHitGPUKernel.h"
 #include "gpuPixelRecHits.h"
 
+// #define GPU_DEBUG
+
 namespace {
   __global__ void setHitsLayerStart(uint32_t const* __restrict__ hitsModuleStart,
                                     pixelCPEforGPU::ParamsOnGPU const* cpeParams,
@@ -42,10 +44,21 @@ namespace pixelgpudetails {
                                                           cudaStream_t stream) const {
     auto nHits = clusters_d.nClusters();
 
-    TrackingRecHit2DGPU hits_d(
-        nHits, isPhase2, clusters_d.offsetBPIX2(), cpeParams, clusters_d.clusModuleStart(), stream);
+    TrackingRecHit2DGPU hits_d(nHits,
+                               isPhase2,
+                               clusters_d.offsetBPIX2(),
+                               cpeParams,
+                               clusters_d.clusModuleStart(),
+                               memoryPool::onDevice,
+                               stream);
+
+    assert(hits_d.view());
     assert(hits_d.nMaxModules() == isPhase2 ? phase2PixelTopology::numberOfModules
                                             : phase1PixelTopology::numberOfModules);
+    cudaCheck(cudaGetLastError());
+#ifdef GPU_DEBUG
+    cudaCheck(cudaDeviceSynchronize());
+#endif
 
     int activeModulesWithDigis = digis_d.nModules();
     // protect from empty events

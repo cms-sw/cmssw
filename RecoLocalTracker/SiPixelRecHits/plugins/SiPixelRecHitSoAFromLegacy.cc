@@ -157,7 +157,7 @@ void SiPixelRecHitSoAFromLegacy::produce(edm::StreamID streamID, edm::Event& iEv
   // element 96 is the start of BPIX2 (i.e. the number of clusters in BPIX1)
 
   auto output = std::make_unique<TrackingRecHit2DCPU>(
-      numberOfClusters, isPhase2_, hitsModuleStart[startBPIX2], &cpeView, hitsModuleStart, nullptr);
+      numberOfClusters, isPhase2_, hitsModuleStart[startBPIX2], &cpeView, hitsModuleStart, memoryPool::onCPU, nullptr);
   assert(output->nMaxModules() == uint32_t(nMaxModules));
 
   if (0 == numberOfClusters) {

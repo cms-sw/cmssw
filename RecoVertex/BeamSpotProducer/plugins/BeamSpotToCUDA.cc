@@ -31,7 +31,7 @@ namespace {
     BeamSpotPOD* data() { return data_h_.get(); }
     BeamSpotPOD const* data() const { return data_h_.get(); }
 
-    cms::cuda::host::noncached::unique_ptr<BeamSpotPOD>& ptr() { return data_h_; }
+    auto& ptr() { return data_h_; }
     cms::cuda::host::noncached::unique_ptr<BeamSpotPOD> const& ptr() const { return data_h_; }
 
   private:
@@ -93,7 +93,7 @@ void BeamSpotToCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, const e
   bsHost->betaStar = bs.betaStar();
 
   BeamSpotCUDA bsDevice(ctx.stream());
-  cms::cuda::copyAsync(bsDevice.ptr(), bsHost, ctx.stream());
+  cudaCheck(cudaMemcpyAsync(bsDevice.data(), bsHost.get(), sizeof(BeamSpotPOD), cudaMemcpyHostToDevice, ctx.stream()));
 
   ctx.emplace(iEvent, bsPutToken_, std::move(bsDevice));
 }
