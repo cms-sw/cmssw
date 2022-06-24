@@ -114,6 +114,8 @@ void EcalDQMonitorClient::dqmEndLuminosityBlock(DQMStore::IBooker& _ibooker,
 void EcalDQMonitorClient::dqmEndJob(DQMStore::IBooker& _ibooker, DQMStore::IGetter& _igetter) {
   executeOnWorkers_(
       [&_ibooker](ecaldqm::DQWorker* worker) {
+        if (!worker->checkElectronicsMap(false))  // to avoid crashes on empty runs
+          return;
         worker->bookMEs(_ibooker);  // worker returns if already booked
       },
       "bookMEs",
@@ -130,6 +132,8 @@ void EcalDQMonitorClient::runWorkers(DQMStore::IGetter& _igetter, ecaldqm::DQWor
 
   executeOnWorkers_(
       [&_igetter, &_type](ecaldqm::DQWorker* worker) {
+        if (!worker->checkElectronicsMap(false))  // to avoid crashes on empty runs
+          return;
         ecaldqm::DQWorkerClient* client(static_cast<ecaldqm::DQWorkerClient*>(worker));
         if (!client->onlineMode() && !client->runsOn(_type))
           return;
