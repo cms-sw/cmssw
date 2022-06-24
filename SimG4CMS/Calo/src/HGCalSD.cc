@@ -149,9 +149,9 @@ uint32_t HGCalSD::setDetUnitId(const G4Step* aStep) {
       module = touch->GetReplicaNumber(2);
     }
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":" << useSimWt_
-                               << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell " << layer << ":"
-                               << module << ":" << cell;
+    edm::LogVerbatim("HGCSim") << "DepthsTop: " << touch->GetHistoryDepth() << ":" << levelT1_ << ":" << levelT2_ << ":"
+                               << useSimWt_ << " name " << touch->GetVolume(0)->GetName() << " layer:module:cell "
+                               << layer << ":" << module << ":" << cell;
     printDetectorLevels(touch);
 #endif
   } else if ((touch->GetHistoryDepth() == levelT1_) || (touch->GetHistoryDepth() == levelT2_)) {
@@ -217,7 +217,9 @@ void HGCalSD::update(const BeginOfJob* job) {
     double mouseBite = hgcons_->mouseBite(false);
     mouseBiteCut_ = waferSize * tan30deg_ - mouseBite;
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_ << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer " << waferSize << ":" << mouseBite;
+    edm::LogVerbatim("HGCSim") << "HGCalSD::Initialized with mode " << geom_mode_ << " Slope cut " << slopeMin_
+                               << " top Level " << levelT1_ << ":" << levelT2_ << " useSimWt " << useSimWt_ << " wafer "
+                               << waferSize << ":" << mouseBite;
 #endif
 
     numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_);

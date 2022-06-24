@@ -128,7 +128,7 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
       if ((php.mode_ == HGCalGeometryMode::Hexagon8Module) || (php.mode_ == HGCalGeometryMode::Hexagon8Cassette)) {
-	php.useSimWt_ = static_cast<int>(getDDDValue("UseSimWt", sv));
+        php.useSimWt_ = static_cast<int>(getDDDValue("UseSimWt", sv));
         php.layerRotation_ = getDDDValue("LayerRotation", sv);
       }
       if ((php.waferMaskMode_ == HGCalGeomParameters::siliconCassetteEE) ||
@@ -139,7 +139,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
                                     << php.waferMaskMode_ << " Zside " << php.waferZSide_ << " Layer Rotation "
-                                    << convertRadToDeg(php.layerRotation_) << " Cassettes " << php.cassettes_ << " UseSimWt " << php.useSimWt_;
+                                    << convertRadToDeg(php.layerRotation_) << " Cassettes " << php.cassettes_
+                                    << " UseSimWt " << php.useSimWt_;
 #endif
       attribute = "OnlyForHGCalNumbering";
       value = namet;
@@ -234,9 +235,8 @@ bool HGCalParametersFromDD::build(const DDCompactView* cpv,
       php.sensorSeparation_ = php.mouseBite_ = 0;
       php.waferMaskMode_ = static_cast<int>(getDDDValue("WaferMaskMode", sv));
       php.waferZSide_ = static_cast<int>(getDDDValue("WaferZside", sv));
-      if ((php.mode_ == HGCalGeometryMode::TrapezoidModule) ||
-	  (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) 
-	php.useSimWt_ = static_cast<int>(getDDDValue("UseSimWt", sv));
+      if ((php.mode_ == HGCalGeometryMode::TrapezoidModule) || (php.mode_ == HGCalGeometryMode::TrapezoidCassette))
+        php.useSimWt_ = static_cast<int>(getDDDValue("UseSimWt", sv));
       if (php.waferMaskMode_ == HGCalGeomParameters::scintillatorCassette)
         php.cassettes_ = getDDDValue("Cassettes", sv);
 #ifdef EDM_ML_DEBUG
@@ -359,7 +359,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                     << php.levelZSide_ << " first layers " << php.firstLayer_ << ":"
                                     << php.firstMixedLayer_ << " Det Type " << php.detectorType_ << " Wafer Mask Mode "
                                     << php.waferMaskMode_ << " ZSide " << php.waferZSide_ << " Layer Rotation "
-                                    << convertRadToDeg(php.layerRotation_) << " Cassettes " << php.cassettes_ << " UseSimWt " << php.useSimWt_;
+                                    << convertRadToDeg(php.layerRotation_) << " Cassettes " << php.cassettes_
+                                    << " UseSimWt " << php.useSimWt_;
 #endif
 
       tempS = fv.get<std::vector<std::string> >(namet, "WaferMode");
@@ -464,8 +465,7 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
       php.waferMaskMode_ = static_cast<int>(tempD[0]);
       tempD = fv.get<std::vector<double> >(name, "WaferZside");
       php.waferZSide_ = static_cast<int>(tempD[0]);
-      if ((php.mode_ == HGCalGeometryMode::TrapezoidModule) ||
-	  (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+      if ((php.mode_ == HGCalGeometryMode::TrapezoidModule) || (php.mode_ == HGCalGeometryMode::TrapezoidCassette)) {
         tempD = fv.get<std::vector<double> >(name, "UseSimWt");
         php.useSimWt_ = tempD[0];
       }
@@ -478,7 +478,8 @@ bool HGCalParametersFromDD::build(const cms::DDCompactView* cpv,
                                     << php.firstLayer_ << ":" << php.firstMixedLayer_ << " Det Type "
                                     << php.detectorType_ << "  thickenss " << php.waferThick_ << " min tile size "
                                     << php.minTileSize_ << " Tile Mask Mode " << php.waferMaskMode_ << " ZSide "
-                                    << php.waferZSide_ << " Cassettes " << php.cassettes_ << " UseSimWt " << php.useSimWt_;
+                                    << php.waferZSide_ << " Cassettes " << php.cassettes_ << " UseSimWt "
+                                    << php.useSimWt_;
 #endif
       // Load the SpecPars
       geom->loadSpecParsTrapezoid(fv, vmap, php, name);
