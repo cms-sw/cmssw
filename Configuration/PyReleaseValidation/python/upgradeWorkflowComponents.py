@@ -2142,7 +2142,7 @@ upgradeProperties[2026] = {
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
     '2026D89' : {
-        'Geom' : 'Extended2026D89', 
+        'Geom' : 'Extended2026D89',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T27',
         'Era' : 'Phase2C11I13T27M9',
@@ -2322,4 +2322,9 @@ upgradeFragments = OrderedDict([
     ('DoubleElectronFlatPt1p5To8_cfi', UpgradeFragment(Kby(9,100),'SingleElectronFlatPt1p5To8')),
     ('DoubleMuFlatPt1p5To8Dxy100GunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt1p5To8Dxy100')),
     ('DoubleMuFlatPt2To100Dxy100GunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt2To100Dxy100')),
+    ('BuToJPsiPrimeKToJPsiPiPiK_14TeV_TuneCP5_pythia8_cfi', UpgradeFragment(Kby(223,2222),'BuToJPsiPrimeKToJPsiPiPiK_14TeV')), # 5.7%
+    ('Psi2SToJPsiPiPi_14TeV_TuneCP5_pythia8_cfi', UpgradeFragment(Kby(45,500),'Psi2SToJPsiPiPi_14TeV')), # 24.6%
+    ('XiMinus_13p6TeV_SoftQCDInel_TuneCP5_cfi', UpgradeFragment(Kby(8000,90000),'XiMinus_13p6TeV')), #2%
+    ('Chib1PToUpsilon1SGamma_MuFilter_TuneCP5_14TeV-pythia8_evtgen_cfi', UpgradeFragment(Kby(3600,36000),'Chib1PToUpsilon1SGamma_14TeV')), #2.8%
+    ('ChicToJpsiGamma_MuFilter_TuneCP5_14TeV_pythia8_evtgen_cfi', UpgradeFragment(Kby(2000,20000),'ChicToJpsiGamma_14TeV')), #5%
 ])
