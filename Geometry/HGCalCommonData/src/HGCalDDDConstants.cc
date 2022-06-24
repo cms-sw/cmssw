@@ -1338,16 +1338,16 @@ void HGCalDDDConstants::waferFromPosition(const double x,
       if (ktr != hgpar_->waferInfoMap_.end()) {
         place = HGCalCell::cellPlacementIndex(1, HGCalTypes::layerFrontBack(layertype), (ktr->second).orient);
         part = (ktr->second).part;
+#ifdef EDM_ML_DEBUG
         if (debug)
-          edm::LogVerbatim("HGCalGeom") << "waferfFromPosition: frontback " << layertype << ":"
+          edm::LogVerbatim("HGCalGeom") << "waferFromPosition: frontback " << layertype << ":"
                                         << HGCalTypes::layerFrontBack(layertype) << " Orient " << (ktr->second).orient
                                         << " place " << place << " part " << part;
+#endif
       }
     }
     cellHex(xx, yy, celltype, place, part, cellU, cellV, extend, debug);
-    wt = (((celltype < 2) && (mode_ != HGCalGeometryMode::Hexagon8Module))
-              ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_)
-              : 1.0);
+    wt = (((celltype < 2) && (hgpar_->useSimWt_ > 0)) ? (hgpar_->cellThickness_[celltype] / hgpar_->waferThick_) : 1.0);
   } else {
     cellU = cellV = 2 * hgpar_->nCellsFine_;
     wt = 1.0;
