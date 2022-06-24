@@ -11,6 +11,8 @@ GEMDAQStatusSource::GEMDAQStatusSource(const edm::ParameterSet &cfg)
   tagAMC13_ = consumes<GEMAMC13StatusCollection>(cfg.getParameter<edm::InputTag>("AMC13InputLabel"));
 
   nAMCSlots_ = cfg.getParameter<Int_t>("AMCSlots");
+
+  bWarnedNotFound_ = false;
 }
 
 void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descriptions) {
@@ -33,14 +35,24 @@ void GEMDAQStatusSource::LoadROMap(edm::EventSetup const &iSetup) {
     const auto &chMap = iSetup.getData(gemChMapToken_);
     auto gemChMap = std::make_unique<GEMChMap>(chMap);
 
+    std::vector<unsigned int> listFEDId;
     for (auto const &[ec, dc] : gemChMap->chamberMap()) {
       unsigned int fedId = ec.fedId;
       uint8_t amcNum = ec.amcNum;
       GEMDetId gemChId(dc.detId);
 
+      if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end()) {
+        listFEDId.push_back(fedId);
+      }
       mapFEDIdToRe_[fedId] = gemChId.region();
+      mapFEDIdToSt_[fedId] = gemChId.station();
       mapAMC13ToListChamber_[fedId].push_back(gemChId);
       mapAMCToListChamber_[{fedId, amcNum}].push_back(gemChId);
+    }
+
+    Int_t nIdx = 1;
+    for (auto fedId : listFEDId) {
+      mapFEDIdToPosition_[fedId] = nIdx++;
     }
 
   } else {
@@ -77,8 +89,11 @@ void GEMDAQStatusSource::SetLabelAMC13Status(MonitorElement *h2Status) {
   h2Status->setBinLabel(unBinPos++, "S-link error", 2);
   h2Status->setBinLabel(unBinPos++, "Wrong FED ID", 2);
 
-  h2Status->setBinLabel(1, "GE11-M", 1);
-  h2Status->setBinLabel(2, "GE11-P", 1);
+  for (auto const &[fedId, nPos] : mapFEDIdToPosition_) {
+    auto st = mapFEDIdToSt_[fedId];
+    auto re = (mapFEDIdToRe_[fedId] > 0 ? 'P' : 'M');
+    h2Status->setBinLabel(nPos, Form("GE%i1-%c", st, re), 1);
+  }
 }
 
 void GEMDAQStatusSource::SetLabelAMCStatus(MonitorElement *h2Status) {
@@ -155,40 +170,32 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   nBXMin_ = -10;
   nBXMax_ = 10;
 
-  mapFEDIdToRe_[1467] = -1;  // FIXME: Need more systematic way
-  mapFEDIdToRe_[1468] = 1;
-
   ibooker.cd();
   ibooker.setCurrentFolder(strFolderMain_);
 
   h2AMC13Status_ = nullptr;
-  h2AMCStatusNeg_ = nullptr;
-  h2AMCStatusPos_ = nullptr;
 
-  if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
-    h2AMC13Status_ =
-        ibooker.book2D("amc13_status", "AMC13 Status;AMC13;", 2, 0.5, 2.5, nBitAMC13_, 0.5, nBitAMC13_ + 0.5);
-    h2AMCStatusNeg_ = ibooker.book2D("amc_status_GE11-M",
-                                     "AMC Status GE11-M;AMC slot;",
-                                     nAMCSlots_,
-                                     -0.5,
-                                     nAMCSlots_ - 0.5,
-                                     nBitAMC_,
-                                     0.5,
-                                     nBitAMC_ + 0.5);
-    h2AMCStatusPos_ = ibooker.book2D("amc_status_GE11-P",
-                                     "AMC Status GE11-P;AMC slot;",
-                                     nAMCSlots_,
-                                     -0.5,
-                                     nAMCSlots_ - 0.5,
-                                     nBitAMC_,
-                                     0.5,
-                                     nBitAMC_ + 0.5);
+  bFillAMC_ = false;
+
+  //if (nRunType_ != GEMDQM_RUNTYPE_RELVAL)
+  if (nRunType_ == GEMDQM_RUNTYPE_ALLPLOTS || nRunType_ == GEMDQM_RUNTYPE_ONLINE) {
+    Int_t nNumAMC13 = (Int_t)mapFEDIdToRe_.size();
+    h2AMC13Status_ = ibooker.book2D(
+        "amc13_status", "AMC13 Status;AMC13;", nNumAMC13, 0.5, nNumAMC13 + 0.5, nBitAMC13_, 0.5, nBitAMC13_ + 0.5);
+    SetLabelAMC13Status(h2AMC13Status_);
+
+    for (auto &[fedId, nIdx] : mapFEDIdToPosition_) {
+      auto st = mapFEDIdToSt_[fedId];
+      auto re = (mapFEDIdToRe_[fedId] > 0 ? 'P' : 'M');
+      auto strName = Form("amc_status_GE%i1-%c", st, re);
+      auto strTitle = Form("AMC Status GE%i1-%c;AMC slot;", st, re);
+      mapFEDIdToAMCStatus_[fedId] =
+          ibooker.book2D(strName, strTitle, nAMCSlots_, -0.5, nAMCSlots_ - 0.5, nBitAMC_, 0.5, nBitAMC_ + 0.5);
+      SetLabelAMCStatus(mapFEDIdToAMCStatus_[fedId]);
+    }
+
+    bFillAMC_ = true;
   }
-
-  SetLabelAMC13Status(h2AMC13Status_);
-  SetLabelAMCStatus(h2AMCStatusNeg_);
-  SetLabelAMCStatus(h2AMCStatusPos_);
 
   mapStatusOH_ =
       MEMap3Inf(this, "oh_status", "OptoHybrid Status", 36, 0.5, 36.5, nBitOH_, 0.5, nBitOH_ + 0.5, "Chamber");
@@ -200,23 +207,22 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
   mapStatusVFATPerCh_ =
       MEMap4Inf(this, "vfat_status", "VFAT Status", 24, -0.5, 24 - 0.5, nBitVFAT_, 0.5, nBitVFAT_ + 0.5, "VFAT");
 
-  if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE) {
-    mapStatusVFATPerCh_.TurnOff();
-  }
-
-  if (nRunType_ == GEMDQM_RUNTYPE_RELVAL) {
+  if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE || nRunType_ == GEMDQM_RUNTYPE_RELVAL) {
     mapStatusOH_.TurnOff();
-    mapStatusErrVFATPerLayer_.TurnOff();
     mapStatusWarnVFATPerLayer_.TurnOff();
+    mapStatusErrVFATPerLayer_.TurnOff();
     mapStatusVFATPerCh_.TurnOff();
   }
 
   GenerateMEPerChamber(ibooker);
 
-  if (nRunType_ == GEMDQM_RUNTYPE_ALLPLOTS || nRunType_ == GEMDQM_RUNTYPE_ONLINE) {
+  if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
     h2SummaryStatusAll = CreateSummaryHist(ibooker, "chamberAllStatus");
     h2SummaryStatusWarning = CreateSummaryHist(ibooker, "chamberWarnings");
     h2SummaryStatusError = CreateSummaryHist(ibooker, "chamberErrors");
+  }
+
+  if (nRunType_ == GEMDQM_RUNTYPE_ALLPLOTS || nRunType_ == GEMDQM_RUNTYPE_ONLINE) {
     h2SummaryStatusVFATWarning = CreateSummaryHist(ibooker, "chamberVFATWarnings");
     h2SummaryStatusVFATError = CreateSummaryHist(ibooker, "chamberVFATErrors");
     h2SummaryStatusOHWarning = CreateSummaryHist(ibooker, "chamberOHWarnings");
@@ -241,24 +247,28 @@ void GEMDAQStatusSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run con
 int GEMDAQStatusSource::ProcessWithMEMap3(BookingHelper &bh, ME3IdsKey key) {
   MEStationInfo &stationInfo = mapStationInfo_[key];
 
-  mapStatusOH_.SetBinConfX(stationInfo.nNumChambers_);
+  Int_t nNewNumCh = stationInfo.nMaxIdxChamber_ - stationInfo.nMinIdxChamber_ + 1;
+
+  mapStatusOH_.SetBinConfX(nNewNumCh, stationInfo.nMinIdxChamber_ - 0.5, stationInfo.nMaxIdxChamber_ + 0.5);
   mapStatusOH_.bookND(bh, key);
-  mapStatusOH_.SetLabelForChambers(key, 1);
+  mapStatusOH_.SetLabelForChambers(key, 1, -1, stationInfo.nMinIdxChamber_);
 
   if (mapStatusOH_.isOperating()) {
     SetLabelOHStatus(mapStatusOH_.FindHist(key));
   }
 
-  mapStatusWarnVFATPerLayer_.SetBinConfX(stationInfo.nNumChambers_);
+  mapStatusWarnVFATPerLayer_.SetBinConfX(
+      nNewNumCh, stationInfo.nMinIdxChamber_ - 0.5, stationInfo.nMaxIdxChamber_ + 0.5);
   mapStatusWarnVFATPerLayer_.SetBinConfY(stationInfo.nMaxVFAT_, -0.5);
   mapStatusWarnVFATPerLayer_.bookND(bh, key);
-  mapStatusWarnVFATPerLayer_.SetLabelForChambers(key, 1);
+  mapStatusWarnVFATPerLayer_.SetLabelForChambers(key, 1, -1, stationInfo.nMinIdxChamber_);
   mapStatusWarnVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
-  mapStatusErrVFATPerLayer_.SetBinConfX(stationInfo.nNumChambers_);
+  mapStatusErrVFATPerLayer_.SetBinConfX(
+      nNewNumCh, stationInfo.nMinIdxChamber_ - 0.5, stationInfo.nMaxIdxChamber_ + 0.5);
   mapStatusErrVFATPerLayer_.SetBinConfY(stationInfo.nMaxVFAT_, -0.5);
   mapStatusErrVFATPerLayer_.bookND(bh, key);
-  mapStatusErrVFATPerLayer_.SetLabelForChambers(key, 1);
+  mapStatusErrVFATPerLayer_.SetLabelForChambers(key, 1, -1, stationInfo.nMinIdxChamber_);
   mapStatusErrVFATPerLayer_.SetLabelForVFATs(key, stationInfo.nNumEtaPartitions_, 2);
 
   return 0;
@@ -288,6 +298,14 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
   edm::Handle<GEMAMCStatusCollection> gemAMC;
   edm::Handle<GEMAMC13StatusCollection> gemAMC13;
 
+  if (!(gemVFAT.isValid() && gemOH.isValid() && gemAMC.isValid() && gemAMC13.isValid())) {
+    if (!bWarnedNotFound_) {
+      edm::LogWarning(log_category_) << "DAQ sources from muonGEMDigis are not found";
+      bWarnedNotFound_ = true;
+    }
+    return;
+  }
+
   event.getByToken(tagVFAT_, gemVFAT);
   event.getByToken(tagOH_, gemOH);
   event.getByToken(tagAMC_, gemAMC);
@@ -306,17 +324,10 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
 
   for (auto amc13It = gemAMC13->begin(); amc13It != gemAMC13->end(); ++amc13It) {
     int fedId = (*amc13It).first;
-    if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end())
-      continue;
-    int nXBin = 0;
-    if (mapFEDIdToRe_[fedId] < 0) {
-      nXBin = 1;
-    } else if (mapFEDIdToRe_[fedId] > 0) {
-      nXBin = 2;
-    } else {
-      edm::LogError(log_category_) << "+++ Error : Unknown FED Id +++\n" << std::endl;
+    if (mapFEDIdToPosition_.find(fedId) == mapFEDIdToPosition_.end()) {
       continue;
     }
+    int nXBin = mapFEDIdToPosition_[fedId];
 
     const auto &range = (*amc13It).second;
     for (auto amc13 = range.first; amc13 != range.second; ++amc13) {
@@ -324,33 +335,36 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       Bool_t bErr = false;
 
       GEMAMC13Status::Warnings warnings{amc13->warnings()};
-      if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
-        if (warnings.InValidAMC)
-          FillWithRiseErr(h2AMC13Status_, nXBin, 2, bWarn);
-      }
-
       GEMAMC13Status::Errors errors{amc13->errors()};
-      if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
-        if (errors.InValidSize)
-          FillWithRiseErr(h2AMC13Status_, nXBin, 3, bErr);
-        if (errors.failTrailerCheck)
-          FillWithRiseErr(h2AMC13Status_, nXBin, 4, bErr);
-        if (errors.failFragmentLength)
-          FillWithRiseErr(h2AMC13Status_, nXBin, 5, bErr);
-        if (errors.failTrailerMatch)
-          FillWithRiseErr(h2AMC13Status_, nXBin, 6, bErr);
-        if (errors.moreTrailers)
-          FillWithRiseErr(h2AMC13Status_, nXBin, 7, bErr);
-        if (errors.crcModified)
-          FillWithRiseErr(h2AMC13Status_, nXBin, 8, bErr);
-        if (errors.slinkError)
-          FillWithRiseErr(h2AMC13Status_, nXBin, 9, bErr);
-        if (errors.wrongFedId)
-          FillWithRiseErr(h2AMC13Status_, nXBin, 10, bErr);
+
+      if (bFillAMC_) {
+        if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+          if (warnings.InValidAMC)
+            FillWithRiseErr(h2AMC13Status_, nXBin, 2, bWarn);
+        }
+
+        if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+          if (errors.InValidSize)
+            FillWithRiseErr(h2AMC13Status_, nXBin, 3, bErr);
+          if (errors.failTrailerCheck)
+            FillWithRiseErr(h2AMC13Status_, nXBin, 4, bErr);
+          if (errors.failFragmentLength)
+            FillWithRiseErr(h2AMC13Status_, nXBin, 5, bErr);
+          if (errors.failTrailerMatch)
+            FillWithRiseErr(h2AMC13Status_, nXBin, 6, bErr);
+          if (errors.moreTrailers)
+            FillWithRiseErr(h2AMC13Status_, nXBin, 7, bErr);
+          if (errors.crcModified)
+            FillWithRiseErr(h2AMC13Status_, nXBin, 8, bErr);
+          if (errors.slinkError)
+            FillWithRiseErr(h2AMC13Status_, nXBin, 9, bErr);
+          if (errors.wrongFedId)
+            FillWithRiseErr(h2AMC13Status_, nXBin, 10, bErr);
+        }
       }
 
       if (!bWarn && !bErr) {
-        if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+        if (bFillAMC_ && nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
           h2AMC13Status_->Fill(nXBin, 1);
         }
       } else {
@@ -368,16 +382,10 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
 
   for (auto amcIt = gemAMC->begin(); amcIt != gemAMC->end(); ++amcIt) {
     int fedId = (*amcIt).first;
-    if (mapFEDIdToRe_.find(fedId) == mapFEDIdToRe_.end())
-      continue;
-    if (mapFEDIdToRe_[fedId] < 0) {
-      h2AMCStatus = h2AMCStatusNeg_;
-    } else if (mapFEDIdToRe_[fedId] > 0) {
-      h2AMCStatus = h2AMCStatusPos_;
-    } else {
-      edm::LogError(log_category_) << "+++ Error : Unknown FED Id +++\n" << std::endl;
+    if (mapFEDIdToAMCStatus_.find(fedId) == mapFEDIdToAMCStatus_.end()) {
       continue;
     }
+    h2AMCStatus = mapFEDIdToAMCStatus_[fedId];
 
     const GEMAMCStatusCollection::Range &range = (*amcIt).second;
     for (auto amc = range.first; amc != range.second; ++amc) {
@@ -387,37 +395,40 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
       Int_t nAMCNum = amc->amcNumber();
 
       GEMAMCStatus::Warnings warnings{amc->warnings()};
-      if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
-        if (warnings.InValidOH)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 2, bWarn);
-        if (warnings.backPressure)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 3, bWarn);
-      }
-
       GEMAMCStatus::Errors errors{amc->errors()};
-      if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
-        if (errors.badEC)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 4, bErr);
-        if (errors.badBC)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 5, bErr);
-        if (errors.badOC)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 6, bErr);
-        if (errors.badRunType)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 7, bErr);
-        if (errors.badCRC)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 8, bErr);
-        if (errors.MMCMlocked)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 9, bErr);
-        if (errors.DAQclocklocked)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 10, bErr);
-        if (errors.DAQnotReday)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 11, bErr);
-        if (errors.BC0locked)
-          FillWithRiseErr(h2AMCStatus, nAMCNum, 12, bErr);
+
+      if (bFillAMC_) {
+        if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+          if (warnings.InValidOH)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 2, bWarn);
+          if (warnings.backPressure)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 3, bWarn);
+        }
+
+        if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+          if (errors.badEC)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 4, bErr);
+          if (errors.badBC)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 5, bErr);
+          if (errors.badOC)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 6, bErr);
+          if (errors.badRunType)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 7, bErr);
+          if (errors.badCRC)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 8, bErr);
+          if (errors.MMCMlocked)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 9, bErr);
+          if (errors.DAQclocklocked)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 10, bErr);
+          if (errors.DAQnotReday)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 11, bErr);
+          if (errors.BC0locked)
+            FillWithRiseErr(h2AMCStatus, nAMCNum, 12, bErr);
+        }
       }
 
       if (!bWarn && !bErr) {
-        if (nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
+        if (bFillAMC_ && nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
           h2AMCStatus->Fill(nAMCNum, 1);
         }
       } else {
