@@ -13,6 +13,7 @@
 /*** Alignment ***/
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/PedeLabelerBase.h"
 #include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
 
 struct mpPCLresults {
 private:
@@ -59,27 +60,45 @@ class MillePedeFileReader {
 public:  //====================================================================
   explicit MillePedeFileReader(const edm::ParameterSet&,
                                const std::shared_ptr<const PedeLabelerBase>&,
-                               const std::shared_ptr<const AlignPCLThresholdsHG>&);
+                               const std::shared_ptr<const AlignPCLThresholdsHG>&,
+                               const std::shared_ptr<const PixelTopologyMap>&);
 
   virtual ~MillePedeFileReader() = default;
 
   void read();
   bool storeAlignments();
 
-  const std::array<double, 6>& getXobs() const { return Xobs_; }
-  const std::array<double, 6>& getXobsErr() const { return XobsErr_; }
-  const std::array<double, 6>& getTXobs() const { return tXobs_; }
-  const std::array<double, 6>& getTXobsErr() const { return tXobsErr_; }
+  enum { SIZE_LG_STRUCTS = 6, SIZE_HG_STRUCTS = 820 };
 
-  const std::array<double, 6>& getYobs() const { return Yobs_; }
-  const std::array<double, 6>& getYobsErr() const { return YobsErr_; }
-  const std::array<double, 6>& getTYobs() const { return tYobs_; }
-  const std::array<double, 6>& getTYobsErr() const { return tYobsErr_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getXobs() const { return Xobs_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getXobsErr() const { return XobsErr_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getTXobs() const { return tXobs_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getTXobsErr() const { return tXobsErr_; }
 
-  const std::array<double, 6>& getZobs() const { return Zobs_; }
-  const std::array<double, 6>& getZobsErr() const { return ZobsErr_; }
-  const std::array<double, 6>& getTZobs() const { return tZobs_; }
-  const std::array<double, 6>& getTZobsErr() const { return tZobsErr_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getYobs() const { return Yobs_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getYobsErr() const { return YobsErr_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getTYobs() const { return tYobs_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getTYobsErr() const { return tYobsErr_; }
+
+  const std::array<double, SIZE_LG_STRUCTS>& getZobs() const { return Zobs_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getZobsErr() const { return ZobsErr_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getTZobs() const { return tZobs_; }
+  const std::array<double, SIZE_LG_STRUCTS>& getTZobsErr() const { return tZobsErr_; }
+
+  const std::array<double, SIZE_HG_STRUCTS>& getXobs_HG() const { return Xobs_HG_; }
+  const std::array<double, SIZE_HG_STRUCTS>& getXobsErr_HG() const { return XobsErr_HG_; }
+  const std::array<double, SIZE_HG_STRUCTS>& getTXobs_HG() const { return tXobs_HG_; }
+  const std::array<double, SIZE_HG_STRUCTS>& getTXobsErr_HG() const { return tXobsErr_HG_; }
+
+  const std::array<double, SIZE_HG_STRUCTS>& getYobs_HG() const { return Yobs_HG_; }
+  const std::array<double, SIZE_HG_STRUCTS>& getYobsErr_HG() const { return YobsErr_HG_; }
+  const std::array<double, SIZE_HG_STRUCTS>& getTYobs_HG() const { return tYobs_HG_; }
+  const std::array<double, SIZE_HG_STRUCTS>& getTYobsErr_HG() const { return tYobsErr_HG_; }
+
+  const std::array<double, SIZE_HG_STRUCTS>& getZobs_HG() const { return Zobs_HG_; }
+  const std::array<double, SIZE_HG_STRUCTS>& getZobsErr_HG() const { return ZobsErr_HG_; }
+  const std::array<double, SIZE_HG_STRUCTS>& getTZobs_HG() const { return tZobs_HG_; }
+  const std::array<double, SIZE_HG_STRUCTS>& getTZobsErr_HG() const { return tZobsErr_HG_; }
 
   const AlignPCLThresholdsHG::threshold_map getThresholdMap() const { return theThresholds_.get()->getThreshold_Map(); }
 
@@ -95,12 +114,22 @@ private:
 
   enum class PclHLS : int {
     NotInPCL = -1,
+    TPEHalfCylinderXplusZminus = 0,
+    TPEHalfCylinderXminusZminus = 1,
     TPBHalfBarrelXplus = 2,
     TPBHalfBarrelXminus = 3,
     TPEHalfCylinderXplusZplus = 4,
     TPEHalfCylinderXminusZplus = 5,
-    TPEHalfCylinderXplusZminus = 0,
-    TPEHalfCylinderXminusZminus = 1
+    TPBLadderLayer1 = 6,
+    TPBLadderLayer2 = 7,
+    TPBLadderLayer3 = 8,
+    TPBLadderLayer4 = 9,
+    TPEPanelDisk1 = 10,
+    TPEPanelDisk2 = 11,
+    TPEPanelDisk3 = 12,
+    TPEPanelDiskM1 = 13,
+    TPEPanelDiskM2 = 14,
+    TPEPanelDiskM3 = 15,
   };
 
   //========================= PRIVATE METHODS ==================================
@@ -111,6 +140,8 @@ private:
   void readMillePedeResultFile();
   PclHLS getHLS(const Alignable*);
   std::string getStringFromHLS(PclHLS HLS);
+  int getIndexForHG(align::ID id, PclHLS HLS);
+  void initializeIndexHelper();
 
   //========================== PRIVATE DATA ====================================
   //============================================================================
@@ -120,6 +151,12 @@ private:
 
   // thresholds from DB
   const std::shared_ptr<const AlignPCLThresholdsHG> theThresholds_;
+
+  // PixelTopologyMap
+  const std::shared_ptr<const PixelTopologyMap> pixelTopologyMap_;
+
+  // input directory name
+  std::string dirName_;
 
   // file-names
   const std::string millePedeEndFile_;
@@ -136,6 +173,7 @@ private:
 
   bool updateDB_{false};
   bool vetoUpdateDB_{false};
+  const bool isHG_;
 
   // stores in a compact format the 4 decisions:
   // 1st bit: exceeds maximum thresholds
@@ -151,20 +189,37 @@ private:
   int exitCode_{-1};
   std::string exitMessage_{""};
 
-  std::array<double, 6> Xobs_ = {{0., 0., 0., 0., 0., 0.}};
-  std::array<double, 6> XobsErr_ = {{0., 0., 0., 0., 0., 0.}};
-  std::array<double, 6> tXobs_ = {{0., 0., 0., 0., 0., 0.}};
-  std::array<double, 6> tXobsErr_ = {{0., 0., 0., 0., 0., 0.}};
+  std::array<double, SIZE_LG_STRUCTS> Xobs_ = std::array<double, SIZE_LG_STRUCTS>();
+  std::array<double, SIZE_LG_STRUCTS> XobsErr_ = std::array<double, SIZE_LG_STRUCTS>();
+  std::array<double, SIZE_LG_STRUCTS> tXobs_ = std::array<double, SIZE_LG_STRUCTS>();
+  std::array<double, SIZE_LG_STRUCTS> tXobsErr_ = std::array<double, SIZE_LG_STRUCTS>();
 
-  std::array<double, 6> Yobs_ = {{0., 0., 0., 0., 0., 0.}};
-  std::array<double, 6> YobsErr_ = {{0., 0., 0., 0., 0., 0.}};
-  std::array<double, 6> tYobs_ = {{0., 0., 0., 0., 0., 0.}};
-  std::array<double, 6> tYobsErr_ = {{0., 0., 0., 0., 0., 0.}};
+  std::array<double, SIZE_LG_STRUCTS> Yobs_ = std::array<double, SIZE_LG_STRUCTS>();
+  std::array<double, SIZE_LG_STRUCTS> YobsErr_ = std::array<double, SIZE_LG_STRUCTS>();
+  std::array<double, SIZE_LG_STRUCTS> tYobs_ = std::array<double, SIZE_LG_STRUCTS>();
+  std::array<double, SIZE_LG_STRUCTS> tYobsErr_ = std::array<double, SIZE_LG_STRUCTS>();
 
-  std::array<double, 6> Zobs_ = {{0., 0., 0., 0., 0., 0.}};
-  std::array<double, 6> ZobsErr_ = {{0., 0., 0., 0., 0., 0.}};
-  std::array<double, 6> tZobs_ = {{0., 0., 0., 0., 0., 0.}};
-  std::array<double, 6> tZobsErr_ = {{0., 0., 0., 0., 0., 0.}};
+  std::array<double, SIZE_LG_STRUCTS> Zobs_ = std::array<double, SIZE_LG_STRUCTS>();
+  std::array<double, SIZE_LG_STRUCTS> ZobsErr_ = std::array<double, SIZE_LG_STRUCTS>();
+  std::array<double, SIZE_LG_STRUCTS> tZobs_ = std::array<double, SIZE_LG_STRUCTS>();
+  std::array<double, SIZE_LG_STRUCTS> tZobsErr_ = std::array<double, SIZE_LG_STRUCTS>();
+
+  std::array<double, SIZE_HG_STRUCTS> Xobs_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+  std::array<double, SIZE_HG_STRUCTS> XobsErr_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+  std::array<double, SIZE_HG_STRUCTS> tXobs_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+  std::array<double, SIZE_HG_STRUCTS> tXobsErr_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+
+  std::array<double, SIZE_HG_STRUCTS> Yobs_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+  std::array<double, SIZE_HG_STRUCTS> YobsErr_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+  std::array<double, SIZE_HG_STRUCTS> tYobs_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+  std::array<double, SIZE_HG_STRUCTS> tYobsErr_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+
+  std::array<double, SIZE_HG_STRUCTS> Zobs_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+  std::array<double, SIZE_HG_STRUCTS> ZobsErr_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+  std::array<double, SIZE_HG_STRUCTS> tZobs_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+  std::array<double, SIZE_HG_STRUCTS> tZobsErr_HG_ = std::array<double, SIZE_HG_STRUCTS>();
+
+  std::unordered_map<PclHLS, std::pair<int, int>> indexHelper;
 };
 
 const std::array<std::string, 8> coord_str = {{"X", "Y", "Z", "theta_X", "theta_Y", "theta_Z", "extra_DOF", "none"}};

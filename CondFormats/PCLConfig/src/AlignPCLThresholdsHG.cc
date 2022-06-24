@@ -24,6 +24,11 @@ namespace AlignPCLThresholdsHGImpl {
 }  //namespace AlignPCLThresholdsHGImpl
 
 //****************************************************************************//
+void AlignPCLThresholdsHG::setFloatMap(const std::unordered_map<std::string, std::vector<float>> &floatMap) {
+  floatMap_ = floatMap;
+}
+
+//****************************************************************************//
 const std::vector<float> &AlignPCLThresholdsHG::getFloatVec(const std::string &AlignableId) const {
   const auto &it = floatMap_.find(AlignableId);
 
@@ -90,6 +95,17 @@ float AlignPCLThresholdsHG::getFractionCut(const std::string &AlignableId, const
     default:
       throw cms::Exception("AlignPCLThresholdsHG")
           << "Requested fraction threshold for undefined coordinate" << type << "\n";
+  }
+}
+
+//****************************************************************************//
+const bool AlignPCLThresholdsHG::hasFloatMap(const std::string &AlignableId) const {
+  const auto &it = floatMap_.find(AlignableId);
+
+  if (it != floatMap_.end()) {
+    return true;
+  } else {
+    return false;
   }
 }
 
