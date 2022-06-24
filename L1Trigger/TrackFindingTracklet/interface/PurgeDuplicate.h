@@ -37,6 +37,21 @@ namespace trklet {
 
   private:
     double getPhiRes(Tracklet* curTracklet, const Stub* curStub);
+    bool isSeedingStub(int, int, int);
+    std::string l1tinfo(const L1TStub*, std::string);
+    std::pair<int, int> findLayerDisk(const Stub*);
+    std::vector<double> getInventedCoords(
+        unsigned int,
+        const Stub*,
+        Tracklet*);  // calculate stub coordinates based on tracklet trajectory for prompt tracking
+    std::vector<double> getInventedCoordsExtended(
+        unsigned int,
+        const Stub*,
+        Tracklet*);  // calculate stub coordinates based on tracklet trajectory for extended tracking
+    std::vector<const Stub*> getInventedSeedingStub(
+        unsigned int,
+        Tracklet*,
+        std::vector<const Stub*>);  // return stub with invented x,y,z coords, if it's a seeding one for this tracklet
 
     std::vector<Track*> inputtracks_;
     std::vector<std::vector<const Stub*>> inputstublists_;

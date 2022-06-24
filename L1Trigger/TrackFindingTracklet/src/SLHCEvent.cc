@@ -25,7 +25,8 @@ bool SLHCEvent::addStub(string DTClink,
                         double z,
                         double bend,
                         double strip,
-                        vector<int> tps) {
+                        vector<int> tps,
+                        int stubindex) {
   L1TStub stub(DTClink,
                region,
                layerdisk,
@@ -43,6 +44,7 @@ bool SLHCEvent::addStub(string DTClink,
                strip,
                tps);
 
+  stub.setUniqueIndex(stubindex);
   stubs_.push_back(stub);
   return true;
 }

@@ -366,6 +366,9 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                    edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>,
                    L1TStubCompare>
       stubMapType;
+  typedef std::map<unsigned int,
+                   edm::Ref<edmNew::DetSetVector<TTStub<Ref_Phase2TrackerDigi_>>, TTStub<Ref_Phase2TrackerDigi_>>>
+      stubIndexMapType;
   typedef edm::Ref<edmNew::DetSetVector<TTCluster<Ref_Phase2TrackerDigi_>>, TTCluster<Ref_Phase2TrackerDigi_>>
       TTClusterRef;
 
@@ -373,6 +376,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   auto L1TkTracksForOutput = std::make_unique<std::vector<TTTrack<Ref_Phase2TrackerDigi_>>>();
 
   stubMapType stubMap;
+  stubIndexMapType stubIndexMap;
 
   ////////////
   // GET BS //
@@ -454,6 +458,7 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   /////////////////////////////////
 
   // Process stubs in each region and channel within that tracking region
+  unsigned int theStubIndex = 0;
   for (const int& region : handleDTC->tfpRegions()) {
     for (const int& channel : handleDTC->tfpChannels()) {
       // Get the DTC name & ID from the channel
@@ -612,10 +617,13 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
                    ttPos.z(),
                    stubbend,
                    stubRef->innerClusterPosition(),
-                   assocTPs);
+                   assocTPs,
+                   theStubIndex);
 
         const trklet::L1TStub& lastStub = ev.lastStub();
         stubMap[lastStub] = stubRef;
+        stubIndexMap[lastStub.uniqueIndex()] = stub.first;
+        theStubIndex++;
       }
     }
   }
@@ -690,11 +698,14 @@ void L1FPGATrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       stubs.push_back(stubptr);
     }
 
+    int countStubs = 0;
     stubMapType::const_iterator it;
+    stubIndexMapType::const_iterator itIndex;
     for (const auto& itstubs : stubs) {
-      it = stubMap.find(itstubs);
-      if (it != stubMap.end()) {
-        aTrack.addStubRef(it->second);
+      itIndex = stubIndexMap.find(itstubs.uniqueIndex());
+      if (itIndex != stubIndexMap.end()) {
+        aTrack.addStubRef(itIndex->second);
+        countStubs = countStubs + 1;
       } else {
         // could not find stub in stub map
       }

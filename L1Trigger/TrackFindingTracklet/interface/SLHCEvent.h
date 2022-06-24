@@ -46,7 +46,8 @@ namespace trklet {
                  double z,
                  double bend,
                  double strip,
-                 std::vector<int> tpstt);
+                 std::vector<int> tpstt,
+                 int stubindex);
 
     const L1TStub& lastStub() const { return stubs_.back(); }
 
