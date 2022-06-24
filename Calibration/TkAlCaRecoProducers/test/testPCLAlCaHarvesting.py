@@ -82,6 +82,7 @@ process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripGains_dbOutpu
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripGainsAAG_dbOutput )
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiStripHitEff_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAli_dbOutput)
+process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelAliHG_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTSiPixelLA_dbOutput)
 process.PoolDBOutputService.toPut.extend(process.ALCAHARVESTSiPixelQuality_dbOutput)
 process.PoolDBOutputService.toPut.append(process.ALCAHARVESTBeamSpotByRun_dbOutput)
@@ -102,6 +103,7 @@ process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripGains_me
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripGainsAAG_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiStripHitEff_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAli_metadata)
+process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelAliHG_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTSiPixelLA_metadata)
 process.pclMetadataWriter.recordsToMap.extend(process.ALCAHARVESTSiPixelQuality_metadata)
 process.pclMetadataWriter.recordsToMap.append(process.ALCAHARVESTBeamSpotByRun_metadata)
@@ -135,6 +137,10 @@ process.SiPixelAli      = cms.Path(process.ALCAHARVESTSiPixelAli)
 process.SiPixelAliMilleFileExtractor.outputBinaryFile = cms.string('')
 process.SiPixelAliPedeAlignmentProducer.algoConfig.mergeBinaryFiles=[]
 
+process.SiPixelAliHG      = cms.Path(process.ALCAHARVESTSiPixelAliHG)
+process.SiPixelAliMilleFileExtractorHG.outputBinaryFile = cms.string('')
+process.SiPixelAliPedeAlignmentProducerHG.algoConfig.mergeBinaryFiles=[]
+
 process.SiPixelLA      = cms.Path(process.ALCAHARVESTSiPixelLorentzAngle)
 
 process.SiPixelQuality  = cms.Path(process.ALCAHARVESTSiPixelQuality)
@@ -151,6 +157,7 @@ process.schedule = cms.Schedule(process.SiStripQuality,
                                 process.SiStripGainsAAG, 
                                 process.SiStripHitEff,
                                 process.SiPixelAli,
+                                process.SiPixelAliHG,
                                 process.SiPixelLA,
                                 process.SiPixelQuality,
                                 process.BeamSpotByRun,
