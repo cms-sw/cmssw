@@ -101,12 +101,7 @@ float AlignPCLThresholdsHG::getFractionCut(const std::string &AlignableId, const
 //****************************************************************************//
 const bool AlignPCLThresholdsHG::hasFloatMap(const std::string &AlignableId) const {
   const auto &it = floatMap_.find(AlignableId);
-
-  if (it != floatMap_.end()) {
-    return true;
-  } else {
-    return false;
-  }
+  return (it != floatMap_.end());
 }
 
 //****************************************************************************//
