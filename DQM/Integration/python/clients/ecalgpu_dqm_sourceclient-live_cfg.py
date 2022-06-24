@@ -57,10 +57,10 @@ process.maxEvents = cms.untracked.PSet(
 
 process.preScaler.prescaleFactor = 1
 
-process.dqmEnv.subSystemFolder = 'Ecal'
-process.dqmSaver.tag = 'Ecal'
+process.dqmEnv.subSystemFolder = 'EcalGPU'
+process.dqmSaver.tag = 'EcalGPU'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = 'Ecal'
+process.dqmSaverPB.tag = 'EcalGPU'
 process.dqmSaverPB.runNumber = options.runNumber
 
 process.ecalGpuTask.params.runGpuTask = True
