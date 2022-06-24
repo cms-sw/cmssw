@@ -21,7 +21,7 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
   edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_ << " Mode " << mode_
                              << ":" << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":"
                              << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Hexagon8Module << ":"
-			     << ":" << HGCalGeometryMode::Hexagon8Cassette << ":" << HGCalGeometryMode::Trapezoid << ":"
+                             << ":" << HGCalGeometryMode::Hexagon8Cassette << ":" << HGCalGeometryMode::Trapezoid << ":"
                              << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::TrapezoidModule << ":"
                              << HGCalGeometryMode::TrapezoidCassette;
 #endif
