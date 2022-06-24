@@ -2297,6 +2297,8 @@ upgradeFragments = OrderedDict([
     ('BsToEleEle_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(223,2222),'BsToEleEle_14TeV')), # 4.5%
     ('BsToJpsiGamma_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(2500,25000),'BsToJpsiGamma_14TeV')), # 0.4%
     ('BsToJpsiPhi_mumuKK_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(910,9090),'BsToJpsiPhi_mumuKK_14TeV')), # 1.1%
+    ('BuToJPsiPrimeKToJPsiPiPiK_14TeV_TuneCP5_pythia8_cfi', UpgradeFragment(Kby(223,2222),'BuToJPsiPrimeKToJPsiPiPiK_14TeV')), # 5.7%
+    ('Psi2SToJPsiPiPi_14TeV_TuneCP5_pythia8_cfi', UpgradeFragment(Kby(45,500),'Psi2SToJPsiPiPi_14TeV')), # 24.6%
     ('BsToMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(313,3125),'BsToMuMu_14TeV')), # 3.2%
     ('BsToPhiPhi_KKKK_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(556,5555),'BsToPhiPhi_KKKK_14TeV')), # 1.8%
     ('TauToMuMuMu_14TeV_TuneCP5_cfi', UpgradeFragment(Kby(18939,189393),'TauToMuMuMu_14TeV')), # effi = 5.280e-04
