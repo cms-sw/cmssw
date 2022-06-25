@@ -140,14 +140,16 @@ public:
             std::lower_bound(tmpOut.begin(), tmpOut.end(), longID, [](const reco::PFRecHit& a, HcalDetId b) {
               return a.detId() < b.rawId();
             });
-        double energy = 2 * sHORT;
+        double energy = sHORT;
         if (found_hit != tmpOut.end() && found_hit->detId() == longID.rawId()) {
           double lONG = found_hit->energy();
           //Ask for fraction
 
           //If in this case lONG-sHORT<0 add the energy to the sHORT
           if ((lONG - sHORT) < thresh_HF_)
-            energy = lONG + sHORT;
+            energy += lONG;
+          else
+            energy += sHORT;
 
           if (abs(detid.ieta()) <= 32)
             energy *= HFCalib_;
@@ -161,7 +163,6 @@ public:
           //only short hit!
           if (abs(detid.ieta()) <= 32)
             energy *= HFCalib_;
-          energy /= 2.;
           newHit.setEnergy(energy);
           if (energy > thresh_HF_)
             out->push_back(newHit);
