@@ -29,7 +29,7 @@ public:
   void globalEndRun(edm::Run const &, edm::EventSetup const &) const override;
 
 private:
-  static uint32_t filterBits_[ecaldqm::nPrescalers];
+  static const uint32_t filterBits_[ecaldqm::nPrescalers];
 
   edm::EDGetTokenT<EcalRawDataCollection> EcalRawDataCollection_;
 

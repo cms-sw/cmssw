@@ -10,7 +10,7 @@
 #include <cmath>
 #include <iostream>
 
-uint32_t EcalMonitorPrescaler::filterBits_[ecaldqm::nPrescalers] = {
+const uint32_t EcalMonitorPrescaler::filterBits_[ecaldqm::nPrescalers] = {
     (1 << EcalDCCHeaderBlock::MTCC) | (1 << EcalDCCHeaderBlock::PHYSICS_GLOBAL) |
         (1 << EcalDCCHeaderBlock::PHYSICS_LOCAL),  // kPhysics
     (1 << EcalDCCHeaderBlock::COSMIC) | (1 << EcalDCCHeaderBlock::COSMICS_GLOBAL) |
