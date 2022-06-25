@@ -264,14 +264,8 @@ HLT_DoubleMu20_7_Mass0to30_L1_DM4_v*	#	CMSHLT-1298
 HLT_DoubleMu20_7_Mass0to30_L1_DM4EG_v*	#	CMSHLT-1298
 HLT_DoubleMu4_Jpsi_Displaced_v*	#	CMSHLT-1298
 HLT_DoubleMu4_Jpsi_NoVertexing_v*	#	CMSHLT-1298
-HLT_Mu7p5_L2Mu2_Jpsi_v*	#	CMSHLT-1298
-HLT_Mu7p5_L2Mu2_Upsilon_v*	#	CMSHLT-1298
-HLT_Mu7p5_Track2_Jpsi_v*	#	CMSHLT-1298
-HLT_Mu7p5_Track2_Upsilon_v*	#	CMSHLT-1298
-HLT_Mu7p5_Track3p5_Jpsi_v*	#	CMSHLT-1298
-HLT_Mu7p5_Track3p5_Upsilon_v*	#	CMSHLT-1298
-HLT_Mu7p5_Track7_Jpsi_v*	#	CMSHLT-1298
-HLT_Mu7p5_Track7_Upsilon_v*	#	CMSHLT-1298
+HLT_Mu7p5_L2Mu2_Jpsi_v*    # CMSHLT-1298
+HLT_Mu7p5_L2Mu2_Upsilon_v* # CMSHLT-1298
 HLT_Dimuon0_LowMass_L1_TM530_v*	#	CMSHLT-1299
 HLT_Dimuon0_Upsilon_Muon_L1_TM0_v*	#	CMSHLT-1299
 HLT_Dimuon0_Upsilon_Muon_NoL1Mass_v*	#	CMSHLT-1299
@@ -636,14 +630,6 @@ HLT_DoubleTrkMu_16_6_NoFiltersNoVtx_v*	#	CMSHLT-1919
 HLT_Ele28_WPTight_Gsf_v*	#	CMSHLT-1921
 HLT_Ele30_WPTight_Gsf_v*	#	CMSHLT-1921
 HLT_Mu3_L1SingleMu5orSingleMu7_v*	#	CMSHLT-1924
-HLT_Mu12_IP6_ToCSCS_v*	#	CMSHLT-1951
-HLT_Mu7_IP4_ToCSCS_v*	#	CMSHLT-1951
-HLT_Mu8_IP3_ToCSCS_v*	#	CMSHLT-1951
-HLT_Mu8_IP5_ToCSCS_v*	#	CMSHLT-1951
-HLT_Mu8_IP6_ToCSCS_v*	#	CMSHLT-1951
-HLT_Mu9_IP4_ToCSCS_v*	#	CMSHLT-1951
-HLT_Mu9_IP5_ToCSCS_v*	#	CMSHLT-1951
-HLT_Mu9_IP6_ToCSCS_v*	#	CMSHLT-1951
 HLT_CDC_L2cosmic_10_er1p0_v*	#	CMSHLT-1967
 HLT_Mu9_IP0_part0_v*			#	CMSHLT-1979
 HLT_Mu9_IP3_part0_v*			#	CMSHLT1979
@@ -734,8 +720,8 @@ HLT_PFMET105_IsoTrk50_v*                                                # CMSHLT
 HLT_PFMET105_PFJet100_looseRecoiling_v*                                 # CMSHLT-2211
 HLT_PFMET110_PFJet100_v*                                                # CMSHLT-2211
 HLT_PFMET110_PFJet100_looseRecoiling_v*                                 # CMSHLT-2211
-HLT_DoubleL3Iter4Mu16_10NoVtx_DxyMin0p01cm_v* # CMSHLT-2301
-HLT_L3Iter4Mu10_NoVtx_DxyMin0p01cm_v*         # CMSHLT-2301
+HLT_DoubleL3dTksMu16_10NoVtx_DxyMin0p01cm_v* # CMSHLT-2326
+HLT_L3dTksMu10_NoVtx_DxyMin0p01cm_v*         # CMSHLT-2326
 HLT_HT170_L1SingleLLPJet_DisplacedDijet40_DisplacedTrack_v*           # CMSHLT-2280
 HLT_HT200_L1SingleLLPJet_DelayedJet40_DoubleDelay0p5nsTrackless_v*    # CMSHLT-2280
 HLT_HT200_L1SingleLLPJet_DelayedJet40_DoubleDelay1nsInclusive_v*      # CMSHLT-2280
@@ -801,8 +787,8 @@ PhysicsScoutingPFMonitorOutput # CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603,
 ScoutingPFOutput               # CMSHLT-548, CMSHLT-2231
 DQMOutput
 DQMEventDisplayOutput
-DQMCalibrationOutput
 DQMOnlineBeamspotOutput # CMSHLT-1288
+DQMCalibrationOutput
 DQMGPUvsCPUOutput       # CMSHLT-2287
 HLTMonitorOutput                          # CMSHLT-462, CMSHLT-481
 CalibrationOutput

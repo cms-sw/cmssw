@@ -9,7 +9,7 @@ globalTag = {
   'PIon' : 'auto:run3_mc_PIon',
   'PRef' : 'auto:run3_mc_PRef',
   'data' : 'auto:run3_hlt_relval',
-  '2022v11' : 'auto:run3_mc_GRun',
+  '2022v12' : 'auto:run3_mc_2022v12',
 }
 
 

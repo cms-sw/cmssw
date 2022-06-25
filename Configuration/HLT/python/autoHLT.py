@@ -1,5 +1,5 @@
 # used by cmsDriver when called like
-#   cmsDiver.py hlt -s HLT:@relval
+#   cmsDriver.py hlt -s HLT:@relval
 
 autoHLT = {
   'fake'       : 'Fake',
@@ -10,7 +10,7 @@ autoHLT = {
   'relval2016' : 'Fake2',
   'relval2017' : 'Fake2',
   'relval2018' : 'Fake2',
-  'relval2021' : 'GRun',
+  'relval2022' : '2022v12',
   'relval2026' : '75e33',
   'test'       : 'GRun',
 }
