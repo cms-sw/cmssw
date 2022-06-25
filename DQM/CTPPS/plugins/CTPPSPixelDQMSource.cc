@@ -89,6 +89,8 @@ private:
   MonitorElement *hRPotActivPlanes[RPotsTotalNumber];
   MonitorElement *hRPotActivBX[RPotsTotalNumber];
   MonitorElement *hRPotActivBXroc[RPotsTotalNumber];
+  MonitorElement *hRPotActivBXroc_3[RPotsTotalNumber];
+  MonitorElement *hRPotActivBXroc_2[RPotsTotalNumber];
   MonitorElement *h2HitsMultROC[RPotsTotalNumber];
   MonitorElement *hp2HitsMultROC_LS[RPotsTotalNumber];
   MonitorElement *hHitsMult[RPotsTotalNumber][NplaneMAX];
@@ -419,6 +421,10 @@ void CTPPSPixelDQMSource::bookHistograms(DQMStore::IBooker &ibooker, edm::Run co
 
           hRPotActivBXroc[indexP] =
               ibooker.book1D("4 fired ROCs per BX", rpTitle + ";Event.BX", 4002, -1.5, 4000. + 0.5);
+          hRPotActivBXroc_3[indexP] =
+              ibooker.book1D("3 fired ROCs per BX", rpTitle + ";Event.BX", 4002, -1.5, 4000. + 0.5);
+          hRPotActivBXroc_2[indexP] =
+              ibooker.book1D("2 fired ROCs per BX", rpTitle + ";Event.BX", 4002, -1.5, 4000. + 0.5);
 
           hRPotActivBXall[indexP] = ibooker.book1D("hits per BX", rpTitle + ";Event.BX", 4002, -1.5, 4000. + 0.5);
         }
@@ -753,6 +759,10 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
             max = planesFiredAtROC[r];
         if (max >= 4 && onlinePlots)  // fill only if there are at least 4 aligned ROCs firing
           hRPotActivBXroc[index]->Fill(event.bunchCrossing());
+        if (max >= 3 && onlinePlots)  // fill only if there are at least 3 aligned ROCs firing
+          hRPotActivBXroc_3[index]->Fill(event.bunchCrossing());
+        if (max >= 2 && onlinePlots)  // fill only if there are at least 2 aligned ROCs firing
+          hRPotActivBXroc_2[index]->Fill(event.bunchCrossing());
       }  // end for(int rp=0; rp<NRPotsMAX; rp++) {
     }
   }  // end for(int arm=0; arm<2; arm++) {
