@@ -1,16 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-pythia8CP4TuneDownSettings13p6TeVBlock = cms.PSet(
-    pythia8CP4TuneDownSettings13p6TeV = cms.vstring(
+pythia8CP3SettingsBlock = cms.PSet(
+    pythia8CP3Settings = cms.vstring(
     'Tune:pp 14',
-    'Tune:ee 7',
+    'Tune:ee 7',	
+    'MultipartonInteractions:ecmPow=0.02266',
     'MultipartonInteractions:bProfile=2',
-    'MultipartonInteractions:pT0Ref=1.538',
-    'MultipartonInteractions:ecmPow=0.02012',
-    'MultipartonInteractions:coreFraction=0.3266',
-    'MultipartonInteractions:coreRadius=0.5718',
-    'ColourReconnection:range=6.881',
-    'SigmaTotal:zeroAXB=off', 
+    'MultipartonInteractions:pT0Ref=1.516',
+    'MultipartonInteractions:coreRadius=0.5396',
+    'MultipartonInteractions:coreFraction=0.3869',
+    'ColourReconnection:range=4.727',
+    'SigmaTotal:zeroAXB=off',    
     'SpaceShower:alphaSorder=2',
     'SpaceShower:alphaSvalue=0.118',
     'SigmaProcess:alphaSvalue=0.118',
@@ -23,7 +23,7 @@ pythia8CP4TuneDownSettings13p6TeVBlock = cms.PSet(
     'SigmaTotal:mode = 0',
     'SigmaTotal:sigmaEl = 22.08',
     'SigmaTotal:sigmaTot = 101.037',
-    'PDF:pSet=LHAPDF6:NNPDF31_nnlo_as_0118',
-   )
+    'PDF:pSet=LHAPDF6:NNPDF31_nlo_as_0118',
+        )
 )
 
