@@ -10,7 +10,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          pythiaPylistVerbosity = cms.untracked.int32(1),
                          filterEfficiency = cms.untracked.double(1.0),
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
-                         comEnergy = cms.double(14000.0),
+                         comEnergy = cms.double(13600.0),
     PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CP5SettingsBlock,
@@ -24,7 +24,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          )
 
 XiFilter = cms.EDFilter("PythiaFilter",
-    MinPt = cms.untracked.double(1.3),
+    MinPt = cms.untracked.double(1.0),
     ParticleID = cms.untracked.int32(3312),
     MaxEta = cms.untracked.double(2.6),
     MinEta = cms.untracked.double(-2.6)
