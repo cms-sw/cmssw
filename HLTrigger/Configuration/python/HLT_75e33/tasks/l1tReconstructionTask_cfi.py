@@ -3,18 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from ..modules.L1EGammaClusterEmuProducer_cfi import *
 from ..modules.l1EGammaEEProducer_cfi import *
 from ..modules.l1NNTauProducerPuppi_cfi import *
-<<<<<<< HEAD
-#from ..modules.l1pfCandidates_cfi import *
-#from ..modules.l1PFMetPuppi_cfi import *
-#from ..modules.l1pfProducerBarrel_cfi import *
-#from ..modules.l1pfProducerHF_cfi import *
-#from ..modules.l1pfProducerHGCal_cfi import *
-#from ..modules.l1pfProducerHGCalNoTK_cfi import *
-from ..modules.hltL1TkElectronsEllipticMatchCrystal_cfi import *
-from ..modules.hltL1TkElectronsEllipticMatchHGC_cfi import *
-#from ..modules.hltL1TkMuons_cfi import *
-from ..modules.hltL1TkPhotonsCrystal_cfi import *
-=======
 from ..modules.l1pfCandidates_cfi import *
 from ..modules.l1PFMetPuppi_cfi import *
 from ..modules.l1pfProducerBarrel_cfi import *
@@ -25,17 +13,16 @@ from ..modules.l1pfProducerHGCalNoTK_cfi import *
 #from ..modules.hltL1TkElectronsEllipticMatchHGC_cfi import *
 # from ..modules.hltL1TkMuons_cfi import *
 # from ..modules.hltL1TkPhotonsCrystal_cfi import *
->>>>>>> 709fd70167c (TkElectrons from emulator 3/N)
-from ..modules.hltL1TkPhotonsHGC_cfi import *
-#from ..modules.L1TkPrimaryVertex_cfi import *
-#from ..modules.l1tSlwPFPuppiJets_cfi import *
-#from ..modules.l1tSlwPFPuppiJetsCorrected_cfi import *
-#from ..modules.pfClustersFromCombinedCaloHCal_cfi import *
-#from ..modules.pfClustersFromCombinedCaloHF_cfi import *
-#from ..modules.pfClustersFromHGC3DClusters_cfi import *
-#from ..modules.pfClustersFromL1EGClusters_cfi import *
-#from ..modules.pfTracksFromL1TracksBarrel_cfi import *
-#from ..modules.pfTracksFromL1TracksHGCal_cfi import *
+# from ..modules.hltL1TkPhotonsHGC_cfi import *
+from ..modules.L1TkPrimaryVertex_cfi import *
+from ..modules.l1tSlwPFPuppiJets_cfi import *
+from ..modules.l1tSlwPFPuppiJetsCorrected_cfi import *
+from ..modules.pfClustersFromCombinedCaloHCal_cfi import *
+from ..modules.pfClustersFromCombinedCaloHF_cfi import *
+from ..modules.pfClustersFromHGC3DClusters_cfi import *
+from ..modules.pfClustersFromL1EGClusters_cfi import *
+from ..modules.pfTracksFromL1TracksBarrel_cfi import *
+from ..modules.pfTracksFromL1TracksHGCal_cfi import *
 from ..modules.simCaloStage2Layer1Digis_cfi import *
 from ..modules.simCscTriggerPrimitiveDigis_cfi import *
 from ..modules.simDtTriggerPrimitiveDigis_cfi import *
