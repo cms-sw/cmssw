@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from ..modules.L1EGammaClusterEmuProducer_cfi import *
 from ..modules.l1EGammaEEProducer_cfi import *
 from ..modules.l1NNTauProducerPuppi_cfi import *
+<<<<<<< HEAD
 #from ..modules.l1pfCandidates_cfi import *
 #from ..modules.l1PFMetPuppi_cfi import *
 #from ..modules.l1pfProducerBarrel_cfi import *
@@ -13,6 +14,18 @@ from ..modules.hltL1TkElectronsEllipticMatchCrystal_cfi import *
 from ..modules.hltL1TkElectronsEllipticMatchHGC_cfi import *
 #from ..modules.hltL1TkMuons_cfi import *
 from ..modules.hltL1TkPhotonsCrystal_cfi import *
+=======
+from ..modules.l1pfCandidates_cfi import *
+from ..modules.l1PFMetPuppi_cfi import *
+from ..modules.l1pfProducerBarrel_cfi import *
+from ..modules.l1pfProducerHF_cfi import *
+from ..modules.l1pfProducerHGCal_cfi import *
+from ..modules.l1pfProducerHGCalNoTK_cfi import *
+#from ..modules.hltL1TkElectronsEllipticMatchCrystal_cfi import *
+#from ..modules.hltL1TkElectronsEllipticMatchHGC_cfi import *
+# from ..modules.hltL1TkMuons_cfi import *
+# from ..modules.hltL1TkPhotonsCrystal_cfi import *
+>>>>>>> 709fd70167c (TkElectrons from emulator 3/N)
 from ..modules.hltL1TkPhotonsHGC_cfi import *
 #from ..modules.L1TkPrimaryVertex_cfi import *
 #from ..modules.l1tSlwPFPuppiJets_cfi import *
@@ -38,12 +51,12 @@ from ..modules.simTwinMuxDigis_cfi import *
 
 l1tReconstructionTask = cms.Task(
     L1EGammaClusterEmuProducer,
-    hltL1TkElectronsEllipticMatchCrystal,
-    hltL1TkElectronsEllipticMatchHGC,
-    #hltL1TkMuons,
-    hltL1TkPhotonsCrystal,
-    hltL1TkPhotonsHGC,
-    #L1TkPrimaryVertex,
+#    hltL1TkElectronsEllipticMatchCrystal,
+#    hltL1TkElectronsEllipticMatchHGC,
+#    hltL1TkMuons,
+#    hltL1TkPhotonsCrystal,
+#    hltL1TkPhotonsHGC,
+    L1TkPrimaryVertex,
     l1EGammaEEProducer,
     l1NNTauProducerPuppi,
     #l1PFMetPuppi,
