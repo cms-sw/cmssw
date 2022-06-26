@@ -181,17 +181,16 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   //Retrieve tracker topology from geometry
   const TrackerTopology *const tTopo = &setup.getData(topoToken_);
 
-  //Retrieve tracker geometry
-  const TrackerGeometry *tGeom = &setup.getData(geomToken_);
-
-  //Retrieve PixelTopologyMap
-  pixelTopologyMap = std::make_shared<PixelTopologyMap>(tGeom, tTopo);
-
   //Retrieve the thresolds cuts from DB for the PCL
   if (runAtPCL_) {
     const auto &th = &setup.getData(aliThrToken_);
     theThresholds = std::make_shared<AlignPCLThresholdsHG>();
     storeThresholds(th->getNrecords(), th->getThreshold_Map(), th->getFloatMap());
+
+    //Retrieve tracker geometry
+    const TrackerGeometry *tGeom = &setup.getData(geomToken_);
+    //Retrieve PixelTopologyMap
+    pixelTopologyMap = std::make_shared<PixelTopologyMap>(tGeom, tTopo);
   }
 
   theAlignableNavigator = std::make_unique<AlignableNavigator>(extras, tracker, muon);

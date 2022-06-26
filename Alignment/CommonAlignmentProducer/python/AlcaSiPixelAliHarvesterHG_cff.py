@@ -41,7 +41,7 @@ SiPixelAliPedeAlignmentProducerHG.algoConfig = MillePedeAlignmentAlgorithm.clone
     pedeSteerer = dict(
         pedeCommand = 'pede',
         method = 'inversion  5  0.8',
-        options = cms.vstring(
+        options = [
             #'regularisation 1.0 0.05', # non-stated pre-sigma 50 mrad or 500 mum
             'entries 500',
             'chisqcut  30.0  4.5',
@@ -50,9 +50,9 @@ SiPixelAliPedeAlignmentProducerHG.algoConfig = MillePedeAlignmentAlgorithm.clone
             'skipemptycons' 
             #'outlierdownweighting 3','dwfractioncut 0.1'
             #'outlierdownweighting 5','dwfractioncut 0.2'
-        ),
+        ],
         fileDir = 'HGalignment/',
-        runDir = cms.untracked.string('HGalignment/'),
+        runDir = 'HGalignment/',
         steerFile = 'pedeSteerHG',
         pedeDump = 'pedeHG.dump'
     ),
@@ -71,10 +71,9 @@ SiPixelAliDQMModuleHG.MillePedeFileReader.isHG = True
 
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 dqmEnvSiPixelAliHG = DQMEDHarvester('DQMHarvestingMetadata',
-                                  subSystemFolder = cms.untracked.string('AlCaReco'),  
-                                  )
+                                    subSystemFolder = cms.untracked.string('AlCaReco'))
 
 ALCAHARVESTSiPixelAliHG = cms.Sequence(SiPixelAliMilleFileExtractorHG*
-                                     SiPixelAliPedeAlignmentProducerHG*
-                                     SiPixelAliDQMModuleHG*
-                                     dqmEnvSiPixelAliHG)
+                                       SiPixelAliPedeAlignmentProducerHG*
+                                       SiPixelAliDQMModuleHG*
+                                       dqmEnvSiPixelAliHG)
