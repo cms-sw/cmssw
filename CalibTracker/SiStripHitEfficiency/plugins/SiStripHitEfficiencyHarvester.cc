@@ -46,6 +46,7 @@ public:
   void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
 private:
+  SiStripHitEffData calibData_;
   const std::string inputFolder_;
   const bool isAtPCL_;
   const bool autoIneffModTagging_, doStoreOnDB_;
