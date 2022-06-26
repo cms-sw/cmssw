@@ -169,7 +169,5 @@ def customise(process):
         process.schedule.remove(process.ALCARECOStreamEcalPhiSymByRunOutPath)
     if "ALCARECOStreamEcalPhiSymByLumiOutPath" in process.pathNames():
         process.schedule.remove(process.ALCARECOStreamEcalPhiSymByLumiOutPath)
-    process.ALCARECOStreamEcalPhiSymOutNanoPath = cms.EndPath(ecal_phisym_output(process, save_flatnano=True)[0])
-    process.schedule.append(process.ALCARECOStreamEcalPhiSymOutNanoPath)
 
     return process
