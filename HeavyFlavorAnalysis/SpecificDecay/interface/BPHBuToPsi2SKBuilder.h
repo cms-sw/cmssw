@@ -48,34 +48,27 @@ class BPHEventSetupWrapper;
 //              -- Class Interface --
 //              ---------------------
 
-class BPHBuToPsi2SKBuilder:
-      public BPHDecayToResTrkBuilder<BPHRecoCandidate,
-                                     BPHRecoCandidate> {
-
- public:
-
+class BPHBuToPsi2SKBuilder : public BPHDecayToResTrkBuilder<BPHRecoCandidate, BPHRecoCandidate> {
+public:
   /** Constructor
    */
-  BPHBuToPsi2SKBuilder( const BPHEventSetupWrapper& es,
-      const std::vector<BPHRecoConstCandPtr>& psi2SCollection,
-      const BPHRecoBuilder::BPHGenericCollection* kaonCollection ):
-   BPHDecayGenericBuilderBase( es, nullptr ),
-   BPHDecayConstrainedBuilderBase( "Psi2S", BPHParticleMasses::psi2Mass,
-                                            BPHParticleMasses::psi2MWidth ),
-   BPHDecayToResTrkBuilder( psi2SCollection,
-                            "Kaon",
-                            BPHParticleMasses::kaonMass,
-                            BPHParticleMasses::kaonMSigma, kaonCollection ) {
-    setResMassRange( 3.30, 4.00 );
-    setTrkPtMin    (  0.7 );
-    setTrkEtaMax   ( 10.0 );
-    setMassRange   ( 3.50, 8.00 );
-    setProbMin     ( 0.02 );
+  BPHBuToPsi2SKBuilder(const BPHEventSetupWrapper& es,
+                       const std::vector<BPHRecoConstCandPtr>& psi2SCollection,
+                       const BPHRecoBuilder::BPHGenericCollection* kaonCollection)
+      : BPHDecayGenericBuilderBase(es, nullptr),
+        BPHDecayConstrainedBuilderBase("Psi2S", BPHParticleMasses::psi2Mass, BPHParticleMasses::psi2MWidth),
+        BPHDecayToResTrkBuilder(
+            psi2SCollection, "Kaon", BPHParticleMasses::kaonMass, BPHParticleMasses::kaonMSigma, kaonCollection) {
+    setResMassRange(3.30, 4.00);
+    setTrkPtMin(0.7);
+    setTrkEtaMax(10.0);
+    setMassRange(3.50, 8.00);
+    setProbMin(0.02);
   }
 
   // deleted copy constructor and assignment operator
-  BPHBuToPsi2SKBuilder           ( const BPHBuToPsi2SKBuilder& x ) = delete;
-  BPHBuToPsi2SKBuilder& operator=( const BPHBuToPsi2SKBuilder& x ) = delete;
+  BPHBuToPsi2SKBuilder(const BPHBuToPsi2SKBuilder& x) = delete;
+  BPHBuToPsi2SKBuilder& operator=(const BPHBuToPsi2SKBuilder& x) = delete;
 
   /** Destructor
    */
@@ -84,30 +77,25 @@ class BPHBuToPsi2SKBuilder:
   /** Operations
    */
   /// get original daughters map
-  const std::map<const BPHRecoCandidate*,
-                 const BPHRecoCandidate*>& daughMap() const { return dMap; }
+  const std::map<const BPHRecoCandidate*, const BPHRecoCandidate*>& daughMap() const { return dMap; }
 
   /// set cuts
-  void setKPtMin      ( double  pt ) { setTrkPtMin  (  pt ); }
-  void setKEtaMax     ( double eta ) { setTrkEtaMax ( eta ); }
-  void setPsi2SMassMin( double   m ) { setResMassMin(   m ); }
-  void setPsi2SMassMax( double   m ) { setResMassMax(   m ); }
+  void setKPtMin(double pt) { setTrkPtMin(pt); }
+  void setKEtaMax(double eta) { setTrkEtaMax(eta); }
+  void setPsi2SMassMin(double m) { setResMassMin(m); }
+  void setPsi2SMassMax(double m) { setResMassMax(m); }
 
   /// get current cuts
-  double getKPtMin      () const { return getTrkPtMin  (); }
-  double getKEtaMax     () const { return getTrkEtaMax (); }
+  double getKPtMin() const { return getTrkPtMin(); }
+  double getKEtaMax() const { return getTrkEtaMax(); }
   double getPsi2SMassMin() const { return getResMassMin(); }
   double getPsi2SMassMax() const { return getResMassMax(); }
 
   /// setup parameters for BPHRecoBuilder
-  void setup( void* parameters ) override {}
+  void setup(void* parameters) override {}
 
- private:
-
-  std::map<const BPHRecoCandidate*,const BPHRecoCandidate*> dMap;
-
+private:
+  std::map<const BPHRecoCandidate*, const BPHRecoCandidate*> dMap;
 };
 
-
 #endif
-
