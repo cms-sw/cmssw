@@ -38,38 +38,31 @@ class BPHEventSetupWrapper;
 //              -- Class Interface --
 //              ---------------------
 
-class BPHPsi2SToJPsiPiPiBuilder:
-      public BPHDecayToJPsiPiPiBuilder {
-
- public:
-
+class BPHPsi2SToJPsiPiPiBuilder : public BPHDecayToJPsiPiPiBuilder {
+public:
   /** Constructor
    */
-  BPHPsi2SToJPsiPiPiBuilder( const BPHEventSetupWrapper& es,
-      const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
-      const BPHRecoBuilder::BPHGenericCollection*   posCollection,
-      const BPHRecoBuilder::BPHGenericCollection*   negCollection ):
-   BPHDecayGenericBuilderBase( es, nullptr ),
-   BPHDecayToJPsiPiPiBuilder( jpsiCollection,
-                              posCollection, negCollection ) {
-    setResMassRange( 2.80, 3.40 );
-    setTrkPtMin    (  1.0 );
-    setTrkEtaMax   ( 10.0 );
-    setMassRange   ( 3.00, 4.50 );
-    setProbMin     ( 0.02 );
-    setMassFitRange( 3.50, 3.80 );
+  BPHPsi2SToJPsiPiPiBuilder(const BPHEventSetupWrapper& es,
+                            const std::vector<BPHPlusMinusConstCandPtr>& jpsiCollection,
+                            const BPHRecoBuilder::BPHGenericCollection* posCollection,
+                            const BPHRecoBuilder::BPHGenericCollection* negCollection)
+      : BPHDecayGenericBuilderBase(es, nullptr),
+        BPHDecayToJPsiPiPiBuilder(jpsiCollection, posCollection, negCollection) {
+    setResMassRange(2.80, 3.40);
+    setTrkPtMin(1.0);
+    setTrkEtaMax(10.0);
+    setMassRange(3.00, 4.50);
+    setProbMin(0.02);
+    setMassFitRange(3.50, 3.80);
   }
 
   // deleted copy constructor and assignment operator
-  BPHPsi2SToJPsiPiPiBuilder           ( const BPHPsi2SToJPsiPiPiBuilder& x ) = delete;
-  BPHPsi2SToJPsiPiPiBuilder& operator=( const BPHPsi2SToJPsiPiPiBuilder& x ) = delete;
+  BPHPsi2SToJPsiPiPiBuilder(const BPHPsi2SToJPsiPiPiBuilder& x) = delete;
+  BPHPsi2SToJPsiPiPiBuilder& operator=(const BPHPsi2SToJPsiPiPiBuilder& x) = delete;
 
   /** Destructor
    */
   ~BPHPsi2SToJPsiPiPiBuilder() override {}
-
 };
 
-
 #endif
-
