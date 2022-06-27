@@ -3,7 +3,7 @@
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -26,7 +26,7 @@
 
 namespace l1t {
 
-  class L1TCaloStage1LutWriter : public edm::EDAnalyzer {
+  class L1TCaloStage1LutWriter : public edm::one::EDAnalyzer<> {
   public:
     explicit L1TCaloStage1LutWriter(const edm::ParameterSet&);
     ~L1TCaloStage1LutWriter() override;
