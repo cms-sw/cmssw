@@ -21,6 +21,3 @@ phase1Pixel.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEClusterRep
 from Configuration.ProcessModifiers.PixelCPEGeneric_cff import PixelCPEGeneric
 PixelCPEGeneric.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEGeneric')
 
-from Configuration.Eras.Modifier_phase2_brickedPixels_cff import phase2_brickedPixels
-phase2_brickedPixels.toModify(TTRHBuilderAngleAndTemplate, PixelCPE = 'PixelCPEGenericForBricked')
-
