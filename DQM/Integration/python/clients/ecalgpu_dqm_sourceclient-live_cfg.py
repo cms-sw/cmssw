@@ -57,6 +57,9 @@ process.maxEvents = cms.untracked.PSet(
 
 process.preScaler.prescaleFactor = 1
 
+if not options.inputFiles:
+    process.source.streamLabel = cms.untracked.string("streamDQMGPUvsCPU")
+
 process.dqmEnv.subSystemFolder = 'EcalGPU'
 process.dqmSaver.tag = 'EcalGPU'
 process.dqmSaver.runNumber = options.runNumber
