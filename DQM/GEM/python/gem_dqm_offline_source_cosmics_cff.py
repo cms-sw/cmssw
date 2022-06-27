@@ -5,8 +5,9 @@ from DQM.GEM.GEMRecHitSource_cfi import *
 from DQM.GEM.GEMDAQStatusSource_cfi import *
 from DQM.GEM.gemEfficiencyAnalyzerCosmics_cff import *
 
-GEMDigiSource.runType   = "offline"
-GEMRecHitSource.runType = "offline"
+GEMDigiSource.runType      = "offline"
+GEMRecHitSource.runType    = "offline"
+GEMDAQStatusSource.runType = "offline"
 
 gemSourcesCosmics = cms.Sequence(
     GEMDigiSource *

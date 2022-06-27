@@ -6,7 +6,7 @@ process = cms.Process('GEMDQM', Run3)
 
 unitTest = False
 if 'unitTest=True' in sys.argv:
-    unitTest = True
+    unitTest=True
 
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
@@ -40,6 +40,10 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 process.muonGEMDigis.useDBEMap = True
 process.muonGEMDigis.keepDAQStatus = True
+
+process.GEMDigiSource.runType = "online"
+process.GEMRecHitSource.runType = "online"
+process.GEMDAQStatusSource.runType = "online"
 
 # from csc_dqm_sourceclient-live_cfg.py
 process.CSCGeometryESModule.useGangedStripsInME1a = False
