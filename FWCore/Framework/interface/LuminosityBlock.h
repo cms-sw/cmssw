@@ -57,7 +57,7 @@ namespace edm {
     ~LuminosityBlock() override;
 
     // AUX functions are defined in LuminosityBlockBase
-    LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const override { return aux_; }
+    LuminosityBlockAuxiliary const& luminosityBlockAuxiliary() const final;
 
     /**\return Reusable index which can be used to separate data for different simultaneous LuminosityBlocks.
      */
@@ -156,7 +156,7 @@ namespace edm {
     // Override version from LuminosityBlockBase class
     BasicHandle getByLabelImpl(std::type_info const& iWrapperType,
                                std::type_info const& iProductType,
-                               InputTag const& iTag) const override;
+                               InputTag const& iTag) const final;
 
     template <typename PROD>
     void putImpl(EDPutToken::value_type token, std::unique_ptr<PROD> product);
