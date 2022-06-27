@@ -468,7 +468,9 @@ public:
                   Int_t nNumChambers,
                   Int_t nNumEtaPartitions,
                   Int_t nMaxVFAT,
-                  Int_t nNumDigi)
+                  Int_t nNumDigi,
+                  Int_t nMinIdxChamber,
+                  Int_t nMaxIdxChamber)
         : nRegion_(nRegion),
           nStation_(nStation),
           nLayer_(nLayer),
@@ -476,6 +478,8 @@ public:
           nNumEtaPartitions_(nNumEtaPartitions),
           nMaxVFAT_(nMaxVFAT),
           nNumDigi_(nNumDigi),
+          nMinIdxChamber_(nMinIdxChamber),
+          nMaxIdxChamber_(nMaxIdxChamber),
           fMinPhi_(0){};
 
     bool operator==(const MEStationInfo &other) const {
