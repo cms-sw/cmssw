@@ -8,9 +8,7 @@
 
 struct SiStripHitEffData {
 public:
-  SiStripHitEffData() 
-    : EventStats(),
-      FEDErrorOccupancy(nullptr){}
+  SiStripHitEffData() : EventStats(), FEDErrorOccupancy(nullptr) {}
 
   void fillTkMapFromMap() {
     for (const auto& [id, count] : fedErrorCounts) {
