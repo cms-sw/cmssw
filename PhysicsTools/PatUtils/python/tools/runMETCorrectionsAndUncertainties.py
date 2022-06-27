@@ -1087,7 +1087,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     def tuneTxyParameters(self, process, corScheme, postfix, datamc="", campaign="", era="" ):
         corSchemes = ["Txy", "T1Txy", "T0pcTxy", "T0pcT1Txy", "T1T2Txy", "T0pcT1T2Txy", "T1SmearTxy", "T1T2SmearTxy", "T0pcT1SmearTxy", "T0pcT1T2SmearTxy"]
         import PhysicsTools.PatUtils.patPFMETCorrections_cff as metCors
-        print("DEBUG ",campaign,datamc,era)
         xyTags = {}
         for corScheme_ in corSchemes:
             xyTags["{}_{}".format(corScheme_,"50ns")]=getattr(metCors,"{}_{}_{}".format("patMultPhiCorrParams",corScheme_,"50ns"))
