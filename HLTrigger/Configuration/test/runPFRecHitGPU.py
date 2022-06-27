@@ -30,7 +30,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_12_3_0_pre5/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_123X_mcRun3_2021_realistic_v6-v1/10000/3f4a564a-b65a-4f45-87df-5d908f0757d3.root'),
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_12_4_0/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_124X_mcRun3_2022_realistic_v5-v1/10000/012eda92-aad5-4a95-8dbd-c79546b5f508.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -89,8 +89,8 @@ from HLTrigger.Configuration.CustomConfigs import ProcessName
 process = ProcessName(process)
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
-process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*articleFlow*HBHE*_*_*')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*particleFlow*HBHE*_*_*')
 
 # Path and EndPath definitions
 process.endjob_step = cms.EndPath(process.endOfProcess)
@@ -105,11 +105,11 @@ associatePatAlgosToolsTask(process)
 # customisation of the process.
 
 # Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforPatatrack
-from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack, customiseCommon, customiseHcalLocalReconstruction 
+#from HLTrigger.Configuration.customizeHLTforPatatrack import customizeHLTforPatatrack, customiseCommon, customiseHcalLocalReconstruction
 
 # only enable Hcal GPU
-process = customiseCommon(process)
-process = customiseHcalLocalReconstruction(process)
+#process = customiseCommon(process)
+#process = customiseHcalLocalReconstruction(process)
 
 #call to customisation function customizeHLTforPatatrack imported from HLTrigger.Configuration.customizeHLTforPatatrack
 #process = customizeHLTforPatatrack(process)
