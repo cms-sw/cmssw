@@ -14,6 +14,7 @@
 //----------------------
 // Base Class Headers --
 //----------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilder.h"
 
 //------------------------------------
@@ -23,8 +24,7 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
 
-#include "FWCore/Framework/interface/Event.h"
-
+class BPHEventSetupWrapper;
 class BPHParticlePtSelect;
 class BPHParticleEtaSelect;
 class BPHChi2Select;
@@ -40,11 +40,12 @@ class BPHMassSelect;
 //              -- Class Interface --
 //              ---------------------
 
-class BPHDecayToTkpTknSymChargeBuilder : public BPHDecayGenericBuilder {
+class BPHDecayToTkpTknSymChargeBuilder : public virtual BPHDecayGenericBuilderBase,
+                                         public virtual BPHDecayGenericBuilder<BPHPlusMinusCandidate> {
 public:
   /** Constructor
    */
-  BPHDecayToTkpTknSymChargeBuilder(const edm::EventSetup& es,
+  BPHDecayToTkpTknSymChargeBuilder(const BPHEventSetupWrapper& es,
                                    const std::string& daug1Name,
                                    double daug1Mass,
                                    double daug1Sigma,
@@ -61,12 +62,10 @@ public:
 
   /** Destructor
    */
-  ~BPHDecayToTkpTknSymChargeBuilder() override;
+  ~BPHDecayToTkpTknSymChargeBuilder() override = default;
 
   /** Operations
    */
-  /// build candidates
-  std::vector<BPHPlusMinusConstCandPtr> build();
 
   /// set cuts
   void setTrk1PtMin(double pt);
@@ -100,8 +99,6 @@ private:
   double eta2Max;
   double dzMax;
 
-  std::vector<BPHPlusMinusConstCandPtr> recList;
-
   class Particle {
   public:
     Particle(const reco::Candidate* c, const reco::Track* tk, double x, double y, double z, double f, double g)
@@ -115,6 +112,9 @@ private:
     double e2;
   };
   void addParticle(const BPHRecoBuilder::BPHGenericCollection* collection, int charge, std::vector<Particle*>& list);
+
+  /// build candidates
+  void fillRecList() override;
 };
 
 #endif

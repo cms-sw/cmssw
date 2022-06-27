@@ -13,6 +13,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 //---------------
@@ -27,7 +28,8 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-BPHPlusMinusVertex::BPHPlusMinusVertex(const edm::EventSetup* es) : BPHDecayVertex(es), oldA(true), inRPhi(nullptr) {}
+BPHPlusMinusVertex::BPHPlusMinusVertex(const BPHEventSetupWrapper* es)
+    : BPHDecayVertex(es), oldA(true), inRPhi(nullptr) {}
 
 //--------------
 // Destructor --

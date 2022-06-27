@@ -63,7 +63,7 @@ public:
 
   /** Destructor
    */
-  ~BPHMassFitSelect() override {}
+  ~BPHMassFitSelect() override = default;
 
   /** Operations
    */
