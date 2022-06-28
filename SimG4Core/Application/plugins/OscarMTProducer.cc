@@ -103,6 +103,7 @@ namespace {
 OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread* ms)
     : m_handoff{p.getUntrackedParameter<int>("workerThreadStackSize", 10 * 1024 * 1024)} {
   m_verbose = p.getParameter<int>("EventVerbose");
+  //  m_G4CommandsEndRun(p.getParameter<std::vector<std::string> >("G4CommandsEndRun")),
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
@@ -217,34 +218,35 @@ void OscarMTProducer::globalEndJob(OscarMTMasterThread* masterThread) {
 }
 
 void OscarMTProducer::beginRun(const edm::Run&, const edm::EventSetup& es) {
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun";
+  int id = m_runManagerWorker->getThreadIndex();
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun threadID=" << id;
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, &es, token]() {
     edm::ServiceRegistry::Operate guard{token};
     m_runManagerWorker->beginRun(es);
     m_runManagerWorker->initializeG4(m_masterThread->runManagerMasterPtr(), es);
   });
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun done";
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::beginRun done threadID=" << id;
 }
 
 void OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&) {
-  // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun";
+  int id = m_runManagerWorker->getThreadIndex();
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun threadID=" << id;
   auto token = edm::ServiceRegistry::instance().presentToken();
   m_handoff.runAndWait([this, token]() {
-    StaticRandomEngineSetUnset random(nullptr);
     edm::ServiceRegistry::Operate guard{token};
     m_runManagerWorker->endRun();
   });
-  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun done";
+  edm::LogVerbatim("SimG4CoreApplication") << "OscarMTProducer::endRun done threadID=" << id;
 }
 
 void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   StaticRandomEngineSetUnset random(e.streamID());
   auto engine = random.currentEngine();
+  int id = m_runManagerWorker->getThreadIndex();
   if (0 < m_verbose) {
-    edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID();
+    edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID() << " threadID=" << id;
     //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
   }
 
@@ -310,7 +312,7 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     prod.get()->produce(e, es);
   }
   if (0 < m_verbose) {
-    edm::LogVerbatim("SimG4CoreApplication") << "Event is produced " << e.id() << " stream " << e.streamID();
+    edm::LogVerbatim("SimG4CoreApplication") << "Event is produced event " << e.id() << " streamID=" << e.streamID() << " threadID=" << id;
     //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
   }
 }
