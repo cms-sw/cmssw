@@ -71,6 +71,7 @@ public:
 
   std::string name_;
   int detectorType_;
+  int useSimWt_;
   int nCells_;
   int nSectors_;
   int firstLayer_;
