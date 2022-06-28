@@ -53,7 +53,7 @@ BPHDecayToV0DiffMassBuilder::BPHDecayToV0DiffMassBuilder(const BPHEventSetupWrap
                                        daug2Sigma,
                                        daug1Collection,
                                        daug2Collection,
-                                       expMass),
+                                       expectedMass),
       p1Mass(daug1Mass),
       p2Mass(daug2Mass),
       p1Sigma(daug1Sigma),
