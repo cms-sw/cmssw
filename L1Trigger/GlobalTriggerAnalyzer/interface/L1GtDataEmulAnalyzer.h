@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,6 +37,9 @@ class L1GtPsbWord;
 class L1TcsWord;
 class L1GtTriggerMenu;
 class L1GtTriggerMask;
+class L1GtTriggerMenuRcd;
+class L1GtTriggerMaskAlgoTrigRcd;
+class L1GtTriggerMaskTechTrigRcd;
 
 class TH1F;
 class TH1D;
@@ -45,7 +48,7 @@ class TTree;
 
 // class declaration
 
-class L1GtDataEmulAnalyzer : public edm::EDAnalyzer {
+class L1GtDataEmulAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1GtDataEmulAnalyzer(const edm::ParameterSet&);
   ~L1GtDataEmulAnalyzer() override;
@@ -125,7 +128,7 @@ private:
   /// GTFE
   TH1F* m_gtfeDataEmul;
 
-  static const int TotalBxInEvent = 5;
+  static constexpr int TotalBxInEvent = 5;
 
   /// FDL (0 for DAQ, 1 for EVM record)
   TH1F* m_fdlDataEmul[TotalBxInEvent][2];
@@ -159,6 +162,10 @@ private:
   TH1F* m_fdlDataEmulTechDecision_Err[2];
 
   /// PSB
+
+  edm::ESGetToken<L1GtTriggerMenu, L1GtTriggerMenuRcd> m_l1GtMenuToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskAlgoTrigRcd> m_l1GtTmAlgoToken;
+  edm::ESGetToken<L1GtTriggerMask, L1GtTriggerMaskTechTrigRcd> m_l1GtTmTechToken;
 };
 
 #endif /*GlobalTriggerAnalyzer_L1GtDataEmulAnalyzer_h*/
