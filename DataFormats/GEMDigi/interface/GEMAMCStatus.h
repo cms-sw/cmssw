@@ -41,13 +41,14 @@ public:
     error.badBC = !((amc13->bunchCrossing() == amc.bunchCrossing()) ||
                     (amc13->bunchCrossing() == 0 && amc.bunchCrossing() == GEMAMC13::lastBC));
     error.badRunType = amc.runType() != 0x1;
+    // Last OC in AMC13 is different to TCDS, AMC, and VFAT
     if (amc.formatVer() == 0)
-      // Last OC in AMC13 is different to TCDS, AMC, and VFAT
       error.badOC =
           !((uint16_t(amc13->orbitNumber()) == amc.orbitNumber()) ||
             (amc13->bunchCrossing() == 0 && uint16_t(amc.orbitNumber() + 1) == uint16_t(amc13->orbitNumber())));
     else
-      error.badOC = (amc13->orbitNumber() != amc.orbitNumber());
+      error.badOC = !((amc13->orbitNumber() == (amc.orbitNumber() + 1)) ||
+                      (amc13->bunchCrossing() == 0 && amc13->orbitNumber() == (amc.orbitNumber() + 2)));
     error.MMCMlocked = !amc.mmcmLocked();
     error.DAQclocklocked = !amc.daqClockLocked();
     error.DAQnotReday = !amc.daqReady();
