@@ -68,7 +68,7 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
   fastStep.KillPrimaryTrack();
   fastStep.SetPrimaryTrackPathLength(0.0);
   auto track = fastTrack.GetPrimaryTrack();
-  G4double energy = track->GetKineticEnergy()*1.015;
+  G4double energy = track->GetKineticEnergy() * 1.015;
 
   const G4ThreeVector& pos = track->GetPosition();
 
