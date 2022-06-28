@@ -61,20 +61,17 @@ int GEMDQMBase::loadChambers() {
   gemChambers_.clear();
   const std::vector<const GEMSuperChamber*>& superChambers_ = GEMGeometry_->superChambers();
   for (auto sch : superChambers_) {  // FIXME: This loop can be merged into the below loop
-    int n_lay = sch->nChambers();
-    for (int l = 0; l < n_lay; l++) {
+    for (auto pch : sch->chambers()) {
       Bool_t bExist = false;
-      if (not sch->chamber(l + 1))
-        continue;
       for (const auto& ch : gemChambers_) {
-        if (ch.id() == sch->chamber(l + 1)->id()) {
+        if (pch->id() == ch.id()) {
           bExist = true;
           break;
         }
       }
       if (bExist)
         continue;
-      gemChambers_.push_back(*sch->chamber(l + 1));
+      gemChambers_.push_back(*pch);
     }
   }
 
@@ -87,8 +84,7 @@ int GEMDQMBase::loadChambers() {
       const auto&& superchambers = station->superChambers();
 
       const int station_number = station->station();
-      const int num_superchambers = superchambers.size();
-      const int num_layers = superchambers.front()->nChambers();
+      const int num_superchambers = (station_number == 1 ? 36 : 18);
       const int max_vfat = getMaxVFAT(station->station());  // the number of VFATs per GEMEtaPartition
       const int num_etas = getNumEtaPartitions(station);    // the number of eta partitions per GEMChamber
       const int num_vfat = num_etas * max_vfat;             // the number of VFATs per GEMChamber
@@ -96,10 +92,25 @@ int GEMDQMBase::loadChambers() {
 
       nMaxNumCh_ = std::max(nMaxNumCh_, num_superchambers);
 
-      for (int layer_number = 1; layer_number <= num_layers; layer_number++) {
+      Int_t nMinIdxChamber = 1048576;
+      Int_t nMaxIdxChamber = -1048576;
+      for (auto sch : superchambers) {
+        auto nIdxChamber = sch->chambers().front()->id().chamber();
+        if (nMinIdxChamber > nIdxChamber)
+          nMinIdxChamber = nIdxChamber;
+        if (nMaxIdxChamber < nIdxChamber)
+          nMaxIdxChamber = nIdxChamber;
+      }
+
+      const auto& chambers = superchambers.front()->chambers();
+
+      for (auto pchamber : chambers) {
+        int layer_number = pchamber->id().layer();
         ME3IdsKey key3(region_number, station_number, layer_number);
         mapStationInfo_[key3] =
             MEStationInfo(region_number, station_number, layer_number, num_superchambers, num_etas, num_vfat, num_digi);
+        mapStationInfo_[key3].nMinIdxChamber_ = nMinIdxChamber;
+        mapStationInfo_[key3].nMaxIdxChamber_ = nMaxIdxChamber;
         readGeometryRadiusInfoChamber(station, mapStationInfo_[key3]);
         readGeometryPhiInfoChamber(station, mapStationInfo_[key3]);
       }
@@ -330,7 +341,7 @@ int GEMDQMBase::readGeometryPhiInfoChamber(const GEMStation* station, MEStationI
     listDivPhi.back().second.second = bFlipped;
   }
 
-  stationInfo.fMinPhi_ = 1048576.0;
+  stationInfo.fMinPhi_ = 0.0;
   for (auto p : listDivPhi) {
     if (p.first == 1) {
       stationInfo.fMinPhi_ = p.second.first.first;

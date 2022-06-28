@@ -1,6 +1,6 @@
 # hltGetConfiguration --full --data /dev/CMSSW_12_4_0/PIon --type PIon --unprescale --process HLTPIon --globaltag auto:run3_hlt_PIon --input file:RelVal_Raw_PIon_DATA.root
 
-# /dev/CMSSW_12_4_0/PIon/V22 (CMSSW_12_4_0_pre4)
+# /dev/CMSSW_12_4_0/PIon/V60 (CMSSW_12_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ process = cms.Process( "HLTPIon" )
 process.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V22')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V60')
 )
 
 process.transferSystem = cms.PSet( 
@@ -5028,6 +5028,7 @@ process.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     AlgorithmTriggersUnmasked = cms.bool( True ),
     useMuonShowers = cms.bool( True ),
     resetPSCountersEachLumiSec = cms.bool( True ),
+    semiRandomInitialPSCounters = cms.bool( False ),
     ProduceL1GtDaqRecord = cms.bool( True ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     EmulateBxInEvent = cms.int32( 1 ),
@@ -5085,9 +5086,9 @@ process.hltPreZeroBias = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
-process.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
+process.hltFEDSelectorTCDS = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
-    fedList = cms.vuint32( 1023, 1024 )
+    fedList = cms.vuint32( 1024, 1025 )
 )
 process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     throw = cms.bool( False ),
@@ -5163,11 +5164,11 @@ process.hltPreDatasetZeroBias = cms.EDFilter( "HLTPrescaler",
 )
 
 process.statusOnGPU = SwitchProducerCUDA(
-   cuda = cms.EDProducer( "BooleanProducer",
-       value = cms.bool( True )
-   ),
-  cpu = cms.EDProducer( "BooleanProducer",
+   cpu = cms.EDProducer( "BooleanProducer",
        value = cms.bool( False )
+   ),
+  cuda = cms.EDProducer( "BooleanProducer",
+       value = cms.bool( True )
    ),
  )
 
@@ -5241,7 +5242,7 @@ process.Status_OnGPU = cms.Path( process.statusOnGPU + process.statusOnGPUFilter
 process.HLT_Physics_v7 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
 process.HLT_Random_v3 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
 process.HLT_ZeroBias_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
-process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
+process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelectorTCDS + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreHLTAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.PhysicsCommissioningOutput = cms.FinalPath( process.hltOutputPhysicsCommissioning )
 
@@ -5276,11 +5277,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # enable TrigReport, TimeReport and MultiThreading
-process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True ),
-    numberOfThreads = cms.untracked.uint32( 4 ),
-    numberOfStreams = cms.untracked.uint32( 0 ),
-)
+process.options.wantSummary = True
+process.options.numberOfThreads = 4
+process.options.numberOfStreams = 0
 
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:

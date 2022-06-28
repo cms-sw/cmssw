@@ -66,8 +66,8 @@ std::map<std::string, float> PhotonDNNEstimator::getInputsVars(const reco::Photo
   return variables;
 }
 
-std::vector<std::vector<float>> PhotonDNNEstimator::evaluate(const reco::PhotonCollection& photons,
-                                                             const std::vector<tensorflow::Session*>& sessions) const {
+std::vector<std::pair<uint, std::vector<float>>> PhotonDNNEstimator::evaluate(
+    const reco::PhotonCollection& photons, const std::vector<tensorflow::Session*>& sessions) const {
   // Collect the map of variables for each candidate and call the dnnHelper
   // Scaling, model selection and running is performed in the helper
   std::vector<std::map<std::string, float>> inputs;

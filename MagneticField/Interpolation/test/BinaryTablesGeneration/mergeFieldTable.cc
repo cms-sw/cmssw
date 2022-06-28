@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <array>
 
 int main(int argc, char** argv) {
   if (argc != 3) {

@@ -25,8 +25,12 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-#include "CondFormats/PCLConfig/interface/AlignPCLThresholds.h"
-#include "CondFormats/DataRecord/interface/AlignPCLThresholdsRcd.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "CondFormats/PCLConfig/interface/AlignPCLThresholdsHG.h"
+#include "CondFormats/DataRecord/interface/AlignPCLThresholdsHGRcd.h"
 
 #include <vector>
 #include <string>
@@ -76,7 +80,9 @@ public:
   /// Pass integrated calibrations to Millepede (they are not owned by Millepede!)
   bool addCalibrations(const std::vector<IntegratedCalibrationBase *> &iCals) override;
 
-  virtual bool storeThresholds(const int &nRecords, const AlignPCLThresholds::threshold_map &thresholdMap);
+  virtual bool storeThresholds(const int &nRecords,
+                               const AlignPCLThresholdsHG::threshold_map &thresholdMap,
+                               const AlignPCLThresholdsHG::param_map &floatMap);
 
   /// Called at end of job
   void terminate(const edm::EventSetup &iSetup) override;
@@ -271,7 +277,8 @@ private:
   //--------------------------------------------------------
 
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> topoToken_;
-  const edm::ESGetToken<AlignPCLThresholds, AlignPCLThresholdsRcd> aliThrToken_;
+  const edm::ESGetToken<AlignPCLThresholdsHG, AlignPCLThresholdsHGRcd> aliThrToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken_;
 
   enum EModeBit { myMilleBit = 1 << 0, myPedeRunBit = 1 << 1, myPedeSteerBit = 1 << 2, myPedeReadBit = 1 << 3 };
   unsigned int decodeMode(const std::string &mode) const;
@@ -291,7 +298,8 @@ private:
   std::unique_ptr<PedeSteerer> thePedeSteer;
   std::unique_ptr<TrajectoryFactoryBase> theTrajectoryFactory;
   std::vector<IntegratedCalibrationBase *> theCalibrations;
-  std::shared_ptr<AlignPCLThresholds> theThresholds;
+  std::shared_ptr<AlignPCLThresholdsHG> theThresholds;
+  std::shared_ptr<PixelTopologyMap> pixelTopologyMap;
   unsigned int theMinNumHits;
   double theMaximalCor2D;  /// maximal correlation allowed for 2D hit in TID/TEC.
                            /// If larger, the 2D measurement gets diagonalized!!!

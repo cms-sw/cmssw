@@ -21,7 +21,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -46,7 +46,7 @@ using namespace std;
 //
 // class decleration
 
-class PFJetBenchmarkAnalyzer : public edm::EDAnalyzer {
+class PFJetBenchmarkAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
@@ -61,20 +61,21 @@ private:
   // ----------member data ---------------------------
   edm::EDGetTokenT<reco::GenJetCollection> sGenJetAlgo_tok_;
   edm::EDGetTokenT<reco::PFJetCollection> sJetAlgo_tok_;
+
+  // neuhaus - comment
+  PFJetBenchmark PFJetBenchmark_;
+  string outjetfilename;
+  bool pfjBenchmarkDebug;
+  bool plotAgainstReco;
+  bool onlyTwoJets;
+  double deltaRMax = 0.1;
+  string benchmarkLabel_;
+  double recPt;
+  double maxEta;
+  dqm::legacy::DQMStore *dbe_;
 };
 /// PFJet Benchmark
 
-// neuhaus - comment
-PFJetBenchmark PFJetBenchmark_;
-string outjetfilename;
-bool pfjBenchmarkDebug;
-bool plotAgainstReco;
-bool onlyTwoJets;
-double deltaRMax = 0.1;
-string benchmarkLabel_;
-double recPt;
-double maxEta;
-dqm::legacy::DQMStore *dbe_;
 //
 // constants, enums and typedefs
 //

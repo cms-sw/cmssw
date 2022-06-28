@@ -73,6 +73,9 @@ process.load('DQM.EcalMonitorTasks.EcalFEDMonitor_cfi')
 process.ecalFEDMonitor.folderName = folder_name
 # HCAL sequence:
 process.load('EventFilter.HcalRawToDigi.HcalRawToDigi_cfi')
+process.load('DQM.HcalTasks.hcalFEDIntegrityTask_cfi')
+path = 'Hcal/%s/' % folder_name
+process.hcalFEDIntegrityTask.DirName = path
 # DT sequence:
 process.load('DQM.DTMonitorModule.dtDataIntegrityTask_EvF_cff')
 process.dtDataIntegrityTask.processingMode = 'SM'
@@ -134,6 +137,7 @@ process.FEDModulesPath = cms.Path(
  			                      + process.ecalDigis
                                   + process.ecalFEDMonitor
 			                      + process.hcalDigis
+			                      + process.hcalFEDIntegrityTask
                                   + process.cscDQMEvF
  			                      + process.dtunpacker
                                   + process.dtDataIntegrityTask

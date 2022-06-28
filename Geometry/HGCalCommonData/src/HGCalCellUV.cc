@@ -15,7 +15,7 @@ HGCalCellUV::HGCalCellUV(double waferSize, double separation, int32_t nFine, int
     cellX_[k] = waferSize / (3 * ncell_[k]);
     cellY_[k] = 0.5 * sqrt3_ * cellX_[k];
     cellXTotal_[k] = (waferSize + separation) / (3 * ncell_[k]);
-    cellY_[k] = 0.5 * sqrt3_ * cellXTotal_[k];
+    cellYTotal_[k] = 0.5 * sqrt3_ * cellXTotal_[k];
   }
 
   // Fill up the placement vectors
@@ -45,8 +45,11 @@ HGCalCellUV::HGCalCellUV(double waferSize, double separation, int32_t nFine, int
 
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
+  if (type != 0)
+    type = 1;
   //--- Reverse transform to placement=0, if placement index ≠ 6
   double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
+  double cellY = (extend) ? cellYTotal_[type] : cellY_[type];
   int rot = placement % HGCalCell::cellPlacementExtra;
   static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
   static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
@@ -59,9 +62,9 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
   double w = y;
 
   //--- Rounding in u, v, w coordinates
-  int iu = std::floor(u / cellY_[type]) + 3 * (ncell_[type]) - 1;
-  int iv = std::floor(v / cellY_[type]) + 3 * (ncell_[type]);
-  int iw = std::floor(w / cellY_[type]) + 1;
+  int iu = std::floor(u / cellY) + 3 * (ncell_[type]) - 1;
+  int iv = std::floor(v / cellY) + 3 * (ncell_[type]);
+  int iw = std::floor(w / cellY) + 1;
 
   int isv = (iu + iw) / 3;
   int isu = (iv + iw) / 3;
@@ -87,6 +90,9 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
   //--- Using multiple inequalities to find (u, v)
   //--- Reverse transform to placement=0, if placement index ≠ 7
+  if (type != 0)
+    type = 1;
+  double cellY = (extend) ? cellYTotal_[type] : cellY_[type];
   double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -1 * xloc;
   int rot = placement % HGCalCell::cellPlacementExtra;
   static constexpr std::array<double, 6> fcos = {{cos60_, 1.0, cos60_, -cos60_, -1.0, -cos60_}};
@@ -95,8 +101,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY2(
   double y = xloc1 * fsin[rot] + yloc * fcos[rot];
 
   int32_t u(-100), v(-100);
-  int ncell = (type != 0) ? ncell_[1] : ncell_[0];
-  double r = (type != 0) ? cellY_[1] : cellY_[0];
+  int ncell = ncell_[type];
+  double r = cellY;
   double l1 = (y / r) + ncell - 1.0;
   int l2 = std::floor((0.5 * y + 0.5 * x / sqrt3_) / r + ncell - 4.0 / 3.0);
   int l3 = std::floor((x / sqrt3_) / r + ncell - 4.0 / 3.0);
@@ -154,17 +160,21 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY3(
     double xloc, double yloc, int32_t placement, int32_t type, bool extend, bool debug) const {
   //--- Using Cube coordinates to find the (u, v)
   //--- Reverse transform to placement=0, if placement index ≠ 6
+  if (type != 0)
+    type = 1;
+  double cellX = (extend) ? cellXTotal_[type] : cellX_[type];
+  double cellY = (extend) ? cellYTotal_[type] : cellY_[type];
   double xloc1 = (placement >= HGCalCell::cellPlacementExtra) ? xloc : -xloc;
   int rot = placement % HGCalCell::cellPlacementExtra;
   static constexpr std::array<double, 6> fcos = {{1.0, cos60_, -cos60_, -1.0, -cos60_, cos60_}};
   static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
   double xprime = xloc1 * fcos[rot] - yloc * fsin[rot];
   double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
-  double x = xprime + cellX_[type];
+  double x = xprime + cellX;
   double y = yprime;
 
-  x = x / cellX_[type];
-  y = y / cellY_[type];
+  x = x / cellX;
+  y = y / cellY;
 
   double cu = 2 * x / 3;
   double cv = -x / 3 + y / 2;
@@ -187,7 +197,7 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY3(
   //--- Taking care of extending cells
   int u(ncell_[type] + iv), v(ncell_[type] - 1 - iw);
   double xcell = (1.5 * (v - u) + 0.5) * cellX_[type];
-  double ycell = (v + u - 2 * ncell_[type] + 1) * cellY_[type];
+  double ycell = (v + u - 2 * ncell_[type] + 1) * cellY;
   if (v == -1) {
     if ((yprime - sqrt3_ * xprime) < (ycell - sqrt3_ * xcell)) {
       v += 1;
@@ -270,6 +280,10 @@ std::pair<int, int> HGCalCellUV::cellUVFromXY4(double xloc,
 
 std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
     double xloc, double yloc, int32_t placement, int32_t type, int32_t partial, bool extend, bool debug) const {
+  if (type != 0)
+    type = 1;
+  double cellX = (extend) ? cellXTotal_[type] : cellX_[type];
+  double cellY = (extend) ? cellYTotal_[type] : cellY_[type];
   std::pair<int, int> uv = HGCalCellUV::cellUVFromXY1(xloc, yloc, placement, type, extend, debug);
   int u = uv.first;
   int v = uv.second;
@@ -281,8 +295,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
       static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
       double xprime = -1 * (xloc1 * fcos[rot] - yloc * fsin[rot]);
       double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
-      double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX_[type];
-      double ycell = (v + u - 2 * ncell_[type] + 1) * cellY_[type];
+      double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX;
+      double ycell = (v + u - 2 * ncell_[type] + 1) * cellY;
       if ((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)) {
         u += -1;
       } else {
@@ -299,8 +313,8 @@ std::pair<int32_t, int32_t> HGCalCellUV::cellUVFromXY1(
       static constexpr std::array<double, 6> fsin = {{0.0, sin60_, sin60_, 0.0, -sin60_, -sin60_}};
       double xprime = -1 * (xloc1 * fcos[rot] - yloc * fsin[rot]);
       double yprime = xloc1 * fsin[rot] + yloc * fcos[rot];
-      double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX_[type];
-      double ycell = (v + u - 2 * ncell_[type] + 1) * cellY_[type];
+      double xcell = -1 * (1.5 * (v - u) + 0.5) * cellX;
+      double ycell = (v + u - 2 * ncell_[type] + 1) * cellY;
       if ((yprime - sqrt3_ * xprime) > (ycell - sqrt3_ * xcell)) {
         u += 1;
         v += 1;

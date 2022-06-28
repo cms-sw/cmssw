@@ -2,7 +2,7 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,19 +11,20 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
+#include <atomic>
 
-class PFJetFilter : public edm::EDFilter {
+class PFJetFilter : public edm::global::EDFilter<> {
 public:
   explicit PFJetFilter(const edm::ParameterSet &);
   ~PFJetFilter() override;
 
 private:
   void beginJob() override;
-  bool filter(edm::Event &, const edm::EventSetup &) override;
+  bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   void endJob() override;
 
-  double resolution(double, bool);
-  double response(double, bool);
+  double resolution(double, bool) const;
+  double response(double, bool) const;
 
   double recPt_cut;
   double genPt_cut;
@@ -36,10 +37,8 @@ private:
   edm::EDGetTokenT<edm::View<reco::Candidate>> inputTruthLabel_;
   edm::EDGetTokenT<edm::View<reco::Candidate>> inputRecoLabel_;
 
-  unsigned int entry;
+  mutable std::atomic<unsigned int> entry;
   bool verbose;
-
-  PFBenchmarkAlgo *algo_;
 };
 
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -76,7 +75,7 @@ void PFJetFilter::beginJob() {}
 
 void PFJetFilter::endJob() {}
 
-bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
+bool PFJetFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iESetup) const {
   // Typedefs to use views
   typedef edm::View<reco::Candidate> candidateCollection;
   typedef edm::View<reco::Candidate> candidateCollection;
@@ -150,7 +149,7 @@ bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
       if (i == j)
         continue;
       const reco::Candidate *other = &(*reco_candidates)[j];
-      double deltaR = algo_->deltaR(particle, other);
+      double deltaR = PFBenchmarkAlgo::deltaR(particle, other);
       if (deltaR < deltaRmin && other->pt() > 0.25 * particle->pt() && other->pt() > recPt_cut) {
         deltaRmin = deltaR;
         ptmin = other->pt();
@@ -162,14 +161,14 @@ bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
       continue;
 
     // Find the closest genJet.
-    const reco::Candidate *gen_particle = algo_->matchByDeltaR(particle, truth_candidates);
+    const reco::Candidate *gen_particle = PFBenchmarkAlgo::matchByDeltaR(particle, truth_candidates);
 
     // Check there is a genJet associated to the recoJet
     if (gen_particle == nullptr)
       continue;
 
     // check deltaR is small enough
-    double deltaR = algo_->deltaR(particle, gen_particle);
+    double deltaR = PFBenchmarkAlgo::deltaR(particle, gen_particle);
     if (deltaR > deltaR_max)
       continue;
 
@@ -191,10 +190,10 @@ bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
     if (nSig > deltaEt_max || nSig < deltaEt_min) {
       /* */
       if (verbose)
-        std::cout << "Entry " << entry << " resPt = " << resPt << " sigma/avera/nSig = " << sigma << "/" << avera << "/"
-                  << nSig << " pT (T/R) " << true_pt << "/" << rec_pt << " Eta (T/R) " << true_eta << "/" << rec_eta
-                  << " Phi (T/R) " << true_phi << "/" << rec_phi << " deltaRMin/ptmin " << deltaRmin << "/" << ptmin
-                  << std::endl;
+        std::cout << "Entry " << entry++ << " resPt = " << resPt << " sigma/avera/nSig = " << sigma << "/" << avera
+                  << "/" << nSig << " pT (T/R) " << true_pt << "/" << rec_pt << " Eta (T/R) " << true_eta << "/"
+                  << rec_eta << " Phi (T/R) " << true_phi << "/" << rec_phi << " deltaRMin/ptmin " << deltaRmin << "/"
+                  << ptmin << std::endl;
       /* */
       pass = true;
     }
@@ -203,11 +202,10 @@ bool PFJetFilter::filter(edm::Event &iEvent, const edm::EventSetup &iESetup) {
       break;
   }
 
-  entry++;
   return pass;
 }
 
-double PFJetFilter::resolution(double pt, bool barrel) {
+double PFJetFilter::resolution(double pt, bool barrel) const {
   double p0 = barrel ? 1.19200e-02 : 8.45341e-03;
   double p1 = barrel ? 1.06138e+00 : 7.96855e-01;
   double p2 = barrel ? -2.05929e+00 : -3.12076e-01;
@@ -216,7 +214,7 @@ double PFJetFilter::resolution(double pt, bool barrel) {
   return resp;
 }
 
-double PFJetFilter::response(double pt, bool barrel) {
+double PFJetFilter::response(double pt, bool barrel) const {
   double p0 = barrel ? 1.09906E-1 : 6.91939E+1;
   double p1 = barrel ? -1.61443E-1 : -6.92733E+1;
   double p2 = barrel ? 3.45489E+3 : 1.58207E+6;

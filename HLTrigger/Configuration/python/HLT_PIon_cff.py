@@ -1,6 +1,6 @@
 # hltGetConfiguration --cff --data /dev/CMSSW_12_4_0/PIon --type PIon
 
-# /dev/CMSSW_12_4_0/PIon/V22 (CMSSW_12_4_0_pre4)
+# /dev/CMSSW_12_4_0/PIon/V60 (CMSSW_12_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
@@ -12,7 +12,7 @@ fragment = cms.ProcessFragment( "HLT" )
 fragment.ProcessAcceleratorCUDA = ProcessAcceleratorCUDA()
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V22')
+  tableName = cms.string('/dev/CMSSW_12_4_0/PIon/V60')
 )
 
 fragment.transferSystem = cms.PSet( 
@@ -4757,6 +4757,7 @@ fragment.hltGtStage2ObjectMap = cms.EDProducer( "L1TGlobalProducer",
     AlgorithmTriggersUnmasked = cms.bool( True ),
     useMuonShowers = cms.bool( True ),
     resetPSCountersEachLumiSec = cms.bool( True ),
+    semiRandomInitialPSCounters = cms.bool( False ),
     ProduceL1GtDaqRecord = cms.bool( True ),
     ProduceL1GtObjectMapRecord = cms.bool( True ),
     EmulateBxInEvent = cms.int32( 1 ),
@@ -4814,9 +4815,9 @@ fragment.hltPreZeroBias = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" )
 )
-fragment.hltFEDSelector = cms.EDProducer( "EvFFEDSelector",
+fragment.hltFEDSelectorTCDS = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
-    fedList = cms.vuint32( 1023, 1024 )
+    fedList = cms.vuint32( 1024, 1025 )
 )
 fragment.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
     throw = cms.bool( False ),
@@ -4892,11 +4893,11 @@ fragment.hltPreDatasetZeroBias = cms.EDFilter( "HLTPrescaler",
 )
 
 fragment.statusOnGPU = SwitchProducerCUDA(
-   cuda = cms.EDProducer( "BooleanProducer",
-       value = cms.bool( True )
-   ),
-  cpu = cms.EDProducer( "BooleanProducer",
+   cpu = cms.EDProducer( "BooleanProducer",
        value = cms.bool( False )
+   ),
+  cuda = cms.EDProducer( "BooleanProducer",
+       value = cms.bool( True )
    ),
  )
 
@@ -4914,7 +4915,7 @@ fragment.Status_OnGPU = cms.Path( fragment.statusOnGPU + fragment.statusOnGPUFil
 fragment.HLT_Physics_v7 = cms.Path( fragment.HLTBeginSequenceL1Fat + fragment.hltPrePhysics + fragment.HLTEndSequence )
 fragment.HLT_Random_v3 = cms.Path( fragment.HLTBeginSequenceRandom + fragment.hltPreRandom + fragment.HLTEndSequence )
 fragment.HLT_ZeroBias_v6 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sZeroBias + fragment.hltPreZeroBias + fragment.HLTEndSequence )
-fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hltScalersRawToDigi + fragment.hltFEDSelector + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
+fragment.HLTriggerFinalPath = cms.Path( fragment.hltGtStage2Digis + fragment.hltScalersRawToDigi + fragment.hltFEDSelectorTCDS + fragment.hltTriggerSummaryAOD + fragment.hltTriggerSummaryRAW + fragment.hltBoolFalse )
 fragment.HLTAnalyzerEndpath = cms.EndPath( fragment.hltGtStage2Digis + fragment.hltPreHLTAnalyzerEndpath + fragment.hltL1TGlobalSummary + fragment.hltTrigReport )
 fragment.Dataset_HLTPhysics = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetHLTPhysics + fragment.hltPreDatasetHLTPhysics )
 fragment.Dataset_OnlineMonitor = cms.Path( fragment.HLTDatasetPathBeginSequence + fragment.hltDatasetOnlineMonitor + fragment.hltPreDatasetOnlineMonitor )

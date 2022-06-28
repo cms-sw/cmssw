@@ -35,7 +35,6 @@ private:
   int nNumDivideEtaPartitionInRPhi_;
 
   MEMap3Inf mapRecHitXY_layer_;
-  MEMap3Inf mapRecHitWheel_layer_;
   MEMap3Inf mapRecHitOcc_ieta_;
   MEMap3Inf mapRecHitOcc_phi_;
   MEMap3Inf mapTotalRecHitPerEvtLayer_;

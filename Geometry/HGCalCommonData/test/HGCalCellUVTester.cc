@@ -1,10 +1,10 @@
 // -*- C++ -*-
 //
-// Package:    HGCalCellPositionTester
-// Class:      HGCalCellPositionTester
+// Package:    HGCalCellUVTester
+// Class:      HGCalCellUVTester
 //
-/**\class HGCalCellPositionTester HGCalCellPositionTester.cc
- test/HGCalCellPositionTester.cc
+/**\class HGCalCellUVTester HGCalCellUVTester.cc
+ test/HGCalCellUVTester.cc
 
  Description: <one line class summary>
 
@@ -25,7 +25,6 @@
 #include <vector>
 #include <stdlib.h>
 #include <cmath>
-//#include <chrono>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -94,10 +93,10 @@ void HGCalCellUVTester::analyze(const edm::Event&, const edm::EventSetup&) {
     double c2 = yi - (xi / sqrt(3));
     if ((xi < r2) && (xi > -1 * r2) && (c1 < R2) && (c1 > -1 * R2) && (c2 < R2) &&
         (c2 > -1 * R2)) {  //Only allowing (x, y) inside a wafer
-      std::pair<int32_t, int32_t> uv1 = wafer.cellUVFromXY1(xi, yi, placeIndex_, waferType_, 0, 0);
-      std::pair<int32_t, int32_t> uv2 = wafer.cellUVFromXY2(xi, yi, placeIndex_, waferType_, 0, 0);
-      std::pair<int32_t, int32_t> uv3 = wafer.cellUVFromXY3(xi, yi, placeIndex_, waferType_, 1, 0);
-      //std::pair<int32_t, int32_t> uv2 = wafer.HGCalCellUVFromXY2(xi, yi, placeIndex_, waferType_, 1, 0);
+      std::pair<int32_t, int32_t> uv1 = wafer.cellUVFromXY1(xi, yi, placeIndex_, waferType_, true, false);
+      std::pair<int32_t, int32_t> uv2 = wafer.cellUVFromXY2(xi, yi, placeIndex_, waferType_, true, false);
+      std::pair<int32_t, int32_t> uv3 = wafer.cellUVFromXY3(xi, yi, placeIndex_, waferType_, true, false);
+      //std::pair<int32_t, int32_t> uv2 = wafer.HGCalCellUVFromXY2(xi, yi, placeIndex_, waferType_, true, false);
       std::string comment = ((uv1.first != uv3.first) || (uv2.first != uv3.first) || (uv1.second != uv3.second) ||
                              (uv2.second != uv3.second))
                                 ? " ***** ERROR *****"

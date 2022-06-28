@@ -1,7 +1,0 @@
-<use name="FWCore/Framework"/>
-<use name="SimCalorimetry/EcalSimAlgos"/>
-<use name="SimCalorimetry/EcalTestBeamAlgos"/>
-<use name="SimDataFormats/EcalTestBeam"/>
-<use name="TBDataFormats/EcalTBObjects"/>
-<use name="SimCalorimetry/EcalSimProducers"/>
-<flags EDM_PLUGIN="1"/>

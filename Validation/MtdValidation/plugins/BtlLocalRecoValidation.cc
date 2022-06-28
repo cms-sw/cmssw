@@ -83,9 +83,12 @@ private:
 
   // --- histograms declaration
 
+  MonitorElement* meNevents_;
+
   MonitorElement* meNhits_;
 
   MonitorElement* meHitEnergy_;
+  MonitorElement* meHitLogEnergy_;
   MonitorElement* meHitTime_;
   MonitorElement* meHitTimeError_;
 
@@ -122,6 +125,8 @@ private:
 
   MonitorElement* meTPullvsE_;
   MonitorElement* meTPullvsEta_;
+
+  MonitorElement* meNclusters_;
 
   MonitorElement* meCluTime_;
   MonitorElement* meCluTimeError_;
@@ -274,6 +279,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     const auto& global_point = thedet->toGlobal(local_point);
 
     meHitEnergy_->Fill(recHit.energy());
+    meHitLogEnergy_->Fill(log10(recHit.energy()));
     meHitTime_->Fill(recHit.time());
     meHitTimeError_->Fill(recHit.timeError());
     meHitLongPos_->Fill(recHit.position());
@@ -333,6 +339,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     meNhits_->Fill(log10(n_reco_btl));
 
   // --- Loop over the BTL RECO clusters ---
+  unsigned int n_clus_btl(0);
   for (const auto& DetSetClu : *btlRecCluHandle) {
     for (const auto& cluster : DetSetClu) {
       if (cluster.energy() < hitMinEnergy_)
@@ -344,6 +351,7 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
         throw cms::Exception("BtlLocalRecoValidation")
             << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
+      n_clus_btl++;
 
       const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
       const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
@@ -484,6 +492,12 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
 
   }  // DetSetClu loop
 
+  if (n_clus_btl > 0)
+    meNclusters_->Fill(log10(n_clus_btl));
+
+  // --- This is to count the number of processed events, needed in the harvesting step
+  meNevents_->Fill(0.5);
+
   // --- Loop over the BTL Uncalibrated RECO hits
   if (uncalibRecHitsPlots_) {
     auto btlUncalibRecHitsHandle = makeValid(iEvent.getHandle(btlUncalibRecHitsToken_));
@@ -578,9 +592,12 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
 
   // --- histograms booking
 
+  meNevents_ = ibook.book1D("BtlNevents", "Number of events", 1, 0., 1.);
+
   meNhits_ = ibook.book1D("BtlNhits", "Number of BTL RECO hits;log_{10}(N_{RECO})", 100, 0., 5.25);
 
   meHitEnergy_ = ibook.book1D("BtlHitEnergy", "BTL RECO hits energy;E_{RECO} [MeV]", 100, 0., 20.);
+  meHitLogEnergy_ = ibook.book1D("BtlHitLogEnergy", "BTL RECO hits energy;log_{10}(E_{RECO} [MeV])", 25, -1., 1.5);
   meHitTime_ = ibook.book1D("BtlHitTime", "BTL RECO hits ToA;ToA_{RECO} [ns]", 100, 0., 25.);
   meHitTimeError_ = ibook.book1D("BtlHitTimeError", "BTL RECO hits ToA error;#sigma^{ToA}_{RECO} [ns]", 50, 0., 0.1);
   meOccupancy_ = ibook.book2D(
@@ -649,6 +666,8 @@ void BtlLocalRecoValidation::bookHistograms(DQMStore::IBooker& ibook,
                                     -5.,
                                     5.,
                                     "S");
+
+  meNclusters_ = ibook.book1D("BtlNclusters", "Number of BTL RECO clusters;log_{10}(N_{RECO})", 100, 0., 5.25);
   meCluTime_ = ibook.book1D("BtlCluTime", "BTL cluster time ToA;ToA [ns]", 250, 0, 25);
   meCluTimeError_ = ibook.book1D("BtlCluTimeError", "BTL cluster time error;#sigma_{t} [ns]", 100, 0, 0.1);
   meCluEnergy_ = ibook.book1D("BtlCluEnergy", "BTL cluster energy;E_{RECO} [MeV]", 100, 0, 20);
