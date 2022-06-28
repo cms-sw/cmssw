@@ -23,7 +23,7 @@ void GEMDAQStatusSource::fillDescriptions(edm::ConfigurationDescriptions &descri
   desc.add<edm::InputTag>("AMC13InputLabel", edm::InputTag("muonGEMDigis", "AMC13Status"));
 
   desc.add<Int_t>("AMCSlots", 13);
-  desc.addUntracked<std::string>("runType", "online");
+  desc.addUntracked<std::string>("runType", "relval");
   desc.addUntracked<std::string>("logCategory", "GEMDAQStatusSource");
 
   descriptions.add("GEMDAQStatusSource", desc);
@@ -298,6 +298,11 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
   edm::Handle<GEMAMCStatusCollection> gemAMC;
   edm::Handle<GEMAMC13StatusCollection> gemAMC13;
 
+  event.getByToken(tagVFAT_, gemVFAT);
+  event.getByToken(tagOH_, gemOH);
+  event.getByToken(tagAMC_, gemAMC);
+  event.getByToken(tagAMC13_, gemAMC13);
+
   if (!(gemVFAT.isValid() && gemOH.isValid() && gemAMC.isValid() && gemAMC13.isValid())) {
     if (!bWarnedNotFound_) {
       edm::LogWarning(log_category_) << "DAQ sources from muonGEMDigis are not found";
@@ -305,11 +310,6 @@ void GEMDAQStatusSource::analyze(edm::Event const &event, edm::EventSetup const 
     }
     return;
   }
-
-  event.getByToken(tagVFAT_, gemVFAT);
-  event.getByToken(tagOH_, gemOH);
-  event.getByToken(tagAMC_, gemAMC);
-  event.getByToken(tagAMC13_, gemAMC13);
 
   std::map<ME4IdsKey, bool> mapChamberAll;
   std::map<ME4IdsKey, bool> mapChamberWarning;
