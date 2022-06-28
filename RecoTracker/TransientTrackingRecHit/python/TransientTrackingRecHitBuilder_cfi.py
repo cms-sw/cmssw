@@ -13,6 +13,3 @@ trackingPhase2PU140.toModify(ttrhbwr,
                              Phase2StripCPE = 'Phase2StripCPE',
                              StripCPE = 'FakeStripCPE')
 
-from Configuration.Eras.Modifier_phase2_brickedPixels_cff import phase2_brickedPixels
-phase2_brickedPixels.toModify(ttrhbwr, PixelCPE = 'PixelCPEGenericForBricked')
-

@@ -70,7 +70,7 @@ class Eras (object):
                            'phase2_hgcal', 'phase2_timing', 'phase2_hfnose', 'phase2_hgcalV10', 'phase2_hgcalV11', 'phase2_hgcalV12',
                            'phase2_timing_layer', 'phase2_etlV4', 'phase2_hcal', 'phase2_ecal','phase2_ecal_devel',
                            'phase2_trigger',
-                           'phase2_squarePixels', 'phase2_3DPixels', 'phase2_brickedPixels',
+                           'phase2_squarePixels', 'phase2_3DPixels',
                            'trackingLowPU', 'trackingPhase1', 'ctpps', 'ctpps_2016', 'ctpps_2017', 'ctpps_2018', 'ctpps_2021', 'trackingPhase2PU140','highBetaStar_2018',
                            'tracker_apv_vfp30_2016', 'pf_badHcalMitigationOff', 'run2_miniAOD_80XLegacy','run2_miniAOD_94XFall17', 'run2_nanoAOD_92X',
                            'run2_nanoAOD_94XMiniAODv1', 'run2_nanoAOD_94XMiniAODv2', 'run2_nanoAOD_94X2016',
