@@ -158,7 +158,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
       m_pTrackingAction(iConfig.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
       m_pCustomUIsession(iConfig.getUntrackedParameter<edm::ParameterSet>("CustomUIsession")),
-      m_G4CommandsEndRun(iConfig.getParameter<std::vector<std::string> >("G4CommandsEndRun")),
+      m_G4CommandsEndRun(iConfig.getParameter<std::vector<std::string>>("G4CommandsEndRun")),
       m_p(iConfig) {
   int thisID = getThreadIndex();
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker for the thread " << thisID;
@@ -465,11 +465,11 @@ void RunManagerMTWorker::terminateRun() {
   // Geant4 UI commands after the run
   if (!m_G4CommandsEndRun.empty()) {
     std::call_once(applyOnceEnd, [this]() { m_endOfRun = true; });
-    if(m_endOfRun) {
+    if (m_endOfRun) {
       edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMTWorker: Requested end of run UI commands: ";
       for (const std::string& command : m_G4CommandsEndRun) {
-	edm::LogVerbatim("SimG4CoreApplication") << "    " << command;
-	G4UImanager::GetUIpointer()->ApplyCommand(command);
+        edm::LogVerbatim("SimG4CoreApplication") << "    " << command;
+        G4UImanager::GetUIpointer()->ApplyCommand(command);
       }
     }
   }

@@ -110,23 +110,23 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
           << "Track #" << theTrack->GetTrackID() << " " << ptype->GetParticleName()
-          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= "
-          << theTrack->GetCurrentStepNumber() << " is killed due to edep=NaN inside PV: "
-          << preStep->GetPhysicalVolume()->GetName() << " at "
+          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
+          << " is killed due to edep=NaN inside PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
           << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
     }
   }
   // check secondaries
   const G4VProcess* limProcess = postStep->GetProcessDefinedStep();
-  if (limProcess->GetProcessSubType() == 16 &&
-      aStep->GetNumberOfSecondariesInCurrentStep() > 0) {
+  if (limProcess->GetProcessSubType() == 16 && aStep->GetNumberOfSecondariesInCurrentStep() > 0) {
     auto ggp = static_cast<const G4GammaGeneralProcess*>(limProcess);
     // Get the pointer to the process that limited the step: i.e. the one that
     // created the secondaries of the current step
     limProcess = ggp->GetSelectedProcess();
     const_cast<G4StepPoint*>(postStep)->SetProcessDefinedStep(limProcess);
     auto* stracks = aStep->GetSecondaryInCurrentStep();
-    for(auto & tr : *stracks) { const_cast<G4Track*>(tr)->SetCreatorProcess(limProcess); }
+    for (auto& tr : *stracks) {
+      const_cast<G4Track*>(tr)->SetCreatorProcess(limProcess);
+    }
   }
 
   // the track is killed by the process

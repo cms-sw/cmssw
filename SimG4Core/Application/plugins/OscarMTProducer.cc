@@ -246,7 +246,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   auto engine = random.currentEngine();
   int id = m_runManagerWorker->getThreadIndex();
   if (0 < m_verbose) {
-    edm::LogVerbatim("SimG4CoreApplication") << "Produce event " << e.id() << " stream " << e.streamID() << " threadID=" << id;
+    edm::LogVerbatim("SimG4CoreApplication")
+        << "Produce event " << e.id() << " stream " << e.streamID() << " threadID=" << id;
     //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
   }
 
@@ -312,7 +313,8 @@ void OscarMTProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     prod.get()->produce(e, es);
   }
   if (0 < m_verbose) {
-    edm::LogVerbatim("SimG4CoreApplication") << "Event is produced event " << e.id() << " streamID=" << e.streamID() << " threadID=" << id;
+    edm::LogVerbatim("SimG4CoreApplication")
+        << "Event is produced event " << e.id() << " streamID=" << e.streamID() << " threadID=" << id;
     //edm::LogVerbatim("SimG4CoreApplication") << " rand= " << G4UniformRand();
   }
 }

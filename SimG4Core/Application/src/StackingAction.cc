@@ -211,7 +211,9 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     } else {
       // potentially good for tracking
       const double ke = aTrack->GetKineticEnergy();
-      LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName() << " Ekin(MeV)=" << ke/CLHEP::MeV;
+      LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
+                                       << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
+                                       << " Ekin(MeV)=" << ke / CLHEP::MeV;
 
       // kill tracks in specific regions
       if (isThisRegion(reg, deadRegions)) {
@@ -330,8 +332,8 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
           }
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
-              << " Type " << aTrack->GetDefinition()->GetParticleName() << " Ekin=" << ke / CLHEP::MeV
-              << " MeV " << classification << " Flag: " << flag;
+              << " Type " << aTrack->GetDefinition()->GetParticleName() << " Ekin=" << ke / CLHEP::MeV << " MeV "
+              << classification << " Flag: " << flag;
         }
       }
     }
