@@ -37,8 +37,6 @@ class L1GtPsbWord;
 class L1TcsWord;
 class L1GtTriggerMenu;
 class L1GtTriggerMask;
-class L1GtTriggerMenu;
-class L1GtTriggerMask;
 class L1GtTriggerMenuRcd;
 class L1GtTriggerMaskAlgoTrigRcd;
 class L1GtTriggerMaskTechTrigRcd;
