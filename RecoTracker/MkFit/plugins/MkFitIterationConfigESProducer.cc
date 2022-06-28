@@ -233,7 +233,7 @@ std::unique_ptr<mkfit::IterationConfig> MkFitIterationConfigESProducer::produce(
   auto it_conf = cj.load_File(configFile_);
   it_conf->m_params.minPtCut = minPtCut_;
   it_conf->m_backward_params.minPtCut = minPtCut_;
-  it_conf->m_partition_seeds = partitionSeeds1;
+  it_conf->m_seed_partitioner = partitionSeeds1;
   it_conf->m_params.maxClusterSize = maxClusterSize_;
   it_conf->m_backward_params.maxClusterSize = maxClusterSize_;
   return it_conf;

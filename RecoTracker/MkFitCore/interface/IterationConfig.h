@@ -140,10 +140,16 @@ namespace mkfit {
 
   class IterationConfig {
   public:
+    using clean_seeds_foo = void(const TrackerInfo &, const IterationConfig &, const TrackVec &, const EventOfHits &);
+
     using partition_seeds_foo = void(const TrackerInfo &,
                                      const TrackVec &,
                                      const EventOfHits &,
                                      IterationSeedPartition &);
+
+    using filter_candidates_foo = void();  // XXXX Determine args
+
+    using filter_duplicates_foo = void();  // XXXX Determine args
 
     int m_iteration_index = -1;
     int m_track_algorithm = -1;
@@ -166,7 +172,19 @@ namespace mkfit {
     std::vector<SteeringParams> m_steering_params;
     std::vector<IterationLayerConfig> m_layer_configs;
 
-    std::function<partition_seeds_foo> m_partition_seeds;
+    std::function<partition_seeds_foo> m_seed_partitioner;
+    std::function<clean_seeds_foo> m_seed_cleaner;
+    std::function<filter_candidates_foo> m_pre_bkfit_filter, m_post_bkfit_filter;
+    std::function<filter_duplicates_foo> m_duplicate_cleaner;
+
+    // Names for functions that get saved to / loaded from JSON.
+    // XXXX Need a place where those can be registered and looked up,
+    // like a mkfit::FunctorStore that can get filled up with static object initializers.
+    std::string m_seed_partitioner_name;
+    std::string m_seed_cleaner_name;
+    std::string m_pre_bkfit_filter_name, m_post_bkfit_filter_name;
+    std::string m_duplicate_cleaner_name;
+    // XXXX Add these strings to JSON schema.
 
     //----------------------------------------------------------------------------
 
@@ -191,7 +209,7 @@ namespace mkfit {
       m_steering_params = o.m_steering_params;
       m_layer_configs = o.m_layer_configs;
 
-      m_partition_seeds = o.m_partition_seeds;
+      m_seed_partitioner = o.m_seed_partitioner;
     }
 
     void set_iteration_index_and_track_algorithm(int idx, int trk_alg) {
@@ -361,7 +379,7 @@ namespace mkfit {
     // Load a single iteration from JSON file.
     // This leaves IterationConfig data-members that are not registered
     // in JSON schema at their default values.
-    // The only such member is std::function m_partition_seeds.
+    // There are several std::function members like this.
     // Assumes JSON file has been saved WITHOUT iteration-info preamble.
     // Returns a unique_ptr to the cloned IterationConfig.
     std::unique_ptr<IterationConfig> load_File(const std::string &fname);

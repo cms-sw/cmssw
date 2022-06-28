@@ -99,7 +99,7 @@ namespace mkfit {
       /* vector<int> */ m_region_order,
       /* vector<mkfit::SteeringParams> */ m_steering_params,
       /* vector<mkfit::IterationLayerConfig> */ m_layer_configs
-      // /* function<void(const TrackerInfo&,const TrackVec&,const EventOfHits&,IterationSeedPartition&)> */   m_partition_seeds
+      // /* function<void(const TrackerInfo&,const TrackVec&,const EventOfHits&,IterationSeedPartition&)> */   m_seed_partitioner
   )
 
   ITCONF_DEFINE_TYPE_NON_INTRUSIVE(mkfit::IterationsInfo,

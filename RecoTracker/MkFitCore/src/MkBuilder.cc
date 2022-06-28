@@ -244,11 +244,11 @@ namespace mkfit {
       part.m_phi_eta_foo = [&](float phi, float eta) { phi_eta_binnor.register_entry_safe(phi, eta); };
 
       phi_eta_binnor.begin_registration(size);
-      m_job->m_iter_config.m_partition_seeds(m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part);
+      m_job->m_iter_config.m_seed_partitioner(m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part);
       phi_eta_binnor.finalize_registration();
       ranks.swap(phi_eta_binnor.m_ranks);
     } else {
-      m_job->m_iter_config.m_partition_seeds(m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part);
+      m_job->m_iter_config.m_seed_partitioner(m_job->m_trk_info, in_seeds, m_job->m_event_of_hits, part);
     }
 
     for (int i = 0; i < size; ++i) {
