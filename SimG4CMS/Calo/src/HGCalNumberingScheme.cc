@@ -20,9 +20,10 @@ HGCalNumberingScheme::HGCalNumberingScheme(const HGCalDDDConstants& hgc,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCSim") << "Creating HGCalNumberingScheme for " << name_ << " Det " << det_ << " Mode " << mode_
                              << ":" << HGCalGeometryMode::Hexagon8Full << ":" << HGCalGeometryMode::Hexagon8 << ":"
-                             << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Trapezoid << ":"
-                             << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::Hexagon8Module << ":"
-                             << HGCalGeometryMode::TrapezoidModule;
+                             << HGCalGeometryMode::Hexagon8File << ":" << HGCalGeometryMode::Hexagon8Module << ":"
+                             << ":" << HGCalGeometryMode::Hexagon8Cassette << ":" << HGCalGeometryMode::Trapezoid << ":"
+                             << HGCalGeometryMode::TrapezoidFile << ":" << HGCalGeometryMode::TrapezoidModule << ":"
+                             << HGCalGeometryMode::TrapezoidCassette;
 #endif
 }
 
@@ -156,7 +157,7 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
       if ((DetId(index).det() == DetId::HGCalEE) || (DetId(index).det() == DetId::HGCalHSi)) {
         double wt = 0, xx = ((pos.z() > 0) ? pos.x() : -pos.x());
         int waferU, waferV, cellU, cellV, waferType;
-        hgcons_.waferFromPosition(xx, pos.y(), lay, waferU, waferV, cellU, cellV, waferType, wt, false, true);
+        hgcons_.waferFromPosition(xx, pos.y(), lay, waferU, waferV, cellU, cellV, waferType, wt, false, false);
         xy = hgcons_.locateCell(lay, waferU, waferV, cellU, cellV, false, true, true);
         double dx = (xx - xy.first);
         double dy = (pos.y() - xy.second);
