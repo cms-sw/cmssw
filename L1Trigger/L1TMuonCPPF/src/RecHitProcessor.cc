@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "L1Trigger/L1TMuonCPPF/interface/RecHitProcessor.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -16,6 +17,7 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
                                   const edm::EDGetToken &recHitToken,
                                   const edm::EDGetToken &rpcDigiToken,
                                   const edm::EDGetToken &rpcDigiSimLinkToken,
+                                  const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> &rpcGeomToken,
                                   std::vector<RecHitProcessor::CppfItem> &CppfVec1,
                                   l1t::CPPFDigiCollection &cppfDigis,
                                   const int MaxClusterSize) const {
@@ -28,8 +30,7 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
   edm::Handle<edm::DetSetVector<RPCDigiSimLink>> theSimlinkDigis;
   iEvent.getByToken(rpcDigiSimLinkToken, theSimlinkDigis);
 
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  const auto &rpcGeom = iSetup.getData(rpcGeomToken);
 
   for (const auto &&rpcdgIt : (*rpcDigis)) {
     const RPCDetId &rpcId = rpcdgIt.first;
@@ -50,7 +51,7 @@ void RecHitProcessor::processLook(const edm::Event &iEvent,
       const int firststrip = cl.firstStrip();
       const int clustersize = cl.clusterSize();
       const int laststrip = cl.lastStrip();
-      const RPCRoll *roll = rpcGeom->roll(rpcId);
+      const RPCRoll *roll = rpcGeom.roll(rpcId);
       // Get Average Strip position
       const float fstrip = (roll->centreOfStrip(firststrip)).x();
       const float lstrip = (roll->centreOfStrip(laststrip)).x();
@@ -283,10 +284,10 @@ void RecHitProcessor::process(const edm::Event &iEvent,
                               const edm::EDGetToken &recHitToken,
                               const edm::EDGetToken &rpcDigiToken,
                               const edm::EDGetToken &rpcDigiSimLinkToken,
+                              const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> &rpcGeomToken,
                               l1t::CPPFDigiCollection &cppfDigis) const {
   // Get the RPC Geometry
-  edm::ESHandle<RPCGeometry> rpcGeom;
-  iSetup.get<MuonGeometryRecord>().get(rpcGeom);
+  const auto &rpcGeom = iSetup.getData(rpcGeomToken);
 
   edm::Handle<RPCDigiCollection> rpcDigis;
   iEvent.getByToken(rpcDigiToken, rpcDigis);
@@ -315,7 +316,7 @@ void RecHitProcessor::process(const edm::Event &iEvent,
       const int firststrip = cl.firstStrip();
       const int clustersize = cl.clusterSize();
       const int laststrip = cl.lastStrip();
-      const RPCRoll *roll = rpcGeom->roll(rpcId);
+      const RPCRoll *roll = rpcGeom.roll(rpcId);
       // Get Average Strip position
       const float fstrip = (roll->centreOfStrip(firststrip)).x();
       const float lstrip = (roll->centreOfStrip(laststrip)).x();

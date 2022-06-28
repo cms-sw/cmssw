@@ -83,6 +83,16 @@ run3_common.toModify( valCscStage2Digis,
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( valCscStage2Digis, GEMPadDigiClusterProducer = "valMuonGEMPadDigiClusters" , commonParam = dict(runME11ILT = True) )
 
+# CPPF
+from RecoLocalMuon.RPCRecHit.rpcRecHits_cfi import *
+valRpcRecHits = rpcRecHits.clone(
+	rpcDigiLabel = 'rpcunpacker'
+)
+from L1Trigger.L1TMuonCPPF.emulatorCppfDigis_cfi import *
+valCppfStage2Digis = emulatorCppfDigis.clone(
+	recHitLabel = 'valRpcRecHits'
+)
+
 # EMTF
 from L1Trigger.L1TMuonEndCap.simEmtfDigis_cfi import *
 valEmtfStage2Digis = simEmtfDigis.clone(
@@ -139,6 +149,8 @@ Stage2L1HardwareValidation = cms.Sequence(
     valKBmtfDigis +
     valBmtfAlgoSel +
     valOmtfDigis +
+    valRpcRecHits +
+    valCppfStage2Digis +
     valEmtfStage2Digis +
     valGmtCaloSumDigis +
     valGmtStage2Digis +
@@ -180,6 +192,9 @@ from DQM.L1TMonitor.L1TdeStage2BMTFSecond_cff import *
 # OMTF
 from DQM.L1TMonitor.L1TdeStage2OMTF_cfi import *
 
+# CPPF
+from DQM.L1TMonitor.L1TdeStage2CPPF_cff import *
+
 # EMTF
 from DQM.L1TMonitor.L1TdeStage2EMTF_cff import *
 
@@ -199,6 +214,7 @@ l1tStage2EmulatorOnlineDQM = cms.Sequence(
     l1tdeStage2BmtfSecond +
     l1tdeStage2Omtf +
     l1tdeCSCTPG +
+    l1tdeStage2CppfOnlineDQMSeq +
     l1tdeStage2EmtfOnlineDQMSeq +
     l1tStage2uGMTEmulatorOnlineDQMSeq +
     l1tdeStage2uGT +
