@@ -73,7 +73,7 @@ BPHDecayToV0DiffMassBuilder::BPHDecayToV0DiffMassBuilder(const BPHEventSetupWrap
     : BPHDecayGenericBuilderBase(es),
       BPHDecayToV0Builder(es, daug1Name, daug2Name, v0Collection, searchList),
       BPHDecayToTkpTknSymChargeBuilder(
-          es, daug1Name, daug1Mass, daug1Sigma, daug2Name, daug2Mass, daug2Sigma, nullptr, nullptr, expMass),
+          es, daug1Name, daug1Mass, daug1Sigma, daug2Name, daug2Mass, daug2Sigma, nullptr, nullptr, expectedMass),
       p1Mass(daug1Mass),
       p2Mass(daug2Mass),
       p1Sigma(daug1Sigma),
@@ -93,7 +93,7 @@ BPHDecayToV0DiffMassBuilder::BPHDecayToV0DiffMassBuilder(const BPHEventSetupWrap
     : BPHDecayGenericBuilderBase(es),
       BPHDecayToV0Builder(es, daug1Name, daug2Name, vpCollection, searchList),
       BPHDecayToTkpTknSymChargeBuilder(
-          es, daug1Name, daug1Mass, daug1Sigma, daug2Name, daug2Mass, daug2Sigma, nullptr, nullptr, expMass),
+          es, daug1Name, daug1Mass, daug1Sigma, daug2Name, daug2Mass, daug2Sigma, nullptr, nullptr, expectedMass),
       p1Mass(daug1Mass),
       p2Mass(daug2Mass),
       p1Sigma(daug1Sigma),
