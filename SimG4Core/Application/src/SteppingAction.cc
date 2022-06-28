@@ -1,5 +1,3 @@
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/EventAction.h"
@@ -9,9 +7,11 @@
 #include "G4ParticleTable.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4RegionStore.hh"
+#include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
-#include "G4VProcess.hh"
-#include "G4GammaGeneralProcess.hh"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 //#define DebugLog
 
@@ -101,7 +101,6 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
 
   const G4StepPoint* preStep = aStep->GetPreStepPoint();
   const G4StepPoint* postStep = aStep->GetPostStepPoint();
-  const G4ParticleDefinition* ptype = theTrack->GetDefinition();
 
   // NaN energy deposit
   if (edm::isNotFinite(aStep->GetTotalEnergyDeposit())) {
@@ -109,23 +108,10 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     if (nWarnings < 5) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
-          << "Track #" << theTrack->GetTrackID() << " " << ptype->GetParticleName()
+          << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
           << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
           << " is killed due to edep=NaN inside PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
           << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
-    }
-  }
-  // check secondaries
-  const G4VProcess* limProcess = postStep->GetProcessDefinedStep();
-  if (limProcess->GetProcessSubType() == 16 && aStep->GetNumberOfSecondariesInCurrentStep() > 0) {
-    auto ggp = static_cast<const G4GammaGeneralProcess*>(limProcess);
-    // Get the pointer to the process that limited the step: i.e. the one that
-    // created the secondaries of the current step
-    limProcess = ggp->GetSelectedProcess();
-    const_cast<G4StepPoint*>(postStep)->SetProcessDefinedStep(limProcess);
-    auto* stracks = aStep->GetSecondaryInCurrentStep();
-    for (auto& tr : *stracks) {
-      const_cast<G4Track*>(tr)->SetCreatorProcess(limProcess);
     }
   }
 
@@ -142,8 +128,8 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     if (nWarnings < 5) {
       ++nWarnings;
       edm::LogWarning("SimG4CoreApplication")
-          << "Track #" << theTrack->GetTrackID() << " " << ptype->GetParticleName()
-          << " E(MeV)= " << preStep->GetKineticEnergy() / CLHEP::MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
+          << "Track #" << theTrack->GetTrackID() << " " << theTrack->GetDefinition()->GetParticleName()
+          << " E(MeV)= " << preStep->GetKineticEnergy() / MeV << " Nstep= " << theTrack->GetCurrentStepNumber()
           << " is killed due to limit on number of steps;/n  PV: " << preStep->GetPhysicalVolume()->GetName() << " at "
           << theTrack->GetPosition() << " StepLen(mm)= " << aStep->GetStepLength();
     }
