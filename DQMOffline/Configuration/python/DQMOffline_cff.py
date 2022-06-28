@@ -260,13 +260,14 @@ from DQM.TrackingMonitor.tracksDQMMiniAOD_cff import *
 from DQMOffline.RecoB.bTagMiniDQM_cff import *
 from DQMOffline.Muon.miniAOD_cff import *
 from DQM.Physics.DQMTopMiniAOD_cff import *
+from DQM.Physics.heavyFlavorDQMFirstStep_cff import *
 
 DQMOfflineMiniAOD = cms.Sequence(jetMETDQMOfflineRedoProductsMiniAOD*bTagMiniDQMSource*muonMonitors_miniAOD*MuonMiniAOD*DQMOfflinePF)
 
 #Post sequences are automatically placed in the EndPath by ConfigBuilder if PAT is run.
 #miniAOD DQM sequences need to access the filter results.
 
-PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD)
+PostDQMOfflineMiniAOD = cms.Sequence(miniAODDQMSequence*jetMETDQMOfflineSourceMiniAOD*tracksDQMMiniAOD*topPhysicsminiAOD*heavyFlavorDQMSource)
 PostDQMOffline = cms.Sequence()
 
 from Configuration.Eras.Modifier_run3_HB_cff import run3_HB
