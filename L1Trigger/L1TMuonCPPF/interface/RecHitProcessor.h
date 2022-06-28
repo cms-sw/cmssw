@@ -55,6 +55,7 @@ public:
       const edm::EDGetToken &recHitToken,
       const edm::EDGetToken &rpcDigiToken,
       const edm::EDGetToken &rpcDigiSimLinkToken,
+      const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> &rpcGeomToken,
       std::vector<RecHitProcessor::CppfItem> &CppfVec1,
       // Output
       l1t::CPPFDigiCollection &cppfDigis,
@@ -67,6 +68,7 @@ public:
       const edm::EDGetToken &recHitToken,
       const edm::EDGetToken &rpcDigiToken,
       const edm::EDGetToken &rpcDigiSimLinkToken,
+      const edm::ESGetToken<RPCGeometry, MuonGeometryRecord> &rpcGeomToken,
       // Output
       l1t::CPPFDigiCollection &cppfDigis) const;
 

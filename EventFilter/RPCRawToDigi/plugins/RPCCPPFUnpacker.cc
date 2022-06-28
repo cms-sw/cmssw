@@ -257,12 +257,14 @@ void RPCCPPFUnpacker::processTXRecord(RPCAMCLink link,
   static int const station[6] = {1, 2, 3, 3, 4, 4};
   int region(link.getAMCNumber() < 7 ? 1 : -1);
   unsigned int endcap_sector((35 + (link.getAMCNumber() - (region > 0 ? 3 : 7)) * 9 + (block >> 1)) % 36 + 1);
+  unsigned int emtf_link(((34 + (link.getAMCNumber() - (region > 0 ? 3 : 7)) * 9 + (block >> 1)) % 36) % 6 + 1);
+  unsigned int emtf_sector(((34 + (link.getAMCNumber() - (region > 0 ? 3 : 7)) * 9 + (block >> 1)) % 36) / 6 + 1);
   RPCDetId rpc_id(region,
                   ring[word]  // ring
                   ,
                   station[word]  // station
                   ,
-                  (endcap_sector / 6) + 1  // sector
+                  ((endcap_sector - 1) / 6) + 1  // sector
                   ,
                   1  // layer
                   ,
@@ -271,10 +273,12 @@ void RPCCPPFUnpacker::processTXRecord(RPCAMCLink link,
                   0);  // roll
 
   if (record.isValid(0)) {
-    rpc_cppf_digis.push_back(l1t::CPPFDigi(rpc_id, 0, record.getTheta(0), record.getPhi(0)));
+    rpc_cppf_digis.push_back(
+        l1t::CPPFDigi(rpc_id, 0, record.getPhi(0), record.getTheta(0), 0, 0, 0, emtf_sector, emtf_link, 0, 0, 0, 0));
   }
   if (record.isValid(1)) {
-    rpc_cppf_digis.push_back(l1t::CPPFDigi(rpc_id, 0, record.getTheta(1), record.getPhi(1)));
+    rpc_cppf_digis.push_back(
+        l1t::CPPFDigi(rpc_id, 0, record.getPhi(1), record.getTheta(1), 1, 0, 0, emtf_sector, emtf_link, 0, 0, 0, 0));
   }
 }
 
