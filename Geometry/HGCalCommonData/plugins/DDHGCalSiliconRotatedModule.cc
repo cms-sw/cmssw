@@ -250,7 +250,7 @@ void DDHGCalSiliconRotatedModule::initialize(const DDNumericArguments& nArgs,
 #endif
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: NameSpace " << nameSpace_;
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: NameSpace " << nameSpace_ << ":";
 #endif
   cassette_.setParameter(cassettes_, cassetteShift_);
 }
@@ -277,9 +277,6 @@ void DDHGCalSiliconRotatedModule::execute(DDCompactView& cpv) {
 }
 
 void DDHGCalSiliconRotatedModule::constructLayers(const DDLogicalPart& module, DDCompactView& cpv) {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalSiliconRotatedModule: \t\tInside Layers";
-#endif
   double zi(zMinBlock_);
   int laymin(0);
   for (unsigned int i = 0; i < layers_.size(); i++) {
