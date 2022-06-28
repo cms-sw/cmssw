@@ -18,10 +18,11 @@
 #include <exception>
 
 // user include files
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 namespace edm {
   class ZombieKillerService {
@@ -49,19 +50,12 @@ namespace edm {
 
 using namespace edm;
 
-inline bool isProcessWideService(ZombieKillerService const*) { return true; }
+namespace edm {
+  namespace service {
+    inline bool isProcessWideService(ZombieKillerService const*) { return true; }
+  }  // namespace service
+}  // namespace edm
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 ZombieKillerService::ZombieKillerService(edm::ParameterSet const& iPSet, edm::ActivityRegistry& iRegistry)
     : m_checkThreshold(iPSet.getUntrackedParameter<unsigned int>("numberOfAllowedFailedChecksInARow")),
       m_secsBetweenChecks(iPSet.getUntrackedParameter<unsigned int>("secondsBetweenChecks")),
@@ -205,5 +199,6 @@ void ZombieKillerService::fillDescriptions(ConfigurationDescriptions& descriptio
 //
 // static member functions
 //
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 DEFINE_FWK_SERVICE(ZombieKillerService);

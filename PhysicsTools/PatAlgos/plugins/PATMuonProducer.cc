@@ -352,10 +352,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet& iConfig, PATMuonHeavyO
       computeSoftMuonMVA_(false),
       recomputeBasicSelectors_(false),
       mvaUseJec_(false),
-      isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation")
-                                                : edm::ParameterSet(),
-                consumesCollector(),
-                false),
+      isolator_(iConfig.getParameter<edm::ParameterSet>("userIsolation"), consumesCollector(), false),
       geometryToken_{esConsumes()},
       transientTrackBuilderToken_{esConsumes(edm::ESInputTag("", "TransientTrackBuilder"))},
       patMuonPutToken_{produces<std::vector<Muon>>()} {

@@ -39,7 +39,8 @@ from Configuration.PyReleaseValidation.relval_upgrade import workflows as _upgra
 #        (Patatrack HCAL-only: TTbar - on CPU)
 #        (TTbar 0T, TTbar PU 0T)
 #        (TTbar FastSim)
-#        (TTbar PU MLPF)
+#        (TTbar PU MLPF ecal_deepsc)
+#        (ZEE ecal_deesc)
 #        (TTbar PU prod-like)
 #        (QCD 1.8TeV DeepCore)
 #        (TTbar DigiNoHLT)
@@ -71,7 +72,8 @@ numWFIB = [10001.0,10002.0,10003.0,10004.0,10005.0,10006.0,10007.0,10008.0,10009
            11634.521,
            11634.24,11834.24,
            11634.301,
-           11834.13,
+           11834.13, 11834.19,
+           11846.19,
            11834.21,
            11723.17,
            11634.601,

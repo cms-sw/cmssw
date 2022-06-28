@@ -27,6 +27,7 @@
   <flags CXXFLAGS="-g -DRFIT_DEBUG"/>
 </bin>
 
+<iftool name="cuda-gcc-support">
 <bin file="testEigenGPU.cu" name="testFitsGPU_t">
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <use name="cuda"/>
@@ -47,6 +48,7 @@
   <use name="HeterogeneousCore/CUDAUtilities"/>
   <flags CXXFLAGS="-g"/>
 </bin>
+</iftool>
 
 <bin file="PixelTrackFits.cc">
   <use name="cuda"/>

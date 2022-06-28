@@ -18,4 +18,8 @@
 <use name="HeterogeneousCore/CUDAUtilities"/>
 <use name="RecoLocalCalo/HcalRecAlgos"/>
 <use name="SimCalorimetry/HcalSimAlgos"/>
+<iftool name="cuda-gcc-support">
+<else/>
+  <flags SKIP_FILES="%.cu"/>
+</iftool>
 <flags EDM_PLUGIN="1"/>

@@ -16,32 +16,34 @@
 
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <DataFormats/TrackReco/interface/Track.h>
-#include <DataFormats/TrackReco/interface/TrackExtra.h>
-#include <DataFormats/TrackingRecHit/interface/TrackingRecHit.h>
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackExtra.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
 class FreeTrajectoryState;
 class MuonErroMatrix;
 class MagneticField;
+class IdealMagneticFieldRecord;
 class MuonErrorMatrix;
+class TrackerTopologyRcd;
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
 
 //
 // class decleration
 //
 
-class MuonErrorMatrixAdjuster : public edm::EDProducer {
+class MuonErrorMatrixAdjuster : public edm::stream::EDProducer<> {
 public:
   /// constructor
   explicit MuonErrorMatrixAdjuster(const edm::ParameterSet&);
@@ -50,9 +52,7 @@ public:
 
 private:
   /// framework method
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   /// return a corrected error matrix
   reco::TrackBase::CovarianceMatrix fix_cov_matrix(const reco::TrackBase::CovarianceMatrix& error_matrix,
@@ -95,11 +95,12 @@ private:
   bool theRescale;
 
   /// holds the error matrix parametrization
-  edm::ParameterSet theMatrixProvider_pset;
-  MuonErrorMatrix* theMatrixProvider;
+  std::unique_ptr<MuonErrorMatrix> theMatrixProvider;
 
   /// hold on to the magnetic field
   edm::ESHandle<MagneticField> theField;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theFieldToken;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> theHttopoToken;
 
   /// get reference before put track extra to the event, in order to create edm::Ref
   edm::RefProd<reco::TrackExtraCollection> theRefprodTE;

@@ -10,6 +10,7 @@
 #include <vector>
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/L1Trigger/interface/RegionalOutput.h"
 
 namespace l1t {
   class TkElectron;
@@ -19,5 +20,7 @@ namespace l1t {
   typedef edm::Ref<TkElectronCollection> TkElectronRef;
   typedef edm::RefVector<TkElectronCollection> TkElectronRefVector;
   typedef std::vector<TkElectronRef> TkElectronVectorRef;
+  typedef l1t::RegionalOutput<l1t::TkElectronCollection> TkElectronRegionalOutput;
+
 }  // namespace l1t
 #endif

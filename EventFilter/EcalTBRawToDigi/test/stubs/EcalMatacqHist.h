@@ -14,7 +14,7 @@
  * </UL>
  */
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 
@@ -24,7 +24,7 @@
 class TProfile;
 class TH1D;
 
-class EcalMatacqHist : public edm::EDAnalyzer {
+class EcalMatacqHist : public edm::one::EDAnalyzer<> {
 public:
   EcalMatacqHist(const edm::ParameterSet& ps);
 

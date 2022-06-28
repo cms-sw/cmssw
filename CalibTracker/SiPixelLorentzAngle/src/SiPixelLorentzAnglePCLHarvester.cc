@@ -497,7 +497,8 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     h_diffLA->Fill(deltaMuHoverMuH * 100.f);
   }
 
-  // fill the 2D output Lorentz Angle maps
+  bool isPayloadChanged{false};
+  // fill the 2D output Lorentz Angle maps and check if the payload is different from the input one
   for (const auto& [id, value] : LorentzAngle->getLorentzAngles()) {
     DetId ID = DetId(id);
     if (ID.subdetId() == PixelSubdetector::PixelBarrel) {
@@ -509,21 +510,28 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       float deltaMuHoverMuH =
           (currentLorentzAngle->getLorentzAngle(id) - value) / currentLorentzAngle->getLorentzAngle(id);
       hists.h2_byLayerDiff_[layer - 1]->setBinContent(module, ladder, deltaMuHoverMuH * 100.f);
+
+      if (!isPayloadChanged && (deltaMuHoverMuH != 0.f))
+        isPayloadChanged = true;
     }
   }
 
-  // fill the DB object record
-  edm::Service<cond::service::PoolDBOutputService> mydbservice;
-  if (mydbservice.isAvailable()) {
-    try {
-      mydbservice->writeOneIOV(*LorentzAngle, mydbservice->currentTime(), recordName_);
-    } catch (const cond::Exception& er) {
-      edm::LogError("SiPixelLorentzAngleDB") << er.what();
-    } catch (const std::exception& er) {
-      edm::LogError("SiPixelLorentzAngleDB") << "caught std::exception " << er.what();
+  if (isPayloadChanged) {
+    // fill the DB object record
+    edm::Service<cond::service::PoolDBOutputService> mydbservice;
+    if (mydbservice.isAvailable()) {
+      try {
+        mydbservice->writeOneIOV(*LorentzAngle, mydbservice->currentTime(), recordName_);
+      } catch (const cond::Exception& er) {
+        edm::LogError("SiPixelLorentzAngleDB") << er.what();
+      } catch (const std::exception& er) {
+        edm::LogError("SiPixelLorentzAngleDB") << "caught std::exception " << er.what();
+      }
+    } else {
+      edm::LogError("SiPixelLorentzAngleDB") << "Service is unavailable";
     }
   } else {
-    edm::LogError("SiPixelLorentzAngleDB") << "Service is unavailable";
+    edm::LogPrint("SiPixelLorentzAngleDB") << __PRETTY_FUNCTION__ << " there is no new valid measurement to append! ";
   }
 }
 

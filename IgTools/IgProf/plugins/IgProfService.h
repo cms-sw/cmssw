@@ -43,8 +43,6 @@ namespace edm {
 
       void postCloseFile(std::string const &);
 
-      inline bool isProcessWideService(IgProfService const *) { return true; }
-
     private:
       void makeDump(const std::string &format, std::string_view moduleLabel = "");
       static std::string replace(const std::string &s, const char *pat, int val);
@@ -81,6 +79,7 @@ namespace edm {
       int nfileopened_;  // counter of files opened thus far
       int nfileclosed_;  // counter of files closed thus far
     };
+    inline bool isProcessWideService(IgProfService const *) { return true; }
   }  // namespace service
 }  // namespace edm
 
