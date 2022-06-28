@@ -20,8 +20,8 @@ bool totOK(uint16_t tot_orig, uint16_t tot_read) {
 }
 
 int main(int argc, char** argv) {
-
-  std::cout << "Basic performance tests for HGCROCChannelDataFrame (pseudo-random seed set according to local time)\n" << std::endl;
+  std::cout << "Basic performance tests for HGCROCChannelDataFrame (pseudo-random seed set according to local time)\n"
+            << std::endl;
   std::cout << "num parameters entered: " << argc << std::endl;
 
   // first command line argument is the number of trials
