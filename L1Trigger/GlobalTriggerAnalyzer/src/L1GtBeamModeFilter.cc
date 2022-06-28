@@ -41,8 +41,7 @@ L1GtBeamModeFilter::L1GtBeamModeFilter(const edm::ParameterSet& parSet)
       m_l1GtEvmReadoutRecordTag(parSet.getParameter<edm::InputTag>("L1GtEvmReadoutRecordTag")),
       m_allowedBeamMode(parSet.getParameter<std::vector<unsigned int> >("AllowedBeamMode")),
       m_invertResult(parSet.getParameter<bool>("InvertResult")),
-      m_isDebugEnabled(edm::isDebugEnabled()),
-      m_condInRunBlockValid(false) {
+      m_isDebugEnabled(edm::isDebugEnabled()) {
   if (m_isDebugEnabled) {
     LogDebug("L1GtBeamModeFilter") << std::endl;
 
@@ -69,7 +68,7 @@ L1GtBeamModeFilter::~L1GtBeamModeFilter() {
 
 // member functions
 
-bool L1GtBeamModeFilter::filter(edm::Event& iEvent, const edm::EventSetup& evSetup) {
+bool L1GtBeamModeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& evSetup) const {
   // initialize filter result
   bool filterResult = false;
 
@@ -101,22 +100,24 @@ bool L1GtBeamModeFilter::filter(edm::Event& iEvent, const edm::EventSetup& evSet
   edm::Handle<edm::ConditionsInRunBlock> condInRunBlock;
   iRun.getByLabel(m_condInEdmInputTag, condInRunBlock);
 
+  /// valid ConditionsInRunBlock product
+  bool condInRunBlockValid = true;
+
   if (!condInRunBlock.isValid()) {
     LogDebug("L1GtBeamModeFilter") << "\nConditionsInRunBlock with \n  " << m_condInEdmInputTag
                                    << "\nrequested in configuration, but not found in the event."
                                    << "\n"
                                    << std::endl;
 
-    m_condInRunBlockValid = false;
+    condInRunBlockValid = false;
 
   } else {
-    m_condInRunBlockValid = true;
     beamModeValue = condInRunBlock->beamMode;
   }
 
   // fall through to L1GlobalTriggerEvmReadoutRecord if ConditionsInRunBlock
   // not available
-  if (!m_condInRunBlockValid) {
+  if (!condInRunBlockValid) {
     // get L1GlobalTriggerEvmReadoutRecord and beam mode
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
     iEvent.getByLabel(m_l1GtEvmReadoutRecordTag, gtEvmReadoutRecord);
