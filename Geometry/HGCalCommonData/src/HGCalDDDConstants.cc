@@ -8,11 +8,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeomParameters.h"
-#include "Geometry/HGCalCommonData/interface/HGCalGeomTools.h"
 #include "Geometry/HGCalCommonData/interface/HGCalGeometryMode.h"
-#include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
-#include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferMask.h"
 #include "Geometry/HGCalCommonData/interface/HGCalWaferType.h"
 
@@ -695,8 +692,7 @@ std::pair<float, float> HGCalDDDConstants::locateCell(
   int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
   auto itr = hgpar_->typesInLayers_.find(indx);
   int type = ((itr == hgpar_->typesInLayers_.end()) ? 2 : hgpar_->waferTypeL_[itr->second]);
-  int layertype =
-      (hgpar_->layerType_.empty()) ? HGCalTypes::WaferCenter : hgpar_->layerType_[lay - hgpar_->firstLayer_];
+  int layertype = layerType(lay);
   bool rotx = (norot) ? false : (layertype == HGCalTypes::WaferCenterR);
   if (debug) {
     edm::LogVerbatim("HGCalGeom") << "LocateCell " << lay << ":" << (lay - hgpar_->firstLayer_) << ":" << layertype
@@ -1264,7 +1260,7 @@ void HGCalDDDConstants::waferFromPosition(const double x,
   if ((hgpar_->xLayerHex_.empty()) || (hgpar_->yLayerHex_.empty()))
     return;
   int ll = layer - hgpar_->firstLayer_;
-  int layertype = (hgpar_->layerType_.empty()) ? HGCalTypes::WaferCenter : hgpar_->layerType_[ll];
+  int layertype = layerType(layer);
   bool rotx = ((!hgpar_->layerType_.empty()) && (layertype == HGCalTypes::WaferCenterR));
   double xx(0), yy(0);
   if (rotx) {
