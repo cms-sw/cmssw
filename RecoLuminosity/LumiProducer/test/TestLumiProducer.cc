@@ -1,5 +1,5 @@
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -20,13 +20,13 @@ using namespace edm;
 
 namespace edmtest {
 
-  class TestLumiProducer : public edm::EDAnalyzer {
+  class TestLumiProducer : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
   public:
     explicit TestLumiProducer(edm::ParameterSet const&);
-    virtual ~TestLumiProducer();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
+    void beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override {}
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override;
   };
 
   // -----------------------------------------------------------------
@@ -35,10 +35,6 @@ namespace edmtest {
     consumes<LumiSummary, edm::InLumi>(edm::InputTag("lumiProducer", ""));
     consumes<LumiDetails, edm::InLumi>(edm::InputTag("lumiProducer", ""));
   }
-
-  // -----------------------------------------------------------------
-
-  TestLumiProducer::~TestLumiProducer() {}
 
   // -----------------------------------------------------------------
 
