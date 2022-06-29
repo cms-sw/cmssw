@@ -1,0 +1,205 @@
+#! /usr/bin/env python3
+
+import argparse
+import glob
+import json
+import os
+import re
+import shutil
+import socket
+import subprocess
+import sys
+
+def cmsRun(config, **args):
+    cmd = [ 'cmsRun', config ] + [ arg + '=' + str(val) for (arg, val) in args.items() ]
+    sys.stdout.write(' \\\n  '.join(cmd))
+    sys.stdout.write('\n\n')
+    status = subprocess.run(cmd, stdout=None, stderr=None)
+    status.check_returncode()
+
+    # handle error conditions
+    if status.returncode < 0:
+        sys.stderr.write('error: cmsRun was killed by signal %d\n' % -status.returncode)
+        sys.exit(status.returncode)
+    elif status.returncode > 0:
+        sys.stderr.write('error: cmsRun exited with error code %d\n' % status.returncode)
+        sys.exit(status.returncode)
+
+
+# default values
+events_per_file = 50
+events_per_lumi = 11650
+output_directory = ''
+
+parser = argparse.ArgumentParser(description='Convert RAW data from .root format to .raw format.', formatter_class = argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('files', type=str, metavar='FILES', nargs='+', help='input files in .root format')
+parser.add_argument('-o', '--output', type=str, dest='output_directory', metavar='PATH', default='', help='base path to store the output files; subdirectories based on the run number are automatically created')
+parser.add_argument('-f', '--events_per_file', type=int, dest='events_per_file', metavar='EVENTS', default=events_per_file, help='split the output into files with at most EVENTS events')
+parser.add_argument('-l', '--events_per_lumi', type=int, dest='events_per_lumi', metavar='EVENTS', default=events_per_lumi, help='process at most EVENTS events in each lumisection')
+parser.add_argument('--one-file-per-lumi', action='store_true', dest='one_file_per_lumi', default=False, help='assume that lumisections are not split across files (and disable --events_per_lumi)')
+
+# parse the command line arguments and options
+args = parser.parse_args()
+if args.output_directory and args.output_directory.endswith('/'):
+    args.output_directory = args.output_directory[:-1]
+
+# read the list of input files from the command line arguments
+files = [ 'file:' + f if (not ':' in f and not f.startswith('/store/') and os.path.exists(f)) else f for f in args.files ]
+
+# extract the list of runs and lumiections in the input files
+class FileInfo(object):
+    def __init__(self):
+        self.events = 0
+        self.files = set()
+
+header  = re.compile(r'^ +Run +Lumi +# Events$')
+empty   = re.compile(r'^ *$')
+content = {}
+
+for f in files:
+
+    # run edmFileUtil --eventsInLumis ...
+    output = subprocess.run(['edmFileUtil', '--eventsInLumis', f], capture_output=True, text=True)
+    if output.returncode < 0:
+        sys.stderr.write('error: edmFileUtil was killed by signal %d\n' % -output.returncode)
+        sys.stderr.write('\n')
+        sys.stderr.write(output.stderr)
+        sys.exit(output.returncode)
+    elif output.returncode > 0:
+        sys.stderr.write('error: edmFileUtil exited with error code %d\n' % output.returncode)
+        sys.stderr.write('\n')
+        sys.stderr.write(output.stderr)
+        sys.exit(output.returncode)
+
+    # parse the output of edmFileUtil
+    parsing = False
+    for line in output.stdout.splitlines():
+        if not parsing and header.match(line):
+            # start parsing
+            parsing = True
+            continue
+
+        if parsing and empty.match(line):
+            # stop parsing
+            parsing = False
+            continue
+
+        if parsing:
+            run, lumi, events = tuple(map(int, line.split()))
+            if not run in content:
+                content[run] = {}
+            if not lumi in content[run]:
+                content[run][lumi] = FileInfo()
+            content[run][lumi].events += events
+            content[run][lumi].files.add(f)
+
+# drop empty lumisections
+for run in content:
+    empty_lumis = [ lumi for lumi in content[run] if content[run][lumi].events == 0 ]
+    for lumi in empty_lumis:
+        del content[run][lumi]
+
+# drop empty runs
+empty_runs = [ run for run in content if not content[run] ]
+for run in empty_runs:
+    del content[run]
+
+# locate the CMSSW configuration file
+config_name = 'HLTrigger/Tools/python/convertToRaw.py'
+current_area = os.environ['CMSSW_BASE']
+release_area = os.environ['CMSSW_RELEASE_BASE']
+
+config_py = current_area + '/src/' + config_name
+if not os.path.exists(config_py):
+    config_py = release_area + '/src/' + config_name
+if not os.path.exists(config_py):
+    sys.stderr.write('error: cannot find the configuration file %s\n' % config_name)
+    sys.exit(1)
+
+# convert the input data to FED RAW data format
+
+# process each run
+for run in sorted(content):
+
+    # create the output directory structure
+    run_path = args.output_directory + f'/run{run:06d}'
+    shutil.rmtree(run_path, ignore_errors=True)
+    os.makedirs(run_path)
+
+    if args.one_file_per_lumi:
+        # process the whole run
+        lumis = sorted(content[run])
+        print('found run %d, lumis %d-%d, with %d events' % (run, min(lumis), max(lumis), sum(content[run][lumi].events for lumi in lumis)))
+        cmsRun(config_py, inputFiles = ','.join(files), runNumber = run, eventsPerFile = args.events_per_file, outputPath = args.output_directory)
+
+    else:
+        # process lumisections individualy, then merge the output
+        summary = {
+            'data': [0, 0, 0, 0],   # [ 'events', 'files', 'lumisections', 'last lumisection' ]
+            'definition': run_path + '/jsd/EoR.jsd',
+            'source': socket.getfqdn() + '_' + str(os.getpid())
+        }
+
+        for lumi in sorted(content[run]):
+
+            # process individual lumisections
+            print('found run %d, lumi %d, with %d events' % (run, lumi, content[run][lumi].events))
+            lumi_path = args.output_directory + f'/run{run:06d}_ls{lumi:04d}'
+            shutil.rmtree(lumi_path, ignore_errors=True)
+            os.makedirs(lumi_path)
+            cmsRun(config_py, inputFiles = ','.join(content[run][lumi].files), runNumber = run, lumiNumber = lumi, eventsPerLumi = args.events_per_lumi, eventsPerFile = args.events_per_file, outputPath = lumi_path)
+
+            # merge all lumisetions data
+
+            # number of events expected to be processed
+            if args.events_per_lumi < 0:
+                expected_events = content[run][lumi].events
+            else:
+                expected_events = min(args.events_per_lumi, content[run][lumi].events)
+
+            # number of files expected to be created
+            expected_files = (expected_events + args.events_per_file - 1) // args.events_per_file
+
+            # find the files produced by the conversion job and move them to the per-run path
+            lumi_base_path = args.output_directory + f'/run{run:06d}_ls{lumi:04d}'
+            lumi_path = lumi_base_path + f'/run{run:06d}'
+
+            # jsd files
+            jsd_path = lumi_path + '/jsd'
+            if not os.path.exists(run_path + '/jsd'):
+                shutil.move(jsd_path, run_path)
+            else:
+                shutil.rmtree(jsd_path)
+
+            # lumisection data and EoLS files
+            lumi_files = glob.glob(lumi_path + f'/run{run:06d}_ls{lumi:04d}_*')
+            for f in lumi_files:
+                shutil.move(f, run_path + '/')
+
+            # read the partial EoR file
+            eor_file = lumi_path + f'/run{run:06d}_ls0000_EoR.jsn'
+            with open(eor_file) as f:
+                eor = json.load(f)
+                produced_events = int(eor['data'][0])
+                produced_files = int(eor['data'][1])
+                produced_lumis = int(eor['data'][2])
+                produced_last_lumi = int(eor['data'][3])
+                assert produced_events == expected_events
+                assert produced_files == expected_files
+                assert produced_lumis == 1
+                assert produced_last_lumi == lumi
+                summary['data'][0] += expected_events
+                summary['data'][1] += expected_files
+                summary['data'][2] += 1
+                summary['data'][3] = lumi
+            os.remove(eor_file)
+
+            # remove the intermediate directory
+            shutil.rmtree(lumi_base_path, ignore_errors=True)
+
+        # write the final EoR file
+        # implemented by hand instead of using json.dump() to match the style used by the DAQ tools
+        eor_file = run_path + f'/run{run:06d}_ls0000_EoR.jsn'
+        f = open(eor_file, 'w')
+        f.write('{\n   "data" : [ "%d", "%d", "%d", "%d" ],\n   "definition" : "%s",\n   "source" : "%s"\n}\n' % (summary['data'][0], summary['data'][1], summary['data'][2], summary['data'][3], summary['definition'], summary['source']))
+        f.close()
