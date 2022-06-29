@@ -33,6 +33,7 @@ public:
   /** Create cellid from raw id (0=invalid tower id) */
   HFNoseDetId(uint32_t rawid);
   /** Constructor from subdetector, zplus, layer, module, cell numbers */
+  HFNoseDetId(DetId::Detector det, int zp, int type, int layer, int waferU, int waferV, int cellU, int cellV);
   HFNoseDetId(int zp, int type, int layer, int waferU, int waferV, int cellU, int cellV);
   /** Constructor from a generic cell id */
   HFNoseDetId(const DetId& id);
