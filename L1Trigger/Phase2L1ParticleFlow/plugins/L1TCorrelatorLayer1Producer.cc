@@ -114,6 +114,7 @@ private:
   std::unique_ptr<l1t::PFCandidateCollection> fetchEmCalo() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchTracks() const;
   std::unique_ptr<l1t::PFCandidateCollection> fetchPF() const;
+  std::unique_ptr<std::vector<l1t::PFTrack>> fetchDecodedTracks() const;
   void putPuppi(edm::Event &iEvent) const;
 
   void putEgStaObjects(edm::Event &iEvent,
@@ -174,6 +175,9 @@ L1TCorrelatorLayer1Producer::L1TCorrelatorLayer1Producer(const edm::ParameterSet
   produces<l1t::PFCandidateCollection>("TK");
 #if 0  // LATER
   produces<l1t::PFCandidateCollection>("TKVtx");
+#endif
+#if 1  // LATER
+  produces<std::vector<l1t::PFTrack>>("DecodedTK");
 #endif
 
   for (const auto &tag : iConfig.getParameter<std::vector<edm::InputTag>>("emClusters")) {
@@ -364,6 +368,10 @@ void L1TCorrelatorLayer1Producer::produce(edm::Event &iEvent, const edm::EventSe
   iEvent.put(fetchEmCalo(), "EmCalo");
   iEvent.put(fetchHadCalo(), "Calo");
   iEvent.put(fetchTracks(), "TK");
+  
+  #if 1
+    iEvent.put(fetchDecodedTracks(), "DecodedTK");
+  #endif
 
   // Then do the vertexing, and save it out
   std::vector<float> z0s;
@@ -841,6 +849,37 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchTr
   return ret;
 }
 
+std::unique_ptr<std::vector<l1t::PFTrack>> L1TCorrelatorLayer1Producer::fetchDecodedTracks() const {
+  auto ret = std::make_unique<std::vector<l1t::PFTrack>>();
+  for (const auto r : event_.decoded.track) {
+    const auto &reg = r.region;
+    for (const auto &p : r.obj) {
+      if (p.hwPt == 0 || !reg.isFiducial(p))
+        continue;
+      reco::Particle::PolarLorentzVector p4(p.floatPt(), reg.floatGlbEta(p.hwVtxEta()), reg.floatGlbPhi(p.hwVtxPhi()), 0);
+
+      reco::Particle::Point vtx(0,0,p.floatZ0());
+      
+      ret->emplace_back(l1t::PFTrack(p.intCharge(),
+                                     reco::Particle::LorentzVector(p4),
+                                     vtx,
+                                     p.src->track(),
+                                     0,
+                                     reg.floatGlbEta(p.hwEta),
+                                     reg.floatGlbPhi(p.hwPhi),
+                                     -1,
+                                     -1,
+                                     p.hwQuality.to_int(),
+                                     false,
+                                     p.intPt(),
+                                     p.intEta(),
+                                     p.intPhi()));
+    }
+  }
+  return ret;
+}
+
+
 std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF() const {
   auto ret = std::make_unique<l1t::PFCandidateCollection>();
   for (unsigned int ir = 0, nr = event_.pfinputs.size(); ir < nr; ++ir) {
@@ -861,6 +900,9 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
       ret->back().setHwZ0(p.hwZ0);
       ret->back().setHwDxy(p.hwDxy);
       ret->back().setHwTkQuality(p.hwTkQuality);
+      ret->back().setCaloEta(reg.floatGlbEtaOf(p));
+      ret->back().setCaloPhi(reg.floatGlbPhiOf(p));
+      
       setRefs_(ret->back(), p);
     }
     for (const auto &p : event_.out[ir].pfneutral) {
@@ -871,6 +913,8 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
           p.hwId.isPhoton() ? l1t::PFCandidate::Photon : l1t::PFCandidate::NeutralHadron;
       ret->emplace_back(type, 0, p4, 1, p.intPt(), p.intEta(), p.intPhi());
       ret->back().setHwEmID(p.hwEmID);
+      ret->back().setCaloEta(reg.floatGlbEtaOf(p));
+      ret->back().setCaloPhi(reg.floatGlbPhiOf(p));
       setRefs_(ret->back(), p);
     }
   }
@@ -1042,6 +1086,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
       tkele.setHwQual(egele.hwQual);
       tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
       tkele.setEgBinaryWord(egele.pack());
+      tkele.setCompositeBdtScore(egele.bdtScore);
       tkeles->push_back(tkele);
       nele_obj.push_back(tkeles->size() - 1);
     }

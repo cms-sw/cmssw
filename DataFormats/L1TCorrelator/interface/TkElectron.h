@@ -39,16 +39,19 @@ namespace l1t {
 
     float trkzVtx() const { return trkzVtx_; }
     double trackCurvature() const { return trackCurvature_; }
-
+    float compositeBdtScore() const { return compositeBdtScore_; }
     // ---------- member functions ---------------------------
 
     void setTrkzVtx(float TrkzVtx) { trkzVtx_ = TrkzVtx; }
     void setTrackCurvature(double trackCurvature) { trackCurvature_ = trackCurvature; }
+    void setCompositeBdtScore(float score) { compositeBdtScore_ = score; }
+
 
   private:
     edm::Ptr<L1TTTrackType> trkPtr_;
     float trkzVtx_;
     double trackCurvature_;
+    float compositeBdtScore_;
   };
 }  // namespace l1t
 #endif
