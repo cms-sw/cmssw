@@ -103,7 +103,6 @@ namespace {
 OscarMTProducer::OscarMTProducer(edm::ParameterSet const& p, const OscarMTMasterThread* ms)
     : m_handoff{p.getUntrackedParameter<int>("workerThreadStackSize", 10 * 1024 * 1024)} {
   m_verbose = p.getParameter<int>("EventVerbose");
-  //  m_G4CommandsEndRun(p.getParameter<std::vector<std::string> >("G4CommandsEndRun")),
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
