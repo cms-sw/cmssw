@@ -23,6 +23,7 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTileIndex.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
+#include "Geometry/HGCalCommonData/interface/HGCalWaferIndex.h"
 #include <CLHEP/Geometry/Point3D.h>
 
 #include <array>
@@ -86,6 +87,9 @@ public:
   int layerIndex(int lay, bool reco) const;
   unsigned int layers(bool reco) const;
   unsigned int layersInit(bool reco) const;
+  int layerType(int lay) const {
+    return ((hgpar_->layerType_.empty()) ? HGCalTypes::WaferCenter : hgpar_->layerType_[lay - hgpar_->firstLayer_]);
+  }
   std::pair<float, float> localToGlobal8(
       int lay, int waferU, int waferV, double localX, double localY, bool reco, bool debug) const;
   std::pair<float, float> locateCell(int cell, int lay, int type, bool reco) const;
@@ -131,6 +135,11 @@ public:
     auto itr = hgpar_->tileInfoMap_.find(indx);
     bool ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
     return ok;
+  }
+  HGCalParameters::tileInfo tileInfo(int zside, int layer, int ring) const {
+    int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
+    auto itr = hgpar_->tileInfoMap_.find(indx);
+    return ((itr == hgpar_->tileInfoMap_.end()) ? HGCalParameters::tileInfo() : itr->second);
   }
   std::pair<int, int> tileRings(int layer) const {
     if ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
@@ -189,6 +198,11 @@ public:
   bool waferInLayer(int wafer, int lay, bool reco) const;
   bool waferFullInLayer(int wafer, int lay, bool reco) const;
   int waferCount(const int type) const { return ((type == 0) ? waferMax_[2] : waferMax_[3]); }
+  HGCalParameters::waferInfo waferInfo(int lay, int waferU, int waferV) const {
+    int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
+    auto itr = hgpar_->waferInfoMap_.find(indx);
+    return ((itr == hgpar_->waferInfoMap_.end()) ? HGCalParameters::waferInfo() : itr->second);
+  }
   int waferMax() const { return waferMax_[1]; }
   int waferMin() const { return waferMax_[0]; }
   std::pair<double, double> waferParameters(bool reco) const;
