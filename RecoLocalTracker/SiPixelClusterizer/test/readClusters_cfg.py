@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("cluTest")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 
