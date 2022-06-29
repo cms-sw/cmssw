@@ -4,7 +4,7 @@ process = cms.Process("ReTracking")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 process.load("Configuration.EventContent.EventContentCosmics_cff")
 
