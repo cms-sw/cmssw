@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -19,13 +19,13 @@ using namespace edm;
 
 namespace edmtest {
 
-  class TestExpressLumiProducer : public edm::EDAnalyzer {
+  class TestExpressLumiProducer : public edm::one::EDAnalyzer<edm::one::WatchLuminosityBlocks> {
   public:
     explicit TestExpressLumiProducer(edm::ParameterSet const&);
-    virtual ~TestExpressLumiProducer();
 
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
-    virtual void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c);
+    void beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override {}
+    void analyze(edm::Event const& e, edm::EventSetup const& c) override;
+    void endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) override;
   };
 
   // -----------------------------------------------------------------
@@ -34,10 +34,6 @@ namespace edmtest {
     consumes<LumiSummary, edm::InLumi>(edm::InputTag("expressLumiProducer", ""));
     consumes<LumiDetails, edm::InLumi>(edm::InputTag("expressLumiProducer", ""));
   }
-
-  // -----------------------------------------------------------------
-
-  TestExpressLumiProducer::~TestExpressLumiProducer() {}
 
   // -----------------------------------------------------------------
 
