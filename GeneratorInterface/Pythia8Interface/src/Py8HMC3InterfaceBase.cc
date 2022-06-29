@@ -8,10 +8,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <filesystem>
 
-// EvtGen plugin
-//
-//#include "Pythia8Plugins/EvtGen.h"
-
 using namespace Pythia8;
 
 namespace gen {
@@ -50,7 +46,6 @@ namespace gen {
           edm::FileInPath user_decay(user_decays.at(i));
           evtgenUserFiles.push_back(user_decay.fullPath());
         }
-        //evtgenUserFiles = ps.getParameter< std::vector<std::string> >("evtgenUserFile");
       }
 
       if (ps.exists("evtgenUserFileEmbedded")) {

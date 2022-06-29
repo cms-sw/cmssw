@@ -8,11 +8,8 @@
 #include "GeneratorInterface/Pythia8Interface/interface/P8RndmEngine.h"
 #include "GeneratorInterface/Core/interface/BaseHadronizer.h"
 
-#include "HepMC/IO_AsciiParticles.h"
-
 #include <Pythia8/Pythia.h>
 #include <Pythia8Plugins/HepMC3.h>
-//#include <Dire/Dire.h>
 
 namespace Pythia8 {
   class EvtGenDecays;
@@ -27,7 +24,7 @@ namespace gen {
   class Py8HMC3InterfaceBase : public BaseHadronizer {
   public:
     Py8HMC3InterfaceBase(edm::ParameterSet const& ps);
-    ~Py8HMC3InterfaceBase() override {}
+    ~Py8HMC3InterfaceBase() override = default;
 
     virtual bool generatePartonsAndHadronize() = 0;
     bool decay() { return true; }          // NOT used - let's call it "design imperfection"
@@ -47,14 +44,12 @@ namespace gen {
     std::unique_ptr<Pythia8::Pythia> fMasterGen;
     std::unique_ptr<Pythia8::Pythia> fDecayer;
     HepMC3::Pythia8ToHepMC3 toHepMC;
-    // 	 ParameterCollector	        fParameters;
     edm::ParameterSet fParameters;
 
     unsigned int pythiaPylistVerbosity;
     bool pythiaHepMCVerbosity;
     bool pythiaHepMCVerbosityParticles;
     unsigned int maxEventsToPrint;
-    HepMC::IO_AsciiParticles* ascii_io;
 
     // EvtGen plugin
     //
