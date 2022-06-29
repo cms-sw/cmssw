@@ -2,7 +2,6 @@
 #include <memory>
 
 #include <cstdint>
-#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -79,7 +78,7 @@ using namespace gen;
 class Pythia8HepMC3Hadronizer : public Py8HMC3InterfaceBase {
 public:
   Pythia8HepMC3Hadronizer(const edm::ParameterSet &params);
-  ~Pythia8HepMC3Hadronizer() override;
+  ~Pythia8HepMC3Hadronizer() override = default;
 
   bool initializeForInternalPartons() override;
   bool initializeForExternalPartons();
@@ -338,8 +337,6 @@ Pythia8HepMC3Hadronizer::Pythia8HepMC3Hadronizer(const edm::ParameterSet &params
         << " Obsolete parameter: DirePlugin \n Please use the parameter PartonShowers:model instead \n";
   }
 }
-
-Pythia8HepMC3Hadronizer::~Pythia8HepMC3Hadronizer() {}
 
 bool Pythia8HepMC3Hadronizer::initializeForInternalPartons() {
   bool status = false, status1 = false;
@@ -909,8 +906,7 @@ bool Pythia8HepMC3Hadronizer::residualDecay() {
 
   bool result = true;
 
-  std::cout << "residualdecay in action " << NPartsBeforeDecays << " " << NPartsAfterDecays << std::endl;
-
+// this below is to be rewritten in future development, then it will be uncommented
 #if 0
   for (int ipart = NPartsAfterDecays; ipart > NPartsBeforeDecays; ipart--) {
     HepMC::GenParticle *part = event().get()->barcode_to_particle(ipart);
