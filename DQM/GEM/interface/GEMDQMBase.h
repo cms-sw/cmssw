@@ -334,7 +334,7 @@ public:
       return mapHist[key];
     };
 
-    int SetLabelForChambers(K key, Int_t nAxis, Int_t nNumBin = -1) {
+    int SetLabelForChambers(K key, Int_t nAxis, Int_t nNumBin = -1, Int_t nIdxStart = 1) {
       if (!bOperating_)
         return 0;
       if (nNumBin <= 0) {
@@ -348,7 +348,7 @@ public:
       dqm::impl::MonitorElement *histCurr = FindHist(key);
       if (histCurr == nullptr)
         return -999;
-      for (Int_t i = 1; i <= nNumBin; i++) {
+      for (Int_t i = nIdxStart; i <= nNumBin; i++) {
         histCurr->setBinLabel(i, Form("%i", i), nAxis);
       }
       return 0;
@@ -492,6 +492,8 @@ public:
     Int_t nMaxVFAT_;  // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
     Int_t nNumDigi_;  // the number of digis of each VFAT
 
+    Int_t nMinIdxChamber_;
+    Int_t nMaxIdxChamber_;
     Float_t fMinPhi_;
 
     std::vector<Float_t> listRadiusEvenChamber_;
