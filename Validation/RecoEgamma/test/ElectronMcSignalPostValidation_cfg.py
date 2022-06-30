@@ -66,7 +66,7 @@ process.GlobalTag.globaltag = '124X_mcRun3_2021_realistic_v1'
 
 rel = os.environ['DD_SAMPLE']
 part1 = os.environ['DD_RELEASE']
-part2 = 'CMSSW_' + os.environ['TEST_GLOBAL_TAG']
+part2 = os.environ['TEST_GLOBAL_TAG']
 process.dqmSaver.workflow = '/' + rel + '/' + part1 + '-' + part2 + '/RECO'
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
