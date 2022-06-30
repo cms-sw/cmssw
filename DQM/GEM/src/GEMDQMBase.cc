@@ -107,10 +107,15 @@ int GEMDQMBase::loadChambers() {
       for (auto pchamber : chambers) {
         int layer_number = pchamber->id().layer();
         ME3IdsKey key3(region_number, station_number, layer_number);
-        mapStationInfo_[key3] =
-            MEStationInfo(region_number, station_number, layer_number, num_superchambers, num_etas, num_vfat, num_digi);
-        mapStationInfo_[key3].nMinIdxChamber_ = nMinIdxChamber;
-        mapStationInfo_[key3].nMaxIdxChamber_ = nMaxIdxChamber;
+        mapStationInfo_[key3] = MEStationInfo(region_number,
+                                              station_number,
+                                              layer_number,
+                                              num_superchambers,
+                                              num_etas,
+                                              num_vfat,
+                                              num_digi,
+                                              nMinIdxChamber,
+                                              nMaxIdxChamber);
         readGeometryRadiusInfoChamber(station, mapStationInfo_[key3]);
         readGeometryPhiInfoChamber(station, mapStationInfo_[key3]);
       }
