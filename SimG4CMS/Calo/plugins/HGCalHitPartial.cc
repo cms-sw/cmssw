@@ -64,7 +64,8 @@ void HGcalHitPartial::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   // get hcalGeometry
   const HGCalGeometry* geom = &iS.getData(geomToken_);
   const HGCalDDDConstants& hgc = geom->topology().dddConstants();
-  const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_calo_);
+  // get the hit collection  
+const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_calo_);
   bool getHits = (hitsCalo.isValid());
   uint32_t nhits = (getHits) ? hitsCalo->size() : 0;
   uint32_t good(0), allSi(0), all(0);
@@ -74,6 +75,7 @@ void HGcalHitPartial::analyze(const edm::Event& e, const edm::EventSetup& iS) {
     std::vector<PCaloHit> hits;
     hits.insert(hits.end(), hitsCalo->begin(), hitsCalo->end());
     if (!hits.empty()) {
+      // Loop over all hits
       for (auto hit : hits) {
         ++all;
         DetId id(hit.id());
@@ -81,6 +83,7 @@ void HGcalHitPartial::analyze(const edm::Event& e, const edm::EventSetup& iS) {
 	  ++allSi;
 	  HGCSiliconDetId hid(id);
 	  const auto& info = hgc.waferInfo(hid.layer(), hid.waferU(), hid.waferV());
+	  // Only partial wafers
 	  if (info.part != HGCalTypes::WaferFull) {
 	    ++good;
 	    GlobalPoint pos = geom->getPosition(id);
