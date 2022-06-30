@@ -371,6 +371,44 @@ upgradeWFs['trackingMkFit'].step3 = {
     '--procModifiers': 'trackingMkFitDevel'
 }
 
+class UpgradeWorkflow_trackingRun3CkfPixelLessStep(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step and stepDict[step][k]['--era']=='Run3':
+            stepDict[stepName][k] = merge([{'--era': 'Run3_ckfPixelLessStep'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['trackingRun3CkfPixelLessStep'] = UpgradeWorkflow_trackingRun3CkfPixelLessStep(
+    steps = [
+        'Reco',
+        'RecoNano',
+        'RecoGlobal',
+        'RecoFakeHLT',
+    ],
+    suffix = '_trackingRun3CkfPixelLessStep',
+    offset = 0.71,
+)
+
+class UpgradeWorkflow_trackingOnlyRun3CkfPixelLessStep(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step and stepDict[step][k]['--era']=='Run3':
+            stepDict[stepName][k] = merge([{'--era': 'Run3_ckfPixelLessStep'}, self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['trackingOnlyRun3CkfPixelLessStep'] = UpgradeWorkflow_trackingOnlyRun3CkfPixelLessStep(
+    steps = [
+        'Reco',
+        'HARVEST',
+        'RecoNano',
+        'HARVESTNano',
+        'RecoFakeHLT',
+        'HARVESTFakeHLT',
+    ],
+    suffix = '_trackingOnlyRun3CkfPixelLessStep',
+    offset = 0.72,
+)
+upgradeWFs['trackingOnlyRun3CkfPixelLessStep'].step3 = upgradeWFs['trackingOnly'].step3
+
 #DeepCore seeding for JetCore iteration workflow
 class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
