@@ -1,0 +1,5 @@
+from RecoLocalTracker.SiStripClusterizer.SiStripClusters2ApproxClusters_cfi import *
+
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+SiStripClusters2ApproxClustersHLT = SiStripClusters2ApproxClusters.clone()
+approxSiStripClusters.toModify(SiStripClusters2ApproxClustersHLT, inputClusters = "siStripClustersHLT")
