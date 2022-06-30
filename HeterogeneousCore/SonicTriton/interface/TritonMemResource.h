@@ -52,6 +52,9 @@ public:
   void close() override;
   void copyInput(const void* values, size_t offset, unsigned entry) override {}
   void copyOutput() override {}
+
+protected:
+  size_t sizeOrig_;
 };
 
 using TritonInputHeapResource = TritonHeapResource<triton::client::InferInput>;
