@@ -152,11 +152,14 @@ private:
   MonitorElement *h1_recSeedNum;
   MonitorElement *h1_recOfflineVertices;
   MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices;
+  MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_Extended;
   MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_barrel;
   MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_endcaps;
 
   MonitorElement *h1_mc_Eta;
+  MonitorElement *h1_mc_Eta_Extended;
   MonitorElement *h1_mc_AbsEta;
+  MonitorElement *h1_mc_AbsEta_Extended;
   MonitorElement *h1_mc_P;
   MonitorElement *h1_mc_Pt;
   MonitorElement *h1_mc_Phi;
@@ -166,6 +169,7 @@ private:
   MonitorElement *h1_mc_Eta_matched;
   MonitorElement *h1_mc_Eta_Extended_matched;
   MonitorElement *h1_mc_AbsEta_matched;
+  MonitorElement *h1_mc_AbsEta_Extended_matched;
   MonitorElement *h1_mc_Pt_matched;
   MonitorElement *h1_mc_Phi_matched;
   MonitorElement *h1_mc_Z_matched;
@@ -331,6 +335,7 @@ private:
   MonitorElement *h1_ele_PoPtrue_barrel;
   MonitorElement *h1_ele_PoPtrue_endcaps;
   MonitorElement *h2_ele_PoPtrueVsEta;
+  MonitorElement *h2_ele_PoPtrueVsEta_Extended;
   MonitorElement *h2_ele_PoPtrueVsPhi;
   MonitorElement *h2_ele_PoPtrueVsPt;
   MonitorElement *h1_ele_PoPtrue_golden_barrel;
@@ -448,14 +453,12 @@ private:
   MonitorElement *h1_ele_seed_mask_tec;
   MonitorElement *h1_ele_seed_dphi2;
   MonitorElement *h2_ele_seed_dphi2VsEta;
-  MonitorElement *h2_ele_seed_dphi2VsEta_Extended;
   MonitorElement *h2_ele_seed_dphi2VsPt;
   MonitorElement *h1_ele_seed_dphi2pos;
   MonitorElement *h2_ele_seed_dphi2posVsEta;
   MonitorElement *h2_ele_seed_dphi2posVsPt;
   MonitorElement *h1_ele_seed_drz2;
   MonitorElement *h2_ele_seed_drz2VsEta;
-  MonitorElement *h2_ele_seed_drz2VsEta_Extended;
   MonitorElement *h2_ele_seed_drz2VsPt;
   MonitorElement *h1_ele_seed_drz2pos;
   MonitorElement *h2_ele_seed_drz2posVsEta;
@@ -564,18 +567,6 @@ private:
   MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2;
   MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2_barrel;
   MonitorElement *h1_ele_hcalTowerSumEt_dr03_depth2_endcaps;
-  MonitorElement *h1_ele_tkSumPt_dr04;
-  MonitorElement *h1_ele_tkSumPt_dr04_barrel;
-  MonitorElement *h1_ele_tkSumPt_dr04_endcaps;
-  MonitorElement *h1_ele_ecalRecHitSumEt_dr04;
-  MonitorElement *h1_ele_ecalRecHitSumEt_dr04_barrel;
-  MonitorElement *h1_ele_ecalRecHitSumEt_dr04_endcaps;
-  MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1;
-  MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1_barrel;
-  MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1_endcaps;
-  MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
-  MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2_barrel;
-  MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2_endcaps;
 
   MonitorElement *h1_ele_hcalDepth1OverEcalBc;
   MonitorElement *h1_ele_hcalDepth1OverEcalBc_barrel;
@@ -590,12 +581,6 @@ private:
   MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2;
   MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel;
   MonitorElement *h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps;
-  MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1;
-  MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1_barrel;
-  MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth1_endcaps;
-  MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2;
-  MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2_barrel;
-  MonitorElement *h1_ele_hcalTowerSumEtBc_dr04_depth2_endcaps;
 
   // conversions
   MonitorElement *h1_ele_convFlags;
@@ -609,4 +594,3 @@ private:
 };
 
 #endif
-
