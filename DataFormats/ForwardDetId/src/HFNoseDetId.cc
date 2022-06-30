@@ -26,7 +26,7 @@ HFNoseDetId::HFNoseDetId(DetId::Detector det, int zp, int type, int layer, int w
 }
 
 HFNoseDetId::HFNoseDetId(int zp, int type, int layer, int waferU, int waferV, int cellU, int cellV)
-  : HFNoseDetId(Forward, zp, type, layer, waferU, waferV, cellU, cellV) {}
+    : HFNoseDetId(Forward, zp, type, layer, waferU, waferV, cellU, cellV) {}
 
 HFNoseDetId::HFNoseDetId(const DetId& gen) {
   if (!gen.null()) {
