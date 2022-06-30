@@ -201,11 +201,15 @@ pixelLessStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.
                 FilterStripHits    = cms.bool(True),
                 ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter'),
                 ClusterShapeCacheSrc      = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
-            ), 
-            _StripSubClusterShapeSeedFilter.clone()
+            )
         )
     )
 )
+
+from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+(~approxSiStripClusters).toModify(pixelLessStepSeeds.SeedComparitorPSet.comparitors, func = lambda list: list.append(_StripSubClusterShapeSeedFilter.clone()) )
+
 trackingLowPU.toModify(pixelLessStepHitDoublets, produceSeedingHitSets=True, produceIntermediateHitDoublets=False)
 trackingLowPU.toModify(pixelLessStepSeeds,
     seedingHitSets = 'pixelLessStepHitDoublets',

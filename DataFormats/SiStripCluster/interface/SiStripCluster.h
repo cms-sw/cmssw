@@ -2,8 +2,12 @@
 #define DATAFORMATS_SISTRIPCLUSTER_H
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripCluster/interface/SiStripApproximateCluster.h"
 #include <vector>
 #include <numeric>
+#include <iostream>
+
+class SiStripApproximateCluster;
 
 class SiStripCluster {
 public:
@@ -33,6 +37,8 @@ public:
     if (merged)
       firstStrip_ |= mergedValueMask;  // if this is a candidate merged cluster
   }
+
+  SiStripCluster(const SiStripApproximateCluster cluster);
 
   // extend the cluster
   template <typename Iter>
@@ -74,7 +80,7 @@ public:
   /** total charge
    *
    */
-  int charge() const { return std::accumulate(begin(), end(), int(0)); }
+  int charge() const;
 
   /** Test (set) the merged status of the cluster
    *
@@ -89,6 +95,10 @@ private:
   std::vector<uint8_t> amplitudes_;
 
   uint16_t firstStrip_ = 0;
+
+  //these are used if amplitude information is not available (using approximate cluster constructor)
+  float barycenter_ = 0;
+  int charge_ = 0;
 
   // ggiurgiu@fnal.gov, 01/05/12
   // Add cluster errors to be used by rechits from split clusters.
