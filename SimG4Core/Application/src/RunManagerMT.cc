@@ -75,7 +75,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
       m_g4overlap(p.getUntrackedParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_G4CommandsEndRun(p.getParameter<std::vector<std::string> >("G4CommandsEndRun")),
       m_p(p) {
   m_currentRun = nullptr;
   m_UIsession = new CustomUIsession();
@@ -277,22 +276,17 @@ void RunManagerMT::Connect(RunAction* runAction) {
 }
 
 void RunManagerMT::stopG4() {
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::stopG4";
   G4GeometryManager::GetInstance()->OpenGeometry();
   m_stateManager->SetNewState(G4State_Quit);
-  // Geant4 UI commands after the run
-  if (!m_G4CommandsEndRun.empty()) {
-    edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Requested end of run UI commands: ";
-    for (const std::string& command : m_G4CommandsEndRun) {
-      edm::LogVerbatim("SimG4CoreApplication") << "    " << command;
-      G4UImanager::GetUIpointer()->ApplyCommand(command);
-    }
-  }
   if (!m_runTerminated) {
     terminateRun();
   }
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::stopG4 done";
 }
 
 void RunManagerMT::terminateRun() {
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::terminateRun";
   if (nullptr != m_userRunAction) {
     m_userRunAction->EndOfRunAction(m_currentRun);
     delete m_userRunAction;
@@ -302,5 +296,5 @@ void RunManagerMT::terminateRun() {
     m_kernel->RunTermination();
   }
   m_runTerminated = true;
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT:: terminateRun done";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::terminateRun done";
 }
