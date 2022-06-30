@@ -5,6 +5,36 @@ from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDis
 from RecoTauTag.RecoTau.DeepTau_cfi import DeepTau
 import os
 import re
+from copy import deepcopy
+
+WORKING_POINTS_v2p5 = {
+    "e": {
+        "VVVLoose": 0.099,
+        "VVLoose": 0.2384,
+        "VLoose": 0.4136,
+        "Loose": 0.688,
+        "Medium": 0.8704,
+        "Tight": 0.9669,
+        "VTight": 0.9882,
+        "VVTight": 0.9951
+    },
+    "mu": {
+        "VLoose": 0.2949,
+        "Loose": 0.4746,
+        "Medium": 0.7454,
+        "Tight": 0.9172
+    },
+    "jet": {
+        "VVVLoose": 0.4083,
+        "VVLoose": 0.6285,
+        "VLoose": 0.8052,
+        "Loose": 0.9233,
+        "Medium": 0.9632,
+        "Tight": 0.9799,
+        "VTight": 0.9884,
+        "VVTight": 0.9931
+    }
+}
 
 class TauIDEmbedder(object):
     """class to rerun the tau seq and acces trainings from the database"""
@@ -58,6 +88,7 @@ class TauIDEmbedder(object):
             if discr not in TauIDEmbedder.availableDiscriminators:
                 raise RuntimeError('TauIDEmbedder: discriminator "{}" is not supported'.format(discr))
         self.toKeep = toKeep
+        self.working_points_v2p5 = deepcopy(WORKING_POINTS_v2p5)
 
     
     @staticmethod
@@ -670,11 +701,7 @@ class TauIDEmbedder(object):
             if self.debug: print ("Adding DeepTau IDs")
 
             _deepTauName = "deepTau2018v2p5"
-            workingPoints_ = {
-                "e": {},
-                "mu": {},
-                "jet": {},
-            }
+            workingPoints_ = self.working_points_v2p5
 
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_core.pb',
