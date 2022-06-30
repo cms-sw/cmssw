@@ -181,8 +181,11 @@ public:
   int waferFileIndex(unsigned int kk) const;
   std::tuple<int, int, int> waferFileInfo(unsigned int kk) const;
   std::tuple<int, int, int> waferFileInfoFromIndex(int kk) const;
-  inline bool waferFileInfoExist(int kk) const { return (hgpar_->waferInfoMap_.find(kk) != hgpar_->waferInfoMap_.end()); }
-  GlobalPoint waferLocal2Global(HepGeom::Point3D<float>& loc, const DetId& id, bool useWafer, bool reco, bool debug) const;
+  inline bool waferFileInfoExist(int kk) const {
+    return (hgpar_->waferInfoMap_.find(kk) != hgpar_->waferInfoMap_.end());
+  }
+  GlobalPoint waferLocal2Global(
+      HepGeom::Point3D<float>& loc, const DetId& id, bool useWafer, bool reco, bool debug) const;
   inline double waferSepar(bool reco) const {
     return (reco ? hgpar_->sensorSeparation_ : HGCalParameters::k_ScaleToDDD * hgpar_->sensorSeparation_);
   }
