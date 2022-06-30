@@ -1186,7 +1186,7 @@ HGCalParameters::tileInfo HGCalDDDConstants::tileInfo(int zside, int layer, int 
   auto itr = hgpar_->tileInfoMap_.find(indx);
   return ((itr == hgpar_->tileInfoMap_.end()) ? HGCalParameters::tileInfo() : itr->second);
 }
- 
+
 std::pair<int, int> HGCalDDDConstants::tileRings(int layer) const {
   if ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
       (mode_ == HGCalGeometryMode::TrapezoidCassette)) {
@@ -1465,7 +1465,7 @@ int HGCalDDDConstants::waferFileIndex(unsigned int kk) const {
   } else
     return 0;
 }
- 
+
 std::tuple<int, int, int> HGCalDDDConstants::waferFileInfo(unsigned int kk) const {
   if (kk < hgpar_->waferInfoMap_.size()) {
     auto itr = hgpar_->waferInfoMap_.begin();
@@ -1474,7 +1474,7 @@ std::tuple<int, int, int> HGCalDDDConstants::waferFileInfo(unsigned int kk) cons
   } else
     return std::make_tuple(0, 0, 0);
 }
- 
+
 std::tuple<int, int, int> HGCalDDDConstants::waferFileInfoFromIndex(int kk) const {
   auto itr = hgpar_->waferInfoMap_.find(kk);
   if (itr != hgpar_->waferInfoMap_.end()) {
@@ -1483,7 +1483,8 @@ std::tuple<int, int, int> HGCalDDDConstants::waferFileInfoFromIndex(int kk) cons
     return std::make_tuple(0, 0, 0);
 }
 
-GlobalPoint HGCalDDDConstants::waferLocal2Global(HepGeom::Point3D<float>& loc, const DetId& id, bool useWafer, bool reco, bool debug) const {
+GlobalPoint HGCalDDDConstants::waferLocal2Global(
+    HepGeom::Point3D<float>& loc, const DetId& id, bool useWafer, bool reco, bool debug) const {
   HGCSiliconDetId detid(id);
   double x(0), y(0);
   if (useWafer) {
