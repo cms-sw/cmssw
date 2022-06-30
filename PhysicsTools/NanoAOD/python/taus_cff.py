@@ -9,6 +9,10 @@ from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
 
 ##################### User floats producers, selectors ##########################
 
+# Original DeepTau v2p5 in 12_4_X doesn't include WPs in MINIAOD
+# Import thresholds here to define WPs manually from raw scores
+from RecoTauTag.RecoTau.tools.runTauIdMVA import WORKING_POINTS_v2p5
+from copy import deepcopy
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTaus"),
@@ -33,20 +37,42 @@ run2_miniAOD_80XLegacy.toModify(finalTaus,
 def _tauIdWPMask(pattern, choices, doc=""):
     return Var(" + ".join(["%d * tauID('%s')" % (pow(2,i), pattern % c) for (i,c) in enumerate(choices)]), "uint8", 
                doc=doc+": bitmask "+", ".join(["%d = %s" % (pow(2,i),c) for (i,c) in enumerate(choices)]))
+def _tauIdWPMask_from_raw(pattern, wp_thrs, choices, doc=""):
+    assert wp_thrs is not None, "wp_thrs argument in _tauIdWPMask_from_raw() is None, expect it to be dict-like"
+    vs_type = pattern.split('VS')[-1]
+    if vs_type not in ['e', 'mu', 'jet']:
+        raise ValueError("in WP from raw computation, vs_type should be in [e,mu,jet], got %s" % vs_type)
+    
+    var_definition = []
+    for wp_name in choices:
+        if not isinstance(wp_thrs[vs_type][wp_name], float):
+            raise TypeError("Threshold for vs_type=%s and WP=%s is not a float number." % (vs_type, wp_name))
+        wp_definition = "(tauID('%s')>%.4f)" % (pattern % wp_name, wp_thrs[vs_type][wp_name])
+        var_definition.append(wp_definition)
+    var_definition = " + ".join(var_definition)
+
+    return Var(var_definition, "uint8", doc=doc+": "+", ".join(["%d = %s" % (i,wp_name) for (i,wp_name) in enumerate(choices, start=1)]))
+
 def _tauId2WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("Loose","Tight"),doc=doc)
 def _tauId3WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("Loose","Medium","Tight"),doc=doc)
-def _tauId4WPMask(pattern,doc):
-    return _tauIdWPMask(pattern, choices=("VLoose", "Loose", "Medium", "Tight"), doc=doc)
+def _tauId4WPMask(pattern,doc,from_raw=False,wp_thrs=None):
+    if from_raw:
+        return _tauIdWPMask_from_raw(pattern, wp_thrs, choices=("VLoose", "Loose", "Medium", "Tight"), doc=doc)
+    else:
+        return _tauIdWPMask(pattern,choices=("VLoose", "Loose", "Medium", "Tight"),doc=doc)
 def _tauId5WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("VLoose","Loose","Medium","Tight","VTight"),doc=doc)
 def _tauId6WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
 def _tauId7WPMask(pattern,doc):
     return _tauIdWPMask(pattern,choices=("VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
-def _tauId8WPMask(pattern,doc):
-    return _tauIdWPMask(pattern,choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
+def _tauId8WPMask(pattern,doc,from_raw=False,wp_thrs=None):
+    if from_raw:
+        return _tauIdWPMask_from_raw(pattern,wp_thrs,choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
+    else:
+        return _tauIdWPMask(pattern,choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"),doc=doc)
 
 tauTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     src = cms.InputTag("linkedObjects","taus"),
@@ -123,10 +149,19 @@ _deepTauVars2017v2p1 = cms.PSet(
     idDeepTau2017v2p1VSmu = _tauId4WPMask("by%sDeepTau2017v2p1VSmu", doc="byDeepTau2017v2p1VSmu ID working points (deepTau2017v2p1)"),
     idDeepTau2017v2p1VSjet = _tauId8WPMask("by%sDeepTau2017v2p1VSjet", doc="byDeepTau2017v2p1VSjet ID working points (deepTau2017v2p1)"),
 )
+_deepTauVars2018v2p5 = cms.PSet(
+    rawDeepTau2018v2p5VSe = Var("tauID('byDeepTau2018v2p5VSeraw')", float, doc="byDeepTau2018v2p5VSe raw output discriminator (deepTau2018v2p5)", precision=10),
+    rawDeepTau2018v2p5VSmu = Var("tauID('byDeepTau2018v2p5VSmuraw')", float, doc="byDeepTau2018v2p5VSmu raw output discriminator (deepTau2018v2p5)", precision=10),
+    rawDeepTau2018v2p5VSjet = Var("tauID('byDeepTau2018v2p5VSjetraw')", float, doc="byDeepTau2018v2p5VSjet raw output discriminator (deepTau2018v2p5)", precision=10),
+    idDeepTau2018v2p5VSe = _tauId8WPMask("by%sDeepTau2018v2p5VSe", doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)", from_raw=True, wp_thrs=deepcopy(WORKING_POINTS_v2p5)),
+    idDeepTau2018v2p5VSmu = _tauId4WPMask("by%sDeepTau2018v2p5VSmu", doc="byDeepTau2018v2p5VSmu ID working points (deepTau2018v2p5)", from_raw=True, wp_thrs=deepcopy(WORKING_POINTS_v2p5)),
+    idDeepTau2018v2p5VSjet = _tauId8WPMask("by%sDeepTau2018v2p5VSjet", doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)", from_raw=True, wp_thrs=deepcopy(WORKING_POINTS_v2p5)),
+)
 
 _variablesMiniV2 = cms.PSet(
     _tauVarsBase,
-    _deepTauVars2017v2p1
+    _deepTauVars2017v2p1,
+    _deepTauVars2018v2p5
 )
 _variablesMiniV1 = cms.PSet(
     _variablesMiniV2,
