@@ -35,8 +35,8 @@ run2_miniAOD_80XLegacy.toModify(finalTaus,
 
 ##################### Tables for final output and docs ##########################
 def _tauIdWPMask(pattern, choices, doc=""):
-    return Var(" + ".join(["%d * tauID('%s')" % (pow(2,i), pattern % c) for (i,c) in enumerate(choices)]), "uint8", 
-               doc=doc+": bitmask "+", ".join(["%d = %s" % (pow(2,i),c) for (i,c) in enumerate(choices)]))
+    return Var(" + ".join(["tauID('%s')" % (pattern % c) for c in choices]), "uint8", 
+               doc=doc+": "+", ".join(["%d = %s" % (i,c) for (i,c) in enumerate(choices, start=1)]))
 def _tauIdWPMask_from_raw(pattern, wp_thrs, choices, doc=""):
     assert wp_thrs is not None, "wp_thrs argument in _tauIdWPMask_from_raw() is None, expect it to be dict-like"
     vs_type = pattern.split('VS')[-1]
