@@ -26,9 +26,9 @@ vector<DetLayer*> BTLDetLayerGeometryBuilder::buildLayers(const MTDGeometry& geo
 
   vector<const DetRod*> btlDetTrays;
 
-  for (unsigned tray = BTLDetId::MIN_ROD; tray <= BTLDetId::HALF_ROD; ++tray) {
+  for (unsigned tray = 1; tray <= BTLDetId::HALF_ROD; ++tray) {
     vector<const GeomDet*> geomDets;
-    for (unsigned module = 1; module <= BTLDetId::kModulesPerROD; ++module) {
+    for (unsigned module = 1; module <= BTLDetId::kModulesPerRODBarPhiFlat; ++module) {
       for (unsigned side = 0; side <= 1; ++side) {
         const GeomDet* geomDet = geo.idToDet(BTLDetId(side, tray, module, 0, 1));
         if (geomDet != nullptr) {
