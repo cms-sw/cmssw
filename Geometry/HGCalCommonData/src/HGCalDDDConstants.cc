@@ -124,8 +124,6 @@ HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp, const std::strin
   }
 }
 
-HGCalDDDConstants::~HGCalDDDConstants() {}
-
 std::pair<int, int> HGCalDDDConstants::assignCell(float x, float y, int lay, int subSec, bool reco) const {
   const auto& index = getIndex(lay, reco);
   if (index.first < 0)
@@ -1176,6 +1174,40 @@ int HGCalDDDConstants::tileCount(int layer, int ring) const {
   return (3 * kount);
 }
 
+bool HGCalDDDConstants::tileExist(int zside, int layer, int ring, int phi) const {
+  int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
+  auto itr = hgpar_->tileInfoMap_.find(indx);
+  bool ok = (itr == hgpar_->tileInfoMap_.end()) ? false : HGCalTileIndex::tileExist(itr->second.hex, zside, phi);
+  return ok;
+}
+
+HGCalParameters::tileInfo HGCalDDDConstants::tileInfo(int zside, int layer, int ring) const {
+  int indx = HGCalTileIndex::tileIndex(layer, ring, 0);
+  auto itr = hgpar_->tileInfoMap_.find(indx);
+  return ((itr == hgpar_->tileInfoMap_.end()) ? HGCalParameters::tileInfo() : itr->second);
+}
+ 
+std::pair<int, int> HGCalDDDConstants::tileRings(int layer) const {
+  if ((mode_ == HGCalGeometryMode::TrapezoidFile) || (mode_ == HGCalGeometryMode::TrapezoidModule) ||
+      (mode_ == HGCalGeometryMode::TrapezoidCassette)) {
+    int ll = layer - hgpar_->firstLayer_;
+    if (ll >= 0 && ll < static_cast<int>(hgpar_->tileRingRange_.size()))
+      return hgpar_->tileRingRange_[ll];
+  }
+  return std::make_pair(0, 0);
+}
+
+std::pair<int, int> HGCalDDDConstants::tileType(int layer, int ring, int phi) const {
+  int indx = HGCalTileIndex::tileIndex(layer, ring, phi);
+  int type(-1), sipm(-1);
+  auto itr = hgpar_->tileInfoMap_.find(indx);
+  if (itr != hgpar_->tileInfoMap_.end()) {
+    type = 1 + (itr->second).type;
+    sipm = ((itr->second).sipm == HGCalTypes::SiPMLarge) ? 0 : 1;
+  }
+  return std::make_pair(type, sipm);
+}
+
 int HGCalDDDConstants::waferFromCopy(int copy) const {
   const int ncopies = hgpar_->waferCopy_.size();
   int wafer(ncopies);
@@ -1380,6 +1412,12 @@ bool HGCalDDDConstants::waferFullInLayer(int wafer, int lay, bool reco) const {
   return waferInLayerTest(wafer, indx.first, false);
 }
 
+HGCalParameters::waferInfo HGCalDDDConstants::waferInfo(int lay, int waferU, int waferV) const {
+  int indx = HGCalWaferIndex::waferIndex(lay, waferU, waferV);
+  auto itr = hgpar_->waferInfoMap_.find(indx);
+  return ((itr == hgpar_->waferInfoMap_.end()) ? HGCalParameters::waferInfo() : itr->second);
+}
+
 std::pair<double, double> HGCalDDDConstants::waferParameters(bool reco) const {
   if (reco)
     return std::make_pair(rmax_, hexside_);
@@ -1417,6 +1455,74 @@ std::pair<double, double> HGCalDDDConstants::waferPosition(
                                   << ":" << xy0.second;
 #endif
   return xy0;
+}
+
+int HGCalDDDConstants::waferFileIndex(unsigned int kk) const {
+  if (kk < hgpar_->waferInfoMap_.size()) {
+    auto itr = hgpar_->waferInfoMap_.begin();
+    std::advance(itr, kk);
+    return itr->first;
+  } else
+    return 0;
+}
+ 
+std::tuple<int, int, int> HGCalDDDConstants::waferFileInfo(unsigned int kk) const {
+  if (kk < hgpar_->waferInfoMap_.size()) {
+    auto itr = hgpar_->waferInfoMap_.begin();
+    std::advance(itr, kk);
+    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
+  } else
+    return std::make_tuple(0, 0, 0);
+}
+ 
+std::tuple<int, int, int> HGCalDDDConstants::waferFileInfoFromIndex(int kk) const {
+  auto itr = hgpar_->waferInfoMap_.find(kk);
+  if (itr != hgpar_->waferInfoMap_.end()) {
+    return std::make_tuple(itr->second.type, itr->second.part, itr->second.orient);
+  } else
+    return std::make_tuple(0, 0, 0);
+}
+
+GlobalPoint HGCalDDDConstants::waferLocal2Global(HepGeom::Point3D<float>& loc, const DetId& id, bool useWafer, bool reco, bool debug) const {
+  HGCSiliconDetId detid(id);
+  double x(0), y(0);
+  if (useWafer) {
+    auto xyw = waferPositionNoRot(detid.layer(), detid.waferU(), detid.waferV(), reco, debug);
+    x = xyw.first;
+    y = xyw.second;
+  }
+  auto xy = getXY(detid.layer(), (x + loc.x()), (y + loc.y()), false);
+  double zz = (detid.zside() < 0) ? -(loc.z() + waferZ(detid.layer(), reco)) : (loc.z() + waferZ(detid.layer(), reco));
+  double xx = (detid.zside() < 0) ? -xy.first : xy.first;
+  return GlobalPoint(xx, xy.second, zz);
+}
+
+int HGCalDDDConstants::wafers() const {
+  int wafer(0);
+  if (!tileTrapezoid()) {
+    for (unsigned int i = 0; i < layers(true); ++i) {
+      int lay = hgpar_->depth_[i];
+      wafer += modules(lay, true);
+    }
+  } else {
+    wafer = static_cast<int>(hgpar_->moduleLayR_.size());
+  }
+  return wafer;
+}
+
+int HGCalDDDConstants::wafers(int layer, int type) const {
+  int wafer(0);
+  if (!tileTrapezoid()) {
+    auto itr = waferLayer_.find(layer);
+    if (itr != waferLayer_.end()) {
+      unsigned ity = (type > 0 && type <= 2) ? type : 0;
+      wafer = (itr->second)[ity];
+    }
+  } else {
+    const auto& index = getIndex(layer, true);
+    wafer = 1 + hgpar_->lastModule_[index.first] - hgpar_->firstModule_[index.first];
+  }
+  return wafer;
 }
 
 int HGCalDDDConstants::waferType(DetId const& id, bool fromFile) const {
@@ -1570,34 +1676,6 @@ double HGCalDDDConstants::waferZ(int lay, bool reco) const {
     return 0;
   else
     return (reco ? hgpar_->zLayerHex_[index.first] : HGCalParameters::k_ScaleToDDD * hgpar_->zLayerHex_[index.first]);
-}
-
-int HGCalDDDConstants::wafers() const {
-  int wafer(0);
-  if (!tileTrapezoid()) {
-    for (unsigned int i = 0; i < layers(true); ++i) {
-      int lay = hgpar_->depth_[i];
-      wafer += modules(lay, true);
-    }
-  } else {
-    wafer = static_cast<int>(hgpar_->moduleLayR_.size());
-  }
-  return wafer;
-}
-
-int HGCalDDDConstants::wafers(int layer, int type) const {
-  int wafer(0);
-  if (!tileTrapezoid()) {
-    auto itr = waferLayer_.find(layer);
-    if (itr != waferLayer_.end()) {
-      unsigned ity = (type > 0 && type <= 2) ? type : 0;
-      wafer = (itr->second)[ity];
-    }
-  } else {
-    const auto& index = getIndex(layer, true);
-    wafer = 1 + hgpar_->lastModule_[index.first] - hgpar_->firstModule_[index.first];
-  }
-  return wafer;
 }
 
 int HGCalDDDConstants::cellHex(
