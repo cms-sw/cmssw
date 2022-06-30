@@ -34,6 +34,7 @@ class Eras (object):
                  'Run2_2018_highBetaStar',
                  'Run2_2018_noMkFit',
                  'Run3',
+                 'Run3_ckfPixelLessStep',
                  'Run3_noMkFit',
                  'Run3_pp_on_PbPb',
                  'Run3_dd4hep',
