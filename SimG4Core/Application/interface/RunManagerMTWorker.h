@@ -58,8 +58,6 @@ public:
   void abortEvent();
   void abortRun(bool softAbort = false);
 
-  inline G4SimEvent* simEvent() { return &m_simEvent; }
-
   void Connect(RunAction*);
   void Connect(EventAction*);
   void Connect(TrackingAction*);
@@ -72,6 +70,9 @@ public:
 
   void initializeG4(RunManagerMT* runManagerMaster, const edm::EventSetup& es);
 
+  inline G4SimEvent* simEvent() { return &m_simEvent; }
+  inline int getThreadIndex() const { return m_thread_index; }
+
 private:
   void initializeTLS();
   void initializeUserActions();
@@ -82,8 +83,6 @@ private:
   void resetGenParticleId(const edm::Event& inpevt);
 
   void DumpMagneticField(const G4Field*, const std::string&) const;
-
-  inline int getThreadIndex() const { return m_thread_index; }
 
   Generator m_generator;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
@@ -97,6 +96,7 @@ private:
   bool m_hasWatchers{false};
   bool m_LHCTransport{false};
   bool m_dumpMF{false};
+  bool m_endOfRun{false};
 
   const int m_thread_index{-1};
 
@@ -107,6 +107,7 @@ private:
   edm::ParameterSet m_pTrackingAction;
   edm::ParameterSet m_pSteppingAction;
   edm::ParameterSet m_pCustomUIsession;
+  std::vector<std::string> m_G4CommandsEndRun;
   edm::ParameterSet m_p;
 
   struct TLSData;
