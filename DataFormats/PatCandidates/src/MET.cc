@@ -205,19 +205,18 @@ void MET::initCorMap() {
   corMap_[MET::RawDeepResolutionTune] = tmpDeepResolution;
 }
 
-const MET::PackedMETUncertainty MET::findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const {
+MET::UnpackedMETUncertainty MET::findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) const {
   //find corrections shifts =============================
   std::map<MET::METCorrectionLevel, std::vector<MET::METCorrectionType> >::const_iterator itCor_ = corMap_.find(cor);
   if (itCor_ == corMap_.end())
     throw cms::Exception("Unsupported", "Specified MET correction scheme does not exist");
 
   bool isSmeared = false;
-  MET::PackedMETUncertainty totShift;
+  MET::UnpackedMETUncertainty totShift;
   unsigned int scor = itCor_->second.size();
   for (unsigned int i = 0; i < scor; i++) {
-    totShift.add(corrections_[itCor_->second[i]].dpx(),
-                 corrections_[itCor_->second[i]].dpy(),
-                 corrections_[itCor_->second[i]].dsumEt());
+    auto up = corrections_[itCor_->second[i]].unpack();
+    totShift.add(up.dpx(), up.dpy(), up.dsumEt());
 
     if (itCor_->first >= MET::Type1Smear)
       isSmeared = true;
@@ -233,7 +232,8 @@ const MET::PackedMETUncertainty MET::findMETTotalShift(MET::METCorrectionLevel c
   if (isSmeared && shift <= MET::JetResDown)
     shift = (MET::METUncertainty)(MET::METUncertaintySize + shift + 1);
 
-  totShift.add(uncertainties_[shift].dpx(), uncertainties_[shift].dpy(), uncertainties_[shift].dsumEt());
+  auto up = uncertainties_[shift].unpack();
+  totShift.add(up.dpx(), up.dpy(), up.dsumEt());
 
   return totShift;
 }
@@ -248,11 +248,11 @@ MET::Vector2 MET::shiftedP2(MET::METUncertainty shift, MET::METCorrectionLevel c
     if (cor != MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP2_74x(shift, cor);
     } else {
-      Vector2 ret{caloPackedMet_.dpx(), caloPackedMet_.dpy()};
+      Vector2 ret{caloPackedMet_.unpackDpx(), caloPackedMet_.unpackDpy()};
       vo = ret;
     }
   } else {
-    const MET::PackedMETUncertainty &v = findMETTotalShift(cor, shift);
+    auto v = findMETTotalShift(cor, shift);
     Vector2 ret{(px() + v.dpx()), (py() + v.dpy())};
     //return ret;
     vo = ret;
@@ -269,11 +269,11 @@ MET::Vector MET::shiftedP3(MET::METUncertainty shift, MET::METCorrectionLevel co
     if (cor != MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP3_74x(shift, cor);
     } else {
-      Vector tmp(caloPackedMet_.dpx(), caloPackedMet_.dpy(), 0);
+      Vector tmp(caloPackedMet_.unpackDpx(), caloPackedMet_.unpackDpy(), 0);
       vo = tmp;
     }
   } else {
-    const MET::PackedMETUncertainty &v = findMETTotalShift(cor, shift);
+    const MET::UnpackedMETUncertainty &v = findMETTotalShift(cor, shift);
     //return Vector(px() + v.dpx(), py() + v.dpy(), 0);
     Vector tmp(px() + v.dpx(), py() + v.dpy(), 0);
     vo = tmp;
@@ -290,12 +290,12 @@ MET::LorentzVector MET::shiftedP4(METUncertainty shift, MET::METCorrectionLevel 
     if (cor != MET::METCorrectionLevel::RawCalo) {
       vo = shiftedP4_74x(shift, cor);
     } else {
-      double x = caloPackedMet_.dpx(), y = caloPackedMet_.dpy();
+      double x = caloPackedMet_.unpackDpx(), y = caloPackedMet_.unpackDpy();
       LorentzVector tmp(x, y, 0, std::hypot(x, y));
       vo = tmp;
     }
   } else {
-    const MET::PackedMETUncertainty &v = findMETTotalShift(cor, shift);
+    const auto v = findMETTotalShift(cor, shift);
     double x = px() + v.dpx(), y = py() + v.dpy();
     //return LorentzVector(x, y, 0, std::hypot(x,y));
     LorentzVector tmp(x, y, 0, std::hypot(x, y));
@@ -313,10 +313,10 @@ double MET::shiftedSumEt(MET::METUncertainty shift, MET::METCorrectionLevel cor)
     if (cor != MET::METCorrectionLevel::RawCalo) {
       sumEto = shiftedSumEt_74x(shift, cor);
     } else {
-      sumEto = caloPackedMet_.dsumEt();
+      sumEto = caloPackedMet_.unpackDSumEt();
     }
   } else {
-    const MET::PackedMETUncertainty &v = findMETTotalShift(cor, shift);
+    const auto v = findMETTotalShift(cor, shift);
     //return sumEt() + v.dsumEt();
     sumEto = sumEt() + v.dsumEt();
   }
@@ -343,8 +343,9 @@ void MET::setUncShift(double px, double py, double sumEt, METUncertainty shift, 
     // which is performed independently
     shift = (MET::METUncertainty)(METUncertainty::METUncertaintySize + shift + 1);
     const PackedMETUncertainty &ref = corrections_[METCorrectionType::Smear];
-    uncertainties_[shift].set(
-        px - ref.dpx() - this->px(), py - ref.dpy() - this->py(), sumEt - ref.dsumEt() - this->sumEt());
+    uncertainties_[shift].set(px - ref.unpackDpx() - this->px(),
+                              py - ref.unpackDpy() - this->py(),
+                              sumEt - ref.unpackDSumEt() - this->sumEt());
   } else
     uncertainties_[shift].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
 }
@@ -379,9 +380,11 @@ MET::Vector2 MET::shiftedP2_74x(MET::METUncertainty shift, MET::METCorrectionLev
       throw cms::Exception(
           "Unsupported",
           "MET uncertainties not available for the specified correction type (only central value available)\n");
-    return Vector2{(px() + v.front().dpx()), (py() + v.front().dpy())};
+    auto const &p = v.front();
+    return Vector2{(px() + p.unpackDpx()), (py() + p.unpackDpy())};
   }
-  Vector2 ret{(px() + v[shift].dpx()), (py() + v[shift].dpy())};
+  auto const &p = v[shift];
+  Vector2 ret{(px() + p.unpackDpx()), (py() + p.unpackDpy())};
   return ret;
 }
 
@@ -396,9 +399,11 @@ MET::Vector MET::shiftedP3_74x(MET::METUncertainty shift, MET::METCorrectionLeve
       throw cms::Exception(
           "Unsupported",
           "MET uncertainties not available for the specified correction type (only central value available)\n");
-    return Vector(px() + v.front().dpx(), py() + v.front().dpy(), 0);
+    auto const &p = v.front();
+    return Vector(px() + p.unpackDpx(), py() + p.unpackDpy(), 0);
   }
-  return Vector(px() + v[shift].dpx(), py() + v[shift].dpy(), 0);
+  auto const &p = v[shift];
+  return Vector(px() + p.unpackDpx(), py() + p.unpackDpy(), 0);
 }
 
 MET::LorentzVector MET::shiftedP4_74x(METUncertainty shift, MET::METCorrectionLevel level) const {
@@ -412,10 +417,12 @@ MET::LorentzVector MET::shiftedP4_74x(METUncertainty shift, MET::METCorrectionLe
       throw cms::Exception(
           "Unsupported",
           "MET uncertainties not available for the specified correction type (only central value available)\n");
-    double x = px() + v.front().dpx(), y = py() + v.front().dpy();
+    auto const &p = v.front();
+    double x = px() + p.unpackDpx(), y = py() + p.unpackDpy();
     return LorentzVector(x, y, 0, std::hypot(x, y));
   }
-  double x = px() + v[shift].dpx(), y = py() + v[shift].dpy();
+  auto const &p = v[shift];
+  double x = px() + p.unpackDpx(), y = py() + p.unpackDpy();
   return LorentzVector(x, y, 0, std::hypot(x, y));
 }
 
@@ -430,21 +437,28 @@ double MET::shiftedSumEt_74x(MET::METUncertainty shift, MET::METCorrectionLevel 
       throw cms::Exception(
           "Unsupported",
           "MET uncertainties not available for the specified correction type (only central value available)\n");
-    return sumEt() + v.front().dsumEt();
+    return sumEt() + v.front().unpackDSumEt();
   }
-  return sumEt() + v[shift].dsumEt();
+  return sumEt() + v[shift].unpackDSumEt();
 }
 
 #include "DataFormats/Math/interface/libminifloat.h"
 
-void MET::PackedMETUncertainty::pack() {
-  packedDpx_ = MiniFloatConverter::float32to16(dpx_);
-  packedDpy_ = MiniFloatConverter::float32to16(dpy_);
-  packedDSumEt_ = MiniFloatConverter::float32to16(dsumEt_);
+MET::UnpackedMETUncertainty MET::PackedMETUncertainty::unpack() const {
+  auto dpx = MiniFloatConverter::float16to32(packedDpx_);
+  auto dpy = MiniFloatConverter::float16to32(packedDpy_);
+  auto dsumEt = MiniFloatConverter::float16to32(packedDSumEt_);
+  return UnpackedMETUncertainty(dpx, dpy, dsumEt);
 }
-void MET::PackedMETUncertainty::unpack() const {
-  unpacked_ = true;
-  dpx_ = MiniFloatConverter::float16to32(packedDpx_);
-  dpy_ = MiniFloatConverter::float16to32(packedDpy_);
-  dsumEt_ = MiniFloatConverter::float16to32(packedDSumEt_);
+
+float MET::PackedMETUncertainty::unpackDpx() const { return MiniFloatConverter::float16to32(packedDpx_); }
+
+float MET::PackedMETUncertainty::unpackDpy() const { return MiniFloatConverter::float16to32(packedDpy_); }
+
+float MET::PackedMETUncertainty::unpackDSumEt() const { return MiniFloatConverter::float16to32(packedDSumEt_); }
+
+void MET::PackedMETUncertainty::pack(float dpx, float dpy, float dsumEt) {
+  packedDpx_ = MiniFloatConverter::float32to16(dpx);
+  packedDpy_ = MiniFloatConverter::float32to16(dpy);
+  packedDSumEt_ = MiniFloatConverter::float32to16(dsumEt);
 }
