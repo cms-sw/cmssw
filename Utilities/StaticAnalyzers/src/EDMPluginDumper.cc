@@ -21,7 +21,7 @@ namespace clangcms {
           llvm::SmallString<100> buf;
           llvm::raw_svector_ostream os(buf);
 #if LLVM_VERSION_MAJOR >= 13
-          I->getTemplateArgs().get(J).print(mgr.getASTContext().getPrintingPolicy(), os, true);
+          I->getTemplateArgs().get(J).print(mgr.getASTContext().getPrintingPolicy(), os, false);
 #else
           I->getTemplateArgs().get(J).print(mgr.getASTContext().getPrintingPolicy(), os);
 #endif
