@@ -72,7 +72,7 @@ void RPixRoadFinder::findPattern() {
 
       // create new collection for planes 0 and 5 of pot 45-220-fr
 
-      if (isBadPot_ == true && myid.arm() == 0 && myid.station() == 2 &&
+      if (isBadPot_ == true && myid.arm() == 0 && myid.station() == 2 && localV.x() > 0 &&
           (myid.plane() == 0 || myid.plane() == 5)) {  // 45-220-far
 
         temp_all_hits_badPot.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
