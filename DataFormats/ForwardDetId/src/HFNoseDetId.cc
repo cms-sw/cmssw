@@ -9,8 +9,8 @@ HFNoseDetId::HFNoseDetId() : DetId() {}
 
 HFNoseDetId::HFNoseDetId(uint32_t rawid) : DetId(rawid) {}
 
-HFNoseDetId::HFNoseDetId(int zp, int type, int layer, int waferU, int waferV, int cellU, int cellV)
-    : DetId(Forward, HFNose) {
+HFNoseDetId::HFNoseDetId(DetId::Detector det, int zp, int type, int layer, int waferU, int waferV, int cellU, int cellV)
+    : DetId(det, HFNose) {
   int waferUabs(std::abs(waferU)), waferVabs(std::abs(waferV));
   int waferUsign = (waferU >= 0) ? 0 : 1;
   int waferVsign = (waferV >= 0) ? 0 : 1;
@@ -24,6 +24,9 @@ HFNoseDetId::HFNoseDetId(int zp, int type, int layer, int waferU, int waferV, in
           ((lay & kHFNoseLayerMask) << kHFNoseLayerOffset) | ((zside & kHFNoseZsideMask) << kHFNoseZsideOffset) |
           ((type & kHFNoseTypeMask) << kHFNoseTypeOffset));
 }
+
+HFNoseDetId::HFNoseDetId(int zp, int type, int layer, int waferU, int waferV, int cellU, int cellV)
+    : HFNoseDetId(Forward, zp, type, layer, waferU, waferV, cellU, cellV) {}
 
 HFNoseDetId::HFNoseDetId(const DetId& gen) {
   if (!gen.null()) {
