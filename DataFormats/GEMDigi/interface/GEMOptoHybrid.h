@@ -114,7 +114,7 @@ public:
   uint16_t vfatWordCntT() const {
     if (ver_ == 0)
       return GEBchamberTrailer{ct_}.VfWdCntT;
-    return GEBchamberTrailer{ch_}.VfWdCntTv302;
+    return GEBchamberTrailer{ct_}.VfWdCntTv302;
   }
 
   bool bxmVvV() const { return GEBchamberHeader{ch_}.BxmVvV; }
