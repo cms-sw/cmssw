@@ -28,13 +28,14 @@ public:
   static constexpr uint32_t HALF_ROD = 36;
   static constexpr uint32_t kModulesPerRODBarPhiFlat = 48;
   static constexpr uint32_t kModulePerTypeBarPhiFlat = 48 / 3;
+  static constexpr uint32_t kCrystalsPerModule = 16;
 
   // Number of crystals in BTL according to TDR design, valid also for barphiflat scenario:
   // 16 crystals x 24 modules x 6 readout units x 36 rods/side x 2 sides
   //
-  static constexpr uint32_t kCrystalsBTL = 16 * 24 * 6 * 36 * 2;
+  static constexpr uint32_t kCrystalsBTL = kCrystalsPerModule * 24 * 6 * HALF_ROD * 2;
 
-  enum class CrysLayout { tile = 1, bar = 2, barzflat = 3, barphiflat = 4 };
+  enum class CrysLayout { tile = 1, bar = 2, barzflat = 3, barphiflat = 4, tdr = 5 };
 
   // ---------- Constructors, enumerated types ----------
 
@@ -69,12 +70,12 @@ public:
   inline int crystal() const { return ((id_ >> kBTLCrystalOffset) & kBTLCrystalMask) + 1; }
 
   /** return the row in GeomDet language **/
-  inline int row(unsigned nrows = 16) const {
+  inline int row(unsigned nrows = kCrystalsPerModule) const {
     return (crystal() - 1) % nrows;  // anything else for now
   }
 
   /** return the column in GeomDetLanguage **/
-  inline int column(unsigned nrows = 16) const { return (crystal() - 1) / nrows; }
+  inline int column(unsigned nrows = kCrystalsPerModule) const { return (crystal() - 1) / nrows; }
 
   /** create a Geographical DetId for Tracking **/
   BTLDetId geographicalId(CrysLayout lay) const;
