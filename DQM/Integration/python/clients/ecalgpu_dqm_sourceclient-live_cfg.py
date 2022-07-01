@@ -60,7 +60,7 @@ process.preScaler.prescaleFactor = 1
 if not options.inputFiles:
     process.source.streamLabel = cms.untracked.string("streamDQMGPUvsCPU")
 
-process.dqmEnv.subSystemFolder = 'EcalGPU'
+process.dqmEnv.subSystemFolder = 'Ecal'
 process.dqmSaver.tag = 'EcalGPU'
 process.dqmSaver.runNumber = options.runNumber
 process.dqmSaverPB.tag = 'EcalGPU'
