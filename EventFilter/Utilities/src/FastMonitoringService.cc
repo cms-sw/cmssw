@@ -792,24 +792,25 @@ namespace evf {
         snapCounter_++;
       }
 
-      std::stringstream accum;
-      std::function<void(std::vector<unsigned int>)> f = [&](std::vector<unsigned int> p) {
-        for (unsigned int i = 0; i < nStreams_; i++) {
-          if (i == 0)
-            accum << "[" << p[i] << ",";
-          else if (i <= nStreams_ - 1)
-            accum << p[i] << ",";
-          else
-            accum << p[i] << "]";
-        }
-      };
+      {
+        edm::LogInfo msg("FastMonitoringService");
+        auto f = [&](std::vector<unsigned int> const& p) {
+          for (unsigned int i = 0; i < nStreams_; i++) {
+            if (i == 0)
+              msg << "[" << p[i] << ",";
+            else if (i <= nStreams_ - 1)
+              msg << p[i] << ",";
+            else
+              msg << p[i] << "]";
+          }
+        };
 
-      accum << "Current states: Ms=" << fmt_->m_data.fastMacrostateJ_.value() << " ms=";
-      f(lastEnc[0]);
-      accum << " us=";
-      f(lastEnc[1]);
-      accum << " is=" << inputStateNames[inputState_] << " iss=" << inputStateNames[inputSupervisorState_];
-      edm::LogInfo("FastMonitoringService") << accum.str();
+        msg << "Current states: Ms=" << fmt_->m_data.fastMacrostateJ_.value() << " ms=";
+        f(lastEnc[0]);
+        msg << " us=";
+        f(lastEnc[1]);
+        msg << " is=" << inputStateNames[inputState_] << " iss=" << inputStateNames[inputSupervisorState_];
+      }
 
       ::sleep(sleepTime_);
     }
