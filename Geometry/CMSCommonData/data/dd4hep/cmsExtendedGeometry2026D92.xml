@@ -53,7 +53,7 @@
     <Include ref='Geometry/HcalCommonData/data/hcal/v2/hcalalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalbarrelalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalcablealgo/v2/hcalcablealgo.xml'/>
-    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo.xml'/>
+    <Include ref='Geometry/HcalCommonData/data/hcalouteralgo/v1/hcalouteralgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalforwardalgo.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalSimNumbering/NoHE/hcalSimNumbering.xml'/>
     <Include ref='Geometry/HcalCommonData/data/hcalRecNumbering/NoHE/hcalRecNumbering.xml'/>
