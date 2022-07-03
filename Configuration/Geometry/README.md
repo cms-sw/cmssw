@@ -75,6 +75,7 @@ Calorimeters:
 * C16: HGCal (v15 version of HGCal geometry created using real full and partial silicon modules using the constants of the flat file) + Phase2 HCAL and EB (used in 2026D83)
 * C17: HGCal (v16 version of HGCal geometry created with new longitudinal structure having 47 layers and new definition of partial wafers iusing the constants of the flat file) + Phase2 HCAL and EB (used in 2026D86, 2025D88)
 * C18: HGCal (v17 version of HGCal geometry created for a new flat file for silicon having 47 layers, ideas of cassettes, new orientation indices for full and partial wafers) + Phase2 HCAL and EB (used in 2026D92)
+* C19: HGCal (v17 version of HGCal geometry as in C18 but without internal cells in the Geant4 geometry definition) + Phase2 HCAL and EB (used in 2026D93)
 
 Muon system:
 * M4: Phase2 muon system for TDR w/ GE2/1, ME0, RE3/1, RE4/1 (incl. granularity in ME0, staggered GE2/1), 96 iRPC strips, no overlaps, MB4Shields
@@ -125,3 +126,4 @@ Several detector combinations have been generated:
 * D88 = T24+C17+M10+I15+O9+F6
 * D91 = T30+C17+M10+I15+O9+F6
 * D92 = T24+C18+M10+I15+O9+F6
+* D93 = T24+C19+M10+I15+O9+F6
