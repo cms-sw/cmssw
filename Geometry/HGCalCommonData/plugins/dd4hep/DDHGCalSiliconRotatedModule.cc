@@ -69,7 +69,7 @@ struct HGCalSiliconRotatedModule {
     edm::LogVerbatim("HGCalGeom") << "zStart " << cms::convert2mm(zMinBlock_) << " wafer width "
                                   << cms::convert2mm(waferSize_) << " separations " << cms::convert2mm(waferSepar_)
                                   << " sectors " << sectors_ << ":" << convertRadToDeg(alpha_) << ":" << cosAlpha_
-                                  << " rotation matrix " << rotstr_ << cassettes_ << " cassettes";
+                                  << " rotation matrix " << rotstr_ << " with " << cassettes_ << " cassettes";
 #endif
     waferFull_ = args.value<std::vector<std::string>>("WaferNamesFull");
     waferPart_ = args.value<std::vector<std::string>>("WaferNamesPartial");

@@ -4,7 +4,7 @@ from Configuration.Eras.Era_Phase2C9_cff import Phase2C9
 process = cms.Process('SIM',Phase2C9)
 
 process = cms.Process("GEODUMP")
-process.load("Configuration.Geometry.GeometryExtended2026D49_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D92_cff")
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if 'MessageLogger' in process.__dict__:
@@ -22,6 +22,6 @@ process.add_(cms.ESProducer("TGeoMgrFromDdd",
                             ))
 
 process.dump = cms.EDAnalyzer("DumpSimGeometry",
-                              outputFileName = cms.untracked.string('CMS2026D46DDD.root'))
+                              outputFileName = cms.untracked.string('CMS2026D92DDD.root'))
 
 process.p = cms.Path(process.dump)
