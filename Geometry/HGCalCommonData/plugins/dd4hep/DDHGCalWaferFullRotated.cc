@@ -67,7 +67,7 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   }
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferFullRotated: Cells/Wafer " << nCells << " Cell Type " << cellType
-                                << " # of cells " << cellNames.size();
+                                << " NameSpace " << ns.name() << " # of cells " << cellNames.size();
   std::ostringstream st2;
   for (unsigned int i = 0; i < cellOffset.size(); ++i)
     st2 << " [" << i << "] " << cellOffset[i];
