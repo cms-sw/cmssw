@@ -419,7 +419,8 @@ struct HGCalMixRotatedLayer {
         glog.placeVolume(glog1, copy, tran);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Position " << glog1.name() << " number " << copy
-                                      << " in " << glog.name() << " at (0, 0, " << cms::convert2mm(zpos)
+                                      << " in " << glog.name() << " at (" << cms::convert2mm(cshift.first) << ", "
+                                      << cms::convert2mm(cshift.second) << ", " << cms::convert2mm(zpos)
                                       << ") with no rotation";
 #endif
       }
