@@ -105,7 +105,6 @@ void DDHGCalWaferP::initialize(const DDNumericArguments& nArgs,
 }
 
 void DDHGCalWaferP::execute(DDCompactView& cpv) {
-
   static constexpr double tol = 0.00001;
   static const double sqrt3 = std::sqrt(3.0);
   double r = 0.5 * waferSize_;

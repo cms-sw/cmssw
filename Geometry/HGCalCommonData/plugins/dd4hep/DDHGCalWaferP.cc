@@ -139,9 +139,10 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
         edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferP: " << solid.name() << " extruded polygon made of "
                                       << materials[i] << " z|x|y|s (0) " << cms::convert2mm(zw[0]) << ":"
                                       << cms::convert2mm(zx[0]) << ":" << cms::convert2mm(zy[0]) << ":" << scale[0]
-                                      << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1]) 
-				      << ":" << cms::convert2mm(zy[1]) << ":" << scale[1] << " partial " << partialTypes[k]
-                                      << " orientation " << orientations[k] << " and " << xM.size() << " edges";
+                                      << " z|x|y|s (1) " << cms::convert2mm(zw[1]) << ":" << cms::convert2mm(zx[1])
+                                      << ":" << cms::convert2mm(zy[1]) << ":" << scale[1] << " partial "
+                                      << partialTypes[k] << " orientation " << orientations[k] << " and " << xM.size()
+                                      << " edges";
         for (unsigned int j = 0; j < xL.size(); ++j)
           edm::LogVerbatim("HGCalGeom") << "[" << j << "] " << cms::convert2mm(xL[j]) << ":" << cms::convert2mm(yL[j]);
 #endif

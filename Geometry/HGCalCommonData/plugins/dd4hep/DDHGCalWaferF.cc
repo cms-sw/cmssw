@@ -55,8 +55,8 @@ static long algorithm(dd4hep::Detector& /* description */, cms::DDParsingContext
   const auto& cellTypeX = args.value<int>("CellType");
   const auto& cellNames = args.value<std::vector<std::string>>("CellNames");
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cells/Wafer " << nCells << " Cell Type " << cellTypeX << " NameSpace "
-                                << ns.name() << " # of cells " << cellNames.size();
+  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cells/Wafer " << nCells << " Cell Type " << cellTypeX
+                                << " NameSpace " << ns.name() << " # of cells " << cellNames.size();
   for (unsigned int k = 0; k < cellNames.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cell[" << k << "] " << cellNames[k];
   int counter(0);
