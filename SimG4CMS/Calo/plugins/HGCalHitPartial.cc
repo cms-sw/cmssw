@@ -48,7 +48,8 @@ HGcalHitPartial::HGcalHitPartial(const edm::ParameterSet& ps)
       nameSense_(ps.getParameter<std::string>("nameSense")),
       tok_calo_(consumes<edm::PCaloHitContainer>(edm::InputTag(g4Label_, caloHitSource_))),
       geomToken_(esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", nameSense_})) {
-  edm::LogVerbatim("HGCalSim") << "Test Hit ID using SimHits for " << nameSense_ << " with module Label: " << g4Label_ << "   Hits: " << caloHitSource_;
+  edm::LogVerbatim("HGCalSim") << "Test Hit ID using SimHits for " << nameSense_ << " with module Label: " << g4Label_
+                               << "   Hits: " << caloHitSource_;
 }
 
 void HGcalHitPartial::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -63,8 +64,8 @@ void HGcalHitPartial::analyze(const edm::Event& e, const edm::EventSetup& iS) {
   // get hcalGeometry
   const HGCalGeometry* geom = &iS.getData(geomToken_);
   const HGCalDDDConstants& hgc = geom->topology().dddConstants();
-  // get the hit collection  
-const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_calo_);
+  // get the hit collection
+  const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_calo_);
   bool getHits = (hitsCalo.isValid());
   uint32_t nhits = (getHits) ? hitsCalo->size() : 0;
   uint32_t good(0), allSi(0), all(0);
@@ -78,17 +79,20 @@ const edm::Handle<edm::PCaloHitContainer>& hitsCalo = e.getHandle(tok_calo_);
       for (auto hit : hits) {
         ++all;
         DetId id(hit.id());
-	if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
-	  ++allSi;
-	  HGCSiliconDetId hid(id);
-	  const auto& info = hgc.waferInfo(hid.layer(), hid.waferU(), hid.waferV());
-	  // Only partial wafers
-	  if (info.part != HGCalTypes::WaferFull) {
-	    ++good;
-	    GlobalPoint pos = geom->getPosition(id);
-	    edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << allSi << ":" << good << "]" << HGCSiliconDetId(id) << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":" << info.orient << ":" << info.cassette << " at (" << pos.x() << ", " << pos.y() << ", " << pos.z() << ")";
-	  }
-	}
+        if ((id.det() == DetId::HGCalEE) || (id.det() == DetId::HGCalHSi)) {
+          ++allSi;
+          HGCSiliconDetId hid(id);
+          const auto& info = hgc.waferInfo(hid.layer(), hid.waferU(), hid.waferV());
+          // Only partial wafers
+          if (info.part != HGCalTypes::WaferFull) {
+            ++good;
+            GlobalPoint pos = geom->getPosition(id);
+            edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << allSi << ":" << good << "]" << HGCSiliconDetId(id)
+                                         << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":"
+                                         << info.orient << ":" << info.cassette << " at (" << pos.x() << ", " << pos.y()
+                                         << ", " << pos.z() << ")";
+          }
+        }
       }
     }
   }
