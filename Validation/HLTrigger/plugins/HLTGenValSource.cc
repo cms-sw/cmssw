@@ -178,7 +178,7 @@ void HLTGenValSource::dqmBeginRun(const edm::Run &iRun, const edm::EventSetup &i
     // these additional requirements are split from the path name here
     std::string cleanedPathToCheck;
     std::string pathSpecificCuts = "";
-    if (pathToCheck.find(":") != std::string::npos) {
+    if (pathToCheck.find(':') != std::string::npos) {
 
       // splitting the string
       std::stringstream hltPathToCheckInputStream(pathToCheck);
@@ -462,7 +462,7 @@ std::vector<HLTGenValObject> HLTGenValSource::getGenParticles(const edm::Event& 
 
 // function returning the last GenParticle in a decay chain before FSR
 reco::GenParticle HLTGenValSource::getLastCopyPreFSR(reco::GenParticle part) {
-    const auto daughters = part.daughterRefVector();
+    const auto& daughters = part.daughterRefVector();
     if (daughters.size() == 1 && daughters.at(0)->pdgId() == part.pdgId()) return getLastCopyPreFSR(*daughters.at(0).get()); // recursion, whooo
     else return part;
 }
