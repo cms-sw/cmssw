@@ -22,7 +22,6 @@
 #include "Geometry/HGCalCommonData/interface/HGCalParameters.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-#include <map>
 #include <string>
 #include <vector>
 
