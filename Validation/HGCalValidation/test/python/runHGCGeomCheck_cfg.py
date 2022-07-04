@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runHGCGeomCheck_cfg.py geometry=D77
 #
-#   Options for geometry D49, D68, D77, D83, D84, D88, D92
+#   Options for geometry D49, D68, D77, D83, D84, D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -13,10 +13,10 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 ### SETUP OPTIONS
 options = VarParsing.VarParsing('standard')
 options.register('geometry',
-                 "D86",
+                 "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D68, D84, D77, D83, D88, D92")
+                  "geometry of operations: D49, D68, D84, D77, D83, D88, D92, D93")
 
 ### get and parse the command line arguments
 options.parseArguments()
@@ -68,6 +68,13 @@ elif (options.geometry == "D92"):
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
     inFile = 'file:testHGCalSimWatcherV17.root'
     outFile = 'hgcGeomCheckD92.root'
+elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
+    process = cms.Process('PROD',Phase2C11M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    inFile = 'file:testHGCalSimWatcherV17N.root'
+    outFile = 'hgcGeomCheckD93.root'
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('PROD',Phase2C11M9)
