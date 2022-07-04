@@ -1,21 +1,16 @@
 #include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 
-int BTLDetId::modulesPerType(CrysLayout lay) const {
-  if (lay == CrysLayout::barphiflat) {
-    return kModulePerTypeBarPhiFlat;
-  }
-  return 0;
-}
-
 BTLDetId BTLDetId::geographicalId(CrysLayout lay) const {
   // reorganize the modules to count from 0 to 54
   //    (0 to 42 in the case of BarZflat geometry)
   // remove module type
   // remove crystal index
 
-  int boundRef = modulesPerType(lay);
+  if (lay == CrysLayout::barphiflat) {
+    return BTLDetId(mtdSide(), mtdRR(), module() + kModulePerTypeBarPhiFlat * (modType() - 1), 0, 1);
+  }
 
-  return BTLDetId(mtdSide(), mtdRR(), module() + boundRef * (modType() - 1), 0, 1);
+  return 0;
 }
 
 #include <iomanip>

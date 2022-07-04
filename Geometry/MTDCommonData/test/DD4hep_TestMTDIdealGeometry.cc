@@ -212,28 +212,8 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         if (isBarrel) {
           BTLDetId::CrysLayout lay = static_cast<BTLDetId::CrysLayout>(theLayout_);
           BTLDetId theId(btlNS_.getUnitID(thisN_));
-          //int hIndex = theId.hashedIndex(lay);
-          //BTLDetId theNewId(theId.getUnhashedIndex(hIndex, lay));
           sunitt << theId.rawId();
           snum << theId << "\n layout type = " << static_cast<int>(lay);
-          //snum << theId << "\n layout type = " << static_cast<int>(lay) << "\n ieta        = " << theId.ieta(lay)
-          //<< "\n iphi        = " << theId.iphi(lay) << "\n hashedIndex = " << theId.hashedIndex(lay)
-          //<< "\n BTLDetId hI = " << theNewId;
-          //if (theId.mtdSide() != theNewId.mtdSide()) {
-          //snum << "\n DIFFERENCE IN SIDE";
-          //}
-          //if (theId.mtdRR() != theNewId.mtdRR()) {
-          //snum << "\n DIFFERENCE IN ROD";
-          //}
-          //if (theId.module() != theNewId.module()) {
-          //snum << "\n DIFFERENCE IN MODULE";
-          //}
-          //if (theId.modType() != theNewId.modType()) {
-          //snum << "\n DIFFERENCE IN MODTYPE";
-          //}
-          //if (theId.crystal() != theNewId.crystal()) {
-          //snum << "\n DIFFERENCE IN CRYSTAL";
-          //}
           snum << "\n";
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
