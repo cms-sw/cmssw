@@ -20,7 +20,7 @@ caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone(
     #regionPUSParams  = []
 
     # EG
-    egEtaCut                   = 24
+    egEtaCut                   = 24,
     #egLsb                      = 0.5
     #egSeedThreshold            = 2.
     #egNeighbourThreshold       = 1.
