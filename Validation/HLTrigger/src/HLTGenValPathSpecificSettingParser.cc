@@ -11,7 +11,7 @@ HLTGenValPathSpecificSettingParser::HLTGenValPathSpecificSettingParser(std::stri
      pathSpecificSettingsSeglist.push_back(pathSpecificSettingsSegment);
   }
 
-  for (const auto pathSpecificSetting : pathSpecificSettingsSeglist) {
+  for (const auto& pathSpecificSetting : pathSpecificSettingsSeglist) {
 
     // each of these strings is expected to contain exactly one equal sign
     std::stringstream pathSpecificSettingStream(pathSpecificSetting);
@@ -57,7 +57,7 @@ HLTGenValPathSpecificSettingParser::HLTGenValPathSpecificSettingParser(std::stri
          cutParameterSeglist.push_back(cutParameterSegment);
       }
 
-      for (const auto region : cutParameterSeglist) {
+      for (const auto& region : cutParameterSeglist) {
         if(region == "EB") {
           rangeCutConfig.addParameter<std::vector<std::string>>("allowedRanges", {"-1.4442:1.4442"} );
         } else if (region == "EE") {
@@ -73,7 +73,7 @@ HLTGenValPathSpecificSettingParser::HLTGenValPathSpecificSettingParser(std::stri
 
       bool binningFound = false;
       bool binningUsed = false;
-      for (const auto binning : binnings) {
+      for (const auto& binning : binnings) {
         if (binning.getParameter<std::string>("name") == cutParameter) {
           if (binning.getParameter<std::string>("vsVar") == vsVar) {
             if (binningUsed) throw cms::Exception("InputError") << "Multiple different binnings set for a path, this does not make sense!.\n";

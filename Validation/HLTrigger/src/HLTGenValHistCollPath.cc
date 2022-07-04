@@ -34,7 +34,7 @@ HLTGenValHistCollPath::HLTGenValHistCollPath(edm::ParameterSet pathCollConfig, H
 
     // remove potential leading "-" for printing
     std::string filterName = filters_.back();
-    if(filterName.rfind("-", 0) == 0) filterName.erase(0, 1);
+    if(filterName.rfind('-', 0) == 0) filterName.erase(0, 1);
 
     pathString_ += filterName;
   } else {
@@ -46,7 +46,7 @@ HLTGenValHistCollPath::HLTGenValHistCollPath(edm::ParameterSet pathCollConfig, H
 
       // remove potential leading "-" for printing
       std::string filterName = filter;
-      if(filterName.rfind("-", 0) == 0) filterName.erase(0, 1);
+      if(filterName.rfind('-', 0) == 0) filterName.erase(0, 1);
 
       pathString_ += filterName;
       if(filter != filters_.back()) pathString_ += ";";

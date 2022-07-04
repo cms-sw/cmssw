@@ -102,7 +102,7 @@ void HLTGenValHistCollFilter::book1D(DQMStore::IBooker& iBooker, const edm::Para
 
   // remove potential leading "-" (which denotes that that trigger is ignored)
   std::string filterName = filter_;
-  if(filterName.rfind("-", 0) == 0) filterName.erase(0, 1);
+  if(filterName.rfind('-', 0) == 0) filterName.erase(0, 1);
 
   std::string histName, histTitle;
   if(filter_ == "beforeAnyFilter") { // this handles the naming of the "before" hist
@@ -158,7 +158,7 @@ void HLTGenValHistCollFilter::book2D(DQMStore::IBooker& iBooker, const edm::Para
 
   // remove potential leading "-" (which denotes that that trigger is ignored)
   std::string filterName = filter_;
-  if(filterName.rfind("-", 0) == 0) filterName.erase(0, 1);
+  if(filterName.rfind('-', 0) == 0) filterName.erase(0, 1);
 
   std::string histName, histTitle;
   if(filter_ == "beforeAnyFilter") {
