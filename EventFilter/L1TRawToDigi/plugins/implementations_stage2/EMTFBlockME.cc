@@ -183,7 +183,8 @@ namespace l1t {
 
         // Run 3 has a different EMTF DAQ output format
         // Computed as (Year - 2000)*2^9 + Month*2^5 + Day (see Block.cc and EMTFBlockTrailers.cc)
-        bool run3_DAQ_format = (getAlgoVersion() >= 11460); // Firmware from 04.06.22 which enabled new Run 3 DAQ format - EY 04.07.22
+        bool run3_DAQ_format =
+            (getAlgoVersion() >= 11460);  // Firmware from 04.06.22 which enabled new Run 3 DAQ format - EY 04.07.22
 
         // Set fields assuming Run 2 format. Modify for Run 3 later
         ME_.set_clct_pattern(GetHexBits(MEa, 0, 3));
@@ -237,12 +238,13 @@ namespace l1t {
                                       << ", outside proper [1, 6] range" << std::endl;
 
         // Modifications for Run 3 format - EY 04.07.22
-        bool isOTMB = (Hit_.Ring() == 1 or Hit_.Ring() == 4); // Data format is different between OTMBs (MEX/1) and TMBs (MEX/2-3)
+        bool isOTMB = (Hit_.Ring() == 1 or
+                       Hit_.Ring() == 4);  // Data format is different between OTMBs (MEX/1) and TMBs (MEX/2-3)
 
-        if (run3_DAQ_format){
-          if (isOTMB){
+        if (run3_DAQ_format) {
+          if (isOTMB) {
             ME_.set_quality(GetHexBits(MEa, 4, 6));
-            ME_.set_quarter_strip(GetHexBits(MEa,7,7));
+            ME_.set_quarter_strip(GetHexBits(MEa, 7, 7));
 
             ME_.set_frame(GetHexBits(MEc, 12, 12));
 
@@ -264,7 +266,7 @@ namespace l1t {
             ME_.set_clct_pattern(run2_converted_PID);
 
             // Frame 1 has HMT related information
-            if (ME_.Frame() == 0){
+            if (ME_.Frame() == 0) {
               ME_.set_run3_pattern(GetHexBits(MEa, 0, 3));
 
               ME_.set_bxe(GetHexBits(MEb, 13, 13));
@@ -272,8 +274,15 @@ namespace l1t {
               ME_.set_af(GetHexBits(MEd, 7, 7));
             } else {
               ME_.set_run3_pattern(GetHexBits(MEa, 0, 0));
-              ME_.set_hmt_inTime(GetHexBits(MEb, 13, 13, MEa, 1, 1)); // HMT[1] is in MEa, but HMT[0] is in MEb. These encode in time showers - EY 04.07.22
-              ME_.set_hmt_outOfTime(GetHexBits(MEa, 2, 3)); // HMT[3:2] encodes out-of-time showers which are not used for now
+              ME_.set_hmt_inTime(
+                  GetHexBits(MEb,
+                             13,
+                             13,
+                             MEa,
+                             1,
+                             1));  // HMT[1] is in MEa, but HMT[0] is in MEb. These encode in time showers - EY 04.07.22
+              ME_.set_hmt_outOfTime(
+                  GetHexBits(MEa, 2, 3));  // HMT[3:2] encodes out-of-time showers which are not used for now
 
               ME_.set_hmv(GetHexBits(MEd, 7, 7));
             }
@@ -325,7 +334,8 @@ namespace l1t {
         (res->at(iOut)).push_ME(ME_);
         if (!exact_duplicate && Hit_.Valid() == 1)
           res_hit->push_back(Hit_);
-        if (!exact_duplicate && !neighbor_duplicate && Hit_.Valid() == 1)  // Don't write duplicate LCTs from adjacent sectors
+        if (!exact_duplicate && !neighbor_duplicate &&
+            Hit_.Valid() == 1)  // Don't write duplicate LCTs from adjacent sectors
           res_LCT->insertDigi(Hit_.CSC_DetId(), Hit_.CreateCSCCorrelatedLCTDigi());
 
         // Finished with unpacking one ME Data Record

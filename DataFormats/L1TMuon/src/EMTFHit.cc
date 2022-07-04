@@ -85,15 +85,15 @@ namespace l1t {
                                                     0,
                                                     sync_err,
                                                     csc_ID);
-    bool quart_bit = strip_quart_bit == 1 ? 1 : 0;
-    bool eighth_bit = strip_eighth_bit == 1 ? 1 : 0;
+    bool quart_bit = strip_quart_bit == 1 ? true : false;
+    bool eighth_bit = strip_eighth_bit == 1 ? true : false;
 
     lct.setQuartStripBit(quart_bit);
     lct.setEighthStripBit(eighth_bit);
     lct.setSlope(slope);
     lct.setRun3Pattern(pattern_run3);
 
-    return  lct;
+    return lct;
     // Added Run 3 parameters - EY 04.07.22
     // Filling "trknmb" with 1 and "bx0" with 0 (as in MC).
     // May consider filling "trknmb" with 2 for 2nd LCT in the same chamber. - AWB 24.05.17
