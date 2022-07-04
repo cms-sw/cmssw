@@ -177,6 +177,9 @@ namespace l1t {
         CSCCorrelatedLCTDigiCollection* res_LCT;
         res_LCT = static_cast<EMTFCollections*>(coll)->getEMTFLCTs();
 
+        CSCShowerDigiCollection* res_shower;
+        res_shower = static_cast<EMTFCollections*>(coll)->getEMTFCSCShowers();
+
         ////////////////////////////
         // Unpack the ME Data Record
         ////////////////////////////
@@ -242,14 +245,16 @@ namespace l1t {
                        Hit_.Ring() == 4);  // Data format is different between OTMBs (MEX/1) and TMBs (MEX/2-3)
 
         if (run3_DAQ_format) {
-          if (isOTMB) {
-            ME_.set_quality(GetHexBits(MEa, 4, 6));
-            ME_.set_quarter_strip(GetHexBits(MEa, 7, 7));
+          ME_.set_quality(GetHexBits(MEa, 4, 6));
+          ME_.set_quarter_strip(GetHexBits(MEa, 7, 7));
 
-            ME_.set_frame(GetHexBits(MEc, 12, 12));
+          ME_.set_frame(GetHexBits(MEc, 12, 12));
+
+          ME_.set_eighth_strip(GetHexBits(MEd, 13, 13));
+
+          if (isOTMB) {  // Derive Run 2 pattern ID from Run 3 slope for OTMBs
 
             ME_.set_slope(GetHexBits(MEd, 8, 11));
-            ME_.set_eighth_strip(GetHexBits(MEd, 13, 13));
 
             // convert Run-3 slope to Run-2 pattern for CSC TPs coming from MEX/1 chambers
             // where the CCLUT algorithm is enabled
@@ -265,42 +270,38 @@ namespace l1t {
 
             ME_.set_clct_pattern(run2_converted_PID);
 
-            // Frame 1 has HMT related information
-            if (ME_.Frame() == 0) {
-              ME_.set_run3_pattern(GetHexBits(MEa, 0, 3));
+          } else {  // Use Run 2 pattern directly for TMBs
+            ME_.set_clct_pattern(GetHexBits(MEd, 8, 11));
+          }
 
-              ME_.set_bxe(GetHexBits(MEb, 13, 13));
+          // Frame 1 has HMT related information
+          if (ME_.Frame() == 1) {
+            // Run 3 pattern is unused for now. Needs to be combined with rest of the word in Frame 0 - EY 04.07.22
+            ME_.set_run3_pattern(GetHexBits(MEa, 0, 0));
 
-              ME_.set_af(GetHexBits(MEd, 7, 7));
-            } else {
-              ME_.set_run3_pattern(GetHexBits(MEa, 0, 0));
-              ME_.set_hmt_inTime(
-                  GetHexBits(MEb,
-                             13,
-                             13,
-                             MEa,
-                             1,
-                             1));  // HMT[1] is in MEa, but HMT[0] is in MEb. These encode in time showers - EY 04.07.22
-              ME_.set_hmt_outOfTime(
-                  GetHexBits(MEa, 2, 3));  // HMT[3:2] encodes out-of-time showers which are not used for now
+            // HMT[1] is in MEa, but HMT[0] is in MEb. These encode in time showers - EY 04.07.22
+            ME_.set_hmt_inTime(GetHexBits(MEb, 13, 13, MEa, 1, 1));
 
-              ME_.set_hmv(GetHexBits(MEd, 7, 7));
-            }
+            // HMT[3:2] encodes out-of-time showers which are not used for now
+            ME_.set_hmt_outOfTime(GetHexBits(MEa, 2, 3));
+
+            ME_.set_hmv(GetHexBits(MEd, 7, 7));
           } else {
             ME_.set_run3_pattern(GetHexBits(MEa, 0, 3));
-            ME_.set_quality(GetHexBits(MEa, 4, 7));
 
             ME_.set_bxe(GetHexBits(MEb, 13, 13));
 
-            ME_.set_nit(GetHexBits(MEc, 12, 12));
-
-            ME_.set_clct_pattern(GetHexBits(MEd, 8, 11));
-            ME_.set_se(GetHexBits(MEd, 13, 13));
+            ME_.set_af(GetHexBits(MEd, 7, 7));
           }
         }
 
         // Fill the EMTFHit
         ImportME(Hit_, ME_, (res->at(iOut)).PtrEventHeader()->Endcap(), (res->at(iOut)).PtrEventHeader()->Sector());
+
+        // Fill the CSCShowerDigi
+        CSCShowerDigi Shower_(ME_.HMT_inTime() == -99 ? 0 : ME_.HMT_inTime(),
+                              ME_.HMT_outOfTime() == -99 ? 0 : ME_.HMT_outOfTime(),
+                              Hit_.CSC_DetId());
 
         // Set the stub number for this hit
         // Each chamber can send up to 2 stubs per BX
@@ -337,7 +338,9 @@ namespace l1t {
         if (!exact_duplicate && !neighbor_duplicate &&
             Hit_.Valid() == 1)  // Don't write duplicate LCTs from adjacent sectors
           res_LCT->insertDigi(Hit_.CSC_DetId(), Hit_.CreateCSCCorrelatedLCTDigi());
-
+        if (ME_.HMV() == 1) {  // Only write when HMT valid bit is set to 1
+          res_shower->insertDigi(Hit_.CSC_DetId(), Shower_);
+        }
         // Finished with unpacking one ME Data Record
         return true;
 
