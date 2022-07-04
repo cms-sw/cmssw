@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun runHGCalWaferStudy_cfg.py geometry=D88
 #
-#   Options for geometry D49, D68, D77, D83, D84, D88, D92
+#   Options for geometry D49, D68, D77, D83, D84, D88, D92, D93
 #
 ###############################################################################
 import FWCore.ParameterSet.Config as cms
@@ -63,6 +63,11 @@ elif (options.geometry == "D92"):
     process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
     process.load('Configuration.Geometry.GeometryExtended2026D92_cff')
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+    process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
+    process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
 else:
     from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
     process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)

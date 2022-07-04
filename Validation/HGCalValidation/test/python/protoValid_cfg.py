@@ -2,7 +2,7 @@
 # Way to use this:
 #   cmsRun protoValid_cfg.py geometry=D77 type=hgcalSimHitStudy defaultInput=1
 #
-#   Options for geometry D49, D68, D77, D83, D84, D88, D92
+#   Options for geometry D49, D68, D77, D83, D84, D88, D92, D93
 #               type hgcalGeomCheck, hgcalSimHitStudy, hgcalDigiStudy,
 #                    hgcalRecHitStudy, hgcalSiliconValidation
 #               defaultInput 1, 0
@@ -19,7 +19,7 @@ options.register('geometry',
                  "D88",
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,
-                  "geometry of operations: D49, D68, D77, D83, D84, D88, D92")
+                  "geometry of operations: D49, D68, D77, D83, D84, D88, D92, D93")
 options.register('type',
                  "hgcalGeomCheck",
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -153,6 +153,25 @@ elif (options.geometry == "D92"):
             fileName = 'hgcSilValidD92.root'
     else:
         fileName = 'hgcGeomCheckD92.root'
+elif (options.geometry == "D93"):
+    from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
+    process = cms.Process('PROD',Phase2C11)
+    process.load('Configuration.Geometry.GeometryExtended2026D93_cff')
+    process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
+    fileCheck = 'testHGCalSimWatcherV17.root'
+    if (options.type == "hgcalSimHitStudy"):
+        fileName = 'hgcSimHitD93.root'
+    elif (options.type == "hgcalDigiStudy"):
+        fileName = 'hgcDigiD93.root'
+    elif (options.type == "hgcalRecHitStudy"):
+        fileName = 'hgcRecHitD93.root'
+    elif (options.type == "hgcalSiliconValidation"):
+        if (options.defaultInput == 0):
+            fileName = 'hgcDigValidD93.root'
+        else:
+            fileName = 'hgcSilValidD93.root'
+    else:
+        fileName = 'hgcGeomCheckD93.root'
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('PROD',Phase2C11M9)
