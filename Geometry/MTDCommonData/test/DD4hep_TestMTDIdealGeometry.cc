@@ -51,7 +51,6 @@ public:
 private:
   const edm::ESInputTag tag_;
   std::string ddTopNodeName_;
-  uint32_t theLayout_;
 
   MTDBaseNumber thisN_;
   BTLNumberingScheme btlNS_;
@@ -68,7 +67,6 @@ using cms_rounding::roundIfNear0;
 DD4hep_TestMTDIdealGeometry::DD4hep_TestMTDIdealGeometry(const edm::ParameterSet& iConfig)
     : tag_(iConfig.getParameter<edm::ESInputTag>("DDDetector")),
       ddTopNodeName_(iConfig.getUntrackedParameter<std::string>("ddTopNodeName", "BarrelTimingLayer")),
-      theLayout_(iConfig.getUntrackedParameter<uint32_t>("theLayout", 1)),
       thisN_(),
       btlNS_(),
       etlNS_() {
@@ -210,10 +208,9 @@ void DD4hep_TestMTDIdealGeometry::analyze(const edm::Event& iEvent, const edm::E
         std::stringstream snum;
 
         if (isBarrel) {
-          BTLDetId::CrysLayout lay = static_cast<BTLDetId::CrysLayout>(theLayout_);
           BTLDetId theId(btlNS_.getUnitID(thisN_));
           sunitt << theId.rawId();
-          snum << theId << "\n layout type = " << static_cast<int>(lay);
+          snum << theId;
           snum << "\n";
         } else {
           ETLDetId theId(etlNS_.getUnitID(thisN_));
