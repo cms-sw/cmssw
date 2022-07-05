@@ -4,7 +4,7 @@ from ..modules.L1EGammaClusterEmuProducer_cfi import *
 from ..modules.l1EGammaEEProducer_cfi import *
 from ..modules.l1NNTauProducerPuppi_cfi import *
 #from ..modules.l1pfCandidates_cfi import *
-from ..modules.l1PFMetPuppi_cfi import *
+#from ..modules.l1PFMetPuppi_cfi import *
 #from ..modules.l1pfProducerBarrel_cfi import *
 #from ..modules.l1pfProducerHF_cfi import *
 #from ..modules.l1pfProducerHGCal_cfi import *
@@ -46,7 +46,7 @@ l1tReconstructionTask = cms.Task(
     #L1TkPrimaryVertex,
     l1EGammaEEProducer,
     l1NNTauProducerPuppi,
-    l1PFMetPuppi,
+    #l1PFMetPuppi,
     #l1pfCandidates,
     #l1pfProducerBarrel,
     #l1pfProducerHF,
