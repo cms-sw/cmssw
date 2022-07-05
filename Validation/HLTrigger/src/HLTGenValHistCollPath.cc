@@ -1,9 +1,8 @@
 #include "Validation/HLTrigger/interface/HLTGenValHistCollPath.h"
 
 // constructor
-HLTGenValHistCollPath::HLTGenValHistCollPath(edm::ParameterSet pathCollConfig, HLTConfigProvider& hltConfig) :
-  hltConfig_(hltConfig) {
-
+HLTGenValHistCollPath::HLTGenValHistCollPath(edm::ParameterSet pathCollConfig, HLTConfigProvider& hltConfig)
+    : hltConfig_(hltConfig) {
   triggerPath_ = pathCollConfig.getParameter<std::string>("triggerPath");
   doOnlyLastFilter_ = pathCollConfig.getParameter<bool>("doOnlyLastFilter");
 
@@ -11,7 +10,8 @@ HLTGenValHistCollPath::HLTGenValHistCollPath(edm::ParameterSet pathCollConfig, H
   // we'll copy this basis multiple times and add the respective path later
   edm::ParameterSet filterCollConfig;
   filterCollConfig.addParameter<std::string>("objType", pathCollConfig.getParameter<std::string>("objType"));
-  filterCollConfig.addParameter<std::string>("hltProcessName", pathCollConfig.getParameter<std::string>("hltProcessName"));
+  filterCollConfig.addParameter<std::string>("hltProcessName",
+                                             pathCollConfig.getParameter<std::string>("hltProcessName"));
   filterCollConfig.addParameter<double>("dR2limit", pathCollConfig.getParameter<double>("dR2limit"));
   filterCollConfig.addParameter<std::string>("pathName", triggerPath_);
 
@@ -27,33 +27,33 @@ HLTGenValHistCollPath::HLTGenValHistCollPath(edm::ParameterSet pathCollConfig, H
 
   // getting all filters from path
   filters_ = hltConfig_.saveTagsModules(triggerPath_);
-  if(doOnlyLastFilter_) {
+  if (doOnlyLastFilter_) {
     edm::ParameterSet filterCollConfigOnlyLastFilter = filterCollConfig;
     filterCollConfigOnlyLastFilter.addParameter<std::string>("filterName", filters_.back());
     collectionFilter_.emplace_back(HLTGenValHistCollFilter(filterCollConfigOnlyLastFilter));
 
     // remove potential leading "-" for printing
     std::string filterName = filters_.back();
-    if(filterName.rfind('-', 0) == 0) filterName.erase(0, 1);
+    if (filterName.rfind('-', 0) == 0)
+      filterName.erase(0, 1);
 
     pathString_ += filterName;
   } else {
-
-    for (auto & filter : filters_) {
+    for (auto& filter : filters_) {
       edm::ParameterSet filterCollConfigStep = filterCollConfig;
       filterCollConfigStep.addParameter<std::string>("filterName", filter);
       collectionFilter_.emplace_back(HLTGenValHistCollFilter(filterCollConfigStep));
 
       // remove potential leading "-" for printing
       std::string filterName = filter;
-      if(filterName.rfind('-', 0) == 0) filterName.erase(0, 1);
+      if (filterName.rfind('-', 0) == 0)
+        filterName.erase(0, 1);
 
       pathString_ += filterName;
-      if(filter != filters_.back()) pathString_ += ";";
+      if (filter != filters_.back())
+        pathString_ += ";";
     }
   }
-
-
 }
 
 edm::ParameterSetDescription HLTGenValHistCollPath::makePSetDescription() {
@@ -68,15 +68,19 @@ edm::ParameterSetDescription HLTGenValHistCollPath::makePSetDescription() {
 
 // hist booking function
 // this just calls the booking for each object in the the filter collection
-void HLTGenValHistCollPath::bookHists(DQMStore::IBooker& iBooker, std::vector<edm::ParameterSet>& histConfigs, std::vector<edm::ParameterSet>& histConfigs2D) {
+void HLTGenValHistCollPath::bookHists(DQMStore::IBooker& iBooker,
+                                      std::vector<edm::ParameterSet>& histConfigs,
+                                      std::vector<edm::ParameterSet>& histConfigs2D) {
+  if (!pathString_.empty())
+    iBooker.bookString("path-" + pathStringName_, pathString_);
 
-  if(!pathString_.empty()) iBooker.bookString("path-"+pathStringName_, pathString_);
-
-  for (auto& collection_filter : collectionFilter_) collection_filter.bookHists(iBooker, histConfigs, histConfigs2D);
+  for (auto& collection_filter : collectionFilter_)
+    collection_filter.bookHists(iBooker, histConfigs, histConfigs2D);
 }
 
 // hist filling function
 // this just calls the filling for each object in the filter collection
 void HLTGenValHistCollPath::fillHists(const HLTGenValObject& obj, edm::Handle<trigger::TriggerEvent>& triggerEvent) {
-  for (auto& collection_filter : collectionFilter_) collection_filter.fillHists(obj, triggerEvent);
+  for (auto& collection_filter : collectionFilter_)
+    collection_filter.fillHists(obj, triggerEvent);
 }

@@ -20,18 +20,22 @@ edm::ParameterSetDescription HLTGenValHistCollFilter::makePSetDescription() {
 }
 
 // general hist booking function, receiving configurations for 1D and 2D hists and calling the respective functions
-void HLTGenValHistCollFilter::bookHists(DQMStore::IBooker& iBooker, const std::vector<edm::ParameterSet>& histConfigs, const std::vector<edm::ParameterSet>& histConfigs2D) {
-  for (const auto& histConfig : histConfigs) book1D(iBooker, histConfig);
-  for (const auto& histConfig : histConfigs2D) book2D(iBooker, histConfig);
+void HLTGenValHistCollFilter::bookHists(DQMStore::IBooker& iBooker,
+                                        const std::vector<edm::ParameterSet>& histConfigs,
+                                        const std::vector<edm::ParameterSet>& histConfigs2D) {
+  for (const auto& histConfig : histConfigs)
+    book1D(iBooker, histConfig);
+  for (const auto& histConfig : histConfigs2D)
+    book2D(iBooker, histConfig);
 }
 
 // histogram filling routine
 void HLTGenValHistCollFilter::fillHists(const HLTGenValObject& obj, edm::Handle<trigger::TriggerEvent>& triggerEvent) {
-
   // this handles the "before" step, denoted by a "dummy" filter called "beforeAnyFilter"
   // the histogram is filled without any additional requirements for all objects
-  if(filter_ == "beforeAnyFilter") {
-    for (auto& hist : hists_) hist->fill(obj);
+  if (filter_ == "beforeAnyFilter") {
+    for (auto& hist : hists_)
+      hist->fill(obj);
   } else {
     // main filling code
 
@@ -40,8 +44,8 @@ void HLTGenValHistCollFilter::fillHists(const HLTGenValObject& obj, edm::Handle<
     size_t filterIndex = triggerEvent->filterIndex(filterTag);
 
     // get trigger objects passing filter in question
-    trigger::TriggerObjectCollection allTriggerObjects = triggerEvent->getObjects(); // all objects
-    trigger::TriggerObjectCollection selectedObjects; // vector to fill with objects passing our filter
+    trigger::TriggerObjectCollection allTriggerObjects = triggerEvent->getObjects();  // all objects
+    trigger::TriggerObjectCollection selectedObjects;  // vector to fill with objects passing our filter
     if (filterIndex < triggerEvent->sizeFilters()) {
       const auto& keys = triggerEvent->filterKeys(filterIndex);
       for (unsigned short key : keys) {
@@ -52,19 +56,23 @@ void HLTGenValHistCollFilter::fillHists(const HLTGenValObject& obj, edm::Handle<
 
     // differentiate between event level and particle level variables
     std::vector<std::string> eventLevelVariables = {"AK4HT", "AK8HT", "MET"};
-    if(std::find(eventLevelVariables.begin(), eventLevelVariables.end(), objType_) != eventLevelVariables.end()) {
+    if (std::find(eventLevelVariables.begin(), eventLevelVariables.end(), objType_) != eventLevelVariables.end()) {
       // for these event level variables we only require the existence of a trigger object, but no matching
-      if(!selectedObjects.empty()) for (auto& hist : hists_) hist->fill(obj);
+      if (!selectedObjects.empty())
+        for (auto& hist : hists_)
+          hist->fill(obj);
     } else {
       // do a deltaR matching between trigger object and GEN object
       double mindR2 = 99999;
-      for (const auto & filterobj : selectedObjects) {
+      for (const auto& filterobj : selectedObjects) {
         double dR = deltaR2(obj, filterobj);
-        if(dR < mindR2) mindR2 = dR;
+        if (dR < mindR2)
+          mindR2 = dR;
       }
-      if(mindR2 < dR2limit_) for (auto& hist : hists_) hist->fill(obj);
+      if (mindR2 < dR2limit_)
+        for (auto& hist : hists_)
+          hist->fill(obj);
     }
-
   }
 }
 
@@ -75,14 +83,18 @@ void HLTGenValHistCollFilter::book1D(DQMStore::IBooker& iBooker, const edm::Para
   auto vsVarFunc = hltdqm::getUnaryFuncFloat<HLTGenValObject>(vsVar);
 
   // this class parses any potential additional cuts, changes in binning or tags
-  HLTGenValPathSpecificSettingParser parser = HLTGenValPathSpecificSettingParser( histConfig.getParameter<std::string>("pathSpecificCuts"), histConfig.getParameter<std::vector<edm::ParameterSet>>("binnings"), vsVar );
+  HLTGenValPathSpecificSettingParser parser =
+      HLTGenValPathSpecificSettingParser(histConfig.getParameter<std::string>("pathSpecificCuts"),
+                                         histConfig.getParameter<std::vector<edm::ParameterSet>>("binnings"),
+                                         vsVar);
 
   // getting the bin edges, path-specific overwrites general if present
-  auto binLowEdgesDouble = histConfig.getParameter<std::vector<double> >("binLowEdges");
-  if(parser.havePathSpecificBins()) binLowEdgesDouble = parser.getPathSpecificBins();
+  auto binLowEdgesDouble = histConfig.getParameter<std::vector<double>>("binLowEdges");
+  if (parser.havePathSpecificBins())
+    binLowEdgesDouble = parser.getPathSpecificBins();
 
   // additional cuts applied to this histogram, combination of general ones and path-specific ones
-  std::vector<edm::ParameterSet> allCutsVector = histConfig.getParameter<std::vector<edm::ParameterSet> >("rangeCuts");
+  std::vector<edm::ParameterSet> allCutsVector = histConfig.getParameter<std::vector<edm::ParameterSet>>("rangeCuts");
   std::vector<edm::ParameterSet> pathSpecificCutsVector = parser.getPathSpecificCuts();
   allCutsVector.insert(allCutsVector.end(), pathSpecificCutsVector.begin(), pathSpecificCutsVector.end());
   VarRangeCutColl<HLTGenValObject> rangeCuts(allCutsVector);
@@ -91,41 +103,47 @@ void HLTGenValHistCollFilter::book1D(DQMStore::IBooker& iBooker, const edm::Para
   std::string tag = parser.getTag();
 
   // checking validity of vsVar
-  if (!vsVarFunc) { throw cms::Exception("ConfigError") << " vsVar " << vsVar << " is giving null ptr (likely empty) in " << __FILE__ << "," << __LINE__ << std::endl;}
+  if (!vsVarFunc) {
+    throw cms::Exception("ConfigError") << " vsVar " << vsVar << " is giving null ptr (likely empty) in " << __FILE__
+                                        << "," << __LINE__ << std::endl;
+  }
 
   // converting bin edges to float
   std::vector<float> binLowEdges;
   binLowEdges.reserve(binLowEdgesDouble.size());
-  for (double lowEdge : binLowEdgesDouble) binLowEdges.push_back(lowEdge);
+  for (double lowEdge : binLowEdgesDouble)
+    binLowEdges.push_back(lowEdge);
 
   // name and title are systematically constructed
 
   // remove potential leading "-" (which denotes that that trigger is ignored)
   std::string filterName = filter_;
-  if(filterName.rfind('-', 0) == 0) filterName.erase(0, 1);
+  if (filterName.rfind('-', 0) == 0)
+    filterName.erase(0, 1);
 
   std::string histName, histTitle;
-  if(filter_ == "beforeAnyFilter") { // this handles the naming of the "before" hist
-    histName = objType_ + ":" + path_ + ":GEN:vs" + vsVar ;
+  if (filter_ == "beforeAnyFilter") {  // this handles the naming of the "before" hist
+    histName = objType_ + ":" + path_ + ":GEN:vs" + vsVar;
     histTitle = objType_ + ":" + path_ + " GEN vs " + vsVar;
-    if(!tag.empty()) {
-      histName += ":"+tag;
-      histTitle += " "+tag;
+    if (!tag.empty()) {
+      histName += ":" + tag;
+      histTitle += " " + tag;
     }
-  } else { // naming of all regular hists
+  } else {  // naming of all regular hists
     histName = objType_ + ":" + path_ + ":" + filterName + ":vs" + vsVar;
     histTitle = objType_ + ":" + path_ + ":" + filterName + ":vs" + vsVar;
 
     // appending the tag, in case it is filled
-    if(!tag.empty()) {
-      histName += ":"+tag;
-      histTitle += " "+tag;
+    if (!tag.empty()) {
+      histName += ":" + tag;
+      histTitle += " " + tag;
     }
   }
 
-  auto me = iBooker.book1D(histName.c_str(), histTitle.c_str(), binLowEdges.size() - 1, &binLowEdges[0] );   // booking MonitorElement
+  auto me = iBooker.book1D(
+      histName.c_str(), histTitle.c_str(), binLowEdges.size() - 1, &binLowEdges[0]);  // booking MonitorElement
 
-  std::unique_ptr<HLTGenValHist> hist; // creating the hist object
+  std::unique_ptr<HLTGenValHist> hist;  // creating the hist object
 
   hist = std::make_unique<HLTGenValHist1D>(me->getTH1(), vsVar, vsVarFunc, rangeCuts);
 
@@ -139,29 +157,38 @@ void HLTGenValHistCollFilter::book2D(DQMStore::IBooker& iBooker, const edm::Para
   auto vsVarY = histConfig2D.getParameter<std::string>("vsVarY");
   auto vsVarFuncX = hltdqm::getUnaryFuncFloat<HLTGenValObject>(vsVarX);
   auto vsVarFuncY = hltdqm::getUnaryFuncFloat<HLTGenValObject>(vsVarY);
-  auto binLowEdgesDoubleX = histConfig2D.getParameter<std::vector<double> >("binLowEdgesX");
-  auto binLowEdgesDoubleY = histConfig2D.getParameter<std::vector<double> >("binLowEdgesY");
+  auto binLowEdgesDoubleX = histConfig2D.getParameter<std::vector<double>>("binLowEdgesX");
+  auto binLowEdgesDoubleY = histConfig2D.getParameter<std::vector<double>>("binLowEdgesY");
 
   // checking validity of vsVar
-  if (!vsVarFuncX) {throw cms::Exception("ConfigError") << " vsVar " << vsVarX << " is giving null ptr (likely empty) in " << __FILE__ << "," << __LINE__ << std::endl;}
-  if (!vsVarFuncY) {throw cms::Exception("ConfigError") << " vsVar " << vsVarY << " is giving null ptr (likely empty) in " << __FILE__ << "," << __LINE__ << std::endl;}
+  if (!vsVarFuncX) {
+    throw cms::Exception("ConfigError") << " vsVar " << vsVarX << " is giving null ptr (likely empty) in " << __FILE__
+                                        << "," << __LINE__ << std::endl;
+  }
+  if (!vsVarFuncY) {
+    throw cms::Exception("ConfigError") << " vsVar " << vsVarY << " is giving null ptr (likely empty) in " << __FILE__
+                                        << "," << __LINE__ << std::endl;
+  }
 
   // converting bin edges to float
   std::vector<float> binLowEdgesX;
   std::vector<float> binLowEdgesY;
   binLowEdgesX.reserve(binLowEdgesDoubleX.size());
   binLowEdgesY.reserve(binLowEdgesDoubleY.size());
-  for (double lowEdge : binLowEdgesDoubleX) binLowEdgesX.push_back(lowEdge);
-  for (double lowEdge : binLowEdgesDoubleY) binLowEdgesY.push_back(lowEdge);
+  for (double lowEdge : binLowEdgesDoubleX)
+    binLowEdgesX.push_back(lowEdge);
+  for (double lowEdge : binLowEdgesDoubleY)
+    binLowEdgesY.push_back(lowEdge);
 
   // name and title are systematically constructed
 
   // remove potential leading "-" (which denotes that that trigger is ignored)
   std::string filterName = filter_;
-  if(filterName.rfind('-', 0) == 0) filterName.erase(0, 1);
+  if (filterName.rfind('-', 0) == 0)
+    filterName.erase(0, 1);
 
   std::string histName, histTitle;
-  if(filter_ == "beforeAnyFilter") {
+  if (filter_ == "beforeAnyFilter") {
     histName = objType_ + ":" + path_ + ":GEN:2Dvs" + vsVarX + ":" + vsVarY;
     histTitle = objType_ + ":" + path_ + " GEN 2D vs " + vsVarX + " " + vsVarY;
   } else {
@@ -169,7 +196,12 @@ void HLTGenValHistCollFilter::book2D(DQMStore::IBooker& iBooker, const edm::Para
     histTitle = objType_ + ":" + path_ + " " + filterName + " 2D vs" + vsVarX + " " + vsVarY;
   }
 
-  auto me = iBooker.book2D(histName.c_str(), histTitle.c_str(), binLowEdgesX.size() - 1, &binLowEdgesX[0], binLowEdgesY.size() - 1, &binLowEdgesY[0]);
+  auto me = iBooker.book2D(histName.c_str(),
+                           histTitle.c_str(),
+                           binLowEdgesX.size() - 1,
+                           &binLowEdgesX[0],
+                           binLowEdgesY.size() - 1,
+                           &binLowEdgesY[0]);
 
   std::unique_ptr<HLTGenValHist> hist;
 

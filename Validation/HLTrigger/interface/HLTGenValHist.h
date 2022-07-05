@@ -40,13 +40,14 @@ public:
 class HLTGenValHist1D : public HLTGenValHist {
 public:
   HLTGenValHist1D(TH1* hist,
-               std::string varName,
-               std::function<float(const HLTGenValObject&)> func,
-               VarRangeCutColl<HLTGenValObject> rangeCuts)
+                  std::string varName,
+                  std::function<float(const HLTGenValObject&)> func,
+                  VarRangeCutColl<HLTGenValObject> rangeCuts)
       : var_(std::move(func)), varName_(std::move(varName)), rangeCuts_(std::move(rangeCuts)), hist_(hist) {}
 
   void fill(const HLTGenValObject& obj) override {
-    if(rangeCuts_(obj)) hist_->Fill(var_(obj));
+    if (rangeCuts_(obj))
+      hist_->Fill(var_(obj));
   }
 
 private:
@@ -63,15 +64,17 @@ private:
 class HLTGenValHist2D : public HLTGenValHist {
 public:
   HLTGenValHist2D(TH2* hist,
-               std::string varNameX,
-               std::string varNameY,
-               std::function<float(const HLTGenValObject&)> funcX,
-               std::function<float(const HLTGenValObject&)> funcY)
-      : varX_(std::move(funcX)), varY_(std::move(funcY)), varNameX_(std::move(varNameX)), varNameY_(std::move(varNameY)), hist_(hist) {}
+                  std::string varNameX,
+                  std::string varNameY,
+                  std::function<float(const HLTGenValObject&)> funcX,
+                  std::function<float(const HLTGenValObject&)> funcY)
+      : varX_(std::move(funcX)),
+        varY_(std::move(funcY)),
+        varNameX_(std::move(varNameX)),
+        varNameY_(std::move(varNameY)),
+        hist_(hist) {}
 
-  void fill(const HLTGenValObject& obj) override {
-    hist_->Fill(varX_(obj), varY_(obj));
-  }
+  void fill(const HLTGenValObject& obj) override { hist_->Fill(varX_(obj), varY_(obj)); }
 
 private:
   std::function<float(const HLTGenValObject&)> varX_;
