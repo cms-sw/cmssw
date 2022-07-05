@@ -11,6 +11,10 @@
 
 #include <unordered_map>
 
+namespace edm {
+  class Event;
+}
+
 namespace l1tpf_impl {
   class RegionMapper {
     // This does the input and filling of regions.
@@ -26,7 +30,6 @@ namespace l1tpf_impl {
 
     // add object, tracking references
     void addTrack(const l1t::PFTrack &t, l1t::PFTrackRef ref);
-    void addMuon(const l1t::Muon &t, l1t::PFCandidate::MuonRef ref);
     void addCalo(const l1t::PFCluster &t, l1t::PFClusterRef ref);
     void addEmCalo(const l1t::PFCluster &t, l1t::PFClusterRef ref);
 
@@ -36,6 +39,13 @@ namespace l1tpf_impl {
     std::unique_ptr<l1t::PFCandidateCollection> fetch(bool puppi = true, float ptMin = 0.01) const;
     std::unique_ptr<l1t::PFCandidateCollection> fetchCalo(float ptMin = 0.01, bool emcalo = false) const;
     std::unique_ptr<l1t::PFCandidateCollection> fetchTracks(float ptMin = 0.01, bool fromPV = false) const;
+
+    void putEgObjects(edm::Event &iEvent,
+                      const bool writeEgSta,
+                      const std::string &egLablel,
+                      const std::string &tkEmLabel,
+                      const std::string &tkEleLabel,
+                      const float ptMin = 0.01) const;
 
     std::pair<unsigned, unsigned> totAndMaxInput(/*Region::InputType*/ int type) const;
     std::pair<unsigned, unsigned> totAndMaxOutput(/*Region::OutputType*/ int type, bool puppi) const;
@@ -50,7 +60,6 @@ namespace l1tpf_impl {
     // these are used to link items back
     std::unordered_map<const l1t::PFCluster *, l1t::PFClusterRef> clusterRefMap_;
     std::unordered_map<const l1t::PFTrack *, l1t::PFTrackRef> trackRefMap_;
-    std::unordered_map<const l1t::Muon *, l1t::PFCandidate::MuonRef> muonRefMap_;
   };
 
 }  // namespace l1tpf_impl
