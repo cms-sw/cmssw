@@ -69,6 +69,8 @@ namespace edm {
                       BranchDescription::MatchMode branchesMustMatch = BranchDescription::Permissive);
 
     void updateFromInput(ProductList const& other);
+    // triggers callbacks for modules watching registration
+    void addFromInput(edm::ProductRegistry const&);
 
     void updateFromInput(std::vector<BranchDescription> const& other);
 
