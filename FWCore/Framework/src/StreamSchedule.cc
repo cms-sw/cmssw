@@ -288,7 +288,7 @@ namespace edm {
       BranchIDListHelper& branchIDListHelper,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
-      std::shared_ptr<ProcessConfiguration> processConfiguration,
+      std::shared_ptr<ProcessConfiguration const> processConfiguration,
       StreamID streamID,
       ProcessContext const* processContext)
       : workerManager_(modReg, areg, actions),
