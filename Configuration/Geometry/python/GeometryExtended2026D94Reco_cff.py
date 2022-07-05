@@ -28,7 +28,7 @@ CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
                                 "TOWER",
                                 "HGCalEESensitive",
                                 "HGCalHESiliconSensitive",
-                                "HGCalHEScintillatorSensitive"
+                                "HGCalHEScintillatorSensitive",
                                 "HGCalHFNoseSensitive",
     )
 )
