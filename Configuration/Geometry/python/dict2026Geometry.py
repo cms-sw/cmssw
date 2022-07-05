@@ -1228,7 +1228,7 @@ caloDict = {
             '                                "TOWER",',
             '                                "HGCalEESensitive",',
             '                                "HGCalHESiliconSensitive",',
-            '                                "HGCalHEScintillatorSensitive"',
+            '                                "HGCalHEScintillatorSensitive",',
             '                                "HGCalHFNoseSensitive",',
             '    )',
             ')',
