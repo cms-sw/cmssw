@@ -8,10 +8,10 @@
 namespace ecal {
   namespace weights {
 
-    void entryPoint(ecal::DigisCollection<calo::common::DevStoragePolicy> const&,
-                    EventOutputDataGPU&,
-                    cms::cuda::device::unique_ptr<double[]>&,
-                    cudaStream_t);
+    void phase2Weights(ecal::DigisCollection<calo::common::DevStoragePolicy> const&,
+                       EventOutputDataGPU&,
+                       cms::cuda::device::unique_ptr<double[]>&,
+                       cudaStream_t);
 
   }  // namespace weights
 }  // namespace ecal

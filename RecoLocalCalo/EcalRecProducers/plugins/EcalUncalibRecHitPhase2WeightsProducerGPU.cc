@@ -50,6 +50,7 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::fillDescriptions(edm::Configurat
   edm::ParameterSetDescription desc;
 
   desc.add<std::string>("recHitsLabelEB", "EcalUncalibRecHitsEB");
+  //The below weights values should be kept up to date with those on the CPU version of this module
   desc.add<std::vector<double>>("weights",
                                 {-0.121016,
                                  -0.119899,
@@ -102,7 +103,7 @@ void EcalUncalibRecHitPhase2WeightsProducerGPU::acquire(edm::Event const &event,
   // output on GPU
   eventOutputDataGPU_.allocate(size_, ctx.stream());
 
-  ecal::weights::entryPoint(digis, eventOutputDataGPU_, weights_d, ctx.stream());
+  ecal::weights::phase2Weights(digis, eventOutputDataGPU_, weights_d, ctx.stream());
 }
 
 void EcalUncalibRecHitPhase2WeightsProducerGPU::produce(edm::Event &event, const edm::EventSetup &setup) {
