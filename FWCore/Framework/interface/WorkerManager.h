@@ -83,6 +83,7 @@ namespace edm {
     void endStream(StreamID iID, StreamContext& streamContext);
 
     AllWorkers const& allWorkers() const { return allWorkers_; }
+    AllWorkers const& unscheduledWorkers() const { return unscheduled_.workers(); }
 
     void addToAllWorkers(Worker* w);
 

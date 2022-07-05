@@ -255,6 +255,7 @@ namespace edm {
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const { return workerManager_.allWorkers(); }
 
+    AllWorkers const& unscheduledWorkers() const { return workerManager_.unscheduledWorkers(); }
     unsigned int numberOfUnscheduledModules() const { return number_of_unscheduled_modules_; }
 
     StreamContext const& context() const { return streamContext_; }
