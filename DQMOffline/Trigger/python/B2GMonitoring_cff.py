@@ -84,8 +84,37 @@ AK8PFJet400_TrimMass30_Mjjmonitoring = hltMjjmonitoring.clone(
 
 AK8PFJet400_TrimMass30_Softdropmonitoring = hltSoftdropmonitoring.clone(
     FolderName = 'HLT/B2G/AK8PFJet400_TrimMass30',
-    jetSelection = "pt > 65 && eta < 2.4",
-    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_AK8PFJet400_TrimMass30_v*"])
+    jetSelection = "pt > 200 && eta < 2.4",
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_AK8PFJet400_TrimMass30_v*"]),
+    histoPSet = dict(
+        htBinning = [0., 10., 20., 30., 40., 50.,  60., 70., 80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 230., 240., 250., 260., 270., 280., 290., 300., 310., 320., 330., 340., 350.],
+        htPSet = dict(nbins = 200, xmin = -0.5, xmax = 19999.5)
+    )
+)
+
+# AK8PFJet400_MassSD30 monitoring
+
+AK8PFJet400_MassSD30_PromptMonitoring = hltJetMETmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFJet400_MassSD30',
+    ptcut = 400,
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_AK8PFJet400_MassSD30_v*"])
+)
+
+AK8PFJet400_MassSD30_Mjjmonitoring = hltMjjmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFJet400_MassSD30',
+    jets = "ak8PFJetsPuppi",
+    jetSelection = "pt > 200 && eta < 2.4",
+    numGenericTriggerEventPSet= dict(hltPaths = ["HLT_AK8PFJet400_MassSD30_v*"])
+)
+
+AK8PFJet400_MassSD30_Softdropmonitoring = hltSoftdropmonitoring.clone(
+    FolderName = 'HLT/B2G/AK8PFJet400_MassSD30',
+    jetSelection = "pt > 200 && eta < 2.4",
+    numGenericTriggerEventPSet = dict(hltPaths = ["HLT_AK8PFJet400_MassSD30_v*"]),
+    histoPSet = dict(
+        htBinning = [0., 10., 20., 30., 40., 50., 60., 70., 80., 90., 100., 110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 230., 240., 250., 260., 270., 280., 290., 300., 310., 320., 330., 340., 350.],
+        htPSet = dict(nbins = 200, xmin = -0.5, xmax = 19999.5)
+    )
 )
 
 # Lepton cross trigger monitoring
@@ -121,6 +150,9 @@ b2gMonitorHLT = cms.Sequence(
     AK8PFJet400_TrimMass30_PromptMonitoring +
     AK8PFJet400_TrimMass30_Mjjmonitoring +
 
+    AK8PFJet400_MassSD30_PromptMonitoring +
+    AK8PFJet400_MassSD30_Mjjmonitoring +
+
     B2GegHLTDQMOfflineTnPSource
 
   * hltDQMonitorB2G_MuEle
@@ -137,8 +169,8 @@ b2gHLTDQMSourceWithRECO = cms.Sequence(
     PFHT1050_Softdropmonitoring +
     AK8PFJet500_Softdropmonitoring +
     AK8PFHT800_TrimMass50_Softdropmonitoring +
-    AK8PFJet400_TrimMass30_Softdropmonitoring     
-
+    AK8PFJet400_TrimMass30_Softdropmonitoring +
+    AK8PFJet400_MassSD30_Softdropmonitoring
 )
 
 b2gHLTDQMSourceExtra = cms.Sequence(
