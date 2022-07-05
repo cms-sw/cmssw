@@ -33,6 +33,6 @@ pvMonitor = DQMEDAnalyzer('PrimaryVertexMonitor',
 # same as above, should be in sync with cut used in Vertex finder...
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-phase1Pixel.toModify(pvMonitor, EtaBin=31, EtaMin=-3.0, EtaMax=3.0)
+phase1Pixel.toModify(pvMonitor, EtaBin=28, EtaMin=-2.7, EtaMax=2.7)
 phase2_tracker.toModify(pvMonitor, EtaBin=41, EtaBin2D=9, EtaMin=-4.0, EtaMax=4.0)
 
