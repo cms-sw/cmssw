@@ -218,6 +218,20 @@ namespace edm {
     }
   }
 
+  void ProductRegistry::addFromInput(edm::ProductRegistry const& other) {
+    throwIfFrozen();
+    for (auto const& prod : other.productList_) {
+      ProductList::iterator iter = productList_.find(prod.first);
+      if (iter == productList_.end()) {
+        productList_.insert(std::make_pair(prod.first, prod.second));
+        addCalled(prod.second, false);
+      } else {
+        assert(combinable(iter->second, prod.second));
+        iter->second.merge(prod.second);
+      }
+    }
+  }
+
   void ProductRegistry::setUnscheduledProducts(std::set<std::string> const& unscheduledLabels) {
     throwIfFrozen();
 

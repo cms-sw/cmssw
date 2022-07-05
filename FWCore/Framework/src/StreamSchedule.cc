@@ -285,7 +285,6 @@ namespace edm {
       service::TriggerNamesService const& tns,
       PreallocationConfiguration const& prealloc,
       ProductRegistry& preg,
-      BranchIDListHelper& branchIDListHelper,
       ExceptionToActionTable const& actions,
       std::shared_ptr<ActivityRegistry> areg,
       std::shared_ptr<ProcessConfiguration const> processConfiguration,

@@ -170,7 +170,7 @@ namespace edm {
 
     /// switch to a different ProductRegistry.
     void switchTo(std::shared_ptr<ProductRegistry> iOther) { productRegistry_ = iOther; }
-    
+
     /// Accessor for maximum number of events to be read.
     /// -1 is used for unlimited.
     int maxEvents() const { return maxEvents_; }
