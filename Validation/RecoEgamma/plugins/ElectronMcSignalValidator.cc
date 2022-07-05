@@ -2548,15 +2548,8 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
       bookH1withSumw2(iBooker, "seedMask_Tec", "ele seed hits mask when subdet2 is tec", 13, -0.5, 12.5);
   h1_ele_seed_dphi2 = bookH1withSumw2(
       iBooker, "seedDphi2", "ele seed dphi 2nd layer", 50, -0.010, +0.010, "#phi_{hit}-#phi_{pred} (rad)");
-  h2_ele_seed_dphi2VsEta = bookH2(iBooker,
-                                  "seedDphi2_VsEta",
-                                  "ele seed dphi 2nd layer vs eta",
-                                  eta2D_nbin,
-                                  eta_min,
-                                  eta_max,
-                                  50,
-                                  -0.003,
-                                  +0.003);
+  h2_ele_seed_dphi2VsEta = bookH2(
+      iBooker, "seedDphi2_VsEta", "ele seed dphi 2nd layer vs eta", eta2D_nbin, eta_min, eta_max, 50, -0.003, +0.003);
   h2_ele_seed_dphi2VsPt =
       bookH2(iBooker, "seedDphi2_VsPt", "ele seed dphi 2nd layer vs pt", pt2D_nbin, 0., pt_max, 50, -0.003, +0.003);
   h1_ele_seed_dphi2pos = bookH1withSumw2(
@@ -2574,15 +2567,8 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
       iBooker, "seedDphi2Pos_VsPt", "ele seed dphi 2nd layer positron vs pt", pt2D_nbin, 0., pt_max, 50, -0.003, +0.003);
   h1_ele_seed_drz2 = bookH1withSumw2(
       iBooker, "seedDrz2", "ele seed dr (dz) 2nd layer", 50, -0.03, +0.03, "r(z)_{hit}-r(z)_{pred} (cm)");
-  h2_ele_seed_drz2VsEta = bookH2(iBooker,
-                                 "seedDrz2_VsEta",
-                                 "ele seed dr/dz 2nd layer vs eta",
-                                 eta2D_nbin,
-                                 eta_min,
-                                 eta_max,
-                                 50,
-                                 -0.03,
-                                 +0.03);
+  h2_ele_seed_drz2VsEta = bookH2(
+      iBooker, "seedDrz2_VsEta", "ele seed dr/dz 2nd layer vs eta", eta2D_nbin, eta_min, eta_max, 50, -0.03, +0.03);
   h2_ele_seed_drz2VsPt =
       bookH2(iBooker, "seedDrz2_VsPt", "ele seed dr/dz 2nd layer vs pt", pt2D_nbin, 0., pt_max, 50, -0.03, +0.03);
   h1_ele_seed_drz2pos = bookH1withSumw2(
