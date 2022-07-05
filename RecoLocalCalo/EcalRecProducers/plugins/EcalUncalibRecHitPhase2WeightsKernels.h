@@ -12,7 +12,7 @@ namespace ecal {
                                         ::ecal::reco::StorageScalarType* amplitudeErrorEB,
                                         uint32_t* dids_outEB,
                                         int const nchannels,
-                                        double* weights_d,
+                                        double const* weights_d,
                                         uint32_t* flagsEB);
   }  //namespace weights
 }  //namespace ecal

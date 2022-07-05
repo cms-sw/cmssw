@@ -56,6 +56,7 @@ void EcalPhase2DigiToGPUProducer::acquire(edm::Event const& event,
 
   size_ = pdigis.size();
 
+  digis_.size = size_;
   //allocate device pointers for output
   digis_.ids = cms::cuda::make_device_unique<uint32_t[]>(size_, ctx.stream());
   digis_.data = cms::cuda::make_device_unique<uint16_t[]>(size_ * EcalDataFrame_Ph2::MAXSAMPLES, ctx.stream());
@@ -94,7 +95,6 @@ void EcalPhase2DigiToGPUProducer::acquire(edm::Event const& event,
 void EcalPhase2DigiToGPUProducer::produce(edm::Event& event, edm::EventSetup const& setup) {
   //get cuda context state for producer
   cms::cuda::ScopedContextProduce ctx{cudaState_};
-  digis_.size = size_;
 
   //emplace output in the context
   ctx.emplace(event, digisCollectionToken_, std::move(digis_));
