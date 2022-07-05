@@ -11,7 +11,6 @@
 //
 //********************************************************************************
 
-
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 
@@ -20,21 +19,17 @@
 
 class HLTGenValObject {
 public:
-
   // empty constructor
   HLTGenValObject() {}
 
   // constructor from GenParticle
-  HLTGenValObject(const reco::GenParticle &p)
-      : p4Polar_(p.p4()), p4Cartesian_(p.p4()) {}
+  HLTGenValObject(const reco::GenParticle &p) : p4Polar_(p.p4()), p4Cartesian_(p.p4()) {}
 
   // constructor from GenJet
-  HLTGenValObject(const reco::GenJet &p)
-      : p4Polar_(p.p4()), p4Cartesian_(p.p4()) {}
+  HLTGenValObject(const reco::GenJet &p) : p4Polar_(p.p4()), p4Cartesian_(p.p4()) {}
 
   // constructor from LorentzVector (for energy sums)
-  HLTGenValObject(const reco::Candidate::PolarLorentzVector& p)
-      : p4Polar_(p), p4Cartesian_(p) {}
+  HLTGenValObject(const reco::Candidate::PolarLorentzVector &p) : p4Polar_(p), p4Cartesian_(p) {}
 
   // object functions, for usage of HLTGenValObjects by other modules
   double pt() const { return p4Polar_.pt(); }

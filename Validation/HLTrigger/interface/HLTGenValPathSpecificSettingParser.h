@@ -21,20 +21,20 @@
 
 class HLTGenValPathSpecificSettingParser {
 public:
-
   // constructor
-  HLTGenValPathSpecificSettingParser(std::string pathSpecificSettings, std::vector<edm::ParameterSet> binnings, std::string vsVar);
+  HLTGenValPathSpecificSettingParser(std::string pathSpecificSettings,
+                                     std::vector<edm::ParameterSet> binnings,
+                                     std::string vsVar);
 
-  std::vector<edm::ParameterSet> getPathSpecificCuts() {return pathSpecificCutsVector_;}
-  std::vector<double> getPathSpecificBins() {return pathSpecificBins_;}
+  std::vector<edm::ParameterSet> getPathSpecificCuts() { return pathSpecificCutsVector_; }
+  std::vector<double> getPathSpecificBins() { return pathSpecificBins_; }
   bool havePathSpecificBins() { return (!pathSpecificBins_.empty()); }
-  std::string getTag() {return tag_;}
+  std::string getTag() { return tag_; }
 
 private:
   std::vector<edm::ParameterSet> pathSpecificCutsVector_;
   std::vector<double> pathSpecificBins_;
   std::string tag_ = "";
-
 };
 
 #endif
