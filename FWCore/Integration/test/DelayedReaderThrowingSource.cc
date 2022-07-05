@@ -104,7 +104,7 @@ namespace edm {
                                            ));
       branches.back().setOnDemand(true);  //says we use delayed reader
     }
-    productRegistry()->updateFromInput(branches);
+    productRegistryUpdate().updateFromInput(branches);
 
     ProcessHistory ph;
     ph.emplace_back("INPUTTEST", dummy.id(), PROJECT_VERSION, getPassID());
