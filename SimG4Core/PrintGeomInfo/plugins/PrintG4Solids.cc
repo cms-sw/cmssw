@@ -94,7 +94,8 @@ void PrintG4Solids::dumpSummary(std::ostream &out) {
           << trap->GetXHalfLength4() << ":" << trap->GetTanAlpha2();
     } else if (type == "G4Trd") {
       const G4Trd *trd = static_cast<const G4Trd *>(*solid);
-      out << "xl1:xl2:yl1:yl2:zhalf " << trd->GetXHalfLength1() << ":" << trd->GetXHalfLength2() << ":" << trd->GetYHalfLength1() << ":" << trd->GetYHalfLength2() << ":" << trd->GetZHalfLength();
+      out << "xl1:xl2:yl1:yl2:zhalf " << trd->GetXHalfLength1() << ":" << trd->GetXHalfLength2() << ":"
+          << trd->GetYHalfLength1() << ":" << trd->GetYHalfLength2() << ":" << trd->GetZHalfLength();
     }
     out << G4endl;
   }
