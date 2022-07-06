@@ -3,7 +3,7 @@
 
 ## Output via MessageLogger - configured, after much flailing, so that
 ## ONLY the LogVerbatim("CSCBadChannels") messages are sent to std:output.
-
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
@@ -27,9 +27,8 @@ process.MessageLogger.cout = cms.untracked.PSet(
 )
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
-
-# This is OK for 72x real data
-process.GlobalTag.globaltag = "GR_R_71_V1::All"
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 # --- NUMBER OF EVENTS ---  JUST ONE!
 
