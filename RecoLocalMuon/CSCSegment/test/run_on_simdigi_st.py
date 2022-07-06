@@ -2,6 +2,7 @@
 ## This version runs in 7_4_0_preX on a 7_3_0 simulated data DIGI relval sample.
 ##     -- USING DEFAULT ALGO "ST"
 ## Run on  100  events of a 25ns PU TTbar sample
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
@@ -19,8 +20,8 @@ process.CSCIndexerESProducer.AlgoName = cms.string("CSCIndexerPostls1")
 process.CSCChannelMapperESProducer.AlgoName = cms.string("CSCChannelMapperPostls1")
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
-
-process.GlobalTag.globaltag = "MCRUN2_73_V5::All"
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 # --- NUMBER OF EVENTS
 
