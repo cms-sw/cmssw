@@ -102,16 +102,18 @@ void PrintG4Solids::dumpSummary(std::ostream &out) {
       const G4Polycone *cone = static_cast<const G4Polycone *>(*solid);
       const auto hist = cone->GetOriginalParameters();
       int num = hist->Num_z_planes;
-      out << " angle " << convertRadToDeg(hist->Start_angle) << ":" << convertRadToDeg(hist->Opening_angle) << " with " << num << " planes:";
+      out << " angle " << convertRadToDeg(hist->Start_angle) << ":" << convertRadToDeg(hist->Opening_angle) << " with "
+          << num << " planes:";
       for (int k = 0; k < num; ++k)
-	out << " [" << k << "] " << hist->Z_values[k] << ":" << hist->Rmin[k] << ":" << hist->Rmax[k];
+        out << " [" << k << "] " << hist->Z_values[k] << ":" << hist->Rmin[k] << ":" << hist->Rmax[k];
     } else if (type == "G4Polyhedra") {
       const G4Polyhedra *pgon = static_cast<const G4Polyhedra *>(*solid);
       const auto hist = pgon->GetOriginalParameters();
       int num = hist->Num_z_planes;
-      out << " angle " << convertRadToDeg(hist->Start_angle) << ":" << convertRadToDeg(hist->Opening_angle) << " with " << hist->numSide << " sides and " << num << " planes:";
+      out << " angle " << convertRadToDeg(hist->Start_angle) << ":" << convertRadToDeg(hist->Opening_angle) << " with "
+          << hist->numSide << " sides and " << num << " planes:";
       for (int k = 0; k < num; ++k)
-	out << " [" << k << "] " << hist->Z_values[k] << ":" << hist->Rmin[k] << ":" << hist->Rmax[k];
+        out << " [" << k << "] " << hist->Z_values[k] << ":" << hist->Rmin[k] << ":" << hist->Rmax[k];
     }
     out << G4endl;
   }
