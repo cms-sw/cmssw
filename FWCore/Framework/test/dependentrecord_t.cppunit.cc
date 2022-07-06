@@ -767,7 +767,7 @@ namespace {
             group.wait();
           } while (not waitTask.done());
           if (waitTask.exceptionPtr()) {
-            std::rethrow_exception(*waitTask.exceptionPtr());
+            std::rethrow_exception(waitTask.exceptionPtr());
           }
         }
       }
@@ -796,7 +796,7 @@ namespace {
             group.wait();
           } while (not waitTask.done());
           if (waitTask.exceptionPtr()) {
-            std::rethrow_exception(*waitTask.exceptionPtr());
+            std::rethrow_exception(waitTask.exceptionPtr());
           }
         }
       }

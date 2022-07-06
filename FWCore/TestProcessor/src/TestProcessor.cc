@@ -439,8 +439,8 @@ namespace edm {
         do {
           taskGroup_.wait();
         } while (not globalWaitTask.done());
-        if (globalWaitTask.exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
+        if (globalWaitTask.exceptionPtr()) {
+          std::rethrow_exception(globalWaitTask.exceptionPtr());
         }
       }
       beginProcessBlockCalled_ = true;
@@ -470,8 +470,8 @@ namespace edm {
         do {
           taskGroup_.wait();
         } while (not globalWaitTask.done());
-        if (globalWaitTask.exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
+        if (globalWaitTask.exceptionPtr()) {
+          std::rethrow_exception(globalWaitTask.exceptionPtr());
         }
       }
       {
@@ -490,7 +490,7 @@ namespace edm {
           taskGroup_.wait();
         } while (not streamLoopWaitTask.done());
         if (streamLoopWaitTask.exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
+          std::rethrow_exception(streamLoopWaitTask.exceptionPtr());
         }
       }
       beginRunCalled_ = true;
@@ -522,7 +522,7 @@ namespace edm {
           taskGroup_.wait();
         } while (not globalWaitTask.done());
         if (globalWaitTask.exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
+          std::rethrow_exception(globalWaitTask.exceptionPtr());
         }
       }
       {
@@ -542,7 +542,7 @@ namespace edm {
           taskGroup_.wait();
         } while (not streamLoopWaitTask.done());
         if (streamLoopWaitTask.exceptionPtr() != nullptr) {
-          std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
+          std::rethrow_exception(streamLoopWaitTask.exceptionPtr());
         }
       }
       beginLumiCalled_ = true;
@@ -582,7 +582,7 @@ namespace edm {
         taskGroup_.wait();
       } while (not waitTask.done());
       if (waitTask.exceptionPtr() != nullptr) {
-        std::rethrow_exception(*(waitTask.exceptionPtr()));
+        std::rethrow_exception(waitTask.exceptionPtr());
       }
       ++eventNumber_;
     }
@@ -620,7 +620,7 @@ namespace edm {
             taskGroup_.wait();
           } while (not streamLoopWaitTask.done());
           if (streamLoopWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
+            std::rethrow_exception(streamLoopWaitTask.exceptionPtr());
           }
         }
         {
@@ -637,7 +637,7 @@ namespace edm {
             taskGroup_.wait();
           } while (not globalWaitTask.done());
           if (globalWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
+            std::rethrow_exception(globalWaitTask.exceptionPtr());
           }
         }
       }
@@ -681,7 +681,7 @@ namespace edm {
             taskGroup_.wait();
           } while (not streamLoopWaitTask.done());
           if (streamLoopWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(streamLoopWaitTask.exceptionPtr()));
+            std::rethrow_exception(streamLoopWaitTask.exceptionPtr());
           }
         }
         {
@@ -698,7 +698,7 @@ namespace edm {
             taskGroup_.wait();
           } while (not globalWaitTask.done());
           if (globalWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
+            std::rethrow_exception(globalWaitTask.exceptionPtr());
           }
         }
 
@@ -728,7 +728,7 @@ namespace edm {
             taskGroup_.wait();
           } while (not globalWaitTask.done());
           if (globalWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(*(globalWaitTask.exceptionPtr()));
+            std::rethrow_exception(globalWaitTask.exceptionPtr());
           }
         }
       }

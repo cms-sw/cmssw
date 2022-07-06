@@ -354,7 +354,7 @@ namespace edm {
     virtual bool hasAcquire() const = 0;
 
     template <typename T>
-    std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr const*,
+    std::exception_ptr runModuleAfterAsyncPrefetch(std::exception_ptr,
                                                    typename T::TransitionInfoType const&,
                                                    StreamID,
                                                    ParentContext const&,
@@ -362,12 +362,12 @@ namespace edm {
 
     void runAcquire(EventTransitionInfo const&, ParentContext const&, WaitingTaskWithArenaHolder&);
 
-    void runAcquireAfterAsyncPrefetch(std::exception_ptr const*,
+    void runAcquireAfterAsyncPrefetch(std::exception_ptr,
                                       EventTransitionInfo const&,
                                       ParentContext const&,
                                       WaitingTaskWithArenaHolder);
 
-    std::exception_ptr handleExternalWorkException(std::exception_ptr const* iEPtr, ParentContext const& parentContext);
+    std::exception_ptr handleExternalWorkException(std::exception_ptr iEPtr, ParentContext const& parentContext);
 
     template <typename T>
     class RunModuleTask : public WaitingTask {
@@ -418,7 +418,7 @@ namespace edm {
             } catch (...) {
               temp_excptr = std::current_exception();
               if (not excptr) {
-                excptr = &temp_excptr;
+                excptr = temp_excptr;
               }
             }
           }
@@ -439,7 +439,7 @@ namespace edm {
               // at the end transition. This can guarantee that the module
               // only processes one run or lumi at a time
               EnableQueueGuard enableQueueGuard{workerhelper::CallImpl<T>::enableGlobalQueue(worker)};
-              std::exception_ptr* ptr = nullptr;
+              std::exception_ptr ptr;
               worker->template runModuleAfterAsyncPrefetch<T>(ptr, info, streamID, parentContext, sContext);
             };
             //keep another global transition from running if necessary
@@ -513,7 +513,7 @@ namespace edm {
         } catch (...) {
           temp_excptr = std::current_exception();
           if (not excptr) {
-            excptr = &temp_excptr;
+            excptr = temp_excptr;
           }
         }
 
@@ -528,7 +528,7 @@ namespace edm {
                          //Need to make the services available
                          ServiceRegistry::Operate operateRunAcquire(serviceToken.lock());
 
-                         std::exception_ptr* ptr = nullptr;
+                         std::exception_ptr ptr;
                          worker->runAcquireAfterAsyncPrefetch(ptr, info, parentContext, holder);
                        });
             return;
@@ -1019,16 +1019,15 @@ namespace edm {
   }
 
   template <typename T>
-  std::exception_ptr Worker::runModuleAfterAsyncPrefetch(std::exception_ptr const* iEPtr,
+  std::exception_ptr Worker::runModuleAfterAsyncPrefetch(std::exception_ptr iEPtr,
                                                          typename T::TransitionInfoType const& transitionInfo,
                                                          StreamID streamID,
                                                          ParentContext const& parentContext,
                                                          typename T::Context const* context) {
     std::exception_ptr exceptionPtr;
     if (iEPtr) {
-      assert(*iEPtr);
-      if (shouldRethrowException(*iEPtr, parentContext, T::isEvent_)) {
-        exceptionPtr = *iEPtr;
+      if (shouldRethrowException(iEPtr, parentContext, T::isEvent_)) {
+        exceptionPtr = iEPtr;
         setException<T::isEvent_>(exceptionPtr);
       } else {
         setPassed<T::isEvent_>();
@@ -1149,7 +1148,7 @@ namespace edm {
                                                ParentContext const& parentContext,
                                                typename T::Context const* context) {
     timesVisited_.fetch_add(1, std::memory_order_relaxed);
-    std::exception_ptr const* prefetchingException = nullptr;  // null because there was no prefetching to do
+    std::exception_ptr prefetchingException;  // null because there was no prefetching to do
     return runModuleAfterAsyncPrefetch<T>(prefetchingException, transitionInfo, streamID, parentContext, context);
   }
 }  // namespace edm
