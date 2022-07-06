@@ -26,10 +26,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = 'STARTUP3X_V14::All'
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 ### standard includes
 process.load('Configuration.StandardSequences.Services_cff')
