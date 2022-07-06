@@ -88,8 +88,9 @@ void BPHDecayConstrainedBuilderBase::setConstr(bool flag) {
     return;
   outdated = true;
   massConstr = flag;
+  BPHMassFitSelect* mfs = massFitSelector(mFitSel->getMassMin(), mFitSel->getMassMax());
   delete mFitSel;
-  mFitSel = massFitSelector(mFitSel->getMassMin(), mFitSel->getMassMax());
+  mFitSel = mfs;
   mfSelForce = false;
   return;
 }
