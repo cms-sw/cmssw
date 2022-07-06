@@ -12,8 +12,8 @@ process.load("Configuration.EventContent.EventContentCosmics_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ########## include here the correct global tag. ########## 
 # Have a look here: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions
-# to check if there are newer tags
-process.GlobalTag.globaltag = "CRAFT_ALL_V11::All"
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 process.prefer("GlobalTag")
 ##########################################################
 
