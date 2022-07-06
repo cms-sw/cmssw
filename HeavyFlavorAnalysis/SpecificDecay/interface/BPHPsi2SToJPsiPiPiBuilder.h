@@ -62,7 +62,7 @@ public:
 
   /** Destructor
    */
-  ~BPHPsi2SToJPsiPiPiBuilder() override {}
+  ~BPHPsi2SToJPsiPiPiBuilder() override = default;
 };
 
 #endif
