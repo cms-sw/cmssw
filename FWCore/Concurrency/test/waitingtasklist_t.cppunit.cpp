@@ -41,7 +41,7 @@ namespace {
 
     void execute() final {
       if (exceptionPtr()) {
-        m_ptr = *exceptionPtr();
+        m_ptr = exceptionPtr();
       }
       m_called = true;
       return;
