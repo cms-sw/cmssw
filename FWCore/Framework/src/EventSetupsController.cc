@@ -436,7 +436,7 @@ namespace edm {
       } while (not waitUntilIOVInitializationCompletes.done());
 
       if (waitUntilIOVInitializationCompletes.exceptionPtr() != nullptr) {
-        std::rethrow_exception(*(waitUntilIOVInitializationCompletes.exceptionPtr()));
+        std::rethrow_exception(waitUntilIOVInitializationCompletes.exceptionPtr());
       }
     }
   }  // namespace eventsetup
