@@ -75,7 +75,6 @@ BPHDecayToResTrkTrkSameMassBuilderBase::BPHDecayToResTrkTrkSameMassBuilderBase(
 //--------------
 void BPHDecayToResTrkTrkSameMassBuilderBase::fillTrkTrkList() {
   double mTotMax = massSel->getMassMax();
-  double mTpnMax = mTotMax - (0.8 * rMass);
 
   BPHDecayToChargedXXbarBuilder ttBuilder(*evSetup, pName, nName, tMass, tSigma, pCollection, nCollection);
   ttBuilder.setPtMin(ptMin);
@@ -83,7 +82,7 @@ void BPHDecayToResTrkTrkSameMassBuilderBase::fillTrkTrkList() {
   ttBuilder.setDzMax(1.0);
   ttBuilder.setMassMin(0.0);
   if (mTotMax >= 0.0)
-    ttBuilder.setMassMax(mTpnMax);
+    ttBuilder.setMassMax(mTotMax - (0.8 * rMass));
   else
     ttBuilder.setMassMax(-1.0);
   ttBuilder.setMinPDiff(minPDiff);
