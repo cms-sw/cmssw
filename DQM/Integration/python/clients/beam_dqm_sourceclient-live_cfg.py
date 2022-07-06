@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # Define here the BeamSpotOnline record name,
 # it will be used both in BeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineLegacy'
+BSOnlineTag = 'BeamSpotOnlineLegacyTestRun3'
 BSOnlineJobName = 'BeamSpotOnlineLegacy'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
@@ -324,7 +324,7 @@ process.dqmBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
 
 process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
 process.dqmBeamMonitor.PVFitter.minVertexNdf = 10
-process.dqmBeamMonitor.PVFitter.errorScale = 1.22
+process.dqmBeamMonitor.PVFitter.errorScale = 1.0
 
 #----------------------------
 # Pixel tracks/vertices reco
