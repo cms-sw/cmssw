@@ -17,7 +17,8 @@ process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
-process.GlobalTag.globaltag = 'START71_V1::All'#POSTLS171_V1::All'
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 ### Track Refitter
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
