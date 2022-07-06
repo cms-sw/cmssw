@@ -15,6 +15,27 @@ nanoMetadata = cms.EDProducer("UniqueStringProducer",
         tag = cms.string("untagged"),
     )
 )
+#nanogenSequence = cms.Sequence(
+   # nanoMetadata+
+   # particleLevel+
+   # genJetTable+
+   # patJetPartons+
+   # genJetFlavourAssociation+
+   # genJetFlavourTable+
+   # genJetAK8Table+
+   # genJetAK8FlavourAssociation+
+   # genJetAK8FlavourTable+
+   # genTauSequence+
+   # genTable+
+   # genParticleTables+
+   # genVertexTables+
+   # tautagger+
+   # rivetProducerHTXS+
+   # particleLevelTables+
+   # metMCTable+
+  #  genWeightsTable+
+ #   lheInfoTable
+#)
 
 nanogenSequence = cms.Sequence(
     nanoMetadata+
@@ -22,7 +43,6 @@ nanogenSequence = cms.Sequence(
     genJetTable+
     patJetPartons+
     genJetFlavourAssociation+
-    genJetFlavourTable+
     genJetAK8Table+
     genJetAK8FlavourAssociation+
     genJetAK8FlavourTable+
