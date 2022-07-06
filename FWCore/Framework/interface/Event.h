@@ -5,6 +5,7 @@
 //
 // Package:     Framework
 // Class  :     Event
+// Foo    : bar
 //
 /**\class Event Event.h FWCore/Framework/interface/Event.h
 
