@@ -8,6 +8,8 @@
 
 #include "G4Box.hh"
 #include "G4Cons.hh"
+#include "G4Polycone.hh"
+#include "G4Polyhedra.hh"
 #include "G4Trap.hh"
 #include "G4Trd.hh"
 #include "G4Tubs.hh"
@@ -20,9 +22,9 @@
 #include "G4VPhysicalVolume.hh"
 
 #include <algorithm>
-#include <fstream>
 #include <map>
 #include <set>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -88,14 +90,28 @@ void PrintG4Solids::dumpSummary(std::ostream &out) {
           << convertRadToDeg(cone->GetDeltaPhiAngle());
     } else if (type == "G4Trap") {
       const G4Trap *trap = static_cast<const G4Trap *>(*solid);
-      out << "zhalf:yl1:xl11:xl12:tana1:yl2:xl21:xl22:tana2 " << trap->GetZHalfLength() << ":"
+      out << " zhalf:yl1:xl11:xl12:tana1:yl2:xl21:xl22:tana2 " << trap->GetZHalfLength() << ":"
           << trap->GetYHalfLength1() << ":" << trap->GetXHalfLength1() << ":" << trap->GetXHalfLength2() << ":"
           << trap->GetTanAlpha1() << ":" << trap->GetYHalfLength2() << ":" << trap->GetXHalfLength3() << ":"
           << trap->GetXHalfLength4() << ":" << trap->GetTanAlpha2();
     } else if (type == "G4Trd") {
       const G4Trd *trd = static_cast<const G4Trd *>(*solid);
-      out << "xl1:xl2:yl1:yl2:zhalf " << trd->GetXHalfLength1() << ":" << trd->GetXHalfLength2() << ":"
+      out << " xl1:xl2:yl1:yl2:zhalf " << trd->GetXHalfLength1() << ":" << trd->GetXHalfLength2() << ":"
           << trd->GetYHalfLength1() << ":" << trd->GetYHalfLength2() << ":" << trd->GetZHalfLength();
+    } else if (type == "G4Polycone") {
+      const G4Polycone *cone = static_cast<const G4Polycone *>(*solid);
+      const auto hist = cone->GetOriginalParameters();
+      int num = hist->Num_z_planes;
+      out << " angle " << convertRadToDeg(hist->Start_angle) << ":" << convertRadToDeg(hist->Opening_angle) << " with " << num << " planes:";
+      for (int k = 0; k < num; ++k)
+	out << " [" << k << "] " << hist->Z_values[k] << ":" << hist->Rmin[k] << ":" << hist->Rmax[k];
+    } else if (type == "G4Polyhedra") {
+      const G4Polyhedra *pgon = static_cast<const G4Polyhedra *>(*solid);
+      const auto hist = pgon->GetOriginalParameters();
+      int num = hist->Num_z_planes;
+      out << " angle " << convertRadToDeg(hist->Start_angle) << ":" << convertRadToDeg(hist->Opening_angle) << " with " << hist->numSide << " sides and " << num << " planes:";
+      for (int k = 0; k < num; ++k)
+	out << " [" << k << "] " << hist->Z_values[k] << ":" << hist->Rmin[k] << ":" << hist->Rmax[k];
     }
     out << G4endl;
   }
