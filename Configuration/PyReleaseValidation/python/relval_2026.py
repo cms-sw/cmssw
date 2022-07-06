@@ -39,6 +39,7 @@ numWFIB.extend([39634.114]) #2026D88 PU, with 10% OT ineffiency
 numWFIB.extend([40634.0]) #2026D91
 numWFIB.extend([41034.0]) #2026D92
 numWFIB.extend([41434.0]) #2026D93
+numWFIB.extend([41834.0]) #2026D94
 
 #Additional sample for short matrix and IB
 #CloseByPGun for HGCAL

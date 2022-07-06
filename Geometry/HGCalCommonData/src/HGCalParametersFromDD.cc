@@ -17,14 +17,14 @@ namespace {
     if (DDfetch(&sv, val)) {
       const std::vector<std::string>& fvec = val.strings();
       if (fvec.empty()) {
-        throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag.";
+        throw cms::Exception("HGCalGeom") << "getGeometryMode::Failed to get " << s << " tag.";
       }
 
       HGCalStringToEnumParser<HGCalGeometryMode::GeometryMode> eparser;
       HGCalGeometryMode::GeometryMode result = (HGCalGeometryMode::GeometryMode)eparser.parseString(fvec[0]);
       return result;
     } else {
-      throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag";
+      throw cms::Exception("HGCalGeom") << "getGeometryMode::Failed to fetch " << s << " tag";
     }
   }
   HGCalGeometryMode::GeometryMode getGeometryMode(const std::string& s) {
@@ -37,14 +37,14 @@ namespace {
     if (DDfetch(&sv, val)) {
       const std::vector<std::string>& fvec = val.strings();
       if (fvec.empty()) {
-        throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag.";
+        throw cms::Exception("HGCalGeom") << "getGeometryWaferMode::Failed to get " << s << " tag.";
       }
 
       HGCalStringToEnumParser<HGCalGeometryMode::WaferMode> eparser;
       HGCalGeometryMode::WaferMode result = (HGCalGeometryMode::WaferMode)eparser.parseString(fvec[0]);
       return result;
     } else {
-      throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag";
+      throw cms::Exception("HGCalGeom") << "getGeometryWaferMode::Failed to fetch " << s << " tag";
     }
   }
   HGCalGeometryMode::WaferMode getGeometryWaferMode(std::string& s) {
@@ -572,11 +572,11 @@ double HGCalParametersFromDD::getDDDValue(const char* s, const DDsvalues_type& s
   if (DDfetch(&sv, val)) {
     const std::vector<double>& fvec = val.doubles();
     if (fvec.empty()) {
-      throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag.";
+      throw cms::Exception("HGCalGeom") << "getDDDValue::Failed to get " << s << " tag.";
     }
     return fvec[0];
   } else {
-    throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag";
+    throw cms::Exception("HGCalGeom") << "getDDDValue::Failed to fetch " << s << " tag";
   }
 }
 
@@ -585,10 +585,10 @@ std::vector<double> HGCalParametersFromDD::getDDDArray(const char* s, const DDsv
   if (DDfetch(&sv, val)) {
     const std::vector<double>& fvec = val.doubles();
     if (fvec.empty()) {
-      throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag.";
+      throw cms::Exception("HGCalGeom") << "getDDDArray::Failed to get " << s << " tag.";
     }
     return fvec;
   } else {
-    throw cms::Exception("HGCalGeom") << "Failed to get " << s << " tag";
+    throw cms::Exception("HGCalGeom") << "getDDDArray:Failed to fetch " << s << " tag";
   }
 }
