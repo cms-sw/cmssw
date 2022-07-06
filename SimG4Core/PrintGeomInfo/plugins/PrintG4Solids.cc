@@ -9,6 +9,7 @@
 #include "G4Box.hh"
 #include "G4Cons.hh"
 #include "G4Trap.hh"
+#include "G4Trd.hh"
 #include "G4Tubs.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4LogicalVolume.hh"
@@ -72,17 +73,28 @@ void PrintG4Solids::dumpSummary(std::ostream &out) {
     G4String type = (*solid)->GetEntityType();
     out << (*solid)->GetName() << ":" << type << " Volume " << (*solid)->GetCubicVolume();
     if (type == "G4Box") {
-      const G4Box* box = static_cast<const G4Box*>(*solid);
+      const G4Box *box = static_cast<const G4Box *>(*solid);
       out << " dx:dy:dz " << box->GetXHalfLength() << ":" << box->GetYHalfLength() << ":" << box->GetZHalfLength();
     } else if (type == "G4Tubs") {
-      const G4Tubs* tube = static_cast<const G4Tubs*>(*solid);
-      out << " rin:rout:dz:phistart:dphi " << tube->GetInnerRadius() << ":" << tube->GetOuterRadius() << ":" << tube->GetZHalfLength() << ":" << convertRadToDeg(tube->GetStartPhiAngle()) << ":" << convertRadToDeg(tube->GetDeltaPhiAngle());
+      const G4Tubs *tube = static_cast<const G4Tubs *>(*solid);
+      out << " rin:rout:dz:phistart:dphi " << tube->GetInnerRadius() << ":" << tube->GetOuterRadius() << ":"
+          << tube->GetZHalfLength() << ":" << convertRadToDeg(tube->GetStartPhiAngle()) << ":"
+          << convertRadToDeg(tube->GetDeltaPhiAngle());
     } else if (type == "G4Cons") {
-      const G4Cons* cone = static_cast<const G4Cons*>(*solid);
-      out << " rinminus:routminus:rinplus:routplus:dz:phistart:dphi " << cone->GetInnerRadiusMinusZ() << ":" << cone->GetOuterRadiusMinusZ() << ":" << cone->GetInnerRadiusPlusZ() << ":" << cone->GetOuterRadiusPlusZ() << ":" << cone->GetZHalfLength() << ":" << convertRadToDeg(cone->GetStartPhiAngle()) << ":" << convertRadToDeg(cone->GetDeltaPhiAngle());
+      const G4Cons *cone = static_cast<const G4Cons *>(*solid);
+      out << " rinminus:routminus:rinplus:routplus:dz:phistart:dphi " << cone->GetInnerRadiusMinusZ() << ":"
+          << cone->GetOuterRadiusMinusZ() << ":" << cone->GetInnerRadiusPlusZ() << ":" << cone->GetOuterRadiusPlusZ()
+          << ":" << cone->GetZHalfLength() << ":" << convertRadToDeg(cone->GetStartPhiAngle()) << ":"
+          << convertRadToDeg(cone->GetDeltaPhiAngle());
     } else if (type == "G4Trap") {
-      const G4Trap* trap = static_cast<const G4Trap*>(*solid);
-      out << "zhalf:yl1:xl11:xl12:tana1:yl2:xl21:xl22:tana2 " << trap->GetZHalfLength() << ":" << trap->GetYHalfLength1() << ":" << trap->GetXHalfLength1() << ":" << trap->GetXHalfLength2() << ":" << trap->GetTanAlpha1() << ":" << trap->GetYHalfLength2() << ":" << trap->GetXHalfLength3() << ":" << trap->GetXHalfLength4() << ":" << trap->GetTanAlpha2();
+      const G4Trap *trap = static_cast<const G4Trap *>(*solid);
+      out << "zhalf:yl1:xl11:xl12:tana1:yl2:xl21:xl22:tana2 " << trap->GetZHalfLength() << ":"
+          << trap->GetYHalfLength1() << ":" << trap->GetXHalfLength1() << ":" << trap->GetXHalfLength2() << ":"
+          << trap->GetTanAlpha1() << ":" << trap->GetYHalfLength2() << ":" << trap->GetXHalfLength3() << ":"
+          << trap->GetXHalfLength4() << ":" << trap->GetTanAlpha2();
+    } else if (type == "G4Trd") {
+      const G4Trd *trd = static_cast<const G4Trd *>(*solid);
+      out << "xl1:xl2:yl1:yl2:zhalf " << trd->GetXHalfLength1() << ":" << trd->GetXHalfLength2() << ":" << trd->GetYHalfLength1() << ":" << trd->GetYHalfLength2() << ":" << trd->GetZHalfLength();
     }
     out << G4endl;
   }
