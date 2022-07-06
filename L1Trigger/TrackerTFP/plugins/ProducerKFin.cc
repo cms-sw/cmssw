@@ -168,6 +168,8 @@ namespace trackerTFP {
           for (const TTStubRef& ttStubRef : ttTrack.getStubRefs()) {
             const int layerId = setup_->layerId(ttStubRef);
             const int layerIdKF = layerEncoding_->layerIdKF(binEta, binZT, binCot, layerId);
+            if (layerIdKF == -1)
+              continue;
             if (layerCounts[layerIdKF] == setup_->zhtMaxStubsPerLayer())
               continue;
             layerCounts[layerIdKF]++;
@@ -180,8 +182,7 @@ namespace trackerTFP {
             const double cot = dfcot.floating(stubZHT->cot()) + setup_->sectorCot(binEta);
             const double dPhi = dfdPhi.digi(setup_->dPhi(ttStubRef, inv2R));
             const double dZ = dfdZ.digi(setup_->dZ(ttStubRef, cot));
-            const StubKFin stubKFin(*stubZHT, dPhi, dZ, layerIdKF);
-            stubs.emplace_back(stubKFin.frame());
+            stubs.emplace_back(StubKFin(*stubZHT, dPhi, dZ, layerIdKF).frame());
           }
           const int size = *max_element(layerCounts.begin(), layerCounts.end());
           int layerIdKF(0);
