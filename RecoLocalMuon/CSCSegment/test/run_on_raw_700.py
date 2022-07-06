@@ -1,5 +1,6 @@
 ## Dump  100  events in CSC segment builder - Tim Cox - 09.09.2013
 ## This version runs in 700pre3 on a real data RelVal RAW sample.
+## Change Geometry_cff to GeometryDB_cff and update GT July.2022
 
 import FWCore.ParameterSet.Config as cms
 
@@ -13,8 +14,9 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 # --- MATCH GT TO RELEASE AND DATA SAMPLE
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
-process.GlobalTag.globaltag = 'PRE_62_V8::All'
 
 # --- NUMBER OF EVENTS --- 
 

@@ -8,8 +8,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
-process.GlobalTag.globaltag = 'GR_R_36X_V10::All'
-
+# 2022
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
