@@ -13,14 +13,15 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticlePtSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleEtaSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHChi2Select.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -36,38 +37,49 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-BPHDecayToChargedXXbarBuilder::BPHDecayToChargedXXbarBuilder(const edm::EventSetup& es,
-                                                             const std::string& dPosName,
-                                                             const std::string& dNegName,
+BPHDecayToChargedXXbarBuilder::BPHDecayToChargedXXbarBuilder(const BPHEventSetupWrapper& es,
+                                                             const string& dPosName,
+                                                             const string& dNegName,
                                                              double daugMass,
                                                              double daugSigma,
                                                              const BPHRecoBuilder::BPHGenericCollection* posCollection,
                                                              const BPHRecoBuilder::BPHGenericCollection* negCollection)
-    : BPHDecayGenericBuilder(es),
+    : BPHDecayGenericBuilderBase(es),
+      ptMin(-1.0),
+      etaMax(10.0),
+      dzMax(1.0),
       pName(dPosName),
       nName(dNegName),
       dMass(daugMass),
       dSigma(daugSigma),
       pCollection(posCollection),
-      nCollection(negCollection),
-      ptMin(-1.0),
-      etaMax(10.0),
-      dzMax(1.0) {}
-
-//--------------
-// Destructor --
-//--------------
-BPHDecayToChargedXXbarBuilder::~BPHDecayToChargedXXbarBuilder() {}
+      nCollection(negCollection) {}
 
 //--------------
 // Operations --
 //--------------
-vector<BPHPlusMinusConstCandPtr> BPHDecayToChargedXXbarBuilder::build() {
-  if (updated)
-    return recList;
 
-  recList.clear();
+/// set cuts
+void BPHDecayToChargedXXbarBuilder::setPtMin(double pt) {
+  outdated = true;
+  ptMin = pt;
+  return;
+}
 
+void BPHDecayToChargedXXbarBuilder::setEtaMax(double eta) {
+  outdated = true;
+  etaMax = eta;
+  return;
+}
+
+void BPHDecayToChargedXXbarBuilder::setDzMax(double dz) {
+  outdated = true;
+  dzMax = dz;
+  return;
+}
+
+/// build candidates
+void BPHDecayToChargedXXbarBuilder::fillRecList() {
   // extract basic informations from input collections
 
   vector<Particle*> pList;
@@ -130,26 +142,6 @@ vector<BPHPlusMinusConstCandPtr> BPHDecayToChargedXXbarBuilder::build() {
   for (iNeg = 0; iNeg < nNeg; ++iNeg)
     delete nList[iNeg];
 
-  updated = true;
-  return recList;
-}
-
-/// set cuts
-void BPHDecayToChargedXXbarBuilder::setPtMin(double pt) {
-  updated = false;
-  ptMin = pt;
-  return;
-}
-
-void BPHDecayToChargedXXbarBuilder::setEtaMax(double eta) {
-  updated = false;
-  etaMax = eta;
-  return;
-}
-
-void BPHDecayToChargedXXbarBuilder::setDzMax(double dz) {
-  updated = false;
-  dzMax = dz;
   return;
 }
 

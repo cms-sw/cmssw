@@ -13,15 +13,15 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMuonPtSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMuonEtaSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHChi2Select.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMultiSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMultiSelect.h"
 
 //---------------
 // C++ Headers --
@@ -35,14 +35,15 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-BPHOniaToMuMuBuilder::BPHOniaToMuMuBuilder(const edm::EventSetup& es,
+BPHOniaToMuMuBuilder::BPHOniaToMuMuBuilder(const BPHEventSetupWrapper& es,
                                            const BPHRecoBuilder::BPHGenericCollection* muPosCollection,
                                            const BPHRecoBuilder::BPHGenericCollection* muNegCollection)
-    : muPosName("MuPos"),
+    : BPHDecayGenericBuilderBase(es),
+      muPosName("MuPos"),
       muNegName("MuNeg"),
-      evSetup(&es),
       posCollection(muPosCollection),
       negCollection(muNegCollection) {
+  setParameters(NRes, 2.0, 10.0, 0.01, 50.00, 2.0, -1.0, 0.0);
   setParameters(Phi, 2.0, 10.0, 0.50, 1.50, 0.0, BPHParticleMasses::phiMass, BPHParticleMasses::phiMWidth);
   setParameters(Psi1, 2.0, 10.0, 2.00, 3.40, 0.0, BPHParticleMasses::jPsiMass, BPHParticleMasses::jPsiMWidth);
   setParameters(Psi2, 2.0, 10.0, 3.40, 6.00, 0.0, BPHParticleMasses::psi2Mass, BPHParticleMasses::psi2MWidth);
@@ -50,7 +51,7 @@ BPHOniaToMuMuBuilder::BPHOniaToMuMuBuilder(const edm::EventSetup& es,
   setParameters(Ups1, 2.0, 10.0, 6.00, 9.75, 0.0, BPHParticleMasses::ups1Mass, BPHParticleMasses::ups1MWidth);
   setParameters(Ups2, 2.0, 10.0, 9.75, 10.20, 0.0, BPHParticleMasses::ups2Mass, BPHParticleMasses::ups2MWidth);
   setParameters(Ups3, 2.0, 10.0, 10.20, 12.00, 0.0, BPHParticleMasses::ups3Mass, BPHParticleMasses::ups3MWidth);
-  updated = false;
+  outdated = true;
 }
 
 //--------------
@@ -71,14 +72,9 @@ BPHOniaToMuMuBuilder::~BPHOniaToMuMuBuilder() {
 //--------------
 // Operations --
 //--------------
-vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::build() {
-  if (updated)
-    return fullList;
-
-  fullList.clear();
-
-  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> ptSel(BPHSelectOperation::or_mode);
-  BPHMultiSelect<BPHSlimSelect<BPHRecoSelect>> etaSel(BPHSelectOperation::or_mode);
+void BPHOniaToMuMuBuilder::fillRecList() {
+  double ptMin = 9.99e+30;
+  double etaMax = -1.0;
   BPHMultiSelect<BPHSlimSelect<BPHMomentumSelect>> mSel(BPHSelectOperation::or_mode);
   BPHMultiSelect<BPHSlimSelect<BPHVertexSelect>> vSel(BPHSelectOperation::or_mode);
 
@@ -86,11 +82,17 @@ vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::build() {
   map<oniaType, OniaParameters>::iterator iend = oniaPar.end();
   while (iter != iend) {
     OniaParameters& par = iter++->second;
-    ptSel.include(*par.ptSel);
-    etaSel.include(*par.etaSel);
+    double ptCur = par.ptSel->getPtMin();
+    double etaCur = par.etaSel->getEtaMax();
+    if (ptCur < ptMin)
+      ptMin = ptCur;
+    if (etaCur > etaMax)
+      etaMax = etaCur;
     mSel.include(*par.massSel);
     vSel.include(*par.chi2Sel);
   }
+  BPHMuonPtSelect ptSel(ptMin);
+  BPHMuonEtaSelect etaSel(etaMax);
 
   BPHRecoBuilder bOnia(*evSetup);
   bOnia.add(muPosName, posCollection, BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
@@ -102,9 +104,30 @@ vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::build() {
   bOnia.filter(mSel);
   bOnia.filter(vSel);
 
-  fullList = BPHPlusMinusCandidate::build(bOnia, muPosName, muNegName);
-  updated = true;
-  return fullList;
+  recList = BPHPlusMinusCandidate::build(bOnia, muPosName, muNegName);
+
+  decltype(recList) tmpList;
+  tmpList.reserve(recList.size());
+  for (auto& c : recList) {
+    auto p = c->originalReco(c->getDaug(muPosName));
+    auto n = c->originalReco(c->getDaug(muNegName));
+    bool accept = false;
+    for (auto& e : oniaPar) {
+      if (e.first == NRes)
+        continue;
+      auto& s = e.second;
+      if ((s.ptSel->accept(*p)) && (s.ptSel->accept(*n)) && (s.etaSel->accept(*p)) && (s.etaSel->accept(*n)) &&
+          (s.massSel->accept(*c)) && (s.chi2Sel->accept(*c))) {
+        accept = true;
+        break;
+      }
+    }
+    if (accept)
+      tmpList.push_back(c);
+  }
+  recList = tmpList;
+
+  return;
 }
 
 vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::getList(
@@ -137,10 +160,10 @@ vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::getList(
 BPHPlusMinusConstCandPtr BPHOniaToMuMuBuilder::getOriginalCandidate(const BPHRecoCandidate& cand) {
   const reco::Candidate* mp = cand.originalReco(cand.getDaug(muPosName));
   const reco::Candidate* mn = cand.originalReco(cand.getDaug(muNegName));
-  int nc = fullList.size();
+  int nc = recList.size();
   int ic;
   for (ic = 0; ic < nc; ++ic) {
-    BPHPlusMinusConstCandPtr pmp = fullList[ic];
+    BPHPlusMinusConstCandPtr pmp = recList[ic];
     const BPHPlusMinusCandidate* pmc = pmp.get();
     if (pmc->originalReco(pmc->getDaug(muPosName)) != mp)
       continue;
@@ -235,8 +258,7 @@ void BPHOniaToMuMuBuilder::setNotUpdated() {
   map<oniaType, OniaParameters>::iterator iter = oniaPar.begin();
   map<oniaType, OniaParameters>::iterator iend = oniaPar.end();
   while (iter != iend)
-    iter++->second.updated = false;
-  updated = false;
+    iter++->second.outdated = true;
   return;
 }
 
@@ -255,23 +277,22 @@ void BPHOniaToMuMuBuilder::setParameters(oniaType type,
   par.chi2Sel = new BPHChi2Select(probMin);
   par.mass = mass;
   par.sigma = sigma;
-  par.updated = false;
+  par.outdated = true;
   return;
 }
 
 void BPHOniaToMuMuBuilder::extractList(oniaType type) {
-  if (!updated)
-    build();
+  build();
   OniaParameters& par = oniaPar[type];
   vector<BPHPlusMinusConstCandPtr>& list = oniaList[type];
-  if (par.updated)
+  if (!par.outdated)
     return;
   int i;
-  int n = fullList.size();
+  int n = recList.size();
   list.clear();
   list.reserve(n);
   for (i = 0; i < n; ++i) {
-    BPHPlusMinusConstCandPtr ptr = fullList[i];
+    BPHPlusMinusConstCandPtr ptr = recList[i];
     const reco::Candidate* mcPos = ptr->getDaug("MuPos");
     const reco::Candidate* mcNeg = ptr->getDaug("MuNeg");
     const reco::Candidate* muPos = ptr->originalReco(mcPos);
@@ -295,6 +316,6 @@ void BPHOniaToMuMuBuilder::extractList(oniaType type) {
       np->setConstraint(par.mass, par.sigma);
     list.push_back(BPHPlusMinusConstCandPtr(np));
   }
-  par.updated = true;
+  par.outdated = false;
   return;
 }
