@@ -439,41 +439,73 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   for (unsigned int ibin = 0; ibin < dgSamples - shrink; ++ibin) {
     int algosumvalue = 0;
     bool check_sat = false;
-    //add up value * scale factor
-    // In addition, divide by two in the 10 degree phi segmentation region
-    // to mimic 5 degree segmentation for the trigger
-    int sampleTS = samples[ibin + 1];
-    int sampleTSminus1 = samples[ibin];
+    if(weightsQIE11_[theIeta][0] == 255){
+      for (unsigned int i = 0; i < filterSamples; i++) {
+        //add up value * scale factor
+        // In addition, divide by two in the 10 degree phi segmentation region
+        // to mimic 5 degree segmentation for the trigger
+        unsigned int sample = samples[ibin + i];
 
-    if (fix_saturation_ && (sample_saturation.size() > ibin + 1))
-      check_sat = ( sample_saturation[ibin + 1] | (sampleTS >= QIE11_MAX_LINEARIZATION_ET) | sample_saturation[ibin] | (sampleTSminus1 >= QIE11_MAX_LINEARIZATION_ET));
+        if (fix_saturation_ && (sample_saturation.size() > ibin + i))
+          check_sat = (check_sat | sample_saturation[ibin + i] | (sample > QIE11_MAX_LINEARIZATION_ET));
 
-    if (sampleTS > QIE11_MAX_LINEARIZATION_ET)
-      sampleTS = QIE11_MAX_LINEARIZATION_ET;
+        if (sample > QIE11_MAX_LINEARIZATION_ET)
+          sample = QIE11_MAX_LINEARIZATION_ET;
 
-    if (sampleTSminus1 > QIE11_MAX_LINEARIZATION_ET)
-      sampleTSminus1 = QIE11_MAX_LINEARIZATION_ET;
+        // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
+        int segmentationFactor = 1;
+        if (ids.size() == 2) {
+          segmentationFactor = 2;
+        }
 
-    // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
-    int segmentationFactor = 1;
-    if (ids.size() == 2) {
-      segmentationFactor = 2;
+        algosumvalue += int(sample / segmentationFactor);
+      }
+      if (algosumvalue < 0)
+        sum[ibin] = 0;  // low-side
+                        //high-side
+      //else if (algosumvalue>QIE11_LINEARIZATION_ET) sum[ibin]=QIE11_LINEARIZATION_ET;
+      else
+        sum[ibin] = algosumvalue;  //assign value to sum[]
+
+      if (check_sat)
+        force_saturation[ibin] = true;
+    }else{
+      //add up value * scale factor
+      // In addition, divide by two in the 10 degree phi segmentation region
+      // to mimic 5 degree segmentation for the trigger
+      int sampleTS = samples[ibin + 1];
+      int sampleTSminus1 = samples[ibin];
+
+      if (fix_saturation_ && (sample_saturation.size() > ibin + 1))
+        check_sat = ( sample_saturation[ibin + 1] | (sampleTS >= QIE11_MAX_LINEARIZATION_ET) | sample_saturation[ibin] | (sampleTSminus1 >= QIE11_MAX_LINEARIZATION_ET));
+
+      if (sampleTS > QIE11_MAX_LINEARIZATION_ET)
+        sampleTS = QIE11_MAX_LINEARIZATION_ET;
+
+      if (sampleTSminus1 > QIE11_MAX_LINEARIZATION_ET)
+        sampleTSminus1 = QIE11_MAX_LINEARIZATION_ET;
+
+      // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
+      int segmentationFactor = 1;
+      if (ids.size() == 2) {
+        segmentationFactor = 2;
+      }
+
+      // Based on the |ieta| of the sample, retrieve the correct region weight
+      int theWeight = weightsQIE11_[theIeta][0];
+
+      algosumvalue = ((sampleTS<<8) + (sampleTSminus1 * theWeight)) / 256 / segmentationFactor;
+
+      if (algosumvalue < 0)
+        sum[ibin] = 0;  // low-side
+                        //high-side
+      //else if (algosumvalue>QIE11_LINEARIZATION_ET) sum[ibin]=QIE11_LINEARIZATION_ET;
+      else
+        sum[ibin] = algosumvalue;  //assign value to sum[]
+
+      if (check_sat)
+        force_saturation[ibin] = true;
     }
-
-    // Based on the |ieta| of the sample, retrieve the correct region weight
-    int theWeight = weightsQIE11_[theIeta][0];
-
-    algosumvalue = ((sampleTS<<8) + (sampleTSminus1 * theWeight)) / 256 / segmentationFactor;
-
-    if (algosumvalue < 0)
-      sum[ibin] = 0;  // low-side
-                      //high-side
-    //else if (algosumvalue>QIE11_LINEARIZATION_ET) sum[ibin]=QIE11_LINEARIZATION_ET;
-    else
-      sum[ibin] = algosumvalue;  //assign value to sum[]
-
-    if (check_sat)
-      force_saturation[ibin] = true;
   }
 
   std::vector<int> finegrain(tpSamples, false);
