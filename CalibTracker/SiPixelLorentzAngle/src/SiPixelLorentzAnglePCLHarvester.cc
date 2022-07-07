@@ -102,7 +102,7 @@ private:
   const std::string recordName_;
   std::unique_ptr<TF1> f1;
   float width_;
-  float theMagField;
+  float theMagField{0.f};
 
   SiPixelLorentzAngleCalibrationHistograms hists;
   const SiPixelLorentzAngle* currentLorentzAngle;
