@@ -49,8 +49,8 @@ struct HGCalMixRotatedLayer {
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer::Number of types of wafers: " << waferTypes_
                                   << " facings: " << facingTypes_ << " Orientations: " << orientationTypes_
-                                  << " PlaceOffset: " << placeOffset_ << "; number of cells along phi "
-                                  << phiBinsScint_ << " forFireworks_: " << forFireworks_;
+                                  << " PlaceOffset: " << placeOffset_ << "; number of cells along phi " << phiBinsScint_
+                                  << " forFireworks_: " << forFireworks_;
 #endif
     firstLayer_ = args.value<int>("FirstLayer");
     absorbMode_ = args.value<int>("AbsorberMode");
@@ -393,7 +393,7 @@ struct HGCalMixRotatedLayer {
         int fimin = std::get<1>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         int fimax = std::get<2>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         double phi1 = dphi * (fimin - 1);
-	double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
+        double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
         auto cshift = cassette_.getShift(layer + 1, 1, cassette);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << copy << " iR "
