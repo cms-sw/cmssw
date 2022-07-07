@@ -15,6 +15,7 @@
 // Base Class Headers --
 //----------------------
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToV0Builder.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayToChargedXXbarBuilder.h"
 
 //------------------------------------
 // Collaborating Class Declarations --
@@ -23,7 +24,7 @@
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
 
-#include "FWCore/Framework/interface/Event.h"
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -36,29 +37,29 @@
 //              -- Class Interface --
 //              ---------------------
 
-class BPHDecayToV0SameMassBuilder : public BPHDecayToV0Builder {
+class BPHDecayToV0SameMassBuilder : public BPHDecayToV0Builder, public BPHDecayToChargedXXbarBuilder {
 public:
   /** Constructor
    */
-  BPHDecayToV0SameMassBuilder(const edm::EventSetup& es,
-                              const std::string& d1Name,
-                              const std::string& d2Name,
-                              double dMass,
-                              double dSigma,
-                              const BPHRecoBuilder::BPHGenericCollection* d1Collection,
-                              const BPHRecoBuilder::BPHGenericCollection* d2Collection);
-  BPHDecayToV0SameMassBuilder(const edm::EventSetup& es,
-                              const std::string& d1Name,
-                              const std::string& d2Name,
-                              double dMass,
-                              double dSigma,
+  BPHDecayToV0SameMassBuilder(const BPHEventSetupWrapper& es,
+                              const std::string& posName,
+                              const std::string& negName,
+                              double daugMass,
+                              double daugSigma,
+                              const BPHRecoBuilder::BPHGenericCollection* posCollection,
+                              const BPHRecoBuilder::BPHGenericCollection* negCollection);
+  BPHDecayToV0SameMassBuilder(const BPHEventSetupWrapper& es,
+                              const std::string& posName,
+                              const std::string& negName,
+                              double daugMass,
+                              double daugSigma,
                               const std::vector<reco::VertexCompositeCandidate>* v0Collection,
                               const std::string& searchList = "cfp");
-  BPHDecayToV0SameMassBuilder(const edm::EventSetup& es,
-                              const std::string& d1Name,
-                              const std::string& d2Name,
-                              double dMass,
-                              double dSigma,
+  BPHDecayToV0SameMassBuilder(const BPHEventSetupWrapper& es,
+                              const std::string& posName,
+                              const std::string& negName,
+                              double daugMass,
+                              double daugSigma,
                               const std::vector<reco::VertexCompositePtrCandidate>* vpCollection,
                               const std::string& searchList = "cfp");
 
@@ -68,7 +69,7 @@ public:
 
   /** Destructor
    */
-  ~BPHDecayToV0SameMassBuilder() override;
+  ~BPHDecayToV0SameMassBuilder() override = default;
 
 protected:
   double pMass;
@@ -80,6 +81,10 @@ protected:
                                           const reco::Candidate* c2,
                                           const void* v0,
                                           v0Type type) override;
+
+private:
+  /// build candidates
+  void fillRecList() override { BPHDecayToV0Builder::fillRecList(); }
 };
 
 #endif

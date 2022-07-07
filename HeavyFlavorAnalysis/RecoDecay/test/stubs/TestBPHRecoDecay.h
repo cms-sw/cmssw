@@ -2,17 +2,20 @@
 #define HeavyFlavorAnalysis_RecoDecay_TestBPHRecoDecay_h
 
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
 #include <string>
 #include <iostream>
@@ -24,7 +27,7 @@ class BPHRecoCandidate;
 class TestBPHRecoDecay : public BPHAnalyzerWrapper<BPHModuleWrapper::one_analyzer> {
 public:
   explicit TestBPHRecoDecay(const edm::ParameterSet& ps);
-  ~TestBPHRecoDecay() override;
+  ~TestBPHRecoDecay() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -40,11 +43,12 @@ private:
   std::string gpCandsLabel;
 
   // token wrappers to allow running both on "old" and "new" CMSSW versions
+  BPHESTokenWrapper<TransientTrackBuilder, TransientTrackRecord> ttBToken;
   BPHTokenWrapper<pat::MuonCollection> patMuonToken;
-  BPHTokenWrapper<std::vector<pat::CompositeCandidate>> ccCandsToken;
-  BPHTokenWrapper<std::vector<reco::PFCandidate>> pfCandsToken;
-  BPHTokenWrapper<std::vector<BPHTrackReference::candidate>> pcCandsToken;
-  BPHTokenWrapper<std::vector<pat::GenericParticle>> gpCandsToken;
+  BPHTokenWrapper<std::vector<pat::CompositeCandidate> > ccCandsToken;
+  BPHTokenWrapper<std::vector<reco::PFCandidate> > pfCandsToken;
+  BPHTokenWrapper<std::vector<BPHTrackReference::candidate> > pcCandsToken;
+  BPHTokenWrapper<std::vector<pat::GenericParticle> > gpCandsToken;
 
   bool usePM;
   bool useCC;
