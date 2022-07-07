@@ -493,7 +493,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
     }
 
     //Only run the peak-finder when the PFA2 FIR filter is running, which corresponds to weights = 1
-    if (weightsQIE11_[theIeta][0] == 256) {
+    if (weightsQIE11_[theIeta][0] == 255) {
       bool isPeak = (sum[idx] > sum[idx - 1] && sum[idx] >= sum[idx + 1] && sum[idx] > theThreshold);
       if (isPeak) {
         output[ibin] = std::min<unsigned int>(sum[idx], QIE11_MAX_LINEARIZATION_ET);
@@ -968,7 +968,7 @@ void HcalTriggerPrimitiveAlgo::setWeightsQIE11(const edm::ParameterSet& weightsQ
 void HcalTriggerPrimitiveAlgo::setWeightQIE11(int aieta, int weight) {
   // Simple map of |ieta| in HBHE to weight
   // Only one weight for SOI-1 TS
-  weightsQIE11_[aieta] = {{weight, 256}};
+  weightsQIE11_[aieta] = {{weight, 255}};
 }
 
 void HcalTriggerPrimitiveAlgo::setPeakFinderAlgorithm(int algo) {

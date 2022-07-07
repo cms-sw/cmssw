@@ -192,7 +192,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
       if (!overrideDBweightsAndFilterHB_) {
         if (fixedPointWeight != -1.0) {
           theAlgo_.setNumFilterPresamplesHBQIE11(1);
-          theAlgo_.setWeightQIE11(aieta, -(fixedPointWeight));
+          theAlgo_.setWeightQIE11(aieta, (fixedPointWeight));
         } else {
           theAlgo_.setNumFilterPresamplesHBQIE11(0);
           theAlgo_.setWeightQIE11(aieta, 1.0);
@@ -202,7 +202,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
       if (!overrideDBweightsAndFilterHE_) {
         if (fixedPointWeight != -1.0) {
           theAlgo_.setNumFilterPresamplesHEQIE11(1);
-          theAlgo_.setWeightQIE11(aieta, -(fixedPointWeight));
+          theAlgo_.setWeightQIE11(aieta, (fixedPointWeight));
         } else {
           theAlgo_.setNumFilterPresamplesHEQIE11(0);
           theAlgo_.setWeightQIE11(aieta, 1.0);
