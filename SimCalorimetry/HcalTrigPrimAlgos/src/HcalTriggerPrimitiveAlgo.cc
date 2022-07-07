@@ -494,7 +494,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       // Based on the |ieta| of the sample, retrieve the correct region weight
       int theWeight = weightsQIE11_[theIeta][0];
 
-      algosumvalue = ((sampleTS<<8) + (sampleTSminus1 * theWeight)) / 256 / segmentationFactor;
+      algosumvalue = ((sampleTS<<8) - (sampleTSminus1 * theWeight)) / 256 / segmentationFactor;
 
       if (algosumvalue < 0)
         sum[ibin] = 0;  // low-side
