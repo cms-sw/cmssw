@@ -1,5 +1,6 @@
 <use name="DQMServices/Core"/>
 <use name="FWCore/Framework"/>
+<use name="CommonTools/Statistics"/>
 <use name="DataFormats/MuonReco"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/BTauReco"/>
@@ -15,6 +16,7 @@
 <use name="JetMETCorrections/Objects"/>
 <use name="JetMETCorrections/JetCorrector"/>
 <use name="RecoEcal/EgammaCoreTools"/>
+<use name="RecoVertex/VertexTools"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="CondFormats/EcalObjects"/>
 <use name="RecoJets/JetProducers"/>
