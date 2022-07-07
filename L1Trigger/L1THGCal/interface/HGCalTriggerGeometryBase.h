@@ -60,7 +60,7 @@ public:
   virtual unsigned getStage1FpgaFromStage1Link(const unsigned) const = 0;
   virtual unsigned getStage2FpgaFromStage1Link(const unsigned) const = 0;
   virtual geom_set getStage1LinksFromStage1Fpga(const unsigned) const = 0;
-  virtual geom_set getLpgbtsFromStage1Fpga(const unsigned stage1_id) const = 0;
+  virtual std::vector<unsigned> getLpgbtsFromStage1Fpga(const unsigned stage1_id) const = 0;
   virtual unsigned getStage1FpgaFromLpgbt(const unsigned lpgbt_id) const = 0;
   virtual geom_set getModulesFromLpgbt(const unsigned lpgbt_id) const = 0;
   virtual geom_set getLpgbtsFromModule(const unsigned module_id) const = 0;

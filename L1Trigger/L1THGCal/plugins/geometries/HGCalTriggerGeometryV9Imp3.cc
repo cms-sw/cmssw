@@ -45,7 +45,7 @@ public:
   unsigned getStage1FpgaFromStage1Link(const unsigned) const final;
   unsigned getStage2FpgaFromStage1Link(const unsigned) const final;
   geom_set getStage1LinksFromStage1Fpga(const unsigned) const final;
-  geom_set getLpgbtsFromStage1Fpga(const unsigned) const final;
+  std::vector<unsigned> getLpgbtsFromStage1Fpga(const unsigned) const final;
   unsigned getStage1FpgaFromLpgbt(const unsigned) const final;
   geom_set getModulesFromLpgbt(const unsigned) const final;
   geom_set getLpgbtsFromModule(const unsigned) const final;
@@ -88,7 +88,7 @@ private:
   std::unordered_map<unsigned, unsigned> stage1link_to_stage2_;
   std::unordered_map<unsigned, unsigned> stage1link_to_stage1_;
   std::unordered_multimap<unsigned, unsigned> stage1_to_stage1links_;
-  std::unordered_multimap<unsigned, unsigned> stage1_to_lpgbts_;
+  std::unordered_map<unsigned, std::vector<unsigned>> stage1_to_lpgbts_;
   std::unordered_map<unsigned, unsigned> lpgbt_to_stage1_;
   std::unordered_multimap<unsigned, unsigned> lpgbt_to_modules_;
   std::unordered_multimap<unsigned, unsigned> module_to_lpgbts_;
@@ -654,14 +654,15 @@ HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getStage1LinksFro
   return stage1link_ids;
 }
 
-HGCalTriggerGeometryBase::geom_set HGCalTriggerGeometryV9Imp3::getLpgbtsFromStage1Fpga(const unsigned stage1_id) const {
-  geom_set lpgbt_ids;
+std::vector<unsigned> HGCalTriggerGeometryV9Imp3::getLpgbtsFromStage1Fpga(const unsigned stage1_id) const {
+  std::vector<unsigned> lpgbt_ids;
   HGCalTriggerBackendDetId id(stage1_id);
 
-  auto stage1_itrs = stage1_to_lpgbts_.equal_range(id.label());
-  for (auto stage1_itr = stage1_itrs.first; stage1_itr != stage1_itrs.second; stage1_itr++) {
-    lpgbt_ids.emplace(HGCalTriggerBackendDetId(
-        id.zside(), HGCalTriggerBackendDetId::BackendType::LpGBT, id.sector(), stage1_itr->second));
+  const auto stage1_lpgbts = stage1_to_lpgbts_.at(id.label());
+  lpgbt_ids.reserve(stage1_lpgbts.size());
+  for (const auto& stage1_lpgbt : stage1_lpgbts) {
+    lpgbt_ids.emplace_back(
+        HGCalTriggerBackendDetId(id.zside(), HGCalTriggerBackendDetId::BackendType::LpGBT, id.sector(), stage1_lpgbt));
   }
 
   return lpgbt_ids;
@@ -841,9 +842,11 @@ void HGCalTriggerGeometryV9Imp3::fillMaps() {
       }
 
       //Stage 1 to lpgbt mapping
+      std::vector<unsigned> lpgbt_id_vec;
       for (auto& lpgbt_id : mapping_config.at("Stage1").at(stage1_id).at("lpgbts")) {
-        stage1_to_lpgbts_.emplace(stage1_id, lpgbt_id);
+        lpgbt_id_vec.push_back(lpgbt_id);
       }
+      stage1_to_lpgbts_.emplace(stage1_id, lpgbt_id_vec);
     }
 
   } catch (const json::exception& e) {
