@@ -374,7 +374,7 @@ struct HGCalMixLayer {
         int fimin = std::get<1>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         int fimax = std::get<2>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         double phi1 = dphi * (fimin - 1);
-	double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
+        double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixLayer: Layer " << copy << " iR "
                                       << std::get<1>(HGCalTileIndex::tileUnpack(tileIndex_[ly])) << ":"
