@@ -17,6 +17,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 class BPHDecayVertex;
+class BPHRecoBuilder;
 
 //---------------
 // C++ Headers --
@@ -38,7 +39,7 @@ public:
 
   /** Destructor
    */
-  virtual ~BPHVertexSelect() {}
+  virtual ~BPHVertexSelect() = default;
 
   using AcceptArg = BPHDecayVertex;
 
@@ -46,6 +47,7 @@ public:
    */
   /// accept function
   virtual bool accept(const BPHDecayVertex& cand) const = 0;
+  virtual bool accept(const BPHDecayVertex& cand, const BPHRecoBuilder* builder) const { return accept(cand); }
 };
 
 #endif
