@@ -9,7 +9,7 @@
     <Numeric name="PartialTypes"     value="9"/>
     <Numeric name="OrientationTypes" value="6"/>
     <Numeric name="NPhiBinScint"     value="[hgcal:NPhiBinBH]"/>
-    <Numeric name="ForFireWorks"     value="0"/>
+    <Numeric name="ForFireWorks"     value="1"/>
     <Numeric name="FirstLayer"       value="[hgcal:FirstMixedLayer]"/>
     <Numeric name="AbsorberMode"     value="1"/>
     <Numeric name="SensitiveMode"    value="1"/>

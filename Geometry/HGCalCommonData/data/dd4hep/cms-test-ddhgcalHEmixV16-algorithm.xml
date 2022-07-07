@@ -33,7 +33,7 @@
     <Include ref="Geometry/HGCalCommonData/data/hgcal/v16/hgcal.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalcell/v16/hgcalcell.xml"/>
     <Include ref="Geometry/HGCalCommonData/data/hgcalwafer/v16/hgcalwafer.xml"/>
-    <Include ref="Geometry/HGCalCommonData/data/hgcalHEmix/v16/hgcalHEmix.xml"/>
+    <Include ref="Geometry/HGCalCommonData/data/hgcalHEmix/v16fw/hgcalHEmix.xml"/>
   </IncludeSection>
   
 </DDDefinition>
