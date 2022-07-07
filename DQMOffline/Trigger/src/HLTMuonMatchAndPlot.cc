@@ -236,38 +236,11 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
   if (!isLastFilter_)
     return;
   unsigned int numTriggers = trigNames.size();
-  bool passTrigger = false;
-  if (requiredTriggers_.empty())
-    passTrigger = true;
-  for (auto const& requiredTrigger : requiredTriggers_) {
-    for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
-      passTrigger = (trigNames.triggerName(hltIndex).find(requiredTrigger) != std::string::npos &&
-                     triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
-      if (passTrigger)
-        break;
-    }
-  }
 
   int nMatched = 0;
   for (unsigned long matche : matches) {
     if (matche < targetMuons.size())
       nMatched++;
-  }
-
-  string nonSameSignPath = hltPath_;
-  bool ssPath = false;
-  if (nonSameSignPath.rfind("_SameSign") < nonSameSignPath.length()) {
-    ssPath = true;
-    nonSameSignPath = boost::replace_all_copy<string>(nonSameSignPath, "_SameSign", "");
-    nonSameSignPath = nonSameSignPath.substr(0, nonSameSignPath.rfind("_v") + 2);
-  }
-  bool passTriggerSS = false;
-  if (ssPath) {
-    for (unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex) {
-      passTriggerSS =
-          passTriggerSS || (trigNames.triggerName(hltIndex).substr(0, nonSameSignPath.size()) == nonSameSignPath &&
-                            triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
-    }
   }
 
   string nonDZPath = hltPath_;
@@ -308,10 +281,10 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
 }  // End analyze() method.
 
 // Method to fill binning parameters from a vector of doubles.
-void HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<double>& binning) {
+void HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<double>& binning, bool& bookhist) {
   if (binning.size() < 3) {
     LogWarning("HLTMuonVal") << "Invalid binning parameters!";
-    return;
+    bookhist = false;
   }
 
   // Fixed-width binning.
@@ -322,6 +295,7 @@ void HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<d
     const double binwidth = (binning[2] - binning[1]) / nBins;
     for (size_t i = 0; i <= nBins; i++)
       edges[i] = min + (binwidth * i);
+    bookhist = true;
   }
 
   // Variable-width binning.
@@ -330,6 +304,7 @@ void HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<d
     edges = new float[nBins + 1];
     for (size_t i = 0; i <= nBins; i++)
       edges[i] = binning[i];
+    bookhist = true;
   }
 }
 
@@ -457,14 +432,16 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker& iBooker, string name, const 
 
   size_t nBins;
   float* edges = nullptr;
-  fillEdges(nBins, edges, binParams_[binningType]);
+  bool bookhist;
+  fillEdges(nBins, edges, binParams_[binningType], bookhist);
+  if (bookhist){
   hists_[name] = iBooker.book1D(name, title, nBins, edges);
   if (hists_[name])
     if (hists_[name]->getTH1F()->GetSumw2N())
       hists_[name]->enableSumw2();
 
   if (edges)
-    delete[] edges;
+    delete[] edges;}
 }
 
 void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
@@ -479,13 +456,14 @@ void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
    * case. */
 
   size_t nBinsX;
+  bool bookhist;
   float* edgesX = nullptr;
-  fillEdges(nBinsX, edgesX, binParams_[binningTypeX]);
+  fillEdges(nBinsX, edgesX, binParams_[binningTypeX], bookhist);
 
   size_t nBinsY;
   float* edgesY = nullptr;
-  fillEdges(nBinsY, edgesY, binParams_[binningTypeY]);
-
+  fillEdges(nBinsY, edgesY, binParams_[binningTypeY], bookhist);
+  if (bookhist){
   hists_[name] = iBooker.book2D(name.c_str(), title.c_str(), nBinsX, edgesX, nBinsY, edgesY);
   if (hists_[name])
     if (hists_[name]->getTH2F()->GetSumw2N())
@@ -494,5 +472,5 @@ void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
   if (edgesX)
     delete[] edgesX;
   if (edgesY)
-    delete[] edgesY;
+    delete[] edgesY;}
 }
