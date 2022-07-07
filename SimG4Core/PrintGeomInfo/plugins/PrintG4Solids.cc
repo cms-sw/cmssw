@@ -121,11 +121,11 @@ void PrintG4Solids::dumpSummary(std::ostream &out) {
       int numz = pgon->GetNofZSections();
       out << " " << vert << " vertices:";
       for (int k = 0; k < vert; ++k)
-	out << " [" << k << "] " << pgon->GetVertex(k);
+        out << " [" << k << "] " << pgon->GetVertex(k);
       out << "; and " << numz << " z-sections:";
       for (int k = 0; k < numz; ++k) {
-	const auto& zsec = pgon->GetZSection(k);
-	out << " [" << k << "] " << zsec.fZ << ":" << zsec.fScale << ":" << zsec.fOffset;
+        const auto &zsec = pgon->GetZSection(k);
+        out << " [" << k << "] " << zsec.fZ << ":" << zsec.fScale << ":" << zsec.fOffset;
       }
     }
     out << G4endl;
