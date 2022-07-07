@@ -351,6 +351,16 @@ namespace edm {
       actReg_->postModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
     }
 
+    void emitPostModuleStreamPrefetchingSignal() {
+      actReg_->postModuleStreamPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(),
+                                                       moduleCallingContext_);
+    }
+
+    void emitPostModuleGlobalPrefetchingSignal() {
+      actReg_->postModuleGlobalPrefetchingSignal_.emit(*moduleCallingContext_.getGlobalContext(),
+                                                       moduleCallingContext_);
+    }
+
     virtual bool hasAcquire() const = 0;
 
     template <typename T>
@@ -422,6 +432,10 @@ namespace edm {
               }
             }
           }
+        } else if constexpr (std::is_same_v<typename T::Context, StreamContext>) {
+          m_worker->emitPostModuleStreamPrefetchingSignal();
+        } else if constexpr (std::is_same_v<typename T::Context, GlobalContext>) {
+          m_worker->emitPostModuleGlobalPrefetchingSignal();
         }
 
         if (not excptr) {
@@ -916,8 +930,12 @@ namespace edm {
 
     moduleCallingContext_.setContext(ModuleCallingContext::State::kPrefetching, parentContext, nullptr);
 
-    if (principal.branchType() == InEvent) {
+    if constexpr (T::isEvent_) {
       actReg_->preModuleEventPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
+    } else if constexpr (std::is_same_v<typename T::Context, StreamContext>) {
+      actReg_->preModuleStreamPrefetchingSignal_.emit(*moduleCallingContext_.getStreamContext(), moduleCallingContext_);
+    } else if constexpr (std::is_same_v<typename T::Context, GlobalContext>) {
+      actReg_->preModuleGlobalPrefetchingSignal_.emit(*moduleCallingContext_.getGlobalContext(), moduleCallingContext_);
     }
 
     workerhelper::CallImpl<T>::esPrefetchAsync(this, iTask, token, transitionInfo, iTransition);
