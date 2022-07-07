@@ -8,6 +8,7 @@
 
 #include "G4Box.hh"
 #include "G4Cons.hh"
+#include "G4ExtrudedSolid.hh"
 #include "G4Polycone.hh"
 #include "G4Polyhedra.hh"
 #include "G4Trap.hh"
@@ -114,6 +115,18 @@ void PrintG4Solids::dumpSummary(std::ostream &out) {
           << hist->numSide << " sides and " << num << " planes:";
       for (int k = 0; k < num; ++k)
         out << " [" << k << "] " << hist->Z_values[k] << ":" << hist->Rmin[k] << ":" << hist->Rmax[k];
+    } else if (type == "G4ExtrudedSolid") {
+      const G4ExtrudedSolid *pgon = static_cast<const G4ExtrudedSolid *>(*solid);
+      int vert = pgon->GetNofVertices();
+      int numz = pgon->GetNofZSections();
+      out << " " << vert << " vertices:";
+      for (int k = 0; k < vert; ++k)
+	out << " [" << k << "] " << pgon->GetVertex(k);
+      out << "; and " << numz << " z-sections:";
+      for (int k = 0; k < numz; ++k) {
+	const auto& zsec = pgon->GetZSection(k);
+	out << " [" << k << "] " << zsec.fZ << ":" << zsec.fScale << ":" << zsec.fOffset;
+      }
     }
     out << G4endl;
   }
