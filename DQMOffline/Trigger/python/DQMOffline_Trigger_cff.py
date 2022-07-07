@@ -191,8 +191,9 @@ offlineHLTSource4HLTMonitorPD = cms.Sequence(
     lumiMonitorHLTsequence *          # lumi
     sistripMonitorHLTsequence *       # strip
     sipixelMonitorHLTsequence *       # pixel
-    BTVHLTOfflineSource *             # BTV
-    bTagHLTTrackMonitoringSequence *  # BTV relative track efficiencies
+#   Temp switch off until BTV finds a permanant fix
+#   BTVHLTOfflineSource *             # BTV
+#   bTagHLTTrackMonitoringSequence *  # BTV relative track efficiencies
     trackingMonitorHLT *              # tracking
     BTagAndProbeHLT *                 #BTag and Probe
     trackingMonitorHLTDisplacedJet*   # EXO : DisplacedJet Tracking 
