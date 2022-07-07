@@ -434,14 +434,15 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker& iBooker, string name, const 
   float* edges = nullptr;
   bool bookhist;
   fillEdges(nBins, edges, binParams_[binningType], bookhist);
-  if (bookhist){
-  hists_[name] = iBooker.book1D(name, title, nBins, edges);
-  if (hists_[name])
-    if (hists_[name]->getTH1F()->GetSumw2N())
-      hists_[name]->enableSumw2();
+  if (bookhist) {
+    hists_[name] = iBooker.book1D(name, title, nBins, edges);
+    if (hists_[name])
+      if (hists_[name]->getTH1F()->GetSumw2N())
+        hists_[name]->enableSumw2();
 
-  if (edges)
-    delete[] edges;}
+    if (edges)
+      delete[] edges;
+  }
 }
 
 void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
@@ -463,14 +464,15 @@ void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
   size_t nBinsY;
   float* edgesY = nullptr;
   fillEdges(nBinsY, edgesY, binParams_[binningTypeY], bookhist);
-  if (bookhist){
-  hists_[name] = iBooker.book2D(name.c_str(), title.c_str(), nBinsX, edgesX, nBinsY, edgesY);
-  if (hists_[name])
-    if (hists_[name]->getTH2F()->GetSumw2N())
-      hists_[name]->enableSumw2();
+  if (bookhist) {
+    hists_[name] = iBooker.book2D(name.c_str(), title.c_str(), nBinsX, edgesX, nBinsY, edgesY);
+    if (hists_[name])
+      if (hists_[name]->getTH2F()->GetSumw2N())
+        hists_[name]->enableSumw2();
 
-  if (edgesX)
-    delete[] edgesX;
-  if (edgesY)
-    delete[] edgesY;}
+    if (edgesX)
+      delete[] edgesX;
+    if (edgesY)
+      delete[] edgesY;
+  }
 }
