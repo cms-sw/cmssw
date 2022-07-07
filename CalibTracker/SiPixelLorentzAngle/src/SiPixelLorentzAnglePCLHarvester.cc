@@ -102,6 +102,7 @@ private:
   const std::string recordName_;
   std::unique_ptr<TF1> f1;
   float width_;
+  float theMagField;
 
   SiPixelLorentzAngleCalibrationHistograms hists;
   const SiPixelLorentzAngle* currentLorentzAngle;
@@ -135,6 +136,10 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
 
   magField = &iSetup.getData(magneticFieldToken_);
   currentLorentzAngle = &iSetup.getData(siPixelLAEsToken_);
+
+  // B-field value
+  // nominalValue returns the magnetic field value in kgauss (1T = 10 kgauss)
+  theMagField = magField->nominalValue() / 10.;
 
   PixelTopologyMap map = PixelTopologyMap(geom, tTopo);
   hists.nlay = geom->numberOfLayers(PixelSubdetector::PixelBarrel);
@@ -579,10 +584,6 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
     std::shared_ptr<SiPixelLorentzAngle> theLAPayload, int i_index, int i_layer, int i_module) {
   // output results
   SiPixelLAHarvest::fitResults res;
-
-  // B-field value
-  // nominalValue returns the magnetic field value in kgauss (1T = 10 kgauss)
-  float theMagField = magField->nominalValue() / 10.;
 
   double half_width = width_ * 10000 / 2;  // pixel half thickness in units of micro meter
 
