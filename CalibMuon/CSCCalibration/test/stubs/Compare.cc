@@ -31,7 +31,7 @@
 #include <vector>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -42,15 +42,13 @@
 // class decleration
 //
 
-class Compare : public edm::EDAnalyzer {
+class Compare : public edm::one::EDAnalyzer<> {
 public:
   explicit Compare(const edm::ParameterSet &);
-  ~Compare();
+  ~Compare() override = default;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event &, const edm::EventSetup &);
-  virtual void endJob();
+  void analyze(const edm::Event &, const edm::EventSetup &) override;
 
   // ----------member data ---------------------------
 };
@@ -66,9 +64,7 @@ private:
 //
 // constructors and destructor
 //
-Compare::Compare(const edm::ParameterSet &iConfig)
-
-{
+Compare::Compare(const edm::ParameterSet &iConfig) {
   // now do what ever initialization is needed
   /*
 
@@ -490,37 +486,12 @@ Compare::Compare(const edm::ParameterSet &iConfig)
   std::cout << "DONE with comparison!" << std::endl;
 }
 
-Compare::~Compare() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void Compare::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  using namespace edm;
-
-#ifdef THIS_IS_AN_EVENT_EXAMPLE
-  Handle<ExampleData> pIn;
-  iEvent.getByLabel("example", pIn);
-#endif
-
-#ifdef THIS_IS_AN_EVENTSETUP_EXAMPLE
-  ESHandle<SetupData> pSetup;
-  iSetup.get<SetupRecord>().get(pSetup);
-#endif
-}
-
-// ------------ method called once each job just before starting event loop
-// ------------
-void Compare::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop
-// ------------
-void Compare::endJob() {}
+void Compare::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {}
 
 // define this as a plug-in
 DEFINE_FWK_MODULE(Compare);
