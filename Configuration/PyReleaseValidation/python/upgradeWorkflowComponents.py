@@ -182,6 +182,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'MiniAOD',
         'HLT75e33',
         'FastSimRun3',
+        'HARVESTFastRun3',
     ],
     PU =  [
         'DigiTrigger',
@@ -199,6 +200,7 @@ upgradeWFs['baseline'] = UpgradeWorkflow_baseline(
         'Nano',
         'HLT75e33',
         'FastSimRun3',
+        'HARVESTFastRun3',
     ],
     suffix = '',
     offset = 0.0,
@@ -1793,7 +1795,7 @@ upgradeWFs['PMXS1S2ProdLike'] = UpgradeWorkflowPremixProdLike(
 
 class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
-        if 'HARVESTNano' in step:
+        if 'HARVESTFastRun3' in step:
             stepDict[stepName][k] = merge([{'-s':'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM',
                                             '--fast':'',
                                             '--era':'Run3_FastSim',
@@ -1805,11 +1807,11 @@ class UpgradeWorkflow_Run3FStrackingOnly(UpgradeWorkflow):
 upgradeWFs['Run3FStrackingOnly'] = UpgradeWorkflow_Run3FStrackingOnly(
     steps = [
         'FastSimRun3',
-        'HARVESTNano'
+        'HARVESTFastRun3'
     ],
     PU = [
         'FastSimRun3',
-        'HARVESTNano'
+        'HARVESTFastRun3'
     ],
     suffix = '_Run3FSTrackingOnly',
     offset = 0.302,
@@ -1824,16 +1826,14 @@ class UpgradeWorkflow_Run3FSMBMixing(UpgradeWorkflow):
                                             '--eventcontent':'FASTPU',
                                             '--datatier':'GEN-SIM-RECO',
                                             '--relval':'27000,3000'}, stepDict[step][k]])
-        else:#lif 'GenSim' in step or 'Digi' in step or 'RecoNano' in step or 'ALCA' in step or 'HARVESTNano' in step:
+        else:
             stepDict[stepName][k] = None
-        #else:
-        #    stepDict[stepName][k] = merge([stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
         return '2021FS' in key and fragment=="MinBias_14TeV"
 upgradeWFs['Run3FSMBMixing'] = UpgradeWorkflow_Run3FSMBMixing(
     steps = [
-        'HARVESTNano',
-        'FastSimRun3'
+        'FastSimRun3',
+        'HARVESTFastRun3'
     ],
     PU = [],
     suffix = '_Run3FSMBMixing',
@@ -2049,7 +2049,7 @@ upgradeProperties[2017] = {
         'HLTmenu': '@relval2022',
         'Era' : 'Run3_FastSim',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
-        'ScenToRun' : ['FastSimRun3','HARVESTNano'],
+        'ScenToRun' : ['FastSimRun3','HARVESTFastRun3'],
     },
 }
 
@@ -2061,7 +2061,7 @@ for key in list(upgradeProperties[2017].keys()):
                                                          (['RecoNanoPU','HARVESTNanoPU'] if '202' in key else ['RecoFakeHLTPU','HARVESTFakeHLTPU']) + \
                                                          (['Nano'] if 'Nano' in upgradeProperties[2017][key]['ScenToRun'] else [])
     else:
-        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['FastSimRun3PU','HARVESTNanoPU']
+        upgradeProperties[2017][key+'PU']['ScenToRun'] = ['FastSimRun3PU','HARVESTFastRun3PU']
 
 upgradeProperties[2026] = {
     '2026D49' : {

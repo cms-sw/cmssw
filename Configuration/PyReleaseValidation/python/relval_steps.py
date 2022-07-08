@@ -3805,7 +3805,16 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
                                        '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
                                        '--relval':'27000,3000'}
-
+    
+    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting',
+                                           '--conditions':gt,
+                                           '--mc':'',
+                                           '--fast':'',
+                                           '--geometry':geom,
+                                           '--scenario':'pp',
+                                           '--filetype':'DQM',
+                                           '--filein':'file:step1_inDQM.root'}
+    
     upgradeStepDict['Nano'][k] = {'-s':'NANO,DQM:@nanoAODDQM',
                                       '--conditions':gt,
                                       '--datatier':'NANOAODSIM,DQMIO',
