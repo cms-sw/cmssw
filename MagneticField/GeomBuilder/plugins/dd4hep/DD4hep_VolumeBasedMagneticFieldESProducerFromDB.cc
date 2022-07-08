@@ -50,6 +50,7 @@ namespace magneticfield {
   class DD4hep_VolumeBasedMagneticFieldESProducerFromDB : public edm::ESProducer {
   public:
     DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const edm::ParameterSet& iConfig);
+    ~DD4hep_VolumeBasedMagneticFieldESProducerFromDB() override;
     // forbid copy ctor and assignment op.
     DD4hep_VolumeBasedMagneticFieldESProducerFromDB(const DD4hep_VolumeBasedMagneticFieldESProducerFromDB&) = delete;
     const DD4hep_VolumeBasedMagneticFieldESProducerFromDB& operator=(
@@ -130,6 +131,10 @@ DD4hep_VolumeBasedMagneticFieldESProducerFromDB::DD4hep_VolumeBasedMagneticField
       },
       edm::ESProductTag<MagFieldConfig, IdealMagneticFieldRecord>(myConfigTag));
   chosenConfigToken_ = cc.consumes(myConfigTag);  //Use same tag as the choice
+}
+
+DD4hep_VolumeBasedMagneticFieldESProducerFromDB::~DD4hep_VolumeBasedMagneticFieldESProducerFromDB() {
+  delete detector_;
 }
 
 std::shared_ptr<MagFieldConfig const> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::chooseConfigAtRuntime(
