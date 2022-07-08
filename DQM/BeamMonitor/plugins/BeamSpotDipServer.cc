@@ -56,8 +56,8 @@ BeamSpotDipServer::BeamSpotDipServer(const edm::ParameterSet& ps) {
   //
   dip = Dip::create("CmsBeamSpotServer");
 
-  //
-  dip->setDNSNode("cmsdimns1.cern.ch");
+  // Use both CMS-based DIM DNS server (https://its.cern.ch/jira/browse/CMSOMS-280)
+  dip->setDNSNode("cmsdimns1.cern.ch,cmsdimns2.cern.ch");
 
   edm::LogInfo("BeamSpotDipServer") << "reading from " << (readFromNFS ? "file (NFS)" : "database");
 }
