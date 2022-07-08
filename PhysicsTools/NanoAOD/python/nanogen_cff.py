@@ -42,7 +42,6 @@ nanogenSequence = cms.Sequence(
     particleLevel+
     genJetTable+
     patJetPartons+
-    genJetFlavourAssociation+
     genJetAK8Table+
     genJetAK8FlavourAssociation+
     genJetAK8FlavourTable+

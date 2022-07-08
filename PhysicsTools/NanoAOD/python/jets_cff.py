@@ -31,7 +31,7 @@ jetCorrFactorsAK8 = patJetCorrFactors.clone(src='slimmedJetsAK8',
     payload = cms.string('AK8PFPuppi'),
     primaryVertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
-run2_miniAOD_80XLegacy.toModify(jetCorrFactorsAK8, payload = cms.string('AK8PFchs')) # ak8PFJetsCHS in 2016 80X miniAOD
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(jetCorrFactorsAK8, payload = cms.string('AK8PFchs')) # ak8PFJetsCHS in 2016 80X miniAOD
 
 from  PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cfi import *
 
@@ -507,13 +507,13 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMi
     btagDDCvL = Var("bDiscriminator('pfMassIndependentDeepDoubleCvLJetTags:probHcc')",float,doc="DeepDoubleX (mass-decorrelated) discriminator for H(Z)->cc vs QCD",precision=10),
     btagDDCvB = Var("bDiscriminator('pfMassIndependentDeepDoubleCvBJetTags:probHcc')",float,doc="DeepDoubleX (mass-decorrelated) discriminator for H(Z)->cc vs H(Z)->bb",precision=10),
     )
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, msoftdrop_chs = Var("userFloat('ak8PFJetsCHSSoftDropMass')",float, doc="Legacy uncorrected soft drop mass with CHS",precision=10))
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1\')"),)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2\')"),)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3\')"),)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, tau4 = None)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, n2b1 = None)
-run2_miniAOD_80XLegacy.toModify( fatJetTable.variables, n3b1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify(fatJetTable.variables, msoftdrop_chs = Var("userFloat('ak8PFJetsCHSSoftDropMass')",float, doc="Legacy uncorrected soft drop mass with CHS",precision=10))
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1\')"),)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2\')"),)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3\')"),)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, tau4 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, n2b1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, n3b1 = None)
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify( fatJetTable.variables, nConstituents = None)
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
   modifier.toModify( fatJetTable.variables, jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"))
@@ -562,13 +562,13 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMi
 fatJetTable.variables.pt.precision=10
 subJetTable.variables.pt.precision=10
 
-run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau1 = None)
-run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau2 = None)
-run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau3 = None)
-run2_miniAOD_80XLegacy.toModify( subJetTable.variables, tau4 = None)
-run2_miniAOD_80XLegacy.toModify( subJetTable.variables, n2b1 = None)
-run2_miniAOD_80XLegacy.toModify( subJetTable.variables, n3b1 = None)
-run2_miniAOD_80XLegacy.toModify( subJetTable.variables, btagCMVA = None, btagDeepB = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, tau1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, tau2 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, tau3 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, tau4 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, n2b1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, n3b1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( subJetTable.variables, btagCMVA = None, btagDeepB = None)
 
 
 corrT1METJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
