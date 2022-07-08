@@ -66,7 +66,7 @@ public:
   typedef dqm::legacy::MonitorElement MonitorElement;
   typedef dqm::legacy::DQMStore DQMStore;
   explicit SiStripGainFromData(const edm::ParameterSet&);
-  ~SiStripGainFromData() override;
+  ~SiStripGainFromData() override = default;
 
 private:
   void algoBeginJob(const edm::EventSetup&) override;
@@ -315,8 +315,6 @@ SiStripGainFromData::SiStripGainFromData(const edm::ParameterSet& iConfig)
   //if( OutputHistos!="" )
   //  dqmStore_->open(OutputHistos.c_str(), true);
 }
-
-SiStripGainFromData::~SiStripGainFromData() {}
 
 void SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup) {
   const TrackerTopology* const tTopo = &iSetup.getData(tTopoToken_);
