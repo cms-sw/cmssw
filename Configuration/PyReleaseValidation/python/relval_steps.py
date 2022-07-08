@@ -3569,8 +3569,10 @@ defaultDataSets['2018']='CMSSW_12_0_0_pre4-113X_upgrade2018_realistic_v5-v'
 defaultDataSets['2018Design']='CMSSW_12_0_0_pre4-113X_upgrade2018_design_v5-v'
 defaultDataSets['2021']='CMSSW_12_0_0_pre4-120X_mcRun3_2021_realistic_v2-v'
 defaultDataSets['2021Design']='CMSSW_12_0_0_pre4-120X_mcRun3_2021_design_v2-v'
+defaultDataSets['2021FS']='CMSSW_12_4_0_pre4-124X_mcRun3_2021_realistic_v1_Run3FastSim_FastSim-v'
 defaultDataSets['2023']='CMSSW_12_0_0_pre4-120X_mcRun3_2023_realistic_v2-v'
 defaultDataSets['2024']='CMSSW_12_0_0_pre4-120X_mcRun3_2024_realistic_v2-v'
+defaultDataSets['2025']='CMSSW_12_0_0_pre4-120X_mcRun3_2024_realistic_v2-v'
 defaultDataSets['2026D49']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D49noPU-v'
 defaultDataSets['2026D76']='CMSSW_12_0_0_pre4-113X_mcRun4_realistic_v7_2026D76noPU-v'
 defaultDataSets['2026D77']='CMSSW_12_1_0_pre2-113X_mcRun4_realistic_v7_2026D77noPU-v'
@@ -3601,7 +3603,10 @@ for ds in defaultDataSets:
     elif '2018' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2021' in ds:
-      PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+        if 'FS' not in ds:
+            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM'%(name,)}
+        else:
+            PUDataSets[ds]={'-n':10,'--pileup':'Run3_Flat55To75_PoissonOOTPU','--pileup_input':'das:/RelValMinBias_14TeV/%s/GEN-SIM-RECO'%(name,)}
     elif 'postLS2' in ds:
         PUDataSets[ds]={'-n':10,'--pileup':'AVE_50_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(name,)}
     elif '2026' in ds:
@@ -3783,13 +3788,23 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                    '--fast':'',
                                    '--geometry' : geom,
                                    '--relval':'27000,3000'}
-
+    
     upgradeStepDict['HARVESTFast'][k]={'-s':'HARVESTING:validationHarvesting',
                                     '--conditions':gt,
                                     '--mc':'',
                                     '--geometry' : geom,
                                     '--scenario' : 'pp'
                                     }
+
+    upgradeStepDict['FastSimRun3'][k]={'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@standardValidation,DQM:@standardDQMFS',
+                                       '--fast':'',
+                                       '--era':'Run3_FastSim',
+                                       '--beamspot':beamspot,
+                                       '--conditions':gt,
+                                       '--geometry':geom,
+                                       '--eventcontent':'FEVTDEBUGHLT,MINIAODSIM,DQM',
+                                       '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
+                                       '--relval':'27000,3000'}
 
     upgradeStepDict['Nano'][k] = {'-s':'NANO,DQM:@nanoAODDQM',
                                       '--conditions':gt,
@@ -3851,7 +3866,7 @@ for step in upgradeStepDict.keys():
                         s=frag[:-4]+'_'+key
                         # exclude upgradeKeys without input dataset, and special WFs that disable reuse
                         istep = step+preventReuseKeyword
-                        if 'FastSim' not in k and 'Run3FS' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
+                        if 'FastSim' not in k and s+'INPUT' not in steps and s in baseDataSetReleaseBetter and defaultDataSets[key] != '' and \
                            (istep not in upgradeStepDict or key not in upgradeStepDict[istep] or upgradeStepDict[istep][key] is not None):
                             steps[k+'INPUT']={'INPUT':InputInfo(dataSet='/RelVal'+info.dataset+'/%s/GEN-SIM'%(baseDataSetReleaseBetter[s],),location='STD')}
    else:
