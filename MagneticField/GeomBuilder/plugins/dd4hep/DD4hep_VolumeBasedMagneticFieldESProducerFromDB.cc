@@ -73,6 +73,8 @@ namespace magneticfield {
     edm::ESGetToken<MagFieldConfig, IdealMagneticFieldRecord> chosenConfigToken_;
 
     edm::ESGetToken<FileBlob, MFGeometryFileRcd> mayConsumeBlobToken_;
+    cms::DDDetector* detector_{nullptr};
+
     const bool debug_;
     const bool useMergeFileIfAvailable_;
   };
@@ -187,9 +189,10 @@ std::unique_ptr<MagneticField> DD4hep_VolumeBasedMagneticFieldESProducerFromDB::
       "<MaterialSection label=\"materials.xml\"><ElementaryMaterial name=\"materials:Vacuum\" density=\"1e-13*mg/cm3\" "
       "symbol=\" \" atomicWeight=\"1*g/mole\" atomicNumber=\"1\"/></MaterialSection>");
 
-  auto ddet = make_unique<cms::DDDetector>("cmsMagneticField:MAGF", sblob, true);
+  if (nullptr == detector_)
+    detector_ = new cms::DDDetector("cmsMagneticField:MAGF", sblob, true);
 
-  builder.build(ddet.get());
+  builder.build(detector_);
 
   // Build the VB map. Ownership of the parametrization is transferred to it
   return std::make_unique<VolumeBasedMagneticField>(conf->geometryVersion,
