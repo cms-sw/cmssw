@@ -587,7 +587,7 @@ void SiStripGainFromData::algoBeginJob(const edm::EventSetup& iSetup) {
         APV->Side = 0;
 
         if (SubDet == StripSubdetector::TID) {
-          APV->Side = tTopo->tecSide(Detid);
+          APV->Side = tTopo->tidSide(Detid);
         } else if (SubDet == StripSubdetector::TEC) {
           APV->Side = tTopo->tecSide(Detid);
         }
