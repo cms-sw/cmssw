@@ -35,7 +35,7 @@ class RPixRoadFinder : public RPixDetPatternFinder {
 public:
   explicit RPixRoadFinder(const edm::ParameterSet &param);
   ~RPixRoadFinder() override;
-  void findPattern() override;
+  void findPattern(bool isbadpot) override;
 
 private:
   int verbosity_;
@@ -43,7 +43,7 @@ private:
   unsigned int minRoadSize_;
   unsigned int maxRoadSize_;
   double roadRadiusBadPot_;
-  bool isBadPot_;
+  //  bool isBadPot_;
   void run(const edm::DetSetVector<CTPPSPixelRecHit> &input, const CTPPSGeometry &geometry, std::vector<Road> &roads);
 };
 
