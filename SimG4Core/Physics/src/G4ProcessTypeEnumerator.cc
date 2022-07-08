@@ -6,7 +6,7 @@ static const std::string g4processes[nprocesses] = {
     "PairProdCharged", "Annih",          "AnnihToMuMu",  "AnnihToHad",  "NuclearStopp",  "Msc",
     "Rayleigh",        "PhotoElectric",  "Compton",      "Conv",        "ConvToMuMu",    "Cerenkov",
     "Scintillation",   "SynchRad",       "TransRad",     "OpAbsorp",    "OpBoundary",    "OpRayleigh",
-    "OpWLS",           "OpMieHG",        "DNAElastic",   "DNAExcit",    "DNAIonisation", "DNAVibExcit",
+    "OpWLS",           "OpMieHG",        "MuDBrem",   "MuMuonPairProd", "DNAIonisation", "DNAVibExcit",
     "DNAAttachment",   "DNAChargeDec",   "DNAChargeInc", "HadElastic",  "HadInelastic",  "HadCapture",
     "HadFission",      "HadAtRest",      "HadCEX",       "Decay",       "DecayWSpin",    "DecayPiWSpin",
     "DecayRadio",      "DecayUnKnown",   "DecayExt",     "GFlash",      "StepLimiter",   "UsrSpecCuts",
@@ -24,12 +24,15 @@ static const int g4subtype[nprocesses] = {
     7,   // AnnihToHad
     8,   // NuclearStopp
     10,  // Msc
-    11,  //
+    11,  // Rayleigh
     12,  // PhotoElectric
     13,  // Compton
     14,  // Conv
     15,  // ConvToMuMu
-    21,  22, 23, 24, 31, 32, 33, 34, 35, 51, 52, 53, 54, 55, 56, 57,
+    21,  22, 23, 24, 31, 32, 33, 34, 35,
+    40,  // muDBrem
+    49,  // MuMuonPairProd
+    53, 54, 55, 56, 57,
     111,  // HadElastic
     121,  // HadInelastic
     131,  // HadCapture
