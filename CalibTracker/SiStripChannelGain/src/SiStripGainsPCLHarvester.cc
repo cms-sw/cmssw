@@ -712,6 +712,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
           APV->Index = Index;
           APV->Bin = -1;
           APV->DetId = Detid.rawId();
+          APV->Side = 0;
           APV->APVId = j;
           APV->SubDet = SubDet;
           APV->FitMPV = -1;
@@ -761,6 +762,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
             APV->Index = Index;
             APV->Bin = -1;
             APV->DetId = Detid.rawId();
+            APV->Side = 0;
             APV->APVId = (j << 3 | i);
             APV->SubDet = SubDet;
             APV->FitMPV = -1;
