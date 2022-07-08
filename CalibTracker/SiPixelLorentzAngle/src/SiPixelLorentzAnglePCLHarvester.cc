@@ -102,11 +102,10 @@ private:
   const std::string recordName_;
   std::unique_ptr<TF1> f1;
   float width_;
-  float theMagField{0.f};
+  float theMagField_{0.f};
 
   SiPixelLorentzAngleCalibrationHistograms hists;
   const SiPixelLorentzAngle* currentLorentzAngle;
-  const MagneticField* magField;
   std::unique_ptr<TrackerTopology> theTrackerTopology;
 };
 
@@ -134,12 +133,12 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
   const TrackerGeometry* geom = &iSetup.getData(geomEsToken_);
   const TrackerTopology* tTopo = &iSetup.getData(topoEsTokenBR_);
 
-  magField = &iSetup.getData(magneticFieldToken_);
+  const MagneticField* magField = &iSetup.getData(magneticFieldToken_);
   currentLorentzAngle = &iSetup.getData(siPixelLAEsToken_);
 
   // B-field value
   // nominalValue returns the magnetic field value in kgauss (1T = 10 kgauss)
-  theMagField = magField->nominalValue() / 10.;
+  theMagField_ = magField->nominalValue() / 10.;
 
   PixelTopologyMap map = PixelTopologyMap(geom, tTopo);
   hists.nlay = geom->numberOfLayers(PixelSubdetector::PixelBarrel);
@@ -641,8 +640,8 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
        pow((half_width * half_width * half_width * half_width * res.e5), 2));  // Propagation of uncertainty
   res.error_LA = sqrt(errsq_LA);
 
-  hists.h_bySectMeasLA_->setBinContent(i_index, (res.tan_LA / theMagField));
-  hists.h_bySectMeasLA_->setBinError(i_index, (res.error_LA / theMagField));
+  hists.h_bySectMeasLA_->setBinContent(i_index, (res.tan_LA / theMagField_));
+  hists.h_bySectMeasLA_->setBinError(i_index, (res.error_LA / theMagField_));
   hists.h_bySectChi2_->setBinContent(i_index, res.redChi2);
   hists.h_bySectChi2_->setBinError(i_index, 0.);  // no errors
 
@@ -673,7 +672,7 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   float currentLA = currentLorentzAngle->getLorentzAngle(detIdsToFill.front());
   // if the fit quality is OK
   if ((res.redChi2 != 0.) && (res.redChi2 < fitChi2Cut_) && (nentries > minHitsCut_)) {
-    LorentzAnglePerTesla_ = res.tan_LA / theMagField;
+    LorentzAnglePerTesla_ = res.tan_LA / theMagField_;
     // fill the LA actually written to payload
     hists.h_bySectSetLA_->setBinContent(i_index, LorentzAnglePerTesla_);
     hists.h_bySectRejectLA_->setBinContent(i_index, 0.);
@@ -691,7 +690,7 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   } else {
     // just copy the values from the existing payload
     hists.h_bySectSetLA_->setBinContent(i_index, 0.);
-    hists.h_bySectRejectLA_->setBinContent(i_index, (res.tan_LA / theMagField));
+    hists.h_bySectRejectLA_->setBinContent(i_index, (res.tan_LA / theMagField_));
     hists.h_bySectLA_->setBinContent(i_index, currentLA);
     hists.h_bySectDeltaLA_->setBinContent(i_index, 0.);
 
