@@ -16,8 +16,9 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
 #include "TFile.h"
 #include "TTree.h"
 #include "TProcessID.h"
@@ -33,9 +34,15 @@ public:
 
 private:
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
-  edm::ParameterSet particleFilter_;
-  bool saveNU;
-  std::vector<FSimEvent*> mySimEvent;
+  const edm::ParameterSet particleFilter_;
+  const bool saveNU;
+  const int maxNU;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
+  const edm::EDGetTokenT<std::vector<SimTrack>> tok_fullSimTk_;
+  const edm::EDGetTokenT<std::vector<SimVertex>> tok_fullSimVx_;
+  const edm::EDGetTokenT<std::vector<SimTrack>> tok_fastSimTk_;
+  const edm::EDGetTokenT<std::vector<SimVertex>> tok_fastSimVx_;
+  std::vector<std::unique_ptr<FSimEvent>> mySimEvent;
   NUEvent* nuEvent;
   TTree* nuTree;
   TFile* outFile;
@@ -87,11 +94,17 @@ private:
 
   int totalNEvt;
   int totalNU;
-  int maxNU;
 };
 
 testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
-    : mySimEvent(2, static_cast<FSimEvent*>(0)),
+    : particleFilter_(p.getParameter<edm::ParameterSet>("TestParticleFilter")),
+      saveNU(p.getParameter<bool>("SaveNuclearInteractions")),
+      maxNU(p.getParameter<unsigned>("MaxNumberOfNuclearInteractions")),
+      tok_pdt_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()),
+      tok_fullSimTk_(consumes<std::vector<SimTrack>>(edm::InputTag("g4SimHits"))),
+      tok_fullSimVx_(consumes<std::vector<SimVertex>>(edm::InputTag("g4SimHits"))),
+      tok_fastSimTk_(consumes<std::vector<SimTrack>>(edm::InputTag("famosSimHits"))),
+      tok_fastSimVx_(consumes<std::vector<SimVertex>>(edm::InputTag("famosSimHits"))),
       h0(2, static_cast<MonitorElement*>(0)),
       h1(2, static_cast<MonitorElement*>(0)),
       h2(2, static_cast<MonitorElement*>(0)),
@@ -123,18 +136,15 @@ testNuclearInteractions::testNuclearInteractions(const edm::ParameterSet& p)
       totalNEvt(0),
       totalNU(0) {
   // Let's just initialize the SimEvent's
-  particleFilter_ = p.getParameter<edm::ParameterSet>("TestParticleFilter");
+  // For the full sim
+  mySimEvent.emplace_back(std::make_unique<FSimEvent>(particleFilter_));
+  // For the fast sim
+  mySimEvent.emplace_back(std::make_unique<FSimEvent>(particleFilter_));
 
   // Do we save the nuclear interactions?
-  saveNU = p.getParameter<bool>("SaveNuclearInteractions");
-  maxNU = p.getParameter<unsigned>("MaxNumberOfNuclearInteractions");
   if (saveNU)
     std::cout << "Nuclear Interactions will be saved ! " << std::endl;
 
-  // For the full sim
-  mySimEvent[0] = new FSimEvent(particleFilter_);
-  // For the fast sim
-  mySimEvent[1] = new FSimEvent(particleFilter_);
 
   // Where the nuclear interactions are saved;
   NUEventFileName = "none";
@@ -707,8 +717,7 @@ testNuclearInteractions::~testNuclearInteractions() {
 
 void testNuclearInteractions::dqmBeginRun(edm::Run const&, const edm::EventSetup& es) {
   // init Particle data table (from Pythia)
-  edm::ESHandle<HepPDT::ParticleDataTable> pdt;
-  es.getData(pdt);
+  const edm::ESHandle<HepPDT::ParticleDataTable> pdt = es.getHandle(tok_pdt_);
 
   mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
@@ -722,19 +731,15 @@ void testNuclearInteractions::analyze(const edm::Event& iEvent, const edm::Event
   std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
 
   //  std::cout << "Fill full event " << std::endl;
-  edm::Handle<std::vector<SimTrack> > fullSimTracks;
-  iEvent.getByLabel("g4SimHits", fullSimTracks);
-  edm::Handle<std::vector<SimVertex> > fullSimVertices;
-  iEvent.getByLabel("g4SimHits", fullSimVertices);
+  const edm::Handle<std::vector<SimTrack> >& fullSimTracks = iEvent.getHandle(tok_fullSimTk_);
+  const edm::Handle<std::vector<SimVertex> >& fullSimVertices = iEvent.getHandle(tok_fullSimVx_);
   mySimEvent[0]->fill(*fullSimTracks, *fullSimVertices);
 
   //  std::cout << "Fill fast event " << std::endl;
   /* */
   //  if ( !saveNU ) {
-  edm::Handle<std::vector<SimTrack> > fastSimTracks;
-  iEvent.getByLabel("famosSimHits", fastSimTracks);
-  edm::Handle<std::vector<SimVertex> > fastSimVertices;
-  iEvent.getByLabel("famosSimHits", fastSimVertices);
+  const edm::Handle<std::vector<SimTrack> >& fastSimTracks = iEvent.getHandle(tok_fastSimTk_);
+  const edm::Handle<std::vector<SimVertex> >& fastSimVertices = iEvent.getHandle(tok_fastSimVx_);
   mySimEvent[1]->fill(*fastSimTracks, *fastSimVertices);
   //}
   /* */
