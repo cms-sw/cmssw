@@ -61,7 +61,7 @@ lheWeights.failIfInvalidXML = False # Also would ideally be true, but is needed 
 genJetMET = cms.Sequence(genJetMETTask)
 
 from SimPPS.Configuration.GenPPS_cff import *
-pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genWeightsSeq+genJetMET, PPSTransportTask)
+pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genJetMET, PPSTransportTask)
 
 # sequence for bare generator result only, without vertex smearing and analysis objects added
 pgen_genonly = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer"))
@@ -79,3 +79,8 @@ genstepfilter = HLTrigger.HLTfilters.triggerResultsFilter_cfi.triggerResultsFilt
     hltResults = cms.InputTag('TriggerResults'),
     triggerConditions = cms.vstring()
 )
+
+pgenWithWeight = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GenSmeared+GeneInfo+genWeightsSeq+genJetMET, PPSTransportTask)
+
+from Configuration.ProcessModifiers.genWeightAddition_cff import genWeightAddition
+genWeightAddition.toReplaceWith(pgen, pgenWithWeight)
