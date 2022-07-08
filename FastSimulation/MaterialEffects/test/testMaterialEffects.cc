@@ -14,22 +14,28 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include <vector>
+#include <memory>
 #include <string>
+#include <vector>
 
 class testMaterialEffects : public DQMEDAnalyzer {
 public:
   explicit testMaterialEffects(const edm::ParameterSet&);
-  ~testMaterialEffects(){};
+  ~testMaterialEffects() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
-  edm::ParameterSet particleFilter_;
-  std::vector<FSimEvent*> mySimEvent;
+  const edm::ParameterSet particleFilter_;
+  const edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> tok_pdt_;
+  const edm::EDGetTokenT<std::vector<SimTrack>> tok_fullSimTk_;
+  const edm::EDGetTokenT<std::vector<SimVertex>> tok_fullSimVx_;
+  const edm::EDGetTokenT<std::vector<SimTrack>> tok_fastSimTk_;
+  const edm::EDGetTokenT<std::vector<SimVertex>> tok_fastSimVx_;
+  std::vector<std::unique_ptr<FSimEvent>> mySimEvent;
   std::string simModuleLabel_;
   //  TH2F * h100;
   std::vector<MonitorElement*> h0;
@@ -68,7 +74,12 @@ private:
 };
 
 testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p)
-    : mySimEvent(2, static_cast<FSimEvent*>(0)),
+    : particleFilter_(p.getParameter<edm::ParameterSet>("TestParticleFilter")),
+      tok_pdt_(esConsumes<HepPDT::ParticleDataTable, PDTRecord>()),
+      tok_fullSimTk_(consumes<std::vector<SimTrack>>(edm::InputTag("g4SimHits"))),
+      tok_fullSimVx_(consumes<std::vector<SimVertex>>(edm::InputTag("g4SimHits"))),
+      tok_fastSimTk_(consumes<std::vector<SimTrack>>(edm::InputTag("famosSimHits"))),
+      tok_fastSimVx_(consumes<std::vector<SimVertex>>(edm::InputTag("famosSimHits"))),
       h0(2, static_cast<MonitorElement*>(0)),
       h1(2, static_cast<MonitorElement*>(0)),
       h2(2, static_cast<MonitorElement*>(0)),
@@ -90,11 +101,11 @@ testMaterialEffects::testMaterialEffects(const edm::ParameterSet& p)
       htmp(2, static_cast<MonitorElement*>(0)),
       tmpRadius(2, static_cast<double>(0.)),
       tmpLength(2, static_cast<double>(0.)) {
-  particleFilter_ = p.getParameter<edm::ParameterSet>("TestParticleFilter");
+  
   // For the full sim
-  mySimEvent[0] = new FSimEvent(particleFilter_);
+  mySimEvent.emplace_back(std::make_unique<FSimEvent>(particleFilter_));
   // For the fast sim
-  mySimEvent[1] = new FSimEvent(particleFilter_);
+  mySimEvent.emplace_back(std::make_unique<FSimEvent>(particleFilter_));
 
   // Beam Pipe
   std::vector<double> tmpRadius = p.getUntrackedParameter<std::vector<double> >("BPCylinderRadius");
@@ -644,8 +655,7 @@ void testMaterialEffects::bookHistograms(DQMStore::IBooker& ibooker,
 
 void testMaterialEffects::dqmBeginRun(edm::Run const&, edm::EventSetup const& es) {
   // init Particle data table (from Pythia)
-  edm::ESHandle<HepPDT::ParticleDataTable> pdt;
-  es.getData(pdt);
+  const edm::ESHandle<HepPDT::ParticleDataTable> pdt = es.getHandle(tok_pdt_);
   mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
 }
@@ -656,17 +666,13 @@ void testMaterialEffects::analyze(const edm::Event& iEvent, const edm::EventSetu
   nevt++;
 
   //std::cout << "Fill full event " << std::endl;
-  edm::Handle<std::vector<SimTrack> > fullSimTracks;
-  iEvent.getByLabel("g4SimHits", fullSimTracks);
-  edm::Handle<std::vector<SimVertex> > fullSimVertices;
-  iEvent.getByLabel("g4SimHits", fullSimVertices);
+  const edm::Handle<std::vector<SimTrack> >& fullSimTracks = iEvent.getHandle(tok_fullSimTk_);
+  const edm::Handle<std::vector<SimVertex> >& fullSimVertices = iEvent.getHandle(tok_fullSimVx_);
   mySimEvent[0]->fill(*fullSimTracks, *fullSimVertices);
 
   //std::cout << "Fill fast event " << std::endl;
-  edm::Handle<std::vector<SimTrack> > fastSimTracks;
-  iEvent.getByLabel("famosSimHits", fastSimTracks);
-  edm::Handle<std::vector<SimVertex> > fastSimVertices;
-  iEvent.getByLabel("famosSimHits", fastSimVertices);
+  const edm::Handle<std::vector<SimTrack> >&  fastSimTracks = iEvent.getHandle(tok_fastSimTk_);
+  const edm::Handle<std::vector<SimVertex> >& fastSimVertices = iEvent.getHandle(tok_fastSimVx_);
   mySimEvent[1]->fill(*fastSimTracks, *fastSimVertices);
 
   for (unsigned ievt = 0; ievt < 2; ++ievt) {
