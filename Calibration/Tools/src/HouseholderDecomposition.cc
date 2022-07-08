@@ -442,7 +442,7 @@ void HouseholderDecomposition::solve(std::vector<float>& y) {
 
   for (i = Nchannels - 2; i >= 0; i--) {
     z[i] = energyVectorProc[i];
-    for (j = i + 1; j < Nchannels; j++) {
+    for (j = i + 1; j - Nchannels < 0; j++) {
       z[i] -= eventMatrixProc[i][j] * z[j];
     }
     z[i] /= alpha[i];

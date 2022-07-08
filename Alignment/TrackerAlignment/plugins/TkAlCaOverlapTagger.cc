@@ -126,7 +126,7 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
       if ((previousTM != nullptr) && (layer != -1)) {
         for (std::vector<TrajectoryMeasurement>::const_iterator itmCompare = itTrajMeas - 1;
-             itmCompare >= tmColl.begin() && itmCompare > itTrajMeas - 4;
+             (itmCompare >= tmColl.begin()) && ((itmCompare + 4) > itTrajMeas);
              --itmCompare) {
           DetId compareId = itmCompare->recHit()->geographicalId();
           if (subDet != compareId.subdetId() || layer != layerFromId(compareId, tTopo))

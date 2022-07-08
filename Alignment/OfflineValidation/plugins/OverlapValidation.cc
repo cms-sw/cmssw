@@ -383,7 +383,7 @@ void OverlapValidation::analyzeTrajectory(const Trajectory& trajectory,
     ++overlapCounts_[1];
     if ((layer != -1) && (acceptLayer[subDet])) {
       for (vector<TrajectoryMeasurement>::const_iterator itmCompare = itm - 1;
-           itmCompare >= measurements.begin() && itmCompare > itm - 4;
+           (itmCompare >= measurements.begin()) && ((itmCompare + 4) > itm);
            --itmCompare) {
         DetId compareId = itmCompare->recHit()->geographicalId();
 
