@@ -7,6 +7,16 @@ process = cms.Process('CTPPSTest', $ERA)
 import Validation.CTPPS.simu_config.year_$CONFIG_cff as config
 process.load("Validation.CTPPS.simu_config.year_$CONFIG_cff")
 
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = 'frontier://FrontierProd/CMS_CONDITIONS'
+process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+    process.CondDB,
+    toGet = cms.VPSet(cms.PSet(
+        record = cms.string('CTPPSPixelAnalysisMaskRcd'),
+        tag = cms.string("CTPPSPixelAnalysisMask_Run3_v1_hlt")
+    ))
+)
+
 # minimal logger settings
 process.MessageLogger = cms.Service("MessageLogger",
   statistics = cms.untracked.vstring(),
