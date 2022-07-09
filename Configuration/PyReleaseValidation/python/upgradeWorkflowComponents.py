@@ -331,7 +331,7 @@ class UpgradeWorkflow_pixelTrackingOnly(UpgradeWorkflowTracking):
         if 'Reco' in step: stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@pixelTrackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2017' in key or '2018' in key or '2021' in key or '2026' in key
+        return ('2017' in key or '2018' in key or '2021' in key or '2026' in key) and ('FS' not in key)
 upgradeWFs['pixelTrackingOnly'] = UpgradeWorkflow_pixelTrackingOnly(
     steps = [
         'Reco',
@@ -382,7 +382,7 @@ class UpgradeWorkflow_trackingRun3CkfPixelLessStep(UpgradeWorkflowTracking):
         if 'Reco' in step and stepDict[step][k]['--era']=='Run3':
             stepDict[stepName][k] = merge([{'--era': 'Run3_ckfPixelLessStep'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
+        return '2021' in key and 'FS' not in key
 upgradeWFs['trackingRun3CkfPixelLessStep'] = UpgradeWorkflow_trackingRun3CkfPixelLessStep(
     steps = [
         'Reco',
@@ -400,7 +400,7 @@ class UpgradeWorkflow_trackingOnlyRun3CkfPixelLessStep(UpgradeWorkflowTracking):
             stepDict[stepName][k] = merge([{'--era': 'Run3_ckfPixelLessStep'}, self.step3, stepDict[step][k]])
         elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
     def condition_(self, fragment, stepList, key, hasHarvest):
-        return '2021' in key
+        return '2021' in key and 'FS' not in key
 upgradeWFs['trackingOnlyRun3CkfPixelLessStep'] = UpgradeWorkflow_trackingOnlyRun3CkfPixelLessStep(
     steps = [
         'Reco',
@@ -653,9 +653,9 @@ class PatatrackWorkflow(UpgradeWorkflow):
         # select only a subset of the workflows
         selected = [
             ('2018' in key and fragment == "TTbar_13"),
-            ('2021' in key and fragment == "TTbar_14TeV"),
+            ('2021' in key and fragment == "TTbar_14TeV" and 'FS' not in key),
             ('2018' in key and fragment == "ZMM_13"),
-            ('2021' in key and fragment == "ZMM_14"),
+            ('2021' in key and fragment == "ZMM_14" and 'FS' not in key),
             ('2026D88' in key and fragment == "TTbar_14TeV" and "PixelOnly" in self.suffix)
         ]
         result = any(selected) and hasHarvest
@@ -1442,7 +1442,7 @@ class UpgradeWorkflow_0T(UpgradeWorkflow):
         # override '-n' setting from PUDataSets in relval_steps.py
         stepDict[stepName][k] = merge([{'-n':'1'}, stepDict[step][k]])
     def condition(self, fragment, stepList, key, hasHarvest):
-        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key)
+        return (fragment=="TTbar_13" or fragment=="TTbar_14TeV") and ('2017' in key or '2018' in key or '2021' in key) and ('FS' not in key)
 upgradeWFs['0T'] = UpgradeWorkflow_0T(
     steps = [
         'GenSim',
