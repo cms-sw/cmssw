@@ -26,8 +26,8 @@
 class DDHGCalWaferF : public DDAlgorithm {
 public:
   // Constructor and Destructor
-  DDHGCalWaferF();
-  ~DDHGCalWaferF() override;
+  DDHGCalWaferF() {}
+  ~DDHGCalWaferF() override = default;
 
   void initialize(const DDNumericArguments& nArgs,
                   const DDVectorArguments& vArgs,
@@ -53,14 +53,6 @@ private:
   std::vector<std::string> cellNames_;   // Name of the cells
   std::string nameSpace_;                // Namespace to be used
 };
-
-DDHGCalWaferF::DDHGCalWaferF() {
-#ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Creating an instance";
-#endif
-}
-
-DDHGCalWaferF::~DDHGCalWaferF() {}
 
 void DDHGCalWaferF::initialize(const DDNumericArguments& nArgs,
                                const DDVectorArguments& vArgs,
@@ -101,7 +93,7 @@ void DDHGCalWaferF::initialize(const DDNumericArguments& nArgs,
   nameSpace_ = DDCurrentNamespace::ns();
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cells/Wafer " << nCells_ << " Cell Type " << cellType_
-                                << " NameSpace " << nameSpace_ << " # of cells " << cellNames_.size();
+                                << " NameSpace " << nameSpace_ << ": # of cells " << cellNames_.size();
   for (unsigned int k = 0; k < cellNames_.size(); ++k)
     edm::LogVerbatim("HGCalGeom") << "DDHGCalWaferF: Cell[" << k << "] " << cellNames_[k];
 #endif
@@ -109,7 +101,7 @@ void DDHGCalWaferF::initialize(const DDNumericArguments& nArgs,
 
 void DDHGCalWaferF::execute(DDCompactView& cpv) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HGCalGeom") << "==>> Executing DDHGCalWaferF...";
+  int counter(0);
 #endif
 
   static constexpr double tol = 0.00001;
@@ -188,6 +180,9 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
       for (int u = 0; u < 2 * nCells_; ++u) {
         for (int v = 0; v < 2 * nCells_; ++v) {
           if (((v - u) < (nCells_ + uoff)) && (u - v) < (nCells_ + voff)) {
+#ifdef EDM_ML_DEBUG
+            counter++;
+#endif
             double yp = (u - 0.5 * v - n2 + y0) * 2 * r;
             double xp = (1.5 * (v - nCells_) + x0) * R;
             int cell(0);
@@ -230,6 +225,9 @@ void DDHGCalWaferF::execute(DDCompactView& cpv) {
       }
     }
   }
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HGCalGeom") << "\nDDHGCalWaferF::Counter : " << counter << "\n===============================\n";
+#endif
   if (std::abs(thickTot - thick_) >= tol) {
     if (thickTot > thick_) {
       edm::LogError("HGCalGeom") << "Thickness of the partition " << thick_ << " is smaller than " << thickTot
