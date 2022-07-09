@@ -45,11 +45,12 @@ struct HGCalMixRotatedLayer {
     orientationTypes_ = args.value<int>("OrientationTypes");
     placeOffset_ = args.value<int>("PlaceOffset");
     phiBinsScint_ = args.value<int>("NPhiBinScint");
+    forFireworks_ = args.value<int>("ForFireWorks");
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer::Number of types of wafers: " << waferTypes_
                                   << " facings: " << facingTypes_ << " Orientations: " << orientationTypes_
-                                  << " PlaceOffset: " << placeOffset_ << "; number of cells along phi "
-                                  << phiBinsScint_;
+                                  << " PlaceOffset: " << placeOffset_ << "; number of cells along phi " << phiBinsScint_
+                                  << " forFireworks_: " << forFireworks_;
 #endif
     firstLayer_ = args.value<int>("FirstLayer");
     absorbMode_ = args.value<int>("AbsorberMode");
@@ -392,7 +393,7 @@ struct HGCalMixRotatedLayer {
         int fimin = std::get<1>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         int fimax = std::get<2>(HGCalTileIndex::tileUnpack(tilePhis_[ti]));
         double phi1 = dphi * (fimin - 1);
-        double phi2 = dphi * (fimax - fimin + 1);
+        double phi2 = (forFireworks_ == 1) ? (dphi * (fimax - fimin + 1)) : (dphi * fimax);
         auto cshift = cassette_.getShift(layer + 1, 1, cassette);
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "DDHGCalMixRotatedLayer: Layer " << copy << " iR "
@@ -546,6 +547,7 @@ struct HGCalMixRotatedLayer {
   int orientationTypes_;                  // Number of partial wafer orienations
   int placeOffset_;                       // Offset for placement
   int phiBinsScint_;                      // Maximum number of cells along phi
+  int forFireworks_;                      // Needed for Fireworks(1)/Geant4(0)
   int firstLayer_;                        // Copy # of the first sensitive layer
   int absorbMode_;                        // Absorber mode
   int sensitiveMode_;                     // Sensitive mode
