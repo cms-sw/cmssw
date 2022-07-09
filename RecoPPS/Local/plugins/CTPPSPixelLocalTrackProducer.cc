@@ -178,8 +178,31 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
   geometryWatcher_.check(iSetup);
 
   // get mask
-  const auto &mask = iSetup.getData(tokenCTPPSPixelAnalysisMask_);
+  bool isBadPot_45_220 = false;
+  if (!recHits->empty()) {
+    const auto &mask = iSetup.getData(tokenCTPPSPixelAnalysisMask_);
 
+    // Read Mask checking if 45-220-far is masked as bad and needs special treatment
+    std::map<uint32_t, CTPPSPixelROCAnalysisMask> const &maschera = mask.analysisMask;
+
+    bool mask_45_220[6][6] = {{false}};
+    for (auto const &det : maschera) {
+      CTPPSPixelDetId detId(det.first);
+      unsigned int rocNum = (det.first & rocMask) >> rocOffset;
+      if (rocNum > 5 || detId.plane() > 5)
+        throw cms::Exception("InvalidRocOrPlaneNumber") << "roc number from mask: " << rocNum;
+
+      if (detId.arm() == 0 && detId.station() == 2 && detId.rp() == 3) {  // pot 45-220-far
+        if (det.second.maskedPixels.size() == rocSizeInPixels) {          // roc fully masked
+          mask_45_220[detId.plane()][rocNum] = true;
+        }
+      }
+    }
+
+    // search for specific pattern that requires special reconstruction (isBadPot)
+    isBadPot_45_220 = mask_45_220[1][4] && mask_45_220[1][5] && mask_45_220[2][4] && mask_45_220[2][5] &&
+                      mask_45_220[3][4] && mask_45_220[3][5] && mask_45_220[4][4] && mask_45_220[4][5];
+  }
   std::vector<CTPPSPixelDetId> listOfPotWithHighOccupancyPlanes;
   std::map<CTPPSPixelDetId, uint32_t> mapHitPerPot;
 
@@ -219,27 +242,6 @@ void CTPPSPixelLocalTrackProducer::produce(edm::Event &iEvent, const edm::EventS
   }
 
   edm::DetSetVector<CTPPSPixelLocalTrack> foundTracks;
-
-  // Read Mask checking if 45-220-far is masked as bad and needs special treatment
-  std::map<uint32_t, CTPPSPixelROCAnalysisMask> const &maschera = mask.analysisMask;
-
-  bool mask_45_220[6][6] = {{false}};
-  for (auto const &det : maschera) {
-    CTPPSPixelDetId detId(det.first);
-    unsigned int rocNum = (det.first & rocMask) >> rocOffset;
-    if (rocNum > 5 || detId.plane() > 5)
-      throw cms::Exception("InvalidRocOrPlaneNumber") << "roc number from mask: " << rocNum;
-
-    if (detId.arm() == 0 && detId.station() == 2 && detId.rp() == 3) {  // pot 45-220-far
-      if (det.second.maskedPixels.size() == rocSizeInPixels) {          // roc fully masked
-        mask_45_220[detId.plane()][rocNum] = true;
-      }
-    }
-  }
-
-  // search for specific pattern that requires special reconstruction (isBadPot)
-  bool isBadPot_45_220 = mask_45_220[1][4] && mask_45_220[1][5] && mask_45_220[2][4] && mask_45_220[2][5] &&
-                         mask_45_220[3][4] && mask_45_220[3][5] && mask_45_220[4][4] && mask_45_220[4][5];
 
   // Pattern finder
 
