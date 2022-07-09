@@ -3,17 +3,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//needed for the geometry:
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "TMath.h"
 #include "DataFormats/Math/interface/Error.h"
@@ -32,7 +21,7 @@ RPixRoadFinder::RPixRoadFinder(edm::ParameterSet const& parameterSet) : RPixDetP
   minRoadSize_ = parameterSet.getParameter<int>("minRoadSize");
   maxRoadSize_ = parameterSet.getParameter<int>("maxRoadSize");
   roadRadiusBadPot_ = parameterSet.getParameter<double>("roadRadiusBadPot");
-  isBadPot_ = parameterSet.getParameter<bool>("isBadPot");
+  //  isBadPot_ = parameterSet.getParameter<bool>("isBadPot");
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -41,7 +30,7 @@ RPixRoadFinder::~RPixRoadFinder() {}
 
 //------------------------------------------------------------------------------------------------//
 
-void RPixRoadFinder::findPattern() {
+void RPixRoadFinder::findPattern(bool isBadPot) {
   Road temp_all_hits;
   temp_all_hits.clear();
 
@@ -83,7 +72,7 @@ void RPixRoadFinder::findPattern() {
 
       // create new collection for planes 0 and 5 of pot 45-220-fr
 
-      if (isBadPot_ == true && myid.arm() == 0 && myid.station() == 2 && localV.x() > 0 &&
+      if (isBadPot == true && myid.arm() == 0 && myid.station() == 2 && localV.x() > 0 &&
           (myid.plane() == 0 || myid.plane() == 5)) {  // 45-220-far
 
         temp_all_hits_badPot.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
