@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -13,10 +13,10 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
-class TestEventHypothesisReader : public edm::EDAnalyzer {
+class TestEventHypothesisReader : public edm::stream::EDAnalyzer<> {
 public:
   TestEventHypothesisReader(const edm::ParameterSet &iConfig);
-  virtual void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup);
+  void analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) override;
   void runTests(const pat::EventHypothesis &h);
 
 private:
