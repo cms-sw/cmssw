@@ -4,14 +4,11 @@ using namespace std;
 namespace fs = std::experimental::filesystem;
 namespace pt = boost::property_tree;
 
-PrepareDMRTrends::PrepareDMRTrends(const char *outputFileName, pt::ptree& json) :
-  outputFileName_(outputFileName)
-{
+PrepareDMRTrends::PrepareDMRTrends(const char *outputFileName, pt::ptree &json) : outputFileName_(outputFileName) {
   geometries.clear();
-  for (const std::pair<std::string, pt::ptree>& childTree : json) {
+  for (const auto &childTree : json) {
     geometries.push_back(childTree.second.get<std::string>("title"));
   }
-
 }
 
 /*! \fn getName
@@ -37,11 +34,11 @@ TString PrepareDMRTrends::getName(TString structure, int layer, TString geometry
  */
 
 void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
-                      TString Variable,
-		      std::vector<std::string> inputFiles,
-		      vector<TString> structures,
-		      const map<TString, int> nlayers,
-                      bool FORCE) {
+                                        TString Variable,
+                                        std::vector<std::string> inputFiles,
+                                        vector<TString> structures,
+                                        const map<TString, int> nlayers,
+                                        bool FORCE) {
   gROOT->SetBatch();
 
   float ScaleFactor = DMRFactor;
@@ -51,7 +48,6 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
   map<pair<pair<TString, int>, TString>, Geometry> mappoints;  // pair = (structure, layer), geometry
 
   for (unsigned int i = 0; i < inputFiles.size(); ++i) {
-
     if (fs::is_empty(inputFiles.at(i).c_str())) {
       cout << "ERROR: Empty file " << inputFiles.at(i).c_str() << endl;
       continue;

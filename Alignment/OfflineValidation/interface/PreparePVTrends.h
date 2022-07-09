@@ -61,7 +61,7 @@ namespace pv {
    *  \brief method to find first value that doesn not compare left
    */
 
-  int closest(std::vector<int> const &vec, int value) {
+  inline int closest(std::vector<int> const &vec, int value) {
     auto const it = std::lower_bound(vec.begin(), vec.end(), value);
     if (it == vec.end()) {
       return -1;
@@ -215,10 +215,7 @@ namespace pv {
    */
 
   struct bundle {
-    bundle(int nObjects,
-           const TString &dataType,
-           const TString &dataTypeLabel,
-           const bool &useRMS) {
+    bundle(int nObjects, const TString &dataType, const TString &dataTypeLabel, const bool &useRMS) {
       m_nObjects = nObjects;
       m_datatype = dataType.Data();
       m_datatypelabel = dataTypeLabel.Data();
@@ -227,7 +224,6 @@ namespace pv {
       logInfo << "pv::bundle c'tor: " << dataTypeLabel << " member: " << m_datatypelabel << std::endl;
 
       logInfo << m_axis_types << std::endl;
-
     }
 
     int getNObjects() const { return m_nObjects; }
@@ -249,52 +245,47 @@ namespace pv {
 
 }  // namespace pv
 
-
 class PreparePVTrends {
- public:
+public:
+  PreparePVTrends(const char *outputFileName, int nWorkers, boost::property_tree::ptree &json);
+  ~PreparePVTrends() {}
 
-  PreparePVTrends(const char *outputFileName, int nWorkers, boost::property_tree::ptree& json);
-  ~PreparePVTrends(){}
+  void setDirsAndLabels(boost::property_tree::ptree &json);
 
-  void setDirsAndLabels(boost::property_tree::ptree& json);
-
-  void multiRunPVValidation(bool useRMS = true,
-                            TString lumiInputFile = "",
-                            bool doUnitTest = false);
+  void multiRunPVValidation(bool useRMS = true, TString lumiInputFile = "", bool doUnitTest = false);
 
   static pv::biases getBiases(TH1F *hist);
   static unrolledHisto getUnrolledHisto(TH1F *hist);
   static TH1F *drawConstantWithErr(TH1F *hist, Int_t iter, Double_t theConst);
   static outPVtrends processData(size_t iter,
-				   std::vector<int> intersection,
-				   const Int_t nDirs_,
-				   const char *dirs[10],
-				   TString LegLabels[10],
-			           bool useRMS,
-				   const size_t nWorkers,
-                                   bool doUnitTest);
+                                 std::vector<int> intersection,
+                                 const Int_t nDirs_,
+                                 const char *dirs[10],
+                                 TString LegLabels[10],
+                                 bool useRMS,
+                                 const size_t nWorkers,
+                                 bool doUnitTest);
   std::vector<int> list_files(const char *dirname = ".", const char *ext = ".root");
   void outputGraphs(const pv::wrappedTrends &allInputs,
-                  const std::vector<double> &ticks,
-                  const std::vector<double> &ex_ticks,
-                  TGraph *&g_mean,
-                  TGraph *&g_chi2,
-                  TGraph *&g_KS,
-                  TGraph *&g_low,
-                  TGraph *&g_high,
-                  TGraphAsymmErrors *&g_asym,
-		  TH1F *h_RMS[],
-                  const pv::bundle &mybundle,
-                  const pv::view &theView,
-		  const int index,
-                  const TString &label);
+                    const std::vector<double> &ticks,
+                    const std::vector<double> &ex_ticks,
+                    TGraph *&g_mean,
+                    TGraph *&g_chi2,
+                    TGraph *&g_KS,
+                    TGraph *&g_low,
+                    TGraph *&g_high,
+                    TGraphAsymmErrors *&g_asym,
+                    TH1F *h_RMS[],
+                    const pv::bundle &mybundle,
+                    const pv::view &theView,
+                    const int index,
+                    const TString &label);
 
- private:
+private:
   const char *outputFileName_;
-  const size_t nWorkers_; //def number of workers
+  const size_t nWorkers_;  //def number of workers
   std::vector<std::string> DirList;
   std::vector<std::string> LabelList;
-  
 };
 
 #endif  // ALIGNMENT_OFFLINEVALIDATION_PREPAREPVTRENDS_H_

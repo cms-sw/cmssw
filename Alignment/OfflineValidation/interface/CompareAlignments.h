@@ -22,8 +22,6 @@
 
 #include "Alignment/OfflineValidation/interface/TkAlStyle.h"
 
-using namespace std;
-
 class CompareAlignments {
 private:
   TList *FileList;

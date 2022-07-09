@@ -6,18 +6,18 @@
  * @Author: Tomas Kello <tomas DOT kello AT cern.ch>
  ***********************************************************************************/
 
-#include <string.h>
+#include "Riostream.h"
 #include "TChain.h"
 #include "TFile.h"
 #include "TH1.h"
-#include "TTree.h"
 #include "TKey.h"
-#include "Riostream.h"
-#include <vector>
-#include <utility>
 #include "TProfile.h"
+#include "TTree.h"
 #include <cstdlib>
+#include <cstring>
 #include <sstream>
+#include <utility>
+#include <vector>
 
 using namespace std;
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 
   //do some basic sanity checks
   //if no weights are given, just add them. else use the weights.
-  if (inputWeights.size() > 0) {
+  if (!inputWeights.empty()) {
     if (inputFileNames.size() != inputWeights.size()) {
       loginfo('e', "Every input root file must have a corresponding weight! please check!");
       return 0;
@@ -113,17 +113,17 @@ int main(int argc, char *argv[]) {
 
   for (unsigned i = 0; i < inputFileNames.size(); ++i) {
     double w = 1.0;
-    if (inputWeights.size() > 0)
+    if (!inputWeights.empty())
       w = inputWeights.at(i);
     vFileList.push_back(make_pair(TFile::Open(inputFileNames.at(i).c_str()), w));
 
     string msg("");
     msg += "File";
-    if (inputWeights.size() > 0)
+    if (!inputWeights.empty())
       msg += "/Weight";
     msg += " = ";
     msg += vFileList.at(i).first->GetName();
-    if (inputWeights.size() > 0) {
+    if (!inputWeights.empty()) {
       stringstream swgt;
       swgt << " <- " << vFileList.at(i).second;
       msg += swgt.str();
@@ -183,9 +183,9 @@ void MergeRootfile(TDirectory *target, const vector<pair<TFile *, double> > &vFi
   TH1::AddDirectory(kFALSE);
 
   // loop over all keys in this directory
-  TChain *globChain = 0;
+  TChain *globChain = nullptr;
   TIter nextkey(current_sourcedir->GetListOfKeys());
-  TKey *key, *oldkey = 0;
+  TKey *key, *oldkey = nullptr;
   while ((key = (TKey *)nextkey())) {
     //keep only the highest cycle number for each key
     if (oldkey && !strcmp(oldkey->GetName(), key->GetName()))

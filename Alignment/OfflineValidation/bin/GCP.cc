@@ -28,24 +28,22 @@ using namespace AllInOneConfig;
 namespace pt = boost::property_tree;
 namespace fs = boost::filesystem;
 
-void comparisonScript(
-        pt::ptree GCPoptions, 
-        TString inFile,  //="mp1510_vs_mp1509.Comparison_commonTracker.root", // TODO: get ROOT file
-        TString outDir = "outputDir/",
-        TString alignmentName = "Alignment",
-        TString referenceName = "Ideal")
-{
+void comparisonScript(pt::ptree GCPoptions,
+                      TString inFile,  //="mp1510_vs_mp1509.Comparison_commonTracker.root", // TODO: get ROOT file
+                      TString outDir = "outputDir/",
+                      TString alignmentName = "Alignment",
+                      TString referenceName = "Ideal") {
   // the output directory is created if it does not exist
   fs::create_directories(outDir.Data());
 
   TString modulesToPlot = "all";
-  TString transDir = outDir+"/Translations";
-  TString rotDir = outDir+"/Rotations";
+  TString transDir = outDir + "/Translations";
+  TString rotDir = outDir + "/Rotations";
   fs::create_directories(transDir.Data());
   fs::create_directories(rotDir.Data());
 
-  bool plotOnlyGlobal   = GCPoptions.count("plotOnlyGlobal") ? GCPoptions.get<bool>("plotOnlyGlobal") : false;
-  bool plotPng          = GCPoptions.count("plotPng") ? GCPoptions.get<bool>("plotPng") : false;
+  bool plotOnlyGlobal = GCPoptions.count("plotOnlyGlobal") ? GCPoptions.get<bool>("plotOnlyGlobal") : false;
+  bool plotPng = GCPoptions.count("plotPng") ? GCPoptions.get<bool>("plotPng") : false;
   bool makeProfilePlots = GCPoptions.count("makeProfilePlots") ? GCPoptions.get<bool>("makeProfilePlots") : true;
 
   // Plot Translations
@@ -74,7 +72,6 @@ void comparisonScript(
   trans->SetBranchSF("dz", 10000);
   trans->SetBranchSF("dr", 10000);
   trans->SetBranchSF("rdphi", 10000);
-
 
   trans->SetGrid(1, 1);
   trans->MakePlots(x, y, GCPoptions);  // default output is pdf, but png gives a nicer result, so we use it as well
@@ -115,13 +112,8 @@ void comparisonScript(
   }
 }
 
-void vizualizationScript(
-        TString inFile,
-        TString outDir,
-        TString alignmentName, 
-        TString referenceName)
-{
-  TString outputFileName = outDir+"/Visualization"; 
+void vizualizationScript(TString inFile, TString outDir, TString alignmentName, TString referenceName) {
+  TString outputFileName = outDir + "/Visualization";
   fs::create_directories(outputFileName.Data());
   //title
   std::string line1 = alignmentName.Data();
@@ -160,8 +152,7 @@ void vizualizationScript(
                 pipexcoord,
                 pipeycoord,
                 linexcoord,
-                lineycoord );
-
+                lineycoord);
 }
 
 int GCP(int argc, char* argv[]) {
@@ -171,7 +162,6 @@ int GCP(int argc, char* argv[]) {
   // Hack to push through messages even without -v running
   // Very ugly coding, to run with std::cout -> run with -v option (GCP cfg.json -v)
   */
-
 
   // parse the command line
   Options options;
@@ -187,24 +177,24 @@ int GCP(int argc, char* argv[]) {
   pt::ptree alignments = main_tree.get_child("alignments");
   pt::ptree validation = main_tree.get_child("validation");
 
-  
   pt::ptree GCPoptions = validation.get_child("GCP");
 
   // If useDefaultRange, update ranges if not defined in GCPoptions
-  bool useDefaultRange  = GCPoptions.count("useDefaultRange") ? GCPoptions.get<bool>("useDefaultRange") : false;
+  bool useDefaultRange = GCPoptions.count("useDefaultRange") ? GCPoptions.get<bool>("useDefaultRange") : false;
   if (useDefaultRange) {
-      // Read default ranges
-      pt::ptree default_range;
-      fs::path default_range_path=std::getenv("CMSSW_BASE");
-      default_range_path /= "/src/Alignment/OfflineValidation/test/GCP_defaultRange.json";
-      assert((fs::exists(default_range_path)) && "Check if 'Alignment/OfflineValidation/test/GCP_defaultRange.json' exists");
-      pt::read_json(default_range_path.c_str(), default_range);
+    // Read default ranges
+    pt::ptree default_range;
+    fs::path default_range_path = std::getenv("CMSSW_BASE");
+    default_range_path /= "/src/Alignment/OfflineValidation/test/GCP_defaultRange.json";
+    assert((fs::exists(default_range_path)) &&
+           "Check if 'Alignment/OfflineValidation/test/GCP_defaultRange.json' exists");
+    pt::read_json(default_range_path.c_str(), default_range);
 
-      for (pair<string,pt::ptree> it: default_range) {
-          if (GCPoptions.count(it.first) < 1) {
-              GCPoptions.put(it.first, it.second.data());
-          }
+    for (pair<string, pt::ptree> it : default_range) {
+      if (GCPoptions.count(it.first) < 1) {
+        GCPoptions.put(it.first, it.second.data());
       }
+    }
   }
 
   pt::ptree comAl = alignments.get_child("comp");
@@ -219,28 +209,16 @@ int GCP(int argc, char* argv[]) {
 
   std::cout << " --- Running comparison script" << std::endl;
   // Compare script
-  comparisonScript(
-          GCPoptions,
-          inFile,
-          outDir,
-          alignmentName,
-          referenceName);
-
+  comparisonScript(GCPoptions, inFile, outDir, alignmentName, referenceName);
 
   std::cout << " --- Running visualization script" << std::endl;
   // Visualization script
-  vizualizationScript(
-        inFile,
-        outDir,
-        alignmentName, 
-        referenceName);
+  vizualizationScript(inFile, outDir, alignmentName, referenceName);
 
   std::cout << " --- Running arrow plot script" << std::endl;
   // Arrow plot
-  TString arrowDir = outDir+"/ArrowPlots"; 
-  makeArrowPlots(
-        inFile.Data(), 
-        arrowDir.Data());
+  TString arrowDir = outDir + "/ArrowPlots";
+  makeArrowPlots(inFile.Data(), arrowDir.Data());
 
   // TODO
   // - comments à la doxygen

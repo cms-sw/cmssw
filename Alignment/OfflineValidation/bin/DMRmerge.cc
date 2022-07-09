@@ -27,7 +27,7 @@ namespace pt = boost::property_tree;
 std::string getVecTokenized(pt::ptree& tree, const std::string& name, const std::string& token) {
   std::string s;
 
-  for (const std::pair<std::string, pt::ptree>& childTree : tree.get_child(name)) {
+  for (const auto& childTree : tree.get_child(name)) {
     s += childTree.second.get_value<std::string>() + token;
   }
 
@@ -63,7 +63,7 @@ int merge(int argc, char* argv[]) {
 
   std::vector<int> moduleids;
   if (validation.count("moduleid")) {
-    for (const std::pair<std::string, pt::ptree>& childTree : validation.get_child("moduleid")) {
+    for (const auto& childTree : validation.get_child("moduleid")) {
       moduleids.push_back(childTree.second.get_value<int>());
     }
   }
@@ -71,7 +71,7 @@ int merge(int argc, char* argv[]) {
   //Set configuration string for CompareAlignments class in user defined order
   TString filesAndLabels;
   std::vector<std::pair<std::string, pt::ptree>> alignmentsOrdered;
-  for (const std::pair<std::string, pt::ptree>& childTree : alignments) {
+  for (const auto& childTree : alignments) {
     alignmentsOrdered.push_back(childTree);
   }
   std::sort(alignmentsOrdered.begin(),
@@ -79,7 +79,7 @@ int merge(int argc, char* argv[]) {
             [](const std::pair<std::string, pt::ptree>& left, const std::pair<std::string, pt::ptree>& right) {
               return left.second.get<int>("index") < right.second.get<int>("index");
             });
-  for (const std::pair<std::string, pt::ptree>& childTree : alignmentsOrdered) {
+  for (const auto& childTree : alignmentsOrdered) {
     filesAndLabels +=
         childTree.second.get<std::string>("file") + "/DMR.root=" + childTree.second.get<std::string>("title") + "|" +
         childTree.second.get<std::string>("color") + "|" + childTree.second.get<std::string>("style") + " , ";
@@ -97,7 +97,7 @@ int merge(int argc, char* argv[]) {
 
   PlotAlignmentValidation plotter(bigText);
 
-  for (const std::pair<std::string, pt::ptree>& childTree : alignmentsOrdered) {
+  for (const auto& childTree : alignmentsOrdered) {
     plotter.loadFileList((childTree.second.get<std::string>("file") + "/DMR.root").c_str(),
                          childTree.second.get<std::string>("title"),
                          childTree.second.get<int>("color"),
