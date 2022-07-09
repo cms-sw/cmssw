@@ -23,8 +23,8 @@ private:
   std::vector<TtSemiLepKinFitter::Constraint> constraints(std::vector<unsigned>&);
   // helper function for b-tagging
   bool doBTagging(bool& useBTag_,
-                  edm::Handle<std::vector<pat::Jet>>& jets,
-                  std::vector<int>& combi,
+                  const edm::Handle<std::vector<pat::Jet>>& jets,
+                  const std::vector<int>& combi,
                   std::string& bTagAlgo_,
                   double& minBTagValueBJets_,
                   double& maxBTagValueNonBJets_);
@@ -161,8 +161,8 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
 
 template <typename LeptonCollection>
 bool TtSemiLepKinFitProducer<LeptonCollection>::doBTagging(bool& useBTag_,
-                                                           edm::Handle<std::vector<pat::Jet>>& jets,
-                                                           std::vector<int>& combi,
+                                                           const edm::Handle<std::vector<pat::Jet>>& jets,
+                                                           const std::vector<int>& combi,
                                                            std::string& bTagAlgo_,
                                                            double& minBTagValueBJet_,
                                                            double& maxBTagValueNonBJet_) {
@@ -195,14 +195,11 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
 
   std::unique_ptr<int> pJetsConsidered(new int);
 
-  edm::Handle<std::vector<pat::Jet>> jets;
-  evt.getByToken(jetsToken_, jets);
+  const edm::Handle<std::vector<pat::Jet>>& jets = evt.getHandle(jetsToken_);
 
-  edm::Handle<std::vector<pat::MET>> mets;
-  evt.getByToken(metsToken_, mets);
+  const edm::Handle<std::vector<pat::MET>>& mets = evt.getHandle(metsToken_);
 
-  edm::Handle<LeptonCollection> leps;
-  evt.getByToken(lepsToken_, leps);
+  const edm::Handle<LeptonCollection>& leps = evt.getHandle(lepsToken_);
 
   const unsigned int nPartons = 4;
 
@@ -210,8 +207,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   bool invalidMatch = false;
   if (useOnlyMatch_) {
     *pJetsConsidered = nPartons;
-    edm::Handle<std::vector<std::vector<int>>> matchHandle;
-    evt.getByToken(matchToken_, matchHandle);
+    const edm::Handle<std::vector<std::vector<int>>>& matchHandle = evt.getHandle(matchToken_);
     match = *(matchHandle->begin());
     // check if match is valid
     if (match.size() != nPartons)
