@@ -9,6 +9,7 @@
 
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEffData.h"
 #include "CalibTracker/SiStripHitEfficiency/interface/SiStripHitEfficiencyHelpers.h"
 #include "CalibTracker/SiStripHitEfficiency/interface/TrajectoryAtInvalidHit.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
@@ -83,6 +84,7 @@ private:
                    bool highPurity);
 
   // ----------member data ---------------------------
+  SiStripHitEffData calibData_;
 
   // event data tokens
   const edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
@@ -262,6 +264,11 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   h_nTracks = booker.book1D("ntracks", "n.tracks;n. tracks;n.events", 500, -0.5, 499.5);
   h_nTracksVsPU = booker.bookProfile("nTracksVsPU", "n. tracks vs PU; PU; n.tracks ", 200, 0, 200, 500, -0.5, 499.5);
 
+  calibData_.EventStats = booker.book2I("EventStats", "Statistics", 3, -0.5, 2.5, 1, 0, 1);
+  calibData_.EventStats->setBinLabel(1, "events count", 1);
+  calibData_.EventStats->setBinLabel(2, "tracks count", 1);
+  calibData_.EventStats->setBinLabel(3, "measurements count", 1);
+
   booker.setCurrentFolder(dqmDir_);
   h_goodLayer = EffME1(booker.book1D("goodlayer_total", "goodlayer_total", 35, 0., 35.),
                        booker.book1D("goodlayer_found", "goodlayer_found", 35, 0., 35.));
@@ -355,6 +362,11 @@ void SiStripHitEfficiencyWorker::bookHistograms(DQMStore::IBooker& booker,
   h_module =
       EffTkMap(std::make_unique<TkHistoMap>(tkDetMap, booker, tkDetMapFolder, "perModule_total", 0, false, true),
                std::make_unique<TkHistoMap>(tkDetMap, booker, tkDetMapFolder, "perModule_found", 0, false, true));
+
+  // fill the FED Errors
+  booker.setCurrentFolder(dqmDir_);
+  const auto FEDErrorMapFolder = fmt::format("{}/FEDErrorTkDetMaps", dqmDir_);
+  calibData_.FEDErrorOccupancy = TkHistoMap(tkDetMap, booker, FEDErrorMapFolder, "perModule_FEDErrors", 0, false, true);
 }
 
 void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSetup& es) {
@@ -409,6 +421,15 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
   edm::Handle<DetIdCollection> fedErrorIds;
   e.getByToken(digis_token_, fedErrorIds);
 
+  // fill the calibData with the FEDErrors
+  for (const auto& fedErr : *fedErrorIds) {
+    if (calibData_.fedErrorCounts.find(fedErr.rawId()) != calibData_.fedErrorCounts.end()) {
+      calibData_.fedErrorCounts[fedErr.rawId()] += 1;
+    } else {
+      calibData_.fedErrorCounts.insert(std::make_pair(fedErr.rawId(), 1));
+    }
+  }
+
   edm::Handle<MeasurementTrackerEvent> measurementTrackerEvent;
   e.getByToken(trackerEvent_token_, measurementTrackerEvent);
 
@@ -427,6 +448,11 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
 
   h_nTracks->Fill(tracksCKF->size());
   h_nTracksVsPU->Fill(PU, tracksCKF->size());
+
+  // bin 0: one entry for each event
+  calibData_.EventStats->Fill(0., 0., 1);
+  // bin 1: one entry for each track
+  calibData_.EventStats->Fill(1., 0., tracksCKF->size());
 
   if (!tracksCKF->empty()) {
     if (cutOnTracks_ && (tracksCKF->size() >= trackMultiplicityCut_))
@@ -450,10 +476,13 @@ void SiStripHitEfficiencyWorker::analyze(const edm::Event& e, const edm::EventSe
         return tm.recHit()->getType() == TrackingRecHit::Type::missing;
       });
 
-      // Loop on each measurement and take it into consideration
+      // Loop on each measurement and take into consideration
       //--------------------------------------------------------
       for (auto itm = TMeas.cbegin(); itm != TMeas.cend(); ++itm) {
         const auto theInHit = (*itm).recHit();
+
+        //bin 2: one entry for each measurement
+        calibData_.EventStats->Fill(2., 0., 1.);
 
         LogDebug("SiStripHitEfficiencyWorker") << "theInHit is valid = " << theInHit->isValid();
 
@@ -945,14 +974,14 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
           h_layer_vsCM[layer - 1].fill(commonMode, !badflag);
         }
         h_goodLayer.fill(layerWithSide, !badflag);
-
-        // efficiency with bad modules excluded
-        if (TKlayers) {
-          h_module.fill(iidd, !badflag);
-        }
       }
       // efficiency without bad modules excluded
       h_allLayer.fill(layerWithSide, !badflag);
+
+      // efficiency without bad modules excluded
+      if (TKlayers) {
+        h_module.fill(iidd, !badflag);
+      }
 
       /* Used in SiStripHitEffFromCalibTree:
        * run              -> "run"              -> run              // e.id().run()
@@ -986,6 +1015,9 @@ void SiStripHitEfficiencyWorker::fillForTraj(const TrajectoryAtInvalidHit& tm,
 void SiStripHitEfficiencyWorker::endJob() {
   LogDebug("SiStripHitEfficiencyWorker") << " Events Analysed             " << events;
   LogDebug("SiStripHitEfficiencyWorker") << " Number Of Tracked events    " << EventTrackCKF;
+
+  // fill the TkMap Data
+  calibData_.fillTkMapFromMap();
 }
 
 void SiStripHitEfficiencyWorker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
