@@ -39,15 +39,15 @@ int merge(int argc, char* argv[]) {
   pt::ptree alignments = main_tree.get_child("alignments");
   pt::ptree validation = main_tree.get_child("validation");
 
-  for (const pair<string, pt::ptree>& childTree : alignments) {
+  for (const auto& childTree : alignments) {
     PVResolution::loadFileList((childTree.second.get<string>("file") + "/SplitV.root").c_str(),
-			       "PrimaryVertexResolution",
-			       childTree.second.get<string>("title"),
-			       childTree.second.get<int>("color"),
-			       childTree.second.get<int>("style"));
+                               "PrimaryVertexResolution",
+                               childTree.second.get<string>("title"),
+                               childTree.second.get<int>("color"),
+                               childTree.second.get<int>("style"));
   }
 
-  FitPVResolution("","");
+  FitPVResolution("", "");
 
   return EXIT_SUCCESS;
 }

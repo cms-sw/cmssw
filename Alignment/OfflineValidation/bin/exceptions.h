@@ -15,8 +15,6 @@
 
 // TODO: utilise the exceptions provided by boost as much as possible
 
-using std::cerr;
-
 namespace AllInOneConfig {
 
   class ConfigError : public std::exception {
@@ -39,7 +37,7 @@ namespace AllInOneConfig {
     }
     //catch (const AllInOneConfig::ConfigError & e) { cerr << "Config error: " << e.what() << '\n'; }
     catch (const boost::exception &e) {
-      cerr << colorify("Boost exception: ") << boost::diagnostic_information(e);
+      std::cerr << colorify("Boost exception: ") << boost::diagnostic_information(e);
       throw;
     }
     //catch (const boost::program_options::required_option &e) {
@@ -49,19 +47,19 @@ namespace AllInOneConfig {
     //catch (const boost::program_options::invalid_syntax & e) { cerr << colorify("Program Options Invalid Syntax: ") << e.what() << '\n'; }
     //catch (const boost::program_options::error          & e) { cerr << colorify("Program Options Error: ") << e.what() << '\n'; }
     catch (const boost::property_tree::ptree_bad_data &e) {
-      cerr << colorify("Property Tree Bad Data Error: ") << e.data<std::string>() << '\n';
+      std::cerr << colorify("Property Tree Bad Data Error: ") << e.data<std::string>() << '\n';
     } catch (const boost::property_tree::ptree_bad_path &e) {
-      cerr << colorify("Property Tree Bad Path Error: ") << e.path<std::string>() << '\n';
+      std::cerr << colorify("Property Tree Bad Path Error: ") << e.path<std::string>() << '\n';
     } catch (const boost::property_tree::ptree_error &e) {
-      cerr << colorify("Property Tree Error: ") << e.what() << '\n';
+      std::cerr << colorify("Property Tree Error: ") << e.what() << '\n';
     } catch (const boost::filesystem::filesystem_error &e) {
-      cerr << colorify("Filesystem Error:") << e.what() << '\n';
+      std::cerr << colorify("Filesystem Error:") << e.what() << '\n';
     } catch (const std::logic_error &e) {
-      cerr << colorify("Logic Error: ") << e.what() << '\n';
+      std::cerr << colorify("Logic Error: ") << e.what() << '\n';
     } catch (const std::exception &e) {
-      cerr << colorify("Standard Error: ") << e.what() << '\n';
+      std::cerr << colorify("Standard Error: ") << e.what() << '\n';
     } catch (...) {
-      cerr << colorify("Unkown failure\n");
+      std::cerr << colorify("Unkown failure\n");
     }
     return EXIT_FAILURE;
   }

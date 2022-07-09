@@ -29,7 +29,7 @@ namespace AllInOneConfig {
   //    exit(EXIT_FAILURE);
   //}
 
-  void dump(const boost::property_tree::ptree& tree) {
+  inline void dump(const boost::property_tree::ptree& tree) {
     for (const auto& it : tree) {
       auto key = it.first, value = tree.get<std::string>(key);
       std::cout << key << '\t' << value << '\n';

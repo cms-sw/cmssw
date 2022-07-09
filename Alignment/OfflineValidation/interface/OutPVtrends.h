@@ -38,7 +38,6 @@
 #include <sstream>
 #include <vector>
 
-
 /*!
  * \def basically the y-values of a TGraph
  */
@@ -86,9 +85,7 @@ struct unrolledHisto {
   }
 };
 
-
 struct outPVtrends {
-
   /*! \struct outPVtrends
   *  \brief Structure outPVtrends
   *         Contains the ensemble of all the alignmentTrends built by the functor
@@ -146,29 +143,29 @@ struct outPVtrends {
   alignmentTrend m_dzEtaLo;
   std::map<TString, std::vector<unrolledHisto> > m_dxyVect;
   std::map<TString, std::vector<unrolledHisto> > m_dzVect;
-  
+
   void init() {
     m_index = -1;
     m_runs.clear();
-    
+
     m_dxyPhiMeans.clear();
     m_dxyPhiChi2.clear();
     m_dxyPhiKS.clear();
     m_dxyPhiHi.clear();
     m_dxyPhiLo.clear();
-    
+
     m_dxyEtaMeans.clear();
     m_dxyEtaChi2.clear();
     m_dxyEtaKS.clear();
     m_dxyEtaHi.clear();
     m_dxyEtaLo.clear();
-    
+
     m_dzPhiMeans.clear();
     m_dzPhiChi2.clear();
     m_dzPhiKS.clear();
     m_dzPhiHi.clear();
     m_dzPhiLo.clear();
-    
+
     m_dzEtaMeans.clear();
     m_dzEtaChi2.clear();
     m_dzEtaKS.clear();
@@ -177,14 +174,14 @@ struct outPVtrends {
 
     m_dxyVect.clear();
     m_dzVect.clear();
-   }
+  }
 };
 
 #if defined(__ROOTCLING__)
-#pragma link C++ class std::map<TString, std::vector<double> > +;
-#pragma link C++ class std::map<TString, std::vector<unrolledHisto> > +;
-#pragma link C++ class outPVtrends +;
-#pragma link C++ class unrolledHisto +;
+#pragma link C++ class std::map < TString, std::vector < double>> + ;
+#pragma link C++ class std::map < TString, std::vector < unrolledHisto>> + ;
+#pragma link C++ class outPVtrends + ;
+#pragma link C++ class unrolledHisto + ;
 
 #endif
 

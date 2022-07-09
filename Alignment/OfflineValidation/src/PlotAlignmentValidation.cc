@@ -150,7 +150,7 @@ int PlotAlignmentValidation::numberOfLayers(int phase, int subdetector) {
 int PlotAlignmentValidation::maxNumberOfLayers(int subdetector) {
   int result = 0;
   for (auto it = sourceList.begin(); it != sourceList.end(); ++it) {
-    result = max(result, numberOfLayers((*it)->getPhase(), subdetector));
+    result = std::max(result, numberOfLayers((*it)->getPhase(), subdetector));
   }
   return result;
 }
@@ -368,12 +368,12 @@ void PlotAlignmentValidation::plotOutlierModules(const char* outputFileName,
     else if (plotVariable == "fitSigmaY")
       var = treeMem->fitSigmaY;
     else {
-      cout << "There is no variable " << plotVariable << " included in the tree." << endl;
+      std::cout << "There is no variable " << plotVariable << " included in the tree." << std::endl;
       break;
     }
-    //   cout<<"treeMem->entries  "<<treeMem->entries<<endl;
-    //  cout<<"var                  "<<var<<endl;
-    //  cout<<"plotVariable_cut     "<<plotVariable_cut<<endl;
+    //   std::cout<<"treeMem->entries  "<<treeMem->entries<<std::endl;
+    //  std::cout<<"var                  "<<var<<std::endl;
+    //  std::cout<<"plotVariable_cut     "<<plotVariable_cut<<std::endl;
 
     if (var > plotVariable_cut && treeMem->entries > minHits) {
       TFile* f = (*sourceList.begin())->getFile();  //(TFile*)sourcelist->First();
@@ -382,13 +382,13 @@ void PlotAlignmentValidation::plotOutlierModules(const char* outputFileName,
         TH1* h =
             (TH1*)f->FindKeyAny(treeMem->histNameX.c_str())->ReadObj();  //f->FindObjectAny(treeMem->histNameX.c_str());
         gStyle->SetOptFit(0111);
-        cout << "hist name " << h->GetName() << endl;
+        std::cout << "hist name " << h->GetName() << std::endl;
 
         TString path = (char*)strstr(gDirectory->GetPath(), "TrackerOfflineValidation");
-        //cout<<"hist path "<<path<<endl;
-        //cout<<"wrote text "<<endl;
+        //std::cout<<"hist path "<<path<<std::endl;
+        //std::cout<<"wrote text "<<std::endl;
         if (h)
-          cout << h->GetEntries() << endl;
+          std::cout << h->GetEntries() << std::endl;
 
         //modules' location as title
         c1->cd(0);
@@ -408,7 +408,7 @@ void PlotAlignmentValidation::plotOutlierModules(const char* outputFileName,
         //norm. residual histogram
         h = (TH1*)f->FindObjectAny(treeMem->histNameNormX.c_str());
         if (h)
-          cout << h->GetEntries() << endl;
+          std::cout << h->GetEntries() << std::endl;
         c1->cd(2);
         TPad* subpad2 = (TPad*)c1->GetPad(2);
         subpad2->SetPad(0.5, 0, 0.99, 0.94);
@@ -417,15 +417,16 @@ void PlotAlignmentValidation::plotOutlierModules(const char* outputFileName,
         c1->Print(outputFile);
         counter++;
       } else {
-        cout << "There are no residual histograms on module level stored!" << endl;
-        cout << "Please make sure that moduleLevelHistsTransient = cms.bool(False) in the validation job!" << endl;
+        std::cout << "There are no residual histograms on module level stored!" << std::endl;
+        std::cout << "Please make sure that moduleLevelHistsTransient = cms.bool(False) in the validation job!"
+                  << std::endl;
         break;
       }
     }
   }
   c1->Print((outputFile + "]").Data());
   if (counter == 0)
-    cout << "no bad modules found" << endl;
+    std::cout << "no bad modules found" << std::endl;
 
   //read the number of entries in the t3
   //TTree* tree=0;
@@ -464,7 +465,7 @@ void PlotAlignmentValidation::setTreeBaseDir(std::string dir) { treeBaseDir = di
 
 //------------------------------------------------------------------------------
 void PlotAlignmentValidation::plotSurfaceShapes(const std::string& options, const std::string& residType) {
-  cout << "-------- plotSurfaceShapes called with " << options << endl;
+  std::cout << "-------- plotSurfaceShapes called with " << options << std::endl;
   if (options == "none")
     return;
   else if (options == "coarse") {
@@ -499,8 +500,9 @@ void PlotAlignmentValidation::plotSS(const std::string& options, const std::stri
   bool plotLayers = false;  // overrides plotLayerN
   //  bool plotRings  = false;  // Todo: implement this?
   bool plotSplits = false;
-  if (plotSplits)
+  if (plotSplits) {
     ;
+  }
   int plotSubDetN = 0;  // if zero, plot all
 
   TRegexp layer_re("layer=[0-9]+");
@@ -969,7 +971,7 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable,
             std::ostringstream legend;
             std::string unit = " #mum";
             legend.precision(3);
-            legend << fixed;  // to always show 3 decimals
+            legend << std::fixed;  // to always show 3 decimals
             float factor = 10000.0f;
             if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
                 plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
@@ -1363,7 +1365,7 @@ THStack* PlotAlignmentValidation::addHists(
     return nullptr;
   }
 
-  cout << "PlotAlignmentValidation::addHists: using selection " << selection << endl;
+  std::cout << "PlotAlignmentValidation::addHists: using selection " << selection << std::endl;
   THStack* retHistoStack = new THStack("hstack", "");
   if (myLegend != nullptr)
     if (*myLegend == nullptr) {
@@ -1433,7 +1435,7 @@ THStack* PlotAlignmentValidation::addHists(
                 //in the higher disks, the inner rings go away.  But the numbering in the file structure removes the higher numbers
                 // so the numbers there do not correspond to the actual ring numbers
                 {
-                  stringstream s;
+                  std::stringstream s;
                   s << "TrackerOfflineValidation/Strip/TECEndcap_" << iEndcap << "/TECDisk_" << iDisk << "/TECSide_"
                     << iSide << "/TECPetal_" << iPetal << "/" << basename << "TECRing_" << iRing;
                   histnames.push_back(TString(s.str()));
@@ -1451,7 +1453,7 @@ THStack* PlotAlignmentValidation::addHists(
                 //in the higher disks, the inner rings go away.  But the numbering in the file structure removes the higher numbers
                 // so the numbers there do not correspond to the actual ring numbers
                 {
-                  stringstream s;
+                  std::stringstream s;
                   s << "TrackerOfflineValidation/Strip/TECEndcap_" << iEndcap << "/TECDisk_" << iDisk << "/TECSide_"
                     << iSide << "/TECPetal_" << iPetal << "/" << basename << "TECRing_" << iRing;
                   histnames.push_back(TString(s.str()));
@@ -1604,7 +1606,7 @@ TF1* PlotAlignmentValidation::fitGauss(TH1* hist, int color) {
 
   float mean = hist->GetMean();
   float sigma = hist->GetRMS();
-  string functionname = "gaussian_";
+  std::string functionname = "gaussian_";
   functionname += hist->GetName();
   TF1* func = new TF1(functionname.c_str(), "gaus", mean - 2. * sigma, mean + 2. * sigma);
 
@@ -1667,7 +1669,7 @@ void PlotAlignmentValidation::setTitleStyle(
   TString titleXAxis = titleX;
   TString titleYAxis = titleY;
   if (titleXAxis != "" && titleYAxis != "")
-    cout << "plot " << titleXAxis << " vs " << titleYAxis << endl;
+    std::cout << "plot " << titleXAxis << " vs " << titleYAxis << std::endl;
 
   hist.SetTitle("");
   TkAlStyle::drawStandardTitle();
@@ -1699,7 +1701,7 @@ void PlotAlignmentValidation::setTitleStyle(
   if (!isSurfaceDeformation) {
     text2 = new TPaveText(0.7, 0.3, 0.9, 0.6, "brNDC");
   } else {
-    cout << "Surface Deformation" << endl;
+    std::cout << "Surface Deformation" << std::endl;
     text2 = new TPaveText(0.8, 0.75, 0.9, 0.9, "brNDC");
   }
   text2->SetTextSize(0.06);
@@ -1870,7 +1872,7 @@ void PlotAlignmentValidation::setDMRHistStyleAndLegend(TH1F* h,
 
   std::ostringstream legend;
   legend.precision(3);
-  legend << fixed;  // to always show 3 decimals
+  legend << std::fixed;  // to always show 3 decimals
 
   // Legend: header part
   if (direction == -1 && plotinfo.subDetId != 2) {
@@ -2037,7 +2039,7 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
       histoname += "_disc";
     else
       histoname += "_layer";
-    histoname += to_string(layer);
+    histoname += std::to_string(layer);
   }
   if (direction == -1) {
     histoname += "_minus";
@@ -2051,7 +2053,7 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
   std::string plotVariable =
       getVariableForDMRPlot(histoname.Data(), plotinfo.variable, plotinfo.nbins, plotinfo.min, plotinfo.max);
   std::string selection = "";
-  if (plotinfo.filterName == "") {
+  if (plotinfo.filterName.empty()) {
     //Use only default selection and no filter
     selection = getSelectionForDMRPlot(plotinfo.minHits, plotinfo.subDetId, direction, layer);
     plotinfo.vars->getTree()->Draw(plotVariable.c_str(), selection.c_str(), "goff");
@@ -2084,8 +2086,8 @@ void PlotAlignmentValidation::plotDMRHistogram(PlotAlignmentValidation::DMRPlotI
     TTreeReaderValue<double> _bad_lumi(readerBad, "lumi");
 
     //Record which modules were used
-    ofstream fUsedModules;
-    fUsedModules.open("usedModules.txt", ios::out | ios::app);
+    std::ofstream fUsedModules;
+    fUsedModules.open("usedModules.txt", std::ios::out | std::ios::app);
 
     //Filter on modules by hand together with base selection
     for (uint i = 0; i < plotinfo.vars->getTree()->GetEntries(); i++) {
@@ -2188,12 +2190,12 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
 
     std::ostringstream legendtext;
     legendtext.precision(3);
-    legendtext << fixed;  // to always show 3 decimals
+    legendtext << std::fixed;  // to always show 3 decimals
     legendtext << ": y mean = " << stats[4] / stats[0] * scale << " #mum";
 
     TLegendEntry* entry = (TLegendEntry*)legend->GetListOfPrimitives()->At(index);
     if (entry == nullptr)
-      cout << "PlotAlignmentValidation::PlotAlignmentValidation::modifySSLegend: Bad legend!" << endl;
+      std::cout << "PlotAlignmentValidation::PlotAlignmentValidation::modifySSLegend: Bad legend!" << std::endl;
     else
       entry->SetLabel((entry->GetLabel() + legendtext.str()).c_str());
     index++;
@@ -2211,7 +2213,7 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
 //->p-value
 double PlotAlignmentValidation::resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int numSamples) {
   //vector to store realizations of random variable
-  vector<double> diff;
+  std::vector<double> diff;
   diff.clear();
   //"true" (in bootstrap terms) difference of the samples' RMS
   double rmsdiff = abs(h1->GetRMS() - h2->GetRMS());
@@ -2258,7 +2260,7 @@ double PlotAlignmentValidation::resampleTestOfEqualRMS(TH1F* h1, TH1F* h2, int n
 //->p-value
 double PlotAlignmentValidation::resampleTestOfEqualMeans(TH1F* h1, TH1F* h2, int numSamples) {
   //vector to store realization of random variable
-  vector<double> diff;
+  std::vector<double> diff;
   diff.clear();
   //"true" (in bootstrap terms) difference of the samples' means
   double meandiff = abs(h1->GetMean() - h2->GetMean());
@@ -2300,7 +2302,7 @@ float PlotAlignmentValidation::twotailedStudentTTestEqualMean(float t, float v) 
 
 const TString PlotAlignmentValidation::summaryfilename = "OfflineValidationSummary";
 
-vector<TH1*> PlotAlignmentValidation::findmodule(TFile* f, unsigned int moduleid) {
+std::vector<TH1*> PlotAlignmentValidation::findmodule(TFile* f, unsigned int moduleid) {
   //TFile *f = TFile::Open(filename, "READ");
   TString histnamex;
   TString histnamey;
@@ -2319,7 +2321,7 @@ vector<TH1*> PlotAlignmentValidation::findmodule(TFile* f, unsigned int moduleid
     }
   }
 
-  vector<TH1*> h;
+  std::vector<TH1*> h;
 
   auto h1 = (TH1*)f->FindObjectAny(histnamex);
   auto h2 = (TH1*)f->FindObjectAny(histnamey);
@@ -2349,9 +2351,9 @@ void PlotAlignmentValidation::residual_by_moduleID(unsigned int moduleid) {
     int color = it->getLineColor();
     int linestyle = it->getLineStyle();  //this you set by doing h->SetLineStyle(linestyle)
     TString legendname = it->getName();  //this goes in the legend
-    vector<TH1*> hist = findmodule(file, moduleid);
+    std::vector<TH1*> hist = findmodule(file, moduleid);
 
-    TString histnamex = legendname + " NEntries: " + to_string(int(hist[0]->GetEntries()));
+    TString histnamex = legendname + " NEntries: " + std::to_string(int(hist[0]->GetEntries()));
     hist[0]->SetTitle(histnamex);
     hist[0]->SetStats(false);
     hist[0]->Rebin(50);
@@ -2362,7 +2364,7 @@ void PlotAlignmentValidation::residual_by_moduleID(unsigned int moduleid) {
     hist[0]->Draw("Same");
     legendx->AddEntry(hist[0], histnamex, "l");
 
-    TString histnamey = legendname + " NEntries: " + to_string(int(hist[1]->GetEntries()));
+    TString histnamey = legendname + " NEntries: " + std::to_string(int(hist[1]->GetEntries()));
     hist[1]->SetTitle(histnamey);
     hist[1]->SetStats(false);
     hist[1]->Rebin(50);
@@ -2374,8 +2376,8 @@ void PlotAlignmentValidation::residual_by_moduleID(unsigned int moduleid) {
     legendy->AddEntry(hist[1], histnamey, "l");
   }
 
-  TString filenamex = "x_residual_" + to_string(moduleid);
-  TString filenamey = "y_residual_" + to_string(moduleid);
+  TString filenamex = "x_residual_" + std::to_string(moduleid);
+  TString filenamey = "y_residual_" + std::to_string(moduleid);
   cx->cd();
   legendx->Draw();
   cx->SaveAs(outputDir + "/" + filenamex + ".root");

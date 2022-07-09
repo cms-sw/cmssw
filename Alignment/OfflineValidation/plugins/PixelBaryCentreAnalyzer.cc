@@ -65,13 +65,13 @@ public:
   ~PixelBaryCentreAnalyzer() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-  struct SimplePoint{
+
+  struct SimplePoint {
     float x, y, z;
-    SimplePoint(const GlobalPoint& p) : x(p.x()), y(p.y()), z(p.z()) {};
-    SimplePoint() : x(0), y(0), z(0) {};
+    SimplePoint(const GlobalPoint& p) : x(p.x()), y(p.y()), z(p.z()){};
+    SimplePoint() : x(0), y(0), z(0){};
   };
-  
+
 private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
@@ -203,7 +203,7 @@ void PixelBaryCentreAnalyzer::initBC() {
     FPIXDisks_plus_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
     FPIXDisks_minus_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
   }
-  
+
   vPIX_ = SimplePoint(PIX_);
   vBPIX_ = SimplePoint(BPIX_);
   vFPIX_ = SimplePoint(FPIX_);
@@ -467,17 +467,17 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         BPIXLayer_NonFlipped += globalTkPosition;
 
         BPIXLayer_[layer - 1] = GlobalPoint(BPIXLayer.x(), BPIXLayer.y(), BPIXLayer.z());
-	vBPIXLayer_[layer - 1] = SimplePoint(BPIXLayer_[layer - 1]);
+        vBPIXLayer_[layer - 1] = SimplePoint(BPIXLayer_[layer - 1]);
         BPIXLayer_Flipped_[layer - 1] =
             GlobalPoint(BPIXLayer_Flipped.x(), BPIXLayer_Flipped.y(), BPIXLayer_Flipped.z());
-	vBPIXLayer_Flipped_[layer - 1] = SimplePoint(BPIXLayer_Flipped_[layer - 1]);
+        vBPIXLayer_Flipped_[layer - 1] = SimplePoint(BPIXLayer_Flipped_[layer - 1]);
         BPIXLayer_NonFlipped_[layer - 1] =
             GlobalPoint(BPIXLayer_NonFlipped.x(), BPIXLayer_NonFlipped.y(), BPIXLayer_NonFlipped.z());
-	vBPIXLayer_NonFlipped_[layer - 1] = SimplePoint(BPIXLayer_NonFlipped_[layer - 1]);
+        vBPIXLayer_NonFlipped_[layer - 1] = SimplePoint(BPIXLayer_NonFlipped_[layer - 1]);
         BPIXLayer_DiffFlippedNonFlipped_[layer - 1] = GlobalPoint(BPIXLayer_Flipped.x() - BPIXLayer_NonFlipped.x(),
                                                                   BPIXLayer_Flipped.y() - BPIXLayer_NonFlipped.y(),
                                                                   BPIXLayer_Flipped.z() - BPIXLayer_NonFlipped.z());
-	vBPIXLayer_DiffFlippedNonFlipped_[layer - 1] = SimplePoint(BPIXLayer_DiffFlippedNonFlipped_[layer - 1]);
+        vBPIXLayer_DiffFlippedNonFlipped_[layer - 1] = SimplePoint(BPIXLayer_DiffFlippedNonFlipped_[layer - 1]);
 
       }  // loop over layers
 
@@ -528,14 +528,14 @@ void PixelBaryCentreAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
         FPIXDisk *= (1.0 / nmodulesDisk);
         FPIXDisk += globalTkPosition;
 
-        if (disk > 0){
+        if (disk > 0) {
           FPIXDisks_plus_[disk - 1] = GlobalPoint(FPIXDisk.x(), FPIXDisk.y(), FPIXDisk.z());
-	  vFPIXDisks_plus_[disk - 1] = SimplePoint(FPIXDisks_plus_[disk - 1]);
-	}
-        if (disk < 0){
+          vFPIXDisks_plus_[disk - 1] = SimplePoint(FPIXDisks_plus_[disk - 1]);
+        }
+        if (disk < 0) {
           FPIXDisks_minus_[-disk - 1] = GlobalPoint(FPIXDisk.x(), FPIXDisk.y(), FPIXDisk.z());
-	  vFPIXDisks_minus_[-disk - 1] = SimplePoint(FPIXDisks_minus_[-disk - 1]);
-	}
+          vFPIXDisks_minus_[-disk - 1] = SimplePoint(FPIXDisks_minus_[-disk - 1]);
+        }
       }  // loop over disks
 
       FPIX_plus *= (1.0 / nmodules_FPIX_plus);
@@ -585,7 +585,7 @@ void PixelBaryCentreAnalyzer::beginJob() {
 
     bsTrees_[label]->Branch("run", &run_, "run/I");
     bsTrees_[label]->Branch("ls", &ls_, "ls/I");
-    
+
     bsTrees_[label]->Branch("BS", &vBS_, "x/F:y/F:z/F");
 
   }  // bsLabels_
@@ -620,7 +620,8 @@ void PixelBaryCentreAnalyzer::beginJob() {
       bcTrees_[label]->Branch(structure, &vBPIXLayer_[i], "x/F:y/F:z/F");
       bcTrees_[label]->Branch(structure + "_Flipped", &vBPIXLayer_Flipped_[i], "x/F:y/F:z/F");
       bcTrees_[label]->Branch(structure + "_NonFlipped", &vBPIXLayer_NonFlipped_[i], "x/F:y/F:z/F");
-      bcTrees_[label]->Branch(structure + "_DiffFlippedNonFlipped", &vBPIXLayer_DiffFlippedNonFlipped_[i], "x/F:y/F:z/F");
+      bcTrees_[label]->Branch(
+          structure + "_DiffFlippedNonFlipped", &vBPIXLayer_DiffFlippedNonFlipped_[i], "x/F:y/F:z/F");
     }
 
     //per-disk/ring

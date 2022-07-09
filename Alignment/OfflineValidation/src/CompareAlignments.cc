@@ -2,7 +2,7 @@
 
 void CompareAlignments::doComparison(
     TString namesandlabels, TString legendheader, TString lefttitle, TString righttitle, bool bigtext) {
-  cout << "Comparing using: >" << namesandlabels << "<" << endl;
+  std::cout << "Comparing using: >" << namesandlabels << "<" << std::endl;
 
   TkAlStyle::legendheader = legendheader;
   TkAlStyle::set(CUSTOM, NONE, lefttitle, righttitle);
@@ -28,7 +28,7 @@ void CompareAlignments::doComparison(
         } else if (currentFile->Get("TrackerOfflineValidation/Pixel/TPBBarrel_1")) {
           phases.push_back(0);
         } else {
-          cout << "Unknown phase for file " << aFileLegPair->At(0)->GetName() << endl;
+          std::cout << "Unknown phase for file " << aFileLegPair->At(0)->GetName() << std::endl;
           assert(false);
         }
         if (TString(aFileLegPair->At(1)->GetName()).Contains("|")) {
@@ -264,7 +264,7 @@ void CompareAlignments::MergeRootfile(TDirectory *target, TList *sourcelist, TLi
 
     } else {
       // object is of no type that we know or can handle
-      cout << "Unknown object type, name: " << obj->GetName() << " title: " << obj->GetTitle() << endl;
+      std::cout << "Unknown object type, name: " << obj->GetName() << " title: " << obj->GetTitle() << std::endl;
     }
 
   }  // while ( ( TKey *key = (TKey*)nextkey() ) )

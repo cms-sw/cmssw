@@ -3,19 +3,15 @@
 namespace ph = std::placeholders;  // for _1, _2, _3...
 namespace pt = boost::property_tree;
 
-PreparePVTrends::PreparePVTrends(const char *outputFileName, int nWorkers, pt::ptree& json) :
-  outputFileName_(outputFileName),
-  nWorkers_(nWorkers)
-{
+PreparePVTrends::PreparePVTrends(const char *outputFileName, int nWorkers, pt::ptree &json)
+    : outputFileName_(outputFileName), nWorkers_(nWorkers) {
   setDirsAndLabels(json);
 }
 
-void PreparePVTrends::setDirsAndLabels(pt::ptree& json)
-{
-
+void PreparePVTrends::setDirsAndLabels(pt::ptree &json) {
   DirList.clear();
   LabelList.clear();
-  for (const std::pair<std::string, pt::ptree>& childTree : json) {
+  for (const auto &childTree : json) {
     DirList.push_back(childTree.first.c_str());
     LabelList.push_back(childTree.second.get<std::string>("title"));
   }
@@ -123,7 +119,8 @@ void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, b
   logInfo << " pre do-stuff: " << runs.size() << std::endl;
 
   //we should use std::bind to create a functor and then pass it to the procPool
-  auto f_processData = std::bind(processData, ph::_1, intersection, nDirs_, dirs, LegLabels, useRMS, nWorkers_, doUnitTest);
+  auto f_processData =
+      std::bind(processData, ph::_1, intersection, nDirs_, dirs, LegLabels, useRMS, nWorkers_, doUnitTest);
 
   //f_processData(0);
   //logInfo<<" post do-stuff: " <<  runs.size() << std::endl;
@@ -141,7 +138,6 @@ void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, b
 
   // re-assemble everything together
   for (auto extractedTrend : extracts) {
-
     runs.insert(std::end(runs), std::begin(extractedTrend.m_runs), std::end(extractedTrend.m_runs));
 
     for (const auto &label : LegLabels) {
@@ -297,8 +293,7 @@ void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, b
   TString theTypeLabel = "run number";
   x_ticks = runs;
 
-  pv::bundle theBundle =
-      pv::bundle(nDirs_, theType, theTypeLabel, useRMS);
+  pv::bundle theBundle = pv::bundle(nDirs_, theType, theTypeLabel, useRMS);
   theBundle.printAll();
 
   TFile *fout = TFile::Open(outputFileName_, "RECREATE");
@@ -327,10 +322,10 @@ void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, b
                  g_dxy_phi_lo_vs_run[j],
                  g_dxy_phi_hi_vs_run[j],
                  gerr_dxy_phi_vs_run[j],
-		 h_RMS_dxy_phi_vs_run,
+                 h_RMS_dxy_phi_vs_run,
                  theBundle,
                  pv::dxyphi,
-		 j,
+                 j,
                  LegLabels[j]);
 
     // *************************************
@@ -352,7 +347,7 @@ void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, b
                  h_RMS_dxy_eta_vs_run,
                  theBundle,
                  pv::dxyeta,
-		 j,
+                 j,
                  LegLabels[j]);
 
     // *************************************
@@ -374,7 +369,7 @@ void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, b
                  h_RMS_dz_phi_vs_run,
                  theBundle,
                  pv::dzphi,
-		 j,
+                 j,
                  LegLabels[j]);
 
     // *************************************
@@ -396,7 +391,7 @@ void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, b
                  h_RMS_dz_eta_vs_run,
                  theBundle,
                  pv::dzeta,
-		 j,
+                 j,
                  LegLabels[j]);
 
     // *************************************
@@ -448,41 +443,39 @@ void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, b
     }
 
     TString modified_label = (LegLabels[j].ReplaceAll(" ", "_"));
-    g_dxy_phi_vs_run[j]->Write("mean_"+modified_label+"_dxy_phi_vs_run");
-    g_chi2_dxy_phi_vs_run[j]->Write("chi2_"+modified_label+"_dxy_phi_vs_run");
-    g_KS_dxy_phi_vs_run[j]->Write("KS_"+modified_label+"_dxy_phi_vs_run");
-    g_dxy_phi_hi_vs_run[j]->Write("hi_"+modified_label+"_dxy_phi_hi_vs_run");
-    g_dxy_phi_lo_vs_run[j]->Write("lo_"+modified_label+"_dxy_phi_lo_vs_run");
+    g_dxy_phi_vs_run[j]->Write("mean_" + modified_label + "_dxy_phi_vs_run");
+    g_chi2_dxy_phi_vs_run[j]->Write("chi2_" + modified_label + "_dxy_phi_vs_run");
+    g_KS_dxy_phi_vs_run[j]->Write("KS_" + modified_label + "_dxy_phi_vs_run");
+    g_dxy_phi_hi_vs_run[j]->Write("hi_" + modified_label + "_dxy_phi_hi_vs_run");
+    g_dxy_phi_lo_vs_run[j]->Write("lo_" + modified_label + "_dxy_phi_lo_vs_run");
 
-    g_dxy_eta_vs_run[j]->Write("mean_"+modified_label+"_dxy_eta_vs_run");
-    g_chi2_dxy_eta_vs_run[j]->Write("chi2_"+modified_label+"_dxy_eta_vs_run");
-    g_KS_dxy_eta_vs_run[j]->Write("KS_"+modified_label+"_dxy_eta_vs_run");
-    g_dxy_eta_hi_vs_run[j]->Write("hi_"+modified_label+"_dxy_eta_hi_vs_run");
-    g_dxy_eta_lo_vs_run[j]->Write("lo_"+modified_label+"_dxy_eta_lo_vs_run");
+    g_dxy_eta_vs_run[j]->Write("mean_" + modified_label + "_dxy_eta_vs_run");
+    g_chi2_dxy_eta_vs_run[j]->Write("chi2_" + modified_label + "_dxy_eta_vs_run");
+    g_KS_dxy_eta_vs_run[j]->Write("KS_" + modified_label + "_dxy_eta_vs_run");
+    g_dxy_eta_hi_vs_run[j]->Write("hi_" + modified_label + "_dxy_eta_hi_vs_run");
+    g_dxy_eta_lo_vs_run[j]->Write("lo_" + modified_label + "_dxy_eta_lo_vs_run");
 
-    g_dz_phi_vs_run[j]->Write("mean_"+modified_label+"_dz_phi_vs_run");
-    g_chi2_dz_phi_vs_run[j]->Write("chi2_"+modified_label+"_dz_phi_vs_run");
-    g_KS_dz_phi_vs_run[j]->Write("KS_"+modified_label+"_dz_phi_vs_run");
-    g_dz_phi_hi_vs_run[j]->Write("hi_"+modified_label+"_dz_phi_hi_vs_run");
-    g_dz_phi_lo_vs_run[j]->Write("lo_"+modified_label+"_dz_phi_lo_vs_run");
+    g_dz_phi_vs_run[j]->Write("mean_" + modified_label + "_dz_phi_vs_run");
+    g_chi2_dz_phi_vs_run[j]->Write("chi2_" + modified_label + "_dz_phi_vs_run");
+    g_KS_dz_phi_vs_run[j]->Write("KS_" + modified_label + "_dz_phi_vs_run");
+    g_dz_phi_hi_vs_run[j]->Write("hi_" + modified_label + "_dz_phi_hi_vs_run");
+    g_dz_phi_lo_vs_run[j]->Write("lo_" + modified_label + "_dz_phi_lo_vs_run");
 
-    g_dz_eta_vs_run[j]->Write("mean_"+modified_label+"_dz_eta_vs_run");
-    g_chi2_dz_eta_vs_run[j]->Write("chi2_"+modified_label+"_dz_eta_vs_run");
-    g_KS_dz_eta_vs_run[j]->Write("KS_"+modified_label+"_dz_eta_vs_run");
-    g_dz_eta_hi_vs_run[j]->Write("hi_"+modified_label+"_dz_eta_hi_vs_run");
-    g_dz_eta_lo_vs_run[j]->Write("lo_"+modified_label+"_dz_eta_lo_vs_run");
+    g_dz_eta_vs_run[j]->Write("mean_" + modified_label + "_dz_eta_vs_run");
+    g_chi2_dz_eta_vs_run[j]->Write("chi2_" + modified_label + "_dz_eta_vs_run");
+    g_KS_dz_eta_vs_run[j]->Write("KS_" + modified_label + "_dz_eta_vs_run");
+    g_dz_eta_hi_vs_run[j]->Write("hi_" + modified_label + "_dz_eta_hi_vs_run");
+    g_dz_eta_lo_vs_run[j]->Write("lo_" + modified_label + "_dz_eta_lo_vs_run");
 
-    h_RMS_dxy_phi_vs_run[j]->Write("RMS_"+modified_label+"_dxy_phi_vs_run");
-    h_RMS_dxy_eta_vs_run[j]->Write("RMS_"+modified_label+"_dxy_eta_vs_run");
-    h_RMS_dz_phi_vs_run[j]->Write("RMS_"+modified_label+"_dz_phi_vs_run");
-    h_RMS_dz_eta_vs_run[j]->Write("RMS_"+modified_label+"_dz_eta_vs_run");
+    h_RMS_dxy_phi_vs_run[j]->Write("RMS_" + modified_label + "_dxy_phi_vs_run");
+    h_RMS_dxy_eta_vs_run[j]->Write("RMS_" + modified_label + "_dxy_eta_vs_run");
+    h_RMS_dz_phi_vs_run[j]->Write("RMS_" + modified_label + "_dz_phi_vs_run");
+    h_RMS_dz_eta_vs_run[j]->Write("RMS_" + modified_label + "_dz_eta_vs_run");
 
     // scatter
 
     h2_scatter_dxy_vs_run[j]->Write("Scatter_" + modified_label + "_dxy_vs_run");
     h2_scatter_dz_vs_run[j]->Write("Scatter_" + modified_label + "_dz_vs_run");
-
-
   }
   // do all the deletes
 
@@ -532,22 +525,21 @@ void PreparePVTrends::multiRunPVValidation(bool useRMS, TString lumiInputFile, b
 
 /*--------------------------------------------------------------------*/
 void PreparePVTrends::outputGraphs(const pv::wrappedTrends &allInputs,
-                  const std::vector<double> &ticks,
-                  const std::vector<double> &ex_ticks,
-                  TGraph *&g_mean,
-                  TGraph *&g_chi2,
-                  TGraph *&g_KS,
-                  TGraph *&g_low,
-                  TGraph *&g_high,
-                  TGraphAsymmErrors *&g_asym,
-		  TH1F *h_RMS[],
-                  const pv::bundle &mybundle,
-                  const pv::view &theView,
-		  const int index,
-                  const TString &label)
+                                   const std::vector<double> &ticks,
+                                   const std::vector<double> &ex_ticks,
+                                   TGraph *&g_mean,
+                                   TGraph *&g_chi2,
+                                   TGraph *&g_KS,
+                                   TGraph *&g_low,
+                                   TGraph *&g_high,
+                                   TGraphAsymmErrors *&g_asym,
+                                   TH1F *h_RMS[],
+                                   const pv::bundle &mybundle,
+                                   const pv::view &theView,
+                                   const int index,
+                                   const TString &label)
 /*--------------------------------------------------------------------*/
 {
-
   g_mean = new TGraph(ticks.size(), &(ticks[0]), &((allInputs.getMean()[label])[0]));
   g_chi2 = new TGraph(ticks.size(), &(ticks[0]), &((allInputs.getChi2()[label])[0]));
   g_KS = new TGraph(ticks.size(), &(ticks[0]), &((allInputs.getKS()[label])[0]));
@@ -566,18 +558,14 @@ void PreparePVTrends::outputGraphs(const pv::wrappedTrends &allInputs,
   g_asym->SetTitle(label);
 
   // scatter or RMS TH1
-  h_RMS[index] = new TH1F(Form("h_RMS_dz_eta_%s", label.Data()),
-			  label,
-                          ticks.size() - 1,
-                          &(ticks[0]));
+  h_RMS[index] = new TH1F(Form("h_RMS_dz_eta_%s", label.Data()), label, ticks.size() - 1, &(ticks[0]));
   h_RMS[index]->SetStats(kFALSE);
 
-  for (size_t bincounter=1; bincounter<ticks.size(); bincounter++) {
+  for (size_t bincounter = 1; bincounter < ticks.size(); bincounter++) {
     h_RMS[index]->SetBinContent(
         bincounter, std::abs(allInputs.getHigh()[label][bincounter - 1] - allInputs.getLow()[label][bincounter - 1]));
     h_RMS[index]->SetBinError(bincounter, 0.01);
   }
-
 }
 
 /*! \fn list_files
@@ -611,7 +599,6 @@ std::vector<int> PreparePVTrends::list_files(const char *dirname, const char *ex
   }
   return theRunNumbers;
 }
-
 
 /*! \fn DrawConstant
  *  \brief utility function to draw a constant histogram with erros !=0
@@ -666,7 +653,6 @@ unrolledHisto PreparePVTrends::getUnrolledHisto(TH1F *hist)
   auto ret = unrolledHisto(y_min, y_max, contents.size(), contents);
   return ret;
 }
-
 
 /*! \fn getBiases
  *  \brief utility function to extract characterization of the PV bias plot
@@ -729,21 +715,19 @@ pv::biases PreparePVTrends::getBiases(TH1F *hist)
   return result;
 }
 
-
-
 /*! \fn processData
  *  \brief function where the magic happens, take the raw inputs and creates the output Trends
  */
 
 /*--------------------------------------------------------------------*/
 outPVtrends PreparePVTrends::processData(size_t iter,
-                      std::vector<int> intersection,
-                      const Int_t nDirs_,
-                      const char *dirs[10],
-                      TString LegLabels[10],
-		      bool useRMS,
-		      const size_t nWorkers,
-		      bool doUnitTest)
+                                         std::vector<int> intersection,
+                                         const Int_t nDirs_,
+                                         const char *dirs[10],
+                                         TString LegLabels[10],
+                                         bool useRMS,
+                                         const size_t nWorkers,
+                                         bool doUnitTest)
 /*--------------------------------------------------------------------*/
 {
   outPVtrends ret;
@@ -810,7 +794,7 @@ outPVtrends PreparePVTrends::processData(size_t iter,
     // loop over the objects
     for (Int_t j = 0; j < nDirs_; j++) {
       //fins[j] = TFile::Open(Form("%s/PVValidation_%s_%i.root",dirs[j],dirs[j],intersection[n]));
-      size_t position = std::string(dirs[j]).find("/");
+      size_t position = std::string(dirs[j]).find('/');
       std::string stem = std::string(dirs[j]).substr(position + 1);  // get from position to the end
 
       fins[j] = new TFile(Form("%s/PVValidation_%s_%i.root", dirs[j], stem.c_str(), intersection[n]));
@@ -831,21 +815,20 @@ outPVtrends PreparePVTrends::processData(size_t iter,
       TH1F *h_tracks = (TH1F *)fins[j]->Get("PVValidation/EventFeatures/h_nTracks");
       Double_t numEvents = h_tracks->GetEntries();
 
-      if(!doUnitTest) {
-	if (numEvents < 2500) {
-	  logWarning << "excluding run " << intersection[n] << " because it has less than 2.5k events" << std::endl;
-	  areAllFilesOK = false;
-	  lastOpen = j;
-	  break;
-	}
-      }
-      else {
-	if (numEvents == 0) {
-	  logWarning << "excluding run " << intersection[n] << " because it has 0 events" << std::endl;
-	  areAllFilesOK = false;
-	  lastOpen = j;
-	  break;
-	}
+      if (!doUnitTest) {
+        if (numEvents < 2500) {
+          logWarning << "excluding run " << intersection[n] << " because it has less than 2.5k events" << std::endl;
+          areAllFilesOK = false;
+          lastOpen = j;
+          break;
+        }
+      } else {
+        if (numEvents == 0) {
+          logWarning << "excluding run " << intersection[n] << " because it has 0 events" << std::endl;
+          areAllFilesOK = false;
+          lastOpen = j;
+          break;
+        }
       }
 
       dxyPhiMeanTrend[j] = (TH1F *)fins[j]->Get("PVValidation/MeanTrends/means_dxy_phi");

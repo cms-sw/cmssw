@@ -161,23 +161,21 @@ public:
 };
 
 class PrepareDMRTrends {
- public:
-
-  PrepareDMRTrends(const char *outputFileName, boost::property_tree::ptree& json);
-  ~PrepareDMRTrends(){}
+public:
+  PrepareDMRTrends(const char *outputFileName, boost::property_tree::ptree &json);
+  ~PrepareDMRTrends() {}
 
   TString getName(TString structure, int layer, TString geometry);
   void compileDMRTrends(std::vector<int> IOVlist,
-			TString Variable,
-			std::vector<std::string> inputFiles,
-			std::vector<TString> structures,
-			const std::map<TString, int> nlayers,
-			bool FORCE = false);
+                        TString Variable,
+                        std::vector<std::string> inputFiles,
+                        std::vector<TString> structures,
+                        const std::map<TString, int> nlayers,
+                        bool FORCE = false);
 
- private:
+private:
   const char *outputFileName_;
   std::vector<std::string> geometries;
-
 };
 
-#endif // ALIGNMENT_OFFLINEVALIDATION_PREPAREDMRTRENDS_H_
+#endif  // ALIGNMENT_OFFLINEVALIDATION_PREPAREDMRTRENDS_H_
