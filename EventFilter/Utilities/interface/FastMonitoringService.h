@@ -209,6 +209,8 @@ namespace evf {
     void reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount);
     unsigned int getEventsProcessedForLumi(unsigned int lumi, bool* abortFlag = nullptr);
     bool getAbortFlagForLumi(unsigned int lumi);
+    bool exceptionDetected() const;
+    bool isExceptionOnData(unsigned int ls);
     bool shouldWriteFiles(unsigned int lumi, unsigned int* proc = nullptr) {
       unsigned int processed = getEventsProcessedForLumi(lumi);
       if (proc)
@@ -285,6 +287,8 @@ namespace evf {
 
     std::atomic<bool> monInit_;
     bool exception_detected_ = false;
+    std::atomic<bool> has_source_exception_ = false;
+    std::atomic<bool> has_data_exception_ = false;
     std::vector<unsigned int> exceptionInLS_;
     std::vector<std::string> fastPathList_;
   };
