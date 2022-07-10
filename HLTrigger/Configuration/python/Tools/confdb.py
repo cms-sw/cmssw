@@ -642,7 +642,7 @@ if 'GlobalTag' in %%(dict)s:
 # enable DQM plots
 %(process)s.FastTimerService.enableDQM                 = True
 
-# enable per-path DQM plots (starting with CMSSW 9.2.3-patch2)
+# enable per-path DQM plots
 %(process)s.FastTimerService.enableDQMbyPath           = True
 
 # enable per-module DQM plots
@@ -660,9 +660,30 @@ if 'GlobalTag' in %%(dict)s:
 %(process)s.FastTimerService.dqmModuleTimeRange        =  200.
 %(process)s.FastTimerService.dqmModuleTimeResolution   =    1.
 
-# set the base DQM folder for the plots
+# set the base DQM folder for the DQM plots
 %(process)s.FastTimerService.dqmPath                   = 'HLT/TimerService'
 %(process)s.FastTimerService.enableDQMbyProcesses      = False
+
+# write a JSON file with the information to be displayed in a pie chart
+%(process)s.FastTimerService.writeJSONSummary          = True
+%(process)s.FastTimerService.jsonFileName              = 'resources.json'
+"""
+
+      self.data += '\n# configure the ThroughputService\n'
+      self.loadCff('HLTrigger.Timer.ThroughputService_cfi')
+
+      self.data += """# enable DQM plots
+%(process)s.ThroughputService.enableDQM                = True
+
+# set the resolution of the DQM plots
+%(process)s.ThroughputService.eventRange               = 10000
+%(process)s.ThroughputService.eventResolution          = 1
+%(process)s.ThroughputService.timeRange                = 60000
+%(process)s.ThroughputService.timeResolution           = 10
+
+# set the base DQM folder for the DQM plots
+%(process)s.ThroughputService.dqmPath                  = 'HLT/Throughput'
+%(process)s.ThroughputService.dqmPathByProcesses       = False
 """
 
 
@@ -865,6 +886,7 @@ if 'GlobalTag' in %%(dict)s:
 
     if self.config.fragment or self.config.timing:
       self.options['services'].append( "-FastTimerService" )
+      self.options['services'].append( "-ThroughputService" )
 
 
   def append_filenames(self, name, filenames):
