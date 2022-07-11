@@ -66,7 +66,7 @@ public:
 
   /** Destructor
    */
-  ~BPHMultiSelectBase() override {}
+  ~BPHMultiSelectBase() override = default;
 
   /** Operations
    */
@@ -131,7 +131,7 @@ public:
 
   /** Destructor
    */
-  ~BPHSlimSelect() override {}
+  ~BPHSlimSelect() override = default;
 
   /** Operations
    */
@@ -154,7 +154,7 @@ public:
 
   /** Destructor
    */
-  ~BPHFullSelect() override {}
+  ~BPHFullSelect() override = default;
 
   /** Operations
    */
@@ -177,7 +177,7 @@ public:
 
   /** Destructor
    */
-  ~BPHMultiSelect() override {}
+  ~BPHMultiSelect() override = default;
 
   /** Operations
    */
