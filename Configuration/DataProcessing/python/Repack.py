@@ -7,7 +7,6 @@ Module that generates standard repack configurations
 """
 import copy
 import FWCore.ParameterSet.Config as cms
-from Configuration.EventContent.EventContent_cff import RAWEventContent
 
 
 def repackProcess(**args):
@@ -21,6 +20,7 @@ def repackProcess(**args):
     - outputs      : defines output modules
 
     """
+    from Configuration.EventContent.EventContent_cff import RAWEventContent
     process = cms.Process("REPACK")
     process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
