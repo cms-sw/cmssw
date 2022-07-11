@@ -281,10 +281,10 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
 }  // End analyze() method.
 
 // Method to fill binning parameters from a vector of doubles.
-void HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<double>& binning, bool& bookhist) {
+bool HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<double>& binning) {
   if (binning.size() < 3) {
     LogWarning("HLTMuonVal") << "Invalid binning parameters!";
-    bookhist = false;
+    return false;
   }
 
   // Fixed-width binning.
@@ -295,7 +295,6 @@ void HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<d
     const double binwidth = (binning[2] - binning[1]) / nBins;
     for (size_t i = 0; i <= nBins; i++)
       edges[i] = min + (binwidth * i);
-    bookhist = true;
   }
 
   // Variable-width binning.
@@ -304,8 +303,8 @@ void HLTMuonMatchAndPlot::fillEdges(size_t& nBins, float*& edges, const vector<d
     edges = new float[nBins + 1];
     for (size_t i = 0; i <= nBins; i++)
       edges[i] = binning[i];
-    bookhist = true;
   }
+  return true;
 }
 
 // This is an unorthodox method of getting parameters, but cleaner in my mind
@@ -432,16 +431,13 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker& iBooker, string name, const 
 
   size_t nBins;
   float* edges = nullptr;
-  bool bookhist;
-  fillEdges(nBins, edges, binParams_[binningType], bookhist);
+  bool bookhist = fillEdges(nBins, edges, binParams_[binningType]);
   if (bookhist) {
     hists_[name] = iBooker.book1D(name, title, nBins, edges);
-    if (hists_[name])
-      if (hists_[name]->getTH1F()->GetSumw2N())
-        hists_[name]->enableSumw2();
+    if (hists_[name]->getTH1F()->GetSumw2N())
+      hists_[name]->enableSumw2();
 
-    if (edges)
-      delete[] edges;
+    delete[] edges;
   }
 }
 
@@ -457,22 +453,18 @@ void HLTMuonMatchAndPlot::book2D(DQMStore::IBooker& iBooker,
    * case. */
 
   size_t nBinsX;
-  bool bookhist;
   float* edgesX = nullptr;
-  fillEdges(nBinsX, edgesX, binParams_[binningTypeX], bookhist);
+  bool bookhist = fillEdges(nBinsX, edgesX, binParams_[binningTypeX]);
 
   size_t nBinsY;
   float* edgesY = nullptr;
-  fillEdges(nBinsY, edgesY, binParams_[binningTypeY], bookhist);
+  bookhist &= fillEdges(nBinsY, edgesY, binParams_[binningTypeY]);
   if (bookhist) {
     hists_[name] = iBooker.book2D(name.c_str(), title.c_str(), nBinsX, edgesX, nBinsY, edgesY);
-    if (hists_[name])
-      if (hists_[name]->getTH2F()->GetSumw2N())
-        hists_[name]->enableSumw2();
+    if (hists_[name]->getTH2F()->GetSumw2N())
+      hists_[name]->enableSumw2();
 
-    if (edgesX)
-      delete[] edgesX;
-    if (edgesY)
-      delete[] edgesY;
+    delete[] edgesX;
+    delete[] edgesY;
   }
 }
