@@ -12,8 +12,7 @@ from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
 # Original DeepTau v2p5 in 12_4_X doesn't include WPs in MINIAOD
 # Import thresholds here to define WPs manually from raw scores
 from copy import deepcopy
-from RecoTauTag.RecoTau.tools.runTauIdMVA import WORKING_POINTS_v2p5
-working_points_v2p5 = deepcopy(WORKING_POINTS_v2p5)
+from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p5
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTaus"),
@@ -149,15 +148,15 @@ _deepTauVars2018v2p5 = cms.PSet(
     idDeepTau2018v2p5VSe = _tauIdWPMask("by%sDeepTau2018v2p5VSe", 
                                             choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
                                             doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)", 
-                                            from_raw=True, wp_thrs=working_points_v2p5),
+                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5),
     idDeepTau2018v2p5VSmu = _tauIdWPMask("by%sDeepTau2018v2p5VSmu", 
                                             choices=("VLoose", "Loose", "Medium", "Tight"), 
                                             doc="byDeepTau2018v2p5VSmu ID working points (deepTau2018v2p5)", 
-                                            from_raw=True, wp_thrs=working_points_v2p5),
+                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5),
     idDeepTau2018v2p5VSjet = _tauIdWPMask("by%sDeepTau2018v2p5VSjet", 
                                             choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
                                             doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)", 
-                                            from_raw=True, wp_thrs=working_points_v2p5),
+                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5),
 )
 
 _variablesMiniV2 = cms.PSet(
