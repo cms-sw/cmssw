@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("NavigationSchoolAnalyze")
 
-# process.load("Configuration.StandardSequences.Geometry_cff")
+#process.load("Configuration.StandardSequences.GeometryDB_cff")
 #process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.Geometry.GeometryExtended2026D76Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
