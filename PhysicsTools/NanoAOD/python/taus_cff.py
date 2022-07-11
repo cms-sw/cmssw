@@ -37,15 +37,12 @@ run2_miniAOD_80XLegacy.toModify(finalTaus,
 def _tauIdWPMask(pattern, choices, doc="", from_raw=False, wp_thrs=None):
     if from_raw:
         assert wp_thrs is not None, "wp_thrs argument in _tauIdWPMask() is None, expect it to be dict-like"
-        vs_type = pattern.split('VS')[-1]
-        if vs_type not in ['e', 'mu', 'jet']:
-            raise ValueError("in WP from raw computation, vs_type should be in [e,mu,jet], got %s" % vs_type)
         
         var_definition = []
         for wp_name in choices:
-            if not isinstance(wp_thrs[vs_type][wp_name], float):
-                raise TypeError("Threshold for vs_type=%s and WP=%s is not a float number." % (vs_type, wp_name))
-            wp_definition = "(tauID('%s')>%.4f)" % (pattern % wp_name, wp_thrs[vs_type][wp_name])
+            if not isinstance(wp_thrs[wp_name], float):
+                raise TypeError("Threshold for WP=%s is not a float number." % wp_name)
+            wp_definition = "(tauID('%s')>%.4f)" % (pattern, wp_thrs[wp_name])
             var_definition.append(wp_definition)
         var_definition = " + ".join(var_definition)
     else:
@@ -145,18 +142,18 @@ _deepTauVars2018v2p5 = cms.PSet(
     rawDeepTau2018v2p5VSe = Var("tauID('byDeepTau2018v2p5VSeraw')", float, doc="byDeepTau2018v2p5VSe raw output discriminator (deepTau2018v2p5)", precision=10),
     rawDeepTau2018v2p5VSmu = Var("tauID('byDeepTau2018v2p5VSmuraw')", float, doc="byDeepTau2018v2p5VSmu raw output discriminator (deepTau2018v2p5)", precision=10),
     rawDeepTau2018v2p5VSjet = Var("tauID('byDeepTau2018v2p5VSjetraw')", float, doc="byDeepTau2018v2p5VSjet raw output discriminator (deepTau2018v2p5)", precision=10),
-    idDeepTau2018v2p5VSe = _tauIdWPMask("by%sDeepTau2018v2p5VSe", 
+    idDeepTau2018v2p5VSe = _tauIdWPMask("byDeepTau2018v2p5VSeraw", 
                                             choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
                                             doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)", 
-                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5),
-    idDeepTau2018v2p5VSmu = _tauIdWPMask("by%sDeepTau2018v2p5VSmu", 
+                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5["e"]),
+    idDeepTau2018v2p5VSmu = _tauIdWPMask("byDeepTau2018v2p5VSmuraw", 
                                             choices=("VLoose", "Loose", "Medium", "Tight"), 
                                             doc="byDeepTau2018v2p5VSmu ID working points (deepTau2018v2p5)", 
-                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5),
-    idDeepTau2018v2p5VSjet = _tauIdWPMask("by%sDeepTau2018v2p5VSjet", 
+                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5["mu"]),
+    idDeepTau2018v2p5VSjet = _tauIdWPMask("byDeepTau2018v2p5VSjetraw", 
                                             choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
                                             doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)", 
-                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5),
+                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5["jet"]),
 )
 
 _variablesMiniV2 = cms.PSet(
