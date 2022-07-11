@@ -244,6 +244,9 @@ namespace l1t {
         bool isOTMB = (Hit_.Ring() == 1 or
                        Hit_.Ring() == 4);  // Data format is different between OTMBs (MEX/1) and TMBs (MEX/2-3)
 
+        bool isRun3 =
+            isOTMB and run3_DAQ_format;  // in Run3 DAQ format, OTMB TPs are Run 3 CSC TPs with CCLUT algorithm
+
         if (run3_DAQ_format) {
           ME_.set_quality(GetHexBits(MEa, 4, 6));
           ME_.set_quarter_strip(GetHexBits(MEa, 7, 7));
@@ -337,7 +340,7 @@ namespace l1t {
           res_hit->push_back(Hit_);
         if (!exact_duplicate && !neighbor_duplicate &&
             Hit_.Valid() == 1)  // Don't write duplicate LCTs from adjacent sectors
-          res_LCT->insertDigi(Hit_.CSC_DetId(), Hit_.CreateCSCCorrelatedLCTDigi());
+          res_LCT->insertDigi(Hit_.CSC_DetId(), Hit_.CreateCSCCorrelatedLCTDigi(isRun3));
         if (ME_.HMV() == 1) {  // Only write when HMT valid bit is set to 1
           res_shower->insertDigi(Hit_.CSC_DetId(), Shower_);
         }
