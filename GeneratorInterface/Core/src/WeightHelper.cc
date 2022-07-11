@@ -32,9 +32,7 @@ namespace gen {
 
   bool WeightHelper::isOrphanPdfWeightGroup(ParsedWeight& weight) const {
     std::pair<std::string, int> pairLHA;
-    try {
-      pairLHA = LHAPDF::lookupPDF(stoi(searchAttributes("pdf", weight)));
-    } catch (...) {
+    CMS_SA_ALLOW try { pairLHA = LHAPDF::lookupPDF(stoi(searchAttributes("pdf", weight))); } catch (...) {
       return false;
     }
 
