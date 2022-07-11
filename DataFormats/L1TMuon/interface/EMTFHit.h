@@ -94,7 +94,7 @@ namespace l1t {
     ME0DetId CreateME0DetId() const;
 
     // void ImportCSCCorrelatedLCTDigi (const CSCCorrelatedLCTDigi& _digi);
-    CSCCorrelatedLCTDigi CreateCSCCorrelatedLCTDigi() const;
+    CSCCorrelatedLCTDigi CreateCSCCorrelatedLCTDigi(const bool isRun3) const;
     // void ImportRPCDigi (const RPCDigi& _digi);
     // RPCDigi CreateRPCDigi() const;
     // void ImportCPPFDigi (const CPPFDigi& _digi);
