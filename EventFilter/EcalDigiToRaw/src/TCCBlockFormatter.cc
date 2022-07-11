@@ -113,7 +113,7 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
     // -- put the B011 already, since for Endcap there can be empty
     // -- lines in the TCC and the SRP blocks
     unsigned char* ppData = rawdata.data();
-    for (int iline = FE_index - 1; iline < FE_index + (Nrows_TCC + 1) * NTCC - 1; iline++) {
+    for (int iline = FE_index - 1; iline - (FE_index + (Nrows_TCC + 1) * NTCC - 1) < 0; iline++) {
       ppData[8 * iline + 7] |= 0x60;
       ppData[8 * iline + 3] |= 0x60;
     }
