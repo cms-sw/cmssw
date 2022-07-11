@@ -72,7 +72,7 @@ namespace l1t {
                     theta);
   }
 
-  CSCCorrelatedLCTDigi EMTFHit::CreateCSCCorrelatedLCTDigi() const {
+  CSCCorrelatedLCTDigi EMTFHit::CreateCSCCorrelatedLCTDigi(const bool isRun3) const {
     CSCCorrelatedLCTDigi lct = CSCCorrelatedLCTDigi(1,
                                                     valid,
                                                     quality,
@@ -85,13 +85,14 @@ namespace l1t {
                                                     0,
                                                     sync_err,
                                                     csc_ID);
-    bool quart_bit = strip_quart_bit == 1 ? true : false;
-    bool eighth_bit = strip_eighth_bit == 1 ? true : false;
+    bool quart_bit = strip_quart_bit == 1;
+    bool eighth_bit = strip_eighth_bit == 1;
 
     lct.setQuartStripBit(quart_bit);
     lct.setEighthStripBit(eighth_bit);
     lct.setSlope(slope);
     lct.setRun3Pattern(pattern_run3);
+    lct.setRun3(isRun3);
 
     return lct;
     // Added Run 3 parameters - EY 04.07.22
