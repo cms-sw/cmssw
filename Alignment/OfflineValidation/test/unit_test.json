@@ -15,17 +15,29 @@
            "style": "2001",
            "title": "unit test"
         },
-	"prompt": {
-           "color": "600",
-           "globaltag": "auto:run3_data_promptlike",
+        "ideal": {
+           "color": "1",
+           "globaltag": "auto:phase1_2017_design",
            "style": "2101",
-           "title": "prompt"
+           "title": "ideal",
+           "conditions": {
+              "TrackerAlignmentRcd": {
+                 "connect": "frontier://FrontierProd/CMS_CONDITIONS",
+                 "tag": "TrackerAlignment_Upgrade2017_design_v4"
+              } 
+           }
         },
-	"legacy": {
-           "color": "418",
-           "globaltag": "auto:run2_data",
+        "SURun3": {
+           "color": "632",
+           "globaltag": "auto:phase1_2017_design",
            "style": "2101",
-           "title": "legacy"
+           "title": "startup run3",
+           "conditions": {
+              "TrackerAlignmentRcd": { 
+                 "connect": "frontier://FrontierProd/CMS_CONDITIONS",
+                 "tag": "TrackerAlignment_Run3Startup_v0_mc"
+              } 
+           }
         },
         "unitTestJetHT": {
            "color": "1",
@@ -135,13 +147,14 @@
              },
              "compare": {
                  "GCPdetUnits": {
-                      "legacyVSprompt": {
-                      "reference": "legacy",
-                      "compared": "prompt",
-                      "IOVpairs": ["274094", "274094"]
+                      "SURun3vsIdeal": {
+                      "reference": "ideal",
+                      "compared": "SURun3",
+                      "IOVpairs": [["1", "1"]]
                     }
                  }
-             }
+             },
+             "doUnitTest": "true"
         },
         "JetHT": {
             "single": {
