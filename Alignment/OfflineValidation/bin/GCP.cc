@@ -179,6 +179,9 @@ int GCP(int argc, char* argv[]) {
 
   pt::ptree GCPoptions = validation.get_child("GCP");
 
+  // Disable some of the features for unit tests
+  bool doUnitTest = GCPoptions.count("doUnitTest") ? GCPoptions.get<bool>("doUnitTest") : false;
+
   // If useDefaultRange, update ranges if not defined in GCPoptions
   bool useDefaultRange = GCPoptions.count("useDefaultRange") ? GCPoptions.get<bool>("useDefaultRange") : false;
   if (useDefaultRange) {
@@ -211,17 +214,20 @@ int GCP(int argc, char* argv[]) {
   // Compare script
   comparisonScript(GCPoptions, inFile, outDir, alignmentName, referenceName);
 
-  std::cout << " --- Running visualization script" << std::endl;
-  // Visualization script
-  vizualizationScript(inFile, outDir, alignmentName, referenceName);
+  if (!doUnitTest) {
+    std::cout << " --- Running visualization script" << std::endl;
+    // Visualization script
+    vizualizationScript(inFile, outDir, alignmentName, referenceName);
+  } else {
+    std::cout << " --- Skipping visualization script for unit test purpose" << std::endl;
+  }
 
   std::cout << " --- Running arrow plot script" << std::endl;
   // Arrow plot
   TString arrowDir = outDir + "/ArrowPlots";
   makeArrowPlots(inFile.Data(), arrowDir.Data());
 
-  // TODO
-  // - comments à la doxygen
+  std::cout << " --- Finished running GCP.cpp" << std::endl;
   return EXIT_SUCCESS;
 }
 

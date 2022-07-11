@@ -23,6 +23,7 @@ void Plot10Mu(const char* text, float X, float Y, float size) {
   atext->SetTextFont(42);
   atext->SetTextSize(0.04);
   atext->Draw();
+  delete atext;
 }
 
 void normArrow(float x, float y, float norm) {
@@ -108,6 +109,9 @@ int makeRPhiArrowPlot(TTree* data,
   //OBPCanvas->SaveAs(outfile);
   OBPCanvas->SaveAs(outfile2);
 
+  delete atext;
+  delete OBPCanvas;
+
   return passcut;
 }
 
@@ -170,6 +174,9 @@ int makeZPhiArrowPlot(TTree* data,
   outfile2_s << outputDir_ << "/" << name << ".pdf";
   TString outfile2(outfile2_s.str());
   OBPCanvas->SaveAs(outfile2);
+
+  delete atext;
+  delete OBPCanvas;
 
   return passcut;
 }
@@ -238,13 +245,6 @@ void makeArrowPlots(const char* filename, const char* outputDir) {
   bool plotPXF = true;
   bool plotTID = true;
   bool plotTEC = true;
-
-  // Copies input file, now broken but do we still need this?
-  //TString outputfile(outputDir);
-  TString outputfile("OUTPUT_");
-  //outputfile.Append("/OUTPUT_");
-  outputfile.Append(filename);
-  TFile output(outputfile, "recreate");
 
   sprintf(outputDir_, "%s", outputDir);
   gSystem->mkdir(outputDir_, true);
@@ -424,4 +424,6 @@ void makeArrowPlots(const char* filename, const char* outputDir) {
   std::cout << "Plotted TID modules: " << totalTID_modules << std::endl;
   //std::cout << "Plotted TID modules (rz): " << totalTID_modules_rz << std::endl;
   std::cout << "Plotted TEC modules: " << totalTEC_modules << std::endl;
+
+  delete data;
 }

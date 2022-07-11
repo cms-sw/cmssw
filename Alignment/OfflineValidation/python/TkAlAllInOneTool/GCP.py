@@ -2,9 +2,15 @@ import os
 import copy
 
 def GCP(config, validationDir):
-    ##List with all jobs
+    ## List with all jobs
     jobs = []
 
+    ## Get unit test flag
+    doUnitTest = False 
+    if "doUnitTest" in config["validations"]["GCP"].keys():
+        doUnitTest = config["validations"]["GCP"]["doUnitTest"]
+
+    ## Main loop
     for comparison in config["validations"]["GCP"]["compare"]:
         for ali_pair in config["validations"]["GCP"]["compare"][comparison]:
             ref_name  = copy.deepcopy(config["validations"]["GCP"]["compare"][comparison][ali_pair]["reference"])
@@ -52,6 +58,7 @@ def GCP(config, validationDir):
                 local["alignments"] = copy.deepcopy(config["alignments"][ali])
                 local["validation"] = {}
                 local["validation"]['GCP'] = copy.deepcopy(config["validations"]["GCP"][comparison])
+                local["validation"]['GCP']['doUnitTest'] = doUnitTest 
                 local["validation"]['IOV'] = IOV
 
                 # job info
@@ -88,6 +95,7 @@ def GCP(config, validationDir):
                 local["alignments"]["comp"] = copy.deepcopy(config["alignments"][comp_name])
                 local["validation"] = {}
                 local["validation"]['GCP'] = copy.deepcopy(config["validations"]["GCP"][comparison])
+                local["validation"]['GCP']['doUnitTest'] = doUnitTest
                 local["validation"]["IOVref"] = ref_IOV
                 local["validation"]["ALIref"] = ref_name
                 local["validation"]["IOVcomp"] = comp_IOV
