@@ -456,7 +456,7 @@ namespace mkfit {
           int b = trk.getHitIdx(i);
           auto range = hitMap.equal_range(b * 1000 + a);
           for (auto it = range.first; it != range.second; ++it) {
-            if (std::abs(it->second) >= (int)itrack)
+            if (static_cast<unsigned int>(std::abs(it->second)) >= itrack)
               continue;  // don't check your own hits (==) nor sym. checks (>)
             if (i == 0 && it->second < 0)
               continue;  // shared first - first is not counted

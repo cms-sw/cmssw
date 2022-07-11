@@ -13,7 +13,7 @@ inline void FastLinearCMNSubtractor::subtract_(uint32_t detId, uint16_t firstAPV
   tmp.reserve(128);
   typename std::vector<T>::iterator strip(digis.begin()), end(digis.end()), endAPV, high, low;
 
-  while (strip < end) {
+  while (strip - end < 0) {
     endAPV = strip + 128;
     tmp.clear();
     tmp.insert(tmp.end(), strip, endAPV);
@@ -22,11 +22,11 @@ inline void FastLinearCMNSubtractor::subtract_(uint32_t detId, uint16_t firstAPV
     low = strip;
     high = strip + 64;
     tmp.clear();
-    while (high < endAPV)
+    while (high - endAPV < 0)
       tmp.push_back(*high++ - *low++);
     const float slope = median(tmp) / 64.;
 
-    while (strip < endAPV) {
+    while (strip - endAPV < 0) {
       *strip = static_cast<T>(*strip - (offset + slope * (65 - (endAPV - strip))));
       strip++;
     }

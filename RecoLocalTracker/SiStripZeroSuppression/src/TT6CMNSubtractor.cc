@@ -47,7 +47,7 @@ inline void TT6CMNSubtractor::subtract_(uint32_t detId, uint16_t firstAPV, std::
       fs = digis.begin() + istrip - 127;
       ls = digis.begin() + istrip + 1;
 
-      while (fs < ls) {
+      while (fs - ls < 0) {
         *fs = static_cast<T>(*fs - FixedBias - CM);
         fs++;
       }

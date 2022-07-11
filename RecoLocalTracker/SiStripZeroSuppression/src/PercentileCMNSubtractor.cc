@@ -15,7 +15,7 @@ inline void PercentileCMNSubtractor::subtract_(uint32_t detId, uint16_t firstAPV
 
   _vmedians.clear();
 
-  while (strip < end) {
+  while (strip - end < 0) {
     endAPV = strip + 128;
     tmp.clear();
     tmp.insert(tmp.end(), strip, endAPV);
@@ -23,7 +23,7 @@ inline void PercentileCMNSubtractor::subtract_(uint32_t detId, uint16_t firstAPV
 
     _vmedians.push_back(std::pair<short, float>((strip - digis.begin()) / 128 + firstAPV, offset));
 
-    while (strip < endAPV) {
+    while (strip - endAPV < 0) {
       *strip = static_cast<T>(*strip - offset);
       strip++;
     }

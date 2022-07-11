@@ -679,7 +679,7 @@ namespace reco {
             if ((previousTM != nullptr) && (layer != -1)) {
               //std::cout<<"A previous TM exists! "<<std::endl;
               for (std::vector<TrajectoryMeasurement>::const_iterator itmCompare = itTrajMeas - 1;
-                   itmCompare >= tmColl.begin() && itmCompare > itTrajMeas - 4;
+                   itmCompare >= tmColl.begin() && itmCompare - (itTrajMeas - 4) > 0;
                    --itmCompare) {
                 DetId compareId = itmCompare->recHit()->geographicalId();
                 if (subDet != compareId.subdetId() || side != sideFromId(compareId, tTopo) ||
