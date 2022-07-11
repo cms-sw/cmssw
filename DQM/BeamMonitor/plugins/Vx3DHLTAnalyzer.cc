@@ -105,19 +105,19 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
     totalHits += HitCounter(iEvent);
 
     if (internalDebug == true) {
-      cout << "[Vx3DHLTAnalyzer]::\tI found " << totalHits << " pixel hits until now" << endl;
-      cout << "[Vx3DHLTAnalyzer]::\tIn this event there are " << Vx3DCollection->size() << " vertex cadidates" << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tI found " << totalHits << " pixel hits until now";
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tIn this event there are " << Vx3DCollection->size() << " vertex cadidates";
     }
 
     for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
       if (internalDebug == true) {
-        cout << "[Vx3DHLTAnalyzer]::\tVertex selections:" << endl;
-        cout << "[Vx3DHLTAnalyzer]::\tEvent ID = " << iEvent.id() << endl;
-        cout << "[Vx3DHLTAnalyzer]::\tVertex number = " << it3DVx - Vx3DCollection->begin() << endl;
-        cout << "[Vx3DHLTAnalyzer]::\tisValid = " << it3DVx->isValid() << endl;
-        cout << "[Vx3DHLTAnalyzer]::\tisFake = " << it3DVx->isFake() << endl;
-        cout << "[Vx3DHLTAnalyzer]::\tnodof = " << it3DVx->ndof() << endl;
-        cout << "[Vx3DHLTAnalyzer]::\ttracksSize = " << it3DVx->tracksSize() << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tVertex selections:";
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tEvent ID = " << iEvent.id();
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tVertex number = " << it3DVx - Vx3DCollection->begin();
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tisValid = " << it3DVx->isValid();
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tisFake = " << it3DVx->isFake();
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tnodof = " << it3DVx->ndof();
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\ttracksSize = " << it3DVx->tracksSize();
       }
 
       if ((it3DVx->isValid() == true) && (it3DVx->isFake() == false) && (it3DVx->ndof() >= minVxDoF) &&
@@ -144,7 +144,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
         if ((i == DIM) && (det > 0.)) {
           if (internalDebug == true)
-            cout << "[Vx3DHLTAnalyzer]::\tVertex accepted !" << endl;
+            edm::LogInfo("Vx3DHLTAnalyzer") << "\tVertex accepted !";
 
           MyVertex.x = it3DVx->x();
           MyVertex.y = it3DVx->y();
@@ -167,14 +167,14 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
           Vx_ZY_Cum->Fill(it3DVx->z(), it3DVx->y());
           Vx_XY_Cum->Fill(it3DVx->x(), it3DVx->y());
         } else if (internalDebug == true) {
-          cout << "[Vx3DHLTAnalyzer]::\tVertex discarded !" << endl;
+          edm::LogInfo("Vx3DHLTAnalyzer") << "\tVertex discarded !";
 
           for (i = 0; i < DIM; i++)
             for (j = 0; j < DIM; j++)
-              cout << "(i,j) --> " << i << "," << j << " --> " << MyVertex.Covariance[i][j] << endl;
+              edm::LogInfo("Vx3DHLTAnalyzer") << "(i,j) --> " << i << "," << j << " --> " << MyVertex.Covariance[i][j];
         }
       } else if (internalDebug == true)
-        cout << "[Vx3DHLTAnalyzer]::\tVertex discarded !" << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tVertex discarded !";
     }
   }
 }
@@ -311,14 +311,14 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
     Gauss3D->SetFunction(_Gauss3DFunc);
 
     if (internalDebug == true)
-      cout << "[Vx3DHLTAnalyzer]::\t@@@ START FITTING @@@" << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\t@@@ START FITTING @@@";
 
     // @@@ Fit at X-deltaMean | X | X+deltaMean @@@
     bestEdm = 1.;
     for (int i = 0; i < 3; i++) {
       deltaMean = (double(i) - 1.) * std::sqrt(*(it + 0));
       if (internalDebug == true)
-        cout << "[Vx3DHLTAnalyzer]::\tdeltaMean --> " << deltaMean << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tdeltaMean --> " << deltaMean;
 
       Gauss3D->Clear();
 
@@ -341,7 +341,11 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       maxTransRadius = nSigmaXY * std::sqrt(std::fabs((*vals)[0]) + std::fabs((*vals)[1])) / 2.;
       maxLongLength = nSigmaZ * std::sqrt(std::fabs((*vals)[2]));
 
-      Gauss3D->Minimize();
+      try {
+        Gauss3D->Minimize();
+      } catch (...) {
+        edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+      }
       goodData = Gauss3D->Status();
       edm = Gauss3D->Edm();
 
@@ -350,13 +354,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       else if (isNotFinite(edm) == true) {
         goodData = -1;
         if (internalDebug == true)
-          cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl;
+          edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
       } else
         for (unsigned int j = 0; j < nParams; j++)
           if (isNotFinite(Gauss3D->Errors()[j]) == true) {
             goodData = -3;
             if (internalDebug == true)
-              cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+              edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite errors !";
             break;
           }
       if (goodData == 0) {
@@ -371,7 +375,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
         if (det < 0.) {
           goodData = -4;
           if (internalDebug == true)
-            cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl;
+            edm::LogInfo("Vx3DHLTAnalyzer") << "\tNegative determinant !";
         }
       }
 
@@ -381,15 +385,15 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       }
     }
     if (internalDebug == true)
-      cout << "[Vx3DHLTAnalyzer]::\tFound bestMovementX --> " << bestMovementX << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tFound bestMovementX --> " << bestMovementX;
 
     // @@@ Fit at Y-deltaMean | Y | Y+deltaMean @@@
     bestEdm = 1.;
     for (int i = 0; i < 3; i++) {
       deltaMean = (double(i) - 1.) * std::sqrt(*(it + 1));
       if (internalDebug == true) {
-        cout << "[Vx3DHLTAnalyzer]::\tdeltaMean --> " << deltaMean << endl;
-        cout << "[Vx3DHLTAnalyzer]::\tdeltaMean X --> " << (double(bestMovementX) - 1.) * std::sqrt(*(it + 0)) << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tdeltaMean --> " << deltaMean;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tdeltaMean X --> " << (double(bestMovementX) - 1.) * std::sqrt(*(it + 0));
       }
 
       Gauss3D->Clear();
@@ -413,7 +417,11 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
       maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
-      Gauss3D->Minimize();
+      try {
+        Gauss3D->Minimize();
+      } catch (...) {
+        edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+      }
       goodData = Gauss3D->Status();
       edm = Gauss3D->Edm();
 
@@ -422,13 +430,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       else if (isNotFinite(edm) == true) {
         goodData = -1;
         if (internalDebug == true)
-          cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl;
+          edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
       } else
         for (unsigned int j = 0; j < nParams; j++)
           if (isNotFinite(Gauss3D->Errors()[j]) == true) {
             goodData = -3;
             if (internalDebug == true)
-              cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+              edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite errors !";
             break;
           }
       if (goodData == 0) {
@@ -443,7 +451,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
         if (det < 0.) {
           goodData = -4;
           if (internalDebug == true)
-            cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl;
+            edm::LogInfo("Vx3DHLTAnalyzer") << "\tNegative determinant !";
         }
       }
 
@@ -453,16 +461,16 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       }
     }
     if (internalDebug == true)
-      cout << "[Vx3DHLTAnalyzer]::\tFound bestMovementY --> " << bestMovementY << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tFound bestMovementY --> " << bestMovementY;
 
     // @@@ Fit at Z-deltaMean | Z | Z+deltaMean @@@
     bestEdm = 1.;
     for (int i = 0; i < 3; i++) {
       deltaMean = (double(i) - 1.) * std::sqrt(*(it + 2));
       if (internalDebug == true) {
-        cout << "[Vx3DHLTAnalyzer]::\tdeltaMean --> " << deltaMean << endl;
-        cout << "[Vx3DHLTAnalyzer]::\tdeltaMean X --> " << (double(bestMovementX) - 1.) * std::sqrt(*(it + 0)) << endl;
-        cout << "[Vx3DHLTAnalyzer]::\tdeltaMean Y --> " << (double(bestMovementY) - 1.) * std::sqrt(*(it + 1)) << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tdeltaMean --> " << deltaMean;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tdeltaMean X --> " << (double(bestMovementX) - 1.) * std::sqrt(*(it + 0));
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tdeltaMean Y --> " << (double(bestMovementY) - 1.) * std::sqrt(*(it + 1));
       }
 
       Gauss3D->Clear();
@@ -486,7 +494,11 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
       maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
-      Gauss3D->Minimize();
+      try {
+        Gauss3D->Minimize();
+      } catch (...) {
+        edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+      }
       goodData = Gauss3D->Status();
       edm = Gauss3D->Edm();
 
@@ -495,13 +507,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       else if (isNotFinite(edm) == true) {
         goodData = -1;
         if (internalDebug == true)
-          cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl;
+          edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
       } else
         for (unsigned int j = 0; j < nParams; j++)
           if (isNotFinite(Gauss3D->Errors()[j]) == true) {
             goodData = -3;
             if (internalDebug == true)
-              cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+              edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite errors !";
             break;
           }
       if (goodData == 0) {
@@ -516,7 +528,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
         if (det < 0.) {
           goodData = -4;
           if (internalDebug == true)
-            cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl;
+            edm::LogInfo("Vx3DHLTAnalyzer") << "\tNegative determinant !";
         }
       }
 
@@ -526,7 +538,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       }
     }
     if (internalDebug == true)
-      cout << "[Vx3DHLTAnalyzer]::\tFound bestMovementZ --> " << bestMovementZ << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tFound bestMovementZ --> " << bestMovementZ;
 
     Gauss3D->Clear();
 
@@ -550,7 +562,11 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
     maxTransRadius = nSigmaXY * std::sqrt(std::fabs((*vals)[0]) + std::fabs((*vals)[1])) / 2.;
     maxLongLength = nSigmaZ * std::sqrt(std::fabs((*vals)[2]));
 
-    Gauss3D->Minimize();
+    try {
+      Gauss3D->Minimize();
+    } catch (...) {
+      edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+    }
     goodData = Gauss3D->Status();
     edm = Gauss3D->Edm();
 
@@ -559,13 +575,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
     else if (isNotFinite(edm) == true) {
       goodData = -1;
       if (internalDebug == true)
-        cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
     } else
       for (unsigned int j = 0; j < nParams; j++)
         if (isNotFinite(Gauss3D->Errors()[j]) == true) {
           goodData = -3;
           if (internalDebug == true)
-            cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+            edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite errors !";
           break;
         }
     if (goodData == 0) {
@@ -580,7 +596,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
       if (det < 0.) {
         goodData = -4;
         if (internalDebug == true)
-          cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl;
+          edm::LogInfo("Vx3DHLTAnalyzer") << "\tNegative determinant !";
       }
     }
 
@@ -590,7 +606,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
         Gauss3D->Clear();
 
         if (internalDebug == true)
-          cout << "[Vx3DHLTAnalyzer]::\tFIT WITH DIFFERENT PARAMETER DISTANCES - STEP " << i + 1 << endl;
+          edm::LogInfo("Vx3DHLTAnalyzer") << "\tFIT WITH DIFFERENT PARAMETER DISTANCES - STEP " << i + 1;
 
         Gauss3D->SetVariable(0, "var x ", *(it + 0), parDistanceXY * parDistanceXY * largerDist[i]);
         Gauss3D->SetVariable(1, "var y ", *(it + 1), parDistanceXY * parDistanceXY * largerDist[i]);
@@ -618,7 +634,11 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
         maxTransRadius = nSigmaXY * std::sqrt(std::fabs(Gauss3D->X()[0]) + std::fabs(Gauss3D->X()[1])) / 2.;
         maxLongLength = nSigmaZ * std::sqrt(std::fabs(Gauss3D->X()[2]));
 
-        Gauss3D->Minimize();
+        try {
+          Gauss3D->Minimize();
+        } catch (...) {
+          edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+        }
         goodData = Gauss3D->Status();
         edm = Gauss3D->Edm();
 
@@ -627,13 +647,13 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
         else if (isNotFinite(edm) == true) {
           goodData = -1;
           if (internalDebug == true)
-            cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl;
+            edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite edm !";
         } else
           for (unsigned int j = 0; j < nParams; j++)
             if (isNotFinite(Gauss3D->Errors()[j]) == true) {
               goodData = -3;
               if (internalDebug == true)
-                cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+                edm::LogInfo("Vx3DHLTAnalyzer") << "\tNot finite errors !";
               break;
             }
         if (goodData == 0) {
@@ -648,7 +668,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
           if (det < 0.) {
             goodData = -4;
             if (internalDebug == true)
-              cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl;
+              edm::LogInfo("Vx3DHLTAnalyzer") << "\tNegative determinant !";
           }
         }
       } else
@@ -734,7 +754,7 @@ void Vx3DHLTAnalyzer::reset(string ResetType) {
     endLumiOfFit = 0;
 
     if (internalDebug == true)
-      cout << "[Vx3DHLTAnalyzer]::\tReset issued: scratch" << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tReset issued: scratch";
     if ((debugMode == true) && (outputDebugFile.is_open() == true))
       outputDebugFile << "Reset -scratch- issued\n" << endl;
   } else if (ResetType == "whole") {
@@ -756,7 +776,7 @@ void Vx3DHLTAnalyzer::reset(string ResetType) {
     endLumiOfFit = 0;
 
     if (internalDebug == true)
-      cout << "[Vx3DHLTAnalyzer]::\tReset issued: whole" << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tReset issued: whole";
     if ((debugMode == true) && (outputDebugFile.is_open() == true))
       outputDebugFile << "Reset -whole- issued\n" << endl;
   } else if (ResetType == "fit") {
@@ -765,14 +785,14 @@ void Vx3DHLTAnalyzer::reset(string ResetType) {
     Vx_Z_Fit->Reset();
 
     if (internalDebug == true)
-      cout << "[Vx3DHLTAnalyzer]::\tReset issued: fit" << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tReset issued: fit";
     if ((debugMode == true) && (outputDebugFile.is_open() == true))
       outputDebugFile << "Reset -fit- issued\n" << endl;
   } else if (ResetType == "hitCounter") {
     totalHits = 0;
 
     if (internalDebug == true)
-      cout << "[Vx3DHLTAnalyzer]::\tReset issued: hitCounter" << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tReset issued: hitCounter";
     if ((debugMode == true) && (outputDebugFile.is_open() == true))
       outputDebugFile << "Reset -hitCounter- issued\n" << endl;
   }
@@ -911,15 +931,15 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
 }
 
 void Vx3DHLTAnalyzer::printFitParams(const vector<double>& fitResults) {
-  cout << "var x -->  " << fitResults[0] << " +/- " << fitResults[0 + nParams] << endl;
-  cout << "var y -->  " << fitResults[1] << " +/- " << fitResults[1 + nParams] << endl;
-  cout << "var z -->  " << fitResults[2] << " +/- " << fitResults[2 + nParams] << endl;
-  cout << "cov xy --> " << fitResults[3] << " +/- " << fitResults[3 + nParams] << endl;
-  cout << "dydz   --> " << fitResults[4] << " +/- " << fitResults[4 + nParams] << endl;
-  cout << "dxdz   --> " << fitResults[5] << " +/- " << fitResults[5 + nParams] << endl;
-  cout << "mean x --> " << fitResults[6] << " +/- " << fitResults[6 + nParams] << endl;
-  cout << "mean y --> " << fitResults[7] << " +/- " << fitResults[7 + nParams] << endl;
-  cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8 + nParams] << endl;
+  edm::LogInfo("Vx3DHLTAnalyzer") << "var x -->  " << fitResults[0] << " +/- " << fitResults[0 + nParams];
+  edm::LogInfo("Vx3DHLTAnalyzer") << "var y -->  " << fitResults[1] << " +/- " << fitResults[1 + nParams];
+  edm::LogInfo("Vx3DHLTAnalyzer") << "var z -->  " << fitResults[2] << " +/- " << fitResults[2 + nParams];
+  edm::LogInfo("Vx3DHLTAnalyzer") << "cov xy --> " << fitResults[3] << " +/- " << fitResults[3 + nParams];
+  edm::LogInfo("Vx3DHLTAnalyzer") << "dydz   --> " << fitResults[4] << " +/- " << fitResults[4 + nParams];
+  edm::LogInfo("Vx3DHLTAnalyzer") << "dxdz   --> " << fitResults[5] << " +/- " << fitResults[5 + nParams];
+  edm::LogInfo("Vx3DHLTAnalyzer") << "mean x --> " << fitResults[6] << " +/- " << fitResults[6 + nParams];
+  edm::LogInfo("Vx3DHLTAnalyzer") << "mean y --> " << fitResults[7] << " +/- " << fitResults[7 + nParams];
+  edm::LogInfo("Vx3DHLTAnalyzer") << "mean z --> " << fitResults[8] << " +/- " << fitResults[8 + nParams];
 }
 
 void Vx3DHLTAnalyzer::dqmBeginLuminosityBlock(const LuminosityBlock& lumiBlock, const EventSetup& iSetup) {
@@ -967,25 +987,27 @@ void Vx3DHLTAnalyzer::dqmEndLuminosityBlock(const LuminosityBlock& lumiBlock, co
         fitResults.push_back(0.0);
 
       if (internalDebug == true) {
-        cout << "[Vx3DHLTAnalyzer]::\t@@@ Beam Spot parameters - prefit @@@" << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\t@@@ Beam Spot parameters - prefit @@@";
 
         printFitParams(fitResults);
 
-        cout << "Runnumber " << runNumber << endl;
-        cout << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
-        cout << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
-        cout << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "Runnumber " << runNumber;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " "
+                                        << (beginTimeOfFit >> 32);
+        edm::LogInfo("Vx3DHLTAnalyzer") << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " "
+                                        << (endTimeOfFit >> 32);
+        edm::LogInfo("Vx3DHLTAnalyzer") << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit;
       }
 
       goodData = MyFit(&fitResults);
 
       if (internalDebug == true) {
-        cout << "[Vx3DHLTAnalyzer]::\t@@@ Beam Spot parameters - postfit @@@" << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "\t@@@ Beam Spot parameters - postfit @@@";
 
         printFitParams(fitResults);
 
-        cout << "goodData --> " << goodData << endl;
-        cout << "Used vertices --> " << counterVx << endl;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "goodData --> " << goodData;
+        edm::LogInfo("Vx3DHLTAnalyzer") << "Used vertices --> " << counterVx;
       }
 
       if (goodData == 0) {
@@ -1062,7 +1084,7 @@ void Vx3DHLTAnalyzer::dqmEndLuminosityBlock(const LuminosityBlock& lumiBlock, co
     numberFits++;
     writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
     if (internalDebug == true)
-      cout << "[Vx3DHLTAnalyzer]::\tUsed vertices: " << counterVx << endl;
+      edm::LogInfo("Vx3DHLTAnalyzer") << "\tUsed vertices: " << counterVx;
 
     statusCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)goodData);
     statusCounter->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
@@ -1311,7 +1333,7 @@ void Vx3DHLTAnalyzer::dqmEndLuminosityBlock(const LuminosityBlock& lumiBlock, co
   }
 
   if (internalDebug == true)
-    cout << "[Vx3DHLTAnalyzer]::\tHistogram title: " << histTitle.str() << endl;
+    edm::LogInfo("Vx3DHLTAnalyzer") << "::\tHistogram title: " << histTitle.str();
 }
 
 void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, Run const& iRun, EventSetup const& /* iSetup */) {
