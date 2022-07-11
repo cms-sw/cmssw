@@ -25,3 +25,6 @@ from Configuration.Eras.Modifier_run3_nanoAOD_devel_cff import run3_nanoAOD_deve
 run2_nanoAOD_ANY = (
     run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 |  run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 | run2_nanoAOD_106Xv2
 )
+run2_nanoAOD_preUL = (
+    run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 |  run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 
+) 
