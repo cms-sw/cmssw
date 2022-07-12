@@ -100,13 +100,15 @@ private:
   const double fitChi2Cut_;
   const int minHitsCut_;
   const std::string recordName_;
-  std::unique_ptr<TF1> f1;
+  std::unique_ptr<TF1> f1_;
   float width_;
   float theMagField_{0.f};
 
-  SiPixelLorentzAngleCalibrationHistograms hists;
-  const SiPixelLorentzAngle* currentLorentzAngle;
-  std::unique_ptr<TrackerTopology> theTrackerTopology;
+  static constexpr float inverseGeVtoTesla_ = 2.99792458e-3f;
+
+  SiPixelLorentzAngleCalibrationHistograms hists_;
+  const SiPixelLorentzAngle* currentLorentzAngle_;
+  std::unique_ptr<TrackerTopology> theTrackerTopology_;
 };
 
 //------------------------------------------------------------------------------
@@ -134,23 +136,27 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
   const TrackerTopology* tTopo = &iSetup.getData(topoEsTokenBR_);
 
   const MagneticField* magField = &iSetup.getData(magneticFieldToken_);
-  currentLorentzAngle = &iSetup.getData(siPixelLAEsToken_);
+  currentLorentzAngle_ = &iSetup.getData(siPixelLAEsToken_);
 
   // B-field value
-  // nominalValue returns the magnetic field value in kgauss (1T = 10 kgauss)
-  theMagField_ = magField->nominalValue() / 10.;
+  // inverseBzAtOriginInGeV() returns the inverse of field z component for this map in GeV
+  // for the conversion please consult https://github.com/cms-sw/cmssw/blob/master/MagneticField/Engine/src/MagneticField.cc#L17
+  // theInverseBzAtOriginInGeV = 1.f / (at0z * 2.99792458e-3f);
+  // ==> at0z = 1.f / (theInverseBzAtOriginInGeV * 2.99792458e-3f)
+
+  theMagField_ = 1.f / (magField->inverseBzAtOriginInGeV() * inverseGeVtoTesla_);
 
   PixelTopologyMap map = PixelTopologyMap(geom, tTopo);
-  hists.nlay = geom->numberOfLayers(PixelSubdetector::PixelBarrel);
-  hists.nModules_.resize(hists.nlay);
-  hists.nLadders_.resize(hists.nlay);
-  for (int i = 0; i < hists.nlay; i++) {
-    hists.nModules_[i] = map.getPXBModules(i + 1);
-    hists.nLadders_[i] = map.getPXBLadders(i + 1);
+  hists_.nlay = geom->numberOfLayers(PixelSubdetector::PixelBarrel);
+  hists_.nModules_.resize(hists_.nlay);
+  hists_.nLadders_.resize(hists_.nlay);
+  for (int i = 0; i < hists_.nlay; i++) {
+    hists_.nModules_[i] = map.getPXBModules(i + 1);
+    hists_.nLadders_[i] = map.getPXBLadders(i + 1);
   }
 
   // list of modules already filled, then return (we already entered here)
-  if (!hists.BPixnewDetIds_.empty() || !hists.FPixnewDetIds_.empty())
+  if (!hists_.BPixnewDetIds_.empty() || !hists_.FPixnewDetIds_.empty())
     return;
 
   if (!newmodulelist_.empty()) {
@@ -158,30 +164,30 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
       if (modulename.find("BPix_") != std::string::npos) {
         PixelBarrelName bn(modulename, true);
         const auto& detId = bn.getDetId(tTopo);
-        hists.BPixnewmodulename_.push_back(modulename);
-        hists.BPixnewDetIds_.push_back(detId.rawId());
-        hists.BPixnewModule_.push_back(bn.moduleName());
-        hists.BPixnewLayer_.push_back(bn.layerName());
+        hists_.BPixnewmodulename_.push_back(modulename);
+        hists_.BPixnewDetIds_.push_back(detId.rawId());
+        hists_.BPixnewModule_.push_back(bn.moduleName());
+        hists_.BPixnewLayer_.push_back(bn.layerName());
       } else if (modulename.find("FPix_") != std::string::npos) {
         PixelEndcapName en(modulename, true);
         const auto& detId = en.getDetId(tTopo);
-        hists.FPixnewmodulename_.push_back(modulename);
-        hists.FPixnewDetIds_.push_back(detId.rawId());
-        hists.FPixnewDisk_.push_back(en.diskName());
-        hists.FPixnewBlade_.push_back(en.bladeName());
+        hists_.FPixnewmodulename_.push_back(modulename);
+        hists_.FPixnewDetIds_.push_back(detId.rawId());
+        hists_.FPixnewDisk_.push_back(en.diskName());
+        hists_.FPixnewBlade_.push_back(en.bladeName());
       }
     }
   }
 
   uint count = 0;
-  for (const auto& id : hists.BPixnewDetIds_) {
+  for (const auto& id : hists_.BPixnewDetIds_) {
     LogDebug("SiPixelLorentzAnglePCLHarvester") << id;
     count++;
   }
   LogDebug("SiPixelLorentzAnglePCLHarvester") << "Stored a total of " << count << " new detIds.";
 
   // list of modules already filled, return (we already entered here)
-  if (!hists.detIdsList.empty())
+  if (!hists_.detIdsList.empty())
     return;
 
   std::vector<uint32_t> treatedIndices;
@@ -191,25 +197,25 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
     width_ = pixelDet->surface().bounds().thickness();
     const auto& layer = tTopo->pxbLayer(pixelDet->geographicalId());
     const auto& module = tTopo->pxbModule(pixelDet->geographicalId());
-    int i_index = module + (layer - 1) * hists.nModules_[layer - 1];
+    int i_index = module + (layer - 1) * hists_.nModules_[layer - 1];
 
     uint32_t rawId = pixelDet->geographicalId().rawId();
 
     // if the detId is already accounted for in the special class, do not attach it
-    if (std::find(hists.BPixnewDetIds_.begin(), hists.BPixnewDetIds_.end(), rawId) != hists.BPixnewDetIds_.end())
+    if (std::find(hists_.BPixnewDetIds_.begin(), hists_.BPixnewDetIds_.end(), rawId) != hists_.BPixnewDetIds_.end())
       continue;
 
     if (std::find(treatedIndices.begin(), treatedIndices.end(), i_index) != treatedIndices.end()) {
-      hists.detIdsList[i_index].push_back(rawId);
+      hists_.detIdsList[i_index].push_back(rawId);
     } else {
-      hists.detIdsList.insert(std::pair<uint32_t, std::vector<uint32_t>>(i_index, {rawId}));
+      hists_.detIdsList.insert(std::pair<uint32_t, std::vector<uint32_t>>(i_index, {rawId}));
       treatedIndices.push_back(i_index);
     }
   }
 
   count = 0;
   for (const auto& i : treatedIndices) {
-    for (const auto& id : hists.detIdsList[i]) {
+    for (const auto& id : hists_.detIdsList[i]) {
       LogDebug("SiPixelLorentzAnglePCLHarvester") << id;
       count++;
     };
@@ -219,8 +225,8 @@ void SiPixelLorentzAnglePCLHarvester::beginRun(const edm::Run& iRun, const edm::
 
 //------------------------------------------------------------------------------
 void SiPixelLorentzAnglePCLHarvester::endRun(edm::Run const& run, edm::EventSetup const& isetup) {
-  if (!theTrackerTopology) {
-    theTrackerTopology = std::make_unique<TrackerTopology>(isetup.getData(topoEsTokenER_));
+  if (!theTrackerTopology_) {
+    theTrackerTopology_ = std::make_unique<TrackerTopology>(isetup.getData(topoEsTokenER_));
   }
 }
 
@@ -231,66 +237,66 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   iGetter.setCurrentFolder(dqmDir_);
 
   // fetch the 2D histograms
-  for (int i_layer = 1; i_layer <= hists.nlay; i_layer++) {
+  for (int i_layer = 1; i_layer <= hists_.nlay; i_layer++) {
     const auto& prefix_ = fmt::sprintf("%s/BPix/BPixLayer%i", dqmDir_, i_layer);
-    for (int i_module = 1; i_module <= hists.nModules_[i_layer - 1]; i_module++) {
-      int i_index = i_module + (i_layer - 1) * hists.nModules_[i_layer - 1];
+    for (int i_module = 1; i_module <= hists_.nModules_[i_layer - 1]; i_module++) {
+      int i_index = i_module + (i_layer - 1) * hists_.nModules_[i_layer - 1];
 
-      hists.h_drift_depth_[i_index] =
+      hists_.h_drift_depth_[i_index] =
           iGetter.get(fmt::format("{}/h_drift_depth_layer{}_module{}", prefix_, i_layer, i_module));
 
-      if (hists.h_drift_depth_[i_index] == nullptr) {
+      if (hists_.h_drift_depth_[i_index] == nullptr) {
         edm::LogError("SiPixelLorentzAnglePCLHarvester::dqmEndJob")
             << "Failed to retrieve electron drift over depth for layer " << i_layer << ", module " << i_module << ".";
         continue;
       }
 
-      hists.h_drift_depth_adc_[i_index] =
+      hists_.h_drift_depth_adc_[i_index] =
           iGetter.get(fmt::format("{}/h_drift_depth_adc_layer{}_module{}", prefix_, i_layer, i_module));
 
-      hists.h_drift_depth_adc2_[i_index] =
+      hists_.h_drift_depth_adc2_[i_index] =
           iGetter.get(fmt::format("{}/h_drift_depth_adc2_layer{}_module{}", prefix_, i_layer, i_module));
 
-      hists.h_drift_depth_noadc_[i_index] =
+      hists_.h_drift_depth_noadc_[i_index] =
           iGetter.get(fmt::format("{}/h_drift_depth_noadc_layer{}_module{}", prefix_, i_layer, i_module));
 
-      hists.h_mean_[i_index] = iGetter.get(fmt::format("{}/h_mean_layer{}_module{}", dqmDir_, i_layer, i_module));
+      hists_.h_mean_[i_index] = iGetter.get(fmt::format("{}/h_mean_layer{}_module{}", dqmDir_, i_layer, i_module));
 
-      hists.h_drift_depth_[i_index]->divide(
-          hists.h_drift_depth_adc_[i_index], hists.h_drift_depth_noadc_[i_index], 1., 1., "");
+      hists_.h_drift_depth_[i_index]->divide(
+          hists_.h_drift_depth_adc_[i_index], hists_.h_drift_depth_noadc_[i_index], 1., 1., "");
     }
   }
 
   // fetch the new modules 2D histograms
-  for (int i = 0; i < (int)hists.BPixnewDetIds_.size(); i++) {
-    int new_index = i + 1 + hists.nModules_[hists.nlay - 1] + (hists.nlay - 1) * hists.nModules_[hists.nlay - 1];
+  for (int i = 0; i < (int)hists_.BPixnewDetIds_.size(); i++) {
+    int new_index = i + 1 + hists_.nModules_[hists_.nlay - 1] + (hists_.nlay - 1) * hists_.nModules_[hists_.nlay - 1];
 
-    hists.h_drift_depth_[new_index] = iGetter.get(
-        fmt::format("{}/h_BPixnew_drift_depth_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
+    hists_.h_drift_depth_[new_index] = iGetter.get(
+        fmt::format("{}/h_BPixnew_drift_depth_{}", dqmDir_ + "/BPix/NewModules", hists_.BPixnewmodulename_[i]));
 
-    if (hists.h_drift_depth_[new_index] == nullptr) {
+    if (hists_.h_drift_depth_[new_index] == nullptr) {
       edm::LogError("SiPixelLorentzAnglePCLHarvester")
-          << "Failed to retrieve electron drift over depth for new module " << hists.BPixnewmodulename_[i] << ".";
+          << "Failed to retrieve electron drift over depth for new module " << hists_.BPixnewmodulename_[i] << ".";
       continue;
     }
 
-    hists.h_drift_depth_adc_[new_index] = iGetter.get(
-        fmt::format("{}/h_BPixnew_drift_depth_adc_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
+    hists_.h_drift_depth_adc_[new_index] = iGetter.get(
+        fmt::format("{}/h_BPixnew_drift_depth_adc_{}", dqmDir_ + "/BPix/NewModules", hists_.BPixnewmodulename_[i]));
 
-    hists.h_drift_depth_adc2_[new_index] = iGetter.get(
-        fmt::format("{}/h_BPixnew_drift_depth_adc2_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
+    hists_.h_drift_depth_adc2_[new_index] = iGetter.get(
+        fmt::format("{}/h_BPixnew_drift_depth_adc2_{}", dqmDir_ + "/BPix/NewModules", hists_.BPixnewmodulename_[i]));
 
-    hists.h_drift_depth_noadc_[new_index] = iGetter.get(
-        fmt::format("{}/h_BPixnew_drift_depth_noadc_{}", dqmDir_ + "/BPix/NewModules", hists.BPixnewmodulename_[i]));
+    hists_.h_drift_depth_noadc_[new_index] = iGetter.get(
+        fmt::format("{}/h_BPixnew_drift_depth_noadc_{}", dqmDir_ + "/BPix/NewModules", hists_.BPixnewmodulename_[i]));
 
-    hists.h_mean_[new_index] = iGetter.get(fmt::format("{}/h_BPixnew_mean_{}", dqmDir_, hists.BPixnewmodulename_[i]));
+    hists_.h_mean_[new_index] = iGetter.get(fmt::format("{}/h_BPixnew_mean_{}", dqmDir_, hists_.BPixnewmodulename_[i]));
 
-    hists.h_drift_depth_[new_index]->divide(
-        hists.h_drift_depth_adc_[new_index], hists.h_drift_depth_noadc_[new_index], 1., 1., "");
+    hists_.h_drift_depth_[new_index]->divide(
+        hists_.h_drift_depth_adc_[new_index], hists_.h_drift_depth_noadc_[new_index], 1., 1., "");
   }
 
-  hists.h_bySectOccupancy_ = iGetter.get(fmt::format("{}/h_bySectorOccupancy", dqmDir_ + "/SectorMonitoring"));
-  if (hists.h_bySectOccupancy_ == nullptr) {
+  hists_.h_bySectOccupancy_ = iGetter.get(fmt::format("{}/h_bySectorOccupancy", dqmDir_ + "/SectorMonitoring"));
+  if (hists_.h_bySectOccupancy_ == nullptr) {
     edm::LogError("SiPixelLorentzAnglePCLHarvester") << "Failed to retrieve the hit on track occupancy.";
     return;
   }
@@ -300,11 +306,11 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   double min_drift_;
   double max_drift_;
 
-  if (hists.h_drift_depth_adc_[1] != nullptr) {
-    hist_drift_ = hists.h_drift_depth_adc_[1]->getNbinsX();
-    hist_depth_ = hists.h_drift_depth_adc_[1]->getNbinsY();
-    min_drift_ = hists.h_drift_depth_adc_[1]->getAxisMin(1);
-    max_drift_ = hists.h_drift_depth_adc_[1]->getAxisMax(1);
+  if (hists_.h_drift_depth_adc_[1] != nullptr) {
+    hist_drift_ = hists_.h_drift_depth_adc_[1]->getNbinsX();
+    hist_depth_ = hists_.h_drift_depth_adc_[1]->getNbinsY();
+    min_drift_ = hists_.h_drift_depth_adc_[1]->getAxisMin(1);
+    max_drift_ = hists_.h_drift_depth_adc_[1]->getAxisMax(1);
   } else {
     hist_drift_ = 100;
     hist_depth_ = 50;
@@ -321,61 +327,61 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       "h_diffLA", "difference in #mu_{H}; #Delta #mu_{H}/#mu_{H} (old-new)/old [%];n. modules", 100, -150, 150);
 
   // retrieve the number of bins from the other monitoring histogram
-  const auto& maxSect = hists.h_bySectOccupancy_->getNbinsX();
+  const auto& maxSect = hists_.h_bySectOccupancy_->getNbinsX();
   const double lo = -0.5;
   const double hi = maxSect - 0.5;
 
   // this will be booked in the Harvesting folder
   iBooker.setCurrentFolder(fmt::format("{}Harvesting/SectorMonitoring", dqmDir_));
   std::string repText = "%s tan#theta_{LA}/B by sector;pixel sector;%s tan(#theta_{LA})/B [1/T]";
-  hists.h_bySectMeasLA_ =
+  hists_.h_bySectMeasLA_ =
       iBooker.book1D("h_LAbySector_Measured", fmt::sprintf(repText, "measured", "measured"), maxSect, lo, hi);
-  hists.h_bySectSetLA_ =
+  hists_.h_bySectSetLA_ =
       iBooker.book1D("h_LAbySector_Accepted", fmt::sprintf(repText, "accepted", "accepted"), maxSect, lo, hi);
-  hists.h_bySectRejectLA_ =
+  hists_.h_bySectRejectLA_ =
       iBooker.book1D("h_LAbySector_Rejected", fmt::sprintf(repText, "rejected", "rejected"), maxSect, lo, hi);
-  hists.h_bySectLA_ = iBooker.book1D("h_LAbySector", fmt::sprintf(repText, "payload", "payload"), maxSect, lo, hi);
-  hists.h_bySectDeltaLA_ =
+  hists_.h_bySectLA_ = iBooker.book1D("h_LAbySector", fmt::sprintf(repText, "payload", "payload"), maxSect, lo, hi);
+  hists_.h_bySectDeltaLA_ =
       iBooker.book1D("h_deltaLAbySector", fmt::sprintf(repText, "#Delta", "#Delta"), maxSect, lo, hi);
-  hists.h_bySectChi2_ =
+  hists_.h_bySectChi2_ =
       iBooker.book1D("h_bySectorChi2", "Fit #chi^{2}/ndf by sector;pixel sector; fit #chi^{2}/ndf", maxSect, lo, hi);
 
   // copy the bin labels from the occupancy histogram
   for (int bin = 1; bin <= maxSect; bin++) {
-    const auto& binName = hists.h_bySectOccupancy_->getTH1()->GetXaxis()->GetBinLabel(bin);
-    hists.h_bySectMeasLA_->setBinLabel(bin, binName);
-    hists.h_bySectSetLA_->setBinLabel(bin, binName);
-    hists.h_bySectRejectLA_->setBinLabel(bin, binName);
-    hists.h_bySectLA_->setBinLabel(bin, binName);
-    hists.h_bySectDeltaLA_->setBinLabel(bin, binName);
-    hists.h_bySectChi2_->setBinLabel(bin, binName);
+    const auto& binName = hists_.h_bySectOccupancy_->getTH1()->GetXaxis()->GetBinLabel(bin);
+    hists_.h_bySectMeasLA_->setBinLabel(bin, binName);
+    hists_.h_bySectSetLA_->setBinLabel(bin, binName);
+    hists_.h_bySectRejectLA_->setBinLabel(bin, binName);
+    hists_.h_bySectLA_->setBinLabel(bin, binName);
+    hists_.h_bySectDeltaLA_->setBinLabel(bin, binName);
+    hists_.h_bySectChi2_->setBinLabel(bin, binName);
   }
 
   // this will be booked in the Harvesting folder
   iBooker.setCurrentFolder(fmt::format("{}Harvesting/LorentzAngleMaps", dqmDir_));
-  for (int i = 0; i < hists.nlay; i++) {
+  for (int i = 0; i < hists_.nlay; i++) {
     std::string repName = "h2_byLayerLA_%i";
     std::string repText = "BPix Layer %i tan#theta_{LA}/B;module number;ladder number;tan#theta_{LA}/B [1/T]";
 
-    hists.h2_byLayerLA_.emplace_back(iBooker.book2D(fmt::sprintf(repName, i + 1),
-                                                    fmt::sprintf(repText, i + 1),
-                                                    hists.nModules_[i],
-                                                    0.5,
-                                                    hists.nModules_[i] + 0.5,
-                                                    hists.nLadders_[i],
-                                                    0.5,
-                                                    hists.nLadders_[i] + 0.5));
+    hists_.h2_byLayerLA_.emplace_back(iBooker.book2D(fmt::sprintf(repName, i + 1),
+                                                     fmt::sprintf(repText, i + 1),
+                                                     hists_.nModules_[i],
+                                                     0.5,
+                                                     hists_.nModules_[i] + 0.5,
+                                                     hists_.nLadders_[i],
+                                                     0.5,
+                                                     hists_.nLadders_[i] + 0.5));
 
     repName = "h2_byLayerDiff_%i";
     repText = "BPix Layer %i #Delta#mu_{H}/#mu_{H};module number;ladder number;#Delta#mu_{H}/#mu_{H} [%%]";
-    hists.h2_byLayerDiff_.emplace_back(iBooker.book2D(fmt::sprintf(repName, i + 1),
-                                                      fmt::sprintf(repText, i + 1),
-                                                      hists.nModules_[i],
-                                                      0.5,
-                                                      hists.nModules_[i] + 0.5,
-                                                      hists.nLadders_[i],
-                                                      0.5,
-                                                      hists.nLadders_[i] + 0.5));
+    hists_.h2_byLayerDiff_.emplace_back(iBooker.book2D(fmt::sprintf(repName, i + 1),
+                                                       fmt::sprintf(repText, i + 1),
+                                                       hists_.nModules_[i],
+                                                       0.5,
+                                                       hists_.nModules_[i] + 0.5,
+                                                       hists_.nLadders_[i],
+                                                       0.5,
+                                                       hists_.nLadders_[i] + 0.5));
   }
 
   // clang-format off
@@ -397,9 +403,9 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
 
   // fill the map of simulation values
   double p1_simul_newmodule = 0.294044;
-  double p1_simul[hists.nlay + 1][hists.nModules_[hists.nlay - 1]];
-  for (int i_layer = 1; i_layer <= hists.nlay; i_layer++) {
-    for (int i_module = 1; i_module <= hists.nModules_[i_layer - 1]; i_module++) {
+  double p1_simul[hists_.nlay + 1][hists_.nModules_[hists_.nlay - 1]];
+  for (int i_layer = 1; i_layer <= hists_.nlay; i_layer++) {
+    for (int i_module = 1; i_module <= hists_.nModules_[i_layer - 1]; i_module++) {
       if (i_layer == 1)
         p1_simul[i_layer - 1][i_module - 1] = 0.436848;
       else if (i_layer == 2)
@@ -415,38 +421,39 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
     }
   }
   // fictitious n-th layer to store the values of new modules
-  for (int i_module = 1; i_module <= hists.nModules_[hists.nlay - 1]; i_module++) {
-    p1_simul[hists.nlay][i_module - 1] = p1_simul_newmodule;
+  for (int i_module = 1; i_module <= hists_.nModules_[hists_.nlay - 1]; i_module++) {
+    p1_simul[hists_.nlay][i_module - 1] = p1_simul_newmodule;
   }
 
   // loop over "new" BPix modules
-  for (int j = 0; j < (int)hists.BPixnewDetIds_.size(); j++) {
-    //uint32_t rawId = hists.BPixnewDetIds_[j];
-    int new_index = j + 1 + hists.nModules_[hists.nlay - 1] + (hists.nlay - 1) * hists.nModules_[hists.nlay - 1];
-    if (hists.h_drift_depth_adc_[new_index] == nullptr)
+  for (int j = 0; j < (int)hists_.BPixnewDetIds_.size(); j++) {
+    //uint32_t rawId = hists_.BPixnewDetIds_[j];
+    int new_index = j + 1 + hists_.nModules_[hists_.nlay - 1] + (hists_.nlay - 1) * hists_.nModules_[hists_.nlay - 1];
+    if (hists_.h_drift_depth_adc_[new_index] == nullptr)
       continue;
     for (int i = 1; i <= hist_depth_; i++) {
       findMean(h_drift_depth_adc_slice_, i, new_index);
     }
 
     // fit the distributions and store the LA in the payload
-    const auto& res = fitAndStore(LorentzAngle, new_index, hists.BPixnewLayer_[j], hists.BPixnewModule_[j]);
+    const auto& res = fitAndStore(LorentzAngle, new_index, hists_.BPixnewLayer_[j], hists_.BPixnewModule_[j]);
 
-    edm::LogPrint("SiPixelLorentzAngle") << std::setprecision(4) << hists.BPixnewModule_[j] << "\t"
-                                         << hists.BPixnewLayer_[j] << "\t" << res.p0 << "\t" << res.e0 << "\t" << res.p1
-                                         << std::setprecision(3) << "\t" << res.e1 << "\t" << res.e1 / res.p1 * 100.
-                                         << "\t" << (res.p1 - p1_simul[hists.nlay][0]) / res.e1 << "\t" << res.p2
-                                         << "\t" << res.e2 << "\t" << res.p3 << "\t" << res.e3 << "\t" << res.p4 << "\t"
+    edm::LogPrint("SiPixelLorentzAngle") << std::setprecision(4) << hists_.BPixnewModule_[j] << "\t"
+                                         << hists_.BPixnewLayer_[j] << "\t" << res.p0 << "\t" << res.e0 << "\t"
+                                         << res.p1 << std::setprecision(3) << "\t" << res.e1 << "\t"
+                                         << res.e1 / res.p1 * 100. << "\t"
+                                         << (res.p1 - p1_simul[hists_.nlay][0]) / res.e1 << "\t" << res.p2 << "\t"
+                                         << res.e2 << "\t" << res.p3 << "\t" << res.e3 << "\t" << res.p4 << "\t"
                                          << res.e4 << "\t" << res.p5 << "\t" << res.e5 << "\t" << res.chi2 << "\t"
-                                         << res.prob << "\t" << hists.BPixnewDetIds_[j] << "\t" << res.tan_LA << "\t"
+                                         << res.prob << "\t" << hists_.BPixnewDetIds_[j] << "\t" << res.tan_LA << "\t"
                                          << res.error_LA;
   }  // loop on BPix new modules
 
   //loop over modules and layers to fit the lorentz angle
-  for (int i_layer = 1; i_layer <= hists.nlay; i_layer++) {
-    for (int i_module = 1; i_module <= hists.nModules_[i_layer - 1]; i_module++) {
-      int i_index = i_module + (i_layer - 1) * hists.nModules_[i_layer - 1];
-      if (hists.h_drift_depth_adc_[i_index] == nullptr)
+  for (int i_layer = 1; i_layer <= hists_.nlay; i_layer++) {
+    for (int i_module = 1; i_module <= hists_.nModules_[i_layer - 1]; i_module++) {
+      int i_index = i_module + (i_layer - 1) * hists_.nModules_[i_layer - 1];
+      if (hists_.h_drift_depth_adc_[i_index] == nullptr)
         continue;
       //loop over bins in depth (z-local-coordinate) (in order to fit slices)
       for (int i = 1; i <= hist_depth_; i++) {
@@ -468,7 +475,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   }  // end loop over modules and layers
 
   // fill the rest of DetIds not filled above (for the moment FPix)
-  const auto& currentLAMap = currentLorentzAngle->getLorentzAngles();
+  const auto& currentLAMap = currentLorentzAngle_->getLorentzAngles();
   const auto& newLAMap = LorentzAngle->getLorentzAngles();
   std::vector<unsigned int> currentLADets;
   std::vector<unsigned int> newLADets;
@@ -488,7 +495,7 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
       currentLADets.begin(), currentLADets.end(), newLADets.begin(), newLADets.end(), std::back_inserter(notCommon));
 
   for (const auto& id : notCommon) {
-    float fPixLorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(id);
+    float fPixLorentzAnglePerTesla_ = currentLorentzAngle_->getLorentzAngle(id);
     if (!LorentzAngle->putLorentzAngle(id, fPixLorentzAnglePerTesla_)) {
       edm::LogError("SiPixelLorentzAnglePCLHarvester")
           << "[SiPixelLorentzAnglePCLHarvester::dqmEndJob] filling rest of payload: detid already exists";
@@ -496,8 +503,8 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   }
 
   for (const auto& id : newLADets) {
-    float deltaMuHoverMuH = (currentLorentzAngle->getLorentzAngle(id) - LorentzAngle->getLorentzAngle(id)) /
-                            currentLorentzAngle->getLorentzAngle(id);
+    float deltaMuHoverMuH = (currentLorentzAngle_->getLorentzAngle(id) - LorentzAngle->getLorentzAngle(id)) /
+                            currentLorentzAngle_->getLorentzAngle(id);
     h_diffLA->Fill(deltaMuHoverMuH * 100.f);
   }
 
@@ -506,14 +513,14 @@ void SiPixelLorentzAnglePCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQMS
   for (const auto& [id, value] : LorentzAngle->getLorentzAngles()) {
     DetId ID = DetId(id);
     if (ID.subdetId() == PixelSubdetector::PixelBarrel) {
-      const auto& layer = theTrackerTopology->pxbLayer(id);
-      const auto& ladder = theTrackerTopology->pxbLadder(id);
-      const auto& module = theTrackerTopology->pxbModule(id);
-      hists.h2_byLayerLA_[layer - 1]->setBinContent(module, ladder, value);
+      const auto& layer = theTrackerTopology_->pxbLayer(id);
+      const auto& ladder = theTrackerTopology_->pxbLadder(id);
+      const auto& module = theTrackerTopology_->pxbModule(id);
+      hists_.h2_byLayerLA_[layer - 1]->setBinContent(module, ladder, value);
 
       float deltaMuHoverMuH =
-          (currentLorentzAngle->getLorentzAngle(id) - value) / currentLorentzAngle->getLorentzAngle(id);
-      hists.h2_byLayerDiff_[layer - 1]->setBinContent(module, ladder, deltaMuHoverMuH * 100.f);
+          (currentLorentzAngle_->getLorentzAngle(id) - value) / currentLorentzAngle_->getLorentzAngle(id);
+      hists_.h2_byLayerDiff_[layer - 1]->setBinContent(module, ladder, deltaMuHoverMuH * 100.f);
 
       if (!isPayloadChanged && (deltaMuHoverMuH != 0.f))
         isPayloadChanged = true;
@@ -548,23 +555,23 @@ void SiPixelLorentzAnglePCLHarvester::findMean(MonitorElement* h_drift_depth_adc
   // determine sigma and sigma^2 of the adc counts and average adc counts
   //loop over bins in drift width
   for (int j = 1; j <= hist_drift_; j++) {
-    if (hists.h_drift_depth_noadc_[i_ring]->getBinContent(j, i) >= 1) {
-      double adc_error2 = (hists.h_drift_depth_adc2_[i_ring]->getBinContent(j, i) -
-                           hists.h_drift_depth_adc_[i_ring]->getBinContent(j, i) *
-                               hists.h_drift_depth_adc_[i_ring]->getBinContent(j, i) /
-                               hists.h_drift_depth_noadc_[i_ring]->getBinContent(j, i)) /
-                          hists.h_drift_depth_noadc_[i_ring]->getBinContent(j, i);
+    if (hists_.h_drift_depth_noadc_[i_ring]->getBinContent(j, i) >= 1) {
+      double adc_error2 = (hists_.h_drift_depth_adc2_[i_ring]->getBinContent(j, i) -
+                           hists_.h_drift_depth_adc_[i_ring]->getBinContent(j, i) *
+                               hists_.h_drift_depth_adc_[i_ring]->getBinContent(j, i) /
+                               hists_.h_drift_depth_noadc_[i_ring]->getBinContent(j, i)) /
+                          hists_.h_drift_depth_noadc_[i_ring]->getBinContent(j, i);
 
-      hists.h_drift_depth_adc_[i_ring]->setBinError(j, i, sqrt(adc_error2));
-      double error2 = adc_error2 / (hists.h_drift_depth_noadc_[i_ring]->getBinContent(j, i) - 1.);
-      hists.h_drift_depth_[i_ring]->setBinError(j, i, sqrt(error2));
+      hists_.h_drift_depth_adc_[i_ring]->setBinError(j, i, sqrt(adc_error2));
+      double error2 = adc_error2 / (hists_.h_drift_depth_noadc_[i_ring]->getBinContent(j, i) - 1.);
+      hists_.h_drift_depth_[i_ring]->setBinError(j, i, sqrt(error2));
     } else {
-      hists.h_drift_depth_[i_ring]->setBinError(j, i, 0);
-      hists.h_drift_depth_adc_[i_ring]->setBinError(j, i, 0);
+      hists_.h_drift_depth_[i_ring]->setBinError(j, i, 0);
+      hists_.h_drift_depth_adc_[i_ring]->setBinError(j, i, 0);
     }
-    h_drift_depth_adc_slice_->setBinContent(j, hists.h_drift_depth_adc_[i_ring]->getBinContent(j, i));
-    h_drift_depth_adc_slice_->setBinError(j, hists.h_drift_depth_adc_[i_ring]->getBinError(j, i));
-    nentries += hists.h_drift_depth_noadc_[i_ring]->getBinContent(j, i);
+    h_drift_depth_adc_slice_->setBinContent(j, hists_.h_drift_depth_adc_[i_ring]->getBinContent(j, i));
+    h_drift_depth_adc_slice_->setBinError(j, hists_.h_drift_depth_adc_[i_ring]->getBinError(j, i));
+    nentries += hists_.h_drift_depth_noadc_[i_ring]->getBinContent(j, i);
   }  // end loop over bins in drift width
 
   double mean = h_drift_depth_adc_slice_->getMean(1);
@@ -572,8 +579,8 @@ void SiPixelLorentzAnglePCLHarvester::findMean(MonitorElement* h_drift_depth_adc
   if (nentries != 0) {
     error = h_drift_depth_adc_slice_->getRMS(1) / std::sqrt(nentries);
   }
-  hists.h_mean_[i_ring]->setBinContent(i, mean);
-  hists.h_mean_[i_ring]->setBinError(i, error);
+  hists_.h_mean_[i_ring]->setBinContent(i, mean);
+  hists_.h_mean_[i_ring]->setBinError(i, error);
 
   h_drift_depth_adc_slice_->Reset();  // clear again after extracting the parameters
 }
@@ -586,45 +593,45 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
 
   double half_width = width_ * 10000 / 2;  // pixel half thickness in units of micro meter
 
-  f1 = std::make_unique<TF1>("f1", "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x", 5., 280.);
-  f1->SetParName(0, "offset");
-  f1->SetParName(1, "tan#theta_{LA}");
-  f1->SetParName(2, "quad term");
-  f1->SetParName(3, "cubic term");
-  f1->SetParName(4, "quartic term");
-  f1->SetParName(5, "quintic term");
+  f1_ = std::make_unique<TF1>("f1", "[0] + [1]*x + [2]*x*x + [3]*x*x*x + [4]*x*x*x*x + [5]*x*x*x*x*x", 5., 280.);
+  f1_->SetParName(0, "offset");
+  f1_->SetParName(1, "tan#theta_{LA}");
+  f1_->SetParName(2, "quad term");
+  f1_->SetParName(3, "cubic term");
+  f1_->SetParName(4, "quartic term");
+  f1_->SetParName(5, "quintic term");
 
-  f1->SetParameter(0, 0);
-  f1->SetParError(0, 0);
-  f1->SetParameter(1, 0.4);
-  f1->SetParError(1, 0);
-  f1->SetParameter(2, 0.0);
-  f1->SetParError(2, 0);
-  f1->SetParameter(3, 0.0);
-  f1->SetParError(3, 0);
-  f1->SetParameter(4, 0.0);
-  f1->SetParError(4, 0);
-  f1->SetParameter(5, 0.0);
-  f1->SetParError(5, 0);
-  f1->SetChisquare(0);
+  f1_->SetParameter(0, 0);
+  f1_->SetParError(0, 0);
+  f1_->SetParameter(1, 0.4);
+  f1_->SetParError(1, 0);
+  f1_->SetParameter(2, 0.0);
+  f1_->SetParError(2, 0);
+  f1_->SetParameter(3, 0.0);
+  f1_->SetParError(3, 0);
+  f1_->SetParameter(4, 0.0);
+  f1_->SetParError(4, 0);
+  f1_->SetParameter(5, 0.0);
+  f1_->SetParError(5, 0);
+  f1_->SetChisquare(0);
 
-  hists.h_mean_[i_index]->getTH1()->Fit(f1.get(), "ERQ");
+  hists_.h_mean_[i_index]->getTH1()->Fit(f1_.get(), "ERQ");
 
-  res.p0 = f1->GetParameter(0);
-  res.e0 = f1->GetParError(0);
-  res.p1 = f1->GetParameter(1);
-  res.e1 = f1->GetParError(1);
-  res.p2 = f1->GetParameter(2);
-  res.e2 = f1->GetParError(2);
-  res.p3 = f1->GetParameter(3);
-  res.e3 = f1->GetParError(3);
-  res.p4 = f1->GetParameter(4);
-  res.e4 = f1->GetParError(4);
-  res.p5 = f1->GetParameter(5);
-  res.e5 = f1->GetParError(5);
-  res.chi2 = f1->GetChisquare();
-  res.ndf = f1->GetNDF();
-  res.prob = f1->GetProb();
+  res.p0 = f1_->GetParameter(0);
+  res.e0 = f1_->GetParError(0);
+  res.p1 = f1_->GetParameter(1);
+  res.e1 = f1_->GetParError(1);
+  res.p2 = f1_->GetParameter(2);
+  res.e2 = f1_->GetParError(2);
+  res.p3 = f1_->GetParameter(3);
+  res.e3 = f1_->GetParError(3);
+  res.p4 = f1_->GetParameter(4);
+  res.e4 = f1_->GetParError(4);
+  res.p5 = f1_->GetParameter(5);
+  res.e5 = f1_->GetParError(5);
+  res.chi2 = f1_->GetChisquare();
+  res.ndf = f1_->GetNDF();
+  res.prob = f1_->GetProb();
   res.redChi2 = res.ndf > 0. ? res.chi2 / res.ndf : 0.;
 
   double f1_halfwidth = res.p0 + res.p1 * half_width + res.p2 * pow(half_width, 2) + res.p3 * pow(half_width, 3) +
@@ -640,21 +647,21 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
        pow((half_width * half_width * half_width * half_width * res.e5), 2));  // Propagation of uncertainty
   res.error_LA = sqrt(errsq_LA);
 
-  hists.h_bySectMeasLA_->setBinContent(i_index, (res.tan_LA / theMagField_));
-  hists.h_bySectMeasLA_->setBinError(i_index, (res.error_LA / theMagField_));
-  hists.h_bySectChi2_->setBinContent(i_index, res.redChi2);
-  hists.h_bySectChi2_->setBinError(i_index, 0.);  // no errors
+  hists_.h_bySectMeasLA_->setBinContent(i_index, (res.tan_LA / theMagField_));
+  hists_.h_bySectMeasLA_->setBinError(i_index, (res.error_LA / theMagField_));
+  hists_.h_bySectChi2_->setBinContent(i_index, res.redChi2);
+  hists_.h_bySectChi2_->setBinError(i_index, 0.);  // no errors
 
-  int nentries = hists.h_bySectOccupancy_->getBinContent(i_index);  // number of on track hits in that sector
+  int nentries = hists_.h_bySectOccupancy_->getBinContent(i_index);  // number of on track hits in that sector
 
-  bool isNew = (i_index > hists.nlay * hists.nModules_[hists.nlay - 1]);
-  int shiftIdx = i_index - hists.nlay * hists.nModules_[hists.nlay - 1] - 1;
+  bool isNew = (i_index > hists_.nlay * hists_.nModules_[hists_.nlay - 1]);
+  int shiftIdx = i_index - hists_.nlay * hists_.nModules_[hists_.nlay - 1] - 1;
 
   LogDebug("SiPixelLorentzAnglePCLHarvester")
       << " isNew: " << isNew << " i_index: " << i_index << " shift index: " << shiftIdx;
 
   const auto& detIdsToFill =
-      isNew ? std::vector<unsigned int>({hists.BPixnewDetIds_[shiftIdx]}) : hists.detIdsList[i_index];
+      isNew ? std::vector<unsigned int>({hists_.BPixnewDetIds_[shiftIdx]}) : hists_.detIdsList[i_index];
 
   LogDebug("SiPixelLorentzAnglePCLHarvester")
       << "index: " << i_index << " i_module: " << i_module << " i_layer: " << i_layer;
@@ -663,23 +670,23 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
   }
 
   // no errors on the following MEs
-  hists.h_bySectSetLA_->setBinError(i_index, 0.);
-  hists.h_bySectRejectLA_->setBinError(i_index, 0.);
-  hists.h_bySectLA_->setBinError(i_index, 0.);
-  hists.h_bySectDeltaLA_->setBinError(i_index, 0.);
+  hists_.h_bySectSetLA_->setBinError(i_index, 0.);
+  hists_.h_bySectRejectLA_->setBinError(i_index, 0.);
+  hists_.h_bySectLA_->setBinError(i_index, 0.);
+  hists_.h_bySectDeltaLA_->setBinError(i_index, 0.);
 
   float LorentzAnglePerTesla_;
-  float currentLA = currentLorentzAngle->getLorentzAngle(detIdsToFill.front());
+  float currentLA = currentLorentzAngle_->getLorentzAngle(detIdsToFill.front());
   // if the fit quality is OK
   if ((res.redChi2 != 0.) && (res.redChi2 < fitChi2Cut_) && (nentries > minHitsCut_)) {
     LorentzAnglePerTesla_ = res.tan_LA / theMagField_;
     // fill the LA actually written to payload
-    hists.h_bySectSetLA_->setBinContent(i_index, LorentzAnglePerTesla_);
-    hists.h_bySectRejectLA_->setBinContent(i_index, 0.);
-    hists.h_bySectLA_->setBinContent(i_index, LorentzAnglePerTesla_);
+    hists_.h_bySectSetLA_->setBinContent(i_index, LorentzAnglePerTesla_);
+    hists_.h_bySectRejectLA_->setBinContent(i_index, 0.);
+    hists_.h_bySectLA_->setBinContent(i_index, LorentzAnglePerTesla_);
 
     const auto& deltaLA = (LorentzAnglePerTesla_ - currentLA);
-    hists.h_bySectDeltaLA_->setBinContent(i_index, deltaLA);
+    hists_.h_bySectDeltaLA_->setBinContent(i_index, deltaLA);
 
     for (const auto& id : detIdsToFill) {
       if (!theLAPayload->putLorentzAngle(id, LorentzAnglePerTesla_)) {
@@ -689,13 +696,13 @@ SiPixelLAHarvest::fitResults SiPixelLorentzAnglePCLHarvester::fitAndStore(
     }
   } else {
     // just copy the values from the existing payload
-    hists.h_bySectSetLA_->setBinContent(i_index, 0.);
-    hists.h_bySectRejectLA_->setBinContent(i_index, (res.tan_LA / theMagField_));
-    hists.h_bySectLA_->setBinContent(i_index, currentLA);
-    hists.h_bySectDeltaLA_->setBinContent(i_index, 0.);
+    hists_.h_bySectSetLA_->setBinContent(i_index, 0.);
+    hists_.h_bySectRejectLA_->setBinContent(i_index, (res.tan_LA / theMagField_));
+    hists_.h_bySectLA_->setBinContent(i_index, currentLA);
+    hists_.h_bySectDeltaLA_->setBinContent(i_index, 0.);
 
     for (const auto& id : detIdsToFill) {
-      LorentzAnglePerTesla_ = currentLorentzAngle->getLorentzAngle(id);
+      LorentzAnglePerTesla_ = currentLorentzAngle_->getLorentzAngle(id);
       if (!theLAPayload->putLorentzAngle(id, LorentzAnglePerTesla_)) {
         edm::LogError("SiPixelLorentzAnglePCLHarvester") << "[SiPixelLorentzAnglePCLHarvester::fitAndStore]: detid ("
                                                          << i_layer << "," << i_module << ") already exists";
