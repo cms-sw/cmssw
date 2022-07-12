@@ -83,8 +83,8 @@
 
 struct EopTriggerType {
   bool fired;
-  Int_t prescale;
-  Int_t index;
+  int prescale;
+  int index;
 
   EopTriggerType() {
     fired = false;
@@ -134,7 +134,6 @@ private:
   static constexpr float k_etaEndcap = 1.44;
 
   // other member data
-  edm::InputTag src_;
   std::string theTrigger_;
   std::string theFilter_;
   bool debugTriggerSelection_;
@@ -233,17 +232,13 @@ EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig)
           edm::InputTag("multi5x5SuperClusters", "multi5x5EndcapSuperClusters"))),
       theTriggerResultsToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults", "", "HLT"))),
       theTriggerEventToken_(consumes<trigger::TriggerEvent>(edm::InputTag("hltTriggerSummaryAOD"))),
-      theGsfTrackCollectionToken_(consumes<reco::GsfTrackCollection>(src_)),
+      theGsfTrackCollectionToken_(consumes<reco::GsfTrackCollection>(iConfig.getParameter<edm::InputTag>("src"))),
       theGsfElectronCoreCollectionToken_(
           consumes<reco::GsfElectronCoreCollection>(edm::InputTag("gedGsfElectronCores"))),
-      src_(iConfig.getParameter<edm::InputTag>("src")),
       theTrigger_(iConfig.getParameter<std::string>("triggerPath")),
       theFilter_(iConfig.getParameter<std::string>("hltFilter")),
       debugTriggerSelection_(iConfig.getParameter<bool>("debugTriggerSelection")) {
-
   usesResource(TFileService::kSharedResource);
-
-  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
 
   // TTree creation
   tree_ = fs_->make<TTree>("EopTree", "EopTree");
@@ -280,15 +275,10 @@ EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig)
 
   h_counter1 = fs_->make<TH1D>("counter1", "counter1", 1, 0, 1);
   h_counter2 = fs_->make<TH1D>("counter2", "counter2", 1, 0, 1);
-
-  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
 }
 
 EopElecTreeWriter::~EopElecTreeWriter() {
-  cout << "Destructor..." << endl;
-
   // control histograms
-
   h_distToClosestSC->SetXTitle("distance from track to closest SuperCluster in eta-phi plan (weighted matching)");
   h_distToClosestSC->SetYTitle("# Tracks");
 
@@ -312,7 +302,6 @@ EopElecTreeWriter::~EopElecTreeWriter() {
 
   HcalVSEcal->SetXTitle("Ecal energy (GeV)");
   HcalVSEcal->SetYTitle("Hcal energy (GeV)");
-  cout << "Total number of events : " << h_nEvents->GetEntries() << endl;
 }
 
 //###########################################
@@ -320,10 +309,6 @@ EopElecTreeWriter::~EopElecTreeWriter() {
 //###########################################
 
 void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::LogInfo info("EopElecTreeWriter");
-  edm::LogWarning warn("EopElecTreeWriter");
-  edm::LogError error("EopElecTreeWriter");
-
   using namespace edm;
   h_nEvents->Fill(0.5);
 
@@ -383,7 +368,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   const reco::VertexCollection& vertex = iEvent.get(theVertexCollectionToken_);
 
   if (vertex.empty()) {
-    error << "Error: no primary vertex found!";
+    edm::LogError("EopElecTreeWriter") << "Error: no primary vertex found!";
     return;
   }
   reco::Vertex vert = vertex.front();
@@ -393,7 +378,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   const CaloGeometry* geo = &iSetup.getData(caloGeomToken_);
   const CaloSubdetectorGeometry* subGeo = geo->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   if (subGeo == nullptr)
-    error << "ERROR: unable to find SubDetector geometry!!!";
+    edm::LogError("EopElecTreeWriter") << "ERROR: unable to find SubDetector geometry!!!";
 
   // getting Hcal rechits
   const HBHERecHitCollection* HcalHits = &iEvent.get(theHBHERecHitCollectionToken_);
@@ -401,7 +386,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // getting Ecal rechits
   const EcalRecHitCollection* rhc = &iEvent.get(theEcalRecHitCollectionToken_);
   if (rhc == nullptr)
-    error << "ERROR: unable to find the EcalRecHit collection !!!";
+    edm::LogError("EopElecTreeWriter") << "ERROR: unable to find the EcalRecHit collection !!!";
 
   // getting SuperCluster
   const reco::SuperClusterCollection* BarrelSupClusCollection = &iEvent.get(theBarrelSupClusCollectionToken_);
@@ -409,8 +394,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // necessary to re-calculate phi and eta width of SuperClusters
   SuperClusterShapeAlgo SCShape(rhc, subGeo);
-
-  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
 
   //---------------    Trigger   -----------------
   TrigTag = false;
@@ -442,8 +425,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     HLTpaths[triggerNames_[i]] = myTrigger;
   }
 
-  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-
   // First cut : trigger cut
   std::string firstFiredPath = "";
   for (const auto& it : HLTpaths) {
@@ -462,13 +443,11 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   std::vector<std::string> filters = hltConfig_.moduleLabels(firstFiredPath);
 
   if (debugTriggerSelection_) {
-    info << "filters : ";
+    edm::LogInfo("EopElecTreeWriter") << "filters : ";
     for (unsigned int i = 0; i < filters.size(); i++) {
-      info << filters[i] << " ";
+      edm::LogInfo("EopElecTreeWriter") << filters[i] << " ";
     }
   }
-
-  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
 
   // Getting HLT electrons
   edm::InputTag testTag(theFilter_, "", "HLT");
@@ -506,8 +485,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // getting GsfTrack
   const reco::GsfTrackCollection* tracks = &iEvent.get(theGsfTrackCollectionToken_);
-
-  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
 
   // filtering track
   int nRejected = 0;
@@ -557,8 +534,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
 
   //------------------------------------------------------------
-  std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
-  //--------------    Loop on tracks   -----------------
+  //--------------    Loop on tracks   -------------------------
 
   for (const auto& track : filterTracks) {
     // initializing variables
@@ -734,7 +710,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     //Barrel
     if (std::abs(track->eta()) < k_etaBarrel) {
       for (const auto& SC : *BarrelSupClusCollection) {
-        dRSC = 0;
         dRSC = reco::deltaR(SC.eta(), SC.phi(), etaAtEcal, phiIn);
 
         if (dRSC < dRSC_first) {
@@ -765,7 +740,6 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     // Endcap
     if (std::abs(track->eta()) > k_etaEndcap) {
       for (const auto& SC : *EndcapSupClusCollection) {
-        dRSC = 0;
         dRSC = reco::deltaR(SC.eta(), SC.phi(), etaAtEcal, phiIn);
 
         if (dRSC < dRSC_first) {
@@ -805,7 +779,7 @@ void EopElecTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
     h_cut_OneSCmatch->Fill(0.5);
 
     if (isBarrel && isEndcap) {
-      error << "Error: Super Cluster double matching!";
+      edm::LogError("EopElecTreeWriter") << "Error: Super Cluster double matching!";
       return;
     }
 
