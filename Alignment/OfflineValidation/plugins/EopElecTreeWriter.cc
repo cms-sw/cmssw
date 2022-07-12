@@ -98,7 +98,7 @@ struct EopTriggerType {
 //
 using namespace std;
 
-class EopElecTreeWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+class EopElecTreeWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit EopElecTreeWriter(const edm::ParameterSet&);
   ~EopElecTreeWriter() override;
@@ -240,6 +240,9 @@ EopElecTreeWriter::EopElecTreeWriter(const edm::ParameterSet& iConfig)
       theTrigger_(iConfig.getParameter<std::string>("triggerPath")),
       theFilter_(iConfig.getParameter<std::string>("hltFilter")),
       debugTriggerSelection_(iConfig.getParameter<bool>("debugTriggerSelection")) {
+
+  usesResource(TFileService::kSharedResource);
+
   std::cout << __FILE__ << " " << __PRETTY_FUNCTION__ << " " << __LINE__ << std::endl;
 
   // TTree creation
