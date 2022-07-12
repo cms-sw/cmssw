@@ -41,6 +41,7 @@ namespace l1t {
       prod.produces<EMTFHitCollection>();
       prod.produces<EMTFTrackCollection>();
       prod.produces<CSCCorrelatedLCTDigiCollection>();
+      prod.produces<CSCShowerDigiCollection>();
       prod.produces<CPPFDigiCollection>();
       prod.produces<GEMPadDigiClusterCollection>();
     }
