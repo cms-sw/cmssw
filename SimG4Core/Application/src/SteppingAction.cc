@@ -220,9 +220,9 @@ bool SteppingAction::initPointer() {
   const G4PhysicalVolumeStore* pvs = G4PhysicalVolumeStore::GetInstance();
   for (auto const& pvcite : *pvs) {
     const G4String& pvname = pvcite->GetName();
-    if (pvname == "Tracker")
+    if (pvname == "Tracker" || pvname == "tracker:Tracker_1")
       tracker = pvcite;
-    else if (pvname == "CALO")
+    else if (pvname == "CALO" || pvname == "caloBase:CALO_1")
       calo = pvcite;
 
     if (tracker && calo)
