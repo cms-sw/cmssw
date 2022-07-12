@@ -40,6 +40,7 @@ namespace ecaldqm {
     MESet& meRMSMap(MEs_.at("RMSMap"));
     MESet& meRMSMapAll(MEs_.at("RMSMapAll"));
     MESet& meRMSMapAllByLumi(MEs_.at("RMSMapAllByLumi"));
+    MESet& meMeanMapAll(MEs_.at("MeanMapAll"));
 
     MESet const& sPedestal(sources_.at("Pedestal"));
     MESet const& sPedestalByLS(sources_.at("PedestalByLS"));
@@ -129,6 +130,7 @@ namespace ecaldqm {
     }  // qItr
 
     towerAverage_(meRMSMapAll, meRMSMap, -1.);
+    towerAverage_(meMeanMapAll, sPedestal, -1.);
 
     MESet& meTrendMean(MEs_.at("TrendMean"));
     MESet& meTrendRMS(MEs_.at("TrendRMS"));
