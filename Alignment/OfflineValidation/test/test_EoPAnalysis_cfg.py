@@ -1,4 +1,4 @@
-REFIT = False
+REFIT = True
 MISALIGN = False
 
 if not REFIT and not MISALIGN:
@@ -21,7 +21,7 @@ options.register ('outputRootFile',
                   "output root file")
 
 options.register ('GlobalTag',
-                  'auto:phase1_2021_realistic',
+                  'auto:phase1_2022_realistic',
                   VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Global Tag to be used")
@@ -33,12 +33,16 @@ print( "outputFile        : ", options.outputRootFile)
 print( "maxEvents         : ", options.maxEvents)
 
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("EnergyOverMomentumTree")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("EnergyOverMomentumTree",Run3)
     
+#process.Tracer = cms.Service("Tracer")
+
 # initialize MessageLogger and output report
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.MessageLogger.TrackRefitter=dict()
+process.MessageLogger.EopElecTreeWriter=dict()
     
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
     
