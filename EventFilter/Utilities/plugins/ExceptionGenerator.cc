@@ -237,6 +237,10 @@ namespace evf {
             dummy += sqrt(log(float(j + 1))) / float(j * j);
           }
         } break;
+        case 16: {
+          throw cms::Exception("FastMonitoringService") << "Random exception!";
+        } break;
+
         default:
           break;
       }

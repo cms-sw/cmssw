@@ -385,6 +385,7 @@ namespace evf {
         << " LS:" << sc.eventID().luminosityBlock() << " " << context;
     std::lock_guard<std::mutex> lock(fmt_->monlock_);
     exceptionInLS_.push_back(sc.eventID().luminosityBlock());
+    has_data_exception_.store(true);
   }
 
   void FastMonitoringService::preGlobalEarlyTermination(edm::GlobalContext const& gc, edm::TerminationOrigin to) {
@@ -400,6 +401,7 @@ namespace evf {
         << "earlyTermination -: LS:" << gc.luminosityBlockID().luminosityBlock() << " " << context;
     std::lock_guard<std::mutex> lock(fmt_->monlock_);
     exceptionInLS_.push_back(gc.luminosityBlockID().luminosityBlock());
+    has_data_exception_.store(true);
   }
 
   void FastMonitoringService::preSourceEarlyTermination(edm::TerminationOrigin to) {
@@ -414,13 +416,33 @@ namespace evf {
                                              << "earlyTermination -: " << context;
     std::lock_guard<std::mutex> lock(fmt_->monlock_);
     exception_detected_ = true;
+    has_source_exception_.store(true);
+    has_data_exception_.store(true);
   }
 
   void FastMonitoringService::setExceptionDetected(unsigned int ls) {
+    std::lock_guard<std::mutex> lock(fmt_->monlock_);
     if (!ls)
       exception_detected_ = true;
     else
       exceptionInLS_.push_back(ls);
+  }
+
+  bool FastMonitoringService::exceptionDetected() const {
+    return has_source_exception_.load() || has_data_exception_.load();
+  }
+
+  bool FastMonitoringService::isExceptionOnData(unsigned int ls) {
+    if (!has_data_exception_.load())
+      return false;
+    if (has_source_exception_.load())
+      return true;
+    std::lock_guard<std::mutex> lock(fmt_->monlock_);
+    for (auto ex : exceptionInLS_) {
+      if (ls == ex)
+        return true;
+    }
+    return false;
   }
 
   void FastMonitoringService::jobFailure() { fmt_->m_data.macrostate_ = FastMonState::sError; }
