@@ -342,8 +342,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
 
       try {
         Gauss3D->Minimize();
-      } catch (...) {
-        edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+      } catch (cms::Exception& er) {
+        edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
       }
       goodData = Gauss3D->Status();
       edm = Gauss3D->Edm();
@@ -418,8 +418,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
 
       try {
         Gauss3D->Minimize();
-      } catch (...) {
-        edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+      } catch (cms::Exception& er) {
+        edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
       }
       goodData = Gauss3D->Status();
       edm = Gauss3D->Edm();
@@ -495,8 +495,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
 
       try {
         Gauss3D->Minimize();
-      } catch (...) {
-        edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+      } catch (cms::Exception& er) {
+        edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
       }
       goodData = Gauss3D->Status();
       edm = Gauss3D->Edm();
@@ -563,8 +563,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
 
     try {
       Gauss3D->Minimize();
-    } catch (...) {
-      edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+    } catch (cms::Exception& er) {
+      edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
     }
     goodData = Gauss3D->Status();
     edm = Gauss3D->Edm();
@@ -635,8 +635,8 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
 
         try {
           Gauss3D->Minimize();
-        } catch (...) {
-          edm::LogError("Vx3DHLTAnalyzer") << "\tInitial matrix not pos. def.";
+        } catch (cms::Exception& er) {
+          edm::LogError("Vx3DHLTAnalyzer") << "\tCaught Minuit2 exception: " << er.what();
         }
         goodData = Gauss3D->Status();
         edm = Gauss3D->Edm();
