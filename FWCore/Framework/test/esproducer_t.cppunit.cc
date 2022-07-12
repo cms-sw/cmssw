@@ -29,6 +29,7 @@
 #include "FWCore/Utilities/interface/do_nothing_deleter.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Concurrency/interface/ThreadsController.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include <memory>
 #include <optional>
@@ -56,16 +57,11 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          edm::FinalWaitingTask waitTask;
           oneapi::tbb::task_group group;
+          edm::FinalWaitingTask waitTask{group};
           rec->prefetchAsync(
               edm::WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
-          do {
-            group.wait();
-          } while (not waitTask.done());
-          if (waitTask.exceptionPtr()) {
-            std::rethrow_exception(waitTask.exceptionPtr());
-          }
+          waitTask.wait();
         }
       }
     }
