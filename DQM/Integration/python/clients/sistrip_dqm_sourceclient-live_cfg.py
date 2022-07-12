@@ -88,7 +88,7 @@ elif(offlineTesting):
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
     from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
     #you may need to set manually the GT in the line below
-    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+    process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 #--------------------------------------------
 ## Patch to avoid using Run Info information in reconstruction

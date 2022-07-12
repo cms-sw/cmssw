@@ -47,7 +47,7 @@ process.dqmSaverPB.runNumber = options.runNumber
 # Use this to run locally (for testing purposes), choose the right GT
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run2_data", "")
+#process.GlobalTag = GlobalTag(process.GlobalTag, "auto:run3_data", "")
 # Otherwise use this
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
