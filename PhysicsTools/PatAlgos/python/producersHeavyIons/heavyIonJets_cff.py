@@ -80,7 +80,6 @@ run2_miniAOD_pp_on_AA_103X.toReplaceWith(recoPFJetsHIpostAODTask, _recoPFJetsHIp
 
 
 recoGenJetsHIpostAODTask = cms.Task(
-#    recoPFJetsHIpostAODTask,
     allPartons,
     hiGenJetsTask,
     )
