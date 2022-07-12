@@ -32,6 +32,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ESParentContext.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include <memory>
 #include "oneapi/tbb/task_arena.h"
@@ -188,16 +189,11 @@ namespace {
     void prefetch(eventsetup::EventSetupRecordImpl const& iRec) const {
       auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
       for (size_t i = 0; i != proxies.size(); ++i) {
-        edm::FinalWaitingTask waitTask;
         oneapi::tbb::task_group group;
+        edm::FinalWaitingTask waitTask{group};
         edm::ServiceToken token;
         iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, token, edm::ESParentContext{});
-        do {
-          group.wait();
-        } while (not waitTask.done());
-        if (waitTask.exceptionPtr()) {
-          std::rethrow_exception(waitTask.exceptionPtr());
-        }
+        waitTask.wait();
       }
     }
 
@@ -211,16 +207,11 @@ namespace {
     void prefetch(eventsetup::EventSetupRecordImpl const& iRec) const {
       auto const& proxies = this->esGetTokenIndicesVector(edm::Transition::Event);
       for (size_t i = 0; i != proxies.size(); ++i) {
-        edm::FinalWaitingTask waitTask;
         oneapi::tbb::task_group group;
+        edm::FinalWaitingTask waitTask{group};
         edm::ServiceToken token;
         iRec.prefetchAsync(WaitingTaskHolder(group, &waitTask), proxies[i], nullptr, token, edm::ESParentContext{});
-        do {
-          group.wait();
-        } while (not waitTask.done());
-        if (waitTask.exceptionPtr()) {
-          std::rethrow_exception(waitTask.exceptionPtr());
-        }
+        waitTask.wait();
       }
     }
 
