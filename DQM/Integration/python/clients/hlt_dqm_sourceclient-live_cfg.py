@@ -51,7 +51,7 @@ process.load("CalibTracker.SiStripCommon.TkDetMapESProducer_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 process.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),

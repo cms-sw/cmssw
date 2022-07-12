@@ -51,7 +51,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 ##
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 #-----------------------------
 # Castor DQM Source + SimpleReconstrctor
