@@ -195,7 +195,8 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     double yatz0 = yat0 + ty * z0;
 
     math::Vector<4>::type parameterVector{xatz0, yatz0, tx, ty};
-    math::Error<4>::type covarianceMatrix;
+    ROOT::Math::SVector<double, 10> v(0.01, 0.0, 0.01, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01);
+    math::Error<4>::type covarianceMatrix(v);
 
     CTPPSPixelLocalTrack track(z0, parameterVector, covarianceMatrix, 0);
 
