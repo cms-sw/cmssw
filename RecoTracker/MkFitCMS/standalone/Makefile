@@ -7,10 +7,11 @@ CMS_DIR := ${SRCDIR}/RecoTracker/MkFitCMS
 LIB_CMS := ../libMicCMS.so
 MAIN    := ../mkFit
 WRMEMF  := ../writeMemoryFile
+DICTPCM := ../DictsDict_rdict.pcm
 
 TGTS := ${LIB_CMS} ${MAIN}
 ifdef WITH_ROOT
-TGTS += ${WRMEMF}
+TGTS += ${WRMEMF} ${DICTPCM}
 endif
 
 .PHONY: all clean distclean
@@ -20,8 +21,9 @@ all: ${TGTS}
 SRCS := $(wildcard ${CMS_DIR}/src/*.cc) $(wildcard ${SACMS}/*.cc)
 ifdef WITH_ROOT
 SRCS += ${SACMS}/tkNtuple/WriteMemoryFile.cc
-DictsDict.cc: ${SACMS}/tkNtuple/DictsLinkDef.h
-	rootcint -v3 -f $@ -c -p $<
+DictsDict.cc ${DICTPCM}: ${SACMS}/tkNtuple/DictsLinkDef.h
+	rootcint -v3 -f $@ $<
+	mv DictsDict_rdict.pcm ${DICTPCM}
 endif
 SRCB := $(notdir ${SRCS})
 DEPS := $(SRCB:.cc=.d)
