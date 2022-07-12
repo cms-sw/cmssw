@@ -13,7 +13,7 @@ from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.MCTunes2017.PythiaCP5Settings_cfi import *
 from Configuration.Generator.PSweightsPythia.PythiaPSweightsSettings_cfi import *
  
-generator = cms.EDFilter("Pythia8ConcurrentHadronizerFilter",
+generator = cms.EDFilter("Pythia8ConcurrentGeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
