@@ -68,23 +68,6 @@ namespace edm {
     std::atomic<bool> m_ptrSet = false;
   };
 
-  /** Use this class on the stack to signal the final task to be run.
-   Call done() to check to see if the task was run and check value of
-   exceptionPtr() to see if an exception was thrown by any task in the group.
-   */
-  class FinalWaitingTask : public WaitingTask {
-  public:
-    FinalWaitingTask() : m_done{false} {}
-
-    void execute() final { m_done = true; }
-
-    bool done() const { return m_done.load(); }
-
-  private:
-    void recycle() final {}
-    std::atomic<bool> m_done;
-  };
-
   template <typename F>
   class FunctorWaitingTask : public WaitingTask {
   public:

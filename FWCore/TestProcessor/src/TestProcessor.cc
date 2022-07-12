@@ -47,6 +47,7 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
 #include "FWCore/Concurrency/interface/ThreadsController.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 
@@ -387,11 +388,9 @@ namespace edm {
         if (beginJobCalled_) {
           endJob();
         }
-        edm::FinalWaitingTask task;
+        edm::FinalWaitingTask task{taskGroup_};
         espController_->endIOVsAsync(edm::WaitingTaskHolder(taskGroup_, &task));
-        do {
-          taskGroup_.wait();
-        } while (not task.done());
+        task.waitNoThrow();
       });
     }
 
@@ -433,15 +432,10 @@ namespace edm {
       {
         ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
         using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalBegin>;
-        FinalWaitingTask globalWaitTask;
+        FinalWaitingTask globalWaitTask{taskGroup_};
         beginGlobalTransitionAsync<Traits>(
             WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
-        do {
-          taskGroup_.wait();
-        } while (not globalWaitTask.done());
-        if (globalWaitTask.exceptionPtr()) {
-          std::rethrow_exception(globalWaitTask.exceptionPtr());
-        }
+        globalWaitTask.wait();
       }
       beginProcessBlockCalled_ = true;
     }
@@ -464,19 +458,14 @@ namespace edm {
       std::vector<edm::SubProcess> emptyList;
       {
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>;
-        FinalWaitingTask globalWaitTask;
+        FinalWaitingTask globalWaitTask{taskGroup_};
         beginGlobalTransitionAsync<Traits>(
             WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
-        do {
-          taskGroup_.wait();
-        } while (not globalWaitTask.done());
-        if (globalWaitTask.exceptionPtr()) {
-          std::rethrow_exception(globalWaitTask.exceptionPtr());
-        }
+        globalWaitTask.wait();
       }
       {
         //To wait, the ref count has to be 1+#streams
-        FinalWaitingTask streamLoopWaitTask;
+        FinalWaitingTask streamLoopWaitTask{taskGroup_};
 
         using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>;
         beginStreamsTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &streamLoopWaitTask),
@@ -485,13 +474,7 @@ namespace edm {
                                             transitionInfo,
                                             serviceToken_,
                                             emptyList);
-
-        do {
-          taskGroup_.wait();
-        } while (not streamLoopWaitTask.done());
-        if (streamLoopWaitTask.exceptionPtr() != nullptr) {
-          std::rethrow_exception(streamLoopWaitTask.exceptionPtr());
-        }
+        streamLoopWaitTask.wait();
       }
       beginRunCalled_ = true;
     }
@@ -515,19 +498,14 @@ namespace edm {
       std::vector<edm::SubProcess> emptyList;
       {
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>;
-        FinalWaitingTask globalWaitTask;
+        FinalWaitingTask globalWaitTask{taskGroup_};
         beginGlobalTransitionAsync<Traits>(
             WaitingTaskHolder(taskGroup_, &globalWaitTask), *schedule_, transitionInfo, serviceToken_, emptyList);
-        do {
-          taskGroup_.wait();
-        } while (not globalWaitTask.done());
-        if (globalWaitTask.exceptionPtr() != nullptr) {
-          std::rethrow_exception(globalWaitTask.exceptionPtr());
-        }
+        globalWaitTask.wait();
       }
       {
         //To wait, the ref count has to be 1+#streams
-        FinalWaitingTask streamLoopWaitTask;
+        FinalWaitingTask streamLoopWaitTask{taskGroup_};
 
         using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>;
 
@@ -538,12 +516,7 @@ namespace edm {
                                             serviceToken_,
                                             emptyList);
 
-        do {
-          taskGroup_.wait();
-        } while (not streamLoopWaitTask.done());
-        if (streamLoopWaitTask.exceptionPtr() != nullptr) {
-          std::rethrow_exception(streamLoopWaitTask.exceptionPtr());
-        }
+        streamLoopWaitTask.wait();
       }
       beginLumiCalled_ = true;
     }
@@ -573,17 +546,12 @@ namespace edm {
 
       ServiceRegistry::Operate operate(serviceToken_);
 
-      FinalWaitingTask waitTask;
+      FinalWaitingTask waitTask{taskGroup_};
 
       EventTransitionInfo info(*pep, esp_->eventSetupImpl());
       schedule_->processOneEventAsync(edm::WaitingTaskHolder(taskGroup_, &waitTask), 0, info, serviceToken_);
 
-      do {
-        taskGroup_.wait();
-      } while (not waitTask.done());
-      if (waitTask.exceptionPtr() != nullptr) {
-        std::rethrow_exception(waitTask.exceptionPtr());
-      }
+      waitTask.wait();
       ++eventNumber_;
     }
 
@@ -604,7 +572,7 @@ namespace edm {
 
         //To wait, the ref count has to be 1+#streams
         {
-          FinalWaitingTask streamLoopWaitTask;
+          FinalWaitingTask streamLoopWaitTask{taskGroup_};
 
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>;
 
@@ -616,15 +584,10 @@ namespace edm {
                                             emptyList,
                                             false);
 
-          do {
-            taskGroup_.wait();
-          } while (not streamLoopWaitTask.done());
-          if (streamLoopWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(streamLoopWaitTask.exceptionPtr());
-          }
+          streamLoopWaitTask.wait();
         }
         {
-          FinalWaitingTask globalWaitTask;
+          FinalWaitingTask globalWaitTask{taskGroup_};
 
           using Traits = OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>;
           endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
@@ -633,12 +596,7 @@ namespace edm {
                                            serviceToken_,
                                            emptyList,
                                            false);
-          do {
-            taskGroup_.wait();
-          } while (not globalWaitTask.done());
-          if (globalWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(globalWaitTask.exceptionPtr());
-          }
+          globalWaitTask.wait();
         }
       }
       return lumiPrincipal;
@@ -665,7 +623,7 @@ namespace edm {
 
         //To wait, the ref count has to be 1+#streams
         {
-          FinalWaitingTask streamLoopWaitTask;
+          FinalWaitingTask streamLoopWaitTask{taskGroup_};
 
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>;
 
@@ -677,15 +635,10 @@ namespace edm {
                                             emptyList,
                                             false);
 
-          do {
-            taskGroup_.wait();
-          } while (not streamLoopWaitTask.done());
-          if (streamLoopWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(streamLoopWaitTask.exceptionPtr());
-          }
+          streamLoopWaitTask.wait();
         }
         {
-          FinalWaitingTask globalWaitTask;
+          FinalWaitingTask globalWaitTask{taskGroup_};
 
           using Traits = OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>;
           endGlobalTransitionAsync<Traits>(WaitingTaskHolder(taskGroup_, &globalWaitTask),
@@ -694,12 +647,7 @@ namespace edm {
                                            serviceToken_,
                                            emptyList,
                                            false);
-          do {
-            taskGroup_.wait();
-          } while (not globalWaitTask.done());
-          if (globalWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(globalWaitTask.exceptionPtr());
-          }
+          globalWaitTask.wait();
         }
 
         principalCache_.deleteRun(phid, runNumber_);
@@ -714,7 +662,7 @@ namespace edm {
 
         std::vector<edm::SubProcess> emptyList;
         {
-          FinalWaitingTask globalWaitTask;
+          FinalWaitingTask globalWaitTask{taskGroup_};
 
           ProcessBlockTransitionInfo transitionInfo(processBlockPrincipal);
           using Traits = OccurrenceTraits<ProcessBlockPrincipal, BranchActionGlobalEnd>;
@@ -724,12 +672,7 @@ namespace edm {
                                            serviceToken_,
                                            emptyList,
                                            false);
-          do {
-            taskGroup_.wait();
-          } while (not globalWaitTask.done());
-          if (globalWaitTask.exceptionPtr() != nullptr) {
-            std::rethrow_exception(globalWaitTask.exceptionPtr());
-          }
+          globalWaitTask.wait();
         }
       }
       return &processBlockPrincipal;

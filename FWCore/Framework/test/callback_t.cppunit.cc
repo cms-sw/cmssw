@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Concurrency/interface/ThreadsController.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include "FWCore/Framework/interface/eventsetuprecord_registration_macro.h"
 
@@ -108,13 +109,11 @@ namespace {
     edm::ActivityRegistry ar;
     edm::eventsetup::EventSetupRecordImpl rec(edm::eventsetup::EventSetupRecordKey::makeKey<callbacktest::Record>(),
                                               &ar);
-    edm::FinalWaitingTask task;
     oneapi::tbb::task_group group;
+    edm::FinalWaitingTask task{group};
     edm::ServiceToken token;
     iCallback.prefetchAsync(edm::WaitingTaskHolder(group, &task), &rec, nullptr, token, edm::ESParentContext{});
-    do {
-      group.wait();
-    } while (not task.done());
+    task.waitNoThrow();
   }
 }  // namespace
 
