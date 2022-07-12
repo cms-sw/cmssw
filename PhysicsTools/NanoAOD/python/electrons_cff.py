@@ -567,6 +567,7 @@ electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCM
                               vidNestedWPBitmap = None,
                               cutBased = None,
                               cutBased_HEEP = None,
+                              mvaHZZIso = None,
 )
 
 (run3_nanoAOD_devel).toReplaceWith(electronTablesTask, electronTablesTask.copyAndExclude([electronMVATTH]))
