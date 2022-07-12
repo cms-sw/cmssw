@@ -179,12 +179,6 @@ namespace gen {
 
   bool Py8HMC3InterfaceBase::declareStableParticles(const std::vector<int>& pdgIds) {
     for (size_t i = 0; i < pdgIds.size(); i++) {
-      // FIXME: need to double check if PID's are the same in Py6 & Py8,
-      //        because the HepPDT translation tool is actually for **Py6**
-      //
-      // well, actually it looks like Py8 operates in PDT id's rather than Py6's
-      //
-      //    int PyID = HepPID::translatePDTtoPythia( pdgIds[i] );
       int PyID = pdgIds[i];
       std::ostringstream pyCard;
       pyCard << PyID << ":mayDecay=false";
