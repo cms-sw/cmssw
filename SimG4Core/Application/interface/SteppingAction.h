@@ -43,7 +43,6 @@ private:
 
   inline bool isInsideDeadRegion(const G4Region* reg) const;
   inline bool isOutOfTimeWindow(const G4Region* reg, const double& time) const;
-  inline bool isThisVolume(const G4VTouchable* touch, const G4VPhysicalVolume* pv) const;
 
   bool isLowEnergy(const G4LogicalVolume*, const G4Track*) const;
   void PrintKilledTrack(const G4Track*, const TrackStatus&) const;
@@ -97,11 +96,6 @@ inline bool SteppingAction::isOutOfTimeWindow(const G4Region* reg, const double&
     }
   }
   return (time > tofM);
-}
-
-inline bool SteppingAction::isThisVolume(const G4VTouchable* touch, const G4VPhysicalVolume* pv) const {
-  int level = (touch->GetHistoryDepth()) + 1;
-  return (level >= 3) ? (touch->GetVolume(level - 3) == pv) : false;
 }
 
 #endif
