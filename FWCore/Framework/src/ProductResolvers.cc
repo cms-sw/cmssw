@@ -989,7 +989,7 @@ namespace edm {
       void execute() final {
         auto exceptPtr = exceptionPtr();
         if (exceptPtr) {
-          resolver_->prefetchFailed(index_, *principal_, skipCurrentProcess_, *exceptPtr);
+          resolver_->prefetchFailed(index_, *principal_, skipCurrentProcess_, exceptPtr);
         } else {
           if (not resolver_->dataValidFromResolver(index_, *principal_, skipCurrentProcess_)) {
             resolver_->tryPrefetchResolverAsync(
