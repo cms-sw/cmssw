@@ -1,5 +1,3 @@
-import FWCore.ParameterSet.Config as cms
-
 WORKING_POINTS_v2p1 = {
     "e": {
         "VVVLoose": 0.0630386,
