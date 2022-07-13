@@ -40,15 +40,15 @@ namespace edm {
     friend class WaitingTaskWithArenaHolder;
 
     ///Constructor
-    WaitingTask() : m_ptr{nullptr} {}
-    ~WaitingTask() override { delete m_ptr.load(); };
+    WaitingTask() : m_ptr{} {}
+    ~WaitingTask() override{};
 
     // ---------- const member functions ---------------------------
 
     ///Returns exception thrown by dependent task
-    /** If the value is non-null then the dependent task failed.
+    /** If the value evalutes to true then the dependent task failed.
     */
-    std::exception_ptr const* exceptionPtr() const { return m_ptr.load(); }
+    std::exception_ptr const& exceptionPtr() const { return m_ptr; }
 
   private:
     ///Called if waited for task failed
@@ -57,16 +57,15 @@ namespace edm {
      * This method should only be called by WaitingTaskList
      */
     void dependentTaskFailed(std::exception_ptr iPtr) {
-      if (iPtr and not m_ptr) {
-        auto temp = std::make_unique<std::exception_ptr>(iPtr);
-        std::exception_ptr* expected = nullptr;
-        if (m_ptr.compare_exchange_strong(expected, temp.get())) {
-          temp.release();
-        }
+      bool isSet = false;
+      if (iPtr and m_ptrSet.compare_exchange_strong(isSet, true)) {
+        m_ptr = iPtr;
+        //NOTE: the atomic counter in TaskBase will synchronize m_ptr
       }
     }
 
-    std::atomic<std::exception_ptr*> m_ptr;
+    std::exception_ptr m_ptr;
+    std::atomic<bool> m_ptrSet = false;
   };
 
   /** Use this class on the stack to signal the final task to be run.
@@ -91,7 +90,7 @@ namespace edm {
   public:
     explicit FunctorWaitingTask(F f) : func_(std::move(f)) {}
 
-    void execute() final { func_(exceptionPtr()); };
+    void execute() final { func_(exceptionPtr() ? &exceptionPtr() : nullptr); };
 
   private:
     F func_;

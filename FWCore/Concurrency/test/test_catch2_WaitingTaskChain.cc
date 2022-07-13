@@ -34,7 +34,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | lastTask") {
@@ -59,7 +59,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | then | lastTask") {
@@ -88,7 +88,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | then | runLast") {
@@ -112,7 +112,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("exception -> first | lastTask") {
@@ -133,7 +133,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 0);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() != nullptr);
+      REQUIRE(waitTask.exceptionPtr());
     }
 
     SECTION("first(exception) | lastTask") {
@@ -155,7 +155,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() != nullptr);
+      REQUIRE(waitTask.exceptionPtr());
     }
 
     SECTION("first(exception) | then | then | lastTask") {
@@ -185,7 +185,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() != nullptr);
+      REQUIRE(waitTask.exceptionPtr());
     }
   }
 
@@ -209,7 +209,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | lastTask") {
@@ -236,7 +236,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | then | lastTask") {
@@ -268,7 +268,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("exception -> first | lastTask") {
@@ -290,7 +290,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("exception -> first | then | lastTask") {
@@ -318,7 +318,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
   }
 
@@ -346,7 +346,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       REQUIRE(exceptCount.load() == 0);
       REQUIRE(count.load() == 1);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | lastTask") {
@@ -379,7 +379,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       REQUIRE(exceptCount.load() == 0);
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | then | then | lastTask") {
@@ -419,7 +419,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       REQUIRE(exceptCount.load() == 0);
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("exception -> first | then | then | lastTask") {
@@ -459,7 +459,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       REQUIRE(exceptCount.load() == 3);
       REQUIRE(count.load() == 0);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() != nullptr);
+      REQUIRE(waitTask.exceptionPtr());
     }
   }
 
@@ -485,7 +485,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 3);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
 
     SECTION("first | ifThen(false) | then | runLast") {
@@ -509,7 +509,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       group.wait();
       REQUIRE(count.load() == 2);
       REQUIRE(waitTask.done());
-      REQUIRE(waitTask.exceptionPtr() == nullptr);
+      REQUIRE(not waitTask.exceptionPtr());
     }
   }
 }
