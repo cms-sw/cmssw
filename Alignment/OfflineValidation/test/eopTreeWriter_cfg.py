@@ -8,6 +8,11 @@ options.register ('GlobalTag',
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "Global Tag to be used")
 
+options.register('unitTest',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                 VarParsing.VarParsing.varType.bool, # string, int, or float
+                 "is it a unit test?")
 options.parseArguments()
 
 process = cms.Process("EnergyOverMomentumTree")
@@ -48,12 +53,17 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.GlobalTag, '')
 
 jsonFile = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions18/13TeV/Legacy_2018/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt'
-import FWCore.PythonUtilities.LumiList as LumiList
-import FWCore.ParameterSet.Types as CfgTypes
-print("JSON used: %s " % jsonFile)
-myLumis = LumiList.LumiList(filename = jsonFile).getCMSSWString().split(',')
-process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
-process.source.lumisToProcess.extend(myLumis)
+
+if(options.unitTest):
+    print('This is a unit test, will not json filter')
+    pass
+else:
+    import FWCore.PythonUtilities.LumiList as LumiList
+    import FWCore.ParameterSet.Types as CfgTypes
+    print("JSON used: %s " % jsonFile)
+    myLumis = LumiList.LumiList(filename = jsonFile).getCMSSWString().split(',')
+    process.source.lumisToProcess = CfgTypes.untracked(CfgTypes.VLuminosityBlockRange())
+    process.source.lumisToProcess.extend(myLumis)
 
 #from TrackingTools.TrackAssociator.default_cfi import *
 process.load("TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagator_cfi")
