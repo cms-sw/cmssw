@@ -15,7 +15,7 @@ from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p5
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTaus"),
-    cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || (tauID('byDeepTau2018v2p5VSjetraw') > {}))".format(WORKING_POINTS_v2p5["jet"]["VVVLoose"]))
+    cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || tauID('byVVVLooseDeepTau2018v2p5VSjet'))")
 )
 
 run2_nanoAOD_106Xv2.toModify(finalTaus,
@@ -145,18 +145,15 @@ _deepTauVars2018v2p5 = cms.PSet(
     rawDeepTau2018v2p5VSe = Var("tauID('byDeepTau2018v2p5VSeraw')", float, doc="byDeepTau2018v2p5VSe raw output discriminator (deepTau2018v2p5)", precision=10),
     rawDeepTau2018v2p5VSmu = Var("tauID('byDeepTau2018v2p5VSmuraw')", float, doc="byDeepTau2018v2p5VSmu raw output discriminator (deepTau2018v2p5)", precision=10),
     rawDeepTau2018v2p5VSjet = Var("tauID('byDeepTau2018v2p5VSjetraw')", float, doc="byDeepTau2018v2p5VSjet raw output discriminator (deepTau2018v2p5)", precision=10),
-    idDeepTau2018v2p5VSe = _tauIdWPMask("byDeepTau2018v2p5VSeraw", 
+    idDeepTau2018v2p5VSe = _tauIdWPMask("by%sDeepTau2018v2p5VSe", 
                                             choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
-                                            doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)", 
-                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5["e"]),
-    idDeepTau2018v2p5VSmu = _tauIdWPMask("byDeepTau2018v2p5VSmuraw", 
-                                            choices=("VLoose", "Loose", "Medium", "Tight"), 
-                                            doc="byDeepTau2018v2p5VSmu ID working points (deepTau2018v2p5)", 
-                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5["mu"]),
-    idDeepTau2018v2p5VSjet = _tauIdWPMask("byDeepTau2018v2p5VSjetraw", 
+                                            doc="byDeepTau2018v2p5VSe ID working points (deepTau2018v2p5)"),
+    idDeepTau2018v2p5VSmu = _tauIdWPMask("by%sDeepTau2018v2p5VSmu", 
+                                            choices=("VLoose", "Loose", "Medium", "Tight"),
+                                            doc="byDeepTau2018v2p5VSmu ID working points (deepTau2018v2p5)"),
+    idDeepTau2018v2p5VSjet = _tauIdWPMask("by%sDeepTau2018v2p5VSjet", 
                                             choices=("VVVLoose","VVLoose","VLoose","Loose","Medium","Tight","VTight","VVTight"), 
-                                            doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)", 
-                                            from_raw=True, wp_thrs=WORKING_POINTS_v2p5["jet"]),
+                                            doc="byDeepTau2018v2p5VSjet ID working points (deepTau2018v2p5)"),
 )
 
 _variablesMiniV2 = cms.PSet(
