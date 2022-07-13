@@ -1,4 +1,3 @@
-
 #include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/EventAction.h"
 #include "SimG4Core/Notification/interface/CMSSteppingVerbose.h"
@@ -174,13 +173,13 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
   // check transition tracker/calo
   bool isKilled = false;
   if (sAlive == tstat || sVeryForward == tstat) {
-    if (isThisVolume(preStep->GetTouchable(), tracker) && isThisVolume(postStep->GetTouchable(), calo)) {
-      math::XYZVectorD pos((preStep->GetPosition()).x(), (preStep->GetPosition()).y(), (preStep->GetPosition()).z());
+    if (preStep->GetPhysicalVolume() == tracker && postStep->GetPhysicalVolume() == calo) {
+      math::XYZVectorD pos((postStep->GetPosition()).x(), (postStep->GetPosition()).y(), (postStep->GetPosition()).z());
 
-      math::XYZTLorentzVectorD mom((preStep->GetMomentum()).x(),
-                                   (preStep->GetMomentum()).y(),
-                                   (preStep->GetMomentum()).z(),
-                                   preStep->GetTotalEnergy());
+      math::XYZTLorentzVectorD mom((postStep->GetMomentum()).x(),
+                                   (postStep->GetMomentum()).y(),
+                                   (postStep->GetMomentum()).z(),
+                                   postStep->GetTotalEnergy());
 
       uint32_t id = theTrack->GetTrackID();
 
