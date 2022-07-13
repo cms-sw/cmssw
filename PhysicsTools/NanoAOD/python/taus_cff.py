@@ -15,7 +15,7 @@ from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p5
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
     src = cms.InputTag("slimmedTaus"),
-    cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || (tauID('byDeepTau2018v2p5VSjetraw') > %.4f))" % WORKING_POINTS_v2p5["jet"]["VVVLoose"])
+    cut = cms.string("pt > 18 && tauID('decayModeFindingNewDMs') && (tauID('byLooseCombinedIsolationDeltaBetaCorr3Hits') || (tauID('chargedIsoPtSumdR03')+max(0.,tauID('neutralIsoPtSumdR03')-0.072*tauID('puCorrPtSum'))<2.5) || tauID('byVVVLooseDeepTau2017v2p1VSjet') || (tauID('byDeepTau2018v2p5VSjetraw') > {}))".format(WORKING_POINTS_v2p5["jet"]["VVVLoose"]))
 )
 
 for era in [run2_nanoAOD_94XMiniAODv2, run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
@@ -41,7 +41,7 @@ def _tauIdWPMask(pattern, choices, doc="", from_raw=False, wp_thrs=None):
         for wp_name in choices:
             if not isinstance(wp_thrs[wp_name], float):
                 raise TypeError("Threshold for WP=%s is not a float number." % wp_name)
-            wp_definition = "(tauID('%s')>%.4f)" % (pattern, wp_thrs[wp_name])
+            wp_definition = "(tauID('{}')>{})".format(pattern, wp_thrs[wp_name])
             var_definition.append(wp_definition)
         var_definition = " + ".join(var_definition)
     else:
