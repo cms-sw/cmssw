@@ -617,7 +617,11 @@ class TauIDEmbedder(object):
             if self.debug: print ("Adding DeepTau IDs")
 
             _deepTauName = "deepTau2018v2p5"
-            workingPoints_ = WORKING_POINTS_v2p5
+            workingPoints_ = {
+                "e": {},
+                "mu": {},
+                "jet": {},
+            }
 
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_core.pb',
