@@ -576,7 +576,7 @@ class TauIDEmbedder(object):
                 taus             = self.originalTauName,
                 graph_file       = file_names,
                 version          = full_version[1],
-                sub_version      = 0 #MB: subversion cannot be properly deduced from file names
+                sub_version      = 1 #MB: subversion cannot be properly deduced from file names; it should be 1 also for v2
             ))
 
             self.processDeepProducer(_deepTauName, tauIDSources, workingPoints_)
