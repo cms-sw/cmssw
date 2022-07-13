@@ -1501,14 +1501,12 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig)
       assert(index < 64);
       pixelUseMaskTokens_.emplace_back(index,
                                        consumes<PixelMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
-      if (includeStripHits_) {
-        if (includePhase2OTHits_)
-          ph2OTUseMaskTokens_.emplace_back(
-                                           index, consumes<Phase2OTMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
-        else
-          stripUseMaskTokens_.emplace_back(
-                                           index, consumes<StripMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
-      }
+      if (includeStripHits_)
+        stripUseMaskTokens_.emplace_back(
+            index, consumes<StripMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
+      if (includePhase2OTHits_)
+        ph2OTUseMaskTokens_.emplace_back(
+            index, consumes<Phase2OTMaskContainer>(mask.getUntrackedParameter<edm::InputTag>("src")));
     }
   }
 
