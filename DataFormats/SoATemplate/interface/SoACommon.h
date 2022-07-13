@@ -50,9 +50,8 @@
 
 namespace cms::soa {
 
-  // XXX Addition of typedef for index types.
-  // size_type for indices. Compatible with ROOT, but limited to 2G entries
-  using size_type = int32_t;
+  // size_type for indices. Compatible with ROOT Int_t, but limited to 2G entries
+  using size_type = cms_int32_t;
   // byte_size_type for byte counts. Not creating an artificial limit (and not ROOT serialized).
   using byte_size_type = CMS_SOA_BYTE_SIZE_TYPE;
 

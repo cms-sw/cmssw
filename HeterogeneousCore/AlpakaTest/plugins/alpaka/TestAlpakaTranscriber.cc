@@ -47,7 +47,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
       portabletest::TestDeviceCollection const& deviceProduct = event.get(deviceToken_);
 
       portabletest::TestHostCollection hostProduct{deviceProduct->metadata().size(), alpaka_common::host(), *device_};
-      alpaka::memcpy(queue, hostProduct.buffer(), deviceProduct.buffer());
+      alpaka::memcpy(queue, hostProduct.buffer(), deviceProduct.const_buffer());
 
       // wait for any async work to complete
       alpaka::wait(queue);
