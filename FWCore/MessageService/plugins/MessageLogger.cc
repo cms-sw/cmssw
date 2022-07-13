@@ -764,7 +764,8 @@ namespace edm {
       if (label->empty() or (*label)[0] == '\0') {
         label = &desc->type_;
       }
-      messageDrop->setModuleWithPhase(desc->type_, *label, desc->id_, "@callESModule");
+      //make sure ES module IDs do not conflict with ED module IDs
+      messageDrop->setModuleWithPhase(desc->type_, *label, 1000000 + desc->id_, "@callESModule");
     }
     void MessageLogger::postESModule(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&) {
       MessageDrop* messageDrop = MessageDrop::instance();
