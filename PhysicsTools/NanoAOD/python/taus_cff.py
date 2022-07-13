@@ -11,7 +11,6 @@ from PhysicsTools.NanoAOD.taus_updatedMVAIds_cff import *
 
 # Original DeepTau v2p5 in 12_4_X doesn't include WPs in MINIAOD
 # Import thresholds here to define WPs manually from raw scores
-from copy import deepcopy
 from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p5
 
 finalTaus = cms.EDFilter("PATTauRefSelector",
