@@ -41,7 +41,7 @@ def _tauIdWPMask(pattern, choices, doc="", from_raw=False, wp_thrs=None):
         for wp_name in choices:
             if not isinstance(wp_thrs[wp_name], float):
                 raise TypeError("Threshold for WP=%s is not a float number." % wp_name)
-            wp_definition = "(tauID('{}')>{})".format(pattern, wp_thrs[wp_name])
+            wp_definition = "test_bit(tauID('{}')-{}+1,0)".format(pattern, wp_thrs[wp_name])
             var_definition.append(wp_definition)
         var_definition = " + ".join(var_definition)
     else:
