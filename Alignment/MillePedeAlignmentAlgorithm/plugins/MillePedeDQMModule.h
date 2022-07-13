@@ -66,6 +66,8 @@ private:  //===================================================================
 
   void fillStatusHisto(MonitorElement* statusHisto);
 
+  void fillStatusHistoHG(MonitorElement* statusHisto);
+
   void fillExpertHistos();
 
   void fillExpertHistos_HG();
