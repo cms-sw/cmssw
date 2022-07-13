@@ -104,7 +104,7 @@ private:
       group.wait();
     } while (not task.done());
     if (auto e = task.exceptionPtr()) {
-      std::rethrow_exception(*e);
+      std::rethrow_exception(e);
     }
   }
 
@@ -225,8 +225,8 @@ testLimitedOutputModule::testLimitedOutputModule()
     do {
       group.wait();
     } while (not task.done());
-    if (task.exceptionPtr() != nullptr) {
-      std::rethrow_exception(*task.exceptionPtr());
+    if (task.exceptionPtr()) {
+      std::rethrow_exception(task.exceptionPtr());
     }
   };
 
@@ -241,8 +241,8 @@ testLimitedOutputModule::testLimitedOutputModule()
     do {
       group.wait();
     } while (not task.done());
-    if (task.exceptionPtr() != nullptr) {
-      std::rethrow_exception(*task.exceptionPtr());
+    if (task.exceptionPtr()) {
+      std::rethrow_exception(task.exceptionPtr());
     }
   };
 

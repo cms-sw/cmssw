@@ -134,7 +134,7 @@ private:
       group.wait();
     } while (not task.done());
     if (auto e = task.exceptionPtr()) {
-      std::rethrow_exception(*e);
+      std::rethrow_exception(e);
     }
   }
 
