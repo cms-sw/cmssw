@@ -150,6 +150,10 @@ namespace l1t {
     float sigmaPhiPhiTot() const { return sigmaPhiPhiTot_; }
     float sigmaZZ() const { return sigmaZZ_; }
     float sigmaRRTot() const { return sigmaRRTot_; }
+    float varRR() const { return varRR_; }
+    float varZZ() const { return varZZ_; }
+    float varEtaEta() const { return varEtaEta_; }
+    float varPhiPhi() const { return varPhiPhi_; }
     float sigmaRRMax() const { return sigmaRRMax_; }
     float sigmaRRMean() const { return sigmaRRMean_; }
     float zBarycenter() const { return zBarycenter_; }
@@ -158,6 +162,22 @@ namespace l1t {
     float layer90percent() const { return layer90percent_; }
     float triggerCells67percent() const { return triggerCells67percent_; }
     float triggerCells90percent() const { return triggerCells90percent_; }
+    float first1layers() const { return first1layers_; }
+    float first3layers() const { return first3layers_; }
+    float first5layers() const { return first5layers_; }
+    float firstHcal1layers() const { return firstHcal1layers_; }
+    float firstHcal3layers() const { return firstHcal3layers_; }
+    float firstHcal5layers() const { return firstHcal5layers_; }
+    float last1layers() const { return last1layers_; }
+    float last3layers() const { return last3layers_; }
+    float last5layers() const { return last5layers_; }
+    float emax1layers() const { return emax1layers_; }
+    float emax3layers() const { return emax3layers_; }
+    float emax5layers() const { return emax5layers_; }
+    float eot() const { return eot_; }
+    int ebm0() const { return ebm0_; }
+    int ebm1() const { return ebm1_; }
+    int hbm() const { return hbm_; }
 
     void showerLength(int showerLength) { showerLength_ = showerLength; }
     void coreShowerLength(int coreShowerLength) { coreShowerLength_ = coreShowerLength; }
@@ -170,6 +190,10 @@ namespace l1t {
     void sigmaPhiPhiTot(float sigmaPhiPhiTot) { sigmaPhiPhiTot_ = sigmaPhiPhiTot; }
     void sigmaRRMax(float sigmaRRMax) { sigmaRRMax_ = sigmaRRMax; }
     void sigmaRRTot(float sigmaRRTot) { sigmaRRTot_ = sigmaRRTot; }
+    void varRR(float varRR) { varRR_ = varRR; }
+    void varZZ(float varZZ) { varZZ_ = varZZ; }
+    void varEtaEta(float varEtaEta) { varEtaEta_ = varEtaEta; }
+    void varPhiPhi(float varPhiPhi) { varPhiPhi_ = varPhiPhi; }
     void sigmaRRMean(float sigmaRRMean) { sigmaRRMean_ = sigmaRRMean; }
     void sigmaZZ(float sigmaZZ) { sigmaZZ_ = sigmaZZ; }
     void zBarycenter(float zBarycenter) { zBarycenter_ = zBarycenter; }
@@ -178,6 +202,22 @@ namespace l1t {
     void layer90percent(float layer90percent) { layer90percent_ = layer90percent; }
     void triggerCells67percent(float triggerCells67percent) { triggerCells67percent_ = triggerCells67percent; }
     void triggerCells90percent(float triggerCells90percent) { triggerCells90percent_ = triggerCells90percent; }
+    void first1layers(float first1layers) { first1layers_ = first1layers; }
+    void first3layers(float first3layers) { first3layers_ = first3layers; }
+    void first5layers(float first5layers) { first5layers_ = first5layers; }
+    void firstHcal1layers(float firstHcal1layers) { firstHcal1layers_ = firstHcal1layers; }
+    void firstHcal3layers(float firstHcal3layers) { firstHcal3layers_ = firstHcal3layers; }
+    void firstHcal5layers(float firstHcal5layers) { firstHcal5layers_ = firstHcal5layers; }
+    void last1layers(float last1layers) { last1layers_ = last1layers; }
+    void last3layers(float last3layers) { last3layers_ = last3layers; }
+    void last5layers(float last5layers) { last5layers_ = last5layers; }
+    void emax1layers(float emax1layers) { emax1layers_ = emax1layers; }
+    void emax3layers(float emax3layers) { emax3layers_ = emax3layers; }
+    void emax5layers(float emax5layers) { emax5layers_ = emax5layers; }
+    void eot(float eot) { eot_ = eot; }
+    void ebm0(int ebm0) { ebm0_ = ebm0; }
+    void ebm1(int ebm1) { ebm1_ = ebm1; }
+    void hbm(int hbm) { hbm_ = hbm; }
 
     /* operators */
     bool operator<(const HGCalClusterT<C>& cl) const { return mipPt() < cl.mipPt(); }
@@ -212,6 +252,10 @@ namespace l1t {
     float sigmaEtaEtaTot_ = 0.;
     float sigmaPhiPhiTot_ = 0.;
     float sigmaRRTot_ = 0.;
+    float varRR_ = 0.;
+    float varZZ_ = 0.;
+    float varEtaEta_ = 0.;
+    float varPhiPhi_ = 0.;
     float sigmaRRMean_ = 0.;
     float sigmaZZ_ = 0.;
     float zBarycenter_ = 0.;
@@ -220,6 +264,22 @@ namespace l1t {
     float layer90percent_ = 0.;
     float triggerCells67percent_ = 0.;
     float triggerCells90percent_ = 0.;
+    float first1layers_ = 0.;
+    float first3layers_ = 0.;
+    float first5layers_ = 0.;
+    float firstHcal1layers_ = 0.;
+    float firstHcal3layers_ = 0.;
+    float firstHcal5layers_ = 0.;
+    float last1layers_ = 0.;
+    float last3layers_ = 0.;
+    float last5layers_ = 0.;
+    float emax1layers_ = 0.;
+    float emax3layers_ = 0.;
+    float emax5layers_ = 0.;
+    float eot_ = 0.;
+    int ebm0_ = 0;
+    int ebm1_ = 0;
+    int hbm_ = 0;
 
     void updateP4AndPosition(const edm::Ptr<C>& c, bool updateCentre = true, float fraction = 1.) {
       double cMipt = c->mipPt() * fraction;
