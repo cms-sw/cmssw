@@ -15,7 +15,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing("analysis")
 
 options.register ('outputRootFile',
-                  "test_EOverP_Electrons.root",
+                  "test_EopTreeElectron.root",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,         # string, int, or float
                   "output root file")
