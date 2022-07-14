@@ -56,6 +56,7 @@ protected:
   //helpers
   bool noOuterDim() const { return noOuterDim_; }
   unsigned outerDim() const { return outerDim_; }
+  unsigned nEntries() const;
   void getResults(std::vector<triton::client::InferResult*>& results);
   void evaluate() override;
   template <typename F>
