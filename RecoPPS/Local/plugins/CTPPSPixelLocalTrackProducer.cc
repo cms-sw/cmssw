@@ -79,17 +79,17 @@ private:
 
 //------------------------------------------------------------------------------------------------//
 
-CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterSet &parameterSet) : 
-  verbosity_(parameterSet.getUntrackedParameter<int>("verbosity")),
-  maxHitPerPlane_(parameterSet.getParameter<int>("maxHitPerPlane")),
-  maxHitPerRomanPot_(parameterSet.getParameter<int>("maxHitPerRomanPot")),
-  maxTrackPerRomanPot_(parameterSet.getParameter<int>("maxTrackPerRomanPot")),
-  maxTrackPerPattern_(parameterSet.getParameter<int>("maxTrackPerPattern")),
-  tokenCTPPSPixelRecHit_(consumes<edm::DetSetVector<CTPPSPixelRecHit>>(parameterSet.getParameter<edm::InputTag>("tag"))),
-  tokenCTPPSGeometry_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
-  tokenCTPPSPixelAnalysisMask_(esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>()),
-  numberOfPlanesPerPot_(parameterSet.getParameter<int>("numberOfPlanesPerPot"))
-{
+CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterSet &parameterSet)
+    : verbosity_(parameterSet.getUntrackedParameter<int>("verbosity")),
+      maxHitPerPlane_(parameterSet.getParameter<int>("maxHitPerPlane")),
+      maxHitPerRomanPot_(parameterSet.getParameter<int>("maxHitPerRomanPot")),
+      maxTrackPerRomanPot_(parameterSet.getParameter<int>("maxTrackPerRomanPot")),
+      maxTrackPerPattern_(parameterSet.getParameter<int>("maxTrackPerPattern")),
+      tokenCTPPSPixelRecHit_(
+          consumes<edm::DetSetVector<CTPPSPixelRecHit>>(parameterSet.getParameter<edm::InputTag>("tag"))),
+      tokenCTPPSGeometry_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord>()),
+      tokenCTPPSPixelAnalysisMask_(esConsumes<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd>()),
+      numberOfPlanesPerPot_(parameterSet.getParameter<int>("numberOfPlanesPerPot")) {
   std::string patternFinderAlgorithm = parameterSet.getParameter<std::string>("patternFinderAlgorithm");
   std::string trackFitterAlgorithm = parameterSet.getParameter<std::string>("trackFinderAlgorithm");
 
