@@ -16,6 +16,8 @@
 #include "grpc_client.h"
 #include "grpc_service.pb.h"
 
+enum class TritonBatchMode { Rectangular = 1, Ragged = 2 };
+
 class TritonClient : public SonicClient<TritonInputMap, TritonOutputMap> {
 public:
   struct ServerSideStats {
@@ -36,13 +38,15 @@ public:
   ~TritonClient() override;
 
   //accessors
-  unsigned batchSize() const { return batchSize_; }
+  unsigned batchSize() const;
+  TritonBatchMode batchMode() const { return batchMode_; }
   bool verbose() const { return verbose_; }
   bool useSharedMemory() const { return useSharedMemory_; }
   void setUseSharedMemory(bool useShm) { useSharedMemory_ = useShm; }
   bool setBatchSize(unsigned bsize);
+  void setBatchMode(TritonBatchMode batchMode);
+  void resetBatchMode();
   void reset() override;
-  bool noBatch() const { return noBatch_; }
   TritonServerType serverType() const { return serverType_; }
 
   //for fillDescriptions
@@ -50,6 +54,8 @@ public:
 
 protected:
   //helpers
+  bool noOuterDim() const { return noOuterDim_; }
+  unsigned outerDim() const { return outerDim_; }
   void getResults(std::vector<triton::client::InferResult*>& results);
   void evaluate() override;
   template <typename F>
@@ -62,9 +68,12 @@ protected:
   inference::ModelStatistics getServerSideStatus() const;
 
   //members
-  unsigned maxBatchSize_;
-  unsigned batchSize_;
-  bool noBatch_;
+  unsigned maxOuterDim_;
+  unsigned outerDim_;
+  bool noOuterDim_;
+  unsigned nEntries_;
+  TritonBatchMode batchMode_;
+  bool manualBatchMode_;
   bool verbose_;
   bool useSharedMemory_;
   TritonServerType serverType_;
