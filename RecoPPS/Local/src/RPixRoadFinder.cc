@@ -20,6 +20,8 @@ RPixRoadFinder::RPixRoadFinder(edm::ParameterSet const& parameterSet) : RPixDetP
   roadRadius_ = parameterSet.getParameter<double>("roadRadius");
   minRoadSize_ = parameterSet.getParameter<int>("minRoadSize");
   maxRoadSize_ = parameterSet.getParameter<int>("maxRoadSize");
+  roadRadiusBadPot_ = parameterSet.getParameter<double>("roadRadiusBadPot");
+  //  isBadPot_ = parameterSet.getParameter<bool>("isBadPot");
 }
 
 //------------------------------------------------------------------------------------------------//
@@ -28,9 +30,12 @@ RPixRoadFinder::~RPixRoadFinder() {}
 
 //------------------------------------------------------------------------------------------------//
 
-void RPixRoadFinder::findPattern() {
+void RPixRoadFinder::findPattern(bool isBadPot) {
   Road temp_all_hits;
   temp_all_hits.clear();
+
+  Road temp_all_hits_badPot;
+  temp_all_hits_badPot.clear();
 
   // convert local hit sto global and push them to a vector
   for (const auto& ds_rh2 : *hitVector_) {
@@ -64,6 +69,14 @@ void RPixRoadFinder::findPattern() {
                                       theRotationTMatrix(2, 2));
 
       math::Error<3>::type globalError = ROOT::Math::SimilarityT(theRotationTMatrix, localError);
+
+      // create new collection for planes 0 and 5 of pot 45-220-fr
+
+      if (isBadPot == true && myid.arm() == 0 && myid.station() == 2 && localV.x() > 0 &&
+          (myid.plane() == 0 || myid.plane() == 5)) {  // 45-220-far
+
+        temp_all_hits_badPot.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
+      }
       temp_all_hits.emplace_back(PointInPlane{globalV, globalError, it_rh, myid});
     }
   }
@@ -102,4 +115,31 @@ void RPixRoadFinder::findPattern() {
       patternVector_.push_back(temp_road);
   }
   // end of algorithm
+
+  // badPot algorithm
+  Road::iterator it_gh1_bP = temp_all_hits_badPot.begin();
+  Road::iterator it_gh2_bP;
+
+  while (it_gh1_bP != temp_all_hits_badPot.end() && temp_all_hits_badPot.size() >= 2) {
+    Road temp_road;
+
+    it_gh2_bP = it_gh1_bP;
+
+    const auto currPoint = it_gh1_bP->globalPoint;
+
+    while (it_gh2_bP != temp_all_hits_badPot.end()) {
+      const auto subtraction = currPoint - it_gh2_bP->globalPoint;
+
+      if (subtraction.Rho() < roadRadiusBadPot_) {
+        temp_road.push_back(*it_gh2_bP);
+        temp_all_hits_badPot.erase(it_gh2_bP);
+      } else {
+        ++it_gh2_bP;
+      }
+    }
+
+    if (temp_road.size() == 2) {  // look for isolated tracks
+      patternVector_.push_back(temp_road);
+    }
+  }
 }
