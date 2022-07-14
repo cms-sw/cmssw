@@ -36,6 +36,7 @@ if (options.geometry == "D83"):
     lvFileName       = 'lvfileD83DD4hep.txt'
     pvFileName       = 'pvfileD83DD4hep.txt'
     touchFileName    = 'touchfileD83DD4hep.txt'
+    regionFileName   = 'regionfileD83DD4hep.txt'
 elif (options.geometry == "D77"):
     from Configuration.Eras.Era_Phase2C11_cff import Phase2C11
     process = cms.Process('G4PrintGeometry',Phase2C11,dd4hep)
@@ -54,6 +55,7 @@ elif (options.geometry == "D92"):
     lvFileName       = 'lvfileD92DD4hep.txt'
     pvFileName       = 'pvfileD92DD4hep.txt'
     touchFileName    = 'touchfileD92DD4hep.txt'
+    regionFileName   = 'regionfileD92DD4hep.txt'
 elif (options.geometry == "D93"):
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('G4PrintGeometry',Phase2C11M9,dd4hep)
@@ -63,6 +65,7 @@ elif (options.geometry == "D93"):
     lvFileName       = 'lvfileD93DD4hep.txt'
     pvFileName       = 'pvfileD93DD4hep.txt'
     touchFileName    = 'touchfileD93DD4hep.txt'
+    regionFileName   = 'regionfileD93DD4hep.txt'
 else:
     from Configuration.Eras.Era_Phase2C11M9_cff import Phase2C11M9
     process = cms.Process('G4PrintGeometry',Phase2C11M9,dd4hep)
@@ -72,12 +75,14 @@ else:
     lvFileName       = 'lvfileD88DD4hep.txt'
     pvFileName       = 'pvfileD88DD4hep.txt'
     touchFileName    = 'touchfileD88DD4hep.txt'
+    regionFileName   = 'regionfileD88DD4hep.txt'
 
 print("Material file Name: ", materialFileName)
 print("Solid file Name: ", solidFileName)
 print("LV file Name: ", lvFileName)
 print("PV file Name: ", pvFileName)
 print("Touch file Name: ", touchFileName)
+print("Region file Name: ", regionFileName)
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
@@ -102,6 +107,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     DumpReplica      = cms.untracked.bool(False),
     DumpTouch        = cms.untracked.bool(False),
     DumpSense        = cms.untracked.bool(False),
+    DumpRegion       = cms.untracked.bool(False),
     DD4hep           = cms.untracked.bool(False),
     Name             = cms.untracked.string(''),
     Names            = cms.untracked.vstring(''),
@@ -110,6 +116,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     LVFileName       = cms.untracked.string(lvFileName),
     PVFileName       = cms.untracked.string(pvFileName),
     TouchFileName    = cms.untracked.string(touchFileName),
+    RegionFileName   = cms.untracked.string(regionFileName),
     FileDetail       = cms.untracked.bool(True),
     type             = cms.string('PrintGeomInfoAction')
 ))
