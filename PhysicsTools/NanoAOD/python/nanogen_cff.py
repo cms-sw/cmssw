@@ -81,7 +81,7 @@ def customizeNanoGENFromMini(process):
     process.nanogenSequence.insert(0, process.genParticles2HepMC)
     process.nanogenSequence.insert(0, process.mergedGenParticles)
 
-    (run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
+    (run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016 | \
         run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
         run2_nanoAOD_102Xv1).toReplaceWith(nanogenSequence, nanogenSequence.copyAndExclude([genVertexTable, genVertexT0Table]))
 
