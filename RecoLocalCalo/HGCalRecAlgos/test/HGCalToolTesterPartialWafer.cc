@@ -38,7 +38,7 @@ public:
 protected:
   void beginRun(edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override  {}
+  void endRun(edm::Run const&, edm::EventSetup const&) override {}
   void beginJob() override {}
   void endJob() override {}
 
@@ -73,7 +73,10 @@ void HGCalToolTesterPartialWafer::fillDescriptions(edm::ConfigurationDescription
 void HGCalToolTesterPartialWafer::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   //Setup the tool
   geo_ = iSetup.getData(geomToken_);
-  geom_ = (nameSense_ == "HGCalEESensitive") ? static_cast<const HGCalGeometry*>(geo_.getSubdetectorGeometry(DetId::HGCalEE, ForwardSubdetector::ForwardEmpty)) : static_cast<const HGCalGeometry*>(geo_.getSubdetectorGeometry(DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
+  geom_ = (nameSense_ == "HGCalEESensitive") ? static_cast<const HGCalGeometry*>(geo_.getSubdetectorGeometry(
+                                                   DetId::HGCalEE, ForwardSubdetector::ForwardEmpty))
+                                             : static_cast<const HGCalGeometry*>(geo_.getSubdetectorGeometry(
+                                                   DetId::HGCalHSi, ForwardSubdetector::ForwardEmpty));
   edm::LogVerbatim("HGCalSim") << "HGCalToolTesterPartialWafer: beginRun Called for " << nameSense_;
 }
 
@@ -87,7 +90,8 @@ void HGCalToolTesterPartialWafer::analyze(const edm::Event& e, const edm::EventS
   bool getHits = (hitsCalo.isValid());
   uint32_t nhits = (getHits) ? hitsCalo->size() : 0;
   uint32_t good(0), allSi(0), all(0);
-  edm::LogVerbatim("HGCalSim") << "HGCalToolTesterPartialWafer: Input flags Hits " << getHits << " with " << nhits << " hits";
+  edm::LogVerbatim("HGCalSim") << "HGCalToolTesterPartialWafer: Input flags Hits " << getHits << " with " << nhits
+                               << " hits";
 
   if (getHits) {
     std::vector<PCaloHit> hits;
@@ -108,8 +112,9 @@ void HGCalToolTesterPartialWafer::analyze(const edm::Event& e, const edm::EventS
             GlobalPoint pos2 = tool_.getPosition(id);
             edm::LogVerbatim("HGCalSim") << "Hit[" << all << ":" << allSi << ":" << good << "]" << HGCSiliconDetId(id)
                                          << " Wafer Type:Part:Orient:Cassette " << info.type << ":" << info.part << ":"
-                                         << info.orient << ":" << info.cassette << " at (" << pos1.x() << ", " << pos1.y()
-                                         << ", " << pos1.z() << ") or (" <<pos2.x() << ", " << pos2.y() << ", " << pos2.z() << ")";
+                                         << info.orient << ":" << info.cassette << " at (" << pos1.x() << ", "
+                                         << pos1.y() << ", " << pos1.z() << ") or (" << pos2.x() << ", " << pos2.y()
+                                         << ", " << pos2.z() << ")";
           }
         }
       }
