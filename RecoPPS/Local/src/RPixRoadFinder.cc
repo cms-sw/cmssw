@@ -21,7 +21,6 @@ RPixRoadFinder::RPixRoadFinder(edm::ParameterSet const& parameterSet) : RPixDetP
   minRoadSize_ = parameterSet.getParameter<int>("minRoadSize");
   maxRoadSize_ = parameterSet.getParameter<int>("maxRoadSize");
   roadRadiusBadPot_ = parameterSet.getParameter<double>("roadRadiusBadPot");
-  //  isBadPot_ = parameterSet.getParameter<bool>("isBadPot");
 }
 
 //------------------------------------------------------------------------------------------------//
