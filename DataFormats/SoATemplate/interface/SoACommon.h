@@ -25,15 +25,15 @@
 #define SOA_HOST_ONLY
 #define SOA_DEVICE_ONLY
 #define SOA_HOST_DEVICE
-#define SOA_INLINE inline
+#define SOA_INLINE inline __attribute__((always_inline))
 #endif
 
 // Exception throwing (or willful crash in kernels)
 #if defined(__CUDACC__) && defined(__CUDA_ARCH__)
 #define SOA_THROW_OUT_OF_RANGE(A) \
   {                               \
-    printf(A "\n");               \
-    *((char*)nullptr) = 0;        \
+    printf("%s\n", (A));          \
+    __trap();                     \
   }
 #else
 #define SOA_THROW_OUT_OF_RANGE(A) \
@@ -46,7 +46,7 @@
 #define _VALUE_TYPE_EIGEN_COLUMN 2
 
 /* The size type need to be "hardcoded" in the template parameters for classes serialized by ROOT */
-#define CMS_SOA_BYTE_SIZE_TYPE size_t
+#define CMS_SOA_BYTE_SIZE_TYPE std::size_t
 
 namespace cms::soa {
 
@@ -61,208 +61,269 @@ namespace cms::soa {
     eigen = _VALUE_TYPE_EIGEN_COLUMN
   };
 
-  // XXX Changed enum class to bare bool + const values in class.
-  struct RestrictQualify {
-    static const bool Enabled = true;
-    static const bool Disabled = false;
-    static const bool Default = Disabled;
-  };
+  namespace RestrictQualify {
+    constexpr bool enabled = true;
+    constexpr bool disabled = false;
+    constexpr bool Default = disabled;
+  }  // namespace RestrictQualify
 
-  //enum class RestrictQualify : bool { Enabled, Disabled, Default = Disabled };
+  namespace RangeChecking {
+    constexpr bool enabled = true;
+    constexpr bool disabled = false;
+    constexpr bool Default = disabled;
+  }  // namespace RangeChecking
 
-  // XXX Changed enum class to bare bool + const values in class.
-  struct RangeChecking {
-    static const bool Enabled = true;
-    static const bool Disabled = false;
-    static const bool Default = Disabled;
-  };
-
-  //enum class RangeChecking : bool { Enabled, Disabled, Default = Disabled };
-
-  // XXX Changed enum class to bare bool + const values in class.
   template <typename T, bool RESTRICT_QUALIFY>
   struct add_restrict {};
 
   template <typename T>
-  struct add_restrict<T, RestrictQualify::Enabled> {
-    typedef T Value;
-    typedef T* __restrict__ Pointer;
-    typedef T& __restrict__ Reference;
-    typedef const T ConstValue;
-    typedef const T* __restrict__ PointerToConst;
-    typedef const T& __restrict__ ReferenceToConst;
+  struct add_restrict<T, RestrictQualify::enabled> {
+    using Value = T;
+    using Pointer = T* __restrict__;
+    using Reference = T& __restrict__;
+    using ConstValue = const T;
+    using PointerToConst = const T* __restrict__;
+    using ReferenceToConst = const T& __restrict__;
   };
 
   template <typename T>
-  struct add_restrict<T, RestrictQualify::Disabled> {
-    typedef T Value;
-    typedef T* Pointer;
-    typedef T& Reference;
-    typedef const T ConstValue;
-    typedef const T* PointerToConst;
-    typedef const T& ReferenceToConst;
+  struct add_restrict<T, RestrictQualify::disabled> {
+    using Value = T;
+    using Pointer = T*;
+    using Reference = T&;
+    using ConstValue = const T;
+    using PointerToConst = const T*;
+    using ReferenceToConst = const T&;
   };
+
+  // Forward declarations
+  template <SoAColumnType COLUMN_TYPE, typename T>
+  struct SoAConstParametersImpl;
+
   template <SoAColumnType COLUMN_TYPE, typename T>
   struct SoAParametersImpl;
 
-  // Templated parameter sets for scalar columns and Eigen columns
+  // Templated const parameter sets for scalars, columns and Eigen columns
   template <SoAColumnType COLUMN_TYPE, typename T>
   struct SoAConstParametersImpl {
-    static const SoAColumnType columnType = COLUMN_TYPE;
-    typedef T ValueType;
-    typedef const ValueType* TupleOrPointerType;
-    const ValueType* addr_ = nullptr;
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl(const ValueType* addr) : addr_(addr) {}
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl(const SoAConstParametersImpl& o) { addr_ = o.addr_; }
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl(const SoAParametersImpl<columnType, ValueType>& o) {
-      addr_ = o.addr_;
-    }
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl() {}
-    static bool checkAlignment(ValueType* addr, byte_size_type alignment) {
+    static constexpr SoAColumnType columnType = COLUMN_TYPE;
+
+    using ValueType = T;
+    using ScalarType = T;
+    using TupleOrPointerType = const ValueType*;
+
+    // default constructor
+    SoAConstParametersImpl() = default;
+
+    // constructor from an address
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ValueType const* addr) : addr_(addr) {}
+
+    // constructor from a non-const parameter set
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(SoAParametersImpl<columnType, ValueType> const& o)
+        : addr_{o.addr_} {}
+
+    static constexpr bool checkAlignment(ValueType* addr, byte_size_type alignment) {
       return reinterpret_cast<intptr_t>(addr) % alignment;
     }
+
+  public:
+    // scalar or column
+    ValueType const* addr_ = nullptr;
   };
 
+  // Templated const parameter specialisation for Eigen columns
   template <typename T>
   struct SoAConstParametersImpl<SoAColumnType::eigen, T> {
-    static const SoAColumnType columnType = SoAColumnType::eigen;
-    typedef T ValueType;
-    typedef typename T::Scalar ScalarType;
-    typedef std::tuple<ScalarType*, byte_size_type> TupleOrPointerType;
-    const ScalarType* addr_ = nullptr;
-    byte_size_type stride_ = 0;
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl(const ScalarType* addr, byte_size_type stride)
+    static constexpr SoAColumnType columnType = SoAColumnType::eigen;
+
+    using ValueType = T;
+    using ScalarType = typename T::Scalar;
+    using TupleOrPointerType = std::tuple<ScalarType*, byte_size_type>;
+
+    // default constructor
+    SoAConstParametersImpl() = default;
+
+    // constructor from individual address and stride
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(ScalarType const* addr, byte_size_type stride)
         : addr_(addr), stride_(stride) {}
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl(const TupleOrPointerType tuple)
+
+    // constructor from address and stride packed in a tuple
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(TupleOrPointerType const& tuple)
         : addr_(std::get<0>(tuple)), stride_(std::get<1>(tuple)) {}
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl(const ScalarType* addr) : addr_(addr) {}
-    // Trick setter + return self-reference allowing comma-free 2-stage construction in macro contexts (in combination with the
-    // addr-only constructor.
-    SoAConstParametersImpl& setStride(byte_size_type stride) {
-      stride_ = stride;
-      return *this;
-    }
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl(const SoAConstParametersImpl& o) {
-      addr_ = o.addr_;
-      stride_ = o.stride_;
-    }
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl(const SoAParametersImpl<columnType, ValueType>& o) {
-      addr_ = o.addr_;
-      stride_ = o.stride_;
-    }
-    SOA_HOST_DEVICE SOA_INLINE SoAConstParametersImpl() {}
-    static bool checkAlignment(const TupleOrPointerType tuple, byte_size_type alignment) {
+
+    // constructor from a non-const parameter set
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAConstParametersImpl(SoAParametersImpl<columnType, ValueType> const& o)
+        : addr_{o.addr_}, stride_{o.stride_} {}
+
+    static constexpr bool checkAlignment(TupleOrPointerType const& tuple, byte_size_type alignment) {
       const auto& [addr, stride] = tuple;
       return reinterpret_cast<intptr_t>(addr) % alignment;
     }
+
+  public:
+    // address and stride
+    ScalarType const* addr_ = nullptr;
+    byte_size_type stride_ = 0;
   };
 
-  // Matryoshka template to avoiding commas in macros
+  // Matryoshka template to avoid commas inside macros
   template <SoAColumnType COLUMN_TYPE>
   struct SoAConstParameters_ColumnType {
     template <typename T>
-    struct DataType : public SoAConstParametersImpl<COLUMN_TYPE, T> {
-      using SoAConstParametersImpl<COLUMN_TYPE, T>::SoAConstParametersImpl;
-    };
+    using DataType = SoAConstParametersImpl<COLUMN_TYPE, T>;
   };
 
-  // Templated parameter sets for scalar columns and Eigen columns
+  // Templated parameter sets for scalars, columns and Eigen columns
   template <SoAColumnType COLUMN_TYPE, typename T>
   struct SoAParametersImpl {
-    static const SoAColumnType columnType = COLUMN_TYPE;
-    typedef T ValueType;
-    typedef const ValueType* TupleOrPointerType;
-    typedef SoAConstParametersImpl<columnType, ValueType> ConstType;
+    static constexpr SoAColumnType columnType = COLUMN_TYPE;
+
+    using ValueType = T;
+    using ScalarType = T;
+    using TupleOrPointerType = ValueType*;
+
+    using ConstType = SoAConstParametersImpl<columnType, ValueType>;
     friend ConstType;
-    ValueType* addr_ = nullptr;
-    SOA_HOST_DEVICE SOA_INLINE SoAParametersImpl(ValueType* addr) : addr_(addr) {}
-    SOA_HOST_DEVICE SOA_INLINE SoAParametersImpl() {}
-    static bool checkAlignment(ValueType* addr, byte_size_type alignment) {
+
+    // default constructor
+    SoAParametersImpl() = default;
+
+    // constructor from an address
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ValueType* addr) : addr_(addr) {}
+
+    static constexpr bool checkAlignment(ValueType* addr, byte_size_type alignment) {
       return reinterpret_cast<intptr_t>(addr) % alignment;
     }
+
+  public:
+    // scalar or column
+    ValueType* addr_ = nullptr;
   };
 
+  // Templated parameter specialisation for Eigen columns
   template <typename T>
   struct SoAParametersImpl<SoAColumnType::eigen, T> {
-    static const SoAColumnType columnType = SoAColumnType::eigen;
-    typedef T ValueType;
-    typedef SoAConstParametersImpl<columnType, ValueType> ConstType;
+    static constexpr SoAColumnType columnType = SoAColumnType::eigen;
+
+    using ValueType = T;
+    using ScalarType = typename T::Scalar;
+    using TupleOrPointerType = std::tuple<ScalarType*, byte_size_type>;
+
+    using ConstType = SoAConstParametersImpl<columnType, ValueType>;
     friend ConstType;
-    typedef typename T::Scalar ScalarType;
-    typedef std::tuple<ScalarType*, byte_size_type> TupleOrPointerType;
-    ScalarType* addr_ = nullptr;
-    size_t stride_ = 0;
-    SOA_HOST_DEVICE SOA_INLINE SoAParametersImpl(ScalarType* addr, byte_size_type stride)
+
+    // default constructor
+    SoAParametersImpl() = default;
+
+    // constructor from individual address and stride
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(ScalarType* addr, byte_size_type stride)
         : addr_(addr), stride_(stride) {}
-    SOA_HOST_DEVICE SOA_INLINE SoAParametersImpl(const TupleOrPointerType tuple)
+
+    // constructor from address and stride packed in a tuple
+    SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl(TupleOrPointerType const& tuple)
         : addr_(std::get<0>(tuple)), stride_(std::get<1>(tuple)) {}
-    SOA_HOST_DEVICE SOA_INLINE SoAParametersImpl() {}
-    SOA_HOST_DEVICE SOA_INLINE SoAParametersImpl(ScalarType* addr) : addr_(addr) {}
-    // Trick setter + return self-reference allowing commat-free 2-stage construction in macro contexts (in combination with the
-    // addr-only constructor.
-    SoAParametersImpl& setStride(byte_size_type stride) {
-      stride_ = stride;
-      return *this;
-    }
-    static bool checkAlignment(const TupleOrPointerType tuple, byte_size_type alignment) {
+
+    static constexpr bool checkAlignment(TupleOrPointerType const& tuple, byte_size_type alignment) {
       const auto& [addr, stride] = tuple;
       return reinterpret_cast<intptr_t>(addr) % alignment;
     }
+
+  public:
+    // address and stride
+    ScalarType* addr_ = nullptr;
+    byte_size_type stride_ = 0;
   };
 
-  // Matryoshka template to avoiding commas in macros
+  // Matryoshka template to avoid commas inside macros
   template <SoAColumnType COLUMN_TYPE>
   struct SoAParameters_ColumnType {
     template <typename T>
-    struct DataType : public SoAParametersImpl<COLUMN_TYPE, T> {
-      using SoAParametersImpl<COLUMN_TYPE, T>::SoAParametersImpl;
-    };
+    using DataType = SoAParametersImpl<COLUMN_TYPE, T>;
   };
 
-  // Helper template managing the value within it column
+  // Helper converting a const parameter set to a non-const parameter set, to be used only in the constructor of non-const "element"
+  namespace {
+    template <typename T>
+    constexpr inline std::remove_const_t<T>* non_const_ptr(T* p) {
+      return const_cast<std::remove_const_t<T>*>(p);
+    }
+  }  // namespace
+
+  template <SoAColumnType COLUMN_TYPE, typename T>
+  SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl<COLUMN_TYPE, T> const_cast_SoAParametersImpl(
+      SoAConstParametersImpl<COLUMN_TYPE, T> const& o) {
+    return SoAParametersImpl<COLUMN_TYPE, T>{non_const_ptr(o.addr_)};
+  }
+
+  template <typename T>
+  SOA_HOST_DEVICE SOA_INLINE constexpr SoAParametersImpl<SoAColumnType::eigen, T> const_cast_SoAParametersImpl(
+      SoAConstParametersImpl<SoAColumnType::eigen, T> const& o) {
+    return SoAParametersImpl<SoAColumnType::eigen, T>{non_const_ptr(o.addr_), o.stride_};
+  }
+
+  // Helper template managing the value at index idx within a column.
   // The optional compile time alignment parameter enables informing the
   // compiler of alignment (enforced by caller).
   template <SoAColumnType COLUMN_TYPE,
             typename T,
             byte_size_type ALIGNMENT,
-            // XXX Changed enum class to bare bool + const values in class.
-            bool RESTRICT_QUALIFY = RestrictQualify::Disabled>
+            bool RESTRICT_QUALIFY = RestrictQualify::disabled>
   class SoAValue {
     // Eigen is implemented in a specialization
     static_assert(COLUMN_TYPE != SoAColumnType::eigen);
 
   public:
-    typedef add_restrict<T, RESTRICT_QUALIFY> Restr;
-    typedef typename Restr::Value Val;
-    typedef typename Restr::Pointer Ptr;
-    typedef typename Restr::Reference Ref;
-    typedef typename Restr::PointerToConst PtrToConst;
-    typedef typename Restr::ReferenceToConst RefToConst;
+    using Restr = add_restrict<T, RESTRICT_QUALIFY>;
+    using Val = typename Restr::Value;
+    using Ptr = typename Restr::Pointer;
+    using Ref = typename Restr::Reference;
+    using PtrToConst = typename Restr::PointerToConst;
+    using RefToConst = typename Restr::ReferenceToConst;
+
     SOA_HOST_DEVICE SOA_INLINE SoAValue(size_type i, T* col) : idx_(i), col_(col) {}
+
     SOA_HOST_DEVICE SOA_INLINE SoAValue(size_type i, SoAParametersImpl<COLUMN_TYPE, T> params)
         : idx_(i), col_(params.addr_) {}
-    /*
-    SOA_HOST_DEVICE SOA_INLINE operator T&() { return col_[idx_]; }
-    */
+
     SOA_HOST_DEVICE SOA_INLINE Ref operator()() {
       // Ptr type will add the restrict qualifyer if needed
       Ptr col = alignedCol();
       return col[idx_];
     }
+
     SOA_HOST_DEVICE SOA_INLINE RefToConst operator()() const {
       // PtrToConst type will add the restrict qualifyer if needed
       PtrToConst col = alignedCol();
       return col[idx_];
     }
+
     SOA_HOST_DEVICE SOA_INLINE Ptr operator&() { return &alignedCol()[idx_]; }
+
     SOA_HOST_DEVICE SOA_INLINE PtrToConst operator&() const { return &alignedCol()[idx_]; }
-    /*
+
+    /* This was an attempt to implement the syntax
+     *
+     *     old_value = view.x
+     *     view.x = new_value
+     *
+     * instead of
+     *
+     *     old_value = view.x()
+     *     view.x() = new_value
+     *
+     *  but it was found to break in some corner cases.
+     *  We keep them commented out for the time being.
+
+    SOA_HOST_DEVICE SOA_INLINE operator T&() { return col_[idx_]; }
+
     template <typename T2>
     SOA_HOST_DEVICE SOA_INLINE Ref operator=(const T2& v) {
       return alignedCol()[idx_] = v;
     }
     */
-    typedef Val valueType;
+
+    using valueType = Val;
+
     static constexpr auto valueSize = sizeof(T);
 
   private:
@@ -272,30 +333,33 @@ namespace cms::soa {
       }
       return reinterpret_cast<Ptr>(col_);
     }
+
     size_type idx_;
     T* col_;
   };
 
-  // Helper template managing the value within it column
-  // TODO Create a const variant to avoid leaking mutable access.
+  // Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.
 #ifdef EIGEN_WORLD_VERSION
+  // Helper template managing an Eigen-type value at index idx within a column.
   template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
   class SoAValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
   public:
-    typedef C Type;
-    typedef Eigen::Map<C, 0, Eigen::InnerStride<Eigen::Dynamic>> MapType;
-    typedef const Eigen::Map<const C, 0, Eigen::InnerStride<Eigen::Dynamic>> CMapType;
-    typedef add_restrict<typename C::Scalar, RESTRICT_QUALIFY> Restr;
-    typedef typename Restr::Value Val;
-    typedef typename Restr::Pointer Ptr;
-    typedef typename Restr::Reference Ref;
-    typedef typename Restr::PointerToConst PtrToConst;
-    typedef typename Restr::ReferenceToConst RefToConst;
+    using Type = C;
+    using MapType = Eigen::Map<C, 0, Eigen::InnerStride<Eigen::Dynamic>>;
+    using CMapType = const Eigen::Map<const C, 0, Eigen::InnerStride<Eigen::Dynamic>>;
+    using Restr = add_restrict<typename C::Scalar, RESTRICT_QUALIFY>;
+    using Val = typename Restr::Value;
+    using Ptr = typename Restr::Pointer;
+    using Ref = typename Restr::Reference;
+    using PtrToConst = typename Restr::PointerToConst;
+    using RefToConst = typename Restr::ReferenceToConst;
+
     SOA_HOST_DEVICE SOA_INLINE SoAValue(size_type i, typename C::Scalar* col, byte_size_type stride)
         : val_(col + i, C::RowsAtCompileTime, C::ColsAtCompileTime, Eigen::InnerStride<Eigen::Dynamic>(stride)),
           crCol_(col),
           cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, Eigen::InnerStride<Eigen::Dynamic>(stride)),
           stride_(stride) {}
+
     SOA_HOST_DEVICE SOA_INLINE SoAValue(size_type i, SoAParametersImpl<SoAColumnType::eigen, C> params)
         : val_(params.addr_ + i,
                C::RowsAtCompileTime,
@@ -307,17 +371,25 @@ namespace cms::soa {
                 C::ColsAtCompileTime,
                 Eigen::InnerStride<Eigen::Dynamic>(params.stride_)),
           stride_(params.stride_) {}
+
     SOA_HOST_DEVICE SOA_INLINE MapType& operator()() { return val_; }
+
     SOA_HOST_DEVICE SOA_INLINE const CMapType& operator()() const { return cVal_; }
+
     SOA_HOST_DEVICE SOA_INLINE operator C() { return val_; }
+
     SOA_HOST_DEVICE SOA_INLINE operator const C() const { return cVal_; }
+
     SOA_HOST_DEVICE SOA_INLINE C* operator&() { return &val_; }
+
     SOA_HOST_DEVICE SOA_INLINE const C* operator&() const { return &cVal_; }
+
     template <class C2>
     SOA_HOST_DEVICE SOA_INLINE MapType& operator=(const C2& v) {
       return val_ = v;
     }
-    typedef typename C::Scalar ValueType;
+
+    using ValueType = typename C::Scalar;
     static constexpr auto valueSize = sizeof(C::Scalar);
     SOA_HOST_DEVICE SOA_INLINE byte_size_type stride() const { return stride_; }
 
@@ -328,46 +400,64 @@ namespace cms::soa {
     byte_size_type stride_;
   };
 #else
-  // XXX Changed enum class to bare bool + const values in class.
+  // Raise a compile-time error
   template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
   class SoAValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
-    // Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.
     static_assert(!sizeof(C),
                   "Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.");
   };
 #endif
-  // Helper template managing the value within it column
+
+  // Helper template managing a const value at index idx within a column.
   template <SoAColumnType COLUMN_TYPE,
             typename T,
             byte_size_type ALIGNMENT,
-            // XXX Changed enum class to bare bool + const values in class.
-            bool RESTRICT_QUALIFY = RestrictQualify::Disabled>
+            bool RESTRICT_QUALIFY = RestrictQualify::disabled>
   class SoAConstValue {
     // Eigen is implemented in a specialization
     static_assert(COLUMN_TYPE != SoAColumnType::eigen);
 
   public:
-    typedef add_restrict<T, RESTRICT_QUALIFY> Restr;
-    typedef typename Restr::Value Val;
-    typedef typename Restr::Pointer Ptr;
-    typedef typename Restr::Reference Ref;
-    typedef typename Restr::PointerToConst PtrToConst;
-    typedef typename Restr::ReferenceToConst RefToConst;
-    typedef SoAParametersImpl<COLUMN_TYPE, T> Params;
-    typedef SoAConstParametersImpl<COLUMN_TYPE, T> ConstParams;
+    using Restr = add_restrict<T, RESTRICT_QUALIFY>;
+    using Val = typename Restr::Value;
+    using Ptr = typename Restr::Pointer;
+    using Ref = typename Restr::Reference;
+    using PtrToConst = typename Restr::PointerToConst;
+    using RefToConst = typename Restr::ReferenceToConst;
+    using Params = SoAParametersImpl<COLUMN_TYPE, T>;
+    using ConstParams = SoAConstParametersImpl<COLUMN_TYPE, T>;
+
     SOA_HOST_DEVICE SOA_INLINE SoAConstValue(size_type i, const T* col) : idx_(i), col_(col) {}
+
     SOA_HOST_DEVICE SOA_INLINE SoAConstValue(size_type i, SoAParametersImpl<COLUMN_TYPE, T> params)
         : idx_(i), col_(params.addr_) {}
+
     SOA_HOST_DEVICE SOA_INLINE SoAConstValue(size_type i, SoAConstParametersImpl<COLUMN_TYPE, T> params)
         : idx_(i), col_(params.addr_) {}
-    /* SOA_HOST_DEVICE SOA_INLINE operator T&() { return col_[idx_]; } */
+
     SOA_HOST_DEVICE SOA_INLINE RefToConst operator()() const {
       // Ptr type will add the restrict qualifyer if needed
       PtrToConst col = alignedCol();
       return col[idx_];
     }
+
     SOA_HOST_DEVICE SOA_INLINE const T* operator&() const { return &alignedCol()[idx_]; }
-    typedef T valueType;
+
+    /* This was an attempt to implement the syntax
+     *
+     *     old_value = view.x
+     *
+     * instead of
+     *
+     *     old_value = view.x()
+     *
+     *  but it was found to break in some corner cases.
+     *  We keep them commented out for the time being.
+
+    SOA_HOST_DEVICE SOA_INLINE operator T&() { return col_[idx_]; }
+    */
+
+    using valueType = T;
     static constexpr auto valueSize = sizeof(T);
 
   private:
@@ -377,24 +467,27 @@ namespace cms::soa {
       }
       return reinterpret_cast<PtrToConst>(col_);
     }
+
     size_type idx_;
     const T* col_;
   };
 
+  // Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.
 #ifdef EIGEN_WORLD_VERSION
-  // Helper template managing the value within it column
-  // TODO Create a const variant to avoid leaking mutable access.
+  // Helper template managing a const Eigen-type value at index idx within a column.
   template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
   class SoAConstValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
   public:
-    typedef C Type;
-    typedef Eigen::Map<const C, 0, Eigen::InnerStride<Eigen::Dynamic>> CMapType;
-    typedef const CMapType& RefToConst;
-    typedef SoAConstParametersImpl<SoAColumnType::eigen, C> ConstParams;
+    using Type = C;
+    using CMapType = Eigen::Map<const C, 0, Eigen::InnerStride<Eigen::Dynamic>>;
+    using RefToConst = const CMapType&;
+    using ConstParams = SoAConstParametersImpl<SoAColumnType::eigen, C>;
+
     SOA_HOST_DEVICE SOA_INLINE SoAConstValue(size_type i, typename C::Scalar* col, byte_size_type stride)
         : crCol_(col),
           cVal_(crCol_ + i, C::RowsAtCompileTime, C::ColsAtCompileTime, Eigen::InnerStride<Eigen::Dynamic>(stride)),
           stride_(stride) {}
+
     SOA_HOST_DEVICE SOA_INLINE SoAConstValue(size_type i, SoAConstParametersImpl<SoAColumnType::eigen, C> params)
         : crCol_(params.addr_),
           cVal_(crCol_ + i,
@@ -402,11 +495,16 @@ namespace cms::soa {
                 C::ColsAtCompileTime,
                 Eigen::InnerStride<Eigen::Dynamic>(params.stride_)),
           stride_(params.stride_) {}
+
     SOA_HOST_DEVICE SOA_INLINE const CMapType& operator()() const { return cVal_; }
+
     SOA_HOST_DEVICE SOA_INLINE operator const C() const { return cVal_; }
+
     SOA_HOST_DEVICE SOA_INLINE const C* operator&() const { return &cVal_; }
-    typedef typename C::Scalar ValueType;
+
+    using ValueType = typename C::Scalar;
     static constexpr auto valueSize = sizeof(C::Scalar);
+
     SOA_HOST_DEVICE SOA_INLINE byte_size_type stride() const { return stride_; }
 
   private:
@@ -415,23 +513,24 @@ namespace cms::soa {
     byte_size_type stride_;
   };
 #else
-  // XXX Changed enum class to bare bool + const values in class.
+  // Raise a compile-time error
   template <class C, byte_size_type ALIGNMENT, bool RESTRICT_QUALIFY>
   class SoAConstValue<SoAColumnType::eigen, C, ALIGNMENT, RESTRICT_QUALIFY> {
-    // Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.
     static_assert(!sizeof(C),
                   "Eigen/Core should be pre-included before the SoA headers to enable support for Eigen columns.");
   };
 #endif
 
-  // Helper template to avoid commas in macro
+  // Helper template to avoid commas inside macros
 #ifdef EIGEN_WORLD_VERSION
   template <class C>
   struct EigenConstMapMaker {
-    typedef Eigen::Map<const C, Eigen::AlignmentType::Unaligned, Eigen::InnerStride<Eigen::Dynamic>> Type;
+    using Type = Eigen::Map<const C, Eigen::AlignmentType::Unaligned, Eigen::InnerStride<Eigen::Dynamic>>;
+
     class DataHolder {
     public:
       DataHolder(const typename C::Scalar* data) : data_(data) {}
+
       EigenConstMapMaker::Type withStride(byte_size_type stride) {
         return EigenConstMapMaker::Type(
             data_, C::RowsAtCompileTime, C::ColsAtCompileTime, Eigen::InnerStride<Eigen::Dynamic>(stride));
@@ -440,6 +539,7 @@ namespace cms::soa {
     private:
       const typename C::Scalar* const data_;
     };
+
     static DataHolder withData(const typename C::Scalar* data) { return DataHolder(data); }
   };
 #else
@@ -465,6 +565,7 @@ namespace cms::soa {
 /* Iterate on the macro MACRO and return the result as a comma separated list */
 #define _ITERATE_ON_ALL_COMMA(MACRO, DATA, ...) \
   BOOST_PP_TUPLE_ENUM(BOOST_PP_SEQ_TO_TUPLE(_ITERATE_ON_ALL(MACRO, DATA, __VA_ARGS__)))
+
 /* Iterate MACRO on all elements */
 #define _ITERATE_ON_ALL(MACRO, DATA, ...) BOOST_PP_SEQ_FOR_EACH(MACRO, DATA, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
 
@@ -486,8 +587,10 @@ namespace cms::soa {
   template <typename, SoAColumnType, SoAAccessType>
   struct SoAColumnAccessorsImpl {};
 
-  // Todo: add alignment support.
-  // Sfinae based const/non const variants.
+  // TODO from Eric Cano:
+  //   - add alignment support
+  //   - SFINAE-based const/non const variants
+
   // Column
   template <typename T>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::column, SoAAccessType::mutableAccess> {
@@ -495,7 +598,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::column, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T* operator()() { return params_.addr_; }
-    typedef T* NoParamReturnType;
+    using NoParamReturnType = T*;
     SOA_HOST_DEVICE SOA_INLINE T& operator()(size_type index) { return params_.addr_[index]; }
 
   private:
@@ -508,7 +611,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::column, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE const T* operator()() const { return params_.addr_; }
-    typedef T* NoParamReturnType;
+    using NoParamReturnType = const T*;
     SOA_HOST_DEVICE SOA_INLINE T operator()(size_type index) const { return params_.addr_[index]; }
 
   private:
@@ -521,7 +624,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::scalar, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T& operator()() { return *params_.addr_; }
-    typedef T& NoParamReturnType;
+    using NoParamReturnType = T&;
     SOA_HOST_DEVICE SOA_INLINE void operator()(size_type index) const {
       assert(false && "Indexed access impossible for SoA scalars.");
     }
@@ -536,7 +639,7 @@ namespace cms::soa {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::scalar, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE T operator()() const { return *params_.addr_; }
-    typedef T NoParamReturnType;
+    using NoParamReturnType = T;
     SOA_HOST_DEVICE SOA_INLINE void operator()(size_type index) const {
       assert(false && "Indexed access impossible for SoA scalars.");
     }
@@ -545,33 +648,34 @@ namespace cms::soa {
     SoAConstParametersImpl<SoAColumnType::scalar, T> params_;
   };
 
+  // Eigen-type
   template <typename T>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::mutableAccess> {
     //SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(T* baseAddress) : baseAddress_(baseAddress) {}
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAParametersImpl<SoAColumnType::eigen, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE typename T::Scalar* operator()() { return params_.addr_; }
-    typedef typename T::Scalar* NoParamReturnType;
+    using NoParamReturnType = typename T::Scalar*;
     //SOA_HOST_DEVICE SOA_INLINE T& operator()(size_type index) { return params_.addr_[index]; }
 
   private:
     SoAParametersImpl<SoAColumnType::eigen, T> params_;
   };
 
-  // Const column
+  // Const Eigen-type
   template <typename T>
   struct SoAColumnAccessorsImpl<T, SoAColumnType::eigen, SoAAccessType::constAccess> {
     SOA_HOST_DEVICE SOA_INLINE SoAColumnAccessorsImpl(const SoAConstParametersImpl<SoAColumnType::eigen, T>& params)
         : params_(params) {}
     SOA_HOST_DEVICE SOA_INLINE const typename T::Scalar* operator()() const { return params_.addr_; }
-    typedef typename T::Scalar* NoParamReturnType;
+    using NoParamReturnType = typename T::Scalar*;
     //SOA_HOST_DEVICE SOA_INLINE T operator()(size_type index) const { return params_.addr_[index]; }
 
   private:
     SoAConstParametersImpl<SoAColumnType::eigen, T> params_;
   };
 
-  /* A helper template stager avoiding comma in macros */
+  /* A helper template stager to avoid commas inside macros */
   template <typename T>
   struct SoAAccessors {
     template <auto columnType>
@@ -587,8 +691,8 @@ namespace cms::soa {
   /* Alignment enforcement verifies every column is aligned, and
    * hints the compiler that it can expect column pointers to be aligned */
   struct AlignmentEnforcement {
-    static constexpr bool Relaxed = false;
-    static constexpr bool Enforced = true;
+    static constexpr bool relaxed = false;
+    static constexpr bool enforced = true;
   };
 
   struct CacheLineSize {
