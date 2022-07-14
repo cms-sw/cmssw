@@ -110,6 +110,9 @@ void comparisonScript(pt::ptree GCPoptions,
     rot->SetPrintOption("png");
     rot->MakePlots(x, b, GCPoptions);
   }
+
+  delete trans;
+  delete rot;
 }
 
 void vizualizationScript(TString inFile, TString outDir, TString alignmentName, TString referenceName) {
