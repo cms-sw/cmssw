@@ -25,8 +25,6 @@ TritonData<IO>::TritonData(const std::string& name,
       //ensure unique name for shared memory region
       shmName_(useShm_ ? pid + "_" + xput() + std::to_string(uid()) : ""),
       dims_(model_info.shape().begin(), model_info.shape().end()),
-      noBatch_(client_->noBatch()),
-      batchSize_(0),
       dname_(model_info.datatype()),
       dtype_(tco::ProtocolStringToDataType(dname_)),
       byteSize_(tco::GetDataTypeByteSize(dtype_)),
@@ -56,7 +54,7 @@ void TritonData<IO>::addEntryImpl(unsigned entry) {
   if (entry >= entries_.size()) {
     entries_.reserve(entry+1);
     for (unsigned i = entries_.size(); i < entry+1; ++i) {
-      entries_.emplace_back(dims_, noBatch_, name_, dname_);
+      entries_.emplace_back(dims_, client_->noOuterDim(), name_, dname_);
     }
   }
 }
@@ -116,27 +114,6 @@ void TritonData<IO>::setShape(unsigned loc, int64_t val, unsigned entry) {
 }
 
 template <typename IO>
-void TritonData<IO>::setBatchSize(unsigned bsize) {
-  batchSize_ = bsize;
-  if (!noBatch_) {
-    //zero disables inference in TritonClient: remove all entries
-    if (batchSize_==0)
-      entries_.clear();
-    //should only be set to 1 in cases when entries > 1
-    else if (batchSize_==1 or entries_.size()==1) {
-      //in case batch size was previously zero for some reason
-      if (entries_.empty())
-        addEntryImpl(0);
-      for (auto& entry : entries_) {
-        entry.fullShape_[0] = batchSize_;
-      }
-    }
-    else
-      throw cms::Exception("TritonDataError") << "attempt to set batch size to " << bsize << " when ragged batching is in use";
-  }
-}
-
-template <typename IO>
 void TritonData<IO>::TritonDataEntry::computeSizes(int64_t shapeSize, int64_t byteSize, int64_t batchSize) {
   sizeShape_ = shapeSize;
   byteSizePerBatch_ = byteSize * sizeShape_;
@@ -146,8 +123,9 @@ void TritonData<IO>::TritonDataEntry::computeSizes(int64_t shapeSize, int64_t by
 template <typename IO>
 void TritonData<IO>::computeSizes() {
   totalByteSize_ = 0;
+  unsigned outerDim = client_->outerDim();
   for (unsigned i = 0; i < entries_.size(); ++i) {
-    entries_[i].computeSizes(sizeShape(i), byteSize_, batchSize_);
+    entries_[i].computeSizes(sizeShape(i), byteSize_, outerDim);
     entries_[i].offset_ = totalByteSize_;
     totalByteSize_ += entries_[i].totalByteSize_;
   }
@@ -186,8 +164,8 @@ void TritonData<IO>::updateMem(size_t size) {
 template <>
 template <typename DT>
 TritonInputContainer<DT> TritonInputData::allocate(bool reserve) {
-  //automatically creates a vector for each entry (if batch size or entry size known)
-  auto ptr = std::make_shared<TritonInput<DT>>(getEntrySize());
+  //automatically creates a vector for each item (if batch size known)
+  auto ptr = std::make_shared<TritonInput<DT>>(client_->batchSize());
   if (reserve) {
     computeSizes();
     for (auto& entry : entries_){
@@ -210,13 +188,11 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
   const auto& data_in = *ptr;
 
   //check batch size
-  if (entries_.size()==1 and data_in.size() != batchSize_) {
+  unsigned batchSize = client_->batchSize();
+  unsigned outerDim = client_->outerDim();
+  if (data_in.size() != batchSize) {
     throw cms::Exception("TritonDataError") << name_ << " toServer(): input vector has size " << data_in.size()
-                                            << " but specified batch size is " << batchSize_;
-  }
-  else if (entries_.size()>1 and data_in.size() != entries_.size()) {
-    throw cms::Exception("TritonDataError") << name_ << " toServer(): input vector has size " << data_in.size()
-                                            << " but specified entries size is " << entries_.size();
+                                            << " but specified batch size is " << batchSize;
   }
 
   //check type
@@ -231,9 +207,11 @@ void TritonInputData::toServer(TritonInputContainer<DT> ptr) {
     auto& entry = entries_[i];
 
     //shape must be specified for variable dims or if batch size changes
+    if (!client_->noOuterDim())
+      entry.fullShape_[0] = outerDim;
     entry.data_->SetShape(entry.fullShape_);
 
-    for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
+    for (unsigned i0 = 0; i0 < outerDim; ++i0) {
       memResource_->copyInput(data_in[counter].data(), offset, i);
       offset += entry.byteSizePerBatch_;
       ++counter;
@@ -266,8 +244,9 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
 
   memResource_->copyOutput();
 
+  unsigned outerDim = client_->outerDim();
   TritonOutput<DT> dataOut;
-  dataOut.reserve(getEntrySize());
+  dataOut.reserve(client_->batchSize());
   for (unsigned i = 0; i < entries_.size(); ++i) {
     const auto& entry = entries_[i];
     const DT* r1 = reinterpret_cast<const DT*>(entry.output_);
@@ -276,7 +255,7 @@ TritonOutput<DT> TritonOutputData::fromServer() const {
       throw cms::Exception("TritonDataError") << name_ << " fromServer(): missing result";
     }
 
-    for (unsigned i0 = 0; i0 < batchSize_; ++i0) {
+    for (unsigned i0 = 0; i0 < outerDim; ++i0) {
       auto offset = i0 * entry.sizeShape_;
       dataOut.emplace_back(r1 + offset, r1 + offset + entry.sizeShape_);
     }
@@ -295,6 +274,12 @@ void TritonData<IO>::reset() {
   //re-initialize first shape entry
   addEntryImpl(0);
 }
+
+template <typename IO>
+unsigned TritonData<IO>::fullLoc(unsigned loc) const {
+  return loc + (client_->noOuterDim() ? 0 : 1);
+}
+
 
 //explicit template instantiation declarations
 template class TritonData<tc::InferInput>;
