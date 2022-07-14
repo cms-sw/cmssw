@@ -100,4 +100,26 @@ namespace edm {
     os << " stream: " << sc.streamID();
   }
 
+  std::string_view transitionName(StreamContext::Transition iTrans) {
+    switch (iTrans) {
+      case StreamContext::Transition::kBeginStream:
+        return "begin Stream";
+      case StreamContext::Transition::kBeginRun:
+        return "stream begin Run";
+      case StreamContext::Transition::kBeginLuminosityBlock:
+        return "stream begin LuminosityBlock";
+      case StreamContext::Transition::kEvent:
+        return "Event";
+      case StreamContext::Transition::kEndLuminosityBlock:
+        return "stream end LuminosityBlock";
+      case StreamContext::Transition::kEndRun:
+        return "stream end Run";
+      case StreamContext::Transition::kEndStream:
+        return "end Stream";
+      case StreamContext::Transition::kInvalid:
+        return "Invalid";
+    }
+    return "Unknown";
+  }
+
 }  // namespace edm
