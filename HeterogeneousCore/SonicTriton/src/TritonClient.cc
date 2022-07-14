@@ -186,8 +186,12 @@ void TritonClient::resetBatchMode() {
   manualBatchMode_ = false;
 }
 
+unsigned TritonClient::nEntries() const {
+  return !input_.empty() ? input_.begin()->second.entries_.size() : 0;
+}
+
 unsigned TritonClient::batchSize() const {
-  return batchMode_==TritonBatchMode::Rectangular ? outerDim_ : nEntries_;
+  return batchMode_==TritonBatchMode::Rectangular ? outerDim_ : nEntries();
 }
 
 bool TritonClient::setBatchSize(unsigned bsize) {
@@ -202,7 +206,6 @@ bool TritonClient::setBatchSize(unsigned bsize) {
     }
   } else {
     addEntry(bsize);
-    nEntries_ = bsize;
     outerDim_ = 1;
     return true;
   }
@@ -215,8 +218,10 @@ void TritonClient::addEntry(unsigned entry) {
   for (auto& element : output_) {
     element.second.addEntryImpl(entry);
   }
-  if (entry>0)
+  if (entry>0) {
     batchMode_ = TritonBatchMode::Ragged;
+    outerDim_ = 1;
+  }
 }
 
 void TritonClient::reset() {
@@ -280,24 +285,24 @@ void TritonClient::evaluate() {
 
   //set up input pointers for triton (generalized for multi-request ragged batching case)
   //one vector<InferInput*> per request
-  unsigned nEntries = input_.begin()->second.entries_.size();
-  std::vector<std::vector<triton::client::InferInput*>> inputsTriton(nEntries);
+  unsigned nEntriesVal = nEntries();
+  std::vector<std::vector<triton::client::InferInput*>> inputsTriton(nEntriesVal);
   for (auto& inputTriton : inputsTriton) {
     inputTriton.reserve(input_.size());
   }
   for (auto& [iname, input] : input_) {
-    for (unsigned i = 0; i < nEntries; ++i){
+    for (unsigned i = 0; i < nEntriesVal; ++i){
       inputsTriton[i].push_back(input.data(i));
     }
   }
 
   //set up output pointers similarly
-  std::vector<std::vector<const triton::client::InferRequestedOutput*>> outputsTriton(nEntries);
+  std::vector<std::vector<const triton::client::InferRequestedOutput*>> outputsTriton(nEntriesVal);
   for (auto& outputTriton : outputsTriton) {
     outputTriton.reserve(output_.size());
   }
   for (auto& [oname, output] : output_) {
-    for (unsigned i = 0; i < nEntries; ++i){
+    for (unsigned i = 0; i < nEntriesVal; ++i){
       outputsTriton[i].push_back(output.data(i));
     }
   }
