@@ -322,8 +322,11 @@ void MillePedeFileReader ::readMillePedeResultFile() {
           if (fraction_ >= fractions_[ali][i]) {
             updateDB_ = true;
             ss << "   above fraction threshold" << std::endl;
-          } else
+            fractionExceeded_[ali][i] = true;
+          } else {
             ss << std::endl;
+            fractionExceeded_[ali][i] = false;
+          }
         } else
           ss << "No entries available or no fraction thresholds defined" << std::endl;
       }
