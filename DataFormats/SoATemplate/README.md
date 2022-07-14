@@ -65,7 +65,7 @@ Serialization of Eigen data is not yet supported.
 
 The template shared by layouts and parameters are:
 - Byte aligment (defaulting to the nVidia GPU cache line size (128 bytes))
-- Alignment enforcement (`Relaxed` or `Enforced`). When enforced, the alignment will be checked at construction
+- Alignment enforcement (`relaxed` or `enforced`). When enforced, the alignment will be checked at construction
   time, and the accesses are done with compiler hinting (using the widely supported `__builtin_assume_aligned`
   intrinsic).
 
@@ -121,11 +121,11 @@ GENERATE_SOA_LAYOUT(SoA1LayoutTemplate,
 
 // Default template parameters are <
 //   size_t ALIGNMENT = cms::soa::CacheLineSize::defaultSize,
-//   bool ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::Relaxed
+//   bool ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed
 // >
 using SoA1Layout = SoA1LayoutTemplate<>;
 
-using SoA1LayoutAligned = SoA1LayoutTemplate<cms::soa::CacheLineSize::defaultSize, cms::soa::AlignmentEnforcement::Enforced>;
+using SoA1LayoutAligned = SoA1LayoutTemplate<cms::soa::CacheLineSize::defaultSize, cms::soa::AlignmentEnforcement::enforced>;
 ```
 
 The buffer of the proper size is allocated, and the layout is populated with:
@@ -178,26 +178,26 @@ The mutable and const views with the exact same set of columns and their paramet
 // (Pseudo-code)
 struct SoA1Layout::View;
 
-template<bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,
-         bool RANGE_CHECKING = cms::soa::RangeChecking::Default>
+template<bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,
+         bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
 struct SoA1Layout::ViewTemplate;
 
 template<size_t ALIGNMENT = cms::soa::CacheLineSize::defaultSize,
-         bool ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::Relaxed,
-         bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,
-         bool RANGE_CHECKING = cms::soa::RangeChecking::Default>
+         bool ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,
+         bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,
+         bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
 struct SoA1Layout::ViewTemplateFreeParams;
 
 struct SoA1Layout::ConstView;
 
-template<bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,
-         bool RANGE_CHECKING = cms::soa::RangeChecking::Default>
+template<bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,
+         bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
 struct SoA1Layout::ConstViewTemplate;
 
 template<size_t ALIGNMENT = cms::soa::CacheLineSize::defaultSize,
-         bool ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::Relaxed,
-         bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::Default,
-         bool RANGE_CHECKING = cms::soa::RangeChecking::Default>
+         bool ALIGNMENT_ENFORCEMENT = cms::soa::AlignmentEnforcement::relaxed,
+         bool RESTRICT_QUALIFY = cms::soa::RestrictQualify::enabled,
+         bool RANGE_CHECKING = cms::soa::RangeChecking::disabled>
 struct SoA1Layout::ConstViewTemplateFreeParams;
 ```
 

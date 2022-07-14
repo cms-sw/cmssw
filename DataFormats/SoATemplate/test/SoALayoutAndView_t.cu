@@ -48,7 +48,8 @@ using SoADeviceOnlyLayout = SoADeviceOnlyLayoutTemplate<>;
 using SoADeviceOnlyView = SoADeviceOnlyLayout::View;
 
 // A 1 to 1 view of the store (except for unsupported types).
-GENERATE_SOA_VIEW(SoAFullDeviceViewTemplate,
+GENERATE_SOA_VIEW(SoAFullDeviceConstViewTemplate,
+                  SoAFullDeviceViewTemplate,
                   SOA_VIEW_LAYOUT_LIST(SOA_VIEW_LAYOUT(SoAHostDeviceLayout, soaHD),
                                        SOA_VIEW_LAYOUT(SoADeviceOnlyLayout, soaDO)),
                   SOA_VIEW_LAYOUT_LIST(SOA_VIEW_VALUE(soaHD, x),
@@ -63,7 +64,7 @@ GENERATE_SOA_VIEW(SoAFullDeviceViewTemplate,
                                        SOA_VIEW_VALUE(soaHD, someNumber)))
 
 using SoAFullDeviceView =
-    SoAFullDeviceViewTemplate<cms::soa::CacheLineSize::NvidiaGPU, cms::soa::AlignmentEnforcement::Enforced>;
+    SoAFullDeviceViewTemplate<cms::soa::CacheLineSize::NvidiaGPU, cms::soa::AlignmentEnforcement::enforced>;
 
 // Eigen cross product kernel (on store)
 __global__ void crossProduct(SoAHostDeviceView soa, const unsigned int numElements) {
@@ -95,7 +96,7 @@ __global__ void consumerKernel(SoAFullDeviceView soa, const unsigned int numElem
 
 // Get a view like the default, except for range checking
 using RangeCheckingHostDeviceView =
-    SoAHostDeviceLayout::ViewTemplate<SoAHostDeviceView::restrictQualify, cms::soa::RangeChecking::Enabled>;
+    SoAHostDeviceLayout::ViewTemplate<SoAHostDeviceView::restrictQualify, cms::soa::RangeChecking::enabled>;
 
 // We expect to just run one thread.
 __global__ void rangeCheckKernel(RangeCheckingHostDeviceView soa) {
@@ -235,7 +236,7 @@ int main(void) {
   // Validation of range checking
   try {
     // Get a view like the default, except for range checking
-    SoAHostDeviceLayout::ViewTemplate<SoAHostDeviceView::restrictQualify, cms::soa::RangeChecking::Enabled>
+    SoAHostDeviceLayout::ViewTemplate<SoAHostDeviceView::restrictQualify, cms::soa::RangeChecking::enabled>
         soa1viewRangeChecking(h_soahdLayout);
     // This should throw an exception
     [[maybe_unused]] auto si = soa1viewRangeChecking[soa1viewRangeChecking.metadata().size()];
