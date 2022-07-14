@@ -20,6 +20,7 @@
 
 //#define DEBUG
 #include "Debug.h"
+//#define DEBUG_FINAL_FIT
 
 #include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/parallel_for_each.h"
@@ -294,7 +295,7 @@ namespace mkfit {
             m_seedEtaSeparators[2] - m_seedEtaSeparators[1], m_seedMinLastLayer[2], m_seedMaxLastLayer[2],
             m_seedEtaSeparators[3] - m_seedEtaSeparators[2], m_seedMinLastLayer[3], m_seedMaxLastLayer[3],
             m_seedEtaSeparators[4] - m_seedEtaSeparators[3], m_seedMinLastLayer[4], m_seedMaxLastLayer[4]);
-    dcall(print_seeds(m_event_of_comb_cands));
+    // dcall(print_seeds(m_event_of_comb_cands));
     // clang-format on
   }
 
@@ -1178,14 +1179,14 @@ namespace mkfit {
   void MkBuilder::fit_cands_BH(MkFinder *mkfndr, int start_cand, int end_cand, int region) {
     const SteeringParams &st_par = m_job->steering_params(region);
     const PropagationConfig &prop_config = PropagationConfig::get_default();
-#ifdef DEBUG
+#ifdef DEBUG_FINAL_FIT
     EventOfCombCandidates &eoccs = m_event_of_comb_cands;
 #endif
 
     for (int icand = start_cand; icand < end_cand; icand += NN) {
       const int end = std::min(icand + NN, end_cand);
 
-#ifdef DEBUG
+#ifdef DEBUG_FINAL_FIT
       printf("Pre Final fit for %d - %d\n", icand, end);
       for (int i = icand; i < end; ++i) {
         const TrackCand &t = eoccs[i][0];
@@ -1268,7 +1269,7 @@ namespace mkfit {
       // copy out full set of info at last propagated position
       mkfndr->bkFitOutputTracks(m_tracks, icand, end, prop_config.backward_fit_to_pca);
 
-#ifdef DEBUG
+#ifdef DEBUG_FINAL_FIT
       printf("Post Final fit for %d - %d\n", icand, end);
       for (int i = icand; i < end; ++i) {
         const TrackCand &t = eoccs[i][0];
@@ -1321,7 +1322,7 @@ namespace mkfit {
     for (int icand = start_cand; icand < end_cand; icand += step) {
       int end = std::min(icand + NN, end_cand);
 
-#ifdef DEBUG
+#ifdef DEBUG_FINAL_FIT
       printf("Pre Final fit for %d - %d\n", icand, end);
       for (int i = icand; i < end; ++i) {
         const TrackCand &t = eoccs[i][0];
@@ -1369,7 +1370,7 @@ namespace mkfit {
 
       mkfndr->bkFitOutputTracks(eoccs, icand, end, prop_config.backward_fit_to_pca);
 
-#ifdef DEBUG
+#ifdef DEBUG_FINAL_FIT
       printf("Post Final fit for %d - %d\n", icand, end);
       for (int i = icand; i < end; ++i) {
         const TrackCand &t = eoccs[i][0];
