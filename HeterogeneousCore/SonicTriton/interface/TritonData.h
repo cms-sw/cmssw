@@ -105,6 +105,14 @@ private:
         createObject(&iotmp, name, dname);
         data_.reset(iotmp);
       }
+      //default needed to be able to use std::vector resize()
+      TritonDataEntry()
+          : shape_(fullShape_.begin(), fullShape_.end()),
+            sizeShape_(0),
+            byteSizePerBatch_(0),
+            totalByteSize_(0),
+            offset_(0),
+            output_(nullptr) { }
 
     private:
       friend class TritonData<IO>;

@@ -177,7 +177,7 @@ void TritonClient::setBatchMode(TritonBatchMode batchMode) {
   batchMode_ = batchMode;
   manualBatchMode_ = true;
   //this allows calling setBatchSize() and setBatchMode() in either order consistently to change back and forth
-  //but changing from ragged to rectangular once multiple entries may cause issues; todo: check this case
+  //includes handling of change from ragged to rectangular if multiple entries already created
   setBatchSize(oldBatchSize);
 }
 
@@ -202,12 +202,26 @@ bool TritonClient::setBatchSize(unsigned bsize) {
       return false;
     } else {
       outerDim_ = bsize;
+      resizeEntries(1);
       return true;
     }
   } else {
-    addEntry(bsize);
+    resizeEntries(bsize);
     outerDim_ = 1;
     return true;
+  }
+}
+
+void TritonClient::resizeEntries(unsigned entry) {
+  if (entry > nEntries())
+    addEntry(entry);
+  else if (entry < nEntries()) {
+    for (auto& element : input_) {
+      element.second.entries_.resize(entry);
+    }
+    for (auto& element : output_) {
+      element.second.entries_.resize(entry);
+    }
   }
 }
 
