@@ -55,6 +55,7 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
     h_yRot = booker.book1D("Yrot", "Alignment fit #Delta#theta_{Y};;#murad", 36, 0., 36.);
     h_zPos = booker.book1D("Zpos", "Alignment fit #DeltaZ;;#mum", 36, 0., 36.);
     h_zRot = booker.book1D("Zrot", "Alignment fit #Delta#theta_{Z};;#murad", 36, 0., 36.);
+    statusResults = booker.book2D("statusResults", "Status of SiPixelAli PCL workflow;;", 6, 0., 6., 1, 0., 1.);
   } else {
     booker.setCurrentFolder("AlCaReco/SiPixelAliHG/");
 
@@ -101,9 +102,11 @@ void MillePedeDQMModule ::bookHistograms(DQMStore::IBooker& booker) {
                                              0.,
                                              layer.second);
     }
+
+    statusResults =
+        booker.book2D("statusResults", "Fraction threshold check for SiPixelAliHG PCL;;", 6, 0., 6., 10, 0., 10.);
   }
 
-  statusResults = booker.book2D("statusResults", "Status of SiPixelAli PCL workflow;;", 6, 0., 6., 1, 0., 1.);
   binariesAvalaible = booker.bookInt("BinariesFound");
   exitCode = booker.bookString("PedeExitCode", "");
 
@@ -120,10 +123,11 @@ void MillePedeDQMModule ::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IGetter
   }
   if (!isHG_) {
     fillExpertHistos();
+    fillStatusHisto(statusResults);
   } else {
     fillExpertHistos_HG();
+    fillStatusHistoHG(statusResults);
   }
-  fillStatusHisto(statusResults);
   binariesAvalaible->Fill(mpReader_->binariesAmount());
   auto theResults = mpReader_->getResults();
   std::string exitCodeStr = theResults.getExitMessage();
@@ -186,6 +190,26 @@ void MillePedeDQMModule ::fillStatusHisto(MonitorElement* statusHisto) {
   histo_status->GetXaxis()->SetBinLabel(5, "within max error");
   histo_status->SetBinContent(6, 1, !theResults.belowSignificance());
   histo_status->GetXaxis()->SetBinLabel(6, "above significance");
+}
+
+void MillePedeDQMModule ::fillStatusHistoHG(MonitorElement* statusHisto) {
+  TH2F* histo_status = statusHisto->getTH2F();
+  auto& theResults = mpReader_->getResultsHG();
+  histo_status->GetXaxis()->SetBinLabel(1, "#DeltaX");
+  histo_status->GetXaxis()->SetBinLabel(2, "#Delta#theta_{X}");
+  histo_status->GetXaxis()->SetBinLabel(3, "#DeltaY");
+  histo_status->GetXaxis()->SetBinLabel(4, "#Delta#theta_{Y}");
+  histo_status->GetXaxis()->SetBinLabel(5, "#DeltaZ");
+  histo_status->GetXaxis()->SetBinLabel(6, "#Delta#theta_{Z}");
+
+  int i = 0;
+  for (const auto& result : theResults) {
+    histo_status->GetYaxis()->SetBinLabel(i + 1, result.first.data());
+    for (std::size_t j = 0; j < result.second.size(); ++j) {
+      histo_status->SetBinContent(j + 1, i + 1, result.second[j]);
+    }
+    i++;
+  }
 }
 
 void MillePedeDQMModule ::fillExpertHistos() {
