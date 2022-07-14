@@ -184,14 +184,6 @@ _variables80X =  cms.PSet(
 
 tauTable.variables = _variablesMiniV2
 
-(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 | run2_nanoAOD_106Xv2).toModify(tauTable.variables,
-                 rawDeepTau2018v2p5VSe = None,
-                 rawDeepTau2018v2p5VSmu = None,
-                 rawDeepTau2018v2p5VSjet = None,
-                 idDeepTau2018v2p5VSe = None,
-                 idDeepTau2018v2p5VSmu = None,
-                 idDeepTau2018v2p5VSjet = None
-    )
 (run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toModify(tauTable,
                  variables = cms.PSet(tauTable.variables, _mvaIsoVars2015Reduced, _mvaIsoVars2017v1, _mvaIsoVars2017v2)
     )
@@ -226,6 +218,16 @@ for era in [run2_nanoAOD_92X, run2_nanoAOD_94XMiniAODv1, run2_nanoAOD_94XMiniAOD
             run2_nanoAOD_94X2016, run2_nanoAOD_102Xv1, run2_nanoAOD_106Xv1]:
     era.toModify(tauTable.variables,
                  idAntiEleDeadECal = Var("tauID('againstElectronDeadECALForNano')", bool, doc = "Anti-electron dead-ECal discriminator"),
+    )
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1| run2_nanoAOD_94XMiniAODv2 | \
+ run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1 | \
+ run2_nanoAOD_106Xv2).toModify(tauTable.variables,
+                 rawDeepTau2018v2p5VSe = None,
+                 rawDeepTau2018v2p5VSmu = None,
+                 rawDeepTau2018v2p5VSjet = None,
+                 idDeepTau2018v2p5VSe = None,
+                 idDeepTau2018v2p5VSmu = None,
+                 idDeepTau2018v2p5VSjet = None
     )
 
 tauGenJetsForNano = tauGenJets.clone(
