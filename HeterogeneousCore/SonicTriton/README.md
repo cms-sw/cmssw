@@ -38,13 +38,19 @@ The model information from the server can be printed by enabling `verbose` outpu
 
 SonicTriton supports two types of batching, rectangular and ragged, depicted below:
 ![batching diagrams](./batching_diagrams.png)  
-In the rectangular case, the inputs for each object in an event have the same shape, so they can be batched together.
-In the ragged case, the inputs for each object in an event do not have the same shape, so they cannot be batched;
-instead, they are grouped together as separate entries, each with its own shape specified explicitly.
+In the rectangular case, the inputs for each object in an event have the same shape, so they can be combined into a single entry.
+(In this case, the batch size is specified as the "outer dimension" of the shape.)
+In the ragged case, the inputs for each object in an event do not have the same shape, so they cannot be combined;
+instead, they are represented internally as separate entries, each with its own shape specified explicitly.
 
-The batch size should be set using the client accessor, in order to ensure a consistent value across all inputs:
+The batch size is set and accessed using the client, in order to ensure a consistent value across all inputs.
+The batch mode can also be changed manually, in order to allow optimizing the allocation of entries.
+(If two entries with different shapes are specified, the batch mode will always automatically switch to ragged.)
 * `setBatchSize()`: set a new batch size
   * some models may not support batching
+* `batchSize()`: return current batch size
+* `setBatchMode()`: set the batch mode (`Rectangular` or `Ragged`)
+* `batchMode()`: get the current batch mode
 
 Useful `TritonData` accessors include:
 * `variableDims()`: return true if any variable dimensions
@@ -53,7 +59,6 @@ Useful `TritonData` accessors include:
 * `sizeShape(unsigned entry=0)`: return product of shape dimensions (returns `sizeDims()` if no variable dimensions) for specified entry
 * `byteSize()`: return number of bytes for data type
 * `dname()`: return name of data type
-* `batchSize()`: return current batch size
 
 To update the `TritonData` shape in the variable-dimension case:
 * `setShape(const std::vector<int64_t>& newShape, unsigned entry=0)`: update all (variable) dimensions with values provided in `newShape` for specified entry
@@ -183,3 +188,10 @@ The fallback server has a separate set of options, mostly related to the invocat
 ## Examples
 
 Several example producers can be found in the [test](./test) directory.
+
+## Legend
+
+The SonicTriton documentation uses different terms than Triton itself for certain concepts.
+The SonicTriton:Triton correspondence for those terms is given here:
+* Entry : request
+* Rectangular batching : Triton-supported batching
