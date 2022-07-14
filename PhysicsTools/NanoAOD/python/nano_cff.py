@@ -219,23 +219,23 @@ def nanoAOD_recalibrateMETs(process,isData):
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 def nanoAOD_activateVID(process):
 
-    switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD,electronTask)
+    switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD)
     for modname in electron_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDElectronSelection)
 
     electronTask_ = process.egmGsfElectronIDTask.copy()
-    electronTask_.add(electronTask.copy())
+    electronTask_.add(process.electronTask)
     process.electronTask = electronTask_.copy()
     for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
         modifier.toModify(process.electronMVAValueMapProducer, src = "slimmedElectronsUpdated")
         modifier.toModify(process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
 
-    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD,photonTask) # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
+    switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD)    # do not call this to avoid resetting photon IDs in VID, if called before inside makePuppiesFromMiniAOD
     for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
 
     photonTask_ = process.egmPhotonIDTask.copy()
-    photonTask_.add(photonTask.copy())
+    photonTask_.add(process.photonTask)
     process.photonTask = photonTask_.copy()
     for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1:
         modifier.toModify(process.photonMVAValueMapProducer, src = "slimmedPhotonsTo106X")
