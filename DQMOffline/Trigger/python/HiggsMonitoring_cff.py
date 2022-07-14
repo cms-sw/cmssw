@@ -10,6 +10,8 @@ from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_cff import *
 from DQMOffline.Trigger.MssmHbbMonitoring_cff import *
 from DQMOffline.Trigger.HiggsMonitoring_cfi import hltHIGmonitoring
 from DQMOffline.Trigger.BTaggingMonitor_cfi import hltBTVmonitoring
+from DQMOffline.Trigger.ParticleNetJetTagMonitoring_cfi import ParticleNetAK4BTagMonitoring
+from DQMOffline.Trigger.ParticleNetJetTagMonitoring_cfi import ParticleNetAK8HbbTagMonitoring
 
 # HLT_PFMET100_PFMHT100_IDTight_CaloBTagCSV_3p1 MET monitoring
 PFMET100_PFMHT100_IDTight_CaloBTagCSV_3p1_METmonitoring = hltMETmonitoring.clone(
@@ -560,6 +562,8 @@ higgsMonitorHLT = cms.Sequence(
   + mssmHbbBtagTriggerMonitor 
   + mssmHbbMonitorHLT 
   + HMesonGammamonitoring
+  + ParticleNetAK4BTagMonitoring
+  + ParticleNetAK8HbbTagMonitoring
 )
 
 

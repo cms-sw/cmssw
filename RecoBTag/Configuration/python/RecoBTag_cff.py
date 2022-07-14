@@ -79,6 +79,10 @@ pfBTaggingTask = cms.Task(
     
     # pixel cluster
     pixelClusterTagInfos,
+
+    # particle NET AK4 and AK8
+    pfParticleNetAK4TaskForRECO,
+    pfParticleNetTask
 )
 
 pfBTagging = cms.Sequence(pfBTaggingTask)
