@@ -74,7 +74,7 @@ if (live):
 else:
   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
   from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-  process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+  process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
   # you may need to set manually the GT in the line below
   #process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
 """
