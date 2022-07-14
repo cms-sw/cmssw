@@ -152,6 +152,14 @@ namespace {
   }
 
   const char* b2a(bool b) { return b ? "true" : "false"; }
+
+  std::vector<DeadVec> deadvectors;
+
+  void init_deadvectors() {
+    deadvectors.resize(Config::TrkInfo.n_layers());
+    #include "RecoTracker/MkFitCMS/standalone/deadmodules.h"
+  }
+
 }  // namespace
 
 //==============================================================================
@@ -207,6 +215,9 @@ void test_standard() {
     printf("- reading seeds from file\n");
 
   initGeom();
+  if (Config::useDeadModules) {
+    init_deadvectors();
+  }
 
   DataFile data_file;
   if (g_operation == "read") {
@@ -310,8 +321,6 @@ void test_standard() {
 
             StdSeq::loadHitsAndBeamSpot(ev, eoh);
 
-            std::vector<DeadVec> deadvectors(ev.layerHits_.size());
-#include "RecoTracker/MkFitCMS/standalone/deadmodules.h"
             if (Config::useDeadModules) {
               StdSeq::loadDeads(eoh, deadvectors);
             }
@@ -757,6 +766,7 @@ int main(int argc, const char* argv[]) {
       printf(
           "--geom \n"
           "  CMS-2017 \n"
+          "  CMS-2029 \n"
           "  CylCowWLids \n"
           "\n");
 
