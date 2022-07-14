@@ -61,7 +61,7 @@ std::string nameMatterLV(const std::string& name, bool dd4hep) {
 }
 
 std::string nameSolid(const std::string& name, bool dd4hep) {
-  if (!dd4hep) 
+  if (!dd4hep)
     return name;
   std::string nam = static_cast<std::string>(dd4hep::dd::noNamespace(name));
   auto n = nam.find("_shape");
@@ -73,11 +73,11 @@ std::string nameSolid(const std::string& name, bool dd4hep) {
 }
 
 std::string namePV(const std::string& name, bool dd4hep) {
-  if (!dd4hep) 
+  if (!dd4hep)
     return name;
   std::string nam = static_cast<std::string>(dd4hep::dd::noNamespace(name));
   auto n = nam.rfind("_");
-  return ((n != std::string::npos) ? nam.substr(0, n): nam);
+  return ((n != std::string::npos) ? nam.substr(0, n) : nam);
 }
 
 std::string removeExtraName(const std::string& name, int debug) {
@@ -174,14 +174,14 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
   } else {
     while (fInput1.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
-      if ((type == 0)  || (type == 2))
-	name = nameMatterLV(items[0], !typeFile1);
-      else if (type == 1) 
-	name = nameSolid(items[0], !typeFile1);
+      if ((type == 0) || (type == 2))
+        name = nameMatterLV(items[0], !typeFile1);
+      else if (type == 1)
+        name = nameSolid(items[0], !typeFile1);
       else if (type == 3)
-	name = namePV(items[0], !typeFile1);
+        name = namePV(items[0], !typeFile1);
       else
-	name = items[0];
+        name = items[0];
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
       double r2 = (items.size() > 2) ? atof(items[2].c_str()) : 0;
       double r3 = (items.size() > 3) ? atof(items[3].c_str()) : 0;
@@ -227,14 +227,14 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
   } else {
     while (fInput2.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
-      if ((type == 0)  || (type == 2))
-	name = nameMatterLV(items[0], !typeFile2);
-      else if (type == 1) 
-	name = nameSolid(items[0], !typeFile2);
+      if ((type == 0) || (type == 2))
+        name = nameMatterLV(items[0], !typeFile2);
+      else if (type == 1)
+        name = nameSolid(items[0], !typeFile2);
       else if (type == 3)
-	name = namePV(items[0], !typeFile2);
+        name = namePV(items[0], !typeFile2);
       else
-	name = items[0];
+        name = items[0];
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
       double r2 = (items.size() > 2) ? atof(items[2].c_str()) : 0;
       double r3 = (items.size() > 3) ? atof(items[3].c_str()) : 0;
@@ -441,9 +441,10 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
           difmax2 = std::abs(voldif);
           nameMax = it1.first;
         }
-	if ((std::abs(matdif) > tol5) || (std::abs(voldif) > tol5)) {
+        if ((std::abs(matdif) > tol5) || (std::abs(voldif) > tol5)) {
           ++kount2;
-          std::cout << it1.first << " Material " << it1.second.nmat << ":" << it2->second.nmat << ":" << matdif << " Volume " << it1.second.nvol << ":" << it2->second.nvol << ":" << voldif << std::endl;
+          std::cout << it1.first << " Material " << it1.second.nmat << ":" << it2->second.nmat << ":" << matdif
+                    << " Volume " << it1.second.nvol << ":" << it2->second.nvol << ":" << voldif << std::endl;
         }
       }
     }

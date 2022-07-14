@@ -125,8 +125,8 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
          << "                                                        "
          << " PV        " << dumpPV_ << " Rotation " << dumpRotation_ << " Replica   " << dumpReplica_ << G4endl
          << "                                                        "
-         << " Touchable " << dumpTouch_ << " Rgion " << dumpRegion_ << " for names (0-" << nchar_ << ") = " << name_ << G4endl
-         << "                                                        "
+         << " Touchable " << dumpTouch_ << " Rgion " << dumpRegion_ << " for names (0-" << nchar_ << ") = " << name_
+         << G4endl << "                                                        "
          << " Sensitive " << dumpSense_ << " Files " << fileMat_ << ":" << fileSolid_ << ":" << fileLV_ << ":"
          << filePV_ << ":" << fileTouch_ << " FileDetail " << fileDetail_ << " fileRegion " << fileRegion_ << G4endl
          << "                                                        for " << names_.size() << " names:";
@@ -290,7 +290,8 @@ void PrintGeomInfoAction::dumpG4Region(std::ostream &out) {
   const G4RegionStore *regs = G4RegionStore::GetInstance();
   std::vector<G4Region *>::const_iterator regite;
   for (regite = regs->begin(); regite != regs->end(); regite++)
-    out << "Region: " << (*regite)->GetName() << " with " << (*regite)->GetNumberOfMaterials() << " materials and " << (*regite)->GetNumberOfRootVolumes() << " root volumes" << G4endl;
+    out << "Region: " << (*regite)->GetName() << " with " << (*regite)->GetNumberOfMaterials() << " materials and "
+        << (*regite)->GetNumberOfRootVolumes() << " root volumes" << G4endl;
 }
 
 void PrintGeomInfoAction::dumpMaterialList(std::ostream &out) {
@@ -585,7 +586,8 @@ void PrintGeomInfoAction::dumpInFile() {
         if (!fileDetail_)
           fout << (*regite)->GetName() << G4endl;
         else
-	  fout << (*regite)->GetName() << " " << (*regite)->GetNumberOfMaterials() << " " << (*regite)->GetNumberOfRootVolumes() << G4endl;
+          fout << (*regite)->GetName() << " " << (*regite)->GetNumberOfMaterials() << " "
+               << (*regite)->GetNumberOfRootVolumes() << G4endl;
       }
       fout.close();
     }
