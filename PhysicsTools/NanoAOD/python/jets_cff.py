@@ -761,6 +761,7 @@ for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016, run2_nanoAOD_94XMi
 #after lepton collections have been run
 jetLepSequence = cms.Sequence(lepInJetVars)
 
+
 #after cross linkining
 #jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+subJetTable+saJetTable+saTable)
 jetTables = cms.Sequence(bjetNN+cjetNN+jetTable+fatJetTable+saJetTable+saTable)
