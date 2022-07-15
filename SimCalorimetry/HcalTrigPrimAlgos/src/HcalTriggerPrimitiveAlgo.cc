@@ -439,7 +439,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
   for (unsigned int ibin = 0; ibin < dgSamples - shrink; ++ibin) {
     int algosumvalue = 0;
     bool check_sat = false;
-    if(weightsQIE11_[theIeta][0] == 255){
+    //TP energy calculation when running PFA2
+    if (weightsQIE11_[theIeta][0] == 255) {
       for (unsigned int i = 0; i < filterSamples; i++) {
         //add up value * scale factor
         // In addition, divide by two in the 10 degree phi segmentation region
@@ -469,7 +470,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
 
       if (check_sat)
         force_saturation[ibin] = true;
-    }else{
+    //TP energy calculation when running PFA1' or PFA1
+    } else {
       //add up value * scale factor
       // In addition, divide by two in the 10 degree phi segmentation region
       // to mimic 5 degree segmentation for the trigger
@@ -477,7 +479,8 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       int sampleTSminus1 = samples[ibin];
 
       if (fix_saturation_ && (sample_saturation.size() > ibin + 1))
-        check_sat = ( sample_saturation[ibin + 1] | (sampleTS >= QIE11_MAX_LINEARIZATION_ET) | sample_saturation[ibin] | (sampleTSminus1 >= QIE11_MAX_LINEARIZATION_ET));
+        check_sat = (sample_saturation[ibin + 1] | (sampleTS >= QIE11_MAX_LINEARIZATION_ET) | sample_saturation[ibin] |
+                     (sampleTSminus1 >= QIE11_MAX_LINEARIZATION_ET));
 
       if (sampleTS > QIE11_MAX_LINEARIZATION_ET)
         sampleTS = QIE11_MAX_LINEARIZATION_ET;
@@ -494,7 +497,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       // Based on the |ieta| of the sample, retrieve the correct region weight
       int theWeight = weightsQIE11_[theIeta][0];
 
-      algosumvalue = ((sampleTS<<8) - (sampleTSminus1 * theWeight)) / 256 / segmentationFactor;
+      algosumvalue = ((sampleTS << 8) - (sampleTSminus1 * theWeight)) / 256 / segmentationFactor;
 
       if (algosumvalue < 0)
         sum[ibin] = 0;  // low-side
