@@ -440,7 +440,7 @@ fatJetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
         tau4 = Var("userFloat('NjettinessAK8Puppi:tau4')",float, doc="Nsubjettiness (4 axis)",precision=10),
         n2b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN2')", float, doc="N2 with beta=1", precision=10),
         n3b1 = Var("userFloat('ak8PFJetsPuppiSoftDropValueMap:nb1AK8PuppiSoftDropN3')", float, doc="N3 with beta=1", precision=10),
-        #msoftdrop = Var("groomedMass('SoftDropPuppi')",float, doc="Corrected soft drop mass with PUPPI",precision=10),
+        # msoftdrop = Var("groomedMass('SoftDropPuppi')",float, doc="Corrected soft drop mass with PUPPI",precision=10),
         btagDeepB = Var("?(bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'))>=0?bDiscriminator('pfDeepCSVJetTags:probb')+bDiscriminator('pfDeepCSVJetTags:probbb'):-1",float,doc="DeepCSV b+bb tag discriminator",precision=10),
         btagCSVV2 = Var("bDiscriminator('pfCombinedInclusiveSecondaryVertexV2BJetTags')",float,doc=" pfCombinedInclusiveSecondaryVertexV2 b-tag discriminator (aka CSVV2)",precision=10),
         btagHbb = Var("bDiscriminator('pfBoostedDoubleSecondaryVertexAK8BJetTags')",float,doc="Higgs to BB tagger discriminator",precision=10),
@@ -511,9 +511,12 @@ run2_miniAOD_80XLegacy.toModify(fatJetTable.variables, msoftdrop_chs = Var("user
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau1\')"),)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau2\')"),)
 run2_miniAOD_80XLegacy.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'ak8PFJetsPuppiValueMap:NjettinessAK8PuppiTau3\')"),)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, tau4 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, n2b1 = None)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, n3b1 = None)
+run2_nanoAOD_106X2015.toModify( fatJetTable.variables.tau1, expr = cms.string("userFloat(\'NjettinessAK8:tau1\')"),)
+run2_nanoAOD_106X2015.toModify( fatJetTable.variables.tau2, expr = cms.string("userFloat(\'NjettinessAK8:tau2\')"),)
+run2_nanoAOD_106X2015.toModify( fatJetTable.variables.tau3, expr = cms.string("userFloat(\'NjettinessAK8:tau3\')"),)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, tau4 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, n2b1 = None)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016).toModify( fatJetTable.variables, n3b1 = None)
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify( fatJetTable.variables, nConstituents = None)
 for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
   modifier.toModify( fatJetTable.variables, jetId = Var("userInt('tightId')*2+userInt('looseId')",int,doc="Jet ID flags bit1 is loose, bit2 is tight"))
