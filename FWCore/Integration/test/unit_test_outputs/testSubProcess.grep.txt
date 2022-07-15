@@ -12,3 +12,4 @@ got data of type "edmtest::Doodad" with name "abcd" in record GadgetRcd
 ++++++++ finished: processing esmodule: label = '' type = DoodadESSource in record = GadgetRcd
 got data of type "edmtest::Doodad" with name "abc" in record GadgetRcd
 got data of type "edmtest::Doodad" with name "abc" in record GadgetRcd
+   25 Tracer               -s DoodadESSource:D                       4        4
