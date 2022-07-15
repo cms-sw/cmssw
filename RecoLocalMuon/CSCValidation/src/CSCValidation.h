@@ -12,13 +12,13 @@
  *    Various efficiencies
  *
  * Responsible:
- *    Andy Kubik, Northwestern University
+ *    CSC DPG
  */
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -102,7 +102,8 @@
 #include "TTree.h"
 #include "TProfile2D.h"
 
-class CSCValidation : public edm::EDAnalyzer {
+namespace {
+class CSCValidation : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   CSCValidation(const edm::ParameterSet &pset);
@@ -111,7 +112,8 @@ public:
   ~CSCValidation() override;
 
   /// Perform the analysis
-  void analyze(const edm::Event &event, const edm::EventSetup &eventSetup) override;
+  void analyze(edm::Event const& event, edm::EventSetup const& eventSetup) override;
+  void beginJob() override;
   void endJob() override;
 
   // for noise module
@@ -245,7 +247,14 @@ private:
   edm::EDGetTokenT<edm::TriggerResults> tr_token;
   edm::EDGetTokenT<reco::TrackCollection> sa_token;
   edm::EDGetTokenT<edm::PSimHitContainer> sh_token;
+  // geometry
   edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
+  edm::ESGetToken<CSCCrateMap, CSCCrateMapRcd> crateToken_;
+  // conditions data
+  edm::ESGetToken<CSCDBPedestals, CSCDBPedestalsRcd> pedestalsToken_;
+  edm::ESGetToken<CSCDBGains, CSCDBGainsRcd> gainsToken_;
+  edm::ESGetToken<CSCDBNoiseMatrix, CSCDBNoiseMatrixRcd> noiseToken_;
+  edm::ESGetToken<CSCDBCrosstalk, CSCDBCrosstalkRcd> crosstalkToken_;
 
   // module on/off switches
   bool makeOccupancyPlots;
@@ -286,6 +295,14 @@ private:
   TH2F *hEffDenominator;
   TH2F *hSensitiveAreaEvt;
 
+  TH1F *hSSTETight;
+  TH1F *hRHSTETight;
+  TH2F *hSSTE2Tight;
+  TH2F *hRHSTE2Tight;
+  TH2F *hStripSTE2Tight;
+  TH2F *hWireSTE2Tight;
+  TH2F *hEffDenominatorTight;
+
   // occupancy
   TH2I *hOWires;
   TH2I *hOStrips;
@@ -319,4 +336,5 @@ private:
     return index;
   }
 };
+}
 #endif
