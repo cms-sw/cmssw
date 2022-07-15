@@ -24,6 +24,8 @@
 #include "G4Material.hh"
 #include "G4NavigationHistory.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4Region.hh"
+#include "G4RegionStore.hh"
 #include "G4Run.hh"
 #include "G4Track.hh"
 #include "G4TransportationManager.hh"
@@ -55,6 +57,7 @@ private:
   void dumpSummary(std::ostream &out = G4cout);
   void dumpG4LVList(std::ostream &out = G4cout);
   void dumpG4LVTree(std::ostream &out = G4cout);
+  void dumpG4Region(std::ostream &out = G4cout);
   void dumpMaterialList(std::ostream &out = G4cout);
   void dumpG4LVLeaf(G4LogicalVolume *lv, unsigned int leafDepth, unsigned int count, std::ostream &out = G4cout);
   int countNoTouchables();
@@ -78,10 +81,10 @@ private:
   bool dumpSummary_, dumpLVTree_, dumpLVList_, dumpMaterial_;
   bool dumpLV_, dumpSolid_, dumpAtts_, dumpPV_;
   bool dumpRotation_, dumpReplica_, dumpTouch_;
-  bool dumpSense_, dumpParams_, dd4hep_;
+  bool dumpSense_, dumpParams_, dumpRegion_, dd4hep_;
   std::string name_;
   int nchar_;
-  std::string fileMat_, fileSolid_, fileLV_, filePV_, fileTouch_;
+  std::string fileMat_, fileSolid_, fileLV_, filePV_, fileTouch_, fileRegion_;
   bool fileDetail_;
   std::vector<std::string> names_;
   G4VPhysicalVolume *theTopPV_;
@@ -102,17 +105,19 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   dumpTouch_ = p.getUntrackedParameter<bool>("DumpTouch", false);
   dumpSense_ = p.getUntrackedParameter<bool>("DumpSense", false);
   dumpParams_ = p.getUntrackedParameter<bool>("DumpParams", false);
+  dumpRegion_ = p.getUntrackedParameter<bool>("DumpRegion", false);
   dd4hep_ = p.getUntrackedParameter<bool>("DD4hep", false);
   name_ = p.getUntrackedParameter<std::string>("Name", "*");
-  nchar_ = name_.find('*');
-  name_.assign(name_, 0, nchar_);
   names_ = p.getUntrackedParameter<std::vector<std::string> >("Names");
   fileMat_ = p.getUntrackedParameter<std::string>("MaterialFileName", "");
   fileSolid_ = p.getUntrackedParameter<std::string>("SolidFileName", "");
   fileLV_ = p.getUntrackedParameter<std::string>("LVFileName", "");
   filePV_ = p.getUntrackedParameter<std::string>("PVFileName", "");
   fileTouch_ = p.getUntrackedParameter<std::string>("TouchFileName", "");
+  fileRegion_ = p.getUntrackedParameter<std::string>("RegionFileName", "");
   fileDetail_ = p.getUntrackedParameter<bool>("FileDetail", false);
+  nchar_ = name_.find('*');
+  name_.assign(name_, 0, nchar_);
   G4cout << "PrintGeomInfoAction:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"
          << " Summary   " << dumpSummary_ << " LVTree   " << dumpLVTree_ << " LVList    " << dumpLVList_ << " Material "
          << dumpMaterial_ << G4endl << "                                                        "
@@ -120,10 +125,10 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
          << "                                                        "
          << " PV        " << dumpPV_ << " Rotation " << dumpRotation_ << " Replica   " << dumpReplica_ << G4endl
          << "                                                        "
-         << " Touchable " << dumpTouch_ << " for names (0-" << nchar_ << ") = " << name_ << G4endl
-         << "                                                        "
+         << " Touchable " << dumpTouch_ << " Rgion " << dumpRegion_ << " for names (0-" << nchar_ << ") = " << name_
+         << G4endl << "                                                        "
          << " Sensitive " << dumpSense_ << " Files " << fileMat_ << ":" << fileSolid_ << ":" << fileLV_ << ":"
-         << filePV_ << ":" << fileTouch_ << " FileDetail " << fileDetail_ << G4endl
+         << filePV_ << ":" << fileTouch_ << " FileDetail " << fileDetail_ << " fileRegion " << fileRegion_ << G4endl
          << "                                                        for " << names_.size() << " names:";
   for (unsigned int i = 0; i < names_.size(); i++)
     G4cout << " " << names_[i];
@@ -234,6 +239,10 @@ void PrintGeomInfoAction::update(const BeginOfRun *run) {
   if (dumpLV_ || dumpPV_ || dumpTouch_)
     dumpHierarchyTreePVLV(G4cout);
 
+  //---------- Dump Region information
+  if (dumpRegion_)
+    dumpG4Region(G4cout);
+
   dumpInFile();
 }
 
@@ -258,6 +267,8 @@ void PrintGeomInfoAction::dumpSummary(std::ostream &out) {
   out << " Number of Touchable's: " << countNoTouchables() << G4endl;
   const G4MaterialTable *matTab = G4Material::GetMaterialTable();
   out << " Number of G4Material's: " << matTab->size() << G4endl;
+  const G4RegionStore *regs = G4RegionStore::GetInstance();
+  out << " Number of G4Region's: " << regs->size() << G4endl;
 }
 
 void PrintGeomInfoAction::dumpG4LVList(std::ostream &out) {
@@ -272,6 +283,15 @@ void PrintGeomInfoAction::dumpG4LVTree(std::ostream &out) {
   out << " @@@@@@@@@@@@@@@@ DUMPING G4LogicalVolume's Tree  " << G4endl;
   G4LogicalVolume *lv = getTopLV();
   dumpG4LVLeaf(lv, 0, 1, out);
+}
+
+void PrintGeomInfoAction::dumpG4Region(std::ostream &out) {
+  out << " @@@@@@@@@@@@@@@@ DUMPING G4Region Tree  " << G4endl;
+  const G4RegionStore *regs = G4RegionStore::GetInstance();
+  std::vector<G4Region *>::const_iterator regite;
+  for (regite = regs->begin(); regite != regs->end(); regite++)
+    out << "Region: " << (*regite)->GetName() << " with " << (*regite)->GetNumberOfMaterials() << " materials and "
+        << (*regite)->GetNumberOfRootVolumes() << " root volumes" << G4endl;
 }
 
 void PrintGeomInfoAction::dumpMaterialList(std::ostream &out) {
@@ -539,13 +559,13 @@ void PrintGeomInfoAction::dumpInFile() {
             fout << (*pvcite)->GetName() << " " << (*pvcite)->GetTranslation().x() << " "
                  << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << G4endl;
           else
-            fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << " " << (*pvcite)->GetTranslation().x()
+            fout << (*pvcite)->GetName() << " " << (*pvcite)->GetCopyNo() << " " << (*pvcite)->GetTranslation().x()
                  << " " << (*pvcite)->GetTranslation().y() << " " << (*pvcite)->GetTranslation().z() << G4endl;
         } else {
           if (dd4hep_)
             fout << (*pvcite)->GetName() << G4endl;
           else
-            fout << (*pvcite)->GetName() << "_" << (*pvcite)->GetCopyNo() << G4endl;
+            fout << (*pvcite)->GetName() << " " << (*pvcite)->GetCopyNo() << G4endl;
         }
       }
       fout.close();
@@ -557,6 +577,18 @@ void PrintGeomInfoAction::dumpInFile() {
       std::sort(touches.begin(), touches.end());
       for (const auto &touch : touches)
         fout << touch << G4endl;
+      fout.close();
+    }
+    if (!fileRegion_.empty()) {
+      const G4RegionStore *regs = G4RegionStore::GetInstance();
+      std::ofstream fout(fileRegion_.c_str());
+      for (std::vector<G4Region *>::const_iterator regite = regs->begin(); regite != regs->end(); regite++) {
+        if (!fileDetail_)
+          fout << (*regite)->GetName() << G4endl;
+        else
+          fout << (*regite)->GetName() << " " << (*regite)->GetNumberOfMaterials() << " "
+               << (*regite)->GetNumberOfRootVolumes() << G4endl;
+      }
       fout.close();
     }
   }
