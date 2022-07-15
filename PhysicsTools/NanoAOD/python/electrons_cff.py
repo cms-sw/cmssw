@@ -34,7 +34,7 @@ slimmedElectronsUpdated = cms.EDProducer("PATElectronUpdater",
 )
 run2_miniAOD_80XLegacy.toModify( slimmedElectronsUpdated, computeMiniIso = True )
 #modify the past eras
-for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_106X2015,run2_nanoAOD_94X2016,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_102Xv1:
     modifier.toModify(slimmedElectronsUpdated, src = cms.InputTag("slimmedElectronsTo106X"))
 
 
@@ -56,7 +56,7 @@ electron_id_modules_WorkingPoints_nanoAOD = cms.PSet(
     )
 )
 
-for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94X2016:
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_106X2015,run2_nanoAOD_94X2016:
     modifier.toModify(electron_id_modules_WorkingPoints_nanoAOD,
         modules = cms.vstring(
             'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Fall17_94X_V1_cff',
@@ -133,10 +133,7 @@ isoForEle = cms.EDProducer("EleIsoValueMapProducer",
     EAFile_MiniIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
     EAFile_PFIso = cms.FileInPath("RecoEgamma/ElectronIdentification/data/Fall17/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_94X.txt"),
 )
-run2_miniAOD_80XLegacy.toModify(isoForEle, 
-                                EAFile_MiniIso = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt",
-                                EAFile_PFIso = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt")
-run2_nanoAOD_94X2016.toModify(isoForEle,
+(run2_miniAOD_80XLegacy|run2_nanoAOD_106X2015|run2_nanoAOD_94X2016).toModify(isoForEle, 
                                 EAFile_MiniIso = "RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt",
                                 EAFile_PFIso = "RecoEgamma/ElectronIdentification/data/Summer16/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_80X.txt")
 
@@ -246,7 +243,7 @@ slimmedElectronsWithUserData = cms.EDProducer("PATElectronUserDataEmbedder",
 )
 
 ###Not to update with S+S vars as they already exist for run2_nanoAOD_94X2016 era
-run2_nanoAOD_94X2016.toModify(slimmedElectronsWithUserData.userFloats,
+(run2_nanoAOD_106X2015|run2_nanoAOD_94X2016).toModify(slimmedElectronsWithUserData.userFloats,
                               ecalTrkEnergyErrPostCorrNew = None,
                               ecalTrkEnergyPreCorrNew = None,
                               ecalTrkEnergyPostCorrNew = None,
@@ -258,7 +255,7 @@ run2_nanoAOD_94X2016.toModify(slimmedElectronsWithUserData.userFloats,
                               
 )
 
-run2_nanoAOD_94X2016.toModify(slimmedElectronsWithUserData.userIntFromBools,
+(run2_nanoAOD_106X2015|run2_nanoAOD_94X2016).toModify(slimmedElectronsWithUserData.userIntFromBools,
     # MVAs and HEEP are already pre-computed. Cut-based too (except V2), but we re-add it for consistency with the nested bitmap
     cutbasedID_Sum16_veto = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-veto"),
     cutbasedID_Sum16_loose = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Summer16-80X-V1-loose"),
@@ -296,7 +293,7 @@ run2_miniAOD_80XLegacy.toModify(slimmedElectronsWithUserData.userIntFromBools,
     cutbasedID_Spring15_tight = cms.InputTag("egmGsfElectronIDs:cutBasedElectronID-Spring15-25ns-V1-standalone-tight"),
 )
 
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_106X2015,run2_nanoAOD_94X2016:
     modifier.toModify(slimmedElectronsWithUserData.userInts,
                       VIDNestedWPBitmapSpring15 = cms.InputTag("bitmapVIDForEleSpring15"),
                       VIDNestedWPBitmapSum16 = cms.InputTag("bitmapVIDForEleSum16"),
@@ -407,7 +404,7 @@ for modifier in run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_miniAOD
 )
 
 ##Keeping the possibilty of using V1 working points in older eras
-(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel)).toModify(electronTable.variables,
+(run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016 | run2_nanoAOD_102Xv1 | (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel)).toModify(electronTable.variables,
         mvaFall17V1Iso = Var("userFloat('mvaFall17V1Iso')",float,doc="MVA Iso ID V1 score"),
         #mvaFall17V1Iso_WP80 = Var("userInt('mvaFall17V1Iso_WP80')",bool,doc="MVA Iso ID V1 WP80"),
         #mvaFall17V1Iso_WP90 = Var("userInt('mvaFall17V1Iso_WP90')",bool,doc="MVA Iso ID V1 WP90"),
@@ -543,7 +540,7 @@ electronMC = cms.Sequence(tautaggerForMatching + matchingElecPhoton + electronsM
 ( run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toReplaceWith(electronMC, electronMCold)
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons
-for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_106X2015,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
     modifier.toModify(bitmapVIDForEle, src = "slimmedElectronsUpdated")
     modifier.toModify(bitmapVIDForEleSpring15, src = "slimmedElectronsUpdated")
     modifier.toModify(bitmapVIDForEleSum16, src = "slimmedElectronsUpdated")
@@ -570,7 +567,7 @@ _updateTo106X_sequence =cms.Sequence(heepIDVarValueMaps + slimmedElectronsTo106X
 heepIDVarValueMaps.dataFormat = 2
 _withTo106XAndUpdate_sequence = cms.Sequence(_updateTo106X_sequence + slimmedElectronsUpdated + electronSequence.copy())
 
-for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
+for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_106X2015,run2_nanoAOD_94X2016:
     _withTo106XAndUpdateAnd80XLegacyScale_sequence = _withTo106XAndUpdate_sequence.copy()
     _withTo106XAndUpdateAnd80XLegacyScale_sequence.replace(slimmedElectronsWithUserData, bitmapVIDForEleSpring15 +bitmapVIDForEleSum16 + slimmedElectronsWithUserData)
     modifier.toReplaceWith(electronSequence, _withTo106XAndUpdateAnd80XLegacyScale_sequence)

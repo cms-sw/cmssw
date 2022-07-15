@@ -9,7 +9,7 @@ unpackedPatTrigger = cms.EDProducer("PATTriggerObjectStandAloneUnpacker",
     unpackFilterLabels = cms.bool(True)
 )
 # ERA-dependent configuration
-run2_miniAOD_80XLegacy.toModify(
+(run2_miniAOD_80XLegacy|run2_nanoAOD_106X2015).toModify(
   unpackedPatTrigger,
   patTriggerObjectsStandAlone = "selectedPatTrigger",
   unpackFilterLabels = False 
@@ -250,8 +250,7 @@ l1PreFiringEventWeightTable = cms.EDProducer("GlobalVariablesTableProducer",
     )
 )
 
-#triggerObjectTables = cms.Sequence( unpackedPatTrigger + triggerObjectTable )
-triggerObjectTables = cms.Sequence( triggerObjectTable )
+triggerObjectTables = cms.Sequence( unpackedPatTrigger + triggerObjectTable )
 
 #protect nano V8 production from changes to prefiring weights introduce for V9
 (run2_jme_2016 & run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(prefiringweight,DataEraECAL = cms.string("2016BtoH"))
@@ -260,7 +259,6 @@ triggerObjectTables = cms.Sequence( triggerObjectTable )
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify(l1PreFiringEventWeightTable.variables , Muon_Nom = None, Muon_SystUp = None, Muon_SystDn = None, Muon_StatUp = None, Muon_StatDn = None, ECAL_Nom = None, ECAL_Up = None, ECAL_Dn = None)
 
 _triggerObjectTables_withL1PreFiring = triggerObjectTables.copy()
-#_triggerObjectTables_withL1PreFiring.replace(triggerObjectTable, prefiringweight + l1PreFiringEventWeightTable + triggerObjectTable)
-_triggerObjectTables_withL1PreFiring.replace(triggerObjectTable, prefiringweight + l1PreFiringEventWeightTable)
+_triggerObjectTables_withL1PreFiring.replace(triggerObjectTable, prefiringweight + l1PreFiringEventWeightTable + triggerObjectTable)
 
 (run2_HLTconditions_2016 | run2_HLTconditions_2017 | run2_HLTconditions_2018).toReplaceWith(triggerObjectTables, _triggerObjectTables_withL1PreFiring)

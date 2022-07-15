@@ -103,7 +103,6 @@ lheInfoTable = cms.EDProducer("LHETablesProducer",
     storeLHEParticles = cms.bool(True)
 )
 
-#l1bits=cms.EDProducer("L1TriggerResultsConverter", src=cms.InputTag("gtStage2Digis"), legacyL1=cms.bool(False),
 l1bits=cms.EDProducer("L1TriggerResultsConverter", src=cms.InputTag("gtStage2Digis"), legacyL1=cms.bool(False),
                       storeUnprefireableBit=cms.bool(True), src_ext=cms.InputTag("gtStage2Digis"))
 (run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1).toModify(l1bits, storeUnprefireableBit=False)
@@ -115,11 +114,10 @@ nanoSequenceCommon = cms.Sequence(
         jetTables + muonTables + tauTables + boostedTauTables + electronTables + lowPtElectronTables + photonTables +  globalTables +vertexTables+ metTables+simpleCleanerTable + isoTrackTables
         )
 #remove boosted tau from previous eras
-(run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(nanoSequenceCommon, nanoSequenceCommon.copyAndExclude([boostedTauSequence, boostedTauTables]))
+(run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(nanoSequenceCommon, nanoSequenceCommon.copyAndExclude([boostedTauSequence, boostedTauTables]))
 
-#nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
-nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables)
-
+nanoSequenceOnlyFullSim = cms.Sequence(triggerObjectTables + l1bits)
+run2_nanoAOD_106X2015.toReplaceWith(nanoSequenceOnlyFullSim, cms.Sequence())
 
 nanoSequenceOnlyData = cms.Sequence(protonTables + lhcInfoTable)
 
@@ -129,12 +127,12 @@ nanoSequence = cms.Sequence(nanoSequenceCommon + nanoSequenceOnlyData + nanoSequ
 
 nanoSequenceFS = cms.Sequence(genParticleSequence + genVertexTables + particleLevelSequence + nanoSequenceCommon + jetMC + muonMC + electronMC + lowPtElectronMC + photonMC + tauMC + boostedTauMC + metMC + ttbarCatMCProducers +  globalTablesMC + btagWeightTable + genWeightsTable + genVertexTable + genParticleTables + particleLevelTables + lheInfoTable  + ttbarCategoryTable )
 
-(run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016 | run2_nanoAOD_94X2016 | \
+(run2_nanoAOD_92X | run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015  | run2_nanoAOD_94X2016 | \
     run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94XMiniAODv2 | \
     run2_nanoAOD_102Xv1 ).toReplaceWith(nanoSequenceFS, nanoSequenceFS.copyAndExclude([genVertexTable, genVertexT0Table]))
 
 #remove boosted tau from previous eras
-(run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(nanoSequenceFS, nanoSequenceFS.copyAndExclude([boostedTauMC]))
+(run2_miniAOD_80XLegacy | run2_nanoAOD_92X | run2_nanoAOD_94XMiniAODv1 | run2_nanoAOD_106X2015 | run2_nanoAOD_94X2016 | run2_nanoAOD_94XMiniAODv2 | run2_nanoAOD_102Xv1 | run2_nanoAOD_106Xv1).toReplaceWith(nanoSequenceFS, nanoSequenceFS.copyAndExclude([boostedTauMC]))
 
 # GenVertex only stored in newer MiniAOD
 nanoSequenceMC = nanoSequenceFS.copy()
@@ -283,7 +281,7 @@ def nanoAOD_activateVID(process):
     for modname in electron_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDElectronSelection)
     process.electronSequence.insert(process.electronSequence.index(process.bitmapVIDForEle),process.egmGsfElectronIDSequence)
-    for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
+    for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_106X2015,run2_nanoAOD_94X2016,run2_nanoAOD_102Xv1,run2_nanoAOD_106Xv1:
         modifier.toModify(process.electronMVAValueMapProducer, srcMiniAOD = "slimmedElectronsUpdated")
         modifier.toModify(process.egmGsfElectronIDs, physicsObjectSrc = "slimmedElectronsUpdated")
 
@@ -293,7 +291,7 @@ def nanoAOD_activateVID(process):
     for modname in photon_id_modules_WorkingPoints_nanoAOD.modules:
         setupAllVIDIdsInModule(process,modname,setupVIDPhotonSelection)
     process.photonSequence.insert(process.photonSequence.index(bitmapVIDForPho),process.egmPhotonIDSequence)
-    for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
+    for modifier in run2_miniAOD_80XLegacy,run2_nanoAOD_94XMiniAODv1,run2_nanoAOD_94XMiniAODv2,run2_nanoAOD_106X2015,run2_nanoAOD_94X2016 ,run2_nanoAOD_102Xv1:
         modifier.toModify(process.photonMVAValueMapProducer, srcMiniAOD = "slimmedPhotonsTo106X")
         modifier.toModify(process.egmPhotonIDs, physicsObjectSrc = "slimmedPhotonsTo106X")
     return process

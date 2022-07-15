@@ -705,8 +705,7 @@ subjetMCTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
 )
 
 ### Era dependent customizations
-#run2_miniAOD_80XLegacy.toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
-(run2_miniAOD_80XLegacy | run2_nanoAOD_94X2016).toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
+(run2_miniAOD_80XLegacy | run2_nanoAOD_106X2015).toModify( genJetFlavourTable, jetFlavourInfos = cms.InputTag("genJetFlavourAssociation"),)
 (run2_nanoAOD_106Xv1 & ~run2_nanoAOD_devel).toModify( fatJetMCTable.variables, genJetAK8Idx = Var("?genJetFwdRef().backRef().isNonnull()?genJetFwdRef().backRef().key():-1", int, doc="index of matched gen AK8 jet"))
 from RecoJets.JetProducers.QGTagger_cfi import  QGTagger
 qgtagger=QGTagger.clone(srcJets="updatedJets",srcVertexCollection="offlineSlimmedPrimaryVertices")
@@ -777,4 +776,4 @@ _jetMC_2015 = jetMC.copy()
 _jetMC_2015.insert(_jetMC_2015.index(genJetFlavourTable), genJetFlavourAssociation)
 _jetMC_2015.remove(genSubJetAK8Table)
 _jetMC_2015.remove(subjetMCTable)
-run2_nanoAOD_94X2016.toReplaceWith(jetMC, _jetMC_2015)
+run2_nanoAOD_106X2015.toReplaceWith(jetMC, _jetMC_2015)
