@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -11,14 +11,12 @@
 
 #include <iostream>
 
-class EcalUncalibRecHitDump : public edm::EDAnalyzer {
+class EcalUncalibRecHitDump : public edm::stream::EDAnalyzer<> {
 public:
   explicit EcalUncalibRecHitDump(const edm::ParameterSet&);
 
 private:
-  virtual void beginJob() {}
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() {}
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
   edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EBUncalicRecHitCollectionT_;
