@@ -23,9 +23,9 @@ private:
   const edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
 };
 
-EcalRecHitDump::EcalRecHitDump(const edm::ParameterSet& iConfig) :
-  EBRecHitCollectionT_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"))),
-  EERecHitCollectionT_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"))) { }
+EcalRecHitDump::EcalRecHitDump(const edm::ParameterSet& iConfig)
+    : EBRecHitCollectionT_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"))),
+      EERecHitCollectionT_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"))) {}
 
 void EcalRecHitDump::analyze(const edm::Event& ev, const edm::EventSetup&) {
   edm::Handle<EcalRecHitCollection> EBRecHits_;
