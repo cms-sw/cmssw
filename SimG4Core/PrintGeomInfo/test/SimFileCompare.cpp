@@ -3,16 +3,16 @@
 //    Compares output files from PrintGeomInfo created using DDD and DD4hep
 //    inputs. Usage:
 //
-//    SimFileCompare infile1 infile2 type files mode debug
+//    SimFileCompare infile1 infile2 type files debug
 //    infile1  (const char*)   First file name
 //    infile2  (const char*)   Second file name
 //    type     (int)           Type of file: material (0), solid (1),
-//                             LogicalVolume (2), PhysicalVolume (3)
+//                             LogicalVolume (2), PhysicalVolume (3);
+//                             Region (4)
 //    files    (int)           Double digits each inidicating the file source
 //                             (0 for DDD, 1 for DD4hep). So if first file is
 //                             DDD and second is DD4hep, it will be 10
-//    mode     (int)           Treat (0) or not treat (1) names from DDD
-//    deug     (int)           Single digit number (0 minimum printout)
+//    debug    (int)           Single digit number (0 minimum printout)
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,6 +24,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <DD4hep/Filter.h>
 
 struct materials {
   int occ;
@@ -48,6 +49,36 @@ struct pvs {
   double xx, yy, zz;
   pvs(int oc = 1, double x = 0, double y = 0, double z = 0) : occ(oc), xx(x), yy(y), zz(z) {}
 };
+
+struct regions {
+  int occ;
+  double nmat, nvol;
+  regions(int oc = 1, double mat = 0, double vol = 0) : occ(oc), nmat(mat), nvol(vol) {}
+};
+
+std::string nameMatterLV(const std::string& name, bool dd4hep) {
+  return (dd4hep ? static_cast<std::string>(dd4hep::dd::noNamespace(name)) : name);
+}
+
+std::string nameSolid(const std::string& name, bool dd4hep) {
+  if (!dd4hep)
+    return name;
+  std::string nam = static_cast<std::string>(dd4hep::dd::noNamespace(name));
+  auto n = nam.find("_shape");
+  if (n != std::string::npos)
+    nam = nam.substr(0, n);
+  if (name.find("_refl") != std::string::npos)
+    nam += "_refl";
+  return nam;
+}
+
+std::string namePV(const std::string& name, bool dd4hep) {
+  if (!dd4hep)
+    return name;
+  std::string nam = static_cast<std::string>(dd4hep::dd::noNamespace(name));
+  auto n = nam.rfind("_");
+  return ((n != std::string::npos) ? nam.substr(0, n) : nam);
+}
 
 std::string removeExtraName(const std::string& name, int debug) {
   std::string nam(name);
@@ -126,11 +157,12 @@ void myPrint2(std::map<std::string, T> const& obj1, std::map<std::string, T> con
   }
 }
 
-void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int files, int mode, int debug) {
+void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int files, int debug) {
   std::map<std::string, materials> matFile1, matFile2;
   std::map<std::string, solids> solidFile1, solidFile2;
   std::map<std::string, lvs> lvFile1, lvFile2;
   std::map<std::string, pvs> pvFile1, pvFile2;
+  std::map<std::string, regions> regFile1, regFile2;
   bool typeFile1 = ((files % 10) == 0);
   bool typeFile2 = (((files / 10) % 10) == 0);
   char buffer[100];
@@ -142,11 +174,14 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
   } else {
     while (fInput1.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
-      if (typeFile1) {
-        name = ((mode == 1) ? removeExtraName(items[0], debug) : items[0]);
-      } else {
-        name = reducedName(items[0], debug);
-      }
+      if ((type == 0) || (type == 2))
+        name = nameMatterLV(items[0], !typeFile1);
+      else if (type == 1)
+        name = nameSolid(items[0], !typeFile1);
+      else if (type == 3)
+        name = namePV(items[0], !typeFile1);
+      else
+        name = items[0];
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
       double r2 = (items.size() > 2) ? atof(items[2].c_str()) : 0;
       double r3 = (items.size() > 3) ? atof(items[3].c_str()) : 0;
@@ -168,10 +203,16 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
           lvFile1[name] = lvs(1, r1);
         else
           ++((it->second).occ);
-      } else {
+      } else if (type == 3) {
         auto it = pvFile1.find(name);
         if (it == pvFile1.end())
           pvFile1[name] = pvs(1, r1, r2, r3);
+        else
+          ++((it->second).occ);
+      } else {
+        auto it = regFile1.find(name);
+        if (it == regFile1.end())
+          regFile1[name] = regions(1, r1, r2);
         else
           ++((it->second).occ);
       }
@@ -186,11 +227,14 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
   } else {
     while (fInput2.getline(buffer, 100)) {
       std::vector<std::string> items = splitString(std::string(buffer));
-      if (typeFile2) {
-        name = ((mode == 1) ? removeExtraName(items[0], debug) : items[0]);
-      } else {
-        name = reducedName(items[0], debug);
-      }
+      if ((type == 0) || (type == 2))
+        name = nameMatterLV(items[0], !typeFile2);
+      else if (type == 1)
+        name = nameSolid(items[0], !typeFile2);
+      else if (type == 3)
+        name = namePV(items[0], !typeFile2);
+      else
+        name = items[0];
       double r1 = (items.size() > 1) ? atof(items[1].c_str()) : 0;
       double r2 = (items.size() > 2) ? atof(items[2].c_str()) : 0;
       double r3 = (items.size() > 3) ? atof(items[3].c_str()) : 0;
@@ -212,10 +256,16 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
           lvFile2[name] = lvs(1, r1);
         else
           ++((it->second).occ);
-      } else {
+      } else if (type == 3) {
         auto it = pvFile2.find(name);
         if (it == pvFile2.end())
           pvFile2[name] = pvs(1, r1, r2, r3);
+        else
+          ++((it->second).occ);
+      } else {
+        auto it = regFile2.find(name);
+        if (it == regFile2.end())
+          regFile2[name] = regions(1, r1, r2);
         else
           ++((it->second).occ);
       }
@@ -234,8 +284,10 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     myPrint1(solidFile1);
   } else if (type == 2) {
     myPrint1(lvFile1);
-  } else {
+  } else if (type == 3) {
     myPrint1(pvFile1);
+  } else {
+    myPrint1(regFile1);
   }
 
   std::cout << "\nMore than one entry for a given name in " << fileFile2 << std::endl;
@@ -245,8 +297,10 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     myPrint1(solidFile2);
   } else if (type == 2) {
     myPrint1(lvFile2);
-  } else {
+  } else if (type == 3) {
     myPrint1(pvFile2);
+  } else {
+    myPrint1(regFile2);
   }
 
   std::cout << "\nEntry in " << fileFile1 << " not in " << fileFile2 << std::endl;
@@ -256,8 +310,10 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     myPrint2(solidFile1, solidFile2);
   } else if (type == 2) {
     myPrint2(lvFile1, lvFile2);
-  } else {
+  } else if (type == 3) {
     myPrint2(pvFile1, pvFile2);
+  } else {
+    myPrint2(regFile1, regFile2);
   }
 
   std::cout << "\nEntry in " << fileFile2 << " not in " << fileFile1 << std::endl;
@@ -267,8 +323,10 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     myPrint2(solidFile2, solidFile1);
   } else if (type == 2) {
     myPrint2(lvFile2, lvFile1);
-  } else {
+  } else if (type == 2) {
     myPrint2(pvFile2, pvFile1);
+  } else {
+    myPrint2(regFile2, regFile1);
   }
 
   //Now type specific changes
@@ -342,7 +400,7 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     }
     std::cout << "\n " << kount2 << " out of " << kount1 << " entries having discrpancies at the level of " << tol3
               << " or more; the maximum happens for " << nameMax << " with " << difmax1 << "\n";
-  } else {
+  } else if (type == 3) {
     const double tol4 = 0.0001;
     for (auto it1 : pvFile1) {
       auto it2 = pvFile2.find(it1.first);
@@ -367,6 +425,31 @@ void CompareFiles(const char* fileFile1, const char* fileFile2, int type, int fi
     }
     std::cout << "\n " << kount2 << " out of " << kount1 << " entries having discrpancies at the level of " << tol4
               << " or more; the maximum happens for " << nameMax << " with " << difmax1 << "\n";
+  } else {
+    const double tol5 = 0.0001;
+    for (auto it1 : regFile1) {
+      auto it2 = regFile2.find(it1.first);
+      if (it2 != regFile2.end()) {
+        ++kount1;
+        double matdif = (it1.second.nmat - it2->second.nmat);
+        double voldif = (it1.second.nvol - it2->second.nvol);
+        if (std::abs(matdif) > difmax1) {
+          difmax1 = std::abs(matdif);
+          nameMax = it1.first;
+        }
+        if (std::abs(voldif) > difmax2) {
+          difmax2 = std::abs(voldif);
+          nameMax = it1.first;
+        }
+        if ((std::abs(matdif) > tol5) || (std::abs(voldif) > tol5)) {
+          ++kount2;
+          std::cout << it1.first << " Material " << it1.second.nmat << ":" << it2->second.nmat << ":" << matdif
+                    << " Volume " << it1.second.nvol << ":" << it2->second.nvol << ":" << voldif << std::endl;
+        }
+      }
+    }
+    std::cout << "\n " << kount2 << " out of " << kount1 << " entries having discrpancies at the level of " << tol5
+              << " or more; the maximum happens for " << nameMax << " with " << difmax1 << ":" << difmax2 << "\n";
   }
 }
 
@@ -375,9 +458,8 @@ int main(int argc, char* argv[]) {
     std::cout << "Please give a minimum of 2 arguments \n"
               << "name of the first input file\n"
               << "name of the second input file\n"
-              << "type (Material:0, Solid:1, LV:2, PV:3\n"
+              << "type (Material:0, Solid:1, LV:2, PV:3, Region:4)\n"
               << "files (10 if first file from DDD and second from DD4hep)\n"
-              << "mode (treat the name for DDD or not == needed for PV)\n"
               << "debug flag (0 for minimum printout)\n"
               << std::endl;
     return 0;
@@ -389,8 +471,7 @@ int main(int argc, char* argv[]) {
   if (type < 0 || type > 3)
     type = 0;
   int files = ((argc > 4) ? atoi(argv[4]) : 10);
-  int mode = ((argc > 5) ? atoi(argv[5]) : 0);
   int debug = ((argc > 6) ? atoi(argv[6]) : 0);
-  CompareFiles(infile1, infile2, type, files, mode, debug);
+  CompareFiles(infile1, infile2, type, files, debug);
   return 0;
 }
