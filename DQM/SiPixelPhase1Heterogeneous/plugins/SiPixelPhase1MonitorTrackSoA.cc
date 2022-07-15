@@ -134,6 +134,7 @@ void SiPixelPhase1MonitorTrackSoA::analyze(const edm::Event& iEvent, const edm::
 void SiPixelPhase1MonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
                                                   edm::Run const& iRun,
                                                   edm::EventSetup const& iSetup) {
+<<<<<<< HEAD
   iBook.cd();
   iBook.setCurrentFolder(topFolderName_);
 
@@ -164,6 +165,21 @@ void SiPixelPhase1MonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
   hz = iBook.book1D("z", ";Track (quality #geq loose) z [cm];#tracks", 30, -30., 30.);
   htip = iBook.book1D("tip", ";Track (quality #geq loose) TIP [cm];#tracks", 100, -0.5, 0.5);
   hquality = iBook.book1D("quality", ";Track Quality;#tracks", 7, -0.5, 6.5);
+=======
+  ibooker.cd();
+  ibooker.setCurrentFolder(topFolderName_);
+  hnTracks = ibooker.book1D("nTracks", ";Number of tracks per event;#entries", 1001, -0.5, 1000.5);
+  hnLooseAndAboveTracks = ibooker.book1D(
+      "nLooseAndAboveTracks", ";Number of tracks (quality #geq loose) per event;#entries", 1001, -0.5, 1000.5);
+  hnHits = ibooker.book1D("nRecHits", ";Number of all RecHits per track (quality #geq loose);#entries", 15, -0.5, 14.5);
+  hchi2 = ibooker.book1D("nChi2ndof", ";Track (quality #geq loose) chi-squared over ndof;#entries", 40, 0., 20.);
+  hpt = ibooker.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#entries", 200, 0., 200.);
+  heta = ibooker.book1D("eta", ";Track (quality #geq loose) #eta;#entries", 30, -3., 3.);
+  hphi = ibooker.book1D("phi", ";Track (quality #geq loose) #phi;#entries", 30, -M_PI, M_PI);
+  hz = ibooker.book1D("z", ";Track (quality #geq loose) z [cm];#entries", 30, -30., 30.);
+  htip = ibooker.book1D("tip", ";Track (quality #geq loose) TIP [cm];#entries", 100, -0.5, 0.5);
+  hquality = ibooker.book1D("quality", ";Track Quality;#entries", 7, -0.5, 6.5);
+>>>>>>> 61b57d481bafef8c4077ba9483f7cd622181cc74
   uint i = 1;
   for (const auto& q : pixelTrack::qualityName) {
     hquality->setBinLabel(i, q, 1);

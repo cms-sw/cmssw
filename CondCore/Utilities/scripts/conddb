@@ -2657,6 +2657,7 @@ def setProtection( args ):
     action = 'Access restriction altered.'
     note = ''
     if args.remove:
+        TagAuthorization = session.get_dbtype(conddb.TagAuthorization)
         query = session.query(TagAuthorization).filter(TagAuthorization.tag_name == args.tag)
         query = query.filter(TagAuthorization.access_type == input_access_code)
         for code in db_access_code_map.keys():

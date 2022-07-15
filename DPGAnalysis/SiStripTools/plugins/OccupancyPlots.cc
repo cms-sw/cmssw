@@ -29,7 +29,7 @@
 #include "TProfile.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -63,7 +63,7 @@
 // class decleration
 //
 
-class OccupancyPlots : public edm::EDAnalyzer {
+class OccupancyPlots : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit OccupancyPlots(const edm::ParameterSet&);
   ~OccupancyPlots() override;

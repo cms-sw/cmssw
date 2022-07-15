@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,15 +37,12 @@
 //
 // class decleration
 //
-class FromClusterSummaryMultiplicityProducer : public edm::EDProducer {
+class FromClusterSummaryMultiplicityProducer : public edm::global::EDProducer<> {
 public:
   explicit FromClusterSummaryMultiplicityProducer(const edm::ParameterSet&);
-  ~FromClusterSummaryMultiplicityProducer() override;
 
 private:
-  void beginJob() override;
-  void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
@@ -86,17 +83,14 @@ FromClusterSummaryMultiplicityProducer::FromClusterSummaryMultiplicityProducer(c
   m_subdetvar = (ClusterSummary::VariablePlacement)iConfig.getParameter<int>("varEnum");
 }
 
-FromClusterSummaryMultiplicityProducer::~FromClusterSummaryMultiplicityProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called to produce the data  ------------
-void FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void FromClusterSummaryMultiplicityProducer::produce(edm::StreamID,
+                                                     edm::Event& iEvent,
+                                                     const edm::EventSetup& iSetup) const {
   LogDebug("Multiplicity") << " Ready to go";
 
   using namespace edm;
@@ -134,11 +128,5 @@ void FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const e
 
   iEvent.put(std::move(mults));
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void FromClusterSummaryMultiplicityProducer::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void FromClusterSummaryMultiplicityProducer::endJob() {}
 
 DEFINE_FWK_MODULE(FromClusterSummaryMultiplicityProducer);

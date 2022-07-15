@@ -407,10 +407,8 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
   // if third sub-condition is false, effectively there will no overlap removal
   if (!reqObjResult) {
     LogDebug("L1TGlobal") << "\n"
-                          << "    Third sub-condtion false for object requirements."
-                          << "    Algorithm returning false.\n"
+                          << "    Third sub-condtion false for object requirements.\n"
                           << std::endl;
-    return false;
   } else {
     LogDebug("L1TGlobal") << "\n"
                           << "    All three sub-conditions true for object requirements."
@@ -458,10 +456,13 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
 
   int etIndex0 = 0;
   int etIndex1 = 0;
+  int etIndex2 = 0;
   int etBin0 = 0;
   int etBin1 = 0;
+  int etBin2 = 0;
   double et0Phy = 0.;
   double et1Phy = 0.;
+  double et2Phy = 0.;
 
   int chrg0 = -1;
   int chrg1 = -1;
@@ -819,16 +820,25 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
           candMuVec = m_uGtB->getCandL1Mu();
           phiIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPhi();  //(*candMuVec)[obj2Index]->phiIndex();
           etaIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwEta();
+          etIndex2 = (candMuVec->at(cond2bx, obj2Index))->hwPt();
           int etaBin2 = etaIndex2;
           if (etaBin2 < 0)
             etaBin2 = m_gtScales->getMUScales().etaBins.size() + etaBin2;  //twos complement
           //LogDebug("L1TGlobal") << "Muon phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2  << " et " << etIndex2 << std::endl;
 
+          etBin2 = etIndex2;
+          int ssize = m_gtScales->getMUScales().etBins.size();
+          if (etBin2 >= ssize) {
+            etBin2 = ssize - 1;
+            LogTrace("L1TGlobal") << "muon2 hw et" << etBin2 << " out of scale range.  Setting to maximum.";
+          }
           // Determine Floating Pt numbers for floating point caluclation
           std::pair<double, double> binEdges = m_gtScales->getMUScales().phiBins.at(phiIndex2);
           phi2Phy = 0.5 * (binEdges.second + binEdges.first);
           binEdges = m_gtScales->getMUScales().etaBins.at(etaBin2);
           eta2Phy = 0.5 * (binEdges.second + binEdges.first);
+          binEdges = m_gtScales->getMUScales().etBins.at(etBin2);
+          et2Phy = 0.5 * (binEdges.second + binEdges.first);
 
           LogDebug("L1TGlobal") << "Found all quantities for the muon 0" << std::endl;
         } break;
@@ -841,15 +851,26 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               candCaloVec = m_uGtB->getCandL1EG();
               phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
               etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
+              etIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPt();
+              int etaBin2 = etaIndex2;
               if (etaBin2 < 0)
                 etaBin2 = m_gtScales->getEGScales().etaBins.size() + etaBin2;
               //LogDebug("L1TGlobal") << "EG0 phi" << phiIndex2 << " eta " << etaIndex2 << " etaBin2 = " << etaBin2 << " et " << etIndex2 << std::endl;
+
+              etBin2 = etIndex2;
+              int ssize = m_gtScales->getEGScales().etBins.size();
+              if (etBin2 >= ssize) {
+                etBin2 = ssize - 1;
+                LogTrace("L1TGlobal") << "EG2 hw et" << etBin2 << " out of scale range.  Setting to maximum.";
+              }
 
               // Determine Floating Pt numbers for floating point caluclation
               std::pair<double, double> binEdges = m_gtScales->getEGScales().phiBins.at(phiIndex2);
               phi2Phy = 0.5 * (binEdges.second + binEdges.first);
               binEdges = m_gtScales->getEGScales().etaBins.at(etaBin2);
               eta2Phy = 0.5 * (binEdges.second + binEdges.first);
+              binEdges = m_gtScales->getEGScales().etBins[etBin2];
+              et2Phy = 0.5 * (binEdges.second + binEdges.first);
 
             } break;
             case gtJet: {
@@ -857,29 +878,52 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
               candCaloVec = m_uGtB->getCandL1Jet();
               phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
               etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
+              etIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPt();
               etaBin2 = etaIndex2;
+              int etaBin2 = etaIndex2;
               if (etaBin2 < 0)
                 etaBin2 = m_gtScales->getJETScales().etaBins.size() + etaBin2;
+
+              etBin2 = etIndex2;
+              int ssize = m_gtScales->getJETScales().etBins.size();
+              if (etBin2 >= ssize) {
+                //edm::LogWarning("L1TGlobal")
+                //<< "jet2 hw et" << etBin2 << " out of scale range.  Setting to maximum.";
+                etBin2 = ssize - 1;
+              }
 
               // Determine Floating Pt numbers for floating point caluclation
               std::pair<double, double> binEdges = m_gtScales->getJETScales().phiBins.at(phiIndex2);
               phi2Phy = 0.5 * (binEdges.second + binEdges.first);
               binEdges = m_gtScales->getJETScales().etaBins.at(etaBin2);
               eta2Phy = 0.5 * (binEdges.second + binEdges.first);
+              binEdges = m_gtScales->getJETScales().etBins.at(etBin2);
+              et2Phy = 0.5 * (binEdges.second + binEdges.first);
 
             } break;
             case gtTau: {
               candCaloVec = m_uGtB->getCandL1Tau();
               phiIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPhi();
               etaIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwEta();
+              etIndex2 = (candCaloVec->at(cond2bx, obj2Index))->hwPt();
+              int etaBin2 = etaIndex2;
               if (etaBin2 < 0)
                 etaBin2 = m_gtScales->getTAUScales().etaBins.size() + etaBin2;
+
+              etBin2 = etIndex2;
+              int ssize = m_gtScales->getTAUScales().etBins.size();
+              if (etBin2 >= ssize) {
+                etBin2 = ssize - 1;
+                LogTrace("L1TGlobal") << "tau2 hw et" << etBin2 << " out of scale range.  Setting to maximum.";
+              }
 
               // Determine Floating Pt numbers for floating point caluclation
               std::pair<double, double> binEdges = m_gtScales->getTAUScales().phiBins.at(phiIndex2);
               phi2Phy = 0.5 * (binEdges.second + binEdges.first);
               binEdges = m_gtScales->getTAUScales().etaBins.at(etaBin2);
               eta2Phy = 0.5 * (binEdges.second + binEdges.first);
+              binEdges = m_gtScales->getTAUScales().etBins.at(etBin2);
+              et2Phy = 0.5 * (binEdges.second + binEdges.first);
               lutObj2 = "TAU";
             } break;
             default: {
@@ -1117,7 +1161,11 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
                               << "    Precision Shift = " << preShift << "\n"
                               << "    deltaRSqLUT (shift)= " << (deltaRSq / pow(10, preShift + corrPar.precDRCut))
                               << "\n"
-                              << "    deltaRSqPhy = " << deltaRSqPhy << std::endl;
+                              << "    deltaRSqPhy = " << deltaRSqPhy << "\n"
+                              << "    et[leg0] = " << etIndex0 << " , et[leg2] = " << etIndex2 << "\n"
+                              << "    etPhys[leg0] = " << et0Phy << " , etPhy[leg2] = " << et2Phy << "\n"
+                              << "    obj[leg0] = " << lutObj0 << " , obj[leg2] = " << lutObj2 << "\n"
+                              << std::endl;
 
         //if(preShift>0) deltaRSq /= pow(10,preShift);
         if (deltaRSq >= (long long)(corrPar.minOverlapRemovalDRCutValue * pow(10, preShift)) &&
@@ -1144,7 +1192,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
     // ///////////////////////////////////////////////////////
     if (overlapRemovalMatchLeg1 == 0x1) {
       LogDebug("L1TGlobal") << "   Remove Object of Leg1: Satisfied Overlap Removal Cuts " << std::endl;
-      continue;
+      continue;  // next it0Comb
     } else {
       LogDebug("L1TGlobal") << "   Keep Object of Leg1: Failed Overlap Removal Cuts " << std::endl;
     }
@@ -1788,7 +1836,7 @@ const bool l1t::CorrWithOverlapRemovalCondition::evaluateCondition(const int bxE
       // ///////////////////////////////////////////////////////
       if (overlapRemovalMatchLeg2 == 0x1) {
         LogDebug("L1TGlobal") << "   Remove Object of Leg2: Satisfied Overlap Removal Cuts" << std::endl;
-        continue;
+        continue;  // next it1Comb
       } else {
         LogDebug("L1TGlobal") << "   Keep Object of Leg2: Failed Overlap Removal Cuts " << std::endl;
       }

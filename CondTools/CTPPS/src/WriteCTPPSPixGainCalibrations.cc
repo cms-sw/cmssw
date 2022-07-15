@@ -188,8 +188,8 @@ void WriteCTPPSPixGainCalibrations::getHistos() {
 }
 
 void WriteCTPPSPixGainCalibrations::fillDB() {
-  CTPPSPixelGainCalibrations* gainCalibsTest = new CTPPSPixelGainCalibrations();
-  CTPPSPixelGainCalibrations* gainCalibsTest1 = new CTPPSPixelGainCalibrations();
+  CTPPSPixelGainCalibrations gainCalibsTest;
+  CTPPSPixelGainCalibrations gainCalibsTest1;
 
   //  std::cout<<"Here! "<<std::endl;
 
@@ -225,9 +225,9 @@ void WriteCTPPSPixGainCalibrations::fillDB() {
       setDummyFullPlane(orderedPeds, orderedGains, 6 * 52 * 80);
     }
 
-    gainCalibsTest->setGainCalibration(tempdetid, orderedPeds, orderedGains);
+    gainCalibsTest.setGainCalibration(tempdetid, orderedPeds, orderedGains);
     //	 std::cout << "Here detid = "<<tempdetid <<std::endl;
-    gainCalibsTest1->setGainCalibration(tempdetid, tempPGCalib);
+    gainCalibsTest1.setGainCalibration(tempdetid, tempPGCalib);
     //	 std::cout << "Here again"<<std::endl;
   }
   //  std::cout<<" Here 3!"<<std::endl;
@@ -236,7 +236,7 @@ void WriteCTPPSPixGainCalibrations::fillDB() {
     edm::LogError("CTPPSPixGainsCalibrationWriter") << "Db Service Unavailable";
     return;
   }
-  mydbservice->writeOne(gainCalibsTest, mydbservice->currentTime(), m_record);
+  mydbservice->writeOneIOV(gainCalibsTest, mydbservice->currentTime(), m_record);
 }
 
 void WriteCTPPSPixGainCalibrations::setDummyFullPlane(std::vector<float>& peds,

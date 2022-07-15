@@ -27,7 +27,7 @@
 #include <limits>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -48,7 +48,7 @@
 // class decleration
 //
 
-class MultiplicityInvestigator : public edm::EDAnalyzer {
+class MultiplicityInvestigator : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit MultiplicityInvestigator(const edm::ParameterSet&);
   ~MultiplicityInvestigator() override;
@@ -57,6 +57,7 @@ private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   void endJob() override;
 
   // ----------member data ---------------------------

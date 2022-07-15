@@ -78,20 +78,19 @@ void PPSGeometryBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   // Build persistent geometry data from geometry
-  PDetGeomDesc* serializableData =
-      new PDetGeomDesc();  // cond::service::PoolDBOutputService::writeOne interface requires raw pointer.
+  PDetGeomDesc serializableData;  // cond::service::PoolDBOutputService::writeOne interface requires raw pointer.
   int counter = 0;
   if (geoInfoRoot) {
-    buildSerializableDataFromGeoInfo(serializableData, geoInfoRoot.get(), counter);
+    buildSerializableDataFromGeoInfo(&serializableData, geoInfoRoot.get(), counter);
   }
 
   // Save geometry in the database
-  if (serializableData->container_.empty()) {
+  if (serializableData.container_.empty()) {
     throw cms::Exception("PPSGeometryBuilder") << "PDetGeomDesc is empty, no geometry to save in the database.";
   } else {
     if (dbService_.isAvailable()) {
-      dbService_->writeOne(serializableData, dbService_->beginOfTime(), "VeryForwardIdealGeometryRecord");
-      edm::LogInfo("PPSGeometryBuilder") << "Successfully wrote DB, with " << serializableData->container_.size()
+      dbService_->writeOneIOV(serializableData, dbService_->beginOfTime(), "VeryForwardIdealGeometryRecord");
+      edm::LogInfo("PPSGeometryBuilder") << "Successfully wrote DB, with " << serializableData.container_.size()
                                          << " PDetGeomDesc items.";
     } else {
       throw cms::Exception("PPSGeometryBuilder") << "PoolDBService required.";

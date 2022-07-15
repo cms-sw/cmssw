@@ -167,9 +167,9 @@ void BeamSpotOnlineRecordsReader::dump(const edm::Event& iEvent,
   theBSOfromDB_.Beamdxdz_ = mybeamspot->Getdxdz();
   theBSOfromDB_.BeamWidthX_ = mybeamspot->GetBeamWidthX();
   theBSOfromDB_.BeamWidthY_ = mybeamspot->GetBeamWidthY();
-  theBSOfromDB_.lastAnalyzedLumi_ = mybeamspot->GetLastAnalyzedLumi();
-  theBSOfromDB_.lastAnalyzedRun_ = mybeamspot->GetLastAnalyzedRun();
-  theBSOfromDB_.lastAnalyzedFill_ = mybeamspot->GetLastAnalyzedFill();
+  theBSOfromDB_.lastAnalyzedLumi_ = mybeamspot->lastAnalyzedLumi();
+  theBSOfromDB_.lastAnalyzedRun_ = mybeamspot->lastAnalyzedRun();
+  theBSOfromDB_.lastAnalyzedFill_ = mybeamspot->lastAnalyzedFill();
 
   bstree_->Fill();
 

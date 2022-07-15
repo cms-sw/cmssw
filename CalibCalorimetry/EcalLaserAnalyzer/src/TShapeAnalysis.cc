@@ -5,17 +5,17 @@
  *   modified by Julie Malcles - CEA/Saclay
  */
 
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TShapeAnalysis.h>
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TFParams.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TShapeAnalysis.h"
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TFParams.h"
 
 #include <iostream>
 #include <cmath>
 #include <ctime>
 #include <cassert>
 
-#include <TFile.h>
-#include <TTree.h>
-#include <TBranch.h>
+#include "TFile.h"
+#include "TTree.h"
+#include "TBranch.h"
 
 //ClassImp(TShapeAnalysis)
 
@@ -403,10 +403,6 @@ void TShapeAnalysis::computetmaxVal(int i, double *tm_val) {
   } else {
     for (int k = 0; k < npass[i] - 1; k++) {
       if (1. < tm_val[k] && tm_val[k] < 10.) {
-        double ss = (sigtm / npassok[i] - tm / npassok[i] * tm / npassok[i]);
-        if (ss < 0.)
-          ss = 0.;
-        //tm_sig=sqrt(ss);
         tm_mean = tm / npassok[i];
       }
     }

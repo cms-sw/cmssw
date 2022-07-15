@@ -366,33 +366,33 @@ void BeamSpotDipServer::problem() {
 bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects& bs)
 // read from database
 {
-  runnum = bs.GetLastAnalyzedRun();
+  runnum = bs.lastAnalyzedRun();
 
   // get from BeamSpotOnlineObject
 
   try {
-    startTime = bs.GetStartTime();
-    startTimeStamp = bs.GetStartTimeStamp();
-    endTime = bs.GetEndTime();
-    endTimeStamp = bs.GetEndTimeStamp();
+    startTime = bs.startTime();
+    startTimeStamp = bs.startTimeStamp();
+    endTime = bs.endTime();
+    endTimeStamp = bs.endTimeStamp();
   } catch (exception& e) {
     edm::LogWarning("BeamSpotDipServer") << "time variables are not available (readRcd): " << e.what();
 
-    startTime = bs.GetCreationTime();
-    startTimeStamp = bs.GetCreationTime();
-    endTime = bs.GetCreationTime();
-    endTimeStamp = bs.GetCreationTime();
+    startTime = bs.creationTime();
+    startTimeStamp = bs.creationTime();
+    endTime = bs.creationTime();
+    endTimeStamp = bs.creationTime();
   }
 
   try {
-    lumiRange = bs.GetLumiRange();
+    lumiRange = bs.lumiRange();
   } catch (exception& e) {
     edm::LogWarning("BeamSpotDipServer") << "lumirange variable not avaialble (readRcd): " << e.what();
 
-    lumiRange = to_string(bs.GetLastAnalyzedLumi());
+    lumiRange = to_string(bs.lastAnalyzedLumi());
   }
 
-  currentLS = bs.GetLastAnalyzedLumi();
+  currentLS = bs.lastAnalyzedLumi();
 
   type = bs.GetBeamType();
 
@@ -427,12 +427,12 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects& bs)
   err_width_y = bs.GetBeamWidthYError();
 
   try {
-    events = bs.GetUsedEvents();
-    meanPV = bs.GetMeanPV();
-    err_meanPV = bs.GetMeanErrorPV();
-    rmsPV = bs.GetRmsPV();
-    err_rmsPV = bs.GetRmsErrorPV();
-    maxPV = bs.GetMaxPVs();
+    events = bs.usedEvents();
+    meanPV = bs.meanPV();
+    err_meanPV = bs.meanErrorPV();
+    rmsPV = bs.rmsPV();
+    err_rmsPV = bs.rmsErrorPV();
+    maxPV = bs.maxPVs();
   } catch (exception& e) {
     edm::LogWarning("BeamSpotDipServer") << "PV variables are not available (readRcd): " << e.what();
 
@@ -444,7 +444,7 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects& bs)
     maxPV = 0.;
   }
 
-  nPV = bs.GetNumPVs();
+  nPV = bs.numPVs();
 
   if (verbose)
     edm::LogInfo("BeamSpotDipServer") << "pos: (" << x << "," << y << "," << z << ")"

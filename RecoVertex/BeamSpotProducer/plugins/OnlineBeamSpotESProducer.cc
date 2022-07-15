@@ -70,9 +70,9 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
       std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
 
   // Get two beamspot creation times and compute the time difference wrt currentTime
-  auto bs1time = std::chrono::microseconds(bs1->GetCreationTime());
+  auto bs1time = std::chrono::microseconds(bs1->creationTime());
   auto diffBStime1 = (currentTime - bs1time).count();
-  auto bs2time = std::chrono::microseconds(bs2->GetCreationTime());
+  auto bs2time = std::chrono::microseconds(bs2->creationTime());
   auto diffBStime2 = (currentTime - bs2time).count();
 
   // Convert timeThreshold_ from hours to microseconds for comparison
@@ -122,7 +122,7 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::checkSingleBS(const BeamS
       std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
 
   // Get the beamspot creation time and compute the time difference wrt currentTime
-  auto bs1time = std::chrono::microseconds(bs1->GetCreationTime());
+  auto bs1time = std::chrono::microseconds(bs1->creationTime());
   auto diffBStime1 = (currentTime - bs1time).count();
 
   // Convert timeThreshold_ from hours to microseconds for comparison

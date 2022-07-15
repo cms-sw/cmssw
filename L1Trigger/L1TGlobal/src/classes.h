@@ -8,5 +8,6 @@ namespace L1Trigger_L1TGlobal {
     std::vector<CorrelationTemplate> dummy3;
     std::vector<CorrelationThreeBodyTemplate> dummy4;
     std::vector<CorrelationWithOverlapRemovalTemplate> dummy5;
+    std::vector<MuonShowerTemplate> dummy6;
   };
 }  // namespace L1Trigger_L1TGlobal

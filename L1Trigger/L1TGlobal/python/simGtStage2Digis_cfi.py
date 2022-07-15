@@ -9,6 +9,7 @@ import FWCore.ParameterSet.Config as cms
 
 simGtStage2Digis = cms.EDProducer("L1TGlobalProducer",
     MuonInputTag = cms.InputTag("simGmtStage2Digis"),
+    MuonShowerInputTag = cms.InputTag("simGmtShowerDigis"),
     ExtInputTag = cms.InputTag("simGtExtFakeStage2Digis"),
     EGammaInputTag = cms.InputTag("simCaloStage2Digis"),
     TauInputTag = cms.InputTag("simCaloStage2Digis"),
@@ -33,3 +34,6 @@ simGtStage2Digis = cms.EDProducer("L1TGlobalProducer",
     #Verbosity = cms.untracked.int32(0)
 )
 
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toModify(simGtStage2Digis,
+                     useMuonShowers = cms.bool(True))

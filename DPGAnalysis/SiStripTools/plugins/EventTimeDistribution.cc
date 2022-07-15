@@ -27,7 +27,7 @@
 #include "TH2F.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +38,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -50,7 +49,7 @@
 // class decleration
 //
 
-class EventTimeDistribution : public edm::EDAnalyzer {
+class EventTimeDistribution : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit EventTimeDistribution(const edm::ParameterSet&);
   ~EventTimeDistribution() override;

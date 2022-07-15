@@ -1,14 +1,45 @@
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
-#include "HtrXmlPattern.h"
 #include "HtrXmlPatternTool.h"
 #include "HtrXmlPatternToolParameters.h"
+
+// system include files
+#include <memory>
+
+// default include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
+
+class HtrXmlPattern : public edm::one::EDAnalyzer<> {
+public:
+  explicit HtrXmlPattern(const edm::ParameterSet&);
+  ~HtrXmlPattern() override;
+
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override;
+  virtual void do_hand_fill(const HcalElectronicsMap*);
+  HtrXmlPatternTool* m_tool;
+  HtrXmlPatternToolParameters* m_toolparameters;
+  int m_sets_to_show;
+  int m_hand_pattern_number;
+  bool m_fill_by_hand;
+  bool m_filled;
+  bool m_write_root_file;
+
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> m_hcalElectronicsMapToken;
+};
 
 HtrXmlPattern::HtrXmlPattern(const edm::ParameterSet& iConfig) {
   m_filled = false;
@@ -46,8 +77,8 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (m_filled)
     return;
 
-  edm::ESHandle<HcalDbService> pSetup;
-  iSetup.get<HcalDbRecord>().get(pSetup);
+  // Get the HCAL Electronics Map from the Event setup
+  const auto pSetup = iSetup.getHandle(m_hcalElectronicsMapToken);
   const HcalElectronicsMap* readoutMap = pSetup->getHcalMapping();
 
   if (m_fill_by_hand) {
@@ -66,7 +97,7 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   iEvent.getManyByType(hbhe);
   if (hbhe.empty()) {
-    cout << "No HB/HE Digis." << endl;
+    edm::LogPrint("HtrXmlPattern") << "No HB/HE Digis.";
   } else {
     std::vector<edm::Handle<HBHEDigiCollection> >::iterator i;
     for (i = hbhe.begin(); i != hbhe.end(); i++) {
@@ -78,19 +109,19 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         m_tool->Fill(HEID, j);
 
         if (count++ < m_sets_to_show || m_sets_to_show < 0) {
-          cout << *j << std::endl;
-          cout << HEID << endl;
-          cout << "count: " << count << endl;
+          edm::LogPrint("HtrXmlPattern") << *j;
+          edm::LogPrint("HtrXmlPattern") << HEID;
+          edm::LogPrint("HtrXmlPattern") << "count: " << count;
         }
       }
       if (m_sets_to_show != 0)
-        cout << "HB/HE count: " << count << endl;
+        edm::LogPrint("HtrXmlPattern") << "HB/HE count: " << count;
     }
   }
 
   iEvent.getManyByType(hf);
   if (hf.empty()) {
-    cout << "No HF Digis." << endl;
+    edm::LogPrint("HtrXmlPattern") << "No HF Digis.";
   } else {
     std::vector<edm::Handle<HFDigiCollection> >::iterator i;
     for (i = hf.begin(); i != hf.end(); i++) {
@@ -102,19 +133,19 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         m_tool->Fill(HEID, j);
 
         if (count++ < m_sets_to_show || m_sets_to_show < 0) {
-          cout << *j << std::endl;
-          cout << HEID << endl;
-          cout << "count: " << count << endl;
+          edm::LogPrint("HtrXmlPattern") << *j;
+          edm::LogPrint("HtrXmlPattern") << HEID;
+          edm::LogPrint("HtrXmlPattern") << "count: " << count;
         }
       }
       if (m_sets_to_show != 0)
-        cout << "HF    count: " << count << endl;
+        edm::LogPrint("HtrXmlPattern") << "HF    count: " << count;
     }
   }
 
   iEvent.getManyByType(ho);
   if (ho.empty()) {
-    cout << "No HO Digis." << endl;
+    edm::LogPrint("HtrXmlPattern") << "No HO Digis.";
   } else {
     std::vector<edm::Handle<HODigiCollection> >::iterator i;
     for (i = ho.begin(); i != ho.end(); i++) {
@@ -126,17 +157,17 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         m_tool->Fill(HEID, j);
 
         if (count++ < m_sets_to_show || m_sets_to_show < 0) {
-          cout << *j << std::endl;
-          cout << HEID << endl;
-          cout << "count: " << count << endl;
+          edm::LogPrint("HtrXmlPattern") << *j;
+          edm::LogPrint("HtrXmlPattern") << HEID;
+          edm::LogPrint("HtrXmlPattern") << "count: " << count;
         }
       }
       if (m_sets_to_show != 0)
-        cout << "HO    count: " << count << endl;
+        edm::LogPrint("HtrXmlPattern") << "HO    count: " << count;
     }
   }
 
-  cout << endl;
+  edm::LogPrint("HtrXmlPattern");
 }
 
 void HtrXmlPattern::do_hand_fill(const HcalElectronicsMap* emap) {
@@ -172,3 +203,5 @@ void HtrXmlPattern::endJob() {
   if (m_write_root_file)
     m_tool->createHists();
 }
+
+DEFINE_FWK_MODULE(HtrXmlPattern);

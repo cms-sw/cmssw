@@ -4,12 +4,12 @@
 ### Reference dataset
  - `config_reference_cff.py` - configuration (Event Setup) for the reference dataset
  - `input_files_reference_cff.py` - file with vstring of ROOT input files for the reference dataset 
- - `run_distributions_reference_cfg.py` - process configuration for PPSAlignmentWorker. Produces standard ROOT file with reference histograms for x alignment of the test dataset.
+ - `run_distributions_reference_cfg.py` - process configuration for `PPSAlignmentWorker`. Produces a standard ROOT file with reference histograms for the horizontal alignment.
 ### Test dataset
  - `config_cff.py` - configuration (Event Setup) for the test dataset
  - `input_files_cff.py` - file with vstring of ROOT input files for the test dataset
- - `run_distributions_cfg.py` - process configuration for PPSAlignmentWorker. Produces DQMIO ROOT file with histograms for the harvester.
- - `run_analysis_manual_cfg.py` - process configuration for PPSAlignmentHarvester. Produces alignment results.
+ - `run_distributions_cfg.py` - process configuration for `PPSAlignmentWorker`. Produces a DQMIO ROOT file with histograms for the harvester.
+ - `run_analysis_cfg.py` - process configuration for `PPSAlignmentHarvester`. Runs the horizontal, the horizontal relative and the vertical alignment. Produces a text file with results and two ROOT files - one with DQM plots, and the other one with debug plots. Can be easily configured to produce an SQLite file with the results as well - check out the variables at the top of the file.
 
 ## Running instructions
 ```

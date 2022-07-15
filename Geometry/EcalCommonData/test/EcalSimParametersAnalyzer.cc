@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "CondFormats/GeometryObjects/interface/EcalSimulationParameters.h"
@@ -34,48 +35,50 @@ void EcalSimParametersAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm:
   const auto& parS = iSetup.getData(simparToken_);
   const EcalSimulationParameters* parsim = &parS;
   if (parsim != nullptr) {
-    std::cout << "\n nxtalEta_: " << parsim->nxtalEta_;
-    std::cout << "\n nxtalPhi_: " << parsim->nxtalPhi_;
-    std::cout << "\n phiBaskets_: " << parsim->phiBaskets_;
-    std::cout << "\n etaBaskets_: ";
+    edm::LogVerbatim("EcalGeom") << "\n nxtalEta_: " << parsim->nxtalEta_ << "\n nxtalPhi_: " << parsim->nxtalPhi_
+                                 << "\n phiBaskets_: " << parsim->phiBaskets_ << "\n etaBaskets_: ";
+    std::ostringstream st1;
     for (const auto& it : parsim->etaBaskets_)
-      std::cout << it << ", ";
-    std::cout << "\n ncrys_: " << parsim->ncrys_;
-    std::cout << "\n nmods_: " << parsim->nmods_;
-    std::cout << "\n useWeight_: " << parsim->useWeight_;
-    std::cout << "\n depth1Name_: " << parsim->depth1Name_;
-    std::cout << "\n depth2Name_: " << parsim->depth2Name_;
-    std::cout << "\n lvNames_: " << parsim->lvNames_.size() << " occurences\n";
+      st1 << it << ", ";
+    st1 << "\n ncrys_: " << parsim->ncrys_ << "\n nmods_: " << parsim->nmods_ << "\n useWeight_: " << parsim->useWeight_
+        << "\n depth1Name_: " << parsim->depth1Name_ << "\n depth2Name_: " << parsim->depth2Name_
+        << "\n lvNames_: " << parsim->lvNames_.size() << " occurences";
+    edm::LogVerbatim("EcalGeom") << st1.str();
     int kount(0);
+    std::ostringstream st2;
     for (const auto& it : parsim->lvNames_) {
-      std::cout << it << ", ";
+      st2 << it << ", ";
       ++kount;
       if (kount == 8) {
-        std::cout << "\n";
+        st2 << "\n";
         kount = 0;
       }
     }
     kount = 0;
-    std::cout << "\n matNames_: " << parsim->matNames_.size() << " occurences\n";
+    st2 << "\n matNames_: " << parsim->matNames_.size() << " occurences";
+    edm::LogVerbatim("EcalGeom") << st2.str();
+    std::ostringstream st3;
     for (const auto& it : parsim->matNames_) {
-      std::cout << it << ", ";
+      st3 << it << ", ";
       ++kount;
       if (kount == 7) {
-        std::cout << "\n";
+        st3 << "\n";
         kount = 0;
       }
     }
     kount = 0;
-    std::cout << "\n dzs_: " << parsim->dzs_.size() << " occurences\n";
+    st3 << "\n dzs_: " << parsim->dzs_.size() << " occurences";
+    edm::LogVerbatim("EcalGeom") << st3.str();
+    std::ostringstream st4;
     for (const auto& it : parsim->dzs_) {
-      std::cout << it << ", ";
+      st4 << it << ", ";
       ++kount;
       if (kount == 20) {
-        std::cout << "\n";
+        st4 << "\n";
         kount = 0;
       }
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("EcalGeom") << st4.str();
   }
 }
 

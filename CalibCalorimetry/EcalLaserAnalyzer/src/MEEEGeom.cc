@@ -9,7 +9,7 @@ using namespace std;
 
 //GHM ClassImp(MEEEGeom)
 
-bool MEEEGeom::pnTheory = true;
+const bool MEEEGeom::pnTheory = true;
 
 int MEEEGeom::quadrant(SuperCrysCoord iX, SuperCrysCoord iY) {
   bool near = iX >= 11;

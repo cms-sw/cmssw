@@ -3,13 +3,13 @@
  *
  *  \author: Patrice Verrecchia - CEA/Saclay
  */
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMatacq.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TMatacq.h"
 
 #include <iostream>
 #include <cmath>
 #include "TVectorD.h"
 
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMarkov.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TMarkov.h"
 
 using namespace std;
 //ClassImp(TMatacq)
@@ -162,7 +162,6 @@ int TMatacq::findPeak() {
   if (nbsup == 0)
     nbsup = nbinf;
 
-  double sumpkval = 1.;
   pkval = 0.;
   sigpkval = 0.5;
   if (nbsup == nbinf) {
@@ -203,11 +202,6 @@ int TMatacq::findPeak() {
       sigpkval = peak->getPeakValue(1);
 
       delete peak;
-
-      sumpkval = 0.0;
-
-      if (sumpkval > 1000.)
-        sumpkval = 10.;
 
       pkval += (firstsample - 1);
     }

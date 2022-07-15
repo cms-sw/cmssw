@@ -1358,9 +1358,9 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
 
       // Create the BeamSpotOnlineObjects object
       BeamSpotOnlineObjects BSOnline;
-      BSOnline.SetLastAnalyzedLumi(LSRange.second);
-      BSOnline.SetLastAnalyzedRun(theBeamFitter->getRunNumber());
-      BSOnline.SetLastAnalyzedFill(0);  // To be updated with correct LHC Fill number
+      BSOnline.setLastAnalyzedLumi(LSRange.second);
+      BSOnline.setLastAnalyzedRun(theBeamFitter->getRunNumber());
+      BSOnline.setLastAnalyzedFill(0);  // To be updated with correct LHC Fill number
       BSOnline.SetPosition(bs.x0(), bs.y0(), bs.z0());
       BSOnline.SetSigmaZ(bs.sigmaZ());
       BSOnline.SetBeamWidthX(bs.BeamWidthX());
@@ -1378,24 +1378,24 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
           BSOnline.SetCovariance(i, j, bs.covariance(i, j));
         }
       }
-      BSOnline.SetNumTracks(theBeamFitter->getNTracks());
-      BSOnline.SetNumPVs(theBeamFitter->getNPVs());
-      BSOnline.SetUsedEvents((int)DipPVInfo_[0]);
-      BSOnline.SetMeanPV(DipPVInfo_[1]);
-      BSOnline.SetMeanErrorPV(DipPVInfo_[2]);
-      BSOnline.SetRmsPV(DipPVInfo_[3]);
-      BSOnline.SetRmsErrorPV(DipPVInfo_[4]);
-      BSOnline.SetMaxPVs((int)DipPVInfo_[5]);
+      BSOnline.setNumTracks(theBeamFitter->getNTracks());
+      BSOnline.setNumPVs(theBeamFitter->getNPVs());
+      BSOnline.setUsedEvents((int)DipPVInfo_[0]);
+      BSOnline.setMeanPV(DipPVInfo_[1]);
+      BSOnline.setMeanErrorPV(DipPVInfo_[2]);
+      BSOnline.setRmsPV(DipPVInfo_[3]);
+      BSOnline.setRmsErrorPV(DipPVInfo_[4]);
+      BSOnline.setMaxPVs((int)DipPVInfo_[5]);
       auto creationTime =
           std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch())
               .count();
-      BSOnline.SetCreationTime(creationTime);
+      BSOnline.setCreationTime(creationTime);
 
       std::pair<time_t, time_t> timeForDIP = theBeamFitter->getRefTime();
-      BSOnline.SetStartTimeStamp(timeForDIP.first);
-      BSOnline.SetStartTime(getGMTstring(timeForDIP.first));
-      BSOnline.SetEndTimeStamp(timeForDIP.second);
-      BSOnline.SetEndTime(getGMTstring(timeForDIP.second));
+      BSOnline.setStartTimeStamp(timeForDIP.first);
+      BSOnline.setStartTime(getGMTstring(timeForDIP.first));
+      BSOnline.setEndTimeStamp(timeForDIP.second);
+      BSOnline.setEndTime(getGMTstring(timeForDIP.second));
 
       edm::LogInfo("BeamMonitor") << "FitAndFill::[PayloadCreation] BeamSpotOnline object created: \n" << std::endl;
       edm::LogInfo("BeamMonitor") << BSOnline << std::endl;
@@ -1418,16 +1418,16 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, int&
             << "BeamMonitor::FitAndFill - [PayloadCreation] BeamSpotOnline object created:";
         onlineDbService_->logger().logInfo() << "\n" << BSOnline;
         onlineDbService_->logger().logInfo() << "BeamMonitor - Additional parameters for DIP:";
-        onlineDbService_->logger().logInfo() << "Events used in the fit: " << BSOnline.GetUsedEvents();
-        onlineDbService_->logger().logInfo() << "Mean PV               : " << BSOnline.GetMeanPV();
-        onlineDbService_->logger().logInfo() << "Mean PV Error         : " << BSOnline.GetMeanErrorPV();
-        onlineDbService_->logger().logInfo() << "Rms PV                : " << BSOnline.GetRmsPV();
-        onlineDbService_->logger().logInfo() << "Rms PV Error          : " << BSOnline.GetRmsErrorPV();
-        onlineDbService_->logger().logInfo() << "Max PVs               : " << BSOnline.GetMaxPVs();
-        onlineDbService_->logger().logInfo() << "StartTime             : " << BSOnline.GetStartTime();
-        onlineDbService_->logger().logInfo() << "StartTimeStamp        : " << BSOnline.GetStartTimeStamp();
-        onlineDbService_->logger().logInfo() << "EndTime               : " << BSOnline.GetEndTime();
-        onlineDbService_->logger().logInfo() << "EndTimeStamp          : " << BSOnline.GetEndTimeStamp();
+        onlineDbService_->logger().logInfo() << "Events used in the fit: " << BSOnline.usedEvents();
+        onlineDbService_->logger().logInfo() << "Mean PV               : " << BSOnline.meanPV();
+        onlineDbService_->logger().logInfo() << "Mean PV Error         : " << BSOnline.meanErrorPV();
+        onlineDbService_->logger().logInfo() << "Rms PV                : " << BSOnline.rmsPV();
+        onlineDbService_->logger().logInfo() << "Rms PV Error          : " << BSOnline.rmsErrorPV();
+        onlineDbService_->logger().logInfo() << "Max PVs               : " << BSOnline.maxPVs();
+        onlineDbService_->logger().logInfo() << "StartTime             : " << BSOnline.startTime();
+        onlineDbService_->logger().logInfo() << "StartTimeStamp        : " << BSOnline.startTimeStamp();
+        onlineDbService_->logger().logInfo() << "EndTime               : " << BSOnline.endTime();
+        onlineDbService_->logger().logInfo() << "EndTimeStamp          : " << BSOnline.endTimeStamp();
         onlineDbService_->logger().logInfo() << "BeamMonitor::FitAndFill - [PayloadCreation] onlineDbService available";
         onlineDbService_->logger().logInfo()
             << "BeamMonitor::FitAndFill - [PayloadCreation] SetCreationTime: " << creationTime
