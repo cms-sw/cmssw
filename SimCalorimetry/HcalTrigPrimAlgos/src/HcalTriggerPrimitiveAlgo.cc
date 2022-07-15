@@ -470,7 +470,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
 
       if (check_sat)
         force_saturation[ibin] = true;
-    //TP energy calculation for PFA1' and PFA1
+      //TP energy calculation for PFA1' and PFA1
     } else {
       //add up value * scale factor
       // In addition, divide by two in the 10 degree phi segmentation region
