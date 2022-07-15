@@ -180,7 +180,7 @@ namespace l1t {
         bool useNNBits_ = getAlgoVersion() >= 11098;   // FW versions >= 26.10.2021
         bool useHMTBits_ = getAlgoVersion() >= 11306;  // FW versions >= 10.01.2022
 
-        static constexpr int nominalShower_ = 2;
+        static constexpr int nominalShower_ = 1;
         static constexpr int tightShower_ = 3;
 
         // Check Format of Payload
