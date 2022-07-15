@@ -33,18 +33,18 @@ autoCond = {
     'run2_data_promptlike_hi'      : '124X_dataRun2_PromptLike_HI_v1',
     # GlobalTag with fixed snapshot time for Run2 HLT RelVals: customizations to run with fixed L1 Menu
     'run2_hlt_relval'              : '123X_dataRun2_HLT_relval_v3',
-    # GlobalTag for Run3 HLT: identical to the online GT (124X_dataRun3_HLT_v4) but with snapshot at 2022-07-12 13:00:00 (UTC)
-    'run3_hlt'                     : '124X_dataRun3_HLT_frozen_v6',
+    # GlobalTag for Run3 HLT: identical to the online GT (124X_dataRun3_HLT_v3) but with snapshot at 2022-06-24 15:15:00 (UTC)
+    'run3_hlt'                     : '124X_dataRun3_HLT_frozen_v4',
     # GlobalTag with fixed snapshot time for Run3 HLT RelVals: customizations to run with fixed L1 Menu
-    'run3_hlt_relval'              : '124X_dataRun3_HLT_relval_v8',
-    # GlobalTag for Run3 data relvals (express GT) - identical to 124X_dataRun3_Express_v4 but with snapshot at 2022-07-12 13:00:00 (UTC)
-    'run3_data_express'            : '124X_dataRun3_Express_frozen_v4',
-    # GlobalTag for Run3 data relvals (prompt GT) - identical to 124X_dataRun3_Prompt_v4 but with snapshot at 2022-07-12 13:00:00 (UTC)
-    'run3_data_prompt'             : '124X_dataRun3_Prompt_frozen_v4',
-    # GlobalTag for Run3 offline data reprocessing - snapshot at 2022-07-12 23:00:00 (UTC)
-    'run3_data'                    : '124X_dataRun3_v9',
+    'run3_hlt_relval'              : '124X_dataRun3_HLT_relval_v6',
+    # GlobalTag for Run3 data relvals (express GT) - identical to 124X_dataRun3_Express_v2 but with snapshot at 2022-06-24 15:15:00 (UTC)
+    'run3_data_express'            : '124X_dataRun3_Express_frozen_v2',
+    # GlobalTag for Run3 data relvals (prompt GT) - identical to 124X_dataRun3_Prompt_v2 but with snapshot at 2022-06-24 15:15:00 (UTC)
+    'run3_data_prompt'             : '124X_dataRun3_Prompt_frozen_v2',
+    # GlobalTag for Run3 offline data reprocessing - snapshot updated to 2022-06-29 14:53:51 (UTC)
+    'run3_data'                    : '124X_dataRun3_v5',
     # GlobalTag for Run3 data relvals: allows customization to run with fixed L1 menu
-    'run3_data_relval'             : '124X_dataRun3_relval_v8',
+    'run3_data_relval'             : '124X_dataRun3_relval_v5',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017 (and 0,0,~0-centred beamspot)
     'phase1_2017_design'           : '123X_mc2017_design_v2',
     # GlobalTag for MC production with realistic conditions for Phase1 2017 detector
@@ -68,19 +68,19 @@ autoCond = {
     # GlobalTag for MC production (cosmics) with realistic conditions for full Phase1 2018 detector,  Strip tracker in PEAK mode
     'phase1_2018_cosmics_peak'     : '123X_upgrade2018cosmics_realistic_peak_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2022
-    'phase1_2022_design'           : '124X_mcRun3_2022_design_v7',
+    'phase1_2022_design'           : '124X_mcRun3_2022_design_v6',
     # GlobalTag for MC production with realistic conditions for Phase1 2022
-    'phase1_2022_realistic'        : '124X_mcRun3_2022_realistic_v9',
+    'phase1_2022_realistic'        : '124X_mcRun3_2022_realistic_v8',
     # GlobalTag for MC production (cosmics) with realistic conditions for Phase1 2022,  Strip tracker in DECO mode
-    'phase1_2022_cosmics'          : '124X_mcRun3_2022cosmics_realistic_deco_v10',
+    'phase1_2022_cosmics'          : '124X_mcRun3_2022cosmics_realistic_deco_v9',
     # GlobalTag for MC production (cosmics) with perfectly aligned and calibrated detector for Phase1 2022, Strip tracker in DECO mode
-    'phase1_2022_cosmics_design'   : '124X_mcRun3_2022cosmics_design_deco_v7',
+    'phase1_2022_cosmics_design'   : '124X_mcRun3_2022cosmics_design_deco_v6',
     # GlobalTag for MC production with realistic conditions for Phase1 2022 detector for Heavy Ion
-    'phase1_2022_realistic_hi'     : '124X_mcRun3_2022_realistic_HI_v9',
+    'phase1_2022_realistic_hi'     : '124X_mcRun3_2022_realistic_HI_v8',
     # GlobalTag for MC production with realistic conditions for Phase1 2023
-    'phase1_2023_realistic'        : '124X_mcRun3_2023_realistic_v10',
+    'phase1_2023_realistic'        : '124X_mcRun3_2023_realistic_v9',
     # GlobalTag for MC production with realistic conditions for Phase1 2024
-    'phase1_2024_realistic'        : '124X_mcRun3_2024_realistic_v10',
+    'phase1_2024_realistic'        : '124X_mcRun3_2024_realistic_v9',
     # GlobalTag for MC production with realistic conditions for Phase2
     'phase2_realistic'             : '124X_mcRun4_realistic_v8'
 }
