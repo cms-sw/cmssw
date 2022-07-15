@@ -27,6 +27,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -96,16 +97,11 @@ private:
 
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::StreamID id, edm::ParentContext const& iContext) {
-    edm::FinalWaitingTask task;
     oneapi::tbb::task_group group;
+    edm::FinalWaitingTask task{group};
     edm::ServiceToken token;
     iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, id, iContext, nullptr);
-    do {
-      group.wait();
-    } while (not task.done());
-    if (auto e = task.exceptionPtr()) {
-      std::rethrow_exception(e);
-    }
+    task.wait();
   }
 
   class BasicOutputModule : public edm::limited::OutputModule<> {
@@ -225,15 +221,10 @@ testLimitedOutputModule::testLimitedOutputModule()
     iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-    edm::FinalWaitingTask task;
     oneapi::tbb::task_group group;
+    edm::FinalWaitingTask task{group};
     iComm->writeLumiAsync(edm::WaitingTaskHolder(group, &task), *m_lbp, nullptr, &activityRegistry);
-    do {
-      group.wait();
-    } while (not task.done());
-    if (task.exceptionPtr()) {
-      std::rethrow_exception(task.exceptionPtr());
-    }
+    task.wait();
   };
 
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
@@ -243,15 +234,10 @@ testLimitedOutputModule::testLimitedOutputModule()
     iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
-    edm::FinalWaitingTask task;
     oneapi::tbb::task_group group;
+    edm::FinalWaitingTask task{group};
     iComm->writeRunAsync(edm::WaitingTaskHolder(group, &task), *m_rp, nullptr, &activityRegistry, nullptr);
-    do {
-      group.wait();
-    } while (not task.done());
-    if (task.exceptionPtr()) {
-      std::rethrow_exception(task.exceptionPtr());
-    }
+    task.wait();
   };
 
   m_transToFunc[Trans::kGlobalCloseInputFile] = [](edm::Worker* iBase, edm::OutputModuleCommunicator*) {

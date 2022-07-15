@@ -44,6 +44,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ESProductTag.h"
 #include "FWCore/Concurrency/interface/ThreadsController.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 
 #include "cppunit/extensions/HelperMacros.h"
 
@@ -424,16 +425,11 @@ namespace {
       for (size_t i = 0; i != proxies.size(); ++i) {
         auto rec = iImpl.findImpl(recs[i]);
         if (rec) {
-          edm::FinalWaitingTask waitTask;
           oneapi::tbb::task_group group;
+          edm::FinalWaitingTask waitTask{group};
           rec->prefetchAsync(
               WaitingTaskHolder(group, &waitTask), proxies[i], &iImpl, edm::ServiceToken{}, edm::ESParentContext{});
-          do {
-            group.wait();
-          } while (not waitTask.done());
-          if (waitTask.exceptionPtr()) {
-            std::rethrow_exception(waitTask.exceptionPtr());
-          }
+          waitTask.wait();
         }
       }
     }
