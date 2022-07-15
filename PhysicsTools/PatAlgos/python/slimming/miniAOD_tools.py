@@ -494,29 +494,10 @@ def miniAOD_customizeCommon(process):
     (~pp_on_AA).toModify(process, _add_slimmedMETsPuppi)
 
     def _add_deepMET(process):
-        process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
+        from RecoMET.METPUSubtraction.deepMETProducer_cff import deepMETsResolutionTune, deepMETsResponseTune
 
-        addToProcessAndTask('deepMETsResolutionTune', process.deepMETProducer.clone(), process, task)
-        addToProcessAndTask('deepMETsResponseTune', process.deepMETProducer.clone(), process, task)
-        process.deepMETsResponseTune.graph_path = 'RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb'
-
-        from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
-        phase2_common.toModify(
-            process.deepMETsResolutionTune,
-            max_n_pf=12500,
-            graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_v1_phase2.pb"
-        )
-        phase2_common.toModify(
-            process.deepMETsResponseTune,
-            max_n_pf=12500,
-            graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_phase2.pb"
-        )
-        
-        from Configuration.Eras.Modifier_run2_jme_2016_cff import run2_jme_2016
-        run2_jme_2016.toModify(
-            process.deepMETsResponseTune,
-            graph_path="RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"
-        )
+        addToProcessAndTask('deepMETsResolutionTune', deepMETsResolutionTune, process, task)
+        addToProcessAndTask('deepMETsResponseTune', deepMETsResponseTune, process, task)
     (~pp_on_AA).toModify(process, _add_deepMET)
 
     # add DetIdAssociatorRecords to EventSetup (for isolatedTracks)
