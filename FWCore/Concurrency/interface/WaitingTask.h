@@ -66,7 +66,7 @@ namespace edm {
      * This method should only be called by WaitingTaskList
      */
     void dependentTaskFailed(std::exception_ptr iPtr) {
-      unsigned char isSet = static_cast<unsigned int>(State::kUnset);
+      unsigned char isSet = static_cast<unsigned char>(State::kUnset);
       if (iPtr and m_ptrSet.compare_exchange_strong(isSet, static_cast<unsigned char>(State::kSetting))) {
         m_ptr = iPtr;
         m_ptrSet = static_cast<unsigned char>(State::kSet);
@@ -74,7 +74,7 @@ namespace edm {
     }
 
     std::exception_ptr m_ptr;
-    std::atomic<unsigned char> m_ptrSet = static_cast<unsigned int>(State::kUnset);
+    std::atomic<unsigned char> m_ptrSet = static_cast<unsigned char>(State::kUnset);
   };
 
   template <typename F>
