@@ -223,8 +223,6 @@ bool Source::getHostname(const std::string &id, std::string &hostname) {
   hostname = id;
   if ((pos != std::string::npos) && (pos > 0)) {
     hostname = id.substr(0, pos);
-    hostname.erase(remove(hostname.begin(), hostname.end(), ']'), hostname.end());
-    hostname.erase(remove(hostname.begin(), hostname.end(), '['), hostname.end());
   }
 
   bool retval = true;
