@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,7 +26,7 @@
 
 namespace l1t {
 
-  class L1TStage2CaloAnalyzer : public edm::EDAnalyzer {
+  class L1TStage2CaloAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit L1TStage2CaloAnalyzer(const edm::ParameterSet&);
     ~L1TStage2CaloAnalyzer() override;
@@ -154,6 +154,7 @@ namespace l1t {
   L1TStage2CaloAnalyzer::L1TStage2CaloAnalyzer(const edm::ParameterSet& iConfig)
       : doText_(iConfig.getUntrackedParameter<bool>("doText", true)),
         doHistos_(iConfig.getUntrackedParameter<bool>("doHistos", true)) {
+    usesResource(TFileService::kSharedResource);
     //now do what ever initialization is needed
 
     m_mpBx = iConfig.getParameter<int>("mpBx");

@@ -179,12 +179,12 @@ namespace {
       assert(chi2sX5.size() == track.recHitsSize());
       auto hb = track.recHitsBegin();
       for (unsigned int h = 0; h < track.recHitsSize(); h++) {
-        auto hit = *(hb + h);
+        auto const hit = *(hb + h);
         if (!hit->isValid())
           continue;
         if (chi2sX5[h] > maxChi2_)
           continue;  // skip outliers
-        auto const& thit = reinterpret_cast<BaseTrackerRecHit const&>(*hit);
+        auto const& thit = static_cast<BaseTrackerRecHit const&>(*hit);
         auto const& cluster = thit.firstClusterRef();
         // FIXME when we will get also Phase2 pixel
         if (cluster.isPixel())
@@ -193,9 +193,9 @@ namespace {
           collectedPhase2OTs[cluster.key()] = true;
 
         // Phase 2 OT is defined as Pixel detector (for now)
-        const auto& hitType = typeid(hit);
-        if (hitType == typeid(VectorHit)) {
-          auto const& vectorHit = reinterpret_cast<VectorHit const&>(hit);
+        auto pVectorHits = dynamic_cast<VectorHit const*>(hit);
+        if (pVectorHits != nullptr) {
+          auto const& vectorHit = *pVectorHits;
           auto const& lowCluster = vectorHit.lowerClusterRef();
           auto const& uppCluster = vectorHit.upperClusterRef();
           LogTrace("TrackClusterRemoverPhase2")

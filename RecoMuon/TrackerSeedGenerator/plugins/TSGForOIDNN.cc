@@ -866,7 +866,7 @@ void TSGForOIDNN::evaluateClassifier(const std::unordered_map<std::string, float
   tensorflow::TTypes<float, 1>::Matrix dnn_outputs = out_tensor.matrix<float>();
 
   // Find output with largest prediction
-  int imax = -1;
+  int imax = 0;
   float out_max = 0;
   for (long long int i = 0; i < out_tensor.dim_size(1); i++) {
     float ith_output = dnn_outputs(0, i);

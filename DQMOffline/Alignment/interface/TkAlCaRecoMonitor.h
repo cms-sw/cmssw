@@ -1,38 +1,40 @@
-#ifndef TkAlCaRecoMonitor_H
-#define TkAlCaRecoMonitor_H
+#ifndef DQMOffline_Alignment_TkAlCaRecoMonitor_H
+#define DQMOffline_Alignment_TkAlCaRecoMonitor_H
+
 // -*- C++ -*-
 //
 // Package:    TkAlCaRecoMonitor
 // Class:      TkAlCaRecoMonitor
 //
 /**\class TkAlCaRecoMonitor TkAlCaRecoMonitor.cc
-DQM/TrackerMonitorTrack/src/TkAlCaRecoMonitor.cc Monitoring special quantities
-related to Tracker Alignment AlCaReco Production.
+   DQM/TrackerMonitorTrack/src/TkAlCaRecoMonitor.cc
+   Monitoring special quantities related to Tracker Alignment AlCaReco Production.
 */
 
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include <algorithm>
 #include <fstream>
 #include <map>
 #include <memory>
 #include <vector>
 
-// DataFormats
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include <DataFormats/JetReco/interface/CaloJet.h>
-
-class TrackerGeometry;
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 class TkAlCaRecoMonitor : public DQMEDAnalyzer {
 public:
   explicit TkAlCaRecoMonitor(const edm::ParameterSet &);
-  ~TkAlCaRecoMonitor() override;
+  ~TkAlCaRecoMonitor() override = default;
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event &, const edm::EventSetup &) override;

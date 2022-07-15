@@ -6,6 +6,11 @@
 
 #include <atomic>
 #include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
+#include <memory>
+#include <algorithm>
 
 #include <fmt/printf.h>
 
@@ -52,6 +57,7 @@ struct HLTriggerJSONMonitoringData {
     std::vector<int> posL1s;      // position of last L1T HLT seed filter in each path, or -1 if not present
     std::vector<int> posPre;      // position of last HLT prescale filter in each path, or -1 if not present
     std::vector<std::vector<unsigned int>> datasets;  // list of paths in each dataset
+    std::vector<unsigned int> indicesOfTriggerPaths;  // indices of triggers (without DatasetPaths) in TriggerNames
   };
 
   // variables accumulated over the whole lumisection
@@ -124,6 +130,8 @@ public:
 private:
   static constexpr const char* streamName_ = "streamHLTRates";
 
+  static constexpr const char* datasetPathNamePrefix_ = "Dataset_";
+
   static void writeJsdFile(HLTriggerJSONMonitoringData::run const&);
   static void writeIniFile(HLTriggerJSONMonitoringData::run const&, unsigned int);
 
@@ -135,12 +143,12 @@ private:
 // constructor
 HLTriggerJSONMonitoring::HLTriggerJSONMonitoring(edm::ParameterSet const& config)
     : triggerResults_(config.getParameter<edm::InputTag>("triggerResults")),
-      triggerResultsToken_(consumes<edm::TriggerResults>(triggerResults_)) {}
+      triggerResultsToken_(consumes(triggerResults_)) {}
 
 // validate the configuration and optionally fill the default values
 void HLTriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "HLT"));
+  desc.add<edm::InputTag>("triggerResults", edm::InputTag("TriggerResults", "", "@currentProcess"));
   descriptions.add("HLTriggerJSONMonitoring", desc);
 }
 
@@ -169,38 +177,64 @@ std::shared_ptr<HLTriggerJSONMonitoringData::run> HLTriggerJSONMonitoring::globa
   // initialize HLTConfigProvider
   bool changed = true;
   if (not rundata->hltConfig.init(run, setup, triggerResults_.process(), changed)) {
-    edm::LogError("HLTriggerJSONMonitoring") << "HLTConfigProvider initialization failed!" << std::endl;
+    edm::LogError("HLTriggerJSONMonitoring") << "HLTConfigProvider initialization failed!";
   } else if (changed) {
-    // update the trigger and dataset names
+    // triggerNames from TriggerResults (includes DatasetPaths)
     auto const& triggerNames = rundata->hltConfig.triggerNames();
-    auto const& datasetNames = rundata->hltConfig.datasetNames();
+    auto const triggerNamesSize = triggerNames.size();
+
+    // update the list of indices of the HLT Paths (without DatasetPaths) in the TriggerNames list
+    rundata->indicesOfTriggerPaths.clear();
+    rundata->indicesOfTriggerPaths.reserve(triggerNamesSize);
+    for (auto triggerNameIdx = 0u; triggerNameIdx < triggerNamesSize; ++triggerNameIdx) {
+      // skip DatasetPaths
+      if (triggerNames[triggerNameIdx].find(datasetPathNamePrefix_) != 0) {
+        rundata->indicesOfTriggerPaths.emplace_back(triggerNameIdx);
+      }
+    }
+    auto const triggersSize = rundata->indicesOfTriggerPaths.size();
+
+    // update the list of paths in each dataset
     auto const& datasets = rundata->hltConfig.datasetContents();
-
-    const unsigned int triggersSize = triggerNames.size();
-    const unsigned int datasetsSize = datasetNames.size();
-
-    // extract the definition of the datasets
+    auto const& datasetNames = rundata->hltConfig.datasetNames();
+    auto const datasetsSize = datasetNames.size();
     rundata->datasets.resize(datasetsSize);
-    for (unsigned int ds = 0; ds < datasetsSize; ++ds) {
+    for (auto ds = 0u; ds < datasetsSize; ++ds) {
       auto& dataset = rundata->datasets[ds];
-      unsigned int paths = datasets[ds].size();
-      dataset.reserve(paths);
-      for (unsigned int p = 0; p < paths; p++) {
-        unsigned int index = rundata->hltConfig.triggerIndex(datasets[ds][p]);
-        if (index < triggersSize)
+      // check if TriggerNames include the DatasetPath corresponding to this Dataset
+      //  - DatasetPaths are normal cms.Path objects
+      //  - in Run-3 HLT menus, DatasetPaths are used to define PrimaryDatasets
+      auto const datasetPathName = datasetPathNamePrefix_ + datasetNames[ds];
+      auto const datasetPathExists =
+          std::find(triggerNames.begin(), triggerNames.end(), datasetPathName) != triggerNames.end();
+      if (datasetPathExists) {
+        // if a DatasetPath exists, only that Path is assigned to the Dataset
+        //  - this way, the counts of the Dataset properly include prescales on the DatasetPath
+        //    and smart-Prescales applied by the DatasetPath to its triggers
+        dataset.reserve(1);
+        auto const index = rundata->hltConfig.triggerIndex(datasetPathName);
+        if (index < triggerNamesSize)
           dataset.push_back(index);
+      } else {
+        auto const paths = datasets[ds].size();
+        dataset.reserve(paths);
+        for (auto p = 0u; p < paths; p++) {
+          auto const index = rundata->hltConfig.triggerIndex(datasets[ds][p]);
+          if (index < triggerNamesSize)
+            dataset.push_back(index);
+        }
       }
     }
 
     // find the positions of the L1 seed and prescale filters
     rundata->posL1s.resize(triggersSize);
     rundata->posPre.resize(triggersSize);
-    for (unsigned int i = 0; i < triggersSize; ++i) {
+    for (auto i = 0u; i < triggersSize; ++i) {
       rundata->posL1s[i] = -1;
       rundata->posPre[i] = -1;
-      std::vector<std::string> const& moduleLabels = rundata->hltConfig.moduleLabels(i);
-      for (unsigned int j = 0; j < moduleLabels.size(); ++j) {
-        std::string const& label = rundata->hltConfig.moduleType(moduleLabels[j]);
+      auto const& moduleLabels = rundata->hltConfig.moduleLabels(i);
+      for (auto j = 0u; j < moduleLabels.size(); ++j) {
+        auto const& label = rundata->hltConfig.moduleType(moduleLabels[j]);
         if (label == "HLTL1TSeed")
           rundata->posL1s[i] = j;
         else if (label == "HLTPrescaler")
@@ -242,34 +276,35 @@ void HLTriggerJSONMonitoring::analyze(edm::StreamID sid, edm::Event const& event
     return;
   }
   edm::TriggerResults const& results = *handle;
-  assert(results.size() == stream.hltWasRun.size());
+  assert(results.size() == rundata.hltConfig.triggerNames().size());
 
   // check the results for each HLT path
-  for (unsigned int i = 0; i < results.size(); ++i) {
-    auto const& status = results.at(i);
+  for (auto idx = 0u; idx < rundata.indicesOfTriggerPaths.size(); ++idx) {
+    auto const triggerPathIdx = rundata.indicesOfTriggerPaths[idx];
+    auto const& status = results[triggerPathIdx];
     if (status.wasrun()) {
-      ++stream.hltWasRun[i];
+      ++stream.hltWasRun[idx];
       if (status.accept()) {
-        ++stream.hltL1s[i];
-        ++stream.hltPre[i];
-        ++stream.hltAccept[i];
+        ++stream.hltL1s[idx];
+        ++stream.hltPre[idx];
+        ++stream.hltAccept[idx];
       } else {
-        int index = (int)status.index();
-        if (index > rundata.posL1s[i])
-          ++stream.hltL1s[i];
-        if (index > rundata.posPre[i])
-          ++stream.hltPre[i];
+        int const index = (int)status.index();
+        if (index > rundata.posL1s[idx])
+          ++stream.hltL1s[idx];
+        if (index > rundata.posPre[idx])
+          ++stream.hltPre[idx];
         if (status.error())
-          ++stream.hltErrors[i];
+          ++stream.hltErrors[idx];
         else
-          ++stream.hltReject[i];
+          ++stream.hltReject[idx];
       }
     }
   }
 
   // check the decision for each dataset
   // FIXME this ignores the prescales, "smart" prescales, and event selection applied in the OutputModule itself
-  for (unsigned int i = 0; i < rundata.datasets.size(); ++i)
+  for (auto i = 0u; i < rundata.datasets.size(); ++i)
     if (std::any_of(rundata.datasets[i].begin(), rundata.datasets[i].end(), [&](unsigned int path) {
           return results.accept(path);
         }))
@@ -283,7 +318,7 @@ std::shared_ptr<HLTriggerJSONMonitoringData::lumisection> HLTriggerJSONMonitorin
   unsigned int datasets = 0;
   auto const& rundata = *runCache(lumi.getRun().index());
   if (rundata.hltConfig.inited()) {
-    triggers = rundata.hltConfig.triggerNames().size();
+    triggers = rundata.indicesOfTriggerPaths.size();
     datasets = rundata.hltConfig.datasetNames().size();
   };
 
@@ -329,7 +364,7 @@ void HLTriggerJSONMonitoring::streamBeginLuminosityBlock(edm::StreamID sid,
   unsigned int datasets = 0;
   auto const& rundata = *runCache(lumi.getRun().index());
   if (rundata.hltConfig.inited()) {
-    triggers = rundata.hltConfig.triggerNames().size();
+    triggers = rundata.indicesOfTriggerPaths.size();
     datasets = rundata.hltConfig.datasetNames().size();
   };
 
@@ -357,8 +392,8 @@ void HLTriggerJSONMonitoring::streamEndLuminosityBlockSummary(edm::StreamID sid,
   if (not rundata.hltConfig.inited())
     return;
 
-  unsigned int triggers = rundata.hltConfig.triggerNames().size();
-  for (unsigned int i = 0; i < triggers; ++i) {
+  auto const triggers = rundata.indicesOfTriggerPaths.size();
+  for (auto i = 0u; i < triggers; ++i) {
     lumidata->hltWasRun.value()[i] += stream.hltWasRun[i];
     lumidata->hltL1s.value()[i] += stream.hltL1s[i];
     lumidata->hltPre.value()[i] += stream.hltPre[i];
@@ -366,8 +401,8 @@ void HLTriggerJSONMonitoring::streamEndLuminosityBlockSummary(edm::StreamID sid,
     lumidata->hltReject.value()[i] += stream.hltReject[i];
     lumidata->hltErrors.value()[i] += stream.hltErrors[i];
   }
-  unsigned int datasets = rundata.hltConfig.datasetNames().size();
-  for (unsigned int i = 0; i < datasets; ++i)
+  auto const datasets = rundata.hltConfig.datasetNames().size();
+  for (auto i = 0u; i < datasets; ++i)
     lumidata->datasets.value()[i] += stream.datasets[i];
 }
 
@@ -483,8 +518,8 @@ void HLTriggerJSONMonitoring::writeIniFile(HLTriggerJSONMonitoringData::run cons
   Json::Value content;
 
   Json::Value triggerNames(Json::arrayValue);
-  for (auto const& name : rundata.hltConfig.triggerNames())
-    triggerNames.append(name);
+  for (auto idx : rundata.indicesOfTriggerPaths)
+    triggerNames.append(rundata.hltConfig.triggerNames()[idx]);
   content["Path-Names"] = triggerNames;
 
   Json::Value datasetNames(Json::arrayValue);

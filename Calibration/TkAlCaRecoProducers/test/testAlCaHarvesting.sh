@@ -6,6 +6,7 @@ function cleanTheHouse {
     rm -fr pede*
     rm -fr treeFile.root
     rm -fr testPCLAlCaHarvesting.db
+    rm -fr HGalignment
 }
 
 echo "TESTING Calibration/TkAlCaRecoProducers ..."

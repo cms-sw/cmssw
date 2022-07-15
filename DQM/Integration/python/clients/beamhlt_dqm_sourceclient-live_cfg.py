@@ -13,13 +13,6 @@ import sys
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("BeamMonitor", Run3)
 
-# Configure tag and jobName if running Playback system
-if "dqm_cmssw/playback" in str(sys.argv[1]):
-  BSOnlineTag = BSOnlineTag + 'Playback'
-  BSOnlineJobName = BSOnlineJobName + 'Playback'
-  BSOnlineOmsServiceUrl = ''
-  useLockRecords = False
-
 # Message logger
 #process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #process.MessageLogger = cms.Service("MessageLogger",
@@ -104,6 +97,13 @@ process.dqmSaver.runNumber     = options.runNumber
 process.dqmSaverPB.tag         = 'BeamMonitorHLT'
 process.dqmSaverPB.runNumber   = options.runNumber
 
+# Configure tag and jobName if running Playback system
+if process.isDqmPlayback.value :
+  BSOnlineTag = BSOnlineTag + 'Playback'
+  BSOnlineJobName = BSOnlineJobName + 'Playback'
+  BSOnlineOmsServiceUrl = ''
+  useLockRecords = False
+
 #-----------------------------
 # BeamMonitor
 #-----------------------------
@@ -117,7 +117,7 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.GlobalTag.DBParameters.authenticationPath = cms.untracked.string('.')
 # Condition for lxplus: change and possibly customise the GT
 #from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+#process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
 
 # Change Beam Monitor variables
 process.dqmBeamMonitor.useLockRecords = cms.untracked.bool(useLockRecords)

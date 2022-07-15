@@ -13,6 +13,3 @@ trackingPhase2PU140.toModify(MeasurementTracker,
                              MaskBadAPVFibers = False,
                              UseStripStripQualityDB = False)
 
-from Configuration.Eras.Modifier_phase2_brickedPixels_cff import phase2_brickedPixels
-phase2_brickedPixels.toModify(MeasurementTracker, PixelCPE = 'PixelCPEGenericForBricked')
-

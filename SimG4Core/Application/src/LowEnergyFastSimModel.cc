@@ -15,6 +15,7 @@
 #include "G4PhysicalConstants.hh"
 
 constexpr G4double twomass = 2 * CLHEP::electron_mass_c2;
+constexpr G4double scaleFactor = 1.015;
 
 LowEnergyFastSimModel::LowEnergyFastSimModel(const G4String& name, G4Region* region, const edm::ParameterSet& parSet)
     : G4VFastSimulationModel(name, region),
@@ -68,7 +69,7 @@ void LowEnergyFastSimModel::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastS
   fastStep.KillPrimaryTrack();
   fastStep.SetPrimaryTrackPathLength(0.0);
   auto track = fastTrack.GetPrimaryTrack();
-  G4double energy = track->GetKineticEnergy();
+  G4double energy = track->GetKineticEnergy() * scaleFactor;
 
   const G4ThreeVector& pos = track->GetPosition();
 

@@ -176,6 +176,13 @@ RAWEventContent = cms.PSet(
 )
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+approxSiStripClusters.toModify(RAWEventContent,
+                              outputCommands = RAWEventContent.outputCommands+[
+                                  'keep *_SiStripClusters2ApproxClustersHLT_*_*'
+                              ])
+
 #
 #
 # HLTONLY Data Tier definition
@@ -769,6 +776,10 @@ REPACKRAWEventContent = cms.PSet(
 )
 REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+approxSiStripClusters.toModify(REPACKRAWEventContent,
+                               outputCommands = REPACKRAWEventContent.outputCommands+[
+                                   'keep *_SiStripClusters2ApproxClustersHLT_*_*'
+                               ])
 
 REPACKRAWSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(),

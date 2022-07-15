@@ -131,6 +131,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
   } else if (mode_ == 1) {
     // Wafers of 8-inch format
     edm::LogVerbatim("HGCalGeom") << "DetectorType: " << phgp->detectorType_;
+    edm::LogVerbatim("HGCalGeom") << "UseSimWt: " << phgp->useSimWt_;
     edm::LogVerbatim("HGCalGeom") << "Wafer Parameters: " << phgp->waferSize_ << ":" << phgp->waferR_ << ":"
                                   << phgp->waferThick_ << ":" << phgp->sensorSeparation_ << ":" << phgp->mouseBite_;
     myPrint("waferThickness", phgp->waferThickness_, 10);
@@ -225,6 +226,7 @@ void HGCalParameterTester::analyze(const edm::Event& iEvent, const edm::EventSet
   } else {
     // Tpaezoid (scintillator) type
     edm::LogVerbatim("HGCalGeom") << "DetectorType: " << phgp->detectorType_;
+    edm::LogVerbatim("HGCalGeom") << "UseSimWt: " << phgp->useSimWt_;
     edm::LogVerbatim("HGCalGeom") << "nCells_: " << phgp->nCellsFine_ << ":" << phgp->nCellsCoarse_;
     edm::LogVerbatim("HGCalGeom") << "MinTileZize: " << phgp->minTileSize_;
     edm::LogVerbatim("HGCalGeom") << "FirstLayer: " << phgp->firstLayer_;

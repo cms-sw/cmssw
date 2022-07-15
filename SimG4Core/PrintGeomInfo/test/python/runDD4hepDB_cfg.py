@@ -29,6 +29,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     DumpReplica      = cms.untracked.bool(False),
     DumpTouch        = cms.untracked.bool(False),
     DumpSense        = cms.untracked.bool(False),
+    DumpRegion       = cms.untracked.bool(False),
     DD4hep           = cms.untracked.bool(True),
     Name             = cms.untracked.string(''),
     Names            = cms.untracked.vstring(''),
@@ -37,6 +38,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     LVFileName       = cms.untracked.string('lvfileDD4hepDB.txt'),
     PVFileName       = cms.untracked.string('pvfileDD4hepDB.txt'),
     TouchFileName    = cms.untracked.string('touchfileDD4hepDB.txt'),
+    RegionFileName   = cms.untracked.string('regionfileDD4hepDB.txt'),
     FileDetail       = cms.untracked.bool(True),
     type             = cms.string('PrintGeomInfoAction')
 ))

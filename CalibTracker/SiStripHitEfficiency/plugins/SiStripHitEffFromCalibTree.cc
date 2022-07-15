@@ -101,7 +101,7 @@ private:
   void algoBeginJob(const edm::EventSetup&) override;
   void algoEndJob() override;
   void algoAnalyze(const edm::Event& e, const edm::EventSetup& c) override;
-  void SetBadComponents(int i,
+  void setBadComponents(int i,
                         int component,
                         SiStripQuality::BadComponent& BC,
                         std::stringstream ssV[4][19],
@@ -112,10 +112,10 @@ private:
   void totalStatistics();
   void makeSummary();
   void makeSummaryVsBx();
-  void ComputeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name);
+  void computeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name);
   void makeSummaryVsLumi();
   void makeSummaryVsCM();
-  TString GetLayerSideName(Long_t k);
+  TString getLayerSideName(Long_t k);
 
   // to be used everywhere
   static constexpr int SiStripLayers = 22;
@@ -188,6 +188,7 @@ private:
 
 SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& conf)
     : ConditionDBWriter<SiStripBadStrip>(conf), FileInPath_(SiStripDetInfoFileReader::kDefaultFile) {
+  usesResource(TFileService::kSharedResource);
   CalibTreeFilenames = conf.getUntrackedParameter<vector<std::string> >("CalibTreeFilenames");
   threshold = conf.getParameter<double>("Threshold");
   nModsMin = conf.getParameter<int>("nModsMin");
@@ -220,14 +221,9 @@ SiStripHitEffFromCalibTree::SiStripHitEffFromCalibTree(const edm::ParameterSet& 
   quality_ = new SiStripQuality(_detInfo);
 }
 
-void SiStripHitEffFromCalibTree::algoBeginJob(const edm::EventSetup&) {
-  //I have no idea what goes here
-  //fs->make<TTree>("HitEffHistos","Tree of the inefficient hit histograms");
-}
+void SiStripHitEffFromCalibTree::algoBeginJob(const edm::EventSetup&) {}
 
-void SiStripHitEffFromCalibTree::algoEndJob() {
-  //Still have no idea what goes here
-}
+void SiStripHitEffFromCalibTree::algoEndJob() {}
 
 void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::EventSetup& c) {
   const auto& tkgeom = c.getData(_tkGeomToken);
@@ -713,7 +709,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       //&&&&&&&&&&&&&&&&&
 
       component = tTopo.tibLayer(BC[i].detid);
-      SetBadComponents(0, component, BC[i], ssV, NBadComponent);
+      setBadComponents(0, component, BC[i], ssV, NBadComponent);
 
     } else if (a.subdetId() == SiStripDetId::TID) {
       //&&&&&&&&&&&&&&&&&
@@ -721,7 +717,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       //&&&&&&&&&&&&&&&&&
 
       component = tTopo.tidSide(BC[i].detid) == 2 ? tTopo.tidWheel(BC[i].detid) : tTopo.tidWheel(BC[i].detid) + 3;
-      SetBadComponents(1, component, BC[i], ssV, NBadComponent);
+      setBadComponents(1, component, BC[i], ssV, NBadComponent);
 
     } else if (a.subdetId() == SiStripDetId::TOB) {
       //&&&&&&&&&&&&&&&&&
@@ -729,7 +725,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       //&&&&&&&&&&&&&&&&&
 
       component = tTopo.tobLayer(BC[i].detid);
-      SetBadComponents(2, component, BC[i], ssV, NBadComponent);
+      setBadComponents(2, component, BC[i], ssV, NBadComponent);
 
     } else if (a.subdetId() == SiStripDetId::TEC) {
       //&&&&&&&&&&&&&&&&&
@@ -737,7 +733,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       //&&&&&&&&&&&&&&&&&
 
       component = tTopo.tecSide(BC[i].detid) == 2 ? tTopo.tecWheel(BC[i].detid) : tTopo.tecWheel(BC[i].detid) + 9;
-      SetBadComponents(3, component, BC[i], ssV, NBadComponent);
+      setBadComponents(3, component, BC[i], ssV, NBadComponent);
     }
   }
 
@@ -1318,7 +1314,7 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   for (Long_t k = 1; k < nLayers + 1; k++) {
     TString label;
     if (_showEndcapSides)
-      label = GetLayerSideName(k);
+      label = getLayerSideName(k);
     else
       label = ::layerName(k, _showRings, nTEClayers);
     if (!_showTOB6TEC9) {
@@ -1452,7 +1448,7 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
   }
 }
 
-void SiStripHitEffFromCalibTree::ComputeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name) {
+void SiStripHitEffFromCalibTree::computeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name) {
   unsigned int nLayers = SiStripLayers;
   if (_showRings)
     nLayers = 20;
@@ -1524,16 +1520,16 @@ void SiStripHitEffFromCalibTree::makeSummaryVsLumi() {
     LOGPRINT << "Avg conditions:   lumi :" << avgLumi << "  pu: " << avgPU;
   }
 
-  ComputeEff(layerfound_vsLumi, layertotal_vsLumi, "effVsLumi");
-  ComputeEff(layerfound_vsPU, layertotal_vsPU, "effVsPU");
+  computeEff(layerfound_vsLumi, layertotal_vsLumi, "effVsLumi");
+  computeEff(layerfound_vsPU, layertotal_vsPU, "effVsPU");
 }
 
 void SiStripHitEffFromCalibTree::makeSummaryVsCM() {
   LOGPRINT << "Computing efficiency vs CM";
-  ComputeEff(layerfound_vsCM, layertotal_vsCM, "effVsCM");
+  computeEff(layerfound_vsCM, layertotal_vsCM, "effVsCM");
 }
 
-TString SiStripHitEffFromCalibTree::GetLayerSideName(Long_t k) {
+TString SiStripHitEffFromCalibTree::getLayerSideName(Long_t k) {
   TString layername = "";
   TString ringlabel = "D";
   if (_showRings)
@@ -1574,7 +1570,7 @@ std::unique_ptr<SiStripBadStrip> SiStripHitEffFromCalibTree::getNewObject() {
   return obj;
 }
 
-void SiStripHitEffFromCalibTree::SetBadComponents(
+void SiStripHitEffFromCalibTree::setBadComponents(
     int i, int component, SiStripQuality::BadComponent& BC, std::stringstream ssV[4][19], int NBadComponent[4][19][4]) {
   int napv = _detInfo.getNumberOfApvsAndStripLength(BC.detid).first;
 

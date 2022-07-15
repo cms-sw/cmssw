@@ -4,6 +4,8 @@
 <use name="DataFormats/ParticleFlowCandidate"/>
 <use name="TrackingTools/IPTools"/>
 <use name="RecoBTag/TrackProbability"/>
+<use name="PhysicsTools/ONNXRuntime"/>
+<use name="json"/>
 <export>
   <lib name="1"/>
 </export>

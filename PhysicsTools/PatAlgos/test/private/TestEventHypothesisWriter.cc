@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -13,10 +13,10 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 
-class TestEventHypothesisWriter : public edm::EDProducer {
+class TestEventHypothesisWriter : public edm::stream::EDProducer<> {
 public:
   TestEventHypothesisWriter(const edm::ParameterSet &iConfig);
-  virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup);
+  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
   void runTests(const pat::EventHypothesis &h);
 
 private:

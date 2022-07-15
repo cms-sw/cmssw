@@ -116,7 +116,7 @@ private:
       group.wait();
     } while (not task.done());
     if (auto e = task.exceptionPtr()) {
-      std::rethrow_exception(*e);
+      std::rethrow_exception(e);
     }
   }
 
@@ -288,14 +288,18 @@ testOneOutputModule::testOneOutputModule()
 
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
 
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
@@ -311,7 +315,9 @@ testOneOutputModule::testOneOutputModule()
 
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     edm::FinalWaitingTask task;
@@ -320,14 +326,16 @@ testOneOutputModule::testOneOutputModule()
     do {
       group.wait();
     } while (not task.done());
-    if (task.exceptionPtr() != nullptr) {
-      std::rethrow_exception(*task.exceptionPtr());
+    if (task.exceptionPtr()) {
+      std::rethrow_exception(task.exceptionPtr());
     }
   };
 
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     edm::FinalWaitingTask task;
@@ -336,8 +344,8 @@ testOneOutputModule::testOneOutputModule()
     do {
       group.wait();
     } while (not task.done());
-    if (task.exceptionPtr() != nullptr) {
-      std::rethrow_exception(*task.exceptionPtr());
+    if (task.exceptionPtr()) {
+      std::rethrow_exception(task.exceptionPtr());
     }
   };
 

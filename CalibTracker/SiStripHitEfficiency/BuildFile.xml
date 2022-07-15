@@ -1,4 +1,5 @@
 <use name="DataFormats/SiStripDetId"/>
+<use name="DQM/SiStripCommon"/>
 <use name="Geometry/CommonDetUnit" source_only="1"/>
 <use name="RecoTracker/TransientTrackingRecHit"/>
 <use name="TrackingTools/TrackFitters"/>

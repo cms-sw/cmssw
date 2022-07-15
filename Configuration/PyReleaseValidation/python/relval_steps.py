@@ -517,9 +517,10 @@ steps['RunEGamma2018Dml2']={'INPUT':InputInfo(dataSet='/EGamma/Run2018D-v1/RAW',
 steps['RunDoubleMuonTE2016C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2016C-v2/RAW',label='2016C',events=10000,location='STD', ls=Run2016C)}
 dataTE = {'--conditions': 'auto:run2_data', '--scenario': 'pp'}
 mcTE = {'--conditions': 'auto:run2_mc', '--scenario': 'pp'}
-steps['RAWRECOTE16'] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,PAT', '--datatier': 'RAWRECO', '--eventcontent': 'RAWRECO', '--data': '', '--era': 'Run2_2016_HIPM', '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting',}, dataTE])
-steps['RAWRECOLHECLEANTE16'] = merge([{'-s': 'RAW2DIGI,RECO', '--data': '', '--eventcontent': 'RAWRECO', '--datatier': 'RAWRECO', '--era': 'Run2_2016_HIPM', '--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning',}, dataTE])
-steps['EMBEDHADTE16'] = merge([{'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO', '--processName': 'EmbeddingPythia8Hadronizer', '--eventcontent': 'RAWRECO', '--datatier': 'RAWRECO', '--beamspot': 'Realistic25ns13TeV2016Collision', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator', '--customise_commands': '\"process.generator.nAttempts = cms.uint32(1000)\"', '--era': 'Run2_2016_HIPM',}, mcTE])
+steps['RAWRECOTE16'] = merge([{'-s': 'RAW2DIGI,L1Reco,RECO,PAT', '--datatier': 'FEVT', '--eventcontent': 'FEVT', '--data': '', '--era': 'Run2_2016_HIPM', '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting',}, dataTE])
+steps['RAWRECOLHECLEANTE16'] = merge([{'-s': 'RAW2DIGI,RECO', '--data': '', '--eventcontent': 'RECO', '--datatier': 'RECO', '--era': 'Run2_2016_HIPM', '--customise': 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2016,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning',}, dataTE])
+steps['EMBEDHADTE16'] = merge([{'cfg': 'TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py', '-s': 'GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,RECO', '--processName': 'EmbeddingPythia8Hadronizer', '--eventcontent': 'RECO', '--datatier': 'RECO', '--beamspot': 'Realistic25ns13TeV2016Collision', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator', '--customise_commands': '\"process.generator.nAttempts = cms.uint32(1000)\"', '--era': 'Run2_2016_HIPM',}, mcTE])
+steps['EMBEDMINIAOD16'] = merge([{'-s': 'PAT', '--data': '', '--eventcontent': 'MINIAODSIM', '--datatier': 'MINIAODSIM', '--customise': 'TauAnalysis/MCEmbeddingTools/customisers.customiseMerging', '--customise_commands': '\"process.patTrigger.processName = cms.string(\'SIMembedding\')\"', '--era': 'Run2_2016_HIPM',}, dataTE])
 
 def gen(fragment,howMuch):
     global step1Defaults
@@ -983,6 +984,7 @@ hiAlca2017 = {'--conditions':'auto:phase1_2017_realistic', '--era':'Run2_2017_pp
 hiAlca2018 = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018'}
 hiAlca2018_ppReco = {'--conditions':'auto:phase1_2018_realistic_hi', '--era':'Run2_2018_pp_on_AA'}
 hiAlca2021_ppReco = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb'}
+hiAlca2021_ppReco_approxClusters = {'--conditions':'auto:phase1_2022_realistic_hi', '--era':'Run3_pp_on_PbPb', '--procModifiers':'approxSiStripClusters'}
 
 
 hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2}])
@@ -991,6 +993,7 @@ hiDefaults2017=merge([hiAlca2017,{'-n':2}])
 hiDefaults2018=merge([hiAlca2018,{'--scenario':'HeavyIons','-n':2}])
 hiDefaults2018_ppReco=merge([hiAlca2018_ppReco,{'-n':2}])
 hiDefaults2021_ppReco=merge([hiAlca2021_ppReco,{'-n':2}])
+hiDefaults2021_ppReco_approxClusters=merge([hiAlca2021_ppReco_approxClusters,{'-n':2}])
 
 steps['Hydjet2Q_MinBias_5020GeV_2018_ppReco']=merge([{'-n':1},hiDefaults2018_ppReco,gen2018hiprod('Hydjet2_Quenched_MinBias_5020GeV_cfi',U2000by1)])
 steps['HydjetQ_B12_5020GeV_2011']=merge([{'-n':1,'--beamspot':'RealisticHI2011Collision'},hiDefaults2011,genS('Hydjet_Quenched_B12_5020GeV_cfi',U2000by1)])
@@ -1736,6 +1739,7 @@ steps['RESIM']=merge([{'-s':'reGEN,reSIM','-n':10},steps['DIGI']])
 #steps['RESIMDIGI']=merge([{'-s':'reGEN,reSIM,DIGI,L1,DIGI2RAW,HLT:@fake,RAW2DIGI,L1Reco','-n':10,'--restoreRNDSeeds':'','--process':'HLT'},steps['DIGI']])
 
 
+steps['DIGIHI2021PPRECOAPPROXCLUSTERS']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2021_ppReco_approxClusters, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2021PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2021_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018PPRECO']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:HIon'}, hiDefaults2018_ppReco, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
 steps['DIGIHI2018']=merge([{'-s':'DIGI:pdigi_hi_nogen,L1,DIGI2RAW,HLT:@fake2'}, hiDefaults2018, {'--pileup':'HiMixNoPU'}, step2Upg2015Defaults])
@@ -1919,8 +1923,8 @@ steps['HLTDR2_2017']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2017,},{'--con
 hltKey2018='relval2018'
 steps['HLTDR2_2018']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2018,},{'--conditions':'auto:run2_hlt_relval'},{'--era' : 'Run2_2018'},steps['HLTD'] ] )
 
-hltKey2021='relval2021'
-steps['HLTDR3_2021']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2021,},{'--conditions':'auto:run3_hlt_relval'},{'--era':'Run3'},steps['HLTD'] ] )
+hltKey2022='relval2022'
+steps['HLTDR3_2021']=merge( [ {'-s':'L1REPACK:Full,HLT:@%s'%hltKey2022,},{'--conditions':'auto:run3_hlt_relval'},{'--era':'Run3'},steps['HLTD'] ] )
 
 # special setting for lumi section boundary crossing in RunEGamma2018Dml
 steps['HLTDR2_2018ml']=merge( [ {'--customise_commands':'"process.source.skipEvents=cms.untracked.uint32(7000)"'},steps['HLTDR2_2018'] ] )
@@ -1991,6 +1995,42 @@ steps['RECOHID18']=merge([{ '--scenario':'pp',
                             '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_pp_on_AA',
                             '-n':'10'
                             },steps['RECOHID15']])
+
+steps['RAWPRIMEHI18']={ '--scenario':'pp',
+                        '--conditions':'auto:run2_data_promptlike_hi',
+                        '-s':'REPACK:DigiToApproxClusterRaw',
+                        '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG',
+                        '--eventcontent':'REPACKRAW',
+                        '--era':'Run2_2018_pp_on_AA',
+                        '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_pp_on_AA',
+                        '-n':'10',
+                        '--procModifiers':'approxSiStripClusters',
+                        '--repacked':'',
+                        '--process':'REHLT'
+}
+
+steps['RAWPRIMESIMHI18']={ '--scenario':'pp',
+                           '--conditions':'auto:phase1_2022_realistic_hi',
+                           '-s':'REPACK:DigiToApproxClusterRaw',
+                           '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG',
+                           '--eventcontent':'FEVTDEBUGHLT',
+                           '--era':'Run2_2018_pp_on_AA',
+                           '-n':'10',
+                           '--procModifiers':'approxSiStripClusters',
+                           '--customise_commands':'\"process.siStripDigisHLT.ProductLabel=\'rawDataCollector\'\"',
+                           '--process':'REHLT'
+}
+
+steps['RECOHID18APPROXCLUSTERS']=merge([{ '--scenario':'pp',
+                                          '--conditions':'auto:run2_data_promptlike_hi',
+                                          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiPixelCalZeroBias,SKIM:PbPbEMu+PbPbZEE+PbPbZMM+PbPbZMu,DQM:@commonFakeHLT+@standardDQMFakeHLT',
+                                          '--datatier':'AOD,DQMIO',
+                                          '--eventcontent':'AOD,DQM',
+                                          '--era':'Run2_2018_pp_on_AA',
+                                          '--customise':'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018_pp_on_AA',
+                                          '--procModifiers':'approxSiStripClusters',
+                                          '-n':'10'
+                                      },steps['RECOHID15']])
 
 steps['REMINIAODHID18']={ '--scenario':'pp',
                           '--conditions':'auto:run2_data_promptlike_hi',
@@ -2229,6 +2269,13 @@ steps['ALCAHARVDSIPIXELCALLA']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdS
                         '--data':'',
                         '--era':'Run2_2017',
                         '--filein':'file:PromptCalibProdSiPixelLA.root'}
+                        
+steps['ALCAHARVDSIPIXELALIHG']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdSiPixelAliHG']),
+                     '--conditions':'auto:run2_data',
+                     '--scenario':'pp',
+                     '--data':'',
+                     '--filein':'file:PromptCalibProdSiPixelAliHG.root',
+                     '--customise':'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.lowerHitsPerStructure'}
 
 steps['ALCAHARVDPPSCAL']={'-s':'ALCAHARVEST:%s'%(autoPCL['PromptCalibProdPPSTimingCalib']),
                         '--conditions':'auto:run3_data_express',
@@ -2368,6 +2415,7 @@ steps['RECOUP15_trackingOnly']=merge([step3Up2015Defaults_trackingOnly]) # todo:
 steps['RECOUP15_trackingLowPU']=merge([step3_trackingLowPU, step3Up2015Defaults]) # todo: remove UP from label
 steps['RECOUP15_trackingOnlyLowPU']=merge([step3_trackingLowPU, step3Up2015Defaults_trackingOnly]) # todo: remove UP from label
 steps['RECOUP15_HIPM']=merge([step3_HIPM,step3Up2015Defaults]) # todo: remove UP from label
+steps['RECOUP15_BPHDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,RECOSIM,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM+@heavyFlavor'},step3Up2015Defaults]) # todo: remove UP from label
 
 steps['RECOUP17']=merge([{'--conditions':'auto:phase1_2017_realistic','--era' : 'Run2_2017','--geometry' : 'DB:Extended'},steps['RECOUP15']])
 steps['RECOUP17_PU25']=merge([PU25UP17,steps['RECOUP17']])
@@ -2431,7 +2479,7 @@ steps['RECODR2_2018reHLT_skimJetHT']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:Jet
 steps['RECODR2_2018reHLT_skimDisplacedJet']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXODisplacedJet,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@commonFakeHLT'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimMET']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:HighMET+EXOMONOPOLE,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@commonFakeHLT+@jetmet+@hcalOnly'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimMuOnia']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:BPHSkim,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@commonFakeHLT+@muon'},steps['RECODR2_2018reHLT']])
-steps['RECODR2_2018reHLT_skimCharmonium']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGJPsiSkim+BPHSkim,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@commonFakeHLT'},steps['RECODR2_2018reHLT']])
+steps['RECODR2_2018reHLT_skimCharmonium']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:MuonPOGJPsiSkim+BPHSkim,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@commonFakeHLT+@heavyFlavor'},steps['RECODR2_2018reHLT']])
 steps['RECODR2_2018reHLT_skimParkingBPH']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:SkimBPark,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+SiStripCalSmallBiasScan+TkAlMinBias+EcalESAlign,DQM:@commonFakeHLT','--era':'Run2_2018,bParking'},steps['RECODR2_2018reHLT']])
 
 for sname in ['RECODR2_50nsreHLT','RECODR2_50nsreHLT_ZB',
@@ -2628,6 +2676,17 @@ steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
 
 steps['RECOUP15_ID']=merge([{'--hltProcess':'HLT2'},steps['RECOUP15']])
 
+steps['RECOHI2021PPRECOAPPROXCLUSTERS']=merge([hiDefaults2021_ppReco_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                                                        '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                                                        '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+                                                        },step3Up2015Defaults])
+steps['RECOHI2021PPRECOMBAPPROXCLUSTERS']=merge([hiDefaults2021_ppReco_approxClusters,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
+                                                          '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+                                                          '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+                                                          '--era':'Run3_pp_on_PbPb',
+                                                          '--procModifiers':'genJetSubEvent',
+                                                        },step3Up2015Defaults])
+
 steps['RECOHI2021PPRECO']=merge([hiDefaults2021_ppReco,{'-s':'RAW2DIGI,L1Reco,RECO,PAT,VALIDATION:@standardValidationNoHLT+@miniAODValidation,DQM:@standardDQMFakeHLT+@miniAODDQM',
                                                         '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
                                                         '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
@@ -2726,12 +2785,14 @@ steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
 steps['ALCAEXP']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+Hotline+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO+SiPixelCalSingleMuon,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA',
+                  '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
                   '--triggerResultsProcess': 'RECO'}
 
-steps['ALCAEXPRUN2']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO+SiPixelCalZeroBias+SiPixelCalSingleMuon,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA',
+steps['ALCAEXPRUN2']={'-s':'ALCAOUTPUT:SiStripCalZeroBias+TkAlMinBias+LumiPixelsMinBias+AlCaPCCZeroBiasFromRECO+AlCaPCCRandomFromRECO+SiPixelCalZeroBias+SiPixelCalSingleMuon,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiStripHitEff+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiPixel+PromptCalibProdSiPixelLA',
+                  '--customise': 'Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS',
                   '--conditions':'auto:run2_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO',
@@ -2745,14 +2806,14 @@ steps['ALCAEXPTE']={'-s':'ALCA:PromptCalibProdEcalPedestals',
                     '--eventcontent':'ALCARECO',
                     '--triggerResultsProcess': 'RECO'}
 
-steps['ALCARECOEXPR3']=merge([{'-s':'ALCAOUTPUT:SiPixelCalZeroBias+SiStripCalZeroBias+SiStripCalMinBias+SiStripCalMinBiasAAG+TkAlMinBias,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiPixelAli+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixel',
+steps['ALCARECOEXPR3']=merge([{'-s':'ALCAOUTPUT:SiPixelCalZeroBias+SiStripCalZeroBias+SiStripCalMinBias+SiStripCalMinBiasAAG+TkAlMinBias,ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiPixelAli+PromptCalibProdSiPixelAliHG+PromptCalibProdSiStripGains+PromptCalibProdSiStripGainsAAG+PromptCalibProdSiPixel',
                                '--conditions':'auto:run3_data_express',
                                '--scenario':'pp',
                                '--era':'Run3',
                                '--datatier':'ALCARECO',
                                '--eventcontent':'ALCARECO',
                                '--triggerResultsProcess': 'RECO',
-                               '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress'},steps['RECODR3']])
+                               '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress,Alignment/CommonAlignmentProducer/customizeLSNumberFilterForRelVals.doNotFilterLS'},steps['RECODR3']])
 
 steps['ALCARECOPROMPTR3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+HcalCalHO+HcalCalIterativePhiSym+HcalCalHBHEMuonProducerFilter+HcalCalIsoTrkProducerFilter,DQM:@standardDQMFakeHLT',
                                   '--conditions':'auto:run3_data_prompt',
@@ -3145,6 +3206,12 @@ steps['HARVESTHI2021PPRECO']=merge([hiDefaults2021_ppReco,{'-s':'HARVESTING:vali
                                                            '--mc':'',
                                                            '--era' : 'Run3_pp_on_PbPb',
                                                            '--filetype':'DQM'}])
+
+steps['HARVESTHI2021PPRECO4']=merge([hiDefaults2021_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
+                                                            '--filein':'file:step4_inDQM.root',
+                                                            '--mc':'',
+                                                            '--era' : 'Run3_pp_on_PbPb',
+                                                            '--filetype':'DQM'}])
 
 steps['HARVESTHI2018PPRECO']=merge([hiDefaults2018_ppReco,{'-s':'HARVESTING:validationHarvestingNoHLT+dqmHarvestingFakeHLT',
                                                            '--filein':'file:step3_inDQM.root',

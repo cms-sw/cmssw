@@ -289,15 +289,7 @@
   <class name="pat::MET::PackedMETUncertainty" ClassVersion="11">
     <version ClassVersion="11" checksum="3523936012"/>
     <version ClassVersion="10" checksum="1984780659"/>
-    <field name="dpx_" transient="true" />
-    <field name="dpy_" transient="true" />
-    <field name="dsumEt_" transient="true" />
-    <field name="unpacked_" transient="true" />
-
   </class>
-  <ioread sourceClass="pat::MET::PackedMETUncertainty"  version="[1-]" targetClass="pat::MET::PackedMETUncertainty" source="" target="unpacked_">
-        <![CDATA[unpacked_ = false; ]]>
-  </ioread>
   <class name="pat::MET::Vector2"  transient="true" />
 
   <class name="std::vector<pat::MET::PackedMETUncertainty>" />

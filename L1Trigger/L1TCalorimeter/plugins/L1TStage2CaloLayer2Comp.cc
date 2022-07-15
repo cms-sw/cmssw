@@ -14,12 +14,9 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
@@ -46,16 +43,13 @@ namespace l1t {
   bool operator>(const l1t::Tau &a, l1t::Tau &b) { return a.hwPt() > b.hwPt(); }
 }  // namespace l1t
 
-#include "TH1F.h"
-#include "TH2F.h"
-
 /**
  * Short class description.
  *
  * Longer class description...
  * ... desc continued.
  */
-class L1TStage2CaloLayer2Comp : public edm::EDProducer {
+class L1TStage2CaloLayer2Comp : public edm::stream::EDProducer<> {
 public:
   /**
    * Class constructor

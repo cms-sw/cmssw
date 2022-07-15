@@ -939,8 +939,6 @@ TPTask::TPTask(edm::ParameterSet const& ps)
 
   numHBHE = 0;
   numHF = 0;
-  numCutHBHE = 0;
-  numCutHF = 0;
   numMsnHBHE = 0;
   numMsnHF = 0;
   numCutHBHE = 0;

@@ -8,13 +8,13 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/transform.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-class CandViewRefMerger : public edm::EDProducer {
+class CandViewRefMerger : public edm::global::EDProducer<> {
 public:
   explicit CandViewRefMerger(const edm::ParameterSet& cfg)
       : srcTokens_(
@@ -24,7 +24,7 @@ public:
   }
 
 private:
-  void produce(edm::Event& evt, const edm::EventSetup&) override {
+  void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override {
     std::unique_ptr<std::vector<reco::CandidateBaseRef> > out(new std::vector<reco::CandidateBaseRef>);
     for (std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator i = srcTokens_.begin();
          i != srcTokens_.end();

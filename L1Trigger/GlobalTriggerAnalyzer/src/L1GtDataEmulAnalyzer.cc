@@ -47,6 +47,8 @@
 
 // constructor(s)
 L1GtDataEmulAnalyzer::L1GtDataEmulAnalyzer(const edm::ParameterSet& parSet) {
+  usesResource(TFileService::kSharedResource);
+
   // input tag for the L1 GT hardware DAQ/EVM record
   m_l1GtDataInputTag = parSet.getParameter<edm::InputTag>("L1GtDataInputTag");
 
@@ -73,6 +75,10 @@ L1GtDataEmulAnalyzer::L1GtDataEmulAnalyzer(const edm::ParameterSet& parSet) {
 
   // book histograms
   bookHistograms();
+
+  m_l1GtMenuToken = esConsumes();
+  m_l1GtTmAlgoToken = esConsumes();
+  m_l1GtTmTechToken = esConsumes();
 }
 
 // destructor
@@ -298,9 +304,7 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
   if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
-    edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
-    evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-    m_l1GtMenu = l1GtMenu.product();
+    m_l1GtMenu = &evSetup.getData(m_l1GtMenuToken);
 
     m_l1GtMenuCacheID = l1GtMenuCacheID;
   }
@@ -310,9 +314,7 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   unsigned long long l1GtTmAlgoCacheID = evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmAlgoCacheID != l1GtTmAlgoCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-    evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
-    m_l1GtTmAlgo = l1GtTmAlgo.product();
+    m_l1GtTmAlgo = &evSetup.getData(m_l1GtTmAlgoToken);
 
     m_triggerMaskAlgoTrig = m_l1GtTmAlgo->gtTriggerMask();
 
@@ -322,9 +324,7 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   unsigned long long l1GtTmTechCacheID = evSetup.get<L1GtTriggerMaskTechTrigRcd>().cacheIdentifier();
 
   if (m_l1GtTmTechCacheID != l1GtTmTechCacheID) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-    evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
-    m_l1GtTmTech = l1GtTmTech.product();
+    m_l1GtTmTech = &evSetup.getData(m_l1GtTmTechToken);
 
     m_triggerMaskTechTrig = m_l1GtTmTech->gtTriggerMask();
 

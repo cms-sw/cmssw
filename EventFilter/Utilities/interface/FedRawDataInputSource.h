@@ -262,6 +262,7 @@ struct InputFile {
   bool advance(unsigned char*& dataPosition, const size_t size);
   void moveToPreviousChunk(const size_t size, const size_t offset);
   void rewindChunk(const size_t size);
+  void unsetDeleteFile() { deleteFile_ = false; }
 };
 
 #endif  // EventFilter_Utilities_FedRawDataInputSource_h
