@@ -205,11 +205,11 @@ namespace edm {
       }
     }
 
-    std::multimap<std::string, AliasInfo> const& aliasMap() const { return aliasMap_; }
+    std::unordered_multimap<std::string, AliasInfo> const& aliasMap() const { return aliasMap_; }
 
-    std::multimap<std::string, edm::BranchDescription const*> conditionalModuleBranches(
+    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModuleBranches(
         std::unordered_set<std::string> const& conditionalmods) const {
-      std::multimap<std::string, edm::BranchDescription const*> ret;
+      std::unordered_multimap<std::string, edm::BranchDescription const*> ret;
       for (auto const& mod : conditionalmods) {
         auto range = conditionalModsBranches_.equal_range(mod);
         ret.insert(range.first, range.second);
@@ -270,8 +270,8 @@ namespace edm {
           switchEDAliases, allConditionalMods, proc_pset, processConfiguration.processName(), preg);
     }
 
-    std::multimap<std::string, AliasInfo> aliasMap_;
-    std::multimap<std::string, edm::BranchDescription const*> conditionalModsBranches_;
+    std::unordered_multimap<std::string, AliasInfo> aliasMap_;
+    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches_;
   };
 
   // -----------------------------
@@ -536,8 +536,8 @@ namespace edm {
   std::vector<Worker*> StreamSchedule::tryToPlaceConditionalModules(
       Worker* worker,
       std::unordered_set<std::string>& conditionalModules,
-      std::multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
-      std::multimap<std::string, AliasInfo> const& aliasMap,
+      std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+      std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
       ParameterSet& proc_pset,
       ProductRegistry& preg,
       PreallocationConfiguration const* prealloc,
@@ -691,8 +691,7 @@ namespace edm {
 
     std::unordered_set<std::string> conditionalmods;
     //An EDAlias may be redirecting to a module on a ConditionalTask
-    std::multimap<std::string, AliasInfo> aliasMap;
-    std::multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
+    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
     std::unordered_map<std::string, unsigned int> conditionalModOrder;
     if (condRange.first != condRange.second) {
       for (auto it = condRange.first; it != condRange.second; ++it) {

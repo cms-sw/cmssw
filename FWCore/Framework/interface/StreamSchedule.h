@@ -301,8 +301,8 @@ namespace edm {
     std::vector<Worker*> tryToPlaceConditionalModules(
         Worker*,
         std::unordered_set<std::string>& conditionalModules,
-        std::multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
-        std::multimap<std::string, AliasInfo> const& aliasMap,
+        std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+        std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
         ParameterSet& proc_pset,
         ProductRegistry& preg,
         PreallocationConfiguration const* prealloc,
