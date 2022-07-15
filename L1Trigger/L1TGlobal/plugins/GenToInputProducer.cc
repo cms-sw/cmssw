@@ -19,7 +19,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -60,7 +60,7 @@ namespace l1t {
   // class declaration
   //
 
-  class GenToInputProducer : public EDProducer {
+  class GenToInputProducer : public one::EDProducer<edm::one::WatchRuns> {
   public:
     explicit GenToInputProducer(const ParameterSet&);
     ~GenToInputProducer() override;
@@ -109,8 +109,6 @@ namespace l1t {
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken;
     edm::EDGetTokenT<reco::GenJetCollection> genJetsToken;
     edm::EDGetTokenT<reco::GenMETCollection> genMetToken;
-
-    int counter_;
 
     std::vector<l1t::Muon> muonVec_bxm2;
     std::vector<l1t::Muon> muonVec_bxm1;
@@ -785,7 +783,6 @@ namespace l1t {
   void GenToInputProducer::beginRun(Run const& iR, EventSetup const& iE) {
     LogDebug("GtGenToInputProducer") << "GenToInputProducer::beginRun function called...\n";
 
-    counter_ = 0;
     srand(0);
 
     gRandom = new TRandom3();

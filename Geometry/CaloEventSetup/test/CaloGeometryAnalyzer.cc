@@ -1018,7 +1018,8 @@ void CaloGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Even
     buildHcal(cG, pT, DetId::Hcal, HcalOuter, "ho", 5);
     buildHcal(cG, pT, DetId::Hcal, HcalForward, "hf", 6);
     build(cG, pT, DetId::Calo, CaloTowerDetId::SubdetId, "ct", 7);
-    build(cG, pT, DetId::Calo, HcalCastorDetId::SubdetectorId, "ca", 8);
+    // build(cG, pT, DetId::Calo, HcalCastorDetId::SubdetectorId, "ca", 8);
+    // Castor has been removed from CMS
     build(cG, pT, DetId::Calo, HcalZDCDetId::SubdetectorId, "zd", 9);
 
     std::cout << "\n\n*********** Validation of cell centers and corners " << (m_allOK ? "SUCCEEDS!! " : "FAILS!! ")

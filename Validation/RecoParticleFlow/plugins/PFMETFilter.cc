@@ -5,22 +5,22 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/METReco/interface/MET.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class PFMETFilter : public edm::EDFilter {
+class PFMETFilter : public edm::global::EDFilter<> {
 public:
   explicit PFMETFilter(const edm::ParameterSet &);
   ~PFMETFilter() override;
 
-  bool filter(edm::Event &, const edm::EventSetup &) override;
+  bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   void beginJob() override;
   void endJob() override;
-  bool checkInput();
+  bool checkInput() const;
 
 private:
   std::vector<std::string> collections_;
@@ -60,7 +60,7 @@ PFMETFilter::PFMETFilter(const edm::ParameterSet &iConfig) {
 
 PFMETFilter::~PFMETFilter() {}
 
-bool PFMETFilter::checkInput() {
+bool PFMETFilter::checkInput() const {
   if (collections_.size() != min_.size()) {
     std::cout << "Error: in PFMETFilter: collections_.size()!=min_.size()" << std::endl;
     std::cout << "collections_.size() = " << collections_.size() << std::endl;
@@ -98,7 +98,7 @@ void PFMETFilter::beginJob() {
   // std::cout << "FL: beginJob" << std::endl;
 }
 
-bool PFMETFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+bool PFMETFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
   // std::cout << "FL: filter" << std::endl;
   // std::cout << "FL: Mins = " << min_ << std::endl;
 

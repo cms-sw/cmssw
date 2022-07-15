@@ -13,6 +13,7 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include <ap_int.h>
 
 namespace l1t {
 
@@ -54,6 +55,18 @@ namespace l1t {
     void setPuppiIsolPV(float puppiIsolPV) { puppiIsolPV_ = puppiIsolPV; }
     void setEGRef(const edm::Ref<EGammaBxCollection>& egRef) { egRef_ = egRef; }
 
+    template <int N>
+    void setEgBinaryWord(ap_uint<N> word) {
+      egBinaryWord0_ = word;
+      egBinaryWord1_ = (word >> 32);
+      egBinaryWord2_ = (word >> 64);
+    }
+
+    template <int N>
+    ap_uint<N> egBinaryWord() const {
+      return ap_uint<N>(egBinaryWord0_) | (ap_uint<N>(egBinaryWord1_) << 32) | (ap_uint<N>(egBinaryWord2_) << 64);
+    }
+
   private:
     edm::Ref<EGammaBxCollection> egRef_;
     float trkIsol_;
@@ -62,6 +75,9 @@ namespace l1t {
     float pfIsolPV_;
     float puppiIsol_;
     float puppiIsolPV_;
+    uint32_t egBinaryWord0_;
+    uint32_t egBinaryWord1_;
+    uint32_t egBinaryWord2_;
   };
 }  // namespace l1t
 

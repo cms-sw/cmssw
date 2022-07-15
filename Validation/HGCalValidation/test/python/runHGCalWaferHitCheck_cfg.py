@@ -2,12 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
 process = cms.Process('HGCGeomAnalysis',Phase2C11I13M9)
-#process.load('Configuration.Geometry.GeometryExtended2026D77_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D77Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2026D83_cff')
 #process.load('Configuration.Geometry.GeometryExtended2026D83Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D86_cff')
-process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D88Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2026D93Reco_cff')
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")

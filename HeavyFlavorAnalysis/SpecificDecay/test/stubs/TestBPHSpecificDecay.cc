@@ -2,19 +2,10 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexSelect.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
-
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMuonPtSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMuonEtaSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticlePtSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleNeutralVeto.h"
-#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMultiSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHMassSelect.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHChi2Select.h"
 
@@ -26,14 +17,23 @@
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHBdToJPsiKxBuilder.h"
 #include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 
-#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexSelect.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMultiSelect.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 
-#include <TH1.h>
-#include <TFile.h>
+#include "TH1.h"
+#include "TFile.h"
 
 #include <set>
 #include <string>
@@ -72,8 +72,6 @@ TestBPHSpecificDecay::TestBPHSpecificDecay(const edm::ParameterSet& ps) {
   else
     fPtr = new ofstream(outDump.c_str());
 }
-
-TestBPHSpecificDecay::~TestBPHSpecificDecay() {}
 
 void TestBPHSpecificDecay::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -118,6 +116,8 @@ void TestBPHSpecificDecay::beginJob() {
 void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   ostream& outF = *fPtr;
   outF << "--------- event " << ev.id().run() << " / " << ev.id().event() << " ---------" << endl;
+
+  BPHEventSetupWrapper ew(es, BPHRecoCandidate::transientTrackBuilder, &ttBToken);
 
   // get object collections
   // collections are got through "BPHTokenWrapper" interface to allow
@@ -199,10 +199,10 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   BPHOniaToMuMuBuilder* onia = nullptr;
   if (usePM)
     onia = new BPHOniaToMuMuBuilder(
-        es, BPHRecoBuilder::createCollection(patMuon, "cfmig"), BPHRecoBuilder::createCollection(patMuon, "cfmig"));
+        ew, BPHRecoBuilder::createCollection(patMuon, "cfmig"), BPHRecoBuilder::createCollection(patMuon, "cfmig"));
   else if (useCC)
     onia = new BPHOniaToMuMuBuilder(
-        es, BPHRecoBuilder::createCollection(muDaugs, "cfmig"), BPHRecoBuilder::createCollection(muDaugs, "cfmig"));
+        ew, BPHRecoBuilder::createCollection(muDaugs, "cfmig"), BPHRecoBuilder::createCollection(muDaugs, "cfmig"));
 
   vector<BPHPlusMinusConstCandPtr> lFull = onia->build();
   int iFull;
@@ -301,17 +301,11 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   outF << "build and dump Bu" << endl;
   BPHBuToJPsiKBuilder* bu = nullptr;
   if (usePF)
-    bu = new BPHBuToJPsiKBuilder(es,
-                                 lJPsi,  //lFull,//lPsi1,
-                                 BPHRecoBuilder::createCollection(pfCands));
+    bu = new BPHBuToJPsiKBuilder(ew, lJPsi, BPHRecoBuilder::createCollection(pfCands));
   else if (usePC)
-    bu = new BPHBuToJPsiKBuilder(es,
-                                 lJPsi,  //lFull,//lPsi1,
-                                 BPHRecoBuilder::createCollection(pcCands));
+    bu = new BPHBuToJPsiKBuilder(ew, lJPsi, BPHRecoBuilder::createCollection(pcCands));
   else if (useGP)
-    bu = new BPHBuToJPsiKBuilder(es,
-                                 lJPsi,  //lFull,//lPsi1,
-                                 BPHRecoBuilder::createCollection(gpCands));
+    bu = new BPHBuToJPsiKBuilder(ew, lJPsi, BPHRecoBuilder::createCollection(gpCands));
 
   vector<BPHRecoConstCandPtr> lBu = bu->build();
 
@@ -329,10 +323,10 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
     const reco::Candidate* mPos = bu->originalReco(bu->getDaug("JPsi/MuPos"));
     const reco::Candidate* mNeg = bu->originalReco(bu->getDaug("JPsi/MuNeg"));
     const reco::Candidate* kaon = bu->originalReco(bu->getDaug("Kaon"));
-    BPHRecoCandidatePtr njp = BPHPlusMinusCandidateWrap::create(&es);
+    BPHRecoCandidatePtr njp = BPHPlusMinusCandidateWrap::create(&ew);
     njp->add("MuPos", mPos, BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
     njp->add("MuNeg", mNeg, BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
-    BPHRecoCandidate nbu(&es);
+    BPHRecoCandidate nbu(&ew);
     nbu.add("JPsi", njp);
     nbu.add("Kaon", kaon, BPHParticleMasses::kaonMass, BPHParticleMasses::kaonMSigma);
     nbu.kinematicTree("JPsi", BPHParticleMasses::jPsiMass, BPHParticleMasses::jPsiMWidth);
@@ -344,13 +338,13 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   BPHKx0ToKPiBuilder* kx0 = nullptr;
   if (usePF)
     kx0 = new BPHKx0ToKPiBuilder(
-        es, BPHRecoBuilder::createCollection(pfCands), BPHRecoBuilder::createCollection(pfCands));
+        ew, BPHRecoBuilder::createCollection(pfCands), BPHRecoBuilder::createCollection(pfCands));
   else if (usePC)
     kx0 = new BPHKx0ToKPiBuilder(
-        es, BPHRecoBuilder::createCollection(pcCands), BPHRecoBuilder::createCollection(pcCands));
+        ew, BPHRecoBuilder::createCollection(pcCands), BPHRecoBuilder::createCollection(pcCands));
   else if (useGP)
     kx0 = new BPHKx0ToKPiBuilder(
-        es, BPHRecoBuilder::createCollection(gpCands), BPHRecoBuilder::createCollection(gpCands));
+        ew, BPHRecoBuilder::createCollection(gpCands), BPHRecoBuilder::createCollection(gpCands));
 
   vector<BPHPlusMinusConstCandPtr> lKx0 = kx0->build();
 
@@ -366,7 +360,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
 
   outF << "build and dump Bd" << endl;
   if (nKx0) {
-    BPHBdToJPsiKxBuilder* bd = new BPHBdToJPsiKxBuilder(es, lJPsi, lKx0);
+    BPHBdToJPsiKxBuilder* bd = new BPHBdToJPsiKxBuilder(ew, lJPsi, lKx0);
     vector<BPHRecoConstCandPtr> lBd = bd->build();
     int iBd;
     int nBd = lBd.size();
@@ -380,13 +374,13 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
   BPHPhiToKKBuilder* phi = nullptr;
   if (usePF)
     phi =
-        new BPHPhiToKKBuilder(es, BPHRecoBuilder::createCollection(pfCands), BPHRecoBuilder::createCollection(pfCands));
+        new BPHPhiToKKBuilder(ew, BPHRecoBuilder::createCollection(pfCands), BPHRecoBuilder::createCollection(pfCands));
   else if (usePC)
     phi =
-        new BPHPhiToKKBuilder(es, BPHRecoBuilder::createCollection(pcCands), BPHRecoBuilder::createCollection(pcCands));
+        new BPHPhiToKKBuilder(ew, BPHRecoBuilder::createCollection(pcCands), BPHRecoBuilder::createCollection(pcCands));
   else if (useGP)
     phi =
-        new BPHPhiToKKBuilder(es, BPHRecoBuilder::createCollection(gpCands), BPHRecoBuilder::createCollection(gpCands));
+        new BPHPhiToKKBuilder(ew, BPHRecoBuilder::createCollection(gpCands), BPHRecoBuilder::createCollection(gpCands));
 
   vector<BPHPlusMinusConstCandPtr> lPkk = phi->build();
 
@@ -402,7 +396,7 @@ void TestBPHSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup& 
 
   outF << "build and dump Bs" << endl;
   if (nPkk) {
-    BPHBsToJPsiPhiBuilder* bs = new BPHBsToJPsiPhiBuilder(es, lJPsi, lPkk);
+    BPHBsToJPsiPhiBuilder* bs = new BPHBsToJPsiPhiBuilder(ew, lJPsi, lPkk);
     vector<BPHRecoConstCandPtr> lBs = bs->build();
     int iBs;
     int nBs = lBs.size();

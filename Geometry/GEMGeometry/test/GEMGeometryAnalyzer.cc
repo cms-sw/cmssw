@@ -55,6 +55,12 @@ GEMGeometryAnalyzer::GEMGeometryAnalyzer(const edm::ParameterSet& /*iConfig*/)
   ofos << "======================== Opening output file" << std::endl;
 }
 
+namespace {
+  bool compareSupChm(const GEMSuperChamber* schm1, const GEMSuperChamber* schm2) {
+    return (schm1->id().v12Form() < schm2->id().v12Form());
+  }
+}  // namespace
+
 GEMGeometryAnalyzer::~GEMGeometryAnalyzer() {
   ofos.close();
   ofos << "======================== Closing output file" << std::endl;
@@ -131,7 +137,9 @@ void GEMGeometryAnalyzer::analyze(const edm::Event& /*iEvent*/, const edm::Event
         ofos << "      GEMRing " << ring->region() << " " << ring->station() << " " << ring->ring() << " has "
              << ring->nSuperChambers() << " super chambers." << endl;
         int i = 1;
-        for (auto sch : ring->superChambers()) {
+        auto supChmSort = ring->superChambers();
+        std::sort(supChmSort.begin(), supChmSort.end(), compareSupChm);
+        for (auto sch : supChmSort) {
           GEMDetId schId(sch->id());
           ofos << "        GEMSuperChamber " << i << ", GEMDetId = " << schId.rawId() << ", " << schId << " has "
                << sch->nChambers() << " chambers." << endl;

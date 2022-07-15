@@ -40,13 +40,6 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
   ibooker.cd();
   ibooker.setCurrentFolder(strFolderMain_);
 
-  fRadiusMin_ = 120.0;
-  fRadiusMax_ = 250.0;
-  float radS = -5.0 / 180 * M_PI;
-  float radL = 355.0 / 180 * M_PI;
-
-  mapRecHitWheel_layer_ =
-      MEMap3Inf(this, "occ_rphi", "RecHit R-Phi Occupancy", 360, radS, radL, 8, 0, 8, "Phi-direction division", "iEta");
   mapRecHitXY_layer_ =
       MEMap3Inf(this, "occ_xy", "RecHit xy Occupancy", 160, -250, 250, 160, -250, 250, "X [cm]", "Y [cm]");
   mapRecHitOcc_ieta_ = MEMap3Inf(this, "occ_ieta", "RecHit iEta Occupancy", 8, 0.5, 8.5, "iEta", "Number of RecHits");
@@ -92,7 +85,6 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
       this, "cls", "Cluster size of RecHits", nCLSMax_, 0.5, nCLSMax_ + 0.5, 1, 0.5, 1.5, "Cluster size", "iEta");
 
   if (nRunType_ == GEMDQM_RUNTYPE_OFFLINE) {
-    mapRecHitXY_layer_.TurnOff();
     mapCLSOver5_.TurnOff();
     mapCLSPerCh_.TurnOff();
   }
@@ -102,10 +94,6 @@ void GEMRecHitSource::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&
     mapCLSAverage_.TurnOff();
     mapCLSOver5_.TurnOff();
     mapCLSPerCh_.TurnOff();
-  }
-
-  if (nRunType_ != GEMDQM_RUNTYPE_ALLPLOTS && nRunType_ != GEMDQM_RUNTYPE_OFFLINE) {
-    mapRecHitWheel_layer_.TurnOff();
   }
 
   if (nRunType_ != GEMDQM_RUNTYPE_ALLPLOTS && nRunType_ != GEMDQM_RUNTYPE_RELVAL) {
@@ -137,11 +125,14 @@ int GEMRecHitSource::ProcessWithMEMap2AbsReWithEta(BookingHelper& bh, ME3IdsKey 
 int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
   MEStationInfo& stationInfo = mapStationInfo_[key];
 
-  Int_t nNumPartX = stationInfo.nNumChambers_ * nNumDivideEtaPartitionInRPhi_;
-  mapRecHitWheel_layer_.SetBinConfX(nNumPartX);
-  mapRecHitWheel_layer_.SetNbinsY(stationInfo.nNumEtaPartitions_);
-  mapRecHitWheel_layer_.bookND(bh, key);
+  Float_t fR1 = !stationInfo.listRadiusEvenChamber_.empty() ? stationInfo.listRadiusEvenChamber_.back() : 0.0;
+  Float_t fR2 = !stationInfo.listRadiusOddChamber_.empty() ? stationInfo.listRadiusOddChamber_.back() : 0.0;
+  Float_t fRangeRadius = (int)(std::max(fR1, fR2) * 0.11 + 0.99999) * 10.0;
 
+  mapRecHitXY_layer_.SetBinLowEdgeX(-fRangeRadius);
+  mapRecHitXY_layer_.SetBinHighEdgeX(fRangeRadius);
+  mapRecHitXY_layer_.SetBinLowEdgeY(-fRangeRadius);
+  mapRecHitXY_layer_.SetBinHighEdgeY(fRangeRadius);
   mapRecHitXY_layer_.bookND(bh, key);
 
   mapRecHitOcc_ieta_.SetBinConfX(stationInfo.nNumEtaPartitions_);
@@ -154,11 +145,16 @@ int GEMRecHitSource::ProcessWithMEMap3(BookingHelper& bh, ME3IdsKey key) {
 
   mapTotalRecHitPerEvtLayer_.bookND(bh, key);
 
+  Int_t nNewNumCh = stationInfo.nMaxIdxChamber_ - stationInfo.nMinIdxChamber_ + 1;
+
+  mapCLSAverage_.SetBinConfX(nNewNumCh, stationInfo.nMinIdxChamber_ - 0.5, stationInfo.nMaxIdxChamber_ + 0.5);
   mapCLSAverage_.bookND(bh, key);
-  mapCLSOver5_.bookND(bh, key);
-  mapCLSAverage_.SetLabelForChambers(key, 1);
+  mapCLSAverage_.SetLabelForChambers(key, 1, -1, stationInfo.nMinIdxChamber_);
   mapCLSAverage_.SetLabelForIEta(key, 2);
-  mapCLSOver5_.SetLabelForChambers(key, 1);
+
+  mapCLSOver5_.SetBinConfX(nNewNumCh, stationInfo.nMinIdxChamber_ - 0.5, stationInfo.nMaxIdxChamber_ + 0.5);
+  mapCLSOver5_.bookND(bh, key);
+  mapCLSOver5_.SetLabelForChambers(key, 1, -1, stationInfo.nMinIdxChamber_);
   mapCLSOver5_.SetLabelForIEta(key, 2);
 
   return 0;
@@ -214,15 +210,6 @@ void GEMRecHitSource::analyze(edm::Event const& event, edm::EventSetup const& ev
 
         // Filling of XY occupancy
         mapRecHitXY_layer_.Fill(key3, recHitGP.x(), recHitGP.y());
-
-        // Filling of R-Phi occupancy
-        // Trick: It would be efficient to find a phi-partition of the eta partition
-        //        in which the recHit places from the 'strip position' of the recHit position
-        Int_t nOffset = chamber * nNumDivideEtaPartitionInRPhi_;
-        Float_t fStripRecHit = iEta->strip(recHitLP);
-        Int_t nStripRecHit = Int_t(fStripRecHit / iEta->nstrips() * nNumDivideEtaPartitionInRPhi_);
-        nStripRecHit = std::min(std::max(0, nStripRecHit), nNumDivideEtaPartitionInRPhi_ - 1);
-        mapRecHitWheel_layer_.Fill(key3, nOffset + nStripRecHit, eId.ieta());
 
         // Filling of RecHit (iEta)
         mapRecHitOcc_ieta_.Fill(key3, eId.ieta());

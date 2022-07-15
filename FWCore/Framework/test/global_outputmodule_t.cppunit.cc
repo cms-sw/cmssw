@@ -104,7 +104,7 @@ private:
       group.wait();
     } while (not task.done());
     if (auto e = task.exceptionPtr()) {
-      std::rethrow_exception(*e);
+      std::rethrow_exception(e);
     }
   }
 
@@ -194,14 +194,18 @@ testGlobalOutputModule::testGlobalOutputModule()
 
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginRun, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
 
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator*) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kBeginLuminosityBlock, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
   };
@@ -217,7 +221,9 @@ testGlobalOutputModule::testGlobalOutputModule()
 
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndLuminosityBlock, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::LumiTransitionInfo info(*m_lbp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     edm::FinalWaitingTask task;
@@ -226,14 +232,16 @@ testGlobalOutputModule::testGlobalOutputModule()
     do {
       group.wait();
     } while (not task.done());
-    if (task.exceptionPtr() != nullptr) {
-      std::rethrow_exception(*task.exceptionPtr());
+    if (task.exceptionPtr()) {
+      std::rethrow_exception(task.exceptionPtr());
     }
   };
 
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase, edm::OutputModuleCommunicator* iComm) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
-    edm::ParentContext parentContext;
+    edm::GlobalContext gc(edm::GlobalContext::Transition::kEndRun, nullptr);
+    edm::ParentContext parentContext(&gc);
+    iBase->setActivityRegistry(m_actReg);
     edm::RunTransitionInfo info(*m_rp, *m_es);
     doWork<Traits>(iBase, info, edm::StreamID::invalidStreamID(), parentContext);
     edm::FinalWaitingTask task;
@@ -242,8 +250,8 @@ testGlobalOutputModule::testGlobalOutputModule()
     do {
       group.wait();
     } while (not task.done());
-    if (task.exceptionPtr() != nullptr) {
-      std::rethrow_exception(*task.exceptionPtr());
+    if (task.exceptionPtr()) {
+      std::rethrow_exception(task.exceptionPtr());
     }
   };
 
@@ -300,12 +308,15 @@ template <typename T>
 void testGlobalOutputModule::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
   oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
-  iMod->doPreallocate(m_preallocConfig);
-  edm::WorkerT<edm::global::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
-  edm::OutputModuleCommunicatorT<edm::global::OutputModuleBase> comm(iMod.get());
-  for (auto& keyVal : m_transToFunc) {
-    testTransition(iMod, &w, &comm, keyVal.first, iExpect, keyVal.second);
-  }
+  oneapi::tbb::task_arena arena(1);
+  arena.execute([&]() {
+    iMod->doPreallocate(m_preallocConfig);
+    edm::WorkerT<edm::global::OutputModuleBase> w{iMod, m_desc, m_params.actions_};
+    edm::OutputModuleCommunicatorT<edm::global::OutputModuleBase> comm(iMod.get());
+    for (auto& keyVal : m_transToFunc) {
+      testTransition(iMod, &w, &comm, keyVal.first, iExpect, keyVal.second);
+    }
+  });
 }
 
 void testGlobalOutputModule::basicTest() {

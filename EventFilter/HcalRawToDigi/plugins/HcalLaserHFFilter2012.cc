@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,7 +47,7 @@
 // class declaration
 //
 
-class HcalLaserHFFilter2012 : public edm::EDFilter {
+class HcalLaserHFFilter2012 : public edm::one::EDFilter<> {
 public:
   explicit HcalLaserHFFilter2012(const edm::ParameterSet&);
   ~HcalLaserHFFilter2012() override;

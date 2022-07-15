@@ -13,13 +13,6 @@ import sys
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("FakeBeamMonitor", Run3)
 
-# Configure tag and jobName if running Playback system
-if "dqm_cmssw/playback" in str(sys.argv[1]):
-  BSOnlineTag = BSOnlineTag + 'Playback'
-  BSOnlineJobName = BSOnlineJobName + 'Playback'
-  BSOnlineOmsServiceUrl = ''
-  useLockRecords = False
-
 # switch
 live = True # FIXME
 unitTest = False
@@ -66,6 +59,13 @@ process.dqmSaver.runNumber     = options.runNumber
 process.dqmSaverPB.tag         = 'FakeBeamMonitorHLT'
 process.dqmSaverPB.runNumber   = options.runNumber
 
+# Configure tag and jobName if running Playback system
+if process.isDqmPlayback.value :
+  BSOnlineTag = BSOnlineTag + 'Playback'
+  BSOnlineJobName = BSOnlineJobName + 'Playback'
+  BSOnlineOmsServiceUrl = ''
+  useLockRecords = False
+
 #---------------
 """
 # Conditions
@@ -74,7 +74,7 @@ if (live):
 else:
   process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
   from Configuration.AlCa.GlobalTag import GlobalTag as gtCustomise
-  process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run2_data', '')
+  process.GlobalTag = gtCustomise(process.GlobalTag, 'auto:run3_data', '')
   # you may need to set manually the GT in the line below
   #process.GlobalTag.globaltag = '100X_upgrade2018_realistic_v10'
 """

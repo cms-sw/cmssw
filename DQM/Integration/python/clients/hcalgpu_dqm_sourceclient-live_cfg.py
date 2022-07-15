@@ -50,11 +50,11 @@ process.load('DQM.Integration.config.environment_cfi')
 #-------------------------------------
 #	Central DQM Customization
 #-------------------------------------
-process.source.streamLabel = cms.untracked.string("DQMGPUvsCPU")
+process.source.streamLabel = cms.untracked.string("streamDQMGPUvsCPU")
 process.dqmEnv.subSystemFolder = subsystem
-process.dqmSaver.tag = subsystem
+process.dqmSaver.tag = 'HcalGPU'
 process.dqmSaver.runNumber = options.runNumber
-process.dqmSaverPB.tag = subsystem
+process.dqmSaverPB.tag = 'HcalGPU'
 process.dqmSaverPB.runNumber = options.runNumber
 process = customise(process)
 process.DQMStore.verbose = 0

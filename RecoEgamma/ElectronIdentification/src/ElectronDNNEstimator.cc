@@ -15,7 +15,7 @@ inline uint electronModelSelector(
   Selection of the model to be applied on the electron based on pt/eta cuts or whatever selection
   */
   const auto pt = vars.at("pt");
-  const auto absEta = std::abs(vars.at("eta"));
+  const auto absEta = std::abs(vars.at("superCluster.eta"));
   if (absEta <= endcapBoundary) {
     if (pt < ptThr)
       return 0;
@@ -156,7 +156,7 @@ std::map<std::string, float> ElectronDNNEstimator::getInputsVars(const reco::Gsf
   return variables;
 }
 
-std::vector<std::vector<float>> ElectronDNNEstimator::evaluate(
+std::vector<std::pair<uint, std::vector<float>>> ElectronDNNEstimator::evaluate(
     const reco::GsfElectronCollection& electrons, const std::vector<tensorflow::Session*>& sessions) const {
   // Collect the map of variables for each candidate and call the dnnHelper
   // Scaling, model selection and running is performed in the helper

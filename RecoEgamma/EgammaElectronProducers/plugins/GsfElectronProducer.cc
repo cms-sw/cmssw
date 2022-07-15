@@ -56,17 +56,19 @@ namespace {
       const auto& dnn_ele_pfid = hoc->iElectronDNNEstimator->evaluate(electrons, tfSessions);
       int jele = 0;
       for (auto& el : electrons) {
-        const auto& values = dnn_ele_pfid[jele];
+        const auto& [iModel, values] = dnn_ele_pfid[jele];
         // get the previous values
         auto& mvaOutput = mva_outputs[jele];
 
-        if (abs(el.superCluster()->eta()) <= extetaboundary) {
+        if (iModel <= 3) {  // models 0,1,2,3 have 5 outputs in this version
+          assert(values.size() == 5);
           mvaOutput.dnn_e_sigIsolated = values[0];
           mvaOutput.dnn_e_sigNonIsolated = values[1];
           mvaOutput.dnn_e_bkgNonIsolated = values[2];
           mvaOutput.dnn_e_bkgTau = values[3];
           mvaOutput.dnn_e_bkgPhoton = values[4];
-        } else {
+        } else if (iModel == 4) {  //etaExtended model has 3 outputs
+          assert(values.size() == 3);
           mvaOutput.dnn_e_sigIsolated = values[0];
           mvaOutput.dnn_e_sigNonIsolated = 0.0;
           mvaOutput.dnn_e_bkgNonIsolated = values[1];

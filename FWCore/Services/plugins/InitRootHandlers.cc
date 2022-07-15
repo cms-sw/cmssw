@@ -1,5 +1,3 @@
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-
 #include "FWCore/Utilities/interface/RootHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -977,6 +975,8 @@ namespace edm {
 
   }  // end of namespace service
 }  // end of namespace edm
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 using edm::service::InitRootHandlers;
 typedef edm::serviceregistry::AllArgsMaker<edm::RootHandlers, InitRootHandlers> RootHandlersMaker;

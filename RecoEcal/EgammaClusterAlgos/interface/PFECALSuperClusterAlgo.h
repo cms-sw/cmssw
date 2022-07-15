@@ -13,11 +13,22 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 
 #include "RecoEcal/EgammaClusterAlgos/interface/SCEnergyCorrectorSemiParm.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClustersGraph.h"
+#include "RecoEcal/EgammaCoreTools/interface/CalibratedPFCluster.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -37,6 +48,8 @@
 #include "CondFormats/EcalObjects/interface/EcalSCDynamicDPhiParameters.h"
 #include "CondFormats/DataRecord/interface/EcalSCDynamicDPhiParametersRcd.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/SCProducerCache.h"
+
 #include <vector>
 #include <memory>
 
@@ -48,31 +61,16 @@
   \date July 2012
 */
 
+typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
+typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
+
 class PFECALSuperClusterAlgo {
 public:
-  enum clustering_type { kBOX = 1, kMustache = 2 };
+  enum clustering_type { kBOX = 1, kMustache = 2, kDeepSC = 3 };
   enum energy_weight { kRaw, kCalibratedNoPS, kCalibratedTotal };
 
-  // simple class for associating calibrated energies
-  class CalibratedPFCluster {
-  public:
-    CalibratedPFCluster(const edm::Ptr<reco::PFCluster>& p) : cluptr(p) {}
-
-    double energy() const { return cluptr->correctedEnergy(); }
-    double energy_nocalib() const { return cluptr->energy(); }
-    double eta() const { return cluptr->positionREP().eta(); }
-    double phi() const { return cluptr->positionREP().phi(); }
-
-    edm::Ptr<reco::PFCluster> the_ptr() const { return cluptr; }
-
-  private:
-    edm::Ptr<reco::PFCluster> cluptr;
-  };
-  typedef std::shared_ptr<CalibratedPFCluster> CalibratedClusterPtr;
-  typedef std::vector<CalibratedClusterPtr> CalibratedClusterPtrVector;
-
   /// constructor
-  PFECALSuperClusterAlgo();
+  PFECALSuperClusterAlgo(const reco::SCProducerCache* cache);
 
   void setVerbosityLevel(bool verbose) { verbose_ = verbose; }
 
@@ -110,6 +108,7 @@ public:
   void setCrackCorrections(bool applyCrackCorrections) { applyCrackCorrections_ = applyCrackCorrections; }
 
   void setTokens(const edm::ParameterSet&, edm::ConsumesCollector&&);
+
   void update(const edm::EventSetup&);
   void updateSCParams(const edm::EventSetup&);
 
@@ -129,9 +128,17 @@ private:
   edm::ESGetToken<ESChannelStatus, ESChannelStatusRcd> esChannelStatusToken_;
   edm::ESGetToken<EcalMustacheSCParameters, EcalMustacheSCParametersRcd> ecalMustacheSCParametersToken_;
   edm::ESGetToken<EcalSCDynamicDPhiParameters, EcalSCDynamicDPhiParametersRcd> ecalSCDynamicDPhiParametersToken_;
+  edm::ESGetToken<CaloTopology, CaloTopologyRecord> caloTopologyToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
 
   const reco::BeamSpot* beamSpot_;
   const ESChannelStatus* channelStatus_;
+  const CaloGeometry* geometry_;
+  const CaloSubdetectorGeometry* ebGeom_;
+  const CaloSubdetectorGeometry* eeGeom_;
+  const CaloSubdetectorGeometry* esGeom_;
+  const CaloTopology* topology_;
+
   const EcalMustacheSCParameters* mustacheSCParams_;
   const EcalSCDynamicDPhiParameters* scDynamicDPhiParams_;
 
@@ -144,7 +151,10 @@ private:
   clustering_type _clustype;
   energy_weight _eweight;
   void buildAllSuperClusters(CalibratedClusterPtrVector&, double seedthresh);
-  void buildSuperCluster(CalibratedClusterPtr&, CalibratedClusterPtrVector&);
+  void buildAllSuperClustersMustacheOrBox(CalibratedClusterPtrVector&, double seedthresh);
+  void buildAllSuperClustersDeepSC(CalibratedClusterPtrVector&, double seedthresh);
+  void buildSuperClusterMustacheOrBox(CalibratedClusterPtr&, CalibratedClusterPtrVector&);
+  void finalizeSuperCluster(CalibratedClusterPtr& seed, CalibratedClusterPtrVector& clustered, bool isEE);
 
   bool verbose_;
 
@@ -172,6 +182,8 @@ private:
 
   bool applyCrackCorrections_;
   bool threshIsET_;
+
+  const reco::SCProducerCache* SCProducerCache_;
 
   // OOT photons
   bool isOOTCollection_;

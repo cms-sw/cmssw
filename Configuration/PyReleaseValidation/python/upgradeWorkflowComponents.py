@@ -24,7 +24,7 @@ upgradeKeys[2017] = [
     '2023PU',
     '2024',
     '2024PU',
-] 
+]
 
 upgradeKeys[2026] = [
     '2026D49',
@@ -57,6 +57,12 @@ upgradeKeys[2026] = [
     '2026D88PU',
     '2026D91',
     '2026D91PU',
+    '2026D92',
+    '2026D92PU',
+    '2026D93',
+    '2026D93PU',
+    '2026D94',
+    '2026D94PU',
 ]
 
 # pre-generation of WF numbers
@@ -366,8 +372,46 @@ upgradeWFs['trackingMkFit'].step2 = {
     '--customise': 'RecoTracker/MkFit/customizeHLTIter0ToMkFit.customizeHLTIter0ToMkFit'
 }
 upgradeWFs['trackingMkFit'].step3 = {
-    '--procModifiers': 'trackingMkFit'
+    '--procModifiers': 'trackingMkFitDevel'
 }
+
+class UpgradeWorkflow_trackingRun3CkfPixelLessStep(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step and stepDict[step][k]['--era']=='Run3':
+            stepDict[stepName][k] = merge([{'--era': 'Run3_ckfPixelLessStep'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['trackingRun3CkfPixelLessStep'] = UpgradeWorkflow_trackingRun3CkfPixelLessStep(
+    steps = [
+        'Reco',
+        'RecoNano',
+        'RecoGlobal',
+        'RecoFakeHLT',
+    ],
+    suffix = '_trackingRun3CkfPixelLessStep',
+    offset = 0.71,
+)
+
+class UpgradeWorkflow_trackingOnlyRun3CkfPixelLessStep(UpgradeWorkflowTracking):
+    def setup__(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step and stepDict[step][k]['--era']=='Run3':
+            stepDict[stepName][k] = merge([{'--era': 'Run3_ckfPixelLessStep'}, self.step3, stepDict[step][k]])
+        elif 'HARVEST' in step: stepDict[stepName][k] = merge([{'-s': 'HARVESTING:@trackingOnlyValidation+@trackingOnlyDQM'}, stepDict[step][k]])
+    def condition_(self, fragment, stepList, key, hasHarvest):
+        return '2021' in key
+upgradeWFs['trackingOnlyRun3CkfPixelLessStep'] = UpgradeWorkflow_trackingOnlyRun3CkfPixelLessStep(
+    steps = [
+        'Reco',
+        'HARVEST',
+        'RecoNano',
+        'HARVESTNano',
+        'RecoFakeHLT',
+        'HARVESTFakeHLT',
+    ],
+    suffix = '_trackingOnlyRun3CkfPixelLessStep',
+    offset = 0.72,
+)
+upgradeWFs['trackingOnlyRun3CkfPixelLessStep'].step3 = upgradeWFs['trackingOnly'].step3
 
 #DeepCore seeding for JetCore iteration workflow
 class UpgradeWorkflow_seedingDeepCore(UpgradeWorkflow):
@@ -414,6 +458,7 @@ upgradeWFs['vectorHits'] = UpgradeWorkflow_vectorHits(
     ],
     PU = [
         'RecoGlobal',
+        'HARVESTGlobal'
     ],
     suffix = '_vectorHits',
     offset = 0.9,
@@ -513,6 +558,35 @@ upgradeWFs['mlpf'].step3 = {
     '--procModifiers': 'mlpf'
 }
 
+
+# ECAL DeepSC clustering studies workflow
+class UpgradeWorkflow_ecalclustering(UpgradeWorkflow):
+    def setup_(self, step, stepName, stepDict, k, properties):
+        if 'Reco' in step:
+            stepDict[stepName][k] = merge([self.step3, stepDict[step][k]])
+    def condition(self, fragment, stepList, key, hasHarvest):
+        return (fragment=="ZEE_14" or fragment=="TTbar_14TeV" or fragment=="WprimeTolNu_M3000_13TeV_pythia8"
+            or fragment=="DisplacedSUSY_stopToBottom_M_300_1000mm_13" or fragment=="RunEGamma2018D" )
+
+upgradeWFs['ecalDeepSC'] = UpgradeWorkflow_ecalclustering(
+    steps = [
+        'Reco',
+        'RecoNano',
+    ],
+    PU = [
+        'Reco',
+        'RecoNano',
+    ],
+    suffix = '_ecalDeepSC',
+    offset = 0.19,
+)
+upgradeWFs['ecalDeepSC'].step3 = {
+    '--datatier': 'RECOSIM,MINIAODSIM,NANOAODSIM,DQMIO',
+    '--eventcontent': 'RECOSIM,MINIAODSIM,NANOEDMAODSIM,DQM',
+    '--procModifiers': 'ecal_deepsc'
+}
+
+
 # photonDRN workflows
 class UpgradeWorkflow_photonDRN(UpgradeWorkflow):
     def setup_(self, step, stepName, stepDict, k, properties):
@@ -538,6 +612,7 @@ upgradeWFs['photonDRN'] = UpgradeWorkflow_photonDRN(
 upgradeWFs['photonDRN'].step3 = {
     '--procModifiers': 'enableSonicTriton,photonDRN'
 }
+
 
 # Patatrack workflows:
 #   - 2018 conditions, TTbar
@@ -1197,7 +1272,7 @@ class UpgradeWorkflow_ProdLike(UpgradeWorkflow):
         if 'GenSimHLBeamSpot14' in step:
             stepDict[stepName][k] = merge([{'--eventcontent': 'RAWSIM', '--datatier': 'GEN-SIM'},stepDict[step][k]])
         elif 'Digi' in step and 'Trigger' not in step:
-            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2021', '--datatier':'GEN-SIM-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
+            stepDict[stepName][k] = merge([{'-s': 'DIGI,L1,DIGI2RAW,HLT:@relval2022', '--datatier':'GEN-SIM-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
         elif 'DigiTrigger' in step: # for Phase-2
             stepDict[stepName][k] = merge([{'-s': 'DIGI,L1TrackTrigger,L1,DIGI2RAW,HLT:@fake2', '--datatier':'GEN-SIM-RAW', '--eventcontent':'RAWSIM'}, stepDict[step][k]])
         elif 'Reco' in step:
@@ -1978,7 +2053,7 @@ upgradeProperties[2017] = {
     '2021' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2022_realistic',
-        'HLTmenu': '@relval2021',
+        'HLTmenu': '@relval2022',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
@@ -1986,7 +2061,7 @@ upgradeProperties[2017] = {
     '2021Design' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2022_design',
-        'HLTmenu': '@relval2021',
+        'HLTmenu': '@relval2022',
         'Era' : 'Run3',
         'BeamSpot': 'GaussSigmaZ4cm',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano'],
@@ -1994,7 +2069,7 @@ upgradeProperties[2017] = {
     '2023' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2023_realistic',
-        'HLTmenu': '@relval2021',
+        'HLTmenu': '@relval2022',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
@@ -2002,7 +2077,7 @@ upgradeProperties[2017] = {
     '2024' : {
         'Geom' : 'DB:Extended',
         'GT' : 'auto:phase1_2024_realistic',
-        'HLTmenu': '@relval2021',
+        'HLTmenu': '@relval2022',
         'Era' : 'Run3',
         'BeamSpot': 'Run3RoundOptics25ns13TeVLowSigmaZ',
         'ScenToRun' : ['GenSim','Digi','RecoNano','HARVESTNano','ALCA'],
@@ -2119,6 +2194,27 @@ upgradeProperties[2026] = {
         'Geom' : 'Extended2026D91',
         'HLTmenu': '@fake2',
         'GT' : 'auto:phase2_realistic_T30',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D92' : {
+        'Geom' : 'Extended2026D92',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D93' : {
+        'Geom' : 'Extended2026D93',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
+        'Era' : 'Phase2C17I13M9',
+        'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
+    },
+    '2026D94' : {
+        'Geom' : 'Extended2026D94',
+        'HLTmenu': '@fake2',
+        'GT' : 'auto:phase2_realistic_T21',
         'Era' : 'Phase2C17I13M9',
         'ScenToRun' : ['GenSimHLBeamSpot','DigiTrigger','RecoGlobal', 'HARVESTGlobal'],
     },
@@ -2282,4 +2378,9 @@ upgradeFragments = OrderedDict([
     ('DoubleElectronFlatPt1p5To8_cfi', UpgradeFragment(Kby(9,100),'SingleElectronFlatPt1p5To8')),
     ('DoubleMuFlatPt1p5To8Dxy100GunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt1p5To8Dxy100')),
     ('DoubleMuFlatPt2To100Dxy100GunProducer_cfi', UpgradeFragment(Kby(9,100),'DisplacedMuPt2To100Dxy100')),
+    ('BuToJPsiPrimeKToJPsiPiPiK_14TeV_TuneCP5_pythia8_cfi', UpgradeFragment(Kby(223,2222),'BuToJPsiPrimeKToJPsiPiPiK_14TeV')), # 5.7%
+    ('Psi2SToJPsiPiPi_14TeV_TuneCP5_pythia8_cfi', UpgradeFragment(Kby(45,500),'Psi2SToJPsiPiPi_14TeV')), # 24.6%
+    ('XiMinus_13p6TeV_SoftQCDInel_TuneCP5_cfi', UpgradeFragment(Kby(8000,90000),'XiMinus_13p6TeV')), #2%
+    ('Chib1PToUpsilon1SGamma_MuFilter_TuneCP5_14TeV-pythia8_evtgen_cfi', UpgradeFragment(Kby(3600,36000),'Chib1PToUpsilon1SGamma_14TeV')), #2.8%
+    ('ChicToJpsiGamma_MuFilter_TuneCP5_14TeV_pythia8_evtgen_cfi', UpgradeFragment(Kby(2000,20000),'ChicToJpsiGamma_14TeV')), #5%
 ])

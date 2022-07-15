@@ -9,23 +9,14 @@ import shutil
 import re
 import json
 
-# Boost 1.51 [no writers available - a back-port is required!]
-#readers = { 'CMSSW_7_1_0'        : ['slc6_amd64_gcc490'], 
-#          }
-
-# Boost 1.57
-#readers = { 'CMSSW_7_5_0'        : ['slc6_amd64_gcc491'], 
-#          }
-
-# Boost 1.63
-#readers = { 'CMSSW_9_0_0'        : ['slc6_amd64_gcc530'], 
-#          }
-
-# Boost 1.67 [No reference release yet...]
 readers = {
           }
 
-writers = { 'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc630', 'ref901-s6630.db')],
+writers = { 'CMSSW_12_3_0'       : [ ('slc7_amd64_gcc10',  'ref1230-s710.db')],
+            'CMSSW_11_3_0'       : [ ('slc7_amd64_gcc900', 'ref1130-s7900.db')],
+            'CMSSW_11_1_0'       : [ ('slc7_amd64_gcc820', 'ref1110-s7820.db')],
+            'CMSSW_10_4_0'       : [ ('slc7_amd64_gcc700', 'ref1040-s7700.db')],
+            'CMSSW_9_0_1'        : [ ('slc6_amd64_gcc630', 'ref901-s6630.db')],
             'CMSSW_8_1_0'        : [ ('slc6_amd64_gcc530', 'ref750-s6530.db'),('slc6_amd64_gcc600', 'ref750-s600.db')],
             'CMSSW_7_6_6'        : [ ('slc6_amd64_gcc493', 'ref750-s6493.db')]
           }

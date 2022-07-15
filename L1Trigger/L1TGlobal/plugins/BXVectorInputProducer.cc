@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -56,7 +56,7 @@ namespace l1t {
   // class declaration
   //
 
-  class BXVectorInputProducer : public EDProducer {
+  class BXVectorInputProducer : public one::EDProducer<> {
   public:
     explicit BXVectorInputProducer(const ParameterSet&);
     ~BXVectorInputProducer() override;
@@ -65,17 +65,12 @@ namespace l1t {
 
   private:
     void produce(Event&, EventSetup const&) override;
-    void beginJob() override;
-    void endJob() override;
-    void beginRun(Run const& iR, EventSetup const& iE) override;
-    void endRun(Run const& iR, EventSetup const& iE) override;
 
-    int convertPhiToHW(double iphi, int steps);
-    int convertEtaToHW(double ieta, double minEta, double maxEta, int steps);
-    int convertPtToHW(double ipt, int maxPt, double step);
+    int convertPhiToHW(double iphi, int steps) const;
+    int convertEtaToHW(double ieta, double minEta, double maxEta, int steps) const;
+    int convertPtToHW(double ipt, int maxPt, double step) const;
 
     // ----------member data ---------------------------
-    unsigned long long m_paramsCacheId;  // Cache-ID from current parameters, to check if needs to be updated.
     //std::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
     //std::shared_ptr<const FirmwareVersion> m_fwv;
     //std::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
@@ -107,8 +102,6 @@ namespace l1t {
     edm::EDGetToken tauToken;
     edm::EDGetToken jetToken;
     edm::EDGetToken etsumToken;
-
-    int counter_;
 
     std::vector<l1t::Muon> muonVec_bxm2;
     std::vector<l1t::Muon> muonVec_bxm1;
@@ -179,7 +172,6 @@ namespace l1t {
     emptyBxEvt_ = iConfig.getParameter<int>("emptyBxEvt");
 
     // set cache id to zero, will be set at first beginRun:
-    m_paramsCacheId = 0;
     eventCnt_ = 0;
   }
 
@@ -468,25 +460,8 @@ namespace l1t {
     etsumVec_bxp1 = etsumVec;
   }
 
-  // ------------ method called once each job just before starting event loop ------------
-  void BXVectorInputProducer::beginJob() {}
-
-  // ------------ method called once each job just after ending the event loop ------------
-  void BXVectorInputProducer::endJob() {}
-
-  // ------------ method called when starting to processes a run ------------
-
-  void BXVectorInputProducer::beginRun(Run const& iR, EventSetup const& iE) {
-    LogDebug("l1t|Global") << "BXVectorInputProducer::beginRun function called...\n";
-
-    counter_ = 0;
-  }
-
-  // ------------ method called when ending the processing of a run ------------
-  void BXVectorInputProducer::endRun(Run const& iR, EventSetup const& iE) {}
-
   // ------------ methods to convert from physical to HW values ------------
-  int BXVectorInputProducer::convertPhiToHW(double iphi, int steps) {
+  int BXVectorInputProducer::convertPhiToHW(double iphi, int steps) const {
     double phiMax = 2 * M_PI;
     if (iphi < 0)
       iphi += 2 * M_PI;
@@ -497,7 +472,7 @@ namespace l1t {
     return hwPhi;
   }
 
-  int BXVectorInputProducer::convertEtaToHW(double ieta, double minEta, double maxEta, int steps) {
+  int BXVectorInputProducer::convertEtaToHW(double ieta, double minEta, double maxEta, int steps) const {
     double binWidth = (maxEta - minEta) / steps;
 
     //if we are outside the limits, set error
@@ -516,7 +491,7 @@ namespace l1t {
     return binNum;
   }
 
-  int BXVectorInputProducer::convertPtToHW(double ipt, int maxPt, double step) {
+  int BXVectorInputProducer::convertPtToHW(double ipt, int maxPt, double step) const {
     int hwPt = int(ipt / step + 0.0001);
     // if above max Pt, set to largest value
     if (hwPt > maxPt)

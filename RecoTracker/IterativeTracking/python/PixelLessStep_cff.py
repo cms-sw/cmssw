@@ -201,11 +201,15 @@ pixelLessStepSeeds = _seedCreatorFromRegionConsecutiveHitsTripletOnlyEDProducer.
                 FilterStripHits    = cms.bool(True),
                 ClusterShapeHitFilterName = cms.string('pixelLessStepClusterShapeHitFilter'),
                 ClusterShapeCacheSrc      = cms.InputTag('siPixelClusterShapeCache') # not really needed here since FilterPixelHits=False
-            ), 
-            _StripSubClusterShapeSeedFilter.clone()
+            )
         )
     )
 )
+
+from RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeSeedFilter_cfi import StripSubClusterShapeSeedFilter as _StripSubClusterShapeSeedFilter
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+(~approxSiStripClusters).toModify(pixelLessStepSeeds.SeedComparitorPSet.comparitors, func = lambda list: list.append(_StripSubClusterShapeSeedFilter.clone()) )
+
 trackingLowPU.toModify(pixelLessStepHitDoublets, produceSeedingHitSets=True, produceIntermediateHitDoublets=False)
 trackingLowPU.toModify(pixelLessStepSeeds,
     seedingHitSets = 'pixelLessStepHitDoublets',
@@ -397,6 +401,9 @@ trackdnn.toReplaceWith(pixelLessStep, trackTfClassifier.clone(
     qualityCuts = qualityCutDictionary.PixelLessStep.value()
 ))
 (trackdnn & fastSim).toModify(pixelLessStep,vertices = 'firstStepPrimaryVerticesBeforeMixing')
+
+((~trackingMkFitPixelLessStep) & trackdnn).toModify(pixelLessStep, mva = dict(tfDnnLabel  = 'trackSelectionTf_CKF'),
+                                                    qualityCuts = [-0.81, -0.61, -0.17])
 
 pp_on_AA.toModify(pixelLessStep, qualityCuts = [-0.4,0.0,0.8])
 
