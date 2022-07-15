@@ -156,10 +156,10 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 def nanoAOD_recalibrateMETs(process,isData):
     # add DeepMETs
     nanoAOD_DeepMET_switch = cms.PSet(
-        ResponseTune_Graph = cms.untracked.string('RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2018.pb')
+        ResponseTune_Graph = cms.untracked.string('RecoMET/METPUSubtraction/data/models/deepmet/deepmet_resp_v1_2018/model.graphdef')
     )
     for modifier in run2_miniAOD_80XLegacy, run2_nanoAOD_94X2016:
-        modifier.toModify(nanoAOD_DeepMET_switch, ResponseTune_Graph=cms.untracked.string("RecoMET/METPUSubtraction/data/deepmet/deepmet_resp_v1_2016.pb"))
+        modifier.toModify(nanoAOD_DeepMET_switch, ResponseTune_Graph="RecoMET/METPUSubtraction/data/models/deepmet/deepmet_resp_v1_2016/model.graphdef")
 
     print("add DeepMET Producers")
     process.load('RecoMET.METPUSubtraction.deepMETProducer_cfi')
