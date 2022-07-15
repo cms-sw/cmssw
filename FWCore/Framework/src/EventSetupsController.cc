@@ -14,6 +14,7 @@
 
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
+#include "FWCore/Concurrency/interface/FinalWaitingTask.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 #include "FWCore/Framework/src/EventSetupProviderMaker.h"
@@ -412,7 +413,7 @@ namespace edm {
     void synchronousEventSetupForInstance(IOVSyncValue const& syncValue,
                                           oneapi::tbb::task_group& iGroup,
                                           eventsetup::EventSetupsController& espController) {
-      FinalWaitingTask waitUntilIOVInitializationCompletes;
+      FinalWaitingTask waitUntilIOVInitializationCompletes{iGroup};
 
       // These do nothing ...
       WaitingTaskList dummyWaitingTaskList;
@@ -431,13 +432,7 @@ namespace edm {
           waitingTaskHolder.doneWaiting(std::current_exception());
         }
       }
-      do {
-        iGroup.wait();
-      } while (not waitUntilIOVInitializationCompletes.done());
-
-      if (waitUntilIOVInitializationCompletes.exceptionPtr() != nullptr) {
-        std::rethrow_exception(waitUntilIOVInitializationCompletes.exceptionPtr());
-      }
+      waitUntilIOVInitializationCompletes.wait();
     }
   }  // namespace eventsetup
 }  // namespace edm
