@@ -114,6 +114,8 @@ namespace edm {
   class PreallocationConfiguration;
   class WaitingTaskHolder;
 
+  class ConditionalTaskHelper;
+
   namespace service {
     class TriggerNamesService;
   }
@@ -257,6 +259,13 @@ namespace edm {
 
     StreamContext const& context() const { return streamContext_; }
 
+    struct AliasInfo {
+      std::string friendlyClassName;
+      std::string instanceLabel;
+      std::string originalInstanceLabel;
+      std::string originalModuleLabel;
+    };
+
   private:
     //Sentry class to only send a signal if an
     // exception occurs. An exception is identified
@@ -289,12 +298,6 @@ namespace edm {
 
     void reportSkipped(EventPrincipal const& ep) const;
 
-    struct AliasInfo {
-      std::string friendlyClassName;
-      std::string instanceLabel;
-      std::string originalInstanceLabel;
-      std::string originalModuleLabel;
-    };
     std::vector<Worker*> tryToPlaceConditionalModules(
         Worker*,
         std::unordered_set<std::string>& conditionalModules,
@@ -311,7 +314,8 @@ namespace edm {
                      std::string const& name,
                      bool ignoreFilters,
                      PathWorkers& out,
-                     std::vector<std::string> const& endPathNames);
+                     std::vector<std::string> const& endPathNames,
+                     ConditionalTaskHelper const& conditionalTaskHelper);
     void fillTrigPath(ParameterSet& proc_pset,
                       ProductRegistry& preg,
                       PreallocationConfiguration const* prealloc,
@@ -319,14 +323,16 @@ namespace edm {
                       int bitpos,
                       std::string const& name,
                       TrigResPtr,
-                      std::vector<std::string> const& endPathNames);
+                      std::vector<std::string> const& endPathNames,
+                      ConditionalTaskHelper const& conditionalTaskHelper);
     void fillEndPath(ParameterSet& proc_pset,
                      ProductRegistry& preg,
                      PreallocationConfiguration const* prealloc,
                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      int bitpos,
                      std::string const& name,
-                     std::vector<std::string> const& endPathNames);
+                     std::vector<std::string> const& endPathNames,
+                     ConditionalTaskHelper const& conditionalTaskHelper);
 
     void addToAllWorkers(Worker* w);
 
