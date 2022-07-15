@@ -1,4 +1,4 @@
-
+#include "FWCore/Utilities/interface/Likely.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 SiStripCluster::SiStripCluster(const SiStripDigiRange& range) : firstStrip_(range.first->strip()), error_x(-99999.9) {
@@ -22,13 +22,19 @@ SiStripCluster::SiStripCluster(const SiStripDigiRange& range) : firstStrip_(rang
   amplitudes_ = v;
 }
 
-SiStripCluster::SiStripCluster(const SiStripApproximateCluster cluster) : error_x(-99999.9) {
+SiStripCluster::SiStripCluster(const SiStripApproximateCluster cluster, const uint16_t maxStrips) : error_x(-99999.9) {
   barycenter_ = cluster.barycenter();
   charge_ = cluster.width() * cluster.avgCharge();
   amplitudes_.resize(cluster.width(), cluster.avgCharge());
 
+  float halfwidth_ = 0.5f * float(cluster.width());
+
   //initialize firstStrip_
-  firstStrip_ = cluster.barycenter() - cluster.width() / 2;
+  firstStrip_ = std::max(barycenter_ - halfwidth_, 0.f);
+
+  if UNLIKELY (firstStrip_ + cluster.width() > maxStrips) {
+    firstStrip_ = maxStrips - cluster.width();
+  }
 }
 
 int SiStripCluster::charge() const {
