@@ -54,14 +54,13 @@ private:
 //
 // constructors and destructor
 //
-EcalBasicUncalibRecHitFilter::EcalBasicUncalibRecHitFilter(const edm::ParameterSet& iConfig) :
-  minAdc_(iConfig.getUntrackedParameter<double>("adcCut", 12)),
-  EcalUncalibRecHitCollection_ (iConfig.getParameter<edm::InputTag>("EcalUncalibRecHitCollection")) {
+EcalBasicUncalibRecHitFilter::EcalBasicUncalibRecHitFilter(const edm::ParameterSet& iConfig)
+    : minAdc_(iConfig.getUntrackedParameter<double>("adcCut", 12)),
+      EcalUncalibRecHitCollection_(iConfig.getParameter<edm::InputTag>("EcalUncalibRecHitCollection")) {
   //now do what ever initialization is needed
   //masked list is using the ashed index
   maskedList_ = iConfig.getUntrackedParameter<std::vector<int> >("maskedChannels", maskedList_);
 }
-
 
 //
 // member functions
