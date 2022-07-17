@@ -94,6 +94,10 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
     const auto chid = detid.rawId();
     const PPSTimingCalibration::Key key{
         (int)detid.arm(), (int)detid.station(), (int)detid.plane(), (int)detid.channel()};
+
+    calib_params[key] = {0, 0, 0, 0};
+    calib_time[key] = std::make_pair(0.1, 0.);
+
     hists.leadingTime[chid] = iGetter.get(dqmDir_ + "/t_" + ch_name);
     if (hists.leadingTime[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
