@@ -49,6 +49,7 @@ namespace {
 
 HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
     : HLTFilter(iConfig),
+      propSetup_(iConfig, consumesCollector()),
       idealMagneticFieldRecordToken_(esConsumes()),
       beamspotTag_(iConfig.getParameter<edm::InputTag>("BeamSpotTag")),
       beamspotToken_(consumes<reco::BeamSpot>(beamspotTag_)),
@@ -89,6 +90,7 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
       theL3LinksLabel(iConfig.getParameter<InputTag>("InputLinks")),
       linkToken_(consumes<reco::MuonTrackLinksCollection>(theL3LinksLabel)),
       L1MatchingdR_(iConfig.getParameter<double>("L1MatchingdR")),
+      L1MatchingdR2_(L1MatchingdR_ * L1MatchingdR_),
       matchPreviousCand_(iConfig.getParameter<bool>("MatchToPreviousCand")),
       MuMass2_(0.106 * 0.106) {
   // check consistency of parameters for mass-window cuts
@@ -117,6 +119,10 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
                                           << ") and \"MaxInvMass\" (" << max_InvMass_.size() << ") differ";
   }
 
+  if (L1MatchingdR_ <= 0.) {
+    throw cms::Exception("HLTMuonDimuonL3FilterConfiguration")
+        << "invalid value for parameter \"L1MatchingdR\" (must be > 0): " << L1MatchingdR_;
+  }
   LogDebug("HLTMuonDimuonL3Filter") << " CandTag/FastAccept/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/"
                                        "MaxInvMass/applyMinDiMuonDeltaRCut/MinDiMuonDeltaR"
                                        "MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt/MaxDzMuMu/MaxRapidityPair : "
@@ -181,6 +187,7 @@ void HLTMuonDimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<edm::InputTag>("InputLinks", edm::InputTag(""));
   desc.add<double>("L1MatchingdR", 0.3);
   desc.add<bool>("MatchToPreviousCand", true);
+  PropagateToMuonSetup::fillPSetDescription(desc);
   descriptions.add("hltMuonDimuonL3Filter", desc);
 }
 
@@ -195,6 +202,8 @@ bool HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent,
   // All HLT filters must create and fill an HLT filter object,
   // recording any reconstructed physics objects satisfying (or not)
   // this HLT filter, and place it in the Event.
+
+  auto const prop = propSetup_.init(iSetup);
 
   // Read RecoChargedCandidates from L3MuonCandidateProducer:
   Handle<RecoChargedCandidateCollection> mucands;
@@ -282,12 +291,15 @@ bool HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent,
         }  //MTL loop
 
         if (not l1CandTag_.label().empty() and check_l1match) {
+          auto const propagated = prop.extrapolate(*tk);
+          auto const etaForMatch = propagated.isValid() ? propagated.globalPosition().eta() : cand->eta();
+          auto const phiForMatch = propagated.isValid() ? (double)propagated.globalPosition().phi() : cand->phi();
           iEvent.getByToken(l1CandToken_, level1Cands);
           level1Cands->getObjects(trigger::TriggerL1Mu, vl1cands);
           const unsigned int nL1Muons(vl1cands.size());
           for (unsigned int il1 = 0; il1 != nL1Muons; ++il1) {
-            if (deltaR(cand->eta(), cand->phi(), vl1cands[il1]->eta(), vl1cands[il1]->phi()) <
-                L1MatchingdR_) {  //was muon, non cand
+            if (deltaR2(etaForMatch, phiForMatch, vl1cands[il1]->eta(), vl1cands[il1]->phi()) <
+                L1MatchingdR2_) {  //was muon, non cand
               MuonToL3s[i] = RecoChargedCandidateRef(cand);
             }
           }

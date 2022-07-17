@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -39,21 +39,20 @@ public:
 
 using namespace std;
 
-class RKTest : public edm::EDAnalyzer {
+class RKTest : public edm::one::EDAnalyzer<> {
 public:
-  RKTest(const edm::ParameterSet& pset) {}
+  RKTest(const edm::ParameterSet& pset) : magFieldToken(esConsumes()) {}
 
-  ~RKTest() {}
+  ~RKTest() = default;
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) {
     using namespace edm;
-    ESHandle<MagneticField> magfield;
-    setup.get<IdealMagneticFieldRecord>().get(magfield);
-
+    const ESHandle<MagneticField> magfield = setup.getHandle(magFieldToken);
     propagateInCentralVolume(&(*magfield));
   }
 
 private:
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magFieldToken;
   typedef TrajectoryStateOnSurface TSOS;
 
   void propagateInCentralVolume(const MagneticField* field) const;

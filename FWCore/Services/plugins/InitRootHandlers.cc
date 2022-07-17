@@ -1,5 +1,3 @@
-#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
-
 #include "FWCore/Utilities/interface/RootHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -18,10 +16,10 @@
 #include "FWCore/ServiceRegistry/interface/CurrentModuleOnThread.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 
-#include "tbb/concurrent_unordered_set.h"
-#include "tbb/task.h"
-#include "tbb/task_scheduler_observer.h"
-#include "tbb/global_control.h"
+#include "oneapi/tbb/concurrent_unordered_set.h"
+#include "oneapi/tbb/task.h"
+#include "oneapi/tbb/task_scheduler_observer.h"
+#include "oneapi/tbb/global_control.h"
 #include <memory>
 
 #include <thread>
@@ -72,11 +70,11 @@ namespace edm {
       friend int cmssw_stacktrace(void*);
 
     public:
-      class ThreadTracker : public tbb::task_scheduler_observer {
+      class ThreadTracker : public oneapi::tbb::task_scheduler_observer {
       public:
-        typedef tbb::concurrent_unordered_set<pthread_t> Container_type;
+        typedef oneapi::tbb::concurrent_unordered_set<pthread_t> Container_type;
 
-        ThreadTracker() : tbb::task_scheduler_observer() { observe(); }
+        ThreadTracker() : oneapi::tbb::task_scheduler_observer() { observe(); }
         ~ThreadTracker() override = default;
 
         void on_scheduler_entry(bool) override {
@@ -175,7 +173,7 @@ namespace {
        "Announced number of args different from the real number of argument passed",  // Always printed if gDebug>0 - regardless of whether warning message is real.
        "nbins is <=0 - set to nbins = 1",
        "nbinsy is <=0 - set to nbinsy = 1",
-       "tbb::global_control is limiting"}};
+       "oneapi::tbb::global_control is limiting"}};
 
   //Location generating messages which should be reported as an INFO not a ERROR
   constexpr std::array<const char* const, 7> in_location{{"Fit",
@@ -851,7 +849,8 @@ namespace edm {
       if (imt && not ROOT::IsImplicitMTEnabled()) {
         //cmsRun uses global_control to set the number of allowed threads to use
         // we need to tell ROOT the same value in order to avoid unnecessary warnings
-        ROOT::EnableImplicitMT(tbb::global_control::active_value(tbb::global_control::max_allowed_parallelism));
+        ROOT::EnableImplicitMT(
+            oneapi::tbb::global_control::active_value(oneapi::tbb::global_control::max_allowed_parallelism));
       }
     }
 
@@ -976,6 +975,8 @@ namespace edm {
 
   }  // end of namespace service
 }  // end of namespace edm
+
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
 using edm::service::InitRootHandlers;
 typedef edm::serviceregistry::AllArgsMaker<edm::RootHandlers, InitRootHandlers> RootHandlersMaker;

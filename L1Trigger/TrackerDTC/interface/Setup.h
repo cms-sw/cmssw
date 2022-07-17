@@ -14,6 +14,7 @@
 #include "Geometry/CommonTopologies/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/DDCMS/interface/DDCompactView.h"
 #include "L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "CondFormats/SiPhase2TrackerObjects/interface/TrackerDetToDTCELinkCablingMap.h"
@@ -452,6 +453,9 @@ namespace trackerDTC {
     edm::ParameterSetID pSetIdTTStubAlgorithm_;
     // pset id of current geometry configuration
     edm::ParameterSetID pSetIdGeometryConfiguration_;
+
+    // DD4hep
+    bool fromDD4hep_;
 
     // Parameter to check if configured Tracker Geometry is supported
     edm::ParameterSet pSetSG_;

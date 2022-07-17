@@ -544,6 +544,12 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
             else if (adc >= mipMax)
               lut[adc] |= QIE11_LUT_MSB1;
           }
+
+          //Zeroing the 4th depth in the trigger towers where |ieta| = 16 to match the behavior in the uHTR firmware in Run3, where the 4th depth is not included in the sum over depths when constructing the TP energy for this tower.
+          if (abs(cell.ieta()) == 16 && cell.depth() == 4 &&
+              topo_->triggerMode() >= HcalTopologyMode::TriggerMode_2021) {
+            lut[adc] = 0;
+          }
         }
       }
     } else if (subdet == HcalForward) {

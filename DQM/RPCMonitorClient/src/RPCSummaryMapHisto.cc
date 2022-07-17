@@ -13,7 +13,7 @@ MonitorElement* RPCSummaryMapHisto::book(IBooker& booker, const std::string& nam
     me->setBinLabel(sec, fmt::format("Sec{}", sec), 2);
   }
 
-  for (int disk = 1; disk < 4; ++disk) {
+  for (int disk = 1; disk <= 4; ++disk) {
     me->setBinLabel(11 + disk, fmt::format("Disk{}", disk), 1);
     me->setBinLabel(5 - disk, fmt::format("Disk{}", -disk), 1);
   }

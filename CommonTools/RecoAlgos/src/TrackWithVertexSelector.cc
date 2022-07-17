@@ -35,7 +35,7 @@ TrackWithVertexSelector::~TrackWithVertexSelector() {}
 void TrackWithVertexSelector::init(const edm::Event &event) {
   edm::Handle<reco::VertexCollection> hVtx;
   event.getByToken(vertexToken_, hVtx);
-  vcoll_ = hVtx.product();
+  vcoll_ = nVertices_ > 0 ? hVtx.product() : nullptr;
 
   edm::Handle<edm::ValueMap<float> > hTimes;
   event.getByToken(timesToken_, hTimes);

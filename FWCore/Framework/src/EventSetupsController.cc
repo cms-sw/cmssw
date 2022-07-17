@@ -31,7 +31,7 @@
 namespace edm {
   namespace eventsetup {
 
-    EventSetupsController::EventSetupsController() : taskArena_(tbb::this_task_arena::max_concurrency()) {}
+    EventSetupsController::EventSetupsController() {}
 
     void EventSetupsController::endIOVsAsync(edm::WaitingTaskHolder iEndTask) {
       for (auto& eventSetupRecordIOVQueue : eventSetupRecordIOVQueues_) {
@@ -48,7 +48,7 @@ namespace edm {
       // Also parses the prefer information from ParameterSets and puts
       // it in a map that is stored in the EventSetupProvider
       std::shared_ptr<EventSetupProvider> returnValue(
-          makeEventSetupProvider(iPSet, providers_.size(), activityRegistry, &taskArena_));
+          makeEventSetupProvider(iPSet, providers_.size(), activityRegistry));
 
       // Construct the ESProducers and ESSources
       // shared_ptrs to them are temporarily stored in this
@@ -410,7 +410,7 @@ namespace edm {
     }
 
     void synchronousEventSetupForInstance(IOVSyncValue const& syncValue,
-                                          tbb::task_group& iGroup,
+                                          oneapi::tbb::task_group& iGroup,
                                           eventsetup::EventSetupsController& espController) {
       FinalWaitingTask waitUntilIOVInitializationCompletes;
 

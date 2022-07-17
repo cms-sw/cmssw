@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
@@ -20,16 +20,16 @@
 
 using namespace edm;
 
-class TestMod : public EDProducer {
+class TestMod : public global::EDProducer<> {
 public:
   explicit TestMod(ParameterSet const& p);
 
-  void produce(Event& e, EventSetup const&);
+  void produce(StreamID, Event& e, EventSetup const&) const override;
 };
 
 TestMod::TestMod(ParameterSet const&) { produces<int>(); }
 
-void TestMod::produce(Event&, EventSetup const&) {}
+void TestMod::produce(StreamID, Event&, EventSetup const&) const {}
 
 // ----------------------------------------------
 class testmaker2 : public CppUnit::TestFixture {

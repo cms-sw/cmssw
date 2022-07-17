@@ -219,6 +219,7 @@ process.options = cms.untracked.PSet(
 )
 
 process.pp = cms.Path( process.scalersRawToDigi
+                      *process.onlineMetaDataDigis
                       *process.dqmTKStatus
                       *process.hltTriggerTypeFilter
                       *process.dqmcommon

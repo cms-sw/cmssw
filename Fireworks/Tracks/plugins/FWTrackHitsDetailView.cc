@@ -70,13 +70,13 @@ void FWTrackHitsDetailView::build(const FWModelId& id, const reco::Track* track)
     b->SetState(kButtonUp, false);
     m_guiFrame->AddFrame(b, new TGLayoutHints(kLHintsNormal, 2, 3, 1, 4));
     TQObject::Connect(b, "Clicked()", "CSGAction", action, "activate()");
-    action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::rnrLabels));
+    action->activated.connect(sigc::mem_fun(*this, &FWTrackHitsDetailView::rnrLabels));
   }
   {
     CSGAction* action = new CSGAction(this, " Pick Camera Center ");
     action->createTextButton(m_guiFrame, new TGLayoutHints(kLHintsNormal, 2, 0, 1, 4));
     action->setToolTip("Click on object in viewer to set camera center.");
-    action->activated.connect(sigc::mem_fun(this, &FWTrackHitsDetailView::pickCameraCenter));
+    action->activated.connect(sigc::mem_fun(*this, &FWTrackHitsDetailView::pickCameraCenter));
   }
   makeLegend();
 

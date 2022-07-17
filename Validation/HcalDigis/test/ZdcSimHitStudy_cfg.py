@@ -15,22 +15,12 @@ process.load("Geometry.CMSCommonData.cmsExtendedGeometryXML_cfi")
 process.load("Validation.HcalHits.ZdcSimHitStudy_cfi")
 process.load("Validation.HcalDigis.ZDCDigiStudy_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        ZdcSim = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('INFO')
-    ),
-    debugModules = cms.untracked.vstring('*')
-)
+process.load('FWCore.MessageService.MessageLogger_cfi')
+
+if 'MessageLogger' in process.__dict__:
+    process.MessageLogger.G4cout=dict()
+    process.MessageLogger.ZdcSim=dict()
+    process.MessageLogger.ZdcDigiStudy=dict()
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

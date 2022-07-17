@@ -30,7 +30,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -41,7 +40,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"

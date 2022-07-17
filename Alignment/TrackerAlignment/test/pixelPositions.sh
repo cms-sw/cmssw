@@ -1,4 +1,4 @@
-#!/bin/zsh 
+#!/bin/bash
 #
 
 # Script to prepare the tables in TkAlignmentPixelPosition.
@@ -13,16 +13,16 @@
 #PLOTMILLEPEDEDIR=
 CONFIG_TEMPLATE="$CMSSW_BASE/src/Alignment/TrackerAlignment/test/alignment_forGeomComp_cfg_TEMPLATE.py"
 PLOTMILLEPEDEDIR="$CMSSW_BASE/src/Alignment/MillePedeAlignmentAlgorithm/macros/"
-if [[ ! -f ${CONFIG_TEMPLATE} ]]
+if [ ! -f "${CONFIG_TEMPLATE}" ]
 then
     CONFIG_TEMPLATE="${CMSSW_RELEASE_BASE}/src/Alignment/TrackerAlignment/test/alignment_forGeomComp_cfg_TEMPLATE.py"
 fi
-if [[ ! -d ${PLOTMILLEPEDEDIR} ]]
+if [ ! -d "${PLOTMILLEPEDEDIR}" ]
 then
     PLOTMILLEPEDEDIR="${CMSSW_RELEASE_BASE}/src/Alignment/MillePedeAlignmentAlgorithm/macros/"
 fi
 
-if [[ ${#} -gt 0 ]]
+if [ $# -gt 0 ]
 then
     EXECUTION_DIR="${1}/"
 else
@@ -34,7 +34,7 @@ echo and plotting macros from $PLOTMILLEPEDEDIR
 echo "Running in ${EXECUTION_DIR}"
 echo 
 
-RUN_NUMBERS=(272011 273000)
+RUN_NUMBERS="272011 273000"
 
 # First conditions to check
 # (if ALIGNMENT_TAG1 and DB_PATH_TAG1 are empty takes content from GLOBALTAG1)
@@ -52,7 +52,7 @@ ALIGNMENT_TAG2="SiPixelAli_PCL_v0_prompt"
 # ALIGNMENT_TAG2="SiPixelAli_PCL_v0_p"
 DB_PATH_TAG2="frontier://FrontierPrep/CMS_CONDITIONS"
 
-if [[ ! -d ${EXECUTION_DIR} ]]
+if [ ! -d "${EXECUTION_DIR}" ]
 then
     mkdir ${EXECUTION_DIR}
 fi
@@ -86,8 +86,8 @@ for RUN in $RUN_NUMBERS ; do
     sed -e "s/LOGFILE/${LOGFILE1}/g" ${CONFIG1}_tmp3 > ${CONFIG1}
   
     # maybe we need to overwrite GlobalTag alignment?
-    if [ $#ALIGNMENT_TAG1 != 0 ]; then
-	cat >>! ${CONFIG1} <<EOF
+    if [ "$ALIGNMENT_TAG1" != "" ]; then
+	cat >> ${CONFIG1} <<EOF
 
 from CondCore.CondDB.CondDB_cfi import *
 CondDBReference = CondDB.clone(connect = cms.string("$DB_PATH_TAG1"))
@@ -105,7 +105,7 @@ EOF
     rm ${CONFIG1}_tmp* 
     cmsRun $CONFIG1
     return_code=${?}
-    if [[ ${return_code} -ne 0 ]]
+    if [ ${return_code} -ne 0 ]
     then
 	echo "The command 'cmsRun ${CONFIG1}' failed. Please check the log file."
 	exit ${return_code}
@@ -122,8 +122,8 @@ EOF
     sed -e "s/LOGFILE/${LOGFILE2}/g" ${CONFIG2}_tmp3 > ${CONFIG2}
    
     # maybe we need to overwrite GlobalTag alignment?
-    if [ $#ALIGNMENT_TAG2 != 0 ]; then
-	cat >>! ${CONFIG2} <<EOF
+    if [ "$ALIGNMENT_TAG2" != "" ]; then
+	cat >> ${CONFIG2} <<EOF
 
 from CondCore.CondDB.CondDB_cfi import *
 CondDBReference = CondDB.clone(connect = cms.string("$DB_PATH_TAG2"))
@@ -141,7 +141,7 @@ EOF
     rm ${CONFIG2}_tmp*
     cmsRun $CONFIG2
     return_code=${?}
-    if [[ ${return_code} -ne 0 ]]
+    if [ ${return_code} -ne 0 ]
     then
 	echo "The command 'cmsRun ${CONFIG2}' failed. Please check the log file."
 	exit ${return_code}
@@ -150,7 +150,7 @@ EOF
 
     HEREIAM=$(pwd)
     PLOTDIR=${HEREIAM}/PixelBaryCentrePlottingTools
-    if [[ ! -d ${PLOTDIR} ]]
+    if [ ! -d ${PLOTDIR} ]
     then
        mkdir ${PLOTDIR}
        cp -r $PLOTMILLEPEDEDIR/* ${PLOTDIR}
@@ -158,7 +158,7 @@ EOF
     cd ${PLOTDIR}
     root -b -q -l allMillePede.C "pixelPositionChange.C+(\"${HEREIAM}/$TREEFILE1\", \"${HEREIAM}/$TREEFILE2\")"
     return_code=${?}
-    if [[ ${return_code} -ne 0 ]]
+    if [ ${return_code} -ne 0 ]
     then
 	echo "Running 'allMillePede.C' failed."
 	exit ${return_code}

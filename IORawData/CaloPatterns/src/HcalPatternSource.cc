@@ -1,33 +1,53 @@
-#include "IORawData/CaloPatterns/src/HcalPatternSource.h"
 #include "IORawData/CaloPatterns/interface/HcalPatternXMLParser.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/DataRecord/interface/HcalElectronicsMapRcd.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include <wordexp.h>
 #include <cstdio>
 
+#include <vector>
+#include "IORawData/CaloPatterns/interface/HcalFiberPattern.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+
+class HcalPatternSource : public edm::one::EDProducer<> {
+public:
+  HcalPatternSource(const edm::ParameterSet& pset);
+  ~HcalPatternSource() override;
+  void produce(edm::Event& e, const edm::EventSetup& c) override;
+
+private:
+  void loadPatterns(const std::string& patspec);
+  void loadPatternFile(const std::string& filename);
+  std::vector<int> bunches_;
+  std::vector<HcalFiberPattern> patterns_;
+  int presamples_, samples_;
+  const edm::ESGetToken<HcalElectronicsMap, HcalElectronicsMapRcd> theHcalElectronicsMapToken_;
+};
+
 HcalPatternSource::HcalPatternSource(const edm::ParameterSet& pset)
     : bunches_(pset.getUntrackedParameter<std::vector<int> >("Bunches", std::vector<int>())),
       presamples_(pset.getUntrackedParameter<int>("Presamples", 4)),
-      samples_(pset.getUntrackedParameter<int>("Samples", 10)) {
+      samples_(pset.getUntrackedParameter<int>("Samples", 10)),
+      theHcalElectronicsMapToken_(esConsumes()) {
   loadPatterns(pset.getUntrackedParameter<std::string>("Patterns"));
   produces<HBHEDigiCollection>();
   produces<HODigiCollection>();
   produces<HFDigiCollection>();
 }
 
-void HcalPatternSource::produce(edm::Event& e, const edm::EventSetup& es) {
+HcalPatternSource::~HcalPatternSource() = default;
+
+void HcalPatternSource::produce(edm::Event& e, const edm::EventSetup& iSetup) {
   if (e.id().event() > bunches_.size())
     return;
 
-  edm::ESHandle<HcalElectronicsMap> item;
-  es.get<HcalElectronicsMapRcd>().get(item);
-  const HcalElectronicsMap* elecmap = item.product();
+  // Get HcalElectronicsMap from the Event setup
+  const auto elecmap = &iSetup.getData(theHcalElectronicsMapToken_);
 
   auto hbhe = std::make_unique<HBHEDigiCollection>();
   auto hf = std::make_unique<HFDigiCollection>();
@@ -43,7 +63,7 @@ void HcalPatternSource::produce(edm::Event& e, const edm::EventSetup& es) {
       HcalDetId did(elecmap->lookup(eid));
 
       if (did.null()) {
-        edm::LogWarning("HCAL") << "No electronics map match for id " << eid;
+        edm::LogWarning("HcalPatternSource") << "No electronics map match for id " << eid;
         continue;
       }
 
@@ -134,3 +154,5 @@ void HcalPatternSource::loadPatternFile(const std::string& filename) {
     i = j + 5;
   }
 }
+
+DEFINE_FWK_MODULE(HcalPatternSource);

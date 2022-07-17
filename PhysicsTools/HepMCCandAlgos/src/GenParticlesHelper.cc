@@ -89,13 +89,16 @@ namespace GenParticlesHelper {
     return false;
   }
 
+}  // namespace GenParticlesHelper
+
+namespace edm {
   std::ostream& operator<<(std::ostream& out, const reco::GenParticleRef& genRef) {
     if (!out)
       return out;
 
-    out << genRef.key() << " " << genRef->pt();
+    out << "key:" << genRef.key() << " pt:" << genRef->pt();
 
     return out;
   }
 
-}  // namespace GenParticlesHelper
+}  // namespace edm

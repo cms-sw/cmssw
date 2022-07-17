@@ -92,7 +92,7 @@ DiDispStaMuonEfficiency = DQMEDHarvester("DQMGenericClient",
 
 
 METplusTrackEfficiency = DQMEDHarvester("DQMGenericClient",
-    subDirs = cms.untracked.vstring("HLT/EXO/MET/MET105_IsoTrk50/", "HLT/EXO/MET/MET120_IsoTrk50/"),
+    subDirs = cms.untracked.vstring("HLT/EXO/MET/*"),
     verbose = cms.untracked.uint32(0), # Set to 2 for all messages
     resolution = cms.vstring(),
     efficiency = cms.vstring(
@@ -237,12 +237,12 @@ exoticaClient = cms.Sequence(
 from DQMOffline.Trigger.TrackingMonitoring_Client_cff import *
 
 #DisplacedJet Track Monitoring
-trackingforDisplacedJetEffFromHitPatternHLT = trackingEffFromHitPatternHLT.clone()
-trackingforDisplacedJetEffFromHitPatternHLT.subDirs = cms.untracked.vstring(
+trackingforDisplacedJetEffFromHitPatternHLT = trackingEffFromHitPatternHLT.clone(
+    subDirs = [
     "HLT/EXO/DisplacedJet/Tracking/iter2MergedForBTag/HitEffFromHitPattern*",
     "HLT/EXO/DisplacedJet/Tracking/iter4ForDisplaced/HitEffFromHitPattern*",
+]
 )
-
 trackingForDisplacedJetMonitorClientHLT  = cms.Sequence(
     trackingforDisplacedJetEffFromHitPatternHLT
 )

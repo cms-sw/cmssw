@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -19,51 +19,55 @@
 #include <iostream>
 using namespace std;
 
-class L1TMuonBarrelParamsViewer : public edm::EDAnalyzer {
+class L1TMuonBarrelParamsViewer : public edm::one::EDAnalyzer<> {
 private:
   std::string hash(void *buf, size_t len) const;
+  edm::ESGetToken<L1TMuonBarrelParams, L1TMuonBarrelParamsRcd> token_;
   bool printPtaThreshold;
 
 public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
-  explicit L1TMuonBarrelParamsViewer(const edm::ParameterSet &) : edm::EDAnalyzer() { printPtaThreshold = false; }
-  ~L1TMuonBarrelParamsViewer(void) override {}
+  explicit L1TMuonBarrelParamsViewer(const edm::ParameterSet &) : token_{esConsumes()} { printPtaThreshold = false; }
 };
 
-#include <openssl/sha.h>
+#include "Utilities/OpenSSL/interface/openssl_init.h"
 #include <cmath>
 #include <iostream>
 using namespace std;
 
 std::string L1TMuonBarrelParamsViewer::hash(void *buf, size_t len) const {
-  char tmp[SHA_DIGEST_LENGTH * 2 + 1];
-  bzero(tmp, sizeof(tmp));
-  SHA_CTX ctx;
-  if (!SHA1_Init(&ctx))
+  cms::openssl_init();
+  EVP_MD_CTX *mdctx = EVP_MD_CTX_new();
+  const EVP_MD *md = EVP_get_digestbyname("SHA1");
+  if (!EVP_DigestInit_ex(mdctx, md, nullptr))
     throw cms::Exception("L1TMuonBarrelParamsViewer::hash") << "SHA1 initialization error";
 
-  if (!SHA1_Update(&ctx, buf, len))
+  if (!EVP_DigestUpdate(mdctx, buf, len))
     throw cms::Exception("L1TMuonBarrelParamsViewer::hash") << "SHA1 processing error";
 
-  unsigned char hash[SHA_DIGEST_LENGTH];
-  if (!SHA1_Final(hash, &ctx))
+  unsigned char hash[EVP_MAX_MD_SIZE];
+  unsigned int md_len = 0;
+  if (!EVP_DigestFinal_ex(mdctx, hash, &md_len))
     throw cms::Exception("L1TMuonBarrelParamsViewer::hash") << "SHA1 finalization error";
 
+  EVP_MD_CTX_free(mdctx);
+
   // re-write bytes in hex
-  for (unsigned int i = 0; i < 20; i++)
+  char tmp[EVP_MAX_MD_SIZE * 2 + 1];
+  if (md_len > 20)
+    md_len = 20;
+  for (unsigned int i = 0; i < md_len; i++)
     ::sprintf(&tmp[i * 2], "%02x", hash[i]);
 
-  tmp[20 * 2] = 0;
+  tmp[md_len * 2] = 0;
   return std::string(tmp);
 }
 
 void L1TMuonBarrelParamsViewer::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetup) {
-  edm::ESHandle<L1TMuonBarrelParams> handle1;
-  evSetup.get<L1TMuonBarrelParamsRcd>().get(handle1);
-  std::shared_ptr<L1TMuonBarrelParams> ptr(new L1TMuonBarrelParams(*(handle1.product())));
+  L1TMuonBarrelParams const &ptr = evSetup.getData(token_);
 
-  L1TMuonBarrelParamsHelper *ptr1 = (L1TMuonBarrelParamsHelper *)ptr.get();
+  L1TMuonBarrelParamsHelper *ptr1 = (L1TMuonBarrelParamsHelper *)&ptr;
 
   cout << "AssLUTPath: " << ptr1->AssLUTPath() << endl;
 

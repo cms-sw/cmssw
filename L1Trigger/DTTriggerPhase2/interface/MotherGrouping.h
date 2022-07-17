@@ -1,7 +1,6 @@
 #ifndef Phase2L1Trigger_DTTrigger_MotherGrouping_h
 #define Phase2L1Trigger_DTTrigger_MotherGrouping_h
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -48,7 +47,7 @@ private:
   // Private methods
 
   // Private attributes
-  bool debug_;
+  const bool debug_;
 };
 
 #endif

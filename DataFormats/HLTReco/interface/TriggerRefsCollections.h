@@ -39,6 +39,7 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"  // deprecate
 
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
@@ -80,6 +81,7 @@ namespace trigger {
   typedef std::vector<l1extra::L1HFRingsRef> VRl1hfrings;        //deprecate
 
   typedef l1t::MuonVectorRef VRl1tmuon;
+  typedef l1t::MuonShowerVectorRef VRl1tmuonShower;
   typedef l1t::EGammaVectorRef VRl1tegamma;
   typedef l1t::JetVectorRef VRl1tjet;
   typedef l1t::TauVectorRef VRl1ttau;
@@ -132,6 +134,8 @@ namespace trigger {
 
     Vids l1tmuonIds_;
     VRl1tmuon l1tmuonRefs_;
+    Vids l1tmuonShowerIds_;
+    VRl1tmuonShower l1tmuonShowerRefs_;
     Vids l1tegammaIds_;
     VRl1tegamma l1tegammaRefs_;
     Vids l1tjetIds_;
@@ -198,6 +202,8 @@ namespace trigger {
 
           l1tmuonIds_(),
           l1tmuonRefs_(),
+          l1tmuonShowerIds_(),
+          l1tmuonShowerRefs_(),
           l1tegammaIds_(),
           l1tegammaRefs_(),
           l1tjetIds_(),
@@ -262,6 +268,8 @@ namespace trigger {
 
       std::swap(l1tmuonIds_, other.l1tmuonIds_);
       std::swap(l1tmuonRefs_, other.l1tmuonRefs_);
+      std::swap(l1tmuonShowerIds_, other.l1tmuonShowerIds_);
+      std::swap(l1tmuonShowerRefs_, other.l1tmuonShowerRefs_);
       std::swap(l1tegammaIds_, other.l1tegammaIds_);
       std::swap(l1tegammaRefs_, other.l1tegammaRefs_);
       std::swap(l1tjetIds_, other.l1tjetIds_);
@@ -352,6 +360,10 @@ namespace trigger {
     void addObject(int id, const l1t::MuonRef& ref) {
       l1tmuonIds_.push_back(id);
       l1tmuonRefs_.push_back(ref);
+    }
+    void addObject(int id, const l1t::MuonShowerRef& ref) {
+      l1tmuonShowerIds_.push_back(id);
+      l1tmuonShowerRefs_.push_back(ref);
     }
     void addObject(int id, const l1t::EGammaRef& ref) {
       l1tegammaIds_.push_back(id);
@@ -491,6 +503,12 @@ namespace trigger {
       l1tmuonIds_.insert(l1tmuonIds_.end(), ids.begin(), ids.end());
       l1tmuonRefs_.insert(l1tmuonRefs_.end(), refs.begin(), refs.end());
       return l1tmuonIds_.size();
+    }
+    size_type addObjects(const Vids& ids, const VRl1tmuonShower& refs) {
+      assert(ids.size() == refs.size());
+      l1tmuonShowerIds_.insert(l1tmuonShowerIds_.end(), ids.begin(), ids.end());
+      l1tmuonShowerRefs_.insert(l1tmuonShowerRefs_.end(), refs.begin(), refs.end());
+      return l1tmuonShowerIds_.size();
     }
     size_type addObjects(const Vids& ids, const VRl1tegamma& refs) {
       assert(ids.size() == refs.size());
@@ -1077,6 +1095,41 @@ namespace trigger {
       return;
     }
 
+    void getObjects(Vids& ids, VRl1tmuonShower& refs) const { getObjects(ids, refs, 0, l1tmuonShowerIds_.size()); }
+    void getObjects(Vids& ids, VRl1tmuonShower& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tmuonShowerIds_.size());
+      const size_type n(end - begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        ids[j] = l1tmuonShowerIds_[i];
+        refs[j] = l1tmuonShowerRefs_[i];
+        ++j;
+      }
+    }
+    void getObjects(int id, VRl1tmuonShower& refs) const { getObjects(id, refs, 0, l1tmuonShowerIds_.size()); }
+    void getObjects(int id, VRl1tmuonShower& refs, size_type begin, size_type end) const {
+      assert(begin <= end);
+      assert(end <= l1tmuonShowerIds_.size());
+      size_type n(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tmuonShowerIds_[i]) {
+          ++n;
+        }
+      }
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i = begin; i != end; ++i) {
+        if (id == l1tmuonShowerIds_[i]) {
+          refs[j] = l1tmuonShowerRefs_[i];
+          ++j;
+        }
+      }
+      return;
+    }
+
     void getObjects(Vids& ids, VRl1tegamma& refs) const { getObjects(ids, refs, 0, l1tegammaIds_.size()); }
     void getObjects(Vids& ids, VRl1tegamma& refs, size_type begin, size_type end) const {
       assert(begin <= end);
@@ -1636,6 +1689,10 @@ namespace trigger {
     size_type l1tmuonSize() const { return l1tmuonIds_.size(); }
     const Vids& l1tmuonIds() const { return l1tmuonIds_; }
     const VRl1tmuon& l1tmuonRefs() const { return l1tmuonRefs_; }
+
+    size_type l1tmuonShowerSize() const { return l1tmuonShowerIds_.size(); }
+    const Vids& l1tmuonShowerIds() const { return l1tmuonShowerIds_; }
+    const VRl1tmuonShower& l1tmuonShowerRefs() const { return l1tmuonShowerRefs_; }
 
     size_type l1tegammaSize() const { return l1tegammaIds_.size(); }
     const Vids& l1tegammaIds() const { return l1tegammaIds_; }

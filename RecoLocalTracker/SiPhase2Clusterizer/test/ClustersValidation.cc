@@ -1,41 +1,40 @@
+// system includes
 #include <map>
 #include <vector>
 #include <algorithm>
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+// user includes
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+#include "CommonTools/Utils/interface/TFileDirectory.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
+#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/ConsumesCollector.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
-
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-#include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Phase2TrackerCluster/interface/Phase2TrackerCluster1D.h"
-#include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
-#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
-
-#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "CommonTools/Utils/interface/TFileDirectory.h"
-
+// ROOT includes
 #include <TH2F.h>
 #include <TH1F.h>
 #include <THStack.h>
@@ -59,7 +58,7 @@ struct ClusterHistos {
   TH1D* otherSimHits[3];
 };
 
-class Phase2TrackerClusterizerValidation : public edm::EDAnalyzer {
+class Phase2TrackerClusterizerValidation : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   typedef std::map<unsigned int, std::vector<PSimHit> > SimHitsMap;
   typedef std::map<unsigned int, SimTrack> SimTracksMap;
@@ -67,7 +66,6 @@ public:
   explicit Phase2TrackerClusterizerValidation(const edm::ParameterSet&);
   ~Phase2TrackerClusterizerValidation();
   void beginJob() override;
-  void endJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 private:
@@ -76,14 +74,16 @@ private:
                                           const DetId&,
                                           unsigned int);
 
-  edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> tokenClusters_;
-  edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > tokenLinks_;
-  edm::EDGetTokenT<edm::PSimHitContainer> tokenSimHitsB_;
-  edm::EDGetTokenT<edm::PSimHitContainer> tokenSimHitsE_;
-  edm::EDGetTokenT<edm::SimTrackContainer> tokenSimTracks_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> esTokenGeom_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esTokenTopo_;
+  const edm::EDGetTokenT<Phase2TrackerCluster1DCollectionNew> tokenClusters_;
+  const edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > tokenLinks_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> tokenSimHitsB_;
+  const edm::EDGetTokenT<edm::PSimHitContainer> tokenSimHitsE_;
+  const edm::EDGetTokenT<edm::SimTrackContainer> tokenSimTracks_;
 
-  bool catECasRings_;
-  double simtrackminpt_;
+  const bool catECasRings_;
+  const double simtrackminpt_;
 
   TH2F* trackerLayout_;
   TH2F* trackerLayoutXY_;
@@ -94,15 +94,19 @@ private:
 };
 
 Phase2TrackerClusterizerValidation::Phase2TrackerClusterizerValidation(const edm::ParameterSet& conf)
-    : tokenClusters_(consumes<Phase2TrackerCluster1DCollectionNew>(conf.getParameter<edm::InputTag>("src"))),
+    : esTokenGeom_(esConsumes()),
+      esTokenTopo_(esConsumes()),
+      tokenClusters_(consumes<Phase2TrackerCluster1DCollectionNew>(conf.getParameter<edm::InputTag>("src"))),
       tokenLinks_(consumes<edm::DetSetVector<PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("links"))),
       tokenSimHitsB_(consumes<edm::PSimHitContainer>(conf.getParameter<edm::InputTag>("simhitsbarrel"))),
       tokenSimHitsE_(consumes<edm::PSimHitContainer>(conf.getParameter<edm::InputTag>("simhitsendcap"))),
       tokenSimTracks_(consumes<edm::SimTrackContainer>(conf.getParameter<edm::InputTag>("simtracks"))),
       catECasRings_(conf.getParameter<bool>("ECasRings")),
-      simtrackminpt_(conf.getParameter<double>("SimTrackMinPt")) {}
+      simtrackminpt_(conf.getParameter<double>("SimTrackMinPt")) {
+  usesResource(TFileService::kSharedResource);
+}
 
-Phase2TrackerClusterizerValidation::~Phase2TrackerClusterizerValidation() {}
+Phase2TrackerClusterizerValidation::~Phase2TrackerClusterizerValidation() = default;
 
 void Phase2TrackerClusterizerValidation::beginJob() {
   edm::Service<TFileService> fs;
@@ -114,8 +118,6 @@ void Phase2TrackerClusterizerValidation::beginJob() {
   trackerLayoutXYBar_ = td.make<TH2F>("XVsYBar", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
   trackerLayoutXYEC_ = td.make<TH2F>("XVsYEC", "x vs. y position", 2400, -120.0, 120.0, 2400, -120.0, 120.0);
 }
-
-void Phase2TrackerClusterizerValidation::endJob() {}
 
 void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
   /*
@@ -140,13 +142,8 @@ void Phase2TrackerClusterizerValidation::analyze(const edm::Event& event, const 
   event.getByToken(tokenSimTracks_, simTracksRaw);
 
   // Get the geometry
-  edm::ESHandle<TrackerGeometry> geomHandle;
-  eventSetup.get<TrackerDigiGeometryRecord>().get("idealForDigi", geomHandle);
-  const TrackerGeometry* tkGeom = &(*geomHandle);
-
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  eventSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
-  const TrackerTopology* tTopo = tTopoHandle.product();
+  const TrackerGeometry* tkGeom = &eventSetup.getData(esTokenGeom_);
+  const TrackerTopology* tTopo = &eventSetup.getData(esTokenTopo_);
 
   /*
      * Rearrange the simTracks

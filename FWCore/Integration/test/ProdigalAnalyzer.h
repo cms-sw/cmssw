@@ -2,15 +2,14 @@
 #define Integration_ProdigalAnalyzer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 namespace edmtest {
 
-  class ProdigalAnalyzer : public edm::EDAnalyzer {
+  class ProdigalAnalyzer : public edm::global::EDAnalyzer<> {
   public:
     explicit ProdigalAnalyzer(edm::ParameterSet const& pset);
-    virtual ~ProdigalAnalyzer() {}
-    virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
+    void analyze(edm::StreamID, edm::Event const& e, edm::EventSetup const& c) const final;
   };
 
 }  // namespace edmtest

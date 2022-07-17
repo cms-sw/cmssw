@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
@@ -56,6 +57,7 @@ namespace evf {
     }
 
     void doOutputEventAsync(std::unique_ptr<EventMsgBuilder> msg, edm::WaitingTaskHolder iHolder) {
+      throttledCheck();
       auto group = iHolder.group();
       writeQueue_.push(*group, [holder = std::move(iHolder), msg = msg.release(), this]() {
         try {
@@ -66,6 +68,18 @@ namespace evf {
           tmp.doneWaiting(std::current_exception());
         }
       });
+    }
+
+    inline void throttledCheck() {
+      unsigned int counter = 0;
+      while (edm::Service<evf::EvFDaqDirector>()->inputThrottled()) {
+        if (edm::shutdown_flag.load(std::memory_order_relaxed))
+          break;
+        if (!(counter % 100))
+          edm::LogWarning("FedRawDataInputSource") << "Input throttled detected, writing is paused...";
+        usleep(100000);
+        counter++;
+      }
     }
 
     uint32 get_adler32() const { return stream_writer_events_->adler32(); }
@@ -276,14 +290,15 @@ namespace evf {
   }
 
   std::unique_ptr<edm::StreamerOutputModuleCommon> GlobalEvFOutputModule::beginStream(edm::StreamID) const {
-    return std::make_unique<edm::StreamerOutputModuleCommon>(ps_, &keptProducts()[edm::InEvent]);
+    return std::make_unique<edm::StreamerOutputModuleCommon>(
+        ps_, &keptProducts()[edm::InEvent], description().moduleLabel());
   }
 
   std::shared_ptr<GlobalEvFOutputJSONDef> GlobalEvFOutputModule::globalBeginRun(edm::RunForOutput const& run) const {
     //create run Cache holding JSON file writer and variables
     auto jsonDef = std::make_unique<GlobalEvFOutputJSONDef>();
 
-    edm::StreamerOutputModuleCommon streamerCommon(ps_, &keptProducts()[edm::InEvent]);
+    edm::StreamerOutputModuleCommon streamerCommon(ps_, &keptProducts()[edm::InEvent], description().moduleLabel());
 
     //output INI file (non-const). This doesn't require globalBeginRun to be finished
     const std::string openIniFileName = edm::Service<evf::EvFDaqDirector>()->getOpenInitFilePath(streamLabel_);

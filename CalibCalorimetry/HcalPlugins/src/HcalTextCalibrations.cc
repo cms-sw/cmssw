@@ -63,8 +63,7 @@ HcalTextCalibrations::HcalTextCalibrations(const edm::ParameterSet& iConfig)
       mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceQIETypes).consumes();
       findingRecord<HcalQIETypesRcd>();
     } else if (objectName == "ChannelQuality") {
-      mTokens[objectName] =
-          setWhatProduced(this, &HcalTextCalibrations::produceChannelQuality, edm::es::Label("withTopo")).consumes();
+      mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceChannelQuality).consumes();
       findingRecord<HcalChannelQualityRcd>();
     } else if (objectName == "ZSThresholds") {
       mTokens[objectName] = setWhatProduced(this, &HcalTextCalibrations::produceZSThresholds).consumes();

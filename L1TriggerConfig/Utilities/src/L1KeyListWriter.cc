@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,23 +15,23 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
-class L1KeyListWriter : public edm::EDAnalyzer {
+class L1KeyListWriter : public edm::one::EDAnalyzer<> {
 public:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  explicit L1KeyListWriter(const edm::ParameterSet&) : edm::EDAnalyzer() {}
-  ~L1KeyListWriter(void) override {}
+  explicit L1KeyListWriter(const edm::ParameterSet&) : token_{esConsumes()} {}
+
+private:
+  edm::ESGetToken<L1TriggerKeyListExt, L1TriggerKeyListExtRcd> token_;
 };
 
 void L1KeyListWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
-  edm::ESHandle<L1TriggerKeyListExt> handle1;
-  evSetup.get<L1TriggerKeyListExtRcd>().get(handle1);
-  std::shared_ptr<L1TriggerKeyListExt> ptr1(new L1TriggerKeyListExt(*(handle1.product())));
+  L1TriggerKeyListExt const& ptr1 = evSetup.getData(token_);
 
   edm::Service<cond::service::PoolDBOutputService> poolDb;
   if (poolDb.isAvailable()) {
     cond::Time_t firstSinceTime = poolDb->beginOfTime();
-    poolDb->writeOneIOV(*ptr1, firstSinceTime, "L1TriggerKeyListExtRcd");
+    poolDb->writeOneIOV(ptr1, firstSinceTime, "L1TriggerKeyListExtRcd");
   }
 }
 

@@ -539,7 +539,7 @@ namespace HTXS {
     HTXS::Stage1_2_Fine::Category stage1_2_fine_cat_pTjet25GeV;
     HTXS::Stage1_2_Fine::Category stage1_2_fine_cat_pTjet30GeV;
     // Flag for Z->vv decay mode (needed to split QQ2ZH and GG2ZH)
-    bool isZ2vvDecay;
+    bool isZ2vvDecay = false;
     // Error code :: classification was succesful or some error occured
     HTXS::ErrorCode errorCode;
   };
@@ -765,7 +765,7 @@ namespace Rivet {
     /// Stage-1_2 STXS event classifcation, see: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGFiducialAndSTXS#Stage_1_1
     HTXS::Stage1_2_Fine::Category stage1_2_fine_cat_pTjet30GeV;
     /// Flag to distiguish the Z->vv and Z->l+l- decay modes
-    bool isZ2vvDecay;
+    bool isZ2vvDecay = false;
     /// Error code: Whether classification was succesful or some error occured
     HTXS::ErrorCode errorCode;
   };

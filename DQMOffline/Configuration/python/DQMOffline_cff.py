@@ -14,7 +14,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
-from DQMOffline.Muon.gem_dqm_offline_source_cff import *
+from DQM.GEM.gem_dqm_offline_source_cff import *
 from DQM.CastorMonitor.castor_dqm_sourceclient_offline_cff import *
 from DQM.CTPPS.ctppsDQM_cff import *
 from DQM.SiTrackerPhase2.Phase2TrackerDQMFirstStep_cff import *
@@ -45,6 +45,9 @@ DQMOfflineEcalOnly = cms.Sequence(
 DQMOfflineEcal = cms.Sequence(
     ecal_dqm_source_offline +
     es_dqm_source_offline )
+
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(DQMOfflineEcalOnly, DQMOfflineEcalOnly.copyAndExclude([es_dqm_source_offline]))
 
 #offline version of the online DQM: used in validation/certification
 DQMOfflineHcal = cms.Sequence( hcalOfflineSourceSequence )
@@ -97,6 +100,7 @@ from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitor_cff import *
 from DQM.Physics.DQMPhysics_cff import *
+from DQM.Physics.heavyFlavorDQMFirstStep_cff import *
 
 DQMOfflineVertex = cms.Sequence( pvMonitor )
 
@@ -120,6 +124,8 @@ DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 DQMOfflineBeam = cms.Sequence( alcaBeamMonitor )
 
 DQMOfflinePhysics = cms.Sequence( dqmPhysics )
+
+DQMOfflineHeavyFlavor = cms.Sequence( heavyFlavorDQMSource )
 
 DQMOfflinePrePOG = cms.Sequence( DQMOfflineTracking *
                                  DQMOfflineMUO *
@@ -168,11 +174,18 @@ DQMOfflinePixelTracking = cms.Sequence( pixelTracksMonitoring *
                                         pixelPVMonitor *
                                         monitorpixelSoASource )
 
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+_DQMOfflinePixelTrackingNoSoA = DQMOfflinePixelTracking.copy()
+_DQMOfflinePixelTrackingNoSoA = cms.Sequence(pixelTracksMonitoring * pixelPVMonitor)
+
+phase2_tracker.toReplaceWith(DQMOfflinePixelTracking, _DQMOfflinePixelTrackingNoSoA)
+
 DQMOuterTracker = cms.Sequence( DQMOfflineDCS *
                                 OuterTrackerSource *
                                 DQMMessageLogger *
                                 DQMOfflinePhysics *
-                                DQMOfflineVertex 
+                                DQMOfflineVertex
                                 )
 
 DQMOfflineTrackerPhase2 = cms.Sequence( trackerphase2DQMSource )
@@ -186,7 +199,7 @@ DQMOfflineTrackerPixel = cms.Sequence( siPixelOfflineDQM_source )
 
 DQMOfflineCommon = cms.Sequence( DQMOfflineDCS *
                                  DQMMessageLogger *
-				 DQMOfflineTrackerStrip * 
+				 DQMOfflineTrackerStrip *
 				 DQMOfflineTrackerPixel *
                                  DQMOfflineTracking *
                                  DQMOfflineTrigger *

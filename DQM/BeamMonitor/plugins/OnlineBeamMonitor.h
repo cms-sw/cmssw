@@ -9,6 +9,7 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <fstream>
 // CMS
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -54,6 +55,7 @@ private:
   edm::ESGetToken<BeamSpotObjects, BeamSpotTransientObjectsRcd> bsTransientToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd> bsHLTToken_;
   edm::ESGetToken<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd> bsLegacyToken_;
+  std::ofstream fasciiDIP;
 
   //Service variables
   int numberOfValuesToSave_;
@@ -68,6 +70,11 @@ private:
   PositionContainer positionsMap_;
   std::vector<std::string> varNamesV_;                            //x,y,z,sigmax(y,z)
   std::multimap<std::string, std::string> histoByCategoryNames_;  //run, lumi
+
+  //For File Writing
+  bool appendRunTxt_;
+  bool writeDIPTxt_;
+  std::string outputDIPTxt_;
 };
 
 #endif

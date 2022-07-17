@@ -14,12 +14,12 @@ photonAnalysis.standAlone = cms.bool(False)
 
 
 stdPhotonAnalysis = DQMOffline.EGamma.photonAnalyzer_cfi.photonAnalysis.clone(
-  ComponentName = cms.string('stdPhotonAnalysis'),
-  analyzerName = cms.string('stdPhotonAnalyzer'),
-  phoProducer = cms.InputTag('photons'),
-  OutputMEsInRootFile = cms.bool(False),
-  Verbosity = cms.untracked.int32(0),
-  standAlone = cms.bool(False),
+  ComponentName = 'stdPhotonAnalysis',
+  analyzerName = 'stdPhotonAnalyzer',
+  phoProducer = 'photons',
+  OutputMEsInRootFile = False,
+  Verbosity = 0,
+  standAlone = False
 )
 
 piZeroAnalysis.OutputMEsInRootFile = cms.bool(False)
@@ -27,11 +27,11 @@ piZeroAnalysis.Verbosity = cms.untracked.int32(0)
 piZeroAnalysis.standAlone = cms.bool(False)
 
 
-zmumugammaOldAnalysis = DQMOffline.EGamma.zmumugammaAnalyzer_cfi.zmumugammaAnalysis.clone()
-zmumugammaOldAnalysis.ComponentName = cms.string('zmumugammaOldAnalysis')
-zmumugammaOldAnalysis.analyzerName = cms.string('zmumugammaOldValidation')
-zmumugammaOldAnalysis.phoProducer = cms.InputTag('photons')
-
+zmumugammaOldAnalysis = DQMOffline.EGamma.zmumugammaAnalyzer_cfi.zmumugammaAnalysis.clone(
+    ComponentName = 'zmumugammaOldAnalysis',
+    analyzerName = 'zmumugammaOldValidation',
+    phoProducer = 'photons'
+)
 # HGCal customizations
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
 stdPhotonAnalysisHGCal = stdPhotonAnalysis.clone(

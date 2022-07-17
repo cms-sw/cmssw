@@ -262,7 +262,7 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> &result) con
     }
     int strip = ichannel + 16 * boardNumber_;
 
-    if (theFormatVersion == 2013) {  /// Handle 2013 Format
+    if (theFormatVersion >= 2013) {  /// Handle 2013 Format
 
       if (me1a)
         strip = strip % CSCConstants::NUM_STRIPS_ME1B;  // reset 65-112/ to 1-48 digi

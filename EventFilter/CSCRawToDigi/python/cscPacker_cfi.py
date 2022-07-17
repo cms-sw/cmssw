@@ -15,4 +15,6 @@ run2_common.toModify( cscpacker,
 ## in Run-3 scenarios with GEM: pack GEM clusters
 from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
 run3_GEM.toModify( cscpacker,
+                   formatVersion = 2020,
+                   useCSCShowers = True,
                    useGEMs = True)

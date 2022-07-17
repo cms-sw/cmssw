@@ -536,23 +536,6 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker &ibooker,
 JetAnalyzer_HeavyIons::~JetAnalyzer_HeavyIons() {}
 
 //------------------------------------------------------------------------------
-// beginJob
-//------------------------------------------------------------------------------
-//void JetAnalyzer_HeavyIons::beginJob() {
-//}
-
-//------------------------------------------------------------------------------
-// endJob
-//------------------------------------------------------------------------------
-//void JetAnalyzer_HeavyIons::endJob()
-//{
-//  if (!mOutputFile.empty() && &*edm::Service<DQMStore>())
-//    {
-//      edm::Service<DQMStore>()->save(mOutputFile);
-//    }
-//}
-
-//------------------------------------------------------------------------------
 // analyze
 //------------------------------------------------------------------------------
 void JetAnalyzer_HeavyIons::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup) {

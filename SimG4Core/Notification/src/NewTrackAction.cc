@@ -1,13 +1,10 @@
+
 #include "SimG4Core/Notification/interface/NewTrackAction.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
-#include "SimG4Core/Notification/interface/SimG4Exception.h"
-#include "SimG4Core/Notification/interface/TrackInformationExtractor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Track.hh"
-
-//#define DebugLog
 
 NewTrackAction::NewTrackAction() {}
 
@@ -20,15 +17,10 @@ void NewTrackAction::secondary(const G4Track *aSecondary, const G4Track &mother,
 }
 
 void NewTrackAction::secondary(G4Track *aSecondary, const G4Track &mother, int flag) const {
-  if (aSecondary->GetParentID() != mother.GetTrackID())
-    throw SimG4Exception("NewTrackAction: secondary parent ID does not match mother id");
-  TrackInformationExtractor extractor;
-  const TrackInformation &motherInfo(extractor(mother));
-  addUserInfoToSecondary(aSecondary, motherInfo, flag);
-#ifdef DebugLog
+  const TrackInformation *motherInfo = static_cast<const TrackInformation *>(mother.GetUserInformation());
+  addUserInfoToSecondary(aSecondary, *motherInfo, flag);
   LogDebug("SimTrackManager") << "NewTrackAction: Add track " << aSecondary->GetTrackID() << " from mother "
                               << mother.GetTrackID();
-#endif
 }
 
 void NewTrackAction::addUserInfoToPrimary(G4Track *aTrack) const {
@@ -42,13 +34,9 @@ void NewTrackAction::addUserInfoToPrimary(G4Track *aTrack) const {
 }
 
 void NewTrackAction::addUserInfoToSecondary(G4Track *aTrack, const TrackInformation &motherInfo, int flag) const {
-  // ralf.ulrich@kit.edu: it is more efficient to use the constructor to copy all data and modify later only when needed
-
   TrackInformation *trkInfo = new TrackInformation();
-  //  LogDebug("SimG4CoreApplication") << "NewTrackAction called for "
-  //				   << aTrack->GetTrackID()
-  //				   << " mother " << motherInfo.isPrimary()
-  //				   << " flag " << flag;
+  LogDebug("SimG4CoreApplication") << "NewTrackAction called for " << aTrack->GetTrackID() << " mother "
+                                   << motherInfo.isPrimary() << " flag " << flag;
 
   // Take care of cascade decays
   if (flag == 1) {

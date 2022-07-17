@@ -25,6 +25,9 @@ class CSCChamberMap;
 
 class CSCDigiToRaw {
 public:
+  /// CSC Shower HMT bits types
+  enum CSCShowerType { lctShower = 0, anodeShower = 1, cathodeShower = 2, anodeALCTShower = 3 };
+
   /// Constructor
   explicit CSCDigiToRaw(const edm::ParameterSet& pset);
 
@@ -38,6 +41,9 @@ public:
                         const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
                         const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
                         const CSCShowerDigiCollection* showerDigis,
+                        const CSCShowerDigiCollection* anodeShowerDigis,
+                        const CSCShowerDigiCollection* cathodeShowerDigis,
+                        const CSCShowerDigiCollection* anodeALCTShowerDigis,
                         const GEMPadDigiClusterCollection* padDigiClusters,
                         FEDRawDataCollection& fed_buffers,
                         const CSCChamberMap* theMapping,
@@ -66,7 +72,11 @@ private:
   void add(const CSCALCTDigiCollection& alctDigis, FindEventDataInfo&) const;
   void add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo&) const;
   void add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindEventDataInfo&) const;
-  void add(const CSCShowerDigiCollection& cscShowerDigis, FindEventDataInfo&) const;
+  /// Run3 packing of CSCShower objects depending on shower HMT type
+  void add(const CSCShowerDigiCollection& cscShowerDigis,
+           FindEventDataInfo&,
+           enum CSCShowerType shower = CSCShowerType::lctShower) const;
+  /// Run3 adding GEM GE11 Pad Clusters trigger objects
   void add(const GEMPadDigiClusterCollection& gemPadClusters, FindEventDataInfo&) const;
   /// pick out the correct data object for this chamber
   CSCEventData& findEventData(const CSCDetId& cscDetId, FindEventDataInfo&) const;

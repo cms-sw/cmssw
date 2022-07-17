@@ -130,6 +130,7 @@ process.RecoForDQM_FirstStep = cms.Sequence(
 process.dqmBeamMonitor.BeamFitter.TrackCollection = cms.untracked.InputTag('hiGeneralTracks')
 
 process.pp = cms.Path(
+    process.onlineMetaDataDigis*
     process.dqmTKStatus*
     process.HLTPixelActivityFilterForOnlineBeamspot *
     # Turn off trigger for MC

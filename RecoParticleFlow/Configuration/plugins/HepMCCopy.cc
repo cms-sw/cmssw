@@ -1,14 +1,14 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "HepMC/GenEvent.h"
 
-class HepMCCopy : public edm::EDProducer {
+class HepMCCopy : public edm::one::EDProducer<> {
 public:
   explicit HepMCCopy(edm::ParameterSet const& p);
-  ~HepMCCopy() override {}
+  ~HepMCCopy() override = default;
   void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 private:

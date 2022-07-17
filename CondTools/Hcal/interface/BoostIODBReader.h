@@ -50,17 +50,17 @@ public:
 private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  std::string outputFile_;
+  const std::string outputFile_;
+  const edm::ESGetToken<DataType, RecordType> tok_;
 };
 
 template <class DataType, class RecordType>
 BoostIODBReader<DataType, RecordType>::BoostIODBReader(const edm::ParameterSet& ps)
-    : outputFile_(ps.getParameter<std::string>("outputFile")) {}
+    : outputFile_(ps.getParameter<std::string>("outputFile")), tok_(esConsumes<DataType, RecordType>()) {}
 
 template <class DataType, class RecordType>
 void BoostIODBReader<DataType, RecordType>::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::ESGetToken<DataType, RecordType> tok = esConsumes<DataType, RecordType>();
-  const DataType* p = &iSetup.getData(tok);
+  const DataType* p = &iSetup.getData(tok_);
 
   std::ofstream of(outputFile_.c_str(), std::ios_base::binary);
   if (!of.is_open())

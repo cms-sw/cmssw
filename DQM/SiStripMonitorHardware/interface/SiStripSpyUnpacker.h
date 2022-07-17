@@ -47,7 +47,7 @@ namespace sistrip {
                      const std::vector<uint32_t>& ids,
                      Counters* pTotalEventCounts,
                      Counters* pL1ACounts,
-                     uint32_t* aRunRef);
+                     uint32_t* aRunRef) const;
 
   private:
     // Configuration

@@ -1,17 +1,33 @@
-
-#include "DataFormats/SiStripCommon/test/plugins/test_SiStripHistoTitle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
-#include "DataFormats/SiStripCommon/interface/Constants.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system includes
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
 #include <vector>
+
+// user includes
+#include "DataFormats/SiStripCommon/interface/Constants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+/**
+   @class testSiStripHistoTitle 
+   @author R.Bainbridge
+   @brief Simple class that tests SiStripHistoTitle.
+*/
+class testSiStripHistoTitle : public edm::one::EDAnalyzer<> {
+public:
+  testSiStripHistoTitle(const edm::ParameterSet&);
+  ~testSiStripHistoTitle();
+
+  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
+};
 
 using namespace sistrip;
 
@@ -205,3 +221,6 @@ void testSiStripHistoTitle::analyze(const edm::Event& event, const edm::EventSet
   LogTrace(mlDqmCommon_) << "[SiStripHistoTitle::" << __func__ << "]"
                          << " Analyzing run/event " << event.id().run() << "/" << event.id().event();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(testSiStripHistoTitle);

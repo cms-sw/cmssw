@@ -53,7 +53,7 @@ bool DTCalibMuonSelection::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void DTCalibMuonSelection::beginJob() {}
+void DTCalibMuonSelection::beginStream(edm::StreamID) {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void DTCalibMuonSelection::endJob() {}
+void DTCalibMuonSelection::endStream() {}

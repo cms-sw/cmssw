@@ -29,7 +29,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/ESDigitizer.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
@@ -57,6 +56,9 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet &params, edm::Consume
       m_EEdigiCollection(params.getParameter<std::string>("EEdigiCollection")),
       m_ESdigiCollection(params.getParameter<std::string>("ESdigiCollection")),
       m_hitsProducerTag(params.getParameter<std::string>("hitsProducer")),
+      m_HitsEBToken_(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"))),
+      m_HitsEEToken_(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEE"))),
+      m_HitsESToken_(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsES"))),
       m_pedestalsToken(iC.esConsumes()),
       m_icalToken(iC.esConsumes()),
       m_laserToken(iC.esConsumes()),
@@ -310,26 +312,18 @@ void EcalDigiProducer::accumulateCaloHits(HitsHandle const &ebHandle,
 
 void EcalDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &eventSetup) {
   // Step A: Get Inputs
-  edm::Handle<std::vector<PCaloHit>> ebHandle;
+  const edm::Handle<std::vector<PCaloHit>> &ebHandle = e.getHandle(m_HitsEBToken_);
   if (m_doEB) {
     m_EBShape.setEventSetup(eventSetup);
     m_APDShape.setEventSetup(eventSetup);
-    edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
-    e.getByLabel(ebTag, ebHandle);
   }
 
-  edm::Handle<std::vector<PCaloHit>> eeHandle;
+  const edm::Handle<std::vector<PCaloHit>> &eeHandle = e.getHandle(m_HitsEEToken_);
   if (m_doEE) {
     m_EEShape.setEventSetup(eventSetup);
-    edm::InputTag eeTag(m_hitsProducerTag, "EcalHitsEE");
-    e.getByLabel(eeTag, eeHandle);
   }
 
-  edm::Handle<std::vector<PCaloHit>> esHandle;
-  if (m_doES) {
-    edm::InputTag esTag(m_hitsProducerTag, "EcalHitsES");
-    e.getByLabel(esTag, esHandle);
-  }
+  const edm::Handle<std::vector<PCaloHit>> &esHandle = e.getHandle(m_HitsESToken_);
 
   accumulateCaloHits(ebHandle, eeHandle, esHandle, 0);
 }

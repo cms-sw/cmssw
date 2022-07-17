@@ -19,7 +19,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -29,7 +28,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DQMOffline/Trigger/interface/FSQDiJetAve.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"

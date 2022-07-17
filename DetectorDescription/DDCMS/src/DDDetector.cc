@@ -3,6 +3,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <DD4hep/Detector.h>
 #include <DD4hep/DetectorTools.h>
+#include <DD4hep/Printout.h>
 #include <DD4hep/Volumes.h>
 #include <XML/DocumentHandler.h>
 #include <XML/XMLElements.h>
@@ -24,9 +25,15 @@ namespace cms {
       makePayload = true;
       tagStr = "";
     }
+    // Set DD4hep message level to ERROR. The default is INFO,
+    // but those messages are not necessary for general use.
+    dd4hep::setPrintLevel(dd4hep::ERROR);
+
     m_description = &dd4hep::Detector::getInstance(tagStr);
     m_description->addExtension<cms::DDVectorsMap>(&m_vectors);
-    auto parsingContext = new cms::DDParsingContext(*m_description, makePayload);  // Removed at end of constructor
+    //only validate if using XML
+    auto parsingContext =
+        new cms::DDParsingContext(*m_description, makePayload, not bigXML);  // Removed at end of constructor
     m_description->addExtension<cms::DDParsingContext>(parsingContext);
     m_description->addExtension<dd4hep::PartSelectionMap>(&m_partsels);
     m_description->addExtension<dd4hep::SpecParRegistry>(&m_specpars);

@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_cff import Run3
-from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
 from Configuration.Eras.Modifier_run3_HFSL_cff import run3_HFSL
 
-process = cms.Process('SIM',Run3,dd4hep,run3_HFSL)
+process = cms.Process('SIM',Run3_dd4hep,run3_HFSL)
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -65,7 +64,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     PythiaParameters = cms.PSet(

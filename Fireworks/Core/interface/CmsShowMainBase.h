@@ -133,7 +133,7 @@ public:
       timeout_();
       return true;
     }
-    sigc::signal<void> timeout_;
+    sigc::signal<void()> timeout_;
   };
 
 protected:

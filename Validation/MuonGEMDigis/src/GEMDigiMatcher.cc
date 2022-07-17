@@ -54,7 +54,12 @@ void GEMDigiMatcher::init(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByToken(gemClusterToken_, gemClustersH_);
   iEvent.getByToken(gemCoPadToken_, gemCoPadsH_);
 
-  gemGeometry_ = &iSetup.getData(geomToken_);
+  const auto gemH = iSetup.getHandle(geomToken_);
+  if (!gemH.isValid()) {
+    gemGeometry_ = nullptr;
+    edm::LogError("GEMDigiMatcher") << "Failed to initialize GEM geometry.";
+  }
+  gemGeometry_ = gemH.product();
 }
 
 /// do the matching

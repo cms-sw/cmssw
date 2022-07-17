@@ -26,7 +26,7 @@ void BeamSpotHistogramMaker::book(const std::string dirname) {
     currdir = new TFileDirectory(tfserv->mkdir(dirname));
     _currdir = currdir;
   } else {
-    currdir = &(tfserv->tFileDirectory());
+    _currdir = &(tfserv->tFileDirectory());
   }
 
   edm::LogInfo("HistogramBooking") << "BeamSpot histogram booking in directory " << dirname;

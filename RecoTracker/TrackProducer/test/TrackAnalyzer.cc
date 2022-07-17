@@ -1,7 +1,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,9 +22,9 @@
 
 using namespace edm;
 
-class TrackAnalyzer : public edm::EDAnalyzer {
+class TrackAnalyzer : public edm::one::EDAnalyzer<> {
 public:
-  TrackAnalyzer(const edm::ParameterSet& pset) {}
+  TrackAnalyzer(const edm::ParameterSet& pset) : theGToken_(esConsumes()) {}
 
   ~TrackAnalyzer() {}
 
@@ -32,8 +32,7 @@ public:
     //
     // extract tracker geometry
     //
-    edm::ESHandle<TrackerGeometry> theG;
-    setup.get<TrackerDigiGeometryRecord>().get(theG);
+    edm::ESHandle<TrackerGeometry> theG = setup.getHandle(theGToken_);
 
     using namespace std;
 
@@ -79,6 +78,9 @@ public:
       }
     }
   }
+
+private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theGToken_;
 };
 
 DEFINE_FWK_MODULE(TrackAnalyzer);

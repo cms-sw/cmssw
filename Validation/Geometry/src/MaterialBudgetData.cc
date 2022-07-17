@@ -61,6 +61,9 @@ void MaterialBudgetData::dataStartTrack(const G4Track* aTrack) {
   theSiliconMB = 0.f;
   theStainlessSteelMB = 0.f;
   theWCuMB = 0.f;
+  thePolystyreneMB = 0.f;
+  theHGC_EEConnectorMB = 0.f;
+  theHGC_HEConnectorMB = 0.f;
 
   theSupportIL = 0.f;
   theSensitiveIL = 0.f;
@@ -81,6 +84,9 @@ void MaterialBudgetData::dataStartTrack(const G4Track* aTrack) {
   theSiliconIL = 0.f;
   theStainlessSteelIL = 0.f;
   theWCuIL = 0.f;
+  thePolystyreneIL = 0.f;
+  theHGC_EEConnectorIL = 0.f;
+  theHGC_HEConnectorIL = 0.f;
 
   theSupportFractionMB = 0.f;
   theSensitiveFractionMB = 0.f;
@@ -100,6 +106,9 @@ void MaterialBudgetData::dataStartTrack(const G4Track* aTrack) {
   theSiliconFractionMB = 0.f;
   theStainlessSteelFractionMB = 0.f;
   theWCuFractionMB = 0.f;
+  thePolystyreneFractionMB = 0.f;
+  theHGC_EEConnectorFractionMB = 0.f;
+  theHGC_HEConnectorFractionMB = 0.f;
 
   theSupportFractionIL = 0.f;
   theSensitiveFractionIL = 0.f;
@@ -119,6 +128,9 @@ void MaterialBudgetData::dataStartTrack(const G4Track* aTrack) {
   theSiliconFractionIL = 0.f;
   theStainlessSteelFractionIL = 0.f;
   theWCuFractionIL = 0.f;
+  thePolystyreneFractionIL = 0.f;
+  theHGC_EEConnectorFractionIL = 0.f;
+  theHGC_HEConnectorFractionIL = 0.f;
 
   theID = (int)(aTrack->GetDefinition()->GetPDGEncoding());
   thePt = dir.perp();
@@ -162,7 +174,9 @@ void MaterialBudgetData::dataEndTrack(const G4Track* aTrack) {
                                << " theKaptonMB " << theKaptonMB << " theAluminiumMB " << theAluminiumMB
                                << " theHGC_G10_FR4MB " << theHGC_G10_FR4MB << " theSiliconMB " << theSiliconMB
                                << " theAirMB " << theAirMB << " theStainlessSteelMB " << theStainlessSteelMB
-                               << " theWCuMB " << theWCuMB;
+                               << " theWCuMB " << theWCuMB << " thePolystyreneMB " << thePolystyreneMB
+                               << " theHGC_EEConnectorMB " << theHGC_EEConnectorMB << " theHGC_HEConnectorMB "
+                               << theHGC_HEConnectorMB;
 
     LogDebug("MaterialBudget") << "MaterialBudgetData: HGCal Material Budget: Interaction Length "
                                << G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID() << " Eta "
@@ -172,7 +186,8 @@ void MaterialBudgetData::dataEndTrack(const G4Track* aTrack) {
                                << " theKaptonIL " << theKaptonIL << " theAluminiumIL " << theAluminiumIL
                                << " theHGC_G10_FR4IL " << theHGC_G10_FR4IL << " theSiliconIL " << theSiliconIL
                                << " Air " << theAirIL << " theStainlessSteelIL " << theStainlessSteelIL << " theWCuIL "
-                               << theWCuIL << std::endl;
+                               << theWCuIL << " thePolystyreneIL " << thePolystyreneIL << " theHGC_EEConnectorIL "
+                               << theHGC_EEConnectorIL << " theHGC_HEConnectorIL " << theHGC_HEConnectorIL << std::endl;
   }
 }
 
@@ -280,6 +295,9 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
       theEpoxyFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[10];
       theKaptonFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[11];
       theAluminiumFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[12];
+      thePolystyreneFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[13];
+      theHGC_EEConnectorFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[14];
+      theHGC_HEConnectorFractionMB = myMaterialBudgetCategorizer->HGCalx0fraction(materialName)[15];
 
       if (theOtherFractionMB != 0)
         // edm::LogVerbatim("MaterialBudget") << "MaterialBudgetData: Material found with no category: " << materialName
@@ -300,6 +318,9 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
       theEpoxyFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[10];
       theKaptonFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[11];
       theAluminiumFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[12];
+      thePolystyreneFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[13];
+      theHGC_EEConnectorFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[14];
+      theHGC_HEConnectorFractionIL = myMaterialBudgetCategorizer->HGCall0fraction(materialName)[15];
 
       if (theOtherFractionIL != 0)
         edm::LogVerbatim("MaterialBudget") << "MaterialBudgetData: Material found with no category " << materialName
@@ -349,6 +370,9 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
     theSiliconDmb[theStepN] = (dmb * theSiliconFractionMB);
     theStainlessSteelDmb[theStepN] = (dmb * theStainlessSteelFractionMB);
     theWCuDmb[theStepN] = (dmb * theWCuFractionMB);
+    thePolystyreneDmb[theStepN] = (dmb * thePolystyreneFractionMB);
+    theHGC_EEConnectorDmb[theStepN] = (dmb * theHGC_EEConnectorFractionMB);
+    theHGC_HEConnectorDmb[theStepN] = (dmb * theHGC_HEConnectorFractionMB);
 
     theSupportDil[theStepN] = (dil * theSupportFractionIL);
     theSensitiveDil[theStepN] = (dil * theSensitiveFractionIL);
@@ -368,6 +392,9 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
     theSiliconDil[theStepN] = (dil * theSiliconFractionIL);
     theStainlessSteelDil[theStepN] = (dil * theStainlessSteelFractionIL);
     theWCuDil[theStepN] = (dil * theWCuFractionIL);
+    thePolystyreneDil[theStepN] = (dil * thePolystyreneFractionIL);
+    theHGC_EEConnectorDil[theStepN] = (dil * theHGC_EEConnectorFractionIL);
+    theHGC_HEConnectorDil[theStepN] = (dil * theHGC_HEConnectorFractionIL);
 
     theInitialX[theStepN] = prePos.x();
     theInitialY[theStepN] = prePos.y();
@@ -516,6 +543,9 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
   theSiliconMB += (dmb * theSiliconFractionMB);
   theStainlessSteelMB += (dmb * theStainlessSteelFractionMB);
   theWCuMB += (dmb * theWCuFractionMB);
+  thePolystyreneMB += (dmb * thePolystyreneFractionMB);
+  theHGC_EEConnectorMB += (dmb * theHGC_EEConnectorFractionMB);
+  theHGC_HEConnectorMB += (dmb * theHGC_HEConnectorFractionMB);
 
   theSupportIL += (dil * theSupportFractionIL);
   theSensitiveIL += (dil * theSensitiveFractionIL);
@@ -535,6 +565,9 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
   theSiliconIL += (dil * theSiliconFractionIL);
   theStainlessSteelIL += (dil * theStainlessSteelFractionIL);
   theWCuIL += (dil * theWCuFractionIL);
+  thePolystyreneIL += (dil * thePolystyreneFractionIL);
+  theHGC_EEConnectorIL += (dil * theHGC_EEConnectorFractionIL);
+  theHGC_HEConnectorIL += (dil * theHGC_HEConnectorFractionIL);
 
   // rr
 

@@ -48,15 +48,17 @@ public:
   void endJob() override {}
 
 private:
-  std::string specName_;
-  std::string specStrValue_;
-  double specDblValue_;
+  const std::string specName_;
+  const std::string specStrValue_;
+  const double specDblValue_;
+  const edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
 };
 
 TestSpecParAnalyzer::TestSpecParAnalyzer(const edm::ParameterSet& iConfig)
     : specName_(iConfig.getParameter<std::string>("specName")),
       specStrValue_(iConfig.getUntrackedParameter<std::string>("specStrValue", "frederf")),
-      specDblValue_(iConfig.getUntrackedParameter<double>("specDblValue", 0.0)) {}
+      specDblValue_(iConfig.getUntrackedParameter<double>("specDblValue", 0.0)),
+      ddToken_(esConsumes<DDCompactView, IdealGeometryRecord>()) {}
 
 TestSpecParAnalyzer::~TestSpecParAnalyzer() {}
 
@@ -64,8 +66,7 @@ void TestSpecParAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   using namespace edm;
 
   std::cout << "Here I am " << std::endl;
-  edm::ESTransientHandle<DDCompactView> pDD;
-  iSetup.get<IdealGeometryRecord>().get("", pDD);
+  edm::ESTransientHandle<DDCompactView> pDD = iSetup.getTransientHandle(ddToken_);
   const DDCompactView& cpv(*pDD);
   if (specStrValue_ != "frederf") {
     std::cout << "specName = " << specName_ << " and specStrValue = " << specStrValue_ << std::endl;

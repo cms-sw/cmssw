@@ -5,8 +5,8 @@
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
 
-#include <TFile.h>
-#include <TTree.h>
+#include "TFile.h"
+#include "TTree.h"
 
 #include "EcalPerEvtLaserAnalyzer.h"
 
@@ -14,21 +14,21 @@
 #include <iomanip>
 #include <ctime>
 
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/MEEEGeom.h>
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/MEEBGeom.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEEGeom.h"
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEBGeom.h"
 
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Framework/interface/EventSetup.h>
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
-#include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
-#include <DataFormats/EcalDetId/interface/EcalDetIdCollections.h>
+#include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
 
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TPNFit.h>
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithFunction.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TPNFit.h"
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFitWithFunction.h"
 
 using namespace std;
 
@@ -426,7 +426,6 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
       }
 
       if (samplemax == 4 || samplemax == 5) {
-        val_max = val_max + bl - bl1;
         for (k = 0; k < _nsamples; k++) {
           yrange[k] = yrange[k] + bl - bl1;
         }
@@ -511,7 +510,6 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
       }
 
       if (samplemax == 4 || samplemax == 5) {
-        val_max = val_max + bl - bl1;
         for (k = 0; k < _nsamples; k++) {
           yrange[k] = yrange[k] + bl - bl1;
         }

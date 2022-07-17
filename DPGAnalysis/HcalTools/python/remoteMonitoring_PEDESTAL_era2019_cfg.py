@@ -396,6 +396,8 @@ process.Analyzer = cms.EDAnalyzer("CMTRawAnalyzer",
                                   #usecontinuousnumbering = cms.untracked.bool(False),
                                   usecontinuousnumbering = cms.untracked.bool(True),
                                   #
+                                  # if 0 - do not use digis at all
+                                  flagToUseDigiCollectionsORNot = cms.int32(1),
                                   #
                                   #
                                   hcalCalibDigiCollectionTag = cms.InputTag('hcalDigis'),

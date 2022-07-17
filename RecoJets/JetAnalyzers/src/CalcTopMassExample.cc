@@ -12,7 +12,7 @@
 //
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -52,7 +52,7 @@
 #include <Math/VectorUtil.h>
 #include <TMath.h>
 
-class calcTopMass : public edm::EDAnalyzer {
+class calcTopMass : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit calcTopMass(const edm::ParameterSet &);
   ~calcTopMass() override{};
@@ -94,6 +94,7 @@ calcTopMass::calcTopMass(const edm::ParameterSet &iConfig) {
   cMass = 1.5;
   qMass = 0.3;
 
+  usesResource(TFileService::kSharedResource);
   Service<TFileService> fs;
   hMassNoCorr = fs->make<TH1F>("hMassNoCorr", "", 100, 100, 300);
   hMassCorFl0 = fs->make<TH1F>("hMassCorFl0", "", 100, 100, 300);

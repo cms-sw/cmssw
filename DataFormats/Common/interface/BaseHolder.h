@@ -5,7 +5,6 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 
 #include <memory>
-#include <string>
 
 namespace edm {
   class ProductID;
@@ -50,11 +49,6 @@ namespace edm {
       // equivalent*.
       virtual bool isEqualTo(BaseHolder<T> const& rhs) const = 0;
 
-      // If the type of Ref I contain matches the type contained in
-      // 'fillme', set the Ref in 'fillme' equal to mine and return
-      // true. If not, write the name of the type I really contain to
-      // msg, and return false.
-      virtual bool fillRefIfMyTypeMatches(RefHolderBase& fillme, std::string& msg) const = 0;
       virtual std::unique_ptr<RefHolderBase> holder() const = 0;
 
       virtual std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() const = 0;

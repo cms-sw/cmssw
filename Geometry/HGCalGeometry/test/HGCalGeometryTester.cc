@@ -1,14 +1,15 @@
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
@@ -21,7 +22,9 @@
 class HGCalGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalGeometryTester(const edm::ParameterSet&);
-  ~HGCalGeometryTester() override;
+  ~HGCalGeometryTester() override = default;
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
 
@@ -30,19 +33,16 @@ private:
   void doTestWafer(const HGCalGeometry* geom, DetId::Detector det);
   void doTestScint(const HGCalGeometry* geom, DetId::Detector det);
 
-  std::string name;
-  edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
+  const std::string name;
+  const edm::ESGetToken<HGCalGeometry, IdealGeometryRecord> geomToken_;
 };
 
 HGCalGeometryTester::HGCalGeometryTester(const edm::ParameterSet& iC)
     : name{iC.getParameter<std::string>("Detector")},
       geomToken_{esConsumes<HGCalGeometry, IdealGeometryRecord>(edm::ESInputTag{"", name})} {}
 
-HGCalGeometryTester::~HGCalGeometryTester() {}
-
 void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
-  const auto& geomR = iSetup.getData(geomToken_);
-  const HGCalGeometry* geom = &geomR;
+  const HGCalGeometry* geom = &(iSetup.getData(geomToken_));
   if (geom->topology().waferHexagon6()) {
     ForwardSubdetector subdet;
     if (name == "HGCalHESiliconSensitive")
@@ -51,8 +51,8 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
       subdet = HGCHEB;
     else
       subdet = HGCEE;
-    std::cout << "Perform test for " << name << " Detector:Subdetector " << DetId::Forward << ":" << subdet << " Mode "
-              << geom->topology().dddConstants().geomMode() << std::endl;
+    edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name << " Detector:Subdetector " << DetId::Forward << ":"
+                                   << subdet << " Mode " << geom->topology().dddConstants().geomMode();
     doTest(geom, subdet);
   } else {
     DetId::Detector det;
@@ -62,8 +62,8 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
       det = DetId::HGCalHSc;
     else
       det = DetId::HGCalEE;
-    std::cout << "Perform test for " << name << " Detector " << det << " Mode "
-              << geom->topology().dddConstants().geomMode() << std::endl;
+    edm::LogVerbatim("HGCalGeomX") << "Perform test for " << name << " Detector " << det << " Mode "
+                                   << geom->topology().dddConstants().geomMode();
     if (name == "HGCalHEScintillatorSensitive") {
       doTestScint(geom, det);
     } else {
@@ -72,9 +72,15 @@ void HGCalGeometryTester::analyze(const edm::Event&, const edm::EventSetup& iSet
   }
 }
 
+void HGCalGeometryTester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("Detector", "HGCalEESensitive");
+  descriptions.add("hgcalGeometryTesterEE", desc);
+}
+
 void HGCalGeometryTester::doTest(const HGCalGeometry* geom, ForwardSubdetector subdet) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << "doTest: " << ids.size() << " valid ids for " << geom->cellElement() << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << "doTest: " << ids.size() << " valid ids for " << geom->cellElement();
 
   int layers[] = {1, 5, 10};
   int zsides[] = {1, -1};
@@ -96,21 +102,19 @@ void HGCalGeometryTester::doTest(const HGCalGeometry* geom, ForwardSubdetector s
             GlobalPoint global1 = geom->getPosition(id1);
             DetId idc1 = geom->getClosestCell(global1);
             GlobalPoint global2 = geom->getPosition(idc1);
-            std::cout << "DetId (" << subdet << ":" << zside << ":" << layer << ":" << sector << ":0:" << cell
-                      << ") Geom " << icell1 << " position (" << global1.x() << ", " << global1.y() << ", "
-                      << global1.z() << ") ids " << std::hex << id1.rawId() << ":" << idc1.rawId() << std::dec << ":"
-                      << HGCalDetId(id1) << ":" << HGCalDetId(idc1) << " new position (" << global2.x() << ", "
-                      << global2.y() << ", " << global2.z() << ") parameter[3] = " << icell1->param()[2] << ":"
-                      << icell1->param()[2];
-            if (id1.rawId() != idc1.rawId())
-              std::cout << "***** ERROR *****" << std::endl;
-            else
-              std::cout << std::endl;
+            std::string cherr = (id1.rawId() != idc1.rawId()) ? " ***** ERROR *****" : "";
+            edm::LogVerbatim("HGCalGeomX")
+                << "DetId (" << subdet << ":" << zside << ":" << layer << ":" << sector << ":0:" << cell << ") Geom "
+                << icell1 << " position (" << global1.x() << ", " << global1.y() << ", " << global1.z() << ") ids "
+                << std::hex << id1.rawId() << ":" << idc1.rawId() << std::dec << ":" << HGCalDetId(id1) << ":"
+                << HGCalDetId(idc1) << " new position (" << global2.x() << ", " << global2.y() << ", " << global2.z()
+                << ") parameter[3] = " << icell1->param()[2] << ":" << icell1->param()[2] << cherr;
             std::vector<GlobalPoint> corners = geom->getCorners(idc1);
-            std::cout << corners.size() << " corners";
+            std::ostringstream st1;
+            st1 << corners.size() << " corners";
             for (auto const& cor : corners)
-              std::cout << " [" << cor.x() << "," << cor.y() << "," << cor.z() << "]";
-            std::cout << std::endl;
+              st1 << " [" << cor.x() << "," << cor.y() << "," << cor.z() << "]";
+            edm::LogVerbatim("HGCalGeomX") << st1.str();
           }
         }
       }
@@ -120,7 +124,7 @@ void HGCalGeometryTester::doTest(const HGCalGeometry* geom, ForwardSubdetector s
 
 void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom, DetId::Detector det) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << "doTestWafer:: " << ids.size() << " valid ids for " << geom->cellElement() << std::endl;
+  edm::LogVerbatim("HGCalGeomX") << "doTestWafer:: " << ids.size() << " valid ids for " << geom->cellElement();
   int layers[] = {1, 5, 10};
   int zsides[] = {1, -1};
   int cells[] = {1, 4, 7};
@@ -130,33 +134,32 @@ void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom, DetId::Detector
       for (int waferU : wafers) {
         for (int waferV : wafers) {
           int type = geom->topology().dddConstants().getTypeHex(layer, waferU, waferV);
-          std::cout << "zside " << zside << " layer " << layer << " wafer " << waferU << ":" << waferV << " type "
-                    << type << std::endl;
+          edm::LogVerbatim("HGCalGeomX") << "zside " << zside << " layer " << layer << " wafer " << waferU << ":"
+                                         << waferV << " type " << type;
           for (int cellU : cells) {
             for (int cellV : cells) {
-              std::cout << "det " << det << " cell " << cellU << ":" << cellV << std::endl;
+              edm::LogVerbatim("HGCalGeomX") << "det " << det << " cell " << cellU << ":" << cellV;
               DetId id1 = static_cast<DetId>(HGCSiliconDetId(det, zside, type, layer, waferU, waferV, cellU, cellV));
-              std::cout << HGCSiliconDetId(id1) << std::endl;
+              edm::LogVerbatim("HGCalGeomX") << HGCSiliconDetId(id1);
               if (geom->topology().valid(id1)) {
                 auto icell1 = geom->getGeometry(id1);
                 GlobalPoint global1 = geom->getPosition(id1);
                 DetId idc1 = geom->getClosestCell(global1);
                 GlobalPoint global2 = geom->getPosition(idc1);
-                std::cout << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << waferU << ":"
-                          << waferV << ":" << cellU << ":" << cellV << ") Geom " << icell1 << " position ("
-                          << global1.x() << ", " << global1.y() << ", " << global1.z() << ") ids " << std::hex
-                          << id1.rawId() << ":" << idc1.rawId() << std::dec << ":" << HGCSiliconDetId(id1) << ":"
-                          << HGCSiliconDetId(idc1) << " new position (" << global2.x() << ", " << global2.y() << ", "
-                          << global2.z() << ") parameter[3] = " << icell1->param()[2] << ":" << icell1->param()[2];
-                if (id1.rawId() != idc1.rawId())
-                  std::cout << "***** ERROR *****" << std::endl;
-                else
-                  std::cout << std::endl;
+                std::string cherr = (id1.rawId() != idc1.rawId()) ? " ***** ERROR *****" : "";
+                edm::LogVerbatim("HGCalGeomX")
+                    << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << waferU << ":" << waferV
+                    << ":" << cellU << ":" << cellV << ") Geom " << icell1 << " position (" << global1.x() << ", "
+                    << global1.y() << ", " << global1.z() << ") ids " << std::hex << id1.rawId() << ":" << idc1.rawId()
+                    << std::dec << ":" << HGCSiliconDetId(id1) << ":" << HGCSiliconDetId(idc1) << " new position ("
+                    << global2.x() << ", " << global2.y() << ", " << global2.z()
+                    << ") parameter[3] = " << icell1->param()[2] << ":" << icell1->param()[2] << cherr;
                 std::vector<GlobalPoint> corners = geom->getCorners(idc1);
-                std::cout << corners.size() << " corners";
+                std::ostringstream st1;
+                st1 << corners.size() << " corners";
                 for (auto const& cor : corners)
-                  std::cout << " [" << cor.x() << "," << cor.y() << "," << cor.z() << "]";
-                std::cout << std::endl;
+                  st1 << " [" << cor.x() << "," << cor.y() << "," << cor.z() << "]";
+                edm::LogVerbatim("HGCalGeomX") << st1.str();
               }
             }
           }
@@ -168,8 +171,8 @@ void HGCalGeometryTester::doTestWafer(const HGCalGeometry* geom, DetId::Detector
 
 void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom, DetId::Detector det) {
   const std::vector<DetId>& ids = geom->getValidDetIds();
-  std::cout << "doTestScint: " << ids.size() << " valid ids for " << geom->cellElement() << std::endl;
-  int layers[] = {9, 15, 22};
+  edm::LogVerbatim("HGCalGeomX") << "doTestScint: " << ids.size() << " valid ids for " << geom->cellElement();
+  int layers[] = {9, 14, 21};
   int zsides[] = {1, -1};
   int iphis[] = {1, 51, 101, 151, 201};
   int ietas[] = {11, 20, 29};
@@ -190,22 +193,20 @@ void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom, DetId::Detector
             GlobalPoint global1 = geom->getPosition(id1);
             DetId idc1 = geom->getClosestCell(global1);
             GlobalPoint global2 = geom->getPosition(idc1);
-            std::cout << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << ieta << ":" << iphi
-                      << ") Geom " << icell1 << " position (" << global1.x() << ", " << global1.y() << ", "
-                      << global1.z() << ":" << global1.perp() << ") ids " << std::hex << id1.rawId() << ":"
-                      << idc1.rawId() << std::dec << ":" << HGCScintillatorDetId(id1) << ":"
-                      << HGCScintillatorDetId(idc1) << " new position (" << global2.x() << ", " << global2.y() << ", "
-                      << global2.z() << ":" << global2.perp() << ") parameter[11] = " << icell1->param()[10] << ":"
-                      << icell1->param()[10];
-            if (id1.rawId() != idc1.rawId())
-              std::cout << "***** ERROR *****" << std::endl;
-            else
-              std::cout << std::endl;
+            std::string cherr = (id1.rawId() != idc1.rawId()) ? " ***** ERROR *****" : "";
+            edm::LogVerbatim("HGCalGeomX")
+                << "DetId (" << det << ":" << zside << ":" << type << ":" << layer << ":" << ieta << ":" << iphi
+                << ") Geom " << icell1 << " position (" << global1.x() << ", " << global1.y() << ", " << global1.z()
+                << ":" << global1.perp() << ") ids " << std::hex << id1.rawId() << ":" << idc1.rawId() << std::dec
+                << ":" << HGCScintillatorDetId(id1) << ":" << HGCScintillatorDetId(idc1) << " new position ("
+                << global2.x() << ", " << global2.y() << ", " << global2.z() << ":" << global2.perp()
+                << ") parameter[11] = " << icell1->param()[10] << ":" << icell1->param()[10] << cherr;
             std::vector<GlobalPoint> corners = geom->getCorners(idc1);
-            std::cout << corners.size() << " corners";
+            std::ostringstream st1;
+            st1 << corners.size() << " corners";
             for (auto const& cor : corners)
-              std::cout << " [" << cor.x() << "," << cor.y() << "," << cor.z() << "]";
-            std::cout << std::endl;
+              st1 << " [" << cor.x() << "," << cor.y() << "," << cor.z() << "]";
+            edm::LogVerbatim("HGCalGeomX") << st1.str();
           }
         }
       }
@@ -216,8 +217,8 @@ void HGCalGeometryTester::doTestScint(const HGCalGeometry* geom, DetId::Detector
        ++layer) {
     HGCScintillatorDetId id(geom->topology().dddConstants().getTypeTrap(layer), layer, 20, 1);
     GlobalPoint global1 = geom->getPosition(id);
-    std::cout << "Layer " << layer << " DetId " << id << " position (" << global1.x() << ", " << global1.y() << ", "
-              << global1.z() << ", " << global1.perp() << ")" << std::endl;
+    edm::LogVerbatim("HGCalGeomX") << "Layer " << layer << " DetId " << id << " position (" << global1.x() << ", "
+                                   << global1.y() << ", " << global1.z() << ", " << global1.perp() << ")";
   }
 }
 

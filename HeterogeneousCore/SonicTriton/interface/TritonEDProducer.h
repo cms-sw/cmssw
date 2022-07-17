@@ -12,9 +12,8 @@
 template <typename G, typename... Capabilities>
 class TritonEDProducerT : public SonicEDProducer<TritonClient, edm::GlobalCache<G>, Capabilities...> {
 public:
-  TritonEDProducerT(edm::ParameterSet const& cfg, const std::string& debugName)
-      : SonicEDProducer<TritonClient, edm::GlobalCache<G>, Capabilities...>(
-            cfg, debugName, cfg.getParameterSet("Client").getUntrackedParameter<bool>("verbose")) {}
+  TritonEDProducerT(edm::ParameterSet const& cfg)
+      : SonicEDProducer<TritonClient, edm::GlobalCache<G>, Capabilities...>(cfg) {}
 
   //use this function to avoid calling TritonService functions Nstreams times
   static std::unique_ptr<G> initializeGlobalCache(edm::ParameterSet const& pset) {
@@ -26,6 +25,13 @@ public:
   }
 
   static void globalEndJob(G*) {}
+
+  //destroy client before destructor called to unregister any shared memory before TritonService shuts down fallback server
+  virtual void tritonEndStream() {}
+  void endStream() final {
+    tritonEndStream();
+    this->client_.reset();
+  }
 };
 
 template <typename... Capabilities>

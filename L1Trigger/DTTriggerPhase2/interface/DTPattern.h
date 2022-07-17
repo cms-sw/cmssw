@@ -57,7 +57,7 @@ private:
   //Generated seeds + hits translated to a given seed pair
   int recoseedUp_;
   int recoseedDown_;
-  bool debug_ = false;
+  const bool debug_ = false;
 };
 
 #endif

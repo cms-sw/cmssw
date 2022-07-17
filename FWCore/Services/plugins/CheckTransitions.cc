@@ -31,7 +31,7 @@
 
 #include <vector>
 #include <string>
-#include "tbb/concurrent_vector.h"
+#include "oneapi/tbb/concurrent_vector.h"
 #include <iostream>
 
 namespace edm {
@@ -53,9 +53,9 @@ namespace edm {
       void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
       void postEndJob();
 
-      void preOpenFile(std::string const&, bool);
+      void preOpenFile(std::string const&);
 
-      void preCloseFile(std::string const& lfn, bool primary);
+      void preCloseFile(std::string const& lfn);
 
       void preGlobalBeginRun(GlobalContext const&);
 
@@ -76,7 +76,7 @@ namespace edm {
       void preEvent(StreamContext const&);
 
     private:
-      tbb::concurrent_vector<std::tuple<Phase, edm::EventID, int>> m_seenTransitions;
+      oneapi::tbb::concurrent_vector<std::tuple<Phase, edm::EventID, int>> m_seenTransitions;
       std::vector<std::pair<Transition, edm::EventID>> m_expectedTransitions;
       int m_nstreams = 0;
       bool m_failed = false;
@@ -283,9 +283,9 @@ void CheckTransitions::postEndJob() {
   }
 }
 
-void CheckTransitions::preOpenFile(std::string const& lfn, bool b) {}
+void CheckTransitions::preOpenFile(std::string const& lfn) {}
 
-void CheckTransitions::preCloseFile(std::string const& lfn, bool b) {}
+void CheckTransitions::preCloseFile(std::string const& lfn) {}
 
 void CheckTransitions::preGlobalBeginRun(GlobalContext const& gc) {
   auto id = gc.luminosityBlockID();

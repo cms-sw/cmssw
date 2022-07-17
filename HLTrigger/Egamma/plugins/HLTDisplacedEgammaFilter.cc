@@ -36,11 +36,14 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
   sMaj_max = iConfig.getParameter<double>("sMaj_max");
   seedTimeMin = iConfig.getParameter<double>("seedTimeMin");
   seedTimeMax = iConfig.getParameter<double>("seedTimeMax");
+  useTrackVeto = iConfig.getParameter<bool>("useTrackVeto");
 
   inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
   rechitsEBToken_ = consumes<EcalRecHitCollection>(rechitsEB);
   rechitsEEToken_ = consumes<EcalRecHitCollection>(rechitsEE);
-  inputTrkToken_ = consumes<reco::TrackCollection>(inputTrk);
+  if (useTrackVeto) {
+    inputTrkToken_ = consumes<reco::TrackCollection>(inputTrk);
+  }
 }
 
 HLTDisplacedEgammaFilter::~HLTDisplacedEgammaFilter() = default;
@@ -61,6 +64,7 @@ void HLTDisplacedEgammaFilter::fillDescriptions(edm::ConfigurationDescriptions& 
   desc.add<double>("sMaj_max", 999.0);
   desc.add<double>("seedTimeMin", -25.0);
   desc.add<double>("seedTimeMax", 25.0);
+  desc.add<bool>("useTrackVeto", true);
   desc.add<int>("maxTrackCut", 0);
   desc.add<double>("trackPtCut", 3.0);
   desc.add<double>("trackdRCut", 0.5);
@@ -86,7 +90,9 @@ bool HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent,
 
   // get hold of collection of objects
   edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByToken(inputTrkToken_, tracks);
+  if (useTrackVeto) {
+    iEvent.getByToken(inputTrkToken_, tracks);
+  }
 
   // get the EcalRecHit
   edm::Handle<EcalRecHitCollection> rechitsEB_;
@@ -128,19 +134,21 @@ bool HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent,
 
     //Track Veto
 
-    int nTrk = 0;
-    for (auto const& it : *tracks) {
-      if (it.pt() < trkPtCut)
-        continue;
-      LorentzVector trkP4(it.px(), it.py(), it.pz(), it.p());
-      double dR = ROOT::Math::VectorUtil::DeltaR(trkP4, ref->p4());
-      if (dR < trkdRCut)
-        nTrk++;
+    if (useTrackVeto) {
+      int nTrk = 0;
+      for (auto const& it : *tracks) {
+        if (it.pt() < trkPtCut)
+          continue;
+        LorentzVector trkP4(it.px(), it.py(), it.pz(), it.p());
+        double dR = ROOT::Math::VectorUtil::DeltaR(trkP4, ref->p4());
+        if (dR < trkdRCut)
+          nTrk++;
+        if (nTrk > maxTrkCut)
+          break;
+      }
       if (nTrk > maxTrkCut)
-        break;
+        continue;
     }
-    if (nTrk > maxTrkCut)
-      continue;
 
     n++;
     // std::cout << "Passed eta: " << ref->eta() << std::endl;

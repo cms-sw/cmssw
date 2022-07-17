@@ -64,8 +64,7 @@ l1tEGammaEfficiency = DQMEDHarvester(
 )
 
 l1tEGammaEmuEfficiency = l1tEGammaEfficiency.clone(
-    subDirs=cms.untracked.vstring(
-        'L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco'),
+    subDirs = ['L1TEMU/L1TObjects/L1TEGamma/L1TriggerVsReco']
 )
 
 from Configuration.Eras.Modifier_ppRef_2017_cff import ppRef_2017

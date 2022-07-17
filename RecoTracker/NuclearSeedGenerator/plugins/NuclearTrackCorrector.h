@@ -29,7 +29,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -64,7 +64,7 @@ class TransientInitialStateEstimator;
 // class decleration
 //
 
-class NuclearTrackCorrector : public edm::EDProducer {
+class NuclearTrackCorrector : public edm::stream::EDProducer<> {
 public:
   typedef edm::RefVector<TrajectorySeedCollection> TrajectorySeedRefVector;
   typedef edm::Ref<TrajectoryCollection> TrajectoryRef;
@@ -79,7 +79,6 @@ public:
 
 private:
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   /// check if the trajectory has to be refitted and get the new trajectory
   bool newTrajNeeded(Trajectory& newtrajectory, const TrajectoryRef& trajRef, const reco::NuclearInteraction& ni);
@@ -116,7 +115,10 @@ private:
   edm::ESHandle<MagneticField> theMF;
   edm::ESHandle<TrajectoryFitter> theFitter;
   edm::ESHandle<Propagator> thePropagator;
-  edm::ParameterSet conf_;
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> theGToken;
+  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> theMFToken;
+  edm::ESGetToken<TrajectoryFitter, TrajectoryFitter::Record> theFitterToken;
+  edm::ESGetToken<Propagator, TrackingComponentsRecord> thePropagatorToken;
   TransientInitialStateEstimator* theInitialState;
 
   TrackProducerAlgorithm<reco::Track>* theAlgo;

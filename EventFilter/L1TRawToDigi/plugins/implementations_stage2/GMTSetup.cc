@@ -5,11 +5,11 @@
 #include "EventFilter/L1TRawToDigi/plugins/PackingSetupFactory.h"
 #include "EventFilter/L1TRawToDigi/plugins/UnpackerFactory.h"
 
-#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/RegionalMuonGMTUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/RegionalMuonGMTPacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/RegionalMuonGMTUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonPacker.h"
-#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/IntermediateMuonUnpacker.h"
 #include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/MuonUnpacker.h"
+#include "EventFilter/L1TRawToDigi/plugins/implementations_stage2/IntermediateMuonUnpacker.h"
 
 #include "GMTSetup.h"
 
@@ -36,6 +36,8 @@ namespace l1t {
           ->setComment("uGMT intermediate muon from neg. OMTF side after first sorting stage");
       desc.addOptional<edm::InputTag>("ImdInputLabelOMTFPos")
           ->setComment("uGMT intermediate muon from pos. OMTF side after first sorting stage");
+      desc.addOptional<edm::InputTag>("ShowerInputLabel")->setComment("for Run3");
+      desc.addOptional<edm::InputTag>("EMTFShowerInputLabel")->setComment("for Run3");
     }
 
     PackerMap GMTSetup::getPackers(int fed, unsigned int fw) {
@@ -43,6 +45,9 @@ namespace l1t {
       if (fed == 1402) {
         auto gmt_in_packer = static_pointer_cast<l1t::stage2::RegionalMuonGMTPacker>(
             PackerFactory::get()->make("stage2::RegionalMuonGMTPacker"));
+        if (fw >= 0x7000000) {
+          gmt_in_packer->setUseEmtfShowers();
+        }
         if (fw >= 0x6010000) {
           gmt_in_packer->setUseEmtfDisplacementInfo();
         }
@@ -68,7 +73,7 @@ namespace l1t {
       prod.produces<RegionalMuonCandBxCollection>("OMTF");
       prod.produces<RegionalMuonCandBxCollection>("EMTF");
       prod.produces<MuonBxCollection>("Muon");
-      for (int i = 1; i < 6; ++i) {
+      for (size_t i = 1; i < GMTCollections::NUM_OUTPUT_COPIES; ++i) {
         prod.produces<MuonBxCollection>("MuonCopy" + std::to_string(i));
       }
       prod.produces<MuonBxCollection>("imdMuonsBMTF");
@@ -76,6 +81,12 @@ namespace l1t {
       prod.produces<MuonBxCollection>("imdMuonsEMTFPos");
       prod.produces<MuonBxCollection>("imdMuonsOMTFNeg");
       prod.produces<MuonBxCollection>("imdMuonsOMTFPos");
+
+      prod.produces<RegionalMuonShowerBxCollection>("EMTF");
+      prod.produces<MuonShowerBxCollection>("MuonShower");
+      for (size_t i = 1; i < GMTCollections::NUM_OUTPUT_COPIES; ++i) {
+        prod.produces<MuonShowerBxCollection>("MuonShowerCopy" + std::to_string(i));
+      }
     }
 
     std::unique_ptr<UnpackerCollections> GMTSetup::getCollections(edm::Event& e) {
@@ -89,6 +100,9 @@ namespace l1t {
       // input muons on links 36-71
       auto gmt_in_unp = static_pointer_cast<l1t::stage2::RegionalMuonGMTUnpacker>(
           UnpackerFactory::get()->make("stage2::RegionalMuonGMTUnpacker"));
+      if (fw >= 0x7000000) {
+        gmt_in_unp->setUseEmtfShowers();
+      }
       if (fw >= 0x6010000) {
         gmt_in_unp->setUseEmtfDisplacementInfo();
       }

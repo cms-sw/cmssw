@@ -22,18 +22,18 @@
 // user include files
 #include "FWCore/Common/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "TTree.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include <TH1.h>
-#include <TFile.h>
 #include "DataFormats/TrackerCommon/interface/ClusterSummary.h"
+
+// ROOT includes
+#include "TTree.h"
+#include "TH1.h"
+#include "TFile.h"
 
 //
 // class declaration
@@ -43,13 +43,12 @@ class ClusterSummary;
 
 using namespace std;
 
-class ClusterAnalyzer : public edm::EDAnalyzer {
+class ClusterAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ClusterAnalyzer(const edm::ParameterSet&);
   ~ClusterAnalyzer();
 
 private:
-  virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
   // ----------member data ---------------------------
@@ -71,6 +70,7 @@ private:
 };
 
 ClusterAnalyzer::ClusterAnalyzer(const edm::ParameterSet& iConfig) {
+  usesResource(TFileService::kSharedResource);
   token = consumes<ClusterSummary>(iConfig.getParameter<edm::InputTag>("clusterSum"));
   _verbose = true;  //set to true to see the event by event summary info
 
@@ -98,10 +98,10 @@ ClusterAnalyzer::ClusterAnalyzer(const edm::ParameterSet& iConfig) {
     allModules_[subdet] = detname;
   }
 
-  cout << "From provenance infomation the selected modules are = ";
+  edm::LogPrint("ClusterAnalyzer") << "From provenance infomation the selected modules are = ";
   for (auto i : allModules_)
-    cout << i.second << " ";
-  cout << endl;
+    edm::LogPrint("ClusterAnalyzer") << i.second << " ";
+  edm::LogPrint("ClusterAnalyzer") << endl;
 
   for (auto i = allModules_.begin(); i != allModules_.end(); ++i) {
     std::string tmpstr = i->second;
@@ -119,7 +119,7 @@ ClusterAnalyzer::ClusterAnalyzer(const edm::ParameterSet& iConfig) {
   }
 }
 
-ClusterAnalyzer::~ClusterAnalyzer() {}
+ClusterAnalyzer::~ClusterAnalyzer() = default;
 
 void ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
@@ -138,15 +138,12 @@ void ClusterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     histos1D_[(tmpstr + "avgSize").c_str()]->Fill(class_->getClusSizeByIndex(iM) / class_->getNClusByIndex(iM));
     histos1D_[(tmpstr + "avgCharge").c_str()]->Fill(class_->getClusChargeByIndex(iM) / class_->getNClusByIndex(iM));
 
-    cout << "n" << tmpstr << ", avg size, avg charge = " << class_->getNClusByIndex(iM);
-    cout << ", " << class_->getClusSizeByIndex(iM) / class_->getNClusByIndex(iM);
-    cout << ", " << class_->getClusChargeByIndex(iM) / class_->getNClusByIndex(iM) << endl;
+    edm::LogPrint("ClusterAnalyzer") << "n" << tmpstr << ", avg size, avg charge = " << class_->getNClusByIndex(iM);
+    edm::LogPrint("ClusterAnalyzer") << ", " << class_->getClusSizeByIndex(iM) / class_->getNClusByIndex(iM);
+    edm::LogPrint("ClusterAnalyzer") << ", " << class_->getClusChargeByIndex(iM) / class_->getNClusByIndex(iM) << endl;
   }
-  cout << "-------------------------------------------------------" << endl;
+  edm::LogPrint("ClusterAnalyzer") << "-------------------------------------------------------" << endl;
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void ClusterAnalyzer::beginJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ClusterAnalyzer);

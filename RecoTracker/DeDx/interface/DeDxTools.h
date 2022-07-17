@@ -38,7 +38,7 @@
 #include "TChain.h"
 #include "TH3F.h"
 
-namespace DeDxTools {
+namespace deDxTools {
   bool shapeSelection(const SiStripCluster& ampls);
   int getCharge(const SiStripCluster* cluster,
                 int& nSatStrip,
@@ -56,13 +56,13 @@ namespace DeDxTools {
                                              edm::ESGetToken<H3DD, SiStripDeDxKaon_3D_Rcd>,
                                              edm::ESGetToken<H3DD, SiStripDeDxProton_3D_Rcd>,
                                              edm::ESGetToken<H3DD, SiStripDeDxElectron_3D_Rcd>>;
-  ESGetTokenH3DDVariant esConsumes(std::string const& Reccord, edm::ConsumesCollector&);
+  ESGetTokenH3DDVariant esConsumes(std::string const& Record, edm::ConsumesCollector&);
   PhysicsTools::Calibration::HistogramD3D const& getHistogramD3D(edm::EventSetup const&, ESGetTokenH3DDVariant const&);
   void buildDiscrimMap(PhysicsTools::Calibration::HistogramD3D const&,
                        std::string const& ProbabilityMode,
                        TH3F*& Prob_ChargePath);
-  bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize);
-  bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it);
-}  // namespace DeDxTools
+  bool isSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize);
+  bool isFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it);
+}  // namespace deDxTools
 
 #endif

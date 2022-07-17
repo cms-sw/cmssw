@@ -1,14 +1,30 @@
-
-#include "DataFormats/SiStripCommon/test/plugins/test_SiStripEnumsAndStrings.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+// user includes
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
+
+// system includes
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <vector>
+
+/**
+   @class testSiStripEnumsAndStrings 
+   @author R.Bainbridge
+   @brief Simple class that tests SiStripEnumsAndStrings.
+*/
+class testSiStripEnumsAndStrings : public edm::one::EDAnalyzer<> {
+public:
+  testSiStripEnumsAndStrings(const edm::ParameterSet&);
+  ~testSiStripEnumsAndStrings();
+
+  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
+};
 
 using namespace sistrip;
 
@@ -216,3 +232,6 @@ void testSiStripEnumsAndStrings::analyze(const edm::Event& event, const edm::Eve
   LogTrace(mlDqmCommon_) << "[SiStripEnumsAndStrings::" << __func__ << "]"
                          << " Analyzing run/event " << event.id().run() << "/" << event.id().event();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(testSiStripEnumsAndStrings);

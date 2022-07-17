@@ -12,6 +12,12 @@
  *
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  *          Vladimir Rekovic - exted for indexing
+
+ * \new features: R. Cavanaugh
+ *          - added LUT bit for LLP displaced jets
+ *            Note: Calo Trig considers the DISP bit part of the 
+ *                  quality word, but uGT firmware considers the 
+ *                  DISP bit to be distinct from the quality word.
  *
  * $Date$
  * $Revision$
@@ -62,6 +68,7 @@ public:
 
     unsigned int isolationLUT;
     unsigned int qualityLUT;
+    unsigned int displacedLUT;  // Added for LLP Jets
 
     unsigned int etaWindow1Lower;
     unsigned int etaWindow1Upper;

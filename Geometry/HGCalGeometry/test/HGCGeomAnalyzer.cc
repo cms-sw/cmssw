@@ -28,15 +28,13 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 //STL headers
-#include <vector>
-#include <sstream>
 #include <fstream>
-#include <string>
 #include <iomanip>
-
+#include <map>
+#include <sstream>
+#include <string>
+#include <vector>
 #include "vdt/vdtMath.h"
-
-using namespace std;
 
 //
 // class declaration
@@ -44,7 +42,7 @@ using namespace std;
 class HGCGeomAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit HGCGeomAnalyzer(const edm::ParameterSet &);
-  ~HGCGeomAnalyzer() override;
+  ~HGCGeomAnalyzer() override = default;
 
 private:
   void beginJob() override {}
@@ -52,7 +50,6 @@ private:
   void endJob() override {}
 
   // ----------member data ---------------------------
-  edm::Service<TFileService> fs_;
   const std::string txtFileName_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> geomToken_;
 
@@ -66,20 +63,18 @@ HGCGeomAnalyzer::HGCGeomAnalyzer(const edm::ParameterSet &iConfig)
     : txtFileName_(iConfig.getParameter<std::string>("fileName")),
       geomToken_{esConsumes<CaloGeometry, CaloGeometryRecord>()} {
   usesResource("TFileService");
-  fs_->file().cd();
 }
-
-//
-HGCGeomAnalyzer::~HGCGeomAnalyzer() {}
 
 //
 void HGCGeomAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
   //output text file
-  ofstream boundaries;
+  std::ofstream boundaries;
   boundaries.open(txtFileName_);
 
   //get geometry
   const CaloGeometry *caloGeom = &es.getData(geomToken_);
+  edm::Service<TFileService> fs;
+  fs->file().cd();
 
   std::vector<DetId::Detector> dets = {DetId::HGCalEE, DetId::HGCalHSi, DetId::HGCalHSc};
   for (const auto &d : dets) {
@@ -116,11 +111,11 @@ void HGCGeomAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &e
           std::pair<DetId::Detector, int> key(d, signedLayer);
           TString layerBaseName(Form("%slayer%d_", baseName.Data(), signedLayer));
           TString layerTitle(Form("%s %d", title.Data(), signedLayer));
-          layerXYview_[key] = fs_->make<TProfile2D>(
+          layerXYview_[key] = fs->make<TProfile2D>(
               layerBaseName + "xy_view", layerTitle + "; x [cm]; y [cm]; wafer type", 200, -200, 200, 200, -200, 200);
           layerThickR_[key] =
-              fs_->make<TProfile>(layerBaseName + "thickness_vs_r", layerTitle + "; r [cm]; wafer type", 200, 0, 200);
-          layerThickEta_[key] = fs_->make<TProfile>(
+              fs->make<TProfile>(layerBaseName + "thickness_vs_r", layerTitle + "; r [cm]; wafer type", 200, 0, 200);
+          layerThickEta_[key] = fs->make<TProfile>(
               layerBaseName + "thickness_vs_eta", layerTitle + "; abs(eta); wafer type", 200, 1.4, 3.3);
         }
       }

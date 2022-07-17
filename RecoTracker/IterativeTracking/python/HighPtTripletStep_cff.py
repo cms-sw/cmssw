@@ -194,10 +194,10 @@ highPtTripletStepTrajectoryBuilder = _GroupedCkfTrajectoryBuilder_cfi.GroupedCkf
     alwaysUseInvalidHits = True,
     maxCand              = 3,
     estimator            = 'highPtTripletStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
+    maxDPhiForLooperReconstruction = 2.0,
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (with B=3.8T)
-    maxPtForLooperReconstruction = cms.double(0.7)
+    maxPtForLooperReconstruction = 0.7
 )
 trackingNoLoopers.toModify(highPtTripletStepTrajectoryBuilder,
                            maxPtForLooperReconstruction = 0.0)
@@ -211,10 +211,10 @@ trackingPhase2PU140.toModify(highPtTripletStepTrajectoryBuilder,
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi as _CkfTrackCandidates_cfi
 highPtTripletStepTrackCandidates = _CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'highPtTripletStepSeeds',
-    clustersToSkip = cms.InputTag('highPtTripletStepClusters'),
+    clustersToSkip = 'highPtTripletStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet = dict(refToPSet_ = 'highPtTripletStepTrajectoryBuilder'),
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
@@ -241,7 +241,10 @@ trackingMkFitHighPtTripletStep.toReplaceWith(highPtTripletStepTrackCandidates, m
     seeds = 'highPtTripletStepSeeds',
     mkFitSeeds = 'highPtTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'highPtTripletStepTrackCandidatesMkFit',
+    candMVASel = True,
+    candWP = -0.3,
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(highPtTripletStepTrackCandidatesMkFitConfig, minPt=0.7)
 
 # For Phase2PU140
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits as _trajectoryCleanerBySharedHits
@@ -252,8 +255,8 @@ highPtTripletStepTrajectoryCleanerBySharedHits = _trajectoryCleanerBySharedHits.
 )
 trackingPhase2PU140.toModify(highPtTripletStepTrackCandidates, 
     TrajectoryCleaner    = 'highPtTripletStepTrajectoryCleanerBySharedHits', 
-    clustersToSkip       = None,
-    phase2clustersToSkip = cms.InputTag('highPtTripletStepClusters')
+    clustersToSkip       = '',
+    phase2clustersToSkip = 'highPtTripletStepClusters'
 )
 
 #For FastSim phase1 tracking 
@@ -273,6 +276,9 @@ highPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProdu
     Fitter        = 'FlexibleKFFittingSmoother',
 )
 fastSim.toModify(highPtTripletStepTracks,TTRHBuilder = 'WithoutRefit')
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(highPtTripletStepTracks, TrajectoryInEvent = True)
 
 # Final selection
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *

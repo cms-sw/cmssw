@@ -67,10 +67,8 @@ void SectorProcessorShower::process(const CSCShowerDigiCollection& in_showers,
   if (accept) {
     // shower output
     l1t::RegionalMuonShower out_shower(hasOneNominalInTime, false, hasTwoLooseInTime, false, hasOneTightInTime, false);
-    // convert [1,2] to [1, -1]
-    const int endcap(endcap_ == 1 ? 1 : -1);
-    out_shower.setEndcap(endcap);
-    out_shower.setSector(sector_);
+    l1t::tftype tftype = (endcap_ == 1) ? l1t::tftype::emtf_pos : l1t::tftype::emtf_neg;
+    out_shower.setTFIdentifiers(sector_ - 1, tftype);
     out_showers.push_back(0, out_shower);
   }
 }

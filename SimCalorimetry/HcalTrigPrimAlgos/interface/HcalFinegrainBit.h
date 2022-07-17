@@ -11,7 +11,7 @@ public:
   // Each bit is replicated for each depth level
   typedef std::array<std::bitset<6>, 2> Tower;
   // Each pair contains uHTR group 0 LUT bits 12-15, TDC, and ADC of the cell in that depth of the trigger tower
-  typedef std::array<std::pair<int, std::pair<int, int>>, 7> TowerTDC;
+  typedef std::array<std::pair<std::pair<int, bool>, std::pair<int, int>>, 7> TowerTDC;
 
   HcalFinegrainBit(int version) : version_(version){};
 
@@ -26,7 +26,7 @@ private:
   int version_;
 
   // define prompt-delayed TDC range. Note this is offset from depth and ieta by 1
-  const int tdc_HE[29][7] = {
+  const int tdc_boundary[29][7] = {
       {8, 14, 15, 17, 0, 0, 0}, {8, 14, 15, 17, 0, 0, 0}, {8, 14, 14, 17, 0, 0, 0}, {8, 14, 14, 17, 0, 0, 0},
       {8, 13, 14, 16, 0, 0, 0}, {8, 13, 14, 16, 0, 0, 0}, {8, 12, 14, 15, 0, 0, 0}, {8, 12, 14, 15, 0, 0, 0},
       {7, 12, 13, 15, 0, 0, 0}, {7, 12, 13, 15, 0, 0, 0}, {7, 12, 13, 15, 0, 0, 0}, {7, 12, 13, 15, 0, 0, 0},

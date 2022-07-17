@@ -1,39 +1,29 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include <FWCore/MessageLogger/interface/MessageLogger.h>
-
-#include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
-#include <RecoTracker/Record/interface/CkfComponentsRecord.h>
-#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
-#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
+#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
-#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
-
-#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 #include "TrackPropagation/RungeKutta/interface/defaultRKPropagator.h"
-#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
-
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 namespace {
 
@@ -46,33 +36,37 @@ namespace {
 
 }  // namespace
 
-class MeasurementTrackerTest : public edm::EDAnalyzer {
+class MeasurementTrackerTest : public edm::one::EDAnalyzer<> {
 public:
   explicit MeasurementTrackerTest(const edm::ParameterSet&);
-  ~MeasurementTrackerTest();
+  ~MeasurementTrackerTest() override = default;
 
 private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+  const edm::ESGetToken<MeasurementTracker, CkfComponentsRecord> measTkToken;
+  const edm::ESGetToken<NavigationSchool, NavigationSchoolRecord> navSchoolToken;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> mfToken;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propToken;
 
   std::string theMeasurementTrackerName;
   std::string theNavigationSchoolName;
 };
 
 MeasurementTrackerTest::MeasurementTrackerTest(const edm::ParameterSet& iConfig)
-    : theMeasurementTrackerName(iConfig.getParameter<std::string>("measurementTracker")),
+    : measTkToken(esConsumes()),
+      navSchoolToken(esConsumes()),
+      mfToken(esConsumes()),
+      propToken(esConsumes(edm::ESInputTag("", "PropagatorWithMaterial"))),
+      theMeasurementTrackerName(iConfig.getParameter<std::string>("measurementTracker")),
       theNavigationSchoolName(iConfig.getParameter<std::string>("navigationSchool")) {}
-
-MeasurementTrackerTest::~MeasurementTrackerTest() {}
 
 void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   //get the measurementtracker
-  edm::ESHandle<MeasurementTracker> measurementTracker;
-  edm::ESHandle<NavigationSchool> navSchool;
-
-  iSetup.get<CkfComponentsRecord>().get(theMeasurementTrackerName, measurementTracker);
-  iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navSchool);
+  const MeasurementTracker* measurementTracker = &iSetup.getData(measTkToken);
+  const NavigationSchool* navSchool = &iSetup.getData(navSchoolToken);
 
   auto const& geom = *(TrackerGeometry const*)(*measurementTracker).geomTracker();
   auto const& searchGeom = *(*measurementTracker).geometricSearchTracker();
@@ -84,12 +78,8 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
   std::cout << "number of dets " << dus.size() << std::endl;
   std::cout << "Bl/Fw loc " << firstBarrel << '/' << firstForward << std::endl;
 
-  edm::ESHandle<MagneticField> magfield;
-  iSetup.get<IdealMagneticFieldRecord>().get(magfield);
-
-  edm::ESHandle<Propagator> propagatorHandle;
-  iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial", propagatorHandle);
-  auto const& ANprop = *propagatorHandle;
+  const MagneticField* magfield = &iSetup.getData(mfToken);
+  const Propagator& ANprop = iSetup.getData(propToken);
 
   // error (very very small)
   ROOT::Math::SMatrixIdentity id;
@@ -128,7 +118,7 @@ void MeasurementTrackerTest::analyze(const edm::Event& iEvent, const edm::EventS
 
     for (auto mom : moms) {
       TrajectoryStateOnSurface startingStateP(
-          GlobalTrajectoryParameters(startingPosition, mom, 1, magfield.product()), err, *startingPlane);
+          GlobalTrajectoryParameters(startingPosition, mom, 1, magfield), err, *startingPlane);
       auto tsos = startingStateP;
 
       // auto layer = searchGeom.idToLayer(dus[firstBarrel]->geographicalId());

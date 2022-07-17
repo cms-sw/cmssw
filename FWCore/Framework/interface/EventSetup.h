@@ -65,20 +65,14 @@ namespace edm {
     explicit EventSetup(T const& info,
                         unsigned int iTransitionID,
                         ESProxyIndex const* iGetTokenIndices,
-                        ESParentContext const& iContext,
-                        bool iRequireToken)
-        : EventSetup(info.eventSetupImpl(), iTransitionID, iGetTokenIndices, iContext, iRequireToken) {}
+                        ESParentContext const& iContext)
+        : EventSetup(info.eventSetupImpl(), iTransitionID, iGetTokenIndices, iContext) {}
 
     explicit EventSetup(EventSetupImpl const& iSetup,
                         unsigned int iTransitionID,
                         ESProxyIndex const* iGetTokenIndices,
-                        ESParentContext const& iContext,
-                        bool iRequireToken)
-        : m_setup{iSetup},
-          m_getTokenIndices{iGetTokenIndices},
-          m_context(&iContext),
-          m_id{iTransitionID},
-          m_requireToken(iRequireToken) {}
+                        ESParentContext const& iContext)
+        : m_setup{iSetup}, m_getTokenIndices{iGetTokenIndices}, m_context(&iContext), m_id{iTransitionID} {}
     EventSetup(EventSetup const&) = delete;
     EventSetup& operator=(EventSetup const&) = delete;
 
@@ -99,7 +93,7 @@ namespace edm {
         throw eventsetup::NoRecordException<T>(recordDoesExist(m_setup, eventsetup::EventSetupRecordKey::makeKey<T>()));
       }
       T returnValue;
-      returnValue.setImpl(temp, m_id, m_getTokenIndices, &m_setup, m_context, m_requireToken);
+      returnValue.setImpl(temp, m_id, m_getTokenIndices, &m_setup, m_context);
       return returnValue;
     }
 
@@ -117,7 +111,7 @@ namespace edm {
                                                 eventsetup::EventSetupRecordKey>());
       if (temp != nullptr) {
         T rec;
-        rec.setImpl(temp, m_id, m_getTokenIndices, &m_setup, m_context, m_requireToken);
+        rec.setImpl(temp, m_id, m_getTokenIndices, &m_setup, m_context);
         return rec;
       }
       return std::nullopt;
@@ -198,7 +192,6 @@ namespace edm {
     ESProxyIndex const* m_getTokenIndices;
     ESParentContext const* m_context;
     unsigned int m_id;
-    bool m_requireToken;
   };
 
   // Free functions to retrieve an object from the EventSetup.

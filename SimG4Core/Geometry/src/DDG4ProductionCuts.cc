@@ -103,11 +103,11 @@ void DDG4ProductionCuts::initialize() {
       edm::LogVerbatim("Geometry") << "DDG4ProductionCuts : new G4Region " << vv.first->GetName();
       setProdCuts(vv.second, region);
     }
-
-    region->AddRootLogicalVolume(vv.first);
-
-    if (verbosity_ > 0)
-      edm::LogVerbatim("Geometry") << "  added " << vv.first->GetName() << " to region " << region->GetName();
+    if (nullptr != region) {
+      region->AddRootLogicalVolume(vv.first);
+      if (verbosity_ > 0)
+        edm::LogVerbatim("Geometry") << "  added " << vv.first->GetName() << " to region " << region->GetName();
+    }
   }
 }
 

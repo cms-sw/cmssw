@@ -127,6 +127,7 @@ private:
 
   bool isHLT_;
   bool isPhaseII_;
+  bool regTrainedWithPS_;
   bool applySigmaIetaIphiBug_;  //there was a bug in sigmaIetaIphi for the 74X application
   int nHitsAboveThresholdEB_;
   int nHitsAboveThresholdEE_;
@@ -146,6 +147,7 @@ template <edm::Transition esTransition>
 void SCEnergyCorrectorSemiParm::setTokens(const edm::ParameterSet& iConfig, edm::ConsumesCollector cc) {
   isHLT_ = iConfig.getParameter<bool>("isHLT");
   isPhaseII_ = iConfig.getParameter<bool>("isPhaseII");
+  regTrainedWithPS_ = iConfig.getParameter<bool>("regTrainedWithPS");
   applySigmaIetaIphiBug_ = iConfig.getParameter<bool>("applySigmaIetaIphiBug");
   tokenEBRecHits_ = cc.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ecalRecHitsEB"));
   if (not isPhaseII_) {

@@ -9,13 +9,13 @@
 //
 // Original Author:  dkcira
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 namespace cms {
-  class TrackMTCCFilter : public edm::EDFilter {
+  class TrackMTCCFilter : public edm::stream::EDFilter<> {
   public:
     TrackMTCCFilter(const edm::ParameterSet& ps);
     ~TrackMTCCFilter() override {}

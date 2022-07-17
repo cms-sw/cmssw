@@ -9,21 +9,21 @@
  ************************************************************/
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Integration/test/HierarchicalAlgorithms.h"
 
 namespace edmtest {
-  class HierarchicalEDProducer : public edm::EDProducer {
+  class HierarchicalEDProducer : public edm::global::EDProducer<> {
   public:
     explicit HierarchicalEDProducer(edm::ParameterSet const& ps);
 
-    virtual ~HierarchicalEDProducer();
+    ~HierarchicalEDProducer() override;
 
-    virtual void produce(edm::Event& e, edm::EventSetup const& c);
+    void produce(edm::StreamID, edm::Event& e, edm::EventSetup const& c) const override;
 
   private:
-    double radius_;
-    alg_1 outer_alg_;
+    const double radius_;
+    const alg_1 outer_alg_;
   };
 }  // namespace edmtest
 #endif

@@ -218,6 +218,13 @@ bool LegacyIOHelper::readdir(TDirectory *dir, const std::string &toppath) {
           getMEName<TH1D>(h, toppath, meName);
           data_.insert(dbe_->book1DD(meName, h));
         }
+      } else if (cl->InheritsFrom("TH1I")) {
+        TH1I *h = dynamic_cast<TH1I *>(key->ReadObject<TH1I>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH1I>(h, toppath, meName);
+          data_.insert(dbe_->book1I(meName, h));
+        }
       } else if (cl->InheritsFrom("TH2F")) {
         TH2F *h = dynamic_cast<TH2F *>(key->ReadObject<TH2F>()->Clone());
         h->SetDirectory(nullptr);
@@ -238,6 +245,13 @@ bool LegacyIOHelper::readdir(TDirectory *dir, const std::string &toppath) {
         if (h) {
           getMEName<TH2D>(h, toppath, meName);
           data_.insert(dbe_->book2DD(meName, h));
+        }
+      } else if (cl->InheritsFrom("TH2I")) {
+        TH2I *h = dynamic_cast<TH2I *>(key->ReadObject<TH2I>()->Clone());
+        h->SetDirectory(nullptr);
+        if (h) {
+          getMEName<TH2I>(h, toppath, meName);
+          data_.insert(dbe_->book2I(meName, h));
         }
       } else if (cl->InheritsFrom("TH3F")) {
         TH3F *h = dynamic_cast<TH3F *>(key->ReadObject<TH3F>()->Clone());

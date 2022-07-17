@@ -270,14 +270,13 @@ trackingLowPU.toModify(mixedTripletStepChi2Est,
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 mixedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('mixedTripletStepTrajectoryFilter')),
+    trajectoryFilter       = dict(refToPSet_ = 'mixedTripletStepTrajectoryFilter'),
     propagatorAlong        = 'mixedTripletStepPropagator',
     propagatorOpposite     = 'mixedTripletStepPropagatorOpposite',
     maxCand                = 2,
     estimator              = 'mixedTripletStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxDPhiForLooperReconstruction = 2.0,
+    maxPtForLooperReconstruction = 0.7,
 )
 trackingNoLoopers.toModify(mixedTripletStepTrajectoryBuilder,
                            maxPtForLooperReconstruction = 0.0)
@@ -286,15 +285,14 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 # Give handle for CKF for HI
 _mixedTripletStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src            = 'mixedTripletStepSeeds',
-    clustersToSkip = cms.InputTag('mixedTripletStepClusters'),
+    clustersToSkip = 'mixedTripletStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner     = cms.int32(50),
-    #onlyPixelHitsForSeedCleaner = cms.bool(True),
-
-    TrajectoryBuilderPSet     = cms.PSet(refToPSet_ = cms.string('mixedTripletStepTrajectoryBuilder')),
+    numHitsForSeedCleaner     = 50,
+    #onlyPixelHitsForSeedCleaner = True,
+    TrajectoryBuilderPSet     = dict(refToPSet_ = 'mixedTripletStepTrajectoryBuilder'),
     doSeedingRegionRebuilding = True,
     useHitsSplitting          = True,
-    TrajectoryCleaner         = 'mixedTripletStepTrajectoryCleanerBySharedHits'
+    TrajectoryCleaner         = 'mixedTripletStepTrajectoryCleanerBySharedHits',
 )
 mixedTripletStepTrackCandidates = _mixedTripletStepTrackCandidatesCkf.clone()
 
@@ -320,6 +318,7 @@ trackingMkFitMixedTripletStep.toReplaceWith(mixedTripletStepTrackCandidates, mkF
     mkFitSeeds = 'mixedTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'mixedTripletStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(mixedTripletStepTrackCandidatesMkFitConfig, minPt=0.4)
 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(mixedTripletStepTrackCandidates,

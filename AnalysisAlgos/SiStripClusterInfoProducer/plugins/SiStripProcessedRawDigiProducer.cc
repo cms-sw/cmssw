@@ -1,16 +1,58 @@
-#include "AnalysisAlgos/SiStripClusterInfoProducer/plugins/SiStripProcessedRawDigiProducer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/transform.h"
-
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
-
+// system includes
 #include <functional>
+#include <memory>
+#include <string>
+
+// user includes
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
+#include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripRawProcessingFactory.h"
+
+class SiStripProcessedRawDigiProducer : public edm::stream::EDProducer<> {
+public:
+  explicit SiStripProcessedRawDigiProducer(edm::ParameterSet const&);
+
+private:
+  void produce(edm::Event& e, const edm::EventSetup& es) override;
+  template <class T>
+  std::string findInput(edm::Handle<T>& handle, const std::vector<edm::EDGetTokenT<T> >& tokens, const edm::Event& e);
+
+  void vr_process(const edm::DetSetVector<SiStripRawDigi>&,
+                  edm::DetSetVector<SiStripProcessedRawDigi>&,
+                  const SiStripGain&);
+  void pr_process(const edm::DetSetVector<SiStripRawDigi>&,
+                  edm::DetSetVector<SiStripProcessedRawDigi>&,
+                  const SiStripGain&);
+  void zs_process(const edm::DetSetVector<SiStripDigi>&,
+                  edm::DetSetVector<SiStripProcessedRawDigi>&,
+                  const SiStripGain&);
+  void common_process(const uint32_t,
+                      std::vector<float>&,
+                      edm::DetSetVector<SiStripProcessedRawDigi>&,
+                      const SiStripGain&);
+
+  const std::vector<edm::InputTag> inputTags_;
+  const std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > > inputTokensDigi_;
+  const std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripRawDigi> > > inputTokensRawDigi_;
+  const edm::ESGetToken<SiStripGain, SiStripGainRcd> gainToken_;
+
+  std::unique_ptr<SiStripPedestalsSubtractor> subtractorPed_;
+  std::unique_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN_;
+};
 
 SiStripProcessedRawDigiProducer::SiStripProcessedRawDigiProducer(edm::ParameterSet const& conf)
     : inputTags_(conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList")),
@@ -66,37 +108,37 @@ void SiStripProcessedRawDigiProducer::zs_process(const edm::DetSetVector<SiStrip
                                                  edm::DetSetVector<SiStripProcessedRawDigi>& output,
                                                  const SiStripGain& gain) {
   std::vector<float> digis;
-  for (edm::DetSetVector<SiStripDigi>::const_iterator detset = input.begin(); detset != input.end(); ++detset) {
+  for (const auto& detset : input) {
     digis.clear();
-    for (edm::DetSet<SiStripDigi>::const_iterator digi = detset->begin(); digi != detset->end(); ++digi) {
-      digis.resize(digi->strip(), 0);
-      digis.push_back(digi->adc());
+    for (const auto& digi : detset) {
+      digis.resize(digi.strip(), 0);
+      digis.push_back(digi.adc());
     }
-    common_process(detset->id, digis, output, gain);
+    common_process(detset.id, digis, output, gain);
   }
 }
 
 void SiStripProcessedRawDigiProducer::pr_process(const edm::DetSetVector<SiStripRawDigi>& input,
                                                  edm::DetSetVector<SiStripProcessedRawDigi>& output,
                                                  const SiStripGain& gain) {
-  for (edm::DetSetVector<SiStripRawDigi>::const_iterator detset = input.begin(); detset != input.end(); ++detset) {
+  for (const auto& detset : input) {
     std::vector<float> digis;
     transform(
-        detset->begin(), detset->end(), back_inserter(digis), std::bind(&SiStripRawDigi::adc, std::placeholders::_1));
-    subtractorCMN_->subtract(detset->id, 0, digis);
-    common_process(detset->id, digis, output, gain);
+        detset.begin(), detset.end(), back_inserter(digis), std::bind(&SiStripRawDigi::adc, std::placeholders::_1));
+    subtractorCMN_->subtract(detset.id, 0, digis);
+    common_process(detset.id, digis, output, gain);
   }
 }
 
 void SiStripProcessedRawDigiProducer::vr_process(const edm::DetSetVector<SiStripRawDigi>& input,
                                                  edm::DetSetVector<SiStripProcessedRawDigi>& output,
                                                  const SiStripGain& gain) {
-  for (edm::DetSetVector<SiStripRawDigi>::const_iterator detset = input.begin(); detset != input.end(); ++detset) {
-    std::vector<int16_t> int_digis(detset->size());
-    subtractorPed_->subtract(*detset, int_digis);
+  for (const auto& detset : input) {
+    std::vector<int16_t> int_digis(detset.size());
+    subtractorPed_->subtract(detset, int_digis);
     std::vector<float> digis(int_digis.begin(), int_digis.end());
-    subtractorCMN_->subtract(detset->id, 0, digis);
-    common_process(detset->id, digis, output, gain);
+    subtractorCMN_->subtract(detset.id, 0, digis);
+    common_process(detset.id, digis, output, gain);
   }
 }
 
@@ -106,11 +148,16 @@ void SiStripProcessedRawDigiProducer::common_process(const uint32_t detId,
                                                      const SiStripGain& gain) {
   //Apply Gains
   SiStripApvGain::Range detGainRange = gain.getRange(detId);
-  for (std::vector<float>::iterator it = digis.begin(); it < digis.end(); ++it)
-    (*it) /= (gain.getStripGain(it - digis.begin(), detGainRange));
+  for (auto& it : digis)
+    it /= (gain.getStripGain(it - *digis.begin(), detGainRange));
 
   //Insert as DetSet
   edm::DetSet<SiStripProcessedRawDigi> ds(detId);
   copy(digis.begin(), digis.end(), back_inserter(ds.data));
   output.insert(ds);
 }
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(SiStripProcessedRawDigiProducer);

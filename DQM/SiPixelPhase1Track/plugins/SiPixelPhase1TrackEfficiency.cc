@@ -160,34 +160,22 @@ namespace {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     // Hp cut
-    int TRACK_QUALITY_HIGH_PURITY_BIT = 2;
-    int TRACK_QUALITY_HIGH_PURITY_MASK = 1 << TRACK_QUALITY_HIGH_PURITY_BIT;
+    static constexpr int TRACK_QUALITY_HIGH_PURITY_BIT = 2;
+    static constexpr int TRACK_QUALITY_HIGH_PURITY_MASK = 1 << TRACK_QUALITY_HIGH_PURITY_BIT;
 
     // Pt cut
-    float TRACK_PT_CUT_VAL = 1.0f;
+    static constexpr float TRACK_PT_CUT_VAL = 1.0f;
 
     // Nstrip cut
-    int TRACK_NSTRIP_CUT_VAL = 10;
+    static constexpr int TRACK_NSTRIP_CUT_VAL = 10;
 
     //D0
-    std::array<float, 4> TRACK_D0_CUT_BARREL_VAL = {{0.01f, 0.02f, 0.02f, 0.02f}};
-    float TRACK_D0_CUT_FORWARD_VAL = 0.05f;
+    static constexpr std::array<float, 4> TRACK_D0_CUT_BARREL_VAL = {{0.01f, 0.02f, 0.02f, 0.02f}};
+    static constexpr float TRACK_D0_CUT_FORWARD_VAL = 0.05f;
 
     //Dz
-    float TRACK_DZ_CUT_BARREL_VAL = 0.01f;
-    float TRACK_DZ_CUT_FORWARD_VAL = 0.5f;
-
-    bool isBpixtrack = false, isFpixtrack = false;
-    int nStripHits = 0;
-    int nBpixL1Hits = 0;
-    int nBpixL2Hits = 0;
-    int nBpixL3Hits = 0;
-    int nBpixL4Hits = 0;
-    int nFpixD1Hits = 0;
-    int nFpixD2Hits = 0;
-    int nFpixD3Hits = 0;
-    bool passcuts = true;
-    bool passcuts_hit = true;
+    static constexpr float TRACK_DZ_CUT_BARREL_VAL = 0.01f;
+    static constexpr float TRACK_DZ_CUT_FORWARD_VAL = 0.5f;
 
     TrajectoryStateOnSurface tsosPXB2;
     bool valid_layerFrom = false;
@@ -210,17 +198,17 @@ namespace {
           (track->pt() < 0.75 || std::abs(track->dxy(vertices->at(0).position())) > 5 * track->dxyError()))
         continue;
 
-      isBpixtrack = false, isFpixtrack = false;
-      nStripHits = 0;
-      nBpixL1Hits = 0;
-      nBpixL2Hits = 0;
-      nBpixL3Hits = 0;
-      nBpixL4Hits = 0;
-      nFpixD1Hits = 0;
-      nFpixD2Hits = 0;
-      nFpixD3Hits = 0;
-      passcuts = true;
-      passcuts_hit = true;
+      bool isBpixtrack = false;
+      bool isFpixtrack = false;
+      int nStripHits = 0;
+      int nBpixL1Hits = 0;
+      int nBpixL2Hits = 0;
+      int nBpixL3Hits = 0;
+      int nBpixL4Hits = 0;
+      int nFpixD1Hits = 0;
+      int nFpixD2Hits = 0;
+      int nFpixD3Hits = 0;
+      bool passcuts = true;
 
       // first, look at the full track to see whether it is good
       // auto const & trajParams = track.extra()->trajParams();
@@ -239,36 +227,26 @@ namespace {
           isBpixtrack = true;
           if (trackerTopology_->pxbLayer(id) == 1)
             nBpixL1Hits++;
-          if (trackerTopology_->pxbLayer(id) == 2)
+          else if (trackerTopology_->pxbLayer(id) == 2)
             nBpixL2Hits++;
-          if (trackerTopology_->pxbLayer(id) == 3)
+          else if (trackerTopology_->pxbLayer(id) == 3)
             nBpixL3Hits++;
-          if (trackerTopology_->pxbLayer(id) == 4)
+          else if (trackerTopology_->pxbLayer(id) == 4)
             nBpixL4Hits++;
-        }
-        if (subdetid == PixelSubdetector::PixelEndcap && hit->isValid()) {
+        } else if (subdetid == PixelSubdetector::PixelEndcap && hit->isValid()) {
           isFpixtrack = true;
           if (trackerTopology_->pxfDisk(id) == 1)
             nFpixD1Hits++;
-          if (trackerTopology_->pxfDisk(id) == 2)
+          else if (trackerTopology_->pxfDisk(id) == 2)
             nFpixD2Hits++;
-          if (trackerTopology_->pxfDisk(id) == 3)
+          else if (trackerTopology_->pxfDisk(id) == 3)
             nFpixD3Hits++;
         }
 
         // count strip hits
-        if (subdetid == StripSubdetector::TIB)
+        if (subdetid == StripSubdetector::TIB || subdetid == StripSubdetector::TOB ||
+            subdetid == StripSubdetector::TID || subdetid == StripSubdetector::TEC)
           nStripHits++;
-        if (subdetid == StripSubdetector::TOB)
-          nStripHits++;
-        if (subdetid == StripSubdetector::TID)
-          nStripHits++;
-        if (subdetid == StripSubdetector::TEC)
-          nStripHits++;
-
-        // check that we are in the pixel
-        //      if (subdetid == PixelSubdetector::PixelBarrel) isBpixtrack = true;
-        //      if (subdetid == PixelSubdetector::PixelEndcap) isFpixtrack = true;
       }
 
       if (!isBpixtrack && !isFpixtrack)
@@ -288,7 +266,7 @@ namespace {
 
       // then, look at each hit
       for (unsigned int h = 0; h < track->recHitsSize(); h++) {
-        passcuts_hit = true;
+        bool passcuts_hit = true;
         auto hit = *(hb + h);
 
         DetId id = hit->geographicalId();
@@ -305,8 +283,7 @@ namespace {
           if (!((std::abs(track->dxy(vertices->at(0).position())) * -1.0) <
                 TRACK_D0_CUT_BARREL_VAL[trackerTopology_->pxbLayer(id) - 1]))
             passcuts_hit = false;
-        }
-        if (subdetid == PixelSubdetector::PixelEndcap) {
+        } else if (subdetid == PixelSubdetector::PixelEndcap) {
           if (!((std::abs(track->dxy(vertices->at(0).position())) * -1.0) < TRACK_D0_CUT_FORWARD_VAL))
             passcuts_hit = false;
         }
@@ -315,46 +292,45 @@ namespace {
         if (subdetid == PixelSubdetector::PixelBarrel) {
           if (!(std::abs(track->dz(vertices->at(0).position())) < TRACK_DZ_CUT_BARREL_VAL))
             passcuts_hit = false;
-        }
-        if (subdetid == PixelSubdetector::PixelEndcap) {
+        } else if (subdetid == PixelSubdetector::PixelEndcap) {
           if (!(std::abs(track->dz(vertices->at(0).position())) < TRACK_DZ_CUT_FORWARD_VAL))
             passcuts_hit = false;
         }
 
         // Pixhit cut
         if (subdetid == PixelSubdetector::PixelBarrel) {
-          if (trackerTopology_->pxbLayer(id) == 1)
+          if (trackerTopology_->pxbLayer(id) == 1) {
             if (!((nBpixL2Hits > 0 && nBpixL3Hits > 0 && nBpixL4Hits > 0) ||
                   (nBpixL2Hits > 0 && nBpixL3Hits > 0 && nFpixD1Hits > 0) ||
                   (nBpixL2Hits > 0 && nFpixD1Hits > 0 && nFpixD2Hits > 0) ||
                   (nFpixD1Hits > 0 && nFpixD2Hits > 0 && nFpixD3Hits > 0)))
               passcuts_hit = false;
-          if (trackerTopology_->pxbLayer(id) == 2)
+          } else if (trackerTopology_->pxbLayer(id) == 2) {
             if (!((nBpixL1Hits > 0 && nBpixL3Hits > 0 && nBpixL4Hits > 0) ||
                   (nBpixL1Hits > 0 && nBpixL3Hits > 0 && nFpixD1Hits > 0) ||
                   (nBpixL1Hits > 0 && nFpixD1Hits > 0 && nFpixD2Hits > 0)))
               passcuts_hit = false;
-          if (trackerTopology_->pxbLayer(id) == 3)
+          } else if (trackerTopology_->pxbLayer(id) == 3) {
             if (!((nBpixL1Hits > 0 && nBpixL2Hits > 0 && nBpixL4Hits > 0) ||
                   (nBpixL1Hits > 0 && nBpixL2Hits > 0 && nFpixD1Hits > 0)))
               passcuts_hit = false;
-          if (trackerTopology_->pxbLayer(id) == 4)
+          } else if (trackerTopology_->pxbLayer(id) == 4)
             if (!((nBpixL1Hits > 0 && nBpixL2Hits > 0 && nBpixL3Hits > 0)))
               passcuts_hit = false;
-        }
-        if (subdetid == PixelSubdetector::PixelEndcap) {
-          if (trackerTopology_->pxfDisk(id) == 1)
+        } else if (subdetid == PixelSubdetector::PixelEndcap) {
+          if (trackerTopology_->pxfDisk(id) == 1) {
             if (!((nBpixL1Hits > 0 && nBpixL2Hits > 0 && nBpixL3Hits > 0) ||
                   (nBpixL1Hits > 0 && nBpixL2Hits > 0 && nFpixD2Hits > 0) ||
                   (nBpixL1Hits > 0 && nFpixD2Hits > 0 && nFpixD3Hits > 0)))
               passcuts_hit = false;
-          if (trackerTopology_->pxfDisk(id) == 2)
+          } else if (trackerTopology_->pxfDisk(id) == 2) {
             if (!((nBpixL1Hits > 0 && nBpixL2Hits > 0 && nFpixD1Hits > 0) ||
                   (nBpixL1Hits > 0 && nFpixD1Hits > 0 && nFpixD3Hits > 0)))
               passcuts_hit = false;
-          if (trackerTopology_->pxfDisk(id) == 3)
+          } else if (trackerTopology_->pxfDisk(id) == 3) {
             if (!((nBpixL1Hits > 0 && nFpixD1Hits > 0 && nFpixD2Hits > 0)))
               passcuts_hit = false;
+          }
         }
         /* 
       //Fiducial Cut - will work on it later
@@ -377,7 +353,7 @@ namespace {
       if (!((col < (centercol + 10)) && (col > (centercol - 10)) && (row < (centerrow + 10)) && (row > (centerrow -10 )))) passcuts_hit = false;
       */
 
-        if (passcuts_hit == true && passcuts) {
+        if (passcuts_hit && passcuts) {
           if (!(subdetid == PixelSubdetector::PixelBarrel && trackerTopology_->pxbLayer(id) == 1)) {
             if (isHitValid) {
               histo[VALID].fill(id, &iEvent);
@@ -435,14 +411,15 @@ namespace {
           theLayerMeasurements_->measurements(*pxbLayer1_, tsosPXB2, *trackerPropagator_, *chi2MeasurementEstimator_);
       auto compDets = pxbLayer1_->compatibleDets(tsosPXB2, *trackerPropagator_, *chi2MeasurementEstimator_);
       std::pair<int, bool[3]> eff_map;
-      bool valid = false;
-      bool missing = false;
-      passcuts_hit = true;
 
       //Fiducial Cut, only calculate the efficiency of the central pixels
       for (uint p = 0; p < expTrajMeasurements.size(); p++) {
+        bool valid = false;
+        bool missing = false;
+        bool passcuts_hit = true;
         TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
         const auto& pxb1Hit = pxb1TM.recHit();
+        bool inactive = (pxb1Hit->getType() == TrackingRecHit::inactive);
         int detidHit = pxb1Hit->geographicalId();
         if (detidHit == 0)
           continue;
@@ -451,17 +428,18 @@ namespace {
         const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detidHit));
         const PixelTopology& topol = geomdetunit->specificTopology();
 
-        LocalPoint lp;
-        if (pixhit) {
-          lp = pixhit->localPosition();
-        }
+        if (!pixhit)
+          continue;
 
+        LocalPoint lp = pixhit->localPosition();
         MeasurementPoint mp = topol.measurementPosition(lp);
-        int row = (int)mp.x() % 80;
-        int col = (int)mp.y() % 52;
+        const int nRows = topol.rowsperroc();
+        const int nColumns = topol.colsperroc();
+        int row = (int)mp.x() % nRows;
+        int col = (int)mp.y() % nColumns;
 
-        int centerrow = 40;
-        int centercol = 26;
+        int centerrow = nRows / 2;
+        int centercol = nColumns / 2;
 
         if (!((col < (centercol + 10)) && (col > (centercol - 10)) && (row < (centerrow + 10)) &&
               (row > (centerrow - 10))))
@@ -470,17 +448,19 @@ namespace {
         //Access the distance to the closest cluster
         for (const auto& detAndState : compDets) {
           const auto& pXb1_lpos = detAndState.second.localPosition();
+          if (pxb1Hit->geographicalId().rawId() != detAndState.first->geographicalId().rawId())
+            continue;
           int detid = detAndState.first->geographicalId().rawId();
+
           for (edmNew::DetSetVector<SiPixelCluster>::const_iterator iter_cl = siPixelClusters->begin();
                iter_cl != siPixelClusters->end();
                iter_cl++) {
             DetId detId(iter_cl->id());
-            float minD[2];
+            float minD[2], minDist = 10000;
             minD[0] = minD[1] = 10000.;
             if (detId.rawId() != detAndState.first->geographicalId().rawId())
               continue;
-            if (pxb1Hit->geographicalId().rawId() != detAndState.first->geographicalId().rawId())
-              continue;
+
             const PixelGeomDetUnit* pixdet = (const PixelGeomDetUnit*)tkgeom->idToDetUnit(detId);
             edmNew::DetSet<SiPixelCluster>::const_iterator itCluster = iter_cl->begin();
             if (passcuts_hit) {
@@ -491,10 +471,10 @@ namespace {
 
                 float Xdist = abs(lp.x() - pXb1_lpos.x());
                 float Ydist = abs(lp.y() - pXb1_lpos.y());
-                if (Xdist < minD[0]) {
+                float dist = sqrt(Xdist * Xdist + Ydist * Ydist);
+                if (dist < minDist) {
+                  minDist = dist;
                   minD[0] = Xdist;
-                }
-                if (Ydist < minD[1]) {
                   minD[1] = Ydist;
                 }
               }
@@ -502,7 +482,10 @@ namespace {
               if ((minD[0] < 0.02) && (minD[1] < 0.02)) {
                 valid = true;
                 missing = false;
-
+                inactive = false;
+              } else if (inactive) {
+                valid = false;
+                missing = false;
               } else {
                 missing = true;
                 valid = false;
@@ -535,6 +518,7 @@ namespace {
                 if (eff_pxb1_vector[i_eff].second[0] == false && valid == true) {
                   eff_pxb1_vector[i_eff].second[0] = valid;
                   eff_pxb1_vector[i_eff].second[1] = missing;
+                  eff_pxb1_vector[i_eff].second[2] = inactive;
                 }
               }
             }
@@ -542,41 +526,12 @@ namespace {
               eff_map.first = detid;
               eff_map.second[0] = valid;
               eff_map.second[1] = missing;
+              eff_map.second[2] = inactive;
               eff_pxb1_vector.push_back(eff_map);
             }
           }
         }
       }
-
-      //propagation B: filling inactive hits
-
-      for (uint p = 0; p < expTrajMeasurements.size(); p++) {
-        TrajectoryMeasurement pxb1TM(expTrajMeasurements[p]);
-        const auto& pxb1Hit = pxb1TM.recHit();
-        bool inactive = (pxb1Hit->getType() == TrackingRecHit::inactive);
-        int detid = pxb1Hit->geographicalId();
-        bool found_det = false;
-
-        if (passcuts && passcuts_hit) {
-          for (unsigned int i_eff = 0; i_eff < eff_pxb1_vector.size(); i_eff++) {
-            //in case found hit in the same det, take only the valid hit
-            if (eff_pxb1_vector[i_eff].first == detid) {
-              found_det = true;
-              if (eff_pxb1_vector[i_eff].second[0] == false && valid == true) {
-                eff_pxb1_vector[i_eff].second[2] = inactive;
-              }
-            }
-          }
-
-          //if no other hit in det
-          if (!found_det) {
-            eff_map.first = detid;
-            eff_map.second[2] = inactive;
-            eff_pxb1_vector.push_back(eff_map);
-          }
-        }
-
-      }  //traj loop
 
       if (eff_pxb1_vector.size() == 1) {
         //eff map is filled -> decide what to do for double hits, ie eff_pxb1_vector.size>1 ... if 1 just use MISSING and VALID as usual

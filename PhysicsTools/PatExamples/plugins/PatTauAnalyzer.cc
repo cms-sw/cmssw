@@ -1,6 +1,6 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -14,7 +14,7 @@
 
 #include <string>
 
-class PatTauAnalyzer : public edm::EDAnalyzer {
+class PatTauAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PatTauAnalyzer(const edm::ParameterSet&);
   ~PatTauAnalyzer() override;
@@ -87,6 +87,7 @@ const reco::GenParticle* getGenTau(const pat::Tau& patTau) {
 
 PatTauAnalyzer::PatTauAnalyzer(const edm::ParameterSet& cfg) {
   //std::cout << "<PatTauAnalyzer::PatTauAnalyzer>:" << std::endl;
+  usesResource(TFileService::kSharedResource);
 
   //--- read name of pat::Tau collection
   src_ = cfg.getParameter<edm::InputTag>("src");

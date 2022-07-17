@@ -21,6 +21,8 @@
 
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -125,7 +127,8 @@ private:
                                  const HcalRespCorrs* respCorrs,
                                  const edm::Handle<reco::MuonCollection>& muonh,
                                  std::vector<HcalIsoTrkCalibVariables>& hocalib,
-                                 HcalIsoTrkEventVariables& hocalibEvent);
+                                 HcalIsoTrkEventVariables& hocalibEvent,
+                                 const edm::EventID& eventId);
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
   double trackP(const reco::Track*, const edm::Handle<reco::GenParticleCollection>&);
   double rhoh(const edm::Handle<CaloTowerCollection>&);
@@ -170,9 +173,12 @@ private:
   const bool hep17_;
   const std::string labelIsoTkVar_, labelIsoTkEvtVar_;
   const std::vector<int> debEvents_;
+  const bool usePFThresh_;
 
   double a_charIsoR_, a_coneR1_, a_coneR2_;
   const HcalDDDRecConstants* hdc_;
+  const EcalPFRecHitThresholds* eThresholds_;
+
   std::vector<double> etabins_, phibins_;
   std::vector<int> oldDet_, oldEta_, oldDepth_;
   double etadist_, phidist_, etahalfdist_, phihalfdist_;
@@ -199,6 +205,7 @@ private:
   edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_caloTopology_;
   edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
   edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+  edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
 
   bool debug_;
 };
@@ -255,7 +262,8 @@ AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
       hep17_(iConfig.getUntrackedParameter<bool>("hep17")),
       labelIsoTkVar_(iConfig.getParameter<std::string>("isoTrackLabel")),
       labelIsoTkEvtVar_(iConfig.getParameter<std::string>("isoTrackEventLabel")),
-      debEvents_(iConfig.getParameter<std::vector<int>>("debugEvents")) {
+      debEvents_(iConfig.getParameter<std::vector<int>>("debugEvents")),
+      usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")) {
   // Get the run parameters
   const double isolationRadius(28.9), innerR(10.0), outerR(30.0);
   reco::TrackBase::TrackQuality trackQuality_ = reco::TrackBase::qualityByName(theTrackQuality_);
@@ -321,29 +329,25 @@ AlCaHcalIsotrkProducer::AlCaHcalIsotrkProducer(edm::ParameterSet const& iConfig,
   tok_caloTopology_ = esConsumes<CaloTopology, CaloTopologyRecord>();
   tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord>();
   tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
+  tok_ecalPFRecHitThresholds_ = esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>();
 
-  edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
-                                   << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality "
-                                   << theTrackQuality_ << "\t minQuality " << selectionParameter_.minQuality
-                                   << "\t maxDxyPV " << selectionParameter_.maxDxyPV << "\t maxDzPV "
-                                   << selectionParameter_.maxDzPV << "\t maxChi2 " << selectionParameter_.maxChi2
-                                   << "\t maxDpOverP " << selectionParameter_.maxDpOverP << "\t minOuterHit "
-                                   << selectionParameter_.minOuterHit << "\t minLayerCrossed "
-                                   << selectionParameter_.minLayerCrossed << "\t maxInMiss "
-                                   << selectionParameter_.maxInMiss << "\t maxOutMiss "
-                                   << selectionParameter_.maxOutMiss << "\t a_coneR " << a_coneR_ << ":" << a_coneR1_
-                                   << ":" << a_coneR2_ << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR " << a_mipR_
-                                   << "\t a_mipR2 " << a_mipR2_ << "\t a_mipR3 " << a_mipR3_ << "\t a_mipR4 "
-                                   << a_mipR4_ << "\t a_mipR5 " << a_mipR5_ << "\n pTrackMin_ " << pTrackMin_
-                                   << "\t eEcalMax_ " << eEcalMax_ << "\t maxRestrictionP_ " << maxRestrictionP_
-                                   << "\t slopeRestrictionP_ " << slopeRestrictionP_ << "\t eIsolateStrong_ "
-                                   << eIsolate1_ << "\t eIsolateSoft_ " << eIsolate2_ << "\t hcalScale_ " << hcalScale_
-                                   << "\n\t momentumLow_ " << pTrackLow_ << "\t momentumHigh_ " << pTrackHigh_
-                                   << "\n\t ignoreTrigger_ " << ignoreTrigger_ << "\n\t useL1Trigger_ " << useL1Trigger_
-                                   << "\t unCorrect_     " << unCorrect_ << "\t collapseDepth_ " << collapseDepth_
-                                   << "\t L1TrigName_    " << l1TrigName_ << "\nThreshold for EB " << hitEthrEB_
-                                   << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
-                                   << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
+  edm::LogVerbatim("HcalIsoTrack")
+      << "Parameters read from config file \n"
+      << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality " << theTrackQuality_ << "\t minQuality "
+      << selectionParameter_.minQuality << "\t maxDxyPV " << selectionParameter_.maxDxyPV << "\t maxDzPV "
+      << selectionParameter_.maxDzPV << "\t maxChi2 " << selectionParameter_.maxChi2 << "\t maxDpOverP "
+      << selectionParameter_.maxDpOverP << "\t minOuterHit " << selectionParameter_.minOuterHit << "\t minLayerCrossed "
+      << selectionParameter_.minLayerCrossed << "\t maxInMiss " << selectionParameter_.maxInMiss << "\t maxOutMiss "
+      << selectionParameter_.maxOutMiss << "\t a_coneR " << a_coneR_ << ":" << a_coneR1_ << ":" << a_coneR2_
+      << "\t a_charIsoR " << a_charIsoR_ << "\t a_mipR " << a_mipR_ << "\t a_mipR2 " << a_mipR2_ << "\t a_mipR3 "
+      << a_mipR3_ << "\t a_mipR4 " << a_mipR4_ << "\t a_mipR5 " << a_mipR5_ << "\n pTrackMin_ " << pTrackMin_
+      << "\t eEcalMax_ " << eEcalMax_ << "\t maxRestrictionP_ " << maxRestrictionP_ << "\t slopeRestrictionP_ "
+      << slopeRestrictionP_ << "\t eIsolateStrong_ " << eIsolate1_ << "\t eIsolateSoft_ " << eIsolate2_
+      << "\t hcalScale_ " << hcalScale_ << "\n\t momentumLow_ " << pTrackLow_ << "\t momentumHigh_ " << pTrackHigh_
+      << "\n\t ignoreTrigger_ " << ignoreTrigger_ << "\n\t useL1Trigger_ " << useL1Trigger_ << "\t unCorrect_     "
+      << unCorrect_ << "\t collapseDepth_ " << collapseDepth_ << "\t L1TrigName_    " << l1TrigName_
+      << "\nThreshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":"
+      << hitEthrEE1_ << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
   edm::LogVerbatim("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" << l1Filter_
                                    << " L2Filter:" << l2Filter_ << " L3Filter:" << l3Filter_ << " and "
                                    << debEvents_.size() << " events to be debugged";
@@ -449,6 +453,7 @@ void AlCaHcalIsotrkProducer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.addUntracked<bool>("hep17", false);
   std::vector<int> events;
   desc.add<std::vector<int>>("debugEvents", events);
+  desc.add<bool>("usePFThreshold", true);
   descriptions.add("alcaHcalIsotrkProducer", desc);
 }
 
@@ -469,12 +474,16 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
   const MagneticField* bField = &iSetup.getData(tok_bFieldH_);
   const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
   const EcalSeverityLevelAlgo* theEcalSevlv = &iSetup.getData(tok_sevlv_);
+  eThresholds_ = &iSetup.getData(tok_ecalPFRecHitThresholds_);
 
-  // get handles to calogeometry and calotopology
+  // get calogeometry and calotopology
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
   const CaloTopology* caloTopology = &iSetup.getData(tok_caloTopology_);
   const HcalTopology* theHBHETopology = &iSetup.getData(tok_htopo_);
+
+  // get Hcal response corrections
   const HcalRespCorrs* respCorrs = &iSetup.getData(tok_resp_);
+
   bool okC(true);
   //Get track collection
   auto trkCollection = iEvent.getHandle(tok_genTrack_);
@@ -615,7 +624,8 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
                             respCorrs,
                             muonh,
                             *outputHcalIsoTrackColl,
-                            isoTrkEvent);
+                            isoTrkEvent,
+                            iEvent.id());
     isoTrkEvent.tracksSaved_ = ntksave[0];
     isoTrkEvent.tracksLoose_ = ntksave[1];
     isoTrkEvent.tracksTight_ = ntksave[2];
@@ -701,7 +711,8 @@ void AlCaHcalIsotrkProducer::produce(edm::Event& iEvent, edm::EventSetup const& 
                                     respCorrs,
                                     muonh,
                                     *outputHcalIsoTrackColl,
-                                    isoTrkEvent);
+                                    isoTrkEvent,
+                                    iEvent.id());
               isoTrkEvent.tracksSaved_ += ntksave[0];
               isoTrkEvent.tracksLoose_ += ntksave[1];
               isoTrkEvent.tracksTight_ += ntksave[2];
@@ -772,7 +783,8 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
                                                        const HcalRespCorrs* respCorrs,
                                                        const edm::Handle<reco::MuonCollection>& muonh,
                                                        std::vector<HcalIsoTrkCalibVariables>& hocalib,
-                                                       HcalIsoTrkEventVariables& hocalibEvent) {
+                                                       HcalIsoTrkEventVariables& hocalibEvent,
+                                                       const edm::EventID& eventId) {
   int nSave(0), nLoose(0), nTight(0);
   unsigned int nTracks(0), nselTracks(0);
   double rhohEV = (tower.isValid()) ? rhoh(tower) : 0;
@@ -1155,6 +1167,8 @@ std::array<int, 3> AlCaHcalIsotrkProducer::getProducts(int goodPV,
         }
 #endif
         if (accept) {
+          edm::LogVerbatim("HcalIsoTrackX")
+              << "Run " << eventId.run() << " Event " << eventId.event() << " Track " << nTracks << " p " << isoTk.p_;
           hocalib.emplace_back(isoTk);
           nSave++;
           int type(0);
@@ -1252,12 +1266,16 @@ double AlCaHcalIsotrkProducer::eThreshold(const DetId& id, const CaloGeometry* g
   const GlobalPoint& pos = geo->getPosition(id);
   double eta = std::abs(pos.eta());
   double eThr(hitEthrEB_);
-  if (id.subdetId() != EcalBarrel) {
-    eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-    if (eThr < hitEthrEELo_)
-      eThr = hitEthrEELo_;
-    else if (eThr > hitEthrEEHi_)
-      eThr = hitEthrEEHi_;
+  if (usePFThresh_) {
+    eThr = static_cast<double>((*eThresholds_)[id]);
+  } else {
+    if (id.subdetId() != EcalBarrel) {
+      eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+      if (eThr < hitEthrEELo_)
+        eThr = hitEthrEELo_;
+      else if (eThr > hitEthrEEHi_)
+        eThr = hitEthrEEHi_;
+    }
   }
   return eThr;
 }

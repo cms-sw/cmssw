@@ -20,8 +20,8 @@ public:
   std::map<std::string, float> getInputsVars(const reco::GsfElectron& ele) const;
 
   // Evaluate the DNN on all the electrons with the correct model
-  std::vector<std::vector<float>> evaluate(const reco::GsfElectronCollection& ele,
-                                           const std::vector<tensorflow::Session*>& sessions) const;
+  std::vector<std::pair<uint, std::vector<float>>> evaluate(const reco::GsfElectronCollection& ele,
+                                                            const std::vector<tensorflow::Session*>& sessions) const;
 
   // List of input variables names used to check the variables request as
   // inputs in a dynamic way from configuration file.
@@ -31,6 +31,8 @@ public:
   static constexpr float ptThreshold = 10.;
   static constexpr float ecalBarrelMaxEtaWithGap = 1.566;
   static constexpr float ecalBarrelMaxEtaNoGap = 1.485;
+  static constexpr float endcapBoundary = 2.5;
+  static constexpr float extEtaBoundary = 2.65;
 
 private:
   const egammaTools::EgammaDNNHelper dnnHelper_;

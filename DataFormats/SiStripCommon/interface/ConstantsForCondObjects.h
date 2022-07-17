@@ -21,4 +21,14 @@ namespace sistrip {
   static const uint32_t LowThStripShift_ = 0;
 }  // namespace sistrip
 
+namespace siPhase2strip {
+  static const uint32_t FirstBadStripMask_ = 0x7FF;
+  static const uint32_t RangeBadStripMask_ = 0x7FF;
+  static const uint32_t FlagBadStripMask_ = 0xFFF;
+
+  static const uint32_t FirstBadStripShift_ = 21;
+  static const uint32_t RangeBadStripShift_ = 10;
+  static const uint32_t FlagBadStripShift_ = 0;
+}  // namespace siPhase2strip
+
 #endif  // DataFormats_SiStripCommon_ConstantsForCondObjects_H

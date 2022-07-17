@@ -15,16 +15,15 @@
   \version  $Id: GenericTriggerEventFlagTest.cc,v 1.2 2012/01/19 20:17:34 vadler Exp $
 */
 
-#include "FWCore/Framework/interface/EDFilter.h"
-
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
-class GenericTriggerEventFlagTest : public edm::EDFilter {
-  GenericTriggerEventFlag* genericTriggerEventFlag_;
+class GenericTriggerEventFlagTest : public edm::stream::EDFilter<> {
+  GenericTriggerEventFlag genericTriggerEventFlag_;
 
 public:
   explicit GenericTriggerEventFlagTest(const edm::ParameterSet& iConfig);
-  virtual ~GenericTriggerEventFlagTest();
+  virtual ~GenericTriggerEventFlagTest() override = default;
 
 private:
   virtual void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
@@ -32,17 +31,15 @@ private:
 };
 
 GenericTriggerEventFlagTest::GenericTriggerEventFlagTest(const edm::ParameterSet& iConfig)
-    : genericTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector(), *this)) {}
-
-GenericTriggerEventFlagTest::~GenericTriggerEventFlagTest() { delete genericTriggerEventFlag_; }
+    : genericTriggerEventFlag_(GenericTriggerEventFlag(iConfig, consumesCollector(), *this)) {}
 
 void GenericTriggerEventFlagTest::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-  if (genericTriggerEventFlag_->on())
-    genericTriggerEventFlag_->initRun(iRun, iSetup);
+  if (genericTriggerEventFlag_.on())
+    genericTriggerEventFlag_.initRun(iRun, iSetup);
 }
 
 bool GenericTriggerEventFlagTest::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  if (genericTriggerEventFlag_->on() && !genericTriggerEventFlag_->accept(iEvent, iSetup))
+  if (genericTriggerEventFlag_.on() && !genericTriggerEventFlag_.accept(iEvent, iSetup))
     return false;
 
   return true;

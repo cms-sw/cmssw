@@ -1,13 +1,22 @@
-# hltGetConfiguration --full --data /dev/CMSSW_12_2_0/Fake --type Fake --unprescale --process HLTFake --globaltag auto:run1_hlt_Fake --input file:RelVal_Raw_Fake_DATA.root
+# hltGetConfiguration --full --data /dev/CMSSW_12_4_0/Fake --type Fake --unprescale --process HLTFake --globaltag auto:run1_hlt_Fake --input file:RelVal_Raw_Fake_DATA.root
 
+<<<<<<< HEAD
 # /dev/CMSSW_12_2_0/Fake/V6 (CMSSW_12_2_0)
+=======
+# /dev/CMSSW_12_4_0/Fake/V8 (CMSSW_12_4_0)
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFake" )
 
+
 process.HLTConfigVersion = cms.PSet(
+<<<<<<< HEAD
   tableName = cms.string('/dev/CMSSW_12_2_0/Fake/V6')
+=======
+  tableName = cms.string('/dev/CMSSW_12_4_0/Fake/V8')
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
 )
 
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
@@ -319,7 +328,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
 
-process.DQMOutput = cms.EndPath( process.dqmOutput )
+process.DQMOutput = cms.FinalPath( process.dqmOutput )
 
 
 
@@ -342,11 +351,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # enable TrigReport, TimeReport and MultiThreading
-process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool( True ),
-    numberOfThreads = cms.untracked.uint32( 4 ),
-    numberOfStreams = cms.untracked.uint32( 0 ),
-)
+process.options.wantSummary = True
+process.options.numberOfThreads = 4
+process.options.numberOfStreams = 0
 
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:

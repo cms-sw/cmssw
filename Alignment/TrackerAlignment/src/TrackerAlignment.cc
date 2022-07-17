@@ -242,19 +242,19 @@ void TrackerAlignment::saveToDB(void) {
   AlignmentErrorsExtended alignmentErrors = *(theAlignableTracker->alignmentErrors());
 
   //   if ( poolDbService->isNewTagRequest(theAlignRecordName) )
-  //     poolDbService->createNewIOV<Alignments>( alignments, poolDbService->endOfTime(),
+  //     poolDbService->createOneIOV<Alignments>( alignments, poolDbService->endOfTime(),
   //                                              theAlignRecordName );
   //   else
-  //     poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(),
+  //     poolDbService->appendOneIOV<Alignments>( alignments, poolDbService->currentTime(),
   //                                                 theAlignRecordName );
   // In the two calls below it is assumed that the delete of "theAlignableTracker" is also deleting the two concerned payloads...
   poolDbService->writeOneIOV<Alignments>(alignments, poolDbService->currentTime(), theAlignRecordName);
   //   if ( poolDbService->isNewTagRequest(theErrorRecordName) )
-  //     poolDbService->createNewIOV<AlignmentErrorsExtended>( alignmentErrors,
+  //     poolDbService->createOneIOV<AlignmentErrorsExtended>( alignmentErrors,
   //                                                   poolDbService->endOfTime(),
   //                                                   theErrorRecordName );
   //   else
-  //     poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors,
+  //     poolDbService->appendOneIOV<AlignmentErrorsExtended>( alignmentErrors,
   //                                                      poolDbService->currentTime(),
   //                                                      theErrorRecordName );
   poolDbService->writeOneIOV<AlignmentErrorsExtended>(

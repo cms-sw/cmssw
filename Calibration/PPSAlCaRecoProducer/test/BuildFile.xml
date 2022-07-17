@@ -1,0 +1,18 @@
+<bin name="testExpressPPSAlCaRecoProducer" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash Calibration/PPSAlCaRecoProducer/test test_express_AlCaRecoProducer.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+<bin name="testExpressPPSAlCaRecoOutput" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash Calibration/PPSAlCaRecoProducer/test test_express_PPSAlCaReco_output.sh"/>
+  <flags PRE_TEST="testExpressPPSAlCaRecoProducer"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+<bin name="testPromptPPSAlCaRecoProducer" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash Calibration/PPSAlCaRecoProducer/test test_prompt_AlCaRecoProducer.sh"/>
+  <use name="FWCore/Utilities"/>
+</bin>
+<bin name="testPromptPPSAlCaRecoOutput" file="TestDriver.cpp">
+  <flags TEST_RUNNER_ARGS="/bin/bash Calibration/PPSAlCaRecoProducer/test test_prompt_PPSAlCaReco_output.sh"/>
+  <flags PRE_TEST="testPromptPPSAlCaRecoProducer"/>
+  <use name="FWCore/Utilities"/>
+</bin>

@@ -9,6 +9,7 @@
 
 ----------------------------------------------------------------------*/
 
+#include <cmath>
 #include <exception>
 #include <iostream>
 #include <iomanip>
@@ -41,7 +42,7 @@ void DoMyStuff() {
   // be substantially more complex. This example is about as simple
   // as can be.
 
-  double d = 3.14159265357989;
+  double d = M_PI;
   edm::LogWarning("cat_A") << "Test of std::setprecision(p):"
                            << " Pi with precision 12 is " << std::setprecision(12) << d;
 

@@ -48,7 +48,8 @@ namespace evf {
   public:
     EvFOutputJSONWriter(edm::ParameterSet const& ps,
                         edm::SelectedProducts const* selections,
-                        std::string const& streamLabel);
+                        std::string const& streamLabel,
+                        std::string const& moduleLabel);
 
     edm::StreamerOutputModuleCommon streamerCommon_;
 

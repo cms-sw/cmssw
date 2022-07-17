@@ -1,15 +1,9 @@
 import FWCore.ParameterSet.Config as cms
-from CommonTools.ParticleFlow.pfNoPileUpJME_cff import adapt, pfPileUpJME
-from CommonTools.RecoAlgos.sortedPackedPrimaryVertices_cfi import sortedPackedPrimaryVertices
+from CommonTools.ParticleFlow.pfNoPileUpJME_cff import primaryVertexAssociationJME
 
-packedPrimaryVertexAssociationJME = sortedPackedPrimaryVertices.clone(
-  produceSortedVertices = False,
-  producePileUpCollection  = False,
-  produceNoPileUpCollection = False
-)
-adapt(packedPrimaryVertexAssociationJME)
-
-from CommonTools.ParticleFlow.pfNoPileUpPacked_cfi import pfNoPileUpPacked as _pfNoPileUpPacked
-pfCHS = _pfNoPileUpPacked.clone(
-    vertexAssociationQuality=pfPileUpJME.vertexAssociationQuality
+pfCHS = cms.EDFilter("CandPtrSelector",
+              src = cms.InputTag("packedPFCandidates"),
+              cut = cms.string("fromPV(0)>0 || (vertexRef().key<={} && abs(dz(0))<{})".format(
+                  primaryVertexAssociationJME.assignment.NumOfPUVtxsForCharged.value(),
+                  primaryVertexAssociationJME.assignment.DzCutForChargedFromPUVtxs.value()))
 )

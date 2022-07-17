@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"
-#include "FWCore/Framework/interface/ESSourceDataProxyBase.h"
+#include "FWCore/Framework/interface/ESSourceDataProxyNonConcurrentBase.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 #include "DataFormats/FWLite/interface/EventSetup.h"
 #include "DataFormats/FWLite/interface/Record.h"
@@ -65,10 +65,13 @@ namespace {
     cms::Exception* m_exception;
   };
 
-  class FWLiteProxy : public edm::eventsetup::ESSourceDataProxyBase {
+  class FWLiteProxy : public edm::eventsetup::ESSourceDataProxyNonConcurrentBase {
   public:
     FWLiteProxy(const TypeID& iTypeID, const fwlite::Record* iRecord, edm::SerialTaskQueue* iQueue, std::mutex* iMutex)
-        : edm::eventsetup::ESSourceDataProxyBase(iQueue, iMutex), m_type(iTypeID), m_record(iRecord), m_data{nullptr} {}
+        : edm::eventsetup::ESSourceDataProxyNonConcurrentBase(iQueue, iMutex),
+          m_type(iTypeID),
+          m_record(iRecord),
+          m_data{nullptr} {}
 
     void prefetch(const edm::eventsetup::DataKey& iKey, edm::EventSetupRecordDetails) final {
       assert(iKey.type() == m_type);
@@ -83,7 +86,7 @@ namespace {
     }
 
     void invalidateCache() override {
-      edm::eventsetup::ESSourceDataProxyBase::invalidateCache();
+      edm::eventsetup::ESSourceDataProxyNonConcurrentBase::invalidateCache();
       m_data = nullptr;
     }
 

@@ -114,7 +114,6 @@ EXTRA=""
 DATA="--data"
 HLTLISTPATHPROXY=""
 
-
 SELECTION=""
 
 # parse options
@@ -242,7 +241,8 @@ mkdir  "$WORKDIR"
 cd     "$WORKDIR"
 
 # find the list of all trigger paths
-TRIGGERS=$(hltListPaths -p "$MENU" $HLTLISTPATHPROXY | grep -v HLTriggerFinalPath)
+TRIGGERS=$(hltListPaths "$MENU" $HLTLISTPATHPROXY -p --no-dep --exclude "^HLTriggerFinalPath$" "^Dataset_.+")
+echo "${TRIGGERS[@]}" > paths.txt
 
 # print some info
 if [ "$SELECTION" == "complex" ]; then
@@ -291,6 +291,7 @@ cat >> hlt.py << @EOF
 process.options.numberOfThreads = cms.untracked.uint32( $THREADS )
 process.options.numberOfStreams = cms.untracked.uint32( $STREAMS )
 process.options.sizeOfStackForThreadsInKB = cms.untracked.uint32( 10*1024 )
+process.options.accelerators = cms.untracked.vstring( 'cpu' )
 
 process.hltTriggerSummaryAOD.throw = cms.bool( True )
 @EOF
@@ -332,7 +333,7 @@ if [ "$SETUP" ]; then
   #we use $MENU not $SETUP here as we force the same DB / converter as the main menu
   #this is the hltGetConfiguration behaviour and would be confusing if you had to 
   #specify converter/db on the setup menu on hltIntegration tests but not on hltGetConfiguration
-  read SETUP_Vx SETUP_DB SETUP <<< $(parse_HLT_menu "$MENU")
+  read SETUP_Vx SETUP_DB _ <<< $(parse_HLT_menu "$MENU")
 
   hltConfigFromDB --$SETUP_Vx --$SETUP_DB $HLTLISTPATHPROXY --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService,-PrescaleService,-EvFDaqDirector,-FastMonitoringService > setup_cff.py
   sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)

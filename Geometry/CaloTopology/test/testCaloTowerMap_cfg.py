@@ -6,9 +6,10 @@ process.load("Configuration.Geometry.GeometryExtended2017_cff")
 process.load("Configuration.Geometry.GeometryExtended2017Reco_cff")
 process.load("RecoJets.Configuration.CaloTowersES_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.load("Geometry.CaloTopology.caloTowerMapTester_cfi")
 
-#
-#    
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.CaloTower=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -34,6 +35,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("CaloTowerMapTester")
-
-process.p1 = cms.Path(process.generator*process.prod)
+process.p1 = cms.Path(process.generator*process.caloTowerMapTester)

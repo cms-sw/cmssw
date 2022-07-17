@@ -19,7 +19,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <vector>
 
 using namespace edm;
@@ -140,12 +139,10 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         GlobalTrackingRegion region(mom_perp, vtx, 0.2, 0.2);
 
         seedCreator_.init(region, es, nullptr);
-        seedCreator_.makeSeed(
-            *result,
-            SeedingHitSet(hits[0],
-                          hits[1],
-                          hits.size() > 2 ? hits[2] : SeedingHitSet::nullPtr(),
-                          (includeFourthHit_ && hits.size() > 3) ? hits[3] : SeedingHitSet::nullPtr()));
+        if (hits.size() > 3 and not includeFourthHit_)
+          seedCreator_.makeSeed(*result, {hits[0], hits[1], hits[2]});
+        else
+          seedCreator_.makeSeed(*result, hits);
       }
     }
   }

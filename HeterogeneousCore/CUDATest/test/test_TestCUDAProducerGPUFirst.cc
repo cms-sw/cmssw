@@ -16,7 +16,7 @@ TEST_CASE("Standard checks of TestCUDAProducerGPUFirst", s_tag) {
   const std::string baseConfig{
       R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
-process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
+process.load("HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi")
 process.toTest = cms.EDProducer("TestCUDAProducerGPUFirst")
 process.moduleToTest(process.toTest)
 )_"};
@@ -57,7 +57,7 @@ TEST_CASE("TestCUDAProducerGPUFirst operation", s_tag) {
   const std::string baseConfig{
       R"_(from FWCore.TestProcessor.TestProcess import *
 process = TestProcess()
-process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
+process.load("HeterogeneousCore.CUDACore.ProcessAcceleratorCUDA_cfi")
 process.toTest = cms.EDProducer("TestCUDAProducerGPUFirst")
 process.moduleToTest(process.toTest)
 )_"};

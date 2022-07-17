@@ -205,23 +205,44 @@ egamma_identification_histomax = cms.PSet(
         CategoriesPtMin=cms.vdouble([cat.pt_min for cat in categories]),
         CategoriesPtMax=cms.vdouble([cat.pt_max for cat in categories]),
         Weights=cms.vstring(bdt_weights_histomax['v10_3151']),
-        WorkingPoints=cms.vdouble(
-                [wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],tight_wp)]
-                )
+        WorkingPoints=cms.VPSet([
+            cms.PSet(
+                Name=cms.string('tight'),
+                WorkingPoint=cms.vdouble([wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],tight_wp)])
+            ),
+            cms.PSet(
+                Name=cms.string('loose'),
+                WorkingPoint=cms.vdouble([wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],loose_wp)])
+            ),
+            ])
         )
 
 phase2_hgcalV10.toModify(egamma_identification_histomax,
         Inputs=cms.vstring(input_features_histomax['v10_3151']),
         Weights=cms.vstring(bdt_weights_histomax['v10_3151']),
-        WorkingPoints=cms.vdouble(
-                [wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],tight_wp)]
-                )
+        WorkingPoints=cms.VPSet([
+            cms.PSet(
+                Name=cms.string('tight'),
+                WorkingPoint=cms.vdouble([wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],tight_wp)])
+            ),
+            cms.PSet(
+                Name=cms.string('loose'),
+                WorkingPoint=cms.vdouble([wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],loose_wp)])
+            ),
+            ])
         )
 
 phase2_hgcalV11.toModify(egamma_identification_histomax,
         Inputs=cms.vstring(input_features_histomax['v10_3151']),
         Weights=cms.vstring(bdt_weights_histomax['v10_3151']),
-        WorkingPoints=cms.vdouble(
-                [wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],tight_wp)]
-                )
+        WorkingPoints=cms.VPSet([
+            cms.PSet(
+                Name=cms.string('tight'),
+                WorkingPoint=cms.vdouble([wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],tight_wp)])
+            ),
+            cms.PSet(
+                Name=cms.string('loose'),
+                WorkingPoint=cms.vdouble([wps[eff] for wps,eff in zip(working_points_histomax['v10_3151'],loose_wp)])
+            ),
+            ])
         )

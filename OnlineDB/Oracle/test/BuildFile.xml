@@ -1,7 +1,6 @@
-<architecture name="_amd64_">
+<ifarch value="x86_64">
   <bin name="test_occi_std_length" file="test.cpp">
     <use name="oracleocci"/>
     <flags TEST_RUNNER_ARGS="12154"/>
   </bin>
-
-</architecture>
+</ifarch>

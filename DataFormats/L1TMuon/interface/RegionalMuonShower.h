@@ -5,6 +5,8 @@
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 #include "DataFormats/L1Trigger/interface/L1TObjComparison.h"
 
+#include "RegionalMuonCandFwd.h"  // For tftype.
+
 namespace l1t {
 
   class RegionalMuonShower;
@@ -31,9 +33,8 @@ namespace l1t {
     void setTwoLooseOutOfTime(const bool bit) { isTwoLooseOutOfTime_ = bit; }
     void setTwoLooseInTime(const bool bit) { isTwoLooseInTime_ = bit; }
 
-    void setEndcap(const int endcap) { endcap_ = endcap; }
-    void setSector(const unsigned sector) { sector_ = sector; }
-    void setLink(const int link) { link_ = link; };
+    /// Set the processor ID, track-finder type. From these two, the link is set
+    void setTFIdentifiers(int processor, tftype trackFinder);
 
     bool isValid() const;
     bool isOneNominalInTime() const { return isOneNominalInTime_; }
@@ -43,10 +44,12 @@ namespace l1t {
     bool isTwoLooseInTime() const { return isTwoLooseInTime_; }
     bool isTwoLooseOutOfTime() const { return isTwoLooseOutOfTime_; }
 
-    int endcap() const { return endcap_; }
-    int sector() const { return sector_; }
     /// Get link on which the MicroGMT receives the candidate
-    int link() const { return link_; }
+    const int link() const { return link_; };
+    /// Get processor ID on which the candidate was found (0..5 for OMTF/EMTF; 0..11 for BMTF)
+    const int processor() const { return processor_; };
+    /// Get track-finder which found the muon (bmtf, emtf_pos/emtf_neg or omtf_pos/omtf_neg)
+    const tftype trackFinderType() const { return trackFinder_; };
 
     bool operator==(const l1t::RegionalMuonShower& rhs) const;
     inline bool operator!=(const l1t::RegionalMuonShower& rhs) const { return !(operator==(rhs)); };
@@ -60,9 +63,9 @@ namespace l1t {
     bool isOneTightOutOfTime_;
     bool isTwoLooseInTime_;
     bool isTwoLooseOutOfTime_;
-    int endcap_;       //    +/-1.  For ME+ and ME-.
-    unsigned sector_;  //  1 -  6.
     int link_;
+    int processor_;
+    tftype trackFinder_;
   };
 
 }  // namespace l1t

@@ -54,13 +54,15 @@ namespace l1t {
       The 2 loose showers case would be mapped onto musOutOfTime0 and musOutOfTime1 later during Run-3
     */
 
-    void setMus0(const bool bit) { mus0_ = bit; }
-    void setMus1(const bool bit) { mus1_ = bit; }
+    void setOneNominalInTime(const bool bit) { oneNominalInTime_ = bit; }
+    void setOneTightInTime(const bool bit) { oneTightInTime_ = bit; }
+    void setMus0(const bool bit) { oneNominalInTime_ = bit; }
+    void setMus1(const bool bit) { oneTightInTime_ = bit; }
     void setMusOutOfTime0(const bool bit) { musOutOfTime0_ = bit; }
     void setMusOutOfTime1(const bool bit) { musOutOfTime1_ = bit; }
 
-    bool mus0() const { return mus0_; }
-    bool mus1() const { return mus1_; }
+    bool mus0() const { return oneNominalInTime_; }
+    bool mus1() const { return oneTightInTime_; }
     bool musOutOfTime0() const { return musOutOfTime0_; }
     bool musOutOfTime1() const { return musOutOfTime1_; }
 
@@ -69,8 +71,8 @@ namespace l1t {
 
     // useful members for trigger performance studies
     // needed at startup Run-3
-    bool isOneNominalInTime() const { return mus0_; }
-    bool isOneTightInTime() const { return mus1_; }
+    bool isOneNominalInTime() const { return oneNominalInTime_; }
+    bool isOneTightInTime() const { return oneTightInTime_; }
     // to be developed during Run-3
     bool isTwoLooseInTime() const { return false; }
     // these options require more study
@@ -84,8 +86,8 @@ namespace l1t {
   private:
     // Run-3 definitions as provided in DN-20-033
     // in time and out-of-time qualities. only 2 bits each.
-    bool mus0_;
-    bool mus1_;
+    bool oneNominalInTime_;
+    bool oneTightInTime_;
     bool musOutOfTime0_;
     bool musOutOfTime1_;
   };

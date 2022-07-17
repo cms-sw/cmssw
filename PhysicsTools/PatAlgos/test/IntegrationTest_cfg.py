@@ -27,6 +27,9 @@ process.patLowPtElectrons.electronSource = "gedGsfElectrons"
 process.patLowPtElectrons.genParticleMatch = "electronMatch"
 process.selectedPatLowPtElectrons.cut = "pt>99999."
 
+process.filteredDisplacedMuons.srcMuons = "muons"
+process.selectedPatDisplacedMuons.cut = "pt>99999."
+
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:

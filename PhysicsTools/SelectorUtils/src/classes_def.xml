@@ -9,4 +9,9 @@
   <class name="MuonVPlusJetsIDSelectionFunctor"/>
   <class name="PVSelector"/>
   <class name="RunLumiSelector"/>
+  <class name="VersionedSelector<edm::Ptr<reco::Photon>>"/>
+  <class name="VersionedSelector<edm::Ptr<pat::Photon>>"/>
+  <class name="VersionedSelector<edm::Ptr<reco::Muon>>"/>
+  <class name="VersionedSelector<edm::Ptr<reco::GsfElectron>>"/>
+  <class name="VersionedSelector<edm::Ptr<pat::Electron>>"/>
 </lcgdict>

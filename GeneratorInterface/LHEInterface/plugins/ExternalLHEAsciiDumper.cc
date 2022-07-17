@@ -10,7 +10,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -27,40 +27,33 @@
 // class declaration
 //
 
-class ExternalLHEAsciiDumper : public edm::EDAnalyzer {
+class ExternalLHEAsciiDumper : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit ExternalLHEAsciiDumper(const edm::ParameterSet&);
-  ~ExternalLHEAsciiDumper() override;
+  ~ExternalLHEAsciiDumper() override = default;
 
 private:
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(edm::Run const&, edm::EventSetup const&) override;
 
-  edm::InputTag lheProduct_;
-  std::string lheFileName_;
+  const edm::InputTag lheProduct_;
+  const std::string lheFileName_;
 
-  edm::EDGetTokenT<LHEXMLStringProduct> LHEAsciiToken_;
+  const edm::EDGetTokenT<LHEXMLStringProduct> LHEAsciiToken_;
 
   // ----------member data ---------------------------
 };
 
 ExternalLHEAsciiDumper::ExternalLHEAsciiDumper(const edm::ParameterSet& ps)
     : lheProduct_(ps.getParameter<edm::InputTag>("lheProduct")),
-      lheFileName_(ps.getParameter<std::string>("lheFileName")) {
-  LHEAsciiToken_ = consumes<LHEXMLStringProduct, edm::InRun>(edm::InputTag(lheProduct_));
-
-  return;
-}
-
-ExternalLHEAsciiDumper::~ExternalLHEAsciiDumper() {}
-
-void ExternalLHEAsciiDumper::analyze(const edm::Event&, const edm::EventSetup&) {}
+      lheFileName_(ps.getParameter<std::string>("lheFileName")),
+      LHEAsciiToken_(consumes<LHEXMLStringProduct, edm::InRun>(edm::InputTag(lheProduct_))) {}
 
 // ------------ method called once each job just after ending the event loop  ------------
 
 void ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
-  edm::Handle<LHEXMLStringProduct> LHEAscii;
-  iRun.getByToken(LHEAsciiToken_, LHEAscii);
+  const edm::Handle<LHEXMLStringProduct>& LHEAscii = iRun.getHandle(LHEAsciiToken_);
 
   const std::vector<std::string>& lheOutputs = LHEAscii->getStrings();
 

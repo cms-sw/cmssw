@@ -44,10 +44,11 @@
 //  V9.00 - Set QProb = Q/Q_avg when calcultion is turned off, use fbin definitions of Qbin
 //  V10.00 - Use new template object to reco Phase 1 FPix hits
 //  V10.01 - Fix memory overwriting bug
+//  V10.10 - Change VVIObjF so it only reads kappa
 //
 //
 //  Created by Morris Swartz on 10/27/06.
-//
+//  VVIObjF object simplification by Tamas Vami
 //
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
@@ -1181,7 +1182,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
     beta2 = 1.;
     if (use_VVIObj) {
       //  VVIObj is a private port of CERNLIB VVIDIS
-      VVIObjF vvidist(kappa, beta2, 1);
+      VVIObjF vvidist(kappa);
       prvav = vvidist.fcn(xvav);
     } else {
       //  Use faster but less accurate TMath Vavilov distribution function

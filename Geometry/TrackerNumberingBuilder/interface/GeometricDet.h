@@ -77,7 +77,9 @@ public:
     OTPhase2Wheel = 209,
     PixelPhase2FullDisk = 217,
     PixelPhase2ReducedDisk = 227,
-    PixelPhase2TDRDisk = 237
+    PixelPhase2TDRDisk = 237,
+    PixelPhase2DoubleDisk = 347,
+    PixelPhase2SubDisk = 357
   } GeometricEnumType;
 
   // Constructors from Filtered View (called while looping over DD).
@@ -164,6 +166,9 @@ public:
   // CUSTOM DESTRUCTOR
   ~GeometricDet();
 
+  // Utility function
+  static std::string printNavType(int const* n, size_t sz);
+
 private:
   std::vector<double> computeLegacyShapeParameters(const cms::DDSolidShape& mySolidShape,
                                                    const dd4hep::Solid& mySolid) const;
@@ -198,6 +203,13 @@ private:
 
   ConstGeometricDetContainer container_;
 };
+
+namespace geometric_det_ns {
+  inline std::ostream& operator<<(std::ostream& os, const GeometricDet::NavRange& n) {
+    os << GeometricDet::printNavType(n.first, n.second);
+    return os;
+  }
+}  // namespace geometric_det_ns
 
 #undef PoolAlloc
 #endif

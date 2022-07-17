@@ -6,7 +6,7 @@
 #include <sstream>
 #include <atomic>
 #include <mutex>
-#include <tbb/concurrent_unordered_map.h>
+#include <oneapi/tbb/concurrent_unordered_map.h>
 #include "FWCore/Utilities/interface/InputType.h"
 
 namespace edm {
@@ -29,7 +29,7 @@ namespace edm {
       void closedFile(std::string const& lfn, bool usedFallback);
 
     private:
-      void filePostCloseEvent(std::string const& lfn, bool usedFallback);
+      void filePostCloseEvent(std::string const& lfn);
 
       std::string const* matchedLfn(std::string const& iURL);  //updates its internal cache
       class FileStatistics {
@@ -76,8 +76,8 @@ namespace edm {
 
       std::string m_clienthost;
       std::string m_clientdomain;
-      tbb::concurrent_unordered_map<std::string, FileInfo> m_lfnToFileInfo;
-      tbb::concurrent_unordered_map<std::string, std::string> m_urlToLfn;
+      oneapi::tbb::concurrent_unordered_map<std::string, FileInfo> m_lfnToFileInfo;
+      oneapi::tbb::concurrent_unordered_map<std::string, std::string> m_urlToLfn;
       FileStatistics m_filestats;
       std::string m_guid;
       size_t m_counter;

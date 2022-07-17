@@ -33,21 +33,6 @@
 // forward declarations
 
 namespace reco {
-
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<TrackingParticleCollection, edm::View<TrajectorySeed>, double>>
-      SimToRecoCollectionSeed;
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<edm::View<TrajectorySeed>, TrackingParticleCollection, double>>
-      RecoToSimCollectionSeed;
-
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<TrackingParticleCollection, TrackCandidateCollection, double>>
-      SimToRecoCollectionTCandidate;
-  typedef edm::AssociationMap<
-      edm::OneToManyWithQualityGeneric<TrajectorySeedCollection, TrackCandidateCollection, double>>
-      RecoToSimCollectionTCandidate;
-
   class TrackToTrackingParticleAssociator {
   public:
 #ifndef __GCCXML__
@@ -101,13 +86,13 @@ namespace reco {
     }
 
     // TrackCandidate
-    reco::RecoToSimCollectionTCandidate associateRecoToSim(const edm::Handle<TrackCandidateCollection> &tc,
-                                                           const edm::Handle<TrackingParticleCollection> &tpc) const {
+    reco::RecoToSimCollectionTCandidate associateRecoToSim(
+        const edm::Handle<TrackCandidateCollection> &tc, const edm::RefVector<TrackingParticleCollection> &tpc) const {
       return m_impl->associateRecoToSim(tc, tpc);
     }
 
-    reco::SimToRecoCollectionTCandidate associateSimToReco(const edm::Handle<TrackCandidateCollection> &tc,
-                                                           const edm::Handle<TrackingParticleCollection> &tpc) const {
+    reco::SimToRecoCollectionTCandidate associateSimToReco(
+        const edm::Handle<TrackCandidateCollection> &tc, const edm::RefVector<TrackingParticleCollection> &tpc) const {
       return m_impl->associateSimToReco(tc, tpc);
     }
 

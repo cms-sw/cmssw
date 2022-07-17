@@ -214,24 +214,23 @@ process.load("CondTools.SiStrip.scaleAndSmearSiStripNoises_cfi")
 #process.scaleAndSmearSiStripNoises.params  = subsets        # as a cms.VPset
 #process.scaleAndSmearSiStripNoises.params  = byLayerOnlyTIB # as a cms.VPset
 process.scaleAndSmearSiStripNoises.params  = autoparams
-process.scaleAndSmearSiStripNoises.fillDefaults = False     # to fill uncabled DetIds with default
-
-##
-## Database output service
-##
-from CondCore.CondDB.CondDB_cfi import CondDB as _CondDB
+process.scaleAndSmearSiStripNoises.fillDefaults = False      # to fill uncabled DetIds with default
 
 ##
 ## Output database (in this case local sqlite file)
 ##
-process.CondDBOutput = _CondDB.clone(connect = 'sqlite_file:modifiedSiStripNoise_'+ process.GlobalTag.globaltag._value+'_IOV_'+str(options.runNumber)+".db")
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
-                                          process.CondDBOutput,
-                                          timetype = cms.untracked.string('runnumber'),
-                                          toPut = cms.VPSet(cms.PSet(record = cms.string('SiStripNoisesRcd'),
-                                                                     tag = cms.string('modifiedNoise')
-                                                                     )
-                                                            )
-                                          )
+    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+    DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(3),
+        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+    ),
+    timetype = cms.untracked.string('runnumber'),
+    connect = cms.string('sqlite_file:modifiedSiStripNoise_%s_IOV_%s.db' % ( process.GlobalTag.globaltag._value, str(options.runNumber))),
+    toPut = cms.VPSet(cms.PSet(
+        record = cms.string('SiStripNoisesRcd'),
+        tag = cms.string('modifiedNoise')
+    ))
+)
 
 process.p = cms.Path(process.scaleAndSmearSiStripNoises)

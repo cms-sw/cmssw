@@ -405,22 +405,24 @@ hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
  
     MSSMHbb  = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets100MaxDeta1p6_v",
-            "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets116MaxDeta1p6_v",
-            "HLT_DoubleJets100_DoubleBTagCSV_0p92_DoublePFJets128MaxDeta1p6_v",
+            "HLT_DoublePFJets116MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
+            "HLT_DoublePFJets128MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
+            "HLT_DoublePFJets116MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
+            "HLT_DoublePFJets128MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(3),
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.92, 0.92 , 0, 0, 0, 0, 100., 100., 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.3, 0.3 , 0, 0, 0, 0, 100., 100., 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
         ),
  
     MSSMHbbmu  = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets40MaxDeta1p6_v1",
-            "HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets54MaxDeta1p6_v1",
-            "HLT_DoubleJets30_Mu12_DoubleBTagCSV_0p92_DoublePFJets62MaxDeta1p6_v1",
+            "HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
+            "HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepCSV_p71_v",
+            "HLT_Mu12_DoublePFJets40MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
+            "HLT_Mu12_DoublePFJets54MaxDeta1p6_DoublePFBTagDeepJet_p71_v",
             ),
         recMuonLabel  = cms.string("muons"),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
@@ -429,7 +431,7 @@ hltHiggsValidator = DQMEDAnalyzer('HLTHiggsValidator',
         minCandidates = cms.uint32(3),
         Mu_genCut     = cms.string("pt > 12 && abs(eta) < 2.3 && abs(pdgId) == 13 && status == 1"),
         Mu_recCut     = cms.string("pt > 12 && abs(eta) < 2.3 && isGlobalMuon"),
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.92, 0.92 , 0, 0, 0, 0, 30.0, 30.0, 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.3, 0.3 , 0, 0, 0, 0, 30.0, 30.0, 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
         ),
         
     VBFHToInv  = cms.PSet( 

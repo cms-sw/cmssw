@@ -18,6 +18,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 # Geometry
 from Configuration.StandardSequences.MagneticField_cff import *
 from Configuration.StandardSequences.Geometry_cff import *
+from Configuration.StandardSequences.GeometryDB_cff import *
 
 # include L1 emulator
 from L1Trigger.Configuration.L1CaloEmulator_cff import *

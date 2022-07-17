@@ -10,7 +10,8 @@ public:
   virtual ~HGCalTriggerClusterIdentificationBase(){};
   virtual void initialize(const edm::ParameterSet& conf) = 0;
   virtual float value(const l1t::HGCalMulticluster& cluster) const = 0;
-  virtual bool decision(const l1t::HGCalMulticluster& cluster) const = 0;
+  virtual bool decision(const l1t::HGCalMulticluster& cluster, unsigned wp = 0) const = 0;
+  virtual const std::vector<std::string>& working_points() const = 0;
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"

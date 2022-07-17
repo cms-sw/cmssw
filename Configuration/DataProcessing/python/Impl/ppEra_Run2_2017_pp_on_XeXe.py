@@ -20,7 +20,6 @@ class ppEra_Run2_2017_pp_on_XeXe(pp):
         pp.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
-        self.addEI=True
         self.isRepacked=True
         self.eras=Run2_2017_pp_on_XeXe
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017_pp_on_XeXe' ]

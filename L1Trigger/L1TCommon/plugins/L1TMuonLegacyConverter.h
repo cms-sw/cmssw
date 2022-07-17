@@ -41,6 +41,10 @@
 
 // forward declarations
 class L1CaloGeometry;
+class L1MuTriggerScales;
+class L1MuTriggerScalesRcd;
+class L1MuTriggerPtScale;
+class L1MuTriggerPtScaleRcd;
 
 class L1TMuonLegacyConverter : public edm::stream::EDProducer<> {
 public:
@@ -61,6 +65,8 @@ private:
   edm::InputTag muonSource_InputTag;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> muonSource_InputToken;
 
+  edm::ESGetToken<L1MuTriggerScales, L1MuTriggerScalesRcd> muScalesToken_;
+  edm::ESGetToken<L1MuTriggerPtScale, L1MuTriggerPtScaleRcd> muPtScaleToken_;
   // bool produceCaloParticles_ ;
   // edm::InputTag isoEmSource_ ;
   // edm::InputTag nonIsoEmSource_ ;

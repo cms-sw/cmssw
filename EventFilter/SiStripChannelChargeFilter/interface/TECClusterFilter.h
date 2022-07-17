@@ -9,7 +9,7 @@
 //
 // Original Author: sfricke
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -17,10 +17,10 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 namespace cms {
-  class TECClusterFilter : public edm::EDFilter {
+  class TECClusterFilter : public edm::stream::EDFilter<> {
   public:
     TECClusterFilter(const edm::ParameterSet& ps);
-    ~TECClusterFilter() override {}
+    ~TECClusterFilter() override = default;
     bool filter(edm::Event& e, edm::EventSetup const& c) override;
 
   private:

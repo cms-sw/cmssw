@@ -1,12 +1,34 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtSemiLepJetCombMaxSumPtWMass.h"
-
-#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
+#include "DataFormats/PatCandidates/interface/Jet.h"
+
+class TtSemiLepJetCombMaxSumPtWMass : public edm::global::EDProducer<> {
+public:
+  explicit TtSemiLepJetCombMaxSumPtWMass(const edm::ParameterSet&);
+
+private:
+  void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& setup) const override;
+
+  bool isValid(const int& idx, const std::vector<pat::Jet>& jets) const {
+    return (0 <= idx && idx < (int)jets.size());
+  };
+
+  edm::EDGetTokenT<std::vector<pat::Jet>> jetsToken_;
+  edm::EDGetTokenT<edm::View<reco::RecoCandidate>> lepsToken_;
+  int maxNJets_;
+  double wMass_;
+  bool useBTagging_;
+  std::string bTagAlgorithm_;
+  double minBDiscBJets_;
+  double maxBDiscLightJets_;
+};
+
 TtSemiLepJetCombMaxSumPtWMass::TtSemiLepJetCombMaxSumPtWMass(const edm::ParameterSet& cfg)
-    : jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
-      lepsToken_(consumes<edm::View<reco::RecoCandidate> >(cfg.getParameter<edm::InputTag>("leps"))),
+    : jetsToken_(consumes<std::vector<pat::Jet>>(cfg.getParameter<edm::InputTag>("jets"))),
+      lepsToken_(consumes<edm::View<reco::RecoCandidate>>(cfg.getParameter<edm::InputTag>("leps"))),
       maxNJets_(cfg.getParameter<int>("maxNJets")),
       wMass_(cfg.getParameter<double>("wMass")),
       useBTagging_(cfg.getParameter<bool>("useBTagging")),
@@ -17,40 +39,36 @@ TtSemiLepJetCombMaxSumPtWMass::TtSemiLepJetCombMaxSumPtWMass(const edm::Paramete
     throw cms::Exception("WrongConfig") << "Parameter maxNJets can not be set to " << maxNJets_ << ". \n"
                                         << "It has to be larger than 4 or can be set to -1 to take all jets.";
 
-  produces<std::vector<std::vector<int> > >();
+  produces<std::vector<std::vector<int>>>();
   produces<int>("NumberOfConsideredJets");
 }
 
-TtSemiLepJetCombMaxSumPtWMass::~TtSemiLepJetCombMaxSumPtWMass() {}
-
-void TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSetup& setup) {
-  std::unique_ptr<std::vector<std::vector<int> > > pOut(new std::vector<std::vector<int> >);
-  std::unique_ptr<int> pJetsConsidered(new int);
+void TtSemiLepJetCombMaxSumPtWMass::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& setup) const {
+  auto pOut = std::make_unique<std::vector<std::vector<int>>>();
+  auto pJetsConsidered = std::make_unique<int>(0);
 
   std::vector<int> match;
   for (unsigned int i = 0; i < 4; ++i)
     match.push_back(-1);
 
   // get jets
-  edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByToken(jetsToken_, jets);
+  const auto& jets = evt.get(jetsToken_);
 
   // get leptons
-  edm::Handle<edm::View<reco::RecoCandidate> > leps;
-  evt.getByToken(lepsToken_, leps);
+  const auto& leps = evt.get(lepsToken_);
 
   // skip events without lepton candidate or less than 4 jets or no MET
-  if (leps->empty() || jets->size() < 4) {
+  if (leps.empty() || jets.size() < 4) {
     pOut->push_back(match);
     evt.put(std::move(pOut));
-    *pJetsConsidered = jets->size();
+    *pJetsConsidered = jets.size();
     evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
     return;
   }
 
   unsigned maxNJets = maxNJets_;
-  if (maxNJets_ == -1 || (int)jets->size() < maxNJets_)
-    maxNJets = jets->size();
+  if (maxNJets_ == -1 || (int)jets.size() < maxNJets_)
+    maxNJets = jets.size();
   *pJetsConsidered = maxNJets;
   evt.put(std::move(pJetsConsidered), "NumberOfConsideredJets");
 
@@ -59,9 +77,9 @@ void TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSet
   int cntBJets = 0;
   if (useBTagging_) {
     for (unsigned int idx = 0; idx < maxNJets; ++idx) {
-      isBJet.push_back(((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_));
-      isLJet.push_back(((*jets)[idx].bDiscriminator(bTagAlgorithm_) < maxBDiscLightJets_));
-      if ((*jets)[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_)
+      isBJet.push_back((jets[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_));
+      isLJet.push_back((jets[idx].bDiscriminator(bTagAlgorithm_) < maxBDiscLightJets_));
+      if (jets[idx].bDiscriminator(bTagAlgorithm_) > minBDiscBJets_)
         cntBJets++;
     }
   }
@@ -85,7 +103,7 @@ void TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSet
       for (unsigned kdx = 0; kdx < maxNJets; ++kdx) {
         if (kdx == idx || kdx == jdx || (useBTagging_ && !isBJet[kdx]))
           continue;
-        reco::Particle::LorentzVector sum = (*jets)[idx].p4() + (*jets)[jdx].p4() + (*jets)[kdx].p4();
+        reco::Particle::LorentzVector sum = jets[idx].p4() + jets[jdx].p4() + jets[kdx].p4();
         if (maxPt < 0. || maxPt < sum.pt()) {
           maxPt = sum.pt();
           maxPtIndices.clear();
@@ -114,7 +132,7 @@ void TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSet
               (cntBJets <= 2 && isBJet[maxPtIndices[idx]]) || (cntBJets <= 2 && isBJet[maxPtIndices[jdx]]) ||
               (cntBJets == 3 && isBJet[maxPtIndices[idx]] && isBJet[maxPtIndices[jdx]]))))
           continue;
-        reco::Particle::LorentzVector sum = (*jets)[maxPtIndices[idx]].p4() + (*jets)[maxPtIndices[jdx]].p4();
+        reco::Particle::LorentzVector sum = jets[maxPtIndices[idx]].p4() + jets[maxPtIndices[jdx]].p4();
         if (wDist < 0. || wDist > fabs(sum.mass() - wMass_)) {
           wDist = fabs(sum.mass() - wMass_);
           closestToWMassIndices.clear();
@@ -146,7 +164,7 @@ void TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSet
       continue;
     // make sure it's not used up already from the hadronic decay chain
     if (std::find(maxPtIndices.begin(), maxPtIndices.end(), idx) == maxPtIndices.end()) {
-      reco::Particle::LorentzVector sum = (*jets)[idx].p4() + (*leps)[0].p4();
+      reco::Particle::LorentzVector sum = jets[idx].p4() + leps[0].p4();
       if (maxPt < 0. || maxPt < sum.pt()) {
         maxPt = sum.pt();
         lepB = idx;
@@ -162,3 +180,6 @@ void TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSet
   pOut->push_back(match);
   evt.put(std::move(pOut));
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtSemiLepJetCombMaxSumPtWMass);

@@ -1,5 +1,4 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "CkfTrackCandidateMaker.h"
@@ -14,9 +13,12 @@ using cms::CkfTrajectoryMaker;
 DEFINE_FWK_MODULE(CkfTrackCandidateMaker);
 DEFINE_FWK_MODULE(CkfTrajectoryMaker);
 
+#include "FWCore/ParameterSet/interface/ValidatedPluginMacros.h"
 #include "RecoTracker/CkfPattern/interface/BaseCkfTrajectoryBuilderFactory.h"
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 #include "GroupedCkfTrajectoryBuilder.h"
 
-DEFINE_EDM_PLUGIN(BaseCkfTrajectoryBuilderFactory, CkfTrajectoryBuilder, "CkfTrajectoryBuilder");
-DEFINE_EDM_PLUGIN(BaseCkfTrajectoryBuilderFactory, GroupedCkfTrajectoryBuilder, "GroupedCkfTrajectoryBuilder");
+DEFINE_EDM_VALIDATED_PLUGIN(BaseCkfTrajectoryBuilderFactory, CkfTrajectoryBuilder, "CkfTrajectoryBuilder");
+DEFINE_EDM_VALIDATED_PLUGIN(BaseCkfTrajectoryBuilderFactory,
+                            GroupedCkfTrajectoryBuilder,
+                            "GroupedCkfTrajectoryBuilder");

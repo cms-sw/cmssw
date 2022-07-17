@@ -8,16 +8,22 @@ process = cms.Process("Demo")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "92X_dataRun2_Prompt_v11",
-                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  "auto:run3_data_prompt",
+                  VarParsing.VarParsing.multiplicity.singleton,  # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
 
 options.register ('runNumber',
-                  303014,
+                  1,
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
-                  VarParsing.VarParsing.varType.int,           # string, int, or float
+                  VarParsing.VarParsing.varType.int,            # string, int, or float
                   "run number")
+
+options.register ('additionalConds',
+                  "sqlite_file:gainManipulations.db",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,         # string, int, or float
+                  "location of the additional conditions")
 
 options.parseArguments()
 
@@ -27,7 +33,7 @@ options.parseArguments()
 ##
 process.load('FWCore.MessageService.MessageLogger_cfi')   
 process.MessageLogger.cerr.enable = False
-process.MessageLogger.SiStripGain2RescaleByGain1=dict()  
+process.MessageLogger.SiStripApvGainRescaler=dict()
 process.MessageLogger.cout = cms.untracked.PSet(
     enable    = cms.untracked.bool(True),
     enableStatistics = cms.untracked.bool(True),
@@ -36,7 +42,7 @@ process.MessageLogger.cout = cms.untracked.PSet(
     FwkReport = cms.untracked.PSet(limit = cms.untracked.int32(-1),
                                    reportEvery = cms.untracked.int32(1000)
                                    ),                                                      
-    SiStripGain2RescaleByGain1  = cms.untracked.PSet( limit = cms.untracked.int32(-1))
+    SiStripApvGainRescaler  = cms.untracked.PSet( limit = cms.untracked.int32(-1))
     )
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
@@ -46,17 +52,17 @@ process.GlobalTag.toGet = cms.VPSet(
     ### N.B. This contains the G1_new (to be used for the rescale)
     cms.PSet(record = cms.string("SiStripApvGain3Rcd"),
              tag = cms.string("G1_new"),
-             connect = cms.string("sqlite_file:G1_new.db")
+             connect = cms.string(options.additionalConds)
              ),
     ### N.B. This contains the G2_old (to be used for the rescale)
     cms.PSet(record = cms.string("SiStripApvGain2Rcd"),
              tag = cms.string("G2_old"),
-             connect = cms.string("sqlite_file:G2_old.db")
+             connect = cms.string(options.additionalConds)
              ),
     ### N.B. This contains the G1_old (to be used for the rescale)
     cms.PSet(record = cms.string("SiStripApvGainRcd"),
              tag = cms.string("G1_old"),
-             connect = cms.string("sqlite_file:G1_old.db")
+             connect = cms.string(options.additionalConds)
              )
     )
 
@@ -69,7 +75,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 
 process.load("CondTools.SiStrip.rescaleGain2byGain1_cfi") 
 
-# process.demo = cms.EDAnalyzer('SiStripGain2RescaleByGain1',
+# process.demo = cms.EDAnalyzer('SiStripApvGainRescaler',
 #                               Record = cms.untracked.string("SiStripApvGainRcd"),
 #                               )
 

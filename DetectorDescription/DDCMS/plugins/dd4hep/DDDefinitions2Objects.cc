@@ -11,6 +11,7 @@
 
 #include "XML/Utilities.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "DataFormats/Math/interface/CMSUnits.h"
 #include "DetectorDescription/DDCMS/interface/DDAlgoArguments.h"
@@ -626,14 +627,8 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
         continue;
       }
 
-      printout(ns.context()->debug_materials ? ALWAYS : WARNING,
-               "DD4CMS Warning",
-               "+++ Composite material \"%s\" [nor \"%s\"] not present! [delay resolution]",
-               fracname.c_str(),
-               ns.prepend(fracname).c_str());
-
-      ns.context()->unresolvedMaterials[nam].emplace_back(
-          cms::DDParsingContext::CompositeMaterial(ns.prepend(fracname), fraction));
+      throw cms::Exception("DD4CMS") << "Composite material \"" + fracname + "\" or \"" + ns.prepend(fracname) +
+                                            "\" not yet defined.";
     }
     mix->SetTemperature(ns.context()->description.stdConditions().temperature);
     mix->SetPressure(ns.context()->description.stdConditions().pressure);
@@ -898,12 +893,14 @@ static void placeAssembly(Volume* parentPtr,
       as->ComputeBBox();
     }
   }
-  TGeoNode* n;
-  TString nam_id = TString::Format("%s_%d", (*childPtr)->GetName(), copy);
-  n = static_cast<TGeoNode*>((*parentPtr)->GetNode(nam_id));
-  if (n != nullptr) {
-    printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
-    return;
+  if (ns.context()->validate) {
+    TGeoNode* n;
+    TString nam_id = TString::Format("%s_%d", (*childPtr)->GetName(), copy);
+    n = static_cast<TGeoNode*>((*parentPtr)->GetNode(nam_id));
+    if (n != nullptr) {
+      printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
+      return;
+    }
   }
 
   PlacedVolume pv;
@@ -1010,9 +1007,11 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
     }
     TGeoNode* n;
     TString nam_id = TString::Format("%s_%d", child->GetName(), copy);
-    n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
-    if (n != nullptr) {
-      printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
+    if (ns.context()->validate) {
+      n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
+      if (n != nullptr) {
+        printout(ERROR, "PlacedVolume", "++ Attempt to add already existing node %s", (const char*)nam_id);
+      }
     }
 
     Rotation3D rot(transform.Rotation());
@@ -1022,7 +1021,8 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
     Position pos(x, y, z);
     parent->AddNode(child, copy, createPlacement(rot, pos));
 
-    n = static_cast<TGeoNode*>(parent->GetNode(nam_id));
+    n = static_cast<TGeoNode*>(parent->GetNodes()->Last());
+    assert(n->GetName() == nam_id);
     n->TGeoNode::SetUserExtension(new PlacedVolume::Object());
     pv = PlacedVolume(n);
   }
@@ -1177,6 +1177,13 @@ static void convert_boolean(cms::DDParsingContext* context, xml_h element) {
     Converter<DDLTransform3D>(context->description, context, &trafo)(element);
     ns.context()->unresolvedShapes.emplace(nam,
                                            DDParsingContext::BooleanShape<TYPE>(solidName[0], solidName[1], trafo));
+    if (solids[0].isValid() == false) {
+      printout(ERROR, "DD4CMS", "++ Solid not defined yet: %s", solidName[0].c_str());
+    }
+    if (solids[1].isValid() == false) {
+      printout(ERROR, "DD4CMS", "++ Solid not defined yet: %s", solidName[1].c_str());
+    }
+    printout(ERROR, "DD4CMS", "++ Re-order XML files to prevent references to undefined solids");
   }
   if (!boolean.isValid()) {
     // Delay processing the shape
@@ -2218,54 +2225,6 @@ static long load_dddefinition(Detector& det, xml_h element) {
       for (xml::Document d : res.includes) {
         print_doc((doc = d).root());
         xml_coll_t(d.root(), DD_CMU(MaterialSection)).for_each(Converter<MaterialSection>(det, &context));
-      }
-      {
-        PrintLevel printLvl(DEBUG);
-        if (!context.unresolvedMaterials.empty())
-          printLvl = WARNING;
-        printout(context.debug_materials ? ALWAYS : printLvl,
-                 "DD4CMS",
-                 "+++ RESOLVING %ld unknown material constituents.....",
-                 context.unresolvedMaterials.size());
-
-        // Resolve referenced materials (if any)
-
-        while (!context.unresolvedMaterials.empty()) {
-          for (auto it = context.unresolvedMaterials.begin(); it != context.unresolvedMaterials.end();) {
-            auto const& name = it->first;
-            std::vector<bool> valid;
-
-            printout(context.debug_materials ? ALWAYS : WARNING,
-                     "DD4CMS",
-                     "+++ [%06ld] ----------  %s",
-                     context.unresolvedMaterials.size(),
-                     name.c_str());
-
-            auto mat = ns.material(name);
-            for (auto& mit : it->second) {
-              printout(context.debug_materials ? ALWAYS : WARNING,
-                       "DD4CMS",
-                       "+++           component  %-48s Fraction: %.6f",
-                       mit.name.c_str(),
-                       mit.fraction);
-              auto fmat = ns.material(mit.name);
-              if (nullptr != fmat.ptr()) {
-                if (mat.ptr()->GetMaterial()->IsMixture()) {
-                  valid.emplace_back(true);
-                  static_cast<TGeoMixture*>(mat.ptr()->GetMaterial())
-                      ->AddElement(fmat.ptr()->GetMaterial(), mit.fraction);
-                }
-              }
-            }
-            // All components are resolved
-            if (valid.size() == it->second.size())
-              it = context.unresolvedMaterials.erase(it);
-            else
-              ++it;
-          }
-          // Do it again if there are unresolved
-          // materials left after this pass
-        }
       }
       if (open_geometry) {
         det.init();

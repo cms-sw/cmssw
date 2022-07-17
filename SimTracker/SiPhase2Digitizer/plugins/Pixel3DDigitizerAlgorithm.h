@@ -18,7 +18,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-#include "SimTracker/SiPhase2Digitizer/plugins/Phase2TrackerDigitizerAlgorithm.h"
+#include "SimTracker/SiPhase2Digitizer/plugins/PixelDigitizerAlgorithm.h"
 
 // Data formats
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
@@ -26,13 +26,11 @@
 // system
 #include <functional>
 
-class Pixel3DDigitizerAlgorithm : public Phase2TrackerDigitizerAlgorithm {
+class Pixel3DDigitizerAlgorithm : public PixelDigitizerAlgorithm {
 public:
   Pixel3DDigitizerAlgorithm(const edm::ParameterSet& conf, edm::ConsumesCollector iC);
   ~Pixel3DDigitizerAlgorithm() override;
 
-  // initialization that cannot be done in the constructor
-  void init(const edm::EventSetup& es) override;
   bool select_hit(const PSimHit& hit, double tCorr, double& sigScale) const override;
   std::vector<DigitizerUtility::SignalPoint> drift(
       const PSimHit& hit,

@@ -1,17 +1,24 @@
 import FWCore.ParameterSet.Config as cms
 
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
-process = cms.Process('mtdValidation',Phase2C11I13M9)
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
+process = cms.Process('mtdValidation',Phase2C17I13M9)
 
-
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load("FWCore.MessageService.MessageLogger_cfi")
-
-process.load("Configuration.Geometry.GeometryExtended2026D76Reco_cff")
-
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
+process.load("Configuration.Geometry.GeometryExtended2026D88Reco_cff")
+
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+
+#Setup FWK for multithreaded
+process.options.numberOfThreads = 4
+process.options.numberOfStreams = 0
+process.options.numberOfConcurrentLuminosityBlocks = 0
+process.options.eventSetup.numberOfConcurrentIOVs = 1
 
 process.MessageLogger.cerr.FwkReport  = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(100),
@@ -27,29 +34,42 @@ process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
 
 # --- BTL Validation
-process.load("Validation.MtdValidation.btlSimHits_cfi")
-process.load("Validation.MtdValidation.btlDigiHits_cfi")
-process.load("Validation.MtdValidation.btlLocalReco_cfi")
-btlValidation = cms.Sequence(process.btlSimHits + process.btlDigiHits + process.btlLocalReco)
+process.load("Validation.MtdValidation.btlSimHitsValid_cfi")
+process.load("Validation.MtdValidation.btlDigiHitsValid_cfi")
+process.load("Validation.MtdValidation.btlLocalRecoValid_cfi")
+btlValidation = cms.Sequence(process.btlSimHitsValid + process.btlDigiHitsValid + process.btlLocalRecoValid)
 
 # --- ETL Validation
-process.load("Validation.MtdValidation.etlSimHits_cfi")
-process.load("Validation.MtdValidation.etlDigiHits_cfi")
-process.load("Validation.MtdValidation.etlLocalReco_cfi")
-etlValidation = cms.Sequence(process.etlSimHits + process.etlDigiHits + process.etlLocalReco)
+process.load("Validation.MtdValidation.etlSimHitsValid_cfi")
+process.load("Validation.MtdValidation.etlDigiHitsValid_cfi")
+process.load("Validation.MtdValidation.etlLocalRecoValid_cfi")
+etlValidation = cms.Sequence(process.etlSimHitsValid + process.etlDigiHitsValid + process.etlLocalRecoValid)
 
 # --- Global Validation
-process.load("Validation.MtdValidation.mtdTracks_cfi")
+process.load("Validation.MtdValidation.mtdTracksValid_cfi")
+process.load("Validation.MtdValidation.vertices4DValid_cfi")
 
-process.btlDigiHits.LocalPositionDebug = True
-process.etlDigiHits.LocalPositionDebug = True
-process.btlLocalReco.LocalPositionDebug = True
-process.etlLocalReco.LocalPositionDebug = True
+# process.btlDigiHitsValid.optionalPlots = True
+# process.etlDigiHitsValid.optionalPlots = True
+# process.btlLocalRecoValid.optionalPlots = True
+# process.etlLocalRecoValid.optionalPlots = True
+# process.mtdTracksValid.optionalPlots = True
+# process.vertices4DValid.optionalPlots = True
 
-process.load("Validation.MtdValidation.vertices4D_cfi")
+process.validation = cms.Sequence(btlValidation + etlValidation + process.mtdTracksValid + process.vertices4DValid)
 
-process.DQMStore = cms.Service("DQMStore")
+process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('DQMIO'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:step3_inDQM.root'),
+    outputCommands = process.DQMEventContent.outputCommands,
+    splitLevel = cms.untracked.int32(0)
+)
 
-process.load("DQMServices.FileIO.DQMFileSaverOnline_cfi")
+process.p = cms.Path( process.mix + process.validation )
+process.endjob_step = cms.EndPath(process.endOfProcess)
+process.DQMoutput_step = cms.EndPath( process.DQMoutput )
 
-process.p = cms.Path( process.mix + btlValidation + etlValidation + process.mtdTracks + process.vertices4D + process.dqmSaver)
+process.schedule = cms.Schedule( process.p , process.endjob_step , process.DQMoutput_step )

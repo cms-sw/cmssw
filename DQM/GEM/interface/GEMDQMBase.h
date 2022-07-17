@@ -28,7 +28,7 @@
 
 class GEMDQMBase : public DQMEDAnalyzer {
 public:
-  // Borrwed from DQMOffline/Muon/interface/GEMOfflineDQMBase.h
+  // Borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
   class BookingHelper {
   public:
     BookingHelper(DQMStore::IBooker &ibooker, const TString &name_suffix, const TString &title_suffix)
@@ -90,6 +90,8 @@ public:
       title += title_suffix_ + ";" + x_title + ";" + y_title;
       return ibooker_->bookProfile2D(name, title, nbinsx, xlow, xup, nbinsy, ylow, yup, zlow, zup);
     }
+
+    DQMStore::IBooker *getBooker() { return ibooker_; }
 
   private:
     DQMStore::IBooker *ibooker_;
@@ -327,11 +329,12 @@ public:
       if (mapHist.find(key) == mapHist.end()) {
         edm::LogError(log_category_own_)
             << "WARNING: Cannot find the histogram corresponing to the given key\n";  // FIXME: It's about sending a message
+        return nullptr;
       }
       return mapHist[key];
     };
 
-    int SetLabelForChambers(K key, Int_t nAxis, Int_t nNumBin = -1) {
+    int SetLabelForChambers(K key, Int_t nAxis, Int_t nNumBin = -1, Int_t nIdxStart = 1) {
       if (!bOperating_)
         return 0;
       if (nNumBin <= 0) {
@@ -345,7 +348,7 @@ public:
       dqm::impl::MonitorElement *histCurr = FindHist(key);
       if (histCurr == nullptr)
         return -999;
-      for (Int_t i = 1; i <= nNumBin; i++) {
+      for (Int_t i = nIdxStart; i <= nNumBin; i++) {
         histCurr->setBinLabel(i, Form("%i", i), nAxis);
       }
       return 0;
@@ -465,14 +468,19 @@ public:
                   Int_t nNumChambers,
                   Int_t nNumEtaPartitions,
                   Int_t nMaxVFAT,
-                  Int_t nNumDigi)
+                  Int_t nNumDigi,
+                  Int_t nMinIdxChamber,
+                  Int_t nMaxIdxChamber)
         : nRegion_(nRegion),
           nStation_(nStation),
           nLayer_(nLayer),
           nNumChambers_(nNumChambers),
           nNumEtaPartitions_(nNumEtaPartitions),
           nMaxVFAT_(nMaxVFAT),
-          nNumDigi_(nNumDigi){};
+          nNumDigi_(nNumDigi),
+          nMinIdxChamber_(nMinIdxChamber),
+          nMaxIdxChamber_(nMaxIdxChamber),
+          fMinPhi_(0){};
 
     bool operator==(const MEStationInfo &other) const {
       return (nRegion_ == other.nRegion_ && nStation_ == other.nStation_ && nLayer_ == other.nLayer_ &&
@@ -488,12 +496,30 @@ public:
     Int_t nMaxVFAT_;  // the number of all VFATs in each chamber (= # of VFATs in eta partition * nNumEtaPartitions_)
     Int_t nNumDigi_;  // the number of digis of each VFAT
 
+    Int_t nMinIdxChamber_;
+    Int_t nMaxIdxChamber_;
     Float_t fMinPhi_;
+
+    std::vector<Float_t> listRadiusEvenChamber_;
+    std::vector<Float_t> listRadiusOddChamber_;
   };
+
+  int readGeometryRadiusInfoChamber(const GEMStation *station, MEStationInfo &stationInfo);
+  int readGeometryPhiInfoChamber(const GEMStation *station, MEStationInfo &stationInfo);
 
 public:
   explicit GEMDQMBase(const edm::ParameterSet &cfg);
   ~GEMDQMBase() override{};
+
+  enum {
+    GEMDQM_RUNTYPE_ONLINE,
+    GEMDQM_RUNTYPE_OFFLINE,
+    GEMDQM_RUNTYPE_RELVAL,
+    GEMDQM_RUNTYPE_ALLPLOTS,
+    GEMDQM_RUNTYPE_NONE = -1
+  };
+
+  Int_t nRunType_;
 
   std::string log_category_;
 
@@ -542,10 +568,13 @@ protected:
   inline int getVFATNumberGE11(const int, const int, const int);
   inline int getVFATNumberByDigi(const int, const int, const int);
   inline int getIEtaFromVFAT(const int station, const int vfat);
+  inline int getIEtaFromVFATGE0(const int vfat);
   inline int getIEtaFromVFATGE11(const int vfat);
+  inline int getIEtaFromVFATGE21(const int vfat);
   inline int getMaxVFAT(const int);
   inline int getDetOccXBin(const int, const int, const int);
   inline Float_t restrictAngle(const Float_t fTheta, const Float_t fStart);
+  inline std::string getNameDirLayer(ME3IdsKey key3);
 
   const GEMGeometry *GEMGeometry_;
   edm::ESGetToken<GEMGeometry, MuonGeometryRecord> geomToken_;
@@ -562,13 +591,9 @@ protected:
   int nMaxNumCh_;
   std::map<ME3IdsKey, int> mapStationToIdx_;
   std::map<ME3IdsKey, MEStationInfo> mapStationInfo_;
-
-  Int_t nNumEtaPartitionGE0_;
-  Int_t nNumEtaPartitionGE11_;
-  Int_t nNumEtaPartitionGE21_;
 };
 
-// Borrwed from DQMOffline/Muon/interface/GEMOfflineDQMBase.h
+// Borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
 template <typename T>
 inline bool GEMDQMBase::checkRefs(const std::vector<T *> &refs) {
   if (refs.empty())
@@ -578,8 +603,10 @@ inline bool GEMDQMBase::checkRefs(const std::vector<T *> &refs) {
   return true;
 }
 
-// The 'get...' functions in the below are borrwed from DQMOffline/Muon/interface/GEMOfflineDQMBase.h
+// The 'get...' functions in the below are borrwed from DQM/GEM/interface/GEMOfflineDQMBase.h
 inline int GEMDQMBase::getMaxVFAT(const int station) {
+  if (station == 0)
+    return GEMeMap::maxVFatGE0_;
   if (station == 1)
     return GEMeMap::maxVFatGE11_;
   else if (station == 2)
@@ -595,7 +622,7 @@ inline int GEMDQMBase::getVFATNumber(const int station, const int ieta, const in
 }
 
 inline int GEMDQMBase::getVFATNumberGE11(const int station, const int ieta, const int vfat_phi) {
-  return vfat_phi * nNumEtaPartitionGE11_ + (nNumEtaPartitionGE11_ - ieta);
+  return vfat_phi * GEMeMap::maxiEtaIdGE11_ + (GEMeMap::maxiEtaIdGE11_ - ieta);
 }
 
 inline int GEMDQMBase::getVFATNumberByDigi(const int station, const int ieta, const int digi) {
@@ -604,12 +631,26 @@ inline int GEMDQMBase::getVFATNumberByDigi(const int station, const int ieta, co
 }
 
 inline int GEMDQMBase::getIEtaFromVFAT(const int station, const int vfat) {
+  if (station == 0)
+    return getIEtaFromVFATGE0(vfat);
   if (station == 1)
     return getIEtaFromVFATGE11(vfat);
+  if (station == 2)
+    return getIEtaFromVFATGE21(vfat);
   return getIEtaFromVFATGE11(vfat);  // FIXME: What about GE21 and GE0?
 }
 
-inline int GEMDQMBase::getIEtaFromVFATGE11(const int vfat) { return 8 - (vfat % nNumEtaPartitionGE11_); }
+inline int GEMDQMBase::getIEtaFromVFATGE0(const int vfat) {
+  return GEMeMap::maxiEtaIdGE0_ - (vfat % GEMeMap::maxiEtaIdGE0_);
+}
+
+inline int GEMDQMBase::getIEtaFromVFATGE11(const int vfat) {
+  return GEMeMap::maxiEtaIdGE11_ - (vfat % GEMeMap::maxiEtaIdGE11_);
+}
+
+inline int GEMDQMBase::getIEtaFromVFATGE21(const int vfat) {
+  return GEMeMap::maxiEtaIdGE21_ - (vfat % GEMeMap::maxiEtaIdGE21_);
+}
 
 inline int GEMDQMBase::getDetOccXBin(const int chamber, const int layer, const int n_chambers) {
   return n_chambers * (chamber - 1) + layer;
@@ -619,6 +660,13 @@ inline Float_t GEMDQMBase::restrictAngle(const Float_t fTheta, const Float_t fSt
   Float_t fLoop = (fTheta - fStart) / (2 * M_PI);
   int nLoop = (fLoop >= 0 ? (int)fLoop : (int)fLoop - 1);
   return fTheta - nLoop * 2 * M_PI;
+}
+
+inline std::string GEMDQMBase::getNameDirLayer(ME3IdsKey key3) {
+  auto nStation = keyToStation(key3);
+  char cRegion = (keyToRegion(key3) > 0 ? 'P' : 'M');
+  auto nLayer = keyToLayer(key3);
+  return std::string(Form("GE%i1-%c-L%i", nStation, cRegion, nLayer));
 }
 
 #endif  // DQM_GEM_INTERFACE_GEMDQMBase_h

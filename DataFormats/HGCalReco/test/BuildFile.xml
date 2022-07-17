@@ -1,0 +1,3 @@
+<bin   name="EtaPhiSearchInTile" file="EtaPhiSearchInTile_t.cpp">
+  <use name="DataFormats/HGCalReco" />
+</bin>

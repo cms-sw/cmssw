@@ -11,6 +11,7 @@
 //
 
 // system include files
+#include <array>
 #include <algorithm>
 #include <cassert>
 #include <cstring>

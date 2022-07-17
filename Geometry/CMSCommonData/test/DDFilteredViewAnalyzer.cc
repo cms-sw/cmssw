@@ -21,6 +21,7 @@ private:
   std::string m_value;
   bool m_shouldPrint;
   DDCompOp m_comp;
+  edm::ESGetToken<DDCompactView, IdealGeometryRecord> ddToken_;
 };
 
 DDFilteredViewAnalyzer::DDFilteredViewAnalyzer(const edm::ParameterSet& pset) {
@@ -33,11 +34,11 @@ DDFilteredViewAnalyzer::DDFilteredViewAnalyzer(const edm::ParameterSet& pset) {
   } else {
     m_comp = DDCompOp::equals;
   }
+  ddToken_ = esConsumes<DDCompactView, IdealGeometryRecord>();
 }
 
 void DDFilteredViewAnalyzer::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
-  edm::ESTransientHandle<DDCompactView> cpv;
-  iSetup.get<IdealGeometryRecord>().get(cpv);
+  edm::ESTransientHandle<DDCompactView> cpv = iSetup.getTransientHandle(ddToken_);
 
   DDValue val(m_attribute, m_value, 0.0);
   DDSpecificsFilter filter;

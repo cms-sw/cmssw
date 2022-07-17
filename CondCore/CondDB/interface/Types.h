@@ -72,7 +72,7 @@ namespace cond {
     std::string name;
     Iov_t lastInterval;
     size_t size = 0;
-    bool isEmpty() const { return lastInterval.since != time::MAX_VAL; }
+    bool isEmpty() const { return lastInterval.since == time::MAX_VAL; }
   };
 
   struct TagMetadata_t {

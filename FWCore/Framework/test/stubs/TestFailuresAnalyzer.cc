@@ -55,11 +55,6 @@ TestFailuresAnalyzer::TestFailuresAnalyzer(const edm::ParameterSet& iConfig)
   }
 }
 
-TestFailuresAnalyzer::~TestFailuresAnalyzer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -80,7 +75,9 @@ void TestFailuresAnalyzer::endJob() {
   }
 }
 
-void TestFailuresAnalyzer::analyze(const edm::Event& e /* iEvent */, const edm::EventSetup& /* iSetup */) {
+void TestFailuresAnalyzer::analyze(edm::StreamID,
+                                   const edm::Event& e /* iEvent */,
+                                   const edm::EventSetup& /* iSetup */) const {
   if (whichFailure_ == kEvent) {
     throw cms::Exception("Test") << " event";
   }

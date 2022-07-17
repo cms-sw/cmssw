@@ -42,7 +42,7 @@ void EgammaDNNHelper::initScalerFiles(const std::vector<std::string>& availableV
     std::ifstream inputfile_scaler{edm::FileInPath(scaler_file).fullPath()};
     int ninputs = 0;
     if (inputfile_scaler.fail()) {
-      throw cms::Exception("MissingFile") << "Scaler file for Electron PFid DNN not found";
+      throw cms::Exception("MissingFile") << "Scaler file for PFid DNN not found";
     } else {
       // Now read mean, scale factors for each variable
       float par1, par2;
@@ -97,8 +97,9 @@ std::pair<uint, std::vector<float>> EgammaDNNHelper::getScaledInputs(
   return std::make_pair(modelIndex, inputs);
 }
 
-std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std::map<std::string, float>>& candidates,
-                                                          const std::vector<tensorflow::Session*>& sessions) const {
+std::vector<std::pair<uint, std::vector<float>>> EgammaDNNHelper::evaluate(
+    const std::vector<std::map<std::string, float>>& candidates,
+    const std::vector<tensorflow::Session*>& sessions) const {
   /*
     Evaluate the PFID DNN for all the electrons/photons. 
     nModels_ are defined depending on modelIndex  --> we need to build N input tensors to evaluate
@@ -109,17 +110,17 @@ std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std:
     2) Prepare the input tensors for the  models
     3) Run the models and get the output for each candidate
     4) Sort the output by candidate index
-    5) Return the DNN outputs 
+    5) Return the DNN outputs along with the model index used on it
 
     */
   size_t nCandidates = candidates.size();
-  std::vector<std::vector<int>> indexMap(nModels_);  // for each model; the list of candidate index is saved
+  std::vector<std::vector<uint>> indexMap(nModels_);  // for each model; the list of candidate index is saved
   std::vector<std::vector<float>> inputsVectors(nCandidates);
   std::vector<uint> counts(nModels_);
 
   LogDebug("EgammaDNNHelper") << "Working on " << nCandidates << " candidates";
 
-  int icand = 0;
+  uint icand = 0;
   for (auto& candidate : candidates) {
     LogDebug("EgammaDNNHelper") << "Working on candidate: " << icand;
     const auto& [model_index, inputs] = getScaledInputs(candidate);
@@ -152,30 +153,34 @@ std::vector<std::vector<float>> EgammaDNNHelper::evaluate(const std::vector<std:
   }
 
   // Define the output and run
-  // Define the output and run
-  std::vector<std::pair<int, std::vector<float>>> outputs;
+  // The initial output is [(cand_index,(model_index, outputs)),.. ]
+  std::vector<std::pair<uint, std::pair<uint, std::vector<float>>>> outputs;
   // Run all the models
   for (size_t m = 0; m < nModels_; m++) {
     if (counts[m] == 0)
       continue;  //Skip model witout inputs
     std::vector<tensorflow::Tensor> output;
-    LogDebug("EgammaDNNHelper") << "Run model: " << m << " with " << counts[m] << " electrons";
+    LogDebug("EgammaDNNHelper") << "Run model: " << m << " with " << counts[m] << "objects";
     tensorflow::run(sessions[m], {{cfg_.inputTensorName, input_tensors[m]}}, {cfg_.outputTensorName}, &output);
     // Get the output and save the ElectronDNNEstimator::outputDim numbers along with the ele index
     const auto& r = output[0].tensor<float, 2>();
     // Iterate on the list of elements in the batch --> many electrons
+    LogDebug("EgammaDNNHelper") << "Model " << m << " has " << cfg_.outputDim[m] << " nodes!";
     for (uint b = 0; b < counts[m]; b++) {
-      std::vector<float> result(cfg_.outputDim);
-      for (size_t k = 0; k < cfg_.outputDim; k++)
+      //auto outputDim=cfg_.outputDim;
+      std::vector<float> result(cfg_.outputDim[m]);
+      for (size_t k = 0; k < cfg_.outputDim[m]; k++) {
         result[k] = r(b, k);
+        LogDebug("EgammaDNNHelper") << "For Object " << b + 1 << " : Node " << k + 1 << " score = " << r(b, k);
+      }
       // Get the original index of the electorn in the original order
       const auto cand_index = indexMap[m][b];
-      outputs.push_back(std::make_pair(cand_index, result));
+      outputs.push_back(std::make_pair(cand_index, std::make_pair(m, result)));
     }
   }
   // Now we have just to re-order the outputs
   std::sort(outputs.begin(), outputs.end());
-  std::vector<std::vector<float>> final_outputs(outputs.size());
+  std::vector<std::pair<uint, std::vector<float>>> final_outputs(outputs.size());
   std::transform(outputs.begin(), outputs.end(), final_outputs.begin(), [](auto a) { return a.second; });
 
   return final_outputs;

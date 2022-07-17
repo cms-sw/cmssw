@@ -22,10 +22,10 @@ def extractBlock(config, blocks, target):
   proc.wait()
 
 def extractBlocks(config):
-  outputA        = ( 'hltOutputA', 'hltOutputPhysicsCommissioning' )
-  outputALCA     = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCALUMIPIXELS' , 'hltOutputRPCMON' )
-  outputMON      = ( 'hltOutputA', 'hltOutputPhysicsCommissioning', 'hltOutputDQM', 'hltOutputHLTMonitor', 'hltOutputLookArea', 'hltOutputReleaseValidation')
-  outputScouting = ( 'hltOutputScoutingPF', 'hltOutputScoutingCaloMuon')
+  outputA        = [ 'hltOutputA', 'hltOutputPhysicsCommissioning' ]
+  outputALCA     = [ 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCAPPS', 'hltOutputALCALumiPixelsCountsExpress', 'hltOutputALCALumiPixelsCountsPrompt', 'hltOutputRPCMON' ]
+  outputMON      = [ 'hltOutputA', 'hltOutputPhysicsCommissioning', 'hltOutputDQM', 'hltOutputDQMGPUvsCPU', 'hltOutputHLTMonitor', 'hltOutputReleaseValidation' ]
+  outputScouting = [ 'hltOutputScoutingPF' ]
   extractBlock(config, outputA,         'hltOutputA_cff.py')
   extractBlock(config, outputALCA,      'hltOutputALCA_cff.py')
   extractBlock(config, outputMON,       'hltOutputMON_cff.py')
@@ -46,7 +46,6 @@ def makePSetNoDrop(statements):
   )
   block.outputCommands.extend( statements )
   return block
-
 
 def buildPSet(blocks):
   statements = set()
@@ -93,19 +92,19 @@ if not hasattr(hltOutputMON_cff,'block_hltOutputA'):
   hltOutputMON_cff.block_hltOutputA = hltOutputMON_cff.block_hltOutputPhysicsCommissioning
 if not hasattr(hltOutputMON_cff,'block_hltOutputDQM'):
   hltOutputMON_cff.block_hltOutputDQM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputMON_cff,'block_hltOutputDQMGPUvsCPU'):
+  hltOutputMON_cff.block_hltOutputDQMGPUvsCPU = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 if not hasattr(hltOutputMON_cff,'block_hltOutputHLTMonitor'):
   hltOutputMON_cff.block_hltOutputHLTMonitor = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*' ))
-if not hasattr(hltOutputMON_cff,'block_hltOutputLookArea'):
-  hltOutputMON_cff.block_hltOutputLookArea = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 if not hasattr(hltOutputMON_cff,'block_hltOutputReleaseValidation'):
   hltOutputMON_cff.block_hltOutputReleaseValidation = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 
 hltDebugOutputBlocks = (
-  # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
+  # the DQM, DQMGPUvsCPU and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputA.outputCommands,
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+  hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
-  hltOutputMON_cff.block_hltOutputLookArea.outputCommands,
   hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
 )
 hltDebugOutputContent = buildPSet(hltDebugOutputBlocks)
@@ -116,21 +115,27 @@ if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPHISYM'):
   hltOutputALCA_cff.block_hltOutputALCAPHISYM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAP0'):
   hltOutputALCA_cff.block_hltOutputALCAP0 = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALUMIPIXELS'):
-  hltOutputALCA_cff.block_hltOutputALCALUMIPIXELS = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputALCA_cff,'block_hltOutputALCAPPS'):
+  hltOutputALCA_cff.block_hltOutputALCAPPS = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALumiPixelsCountsExpress'):
+  hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
+if not hasattr(hltOutputALCA_cff,'block_hltOutputALCALumiPixelsCountsPrompt'):
+  hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsPrompt = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 if not hasattr(hltOutputALCA_cff,'block_hltOutputRPCMON'):
   hltOutputALCA_cff.block_hltOutputRPCMON = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 hltDebugWithAlCaOutputBlocks = (
-  # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
+  # the DQM, DQMGPUvsCPU and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputA.outputCommands,
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+  hltOutputMON_cff.block_hltOutputDQMGPUvsCPU.outputCommands,
   hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
-  hltOutputMON_cff.block_hltOutputLookArea.outputCommands,
   hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
   # the ALCA streams have the AlCa outputs
   hltOutputALCA_cff.block_hltOutputALCAPHISYM.outputCommands,
   hltOutputALCA_cff.block_hltOutputALCAP0.outputCommands,
-  hltOutputALCA_cff.block_hltOutputALCALUMIPIXELS.outputCommands,
+  hltOutputALCA_cff.block_hltOutputALCAPPS.outputCommands,
+  hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsExpress.outputCommands,
+  hltOutputALCA_cff.block_hltOutputALCALumiPixelsCountsPrompt.outputCommands,
   hltOutputALCA_cff.block_hltOutputRPCMON.outputCommands,
 )
 hltDebugWithAlCaOutputContent = buildPSet(hltDebugWithAlCaOutputBlocks)
@@ -139,13 +144,10 @@ hltDebugWithAlCaOutputContent = buildPSet(hltDebugWithAlCaOutputBlocks)
 
 if not hasattr(hltScouting_cff,'block_hltOutputScoutingPF'):
   hltScouting_cff.block_hltOutputScoutingPF = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-if not hasattr(hltScouting_cff,'block_hltOutputScoutingCaloMuon'):
-  hltScouting_cff.block_hltOutputScoutingCaloMuon = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 
 hltScoutingOutputBlocks = (
-  # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
+  # the Scouting streams have the Scouting outputs
   hltScouting_cff.block_hltOutputScoutingPF.outputCommands,
-  hltScouting_cff.block_hltOutputScoutingCaloMuon.outputCommands,
 )
 hltScoutingOutputContent = buildPSetNoDrop(hltScoutingOutputBlocks)
 

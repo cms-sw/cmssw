@@ -9,7 +9,9 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/path_configuration.h"
 
+#include <unordered_set>
 #include <iostream>
 
 //Using this function with the 'const static within s_dummyPSet'
@@ -119,7 +121,8 @@ void HLTConfigData::extract() {
   moduleLabels_.reserve(n);
   for (unsigned int i = 0; i != n; ++i) {
     if (processPSet_->existsAs<vector<string>>(triggerNames_[i], true)) {
-      moduleLabels_.push_back(processPSet_->getParameter<vector<string>>(triggerNames_[i]));
+      moduleLabels_.push_back(path_configuration::configurationToModuleBitPosition(
+          processPSet_->getParameter<vector<string>>(triggerNames_[i])));
     }
   }
   saveTagsModules_.reserve(n);

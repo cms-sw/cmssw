@@ -53,7 +53,7 @@ public:
   bool hasRPC() const { return theRPCDataIsPresent; }
   CSCRPCData* rpcData() { return &theRPCData; }
   bool hasGEM() const { return theGEMDataIsPresent; }
-  CSCGEMData* gemData() const;
+  CSCGEMData* gemData();
 
   /// not const because it sets size int TMBTrailer
 
@@ -79,7 +79,7 @@ private:
   CSCTMBHeader theTMBHeader;
   CSCComparatorData theComparatorData;
   CSCRPCData theRPCData;
-  CSCGEMData* theGEMData;
+  CSCGEMData theGEMData;
   /// The TMB scope is not present in most of data hence its dynamic
   bool theTMBScopeIsPresent;
   CSCTMBScope* theTMBScope;

@@ -1,0 +1,8 @@
+<use name="CalibFormats/SiStripObjects"/>
+<use name="CalibTracker/SiStripCommon"/>
+<use name="CalibTracker/StandaloneTrackerTopology"/>
+<use name="CondCore/Utilities"/>
+<use name="CondFormats/SiStripObjects"/>
+<use name="DataFormats/SiStripCommon"/>
+<use name="DataFormats/SiStripDetId"/>
+

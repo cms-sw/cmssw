@@ -21,14 +21,17 @@ TkJet::TkJet(const LorentzVector& p4,
              unsigned int ntracks,
              unsigned int tighttracks,
              unsigned int displacedtracks,
-             unsigned int tightdisplacedtracks)
+             unsigned int tightdisplacedtracks,
+             bool displacedTag)
     : L1Candidate(p4),
       trkPtrs_(trkPtrs),
       JetVtx_(jetvtx),
       ntracks_(ntracks),
       tighttracks_(tighttracks),
       displacedtracks_(displacedtracks),
-      tightdisplacedtracks_(tightdisplacedtracks) {}
+      tightdisplacedtracks_(tightdisplacedtracks),
+      displacedTag_(displacedTag) {}
+
 int TkJet::bx() const {
   // in the producer TkJetProducer.cc, we keep only jets with bx = 0
   return 0;

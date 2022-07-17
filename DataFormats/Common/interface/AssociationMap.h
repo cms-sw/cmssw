@@ -38,7 +38,7 @@
 #include "DataFormats/Common/interface/OneToManyWithQuality.h"
 
 #include <utility>
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 namespace edm {
 
@@ -53,6 +53,8 @@ namespace edm {
   public:
     /// self type
     typedef AssociationMap<Tag> self;
+    /// tag/association type
+    typedef Tag tag_type;
     /// index type
     typedef typename Tag::index_type index_type;
     /// insert key type
@@ -70,7 +72,7 @@ namespace edm {
     /// type return by operator[]
     typedef typename value_type::value_type result_type;
     /// transient map type
-    typedef typename tbb::concurrent_unordered_map<index_type, value_type> internal_transient_map_type;
+    typedef typename oneapi::tbb::concurrent_unordered_map<index_type, value_type> internal_transient_map_type;
 
     /// const iterator
     struct const_iterator {

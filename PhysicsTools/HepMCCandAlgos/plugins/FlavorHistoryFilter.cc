@@ -1,8 +1,67 @@
-// This file was removed but it should not have been.
-// This comment is to restore it.
+// -*- C++ -*-
+//
+// Package:    FlavorHistoryFilter
+// Class:      FlavorHistoryFilter
+//
+/**\class FlavorHistoryFilter FlavorHistoryFilter.cc PhysicsTools/FlavorHistoryFilter/src/FlavorHistoryFilter.cc
 
-#include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryFilter.h"
-#include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryProducer.h"
+ Description:
+
+ This now filters events hierarchically. Previously this was done at the python configuration
+ level, which was cumbersome for users to use.
+
+ Now, the hierarchy is:
+
+ Create prioritized paths to separate HF composition samples.
+
+ These are exclusive priorities, so sample "i" will not overlap with "i+1".
+ Note that the "dr" values below correspond to the dr between the
+ matched genjet, and the sister genjet.
+
+ 1) W+bb with >= 2 jets from the ME (dr > 0.5)
+ 2) W+b or W+bb with 1 jet from the ME
+ 3) W+cc from the ME (dr > 0.5)
+ 4) W+c or W+cc with 1 jet from the ME
+ 5) W+bb with 1 jet from the parton shower (dr == 0.0)
+ 6) W+cc with 1 jet from the parton shower (dr == 0.0)
+
+ These are the "trash bin" samples that we're throwing away:
+
+ 7) W+bb with >= 2 partons but 1 jet from the ME (dr == 0.0)
+ 8) W+cc with >= 2 partons but 1 jet from the ME (dr == 0.0)
+ 9) W+bb with >= 2 partons but 2 jets from the PS (dr > 0.5)
+ 10)W+cc with >= 2 partons but 2 jets from the PS (dr > 0.5)
+
+ And here is the true "light flavor" sample:
+
+ 11) Veto of all the previous (W+ light jets)
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  "Salvatore Rappoccio"
+//         Created:  Sat Jun 28 00:41:21 CDT 2008
+//
+//
+
+// system include files
+#include <memory>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
+#include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+
+#include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistorySelectorUtil.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,6 +70,45 @@
 #include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistorySelectorUtil.h"
 
 #include <vector>
+
+//
+// class declaration
+//
+
+class FlavorHistoryFilter : public edm::global::EDFilter<> {
+public:
+  typedef reco::FlavorHistory::FLAVOR_T flavor_type;
+  typedef std::vector<int> flavor_vector;
+
+  explicit FlavorHistoryFilter(const edm::ParameterSet&);
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+private:
+  bool filter(edm::StreamID, ::edm::Event&, const edm::EventSetup&) const override;
+
+  // ----------member data ---------------------------
+  edm::EDGetTokenT<reco::FlavorHistoryEvent> bsrcToken_;  // Input b flavor history collection name
+  edm::EDGetTokenT<reco::FlavorHistoryEvent> csrcToken_;  // Input c flavor history collection name
+  int pathToSelect_;                                      // Select any of the following paths:
+  double dr_;                                             // dr with which to cut off the events
+  // Note! The "b" and "c" here refer to the number of matched b and c genjets, respectively
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const> bb_me_;  // To select bb->2 events from matrix element... Path 1
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const> b_me_;  // To select  b->1 events from matrix element... Path 2
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const> cc_me_;  // To select cc->2 events from matrix element... Path 3
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const> c_me_;  // To select  c->1 events from matrix element... Path 4
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const> b_ps_;  // To select bb->2 events from parton shower ... Path 5
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const> c_ps_;  // To select cc->2 events from parton shower ... Path 6
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const>
+      bb_me_comp_;  // To select bb->1 events from matrix element... Path 7
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const>
+      cc_me_comp_;  // To select cc->1 events from matrix element... Path 8
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const>
+      b_ps_comp_;  // To select bb->2 events from parton shower ... Path 9
+  std::unique_ptr<reco::FlavorHistorySelectorUtil const>
+      c_ps_comp_;  // To select cc->1 events from parton shower ... Path 10
+                   // The veto of all of these is               ... Path 11
+};
 
 using namespace edm;
 using namespace reco;
@@ -30,10 +128,7 @@ using namespace std;
 FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig)
     : bsrcToken_(consumes<FlavorHistoryEvent>(iConfig.getParameter<edm::InputTag>("bsrc"))),
       csrcToken_(consumes<FlavorHistoryEvent>(iConfig.getParameter<edm::InputTag>("csrc"))) {
-  if (iConfig.exists("pathToSelect"))
-    pathToSelect_ = iConfig.getParameter<int>("pathToSelect");
-  else
-    pathToSelect_ = -1;
+  pathToSelect_ = iConfig.getParameter<int>("pathToSelect");
 
   // This is the "interface" delta R with which to decide
   // where to take the event from
@@ -58,34 +153,34 @@ FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig)
   ps_ids.push_back(1);  // gluon splitting
 
   // To select bb->2 events from matrix element... Path 1
-  bb_me_ = new FlavorHistorySelectorUtil(5, 2, me_ids, dr1, dr2, verbose);
+  bb_me_ = std::make_unique<FlavorHistorySelectorUtil>(5, 2, me_ids, dr1, dr2, verbose);
 
   // To select  b->1 events from matrix element... Path 2
-  b_me_ = new FlavorHistorySelectorUtil(5, 1, me_ids, dr0, dr0, verbose);
+  b_me_ = std::make_unique<FlavorHistorySelectorUtil>(5, 1, me_ids, dr0, dr0, verbose);
 
   // To select cc->2 events from matrix element... Path 3
-  cc_me_ = new FlavorHistorySelectorUtil(4, 2, me_ids, dr1, dr2, verbose);
+  cc_me_ = std::make_unique<FlavorHistorySelectorUtil>(4, 2, me_ids, dr1, dr2, verbose);
 
   // To select  c->1 events from matrix element... Path 4
-  c_me_ = new FlavorHistorySelectorUtil(4, 1, me_ids, dr0, dr0, verbose);
+  c_me_ = std::make_unique<FlavorHistorySelectorUtil>(4, 1, me_ids, dr0, dr0, verbose);
 
   // To select bb->2 events from parton shower ... Path 5
-  b_ps_ = new FlavorHistorySelectorUtil(5, 1, ps_ids, dr0, dr1, verbose);
+  b_ps_ = std::make_unique<FlavorHistorySelectorUtil>(5, 1, ps_ids, dr0, dr1, verbose);
 
   // To select cc->2 events from parton shower ... Path 6
-  c_ps_ = new FlavorHistorySelectorUtil(4, 1, ps_ids, dr0, dr1, verbose);
+  c_ps_ = std::make_unique<FlavorHistorySelectorUtil>(4, 1, ps_ids, dr0, dr1, verbose);
 
   // To select bb->1 events from matrix element... Path 7
-  bb_me_comp_ = new FlavorHistorySelectorUtil(5, 2, me_ids, dr0, dr1, verbose);
+  bb_me_comp_ = std::make_unique<FlavorHistorySelectorUtil>(5, 2, me_ids, dr0, dr1, verbose);
 
   // To select cc->1 events from matrix element... Path 8
-  cc_me_comp_ = new FlavorHistorySelectorUtil(4, 2, me_ids, dr0, dr1, verbose);
+  cc_me_comp_ = std::make_unique<FlavorHistorySelectorUtil>(4, 2, me_ids, dr0, dr1, verbose);
 
   // To select bb->2 events from parton shower ... Path 9
-  b_ps_comp_ = new FlavorHistorySelectorUtil(5, 2, ps_ids, dr1, dr2, verbose);
+  b_ps_comp_ = std::make_unique<FlavorHistorySelectorUtil>(5, 2, ps_ids, dr1, dr2, verbose);
 
   // To select cc->1 events from parton shower ... Path 10
-  c_ps_comp_ = new FlavorHistorySelectorUtil(4, 2, ps_ids, dr1, dr2, verbose);
+  c_ps_comp_ = std::make_unique<FlavorHistorySelectorUtil>(4, 2, ps_ids, dr1, dr2, verbose);
 
   // The veto of all of these is               ... Path 11
 
@@ -93,31 +188,19 @@ FlavorHistoryFilter::FlavorHistoryFilter(const edm::ParameterSet& iConfig)
   produces<unsigned int>();
 }
 
-FlavorHistoryFilter::~FlavorHistoryFilter() {
-  if (bb_me_)
-    delete bb_me_;
-  if (b_me_)
-    delete b_me_;
-  if (cc_me_)
-    delete cc_me_;
-  if (c_me_)
-    delete c_me_;
-  if (b_ps_)
-    delete b_ps_;
-  if (c_ps_)
-    delete c_ps_;
+void FlavorHistoryFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
 
-  if (bb_me_comp_)
-    delete bb_me_comp_;
-  if (cc_me_comp_)
-    delete cc_me_comp_;
-  if (b_ps_comp_)
-    delete b_ps_comp_;
-  if (c_ps_comp_)
-    delete c_ps_comp_;
+  desc.add<edm::InputTag>("bsrc");
+  desc.add<edm::InputTag>("csrc");
+  desc.add<int>("pathToSelect", -1);
+  desc.add<double>("dr");
+  desc.add<bool>("verbose");
+
+  descriptions.addDefault(desc);
 }
 
-bool FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool FlavorHistoryFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // Get the flavor history
   Handle<FlavorHistoryEvent> bFlavorHistoryEvent;
   iEvent.getByToken(bsrcToken_, bFlavorHistoryEvent);
@@ -192,9 +275,6 @@ bool FlavorHistoryFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
   return pass;
 }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void FlavorHistoryFilter::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(FlavorHistoryFilter);

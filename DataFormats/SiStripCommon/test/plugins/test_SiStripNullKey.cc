@@ -1,14 +1,30 @@
-
-#include "DataFormats/SiStripCommon/test/plugins/test_SiStripNullKey.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iostream>
+// system includes
 #include <iomanip>
+#include <iostream>
 #include <sstream>
 #include <string>
 #include <time.h>
+
+// user includes
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripNullKey.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+/**
+   @class testSiStripNullKey 
+   @author R.Bainbridge
+   @brief Simple class that tests SiStripNullKey.
+*/
+class testSiStripNullKey : public edm::one::EDAnalyzer<> {
+public:
+  testSiStripNullKey(const edm::ParameterSet&);
+  ~testSiStripNullKey();
+
+  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
+};
 
 using namespace sistrip;
 
@@ -71,3 +87,6 @@ void testSiStripNullKey::analyze(const edm::Event& event, const edm::EventSetup&
   LogTrace(mlDqmCommon_) << "[SiStripNullKey::" << __func__ << "]"
                          << " Analyzing run/event " << event.id().run() << "/" << event.id().event();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(testSiStripNullKey);

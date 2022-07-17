@@ -134,7 +134,7 @@ public:
     }
     dataChanged();
   }
-  sigc::signal<void, int> indexSelected_;
+  sigc::signal<void(int)> indexSelected_;
 
 private:
   void changeSelection(int iRow) {

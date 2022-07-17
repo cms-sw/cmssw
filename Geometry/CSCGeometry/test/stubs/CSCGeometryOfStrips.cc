@@ -14,7 +14,7 @@
 class CSCGeometryOfStrips : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCGeometryOfStrips(const edm::ParameterSet&);
-  ~CSCGeometryOfStrips() override;
+  ~CSCGeometryOfStrips() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -26,12 +26,14 @@ private:
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> tokGeom_;
 };
 
 CSCGeometryOfStrips::CSCGeometryOfStrips(const edm::ParameterSet& iConfig)
-    : dashedLineWidth_(101), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCGeometryOfStrips") {}
-
-CSCGeometryOfStrips::~CSCGeometryOfStrips() {}
+    : dashedLineWidth_(101),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCGeometryOfStrips"),
+      tokGeom_(esConsumes()) {}
 
 void CSCGeometryOfStrips::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //   const double dPi = Geom::pi();
@@ -40,8 +42,7 @@ void CSCGeometryOfStrips::analyze(const edm::Event& iEvent, const edm::EventSetu
   std::cout << myName() << ": Analyzer..." << std::endl;
   std::cout << "start " << dashedLine_ << std::endl;
 
-  edm::ESHandle<CSCGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  const edm::ESHandle<CSCGeometry>& pDD = iSetup.getHandle(tokGeom_);
   std::cout << " Geometry node for CSCGeometry is  " << &(*pDD) << std::endl;
   std::cout << " I have " << pDD->detTypes().size() << " detTypes" << std::endl;
   std::cout << " I have " << pDD->detUnits().size() << " detUnits" << std::endl;

@@ -36,9 +36,9 @@ private:
   int SimHitsEndjob(const std::vector<MonitorElement *> &hcalMEs);
   std::vector<std::string> getHistogramTypes();
 
-  std::string dirName_;
-  bool verbose_;
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
+  const std::string dirName_;
+  const bool verbose_;
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_HRNDC_;
   static const int nTime = 4;
   static const int nType1 = 4;
   const HcalDDDRecConstants *hcons;
@@ -46,7 +46,7 @@ private:
 
 public:
   explicit HcalSimHitsClient(const edm::ParameterSet &);
-  ~HcalSimHitsClient() override;
+  ~HcalSimHitsClient() override = default;
 
   void beginRun(edm::Run const &run, edm::EventSetup const &c) override;
   virtual void runClient_(DQMStore::IBooker &, DQMStore::IGetter &);

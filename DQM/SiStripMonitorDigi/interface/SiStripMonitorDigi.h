@@ -8,22 +8,22 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
+
 #include <memory>
+
 #include "CondFormats/RunInfo/interface/RunInfo.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DQM/SiStripCommon/interface/APVShot.h"
+#include "DQM/SiStripCommon/interface/APVShotFinder.h"
+#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
+#include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "DQMServices/Core/interface/DQMOneEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQM/SiStripCommon/interface/TkHistoMap.h"
-#include "DQM/SiStripCommon/interface/APVShotFinder.h"
-#include "DQM/SiStripCommon/interface/APVShot.h"
-#include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
-
-#include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 class SiStripDCSStatus;
 class SiStripDetCabling;

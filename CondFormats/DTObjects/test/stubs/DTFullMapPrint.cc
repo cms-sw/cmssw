@@ -21,8 +21,6 @@ namespace edmtest {
 
   DTFullMapPrint::DTFullMapPrint(int i) {}
 
-  DTFullMapPrint::~DTFullMapPrint() {}
-
   void DTFullMapPrint::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     // Context is not used.

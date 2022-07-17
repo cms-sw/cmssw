@@ -8,10 +8,13 @@ import FWCore.ParameterSet.Config as cms
 
 # SiStripCluster monitoring
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
-HLTSiStripMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-HLTSiStripMonitorCluster.ClusterProducerStrip = cms.InputTag("hltSiStripRawToClustersFacility")
-HLTSiStripMonitorCluster.ClusterProducerPix   = cms.InputTag("hltSiPixelClusters")
-HLTSiStripMonitorCluster.TopFolderName        = cms.string("HLT/SiStrip")
+HLTSiStripMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone(
+    ClusterProducerStrip = "hltSiStripRawToClustersFacility",
+    ClusterProducerPix   = "hltSiPixelClusters",
+    TopFolderName        = "HLT/SiStrip",
+    ClusterHisto         = True,
+    Mod_On               = False
+)
 HLTSiStripMonitorCluster.TH1TotalNumberOfClusters.subdetswitchon   = cms.bool(True)
 HLTSiStripMonitorCluster.TProfClustersApvCycle.subdetswitchon      = cms.bool(False)
 HLTSiStripMonitorCluster.TProfTotalNumberOfClusters.subdetswitchon = cms.bool(True)
@@ -20,8 +23,7 @@ HLTSiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon  = cms.bool(True)
 HLTSiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon = cms.bool(True)
 HLTSiStripMonitorCluster.TH1StripNoise2ApvCycle.globalswitchon  = cms.bool(False)
 HLTSiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon  = cms.bool(False)
-HLTSiStripMonitorCluster.ClusterHisto = cms.bool(True)
-HLTSiStripMonitorCluster.Mod_On            = cms.bool(False)
+
 HLTSiStripMonitorCluster.BPTXfilter = cms.PSet(
         andOr         = cms.bool( False ),
             dbLabel       = cms.string("SiStripDQMTrigger"),
@@ -33,6 +35,7 @@ HLTSiStripMonitorCluster.BPTXfilter = cms.PSet(
 HLTSiStripMonitorCluster.PixelDCSfilter = cms.PSet(
         andOr         = cms.bool( False ),
             dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+            dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis"),
             dcsPartitions = cms.vint32 ( 28, 29),
             andOrDcs      = cms.bool( False ),
             errorReplyDcs = cms.bool( True ),
@@ -40,6 +43,7 @@ HLTSiStripMonitorCluster.PixelDCSfilter = cms.PSet(
 HLTSiStripMonitorCluster.StripDCSfilter = cms.PSet(
         andOr         = cms.bool( False ),
             dcsInputTag   = cms.InputTag( "scalersRawToDigi" ),
+            dcsRecordInputTag = cms.InputTag("onlineMetaDataDigis"),
             dcsPartitions = cms.vint32 ( 24, 25, 26, 27 ),
             andOrDcs      = cms.bool( False ),
             errorReplyDcs = cms.bool( True ),
@@ -129,25 +133,26 @@ hltESPStripCPEfromTrackAngle = cms.ESProducer( "StripCPEESProducer",
 )
 
 from RecoTracker.TrackProducer.TrackRefitter_cfi import *
-hltTrackRefitterForSiStripMonitorTrack = TrackRefitter.clone()
-hltTrackRefitterForSiStripMonitorTrack.beamSpot                = cms.InputTag("hltOnlineBeamSpot")
-hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = cms.InputTag('MeasurementTrackerEvent')
-hltTrackRefitterForSiStripMonitorTrack.TrajectoryInEvent       = cms.bool(True)
-hltTrackRefitterForSiStripMonitorTrack.useHitsSplitting        = cms.bool(False)
-#hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltIter4Merged") # scenario 0
-hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltMergedTracks") # hltIter2Merged # scenario 1
-#hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBuilderAngleAndTemplate')
-hltTrackRefitterForSiStripMonitorTrack.TTRHBuilder             = cms.string('hltESPTTRHBWithTrackAngle')
-
+hltTrackRefitterForSiStripMonitorTrack = TrackRefitter.clone(
+    beamSpot                = "hltOnlineBeamSpot",
+    MeasurementTrackerEvent = 'MeasurementTrackerEvent',
+    TrajectoryInEvent       = True,
+    useHitsSplitting        = False,
+    #src                     = "hltIter4Merged", # scenario 0
+    src                     = "hltMergedTracks", # hltIter2Merged # scenario 1
+    #TTRHBuilder             = 'hltESPTTRHBuilderAngleAndTemplate',
+    TTRHBuilder             = 'hltESPTTRHBWithTrackAngle'
+)
 import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
-HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
-HLTSiStripMonitorTrack.TrackProducer     = 'hltTrackRefitterForSiStripMonitorTrack' 
-HLTSiStripMonitorTrack.TrackLabel        = ''
-HLTSiStripMonitorTrack.AlgoName          = cms.string("HLT")
-HLTSiStripMonitorTrack.Cluster_src       = cms.InputTag('hltSiStripRawToClustersFacility')
-HLTSiStripMonitorTrack.Trend_On          = cms.bool(True)
-HLTSiStripMonitorTrack.TopFolderName     = cms.string('HLT/SiStrip')
-HLTSiStripMonitorTrack.Mod_On            = cms.bool(False)
+HLTSiStripMonitorTrack = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone(
+    TrackProducer     = 'hltTrackRefitterForSiStripMonitorTrack',
+    TrackLabel        = '',
+    AlgoName          = "HLT",
+    Cluster_src       = 'hltSiStripRawToClustersFacility',
+    Trend_On          = True,
+    TopFolderName     = 'HLT/SiStrip',
+    Mod_On            = False
+)
 sistripMonitorHLTsequence = cms.Sequence(
     HLTSiStripMonitorCluster
     * hltTrackRefitterForSiStripMonitorTrack

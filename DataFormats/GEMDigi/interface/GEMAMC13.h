@@ -109,6 +109,8 @@ public:
   void addAMCpayload(const GEMAMC& a) { amcs_.push_back(a); }
   void clearAMCpayloads() { amcs_.clear(); }
 
+  static const int lastBC = 3564;
+
 private:
   uint64_t cdfh_;    // CDFHeader
   uint64_t amc13h_;  // AMC13Header

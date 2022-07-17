@@ -23,20 +23,16 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-ZDCDigiStudy::ZDCDigiStudy(const edm::ParameterSet& ps) {
-  zdcHits = ps.getUntrackedParameter<std::string>("HitCollection", "ZdcHits");
-  outFile_ = ps.getUntrackedParameter<std::string>("outputFile", "zdcHitStudy.root");
-  verbose_ = ps.getUntrackedParameter<bool>("Verbose", false);
-  checkHit_ = true;
+//#define EDM_ML_DEBUG
 
-  tok_zdc_ = consumes<ZDCDigiCollection>(edm::InputTag("simHcalUnsuppressedDigis"));
-
-  edm::LogInfo("ZDCDigiStudy")
-      //std::cout
-      << "   Hits: " << zdcHits << " / " << checkHit_ << "   Output: " << outFile_;
+ZDCDigiStudy::ZDCDigiStudy(const edm::ParameterSet& ps)
+    : zdcHits(ps.getUntrackedParameter<std::string>("HitCollection", "ZdcHits")),
+      outFile_(ps.getUntrackedParameter<std::string>("outputFile", "zdcHitStudy.root")),
+      verbose_(ps.getUntrackedParameter<bool>("Verbose", false)),
+      checkHit_(true),
+      tok_zdc_(consumes<ZDCDigiCollection>(edm::InputTag("simHcalUnsuppressedDigis"))) {
+  edm::LogVerbatim("ZDCDigiStudy") << "   Hits: " << zdcHits << " / " << checkHit_ << "   Output: " << outFile_;
 }
-
-ZDCDigiStudy::~ZDCDigiStudy() {}
 
 void ZDCDigiStudy::bookHistograms(DQMStore::IBooker& ib, edm::Run const& run, edm::EventSetup const& es) {
   ib.setCurrentFolder("ZDCDigiValidation");
@@ -216,8 +212,9 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if (gotZDCDigis == true) {
     for (ZDCDigiCollection::const_iterator zdc = zdchandle->begin(); zdc != zdchandle->end(); ++zdc) {
       const ZDCDataFrame digi = (const ZDCDataFrame)(*zdc);
-      //std::cout <<"CHANNEL = "<<zdc->id().channel()<<std::endl;
-
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("ZDCDigiStudy") << "CHANNEL = " << zdc->id().channel();
+#endif
       /////////////////////////////HAD SECTIONS///////////////
 
       if (digi.id().section() == 2) {            // require HAD
@@ -344,10 +341,12 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       totalPCharge = totalPHADCharge + (0.1) * totalPEMCharge;
       totalNCharge = totalNHADCharge + (0.1) * totalNEMCharge;
 
-      /*       std::cout <<"CHANNEL = "<<digi.id().channel()<<std::endl;
-                 for (int i=0;i<digi.size();++i)
-                 std::cout <<"SAMPLE = "<<i<<"  ADC = "<<digi.sample(i).adc()<<" fC =  "<<digi.sample(i).nominal_fC()<<std::endl;
-        */
+#ifdef EDM_ML_DEBUG
+      edm::LogVerbatim("ZDCDigiStudy") << "CHANNEL = " << digi.id().channel();
+      for (int i = 0; i < digi.size(); ++i)
+        edm::LogVerbatim("ZDCDigiStudy") << "SAMPLE = " << i << "  ADC = " << digi.sample(i).adc()
+                                         << " fC =  " << digi.sample(i).nominal_fC();
+#endif
       //  digi[i] should be the sample as digi.sample(i), I think
     }  // loop on all (22) ZDC digis
   }

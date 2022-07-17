@@ -67,8 +67,10 @@ kFinishedSourceDelayedRead=8
 kSourceFindEvent = "sourceFindEvent"
 kSourceDelayedRead ="sourceDelayedRead"
 
+kTimeFuzz = 1000 # in microseconds
+
 #----------------------------------------------
-def processingStepsFromStallMonitorOutput(f,moduleNames):
+def processingStepsFromStallMonitorOutput(f,moduleNames, esModuleNames):
     for rawl in f:
         l = rawl.strip()
         if not l or l[0] == '#':
@@ -113,6 +115,19 @@ def processingStepsFromStallMonitorOutput(f,moduleNames):
                     isEvent = (int(payload[2]) == 0)
                 name = moduleNames[moduleID]
 
+            # 'q' = end of esmodule prefetching
+            # 'N' = begin of esmodule processing
+            # 'n' = end of esmodule processing
+            if step == 'q' or step == 'N' or step == 'n':
+                trans = kStarted
+                if step == 'q':
+                    trans = kPrefetchEnd
+                elif step == 'n':
+                    trans = kFinished
+                if step == 'n' or step == 'N':
+                    isEvent = (int(payload[2]) == 0)
+                name = esModuleNames[moduleID]
+
             # 'A' = begin of module acquire function
             # 'a' = end of module acquire function
             elif step == 'A' or step == 'a':
@@ -140,6 +155,7 @@ class StallMonitorParser(object):
         numStreams = 0
         numStreamsFromSource = 0
         moduleNames = {}
+        esModuleNames = {}
         for rawl in f:
             l = rawl.strip()
             if l and l[0] == 'M':
@@ -156,13 +172,21 @@ class StallMonitorParser(object):
                 (id,name)=tuple(l[2:].split())
                 moduleNames[id] = name
                 continue
+            if len(l) > 5 and l[0:2] == "#N":
+                (id,name)=tuple(l[2:].split())
+                esModuleNames[id] = name
+                continue
+
         self._f = f
         if numStreams == 0:
           numStreams = numStreamsFromSource +1
         self.numStreams =numStreams
         self._moduleNames = moduleNames
+        self._esModuleNames = esModuleNames
         self.maxNameSize =0
         for n in moduleNames.items():
+            self.maxNameSize = max(self.maxNameSize,len(n))
+        for n in esModuleNames.items():
             self.maxNameSize = max(self.maxNameSize,len(n))
         self.maxNameSize = max(self.maxNameSize,len(kSourceDelayedRead))
 
@@ -171,7 +195,7 @@ class StallMonitorParser(object):
         Using a generator reduces the memory overhead when parsing a large file.
             """
         self._f.seek(0)
-        return processingStepsFromStallMonitorOutput(self._f,self._moduleNames)
+        return processingStepsFromStallMonitorOutput(self._f,self._moduleNames, self._esModuleNames)
 
 #----------------------------------------------
 # Utility to get time out of Tracer output text format
@@ -452,7 +476,7 @@ def reduceSortedPoints(ps):
     reducedPoints = []
     tmp = Point(ps[0].x, ps[0].y)
     for p in ps[1:]:
-        if tmp.x == p.x:
+        if abs(tmp.x -p.x)<kTimeFuzz:
             tmp.y += p.y
         else:
             reducedPoints.append(tmp)
@@ -533,7 +557,7 @@ def mergeContiguousBlocks(blocks):
 
     lastStartTime,lastTimeLength,lastHeight = oldBlocks[0]
     for start,length,height in oldBlocks[1:]:
-        if height == lastHeight and lastStartTime+lastTimeLength == start:
+        if height == lastHeight and abs(lastStartTime+lastTimeLength - start) < kTimeFuzz:
             lastTimeLength += length
         else:
             blocks.append((lastStartTime,lastTimeLength,lastHeight))
@@ -574,11 +598,30 @@ def plotPerStreamAboveFirstAndPrepareStack(points, allStackTimes, ax, stream, he
             allStackTimes[color].extend(theTS*(nthreads-threadOffset))
 
 #----------------------------------------------
-def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder, setXAxis, xLower, xUpper):
+# The same ES module can have multiple Proxies running concurrently
+#   so we need to reference count the names of the active modules
+class RefCountSet(set):
+  def __init__(self):
+    super().__init__()
+    self.__itemsAndCount = dict()
+  def add(self, item):
+    v = self.__itemsAndCount.setdefault(item,0)
+    self.__itemsAndCount[item]=v+1
+    return super().add(item)
+  def remove(self, item):
+    v = self.__itemsAndCount[item]
+    if v == 1:
+      del self.__itemsAndCount[item]
+      super().remove(item)
+    else:
+      self.__itemsAndCount[item]=v-1
+
+
+def createPDFImage(pdfFile, shownStacks, showStreams, processingSteps, numStreams, stalledModuleInfo, displayExternalWork, checkOrder, setXAxis, xLower, xUpper):
 
     stalledModuleNames = set([x for x in iter(stalledModuleInfo)])
     streamLowestRow = [[] for x in range(numStreams)]
-    modulesActiveOnStreams = [set() for x in range(numStreams)]
+    modulesActiveOnStreams = [RefCountSet() for x in range(numStreams)]
     acquireActiveOnStreams = [set() for x in range(numStreams)]
     externalWorkOnStreams  = [set() for x in range(numStreams)]
     previousFinishTime = [None for x in range(numStreams)]
@@ -714,15 +757,17 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
     streamLowestRow = consolidateContiguousBlocks(numStreams, streamLowestRow)
 
     nr = 1
-    if shownStacks:
+    if shownStacks and showStreams:
         nr += 1
     fig, ax = plt.subplots(nrows=nr, squeeze=True)
     axStack = None
-    if shownStacks:
+    if shownStacks and showStreams:
         [xH,yH] = fig.get_size_inches()
         fig.set_size_inches(xH,yH*4/3)
         ax = plt.subplot2grid((4,1),(0,0), rowspan=3)
         axStack = plt.subplot2grid((4,1),(3,0))
+    if shownStacks and not showStreams:
+        axStack = ax
 
     ax.set_xlabel("Time (sec)")
     ax.set_ylabel("Stream ID")
@@ -737,7 +782,8 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
         times=[(x.begin/1000000., x.delta/1000000.) for x in lowestRow] # Scale from microsec to sec.
         colors=[x.color for x in lowestRow]
         # for each stream, plot the lowest row
-        ax.broken_barh(times,(iStream-0.4,height),facecolors=colors,edgecolors=colors,linewidth=0)
+        if showStreams:
+            ax.broken_barh(times,(iStream-0.4,height),facecolors=colors,edgecolors=colors,linewidth=0)
         # record them also for inclusion in the stack plot
         # the darkviolet ones get counted later so do not count them here
         for info in lowestRow:
@@ -755,7 +801,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
             plotPerStreamAboveFirstAndPrepareStack(perStreamTimesWithExtendedWork,
                                                    allStackTimes, ax, i, height,
                                                    streamHeightCut=2,
-                                                   doPlot=True,
+                                                   doPlot=showStreams,
                                                    addToStackTimes=False,
                                                    color='darkviolet',
                                                    threadOffset=1)
@@ -763,7 +809,7 @@ def createPDFImage(pdfFile, shownStacks, processingSteps, numStreams, stalledMod
             plotPerStreamAboveFirstAndPrepareStack(perStreamRunningTimes,
                                                    allStackTimes, ax, i, height,
                                                    streamHeightCut=2,
-                                                   doPlot=True,
+                                                   doPlot=showStreams,
                                                    addToStackTimes=True,
                                                    color='blue',
                                                    threadOffset=1)
@@ -841,6 +887,9 @@ if __name__=="__main__":
                         action='store_true',
                         help='''Create stack plot, combining all stream-specific info.
                         Can be used only when -g is specified.''')
+    parser.add_argument('--no_streams', action='store_true',
+                        help='''Do not show per stream plots.
+                        Can be used only when -g and -s are specified.''')
     parser.add_argument('-e', '--external',
                         action='store_false',
                         help='''Suppress display of external work in graphs.''')
@@ -863,6 +912,7 @@ if __name__=="__main__":
     inputFile = args.filename
     pdfFile = args.graph
     shownStacks = args.stack
+    showStreams = not args.no_streams
     displayExternalWork = args.external
     checkOrder = args.order
     doModuleTimings = False
@@ -901,6 +951,9 @@ if __name__=="__main__":
     if pdfFile is None and shownStacks:
         print("The -s (--stack) option can be used only when the -g (--graph) option is specified.")
         exit(1)
+    if pdfFile and (not shownStacks and not showStreams):
+        print("When using -g, one must either specify -s OR do not specify --no_streams")
+        exit(1)
 
     sys.stderr.write(">reading file: '{}'\n".format(inputFile.name))
     reader = readLogFile(inputFile)
@@ -915,7 +968,7 @@ if __name__=="__main__":
         createAsciiImage(reader.processingSteps(), reader.numStreams, reader.maxNameSize)
     else:
         sys.stderr.write(">creating PDF\n")
-        createPDFImage(pdfFile, shownStacks, reader.processingSteps(), reader.numStreams, stalledModules, displayExternalWork, checkOrder, setXAxis, xLower, xUpper)
+        createPDFImage(pdfFile, shownStacks, showStreams, reader.processingSteps(), reader.numStreams, stalledModules, displayExternalWork, checkOrder, setXAxis, xLower, xUpper)
     printStalledModulesInOrder(stalledModules)
     if doModuleTimings:
         sys.stderr.write(">creating module-timings.json\n")

@@ -355,23 +355,7 @@ void MuonMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<unsigned int>("nelectrons", 0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
-  genericTriggerEventPSet.add<bool>("andOr");
-  genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
-  genericTriggerEventPSet.add<std::vector<int>>("dcsPartitions", {});
-  genericTriggerEventPSet.add<bool>("andOrDcs", false);
-  genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
-  genericTriggerEventPSet.add<std::string>("dbLabel", "");
-  genericTriggerEventPSet.add<bool>("andOrHlt", true);
-  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
-  genericTriggerEventPSet.add<std::vector<std::string>>("hltPaths", {});
-  genericTriggerEventPSet.add<std::string>("hltDBKey", "");
-  genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
-  genericTriggerEventPSet.add<bool>("errorReplyL1", false);
-  genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
-  genericTriggerEventPSet.add<bool>("andOrL1", false);
-  genericTriggerEventPSet.add<bool>("l1BeforeMask", false);
-  genericTriggerEventPSet.add<std::vector<std::string>>("l1Algorithms", {});
-
+  GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
 

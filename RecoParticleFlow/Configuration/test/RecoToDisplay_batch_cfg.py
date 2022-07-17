@@ -10,7 +10,7 @@ process = cms.Process("REPROD")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_4T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
@@ -52,15 +52,6 @@ process.particleFlowTmp.useHO = False
 process.TFileService = cms.Service(
     "TFileService",
     fileName=cms.string(outfile_name)
-    )
-
-process.pfEGAlgoNewSCTree = cms.EDAnalyzer(
-    "PFEGCandidateTreeMaker",
-    doGen = cms.untracked.bool(True),
-    genSrc = cms.InputTag("genParticles"),
-    primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-    pfEGammaCandSrc = cms.InputTag('particleFlowEGamma'),
-    pfCandSrc = cms.InputTag('particleFlow')
     )
 
 process.pfElectronSCTree = cms.EDAnalyzer(
@@ -120,7 +111,6 @@ process.pfReReco = cms.Sequence(process.particleFlowReco+
                                 process.recoPFJets+
                                 process.recoPFMET+
                                 process.PFTau+
-                                process.pfEGAlgoNewSCTree+
                                 process.pfElectronSCTree+
                                 process.pfPhotonSCTree+
                                 process.pfMustacheSCTree)

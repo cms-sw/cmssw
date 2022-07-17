@@ -11,7 +11,7 @@
 
 <ifrelease name="!_ASAN_">
   <bin file="TestFWCoreServicesDriver.cpp">
-    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test test_mallocopts.sh test_sitelocalconfig.sh test_resource.sh test_zombiekiller.sh"/>
+    <flags TEST_RUNNER_ARGS=" /bin/bash FWCore/Services/test test_sitelocalconfig.sh test_resource.sh test_zombiekiller.sh"/>
     <use name="FWCore/Utilities"/>
   </bin>
 </ifrelease>

@@ -19,8 +19,8 @@
 //
 
 // system include files
-#include "tbb/global_control.h"
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/global_control.h"
+#include "oneapi/tbb/task_arena.h"
 #include <memory>
 
 // user include files
@@ -32,19 +32,20 @@ namespace edm {
   public:
     ThreadsController() = delete;
     explicit ThreadsController(unsigned int iNThreads)
-        : m_nThreads{tbb::global_control::max_allowed_parallelism, iNThreads}, m_stackSize{} {}
+        : m_nThreads{oneapi::tbb::global_control::max_allowed_parallelism, iNThreads}, m_stackSize{} {}
     ThreadsController(unsigned int iNThreads, size_t iStackSize)
-        : m_nThreads{tbb::global_control::max_allowed_parallelism, iNThreads}, m_stackSize{makeStackSize(iStackSize)} {}
+        : m_nThreads{oneapi::tbb::global_control::max_allowed_parallelism, iNThreads},
+          m_stackSize{makeStackSize(iStackSize)} {}
 
     // ---------- member functions ---------------------------
     void setStackSize(size_t iStackSize) { m_stackSize = makeStackSize(iStackSize); }
 
   private:
-    static std::unique_ptr<tbb::global_control> makeStackSize(size_t iStackSize);
+    static std::unique_ptr<oneapi::tbb::global_control> makeStackSize(size_t iStackSize);
 
     // ---------- member data --------------------------------
-    tbb::global_control m_nThreads;
-    std::unique_ptr<tbb::global_control> m_stackSize;
+    oneapi::tbb::global_control m_nThreads;
+    std::unique_ptr<oneapi::tbb::global_control> m_stackSize;
   };
 }  // namespace edm
 

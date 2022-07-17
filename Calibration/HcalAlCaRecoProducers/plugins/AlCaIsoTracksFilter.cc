@@ -17,6 +17,9 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 //Tracks
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -101,6 +104,7 @@ private:
   const int preScale_, preScaleH_;
   const std::string theTrackQuality_;
   const std::vector<int> debEvents_;
+  const bool usePFThresh_;
   spr::trackSelectionParameters selectionParameter_;
   double a_charIsoR_;
   unsigned int nRun_, nAll_, nGood_, nRange_, nHigh_;
@@ -114,6 +118,9 @@ private:
   edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
   edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
   edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
+
+  const EcalPFRecHitThresholds* eThresholds_;
 };
 
 //
@@ -158,6 +165,7 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
       preScaleH_(iConfig.getParameter<int>("preScaleHigh")),
       theTrackQuality_(iConfig.getParameter<std::string>("trackQuality")),
       debEvents_(iConfig.getParameter<std::vector<int>>("debugEvents")),
+      usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")),
       nRun_(0),
       nAll_(0),
       nGood_(0),
@@ -197,6 +205,7 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
 
   tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
   tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+  tok_ecalPFRecHitThresholds_ = esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>();
 
   edm::LogVerbatim("HcalIsoTrack") << "Parameters read from config file \n"
                                    << "\t minPt " << selectionParameter_.minPt << "\t theTrackQuality "
@@ -213,9 +222,10 @@ AlCaIsoTracksFilter::AlCaIsoTracksFilter(const edm::ParameterSet& iConfig, const
                                    << slopeRestrictionP_ << "\t eIsolate_ " << eIsolate_ << "\n"
                                    << "\t Precale factor " << preScale_ << "\t in momentum range " << pTrackLow_ << ":"
                                    << pTrackHigh_ << " and prescale factor " << preScaleH_ << " for p > " << pTrackH_
-                                   << " Threshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
-                                   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
-                                   << hitEthrEEHi_ << " and " << debEvents_.size() << " events to be debugged";
+                                   << " Threshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_
+                                   << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
+                                   << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_ << " and "
+                                   << debEvents_.size() << " events to be debugged";
 
   for (unsigned int k = 0; k < trigNames_.size(); ++k)
     edm::LogVerbatim("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
@@ -238,6 +248,9 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
                                      << " Luminosity " << iEvent.luminosityBlock() << " Bunch "
                                      << iEvent.bunchCrossing();
 #endif
+
+  // get Ecal Thresholds
+  eThresholds_ = &iSetup.getData(tok_ecalPFRecHitThresholds_);
 
   //Step1: Find if the event passes one of the chosen triggers
   bool triggerSatisfied(false);
@@ -387,15 +400,19 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
                               eHit);
           double eMipDR(0);
           for (unsigned int k = 0; k < eIds.size(); ++k) {
-            const GlobalPoint& pos = geo->getPosition(eIds[k]);
-            double eta = std::abs(pos.eta());
             double eThr(hitEthrEB_);
-            if (eIds[k].subdetId() != EcalBarrel) {
-              eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-              if (eThr < hitEthrEELo_)
-                eThr = hitEthrEELo_;
-              else if (eThr > hitEthrEEHi_)
-                eThr = hitEthrEEHi_;
+            if (usePFThresh_) {
+              eThr = static_cast<double>((*eThresholds_)[eIds[k]]);
+            } else {
+              const GlobalPoint& pos = geo->getPosition(eIds[k]);
+              double eta = std::abs(pos.eta());
+              if (eIds[k].subdetId() != EcalBarrel) {
+                eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+                if (eThr < hitEthrEELo_)
+                  eThr = hitEthrEELo_;
+                else if (eThr > hitEthrEEHi_)
+                  eThr = hitEthrEEHi_;
+              }
             }
             if (eHit[k] > eThr)
               eMipDR += eHit[k];
@@ -532,6 +549,7 @@ void AlCaIsoTracksFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<int>("preScaleHigh", 1);
   std::vector<int> events;
   desc.add<std::vector<int>>("debugEvents", events);
+  desc.add<bool>("usePFThreshold", true);
   descriptions.add("alcaIsoTracksFilter", desc);
 }
 

@@ -80,6 +80,8 @@ public:
   uint16_t clct1_xky() const { return theHeaderFormat->clct1_xky(); }
   uint16_t hmt_nhits() const { return theHeaderFormat->hmt_nhits(); }
   uint16_t hmt_ALCTMatchTime() const { return theHeaderFormat->hmt_ALCTMatchTime(); }
+  uint16_t alctHMT() const { return theHeaderFormat->alctHMT(); }
+  uint16_t clctHMT() const { return theHeaderFormat->clctHMT(); }
   uint16_t gem_enabled_fibers() const { return theHeaderFormat->gem_enabled_fibers(); }
   uint16_t gem_fifo_tbins() const { return theHeaderFormat->gem_fifo_tbins(); }
   uint16_t gem_fifo_pretrig() const { return theHeaderFormat->gem_fifo_pretrig(); }
@@ -87,8 +89,12 @@ public:
   uint16_t gem_sync_dataword() const { return theHeaderFormat->gem_sync_dataword(); }
   uint16_t gem_timing_dataword() const { return theHeaderFormat->gem_timing_dataword(); }
   uint16_t run3_CLCT_patternID() const { return theHeaderFormat->run3_CLCT_patternID(); }
-  ///returns Run3 Shower Digi for HMT
+  ///returns Run3 lct Shower Digi for HMT
   CSCShowerDigi showerDigi(uint32_t idlayer) const { return theHeaderFormat->showerDigi(idlayer); }
+  ///returns Run3 anode Shower Digi for HMT
+  CSCShowerDigi anodeShowerDigi(uint32_t idlayer) const { return theHeaderFormat->anodeShowerDigi(idlayer); }
+  ///returns Run3 cathode Shower Digi for HMT
+  CSCShowerDigi cathodeShowerDigi(uint32_t idlayer) const { return theHeaderFormat->cathodeShowerDigi(idlayer); }
 
   ///returns CLCT digis
   std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) { return theHeaderFormat->CLCTDigis(idlayer); }
@@ -118,8 +124,12 @@ public:
   void addALCT1(const CSCALCTDigi& digi) { theHeaderFormat->addALCT1(digi); }
   void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) { theHeaderFormat->addCorrelatedLCT0(digi); }
   void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) { theHeaderFormat->addCorrelatedLCT1(digi); }
-  // Add Run3 Shower digi for HMT
+  // Add Run3 lct Shower digi for HMT
   void addShower(const CSCShowerDigi& digi) { theHeaderFormat->addShower(digi); }
+  // Add Run3 anode Shower digi for HMT
+  void addAnodeShower(const CSCShowerDigi& digi) { theHeaderFormat->addAnodeShower(digi); }
+  // Add Run3 cathode Shower digi for HMT
+  void addCathodeShower(const CSCShowerDigi& digi) { theHeaderFormat->addCathodeShower(digi); }
 
   /// these methods need more brains to figure which one goes first
   void add(const std::vector<CSCCLCTDigi>& digis);

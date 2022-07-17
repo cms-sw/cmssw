@@ -101,16 +101,14 @@ jetMETHLTOfflineSourceAK4 = DQMEDAnalyzer(
 
 
 jetMETHLTOfflineSourceAK8 = jetMETHLTOfflineSourceAK4.clone(
-    dirname = cms.untracked.string('HLT/JME/Jets/AK8'),
-    #    CaloJetCollectionLabel = cms.InputTag("ak4CaloJets"), #ak8 not available in RECO anymore, so keep ak4...
-    #    PFJetCollectionLabel   = cms.InputTag("ak8PFJetsPuppi"), # does not work in all matrix tests, yet
-    #    PFJetCorLabel        = cms.InputTag("ak8PFCHSL1FastjetL2L3ResidualCorrector"), # does not work in all matrix tests, yet 
-    PFJetCollectionLabel   = cms.InputTag("ak4PFJets"),
-    PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector"), #dummy residual corrections now also provided for MC GTs
+    dirname = 'HLT/JME/Jets/AK8',
+    #    CaloJetCollectionLabel = "ak4CaloJets", #ak8 not available in RECO anymore, so keep ak4...
+    #    PFJetCollectionLabel   = "ak8PFJetsPuppi", # does not work in all matrix tests, yet
+    #    PFJetCorLabel        = "ak8PFCHSL1FastjetL2L3ResidualCorrector", # does not work in all matrix tests, yet 
+    PFJetCollectionLabel   = "ak4PFJets",
+    PFJetCorLabel        = "ak4PFL1FastL2L3ResidualCorrector", #dummy residual corrections now also provided for MC GTs 
+    pathFilter = ['HLT_AK8PFJet'],
 
- 
-    pathFilter = cms.untracked.vstring('HLT_AK8PFJet', 
-    ),
     pathPairs = cms.VPSet(cms.PSet(
         denompathname = cms.string('HLT_AK8PFJet40_v'),
         pathname = cms.string('HLT_AK8PFJet60_v')
@@ -151,12 +149,11 @@ jetMETHLTOfflineSourceAK8 = jetMETHLTOfflineSourceAK4.clone(
 )
 
 jetMETHLTOfflineSourceAK8Fwd = jetMETHLTOfflineSourceAK4.clone(
-    dirname = cms.untracked.string('HLT/JME/Jets/AK8Fwd'),
-    PFJetCollectionLabel   = cms.InputTag("ak4PFJets"),
-    PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector"), #dummy residual corrections now also provided for MC GTs
+    dirname = 'HLT/JME/Jets/AK8Fwd',
+    PFJetCollectionLabel   = "ak4PFJets",
+    PFJetCorLabel        = "ak4PFL1FastL2L3ResidualCorrector", #dummy residual corrections now also provided for MC GTs
+    pathFilter = ['HLT_AK8PFJetFwd'],
 
-    pathFilter = cms.untracked.vstring('HLT_AK8PFJetFwd', 
-    ),
     pathPairs = cms.VPSet(cms.PSet(
         denompathname = cms.string('HLT_AK8PFJetFwd40_v'),
         pathname = cms.string('HLT_AK8PFJetFwd60_v')
@@ -197,12 +194,11 @@ jetMETHLTOfflineSourceAK8Fwd = jetMETHLTOfflineSourceAK4.clone(
 )
 
 jetMETHLTOfflineSourceAK4Fwd = jetMETHLTOfflineSourceAK4.clone(
-    dirname = cms.untracked.string('HLT/JME/Jets/AK4Fwd'),
-    PFJetCollectionLabel   = cms.InputTag("ak4PFJets"),
-    PFJetCorLabel        = cms.InputTag("ak4PFL1FastL2L3ResidualCorrector"), #dummy residual corrections now also provided for MC GTs
+    dirname = 'HLT/JME/Jets/AK4Fwd',
+    PFJetCollectionLabel   = "ak4PFJets",
+    PFJetCorLabel        = "ak4PFL1FastL2L3ResidualCorrector", #dummy residual corrections now also provided for MC GTs
+    pathFilter = ['HLT_PFJetFwd'],
 
-    pathFilter = cms.untracked.vstring('HLT_PFJetFwd', 
-    ),
     pathPairs = cms.VPSet(cms.PSet(
         denompathname = cms.string('HLT_PFJetFwd40_v'),
         pathname = cms.string('HLT_PFJetFwd60_v')

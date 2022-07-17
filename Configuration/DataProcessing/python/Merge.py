@@ -64,7 +64,7 @@ def mergeProcess(*inputFiles, **options):
     process.source.fileNames = CfgTypes.untracked(CfgTypes.vstring())
     for entry in inputFiles:
         process.source.fileNames.append(str(entry))
- 
+
     #  //
     # // output module
     #//
@@ -76,6 +76,8 @@ def mergeProcess(*inputFiles, **options):
         process.add_(Service("InitRootHandlers", EnableIMT = CfgTypes.untracked.bool(False)))
     else:
         outMod = OutputModule("PoolOutputModule")
+        outMod.mergeJob = CfgTypes.untracked.bool(True)
+        outMod.eventAuxiliaryBasketSize = CfgTypes.untracked.int32(2*1024*1024)
 
     outMod.fileName = CfgTypes.untracked.string(outputFilename)
     if outputLFN != None:

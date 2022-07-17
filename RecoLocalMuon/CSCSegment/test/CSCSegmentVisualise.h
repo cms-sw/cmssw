@@ -8,7 +8,7 @@
  * performance of segment reconstruction
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
@@ -19,6 +19,8 @@
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2D.h>
 #include <DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h>
 #include <DataFormats/CSCRecHit/interface/CSCRangeMapAccessor.h>
+#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
@@ -30,7 +32,7 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
-class CSCSegmentVisualise : public edm::EDAnalyzer {
+class CSCSegmentVisualise : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   explicit CSCSegmentVisualise(const edm::ParameterSet &pset);
@@ -52,6 +54,12 @@ private:
   TH2F *hyvszSegP[100];
 
   TFile *file;
+
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
+  edm::EDGetTokenT<CSCRecHit2DCollection> recHitsToken_;
+  edm::EDGetTokenT<CSCSegmentCollection> segmentsToken_;
+
   int idxHisto;
   int minRechitChamber;
   int maxRechitChamber;

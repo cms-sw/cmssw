@@ -95,7 +95,6 @@ namespace {
       std::shared_ptr<DropBoxMetadata> payload = fetchPayload(std::get<1>(iov));
 
       std::vector<std::string> records = payload->getAllRecords();
-      TCanvas canvas("Canv", "Canv", 1200, 100 * records.size());
 
       DBoxMetadataHelper::recordMap theRecordMap;
       for (const auto& record : records) {
@@ -107,12 +106,12 @@ namespace {
       DBoxMetadataHelper::DBMetaDataTableDisplay theDisplay(theRecordMap);
       theDisplay.printMetaDatas();
 
-      std::string fileName(m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
+      DBoxMetadataHelper::DBMetaDataPlotDisplay thePlot(theRecordMap, tag.name, std::to_string(std::get<0>(iov)));
+      thePlot.setImageFileName(this->m_imageFileName);
+      thePlot.plotMetaDatas();
+
       return true;
     }
-
-  private:
   };
 
   /************************************************
@@ -175,13 +174,16 @@ namespace {
 
       l_theDisplay.printDiffWithMetadata(f_theRecordMap);
 
-      TCanvas canvas("Canv", "Canv", 1200, 100 * std::max(f_records.size(), l_records.size()));
-      std::string fileName(this->m_imageFileName);
-      canvas.SaveAs(fileName.c_str());
+      // In case of only one tag, use f_tagname for both target and reference
+      std::string tmpTagName = l_tagname;
+      if (tmpTagName.empty())
+        tmpTagName = f_tagname;
+      DBoxMetadataHelper::DBMetaDataPlotDisplay thePlot(l_theRecordMap, tmpTagName, lastIOVsince);
+      thePlot.setImageFileName(this->m_imageFileName);
+      thePlot.plotDiffWithMetadata(f_theRecordMap, f_tagname, firstIOVsince);
+
       return true;
     }
-
-  private:
   };
 
   using DropBoxMetadata_Compare = DropBoxMetadata_CompareBase<MULTI_IOV, 1>;

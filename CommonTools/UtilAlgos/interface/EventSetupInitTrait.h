@@ -2,6 +2,7 @@
 #define UtilAlgos_EventSetupInitTrait_h
 #include "CommonTools/UtilAlgos/interface/AndSelector.h"
 #include "CommonTools/UtilAlgos/interface/OrSelector.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {
   class EventSetup;
@@ -17,14 +18,18 @@ namespace reco {
     /// take no action (default)
     template <typename T>
     struct NoEventSetupInit {
-      static void init(T&, const edm::Event&, const edm::EventSetup&) {}
+      explicit NoEventSetupInit(edm::ConsumesCollector) {}
+      NoEventSetupInit() = delete;
+      void init(T&, const edm::Event&, const edm::EventSetup&) {}
     };
 
     /// implement common interface defined in:
     /// https://twiki.cern.ch/twiki/bin/view/CMS/SelectorInterface
     struct CommonSelectorEventSetupInit {
+      explicit CommonSelectorEventSetupInit(edm::ConsumesCollector) {}
+      CommonSelectorEventSetupInit() = delete;
       template <typename Selector>
-      static void init(Selector& selector, const edm::Event& evt, const edm::EventSetup& es) {
+      void init(Selector& selector, const edm::Event& evt, const edm::EventSetup& es) {
         selector.newEvent(evt, es);
       }
     };
@@ -40,51 +45,68 @@ namespace reco {
               typename T4 = helpers::NullAndOperand,
               typename T5 = helpers::NullAndOperand>
     struct CombinedEventSetupInit {
+      explicit CombinedEventSetupInit(edm::ConsumesCollector iC) : t1_(iC), t2_(iC), t3_(iC), t4_(iC), t5_(iC) {}
       template <template <typename, typename, typename, typename, typename> class SelectorT>
-      static void init(SelectorT<T1, T2, T3, T4, T5>& selector, const edm::Event& evt, const edm::EventSetup& es) {
-        EventSetupInit<T1>::type::init(selector.s1_, evt, es);
-        EventSetupInit<T2>::type::init(selector.s2_, evt, es);
-        EventSetupInit<T3>::type::init(selector.s3_, evt, es);
-        EventSetupInit<T4>::type::init(selector.s4_, evt, es);
-        EventSetupInit<T5>::type::init(selector.s5_, evt, es);
+      void init(SelectorT<T1, T2, T3, T4, T5>& selector, const edm::Event& evt, const edm::EventSetup& es) {
+        t1_.init(selector.s1_, evt, es);
+        t2_.init(selector.s2_, evt, es);
+        t3_.init(selector.s3_, evt, es);
+        t4_.init(selector.s4_, evt, es);
+        t5_.init(selector.s5_, evt, es);
       }
+      typename EventSetupInit<T1>::type t1_;
+      typename EventSetupInit<T2>::type t2_;
+      typename EventSetupInit<T3>::type t3_;
+      typename EventSetupInit<T4>::type t4_;
+      typename EventSetupInit<T5>::type t5_;
     };
 
     template <typename T1, typename T2, typename T3, typename T4>
     struct CombinedEventSetupInit<T1, T2, T3, T4, helpers::NullAndOperand> {
+      explicit CombinedEventSetupInit(edm::ConsumesCollector iC) : t1_(iC), t2_(iC), t3_(iC), t4_(iC) {}
       template <template <typename, typename, typename, typename, typename> class SelectorT>
-      static void init(SelectorT<T1, T2, T3, T4, helpers::NullAndOperand>& selector,
-                       const edm::Event& evt,
-                       const edm::EventSetup& es) {
-        EventSetupInit<T1>::type::init(selector.s1_, evt, es);
-        EventSetupInit<T2>::type::init(selector.s2_, evt, es);
-        EventSetupInit<T3>::type::init(selector.s3_, evt, es);
-        EventSetupInit<T4>::type::init(selector.s4_, evt, es);
+      void init(SelectorT<T1, T2, T3, T4, helpers::NullAndOperand>& selector,
+                const edm::Event& evt,
+                const edm::EventSetup& es) {
+        t1_.init(selector.s1_, evt, es);
+        t2_.init(selector.s2_, evt, es);
+        t3_.init(selector.s3_, evt, es);
+        t4_.init(selector.s4_, evt, es);
       }
+      typename EventSetupInit<T1>::type t1_;
+      typename EventSetupInit<T2>::type t2_;
+      typename EventSetupInit<T3>::type t3_;
+      typename EventSetupInit<T4>::type t4_;
     };
 
     template <typename T1, typename T2, typename T3>
     struct CombinedEventSetupInit<T1, T2, T3, helpers::NullAndOperand, helpers::NullAndOperand> {
+      explicit CombinedEventSetupInit(edm::ConsumesCollector iC) : t1_(iC), t2_(iC), t3_(iC) {}
       template <template <typename, typename, typename, typename, typename> class SelectorT>
-      static void init(SelectorT<T1, T2, T3, helpers::NullAndOperand, helpers::NullAndOperand>& selector,
-                       const edm::Event& evt,
-                       const edm::EventSetup& es) {
-        EventSetupInit<T1>::type::init(selector.s1_, evt, es);
-        EventSetupInit<T2>::type::init(selector.s2_, evt, es);
-        EventSetupInit<T3>::type::init(selector.s3_, evt, es);
+      void init(SelectorT<T1, T2, T3, helpers::NullAndOperand, helpers::NullAndOperand>& selector,
+                const edm::Event& evt,
+                const edm::EventSetup& es) {
+        t1_.init(selector.s1_, evt, es);
+        t2_.init(selector.s2_, evt, es);
+        t3_.init(selector.s3_, evt, es);
       }
+      typename EventSetupInit<T1>::type t1_;
+      typename EventSetupInit<T2>::type t2_;
+      typename EventSetupInit<T3>::type t3_;
     };
 
     template <typename T1, typename T2>
     struct CombinedEventSetupInit<T1, T2, helpers::NullAndOperand, helpers::NullAndOperand, helpers::NullAndOperand> {
+      explicit CombinedEventSetupInit(edm::ConsumesCollector iC) : t1_(iC), t2_(iC) {}
       template <template <typename, typename, typename, typename, typename> class SelectorT>
-      static void init(
-          SelectorT<T1, T2, helpers::NullAndOperand, helpers::NullAndOperand, helpers::NullAndOperand>& selector,
-          const edm::Event& evt,
-          const edm::EventSetup& es) {
-        EventSetupInit<T1>::type::init(selector.s1_, evt, es);
-        EventSetupInit<T2>::type::init(selector.s2_, evt, es);
+      void init(SelectorT<T1, T2, helpers::NullAndOperand, helpers::NullAndOperand, helpers::NullAndOperand>& selector,
+                const edm::Event& evt,
+                const edm::EventSetup& es) {
+        t1_.init(selector.s1_, evt, es);
+        t2_.init(selector.s2_, evt, es);
       }
+      typename EventSetupInit<T1>::type t1_;
+      typename EventSetupInit<T2>::type t2_;
     };
 
     template <typename T1, typename T2, typename T3, typename T4, typename T5>

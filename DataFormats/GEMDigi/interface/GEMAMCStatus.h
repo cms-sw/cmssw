@@ -19,6 +19,8 @@ public:
       uint16_t DAQclocklocked : 1;
       uint16_t DAQnotReday : 1;
       uint16_t BC0locked : 1;
+      uint16_t badFEDId : 1;
+      uint16_t L1AFull : 1;
     };
   };
   union Warnings {
@@ -26,6 +28,7 @@ public:
     struct {
       uint8_t InValidOH : 1;
       uint8_t backPressure : 1;
+      uint8_t L1ANearFull : 1;
     };
   };
 
@@ -34,17 +37,29 @@ public:
     amcNum_ = amc.amcNum();
     Errors error{0};
     error.badEC = (amc13->lv1Id() != amc.lv1Id());
-    error.badBC = (amc13->bunchCrossing() != amc.bunchCrossing());
+    // Last BC in AMC13 is different to TCDS, AMC, and VFAT
+    error.badBC = !((amc13->bunchCrossing() == amc.bunchCrossing()) ||
+                    (amc13->bunchCrossing() == 0 && amc.bunchCrossing() == GEMAMC13::lastBC));
     error.badRunType = amc.runType() != 0x1;
-    error.badOC = (uint16_t(amc13->orbitNumber()) != amc.orbitNumber());
+    // Last OC in AMC13 is different to TCDS, AMC, and VFAT
+    if (amc.formatVer() == 0)
+      error.badOC =
+          !((uint16_t(amc13->orbitNumber()) == amc.orbitNumber()) ||
+            (amc13->bunchCrossing() == 0 && uint16_t(amc.orbitNumber() + 1) == uint16_t(amc13->orbitNumber())));
+    else
+      error.badOC = !((amc13->orbitNumber() == (amc.orbitNumber() + 1)) ||
+                      (amc13->bunchCrossing() == 0 && amc13->orbitNumber() == (amc.orbitNumber() + 2)));
     error.MMCMlocked = !amc.mmcmLocked();
     error.DAQclocklocked = !amc.daqClockLocked();
     error.DAQnotReday = !amc.daqReady();
     error.BC0locked = !amc.bc0locked();
+    error.badFEDId = (amc13->sourceId() != amc.softSrcId() and amc.formatVer() != 0);
+    error.L1AFull = (amc.l1aF() and amc.formatVer() != 0);
     errors_ = error.ecodes;
 
     Warnings warn{0};
     warn.backPressure = amc.backPressure();
+    warn.L1ANearFull = (amc.l1aNF() and amc.formatVer() != 0);
     warnings_ = warn.wcodes;
   }
 

@@ -33,7 +33,7 @@ CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet& pset)
       clctWindowMax_(pset.getParameter<int>("clctWindowMax")),
       preTriggerWindowMin_(pset.getParameter<int>("preTriggerWindowMin")),
       preTriggerWindowMax_(pset.getParameter<int>("preTriggerWindowMax")),
-      // pre-LS1 - '2005'. post-LS1 - '2013'
+      // pre-LS1 - '2005'. post-LS1 - '2013', Run3 - '2020'
       formatVersion_(pset.getParameter<unsigned>("formatVersion")),
       // don't check for consistency with trig primitives
       // overrides usePreTriggers
@@ -55,7 +55,7 @@ CSCEventData& CSCDigiToRaw::findEventData(const CSCDetId& cscDetId, FindEventDat
   CSCEventData& cscData = chamberMapItr->second;
   cscData.dmbHeader()->setCrateAddress(info.theElectronicsMap->crate(cscDetId), info.theElectronicsMap->dmb(cscDetId));
 
-  if (info.formatVersion_ == 2013) {
+  if (info.formatVersion_ >= 2013) {
     // Set DMB version field to distinguish between ME11s and other chambers (ME11 - 2, others - 1)
     bool me11 = ((chamberId.station() == 1) && (chamberId.ring() == 4)) ||
                 ((chamberId.station() == 1) && (chamberId.ring() == 1));
@@ -113,7 +113,7 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
           continue;
 
         // From LS1 on ME1a strips are unganged
-        if (fedInfo.formatVersion_ == 2013) {
+        if (fedInfo.formatVersion_ >= 2013) {
           if (me1a && zplus) {
             digi.setStrip(CSCConstants::NUM_STRIPS_ME1A_UNGANGED + 1 - strip);  // 1-48 -> 48-1
           }
@@ -180,7 +180,7 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection& comparatorDigis,
         Consider the case for triple-ganged and unganged ME1A strips
        */
       for (auto digi = j.second.first; digi != j.second.second; ++digi) {
-        if (fedInfo.formatVersion_ == 2013) {
+        if (fedInfo.formatVersion_ >= 2013) {
           // unganged case
           if (me1a && digi->getStrip() <= CSCConstants::NUM_STRIPS_ME1A_UNGANGED) {
             CSCComparatorDigi digi_corr(
@@ -223,7 +223,7 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo
     //CLCTs are packed by chamber not by A/B parts in ME11
     //me11a appears only in simulation with SLHC algorithm settings
     //without the shift, it's impossible to distinguish A and B parts
-    if (me11a && fedInfo.formatVersion_ == 2013) {
+    if (me11a && fedInfo.formatVersion_ >= 2013) {
       std::vector<CSCCLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
       for (std::vector<CSCCLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
         if (iC->getCFEB() < CSCConstants::NUM_CFEBS_ME1A_UNGANGED) {  //sanity check, mostly
@@ -255,7 +255,7 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
     //LCTs are packed by chamber not by A/B parts in ME11
     //me11a appears only in simulation with SLHC algorithm settings
     //without the shift, it's impossible to distinguish A and B parts
-    if (me11a && fedInfo.formatVersion_ == 2013) {
+    if (me11a && fedInfo.formatVersion_ >= 2013) {
       std::vector<CSCCorrelatedLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
       for (std::vector<CSCCorrelatedLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
         if (iC->getStrip() < CSCConstants::NUM_HALF_STRIPS_ME1A_UNGANGED) {  //sanity check, mostly
@@ -280,12 +280,29 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
   }
 }
 
-void CSCDigiToRaw::add(const CSCShowerDigiCollection& cscShowerDigis, FindEventDataInfo& fedInfo) const {
+void CSCDigiToRaw::add(const CSCShowerDigiCollection& cscShowerDigis,
+                       FindEventDataInfo& fedInfo,
+                       enum CSCShowerType showerType) const {
   for (const auto& shower : cscShowerDigis) {
     const CSCDetId& cscDetId = shower.first;
     CSCEventData& cscData = findEventData(cscDetId, fedInfo);
 
-    cscData.add(std::vector<CSCShowerDigi>(shower.second.first, shower.second.second));
+    switch (showerType) {
+      case CSCShowerType::lctShower:
+        cscData.addShower(std::vector<CSCShowerDigi>(shower.second.first, shower.second.second));
+        break;
+      case CSCShowerType::anodeShower:
+        cscData.addAnodeShower(std::vector<CSCShowerDigi>(shower.second.first, shower.second.second));
+        break;
+      case CSCShowerType::cathodeShower:
+        cscData.addCathodeShower(std::vector<CSCShowerDigi>(shower.second.first, shower.second.second));
+        break;
+      case CSCShowerType::anodeALCTShower:
+        cscData.addAnodeALCTShower(std::vector<CSCShowerDigi>(shower.second.first, shower.second.second));
+        break;
+      default:
+        cscData.addShower(std::vector<CSCShowerDigi>(shower.second.first, shower.second.second));
+    }
   }
 }
 
@@ -310,6 +327,9 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                                     const CSCCLCTPreTriggerDigiCollection* preTriggerDigis,
                                     const CSCCorrelatedLCTDigiCollection& correlatedLCTDigis,
                                     const CSCShowerDigiCollection* cscShowerDigis,
+                                    const CSCShowerDigiCollection* anodeShowerDigis,
+                                    const CSCShowerDigiCollection* cathodeShowerDigis,
+                                    const CSCShowerDigiCollection* anodeALCTShowerDigis,
                                     const GEMPadDigiClusterCollection* gemPadDigiClusters,
                                     FEDRawDataCollection& fed_buffers,
                                     const CSCChamberMap* mapping,
@@ -317,14 +337,22 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
   //get fed object from fed_buffers
   // make a map from the index of a chamber to the event data from it
   FindEventDataInfo fedInfo{mapping, formatVersion_};
+
   add(stripDigis, preTriggers, preTriggerDigis, fedInfo);
   add(wireDigis, alctDigis, fedInfo);
   add(comparatorDigis, clctDigis, fedInfo);
   add(correlatedLCTDigis, fedInfo);
 
   // Starting Run-3, the CSC DAQ will pack/unpack CSC showers
+  // lctShower 4-bits sent from OTMB to MPC in trigger data
+  // anodeShower - anodeHMT 2-bits in OTMB
+  // cathodeShower - cathodeHMT 2-bits in OTMB
+  // anodeALCTShower - vector of anode HMT 2-bits  per ALCT bx sent by ALCT board to OTMB
   if (cscShowerDigis) {
-    add(*cscShowerDigis, fedInfo);
+    add(*cscShowerDigis, fedInfo, CSCShowerType::lctShower);
+    add(*anodeShowerDigis, fedInfo, CSCShowerType::anodeShower);
+    add(*cathodeShowerDigis, fedInfo, CSCShowerType::cathodeShower);
+    add(*anodeALCTShowerDigis, fedInfo, CSCShowerType::anodeALCTShower);
   }
 
   // Starting Run-3, the CSC DAQ will pack/unpack GEM clusters
@@ -381,7 +409,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
     }
   }
   /// Handle post-LS1 format data
-  else if (formatVersion_ == 2013) {
+  else if (formatVersion_ >= 2013) {
     std::map<int, CSCDDUEventData> dduMap;
     unsigned int ddu_fmt_version = 0x7;  /// 2013 Format
     const unsigned postLS1_map[] = {841, 842, 843, 844, 845, 846, 847, 848, 849, 831, 832, 833,

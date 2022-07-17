@@ -101,14 +101,13 @@ displacedGeneralStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEs
 #----------------------------------------- TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 displacedGeneralStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('displacedGeneralStepTrajectoryFilter')),
-    inOutTrajectoryFilter = cms.PSet(refToPSet_ = cms.string('displacedGeneralStepTrajectoryFilterInOut')),
+    trajectoryFilter = dict(refToPSet_ = 'displacedGeneralStepTrajectoryFilter'),
+    inOutTrajectoryFilter = dict(refToPSet_ = 'displacedGeneralStepTrajectoryFilterInOut'),
     useSameTrajFilter = False,
     minNrOfHitsForRebuild = 4,
     maxCand = 2,
     estimator = 'displacedGeneralStepChi2Est'
-    )
+)
 
 
 
@@ -118,11 +117,10 @@ displacedGeneralStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_
     src = 'displacedGeneralStepSeeds',
     TrajectoryCleaner = 'displacedGeneralStepTrajectoryCleanerBySharedHits',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(False),
-
-    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('displacedGeneralStepTrajectoryBuilder')),
-    clustersToSkip = cms.InputTag('displacedGeneralStepClusters'),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = False,
+    TrajectoryBuilderPSet = dict(refToPSet_ = 'displacedGeneralStepTrajectoryBuilder'),
+    clustersToSkip = 'displacedGeneralStepClusters',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True,
     cleanTrajectoryAfterInOut = True
@@ -147,7 +145,7 @@ displacedGeneralStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitter
     MinNumberOfHits = 8,
     Fitter = 'displacedGeneralStepRKFitter',
     Smoother = 'displacedGeneralStepRKSmoother'
-    )
+)
 
 
 
@@ -181,7 +179,7 @@ displacedGeneralStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackPr
     src = 'displacedGeneralStepTrackCandidates',
     AlgorithmName = 'displacedGeneralStep',
     Fitter = 'generalDisplacedFlexibleKFFittingSmoother',
-    )
+)
 
 
 #---------------------------------------- TRACK SELECTION AND QUALITY FLAG SETTING.

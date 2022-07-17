@@ -17,8 +17,8 @@
 #include "Math/SMatrix.h"
 
 // mkFit includes
-#include "Hit.h"
-#include "mkFit/HitStructures.h"
+#include "RecoTracker/MkFitCore/interface/Hit.h"
+#include "RecoTracker/MkFitCore/interface/HitStructures.h"
 
 namespace mkfit {
   template <typename Traits, typename HitCollection>

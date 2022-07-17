@@ -14,6 +14,7 @@
 
 // system include files
 #include <bitset>
+#include <cassert>
 #include <vector>
 
 // user include files
@@ -25,6 +26,7 @@
 // Trigger Objects
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
+#include "DataFormats/L1Trigger/interface/MuonShower.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
@@ -36,7 +38,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 // forward declarations
@@ -77,11 +79,17 @@ namespace l1t {
                                const bool receiveMu,
                                const int nrL1Mu);
 
+    void receiveMuonShowerObjectData(edm::Event&,
+                                     const edm::EDGetTokenT<BXVector<l1t::MuonShower>>&,
+                                     const bool receiveMuShower,
+                                     const int nrL1MuShower);
+
     void receiveExternalData(edm::Event&, const edm::EDGetTokenT<BXVector<GlobalExtBlk>>&, const bool receiveExt);
 
     /// initialize the class (mainly reserve)
     void init(const int numberPhysTriggers,
               const int nrL1Mu,
+              const int nrL1MuShower,
               const int nrL1EG,
               const int nrL1Tau,
               const int nrL1Jet,
@@ -97,6 +105,7 @@ namespace l1t {
                 std::unique_ptr<GlobalObjectMapRecord>& gtObjectMapRecord,  //GTO
                 const unsigned int numberPhysTriggers,
                 const int nrL1Mu,
+                const int nrL1MuShower,
                 const int nrL1EG,
                 const int nrL1Tau,
                 const int nrL1Jet);
@@ -122,6 +131,7 @@ namespace l1t {
     /// clear uGT
     void reset();
     void resetMu();
+    void resetMuonShower();
     void resetCalo();
     void resetExternal();
 
@@ -137,6 +147,9 @@ namespace l1t {
     /// return global muon trigger candidate
     inline const BXVector<const l1t::Muon*>* getCandL1Mu() const { return m_candL1Mu; }
 
+    /// return global muon trigger candidate
+    inline const BXVector<const l1t::MuonShower*>* getCandL1MuShower() const { return m_candL1MuShower; }
+
     /// pointer to EG data list
     inline const BXVector<const l1t::L1Candidate*>* getCandL1EG() const { return m_candL1EG; }
 
@@ -151,6 +164,10 @@ namespace l1t {
 
     /// pointer to Tau data list
     inline const BXVector<const GlobalExtBlk*>* getCandL1External() const { return m_candL1External; }
+
+    //initializer prescale counter using a semi-random value between [1, prescale value]
+    static const std::vector<double> semirandomNumber(const edm::Event& iEvent,
+                                                      const std::vector<double>& prescaleFactorsAlgoTrig);
 
     /*  Drop individual EtSums for Now
     /// pointer to ETM data list
@@ -181,6 +198,9 @@ namespace l1t {
     void setBxFirst(int bx);
     void setBxLast(int bx);
 
+    void setResetPSCountersEachLumiSec(bool val) { m_resetPSCountersEachLumiSec = val; }
+    void setSemiRandomInitialPSCounters(bool val) { m_semiRandomInitialPSCounters = val; }
+
   public:
     inline void setVerbosity(const int verbosity) { m_verbosity = verbosity; }
 
@@ -203,6 +223,7 @@ namespace l1t {
 
   private:
     BXVector<const l1t::Muon*>* m_candL1Mu;
+    BXVector<const l1t::MuonShower*>* m_candL1MuShower;
     BXVector<const l1t::L1Candidate*>* m_candL1EG;
     BXVector<const l1t::L1Candidate*>* m_candL1Tau;
     BXVector<const l1t::L1Candidate*>* m_candL1Jet;
@@ -250,6 +271,12 @@ namespace l1t {
     // Information about board
     int m_uGtBoardNumber;
     bool m_uGtFinalBoard;
+
+    //whether we reset the prescales each lumi or not
+    bool m_resetPSCountersEachLumiSec = true;
+
+    // start the PS counter from a random value between [1,PS] instead of PS
+    bool m_semiRandomInitialPSCounters = false;
   };
 
 }  // namespace l1t

@@ -40,6 +40,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonMVABasedHaloTagger.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
@@ -50,6 +51,8 @@
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EcalPFClusterIsolation.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/HcalPFClusterIsolation.h"
+#include "CondFormats/GBRForest/interface/GBRForest.h"
+#include "CommonTools/MVAUtils/interface/GBRForestTools.h"
 
 class CacheData {
 public:
@@ -63,12 +66,20 @@ public:
       config.outputTensorName = pset_dnn.getParameter<std::string>("outputTensorName");
       config.modelsFiles = pset_dnn.getParameter<std::vector<std::string>>("modelsFiles");
       config.scalersFiles = pset_dnn.getParameter<std::vector<std::string>>("scalersFiles");
-      config.outputDim = pset_dnn.getParameter<uint>("outputDim");
+      config.outputDim = pset_dnn.getParameter<std::vector<unsigned int>>("outputDim");
       const auto useEBModelInGap = pset_dnn.getParameter<bool>("useEBModelInGap");
       photonDNNEstimator = std::make_unique<PhotonDNNEstimator>(config, useEBModelInGap);
     }
+    ///for MVA based beam halo tagger in the EE
+    const auto runMVABasedHaloTagger = conf.getParameter<bool>("runMVABasedHaloTagger");
+    edm::ParameterSet mvaBasedHaloVariableSet = conf.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
+    auto trainingFileName_ = mvaBasedHaloVariableSet.getParameter<edm::FileInPath>(("trainingFileName")).fullPath();
+    if (runMVABasedHaloTagger) {
+      haloTaggerGBR = createGBRForest(trainingFileName_);
+    }
   }
   std::unique_ptr<const PhotonDNNEstimator> photonDNNEstimator;
+  std::unique_ptr<const GBRForest> haloTaggerGBR;
 };
 
 class GEDPhotonProducer : public edm::stream::EDProducer<edm::GlobalCache<CacheData>> {
@@ -174,6 +185,7 @@ private:
   double minR9Barrel_;
   double minR9Endcap_;
   bool runMIPTagger_;
+  bool runMVABasedHaloTagger_;
 
   RecoStepInfo recoStep_;
 
@@ -183,6 +195,8 @@ private:
 
   //MIP
   std::unique_ptr<PhotonMIPHaloTagger> photonMIPHaloTagger_ = nullptr;
+  //MVA based Halo tagger for the EE photons
+  std::unique_ptr<PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
 
   std::vector<double> preselCutValuesBarrel_;
   std::vector<double> preselCutValuesEndcap_;
@@ -318,6 +332,7 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
   minR9Endcap_ = config.getParameter<double>("minR9Endcap");
   usePrimaryVertex_ = config.getParameter<bool>("usePrimaryVertex");
   runMIPTagger_ = config.getParameter<bool>("runMIPTagger");
+  runMVABasedHaloTagger_ = config.getParameter<bool>("runMVABasedHaloTagger");
 
   candidateP4type_ = config.getParameter<std::string>("candidateP4type");
   valueMapPFCandPhoton_ = config.getParameter<std::string>("valueMapPhotons");
@@ -409,6 +424,12 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config, const Cach
     photonMIPHaloTagger_ = std::make_unique<PhotonMIPHaloTagger>();
     edm::ParameterSet mipVariableSet = config.getParameter<edm::ParameterSet>("mipVariableSet");
     photonMIPHaloTagger_->setup(mipVariableSet, consumesCollector());
+  }
+
+  if (recoStep_.isFinal() && runMVABasedHaloTagger_) {
+    edm::ParameterSet mvaBasedHaloVariableSet = config.getParameter<edm::ParameterSet>("mvaBasedHaloVariableSet");
+    photonMVABasedHaloTagger_ =
+        std::make_unique<PhotonMVABasedHaloTagger>(mvaBasedHaloVariableSet, consumesCollector());
   }
 
   ///Get the set for PF cluster isolation calculator
@@ -946,19 +967,23 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       if (candidateP4type_ == "fromEcalEnergy") {
         newCandidate.setP4(newCandidate.p4(reco::Photon::ecal_photons));
         newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+        newCandidate.setMass(0.0);
       } else if (candidateP4type_ == "fromRegression1") {
         newCandidate.setP4(newCandidate.p4(reco::Photon::regression1));
         newCandidate.setCandidateP4type(reco::Photon::regression1);
+        newCandidate.setMass(0.0);
       } else if (candidateP4type_ == "fromRegression2") {
         newCandidate.setP4(newCandidate.p4(reco::Photon::regression2));
         newCandidate.setCandidateP4type(reco::Photon::regression2);
+        newCandidate.setMass(0.0);
       } else if (candidateP4type_ == "fromRefinedSCRegression") {
         newCandidate.setP4(newCandidate.p4(reco::Photon::regression2));
         newCandidate.setCandidateP4type(reco::Photon::regression2);
+        newCandidate.setMass(0.0);
       }
     } else {
       math::XYZVector gamma_momentum = direction.unit() * scRef->energy();
-      math::XYZTLorentzVectorD p4(gamma_momentum.x(), gamma_momentum.y(), gamma_momentum.z(), scRef->energy());
+      math::PtEtaPhiMLorentzVector p4(gamma_momentum.rho(), gamma_momentum.eta(), gamma_momentum.phi(), 0.0);
       newCandidate.setP4(p4);
       newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
       // Make it an EE photon
@@ -1005,8 +1030,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     const auto& dnn_photon_pfid = globalCache()->photonDNNEstimator->evaluate(outputPhotonCollection, tfSessions_);
     size_t ipho = 0;
     for (auto& photon : outputPhotonCollection) {
-      const auto& values = dnn_photon_pfid[ipho];
+      const auto& [iModel, values] = dnn_photon_pfid[ipho];
       reco::Photon::PflowIDVariables pfID;
+      // The model index it is not useful for the moment
       pfID.dnn = values[0];
       photon.setPflowIDVariables(pfID);
       ipho++;
@@ -1057,6 +1083,11 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     reco::Photon newCandidate(*phoRef);
     iSC++;
 
+    if (runMVABasedHaloTagger_) {  ///sets values only for EE, for EB it always returns 1
+      float BHmva = photonMVABasedHaloTagger_->calculateMVA(&newCandidate, globalCache()->haloTaggerGBR.get(), evt, es);
+      newCandidate.setHaloTaggerMVAVal(BHmva);
+    }
+
     // Calculate the PF isolation
     reco::Photon::PflowIsolationVariables pfIso;
     // The PFID are not recomputed since they have been already computed in the first loop with the DNN
@@ -1084,15 +1115,19 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     if (candidateP4type_ == "fromEcalEnergy") {
       newCandidate.setP4(newCandidate.p4(reco::Photon::ecal_photons));
       newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+      newCandidate.setMass(0.0);
     } else if (candidateP4type_ == "fromRegression1") {
       newCandidate.setP4(newCandidate.p4(reco::Photon::regression1));
       newCandidate.setCandidateP4type(reco::Photon::regression1);
+      newCandidate.setMass(0.0);
     } else if (candidateP4type_ == "fromRegression2") {
       newCandidate.setP4(newCandidate.p4(reco::Photon::regression2));
       newCandidate.setCandidateP4type(reco::Photon::regression2);
+      newCandidate.setMass(0.0);
     } else if (candidateP4type_ == "fromRefinedSCRegression") {
       newCandidate.setP4(newCandidate.p4(reco::Photon::regression2));
       newCandidate.setCandidateP4type(reco::Photon::regression2);
+      newCandidate.setMass(0.0);
     }
 
     outputPhotonCollection.push_back(newCandidate);

@@ -46,6 +46,8 @@
 
 #include "RecoVertex/GhostTrackFitter/interface/GhostTrackVertexFinder.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 // #define DEBUG
 
 #ifdef DEBUG
@@ -122,6 +124,11 @@ static double vtxErrorLong(const GlobalError &error, const GlobalVector &dir) {
 
 static GlobalPoint vtxMean(const GlobalPoint &p1, const GlobalError &e1, const GlobalPoint &p2, const GlobalError &e2) {
   GlobalVector diff = p2 - p1;
+
+  if UNLIKELY (p1 == p2) {
+    edm::LogWarning("GhostTrackVertexFinder") << "Averaging with self at " << p1;
+    return p1;
+  }
 
   double err1 = vtxErrorLong(e1, diff);
   double err2 = vtxErrorLong(e2, diff);

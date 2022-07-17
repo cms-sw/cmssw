@@ -38,6 +38,14 @@ public:
     int etaBinMax = etaBin(etaMax);
     int phiBinMin = phiBin(phiMin);
     int phiBinMax = phiBin(phiMax);
+    // If the search window cross the phi-bin boundary, add T::nPhiBins to the
+    // MAx value. This guarantees that the caller can perform a valid doule
+    // loop on eta and phi. It is the caller responsibility to perform a module
+    // operation on the phiBin values returned by this function, to explore the
+    // correct bins.
+    if (phiBinMax < phiBinMin) {
+      phiBinMax += T::nPhiBins;
+    }
     return std::array<int, 4>({{etaBinMin, etaBinMax, phiBinMin, phiBinMax}});
   }
 

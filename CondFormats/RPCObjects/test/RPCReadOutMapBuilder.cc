@@ -32,7 +32,7 @@ public:
   void endJob() override;
 
 private:
-  RPCReadOutMapping* cabling;
+  RPCReadOutMapping cabling;
   string m_record;
 };
 
@@ -56,10 +56,9 @@ void RPCReadOutMapBuilder::endJob() {
 
   try {
     if (mydbservice->isNewTagRequest(m_record)) {
-      mydbservice->createNewIOV<RPCReadOutMapping>(
-          cabling, mydbservice->beginOfTime(), mydbservice->endOfTime(), m_record);
+      mydbservice->createOneIOV(cabling, mydbservice->beginOfTime(), m_record);
     } else {
-      mydbservice->appendSinceTime<RPCReadOutMapping>(cabling, mydbservice->currentTime(), m_record);
+      mydbservice->appendOneIOV(cabling, mydbservice->currentTime(), m_record);
     }
   } catch (std::exception& e) {
     cout << "std::exception:  " << e.what();
@@ -73,7 +72,7 @@ void RPCReadOutMapBuilder::endJob() {
 void RPCReadOutMapBuilder::beginJob() {
   cout << "BeginJob method " << endl;
   cout << "Building RPC Cabling" << endl;
-  cabling = new RPCReadOutMapping("My map V-TEST");
+  RPCReadOutMapping cabling;
   {
     DccSpec dcc(790);
     for (int idtb = 1; idtb <= 68; idtb++) {
@@ -103,7 +102,7 @@ void RPCReadOutMapBuilder::beginJob() {
       }
       dcc.add(tb);
     }
-    cabling->add(dcc);
+    cabling.add(dcc);
   }
 }
 

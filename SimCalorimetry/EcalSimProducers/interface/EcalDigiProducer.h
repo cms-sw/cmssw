@@ -39,6 +39,7 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EBHitResponse.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include <vector>
 
 typedef EcalTDigitizer<EBDigitizerTraits> EBDigitizer;
@@ -117,6 +118,10 @@ private:
   const std::string m_EEdigiCollection;
   const std::string m_ESdigiCollection;
   const std::string m_hitsProducerTag;
+
+  const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEBToken_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsEEToken_;
+  const edm::EDGetTokenT<std::vector<PCaloHit>> m_HitsESToken_;
 
   const edm::ESGetToken<EcalPedestals, EcalPedestalsRcd> m_pedestalsToken;
   const edm::ESGetToken<EcalIntercalibConstantsMC, EcalIntercalibConstantsMCRcd> m_icalToken;

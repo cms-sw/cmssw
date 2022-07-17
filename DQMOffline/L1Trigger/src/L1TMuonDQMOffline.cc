@@ -108,7 +108,7 @@ double MuonGmtPair::getVar(const L1TMuonDQMOffline::EffType type) const {
 
 //__________DQM_base_class_______________________________________________
 L1TMuonDQMOffline::L1TMuonDQMOffline(const ParameterSet& ps)
-    : m_propagator(ps.getParameter<edm::ParameterSet>("muProp"), consumesCollector()),
+    : m_propagatorSetup(ps.getParameter<edm::ParameterSet>("muProp"), consumesCollector()),
       m_effTypes({kEffPt, kEffPhi, kEffEta, kEffVtx}),
       m_resTypes({kResPt, kResQOverPt, kResPhi, kResEta}),
       m_etaRegions({kEtaRegionAll, kEtaRegionBmtf, kEtaRegionOmtf, kEtaRegionEmtf}),
@@ -210,7 +210,7 @@ void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
 
 //_____________________________________________________________________
 void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetup) {
-  m_propagator.init(eventSetup);
+  auto const propagator = m_propagatorSetup.init(eventSetup);
 
   Handle<reco::MuonCollection> muons;
   iEvent.getByToken(m_MuonInputTag, muons);
@@ -231,7 +231,7 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
   getTightMuons(muons, primaryVertex);
   getProbeMuons(trigResults, trigEvent);  // CB add flag to run on orthogonal datasets (no T&P)
 
-  getMuonGmtPairs(gmtCands);
+  getMuonGmtPairs(gmtCands, propagator);
 
   if (m_verbose)
     cout << "[L1TMuonDQMOffline:] Computing efficiencies" << endl;
@@ -553,7 +553,8 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults>& trigResults,
 }
 
 //_____________________________________________________________________
-void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection>& gmtCands) {
+void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection>& gmtCands,
+                                        PropagateToMuon const& propagator) {
   m_MuonGmtPairs.clear();
   if (m_verbose)
     cout << "[L1TMuonDQMOffline:] Getting muon GMT pairs" << endl;
@@ -565,7 +566,7 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection>& gmtC
   l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end(0);
 
   for (; probeMuIt != probeMuEnd; ++probeMuIt) {
-    MuonGmtPair pairBestCand((*probeMuIt), nullptr, m_propagator, m_useAtVtxCoord);
+    MuonGmtPair pairBestCand((*probeMuIt), nullptr, propagator, m_useAtVtxCoord);
 
     // Fill the control histograms with the probe muon kinematic variables used
     m_ControlHistos[kCtrlProbeEta]->Fill(pairBestCand.getVar(L1TMuonDQMOffline::kEffEta));
@@ -575,7 +576,7 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection>& gmtC
     gmtIt = gmtCands->begin(0);  // use only on L1T muons from BX 0
 
     for (; gmtIt != gmtEnd; ++gmtIt) {
-      MuonGmtPair pairTmpCand((*probeMuIt), &(*gmtIt), m_propagator, m_useAtVtxCoord);
+      MuonGmtPair pairTmpCand((*probeMuIt), &(*gmtIt), propagator, m_useAtVtxCoord);
 
       if ((pairTmpCand.dR() < m_maxGmtMuonDR) && (pairTmpCand.dR() < pairBestCand.dR())) {
         pairBestCand = pairTmpCand;

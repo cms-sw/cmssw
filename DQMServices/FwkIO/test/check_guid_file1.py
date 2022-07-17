@@ -6,8 +6,10 @@ import ROOT
 fname_root = "dqm_file1.root"
 fname_report = "dqm_file1_jobreport.xml"
 
+kCmsGuid = "cms::edm::GUID"
+
 f = ROOT.TFile.Open(fname_root)
-guid_file = f.GetUUID().AsString().upper()
+guid_file = getattr(f, kCmsGuid)
 f.Close()
 
 guid_report = None

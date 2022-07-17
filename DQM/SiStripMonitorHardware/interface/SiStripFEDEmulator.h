@@ -71,7 +71,7 @@ namespace sistrip {
     void printMeds(std::ostream& aOs);
 
   private:
-    static const char* messageLabel_;
+    static const char* const messageLabel_;
 
     bool byModule_;
 

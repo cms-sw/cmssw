@@ -14,10 +14,12 @@ namespace helper {
 
   template <typename Alg>
   struct BFieldIsolationAlgorithmSetup {
-    static void init(Alg& algo, const edm::EventSetup& es) {
-      edm::ESHandle<MagneticField> bFieldHandle;
-      es.template get<IdealMagneticFieldRecord>().get(bFieldHandle);
-      algo.setBfield(bFieldHandle.product());
+    using ESConsumesToken = edm::ESGetToken<MagneticField, IdealMagneticFieldRecord>;
+    static ESConsumesToken esConsumes(edm::ConsumesCollector cc) {
+      return cc.esConsumes<MagneticField, IdealMagneticFieldRecord>();
+    }
+    static void init(Alg& algo, const edm::EventSetup& es, const ESConsumesToken& token) {
+      algo.setBfield(&es.getData(token));
     }
   };
 

@@ -6,23 +6,11 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.HcalCommonData.testGeometry17bXML_cfi")
 process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
+process.load("Geometry.CaloTopology.hcalTopologyTester_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
-process.MessageLogger = cms.Service("MessageLogger",
-    cerr = cms.untracked.PSet(
-        enable = cms.untracked.bool(False)
-    ),
-    cout = cms.untracked.PSet(
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        enable = cms.untracked.bool(True),
-        threshold = cms.untracked.string('DEBUG')
-    ),
-    debugModules = cms.untracked.vstring('*')
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.HCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -48,6 +36,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("HcalTopologyTester")
-
-process.p1 = cms.Path(process.generator*process.prod)
+process.p1 = cms.Path(process.generator*process.hcalTopologyTester)

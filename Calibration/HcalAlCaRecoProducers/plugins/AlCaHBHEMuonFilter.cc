@@ -65,19 +65,19 @@ private:
 
   // ----------member data ---------------------------
   HLTConfigProvider hltConfig_;
-  std::vector<std::string> trigNames_, HLTNames_;
-  std::string processName_;
-  bool pfCut_;
-  double trackIsoCut_, caloIsoCut_, pfIsoCut_;
-  int preScale_;
-  bool onlyOuterTrack_;
   unsigned int nRun_, nAll_, nGood_, nFinal_;
-  edm::InputTag triggerResults_, labelMuon_;
-  edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt;
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
-  edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  const std::vector<std::string> trigNames_;
+  const std::string processName_;
+  const edm::InputTag triggerResults_, labelMuon_;
+  const bool pfCut_;
+  const double trackIsoCut_, caloIsoCut_, pfIsoCut_;
+  const int preScale_;
+  const bool onlyOuterTrack_;
+  const edm::EDGetTokenT<trigger::TriggerEvent> tok_trigEvt;
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
+  const edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
 };
 
 //
@@ -92,27 +92,25 @@ private:
 // constructors and destructor
 //
 AlCaHBHEMuonFilter::AlCaHBHEMuonFilter(edm::ParameterSet const& iConfig, const AlCaHBHEMuons::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0), nFinal_(0) {
-  //now do what ever initialization is needed
-  trigNames_ = iConfig.getParameter<std::vector<std::string> >("Triggers");
-  processName_ = iConfig.getParameter<std::string>("ProcessName");
-  triggerResults_ = iConfig.getParameter<edm::InputTag>("TriggerResultLabel");
-  labelMuon_ = iConfig.getParameter<edm::InputTag>("MuonLabel");
-  pfCut_ = iConfig.getParameter<bool>("PFCut");
-  pfIsoCut_ = iConfig.getParameter<double>("PFIsolationCut");
-  trackIsoCut_ = iConfig.getParameter<double>("TrackIsolationCut");
-  caloIsoCut_ = iConfig.getParameter<double>("CaloIsolationCut");
-  preScale_ = iConfig.getParameter<int>("PreScale");
-  if (preScale_ < 1)
-    preScale_ = 1;
-  onlyOuterTrack_ = iConfig.getParameter<bool>("OnlyOuterTrack");
-
-  // define tokens for access
-  tok_trigRes_ = consumes<edm::TriggerResults>(triggerResults_);
-  tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
-
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
+      nFinal_(0),
+      trigNames_(iConfig.getParameter<std::vector<std::string> >("Triggers")),
+      processName_(iConfig.getParameter<std::string>("ProcessName")),
+      triggerResults_(iConfig.getParameter<edm::InputTag>("TriggerResultLabel")),
+      labelMuon_(iConfig.getParameter<edm::InputTag>("MuonLabel")),
+      pfCut_(iConfig.getParameter<bool>("PFCut")),
+      trackIsoCut_(iConfig.getParameter<double>("TrackIsolationCut")),
+      caloIsoCut_(iConfig.getParameter<double>("CaloIsolationCut")),
+      pfIsoCut_(iConfig.getParameter<double>("PFIsolationCut")),
+      preScale_(iConfig.getParameter<int>("PreScale") > 0 ? iConfig.getParameter<int>("PreScale") : 1),
+      onlyOuterTrack_(iConfig.getParameter<bool>("OnlyOuterTrack")),
+      tok_trigRes_(consumes<edm::TriggerResults>(triggerResults_)),
+      tok_Muon_(consumes<reco::MuonCollection>(labelMuon_)),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()) {
+  // load the parameters and define tokens for access
 
   edm::LogVerbatim("HBHEMuon") << "Parameters read from config file \nProcess " << processName_ << "  Prescale "
                                << preScale_ << "  Isolation Cuts " << pfCut_ << ":" << pfIsoCut_ << ":" << trackIsoCut_

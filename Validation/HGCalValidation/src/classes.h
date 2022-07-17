@@ -10,7 +10,3 @@
 #include "Validation/HGCalValidation/interface/ValidHit.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
-
-ValidHit vh;
-std::vector<ValidHit> vvh;
-edm::Wrapper<std::vector<ValidHit> > wvvh;

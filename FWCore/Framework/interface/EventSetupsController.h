@@ -26,7 +26,6 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include "tbb/task_arena.h"
 
 namespace edm {
 
@@ -164,7 +163,6 @@ namespace edm {
       void initializeEventSetupRecordIOVQueues();
 
       // ---------- member data --------------------------------
-      tbb::task_arena taskArena_;
       std::vector<propagate_const<std::shared_ptr<EventSetupProvider>>> providers_;
       NumberOfConcurrentIOVs numberOfConcurrentIOVs_;
 
@@ -190,7 +188,7 @@ namespace edm {
     };
 
     void synchronousEventSetupForInstance(IOVSyncValue const& syncValue,
-                                          tbb::task_group& iGroup,
+                                          oneapi::tbb::task_group& iGroup,
                                           eventsetup::EventSetupsController& espController);
   }  // namespace eventsetup
 }  // namespace edm

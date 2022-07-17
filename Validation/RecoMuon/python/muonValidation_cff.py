@@ -11,228 +11,235 @@ from Validation.RecoMuon.histoParameters_cff import *
 from Validation.RecoMuon.RecoMuonValidator_cff import *
 
 import Validation.RecoMuon.MuonTrackValidator_cfi
-MTV = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+MTV = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone(
 # DEFAULTS ###################################
-#    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-#    label_tp_refvector = cms.bool(False),
+#    label_tp = "mix:MergedTrackTruth",
+#    label_tp_refvector = False,
 #    muonTPSelector = cms.PSet(muonTPSet),
 ##############################################
-MTV.label_tp = ("TPmu")
-MTV.label_tp_refvector = True
+    label_tp = ("TPmu"),
+    label_tp_refvector = True
+)
 MTV.muonTPSelector.src = ("TPmu")
 ##############################################
 
-trkMuonTrackVTrackAssoc = MTV.clone()
-trkMuonTrackVTrackAssoc.associatormap = 'tpToTkmuTrackAssociation'
-trkMuonTrackVTrackAssoc.associators = ('trackAssociatorByHits',)
-#trkMuonTrackVTrackAssoc.label = ('generalTracks',)
-trkMuonTrackVTrackAssoc.label = ('probeTracks',)
-trkMuonTrackVTrackAssoc.label_tp = ("TPtrack")
+trkMuonTrackVTrackAssoc = MTV.clone(
+    associatormap = 'tpToTkmuTrackAssociation',
+    associators = ('trackAssociatorByHits',),
+    #label = ('generalTracks',),
+    label = ('probeTracks',),
+    label_tp = ("TPtrack"),
+    muonHistoParameters = trkMuonHistoParameters
+)
 trkMuonTrackVTrackAssoc.muonTPSelector.src = ("TPtrack")
-trkMuonTrackVTrackAssoc.muonHistoParameters = trkMuonHistoParameters
-
 # MuonAssociatorByHits used for all track collections
 
-trkProbeTrackVMuonAssoc = MTV.clone()
-trkProbeTrackVMuonAssoc.associatormap = 'tpToTkMuonAssociation'
-#trkProbeTrackVMuonAssoc.label = ('generalTracks',)
-trkProbeTrackVMuonAssoc.label = ('probeTracks',)
-trkProbeTrackVMuonAssoc.label_tp = ("TPtrack")
+trkProbeTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToTkMuonAssociation',
+    #label = ('generalTracks',),
+    label = ('probeTracks',),
+    label_tp = ("TPtrack"),
+    muonHistoParameters = trkMuonHistoParameters
+)
 trkProbeTrackVMuonAssoc.muonTPSelector.src = ("TPtrack")
-trkProbeTrackVMuonAssoc.muonHistoParameters = trkMuonHistoParameters
-
-staSeedTrackVMuonAssoc = MTV.clone()
-staSeedTrackVMuonAssoc.associatormap = 'tpToStaSeedAssociation'
-staSeedTrackVMuonAssoc.label = ('seedsOfSTAmuons',)
-staSeedTrackVMuonAssoc.muonHistoParameters = staSeedMuonHistoParameters
-
-staMuonTrackVMuonAssoc = MTV.clone()
-staMuonTrackVMuonAssoc.associatormap = 'tpToStaMuonAssociation'
-staMuonTrackVMuonAssoc.label = ('standAloneMuons',)
-staMuonTrackVMuonAssoc.muonHistoParameters = staMuonHistoParameters
-
-staUpdMuonTrackVMuonAssoc = MTV.clone()
-staUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaUpdMuonAssociation'
-staUpdMuonTrackVMuonAssoc.label = ('standAloneMuons:UpdatedAtVtx',)
-staUpdMuonTrackVMuonAssoc.muonHistoParameters = staUpdMuonHistoParameters
-
-glbMuonTrackVMuonAssoc = MTV.clone()
-glbMuonTrackVMuonAssoc.associatormap = 'tpToGlbMuonAssociation'
-glbMuonTrackVMuonAssoc.label = ('globalMuons',)
-glbMuonTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
-
-staRefitMuonTrackVMuonAssoc = MTV.clone()
-staRefitMuonTrackVMuonAssoc.associatormap = 'tpToStaRefitMuonAssociation'
-staRefitMuonTrackVMuonAssoc.label = ('refittedStandAloneMuons',)
-staRefitMuonTrackVMuonAssoc.muonHistoParameters = staMuonHistoParameters
-
-staRefitUpdMuonTrackVMuonAssoc = MTV.clone()
-staRefitUpdMuonTrackVMuonAssoc.associatormap = 'tpToStaRefitUpdMuonAssociation'
-staRefitUpdMuonTrackVMuonAssoc.label = ('refittedStandAloneMuons:UpdatedAtVtx',)
-staRefitUpdMuonTrackVMuonAssoc.muonHistoParameters = staUpdMuonHistoParameters
-
-displacedTrackVMuonAssoc = MTV.clone()
-displacedTrackVMuonAssoc.associatormap = 'tpToDisplacedTrkMuonAssociation'
-displacedTrackVMuonAssoc.label = ('displacedTracks',)
-displacedTrackVMuonAssoc.label_tp = ("TPtrack")
-displacedTrackVMuonAssoc.muonTPSelector = displacedMuonTPSet
+staSeedTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToStaSeedAssociation',
+    label = ('seedsOfSTAmuons',),
+    muonHistoParameters = staSeedMuonHistoParameters
+)
+staMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToStaMuonAssociation',
+    label = ('standAloneMuons',),
+    muonHistoParameters = staMuonHistoParameters
+)
+staUpdMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToStaUpdMuonAssociation',
+    label = ('standAloneMuons:UpdatedAtVtx',),
+    muonHistoParameters = staUpdMuonHistoParameters
+)
+glbMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToGlbMuonAssociation',
+    label = ('globalMuons',),
+    muonHistoParameters = glbMuonHistoParameters
+)
+staRefitMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToStaRefitMuonAssociation',
+    label = ('refittedStandAloneMuons',),
+    muonHistoParameters = staMuonHistoParameters
+)
+staRefitUpdMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToStaRefitUpdMuonAssociation',
+    label = ('refittedStandAloneMuons:UpdatedAtVtx',),
+    muonHistoParameters = staUpdMuonHistoParameters
+)
+displacedTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToDisplacedTrkMuonAssociation',
+    label = ('displacedTracks',),
+    label_tp = ("TPtrack"),
+    muonTPSelector = displacedMuonTPSet,
+    muonHistoParameters = displacedTrkMuonHistoParameters
+)
 displacedTrackVMuonAssoc.muonTPSelector.src = ("TPtrack")
-displacedTrackVMuonAssoc.muonHistoParameters = displacedTrkMuonHistoParameters
 
-displacedStaSeedTrackVMuonAssoc = MTV.clone()
-displacedStaSeedTrackVMuonAssoc.associatormap = 'tpToDisplacedStaSeedAssociation'
-displacedStaSeedTrackVMuonAssoc.label = ('seedsOfDisplacedSTAmuons',)
-displacedStaSeedTrackVMuonAssoc.muonTPSelector = displacedMuonTPSet
+displacedStaSeedTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToDisplacedStaSeedAssociation',
+    label = ('seedsOfDisplacedSTAmuons',),
+    muonTPSelector = displacedMuonTPSet,
+    muonHistoParameters = displacedStaSeedMuonHistoParameters
+)
 displacedStaSeedTrackVMuonAssoc.muonTPSelector.src = ("TPmu")
-displacedStaSeedTrackVMuonAssoc.muonHistoParameters = displacedStaSeedMuonHistoParameters
 
-displacedStaMuonTrackVMuonAssoc = MTV.clone()
-displacedStaMuonTrackVMuonAssoc.associatormap = 'tpToDisplacedStaMuonAssociation'
-displacedStaMuonTrackVMuonAssoc.label = ('displacedStandAloneMuons',)
-displacedStaMuonTrackVMuonAssoc.muonTPSelector = displacedMuonTPSet
+displacedStaMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToDisplacedStaMuonAssociation',
+    label = ('displacedStandAloneMuons',),
+    muonTPSelector = displacedMuonTPSet,
+    muonHistoParameters = displacedStaMuonHistoParameters
+)
 displacedStaMuonTrackVMuonAssoc.muonTPSelector.src = ("TPmu")
-displacedStaMuonTrackVMuonAssoc.muonHistoParameters = displacedStaMuonHistoParameters
 
-displacedGlbMuonTrackVMuonAssoc = MTV.clone()
-displacedGlbMuonTrackVMuonAssoc.associatormap = 'tpToDisplacedGlbMuonAssociation'
-displacedGlbMuonTrackVMuonAssoc.label = ('displacedGlobalMuons',)
-displacedGlbMuonTrackVMuonAssoc.muonTPSelector = displacedMuonTPSet
+displacedGlbMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToDisplacedGlbMuonAssociation',
+    label = ('displacedGlobalMuons',),
+    muonTPSelector = displacedMuonTPSet,
+    muonHistoParameters = displacedGlbMuonHistoParameters
+)
 displacedGlbMuonTrackVMuonAssoc.muonTPSelector.src = ("TPmu")
-displacedGlbMuonTrackVMuonAssoc.muonHistoParameters = displacedGlbMuonHistoParameters
 
-tevMuonFirstTrackVMuonAssoc = MTV.clone()
-tevMuonFirstTrackVMuonAssoc.associatormap = 'tpToTevFirstMuonAssociation'
-tevMuonFirstTrackVMuonAssoc.label = ('tevMuons:firstHit',)
-tevMuonFirstTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
-
-tevMuonPickyTrackVMuonAssoc = MTV.clone()
-tevMuonPickyTrackVMuonAssoc.associatormap = 'tpToTevPickyMuonAssociation'
-tevMuonPickyTrackVMuonAssoc.label = ('tevMuons:picky',)
-tevMuonPickyTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
-
-tevMuonDytTrackVMuonAssoc = MTV.clone()
-tevMuonDytTrackVMuonAssoc.associatormap = 'tpToTevDytMuonAssociation'
-tevMuonDytTrackVMuonAssoc.label = ('tevMuons:dyt',)
-tevMuonDytTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
-
-tunepMuonTrackVMuonAssoc = MTV.clone()
-tunepMuonTrackVMuonAssoc.associatormap = 'tpToTunePMuonAssociation'
-tunepMuonTrackVMuonAssoc.label = ('tunepMuonTracks',)
-tunepMuonTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
-
-pfMuonTrackVMuonAssoc = MTV.clone()
-pfMuonTrackVMuonAssoc.associatormap = 'tpToPFMuonAssociation'
-pfMuonTrackVMuonAssoc.label = ('pfMuonTracks',)
-pfMuonTrackVMuonAssoc.label_tp = ("TPpfmu")
+tevMuonFirstTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToTevFirstMuonAssociation',
+    label = ('tevMuons:firstHit',),
+    muonHistoParameters = glbMuonHistoParameters
+)
+tevMuonPickyTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToTevPickyMuonAssociation',
+    label = ('tevMuons:picky',),
+    muonHistoParameters = glbMuonHistoParameters
+)
+tevMuonDytTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToTevDytMuonAssociation',
+    label = ('tevMuons:dyt',),
+    muonHistoParameters = glbMuonHistoParameters
+)
+tunepMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToTunePMuonAssociation',
+    label = ('tunepMuonTracks',),
+    muonHistoParameters = glbMuonHistoParameters
+)
+pfMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToPFMuonAssociation',
+    label = ('pfMuonTracks',),
+    label_tp = ("TPpfmu"),
+    muonHistoParameters = glbMuonHistoParameters
+)
 pfMuonTrackVMuonAssoc.muonTPSelector.src = ("TPpfmu")
-pfMuonTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
 
-recomuMuonTrackVMuonAssoc = MTV.clone()
-recomuMuonTrackVMuonAssoc.associatormap = 'tpTorecoMuonMuonAssociation'
-recomuMuonTrackVMuonAssoc.label = ('recoMuonTracks',)
-recomuMuonTrackVMuonAssoc.muonHistoParameters = glbMuonHistoParameters
-
-gemMuonTrackVMuonAssoc = MTV.clone()
-gemMuonTrackVMuonAssoc.associatormap = 'tpToGEMMuonMuonAssociation'
-gemMuonTrackVMuonAssoc.label = ('extractGemMuons',)
-gemMuonTrackVMuonAssoc.muonHistoParameters = gemMuonHistoParameters
-
-me0MuonTrackVMuonAssoc = MTV.clone()
-me0MuonTrackVMuonAssoc.associatormap = 'tpToME0MuonMuonAssociation'
-me0MuonTrackVMuonAssoc.label = ('extractMe0Muons',)
-me0MuonTrackVMuonAssoc.muonTPSelector = me0MuonTPSet
+recomuMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpTorecoMuonMuonAssociation',
+    label = ('recoMuonTracks',),
+    muonHistoParameters = glbMuonHistoParameters
+)
+gemMuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToGEMMuonMuonAssociation',
+    label = ('extractGemMuons',),
+    muonHistoParameters = gemMuonHistoParameters
+)
+me0MuonTrackVMuonAssoc = MTV.clone(
+    associatormap = 'tpToME0MuonMuonAssociation',
+    label = ('extractMe0Muons',),
+    muonTPSelector = me0MuonTPSet,
+    muonHistoParameters = me0MuonHistoParameters
+)
 me0MuonTrackVMuonAssoc.muonTPSelector.src = ("TPmu")
-me0MuonTrackVMuonAssoc.muonHistoParameters = me0MuonHistoParameters
 
-
-MTVcosmic = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone()
+MTVcosmic = Validation.RecoMuon.MuonTrackValidator_cfi.muonTrackValidator.clone(
 # DEFAULTS ###################################
-#    label_tp = cms.InputTag("mix","MergedTrackTruth"),
-#    label_tp_refvector = cms.bool(False),
+#    label_tp = "mix:MergedTrackTruth",
+#    label_tp_refvector = False,
 ##############################################
-MTVcosmic.parametersDefiner = cms.string('CosmicParametersDefinerForTP')
-MTVcosmic.muonTPSelector = cosmicMuonTPSet
+    parametersDefiner = 'CosmicParametersDefinerForTP',
+    muonTPSelector = cosmicMuonTPSet
+)
 ##############################################
 
 # cosmics 2-leg reco
-trkCosmicMuonTrackVSelMuonAssoc = MTVcosmic.clone()
-trkCosmicMuonTrackVSelMuonAssoc.associatormap = 'tpToTkCosmicSelMuonAssociation'
-trkCosmicMuonTrackVSelMuonAssoc.label = ('ctfWithMaterialTracksP5LHCNavigation',)
-trkCosmicMuonTrackVSelMuonAssoc.BiDirectional_RecoToSim_association = False
-trkCosmicMuonTrackVSelMuonAssoc.muonHistoParameters = trkCosmicMuonHistoParameters
-
-staCosmicMuonTrackVSelMuonAssoc = MTVcosmic.clone()
-staCosmicMuonTrackVSelMuonAssoc.associatormap = 'tpToStaCosmicSelMuonAssociation'
-staCosmicMuonTrackVSelMuonAssoc.label = ('cosmicMuons',)
-staCosmicMuonTrackVSelMuonAssoc.BiDirectional_RecoToSim_association = False
-staCosmicMuonTrackVSelMuonAssoc.muonHistoParameters = staCosmicMuonHistoParameters
-
-glbCosmicMuonTrackVSelMuonAssoc = MTVcosmic.clone()
-glbCosmicMuonTrackVSelMuonAssoc.associatormap = 'tpToGlbCosmicSelMuonAssociation'
-glbCosmicMuonTrackVSelMuonAssoc.label = ('globalCosmicMuons',)
-glbCosmicMuonTrackVSelMuonAssoc.BiDirectional_RecoToSim_association = False
-glbCosmicMuonTrackVSelMuonAssoc.muonHistoParameters = glbCosmicMuonHistoParameters
-
+trkCosmicMuonTrackVSelMuonAssoc = MTVcosmic.clone(
+    associatormap = 'tpToTkCosmicSelMuonAssociation',
+    label = ('ctfWithMaterialTracksP5LHCNavigation',),
+    BiDirectional_RecoToSim_association = False,
+    muonHistoParameters = trkCosmicMuonHistoParameters
+)
+staCosmicMuonTrackVSelMuonAssoc = MTVcosmic.clone(
+    associatormap = 'tpToStaCosmicSelMuonAssociation',
+    label = ('cosmicMuons',),
+    BiDirectional_RecoToSim_association = False,
+    muonHistoParameters = staCosmicMuonHistoParameters
+)
+glbCosmicMuonTrackVSelMuonAssoc = MTVcosmic.clone(
+    associatormap = 'tpToGlbCosmicSelMuonAssociation',
+    label = ('globalCosmicMuons',),
+    BiDirectional_RecoToSim_association = False,
+    muonHistoParameters = glbCosmicMuonHistoParameters
+)
 # cosmics 1-leg reco
-trkCosmic1LegMuonTrackVSelMuonAssoc = MTVcosmic.clone()
-trkCosmic1LegMuonTrackVSelMuonAssoc.associatormap = 'tpToTkCosmic1LegSelMuonAssociation'
-trkCosmic1LegMuonTrackVSelMuonAssoc.label = ('ctfWithMaterialTracksP5',)
-trkCosmic1LegMuonTrackVSelMuonAssoc.muonHistoParameters = trkCosmic1LegMuonHistoParameters
-
-staCosmic1LegMuonTrackVSelMuonAssoc = MTVcosmic.clone()
-staCosmic1LegMuonTrackVSelMuonAssoc.associatormap = 'tpToStaCosmic1LegSelMuonAssociation'
-staCosmic1LegMuonTrackVSelMuonAssoc.label = ('cosmicMuons1Leg',)
-staCosmic1LegMuonTrackVSelMuonAssoc.muonHistoParameters = staCosmic1LegMuonHistoParameters
-
-glbCosmic1LegMuonTrackVSelMuonAssoc = MTVcosmic.clone()
-glbCosmic1LegMuonTrackVSelMuonAssoc.associatormap = 'tpToGlbCosmic1LegSelMuonAssociation'
-glbCosmic1LegMuonTrackVSelMuonAssoc.label = ('globalCosmicMuons1Leg',)
-glbCosmic1LegMuonTrackVSelMuonAssoc.muonHistoParameters = glbCosmic1LegMuonHistoParameters
-
+trkCosmic1LegMuonTrackVSelMuonAssoc = MTVcosmic.clone(
+    associatormap = 'tpToTkCosmic1LegSelMuonAssociation',
+    label = ('ctfWithMaterialTracksP5',),
+    muonHistoParameters = trkCosmic1LegMuonHistoParameters
+)
+staCosmic1LegMuonTrackVSelMuonAssoc = MTVcosmic.clone(
+    associatormap = 'tpToStaCosmic1LegSelMuonAssociation',
+    label = ('cosmicMuons1Leg',),
+    muonHistoParameters = staCosmic1LegMuonHistoParameters
+)
+glbCosmic1LegMuonTrackVSelMuonAssoc = MTVcosmic.clone(
+    associatormap = 'tpToGlbCosmic1LegSelMuonAssociation',
+    label = ('globalCosmicMuons1Leg',),
+    muonHistoParameters = glbCosmic1LegMuonHistoParameters
+)
 
 ##########################################################################                                                        
 ### Customization for Phase II samples                                                                                           
 ###
 
-trkMuonTrackVTrackAssoc_phase2 = trkMuonTrackVTrackAssoc.clone()                                                                  
-trkMuonTrackVTrackAssoc_phase2.muonHistoParameters = trkMuonHistoParameters_phase2                                                
-
-trkProbeTrackVMuonAssoc_phase2 = trkProbeTrackVMuonAssoc.clone()                                                                  
-trkProbeTrackVMuonAssoc_phase2.muonHistoParameters = trkMuonHistoParameters_phase2                                                
-
-staSeedTrackVMuonAssoc_phase2 = staSeedTrackVMuonAssoc.clone()                                                                    
-staSeedTrackVMuonAssoc_phase2.muonHistoParameters = staSeedMuonHistoParameters                                                    
-
-staMuonTrackVMuonAssoc_phase2 = staMuonTrackVMuonAssoc.clone()                                                                    
-staMuonTrackVMuonAssoc_phase2.muonHistoParameters = staMuonHistoParameters_phase2                                                 
-
-staUpdMuonTrackVMuonAssoc_phase2 = staUpdMuonTrackVMuonAssoc.clone()                                                              
-staUpdMuonTrackVMuonAssoc_phase2.muonHistoParameters = staUpdMuonHistoParameters_phase2                                          
-
-glbMuonTrackVMuonAssoc_phase2 = glbMuonTrackVMuonAssoc.clone()                                                                    
-glbMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2                                                 
-
-pfMuonTrackVMuonAssoc_phase2 = pfMuonTrackVMuonAssoc.clone()                                                                      
-pfMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2                                                  
-
-recomuMuonTrackVMuonAssoc_phase2 = recomuMuonTrackVMuonAssoc.clone()                                                              
-recomuMuonTrackVMuonAssoc_phase2.muonHistoParameters = recoMuonHistoParameters_phase2      
-
-tunepMuonTrackVMuonAssoc_phase2 = tunepMuonTrackVMuonAssoc.clone()
-tunepMuonTrackVMuonAssoc_phase2.muonHistoParameters = glbMuonHistoParameters_phase2      
-
-displacedStaMuonTrackVMuonAssoc_phase2 = displacedStaMuonTrackVMuonAssoc.clone()
-displacedStaMuonTrackVMuonAssoc_phase2.muonHistoParameters = displacedStaMuonHistoParameters_phase2   
-
-displacedGlbMuonTrackVMuonAssoc_phase2 = displacedGlbMuonTrackVMuonAssoc.clone()
-displacedGlbMuonTrackVMuonAssoc_phase2.muonHistoParameters = displacedGlbMuonHistoParameters_phase2               
-
-displacedTrackVMuonAssoc_phase2 = displacedTrackVMuonAssoc.clone()
-displacedTrackVMuonAssoc_phase2.muonHistoParameters = displacedTrkMuonHistoParameters_phase2   
-
-gemMuonTrackVMuonAssoc_phase2 = gemMuonTrackVMuonAssoc.clone()
-gemMuonTrackVMuonAssoc_phase2.muonHistoParameters = gemMuonHistoParameters_phase2 
-
+trkMuonTrackVTrackAssoc_phase2 = trkMuonTrackVTrackAssoc.clone(                                                                  
+    muonHistoParameters = trkMuonHistoParameters_phase2                                                
+)
+trkProbeTrackVMuonAssoc_phase2 = trkProbeTrackVMuonAssoc.clone(
+    muonHistoParameters = trkMuonHistoParameters_phase2                                                
+)
+staSeedTrackVMuonAssoc_phase2 = staSeedTrackVMuonAssoc.clone(
+    muonHistoParameters = staSeedMuonHistoParameters                                                    
+)
+staMuonTrackVMuonAssoc_phase2 = staMuonTrackVMuonAssoc.clone(
+    muonHistoParameters = staMuonHistoParameters_phase2                                                 
+)
+staUpdMuonTrackVMuonAssoc_phase2 = staUpdMuonTrackVMuonAssoc.clone(
+    muonHistoParameters = staUpdMuonHistoParameters_phase2                                          
+)
+glbMuonTrackVMuonAssoc_phase2 = glbMuonTrackVMuonAssoc.clone(
+    muonHistoParameters = glbMuonHistoParameters_phase2                                                 
+)
+pfMuonTrackVMuonAssoc_phase2 = pfMuonTrackVMuonAssoc.clone(                                                                      
+    muonHistoParameters = glbMuonHistoParameters_phase2                                                  
+)
+recomuMuonTrackVMuonAssoc_phase2 = recomuMuonTrackVMuonAssoc.clone(
+    muonHistoParameters = recoMuonHistoParameters_phase2      
+)
+tunepMuonTrackVMuonAssoc_phase2 = tunepMuonTrackVMuonAssoc.clone(
+    muonHistoParameters = glbMuonHistoParameters_phase2      
+)
+displacedStaMuonTrackVMuonAssoc_phase2 = displacedStaMuonTrackVMuonAssoc.clone(
+    muonHistoParameters = displacedStaMuonHistoParameters_phase2   
+)
+displacedGlbMuonTrackVMuonAssoc_phase2 = displacedGlbMuonTrackVMuonAssoc.clone(
+    muonHistoParameters = displacedGlbMuonHistoParameters_phase2               
+)
+displacedTrackVMuonAssoc_phase2 = displacedTrackVMuonAssoc.clone(
+    muonHistoParameters = displacedTrkMuonHistoParameters_phase2   
+)
+gemMuonTrackVMuonAssoc_phase2 = gemMuonTrackVMuonAssoc.clone(
+    muonHistoParameters = gemMuonHistoParameters_phase2 
+)
 
 ##################################################################################
 # Muon validation sequences using MuonTrackValidator

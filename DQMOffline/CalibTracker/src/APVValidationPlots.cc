@@ -1,43 +1,38 @@
 // system include files
+#include <iostream>
 #include <memory>
+#include <sstream>
+#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "TH1F.h"
-#include "TFile.h"
+// ROOT includes
 #include "TCanvas.h"
+#include "TFile.h"
 #include "TH1.h"
-#include "TH2F.h"
 #include "TH1D.h"
+#include "TH1F.h"
+#include "TH2F.h"
 #include "TProfile.h"
 #include "TStyle.h"
 #include "TTree.h"
-
-#include <sstream>
-#include <iostream>
-#include <vector>
 
 //
 // class decleration
 //
 
-class APVValidationPlots : public edm::EDAnalyzer {
+class APVValidationPlots : public edm::one::EDAnalyzer<> {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
@@ -53,14 +48,6 @@ private:
 
   // ----------member data ---------------------------
 };
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
 
 //
 // constructors and destructor

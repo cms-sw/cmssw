@@ -19,23 +19,25 @@
 
 // user include files
 //   base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
+class L1GtBoardMaps;
+class L1GtBoardMapsRcd;
 
 // class declaration
-class L1GtBoardMapsTester : public edm::EDAnalyzer {
+class L1GtBoardMapsTester : public edm::global::EDAnalyzer<> {
 public:
   // constructor
   explicit L1GtBoardMapsTester(const edm::ParameterSet&);
 
-  // destructor
-  ~L1GtBoardMapsTester() override;
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
-  void analyze(const edm::Event&, const edm::EventSetup&) override;
+private:
+  edm::ESGetToken<L1GtBoardMaps, L1GtBoardMapsRcd> m_getToken;
 };
 
 #endif /*L1GtConfigProducers_L1GtBoardMapsTester_h*/

@@ -9,7 +9,7 @@ bool SiStripBadStrip::put(const uint32_t& DetId, Range input) {
   Registry::iterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripBadStrip::StrictWeakOrdering());
   if (p != indexes.end() && p->detid == DetId) {
     edm::LogError("SiStripBadStrip") << "[" << __PRETTY_FUNCTION__ << "] SiStripBadStrip for DetID " << DetId
-                                     << " is already stored. Skippig this put" << std::endl;
+                                     << " is already stored. Skipping this put" << std::endl;
     return false;
   }
 

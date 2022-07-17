@@ -19,6 +19,10 @@ CSCTMBHeader2020_GEM::CSCTMBHeader2020_GEM() {
   bits.firmRevCode = 0x601;
   bits.nTBins = 12;
   bits.nCFEBs = 7;
+  /// Set default GEM-OTMB readout configuration
+  /// 12 time bins, all 4 GEM fibers enabled
+  bits.fifo_tbins_gem_ = 12;
+  bits.gem_enabled_fibers_ = 0xf;
 }
 
 CSCTMBHeader2020_GEM::CSCTMBHeader2020_GEM(const unsigned short* buf) { memcpy(data(), buf, sizeInWords() * 2); }
@@ -166,6 +170,18 @@ CSCShowerDigi CSCTMBHeader2020_GEM::showerDigi(uint32_t idlayer) const {
   return result;
 }
 
+CSCShowerDigi CSCTMBHeader2020_GEM::anodeShowerDigi(uint32_t idlayer) const {
+  uint16_t cscid = 0;
+  CSCShowerDigi result(bits.anode_hmt & 0x3, 0, cscid);  // 2-bits intime, no out of time
+  return result;
+}
+
+CSCShowerDigi CSCTMBHeader2020_GEM::cathodeShowerDigi(uint32_t idlayer) const {
+  uint16_t cscid = 0;
+  CSCShowerDigi result(bits.cathode_hmt & 0x3, 0, cscid);  // 2-bits intime, no out of time
+  return result;
+}
+
 void CSCTMBHeader2020_GEM::addALCT0(const CSCALCTDigi& digi) {
   throw cms::Exception("In CSC TMBHeaderFormat 2007, ALCTs belong in  ALCT header");
 }
@@ -264,6 +280,16 @@ void CSCTMBHeader2020_GEM::addShower(const CSCShowerDigi& digi) {
   bits.MPC_Muon_HMT_high = (hmt_bits >> 1) & 0x7;
 }
 
+void CSCTMBHeader2020_GEM::addAnodeShower(const CSCShowerDigi& digi) {
+  uint16_t hmt_bits = digi.bitsInTime() & 0x3;
+  bits.anode_hmt = hmt_bits;
+}
+
+void CSCTMBHeader2020_GEM::addCathodeShower(const CSCShowerDigi& digi) {
+  uint16_t hmt_bits = digi.bitsInTime() & 0x3;
+  bits.cathode_hmt = hmt_bits;
+}
+
 void CSCTMBHeader2020_GEM::print(std::ostream& os) const {
   os << "...............(O)TMB2020 ME11 GEM/CCLUT/HMT Header.................."
      << "\n";
@@ -320,7 +346,8 @@ void CSCTMBHeader2020_GEM::print(std::ostream& os) const {
      << " L/R bend = " << bits.MPC_Muon1_clct_LR << "\n";
 
   os << " clct_5bit_pattern_id = " << (bits.MPC_Muon_clct_pattern_low | (bits.MPC_Muon_clct_pattern_bit5 << 4))
-     << " HMT = " << (bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1)) << "\n";
+     << " HMT = " << (bits.MPC_Muon_HMT_bit0 | (bits.MPC_Muon_HMT_high << 1)) << ", alctHMT = " << bits.anode_hmt
+     << ", clctHMT = " << bits.cathode_hmt << "\n";
 
   // os << "..................CLCT....................." << "\n";
   os << "GEM Data:\n"

@@ -6,17 +6,11 @@ class SwitchProducerTest(cms.SwitchProducer):
     def __init__(self, **kargs):
         super(SwitchProducerTest,self).__init__(
             dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (enableTest2, -9)
+                test1 = lambda accelerators: (True, -10),
+                test2 = lambda accelerators: (enableTest2, -9)
             ), **kargs)
 
 process = cms.Process("PROD1")
-
-process.options = cms.untracked.PSet(
-    numberOfStreams = cms.untracked.uint32(1),
-    numberOfConcurrentRuns = cms.untracked.uint32(1),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
-)
 
 process.source = cms.Source("EmptySource")
 if enableTest2:
@@ -32,7 +26,7 @@ process.out = cms.OutputModule("PoolOutputModule",
         'keep *_intProducer_*_*',
         'keep *_intProducerOther_*_*',
         'keep *_intProducerAlias_*_*',
-        'keep *_intProducerAlias2_foo_*',
+        'keep *_intProducerAlias2_other_*',
         'keep *_intProducerDep1_*_*',
         'keep *_intProducerDep2_*_*',
         'keep *_intProducerDep3_*_*',

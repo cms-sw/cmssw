@@ -541,11 +541,20 @@ const std::vector<double> DDFilteredView::parameters() const {
       not dd4hep::isA<dd4hep::PseudoTrap>(currVol.solid())) {
     const TGeoCompositeShape* shape = static_cast<const TGeoCompositeShape*>(currVol->GetShape());
     const TGeoBoolNode* boolean = shape->GetBoolNode();
-    while (boolean->GetLeftShape()->IsA() != TGeoBBox::Class()) {
+    while (boolean->GetLeftShape()->IsA() == TGeoCompositeShape::Class()) {
       boolean = static_cast<const TGeoCompositeShape*>(boolean->GetLeftShape())->GetBoolNode();
     }
-    const TGeoBBox* box = static_cast<const TGeoBBox*>(boolean->GetLeftShape());
-    return {box->GetDX(), box->GetDY(), box->GetDZ()};
+    if (boolean->GetLeftShape()->IsA() == TGeoBBox::Class()) {
+      const TGeoBBox* box = static_cast<const TGeoBBox*>(boolean->GetLeftShape());
+      return {box->GetDX(), box->GetDY(), box->GetDZ()};
+    } else if (boolean->GetLeftShape()->IsA() == TGeoPcon::Class()) {
+      const TGeoPcon* pcon = static_cast<const TGeoPcon*>(boolean->GetLeftShape());
+      double param[4];
+      pcon->GetBoundingCylinder(param);
+      return {param[0], param[1], param[2], param[3]};
+    } else {
+      throw cms::Exception("DDFilteredView") << "Unknown boolean solid component";
+    }
   } else
     return currVol.solid().dimensions();
 }

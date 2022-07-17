@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -34,10 +34,10 @@
 // class declaration
 //
 
-class HighMultiplicityGenFilter : public edm::EDFilter {
+class HighMultiplicityGenFilter : public edm::one::EDFilter<> {
 public:
   explicit HighMultiplicityGenFilter(const edm::ParameterSet&);
-  ~HighMultiplicityGenFilter() override;
+  ~HighMultiplicityGenFilter() override = default;
 
 private:
   void beginJob() override;
@@ -45,11 +45,11 @@ private:
   void endJob() override;
 
   // ----------member data ---------------------------
-  edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
-  edm::EDGetTokenT<edm::HepMCProduct> hepmcSrc;
-  double etaMax;
-  double ptMin;
-  int nMin;
+  const edm::ESGetToken<ParticleDataTable, edm::DefaultRecord> pdtToken_;
+  const edm::EDGetTokenT<edm::HepMCProduct> hepmcSrc;
+  const double etaMax;
+  const double ptMin;
+  const int nMin;
   int nAccepted;
 };
 
@@ -74,11 +74,6 @@ HighMultiplicityGenFilter::HighMultiplicityGenFilter(const edm::ParameterSet& iC
   nAccepted = 0;
 }
 
-HighMultiplicityGenFilter::~HighMultiplicityGenFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -86,9 +81,8 @@ HighMultiplicityGenFilter::~HighMultiplicityGenFilter() {
 // ------------ method called on each new Event  ------------
 bool HighMultiplicityGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   bool accepted = false;
-  edm::Handle<edm::HepMCProduct> evt;
-  iEvent.getByToken(hepmcSrc, evt);
-  edm::ESHandle<ParticleDataTable> pdt = iSetup.getHandle(pdtToken_);
+  const edm::Handle<edm::HepMCProduct>& evt = iEvent.getHandle(hepmcSrc);
+  const edm::ESHandle<ParticleDataTable>& pdt = iSetup.getHandle(pdtToken_);
 
   const HepMC::GenEvent* myGenEvent = evt->GetEvent();
 

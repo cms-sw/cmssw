@@ -161,6 +161,7 @@
     <Parameter name="GroupingZOut"   value="-1"/>
     <Parameter name="GroupingZOut"   value="16"/>
     <Parameter name="GroupingZOut"   value="16"/>
+    <Parameter name="LayerOffset"    value="0"/>
   </SpecPar>
 </SpecParSection>
 

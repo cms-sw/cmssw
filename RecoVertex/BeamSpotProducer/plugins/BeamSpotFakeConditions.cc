@@ -105,20 +105,20 @@ BeamSpotFakeConditions::~BeamSpotFakeConditions() {}
 BeamSpotFakeConditions::ReturnType BeamSpotFakeConditions::produce(const BeamSpotObjectsRcd &record) {
   ReturnType adummy = std::make_unique<BeamSpotObjects>();
 
-  adummy->SetPosition(x, y, z);
-  adummy->SetSigmaZ(sigmaZ);
-  adummy->Setdxdz(dxdz);
-  adummy->Setdydz(dydz);
-  adummy->SetBeamWidthX(beamWidthX);
-  adummy->SetBeamWidthY(beamWidthY);
+  adummy->setPosition(x, y, z);
+  adummy->setSigmaZ(sigmaZ);
+  adummy->setdxdz(dxdz);
+  adummy->setdydz(dydz);
+  adummy->setBeamWidthX(beamWidthX);
+  adummy->setBeamWidthY(beamWidthY);
   for (int i = 0; i < 7; i++) {
     for (int j = 0; j < 7; j++) {
-      adummy->SetCovariance(i, j, cov[i][j]);
+      adummy->setCovariance(i, j, cov[i][j]);
     }
   }
-  adummy->SetEmittanceX(emittanceX);
-  adummy->SetEmittanceY(emittanceY);
-  adummy->SetBetaStar(betastar);
+  adummy->setEmittanceX(emittanceX);
+  adummy->setEmittanceY(emittanceY);
+  adummy->setBetaStar(betastar);
 
   return adummy;
 }

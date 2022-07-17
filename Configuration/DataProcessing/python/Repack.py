@@ -5,7 +5,7 @@ _Repack_
 Module that generates standard repack configurations
 
 """
-
+import copy
 import FWCore.ParameterSet.Config as cms
 
 
@@ -20,6 +20,7 @@ def repackProcess(**args):
     - outputs      : defines output modules
 
     """
+    from Configuration.EventContent.EventContent_cff import RAWEventContent
     process = cms.Process("REPACK")
     process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -54,6 +55,8 @@ def repackProcess(**args):
 
         outputModule = cms.OutputModule(
             "PoolOutputModule",
+            compressionAlgorithm=copy.copy(RAWEventContent.compressionAlgorithm),
+            compressionLevel=copy.copy(RAWEventContent.compressionLevel),
             fileName = cms.untracked.string("%s.root" % moduleLabel)
             )
 

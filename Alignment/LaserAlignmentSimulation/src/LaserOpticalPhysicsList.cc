@@ -93,7 +93,6 @@ void LaserOpticalPhysicsList::ConstructProcess() {
   pManager->AddDiscreteProcess(theBoundaryProcess);
   pManager->AddDiscreteProcess(theWLSProcess);
 
-  theScintProcess->SetScintillationYieldFactor(1.);
   theScintProcess->SetTrackSecondariesFirst(true);
 
   G4ParticleTable *table = G4ParticleTable::GetParticleTable();

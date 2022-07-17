@@ -52,7 +52,11 @@ stage1L1Trigger.toReplaceWith(L1Reco_L1Extra_L1GtRecord,cms.Sequence())
 stage1L1Trigger.toReplaceWith(L1Reco, cms.Sequence(l1extraParticles))
 
 #
+<<<<<<< HEAD
 # Stage-2 Trigger
+=======
+# Stage-2 Trigger:
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
 #
 from Configuration.Eras.Modifier_stage2L1Trigger_cff import stage2L1Trigger
 stage2L1Trigger.toReplaceWith(L1Reco_L1Extra,cms.Sequence())

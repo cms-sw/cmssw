@@ -9,7 +9,7 @@
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <DataFormats/Common/interface/Handle.h>
@@ -20,6 +20,7 @@
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 #include <vector>
 #include <map>
@@ -28,7 +29,7 @@
 #include "TFile.h"
 #include "TH1F.h"
 
-class CSCSegmentReader : public edm::EDAnalyzer {
+class CSCSegmentReader : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   CSCSegmentReader(const edm::ParameterSet& pset);
@@ -69,6 +70,12 @@ private:
   TH1I *hrechit, *hsegment;
   TH1F *hphiDir[9], *hthetaDir[9];
   TH1F *hdxOri[9], *hdyOri[9];
+
+  edm::ESGetToken<CSCGeometry, MuonGeometryRecord> geomToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTracksToken_;
+  edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken_;
+  edm::EDGetTokenT<CSCRecHit2DCollection> recHitsToken_;
+  edm::EDGetTokenT<CSCSegmentCollection> cscSegmentsToken_;
 
   TFile* file;
   std::map<std::string, int> segMap1;

@@ -2,6 +2,7 @@
 #define GMTTokens_h
 
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
+#include "DataFormats/L1TMuon/interface/RegionalMuonShower.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
 #include "CommonTokens.h"
@@ -27,6 +28,10 @@ namespace l1t {
       inline const edm::EDGetTokenT<MuonBxCollection>& getImdMuonTokenOMTFNeg() const { return imdMuonTokenOMTFNeg_; };
       inline const edm::EDGetTokenT<MuonBxCollection>& getImdMuonTokenOMTFPos() const { return imdMuonTokenOMTFPos_; };
 
+      inline const edm::EDGetTokenT<RegionalMuonShowerBxCollection>& getRegionalMuonShowerTokenEMTF() const {
+        return regionalMuonShowerTokenEMTF_;
+      };
+
     private:
       edm::EDGetTokenT<RegionalMuonCandBxCollection> regionalMuonCandTokenBMTF_;
       edm::EDGetTokenT<RegionalMuonCandBxCollection> regionalMuonCandTokenOMTF_;
@@ -36,6 +41,8 @@ namespace l1t {
       edm::EDGetTokenT<MuonBxCollection> imdMuonTokenEMTFPos_;
       edm::EDGetTokenT<MuonBxCollection> imdMuonTokenOMTFNeg_;
       edm::EDGetTokenT<MuonBxCollection> imdMuonTokenOMTFPos_;
+
+      edm::EDGetTokenT<RegionalMuonShowerBxCollection> regionalMuonShowerTokenEMTF_;
     };
   }  // namespace stage2
 }  // namespace l1t

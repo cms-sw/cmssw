@@ -34,7 +34,7 @@ class RunMerge:
 
         try:
             process = mergeProcess(
-                self.inputFiles,
+                *self.inputFiles,
                 process_name = self.processName,
                 output_file = self.outputFile,
                 output_lfn = self.outputLFN,
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         if opt == "--input-files":
             merger.inputFiles = [
                 x for x in arg.split(',') if x.strip() != '' ]
-            
+
         if opt == "--output-file" :
             merger.outputFile = arg
         if opt == "--output-lfn" :

@@ -126,7 +126,7 @@ simEmtfDigisMC = cms.EDProducer("L1TMuonEndCapTrackProducer",
         PromoteMode7    = cms.bool(False), # Assign station 2-3-4 tracks with |eta| > 1.6 SingleMu quality
         ModeQualVer     = cms.int32(2),    # Version 2 contains modified mode-quality mapping for 2018
 
-        ProtobufFileName = cms.string('model_graph.displ.5.pb'), # Protobuf file name to be used by NN based pT assignment
+        ProtobufFileName = cms.string('model_graph.displ.10.1.pb'), # Protobuf file name to be used by NN based pT assignment
     ),
 
 )

@@ -124,6 +124,9 @@ hist_label_to_num['LEA'] = [1000, 12, 'Lead']
 hist_label_to_num['EPX'] = [1100, 46, 'Epoxy']
 hist_label_to_num['KAP'] = [1200, 49, 'Kapton']
 hist_label_to_num['ALU'] = [1300, 33, 'Aluminium']
+hist_label_to_num['POL'] = [1400, 800, 'Polystyrene']
+hist_label_to_num['EEC'] = [1500, 900, 'HGC_EEConnector']
+hist_label_to_num['HEC'] = [1600, 40, 'HGC_HEConnector']
 
 def TwikiPrintout(plotname, label, zoom): 
     """The plots in the twiki are already too much and to avoid mistakes 

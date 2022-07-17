@@ -27,11 +27,12 @@ process.towerMakerAll.hfInput = cms.InputTag("none")
 process.towerMakerAll.ecalInputs = cms.VInputTag(cms.InputTag("ecalRecHit","EcalRecHitsEB"), cms.InputTag("ecalRecHit","EcalRecHitsEE"))
 process.towerMakerAll.AllowMissingInputs = True
 
-process.load('Calibration.HcalCalibAlgos.HcalIsoTrkAnalyzer_cff')
-process.HcalIsoTrkAnalyzer.triggers = []
-process.HcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
-process.HcalIsoTrkAnalyzer.ignoreTriggers = True
-process.HcalIsoTrkAnalyzer.debugEvents = [640818633, 640797426, 641251898]
+process.load('Calibration.HcalCalibAlgos.hcalIsoTrkAnalyzer_cff')
+process.hcalIsoTrkAnalyzer.triggers = []
+process.hcalIsoTrkAnalyzer.useRaw = 0   # 1 for Raw
+process.hcalIsoTrkAnalyzer.ignoreTriggers = True
+process.hcalIsoTrkAnalyzer.debugEvents = [640818633, 640797426, 641251898,
+                                          641261804, 641172007, 641031809]
 
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring('file:oldPoolOutput.root')
@@ -43,5 +44,5 @@ process.TFileService = cms.Service("TFileService",
    fileName = cms.string('output_oldalca.root')
 )
 
-process.p = cms.Path(process.HcalIsoTrkAnalyzer)
+process.p = cms.Path(process.hcalIsoTrkAnalyzer)
 

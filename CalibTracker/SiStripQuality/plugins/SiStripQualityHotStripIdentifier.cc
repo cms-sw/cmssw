@@ -1,21 +1,76 @@
-#include "CalibTracker/SiStripQuality/plugins/SiStripQualityHotStripIdentifier.h"
+// system includes
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <vector>
 
+// user includes
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
-
+#include "CalibTracker/Records/interface/SiStripQualityRcd.h"
+#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+#include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
+#include "CalibTracker/SiStripQuality/interface/SiStripQualityHistos.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include <fstream>
-#include <iostream>
-#include <memory>
-#include <sstream>
+#include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
-//Insert here the include to the algos
-#include "CalibTracker/SiStripQuality/interface/SiStripHotStripAlgorithmFromClusterOccupancy.h"
-#include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
+class TrackerTopology;
+
+class SiStripQualityHotStripIdentifier : public ConditionDBWriter<SiStripBadStrip> {
+public:
+  explicit SiStripQualityHotStripIdentifier(const edm::ParameterSet&);
+  ~SiStripQualityHotStripIdentifier() override = default;
+
+private:
+  //Will be called at the beginning of the job
+  void algoBeginJob(const edm::EventSetup&) override {}
+  //Will be called at the beginning of each run in the job
+  void algoBeginRun(const edm::Run&, const edm::EventSetup&) override;
+  //Will be called at the beginning of each luminosity block in the run
+  void algoBeginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override { resetHistos(); }
+  //Will be called at the end of the job
+  void algoEndJob() override;
+
+  //Will be called at every event
+  void algoAnalyze(const edm::Event&, const edm::EventSetup&) override;
+
+  std::unique_ptr<SiStripBadStrip> getNewObject() override;
+
+  void bookHistos();
+  void resetHistos();
+  void fillHisto(uint32_t detid, float value);
+
+private:
+  const std::string dataLabel_;
+  const SiStripQuality* stripQuality_ = nullptr;
+  const edm::ParameterSet conf_;
+  const edm::FileInPath fp_;
+  const edm::InputTag Cluster_src_;
+  const edm::InputTag Track_src_;
+  const bool tracksCollection_in_EventTree;
+  const TrackerTopology* tTopo = nullptr;
+
+  unsigned short MinClusterWidth_, MaxClusterWidth_;
+
+  SiStrip::QualityHistosMap ClusterPositionHistoMap;
+
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> stripQualityToken_;
+  edm::ESWatcher<SiStripQualityRcd> stripQualityWatcher_;
+};
 
 SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::ParameterSet& iConfig)
     : ConditionDBWriter<SiStripBadStrip>(iConfig),
@@ -34,8 +89,6 @@ SiStripQualityHotStripIdentifier::SiStripQualityHotStripIdentifier(const edm::Pa
 
   bookHistos();
 }
-
-SiStripQualityHotStripIdentifier::~SiStripQualityHotStripIdentifier() {}
 
 std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifier::getNewObject() {
   auto obj = std::make_unique<SiStripBadStrip>();
@@ -203,3 +256,6 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
   }
   LogTrace("SiStripQualityHotStripIdentifier") << ss.str();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(SiStripQualityHotStripIdentifier);

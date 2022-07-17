@@ -22,7 +22,7 @@ Implementation:
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -41,13 +41,12 @@ Implementation:
 // class declaration
 //
 
-class HcalEmptyEventFilter : public edm::EDFilter {
+class HcalEmptyEventFilter : public edm::global::EDFilter<> {
 public:
   explicit HcalEmptyEventFilter(const edm::ParameterSet&);
-  ~HcalEmptyEventFilter() override;
 
 private:
-  bool filter(edm::Event&, const edm::EventSetup&) override;
+  bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
 
@@ -63,17 +62,12 @@ HcalEmptyEventFilter::HcalEmptyEventFilter(const edm::ParameterSet& iConfig) {
   tok_data_ = consumes<FEDRawDataCollection>(iConfig.getParameter<edm::InputTag>("InputLabel"));
 }
 
-HcalEmptyEventFilter::~HcalEmptyEventFilter() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
 
 // ------------ method called on each new Event  ------------
-bool HcalEmptyEventFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool HcalEmptyEventFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
   edm::Handle<FEDRawDataCollection> rawdata;

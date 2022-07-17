@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Run3_cff import Run3
-process = cms.Process('Dump',Run3)
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+process = cms.Process('Dump',Run3_DDD)
 #from Configuration.Eras.Era_Run3_dd4hep_cff import Run3_dd4hep
 #process = cms.Process('Dump',Run3_dd4hep)
 
@@ -18,7 +18,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load("SimG4CMS.Calo.EcalSimHitStudy_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag 
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring('file:singleElectron_ddd.root')

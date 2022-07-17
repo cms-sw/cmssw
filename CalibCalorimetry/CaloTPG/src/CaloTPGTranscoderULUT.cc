@@ -83,6 +83,10 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
       for (unsigned int i = threshold; i < lutsize; ++i)
         if (allLinear_) {
           outputLUT_[index][i] = isOnlyQIE11(id) ? linearQIE11LUT[i] : linearQIE8LUT[i];
+          //Modifying the saturation (127 -> 255) for the 'split cells'.
+          if (abs(ieta) > 20 && isOnlyQIE11(id) && linearQIE11LUT[i] >= (TPGMAX - 2) / 2.) {
+            outputLUT_[index][i] = TPGMAX - 1;
+          }
         } else {
           outputLUT_[index][i] = analyticalLUT[i];
         }
@@ -104,6 +108,10 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
           if (outputLUT_[index][i] != tpg) {
             tpg = outputLUT_[index][i];
             hcaluncomp_[index][tpg] = lsb_factor_ * i / (isOnlyQIE11(id) ? lin11_factor_ : lin8_factor_);
+            //Modifying the saturation for the 'split cells'
+            if (abs(ieta) > 20 && isOnlyQIE11(id) && linearQIE11LUT[i] >= (TPGMAX - 2) / 2.) {
+              hcaluncomp_[index][tpg] = (TPGMAX - 1) / 2.;
+            }
           }
         }
       } else {

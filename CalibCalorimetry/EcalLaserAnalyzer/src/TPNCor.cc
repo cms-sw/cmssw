@@ -4,7 +4,7 @@
  *  \author: Julie Malcles - CEA/Saclay
  */
 
-#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TPNCor.h>
+#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TPNCor.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 #include <iostream>
@@ -14,7 +14,6 @@
 #include <cmath>
 
 using namespace std;
-//using namespace edm;
 
 //ClassImp(TPNCor)
 
@@ -34,7 +33,6 @@ TPNCor::TPNCor(string filename) {
 
   FILE *test;
   test = fopen(filename.c_str(), "r");
-  char c;
   int gain;
   double aa, bb, cc;
   std::ifstream fin;
@@ -42,7 +40,7 @@ TPNCor::TPNCor(string filename) {
   if (test) {
     fclose(test);
     fin.open(filename.c_str());
-    while ((c = fin.peek()) != EOF) {
+    while (fin.peek() != EOF) {
       fin >> gain >> aa >> bb >> cc;
 
       if (gain < iSizeGain) {

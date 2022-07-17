@@ -2,6 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
     geomXMLFiles = cms.vstring('Geometry/CMSCommonData/data/materials.xml', 
+        'Geometry/CMSCommonData/data/rotations.xml',
+        'Geometry/TrackerCommonData/data/trackermaterial.xml',
+        'Geometry/CMSCommonData/data/normal/cmsextent.xml', 
+        'Geometry/CMSCommonData/data/cms.xml',
+        'Geometry/CMSCommonData/data/cmsMother.xml',
+        'Geometry/CMSCommonData/data/cmsTracker.xml',
+        'Geometry/TrackerCommonData/data/tracker.xml',
         'Geometry/TrackerCommonData/data/pixfwdMaterials.xml', 
         'Geometry/TrackerCommonData/data/pixfwdCommon.xml', 
         'Geometry/TrackerCommonData/data/pixfwdPlaq.xml', 
@@ -16,11 +23,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
         'Geometry/TrackerCommonData/data/pixfwdNipple.xml', 
         'Geometry/TrackerCommonData/data/pixfwdDisk.xml', 
         'Geometry/TrackerCommonData/data/pixfwdCylinder.xml', 
-        'Geometry/TrackerCommonData/data/pixfwd.xml', 
-        'Geometry/TrackerCommonData/data/trackerpixfwd.xml', 
-        'Geometry/TrackerCommonData/data/tracker.xml', 
-        'Geometry/CMSCommonData/data/normal/cmsextent.xml', 
-        'Geometry/TrackerCommonData/data/cms.xml'),
+        'Geometry/TrackerCommonData/data/pixfwd.xml',
+        'Geometry/TrackerCommonData/data/trackerpixfwd.xml'), 
     rootNodeName = cms.string('cms:CMSE')
 )
 

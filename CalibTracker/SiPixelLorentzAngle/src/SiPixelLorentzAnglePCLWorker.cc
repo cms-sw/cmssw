@@ -48,7 +48,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelTopologyMap.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
@@ -459,10 +459,17 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
           if (notInPCL_) {
             // fill the template from the store (from dqmBeginRun)
             SiPixelTemplate theTemplate(thePixelTemp_);
+<<<<<<< HEAD
 
             float locBx = (cotbeta < 0.) ? -1 : 1.;
             float locBz = (cotalpha < 0.) ? -locBx : locBx;
 
+=======
+
+            float locBx = (cotbeta < 0.) ? -1 : 1.;
+            float locBz = (cotalpha < 0.) ? -locBx : locBx;
+
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
             int TemplID = templateDBobject_->getTemplateID(detId);
             theTemplate.interpolate(TemplID, cotalpha, cotbeta, locBz, locBx);
             qScale_ = theTemplate.qscale();
@@ -523,7 +530,7 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
                 if (ylim1 < ypixhigh)
                   ypixhigh = ylim1;
               }
-              float ypixavg = 0.5 * (ypixlow + ypixhigh);
+              float ypixavg = 0.5f * (ypixlow + ypixhigh);
 
               float dx = (pixinfo_.x[j] - xlim1) * cmToum;  // dx: in the unit of micrometer
               float dy = (ypixavg - ylim1) * cmToum;        // dy: in the unit of micrometer
@@ -532,17 +539,48 @@ void SiPixelLorentzAnglePCLWorker::analyze(edm::Event const& iEvent, edm::EventS
 
               if (isNewMod == false) {
                 int i_index = module_ + (layer_ - 1) * iHists.nModules_[layer_ - 1];
+<<<<<<< HEAD
                 iHists.h_drift_depth_adc_.at(i_index)->Fill(drift, depth, pixinfo_.adc[j]);
                 iHists.h_drift_depth_adc2_.at(i_index)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
                 iHists.h_drift_depth_noadc_.at(i_index)->Fill(drift, depth, 1.);
                 iHists.h_bySectOccupancy_->Fill(i_index - 1);  // histogram starts at 0
+=======
+                iHists.h_drift_depth_adc_[i_index]->Fill(drift, depth, pixinfo_.adc[j]);
+                iHists.h_drift_depth_adc2_[i_index]->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
+                iHists.h_drift_depth_noadc_[i_index]->Fill(drift, depth, 1.);
+                iHists.h_bySectOccupancy_->Fill(i_index - 1);  // histogram starts at 0
+
+                if (tracker->getDetectorType(subDetID) == TrackerGeometry::ModuleType::Ph1PXB) {
+                  if ((module_ == 3 || module_ == 5) && (layer_ == 3 || layer_ == 4)) {
+                    int i_index_merge = i_index + 1;
+                    iHists.h_drift_depth_adc_[i_index_merge]->Fill(drift, depth, pixinfo_.adc[j]);
+                    iHists.h_drift_depth_adc2_[i_index_merge]->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
+                    iHists.h_drift_depth_noadc_[i_index_merge]->Fill(drift, depth, 1.);
+                    iHists.h_bySectOccupancy_->Fill(i_index_merge - 1);
+                  }
+                  if ((module_ == 4 || module_ == 6) && (layer_ == 3 || layer_ == 4)) {
+                    int i_index_merge = i_index - 1;
+                    iHists.h_drift_depth_adc_[i_index_merge]->Fill(drift, depth, pixinfo_.adc[j]);
+                    iHists.h_drift_depth_adc2_[i_index_merge]->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
+                    iHists.h_drift_depth_noadc_[i_index_merge]->Fill(drift, depth, 1.);
+                    iHists.h_bySectOccupancy_->Fill(i_index_merge - 1);
+                  }
+                }
+
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
               } else {
                 int new_index = iHists.nModules_[iHists.nlay - 1] +
                                 (iHists.nlay - 1) * iHists.nModules_[iHists.nlay - 1] + 1 + DetId_index;
 
+<<<<<<< HEAD
                 iHists.h_drift_depth_adc_.at(new_index)->Fill(drift, depth, pixinfo_.adc[j]);
                 iHists.h_drift_depth_adc2_.at(new_index)->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
                 iHists.h_drift_depth_noadc_.at(new_index)->Fill(drift, depth, 1.);
+=======
+                iHists.h_drift_depth_adc_[new_index]->Fill(drift, depth, pixinfo_.adc[j]);
+                iHists.h_drift_depth_adc2_[new_index]->Fill(drift, depth, pixinfo_.adc[j] * pixinfo_.adc[j]);
+                iHists.h_drift_depth_noadc_[new_index]->Fill(drift, depth, 1.);
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
                 iHists.h_bySectOccupancy_->Fill(new_index - 1);  // histogram starts at 0
               }
             }
@@ -697,7 +735,11 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
 
   iBooker.setCurrentFolder(fmt::sprintf("%s/SectorMonitoring", folder_.data()));
   iHists.h_bySectOccupancy_ = iBooker.book1D(
+<<<<<<< HEAD
       "h_bySectorOccupancy", "hit occupancy by sector;pixel sector;hits on track", maxSect, -0.5, maxSect + 0.5);
+=======
+      "h_bySectorOccupancy", "hit occupancy by sector;pixel sector;hits on track", maxSect, -0.5, maxSect - 0.5);
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
 
   iBooker.setCurrentFolder(folder_);
   static constexpr double min_depth_ = -100.;
@@ -711,7 +753,11 @@ void SiPixelLorentzAnglePCLWorker::bookHistograms(DQMStore::IBooker& iBooker,
   for (int i_layer = 1; i_layer <= iHists.nlay; i_layer++) {
     for (int i_module = 1; i_module <= iHists.nModules_[i_layer - 1]; i_module++) {
       unsigned int i_index = i_module + (i_layer - 1) * iHists.nModules_[i_layer - 1];
+<<<<<<< HEAD
       std::string binName = fmt::sprintf("BPix Layer%i Module %i", i_layer, i_module);
+=======
+      std::string binName = fmt::sprintf("BPix Lay%i Mod%i", i_layer, i_module);
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
       LogDebug("SiPixelLorentzAnglePCLWorker") << " i_index: " << i_index << " bin name: " << binName
                                                << " (i_layer: " << i_layer << " i_module:" << i_module << ")";
 
@@ -865,7 +911,11 @@ void SiPixelLorentzAnglePCLWorker::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<edm::InputTag>("src", edm::InputTag("TrackRefitter"))->setComment("input track collections");
   desc.add<double>("ptMin", 3.)->setComment("minimum pt on tracks");
   desc.add<double>("normChi2Max", 2.)->setComment("maximum reduced chi squared");
+<<<<<<< HEAD
   desc.add<std::vector<int>>("clustSizeYMin", {4, 4, 3, 2})
+=======
+  desc.add<std::vector<int>>("clustSizeYMin", {4, 3, 3, 2})
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
       ->setComment("minimum cluster size on Y axis for all Barrel Layers");
   desc.add<int>("clustSizeXMax", 5)->setComment("maximum cluster size on X axis");
   desc.add<double>("residualMax", 0.005)->setComment("maximum residual");

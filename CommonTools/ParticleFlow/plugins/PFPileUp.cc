@@ -52,6 +52,8 @@ public:
 
   void produce(edm::Event&, const edm::EventSetup&) override;
 
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   PFPileUpAlgo pileUpAlgo_;
 
@@ -76,6 +78,8 @@ private:
   edm::EDGetTokenT<edm::ValueMap<int>> tokenVertexAssociationQuality_;
   bool fUseVertexAssociation;
   int vertexAssociationQuality_;
+  unsigned int fNumOfPUVtxsForCharged_;
+  double fDzCutForChargedFromPUVtxs_;
 };
 
 PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
@@ -91,20 +95,20 @@ PFPileUp::PFPileUp(const edm::ParameterSet& iConfig) {
     tokenVertexAssociationQuality_ =
         consumes<edm::ValueMap<int>>(iConfig.getParameter<edm::InputTag>("vertexAssociation"));
   }
+  fNumOfPUVtxsForCharged_ = iConfig.getParameter<unsigned int>("NumOfPUVtxsForCharged");
+  fDzCutForChargedFromPUVtxs_ = iConfig.getParameter<double>("DzCutForChargedFromPUVtxs");
 
-  enable_ = iConfig.getParameter<bool>("Enable");
+  enable_ = iConfig.getParameter<bool>("enable");
 
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
 
-  if (iConfig.exists("checkClosestZVertex")) {
-    checkClosestZVertex_ = iConfig.getParameter<bool>("checkClosestZVertex");
-  } else {
-    checkClosestZVertex_ = false;
-  }
+  checkClosestZVertex_ = iConfig.getParameter<bool>("checkClosestZVertex");
 
   // Configure the algo
   pileUpAlgo_.setVerbose(verbose_);
   pileUpAlgo_.setCheckClosestZVertex(checkClosestZVertex_);
+  pileUpAlgo_.setNumOfPUVtxsForCharged(fNumOfPUVtxsForCharged_);
+  pileUpAlgo_.setDzCutForChargedFromPUVtxs(fDzCutForChargedFromPUVtxs_);
 
   //produces<reco::PFCandidateCollection>();
   produces<PFCollection>();
@@ -192,4 +196,20 @@ void PFPileUp::produce(Event& iEvent, const EventSetup& iSetup) {
   iEvent.put(std::move(pOutput));
   // iEvent.put(std::move(pOutputByValue));
 }
+
+void PFPileUp::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("PFCandidates", edm::InputTag("particleFlowTmpPtrs"));
+  desc.add<edm::InputTag>("Vertices", edm::InputTag("offlinePrimaryVertices"));
+  desc.add<bool>("enable", true);
+  desc.addUntracked<bool>("verbose", false);
+  desc.add<bool>("checkClosestZVertex", true);
+  desc.add<bool>("useVertexAssociation", false);
+  desc.add<int>("vertexAssociationQuality", 0);
+  desc.add<edm::InputTag>("vertexAssociation", edm::InputTag(""));
+  desc.add<unsigned int>("NumOfPUVtxsForCharged", 0);
+  desc.add<double>("DzCutForChargedFromPUVtxs", .2);
+  descriptions.add("pfPileUp", desc);
+}
+
 DEFINE_FWK_MODULE(PFPileUp);

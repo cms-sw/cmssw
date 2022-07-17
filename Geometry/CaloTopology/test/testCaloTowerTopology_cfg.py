@@ -4,24 +4,13 @@ process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("Geometry.HcalCommonData.testHcalOnlyGeometryXML_cfi")
-process.load("Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi")
-process.load("Geometry.HcalCommonData.hcalRecNumberingInitialization_cfi")
+process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 process.load("Geometry.HcalEventSetup.CaloTowerTopology_cfi")
+process.load("Geometry.CaloTopology.caloTowerTopologyTester_cfi")
 
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring('HCalGeom'),
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        HCalGeom = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        )
-    ),
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.CaloTower=dict()
+    process.MessageLogger.HCalGeom=dict()
 
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
@@ -47,6 +36,4 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.prod = cms.EDAnalyzer("CaloTowerTopologyTester")
-
-process.p1 = cms.Path(process.generator*process.prod)
+process.p1 = cms.Path(process.generator*process.caloTowerTopologyTester)

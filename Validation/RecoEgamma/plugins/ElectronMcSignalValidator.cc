@@ -24,7 +24,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -82,6 +81,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
 
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
+  maxAbsEtaExtended_ = conf.getParameter<double>("MaxAbsEtaExtended");
   deltaR2_ = conf.getParameter<double>("DeltaR") * conf.getParameter<double>("DeltaR");
   matchingIDs_ = conf.getParameter<std::vector<int> >("MatchingID");
   matchingMotherIDs_ = conf.getParameter<std::vector<int> >("MatchingMotherID");
@@ -120,6 +120,11 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   eta2D_nbin = histosSet.getParameter<int>("Nbineta2D");
   eta_min = histosSet.getParameter<double>("Etamin");
   eta_max = histosSet.getParameter<double>("Etamax");
+
+  eta_nbin_extended = histosSet.getParameter<int>("NbinetaExtended");
+  eta2D_nbin_extended = histosSet.getParameter<int>("Nbineta2DExtended");
+  eta_min_extended = histosSet.getParameter<double>("EtaminExtended");
+  eta_max_extended = histosSet.getParameter<double>("EtamaxExtended");
 
   deta_nbin = histosSet.getParameter<int>("Nbindeta");
   deta_min = histosSet.getParameter<double>("Detamin");
@@ -202,6 +207,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h2_mc_PtEta = nullptr;
 
   h1_mc_Eta_matched = nullptr;
+  h1_mc_Eta_Extended_matched = nullptr;
   h1_mc_AbsEta_matched = nullptr;
   h1_mc_Pt_matched = nullptr;
   h1_mc_Phi_matched = nullptr;
@@ -405,6 +411,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator(const edm::ParameterSet &co
   h1_ele_EoP_barrel = nullptr;
   h1_ele_EoP_endcaps = nullptr;
   h2_ele_EoPVsEta = nullptr;
+  h2_ele_EoPVsEtaExtended = nullptr;
   h2_ele_EoPVsPhi = nullptr;
   h2_ele_EoPVsE = nullptr;
   h1_ele_EseedOP = nullptr;
@@ -870,8 +877,8 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                       "H/E",
                                       "Events",
                                       "ELE_LOGY E1 P");
-  h1_ele_vertexPt_all = bookH1withSumw2(
-      iBooker, "vertexPt_all", "ele p_{T}, all reco electrons", pteff_nbin, 5., pt_max, "", "Events", "ELE_LOGY E1 P");
+  h1_ele_vertexPt_all =
+      bookH1withSumw2(iBooker, "vertexPt_all", "ele p_{T}, all reco electrons", pteff_nbin, 5., pt_max, "", "Events");
   h1_ele_Et_all = bookH1withSumw2(iBooker,
                                   "Et_all",
                                   "ele ecal E_{T}, all reco electrons",
@@ -881,15 +888,8 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                   "E_{T} (GeV)",
                                   "Events",
                                   "ELE_LOGY E1 P");
-  h1_ele_vertexEta_all = bookH1withSumw2(iBooker,
-                                         "vertexEta_all",
-                                         "ele eta, all reco electrons",
-                                         eta_nbin,
-                                         eta_min,
-                                         eta_max,
-                                         "",
-                                         "Events",
-                                         "ELE_LOGY E1 P");
+  h1_ele_vertexEta_all = bookH1withSumw2(
+      iBooker, "vertexEta_all", "ele eta, all reco electrons", eta_nbin, eta_min, eta_max, "", "Events");
   h1_ele_TIP_all = bookH1withSumw2(iBooker,
                                    "TIP_all",
                                    "ele vertex transverse radius, all reco electrons",
@@ -1031,6 +1031,8 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
   // matched electrons
   setBookPrefix("h_mc");
   h1_mc_Eta_matched = bookH1withSumw2(iBooker, "Eta_matched", "Efficiency vs gen eta", eta_nbin, eta_min, eta_max);
+  h1_mc_Eta_Extended_matched = bookH1withSumw2(
+      iBooker, "Eta_Extended_matched", "Efficiency vs gen eta", eta_nbin_extended, eta_min_extended, eta_max_extended);
   h1_mc_AbsEta_matched =
       bookH1withSumw2(iBooker, "AbsEta_matched", "Efficiency vs gen |eta|", eta_nbin / 2, 0., eta_max);
   h1_mc_Pt_matched = bookH1(iBooker, "Pt_matched", "Efficiency vs gen transverse momentum", pteff_nbin, 5., pt_max);
@@ -1787,6 +1789,15 @@ void ElectronMcSignalValidator::bookHistograms(DQMStore::IBooker &iBooker, edm::
                                        "ELE_LOGY E1 P");
   h2_ele_EoPVsEta =
       bookH2(iBooker, "EoPVsEta", "ele E/P_{vertex} vs eta", eta2D_nbin, eta_min, eta_max, eop2D_nbin, 0., eopmaxsht);
+  h2_ele_EoPVsEtaExtended = bookH2(iBooker,
+                                   "EoPVsEtaExtended",
+                                   "ele E/P_{vertex} vs eta",
+                                   eta2D_nbin_extended,
+                                   eta_min_extended,
+                                   eta_max_extended,
+                                   eop2D_nbin,
+                                   0.,
+                                   eopmaxsht);
   h2_ele_EoPVsPhi =
       bookH2(iBooker, "EoPVsPhi", "ele E/P_{vertex} vs phi", phi2D_nbin, phi_min, phi_max, eop2D_nbin, 0., eopmaxsht);
   h2_ele_EoPVsE = bookH2(iBooker, "EoPVsE", "ele E/P_{vertex} vs E", 50, 0., p_max, 50, 0., 5.);
@@ -3437,7 +3448,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
         }  // loop over rec ele to look for the best one
 
         // analysis when the mc track is found
-        if (okGsfFound) {
+        if (okGsfFound) {  //  && (std::abs(mcIter->eta())<maxAbsEta_)
           // generated distributions for matched electrons
           h1_mc_Pt_matched_qmisid->Fill(mcIter->pt());
           h1_mc_Phi_matched_qmisid->Fill(mcIter->phi());
@@ -3485,18 +3496,20 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       continue;
 
     // electron preselection
-    if (mcIter->pt() > maxPt_ || std::abs(mcIter->eta()) > maxAbsEta_) {
+    if (mcIter->pt() > maxPt_ || std::abs(mcIter->eta()) > maxAbsEtaExtended_) {
       continue;
     }
 
     eleNum++;
-    h1_mc_Eta->Fill(mcIter->eta());
-    h1_mc_AbsEta->Fill(std::abs(mcIter->eta()));
-    h1_mc_P->Fill(mcIter->p());
-    h1_mc_Pt->Fill(mcIter->pt());
-    h1_mc_Phi->Fill(mcIter->phi());
-    h1_mc_Z->Fill(mcIter->vz());
-    h2_mc_PtEta->Fill(mcIter->eta(), mcIter->pt());
+    if (std::abs(mcIter->eta()) < maxAbsEta_) {
+      h1_mc_Eta->Fill(mcIter->eta());
+      h1_mc_AbsEta->Fill(std::abs(mcIter->eta()));
+      h1_mc_P->Fill(mcIter->p());
+      h1_mc_Pt->Fill(mcIter->pt());
+      h1_mc_Phi->Fill(mcIter->phi());
+      h1_mc_Z->Fill(mcIter->vz());
+      h2_mc_PtEta->Fill(mcIter->eta(), mcIter->pt());
+    }
 
     // find best matched electron
     bool okGsfFound = false;
@@ -3504,6 +3517,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     double gsfOkRatio = 999999.;
     bool isEBflag = false;
     bool isEEflag = false;
+    bool isEEextendedflag = false;
 
     reco::GsfElectron bestGsfElectron;
     for (gsfIter3 = localCollection.begin(); gsfIter3 != localCollection.end(); gsfIter3++) {
@@ -3534,7 +3548,15 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     //------------------------------------
     passMiniAODSelection = bestGsfElectron.pt() >= 5.;
     isEBflag = bestGsfElectron.isEB();
-    isEEflag = bestGsfElectron.isEE();
+    isEEflag = bestGsfElectron.isEE() && (std::abs(mcIter->eta()) < maxAbsEta_);
+    isEEextendedflag = bestGsfElectron.isEE();
+    if (isEEextendedflag) {
+      h1_mc_Eta_Extended_matched->Fill(mcIter->eta());
+      h2_ele_EoPVsEtaExtended->Fill(bestGsfElectron.eta(), bestGsfElectron.eSuperClusterOverP());
+    }
+
+    if (!isEBflag && !isEEflag)
+      continue;
 
     // electron related distributions
     h1_ele_charge->Fill(bestGsfElectron.charge());
@@ -3555,7 +3577,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     if (isEBflag)
       h2_scl_EoEtrueVsrecOfflineVertices_barrel->Fill((*vertexCollectionHandle).size(),
                                                       bestGsfElectron.ecalEnergy() / mcIter->p());
-    if (isEEflag)
+    else if (isEEflag)
       h2_scl_EoEtrueVsrecOfflineVertices_endcaps->Fill((*vertexCollectionHandle).size(),
                                                        bestGsfElectron.ecalEnergy() / mcIter->p());
 
@@ -3564,6 +3586,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     h1_mc_Phi_matched->Fill(mcIter->phi());
     h1_mc_AbsEta_matched->Fill(std::abs(mcIter->eta()));
     h1_mc_Eta_matched->Fill(mcIter->eta());
+    h1_mc_Eta_Extended_matched->Fill(mcIter->eta());
     h2_mc_PtEta_matched->Fill(mcIter->eta(), mcIter->pt());
     h2_ele_vertexEtaVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eta());
     h1_ele_vertexPhi->Fill(bestGsfElectron.phi());
@@ -3579,18 +3602,10 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     h2_ele_vertexTIPVsPhi->Fill(bestGsfElectron.phi(), d);
     h2_ele_vertexTIPVsPt->Fill(bestGsfElectron.pt(), d);
     h1_ele_EtaMnEtaTrue->Fill(bestGsfElectron.eta() - mcIter->eta());
-    if (isEBflag)
-      h1_ele_EtaMnEtaTrue_barrel->Fill(bestGsfElectron.eta() - mcIter->eta());
-    if (isEEflag)
-      h1_ele_EtaMnEtaTrue_endcaps->Fill(bestGsfElectron.eta() - mcIter->eta());
     h2_ele_EtaMnEtaTrueVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eta() - mcIter->eta());
     h2_ele_EtaMnEtaTrueVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eta() - mcIter->eta());
     h2_ele_EtaMnEtaTrueVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.eta() - mcIter->eta());
     h1_ele_PhiMnPhiTrue->Fill(bestGsfElectron.phi() - mcIter->phi());
-    if (isEBflag)
-      h1_ele_PhiMnPhiTrue_barrel->Fill(bestGsfElectron.phi() - mcIter->phi());
-    if (isEEflag)
-      h1_ele_PhiMnPhiTrue_endcaps->Fill(bestGsfElectron.phi() - mcIter->phi());
     h1_ele_PhiMnPhiTrue2->Fill(bestGsfElectron.phi() - mcIter->phi());
     h2_ele_PhiMnPhiTrueVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.phi() - mcIter->phi());
     h2_ele_PhiMnPhiTrueVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.phi() - mcIter->phi());
@@ -3601,11 +3616,24 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     h2_ele_PoPtrueVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.p() / mcIter->p());
     h2_ele_PoPtrueVsPt->Fill(bestGsfElectron.py(), bestGsfElectron.p() / mcIter->p());
     h2_ele_sigmaIetaIetaVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
-
-    if (isEBflag)
+    h1_ele_ecalEnergyError->Fill(bestGsfElectron.correctedEcalEnergyError());
+    h1_ele_combinedP4Error->Fill(bestGsfElectron.p4Error(bestGsfElectron.P4_COMBINATION));
+    if (isEBflag) {
+      h1_ele_EtaMnEtaTrue_barrel->Fill(bestGsfElectron.eta() - mcIter->eta());
+      h1_ele_PhiMnPhiTrue_barrel->Fill(bestGsfElectron.phi() - mcIter->phi());
       h1_ele_PoPtrue_barrel->Fill(bestGsfElectron.p() / mcIter->p());
-    if (isEEflag)
+      h1_ele_PtoPttrue_barrel->Fill(bestGsfElectron.pt() / mcIter->pt());
+      h1_ele_ecalEnergyError_barrel->Fill(bestGsfElectron.correctedEcalEnergyError());
+      h1_ele_combinedP4Error_barrel->Fill(bestGsfElectron.p4Error(bestGsfElectron.P4_COMBINATION));
+    } else if (isEEflag) {
+      h1_ele_EtaMnEtaTrue_endcaps->Fill(bestGsfElectron.eta() - mcIter->eta());
+      h1_ele_PhiMnPhiTrue_endcaps->Fill(bestGsfElectron.phi() - mcIter->phi());
       h1_ele_PoPtrue_endcaps->Fill(bestGsfElectron.p() / mcIter->p());
+      h1_ele_PtoPttrue_endcaps->Fill(bestGsfElectron.pt() / mcIter->pt());
+      h1_ele_ecalEnergyError_endcaps->Fill(bestGsfElectron.correctedEcalEnergyError());
+      h1_ele_combinedP4Error_endcaps->Fill(bestGsfElectron.p4Error(bestGsfElectron.P4_COMBINATION));
+    }
+
     if (isEBflag && bestGsfElectron.classification() == GsfElectron::GOLDEN)
       h1_ele_PoPtrue_golden_barrel->Fill(bestGsfElectron.p() / mcIter->p());
     if (isEEflag && bestGsfElectron.classification() == GsfElectron::GOLDEN)
@@ -3614,29 +3642,18 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       h1_ele_PoPtrue_showering_barrel->Fill(bestGsfElectron.p() / mcIter->p());
     if (isEEflag && bestGsfElectron.classification() == GsfElectron::SHOWERING)
       h1_ele_PoPtrue_showering_endcaps->Fill(bestGsfElectron.p() / mcIter->p());
-    if (isEBflag)
-      h1_ele_PtoPttrue_barrel->Fill(bestGsfElectron.pt() / mcIter->pt());
-    if (isEEflag)
-      h1_ele_PtoPttrue_endcaps->Fill(bestGsfElectron.pt() / mcIter->pt());
-    h1_ele_ecalEnergyError->Fill(bestGsfElectron.correctedEcalEnergyError());
-    if (isEBflag)
-      h1_ele_ecalEnergyError_barrel->Fill(bestGsfElectron.correctedEcalEnergyError());
-    if (isEEflag)
-      h1_ele_ecalEnergyError_endcaps->Fill(bestGsfElectron.correctedEcalEnergyError());
-    h1_ele_combinedP4Error->Fill(bestGsfElectron.p4Error(bestGsfElectron.P4_COMBINATION));
-    if (isEBflag)
-      h1_ele_combinedP4Error_barrel->Fill(bestGsfElectron.p4Error(bestGsfElectron.P4_COMBINATION));
-    if (isEEflag)
-      h1_ele_combinedP4Error_endcaps->Fill(bestGsfElectron.p4Error(bestGsfElectron.P4_COMBINATION));
 
     // supercluster related distributions
     reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
 
     h1_scl_En->Fill(bestGsfElectron.ecalEnergy());
-    if (isEBflag)
+    if (isEBflag) {
       h1_scl_EoEtrue_barrel->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
-    if (isEEflag)
+      h1_scl_EoEtrue_barrel_new->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
+    } else if (isEEflag) {
       h1_scl_EoEtrue_endcaps->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
+      h1_scl_EoEtrue_endcaps_new->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
+    }
     if (isEBflag && bestGsfElectron.isEBEtaGap())
       h1_scl_EoEtrue_barrel_etagap->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
     if (isEBflag && bestGsfElectron.isEBPhiGap())
@@ -3647,10 +3664,6 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       h1_scl_EoEtrue_endcaps_deegap->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
     if (isEEflag && bestGsfElectron.isEERingGap())
       h1_scl_EoEtrue_endcaps_ringgap->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
-    if (isEBflag)
-      h1_scl_EoEtrue_barrel_new->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
-    if (isEEflag)
-      h1_scl_EoEtrue_endcaps_new->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
     if (isEBflag && bestGsfElectron.isEBEtaGap())
       h1_scl_EoEtrue_barrel_new_etagap->Fill(bestGsfElectron.ecalEnergy() / mcIter->p());
     if (isEBflag && bestGsfElectron.isEBPhiGap())
@@ -3671,42 +3684,35 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     h2_scl_EtaVsPhi->Fill(sclRef->phi(), sclRef->eta());
     h1_scl_Phi->Fill(sclRef->phi());
     h1_scl_SigEtaEta->Fill(bestGsfElectron.scSigmaEtaEta());
-    if (isEBflag)
-      h1_scl_SigEtaEta_barrel->Fill(bestGsfElectron.scSigmaEtaEta());
-    if (isEEflag)
-      h1_scl_SigEtaEta_endcaps->Fill(bestGsfElectron.scSigmaEtaEta());
     h1_scl_SigIEtaIEta->Fill(bestGsfElectron.scSigmaIEtaIEta());
-    if (isEBflag)
+    h1_scl_full5x5_sigmaIetaIeta->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
+    h1_scl_E1x5->Fill(bestGsfElectron.scE1x5());
+    h1_scl_E2x5max->Fill(bestGsfElectron.scE2x5Max());
+    h1_scl_E5x5->Fill(bestGsfElectron.scE5x5());
+    if (isEBflag) {
+      h1_scl_SigEtaEta_barrel->Fill(bestGsfElectron.scSigmaEtaEta());
       h1_scl_SigIEtaIEta_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
-    if (isEEflag)
+      h1_scl_full5x5_sigmaIetaIeta_barrel->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
+      h1_scl_E1x5_barrel->Fill(bestGsfElectron.scE1x5());
+      h1_scl_E2x5max_barrel->Fill(bestGsfElectron.scE2x5Max());
+      h1_scl_E5x5_barrel->Fill(bestGsfElectron.scE5x5());
+    } else if (isEEflag) {
+      h1_scl_SigEtaEta_endcaps->Fill(bestGsfElectron.scSigmaEtaEta());
       h1_scl_SigIEtaIEta_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
+      h1_scl_full5x5_sigmaIetaIeta_endcaps->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
+      h1_scl_E1x5_endcaps->Fill(bestGsfElectron.scE1x5());
+      h1_scl_E2x5max_endcaps->Fill(bestGsfElectron.scE2x5Max());
+      h1_scl_E5x5_endcaps->Fill(bestGsfElectron.scE5x5());
+    }
+
     if (passMiniAODSelection) {  // Pt > 5.
       h1_scl_SigIEtaIEta_mAOD->Fill(bestGsfElectron.scSigmaIEtaIEta());
       if (isEBflag)
         h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
-      if (isEEflag)
+      else if (isEEflag)
         h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
     }
-    h1_scl_full5x5_sigmaIetaIeta->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
-    if (isEBflag)
-      h1_scl_full5x5_sigmaIetaIeta_barrel->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
-    if (isEEflag)
-      h1_scl_full5x5_sigmaIetaIeta_endcaps->Fill(bestGsfElectron.full5x5_sigmaIetaIeta());
-    h1_scl_E1x5->Fill(bestGsfElectron.scE1x5());
-    if (isEBflag)
-      h1_scl_E1x5_barrel->Fill(bestGsfElectron.scE1x5());
-    if (isEEflag)
-      h1_scl_E1x5_endcaps->Fill(bestGsfElectron.scE1x5());
-    h1_scl_E2x5max->Fill(bestGsfElectron.scE2x5Max());
-    if (isEBflag)
-      h1_scl_E2x5max_barrel->Fill(bestGsfElectron.scE2x5Max());
-    if (isEEflag)
-      h1_scl_E2x5max_endcaps->Fill(bestGsfElectron.scE2x5Max());
-    h1_scl_E5x5->Fill(bestGsfElectron.scE5x5());
-    if (isEBflag)
-      h1_scl_E5x5_barrel->Fill(bestGsfElectron.scE5x5());
-    if (isEEflag)
-      h1_scl_E5x5_endcaps->Fill(bestGsfElectron.scE5x5());
+
     float pfEnergy = 0.;
     if (!bestGsfElectron.parentSuperCluster().isNull())
       pfEnergy = bestGsfElectron.parentSuperCluster()->energy();
@@ -3723,7 +3729,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     h1_scl_bcl_EtotoEtrue->Fill(Etot / mcIter->p());
     if (isEBflag)
       h1_scl_bcl_EtotoEtrue_barrel->Fill(Etot / mcIter->p());
-    if (isEEflag)
+    else if (isEEflag)
       h1_scl_bcl_EtotoEtrue_endcaps->Fill(Etot / mcIter->p());
 
     // track related distributions
@@ -3734,32 +3740,30 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     if (!readAOD_)  // track extra does not exist in AOD
     {
       h1_ele_foundHits->Fill(bestGsfElectron.gsfTrack()->numberOfValidHits());
-      if (isEBflag)
-        h1_ele_foundHits_barrel->Fill(bestGsfElectron.gsfTrack()->numberOfValidHits());
-      if (isEEflag)
-        h1_ele_foundHits_endcaps->Fill(bestGsfElectron.gsfTrack()->numberOfValidHits());
       h2_ele_foundHitsVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
-      if (passMiniAODSelection) {  // Pt > 5.
-        h2_ele_foundHitsVsEta_mAOD->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
-      }
       h2_ele_foundHitsVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->numberOfValidHits());
       h2_ele_foundHitsVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->numberOfValidHits());
       h1_ele_lostHits->Fill(bestGsfElectron.gsfTrack()->numberOfLostHits());
-      if (isEBflag)
-        h1_ele_lostHits_barrel->Fill(bestGsfElectron.gsfTrack()->numberOfLostHits());
-      if (isEEflag)
-        h1_ele_lostHits_endcaps->Fill(bestGsfElectron.gsfTrack()->numberOfLostHits());
       h2_ele_lostHitsVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfLostHits());
       h2_ele_lostHitsVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->numberOfLostHits());
       h2_ele_lostHitsVsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->numberOfLostHits());
       h1_ele_chi2->Fill(bestGsfElectron.gsfTrack()->normalizedChi2());
-      if (isEBflag)
-        h1_ele_chi2_barrel->Fill(bestGsfElectron.gsfTrack()->normalizedChi2());
-      if (isEEflag)
-        h1_ele_chi2_endcaps->Fill(bestGsfElectron.gsfTrack()->normalizedChi2());
       h2_ele_chi2VsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->normalizedChi2());
       h2_ele_chi2VsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.gsfTrack()->normalizedChi2());
       h2_ele_chi2VsPt->Fill(bestGsfElectron.pt(), bestGsfElectron.gsfTrack()->normalizedChi2());
+      if (isEBflag) {
+        h1_ele_foundHits_barrel->Fill(bestGsfElectron.gsfTrack()->numberOfValidHits());
+        h1_ele_lostHits_barrel->Fill(bestGsfElectron.gsfTrack()->numberOfLostHits());
+        h1_ele_chi2_barrel->Fill(bestGsfElectron.gsfTrack()->normalizedChi2());
+      } else if (isEEflag) {
+        h1_ele_foundHits_endcaps->Fill(bestGsfElectron.gsfTrack()->numberOfValidHits());
+        h1_ele_lostHits_endcaps->Fill(bestGsfElectron.gsfTrack()->numberOfLostHits());
+        h1_ele_chi2_endcaps->Fill(bestGsfElectron.gsfTrack()->normalizedChi2());
+      }
+
+      if (passMiniAODSelection) {  // Pt > 5.
+        h2_ele_foundHitsVsEta_mAOD->Fill(bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits());
+      }
     }
     // from gsf track interface, hence using mean
     if (!readAOD_)  // track extra does not exist in AOD
@@ -3831,122 +3835,91 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     // match distributions
     h1_ele_EoP->Fill(bestGsfElectron.eSuperClusterOverP());
-    if (isEBflag)
-      h1_ele_EoP_barrel->Fill(bestGsfElectron.eSuperClusterOverP());
-    if (isEEflag)
-      h1_ele_EoP_endcaps->Fill(bestGsfElectron.eSuperClusterOverP());
     h2_ele_EoPVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eSuperClusterOverP());
+    h2_ele_EoPVsEtaExtended->Fill(bestGsfElectron.eta(), bestGsfElectron.eSuperClusterOverP());
     h2_ele_EoPVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eSuperClusterOverP());
     h2_ele_EoPVsE->Fill(bestGsfElectron.caloEnergy(), bestGsfElectron.eSuperClusterOverP());
     h1_ele_EseedOP->Fill(bestGsfElectron.eSeedClusterOverP());
-    if (isEBflag)
-      h1_ele_EseedOP_barrel->Fill(bestGsfElectron.eSeedClusterOverP());
-    if (isEEflag)
-      h1_ele_EseedOP_endcaps->Fill(bestGsfElectron.eSeedClusterOverP());
     h2_ele_EseedOPVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eSeedClusterOverP());
     h2_ele_EseedOPVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eSeedClusterOverP());
     h2_ele_EseedOPVsE->Fill(bestGsfElectron.caloEnergy(), bestGsfElectron.eSeedClusterOverP());
     h1_ele_EoPout->Fill(bestGsfElectron.eSeedClusterOverPout());
-    if (isEBflag)
-      h1_ele_EoPout_barrel->Fill(bestGsfElectron.eSeedClusterOverPout());
-    if (isEEflag)
-      h1_ele_EoPout_endcaps->Fill(bestGsfElectron.eSeedClusterOverPout());
     h2_ele_EoPoutVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eSeedClusterOverPout());
     h2_ele_EoPoutVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eSeedClusterOverPout());
     h2_ele_EoPoutVsE->Fill(bestGsfElectron.caloEnergy(), bestGsfElectron.eSeedClusterOverPout());
     h1_ele_EeleOPout->Fill(bestGsfElectron.eEleClusterOverPout());
-    if (isEBflag)
-      h1_ele_EeleOPout_barrel->Fill(bestGsfElectron.eEleClusterOverPout());
-    if (isEEflag)
-      h1_ele_EeleOPout_endcaps->Fill(bestGsfElectron.eEleClusterOverPout());
     h2_ele_EeleOPoutVsEta->Fill(bestGsfElectron.eta(), bestGsfElectron.eEleClusterOverPout());
     h2_ele_EeleOPoutVsPhi->Fill(bestGsfElectron.phi(), bestGsfElectron.eEleClusterOverPout());
     h2_ele_EeleOPoutVsE->Fill(bestGsfElectron.caloEnergy(), bestGsfElectron.eEleClusterOverPout());
     h1_ele_dEtaSc_propVtx->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    if (passMiniAODSelection) {  // Pt > 5.
-      h1_ele_dEtaSc_propVtx_mAOD->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    }
-    if (isEBflag)
-      h1_ele_dEtaSc_propVtx_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    if (isEEflag)
-      h1_ele_dEtaSc_propVtx_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    if (passMiniAODSelection) {  // Pt > 5.
-      if (isEBflag)
-        h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-      if (isEEflag)
-        h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-    }
     h2_ele_dEtaScVsEta_propVtx->Fill(bestGsfElectron.eta(), bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
     h2_ele_dEtaScVsPhi_propVtx->Fill(bestGsfElectron.phi(), bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
     h2_ele_dEtaScVsPt_propVtx->Fill(bestGsfElectron.pt(), bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
     h1_ele_dPhiSc_propVtx->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    if (isEBflag)
-      h1_ele_dPhiSc_propVtx_barrel->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
-    if (isEEflag)
-      h1_ele_dPhiSc_propVtx_endcaps->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
     h2_ele_dPhiScVsEta_propVtx->Fill(bestGsfElectron.eta(), bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
     h2_ele_dPhiScVsPhi_propVtx->Fill(bestGsfElectron.phi(), bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
     h2_ele_dPhiScVsPt_propVtx->Fill(bestGsfElectron.pt(), bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
     h1_ele_dEtaCl_propOut->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    if (isEBflag)
-      h1_ele_dEtaCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
-    if (isEEflag)
-      h1_ele_dEtaCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
     h2_ele_dEtaClVsEta_propOut->Fill(bestGsfElectron.eta(), bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
     h2_ele_dEtaClVsPhi_propOut->Fill(bestGsfElectron.phi(), bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
     h2_ele_dEtaClVsPt_propOut->Fill(bestGsfElectron.pt(), bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
     h1_ele_dPhiCl_propOut->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    if (passMiniAODSelection) {  // Pt > 5.
-      h1_ele_dPhiCl_propOut_mAOD->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    }
-    if (isEBflag)
-      h1_ele_dPhiCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    if (isEEflag)
-      h1_ele_dPhiCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    if (passMiniAODSelection) {  // Pt > 5.
-      if (isEBflag)
-        h1_ele_dPhiCl_propOut_mAOD_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-      if (isEEflag)
-        h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    }
     h2_ele_dPhiClVsEta_propOut->Fill(bestGsfElectron.eta(), bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
     h2_ele_dPhiClVsPhi_propOut->Fill(bestGsfElectron.phi(), bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
     h2_ele_dPhiClVsPt_propOut->Fill(bestGsfElectron.pt(), bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
     h1_ele_dEtaEleCl_propOut->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    if (isEBflag)
-      h1_ele_dEtaEleCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
-    if (isEEflag)
-      h1_ele_dEtaEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
     h2_ele_dEtaEleClVsEta_propOut->Fill(bestGsfElectron.eta(), bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
     h2_ele_dEtaEleClVsPhi_propOut->Fill(bestGsfElectron.phi(), bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
     h2_ele_dEtaEleClVsPt_propOut->Fill(bestGsfElectron.pt(), bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
     h1_ele_dPhiEleCl_propOut->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    if (isEBflag)
-      h1_ele_dPhiEleCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
-    if (isEEflag)
-      h1_ele_dPhiEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
     h2_ele_dPhiEleClVsEta_propOut->Fill(bestGsfElectron.eta(), bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
     h2_ele_dPhiEleClVsPhi_propOut->Fill(bestGsfElectron.phi(), bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
     h2_ele_dPhiEleClVsPt_propOut->Fill(bestGsfElectron.pt(), bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
     h1_ele_HoE->Fill(bestGsfElectron.hcalOverEcal());
-    if (passMiniAODSelection) {  // Pt > 5.
-      h1_ele_HoE_mAOD->Fill(bestGsfElectron.hcalOverEcal());
-    }
     h1_ele_HoE_bc->Fill(bestGsfElectron.hcalOverEcalBc());
     if (isEBflag) {
+      h1_ele_EoP_barrel->Fill(bestGsfElectron.eSuperClusterOverP());
+      h1_ele_EseedOP_barrel->Fill(bestGsfElectron.eSeedClusterOverP());
+      h1_ele_EoPout_barrel->Fill(bestGsfElectron.eSeedClusterOverPout());
+      h1_ele_EeleOPout_barrel->Fill(bestGsfElectron.eEleClusterOverPout());
+      h1_ele_dEtaSc_propVtx_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+      h1_ele_dPhiSc_propVtx_barrel->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+      h1_ele_dEtaCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+      h1_ele_dPhiCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+      h1_ele_dEtaEleCl_propOut_barrel->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+      h1_ele_dPhiEleCl_propOut_barrel->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
       h1_ele_HoE_bc_barrel->Fill(bestGsfElectron.hcalOverEcalBc());
       h1_ele_HoE_barrel->Fill(bestGsfElectron.hcalOverEcal());
-    }
-    if (isEEflag) {
+    } else if (isEEflag) {
+      h1_ele_EoP_endcaps->Fill(bestGsfElectron.eSuperClusterOverP());
+      h1_ele_EseedOP_endcaps->Fill(bestGsfElectron.eSeedClusterOverP());
+      h1_ele_EoPout_endcaps->Fill(bestGsfElectron.eSeedClusterOverPout());
+      h1_ele_EeleOPout_endcaps->Fill(bestGsfElectron.eEleClusterOverPout());
+      h1_ele_dEtaSc_propVtx_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+      h1_ele_dPhiSc_propVtx_endcaps->Fill(bestGsfElectron.deltaPhiSuperClusterTrackAtVtx());
+      h1_ele_dEtaCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaSeedClusterTrackAtCalo());
+      h1_ele_dPhiCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+      h1_ele_dEtaEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaEtaEleClusterTrackAtCalo());
+      h1_ele_dPhiEleCl_propOut_endcaps->Fill(bestGsfElectron.deltaPhiEleClusterTrackAtCalo());
       h1_ele_HoE_bc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc());
       h1_ele_HoE_endcaps->Fill(bestGsfElectron.hcalOverEcal());
     }
+
     if (passMiniAODSelection) {  // Pt > 5.
-      if (isEBflag)
+      h1_ele_dEtaSc_propVtx_mAOD->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+      h1_ele_dPhiCl_propOut_mAOD->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+      h1_ele_HoE_mAOD->Fill(bestGsfElectron.hcalOverEcal());
+      if (isEBflag) {
+        h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+        h1_ele_dPhiCl_propOut_mAOD_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
         h1_ele_HoE_mAOD_barrel->Fill(bestGsfElectron.hcalOverEcal());
-      if (isEEflag)
+      } else if (isEEflag) {
+        h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+        h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
         h1_ele_HoE_mAOD_endcaps->Fill(bestGsfElectron.hcalOverEcal());
+      }
     }
+
     if (!bestGsfElectron.isEBEtaGap() && !bestGsfElectron.isEBPhiGap() && !bestGsfElectron.isEBEEGap() &&
         !bestGsfElectron.isEERingGap() && !bestGsfElectron.isEEDeeGap())
       h1_ele_HoE_fiducial->Fill(bestGsfElectron.hcalOverEcal());
@@ -3991,9 +3964,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
       if (passMiniAODSelection) {  // Pt > 5.
         h1_ele_fbrem_mAOD_barrel->Fill(fbrem_mode_barrel);
       }
-    }
-
-    if (isEEflag) {
+    } else if (isEEflag) {
       double fbrem_mode_endcaps = bestGsfElectron.fbrem();
       h1_ele_fbrem_endcaps->Fill(fbrem_mode_endcaps);
       if (passMiniAODSelection) {  // Pt > 5.
@@ -4007,9 +3978,7 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     if (isEBflag) {
       double superclusterfbrem_mode_barrel = bestGsfElectron.superClusterFbrem();
       h1_ele_superclusterfbrem_barrel->Fill(superclusterfbrem_mode_barrel);
-    }
-
-    if (isEEflag) {
+    } else if (isEEflag) {
       double superclusterfbrem_mode_endcaps = bestGsfElectron.superClusterFbrem();
       h1_ele_superclusterfbrem_endcaps->Fill(superclusterfbrem_mode_endcaps);
     }
@@ -4058,15 +4027,14 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
 
     // provenance and pflow data
     h1_ele_mva->Fill(bestGsfElectron.mva_e_pi());
-    if (isEBflag)
-      h1_ele_mva_barrel->Fill(bestGsfElectron.mva_e_pi());
-    if (isEEflag)
-      h1_ele_mva_endcaps->Fill(bestGsfElectron.mva_e_pi());
     h1_ele_mva_isolated->Fill(bestGsfElectron.mva_Isolated());
-    if (isEBflag)
+    if (isEBflag) {
+      h1_ele_mva_barrel->Fill(bestGsfElectron.mva_e_pi());
       h1_ele_mva_barrel_isolated->Fill(bestGsfElectron.mva_Isolated());
-    if (isEEflag)
+    } else if (isEEflag) {
+      h1_ele_mva_endcaps->Fill(bestGsfElectron.mva_e_pi());
       h1_ele_mva_endcaps_isolated->Fill(bestGsfElectron.mva_Isolated());
+    }
     if (bestGsfElectron.ecalDrivenSeed())
       h1_ele_provenance->Fill(1.);
     if (bestGsfElectron.trackerDrivenSeed())
@@ -4110,13 +4078,14 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     h1_ele_chargedHadronIso->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt);
     h1_ele_neutralHadronIso->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt);
     h1_ele_photonIso->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt);
+    h1_ele_photonRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
     if (isEBflag) {
       h1_ele_chargedHadronIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt);
       h1_ele_neutralHadronIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt);
       h1_ele_photonIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt);
     }
 
-    if (isEEflag) {
+    else if (isEEflag) {
       h1_ele_chargedHadronIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt);
       h1_ele_neutralHadronIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt);
       h1_ele_photonIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt);
@@ -4125,130 +4094,91 @@ void ElectronMcSignalValidator::analyze(const edm::Event &iEvent, const edm::Eve
     // -- pflow over pT
     h1_ele_chargedHadronRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
                                           bestGsfElectron.pt());
-    if (isEBflag)
+    h1_ele_neutralHadronRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
+                                          bestGsfElectron.pt());
+    if (isEBflag) {
       h1_ele_chargedHadronRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
                                                    bestGsfElectron.pt());
-    if (isEEflag)
+      h1_ele_neutralHadronRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
+                                                   bestGsfElectron.pt());
+      h1_ele_photonRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+    } else if (isEEflag) {
       h1_ele_chargedHadronRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
                                                     bestGsfElectron.pt());
+      h1_ele_neutralHadronRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
+                                                    bestGsfElectron.pt());
+      h1_ele_photonRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+    }
     if (passMiniAODSelection) {  // Pt > 5.
       h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
                                                  bestGsfElectron.pt());
-      if (isEBflag)
-        h1_ele_chargedHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
-                                                          bestGsfElectron.pt());
-      if (isEEflag)
-        h1_ele_chargedHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
-                                                           bestGsfElectron.pt());
-    }
-
-    h1_ele_neutralHadronRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
-                                          bestGsfElectron.pt());
-    if (isEBflag)
-      h1_ele_neutralHadronRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
-                                                   bestGsfElectron.pt());
-    if (isEEflag)
-      h1_ele_neutralHadronRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
-                                                    bestGsfElectron.pt());
-    if (passMiniAODSelection) {  // Pt > 5.
       h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
                                                  bestGsfElectron.pt());
-      if (isEBflag)
+      h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+      if (isEBflag) {
+        h1_ele_chargedHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
+                                                          bestGsfElectron.pt());
         h1_ele_neutralHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
                                                           bestGsfElectron.pt());
-      if (isEEflag)
-        h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
-                                                           bestGsfElectron.pt());
-    }
-
-    h1_ele_photonRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
-    if (isEBflag)
-      h1_ele_photonRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
-    if (isEEflag)
-      h1_ele_photonRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
-    if (passMiniAODSelection) {  // Pt > 5.
-      h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
-      if (isEBflag)
         h1_ele_photonRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt /
                                                    bestGsfElectron.pt());
-      if (isEEflag)
+      } else if (isEEflag) {
+        h1_ele_chargedHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt /
+                                                           bestGsfElectron.pt());
+        h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt /
+                                                           bestGsfElectron.pt());
         h1_ele_photonRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt /
                                                     bestGsfElectron.pt());
+      }
     }
 
     // isolation
     h1_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());
-    if (isEBflag)
-      h1_ele_tkSumPt_dr03_barrel->Fill(bestGsfElectron.dr03TkSumPt());
-    if (isEEflag)
-      h1_ele_tkSumPt_dr03_endcaps->Fill(bestGsfElectron.dr03TkSumPt());
     h1_ele_ecalRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
-    if (isEBflag)
-      h1_ele_ecalRecHitSumEt_dr03_barrel->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
-    if (isEEflag)
-      h1_ele_ecalRecHitSumEt_dr03_endcaps->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
     h1_ele_hcalTowerSumEt_dr03_depth1->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
-    if (isEBflag)
-      h1_ele_hcalTowerSumEt_dr03_depth1_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
-    if (isEEflag)
-      h1_ele_hcalTowerSumEt_dr03_depth1_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
     h1_ele_hcalTowerSumEt_dr03_depth2->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
-    if (isEBflag)
-      h1_ele_hcalTowerSumEt_dr03_depth2_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
-    if (isEEflag)
-      h1_ele_hcalTowerSumEt_dr03_depth2_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
     h1_ele_hcalTowerSumEtBc_dr03_depth1->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(1));
-    if (isEBflag)
-      h1_ele_hcalTowerSumEtBc_dr03_depth1_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(1));
-    if (isEEflag)
-      h1_ele_hcalTowerSumEtBc_dr03_depth1_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(1));
     h1_ele_hcalTowerSumEtBc_dr03_depth2->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
-    if (isEBflag)
-      h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
-    if (isEEflag)
-      h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
     h1_ele_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt());
-    if (isEBflag)
-      h1_ele_tkSumPt_dr04_barrel->Fill(bestGsfElectron.dr04TkSumPt());
-    if (isEEflag)
-      h1_ele_tkSumPt_dr04_endcaps->Fill(bestGsfElectron.dr04TkSumPt());
     h1_ele_ecalRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-    if (isEBflag)
-      h1_ele_ecalRecHitSumEt_dr04_barrel->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
-    if (isEEflag)
-      h1_ele_ecalRecHitSumEt_dr04_endcaps->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
     h1_ele_hcalTowerSumEt_dr04_depth1->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
-    if (isEBflag)
-      h1_ele_hcalTowerSumEt_dr04_depth1_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
-    if (isEEflag)
-      h1_ele_hcalTowerSumEt_dr04_depth1_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
     h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
-    if (isEBflag)
-      h1_ele_hcalTowerSumEt_dr04_depth2_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
-    if (isEEflag)
-      h1_ele_hcalTowerSumEt_dr04_depth2_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
-
     h1_ele_hcalTowerSumEtBc_dr04_depth1->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(1));
     h1_ele_hcalTowerSumEtBc_dr04_depth2->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(2));
-    if (isEBflag) {
-      h1_ele_hcalTowerSumEtBc_dr04_depth1_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(1));
-      h1_ele_hcalTowerSumEtBc_dr04_depth2_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(2));
-    }
-    if (isEEflag) {
-      h1_ele_hcalTowerSumEtBc_dr04_depth1_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(1));
-      h1_ele_hcalTowerSumEtBc_dr04_depth2_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(2));
-    }
-
     h1_ele_hcalDepth1OverEcalBc->Fill(bestGsfElectron.hcalOverEcalBc(1));
     h1_ele_hcalDepth2OverEcalBc->Fill(bestGsfElectron.hcalOverEcalBc(2));
     if (isEBflag) {
+      h1_ele_tkSumPt_dr03_barrel->Fill(bestGsfElectron.dr03TkSumPt());
+      h1_ele_ecalRecHitSumEt_dr03_barrel->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
+      h1_ele_hcalTowerSumEt_dr03_depth1_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
+      h1_ele_hcalTowerSumEt_dr03_depth2_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
+      h1_ele_hcalTowerSumEtBc_dr03_depth1_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(1));
+      h1_ele_hcalTowerSumEtBc_dr03_depth2_barrel->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
+      h1_ele_tkSumPt_dr04_barrel->Fill(bestGsfElectron.dr04TkSumPt());
+      h1_ele_ecalRecHitSumEt_dr04_barrel->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
+      h1_ele_hcalTowerSumEt_dr04_depth1_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
+      h1_ele_hcalTowerSumEt_dr04_depth2_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
+      h1_ele_hcalTowerSumEtBc_dr04_depth1_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(1));
+      h1_ele_hcalTowerSumEtBc_dr04_depth2_barrel->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(2));
       h1_ele_hcalDepth1OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(1));
       h1_ele_hcalDepth2OverEcalBc_barrel->Fill(bestGsfElectron.hcalOverEcalBc(2));
-    }
-    if (isEEflag) {
+    } else if (isEEflag) {
+      h1_ele_tkSumPt_dr03_endcaps->Fill(bestGsfElectron.dr03TkSumPt());
+      h1_ele_ecalRecHitSumEt_dr03_endcaps->Fill(bestGsfElectron.dr03EcalRecHitSumEt());
+      h1_ele_hcalTowerSumEt_dr03_depth1_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEt(1));
+      h1_ele_hcalTowerSumEt_dr03_depth2_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEt(2));
+      h1_ele_hcalTowerSumEtBc_dr03_depth1_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(1));
+      h1_ele_hcalTowerSumEtBc_dr03_depth2_endcaps->Fill(bestGsfElectron.dr03HcalTowerSumEtBc(2));
+      h1_ele_tkSumPt_dr04_endcaps->Fill(bestGsfElectron.dr04TkSumPt());
+      h1_ele_ecalRecHitSumEt_dr04_endcaps->Fill(bestGsfElectron.dr04EcalRecHitSumEt());
+      h1_ele_hcalTowerSumEt_dr04_depth1_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEt(1));
+      h1_ele_hcalTowerSumEt_dr04_depth2_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEt(2));
+      h1_ele_hcalTowerSumEtBc_dr04_depth1_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(1));
+      h1_ele_hcalTowerSumEtBc_dr04_depth2_endcaps->Fill(bestGsfElectron.dr04HcalTowerSumEtBc(2));
       h1_ele_hcalDepth1OverEcalBc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc(1));
       h1_ele_hcalDepth2OverEcalBc_endcaps->Fill(bestGsfElectron.hcalOverEcalBc(2));
     }
+
     // conversion rejection
     int flags = bestGsfElectron.convFlags();
     if (flags == -9999) {

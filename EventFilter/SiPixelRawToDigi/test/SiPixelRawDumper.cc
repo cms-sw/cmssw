@@ -6,7 +6,7 @@
  * Works with v7x, comment out the digis access.
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -504,7 +504,7 @@ int MyDecode::data(int word, int &fedChannel, int fed, int &stat1, int &stat2, b
 }
 ////////////////////////////////////////////////////////////////////////////
 
-class SiPixelRawDumper : public edm::EDAnalyzer {
+class SiPixelRawDumper : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// ctor
   explicit SiPixelRawDumper(const edm::ParameterSet &cfg);
@@ -513,11 +513,9 @@ public:
   //consumes<FEDRawDataCollection>(theConfig.getUntrackedParameter<std::string>("InputLabel","source"));}
 
   /// dtor
-  virtual ~SiPixelRawDumper() {}
+  virtual ~SiPixelRawDumper() = default;
 
   void beginJob();
-
-  //void beginRun( const edm::EventSetup& ) {}
 
   // end of job
   void endJob();
@@ -582,6 +580,7 @@ SiPixelRawDumper::SiPixelRawDumper(const edm::ParameterSet &cfg) : theConfig(cfg
   string label = theConfig.getUntrackedParameter<std::string>("InputLabel", "source");
   // For the ByToken method
   rawData = consumes<FEDRawDataCollection>(label);
+  usesResource(TFileService::kSharedResource);
 }
 //----------------------------------------------------------------------------------------
 void SiPixelRawDumper::endJob() {

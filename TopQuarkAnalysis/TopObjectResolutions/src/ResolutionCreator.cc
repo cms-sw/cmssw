@@ -4,7 +4,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -35,10 +35,9 @@
 // class declaration
 //
 
-class ResolutionCreator : public edm::EDAnalyzer {
+class ResolutionCreator : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit ResolutionCreator(const edm::ParameterSet &);
-  ~ResolutionCreator() override;
 
 private:
   void beginJob() override;
@@ -74,6 +73,8 @@ private:
 // constructors and destructor
 //
 ResolutionCreator::ResolutionCreator(const edm::ParameterSet &iConfig) {
+  usesResource("TFileService");
+
   // input parameters
   genEvtToken_ = consumes<TtGenEvent>(edm::InputTag("genEvt"));
   objectType_ = iConfig.getParameter<std::string>("object");
@@ -96,8 +97,6 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet &iConfig) {
 
   nrFilled = 0;
 }
-
-ResolutionCreator::~ResolutionCreator() {}
 
 //
 // member functions
@@ -456,7 +455,7 @@ void ResolutionCreator::endJob() {
         fResPtEtaBin[ro][etab][ptb]->SetParameters(hResPtEtaBin[ro][etab][ptb]->GetMaximum(),
                                                    hResPtEtaBin[ro][etab][ptb]->GetMean(),
                                                    hResPtEtaBin[ro][etab][ptb]->GetRMS());
-        hResPtEtaBin[ro][etab][ptb]->Fit(fResPtEtaBin[ro][etab][ptb]->GetName(), "RQ");
+        hResPtEtaBin[ro][etab][ptb]->Fit(fResPtEtaBin[ro][etab][ptb]->GetName(), "RQ SERIAL");
         hResEtaBin[ro][etab]->SetBinContent(ptb + 1, fResPtEtaBin[ro][etab][ptb]->GetParameter(2));
         hResEtaBin[ro][etab]->SetBinError(ptb + 1, fResPtEtaBin[ro][etab][ptb]->GetParError(2));
         //CD: Fill the tree
@@ -474,7 +473,7 @@ void ResolutionCreator::endJob() {
       error = fResPtEtaBin[ro][etab][0]->GetParError(2) + fResPtEtaBin[ro][etab][1]->GetParError(2);
       tResVar->Fill();
       // standard fit
-      hResEtaBin[ro][etab]->Fit(fResEtaBin[ro][etab]->GetName(), "RQ");
+      hResEtaBin[ro][etab]->Fit(fResEtaBin[ro][etab]->GetName(), "RQ SERIAL");
     }
   }
   if (objectType_ == "lJets" && nrFilled == 0)

@@ -19,7 +19,7 @@
 #include <cmath>
 
 // Framework include files
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,7 +43,7 @@ using namespace fftjetcms;
 //
 // class declaration
 //
-class FFTJetPileupEstimator : public edm::EDProducer {
+class FFTJetPileupEstimator : public edm::stream::EDProducer<> {
 public:
   explicit FFTJetPileupEstimator(const edm::ParameterSet&);
   FFTJetPileupEstimator() = delete;
@@ -53,9 +53,7 @@ public:
 
 protected:
   // methods
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
 private:
   std::unique_ptr<reco::FFTJetPileupSummary> calibrateFromConfig(double uncalibrated) const;
@@ -160,10 +158,6 @@ void FFTJetPileupEstimator::produce(edm::Event& iEvent, const edm::EventSetup& i
     summary = calibrateFromConfig(curve);
   iEvent.put(std::move(summary), outputLabel);
 }
-
-void FFTJetPileupEstimator::beginJob() {}
-
-void FFTJetPileupEstimator::endJob() {}
 
 std::unique_ptr<reco::FFTJetPileupSummary> FFTJetPileupEstimator::calibrateFromConfig(const double curve) const {
   const double pileupRho = ptToDensityFactor * (*calibrationCurve)(curve);

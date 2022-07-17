@@ -13,6 +13,7 @@
 //-------------------------------
 // Collaborating Class Headers --
 //-------------------------------
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHAnalyzerTokenWrapper.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoSelect.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHMomentumSelect.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexSelect.h"
@@ -34,7 +35,7 @@ using namespace std;
 //----------------
 // Constructors --
 //----------------
-BPHRecoBuilder::BPHRecoBuilder(const edm::EventSetup& es) : evSetup(&es), minPDiff(-1.0) {
+BPHRecoBuilder::BPHRecoBuilder(const BPHEventSetupWrapper& es) : evSetup(new BPHEventSetupWrapper(es)), minPDiff(-1.0) {
   msList.reserve(5);
   vsList.reserve(5);
 }
@@ -56,6 +57,7 @@ BPHRecoBuilder::~BPHRecoBuilder() {
     delete cCollection;
     compCollectList.erase(cCollection);
   }
+  delete evSetup;
 }
 
 //--------------
@@ -63,7 +65,7 @@ BPHRecoBuilder::~BPHRecoBuilder() {
 //--------------
 BPHRecoBuilder::BPHGenericCollection* BPHRecoBuilder::createCollection(const vector<const reco::Candidate*>& candList,
                                                                        const string& list) {
-  return new BPHSpecificCollection<vector<const reco::Candidate*>>(candList, list);
+  return new BPHSpecificCollection<vector<const reco::Candidate*> >(candList, list);
 }
 
 void BPHRecoBuilder::add(const string& name, const BPHGenericCollection* collection, double mass, double msig) {
@@ -183,7 +185,17 @@ vector<BPHRecoBuilder::ComponentSet> BPHRecoBuilder::build() const {
   return candList;
 }
 
-const edm::EventSetup* BPHRecoBuilder::eventSetup() const { return evSetup; }
+const BPHEventSetupWrapper* BPHRecoBuilder::eventSetup() const { return evSetup; }
+
+const reco::Candidate* BPHRecoBuilder::getDaug(const string& name) const {
+  map<string, const reco::Candidate*>::const_iterator iter = daugMap.find(name);
+  return (iter == daugMap.end() ? nullptr : iter->second);
+}
+
+BPHRecoConstCandPtr BPHRecoBuilder::getComp(const string& name) const {
+  map<string, BPHRecoConstCandPtr>::const_iterator iter = compMap.find(name);
+  return (iter == compMap.end() ? nullptr : iter->second);
+}
 
 bool BPHRecoBuilder::sameTrack(const reco::Candidate* lCand, const reco::Candidate* rCand, double minPDifference) {
   const reco::Track* lrcTrack = BPHTrackReference::getFromRC(*lCand);
@@ -232,7 +244,7 @@ void BPHRecoBuilder::build(vector<ComponentSet>& compList,
         continue;
       m = momSelector.size();
       for (j = 0; j < m; ++j) {
-        if (!momSelector[j]->accept(*cand)) {
+        if (!momSelector[j]->accept(*cand, this)) {
           skip = true;
           break;
         }
@@ -241,7 +253,7 @@ void BPHRecoBuilder::build(vector<ComponentSet>& compList,
         continue;
       m = vtxSelector.size();
       for (j = 0; j < m; ++j) {
-        if (!vtxSelector[j]->accept(*cand)) {
+        if (!vtxSelector[j]->accept(*cand, this)) {
           skip = true;
           break;
         }
@@ -250,7 +262,7 @@ void BPHRecoBuilder::build(vector<ComponentSet>& compList,
         continue;
       m = fitSelector.size();
       for (j = 0; j < m; ++j) {
-        if (!fitSelector[j]->accept(*cand)) {
+        if (!fitSelector[j]->accept(*cand, this)) {
           skip = true;
           break;
         }
@@ -334,7 +346,7 @@ bool BPHRecoBuilder::contained(ComponentSet& compSet, BPHRecoConstCandPtr cCand)
     }
 
     for (c_iter = compMap.begin(); c_iter != c_iend; ++c_iter) {
-      const pair<string, BPHRecoConstCandPtr>& entry = *c_iter;
+      const map<string, BPHRecoConstCandPtr>::value_type& entry = *c_iter;
       BPHRecoConstCandPtr cCChk = entry.second;
       const vector<const reco::Candidate*>& dCChk = cCChk->daughFull();
       l = dCChk.size();

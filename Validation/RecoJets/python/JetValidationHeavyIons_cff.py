@@ -6,12 +6,12 @@ from RecoHI.HiJetAlgos.HiGenCleaner_cff import *
 
 iterativeCone5HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('iterativeCone5HiGenJets'))
 #iterativeCone7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('iterativeCone7HiGenJets'))
-ak2HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak2HiGenJets'))
-ak3HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak3HiGenJets'))
-ak4HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak4HiGenJets'))
-ak5HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak5HiGenJets'))
+ak2HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = 'ak2HiGenJets')
+ak3HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = 'ak3HiGenJets')
+ak4HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = 'ak4HiGenJets')
+ak5HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = 'ak5HiGenJets')
 
-ak7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = cms.InputTag('ak7HiGenJets'))
+ak7HiCleanedGenJets = heavyIonCleanedGenJets.clone( src = 'ak7HiGenJets')
 
 ### jet analyzer for several radii
 ### iterative cone with PU, anti-kt with PU, anti-kt with fastjet PU 

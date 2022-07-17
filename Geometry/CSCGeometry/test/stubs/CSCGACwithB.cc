@@ -20,7 +20,7 @@
 class CSCGACwithB : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCGACwithB(const edm::ParameterSet&);
-  ~CSCGACwithB() override;
+  ~CSCGACwithB() override = default;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -32,20 +32,23 @@ private:
   const int dashedLineWidth_;
   const std::string dashedLine_;
   const std::string myName_;
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> tokGeom_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tokField_;
 };
 
 CSCGACwithB::CSCGACwithB(const edm::ParameterSet& iConfig)
-    : dashedLineWidth_(175), dashedLine_(std::string(dashedLineWidth_, '-')), myName_("CSCGACwithB") {}
-
-CSCGACwithB::~CSCGACwithB() {}
+    : dashedLineWidth_(175),
+      dashedLine_(std::string(dashedLineWidth_, '-')),
+      myName_("CSCGACwithB"),
+      tokGeom_(esConsumes()),
+      tokField_(esConsumes()) {}
 
 void CSCGACwithB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cout << myName() << ": Analyzer..." << std::endl;
   std::cout << "start " << dashedLine_ << std::endl;
 
   // Access CSC geometry
-  edm::ESHandle<CSCGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get(pDD);
+  const edm::ESHandle<CSCGeometry>& pDD = iSetup.getHandle(tokGeom_);
   std::cout << " Geometry node for CSCGeom is  " << &(*pDD) << std::endl;
   std::cout << " " << pDD->dets().size() << " detectors" << std::endl;
   std::cout << " I have " << pDD->detTypes().size() << " types"
@@ -57,8 +60,7 @@ void CSCGACwithB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   std::cout << " I have " << pDD->chambers().size() << " chambers" << std::endl;
 
   // Access magnetic field
-  edm::ESHandle<MagneticField> magneticField;
-  iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
+  const edm::ESHandle<MagneticField>& magneticField = iSetup.getHandle(tokField_);
 
   std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
 

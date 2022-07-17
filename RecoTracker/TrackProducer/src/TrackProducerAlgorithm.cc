@@ -25,6 +25,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "TrackingTools/GsfTools/interface/GetComponents.h"
 
 // #define VI_DEBUG
 // #define STAT_TSB
@@ -285,7 +286,8 @@ bool TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter* 
   }
   std::ostringstream ss;
   auto dc = [&](TrajectoryStateOnSurface const& tsos) {
-    std::vector<TrajectoryStateOnSurface> const& components = tsos.components();
+    GetComponents comps(tsos);
+    auto const& components = comps();
     auto sinTheta = std::sin(tsos.globalMomentum().theta());
     for (auto const& ic : components)
       ss << ic.weight() << "/";
@@ -298,10 +300,16 @@ bool TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter* 
   };
   ss << "\ninner comps\n";
   dc(innertsos);
+  GetComponents icomps(innertsos);
+  auto const& tsosComponentsInner = icomps();
+
   ss << "\nouter comps\n";
   dc(outertsos);
-  LogDebug("TrackProducer") << "Nr. of first / last states = " << innertsos.components().size() << " "
-                            << outertsos.components().size() << ss.str();
+  GetComponents ocomps(outertsos);
+  auto const& tsosComponentsOuter = ocomps();
+
+  LogDebug("TrackProducer") << "Nr. of first / last states = " << tsosComponentsInner.size() << " "
+                            << tsosComponentsOuter.size() << ss.str();
 #endif
 
   ndof = 0;

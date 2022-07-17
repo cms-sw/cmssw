@@ -64,19 +64,6 @@ cmsRun ${LOCALTOP}/src/HeterogeneousCore/SonicTriton/test/tritonTest_cfg.py modu
 CMSEXIT=$?
 
 cat $tmpFile
-sleep 15
-
-STOP_COUNTER=0
-while ! LOGFILE="$(ls -rt ${LOCALTOP}/log_${fallbackName}_*.log 2>/dev/null | tail -n 1)" && [ "$STOP_COUNTER" -lt 5 ]; do
-	STOP_COUNTER=$((STOP_COUNTER+1))
-	sleep 5
-done
-
-if [ -n "$LOGFILE" ]; then
-	echo -e '\n=====\nContents of '$LOGFILE':\n=====\n'
-	cat "$LOGFILE"
-	rm $LOGFILE
-fi
 
 if grep -q "Socket closed" $tmpFile; then
 	echo "Transient server error (not caused by client code)"

@@ -158,6 +158,16 @@ namespace edm {
     }
   }
 
+  namespace {
+    cms::Exception& extendException(cms::Exception& e, BranchDescription const& bd, ModuleCallingContext const* mcc) {
+      e.addContext(std::string("While reading from source ") + bd.className() + " " + bd.moduleLabel() + " '" +
+                   bd.productInstanceName() + "' " + bd.processName());
+      if (mcc) {
+        edm::exceptionContext(e, *mcc);
+      }
+      return e;
+    }
+  }  // namespace
   ProductResolverBase::Resolution DelayedReaderInputProductResolver::resolveProduct_(
       Principal const& principal, bool, SharedResourcesAcquirer*, ModuleCallingContext const* mcc) const {
     return resolveProductImpl<true>([this, &principal, mcc]() {
@@ -183,8 +193,15 @@ namespace edm {
           guard = std::unique_lock<std::recursive_mutex>(*sr);
         }
         if (not productResolved()) {
-          //another thread could have beaten us here
-          setProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
+          try {
+            //another thread could have beaten us here
+            setProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
+          } catch (cms::Exception& e) {
+            throw extendException(e, branchDescription(), mcc);
+          } catch (std::exception const& e) {
+            auto newExcept = edm::Exception(errors::StdException) << e.what();
+            throw extendException(newExcept, branchDescription(), mcc);
+          }
         }
       }
     });
@@ -278,8 +295,15 @@ namespace edm {
                 guard = std::unique_lock<std::recursive_mutex>(*sr);
               }
               if (not productResolved()) {
-                //another thread could have finished this while we were waiting
-                setProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
+                try {
+                  //another thread could have finished this while we were waiting
+                  setProduct(reader->getProduct(branchDescription().branchID(), &principal, mcc));
+                } catch (cms::Exception& e) {
+                  throw extendException(e, branchDescription(), mcc);
+                } catch (std::exception const& e) {
+                  auto newExcept = edm::Exception(errors::StdException) << e.what();
+                  throw extendException(newExcept, branchDescription(), mcc);
+                }
               }
             }
           });
@@ -952,7 +976,7 @@ namespace edm {
                                  ModuleCallingContext const* iMCC,
                                  bool iSkipCurrentProcess,
                                  ServiceToken iToken,
-                                 tbb::task_group* iGroup)
+                                 oneapi::tbb::task_group* iGroup)
           : resolver_(iResolver),
             principal_(iPrincipal),
             sra_(iSRA),
@@ -979,7 +1003,7 @@ namespace edm {
       Principal const* principal_;
       SharedResourcesAcquirer* sra_;
       ModuleCallingContext const* mcc_;
-      tbb::task_group* group_;
+      oneapi::tbb::task_group* group_;
       ServiceWeakToken serviceToken_;
       unsigned int index_;
       bool skipCurrentProcess_;
@@ -1016,7 +1040,7 @@ namespace edm {
                                                           SharedResourcesAcquirer* sra,
                                                           ModuleCallingContext const* mcc,
                                                           ServiceToken token,
-                                                          tbb::task_group* group) const {
+                                                          oneapi::tbb::task_group* group) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
 

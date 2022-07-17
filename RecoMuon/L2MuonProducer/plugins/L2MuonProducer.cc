@@ -91,9 +91,7 @@ L2MuonProducer::L2MuonProducer(const edm::ParameterSet& parameterSet) {
   // instantiate the concrete trajectory builder in the Track Finder
 
   edm::ConsumesCollector iC = consumesCollector();
-  string typeOfBuilder = parameterSet.existsAs<string>("MuonTrajectoryBuilder")
-                             ? parameterSet.getParameter<string>("MuonTrajectoryBuilder")
-                             : "StandAloneMuonTrajectoryBuilder";
+  string typeOfBuilder = parameterSet.getParameter<string>("MuonTrajectoryBuilder");
   if (typeOfBuilder == "StandAloneMuonTrajectoryBuilder" || typeOfBuilder.empty())
     trajectoryBuilder =
         std::make_unique<StandAloneMuonTrajectoryBuilder>(trajectoryBuilderParameters, theService.get(), iC);

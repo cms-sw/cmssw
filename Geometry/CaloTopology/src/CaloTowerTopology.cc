@@ -1,9 +1,10 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include <cassert>
 #include <algorithm>
 
-//#define DebugLog
+//#define EDM_ML_DEBUG
 
 CaloTowerTopology::CaloTowerTopology(const HcalTopology* topology) : hcaltopo(topology) {
   //get number of towers in each hcal subdet from hcaltopo
@@ -12,9 +13,9 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology* topology) : hcaltopo(to
   nEtaHE_ = hcaltopo->lastHERing() - hcaltopo->firstHERing() + 1;
   nEtaHO = hcaltopo->lastHORing() - hcaltopo->firstHORing() + 1;
   nEtaHF = hcaltopo->lastHFRing() - hcaltopo->firstHFRing() + 1;
-#ifdef DebugLog
-  std::cout << "CaloTowerTopology:(1) " << nEtaHB << ":" << nEtaHE_ << ":" << nEtaHO << ":" << nEtaHF << ":"
-            << hcaltopo->isBH() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloTower") << "CaloTowerTopology:(1) " << nEtaHB << ":" << nEtaHE_ << ":" << nEtaHO << ":"
+                                << nEtaHF << ":" << hcaltopo->isBH();
 #endif
   if (hcaltopo->isBH())
     nEtaHE_ = 0;
@@ -29,10 +30,10 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology* topology) : hcaltopo(to
   lastHFRing_ = firstHFRing_ + (nEtaHF - 1) - 1;  //nEtaHF - 1 to account for no crossover
   firstHORing_ = 1;
   lastHORing_ = firstHORing_ + nEtaHO - 1;
-#ifdef DebugLog
-  std::cout << "CaloTowerTopology: (2) " << firstHBRing_ << ":" << lastHBRing_ << ":" << firstHERing_ << ":"
-            << lastHERing_ << ":" << firstHFRing_ << ":" << lastHFRing_ << ":" << firstHORing_ << ":" << lastHORing_
-            << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloTower") << "CaloTowerTopology: (2) " << firstHBRing_ << ":" << lastHBRing_ << ":"
+                                << firstHERing_ << ":" << lastHERing_ << ":" << firstHFRing_ << ":" << lastHFRing_
+                                << ":" << firstHORing_ << ":" << lastHORing_;
 #endif
 
   //translate phi segmentation boundaries into continuous ieta
@@ -54,9 +55,9 @@ CaloTowerTopology::CaloTowerTopology(const HcalTopology* topology) : hcaltopo(to
   nDoublePhi_ = nEtaDoublePhi_ * 36;
   nQuadPhi_ = nEtaQuadPhi_ * 18;
 
-#ifdef DebugLog
-  std::cout << "CaloTowerTopology: (3) " << nEtaSinglePhi_ << ":" << nEtaDoublePhi_ << ":" << nEtaQuadPhi_ << ":"
-            << nSinglePhi_ << ":" << nDoublePhi_ << ":" << nQuadPhi_ << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("CaloTower") << "CaloTowerTopology: (3) " << nEtaSinglePhi_ << ":" << nEtaDoublePhi_ << ":"
+                                << nEtaQuadPhi_ << ":" << nSinglePhi_ << ":" << nDoublePhi_ << ":" << nQuadPhi_;
 #endif
 
   //calculate maximum dense index size

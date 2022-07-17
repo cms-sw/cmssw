@@ -19,7 +19,7 @@ TtFullLepEvtPartons::TtFullLepEvtPartons(const std::vector<std::string>& partons
   }
 }
 
-std::vector<const reco::Candidate*> TtFullLepEvtPartons::vec(const TtGenEvent& genEvt) {
+std::vector<const reco::Candidate*> TtFullLepEvtPartons::vec(const TtGenEvent& genEvt) const {
   std::vector<const reco::Candidate*> vec;
 
   if (genEvt.isFullLeptonic()) {

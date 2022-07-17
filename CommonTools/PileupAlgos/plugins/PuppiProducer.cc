@@ -12,8 +12,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -72,6 +70,7 @@ private:
   bool fPuppiNoLep;
   bool fUseFromPVLooseTight;
   bool fUseDZ;
+  bool fUseDZforPileup;
   double fDZCut;
   double fEtaMinUseDZ;
   double fPtMaxCharged;
@@ -95,6 +94,7 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPuppiNoLep = iConfig.getParameter<bool>("puppiNoLep");
   fUseFromPVLooseTight = iConfig.getParameter<bool>("UseFromPVLooseTight");
   fUseDZ = iConfig.getParameter<bool>("UseDeltaZCut");
+  fUseDZforPileup = iConfig.getParameter<bool>("UseDeltaZCutForPileup");
   fDZCut = iConfig.getParameter<double>("DeltaZCut");
   fEtaMinUseDZ = iConfig.getParameter<double>("EtaMinUseDeltaZ");
   fPtMaxCharged = iConfig.getParameter<double>("PtMaxCharged");
@@ -281,8 +281,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               pReco.id = 1;
             else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
-            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
-              pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ) && (std::abs(pDZ) < fDZCut))
+              pReco.id = 1;
+            else if ((fUseDZforPileup) && (std::abs(pReco.eta) >= fEtaMinUseDZ) && (std::abs(pDZ) >= fDZCut))
+              pReco.id = 2;
             else if (fUseFromPVLooseTight && tmpFromPV == 1)
               pReco.id = 2;
             else if (fUseFromPVLooseTight && tmpFromPV == 2)
@@ -322,8 +324,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
               pReco.id = 1;
             else if (std::abs(pReco.eta) > fEtaMaxCharged)
               pReco.id = 1;
-            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ))
-              pReco.id = (std::abs(pDZ) < fDZCut) ? 1 : 2;
+            else if ((fUseDZ) && (std::abs(pReco.eta) >= fEtaMinUseDZ) && (std::abs(pDZ) < fDZCut))
+              pReco.id = 1;
+            else if ((fUseDZforPileup) && (std::abs(pReco.eta) >= fEtaMinUseDZ) && (std::abs(pDZ) >= fDZCut))
+              pReco.id = 2;
             else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVLoose))
               pReco.id = 2;
             else if (fUseFromPVLooseTight && lPack->fromPV() == (pat::PackedCandidate::PVTight))
@@ -344,6 +348,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   } else {
     //Use the existing weights
     int lPackCtr = 0;
+    lWeights.reserve(pfCol->size());
     for (auto const& aPF : *pfCol) {
       const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       float curpupweight = -1.;
@@ -390,6 +395,11 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<reco::CandidatePtr> values(hPFProduct->size());
 
   int iCand = -1;
+  puppiP4s.reserve(hPFProduct->size());
+  if (fUseExistingWeights || fClonePackedCands)
+    fPackedPuppiCandidates.reserve(hPFProduct->size());
+  else
+    fPuppiCandidates.reserve(hPFProduct->size());
   for (auto const& aCand : *hPFProduct) {
     ++iCand;
     std::unique_ptr<pat::PackedCandidate> pCand;
@@ -489,6 +499,7 @@ void PuppiProducer::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<bool>("puppiNoLep", false);
   desc.add<bool>("UseFromPVLooseTight", false);
   desc.add<bool>("UseDeltaZCut", true);
+  desc.add<bool>("UseDeltaZCutForPileup", true);
   desc.add<double>("DeltaZCut", 0.3);
   desc.add<double>("EtaMinUseDeltaZ", 0.);
   desc.add<double>("PtMaxCharged", -1.);

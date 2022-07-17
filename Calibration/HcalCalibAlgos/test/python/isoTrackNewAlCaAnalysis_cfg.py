@@ -21,7 +21,8 @@ process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load('Calibration.HcalCalibAlgos.hcalIsoTrackAnalyzer_cfi')
 process.hcalIsoTrackAnalyzer.useRaw = 0   # 1 for Raw
-process.hcalIsoTrackAnalyzer.debugEvents = [640818633, 640797426, 641251898]
+process.hcalIsoTrackAnalyzer.debugEvents = [640818633, 640797426, 641251898,
+                                            641261804, 641172007, 641031809]
 
 process.source = cms.Source("PoolSource", 
                             fileNames = cms.untracked.vstring('file:newPoolOutput.root')

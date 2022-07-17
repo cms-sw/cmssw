@@ -40,7 +40,7 @@ public:
 
   class BadComponentStrictWeakOrdering {
   public:
-    bool operator()(const BadComponent &p, const uint32_t i) const { return p.detid < i; }
+    bool operator()(const BadComponent &p, uint32_t i) const { return p.detid < i; }
   };
 
   SiStripQuality() = delete;
@@ -57,7 +57,7 @@ public:
     toCleanUp = false;
   }
 
-  void add(const uint32_t &, const SiStripBadStrip::Range &);
+  void add(uint32_t, const SiStripBadStrip::Range &);
   void add(const SiStripBadStrip *);
   void add(const SiStripDetCabling *);
   void add(const SiStripDetVOff *);
@@ -80,21 +80,21 @@ public:
   SiStripQuality difference(const SiStripQuality &) const;
 
   //------- Interface for the user ----------//
-  bool IsModuleUsable(const uint32_t &detid) const;
+  bool IsModuleUsable(uint32_t detid) const;
 
-  bool IsModuleBad(const uint32_t &detid) const;
-  bool IsFiberBad(const uint32_t &detid, const short &fiberNb) const;
-  bool IsApvBad(const uint32_t &detid, const short &apvNb) const;
-  bool IsStripBad(const uint32_t &detid, const short &strip) const;
-  bool IsStripBad(const Range &range, const short &strip) const;
+  bool IsModuleBad(uint32_t detid) const;
+  bool IsFiberBad(uint32_t detid, short fiberNb) const;
+  bool IsApvBad(uint32_t detid, short apvNb) const;
+  bool IsStripBad(uint32_t detid, short strip) const;
+  bool IsStripBad(const Range &range, short strip) const;
   int nBadStripsOnTheLeft(const Range &range,
-                          const short &strip) const;  // provides number of consecutive bad strips on the left of strip
-                                                      // (including strip)
-  int nBadStripsOnTheRight(
-      const Range &range, const short &strip) const;  // provides number of consecutive bad strips on the right of strip
-                                                      // (including strip)
+                          short strip) const;  // provides number of consecutive bad strips on the left of strip
+                                               // (including strip)
+  int nBadStripsOnTheRight(const Range &range,
+                           short strip) const;  // provides number of consecutive bad strips on the right of strip
+                                                // (including strip)
 
-  short getBadApvs(const uint32_t &detid) const;
+  short getBadApvs(uint32_t detid) const;
   // each bad apv correspond to a bit to 1: num=
   // 0 <-> all good apvs
   // 1 <-> only apv 0 bad
@@ -102,7 +102,7 @@ public:
   // 3<->  apv 0 and 1 bad
   // 4 <-> only apv 2 bad
   //...
-  short getBadFibers(const uint32_t &detid) const;
+  short getBadFibers(uint32_t detid) const;
   // each bad fiber correspond to a bit to 1: num=
   // 0 <-> all good fibers
   // 1 <-> only fiber 0 bad
@@ -113,7 +113,7 @@ public:
 
   const std::vector<BadComponent> &getBadComponentList() const { return BadComponentVect; }
 
-  void compact(unsigned int &, std::vector<unsigned int> &);
+  void compact(uint32_t detid, std::vector<unsigned int> &);
 
   inline void setPrintDebugOutput(const bool printDebug) { printDebug_ = printDebug; }
   inline void setUseEmptyRunInfo(const bool useEmptyRunInfo) { useEmptyRunInfo_ = useEmptyRunInfo; }
@@ -124,7 +124,7 @@ private:
   void compact(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned short &);
   void subtract(std::vector<unsigned int> &, const std::vector<unsigned int> &);
   void subtraction(std::vector<unsigned int> &, const unsigned int &);
-  bool put_replace(const uint32_t &DetId, Range input);
+  bool put_replace(uint32_t detId, Range input);
 
   /**
    * Loop on all the fedIds, take the fedChannels and then the detId.
@@ -133,10 +133,7 @@ private:
   void turnOffFeds(const std::vector<int> &fedsList, const bool turnOffStrips, const bool printDebug);
 
   /// Prints debug output for a given detId
-  void printDetInfo(const TrackerTopology *const tTopo,
-                    const uint32_t &detId,
-                    const uint32_t &apvPairNumber,
-                    std::stringstream &ss);
+  void printDetInfo(const TrackerTopology *const tTopo, uint32_t detId, uint32_t apvPairNumber, std::stringstream &ss);
   /// Prints debug output for the active feds comparing the list in RunInfo and
   /// FedCabling
   void printActiveFedsInfo(const std::vector<uint16_t> &activeFedsFromCabling,

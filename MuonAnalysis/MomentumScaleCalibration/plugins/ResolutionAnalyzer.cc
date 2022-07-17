@@ -1,17 +1,122 @@
-#ifndef RESOLUTIONANALYZER_CC
-#define RESOLUTIONANALYZER_CC
+// -*- C++ -*-
+//
+// Package:    ResolutionAnalyzer
+// Class:      ResolutionAnalyzer
+//
+/**\class ResolutionAnalyzer ResolutionAnalyzer.cc MuonAnalysis/MomentumScaleCalibration/plugins/ResolutionAnalyzer.cc
 
-#include "ResolutionAnalyzer.h"
+ Description: <one line class summary>
+
+ Implementation:
+     <Notes on implementation>
+*/
+//
+// Original Author:  Marco De Mattia
+//         Created:  Thu Sep 11 12:16:00 CEST 2008
+//
+//
+
+// system include files
+#include <memory>
+#include <string>
+#include <vector>
+#include <CLHEP/Vector/LorentzVector.h>
+
+// user include files
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HepMC/GenEvent.h"
+#include "HepMC/GenParticle.h"
+#include "HepPDT/ParticleDataTable.hh"
+#include "HepPDT/TableBuilder.hh"
+#include "HepPDT/defs.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/Functions.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
+#include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+#include "Histograms.h"
+#include "MuScleFitUtils.h"
 //
-// constants, enums and typedefs
+// class decleration
 //
 
-//
-// static data member definitions
-//
+class ResolutionAnalyzer : public edm::one::EDAnalyzer<> {
+public:
+  explicit ResolutionAnalyzer(const edm::ParameterSet&);
+  ~ResolutionAnalyzer() override;
+
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endJob() override{};
+
+  template <typename T>
+  std::vector<reco::LeafCandidate> fillMuonCollection(const std::vector<T>& tracks) {
+    std::vector<reco::LeafCandidate> muons;
+    typename std::vector<T>::const_iterator track;
+    for (track = tracks.begin(); track != tracks.end(); ++track) {
+      reco::Particle::LorentzVector mu(
+          track->px(), track->py(), track->pz(), sqrt(track->p() * track->p() + MuScleFitUtils::mMu2));
+      MuScleFitUtils::goodmuon++;
+      if (debug_ > 0)
+        std::cout << std::setprecision(9) << "Muon #" << MuScleFitUtils::goodmuon
+                  << ": initial value   Pt = " << mu.Pt() << std::endl;
+      reco::LeafCandidate muon(track->charge(), mu);
+      // Store muon
+      // ----------
+      muons.push_back(muon);
+    }
+    return muons;
+  }
+
+  /// Used to fill the map with the histograms needed
+  void fillHistoMap();
+  /// Writes the histograms in the map
+  void writeHistoMap();
+  /// Returns true if the two particles have DeltaR < cut
+  bool checkDeltaR(const reco::Particle::LorentzVector& genMu, const reco::Particle::LorentzVector& recMu);
+
+  // ----------member data ---------------------------
+
+  // Collections labels
+  // ------------------
+  edm::InputTag theMuonLabel_;
+
+  int theMuonType_;
+  std::string theRootFileName_;
+  std::string theCovariancesRootFileName_;
+  bool debug_;
+  std::map<std::string, Histograms*> mapHisto_;
+  TFile* outputFile_;
+
+  int eventCounter_;
+  bool resonance_;
+  bool readCovariances_;
+
+  TString treeFileName_;
+  int32_t maxEvents_;
+
+  double ptMax_;
+
+  HCovarianceVSxy* massResolutionVsPtEta_;
+  TH2D* recoPtVsgenPt_;
+  TH2D* recoPtVsgenPtEta12_;
+  TH1D* deltaPtOverPt_;
+  TH1D* deltaPtOverPtForEta12_;
+};
 
 //
 // constructors and destructor
@@ -592,5 +697,3 @@ bool ResolutionAnalyzer::checkDeltaR(const reco::Particle::LorentzVector& genMu,
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ResolutionAnalyzer);
-
-#endif  // RESOLUTIONANALYZER_CC

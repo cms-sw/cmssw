@@ -187,34 +187,34 @@ void BeamSpotOnlineRecordsWriter::endJob() {
   edm::LogPrint("BeamSpotOnlineRecordsWriter") << " betastar          : " << betastar;
   edm::LogPrint("BeamSpotOnlineRecordsWriter") << "-----------------------------------------------------";
 
-  std::unique_ptr<BeamSpotOnlineObjects> abeam = std::make_unique<BeamSpotOnlineObjects>();
+  BeamSpotOnlineObjects abeam;
 
-  abeam->SetLastAnalyzedLumi(lastAnalyzedLumi);
-  abeam->SetLastAnalyzedRun(lastAnalyzedRun);
-  abeam->SetLastAnalyzedFill(lastAnalyzedFill);
-  abeam->SetStartTimeStamp(lumiRangeBeginTime);
-  abeam->SetEndTimeStamp(lumiRangeEndTime);
-  abeam->SetType(type);
-  abeam->SetPosition(x, y, z);
-  abeam->SetSigmaZ(sigmaZ);
-  abeam->Setdxdz(dxdz);
-  abeam->Setdydz(dydz);
-  abeam->SetBeamWidthX(beamWidthX);
-  abeam->SetBeamWidthY(beamWidthY);
-  abeam->SetEmittanceX(emittanceX);
-  abeam->SetEmittanceY(emittanceY);
-  abeam->SetBetaStar(betastar);
+  abeam.setLastAnalyzedLumi(lastAnalyzedLumi);
+  abeam.setLastAnalyzedRun(lastAnalyzedRun);
+  abeam.setLastAnalyzedFill(lastAnalyzedFill);
+  abeam.setStartTimeStamp(lumiRangeBeginTime);
+  abeam.setEndTimeStamp(lumiRangeEndTime);
+  abeam.setType(type);
+  abeam.setPosition(x, y, z);
+  abeam.setSigmaZ(sigmaZ);
+  abeam.setdxdz(dxdz);
+  abeam.setdydz(dydz);
+  abeam.setBeamWidthX(beamWidthX);
+  abeam.setBeamWidthY(beamWidthY);
+  abeam.setEmittanceX(emittanceX);
+  abeam.setEmittanceY(emittanceY);
+  abeam.setBetaStar(betastar);
 
   for (int i = 0; i < 7; ++i) {
     for (int j = 0; j < 7; ++j) {
-      abeam->SetCovariance(i, j, cov[i][j]);
+      abeam.setCovariance(i, j, cov[i][j]);
     }
   }
 
   // Set the creation time of the payload to the current time
   auto creationTime =
       std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-  abeam->SetCreationTime(creationTime);
+  abeam.setCreationTime(creationTime);
 
   edm::LogPrint("BeamSpotOnlineRecordsWriter") << " Writing results to DB...";
 
@@ -225,16 +225,16 @@ void BeamSpotOnlineRecordsWriter::endJob() {
       edm::LogPrint("BeamSpotOnlineRecordsWriter") << "new tag requested";
       if (fuseNewSince) {
         edm::LogPrint("BeamSpotOnlineRecordsWriter") << "Using a new Since: " << fnewSince;
-        poolDbService->createOneIOV<BeamSpotOnlineObjects>(*abeam, fnewSince, fLabel);
+        poolDbService->createOneIOV<BeamSpotOnlineObjects>(abeam, fnewSince, fLabel);
       } else
-        poolDbService->createOneIOV<BeamSpotOnlineObjects>(*abeam, poolDbService->beginOfTime(), fLabel);
+        poolDbService->createOneIOV<BeamSpotOnlineObjects>(abeam, poolDbService->beginOfTime(), fLabel);
     } else {
       edm::LogPrint("BeamSpotOnlineRecordsWriter") << "no new tag requested";
       if (fuseNewSince) {
         edm::LogPrint("BeamSpotOnlineRecordsWriter") << "Using a new Since: " << fnewSince;
-        poolDbService->appendOneIOV<BeamSpotOnlineObjects>(*abeam, fnewSince, fLabel);
+        poolDbService->appendOneIOV<BeamSpotOnlineObjects>(abeam, fnewSince, fLabel);
       } else
-        poolDbService->appendOneIOV<BeamSpotOnlineObjects>(*abeam, poolDbService->currentTime(), fLabel);
+        poolDbService->appendOneIOV<BeamSpotOnlineObjects>(abeam, poolDbService->currentTime(), fLabel);
     }
   }
   edm::LogPrint("BeamSpotOnlineRecordsWriter") << "[BeamSpotOnlineRecordsWriter] endJob done \n";

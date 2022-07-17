@@ -160,16 +160,16 @@ void BeamSpotOnlineRecordsReader::dump(const edm::Event& iEvent,
 
   theBSOfromDB_.run = iEvent.id().run();
   theBSOfromDB_.ls = iEvent.id().luminosityBlock();
-  theBSOfromDB_.BSx0_ = mybeamspot->GetX();
-  theBSOfromDB_.BSy0_ = mybeamspot->GetY();
-  theBSOfromDB_.BSz0_ = mybeamspot->GetZ();
-  theBSOfromDB_.Beamsigmaz_ = mybeamspot->GetSigmaZ();
-  theBSOfromDB_.Beamdxdz_ = mybeamspot->Getdxdz();
-  theBSOfromDB_.BeamWidthX_ = mybeamspot->GetBeamWidthX();
-  theBSOfromDB_.BeamWidthY_ = mybeamspot->GetBeamWidthY();
-  theBSOfromDB_.lastAnalyzedLumi_ = mybeamspot->GetLastAnalyzedLumi();
-  theBSOfromDB_.lastAnalyzedRun_ = mybeamspot->GetLastAnalyzedRun();
-  theBSOfromDB_.lastAnalyzedFill_ = mybeamspot->GetLastAnalyzedFill();
+  theBSOfromDB_.BSx0_ = mybeamspot->x();
+  theBSOfromDB_.BSy0_ = mybeamspot->y();
+  theBSOfromDB_.BSz0_ = mybeamspot->z();
+  theBSOfromDB_.Beamsigmaz_ = mybeamspot->sigmaZ();
+  theBSOfromDB_.Beamdxdz_ = mybeamspot->dxdz();
+  theBSOfromDB_.BeamWidthX_ = mybeamspot->beamWidthX();
+  theBSOfromDB_.BeamWidthY_ = mybeamspot->beamWidthY();
+  theBSOfromDB_.lastAnalyzedLumi_ = mybeamspot->lastAnalyzedLumi();
+  theBSOfromDB_.lastAnalyzedRun_ = mybeamspot->lastAnalyzedRun();
+  theBSOfromDB_.lastAnalyzedFill_ = mybeamspot->lastAnalyzedFill();
 
   bstree_->Fill();
 

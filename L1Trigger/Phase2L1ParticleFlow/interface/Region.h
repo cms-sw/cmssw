@@ -5,9 +5,13 @@
 #include "DataFormats/Math/interface/deltaPhi.h"
 
 namespace l1tpf_impl {
+
   struct Region : public InputRegion {
     std::vector<PFParticle> pf;
     std::vector<PFParticle> puppi;
+    std::vector<EGIsoEleParticle> egeles;
+    std::vector<EGIsoParticle> egphotons;
+
     unsigned int caloOverflow, emcaloOverflow, trackOverflow, muonOverflow, pfOverflow, puppiOverflow;
 
     const bool relativeCoordinates;  // whether the eta,phi in each region are global or relative to the region center
@@ -28,6 +32,8 @@ namespace l1tpf_impl {
         : InputRegion(0.5 * (etamin + etamax), etamin, etamax, phicenter, 0.5 * phiwidth, etaextra, phiextra),
           pf(),
           puppi(),
+          egeles(),
+          egphotons(),
           caloOverflow(),
           emcaloOverflow(),
           trackOverflow(),
@@ -96,6 +102,8 @@ namespace l1tpf_impl {
       muon.clear();
       pf.clear();
       puppi.clear();
+      egeles.clear();
+      egphotons.clear();
       caloOverflow = 0;
       emcaloOverflow = 0;
       trackOverflow = 0;
@@ -104,7 +112,8 @@ namespace l1tpf_impl {
       puppiOverflow = 0;
     }
 
-    void inputSort();
+    void inputCrop(bool doSort);
+    void outputCrop(bool doSort);
   };
 
 }  // namespace l1tpf_impl

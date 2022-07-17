@@ -28,7 +28,7 @@ private:
   edm::EDPutTokenT<SiPixelErrorsSoA> digiErrorPutToken_;
 
   cms::cuda::host::unique_ptr<SiPixelErrorCompact[]> data_;
-  cms::cuda::SimpleVector<SiPixelErrorCompact> error_;
+  cms::cuda::SimpleVector<SiPixelErrorCompact> error_ = cms::cuda::make_SimpleVector<SiPixelErrorCompact>(0, nullptr);
   const SiPixelFormatterErrors* formatterErrors_ = nullptr;
 };
 
@@ -48,13 +48,15 @@ void SiPixelDigiErrorsSoAFromCUDA::acquire(const edm::Event& iEvent,
                                            edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   // Do the transfer in a CUDA stream parallel to the computation CUDA stream
   cms::cuda::ScopedContextAcquire ctx{iEvent.streamID(), std::move(waitingTaskHolder)};
-
   const auto& gpuDigiErrors = ctx.get(iEvent, digiErrorGetToken_);
+  formatterErrors_ = &(gpuDigiErrors.formatterErrors());
+
+  if (gpuDigiErrors.nErrorWords() == 0)
+    return;
 
   auto tmp = gpuDigiErrors.dataErrorToHostAsync(ctx.stream());
   error_ = tmp.first;
   data_ = std::move(tmp.second);
-  formatterErrors_ = &(gpuDigiErrors.formatterErrors());
 }
 
 void SiPixelDigiErrorsSoAFromCUDA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -69,7 +71,6 @@ void SiPixelDigiErrorsSoAFromCUDA::produce(edm::Event& iEvent, const edm::EventS
   // - What if a CPU algorithm would produce the same SoA? We can't
   //   use cudaMallocHost without a GPU...
   iEvent.emplace(digiErrorPutToken_, error_.size(), error_.data(), formatterErrors_);
-
   error_ = cms::cuda::make_SimpleVector<SiPixelErrorCompact>(0, nullptr);
   data_.reset();
   formatterErrors_ = nullptr;

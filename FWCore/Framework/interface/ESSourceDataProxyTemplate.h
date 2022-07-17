@@ -27,16 +27,16 @@
 // system include files
 
 // user include files
-#include "FWCore/Framework/interface/ESSourceDataProxyBase.h"
+#include "FWCore/Framework/interface/ESSourceDataProxyNonConcurrentBase.h"
 
 // forward declarations
 
 namespace edm::eventsetup {
   template <typename DataT>
-  class ESSourceDataProxyTemplate : public ESSourceDataProxyBase {
+  class ESSourceDataProxyTemplate : public ESSourceDataProxyNonConcurrentBase {
   public:
     ESSourceDataProxyTemplate(edm::SerialTaskQueue* iQueue, std::mutex* iMutex)
-        : ESSourceDataProxyBase(iQueue, iMutex) {}
+        : ESSourceDataProxyNonConcurrentBase(iQueue, iMutex) {}
 
     ESSourceDataProxyTemplate(const ESSourceDataProxyTemplate&) = delete;
     const ESSourceDataProxyTemplate& operator=(const ESSourceDataProxyTemplate&) = delete;

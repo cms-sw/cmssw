@@ -88,7 +88,8 @@ defaultOptions.timeoutOutput = False
 defaultOptions.nThreads = '1'
 defaultOptions.nStreams = '0'
 defaultOptions.nConcurrentLumis = '0'
-defaultOptions.nConcurrentIOVs = '1'
+defaultOptions.nConcurrentIOVs = '0'
+defaultOptions.accelerators = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -113,9 +114,11 @@ def filesFromList(fileName,s=None):
         elif (line.find(".root")!=-1):
             entry=line.replace("\n","")
             prim.append(entry)
-    # remove any duplicates
-    prim = sorted(list(set(prim)))
-    sec = sorted(list(set(sec)))
+    # remove any duplicates but keep the order
+    file_seen = set()
+    prim = [f for f in prim if not (f in file_seen or file_seen.add(f))]
+    file_seen = set()
+    sec = [f for f in sec if not (f in file_seen or file_seen.add(f))]
     if s:
         if not hasattr(s,"fileNames"):
             s.fileNames=cms.untracked.vstring(prim)
@@ -966,7 +969,6 @@ class ConfigBuilder(object):
         self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
         self.NANODefaultCFF="PhysicsTools/NanoAOD/nano_cff"
         self.NANOGENDefaultCFF="PhysicsTools/NanoAOD/nanogen_cff"
-        self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
         self.VALIDATIONDefaultCFF="Configuration/StandardSequences/Validation_cff"
@@ -1006,7 +1008,6 @@ class ConfigBuilder(object):
         else:
             self.RECODefaultSeq='reconstruction_fromRECO'
         self.RECOSIMDefaultSeq='recosim'
-        self.EIDefaultSeq='top'
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
@@ -1273,8 +1274,13 @@ class ConfigBuilder(object):
         alcaConfig=self.loadDefaultOrSpecifiedCFF(sequence,self.ALCADefaultCFF)
         sequence = sequence.split('.')[-1]
 
+        MAXLEN=31 #the alca producer name should be shorter than 31 chars as per https://cms-talk.web.cern.ch/t/alcaprompt-datasets-not-loaded-in-dbs/11146/2
         # decide which ALCA paths to use
         alcaList = sequence.split("+")
+        for alca in alcaList:
+            if (len(alca)>MAXLEN):
+                raise Exception("The following alca "+str(alca)+" name (with length "+str(len(alca))+" chars) cannot be accepted because it exceeds the DBS constraints on the length of the name of the ALCARECOs producers ("+str(MAXLEN)+")!")
+
         maxLevel=0
         from Configuration.AlCa.autoAlca import autoAlca, AlCaNoConcurrentLumis
         # support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
@@ -1734,18 +1740,6 @@ class ConfigBuilder(object):
             self._options.customisation_file_unsch.insert(0, '.'.join([self.NANOGENDefaultCFF, custom]))
         else:
             self._options.customisation_file.insert(0, '.'.join([self.NANOGENDefaultCFF, custom]))
-
-    def prepare_EI(self, sequence = None):
-        ''' Enrich the schedule with event interpretation '''
-        from Configuration.StandardSequences.EventInterpretation import EventInterpretation
-        if sequence in EventInterpretation:
-            self.EIDefaultCFF = EventInterpretation[sequence]
-            sequence = 'EIsequence'
-        else:
-            raise Exception('Cannot set %s event interpretation'%( sequence) )
-        self.loadDefaultOrSpecifiedCFF(sequence,self.EIDefaultCFF)
-        self.scheduleSequence(sequence.split('.')[-1],'eventinterpretaion_step')
-        return
 
     def prepare_SKIM(self, sequence = "all"):
         ''' Enrich the schedule with skimming fragments'''
@@ -2230,7 +2224,7 @@ class ConfigBuilder(object):
                 self.pythonCfgCode +=dumpPython(self.process,object)
 
         if self._options.pileup=='HiMixEmbGEN':
-            self.pythonCfgCode += "\nprocess.generator.embeddingMode=cms.bool(True)\n"
+            self.pythonCfgCode += "\nprocess.generator.embeddingMode=cms.int32(1)\n"
 
         # dump all paths
         self.pythonCfgCode += "\n# Path and EndPath definitions\n"
@@ -2279,19 +2273,34 @@ class ConfigBuilder(object):
         self.pythonCfgCode+="from PhysicsTools.PatAlgos.tools.helpers import associatePatAlgosToolsTask\n"
         self.pythonCfgCode+="associatePatAlgosToolsTask(process)\n"
 
-        if self._options.nThreads != "1":
+        overrideThreads = (self._options.nThreads != "1")
+        overrideConcurrentLumis = (self._options.nConcurrentLumis != defaultOptions.nConcurrentLumis)
+        overrideConcurrentIOVs = (self._options.nConcurrentIOVs != defaultOptions.nConcurrentIOVs)
+
+        if overrideThreads or overrideConcurrentLumis or overrideConcurrentIOVs:
             self.pythonCfgCode +="\n"
             self.pythonCfgCode +="#Setup FWK for multithreaded\n"
-            self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
-            self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
-            self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
-            self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
-            if int(self._options.nConcurrentLumis) > 1:
-              self.pythonCfgCode +="if hasattr(process, 'DQMStore'): process.DQMStore.assertLegacySafe=cms.untracked.bool(False)\n"
-            self.process.options.numberOfThreads = int(self._options.nThreads)
-            self.process.options.numberOfStreams = int(self._options.nStreams)
-            self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
-            self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
+            if overrideThreads:
+                self.pythonCfgCode +="process.options.numberOfThreads = "+self._options.nThreads+"\n"
+                self.pythonCfgCode +="process.options.numberOfStreams = "+self._options.nStreams+"\n"
+                self.process.options.numberOfThreads = int(self._options.nThreads)
+                self.process.options.numberOfStreams = int(self._options.nStreams)
+            if overrideConcurrentLumis:
+                self.pythonCfgCode +="process.options.numberOfConcurrentLuminosityBlocks = "+self._options.nConcurrentLumis+"\n"
+                self.process.options.numberOfConcurrentLuminosityBlocks = int(self._options.nConcurrentLumis)
+            if overrideConcurrentIOVs:
+                self.pythonCfgCode +="process.options.eventSetup.numberOfConcurrentIOVs = "+self._options.nConcurrentIOVs+"\n"
+                self.process.options.eventSetup.numberOfConcurrentIOVs = int(self._options.nConcurrentIOVs)
+
+        if self._options.accelerators is not None:
+            accelerators = self._options.accelerators.split(',')
+            self.pythonCfgCode += "\n"
+            self.pythonCfgCode += "# Enable only these accelerator backends\n"
+            self.pythonCfgCode += "process.load('Configuration.StandardSequences.Accelerators_cff')\n"
+            self.pythonCfgCode += "process.options.accelerators = ['" + "', '".join(accelerators) + "']\n"
+            self.process.load('Configuration.StandardSequences.Accelerators_cff')
+            self.process.options.accelerators = accelerators
+
         #repacked version
         if self._options.isRepacked:
             self.pythonCfgCode +="\n"

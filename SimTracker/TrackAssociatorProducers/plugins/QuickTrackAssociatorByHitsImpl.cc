@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <type_traits>
+#include <typeinfo>
 
 #include "QuickTrackAssociatorByHitsImpl.h"
 
@@ -36,12 +38,23 @@ namespace {
     return collection.size();
   }
 
-  const reco::Track* getTrackAt(const edm::RefToBaseVector<reco::Track>& trackCollection, size_t index) {
+  template <typename T_Track>
+  const T_Track* getTrackAt(const edm::RefToBaseVector<T_Track>& trackCollection, size_t index) {
     return &*trackCollection[index];  // pretty obscure dereference
   }
 
-  const reco::Track* getTrackAt(const edm::Handle<edm::View<reco::Track> >& pTrackCollection, size_t index) {
-    return &(*pTrackCollection.product())[index];
+  template <typename T_Coll>
+  const auto* getTrackAt(const edm::Handle<T_Coll>& pTrackCollection, size_t index) {
+    return &(*pTrackCollection)[index];
+  }
+
+  template <typename T_Track>
+  int numberOfValidHits(const T_Track& track) {
+    return std::count_if(track.recHits().begin(), track.recHits().end(), [](auto const& h) { return h.isValid(); });
+  }
+  template <>
+  int numberOfValidHits(const reco::Track& track) {
+    return track.numberOfValidHits();
   }
 
   const TrackingParticle* getTrackingParticleAt(const edm::Handle<TrackingParticleCollection>& pCollection,
@@ -54,13 +67,18 @@ namespace {
     return &*collection[index];
   }
 
-  edm::RefToBase<reco::Track> getRefToTrackAt(const edm::RefToBaseVector<reco::Track>& trackCollection, size_t index) {
+  template <typename T_Track>
+  edm::RefToBase<T_Track> getRefToTrackAt(const edm::RefToBaseVector<T_Track>& trackCollection, size_t index) {
     return trackCollection[index];
   }
-
-  edm::RefToBase<reco::Track> getRefToTrackAt(const edm::Handle<edm::View<reco::Track> >& pTrackCollection,
-                                              size_t index) {
-    return edm::RefToBase<reco::Track>(pTrackCollection, index);
+  template <typename T_Track>
+  edm::RefToBase<T_Track> getRefToTrackAt(const edm::Handle<edm::View<T_Track>>& pTrackCollection, size_t index) {
+    return edm::RefToBase<T_Track>(pTrackCollection, index);
+  }
+  template <typename T_Track>
+  edm::Ref<std::vector<T_Track>> getRefToTrackAt(const edm::Handle<std::vector<T_Track>>& pTrackCollection,
+                                                 size_t index) {
+    return edm::Ref<std::vector<T_Track>>(pTrackCollection, index);
   }
 
   edm::Ref<TrackingParticleCollection> getRefToTrackingParticleAt(
@@ -113,26 +131,26 @@ QuickTrackAssociatorByHitsImpl::QuickTrackAssociatorByHitsImpl(edm::EDProductGet
       absoluteNumberOfHits_(absoluteNumberOfHits) {}
 
 reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSim(
-    const edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
+    const edm::Handle<edm::View<reco::Track>>& trackCollectionHandle,
     const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const {
   // Only pass the one that was successfully created to the templated method.
   if (not clusterToTPMap_)
-    return associateRecoToSimImplementation(
+    return associateRecoToSimImplementation<reco::RecoToSimCollection>(
         trackCollectionHandle, trackingParticleCollectionHandle, nullptr, *hitAssociator_);
   else
-    return associateRecoToSimImplementation(
+    return associateRecoToSimImplementation<reco::RecoToSimCollection>(
         trackCollectionHandle, trackingParticleCollectionHandle, nullptr, *clusterToTPMap_);
 }
 
 reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToReco(
-    const edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
+    const edm::Handle<edm::View<reco::Track>>& trackCollectionHandle,
     const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const {
   // Only pass the one that was successfully created to the templated method.
   if (not clusterToTPMap_)
-    return associateSimToRecoImplementation(
+    return associateSimToRecoImplementation<reco::SimToRecoCollection>(
         trackCollectionHandle, trackingParticleCollectionHandle, nullptr, *hitAssociator_);
   else
-    return associateSimToRecoImplementation(
+    return associateSimToRecoImplementation<reco::SimToRecoCollection>(
         trackCollectionHandle, trackingParticleCollectionHandle, nullptr, *clusterToTPMap_);
 }
 
@@ -141,11 +159,13 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSim(
     const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection) const {
   // Only pass the one that was successfully created to the templated method.
   if (not clusterToTPMap_)
-    return associateRecoToSimImplementation(trackCollection, trackingParticleCollection, nullptr, *hitAssociator_);
+    return associateRecoToSimImplementation<reco::RecoToSimCollection>(
+        trackCollection, trackingParticleCollection, nullptr, *hitAssociator_);
   else {
     TrackingParticleRefKeySet tpKeys;
     fillKeys(tpKeys, trackingParticleCollection);
-    return associateRecoToSimImplementation(trackCollection, trackingParticleCollection, &tpKeys, *clusterToTPMap_);
+    return associateRecoToSimImplementation<reco::RecoToSimCollection>(
+        trackCollection, trackingParticleCollection, &tpKeys, *clusterToTPMap_);
   }
 }
 
@@ -154,21 +174,26 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToReco(
     const edm::RefVector<TrackingParticleCollection>& trackingParticleCollection) const {
   // Only pass the one that was successfully created to the templated method.
   if (not clusterToTPMap_)
-    return associateSimToRecoImplementation(trackCollection, trackingParticleCollection, nullptr, *hitAssociator_);
+    return associateSimToRecoImplementation<reco::SimToRecoCollection>(
+        trackCollection, trackingParticleCollection, nullptr, *hitAssociator_);
   else {
     TrackingParticleRefKeySet tpKeys;
     fillKeys(tpKeys, trackingParticleCollection);
-    return associateSimToRecoImplementation(trackCollection, trackingParticleCollection, &tpKeys, *clusterToTPMap_);
+    return associateSimToRecoImplementation<reco::SimToRecoCollection>(
+        trackCollection, trackingParticleCollection, &tpKeys, *clusterToTPMap_);
   }
 }
 
-template <class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
-reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImplementation(
+template <class T_RecoToSimCollection,
+          class T_TrackCollection,
+          class T_TrackingParticleCollection,
+          class T_hitOrClusterAssociator>
+T_RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImplementation(
     const T_TrackCollection& trackCollection,
     const T_TrackingParticleCollection& trackingParticleCollection,
     const TrackingParticleRefKeySet* trackingParticleKeys,
     T_hitOrClusterAssociator hitOrClusterAssociator) const {
-  reco::RecoToSimCollection returnValue(productGetter_);
+  T_RecoToSimCollection returnValue(productGetter_);
   if (::collectionSize(trackingParticleCollection) == 0)
     return returnValue;
 
@@ -177,16 +202,16 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
   size_t collectionSize = ::collectionSize(trackCollection);  // Delegate away type specific part
 
   for (size_t i = 0; i < collectionSize; ++i) {
-    const reco::Track* pTrack = ::getTrackAt(
-        trackCollection, i);  // Get a normal pointer for ease of use. This part is type specific so delegate.
+    // Get a normal pointer for ease of use. This part is type specific so delegate.
+    const auto* pTrack = ::getTrackAt(trackCollection, i);
 
     // The return of this function has first as the index and second as the number of associated hits
-    std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > trackingParticleQualityPairs =
+    std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double>> trackingParticleQualityPairs =
         associateTrack(hitOrClusterAssociator,
                        trackingParticleCollection,
                        trackingParticleKeys,
-                       pTrack->recHitsBegin(),
-                       pTrack->recHitsEnd());
+                       pTrack->recHits().begin(),
+                       pTrack->recHits().end());
 
     // int nt = 0;
     for (auto iTrackingParticleQualityPair = trackingParticleQualityPairs.begin();
@@ -202,8 +227,8 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
       //if electron subtract double counting
       if (abs(trackingParticleRef->pdgId()) == 11 &&
           (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1) {
-        numberOfSharedClusters -=
-            getDoubleCount(hitOrClusterAssociator, pTrack->recHitsBegin(), pTrack->recHitsEnd(), trackingParticleRef);
+        numberOfSharedClusters -= getDoubleCount(
+            hitOrClusterAssociator, pTrack->recHits().begin(), pTrack->recHits().end(), trackingParticleRef);
       }
 
       double quality;
@@ -214,7 +239,7 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
       else
         quality = 0;
       if (quality > cutRecoToSim_ &&
-          !(threeHitTracksAreSpecial_ && pTrack->numberOfValidHits() == 3 && numberOfSharedClusters < 3.0)) {
+          !(threeHitTracksAreSpecial_ && ::numberOfValidHits(*pTrack) == 3 && numberOfSharedClusters < 3.0)) {
         // Getting the RefToBase is dependent on the type of trackCollection, so delegate that to an overload.
         returnValue.insert(::getRefToTrackAt(trackCollection, i), std::make_pair(trackingParticleRef, quality));
       }
@@ -224,13 +249,16 @@ reco::RecoToSimCollection QuickTrackAssociatorByHitsImpl::associateRecoToSimImpl
   return returnValue;
 }
 
-template <class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
-reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImplementation(
+template <class T_SimToRecoCollection,
+          class T_TrackCollection,
+          class T_TrackingParticleCollection,
+          class T_hitOrClusterAssociator>
+T_SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImplementation(
     const T_TrackCollection& trackCollection,
     const T_TrackingParticleCollection& trackingParticleCollection,
     const TrackingParticleRefKeySet* trackingParticleKeys,
     T_hitOrClusterAssociator hitOrClusterAssociator) const {
-  reco::SimToRecoCollection returnValue(productGetter_);
+  T_SimToRecoCollection returnValue(productGetter_);
   if (::collectionSize(trackingParticleCollection) == 0)
     return returnValue;
 
@@ -239,16 +267,16 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
   size_t collectionSize = ::collectionSize(trackCollection);  // Delegate away type specific part
 
   for (size_t i = 0; i < collectionSize; ++i) {
-    const reco::Track* pTrack = ::getTrackAt(
-        trackCollection, i);  // Get a normal pointer for ease of use. This part is type specific so delegate.
+    // Get a normal pointer for ease of use. This part is type specific so delegate.
+    const auto* pTrack = ::getTrackAt(trackCollection, i);
 
     // The return of this function has first as an edm:Ref to the associated TrackingParticle, and second as the number of associated hits
-    std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > trackingParticleQualityPairs =
+    std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double>> trackingParticleQualityPairs =
         associateTrack(hitOrClusterAssociator,
                        trackingParticleCollection,
                        trackingParticleKeys,
-                       pTrack->recHitsBegin(),
-                       pTrack->recHitsEnd());
+                       pTrack->recHits().begin(),
+                       pTrack->recHits().end());
 
     // int nt = 0;
     for (auto iTrackingParticleQualityPair = trackingParticleQualityPairs.begin();
@@ -276,8 +304,8 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
       //if electron subtract double counting
       if (abs(trackingParticleRef->pdgId()) == 11 &&
           (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1) {
-        numberOfSharedClusters -=
-            getDoubleCount(hitOrClusterAssociator, pTrack->recHitsBegin(), pTrack->recHitsEnd(), trackingParticleRef);
+        numberOfSharedClusters -= getDoubleCount(
+            hitOrClusterAssociator, pTrack->recHits().begin(), pTrack->recHits().end(), trackingParticleRef);
       }
 
       double purity = numberOfSharedClusters / numberOfValidTrackClusters;
@@ -304,19 +332,19 @@ reco::SimToRecoCollection QuickTrackAssociatorByHitsImpl::associateSimToRecoImpl
 }
 
 template <typename T_TPCollection, typename iter>
-std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > QuickTrackAssociatorByHitsImpl::associateTrack(
+std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double>> QuickTrackAssociatorByHitsImpl::associateTrack(
     const TrackerHitAssociator& hitAssociator,
     const T_TPCollection& trackingParticles,
     const TrackingParticleRefKeySet* trackingParticleKeys,
     iter begin,
     iter end) const {
   // The pairs in this vector have a Ref to the associated TrackingParticle as "first" and the weighted number of associated hits as "second"
-  std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > returnValue;
+  std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double>> returnValue;
 
   // The pairs in this vector have first as the sim track identifiers, and second the number of reco hits associated to that sim track.
   // Most reco hits will probably have come from the same sim track, so the number of entries in this vector should be fewer than the
   // number of reco hits.  The pair::second entries should add up to the total number of reco hits though.
-  std::vector<std::pair<SimTrackIdentifiers, double> > hitIdentifiers =
+  std::vector<std::pair<SimTrackIdentifiers, double>> hitIdentifiers =
       getAllSimTrackIdentifiers(hitAssociator, begin, end);
 
   // Loop over the TrackingParticles
@@ -349,7 +377,7 @@ std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > QuickTrack
 }
 
 template <typename T_TPCollection, typename iter>
-std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > QuickTrackAssociatorByHitsImpl::associateTrack(
+std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double>> QuickTrackAssociatorByHitsImpl::associateTrack(
     const ClusterTPAssociation& clusterToTPMap,
     const T_TPCollection& trackingParticles,
     const TrackingParticleRefKeySet* trackingParticleKeys,
@@ -369,7 +397,7 @@ std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > QuickTrack
 
   // The pairs in this vector have a Ref to the associated TrackingParticle as "first" and the weighted number of associated clusters as "second"
   // Note: typedef edm::Ref<TrackingParticleCollection> TrackingParticleRef;
-  std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > returnValue;
+  std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double>> returnValue;
   if (clusterToTPMap.empty())
     return returnValue;
 
@@ -426,12 +454,12 @@ std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > QuickTrack
 }
 
 template <typename iter>
-std::vector<std::pair<QuickTrackAssociatorByHitsImpl::SimTrackIdentifiers, double> >
+std::vector<std::pair<QuickTrackAssociatorByHitsImpl::SimTrackIdentifiers, double>>
 QuickTrackAssociatorByHitsImpl::getAllSimTrackIdentifiers(const TrackerHitAssociator& hitAssociator,
                                                           iter begin,
                                                           iter end) const {
   // The pairs in this vector have first as the sim track identifiers, and second the number of reco hits associated to that sim track.
-  std::vector<std::pair<SimTrackIdentifiers, double> > returnValue;
+  std::vector<std::pair<SimTrackIdentifiers, double>> returnValue;
 
   std::vector<SimTrackIdentifiers> simTrackIdentifiers;
   // Loop over all of the rec hits in the track
@@ -454,7 +482,7 @@ QuickTrackAssociatorByHitsImpl::getAllSimTrackIdentifiers(const TrackerHitAssoci
       for (std::vector<SimTrackIdentifiers>::const_iterator iIdentifier = simTrackIdentifiers.begin();
            iIdentifier != simTrackIdentifiers.end();
            ++iIdentifier) {
-        std::vector<std::pair<SimTrackIdentifiers, double> >::iterator iIdentifierCountPair;
+        std::vector<std::pair<SimTrackIdentifiers, double>>::iterator iIdentifierCountPair;
         for (auto iIdentifierCountPair = returnValue.begin(); iIdentifierCountPair != returnValue.end();
              ++iIdentifierCountPair) {
           if (iIdentifierCountPair->first.first == iIdentifier->first &&
@@ -589,7 +617,7 @@ double QuickTrackAssociatorByHitsImpl::getDoubleCount(const ClusterTPAssociation
 }
 
 reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim(
-    const edm::Handle<edm::View<TrajectorySeed> >& pSeedCollectionHandle_,
+    const edm::Handle<edm::View<TrajectorySeed>>& pSeedCollectionHandle_,
     const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const {
   edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHitsImpl::associateRecoToSim - #seeds="
                                       << pSeedCollectionHandle_->size()
@@ -603,7 +631,7 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
     const TrajectorySeed* pSeed = &(*pSeedCollectionHandle_)[i];
 
     // The return of this function has first as the index and second as the number of associated hits
-    std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > trackingParticleQualityPairs =
+    std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double>> trackingParticleQualityPairs =
         (clusterToTPMap_) ? associateTrack(*clusterToTPMap_,
                                            trackingParticleCollectionHandle,
                                            nullptr,
@@ -659,7 +687,7 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHitsImpl::associateRecoToSim
 }
 
 reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco(
-    const edm::Handle<edm::View<TrajectorySeed> >& pSeedCollectionHandle_,
+    const edm::Handle<edm::View<TrajectorySeed>>& pSeedCollectionHandle_,
     const edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle) const {
   edm::LogVerbatim("TrackAssociator") << "Starting TrackAssociatorByHitsImpl::associateSimToReco - #seeds="
                                       << pSeedCollectionHandle_->size()
@@ -679,7 +707,7 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
     const TrajectorySeed* pSeed = &(*pSeedCollectionHandle_)[i];
 
     // The return of this function has first as an edm:Ref to the associated TrackingParticle, and second as the number of associated hits
-    std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > trackingParticleQualityPairs =
+    std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double>> trackingParticleQualityPairs =
         (clusterToTPMap_) ? associateTrack(*clusterToTPMap_,
                                            trackingParticleCollectionHandle,
                                            nullptr,
@@ -750,7 +778,32 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHitsImpl::associateSimToReco
   return returnValue;
 }
 
+reco::RecoToSimCollectionTCandidate QuickTrackAssociatorByHitsImpl::associateRecoToSim(
+    const edm::Handle<TrackCandidateCollection>& trackCollectionHandle,
+    const edm::RefVector<TrackingParticleCollection>& trackingParticleCollectionHandle) const {
+  // Only pass the one that was successfully created to the templated method.
+  if (not clusterToTPMap_)
+    return associateRecoToSimImplementation<reco::RecoToSimCollectionTCandidate>(
+        trackCollectionHandle, trackingParticleCollectionHandle, nullptr, *hitAssociator_);
+  else
+    return associateRecoToSimImplementation<reco::RecoToSimCollectionTCandidate>(
+        trackCollectionHandle, trackingParticleCollectionHandle, nullptr, *clusterToTPMap_);
+}
+
+reco::SimToRecoCollectionTCandidate QuickTrackAssociatorByHitsImpl::associateSimToReco(
+    const edm::Handle<TrackCandidateCollection>& trackCollectionHandle,
+    const edm::RefVector<TrackingParticleCollection>& trackingParticleCollectionHandle) const {
+  // Only pass the one that was successfully created to the templated method.
+  if (not clusterToTPMap_)
+    return associateSimToRecoImplementation<reco::SimToRecoCollectionTCandidate>(
+        trackCollectionHandle, trackingParticleCollectionHandle, nullptr, *hitAssociator_);
+  else
+    return associateSimToRecoImplementation<reco::SimToRecoCollectionTCandidate>(
+        trackCollectionHandle, trackingParticleCollectionHandle, nullptr, *clusterToTPMap_);
+}
+
 // count hits
+template <>
 double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const reco::Track& track,
                                                                      const TrackerHitAssociator&) const {
   const reco::HitPattern& p = track.hitPattern();
@@ -759,7 +812,8 @@ double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const reco:
   return pixelHits * pixelHitWeight_ + otherHits;
 }
 
-double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const TrajectorySeed& seed,
+template <typename T_Track>
+double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const T_Track& seed,
                                                                      const TrackerHitAssociator&) const {
   double sum = 0.0;
   for (auto iHit = seed.recHits().begin(); iHit != seed.recHits().end(); ++iHit) {
@@ -773,11 +827,13 @@ double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const Traje
 }
 
 // count clusters
+template <>
 double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const reco::Track& track,
                                                                      const ClusterTPAssociation&) const {
   return weightedNumberOfTrackClusters(track.recHitsBegin(), track.recHitsEnd());
 }
-double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const TrajectorySeed& seed,
+template <typename T_Track>
+double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(const T_Track& seed,
                                                                      const ClusterTPAssociation&) const {
   const auto& hitRange = seed.recHits();
   return weightedNumberOfTrackClusters(hitRange.begin(), hitRange.end());

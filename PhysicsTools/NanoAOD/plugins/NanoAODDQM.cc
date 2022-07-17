@@ -92,6 +92,9 @@ private:
         case FlatTable::ColumnType::Int:
           vfill<int>(table, icol, rowsel);
           break;
+        case FlatTable::ColumnType::Int8:
+          vfill<int8_t>(table, icol, rowsel);
+          break;
         case FlatTable::ColumnType::UInt8:
           vfill<uint8_t>(table, icol, rowsel);
           break;

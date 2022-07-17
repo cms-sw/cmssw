@@ -1,7 +1,6 @@
 #ifndef __DQMOffline_PFTau_PFCandidateDQMAnalyzer__
 #define __DQMOffline_PFTau_PFCandidateDQMAnalyzer__
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

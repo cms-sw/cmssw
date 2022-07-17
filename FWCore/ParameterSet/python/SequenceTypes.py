@@ -243,8 +243,14 @@ def findDirectDependencies(element, collection,sortByType=True):
                 dependencies += item.directDependencies(sortByType)
                 continue
             t = 'tasks'
+        # cms.ConditionalTask
+        elif isinstance(item, ConditionalTask):
+            if not item.hasLabel_():
+                dependencies += item.directDependencies(sortByType)
+                continue
+            t = 'conditionaltasks'
         # SequencePlaceholder and TaskPlaceholder do not add an explicit dependency
-        elif isinstance(item, (SequencePlaceholder, TaskPlaceholder)):
+        elif isinstance(item, (SequencePlaceholder, TaskPlaceholder, ConditionalTaskPlaceholder)):
             continue
         # unsupported elements
         else:
@@ -262,7 +268,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
     def __init__(self,*arg, **argv):
         self.__dict__["_isFrozen"] = False
         self._seq = None
-        if (len(arg) > 1 and not isinstance(arg[1], Task)) or (len(arg) > 0 and not isinstance(arg[0],_Sequenceable) and not isinstance(arg[0],Task)):
+        if (len(arg) > 1 and not isinstance(arg[1], _TaskBase)) or (len(arg) > 0 and not isinstance(arg[0],_Sequenceable) and not isinstance(arg[0],_TaskBase)):
             typename = format_typename(self)
             msg = format_outerframe(2)
             msg += "The %s constructor takes zero or one sequenceable argument followed by zero or more arguments of type Task. But the following types are given:\n" %typename
@@ -287,7 +293,7 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
             self.associate(*tasks)
     def associate(self,*tasks):
         for task in tasks:
-            if not isinstance(task, Task):
+            if not isinstance(task, _TaskBase):
                 raise TypeError("associate only works with objects of type Task")
             self._tasks.add(task)
     def isFrozen(self):
@@ -444,14 +450,17 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         # where objects that contain other objects are involved. See the comments
         # for the _MutatingSequenceVisitor.
 
-        if isinstance(original,Task) != isinstance(replacement,Task):
+        if (isinstance(original,Task) != isinstance(replacement,Task)):
                raise TypeError("replace only works if both arguments are Tasks or neither")
+        if (isinstance(original,ConditionalTask) != isinstance(replacement,ConditionalTask)):
+               raise TypeError("replace only works if both arguments are ConditionalTasks or neither")
         v = _CopyAndReplaceSequenceVisitor(original,replacement)
         self.visit(v)
         if v.didReplace():
             self._seq = v.result(self)[0]
-            self._tasks.clear()
-            self.associate(*v.result(self)[1])
+            if v.result(self)[1]:
+              self._tasks.clear()
+              self.associate(*v.result(self)[1])
         return v.didReplace()
     def _replaceIfHeldDirectly(self,original,replacement):
         """Only replaces an 'original' with 'replacement' if 'original' is directly held.
@@ -495,8 +504,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         self.visit(v)
         if v.didRemove():
             self._seq = v.result(self)[0]
-            self._tasks.clear()
-            self.associate(*v.result(self)[1])
+            if v.result(self)[1]:
+              self._tasks.clear()
+              self.associate(*v.result(self)[1])
         return v.didRemove()
     def resolve(self, processDict,keepIfCannotResolve=False):
         if self._seq is not None:
@@ -855,6 +865,18 @@ class TaskVisitor(object):
     def leave(self,visitee):
         pass
 
+# Fills a list of all ConditionalTasks visited
+# Can visit a ConditionalTask, Sequence, Path, or EndPath
+class ConditionalTaskVisitor(object):
+    def __init__(self,d):
+        self.deps = d
+    def enter(self,visitee):
+        if isinstance(visitee,ConditionalTask):
+            self.deps.append(visitee)
+        pass
+    def leave(self,visitee):
+        pass
+
 # Fills a list of all modules visited.
 # Can visit a Sequence, Path, EndPath, or Task
 # For purposes of this visitor, a module is considered
@@ -893,6 +915,29 @@ class ModuleNodeOnTaskVisitor(object):
     def leave(self,visitee):
         if self._levelInTasks > 0:
             if isinstance(visitee, Task):
+                self._levelInTasks -= 1
+
+class ModuleNodeOnConditionalTaskVisitor(object):
+    def __init__(self,l):
+        self.l = l
+        self._levelInTasks = 0
+    def enter(self,visitee):
+        if isinstance(visitee, ConditionalTask):
+            self._levelInTasks += 1
+        # This block gets the modules contained by SwitchProducer. It
+        # needs to be before the "levelInTasks == 0" check because the
+        # contained modules need to be treated like in ConditionalTask
+        # also when the SwitchProducer itself is in the Path.
+        if hasattr(visitee, "modulesForConditionalTask_"):
+            self.l.extend(visitee.modulesForConditionalTask_())
+        if self._levelInTasks == 0:
+            return
+        if visitee.isLeaf():
+            self.l.append(visitee)
+        pass
+    def leave(self,visitee):
+        if self._levelInTasks > 0:
+            if isinstance(visitee, ConditionalTask):
                 self._levelInTasks -= 1
 
 # Should not be used on Tasks.
@@ -959,7 +1004,7 @@ class NodeNameVisitor(object):
                 if visitee._inProcess:
                     self.l.add(visitee.type_())
                 else:
-                    raise RuntimeError("Service not attached to process")
+                    raise RuntimeError("Service not attached to process: {}".format(visitee.dumpPython()))
     def leave(self,visitee):
         pass
 
@@ -971,14 +1016,25 @@ class ExpandVisitor(object):
         self._type = type
         self.l = []
         self.taskLeaves = []
+        self.taskLeavesInConditionalTasks = []
+        self.presentTaskLeaves = self.taskLeaves
         self._levelInTasks = 0
+        self.conditionaltaskLeaves = []
+        self._levelInConditionalTasks = 0
+
     def enter(self,visitee):
         if isinstance(visitee, Task):
             self._levelInTasks += 1
             return
+        if isinstance(visitee, ConditionalTask):
+            self.presentTaskLeaves = self.taskLeavesInConditionalTasks
+            self._levelInConditionalTasks += 1
+            return
         if visitee.isLeaf():
             if self._levelInTasks > 0:
-                self.taskLeaves.append(visitee)
+                self.presentTaskLeaves.append(visitee)
+            elif self._levelInConditionalTasks > 0:
+                self.conditionaltaskLeaves.append(visitee)
             else:
                 self.l.append(visitee)
     def leave(self, visitee):
@@ -986,18 +1042,31 @@ class ExpandVisitor(object):
             if isinstance(visitee, Task):
                 self._levelInTasks -= 1
             return
+        if self._levelInConditionalTasks > 0:
+            if isinstance(visitee, ConditionalTask):
+                self._levelInConditionalTasks -= 1
+                if 0 == self._levelInConditionalTasks:
+                  self.presentTaskLeaves = self.taskLeaves
+            return
         if isinstance(visitee,_UnarySequenceOperator):
             self.l[-1] = visitee
     def result(self):
-        tsk = Task(*self.taskLeaves)
+        tsks = []
+        if self.taskLeaves:
+          tsks.append(Task(*self.taskLeaves))
+        if self.conditionaltaskLeaves:
+          ct = ConditionalTask(*self.conditionaltaskLeaves)
+          if self.taskLeavesInConditionalTasks:
+            ct.append(*self.taskLeavesInConditionalTasks)
+          tsks.append(ct)
         if len(self.l) > 0:
             # why doesn't (sum(self.l) work?
             seq = self.l[0]
             for el in self.l[1:]:
                 seq += el
-            return self._type(seq, tsk)
+            return self._type(seq, *tsks)
         else:
-            return self._type(tsk)
+            return self._type(*tsks)
     def resultString(self):
         sep = ''
         returnValue = ''
@@ -1029,7 +1098,7 @@ class DecoratedNodeNameVisitor(object):
         self._levelInTasks = 0
 
     def enter(self,visitee):
-        if isinstance(visitee, Task):
+        if isinstance(visitee, _TaskBase):
             self._levelInTasks += 1
         if self._levelInTasks > 0:
             return
@@ -1053,7 +1122,7 @@ class DecoratedNodeNameVisitor(object):
     def leave(self,visitee):
         # Ignore if this visitee is inside a Task
         if self._levelInTasks > 0:
-            if isinstance(visitee, Task):
+            if isinstance(visitee, _TaskBase):
                 self._levelInTasks -= 1
             return
         if isinstance(visitee,_BooleanLogicExpression):
@@ -1333,19 +1402,19 @@ class _MutatingSequenceVisitor(object):
                 node.__init__(contents[0][0])
                 self.__stack[-2][-1] = [node, True, None]
 
-            elif isinstance(visitee, Task):
+            elif isinstance(visitee, _TaskBase):
                 nonNull = []
                 for c in contents:
                     if c[0] is not None:
                         nonNull.append(c[0])
-                self.__stack[-2][-1] = [Task(*nonNull), True, None]
+                self.__stack[-2][-1] = [visitee._makeInstance(*nonNull), True, None]
             elif isinstance(visitee, Sequence):
                 seq = _SequenceCollection()
                 tasks = list()
                 for c in contents:
                     if c[0] is None:
                         continue
-                    if isinstance(c[0], Task):
+                    if isinstance(c[0], _TaskBase):
                         tasks.append(c[0])
                     else:
                         seq = seq + c[0]
@@ -1362,7 +1431,7 @@ class _MutatingSequenceVisitor(object):
 
     def result(self, visitedContainer):
 
-        if isinstance(visitedContainer, Task):
+        if isinstance(visitedContainer, _TaskBase):
             result = list()
             for n in (x[0] for x in self.__stack[0]):
                 if n is not None:
@@ -1374,7 +1443,7 @@ class _MutatingSequenceVisitor(object):
         for c in self.__stack[0]:
             if c[0] is None:
                 continue
-            if isinstance(c[0], Task):
+            if isinstance(c[0], _TaskBase):
                 tasks.append(c[0])
             else:
                 seq = seq + c[0]
@@ -1433,38 +1502,23 @@ class _CopyAndReplaceSequenceVisitor(_MutatingSequenceVisitor):
     def didReplace(self):
         return self._didApply()
 
-class Task(_ConfigureComponent, _Labelable) :
-    """Holds EDProducers, EDFilters, ESProducers, ESSources, Services, and Tasks.
-    A Task can be associated with Sequences, Paths, EndPaths and the Schedule.
-    An EDProducer or EDFilter will be enabled to run unscheduled if it is on
-    a task associated with the Schedule or any scheduled Path or EndPath (directly
-    or indirectly through Sequences) and not be on any scheduled Path or EndPath.
-    ESSources, ESProducers, and Services will be enabled to run if they are on
-    a Task associated with the Schedule or a scheduled Path or EndPath.  In other
-    cases, they will be enabled to run if and only if they are not on a Task attached
-    to the process.
-    """
-
+class _TaskBase(_ConfigureComponent, _Labelable) :
     def __init__(self, *items):
         self._collection = OrderedSet()
         self.add(*items)
 
     def __setattr__(self,name,value):
         if not name.startswith("_"):
-            raise AttributeError("You cannot set parameters for Task objects.")
+            raise AttributeError("You cannot set parameters for {} objects.".format(self._taskType()))
         else:
             self.__dict__[name] = value
 
     def add(self, *items):
         for item in items:
-            if not isinstance(item, _ConfigureComponent) or not item._isTaskComponent():
-                if not isinstance(item, TaskPlaceholder):
-                    raise RuntimeError("Adding an entry of type '" + type(item).__name__ + "'to a Task.\n"
-                                       "It is illegal to add this type to a Task.")
+            if not self._allowedInTask(item):
+                raise RuntimeError("Adding an entry of type '{0}' to a {1}.\n"
+                                   "It is illegal to add this type to a {1}.".format(type(item).__name__, self._taskType()))
             self._collection.add(item)
-
-    def _place(self, name, proc):
-        proc._placeTask(name,self)
 
     def fillContents(self, taskContents, options=PrintOptions()):
         # only dump the label, if possible
@@ -1472,7 +1526,7 @@ class Task(_ConfigureComponent, _Labelable) :
             taskContents.add(_Labelable.dumpSequencePython(self, options))
         else:
             for i in self._collection:
-                if isinstance(i, Task):
+                if isinstance(i, _TaskBase):
                     i.fillContents(taskContents, options)
                 else:
                     taskContents.add(i.dumpSequencePython(options))
@@ -1485,7 +1539,7 @@ class Task(_ConfigureComponent, _Labelable) :
         """Returns a string which is the python representation of the object"""
         taskContents = set()
         for i in self._collection:
-            if isinstance(i, Task):
+            if isinstance(i, _TaskBase):
                 i.fillContents(taskContents, options)
             else:
                 taskContents.add(i.dumpSequencePython(options))
@@ -1497,14 +1551,14 @@ class Task(_ConfigureComponent, _Labelable) :
             iFirst = False
             s += item
         if len(taskContents) > 255:
-            return "cms.Task(*[" + s + "])"
-        return "cms.Task(" + s + ")"
+            s = "*[" + s + "]"
+        return "cms.{}({})".format(self._taskType(),s)
 
     def directDependencies(self,sortByType=True):
         return findDirectDependencies(self, self._collection,sortByType=sortByType)
 
     def _isTaskComponent(self):
-        return True
+        return False
 
     def isLeaf(self):
         return False
@@ -1517,7 +1571,7 @@ class Task(_ConfigureComponent, _Labelable) :
             visitor.leave(i)
 
     def _errorstr(self):
-        return "Task(...)"
+        return "{}(...)".format(self.taskType_())
 
     def __iter__(self):
         for key in self._collection:
@@ -1549,7 +1603,7 @@ class Task(_ConfigureComponent, _Labelable) :
         self.visit(visitor)
         return visitor.result()
     def copy(self):
-        return Task(*self._collection)
+        return self._makeInstance(*self._collection)
     def copyAndExclude(self,listOfModulesToExclude):
         """Returns a copy of the sequence which excludes those module in 'listOfModulesToExclude'"""
         # You can exclude instances of these types EDProducer, EDFilter, ESSource, ESProducer,
@@ -1562,7 +1616,7 @@ class Task(_ConfigureComponent, _Labelable) :
                 raise TypeError("copyAndExclude can only exclude objects that can be placed on a Task")
         v = _CopyAndExcludeSequenceVisitor(listOfModulesToExclude)
         self.visit(v)
-        return Task(*v.result(self))
+        return self._makeInstance(*v.result(self))
     def copyAndAdd(self, *modulesToAdd):
         """Returns a copy of the Task adding modules/tasks"""
         t = self.copy()
@@ -1576,7 +1630,7 @@ class Task(_ConfigureComponent, _Labelable) :
         l = []
         v = ModuleNodeVisitor(l)
         self.visit(v)
-        return Task(*l)
+        return self._makeInstance(*l)
     def replace(self, original, replacement):
         """Finds all instances of 'original' and substitutes 'replacement' for them.
            Returns 'True' if a replacement occurs."""
@@ -1587,10 +1641,10 @@ class Task(_ConfigureComponent, _Labelable) :
         # where objects that contain other objects are involved. See the comments
         # for the _MutatingSequenceVisitor.
 
-        if not original._isTaskComponent() or (not replacement is None and not replacement._isTaskComponent()):
-           raise TypeError("The Task replace function only works with objects that can be placed on a Task\n" + \
-                           "           replace was called with original type = " + str(type(original)) + "\n" + \
-                           "           and replacement type = " + str(type(replacement)) + "\n")
+        if not self._allowedInTask(original) or (not replacement is None and not self._allowedInTask(replacement)):
+           raise TypeError("The {0} replace function only works with objects that can be placed on a {0}\n".format(self._taskType()) + \
+                           "           replace was called with original type = {}\n".format(str(type(original))) + \
+                           "           and replacement type = {}\n".format(str(type(replacement))))
         else:
             v = _CopyAndReplaceSequenceVisitor(original,replacement)
             self.visit(v)
@@ -1612,7 +1666,7 @@ class Task(_ConfigureComponent, _Labelable) :
         # Works very similar to copyAndExclude, there are 2 differences. This changes
         # the object itself instead of making a copy and second it only removes
         # the first instance of the argument instead of all of them.
-        if not something._isTaskComponent():
+        if not self._allowedInTask(something):
            raise TypeError("remove only works with objects that can be placed on a Task")
         v = _CopyAndRemoveFirstSequenceVisitor(something)
         self.visit(v)
@@ -1624,18 +1678,18 @@ class Task(_ConfigureComponent, _Labelable) :
     def resolve(self, processDict,keepIfCannotResolve=False):
         temp = OrderedSet()
         for i in self._collection:
-            if isinstance(i, Task) or isinstance(i, TaskPlaceholder):
+            if self._mustResolve(i):
                 temp.add(i.resolve(processDict,keepIfCannotResolve))
             else:
                 temp.add(i)
         self._collection = temp
         return self
-
-class TaskPlaceholder(object):
+        
+class _TaskBasePlaceholder(object):
     def __init__(self, name):
         self._name = name
     def _isTaskComponent(self):
-        return True
+        return False
     def isLeaf(self):
         return False
     def visit(self,visitor):
@@ -1643,31 +1697,116 @@ class TaskPlaceholder(object):
     def __str__(self):
         return self._name
     def insertInto(self, parameterSet, myname):
-        raise RuntimeError("The TaskPlaceholder "+self._name
-                           +" was never overridden")
+        raise RuntimeError("The {} {} was never overridden".format(self._typeName(), self._name))
     def resolve(self, processDict,keepIfCannotResolve=False):
         if not self._name in processDict:
             if keepIfCannotResolve:
                 return self
-            raise RuntimeError("The TaskPlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(processDict.keys()))
+            raise RuntimeError("The {} {} cannot be resolved.\n Known keys are: {}".format(self._typeName(), self._name,str(processDict.keys())))
         o = processDict[self._name]
-        if not o._isTaskComponent():
-            raise RuntimeError("The TaskPlaceholder "+self._name+ " refers to an object type which is not allowed to be on a task: "+str(type(o)))
-        if isinstance(o, Task):
+        if not self._allowedInTask(o):
+            raise RuntimeError("The {} {} refers to an object type which is not allowed to be on a task: {}".format(self._typeName(), self._name, str(type(o))))
+        if isinstance(o, self._taskClass()):
             return o.resolve(processDict)
         return o
     def copy(self):
-        returnValue =TaskPlaceholder.__new__(type(self))
-        returnValue.__init__(self._name)
-        return returnValue
+        return self._makeInstance(self._name)
     def dumpSequencePython(self, options=PrintOptions()):
-        return 'cms.TaskPlaceholder("%s")'%self._name
+        return 'cms.{}("{}")'.format(self._typeName(), self._name)
     def dumpPython(self, options=PrintOptions()):
-        result = 'cms.TaskPlaceholder(\"'
+        result = 'cms.{}(\"'.format(self._typeName())
         if options.isCfg:
            result += 'process.'
         result += self._name+'\")\n'
         return result
+
+class Task(_TaskBase) :
+    """Holds EDProducers, EDFilters, ESProducers, ESSources, Services, and Tasks.
+    A Task can be associated with Sequences, Paths, EndPaths, ConditionalTasks and the Schedule.
+    An EDProducer or EDFilter will be enabled to run unscheduled if it is on
+    a task associated with the Schedule or any scheduled Path or EndPath (directly
+    or indirectly through Sequences) and not be on any scheduled Path or EndPath.
+    ESSources, ESProducers, and Services will be enabled to run if they are on
+    a Task associated with the Schedule or a scheduled Path or EndPath.  In other
+    cases, they will be enabled to run if and only if they are not on a Task attached
+    to the process.
+    """
+    @staticmethod
+    def _taskType():
+      return "Task"
+    def _place(self, name, proc):
+        proc._placeTask(name,self)
+    def _isTaskComponent(self):
+        return True
+    @staticmethod
+    def _makeInstance(*items):
+      return Task(*items)
+    @staticmethod
+    def _allowedInTask(item ):
+      return (isinstance(item, _ConfigureComponent) and item._isTaskComponent()) or isinstance(item, TaskPlaceholder)
+    @staticmethod
+    def _mustResolve(item):
+        return isinstance(item, Task) or isinstance(item, TaskPlaceholder)
+      
+class TaskPlaceholder(_TaskBasePlaceholder):
+    def _isTaskComponent(self):
+        return True
+    @staticmethod
+    def _typeName():
+      return "TaskPlaceholder"
+    @staticmethod
+    def _makeInstance(name):
+      return TaskPlaceholder(name)
+    @staticmethod
+    def _allowedInTask(obj):
+      return Task._allowedInTask(obj)
+    @staticmethod
+    def _taskClass():
+      return Task
+
+
+class ConditionalTask(_TaskBase) :
+    """Holds EDProducers, EDFilters, ESProducers, ESSources, Services, Tasks and ConditionalTasks.
+    A ConditionalTask can be associated with Sequences, Paths, and EndPaths.
+    An EDProducer or EDFilter will be added to a Path or EndPath based on which other
+    modules on the Path consumes its data products. If that ConditionalTask assigned module
+    is placed after an EDFilter, the module will only run if the EDFilter passes. If no module
+    on the Path needs the module's data products, the module will be treated as if it were on a Task.
+    """
+    @staticmethod
+    def _taskType():
+      return "ConditionalTask"
+    def _place(self, name, proc):
+        proc._placeConditionalTask(name,self)
+    def _isTaskComponent(self):
+        return False
+    @staticmethod
+    def _makeInstance(*items):
+      return ConditionalTask(*items)
+    @staticmethod
+    def _allowedInTask(item):
+      return isinstance(item, ConditionalTask) or isinstance(item, ConditionalTaskPlaceholder) or Task._allowedInTask(item)
+    @staticmethod
+    def _mustResolve(item):
+        return Task._mustResolve(item) or isinstance(item, ConditionalTask) or isinstance(item, ConditionalTaskPlaceholder)
+
+
+class ConditionalTaskPlaceholder(_TaskBasePlaceholder):
+    def _isTaskComponent(self):
+        return False
+    @staticmethod
+    def _typeName():
+      return "ConditionalTaskPlaceholder"
+    @staticmethod
+    def _makeInstance(name):
+      return ConditionalTaskPlaceholder(name)
+    @staticmethod
+    def _allowedInTask(obj):
+      return Task._allowedInTask(obj) or ConditionalTask._allowedInTask(obj)
+    @staticmethod
+    def _taskClass():
+      return ConditionalTask
+
 
 if __name__=="__main__":
     import unittest
@@ -1767,6 +1906,10 @@ if __name__=="__main__":
             p6.visit(namesVisitor)
             self.assertEqual(l,['!&','a','b','@'])
 
+        def testTaskConstructor(self):
+            a = DummyModule("a")
+            self.assertRaises(RuntimeError, lambda : Task(ConditionalTask(a)) )
+
         def testDumpPython(self):
             a = DummyModule("a")
             b = DummyModule('b')
@@ -1815,6 +1958,33 @@ if __name__=="__main__":
             s = Sequence(e, t4)
             p12 = Path(a+b+s+c,t1)
             self.assertEqual(p12.dumpPython(),"cms.Path(process.a+process.b+cms.Sequence(process.e, cms.Task(process.d, process.f))+process.c, cms.Task(process.a))\n")
+            ct1 = ConditionalTask(a)
+            ct2 = ConditionalTask(c, b)
+            ct3 = ConditionalTask()
+            p13 = Path((a+b)*c, ct1)
+            self.assertEqual(p13.dumpPython(),"cms.Path(process.a+process.b+process.c, cms.ConditionalTask(process.a))\n")
+            p14 = Path((a+b)*c, ct2, ct1)
+            self.assertEqual(p14.dumpPython(),"cms.Path(process.a+process.b+process.c, cms.ConditionalTask(process.a), cms.ConditionalTask(process.b, process.c))\n")
+            p15 = Path(ct1, ct2, ct3)
+            self.assertEqual(p15.dumpPython(),"cms.Path(cms.ConditionalTask(), cms.ConditionalTask(process.a), cms.ConditionalTask(process.b, process.c))\n")
+            ct4 = ConditionalTask(d, Task(f))
+            s = Sequence(e, ct4)
+            p16 = Path(a+b+s+c,ct1)
+            self.assertEqual(p16.dumpPython(),"cms.Path(process.a+process.b+cms.Sequence(process.e, cms.ConditionalTask(process.d, process.f))+process.c, cms.ConditionalTask(process.a))\n")
+
+            n = 260
+            mods = []
+            labels = []
+            for i in range(0, n):
+                l = "a{}".format(i)
+                labels.append("process."+l)
+                mods.append(DummyModule(l))
+            labels.sort()
+            task = Task(*mods)
+            self.assertEqual(task.dumpPython(), "cms.Task(*[" + ", ".join(labels) + "])\n")
+            conditionalTask = ConditionalTask(*mods)
+            self.assertEqual(conditionalTask.dumpPython(), "cms.ConditionalTask(*[" + ", ".join(labels) + "])\n")
+
             l = list()
             namesVisitor = DecoratedNodeNameVisitor(l)
             p.visit(namesVisitor)
@@ -1841,6 +2011,9 @@ if __name__=="__main__":
             p12.visit(namesVisitor)
             self.assertEqual(l, ['a', 'b', 'e', 'c'])
             l[:] = []
+            p16.visit(namesVisitor)
+            self.assertEqual(l, ['a', 'b', 'e', 'c'])
+            l[:] = []
             moduleVisitor = ModuleNodeVisitor(l)
             p8.visit(moduleVisitor)
             names = [m.label_() for m in l]
@@ -1849,6 +2022,8 @@ if __name__=="__main__":
             self.assertEqual(tph.dumpPython(), 'cms.TaskPlaceholder("process.a")\n')
             sph = SequencePlaceholder('a')
             self.assertEqual(sph.dumpPython(), 'cms.SequencePlaceholder("process.a")\n')
+            ctph = ConditionalTaskPlaceholder('a')
+            self.assertEqual(ctph.dumpPython(), 'cms.ConditionalTaskPlaceholder("process.a")\n')
 
         def testDumpConfig(self):
             a = DummyModule("a")
@@ -1911,6 +2086,19 @@ if __name__=="__main__":
             e=DummyModule("e")
             f=DummyModule("f")
             g=DummyModule("g")
+            ct1 = ConditionalTask(d)
+            ct2 = ConditionalTask(e, ct1)
+            ct3 = ConditionalTask(f, g, ct2)
+            s=Sequence(plusAB, ct3, ct2)
+            multSC = s*c
+            p=Path(multSC, ct1, ct2)
+            l = []
+            v = ModuleNodeVisitor(l)
+            p.visit(v)
+            expected = [a,b,f,g,e,d,e,d,c,d,e,d]
+            self.assertEqual(expected,l)
+
+
             t1 = Task(d)
             t2 = Task(e, t1)
             t3 = Task(f, g, t2)
@@ -1922,6 +2110,7 @@ if __name__=="__main__":
             v = ModuleNodeVisitor(l)
             p.visit(v)
             expected = [a,b,f,g,e,d,e,d,c,d,e,d]
+            self.assertEqual(expected,l)
 
             l[:] = []
             v = ModuleNodeOnTaskVisitor(l)
@@ -2048,6 +2237,7 @@ if __name__=="__main__":
             m8 = DummyModule("m8")
             m9 = DummyModule("m9")
 
+            #Task
             t6 = Task(m6)
             t7 = Task(m7)
             t89 = Task(m8, m9)
@@ -2104,6 +2294,71 @@ if __name__=="__main__":
             t2.replace(m2,t3)
             self.assertTrue(t2.dumpPython() == "cms.Task(process.m1, process.m3, process.m5)\n")
 
+            #ConditionalTask
+            ct6 = ConditionalTask(m6)
+            ct7 = ConditionalTask(m7)
+            ct89 = ConditionalTask(m8, m9)
+
+            cs1 = Sequence(m1+m2, ct6)
+            cs2 = Sequence(m3+m4, ct7)
+            cs3 = Sequence(cs1+cs2, ct89)
+            cs3.replace(m3,m5)
+            l[:] = []
+            cs3.visit(namesVisitor)
+            self.assertEqual(l,['m1','m2','m5','m4'])
+
+            cs3.replace(m8,m1)
+            self.assertEqual(cs3.dumpPython(), "cms.Sequence(cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m6))+process.m5+process.m4, cms.ConditionalTask(process.m1, process.m9), cms.ConditionalTask(process.m7))\n")
+
+            cs3.replace(m1,m7)
+            self.assertEqual(cs3.dumpPython(), "cms.Sequence(process.m7+process.m2+process.m5+process.m4, cms.ConditionalTask(process.m6), cms.ConditionalTask(process.m7), cms.ConditionalTask(process.m7, process.m9))\n")
+            result = cs3.replace(ct7, ct89)
+            self.assertEqual(cs3.dumpPython(), "cms.Sequence(process.m7+process.m2+process.m5+process.m4, cms.ConditionalTask(process.m6), cms.ConditionalTask(process.m7, process.m9), cms.ConditionalTask(process.m8, process.m9))\n")
+            self.assertTrue(result)
+            result = cs3.replace(ct7, ct89)
+            self.assertFalse(result)
+
+            ct1 = ConditionalTask()
+            ct1.replace(m1,m2)
+            self.assertEqual(ct1.dumpPython(), "cms.ConditionalTask()\n")
+
+            ct1 = ConditionalTask(m1)
+            ct1.replace(m1,m2)
+            self.assertEqual(ct1.dumpPython(), "cms.ConditionalTask(process.m2)\n")
+
+            ct1 = ConditionalTask(m1,m2, m2)
+            ct1.replace(m2,m3)
+            self.assertEqual(ct1.dumpPython(), "cms.ConditionalTask(process.m1, process.m3)\n")
+
+            ct1 = ConditionalTask(m1,m2)
+            ct2 = ConditionalTask(m1,m3,ct1)
+            ct2.replace(m1,m4)
+            self.assertEqual(ct2.dumpPython(), "cms.ConditionalTask(process.m2, process.m3, process.m4)\n")
+
+            ct1 = ConditionalTask(m2)
+            ct2 = ConditionalTask(m1,m3,ct1)
+            ct2.replace(m1,m4)
+            self.assertEqual(ct2.dumpPython(), "cms.ConditionalTask(process.m2, process.m3, process.m4)\n")
+
+            ct1 = ConditionalTask(m2)
+            ct2 = ConditionalTask(m1,m3,ct1)
+            ct2.replace(ct1,m4)
+            self.assertEqual(ct2.dumpPython(), "cms.ConditionalTask(process.m1, process.m3, process.m4)\n")
+
+            ct1 = ConditionalTask(m2)
+            ct2 = ConditionalTask(m1,m3,ct1)
+            ct3 = ConditionalTask(m5)
+            ct2.replace(m2,ct3)
+            self.assertEqual(ct2.dumpPython(), "cms.ConditionalTask(process.m1, process.m3, process.m5)\n")
+
+            #FinalPath
+            fp = FinalPath()
+            fp.replace(m1,m2)
+            self.assertEqual(fp.dumpPython(), "cms.FinalPath()\n")
+            fp = FinalPath(m1)
+            fp.replace(m1,m2)
+            self.assertEqual(fp.dumpPython(), "cms.FinalPath(process.m2)\n")
+
         def testReplaceIfHeldDirectly(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
@@ -2122,7 +2377,7 @@ if __name__=="__main__":
             s3._replaceIfHeldDirectly(~m1, m2)
             self.assertEqual(s3.dumpPython()[:-1],
                              "cms.Sequence(process.m2+(process.m1+process.m2))")
-
+            #Task
             m6 = DummyModule("m6")
             m7 = DummyModule("m7")
             m8 = DummyModule("m8")
@@ -2144,6 +2399,23 @@ if __name__=="__main__":
             s1._replaceIfHeldDirectly(t6,t7)
             self.assertEqual(s1.dumpPython()[:-1],"cms.Sequence(cms.Task(process.m7))")
 
+            #ConditionalTask
+            ct6 = ConditionalTask(m6)
+            ct7 = ConditionalTask(m7)
+            ct89 = ConditionalTask(m8, m9)
+
+            s1 = Sequence(m1+m2, ct6)
+            s2 = Sequence(m3+m4, ct7)
+            s3 = Sequence(s1+s2, ct89)
+            s3._replaceIfHeldDirectly(m3,m5)
+            self.assertEqual(s3.dumpPython()[:-1], "cms.Sequence(cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m6))+cms.Sequence(process.m3+process.m4, cms.ConditionalTask(process.m7)), cms.ConditionalTask(process.m8, process.m9))")
+            s2._replaceIfHeldDirectly(m3,m5)
+            self.assertEqual(s2.dumpPython()[:-1],"cms.Sequence(process.m5+process.m4, cms.ConditionalTask(process.m7))")
+            self.assertEqual(s3.dumpPython()[:-1], "cms.Sequence(cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m6))+cms.Sequence(process.m5+process.m4, cms.ConditionalTask(process.m7)), cms.ConditionalTask(process.m8, process.m9))")
+
+            s1 = Sequence(ct6)
+            s1._replaceIfHeldDirectly(ct6,ct7)
+            self.assertEqual(s1.dumpPython()[:-1],"cms.Sequence(cms.ConditionalTask(process.m7))")
         def testIndex(self):
             m1 = DummyModule("a")
             m2 = DummyModule("b")
@@ -2190,6 +2462,7 @@ if __name__=="__main__":
             p2.visit(namesVisitor)
             self.assertEqual(l, ['m1', '!m2', 'm1', 'm2', '-m2', '!m1', 'm1', 'm2'])
 
+            #Task
             m6 = DummyModule("m6")
             m7 = DummyModule("m7")
             m8 = DummyModule("m8")
@@ -2199,7 +2472,7 @@ if __name__=="__main__":
             l[:] = []
             p2.visit(namesVisitor)
             self.assertEqual(l, ['m1', '!m2', 'm1', 'm2', '-m2', '!m1', 'm1', 'm2'])
-            self.assertTrue(p2.dumpPython() == "cms.Path(process.m1+~process.m2+process.m1+process.m2+cms.ignore(process.m2)+~process.m1+process.m1+process.m2, cms.Task(process.m6))\n")
+            self.assertEqual(p2.dumpPython(), "cms.Path(process.m1+~process.m2+process.m1+process.m2+cms.ignore(process.m2)+~process.m1+process.m1+process.m2, cms.Task(process.m6))\n")
 
             s2 = Sequence(m1*m2, Task(m9))
             s3 = Sequence(~m1*s2)
@@ -2227,6 +2500,44 @@ if __name__=="__main__":
             t4 = Task()
             t5 = t4.expandAndClone()
             self.assertTrue(t5.dumpPython() == "cms.Task()\n")
+            #ConditionalTask
+            s1 = Sequence(m1*~m2*m1*m2*ignore(m2))
+            s2 = Sequence(m1*m2)
+            s3 = Sequence(~m1*s2)
+            p = Path(s1+s3, ConditionalTask(m6))
+            p2 = p.expandAndClone()
+            l[:] = []
+            p2.visit(namesVisitor)
+            self.assertEqual(l, ['m1', '!m2', 'm1', 'm2', '-m2', '!m1', 'm1', 'm2'])
+            self.assertEqual(p2.dumpPython(), "cms.Path(process.m1+~process.m2+process.m1+process.m2+cms.ignore(process.m2)+~process.m1+process.m1+process.m2, cms.ConditionalTask(process.m6))\n")
+
+            s2 = Sequence(m1*m2, ConditionalTask(m9))
+            s3 = Sequence(~m1*s2)
+            ct8 = ConditionalTask(m8)
+            ct8.setLabel("ct8")
+            p = Path(s1+s3, ConditionalTask(m6, ConditionalTask(m7, ct8)))
+            p2 = p.expandAndClone()
+            l[:] = []
+            p2.visit(namesVisitor)
+            self.assertEqual(l, ['m1', '!m2', 'm1', 'm2', '-m2', '!m1', 'm1', 'm2'])
+            self.assertEqual(p2.dumpPython(), "cms.Path(process.m1+~process.m2+process.m1+process.m2+cms.ignore(process.m2)+~process.m1+process.m1+process.m2, cms.ConditionalTask(process.m6, process.m7, process.m8, process.m9))\n")
+
+            t1 = ConditionalTask(m1,m2,m3)
+            s1 = Sequence(t1)
+            s2 = s1.expandAndClone()
+            l[:] = []
+            s2.visit(namesVisitor)
+            self.assertEqual(l, [])
+            self.assertEqual(s2.dumpPython(), "cms.Sequence(cms.ConditionalTask(process.m1, process.m2, process.m3))\n")
+
+            t1 = ConditionalTask(m1,m2)
+            t2 = ConditionalTask(m1,m3,t1)
+            t3 = t2.expandAndClone()
+            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.m1, process.m2, process.m3)\n")
+            t4 = ConditionalTask()
+            t5 = t4.expandAndClone()
+            self.assertTrue(t5.dumpPython() == "cms.ConditionalTask()\n")
+
         def testAdd(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
@@ -2311,6 +2622,7 @@ if __name__=="__main__":
             s4.remove(m1)
             l[:]=[]; s4.visit(namesVisitor); self.assertEqual(l,[])
             self.assertEqual(s4.dumpPython(), "cms.Sequence()\n")
+            #Task
             s1 = Sequence(m1+m2, Task(m3), Task(m4))
             s1.remove(m4)
             self.assertEqual(s1.dumpPython(), "cms.Sequence(process.m1+process.m2, cms.Task(process.m3))\n")
@@ -2330,6 +2642,33 @@ if __name__=="__main__":
             self.assertTrue(t3.dumpPython() == "cms.Task(process.m2)\n")
             t3.remove(m2)
             self.assertTrue(t3.dumpPython() == "cms.Task()\n")
+            #ConditionalTask
+            s1 = Sequence(m1+m2, ConditionalTask(m3), ConditionalTask(m4))
+            s1.remove(m4)
+            self.assertEqual(s1.dumpPython(), "cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m3))\n")
+            s1 = Sequence(m1+m2+Sequence(ConditionalTask(m3,m4), ConditionalTask(m3), ConditionalTask(m4)))
+            s1.remove(m4)
+            self.assertEqual(s1.dumpPython(), "cms.Sequence(process.m1+process.m2, cms.ConditionalTask(process.m3), cms.ConditionalTask(process.m4))\n")
+            t1 = ConditionalTask(m1)
+            t1.setLabel("t1")
+            t2 = ConditionalTask(m2,t1)
+            t2.setLabel("t2")
+            t3 = ConditionalTask(t1,t2,m1)
+            t3.remove(m1)
+            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.m1, process.t2)\n")
+            t3.remove(m1)
+            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.m1, process.m2)\n")
+            t3.remove(m1)
+            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.m2)\n")
+            t3.remove(m2)
+            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask()\n")
+            #FinalPath
+            fp = FinalPath(m1+m2)
+            fp.remove(m1)
+            self.assertEqual(fp.dumpPython(), "cms.FinalPath(process.m2)\n")
+            fp = FinalPath(m1)
+            fp.remove(m1)
+            self.assertEqual(fp.dumpPython(), "cms.FinalPath()\n")
 
         def testCopyAndExclude(self):
             a = DummyModule("a")
@@ -2430,6 +2769,7 @@ if __name__=="__main__":
             self.assertEqual(s.copyAndExclude([d]).dumpPython(),"cms.Sequence(process.a+process.b+process.c)\n")
             self.assertEqual(s.copyAndExclude([a,b,c,d]).dumpPython(),"cms.Sequence()\n")
 
+            #Task
             e = DummyModule("e")
             f = DummyModule("f")
             g = DummyModule("g")
@@ -2466,6 +2806,40 @@ if __name__=="__main__":
             self.assertTrue(t3.dumpPython() == "cms.Task(process.f, process.g, process.t11)\n")
             t4 = t2.copyAndExclude([e,f,g,h,a])
             self.assertTrue(t4.dumpPython() == "cms.Task()\n")
+            #ConditionalTask
+            t1 = ConditionalTask(h)
+            s = Sequence(a+b+c+~d, ConditionalTask(e,f,ConditionalTask(g,t1)))
+            self.assertEqual(s.copyAndExclude([a,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d, cms.ConditionalTask(process.e, process.f, process.g))\n")
+            self.assertEqual(s.copyAndExclude([a,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d, cms.ConditionalTask(process.e, process.f, process.g))\n")
+            self.assertEqual(s.copyAndExclude([a,e,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d, cms.ConditionalTask(process.f, process.g))\n")
+            self.assertEqual(s.copyAndExclude([a,e,f,g,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d)\n")
+            self.assertEqual(s.copyAndExclude([a,b,c,d]).dumpPython(),"cms.Sequence(cms.ConditionalTask(process.e, process.f, process.g, process.h))\n")
+            self.assertEqual(s.copyAndExclude([t1]).dumpPython(),"cms.Sequence(process.a+process.b+process.c+~process.d, cms.ConditionalTask(process.e, process.f, process.g))\n")
+            taskList = []
+            taskVisitor = ConditionalTaskVisitor(taskList)
+            s.visit(taskVisitor)
+            self.assertEqual(len(taskList),3)
+            s2 = s.copyAndExclude([g,h])
+            taskList[:] = []
+            s2.visit(taskVisitor)
+            self.assertEqual(len(taskList),1)
+            t2 = ConditionalTask(t1)
+            taskList[:] = []
+            t2.visit(taskVisitor)
+            self.assertEqual(taskList[0],t1)
+            s3 = Sequence(s)
+            self.assertEqual(s3.copyAndExclude([a,h]).dumpPython(),"cms.Sequence(process.b+process.c+~process.d, cms.ConditionalTask(process.e, process.f, process.g))\n")
+            s4 = Sequence(s)
+            self.assertEqual(s4.copyAndExclude([a,b,c,d,e,f,g,h]).dumpPython(),"cms.Sequence()\n")
+            t1 = ConditionalTask(e,f)
+            t11 = ConditionalTask(a)
+            t11.setLabel("t11")
+            t2 = ConditionalTask(g,t1,h,t11)
+            t3 = t2.copyAndExclude([e,h])
+            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.f, process.g, process.t11)\n")
+            t4 = t2.copyAndExclude([e,f,g,h,a])
+            self.assertEqual(t4.dumpPython(), "cms.ConditionalTask()\n")
+
         def testSequenceTypeChecks(self):
             m1 = DummyModule("m1")
             m2 = DummyModule("m2")
@@ -2491,6 +2865,7 @@ if __name__=="__main__":
             p1 += e
             self.assertEqual(p1.dumpPython(),"cms.Path(process.a+process.b+process.c+process.e)\n")
             self.assertEqual(p2.dumpPython(),"cms.Path(process.a+process.b+process.c)\n")
+            #Task
             t1 = Task(a, b)
             t2 = t1.copy()
             self.assertTrue(t1.dumpPython() == t2.dumpPython())
@@ -2499,12 +2874,23 @@ if __name__=="__main__":
             self.assertTrue(id(t1Contents[0]) == id(t2Contents[0]))
             self.assertTrue(id(t1Contents[1]) == id(t2Contents[1]))
             self.assertTrue(id(t1._collection) != id(t2._collection))
+            #ConditionalTask
+            t1 = ConditionalTask(a, b)
+            t2 = t1.copy()
+            self.assertTrue(t1.dumpPython() == t2.dumpPython())
+            t1Contents = list(t1._collection)
+            t2Contents = list(t2._collection)
+            self.assertTrue(id(t1Contents[0]) == id(t2Contents[0]))
+            self.assertTrue(id(t1Contents[1]) == id(t2Contents[1]))
+            self.assertTrue(id(t1._collection) != id(t2._collection))
+
         def testCopyAndAdd(self):
             a = DummyModule("a")
             b = DummyModule("b")
             c = DummyModule("c")
             d = DummyModule("d")
             e = DummyModule("e")
+            #Task
             t1 = Task(a, b, c)
             self.assertEqual(t1.dumpPython(), "cms.Task(process.a, process.b, process.c)\n")
             t2 = t1.copyAndAdd(d, e)
@@ -2520,6 +2906,23 @@ if __name__=="__main__":
             self.assertEqual(t5.dumpPython(), "cms.Task(process.a, process.c, process.d, process.e)\n")
             t6 = t4.copyAndAdd(Task(b))
             self.assertEqual(t6.dumpPython(), "cms.Task(process.a, process.b, process.c, process.d)\n")
+            #ConditionalTask
+            t1 = ConditionalTask(a, b, c)
+            self.assertEqual(t1.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c)\n")
+            t2 = t1.copyAndAdd(d, e)
+            self.assertEqual(t1.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c)\n")
+            self.assertEqual(t2.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c, process.d, process.e)\n")
+            t3 = t2.copyAndExclude([b])
+            self.assertEqual(t1.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c)\n")
+            self.assertEqual(t2.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c, process.d, process.e)\n")
+            self.assertEqual(t3.dumpPython(), "cms.ConditionalTask(process.a, process.c, process.d, process.e)\n")
+            t4 = t1.copyAndExclude([b]).copyAndAdd(d)
+            self.assertEqual(t4.dumpPython(), "cms.ConditionalTask(process.a, process.c, process.d)\n")
+            t5 = t2.copyAndExclude([b]).copyAndAdd(d)
+            self.assertEqual(t5.dumpPython(), "cms.ConditionalTask(process.a, process.c, process.d, process.e)\n")
+            t6 = t4.copyAndAdd(Task(b))
+            self.assertEqual(t6.dumpPython(), "cms.ConditionalTask(process.a, process.b, process.c, process.d)\n")
+
         def testInsertInto(self):
             from FWCore.ParameterSet.Types import vstring
             class TestPSet(object):

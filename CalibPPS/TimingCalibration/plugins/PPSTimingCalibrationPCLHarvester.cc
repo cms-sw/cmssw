@@ -25,7 +25,7 @@
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDiamondDetId.h"
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
-
+#include "TFitResult.h"
 //------------------------------------------------------------------------------
 
 class PPSTimingCalibrationPCLHarvester : public DQMEDHarvester {
@@ -94,19 +94,19 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
     const auto chid = detid.rawId();
     const PPSTimingCalibration::Key key{
         (int)detid.arm(), (int)detid.station(), (int)detid.plane(), (int)detid.channel()};
-    hists.leadingTime[chid] = iGetter.get("t_" + ch_name);
+    hists.leadingTime[chid] = iGetter.get(dqmDir_ + "/t_" + ch_name);
     if (hists.leadingTime[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve leading time monitor for channel (" << detid << ").";
       continue;
     }
-    hists.toT[chid] = iGetter.get("tot_" + ch_name);
+    hists.toT[chid] = iGetter.get(dqmDir_ + "/tot_" + ch_name);
     if (hists.toT[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve time over threshold monitor for channel (" << detid << ").";
       continue;
     }
-    hists.leadingTimeVsToT[chid] = iGetter.get("tvstot_" + ch_name);
+    hists.leadingTimeVsToT[chid] = iGetter.get(dqmDir_ + "/tvstot_" + ch_name);
     if (hists.leadingTimeVsToT[chid] == nullptr) {
       edm::LogInfo("PPSTimingCalibrationPCLHarvester:dqmEndJob")
           << "Failed to retrieve leading time vs. time over threshold monitor for channel (" << detid << ").";
@@ -120,13 +120,14 @@ void PPSTimingCalibrationPCLHarvester::dqmEndJob(DQMStore::IBooker& iBooker, DQM
     }
     const double upper_tot_range = hists.toT[chid]->getMean() + 2.5;
     {  // scope for x-profile
-      std::unique_ptr<TProfile> prof(hists.leadingTimeVsToT[chid]->getTH2D()->ProfileX("_prof_x", 1, -1));
+      std::unique_ptr<TProfile> prof(hists.leadingTimeVsToT[chid]->getTH2F()->ProfileX("_prof_x", 1, -1));
       interp_.SetParameters(hists.leadingTime[chid]->getRMS(),
                             hists.toT[chid]->getMean(),
                             0.8,
                             hists.leadingTime[chid]->getMean() - hists.leadingTime[chid]->getRMS());
-      const auto& res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
-      if ((bool)res) {
+      TFitResultPtr res = prof->Fit(&interp_, "B+", "", 10.4, upper_tot_range);
+
+      if (res == 0) {
         calib_params[key] = {
             interp_.GetParameter(0), interp_.GetParameter(1), interp_.GetParameter(2), interp_.GetParameter(3)};
         calib_time[key] = std::make_pair(0.1, 0.);  // hardcoded resolution/offset placeholder for the time being

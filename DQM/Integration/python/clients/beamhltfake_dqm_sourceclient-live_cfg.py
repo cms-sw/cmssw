@@ -4,21 +4,14 @@ import FWCore.ParameterSet.Config as cms
 # Define here the BeamSpotOnline record name,
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineHLTObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineHLT'
-BSOnlineJobName = 'BeamSpotOnlineHLT'
+BSOnlineTag = 'BeamSpotOnlineFakeHLT'
+BSOnlineJobName = 'BeamSpotOnlineFakeHLT'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 
 import sys
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("FakeBeamMonitor", Run3)
-
-# Configure tag and jobName if running Playback system
-if "dqm_cmssw/playback" in str(sys.argv[1]):
-  BSOnlineTag = BSOnlineTag + 'Playback'
-  BSOnlineJobName = BSOnlineJobName + 'Playback'
-  BSOnlineOmsServiceUrl = ''
-  useLockRecords = False
 
 # switch
 live = True # FIXME
@@ -65,6 +58,13 @@ process.dqmSaver.tag           = 'FakeBeamMonitorHLT'
 process.dqmSaver.runNumber     = options.runNumber
 process.dqmSaverPB.tag         = 'FakeBeamMonitorHLT'
 process.dqmSaverPB.runNumber   = options.runNumber
+
+# Configure tag and jobName if running Playback system
+if process.isDqmPlayback.value :
+  BSOnlineTag = BSOnlineTag + 'Playback'
+  BSOnlineJobName = BSOnlineJobName + 'Playback'
+  BSOnlineOmsServiceUrl = ''
+  useLockRecords = False
 
 #---------------
 """
@@ -148,8 +148,8 @@ else:
                             ),
 
     # Upload to CondDB
-    connect = cms.string('sqlite_file:BeamSpotOnlineHLT.db'),
-    preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineHLT.db'),
+    connect = cms.string('sqlite_file:BeamSpotOnlineFakeHLT.db'),
+    preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineFakeHLT.db'),
 
     runNumber = cms.untracked.uint64(options.runNumber),
     lastLumiFile = cms.untracked.string('last_lumi.txt'),

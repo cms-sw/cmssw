@@ -17,7 +17,6 @@ class hcalnzsEra_Run2_2018_highBetaStar(hcalnzs):
         hcalnzs.__init__(self)
         self.recoSeq=':reconstruction_HcalNZS'
         self.cbSc='pp'
-        self.addEI=True
         self.eras = Run2_2018_highBetaStar
         #keep post-era parts the same as in the default 2018 era
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]

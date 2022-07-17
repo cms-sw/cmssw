@@ -13,7 +13,7 @@ from DQM.SiPixelCommon.SiPixelOfflineDQM_source_cff import *
 from DQM.DTMonitorModule.dtDQMOfflineSources_HI_cff import *
 from DQM.RPCMonitorClient.RPCTier0Source_cff import *
 from DQM.CSCMonitorModule.csc_dqm_sourceclient_offline_cff import *
-from DQMOffline.Muon.gem_dqm_offline_source_cff import *
+from DQM.GEM.gem_dqm_offline_source_cff import *
 from DQM.BeamMonitor.AlcaBeamMonitorHeavyIons_cff import *
 
 DQMNone = cms.Sequence()
@@ -33,6 +33,13 @@ DQMOfflineHeavyIonsHcal = cms.Sequence( hcalOfflineSourceSequence )
 DQMOfflineHeavyIonsTrackerStrip = cms.Sequence( SiStripDQMTier0_hi )
 
 DQMOfflineHeavyIonsTrackerPixel = cms.Sequence( siPixelOfflineDQM_heavyions_source )
+
+#tnp modules are meant for pp collisions only (DT has separate cff for cosmics)
+if cscSources.contains(cscTnPEfficiencyMonitor):
+    cscSources.remove(cscTnPEfficiencyMonitor)
+
+if rpcTier0Source.contains(rpcTnPEfficiencyMonitor):
+    rpcTier0Source.remove(rpcTnPEfficiencyMonitor)
 
 DQMOfflineHeavyIonsMuonDPG = cms.Sequence( dtSources *
                                   rpcTier0Source *
@@ -56,12 +63,12 @@ DQMOfflineHeavyIonsDPG = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
 
 #Modifications
 from DQMOffline.Muon.muonMonitors_cff import *
-diMuonHistos.etaBin = cms.int32(70) #dimuonhistograms mass, bin   
-diMuonHistos.etaBBin = cms.int32(70)    
-diMuonHistos.etaEBin = cms.int32(70)    
-diMuonHistos.LowMassMin = cms.double(2.0)   
-diMuonHistos.LowMassMax = cms.double(14.0)    
-diMuonHistos.HighMassMin = cms.double(55.0)   
+diMuonHistos.etaBin = cms.int32(70) #dimuonhistograms mass, bin
+diMuonHistos.etaBBin = cms.int32(70)
+diMuonHistos.etaEBin = cms.int32(70)
+diMuonHistos.LowMassMin = cms.double(2.0)
+diMuonHistos.LowMassMax = cms.double(14.0)
+diMuonHistos.HighMassMin = cms.double(55.0)
 diMuonHistos.HighMassMax = cms.double(125.0)
 
 from DQMOffline.Trigger.DQMOffline_Trigger_cff import *
@@ -78,9 +85,9 @@ triggerOfflineDQMSource.remove(egammaMonitorHLT)
 triggerOfflineDQMSource.remove(ak4PFL1FastL2L3CorrectorChain)
 
 globalAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-trackerAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-tightAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
-looseAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+#trackerAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+#tightAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
+#looseAnalyzerTnP.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 
 from DQMOffline.EGamma.egammaDQMOffline_cff import *
 #egammaDQMOffline.remove(electronAnalyzerSequence)
@@ -138,7 +145,7 @@ DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysicsHI )
 DQMOfflineHeavyIonsPrePOG = cms.Sequence( DQMOfflineHeavyIonsMUO *
                                            DQMOfflineHeavyIonsTracking *
                                            DQMOfflineHeavyIonsJetMET *
-                                           DQMOfflineHeavyIonsEGamma * 
+                                           DQMOfflineHeavyIonsEGamma *
                                            DQMOfflineHeavyIonsTrigger *
                                            DQMOfflineHeavyIonsVertex *
                                            DQMOfflineHeavyIonsBeam *

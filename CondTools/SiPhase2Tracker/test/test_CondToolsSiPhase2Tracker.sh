@@ -2,10 +2,16 @@
 TEST_DIR=$CMSSW_BASE/src/CondTools/SiPhase2Tracker/test
 echo "test dir: $TEST_DIR"
 
-printf "testing writing Phase2 Lorentz Angle \n\n"
+printf "testing writing Phase2 Outer Tracker Lorentz Angle \n\n"
 ## need to be in order (don't read before writing)
 cmsRun ${TEST_DIR}/SiPhase2OuterTrackerLorentzAngleWriter_cfg.py
 cmsRun ${TEST_DIR}/SiPhase2OuterTrackerLorentzAngleReader_cfg.py
+
+printf "testing writing Phase2 Outer Tracker Bad Strips \n\n"
+## need to be in order (don't read before writing)
+cmsRun ${TEST_DIR}/SiPhase2BadStripChannelBuilder_cfg.py
+cmsRun ${TEST_DIR}/SiPhase2BadStripChannelReader_cfg.py
+cmsRun ${TEST_DIR}/SiPhase2BadStripChannelReader_cfg.py fromESSource=True
 
 printf "testing writing Phase2 Tracker Cabling Map (test) \n\n"
 ## need to be in order (don't read before writing)

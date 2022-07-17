@@ -64,19 +64,20 @@ private:
                                RecoTracktoTP &RTTP) const;
 
   // ----------member data ---------------------------
-  edm::EDGetTokenT<edm::View<reco::Track>> trackLabel_algoA;
-  edm::EDGetTokenT<edm::View<reco::Track>> trackLabel_algoB;
-  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleLabel_fakes;
-  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleLabel_effic;
+  const edm::EDGetTokenT<edm::View<reco::Track>> trackLabel_algoA;
+  const edm::EDGetTokenT<edm::View<reco::Track>> trackLabel_algoB;
+  const edm::EDGetTokenT<TrackingParticleCollection> trackingParticleLabel_fakes;
+  const edm::EDGetTokenT<TrackingParticleCollection> trackingParticleLabel_effic;
   edm::EDGetTokenT<reco::VertexCollection> vertexLabel_algoA;
   edm::EDGetTokenT<reco::VertexCollection> vertexLabel_algoB;
-  edm::EDGetTokenT<reco::BeamSpot> beamSpotLabel;
+  const edm::EDGetTokenT<reco::BeamSpot> beamSpotLabel;
   edm::EDGetTokenT<reco::RecoToSimCollection> associatormap_algoA_recoToSim;
   edm::EDGetTokenT<reco::RecoToSimCollection> associatormap_algoB_recoToSim;
   edm::EDGetTokenT<reco::SimToRecoCollection> associatormap_algoA_simToReco;
   edm::EDGetTokenT<reco::SimToRecoCollection> associatormap_algoB_simToReco;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> assocLabel_algoA;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> assocLabel_algoB;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magField;
   const bool UseAssociators;
   const bool UseVertex;
 };

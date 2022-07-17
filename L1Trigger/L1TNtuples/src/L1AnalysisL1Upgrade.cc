@@ -73,6 +73,7 @@ void L1Analysis::L1AnalysisL1Upgrade::SetJet(const edm::Handle<l1t::JetBxCollect
         l1upgrade_.jetIEt.push_back(it->hwPt());
         l1upgrade_.jetIEta.push_back(it->hwEta());
         l1upgrade_.jetIPhi.push_back(it->hwPhi());
+        l1upgrade_.jetHwQual.push_back(it->hwQual());
         l1upgrade_.jetBx.push_back(ibx);
         l1upgrade_.jetRawEt.push_back(it->rawEt());
         l1upgrade_.jetSeedEt.push_back(it->seedEt());
@@ -116,6 +117,23 @@ void L1Analysis::L1AnalysisL1Upgrade::SetMuon(const edm::Handle<l1t::MuonBxColle
         l1upgrade_.muonTfMuonIdx.push_back(it->tfMuonIndex());
         l1upgrade_.muonBx.push_back(ibx);
         l1upgrade_.nMuons++;
+      }
+    }
+  }
+}
+
+void L1Analysis::L1AnalysisL1Upgrade::SetMuonShower(const edm::Handle<l1t::MuonShowerBxCollection> muonShower,
+                                                    unsigned maxL1Upgrade) {
+  for (int ibx = muonShower->getFirstBX(); ibx <= muonShower->getLastBX(); ++ibx) {
+    for (l1t::MuonShowerBxCollection::const_iterator it = muonShower->begin(ibx);
+         it != muonShower->end(ibx) && l1upgrade_.nMuonShowers < maxL1Upgrade;
+         it++) {
+      if (it->isValid()) {
+        l1upgrade_.muonShowerBx.push_back(ibx);
+        l1upgrade_.muonShowerOneNominal.push_back(it->isOneNominalInTime());
+        l1upgrade_.muonShowerOneTight.push_back(it->isOneTightInTime());
+        l1upgrade_.muonShowerTwoLoose.push_back(it->isTwoLooseInTime());
+        l1upgrade_.nMuonShowers++;
       }
     }
   }

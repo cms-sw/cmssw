@@ -58,33 +58,31 @@ private:
   void beginJob() override {}
   void endJob() override {}
 
-  double InConeSize_;
-  double OutConeSize_;
-  double hitCountEthr_;
-  double hitEthr_;
+  const double InConeSize_;
+  const double OutConeSize_;
+  const double hitCountEthr_;
+  const double hitEthr_;
 
-  edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_l1tau_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<l1extra::L1JetParticleCollection> tok_l1tau_;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
 
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
 
   // ----------member data ---------------------------
 };
 
-EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(const edm::ParameterSet& conf) {
-  InConeSize_ = conf.getParameter<double>("EcalInnerConeSize");
-  OutConeSize_ = conf.getParameter<double>("EcalOuterConeSize");
-  hitCountEthr_ = conf.getParameter<double>("ECHitCountEnergyThreshold");
-  hitEthr_ = conf.getParameter<double>("ECHitEnergyThreshold");
-  tok_l1tau_ = consumes<l1extra::L1JetParticleCollection>(conf.getParameter<edm::InputTag>("L1eTauJetsSource"));
-  tok_hlt_ = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("L1GTSeedLabel"));
-  tok_EB_ = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBrecHitCollectionLabel"));
-  tok_EE_ = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EErecHitCollectionLabel"));
-
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-
+EcalIsolatedParticleCandidateProducer::EcalIsolatedParticleCandidateProducer(const edm::ParameterSet& conf)
+    : InConeSize_(conf.getParameter<double>("EcalInnerConeSize")),
+      OutConeSize_(conf.getParameter<double>("EcalOuterConeSize")),
+      hitCountEthr_(conf.getParameter<double>("ECHitCountEnergyThreshold")),
+      hitEthr_(conf.getParameter<double>("ECHitEnergyThreshold")),
+      tok_l1tau_(consumes<l1extra::L1JetParticleCollection>(conf.getParameter<edm::InputTag>("L1eTauJetsSource"))),
+      tok_hlt_(consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("L1GTSeedLabel"))),
+      tok_EB_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBrecHitCollectionLabel"))),
+      tok_EE_(consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EErecHitCollectionLabel"))),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()) {
   //register your products
   produces<reco::IsolatedPixelTrackCandidateCollection>();
 }
@@ -105,8 +103,7 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "get tau";
 #endif
-  edm::Handle<l1extra::L1JetParticleCollection> l1Taus;
-  iEvent.getByToken(tok_l1tau_, l1Taus);
+  const edm::Handle<l1extra::L1JetParticleCollection>& l1Taus = iEvent.getHandle(tok_l1tau_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "get geom";
@@ -116,18 +113,14 @@ void EcalIsolatedParticleCandidateProducer::produce(edm::StreamID,
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "get ec rechit";
 #endif
-  edm::Handle<EcalRecHitCollection> ecalEB;
-  iEvent.getByToken(tok_EB_, ecalEB);
-
-  edm::Handle<EcalRecHitCollection> ecalEE;
-  iEvent.getByToken(tok_EE_, ecalEE);
+  const edm::Handle<EcalRecHitCollection>& ecalEB = iEvent.getHandle(tok_EB_);
+  const edm::Handle<EcalRecHitCollection>& ecalEE = iEvent.getHandle(tok_EE_);
 
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HcalIsoTrack") << "get l1 trig obj";
 #endif
 
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
-  iEvent.getByToken(tok_hlt_, l1trigobj);
+  const edm::Handle<trigger::TriggerFilterObjectWithRefs>& l1trigobj = iEvent.getHandle(tok_hlt_);
 
   std::vector<edm::Ref<l1t::TauBxCollection> > l1tauobjref;
   std::vector<edm::Ref<l1t::JetBxCollection> > l1jetobjref;

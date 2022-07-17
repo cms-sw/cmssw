@@ -2215,7 +2215,7 @@ void PlotHistCorrFactors(char* infile1,
       gStyle->SetOptStat(0);
       gStyle->SetOptFit(0);
     }
-    int colors[6] = {1, 6, 4, 7, 2, 9};
+    int colors[6] = {1, 6, 4, 2, 7, 9};
     int mtype[6] = {20, 24, 22, 23, 21, 33};
     int nbin = etamax - etamin + 1;
     std::vector<TH1D*> hists;
@@ -2224,6 +2224,7 @@ void PlotHistCorrFactors(char* infile1,
     char name[100];
     double dy(0);
     int fits(0);
+    int nline(0);
     if (ratio) {
       for (int ih = 1; ih < nfile; ++ih) {
         for (int j = 0; j < maxdepth; ++j) {
@@ -2265,6 +2266,10 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(ih);
           depths.push_back(j + 1);
         }
+        if (ih == 1)
+          nline += hists.size();
+        else
+          ++nline;
       }
     } else {
       for (int k1 = 0; k1 < nfile; ++k1) {
@@ -2308,6 +2313,10 @@ void PlotHistCorrFactors(char* infile1,
           htype.push_back(k1);
           depths.push_back(j + 1);
         }
+        if (k1 == 0)
+          nline += hists.size();
+        else
+          ++nline;
       }
     }
     if (ratio)
@@ -2319,7 +2328,7 @@ void PlotHistCorrFactors(char* infile1,
     pad->SetTopMargin(0.10);
     double yh = 0.90;
     double yl = yh - 0.035 * hists.size() - dy - 0.01;
-    TLegend* legend = new TLegend(0.55, yl, 0.90, yl + 0.035 * hists.size());
+    TLegend* legend = new TLegend(0.55, yl, 0.90, yl + 0.035 * nline);
     legend->SetFillColor(kWhite);
     for (unsigned int k = 0; k < hists.size(); ++k) {
       if (k == 0)
@@ -2344,7 +2353,8 @@ void PlotHistCorrFactors(char* infile1,
       } else {
         sprintf(name, "Depth %d (%s Mean = %5.3f)", depths[k], texts[k1].c_str(), fitr[k]);
       }
-      legend->AddEntry(hists[k], name, "lp");
+      if ((depths[k] == 1) || (k1 == 0))
+        legend->AddEntry(hists[k], name, "lp");
     }
     legend->Draw("same");
     TPaveText* txt0 = new TPaveText(0.12, 0.84, 0.49, 0.89, "blNDC");

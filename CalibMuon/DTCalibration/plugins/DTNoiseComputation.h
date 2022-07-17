@@ -8,7 +8,7 @@
  *
 */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
@@ -31,7 +31,7 @@ class TFile;
 class TH2F;
 class TH1F;
 
-class DTNoiseComputation : public edm::EDAnalyzer {
+class DTNoiseComputation : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   DTNoiseComputation(const edm::ParameterSet& ps);
@@ -45,6 +45,8 @@ public:
   void beginRun(const edm::Run&, const edm::EventSetup& setup) override;
 
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
+
+  void endRun(const edm::Run&, const edm::EventSetup& setup) override{};
 
   /// Endjob
   void endJob() override;

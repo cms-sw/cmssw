@@ -10,7 +10,7 @@
 
 BCToEFilterAlgo::BCToEFilterAlgo(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC)
     :  //set constants
-      FILTER_ETA_MAX_(2.5),
+      maxAbsEta_((float)iConfig.getParameter<double>("maxAbsEta")),
       eTThreshold_((float)iConfig.getParameter<double>("eTThreshold")),
       genParSource_(iC.consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParSource"))) {}
 
@@ -27,8 +27,7 @@ bool BCToEFilterAlgo::filter(const edm::Event& iEvent) const {
 
   for (uint32_t ig = 0; ig < genPars.size(); ig++) {
     reco::GenParticle gp = genPars.at(ig);
-    if (gp.status() == 1 && std::abs(gp.pdgId()) == 11 && gp.et() > eTThreshold_ &&
-        std::fabs(gp.eta()) < FILTER_ETA_MAX_) {
+    if (gp.status() == 1 && std::abs(gp.pdgId()) == 11 && gp.et() > eTThreshold_ && std::fabs(gp.eta()) < maxAbsEta_) {
       if (hasBCAncestors(gp)) {
         result = true;
       }

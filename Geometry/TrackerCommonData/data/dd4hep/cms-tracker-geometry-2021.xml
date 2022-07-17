@@ -25,7 +25,7 @@
   </ConstantsSection>
 
   <IncludeSection>
-    <Include ref="Geometry/CMSCommonData/data/materials.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
     <Include ref="DetectorDescription/DDCMS/data/vacuum.xml"/>
     <Include ref="Geometry/CMSCommonData/data/rotations.xml"/>
     <Include ref="Geometry/CMSCommonData/data/extend/v2/cmsextent.xml"/>
@@ -39,14 +39,14 @@
     <Include ref="Geometry/CMSCommonData/data/cavernData/2017/v1/cavernData.xml"/>
     <Include ref="Geometry/CMSCommonData/data/cavernFloor/2017/v1/cavernFloor.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/trackerParameters.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/Run2/trackermaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/tibtidcommonmaterial.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/tibmaterial.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/tidmaterial.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/tobmaterial.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/tecmaterial.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarmaterial.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdMaterials.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v3/pixbarmaterial.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/Run2/tracker.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/pixfwdCommon.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdCylinder.xml"/> 
@@ -61,16 +61,16 @@
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeInnerZminus.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZplus.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixfwdbladeOuterZminus.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladder.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull0.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull1.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull2.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull3.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer0.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer1.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer2.xml"/> 
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer3.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladder.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull0.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull1.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull2.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull3.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer0.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer1.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer2.xml"/> 
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer3.xml"/> 
     <Include ref="Geometry/TrackerCommonData/data/PhaseI/v1/pixbar.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/Run2/trackerpatchpannel.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/Run2/trackerpixelnose.xml"/>

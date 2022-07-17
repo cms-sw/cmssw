@@ -66,9 +66,9 @@ private:
 
   // ----------member data ---------------------------
   unsigned int nRun_, nAll_, nGood_;
-  edm::InputTag labelBS_, labelVtx_;
-  edm::InputTag labelEB_, labelEE_, labelHBHE_, labelMuon_;
-  double pMuonMin_;
+  const edm::InputTag labelBS_, labelVtx_;
+  const edm::InputTag labelEB_, labelEE_, labelHBHE_, labelMuon_;
+  const double pMuonMin_;
 
   edm::EDGetTokenT<reco::BeamSpot> tok_BS_;
   edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
@@ -79,16 +79,16 @@ private:
 };
 
 AlCaHBHEMuonProducer::AlCaHBHEMuonProducer(edm::ParameterSet const& iConfig, const AlCaHBHEMuons::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0) {
-  //Get the run parameters
-  labelBS_ = iConfig.getParameter<edm::InputTag>("BeamSpotLabel");
-  labelVtx_ = iConfig.getParameter<edm::InputTag>("VertexLabel");
-  labelEB_ = iConfig.getParameter<edm::InputTag>("EBRecHitLabel");
-  labelEE_ = iConfig.getParameter<edm::InputTag>("EERecHitLabel");
-  labelHBHE_ = iConfig.getParameter<edm::InputTag>("HBHERecHitLabel");
-  labelMuon_ = iConfig.getParameter<edm::InputTag>("MuonLabel");
-  pMuonMin_ = iConfig.getParameter<double>("MinimumMuonP");
-
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
+      labelBS_(iConfig.getParameter<edm::InputTag>("BeamSpotLabel")),
+      labelVtx_(iConfig.getParameter<edm::InputTag>("VertexLabel")),
+      labelEB_(iConfig.getParameter<edm::InputTag>("EBRecHitLabel")),
+      labelEE_(iConfig.getParameter<edm::InputTag>("EERecHitLabel")),
+      labelHBHE_(iConfig.getParameter<edm::InputTag>("HBHERecHitLabel")),
+      labelMuon_(iConfig.getParameter<edm::InputTag>("MuonLabel")),
+      pMuonMin_(iConfig.getParameter<double>("MinimumMuonP")) {
   // define tokens for access
   tok_Vtx_ = consumes<reco::VertexCollection>(labelVtx_);
   tok_BS_ = consumes<reco::BeamSpot>(labelBS_);

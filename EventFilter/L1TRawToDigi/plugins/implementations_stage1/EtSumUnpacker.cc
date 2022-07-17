@@ -39,18 +39,16 @@ namespace l1t {
         int totht = candbit[1] & 0xFFF;
         int overflowtotht = (candbit[1] >> 12) & 0x1;
 
-        l1t::EtSum et = l1t::EtSum();
+        l1t::EtSum et{l1t::EtSum::kTotalEt};
         et.setHwPt(totet);
-        et.setType(l1t::EtSum::kTotalEt);
         int flagtotet = et.hwQual();
         flagtotet |= overflowtotet;
         et.setHwQual(flagtotet);
         LogDebug("L1T") << "ET: pT " << et.hwPt() << "is overflow " << overflowtotet << std::endl;
         res_->set(bx, 2, et);
 
-        l1t::EtSum ht = l1t::EtSum();
+        l1t::EtSum ht{l1t::EtSum::kTotalHt};
         ht.setHwPt(totht);
-        ht.setType(l1t::EtSum::kTotalHt);
         int flagtotht = ht.hwQual();
         flagtotht |= overflowtotht;
         ht.setHwQual(flagtotht);

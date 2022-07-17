@@ -11,13 +11,8 @@
 
 class VertexException : public cms::Exception {
 public:
-  VertexException() throw() : cms::Exception("VertexException") {}
-  VertexException(const std::string& message) throw() : cms::Exception("VertexException"), theMessage(message) {}
-  ~VertexException() throw() override {}
-  const char* what() const throw() override { return theMessage.c_str(); }
-
-private:
-  std::string theMessage;
+  VertexException() : cms::Exception("VertexException") {}
+  explicit VertexException(const std::string& message) : cms::Exception("VertexException", message) {}
 };
 
 #endif

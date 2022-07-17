@@ -25,9 +25,9 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
 // mkFit includes
-#include "mkFit/HitStructures.h"
-#include "mkFit/MkStdSeqs.h"
-#include "LayerNumberConverter.h"
+#include "RecoTracker/MkFitCore/interface/HitStructures.h"
+#include "RecoTracker/MkFitCMS/interface/MkStdSeqs.h"
+#include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
 
 class MkFitEventOfHitsProducer : public edm::global::EDProducer<> {
 public:
@@ -95,7 +95,7 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
   const auto& mkFitGeom = iSetup.getData(mkFitGeomToken_);
 
   auto eventOfHits = std::make_unique<mkfit::EventOfHits>(mkFitGeom.trackerInfo());
-  mkfit::StdSeq::Cmssw_LoadHits_Begin(*eventOfHits, {&pixelHits.hits(), &stripHits.hits()});
+  mkfit::StdSeq::cmssw_LoadHits_Begin(*eventOfHits, {&pixelHits.hits(), &stripHits.hits()});
 
   if (usePixelQualityDB_ || useStripStripQualityDB_) {
     std::vector<mkfit::DeadVec> deadvectors(mkFitGeom.layerNumberConverter().nLayers());
@@ -168,16 +168,16 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
         }
       }
     }
-    mkfit::StdSeq::LoadDeads(*eventOfHits, deadvectors);
+    mkfit::StdSeq::loadDeads(*eventOfHits, deadvectors);
   }
 
   fill(iEvent.get(pixelClusterIndexToHitToken_).hits(), *eventOfHits, mkFitGeom);
   fill(iEvent.get(stripClusterIndexToHitToken_).hits(), *eventOfHits, mkFitGeom);
 
-  mkfit::StdSeq::Cmssw_LoadHits_End(*eventOfHits);
+  mkfit::StdSeq::cmssw_LoadHits_End(*eventOfHits);
 
   auto const bs = iEvent.get(beamSpotToken_);
-  eventOfHits->SetBeamSpot(
+  eventOfHits->setBeamSpot(
       mkfit::BeamSpot(bs.x0(), bs.y0(), bs.z0(), bs.sigmaZ(), bs.BeamWidthX(), bs.BeamWidthY(), bs.dxdz(), bs.dydz()));
 
   iEvent.emplace(putToken_, std::move(eventOfHits));
@@ -186,11 +186,11 @@ void MkFitEventOfHitsProducer::produce(edm::StreamID iID, edm::Event& iEvent, co
 void MkFitEventOfHitsProducer::fill(const std::vector<const TrackingRecHit*>& hits,
                                     mkfit::EventOfHits& eventOfHits,
                                     const MkFitGeometry& mkFitGeom) const {
-  for (int i = 0, end = hits.size(); i < end; ++i) {
+  for (unsigned int i = 0, end = hits.size(); i < end; ++i) {
     const auto* hit = hits[i];
     if (hit != nullptr) {
       const auto ilay = mkFitGeom.mkFitLayerNumber(hit->geographicalId());
-      eventOfHits[ilay].RegisterHit(i);
+      eventOfHits[ilay].registerHit(i);
     }
   }
 }

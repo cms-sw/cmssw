@@ -66,7 +66,7 @@ namespace cond {
         Hash thePayloadHash("");
         try {
           this->initDB();
-          Record& myrecord = this->lookUpRecord(recordName);
+          auto& myrecord = this->getRecord(recordName);
           m_logger.logInfo() << "Tag mapped to record " << recordName << ": " << myrecord.m_tag;
           bool newTag = isNewTagRequest(recordName);
           if (myrecord.m_onlyAppendUpdatePolicy && !newTag) {
@@ -92,10 +92,6 @@ namespace cond {
             appendSinceTime(thePayloadHash, time, myrecord);
           }
           if (m_autoCommit) {
-            if (m_writeTransactionDelay) {
-              m_logger.logWarning() << "Waiting " << m_writeTransactionDelay << "s before commit the changes...";
-              ::sleep(m_writeTransactionDelay);
-            }
             doCommitTransaction();
           }
         } catch (const std::exception& er) {
@@ -103,15 +99,6 @@ namespace cond {
         }
         scope.close();
         return thePayloadHash;
-      }
-
-      // warning: takes over the ownership of pointer "payload". Deprecated. Please move to the above referece-based function
-      template <typename T>
-      Hash writeOne(const T* payloadPtr, Time_t time, const std::string& recordName) {
-        if (!payloadPtr)
-          throwException("Provided payload pointer is invalid.", "PoolDBOutputService::writeOne");
-        std::unique_ptr<const T> payload(payloadPtr);
-        return writeOneIOV<T>(*payload, time, recordName);
       }
 
       template <typename T>
@@ -123,10 +110,10 @@ namespace cond {
         cond::persistency::TransactionScope scope(m_session.transaction());
         try {
           this->initDB();
-          Record& myrecord = this->lookUpRecord(recordName);
+          auto& myrecord = this->getRecord(recordName);
           m_logger.logInfo() << "Tag mapped to record " << recordName << ": " << myrecord.m_tag;
           bool newTag = isNewTagRequest(recordName);
-          cond::Time_t lastSince;
+          cond::Time_t lastSince = 0;
           cond::persistency::IOVEditor editor;
           if (newTag) {
             std::string payloadType = cond::demangledName(typeid(T));
@@ -173,56 +160,49 @@ namespace cond {
       template <typename T>
       void createOneIOV(const T& payload, cond::Time_t firstSinceTime, const std::string& recordName) {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-        Record& myrecord = this->lookUpRecord(recordName);
-        if (!myrecord.m_isNewTag) {
-          cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
-        }
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         try {
           this->initDB();
+          auto& myrecord = this->getRecord(recordName);
+          if (!myrecord.m_isNewTag) {
+            cond::throwException(myrecord.m_tag + " is not a new tag", "PoolDBOutputService::createNewIOV");
+          }
           Hash payloadId = m_session.storePayload(payload);
           createNewIOV(payloadId, cond::demangledName(typeid(payload)), firstSinceTime, myrecord);
+          if (m_autoCommit) {
+            doCommitTransaction();
+          }
         } catch (const std::exception& er) {
           cond::throwException(std::string(er.what()), "PoolDBOutputService::createNewIov");
         }
         scope.close();
       }
 
-      // warning: takes over the ownership of pointer "payload" - deprecated. Please move to the above reference-based function
-      template <typename T>
-      void createNewIOV(const T* payloadPtr, cond::Time_t firstSinceTime, cond::Time_t, const std::string& recordName) {
-        if (!payloadPtr)
-          throwException("Provided payload pointer is invalid.", "PoolDBOutputService::createNewIOV");
-        std::unique_ptr<const T> payload(payloadPtr);
-        this->createOneIOV<T>(*payload, firstSinceTime, recordName);
-      }
-
       template <typename T>
       void appendOneIOV(const T& payload, cond::Time_t sinceTime, const std::string& recordName) {
         std::lock_guard<std::recursive_mutex> lock(m_mutex);
-        Record& myrecord = this->lookUpRecord(recordName);
-        if (myrecord.m_isNewTag) {
-          cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
-                               "PoolDBOutputService::appendSinceTime");
-        }
         doStartTransaction();
         cond::persistency::TransactionScope scope(m_session.transaction());
         try {
+          bool dbexists = this->initDB(true);
+          if (!dbexists) {
+            cond::throwException(std::string("Target database does not exist."),
+                                 "PoolDBOutputService::appendSinceTime");
+          }
+          auto& myrecord = this->lookUpRecord(recordName);
+          if (myrecord.m_isNewTag) {
+            cond::throwException(std::string("Cannot append to non-existing tag ") + myrecord.m_tag,
+                                 "PoolDBOutputService::appendSinceTime");
+          }
           appendSinceTime(m_session.storePayload(payload), sinceTime, myrecord);
+          if (m_autoCommit) {
+            doCommitTransaction();
+          }
         } catch (const std::exception& er) {
           cond::throwException(std::string(er.what()), "PoolDBOutputService::appendSinceTime");
         }
         scope.close();
-      }
-
-      // warning: takes over the ownership of pointer "payload" - deprecated. Please move to the above reference-based function
-      template <typename T>
-      void appendSinceTime(const T* payloadPtr, cond::Time_t sinceTime, const std::string& recordName) {
-        if (!payloadPtr)
-          throwException("Provided payload pointer is invalid.", "PoolDBOutputService::appendSinceTime");
-        std::unique_ptr<const T> payload(payloadPtr);
-        this->appendOneIOV<T>(*payload, sinceTime, recordName);
       }
 
       void createNewIOV(const std::string& firstPayloadId, cond::Time_t firstSinceTime, const std::string& recordName);
@@ -262,7 +242,6 @@ namespace cond {
 
       cond::persistency::Logger& logger() { return m_logger; }
 
-    private:
       struct Record {
         Record()
             : m_tag(), m_isNewTag(true), m_idName(), m_timetype(cond::runnumber), m_onlyAppendUpdatePolicy(false) {}
@@ -272,9 +251,13 @@ namespace cond {
         bool m_isNewTag;
         std::string m_idName;
         cond::TimeType m_timetype;
+        unsigned int m_refreshTime = 0;
         bool m_onlyAppendUpdatePolicy;
       };
 
+      const Record& lookUpRecord(const std::string& recordName);
+
+    private:
       //
       void doStartTransaction();
       void doCommitTransaction();
@@ -292,7 +275,7 @@ namespace cond {
       // Note: the iov index appended to MUST pre-existing and the existing
       // conditions data are retrieved from the DB
       //
-      bool appendSinceTime(const std::string& payloadId, cond::Time_t sinceTime, Record& record);
+      bool appendSinceTime(const std::string& payloadId, cond::Time_t sinceTime, const Record& record);
 
       //use these to control transaction interval
       void preEventProcessing(edm::StreamContext const&);
@@ -303,9 +286,10 @@ namespace cond {
 
       void fillRecord(edm::ParameterSet& pset, const std::string& gTimeTypeStr);
 
-      void initDB();
+      bool initDB(bool readOnly = false);
 
-      Record& lookUpRecord(const std::string& recordName);
+      Record& getRecord(const std::string& recordName);
+
       cond::UserLogInfo& lookUpUserLogInfo(const std::string& recordName);
 
     private:

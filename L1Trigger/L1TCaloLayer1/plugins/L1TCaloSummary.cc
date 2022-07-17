@@ -236,8 +236,23 @@ void L1TCaloSummary::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     }
     string regionEta = activeRegionEtaPattern.to_string<char, std::string::traits_type, std::string::allocator_type>();
     string regionPhi = activeRegionPhiPattern.to_string<char, std::string::traits_type, std::string::allocator_type>();
-    if (std::abs(eta) < 2.5 && (regionEta == "010" || regionPhi == "010" || regionEta == "110" || regionPhi == "110" ||
-                                regionEta == "011" || regionPhi == "011"))
+
+    bool centralHighest = object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[0] &&
+                          object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[1] &&
+                          object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[2] &&
+                          object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[3] &&
+                          object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[5] &&
+                          object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[6] &&
+                          object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[7] &&
+                          object->boostedJetRegionET()[4] >= object->boostedJetRegionET()[8];
+
+    if (abs(eta) < 2.5 && ((regionEta == "101" && (regionPhi == "110" || regionPhi == "101" || regionPhi == "010")) ||
+                           ((regionEta == "110" || regionEta == "101" || regionEta == "010") && regionPhi == "101") ||
+                           (regionEta == "111" && (regionPhi == "110" || regionPhi == "010")) ||
+                           ((regionEta == "110" || regionEta == "010") && regionPhi == "111") ||
+                           ((regionEta == "010" || regionPhi == "010" || regionEta == "110" || regionPhi == "110" ||
+                             regionEta == "011" || regionPhi == "011") &&
+                            centralHighest)))
       bJetCands->push_back(L1JetParticle(math::PtEtaPhiMLorentzVector(pt, eta, phi, mass), L1JetParticle::kCentral));
   }
 

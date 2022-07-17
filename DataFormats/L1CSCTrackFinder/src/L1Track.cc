@@ -6,28 +6,8 @@ namespace csc {
   L1Track::L1Track(const csc::L1TrackId& id) : m_name("csc::L1Track") {
     m_endcap = id.endcap();
     m_sector = id.sector();
-    m_lphi = 0;
-    m_ptAddress = 0;
-    m_empty = true;
     setType(2);
     setPtPacked(0);
-    m_rank = 0;
-    me1_id = 0;
-    me2_id = 0;
-    me3_id = 0;
-    me4_id = 0;
-    mb1_id = 0;
-    m_me1Tbin = 0;
-    m_me2Tbin = 0;
-    m_me3Tbin = 0;
-    m_me4Tbin = 0;
-    m_mbTbin = 0;
-    m_output_link = 0;
-    m_winner = false;
-    m_fr = 0;
-    m_se = true;
-    m_bx0 = true;
-    m_bc0 = true;
   }
 
   L1Track::L1Track(const csc::L1Track& rhs)

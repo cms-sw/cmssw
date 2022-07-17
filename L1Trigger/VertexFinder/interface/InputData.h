@@ -1,15 +1,12 @@
 #ifndef __L1Trigger_VertexFinder_InputData_h__
 #define __L1Trigger_VertexFinder_InputData_h__
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "L1Trigger/VertexFinder/interface/Stub.h"
 #include "L1Trigger/VertexFinder/interface/TP.h"
 #include "L1Trigger/VertexFinder/interface/Vertex.h"

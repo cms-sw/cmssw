@@ -12,23 +12,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /// default configuration is: Parametrization kEMom, Max iterations = 200, deltaS<= 5e-5, maxF<= 1e-4, no constraints
-TtSemiLepKinFitter::TtSemiLepKinFitter()
-    : TopKinFitter(),
-      hadB_(nullptr),
-      hadP_(nullptr),
-      hadQ_(nullptr),
-      lepB_(nullptr),
-      lepton_(nullptr),
-      neutrino_(nullptr),
-      udscResolutions_(nullptr),
-      bResolutions_(nullptr),
-      lepResolutions_(nullptr),
-      metResolutions_(nullptr),
-      jetEnergyResolutionScaleFactors_(nullptr),
-      jetEnergyResolutionEtaBinning_(nullptr),
-      jetParam_(kEMom),
-      lepParam_(kEMom),
-      metParam_(kEMom) {
+TtSemiLepKinFitter::TtSemiLepKinFitter() : TopKinFitter(), jetParam_(kEMom), lepParam_(kEMom), metParam_(kEMom) {
   setupFitter();
 }
 
@@ -48,12 +32,6 @@ TtSemiLepKinFitter::TtSemiLepKinFitter(Param jetParam,
                                        const std::vector<double>* jetEnergyResolutionScaleFactors,
                                        const std::vector<double>* jetEnergyResolutionEtaBinning)
     : TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
-      hadB_(nullptr),
-      hadP_(nullptr),
-      hadQ_(nullptr),
-      lepB_(nullptr),
-      lepton_(nullptr),
-      neutrino_(nullptr),
       udscResolutions_(udscResolutions),
       bResolutions_(bResolutions),
       lepResolutions_(lepResolutions),
@@ -67,19 +45,7 @@ TtSemiLepKinFitter::TtSemiLepKinFitter(Param jetParam,
   setupFitter();
 }
 
-TtSemiLepKinFitter::~TtSemiLepKinFitter() {
-  delete hadB_;
-  delete hadP_;
-  delete hadQ_;
-  delete lepB_;
-  delete lepton_;
-  delete neutrino_;
-  delete covM_;
-  for (std::map<Constraint, TFitConstraintM*>::iterator it = massConstr_.begin(); it != massConstr_.end(); ++it)
-    delete it->second;
-  delete sumPxConstr_;
-  delete sumPyConstr_;
-}
+TtSemiLepKinFitter::~TtSemiLepKinFitter() = default;
 
 void TtSemiLepKinFitter::printSetup() const {
   std::stringstream constr;
@@ -126,22 +92,22 @@ void TtSemiLepKinFitter::setupJets() {
   TMatrixD empty4x4(4, 4);
   switch (jetParam_) {  // setup jets according to parameterization
     case kEMom:
-      hadB_ = new TFitParticleEMomDev("Jet1", "Jet1", nullptr, &empty4x4);
-      hadP_ = new TFitParticleEMomDev("Jet2", "Jet2", nullptr, &empty4x4);
-      hadQ_ = new TFitParticleEMomDev("Jet3", "Jet3", nullptr, &empty4x4);
-      lepB_ = new TFitParticleEMomDev("Jet4", "Jet4", nullptr, &empty4x4);
+      hadB_ = std::make_unique<TFitParticleEMomDev>("Jet1", "Jet1", nullptr, &empty4x4);
+      hadP_ = std::make_unique<TFitParticleEMomDev>("Jet2", "Jet2", nullptr, &empty4x4);
+      hadQ_ = std::make_unique<TFitParticleEMomDev>("Jet3", "Jet3", nullptr, &empty4x4);
+      lepB_ = std::make_unique<TFitParticleEMomDev>("Jet4", "Jet4", nullptr, &empty4x4);
       break;
     case kEtEtaPhi:
-      hadB_ = new TFitParticleEtEtaPhi("Jet1", "Jet1", nullptr, &empty3x3);
-      hadP_ = new TFitParticleEtEtaPhi("Jet2", "Jet2", nullptr, &empty3x3);
-      hadQ_ = new TFitParticleEtEtaPhi("Jet3", "Jet3", nullptr, &empty3x3);
-      lepB_ = new TFitParticleEtEtaPhi("Jet4", "Jet4", nullptr, &empty3x3);
+      hadB_ = std::make_unique<TFitParticleEtEtaPhi>("Jet1", "Jet1", nullptr, &empty3x3);
+      hadP_ = std::make_unique<TFitParticleEtEtaPhi>("Jet2", "Jet2", nullptr, &empty3x3);
+      hadQ_ = std::make_unique<TFitParticleEtEtaPhi>("Jet3", "Jet3", nullptr, &empty3x3);
+      lepB_ = std::make_unique<TFitParticleEtEtaPhi>("Jet4", "Jet4", nullptr, &empty3x3);
       break;
     case kEtThetaPhi:
-      hadB_ = new TFitParticleEtThetaPhi("Jet1", "Jet1", nullptr, &empty3x3);
-      hadP_ = new TFitParticleEtThetaPhi("Jet2", "Jet2", nullptr, &empty3x3);
-      hadQ_ = new TFitParticleEtThetaPhi("Jet3", "Jet3", nullptr, &empty3x3);
-      lepB_ = new TFitParticleEtThetaPhi("Jet4", "Jet4", nullptr, &empty3x3);
+      hadB_ = std::make_unique<TFitParticleEtThetaPhi>("Jet1", "Jet1", nullptr, &empty3x3);
+      hadP_ = std::make_unique<TFitParticleEtThetaPhi>("Jet2", "Jet2", nullptr, &empty3x3);
+      hadQ_ = std::make_unique<TFitParticleEtThetaPhi>("Jet3", "Jet3", nullptr, &empty3x3);
+      lepB_ = std::make_unique<TFitParticleEtThetaPhi>("Jet4", "Jet4", nullptr, &empty3x3);
       break;
   }
 }
@@ -150,47 +116,48 @@ void TtSemiLepKinFitter::setupLeptons() {
   TMatrixD empty3x3(3, 3);
   switch (lepParam_) {  // setup lepton according to parameterization
     case kEMom:
-      lepton_ = new TFitParticleEScaledMomDev("Lepton", "Lepton", nullptr, &empty3x3);
+      lepton_ = std::make_unique<TFitParticleEScaledMomDev>("Lepton", "Lepton", nullptr, &empty3x3);
       break;
     case kEtEtaPhi:
-      lepton_ = new TFitParticleEtEtaPhi("Lepton", "Lepton", nullptr, &empty3x3);
+      lepton_ = std::make_unique<TFitParticleEtEtaPhi>("Lepton", "Lepton", nullptr, &empty3x3);
       break;
     case kEtThetaPhi:
-      lepton_ = new TFitParticleEtThetaPhi("Lepton", "Lepton", nullptr, &empty3x3);
+      lepton_ = std::make_unique<TFitParticleEtThetaPhi>("Lepton", "Lepton", nullptr, &empty3x3);
       break;
   }
   switch (metParam_) {  // setup neutrino according to parameterization
     case kEMom:
-      neutrino_ = new TFitParticleEScaledMomDev("Neutrino", "Neutrino", nullptr, &empty3x3);
+      neutrino_ = std::make_unique<TFitParticleEScaledMomDev>("Neutrino", "Neutrino", nullptr, &empty3x3);
       break;
     case kEtEtaPhi:
-      neutrino_ = new TFitParticleEtEtaPhi("Neutrino", "Neutrino", nullptr, &empty3x3);
+      neutrino_ = std::make_unique<TFitParticleEtEtaPhi>("Neutrino", "Neutrino", nullptr, &empty3x3);
       break;
     case kEtThetaPhi:
-      neutrino_ = new TFitParticleEtThetaPhi("Neutrino", "Neutrino", nullptr, &empty3x3);
+      neutrino_ = std::make_unique<TFitParticleEtThetaPhi>("Neutrino", "Neutrino", nullptr, &empty3x3);
       break;
   }
 }
 
 void TtSemiLepKinFitter::setupConstraints() {
-  massConstr_[kWHadMass] = new TFitConstraintM("WMassHad", "WMassHad", nullptr, nullptr, mW_);
-  massConstr_[kWLepMass] = new TFitConstraintM("WMassLep", "WMassLep", nullptr, nullptr, mW_);
-  massConstr_[kTopHadMass] = new TFitConstraintM("TopMassHad", "TopMassHad", nullptr, nullptr, mTop_);
-  massConstr_[kTopLepMass] = new TFitConstraintM("TopMassLep", "TopMassLep", nullptr, nullptr, mTop_);
-  massConstr_[kNeutrinoMass] = new TFitConstraintM("NeutrinoMass", "NeutrinoMass", nullptr, nullptr, 0.);
-  massConstr_[kEqualTopMasses] = new TFitConstraintM("EqualTopMasses", "EqualTopMasses", nullptr, nullptr, 0.);
-  sumPxConstr_ = new TFitConstraintEp("SumPx", "SumPx", nullptr, TFitConstraintEp::pX, 0.);
-  sumPyConstr_ = new TFitConstraintEp("SumPy", "SumPy", nullptr, TFitConstraintEp::pY, 0.);
+  massConstr_[kWHadMass] = std::make_unique<TFitConstraintM>("WMassHad", "WMassHad", nullptr, nullptr, mW_);
+  massConstr_[kWLepMass] = std::make_unique<TFitConstraintM>("WMassLep", "WMassLep", nullptr, nullptr, mW_);
+  massConstr_[kTopHadMass] = std::make_unique<TFitConstraintM>("TopMassHad", "TopMassHad", nullptr, nullptr, mTop_);
+  massConstr_[kTopLepMass] = std::make_unique<TFitConstraintM>("TopMassLep", "TopMassLep", nullptr, nullptr, mTop_);
+  massConstr_[kNeutrinoMass] = std::make_unique<TFitConstraintM>("NeutrinoMass", "NeutrinoMass", nullptr, nullptr, 0.);
+  massConstr_[kEqualTopMasses] =
+      std::make_unique<TFitConstraintM>("EqualTopMasses", "EqualTopMasses", nullptr, nullptr, 0.);
+  sumPxConstr_ = std::make_unique<TFitConstraintEp>("SumPx", "SumPx", nullptr, TFitConstraintEp::pX, 0.);
+  sumPyConstr_ = std::make_unique<TFitConstraintEp>("SumPy", "SumPy", nullptr, TFitConstraintEp::pY, 0.);
 
-  massConstr_[kWHadMass]->addParticles1(hadP_, hadQ_);
-  massConstr_[kWLepMass]->addParticles1(lepton_, neutrino_);
-  massConstr_[kTopHadMass]->addParticles1(hadP_, hadQ_, hadB_);
-  massConstr_[kTopLepMass]->addParticles1(lepton_, neutrino_, lepB_);
-  massConstr_[kNeutrinoMass]->addParticle1(neutrino_);
-  massConstr_[kEqualTopMasses]->addParticles1(hadP_, hadQ_, hadB_);
-  massConstr_[kEqualTopMasses]->addParticles2(lepton_, neutrino_, lepB_);
-  sumPxConstr_->addParticles(lepton_, neutrino_, hadP_, hadQ_, hadB_, lepB_);
-  sumPyConstr_->addParticles(lepton_, neutrino_, hadP_, hadQ_, hadB_, lepB_);
+  massConstr_[kWHadMass]->addParticles1(hadP_.get(), hadQ_.get());
+  massConstr_[kWLepMass]->addParticles1(lepton_.get(), neutrino_.get());
+  massConstr_[kTopHadMass]->addParticles1(hadP_.get(), hadQ_.get(), hadB_.get());
+  massConstr_[kTopLepMass]->addParticles1(lepton_.get(), neutrino_.get(), lepB_.get());
+  massConstr_[kNeutrinoMass]->addParticle1(neutrino_.get());
+  massConstr_[kEqualTopMasses]->addParticles1(hadP_.get(), hadQ_.get(), hadB_.get());
+  massConstr_[kEqualTopMasses]->addParticles2(lepton_.get(), neutrino_.get(), lepB_.get());
+  sumPxConstr_->addParticles(lepton_.get(), neutrino_.get(), hadP_.get(), hadQ_.get(), hadB_.get(), lepB_.get());
+  sumPyConstr_->addParticles(lepton_.get(), neutrino_.get(), hadP_.get(), hadQ_.get(), hadB_.get(), lepB_.get());
 
   if (std::find(constrList_.begin(), constrList_.end(), kSumPt) != constrList_.end())
     constrainSumPt_ = true;
@@ -205,33 +172,33 @@ void TtSemiLepKinFitter::setupFitter() {
   setupConstraints();
 
   // add measured particles
-  fitter_->addMeasParticle(hadB_);
-  fitter_->addMeasParticle(hadP_);
-  fitter_->addMeasParticle(hadQ_);
-  fitter_->addMeasParticle(lepB_);
-  fitter_->addMeasParticle(lepton_);
-  fitter_->addMeasParticle(neutrino_);
+  fitter_->addMeasParticle(hadB_.get());
+  fitter_->addMeasParticle(hadP_.get());
+  fitter_->addMeasParticle(hadQ_.get());
+  fitter_->addMeasParticle(lepB_.get());
+  fitter_->addMeasParticle(lepton_.get());
+  fitter_->addMeasParticle(neutrino_.get());
 
   // add constraints
   for (unsigned int i = 0; i < constrList_.size(); i++) {
     if (constrList_[i] != kSumPt)
-      fitter_->addConstraint(massConstr_[constrList_[i]]);
+      fitter_->addConstraint(massConstr_[constrList_[i]].get());
   }
   if (constrainSumPt_) {
-    fitter_->addConstraint(sumPxConstr_);
-    fitter_->addConstraint(sumPyConstr_);
+    fitter_->addConstraint(sumPxConstr_.get());
+    fitter_->addConstraint(sumPyConstr_.get());
   }
 
   // initialize helper class used to bring the resolutions into covariance matrices
   if (!udscResolutions_->empty() && !bResolutions_->empty() && !lepResolutions_->empty() && !metResolutions_->empty())
-    covM_ = new CovarianceMatrix(*udscResolutions_,
-                                 *bResolutions_,
-                                 *lepResolutions_,
-                                 *metResolutions_,
-                                 *jetEnergyResolutionScaleFactors_,
-                                 *jetEnergyResolutionEtaBinning_);
+    covM_ = std::make_unique<CovarianceMatrix>(*udscResolutions_,
+                                               *bResolutions_,
+                                               *lepResolutions_,
+                                               *metResolutions_,
+                                               *jetEnergyResolutionScaleFactors_,
+                                               *jetEnergyResolutionEtaBinning_);
   else
-    covM_ = new CovarianceMatrix();
+    covM_ = std::make_unique<CovarianceMatrix>();
 }
 
 int TtSemiLepKinFitter::fit(const TLorentzVector& p4HadP,

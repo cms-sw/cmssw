@@ -133,9 +133,11 @@ struct MonitorElementData {
     TH1F = 0x10,
     TH1S = 0x11,
     TH1D = 0x12,
+    TH1I = 0x13,
     TH2F = 0x20,
     TH2S = 0x21,
     TH2D = 0x22,
+    TH2I = 0x23,
     TH3F = 0x30,
     TPROFILE = 0x40,
     TPROFILE2D = 0x41

@@ -30,6 +30,7 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 
 // forward declarations
+class L1GtStableParameters;
 
 // class declaration
 class L1GtTriggerMenuXmlProducer : public edm::ESProducer {
@@ -51,6 +52,8 @@ private:
 
   /// XML file for Global Trigger VME configuration (vme.xml)
   std::string m_vmeXmlFile;
+
+  edm::ESGetToken<L1GtStableParameters, L1GtStableParametersRcd> m_getToken;
 };
 
 #endif

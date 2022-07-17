@@ -26,7 +26,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,18 +44,16 @@
 //#include "CondFormats/BTagPerformance/interface/BtagPerformancePayloadFromTableEtaJetEt.h"
 //#include "CondFormats/BTagPerformance/interface/BtagPerformancePayloadFromTableEtaJetEtPhi.h"
 
-class validateBTagDB : public edm::EDAnalyzer {
+class validateBTagDB : public edm::one::EDAnalyzer<> {
 public:
   explicit validateBTagDB(const edm::ParameterSet&);
-  ~validateBTagDB();
 
 private:
   std::string beff, mistag, ceff;
   std::vector<std::string> algoNames;
   std::vector<std::string> fileList;
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  std::vector<edm::ESGetToken<BtagPerformance, BTagPerformanceRecord>> algoTokens;
+  void analyze(const edm::Event&, const edm::EventSetup&) final;
 
   // ----------member data ---------------------------
 };
@@ -80,13 +78,11 @@ validateBTagDB::validateBTagDB(const edm::ParameterSet& iConfig)
   beff = iConfig.getParameter<std::string>("CalibrationForBEfficiency");
   ceff = iConfig.getParameter<std::string>("CalibrationForCEfficiency");
   mistag = iConfig.getParameter<std::string>("CalibrationForMistag");
-  algoNames = iConfig.getParameter<std::vector<std::string> >("algoNames");
-  fileList = iConfig.getParameter<std::vector<std::string> >("fileList");
-}
-
-validateBTagDB::~validateBTagDB() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
+  algoNames = iConfig.getParameter<std::vector<std::string>>("algoNames");
+  fileList = iConfig.getParameter<std::vector<std::string>>("fileList");
+  for (auto const& n : algoNames) {
+    algoTokens.push_back(esConsumes<BtagPerformance, BTagPerformanceRecord>(edm::ESInputTag("", n)));
+  }
 }
 
 //
@@ -101,9 +97,7 @@ void validateBTagDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   std::cout << "Cut checks" << std::endl;
   for (size_t i = 0; i < algoNames.size(); i++) {
-    edm::ESHandle<BtagPerformance> perfRecord;
-    iSetup.get<BTagPerformanceRecord>().get(algoNames[i], perfRecord);
-    BtagPerformance perfTest = *(perfRecord.product());
+    BtagPerformance const& perfTest = iSetup.getData(algoTokens[i]);
     std::cout << algoNames[i] << " " << perfTest.workingPoint().cut() << std::endl;
     std::cout << "Checking against: " << fileList[i] << std::endl;
     std::ifstream inFile(fileList[i].c_str());
@@ -200,12 +194,6 @@ void validateBTagDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     //    std::cout << output.str() << std::endl;
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void validateBTagDB::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void validateBTagDB::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(validateBTagDB);

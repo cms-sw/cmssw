@@ -172,6 +172,8 @@ globalValidationECALOnly = cms.Sequence(
     + ecalRecHitsValidationSequence
     + pfClusterCaloOnlyValidationSequence
 )
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(ecalRecHitsValidationSequence, ecalRecHitsValidationSequencePhase2)
 
 # HCAL local reconstruction
 globalPrevalidationHCAL = cms.Sequence()

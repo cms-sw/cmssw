@@ -37,7 +37,7 @@ namespace cond {
       if (timeType != (TimeType)TIMESTAMP) {
         return nextSince - 1;
       } else {
-        UnpackedTime unpackedTime = unpack(nextSince);
+        auto unpackedTime = unpack(nextSince);
         //number of seconds in nanoseconds (avoid multiply and divide by 1e09)
         Time_t totalSecondsInNanoseconds = ((Time_t)unpackedTime.first) * 1000000000;
         //total number of nanoseconds
@@ -48,6 +48,18 @@ namespace cond {
         unpackedTime.first = (unsigned int)(totalNanoseconds / 1000000000);
         unpackedTime.second = (unsigned int)(totalNanoseconds - (Time_t)unpackedTime.first * 1000000000);
         return pack(unpackedTime);
+      }
+    }
+
+    Time_t tillTimeForIOV(Time_t since, unsigned int iovSize, TimeType timeType) {
+      if (since == time::MAX_VAL)
+        return time::MAX_VAL;
+      if (timeType != (TimeType)TIMESTAMP) {
+        return since + iovSize - 1;
+      } else {
+        auto unpackedTime = unpack(since);
+        unpackedTime.first = unpackedTime.first + iovSize;
+        return tillTimeFromNextSince(pack(unpackedTime), timeType);
       }
     }
 
@@ -133,6 +145,24 @@ namespace cond {
         default:
           return edm::IOVSyncValue::invalidIOVSyncValue();
       }
+    }
+
+    std::string transactionIdForLumiTime(Time_t time, unsigned int iovSize, const std::string& secretKey) {
+      auto unpackedTime = cond::time::unpack(time);
+      unsigned int offset = 1 + iovSize;
+      cond::Time_t id = 0;
+      if (unpackedTime.second < offset) {
+        id = lumiTime(unpackedTime.first, 1);
+      } else {
+        unsigned int res = (unpackedTime.second - offset) % iovSize;
+        id = lumiTime(unpackedTime.first, unpackedTime.second - res);
+      }
+      std::stringstream transId;
+      transId << id;
+      if (!secretKey.empty()) {
+        transId << "_" << secretKey;
+      }
+      return transId.str();
     }
 
   }  // namespace time

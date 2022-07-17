@@ -1,7 +1,6 @@
 #ifndef L1Trigger_DTTriggerPhase2_GlobalCoordsObtainer_h
 #define L1Trigger_DTTriggerPhase2_GlobalCoordsObtainer_h
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"

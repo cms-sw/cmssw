@@ -33,6 +33,7 @@
 #include "L1Trigger/L1TGlobal/interface/TriggerMenuFwd.h"
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/MuonShowerTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CorrelationTemplate.h"
@@ -123,6 +124,12 @@ namespace l1t {
     /// get / set the vectors containing the conditions
     inline const std::vector<std::vector<MuonTemplate> >& vecMuonTemplate() const { return m_vecMuonTemplate; }
     void setVecMuonTemplate(const std::vector<std::vector<MuonTemplate> >&);
+
+    //
+    inline const std::vector<std::vector<MuonShowerTemplate> >& vecMuonShowerTemplate() const {
+      return m_vecMuonShowerTemplate;
+    }
+    void setVecMuonShowerTemplate(const std::vector<std::vector<MuonShowerTemplate> >&);
 
     //
     inline const std::vector<std::vector<CaloTemplate> >& vecCaloTemplate() const { return m_vecCaloTemplate; }
@@ -266,6 +273,9 @@ namespace l1t {
 
     bool parseMuonCorr(const tmeventsetup::esObject* condMu, unsigned int chipNr = 0);
 
+    /// parse a muon shower condition
+    bool parseMuonShower(tmeventsetup::esCondition condMu, unsigned int chipNr = 0, const bool corrFlag = false);
+
     /// parse a calorimeter condition
     /*     bool parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node, */
     /*             const std::string& name, unsigned int chipNr = 0, */
@@ -383,6 +393,7 @@ namespace l1t {
     /// vectors containing the conditions
     /// explicit, due to persistency...
     std::vector<std::vector<MuonTemplate> > m_vecMuonTemplate;
+    std::vector<std::vector<MuonShowerTemplate> > m_vecMuonShowerTemplate;
     std::vector<std::vector<CaloTemplate> > m_vecCaloTemplate;
     std::vector<std::vector<EnergySumTemplate> > m_vecEnergySumTemplate;
     std::vector<std::vector<ExternalTemplate> > m_vecExternalTemplate;

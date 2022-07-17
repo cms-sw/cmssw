@@ -72,7 +72,11 @@ namespace clangcms {
             os << rname << " ";
             const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
             for (unsigned J = 0, F = SD->getTemplateArgs().size(); J != F; ++J) {
+#if LLVM_VERSION_MAJOR >= 13
+              SD->getTemplateArgs().data()[J].print(Policy, os, false);
+#else
               SD->getTemplateArgs().data()[J].print(Policy, os);
+#endif
               os << ", ";
             }
           } else {
@@ -94,7 +98,11 @@ namespace clangcms {
         os << SRD->getQualifiedNameAsString() << " ";
         const ClassTemplateSpecializationDecl *SVD = dyn_cast<ClassTemplateSpecializationDecl>(SRD);
         for (unsigned J = 0, F = SVD->getTemplateArgs().size(); J != F; ++J) {
+#if LLVM_VERSION_MAJOR >= 13
+          SVD->getTemplateArgs().data()[J].print(Policy, os, false);
+#else
           SVD->getTemplateArgs().data()[J].print(Policy, os);
+#endif
           os << ", ";
         }
       }

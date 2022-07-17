@@ -3,7 +3,7 @@
 
 namespace cscdqm {
 
-  StripClusterFinder::StripClusterFinder(int l, int s, int cf, int st) {
+  StripClusterFinder::StripClusterFinder(int l, int s, int cf, int st, bool ME11) {
     //
     // Options
     //
@@ -11,6 +11,11 @@ namespace cscdqm {
     LayerNmb = l;
     TimeSliceNmb = s;
     StripNmb = cf * 16;
+    isME11 = ME11;
+    if (cf == 7) {
+      is7DCFEBs = true;
+      isME11 = true;
+    }
   }
   void StripClusterFinder::DoAction(int LayerId, float* Cathodes) {
     int TimeId, StripId;
@@ -88,7 +93,7 @@ namespace cscdqm {
   void StripClusterFinder::SearchMax(void) {
     StripCluster tmpCluster;
     for (i = 1; i < (thePulseHeightMap.size() - 1); i++) {
-      if (thePulseHeightMap[i].channel_ == 63 || thePulseHeightMap[i].channel_ == 64)
+      if (isME11 && (thePulseHeightMap[i].channel_ == 63 || thePulseHeightMap[i].channel_ == 64))
         continue;
       for (j = 1; j < 15; j++) {
         if (thePulseHeightMap[i].height_[j] > thePulseHeightMap[i - 1].height_[j] &&
@@ -130,7 +135,7 @@ namespace cscdqm {
       // strip
       MEStripClusters[i].LFTBNDStrip = 0;
       for (iL = iS - 1; iL > 0; iL--) {
-        if (thePulseHeightMap[iL].channel_ == 64) {
+        if (isME11 && (thePulseHeightMap[iL].channel_ == 64)) {
           MEStripClusters[i].LFTBNDStrip = iL;
           break;
         }
@@ -151,7 +156,7 @@ namespace cscdqm {
       //strip
       MEStripClusters[i].IRTBNDStrip = thePulseHeightMap.size() - 1;
       for (iR = iS + 1; iR < thePulseHeightMap.size(); iR++) {
-        if (thePulseHeightMap[iR].channel_ == 63) {
+        if (isME11 && (thePulseHeightMap[iR].channel_ == 63)) {
           MEStripClusters[i].IRTBNDStrip = iR;
           break;
         }
@@ -259,10 +264,10 @@ namespace cscdqm {
       for(jT=iLT+1;jT<=iRT-1;jT++){
     */
       for (iS = iLS; iS <= iRS; iS++) {
-        if (thePulseHeightMap[iS].channel_ == 63 || thePulseHeightMap[iS].channel_ == 64)
+        if (isME11 && (thePulseHeightMap[iS].channel_ == 63 || thePulseHeightMap[iS].channel_ == 64))
           continue;
         for (jT = iLT; jT <= iRT; jT++) {
-          if (iS == 0 || jT == 0 || iS == 79 || jT == 7)
+          if (iS == 0 || jT == 0 || (!is7DCFEBs && (iS == 79)) || (is7DCFEBs && (iS == 111)) || jT == 7)
             continue;
           if (thePulseHeightMap[iS].height_[jT] > thePulseHeightMap[iS - 1].height_[jT] &&
               thePulseHeightMap[iS].height_[jT] > thePulseHeightMap[iS + 1].height_[jT] &&

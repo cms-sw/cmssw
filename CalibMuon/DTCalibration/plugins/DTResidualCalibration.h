@@ -6,7 +6,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -26,7 +26,7 @@ class DTGeometry;
 class DTSuperLayerId;
 class DTLayerId;
 
-class DTResidualCalibration : public edm::EDAnalyzer {
+class DTResidualCalibration : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   DTResidualCalibration(const edm::ParameterSet& pset);
@@ -36,6 +36,7 @@ public:
   void beginJob() override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void endJob() override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override{};
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
 protected:

@@ -141,7 +141,7 @@ run2_nanoAOD_94X2016.toModify(isoForEle,
 ######################################ptRatioForEle#####################################
 ###import from hysicsTools/NanoAOD/pythonElectronJetVarProducer_cfi.py
 ptRatioRelForEle = cms.EDProducer("ElectronJetVarProducer",
-    srcJet = cms.InputTag("updatedJets"),
+    srcJet = cms.InputTag("updatedJetsPuppi"),
     srcLep = cms.InputTag("slimmedElectrons"),
     srcVtx = cms.InputTag("offlineSlimmedPrimaryVertices"),
 )
@@ -395,6 +395,7 @@ electronTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
     ),
     externalVariables = cms.PSet(
         mvaTTH = ExtVar(cms.InputTag("electronMVATTH"),float, doc="TTH MVA lepton ID score",precision=14),
+        fsrPhotonIdx = ExtVar(cms.InputTag("leptonFSRphotons:eleFsrIndex"),int, doc="Index of the lowest-dR/ET2 among associated FSR photons"),
     ),
 )
 
@@ -554,8 +555,12 @@ electronMCTask = cms.Task(tautaggerForMatching, matchingElecPhoton, electronsMCM
 )
 
 (run3_nanoAOD_devel).toReplaceWith(electronTablesTask, electronTablesTask.copyAndExclude([electronMVATTH]))
-(run3_nanoAOD_devel).toModify(electronTable, externalVariables = None)
+(run3_nanoAOD_devel).toModify(electronTable, externalVariables = cms.PSet(fsrPhotonIdx = ExtVar(cms.InputTag("leptonFSRphotons:eleFsrIndex"),int, doc="Index of the  lowest-dR/ET2 among associated FSR photons")),
+)
 ##### end TEMPORARY Run3
+
+# Revert back to AK4 CHS jets for Run 2
+run2_nanoAOD_ANY.toModify(ptRatioRelForEle,srcJet="updatedJets")
 
 
 #for NANO from reminAOD, no need to run slimmedElectronsUpdated, other modules of electron sequence will run on slimmedElectrons

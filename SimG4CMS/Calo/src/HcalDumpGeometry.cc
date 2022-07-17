@@ -5,8 +5,6 @@
 #include <iostream>
 #include <memory>
 
-//#define EDM_ML_DEBUG
-
 HcalDumpGeometry::HcalDumpGeometry(const std::vector<std::string_view>& names,
                                    const HcalNumberingFromDDD* hcn,
                                    bool test,
@@ -19,7 +17,7 @@ HcalDumpGeometry::HcalDumpGeometry(const std::vector<std::string_view>& names,
   std::stringstream ss;
   for (const auto& lvname : names)
     ss << " " << lvname;
-  edm::LogVerbatim("HCalGeom") << " Testmode: " << test << " with " << names.size() << " LVs: " << ss.str();
+  G4cout << " Testmode: " << test << " with " << names.size() << " LVs: " << ss.str() << G4endl;
   const std::vector<std::string> namg = {"HBS", "HES", "HTS", "HVQ"};
   for (const auto& name : names) {
     std::string namex = (getNameNoNS(static_cast<std::string>(name))).substr(0, 3);
@@ -28,24 +26,23 @@ HcalDumpGeometry::HcalDumpGeometry(const std::vector<std::string_view>& names,
         names_.emplace_back(namex);
     }
   }
-  edm::LogVerbatim("HCalGeom") << "HcalDumpGeometry:: dump geometry information for Hcal with " << names_.size()
-                               << " elements:";
+  G4cout << "HcalDumpGeometry:: dump geometry information for Hcal with " << names_.size() << " elements:" << G4endl;
   for (unsigned int k = 0; k < names_.size(); ++k)
-    edm::LogVerbatim("HCalGeom") << "[" << k << "] : " << names_[k];
+    G4cout << "[" << k << "] : " << names_[k] << G4endl;
 }
 
 void HcalDumpGeometry::update() {
   G4VPhysicalVolume* theTopPV =
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
-  edm::LogVerbatim("HCalGeom") << "HcalDumpGeometry entered with entry of top PV at " << theTopPV;
+  G4cout << "HcalDumpGeometry entered with entry of top PV at " << theTopPV << G4endl;
 
   dumpTouch(theTopPV, 0);
   fHistory_.SetFirstEntry(theTopPV);
-  edm::LogVerbatim("HCalGeom") << "HcalDumpGeometry finds " << infoVec_.size() << " touchables";
+  G4cout << "HcalDumpGeometry finds " << infoVec_.size() << " touchables" << G4endl;
   sort(infoVec_.begin(), infoVec_.end(), CaloDetInfoLess());
   unsigned int k(0);
   for (const auto& info : infoVec_) {
-    edm::LogVerbatim("HCalGeom") << "[" << k << "] " << info;
+    G4cout << "[" << k << "] " << info << G4endl;
     if (info.flag() && (info.solid() != nullptr)) {
       info.solid()->DumpInfo();
       G4cout << G4endl;
@@ -76,12 +73,9 @@ void HcalDumpGeometry::dumpTouch(G4VPhysicalVolume* pv, unsigned int leafDepth) 
         HcalNumberingFromDDD::HcalID tmp = numberingFromDDD_->unitID(
             det, math::XYZVectorD(globalpoint.x(), globalpoint.y(), globalpoint.z()), depth, lay);
         uint32_t id = numberingScheme_->getUnitID(tmp);
-#ifdef EDM_ML_DEBUG
-        edm::LogVerbatim("HCalGeom") << "Det " << det << " Layer " << lay << ":" << depth << " Volume "
-                                     << fHistory_.GetVolume(theSize)->GetName() << ":"
-                                     << fHistory_.GetVolume(theSize - 1)->GetName() << " ID " << std::hex << id
-                                     << std::dec;
-#endif
+        G4cout << "Det " << det << " Layer " << lay << ":" << depth << " Volume "
+               << fHistory_.GetVolume(theSize)->GetName() << ":" << fHistory_.GetVolume(theSize - 1)->GetName()
+               << " ID " << std::hex << id << std::dec << G4endl;
 
         G4VSolid* solid = lv->GetSolid();
         infoVec_.emplace_back(CaloDetInfo(id, 0, 0, getNameNoNS(lvname), globalpoint, solid, flag_));

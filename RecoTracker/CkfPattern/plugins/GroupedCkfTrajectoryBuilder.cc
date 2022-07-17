@@ -12,6 +12,7 @@
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 #include "GroupedTrajCandLess.h"
 #include "TrackingTools/TrajectoryFiltering/interface/RegionalTrajectoryFilter.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
@@ -29,6 +30,7 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/PluginDescription.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
@@ -132,13 +134,9 @@ GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet
   theRequireSeedHitsInRebuild = conf.getParameter<bool>("requireSeedHitsInRebuild");
   theKeepOriginalIfRebuildFails = conf.getParameter<bool>("keepOriginalIfRebuildFails");
   theMinNrOfHitsForRebuild = max(0, conf.getParameter<int>("minNrOfHitsForRebuild"));
-  maxPt2ForLooperReconstruction = conf.existsAs<double>("maxPtForLooperReconstruction")
-                                      ? conf.getParameter<double>("maxPtForLooperReconstruction")
-                                      : 0;
+  maxPt2ForLooperReconstruction = conf.getParameter<double>("maxPtForLooperReconstruction");
   maxPt2ForLooperReconstruction *= maxPt2ForLooperReconstruction;
-  maxDPhiForLooperReconstruction = conf.existsAs<double>("maxDPhiForLooperReconstruction")
-                                       ? conf.getParameter<double>("maxDPhiForLooperReconstruction")
-                                       : 2.0;
+  maxDPhiForLooperReconstruction = conf.getParameter<double>("maxDPhiForLooperReconstruction");
 
   /* ======= B.M. to be ported layer ===========
   bool setOK = thePropagator->setMaxDirectionChange(1.6);
@@ -150,6 +148,32 @@ GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet
 
   theConfigurableCondition = createAlgo<TrajectoryFilter>(componentConfig("StopCondition"));
   ===================================== */
+}
+
+void GroupedCkfTrajectoryBuilder::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  BaseCkfTrajectoryBuilder::fillPSetDescription(iDesc);
+
+  iDesc.add<bool>("useSameTrajFilter", true);
+  iDesc.add<int>("maxCand", 5);
+  iDesc.add<double>("lostHitPenalty", 30.);
+  iDesc.add<double>("foundHitBonus", 10.);
+  iDesc.add<bool>("intermediateCleaning", true);
+  iDesc.add<bool>("alwaysUseInvalidHits", true);
+  iDesc.add<bool>("lockHits", true);
+  iDesc.add<bool>("bestHitOnly", true);
+  iDesc.add<bool>("requireSeedHitsInRebuild", true);
+  iDesc.add<bool>("keepOriginalIfRebuildFails", false);
+  iDesc.add<int>("minNrOfHitsForRebuild", 5);
+  iDesc.add<double>("maxPtForLooperReconstruction", 0.);
+  iDesc.add<double>("maxDPhiForLooperReconstruction", 2.0);
+
+  edm::ParameterSetDescription psdTJ1;
+  psdTJ1.addNode(edm::PluginDescription<TrajectoryFilterFactory>("ComponentType", true));
+  iDesc.add<edm::ParameterSetDescription>("trajectoryFilter", psdTJ1);
+
+  edm::ParameterSetDescription psdTJ2;
+  psdTJ2.addNode(edm::PluginDescription<TrajectoryFilterFactory>("ComponentType", true));
+  iDesc.add<edm::ParameterSetDescription>("inOutTrajectoryFilter", psdTJ2);
 }
 
 /*

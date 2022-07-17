@@ -51,8 +51,13 @@ gctTestFunctions::~gctTestFunctions() {
 //=================================================================================================================
 //
 /// Configuration method
-void gctTestFunctions::configure(const edm::EventSetup& c) {
+void gctTestFunctions::configure(const L1GctJetFinderParams& jfPars,
+                                 const L1GctChannelMask& chanMask,
+                                 const L1CaloEtScale& etScale,
+                                 const L1CaloEtScale& htMissScale,
+                                 const L1CaloEtScale& hfRingEtScale) {
   // get data from EventSetup
+  /*
   edm::ESHandle<L1GctJetFinderParams> jfPars;
   c.get<L1GctJetFinderParamsRcd>().get(jfPars);  // which record?
   edm::ESHandle<L1GctChannelMask> chanMask;
@@ -63,10 +68,11 @@ void gctTestFunctions::configure(const edm::EventSetup& c) {
   c.get<L1HtMissScaleRcd>().get(htMissScale);  // which record?
   edm::ESHandle<L1CaloEtScale> hfRingEtScale;
   c.get<L1HfRingEtScaleRcd>().get(hfRingEtScale);  // which record?
+  */
 
-  theEnergyAlgosTester->configure(chanMask.product());
-  theHtTester->configure(etScale.product(), htMissScale.product(), jfPars.product());
-  theHfEtSumsTester->configure(hfRingEtScale.product());
+  theEnergyAlgosTester->configure(&chanMask);
+  theHtTester->configure(&etScale, &htMissScale, &jfPars);
+  theHfEtSumsTester->configure(&hfRingEtScale);
 }
 
 //=================================================================================================================

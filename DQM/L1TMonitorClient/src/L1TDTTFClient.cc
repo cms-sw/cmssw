@@ -8,7 +8,6 @@
 #include "DQM/L1TMonitorClient/interface/L1TDTTFClient.h"
 
 /// base services
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

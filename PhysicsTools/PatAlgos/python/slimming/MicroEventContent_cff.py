@@ -95,6 +95,12 @@ MicroEventContent = cms.PSet(
         # patLowPtElectrons
         'keep *_slimmedLowPtElectrons_*_*',
         'keep *_gsfTracksOpenConversions_*_*',
+        # patDisplacedMuons
+        'keep *_slimmedDisplacedMuons_*_*',
+        'keep recoTrackExtras_slimmedDisplacedMuonTrackExtras_*_*',
+        'keep TrackingRecHitsOwned_slimmedDisplacedMuonTrackExtras_*_*',
+        'keep SiPixelClusteredmNewDetSetVector_slimmedDisplacedMuonTrackExtras_*_*',
+        'keep SiStripClusteredmNewDetSetVector_slimmedDisplacedMuonTrackExtras_*_*',
     )
 )
 
@@ -162,7 +168,7 @@ MicroEventContentMC.outputCommands += [
                                         # RUN
                                         'keep L1GtTriggerMenuLite_l1GtTriggerMenuLite__*'
                                       ]
-_pp_on_AA_MC_extraCommands = ['keep *_packedGenParticlesSignal_*_*']
+_pp_on_AA_MC_extraCommands = ['keep *_packedGenParticlesSignal_*_*','keep edmGenHIEvent_heavyIon_*_*']
 pp_on_AA.toModify(MicroEventContentMC, outputCommands = MicroEventContentMC.outputCommands + _pp_on_AA_MC_extraCommands)
 
 from Configuration.Eras.Modifier_strips_vfp30_2016_cff import strips_vfp30_2016

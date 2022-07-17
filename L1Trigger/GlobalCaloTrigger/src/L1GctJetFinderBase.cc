@@ -550,7 +550,7 @@ L1GctTwosComplement<kBitsOutput> L1GctJetFinderBase::etComponentForJetFinder(
                            16134,
                            16383};
 
-  int rotatedValue0, rotatedValue1, myFact;
+  long int rotatedValue0, rotatedValue1, myFact;
   int etComponentSum = 0;
 
   if (fact0 >= 36 || fact1 >= 36) {

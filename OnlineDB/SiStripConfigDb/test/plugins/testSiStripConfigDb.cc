@@ -1,14 +1,46 @@
-
-#include "OnlineDB/SiStripConfigDb/test/plugins/testSiStripConfigDb.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
-#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+// system includes
 #include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
+
+// user includes
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+
+class SiStripConfigDb;
+
+/**
+   @class testSiStripConfigDb
+   @author R.Bainbridge
+   @brief Simple class that tests SiStripConfigDb service
+*/
+class testSiStripConfigDb : public edm::one::EDAnalyzer<> {
+public:
+  testSiStripConfigDb(const edm::ParameterSet&);
+  ~testSiStripConfigDb();
+
+  void analyze(const edm::Event&, const edm::EventSetup&) { ; }
+  void beginJob();
+
+private:
+  SiStripConfigDb* db_;
+
+  const bool download_;
+  const bool upload_;
+  const bool conns_;
+  const bool devices_;
+  const bool feds_;
+  const bool dcus_;
+  const bool anals_;
+};
 
 using namespace std;
 using namespace sistrip;
@@ -604,3 +636,6 @@ void testSiStripConfigDb::beginJob() {
     }
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(testSiStripConfigDb);

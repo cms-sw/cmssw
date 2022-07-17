@@ -103,13 +103,17 @@ void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {
     fms = (evf::FastMonitoringService*)(edm::Service<evf::MicroStateService>().operator->());
   }
 
-  if (fms ? fms->getEventsProcessedForLumi(fp.lumi_) : true) {
+  bool abortFlag = false;
+  if (fms ? fms->getEventsProcessedForLumi(fp.lumi_, &abortFlag) : true) {
     // Save the file in the open directory.
     this->savePB(&*store, openHistoFilePathName, fp.run_, fp.lumi_);
 
     // Now move the the data and json files into the output directory.
     ::rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
   }
+
+  if (abortFlag)
+    return;
 
   // Write the json file in the open directory.
   bpt::ptree pt = fillJson(fp.run_, fp.lumi_, histoFilePathName, transferDestination_, mergeType_, fms);
@@ -255,9 +259,9 @@ void DQMFileSaverPB::savePB(DQMStore* store, std::string const& filename, int ru
     } else {
       // Compress ME blob with zlib
       int maxOutputSize = this->getMaxCompressedSize(buffer.Length());
-      char compression_output[maxOutputSize];
-      uLong total_out = this->compressME(buffer, maxOutputSize, compression_output);
-      histo.set_streamed_histo(compression_output, total_out);
+      std::vector<char> compression_output(maxOutputSize);
+      uLong total_out = this->compressME(buffer, maxOutputSize, compression_output.data());
+      histo.set_streamed_histo(compression_output.data(), total_out);
     }
 
     // Save quality reports

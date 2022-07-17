@@ -1,5 +1,11 @@
-#include "RecoLocalTracker/SiStripClusterizer/test/CompareClusters.h"
+// system includes
+#include <functional>
+#include <numeric>
+#include <vector>
+#include <iostream>
+#include <sstream>
 
+// user includes
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
@@ -9,34 +15,76 @@
 #include "CalibTracker/Records/interface/SiStripGainRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include <functional>
-#include <numeric>
-#include <vector>
-#include <iostream>
-#include <sstream>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+class CompareClusters : public edm::one::EDAnalyzer<> {
+  typedef edmNew::DetSetVector<SiStripCluster> input_t;
+
+public:
+  CompareClusters(const edm::ParameterSet& conf);
+
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+  void show(uint32_t);
+  std::string printDigis(uint32_t);
+  static std::string printCluster(const SiStripCluster&);
+  static bool identicalDSV(const input_t&, const input_t&);
+  static bool identicalDetSet(const edmNew::DetSet<SiStripCluster>&, const edmNew::DetSet<SiStripCluster>&);
+  static bool identicalClusters(const SiStripCluster&, const SiStripCluster&);
+
+  const edm::ESGetToken<SiStripGain, SiStripGainRcd> gainESToken;
+  const edm::ESGetToken<SiStripNoises, SiStripNoisesRcd> noiseESToken;
+  const edm::ESGetToken<SiStripQuality, SiStripQualityRcd> qualESToken;
+
+  std::stringstream message;
+
+  const edm::InputTag clusters1, clusters2, digis;
+  const edm::EDGetTokenT<input_t> clustersToken1, clustersToken2;
+  const edm::EDGetTokenT<edm::DetSetVector<SiStripDigi>> digisToken;
+  edm::Handle<input_t> clusterHandle1, clusterHandle2;
+
+  edm::Handle<edm::DetSetVector<SiStripDigi>> digiHandle;
+  edm::ESHandle<SiStripGain> gainHandle;
+  edm::ESHandle<SiStripNoises> noiseHandle;
+  edm::ESHandle<SiStripQuality> qualityHandle;
+};
 
 CompareClusters::CompareClusters(const edm::ParameterSet& conf)
-    : clusters1(conf.getParameter<edm::InputTag>("Clusters1")),
+    : gainESToken(esConsumes()),
+      noiseESToken(esConsumes()),
+      qualESToken(esConsumes()),
+      clusters1(conf.getParameter<edm::InputTag>("Clusters1")),
       clusters2(conf.getParameter<edm::InputTag>("Clusters2")),
-      digis(conf.getParameter<edm::InputTag>("Digis")) {}
+      digis(conf.getParameter<edm::InputTag>("Digis")),
+      clustersToken1(consumes<input_t>(clusters1)),
+      clustersToken2(consumes<input_t>(clusters2)),
+      digisToken(consumes<edm::DetSetVector<SiStripDigi>>(digis)) {}
 
 void CompareClusters::analyze(const edm::Event& event, const edm::EventSetup& es) {
-  event.getByLabel(clusters1, clusterHandle1);
+  event.getByToken(clustersToken1, clusterHandle1);
   if (!clusterHandle1.isValid())
     throw cms::Exception("Input Not found") << clusters1;
-  event.getByLabel(clusters2, clusterHandle2);
+  event.getByToken(clustersToken2, clusterHandle2);
   if (!clusterHandle2.isValid())
     throw cms::Exception("Input Not found") << clusters2;
   if (identicalDSV(*clusterHandle1, *clusterHandle2))
     return;
 
   {  //digi access
-    event.getByLabel(digis, digiHandle);
+    event.getByToken(digisToken, digiHandle);
     if (!digiHandle.isValid())
       throw cms::Exception("Input Not found") << digis;
-    es.get<SiStripNoisesRcd>().get(noiseHandle);
-    es.get<SiStripGainRcd>().get(gainHandle);
-    es.get<SiStripQualityRcd>().get(qualityHandle);
+    gainHandle = es.getHandle(gainESToken);
+    noiseHandle = es.getHandle(noiseESToken);
+    qualityHandle = es.getHandle(qualESToken);
   }
 
   input_t::const_iterator set1(clusterHandle1->begin()), end1(clusterHandle1->end()), set2(clusterHandle2->begin()),
@@ -130,3 +178,6 @@ bool CompareClusters::identicalClusters(const SiStripCluster& L, const SiStripCl
                        std::logical_and<bool>(),
                        std::equal_to<uint16_t>());
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(CompareClusters);

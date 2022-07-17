@@ -1,5 +1,6 @@
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -10,82 +11,74 @@
 #include "DataFormats/ParticleFlowReco/interface/PreId.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
-class PreIdAnalyzer : public edm::EDAnalyzer {
+class PreIdAnalyzer : public DQMEDAnalyzer {
 public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
   explicit PreIdAnalyzer(const edm::ParameterSet&);
-  ~PreIdAnalyzer();
+  ~PreIdAnalyzer() override = default;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override {}
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void beginJobAnalyze(const edm::EventSetup & c);
 private:
-  edm::InputTag PreIdMapLabel_;
-  edm::InputTag TrackLabel_;
+  const edm::EDGetTokenT<edm::ValueMap<reco::PreIdRef> > preIdMapToken_;
+  const edm::EDGetTokenT<reco::TrackCollection> trackToken_;
 
-  DQMStore* dbe;
-  MonitorElement* TracksPt;
-  MonitorElement* TracksEta;
-  MonitorElement* TracksPtEcalMatch;
-  MonitorElement* TracksEtaEcalMatch;
-  MonitorElement* geomMatchChi2;
-  MonitorElement* geomMatchEop;
+  MonitorElement* tracksPt_;
+  MonitorElement* tracksEta_;
+  MonitorElement* tracksPtEcalMatch_;
+  MonitorElement* tracksEtaEcalMatch_;
+  MonitorElement* geomMatchChi2_;
+  MonitorElement* geomMatchEop_;
 
-  MonitorElement* TracksChi2;
-  MonitorElement* TracksNhits;
-  MonitorElement* TracksPtFiltered;
-  MonitorElement* TracksEtaFiltered;
-  MonitorElement* TracksPtNotFiltered;
-  MonitorElement* TracksEtaNotFiltered;
+  MonitorElement* tracksChi2_;
+  MonitorElement* tracksNhits_;
+  MonitorElement* tracksPtFiltered_;
+  MonitorElement* tracksEtaFiltered_;
+  MonitorElement* tracksPtNotFiltered_;
+  MonitorElement* tracksEtaNotFiltered_;
 
-  MonitorElement* TracksPtPreIded;
-  MonitorElement* TracksEtaPreIded;
-  MonitorElement* trackdpt;
-  MonitorElement* gsfChi2;
-  MonitorElement* chi2Ratio;
-  MonitorElement* mva;
+  MonitorElement* tracksPtPreIded_;
+  MonitorElement* tracksEtaPreIded_;
+  MonitorElement* trackdpt_;
+  MonitorElement* gsfChi2_;
+  MonitorElement* chi2Ratio_;
+  MonitorElement* mva_;
 };
 
-PreIdAnalyzer::PreIdAnalyzer(const edm::ParameterSet& pset) {
-  PreIdMapLabel_ = pset.getParameter<edm::InputTag>("PreIdMap");
-  TrackLabel_ = pset.getParameter<edm::InputTag>("TrackCollection");
-}
+PreIdAnalyzer::PreIdAnalyzer(const edm::ParameterSet& pset)
+    : preIdMapToken_(consumes<edm::ValueMap<reco::PreIdRef> >(pset.getParameter<edm::InputTag>("PreIdMap"))),
+      trackToken_(consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("TrackCollection"))) {}
 
-PreIdAnalyzer::~PreIdAnalyzer() { dbe->save("PreId.root"); }
-
-void PreIdAnalyzer::beginRun(edm::Run const& run, edm::EventSetup const& es) {
-  dbe = edm::Service<DQMStore>().operator->();
-  //}
-
+void PreIdAnalyzer::bookHistograms(DQMStore::IBooker& dbe, edm::Run const&, edm::EventSetup const&) {
   //void  PreIdAnalyzer::beginJobAnalyze(const edm::EventSetup & c){
-  TracksPt = dbe->book1D("TracksPt", "pT", 1000, 0, 100.);
-  TracksEta = dbe->book1D("TracksEta", "eta", 50, -2.5, 2.5);
-  TracksPtEcalMatch = dbe->book1D("TracksPtEcalMatch", "pT", 1000, 0, 100.);
-  TracksEtaEcalMatch = dbe->book1D("TracksEtaEcalMatch", "eta", 50, -2.5, 2.5);
-  TracksPtFiltered = dbe->book1D("TracksPtFiltered", "pT", 1000, 0, 100.);
-  TracksEtaFiltered = dbe->book1D("TracksEtaFiltered", "eta", 50, -2.5, 2.5);
-  TracksPtNotFiltered = dbe->book1D("TracksPtNotFiltered", "pT", 1000, 0, 100.);
-  TracksEtaNotFiltered = dbe->book1D("TracksEtaNotFiltered", "eta", 50, -2.5, 2.5);
-  TracksPtPreIded = dbe->book1D("TracksPtPreIded", "pT", 1000, 0, 100.);
-  TracksEtaPreIded = dbe->book1D("TracksEtaPreIded", "eta", 50, -2.5, 2.5);
-  TracksChi2 = dbe->book1D("TracksChi2", "chi2", 100, 0, 10.);
-  TracksNhits = dbe->book1D("TracksNhits", "Nhits", 30, -0.5, 29.5);
+  tracksPt_ = dbe.book1D("TracksPt", "pT", 1000, 0, 100.);
+  tracksEta_ = dbe.book1D("TracksEta", "eta", 50, -2.5, 2.5);
+  tracksPtEcalMatch_ = dbe.book1D("TracksPtEcalMatch", "pT", 1000, 0, 100.);
+  tracksEtaEcalMatch_ = dbe.book1D("TracksEtaEcalMatch", "eta", 50, -2.5, 2.5);
+  tracksPtFiltered_ = dbe.book1D("TracksPtFiltered", "pT", 1000, 0, 100.);
+  tracksEtaFiltered_ = dbe.book1D("TracksEtaFiltered", "eta", 50, -2.5, 2.5);
+  tracksPtNotFiltered_ = dbe.book1D("TracksPtNotFiltered", "pT", 1000, 0, 100.);
+  tracksEtaNotFiltered_ = dbe.book1D("TracksEtaNotFiltered", "eta", 50, -2.5, 2.5);
+  tracksPtPreIded_ = dbe.book1D("TracksPtPreIded", "pT", 1000, 0, 100.);
+  tracksEtaPreIded_ = dbe.book1D("TracksEtaPreIded", "eta", 50, -2.5, 2.5);
+  tracksChi2_ = dbe.book1D("TracksChi2", "chi2", 100, 0, 10.);
+  tracksNhits_ = dbe.book1D("TracksNhits", "Nhits", 30, -0.5, 29.5);
 
-  geomMatchChi2 = dbe->book1D("geomMatchChi2", "Geom Chi2", 100, 0., 50.);
-  geomMatchEop = dbe->book1D("geomMatchEop", "E/p", 100, 0., 5.);
-  trackdpt = dbe->book1D("trackdpt", "dpt/pt", 100, 0., 5.);
-  gsfChi2 = dbe->book1D("gsfChi2", "GSF chi2", 100, 0., 10.);
-  chi2Ratio = dbe->book1D("chi2Ratio", "Chi2 ratio", 100, 0., 10.);
-  mva = dbe->book1D("mva", "mva", 100, -1., 1.);
+  geomMatchChi2_ = dbe.book1D("geomMatchChi2", "Geom Chi2", 100, 0., 50.);
+  geomMatchEop_ = dbe.book1D("geomMatchEop", "E/p", 100, 0., 5.);
+  trackdpt_ = dbe.book1D("trackdpt", "dpt/pt", 100, 0., 5.);
+  gsfChi2_ = dbe.book1D("gsfChi2", "GSF chi2", 100, 0., 10.);
+  chi2Ratio_ = dbe.book1D("chi2Ratio", "Chi2 ratio", 100, 0., 10.);
+  mva_ = dbe.book1D("mva", "mva", 100, -1., 1.);
 }
 
 void PreIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  edm::Handle<reco::TrackCollection> trackh;
-  iEvent.getByLabel(TrackLabel_, trackh);
-  edm::Handle<edm::ValueMap<reco::PreIdRef> > vmaph;
-  iEvent.getByLabel(PreIdMapLabel_, vmaph);
+  auto const& trackh = iEvent.getHandle(trackToken_);
+  auto const& vmaph = iEvent.getHandle(preIdMapToken_);
 
   const reco::TrackCollection& tracks = *(trackh.product());
   const edm::ValueMap<reco::PreIdRef>& preidMap = *(vmaph.product());
@@ -93,37 +86,37 @@ void PreIdAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   unsigned ntracks = tracks.size();
   for (unsigned itrack = 0; itrack < ntracks; ++itrack) {
     reco::TrackRef theTrackRef(trackh, itrack);
-    TracksPt->Fill(theTrackRef->pt());
-    TracksEta->Fill(theTrackRef->eta());
+    tracksPt_->Fill(theTrackRef->pt());
+    tracksEta_->Fill(theTrackRef->eta());
 
     if (preidMap[theTrackRef].isNull())
       continue;
 
     const reco::PreId& myPreId(*(preidMap[theTrackRef]));
-    geomMatchChi2->Fill(myPreId.geomMatching()[4]);
-    geomMatchEop->Fill(myPreId.eopMatch());
+    geomMatchChi2_->Fill(myPreId.geomMatching()[4]);
+    geomMatchEop_->Fill(myPreId.eopMatch());
 
     if (myPreId.ecalMatching()) {
-      TracksPtEcalMatch->Fill(theTrackRef->pt());
-      TracksEtaEcalMatch->Fill(theTrackRef->eta());
+      tracksPtEcalMatch_->Fill(theTrackRef->pt());
+      tracksEtaEcalMatch_->Fill(theTrackRef->eta());
     } else {
-      TracksChi2->Fill(myPreId.kfChi2());
-      TracksNhits->Fill(myPreId.kfNHits());
+      tracksChi2_->Fill(myPreId.kfChi2());
+      tracksNhits_->Fill(myPreId.kfNHits());
       if (myPreId.trackFiltered()) {
-        TracksPtFiltered->Fill(theTrackRef->pt());
-        TracksEtaFiltered->Fill(theTrackRef->eta());
-        trackdpt->Fill(myPreId.dpt());
-        gsfChi2->Fill(myPreId.gsfChi2());
-        chi2Ratio->Fill(myPreId.chi2Ratio());
-        mva->Fill(myPreId.mva());
+        tracksPtFiltered_->Fill(theTrackRef->pt());
+        tracksEtaFiltered_->Fill(theTrackRef->eta());
+        trackdpt_->Fill(myPreId.dpt());
+        gsfChi2_->Fill(myPreId.gsfChi2());
+        chi2Ratio_->Fill(myPreId.chi2Ratio());
+        mva_->Fill(myPreId.mva());
       } else {
-        TracksPtNotFiltered->Fill(theTrackRef->pt());
-        TracksEtaNotFiltered->Fill(theTrackRef->eta());
+        tracksPtNotFiltered_->Fill(theTrackRef->pt());
+        tracksEtaNotFiltered_->Fill(theTrackRef->eta());
       }
     }
     if (myPreId.preIded()) {
-      TracksPtPreIded->Fill(theTrackRef->pt());
-      TracksEtaPreIded->Fill(theTrackRef->eta());
+      tracksPtPreIded_->Fill(theTrackRef->pt());
+      tracksEtaPreIded_->Fill(theTrackRef->eta());
     }
   }
 }

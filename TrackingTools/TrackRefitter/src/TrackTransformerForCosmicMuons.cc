@@ -31,12 +31,21 @@ using namespace std;
 using namespace edm;
 
 /// Constructor
-TrackTransformerForCosmicMuons::TrackTransformerForCosmicMuons(const ParameterSet& parameterSet) {
-  theTrackerRecHitBuilderName = parameterSet.getParameter<string>("TrackerRecHitBuilder");
-  theMuonRecHitBuilderName = parameterSet.getParameter<string>("MuonRecHitBuilder");
-
+TrackTransformerForCosmicMuons::TrackTransformerForCosmicMuons(const ParameterSet& parameterSet,
+                                                               edm::ConsumesCollector iC)
+    : theIOpropToken(iC.esConsumes(edm::ESInputTag("", "SmartPropagatorRK"))),
+      theOIpropToken(iC.esConsumes(edm::ESInputTag("", "SmartPropagatorRKOpposite"))),
+      thGlobTrackGeoToken(iC.esConsumes()),
+      theMFToken(iC.esConsumes()),
+      theIOFitterToken(iC.esConsumes(edm::ESInputTag("", "KFFitterForRefitInsideOut"))),
+      theOIFitterToken(iC.esConsumes(edm::ESInputTag("", "KFSmootherForRefitInsideOut"))),
+      theIOSmootherToken(iC.esConsumes(edm::ESInputTag("", "KFFitterForRefitOutsideIn"))),
+      theOISmootherToken(iC.esConsumes(edm::ESInputTag("", "KFSmootherForRefitOutsideIn"))),
+      theTkRecHitBuildToken(
+          iC.esConsumes(edm::ESInputTag("", parameterSet.getParameter<string>("TrackerRecHitBuilder")))),
+      theMuonRecHitBuildToken(
+          iC.esConsumes(edm::ESInputTag("", parameterSet.getParameter<string>("MuonRecHitBuilder")))) {
   theRPCInTheFit = parameterSet.getParameter<bool>("RefitRPCHits");
-
   theCacheId_TC = theCacheId_GTG = theCacheId_MG = theCacheId_TRH = 0;
 }
 
@@ -46,18 +55,18 @@ TrackTransformerForCosmicMuons::~TrackTransformerForCosmicMuons() {}
 void TrackTransformerForCosmicMuons::setServices(const EventSetup& setup) {
   const std::string metname = "Reco|TrackingTools|TrackTransformer";
 
-  setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitInsideOut", theFitterIO);
-  setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitInsideOut", theSmootherIO);
-  setup.get<TrajectoryFitter::Record>().get("KFFitterForRefitOutsideIn", theFitterOI);
-  setup.get<TrajectoryFitter::Record>().get("KFSmootherForRefitOutsideIn", theSmootherOI);
+  theFitterIO = setup.getHandle(theIOFitterToken);
+  theFitterOI = setup.getHandle(theOIFitterToken);
+  theSmootherIO = setup.getHandle(theIOSmootherToken);
+  theSmootherOI = setup.getHandle(theOISmootherToken);
 
   unsigned long long newCacheId_TC = setup.get<TrackingComponentsRecord>().cacheIdentifier();
 
   if (newCacheId_TC != theCacheId_TC) {
     LogTrace(metname) << "Tracking Component changed!";
     theCacheId_TC = newCacheId_TC;
-    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRK", thePropagatorIO);
-    setup.get<TrackingComponentsRecord>().get("SmartPropagatorRKOpposite", thePropagatorOI);
+    thePropagatorIO = setup.getHandle(theIOpropToken);
+    thePropagatorOI = setup.getHandle(theOIpropToken);
   }
 
   // Global Tracking Geometry
@@ -65,7 +74,7 @@ void TrackTransformerForCosmicMuons::setServices(const EventSetup& setup) {
   if (newCacheId_GTG != theCacheId_GTG) {
     LogTrace(metname) << "GlobalTrackingGeometry changed!";
     theCacheId_GTG = newCacheId_GTG;
-    setup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+    theTrackingGeometry = setup.getHandle(thGlobTrackGeoToken);
   }
 
   // Magfield Field
@@ -73,7 +82,7 @@ void TrackTransformerForCosmicMuons::setServices(const EventSetup& setup) {
   if (newCacheId_MG != theCacheId_MG) {
     LogTrace(metname) << "Magnetic Field changed!";
     theCacheId_MG = newCacheId_MG;
-    setup.get<IdealMagneticFieldRecord>().get(theMGField);
+    theMGField = setup.getHandle(theMFToken);
   }
 
   // Transient Rechit Builders
@@ -81,8 +90,8 @@ void TrackTransformerForCosmicMuons::setServices(const EventSetup& setup) {
   if (newCacheId_TRH != theCacheId_TRH) {
     theCacheId_TRH = newCacheId_TRH;
     LogTrace(metname) << "TransientRecHitRecord changed!";
-    setup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName, theTrackerRecHitBuilder);
-    setup.get<TransientRecHitRecord>().get(theMuonRecHitBuilderName, theMuonRecHitBuilder);
+    theTrackerRecHitBuilder = setup.getHandle(theTkRecHitBuildToken);
+    theMuonRecHitBuilder = setup.getHandle(theMuonRecHitBuildToken);
   }
 }
 

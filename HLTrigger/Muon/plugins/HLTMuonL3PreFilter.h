@@ -24,6 +24,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuonSetup.h"
 
 class HLTMuonL3PreFilter : public HLTFilter {
 public:
@@ -38,6 +39,7 @@ private:
   bool triggeredByLevel2(const reco::TrackRef& track, std::vector<reco::RecoChargedCandidateRef>& vcands) const;
   bool applySelection(const reco::RecoChargedCandidateRef&, const reco::BeamSpot&) const;
 
+  const PropagateToMuonSetup propSetup_;
   const edm::InputTag beamspotTag_;
   const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
   const edm::InputTag candTag_;  // input tag identifying product contains muons
@@ -73,6 +75,7 @@ private:
   double maxNormalizedChi2_L3fromL1_;
   muon::SelectionType trkMuonId_;
   const double L1MatchingdR_;
+  const double L1MatchingdR2_;
   const bool matchPreviousCand_;
 
   const bool devDebug_;

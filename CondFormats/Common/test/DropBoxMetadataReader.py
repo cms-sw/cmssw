@@ -34,8 +34,10 @@ process.myReader = cms.EDAnalyzer("ProduceDropBoxMetadata",
                                     'BeamSpotObjectsRcdHPByLumi',
                                     'BeamSpotObjectsRcdHPByRun',
                                     'SiStripBadStripRcd',
+                                    'SiStripBadStripFromHitEffRcd',
                                     'SiStripApvGainRcd',
                                     'TrackerAlignmentRcd',
+                                    'TrackerAlignmentHGRcd',
                                     'SiStripApvGainRcdAfterAbortGap',
                                     'SiStripApvGainRcdAAG',
                                     'EcalPedestalsRcd',
@@ -53,7 +55,7 @@ process.myReader = cms.EDAnalyzer("ProduceDropBoxMetadata",
 process.p = cms.Path(process.myReader)
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = '121X_dataRun3_Express_Queue'
+process.GlobalTag.globaltag = '124X_dataRun3_Express_Queue'
 
 # Set to True if you want to read a DropBoxMetadata payload from a local sqlite
 # specify the name of the sqlitefile.db and the tag name; the payload loaded will be for run 300000

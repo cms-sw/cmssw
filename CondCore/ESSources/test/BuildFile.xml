@@ -3,6 +3,7 @@
 <use name="FWCore/Framework"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/BeamSpotObjects"/>
+<use name="CondCore/CondDB"/>
 <library file="stubs/PedestalsAnalyzer.cc" name="PedestalsAnalyzer">
   <flags EDM_PLUGIN="1"/>
 </library>
@@ -31,3 +32,13 @@
 <library file="stubs/LumiTestReadAnalyzer.cc" name="LumiTestReadAnalyzer">
   <flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="stubs/LumiTestWriteAnalyzer.cc" name="LumiTestWriteAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<library file="stubs/LumiTestWriteReadAnalyzer.cc" name="LumiTestWriteReadAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+

@@ -1,6 +1,3 @@
-<architecture name="slc6_amd64">
-  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
-</architecture>
 <use name="boost"/>
 <use name="FWCore/ParameterSet"/>
 <bin file="edmPluginHelp.cpp">

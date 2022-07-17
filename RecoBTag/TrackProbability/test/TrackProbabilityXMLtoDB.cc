@@ -2,7 +2,7 @@
 //
 // Package:    TrackProbabilityXMLtoDB
 // Class:      TrackProbabilityXMLtoDB
-// 
+//
 /**\class TrackProbabilityXMLtoDB TrackProbabilityXMLtoDB.cc RecoBTag/TrackProbabilityXMLtoDB/src/TrackProbabilityXMLtoDB.cc
 
  Description: <one line class summary>
@@ -16,9 +16,6 @@
 //
 //
 
-
-
-
 // system include files
 #include <memory>
 #include <string>
@@ -27,7 +24,7 @@ using namespace std;
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -67,7 +64,6 @@ using namespace std;
 //#include "TH1F.h"
 //#include "TFile.h"
 
-
 #include <fstream>
 #include <iostream>
 
@@ -77,83 +73,71 @@ using namespace reco;
 // class decleration
 //
 
-class TrackProbabilityXMLtoDB : public edm::EDAnalyzer {
-   public:
-      explicit TrackProbabilityXMLtoDB(const edm::ParameterSet&);
+class TrackProbabilityXMLtoDB : public edm::one::EDAnalyzer<> {
+public:
+  explicit TrackProbabilityXMLtoDB(const edm::ParameterSet&);
 
-    virtual void endJob()
-    {
-              edm::Service<cond::service::PoolDBOutputService> mydbservice;
-              if( !mydbservice.isAvailable() ) return;
-              
-          edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");
-          edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
-	  AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>*  calibrationOld=     new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f3d.fullPath()).c_str());
-	  AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>* calibration2dOld=       new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f2d.fullPath()).c_str());
+  virtual void endJob() {
+    edm::Service<cond::service::PoolDBOutputService> mydbservice;
+    if (!mydbservice.isAvailable())
+      return;
 
-	  vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationOld->categoriesWithData();
-	  vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dOld->categoriesWithData();
-          TrackProbabilityCalibration * calibration= new TrackProbabilityCalibration();
-          TrackProbabilityCalibration * calibration2d= new TrackProbabilityCalibration();
-	  for(int i = 0 ; i < data.size();i++)
-    	  {
-            TrackProbabilityCalibration::Entry entry;
-            entry.category=data[i].first.categoryData();
-            entry.histogram=data[i].second;
-            calibration->data.push_back(entry);   
-          }
-	  for(int i = 0 ; i < data2d.size();i++)
-    	  {
-            TrackProbabilityCalibration::Entry entry;
-            entry.category=data2d[i].first.categoryData();
-            entry.histogram=data2d[i].second;
-            calibration2d->data.push_back(entry);   
-          }
+    edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");
+    edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
+    AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>* calibrationOld =
+        new AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>((f3d.fullPath()).c_str());
+    AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>* calibration2dOld =
+        new AlgorithmCalibration<TrackClassFilterCategory, CalibratedHistogramXML>((f2d.fullPath()).c_str());
 
-
-         mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration,  mydbservice->endOfTime(),"BTagTrackProbability3DRcd");    
-
-         mydbservice->createNewIOV<TrackProbabilityCalibration>(calibration2d,  mydbservice->endOfTime(),"BTagTrackProbability2DRcd");   
-               
-
-    }    
-      ~TrackProbabilityXMLtoDB() 
-    {
+    vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data = calibrationOld->categoriesWithData();
+    vector<pair<TrackClassFilterCategory, CalibratedHistogramXML> > data2d = calibration2dOld->categoriesWithData();
+    TrackProbabilityCalibration calibration;
+    TrackProbabilityCalibration calibration2d;
+    for (int i = 0; i < data.size(); i++) {
+      TrackProbabilityCalibration::Entry entry;
+      entry.category = data[i].first.categoryData();
+      entry.histogram = data[i].second;
+      calibration.data.push_back(entry);
+    }
+    for (int i = 0; i < data2d.size(); i++) {
+      TrackProbabilityCalibration::Entry entry;
+      entry.category = data2d[i].first.categoryData();
+      entry.histogram = data2d[i].second;
+      calibration2d.data.push_back(entry);
     }
 
+    mydbservice->createOneIOV(calibration, mydbservice->endOfTime(), "BTagTrackProbability3DRcd");
 
+    mydbservice->createOneIOV(calibration2d, mydbservice->endOfTime(), "BTagTrackProbability2DRcd");
+  }
+  ~TrackProbabilityXMLtoDB() {}
 
-      virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-   private:
-    int count;
-int ntracks;
-    int  m_cutPixelHits;
-    int  m_cutTotalHits;
-    double  m_cutMaxTIP;
-    double  m_cutMinPt;
-    double  m_cutMaxDecayLen;
-    double  m_cutMaxChiSquared;
-    double  m_cutMaxLIP;
-    double m_cutMaxDistToAxis;
-    double m_cutMinProb;
+private:
+  int count;
+  int ntracks;
+  int m_cutPixelHits;
+  int m_cutTotalHits;
+  double m_cutMaxTIP;
+  double m_cutMinPt;
+  double m_cutMaxDecayLen;
+  double m_cutMaxChiSquared;
+  double m_cutMaxLIP;
+  double m_cutMaxDistToAxis;
+  double m_cutMinProb;
 
-     edm::InputTag m_assoc;
-     edm::InputTag m_jets;
-     edm::InputTag m_primaryVertexProducer;
+  edm::InputTag m_assoc;
+  edm::InputTag m_jets;
+  edm::InputTag m_primaryVertexProducer;
 };
 
 //
 // constructors and destructor
 //
-TrackProbabilityXMLtoDB::TrackProbabilityXMLtoDB(const edm::ParameterSet& parameters)
-{
-}
+TrackProbabilityXMLtoDB::TrackProbabilityXMLtoDB(const edm::ParameterSet& parameters) {}
 
-void
-TrackProbabilityXMLtoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
-}
+void TrackProbabilityXMLtoDB::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackProbabilityXMLtoDB);

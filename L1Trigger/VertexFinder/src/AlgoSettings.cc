@@ -12,6 +12,7 @@ namespace l1tVertexFinder {
         vx_minTracks_(vertex_.getParameter<unsigned int>("MinTracks")),
         vx_weightedmean_(vertex_.getParameter<unsigned int>("WeightedMean")),
         vx_chi2cut_(vertex_.getParameter<double>("AVR_chi2cut")),
+        vx_DoQualityCuts_(vertex_.getParameter<bool>("EM_DoQualityCuts")),
         vx_DoPtComp_(vertex_.getParameter<bool>("FH_DoPtComp")),
         vx_DoTightChi2_(vertex_.getParameter<bool>("FH_DoTightChi2")),
         vx_histogram_parameters_(vertex_.getParameter<std::vector<double> >("FH_HistogramParameters")),
@@ -44,17 +45,37 @@ namespace l1tVertexFinder {
       throw cms::Exception("Invalid algo name '" + algoName +
                            "' specified for L1T vertex producer. Valid algo names are: " + validAlgoNames.str());
     }
+
+    const auto algoPrecisionMapIt = algoPrecisionMap.find(vx_algo_);
+    if (algoPrecisionMapIt != algoPrecisionMap.end()) {
+      vx_precision_ = algoPrecisionMapIt->second;
+    } else {
+      throw cms::Exception("Unknown precision {Simulation, Emulation} for algo name " + algoName);
+    }
   }
 
   const std::map<std::string, Algorithm> AlgoSettings::algoNameMap = {
-      {"FastHisto", Algorithm::FastHisto},
-      {"FastHistoLooseAssociation", Algorithm::FastHistoLooseAssociation},
+      {"fastHisto", Algorithm::fastHisto},
+      {"fastHistoEmulation", Algorithm::fastHistoEmulation},
+      {"fastHistoLooseAssociation", Algorithm::fastHistoLooseAssociation},
       {"GapClustering", Algorithm::GapClustering},
-      {"Agglomerative", Algorithm::AgglomerativeHierarchical},
+      {"agglomerative", Algorithm::agglomerativeHierarchical},
       {"DBSCAN", Algorithm::DBSCAN},
       {"PVR", Algorithm::PVR},
-      {"Adaptive", Algorithm::AdaptiveVertexReconstruction},
+      {"adaptive", Algorithm::adaptiveVertexReconstruction},
       {"HPV", Algorithm::HPV},
       {"K-means", Algorithm::Kmeans}};
+
+  const std::map<Algorithm, Precision> AlgoSettings::algoPrecisionMap = {
+      {Algorithm::fastHisto, Precision::Simulation},
+      {Algorithm::fastHistoEmulation, Precision::Emulation},
+      {Algorithm::fastHistoLooseAssociation, Precision::Simulation},
+      {Algorithm::GapClustering, Precision::Simulation},
+      {Algorithm::agglomerativeHierarchical, Precision::Simulation},
+      {Algorithm::DBSCAN, Precision::Simulation},
+      {Algorithm::PVR, Precision::Simulation},
+      {Algorithm::adaptiveVertexReconstruction, Precision::Simulation},
+      {Algorithm::HPV, Precision::Simulation},
+      {Algorithm::Kmeans, Precision::Simulation}};
 
 }  // end namespace l1tVertexFinder

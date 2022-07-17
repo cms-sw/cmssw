@@ -37,10 +37,11 @@ TkHistoMap::TkHistoMap(const TkDetMap* tkDetMap,
                        const std::string& path,
                        const std::string& MapName,
                        float baseline,
-                       bool mechanicalView)
+                       bool mechanicalView,
+                       bool isTH2F)
     : HistoNumber(35), MapName_(MapName) {
   LogTrace("TkHistoMap") << "TkHistoMap::constructor with parameters";
-  load(tkDetMap, path, baseline, mechanicalView, false);
+  load(tkDetMap, path, baseline, mechanicalView, isTH2F);
   createTkHistoMap(ibooker, path, MapName_, baseline, mechanicalView);
 }
 

@@ -48,7 +48,7 @@ public:
 
   /** Destructor
    */
-  ~EcalSimRawData() override{};
+  ~EcalSimRawData() override = default;
 
   /** Main method. Called back for each event. This method produced the
    * raw data and write them to disk.
@@ -56,6 +56,8 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
+  enum tokenType { tcp = 0, tp = 1 };
+
   int iEvent;
 
   /** Number of crystals in ECAL barrel along eta
@@ -275,7 +277,7 @@ private:
    * @param iEvent event index
    * @param adcCount the payload, the ADC count of the channels.
    */
-  void genFeData(std::string basename, int iEvent, const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const;
+  void genFeData(std::string &basename, int iEvent, const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const;
 
   /** Generates FE trigger primitives data
    * @param basename base for the output file name. DCC number is appended to
@@ -283,7 +285,7 @@ private:
    * @param iEvent event index
    * @param tps the payload, the trigger primitives
    */
-  void genTccIn(std::string basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
+  void genTccIn(std::string &basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
 
   /** Generates TCC->DCC data
    * @param basename base for the output file name. DCC number is appended to
@@ -291,7 +293,7 @@ private:
    * @param iEvent event index
    * @param tps the payload, the trigger primitives
    */
-  void genTccOut(std::string basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
+  void genTccOut(std::string &basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
 
   /** Retrieves barrel digis (APD ADC count).
    * @param event CMS event
@@ -307,7 +309,7 @@ private:
    * @param collName label of the EDM collection containing the TP.
    * @param tp [out] the trigger primitives
    */
-  void getTp(const edm::Event &event, const std::string &collName, int tp[nTtEta][nTtPhi]) const;
+  void getTp(const edm::Event &event, tokenType type, int tp[nTtEta][nTtPhi]) const;
 
   /** Help function to get the file extension which depends on the output
    * formats.
@@ -338,7 +340,7 @@ private:
    * @param iEvent event index
    * @param the trigger tower flags
    */
-  void genSrData(std::string basename, int iEvent, int ttf[nEbTtEta][nTtPhi]) const;
+  void genSrData(std::string &basename, int iEvent, int ttf[nEbTtEta][nTtPhi]) const;
 
 private:
   /** Name of module/plugin/producer making digis
@@ -440,4 +442,9 @@ private:
   /** basename for output files
    */
   std::string basename_;
+
+  edm::EDGetTokenT<EESrFlagCollection> eeSrFlagToken_;
+  edm::EDGetTokenT<EBSrFlagCollection> ebSrFlagToken_;
+  edm::EDGetTokenT<EBDigiCollection> ebDigisToken_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> trigPrimDigisToken_[2];
 };

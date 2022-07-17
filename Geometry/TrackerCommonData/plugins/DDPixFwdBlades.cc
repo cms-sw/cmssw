@@ -200,6 +200,15 @@ void DDPixFwdBlades::initialize(const DDNumericArguments& nArgs,
   nippleTranslationZ = 0.;
 
   copyNumbers.clear();
+
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades: Initialize with endcap " << endcap << " FlagString " << flagString
+                                << " FlagSelector " << flagSelector << " Child " << childName << " ChildTranslation "
+                                << childTranslationVector[0] << ":" << childTranslationVector[1] << ":"
+                                << childTranslationVector[2] << " ChildRotation " << childRotationName << " NameSpace "
+                                << idNameSpace << "\n  nBlades " << nBlades << " bladeAngle " << bladeAngle
+                                << " zPlane " << zPlane << " bladeZShift " << bladeZShift << " ancorRadius "
+                                << ancorRadius << " jX|jY|jZ " << jX << ":" << jY << ":" << jZ << " kX|kY|kZ " << kX
+                                << ":" << kY << ":" << kZ;
 }
 
 void DDPixFwdBlades::execute(DDCompactView& cpv) {
@@ -286,6 +295,7 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
     DDRotation rotation;
     string rotstr = mother.name() + DDSplit(childName).first + to_string(copy);
     rotation = DDRotation(DDName(rotstr, idNameSpace));
+    edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades: Rotation " << rotstr << " : " << rotation;
 
     if (!rotation) {
       rotMatrix *= childRotMatrix;
@@ -304,6 +314,8 @@ void DDPixFwdBlades::execute(DDCompactView& cpv) {
 
     DDTranslation ddtran(translation.x(), translation.y(), translation.z());
     cpv.position(child, mother, copy, ddtran, rotation);
+    edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Position " << child << " copy " << copy << " in " << mother
+                                  << " with translation " << ddtran << " and rotation " << rotation;
   }
 
   // End of cycle over Phi positions
@@ -358,8 +370,8 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   CLHEP::Hep3Vector jkC = kC - jC;
   double jkLength = jkC.mag();
   DDConstant JK(DDName("JK", "pixfwdNipple"), make_unique<double>(jkLength));
-  LogDebug("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: "
-                        << "JK Length " << jkLength * CLHEP::mm;
+  edm::LogVerbatim("PixelGeom") << "+++++++++++++++ DDPixFwdBlades: "
+                                << "JK Length " << jkLength * CLHEP::mm;
 
   // Position of the center of a nipple in "cover" blade frame :
 
@@ -369,14 +381,14 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
     nippleTranslationY = nippleTranslation.y();
     nippleTranslationZ = nippleTranslation.z();
   }
-  LogDebug("PixelGeom") << "Child translation : " << nippleTranslation;
+  edm::LogVerbatim("PixelGeom") << "Child translation : " << nippleTranslation;
 
   // Rotations from nipple frame to "cover" blade frame and back :
 
   CLHEP::Hep3Vector vZ(0., 0., 1.);
   CLHEP::Hep3Vector axis = vZ.cross(jkC);
   double angleCover = vZ.angle(jkC);
-  LogDebug("PixelGeom") << " Angle to Cover: " << angleCover;
+  edm::LogVerbatim("PixelGeom") << " Angle to Cover: " << angleCover;
   CLHEP::HepRotation* rpCN = new CLHEP::HepRotation(axis, angleCover);
   if (endcap > 0.) {
     nippleRotationZPlus = rpCN;
@@ -390,10 +402,13 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
       make_unique<DDRotationMatrix>(
           rpCN->xx(), rpCN->xy(), rpCN->xz(), rpCN->yx(), rpCN->yy(), rpCN->yz(), rpCN->zx(), rpCN->zy(), rpCN->zz()));
   CLHEP::HepRotation rpNC(axis, -angleCover);
-
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameCoverToNipple, "pixfwdNipple")
+                                << " with " << rpCN;
   DDrot(DDName(rotNameNippleToCover, "pixfwdNipple"),
         make_unique<DDRotationMatrix>(
             rpNC.xx(), rpNC.xy(), rpNC.xz(), rpNC.yx(), rpNC.yy(), rpNC.yz(), rpNC.zx(), rpNC.zy(), rpNC.zz()));
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToCover, "pixfwdNipple")
+                                << " with " << rpNC;
 
   // Rotation from nipple frame to "body" blade frame :
 
@@ -402,8 +417,10 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   DDrot(DDName(rotNameNippleToBody, "pixfwdNipple"),
         make_unique<DDRotationMatrix>(
             rpNB.xx(), rpNB.xy(), rpNB.xz(), rpNB.yx(), rpNB.yy(), rpNB.yz(), rpNB.zx(), rpNB.zy(), rpNB.zz()));
+  edm::LogVerbatim("PixelGeom") << "DDPixFwdBlades::Defines " << DDName(rotNameNippleToBody, "pixfwdNipple") << " with "
+                                << rpNB;
   double angleBody = vZ.angle(rpNB * vZ);
-  LogDebug("PixelGeom") << " Angle to body : " << angleBody;
+  edm::LogVerbatim("PixelGeom") << " Angle to body : " << angleBody;
 }
 
 DEFINE_EDM_PLUGIN(DDAlgorithmFactory, DDPixFwdBlades, "track:DDPixFwdBlades");

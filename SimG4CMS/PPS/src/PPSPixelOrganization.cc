@@ -19,7 +19,7 @@
 //
 PPSPixelOrganization ::PPSPixelOrganization()
     : currentUnitID_(0), currentArm_(0), currentStation_(0), currentRP_(0), currentPlane_(0) {
-  edm::LogInfo("PPSSim") << "Creating PPSPixelOrganization";
+  edm::LogVerbatim("PPSSim") << "Creating PPSPixelOrganization";
 }
 
 //
@@ -28,38 +28,26 @@ PPSPixelOrganization ::PPSPixelOrganization()
 
 uint32_t PPSPixelOrganization ::unitID(const G4Step* aStep) {
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  G4VPhysicalVolume* physVol;
-  int ii = 0;
-  bool foundEnvelop = false;
-  bool foundPhysVol = false;
+  G4VPhysicalVolume* physVol = touch->GetVolume(0);
+  int coNum = physVol->GetCopyNo();
+  edm::LogVerbatim("PPSPixelSim") << "PPSPixelSim: PhysVol= " << physVol->GetName() << " coNum=" << coNum;
+  currentPlane_ = coNum - 1;
 
-  while (ii < touch->GetHistoryDepth() && (foundEnvelop == false || foundPhysVol == false)) {
-    physVol = touch->GetVolume(ii);
-
-    edm::LogInfo("PPSSim") << "physVol=" << physVol->GetName() << ", level=" << ii
-                           << ", physVol->GetCopyNo()=" << physVol->GetCopyNo();
-
-    if (physVol->GetName().contains("Envelop")) {
-      currentPlane_ = physVol->GetCopyNo() - 1;
-      foundEnvelop = true;
-    } else if (physVol->GetName().contains("RP_box_primary_vacuum")) {
-      int cpy_no = physVol->GetCopyNo();
-      currentArm_ = (cpy_no / 100) % 10;
-      currentStation_ = (cpy_no / 10) % 10;
-      currentRP_ = cpy_no % 10;
-      foundPhysVol = true;
-    }
-    ++ii;
-  }
-
-  if (foundPhysVol) {
-    edm::LogInfo("PPSSim") << "Arm, RP, plane = " << currentArm_ << " " << currentRP_ << " " << currentPlane_;
+  G4VPhysicalVolume* physVolVac = touch->GetVolume(3);
+  if (nullptr == physVolVac) {
+    edm::LogError("PPSPixelSim") << "Physical volume RP_box_primary_vacuum not found for " << physVol->GetName()
+                                 << "; cannot determine CTPPSPixelDetId.";
   } else {
-    edm::LogError("PPSSim") << "Physical volume RP_box_primary_vacuum not found. Cannot determine CTPPSPixelDetId.";
+    int cpy_no = physVolVac->GetCopyNo();
+    currentArm_ = (cpy_no / 100) % 10;
+    currentStation_ = (cpy_no / 10) % 10;
+    currentRP_ = cpy_no % 10;
   }
 
+  edm::LogVerbatim("PPSPixelSim") << "    arm=" << currentArm_ << " station=" << currentStation_
+                                  << " roman_pot=" << currentRP_ << " detector=" << currentPlane_;
   CTPPSPixelDetId id(currentArm_, currentStation_, currentRP_, currentPlane_);
   uint32_t kk = id.rawId();
-  edm::LogInfo("PPSSim") << " ID " << kk;
-  return id.rawId();
+  edm::LogVerbatim("PPSPixelSim") << "PPSPixelSim: ID=" << kk;
+  return kk;
 }

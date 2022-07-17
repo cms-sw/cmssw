@@ -21,6 +21,7 @@
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloTopology/interface/FastTimeTopology.h"
@@ -37,7 +38,7 @@
 class FastTimeGeometryESProducer : public edm::ESProducer {
 public:
   FastTimeGeometryESProducer(const edm::ParameterSet& iP);
-  ~FastTimeGeometryESProducer() override;
+  ~FastTimeGeometryESProducer() override = default;
 
   using ReturnType = std::unique_ptr<FastTimeGeometry>;
 
@@ -52,13 +53,11 @@ FastTimeGeometryESProducer::FastTimeGeometryESProducer(const edm::ParameterSet& 
   auto name = iConfig.getUntrackedParameter<std::string>("Name");
 #ifdef EDM_ML_DEBUG
   auto type = iConfig.getUntrackedParameter<int>("Type");
-  std::cout << "constructing FastTimeGeometry for " << name << " Type " << type << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "constructing FastTimeGeometry for " << name << " Type " << type;
 #endif
   auto cc = setWhatProduced(this, name);
   topologyToken_ = cc.consumes<FastTimeTopology>(edm::ESInputTag{"", name});
 }
-
-FastTimeGeometryESProducer::~FastTimeGeometryESProducer() {}
 
 //
 // member functions
@@ -70,7 +69,7 @@ FastTimeGeometryESProducer::ReturnType FastTimeGeometryESProducer::produce(const
 
   FastTimeGeometryLoader builder;
 #ifdef EDM_ML_DEBUG
-  std::cout << "Create FastTimeGeometry (topo)" << std::endl;
+  edm::LogVerbatim("HGCalGeom") << "Create FastTimeGeometry (topo)";
 #endif
   return ReturnType(builder.build(topo));
 }

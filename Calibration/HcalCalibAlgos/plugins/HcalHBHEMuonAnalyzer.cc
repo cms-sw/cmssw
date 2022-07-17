@@ -91,7 +91,6 @@ private:
 
   // ----------member data ---------------------------
   HLTConfigProvider hltConfig_;
-  edm::Service<TFileService> fs;
   const edm::InputTag hlTriggerResults_;
   const edm::InputTag labelEBRecHit_, labelEERecHit_, labelHBHERecHit_;
   const std::string labelVtx_, labelMuon_, fileInCorr_;
@@ -100,30 +99,33 @@ private:
   const bool unCorrect_, collapseDepth_, isItPlan1_;
   const bool ignoreHECorr_, isItPreRecHit_;
   const bool getCharge_, writeRespCorr_;
-  bool mergedDepth_, useMyCorr_;
-  int maxDepth_, kount_;
+  const int maxDepth_;
+  const std::string modnam_, procnm_;
+
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
+  const edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
+  const edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
+
+  const edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
+  const edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
+  const edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
+  const edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
 
   const HcalDDDRecConstants* hdc_;
   const HcalTopology* theHBHETopology_;
   const CaloGeometry* geo_;
   HcalRespCorrs* respCorrs_;
 
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_Vtx_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_HBHE_;
-  edm::EDGetTokenT<reco::MuonCollection> tok_Muon_;
-
-  edm::ESGetToken<HcalDDDRecConstants, HcalRecNumberingRecord> tok_ddrec_;
-  edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> tok_htopo_;
-  edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_respcorr_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_magField_;
-  edm::ESGetToken<EcalChannelStatus, EcalChannelStatusRcd> tok_chan_;
-  edm::ESGetToken<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd> tok_sevlv_;
-  edm::ESGetToken<CaloTopology, CaloTopologyRecord> tok_topo_;
-  edm::ESGetToken<HcalDbService, HcalDbRecord> tok_dbservice_;
+  bool mergedDepth_, useMyCorr_;
+  int kount_;
 
   //////////////////////////////////////////////////////
   static const int depthMax_ = 7;
@@ -187,49 +189,44 @@ HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig)
       isItPreRecHit_(iConfig.getUntrackedParameter<bool>("isItPreRecHit", false)),
       getCharge_(iConfig.getParameter<bool>("getCharge")),
       writeRespCorr_(iConfig.getUntrackedParameter<bool>("writeRespCorr", false)),
+      maxDepth_(iConfig.getUntrackedParameter<int>("maxDepth", 4)),
+      modnam_(iConfig.getUntrackedParameter<std::string>("moduleName", "")),
+      procnm_(iConfig.getUntrackedParameter<std::string>("processName", "")),
+      tok_trigRes_(consumes<edm::TriggerResults>(hlTriggerResults_)),
+      tok_Vtx_((modnam_.empty()) ? consumes<reco::VertexCollection>(labelVtx_)
+                                 : consumes<reco::VertexCollection>(edm::InputTag(modnam_, labelVtx_, procnm_))),
+      tok_EB_(consumes<EcalRecHitCollection>(labelEBRecHit_)),
+      tok_EE_(consumes<EcalRecHitCollection>(labelEERecHit_)),
+      tok_HBHE_(consumes<HBHERecHitCollection>(labelHBHERecHit_)),
+      tok_Muon_((modnam_.empty()) ? consumes<reco::MuonCollection>(labelMuon_)
+                                  : consumes<reco::MuonCollection>(edm::InputTag(modnam_, labelMuon_, procnm_))),
+      tok_ddrec_(esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_htopo_(esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>()),
+      tok_respcorr_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>()),
+      tok_magField_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_chan_(esConsumes<EcalChannelStatus, EcalChannelStatusRcd>()),
+      tok_sevlv_(esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>()),
+      tok_topo_(esConsumes<CaloTopology, CaloTopologyRecord>()),
+      tok_dbservice_(esConsumes<HcalDbService, HcalDbRecord>()),
       hdc_(nullptr),
       theHBHETopology_(nullptr),
       respCorrs_(nullptr) {
   usesResource(TFileService::kSharedResource);
   //now do what ever initialization is needed
   kount_ = 0;
-  maxDepth_ = iConfig.getUntrackedParameter<int>("maxDepth", 4);
-  if (maxDepth_ > depthMax_)
-    maxDepth_ = depthMax_;
-  else if (maxDepth_ < 1)
-    maxDepth_ = 4;
-  std::string modnam = iConfig.getUntrackedParameter<std::string>("moduleName", "");
-  std::string procnm = iConfig.getUntrackedParameter<std::string>("processName", "");
-
   mergedDepth_ = (!isItPreRecHit_) || (collapseDepth_);
-  tok_trigRes_ = consumes<edm::TriggerResults>(hlTriggerResults_);
-  tok_EB_ = consumes<EcalRecHitCollection>(labelEBRecHit_);
-  tok_EE_ = consumes<EcalRecHitCollection>(labelEERecHit_);
-  tok_HBHE_ = consumes<HBHERecHitCollection>(labelHBHERecHit_);
-  if (modnam.empty()) {
-    tok_Vtx_ = consumes<reco::VertexCollection>(labelVtx_);
-    tok_Muon_ = consumes<reco::MuonCollection>(labelMuon_);
+
+  if (modnam_.empty()) {
     edm::LogVerbatim("HBHEMuon") << "Labels used: Trig " << hlTriggerResults_ << " Vtx " << labelVtx_ << " EB "
                                  << labelEBRecHit_ << " EE " << labelEERecHit_ << " HBHE " << labelHBHERecHit_ << " MU "
                                  << labelMuon_;
   } else {
-    tok_Vtx_ = consumes<reco::VertexCollection>(edm::InputTag(modnam, labelVtx_, procnm));
-    tok_Muon_ = consumes<reco::MuonCollection>(edm::InputTag(modnam, labelMuon_, procnm));
     edm::LogVerbatim("HBHEMuon") << "Labels used Trig " << hlTriggerResults_ << "\n  Vtx  "
-                                 << edm::InputTag(modnam, labelVtx_, procnm) << "\n  EB   " << labelEBRecHit_
+                                 << edm::InputTag(modnam_, labelVtx_, procnm_) << "\n  EB   " << labelEBRecHit_
                                  << "\n  EE   " << labelEERecHit_ << "\n  HBHE " << labelHBHERecHit_ << "\n  MU   "
-                                 << edm::InputTag(modnam, labelMuon_, procnm);
+                                 << edm::InputTag(modnam_, labelMuon_, procnm_);
   }
-
-  tok_ddrec_ = esConsumes<HcalDDDRecConstants, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_htopo_ = esConsumes<HcalTopology, HcalRecNumberingRecord, edm::Transition::BeginRun>();
-  tok_respcorr_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd, edm::Transition::BeginRun>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord, edm::Transition::BeginRun>();
-  tok_magField_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_chan_ = esConsumes<EcalChannelStatus, EcalChannelStatusRcd>();
-  tok_sevlv_ = esConsumes<EcalSeverityLevelAlgo, EcalSeverityLevelAlgoRcd>();
-  tok_topo_ = esConsumes<CaloTopology, CaloTopologyRecord>();
-  tok_dbservice_ = esConsumes<HcalDbService, HcalDbRecord>();
 
   if (!fileInCorr_.empty()) {
     std::ifstream infile(fileInCorr_.c_str());
@@ -299,8 +296,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::LogVerbatim("HBHEMuon") << "Run " << runNumber_ << " Event " << eventNumber_ << " Lumi " << lumiNumber_ << " BX "
                                << bxNumber_ << std::endl;
 #endif
-  edm::Handle<edm::TriggerResults> _Triggers;
-  iEvent.getByToken(tok_trigRes_, _Triggers);
+  const edm::Handle<edm::TriggerResults> _Triggers = iEvent.getHandle(tok_trigRes_);
 #ifdef EDM_ML_DEBUG
   if ((verbosity_ / 10000) % 10 > 0)
     edm::LogVerbatim("HBHEMuon") << "Size of all triggers " << all_triggers_.size();
@@ -343,19 +339,14 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   const HcalDbService* conditions = &iSetup.getData(tok_dbservice_);
 
   // Relevant blocks from iEvent
-  edm::Handle<reco::VertexCollection> vtx;
-  iEvent.getByToken(tok_Vtx_, vtx);
+  const edm::Handle<reco::VertexCollection> vtx = iEvent.getHandle(tok_Vtx_);
 
-  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-  iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
-  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle = iEvent.getHandle(tok_EB_);
+  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle = iEvent.getHandle(tok_EE_);
 
-  edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByToken(tok_HBHE_, hbhe);
+  edm::Handle<HBHERecHitCollection> hbhe = iEvent.getHandle(tok_HBHE_);
 
-  edm::Handle<reco::MuonCollection> _Muon;
-  iEvent.getByToken(tok_Muon_, _Muon);
+  const edm::Handle<reco::MuonCollection> _Muon = iEvent.getHandle(tok_Muon_);
 
   // require a good vertex
   math::XYZPoint pvx;
@@ -379,40 +370,40 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
   bool accept(false);
   if (_Muon.isValid() && barrelRecHitsHandle.isValid() && endcapRecHitsHandle.isValid() && hbhe.isValid()) {
-    for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
-      muon_is_good.push_back(RecMuon->isPFMuon());
-      muon_global.push_back(RecMuon->isGlobalMuon());
-      muon_tracker.push_back(RecMuon->isTrackerMuon());
-      ptGlob.push_back((RecMuon)->pt());
-      etaGlob.push_back(RecMuon->eta());
-      phiGlob.push_back(RecMuon->phi());
-      energyMuon.push_back(RecMuon->energy());
-      pMuon.push_back(RecMuon->p());
+    for (const auto& RecMuon : (*(_Muon.product()))) {
+      muon_is_good.push_back(RecMuon.isPFMuon());
+      muon_global.push_back(RecMuon.isGlobalMuon());
+      muon_tracker.push_back(RecMuon.isTrackerMuon());
+      ptGlob.push_back(RecMuon.pt());
+      etaGlob.push_back(RecMuon.eta());
+      phiGlob.push_back(RecMuon.phi());
+      energyMuon.push_back(RecMuon.energy());
+      pMuon.push_back(RecMuon.p());
 #ifdef EDM_ML_DEBUG
-      edm::LogVerbatim("HBHEMuon") << "Energy:" << RecMuon->energy() << " P:" << RecMuon->p();
+      edm::LogVerbatim("HBHEMuon") << "Energy:" << RecMuon.energy() << " P:" << RecMuon.p();
 #endif
-      muon_is_tight.push_back(muon::isTightMuon(*RecMuon, *firstGoodVertex));
-      muon_is_medium.push_back(muon::isMediumMuon(*RecMuon));
-      muon_trkKink.push_back(RecMuon->combinedQuality().trkKink);
-      muon_chi2LocalPosition.push_back(RecMuon->combinedQuality().chi2LocalPosition);
-      muon_segComp.push_back(muon::segmentCompatibility(*RecMuon));
+      muon_is_tight.push_back(muon::isTightMuon(RecMuon, *firstGoodVertex));
+      muon_is_medium.push_back(muon::isMediumMuon(RecMuon));
+      muon_trkKink.push_back(RecMuon.combinedQuality().trkKink);
+      muon_chi2LocalPosition.push_back(RecMuon.combinedQuality().chi2LocalPosition);
+      muon_segComp.push_back(muon::segmentCompatibility(RecMuon));
       // acessing tracker hits info
-      if (RecMuon->track().isNonnull()) {
-        trackerLayer.push_back(RecMuon->track()->hitPattern().trackerLayersWithMeasurement());
+      if (RecMuon.track().isNonnull()) {
+        trackerLayer.push_back(RecMuon.track()->hitPattern().trackerLayersWithMeasurement());
       } else {
         trackerLayer.push_back(-1);
       }
-      if (RecMuon->innerTrack().isNonnull()) {
+      if (RecMuon.innerTrack().isNonnull()) {
         innerTrack.push_back(true);
-        numPixelLayers.push_back(RecMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
-        chiTracker.push_back(RecMuon->innerTrack()->normalizedChi2());
-        dxyTracker.push_back(fabs(RecMuon->innerTrack()->dxy(pvx)));
-        dzTracker.push_back(fabs(RecMuon->innerTrack()->dz(pvx)));
-        innerTrackpt.push_back(RecMuon->innerTrack()->pt());
-        innerTracketa.push_back(RecMuon->innerTrack()->eta());
-        innerTrackphi.push_back(RecMuon->innerTrack()->phi());
-        tight_PixelHits.push_back(RecMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
-        tight_validFraction.push_back(RecMuon->innerTrack()->validFraction());
+        numPixelLayers.push_back(RecMuon.innerTrack()->hitPattern().pixelLayersWithMeasurement());
+        chiTracker.push_back(RecMuon.innerTrack()->normalizedChi2());
+        dxyTracker.push_back(fabs(RecMuon.innerTrack()->dxy(pvx)));
+        dzTracker.push_back(fabs(RecMuon.innerTrack()->dz(pvx)));
+        innerTrackpt.push_back(RecMuon.innerTrack()->pt());
+        innerTracketa.push_back(RecMuon.innerTrack()->eta());
+        innerTrackphi.push_back(RecMuon.innerTrack()->phi());
+        tight_PixelHits.push_back(RecMuon.innerTrack()->hitPattern().numberOfValidPixelHits());
+        tight_validFraction.push_back(RecMuon.innerTrack()->validFraction());
       } else {
         innerTrack.push_back(false);
         numPixelLayers.push_back(0);
@@ -426,14 +417,14 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         tight_validFraction.push_back(-99);
       }
       // outer track info
-      if (RecMuon->outerTrack().isNonnull()) {
+      if (RecMuon.outerTrack().isNonnull()) {
         outerTrack.push_back(true);
-        outerTrackPt.push_back(RecMuon->outerTrack()->pt());
-        outerTrackEta.push_back(RecMuon->outerTrack()->eta());
-        outerTrackPhi.push_back(RecMuon->outerTrack()->phi());
-        outerTrackChi.push_back(RecMuon->outerTrack()->normalizedChi2());
-        outerTrackHits.push_back(RecMuon->outerTrack()->numberOfValidHits());
-        outerTrackRHits.push_back(RecMuon->outerTrack()->recHitsSize());
+        outerTrackPt.push_back(RecMuon.outerTrack()->pt());
+        outerTrackEta.push_back(RecMuon.outerTrack()->eta());
+        outerTrackPhi.push_back(RecMuon.outerTrack()->phi());
+        outerTrackChi.push_back(RecMuon.outerTrack()->normalizedChi2());
+        outerTrackHits.push_back(RecMuon.outerTrack()->numberOfValidHits());
+        outerTrackRHits.push_back(RecMuon.outerTrack()->recHitsSize());
       } else {
         outerTrack.push_back(false);
         outerTrackPt.push_back(0);
@@ -444,16 +435,16 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         outerTrackRHits.push_back(0);
       }
       // Tight Muon cuts
-      if (RecMuon->globalTrack().isNonnull()) {
+      if (RecMuon.globalTrack().isNonnull()) {
         globalTrack.push_back(true);
-        chiGlobal.push_back(RecMuon->globalTrack()->normalizedChi2());
-        globalMuonHits.push_back(RecMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
-        matchedStat.push_back(RecMuon->numberOfMatchedStations());
-        globalTrckPt.push_back(RecMuon->globalTrack()->pt());
-        globalTrckEta.push_back(RecMuon->globalTrack()->eta());
-        globalTrckPhi.push_back(RecMuon->globalTrack()->phi());
-        tight_TransImpara.push_back(fabs(RecMuon->muonBestTrack()->dxy(pvx)));
-        tight_LongPara.push_back(fabs(RecMuon->muonBestTrack()->dz(pvx)));
+        chiGlobal.push_back(RecMuon.globalTrack()->normalizedChi2());
+        globalMuonHits.push_back(RecMuon.globalTrack()->hitPattern().numberOfValidMuonHits());
+        matchedStat.push_back(RecMuon.numberOfMatchedStations());
+        globalTrckPt.push_back(RecMuon.globalTrack()->pt());
+        globalTrckEta.push_back(RecMuon.globalTrack()->eta());
+        globalTrckPhi.push_back(RecMuon.globalTrack()->phi());
+        tight_TransImpara.push_back(fabs(RecMuon.muonBestTrack()->dxy(pvx)));
+        tight_LongPara.push_back(fabs(RecMuon.muonBestTrack()->dz(pvx)));
       } else {
         globalTrack.push_back(false);
         chiGlobal.push_back(0);
@@ -467,22 +458,22 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       }
 
       isolationR04.push_back(
-          ((RecMuon->pfIsolationR04().sumChargedHadronPt +
+          ((RecMuon.pfIsolationR04().sumChargedHadronPt +
             std::max(0.,
-                     RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt -
-                         (0.5 * RecMuon->pfIsolationR04().sumPUPt))) /
-           RecMuon->pt()));
+                     RecMuon.pfIsolationR04().sumNeutralHadronEt + RecMuon.pfIsolationR04().sumPhotonEt -
+                         (0.5 * RecMuon.pfIsolationR04().sumPUPt))) /
+           RecMuon.pt()));
 
       isolationR03.push_back(
-          ((RecMuon->pfIsolationR03().sumChargedHadronPt +
+          ((RecMuon.pfIsolationR03().sumChargedHadronPt +
             std::max(0.,
-                     RecMuon->pfIsolationR03().sumNeutralHadronEt + RecMuon->pfIsolationR03().sumPhotonEt -
-                         (0.5 * RecMuon->pfIsolationR03().sumPUPt))) /
-           RecMuon->pt()));
+                     RecMuon.pfIsolationR03().sumNeutralHadronEt + RecMuon.pfIsolationR03().sumPhotonEt -
+                         (0.5 * RecMuon.pfIsolationR03().sumPUPt))) /
+           RecMuon.pt()));
 
-      ecalEnergy.push_back(RecMuon->calEnergy().emS9);
-      hcalEnergy.push_back(RecMuon->calEnergy().hadS9);
-      hoEnergy.push_back(RecMuon->calEnergy().hoS9);
+      ecalEnergy.push_back(RecMuon.calEnergy().emS9);
+      hcalEnergy.push_back(RecMuon.calEnergy().hadS9);
+      hoEnergy.push_back(RecMuon.calEnergy().hoS9);
 
       double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
       double eHcalDepth[depthMax_], eHcalDepthHot[depthMax_];
@@ -501,10 +492,10 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         activeL[i] = activeHotL[i] = 0;
         matchDepth[i] = matchDepthHot[i] = true;
       }
-      if (RecMuon->innerTrack().isNonnull()) {
-        const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+      if (RecMuon.innerTrack().isNonnull()) {
+        const reco::Track* pTrack = (RecMuon.innerTrack()).get();
         spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo_, bField, (((verbosity_ / 100) % 10 > 0)));
-        if ((RecMuon->p() > 10.0) && (trackID.okHCAL))
+        if ((RecMuon.p() > 10.0) && (trackID.okHCAL))
           accept = true;
 
         ecalDetId.push_back((trackID.detIdECAL)());
@@ -890,6 +881,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void HcalHBHEMuonAnalyzer::beginJob() {
+  edm::Service<TFileService> fs;
   tree_ = fs->make<TTree>("TREE", "TREE");
   tree_->Branch("Event_No", &eventNumber_);
   tree_->Branch("Run_No", &runNumber_);
@@ -1024,24 +1016,21 @@ void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&
   if (hltConfig_.init(iRun, iSetup, "HLT", changed)) {
     // if init returns TRUE, initialisation has succeeded!
 #ifdef EDM_ML_DEBUG
-    edm::LogVerbatim("HBHEMuon") << "HLT config with process name "
-                                 << "HLT"
-                                 << " successfully extracted" << std::endl;
+    edm::LogVerbatim("HBHEMuon") << "HLT config with process name HLT successfully extracted";
 #endif
     unsigned int ntriggers = hltConfig_.size();
     for (unsigned int t = 0; t < ntriggers; ++t) {
       std::string hltname(hltConfig_.triggerName(t));
-      for (unsigned int ik = 0; ik < 6; ++ik) {
+      for (unsigned int ik = 0; ik < triggers_.size(); ++ik) {
         if (hltname.find(triggers_[ik]) != std::string::npos) {
           all_triggers_.push_back(hltname);
           break;
         }
       }
     }  //loop over ntriggers
-    edm::LogVerbatim("HBHEMuon") << "All triggers size in begin run " << all_triggers_.size() << std::endl;
+    edm::LogVerbatim("HBHEMuon") << "All triggers size in begin run " << all_triggers_.size();
   } else {
-    edm::LogError("HBHEMuon") << "Error! HLT config extraction with process "
-                              << "name HLT failed";
+    edm::LogError("HBHEMuon") << "Error! HLT config extraction with process name HLT failed";
   }
 
   theHBHETopology_ = &iSetup.getData(tok_htopo_);

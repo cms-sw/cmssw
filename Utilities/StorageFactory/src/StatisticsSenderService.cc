@@ -5,7 +5,8 @@
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Guid.h"
+#include "FWCore/Utilities/interface/processGUID.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <string>
 #include <cmath>
@@ -169,7 +170,7 @@ StatisticsSenderService::StatisticsSenderService(edm::ParameterSet const &iPSet,
     : m_clienthost("unknown"),
       m_clientdomain("unknown"),
       m_filestats(),
-      m_guid(Guid().toString()),
+      m_guid(edm::processGUID().toString()),
       m_counter(0),
       m_userdn("unknown"),
       m_debug(iPSet.getUntrackedParameter<bool>("debug", false)) {
@@ -349,7 +350,7 @@ void StatisticsSenderService::setSize(const std::string &url, size_t size) {
   }
 }
 
-void StatisticsSenderService::filePostCloseEvent(std::string const &lfn, bool usedFallback) {
+void StatisticsSenderService::filePostCloseEvent(std::string const &lfn) {
   //we are at a sync point in the framwework so no new files are being opened
   cleanupOldFiles();
   m_filestats.update();
@@ -383,6 +384,9 @@ void StatisticsSenderService::fillUDP(const std::string &siteName,
   if (!siteName.empty()) {
     os << "\"site_name\":\"" << siteName << "\", ";
   }
+  // edm::getReleaseVersion() returns a string that includes quotation
+  // marks, therefore they are not added here
+  os << "\"cmssw_version\":" << edm::getReleaseVersion() << ", ";
   if (usedFallback) {
     os << "\"fallback\": true, ";
   } else {

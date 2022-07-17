@@ -18,6 +18,7 @@ template <>
 void PtMinTrackCountFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("tracks"));
+  desc.add<unsigned int>("minNumber", 1);
   desc.add<double>("ptMin", 0.);
   desc.add<std::string>("cut", "");
   descriptions.add("ptMinTrackCountFilter", desc);

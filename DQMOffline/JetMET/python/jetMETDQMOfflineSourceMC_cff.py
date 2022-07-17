@@ -9,29 +9,29 @@ from RecoJets.JetProducers.QGTagger_cfi  import *
 from RecoMET.METFilters.metFilters_cff  import *
 
 pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
-    jets = cms.InputTag("ak4PFJets"),
-    jec = cms.string("AK4PF"),
-    applyJec = cms.bool(True),
-    inputIsCorrected = cms.bool(False)
+    jets = "ak4PFJets",
+    jec = "AK4PF",
+    applyJec = True,
+    inputIsCorrected = False
 )
 
 pileupJetIdEvaluatorDQM=pileupJetIdEvaluator.clone(
-    jets = cms.InputTag("ak4PFJets"),
-    jetids = cms.InputTag("pileupJetIdCalculatorDQM"),
-    jec = cms.string("AK4PF"),
-    applyJec = cms.bool(True),
-    inputIsCorrected = cms.bool(False)
+    jets = "ak4PFJets",
+    jetids = "pileupJetIdCalculatorDQM",
+    jec = "AK4PF",
+    applyJec = True,
+    inputIsCorrected = False
 )
 
 pileupJetIdCalculatorCHSDQM=pileupJetIdCalculator.clone(
-    applyJec = cms.bool(True),
-    inputIsCorrected = cms.bool(False),
+    applyJec = True,
+    inputIsCorrected = False,
 )
 
 pileupJetIdEvaluatorCHSDQM=pileupJetIdEvaluator.clone(
-    jetids = cms.InputTag("pileupJetIdCalculatorCHSDQM"),
-    applyJec = cms.bool(True),
-    inputIsCorrected = cms.bool(False)
+    jetids = "pileupJetIdCalculatorCHSDQM",
+    applyJec = True,
+    inputIsCorrected = False
     )
 
 from JetMETCorrections.Configuration.JetCorrectors_cff import ak4CaloL2L3CorrectorChain,ak4CaloResidualCorrector,ak4CaloL2L3Corrector,ak4CaloL3AbsoluteCorrector,ak4CaloL2RelativeCorrector
@@ -73,22 +73,22 @@ from JetMETCorrections.Type1MET.correctedMet_cff import pfMetT1
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff import *
 from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import corrPfMetType1
 
-dqmCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = cms.InputTag('dqmAk4PFCHSL1FastL2L3Corrector'),
-                                       jetCorrLabelRes = cms.InputTag('dqmAk4PFCHSL1FastL2L3Corrector')
+dqmCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = 'dqmAk4PFCHSL1FastL2L3Corrector',
+                                       jetCorrLabelRes = 'dqmAk4PFCHSL1FastL2L3Corrector'
                                        )
-pfMETT1=pfMetT1.clone(srcCorrections = cms.VInputTag(
-        cms.InputTag('dqmCorrPfMetType1', 'type1')
+pfMETT1=pfMetT1.clone(srcCorrections = (
+        'dqmCorrPfMetType1:type1',
     ))
 
-jetDQMAnalyzerAk4CaloUncleanedMC=jetDQMAnalyzerAk4CaloUncleaned.clone(JetCorrections  = cms.InputTag("dqmAk4CaloL2L3Corrector"))
-jetDQMAnalyzerAk4CaloCleanedMC=jetDQMAnalyzerAk4CaloCleaned.clone(JetCorrections    = cms.InputTag("dqmAk4CaloL2L3Corrector"))
-jetDQMAnalyzerAk4PFUncleanedMC=jetDQMAnalyzerAk4PFUncleaned.clone(JetCorrections    = cms.InputTag("dqmAk4PFL1FastL2L3Corrector"))
-jetDQMAnalyzerAk4PFCleanedMC=jetDQMAnalyzerAk4PFCleaned.clone(JetCorrections      = cms.InputTag("dqmAk4PFL1FastL2L3Corrector"))
-jetDQMAnalyzerAk4PFCHSCleanedMC=jetDQMAnalyzerAk4PFCHSCleaned.clone(JetCorrections   = cms.InputTag("dqmAk4PFCHSL1FastL2L3Corrector"))
+jetDQMAnalyzerAk4CaloUncleanedMC=jetDQMAnalyzerAk4CaloUncleaned.clone(JetCorrections  = "dqmAk4CaloL2L3Corrector")
+jetDQMAnalyzerAk4CaloCleanedMC=jetDQMAnalyzerAk4CaloCleaned.clone(JetCorrections    = "dqmAk4CaloL2L3Corrector")
+jetDQMAnalyzerAk4PFUncleanedMC=jetDQMAnalyzerAk4PFUncleaned.clone(JetCorrections    = "dqmAk4PFL1FastL2L3Corrector")
+jetDQMAnalyzerAk4PFCleanedMC=jetDQMAnalyzerAk4PFCleaned.clone(JetCorrections      = "dqmAk4PFL1FastL2L3Corrector")
+jetDQMAnalyzerAk4PFCHSCleanedMC=jetDQMAnalyzerAk4PFCHSCleaned.clone(JetCorrections   = "dqmAk4PFCHSL1FastL2L3Corrector")
 
-caloMetDQMAnalyzerMC=caloMetDQMAnalyzer.clone(JetCorrections    = cms.InputTag("dqmAk4CaloL2L3Corrector"))
-pfMetDQMAnalyzerMC=pfMetDQMAnalyzer.clone(JetCorrections      = cms.InputTag("dqmAk4PFL1FastL2L3Corrector"))
-pfMetT1DQMAnalyzerMC=pfMetT1DQMAnalyzer.clone(JetCorrections    = cms.InputTag("dqmAk4PFCHSL1FastL2L3Corrector"))
+caloMetDQMAnalyzerMC=caloMetDQMAnalyzer.clone(JetCorrections    = "dqmAk4CaloL2L3Corrector")
+pfMetDQMAnalyzerMC=pfMetDQMAnalyzer.clone(JetCorrections      = "dqmAk4PFL1FastL2L3Corrector")
+pfMetT1DQMAnalyzerMC=pfMetT1DQMAnalyzer.clone(JetCorrections    = "dqmAk4PFCHSL1FastL2L3Corrector")
 
 jetMETDQMOfflineSource = cms.Sequence(cms.ignore(goodOfflinePrimaryVerticesDQM)*AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorCHSDQM*pileupJetIdEvaluatorCHSDQM*

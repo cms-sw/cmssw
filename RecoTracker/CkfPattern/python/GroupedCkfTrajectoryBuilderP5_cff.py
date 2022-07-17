@@ -45,7 +45,6 @@ ckfBaseTrajectoryFilterP5 = TrackingTools.TrajectoryFiltering.TrajectoryFilter_c
 #replace ckfBaseTrajectoryFilterP5.minimumNumberOfHits =  4
 #
 ##CTF_P5_MeasurementTracker.ComponentName = 'CTF_P5' # useless duplication of MeasurementTracker
-##GroupedCkfTrajectoryBuilderP5.MeasurementTrackerName = 'CTF_P5' # useless duplication of MeasurementTracker
 GroupedCkfTrajectoryBuilderP5 = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     trajectoryFilter = dict(refToPSet_ = 'ckfBaseTrajectoryFilterP5'),
     maxCand = 1,

@@ -2382,32 +2382,33 @@ class PlotGroup(object):
             if not plot.isEmpty():
                 plot.draw(pad, ratio, self._ratioFactor, nrows)
 
-        # Setup legend
-        canvas.cd()
-        if len(self._plots) <= 4:
-            lx1 = 0.2
-            lx2 = 0.9
-            ly1 = 0.48
-            ly2 = 0.53
-        else:
-            lx1 = 0.1
-            lx2 = 0.9
-            ly1 = 0.64
-            ly2 = 0.67
-        if self._legendDx is not None:
-            lx1 += self._legendDx
-            lx2 += self._legendDx
-        if self._legendDy is not None:
-            ly1 += self._legendDy
-            ly2 += self._legendDy
-        if self._legendDw is not None:
-            lx2 += self._legendDw
-        if self._legendDh is not None:
-            ly1 -= self._legendDh
-        plot = max(self._plots, key=lambda p: p.getNumberOfHistograms())
-        denomUnc = sum([p.drawRatioUncertainty() for p in self._plots]) > 0
-        legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2,
-                                    denomUncertainty=(ratio and denomUnc))
+        if plot._legend:
+          # Setup legend
+          canvas.cd()
+          if len(self._plots) <= 4:
+              lx1 = 0.2
+              lx2 = 0.9
+              ly1 = 0.48
+              ly2 = 0.53
+          else:
+              lx1 = 0.1
+              lx2 = 0.9
+              ly1 = 0.64
+              ly2 = 0.67
+          if self._legendDx is not None:
+              lx1 += self._legendDx
+              lx2 += self._legendDx
+          if self._legendDy is not None:
+              ly1 += self._legendDy
+              ly2 += self._legendDy
+          if self._legendDw is not None:
+              lx2 += self._legendDw
+          if self._legendDh is not None:
+              ly1 -= self._legendDh
+          plot = max(self._plots, key=lambda p: p.getNumberOfHistograms())
+          denomUnc = sum([p.drawRatioUncertainty() for p in self._plots]) > 0
+          legend = self._createLegend(plot, legendLabels, lx1, ly1, lx2, ly2,
+                                      denomUncertainty=(ratio and denomUnc))
 
         return self._save(canvas, saveFormat, prefix=prefix, directory=directory)
 

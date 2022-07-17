@@ -1,3 +1,14 @@
+#include <TChain.h>
+#include <TH1D.h>
+#include <TH2D.h>
+#include <TProfile.h>
+#include <TFitResult.h>
+#include <TFitResultPtr.h>
+#include <TPaveStats.h>
+#include <vector>
+#include <string>
+#include <iomanip>
+//#####
 #include <iostream>
 #include <fstream>
 #include "TH1.h"
@@ -25,6 +36,7 @@ using namespace std;
 //inline void HERE(const char *msg) { std::cout << msg << std::endl; }
 
 int main(int argc, char *argv[]) {
+  std::string dirnm = "Analyzer";
   //======================================================================
   printf("reco: gROOT Reset \n");
   gROOT->Reset();
@@ -138,7 +150,11 @@ int main(int argc, char *argv[]) {
 
   //	TFile *hfile1= new TFile("LED_284352.root", "READ");
   //	TFile *hfile1= new TFile("LEDtest.root", "READ");
-  TFile *hfile1 = new TFile("Global_311668.root", "READ");
+  //  TFile *hfile1 = new TFile("Global_346445.root", "READ");
+
+  TFile *hfile1 = new TFile("Global_346300.root", "READ");
+  //          TH1D *hist1(nullptr);
+  //            hist1 = (TH1D *)dir->FindObjectAny("h_mapDepth1_HE");
 
   //	TFile *hfile2= new TFile("LED_284902.root", "READ");
   //	TFile *hfile2= new TFile("LED_284499.root", "READ");
@@ -154,6 +170,9 @@ int main(int argc, char *argv[]) {
 
   TCanvas *c1 = new TCanvas("c1", "Hcal4test", 200, 10, 700, 900);
 
+  hfile1->ls();
+  TDirectory *dir = (TDirectory *)hfile1->FindObjectAny(dirnm.c_str());
+
   //========================================================================================== 1
   //======================================================================
   //======================================================================
@@ -163,7 +182,8 @@ int main(int argc, char *argv[]) {
   c1->Divide(2, 4);
 
   c1->cd(1);
-  TH2F *Zzzdepth1hef1 = (TH2F *)hfile1->Get("h_mapDepth1_HE");
+  //  TH2F *Zzzdepth1hef1 = (TH2F *)hfile1->Get("h_mapDepth1_HE");
+  TH2F *Zzzdepth1hef1 = (TH2F *)dir->FindObjectAny("h_mapDepth1_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -173,7 +193,7 @@ int main(int argc, char *argv[]) {
   Zzzdepth1hef1->Draw("COLZ");
 
   c1->cd(2);
-  TH2F *Zzzdepth1hef2 = (TH2F *)hfile1->Get("h_mapDepth2_HE");
+  TH2F *Zzzdepth1hef2 = (TH2F *)dir->FindObjectAny("h_mapDepth2_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -183,7 +203,7 @@ int main(int argc, char *argv[]) {
   Zzzdepth1hef2->Draw("COLZ");
 
   c1->cd(3);
-  TH2F *Zzzdepth1hef3 = (TH2F *)hfile1->Get("h_mapDepth3_HE");
+  TH2F *Zzzdepth1hef3 = (TH2F *)dir->FindObjectAny("h_mapDepth3_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -193,7 +213,7 @@ int main(int argc, char *argv[]) {
   Zzzdepth1hef3->Draw("COLZ");
 
   c1->cd(4);
-  TH2F *Zzzdepth1hef4 = (TH2F *)hfile1->Get("h_mapDepth4_HE");
+  TH2F *Zzzdepth1hef4 = (TH2F *)dir->FindObjectAny("h_mapDepth4_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -203,7 +223,7 @@ int main(int argc, char *argv[]) {
   Zzzdepth1hef4->Draw("COLZ");
 
   c1->cd(5);
-  TH2F *Zzzdepth1hef5 = (TH2F *)hfile1->Get("h_mapDepth5_HE");
+  TH2F *Zzzdepth1hef5 = (TH2F *)dir->FindObjectAny("h_mapDepth5_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -213,7 +233,7 @@ int main(int argc, char *argv[]) {
   Zzzdepth1hef5->Draw("COLZ");
 
   c1->cd(6);
-  TH2F *Zzzdepth1hef6 = (TH2F *)hfile1->Get("h_mapDepth6_HE");
+  TH2F *Zzzdepth1hef6 = (TH2F *)dir->FindObjectAny("h_mapDepth6_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -223,7 +243,7 @@ int main(int argc, char *argv[]) {
   Zzzdepth1hef6->Draw("COLZ");
 
   c1->cd(7);
-  TH2F *Zzzdepth1hef7 = (TH2F *)hfile1->Get("h_mapDepth7_HE");
+  TH2F *Zzzdepth1hef7 = (TH2F *)dir->FindObjectAny("h_mapDepth7_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -233,7 +253,7 @@ int main(int argc, char *argv[]) {
   Zzzdepth1hef7->Draw("COLZ");
 
   c1->cd(8);
-  TH1F *jdjswi8 = (TH1F *)hfile1->Get("h_ADCAmpl_HE");
+  TH1F *jdjswi8 = (TH1F *)dir->FindObjectAny("h_ADCAmpl_HE");
   gPad->SetLogy(kFALSE);
   // gPad->SetLogx();
   jdjswi8->SetMarkerStyle(20);
@@ -255,7 +275,7 @@ int main(int argc, char *argv[]) {
   c1->Divide(2, 4);
 
   c1->cd(1);
-  TH1F *wqwhef1 = (TH1F *)hfile1->Get("h_mapDepth1ADCAmpl_HE");
+  TH1F *wqwhef1 = (TH1F *)dir->FindObjectAny("h_mapDepth1ADCAmpl_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -263,7 +283,7 @@ int main(int argc, char *argv[]) {
   wqwhef1->Draw("COLZ");
 
   c1->cd(2);
-  TH1F *wqwhef2 = (TH1F *)hfile1->Get("h_mapDepth2ADCAmpl_HE");
+  TH1F *wqwhef2 = (TH1F *)dir->FindObjectAny("h_mapDepth2ADCAmpl_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -271,7 +291,7 @@ int main(int argc, char *argv[]) {
   wqwhef2->Draw("COLZ");
 
   c1->cd(3);
-  TH1F *wqwhef3 = (TH1F *)hfile1->Get("h_mapDepth3ADCAmpl_HE");
+  TH1F *wqwhef3 = (TH1F *)dir->FindObjectAny("h_mapDepth3ADCAmpl_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -279,7 +299,7 @@ int main(int argc, char *argv[]) {
   wqwhef3->Draw("COLZ");
 
   c1->cd(4);
-  TH1F *wqwhef4 = (TH1F *)hfile1->Get("h_mapDepth4ADCAmpl_HE");
+  TH1F *wqwhef4 = (TH1F *)dir->FindObjectAny("h_mapDepth4ADCAmpl_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -287,7 +307,7 @@ int main(int argc, char *argv[]) {
   wqwhef4->Draw("COLZ");
 
   c1->cd(5);
-  TH1F *wqwhef5 = (TH1F *)hfile1->Get("h_mapDepth5ADCAmpl_HE");
+  TH1F *wqwhef5 = (TH1F *)dir->FindObjectAny("h_mapDepth5ADCAmpl_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -295,7 +315,7 @@ int main(int argc, char *argv[]) {
   wqwhef5->Draw("COLZ");
 
   c1->cd(6);
-  TH1F *wqwhef6 = (TH1F *)hfile1->Get("h_mapDepth6ADCAmpl_HE");
+  TH1F *wqwhef6 = (TH1F *)dir->FindObjectAny("h_mapDepth6ADCAmpl_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -303,7 +323,7 @@ int main(int argc, char *argv[]) {
   wqwhef6->Draw("COLZ");
 
   c1->cd(7);
-  TH1F *wqwhef7 = (TH1F *)hfile1->Get("h_mapDepth7ADCAmpl_HE");
+  TH1F *wqwhef7 = (TH1F *)dir->FindObjectAny("h_mapDepth7ADCAmpl_HE");
   gPad->SetGridy();
   gPad->SetGridx();
   gPad->SetLogz();
@@ -321,49 +341,49 @@ int main(int argc, char *argv[]) {
   c1->Divide(2, 4);
 
   c1->cd(1);
-  TH1F *azzdepth1hef1 = (TH1F *)hfile1->Get("h_sumADCAmplperLS3");
+  TH1F *azzdepth1hef1 = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS3");
   gPad->SetGridy();
   gPad->SetGridx();
   azzdepth1hef1->SetZTitle("h_sumADCAmplperLS3 \b");
   azzdepth1hef1->Draw("");
 
   c1->cd(2);
-  TH1F *azzdepth1hef2 = (TH1F *)hfile1->Get("h_sumADCAmplperLS4");
+  TH1F *azzdepth1hef2 = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS4");
   gPad->SetGridy();
   gPad->SetGridx();
   azzdepth1hef2->SetZTitle("h_sumADCAmplperLS3 \b");
   azzdepth1hef2->Draw("");
 
   c1->cd(3);
-  TH1F *azzdepth1hef3 = (TH1F *)hfile1->Get("h_sumADCAmplperLS5");
+  TH1F *azzdepth1hef3 = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS5");
   gPad->SetGridy();
   gPad->SetGridx();
   azzdepth1hef3->SetZTitle("h_sumADCAmplperLS3 \b");
   azzdepth1hef3->Draw("");
 
   c1->cd(4);
-  TH1F *azzdepth1hef4 = (TH1F *)hfile1->Get("h_sumADCAmplperLSdepth4HEu");
+  TH1F *azzdepth1hef4 = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth4HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   azzdepth1hef4->SetZTitle("h_sumADCAmplperLS3 \b");
   azzdepth1hef4->Draw("");
 
   c1->cd(5);
-  TH1F *azzdepth1hef5 = (TH1F *)hfile1->Get("h_sumADCAmplperLSdepth5HEu");
+  TH1F *azzdepth1hef5 = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth5HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   azzdepth1hef5->SetZTitle("h_sumADCAmplperLS3 \b");
   azzdepth1hef5->Draw("");
 
   c1->cd(6);
-  TH1F *azzdepth1hef6 = (TH1F *)hfile1->Get("h_sumADCAmplperLSdepth6HEu");
+  TH1F *azzdepth1hef6 = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth6HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   azzdepth1hef6->SetZTitle("h_sumADCAmplperLS3 \b");
   azzdepth1hef6->Draw("");
 
   c1->cd(7);
-  TH1F *azzdepth1hef7 = (TH1F *)hfile1->Get("h_sumADCAmplperLSdepth7HEu");
+  TH1F *azzdepth1hef7 = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth7HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   azzdepth1hef7->SetZTitle("h_sumADCAmplperLS3 \b");
@@ -380,49 +400,49 @@ int main(int argc, char *argv[]) {
   c1->Divide(2, 4);
 
   c1->cd(1);
-  TH1F *poqw1 = (TH1F *)hfile1->Get("h_sumCutADCAmplperLS3");
+  TH1F *poqw1 = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS3");
   gPad->SetGridy();
   gPad->SetGridx();
   poqw1->SetZTitle("h_sumCutADCAmplperLS3 \b");
   poqw1->Draw("");
 
   c1->cd(2);
-  TH1F *poqw2 = (TH1F *)hfile1->Get("h_sumCutADCAmplperLS4");
+  TH1F *poqw2 = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS4");
   gPad->SetGridy();
   gPad->SetGridx();
   poqw2->SetZTitle("h_sumCutADCAmplperLS3 \b");
   poqw2->Draw("");
 
   c1->cd(3);
-  TH1F *poqw3 = (TH1F *)hfile1->Get("h_sumCutADCAmplperLS5");
+  TH1F *poqw3 = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS5");
   gPad->SetGridy();
   gPad->SetGridx();
   poqw3->SetZTitle("h_sumCutADCAmplperLS3 \b");
   poqw3->Draw("");
 
   c1->cd(4);
-  TH1F *poqw4 = (TH1F *)hfile1->Get("h_sumCutADCAmplperLSdepth4HEu");
+  TH1F *poqw4 = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth4HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   poqw4->SetZTitle("h_sumCutADCAmplperLS3 \b");
   poqw4->Draw("");
 
   c1->cd(5);
-  TH1F *poqw5 = (TH1F *)hfile1->Get("h_sumCutADCAmplperLSdepth5HEu");
+  TH1F *poqw5 = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth5HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   poqw5->SetZTitle("h_sumCutADCAmplperLS3 \b");
   poqw5->Draw("");
 
   c1->cd(6);
-  TH1F *poqw6 = (TH1F *)hfile1->Get("h_sumCutADCAmplperLSdepth6HEu");
+  TH1F *poqw6 = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth6HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   poqw6->SetZTitle("h_sumCutADCAmplperLS3 \b");
   poqw6->Draw("");
 
   c1->cd(7);
-  TH1F *poqw7 = (TH1F *)hfile1->Get("h_sumCutADCAmplperLSdepth7HEu");
+  TH1F *poqw7 = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth7HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   poqw7->SetZTitle("h_sumCutADCAmplperLS3 \b");
@@ -439,49 +459,49 @@ int main(int argc, char *argv[]) {
   c1->Divide(2, 4);
 
   c1->cd(1);
-  TH1F *cdew1 = (TH1F *)hfile1->Get("h_sum0ADCAmplperLS3");
+  TH1F *cdew1 = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS3");
   gPad->SetGridy();
   gPad->SetGridx();
   cdew1->SetZTitle("h_sum0ADCAmplperLS3 \b");
   cdew1->Draw("");
 
   c1->cd(2);
-  TH1F *cdew2 = (TH1F *)hfile1->Get("h_sum0ADCAmplperLS4");
+  TH1F *cdew2 = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS4");
   gPad->SetGridy();
   gPad->SetGridx();
   cdew2->SetZTitle("h_sum0ADCAmplperLS3 \b");
   cdew2->Draw("");
 
   c1->cd(3);
-  TH1F *cdew3 = (TH1F *)hfile1->Get("h_sum0ADCAmplperLS5");
+  TH1F *cdew3 = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS5");
   gPad->SetGridy();
   gPad->SetGridx();
   cdew3->SetZTitle("h_sum0ADCAmplperLS3 \b");
   cdew3->Draw("");
 
   c1->cd(4);
-  TH1F *cdew4 = (TH1F *)hfile1->Get("h_sum0ADCAmplperLSdepth4HEu");
+  TH1F *cdew4 = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth4HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   cdew4->SetZTitle("h_sum0ADCAmplperLS3 \b");
   cdew4->Draw("");
 
   c1->cd(5);
-  TH1F *cdew5 = (TH1F *)hfile1->Get("h_sum0ADCAmplperLSdepth5HEu");
+  TH1F *cdew5 = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth5HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   cdew5->SetZTitle("h_sum0ADCAmplperLS3 \b");
   cdew5->Draw("");
 
   c1->cd(6);
-  TH1F *cdew6 = (TH1F *)hfile1->Get("h_sum0ADCAmplperLSdepth6HEu");
+  TH1F *cdew6 = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth6HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   cdew6->SetZTitle("h_sum0ADCAmplperLS3 \b");
   cdew6->Draw("");
 
   c1->cd(7);
-  TH1F *cdew7 = (TH1F *)hfile1->Get("h_sum0ADCAmplperLSdepth7HEu");
+  TH1F *cdew7 = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth7HEu");
   gPad->SetGridy();
   gPad->SetGridx();
   cdew7->SetZTitle("h_sum0ADCAmplperLS3 \b");

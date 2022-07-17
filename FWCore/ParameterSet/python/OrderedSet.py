@@ -86,8 +86,15 @@ class OrderedSet(collections.abc.MutableSet):
 
             
 if __name__ == '__main__':
-    s = OrderedSet('abracadaba')
-    t = OrderedSet('simsalabim')
-    print((s | t))
-    print((s & t))
-    print(s - t)
+    import unittest
+    class TestModuleCommand(unittest.TestCase):
+        def setUp(self):
+            """Nothing to do """
+            pass
+        def testSetOperations(self):
+            s = OrderedSet('abracadaba')
+            t = OrderedSet('simsalabim')
+            self.assertEqual(str((s | t)), "OrderedSet(['a', 'b', 'r', 'c', 'd', 's', 'i', 'm', 'l'])")
+            self.assertEqual(str((s & t)), "OrderedSet(['a', 'b'])")
+            self.assertEqual(str(s - t),"OrderedSet(['r', 'c', 'd'])")
+    unittest.main()

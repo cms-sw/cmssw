@@ -280,20 +280,23 @@ AlgebraicMatrix33 TransientVertex::tkToTkCovariance(const TransientTrack& t1, co
 
 TransientTrack TransientVertex::originalTrack(const TransientTrack& refTrack) const {
   if (theRefittedTracks.empty())
-    throw VertexException("No refitted tracks stored in vertex");
+    throw VertexException("TransientVertex::requested No refitted tracks stored in vertex");
   std::vector<TransientTrack>::const_iterator it = find(theRefittedTracks.begin(), theRefittedTracks.end(), refTrack);
   if (it == theRefittedTracks.end())
-    throw VertexException("Refitted track not found in list");
+    throw VertexException(
+        "TransientVertex::requested Refitted track not found in list.\n address used for comparison: ")
+        << refTrack.basicTransientTrack();
   size_t pos = it - theRefittedTracks.begin();
   return theOriginalTracks[pos];
 }
 
 TransientTrack TransientVertex::refittedTrack(const TransientTrack& track) const {
   if (theRefittedTracks.empty())
-    throw VertexException("No refitted tracks stored in vertex");
+    throw VertexException("TransientVertex::requested No refitted tracks stored in vertex");
   std::vector<TransientTrack>::const_iterator it = find(theOriginalTracks.begin(), theOriginalTracks.end(), track);
   if (it == theOriginalTracks.end())
-    throw VertexException("Track not found in list");
+    throw VertexException("transientVertex::requested Track not found in list.\n address used for comparison: ")
+        << track.basicTransientTrack();
   size_t pos = it - theOriginalTracks.begin();
   return theRefittedTracks[pos];
 }

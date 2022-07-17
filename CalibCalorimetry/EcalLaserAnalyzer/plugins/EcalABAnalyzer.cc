@@ -177,8 +177,9 @@ void EcalABAnalyzer::beginJob() {
   if (test == nullptr) {
     doesABTreeExist = false;
     _fitab = true;
-  };
-  delete test;
+  } else {
+    fclose(test);
+  }
 
   TFile* fAB = nullptr;
   TTree* ABInit = nullptr;

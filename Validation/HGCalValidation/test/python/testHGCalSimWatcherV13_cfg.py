@@ -22,7 +22,6 @@ process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
-process.load('HLTrigger.Configuration.HLT_Fake2_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
@@ -145,7 +144,6 @@ process.schedule = cms.Schedule(process.generation_step,
                                 process.L1simulation_step,
                                 process.L1TrackTrigger_step,
                                 process.digi2raw_step,
-#                                process.HLTSchedule,
                                 process.raw2digi_step,
                                 process.L1Reco_step,
                                 process.reconstruction_step,

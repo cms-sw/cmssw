@@ -17,24 +17,16 @@ TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet &parset
     : inputDTRecSegment4DToken_(
           ic.consumes<DTRecSegment4DCollection>(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"))),
       inputCSCSegmentToken_(
-          ic.consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))),
-      inputDTRecSegment4DCollection_(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection")),
-      inputCSCSegmentCollection_(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection")) {}
-
-TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet &parset)
-    : inputDTRecSegment4DCollection_(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection")),
-      inputCSCSegmentCollection_(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection")) {}
-
-TrackerMuonHitExtractor::~TrackerMuonHitExtractor() {}
+          ic.consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))) {}
 
 void TrackerMuonHitExtractor::init(const edm::Event &iEvent) {
-  iEvent.getByLabel(inputDTRecSegment4DCollection_, dtSegmentCollectionH_);
-  iEvent.getByLabel(inputCSCSegmentCollection_, cscSegmentCollectionH_);
+  const edm::Handle<DTRecSegment4DCollection> &dtSegmentCollectionH = iEvent.getHandle(inputDTRecSegment4DToken_);
+  const edm::Handle<CSCSegmentCollection> &cscSegmentCollectionH = iEvent.getHandle(inputCSCSegmentToken_);
 
-  edm::LogVerbatim("TrackerMuonHitExtractor") << "\nThere are " << dtSegmentCollectionH_->size() << " DT segments.";
+  edm::LogVerbatim("TrackerMuonHitExtractor") << "\nThere are " << dtSegmentCollectionH->size() << " DT segments.";
   unsigned int index_dt_segment = 0;
-  for (DTRecSegment4DCollection::const_iterator segment = dtSegmentCollectionH_->begin();
-       segment != dtSegmentCollectionH_->end();
+  for (DTRecSegment4DCollection::const_iterator segment = dtSegmentCollectionH->begin();
+       segment != dtSegmentCollectionH->end();
        ++segment, index_dt_segment++) {
     LocalPoint segmentLocalPosition = segment->localPosition();
     LocalVector segmentLocalDirection = segment->localDirection();
@@ -63,10 +55,10 @@ void TrackerMuonHitExtractor::init(const edm::Event &iEvent) {
         << segmentdYdZerr << ")";
   }
 
-  edm::LogVerbatim("TrackerMuonHitExtractor") << "\nThere are " << cscSegmentCollectionH_->size() << " CSC segments.";
+  edm::LogVerbatim("TrackerMuonHitExtractor") << "\nThere are " << cscSegmentCollectionH->size() << " CSC segments.";
   unsigned int index_csc_segment = 0;
-  for (CSCSegmentCollection::const_iterator segment = cscSegmentCollectionH_->begin();
-       segment != cscSegmentCollectionH_->end();
+  for (CSCSegmentCollection::const_iterator segment = cscSegmentCollectionH->begin();
+       segment != cscSegmentCollectionH->end();
        ++segment, index_csc_segment++) {
     LocalPoint segmentLocalPosition = segment->localPosition();
     LocalVector segmentLocalDirection = segment->localDirection();

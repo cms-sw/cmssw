@@ -350,7 +350,7 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
     // Compute the correct normalization
     // It is the inverse of the denominator of the LCToCP score formula. Observe that this is the sum of the squares.
     float invLayerClusterEnergyWeight = 0.f;
-    for (auto const& haf : clusters[lcId].hitsAndFractions()) {
+    for (auto const& haf : hits_and_fractions) {
       invLayerClusterEnergyWeight +=
           (haf.second * hitMap_->at(haf.first)->energy()) * (haf.second * hitMap_->at(haf.first)->energy());
     }
@@ -374,8 +374,8 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
           if (findHitIt != detIdToCaloParticleId_Map[rh_detid].end())
             cpFraction = findHitIt->fraction;
         }
-        cpPair.second +=
-            (rhFraction - cpFraction) * (rhFraction - cpFraction) * hitEnergyWeight * invLayerClusterEnergyWeight;
+        cpPair.second += std::min(std::pow(rhFraction - cpFraction, 2), std::pow(rhFraction, 2)) * hitEnergyWeight *
+                         invLayerClusterEnergyWeight;
       }  //End of loop over CaloParticles related the this LayerCluster.
     }    // End of loop over Hits within a LayerCluster
 #ifdef EDM_ML_DEBUG
@@ -446,8 +446,8 @@ hgcal::association LCToCPAssociatorByEnergyScoreImpl::makeConnections(
             if (findHitIt != detIdToLayerClusterId_Map[cp_hitDetId].end())
               lcFraction = findHitIt->fraction;
           }
-          lcPair.second.second +=
-              (lcFraction - cpFraction) * (lcFraction - cpFraction) * hitEnergyWeight * invCPEnergyWeight;
+          lcPair.second.second += std::min(std::pow(lcFraction - cpFraction, 2), std::pow(cpFraction, 2)) *
+                                  hitEnergyWeight * invCPEnergyWeight;
 #ifdef EDM_ML_DEBUG
           LogDebug("LCToCPAssociatorByEnergyScoreImpl")
               << "cpDetId:\t" << (uint32_t)cp_hitDetId << "\tlayerClusterId:\t" << layerClusterId << "\t"

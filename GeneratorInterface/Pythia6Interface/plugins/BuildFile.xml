@@ -1,7 +1,4 @@
 <use name="GeneratorInterface/Pythia6Interface"/>
-<architecture name="slc5_amd64_gcc47">
-  <use name="pydata"/>
-</architecture>
 <architecture name="osx">
   <use name="pydata"/>
 </architecture>

@@ -41,7 +41,8 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuBMTrackSegPhi::L1MuBMTrackSegPhi() : m_location(), m_phi(0), m_phib(0), m_quality(Null), m_bx(0) {}
+L1MuBMTrackSegPhi::L1MuBMTrackSegPhi()
+    : m_location(), m_phi(0), m_phib(0), m_quality(Null), m_tag(false), m_bx(0), m_etaFlag(false) {}
 
 L1MuBMTrackSegPhi::L1MuBMTrackSegPhi(
     int wheel_id, int sector_id, int station_id, int phi, int phib, TSQuality quality, bool tag, int bx, bool etaFlag)
@@ -49,6 +50,7 @@ L1MuBMTrackSegPhi::L1MuBMTrackSegPhi(
       m_phi(phi),
       m_phib(phib),
       m_quality(quality),
+      m_tag(tag),
       m_bx(bx),
       m_etaFlag(etaFlag) {
   /*
@@ -78,15 +80,6 @@ L1MuBMTrackSegPhi::L1MuBMTrackSegPhi(
   }
 */
 }
-
-L1MuBMTrackSegPhi::L1MuBMTrackSegPhi(const L1MuBMTrackSegPhi& id)
-    : m_location(id.m_location),
-      m_phi(id.m_phi),
-      m_phib(id.m_phib),
-      m_quality(id.m_quality),
-      m_tag(id.m_tag),
-      m_bx(id.m_bx),
-      m_etaFlag(id.m_etaFlag) {}
 
 //--------------
 // Destructor --
@@ -122,22 +115,6 @@ double L1MuBMTrackSegPhi::phiValue() const {
 // return phib in radians
 //
 double L1MuBMTrackSegPhi::phibValue() const { return static_cast<double>(m_phib) / 512; }
-
-//
-// Assignment operator
-//
-L1MuBMTrackSegPhi& L1MuBMTrackSegPhi::operator=(const L1MuBMTrackSegPhi& id) {
-  if (this != &id) {
-    m_location = id.m_location;
-    m_phi = id.m_phi;
-    m_phib = id.m_phib;
-    m_quality = id.m_quality;
-    m_tag = id.m_tag;
-    m_bx = id.m_bx;
-    m_etaFlag = id.m_etaFlag;
-  }
-  return *this;
-}
 
 //
 // Equal operator

@@ -10,7 +10,7 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -94,6 +94,12 @@ namespace ecaldqm {
 
     void setSetupObjects(edm::EventSetup const &);
     void setSetupObjectsEndLumi(edm::EventSetup const &);
+
+    bool checkElectronicsMap(bool = true);
+    bool checkTrigTowerMap(bool = true);
+    bool checkGeometry(bool = true);
+    bool checkTopology(bool = true);
+
     EcalElectronicsMapping const *GetElectronicsMap();
     EcalTrigTowerConstituentsMap const *GetTrigTowerMap();
     CaloGeometry const *GetGeometry();

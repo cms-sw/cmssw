@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
@@ -57,14 +58,14 @@ void HcalGeometryDump::analyze(const edm::Event& /*iEvent*/, const edm::EventSet
         detIds.emplace_back(hid.rawId());
       }
     }
-    std::cout << detIds.size() << " valid Ids for subdetector " << subdet << std::endl;
+    edm::LogVerbatim("HCalGeom") << detIds.size() << " valid Ids for subdetector " << subdet;
     std::sort(detIds.begin(), detIds.end());
     int counter = 0;
     for (std::vector<unsigned int>::const_iterator i = detIds.begin(); i != detIds.end(); ++i, ++counter) {
       HcalDetId hid = HcalDetId(*i);
       auto cell = caloGeom->getGeometry(*i);
-      std::cout << hid << "\tCaloCellGeometry " << cell->getPosition() << "\tHcalGeometry "
-                << caloGeom->getPosition(hid) << std::endl;
+      edm::LogVerbatim("HCalGeom") << hid << "\tCaloCellGeometry " << cell->getPosition() << "\tHcalGeometry "
+                                   << caloGeom->getPosition(hid);
     }
   }
 }

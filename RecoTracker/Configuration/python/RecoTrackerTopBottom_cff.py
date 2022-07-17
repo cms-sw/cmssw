@@ -120,9 +120,7 @@ MeasurementTrackerTop = MeasurementTracker.clone(
     ComponentName = 'MeasurementTrackerTop'
 )
 
-GroupedCkfTrajectoryBuilderP5Top = GroupedCkfTrajectoryBuilderP5.clone(
-    MeasurementTrackerName = 'MeasurementTrackerTop'
-)
+GroupedCkfTrajectoryBuilderP5Top = GroupedCkfTrajectoryBuilderP5.clone()
 
 ckfTrackCandidatesP5Top = ckfTrackCandidatesP5.clone(
     TrajectoryBuilderPSet = dict(refToPSet_ = 'GroupedCkfTrajectoryBuilderP5Top'),
@@ -220,9 +218,7 @@ MeasurementTrackerBottom = MeasurementTracker.clone(
     ComponentName = 'MeasurementTrackerBottom'
 )
 
-GroupedCkfTrajectoryBuilderP5Bottom = GroupedCkfTrajectoryBuilderP5.clone(
-    MeasurementTrackerName = 'MeasurementTrackerBottom'
-)
+GroupedCkfTrajectoryBuilderP5Bottom = GroupedCkfTrajectoryBuilderP5.clone()
 
 ckfTrackCandidatesP5Bottom = ckfTrackCandidatesP5.clone(
     TrajectoryBuilderPSet = dict(refToPSet_ = 'GroupedCkfTrajectoryBuilderP5Bottom'),

@@ -67,6 +67,7 @@ namespace l1t {
     float sumNeutralIso() const { return sumNeutralIso_; }
     float sumCombinedIso() const { return sumCombinedIso_; }
     float sumChargedIsoPileup() const { return sumChargedIsoPileup_; }
+    float z() const { return z_; }
 
     bool passTightIso() const { return passTightIso_; }
     bool passMediumIso() const { return passMediumIso_; }
@@ -133,6 +134,7 @@ namespace l1t {
     void setSumNeutralIso(float sumNeutralIso) { sumNeutralIso_ = sumNeutralIso; }
     void setSumCombinedIso(float sumCombinedIso) { sumCombinedIso_ = sumCombinedIso; }
     void setSumChargedIsoPileup(float sumChargedIsoPileup) { sumChargedIsoPileup_ = sumChargedIsoPileup; }
+    void setZ(float Z) { z_ = Z; }
 
     void setPassTightIso(bool passTightIso) { passTightIso_ = passTightIso; }
     void setPassMediumIso(bool passMediumIso) { passMediumIso_ = passMediumIso; }
@@ -197,6 +199,8 @@ namespace l1t {
     bool passMediumRelIso_;
     bool passLooseRelIso_;
     bool passVLooseRelIso_;
+
+    float z_;
   };
 
 }  // namespace l1t

@@ -30,8 +30,6 @@ namespace edmtest {
 
   DTConfigPrint::DTConfigPrint(int i) {}
 
-  DTConfigPrint::~DTConfigPrint() {}
-
   void DTConfigPrint::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     // Context is not used.

@@ -16,7 +16,7 @@
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/PreallocationConfiguration.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/ExceptionActions.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
@@ -52,23 +52,23 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testEDProducerProductRegistryCallback);
 using namespace edm;
 
 namespace {
-  class TestMod : public EDProducer {
+  class TestMod : public global::EDProducer<> {
   public:
     explicit TestMod(ParameterSet const& p);
 
-    void produce(Event& e, EventSetup const&);
+    void produce(StreamID, Event& e, EventSetup const&) const override;
 
     void listen(BranchDescription const&);
   };
 
   TestMod::TestMod(ParameterSet const&) { produces<int>(); }
 
-  void TestMod::produce(Event&, EventSetup const&) {}
+  void TestMod::produce(StreamID, Event&, EventSetup const&) const {}
 
-  class ListenMod : public EDProducer {
+  class ListenMod : public global::EDProducer<> {
   public:
     explicit ListenMod(ParameterSet const&);
-    void produce(Event& e, EventSetup const&);
+    void produce(StreamID, Event& e, EventSetup const&) const override;
     void listen(BranchDescription const&);
   };
 
@@ -76,7 +76,7 @@ namespace {
     callWhenNewProductsRegistered(
         [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
   }
-  void ListenMod::produce(Event&, EventSetup const&) {}
+  void ListenMod::produce(StreamID, Event&, EventSetup const&) const {}
 
   void ListenMod::listen(BranchDescription const& iDesc) {
     edm::TypeID intType(typeid(int));
@@ -87,10 +87,10 @@ namespace {
     }
   }
 
-  class ListenFloatMod : public EDProducer {
+  class ListenFloatMod : public global::EDProducer<> {
   public:
     explicit ListenFloatMod(ParameterSet const&);
-    void produce(Event& e, EventSetup const&);
+    void produce(StreamID, Event& e, EventSetup const&) const;
     void listen(BranchDescription const&);
   };
 
@@ -98,7 +98,7 @@ namespace {
     callWhenNewProductsRegistered(
         [this](BranchDescription const& branchDescription) { this->listen(branchDescription); });
   }
-  void ListenFloatMod::produce(Event&, EventSetup const&) {}
+  void ListenFloatMod::produce(StreamID, Event&, EventSetup const&) const {}
 
   void ListenFloatMod::listen(BranchDescription const& iDesc) {
     edm::TypeID intType(typeid(int));

@@ -49,7 +49,6 @@
 <test name="import-certifi" command="python3 -c 'import certifi'"/>
 <test name="import-chardet" command="python3 -c 'import chardet'"/>
 <test name="import-click" command="python3 -c 'import click'"/>
-<test name="import-climate" command="python3 -c 'import climate'"/>
 <test name="import-cycler" command="python3 -c 'import cycler'"/>
 <test name="import-cython" command="python3 -c 'import cython'"/>
 <test name="import-decorator" command="python3 -c 'import decorator'"/>
@@ -72,7 +71,6 @@
 <test name="import-jinja2" command="python3 -c 'import jinja2'"/>
 <test name="import-jsonpickle" command="python3 -c 'import jsonpickle'"/>
 <test name="import-jsonschema" command="python3 -c 'import jsonschema'"/>
-<test name="import-jupyter" command="python3 -c 'import jupyter'"/>
 <test name="import-jupyter_client" command="python3 -c 'import jupyter_client'"/>
 <test name="import-jupyter_console" command="python3 -c 'import jupyter_console'"/>
 <test name="import-jupyter_core" command="python3 -c 'import jupyter_core'"/>
@@ -109,7 +107,6 @@
 <test name="import-sqlite3" command="python3 -c 'import sqlite3'"/>
 <test name="import-pytz" command="python3 -c 'import pytz'"/>
 <test name="import-zmq" command="python3 -c 'import zmq'"/>
-<test name="import-qtconsole" command="python3 -c 'import qtconsole'"/>
 <test name="import-requests" command="python3 -c 'import requests'"/>
 <test name="import-scandir" command="python3 -c 'import scandir'"/>
 <test name="import-schema" command="python3 -c 'import schema'"/>
@@ -126,7 +123,6 @@
 <test name="import-tensorflow" command="python3 -c 'import tensorflow'"/>
 <test name="import-terminado" command="python3 -c 'import terminado'"/>
 <test name="import-testpath" command="python3 -c 'import testpath'"/>
-<test name="import-theanets" command="python3 -c 'import theanets'"/>
 <test name="import-tornado" command="python3 -c 'import tornado'"/>
 <test name="import-tqdm" command="python3 -c 'import tqdm'"/>
 <test name="import-traitlets" command="python3 -c 'import traitlets'"/>
@@ -139,10 +135,10 @@
 <test name="import-werkzeug" command="python3 -c 'import werkzeug'"/>
 <test name="import-widgetsnbextension" command="python3 -c 'import widgetsnbextension'"/>
 <test name="import-xgboost" command="python3 -c 'import xgboost'"/>
-<test name="import-h5py_cache" command="python3 -c 'import h5py_cache'"/>
 <test name="import-google" command="python3 -c 'import google'"/>
 <test name="import-lxml" command="python3 -c 'import lxml'"/>
 <test name="import-bs4" command="python3 -c 'import bs4'"/>
+<test name="import-professor2" command="python3 -c 'import professor2'"/>
 <test name="run-flawfinder" command="flawfinder -h"/>
 <test name="run-ipython" command="ipython -h"/>
 <test name="run-pylint" command="pylint -h"/>

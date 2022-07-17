@@ -5,25 +5,23 @@
 <use name="CondFormats/HcalObjects"/>
 <use name="CondFormats/DataRecord"/>
 <use name="DataFormats/BeamSpot"/>
-<use name="DataFormats/Common"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/EcalDetId"/>
 <use name="DataFormats/EcalRecHit"/>
 <use name="DataFormats/EgammaCandidates"/>
 <use name="DataFormats/EgammaReco"/>
 <use name="DataFormats/HcalRecHit"/>
-<use name="DataFormats/PatCandidates"/>
 <use name="DataFormats/TrackReco"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/CaloTopology"/>
-<use name="PhysicsTools/SelectorUtils"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="RecoEgamma/EgammaIsolationAlgos"/>
 <use name="RecoEgamma/EgammaTools"/>
 <use name="RecoLocalCalo/EcalRecAlgos"/>
 <use name="RecoLocalCalo/HcalRecAlgos"/>
 <use name="PhysicsTools/TensorFlow" />
+<use name="CommonTools/MVAUtils" />
 <export>
   <lib name="1"/>
 </export>

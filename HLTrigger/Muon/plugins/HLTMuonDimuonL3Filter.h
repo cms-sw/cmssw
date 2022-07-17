@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "MuonAnalysis/MuonAssociators/interface/PropagateToMuonSetup.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -45,6 +46,8 @@ private:
                             const reco::RecoChargedCandidateRef&,
                             const reco::BeamSpot&,
                             const edm::ESHandle<MagneticField>&) const;
+
+  const PropagateToMuonSetup propSetup_;
   const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> idealMagneticFieldRecordToken_;
   const edm::InputTag beamspotTag_;
   const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;
@@ -86,6 +89,7 @@ private:
   const edm::InputTag theL3LinksLabel;     //Needed to iterL3
   const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;  //Needed to iterL3
   const double L1MatchingdR_;
+  const double L1MatchingdR2_;
   const bool matchPreviousCand_;
   const double MuMass2_;
 };

@@ -1,12 +1,37 @@
+// system includes
+#include <sstream>
 
-#include "DataFormats/SiStripCommon/test/plugins/test_SiStripFecKey.h"
+// user includes
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <sstream>
+
+/**
+   @class testSiStripFecKey 
+   @author R.Bainbridge
+   @brief Simple class that tests SiStripFecKey.
+*/
+class testSiStripFecKey : public edm::one::EDAnalyzer<> {
+public:
+  testSiStripFecKey(const edm::ParameterSet&);
+  ~testSiStripFecKey();
+
+  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+private:
+  const uint32_t crate_;
+  const uint32_t slot_;
+  const uint32_t ring_;
+  const uint32_t ccu_;
+  const uint32_t module_;
+  const uint32_t lld_;
+  const uint32_t i2c_;
+};
 
 using namespace sistrip;
 
@@ -170,3 +195,6 @@ void testSiStripFecKey::analyze(const edm::Event& event, const edm::EventSetup& 
   LogTrace(mlDqmCommon_) << "[SiStripFecKey::" << __func__ << "]"
                          << " Analyzing run/event " << event.id().run() << "/" << event.id().event();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(testSiStripFecKey);

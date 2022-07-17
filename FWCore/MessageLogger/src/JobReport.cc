@@ -376,13 +376,11 @@ namespace edm {
   void JobReport::inputFileClosed(InputType inputType, JobReport::Token fileToken) {
     JobReport::InputFile& f = impl_->getInputFileForToken(inputType, fileToken);
     f.fileHasBeenClosed = true;
+    std::lock_guard<std::mutex> lock(write_mutex);
     if (inputType == InputType::Primary) {
       impl_->writeInputFile(f);
     } else {
-      {
-        std::lock_guard<std::mutex> lock(write_mutex);
-        impl_->writeInputFile(f);
-      }
+      impl_->writeInputFile(f);
     }
   }
 
@@ -417,7 +415,8 @@ namespace edm {
         r.contributingInputs.push_back(i);
       }
     }
-    for (tbb::concurrent_vector<Token>::size_type i = 0, iEnd = impl_->inputFilesSecSource_.size(); i < iEnd; ++i) {
+    for (oneapi::tbb::concurrent_vector<Token>::size_type i = 0, iEnd = impl_->inputFilesSecSource_.size(); i < iEnd;
+         ++i) {
       if (!impl_->inputFilesSecSource_[i].fileHasBeenClosed) {
         r.contributingInputsSecSource.push_back(i);
       }
@@ -433,6 +432,7 @@ namespace edm {
   void JobReport::outputFileClosed(JobReport::Token fileToken) {
     JobReport::OutputFile& f = impl_->getOutputFileForToken(fileToken);
     f.fileHasBeenClosed = true;
+    std::lock_guard<std::mutex> lock(write_mutex);
     impl_->writeOutputFile(f);
   }
 
@@ -540,6 +540,7 @@ namespace edm {
 
   void JobReport::reportMemoryInfo(std::vector<std::string> const& memoryData) {
     if (impl_->ost_) {
+      std::lock_guard<std::mutex> lock(write_mutex);
       std::ostream& msg = *(impl_->ost_);
       msg << "<MemoryService>\n";
 
@@ -554,6 +555,7 @@ namespace edm {
 
   void JobReport::reportMessageInfo(std::map<std::string, double> const& messageData) {
     if (impl_->ost_) {
+      std::lock_guard<std::mutex> lock(write_mutex);
       std::ostream& msg = *(impl_->ost_);
       msg << "<MessageSummary>\n";
       typedef std::map<std::string, double>::const_iterator const_iterator;
@@ -567,10 +569,11 @@ namespace edm {
   }
 
   void JobReport::reportReadBranches() {
-    if (impl_->printedReadBranches_)
+    bool expected = false;
+    if (not impl_->printedReadBranches_.compare_exchange_strong(expected, true))
       return;
-    impl_->printedReadBranches_ = true;
     if (impl_->ost_) {
+      std::lock_guard<std::mutex> lock(write_mutex);
       std::ostream& ost = *(impl_->ost_);
       ost << "<ReadBranches>\n";
       tinyxml2::XMLDocument doc;

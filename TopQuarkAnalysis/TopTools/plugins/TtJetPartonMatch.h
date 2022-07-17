@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -41,25 +41,23 @@
 // ----------------------------------------------------------------------
 
 template <typename C>
-class TtJetPartonMatch : public edm::EDProducer {
+class TtJetPartonMatch : public edm::global::EDProducer<> {
 public:
   /// default conructor
   explicit TtJetPartonMatch(const edm::ParameterSet&);
-  /// default destructor
-  ~TtJetPartonMatch() override;
   /// write jet parton match objects into the event
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
 private:
   /// convert string for algorithm into corresponding enumerator type
-  JetPartonMatching::algorithms readAlgorithm(const std::string& str);
+  JetPartonMatching::algorithms readAlgorithm(const std::string& str) const;
 
   /// partons
   C partons_;
   /// TtGenEvent collection input
   edm::EDGetTokenT<TtGenEvent> genEvt_;
   /// jet collection input
-  edm::EDGetTokenT<edm::View<reco::Jet> > jets_;
+  edm::EDGetTokenT<edm::View<reco::Jet>> jets_;
   /// maximal number of jets to be considered for the
   /// matching
   int maxNJets_;
@@ -82,9 +80,9 @@ private:
 
 template <typename C>
 TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg)
-    : partons_(cfg.getParameter<std::vector<std::string> >("partonsToIgnore")),
+    : partons_(cfg.getParameter<std::vector<std::string>>("partonsToIgnore")),
       genEvt_(consumes<TtGenEvent>(edm::InputTag("genEvt"))),
-      jets_(consumes<edm::View<reco::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+      jets_(consumes<edm::View<reco::Jet>>(cfg.getParameter<edm::InputTag>("jets"))),
       maxNJets_(cfg.getParameter<int>("maxNJets")),
       maxNComb_(cfg.getParameter<int>("maxNComb")),
       algorithm_(readAlgorithm(cfg.getParameter<std::string>("algorithm"))),
@@ -97,43 +95,38 @@ TtJetPartonMatch<C>::TtJetPartonMatch(const edm::ParameterSet& cfg)
   //  * TtFullHadEvtPartons
   //  * TtFullLepEvtPartons
   // and vectors of the corresponding quality parameters
-  produces<std::vector<std::vector<int> > >();
-  produces<std::vector<double> >("SumPt");
-  produces<std::vector<double> >("SumDR");
+  produces<std::vector<std::vector<int>>>();
+  produces<std::vector<double>>("SumPt");
+  produces<std::vector<double>>("SumDR");
   produces<int>("NumberOfConsideredJets");
 }
 
 template <typename C>
-TtJetPartonMatch<C>::~TtJetPartonMatch() {}
-
-template <typename C>
-void TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup) {
+void TtJetPartonMatch<C>::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& setup) const {
   // will write
   // * parton match
   // * sumPt
   // * sumDR
   // to the event
-  std::unique_ptr<std::vector<std::vector<int> > > match(new std::vector<std::vector<int> >);
-  std::unique_ptr<std::vector<double> > sumPt(new std::vector<double>);
-  std::unique_ptr<std::vector<double> > sumDR(new std::vector<double>);
+  auto match = std::make_unique<std::vector<std::vector<int>>>();
+  auto sumPt = std::make_unique<std::vector<double>>();
+  auto sumDR = std::make_unique<std::vector<double>>();
   std::unique_ptr<int> pJetsConsidered(new int);
 
   // get TtGenEvent and jet collection from the event
-  edm::Handle<TtGenEvent> genEvt;
-  evt.getByToken(genEvt_, genEvt);
+  const TtGenEvent& genEvt = evt.get(genEvt_);
 
-  edm::Handle<edm::View<reco::Jet> > topJets;
-  evt.getByToken(jets_, topJets);
+  const edm::View<reco::Jet>& topJets = evt.get(jets_);
 
   // fill vector of partons in the order of
   //  * TtFullLepEvtPartons
   //  * TtSemiLepEvtPartons
   //  * TtFullHadEvtPartons
-  std::vector<const reco::Candidate*> partons = partons_.vec(*genEvt);
+  std::vector<const reco::Candidate*> partons = partons_.vec(genEvt);
 
   // prepare vector of jets
   std::vector<const reco::Candidate*> jets;
-  for (unsigned int ij = 0; ij < topJets->size(); ++ij) {
+  for (unsigned int ij = 0; ij < topJets.size(); ++ij) {
     // take all jets if maxNJets_ == -1; otherwise use
     // maxNJets_ if maxNJets_ is big enough or use same
     // number of jets as partons if maxNJets_ < number
@@ -147,7 +140,7 @@ void TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
           break;
       }
     }
-    jets.push_back((const reco::Candidate*)&(*topJets)[ij]);
+    jets.push_back(&topJets[ij]);
   }
   *pJetsConsidered = jets.size();
 
@@ -175,7 +168,7 @@ void TtJetPartonMatch<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
 }
 
 template <typename C>
-JetPartonMatching::algorithms TtJetPartonMatch<C>::readAlgorithm(const std::string& str) {
+JetPartonMatching::algorithms TtJetPartonMatch<C>::readAlgorithm(const std::string& str) const {
   if (str == "totalMinDist")
     return JetPartonMatching::totalMinDist;
   else if (str == "minSumDist")

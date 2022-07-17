@@ -122,7 +122,6 @@ namespace cond {
       // otherwise, a new query will be executed using the resolved group boundaries.
       // throws if the target time cannot be found.
       cond::Iov_t getInterval(cond::Time_t time);
-      cond::Iov_t getInterval(cond::Time_t time, cond::Time_t defaultIovSize);
 
       std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime> getMetadata() const;
 

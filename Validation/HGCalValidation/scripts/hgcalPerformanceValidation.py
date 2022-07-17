@@ -20,7 +20,9 @@ import pandas as pd
 from collections import OrderedDict
 
 from Validation.RecoTrack.plotting.validation import Sample, Validation
-from Validation.HGCalValidation.html import _sampleName,_pageNameMap,_summary,_summobj,_MatBudSections,_geoPageNameMap,_individualmaterials,_matPageNameMap,_individualmatplots,_individualMatPlotsDesc,_hideShowFun,_allmaterialsplots,_allmaterialsPlotsDesc, _fromvertexplots, _fromVertexPlotsDesc
+from Validation.HGCalValidation.hgcalHtml import _sampleName,_pageNameMap,_summary,_summobj,_MatBudSections,_geoPageNameMap,_individualmaterials,_matPageNameMap,_individualmatplots,_individualMatPlotsDesc,_hideShowFun,_allmaterialsplots,_allmaterialsPlotsDesc, _fromvertexplots, _fromVertexPlotsDesc
+
+from Validation.HGCalValidation.PostProcessorHGCAL_cfi import tracksterLabels as trackstersIters
 
 #------------------------------------------------------------------------------------------
 #Parsing input options
@@ -83,11 +85,36 @@ def putype(t):
 #------------------------------------------------------------------------------------------
 #thereleases = { "CMSSW 11_1_X" : ["CMSSW_11_1_0_pre4_GEANT4","CMSSW_11_1_0_pre3","CMSSW_11_1_0_pre2"] }
 thereleases = OrderedDict()
-thereleases = { "CMSSW 12_1_X" : [
+thereleases = { "CMSSW 12_4_X" : [
+    "CMSSW_12_4_0_pre3_DD4HEP_vs_CMSSW_12_4_0_pre3_DDD",
+    "CMSSW_12_4_0_pre3_vs_CMSSW_12_4_0_pre2",
+    "CMSSW_12_4_0_pre2_vs_CMSSW_12_3_0_pre6"
+                ],
+                "CMSSW 12_3_X" : [
+    "CMSSW_12_3_1_vs_CMSSW_12_3_0_pre6",
+    "CMSSW_12_3_0_pre6_vs_CMSSW_12_3_0_pre5",
+    "CMSSW_12_3_0_pre5_D88_vs_CMSSW_12_3_0_pre5_D77",
+    "CMSSW_12_3_0_pre5_D77_vs_CMSSW_12_3_0_pre3_D77",
+    "CMSSW_12_3_0_pre4_vs_CMSSW_12_3_0_pre3",
+    "CMSSW_12_3_0_pre3_vs_CMSSW_12_3_0_pre2"
+                ],
+                "CMSSW 12_2_X" : [
+    "CMSSW_12_2_0_vs_CMSSW_12_2_0_pre3",
+    "CMSSW_12_2_0_pre3_D88_vs_CMSSW_12_2_0_pre3_D77",
+    "CMSSW_12_2_0_pre3_vs_CMSSW_12_2_0_pre2",
+    "CMSSW_12_2_0_pre2_vs_CMSSW_12_1_0_pre5"
+                 ],
+                "CMSSW 12_1_X" : [
+    "CMSSW_12_1_0_pre5_vs_CMSSW_12_1_0_pre4",
+    "CMSSW_12_1_0_pre5_D77_vs_CMSSW_12_1_0_pre4_D76",
+    "CMSSW_12_1_0_pre4_ROOT624_vs_CMSSW_12_1_0_pre4",
+    "CMSSW_12_1_0_pre4_vs_CMSSW_12_1_0_pre3",
+    "CMSSW_12_1_0_pre3_vs_CMSSW_12_1_0_pre2",
     "CMSSW_12_1_0_pre2_vs_CMSSW_12_0_0_pre6",
     "CMSSW_12_1_0_pre2_D77_vs_CMSSW_12_1_0_pre2_D76"
                  ],
                 "CMSSW 12_0_X" : [
+    "CMSSW_12_0_1_vs_CMSSW_12_0_0_pre4",
     "CMSSW_12_0_0_pre6_vs_CMSSW_12_0_0_pre4",
     "CMSSW_12_0_0_pre4_vs_CMSSW_12_0_0_pre3",
     "CMSSW_12_0_0_pre3_vs_CMSSW_12_0_0_pre2",
@@ -142,15 +169,16 @@ geometryTests = { "Material budget" : [
                 #"Extended2026D49_vs_Extended2026D71",
                 "Extended2026D49_vs_Extended2026D76",
                 "Extended2026D76_vs_Extended2026D83",
-                "Extended2026D83_vs_Extended2026D86"
+                "Extended2026D83_vs_Extended2026D86",
+                "Extended2026D77_vs_Extended2026D88"
                 ]
 }
 
-GeoScenario = "Extended2026D83_vs_Extended2026D86"
+GeoScenario = "Extended2026D77_vs_Extended2026D88"
 
-RefRelease='CMSSW_12_0_0_pre6'
+RefRelease='CMSSW_12_3_0_pre6'
 
-NewRelease='CMSSW_12_1_0_pre2'
+NewRelease='CMSSW_12_3_1'
 
 NotNormalRelease = "normal"
 NotNormalRefRelease = "normal"
@@ -165,11 +193,17 @@ if "raw" in NotNormalRelease:
     #   appendglobaltag = "_2026D49noPU_raw1100_rsb"
     #   appendglobaltag = "_2026D49noPU_raw1100"
     #   appendglobaltag = "_2026D49noPU_gcc900"
-    appendglobaltag = "_2026D76noPU"
+    #appendglobaltag = "_2026D77noPU"
+    appendglobaltag = "_2026D88noPU"
+    #appendglobaltag = "_2026D88noPU_DDD"
+    #appendglobaltag = "_2026D88noPU_DD4HEP"
 else: 
     #   appendglobaltag = "_2026D49noPU"
-    appendglobaltag = "_2026D76noPU"
-    #   appendglobaltag = "_2026D77noPU"
+    #appendglobaltag = "_2026D76noPU"
+    #appendglobaltag = "_2026D77noPU"
+    appendglobaltag = "_2026D88noPU"
+    #appendglobaltag = "_2026D88noPU_DDD"
+    #appendglobaltag = "_2026D88noPU_DD4HEP"
 
 #Until the final list of RelVals settles down the following sample list is under constant review
 '''
@@ -278,6 +312,20 @@ phase2samples_noPU_extend = [
 phase2samples_noPU_extend_more = [
 
     #------------------------------
+    #version v3 campaign
+    #Sample("RelValCloseByPGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_H_Fine_200um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_H_Fine_120um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_H_Coarse_Scint", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_H_Coarse_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_200um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValCloseByPGun_CE_E_Front_120um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValSingleGammaFlatPt8To150", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValSingleEFlatPt2To100", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" ),
+    #Sample("RelValSinglePiFlatPt0p7To10", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v3" )
+
+    #------------------------------
     #version v2 campaign
     #Sample("RelValCloseByPGun_CE_H_Fine_300um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
     #Sample("RelValCloseByPGun_CE_H_Fine_200um", scenario="2026D49", appendGlobalTag=appendglobaltag, version="v2" ),
@@ -339,6 +387,7 @@ phase2samples_noPU_extend_more = [
 
 phase2samples_noPU.extend(phase2samples_noPU_extend)
 phase2samples_noPU.extend(phase2samples_noPU_extend_more)
+#phase2samples_noPU = phase2samples_noPU_extend_more
 #phase2samples_noPU.extend(phase2samples_noPU_oldnaming)
 
 #phase2samples_noPU = [
@@ -389,9 +438,10 @@ if(opt.DOWNLOAD):
 #------------------------------------------------------------------------------------------
 #Objects processing section: The objects defined in --Obj are analyzed here. 
 #------------------------------------------------------------------------------------------
-if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hitValidation' or opt.OBJ == 'tracksters'):
+if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hitValidation' or opt.OBJ == 'tracksters' or opt.OBJ == 'simulation'):
     fragments = []
-    #Now  that we have them in eos lets produce plots
+    #In the case of simulation we want to split the plots in specific folder
+    if opt.OBJ == 'simulation': processCmd('mkdir HGCValid_SimClusters_Plots HGCValid_CaloParticles_Plots')
     #Let's loop through RelVals
     for infi in phase2samples_noPU:
         samplename = infi.filename(NewRelease).replace("DQM_V0001_R000000001__","").replace("__DQMIO.root","")
@@ -405,6 +455,11 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
         print("="*40)
         print(samplename)
         print("="*40)
+
+        #In the case of tracksters. We want to split the results.
+        if opt.OBJ == 'tracksters':
+           for tracksterCollection in trackstersIters:
+               processCmd('mkdir -p HGCValid_Tracksters_Plots/plots_%s_%s HGCValid_Test-TICL_Plots/plots_%s_%s HGCValid_TICL-patternRecognition_Plots/plots_%s_%s' %(samplename,tracksterCollection,samplename,tracksterCollection,samplename,tracksterCollection) )
 
         inputpathRef = ""
         if RefRelease != None: inputpathRef = RefRepository +'/' + RefRelease +'/'
@@ -423,7 +478,7 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
             cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("_raw1100","_raw1100_rsb") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         elif "normal" in NotNormalRelease and "normal" in NotNormalRefRelease:
             cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease) + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
-            #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("2026D49noPU-v2","2026D49noPU-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
+            #cmd = 'python3 Validation/HGCalValidation/scripts/makeHGCalValidationPlots.py ' +  inputpathRef + infi.filename(RefRelease).replace("2026D88noPU_DD4HEP-v1","2026D88noPU_DDD-v1") + ' ' +  inputpathNew + infi.filename(NewRelease) + ' --outputDir HGCValid_%s_Plots --no-ratio --png --separate --html-sample "%s" ' %(opt.HTMLVALNAME, _sampleName[infi.name()] ) + ' --html-validation-name %s --subdirprefix ' %(opt.HTMLVALNAME) + ' plots_%s' % (samplename) + ' --collection %s' %(opt.HTMLVALNAME)
         else: 
             #print inputpathRef, infi.filename(RefRelease).replace("D49","D41")
             #YOU SHOULD INSPECT EACH TIME THIS COMMAND AND THE REPLACE
@@ -456,39 +511,93 @@ if (opt.OBJ == 'layerClusters' or opt.OBJ == 'hitCalibration' or opt.OBJ == 'hit
                 processCmd('echo "  <hr>" >> HGCValid_%s_Plots/index_%s.html '%(opt.HTMLVALNAME, samplename) )
                 
             if opt.OBJ == 'tracksters':
-                processCmd('mv HGCValid_%s_Plots/plots_%s_Tracksters.html HGCValid_%s_Plots/index.html'%(opt.HTMLVALNAME,samplename,opt.HTMLVALNAME))
-                processCmd('awk \'NR>=6&&NR<=209\' HGCValid_%s_Plots/index.html > HGCValid_%s_Plots/index_%s.html '% (opt.HTMLVALNAME,opt.HTMLVALNAME, samplename))
-                processCmd('echo "  <br/>" >> HGCValid_%s_Plots/index_%s.html '%(opt.HTMLVALNAME, samplename) )
-                processCmd('echo "  <hr>" >> HGCValid_%s_Plots/index_%s.html '%(opt.HTMLVALNAME, samplename) )
+                processCmd('mv HGCValid_%s_Plots/plots_%s_Tracksters.html HGCValid_Tracksters_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_Test-TICL.html HGCValid_Test-TICL_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_TICL-patternRecognition.html HGCValid_TICL-patternRecognition_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('awk \'NR>=6&&NR<=135\' HGCValid_Tracksters_Plots/index.html > HGCValid_Tracksters_Plots/index_%s.html ' %(samplename))
+                processCmd('awk \'NR>=6&&NR<=117\' HGCValid_Test-TICL_Plots/index.html > HGCValid_Test-TICL_Plots/index_%s.html '% (samplename))
+                processCmd('awk \'NR>=6&&NR<=117\' HGCValid_TICL-patternRecognition_Plots/index.html > HGCValid_TICL-patternRecognition_Plots/index_%s.html '% (samplename))
+                processCmd('echo "  <br/>" >> HGCValid_Tracksters_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <br/>" >> HGCValid_Test-TICL_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <br/>" >> HGCValid_TICL-patternRecognition_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_Tracksters_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_Test-TICL_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_TICL-patternRecognition_Plots/index_%s.html '%(samplename) )
+                #Now move the plots also to the relevant folders
+                for tracksterCollection in trackstersIters:
+                    #Linking
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*_Link HGCValid_Test-TICL_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*CaloParticle*Trackster* HGCValid_Test-TICL_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*Trackster*CaloParticle* HGCValid_Test-TICL_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    #Pattern recognition
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*_PR HGCValid_TICL-patternRecognition_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*SimTrackster*Trackster* HGCValid_TICL-patternRecognition_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    processCmd('mv HGCValid_%s_Plots/plots_%s_%s/*Trackster*SimTrackster* HGCValid_TICL-patternRecognition_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,samplename,tracksterCollection))
+                    #Tracksters
+                    for gr in ['EtaPhiPtEnergy','XYZ','TotalNumberofTracksters','NumberofLayerClustersinTrackster','NumberofLayerClustersinTracksterPerLayer','NumberofLayerClustersinTracksterPerLayer_zminus_EE','NumberofLayerClustersinTracksterPerLayer_zminus_FH','NumberofLayerClustersinTracksterPerLayer_zminus_BH','NumberofLayerClustersinTracksterPerLayer_zplus_EE','NumberofLayerClustersinTracksterPerLayer_zplus_FH','NumberofLayerClustersinTracksterPerLayer_zplus_BH','LayerNumbersOfTrackster','MultiplicityofLCinTST']:
+                        processCmd('mv HGCValid_%s_Plots/plots_%s_%s/%s HGCValid_Tracksters_Plots/plots_%s_%s/.'%(opt.HTMLVALNAME,samplename,tracksterCollection,gr,samplename,tracksterCollection))
 
 
-        fragments.append( 'HGCValid_%s_Plots/index_%s.html'% (opt.HTMLVALNAME, samplename) )
+            if  opt.OBJ == 'simulation':              
+
+                processCmd('mv HGCValid_%s_Plots/plots_%s_SimClusters.html HGCValid_SimClusters_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_CaloParticles.html HGCValid_CaloParticles_Plots/index.html'%(opt.HTMLVALNAME,samplename))
+                processCmd('awk \'NR>=6&&NR<=157\' HGCValid_SimClusters_Plots/index.html > HGCValid_SimClusters_Plots/index_%s.html '% (samplename))
+                processCmd('awk \'NR>=6&&NR<=331\' HGCValid_CaloParticles_Plots/index.html > HGCValid_CaloParticles_Plots/index_%s.html '% (samplename))
+                processCmd('echo "  <br/>" >> HGCValid_SimClusters_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <br/>" >> HGCValid_CaloParticles_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_SimClusters_Plots/index_%s.html '%(samplename) )
+                processCmd('echo "  <hr>" >> HGCValid_CaloParticles_Plots/index_%s.html '%(samplename) )
+                #Now move the plots also to the relevant folders
+                processCmd('mv HGCValid_%s_Plots/plots_%s_ClusterLevel HGCValid_SimClusters_Plots/.'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_ticlSimTracksters HGCValid_SimClusters_Plots/.'%(opt.HTMLVALNAME,samplename))
+                processCmd('mv HGCValid_%s_Plots/plots_%s_CaloParticles_* HGCValid_CaloParticles_Plots/.'%(opt.HTMLVALNAME,samplename))
 
 
-    #Let's also create the final index xml file. 
-    processCmd('mv HGCValid_%s_Plots/index.html HGCValid_%s_Plots/test.html' %(opt.HTMLVALNAME,opt.HTMLVALNAME) )
-    index_file = open('HGCValid_%s_Plots/index.html'%(opt.HTMLVALNAME),'w')            
-    #Write preamble
-    index_file.write('<html>\n')
-    index_file.write(' <head>\n')
-    index_file.write('  <title>HGCal validation %s </title>\n' %(opt.HTMLVALNAME) )
-    index_file.write(' </head>\n')
-    index_file.write(' <body>\n')
-
-    for frag in fragments:   
-        with open(frag,'r') as f:
-            lines = f.read().splitlines()
-            for line in lines:
-                print(line)
-                index_file.write(line + '\n')
-                #processCmd( 'cat ' + frag + ' >> HGCalValidationPlots/index.html '   )
-                #index_file.write(frag)
+        if opt.OBJ == 'simulation': 
+            fragments.append( 'HGCValid_SimClusters_Plots/index_%s.html'% (samplename) )
+            fragments.append( 'HGCValid_CaloParticles_Plots/index_%s.html'% (samplename) )
+        elif opt.OBJ == 'tracksters':
+            fragments.append( 'HGCValid_Tracksters_Plots/index_%s.html'% (samplename) )
+            fragments.append( 'HGCValid_Test-TICL_Plots/index_%s.html'% (samplename) )
+            fragments.append( 'HGCValid_TICL-patternRecognition_Plots/index_%s.html'% (samplename) )
+        else:
+            fragments.append( 'HGCValid_%s_Plots/index_%s.html'% (opt.HTMLVALNAME, samplename) )
 
 
-    #Writing postamble"
-    index_file.write(' </body>\n')
-    index_file.write('</html>\n')
-    index_file.close()
+    #Let's also create the final index xml file(s). 
+    indexfiles = []
+    if opt.OBJ == 'simulation': 
+        indexfiles = ["SimClusters","CaloParticles"]
+    elif opt.OBJ == 'tracksters':
+        indexfiles = ["Tracksters","Test-TICL","TICL-patternRecognition"]
+    else: 
+        indexfiles = [opt.HTMLVALNAME]
+
+    for ind in indexfiles:        
+        processCmd('mv HGCValid_%s_Plots/index.html HGCValid_%s_Plots/test.html' %(ind,ind) )
+        index_file = open('HGCValid_%s_Plots/index.html'%(ind),'w')            
+        #Write preamble
+        index_file.write('<html>\n')
+        index_file.write(' <head>\n')
+        index_file.write('  <title>HGCAL validation %s </title>\n' %(ind) )
+        index_file.write(' </head>\n')
+        index_file.write(' <body>\n')
+
+        for frag in fragments:   
+            if ind not in frag: continue
+            with open(frag,'r') as f:
+                lines = f.read().splitlines()
+                for line in lines:
+                    print(line)
+                    index_file.write(line + '\n')
+                    #processCmd( 'cat ' + frag + ' >> HGCalValidationPlots/index.html '   )
+                    #index_file.write(frag)
+
+        #Writing postamble"
+        index_file.write(' </body>\n')
+        index_file.write('</html>\n')
+        index_file.close()
 
 #------------------------------------------------------------------------------------------
 #This is the SimHits part
@@ -796,7 +905,7 @@ if (opt.GATHER != None) :
                     #print(df[obj][ind])          
                     print(j)
                     #index_file.write(' <li><a href="plots_%s_%s">%s</a></li>   \n' %(samplename, df[obj][ind], df[obj][ind].partition("/")[2] ))
-                    if "tracksters" in j:
+                    if "Tracksters" in j or "Test-TICL" in j or "TICL-patternRecognition" in j:
                         index_file.write(' <li><a href="../HGCValid_%s_Plots/plots_%s_%s">%s</a></li>   \n' %(j, samplename, column, column.replace("ticlTracksters","") ))
                     else:
                         index_file.write(' <li><a href="../HGCValid_%s_Plots/plots_%s_%s">%s</a></li>   \n' %(j, samplename, column, column.partition("/")[2] ))
@@ -859,10 +968,10 @@ if (opt.GATHER != None) :
     #Write preamble
     index_file.write('<html>\n')
     index_file.write(' <head>\n')
-    index_file.write('  <title> <h2> HGCal validation results for %s </h2> </title>\n' %(localoutputdir) )
+    index_file.write('  <title> <h2> HGCAL validation results for %s </h2> </title>\n' %(localoutputdir) )
     index_file.write(' </head>\n')
     index_file.write(' <body>\n')
-    index_file.write(' <h2> HGCal validation results for %s </h2> \n' %(localoutputdir) )
+    index_file.write(' <h2> HGCAL validation results for %s </h2> \n' %(localoutputdir) )
 
     for obj in objects:
         print(obj)

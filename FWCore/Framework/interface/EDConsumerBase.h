@@ -19,6 +19,7 @@
 //
 
 // system include files
+#include <array>
 #include <map>
 #include <string>
 #include <vector>
@@ -221,12 +222,12 @@ namespace edm {
     }
 
     template <Transition Tr = Transition::Event>
-    [[nodiscard]] constexpr auto esConsumes() noexcept {
+    [[nodiscard]] constexpr auto esConsumes() {
       return EDConsumerBaseESAdaptor<Tr>(this);
     }
 
     template <Transition Tr = Transition::Event>
-    [[nodiscard]] auto esConsumes(ESInputTag tag) noexcept {
+    [[nodiscard]] auto esConsumes(ESInputTag tag) {
       return EDConsumerBaseWithTagESAdaptor<Tr>(this, std::move(tag));
     }
 

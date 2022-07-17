@@ -5,7 +5,7 @@
 #include <cstdio>
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/HistoContainer.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 
@@ -15,11 +15,14 @@ namespace gpuClustering {
   __device__ uint32_t gMaxHit = 0;
 #endif
 
+  template <bool isPhase2>
   __global__ void countModules(uint16_t const* __restrict__ id,
                                uint32_t* __restrict__ moduleStart,
                                int32_t* __restrict__ clusterId,
                                int numElements) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
+    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+    assert(nMaxModules < maxNumModules);
     for (int i = first; i < numElements; i += gridDim.x * blockDim.x) {
       clusterId[i] = i;
       if (invalidModuleId == id[i])
@@ -29,12 +32,13 @@ namespace gpuClustering {
         --j;
       if (j < 0 or id[j] != id[i]) {
         // boundary...
-        auto loc = atomicInc(moduleStart, maxNumModules);
+        auto loc = atomicInc(moduleStart, nMaxModules);
         moduleStart[loc + 1] = i;
       }
     }
   }
 
+  template <bool isPhase2>
   __global__ void findClus(uint16_t const* __restrict__ id,           // module id of each pixel
                            uint16_t const* __restrict__ x,            // local coordinates of each pixel
                            uint16_t const* __restrict__ y,            //
@@ -47,10 +51,14 @@ namespace gpuClustering {
 
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
+
+    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+    assert(nMaxModules < maxNumModules);
+
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
       auto thisModuleId = id[firstPixel];
-      assert(thisModuleId < maxNumModules);
+      assert(thisModuleId < nMaxModules);
 
 #ifdef GPU_DEBUG
       if (thisModuleId % 100 == 1)
@@ -77,8 +85,9 @@ namespace gpuClustering {
       //init hist  (ymax=416 < 512 : 9bits)
       //6000 max pixels required for HI operations with no measurable impact on pp performance
       constexpr uint32_t maxPixInModule = 6000;
-      constexpr auto nbins = phase1PixelTopology::numColsInModule + 2;  //2+2;
-      using Hist = cms::cuda::HistoContainer<uint16_t, nbins, maxPixInModule, 9, uint16_t>;
+      constexpr auto nbins = isPhase2 ? 1024 : phase1PixelTopology::numColsInModule + 2;  //2+2;
+      constexpr auto nbits = isPhase2 ? 10 : 9;                                           //2+2;
+      using Hist = cms::cuda::HistoContainer<uint16_t, nbins, maxPixInModule, nbits, uint16_t>;
       __shared__ Hist hist;
       __shared__ typename Hist::Counter ws[32];
       for (auto j = threadIdx.x; j < Hist::totbins(); j += blockDim.x) {

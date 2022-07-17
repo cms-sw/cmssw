@@ -10,6 +10,7 @@
 
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Concurrency/interface/ThreadSafeOutputFileStream.h"
+#include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,12 +21,13 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/ESModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/OStreamColumn.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StdPairHasher.h"
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include <atomic>
 #include <chrono>
@@ -42,6 +44,8 @@ namespace {
   inline auto stream_id(edm::StreamContext const& cs) { return cs.streamID().value(); }
 
   inline auto module_id(edm::ModuleCallingContext const& mcc) { return mcc.moduleDescription()->id(); }
+
+  inline auto module_id(edm::ESModuleCallingContext const& mcc) { return mcc.componentDescription()->id_; }
 
   //===============================================================
   class StallStatistics {
@@ -102,7 +106,10 @@ namespace {
     preEventReadFromSource = 'R',
     postEventReadFromSource = 'r',
     postModuleEvent = 'm',
-    postEvent = 'e'
+    postEvent = 'e',
+    postESModulePrefetching = 'q',
+    preESModule = 'N',
+    postESModule = 'n'
   };
 
   enum class Phase : short {
@@ -114,7 +121,8 @@ namespace {
     streamBeginLumi = 1,
     globalBeginLumi = 2,
     streamBeginRun = 3,
-    globalBeginRun = 4
+    globalBeginRun = 4,
+    eventSetupCall = 5
   };
 
   std::ostream& operator<<(std::ostream& os, step const s) {
@@ -223,17 +231,18 @@ namespace edm {
 
       // There can be multiple modules per stream.  Therefore, we need
       // the combination of StreamID and ModuleID to correctly track
-      // stalling information.  We use tbb::concurrent_unordered_map
+      // stalling information.  We use oneapi::tbb::concurrent_unordered_map
       // for this purpose.
       using StreamID_value = decltype(std::declval<StreamID>().value());
       using ModuleID = decltype(std::declval<ModuleDescription>().id());
-      tbb::concurrent_unordered_map<std::pair<StreamID_value, ModuleID>,
-                                    std::pair<decltype(beginTime_), bool>,
-                                    edm::StdPairHasher>
+      oneapi::tbb::concurrent_unordered_map<std::pair<StreamID_value, ModuleID>,
+                                            std::pair<decltype(beginTime_), bool>,
+                                            edm::StdPairHasher>
           stallStart_{};
 
       std::vector<std::string> moduleLabels_{};
       std::vector<StallStatistics> moduleStats_{};
+      std::vector<std::string> esModuleLabels_{};
       unsigned int numStreams_;
     };
 
@@ -298,13 +307,38 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
     iRegistry.watchPreModuleWriteLumi(this, &StallMonitor::preModuleGlobalTransition);
     iRegistry.watchPostModuleWriteLumi(this, &StallMonitor::postModuleGlobalTransition);
 
+    iRegistry.postESModuleRegistrationSignal_.connect([this](auto const& iDescription) {
+      if (esModuleLabels_.size() <= iDescription.id_) {
+        esModuleLabels_.resize(iDescription.id_ + 1);
+      }
+      if (not iDescription.label_.empty()) {
+        esModuleLabels_[iDescription.id_] = iDescription.label_;
+      } else {
+        esModuleLabels_[iDescription.id_] = iDescription.type_;
+      }
+    });
+
+    iRegistry.preESModuleSignal_.connect([this](auto const&, auto const& context) {
+      auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+      auto msg = assembleMessage<step::preESModule>(
+          numStreams_, module_id(context), std::underlying_type_t<Phase>(Phase::eventSetupCall), t);
+      file_.write(std::move(msg));
+    });
+    iRegistry.postESModuleSignal_.connect([this](auto const&, auto const& context) {
+      auto const t = duration_cast<duration_t>(now() - beginTime_).count();
+      auto msg = assembleMessage<step::postESModule>(
+          numStreams_, module_id(context), std::underlying_type_t<Phase>(Phase::eventSetupCall), t);
+      file_.write(std::move(msg));
+    });
+
     iRegistry.preallocateSignal_.connect(
         [this](service::SystemBounds const& iBounds) { numStreams_ = iBounds.maxNumberOfStreams(); });
 
     std::ostringstream oss;
     oss << "# Transition       Symbol\n";
     oss << "#----------------- ------\n";
-    oss << "# globalBeginRun  " << Phase::globalBeginRun << "\n"
+    oss << "# eventSetupCall  " << Phase::eventSetupCall << "\n"
+        << "# globalBeginRun  " << Phase::globalBeginRun << "\n"
         << "# streamBeginRun  " << Phase::streamBeginRun << "\n"
         << "# globalBeginLumi " << Phase::globalBeginLumi << "\n"
         << "# streamBeginLumi " << Phase::streamBeginLumi << "\n"
@@ -334,7 +368,13 @@ StallMonitor::StallMonitor(ParameterSet const& iPS, ActivityRegistry& iRegistry)
         << "# postModuleTransition          " << step::postModuleEvent
         << "   <Stream ID> <Module ID> <Transition type> <Time since beginJob (ms)>\n"
         << "# postEvent                     " << step::postEvent
-        << "   <Stream ID> <Run#> <LumiBlock#> <Event#> <Time since beginJob (ms)>\n";
+        << "   <Stream ID> <Run#> <LumiBlock#> <Event#> <Time since beginJob (ms)>\n"
+        << "# postESModulePrefetching       " << step::postESModulePrefetching
+        << "  <Stream ID> <ESModule ID> <Transition type> <Time since beginJob (ms)>\n"
+        << "# preESModuleTransition         " << step::preESModule
+        << "  <StreamID> <ESModule ID> <TransitionType> <Time since beginJob (ms)>\n"
+        << "# postESModuleTransition        " << step::postESModule
+        << "  <StreamID> <ESModule ID> <TransitionType> <Time since beginJob (ms)>\n";
     file_.write(oss.str());
   }
 }
@@ -394,27 +434,47 @@ void StallMonitor::postBeginJob() {
   }
 
   if (validFile_) {
-    std::size_t const width{std::to_string(moduleLabels_.size()).size()};
+    {
+      std::size_t const width{std::to_string(moduleLabels_.size()).size()};
+      OStreamColumn col0{"Module ID", width};
+      std::string const lastCol{"Module label"};
 
-    OStreamColumn col0{"Module ID", width};
-    std::string const lastCol{"Module label"};
+      std::ostringstream oss;
+      oss << "\n#  " << col0 << space << lastCol << '\n';
+      oss << "#  " << std::string(col0.width() + space.size() + lastCol.size(), '-') << '\n';
 
-    std::ostringstream oss;
-    oss << "\n#  " << col0 << space << lastCol << '\n';
-    oss << "#  " << std::string(col0.width() + space.size() + lastCol.size(), '-') << '\n';
-
-    for (std::size_t i{}; i < moduleLabels_.size(); ++i) {
-      auto const& label = moduleLabels_[i];
-      if (label.empty())
-        continue;  // See comment in filling of moduleLabels_;
-      oss << "#M " << std::setw(width) << std::left << col0(i) << space << std::left << moduleLabels_[i] << '\n';
+      for (std::size_t i{}; i < moduleLabels_.size(); ++i) {
+        auto const& label = moduleLabels_[i];
+        if (label.empty())
+          continue;  // See comment in filling of moduleLabels_;
+        oss << "#M " << std::setw(width) << std::left << col0(i) << space << std::left << moduleLabels_[i] << '\n';
+      }
+      oss << '\n';
+      file_.write(oss.str());
     }
-    oss << '\n';
-    file_.write(oss.str());
+    {
+      std::size_t const width{std::to_string(esModuleLabels_.size()).size()};
+      OStreamColumn col0{"ESModule ID", width};
+      std::string const lastCol{"ESModule label"};
+
+      std::ostringstream oss;
+      oss << "\n#  " << col0 << space << lastCol << '\n';
+      oss << "#  " << std::string(col0.width() + space.size() + lastCol.size(), '-') << '\n';
+
+      for (std::size_t i{}; i < esModuleLabels_.size(); ++i) {
+        auto const& label = esModuleLabels_[i];
+        if (label.empty())
+          continue;  // See comment in filling of moduleLabels_;
+        oss << "#N " << std::setw(width) << std::left << col0(i) << space << std::left << esModuleLabels_[i] << '\n';
+      }
+      oss << '\n';
+      file_.write(oss.str());
+    }
   }
   // Don't need the labels anymore--info. is now part of the
   // module-statistics objects.
-  moduleLabels_.clear();
+  decltype(moduleLabels_)().swap(moduleLabels_);
+  decltype(esModuleLabels_)().swap(esModuleLabels_);
 
   beginTime_ = now();
 }

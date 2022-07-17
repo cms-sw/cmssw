@@ -222,8 +222,7 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 conv2CkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     trajectoryFilter = dict(refToPSet_ = 'conv2CkfTrajectoryFilter'),
     minNrOfHitsForRebuild = 3,
-    clustersToSkip        = cms.InputTag('conv2Clusters'),
-    maxCand               = 2
+    maxCand               = 2,
 )
 
 # MAKING OF TRACK CANDIDATES

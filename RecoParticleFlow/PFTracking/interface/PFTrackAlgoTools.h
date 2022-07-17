@@ -1,3 +1,5 @@
+#ifndef RecoParticleFlow_PFTracking_PFTrackAlgoTools_H
+#define RecoParticleFlow_PFTracking_PFTrackAlgoTools_H
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 namespace PFTrackAlgoTools {
@@ -20,3 +22,4 @@ namespace PFTrackAlgoTools {
                         bool useIterTracking,
                         const reco::TrackBase::TrackQuality trackQuality);
 }  // namespace PFTrackAlgoTools
+#endif

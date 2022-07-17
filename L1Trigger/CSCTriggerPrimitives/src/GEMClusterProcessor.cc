@@ -5,8 +5,13 @@
 #include <iostream>
 
 GEMClusterProcessor::GEMClusterProcessor(int region, unsigned station, unsigned chamber, const edm::ParameterSet& conf)
-    : region_(region), station_(station), chamber_(chamber) {
+    : region_(region), station_(station), chamber_(chamber), hasGE21Geometry16Partitions_(false) {
   isEven_ = chamber_ % 2 == 0;
+
+  // These LogErrors are sanity checks and should not be printed
+  if (station_ == 3 or station_ == 4) {
+    edm::LogError("GEMClusterProcessor") << "Class constructed for a chamber in ME3 or ME4!";
+  };
 
   if (station_ == 1) {
     const edm::ParameterSet copad(conf.getParameter<edm::ParameterSet>("copadParamGE11"));
@@ -36,6 +41,7 @@ void GEMClusterProcessor::run(const GEMPadDigiClusterCollection* in_clusters) {
   // Step 1: clear the GEMInternalCluster vector
   clear();
 
+  // check that the GEM cluster collection is a valid pointer
   if (in_clusters == nullptr) {
     edm::LogWarning("GEMClusterProcessor") << "Attempt to run without valid in_clusters pointer.";
     return;

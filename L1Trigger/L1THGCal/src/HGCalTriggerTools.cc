@@ -31,9 +31,9 @@ namespace {
 }  // namespace
 
 // Kept for backward compatibility: used in L1Trigger/L1CaloTrigger/test
-void HGCalTriggerTools::eventSetup(const edm::EventSetup& es) {
-  edm::ESHandle<HGCalTriggerGeometryBase> triggerGeometry;
-  es.get<CaloGeometryRecord>().get(triggerGeometry);
+void HGCalTriggerTools::eventSetup(const edm::EventSetup& es,
+                                   const edm::ESGetToken<HGCalTriggerGeometryBase, CaloGeometryRecord>& token) {
+  const edm::ESHandle<HGCalTriggerGeometryBase>& triggerGeometry = es.getHandle(token);
   setGeometry(triggerGeometry.product());
 }
 

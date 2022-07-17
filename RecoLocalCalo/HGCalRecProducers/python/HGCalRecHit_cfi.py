@@ -2,6 +2,63 @@ import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import *
 from RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi import *
 
+from Configuration.Eras.Modifier_phase2_hgcalV16_cff import phase2_hgcalV16
+
+# There is no layer zero, while no average is taken for the last layer
+dummy_weight = 0.0
+def calcWeights(weightsPerLayer): res = [sum(wei)/2. for wei in zip(weightsPerLayer[:], weightsPerLayer[1:] + [weightsPerLayer[-1]])]; res[0] = dummy_weight; return res;   
+
+
+weightsPerLayer_V16 = cms.vdouble(dummy_weight,
+                                  5.55, # MeV
+                                  12.86,
+                                  9.4,
+                                  12.86,
+                                  9.4,
+                                  12.86,
+                                  9.4,
+                                  12.86,
+                                  9.4,
+                                  12.86,
+                                  9.4,
+                                  12.86,
+                                  9.4,
+                                  12.86,
+                                  9.4,
+                                  12.86,
+                                  9.4,
+                                  12.86,
+                                  13.54,
+                                  12.86,
+                                  13.54,
+                                  12.86,
+                                  13.54,
+                                  12.86,
+                                  13.54,
+                                  12.86,
+                                  58.63,
+                                  60.7,
+                                  60.7,
+                                  60.7,
+                                  60.7,
+                                  60.7,
+                                  60.7,
+                                  60.7,
+                                  60.7,
+                                  60.7,
+                                  60.7,
+                                  83.08,
+                                  83.08,
+                                  83.43,
+                                  83.61,
+                                  83.61,
+                                  83.61,
+                                  83.61,
+                                  83.61,
+                                  83.61,
+                                  83.61)
+
+
 dEdX = cms.PSet(
 	# for v10 geometry
     weights = cms.vdouble(0.0,      # there is no layer zero
@@ -55,6 +112,22 @@ dEdX = cms.PSet(
                           86.929520,
                           86.929520,
                           86.929520),
+
+    weightsNose = cms.vdouble(0.0,   # there is no layer zero
+                              39.500245, # MeV
+                              39.756638,
+                              39.756638,
+                              39.756638,
+                              39.756638,
+                              66.020266,
+                              92.283895,
+                              92.283895)
+)
+
+
+# for v16 geometry
+dEdX_v16 = cms.PSet(
+    weights = cms.vdouble(calcWeights(weightsPerLayer_V16)),
 
     weightsNose = cms.vdouble(0.0,   # there is no layer zero
                               39.500245, # MeV
@@ -133,3 +206,9 @@ HGCalRecHit = cms.EDProducer(
 phase2_hgcalV10.toModify( HGCalRecHit , thicknessCorrection = [0.77, 0.77, 0.77, 0.84, 0.84, 0.84] , sciThicknessCorrection =  0.90 ) 
 
 phase2_hfnose.toModify( HGCalRecHit , thicknessNoseCorrection = [0.58,0.58,0.58])
+
+phase2_hgcalV16.toModify(HGCalRecHit, 
+                         thicknessCorrection = [0.75, 0.76, 0.75, 0.85, 0.85, 0.84] , 
+                         sciThicknessCorrection =  0.69,
+                         layerWeights = dEdX_v16.weights) 
+

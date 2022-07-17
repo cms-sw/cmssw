@@ -32,3 +32,27 @@ TICL_FEVT = cms.PSet(
       )
     )
 TICL_FEVT.outputCommands.extend(TICL_RECO.outputCommands)
+
+def customiseHGCalOnlyEventContent(process):
+    def cleanOutputAndSet(outputModule, ticl_outputCommads):
+        outputModule.outputCommands = ['drop *_*_*_*']
+        outputModule.outputCommands.extend(ticl_outputCommads)
+        outputModule.outputCommands.extend(['keep *_HGCalRecHit_*_*',
+                                            'keep *_hgcalLayerClusters_*_*',
+                                            'keep CaloParticles_mix_*_*',
+                                            'keep SimClusters_mix_*_*',
+                                            'keep recoTracks_generalTracks_*_*',
+                                            'keep recoTrackExtras_generalTracks_*_*',
+                                            'keep SimTracks_g4SimHits_*_*',
+                                            'keep SimVertexs_g4SimHits_*_*',
+                                            'keep *_layerClusterSimClusterAssociationProducer_*_*',
+                                            'keep *_layerClusterCaloParticleAssociationProducer_*_*',
+                                            'keep *_randomEngineStateProducer_*_*',
+                                            ])
+
+    if hasattr(process, 'FEVTDEBUGEventContent'):
+        cleanOutputAndSet(process.FEVTDEBUGEventContent, TICL_FEVT.outputCommands)
+    if hasattr(process, 'FEVTDEBUGHLToutput'):
+        cleanOutputAndSet(process.FEVTDEBUGHLToutput, TICL_FEVT.outputCommands)
+
+    return process

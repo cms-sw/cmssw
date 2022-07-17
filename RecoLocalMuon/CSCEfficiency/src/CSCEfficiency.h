@@ -10,7 +10,7 @@
 // how many of the headers below are not needed?...
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -92,7 +92,7 @@ class TFile;
 class CSCLayer;
 class CSCDetId;
 
-class CSCEfficiency : public edm::EDFilter {
+class CSCEfficiency : public edm::one::EDFilter<> {
 public:
   /// Constructor
   CSCEfficiency(const edm::ParameterSet &pset);
@@ -101,11 +101,8 @@ public:
   ~CSCEfficiency() override;
 
 private:
-  void beginJob() override;
   //---- analysis + filter
   bool filter(edm::Event &event, const edm::EventSetup &eventSetup) override;
-
-  void endJob() override;
 
   //---- (input) parameters
   //---- Root file name

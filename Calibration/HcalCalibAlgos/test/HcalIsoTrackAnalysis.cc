@@ -6,6 +6,9 @@
 // Root objects
 #include "TH1D.h"
 
+#include "CondFormats/DataRecord/interface/EcalPFRecHitThresholdsRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPFRecHitThresholds.h"
+
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
@@ -55,7 +58,6 @@ private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(edm::Run const&, edm::EventSetup const&) override {}
 
-  edm::Service<TFileService> fs_;
   spr::trackSelectionParameters selectionParameter_;
   const std::string theTrackQuality_;
   const std::vector<double> maxDxyPV_, maxDzPV_, maxChi2_, maxDpOverP_;
@@ -68,19 +70,23 @@ private:
   const double hitEthrEE2_, hitEthrEE3_;
   const double hitEthrEELo_, hitEthrEEHi_;
   const std::string labelGenTrack_, labelRecVtx_, labelEB_;
-  const std::string labelEE_, labelHBHE_;
+  const std::string labelEE_, labelHBHE_, labelBS_;
+  const bool usePFThresh_;
   double a_charIsoR_;
 
-  edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
-  edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
-  edm::EDGetTokenT<reco::BeamSpot> tok_bs_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
-  edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
-  edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
+  const edm::EDGetTokenT<reco::BeamSpot> tok_bs_;
+  const edm::EDGetTokenT<GenEventInfoProduct> tok_ew_;
+  const edm::EDGetTokenT<reco::TrackCollection> tok_genTrack_;
+  const edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EB_;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_EE_;
+  const edm::EDGetTokenT<HBHERecHitCollection> tok_hbhe_;
 
-  edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
-  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> tok_bFieldH_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+  const edm::ESGetToken<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd> tok_ecalPFRecHitThresholds_;
+
+  const EcalPFRecHitThresholds* eThresholds_;
 
   std::vector<TH1D*> h_eta_, h_eta0_, h_eta1_, h_rat0_, h_rat1_;
   TH1D *h_Dxy_, *h_Dz_, *h_Chi2_, *h_DpOverP_;
@@ -116,7 +122,19 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
       labelRecVtx_(iConfig.getParameter<std::string>("labelVertex")),
       labelEB_(iConfig.getParameter<std::string>("labelEBRecHit")),
       labelEE_(iConfig.getParameter<std::string>("labelEERecHit")),
-      labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")) {
+      labelHBHE_(iConfig.getParameter<std::string>("labelHBHERecHit")),
+      labelBS_(iConfig.getParameter<std::string>("labelBeamSpot")),
+      usePFThresh_(iConfig.getParameter<bool>("usePFThreshold")),
+      tok_bs_(consumes<reco::BeamSpot>(labelBS_)),
+      tok_ew_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+      tok_genTrack_(consumes<reco::TrackCollection>(labelGenTrack_)),
+      tok_recVtx_(consumes<reco::VertexCollection>(labelRecVtx_)),
+      tok_EB_(consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_))),
+      tok_EE_(consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_))),
+      tok_hbhe_(consumes<HBHERecHitCollection>(labelHBHE_)),
+      tok_bFieldH_(esConsumes<MagneticField, IdealMagneticFieldRecord>()),
+      tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+      tok_ecalPFRecHitThresholds_(esConsumes<EcalPFRecHitThresholds, EcalPFRecHitThresholdsRcd>()) {
   usesResource(TFileService::kSharedResource);
 
   //now do whatever initialization is needed
@@ -130,17 +148,9 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
   // Eta dependent cut uses (maxRestrictionP_ * exp(|ieta|*log(2.5)/18))
   // with the factor for exponential slopeRestrictionP_ = log(2.5)/18
   // maxRestrictionP_ = 8 GeV as came from a study
-  std::string labelBS = iConfig.getParameter<std::string>("labelBeamSpot");
 
-  // define tokens for access
-  tok_bs_ = consumes<reco::BeamSpot>(labelBS);
-  tok_ew_ = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
-  tok_genTrack_ = consumes<reco::TrackCollection>(labelGenTrack_);
-  tok_recVtx_ = consumes<reco::VertexCollection>(labelRecVtx_);
-  tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEB_));
-  tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit", labelEE_));
-  tok_hbhe_ = consumes<HBHERecHitCollection>(labelHBHE_);
-  edm::LogVerbatim("HcalIsoTrack") << "Labels used " << labelBS << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
+  // tokens for access
+  edm::LogVerbatim("HcalIsoTrack") << "Labels used " << labelBS_ << " " << labelRecVtx_ << " " << labelGenTrack_ << " "
                                    << edm::InputTag("ecalRecHit", labelEB_) << " "
                                    << edm::InputTag("ecalRecHit", labelEE_) << " " << labelHBHE_;
 
@@ -150,12 +160,9 @@ HcalIsoTrackAnalysis::HcalIsoTrackAnalysis(const edm::ParameterSet& iConfig)
                                    << "\t a_mipR " << a_mipR_ << "\n\t momentumLow_ " << pTrackLow_
                                    << "\t momentumHigh_ " << pTrackHigh_ << "\t useRaw_ " << useRaw_
                                    << "\t dataType_      " << dataType_ << "\t etaLimit " << etaMin_ << ":" << etaMax_
-                                   << "\nThreshold for EB " << hitEthrEB_ << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_
-                                   << ":" << hitEthrEE2_ << ":" << hitEthrEE3_ << ":" << hitEthrEELo_ << ":"
-                                   << hitEthrEEHi_;
-
-  tok_bFieldH_ = esConsumes<MagneticField, IdealMagneticFieldRecord>();
-  tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
+                                   << "\nThreshold flag used " << usePFThresh_ << " value for EB " << hitEthrEB_
+                                   << " EE " << hitEthrEE0_ << ":" << hitEthrEE1_ << ":" << hitEthrEE2_ << ":"
+                                   << hitEthrEE3_ << ":" << hitEthrEELo_ << ":" << hitEthrEEHi_;
 }
 
 void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
@@ -167,28 +174,27 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
   //Get magnetic field
   const MagneticField* bField = &iSetup.getData(tok_bFieldH_);
 
-  // get handles to calogeometry
+  // get calogeometry
   const CaloGeometry* geo = &iSetup.getData(tok_geom_);
+
+  // get ECAL thresholds
+  eThresholds_ = &iSetup.getData(tok_ecalPFRecHitThresholds_);
 
   bool okC(true);
   //Get track collection
-  edm::Handle<reco::TrackCollection> trkCollection;
-  iEvent.getByToken(tok_genTrack_, trkCollection);
+  edm::Handle<reco::TrackCollection> trkCollection = iEvent.getHandle(tok_genTrack_);
   if (!trkCollection.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
     okC = false;
   }
 
   //event weight for FLAT sample
-  edm::Handle<GenEventInfoProduct> genEventInfo;
-  iEvent.getByToken(tok_ew_, genEventInfo);
+  const edm::Handle<GenEventInfoProduct> genEventInfo = iEvent.getHandle(tok_ew_);
   double wt = ((genEventInfo.isValid()) ? genEventInfo->weight() : 1.0);
 
   //Define the best vertex and the beamspot
-  edm::Handle<reco::VertexCollection> recVtxs;
-  iEvent.getByToken(tok_recVtx_, recVtxs);
-  edm::Handle<reco::BeamSpot> beamSpotH;
-  iEvent.getByToken(tok_bs_, beamSpotH);
+  const edm::Handle<reco::VertexCollection> recVtxs = iEvent.getHandle(tok_recVtx_);
+  const edm::Handle<reco::BeamSpot> beamSpotH = iEvent.getHandle(tok_bs_);
   math::XYZPoint leadPV(0, 0, 0);
   bool goodPV(false);
   if (recVtxs.isValid() && !(recVtxs->empty())) {
@@ -210,20 +216,17 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
   }
 #endif
   // RecHits
-  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
-  iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
+  edm::Handle<EcalRecHitCollection> barrelRecHitsHandle = iEvent.getHandle(tok_EB_);
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
     okC = false;
   }
-  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
+  edm::Handle<EcalRecHitCollection> endcapRecHitsHandle = iEvent.getHandle(tok_EE_);
   if (!endcapRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
     okC = false;
   }
-  edm::Handle<HBHERecHitCollection> hbhe;
-  iEvent.getByToken(tok_hbhe_, hbhe);
+  edm::Handle<HBHERecHitCollection> hbhe = iEvent.getHandle(tok_hbhe_);
   if (!hbhe.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
     okC = false;
@@ -237,14 +240,12 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
     spr::propagateCALO(trkCollection, geo, bField, theTrackQuality_, trkCaloDets, false);
 
     //Loop over all tracks
-    std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
     unsigned int nTracks(0);
-    for (trkDetItr = trkCaloDirections.begin(), nTracks = 0; trkDetItr != trkCaloDirections.end();
-         trkDetItr++, nTracks++) {
-      const reco::Track* pTrack = &(*(trkDetItr->trkItr));
+    for (const auto& trkDetItr : trkCaloDirections) {
+      const reco::Track* pTrack = &(*(trkDetItr.trkItr));
       double p = pTrack->p();
-      if (p >= pTrackLow_ && p <= pTrackHigh_ && (trkDetItr->okHCAL)) {
-        int ieta = (static_cast<HcalDetId>(trkDetItr->detIdHCAL)).ieta();
+      if (p >= pTrackLow_ && p <= pTrackHigh_ && (trkDetItr.okHCAL)) {
+        int ieta = (static_cast<HcalDetId>(trkDetItr.detIdHCAL)).ieta();
 
         ////////////////////////////////-Energy in ECAL-//////////////////////////
         std::vector<DetId> eIds;
@@ -252,23 +253,27 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
         double eMipDR = spr::eCone_ecal(geo,
                                         barrelRecHitsHandle,
                                         endcapRecHitsHandle,
-                                        trkDetItr->pointHCAL,
-                                        trkDetItr->pointECAL,
+                                        trkDetItr.pointHCAL,
+                                        trkDetItr.pointECAL,
                                         a_mipR_,
-                                        trkDetItr->directionECAL,
+                                        trkDetItr.directionECAL,
                                         eIds,
                                         eHit);
         double eEcal(0);
         for (unsigned int k = 0; k < eIds.size(); ++k) {
-          const GlobalPoint& pos = geo->getPosition(eIds[k]);
-          double eta = std::abs(pos.eta());
           double eThr(hitEthrEB_);
-          if (eIds[k].subdetId() != EcalBarrel) {
-            eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
-            if (eThr < hitEthrEELo_)
-              eThr = hitEthrEELo_;
-            else if (eThr > hitEthrEEHi_)
-              eThr = hitEthrEEHi_;
+          if (usePFThresh_) {
+            eThr = static_cast<double>((*eThresholds_)[eIds[k]]);
+          } else {
+            const GlobalPoint& pos = geo->getPosition(eIds[k]);
+            double eta = std::abs(pos.eta());
+            if (eIds[k].subdetId() != EcalBarrel) {
+              eThr = (((eta * hitEthrEE3_ + hitEthrEE2_) * eta + hitEthrEE1_) * eta + hitEthrEE0_);
+              if (eThr < hitEthrEELo_)
+                eThr = hitEthrEELo_;
+              else if (eThr > hitEthrEEHi_)
+                eThr = hitEthrEEHi_;
+            }
           }
           if (eHit[k] > eThr)
             eEcal += eHit[k];
@@ -283,10 +288,10 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
         std::vector<double> edet0;
         double eHcal = spr::eCone_hcal(geo,
                                        hbhe,
-                                       trkDetItr->pointHCAL,
-                                       trkDetItr->pointECAL,
+                                       trkDetItr.pointHCAL,
+                                       trkDetItr.pointECAL,
                                        a_coneR_,
-                                       trkDetItr->directionHCAL,
+                                       trkDetItr.directionHCAL,
                                        nRecHits,
                                        ids,
                                        edet0,
@@ -367,17 +372,19 @@ void HcalIsoTrackAnalysis::analyze(edm::Event const& iEvent, edm::EventSetup con
           }
         }
       }
+      ++nTracks;
     }
   }
 }
 
 void HcalIsoTrackAnalysis::beginJob() {
+  edm::Service<TFileService> fs;
   char name[100], title[200];
-  h_eta_.emplace_back(fs_->make<TH1D>("eta", "Track i#eta (All)", 60, -30, 30));
-  h_eta0_.emplace_back(fs_->make<TH1D>("eta", "Track i#eta (All Loose Isolation)", 60, -30, 30));
-  h_eta1_.emplace_back(fs_->make<TH1D>("eta", "Track i#eta (All Tight Isolation)", 60, -30, 30));
-  h_rat0_.emplace_back(fs_->make<TH1D>("rat0", "Response 0", 100, 0.0, 5.0));
-  h_rat1_.emplace_back(fs_->make<TH1D>("rat1", "Response 1", 100, 0.0, 5.0));
+  h_eta_.emplace_back(fs->make<TH1D>("eta", "Track i#eta (All)", 60, -30, 30));
+  h_eta0_.emplace_back(fs->make<TH1D>("eta", "Track i#eta (All Loose Isolation)", 60, -30, 30));
+  h_eta1_.emplace_back(fs->make<TH1D>("eta", "Track i#eta (All Tight Isolation)", 60, -30, 30));
+  h_rat0_.emplace_back(fs->make<TH1D>("rat0", "Response 0", 100, 0.0, 5.0));
+  h_rat1_.emplace_back(fs->make<TH1D>("rat1", "Response 1", 100, 0.0, 5.0));
   for (unsigned int k1 = 0; k1 < maxDxyPV_.size(); ++k1) {
     for (unsigned int k2 = 0; k2 < maxDzPV_.size(); ++k2) {
       for (unsigned int k3 = 0; k3 < maxChi2_.size(); ++k3) {
@@ -398,7 +405,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_eta_.emplace_back(fs_->make<TH1D>(name, title, 60, -30, 30));
+                  h_eta_.emplace_back(fs->make<TH1D>(name, title, 60, -30, 30));
                   sprintf(name, "eta0%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
                   sprintf(title,
                           "i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
@@ -411,7 +418,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_eta0_.emplace_back(fs_->make<TH1D>(name, title, 60, -30, 30));
+                  h_eta0_.emplace_back(fs->make<TH1D>(name, title, 60, -30, 30));
                   sprintf(name, "eta1%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
                   sprintf(title,
                           "i#eta (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
@@ -424,7 +431,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_eta1_.emplace_back(fs_->make<TH1D>(name, title, 60, -30, 30));
+                  h_eta1_.emplace_back(fs->make<TH1D>(name, title, 60, -30, 30));
                   sprintf(name, "rat0%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
                   sprintf(title,
                           "Response 0 (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
@@ -437,7 +444,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_rat0_.emplace_back(fs_->make<TH1D>(name, title, 100, 0.0, 5.0));
+                  h_rat0_.emplace_back(fs->make<TH1D>(name, title, 100, 0.0, 5.0));
                   sprintf(name, "rat1%d%d%d%d%d%d%d%d", k1, k2, k3, k4, k5, k6, k7, k8);
                   sprintf(title,
                           "Response 1 (d_{xy}=4.2%f, d_{z}=4.2%f, #chi^{2}=5.2%f, (#Delta p)/p=5.2%f, Hit_{out}=%d, "
@@ -450,7 +457,7 @@ void HcalIsoTrackAnalysis::beginJob() {
                           minLayerCrossed_[k6],
                           maxInMiss_[k7],
                           maxOutMiss_[k8]);
-                  h_rat1_.emplace_back(fs_->make<TH1D>(name, title, 100, 0.0, 5.0));
+                  h_rat1_.emplace_back(fs->make<TH1D>(name, title, 100, 0.0, 5.0));
                 }
               }
             }
@@ -459,14 +466,14 @@ void HcalIsoTrackAnalysis::beginJob() {
       }
     }
   }
-  h_Dxy_ = fs_->make<TH1D>("Dxy", "d_{xy}", 100, 0.0, 1.0);
-  h_Dz_ = fs_->make<TH1D>("Dz", "d_{z}", 100, 0.0, 1.0);
-  h_Chi2_ = fs_->make<TH1D>("Chi2", "#chi^{2}", 100, 0.0, 20.0);
-  h_DpOverP_ = fs_->make<TH1D>("DpOverP", "#frac{#Delta p}{p}", 100, 0.0, 1.0);
-  h_Layer_ = fs_->make<TH1D>("Layer", "Layers Crossed", 50, 0.0, 50.0);
-  h_OutHit_ = fs_->make<TH1D>("OutHit", "Outer Layers Hit", 20, 0.0, 20.0);
-  h_InMiss_ = fs_->make<TH1D>("InMiss", "Missed Inner Hits", 20, 0.0, 20.0);
-  h_OutMiss_ = fs_->make<TH1D>("OutMiss", "Missed Outer Hits", 20, 0.0, 20.0);
+  h_Dxy_ = fs->make<TH1D>("Dxy", "d_{xy}", 100, 0.0, 1.0);
+  h_Dz_ = fs->make<TH1D>("Dz", "d_{z}", 100, 0.0, 1.0);
+  h_Chi2_ = fs->make<TH1D>("Chi2", "#chi^{2}", 100, 0.0, 20.0);
+  h_DpOverP_ = fs->make<TH1D>("DpOverP", "#frac{#Delta p}{p}", 100, 0.0, 1.0);
+  h_Layer_ = fs->make<TH1D>("Layer", "Layers Crossed", 50, 0.0, 50.0);
+  h_OutHit_ = fs->make<TH1D>("OutHit", "Outer Layers Hit", 20, 0.0, 20.0);
+  h_InMiss_ = fs->make<TH1D>("InMiss", "Missed Inner Hits", 20, 0.0, 20.0);
+  h_OutMiss_ = fs->make<TH1D>("OutMiss", "Missed Outer Hits", 20, 0.0, 20.0);
 }
 
 void HcalIsoTrackAnalysis::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -517,7 +524,8 @@ void HcalIsoTrackAnalysis::fillDescriptions(edm::ConfigurationDescriptions& desc
   desc.addUntracked<int>("dataType", 0);
   desc.addUntracked<int>("etaMin", -1);
   desc.addUntracked<int>("etaMax", 10);
-  descriptions.add("HcalIsoTrackAnalysis", desc);
+  desc.add<bool>("usePFThreshold", true);
+  descriptions.add("hcalIsoTrackAnalysis", desc);
 }
 
 //define this as a plug-in

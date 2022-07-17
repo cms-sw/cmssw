@@ -28,7 +28,7 @@ GetLumi::GetLumi(const edm::InputTag& lumiInputTag, double lumiScale, edm::Consu
   lumiSummaryToken_ = iC.consumes<LumiSummary, edm::InLumi>(lumiInputTag_);
 }
 
-GetLumi::~GetLumi() {}
+GetLumi::~GetLumi() = default;
 
 double GetLumi::getRawValue(const edm::Event& iEvent) {
   // taken from

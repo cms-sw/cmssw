@@ -10,7 +10,7 @@
 #include <vector>
 #include <map>
 #include <functional>
-#include "tbb/global_control.h"
+#include "oneapi/tbb/global_control.h"
 #include "FWCore/Framework/interface/limited/EDFilter.h"
 #include "FWCore/Framework/interface/maker/WorkerT.h"
 #include "FWCore/Framework/interface/maker/ModuleHolder.h"
@@ -137,7 +137,7 @@ private:
   template <typename Traits, typename Info>
   void doWork(edm::Worker* iBase, Info const& info, edm::ParentContext const& iContext) {
     edm::FinalWaitingTask task;
-    tbb::task_group group;
+    oneapi::tbb::task_group group;
     edm::ServiceToken token;
     iBase->doWorkAsync<Traits>(edm::WaitingTaskHolder(group, &task), info, token, s_streamID0, iContext, nullptr);
     do {
@@ -514,7 +514,7 @@ namespace {
 
 template <typename T>
 void testLimitedFilter::testTransitions(std::shared_ptr<T> iMod, Expectations const& iExpect) {
-  tbb::global_control control(tbb::global_control::max_allowed_parallelism, 1);
+  oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
   edm::maker::ModuleHolderT<edm::limited::EDFilterBase> h(iMod, nullptr);
   h.preallocate(edm::PreallocationConfiguration{});

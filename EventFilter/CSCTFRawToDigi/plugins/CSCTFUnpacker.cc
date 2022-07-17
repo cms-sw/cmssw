@@ -183,9 +183,9 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
               if (lct.empty())
                 continue;
 
-              status.link_status[lct[0].spInput()] |= (1 << lct[0].receiver_status_frame1()) |
-                                                      (1 << lct[0].receiver_status_frame2()) |
-                                                      ((lct[0].aligment_fifo() ? 1 : 0) << 4);
+              status.link_status[lct[0].spInput() - 1] |= (1 << lct[0].receiver_status_frame1()) |
+                                                          (1 << lct[0].receiver_status_frame2()) |
+                                                          ((lct[0].aligment_fifo() ? 1 : 0) << 4);
               status.mpc_link_id |= (lct[0].link() << 2) | lct[0].mpc();
 
               int station = (FPGA ? FPGA : 1);

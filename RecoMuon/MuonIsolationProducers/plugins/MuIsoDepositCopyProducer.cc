@@ -1,12 +1,9 @@
 #include "RecoMuon/MuonIsolationProducers/plugins/MuIsoDepositCopyProducer.h"
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 

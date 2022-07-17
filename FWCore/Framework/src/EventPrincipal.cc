@@ -94,7 +94,8 @@ namespace edm {
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,
                                           ProcessHistory const* processHistory,
                                           EventSelectionIDVector eventSelectionIDs,
-                                          BranchListIndexes branchListIndexes) {
+                                          BranchListIndexes branchListIndexes,
+                                          DelayedReader* reader) {
     eventSelectionIDs_ = std::move(eventSelectionIDs);
 
     if (wasBranchListIndexesChangedFromInput(branchListIndexes)) {
@@ -104,7 +105,7 @@ namespace edm {
       }
       updateBranchListIndexes(std::move(branchListIndexes));
     }
-    commonFillEventPrincipal(aux, processHistory, nullptr);
+    commonFillEventPrincipal(aux, processHistory, reader);
   }
 
   void EventPrincipal::fillEventPrincipal(EventAuxiliary const& aux,

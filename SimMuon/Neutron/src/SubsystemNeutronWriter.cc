@@ -28,6 +28,7 @@ SubsystemNeutronWriter::SubsystemNeutronWriter(edm::ParameterSet const& pset)
       theNeutronTimeCut(pset.getParameter<double>("neutronTimeCut")),
       theTimeWindow(pset.getParameter<double>("timeWindow")),
       theT0(pset.getParameter<double>("t0")),
+      hitToken_(consumes<edm::PSimHitContainer>(theInputTag)),
       theNEvents(0),
       initialized(false),
       useLocalDetId_(true) {
@@ -78,18 +79,17 @@ void SubsystemNeutronWriter::produce(edm::Event& e, edm::EventSetup const& c) {
   }
   theHitWriter->beginEvent(e, c);
   ++theNEvents;
-  edm::Handle<edm::PSimHitContainer> hits;
-  e.getByLabel(theInputTag, hits);
+  const edm::Handle<edm::PSimHitContainer>& hits = e.getHandle(hitToken_);
 
   // sort hits by chamber
-  map<int, edm::PSimHitContainer> hitsByChamber;
+  std::map<int, edm::PSimHitContainer> hitsByChamber;
   for (edm::PSimHitContainer::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
     int chamberIndex = chamberId(hitItr->detUnitId());
     hitsByChamber[chamberIndex].push_back(*hitItr);
   }
 
   // now write out each chamber's contents
-  for (map<int, edm::PSimHitContainer>::iterator hitsByChamberItr = hitsByChamber.begin();
+  for (std::map<int, edm::PSimHitContainer>::iterator hitsByChamberItr = hitsByChamber.begin();
        hitsByChamberItr != hitsByChamber.end();
        ++hitsByChamberItr) {
     int chambertype = chamberType(hitsByChamberItr->first);

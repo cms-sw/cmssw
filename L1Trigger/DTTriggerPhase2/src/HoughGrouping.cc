@@ -51,32 +51,32 @@ namespace {
 // ============================================================================
 // Constructors and destructor
 // ============================================================================
-HoughGrouping::HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC) : MotherGrouping(pset, iC) {
+HoughGrouping::HoughGrouping(const ParameterSet& pset, edm::ConsumesCollector& iC)
+    : MotherGrouping(pset, iC), debug_(pset.getUntrackedParameter<bool>("debug")) {
   // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
   if (debug_)
     LogDebug("HoughGrouping") << "HoughGrouping: constructor";
 
   // HOUGH TRANSFORM CONFIGURATION
-  angletan_ = pset.getUntrackedParameter<double>("angletan");
-  anglebinwidth_ = pset.getUntrackedParameter<double>("anglebinwidth");
-  posbinwidth_ = pset.getUntrackedParameter<double>("posbinwidth");
+  angletan_ = pset.getParameter<double>("angletan");
+  anglebinwidth_ = pset.getParameter<double>("anglebinwidth");
+  posbinwidth_ = pset.getParameter<double>("posbinwidth");
 
   // MAXIMA SEARCH CONFIGURATION
-  maxdeltaAngDeg_ = pset.getUntrackedParameter<double>("maxdeltaAngDeg");
-  maxdeltaPos_ = pset.getUntrackedParameter<double>("maxdeltaPos");
-  upperNumber_ = (unsigned short int)pset.getUntrackedParameter<int>("UpperNumber");
-  lowerNumber_ = (unsigned short int)pset.getUntrackedParameter<int>("LowerNumber");
+  maxdeltaAngDeg_ = pset.getParameter<double>("maxdeltaAngDeg");
+  maxdeltaPos_ = pset.getParameter<double>("maxdeltaPos");
+  upperNumber_ = (unsigned short int)pset.getParameter<int>("UpperNumber");
+  lowerNumber_ = (unsigned short int)pset.getParameter<int>("LowerNumber");
 
   // HITS ASSOCIATION CONFIGURATION
-  maxDistanceToWire_ = pset.getUntrackedParameter<double>("MaxDistanceToWire");
+  maxDistanceToWire_ = pset.getParameter<double>("MaxDistanceToWire");
 
   // CANDIDATE QUALITY CONFIGURATION
-  minNLayerHits_ = (unsigned short int)pset.getUntrackedParameter<int>("minNLayerHits");
-  minSingleSLHitsMax_ = (unsigned short int)pset.getUntrackedParameter<int>("minSingleSLHitsMax");
-  minSingleSLHitsMin_ = (unsigned short int)pset.getUntrackedParameter<int>("minSingleSLHitsMin");
-  allowUncorrelatedPatterns_ = pset.getUntrackedParameter<bool>("allowUncorrelatedPatterns");
-  minUncorrelatedHits_ = (unsigned short int)pset.getUntrackedParameter<int>("minUncorrelatedHits");
+  minNLayerHits_ = (unsigned short int)pset.getParameter<int>("minNLayerHits");
+  minSingleSLHitsMax_ = (unsigned short int)pset.getParameter<int>("minSingleSLHitsMax");
+  minSingleSLHitsMin_ = (unsigned short int)pset.getParameter<int>("minSingleSLHitsMin");
+  allowUncorrelatedPatterns_ = pset.getParameter<bool>("allowUncorrelatedPatterns");
+  minUncorrelatedHits_ = (unsigned short int)pset.getParameter<int>("minUncorrelatedHits");
 
   dtGeomH = iC.esConsumes<DTGeometry, MuonGeometryRecord, edm::Transition::BeginRun>();
 }
@@ -555,8 +555,6 @@ ProtoCand HoughGrouping::associateHits(const DTChamber* thechamb, double m, doub
   LocalPoint tmpLocal, AWireLocal, AWireLocalCh, tmpLocalCh, thepoint;
   GlobalPoint tmpGlobal, AWireGlobal;
   double tmpx = 0;
-  double distleft = 0;
-  double distright = 0;
   unsigned short int tmpwire = 0;
   unsigned short int abslay = 0;
   LATERAL_CASES lat = NONE;
@@ -585,8 +583,6 @@ ProtoCand HoughGrouping::associateHits(const DTChamber* thechamb, double m, doub
       isleft = false;
       isright = false;
       lat = NONE;
-      distleft = 0;
-      distright = 0;
       if (sl == 1)
         abslay = l - 1;
       else
@@ -683,18 +679,12 @@ ProtoCand HoughGrouping::associateHits(const DTChamber* thechamb, double m, doub
           GlobalPoint tmpGlobal_r = thechamb->superLayer(sl)->layer(l)->toGlobal(tmpLocal_r);
           LocalPoint tmpLocalCh_r = thechamb->toLocal(tmpGlobal_r);
 
-          distleft = std::abs(thepoint.x() - tmpLocalCh_l.x());
-          distright = std::abs(thepoint.x() - tmpLocalCh_r.x());
-
           // Filling info
           returnPC.nLayersWithHits_++;
           returnPC.isThereNeighBourHitInLayer_[abslay] = true;
 
-          returnPC.xDistToPattern_[abslay] = abs(tmpx - (tmpLocalCh.x() - 1.05));
-          returnPC.dtHits_[abslay] = DTPrimitive(digimap_[abslay][tmpwire + 1]);
-          returnPC.dtHits_[abslay].setLaterality(LEFT);
-
-          if (distleft < distright) {
+          bool isDistRight = std::abs(thepoint.x() - tmpLocalCh_l.x()) < std::abs(thepoint.x() - tmpLocalCh_r.x());
+          if (isDistRight) {
             returnPC.xDistToPattern_[abslay] = std::abs(tmpx - (tmpLocalCh.x() + 1.05));
             returnPC.dtHits_[abslay] = DTPrimitive(digimap_[abslay][tmpwire - 1]);
             returnPC.dtHits_[abslay].setLaterality(RIGHT);

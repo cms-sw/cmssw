@@ -47,6 +47,7 @@ AlignmentProducerBase::AlignmentProducerBase(const edm::ParameterSet& config, ed
       saveDeformationsToDB_{config.getParameter<bool>("saveDeformationsToDB")},
       useSurvey_{config.getParameter<bool>("useSurvey")},
       enableAlignableUpdates_{config.getParameter<bool>("enableAlignableUpdates")},
+      tkAliRcdName_{config.getParameter<std::string>("trackerAlignmentRcdName")},
       ttopoToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       geomDetToken_(iC.esConsumes<edm::Transition::BeginRun>()),
       ptpToken_(iC.esConsumes<edm::Transition::BeginRun>()),
@@ -853,8 +854,7 @@ void AlignmentProducerBase::writeForRunRange(cond::Time_t time) {
 
     auto alignments = alignableTracker_->alignments();
     auto alignmentErrors = alignableTracker_->alignmentErrors();
-    this->writeDB(
-        alignments, "TrackerAlignmentRcd", alignmentErrors, "TrackerAlignmentErrorExtendedRcd", trackerGlobal, time);
+    this->writeDB(alignments, tkAliRcdName_, alignmentErrors, "TrackerAlignmentErrorExtendedRcd", trackerGlobal, time);
 
     // Save surface deformations to database
     if (saveDeformationsToDB_) {
@@ -887,23 +887,25 @@ void AlignmentProducerBase::writeDB(Alignments* alignments,
                                     const std::string& errRcd,
                                     const AlignTransform* globalCoordinates,
                                     cond::Time_t time) const {
-  Alignments tempAlignments = *alignments;
-  AlignmentErrorsExtended tempAlignmentErrorsExtended = *alignmentErrors;
+  Alignments* tempAlignments = alignments;
+  AlignmentErrorsExtended* tempAlignmentErrorsExtended = alignmentErrors;
 
   // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDb;
-  if (!poolDb.isAvailable()) {  // Die if not available
+  if (!poolDb.isAvailable()) {           // Die if not available
+    delete tempAlignments;               // promised to take over ownership...
+    delete tempAlignmentErrorsExtended;  // ditto
     throw cms::Exception("NotAvailable") << "PoolDBOutputService not available";
   }
 
   if (globalCoordinates  // happens only if (applyDbAlignment_ == true)
       && globalCoordinates->transform() != AlignTransform::Transform::Identity) {
-    Alignments tempAlignments{};                            // temporary storage for
-    AlignmentErrorsExtended tempAlignmentErrorsExtended{};  // final alignments and errors
+    tempAlignments = new Alignments();                            // temporary storage for
+    tempAlignmentErrorsExtended = new AlignmentErrorsExtended();  // final alignments and errors
 
     GeometryAligner aligner;
     aligner.removeGlobalTransform(
-        alignments, alignmentErrors, *globalCoordinates, &tempAlignments, &tempAlignmentErrorsExtended);
+        alignments, alignmentErrors, *globalCoordinates, tempAlignments, tempAlignmentErrorsExtended);
 
     delete alignments;       // have to delete original alignments
     delete alignmentErrors;  // same thing for the errors
@@ -915,12 +917,16 @@ void AlignmentProducerBase::writeDB(Alignments* alignments,
 
   if (saveToDB_) {
     edm::LogInfo("Alignment") << "Writing Alignments for run " << time << " to " << alignRcd << ".";
-    poolDb->writeOneIOV<Alignments>(tempAlignments, time, alignRcd);
+    poolDb->writeOneIOV<Alignments>(*tempAlignments, time, alignRcd);
+  } else {
+    delete tempAlignments;  // ...otherwise we have to delete, as promised!
   }
 
   if (saveApeToDB_) {
     edm::LogInfo("Alignment") << "Writing AlignmentErrorsExtended for run " << time << " to " << errRcd << ".";
-    poolDb->writeOneIOV<AlignmentErrorsExtended>(tempAlignmentErrorsExtended, time, errRcd);
+    poolDb->writeOneIOV<AlignmentErrorsExtended>(*tempAlignmentErrorsExtended, time, errRcd);
+  } else {
+    delete tempAlignmentErrorsExtended;  // ...otherwise we have to delete, as promised!
   }
 }
 

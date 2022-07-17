@@ -56,9 +56,7 @@ TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg)
   }
 }
 
-TtDecayChannelSelector::~TtDecayChannelSelector() {}
-
-bool TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std::string inputType) const {
+bool TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std::string_view inputType) const {
   bool verbose =
       false;  // set this to true for debugging and add TtDecayChannelSelector category to the MessageLogger in your cfg file
   unsigned int iLep = 0;
@@ -167,7 +165,7 @@ bool TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts
 
 bool TtDecayChannelSelector::search(reco::GenParticleCollection::const_iterator& part,
                                     int pdgId,
-                                    std::string& inputType) const {
+                                    std::string_view inputType) const {
   if (inputType == kGenParticles) {
     return (std::abs(part->pdgId()) == pdgId && part->status() == TopDecayID::unfrag) ? true : false;
   } else {
@@ -175,7 +173,9 @@ bool TtDecayChannelSelector::search(reco::GenParticleCollection::const_iterator&
   }
 }
 
-bool TtDecayChannelSelector::search(reco::GenParticle::const_iterator& part, int pdgId, std::string& inputType) const {
+bool TtDecayChannelSelector::search(reco::GenParticle::const_iterator& part,
+                                    int pdgId,
+                                    std::string_view inputType) const {
   if (inputType == kGenParticles) {
     return (std::abs(part->pdgId()) == pdgId && part->status() == TopDecayID::unfrag) ? true : false;
   } else {

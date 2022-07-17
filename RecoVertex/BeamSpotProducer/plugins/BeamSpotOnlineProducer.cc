@@ -102,7 +102,7 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   bool fallBackToDB = false;
   if (useTransientRecord_) {
     auto const& spotDB = iSetup.getData(beamTransientToken_);
-    if (spotDB.GetBeamType() != 2) {
+    if (spotDB.beamType() != 2) {
       if (shoutMODE && beamTransientRcdESWatcher_.check(iSetup)) {
         edm::LogWarning("BeamSpotFromDB")
             << "Online Beam Spot producer falls back to DB value because the ESProducer returned a fake beamspot ";
@@ -115,24 +115,24 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       double f = 1.;
       if (changeFrame_)
         f = -1.;
-      reco::BeamSpot::Point apoint(f * spotDB.GetX(), f * spotDB.GetY(), f * spotDB.GetZ());
+      reco::BeamSpot::Point apoint(f * spotDB.x(), f * spotDB.y(), f * spotDB.z());
 
       reco::BeamSpot::CovarianceMatrix matrix;
       for (int i = 0; i < 7; ++i) {
         for (int j = 0; j < 7; ++j) {
-          matrix(i, j) = spotDB.GetCovariance(i, j);
+          matrix(i, j) = spotDB.covariance(i, j);
         }
       }
-      double sigmaZ = spotDB.GetSigmaZ();
+      double sigmaZ = spotDB.sigmaZ();
       if (theSetSigmaZ > 0)
         sigmaZ = theSetSigmaZ;
 
       // this assume beam width same in x and y
-      aSpot = reco::BeamSpot(apoint, sigmaZ, spotDB.Getdxdz(), spotDB.Getdydz(), spotDB.GetBeamWidthX(), matrix);
-      aSpot.setBeamWidthY(spotDB.GetBeamWidthY());
-      aSpot.setEmittanceX(spotDB.GetEmittanceX());
-      aSpot.setEmittanceY(spotDB.GetEmittanceY());
-      aSpot.setbetaStar(spotDB.GetBetaStar());
+      aSpot = reco::BeamSpot(apoint, sigmaZ, spotDB.dxdz(), spotDB.dydz(), spotDB.beamWidthX(), matrix);
+      aSpot.setBeamWidthY(spotDB.beamWidthY());
+      aSpot.setEmittanceX(spotDB.emittanceX());
+      aSpot.setEmittanceY(spotDB.emittanceY());
+      aSpot.setbetaStar(spotDB.betaStar());
       aSpot.setType(reco::BeamSpot::Tracker);
     }
   } else {
@@ -205,22 +205,21 @@ void BeamSpotOnlineProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     const BeamSpotObjects* spotDB = beamhandle.product();
 
     // translate from BeamSpotObjects to reco::BeamSpot
-    reco::BeamSpot::Point apoint(spotDB->GetX(), spotDB->GetY(), spotDB->GetZ());
+    reco::BeamSpot::Point apoint(spotDB->x(), spotDB->y(), spotDB->z());
 
     reco::BeamSpot::CovarianceMatrix matrix;
     for (int i = 0; i < 7; ++i) {
       for (int j = 0; j < 7; ++j) {
-        matrix(i, j) = spotDB->GetCovariance(i, j);
+        matrix(i, j) = spotDB->covariance(i, j);
       }
     }
 
     // this assume beam width same in x and y
-    aSpot = reco::BeamSpot(
-        apoint, spotDB->GetSigmaZ(), spotDB->Getdxdz(), spotDB->Getdydz(), spotDB->GetBeamWidthX(), matrix);
-    aSpot.setBeamWidthY(spotDB->GetBeamWidthY());
-    aSpot.setEmittanceX(spotDB->GetEmittanceX());
-    aSpot.setEmittanceY(spotDB->GetEmittanceY());
-    aSpot.setbetaStar(spotDB->GetBetaStar());
+    aSpot = reco::BeamSpot(apoint, spotDB->sigmaZ(), spotDB->dxdz(), spotDB->dydz(), spotDB->beamWidthX(), matrix);
+    aSpot.setBeamWidthY(spotDB->beamWidthY());
+    aSpot.setEmittanceX(spotDB->emittanceX());
+    aSpot.setEmittanceY(spotDB->emittanceY());
+    aSpot.setbetaStar(spotDB->betaStar());
     aSpot.setType(reco::BeamSpot::Tracker);
   }
 

@@ -5,12 +5,12 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1Trigger/interface/Vertex.h"
+#include "DataFormats/L1Trigger/interface/VertexWord.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -40,12 +40,24 @@ using namespace std;
 
 namespace l1tVertexFinder {
 
-  class VertexNTupler : public edm::EDAnalyzer {
+  class VertexNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources> {
   public:
     explicit VertexNTupler(const edm::ParameterSet&);
     ~VertexNTupler() override;
 
   private:
+    struct EmulationVerticesBranchData {
+      std::vector<unsigned> numTracks;
+      std::vector<float> z0;
+      std::vector<float> sumPt;
+
+      void clear() {
+        numTracks.clear();
+        z0.clear();
+        sumPt.clear();
+      }
+    };
+
     struct GenJetsBranchData {
       std::vector<float> energy;
       std::vector<float> pt;
@@ -78,11 +90,8 @@ namespace l1tVertexFinder {
       }
     };
 
-    struct RecoVerticesBranchData {
-      std::vector<unsigned> numTracks;
+    struct RecoVerticesBranchData : public EmulationVerticesBranchData {
       std::vector<std::vector<unsigned>> trackIdxs;
-      std::vector<float> z0;
-      std::vector<float> sumPt;
 
       void clear() {
         numTracks.clear();
@@ -166,7 +175,7 @@ namespace l1tVertexFinder {
     std::map<std::string, edm::EDGetTokenT<TTTrackCollectionView>> l1TracksTokenMap_;
     std::map<std::string, edm::EDGetTokenT<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>> l1TracksMapTokenMap_;
     std::map<std::string, edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesTokenMap_;
-    std::map<std::string, edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesExtraTokenMap_;
+    std::map<std::string, edm::EDGetTokenT<std::vector<l1t::VertexWord>>> l1VerticesEmulationTokenMap_;
     std::vector<edm::EDGetTokenT<std::vector<l1t::Vertex>>> l1VerticesExtraTokens_;
 
     TTree* outputTree_;
@@ -175,8 +184,6 @@ namespace l1tVertexFinder {
 
     // storage class for configuration parameters
     AnalysisSettings settings_;
-
-    //edm::Service<TFileService> fs_;
 
     // Histograms for Vertex Reconstruction
 
@@ -191,18 +198,12 @@ namespace l1tVertexFinder {
     std::map<std::string, RecoTracksBranchData> l1TracksBranchData_;
     std::map<std::string, RecoVerticesBranchData> l1VerticesBranchData_;
     std::map<std::string, std::string> l1VerticesInputMap_;
-
-    std::unordered_map<std::string, std::vector<unsigned>> l1Vertices_branchMap_numTracks_;
-    std::unordered_map<std::string, std::vector<float>> l1Vertices_branchMap_z0_;
-    std::unordered_map<std::string, std::vector<float>> l1Vertices_branchMap_z0_etaWeighted_;
-    std::unordered_map<std::string, std::vector<float>> l1Vertices_branchMap_sumPt_;
+    std::map<std::string, EmulationVerticesBranchData> l1VerticesEmulationBranchData_;
 
     std::vector<std::vector<unsigned>> l1Vertices_extra_numTracks_;
     std::vector<std::vector<float>> l1Vertices_extra_z0_;
     std::vector<std::vector<float>> l1Vertices_extra_z0_etaWeighted_;
     std::vector<std::vector<float>> l1Vertices_extra_sumPt_;
-
-    bool available_;  // ROOT file for histograms is open.
   };
 
   VertexNTupler::VertexNTupler(const edm::ParameterSet& iConfig)
@@ -215,7 +216,6 @@ namespace l1tVertexFinder {
             consumes<std::vector<l1tVertexFinder::TP>>(iConfig.getParameter<edm::InputTag>("l1TracksTPInputTags"))),
         vTPsToken_(consumes<edm::ValueMap<l1tVertexFinder::TP>>(
             iConfig.getParameter<edm::InputTag>("l1TracksTPValueMapInputTags"))),
-        //outputTree_(fs_->make<TTree>("l1VertexReco", "L1 vertex-related info")),
         printResults_(iConfig.getParameter<bool>("printResults")),
         settings_(iConfig) {
     const std::vector<std::string> trackBranchNames(
@@ -224,13 +224,6 @@ namespace l1tVertexFinder {
         iConfig.getParameter<std::vector<edm::InputTag>>("l1TracksInputTags"));
     const std::vector<edm::InputTag> trackMapInputTags(
         iConfig.getParameter<std::vector<edm::InputTag>>("l1TracksTruthMapInputTags"));
-
-    edm::Service<TFileService> fs_;
-    available_ = fs_.isAvailable();
-    if (not available_)
-      return;  // No ROOT file open.
-
-    outputTree_ = fs_->make<TTree>("l1VertexReco", "L1 vertex-related info");
 
     if (trackBranchNames.size() != trackInputTags.size())
       throw cms::Exception("The number of track branch names (" + std::to_string(trackBranchNames.size()) +
@@ -257,6 +250,32 @@ namespace l1tVertexFinder {
           "The number of vertex branch names (" + std::to_string(vertexBranchNames.size()) +
           ") specified in the config does not match the number of associated input track collection names (" +
           std::to_string(vertexTrackNames.size()) + ")");
+
+    const std::vector<std::string> emulationVertexBranchNames(
+        iConfig.getParameter<std::vector<std::string>>("emulationVertexBranchNames"));
+    const std::vector<edm::InputTag> emulationVertexInputTags(
+        iConfig.getParameter<std::vector<edm::InputTag>>("emulationVertexInputTags"));
+
+    const std::vector<edm::InputTag> extraVertexInputTags(
+        iConfig.getParameter<std::vector<edm::InputTag>>("extraL1VertexInputTags"));
+    const std::vector<std::string> extraVertexDescriptions(
+        iConfig.getParameter<std::vector<std::string>>("extraL1VertexDescriptions"));
+
+    usesResource(TFileService::kSharedResource);
+    edm::Service<TFileService> fs;
+    outputTree_ = fs->make<TTree>("l1VertexReco", "L1 vertex-related info");
+
+    std::vector<std::string>::const_iterator branchNameIt = emulationVertexBranchNames.begin();
+    std::vector<edm::InputTag>::const_iterator inputTagIt = emulationVertexInputTags.begin();
+    for (; branchNameIt != emulationVertexBranchNames.end(); branchNameIt++, inputTagIt++) {
+      l1VerticesEmulationTokenMap_[*branchNameIt] = consumes<std::vector<l1t::VertexWord>>(*inputTagIt);
+      l1VerticesEmulationBranchData_[*branchNameIt] = EmulationVerticesBranchData();
+      EmulationVerticesBranchData& branchData = l1VerticesEmulationBranchData_.at(*branchNameIt);
+
+      outputTree_->Branch(("emulationVertices_" + *branchNameIt + "_numTracks").c_str(), &branchData.numTracks);
+      outputTree_->Branch(("emulationVertices_" + *branchNameIt + "_z0").c_str(), &branchData.z0);
+      outputTree_->Branch(("emulationVertices_" + *branchNameIt + "_sumPt").c_str(), &branchData.sumPt);
+    }
 
     outputTree_->Branch("genJets_energy", &genJetsBranchData_.energy);
     outputTree_->Branch("genJets_pt", &genJetsBranchData_.pt);
@@ -302,12 +321,11 @@ namespace l1tVertexFinder {
                           &branchData.truthMapIsUnknown);
     }
 
-    std::vector<std::string>::const_iterator branchNameIt = vertexBranchNames.begin();
-    std::vector<edm::InputTag>::const_iterator inputTagIt = vertexInputTags.begin();
+    branchNameIt = vertexBranchNames.begin();
+    inputTagIt = vertexInputTags.begin();
     std::vector<std::string>::const_iterator l1VertexTrackNameIt = vertexTrackNames.begin();
     for (; branchNameIt != vertexBranchNames.end(); branchNameIt++, inputTagIt++, l1VertexTrackNameIt++) {
       l1VerticesTokenMap_[*branchNameIt] = consumes<std::vector<l1t::Vertex>>(*inputTagIt);
-
       l1VerticesBranchData_[*branchNameIt] = RecoVerticesBranchData();
       RecoVerticesBranchData& branchData = l1VerticesBranchData_.at(*branchNameIt);
       l1VerticesInputMap_[*branchNameIt] = *l1VertexTrackNameIt;
@@ -334,10 +352,6 @@ namespace l1tVertexFinder {
     outputTree_->Branch("trueTracks_useForAlgEff", &trueTracksBranchData_.useForAlgEff);
     outputTree_->Branch("trueTracks_useForVtxReco", &trueTracksBranchData_.useForVertexReco);
 
-    const std::vector<edm::InputTag> extraVertexInputTags(
-        iConfig.getParameter<std::vector<edm::InputTag>>("extraL1VertexInputTags"));
-    const std::vector<std::string> extraVertexDescriptions(
-        iConfig.getParameter<std::vector<std::string>>("extraL1VertexDescriptions"));
     for (const auto& inputTag : extraVertexInputTags)
       l1VerticesExtraTokens_.push_back(consumes<std::vector<l1t::Vertex>>(inputTag));
     TObjArray* descriptionArray = new TObjArray();
@@ -581,6 +595,31 @@ namespace l1tVertexFinder {
       }
     }
 
+    // Emulation vertex branches
+    for (const auto& tokenMapEntry : l1VerticesEmulationTokenMap_) {
+      EmulationVerticesBranchData& branchData = l1VerticesEmulationBranchData_.at(tokenMapEntry.first);
+      branchData.clear();
+
+      edm::Handle<std::vector<l1t::VertexWord>> handle;
+      iEvent.getByToken(tokenMapEntry.second, handle);
+      for (const auto& vtx : *handle) {
+        branchData.numTracks.push_back(vtx.multiplicity());
+        branchData.z0.push_back(vtx.z0());
+        branchData.sumPt.push_back(vtx.pt());
+      }
+
+      if (printResults_) {
+        edm::LogInfo("VertexNTupler") << "analyze::" << handle->size() << " '" << tokenMapEntry.first
+                                      << "' vertices were found ... ";
+        for (const auto& vtx : *handle) {
+          edm::LogInfo("VertexNTupler") << "analyze::"
+                                        << "  * z0 = " << vtx.z0() << "; contains " << vtx.multiplicity()
+                                        << " tracks ...";
+        }
+      }
+    }
+
+    // Extra vertex collections
     l1Vertices_extra_numTracks_.resize(l1VerticesExtraTokens_.size());
     l1Vertices_extra_z0_.resize(l1VerticesExtraTokens_.size());
     l1Vertices_extra_z0_etaWeighted_.resize(l1VerticesExtraTokens_.size());

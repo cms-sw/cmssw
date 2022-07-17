@@ -5,8 +5,8 @@ from CalibPPS.TimingCalibration.ppsTimingCalibrationPCLHarvester_cfi import *
 from DQMServices.Components.EDMtoMEConverter_cfi import EDMtoMEConverter
 
 EDMtoMEConvertPPSTimingCalibration = EDMtoMEConverter.clone()
-EDMtoMEConvertPPSTimingCalibration.lumiInputTag = cms.InputTag("EDMtoMEConvertPPSTimingCalibration", "MEtoEDMConverterLumi")
-EDMtoMEConvertPPSTimingCalibration.runInputTag = cms.InputTag("EDMtoMEConvertPPSTimingCalibration", "MEtoEDMConverterRun")
+EDMtoMEConvertPPSTimingCalibration.lumiInputTag = cms.InputTag("MEtoEDMConvertPPSTimingCalib", "MEtoEDMConverterLumi")
+EDMtoMEConvertPPSTimingCalibration.runInputTag = cms.InputTag("MEtoEDMConvertPPSTimingCalib", "MEtoEDMConverterRun")
 
                                         
 ALCAHARVESTPPSTimingCalibration = cms.Task(

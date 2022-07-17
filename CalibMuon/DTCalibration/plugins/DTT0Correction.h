@@ -6,7 +6,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "CondFormats/DTObjects/interface/DTT0.h"
@@ -20,7 +20,7 @@ namespace dtCalibration {
   class DTT0BaseCorrection;
 }
 
-class DTT0Correction : public edm::EDAnalyzer {
+class DTT0Correction : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   DTT0Correction(const edm::ParameterSet& pset);
@@ -33,6 +33,7 @@ public:
   void beginJob() override {}
   void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
+  void endRun(const edm::Run& run, const edm::EventSetup& setup) override{};
   void endJob() override;
 
 protected:

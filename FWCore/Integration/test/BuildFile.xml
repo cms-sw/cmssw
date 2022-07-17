@@ -147,6 +147,8 @@
     <use name="FWCore/Utilities"/>
   </bin>
 
+  <test name="TestIntegrationProcessAccelerator" command="run_TestProcessAccelerator.sh"/>
+
   <test name="CatchStdExceptiontest" command="CatchStdExceptiontest.sh"/>
 
   <test name="CatchCmsExceptiontest" command="CatchCmsExceptiontest.sh"/>
@@ -175,6 +177,16 @@
     <use name="FWCore/TestProcessor"/>
     <use name="DataFormats/Provenance"/>
     <use name="catch2"/>
+  </bin>
+
+  <bin file="ProcessAccelerator_t.cpp">
+    <use name="FWCore/Framework"/>
+    <use name="FWCore/ParameterSet"/>
+    <use name="FWCore/ParameterSetReader"/>
+    <use name="FWCore/TestProcessor"/>
+    <use name="DataFormats/Provenance"/>
+    <use name="catch2"/>
+    <use name="fmt"/>
   </bin>
 
   <bin file="EDAlias_t.cpp">
@@ -221,7 +233,7 @@
     <use name="FWCore/ParameterSet"/>
   </library>
 
-  <library file="ThrowingSource.cc" name="ThrowingSource">
+  <library file="ThrowingSource.cc, DelayedReaderThrowingSource.cc" name="ThrowingSource">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Framework"/>
     <use name="FWCore/ParameterSet"/>
@@ -333,7 +345,7 @@
     <use name="FWCore/Framework"/>
   </library>
 
-  <library file="ConcurrentIOVESSource.cc,ConcurrentIOVESProducer.cc,ConcurrentIOVAnalyzer.cc,GadgetRcd.cc,IOVTestInfo.cc,RunLumiESAnalyzer.cc,RunLumiESSource.cc,TestESSource.cc" name="ConcurrentIOVESSource">
+  <library file="ConcurrentIOVESSource.cc,ConcurrentIOVESProducer.cc,ConcurrentIOVAnalyzer.cc,GadgetRcd.cc,IOVTestInfo.cc,RunLumiESAnalyzer.cc,RunLumiESSource.cc,TestESSource.cc,TestESConcurrentSource.cc" name="ConcurrentIOVESSource">
     <flags EDM_PLUGIN="1"/>
     <use name="FWCore/Integration"/>
     <use name="FWCore/Framework"/>
@@ -445,6 +457,8 @@
   <test name="TestFWCoreIntegrationInputSourceAlias" command="cmsRun ${LOCALTOP}//src/FWCore/Integration/test/inputSource_alias_Test_cfg.py"/>
 
   <test name="TestFWCoreIntegrationEDLooperESProcuer" command="cmsRun ${LOCALTOP}/src/FWCore/Integration/test/testEDLooperESProducer_cfg.py"/>
+
+  <test name="TestFWCoreIntegrationDelayedReaderTest" command="delayedreader_throw_test.sh"/>
 
   <test name="TestIntegrationProcessBlock1" command="run_TestProcessBlock.sh 1"/>
   <test name="TestIntegrationProcessBlock2" command="run_TestProcessBlock.sh 2"/>

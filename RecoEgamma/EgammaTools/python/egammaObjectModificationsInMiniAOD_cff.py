@@ -145,6 +145,16 @@ egammaHIPhotonIsolationModifier = cms.PSet(
         )
     )
 
+photonDRNModifier = cms.PSet(
+      modifierName = cms.string("EGRegressionModifierDRN"),
+      patPhotons = cms.PSet(
+          source = cms.InputTag("selectedPatPhotons"),
+          correctionsSource = cms.InputTag('patPhotonsDRN'),
+          energyFloat = cms.string("energyDRN"),
+          resFloat = cms.string("resolutionDRN")
+        )
+    )
+
 def appendReducedEgammaEnergyScaleAndSmearingModifier(modifiers):
     modifiers.append(reducedEgammaEnergyScaleAndSmearingModifier)
 
@@ -158,6 +168,9 @@ def appendEgamma8XLegacyAppendableModifiers (modifiers):
 def appendEgammaHIPhotonIsolationModifier(modifiers):
     modifiers.append(egammaHIPhotonIsolationModifier)
 
+def appendPhotonDRNModifier(modifiers):
+    modifiers.append(photonDRNModifier)
+
 from Configuration.Eras.Modifier_run2_miniAOD_94XFall17_cff import run2_miniAOD_94XFall17
 from Configuration.ProcessModifiers.run2_miniAOD_UL_cff import run2_miniAOD_UL
 (run2_miniAOD_94XFall17 | run2_miniAOD_UL).toModify(egamma_modifications,appendReducedEgammaEnergyScaleAndSmearingModifier)
@@ -170,3 +183,6 @@ run2_miniAOD_80XLegacy.toModify(egamma_modifications,prependEgamma8XObjectUpdate
 
 from Configuration.ProcessModifiers.pp_on_AA_cff import pp_on_AA
 pp_on_AA.toModify(egamma_modifications, appendEgammaHIPhotonIsolationModifier)
+
+from Configuration.ProcessModifiers.photonDRN_cff import _photonDRN
+_photonDRN.toModify(egamma_modifications, appendPhotonDRNModifier)

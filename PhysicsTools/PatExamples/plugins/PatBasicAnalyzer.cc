@@ -4,7 +4,7 @@
 #include "TH1.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -17,7 +17,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
-class PatBasicAnalyzer : public edm::EDAnalyzer {
+class PatBasicAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// default constructor
   explicit PatBasicAnalyzer(const edm::ParameterSet&);
@@ -55,7 +55,9 @@ PatBasicAnalyzer::PatBasicAnalyzer(const edm::ParameterSet& iConfig)
       muonSrcToken_(consumes<edm::View<pat::Muon>>(iConfig.getUntrackedParameter<edm::InputTag>("muonSrc"))),
       tauSrcToken_(consumes<edm::View<pat::Tau>>(iConfig.getUntrackedParameter<edm::InputTag>("tauSrc"))),
       jetSrcToken_(consumes<edm::View<pat::Jet>>(iConfig.getUntrackedParameter<edm::InputTag>("jetSrc"))),
-      metSrcToken_(consumes<edm::View<pat::MET>>(iConfig.getUntrackedParameter<edm::InputTag>("metSrc"))) {}
+      metSrcToken_(consumes<edm::View<pat::MET>>(iConfig.getUntrackedParameter<edm::InputTag>("metSrc"))) {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatBasicAnalyzer::~PatBasicAnalyzer() {}
 

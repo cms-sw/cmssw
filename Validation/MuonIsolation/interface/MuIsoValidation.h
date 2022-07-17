@@ -26,9 +26,6 @@
 //         Created:  Tue Jul 17 15:58:24 CDT 2007
 //
 
-//Base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
 //Member types
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -54,7 +51,6 @@ class TProfile;
 //------------------------------------------
 //  Class Declaration: MuIsoValidation
 //--------------------------------------
-//class MuIsoValidation : public edm::EDAnalyzer {
 
 class MuIsoValidation : public DQMEDAnalyzer {
   //---------namespace and typedefs--------------

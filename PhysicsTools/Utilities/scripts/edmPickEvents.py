@@ -127,12 +127,19 @@ def getFileNames_dasgoclient(event):
     err = proc.stderr.read()
     if  err:
         print("DAS error: %s" % err)
+        print(proc.stdout.read())
+        sys.exit(1)
     else:
-        for row in json.load(proc.stdout):
-            for rec in row.get('file', []):
-                fname = rec.get('name', '')
-                if fname:
-                    files.append(fname)
+        dasout = proc.stdout.read()
+        try:
+            for row in json.loads(dasout):
+                for rec in row.get('file', []):
+                    fname = rec.get('name', '')
+                    if fname:
+                        files.append(fname)
+        except:
+            print(dasout)
+            sys.exit(1)
     return files
 
 def fullCPMpath():

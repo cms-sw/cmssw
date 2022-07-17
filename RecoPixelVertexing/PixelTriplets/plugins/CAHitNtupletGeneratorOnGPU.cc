@@ -83,10 +83,11 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
                cfg.getParameter<double>("dcaCutOuterTriplet"),
                makeQualityCuts(cfg.getParameterSet("trackQualityCuts"))) {
 #ifdef DUMP_GPU_TK_TUPLES
-  printf("TK: %s %s % %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
+  printf("TK: %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n",
          "tid",
          "qual",
          "nh",
+         "nl",
          "charge",
          "pt",
          "eta",
@@ -98,39 +99,9 @@ CAHitNtupletGeneratorOnGPU::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& 
          "h2",
          "h3",
          "h4",
-         "h5");
+         "h5",
+         "hn");
 #endif
-
-  if (m_params.onGPU_) {
-    // allocate pinned host memory only if CUDA is available
-    edm::Service<CUDAService> cs;
-    if (cs and cs->enabled()) {
-      cudaCheck(cudaMalloc(&m_counters, sizeof(Counters)));
-      cudaCheck(cudaMemset(m_counters, 0, sizeof(Counters)));
-    }
-  } else {
-    m_counters = new Counters();
-    memset(m_counters, 0, sizeof(Counters));
-  }
-}
-
-CAHitNtupletGeneratorOnGPU::~CAHitNtupletGeneratorOnGPU() {
-  if (m_params.onGPU_) {
-    // print the gpu statistics and free pinned host memory only if CUDA is available
-    edm::Service<CUDAService> cs;
-    if (cs and cs->enabled()) {
-      if (m_params.doStats_) {
-        // crash on multi-gpu processes
-        CAHitNtupletGeneratorKernelsGPU::printCounters(m_counters);
-      }
-      cudaFree(m_counters);
-    }
-  } else {
-    if (m_params.doStats_) {
-      CAHitNtupletGeneratorKernelsCPU::printCounters(m_counters);
-    }
-    delete m_counters;
-  }
 }
 
 void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& desc) {
@@ -178,6 +149,39 @@ void CAHitNtupletGeneratorOnGPU::fillDescriptions(edm::ParameterSetDescription& 
       ->setComment(
           "Quality cuts based on the results of the track fit:\n  - apply a pT-dependent chi2 cut;\n  - apply \"region "
           "cuts\" based on the fit results (pT, Tip, Zip).");
+}
+
+void CAHitNtupletGeneratorOnGPU::beginJob() {
+  if (m_params.onGPU_) {
+    // allocate pinned host memory only if CUDA is available
+    edm::Service<CUDAService> cs;
+    if (cs and cs->enabled()) {
+      cudaCheck(cudaMalloc(&m_counters, sizeof(Counters)));
+      cudaCheck(cudaMemset(m_counters, 0, sizeof(Counters)));
+    }
+  } else {
+    m_counters = new Counters();
+    memset(m_counters, 0, sizeof(Counters));
+  }
+}
+
+void CAHitNtupletGeneratorOnGPU::endJob() {
+  if (m_params.onGPU_) {
+    // print the gpu statistics and free pinned host memory only if CUDA is available
+    edm::Service<CUDAService> cs;
+    if (cs and cs->enabled()) {
+      if (m_params.doStats_) {
+        // crash on multi-gpu processes
+        CAHitNtupletGeneratorKernelsGPU::printCounters(m_counters);
+      }
+      cudaFree(m_counters);
+    }
+  } else {
+    if (m_params.doStats_) {
+      CAHitNtupletGeneratorKernelsCPU::printCounters(m_counters);
+    }
+    delete m_counters;
+  }
 }
 
 PixelTrackHeterogeneous CAHitNtupletGeneratorOnGPU::makeTuplesAsync(TrackingRecHit2DGPU const& hits_d,

@@ -10,7 +10,6 @@ process.load('CondCore.CondDB.CondDB_cfi')
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
 process.load("Geometry.MuonNumbering.muonGeometryConstants_cff")
-process.load('Configuration.StandardSequences.DD4hep_GeometrySim_cff')
 process.load('Geometry.CaloEventSetup.CaloGeometryDBWriter_cfi')
 process.load('CondTools.Geometry.HcalParametersWriter_cff')
 

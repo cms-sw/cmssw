@@ -75,19 +75,19 @@ namespace {
         int ret(-999);
         switch (my_param) {
           case lastLumi:
-            return this->m_payload->GetLastAnalyzedLumi();
+            return this->m_payload->lastAnalyzedLumi();
           case lastRun:
-            return this->m_payload->GetLastAnalyzedRun();
+            return this->m_payload->lastAnalyzedRun();
           case lastFill:
-            return this->m_payload->GetLastAnalyzedFill();
+            return this->m_payload->lastAnalyzedFill();
           case nTracks:
-            return this->m_payload->GetNumTracks();
+            return this->m_payload->numTracks();
           case nPVs:
-            return this->m_payload->GetNumPVs();
+            return this->m_payload->numPVs();
           case nUsedEvents:
-            return this->m_payload->GetUsedEvents();
+            return this->m_payload->usedEvents();
           case maxPVs:
-            return this->m_payload->GetMaxPVs();
+            return this->m_payload->maxPVs();
           default:
             return ret;
         }
@@ -98,13 +98,13 @@ namespace {
         float ret(-999.);
         switch (my_param) {
           case meanPV:
-            return this->m_payload->GetMeanPV();
+            return this->m_payload->meanPV();
           case meanErrorPV:
-            return this->m_payload->GetMeanErrorPV();
+            return this->m_payload->meanErrorPV();
           case rmsPV:
-            return this->m_payload->GetRmsPV();
+            return this->m_payload->rmsPV();
           case rmsErrorPV:
-            return this->m_payload->GetRmsErrorPV();
+            return this->m_payload->rmsErrorPV();
           default:
             return ret;
         }
@@ -115,11 +115,11 @@ namespace {
         std::string ret("");
         switch (my_param) {
           case startTime:
-            return this->m_payload->GetStartTime();
+            return this->m_payload->startTime();
           case endTime:
-            return this->m_payload->GetEndTime();
+            return this->m_payload->endTime();
           case lumiRange:
-            return this->m_payload->GetLumiRange();
+            return this->m_payload->lumiRange();
           default:
             return ret;
         }
@@ -130,11 +130,11 @@ namespace {
         cond::Time_t ret(1);
         switch (my_param) {
           case creationTime:
-            return this->m_payload->GetCreationTime();
+            return this->m_payload->creationTime();
           case startTimeStamp:
-            return this->m_payload->GetStartTimeStamp();
+            return this->m_payload->startTimeStamp();
           case endTimeStamp:
-            return this->m_payload->GetEndTimeStamp();
+            return this->m_payload->endTimeStamp();
           default:
             return ret;
         }
@@ -250,11 +250,22 @@ namespace {
     }
   };
 
+  /************************************************
+    Display of Beam Spot parameters Differences
+  *************************************************/
+
+  typedef DisplayParametersDiff<BeamSpotOnlineObjects, cond::payloadInspector::MULTI_IOV, 1>
+      BeamSpotOnlineParametersDiffSingleTag;
+  typedef DisplayParametersDiff<BeamSpotOnlineObjects, cond::payloadInspector::SINGLE_IOV, 2>
+      BeamSpotOnlineParametersDiffTwoTags;
+
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(BeamSpotOnline) {
   PAYLOAD_INSPECTOR_CLASS(BeamSpotOnline_xy);
   PAYLOAD_INSPECTOR_CLASS(BeamSpotOnlineParameters);
+  PAYLOAD_INSPECTOR_CLASS(BeamSpotOnlineParametersDiffSingleTag);
+  PAYLOAD_INSPECTOR_CLASS(BeamSpotOnlineParametersDiffTwoTags);
   PAYLOAD_INSPECTOR_CLASS(BeamSpotOnline_HistoryX);
   PAYLOAD_INSPECTOR_CLASS(BeamSpotOnline_HistoryY);
   PAYLOAD_INSPECTOR_CLASS(BeamSpotOnline_HistoryZ);

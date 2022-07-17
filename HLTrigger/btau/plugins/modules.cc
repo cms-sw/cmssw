@@ -70,6 +70,13 @@ typedef HLTJetTag<reco::PFJet> HLTPFJetTag;
 DEFINE_FWK_MODULE(HLTCaloJetTag);
 DEFINE_FWK_MODULE(HLTPFJetTag);
 
+#include "HLTSumJetTag.h"
+#include "HLTSumJetTag.cc"
+typedef HLTSumJetTag<reco::CaloJet> HLTSumCaloJetTag;
+typedef HLTSumJetTag<reco::PFJet> HLTSumPFJetTag;
+DEFINE_FWK_MODULE(HLTSumCaloJetTag);
+DEFINE_FWK_MODULE(HLTSumPFJetTag);
+
 #include "HLTJetTagWithMatching.h"
 #include "HLTJetTagWithMatching.cc"
 typedef HLTJetTagWithMatching<reco::CaloJet> HLTCaloJetTagWithMatching;

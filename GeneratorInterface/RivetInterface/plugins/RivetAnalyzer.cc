@@ -61,19 +61,19 @@ void RivetAnalyzer::beginJob() {
   char* cmsswbase = std::getenv("CMSSW_BASE");
   char* cmsswrelease = std::getenv("CMSSW_RELEASE_BASE");
   if (!std::getenv("RIVET_REF_PATH")) {
-    const std::string rivetref = "RIVET_REF_PATH=" + string(cmsswbase) +
+    const std::string rivetref = string(cmsswbase) +
                                  "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) +
-                                 "/src/GeneratorInterface/RivetInterface/data";
+                                 "/src/GeneratorInterface/RivetInterface/data:.";
     char* rivetrefCstr = strdup(rivetref.c_str());
-    putenv(rivetrefCstr);
+    setenv("RIVET_REF_PATH", rivetrefCstr, 1);
     free(rivetrefCstr);
   }
   if (!std::getenv("RIVET_INFO_PATH")) {
-    const std::string rivetinfo = "RIVET_INFO_PATH=" + string(cmsswbase) +
+    const std::string rivetinfo = string(cmsswbase) +
                                   "/src/GeneratorInterface/RivetInterface/data:" + string(cmsswrelease) +
-                                  "/src/GeneratorInterface/RivetInterface/data";
+                                  "/src/GeneratorInterface/RivetInterface/data:.";
     char* rivetinfoCstr = strdup(rivetinfo.c_str());
-    putenv(rivetinfoCstr);
+    setenv("RIVET_INFO_PATH", rivetinfoCstr, 1);
     free(rivetinfoCstr);
   }
 }

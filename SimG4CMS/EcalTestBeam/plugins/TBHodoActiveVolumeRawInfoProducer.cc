@@ -22,6 +22,7 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRawInfo.h"
 
 #include <iostream>
+#include <memory>
 
 class TBHodoActiveVolumeRawInfoProducer : public edm::stream::EDProducer<> {
 public:
@@ -29,39 +30,35 @@ public:
   explicit TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet &ps);
 
   /// Destructor
-  ~TBHodoActiveVolumeRawInfoProducer() override;
+  ~TBHodoActiveVolumeRawInfoProducer() override = default;
 
   /// Produce digis out of raw data
   void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
 
 private:
   double myThreshold;
-
   edm::EDGetTokenT<edm::PCaloHitContainer> m_EcalToken;
-  EcalTBHodoscopeGeometry *theTBHodoGeom_;
+
+  std::unique_ptr<EcalTBHodoscopeGeometry> theTBHodoGeom_;
 };
 
 using namespace cms;
 using namespace std;
 
-TBHodoActiveVolumeRawInfoProducer::TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet &ps) {
-  m_EcalToken = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalTBH4BeamHits"));
+TBHodoActiveVolumeRawInfoProducer::TBHodoActiveVolumeRawInfoProducer(const edm::ParameterSet &ps)
+    : myThreshold(0.05E-3),
+      m_EcalToken(consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalTBH4BeamHits"))) {
   produces<EcalTBHodoscopeRawInfo>();
 
-  theTBHodoGeom_ = new EcalTBHodoscopeGeometry();
-
-  myThreshold = 0.05E-3;
+  theTBHodoGeom_ = std::make_unique<EcalTBHodoscopeGeometry>();
 }
 
-TBHodoActiveVolumeRawInfoProducer::~TBHodoActiveVolumeRawInfoProducer() { delete theTBHodoGeom_; }
-
 void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
-  unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
+  std::unique_ptr<EcalTBHodoscopeRawInfo> product(new EcalTBHodoscopeRawInfo());
 
   // caloHit container
-  edm::Handle<edm::PCaloHitContainer> pCaloHit;
+  const edm::Handle<edm::PCaloHitContainer> &pCaloHit = event.getHandle(m_EcalToken);
   const edm::PCaloHitContainer *caloHits = nullptr;
-  event.getByToken(m_EcalToken, pCaloHit);
   if (pCaloHit.isValid()) {
     caloHits = pCaloHit.product();
     LogDebug("EcalTBHodo") << "total # caloHits: " << caloHits->size();

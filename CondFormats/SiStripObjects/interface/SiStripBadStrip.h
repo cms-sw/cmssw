@@ -91,6 +91,23 @@ public:
            ((flag & sistrip::FlagBadStripMask_) << sistrip::FlagBadStripShift_);
   }
 
+  // additional methods need for Phase-2
+  inline data decodePhase2(const unsigned int& value) const {
+    data a;
+    a.firstStrip = ((value >> siPhase2strip::FirstBadStripShift_) & siPhase2strip::FirstBadStripMask_);
+    a.range = ((value >> siPhase2strip::RangeBadStripShift_) & siPhase2strip::RangeBadStripMask_);
+    a.flag = ((value >> siPhase2strip::FlagBadStripShift_) & siPhase2strip::FlagBadStripMask_);
+    return a;
+  }
+
+  inline unsigned int encodePhase2(const unsigned short& first,
+                                   const unsigned short& NconsecutiveBadStrips,
+                                   const unsigned short& flag = 0) {
+    return ((first & siPhase2strip::FirstBadStripMask_) << siPhase2strip::FirstBadStripShift_) |
+           ((NconsecutiveBadStrips & siPhase2strip::RangeBadStripMask_) << siPhase2strip::RangeBadStripShift_) |
+           ((flag & siPhase2strip::FlagBadStripMask_) << siPhase2strip::FlagBadStripShift_);
+  }
+
 protected:
   Container v_badstrips;
   Registry indexes;

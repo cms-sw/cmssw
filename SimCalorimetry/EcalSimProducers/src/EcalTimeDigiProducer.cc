@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-//#define ecal_time_debug 1
+//#define EDM_ML_DEBUG
 
 EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
                                            edm::ProducesCollector producesCollector,
@@ -27,9 +27,9 @@ EcalTimeDigiProducer::EcalTimeDigiProducer(const edm::ParameterSet &params,
 
   m_BarrelDigitizer = new EcalTimeMapDigitizer(EcalBarrel);
 
-#ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::Create EB " << m_EBdigiCollection << " "
-            << " collection and digitizer" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::Create EB " << m_EBdigiCollection
+                                   << "  collection and digitizer";
 #endif
 
   m_BarrelDigitizer->setTimeLayerId(m_timeLayerEB);
@@ -54,11 +54,10 @@ void EcalTimeDigiProducer::accumulateCaloHits(HitsHandle const &ebHandle, int bu
 
 void EcalTimeDigiProducer::accumulate(edm::Event const &e, edm::EventSetup const &eventSetup) {
   // Step A: Get Inputs
-  edm::Handle<std::vector<PCaloHit>> ebHandle;
-  e.getByToken(m_hitsProducerTokenEB, ebHandle);
+  const edm::Handle<std::vector<PCaloHit>> &ebHandle = e.getHandle(m_hitsProducerTokenEB);
 
-#ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::Accumulate Hits HS  event" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::Accumulate Hits HS  event";
 #endif
 
   accumulateCaloHits(ebHandle, 0);
@@ -70,8 +69,8 @@ void EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const &e,
   edm::Handle<std::vector<PCaloHit>> ebHandle;
   e.getByLabel(m_hitsProducerTagEB, ebHandle);
 
-#ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::Accumulate Hits for BC " << e.bunchCrossing() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::Accumulate Hits for BC " << e.bunchCrossing();
 #endif
   accumulateCaloHits(ebHandle, e.bunchCrossing());
 }
@@ -79,21 +78,21 @@ void EcalTimeDigiProducer::accumulate(PileUpEventPrincipal const &e,
 void EcalTimeDigiProducer::finalizeEvent(edm::Event &event, edm::EventSetup const &eventSetup) {
   std::unique_ptr<EcalTimeDigiCollection> barrelResult = std::make_unique<EcalTimeDigiCollection>();
 
-#ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::finalizeEvent" << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::finalizeEvent";
 #endif
 
   // here basically just put everything in the final collections
   m_BarrelDigitizer->run(*barrelResult);
 
-#ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::EB Digi size " << barrelResult->size() << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::EB Digi size " << barrelResult->size();
 #endif
 
   edm::LogInfo("TimeDigiInfo") << "EB time Digis: " << barrelResult->size();
 
-#ifdef ecal_time_debug
-  std::cout << "[EcalTimeDigiProducer]::putting EcalTimeDigiCollection into the event " << std::endl;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("TimeDigiInfo") << "[EcalTimeDigiProducer]::putting EcalTimeDigiCollection into the event ";
 #endif
 
   event.put(std::move(barrelResult), m_EBdigiCollection);

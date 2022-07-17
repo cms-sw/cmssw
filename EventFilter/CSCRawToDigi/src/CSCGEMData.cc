@@ -25,6 +25,13 @@ CSCGEMData::CSCGEMData(int ntbins, int gems_fibers) : ntbins_(ntbins), size_(0) 
   */
   ngems_ = 4;
   size_ = 2 + ntbins_ * ngems_ * 4;
+
+  /// initialize GEM data
+  for (int i = 0; i < (size_ - 2); i++) {
+    int gem_chamber = (i % 16) / 8;
+    theData[i + 1] = 0x3FFF | (gem_chamber << 14);
+  }
+
   theData[size_ - 1] = 0x6D04;
 }
 
@@ -133,6 +140,9 @@ std::vector<GEMPadDigiCluster> CSCGEMData::digis(int gem_chamber) const {
   return result;
 }
 
+/// Unpack GEMPadDigiCluster digi trigger objects per eta/roll
+/// gem_chamber - GEM GE11 layer gemA/B [0,1]
+/// eta_roll - GEM eta/roll 8 rolls per GEM layer [0-7]
 std::vector<GEMPadDigiCluster> CSCGEMData::etaDigis(int gem_chamber, int eta_roll) const {
   /// GEM data format v2
   std::vector<GEMPadDigiCluster> result;
@@ -140,7 +150,7 @@ std::vector<GEMPadDigiCluster> CSCGEMData::etaDigis(int gem_chamber, int eta_rol
   int nPads = 192;  // From geometry
   int maxClusters = 4;
   int nGEMs = 4;
-  // nGEMs = ngems_; // based on enabled fibers. not implemented in the firmware yet
+  // nGEMs = ngems_; // based on enabled fibers. currently not implemented in the firmware
   for (int i = 0; i < ntbins_; i++) {
     for (int fiber = 0; fiber < nGEMs; fiber++) {
       for (int cluster = 0; cluster < maxClusters; cluster++) {
@@ -170,4 +180,29 @@ std::vector<GEMPadDigiCluster> CSCGEMData::etaDigis(int gem_chamber, int eta_rol
     }
   }
   return result;
+}
+
+/// Add/pack GEMPadDigiCluster digi trigger objects per eta/roll
+/// gem_chamber - GEM GE11 layer gemA/B [0,1]
+/// eta_roll - GEM eta/roll 8 rolls per GEM layer [0-7]
+void CSCGEMData::addEtaPadCluster(const GEMPadDigiCluster& digi, int gem_chamber, int eta_roll) {
+  int bx = digi.bx();
+  /// Check that bx < GEM data max allocated tbins and that gem_chamber/layer is in 0,1 range
+  if ((gem_chamber < 2) && (bx < ntbins_)) {
+    int gem_layer = gem_chamber & 0x1;
+    int cluster_size = digi.pads().size() - 1;
+    int pad = digi.pads()[0];
+    int eta = eta_roll;
+    int cl_word = (gem_layer << 14) + (pad & 0xff) + ((eta & 0x7) << 8) + ((cluster_size & 0x7) << 11);
+    int dataAddr = 1 + bx * 16 + 8 * gem_layer;
+    int cluster_num = 0;
+    /// search for first free/empty cluster word
+    while (((theData[dataAddr + cluster_num] & 0x3fff) != 0x3fff) && (cluster_num < 8)) {
+      cluster_num++;
+    }
+    /// fill free cluster word if it was found
+    if (((theData[dataAddr + cluster_num] & 0x3fff) == 0x3fff) && (cluster_num < 8)) {
+      theData[dataAddr + cluster_num] = cl_word;
+    }
+  }
 }

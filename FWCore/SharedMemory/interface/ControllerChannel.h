@@ -25,6 +25,7 @@
 #include "boost/interprocess/sync/named_mutex.hpp"
 #include "boost/interprocess/sync/named_condition.hpp"
 #include "boost/interprocess/sync/scoped_lock.hpp"
+#include "boost/date_time/posix_time/posix_time_types.hpp"
 
 // user include files
 #include "FWCore/Utilities/interface/Transition.h"

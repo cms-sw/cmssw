@@ -52,7 +52,8 @@ namespace edm {
     explicit RootOutputFile(PoolOutputModule* om,
                             std::string const& fileName,
                             std::string const& logicalFileName,
-                            std::vector<std::string> const& processesWithSelectedMergeableRunProducts);
+                            std::vector<std::string> const& processesWithSelectedMergeableRunProducts,
+                            std::string const& overrideGUID);
     ~RootOutputFile() {}
     void writeOne(EventForOutput const& e);
     //void endFile();

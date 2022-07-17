@@ -21,6 +21,7 @@ class RunPromptReco:
         self.writeRECO = False
         self.writeAOD = False
         self.writeMINIAOD = False
+        self.writeNANOAOD = False
         self.writeDQM = False
         self.writeDQMIO = False
         self.noOutput = False
@@ -65,6 +66,9 @@ class RunPromptReco:
         if self.writeMINIAOD:
             dataTiers.append("MINIAOD")
             print("Configuring to Write out MiniAOD")
+        if self.writeNANOAOD:
+            dataTiers.append("NANOAOD")
+            print("Configuring to Write out NanoAOD")
         if self.writeDQM:
             dataTiers.append("DQM")
             print("Configuring to Write out DQM")
@@ -143,7 +147,7 @@ class RunPromptReco:
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "reco", "aod", "miniaod","dqm", "dqmio", "no-output", "nThreads=", 
+    valid = ["scenario=", "reco", "aod", "miniaod", "nanoaod", "dqm", "dqmio", "no-output", "nThreads=", 
              "global-tag=", "lfn=", "alcarecos=", "PhysicsSkims=", "dqmSeq=", "isRepacked", "isNotRepacked" ]
     usage = \
 """
@@ -153,6 +157,7 @@ Where options are:
  --reco (to enable RECO output)
  --aod (to enable AOD output)
  --miniaod (to enable MiniAOD output)
+ --nanoaod (to enable NanoAOD output)
  --dqm (to enable DQM output)
  --dqmio (to enable DQMIO output)
  --isRepacked --isNotRepacked (to override default repacked flags)
@@ -187,6 +192,8 @@ python RunPromptReco.py --scenario=ppEra_Run2_2016 --reco --aod --dqmio --global
             recoinator.writeAOD = True
         if opt == "--miniaod":
             recoinator.writeMINIAOD = True
+        if opt == "--nanoaod":
+            recoinator.writeNANOAOD = True
         if opt == "--dqm":
             recoinator.writeDQM = True
         if opt == "--dqmio":

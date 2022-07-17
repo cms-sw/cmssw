@@ -26,7 +26,6 @@
 #include "CalibMuon/DTCalibration/interface/DTTTrigCorrectionFactory.h"
 #include "CalibMuon/DTCalibration/interface/DTTTrigBaseCorrection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include <iostream>
 #include <fstream>
@@ -63,7 +62,7 @@ void DTTTrigCorrection::beginRun(const edm::Run& run, const edm::EventSetup& set
 
 void DTTTrigCorrection::endJob() {
   // Create the object to be written to DB
-  DTTtrig* tTrigNewMap = new DTTtrig();
+  DTTtrig tTrigNewMap;
 
   for (vector<const DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
        sl != muonGeom_->superLayers().end();
@@ -78,7 +77,7 @@ void DTTTrigCorrection::endJob() {
       float tTrigMeanNew = tTrigCorr.mean;
       float tTrigSigmaNew = tTrigCorr.sigma;
       float kFactorNew = tTrigCorr.kFactor;
-      tTrigNewMap->set((*sl)->id(), tTrigMeanNew, tTrigSigmaNew, kFactorNew, DTTimeUnits::ns);
+      tTrigNewMap.set((*sl)->id(), tTrigMeanNew, tTrigSigmaNew, kFactorNew, DTTimeUnits::ns);
 
       LogVerbatim("Calibration") << "New tTrig for: " << (*sl)->id() << " mean from " << tTrigMean << " to "
                                  << tTrigMeanNew << " sigma from " << tTrigSigma << " to " << tTrigSigmaNew
@@ -87,7 +86,7 @@ void DTTTrigCorrection::endJob() {
       LogError("Calibration") << e.explainSelf();
       // Set db to the old value, if it was there in the first place
       if (!status) {
-        tTrigNewMap->set((*sl)->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
+        tTrigNewMap.set((*sl)->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);
         LogVerbatim("Calibration") << "Keep old tTrig for: " << (*sl)->id() << " mean " << tTrigMean << " sigma "
                                    << tTrigSigma << " kFactor " << kFactor << endl;
       }

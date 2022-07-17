@@ -30,13 +30,6 @@ namespace edm {
       // different types.
       virtual bool isEqualTo(RefHolderBase const& rhs) const = 0;
 
-      // If the type of Ref I contain matches the type contained in
-      // 'fillme', set the Ref in 'fillme' equal to mine and return
-      // true. If not, write the name of the type I really contain to
-      // msg, and return false.
-
-      virtual bool fillRefIfMyTypeMatches(RefHolderBase& ref, std::string& msg) const = 0;
-
       virtual std::unique_ptr<RefVectorHolderBase> makeVectorHolder() const = 0;
       virtual EDProductGetter const* productGetter() const = 0;
 

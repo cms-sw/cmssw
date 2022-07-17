@@ -50,14 +50,12 @@ SiStripRegFEDSelector::~SiStripRegFEDSelector() {}
 void SiStripRegFEDSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   auto producedData = std::make_unique<FEDRawDataCollection>();
 
-  edm::Handle<trigger::TriggerFilterObjectWithRefs> trigSeedTrks;
-  iEvent.getByToken(tok_seed_, trigSeedTrks);
+  const edm::Handle<trigger::TriggerFilterObjectWithRefs>& trigSeedTrks = iEvent.getHandle(tok_seed_);
 
   std::vector<edm::Ref<reco::IsolatedPixelTrackCandidateCollection> > isoPixTrackRefs;
   trigSeedTrks->getObjects(trigger::TriggerTrack, isoPixTrackRefs);
 
-  edm::Handle<FEDRawDataCollection> rawIn;
-  iEvent.getByToken(tok_raw_, rawIn);
+  const edm::Handle<FEDRawDataCollection>& rawIn = iEvent.getHandle(tok_raw_);
 
   const SiStripRegionCabling* strip_cabling = &iSetup.getData(tok_strip_);
   std::vector<int> stripFEDVec;

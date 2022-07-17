@@ -9,6 +9,7 @@
 <use name="SimDataFormats/Track"/>
 <use name="TrackingTools/TransientTrack"/>
 
+<iftool name="cuda-gcc-support">
 <bin file="gpuVertexFinder_t.cu" name="gpuVertexFinderOneKernel_t">
   <use name="cuda"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG -DONE_KERNEL"/>
@@ -21,10 +22,6 @@
   <flags CXXFLAGS="-g"/>
 </bin>
 
-<bin file="cpuVertexFinder_t.cpp" name="cpuVertexFinderByDensity_t">
-  <flags CXXFLAGS="-g  -DGPU_DEBUG"/>
-</bin>
-
 <bin file="gpuVertexFinder_t.cu" name="gpuVertexFinderDBSCAN_t">
   <use name="cuda"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG -DUSE_DBSCAN"/>
@@ -35,6 +32,11 @@
   <use name="cuda"/>
   <flags CUDA_FLAGS="-g -DGPU_DEBUG -DUSE_ITERATIVE"/>
   <flags CXXFLAGS="-g"/>
+</bin>
+</iftool>
+
+<bin file="cpuVertexFinder_t.cpp" name="cpuVertexFinderByDensity_t">
+  <flags CXXFLAGS="-g  -DGPU_DEBUG"/>
 </bin>
 
 <bin file="cpuVertexFinder_t.cpp" name="cpuVertexFinderIterative_t">

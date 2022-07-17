@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
 
-process = cms.Process('SIM',dd4hep)
+process = cms.Process('SIM',dd4hep,hgcaltb)
 
 # import of standard configurations
 process.load("FWCore.MessageService.MessageLogger_cfi")
@@ -95,10 +96,6 @@ process.VtxSmeared.MinY                 = -7.5
 process.VtxSmeared.MaxY                 =  7.5
 process.g4SimHits.HGCSD.RejectMouseBite = True
 process.g4SimHits.HGCSD.RotatedWafer    = True
-process.g4SimHits.OnlySDs = ['AHcalSensitiveDetector',
-                             'HGCSensitiveDetector',
-                             'HGCalTB1601SensitiveDetector',
-                             'HcalTB06BeamDetector']
 process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("SimG4CMS/HGCalTestBeam/data/dd4hep/HGCalTB181Oct1.xml")
 
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(

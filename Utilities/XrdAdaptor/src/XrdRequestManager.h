@@ -8,7 +8,7 @@
 #include <random>
 #include <sys/stat.h>
 
-#include "tbb/concurrent_unordered_set.h"
+#include "oneapi/tbb/concurrent_unordered_set.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -212,9 +212,9 @@ namespace XrdAdaptor {
     std::vector<std::shared_ptr<Source>> m_activeSources;
     std::vector<std::shared_ptr<Source>> m_inactiveSources;
 
-    tbb::concurrent_unordered_set<std::string> m_disabledSourceStrings;
-    tbb::concurrent_unordered_set<std::string> m_disabledExcludeStrings;
-    tbb::concurrent_unordered_set<std::shared_ptr<Source>, SourceHash> m_disabledSources;
+    oneapi::tbb::concurrent_unordered_set<std::string> m_disabledSourceStrings;
+    oneapi::tbb::concurrent_unordered_set<std::string> m_disabledExcludeStrings;
+    oneapi::tbb::concurrent_unordered_set<std::shared_ptr<Source>, SourceHash> m_disabledSources;
 
     // StatisticsSenderService wants to know what our current server is;
     // this holds last-successfully-opened server name
@@ -226,6 +226,7 @@ namespace XrdAdaptor {
     bool m_nextInitialSourceToggle;
     // The time when the next active source check should be performed.
     timespec m_nextActiveSourceCheck;
+    int m_redirectLimitDelayScale;
     bool searchMode;
 
     const std::string m_name;

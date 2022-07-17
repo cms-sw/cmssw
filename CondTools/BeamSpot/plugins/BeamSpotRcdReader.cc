@@ -133,13 +133,13 @@ void BeamSpotRcdReader::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     theBSfromDB_.run = iEvent.id().run();
     theBSfromDB_.ls = iEvent.id().luminosityBlock();
-    theBSfromDB_.BSx0_ = mybeamspot->GetX();
-    theBSfromDB_.BSy0_ = mybeamspot->GetY();
-    theBSfromDB_.BSz0_ = mybeamspot->GetZ();
-    theBSfromDB_.Beamsigmaz_ = mybeamspot->GetSigmaZ();
-    theBSfromDB_.Beamdxdz_ = mybeamspot->Getdxdz();
-    theBSfromDB_.BeamWidthX_ = mybeamspot->GetBeamWidthX();
-    theBSfromDB_.BeamWidthY_ = mybeamspot->GetBeamWidthY();
+    theBSfromDB_.BSx0_ = mybeamspot->x();
+    theBSfromDB_.BSy0_ = mybeamspot->y();
+    theBSfromDB_.BSz0_ = mybeamspot->z();
+    theBSfromDB_.Beamsigmaz_ = mybeamspot->sigmaZ();
+    theBSfromDB_.Beamdxdz_ = mybeamspot->dxdz();
+    theBSfromDB_.BeamWidthX_ = mybeamspot->beamWidthX();
+    theBSfromDB_.BeamWidthY_ = mybeamspot->beamWidthY();
 
     bstree_->Fill();
 

@@ -72,7 +72,7 @@ public:
     changed_(iValue);
   }
 
-  sigc::signal<void, T> changed_;
+  sigc::signal<void(T)> changed_;
 
   FWGenericParameter(const FWGenericParameter&) = delete;                   // stop default
   const FWGenericParameter& operator=(const FWGenericParameter&) = delete;  // stop default

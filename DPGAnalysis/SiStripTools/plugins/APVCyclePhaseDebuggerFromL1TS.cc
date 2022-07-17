@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -56,7 +56,7 @@
 // class decleration
 //
 
-class APVCyclePhaseDebuggerFromL1TS : public edm::EDAnalyzer {
+class APVCyclePhaseDebuggerFromL1TS : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   explicit APVCyclePhaseDebuggerFromL1TS(const edm::ParameterSet&);
   ~APVCyclePhaseDebuggerFromL1TS() override;
@@ -66,6 +66,7 @@ public:
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
 
   // ----------member data ---------------------------
 

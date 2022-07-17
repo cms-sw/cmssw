@@ -5,22 +5,14 @@ import time
 # Define here the BeamSpotOnline record name,
 # it will be used both in FakeBeamMonitor setup and in payload creation/upload
 BSOnlineRecordName = 'BeamSpotOnlineLegacyObjectsRcd'
-BSOnlineTag = 'BeamSpotOnlineLegacy'
-BSOnlineJobName = 'BeamSpotOnlineLegacy'
+BSOnlineTag = 'BeamSpotOnlineFakeLegacy'
+BSOnlineJobName = 'BeamSpotOnlineFakeLegacy'
 BSOnlineOmsServiceUrl = 'http://cmsoms-services.cms:9949/urn:xdaq-application:lid=100/getRunAndLumiSection'
 useLockRecords = True
 import sys
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("FakeBeamMonitor", Run3)
 
-# Configure tag and jobName if running Playback system
-if "dqm_cmssw/playback" in str(sys.argv[1]):
-    BSOnlineTag = BSOnlineTag + 'Playback'
-    BSOnlineJobName = BSOnlineJobName + 'Playback'
-    BSOnlineOmsServiceUrl = ''
-    useLockRecords = False
-
-#
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
     cerr = cms.untracked.PSet(
@@ -68,6 +60,12 @@ process.dqmSaver.runNumber     = options.runNumber
 process.dqmSaverPB.tag         = 'FakeBeamMonitorLegacy'
 process.dqmSaverPB.runNumber   = options.runNumber
 
+# Configure tag and jobName if running Playback system
+if process.isDqmPlayback.value :
+    BSOnlineTag = BSOnlineTag + 'Playback'
+    BSOnlineJobName = BSOnlineJobName + 'Playback'
+    BSOnlineOmsServiceUrl = ''
+    useLockRecords = False
 
 #---------------
 """
@@ -177,8 +175,8 @@ else:
                             ),
 
         # Upload to CondDB
-        connect = cms.string('sqlite_file:BeamSpotOnlineLegacy.db'),
-        preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineLegacy.db'),
+        connect = cms.string('sqlite_file:BeamSpotOnlineFakeLegacy.db'),
+        preLoadConnectionString = cms.untracked.string('sqlite_file:BeamSpotOnlineFakeLegacy.db'),
         runNumber = cms.untracked.uint64(options.runNumber),
         lastLumiFile = cms.untracked.string('last_lumi.txt'),
         latency = cms.untracked.uint32(2),

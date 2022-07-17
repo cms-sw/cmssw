@@ -6,7 +6,7 @@
  *  Author: S.C. Kao  - UC Riverside
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/FrameworkfwdMostUsed.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <DataFormats/Common/interface/Handle.h>
 
@@ -44,12 +44,6 @@
 #include <map>
 #include <string>
 #include <utility>
-
-/*namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}*/
 
 //class PSimHit;
 class CSCLayer;

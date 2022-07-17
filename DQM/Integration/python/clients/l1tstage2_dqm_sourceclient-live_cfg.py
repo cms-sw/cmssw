@@ -55,7 +55,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
 # remove unneeded unpackers
 process.RawToDigi.remove(process.ecalPreshowerDigis)
-process.RawToDigi.remove(process.muonCSCDigis)
+#process.RawToDigi.remove(process.muonCSCDigis)
 process.RawToDigi.remove(process.muonDTDigis)
 process.RawToDigi.remove(process.muonRPCDigis)
 process.RawToDigi.remove(process.siPixelDigis)

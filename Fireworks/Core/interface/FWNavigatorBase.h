@@ -53,7 +53,7 @@ public:
   virtual int getNSelectedEvents() = 0;
   virtual int getNTotalEvents() = 0;
 
-  sigc::signal<void> newEvent_;
+  sigc::signal<void()> newEvent_;
 
   FWNavigatorBase(const FWNavigatorBase&) = delete;                   // stop default
   const FWNavigatorBase& operator=(const FWNavigatorBase&) = delete;  // stop default

@@ -13,47 +13,49 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "TH1.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
-class HZZ4muAnalyzer : public edm::EDAnalyzer {
+class HZZ4muAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   //
   explicit HZZ4muAnalyzer(const edm::ParameterSet&);
-  virtual ~HZZ4muAnalyzer() {}  // no need to delete ROOT stuff
+  ~HZZ4muAnalyzer() = default;  // no need to delete ROOT stuff
                                 // as it'll be deleted upon closing TFile
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void beginJob() override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
 
 private:
+  const edm::EDGetTokenT<GenEventInfoProduct> tokenGenInfo_;
+  const edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
   TH1D* fHist2muMass;
   TH1D* fHist4muMass;
   TH1D* fHistZZMass;
 };
 
-using namespace edm;
-using namespace std;
-
-HZZ4muAnalyzer::HZZ4muAnalyzer(const ParameterSet& pset) : fHist2muMass(0), fHist4muMass(0), fHistZZMass(0) {
+HZZ4muAnalyzer::HZZ4muAnalyzer(const edm::ParameterSet& pset)
+    : tokenGenInfo_(consumes<GenEventInfoProduct>(edm::InputTag("generator"))),
+      tokenHepMC_(consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"))),
+      fHist2muMass(nullptr),
+      fHist4muMass(nullptr),
+      fHistZZMass(nullptr) {
   // actually, pset is NOT in use - we keep it here just for illustratory putposes
+  usesResource(TFileService::kSharedResource);
 }
 
 void HZZ4muAnalyzer::beginJob() {
-  Service<TFileService> fs;
+  edm::Service<TFileService> fs;
   fHist2muMass = fs->make<TH1D>("Hist2muMass", "2-mu inv. mass", 100, 60., 120.);
   fHist4muMass = fs->make<TH1D>("Hist4muMass", "4-mu inv. mass", 100, 170., 210.);
   fHistZZMass = fs->make<TH1D>("HistZZMass", "ZZ inv. mass", 100, 170., 210.);
-
-  return;
 }
 
-void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
+void HZZ4muAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   // here's an example of accessing GenEventInfoProduct
-  Handle<GenEventInfoProduct> GenInfoHandle;
-  e.getByLabel("generator", GenInfoHandle);
+  const edm::Handle<GenEventInfoProduct>& GenInfoHandle = e.getHandle(tokenGenInfo_);
   double qScale = GenInfoHandle->qScale();
   double pthat = (GenInfoHandle->hasBinningValues() ? (GenInfoHandle->binningValues())[0] : 0.0);
-  cout << " qScale = " << qScale << " pthat = " << pthat << endl;
+  std::cout << " qScale = " << qScale << " pthat = " << pthat << std::endl;
   //
   // this (commented out) code below just exemplifies how to access certain info
   //
@@ -69,11 +71,8 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
 
   // here's an example of accessing particles in the event record (HepMCProduct)
   //
-  Handle<HepMCProduct> EvtHandle;
-
   // find initial (unsmeared, unfiltered,...) HepMCProduct
-  //
-  e.getByLabel("VtxSmeared", EvtHandle);
+  const edm::Handle<edm::HepMCProduct>& EvtHandle = e.getHandle(tokenHepMC_);
 
   const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
 
@@ -106,23 +105,23 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
   }
 
   if (HiggsDecVtx == 0) {
-    cout << " There is NO Higgs in this event ! " << endl;
+    std::cout << " There is NO Higgs in this event ! " << std::endl;
     return;
   }
 
   if (e.id().event() == 1) {
-    cout << " " << endl;
-    cout << " We do some example printouts in the event 1 " << endl;
-    cout << " Higgs decay found at the vertex " << HiggsDecVtx->barcode() << " (barcode)" << endl;
+    std::cout << " " << std::endl;
+    std::cout << " We do some example printouts in the event 1 " << std::endl;
+    std::cout << " Higgs decay found at the vertex " << HiggsDecVtx->barcode() << " (barcode)" << std::endl;
 
-    vector<HepMC::GenParticle*> HiggsChildren;
+    std::vector<HepMC::GenParticle*> HiggsChildren;
 
     for (HepMC::GenVertex::particles_out_const_iterator H0in = HiggsDecVtx->particles_out_const_begin();
          H0in != HiggsDecVtx->particles_out_const_end();
          H0in++) {
       HiggsChildren.push_back(*H0in);
     }
-    cout << " Number of Higgs (immediate) children = " << HiggsChildren.size() << endl;
+    std::cout << " Number of Higgs (immediate) children = " << HiggsChildren.size() << std::endl;
     for (unsigned int ic = 0; ic < HiggsChildren.size(); ic++) {
       HiggsChildren[ic]->print();
     }
@@ -130,10 +129,10 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
 
   // select and store stable descendants of the Higgs
   //
-  vector<HepMC::GenParticle*> StableHiggsDesc;
+  std::vector<HepMC::GenParticle*> StableHiggsDesc;
 
   if (e.id().event() == 1)
-    cout << " Now let us list all descendents of the Higgs" << endl;
+    std::cout << " Now let us list all descendents of the Higgs" << std::endl;
   for (HepMC::GenVertex::particle_iterator des = HiggsDecVtx->particles_begin(HepMC::descendants);
        des != HiggsDecVtx->particles_end(HepMC::descendants);
        des++) {
@@ -147,7 +146,7 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
   double XMass2part = 0.;
   double XMass4part = 0.;
   double XMass2pairs = 0.;
-  vector<HepMC::FourVector> Mom2partCont;
+  std::vector<HepMC::FourVector> Mom2partCont;
 
   // browse the array of stable descendants
   // and do 2-mu inv.mass
@@ -155,13 +154,13 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
   for (unsigned int i = 0; i < StableHiggsDesc.size(); i++) {
     // skip other than mu
     //
-    if (abs(StableHiggsDesc[i]->pdg_id()) != 13)
+    if (std::abs(StableHiggsDesc[i]->pdg_id()) != 13)
       continue;
 
     for (unsigned int j = i + 1; j < StableHiggsDesc.size(); j++) {
       // skip other than mu
       //
-      if (abs(StableHiggsDesc[j]->pdg_id()) != 13)
+      if (std::abs(StableHiggsDesc[j]->pdg_id()) != 13)
         continue;
       //
       // skip same charge combo's
@@ -205,11 +204,11 @@ void HZZ4muAnalyzer::analyze(const Event& e, const EventSetup&) {
     XMass4part = HepMC::FourVector(px4, py4, pz4, e4).m();
     fHist4muMass->Fill(XMass4part);
   }
-  //cout << " 4-part inv. mass = " << XMass4part << endl ;
+  //std::cout << " 4-part inv. mass = " << XMass4part << std::endl ;
 
   // make 2-pairs (ZZ) inv.mass
   //
-  //cout << " selected Z-candidates in this event : " << Mom2partCont.size() << endl ;
+  //std::cout << " selected Z-candidates in this event : " << Mom2partCont.size() << std::endl ;
   for (unsigned int i = 0; i < Mom2partCont.size(); i++) {
     for (unsigned int j = i + 1; j < Mom2partCont.size(); j++) {
       // Mom2pairs = Mom2partCont[i] + Mom2partCont[j] ;

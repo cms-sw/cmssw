@@ -14,8 +14,6 @@
 #include <iostream>
 #include <cmath>
 
-#include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //#include "CondFormats/EcalObjects/interface/EcalPedestals.h"

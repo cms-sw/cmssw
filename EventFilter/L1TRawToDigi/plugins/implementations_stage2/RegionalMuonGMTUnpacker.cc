@@ -33,14 +33,19 @@ namespace l1t {
       // decide which collection to use according to the link ID
       unsigned int linkId = blockId / 2;
       int processor;
-      RegionalMuonCandBxCollection* res;
+      RegionalMuonCandBxCollection* regionalMuonCollection;
+      RegionalMuonShowerBxCollection* regionalMuonShowerCollection;
       tftype trackFinder;
       if (linkId > 47 && linkId < 60) {
-        res = static_cast<GMTCollections*>(coll)->getRegionalMuonCandsBMTF();
+        regionalMuonCollection = static_cast<GMTCollections*>(coll)->getRegionalMuonCandsBMTF();
+        regionalMuonShowerCollection =
+            new RegionalMuonShowerBxCollection();  // To avoid warning re uninitialised collection
         trackFinder = tftype::bmtf;
         processor = linkId - 48;
       } else if (linkId > 41 && linkId < 66) {
-        res = static_cast<GMTCollections*>(coll)->getRegionalMuonCandsOMTF();
+        regionalMuonCollection = static_cast<GMTCollections*>(coll)->getRegionalMuonCandsOMTF();
+        regionalMuonShowerCollection =
+            new RegionalMuonShowerBxCollection();  // To avoid warning re uninitialised collection
         if (linkId < 48) {
           trackFinder = tftype::omtf_pos;
           processor = linkId - 42;
@@ -49,7 +54,8 @@ namespace l1t {
           processor = linkId - 60;
         }
       } else if (linkId > 35 && linkId < 72) {
-        res = static_cast<GMTCollections*>(coll)->getRegionalMuonCandsEMTF();
+        regionalMuonCollection = static_cast<GMTCollections*>(coll)->getRegionalMuonCandsEMTF();
+        regionalMuonShowerCollection = static_cast<GMTCollections*>(coll)->getRegionalMuonShowersEMTF();
         if (linkId < 42) {
           trackFinder = tftype::emtf_pos;
           processor = linkId - 36;
@@ -61,7 +67,8 @@ namespace l1t {
         edm::LogError("L1T") << "No TF muon expected for link " << linkId;
         return false;
       }
-      res->setBXRange(firstBX, lastBX);
+      regionalMuonCollection->setBXRange(firstBX, lastBX);
+      regionalMuonShowerCollection->setBXRange(firstBX, lastBX);
 
       LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
@@ -100,6 +107,7 @@ namespace l1t {
             }
 
             RegionalMuonCand mu;
+            mu.setMuIdx(nWord / 2);
 
             RegionalMuonRawDigiTranslator::fillRegionalMuonCand(
                 mu, raw_data_00_31, raw_data_32_63, processor, trackFinder, isKbmtf_, useEmtfDisplacementInfo_);
@@ -108,7 +116,13 @@ namespace l1t {
                             << mu.hwPt() << " qual " << mu.hwQual() << " sign " << mu.hwSign() << " sign valid "
                             << mu.hwSignValid() << " unconstrained pT " << mu.hwPtUnconstrained();
 
-            res->push_back(bx, mu);
+            regionalMuonCollection->push_back(bx, mu);
+          }
+          // Fill RegionalMuonShower objects. For this we need to look at all six words together.
+          RegionalMuonShower muShower;
+          if (RegionalMuonRawDigiTranslator::fillRegionalMuonShower(
+                  muShower, bxPayload, processor, trackFinder, useEmtfShowers_)) {
+            regionalMuonShowerCollection->push_back(bx, muShower);
           }
         } else {
           unsigned int nWords =

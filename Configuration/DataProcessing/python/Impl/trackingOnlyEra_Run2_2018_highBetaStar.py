@@ -22,7 +22,6 @@ class trackingOnlyEra_Run2_2018_highBetaStar(trackingOnly):
         # some dedicated customization are required, though: customisePostEra_Run2_2018_trackingOnly
         self.recoSeq=':reconstruction_trackingOnly'
         self.cbSc='pp'
-        self.addEI=False
         self.eras=Run2_2018_highBetaStar
         #keep post-era parts the same as in the default 2018 era
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2018' ]

@@ -9,3 +9,12 @@ muonPFIsolationTask =  cms.Task(
     muonPFIsolationValuesTask
 )                                         
 muonPFIsolationSequence = cms.Sequence(muonPFIsolationTask)
+
+from RecoMuon.MuonIsolation.displacedMuonPFIsolationDeposits_cff import *
+from RecoMuon.MuonIsolation.displacedMuonPFIsolationValues_cff import *
+
+displacedMuonPFIsolationTask =  cms.Task(
+    displacedMuonPFIsolationDepositsTask,
+    displacedMuonPFIsolationValuesTask
+)
+displacedMuonPFIsolationSequence = cms.Sequence(displacedMuonPFIsolationTask)

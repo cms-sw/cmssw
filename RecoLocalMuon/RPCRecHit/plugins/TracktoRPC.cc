@@ -59,9 +59,9 @@ TracktoRPC::TracktoRPC(const edm::ParameterSet &iConfig, const edm::InputTag &tr
       cscMapToken_(iC.esConsumes()),
       propagatorToken_(iC.esConsumes(edm::ESInputTag("", "SteppingHelixPropagatorAny"))) {
   if (tracklabel.label().find("cosmic") == 0)
-    theTrackTransformer = std::make_unique<TrackTransformerForCosmicMuons>(iConfig);
+    theTrackTransformer = std::make_unique<TrackTransformerForCosmicMuons>(iConfig, iC);
   else if (tracklabel.label().find("globalCosmic") == 0)
-    theTrackTransformer = std::make_unique<TrackTransformerForCosmicMuons>(iConfig);
+    theTrackTransformer = std::make_unique<TrackTransformerForCosmicMuons>(iConfig, iC);
   else
     theTrackTransformer = std::make_unique<TrackTransformer>(iConfig, iC);
 }

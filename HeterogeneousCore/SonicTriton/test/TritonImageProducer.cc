@@ -16,7 +16,7 @@
 class TritonImageProducer : public TritonEDProducer<> {
 public:
   explicit TritonImageProducer(edm::ParameterSet const& cfg)
-      : TritonEDProducer<>(cfg, "TritonImageProducer"),
+      : TritonEDProducer<>(cfg),
         batchSize_(cfg.getParameter<int>("batchSize")),
         topN_(cfg.getParameter<unsigned>("topN")) {
     //load score list

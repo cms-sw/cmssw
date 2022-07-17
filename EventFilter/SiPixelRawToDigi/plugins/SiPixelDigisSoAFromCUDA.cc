@@ -27,10 +27,7 @@ private:
   edm::EDGetTokenT<cms::cuda::Product<SiPixelDigisCUDA>> digiGetToken_;
   edm::EDPutTokenT<SiPixelDigisSoA> digiPutToken_;
 
-  cms::cuda::host::unique_ptr<uint32_t[]> pdigi_;
-  cms::cuda::host::unique_ptr<uint32_t[]> rawIdArr_;
-  cms::cuda::host::unique_ptr<uint16_t[]> adc_;
-  cms::cuda::host::unique_ptr<int32_t[]> clus_;
+  cms::cuda::host::unique_ptr<uint16_t[]> store_;
 
   int nDigis_;
 };
@@ -54,10 +51,7 @@ void SiPixelDigisSoAFromCUDA::acquire(const edm::Event& iEvent,
   const auto& gpuDigis = ctx.get(iEvent, digiGetToken_);
 
   nDigis_ = gpuDigis.nDigis();
-  pdigi_ = gpuDigis.pdigiToHostAsync(ctx.stream());
-  rawIdArr_ = gpuDigis.rawIdArrToHostAsync(ctx.stream());
-  adc_ = gpuDigis.adcToHostAsync(ctx.stream());
-  clus_ = gpuDigis.clusToHostAsync(ctx.stream());
+  store_ = gpuDigis.copyAllToHostAsync(ctx.stream());
 }
 
 void SiPixelDigisSoAFromCUDA::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -71,12 +65,12 @@ void SiPixelDigisSoAFromCUDA::produce(edm::Event& iEvent, const edm::EventSetup&
   //     host memory to be allocated without a CUDA stream
   // - What if a CPU algorithm would produce the same SoA? We can't
   //   use cudaMallocHost without a GPU...
-  iEvent.emplace(digiPutToken_, nDigis_, pdigi_.get(), rawIdArr_.get(), adc_.get(), clus_.get());
 
-  pdigi_.reset();
-  rawIdArr_.reset();
-  adc_.reset();
-  clus_.reset();
+  auto tmp_view = SiPixelDigisCUDASOAView(store_, nDigis_, SiPixelDigisCUDASOAView::StorageLocationHost::kMAX);
+
+  iEvent.emplace(digiPutToken_, nDigis_, tmp_view.pdigi(), tmp_view.rawIdArr(), tmp_view.adc(), tmp_view.clus());
+
+  store_.reset();
 }
 
 // define as framework plugin

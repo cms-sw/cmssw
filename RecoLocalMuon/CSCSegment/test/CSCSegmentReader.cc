@@ -28,6 +28,12 @@ CSCSegmentReader::CSCSegmentReader(const edm::ParameterSet& pset) {
   maxPhi = pset.getUntrackedParameter<double>("maxPhiSeparation");
   maxTheta = pset.getUntrackedParameter<double>("maxThetaSeparation");
 
+  geomToken_ = esConsumes();
+  simTracksToken_ = consumes(edm::InputTag("g4SimHits"));
+  simHitsToken_ = consumes(edm::InputTag("g4SimHits", "MuonCSCHits"));
+  recHitsToken_ = consumes(edm::InputTag("csc2DRecHits"));
+  cscSegmentsToken_ = consumes(edm::InputTag("cscSegments"));
+
   file = new TFile(filename.c_str(), "RECREATE");
 
   if (file->IsOpen())
@@ -123,21 +129,15 @@ CSCSegmentReader::~CSCSegmentReader() {
 
 // The real analysis
 void CSCSegmentReader::analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {
-  edm::ESHandle<CSCGeometry> h;
-  eventSetup.get<MuonGeometryRecord>().get(h);
-  const CSCGeometry* geom = &*h;
+  const CSCGeometry* geom = &eventSetup.getData(geomToken_);
 
-  edm::Handle<edm::SimTrackContainer> simTracks;
-  event.getByLabel("g4SimHits", simTracks);
+  edm::Handle<edm::SimTrackContainer> simTracks = event.getHandle(simTracksToken_);
 
-  edm::Handle<edm::PSimHitContainer> simHits;
-  event.getByLabel("g4SimHits", "MuonCSCHits", simHits);
+  edm::Handle<edm::PSimHitContainer> simHits = event.getHandle(simHitsToken_);
 
-  edm::Handle<CSCRecHit2DCollection> recHits;
-  event.getByLabel("csc2DRecHits", recHits);
+  edm::Handle<CSCRecHit2DCollection> recHits = event.getHandle(recHitsToken_);
 
-  edm::Handle<CSCSegmentCollection> cscSegments;
-  event.getByLabel("cscSegments", cscSegments);
+  edm::Handle<CSCSegmentCollection> cscSegments = event.getHandle(cscSegmentsToken_);
 
   simInfo(simTracks);
   resolution(simHits, recHits, cscSegments, geom);

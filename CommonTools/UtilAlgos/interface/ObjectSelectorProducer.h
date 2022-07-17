@@ -34,6 +34,7 @@ public:
       : Base(cfg),
         srcToken_(
             this->template consumes<typename Selector::collection>(cfg.template getParameter<edm::InputTag>("src"))),
+        selectorInit_(this->consumesCollector()),
         selector_(cfg, this->consumesCollector()),
         postProcessor_(cfg, this->consumesCollector()) {
     postProcessor_.init(*this);
@@ -44,7 +45,7 @@ public:
 private:
   /// process one event
   void produce(edm::Event& evt, const edm::EventSetup& es) override {
-    Init::init(selector_, evt, es);
+    selectorInit_.init(selector_, evt, es);
     edm::Handle<typename Selector::collection> source;
     evt.getByToken(srcToken_, source);
     StoreManager manager(source);
@@ -56,6 +57,7 @@ private:
   /// source collection label
   edm::EDGetTokenT<typename Selector::collection> srcToken_;
   /// Object collection selector
+  Init selectorInit_;
   Selector selector_;
   /// post processor
   PostProcessor postProcessor_;

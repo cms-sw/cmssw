@@ -7,10 +7,9 @@
 
 #include "EventFilter/Utilities/interface/DataPoint.h"
 
-#include <tbb/concurrent_vector.h>
-
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 
 //max collected updates per lumi
 #define MAXUPDATES 0xffffffff

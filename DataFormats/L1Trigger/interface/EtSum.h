@@ -46,10 +46,13 @@ namespace l1t {
       kAsymEt,
       kAsymHt,
       kAsymEtHF,
-      kAsymHtHF
+      kAsymHtHF,
+      kUninitialized
     };
 
-    EtSum() {}
+    EtSum() : type_{kUninitialized} {}
+    explicit EtSum(EtSumType type) : type_{type} {}
+
     EtSum(const LorentzVector& p4, EtSumType type, int pt = 0, int eta = 0, int phi = 0, int qual = 0);
 
     EtSum(const PolarLorentzVector& p4, EtSumType type, int pt = 0, int eta = 0, int phi = 0, int qual = 0);

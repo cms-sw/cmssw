@@ -39,6 +39,8 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMuPA_Output_cff impo
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_Output_cff import *
 # AlCaReco for track based alignment using MinBias events for PbPb data-taking
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_Output_cff import *
+# AlCaReco for track based alignment using JetHT events
+from Alignment.CommonAlignmentProducer.ALCARECOTkAlJetHT_Output_cff import *
 
 # AlCaReco for pixel calibration using muons
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelCalSingleMuon_Output_cff import *
@@ -76,6 +78,8 @@ from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_Output_cff 
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_Output_cff import *
 # ECAL calibration with eta hlt path
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalEtaCalib_Output_cff import *
+# ECAL calibration using the AlCaPhiSym stream (with NanoAOD output)
+from Calibration.EcalCalibAlgos.ALCARECOEcalPhiSym_Output_cff import *
 # ECAL ES alignment
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalESAlign_Output_cff import *
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalTrg_Output_cff import *
@@ -160,9 +164,11 @@ from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdBeamSpotHPLowPU_Outp
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStrip_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGainsAAG_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripHitEfficiency_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiPixelLorentzAngle_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAli_Output_cff import *
+from Alignment.CommonAlignmentProducer.ALCARECOPromptCalibProdSiPixelAliHG_Output_cff import *
 
 from CalibTracker.SiPixelQuality.ALCARECOPromptCalibProdSiPixel_Output_cff import *
 
@@ -179,6 +185,8 @@ from Calibration.LumiAlCaRecoProducers.ALCARECORawPCCProducer_Output_cff import 
 from Calibration.LumiAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCZeroBiasFromRECO_Output_cff import *
 from Calibration.LumiAlCaRecoProducers.ALCARECOAlCaPCCRandomFromRECO_Output_cff import *
+
+from Calibration.PPSAlCaRecoProducer.ALCARECOPPSCalMaxTracks_Output_cff import *
 
 ###############################################################
 # hotline skim workflows

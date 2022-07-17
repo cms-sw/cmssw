@@ -397,19 +397,7 @@ void ObjMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<int>("nmesons", 0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
-  genericTriggerEventPSet.add<bool>("andOr");
-  genericTriggerEventPSet.add<edm::InputTag>("dcsInputTag", edm::InputTag("scalersRawToDigi"));
-  genericTriggerEventPSet.add<std::vector<int> >("dcsPartitions", {});
-  genericTriggerEventPSet.add<bool>("andOrDcs", false);
-  genericTriggerEventPSet.add<bool>("errorReplyDcs", true);
-  genericTriggerEventPSet.add<std::string>("dbLabel", "");
-  genericTriggerEventPSet.add<bool>("andOrHlt", true);
-  genericTriggerEventPSet.add<edm::InputTag>("hltInputTag", edm::InputTag("TriggerResults::HLT"));
-  genericTriggerEventPSet.add<std::vector<std::string> >("hltPaths", {});
-  genericTriggerEventPSet.add<std::string>("hltDBKey", "");
-  genericTriggerEventPSet.add<bool>("errorReplyHlt", false);
-  genericTriggerEventPSet.add<unsigned int>("verbosityLevel", 1);
-
+  GenericTriggerEventFlag::fillPSetDescription(genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("numGenericTriggerEventPSet", genericTriggerEventPSet);
   desc.add<edm::ParameterSetDescription>("denGenericTriggerEventPSet", genericTriggerEventPSet);
 

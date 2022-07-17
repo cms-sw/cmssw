@@ -76,13 +76,13 @@ reco::SimToRecoCollectionSeed reco::TrackToTrackingParticleAssociatorBaseImpl::a
 
 // TrackCandidate
 reco::RecoToSimCollectionTCandidate reco::TrackToTrackingParticleAssociatorBaseImpl::associateRecoToSim(
-    const edm::Handle<TrackCandidateCollection> &, const edm::Handle<TrackingParticleCollection> &) const {
+    const edm::Handle<TrackCandidateCollection> &, const edm::RefVector<TrackingParticleCollection> &) const {
   reco::RecoToSimCollectionTCandidate empty;
   return empty;
 }
 
 reco::SimToRecoCollectionTCandidate reco::TrackToTrackingParticleAssociatorBaseImpl::associateSimToReco(
-    const edm::Handle<TrackCandidateCollection> &, const edm::Handle<TrackingParticleCollection> &) const {
+    const edm::Handle<TrackCandidateCollection> &, const edm::RefVector<TrackingParticleCollection> &) const {
   reco::SimToRecoCollectionTCandidate empty;
   return empty;
 }

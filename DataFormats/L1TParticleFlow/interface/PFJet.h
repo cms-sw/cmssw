@@ -36,9 +36,14 @@ namespace l1t {
     using reco::LeafCandidate::daughter;  // avoid hiding the base
     edm::Ptr<l1t::L1Candidate> daughterPtr(size_type i) const { return constituents_[i]; }
 
+    // Get and set the encodedJet_ bits. The Jet is encoded in 128 bits as a 2-element array of uint64_t
+    std::array<uint64_t, 2> encodedJet() { return encodedJet_; }
+    void setEncodedJet(std::array<uint64_t, 2> jet) { encodedJet_ = jet; }
+
   private:
     float rawPt_;
     Constituents constituents_;
+    std::array<uint64_t, 2> encodedJet_ = {{0, 0}};
   };
 
   typedef std::vector<l1t::PFJet> PFJetCollection;

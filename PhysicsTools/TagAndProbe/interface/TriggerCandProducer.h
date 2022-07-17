@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/ShallowCloneCandidate.h"
@@ -20,16 +20,14 @@
 
 // forward declarations
 template <class object>
-class TriggerCandProducer : public edm::EDProducer {
+class TriggerCandProducer : public edm::stream::EDProducer<> {
 public:
   explicit TriggerCandProducer(const edm::ParameterSet&);
   ~TriggerCandProducer() override;
 
 private:
   void beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) override;
-  void beginJob() override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endJob() override;
 
   // ----------member data --------------------------
 

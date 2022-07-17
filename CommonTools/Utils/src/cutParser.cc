@@ -24,7 +24,8 @@ bool reco::parser::cutParser(const edm::TypeWithDict& t, const std::string& cut,
       returnValue = parse(startingFrom, grammar.use_parser<0>() >> end_p, space_p).full;
     } catch (BaseException& e) {
       throw edm::Exception(edm::errors::Configuration)
-          << "Cut parser error:" << baseExceptionWhat(e) << " (char " << e.where - startingFrom << ")\n";
+          << "Cut parser error:" << baseExceptionWhat(e) << " (char " << e.where - startingFrom << ")\n"
+          << "Cut string was " << cut;
     }
     return returnValue;
   }

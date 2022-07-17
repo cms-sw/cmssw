@@ -30,9 +30,7 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 
 #include <vector>
-using namespace std;
 
-/*****************************************************************************/
 ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
     : theCacheToken(iC.consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("cacheSrc"))),
       theFilterToken(iC.esConsumes(edm::ESInputTag("", "ClusterShapeHitFilter"))),
@@ -40,17 +38,20 @@ ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter(const edm::ParameterS
 
 ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter() {}
 
+void ClusterShapeTrajectoryFilter::fillPSetDescription(edm::ParameterSetDescription& iDesc) {
+  iDesc.add<edm::InputTag>("cacheSrc", edm::InputTag("siPixelClusterShapeCache"));
+}
+
 void ClusterShapeTrajectoryFilter::setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   theFilter = &iSetup.getData(theFilterToken);
   theCache = &iEvent.get(theCacheToken);
 }
 
-/*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::toBeContinued(Trajectory& trajectory) const {
   assert(theCache);
-  vector<TrajectoryMeasurement> tms = trajectory.measurements();
+  std::vector<TrajectoryMeasurement> tms = trajectory.measurements();
 
-  for (vector<TrajectoryMeasurement>::const_iterator tm = tms.begin(); tm != tms.end(); tm++) {
+  for (std::vector<TrajectoryMeasurement>::const_iterator tm = tms.begin(); tm != tms.end(); tm++) {
     const TrackingRecHit* ttRecHit = &(*((*tm).recHit()));
 
     if (ttRecHit->isValid()) {
@@ -97,7 +98,6 @@ bool ClusterShapeTrajectoryFilter::toBeContinued(Trajectory& trajectory) const {
   return true;
 }
 
-/*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::toBeContinued(TempTrajectory& trajectory) const {
   assert(theCache);
   const TempTrajectory::DataContainer& tms = trajectory.measurements();
@@ -165,10 +165,8 @@ bool ClusterShapeTrajectoryFilter::toBeContinued(TempTrajectory& trajectory) con
   return true;
 }
 
-/*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::qualityFilter(const Trajectory& trajectory) const { return true; }
 
-/*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::qualityFilter(const TempTrajectory& trajectory) const {
   TempTrajectory t = trajectory;
 

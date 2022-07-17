@@ -10,7 +10,7 @@ bool SiStripApvGain::put(const uint32_t& DetId, Range input) {
   RegistryIterator p = std::lower_bound(v_detids.begin(), v_detids.end(), DetId);
   if (p != v_detids.end() && *p == DetId) {
     edm::LogError("SiStripApvGain") << "[" << __PRETTY_FUNCTION__ << "] SiStripApvGain for DetID " << DetId
-                                    << " is already stored. Skippig this put" << std::endl;
+                                    << " is already stored. Skipping this put" << std::endl;
     return false;
   }
 

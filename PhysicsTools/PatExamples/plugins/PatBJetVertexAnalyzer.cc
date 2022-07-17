@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -30,7 +30,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
-class PatBJetVertexAnalyzer : public edm::EDAnalyzer {
+class PatBJetVertexAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// constructor and destructor
   PatBJetVertexAnalyzer(const edm::ParameterSet &params);
@@ -65,7 +65,9 @@ private:
 PatBJetVertexAnalyzer::PatBJetVertexAnalyzer(const edm::ParameterSet &params)
     : jetsToken_(consumes<pat::JetCollection>(params.getParameter<edm::InputTag>("jets"))),
       jetPtCut_(params.getParameter<double>("jetPtCut")),
-      jetEtaCut_(params.getParameter<double>("jetEtaCut")) {}
+      jetEtaCut_(params.getParameter<double>("jetEtaCut")) {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatBJetVertexAnalyzer::~PatBJetVertexAnalyzer() {}
 

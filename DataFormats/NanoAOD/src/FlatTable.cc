@@ -19,6 +19,9 @@ void nanoaod::FlatTable::addExtension(const nanoaod::FlatTable& other) {
       case ColumnType::Int:
         addColumn<int>(other.columnName(i), other.columnData<int>(i), other.columnDoc(i));
         break;
+      case ColumnType::Int8:
+        addColumn<int8_t>(other.columnName(i), other.columnData<int>(i), other.columnDoc(i));
+        break;
       case ColumnType::Bool:
         addColumn<bool>(other.columnName(i), other.columnData<bool>(i), other.columnDoc(i));
         break;
@@ -45,6 +48,8 @@ double nanoaod::FlatTable::getAnyValue(unsigned int row, unsigned int column) co
       return *(beginData<float>(column) + row);
     case ColumnType::Int:
       return *(beginData<int>(column) + row);
+    case ColumnType::Int8:
+      return *(beginData<int8_t>(column) + row);
     case ColumnType::Bool:
       return *(beginData<bool>(column) + row);
     case ColumnType::UInt8:

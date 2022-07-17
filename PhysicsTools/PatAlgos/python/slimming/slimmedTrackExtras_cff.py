@@ -9,6 +9,14 @@ slimmedMuonTrackExtras = muonReducedTrackExtras.clone(muonTag = "selectedPatMuon
                                                                 pixelClusterTag = "muonReducedTrackExtras",
                                                                 stripClusterTag = "muonReducedTrackExtras")
 
+from RecoMuon.MuonIdentification.displacedMuonReducedTrackExtras_cfi import displacedMuonReducedTrackExtras
+slimmedDisplacedMuonTrackExtras = displacedMuonReducedTrackExtras.clone(muonTag = "selectedPatDisplacedMuons",
+                                                                cut = "pt > 4.5",
+                                                                trackExtraTags = ["displacedMuonReducedTrackExtras", "displacedStandAloneMuons"],
+                                                                trackExtraAssocs = ["displacedMuonReducedTrackExtras"],
+                                                                pixelClusterTag = "displacedMuonReducedTrackExtras",
+                                                                stripClusterTag = "displacedMuonReducedTrackExtras")
+
 # no clusters in fastsim
 from Configuration.Eras.Modifier_fastSim_cff import fastSim
 fastSim.toModify(slimmedMuonTrackExtras, outputClusters = False)
@@ -16,6 +24,7 @@ fastSim.toModify(slimmedMuonTrackExtras, outputClusters = False)
 # cluster collections are different in phase 2, so skip this for now
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(slimmedMuonTrackExtras, outputClusters = False)
+phase2_tracker.toModify(slimmedDisplacedMuonTrackExtras, outputClusters = False)
 
 # lower minimum pt for B-parking
 from Configuration.Eras.Modifier_bParking_cff import bParking

@@ -1,18 +1,19 @@
+// system includes
 #include <memory>
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+
+// user includes
 #include "CLHEP/Random/RandGauss.h"
+#include "CalibTracker/SiStripLorentzAngle/interface/SiStripCalibLorentzAngle.h"
+#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
-
-#include "CalibTracker/SiStripLorentzAngle/interface/SiStripCalibLorentzAngle.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 
 SiStripCalibLorentzAngle::SiStripCalibLorentzAngle(edm::ParameterSet const& conf)
     : ConditionDBWriter<SiStripLorentzAngle>(conf),

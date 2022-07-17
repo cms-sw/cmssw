@@ -3,6 +3,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCSiliconDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCScintillatorDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HGCalCommonData/interface/HGCalCell.h"
 #include "Geometry/HGCalCommonData/interface/HGCalTypes.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -58,14 +59,14 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
   std::vector<DetId> ids;
   HGCalTopology::DecodedDetId id = decode(idin);
   if (waferHexagon8()) {
-    HGCalTypes::CellType celltype = hdcons_.cellType(id.iType, id.iCell1, id.iCell2);
+    int celltype = hdcons_.cellType(
+        id.iType, id.iCell1, id.iCell2, id.zSide, 1, -1);  // Temporary fix - later for v17 define fwd back and orient
 #ifdef EDM_ML_DEBUG
     edm::LogVerbatim("HGCalGeom") << "Type:WaferU:WaferV " << id.iType << ":" << id.iCell1 << ":" << id.iCell2
-                                  << " CellType "
-                                  << static_cast<std::underlying_type<HGCalTypes::CellType>::type>(celltype);
+                                  << " CellType " << celltype;
 #endif
     switch (celltype) {
-      case (HGCalTypes::CellType::CentralType): {
+      case (HGCalCell::centralCell): {
         // cell within the wafer
 #ifdef EDM_ML_DEBUG
         edm::LogVerbatim("HGCalGeom") << "Cell Type 0";
@@ -78,7 +79,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, id.iType, id.iLay, id.iSec1, id.iSec2, id.iCell1 + 1, id.iCell2 + 1);
         break;
       }
-      case (HGCalTypes::CellType::BottomLeftEdge): {
+      case (HGCalCell::bottomLeftEdge): {
         // bottom left edge
         int wu1(id.iSec1), wv1(id.iSec2 - 1);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -96,7 +97,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, id.iType, id.iLay, id.iSec1, id.iSec2, id.iCell1 + 1, id.iCell2 + 1);
         break;
       }
-      case (HGCalTypes::CellType::LeftEdge): {
+      case (HGCalCell::leftEdge): {
         // left edege
         int wu1(id.iSec1 + 1), wv1(id.iSec2);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -114,7 +115,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, id.iType, id.iLay, id.iSec1, id.iSec2, id.iCell1 + 1, id.iCell2 + 1);
         break;
       }
-      case (HGCalTypes::CellType::TopLeftEdge): {
+      case (HGCalCell::topLeftEdge): {
         // top left edge
         int wu1(id.iSec1 + 1), wv1(id.iSec2 + 1);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -132,7 +133,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, id.iType, id.iLay, id.iSec1, id.iSec2, id.iCell1 + 1, id.iCell2 + 1);
         break;
       }
-      case (HGCalTypes::CellType::TopRightEdge): {
+      case (HGCalCell::topRightEdge): {
         // top right edge
         int wu1(id.iSec1), wv1(id.iSec2 + 1);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -150,7 +151,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, t1, id.iLay, wu1, wv1, 0, v1 - N1 + 1);
         break;
       }
-      case (HGCalTypes::CellType::RightEdge): {
+      case (HGCalCell::rightEdge): {
         // right edge
         int wu1(id.iSec1 - 1), wv1(id.iSec2);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -168,7 +169,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, t1, id.iLay, wu1, wv1, u1 - N1 + 1, 0);
         break;
       }
-      case (HGCalTypes::CellType::BottomRightEdge): {
+      case (HGCalCell::bottomRightEdge): {
         // bottom right edge
         int wu1(id.iSec1 - 1), wv1(id.iSec2 - 1);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -186,7 +187,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, id.iType, id.iLay, id.iSec1, id.iSec2, id.iCell1 + 1, id.iCell2 + 1);
         break;
       }
-      case (HGCalTypes::CellType::BottomCorner): {
+      case (HGCalCell::bottomCorner): {
         // bottom corner
         int wu1(id.iSec1), wv1(id.iSec2 - 1);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -209,7 +210,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, id.iType, id.iLay, id.iSec1, id.iSec2, id.iCell1 + 1, id.iCell2 + 1);
         break;
       }
-      case (HGCalTypes::CellType::BottomLeftCorner): {
+      case (HGCalCell::bottomLeftCorner): {
         // bottom left corner
         int wu1(id.iSec1 + 1), wv1(id.iSec2);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -232,7 +233,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, id.iType, id.iLay, id.iSec1, id.iSec2, id.iCell1 + 1, id.iCell2 + 1);
         break;
       }
-      case (HGCalTypes::CellType::TopLeftCorner): {
+      case (HGCalCell::topLeftCorner): {
         // top left corner
         int wu1(id.iSec1 + 1), wv1(id.iSec2 + 1);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -255,7 +256,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, id.iType, id.iLay, id.iSec1, id.iSec2, id.iCell1 + 1, id.iCell2 + 1);
         break;
       }
-      case (HGCalTypes::CellType::TopCorner): {
+      case (HGCalCell::topCorner): {
         // top corner
         int wu1(id.iSec1 + 1), wv1(id.iSec2 + 1);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -278,7 +279,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, t2, id.iLay, wu2, wv2, 0, v2 - N2 + 1);
         break;
       }
-      case (HGCalTypes::CellType::TopRightCorner): {
+      case (HGCalCell::topRightCorner): {
         // top right corner
         int wu1(id.iSec1), wv1(id.iSec2 + 1);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);
@@ -301,7 +302,7 @@ std::vector<DetId> HGCalTopology::neighbors(const DetId& idin) const {
         addHGCSiliconId(ids, id.det, id.zSide, t2, id.iLay, wu2, wv2, u2 - N2 + 1, 0);
         break;
       }
-      case (HGCalTypes::CellType::BottomRightCorner): {
+      case (HGCalCell::bottomRightCorner): {
         // bottom right corner
         int wu1(id.iSec1 - 1), wv1(id.iSec2 - 1);
         int t1 = hdcons_.getTypeHex(id.iLay, wu1, wv1);

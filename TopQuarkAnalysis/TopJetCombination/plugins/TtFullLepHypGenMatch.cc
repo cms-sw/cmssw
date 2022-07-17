@@ -1,11 +1,35 @@
-#include "TopQuarkAnalysis/TopJetCombination/plugins/TtFullLepHypGenMatch.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtFullLepHypothesis.h"
+
 #include "AnalysisDataFormats/TopObjects/interface/TtFullLepEvtPartons.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
+class TtFullLepHypGenMatch : public TtFullLepHypothesis {
+public:
+  explicit TtFullLepHypGenMatch(const edm::ParameterSet&);
+
+private:
+  /// build the event hypothesis key
+  void buildKey() override { key_ = TtFullLeptonicEvent::kGenMatch; };
+  /// build event hypothesis from the reco objects of a semi-leptonic event
+  void buildHypo(edm::Event& evt,
+                 const edm::Handle<std::vector<pat::Electron> >& elecs,
+                 const edm::Handle<std::vector<pat::Muon> >& mus,
+                 const edm::Handle<std::vector<pat::Jet> >& jets,
+                 const edm::Handle<std::vector<pat::MET> >& mets,
+                 std::vector<int>& match,
+                 const unsigned int iComb) override;
+
+  template <typename O>
+  int findMatchingLepton(const reco::GenParticle*, const edm::Handle<std::vector<O> >&);
+  void buildMatchingNeutrinos(edm::Event&, const edm::Handle<std::vector<pat::MET> >&);
+
+protected:
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
+};
 
 TtFullLepHypGenMatch::TtFullLepHypGenMatch(const edm::ParameterSet& cfg)
     : TtFullLepHypothesis(cfg), genEvtToken_(consumes<TtGenEvent>(edm::InputTag("genEvt"))) {}
-
-TtFullLepHypGenMatch::~TtFullLepHypGenMatch() {}
 
 void TtFullLepHypGenMatch::buildHypo(edm::Event& evt,
                                      const edm::Handle<std::vector<pat::Electron> >& elecs,
@@ -21,10 +45,10 @@ void TtFullLepHypGenMatch::buildHypo(edm::Event& evt,
     if (isValid(match[idx], jets)) {
       switch (idx) {
         case TtFullLepEvtPartons::B:
-          setCandidate(jets, match[idx], b_, jetCorrectionLevel_);
+          b_ = makeCandidate(jets, match[idx], jetCorrectionLevel_);
           break;
         case TtFullLepEvtPartons::BBar:
-          setCandidate(jets, match[idx], bBar_, jetCorrectionLevel_);
+          bBar_ = makeCandidate(jets, match[idx], jetCorrectionLevel_);
           break;
       }
     }
@@ -46,10 +70,10 @@ void TtFullLepHypGenMatch::buildHypo(edm::Event& evt,
   } else if (genEvt->isFullLeptonic(WDecay::kElec, WDecay::kElec) && elecs->size() >= 2) {
     //search indices for electrons
     int iLepBar = findMatchingLepton(genEvt->leptonBar(), elecs);
-    setCandidate(elecs, iLepBar, leptonBar_);
+    leptonBar_ = makeCandidate(elecs, iLepBar);
     match.push_back(iLepBar);
     int iLep = findMatchingLepton(genEvt->lepton(), elecs);
-    setCandidate(elecs, iLep, lepton_);
+    lepton_ = makeCandidate(elecs, iLep);
     match.push_back(iLep);
 
     // fake indices for muons
@@ -59,25 +83,25 @@ void TtFullLepHypGenMatch::buildHypo(edm::Event& evt,
     if (genEvt->leptonBar()->isElectron()) {
       // push back index for e+
       int iLepBar = findMatchingLepton(genEvt->leptonBar(), elecs);
-      setCandidate(elecs, iLepBar, leptonBar_);
+      leptonBar_ = makeCandidate(elecs, iLepBar);
       match.push_back(iLepBar);
       // push back fake indices for e- and mu+
       match.push_back(-1);
       match.push_back(-1);
       // push back index for mu-
       int iLep = findMatchingLepton(genEvt->lepton(), mus);
-      setCandidate(mus, iLep, lepton_);
+      lepton_ = makeCandidate(mus, iLep);
       match.push_back(iLep);
     } else {
       // push back fake index for e+
       match.push_back(-1);
       // push back index for e-
       int iLepBar = findMatchingLepton(genEvt->leptonBar(), mus);
-      setCandidate(mus, iLepBar, leptonBar_);
+      leptonBar_ = makeCandidate(mus, iLepBar);
       match.push_back(iLepBar);
       // push back index for mu+
       int iLep = findMatchingLepton(genEvt->lepton(), elecs);
-      setCandidate(elecs, iLep, lepton_);
+      lepton_ = makeCandidate(elecs, iLep);
       match.push_back(iLep);
       // push back fake index for mu-
       match.push_back(-1);
@@ -89,10 +113,10 @@ void TtFullLepHypGenMatch::buildHypo(edm::Event& evt,
 
     //search indices for electrons
     int iLepBar = findMatchingLepton(genEvt->leptonBar(), mus);
-    setCandidate(mus, iLepBar, leptonBar_);
+    leptonBar_ = makeCandidate(mus, iLepBar);
     match.push_back(iLepBar);
     int iLep = findMatchingLepton(genEvt->lepton(), mus);
-    setCandidate(mus, iLep, lepton_);
+    lepton_ = makeCandidate(mus, iLep);
     match.push_back(iLep);
   } else {  //this 'else' should happen if at least one genlepton is a tau
     match.push_back(-1);
@@ -105,7 +129,7 @@ void TtFullLepHypGenMatch::buildHypo(edm::Event& evt,
   // add met and neutrinos
   // -----------------------------------------------------
   if (!mets->empty()) {
-    //setCandidate(mets, 0, met_);
+    //met_ = makeCandidate(mets, 0);
     buildMatchingNeutrinos(evt, mets);
   }
 }
@@ -146,12 +170,15 @@ void TtFullLepHypGenMatch::buildMatchingNeutrinos(edm::Event& evt, const edm::Ha
 
     math::XYZTLorentzVector recNuFM(
         momXNeutrino, momYNeutrino, 0, sqrt(momXNeutrino * momXNeutrino + momYNeutrino * momYNeutrino));
-    recNu = new reco::LeafCandidate(0, recNuFM);
+    recNu = std::make_unique<reco::LeafCandidate>(0, recNuFM);
 
     math::XYZTLorentzVector recNuBarFM(momXNeutrinoBar,
                                        momYNeutrinoBar,
                                        0,
                                        sqrt(momXNeutrinoBar * momXNeutrinoBar + momYNeutrinoBar * momYNeutrinoBar));
-    recNuBar = new reco::LeafCandidate(0, recNuBarFM);
+    recNuBar = std::make_unique<reco::LeafCandidate>(0, recNuBarFM);
   }
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TtFullLepHypGenMatch);

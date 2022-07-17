@@ -10,8 +10,8 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 
 if hasattr(process,'MessageLogger'):
     process.MessageLogger.HGCalGeom=dict()
+    process.MessageLogger.HGCalGeomX=dict()
     process.MessageLogger.CaloGeometryBuilder=dict()
-
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(

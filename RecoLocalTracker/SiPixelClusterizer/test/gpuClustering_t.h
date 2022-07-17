@@ -254,7 +254,8 @@ int main(void) {
     std::cout << "CUDA countModules kernel launch with " << blocksPerGrid << " blocks of " << threadsPerBlock
               << " threads\n";
 
-    cms::cuda::launch(countModules, {blocksPerGrid, threadsPerBlock}, d_id.get(), d_moduleStart.get(), d_clus.get(), n);
+    cms::cuda::launch(
+        countModules<false>, {blocksPerGrid, threadsPerBlock}, d_id.get(), d_moduleStart.get(), d_clus.get(), n);
 
     blocksPerGrid = maxNumModules;  //nModules;
 
@@ -262,7 +263,7 @@ int main(void) {
               << " threads\n";
     cudaCheck(cudaMemset(d_clusInModule.get(), 0, maxNumModules * sizeof(uint32_t)));
 
-    cms::cuda::launch(findClus,
+    cms::cuda::launch(findClus<false>,
                       {blocksPerGrid, threadsPerBlock},
                       d_id.get(),
                       d_x.get(),
@@ -288,7 +289,7 @@ int main(void) {
     if (ncl != std::accumulate(nclus, nclus + maxNumModules, 0))
       std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
-    cms::cuda::launch(clusterChargeCut,
+    cms::cuda::launch(clusterChargeCut<false>,
                       {blocksPerGrid, threadsPerBlock},
                       clusterThresholds,
                       d_id.get(),
@@ -302,9 +303,9 @@ int main(void) {
     cudaDeviceSynchronize();
 #else   // __CUDACC__
     h_moduleStart[0] = nModules;
-    countModules(h_id.get(), h_moduleStart.get(), h_clus.get(), n);
+    countModules<false>(h_id.get(), h_moduleStart.get(), h_clus.get(), n);
     memset(h_clusInModule.get(), 0, maxNumModules * sizeof(uint32_t));
-    findClus(
+    findClus<false>(
         h_id.get(), h_x.get(), h_y.get(), h_moduleStart.get(), h_clusInModule.get(), h_moduleId.get(), h_clus.get(), n);
 
     nModules = h_moduleStart[0];
@@ -320,14 +321,14 @@ int main(void) {
     if (ncl != std::accumulate(nclus, nclus + maxNumModules, 0))
       std::cout << "ERROR!!!!! wrong number of cluster found" << std::endl;
 
-    clusterChargeCut(clusterThresholds,
-                     h_id.get(),
-                     h_adc.get(),
-                     h_moduleStart.get(),
-                     h_clusInModule.get(),
-                     h_moduleId.get(),
-                     h_clus.get(),
-                     n);
+    clusterChargeCut<false>(clusterThresholds,
+                            h_id.get(),
+                            h_adc.get(),
+                            h_moduleStart.get(),
+                            h_clusInModule.get(),
+                            h_moduleId.get(),
+                            h_clus.get(),
+                            n);
 #endif  // __CUDACC__
 
     std::cout << "found " << nModules << " Modules active" << std::endl;

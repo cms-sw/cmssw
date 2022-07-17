@@ -14,6 +14,7 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/XrdAdaptor/interface/XrdStatistics.h"
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include "FWCore/Utilities/interface/processGUID.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -60,7 +61,7 @@ namespace edm {
       void beginPre(PathsAndConsumesOfModulesBase const &, ProcessContext const &processContext);
       void beginPost();
       void endPost();
-      void filePost(std::string const &, bool);
+      void filePost(std::string const &);
 
       bool m_debug;
       std::atomic_flag m_shouldUpdate;
@@ -91,10 +92,15 @@ const unsigned int CondorStatusService::m_defaultUpdateInterval;
 constexpr float CondorStatusService::m_defaultEmaInterval;
 
 CondorStatusService::CondorStatusService(ParameterSet const &pset, edm::ActivityRegistry &ar)
-    : m_debug(false), m_lastUpdate(0), m_events(0), m_lumis(0), m_runs(0), m_files(0) {
+    : m_debug(pset.getUntrackedParameter("debug", false)),
+      m_lastUpdate(0),
+      m_events(0),
+      m_lumis(0),
+      m_runs(0),
+      m_files(0) {
   m_shouldUpdate.clear();
-  if (pset.exists("debug")) {
-    m_debug = true;
+  if (not pset.getUntrackedParameter("enable", true)) {
+    return;
   }
   if (!isChirpSupported()) {
     return;
@@ -136,7 +142,7 @@ void CondorStatusService::runPost(GlobalContext const &) {
   update();
 }
 
-void CondorStatusService::filePost(std::string const & /*lfn*/, bool /*usedFallback*/) {
+void CondorStatusService::filePost(std::string const & /*lfn*/) {
   m_files++;
   update();
 }
@@ -224,6 +230,7 @@ void CondorStatusService::firstUpdate() {
   updateChirp("MaxEvents", "-1");
   updateChirp("MaxLumis", "-1");
   updateChirp("Done", "false");
+  updateChirpQuoted("Guid", edm::processGUID().toString());
 
   edm::Service<edm::CPUServiceBase> cpusvc;
   std::string models;
@@ -417,6 +424,7 @@ void CondorStatusService::fillDescriptions(ConfigurationDescriptions &descriptio
       ->setComment("Interval, in seconds, to calculate event rate over (using EMA)");
   desc.addOptionalUntracked<std::string>("tag")->setComment(
       "Identifier tag for this process (a value of 'Foo' results in ClassAd attributes of the form 'ChirpCMSSWFoo*')");
+  desc.addOptionalUntracked<bool>("enable", true)->setComment("Enable this service");
   descriptions.add("CondorStatusService", desc);
 }
 

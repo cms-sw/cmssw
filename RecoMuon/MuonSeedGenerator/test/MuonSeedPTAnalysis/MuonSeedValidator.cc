@@ -39,7 +39,7 @@ using namespace edm;
 using namespace reco;
 
 // constructors
-MuonSeedValidator::MuonSeedValidator(const ParameterSet& pset) {
+MuonSeedValidator::MuonSeedValidator(const ParameterSet& pset) : cscGeomToken(esConsumes()), dtGeomToken(esConsumes()) {
   rootFileName = pset.getUntrackedParameter<string>("rootFileName");
   recHitLabel = pset.getUntrackedParameter<string>("recHitLabel");
   cscSegmentLabel = pset.getUntrackedParameter<string>("cscSegmentLabel");
@@ -138,12 +138,8 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
   //ESHandle<GlobalTrackingGeometry> globalGeometry;
   //eventSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
 
-  ESHandle<CSCGeometry> cscGeom;
-  eventSetup.get<MuonGeometryRecord>().get(cscGeom);
-
-  //Get the DT Geometry :
-  ESHandle<DTGeometry> dtGeom;
-  eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+  ESHandle<CSCGeometry> cscGeom = eventSetup.getHandle(cscGeomToken);
+  ESHandle<DTGeometry> dtGeom = eventSetup.getHandle(dtGeomToken);
 
   // Get the RecHits collection :
   Handle<CSCRecHit2DCollection> csc2DRecHits;

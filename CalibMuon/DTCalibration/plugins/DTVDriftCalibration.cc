@@ -280,12 +280,12 @@ void DTVDriftCalibration::endJob() {
   // Instantiate a DTCalibrationMap object if you want to calculate the calibration constants
   DTCalibrationMap calibValuesFile(theCalibFilePar);
   // Create the object to be written to DB
-  DTMtime* mTime = nullptr;
-  DTRecoConditions* vDrift = nullptr;
+  std::unique_ptr<DTMtime> mTime;
+  std::unique_ptr<DTRecoConditions> vDrift;
   if (writeLegacyVDriftDB) {
-    mTime = new DTMtime();
+    mTime = std::make_unique<DTMtime>();
   } else {
-    vDrift = new DTRecoConditions();
+    vDrift = std::make_unique<DTRecoConditions>();
     vDrift->setFormulaExpr("[0]");
     //vDriftNewMap->setFormulaExpr("[0]*(1-[1]*x)"); // add parametrization for dependency along Y
     vDrift->setVersion(1);
@@ -381,9 +381,9 @@ void DTVDriftCalibration::endJob() {
   // Write the vdrift object to DB
   if (writeLegacyVDriftDB) {
     string record = "DTMtimeRcd";
-    DTCalibDBUtils::writeToDB<DTMtime>(record, mTime);
+    DTCalibDBUtils::writeToDB<DTMtime>(record, *mTime);
   } else {
-    DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsVdriftRcd", vDrift);
+    DTCalibDBUtils::writeToDB<DTRecoConditions>("DTRecoConditionsVdriftRcd", *vDrift);
   }
 }
 

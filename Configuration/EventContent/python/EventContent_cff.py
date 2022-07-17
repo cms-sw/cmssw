@@ -60,14 +60,13 @@ from RecoPixelVertexing.Configuration.RecoPixelVertexing_EventContent_cff import
 from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
-from CommonTools.ParticleFlow.EITopPAG_EventContent_cff import EITopPAGEventContent
 from RecoPPS.Configuration.RecoCTPPS_EventContent_cff import *
 from RecoHGCal.Configuration.RecoHGCal_EventContent_cff import *
 
 # raw2digi that are already the final RECO/AOD products
 from EventFilter.ScalersRawToDigi.Scalers_EventContent_cff import *
 from EventFilter.OnlineMetaDataRawToDigi.OnlineMetaData_EventContent_cff import *
-from EventFilter.Utilities.Tcds_EventContent_cff import *
+from EventFilter.OnlineMetaDataRawToDigi.Tcds_EventContent_cff import *
 
 #DigiToRaw content
 from EventFilter.Configuration.DigiToRaw_EventContent_cff import *
@@ -177,6 +176,26 @@ RAWEventContent = cms.PSet(
 )
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+from Configuration.ProcessModifiers.approxSiStripClusters_cff import approxSiStripClusters
+approxSiStripClusters.toModify(RAWEventContent,
+                              outputCommands = RAWEventContent.outputCommands+[
+                                  'keep *_SiStripClusters2ApproxClustersHLT_*_*'
+                              ])
+
+#
+#
+# HLTONLY Data Tier definition
+#
+#
+HLTONLYEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0)
+)
+HLTONLYEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+HLTONLYEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+HLTONLYEventContent.outputCommands.extend(['drop  FEDRawDataCollection_rawDataCollector_*_*',
+                                           'drop  FEDRawDataCollection_source_*_*'])
 #
 #
 # RECO Data Tier definition
@@ -210,7 +229,6 @@ RECOEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 RECOEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 RECOEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 RECOEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-RECOEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
 from Configuration.Eras.Modifier_ctpps_cff import ctpps
 from Configuration.Eras.Modifier_phase2_hgcal_cff import phase2_hgcal
@@ -386,6 +404,12 @@ RAWRECODEBUGHLTEventContent.outputCommands.extend(SimGeneralFEVTDEBUG.outputComm
 RAWRECODEBUGHLTEventContent.outputCommands.extend(SimTrackerDEBUG.outputCommands)
 #
 #
+# HLTONLYSIM Data Tier definition
+#
+#
+HLTONLYSIMEventContent = HLTONLYEventContent.clone()
+#
+#
 # RECOSIM Data Tier definition
 #
 #
@@ -493,7 +517,6 @@ FEVTEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
 FEVTEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
 FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
 ctpps.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
@@ -753,6 +776,10 @@ REPACKRAWEventContent = cms.PSet(
 )
 REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+approxSiStripClusters.toModify(REPACKRAWEventContent,
+                               outputCommands = REPACKRAWEventContent.outputCommands+[
+                                   'keep *_SiStripClusters2ApproxClustersHLT_*_*'
+                               ])
 
 REPACKRAWSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(),

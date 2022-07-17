@@ -33,20 +33,24 @@ private:
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_;
 
   /// max Eta cut
-  double maxEta_;
+  const double maxEta_;
 
   /// pT threshold
-  double minPt_;
+  const double minPt_;
+
+  /// max dRs for L1 candidate matching
+  const double maxDR_;
+  const double maxDR2_;
 
   /// Quality codes:
   /// to be updated with new L1 quality definitions
   int qualityBitMask_;
 
   /// min N objects
-  double minN_;
+  const double minN_;
 
   /// use central bx only muons
-  bool centralBxOnly_;
+  const bool centralBxOnly_;
 };
 
 #endif  //HLTMuonL1TFilter_h

@@ -165,7 +165,8 @@ namespace {
           badStripsPerDetId[d] += payload->decode(*badStrip).range;
           //ss << "DetId="<< d << " Strip=" << payload->decode(*badStrip).firstStrip <<":"<< payload->decode(*badStrip).range << " flag="<< payload->decode(*badStrip).flag << std::endl;
         }
-        float fraction = badStripsPerDetId[d] / (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
+        float fraction =
+            badStripsPerDetId[d] / (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(d).first);
         tmap->fill(d, fraction);
       }  // loop over detIds
 
@@ -227,7 +228,8 @@ namespace {
         for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStripsPerDetId[d] += payload->decode(*badStrip).range;
         }
-        float fraction = badStripsPerDetId[d] / (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
+        float fraction =
+            badStripsPerDetId[d] / (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(d).first);
         if (fraction > 0.) {
           myMap.fill(d, fraction);
         }
@@ -276,7 +278,7 @@ namespace {
       float numerator(0.), denominator(0.);
       std::vector<uint32_t> all_detids = detInfo.getAllDetIds();
       for (const auto& det : all_detids) {
-        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
+        denominator += sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
@@ -321,7 +323,7 @@ namespace {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TIB)
           continue;
-        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
+        denominator += sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
@@ -366,7 +368,7 @@ namespace {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TOB)
           continue;
-        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
+        denominator += sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
@@ -411,7 +413,7 @@ namespace {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TID)
           continue;
-        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
+        denominator += sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
@@ -456,7 +458,7 @@ namespace {
         int subid = DetId(det).subdetId();
         if (subid != StripSubdetector::TEC)
           continue;
-        denominator += 128. * detInfo.getNumberOfApvsAndStripLength(det).first;
+        denominator += sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(det).first;
         if (badStripsPerDetId.count(det) != 0)
           numerator += badStripsPerDetId[det];
       }
@@ -880,7 +882,7 @@ namespace {
           LastFractionPerDetId[d] += last_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module
-        LastFractionPerDetId[d] /= (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
+        LastFractionPerDetId[d] /= (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(d).first);
       }  // loop over detIds
 
       std::vector<uint32_t> detid2;
@@ -894,7 +896,7 @@ namespace {
           FirstFractionPerDetId[d] += first_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module
-        FirstFractionPerDetId[d] /= (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
+        FirstFractionPerDetId[d] /= (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(d).first);
       }  // loop over detIds
 
       std::vector<uint32_t> allDetIds = detInfo.getAllDetIds();

@@ -29,12 +29,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-@example_myparticle#include "DataFormats/MuonReco/interface/Muon.h"
-@example_myparticle#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 @example_myparticle#include "DataFormats/Candidate/interface/Particle.h"
+@example_myparticle#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+@example_myparticle#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+@example_myparticle#include "DataFormats/MuonReco/interface/Muon.h"
+@example_myparticle#include "DataFormats/MuonReco/interface/MuonFwd.h"
 @example_myparticle#include "FWCore/MessageLogger/interface/MessageLogger.h"
 @example_myparticle#include "FWCore/Utilities/interface/InputTag.h"
-
+@example_myparticle
 //
 // class declaration
 //
@@ -42,7 +44,7 @@
 class __class__ : public edm::stream::EDProducer<> {
 public:
   explicit __class__(const edm::ParameterSet&);
-  ~__class__();
+  ~__class__() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -51,23 +53,23 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endStream() override;
 
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  //void endRun(edm::Run const&, edm::EventSetup const&) override;
+  //void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  //void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
+@example_myparticle  // define container that will be booked into event
+@example_myparticle  typedef std::vector<reco::Particle> MyParticleCollection;
+@example_myparticle
   // ----------member data ---------------------------
 @example_myparticle  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
-@example_myparticle  edm::EDGetTokenT<reco::PixelMatchGsfElectronCollection> electronToken_;
+@example_myparticle  edm::EDGetTokenT<reco::GsfElectronCollection> electronToken_;
 @example_myparticle  edm::EDPutTokenT<MyParticleCollection> putToken_;
 };
 
 //
 // constants, enums and typedefs
 //
-
-@example_myparticle// define container that will be booked into event
-@example_myparticletypedef std::vector<reco::Particle> MyParticleCollection;
 
 //
 // static data member definitions
@@ -76,13 +78,13 @@ private:
 //
 // constructors and destructor
 //
-__class__::__class__(const edm::ParameterSet& iConfig)
+@default__class__::__class__(const edm::ParameterSet& iConfig) {
+@example_myparticle__class__::__class__(const edm::ParameterSet& iConfig)
 @example_myparticle    : muonToken_(consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-@example_myparticle      electronToken_(consumes<reco::PixelMatchGsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
-@example_myparticle      putToken_(produces<MyParticleCollection>("particles"))
-{
+@example_myparticle      electronToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+@example_myparticle      putToken_(produces<MyParticleCollection>("particles")) {
   //register your products
-/* Examples
+  /* Examples
   produces<ExampleData2>();
 
   //if do put with a label
@@ -90,7 +92,7 @@ __class__::__class__(const edm::ParameterSet& iConfig)
  
   //if you want to put into the Run
   produces<ExampleData2,InRun>();
-*/
+  */
   //now do what ever other initialization is needed
 }
 
@@ -110,19 +112,19 @@ void __class__::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 @example_myparticle  using namespace reco;
 @example_myparticle  using namespace std;
-/* This is an event example
+  /* This is an event example
   //Read 'ExampleData' from the Event
   ExampleData const& in = iEvent.get(inToken_);
 
   //Use the ExampleData to create an ExampleData2 which 
   // is put into the Event
   iEvent.put(std::make_unique<ExampleData2>(in));
-*/
+  */
 
-/* this is an EventSetup example
+  /* this is an EventSetup example
   //Read SetupData from the SetupRecord in the EventSetup
   SetupData& setup = iSetup.getData(setupToken_);
-*/
+  */
 @example_myparticle
 @example_myparticle  auto const& muons = iEvent.get(muonToken_);
 @example_myparticle  auto const& electrons = iEvent.get(electronToken_);
@@ -209,7 +211,7 @@ void __class__::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 @example_myparticle  //To use, remove the default given above and uncomment below
 @example_myparticle  //ParameterSetDescription desc;
 @example_myparticle  //desc.add<edm::InputTag>("muons","muons");
-@example_myparticle  //desc.add<edm::InputTag>("electrons","pixelMatchGsfElectrons");
+@example_myparticle  //desc.add<edm::InputTag>("electrons","gedGsfElectrons");
 @example_myparticle  //descriptions.addWithDefaultLabel(desc);
 }
 

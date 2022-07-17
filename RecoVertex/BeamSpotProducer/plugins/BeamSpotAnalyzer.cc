@@ -9,7 +9,6 @@ ________________________________________________________________**/
 
 // C++ standard
 #include <string>
-#include <string>
 
 // CMS
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
@@ -216,13 +215,16 @@ void BeamSpotAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.setComment("Analyzer of BeamSpot Objects");
 
   edm::ParameterSetDescription bsAnalyzerParamsDesc;
-  std::vector<edm::ParameterSet> bsAnaDefaults(1);
-  bsAnaDefaults[0].addParameter("WriteToDB", false);
-  bsAnaDefaults[0].addParameter("RunAllFitters", false);
-  bsAnaDefaults[0].addUntrackedParameter("fitEveryNLumi", -1);
-  bsAnaDefaults[0].addUntrackedParameter("resetEveryNLumi", -1);
-  bsAnaDefaults[0].addParameter("RunBeamWidthFit", false);
-  desc.addVPSet("BSAnalyzerParameters", bsAnalyzerParamsDesc, bsAnaDefaults);
+  bsAnalyzerParamsDesc.add("WriteToDB", false);
+  bsAnalyzerParamsDesc.add("RunAllFitters", false);
+  bsAnalyzerParamsDesc.addUntracked("fitEveryNLumi", -1);
+  bsAnalyzerParamsDesc.addUntracked("resetEveryNLumi", -1);
+  bsAnalyzerParamsDesc.add("RunBeamWidthFit", false);
+  desc.add<edm::ParameterSetDescription>("BSAnalyzerParameters", bsAnalyzerParamsDesc);
+
+  BeamFitter::fillDescription(desc);
+  PVFitter::fillDescription(desc);
+
   descriptions.addWithDefaultLabel(desc);
 }
 

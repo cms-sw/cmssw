@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <mutex>
 
+//#define EDM_ML_DEBUG
+
 static std::mutex s_fillLock;
 
 HcalDDDGeometry::HcalDDDGeometry(const HcalTopology& topo)
@@ -66,7 +68,6 @@ std::vector<DetId> const& HcalDDDGeometry::getValidDetIds(DetId::Detector det, i
 
 DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
   constexpr double twopi = M_PI + M_PI;
-  constexpr double deg = M_PI / 180.;
 
   // Now find the closest eta_bin, eta value of a bin i is average
   // of eta[i] and eta[i-1]
@@ -77,8 +78,11 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
   double radius = r.mag();
   double z = fabs(r.z());
 
-  LogDebug("HCalGeom") << "HcalDDDGeometry::getClosestCell for eta " << r.eta() << " phi " << phi / deg << " z "
-                       << r.z() << " radius " << radius;
+#ifdef EDM_ML_DEBUG
+  constexpr double deg = M_PI / 180.;
+  edm::LogVerbatim("HCalGeom") << "HcalDDDGeometry::getClosestCell for eta " << r.eta() << " phi " << phi / deg << " z "
+                               << r.z() << " radius " << radius;
+#endif
   HcalDetId bestId;
   if (abseta <= etaMax_) {
     for (const auto& hcalCell : hcalCells_) {
@@ -121,8 +125,9 @@ DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
     }
   }
 
-  LogDebug("HCalGeom") << "HcalDDDGeometry::getClosestCell " << bestId;
-
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "HcalDDDGeometry::getClosestCell " << bestId;
+#endif
   return bestId;
 }
 
@@ -133,9 +138,10 @@ int HcalDDDGeometry::insertCell(std::vector<HcalCellType> const& cells) {
     if (cell.etaMax() > etaMax_)
       etaMax_ = cell.etaMax();
   }
-
-  LogDebug("HCalGeom") << "HcalDDDGeometry::insertCell " << cells.size() << " cells inserted == Total " << num
-                       << " EtaMax = " << etaMax_;
+#ifdef EDM_ML_DEBUG
+  edm::LogVerbatim("HCalGeom") << "HcalDDDGeometry::insertCell " << cells.size() << " cells inserted == Total " << num
+                               << " EtaMax = " << etaMax_;
+#endif
   return num;
 }
 

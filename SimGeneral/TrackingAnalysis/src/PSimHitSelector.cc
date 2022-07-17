@@ -4,7 +4,7 @@
 
 #include "SimGeneral/TrackingAnalysis/interface/PSimHitSelector.h"
 
-PSimHitSelector::PSimHitSelector(edm::ParameterSet const &config) {
+PSimHitSelector::PSimHitSelector(edm::ParameterSet const &config, edm::ConsumesCollector &) {
   // Initilize psimhit collection discriminated by sub systems
   edm::ParameterSet pSimHitCollections = config.getParameter<edm::ParameterSet>("simHitCollections");
 

@@ -77,19 +77,21 @@ phase2_hgcal.toModify(common_MCtruth,
 g4SimHits = cms.EDProducer("OscarMTProducer",
     g4GeometryDD4hepSource = cms.bool(False),
     NonBeamEvent = cms.bool(False),
-    G4EventManagerVerbosity = cms.untracked.int32(0),
+    EventVerbose = cms.int32(0),
     UseMagneticField = cms.bool(True),
+    UseCommandBaseScorer = cms.bool(False),
     StoreRndmSeeds = cms.bool(False),
     RestoreRndmSeeds = cms.bool(False),
     PhysicsTablesDirectory = cms.untracked.string('PhysicsTables'),
     StorePhysicsTables = cms.untracked.bool(False),
     RestorePhysicsTables = cms.untracked.bool(False),
     UseParametrisedEMPhysics = cms.untracked.bool(True),
-    ThresholdForGeometryExceptions = cms.double(0.01),   ## in GeV
+    ThresholdForGeometryExceptions = cms.double(0.1), ## in GeV
+    TraceExceptions = cms.bool(False),
     CheckGeometry = cms.untracked.bool(False),
     OnlySDs = cms.vstring('ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'),
     G4CheckOverlap = cms.untracked.PSet(
-        OutputBaseName = cms.string('2017'),
+        OutputBaseName = cms.string('2021'),
         MaterialFlag = cms.bool(True),
         GeomFlag = cms.bool(True),
         OverlapFlag = cms.bool(False),
@@ -106,6 +108,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         NodeNames = cms.vstring('World')
     ),
     G4Commands = cms.vstring(),
+    G4CommandsEndRun = cms.vstring(),
     SteppingVerbosity = cms.untracked.int32(0),
     StepVerboseThreshold = cms.untracked.double(0.1), # in GeV
     VerboseEvents = cms.untracked.vint32(),
@@ -311,7 +314,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     SteppingAction = cms.PSet(
         common_maximum_time,
-        MaxNumberOfSteps        = cms.int32(50000),
+        MaxNumberOfSteps        = cms.int32(20000),
         EkinNames               = cms.vstring(),
         EkinThresholds          = cms.vdouble(),
         EkinParticles           = cms.vstring()
@@ -632,7 +635,11 @@ run2_HCAL_2017.toModify( g4SimHits, HCalSD = dict( TestNumberingScheme = True ) 
 ##
 from Configuration.Eras.Modifier_run3_common_cff import run3_common
 run3_common.toModify( g4SimHits, CastorSD = dict( useShowerLibrary = False ) ) 
+<<<<<<< HEAD
 run3_common.toModify( g4SimHits, LHCTransport = False )
+=======
+run3_common.toModify( g4SimHits, LHCTransport = True )
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
 
 ##
 ## Disable PPS from Run 3 PbPb runs
@@ -653,9 +660,21 @@ phase2_timing.toModify( g4SimHits, ECalSD = dict(
 ## Change CALO Thresholds
 ##
 from Configuration.Eras.Modifier_h2tb_cff import h2tb
+<<<<<<< HEAD
 h2tb.toModify(g4SimHits, CaloSD = dict(
               EminHits  = [0.0, 0.0, 0.0, 0.0, 0.0],
               TmaxHits  = [1000.0, 1000.0, 1000.0, 1000.0, 2000.0] )
+=======
+h2tb.toModify(g4SimHits,
+              OnlySDs = ['EcalSensitiveDetector', 'CaloTrkProcessing', 'HcalTB06BeamDetector', 'HcalSensitiveDetector'],
+              CaloSD = dict(
+                  EminHits  = [0.0, 0.0, 0.0, 0.0, 0.0],
+                  TmaxHits  = [1000.0, 1000.0, 1000.0, 1000.0, 2000.0] ),
+              CaloTrkProcessing = dict(
+                  TestBeam = True ),
+              HCalSD = dict(
+                  ForTBHCAL = True )
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
 )
 
 ##
@@ -671,7 +690,19 @@ dd4hep.toModify( g4SimHits, g4GeometryDD4hepSource = True )
 from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
 phase2_common.toModify(g4SimHits,
                        OnlySDs = ['ZdcSensitiveDetector', 'TotemT2ScintSensitiveDetector', 'TotemSensitiveDetector', 'RomanPotSensitiveDetector', 'PLTSensitiveDetector', 'MuonSensitiveDetector', 'MtdSensitiveDetector', 'BCM1FSensitiveDetector', 'EcalSensitiveDetector', 'CTPPSSensitiveDetector', 'HGCalSensitiveDetector', 'BSCSensitiveDetector', 'CTPPSDiamondSensitiveDetector', 'FP420SensitiveDetector', 'BHMSensitiveDetector', 'HFNoseSensitiveDetector', 'HGCScintillatorSensitiveDetector', 'CastorSensitiveDetector', 'CaloTrkProcessing', 'HcalSensitiveDetector', 'TkAccumulatingSensitiveDetector'],
+<<<<<<< HEAD
                        LHCTransport = False,
                        MuonSD = dict( 
                        HaveDemoChambers = False ) 
 )
+=======
+                       LHCTransport = False, 
+                       MuonSD = dict( 
+                       HaveDemoChambers = False ) 
+)
+
+from Configuration.Eras.Modifier_hgcaltb_cff import hgcaltb
+hgcaltb.toModify(g4SimHits,
+                 OnlySDs = ['AHcalSensitiveDetector', 'HGCSensitiveDetector', 'HGCalTB1601SensitiveDetector', 'HcalTB06BeamDetector']
+)
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3

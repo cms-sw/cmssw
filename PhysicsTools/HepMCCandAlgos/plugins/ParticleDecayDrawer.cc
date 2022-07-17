@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
@@ -10,7 +10,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-class ParticleDecayDrawer : public edm::EDAnalyzer {
+class ParticleDecayDrawer : public edm::one::EDAnalyzer<> {
 public:
   ParticleDecayDrawer(const edm::ParameterSet &);
 

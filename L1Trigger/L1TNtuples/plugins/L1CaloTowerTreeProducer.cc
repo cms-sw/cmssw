@@ -22,7 +22,7 @@ Implementation:
 
 // framework
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -59,10 +59,10 @@ Implementation:
 // class declaration
 //
 
-class L1CaloTowerTreeProducer : public edm::EDAnalyzer {
+class L1CaloTowerTreeProducer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit L1CaloTowerTreeProducer(const edm::ParameterSet&);
-  ~L1CaloTowerTreeProducer() override;
+  ~L1CaloTowerTreeProducer() override = default;
 
 private:
   void beginJob(void) override;
@@ -75,10 +75,17 @@ public:
   L1Analysis::L1AnalysisL1CaloClusterDataFormat* l1CaloClusterData_;
 
 private:
-  double ecalLSB_;
-  unsigned maxCaloTP_;
-  unsigned maxL1Tower_;
-  unsigned maxL1Cluster_;
+  const double ecalLSB_;
+  const unsigned maxCaloTP_;
+  const unsigned maxL1Tower_;
+  const unsigned maxL1Cluster_;
+
+  // EDM input tags
+  const edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalToken_;
+  const edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
+  const edm::EDGetTokenT<l1t::CaloTowerBxCollection> l1TowerToken_;
+  const edm::ESGetToken<CaloTPGTranscoder, CaloTPGRecord> decoderToken_;
+  edm::EDGetTokenT<l1t::CaloClusterBxCollection> l1ClusterToken_;
 
   // output file
   edm::Service<TFileService> fs_;
@@ -86,20 +93,18 @@ private:
   // tree
   TTree* tree_;
 
-  // EDM input tags
-  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalToken_;
-  edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalToken_;
-  edm::EDGetTokenT<l1t::CaloTowerBxCollection> l1TowerToken_;
-  edm::EDGetTokenT<l1t::CaloClusterBxCollection> l1ClusterToken_;
-
   bool storeCaloClusters_;
 };
 
-L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfig) {
-  ecalToken_ = consumes<EcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("ecalToken"));
-  hcalToken_ = consumes<HcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("hcalToken"));
-  l1TowerToken_ = consumes<l1t::CaloTowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("l1TowerToken"));
-
+L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfig)
+    : ecalLSB_(iConfig.getUntrackedParameter<double>("ecalLSB", 0.5)),
+      maxCaloTP_(iConfig.getUntrackedParameter<unsigned int>("maxCaloTP", 5760)),
+      maxL1Tower_(iConfig.getUntrackedParameter<unsigned int>("maxL1Tower", 5760)),
+      maxL1Cluster_(iConfig.getUntrackedParameter<unsigned int>("maxL1Cluster", 5760)),
+      ecalToken_(consumes<EcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("ecalToken"))),
+      hcalToken_(consumes<HcalTrigPrimDigiCollection>(iConfig.getUntrackedParameter<edm::InputTag>("hcalToken"))),
+      l1TowerToken_(consumes<l1t::CaloTowerBxCollection>(iConfig.getUntrackedParameter<edm::InputTag>("l1TowerToken"))),
+      decoderToken_(esConsumes<CaloTPGTranscoder, CaloTPGRecord>()) {
   edm::InputTag clusterTag = iConfig.getUntrackedParameter<edm::InputTag>("l1ClusterToken");
   storeCaloClusters_ = true;
   if (clusterTag.label() == std::string("") or clusterTag.label() == std::string("none"))
@@ -108,10 +113,7 @@ L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfi
   if (clusterTag.instance() != std::string(""))
     l1ClusterToken_ = consumes<l1t::CaloClusterBxCollection>(clusterTag);
 
-  ecalLSB_ = iConfig.getUntrackedParameter<double>("ecalLSB", 0.5);
-  maxCaloTP_ = iConfig.getUntrackedParameter<unsigned int>("maxCaloTP", 5760);
-  maxL1Tower_ = iConfig.getUntrackedParameter<unsigned int>("maxL1Tower", 5760);
-  maxL1Cluster_ = iConfig.getUntrackedParameter<unsigned int>("maxL1Cluster", 5760);
+  usesResource(TFileService::kSharedResource);
 
   // set up output
   tree_ = fs_->make<TTree>("L1CaloTowerTree", "L1CaloTowerTree");
@@ -126,11 +128,6 @@ L1CaloTowerTreeProducer::L1CaloTowerTreeProducer(const edm::ParameterSet& iConfi
   l1CaloClusterData_ = new L1Analysis::L1AnalysisL1CaloClusterDataFormat();
 }
 
-L1CaloTowerTreeProducer::~L1CaloTowerTreeProducer() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-
 //
 // member functions
 //
@@ -141,7 +138,7 @@ void L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
   caloTPData_->Reset();
 
   edm::ESHandle<CaloTPGTranscoder> decoder;
-  iSetup.get<CaloTPGRecord>().get(decoder);
+  decoder = iSetup.getHandle(decoderToken_);
 
   edm::Handle<EcalTrigPrimDigiCollection> ecalTPs;
   edm::Handle<HcalTrigPrimDigiCollection> hcalTPs;
@@ -210,7 +207,6 @@ void L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
   l1CaloTowerData_->Reset();
 
   edm::Handle<l1t::CaloTowerBxCollection> l1Towers;
-
   iEvent.getByToken(l1TowerToken_, l1Towers);
 
   if (l1Towers.isValid()) {
@@ -244,7 +240,6 @@ void L1CaloTowerTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
     l1CaloClusterData_->Reset();
 
     edm::Handle<l1t::CaloClusterBxCollection> l1Clusters;
-
     if (!l1ClusterToken_.isUninitialized())
       iEvent.getByToken(l1ClusterToken_, l1Clusters);
 

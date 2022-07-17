@@ -31,7 +31,7 @@ using edm::LogWarning;
 
 namespace sistrip {
 
-  const char* SpyEventMatcher::mlLabel_ = "SpyEventMatcher";
+  const char* const SpyEventMatcher::mlLabel_ = "SpyEventMatcher";
 
   SpyEventMatcher::EventKey::EventKey(const uint32_t eventId, const uint8_t apvAddress)
       : eventId_(eventId), apvAddress_(apvAddress) {}

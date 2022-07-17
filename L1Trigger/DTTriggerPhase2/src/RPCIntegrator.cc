@@ -10,14 +10,14 @@
 
 using namespace cmsdt;
 
-RPCIntegrator::RPCIntegrator(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
-  m_debug_ = pset.getUntrackedParameter<bool>("debug");
+RPCIntegrator::RPCIntegrator(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
+    : m_debug_(pset.getUntrackedParameter<bool>("debug")),
+      m_max_quality_to_overwrite_t0_(pset.getParameter<int>("max_quality_to_overwrite_t0")),
+      m_bx_window_(pset.getParameter<int>("bx_window")),
+      m_phi_window_(pset.getParameter<double>("phi_window")),
+      m_storeAllRPCHits_(pset.getParameter<bool>("storeAllRPCHits")) {
   if (m_debug_)
     LogDebug("RPCIntegrator") << "RPCIntegrator constructor";
-  m_max_quality_to_overwrite_t0_ = pset.getUntrackedParameter<int>("max_quality_to_overwrite_t0");
-  m_bx_window_ = pset.getUntrackedParameter<int>("bx_window");
-  m_phi_window_ = pset.getUntrackedParameter<double>("phi_window");
-  m_storeAllRPCHits_ = pset.getUntrackedParameter<bool>("storeAllRPCHits");
 
   rpcGeomH_ = iC.esConsumes<RPCGeometry, MuonGeometryRecord>();
   dtGeomH_ = iC.esConsumes<DTGeometry, MuonGeometryRecord>();
@@ -35,9 +35,14 @@ void RPCIntegrator::initialise(const edm::EventSetup& iEventSetup, double shift_
   if (m_debug_)
     LogDebug("RPCIntegrator") << "Getting RPC geometry";
 
-  const MuonGeometryRecord& geom = iEventSetup.get<MuonGeometryRecord>();
-  dtGeo_ = &geom.get(dtGeomH_);
-  rpcGeo_ = &geom.get(rpcGeomH_);
+  if (auto handle = iEventSetup.getHandle(dtGeomH_)) {
+    dtGeo_ = handle.product();
+  }
+
+  if (auto handle = iEventSetup.getHandle(rpcGeomH_)) {
+    rpcGeo_ = handle.product();
+  }
+
   shift_back_ = shift_back_fromDT;
 }
 
@@ -173,7 +178,7 @@ RPCMetaprimitive* RPCIntegrator::matchDTwithRPC(metaPrimitive* dt_metaprimitive)
       // just a trick to apply the phi window cut on what could be accessed to fine tune it
       int delta_phi =
           (int)round((phi_DT_MP_conv(rpc_mp_it->global_position.phi(), rpc_det_id.sector()) - dt_metaprimitive->phi) *
-                     m_dt_phiB_granularity_);
+                     cmsdt::PHIBRES_CONV);
       if (std::abs(delta_phi) < min_dPhi && std::abs(delta_phi) < m_phi_window_) {
         min_dPhi = std::abs(delta_phi);
         bestMatch_rpcRecHit = &*rpc_mp_it;
@@ -195,7 +200,7 @@ L1Phase2MuDTPhDigi RPCIntegrator::createL1Phase2MuDTPhDigi(
   int rpc_station = rpcDetId.station();
   int rpc_layer = rpcDetId.layer();
   int rpc_trigger_phi = phiInDTTPFormat(rpc_global_phi, rpcDetId.sector());
-  int rpc_trigger_phiB = (phiB == -10000) ? phiB : (int)round(phiB * m_dt_phiB_granularity_);
+  int rpc_trigger_phiB = (phiB == -10000) ? phiB : (int)round(phiB * cmsdt::PHIBRES_CONV);
   int rpc_quality = -1;  // dummy for rpc
   int rpc_index = 0;     // dummy for rpc
   return L1Phase2MuDTPhDigi(rpc_bx,
@@ -228,7 +233,7 @@ double RPCIntegrator::phiBending(RPCMetaprimitive* rpc_hit_1, RPCMetaprimitive* 
 
 int RPCIntegrator::phiInDTTPFormat(double rpc_global_phi, int rpcSector) {
   double rpc_localDT_phi;
-  rpc_localDT_phi = phi_DT_MP_conv(rpc_global_phi, rpcSector) * m_dt_phi_granularity_;
+  rpc_localDT_phi = phi_DT_MP_conv(rpc_global_phi, rpcSector) * cmsdt::PHIBRES_CONV;
   return (int)round(rpc_localDT_phi);
 }
 

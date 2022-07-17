@@ -120,19 +120,24 @@ class NodeVisitor(object):
 
 class CompositeVisitor(object):
     """ Combines 3 different visitor classes in 1 so we only have to visit all the paths and endpaths once"""
-    def __init__(self, validator, node, decorated):
+    def __init__(self, validator, node, decorated, optional=None):
         self._validator = validator
         self._node = node
         self._decorated = decorated
+        self._optional = optional
     def enter(self, visitee):
         self._validator.enter(visitee)
         self._node.enter(visitee)
         self._decorated.enter(visitee)
+        if self._optional:
+          self._optional.enter(visitee)
     def leave(self, visitee):
         self._validator.leave(visitee)
         # The node visitor leave function does nothing
         #self._node.leave(visitee)
         self._decorated.leave(visitee)
+        if self._optional:
+          self._optional.leave(visitee)
 
 class ModuleNamesFromGlobalsVisitor(object):
     """Fill a list with the names of Event module types in a sequence. The names are determined

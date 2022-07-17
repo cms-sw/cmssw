@@ -74,6 +74,9 @@ if __name__ == '__main__':
                      136.88811,#2018D JetHT reMINIAOD from UL processing
                      136.793, #2017C DoubleEG
                      136.874, #2018C EGamma
+                     138.4, #2021 MinimumBias prompt reco
+                     138.5, #2021 MinimumBias express
+                     139.001, #2021 MinimumBias offline with HLT step
                      140.53, #2011 HI data
                      140.56, #2018 HI data
                      158.01, #reMiniAOD of 2018 HI MC with pp-like reco
@@ -85,19 +88,24 @@ if __name__ == '__main__':
                      135.4, #Run 2 2015/2016 Zee ttbar fastsim
                      10042.0, #2017 ZMM
                      10024.0, #2017 ttbar
-                     10224.0, #2017 ttbar PU
                      10824.0, #2018 ttbar
                      2018.1, #2018 ttbar fastsim
                      11634.911, #2021 DD4hep ttbar reading geometry from XML
                      11634.914, #2021 DDD ttbar reading geometry from the DB
                      11634.0, #2021 ttbar (switching to DD4hep by default)
+                     11634.301, #2021 ttbar fastsim
                      11634.7, #2021 ttbar mkFit
+                     11834.0, #2021 ttbar PU
                      12434.0, #2023 ttbar
                      23234.0, #2026D49 ttbar (HLT TDR baseline w/ HGCal v11)
                      28234.0, #2026D60 (exercise HF nose)
-                     35034.0, #2026D77 ttbar (2021 new baseline)
-                     35234.999, #2026D77 ttbar premixing stage1+stage2, PU50
-                     38634.0, #2026D86 ttbar
+                     35034.0, #2026D77 ttbar
+                     39434.0, #2026D88 ttbar (2022 new baseline)
+                     39434.75, #2026D88 ttbar with HLT75e33
+                     #39434.911, #2026D88 ttbar DD4hep XML
+                     39634.999, #2026D88 ttbar premixing stage1+stage2, PU50
+                     39496.0, #CE_E_Front_120um D88
+                     39500.0, #CE_H_Coarse_Scint D88 
                      25202.0, #2016 ttbar UP15 PU
                      250202.181, #2018 ttbar stage1 + stage2 premix
                      ],

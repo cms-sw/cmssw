@@ -6,13 +6,13 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/TriggerEvent.h"
 
-class PatTriggerTagAndProbe : public edm::EDAnalyzer {
+class PatTriggerTagAndProbe : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// default constructor
   explicit PatTriggerTagAndProbe(const edm::ParameterSet& iConfig);
@@ -54,7 +54,9 @@ PatTriggerTagAndProbe::PatTriggerTagAndProbe(const edm::ParameterSet& iConfig)
       // muon match objects
       muonMatch_(iConfig.getParameter<std::string>("muonMatch")),
       // histogram management
-      histos1D_() {}
+      histos1D_() {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatTriggerTagAndProbe::~PatTriggerTagAndProbe() {}
 

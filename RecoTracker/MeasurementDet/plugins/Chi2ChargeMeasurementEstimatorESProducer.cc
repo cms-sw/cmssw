@@ -111,7 +111,7 @@ namespace {
     auto desc = chi2MeasurementEstimatorParams::getFilledConfigurationDescription();
     desc.add<std::string>("ComponentName", "Chi2Charge");
     desc.add<double>("pTChargeCutThreshold", -1.);
-    edm::ParameterSetDescription descCCC = getFilledConfigurationDescription4CCC();
+    edm::ParameterSetDescription descCCC = getConfigurationDescription4CCC(CCC::kLoose);
     desc.add<edm::ParameterSetDescription>("clusterChargeCut", descCCC);
     descriptions.add("Chi2ChargeMeasurementEstimatorDefault", desc);
   }

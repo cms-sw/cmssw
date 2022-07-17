@@ -1,9 +1,0 @@
-<use name="boost"/>
-<use name="heppdt"/>
-<use name="clhep"/>
-<use name="GeneratorInterface/PomwigInterface"/>
-<library file="PomwigGeneratorFilter.cc hwudat.F" name="GeneratorInterfacePomwigFilter">
-  <use name="GeneratorInterface/Core"/>
-  <use name="GeneratorInterface/ExternalDecays"/>
-  <flags EDM_PLUGIN="1"/>
-</library>

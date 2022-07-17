@@ -14,6 +14,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4VSolid.hh"
 #include "G4TransportationManager.hh"
+#include "G4GammaGeneralProcess.hh"
 
 StackingAction::StackingAction(const TrackingAction* trka, const edm::ParameterSet& p, const CMSSteppingVerbose* sv)
     : trackAction(trka), steppingVerbose(sv) {
@@ -173,6 +174,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
   G4ClassificationOfNewTrack classification = fUrgent;
   const int pdg = aTrack->GetDefinition()->GetPDGEncoding();
   const int abspdg = std::abs(pdg);
+  auto track = const_cast<G4Track*>(aTrack);
 
   // primary
   if (aTrack->GetCreatorProcess() == nullptr || aTrack->GetParentID() == 0) {
@@ -181,7 +183,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     } else if (worldSolid->Inside(aTrack->GetPosition()) == kOutside) {
       classification = fKill;
     } else {
-      newTA->primary(aTrack);
+      newTA->primary(track);
     }
   } else {
     // secondary
@@ -200,7 +202,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
         classification = fKill;
       } else {
         const G4Track* mother = trackAction->geant4Track();
-        newTA->secondary(aTrack, *mother, 0);
+        newTA->secondary(track, *mother, 0);
       }
 
     } else if (isItOutOfTimeWindow(reg, time)) {
@@ -210,6 +212,18 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
     } else {
       // potentially good for tracking
       const double ke = aTrack->GetKineticEnergy();
+      auto proc = aTrack->GetCreatorProcess();
+      G4int subType = proc->GetProcessSubType();
+      if (subType == 16) {
+        auto ptr = static_cast<const G4GammaGeneralProcess*>(proc);
+        proc = ptr->GetSelectedProcess();
+        subType = proc->GetProcessSubType();
+        track->SetCreatorProcess(proc);
+      }
+      LogDebug("SimG4CoreApplication") << "##StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent "
+                                       << aTrack->GetParentID() << " " << aTrack->GetDefinition()->GetParticleName()
+                                       << " Ekin(MeV)=" << ke / CLHEP::MeV << " subType=" << subType << " "
+                                       << proc->GetProcessName();
 
       // kill tracks in specific regions
       if (isThisRegion(reg, deadRegions)) {
@@ -316,7 +330,7 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
               }
               if (prob < 1.0 && aTrack->GetKineticEnergy() < elim) {
                 if (G4UniformRand() < prob) {
-                  const_cast<G4Track*>(aTrack)->SetWeight(currentWeight / prob);
+                  track->SetWeight(currentWeight / prob);
                 } else {
                   classification = fKill;
                 }
@@ -324,13 +338,13 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track* aTrac
             }
           }
           if (classification != fKill) {
-            newTA->secondary(aTrack, *mother, flag);
+            newTA->secondary(track, *mother, flag);
           }
           LogDebug("SimG4CoreApplication")
               << "StackingAction:Classify Track " << aTrack->GetTrackID() << " Parent " << aTrack->GetParentID()
-              << " Type " << aTrack->GetDefinition()->GetParticleName() << " K.E. " << aTrack->GetKineticEnergy() / MeV
-              << " MeV from process/subprocess " << aTrack->GetCreatorProcess()->GetProcessType() << "|"
-              << aTrack->GetCreatorProcess()->GetProcessSubType() << " as " << classification << " Flag " << flag;
+              << " Type " << aTrack->GetDefinition()->GetParticleName() << " Ekin=" << ke / CLHEP::MeV
+              << " MeV from process " << proc->GetProcessName() << " subType=" << subType << " as " << classification
+              << " Flag: " << flag;
         }
       }
     }

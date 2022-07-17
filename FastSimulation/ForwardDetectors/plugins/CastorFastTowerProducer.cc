@@ -28,7 +28,6 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -44,14 +43,14 @@
 
 // genCandidate particle includes
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "FastSimulation/ForwardDetectors/plugins/CastorFastTowerProducer.h"
 
 //
 // constructors and destructor
 //
-CastorFastTowerProducer::CastorFastTowerProducer(const edm::ParameterSet& iConfig) {
+CastorFastTowerProducer::CastorFastTowerProducer(const edm::ParameterSet& iConfig)
+    : tokGenPart_(consumes<reco::GenParticleCollection>(edm::InputTag{"genParticles"})) {
   //register your products
   produces<CastorTowerCollection>();
 
@@ -80,8 +79,7 @@ void CastorFastTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 
   //cout << "entering event" << endl;
 
-  Handle<GenParticleCollection> genParticles;
-  iEvent.getByLabel("genParticles", genParticles);
+  const edm::Handle<GenParticleCollection>& genParticles = iEvent.getHandle(tokGenPart_);
 
   // make pointer to towers that will be made
   unique_ptr<CastorTowerCollection> CastorTowers(new CastorTowerCollection);

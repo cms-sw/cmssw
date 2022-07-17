@@ -13,13 +13,6 @@ import sys
 from Configuration.Eras.Era_Run3_cff import Run3
 process = cms.Process("BeamMonitor", Run3)
 
-# Configure tag and jobName if running Playback system
-if "dqm_cmssw/playback" in str(sys.argv[1]):
-    BSOnlineTag = BSOnlineTag + 'Playback'
-    BSOnlineJobName = BSOnlineJobName + 'Playback'
-    BSOnlineOmsServiceUrl = ''
-    useLockRecords = False
-#
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('*'),
     cerr = cms.untracked.PSet(
@@ -67,6 +60,14 @@ process.dqmSaverPB.runNumber   = options.runNumber
 process.dqmEnvPixelLess = process.dqmEnv.clone(
   subSystemFolder = 'BeamMonitor_PixelLess'
 )
+
+# Configure tag and jobName if running Playback system
+if process.isDqmPlayback.value :
+    BSOnlineTag = BSOnlineTag + 'Playback'
+    BSOnlineJobName = BSOnlineJobName + 'Playback'
+    BSOnlineOmsServiceUrl = ''
+    useLockRecords = False
+#
 
 #---------------
 # Conditions
@@ -284,6 +285,10 @@ if ( process.runType.getRunType() == process.runType.cosmic_run or
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
+# Digitisation: produce the TCDS digis containing BST record
+from EventFilter.OnlineMetaDataRawToDigi.tcdsRawToDigi_cfi import *
+process.tcdsDigis = tcdsRawToDigi.clone()
+
 #------------------------
 # Set rawDataRepacker (HI and live) or rawDataCollector (for all the rest)
 if (process.runType.getRunType() == process.runType.hi_run and live):
@@ -305,6 +310,7 @@ process.muonRPCDigis.InputLabel          = rawDataInputTag
 process.scalersRawToDigi.scalersInputTag = rawDataInputTag
 process.siPixelDigis.cpu.InputLabel      = rawDataInputTag
 process.siStripDigis.ProductLabel        = rawDataInputTag
+process.tcdsDigis.InputLabel             = rawDataInputTag
 
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
@@ -318,7 +324,7 @@ process.dqmBeamMonitor.resetPVEveryNLumi = 5 # was 10 for HI
 
 process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
 process.dqmBeamMonitor.PVFitter.minVertexNdf = 10
-process.dqmBeamMonitor.PVFitter.errorScale = 1.22
+process.dqmBeamMonitor.PVFitter.errorScale = 1.0
 
 #----------------------------
 # Pixel tracks/vertices reco
@@ -422,11 +428,12 @@ else:
         frontierKey = cms.untracked.string(options.runUniqueKey)
     )
 print("Configured frontierKey", options.runUniqueKey)
-
 #---------
 # Final path
 if (not process.runType.getRunType() == process.runType.hi_run):
     process.p = cms.Path(process.scalersRawToDigi
+                       * process.tcdsDigis
+                       * process.onlineMetaDataDigis
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.dqmcommon
@@ -435,6 +442,8 @@ if (not process.runType.getRunType() == process.runType.hi_run):
                        * process.BeamSpotProblemModule)
 else:
     process.p = cms.Path(process.scalersRawToDigi
+                       * process.tcdsDigis
+                       * process.onlineMetaDataDigis
                        * process.dqmTKStatus
                        * process.hltTriggerTypeFilter
                        * process.filter_step # the only extra: pix-multi filter

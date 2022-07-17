@@ -10,7 +10,10 @@ python ${LOCAL_TEST_DIR}/python/UnitsCheck.py ${LOCAL_TEST_DIR}/data/testUnits.x
 
 for entry in "${LOCAL_TEST_DIR}/python"/test*
 do
-  echo "===== Test \"cmsRun $entry \" ===="
-  (cmsRun $entry) || die "Failure using cmsRun $entry" $?
+  # Skip local DB test
+  if ! expr $entry : '.*TGeoIteratorLocalDB.*' > /dev/null ; then
+    echo "===== Test \"cmsRun $entry \" ===="
+    (cmsRun $entry) || die "Failure using cmsRun $entry" $?
+  fi
 done
 

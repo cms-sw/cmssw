@@ -14,7 +14,6 @@
 #include "DataFormats/Common/interface/DetSet.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelCluster.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSPixelRecHit.h"
@@ -24,7 +23,6 @@
 #include "RecoPPS/Local/interface/RPixClusterToHit.h"
 #include "RecoPPS/Local/interface/RPixDetPatternFinder.h"
 
-#include "FWCore/Framework/interface/ESWatcher.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"

@@ -2,46 +2,79 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.helpers import getPatAlgosToolsTask, addToProcessAndTask
 
-def applyDeepBtagging( process, postfix="" ) :
 
+def applyDeepBtagging(process, postfix=""):
     task = getPatAlgosToolsTask(process)
 
     from PhysicsTools.PatAlgos.tools.jetTools import updateJetCollection
 
-    process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
+    from PhysicsTools.PatAlgos.slimming.slimmedJets_cfi import slimmedJets, slimmedJetsAK8
     from RecoBTag.ONNXRuntime.pfParticleNetAK4_cff import _pfParticleNetAK4JetTagsAll as pfParticleNetAK4JetTagsAll
 
     # update slimmed jets to include DeepFlavour (keep same name)
     # make clone for DeepFlavour-less slimmed jets, so output name is preserved
-    addToProcessAndTask('slimmedJetsNoDeepFlavour', process.slimmedJets.clone(), process, task)
+    addToProcessAndTask('slimmedJetsNoDeepFlavour', slimmedJets.clone(), process, task)
+    _btagDiscriminatorsAK4CHS = cms.PSet(
+        names=cms.vstring(
+            'pfDeepFlavourJetTags:probb',
+            'pfDeepFlavourJetTags:probbb',
+            'pfDeepFlavourJetTags:problepb',
+            'pfDeepFlavourJetTags:probc',
+            'pfDeepFlavourJetTags:probuds',
+            'pfDeepFlavourJetTags:probg')
+    )
     updateJetCollection(
-       process,
-       jetSource = cms.InputTag('slimmedJetsNoDeepFlavour'),
-       # updateJetCollection defaults to MiniAOD inputs but
-       # here it is made explicit (as in training or MINIAOD redoing)
-       pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-       pfCandidates = cms.InputTag('packedPFCandidates'),
-       svSource = cms.InputTag('slimmedSecondaryVertices'),
-       muSource = cms.InputTag('slimmedMuons'),
-       elSource = cms.InputTag('slimmedElectrons'),
-       jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
-       btagDiscriminators = [
-          'pfDeepFlavourJetTags:probb',
-          'pfDeepFlavourJetTags:probbb',
-          'pfDeepFlavourJetTags:problepb',
-          'pfDeepFlavourJetTags:probc',
-          'pfDeepFlavourJetTags:probuds',
-          'pfDeepFlavourJetTags:probg',
-       ] + pfParticleNetAK4JetTagsAll,
-       postfix = 'SlimmedDeepFlavour'+postfix,
-       printWarning = False
+        process,
+        jetSource = cms.InputTag('slimmedJetsNoDeepFlavour'),
+        # updateJetCollection defaults to MiniAOD inputs but
+        # here it is made explicit (as in training or MINIAOD redoing)
+        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+        pfCandidates = cms.InputTag('packedPFCandidates'),
+        svSource = cms.InputTag('slimmedSecondaryVertices'),
+        muSource = cms.InputTag('slimmedMuons'),
+        elSource = cms.InputTag('slimmedElectrons'),
+        jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),
+        btagDiscriminators = _btagDiscriminatorsAK4CHS.names.value(),
+        postfix = 'SlimmedDeepFlavour' + postfix,
+        printWarning = False
     )
 
     # slimmedJets with DeepFlavour (remove DeepFlavour-less)
-    delattr(process, 'slimmedJets')
-    addToProcessAndTask('slimmedJets', getattr(process,'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix).clone(), process, task)
+    addToProcessAndTask('slimmedJets', getattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour' + postfix).clone(), process, task)
     # delete module not used anymore (slimmedJets substitutes)
-    delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour'+postfix)
+    delattr(process, 'selectedUpdatedPatJetsSlimmedDeepFlavour' + postfix)
+
+    # update slimmedJetsPuppi to include deep taggers
+    addToProcessAndTask('slimmedJetsPuppiNoDeepTags', slimmedJets.clone(
+        src = "selectedPatJetsPuppi", packedPFCandidates = "packedPFCandidates"
+    ), process, task)
+    _btagDiscriminatorsAK4Puppi = cms.PSet(
+        names=cms.vstring(
+            'pfDeepFlavourJetTags:probb',
+            'pfDeepFlavourJetTags:probbb',
+            'pfDeepFlavourJetTags:problepb',
+            'pfDeepFlavourJetTags:probc',
+            'pfDeepFlavourJetTags:probuds',
+            'pfDeepFlavourJetTags:probg') + pfParticleNetAK4JetTagsAll
+    )
+    updateJetCollection(
+        process,
+        jetSource = cms.InputTag('slimmedJetsPuppiNoDeepTags'),
+        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+        pfCandidates = cms.InputTag('packedPFCandidates'),
+        svSource = cms.InputTag('slimmedSecondaryVertices'),
+        muSource = cms.InputTag('slimmedMuons'),
+        elSource = cms.InputTag('slimmedElectrons'),
+        jetCorrections = ('AK4PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
+        btagDiscriminators = _btagDiscriminatorsAK4Puppi.names.value(),
+        postfix = 'SlimmedPuppiWithDeepTags' + postfix,
+        printWarning = False
+    )
+
+    addToProcessAndTask('slimmedJetsPuppi', getattr(process, 'selectedUpdatedPatJetsSlimmedPuppiWithDeepTags' + postfix).clone(), process, task)
+    # delete module not used anymore (slimmedJetsPuppi substitutes)
+    delattr(process, 'selectedUpdatedPatJetsSlimmedPuppiWithDeepTags' + postfix)
+
 
     from RecoBTag.ONNXRuntime.pfDeepBoostedJet_cff import _pfDeepBoostedJetTagsAll as pfDeepBoostedJetTagsAll
     from RecoBTag.ONNXRuntime.pfHiggsInteractionNet_cff import _pfHiggsInteractionNetTagsProbs as pfHiggsInteractionNetTagsProbs
@@ -50,36 +83,33 @@ def applyDeepBtagging( process, postfix="" ) :
 
     # update slimmed jets to include particle-based deep taggers (keep same name)
     # make clone for DeepTags-less slimmed AK8 jets, so output name is preserved
-    addToProcessAndTask('slimmedJetsAK8NoDeepTags', process.slimmedJetsAK8.clone(), process, task)
-    _btagDiscriminators = cms.PSet( names = cms.vstring(
+    addToProcessAndTask('slimmedJetsAK8NoDeepTags', slimmedJetsAK8.clone(), process, task)
+    _btagDiscriminatorsAK8 = cms.PSet(names = cms.vstring(
         'pfMassIndependentDeepDoubleBvLV2JetTags:probQCD',
         'pfMassIndependentDeepDoubleBvLV2JetTags:probHbb',
         'pfMassIndependentDeepDoubleCvLV2JetTags:probQCD',
         'pfMassIndependentDeepDoubleCvLV2JetTags:probHcc',
         'pfMassIndependentDeepDoubleCvBV2JetTags:probHbb',
         'pfMassIndependentDeepDoubleCvBV2JetTags:probHcc',
-        ) + pfDeepBoostedJetTagsAll + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs + _pfParticleNetMassRegressionOutputs
-    )
+    ) + pfDeepBoostedJetTagsAll + pfParticleNetJetTagsAll + pfHiggsInteractionNetTagsProbs + _pfParticleNetMassRegressionOutputs)
     updateJetCollection(
-       process,
-       jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),
-       # updateJetCollection defaults to MiniAOD inputs but
-       # here it is made explicit (as in training or MINIAOD redoing)
-       pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
-       pfCandidates = cms.InputTag('packedPFCandidates'),
-       svSource = cms.InputTag('slimmedSecondaryVertices'),
-       muSource = cms.InputTag('slimmedMuons'),
-       elSource = cms.InputTag('slimmedElectrons'),
-       rParam = 0.8,
-       jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
-       btagDiscriminators = _btagDiscriminators.names.value(),
-       postfix = 'SlimmedAK8DeepTags'+postfix,
-       printWarning = False
+        process,
+        jetSource = cms.InputTag('slimmedJetsAK8NoDeepTags'),
+        # updateJetCollection defaults to MiniAOD inputs but
+        # here it is made explicit (as in training or MINIAOD redoing)
+        pvSource = cms.InputTag('offlineSlimmedPrimaryVertices'),
+        pfCandidates = cms.InputTag('packedPFCandidates'),
+        svSource = cms.InputTag('slimmedSecondaryVertices'),
+        muSource = cms.InputTag('slimmedMuons'),
+        elSource = cms.InputTag('slimmedElectrons'),
+        rParam = 0.8,
+        jetCorrections = ('AK8PFPuppi', cms.vstring(['L2Relative', 'L3Absolute']), 'None'),
+        btagDiscriminators = _btagDiscriminatorsAK8.names.value(),
+        postfix = 'SlimmedAK8DeepTags' + postfix,
+        printWarning = False
     )
 
     # slimmedJetsAK8 with DeepTags (remove DeepTags-less)
-    delattr(process, 'slimmedJetsAK8')
-    addToProcessAndTask('slimmedJetsAK8', getattr(process,'selectedUpdatedPatJetsSlimmedAK8DeepTags'+postfix).clone(), process, task)
+    addToProcessAndTask('slimmedJetsAK8', getattr(process, 'selectedUpdatedPatJetsSlimmedAK8DeepTags' + postfix).clone(), process, task)
     # delete module not used anymore (slimmedJetsAK8 substitutes)
-    delattr(process, 'selectedUpdatedPatJetsSlimmedAK8DeepTags'+postfix)
-
+    delattr(process, 'selectedUpdatedPatJetsSlimmedAK8DeepTags' + postfix)

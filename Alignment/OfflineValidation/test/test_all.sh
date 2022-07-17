@@ -2,14 +2,14 @@
 
 function die { echo $1: status $2 ; exit $2; }
 
-echo "TESTING Alignment/OfflineValidation ..."
-cmsRun ${LOCAL_TEST_DIR}/test_all_cfg.py || die "Failure running test_OfflineValidation_cfg.py" $?
-
 if test -f "validation_config.ini"; then
     rm -f validation_config.ini
 fi
 
+echo "TESTING Alignment/OfflineValidation ..."
+cmsRun ${LOCAL_TEST_DIR}/test_all_cfg.py || die "Failure running test_OfflineValidation_cfg.py" $?
 cmsRun ${LOCAL_TEST_DIR}/DiMuonVertexValidation_cfg.py maxEvents=10 || die "Failure running DiMuonVertexValidation_cfg.py" $?
+cmsRun ${LOCAL_TEST_DIR}/inspectData_cfg.py unitTest=True || die "Failure running inspectData_cfg.py" $?
 
 ## copy into local sqlite file the ideal alignment
 echo "COPYING locally Ideal Alignment ..."

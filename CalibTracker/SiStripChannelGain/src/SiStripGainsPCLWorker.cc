@@ -54,6 +54,7 @@ SiStripGainsPCLWorker::SiStripGainsPCLWorker(const edm::ParameterSet& iConfig) {
   m_association_token = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
 
   tTopoToken_ = esConsumes();
+  tTopoTokenBR_ = esConsumes<edm::Transition::BeginRun>();
   tkGeomTokenBR_ = esConsumes<edm::Transition::BeginRun>();
   tkGeomToken_ = esConsumes<>();
   gainToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -69,7 +70,8 @@ void SiStripGainsPCLWorker::dqmBeginRun(edm::Run const& run,
 
   // fills the APV collections at each begin run
   const TrackerGeometry* bareTkGeomPtr = &iSetup.getData(tkGeomTokenBR_);
-  checkBookAPVColls(bareTkGeomPtr, histograms);
+  const TrackerTopology* bareTkTopoPtr = &iSetup.getData(tTopoTokenBR_);
+  checkBookAPVColls(bareTkGeomPtr, bareTkTopoPtr, histograms);
 
   const auto gainHandle = iSetup.getHandle(gainToken_);
   if (!gainHandle.isValid()) {
@@ -387,11 +389,9 @@ void SiStripGainsPCLWorker::dqmAnalyze(edm::Event const& iEvent,
 }
 
 //********************************************************************************//
-void SiStripGainsPCLWorker::beginJob() {}
-
-//********************************************************************************//
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripGainsPCLWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomPtr,
+                                              const TrackerTopology* bareTkTopoPtr,
                                               APVGain::APVGainHistograms& histograms) const {
   if (bareTkGeomPtr) {  // pointer not yet set: called the first time => fill the APVColls
     auto const& Det = bareTkGeomPtr->dets();
@@ -418,6 +418,14 @@ void SiStripGainsPCLWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomP
           APV->Index = Index;
           APV->Bin = -1;
           APV->DetId = Detid.rawId();
+          APV->Side = 0;
+
+          if (SubDet == StripSubdetector::TID) {
+            APV->Side = bareTkTopoPtr->tidSide(Detid);
+          } else if (SubDet == StripSubdetector::TEC) {
+            APV->Side = bareTkTopoPtr->tecSide(Detid);
+          }
+
           APV->APVId = j;
           APV->SubDet = SubDet;
           APV->FitMPV = -1;
@@ -466,6 +474,7 @@ void SiStripGainsPCLWorker::checkBookAPVColls(const TrackerGeometry* bareTkGeomP
             APV->Index = Index;
             APV->Bin = -1;
             APV->DetId = Detid.rawId();
+            APV->Side = 0;
             APV->APVId = (j << 3 | i);
             APV->SubDet = SubDet;
             APV->FitMPV = -1;
@@ -522,7 +531,7 @@ void SiStripGainsPCLWorker::bookHistograms(DQMStore::IBooker& ibooker,
   // this MonitorElement is created to log the number of events / tracks and clusters used
   // by the calibration algorithm
 
-  histograms.EventStats = ibooker.book2S("EventStats", "Statistics", 3, -0.5, 2.5, 1, 0, 1);
+  histograms.EventStats = ibooker.book2I("EventStats", "Statistics", 3, -0.5, 2.5, 1, 0, 1);
   histograms.EventStats->setBinLabel(1, "events count", 1);
   histograms.EventStats->setBinLabel(2, "tracks count", 1);
   histograms.EventStats->setBinLabel(3, "clusters count", 1);

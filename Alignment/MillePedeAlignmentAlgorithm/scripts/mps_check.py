@@ -239,6 +239,7 @@ for i in range(len(lib.JOBID)):
             #$mOutSize = `nsls -l $mssDir | grep $milleOut | head -1 | awk '{print \$5}'`;
             #$mOutSize = `cmsLs -l $mssDir | grep $milleOut | head -1 | awk '{print \$2}'`;
             mOutSize = 0
+            #print(">>>eoslsoutput:", eoslsoutput, " \ttype(eoslsoutput):", type(eoslsoutput))
             for line in eoslsoutput:
                 if milleOut in line:
                     columns = line.split()

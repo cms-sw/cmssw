@@ -41,6 +41,16 @@ private:
   /// Labels for input collections
   const edm::EDGetTokenT<reco::TrackCollection> src_;
 
+  /// Estimator used to find dets and TrajectoryMeasurements
+  const edm::ESGetToken<Chi2MeasurementEstimatorBase, TrackingComponentsRecord> estimatorToken_;
+
+  const edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magfieldToken_;
+  const edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> tmpTkGeometryToken_;
+  const edm::ESGetToken<GlobalTrackingGeometry, GlobalTrackingGeometryRecord> geometryToken_;
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> tTopoToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> smartOppositeToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> shpOppositeToken_;
+
   /// Maximum number of seeds for each L2
   const unsigned int numOfMaxSeedsParam_;
 
@@ -57,9 +67,6 @@ private:
   /// Whether or not to use an automatically calculated scale-factor value
   const bool adjustErrorsDynamicallyForHits_;
   const bool adjustErrorsDynamicallyForHitless_;
-
-  /// Estimator used to find dets and TrajectoryMeasurements
-  const std::string estimatorName_;
 
   /// Minimum eta value to activate searching in the TEC
   const double minEtaForTEC_;
@@ -90,6 +97,8 @@ private:
   /// Counters and flags for the implementation
   const std::string propagatorName_;
   const std::string theCategory;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorAlongToken_;
+  const edm::ESGetToken<Propagator, TrackingComponentsRecord> propagatorOppositeToken_;
 
   /// Function to find seeds on a given layer
   void findSeedsOnLayer(const TrackerTopology* tTopo,

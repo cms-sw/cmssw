@@ -20,6 +20,7 @@
 #include <cmath>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -2760,18 +2761,24 @@ void IsolatedTracksNxN::printTrack(const reco::Track *pTrack) {
   if (printTrkHitPattern_) {
     const reco::HitPattern &p = pTrack->hitPattern();
 
-    edm::LogVerbatim("IsoTrack") << "default ";
+    std::ostringstream st1;
+    st1 << "default ";
     for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
       p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
     }
-    edm::LogVerbatim("IsoTrack") << "trackerMissingInnerHits() ";
+    edm::LogVerbatim("IsoTrack") << st1.str();
+    std::ostringstream st2;
+    st2 << "trackerMissingInnerHits() ";
     for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::MISSING_INNER_HITS); i++) {
-      p.printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, std::cout);
+      p.printHitPattern(reco::HitPattern::MISSING_INNER_HITS, i, st2);
     }
-    edm::LogVerbatim("IsoTrack") << "trackerMissingOuterHits() ";
+    edm::LogVerbatim("IsoTrack") << st2.str();
+    std::ostringstream st3;
+    st3 << "trackerMissingOuterHits() ";
     for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::MISSING_OUTER_HITS); i++) {
-      p.printHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i, std::cout);
+      p.printHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i, st3);
     }
+    edm::LogVerbatim("IsoTrack") << st3.str();
 
     edm::LogVerbatim("IsoTrack") << "\n \t trackerLayersWithMeasurement() " << p.trackerLayersWithMeasurement()
                                  << "\n \t pixelLayersWithMeasurement() " << p.pixelLayersWithMeasurement()

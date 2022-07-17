@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 # tracking monitor
 from DQMOffline.Trigger.TrackingMonitoring_cff import *
-iterHLTTracksMonitoringHLT.doProfilesVsLS   = cms.bool(True)
-iterHLTTracksMonitoringHLT.beamSpot = cms.InputTag("hltOnlineBeamSpot")
-pixelTracksMonitoringHLT.beamSpot = cms.InputTag("hltOnlineBeamSpot")
+iterHLTTracksMonitoringHLT.doProfilesVsLS = True
+iterHLTTracksMonitoringHLT.beamSpot = "hltOnlineBeamSpot"
+pixelTracksMonitoringHLT.beamSpot = "hltOnlineBeamSpot"
 
 from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import *
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
@@ -20,3 +20,7 @@ egmTrackingMonitorHLTsequence = cms.Sequence(
     * pixelTracksForElectronsTracksMonitoringHLT
     * iterHLTTracksForElectronsMonitoringHLT
 )
+
+from Configuration.Eras.Modifier_run3_common_cff import run3_common
+run3_common.toReplaceWith(trackingMonitoringHLTsequence, cms.Sequence(pixelTracksMonitoringHLT * iterHLTTracksMonitoringHLT))
+run3_common.toReplaceWith(egmTrackingMonitorHLTsequence, cms.Sequence(gsfTracksMonitoringHLT))

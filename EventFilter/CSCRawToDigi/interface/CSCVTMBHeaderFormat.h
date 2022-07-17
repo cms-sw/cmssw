@@ -37,6 +37,8 @@ public:
   virtual uint16_t clct1_xky() const = 0;
   virtual uint16_t hmt_nhits() const = 0;
   virtual uint16_t hmt_ALCTMatchTime() const = 0;
+  virtual uint16_t alctHMT() const = 0;
+  virtual uint16_t clctHMT() const = 0;
   virtual uint16_t gem_enabled_fibers() const = 0;
   virtual uint16_t gem_fifo_tbins() const = 0;
   virtual uint16_t gem_fifo_pretrig() const = 0;
@@ -54,8 +56,12 @@ public:
   virtual std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) = 0;
   ///returns CorrelatedLCT digis
   virtual std::vector<CSCCorrelatedLCTDigi> CorrelatedLCTDigis(uint32_t idlayer) const = 0;
-  ///returns Run3 HMT Shower digi
+  ///returns Run3 lct HMT Shower digi
   virtual CSCShowerDigi showerDigi(uint32_t idlayer) const = 0;
+  ///returns Run3 anode HMT Shower digi
+  virtual CSCShowerDigi anodeShowerDigi(uint32_t idlayer) const = 0;
+  ///returns Run3 cathode HMT Shower digi
+  virtual CSCShowerDigi cathodeShowerDigi(uint32_t idlayer) const = 0;
 
   /// in 16-bit words.  Add olne because we include beginning(b0c) and
   /// end (e0c) flags
@@ -73,6 +79,8 @@ public:
   virtual void addCorrelatedLCT0(const CSCCorrelatedLCTDigi& digi) = 0;
   virtual void addCorrelatedLCT1(const CSCCorrelatedLCTDigi& digi) = 0;
   virtual void addShower(const CSCShowerDigi& digi) = 0;
+  virtual void addAnodeShower(const CSCShowerDigi& digi) = 0;
+  virtual void addCathodeShower(const CSCShowerDigi& digi) = 0;
 
   virtual void print(std::ostream& os) const = 0;
 

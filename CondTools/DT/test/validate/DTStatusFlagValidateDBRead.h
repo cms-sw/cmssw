@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -13,13 +13,13 @@ Toy EDAnalyzer for testing purposes only.
 
 class DTStatusFlag;
 class DTStatusFlagRcd;
-class DTStatusFlagValidateDBRead : public edm::EDAnalyzer {
+class DTStatusFlagValidateDBRead : public edm::one::EDAnalyzer<> {
 public:
   explicit DTStatusFlagValidateDBRead(edm::ParameterSet const& p);
   explicit DTStatusFlagValidateDBRead(int i);
-  virtual ~DTStatusFlagValidateDBRead();
-  virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  virtual void endJob();
+  ~DTStatusFlagValidateDBRead() override = default;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+  void endJob() override;
 
 private:
   std::string dataFileName;

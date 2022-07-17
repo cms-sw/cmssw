@@ -253,7 +253,7 @@ namespace edm {
     bool shouldWeStop() const;
 
     void setExceptionMessageFiles(std::string& message);
-    void setExceptionMessageRuns(std::string& message);
+    void setExceptionMessageRuns();
     void setExceptionMessageLumis();
 
     bool setDeferredException(std::exception_ptr);
@@ -307,7 +307,7 @@ namespace edm {
     // really needed, we should remove them.
 
     //Guarantee that task group is the last to be destroyed
-    tbb::task_group taskGroup_;
+    oneapi::tbb::task_group taskGroup_;
 
     std::shared_ptr<ActivityRegistry> actReg_;  // We do not use propagate_const because the registry itself is mutable.
     edm::propagate_const<std::shared_ptr<ProductRegistry>> preg_;
@@ -331,6 +331,8 @@ namespace edm {
     std::vector<std::shared_ptr<LuminosityBlockProcessingStatus>> streamLumiStatus_;
     std::atomic<unsigned int> streamLumiActive_{0};  //works as guard for streamLumiStatus
 
+    std::vector<std::string> branchesToDeleteEarly_;
+
     std::vector<SubProcess> subProcesses_;
     edm::propagate_const<std::unique_ptr<HistoryAppender>> historyAppender_;
 
@@ -348,7 +350,7 @@ namespace edm {
     bool shouldWeStop_;
     bool fileModeNoMerge_;
     std::string exceptionMessageFiles_;
-    std::string exceptionMessageRuns_;
+    std::atomic<bool> exceptionMessageRuns_;
     std::atomic<bool> exceptionMessageLumis_;
     bool forceLooperToEnd_;
     bool looperBeginJobRun_;
@@ -356,8 +358,6 @@ namespace edm {
 
     PreallocationConfiguration preallocations_;
 
-    bool asyncStopRequestedWhileProcessingEvents_;
-    StatusCode asyncStopStatusCodeFromProcessingEvents_;
     bool firstEventInBlock_ = true;
 
     typedef std::set<std::pair<std::string, std::string>> ExcludedData;

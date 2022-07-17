@@ -68,15 +68,15 @@ namespace reco {
 
   private:
     Point pca_;
-    double dxy_;
-    double dxy_error_;
+    double dxy_{0};
+    double dxy_error_{0};
     Point pca3d_;
-    double ip3d_;
-    double ip3d_error_;
+    double ip3d_{0};
+    double ip3d_error_{0};
     VertexRef PV_;
-    bool hasSV_;
+    bool hasSV_{false};
     Vector FlightLength_;
-    double FlightLengthSig_;
+    double FlightLengthSig_{0};
     VertexRef SV_;
   };
 }  // namespace reco

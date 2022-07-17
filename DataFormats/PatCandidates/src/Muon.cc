@@ -33,6 +33,7 @@ Muon::Muon()
       jetPtRel_(0),
       mvaValue_(0),
       lowptMvaValue_(0),
+      mvaIDValue_(0),
       softMvaValue_(0),
       inverseBeta_(0),
       inverseBetaErr_(0) {
@@ -64,6 +65,7 @@ Muon::Muon(const reco::Muon& aMuon)
       jetPtRel_(0),
       mvaValue_(0),
       lowptMvaValue_(0),
+      mvaIDValue_(0),
       softMvaValue_(0),
       inverseBeta_(0),
       inverseBetaErr_(0) {
@@ -95,6 +97,7 @@ Muon::Muon(const edm::RefToBase<reco::Muon>& aMuonRef)
       jetPtRel_(0),
       mvaValue_(0),
       lowptMvaValue_(0),
+      mvaIDValue_(0),
       softMvaValue_(0),
       inverseBeta_(0),
       inverseBetaErr_(0) {
@@ -126,6 +129,7 @@ Muon::Muon(const edm::Ptr<reco::Muon>& aMuonRef)
       jetPtRel_(0),
       mvaValue_(0),
       lowptMvaValue_(0),
+      mvaIDValue_(0),
       softMvaValue_(0),
       inverseBeta_(0),
       inverseBetaErr_(0) {

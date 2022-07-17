@@ -34,6 +34,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonMVABasedHaloTagger.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
@@ -83,6 +84,7 @@ private:
   double minR9Barrel_;
   double minR9Endcap_;
   bool runMIPTagger_;
+  bool runMVABasedHaloTagger_;
 
   bool validConversions_;
 
@@ -95,6 +97,8 @@ private:
 
   //MIP
   PhotonMIPHaloTagger photonMIPHaloTagger_;
+  //MVA based Halo tagger for the EE photons
+  std::unique_ptr<PhotonMVABasedHaloTagger> photonMVABasedHaloTagger_ = nullptr;
 
   std::vector<double> preselCutValuesBarrel_;
   std::vector<double> preselCutValuesEndcap_;
@@ -127,6 +131,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config)
   minR9Endcap_ = config.getParameter<double>("minR9Endcap");
   usePrimaryVertex_ = config.getParameter<bool>("usePrimaryVertex");
   runMIPTagger_ = config.getParameter<bool>("runMIPTagger");
+  runMVABasedHaloTagger_ = config.getParameter<bool>("runMVABasedHaloTagger");
 
   candidateP4type_ = config.getParameter<std::string>("candidateP4type");
 

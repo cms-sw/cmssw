@@ -29,11 +29,19 @@ public:
 
 private:
   std::string m_record;
+  unsigned int m_iovSize;
+  std::string m_lumiFile;
+  cond::Time_t m_lastLumi;
+  unsigned int m_nLumi;
   int m_ret;
 };
 
 LumiBasedUpdateAnalyzer::LumiBasedUpdateAnalyzer(const edm::ParameterSet& iConfig)
-    : m_record(iConfig.getParameter<std::string>("record")), m_ret(-2) {}
+    : m_record(iConfig.getUntrackedParameter<std::string>("record")),
+      m_iovSize(iConfig.getUntrackedParameter<unsigned int>("iovSize")),
+      m_lumiFile(iConfig.getUntrackedParameter<std::string>("lastLumiFile")),
+      m_nLumi(0),
+      m_ret(-2) {}
 
 LumiBasedUpdateAnalyzer::~LumiBasedUpdateAnalyzer() {}
 
@@ -53,45 +61,55 @@ void LumiBasedUpdateAnalyzer::endJob() {
 }
 
 void LumiBasedUpdateAnalyzer::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-                                                   const edm::EventSetup& context) {
+                                                   const edm::EventSetup& context) {}
+
+void LumiBasedUpdateAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {}
+
+void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   edm::Service<cond::service::OnlineDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     return;
   }
+  auto& lumiBlock = evt.getLuminosityBlock();
+  unsigned int irun = lumiBlock.getRun().run();
+  unsigned int lumiId = lumiBlock.luminosityBlock();
+  cond::Time_t currentLumi = cond::time::lumiTime(irun, lumiId);
+  auto& rec = mydbservice->lookUpRecord(m_record);
+  m_ret = -1;
   mydbservice->logger().start();
-  ::sleep(2);
-  unsigned int irun = lumiSeg.getRun().run();
-  unsigned int lumiId = lumiSeg.luminosityBlock();
-  std::string tag = mydbservice->tag(m_record);
-  std::cout << "tag " << tag << std::endl;
-  std::cout << "run " << irun << std::endl;
-  mydbservice->logger().logDebug() << "Tag: " << tag << " Run: " << irun;
-  BeamSpotObjects mybeamspot;
-  mybeamspot.SetPosition(0.053, 0.1, 0.13);
-  mybeamspot.SetSigmaZ(3.8);
-  mybeamspot.SetType(int(lumiId));
-  std::cout << mybeamspot.GetBeamType() << std::endl;
-  mydbservice->logger().logDebug() << "BeamType: " << mybeamspot.GetBeamType();
-  m_ret = 0;
-  try {
-    mydbservice->writeIOVForNextLumisection(mybeamspot, m_record);
-  } catch (const std::exception& e) {
-    std::cout << "Error:" << e.what() << std::endl;
-    mydbservice->logger().logError() << e.what();
-    m_ret = -1;
+  mydbservice->logger().logDebug() << "Transaction id for time " << currentLumi << " : "
+                                   << cond::time::transactionIdForLumiTime(currentLumi, rec.m_refreshTime, "");
+  if (currentLumi != m_lastLumi) {
+    m_nLumi++;
+    std::ofstream lastLumiFile(m_lumiFile, std::ofstream::trunc);
+    lastLumiFile << currentLumi;
+    lastLumiFile.close();
+    m_lastLumi = currentLumi;
+    if (m_nLumi == 3) {
+      std::string tag = mydbservice->tag(m_record);
+      mydbservice->logger().logDebug() << "Tag: " << tag;
+      BeamSpotObjects mybeamspot;
+      mybeamspot.setPosition(0.053, 0.1, 0.13);
+      mybeamspot.setSigmaZ(3.8);
+      mybeamspot.setType(int(lumiId));
+      mydbservice->logger().logDebug() << "BeamType: " << mybeamspot.beamType();
+      try {
+        auto iov = mydbservice->writeIOVForNextLumisection(mybeamspot, m_record);
+        if (iov) {
+          auto utime = cond::time::unpack(iov);
+          mydbservice->logger().logDebug() << " Run: " << irun << " Lumi: " << lumiId << " IOV lumi: " << utime.second;
+          m_ret = 0;
+        }
+      } catch (const std::exception& e) {
+        mydbservice->logger().logError() << e.what();
+        m_ret = 1;
+      }
+      m_nLumi = 0;
+    } else {
+      mydbservice->logger().logDebug() << "Skipping lumisection " << lumiId;
+    }
   }
-}
-
-void LumiBasedUpdateAnalyzer::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup) {
-  edm::Service<cond::service::OnlineDBOutputService> mydbservice;
-  if (mydbservice.isAvailable()) {
-    mydbservice->logger().logInfo() << "EndLuminosityBlock";
-    mydbservice->logger().end(m_ret);
-  }
-}
-
-void LumiBasedUpdateAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
-  std::cout << "LumiBasedUpdateAnalyzer::analyze " << std::endl;
+  mydbservice->logger().end(m_ret);
 }
 
 DEFINE_FWK_MODULE(LumiBasedUpdateAnalyzer);

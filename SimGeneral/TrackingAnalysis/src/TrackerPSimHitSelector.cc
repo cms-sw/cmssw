@@ -1,8 +1,3 @@
-
-
-#include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-#include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -37,8 +32,7 @@ void TrackerPSimHitSelector::select(PSimHitCollection &selection,
 
   // Setup the cabling mapping
   std::map<uint32_t, std::vector<int>> theDetIdList;
-  edm::ESHandle<SiStripDetCabling> detCabling;
-  setup.get<SiStripDetCablingRcd>().get(detCabling);
+  edm::ESHandle<SiStripDetCabling> detCabling = setup.getHandle(cableToken_);
   detCabling->addConnected(theDetIdList);
 
   // Select only psimhits from alive modules

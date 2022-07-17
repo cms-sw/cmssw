@@ -5,7 +5,7 @@
 
 using namespace cmsdt;
 //------------------------------------------------------------------
-//--- Constructores y destructores
+//--- Constructors and destructor
 //------------------------------------------------------------------
 DTPrimitive::DTPrimitive() {
   cameraId_ = -1;

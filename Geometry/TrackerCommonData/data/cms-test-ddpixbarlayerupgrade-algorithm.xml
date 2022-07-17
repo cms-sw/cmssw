@@ -17,15 +17,15 @@
   <close_geometry/>
 
   <IncludeSection>
-    <Include ref="Geometry/TrackerCommonData/data/testDDPixBarLayerUpgradeAlgorithm.xml"/>
-    <Include ref="Geometry/CMSCommonData/data/materials/2015/v1/materials.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/trackermaterial.xml"/>
+    <Include ref="Geometry/CMSCommonData/data/materials/2021/v1/materials.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/trackermaterial/2021/v2/trackermaterial.xml"/>
     <Include ref="Geometry/TrackerCommonData/data/pixfwdMaterials.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarmaterial.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladderfull0.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarladder.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer0.xml"/>
-    <Include ref="Geometry/TrackerCommonData/data/PhaseI/pixbarlayer.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v3/pixbarmaterial.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladderfull0.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarladder.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer0.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/PhaseI/v2/pixbarlayer.xml"/>
+    <Include ref="Geometry/TrackerCommonData/data/testDDPixBarLayerUpgradeAlgorithm.xml"/>
   </IncludeSection>
 
 </DDDefinition>

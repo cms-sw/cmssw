@@ -2,19 +2,32 @@
 // Description:  Filter events in a range of Monte Carlo ptHat.
 // Author: R. Harris
 // Date:  28 - October - 2008
-#include "RecoJets/JetAnalyzers/interface/ptHatFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <TFile.h>
-#include <cmath>
+#include <atomic>
+
+class ptHatFilter : public edm::global::EDFilter<> {
+public:
+  ptHatFilter(const edm::ParameterSet&);
+  void beginJob() override;
+  bool filter(edm::StreamID, edm::Event& e, edm::EventSetup const& iSetup) const override;
+  void endJob() override;
+
+private:
+  const edm::EDGetTokenT<double> token_;
+  double ptHatLowerCut;
+  double ptHatUpperCut;
+  mutable std::atomic<int> totalEvents;
+  mutable std::atomic<int> acceptedEvents;
+};
+
 using namespace edm;
 using namespace reco;
 using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////
-ptHatFilter::ptHatFilter(edm::ParameterSet const& cfg) {
+ptHatFilter::ptHatFilter(edm::ParameterSet const& cfg) : token_{consumes(edm::InputTag("genEventScale"))} {
   ptHatLowerCut = cfg.getParameter<double>("ptHatLowerCut");
   ptHatUpperCut = cfg.getParameter<double>("ptHatUpperCut");
 }
@@ -24,16 +37,11 @@ void ptHatFilter::beginJob() {
   acceptedEvents = 0;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-ptHatFilter::~ptHatFilter() {}
-
 ////////////////////////////////////////////////////////////////////////////////////////
-bool ptHatFilter::filter(edm::Event& evt, edm::EventSetup const& iSetup) {
+bool ptHatFilter::filter(edm::StreamID, edm::Event& evt, edm::EventSetup const& iSetup) const {
   bool result = false;
   totalEvents++;
-  edm::Handle<double> genEventScale;
-  evt.getByLabel("genEventScale", genEventScale);
-  double pt_hat = *genEventScale;
+  double pt_hat = evt.get(token_);
   if (pt_hat > ptHatLowerCut && pt_hat < ptHatUpperCut) {
     acceptedEvents++;
     result = true;

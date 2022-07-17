@@ -20,6 +20,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "FWCore/Utilities/interface/ESGetToken.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
@@ -33,7 +35,10 @@ public:
   ~HGCalTriggerTools() {}
 
   void setGeometry(const HGCalTriggerGeometryBase* const);
-  void eventSetup(const edm::EventSetup&);  // Kept for backward compatibility: used in L1Trigger/L1CaloTrigger/test
+  void eventSetup(const edm::EventSetup&,
+                  const edm::ESGetToken<
+                      HGCalTriggerGeometryBase,
+                      CaloGeometryRecord>&);  // Kept for backward compatibility: used in L1Trigger/L1CaloTrigger/test
   GlobalPoint getTCPosition(const DetId& id) const;
   unsigned layers(ForwardSubdetector type) const;
   unsigned layers(DetId::Detector type) const;

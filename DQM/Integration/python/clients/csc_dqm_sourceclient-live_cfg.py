@@ -2,7 +2,8 @@ from __future__ import print_function
 import FWCore.ParameterSet.Config as cms
 import sys
 
-process = cms.Process("CSCDQMLIVE")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("CSCDQMLIVE", Run3)
 
 #-------------------------------------------------
 # DQM Module Configuration

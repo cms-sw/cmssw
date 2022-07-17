@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 from Configuration.ProcessModifiers.dd4hep_cff import dd4hep
 
-process = cms.Process("MTDGeometryTest",Phase2C11I13M9,dd4hep)
+process = cms.Process("MTDGeometryTest",Phase2C17I13M9,dd4hep)
 
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
@@ -47,10 +47,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     )
 )
 
-process.DDDetectorESProducer = cms.ESSource("DDDetectorESProducer",
-                                            confGeomXMLFiles = cms.FileInPath('Geometry/MTDCommonData/data/dd4hep/cms-mtdD76-geometry.xml'),
-                                            appendToDataLabel = cms.string('')
-                                            )
+process.load('Configuration.Geometry.GeometryDD4hep_cff')
+process.DDDetectorESProducer.confGeomXMLFiles = cms.FileInPath("Geometry/CMSCommonData/data/dd4hep/cmsExtendedGeometry2026D88.xml")
 
 process.DDSpecParRegistryESProducer = cms.ESProducer("DDSpecParRegistryESProducer",
                                                      appendToDataLabel = cms.string('')

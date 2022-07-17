@@ -6,10 +6,9 @@
 <use name="FWCore/ParameterSetReader"/>
 <use name="PhysicsTools/FWLite"/>
 <use name="PhysicsTools/SelectorUtils"/>
-<environment>
-  <bin file="testSelection_wplusjets.C">
-  </bin>
+<bin file="testSelection_wplusjets.C">
+</bin>
 
-  <bin file="calculateIdMD5.cc">
-  </bin>
-</environment>
+<bin file="calculateIdMD5.cc">
+  <use name="Utilities/OpenSSL"/>
+</bin>

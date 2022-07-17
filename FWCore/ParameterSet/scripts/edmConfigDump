@@ -1,6 +1,5 @@
 #! /usr/bin/env python3
 
-from __future__ import print_function
 import sys
 import os 
 from importlib.machinery import SourceFileLoader
@@ -17,6 +16,8 @@ parser.add_argument("--prune", action="store_true",
                     help="Prune the configuration before printing it")
 parser.add_argument("--pruneVerbose", action="store_true",
                     help="With --prune, be verbose on what is pruned")
+parser.add_argument("-o", "--output", type=str, default=None,
+                    help="Save the configuration dump into this file. In this case any printouts from the configuration continue to be printed to stdout. Default is to print the configuration dump to stdout.")
 
 options = parser.parse_args()
 handle = open(options.filename, 'r')
@@ -28,5 +29,9 @@ cmsProcess= mod.process
 if options.prune:
     cmsProcess.prune(options.pruneVerbose)
 
-print(cmsProcess.dumpPython())
+if options.output is not None:
+    with open(options.output, "w") as f:
+        f.write(cmsProcess.dumpPython())
+else:
+    print(cmsProcess.dumpPython())
 

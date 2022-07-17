@@ -8,8 +8,6 @@
 
 SimG4HcalHitCluster::SimG4HcalHitCluster() : ec(0), etac(0), phic(0) {}
 
-SimG4HcalHitCluster::~SimG4HcalHitCluster() {}
-
 bool SimG4HcalHitCluster::operator<(const SimG4HcalHitCluster &cluster) const {
   return (ec / cosh(etac) < cluster.e() / cosh(cluster.eta())) ? false : true;
 }

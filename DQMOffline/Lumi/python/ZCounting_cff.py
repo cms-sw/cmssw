@@ -17,15 +17,15 @@ zcounting = DQMEDAnalyzer('ZCounting',
                                  beamspotName = cms.InputTag('offlineBeamSpot'),
                                  conversionsName = cms.InputTag('conversions'),
 
-                                 MuonTriggerNames = cms.vstring("HLT_IsoMu27_v*"),
-                                 MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sMu22Or25L1f0L2f10QL3f27QL3trkIsoFiltered0p07"),
+                                 MuonTriggerNames = cms.vstring("HLT_IsoMu24_v*"),
+                                 MuonTriggerObjectNames = cms.vstring("hltL3crIsoL1sSingleMu22L1f0L2f10QL3f24QL3trkIsoFiltered0p07"),
 
-                                 IDType   = cms.untracked.string("Tight"),# Tight, Medium, Loose
+                                 IDType   = cms.untracked.string("CustomTight"), # Tight, Medium, Loose, CustomTight
                                  IsoType  = cms.untracked.string("NULL"),  # Tracker-based, PF-based
                                  IsoCut   = cms.untracked.double(0.),     # {0.05, 0.10} for Tracker-based, {0.15, 0.25} for PF-based
 
-                                 PtCutL1  = cms.untracked.double(30.0),
-                                 PtCutL2  = cms.untracked.double(30.0),
+                                 PtCutL1  = cms.untracked.double(27.0),
+                                 PtCutL2  = cms.untracked.double(27.0),
                                  EtaCutL1 = cms.untracked.double(2.4),
                                  EtaCutL2 = cms.untracked.double(2.4),
 
@@ -38,17 +38,17 @@ zcounting = DQMEDAnalyzer('ZCounting',
 
                                  ElectronIDType = cms.untracked.string("TIGHT"),
 
-                                 MassBin  = cms.untracked.int32(50),
-                                 MassMin  = cms.untracked.double(66.0),
-                                 MassMax  = cms.untracked.double(116.0),
+                                 MassBin  = cms.untracked.int32(80),
+                                 MassMin  = cms.untracked.double(50.0),
+                                 MassMax  = cms.untracked.double(130.0),
 
                                  LumiBin  = cms.untracked.int32(2500),
                                  LumiMin  = cms.untracked.double(0.5),
                                  LumiMax  = cms.untracked.double(2500.5),
 
-                                 PVBin    = cms.untracked.int32(60),
+                                 PVBin    = cms.untracked.int32(100),
                                  PVMin    = cms.untracked.double(0.5),
-                                 PVMax    = cms.untracked.double(60.5),
+                                 PVMax    = cms.untracked.double(100.5),
 
                                  VtxNTracksFitMin = cms.untracked.double(0.),
                                  VtxNdofMin       = cms.untracked.double(4.),

@@ -16,6 +16,8 @@
 
 #include "Validation/MuonGEMHits/interface/GEMValidationUtils.h"
 
+#include "CondFormats/DataRecord/interface/GEMChMapRcd.h"
+#include "CondFormats/GEMObjects/interface/GEMChMap.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMVFATStatusCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMOHStatusCollection.h"
@@ -35,6 +37,8 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 protected:
+  void LoadROMap(edm::EventSetup const &iSetup);
+
   void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override{};
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(edm::Event const &e, edm::EventSetup const &eSetup) override;
@@ -42,6 +46,18 @@ protected:
   void FillWithRiseErr(MonitorElement *h, Int_t nX, Int_t nY, Bool_t &bErr) {
     h->Fill(nX, nY);
     bErr = true;
+  };
+
+  void FillStatusSummaryPlot(std::map<ME4IdsKey, bool> &mapChamber,
+                             MonitorElement *h2Plot,
+                             std::map<ME4IdsKey, bool> *pmapSummary = nullptr) {
+    for (auto const &[key4, bFlag] : mapChamber) {  // bFlag is not used
+      ME3IdsKey key3 = key4Tokey3(key4);
+      Int_t nChamber = keyToChamber(key4);
+      h2Plot->Fill(nChamber, mapStationToIdx_[key3]);
+      if (pmapSummary != nullptr)
+        (*pmapSummary)[key4] = true;
+    }
   };
 
 private:
@@ -53,14 +69,16 @@ private:
   void SetLabelOHStatus(MonitorElement *h2Status);
   void SetLabelVFATStatus(MonitorElement *h2Status);
 
+  const edm::ESGetToken<GEMChMap, GEMChMapRcd> gemChMapToken_;
+
   edm::EDGetToken tagVFAT_;
   edm::EDGetToken tagOH_;
   edm::EDGetToken tagAMC_;
   edm::EDGetToken tagAMC13_;
 
+  Bool_t bWarnedNotFound_;
+
   MonitorElement *h2AMC13Status_;
-  MonitorElement *h2AMCStatusPos_;
-  MonitorElement *h2AMCStatusNeg_;
 
   MEMap3Inf mapStatusOH_;
   MEMap3Inf mapStatusVFAT_;
@@ -72,10 +90,26 @@ private:
   MonitorElement *h2SummaryStatusAll;
   MonitorElement *h2SummaryStatusWarning;
   MonitorElement *h2SummaryStatusError;
+  MonitorElement *h2SummaryStatusVFATWarning;
+  MonitorElement *h2SummaryStatusVFATError;
+  MonitorElement *h2SummaryStatusOHWarning;
+  MonitorElement *h2SummaryStatusOHError;
+  MonitorElement *h2SummaryStatusAMCWarning;
+  MonitorElement *h2SummaryStatusAMCError;
+  MonitorElement *h2SummaryStatusAMC13Error;
+
+  std::string strFolderMain_;
+
+  Bool_t bFillAMC_;
 
   Int_t nBXMin_, nBXMax_;
 
   std::map<UInt_t, int> mapFEDIdToRe_;
+  std::map<UInt_t, int> mapFEDIdToSt_;
+  std::map<UInt_t, int> mapFEDIdToPosition_;
+  std::map<UInt_t, MonitorElement *> mapFEDIdToAMCStatus_;
+  std::map<int, std::vector<GEMDetId>> mapAMC13ToListChamber_;
+  std::map<std::tuple<int, int>, std::vector<GEMDetId>> mapAMCToListChamber_;
   Int_t nAMCSlots_;
 
   int nBitAMC13_ = 10;

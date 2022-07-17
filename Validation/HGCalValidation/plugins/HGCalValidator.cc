@@ -12,6 +12,7 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     : caloGeomToken_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
       label_lcl(pset.getParameter<edm::InputTag>("label_lcl")),
       label_tst(pset.getParameter<std::vector<edm::InputTag>>("label_tst")),
+      label_simTS(pset.getParameter<edm::InputTag>("label_simTS")),
       label_simTSFromCP(pset.getParameter<edm::InputTag>("label_simTSFromCP")),
       associator_(pset.getUntrackedParameter<edm::InputTag>("associator")),
       associatorSim_(pset.getUntrackedParameter<edm::InputTag>("associatorSim")),
@@ -25,7 +26,9 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
       label_layerClustersPlots_(pset.getParameter<edm::InputTag>("label_layerClusterPlots")),
       label_LCToCPLinking_(pset.getParameter<edm::InputTag>("label_LCToCPLinking")),
       doTrackstersPlots_(pset.getUntrackedParameter<bool>("doTrackstersPlots")),
-      label_TSToCPLinking_(pset.getParameter<edm::InputTag>("label_TSToCPLinking")),
+      label_TS_(pset.getParameter<std::string>("label_TS")),
+      label_TSToCPLinking_(pset.getParameter<std::string>("label_TSToCPLinking")),
+      label_TSToSTSPR_(pset.getParameter<std::string>("label_TSToSTSPR")),
       label_clustersmask(pset.getParameter<std::vector<edm::InputTag>>("LayerClustersInputMask")),
       cummatbudinxo_(pset.getParameter<edm::FileInPath>("cummatbudinxo")) {
   //In this way we can easily generalize to associations between other objects also.
@@ -44,6 +47,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
   associatorMapSimtR = consumes<hgcal::SimToRecoCollectionWithSimClusters>(associatorSim_);
   associatorMapRtSim = consumes<hgcal::RecoToSimCollectionWithSimClusters>(associatorSim_);
 
+  simTrackstersMap_ = consumes<std::map<uint, std::vector<uint>>>(edm::InputTag("ticlSimTracksters"));
+
   hitMap_ = consumes<std::unordered_map<DetId, const HGCRecHit*>>(edm::InputTag("hgcalRecHitMapProducer"));
 
   density_ = consumes<Density>(edm::InputTag("hgcalLayerClusters"));
@@ -56,7 +61,8 @@ HGCalValidator::HGCalValidator(const edm::ParameterSet& pset)
     label_tstTokens.push_back(consumes<ticl::TracksterCollection>(itag));
   }
 
-  simTrackstersFromCPs_ = consumes<ticl::TracksterCollection>(label_simTSFromCP);
+  simTracksters_ = consumes<ticl::TracksterCollection>(label_simTS);
+  simTracksters_fromCPs_ = consumes<ticl::TracksterCollection>(label_simTSFromCP);
 
   associatorMapRtS = consumes<hgcal::RecoToSimCollection>(associator_);
   associatorMapStR = consumes<hgcal::SimToRecoCollection>(associator_);
@@ -200,11 +206,19 @@ void HGCalValidator::bookHistograms(DQMStore::IBooker& ibook,
 
     ibook.setCurrentFolder(dirName);
 
-    //Booking histograms concerning HGCal tracksters
+    // Booking histograms concerning HGCal tracksters
     if (doTrackstersPlots_) {
+      // Generic histos
+      ibook.setCurrentFolder(dirName + "/" + label_TS_);
       histoProducerAlgo_->bookTracksterHistos(ibook, histograms.histoProducerAlgo, totallayers_to_monitor_);
-      ibook.setCurrentFolder(dirName + "/" + label_TSToCPLinking_.label());
-      histoProducerAlgo_->bookTracksterCPLinkingHistos(ibook, histograms.histoProducerAlgo);
+      // CP Linking
+      ibook.setCurrentFolder(dirName + "/" + label_TSToCPLinking_);
+      histoProducerAlgo_->bookTracksterSTSHistos(
+          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::validationType::Linking);
+      // SimTracksters Pattern Recognition
+      ibook.setCurrentFolder(dirName + "/" + label_TSToSTSPR_);
+      histoProducerAlgo_->bookTracksterSTSHistos(
+          ibook, histograms.histoProducerAlgo, HGVHistoProducerAlgo::validationType::PatternRecognition);
     }
   }  //end of booking Tracksters loop
 }
@@ -252,9 +266,17 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   event.getByToken(label_cp_effic, caloParticleHandle);
   std::vector<CaloParticle> const& caloParticles = *caloParticleHandle;
 
+  edm::Handle<ticl::TracksterCollection> simTracksterHandle;
+  event.getByToken(simTracksters_, simTracksterHandle);
+  ticl::TracksterCollection const& simTracksters = *simTracksterHandle;
+
   edm::Handle<ticl::TracksterCollection> simTracksterFromCPHandle;
-  event.getByToken(simTrackstersFromCPs_, simTracksterFromCPHandle);
+  event.getByToken(simTracksters_fromCPs_, simTracksterFromCPHandle);
   ticl::TracksterCollection const& simTrackstersFromCPs = *simTracksterFromCPHandle;
+
+  edm::Handle<std::map<uint, std::vector<uint>>> simTrackstersMapHandle;
+  event.getByToken(simTrackstersMap_, simTrackstersMapHandle);
+  const std::map<uint, std::vector<uint>> cpToSc_SimTrackstersMap = *simTrackstersMapHandle;
 
   edm::ESHandle<CaloGeometry> geom = setup.getHandle(caloGeomToken_);
   tools_->setGeometry(*geom);
@@ -282,7 +304,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   removeCPFromPU(caloParticles, cPIndices);
 
   // ##############################################
-  // fill caloparticles histograms
+  // Fill caloparticles histograms
   // ##############################################
   // HGCRecHit are given to select the SimHits which are also reconstructed
   LogTrace("HGCalValidator") << "\n# of CaloParticles: " << caloParticles.size() << "\n" << std::endl;
@@ -322,7 +344,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill simCluster histograms
+  // Fill simCluster histograms
   // ##############################################
   if (doSimClustersPlots_) {
     histoProducerAlgo_->fill_simCluster_histos(
@@ -358,7 +380,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill layercluster histograms
+  // Fill layercluster histograms
   // ##############################################
   int w = 0;  //counter counting the number of sets of histograms
   if (doLayerClustersPlots_) {
@@ -388,7 +410,7 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
   }
 
   // ##############################################
-  // fill Trackster histograms
+  // Fill Trackster histograms
   // ##############################################
   for (unsigned int wml = 0; wml < label_tstTokens.size(); wml++) {
     if (doTrackstersPlots_) {
@@ -396,22 +418,26 @@ void HGCalValidator::dqmAnalyze(const edm::Event& event,
       event.getByToken(label_tstTokens[wml], tracksterHandle);
       const ticl::TracksterCollection& tracksters = *tracksterHandle;
 
+      //General Info on Tracksters
+      LogTrace("HGCalValidator") << "\n# of Tracksters from " << label_tst[wml].process() << ":"
+                                 << label_tst[wml].label() << ":" << label_tst[wml].instance() << ": "
+                                 << tracksters.size() << "\n"
+                                 << std::endl;
+
       histoProducerAlgo_->fill_trackster_histos(histograms.histoProducerAlgo,
                                                 wml,
                                                 tracksters,
                                                 clusters,
+                                                simTracksters,
                                                 simTrackstersFromCPs,
+                                                cpToSc_SimTrackstersMap,
+                                                simClusters,
+                                                caloParticleHandle.id(),
                                                 caloParticles,
                                                 cPIndices,
                                                 selected_cPeff,
                                                 *hitMap,
                                                 totallayers_to_monitor_);
-
-      //General Info on Tracksters
-      LogTrace("HGCalValidator") << "\n# of Tracksters with " << label_tst[wml].process() << ":"
-                                 << label_tst[wml].label() << ":" << label_tst[wml].instance() << ": "
-                                 << tracksters.size() << "\n"
-                                 << std::endl;
     }
   }  //end of loop over Trackster input labels
 }

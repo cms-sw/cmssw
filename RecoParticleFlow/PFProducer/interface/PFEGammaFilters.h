@@ -32,7 +32,6 @@ public:
 
 private:
   bool passGsfElePreSelWithOnlyConeHadem(const reco::GsfElectron &) const;
-  bool thisEleIsNotAllowedInPF(const reco::GsfElectron &, bool) const;
 
   // Photon selections
   const float ph_Et_;
@@ -47,6 +46,8 @@ private:
   const bool useElePFidDNN_;
   const bool usePhotonPFidDNN_;
   const bool useEBModelInGap_;
+  const float endcapBoundary_;
+  const float extEtaBoundary_;
   const float ele_iso_pt_;
   const float ele_iso_mva_eb_;
   const float ele_iso_mva_ee_;
@@ -57,10 +58,14 @@ private:
   float ele_dnnLowPtThr_;
   float ele_dnnHighPtBarrelThr_;
   float ele_dnnHighPtEndcapThr_;
+  float ele_dnnExtEta1Thr_;
+  float ele_dnnExtEta2Thr_;
   // Thresholds for DNN Bkg ele pfid
   float ele_dnnBkgLowPtThr_;
   float ele_dnnBkgHighPtBarrelThr_;
   float ele_dnnBkgHighPtEndcapThr_;
+  float ele_dnnBkgExtEta1Thr_;
+  float ele_dnnBkgExtEta2Thr_;
   // Threshold for DNN photon pfid
   float photon_dnnBarrelThr_;
   float photon_dnnEndcapThr_;
@@ -68,7 +73,6 @@ private:
   const int ele_missinghits_;
   const float ele_ecalDrivenHademPreselCut_;
   const float ele_maxElePtForOnlyMVAPresel_;
-  const bool allowEEEinPF_;
   float ele_maxNtracks_;
   float ele_maxHcalE_;
   float ele_maxTrackPOverEele_;

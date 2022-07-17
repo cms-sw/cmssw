@@ -45,11 +45,19 @@ def customiseTrackingNtupleTool(process, isRECO = True, mergeIters = False):
 
     #combine all *StepTracks (TODO: write one for HLT)
     if mergeIters and isRECO:
-        process.mergedStepTracks = cms.EDProducer("TrackSimpleMerger",
-            src = cms.VInputTag(m.replace("Seeds", "Tracks").replace("seedTracks", "") for m in process.trackingNtuple.seedTracks)
+        import RecoTracker.FinalTrackSelectors.TrackCollectionMerger_cfi as _mod
+        process.mergedStepTracks = _mod.TrackCollectionMerger.clone(
+            trackProducers = cms.VInputTag(m.replace("Seeds", "Tracks").replace("seedTracks", "") for m in process.trackingNtuple.seedTracks),
+            inputClassifiers = cms.vstring(m.replace("StepSeeds", "Step").replace("seedTracks", "").replace("dSeeds", "dTracks")
+                                           .replace("InOut", "InOutClassifier").replace("tIn", "tInClassifier")
+                                           for m in process.trackingNtuple.seedTracks),
+            minQuality = "any",
+            enableMerging = False
         )
         process.trackingNtupleSequence.insert(0,process.mergedStepTracks)
         process.trackingNtuple.tracks = "mergedStepTracks"
+        process.trackingNtuple.includeMVA = True
+        process.trackingNtuple.trackMVAs = ["mergedStepTracks"]
 
     ntuplePath = cms.Path(process.trackingNtupleSequence)
 
@@ -148,5 +156,8 @@ def extendedContent(process):
 
     process.trackingNtuple.saveSimHitsP3 = True
     process.trackingNtuple.addSeedCurvCov = True
+
+    process.trackingNtuple.includeOnTrackHitData = True
+    process.trackingNtuple.includeTrackCandidates = True
 
     return process

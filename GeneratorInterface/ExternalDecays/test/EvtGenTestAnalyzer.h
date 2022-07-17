@@ -1,22 +1,24 @@
 #ifndef EvtGenTestAnalyzer_H
 #define EvtGenTestAnalyzer_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
 class TFile;
 class TH1D;
 
-class EvtGenTestAnalyzer : public edm::EDAnalyzer {
+class EvtGenTestAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   //
   explicit EvtGenTestAnalyzer(const edm::ParameterSet&);
-  virtual ~EvtGenTestAnalyzer() {}  // no need to delete ROOT stuff
-                                    // as it'll be deleted upon closing TFile
+  ~EvtGenTestAnalyzer() override = default;  // no need to delete ROOT stuff
+                                             // as it'll be deleted upon closing TFile
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob();
-  virtual void endJob();
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void beginJob() override;
+  void endJob() override;
 
 private:
   //

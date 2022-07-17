@@ -8,3 +8,7 @@
 
 <bin file="testSerializationSiStripObjects.cpp">
 </bin>
+
+<bin file="test_catch2_*.cpp" name="test_catch2_SiStripBadStrip_Phase2">
+  <use name="catch2"/>
+</bin>

@@ -12,7 +12,7 @@
 
 // system include files
 #include <mutex>
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 
 // user include files
 #include "FWCore/PythonFramework/interface/PythonEventProcessor.h"
@@ -101,7 +101,7 @@ PythonEventProcessor::~PythonEventProcessor() {
   auto gil = PyEval_SaveThread();
   // Protects the destructor from throwing exceptions.
   CMS_SA_ALLOW try {
-    tbb::task_arena{nThreads}.execute([this]() {
+    oneapi::tbb::task_arena{nThreads}.execute([this]() {
       TaskCleanupSentry s(&processor_);
       processor_.endJob();
     });
@@ -113,7 +113,7 @@ PythonEventProcessor::~PythonEventProcessor() {
 void PythonEventProcessor::run() {
   auto gil = PyEval_SaveThread();
   try {
-    tbb::task_arena{nThreads}.execute([this]() { (void)processor_.runToCompletion(); });
+    oneapi::tbb::task_arena{nThreads}.execute([this]() { (void)processor_.runToCompletion(); });
   } catch (...) {
   }
   PyEval_RestoreThread(gil);

@@ -226,9 +226,9 @@ int main(const int argc, const char **argv) {
         L1SimTrack simtrack = ev.simtrack(isimtrack);
         if (simtrack.pt() < 2.0)
           continue;
-        if (fabs(simtrack.eta()) > 2.4)
+        if (std::abs(simtrack.eta()) > 2.4)
           continue;
-        if (fabs(simtrack.vz()) > 15.0)
+        if (std::abs(simtrack.vz()) > 15.0)
           continue;
         if (hypot(simtrack.vx(), simtrack.vy()) > 0.1)
           continue;

@@ -131,6 +131,7 @@ workflows[140.55] = ['',['RunHI2015VR','HYBRIDRepackHI2015VR','HYBRIDZSHI2015','
 workflows[140.56] = ['',['RunHI2018','RECOHID18','HARVESTDHI18']]
 workflows[140.5611] = ['',['RunHI2018AOD','REMINIAODHID18','HARVESTHI18MINIAOD']]
 workflows[140.57] = ['',['RunHI2018Reduced','RECOHID18','HARVESTDHI18']]
+workflows[140.58] = ['',['RunHI2018','RAWPRIMEHI18','RECOHID18APPROXCLUSTERS','HARVESTDHI18']]
 
 ### run2 2015B 50ns ###
 workflows[134.701] = ['',['RunHLTPhy2015B','HLTDR2_50ns','RECODR2_50nsreHLT_HIPM','HARVESTDR2']]
@@ -445,11 +446,15 @@ workflows[138.5] = ['ExpressCollisions',['RunMinimumBias2021','TIER0EXPRUN3','AL
 workflows[136.8861] = ['',['RunEGamma2018Dml1','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
 workflows[136.8862] = ['',['RunEGamma2018Dml2','HLTDR2_2018ml','RECODR2_2018reHLT_skimEGamma_Prompt_L1TEgDQM','HARVEST2018_L1TEgDQM_Prompt']]
 
+#### Test of tau embed
+workflows[136.9] = ['', ['RunDoubleMuon2016C', 'RAWRECOTE16', 'RAWRECOLHECLEANTE16', 'EMBEDHADTE16', 'EMBEDMINIAOD16']]
+
 ### run 2021 collisions ###
 workflows[139.001] = ['',['RunMinimumBias2021','HLTDR3_2021','RECODR3_MinBiasOffline','HARVESTD2021MB']]
 workflows[139.002] = ['',['RunZeroBias2021','HLTDR3_2021','RECODR3_ZBOffline','HARVESTD2021ZB']]
 workflows[139.003] = ['',['RunHLTPhy2021','HLTDR3_2021','RECODR3_HLTPhysics_Offline','HARVESTD2021HLTPhy']]
 workflows[139.004] = ['',['RunNoBPTX2021','HLTDR3_2021','RECODR3_AlCaTkCosmics_Offline','HARVESTDR3']]
+workflows[139.005] = ['',['AlCaPhiSym2021','RECOALCAECALPHISYMDR3','ALCAECALPHISYM']]
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
@@ -595,12 +600,12 @@ workflows[1313] = ['', ['QCD_Pt_3000_3500_13','DIGIUP15','RECOUP15','HARVESTUP15
 workflows.addOverride(1313,overridesEv5)
 workflows[1339] = ['', ['QCD_Pt_600_800_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
-workflows[1347] = ['', ['Upsilon1SToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1349] = ['', ['BsToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1350] = ['', ['JpsiMuMu_Pt-8','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1364] = ['', ['BdToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1365] = ['', ['BuToJpsiK_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1366] = ['', ['BsToJpsiPhi_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1347] = ['', ['Upsilon1SToMuMu_13','DIGIUP15','RECOUP15_BPHDQM','HARVESTUP15']]
+workflows[1349] = ['', ['BsToMuMu_13','DIGIUP15','RECOUP15_BPHDQM','HARVESTUP15']]
+workflows[1350] = ['', ['JpsiMuMu_Pt-8','DIGIUP15','RECOUP15_BPHDQM','HARVESTUP15']]
+workflows[1364] = ['', ['BdToMuMu_13','DIGIUP15','RECOUP15_BPHDQM','HARVESTUP15']]
+workflows[1365] = ['', ['BuToJpsiK_13','DIGIUP15','RECOUP15_BPHDQM','HARVESTUP15']]
+workflows[1366] = ['', ['BsToJpsiPhi_13','DIGIUP15','RECOUP15_BPHDQM','HARVESTUP15']]
 
 workflows[1325] = ['', ['TTbar_13','DIGIUP15','RECOUP15','HARVESTUP15','ALCATTUP15','NANOUP15']]
 # the 3 workflows below are for tracking-specific ib test, not to be run in standard relval set.
@@ -719,7 +724,8 @@ workflows[159.1] = ['',['QCD_Pt_80_120_14_HI_2021','DIGIHI2021PPRECO','RECOHI202
 workflows[159.2] = ['',['PhotonJets_Pt_10_14_HI_2021','DIGIHI2021PPRECO','RECOHI2021PPRECO','HARVESTHI2021PPRECO']]
 workflows[159.3] = ['',['ZMM_14_HI_2021','DIGIHI2021PPRECO','RECOHI2021PPRECO','HARVESTHI2021PPRECO']]
 workflows[159.4] = ['',['ZEE_14_HI_2021','DIGIHI2021PPRECO','RECOHI2021PPRECO','HARVESTHI2021PPRECO']]
-
+workflows[160] = ['',['Hydjet2Q_MinBias_5020GeV_2018_ppReco','DIGIHI2018PPRECO','RECOHI2018PPRECOMB','ALCARECOHI2018PPRECO','HARVESTHI2018PPRECO']]
+workflows[161] = ['',['HydjetQ_B12_5020GeV_2021_ppReco','DIGIHI2021PPRECO','RAWPRIMESIMHI18','RECOHI2021PPRECOMBAPPROXCLUSTERS','ALCARECOHI2021PPRECO','HARVESTHI2021PPRECO4']]
 
 ### pp reference test ###
 workflows[149] = ['',['QCD_Pt_80_120_13_PPREF','DIGIPPREF2017','RECOPPREF2017','HARVESTPPREF2017']]

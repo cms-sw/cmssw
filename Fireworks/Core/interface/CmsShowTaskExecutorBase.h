@@ -42,7 +42,7 @@ public:
 
   virtual void startDoingTasks() = 0;
 
-  sigc::signal<void> tasksCompleted_;
+  sigc::signal<void()> tasksCompleted_;
 
 protected:
   virtual void doNextTaskImp() = 0;

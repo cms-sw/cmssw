@@ -32,7 +32,7 @@ def filterFile(file):
     lines = ""
 
     if type(file).__name__ != 'list':
-        lines = open(file).read()
+        lines = open(file, errors='replace').read()
     else:
         for line in file:
             lines += line

@@ -39,7 +39,6 @@
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/MallocOpts.h"
 #include "FWCore/Utilities/interface/get_underlying_safe.h"
 
 #include <cstring>
@@ -380,36 +379,6 @@ namespace edm {
       //       &SimpleMemoryCheck::preEventProcessing);
       //  iReg.watchPreModule(this,
       //       &SimpleMemoryCheck::preModule);
-
-#ifndef __SANITIZE_ADDRESS__
-      typedef MallocOpts::opt_type opt_type;
-      MallocOptionSetter& mopts = getGlobalOptionSetter();
-
-      opt_type p_mmap_max = iPS.getUntrackedParameter<int>("M_MMAP_MAX"),
-               p_trim_thr = iPS.getUntrackedParameter<int>("M_TRIM_THRESHOLD"),
-               p_top_pad = iPS.getUntrackedParameter<int>("M_TOP_PAD"),
-               p_mmap_thr = iPS.getUntrackedParameter<int>("M_MMAP_THRESHOLD");
-
-      if (p_mmap_max >= 0)
-        mopts.set_mmap_max(p_mmap_max);
-      if (p_trim_thr >= 0)
-        mopts.set_trim_thr(p_trim_thr);
-      if (p_top_pad >= 0)
-        mopts.set_top_pad(p_top_pad);
-      if (p_mmap_thr >= 0)
-        mopts.set_mmap_thr(p_mmap_thr);
-
-      mopts.adjustMallocParams();
-
-      if (mopts.hasErrors()) {
-        LogWarning("MemoryCheck") << "ERROR: Problem with setting malloc options\n" << mopts.error_message();
-      }
-
-      if (iPS.getUntrackedParameter<bool>("dump") == true) {
-        MallocOpts mo = mopts.get();
-        LogWarning("MemoryCheck") << "Malloc options: " << mo << "\n";
-      }
-#endif
     }
 
     SimpleMemoryCheck::~SimpleMemoryCheck() {
@@ -432,10 +401,6 @@ namespace edm {
       desc.addUntracked<bool>("jobReportOutputOnly", false);
       desc.addUntracked<bool>("monitorPssAndPrivate", false);
       desc.addUntracked<bool>("moduleMemorySummary", false);
-      desc.addUntracked<int>("M_MMAP_MAX", -1);
-      desc.addUntracked<int>("M_TRIM_THRESHOLD", -1);
-      desc.addUntracked<int>("M_TOP_PAD", -1);
-      desc.addUntracked<int>("M_MMAP_THRESHOLD", -1);
       desc.addUntracked<bool>("dump", false);
       descriptions.add("SimpleMemoryCheck", desc);
     }
@@ -583,14 +548,18 @@ namespace edm {
         eventStatOutput("LargestIncreaseRssEvent", eventDeltaRssT1_, reportData);
 
 #ifdef __linux__
+#if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33)
+      struct mallinfo2 minfo = mallinfo2();
+#else
       struct mallinfo minfo = mallinfo();
-      reportData.insert(std::make_pair("HEAP_ARENA_SIZE_BYTES", i2str(minfo.arena)));
-      reportData.insert(std::make_pair("HEAP_ARENA_N_UNUSED_CHUNKS", i2str(minfo.ordblks)));
-      reportData.insert(std::make_pair("HEAP_TOP_FREE_BYTES", i2str(minfo.keepcost)));
-      reportData.insert(std::make_pair("HEAP_MAPPED_SIZE_BYTES", i2str(minfo.hblkhd)));
-      reportData.insert(std::make_pair("HEAP_MAPPED_N_CHUNKS", i2str(minfo.hblks)));
-      reportData.insert(std::make_pair("HEAP_USED_BYTES", i2str(minfo.uordblks)));
-      reportData.insert(std::make_pair("HEAP_UNUSED_BYTES", i2str(minfo.fordblks)));
+#endif
+      reportData.insert(std::make_pair("HEAP_ARENA_SIZE_BYTES", std::to_string(minfo.arena)));
+      reportData.insert(std::make_pair("HEAP_ARENA_N_UNUSED_CHUNKS", std::to_string(minfo.ordblks)));
+      reportData.insert(std::make_pair("HEAP_TOP_FREE_BYTES", std::to_string(minfo.keepcost)));
+      reportData.insert(std::make_pair("HEAP_MAPPED_SIZE_BYTES", std::to_string(minfo.hblkhd)));
+      reportData.insert(std::make_pair("HEAP_MAPPED_N_CHUNKS", std::to_string(minfo.hblks)));
+      reportData.insert(std::make_pair("HEAP_USED_BYTES", std::to_string(minfo.uordblks)));
+      reportData.insert(std::make_pair("HEAP_UNUSED_BYTES", std::to_string(minfo.fordblks)));
 #endif
 
       // Report Growth rates for VSize and Rss
@@ -677,7 +646,11 @@ namespace edm {
       if (eventDeltaRssT1_.deltaRss > 0)
         eventStatOutput("LargestIncreaseRssEvent", eventDeltaRssT1_, reportData);
 
+#if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33)
+      struct mallinfo2 minfo = mallinfo2();
+#else
       struct mallinfo minfo = mallinfo();
+#endif
       reportData.push_back(mallOutput("HEAP_ARENA_SIZE_BYTES", minfo.arena));
       reportData.push_back(mallOutput("HEAP_ARENA_N_UNUSED_CHUNKS", minfo.ordblks));
       reportData.push_back(mallOutput("HEAP_TOP_FREE_BYTES", minfo.keepcost));
@@ -870,7 +843,11 @@ namespace edm {
                                       << deltaRSS;
           } else {
 #ifdef __linux__
+#if (__GLIBC__ > 2) || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 33)
+            struct mallinfo2 minfo = mallinfo2();
+#else
             struct mallinfo minfo = mallinfo();
+#endif
 #endif
             LogWarning("MemoryCheck") << "MemoryCheck: " << type << " " << mdname << ":" << mdlabel << " VSIZE "
                                       << current_->vsize << " " << deltaVSIZE << " RSS " << current_->rss << " "

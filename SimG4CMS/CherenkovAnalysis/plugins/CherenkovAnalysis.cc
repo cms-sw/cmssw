@@ -51,7 +51,7 @@ public:
 private:
   const double maxEnergy_;
   const int nBinsEnergy_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
+  const edm::EDGetTokenT<edm::PCaloHitContainer> tok_calo_;
   TH1F *hEnergy_;
 
   TH1F *hTimeStructure_;
@@ -63,10 +63,10 @@ private:
 
 //__________________________________________________________________________________________________
 CherenkovAnalysis::CherenkovAnalysis(const edm::ParameterSet &iConfig)
-    : maxEnergy_(iConfig.getParameter<double>("maxEnergy")), nBinsEnergy_(iConfig.getParameter<int>("nBinsEnergy")) {
+    : maxEnergy_(iConfig.getParameter<double>("maxEnergy")),
+      nBinsEnergy_(iConfig.getParameter<int>("nBinsEnergy")),
+      tok_calo_(consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("caloHitSource"))) {
   usesResource(TFileService::kSharedResource);
-
-  tok_calo_ = consumes<edm::PCaloHitContainer>(iConfig.getParameter<edm::InputTag>("caloHitSource"));
 
   // Book histograms
   edm::Service<TFileService> tfile;
@@ -89,8 +89,7 @@ void CherenkovAnalysis::fillDescriptions(edm::ConfigurationDescriptions &descrip
 
 //__________________________________________________________________________________________________
 void CherenkovAnalysis::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
-  edm::Handle<edm::PCaloHitContainer> pCaloHits;
-  iEvent.getByToken(tok_calo_, pCaloHits);
+  const edm::Handle<edm::PCaloHitContainer> &pCaloHits = iEvent.getHandle(tok_calo_);
 
   double totalEnergy = 0;
 

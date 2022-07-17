@@ -8,11 +8,11 @@
  * \version 1
  *
  */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 class TFile;
 
-class CaloTowersExample : public edm::EDAnalyzer {
+class CaloTowersExample : public edm::one::EDAnalyzer<> {
 public:
   CaloTowersExample(const edm::ParameterSet&);
 

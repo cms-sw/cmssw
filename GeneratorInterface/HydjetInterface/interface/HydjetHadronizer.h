@@ -71,6 +71,7 @@ namespace gen {
     bool hydjet_init(const edm::ParameterSet& pset);
     inline double nuclear_radius() const;
     void rotateEvtPlane();
+    int convertStatus(int st);
 
     HepMC::GenEvent* evt;
     edm::ParameterSet pset_;

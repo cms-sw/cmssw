@@ -32,15 +32,19 @@ namespace l1t {
  * REGISTER_PLUGIN(record, type) from registration_macros.h found in PluginSystem.
  */
 
+  typedef std::unique_ptr<WriterProxy> WriterProxyPtr;
+
   class DataWriterExt {
   public:
     DataWriterExt();
+    DataWriterExt(const std::string&);
     ~DataWriterExt();
 
     // Payload and IOV writing functions.
 
     // Get payload from EventSetup and write to DB with no IOV
     // recordType = "record@type", return value is payload token
+    std::string writePayload(const edm::EventSetup& setup);
     std::string writePayload(const edm::EventSetup& setup, const std::string& recordType);
 
     // Use PoolDBOutputService to append IOV with sinceRun to IOV sequence
@@ -65,6 +69,11 @@ namespace l1t {
 
     bool fillLastTriggerKeyList(L1TriggerKeyListExt& output);
 
+    WriterProxy* getWriter() { return writer_.get(); }
+
+  private:
+    WriterProxyPtr writer_;
+
   protected:
   };
 
@@ -77,12 +86,12 @@ namespace l1t {
 
     poolDb->forceInit();
     cond::persistency::Session session = poolDb->session();
-    ///  session.transaction().start(true);
+    session.transaction().start(true);
 
     // Get object from CondDB
     std::shared_ptr<T> ref = session.fetchPayload<T>(payloadToken);
     outputObject = *ref;
-    ///  session.transaction().commit ();
+    session.transaction().commit();
   }
 
 }  // namespace l1t

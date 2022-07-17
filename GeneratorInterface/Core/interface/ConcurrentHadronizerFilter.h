@@ -400,10 +400,16 @@ namespace edm {
     Service<RandomNumberGenerator> rng;
     auto enginePtr = rng->cloneEngine(lumi.index());
     cache->hadronizer_.setRandomEngine(enginePtr.get());
-    cache->decayer_->setRandomEngine(enginePtr.get());
+    if (cache->decayer_) {
+      cache->decayer_->setRandomEngine(enginePtr.get());
+    }
 
     auto unsetH = [](HAD* h) { h->setRandomEngine(nullptr); };
-    auto unsetD = [](DEC* d) { d->setRandomEngine(nullptr); };
+    auto unsetD = [](DEC* d) {
+      if (d) {
+        d->setRandomEngine(nullptr);
+      }
+    };
 
     std::unique_ptr<HAD, decltype(unsetH)> randomEngineSentry(&cache->hadronizer_, unsetH);
     std::unique_ptr<DEC, decltype(unsetD)> randomEngineSentryDecay(cache->decayer_.get(), unsetD);

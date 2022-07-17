@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -42,7 +42,7 @@
 // class declaration
 //
 
-class L1GctPrintLuts : public edm::EDAnalyzer {
+class L1GctPrintLuts : public edm::one::EDAnalyzer<> {
 public:
   /// typedefs
   typedef L1GlobalCaloTrigger::lutPtr lutPtr;

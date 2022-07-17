@@ -9,7 +9,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -22,7 +22,7 @@
 class DTTtrig;
 class DTGeometry;
 
-class ShiftTTrigDB : public edm::EDAnalyzer {
+class ShiftTTrigDB : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   ShiftTTrigDB(const edm::ParameterSet& pset);

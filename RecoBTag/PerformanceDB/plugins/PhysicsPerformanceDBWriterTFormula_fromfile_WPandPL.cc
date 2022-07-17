@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,11 +12,11 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromBinnedTFormula.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 
-class PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL : public edm::EDAnalyzer {
+class PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL : public edm::global::EDAnalyzer<> {
 public:
   PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL(const edm::ParameterSet&);
   void beginJob() override;
-  void analyze(const edm::Event&, const edm::EventSetup&) override {}
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override {}
   void endJob() override {}
   ~PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL() override {}
 
@@ -59,26 +59,27 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   std::string concreteType;
 
   in >> tagger;
-  std::cout << "WP Tagger is " << tagger << std::endl;
+  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << "WP Tagger is " << tagger;
 
   in >> cut;
-  std::cout << "WP Cut is " << cut << std::endl;
+  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << "WP Cut is " << cut;
 
   in >> concreteType;
-  std::cout << "concrete Type is " << concreteType << std::endl;
+  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << "concrete Type is " << concreteType;
 
   int nres = 0, nvar = 0;
 
   in >> nres;
   in >> nvar;
 
-  std::cout << "Using " << nres << " results and " << nvar << " variables" << std::endl;
+  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL")
+      << "Using " << nres << " results and " << nvar << " variables";
 
   unsigned int bins = 0;  //temporary for now!!!!!!
 
   in >> bins;
 
-  std::cout << "Using " << bins << " bins" << std::endl;
+  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << "Using " << bins << " bins";
 
   int number = 0;
   ;
@@ -93,20 +94,19 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
     int tmp;
     in >> tmp;
     res.push_back((PerformanceResult::ResultType)(tmp));
-    std::cout << " Result #" << number << " is " << tmp << std::endl;
-    ;
+    edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " Result #" << number << " is " << tmp;
     number++;
   }
   if (number != nres) {
-    std::cout << " Table not well formed" << std::endl;
+    edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " Table not well formed";
   }
 
   //
   // read the variables
   //
 
-  PerformanceWorkingPoint* wp = new PerformanceWorkingPoint(cut, tagger);
-  PerformancePayloadFromBinnedTFormula* btagpl = nullptr;
+  PerformanceWorkingPoint wp(cut, tagger);
+  PerformancePayloadFromBinnedTFormula btagpl;
 
   std::vector<PhysicsTFormulaPayload> v_ppl;
 
@@ -115,12 +115,11 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
     int tmp;
     in >> tmp;
     bin.push_back((BinningVariables::BinningVariablesType)(tmp));
-    std::cout << " Variable #" << number << " is " << tmp << std::endl;
-    ;
+    edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " Variable #" << number << " is " << tmp;
     number++;
   }
   if (number != nvar) {
-    std::cout << " Table not well formed" << std::endl;
+    edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " Table not well formed";
   }
 
   //
@@ -136,7 +135,8 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
     while (number < nres && (!in.eof())) {
       std::string temp;
       in >> temp;
-      std::cout << " Inserting " << temp << " as formula in position " << number << std::endl;
+      edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL")
+          << " Inserting " << temp << " as formula in position " << number;
       number++;
       formulas.push_back(temp);
     }
@@ -152,7 +152,8 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
       float temp1, temp2;
       in >> temp1;
       in >> temp2;
-      std::cout << " Inserting " << temp1 << "," << temp2 << " as limits in position " << number << std::endl;
+      edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL")
+          << " Inserting " << temp1 << "," << temp2 << " as limits in position " << number;
       number++;
       limits.push_back(std::pair<float, float>(temp1, temp2));
     }
@@ -173,41 +174,24 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   in.close();
 
   if (concreteType == "PerformancePayloadFromBinnedTFormula") {
-    btagpl = new PerformancePayloadFromBinnedTFormula(res, bin, v_ppl);
-    std::cout << " CHECK: " << btagpl->formulaPayloads().size() << std::endl;
+    btagpl = PerformancePayloadFromBinnedTFormula(res, bin, v_ppl);
+    edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL")
+        << " CHECK: " << btagpl.formulaPayloads().size();
   } else {
-    std::cout << " Non existing request: " << concreteType << std::endl;
+    edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " Non existing request: " << concreteType;
   }
 
-  std::cout << " Created the " << concreteType << " object" << std::endl;
+  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << " Created the " << concreteType << " object";
 
-  std::cout << "Start writing the payload" << std::endl;
+  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << "Start writing the payload and WP";
   edm::Service<cond::service::PoolDBOutputService> s;
   if (s.isAvailable()) {
-    if (s->isNewTagRequest(rec1)) {
-      s->createNewIOV<PerformancePayload>(btagpl, s->beginOfTime(), s->endOfTime(), rec1);
-    } else {
-      s->appendSinceTime<PerformancePayload>(btagpl,
-                                             // JUST A STUPID PATCH
-                                             111,
-                                             rec1);
-    }
+    s->writeOneIOV(btagpl, s->beginOfTime(), rec1);
+    // write also the WP
+    s->writeOneIOV(wp, s->beginOfTime(), rec2);
   }
-  std::cout << "Finised writing the payload" << std::endl;
 
-  // write also the WP
-  std::cout << "Start writing the WP" << std::endl;
-  if (s.isAvailable()) {
-    if (s->isNewTagRequest(rec2)) {
-      s->createNewIOV<PerformanceWorkingPoint>(wp, s->beginOfTime(), s->endOfTime(), rec2);
-    } else {
-      s->appendSinceTime<PerformanceWorkingPoint>(wp,
-                                                  /// JUST A STUPID PATCH
-                                                  111,
-                                                  rec2);
-    }
-  }
-  std::cout << "Finished writing the WP" << std::endl;
+  edm::LogInfo("PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL") << "Finised writing the payload and WP";
 }
 
 DEFINE_FWK_MODULE(PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL);

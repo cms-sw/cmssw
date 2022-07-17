@@ -91,13 +91,9 @@ private:
   const bool useRegressor_;
 
   /// Settings for classifier
-  const double etaSplitForDnn_;
-  std::string dnnModelPath_barrel_;
-  std::string dnnModelPath_endcap_;
-  std::unique_ptr<tensorflow::GraphDef> graphDef_barrel_;
-  tensorflow::Session* tf_session_barrel_;
-  std::unique_ptr<tensorflow::GraphDef> graphDef_endcap_;
-  tensorflow::Session* tf_session_endcap_;
+  std::string dnnModelPath_;
+  std::unique_ptr<tensorflow::GraphDef> graphDef_;
+  tensorflow::Session* tf_session_;
 
   /// Settings for regressor
   std::string dnnModelPath_HB_;
@@ -205,7 +201,6 @@ TSGForOIDNN::TSGForOIDNN(const edm::ParameterSet& iConfig)
       maxHitDoubletSeeds_(iConfig.getParameter<uint32_t>("maxHitDoubletSeeds")),
       getStrategyFromDNN_(iConfig.getParameter<bool>("getStrategyFromDNN")),
       useRegressor_(iConfig.getParameter<bool>("useRegressor")),
-      etaSplitForDnn_(iConfig.getParameter<double>("etaSplitForDnn")),
       dnnMetadataPath_(iConfig.getParameter<std::string>("dnnMetadataPath")) {
   if (getStrategyFromDNN_) {
     edm::FileInPath dnnMetadataPath(dnnMetadataPath_);
@@ -230,15 +225,10 @@ TSGForOIDNN::TSGForOIDNN(const edm::ParameterSet& iConfig)
       tf_session_HLMuS_ = tensorflow::createSession(graphDef_HLMuS_.get());
     } else {
       // use classifier (default)
-      dnnModelPath_barrel_ = metadata_.get<std::string>("barrel.dnnmodel_path");
-      edm::FileInPath dnnPath_barrel(dnnModelPath_barrel_);
-      graphDef_barrel_ = std::unique_ptr<tensorflow::GraphDef>(tensorflow::loadGraphDef(dnnPath_barrel.fullPath()));
-      tf_session_barrel_ = tensorflow::createSession(graphDef_barrel_.get());
-
-      dnnModelPath_endcap_ = metadata_.get<std::string>("endcap.dnnmodel_path");
-      edm::FileInPath dnnPath_endcap(dnnModelPath_endcap_);
-      graphDef_endcap_ = std::unique_ptr<tensorflow::GraphDef>(tensorflow::loadGraphDef(dnnPath_endcap.fullPath()));
-      tf_session_endcap_ = tensorflow::createSession(graphDef_endcap_.get());
+      dnnModelPath_ = metadata_.get<std::string>("dnnmodel_path");
+      edm::FileInPath dnnPath(dnnModelPath_);
+      graphDef_ = std::unique_ptr<tensorflow::GraphDef>(tensorflow::loadGraphDef(dnnPath.fullPath()));
+      tf_session_ = tensorflow::createSession(graphDef_.get());
     }
   }
   produces<std::vector<TrajectorySeed> >();
@@ -251,8 +241,7 @@ TSGForOIDNN::~TSGForOIDNN() {
       tensorflow::closeSession(tf_session_HLIP_);
       tensorflow::closeSession(tf_session_HLMuS_);
     } else {
-      tensorflow::closeSession(tf_session_barrel_);
-      tensorflow::closeSession(tf_session_endcap_);
+      tensorflow::closeSession(tf_session_);
     }
   }
 }
@@ -370,10 +359,7 @@ void TSGForOIDNN::produce(edm::StreamID sid, edm::Event& iEvent, edm::EventSetup
                           dnnSuccess);
       } else {
         // Use classifier
-        bool isBarrel = absL2muonEta < etaSplitForDnn_;
-        const pt::ptree& tr = isBarrel ? metadata_.get_child("barrel") : metadata_.get_child("endcap");
-        tensorflow::Session* tf = isBarrel ? tf_session_barrel_ : tf_session_endcap_;
-        evaluateClassifier(feature_map, tf, tr, strPars, dnnSuccess);
+        evaluateClassifier(feature_map, tf_session_, metadata_, strPars, dnnSuccess);
       }
       if (!dnnSuccess)
         break;
@@ -1007,7 +993,6 @@ void TSGForOIDNN::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.add<unsigned int>("maxHitDoubletSeeds", 0);
   desc.add<bool>("getStrategyFromDNN", false);
   desc.add<bool>("useRegressor", false);
-  desc.add<double>("etaSplitForDnn", 1.0);
   desc.add<std::string>("dnnMetadataPath", "");
   descriptions.add("tsgForOIDNN", desc);
 }

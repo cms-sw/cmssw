@@ -1,13 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-_cuda_enabled_cached = None
-
-def _switch_cuda():
-    global _cuda_enabled_cached
-    if _cuda_enabled_cached is None:
-        import os
-        _cuda_enabled_cached = (os.system("cudaIsEnabled") == 0)
-    return (_cuda_enabled_cached, 2)
+def _switch_cuda(useAccelerators):
+    have_gpu = ("gpu-nvidia" in useAccelerators)
+    return (have_gpu, 2)
 
 class SwitchProducerCUDA(cms.SwitchProducer):
     def __init__(self, **kargs):

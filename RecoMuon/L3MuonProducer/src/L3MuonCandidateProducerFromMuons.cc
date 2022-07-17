@@ -11,7 +11,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "RecoMuon/L3MuonProducer/src/L3MuonCandidateProducerFromMuons.h"
 
 // Input and output collections
@@ -31,9 +32,9 @@ static const std::string category("Muon|RecoMuon|L3MuonCandidateProducerFromMuon
 
 /// constructor with config
 L3MuonCandidateProducerFromMuons::L3MuonCandidateProducerFromMuons(const ParameterSet& parameterSet)
-    : m_L3CollectionLabel(parameterSet.getParameter<InputTag>("InputObjects"))  // standAlone Collection Label
-{
-  muonToken_ = consumes<reco::MuonCollection>(m_L3CollectionLabel);
+    : m_L3CollectionLabel(parameterSet.getParameter<InputTag>("InputObjects")),  // standAlone Collection Label
+      m_muonToken(consumes(m_L3CollectionLabel)),
+      m_displacedReco(parameterSet.getParameter<bool>("DisplacedReconstruction")) {
   LogTrace(category) << " constructor called";
   produces<RecoChargedCandidateCollection>();
 }
@@ -41,6 +42,13 @@ L3MuonCandidateProducerFromMuons::L3MuonCandidateProducerFromMuons(const Paramet
 /// destructor
 L3MuonCandidateProducerFromMuons::~L3MuonCandidateProducerFromMuons() {
   LogTrace(category) << " L3MuonCandidateProducerFromMuons destructor called";
+}
+
+void L3MuonCandidateProducerFromMuons::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("InputObjects", edm::InputTag("hltL3Muons"));
+  desc.add<bool>("DisplacedReconstruction", false);
+  descriptions.addWithDefaultLabel(desc);
 }
 
 /// reconstruct muons
@@ -52,15 +60,19 @@ void L3MuonCandidateProducerFromMuons::produce(StreamID, Event& event, const Eve
   // Take the L3 container
   LogTrace(category) << " Taking the L3/GLB muons: " << m_L3CollectionLabel.label();
   Handle<reco::MuonCollection> muons;
-  event.getByToken(muonToken_, muons);
+  event.getByToken(m_muonToken, muons);
 
   if (not muons.isValid()) {
     LogError(category) << muons.whyFailed()->what();
   } else {
     for (unsigned int i = 0; i < muons->size(); i++) {
       // avoids crashing in case the muon is SA only.
-      TrackRef tkref = ((*muons)[i].innerTrack().isNonnull()) ? (*muons)[i].innerTrack() : (*muons)[i].muonBestTrack();
-
+      TrackRef tkref;
+      if (m_displacedReco) {
+        tkref = (*muons)[i].isGlobalMuon() ? (*muons)[i].globalTrack() : (*muons)[i].muonBestTrack();
+      } else {
+        tkref = (*muons)[i].innerTrack().isNonnull() ? (*muons)[i].innerTrack() : (*muons)[i].muonBestTrack();
+      }
       Particle::Charge q = tkref->charge();
       Particle::LorentzVector p4(tkref->px(), tkref->py(), tkref->pz(), tkref->p());
       Particle::Point vtx(tkref->vx(), tkref->vy(), tkref->vz());

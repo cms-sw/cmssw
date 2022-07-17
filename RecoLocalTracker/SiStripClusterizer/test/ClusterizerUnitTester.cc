@@ -1,12 +1,54 @@
-#include "RecoLocalTracker/SiStripClusterizer/test/ClusterizerUnitTester.h"
-
-#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+// system includes
 #include <functional>
 #include <numeric>
 #include <vector>
 #include <iostream>
 #include <sstream>
+#include <vector>
+#include <string>
+#include <memory>
+
+// user includes
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
+#include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
+#include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+
+class ClusterizerUnitTester : public edm::one::EDAnalyzer<> {
+  typedef edm::ParameterSet PSet;
+  typedef std::vector<PSet> VPSet;
+  typedef VPSet::const_iterator iter_t;
+  typedef edmNew::DetSetVector<SiStripCluster> output_t;
+
+public:
+  explicit ClusterizerUnitTester(const PSet& conf);
+  ~ClusterizerUnitTester() {}
+
+private:
+  void analyze(const edm::Event&, const edm::EventSetup&);
+
+  void initializeTheGroup(const PSet&, const edm::EventSetup&);
+  void testTheGroup(const PSet&, const StripClusterizerAlgorithm*);
+  void runTheTest(const PSet&, const StripClusterizerAlgorithm*);
+
+  void constructClusters(const VPSet&, output_t&);
+  void constructDigis(const VPSet&, edmNew::DetSetVector<SiStripDigi>&);
+
+  static std::string printDigis(const VPSet&);
+  static void assertIdentical(const output_t&, const output_t&);
+  static bool clusterDSVsIdentical(const output_t&, const output_t&);
+  static bool clusterDetSetsIdentical(const edmNew::DetSet<SiStripCluster>&, const edmNew::DetSet<SiStripCluster>&);
+  static bool clustersIdentical(const SiStripCluster&, const SiStripCluster&);
+  static std::string printDSV(const output_t&);
+  static std::string printCluster(const SiStripCluster&);
+
+  VPSet testGroups;
+  std::vector<std::unique_ptr<StripClusterizerAlgorithm>> clusterizers;
+  uint32_t detId;
+};
 
 ClusterizerUnitTester::ClusterizerUnitTester(const PSet& conf)
     : testGroups(conf.getParameter<VPSet>("ClusterizerTestGroups")) {
@@ -77,7 +119,7 @@ void ClusterizerUnitTester::constructClusters(const VPSet& clusterset, output_t&
   output_t::TSFastFiller clustersFF(clusters, detId);
   for (iter_t c = clusterset.begin(); c < clusterset.end(); c++) {
     uint16_t firststrip = c->getParameter<unsigned>("FirstStrip");
-    std::vector<unsigned> amplitudes = c->getParameter<std::vector<unsigned> >("Amplitudes");
+    std::vector<unsigned> amplitudes = c->getParameter<std::vector<unsigned>>("Amplitudes");
     std::vector<uint16_t> a16(amplitudes.begin(), amplitudes.end());
     clustersFF.push_back(SiStripCluster(firststrip, a16.begin(), a16.end()));
   }
@@ -138,3 +180,6 @@ std::string ClusterizerUnitTester::printCluster(const SiStripCluster& cluster) {
   s << "]" << std::endl;
   return s.str();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(ClusterizerUnitTester);

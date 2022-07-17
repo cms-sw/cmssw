@@ -37,6 +37,11 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig)
   produces<reco::TrackExtraCollection>("afterDAF").setBranchAlias(alias_ + "TrackExtrasAfterDAF");
 
   TrajAnnSaving_ = iConfig.getParameter<bool>("TrajAnnealingSaving");
+  ttopoToken_ = esConsumes();
+  std::string measurementCollectorName = getConf().getParameter<std::string>("MeasurementCollector");
+  measurementCollectorToken_ = esConsumes(edm::ESInputTag("", measurementCollectorName));
+  std::string updatorName = getConf().getParameter<std::string>("UpdatorName");
+  updatorToken_ = esConsumes(edm::ESInputTag("", updatorName));
 }
 
 void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup) {
@@ -72,16 +77,11 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup, theG, theMF, theFitter, thePropagator, theMeasTk, theBuilder);
 
-  edm::ESHandle<TrackerTopology> httopo;
-  setup.get<TrackerTopologyRcd>().get(httopo);
+  edm::ESHandle<TrackerTopology> httopo = setup.getHandle(ttopoToken_);
 
   //get additional es_modules needed by the DAF
-  edm::ESHandle<MultiRecHitCollector> measurementCollectorHandle;
-  std::string measurementCollectorName = getConf().getParameter<std::string>("MeasurementCollector");
-  setup.get<MultiRecHitRecord>().get(measurementCollectorName, measurementCollectorHandle);
-  edm::ESHandle<SiTrackerMultiRecHitUpdator> updatorHandle;
-  std::string updatorName = getConf().getParameter<std::string>("UpdatorName");
-  setup.get<MultiRecHitRecord>().get(updatorName, updatorHandle);
+  edm::ESHandle<MultiRecHitCollector> measurementCollectorHandle = setup.getHandle(measurementCollectorToken_);
+  edm::ESHandle<SiTrackerMultiRecHitUpdator> updatorHandle = setup.getHandle(updatorToken_);
 
   //get MeasurementTrackerEvent
   edm::Handle<MeasurementTrackerEvent> mte;

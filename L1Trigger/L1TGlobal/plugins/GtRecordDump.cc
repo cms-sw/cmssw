@@ -16,7 +16,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 //#include "FWCore/ParameterSet/interface/InputTag.h"
 
 // system include files
@@ -26,7 +26,7 @@
 
 // user include files
 //   base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -60,10 +60,11 @@ using namespace std;
 namespace l1t {
 
   // class declaration
-  class GtRecordDump : public edm::EDAnalyzer {
+  class GtRecordDump : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
   public:
     explicit GtRecordDump(const edm::ParameterSet&);
     ~GtRecordDump() override{};
+    void beginRun(edm::Run const&, edm::EventSetup const&) override {}
     void analyze(const edm::Event&, const edm::EventSetup&) override;
     void endRun(edm::Run const&, edm::EventSetup const&) override;
 
@@ -851,13 +852,42 @@ namespace l1t {
     // Pack Bits
     packedVal |= ((cms_uint64_t)(mu->hwPhi() & 0x3ff) << 43);
     packedVal |= ((cms_uint64_t)(mu->hwPhiAtVtx() & 0x3ff) << 0);  // & 0x3ff) <<18);
-    packedVal |= ((cms_uint64_t)(mu->hwEta() & 0x1ff) << 53);
-    packedVal |= ((cms_uint64_t)(mu->hwEtaAtVtx() & 0x1ff) << 23);   // & 0x1ff) <<9);
-    packedVal |= ((cms_uint64_t)(mu->hwPt() & 0x1ff) << 10);         // & 0x1ff) <<0);
-    packedVal |= ((cms_uint64_t)(mu->hwChargeValid() & 0x1) << 35);  // & 0x1)   <<28);
-    packedVal |= ((cms_uint64_t)(mu->hwCharge() & 0x1) << 34);       // & 0x1)   <<29);
-    packedVal |= ((cms_uint64_t)(mu->hwQual() & 0xf) << 19);         // & 0xf)   <<30);
-    packedVal |= ((cms_uint64_t)(mu->hwIso() & 0x3) << 32);          // & 0x3)   <<34);
+    // packedVal |= ((cms_uint64_t)(mu->hwEta() & 0x1ff) << 53);         // removed
+    packedVal |= ((cms_uint64_t)(mu->hwPtUnconstrained() & 0xff) << 53);  // added
+    packedVal |= ((cms_uint64_t)(mu->hwDXY() & 0x3) << 62);               // added
+    packedVal |= ((cms_uint64_t)(mu->hwEtaAtVtx() & 0x1ff) << 23);        // & 0x1ff) <<9);
+    packedVal |= ((cms_uint64_t)(mu->hwPt() & 0x1ff) << 10);              // & 0x1ff) <<0);
+    packedVal |= ((cms_uint64_t)(mu->hwChargeValid() & 0x1) << 35);       // & 0x1)   <<28);
+    packedVal |= ((cms_uint64_t)(mu->hwCharge() & 0x1) << 34);            // & 0x1)   <<29);
+    packedVal |= ((cms_uint64_t)(mu->hwQual() & 0xf) << 19);              // & 0xf)   <<30);
+    packedVal |= ((cms_uint64_t)(mu->hwIso() & 0x3) << 32);               // & 0x3)   <<34);
+
+    //    if (false) {  // for debugging purposes
+    //      std::cout << "----------------------" << std::endl;
+    //      std::cout << "<<  0; mu->hwPhiAtVtx()        = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwPhiAtVtx() & 0x3ff) << 0) << std::endl;
+    //      std::cout << "<< 10; mu->hwPt()              = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwPt() & 0x1ff) << 10) << std::endl;
+    //      std::cout << "<< 19; mu->hwQual()            = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwQual() & 0xf) << 19) << std::endl;
+    //      std::cout << "<< 23; mu->hwEtaAtVtx()        = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwEtaAtVtx() & 0x1ff) << 23) << std::endl;
+    //      std::cout << "<< 32; mu->hwIso()             = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwIso() & 0x3) << 32) << std::endl;
+    //      std::cout << "<< 34; mu->hwCharge()          = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwCharge() & 0x1) << 34) << std::endl;
+    //      std::cout << "<< 35; mu->hwChargeValid()     = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwChargeValid() & 0x1) << 35) << std::endl;
+    //      std::cout << "<< 43; mu->hwPhi()             = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwPhi() & 0x3ff) << 43) << std::endl;
+    //      std::cout << "<< 53; mu->hwPtUnconstrained() = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwPtUnconstrained() & 0xff) << 53) << std::endl;
+    //      std::cout << "<< 62; mu->hwDXY()             = " << std::hex << std::setw(16) << std::setfill('0')
+    //                << ((cms_uint64_t)(mu->hwDXY() & 0x3) << 62) << std::endl;
+    //      std::cout << "packedWord                     = " << std::hex << std::setw(16) << std::setfill('0') << packedVal
+    //                << std::endl;
+    //      std::cout << "----------------------" << std::endl;
+    //    }
 
     return packedVal;
   }

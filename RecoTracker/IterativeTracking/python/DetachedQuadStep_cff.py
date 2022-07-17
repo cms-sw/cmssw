@@ -151,13 +151,12 @@ trackingPhase2PU140.toModify(detachedQuadStepChi2Est,
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 detachedQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
     trajectoryFilter = dict(refToPSet_ = 'detachedQuadStepTrajectoryFilter'),
     maxCand = 3,
     alwaysUseInvalidHits = True,
     estimator = 'detachedQuadStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
-    maxPtForLooperReconstruction = cms.double(0.7)
+    maxDPhiForLooperReconstruction = 2.0,
+    maxPtForLooperReconstruction = 0.7,
 )
 trackingNoLoopers.toModify(detachedQuadStepTrajectoryBuilder,
                            maxPtForLooperReconstruction = 0.0)
@@ -177,18 +176,18 @@ detachedQuadStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.cl
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 detachedQuadStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'detachedQuadStepSeeds',
-    clustersToSkip = cms.InputTag('detachedQuadStepClusters'),
+    clustersToSkip = 'detachedQuadStepClusters',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
+    numHitsForSeedCleaner = 50,
+    onlyPixelHitsForSeedCleaner = True,
     TrajectoryBuilderPSet = dict(refToPSet_ = 'detachedQuadStepTrajectoryBuilder'),
     TrajectoryCleaner = 'detachedQuadStepTrajectoryCleanerBySharedHits',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True
 )
 trackingPhase2PU140.toModify(detachedQuadStepTrackCandidates,
-    clustersToSkip       = None,
-    phase2clustersToSkip = cms.InputTag('detachedQuadStepClusters')
+    clustersToSkip = '',
+    phase2clustersToSkip = 'detachedQuadStepClusters'
 )
 
 from Configuration.ProcessModifiers.trackingMkFitDetachedQuadStep_cff import trackingMkFitDetachedQuadStep
@@ -213,6 +212,7 @@ trackingMkFitDetachedQuadStep.toReplaceWith(detachedQuadStepTrackCandidates, mkF
     mkFitSeeds = 'detachedQuadStepTrackCandidatesMkFitSeeds',
     tracks = 'detachedQuadStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(detachedQuadStepTrackCandidatesMkFitConfig, minPt=0.9)
 
 #For FastSim phase1 tracking 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
@@ -231,6 +231,9 @@ detachedQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     Fitter        = 'FlexibleKFFittingSmoother',
 )
 fastSim.toModify(detachedQuadStepTracks,TTRHBuilder = 'WithoutRefit')
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(detachedQuadStepTracks, TrajectoryInEvent = True)
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *

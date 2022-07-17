@@ -450,7 +450,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
 
   //  To fill histograms outside of the loop, you need to determine if there were
   //  any valid det ids first
-  uint32_t rawidValid = 0;
   uint32_t rawidHBValid = 0;
   uint32_t rawidHEValid = 0;
 
@@ -479,7 +478,6 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
     //{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
 
     HcalElectronicsId const& eid(rawid);
-    rawidValid = did.rawId();
     if (did.subdet() == HcalBarrel)
       rawidHBValid = did.rawId();
     else if (did.subdet() == HcalEndcap)
@@ -580,8 +578,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps)
     //	^^^ONLINE ONLY!
   }
 
-  //	reset
-  rawidValid = 0;
+  //  To fill histograms outside of the loop, you need to determine if there were
+  //  any valid det ids first
+  uint32_t rawidValid = 0;
 
   int nChsHO = 0;
   int nChsHOCut = 0;

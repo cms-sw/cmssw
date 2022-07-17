@@ -54,11 +54,11 @@ private:
 
   // ----------member data ---------------------------
   HLTConfigProvider hltConfig_;
-  std::vector<std::string> trigJetNames_, trigIsoBunchNames_;
-  edm::InputTag theTriggerResultsLabel_;
-  std::string processName_;
   unsigned int nRun_, nAll_, nGood_;
-  edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
+  const std::vector<std::string> trigJetNames_, trigIsoBunchNames_;
+  const std::string processName_;
+  const edm::InputTag theTriggerResultsLabel_;
+  const edm::EDGetTokenT<edm::TriggerResults> tok_trigRes_;
 };
 
 //
@@ -66,16 +66,14 @@ private:
 //
 AlCaIsolatedBunchFilter::AlCaIsolatedBunchFilter(const edm::ParameterSet& iConfig,
                                                  const AlCaIsolatedBunch::Counters* count)
-    : nRun_(0), nAll_(0), nGood_(0) {
-  //now do what ever initialization is needed
-  trigJetNames_ = iConfig.getParameter<std::vector<std::string> >("triggerJet");
-  trigIsoBunchNames_ = iConfig.getParameter<std::vector<std::string> >("triggerIsoBunch");
-  processName_ = iConfig.getParameter<std::string>("processName");
-  theTriggerResultsLabel_ = iConfig.getParameter<edm::InputTag>("triggerResultLabel");
-
-  // define tokens for access
-  tok_trigRes_ = consumes<edm::TriggerResults>(theTriggerResultsLabel_);
-
+    : nRun_(0),
+      nAll_(0),
+      nGood_(0),
+      trigJetNames_(iConfig.getParameter<std::vector<std::string> >("triggerJet")),
+      trigIsoBunchNames_(iConfig.getParameter<std::vector<std::string> >("triggerIsoBunch")),
+      processName_(iConfig.getParameter<std::string>("processName")),
+      theTriggerResultsLabel_(iConfig.getParameter<edm::InputTag>("triggerResultLabel")),
+      tok_trigRes_(consumes<edm::TriggerResults>(theTriggerResultsLabel_)) {
   edm::LogVerbatim("AlCaIsoBunch") << "Input tag for trigger results " << theTriggerResultsLabel_ << " with "
                                    << trigIsoBunchNames_.size() << ":" << trigJetNames_.size() << " trigger names and"
                                    << " process " << processName_ << std::endl;

@@ -89,7 +89,7 @@ void MaterialBudgetHcalAnalysis::fillDescriptions(edm::ConfigurationDescriptions
   desc.add<double>("etaMidMax", 2.868);
   desc.add<double>("etaHighMin", 2.868);
   desc.add<double>("etaHighMax", 3.000);
-  desc.add<edm::InputTag>("labelMBCalo_", edm::InputTag("g4SimHits", "HcalMatBCalo"));
+  desc.add<edm::InputTag>("labelMBCaloLabel", edm::InputTag("g4SimHits", "HcalMatBCalo"));
   descriptions.add("materialBudgetHcalAnalysis", desc);
 }
 

@@ -20,7 +20,6 @@
 
 #include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "tbb/task_arena.h"
 #include <map>
 #include <memory>
 #include <set>
@@ -57,7 +56,6 @@ namespace edm {
       typedef std::map<ComponentDescription, RecordToDataMap> PreferredProviderInfo;
 
       EventSetupProvider(ActivityRegistry const*,
-                         tbb::task_arena*,
                          unsigned subProcessIndex = 0U,
                          PreferredProviderInfo const* iInfo = nullptr);
       EventSetupProvider(EventSetupProvider const&) = delete;
@@ -136,7 +134,6 @@ namespace edm {
       RecordProviders recordProviders_;
 
       ActivityRegistry const* activityRegistry_;
-      tbb::task_arena* taskArena_;
 
       bool mustFinishConfiguration_;
       unsigned subProcessIndex_;

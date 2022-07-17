@@ -8,19 +8,19 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-#include "tbb/global_control.h"
+#include "oneapi/tbb/global_control.h"
 
 #include "FWCore/Concurrency/interface/chain_first.h"
 
 TEST_CASE("Test chain::first", "[chain::first]") {
-  tbb::global_control control(tbb::global_control::max_allowed_parallelism, 1);
+  oneapi::tbb::global_control control(oneapi::tbb::global_control::max_allowed_parallelism, 1);
 
   SECTION("no explicit exception handling") {
     SECTION("first | lastTask") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](edm::WaitingTaskHolder h) {
@@ -41,7 +41,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](auto h) {
@@ -66,7 +66,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](auto h) {
@@ -95,7 +95,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         first([&count](auto h) {
@@ -119,7 +119,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](edm::WaitingTaskHolder h) {
@@ -140,7 +140,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](edm::WaitingTaskHolder h) {
@@ -162,7 +162,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](auto h) {
@@ -194,7 +194,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
@@ -216,7 +216,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, auto h) {
@@ -243,7 +243,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, auto h) {
@@ -275,7 +275,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
@@ -297,7 +297,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first([&count](std::exception_ptr const* iPtr, edm::WaitingTaskHolder h) {
@@ -328,7 +328,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> exceptCount{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
@@ -354,7 +354,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> exceptCount{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
@@ -387,7 +387,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> exceptCount{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
@@ -427,7 +427,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> exceptCount{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         auto h = first(ifException([&exceptCount](std::exception_ptr const& iPtr) {
@@ -468,7 +468,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         first([&count](auto h) {
@@ -492,7 +492,7 @@ TEST_CASE("Test chain::first", "[chain::first]") {
       std::atomic<int> count{0};
 
       edm::FinalWaitingTask waitTask;
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
       {
         using namespace edm::waiting_task::chain;
         first([&count](auto h) {

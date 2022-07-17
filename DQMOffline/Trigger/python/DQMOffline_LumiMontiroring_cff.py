@@ -7,40 +7,41 @@ import FWCore.ParameterSet.Config as cms
 
 from DQM.HLTEvF.lumiMonitor_cfi import lumiMonitor
 
-hltLumiMonitor = lumiMonitor.clone()
-hltLumiMonitor.useBPixLayer1 = cms.bool( False )
-hltLumiMonitor.minPixelClusterCharge = cms.double( 15000.0 )
-hltLumiMonitor.histoPSet = cms.PSet(
-    lsPSet = cms.PSet(  
-      nbins = cms.int32( 2500 ) 
-    ),
-    pixelClusterPSet = cms.PSet(
-      nbins = cms.int32( 200 ),
-      xmin = cms.double( -0.5 ),
-      xmax = cms.double( 19999.5 )
-    ),
-    puPSet = cms.PSet(
-      nbins = cms.int32( 130  ),
-      xmin = cms.double(   0. ),
-      xmax = cms.double( 130. )
-    ),
-    lumiPSet = cms.PSet(
-      nbins = cms.int32(   440 ),
-      xmin = cms.double(     0.0 ),
-      xmax = cms.double( 22000.0 )
-    ),
-    pixellumiPSet = cms.PSet(
-      nbins = cms.int32( 300 ),
-      xmin = cms.double( 0.0 ),
-      xmax = cms.double( 3.0 )
-    )
-)
-hltLumiMonitor.minNumberOfPixelsPerCluster = cms.int32( 2 )
-hltLumiMonitor.FolderName = cms.string( "HLT/LumiMonitoring" )
-hltLumiMonitor.scalers = cms.InputTag( "scalersRawToDigi" )
-hltLumiMonitor.pixelClusters = cms.InputTag( "hltSiPixelClusters" )
-hltLumiMonitor.doPixelLumi = cms.bool( False )
+hltLumiMonitor = lumiMonitor.clone(
+    useBPixLayer1 =  False ,
+    minPixelClusterCharge = 15000.0, 
 
+    histoPSet = dict(
+                lsPSet = dict(  
+                        nbins = 2500 ), 
+                            
+                pixelClusterPSet = dict(
+                        nbins = 200 ,
+                        xmin = -0.5 ,
+                        xmax = 19999.5),
+    
+                puPSet = dict(
+                        nbins = 130,
+                        xmin =   0. ,
+                        xmax =  130.),
+    
+                lumiPSet = dict(
+                        nbins =   440 ,
+                        xmin =   0.0 ,
+                        xmax = 22000.0),
+    
+                pixellumiPSet = dict(
+                        nbins = 300 ,
+                        xmin =  0.0 ,
+                        xmax = 3.0 )
+        ),
+
+    minNumberOfPixelsPerCluster =  2,
+    FolderName =  "HLT/LumiMonitoring",
+    scalers = "scalersRawToDigi",
+    pixelClusters =  "hltSiPixelClusters",
+    doPixelLumi =  False
+)
 lumiMonitorHLTsequence = cms.Sequence(
 #    hltScalersRawToDigi4DQM +
     hltLumiMonitor

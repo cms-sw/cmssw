@@ -311,6 +311,10 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
     obj = store->book1DD(name, dynamic_cast<TH1D *>(o.object));
     break;
 
+  case DQM_PROP_TYPE_TH1I:
+    obj = store->book1I(name, dynamic_cast<TH1I *>(o.object));
+    break;
+
   case DQM_PROP_TYPE_TH2F:
     obj = store->book2D(name, dynamic_cast<TH2F *>(o.object));
     break;
@@ -321,6 +325,10 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
 
   case DQM_PROP_TYPE_TH2D:
     obj = store->book2DD(name, dynamic_cast<TH2D *>(o.object));
+    break;
+
+ case DQM_PROP_TYPE_TH2I:
+    obj = store->book2I(name, dynamic_cast<TH2I *>(o.object));
     break;
 
   case DQM_PROP_TYPE_TH3F:

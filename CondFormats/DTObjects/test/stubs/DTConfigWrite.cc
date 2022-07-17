@@ -28,8 +28,6 @@ namespace edmtest {
 
   DTConfigWrite::DTConfigWrite(int i) {}
 
-  DTConfigWrite::~DTConfigWrite() {}
-
   void DTConfigWrite::analyze(const edm::Event& e, const edm::EventSetup& context) {
     std::cout << " I AM IN RUN NUMBER " << e.id().run() << std::endl;
     std::cout << " ---EVENT NUMBER " << e.id().event() << std::endl;

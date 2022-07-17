@@ -13,7 +13,6 @@
  *           from the HLTriggerOffline/Muon package.
  */
 
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 

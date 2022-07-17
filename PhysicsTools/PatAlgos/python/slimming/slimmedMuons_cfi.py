@@ -3,8 +3,10 @@ import FWCore.ParameterSet.Config as cms
 slimmedMuons = cms.EDProducer("PATMuonSlimmer",
     src = cms.InputTag("selectedPatMuons"),
     linkToPackedPFCandidates = cms.bool(True),
+    linkToLostTrack = cms.bool(True),
     pfCandidates = cms.VInputTag(cms.InputTag("particleFlow")),
     packedPFCandidates = cms.VInputTag(cms.InputTag("packedPFCandidates")), 
+    lostTracks = cms.InputTag("lostTracks"),
     saveTeVMuons = cms.string("pt > 100"), # you can put a cut to slim selectively, e.g. pt > 10
     dropDirectionalIso = cms.string("0"),
     dropPfP4 = cms.string("1"),

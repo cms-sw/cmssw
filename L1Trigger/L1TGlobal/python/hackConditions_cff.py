@@ -31,5 +31,6 @@ def _load(process, fs):
 modifyL1TGlobalHackConditions_stage2 = stage2L1Trigger.makeProcessModifier(lambda p: _load(p, [
     "L1Trigger.L1TGlobal.GlobalParameters_cff",
     "L1Trigger.L1TGlobal.PrescalesVetos_cff",
+    "L1Trigger.L1TGlobal.PrescalesVetosFract_cff",
 #   "L1Trigger.L1TGlobal.TriggerMenu_cff"
 ]))

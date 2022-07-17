@@ -214,8 +214,8 @@ protected:
 
   // remove dead modules using the list in the configuration file PixelDigi_cfi.py
   virtual void module_killing_conf(uint32_t detID);
-  virtual void module_killing_DB(
-      const Phase2TrackerGeomDetUnit* pixdet);  // remove dead modules uisng the list in the DB
+  // remove dead modules uisng the list in the DB
+  virtual void module_killing_DB(const Phase2TrackerGeomDetUnit* pixdet) = 0;
 
   const SubdetEfficiencies subdetEfficiencies_;
   float calcQ(float x);

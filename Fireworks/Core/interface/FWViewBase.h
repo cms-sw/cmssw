@@ -53,8 +53,8 @@ public:
   // ---------- member functions ---------------------------
   void destroy();
 
-  sigc::signal<void, const FWViewBase*> beingDestroyed_;
-  sigc::signal<void, Int_t, Int_t> openSelectedModelContextMenu_;
+  sigc::signal<void(const FWViewBase*)> beingDestroyed_;
+  sigc::signal<void(Int_t, Int_t)> openSelectedModelContextMenu_;
 
 protected:
   ~FWViewBase() override;

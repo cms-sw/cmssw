@@ -17,12 +17,18 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHDecayGenericBuilderBase.h"
+#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoBuilder.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHRecoCandidate.h"
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHPlusMinusCandidate.h"
-#include "HeavyFlavorAnalysis/SpecificDecay/interface/BPHParticleMasses.h"
+#include "HeavyFlavorAnalysis/RecoDecay/interface/BPHVertexCompositePtrCandidate.h"
 
-#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+
+class BPHEventSetupWrapper;
 
 //---------------
 // C++ Headers --
@@ -38,10 +44,11 @@ class BPHLambda0ToPPiBuilder : public BPHDecayToV0DiffMassBuilder {
 public:
   /** Constructor
    */
-  BPHLambda0ToPPiBuilder(const edm::EventSetup& es,
+  BPHLambda0ToPPiBuilder(const BPHEventSetupWrapper& es,
                          const BPHRecoBuilder::BPHGenericCollection* protonCollection,
                          const BPHRecoBuilder::BPHGenericCollection* pionCollection)
-      : BPHDecayToV0DiffMassBuilder(es,
+      : BPHDecayGenericBuilderBase(es),
+        BPHDecayToV0DiffMassBuilder(es,
                                     "Proton",
                                     BPHParticleMasses::protonMass,
                                     BPHParticleMasses::protonMSigma,
@@ -55,10 +62,13 @@ public:
     setEtaMax(10.0);
     setMassRange(0.80, 1.40);
   }
-  BPHLambda0ToPPiBuilder(const edm::EventSetup& es,
-                         const std::vector<reco::VertexCompositeCandidate>* v0Collection,
+
+  template <class V0VertexType>
+  BPHLambda0ToPPiBuilder(const BPHEventSetupWrapper& es,
+                         const std::vector<V0VertexType>* v0Collection,
                          const std::string& searchList = "cfp")
-      : BPHDecayToV0DiffMassBuilder(es,
+      : BPHDecayGenericBuilderBase(es),
+        BPHDecayToV0DiffMassBuilder(es,
                                     "Proton",
                                     BPHParticleMasses::protonMass,
                                     BPHParticleMasses::protonMSigma,
@@ -71,22 +81,6 @@ public:
     setEtaMax(10.0);
     setMassRange(0.00, 3.00);
   }
-  BPHLambda0ToPPiBuilder(const edm::EventSetup& es,
-                         const std::vector<reco::VertexCompositePtrCandidate>* vpCollection,
-                         const std::string& searchList = "cfp")
-      : BPHDecayToV0DiffMassBuilder(es,
-                                    "Proton",
-                                    BPHParticleMasses::protonMass,
-                                    BPHParticleMasses::protonMSigma,
-                                    "Pion",
-                                    BPHParticleMasses::pionMass,
-                                    BPHParticleMasses::pionMSigma,
-                                    vpCollection,
-                                    BPHParticleMasses::lambda0Mass) {
-    setPtMin(0.0);
-    setEtaMax(10.0);
-    setMassRange(0.00, 3.00);
-  }
 
   // deleted copy constructor and assignment operator
   BPHLambda0ToPPiBuilder(const BPHLambda0ToPPiBuilder& x) = delete;
@@ -94,7 +88,7 @@ public:
 
   /** Destructor
    */
-  ~BPHLambda0ToPPiBuilder() override {}
+  ~BPHLambda0ToPPiBuilder() override = default;
 };
 
 #endif

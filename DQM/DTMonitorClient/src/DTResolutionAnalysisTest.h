@@ -16,7 +16,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DQMServices/Core/interface/DQMEDHarvester.h"

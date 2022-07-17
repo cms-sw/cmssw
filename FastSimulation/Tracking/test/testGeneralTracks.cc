@@ -42,6 +42,9 @@ public:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
 
 private:
+  edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> geomToken;
+  edm::ESGetToken<HepPDT::ParticleDataTable, PDTRecord> pdtToken;
+
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
   std::vector<edm::InputTag> allTracks;
@@ -72,7 +75,9 @@ private:
 };
 
 testGeneralTracks::testGeneralTracks(const edm::ParameterSet& p)
-    : mySimEvent(2, static_cast<FSimEvent*>(0)),
+    : geomToken(esConsumes()),
+      pdtToken(esConsumes()),
+      mySimEvent(2, static_cast<FSimEvent*>(0)),
       h0(2, static_cast<MonitorElement*>(0)),
       TracksvsEtaP(2, static_cast<MonitorElement*>(0)),
       HitsvsP(2, static_cast<MonitorElement*>(0)),
@@ -122,31 +127,28 @@ void testGeneralTracks::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 testGeneralTracks::~testGeneralTracks() {
-  std::cout << "\t\t Number of Tracks " << std::endl;
-  std::cout << "\tFULL\t" << numfull << "\t HP= " << numfullHP << std::endl;
-  std::cout << "\tFAST\t" << numfast << "\t HP= " << numfastHP << std::endl;
+  edm::LogPrint("testGeneralTracks") << "\t\t Number of Tracks ";
+  edm::LogPrint("testGeneralTracks") << "\tFULL\t" << numfull << "\t HP= ";
+  edm::LogPrint("testGeneralTracks") << "\tFAST\t" << numfast << "\t HP= ";
 }
 
 void testGeneralTracks::dqmBeginRun(edm::Run const&, edm::EventSetup const& es) {
   // init Particle data table (from Pythia)
-  edm::ESHandle<HepPDT::ParticleDataTable> pdt;
-  es.getData(pdt);
+  const HepPDT::ParticleDataTable* pdt = &es.getData(pdtToken);
 
-  mySimEvent[0]->initializePdt(&(*pdt));
-  mySimEvent[1]->initializePdt(&(*pdt));
+  mySimEvent[0]->initializePdt(pdt);
+  mySimEvent[1]->initializePdt(pdt);
 
-  edm::ESHandle<TrackerGeometry> geometry;
-  es.get<TrackerDigiGeometryRecord>().get(geometry);
-  theGeometry = &(*geometry);
+  theGeometry = &es.getData(geomToken);
 }
 
 void testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   ++totalNEvt;
 
-  //  std::cout << " >>>>>>>>> Analizying Event " << totalNEvt << "<<<<<<< " << std::endl;
+  //  edm::LogPrint("testGeneralTracks") << " >>>>>>>>> Analizying Event " << totalNEvt << "<<<<<<< ";
 
   if (totalNEvt / 1000 * 1000 == totalNEvt)
-    std::cout << "Number of event analysed " << totalNEvt << std::endl;
+    edm::LogPrint("testGeneralTracks") << "Number of event analysed " << totalNEvt;
 
   std::unique_ptr<edm::SimTrackContainer> nuclSimTracks(new edm::SimTrackContainer);
 
@@ -170,7 +172,7 @@ void testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup&
   h0[0]->Fill(pGen);
   h0[1]->Fill(etaGen);
   genTracksvsEtaP->Fill(etaGen, pGen, 1.);
-  //  std::cout << " PArticle list: Pt = "  <<  pGen << " , eta = " << etaGen << std::endl;
+  //  edm::LogPrint("testGeneralTracks") << " PArticle list: Pt = "  <<  pGen << " , eta = " << etaGen << std::endl;
 
   std::vector<bool> firstSeed(2, static_cast<bool>(false));
   std::vector<bool> secondSeed(2, static_cast<bool>(false));
@@ -184,9 +186,9 @@ void testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup&
     reco::TrackCollection::const_iterator itk0 = tkColl[0]->begin();
     reco::TrackCollection::const_iterator itk0_e = tkColl[0]->end();
     for (; itk0 != itk0_e; ++itk0) {
-      //std::cout << "quality " << itk0->quality(_trackQuality) << std::endl;
+      //edm::LogPrint("testGeneralTracks") << "quality " << itk0->quality(_trackQuality) << std::endl;
       if (!(itk0->quality(_trackQuality))) {
-        //std::cout << "evt " << totalNEvt << "\tTRACK REMOVED" << std::endl;
+        //edm::LogPrint("testGeneralTracks") << "evt " << totalNEvt << "\tTRACK REMOVED" << std::endl;
         continue;
       }
       if (ievt == 0)
@@ -200,13 +202,13 @@ void testGeneralTracks::analyze(const edm::Event& iEvent, const edm::EventSetup&
       LayersvsP[ievt]->Fill(pGen, itk0->hitPattern().trackerLayersWithMeasurement(), 1.);
     }
 
-    //    std::cout << "\t\t Number of Tracks " << std::endl;
+    //    edm::LogPrint("testGeneralTracks") << "\t\t Number of Tracks " << std::endl;
     if (ievt == 0) {
       numfull += tkColl[0]->size();
-      //      std::cout << "\tFULL\t" << tkColl[0]->size() << "\t" << numfull << "\t" << numfullHP << std::endl;
+      //      edm::LogPrint("testGeneralTracks") << "\tFULL\t" << tkColl[0]->size() << "\t" << numfull << "\t" << numfullHP << std::endl;
     } else if (ievt == 1) {
       numfast += tkColl[0]->size();
-      // std::cout << "\tFAST\t" << tkColl[0]->size() << "\t" << numfast << "\t" << numfastHP << std::endl;
+      // edm::LogPrint("testGeneralTracks") << "\tFAST\t" << tkColl[0]->size() << "\t" << numfast << "\t" << numfastHP << std::endl;
     }
   }
 }

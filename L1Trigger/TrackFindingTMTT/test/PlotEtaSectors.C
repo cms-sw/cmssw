@@ -121,12 +121,12 @@
     float zPeriphNeg = -beamLen + (z + beamLen) * (rPeriphNeg / chosenR);
     float zPeriphPos = beamLen + (z - beamLen) * (rPeriphNeg / chosenR);
     // Now check if actual exit through endcap.
-    if (fabs(zPeriphNeg) > trkLength) {
+    if (std::abs(zPeriphNeg) > trkLength) {
       int whichEndcap = (zPeriphNeg + beamLen > 0) ? 1 : -1;
       zPeriphNeg = whichEndcap * trkLength;
       rPeriphNeg = chosenR * (zPeriphNeg + beamLen) / (z + beamLen);
     }
-    if (fabs(zPeriphPos) > trkLength) {
+    if (std::abs(zPeriphPos) > trkLength) {
       int whichEndcap = (zPeriphPos - beamLen > 0) ? 1 : -1;
       zPeriphPos = whichEndcap * trkLength;
       rPeriphPos = chosenR * (zPeriphPos - beamLen) / (z - beamLen);

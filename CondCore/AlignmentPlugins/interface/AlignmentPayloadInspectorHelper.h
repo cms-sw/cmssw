@@ -15,6 +15,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/Math/interface/Rounding.h"  // for rounding
 
 //#define MMDEBUG // uncomment for debugging at compile time
 #ifdef MMDEBUG
@@ -28,7 +29,19 @@ namespace AlignmentPI {
 
   // size of the phase-I Tracker APE payload (including both SS + DS modules)
   static const unsigned int phase0size = 19876;
-  static const float cmToUm = 10000;
+  static const float cmToUm = 10000.f;
+  static const float tomRad = 1000.f;
+
+  // method to zero all elements whose difference from 2Pi
+  // is less than the tolerance (2*10e-7)
+  inline float returnZeroIfNear2PI(const float phi) {
+    const double tol = 2.e-7;  // default tolerance 1.e-7 doesn't account for possible variations
+    if (cms_rounding::roundIfNear0(std::abs(phi) - 2 * M_PI, tol) == 0.f) {
+      return 0.f;
+    } else {
+      return phi;
+    }
+  }
 
   enum coordinate {
     t_x = 1,

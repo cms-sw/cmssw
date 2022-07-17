@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("DQMLumi")
+from Configuration.Eras.Era_Run3_cff import Run3
+process = cms.Process("DQMLumi", Run3)
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 

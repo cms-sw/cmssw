@@ -66,7 +66,7 @@ void ShiftTTrigDB::beginRun(const edm::Run&, const EventSetup& setup) {
 
 void ShiftTTrigDB::endJob() {
   // Create the object to be written to DB
-  DTTtrig* tTrigNewMap = new DTTtrig();
+  DTTtrig tTrigNewMap;
   //Get the superlayers list
   vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
 
@@ -90,7 +90,7 @@ void ShiftTTrigDB::endJob() {
             //Compute new ttrig
             double newTTrigMean = ttrigMean + mapShiftsByChamber[(*ch)];
             //Store new ttrig in the new map
-            tTrigNewMap->set((*sl)->id(), newTTrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
+            tTrigNewMap.set((*sl)->id(), newTTrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
             ttrigShifted = true;
             if (debug) {
               cout << "Shifting SL: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
@@ -101,7 +101,7 @@ void ShiftTTrigDB::endJob() {
     }  //End loop on chambers to be shifted
     if (!ttrigShifted) {
       //Store old ttrig in the new map
-      tTrigNewMap->set((*sl)->id(), ttrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
+      tTrigNewMap.set((*sl)->id(), ttrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
       if (debug) {
         cout << "Copying  SL: " << (*sl)->id() << " ttrig " << ttrigMean << endl;
       }

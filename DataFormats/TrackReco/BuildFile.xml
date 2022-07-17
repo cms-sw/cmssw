@@ -6,6 +6,7 @@
 <use name="DataFormats/GeometryVector"/>
 <use name="DataFormats/Math"/>
 <use name="DataFormats/MuonDetId"/>
+<use name="DataFormats/Scouting"/>
 <use name="DataFormats/SiPixelCluster"/>
 <use name="DataFormats/SiPixelDetId"/>
 <use name="DataFormats/SiStripCluster"/>

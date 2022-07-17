@@ -9,6 +9,7 @@
 // V1.1 - make dzero call both fcns with a switch
 // V1.2 - remove inappriate initializers and add methods to return non-zero/normalized region
 // V2.0 - restructuring and speed improvements by V. Innocente
+// V3.0 - further simplification and speedup by Tamas Vami
 //
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
@@ -38,6 +39,7 @@ namespace VVIObjFDetails {
 //! \param mode  - (input) set to 0 to calculate the density function and to 1 to calculate the distribution function
 // ***************************************************************************************************************************************
 
+// WARNING: if you change this, dont forget to change VVIObjF::VVIObjF(float kappa) too
 VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   const float xp[9] = {9.29, 2.47, .89, .36, .15, .07, .03, .02, 0.0};
   const float xq[7] = {.012, .03, .08, .26, .87, 3.83, 11.0};
@@ -131,6 +133,89 @@ VVIObjF::VVIObjF(float kappa, float beta2, int mode) : mode_(mode) {
   }
 
 }  // VVIObjF
+
+// ***************************************************************************************************************************************
+//! Constructor
+//! Set Vavilov parameter kappa and calculate the distribution fcn
+//! \param kappa - (input) Vavilov kappa parameter [0.01 (Landau-like) < kappa < 10. (Gaussian-like)]
+// ***************************************************************************************************************************************
+
+// WARNING: if you change this, dont forget to change the full constructor too
+VVIObjF::VVIObjF(float kappa) : mode_(1) {
+  const float xp[9] = {9.29, 2.47, .89, .36, .15, .07, .03, .02, 0.0};
+  const float xq[7] = {.012, .03, .08, .26, .87, 3.83, 11.0};
+  float h_[5];
+  float q, u, x, c1, c2, c3, c4, d1, h4, h5, h6, q2, x1, d, ll, ul, xf1, xf2, rv;
+  int lp, lq, k, l, n;
+
+  // Make sure that the inputs are reasonable
+
+  if (kappa < 0.01f)
+    kappa = 0.01f;
+  if (kappa > 10.f)
+    kappa = 10.f;
+
+  float invKappa = 1.f / kappa;
+  h_[4] = 0.57721566f + (7.6f * invKappa);
+  h4 = -(7.6f * invKappa) - 1.57721566f;
+  h5 = vdt::fast_logf(kappa);
+  h6 = invKappa;
+  t0_ = (h4 - h_[4] * h5 - (h_[4] + 1.f) * (vdt::fast_logf(h_[4]) + VVIObjFDetails::expint(h_[4])) +
+         vdt::fast_expf(-h_[4])) /
+        h_[4];
+
+  // Set up limits for the root search
+
+  for (lp = 0; lp < 9; ++lp) {
+    if (kappa >= xp[lp])
+      break;
+  }
+  ll = -float(lp) - 1.5f;
+  for (lq = 0; lq < 7; ++lq) {
+    if (kappa <= xq[lq])
+      break;
+  }
+  ul = lq - 6.5f;
+  auto f2 = [h_](float x) { return h_[4] - x + (vdt::fast_logf(std::abs(x)) + VVIObjFDetails::expint(x)); };
+  VVIObjFDetails::dzero(ll, ul, u, rv, 1.e-3f, 100, f2);
+  q = 1. / u;
+  t1_ = h4 * q - h5 - (q + 1.f) * (vdt::fast_logf((fabs(u))) + VVIObjFDetails::expint(u)) + vdt::fast_expf(-u) * q;
+  t_ = t1_ - t0_;
+  omega_ = 6.2831853000000004f / t_;
+  h_[0] = kappa * 2.57721566f + 9.9166128600000008f;
+  if (kappa >= .07) {
+    h_[0] += 6.90775527f;
+  }
+  h_[1] = kappa;
+  h_[2] = h6 * omega_;
+  h_[3] = omega_ * 1.5707963250000001f;
+  auto f1 = [h_](float x) { return h_[0] + h_[1] * vdt::fast_logf(h_[2] * x) - h_[3] * x; };
+  VVIObjFDetails::dzero(5.f, 155.f, x0_, rv, 1.e-3f, 100, f1);
+  n = x0_ + 1.;
+  d = vdt::fast_expf(kappa * ((0.57721566f - h5) + 1.f)) * .31830988654751274f;
+  a_[n - 1] = 0.f;
+  q = -1.;
+  q2 = 2.;
+  for (k = 1; k < n; ++k) {
+    l = n - k;
+    x = omega_ * k;
+    x1 = h6 * x;
+    VVIObjFDetails::sincosint(x1, c2, c1);
+    c1 = vdt::fast_logf(x) - c1;
+    vdt::fast_sincosf(x1, c3, c4);
+    xf1 = kappa * (c1 - c4) - x * c2;
+    xf2 = x * c1 + kappa * (c3 + c2) + t0_ * x;
+    float s, c;
+    vdt::fast_sincosf(xf2, s, c);
+    d1 = q * d * vdt::fast_expf(xf1) / k;
+    a_[l - 1] = d1 * s;
+    b_[l - 1] = d1 * c;
+    a_[n - 1] += q2 * a_[l - 1];
+    q = -q;
+    q2 = -q2;
+  }
+
+}  // VVIObjF with kappa only
 
 // *************************************************************************************************************************************
 //! Vavilov function method

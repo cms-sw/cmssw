@@ -28,6 +28,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
 
@@ -47,6 +48,28 @@
 
 // forward declarations
 
+namespace {
+  template <edm::Transition iTrans>
+  L1GtPrescaleFactorsAndMasksTester::Tokens tokens(edm::ConsumesCollector iCC,
+                                                   bool prescales,
+                                                   bool masks,
+                                                   bool vetoMasks) {
+    L1GtPrescaleFactorsAndMasksTester::Tokens tokens;
+    if (prescales) {
+      tokens.m_l1GtPfAlgo = iCC.esConsumes<iTrans>();
+      tokens.m_l1GtPfTech = iCC.esConsumes<iTrans>();
+    }
+    if (masks) {
+      tokens.m_l1GtTmAlgo = iCC.esConsumes<iTrans>();
+      tokens.m_l1GtTmTech = iCC.esConsumes<iTrans>();
+    }
+    if (vetoMasks) {
+      tokens.m_l1GtTmVetoAlgo = iCC.esConsumes<iTrans>();
+      tokens.m_l1GtTmVetoTech = iCC.esConsumes<iTrans>();
+    }
+    return tokens;
+  }
+}  // namespace
 // constructor(s)
 L1GtPrescaleFactorsAndMasksTester::L1GtPrescaleFactorsAndMasksTester(const edm::ParameterSet& parSet)
     : m_testerPrescaleFactors(parSet.getParameter<bool>("TesterPrescaleFactors")),
@@ -58,26 +81,24 @@ L1GtPrescaleFactorsAndMasksTester::L1GtPrescaleFactorsAndMasksTester(const edm::
       m_printInBeginRun(parSet.getParameter<bool>("PrintInBeginRun")),
       m_printInBeginLuminosityBlock(parSet.getParameter<bool>("PrintInBeginLuminosityBlock")),
       m_printInAnalyze(parSet.getParameter<bool>("PrintInAnalyze")),
-      m_printOutput(parSet.getUntrackedParameter<int>("PrintOutput", 3)) {
+      m_printOutput(parSet.getUntrackedParameter<int>("PrintOutput", 3)),
+      m_run(tokens<edm::Transition::BeginRun>(
+          consumesCollector(), m_testerPrescaleFactors, m_testerTriggerMask, m_testerTriggerVetoMask)),
+      m_lumi(tokens<edm::Transition::BeginLuminosityBlock>(
+          consumesCollector(), m_testerPrescaleFactors, m_testerTriggerMask, m_testerTriggerVetoMask)),
+      m_event(tokens<edm::Transition::Event>(
+          consumesCollector(), m_testerPrescaleFactors, m_testerTriggerMask, m_testerTriggerVetoMask)) {
   // empty
 }
-
-// destructor
-L1GtPrescaleFactorsAndMasksTester::~L1GtPrescaleFactorsAndMasksTester() {
-  // empty
-}
-
-// begin job
-void L1GtPrescaleFactorsAndMasksTester::beginJob() {}
 
 // begin run
 void L1GtPrescaleFactorsAndMasksTester::beginRun(const edm::Run& iRun, const edm::EventSetup& evSetup) {
   if (m_retrieveInBeginRun) {
-    retrieveL1EventSetup(evSetup);
+    retrieveL1EventSetup(evSetup, m_run);
   }
 
   if (m_printInBeginRun) {
-    printL1EventSetup(evSetup);
+    printL1EventSetup();
   }
 }
 
@@ -85,22 +106,22 @@ void L1GtPrescaleFactorsAndMasksTester::beginRun(const edm::Run& iRun, const edm
 void L1GtPrescaleFactorsAndMasksTester::beginLuminosityBlock(const edm::LuminosityBlock& iLumiBlock,
                                                              const edm::EventSetup& evSetup) {
   if (m_retrieveInBeginLuminosityBlock) {
-    retrieveL1EventSetup(evSetup);
+    retrieveL1EventSetup(evSetup, m_lumi);
   }
 
   if (m_printInBeginLuminosityBlock) {
-    printL1EventSetup(evSetup);
+    printL1EventSetup();
   }
 }
 
 // loop over events
 void L1GtPrescaleFactorsAndMasksTester::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
   if (m_retrieveInAnalyze) {
-    retrieveL1EventSetup(evSetup);
+    retrieveL1EventSetup(evSetup, m_event);
   }
 
   if (m_printInAnalyze) {
-    printL1EventSetup(evSetup);
+    printL1EventSetup();
   }
 }
 
@@ -111,46 +132,28 @@ void L1GtPrescaleFactorsAndMasksTester::endLuminosityBlock(const edm::Luminosity
 // end run
 void L1GtPrescaleFactorsAndMasksTester::endRun(const edm::Run& iRun, const edm::EventSetup& evSetup) {}
 
-// end job
-void L1GtPrescaleFactorsAndMasksTester::endJob() {}
-
-void L1GtPrescaleFactorsAndMasksTester::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
+void L1GtPrescaleFactorsAndMasksTester::retrieveL1EventSetup(const edm::EventSetup& evSetup, const Tokens& tokens) {
   if (m_testerPrescaleFactors) {
     // get / update the prescale factors from the EventSetup
 
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
-    evSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
-    m_l1GtPfAlgo = l1GtPfAlgo.product();
-
-    edm::ESHandle<L1GtPrescaleFactors> l1GtPfTech;
-    evSetup.get<L1GtPrescaleFactorsTechTrigRcd>().get(l1GtPfTech);
-    m_l1GtPfTech = l1GtPfTech.product();
+    m_l1GtPfAlgo = &evSetup.getData(tokens.m_l1GtPfAlgo);
+    m_l1GtPfTech = &evSetup.getData(tokens.m_l1GtPfTech);
   }
 
   if (m_testerTriggerMask) {
     // get / update the trigger mask from the EventSetup
 
-    edm::ESHandle<L1GtTriggerMask> l1GtTmAlgo;
-    evSetup.get<L1GtTriggerMaskAlgoTrigRcd>().get(l1GtTmAlgo);
-    m_l1GtTmAlgo = l1GtTmAlgo.product();
-
-    edm::ESHandle<L1GtTriggerMask> l1GtTmTech;
-    evSetup.get<L1GtTriggerMaskTechTrigRcd>().get(l1GtTmTech);
-    m_l1GtTmTech = l1GtTmTech.product();
+    m_l1GtTmAlgo = &evSetup.getData(tokens.m_l1GtTmAlgo);
+    m_l1GtTmTech = &evSetup.getData(tokens.m_l1GtTmTech);
   }
 
   if (m_testerTriggerVetoMask) {
-    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoAlgo;
-    evSetup.get<L1GtTriggerMaskVetoAlgoTrigRcd>().get(l1GtTmVetoAlgo);
-    m_l1GtTmVetoAlgo = l1GtTmVetoAlgo.product();
-
-    edm::ESHandle<L1GtTriggerMask> l1GtTmVetoTech;
-    evSetup.get<L1GtTriggerMaskVetoTechTrigRcd>().get(l1GtTmVetoTech);
-    m_l1GtTmVetoTech = l1GtTmVetoTech.product();
+    m_l1GtTmVetoAlgo = &evSetup.getData(tokens.m_l1GtTmVetoAlgo);
+    m_l1GtTmVetoTech = &evSetup.getData(tokens.m_l1GtTmVetoTech);
   }
 }
 
-void L1GtPrescaleFactorsAndMasksTester::printL1EventSetup(const edm::EventSetup& evSetup) {
+void L1GtPrescaleFactorsAndMasksTester::printL1EventSetup() {
   // define an output stream to print into
   // it can then be directed to whatever log level is desired
   std::ostringstream myCout;

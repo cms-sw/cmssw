@@ -27,21 +27,19 @@ public:
   explicit FakeTBEventHeaderProducer(const edm::ParameterSet &ps);
 
   /// Destructor
-  ~FakeTBEventHeaderProducer() override;
+  ~FakeTBEventHeaderProducer() override = default;
 
   /// Produce digis out of raw data
   void produce(edm::Event &event, const edm::EventSetup &eventSetup) override;
 
 private:
-  edm::EDGetTokenT<PEcalTBInfo> ecalTBInfo_;
+  const edm::EDGetTokenT<PEcalTBInfo> ecalTBInfo_;
 };
 
-FakeTBEventHeaderProducer::FakeTBEventHeaderProducer(const edm::ParameterSet &ps) {
-  ecalTBInfo_ = consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"));
+FakeTBEventHeaderProducer::FakeTBEventHeaderProducer(const edm::ParameterSet &ps)
+    : ecalTBInfo_(consumes<PEcalTBInfo>(edm::InputTag("EcalTBInfoLabel", "SimEcalTBG4Object"))) {
   produces<EcalTBEventHeader>();
 }
-
-FakeTBEventHeaderProducer::~FakeTBEventHeaderProducer() {}
 
 void FakeTBEventHeaderProducer::produce(edm::Event &event, const edm::EventSetup &eventSetup) {
   std::unique_ptr<EcalTBEventHeader> product(new EcalTBEventHeader());
@@ -49,8 +47,7 @@ void FakeTBEventHeaderProducer::produce(edm::Event &event, const edm::EventSetup
   // get the vertex information from the event
 
   const PEcalTBInfo *theEcalTBInfo = nullptr;
-  edm::Handle<PEcalTBInfo> EcalTBInfo;
-  event.getByToken(ecalTBInfo_, EcalTBInfo);
+  const edm::Handle<PEcalTBInfo> &EcalTBInfo = event.getHandle(ecalTBInfo_);
   if (EcalTBInfo.isValid()) {
     theEcalTBInfo = EcalTBInfo.product();
   } else {

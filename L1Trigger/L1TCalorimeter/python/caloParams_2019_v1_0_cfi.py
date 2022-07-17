@@ -76,7 +76,7 @@ caloStage2Params.jetLsb                = cms.double(0.5)
 caloStage2Params.jetSeedThreshold      = cms.double(4.0)
 caloStage2Params.jetNeighbourThreshold = cms.double(0.)
 caloStage2Params.jetPUSType            = cms.string("ChunkyDonut")
-caloStage2Params.jetPUSUsePhiRing      = cms.uint32(False)
+caloStage2Params.jetPUSUsePhiRing      = cms.uint32(0)
 caloStage2Params.jetBypassPUS          = cms.uint32(0)
 
 # Calibration options

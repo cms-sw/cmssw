@@ -21,9 +21,14 @@
 #include "CalibTracker/SiStripChannelGain/interface/SiStripGainsPCLHarvester.h"
 #include "CalibTracker/SiStripChannelGain/interface/APVGainHelpers.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <iostream>
 #include <sstream>
+
+// ROOT includes
+#include <TROOT.h>
+#include <TTree.h>
 
 //********************************************************************************//
 SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
@@ -37,6 +42,10 @@ SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
   tagCondition_GoodFrac = ps.getUntrackedParameter<double>("GoodFracForTagProd", 0.95);
   doChargeMonitorPerPlane = ps.getUntrackedParameter<bool>("doChargeMonitorPerPlane", false);
   VChargeHisto = ps.getUntrackedParameter<std::vector<std::string>>("ChargeHisto");
+  fit_gaussianConvolution_ = ps.getUntrackedParameter<bool>("FitGaussianConvolution", false);
+  fit_gaussianConvolutionTOBL56_ = ps.getUntrackedParameter<bool>("FitGaussianConvolutionTOBL5L6", false);
+  fit_dataDrivenRange_ = ps.getUntrackedParameter<bool>("FitDataDrivenRange", false);
+  storeGainsTree_ = ps.getUntrackedParameter<bool>("StoreGainsTree", false);
 
   //Set the monitoring element tag and store
   dqm_tag_.reserve(7);
@@ -49,7 +58,8 @@ SiStripGainsPCLHarvester::SiStripGainsPCLHarvester(const edm::ParameterSet& ps)
   dqm_tag_.push_back("IsoMuon0T");   // statistic collection from Isolated Muon @ 0 T
   dqm_tag_.push_back("Harvest");     // statistic collection: Harvest
 
-  tTopoToken_ = esConsumes<edm::Transition::EndRun>();
+  tTopoTokenBR_ = esConsumes<edm::Transition::BeginRun>();
+  tTopoTokenER_ = esConsumes<edm::Transition::EndRun>();
   tkGeomToken_ = esConsumes<edm::Transition::BeginRun>();
   gainToken_ = esConsumes<edm::Transition::BeginRun>();
   qualityToken_ = esConsumes<edm::Transition::BeginRun>();
@@ -142,6 +152,15 @@ void SiStripGainsPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
   //Collect the statistics for monitoring and validation
   gainQualityMonitor(ibooker_, Charge_Vs_Index);
+
+  if (storeGainsTree_) {
+    if (Charge_Vs_Index != nullptr) {
+      storeGainsTree(Charge_Vs_Index->getTH2S()->GetXaxis());
+    } else {
+      edm::LogError("SiStripGainsPCLHarvester")
+          << "Harvesting: could not retrieve " << cvi.c_str() << "Tree won't be stored" << std::endl;
+    }
+  }
 }
 
 //********************************************************************************//
@@ -365,11 +384,114 @@ void SiStripGainsPCLHarvester::gainQualityMonitor(DQMStore::IBooker& ibooker_,
   }
 }
 
+namespace {
+
+  std::pair<double, double> findFitRange(TH1* inputHisto) {
+    const auto prevErrorIgnoreLevel = gErrorIgnoreLevel;
+    gErrorIgnoreLevel = kError;
+    auto charge_clone = std::unique_ptr<TH1D>(dynamic_cast<TH1D*>(inputHisto->Rebin(10, "charge_clone")));
+    gErrorIgnoreLevel = prevErrorIgnoreLevel;
+    float max_content = -1;
+    float xMax = -1;
+    for (int i = 1; i < charge_clone->GetNbinsX() + 1; ++i) {
+      const auto bin_content = charge_clone->GetBinContent(i);
+      const auto bin_center = charge_clone->GetXaxis()->GetBinCenter(i);
+      if ((bin_content > max_content) && (bin_center > 100.)) {
+        max_content = bin_content;
+        xMax = bin_center;
+      }
+    }
+    return std::pair<double, double>(xMax - 100., xMax + 500.);
+  }
+
+  Double_t langaufun(Double_t* x, Double_t* par) {
+    // Numeric constants
+    Double_t invsq2pi = 0.3989422804014;  // (2 pi)^(-1/2)
+    Double_t mpshift = -0.22278298;       // Landau maximum location
+
+    // Control constants
+    Double_t np = 100.0;  // number of convolution steps
+    Double_t sc = 5.0;    // convolution extends to +-sc Gaussian sigmas
+
+    // Variables
+    Double_t xx;
+    Double_t mpc;
+    Double_t fland;
+    Double_t sum = 0.0;
+    Double_t xlow, xupp;
+    Double_t step;
+    Double_t i;
+
+    // MP shift correction
+    mpc = par[1] - mpshift * par[0];
+
+    // Range of convolution integral
+    xlow = x[0] - sc * par[3];
+    xupp = x[0] + sc * par[3];
+
+    step = (xupp - xlow) / np;
+
+    // Convolution integral of Landau and Gaussian by sum
+    for (i = 1.0; i <= np / 2; i++) {
+      xx = xlow + (i - .5) * step;
+      fland = TMath::Landau(xx, mpc, par[0]) / par[0];
+      sum += fland * TMath::Gaus(x[0], xx, par[3]);
+
+      xx = xupp - (i - .5) * step;
+      fland = TMath::Landau(xx, mpc, par[0]) / par[0];
+
+      sum += fland * TMath::Gaus(x[0], xx, par[3]);
+    }
+
+    return (par[2] * step * sum * invsq2pi / par[3]);
+  }
+
+  std::unique_ptr<TF1> langaufit(TH1D* his,
+                                 Double_t* fitrange,
+                                 Double_t* startvalues,
+                                 Double_t* parlimitslo,
+                                 Double_t* parlimitshi,
+                                 Double_t* fitparams,
+                                 Double_t* fiterrors,
+                                 Double_t* ChiSqr,
+                                 Int_t* NDF) {
+    Int_t i;
+    Char_t FunName[100];
+
+    sprintf(FunName, "Fitfcn_%s", his->GetName());
+
+    TF1* ffitold = dynamic_cast<TF1*>(gROOT->GetListOfFunctions()->FindObject(FunName));
+    if (ffitold)
+      delete ffitold;
+
+    auto ffit = std::make_unique<TF1>(FunName, langaufun, fitrange[0], fitrange[1], 4);
+    //TF1 *ffit = new TF1(FunName,langaufun,his->GetXaxis()->GetXmin(),his->GetXaxis()->GetXmax(),4);
+    ffit->SetParameters(startvalues);
+    ffit->SetParNames("Width", "MP", "Area", "GSigma");
+
+    for (i = 0; i < 4; i++) {
+      ffit->SetParLimits(i, parlimitslo[i], parlimitshi[i]);
+    }
+
+    his->Fit(FunName, "QRB0");  // fit within specified range, use ParLimits, do not plot
+
+    ffit->GetParameters(fitparams);  // obtain fit parameters
+    for (i = 0; i < 4; i++) {
+      fiterrors[i] = ffit->GetParError(i);  // obtain fit parameter errors
+    }
+    ChiSqr[0] = ffit->GetChisquare();  // obtain chi^2
+    NDF[0] = ffit->GetNDF();           // obtain ndf
+
+    return ffit;  // return fit function
+  }
+}  // namespace
+
 //********************************************************************************//
 void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charge_Vs_Index) {
   unsigned int I = 0;
-  TH1F* Proj = nullptr;
-  double FitResults[6];
+  TH1D* Proj = nullptr;
+  static constexpr double DEF_F = -9999.;
+  double FitResults[6] = {DEF_F, DEF_F, DEF_F, DEF_F, DEF_F, DEF_F};
   double MPVmean = 300;
 
   if (Charge_Vs_Index == nullptr) {
@@ -401,8 +523,8 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
       continue;
     }
 
-    Proj = (TH1F*)(chvsidx->ProjectionY(
-        "", chvsidx->GetXaxis()->FindBin(APV->Index), chvsidx->GetXaxis()->FindBin(APV->Index), "e"));
+    Proj = chvsidx->ProjectionY(
+        "", chvsidx->GetXaxis()->FindBin(APV->Index), chvsidx->GetXaxis()->FindBin(APV->Index), "e");
     if (!Proj)
       continue;
 
@@ -417,7 +539,7 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
       std::shared_ptr<stAPVGain> APV2 = APVsColl[(APV->DetId << 4) | SecondAPVId];
       if (APV2->Bin < 0)
         APV2->Bin = chvsidx->GetXaxis()->FindBin(APV2->Index);
-      TH1F* Proj2 = (TH1F*)(chvsidx->ProjectionY("", APV2->Bin, APV2->Bin, "e"));
+      TH1D* Proj2 = chvsidx->ProjectionY("", APV2->Bin, APV2->Bin, "e");
       if (Proj2) {
         Proj->Add(Proj2, 1);
         delete Proj2;
@@ -432,7 +554,7 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
           continue;
         if (APV2->Bin < 0)
           APV2->Bin = chvsidx->GetXaxis()->FindBin(APV2->Index);
-        TH1F* Proj2 = (TH1F*)(chvsidx->ProjectionY("", APV2->Bin, APV2->Bin, "e"));
+        TH1D* Proj2 = chvsidx->ProjectionY("", APV2->Bin, APV2->Bin, "e");
         if (Proj2) {
           Proj->Add(Proj2, 1);
           delete Proj2;
@@ -443,7 +565,22 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
       printf("Unknown Calibration Level, will assume %i\n", CalibrationLevel);
     }
 
-    getPeakOfLandau(Proj, FitResults);
+    std::pair<double, double> fitRange{50., 5400.};
+    if (fit_dataDrivenRange_) {
+      fitRange = findFitRange(Proj);
+    }
+
+    const bool isTOBL5L6 =
+        (DetId{APV->DetId}.subdetId() == StripSubdetector::TOB) && (tTopo_->tobLayer(APV->DetId) > 4);
+    getPeakOfLandau(Proj,
+                    FitResults,
+                    fitRange.first,
+                    fitRange.second,
+                    (isTOBL5L6 ? fit_gaussianConvolutionTOBL56_ : fit_gaussianConvolution_));
+
+    // throw if the fit results are not set
+    assert(FitResults[0] != DEF_F);
+
     APV->FitMPV = FitResults[0];
     APV->FitMPVErr = FitResults[1];
     APV->FitWidth = FitResults[2];
@@ -451,6 +588,29 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
     APV->FitChi2 = FitResults[4];
     APV->FitNorm = FitResults[5];
     APV->NEntries = Proj->GetEntries();
+
+    // fall back to legacy fit in case of  very low chi2 probability
+    if (APV->FitChi2 <= 0.1) {
+      edm::LogInfo("SiStripGainsPCLHarvester")
+          << "fit failed on this APV:" << APV->DetId << ":" << APV->APVId << " !" << std::endl;
+
+      std::fill(FitResults, FitResults + 6, 0);
+      fitRange = std::make_pair(50., 5400.);
+
+      APV->FitGrade = fitgrade::B;
+
+      getPeakOfLandau(Proj, FitResults, fitRange.first, fitRange.second, false);
+
+      APV->FitMPV = FitResults[0];
+      APV->FitMPVErr = FitResults[1];
+      APV->FitWidth = FitResults[2];
+      APV->FitWidthErr = FitResults[3];
+      APV->FitChi2 = FitResults[4];
+      APV->FitNorm = FitResults[5];
+      APV->NEntries = Proj->GetEntries();
+    } else {
+      APV->FitGrade = fitgrade::A;
+    }
 
     if (IsGoodLandauFit(FitResults)) {
       APV->Gain = APV->FitMPV / MPVmean;
@@ -470,7 +630,9 @@ void SiStripGainsPCLHarvester::algoComputeMPVandGain(const MonitorElement* Charg
 }
 
 //********************************************************************************//
-void SiStripGainsPCLHarvester::getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange, double HighRange) {
+void SiStripGainsPCLHarvester::getPeakOfLandau(
+    TH1* InputHisto, double* FitResults, double LowRange, double HighRange, bool gaussianConvolution) {
+  // undo defaults (checked for assertion)
   FitResults[0] = -0.5;  //MPV
   FitResults[1] = 0;     //MPV error
   FitResults[2] = -0.5;  //Width
@@ -481,18 +643,35 @@ void SiStripGainsPCLHarvester::getPeakOfLandau(TH1* InputHisto, double* FitResul
   if (InputHisto->GetEntries() < MinNrEntries)
     return;
 
-  // perform fit with standard landau
-  TF1 MyLandau("MyLandau", "landau", LowRange, HighRange);
-  MyLandau.SetParameter(1, 300);
-  InputHisto->Fit(&MyLandau, "0QR WW");
-
-  // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
-  FitResults[0] = MyLandau.GetParameter(1);                     //MPV
-  FitResults[1] = MyLandau.GetParError(1);                      //MPV error
-  FitResults[2] = MyLandau.GetParameter(2);                     //Width
-  FitResults[3] = MyLandau.GetParError(2);                      //Width error
-  FitResults[4] = MyLandau.GetChisquare() / MyLandau.GetNDF();  //Fit Chi2/NDF
-  FitResults[5] = MyLandau.GetParameter(0);
+  if (gaussianConvolution) {
+    // perform fit with landau convoluted with a gaussian
+    Double_t fr[2] = {LowRange, HighRange};
+    Double_t sv[4] = {25., 300., InputHisto->Integral(), 40.};
+    Double_t pllo[4] = {0.5, 100., 1.0, 0.4};
+    Double_t plhi[4] = {100., 500., 1.e7, 100.};
+    Double_t fp[4], fpe[4];
+    Double_t chisqr;
+    Int_t ndf;
+    auto fitsnr = langaufit(dynamic_cast<TH1D*>(InputHisto), fr, sv, pllo, plhi, fp, fpe, &chisqr, &ndf);
+    FitResults[0] = fitsnr->GetMaximumX();  //MPV
+    FitResults[1] = fpe[1];                 //MPV error // FIXME add error propagation
+    FitResults[2] = fp[0];                  //Width
+    FitResults[3] = fpe[0];                 //Width error
+    FitResults[4] = chisqr / ndf;           //Fit Chi2/NDF
+    FitResults[5] = fp[2];
+  } else {
+    // perform fit with standard landau
+    TF1 MyLandau("MyLandau", "landau", LowRange, HighRange);
+    MyLandau.SetParameter(1, 300);
+    InputHisto->Fit(&MyLandau, "0QR WW");
+    // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
+    FitResults[0] = MyLandau.GetParameter(1);                     //MPV
+    FitResults[1] = MyLandau.GetParError(1);                      //MPV error
+    FitResults[2] = MyLandau.GetParameter(2);                     //Width
+    FitResults[3] = MyLandau.GetParError(2);                      //Width error
+    FitResults[4] = MyLandau.GetChisquare() / MyLandau.GetNDF();  //Fit Chi2/NDF
+    FitResults[5] = MyLandau.GetParameter(0);
+  }
 }
 
 //********************************************************************************//
@@ -508,6 +687,7 @@ bool SiStripGainsPCLHarvester::IsGoodLandauFit(double* FitResults) {
 // ------------ method called once each job just before starting event loop  ------------
 void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
   auto newBareTkGeomPtr = &es.getData(tkGeomToken_);
+  auto bareTkTopoPtr = &es.getData(tTopoTokenBR_);
   if (newBareTkGeomPtr == bareTkGeomPtr_)
     return;  // already filled APVColls, nothing changed
 
@@ -534,6 +714,14 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
           APV->Index = Index;
           APV->Bin = -1;
           APV->DetId = Detid.rawId();
+          APV->Side = 0;
+
+          if (SubDet == StripSubdetector::TID) {
+            APV->Side = bareTkTopoPtr->tidSide(Detid);
+          } else if (SubDet == StripSubdetector::TEC) {
+            APV->Side = bareTkTopoPtr->tecSide(Detid);
+          }
+
           APV->APVId = j;
           APV->SubDet = SubDet;
           APV->FitMPV = -1;
@@ -542,6 +730,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
           APV->FitWidthErr = -1;
           APV->FitChi2 = -1;
           APV->FitNorm = -1;
+          APV->FitGrade = fitgrade::NONE;
           APV->Gain = -1;
           APV->PreviousGain = 1;
           APV->PreviousGainTick = 1;
@@ -582,6 +771,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
             APV->Index = Index;
             APV->Bin = -1;
             APV->DetId = Detid.rawId();
+            APV->Side = 0;
             APV->APVId = (j << 3 | i);
             APV->SubDet = SubDet;
             APV->FitMPV = -1;
@@ -589,6 +779,7 @@ void SiStripGainsPCLHarvester::checkBookAPVColls(const edm::EventSetup& es) {
             APV->FitWidth = -1;
             APV->FitWidthErr = -1;
             APV->FitChi2 = -1;
+            APV->FitGrade = fitgrade::NONE;
             APV->Gain = -1;
             APV->PreviousGain = 1;
             APV->PreviousGainTick = 1;
@@ -689,6 +880,71 @@ std::unique_ptr<SiStripApvGain> SiStripGainsPCLHarvester::getNewObject(const Mon
   return obj;
 }
 
+void SiStripGainsPCLHarvester::storeGainsTree(const TAxis* chVsIdxXaxis) const {
+  unsigned int t_Index, t_Bin, t_DetId;
+  unsigned char t_APVId, t_SubDet;
+  float t_x, t_y, t_z, t_Eta, t_R, t_Phi, t_Thickness;
+  float t_FitMPV, t_FitMPVErr, t_FitWidth, t_FitWidthErr, t_FitChi2NDF, t_FitNorm, t_FitGrade;
+  double t_Gain, t_PrevGain, t_PrevGainTick, t_NEntries;
+  bool t_isMasked;
+  auto tree = edm::Service<TFileService>()->make<TTree>("APVGain", "APVGain");
+  tree->Branch("Index", &t_Index, "Index/i");
+  tree->Branch("Bin", &t_Bin, "Bin/i");
+  tree->Branch("DetId", &t_DetId, "DetId/i");
+  tree->Branch("APVId", &t_APVId, "APVId/b");
+  tree->Branch("SubDet", &t_SubDet, "SubDet/b");
+  tree->Branch("x", &t_x, "x/F");
+  tree->Branch("y", &t_y, "y/F");
+  tree->Branch("z", &t_z, "z/F");
+  tree->Branch("Eta", &t_Eta, "Eta/F");
+  tree->Branch("R", &t_R, "R/F");
+  tree->Branch("Phi", &t_Phi, "Phi/F");
+  tree->Branch("Thickness", &t_Thickness, "Thickness/F");
+  tree->Branch("FitMPV", &t_FitMPV, "FitMPV/F");
+  tree->Branch("FitMPVErr", &t_FitMPVErr, "FitMPVErr/F");
+  tree->Branch("FitWidth", &t_FitWidth, "FitWidth/F");
+  tree->Branch("FitWidthErr", &t_FitWidthErr, "FitWidthErr/F");
+  tree->Branch("FitChi2NDF", &t_FitChi2NDF, "FitChi2NDF/F");
+  tree->Branch("FitNorm", &t_FitNorm, "FitNorm/F");
+  tree->Branch("FitGrade", &t_FitGrade, "FitGrade/F");
+  tree->Branch("Gain", &t_Gain, "Gain/D");
+  tree->Branch("PrevGain", &t_PrevGain, "PrevGain/D");
+  tree->Branch("PrevGainTick", &t_PrevGainTick, "PrevGainTick/D");
+  tree->Branch("NEntries", &t_NEntries, "NEntries/D");
+  tree->Branch("isMasked", &t_isMasked, "isMasked/O");
+
+  for (const auto& iAPV : APVsCollOrdered) {
+    if (iAPV) {
+      t_Index = iAPV->Index;
+      t_Bin = chVsIdxXaxis->FindBin(iAPV->Index);
+      t_DetId = iAPV->DetId;
+      t_APVId = iAPV->APVId;
+      t_SubDet = iAPV->SubDet;
+      t_x = iAPV->x;
+      t_y = iAPV->y;
+      t_z = iAPV->z;
+      t_Eta = iAPV->Eta;
+      t_R = iAPV->R;
+      t_Phi = iAPV->Phi;
+      t_Thickness = iAPV->Thickness;
+      t_FitMPV = iAPV->FitMPV;
+      t_FitMPVErr = iAPV->FitMPVErr;
+      t_FitWidth = iAPV->FitWidth;
+      t_FitWidthErr = iAPV->FitWidthErr;
+      t_FitChi2NDF = iAPV->FitChi2;
+      t_FitNorm = iAPV->FitNorm;
+      t_FitGrade = iAPV->FitGrade;
+      t_Gain = iAPV->Gain;
+      t_PrevGain = iAPV->PreviousGain;
+      t_PrevGainTick = iAPV->PreviousGainTick;
+      t_NEntries = iAPV->NEntries;
+      t_isMasked = iAPV->isMasked;
+
+      tree->Fill();
+    }
+  }
+}
+
 //********************************************************************************//
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void SiStripGainsPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -700,6 +956,6 @@ void SiStripGainsPCLHarvester::fillDescriptions(edm::ConfigurationDescriptions& 
 //********************************************************************************//
 void SiStripGainsPCLHarvester::endRun(edm::Run const& run, edm::EventSetup const& isetup) {
   if (!tTopo_) {
-    tTopo_ = std::make_unique<TrackerTopology>(isetup.getData(tTopoToken_));
+    tTopo_ = std::make_unique<TrackerTopology>(isetup.getData(tTopoTokenER_));
   }
 }

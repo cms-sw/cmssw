@@ -43,7 +43,7 @@ private:
 
 CaloSimulationConstantsESModule::CaloSimulationConstantsESModule(const edm::ParameterSet&) {
 #ifdef EDM_ML_DEBUG
-  edm::LogVerbatim("HcalGeom") << "constructing CaloSimulationConstantsESModule";
+  edm::LogVerbatim("HCalGeom") << "constructing CaloSimulationConstantsESModule";
 #endif
   auto cc = setWhatProduced(this);
   parSimToken_ = cc.consumesFrom<CaloSimulationParameters, HcalParametersRcd>(edm::ESInputTag{});

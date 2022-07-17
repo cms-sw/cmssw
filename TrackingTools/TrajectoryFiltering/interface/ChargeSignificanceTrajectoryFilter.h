@@ -1,6 +1,7 @@
 #ifndef ChargeSignificanceTrajectoryFilter_H
 #define ChargeSignificanceTrajectoryFilter_H
 
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
@@ -17,6 +18,8 @@ public:
 
   explicit ChargeSignificanceTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC)
       : theChargeSignificance(pset.getParameter<double>("chargeSignificance")) {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc) { iDesc.add<double>("chargeSignificance", -1.); }
 
   bool qualityFilter(const Trajectory& traj) const override { return traj.isValid(); }
   bool qualityFilter(const TempTrajectory& traj) const override { return traj.isValid(); }

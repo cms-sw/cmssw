@@ -37,8 +37,9 @@ inline bool isTightMuonCustom(const reco::Muon& recoMu, const reco::Vertex recoV
   //bp
   bool isTight = recoMu.isGlobalMuon() && recoMu.isPFMuon() && recoMu.globalTrack()->normalizedChi2() < 10. &&
                  recoMu.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 &&
-                 recoMu.numberOfMatchedStations() > 1 && fabs(recoMu.muonBestTrack()->dxy(recoVtx.position())) < 0.2 &&
-                 fabs(recoMu.muonBestTrack()->dz(recoVtx.position())) < 0.5 &&
+                 recoMu.numberOfMatchedStations() > 1 &&
+                 std::abs(recoMu.muonBestTrack()->dxy(recoVtx.position())) < 0.2 &&
+                 std::abs(recoMu.muonBestTrack()->dz(recoVtx.position())) < 0.5 &&
                  recoMu.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
                  recoMu.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
                  recoMu.globalTrack()->normalizedChi2() < 1;

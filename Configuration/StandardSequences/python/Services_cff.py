@@ -8,15 +8,14 @@ from IOMC.RandomEngine.IOMC_cff import *
 # DQM store service
 from DQMServices.Core.DQMStore_cfi import *
 
-# load CUDA services when the "gpu" or "pixelNtupletFit" modifiers are enabled
-def _addCUDAServices(process):
-    process.load("HeterogeneousCore.CUDAServices.CUDAService_cfi")
-    process.load("FWCore.MessageService.MessageLogger_cfi")
-    process.MessageLogger.CUDAService = cms.untracked.PSet()
+# load ProcessAccelerators (that set the e.g. the necessary CUDA
+# stuff) when the "gpu" or "pixelNtupletFit" modifiers are enabled
+def _addProcessAccelerators(process):
+    process.load("Configuration.StandardSequences.Accelerators_cff")
 
 from Configuration.ProcessModifiers.gpu_cff import gpu
 from Configuration.ProcessModifiers.pixelNtupletFit_cff import pixelNtupletFit
-modifyConfigurationStandardSequencesServicesAddCUDAServices_ = (gpu | pixelNtupletFit).makeProcessModifier(_addCUDAServices)
+modifyConfigurationStandardSequencesServicesAddProcessAccelerators_ = (gpu | pixelNtupletFit).makeProcessModifier(_addProcessAccelerators)
 
 # load TritonService when SONIC workflow is enabled
 def _addTritonService(process):

@@ -28,7 +28,7 @@
 #include "TH1F.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -54,7 +54,7 @@
 // class decleration
 //
 
-class SiPixelQualityHistory : public edm::EDAnalyzer {
+class SiPixelQualityHistory : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::SharedResources> {
 public:
   explicit SiPixelQualityHistory(const edm::ParameterSet&);
   ~SiPixelQualityHistory() override;
@@ -64,6 +64,7 @@ public:
 private:
   void beginJob() override;
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
@@ -102,6 +103,7 @@ SiPixelQualityHistory::SiPixelQualityHistory(const edm::ParameterSet& iConfig)
       m_history(),
       m_badmodrun() {
   //now do what ever initialization is needed
+  usesResource(TFileService::kSharedResource);
 
   edm::Service<TFileService> tfserv;
 

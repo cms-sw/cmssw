@@ -1,35 +1,36 @@
 import FWCore.ParameterSet.Config as cms
+from Configuration.AlCa.autoCond import autoCond
 
 process = cms.Process("TEST")
-process.load("CondCore.DBCommon.CondDBCommon_cfi")
-process.CondDBCommon.connect = cms.string("sqlite_file:tagDB.db")
-process.CondDBCommon.DBParameters.messageLevel = 0
+process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+process.CondDB.DBParameters.messageLevel = 0
 
 process.PoolDBESSource = cms.ESSource("PoolDBESSource",
-    process.CondDBCommon,
-    globaltag = cms.string('MYTREE1::All'),
+    process.CondDB,
+    globaltag = cms.string(autoCond['run2_data']),
     toGet = cms.VPSet(cms.PSet(
-            connect=cms.untracked.string('sqlite_file:extradata.db'),
+            connect=cms.string('frontier://FrontierPrep/CMS_CONDITIONS'),
             record = cms.string('anotherPedestalsRcd'),
-            tag = cms.untracked.string('anothertag'),
+            tag = cms.string('mytest'),
             label = cms.untracked.string('')
             ) )
 )
 
 process.source = cms.Source("EmptyIOVSource",
-    lastValue = cms.uint64(3),
+    lastValue = cms.uint64(43),
     timetype = cms.string('runnumber'),
-    firstValue = cms.uint64(1),
+    firstValue = cms.uint64(31),
     interval = cms.uint64(1)
 )
 
-process.get = cms.EDFilter("EventSetupRecordDataGetter",
+process.get = cms.EDAnalyzer("EventSetupRecordDataGetter",
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('anotherPedestalsRcd'),
         data = cms.vstring('Pedestals')
     ), cms.PSet(
-        record = cms.string('PedestalsRcd'),
-        data = cms.vstring('Pedestals/lab3d', 'Pedestals/lab2')
+        record = cms.string('ESPedestalsRcd'),
+        data = cms.vstring('ESPedestals')
     )),
     verbose = cms.untracked.bool(True)
 )

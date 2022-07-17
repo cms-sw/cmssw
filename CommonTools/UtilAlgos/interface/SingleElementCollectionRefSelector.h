@@ -66,10 +66,10 @@ namespace reco {
   namespace modules {
     template <typename S>
     struct SingleElementCollectionRefSelectorEventSetupInit {
-      static void init(S& s, const edm::Event& ev, const edm::EventSetup& es) {
-        typedef typename EventSetupInit<typename S::selector>::type ESI;
-        ESI::init(s.select_, ev, es);
-      }
+      explicit SingleElementCollectionRefSelectorEventSetupInit(edm::ConsumesCollector iC) : esi_(iC) {}
+      void init(S& s, const edm::Event& ev, const edm::EventSetup& es) { esi_.init(s.select_, ev, es); }
+      typedef typename EventSetupInit<typename S::selector>::type ESI;
+      ESI esi_;
     };
 
     template <typename I, typename S, typename O, typename C, typename R>

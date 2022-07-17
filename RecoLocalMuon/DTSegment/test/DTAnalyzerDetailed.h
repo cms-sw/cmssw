@@ -14,7 +14,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 namespace edm {
   class ParameterSet;
   class Event;
@@ -41,7 +41,7 @@ class DTGeometry;
 
 /* Class DTAnalyzerDetailed Interface */
 
-class DTAnalyzerDetailed : public edm::EDAnalyzer {
+class DTAnalyzerDetailed : public edm::one::EDAnalyzer<> {
 public:
   /* Constructor */
   DTAnalyzerDetailed(const edm::ParameterSet& pset);

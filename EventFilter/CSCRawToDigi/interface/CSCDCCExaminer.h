@@ -118,8 +118,9 @@ private:
   uint32_t ALCT_WordsSinceLastHeaderZeroSuppressed;
   uint32_t ALCT_WordCount;
   uint32_t ALCT_WordsExpected;
-  uint32_t ALCT_ZSE;      /// check zero suppression mode
-  uint32_t nWG_round_up;  /// to decode if zero suppression enabled
+  uint32_t ALCT_WordsBeforeRaw;  /// number of ALCT words before anode raw data
+  uint32_t ALCT_ZSE;             /// check zero suppression mode
+  uint32_t nWG_round_up;         /// to decode if zero suppression enabled
 
   uint32_t TMB_WordsSinceLastHeader;
   uint32_t TMB_WordCount;

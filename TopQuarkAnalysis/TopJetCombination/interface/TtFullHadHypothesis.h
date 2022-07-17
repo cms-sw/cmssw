@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -26,12 +26,10 @@
    buildHypo class have to implemented by derived classes.
 **/
 
-class TtFullHadHypothesis : public edm::EDProducer {
+class TtFullHadHypothesis : public edm::stream::EDProducer<> {
 public:
   /// default constructor
   explicit TtFullHadHypothesis(const edm::ParameterSet& cfg);
-  /// default destructor
-  ~TtFullHadHypothesis() override;
 
 protected:
   /// produce the event hypothesis as CompositeCandidate and Key
@@ -43,12 +41,11 @@ protected:
   std::string jetCorrectionLevel(const std::string& quarkType);
   /// use one object in a collection to set a ShallowClonePtrCandidate
   template <typename C>
-  void setCandidate(const edm::Handle<C>& handle, const int& idx, reco::ShallowClonePtrCandidate*& clone);
+  std::unique_ptr<reco::ShallowClonePtrCandidate> makeCandidate(const edm::Handle<C>& handle, const int& idx);
   /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
-  void setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle,
-                    const int& idx,
-                    reco::ShallowClonePtrCandidate*& clone,
-                    const std::string& correctionLevel);
+  std::unique_ptr<reco::ShallowClonePtrCandidate> makeCandidate(const edm::Handle<std::vector<pat::Jet> >& handle,
+                                                                const int& idx,
+                                                                const std::string& correctionLevel);
   /// return key
   int key() const { return key_; };
   /// return event hypothesis
@@ -85,22 +82,21 @@ protected:
   int key_;
   /// candidates for internal use for the creation of the hypothesis
   /// candidate
-  reco::ShallowClonePtrCandidate* lightQ_;
-  reco::ShallowClonePtrCandidate* lightQBar_;
-  reco::ShallowClonePtrCandidate* b_;
-  reco::ShallowClonePtrCandidate* bBar_;
-  reco::ShallowClonePtrCandidate* lightP_;
-  reco::ShallowClonePtrCandidate* lightPBar_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> lightQ_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> lightQBar_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> b_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> bBar_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> lightP_;
+  std::unique_ptr<reco::ShallowClonePtrCandidate> lightPBar_;
 };
 
 // has to be placed in the header since otherwise the function template
 // would cause unresolved references in classes derived from this base class
 template <typename C>
-void TtFullHadHypothesis::setCandidate(const edm::Handle<C>& handle,
-                                       const int& idx,
-                                       reco::ShallowClonePtrCandidate*& clone) {
+std::unique_ptr<reco::ShallowClonePtrCandidate> TtFullHadHypothesis::makeCandidate(const edm::Handle<C>& handle,
+                                                                                   const int& idx) {
   typedef typename C::value_type O;
   edm::Ptr<O> ptr = edm::Ptr<O>(handle, idx);
-  clone = new reco::ShallowClonePtrCandidate(ptr, ptr->charge(), ptr->p4(), ptr->vertex());
+  return std::make_unique<reco::ShallowClonePtrCandidate>(ptr, ptr->charge(), ptr->p4(), ptr->vertex());
 }
 #endif

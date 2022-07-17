@@ -18,7 +18,7 @@
 #include "TRealData.h"
 #include "TROOT.h"
 
-#include "tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 #include <cassert>
 #include <cstdio>
@@ -33,16 +33,16 @@
 namespace edm {
 
   namespace {
-    using Map = tbb::concurrent_unordered_map<std::string, TypeWithDict>;
+    using Map = oneapi::tbb::concurrent_unordered_map<std::string, TypeWithDict>;
     Map typeMap;
-    using FunctionMap = tbb::concurrent_unordered_map<std::string, FunctionWithDict>;
+    using FunctionMap = oneapi::tbb::concurrent_unordered_map<std::string, FunctionWithDict>;
     FunctionMap functionMap;
 
     struct TypeIndexHash {
       std::size_t operator()(std::type_index ti) const { return ti.hash_code(); }
     };
 
-    using TypeIndexMap = tbb::concurrent_unordered_map<std::type_index, TypeWithDict, TypeIndexHash>;
+    using TypeIndexMap = oneapi::tbb::concurrent_unordered_map<std::type_index, TypeWithDict, TypeIndexHash>;
     TypeIndexMap typeIndexMap;
   }  // namespace
   static void throwTypeException(std::string const& function, std::string const& typeName) {

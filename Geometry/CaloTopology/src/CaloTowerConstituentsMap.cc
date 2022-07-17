@@ -1,6 +1,7 @@
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
@@ -63,13 +64,13 @@ void CaloTowerConstituentsMap::sort() {
   m_items.sort();
 
   //  for (auto const & it : m_items)
-  //    std::cout << std::hex << it.cell.rawId() << " " << it.tower.rawId() << std::dec << std::endl;
+  //    edm::LogVerbatim("CaloTower") << std::hex << it.cell.rawId() << " " << it.tower.rawId() << std::dec;
 }
 
 std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId& id) const {
 #ifdef EDM_ML_DEBUG
-  std::cout << "Get constituent of " << std::hex << id.rawId() << std::dec << " ID " << id << " ieta " << id.ieta()
-            << std::endl;
+  edm::LogVerbatim("CaloTower") << "Get constituent of " << std::hex << id.rawId() << std::dec << " ID " << id
+                                << " ieta " << id.ieta();
 #endif
   std::vector<DetId> items;
   if (id.ieta() == 0)
@@ -107,14 +108,14 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
           if (std::find(items.begin(), items.end(), hid) == items.end()) {
             items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
-            std::cout << id << " Depth " << i << ":" << i + sd << " " << hid << "\n";
+            edm::LogVerbatim("CaloTower") << id << " Depth " << i << ":" << i + sd << " " << hid;
 #endif
           }
         } else {
           HcalDetId hid(HcalBarrel, hcal_ieta * id.zside(), id.iphi(), i + sd);
           items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
-          std::cout << id << " Depth " << i << ":" << i + sd << " " << hid << "\n";
+          edm::LogVerbatim("CaloTower") << id << " Depth " << i << ":" << i + sd << " " << hid;
 #endif
         }
       }
@@ -127,7 +128,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
         HcalDetId hid(HcalOuter, hcal_ieta * id.zside(), id.iphi(), i + sd);
         items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
-        std::cout << id << " Depth " << i << ":" << i + sd << " " << hid << "\n";
+        edm::LogVerbatim("CaloTower") << id << " Depth " << i << ":" << i + sd << " " << hid;
 #endif
       }
     }
@@ -142,14 +143,14 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
           if (std::find(items.begin(), items.end(), hid) == items.end()) {
             items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
-            std::cout << id << " Depth " << i << ":" << i + sd << " " << hid << "\n";
+            edm::LogVerbatim("CaloTower") << id << " Depth " << i << ":" << i + sd << " " << hid;
 #endif
           }
         } else {
           HcalDetId hid(HcalEndcap, hcal_ieta * id.zside(), id.iphi(), i + sd);
           items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
-          std::cout << id << " Depth " << i << ":" << i + sd << " " << hid << "\n";
+          edm::LogVerbatim("CaloTower") << id << " Depth " << i << ":" << i + sd << " " << hid;
 #endif
         }
       }
@@ -162,7 +163,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
         HcalDetId hid(HcalForward, hcal_ieta * id.zside(), id.iphi(), i + sd);
         items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
-        std::cout << id << " Depth " << i << ":" << i + sd << " " << hid << "\n";
+        edm::LogVerbatim("CaloTower") << id << " Depth " << i << ":" << i + sd << " " << hid;
 #endif
       }
       // special handling for first HF tower
@@ -173,7 +174,7 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
           HcalDetId hid(HcalForward, hcal_ieta2 * id.zside(), id.iphi(), i + sd);
           items.emplace_back(hid);
 #ifdef EDM_ML_DEBUG
-          std::cout << id << " Depth " << i << ":" << i + sd << " " << hid << "\n";
+          edm::LogVerbatim("CaloTower") << id << " Depth " << i << ":" << i + sd << " " << hid;
 #endif
         }
       }

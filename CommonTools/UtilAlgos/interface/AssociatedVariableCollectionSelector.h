@@ -66,10 +66,11 @@ namespace reco {
   namespace modules {
     template <typename S>
     struct AssociatedVariableCollectionSelectorEventSetupInit {
-      static void init(S& s, const edm::Event& evt, const edm::EventSetup& es) {
-        typedef typename EventSetupInit<typename S::selector>::type ESI;
-        ESI::init(s.select_, evt, es);
-      }
+      explicit AssociatedVariableCollectionSelectorEventSetupInit(edm::ConsumesCollector iC) : esi_(iC) {}
+
+      void init(S& s, const edm::Event& evt, const edm::EventSetup& es) { esi_.init(s.select_, evt, es); }
+      typedef typename EventSetupInit<typename S::selector>::type ESI;
+      ESI esi_;
     };
 
     template <typename I, typename V, typename S, typename O, typename C, typename R>
@@ -77,6 +78,7 @@ namespace reco {
       typedef AssociatedVariableCollectionSelectorEventSetupInit<AssociatedVariableCollectionSelector<I, V, S, O, C, R> >
           type;
     };
+
   }  // namespace modules
 }  // namespace reco
 

@@ -31,7 +31,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRCalo.h"
 #include "DataFormats/Math/interface/Point3D.h"
@@ -276,7 +275,6 @@ JetAnalyzer::~JetAnalyzer() {
 
 // ***********************************************************
 void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const&) {
-  //  dbe_ = edm::Service<DQMStore>().operator->();
   if (jetCleaningFlag_) {
     ibooker.setCurrentFolder("JetMET/Jet/Cleaned" + mInputCollection_.label());
     DirName = "JetMET/Jet/Cleaned" + mInputCollection_.label();

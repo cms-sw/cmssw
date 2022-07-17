@@ -12,6 +12,9 @@ options.register ("view", True, VarParsing.multiplicity.singleton, VarParsing.va
 options.register ("validate", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("mc", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.register ("useB904Data", False, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("usePreTriggers", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useGEMs", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
+options.register ("useCSCShowers", True, VarParsing.multiplicity.singleton, VarParsing.varType.bool)
 options.parseArguments()
 
 ## process def
@@ -42,7 +45,7 @@ process.source = cms.Source(
 ## global tag
 from Configuration.AlCa.GlobalTag import GlobalTag
 if options.mc:
-      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2021_realistic', '')
+      process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:phase1_2022_realistic', '')
 else:
       process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run3_data', '')
 
@@ -107,7 +110,7 @@ process.cscValidation = cms.EDAnalyzer(
 
 process.cscValidation.isSimulation = options.mc
 
-process.analyzer = cms.EDAnalyzer("DigiAnalyzer")
+process.analyzer = cms.EDAnalyzer("CSCDigiAnalyzer")
 
 ## customizations
 if options.mc:
@@ -125,12 +128,37 @@ else:
       pack.comparatorDigiTag = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi")
       pack.alctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCALCTDigi")
       pack.clctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCLCTDigi")
-      pack.preTriggerTag = cms.InputTag("simCscTriggerPrimitiveDigis")
       pack.correlatedLCTDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCorrelatedLCTDigi")
 
+## Use specific b904 test setups configurations
 if options.useB904Data:
       process.muonCSCDigis.DisableMappingCheck = True
       process.muonCSCDigis.B904Setup = True
+
+## Use preTriggers from trigger simulation for packing
+if options.usePreTriggers:
+      pack.preTriggerTag = cms.InputTag("simCscTriggerPrimitiveDigis")
+      pack.usePreTriggers = True
+else:
+      pack.usePreTriggers = False
+      pack.packEverything = True
+
+## Pack Run3 GEM data
+if options.useGEMs:
+      pack.useGEMs = True
+      pack.padDigiClusterTag = cms.InputTag("muonCSCDigis","MuonGEMPadDigiCluster")
+else:
+      pack.useGEMs = False
+
+## Pack Run3 CSC Shower data
+if options.useCSCShowers:
+      pack.useCSCShowers = True
+      pack.showerDigiTag = cms.InputTag("muonCSCDigis","MuonCSCShowerDigi")
+      pack.anodeShowerDigiTag = cms.InputTag("muonCSCDigis","MuonCSCShowerDigiAnode")
+      pack.cathodeShowerDigiTag = cms.InputTag("muonCSCDigis","MuonCSCShowerDigiCathode")
+      pack.anodeALCTShowerDigiTag = cms.InputTag("muonCSCDigis","MuonCSCShowerDigiAnodeALCT")
+else:
+      pack.useCSCShowers = False
 
 process.out = cms.OutputModule(
       "PoolOutputModule",

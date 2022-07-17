@@ -96,20 +96,20 @@ private:
 
 private:
   /// input particles
-  TAbsFitParticle* b_;
-  TAbsFitParticle* bBar_;
-  TAbsFitParticle* lightQ_;
-  TAbsFitParticle* lightQBar_;
-  TAbsFitParticle* lightP_;
-  TAbsFitParticle* lightPBar_;
+  std::unique_ptr<TAbsFitParticle> b_;
+  std::unique_ptr<TAbsFitParticle> bBar_;
+  std::unique_ptr<TAbsFitParticle> lightQ_;
+  std::unique_ptr<TAbsFitParticle> lightQBar_;
+  std::unique_ptr<TAbsFitParticle> lightP_;
+  std::unique_ptr<TAbsFitParticle> lightPBar_;
   /// resolutions
-  const std::vector<edm::ParameterSet>* udscResolutions_;
-  const std::vector<edm::ParameterSet>* bResolutions_;
+  const std::vector<edm::ParameterSet>* udscResolutions_ = nullptr;
+  const std::vector<edm::ParameterSet>* bResolutions_ = nullptr;
   /// scale factors for the jet energy resolution
-  const std::vector<double>* jetEnergyResolutionScaleFactors_;
-  const std::vector<double>* jetEnergyResolutionEtaBinning_;
+  const std::vector<double>* jetEnergyResolutionScaleFactors_ = nullptr;
+  const std::vector<double>* jetEnergyResolutionEtaBinning_ = nullptr;
   /// supported constraints
-  std::map<Constraint, TFitConstraintM*> massConstr_;
+  std::map<Constraint, std::unique_ptr<TFitConstraintM>> massConstr_;
   /// output particles
   pat::Particle fittedB_;
   pat::Particle fittedBBar_;
@@ -123,7 +123,7 @@ private:
   std::vector<Constraint> constraints_;
 
   /// get object resolutions and put them into a matrix
-  CovarianceMatrix* covM_;
+  std::unique_ptr<CovarianceMatrix> covM_;
 
 public:
   /// struct for fit results
@@ -281,7 +281,7 @@ public:
     bool invalidMatch_;
 
     /// kinematic fit interface
-    TtFullHadKinFitter* fitter;
+    std::unique_ptr<TtFullHadKinFitter> fitter;
   };
 };
 

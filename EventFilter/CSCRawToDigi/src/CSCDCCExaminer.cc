@@ -309,7 +309,9 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
     /// this counter is reset if ALCT Header is found right after DMB Header
     if (fALCT_Header) {
       /// decode the actual counting if zero suppression enabled
-      if (ALCT_ZSE) {
+      /// Note: For Run3 the ALCT boards firmware has HMT bits added to ALCTs words, which interferes with ZSE anode rawhits flags
+      ///       making ALCT words calculation incorrect. Added condition to do not check ZSE flags for ALCT words before rawhits
+      if (ALCT_ZSE && (ALCT_WordsSinceLastHeaderZeroSuppressed >= ALCT_WordsBeforeRaw)) {
         for (int g = 0; g < 4; g++) {
           if (buf0[g] == 0x1000) {
             ALCT_WordsSinceLastHeader = ALCT_WordsSinceLastHeader + nWG_round_up;
@@ -727,17 +729,13 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
       ///   Check if ALCT zero suppression enable:
       ALCT_ZSE = (buf1[1] & 0x1000) >> 12;
 
-      if (ALCT_ZSE) {
-        for (int g = 0; g < 4; g++) {
-          if (buf1[g] == 0x1000)
-            ALCT_WordsSinceLastHeader -= (nWG_round_up - 1);
-        }
-      }
 #ifdef LOCAL_UNPACK
-//        COUT << " Number of Wire Groups: " << nWG_round_up << std::endl;
-///       COUT << " ALCT_ZSE: " << ALCT_ZSE << std::endl;
-//        COUT << " raw_tbins: " << std::dec << raw_tbins << std::endl;
-//        COUT << " LCT Tbins: " << lct_tbins << std::endl;
+/*
+      COUT << " Number of Wire Groups: " << nWG_round_up << std::endl;
+      COUT << " ALCT_ZSE: " << ALCT_ZSE << std::endl;
+      COUT << " raw_tbins: " << std::dec << raw_tbins << std::endl;
+      COUT << " LCT Tbins: " << lct_tbins << std::endl;
+*/
 #endif
 
       //  Data block sizes:
@@ -757,6 +755,7 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
 #endif
 
       ALCT_WordsExpected += config_size + colreg_size + hot_ch_size + alct_0_1_size + raw_hit_dump_size;
+      ALCT_WordsBeforeRaw = 8 + config_size + colreg_size + hot_ch_size + alct_0_1_size;
 
 #ifdef LOCAL_UNPACK
       COUT << " <A";
@@ -912,11 +911,12 @@ int32_t CSCDCCExaminer::check(const uint16_t*& buffer, int32_t length) {
 
 #ifdef LOCAL_UNPACK
       /// Print Out ALCT word counting
-      /*
-                COUT << " ALCT Word Since Last Header: " << ALCT_WordsSinceLastHeader << std::endl;
-                COUT << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
-                COUT << " ALCT Word Since Last Header Zero Supressed: " << ALCT_WordsSinceLastHeaderZeroSuppressed << std::endl;
-          */
+/*
+      COUT << " ALCT Word Since Last Header: " << ALCT_WordsSinceLastHeader << std::endl;
+      COUT << " ALCT Words Before RawHits : " << ALCT_WordsBeforeRaw << std::endl;
+      COUT << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
+      COUT << " ALCT Word Since Last Header Zero Supressed: " << ALCT_WordsSinceLastHeaderZeroSuppressed << std::endl;
+*/
 #endif
       /// Check calculated CRC sum against reported
       if (checkCrcALCT) {
@@ -1629,6 +1629,7 @@ void CSCDCCExaminer::zeroCounts() {
   ALCT_WordsSinceLastHeaderZeroSuppressed = 0;
   ALCT_WordCount = 0;
   ALCT_WordsExpected = 0;
+  ALCT_WordsBeforeRaw = 0;
   ALCT_ZSE = 0;
   TMB_WordsSinceLastHeader = 0;
   TMB_WordCount = 0;
@@ -1683,6 +1684,7 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers() {
     ALCT_WordCount = 0;
     ALCT_WordsSinceLastHeader = 0;
     ALCT_WordsExpected = 0;
+    ALCT_WordsBeforeRaw = 0;
   }  // ALCT Word Count Error
 
   if (!fALCT_Header &&
@@ -1697,6 +1699,7 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers() {
     ALCT_WordCount = 0;
     ALCT_WordsSinceLastHeader = 0;
     ALCT_WordsExpected = 0;
+    ALCT_WordsBeforeRaw = 0;
   }  // ALCT Word Count Error With zero suppression
 
   if (!fTMB_Header && (TMB_WordsSinceLastHeader != TMB_WordCount || TMB_WordsSinceLastHeader != TMB_WordsExpected)) {
@@ -1726,6 +1729,7 @@ void CSCDCCExaminer::checkTriggerHeadersAndTrailers() {
     ALCT_WordsSinceLastHeaderZeroSuppressed = 0;
     ALCT_WordsSinceLastHeader = 0;
     ALCT_WordsExpected = 0;
+    ALCT_WordsBeforeRaw = 0;
     fALCT_Header = false;
   }
 

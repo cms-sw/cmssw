@@ -21,7 +21,7 @@ private:
   void book();  // user booking
   std::unique_ptr<TFile> theFile;
   std::unique_ptr<TTree> theTree;
-  std::string fname;
+  std::string fname, tmpName;
 
   static const int MAXSTEPS = 10000;
 

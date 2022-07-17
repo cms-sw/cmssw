@@ -124,11 +124,7 @@ MuonPath::MuonPath(MuonPathPtr &ptr) {
 //------------------------------------------------------------------
 //--- Public
 //------------------------------------------------------------------
-void MuonPath::setPrimitive(DTPrimitivePtr &ptr, int layer) {
-  if (ptr == nullptr)
-    std::cout << "NULL 'Primitive'." << std::endl;
-  prim_[layer] = std::move(ptr);
-}
+void MuonPath::setPrimitive(DTPrimitivePtr &ptr, int layer) { prim_[layer] = std::move(ptr); }
 
 void MuonPath::setCellHorizontalLayout(int layout[4]) {
   for (int i = 0; i < NUM_LAYERS; i++)

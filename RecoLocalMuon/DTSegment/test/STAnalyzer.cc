@@ -80,6 +80,7 @@ STAnalyzer::STAnalyzer(const ParameterSet& pset) : _ev(0) {
 
   thePropagatorName = pset.getParameter<std::string>("PropagatorName");
   thePropagator = 0;
+  thePropagatorToken = esConsumes(edm::ESInputTag("", thePropagatorName));
 
   doSA = pset.getParameter<bool>("doSA");
 
@@ -197,6 +198,11 @@ STAnalyzer::STAnalyzer(const ParameterSet& pset) : _ev(0) {
            300.);
 
   TH1::AddDirectory(dirStat);
+
+  theDtGeomTokenBR = esConsumes<edm::Transition::BeginRun>();
+  theDtGeomToken = esConsumes();
+  theMGFieldToken = esConsumes();
+  theTrackingGeometryToken = esConsumes();
 }
 
 /* Destructor */
@@ -208,18 +214,15 @@ STAnalyzer::~STAnalyzer() {
 
 void STAnalyzer::beginRun(const edm::Run& run, const EventSetup& setup) {
   // Get the DT Geometry
-  ESHandle<DTGeometry> dtGeom;
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  ESHandle<DTGeometry> dtGeom = setup.getHandle(theDtGeomTokenBR);
 
-  static bool FirstPass = true;
-
-  if (FirstPass) {
+  if (firstPass) {
     const std::vector<const DTChamber*>& chs = dtGeom->chambers();
     for (auto ch = chs.begin(); ch != chs.end(); ++ch)
       hitsPerChamber[(*ch)->id()] = 0;
   }
 
-  FirstPass = false;
+  firstPass = false;
 }
 
 /* Operations */
@@ -243,8 +246,7 @@ void STAnalyzer::analyzeSATrack(const Event& event, const EventSetup& eventSetup
   if (debug)
     cout << "STAnalyzer::analyzeSATrack" << endl;
   if (!thePropagator) {
-    ESHandle<Propagator> prop;
-    eventSetup.get<TrackingComponentsRecord>().get(thePropagatorName, prop);
+    ESHandle<Propagator> prop = eventSetup.getHandle(thePropagatorToken);
     thePropagator = prop->clone();
     thePropagator->setPropagationDirection(anyDirection);
   }
@@ -279,11 +281,9 @@ void STAnalyzer::analyzeSATrack(const Event& event, const EventSetup& eventSetup
       cout << "ALL Tracks size " << (*i).product()->size() << endl;
   }
 
-  ESHandle<MagneticField> theMGField;
-  eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
+  ESHandle<MagneticField> theMGField = eventSetup.getHandle(theMGFieldToken);
 
-  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
-  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry = eventSetup.getHandle(theTrackingGeometryToken);
 
   reco::TrackCollection::const_iterator staTrack;
 
@@ -435,8 +435,7 @@ void STAnalyzer::analyzeSATrack(const Event& event, const EventSetup& eventSetup
     }
 
     // Get the DT Geometry
-    ESHandle<DTGeometry> dtGeom;
-    eventSetup.get<MuonGeometryRecord>().get(dtGeom);
+    ESHandle<DTGeometry> dtGeom = eventSetup.getHandle(theDtGeomToken);
 
     // Get the 1D rechits from the event --------------
     Handle<DTRecHitCollection> hits1d;

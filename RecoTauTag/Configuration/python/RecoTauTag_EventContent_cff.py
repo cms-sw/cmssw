@@ -12,20 +12,12 @@ RecoTauTagAOD = cms.PSet(
         'keep *_hpsPFTauDiscriminationByDecayModeFindingNewDMs_*_*',
         'keep *_hpsPFTauDiscriminationByDecayModeFindingOldDMs_*_*',
         'keep *_hpsPFTauDiscriminationByMuonRejection3_*_*',
-        'keep *_hpsPFTauTransverseImpactParameters_*_*',
-        'keep *_hpsPFTauDiscriminationByMVA6ElectronRejection_*_*',
-        'keep *_hpsPFTauDiscriminationByIsolationMVArun2v1DBoldDMwLT_*_*',
-        'keep *_hpsPFTauDiscriminationByIsolationMVArun2v1DBnewDMwLT_*_*',
-        'keep *_hpsPFTauDiscriminationByIsolationMVArun2v1PWoldDMwLT_*_*',
-        'keep *_hpsPFTauDiscriminationByIsolationMVArun2v1PWnewDMwLT_*_*',
-        'keep *_hpsPFTauDiscriminationByIsolationMVArun2v1DBdR03oldDMwLT_*_*',
-        'keep *_hpsPFTauDiscriminationByIsolationMVArun2v1PWdR03oldDMwLT_*_*')
+        'keep *_hpsPFTauTransverseImpactParameters_*_*')
 )
 
 #RECO content
 RecoTauTagRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring(
-        'keep *_hpsPFTauDiscriminationByLooseElectronRejection_*_*')
+    outputCommands = cms.untracked.vstring()
 )
 RecoTauTagRECO.outputCommands.extend(RecoTauTagAOD.outputCommands)
 

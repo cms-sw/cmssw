@@ -1,41 +1,37 @@
-#include "SimDataFormats/Associations/interface/TrackAssociation.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimMuon/MCTruth/test/testReader.h"
 
-testReader::testReader(const edm::ParameterSet &parset)
-    : tracksTag(parset.getParameter<edm::InputTag>("tracksTag")),
-      tpTag(parset.getParameter<edm::InputTag>("tpTag")),
-      assoMapsTag(parset.getParameter<edm::InputTag>("assoMapsTag")) {}
+testReader::testReader(const edm::ParameterSet& parset)
+    : tracksTag_(parset.getParameter<edm::InputTag>("tracksTag")),
+      tpTag_(parset.getParameter<edm::InputTag>("tpTag")),
+      assoMapsTag_(parset.getParameter<edm::InputTag>("assoMapsTag")),
+      tracksToken_(consumes<edm::View<reco::Track>>(tracksTag_)),
+      tpToken_(consumes<TrackingParticleCollection>(tpTag_)),
+      recoToSimToken_(consumes<reco::RecoToSimCollection>(assoMapsTag_)),
+      simToRecoToken_(consumes<reco::SimToRecoCollection>(assoMapsTag_)) {}
 
-testReader::~testReader() {}
-
-void testReader::analyze(const edm::Event &event, const edm::EventSetup &setup) {
-  edm::Handle<edm::View<reco::Track>> trackCollectionH;
+void testReader::analyze(const edm::Event& event, const edm::EventSetup& setup) {
+  LogTrace("testReader") << "testReader::analyze : getting reco::Track collection, " << tracksTag_;
   edm::View<reco::Track> trackCollection;
-  LogTrace("testReader") << "testReader::analyze : getting reco::Track collection, " << tracksTag;
-  event.getByLabel(tracksTag, trackCollectionH);
+  const edm::Handle<edm::View<reco::Track>>& trackCollectionH = event.getHandle(tracksToken_);
   if (trackCollectionH.isValid()) {
     trackCollection = *(trackCollectionH.product());
     LogTrace("testReader") << "... size = " << trackCollection.size();
   } else
     LogTrace("testReader") << "... NOT FOUND.";
 
-  edm::Handle<TrackingParticleCollection> TPCollectionH;
+  LogTrace("testReader") << "testReader::analyze : getting TrackingParticle collection, " << tpTag_;
   TrackingParticleCollection tPC;
-  LogTrace("testReader") << "testReader::analyze : getting TrackingParticle collection, " << tpTag;
-  event.getByLabel(tpTag, TPCollectionH);
+  const edm::Handle<TrackingParticleCollection>& TPCollectionH = event.getHandle(tpToken_);
   if (TPCollectionH.isValid()) {
     tPC = *(TPCollectionH.product());
     LogTrace("testReader") << "... size = " << tPC.size();
   } else
     LogTrace("testReader") << "... NOT FOUND.";
 
-  edm::Handle<reco::RecoToSimCollection> recSimH;
+  LogTrace("testReader") << "testReader::analyze : getting  RecoToSimCollection - " << assoMapsTag_;
   reco::RecoToSimCollection recSimColl;
-  LogTrace("testReader") << "testReader::analyze : getting  RecoToSimCollection - " << assoMapsTag;
-  event.getByLabel(assoMapsTag, recSimH);
+  const edm::Handle<reco::RecoToSimCollection>& recSimH = event.getHandle(recoToSimToken_);
   if (recSimH.isValid()) {
     recSimColl = *(recSimH.product());
     LogTrace("testReader") << "... size = " << recSimColl.size();
@@ -43,10 +39,9 @@ void testReader::analyze(const edm::Event &event, const edm::EventSetup &setup) 
     LogTrace("testReader") << "... NOT FOUND.";
   }
 
-  edm::Handle<reco::SimToRecoCollection> simRecH;
+  LogTrace("testReader") << "testReader::analyze : getting  SimToRecoCollection - " << assoMapsTag_;
   reco::SimToRecoCollection simRecColl;
-  LogTrace("testReader") << "testReader::analyze : getting  SimToRecoCollection - " << assoMapsTag;
-  event.getByLabel(assoMapsTag, simRecH);
+  const edm::Handle<reco::SimToRecoCollection>& simRecH = event.getHandle(simToRecoToken_);
   if (simRecH.isValid()) {
     simRecColl = *(simRecH.product());
     LogTrace("testReader") << "... size = " << simRecColl.size();

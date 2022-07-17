@@ -113,26 +113,26 @@ private:
 
 private:
   /// input particles
-  TAbsFitParticle* hadB_;
-  TAbsFitParticle* hadP_;
-  TAbsFitParticle* hadQ_;
-  TAbsFitParticle* lepB_;
-  TAbsFitParticle* lepton_;
-  TAbsFitParticle* neutrino_;
+  std::unique_ptr<TAbsFitParticle> hadB_;
+  std::unique_ptr<TAbsFitParticle> hadP_;
+  std::unique_ptr<TAbsFitParticle> hadQ_;
+  std::unique_ptr<TAbsFitParticle> lepB_;
+  std::unique_ptr<TAbsFitParticle> lepton_;
+  std::unique_ptr<TAbsFitParticle> neutrino_;
   /// resolutions
-  const std::vector<edm::ParameterSet>* udscResolutions_;
-  const std::vector<edm::ParameterSet>* bResolutions_;
-  const std::vector<edm::ParameterSet>* lepResolutions_;
-  const std::vector<edm::ParameterSet>* metResolutions_;
+  const std::vector<edm::ParameterSet>* udscResolutions_ = nullptr;
+  const std::vector<edm::ParameterSet>* bResolutions_ = nullptr;
+  const std::vector<edm::ParameterSet>* lepResolutions_ = nullptr;
+  const std::vector<edm::ParameterSet>* metResolutions_ = nullptr;
   /// scale factors for the jet energy resolution
-  const std::vector<double>* jetEnergyResolutionScaleFactors_;
-  const std::vector<double>* jetEnergyResolutionEtaBinning_;
+  const std::vector<double>* jetEnergyResolutionScaleFactors_ = nullptr;
+  const std::vector<double>* jetEnergyResolutionEtaBinning_ = nullptr;
   /// object used to construct the covariance matrices for the individual particles
-  CovarianceMatrix* covM_;
+  std::unique_ptr<CovarianceMatrix> covM_;
   /// supported constraints
-  std::map<Constraint, TFitConstraintM*> massConstr_;
-  TFitConstraintEp* sumPxConstr_;
-  TFitConstraintEp* sumPyConstr_;
+  std::map<Constraint, std::unique_ptr<TFitConstraintM>> massConstr_;
+  std::unique_ptr<TFitConstraintEp> sumPxConstr_;
+  std::unique_ptr<TFitConstraintEp> sumPyConstr_;
   /// output particles
   pat::Particle fittedHadB_;
   pat::Particle fittedHadP_;

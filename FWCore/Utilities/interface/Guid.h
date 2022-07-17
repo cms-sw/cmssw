@@ -62,6 +62,8 @@ namespace edm {
     /// conversion from formatted string representation
     Guid const& fromString(std::string const& s);
 
+    static bool isValidString(std::string const& s);
+
   private:
     /// initialize a new Guid
     void init(bool usetime = false);

@@ -23,7 +23,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
-#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CondFormats/EcalObjects/interface/EcalLiteDTUPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalLiteDTUPedestalsRcd.h"
@@ -102,6 +101,7 @@ EcalDigiProducer_Ph2::EcalDigiProducer_Ph2(const edm::ParameterSet& params, edm:
 
       m_PreMix1(params.getParameter<bool>("EcalPreMixStage1")),
       m_PreMix2(params.getParameter<bool>("EcalPreMixStage2")),
+      m_HitsEBToken(iC.consumes<std::vector<PCaloHit>>(edm::InputTag(m_hitsProducerTag, "EcalHitsEB"))),
 
       m_APDDigitizer(nullptr),
       m_BarrelDigitizer(nullptr),
@@ -198,12 +198,10 @@ void EcalDigiProducer_Ph2::accumulateCaloHits(HitsHandle const& ebHandle, int bu
 
 void EcalDigiProducer_Ph2::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup) {
   // Step A: Get Inputs
-  edm::Handle<std::vector<PCaloHit>> ebHandle;
 
   m_EBShape.setEventSetup(eventSetup);
   m_APDShape.setEventSetup(eventSetup);
-  edm::InputTag ebTag(m_hitsProducerTag, "EcalHitsEB");
-  e.getByLabel(ebTag, ebHandle);
+  const edm::Handle<std::vector<PCaloHit>>& ebHandle = e.getHandle(m_HitsEBToken);
 
   accumulateCaloHits(ebHandle, 0);
 }

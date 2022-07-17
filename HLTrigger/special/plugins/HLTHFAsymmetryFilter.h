@@ -35,7 +35,7 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -45,22 +45,21 @@
 // class decleration
 //
 
-class HLTHFAsymmetryFilter : public edm::EDFilter {
+class HLTHFAsymmetryFilter : public edm::global::EDFilter<> {
 public:
   explicit HLTHFAsymmetryFilter(const edm::ParameterSet &);
   ~HLTHFAsymmetryFilter() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
-  bool filter(edm::Event &, const edm::EventSetup &) override;
+  bool filter(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
 private:
   // ----------member data ---------------------------
 
-  edm::EDGetTokenT<HFRecHitCollection> HFHitsToken_;
-  edm::InputTag HFHits_;
-  double eCut_HF_;
-  double os_asym_;
-  double ss_asym_;
+  const edm::EDGetTokenT<HFRecHitCollection> HFHitsToken_;
+  const double eCut_HF_;
+  const double os_asym_;
+  const double ss_asym_;
 };
 
 #endif  // _HLTHFAsymmetryFilter_H

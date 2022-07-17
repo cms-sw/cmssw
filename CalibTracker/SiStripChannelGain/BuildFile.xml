@@ -3,6 +3,7 @@
 <use name="DQMServices/Core"/>
 <use name="CalibFormats/SiStripObjects"/>
 <use name="CalibTracker/Records"/>
+<use name="CommonTools/UtilAlgos"/>
 <use name="CondFormats/SiStripObjects"/>
 <use name="DataFormats/DetId"/>
 <use name="DataFormats/FEDRawData"/>

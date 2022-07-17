@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-
+#include "Utilities/OpenSSL/interface/openssl_init.h"
 #include "DQMFileSaverOnline.h"
 
 #include <TString.h>
@@ -22,7 +22,6 @@
 #include <utility>
 #include <vector>
 
-#include <openssl/md5.h>
 #include <filesystem>
 #include <boost/iostreams/device/mapped_file.hpp>
 
@@ -145,15 +144,22 @@ const std::string DQMFileSaverOnline::fillOrigin(const std::string& filename, co
   // format.origin (one line):
   //   md5:d566a34b27f48d507150a332b189398b 294835 final_filename.root
 
-  unsigned char md5[MD5_DIGEST_LENGTH];
+  cms::openssl_init();
+  EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+  const EVP_MD* md = EVP_get_digestbyname("MD5");
+  unsigned int md_len = 0;
+  unsigned char md5[EVP_MAX_MD_SIZE];
 
   boost::iostreams::mapped_file_source fp(filename);
 
-  MD5((unsigned char*)fp.data(), fp.size(), md5);
+  EVP_DigestInit_ex(mdctx, md, nullptr);
+  EVP_DigestUpdate(mdctx, (unsigned char*)fp.data(), fp.size());
+  EVP_DigestFinal_ex(mdctx, md5, &md_len);
+  EVP_MD_CTX_free(mdctx);
 
   std::ostringstream hash;
-  for (unsigned char& i : md5) {
-    hash << std::hex << std::setfill('0') << std::setw(2) << (int)i;
+  for (unsigned int i = 0; i < md_len; i++) {
+    hash << std::hex << std::setfill('0') << std::setw(2) << (int)md5[i];
   }
 
   std::ostringstream out;

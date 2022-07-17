@@ -18,7 +18,9 @@ L1GctValidation::L1GctValidation(const edm::ParameterSet& iConfig)
       m_energy_tag(iConfig.getUntrackedParameter<edm::InputTag>("gctInputTag", edm::InputTag("gctDigis"))),
       m_jfParsToken(esConsumes<L1GctJetFinderParams, L1GctJetFinderParamsRcd>()),
       m_htMissScaleToken(esConsumes<L1CaloEtScale, L1HtMissScaleRcd>()),
-      m_hfRingEtScaleToken(esConsumes<L1CaloEtScale, L1HfRingEtScaleRcd>()) {}
+      m_hfRingEtScaleToken(esConsumes<L1CaloEtScale, L1HfRingEtScaleRcd>()) {
+  usesResource(TFileService::kSharedResource);
+}
 
 L1GctValidation::~L1GctValidation() {
   // do anything here that needs to be done at desctruction time

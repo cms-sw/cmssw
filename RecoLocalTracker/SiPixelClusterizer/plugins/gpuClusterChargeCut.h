@@ -5,7 +5,7 @@
 #include <cstdio>
 
 #include "CUDADataFormats/SiPixelCluster/interface/gpuClusteringConstants.h"
-#include "Geometry/TrackerGeometryBuilder/interface/phase1PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/SimplePixelTopology.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cuda_assert.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/prefixScan.h"
 
@@ -14,6 +14,7 @@
 
 namespace gpuClustering {
 
+  template <bool isPhase2>
   __global__ void clusterChargeCut(
       SiPixelClusterThresholds
           clusterThresholds,             // charge cut on cluster in electrons (for layer 1 and for other layers)
@@ -28,12 +29,18 @@ namespace gpuClustering {
     __shared__ uint8_t ok[maxNumClustersPerModules];
     __shared__ uint16_t newclusId[maxNumClustersPerModules];
 
+    constexpr int startBPIX2 = isPhase2 ? phase2PixelTopology::layerStart[1] : phase1PixelTopology::layerStart[1];
+    constexpr int nMaxModules = isPhase2 ? phase2PixelTopology::numberOfModules : phase1PixelTopology::numberOfModules;
+
+    assert(nMaxModules < maxNumModules);
+    assert(startBPIX2 < nMaxModules);
+
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
       auto thisModuleId = id[firstPixel];
-      assert(thisModuleId < maxNumModules);
+      assert(thisModuleId < nMaxModules);
       assert(thisModuleId == moduleId[module]);
 
       auto nclus = nClustersInModule[thisModuleId];
@@ -85,8 +92,7 @@ namespace gpuClustering {
       }
       __syncthreads();
 
-      auto chargeCut =
-          clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < phase1PixelTopology::layerStart[1]);
+      auto chargeCut = clusterThresholds.getThresholdForLayerOnCondition(thisModuleId < startBPIX2);
 
       bool good = true;
       for (auto i = threadIdx.x; i < nclus; i += blockDim.x) {

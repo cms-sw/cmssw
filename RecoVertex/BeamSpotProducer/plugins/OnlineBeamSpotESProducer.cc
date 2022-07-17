@@ -46,11 +46,11 @@ OnlineBeamSpotESProducer::OnlineBeamSpotESProducer(const edm::ParameterSet& p)
       sigmaZThreshold_(p.getParameter<double>("sigmaZThreshold")) {
   auto cc = setWhatProduced(this);
 
-  fakeBS_.SetBeamWidthX(0.1);
-  fakeBS_.SetBeamWidthY(0.1);
-  fakeBS_.SetSigmaZ(15.);
-  fakeBS_.SetPosition(0.0001, 0.0001, 0.0001);
-  fakeBS_.SetType(-1);
+  fakeBS_.setBeamWidthX(0.1);
+  fakeBS_.setBeamWidthY(0.1);
+  fakeBS_.setSigmaZ(15.);
+  fakeBS_.setPosition(0.0001, 0.0001, 0.0001);
+  fakeBS_.setType(-1);
 
   bsHLTToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineHLTObjectsRcd>();
   bsLegacyToken_ = cc.consumesFrom<BeamSpotOnlineObjects, BeamSpotOnlineLegacyObjectsRcd>();
@@ -70,9 +70,9 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
       std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
 
   // Get two beamspot creation times and compute the time difference wrt currentTime
-  auto bs1time = std::chrono::microseconds(bs1->GetCreationTime());
+  auto bs1time = std::chrono::microseconds(bs1->creationTime());
   auto diffBStime1 = (currentTime - bs1time).count();
-  auto bs2time = std::chrono::microseconds(bs2->GetCreationTime());
+  auto bs2time = std::chrono::microseconds(bs2->creationTime());
   auto diffBStime2 = (currentTime - bs2time).count();
 
   // Convert timeThreshold_ from hours to microseconds for comparison
@@ -88,7 +88,7 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
     edm::LogInfo("OnlineBeamSpotESProducer") << "Defaulting to fake becuase both payloads are too old.";
     return nullptr;
   } else if (diffBStime2 > limitTime) {
-    if (bs1->GetSigmaZ() > sigmaZThreshold_ && bs1->GetBeamType() == 2) {
+    if (bs1->sigmaZ() > sigmaZThreshold_ && bs1->beamType() == 2) {
       return bs1;
     } else {
       edm::LogInfo("OnlineBeamSpotESProducer")
@@ -96,7 +96,7 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
       return nullptr;
     }
   } else if (diffBStime1 > limitTime) {
-    if (bs2->GetSigmaZ() > sigmaZThreshold_ && bs2->GetBeamType() == 2) {
+    if (bs2->sigmaZ() > sigmaZThreshold_ && bs2->beamType() == 2) {
       return bs2;
     } else {
       edm::LogInfo("OnlineBeamSpotESProducer")
@@ -104,9 +104,9 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::compareBS(const BeamSpotO
       return nullptr;
     }
   } else {
-    if (bs1->GetSigmaZ() > bs2->GetSigmaZ() && bs1->GetBeamType() == 2) {
+    if (bs1->sigmaZ() > bs2->sigmaZ() && bs1->beamType() == 2) {
       return bs1;
-    } else if (bs2->GetSigmaZ() >= bs1->GetSigmaZ() && bs2->GetBeamType() == 2) {
+    } else if (bs2->sigmaZ() >= bs1->sigmaZ() && bs2->beamType() == 2) {
       return bs2;
     } else {
       edm::LogInfo("OnlineBeamSpotESProducer")
@@ -122,14 +122,14 @@ const BeamSpotOnlineObjects* OnlineBeamSpotESProducer::checkSingleBS(const BeamS
       std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::system_clock::now().time_since_epoch());
 
   // Get the beamspot creation time and compute the time difference wrt currentTime
-  auto bs1time = std::chrono::microseconds(bs1->GetCreationTime());
+  auto bs1time = std::chrono::microseconds(bs1->creationTime());
   auto diffBStime1 = (currentTime - bs1time).count();
 
   // Convert timeThreshold_ from hours to microseconds for comparison
   auto limitTime = std::chrono::microseconds((std::chrono::hours)timeThreshold_).count();
 
   // Check that the BS is within the timeThreshold, converges and passes the sigmaZthreshold
-  if (diffBStime1 < limitTime && bs1->GetSigmaZ() > sigmaZThreshold_ && bs1->GetBeamType() == 2) {
+  if (diffBStime1 < limitTime && bs1->sigmaZ() > sigmaZThreshold_ && bs1->beamType() == 2) {
     return bs1;
   } else {
     return nullptr;

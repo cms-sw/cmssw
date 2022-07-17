@@ -18,20 +18,14 @@
 class TrackerMuonHitExtractor {
 public:
   explicit TrackerMuonHitExtractor(const edm::ParameterSet &, edm::ConsumesCollector &&ic);
-  explicit TrackerMuonHitExtractor(const edm::ParameterSet &);
-  ~TrackerMuonHitExtractor();
+  ~TrackerMuonHitExtractor() = default;
 
   void init(const edm::Event &);
   std::vector<const TrackingRecHit *> getMuonHits(const reco::Muon &mu) const;
 
 private:
-  edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
-  edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
-
-  edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
-  edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentToken_;
-  edm::InputTag inputDTRecSegment4DCollection_;
-  edm::InputTag inputCSCSegmentCollection_;
+  const edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
+  const edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentToken_;
 };
 
 #endif

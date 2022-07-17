@@ -11,7 +11,7 @@ public:
 
   // ---------- member, functions -------------------------
   void setValueImp(Int_t entry) override;
-  sigc::signal<void, Int_t> valueChanged_;
+  sigc::signal<void(Int_t)> valueChanged_;
 
   FWIntValueListener(const FWIntValueListener&) = delete;                   // stop default
   const FWIntValueListener& operator=(const FWIntValueListener&) = delete;  // stop default

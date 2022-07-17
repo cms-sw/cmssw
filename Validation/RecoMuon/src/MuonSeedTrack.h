@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,7 +43,7 @@ class MuonUpdatorAtVertex;
 // class decleration
 //
 
-class MuonSeedTrack : public edm::EDProducer {
+class MuonSeedTrack : public edm::one::EDProducer<> {
 public:
   /// constructor with config
   explicit MuonSeedTrack(const edm::ParameterSet&);

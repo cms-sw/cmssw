@@ -328,7 +328,11 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
   bool ok(false);
   std::string triggerUse("None");
   if (!triggerEventHandle.isValid()) {
-    edm::LogWarning("IsoTrack") << "Error! Can't get the product " << triggerEvent_.label();
+    if (trigNames_.empty()) {
+      ok = true;
+    } else {
+      edm::LogWarning("StudyCaloResponse") << "Error! Can't get the product " << triggerEvent_.label();
+    }
   } else {
     triggerEvent = *(triggerEventHandle.product());
 
@@ -407,6 +411,21 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
     edm::LogVerbatim("IsoTrack") << "Trigger check gives " << ok << " with " << triggerUse;
 
   //Look at the tracks
+  edm::Handle<reco::TrackCollection> trkCollection;
+  iEvent.getByToken(tok_genTrack_, trkCollection);
+
+  edm::Handle<reco::MuonCollection> muonEventHandle;
+  iEvent.getByToken(tok_Muon_, muonEventHandle);
+
+  edm::Handle<reco::VertexCollection> recVtxs;
+  iEvent.getByToken(tok_recVtx_, recVtxs);
+
+  if ((!trkCollection.isValid()) || (!muonEventHandle.isValid()) || (!recVtxs.isValid())) {
+    edm::LogWarning("StudyCaloResponse") << "Track collection " << trkCollection.isValid() << " Muon collection "
+                                         << muonEventHandle.isValid() << " Vertex Collecttion " << recVtxs.isValid();
+    ok = false;
+  }
+
   if (ok) {
     h_goodRun->Fill(RunNo);
     tr_goodRun = RunNo;
@@ -417,10 +436,8 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
     const MagneticField* bField = &iSetup.getData(tok_magField_);
     const EcalChannelStatus* theEcalChStatus = &iSetup.getData(tok_ecalChStatus_);
 
-    edm::Handle<reco::VertexCollection> recVtxs;
-    iEvent.getByToken(tok_recVtx_, recVtxs);
-    int ntrk(0), ngoodPV(0), nPV(-1);
-    int nvtxs = (int)(recVtxs->size());
+    int ntrk(0), ngoodPV(0), nPV(-1), nvtxs(0);
+    nvtxs = (int)(recVtxs->size());
     for (int ind = 0; ind < nvtxs; ind++) {
       if (!((*recVtxs)[ind].isFake()) && (*recVtxs)[ind].ndof() > 4)
         ngoodPV++;
@@ -452,12 +469,6 @@ void StudyCaloResponse::analyze(edm::Event const& iEvent, edm::EventSetup const&
       else
         tr_eventWeight = 0;
     }
-
-    edm::Handle<reco::TrackCollection> trkCollection;
-    iEvent.getByToken(tok_genTrack_, trkCollection);
-
-    edm::Handle<reco::MuonCollection> muonEventHandle;
-    iEvent.getByToken(tok_Muon_, muonEventHandle);
 
     //=== genParticle information
     edm::Handle<reco::GenParticleCollection> genParticles;

@@ -80,9 +80,9 @@ jetAlgo="AK5"
 print("====> Configuring usePF2PAT : using AK5PFchs ...")
 print("See https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookJetEnergyCorrections#JetEnCorPFnoPU")
 usePF2PAT(process, runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=options.mcInfo, postfix=postfix, jetCorrections=('AK5PFchs', options.jetCorrections))
-getattr(process,"pfPileUp"+postfix).Enable = True
+getattr(process,"pfPileUp"+postfix).enable = True
 getattr(process,"pfPileUp"+postfix).Vertices = 'goodOfflinePrimaryVertices'
-getattr(process,"pfPileUp"+postfix).checkClosestZVertex = cms.bool(False)
+getattr(process,"pfPileUp"+postfix).checkClosestZVertex = False
 getattr(process,"pfJets"+postfix).doAreaFastjet = True
 getattr(process,"pfJets"+postfix).doRhoFastjet = False
 getattr(process,"patJetCorrFactors"+postfix).rho = cms.InputTag("kt6PFJets", "rho")

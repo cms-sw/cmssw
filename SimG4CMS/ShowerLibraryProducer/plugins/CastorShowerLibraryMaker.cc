@@ -223,18 +223,17 @@ CastorShowerLibraryMaker::CastorShowerLibraryMaker(const edm::ParameterSet& p)
   emSLHolder.nEvtPerBinEta = (emSLHolder.nEvtPerBinPhi) * (emSLHolder.SLPhiBins.size());
   emSLHolder.nEvtPerBinE = (emSLHolder.nEvtPerBinEta) * (emSLHolder.SLEtaBins.size());
 
-  std::cout << "============================================================================" << std::endl;
-  std::cout << "CastorShowerLibraryMaker:: Initialized as observer" << std::endl;
-  std::cout << " Event Ntuple will be created" << std::endl;
-  std::cout << " Event Ntuple file: " << eventNtFileName << std::endl;
-  std::cout << " Number of Hadronic events in E   bins: " << hadSLHolder.nEvtPerBinE << std::endl;
-  std::cout << " Number of Hadronic events in Eta bins: " << hadSLHolder.nEvtPerBinEta << std::endl;
-  std::cout << " Number of Hadronic events in Phi bins: " << hadSLHolder.nEvtPerBinPhi << std::endl;
-  std::cout << " Number of Electromag. events in E   bins: " << emSLHolder.nEvtPerBinE << std::endl;
-  std::cout << " Number of Electromag. events in Eta bins: " << emSLHolder.nEvtPerBinEta << std::endl;
-  std::cout << " Number of Electromag. events in Phi bins: " << emSLHolder.nEvtPerBinPhi << std::endl;
-  std::cout << "============================================================================" << std::endl;
-  std::cout << std::endl;
+  edm::LogVerbatim("HcalSim") << "============================================================================";
+  edm::LogVerbatim("HcalSim") << "CastorShowerLibraryMaker:: Initialized as observer";
+  edm::LogVerbatim("HcalSim") << " Event Ntuple will be created";
+  edm::LogVerbatim("HcalSim") << " Event Ntuple file: " << eventNtFileName;
+  edm::LogVerbatim("HcalSim") << " Number of Hadronic events in E   bins: " << hadSLHolder.nEvtPerBinE;
+  edm::LogVerbatim("HcalSim") << " Number of Hadronic events in Eta bins: " << hadSLHolder.nEvtPerBinEta;
+  edm::LogVerbatim("HcalSim") << " Number of Hadronic events in Phi bins: " << hadSLHolder.nEvtPerBinPhi;
+  edm::LogVerbatim("HcalSim") << " Number of Electromag. events in E   bins: " << emSLHolder.nEvtPerBinE;
+  edm::LogVerbatim("HcalSim") << " Number of Electromag. events in Eta bins: " << emSLHolder.nEvtPerBinEta;
+  edm::LogVerbatim("HcalSim") << " Number of Electromag. events in Phi bins: " << emSLHolder.nEvtPerBinPhi;
+  edm::LogVerbatim("HcalSim") << "============================================================================\n";
 
   // Initializing the SL collections
   InitSLHolder(hadSLHolder);
@@ -287,19 +286,19 @@ void CastorShowerLibraryMaker::InitSLHolder(ShowerLib& showerholder) {
 CastorShowerLibraryMaker::~CastorShowerLibraryMaker() {
   Finish();
 
-  std::cout << "CastorShowerLibraryMaker: End of process" << std::endl;
+  edm::LogVerbatim("HcalSim") << "CastorShowerLibraryMaker: End of process";
 }
 
 //=================================================================== per EVENT
 void CastorShowerLibraryMaker::update(const BeginOfJob* job) {
-  std::cout << " CastorShowerLibraryMaker::Starting new job " << std::endl;
+  edm::LogVerbatim("HcalSim") << " CastorShowerLibraryMaker::Starting new job ";
 }
 
 //==================================================================== per RUN
 void CastorShowerLibraryMaker::update(const BeginOfRun* run) {
-  std::cout << std::endl << "CastorShowerLibraryMaker: Starting Run" << std::endl;
+  edm::LogVerbatim("HcalSim") << "\nCastorShowerLibraryMaker: Starting Run";
 
-  std::cout << "CastorShowerLibraryMaker: output event root file created" << std::endl;
+  edm::LogVerbatim("HcalSim") << "CastorShowerLibraryMaker: output event root file created";
 
   TString eventfilename = eventNtFileName;
   theFile = new TFile(eventfilename, "RECREATE");
@@ -405,10 +404,11 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent* evt) {
     int etabin = FindEtaBin(eta);
     int phibin = FindPhiBin(phi);
     if (verbosity)
-      std::cout << "\n========================================================================"
-                << "\nBeginOfEvent: E   : " << pInit << "\t  bin : " << ebin << "\n              Eta : " << eta
-                << "\t  bin : " << etabin << "\n              Phi : " << phi << "\t  bin : " << phibin
-                << "\n========================================================================" << std::endl;
+      edm::LogVerbatim("HcalSim") << "\n========================================================================"
+                                  << "\nBeginOfEvent: E   : " << pInit << "\t  bin : " << ebin
+                                  << "\n              Eta : " << eta << "\t  bin : " << etabin
+                                  << "\n              Phi : " << phi << "\t  bin : " << phibin
+                                  << "\n========================================================================";
 
     if (ebin < 0 || etabin < 0 || phibin < 0)
       continue;
@@ -434,7 +434,7 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent* evt) {
 */
       if (!accept)
         edm::LogVerbatim("CastorShowerLibraryMaker")
-            << "Event not accepted for ebin=" << ebin << ",etabin=" << etabin << ",phibin=" << phibin << std::endl;
+            << "Event not accepted for ebin=" << ebin << ",etabin=" << etabin << ",phibin=" << phibin;
     } else {
       accept = true;
     }
@@ -449,7 +449,7 @@ void CastorShowerLibraryMaker::update(const BeginOfEvent* evt) {
   }
   SLShowerptr = nullptr;
   //
-  std::cout << "CastorShowerLibraryMaker: Processing Event Number: " << eventIndex << std::endl;
+  edm::LogVerbatim("HcalSim") << "CastorShowerLibraryMaker: Processing Event Number: " << eventIndex;
 }
 
 //=================================================================== per STEP
@@ -471,7 +471,7 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
         for (int i = 0; i < pvec_size; i++) {
           G4VProcess* proc = (*pvec)(i);
           if (proc->GetProcessName() != "Transportation" && proc->GetProcessName() != "Decay") {
-            std::cout << "DeActivating process: " << proc->GetProcessName() << std::endl;
+            edm::LogVerbatim("HcalSim") << "DeActivating process: " << proc->GetProcessName();
             p_mgr->SetProcessActivation(proc, false);
           }
         }
@@ -487,7 +487,7 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
       trk->SetGlobalTime(trk->GetGlobalTime() + t);
       trk->AddTrackLength(r);
     } else if (!InsideCastor) {
-      std::cout << "CastorShowerLibraryMaker::update(G4Step) -> Killing spurious track" << std::endl;
+      edm::LogVerbatim("HcalSim") << "CastorShowerLibraryMaker::update(G4Step) -> Killing spurious track";
       trk->SetTrackStatus(fKillTrackAndSecondaries);
       return;
     }
@@ -510,7 +510,7 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
       for (int i = 0; i < pvec_size; i++) {
         G4VProcess* proc = (*pvec)(i);
         if (proc->GetProcessName() != "Transportation" && proc->GetProcessName() != "Decay") {
-          std::cout << "  Activating process: " << proc->GetProcessName() << std::endl;
+          edm::LogVerbatim("HcalSim") << "  Activating process: " << proc->GetProcessName();
           p_mgr->SetProcessActivation(proc, true);
         }
       }
@@ -534,10 +534,10 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
       double pre_phi = aStep->GetPreStepPoint()->GetMomentum().phi();
       double cur_phi = trk->GetMomentum().phi();
       if (pre_phi != cur_phi) {
-        std::cout << "Primary track phi :  " << pre_phi << " changed in current step: " << cur_phi
-                  << " by processes:" << std::endl;
+        edm::LogVerbatim("HcalSim") << "Primary track phi :  " << pre_phi << " changed in current step: " << cur_phi
+                                    << " by processes:";
         const G4VProcess* proc = aStep->GetPreStepPoint()->GetProcessDefinedStep();
-        std::cout << "           " << proc->GetProcessName() << "  In volume " << CurVolume << std::endl;
+        edm::LogVerbatim("HcalSim") << "           " << proc->GetProcessName() << "  In volume " << CurVolume;
       }
     }
   }
@@ -559,22 +559,21 @@ void CastorShowerLibraryMaker::update(const G4Step* aStep) {
 void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   // check if the job is done!
   if ((*evt)()->IsAborted()) {
-    std::cout << "\n========================================================================"
-              << "\nEndOfEvent: EVENT ABORTED"
-              << "\n========================================================================" << std::endl;
+    edm::LogVerbatim("HcalSim") << "\n========================================================================"
+                                << "\nEndOfEvent: EVENT ABORTED"
+                                << "\n========================================================================";
     return;
   }
   //DynamicRangeFlatRandomEGunProducer* pgun = edm::DynamicRangeFlatRandomEGunKernel::get_instance();
-  //std::cout << pgun->EGunMaxE() << std::endl;
+  //edm::LogVerbatim("HcalSim") << pgun->EGunMaxE();
   /*
-  std::cout << "Minimum energy in Particle Gun : " << pgun->EGunMinE() << "\n"
-            << "Maximum energy in Particle Gun : " << pgun->EGunMaxE() << std::endl;
+  edm::LogVerbatim("HcalSim") << "Minimum energy in Particle Gun : " << pgun->EGunMinE() << "\nMaximum energy in Particle Gun : " << pgun->EGunMaxE();
 */
   if (verbosity)
-    std::cout << "CastorShowerLibraryMaker: End of Event: " << eventIndex << std::endl;
+    edm::LogVerbatim("HcalSim") << "CastorShowerLibraryMaker: End of Event: " << eventIndex;
   // Get the pointer to the primary particle
   if (thePrims.empty()) {
-    edm::LogVerbatim("CastorShowerLibraryMaker") << "No valid primary particle found. Skipping event" << std::endl;
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "No valid primary particle found. Skipping event";
     return;
   }
   // access to the G4 hit collections
@@ -595,7 +594,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   for (unsigned int i = 0; i < thePrims.size(); i++) {
     G4PrimaryParticle* thePrim = thePrims.at(i);
     if (!thePrim) {
-      edm::LogVerbatim("CastorShowerLibraryMaker") << "nullptr Pointer to the primary" << std::endl;
+      edm::LogVerbatim("CastorShowerLibraryMaker") << "nullptr Pointer to the primary";
       continue;
     }
     // Check primary particle type
@@ -618,18 +617,18 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
     // Check if current event falls into any bin
     // first: energy
     if (pInit == 0) {
-      edm::LogVerbatim("CastorShowerLibraryMaker") << "Primary did not hit CASTOR" << std::endl;
+      edm::LogVerbatim("CastorShowerLibraryMaker") << "Primary did not hit CASTOR";
       continue;
     }
     int ebin = FindEnergyBin(pInit);
     int etabin = FindEtaBin(eta);
     int phibin = FindPhiBin(phi);
-    std::cout << SLType << std::endl;
+    edm::LogVerbatim("HcalSim") << SLType;
     printSLstatus(ebin, etabin, phibin);
     if (!SLacceptEvent(ebin, etabin, phibin)) {
       edm::LogVerbatim("CastorShowerLibraryMaker")
           << "Event not accepted for ebin=" << ebin << ",etabin=" << etabin << ",phibin=" << phibin << "(" << pInit
-          << "," << eta << "," << phi << ")" << std::endl;
+          << "," << eta << "," << phi << ")";
       continue;
     }
     //
@@ -640,9 +639,9 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
         << "\n CastorShowerLibraryMaker::update(EndOfEvent * evt) - event #" << (*evt)()->GetEventID();
 
     /*
-     std::cout << "Number of collections : " << allHC->GetNumberOfCollections() << std::endl;
+     edm::LogVerbatim("HcalSim") << "Number of collections : " << allHC->GetNumberOfCollections();
      for(int ii = 0;ii<allHC->GetNumberOfCollections();ii++) 
-        std::cout << "Name of collection " << ii << " : " << allHC->GetHC(ii)->GetName() << std::endl;
+        edm::LogVerbatim("HcalSim") << "Name of collection " << ii << " : " << allHC->GetHC(ii)->GetName();
 */
 
     CastorShowerEvent* shower = nullptr;
@@ -653,9 +652,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
     if (FillShowerEvent(theCAFI, shower, particleType)) {
       //  Primary particle information
       /*
-        edm::LogVerbatim("CastorShowerLibraryMaker") << "New SL event: Primary = " << particleType
-             << "; Energy = " << pInit << "; Eta = " << eta << "; Phi = " << phi
-             << "; Nhits = " << shower->getNhit() << std::endl;
+        edm::LogVerbatim("CastorShowerLibraryMaker") << "New SL event: Primary = " << particleType << "; Energy = " << pInit << "; Eta = " << eta << "; Phi = " << phi << "; Nhits = " << shower->getNhit();
 */
       shower->setPrimE(pInit);
       shower->setPrimEta(eta);
@@ -675,13 +672,14 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   // Check for unassociated energy
   int thecafi_entries = theCAFI->entries();
   if (NEvtAccepted == int(thePrims.size()) && thecafi_entries != NHitInEvent) {
-    std::cout << "WARNING: Inconsistent Number of Hits -> Hits in collection: " << theCAFI->entries()
-              << "   Hits in the showers: " << NHitInEvent << std::endl;
+    edm::LogWarning("HcalSim") << "WARNING: Inconsistent Number of Hits -> Hits in collection: " << theCAFI->entries()
+                               << "   Hits in the showers: " << NHitInEvent;
     double miss_energy = 0;
     double tot_energy = 0;
     GetMissingEnergy(theCAFI, miss_energy, tot_energy);
     if (miss_energy > 0) {
-      std::cout << "Total missing energy: " << miss_energy << " for an incident energy: " << tot_energy << std::endl;
+      edm::LogVerbatim("HcalSim") << "Total missing energy: " << miss_energy
+                                  << " for an incident energy: " << tot_energy;
     }
   }
 
@@ -690,7 +688,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
       if (emSLHolder.nEvtInBinE.at(i)==(int)emSLHolder.nEvtPerBinE) {
          std::ostringstream out;
          out << emSLHolder.SLEnergyBins.at(i);
-         cout << "Bin Limit: " << out.str() << std::endl;
+         edm::LogVerbatim("HcalSim") << "Bin Limit: " << out.str();
          setenv("CASTOR_SL_PG_MAXE",out.str().c_str(),1);
        }
        break;
@@ -700,9 +698,9 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   //double xint;
   /*
   if (modf(log10(iEvt),&xint)==0) 
-    std::cout << " CastorShowerLibraryMaker Event " << iEvt << std::endl;
+    edm::LogVerbatim("HcalSim") << " CastorShowerLibraryMaker Event " << iEvt;
 */
-  // std::cout << std::endl << "===>>> Done writing user histograms " << std::endl;
+  // edm::LogVerbatim("HcalSim") << "\n===>>> Done writing user histograms ";
 }
 
 //========================= End of RUN ======================
@@ -781,9 +779,9 @@ void CastorShowerLibraryMaker::Finish() {
 
   theFile->cd();
   theTree->Write("", TObject::kOverwrite);
-  std::cout << "CastorShowerLibraryMaker: Ntuple event written" << std::endl;
+  edm::LogVerbatim("HcalSim") << "CastorShowerLibraryMaker: Ntuple event written";
   theFile->Close();
-  std::cout << "CastorShowerLibraryMaker: Event file closed" << std::endl;
+  edm::LogVerbatim("HcalSim") << "CastorShowerLibraryMaker: Event file closed";
 
   // Delete pointers to objects, now that TTree has been written and TFile closed
   //  delete      info;
@@ -966,10 +964,10 @@ std::vector<G4PrimaryParticle*> CastorShowerLibraryMaker::GetPrimary(const G4Eve
 void CastorShowerLibraryMaker::printSLstatus(int ebin, int etabin, int phibin) {
   if (!SLShowerptr) {
     edm::LogVerbatim("CastorShowerLibraryInfo") << "nullptr shower pointer. Printing both";
-    std::cout << "Electromagnetic" << std::endl;
+    edm::LogVerbatim("HcalSim") << "Electromagnetic";
     SLShowerptr = &emSLHolder;
     this->printSLstatus(ebin, etabin, phibin);
-    std::cout << "Hadronic" << std::endl;
+    edm::LogVerbatim("HcalSim") << "Hadronic";
     SLShowerptr = &hadSLHolder;
     this->printSLstatus(ebin, etabin, phibin);
     SLShowerptr = nullptr;
@@ -979,35 +977,39 @@ void CastorShowerLibraryMaker::printSLstatus(int ebin, int etabin, int phibin) {
   int nBinsEta = SLShowerptr->SLEtaBins.size();
   int nBinsPhi = SLShowerptr->SLPhiBins.size();
   std::vector<double> SLenergies = SLShowerptr->SLEnergyBins;
+  std::ostringstream st1;
   for (int n = 0; n < 11 + (nBinsEta * nBinsPhi); n++)
-    std::cout << "=";
-  std::cout << std::endl;
+    st1 << "=";
+  edm::LogVerbatim("HcalSim") << st1.str();
   for (int i = 0; i < nBinsE; i++) {
-    std::cout << "E bin " << std::setw(6) << SLenergies.at(i) << " : ";
+    std::ostringstream st1;
+    st1 << "E bin " << std::setw(6) << SLenergies.at(i) << " : ";
     for (int j = 0; j < nBinsEta; j++) {
       for (int k = 0; k < nBinsPhi; k++) {
-        (SLisPhiBinFilled(i, j, k)) ? std::cout << "1" : std::cout << "-";
+        (SLisPhiBinFilled(i, j, k)) ? st1 << "1" : st1 << "-";
       }
       if (j < nBinsEta - 1)
-        std::cout << "|";
+        st1 << "|";
     }
-    std::cout << " (" << SLnEvtInBinE(i) << " events)";
-    std::cout << std::endl;
+    st1 << " (" << SLnEvtInBinE(i) << " events)";
+    edm::LogVerbatim("HcalSim") << st1.str();
     if (ebin != i)
       continue;
-    std::cout << "               ";
+    std::ostringstream st2;
+    st2 << "               ";
     for (int j = 0; j < nBinsEta; j++) {
       for (int k = 0; k < nBinsPhi; k++) {
-        (ebin == i && etabin == j && phibin == k) ? std::cout << "^" : std::cout << " ";
+        (ebin == i && etabin == j && phibin == k) ? st2 << "^" : st2 << " ";
       }
       if (j < nBinsEta - 1)
-        std::cout << " ";
+        st2 << " ";
     }
-    std::cout << std::endl;
+    edm::LogVerbatim("HcalSim") << st2.str();
   }
+  std::ostringstream st2;
   for (int n = 0; n < 11 + (nBinsEta * nBinsPhi); n++)
-    std::cout << "=";
-  std::cout << std::endl;
+    st2 << "=";
+  edm::LogVerbatim("HcalSim") << st2.str();
 }
 bool CastorShowerLibraryMaker::SLacceptEvent(int ebin, int etabin, int phibin) {
   if (SLShowerptr == nullptr) {
@@ -1099,8 +1101,7 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
   }
   // Write number of hits to CastorShowerEvent instance
   if (nHits == 0) {
-    edm::LogVerbatim("CastorShowerLibraryMaker")
-        << "No hits found for this track (trackID=" << ipart << ")." << std::endl;
+    edm::LogVerbatim("CastorShowerLibraryMaker") << "No hits found for this track (trackID=" << ipart << ").";
     if (theCastorNumScheme)
       delete theCastorNumScheme;
     return false;
@@ -1165,9 +1166,10 @@ bool CastorShowerLibraryMaker::SLisPhiBinFilled(int ebin, int etabin, int phibin
 void CastorShowerLibraryMaker::KillSecondaries(const G4Step* aStep) {
   const G4TrackVector* p_sec = aStep->GetSecondary();
   for (int i = 0; i < int(p_sec->size()); i++) {
-    /*if (verbosity)*/ std::cout << "Killing track ID " << p_sec->at(i)->GetTrackID() << " and its secondaries"
-                                 << " Produced by Process " << p_sec->at(i)->GetCreatorProcess()->GetProcessName()
-                                 << " in the volume " << aStep->GetTrack()->GetVolume()->GetName() << std::endl;
+    edm::LogVerbatim("HcalSim") << "Killing track ID " << p_sec->at(i)->GetTrackID()
+                                << " and its secondaries Produced by Process "
+                                << p_sec->at(i)->GetCreatorProcess()->GetProcessName() << " in the volume "
+                                << aStep->GetTrack()->GetVolume()->GetName();
     p_sec->at(i)->SetTrackStatus(fKillTrackAndSecondaries);
   }
 }
@@ -1187,7 +1189,7 @@ void CastorShowerLibraryMaker::GetMissingEnergy(CaloG4HitCollection* theCAFI, do
         hit_prim = particleType;
     }
     if (hit_prim == 0) {
-      std::cout << "Track ID " << id << " produced a hit which is not associated with a primary." << std::endl;
+      edm::LogVerbatim("HcalSim") << "Track ID " << id << " produced a hit which is not associated with a primary.";
       miss_energy += (*theCAFI)[ihit]->getEnergyDeposit();
     }
   }

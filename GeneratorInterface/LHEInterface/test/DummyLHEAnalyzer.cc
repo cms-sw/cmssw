@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,7 +15,7 @@ using namespace std;
 using namespace edm;
 using namespace lhef;
 
-class DummyLHEAnalyzer : public EDAnalyzer {
+class DummyLHEAnalyzer : public edm::stream::EDAnalyzer<> {
 private:
   bool dumpEvent_;
   bool dumpHeader_;
@@ -32,7 +32,7 @@ public:
 
 private:
   void analyze(const Event& iEvent, const EventSetup& iSetup) override {
-    edm::Handle<LHEEventProduct> evt;
+    Handle<LHEEventProduct> evt;
     iEvent.getByToken(tokenLHEEvent_, evt);
 
     const lhef::HEPEUP hepeup_ = evt->hepeup();

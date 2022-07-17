@@ -1,0 +1,205 @@
+///////////////////////////////////////////////////////////////////////////////
+/// KHMult_imp
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename TfLH, typename TfQF1, typename TfQF2, typename TfLL>
+static inline void KHMult_imp(
+    const TfLH& a, const TfQF1& b00, const TfQF2& b01, TfLL& c, const int nmin, const int nmax) {
+#pragma omp simd
+  for (int n = nmin; n < nmax; ++n) {
+    c(n, 0, 0) = a(n, 0, 0) * b00(n, 0, 0);
+    c(n, 0, 1) = a(n, 0, 0) * b01(n, 0, 0);
+    c(n, 0, 2) = a(n, 0, 1);
+    c(n, 0, 3) = 0;
+    c(n, 0, 4) = 0;
+    c(n, 0, 5) = 0;
+    c(n, 0, 6) = a(n, 0, 3) * b00(n, 0, 0);
+    c(n, 0, 7) = a(n, 0, 3) * b01(n, 0, 0);
+    c(n, 0, 8) = a(n, 0, 4);
+    c(n, 0, 9) = 0;
+    c(n, 0, 10) = 0;
+    c(n, 0, 11) = 0;
+    c(n, 0, 12) = a(n, 0, 6) * b00(n, 0, 0);
+    c(n, 0, 13) = a(n, 0, 6) * b01(n, 0, 0);
+    c(n, 0, 14) = a(n, 0, 7);
+    c(n, 0, 15) = 0;
+    c(n, 0, 16) = 0;
+    c(n, 0, 17) = 0;
+    c(n, 0, 18) = a(n, 0, 9) * b00(n, 0, 0);
+    c(n, 0, 19) = a(n, 0, 9) * b01(n, 0, 0);
+    c(n, 0, 20) = a(n, 0, 10);
+    c(n, 0, 21) = 0;
+    c(n, 0, 22) = 0;
+    c(n, 0, 23) = 0;
+    c(n, 0, 24) = a(n, 0, 12) * b00(n, 0, 0);
+    c(n, 0, 25) = a(n, 0, 12) * b01(n, 0, 0);
+    c(n, 0, 26) = a(n, 0, 13);
+    c(n, 0, 27) = 0;
+    c(n, 0, 28) = 0;
+    c(n, 0, 29) = 0;
+    c(n, 0, 30) = a(n, 0, 15) * b00(n, 0, 0);
+    c(n, 0, 31) = a(n, 0, 15) * b01(n, 0, 0);
+    c(n, 0, 32) = a(n, 0, 16);
+    c(n, 0, 33) = 0;
+    c(n, 0, 34) = 0;
+    c(n, 0, 35) = 0;
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// ConvertToCCS_imp
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename TfLV1, typename TfLV2, typename TfLL>
+static inline void ConvertToCCS_imp(const TfLV1& a, TfLV2& b, TfLL& c, const int nmin, const int nmax) {
+#pragma omp simd
+  for (int n = nmin; n < nmax; ++n) {
+    const float pt = getHypot(a(n, 0, 3), a(n, 0, 4));
+    const float p2 = pt * pt + a(n, 0, 5) * a(n, 0, 5);
+    //
+    b(n, 0, 0) = a(n, 0, 0);
+    b(n, 0, 1) = a(n, 0, 1);
+    b(n, 0, 2) = a(n, 0, 2);
+    b(n, 0, 3) = 1.0f / pt;
+    b(n, 0, 4) = getPhi(a(n, 0, 3), a(n, 0, 4));  //fixme: use trig approx
+    b(n, 0, 5) = getTheta(pt, a(n, 0, 5));
+    //
+    c(n, 0, 0) = 1.;
+    c(n, 0, 1) = 0.;
+    c(n, 0, 2) = 0.;
+    c(n, 0, 3) = 0.;
+    c(n, 0, 4) = 0.;
+    c(n, 0, 5) = 0.;
+    c(n, 0, 6) = 0.;
+    c(n, 0, 7) = 1.;
+    c(n, 0, 8) = 0.;
+    c(n, 0, 9) = 0.;
+    c(n, 0, 10) = 0.;
+    c(n, 0, 11) = 0.;
+    c(n, 0, 12) = 0.;
+    c(n, 0, 13) = 0.;
+    c(n, 0, 14) = 1.;
+    c(n, 0, 15) = 0.;
+    c(n, 0, 16) = 0.;
+    c(n, 0, 17) = 0.;
+    c(n, 0, 18) = 0.;
+    c(n, 0, 19) = 0.;
+    c(n, 0, 20) = 0.;
+    c(n, 0, 21) = -a(n, 0, 3) / (pt * pt * pt);
+    c(n, 0, 22) = -a(n, 0, 4) / (pt * pt * pt);
+    c(n, 0, 23) = 0.;
+    c(n, 0, 24) = 0.;
+    c(n, 0, 25) = 0.;
+    c(n, 0, 26) = 0.;
+    c(n, 0, 27) = -a(n, 0, 4) / (pt * pt);
+    c(n, 0, 28) = a(n, 0, 3) / (pt * pt);
+    c(n, 0, 29) = 0.;
+    c(n, 0, 30) = 0.;
+    c(n, 0, 31) = 0.;
+    c(n, 0, 32) = 0.;
+    c(n, 0, 33) = a(n, 0, 3) * a(n, 0, 5) / (pt * p2);
+    c(n, 0, 34) = a(n, 0, 4) * a(n, 0, 5) / (pt * p2);
+    c(n, 0, 35) = -pt / p2;
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// ConvertToCartesian_imp
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename TfLV1, typename TfLV2, typename TfLL>
+static inline void ConvertToCartesian_imp(const TfLV1& a, TfLV2& b, TfLL& c, const int nmin, const int nmax) {
+#pragma omp simd
+  for (int n = nmin; n < nmax; ++n) {
+    const float cosP = std::cos(a(n, 0, 4));  //fixme: use trig approx
+    const float sinP = std::sin(a(n, 0, 4));
+    const float cosT = std::cos(a(n, 0, 5));
+    const float sinT = std::sin(a(n, 0, 5));
+    //
+    b(n, 0, 0) = a(n, 0, 0);
+    b(n, 0, 1) = a(n, 0, 1);
+    b(n, 0, 2) = a(n, 0, 2);
+    b(n, 0, 3) = cosP / a(n, 0, 3);
+    b(n, 0, 4) = sinP / a(n, 0, 3);
+    b(n, 0, 5) = cosT / (sinT * a(n, 0, 3));
+    //
+    c(n, 0, 0) = 1.;
+    c(n, 0, 1) = 0.;
+    c(n, 0, 2) = 0.;
+    c(n, 0, 3) = 0.;
+    c(n, 0, 4) = 0.;
+    c(n, 0, 5) = 0.;
+    c(n, 0, 6) = 0.;
+    c(n, 0, 7) = 1.;
+    c(n, 0, 8) = 0.;
+    c(n, 0, 9) = 0.;
+    c(n, 0, 10) = 0.;
+    c(n, 0, 11) = 0.;
+    c(n, 0, 12) = 0.;
+    c(n, 0, 13) = 0.;
+    c(n, 0, 14) = 1.;
+    c(n, 0, 15) = 0.;
+    c(n, 0, 16) = 0.;
+    c(n, 0, 17) = 0.;
+    c(n, 0, 18) = 0.;
+    c(n, 0, 19) = 0.;
+    c(n, 0, 20) = 0.;
+    c(n, 0, 21) = -cosP / (a(n, 0, 3) * a(n, 0, 3));
+    c(n, 0, 22) = -sinP / a(n, 0, 3);
+    c(n, 0, 23) = 0.;
+    c(n, 0, 24) = 0.;
+    c(n, 0, 25) = 0.;
+    c(n, 0, 26) = 0.;
+    c(n, 0, 27) = -sinP / (a(n, 0, 3) * a(n, 0, 3));
+    c(n, 0, 28) = cosP / a(n, 0, 3);
+    c(n, 0, 29) = 0.;
+    c(n, 0, 30) = 0.;
+    c(n, 0, 31) = 0.;
+    c(n, 0, 32) = 0.;
+    c(n, 0, 33) = -cosT / (sinT * a(n, 0, 3) * a(n, 0, 3));
+    c(n, 0, 34) = 0.;
+    c(n, 0, 35) = -1.0f / (sinT * sinT * a(n, 0, 3));
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// MultResidualsAdd_imp
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename TfLH, typename TfLV1, typename Tf2V, typename TfLV2>
+static inline void MultResidualsAdd_imp(
+    const TfLH& a, const TfLV1& b, const Tf2V& c, TfLV2& d, const int nmin, const int nmax) {
+#pragma omp simd
+  for (int n = nmin; n < nmax; ++n) {
+    d(n, 0, 0) = b(n, 0, 0) + a(n, 0, 0) * c(n, 0, 0) + a(n, 0, 1) * c(n, 0, 1);
+    d(n, 0, 1) = b(n, 0, 1) + a(n, 0, 3) * c(n, 0, 0) + a(n, 0, 4) * c(n, 0, 1);
+    d(n, 0, 2) = b(n, 0, 2) + a(n, 0, 6) * c(n, 0, 0) + a(n, 0, 7) * c(n, 0, 1);
+    d(n, 0, 3) = b(n, 0, 3) + a(n, 0, 9) * c(n, 0, 0) + a(n, 0, 10) * c(n, 0, 1);
+    d(n, 0, 4) = b(n, 0, 4) + a(n, 0, 12) * c(n, 0, 0) + a(n, 0, 13) * c(n, 0, 1);
+    d(n, 0, 5) = b(n, 0, 5) + a(n, 0, 15) * c(n, 0, 0) + a(n, 0, 16) * c(n, 0, 1);
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// AddIntoUpperLeft3x3_imp
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename TfLS, typename TfHS1, typename TfHS2>
+static inline void AddIntoUpperLeft3x3_imp(
+    const TfLS& A, const TfHS1& B, TfHS2& C, const int aN, const int bN, const int cN, const int nmin, const int nmax) {
+  // Problem here: (n, i, j) uses indirection -> slow on the GPU
+}
+
+///////////////////////////////////////////////////////////////////////////////
+///  RotateResidualsOnTangentPlane_impl
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename TfQF1, typename TfQF2, typename TfHV, typename Tf2V>
+static inline void RotateResidualsOnTangentPlane_impl(
+    const TfQF1& r00, const TfQF2& r01, const TfHV& a, Tf2V& b, const int nmin, const int nmax) {
+#pragma omp simd
+  for (int n = nmin; n < nmax; ++n) {
+    b(n, 0, 0) = r00(n, 0, 0) * a(n, 0, 0) + r01(n, 0, 0) * a(n, 0, 1);
+    b(n, 0, 1) = a(n, 0, 2);
+  }
+}

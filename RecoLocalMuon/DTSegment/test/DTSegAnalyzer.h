@@ -14,7 +14,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 namespace edm {
   class ParameterSet;
   class Event;
@@ -41,7 +41,7 @@ class MuonGeometryRecord;
 
 /* Class DTSegAnalyzer Interface */
 
-class DTSegAnalyzer : public edm::EDAnalyzer {
+class DTSegAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   /* Constructor */
   DTSegAnalyzer(const edm::ParameterSet& pset);

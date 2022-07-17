@@ -22,12 +22,13 @@
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include "CondFormats/PPSObjects/interface/PPSTimingCalibration.h"
+#include "CondFormats/PPSObjects/interface/PPSTimingCalibrationLUT.h"
 
 class CTPPSDiamondRecHitProducerAlgorithm {
 public:
   CTPPSDiamondRecHitProducerAlgorithm(const edm::ParameterSet& conf);
 
-  void setCalibration(const PPSTimingCalibration&);
+  void setCalibration(const PPSTimingCalibration&, const PPSTimingCalibrationLUT&);
   void build(const CTPPSGeometry&, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>&);
 
 private:
@@ -37,6 +38,7 @@ private:
   /// Switch on/off the timing calibration
   bool apply_calib_;
   PPSTimingCalibration calib_;
+  PPSTimingCalibrationLUT calibLUT_;
   std::unique_ptr<reco::FormulaEvaluator> calib_fct_;
 };
 

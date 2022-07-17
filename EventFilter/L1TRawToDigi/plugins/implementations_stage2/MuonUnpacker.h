@@ -24,11 +24,12 @@ namespace l1t {
       static constexpr unsigned nWords_ = 6;  // every link transmits 6 words (3 muons) per bx
       static constexpr unsigned bxzs_enable_shift_ = 1;
 
-      MuonBxCollection* res_;
+      MuonBxCollection* muonCollection_;
+      MuonShowerBxCollection* muonShowerCollection_;
       int fed_;
       unsigned int muonCopy_;
 
-      void unpackBx(int bx, const std::vector<uint32_t>& payload, unsigned int startIdx = 0);
+      void unpackBx(int bx, const std::vector<uint32_t>& payload, unsigned int blockID, unsigned int startIdx = 0);
     };
   }  // namespace stage2
 }  // namespace l1t

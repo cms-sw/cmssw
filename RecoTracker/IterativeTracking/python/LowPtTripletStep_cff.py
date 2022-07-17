@@ -210,14 +210,13 @@ _tracker_apv_vfp30_2016.toModify(lowPtTripletStepChi2Est,
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 lowPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
-    MeasurementTrackerName = '',
-    trajectoryFilter       = cms.PSet(refToPSet_ = cms.string('lowPtTripletStepTrajectoryFilter')),
+    trajectoryFilter       = dict(refToPSet_ = 'lowPtTripletStepTrajectoryFilter'),
     maxCand                = 4,
     estimator              = 'lowPtTripletStepChi2Est',
-    maxDPhiForLooperReconstruction = cms.double(2.0),
+    maxDPhiForLooperReconstruction = 2.0,
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
     # of the outermost Tracker barrel layer (with B=3.8T)
-    maxPtForLooperReconstruction = cms.double(0.7) 
+    maxPtForLooperReconstruction = 0.7,
 )
 trackingNoLoopers.toModify(lowPtTripletStepTrajectoryBuilder,
                            maxPtForLooperReconstruction = 0.0)
@@ -234,19 +233,19 @@ import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 _lowPtTripletStepTrackCandidatesCkf = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = 'lowPtTripletStepSeeds',
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    numHitsForSeedCleaner       = cms.int32(50),
-    onlyPixelHitsForSeedCleaner = cms.bool(True),
-    TrajectoryBuilderPSet       = cms.PSet(refToPSet_ = cms.string('lowPtTripletStepTrajectoryBuilder')),
-    clustersToSkip              = cms.InputTag('lowPtTripletStepClusters'),
+    numHitsForSeedCleaner       = 50,
+    onlyPixelHitsForSeedCleaner = True,
+    TrajectoryBuilderPSet       = dict(refToPSet_ = 'lowPtTripletStepTrajectoryBuilder'),
+    clustersToSkip              = 'lowPtTripletStepClusters',
     doSeedingRegionRebuilding   = True,
     useHitsSplitting            = True,
-    TrajectoryCleaner           = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
+    TrajectoryCleaner           = 'lowPtTripletStepTrajectoryCleanerBySharedHits',
 )
 lowPtTripletStepTrackCandidates = _lowPtTripletStepTrackCandidatesCkf.clone()
 
 trackingPhase2PU140.toModify(lowPtTripletStepTrackCandidates,
-    clustersToSkip = None,
-    phase2clustersToSkip = cms.InputTag('lowPtTripletStepClusters')
+    clustersToSkip = '',
+    phase2clustersToSkip = 'lowPtTripletStepClusters'
 )
 
 from Configuration.ProcessModifiers.trackingMkFitLowPtTripletStep_cff import trackingMkFitLowPtTripletStep
@@ -271,6 +270,7 @@ trackingMkFitLowPtTripletStep.toReplaceWith(lowPtTripletStepTrackCandidates, mkF
     mkFitSeeds = 'lowPtTripletStepTrackCandidatesMkFitSeeds',
     tracks = 'lowPtTripletStepTrackCandidatesMkFit',
 ))
+(pp_on_XeXe_2017 | pp_on_AA).toModify(lowPtTripletStepTrackCandidatesMkFitConfig, minPt=0.49)
 
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 fastSim.toReplaceWith(lowPtTripletStepTrackCandidates,
@@ -288,6 +288,9 @@ lowPtTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
     Fitter        = 'FlexibleKFFittingSmoother'
 )
 fastSim.toModify(lowPtTripletStepTracks, TTRHBuilder = 'WithoutRefit')
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+phase2_timing_layer.toModify(lowPtTripletStepTracks, TrajectoryInEvent = True)
 
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 lowPtTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(

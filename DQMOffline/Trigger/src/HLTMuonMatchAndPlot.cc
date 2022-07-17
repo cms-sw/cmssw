@@ -99,16 +99,6 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
 
   // Form is book1D(name, binningType, title) where 'binningType' is used
   // to fetch the bin settings from binParams_.
-  if (isLastFilter_) {
-    book1D(iBooker, "hltPt", "pt", ";p_{T} of HLT object");
-    book1D(iBooker, "hltEta", "eta", ";#eta of HLT object");
-    book1D(iBooker, "hltPhi", "phi", ";#phi of HLT object");
-    book1D(iBooker, "resolutionEta", "resolutionEta", ";#eta^{reco}-#eta^{HLT};");
-    book1D(iBooker, "resolutionPhi", "resolutionPhi", ";#phi^{reco}-#phi^{HLT};");
-  }
-  book1D(iBooker, "deltaR", "deltaR", ";#Deltar(reco, HLT);");
-
-  book1D(iBooker, "resolutionPt", "resolutionRel", ";(p_{T}^{reco}-p_{T}^{HLT})/|p_{T}^{reco}|;");
 
   for (const auto& suffix : EFFICIENCY_SUFFIXES) {
     if (isLastFilter_)
@@ -119,18 +109,6 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
     book1D(iBooker, "efficiencyEta_" + suffix, "eta", ";#eta;");
     book1D(iBooker, "efficiencyPhi_" + suffix, "phi", ";#phi;");
     book1D(iBooker, "efficiencyTurnOn_" + suffix, "pt", ";p_{T};");
-    book1D(iBooker, "efficiencyVertex_" + suffix, "NVertex", ";NVertex;");
-    book1D(iBooker, "efficiencyDeltaR_" + suffix, "deltaR2", ";#Delta R;");
-
-    book2D(iBooker, "efficiencyPhiVsEta_" + suffix, "etaCoarse", "phiCoarse", ";#eta;#phi");
-
-    auto MRbaseDir = boost::replace_all_copy<string>(baseDir, "HLT/Muon", "HLT/Muon/MR");
-    if (isLastFilter_)
-      iBooker.setCurrentFolder(MRbaseDir + pathSansSuffix);
-    else
-      iBooker.setCurrentFolder(MRbaseDir + pathSansSuffix + "/" + moduleLabel_);
-
-    book2D(iBooker, "MR_efficiencyPhiVsEta_" + suffix, "etaCoarse", "phiHEP17", ";#eta;#phi");
 
     if (isLastFilter_)
       iBooker.setCurrentFolder(baseDir + pathSansSuffix);
@@ -140,61 +118,7 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker& iBooker, const edm::Run& i
     if (!isLastFilter_)
       continue;  //this will be plotted only for the last filter
 
-    book1D(iBooker, "efficiencyD0_" + suffix, "d0", ";d0;");
-    book1D(iBooker, "efficiencyZ0_" + suffix, "z0", ";z0;");
     book1D(iBooker, "efficiencyCharge_" + suffix, "charge", ";charge;");
-
-    book1D(iBooker, "fakerateEta_" + suffix, "eta", ";#eta;");
-    book1D(iBooker, "fakerateVertex_" + suffix, "NVertex", ";NVertex;");
-    book1D(iBooker, "fakeratePhi_" + suffix, "phi", ";#phi;");
-    book1D(iBooker, "fakerateTurnOn_" + suffix, "pt", ";p_{T};");
-
-    book1D(iBooker, "massVsEtaZ_" + suffix, "etaCoarse", ";#eta");
-    book1D(iBooker, "massVsEtaJpsi_" + suffix, "etaCoarse", ";#eta");
-    book1D(iBooker, "massVsPtZ_" + suffix, "ptCoarse", ";p_{T}");
-    book1D(iBooker, "massVsPtJpsi_" + suffix, "ptCoarse", ";p_{T}");
-    book1D(iBooker, "massVsVertexZ_" + suffix, "NVertex", ";NVertex");
-    book1D(iBooker, "massVsVertexJpsi_" + suffix, "NVertex", ";NVertex");
-    book1D(iBooker, "massVsDZZ_" + suffix, "z0", ";z0;");
-
-    if (!requiredTriggers_.empty()) {
-      book1D(iBooker, "Refefficiency_Eta_Mu1_" + suffix, "etaCoarse", ";#eta;");
-      book1D(iBooker, "Refefficiency_Eta_Mu2_" + suffix, "etaCoarse", ";#eta;");
-      book1D(iBooker, "Refefficiency_TurnOn_Mu1_" + suffix, "ptCoarse", ";p_{T};");
-      book1D(iBooker, "Refefficiency_TurnOn_Mu2_" + suffix, "ptCoarse", ";p_{T};");
-      book1D(iBooker, "Refefficiency_Vertex_" + suffix, "NVertex", ";NVertex;");
-      book1D(iBooker, "Refefficiency_DZ_Mu_" + suffix, "z0", ";z0;");
-
-      book2D(iBooker, "Refefficiency_Eta_" + suffix, "etaCoarse", "etaCoarse", ";#eta;#eta");
-      book2D(iBooker, "Refefficiency_Pt_" + suffix, "ptCoarse", "ptCoarse", ";p_{T};p_{T}");
-      book1D(iBooker, "Refefficiency_DZ_Vertex_" + suffix, "NVertex", ";NVertex;");
-      book1D(iBooker, "Ref_SS_pt1_" + suffix, "ptCoarse", ";p_{T}");
-      book1D(iBooker, "Ref_SS_pt2_" + suffix, "ptCoarse", ";p_{T}");
-      book1D(iBooker, "Ref_SS_eta1_" + suffix, "etaCoarse", ";#eta;");
-      book1D(iBooker, "Ref_SS_eta2_" + suffix, "etaCoarse", ";#eta;");
-      // book1D(iBooker, "Refefficiency_DZ_Mu2_" + suffix,  "z0", ";z0;");
-    }
-    // string MRbaseDir = boost::replace_all_copy<string>(baseDir, "HLT/Muon","HLT/Muon/MR");
-    iBooker.setCurrentFolder(MRbaseDir + pathSansSuffix + "/");
-
-    if (!requiredTriggers_.empty()) {
-      book1D(iBooker, "MR_Refefficiency_TurnOn_Mu1_" + suffix, "pt", ";p_{T};");
-      book1D(iBooker, "MR_Refefficiency_TurnOn_Mu2_" + suffix, "pt", ";p_{T};");
-      book1D(iBooker, "MR_Refefficiency_Vertex_" + suffix, "NVertexFine", ";NVertex;");
-      book1D(iBooker, "MR_Refefficiency_DZ_Mu_" + suffix, "z0Fine", ";z0;");
-      // book1D(iBooker, "MR_Refefficiency_DZ_Mu2_" + suffix,  "z0Fine", ";z0;");
-      book2D(iBooker, "MR_Refefficiency_Pt_" + suffix, "pt", "pt", ";p_{T};p_{T}");
-      book1D(iBooker, "MR_Refefficiency_DZ_Vertex_" + suffix, "NVertexFine", ";NVertex;");
-    }
-    book1D(iBooker, "MR_massVsPtZ_" + suffix, "pt", ";p_{T}");
-    book1D(iBooker, "MR_massVsPtJpsi_" + suffix, "pt", ";p_{T}");
-    book1D(iBooker, "MR_massVsVertexZ_" + suffix, "NVertex", ";NVertex");
-    book1D(iBooker, "MR_massVsVertexJpsi_" + suffix, "NVertexFine", ";NVertex");
-    book1D(iBooker, "MR_massVsDZZ_" + suffix, "z0Fine", ";z0;");
-    book1D(iBooker, "MR_massVsEtaZ_" + suffix, "etaFine", ";#eta");
-    book1D(iBooker, "MR_massVsEtaJpsi_" + suffix, "etaFine", ";#eta");
-    book1D(iBooker, "MR_massVsPhiZ_" + suffix, "phiFine", ";#phi");
-    book1D(iBooker, "MR_massVsPhiJpsi_" + suffix, "phiFine", ";#phi");
   }
 }
 
@@ -239,14 +163,10 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
       }
     }
   }
-
-
   std::vector<GenParticle> gen_lepts;
   for(size_t i = 0; i < gen_leptsp.size(); i++) {
     gen_lepts.push_back(*gen_leptsp[i]);
   }
-
-
   */
 
   // Select objects based on the configuration.
@@ -258,35 +178,13 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
   TriggerObjectCollection hltMuons =
       selectedTriggerObjects(allTriggerObjects, *triggerSummary, hasTriggerCuts_, triggerSelector_);
   // Fill plots for HLT muons.
-  if (isLastFilter_) {
-    for (auto& hltMuon : hltMuons) {
-      hists_["hltPt"]->Fill(hltMuon.pt());
-      hists_["hltEta"]->Fill(hltMuon.eta());
-      hists_["hltPhi"]->Fill(hltMuon.phi());
-    }
-  }
+
   // Find the best trigger object matches for the targetMuons.
   vector<size_t> matches = matchByDeltaR(targetMuons, hltMuons, plotCuts_[triggerLevel_ + "DeltaR"]);
 
   // Fill plots for matched muons.
-  bool pairalreadyconsidered = false;
   for (size_t i = 0; i < targetMuons.size(); i++) {
     Muon& muon = targetMuons[i];
-
-    // Fill plots which are not efficiencies.
-    if (matches[i] < targetMuons.size()) {
-      TriggerObject& hltMuon = hltMuons[matches[i]];
-      double ptRes = (muon.pt() - hltMuon.pt()) / muon.pt();
-      hists_["resolutionPt"]->Fill(ptRes);
-      hists_["deltaR"]->Fill(deltaR(muon, hltMuon));
-
-      if (isLastFilter_) {
-        double etaRes = muon.eta() - hltMuon.eta();
-        double phiRes = muon.phi() - hltMuon.phi();
-        hists_["resolutionEta"]->Fill(etaRes);
-        hists_["resolutionPhi"]->Fill(phiRes);
-      }
-    }
 
     // Fill numerators and denominators for efficiency plots.
     for (const auto& suffix : EFFICIENCY_SUFFIXES) {
@@ -296,8 +194,6 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
 
       if (muon.pt() > cutMinPt_) {
         hists_["efficiencyEta_" + suffix]->Fill(muon.eta());
-        hists_["efficiencyPhiVsEta_" + suffix]->Fill(muon.eta(), muon.phi());
-        hists_["MR_efficiencyPhiVsEta_" + suffix]->Fill(muon.eta(), muon.phi());
       }
 
       if (fabs(muon.eta()) < plotCuts_["maxEta"]) {
@@ -311,14 +207,9 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
         else if (muon.isStandAloneMuon())
           track = &*muon.outerTrack();
         if (track) {
-          hists_["efficiencyVertex_" + suffix]->Fill(vertices->size());
           hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
 
           if (isLastFilter_) {
-            double d0 = track->dxy(beamSpot->position());
-            double z0 = track->dz(beamSpot->position());
-            hists_["efficiencyD0_" + suffix]->Fill(d0);
-            hists_["efficiencyZ0_" + suffix]->Fill(z0);
             hists_["efficiencyCharge_" + suffix]->Fill(muon.charge());
           }
         }
@@ -331,75 +222,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
     // Muon cannot be a tag because doesn't match an hlt muon
     if (matches[i] >= targetMuons.size())
       continue;
-    for (size_t k = 0; k < targetMuons.size(); k++) {
-      if (k == i)
-        continue;
-      Muon& theProbe = targetMuons[k];
-      if (muon.charge() != theProbe.charge() && !pairalreadyconsidered) {
-        double mass = (muon.p4() + theProbe.p4()).M();
-
-        if (mass > 60 && mass < 120) {
-          if (muon.pt() < targetptCutZ_)
-            continue;
-          hists_["massVsPtZ_denom"]->Fill(theProbe.pt());
-          hists_["massVsEtaZ_denom"]->Fill(theProbe.eta());
-          if (theProbe.pt() > cutMinPt_) {
-            hists_["MR_massVsEtaZ_denom"]->Fill(theProbe.eta());
-            hists_["MR_massVsPhiZ_denom"]->Fill(theProbe.phi());
-            hists_["MR_massVsPtZ_denom"]->Fill(theProbe.pt());
-            hists_["massVsVertexZ_denom"]->Fill(vertices->size());
-            hists_["MR_massVsVertexZ_denom"]->Fill(vertices->size());
-          }
-          const Track* track = nullptr;
-          if (theProbe.isTrackerMuon())
-            track = &*theProbe.innerTrack();
-          else if (theProbe.isStandAloneMuon())
-            track = &*theProbe.outerTrack();
-          if (track) {
-            hists_["massVsDZZ_denom"]->Fill(track->dz(beamSpot->position()));
-            hists_["MR_massVsDZZ_denom"]->Fill(track->dz(beamSpot->position()));
-          }
-          hists_["efficiencyDeltaR_denom"]->Fill(deltaR(theProbe, muon));
-          if (matches[k] < targetMuons.size()) {
-            hists_["massVsPtZ_numer"]->Fill(theProbe.pt());
-            hists_["MR_massVsPtZ_numer"]->Fill(theProbe.pt());
-            if (theProbe.pt() > cutMinPt_) {
-              hists_["MR_massVsPhiZ_numer"]->Fill(theProbe.phi());
-              hists_["massVsEtaZ_numer"]->Fill(theProbe.eta());
-              hists_["MR_massVsEtaZ_numer"]->Fill(theProbe.eta());
-              hists_["massVsVertexZ_numer"]->Fill(vertices->size());
-              hists_["MR_massVsVertexZ_numer"]->Fill(vertices->size());
-            }
-            if (track) {
-              hists_["massVsDZZ_numer"]->Fill(track->dz(beamSpot->position()));
-              hists_["MR_massVsDZZ_numer"]->Fill(track->dz(beamSpot->position()));
-            }
-            hists_["efficiencyDeltaR_numer"]->Fill(deltaR(theProbe, muon));
-          }
-          pairalreadyconsidered = true;
-        }
-        if (mass > 1 && mass < 4) {
-          if (muon.pt() < targetptCutJpsi_)
-            continue;
-          hists_["massVsEtaJpsi_denom"]->Fill(theProbe.eta());
-          hists_["MR_massVsEtaJpsi_denom"]->Fill(theProbe.eta());
-          hists_["massVsPtJpsi_denom"]->Fill(theProbe.pt());
-          hists_["MR_massVsPtJpsi_denom"]->Fill(theProbe.pt());
-          hists_["massVsVertexJpsi_denom"]->Fill(vertices->size());
-          hists_["MR_massVsVertexJpsi_denom"]->Fill(vertices->size());
-          if (matches[k] < targetMuons.size()) {
-            hists_["massVsEtaJpsi_numer"]->Fill(theProbe.eta());
-            hists_["MR_massVsEtaJpsi_numer"]->Fill(theProbe.eta());
-            hists_["massVsPtJpsi_numer"]->Fill(theProbe.pt());
-            hists_["MR_massVsPtJpsi_numer"]->Fill(theProbe.pt());
-            hists_["massVsVertexJpsi_numer"]->Fill(vertices->size());
-            hists_["MR_massVsVertexJpsi_numer"]->Fill(vertices->size());
-          }
-          pairalreadyconsidered = true;
-        }
-      }
-    }  // End loop over denominator and numerator.
-  }    // End loop over targetMuons.
+  }  // End loop over targetMuons.
 
   // fill eff histograms for reference trigger method
   // Denominator: events passing reference trigger and two target muons
@@ -425,54 +248,6 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
     if (matche < targetMuons.size())
       nMatched++;
   }
-  if (!requiredTriggers_.empty() && targetMuons.size() > 1 && passTrigger) {
-    // denominator:
-    hists_["Refefficiency_Eta_Mu1_denom"]->Fill(targetMuons.at(0).eta());
-    hists_["Refefficiency_Eta_Mu2_denom"]->Fill(targetMuons.at(1).eta());
-    hists_["Refefficiency_TurnOn_Mu1_denom"]->Fill(targetMuons.at(0).pt());
-    hists_["MR_Refefficiency_TurnOn_Mu1_denom"]->Fill(targetMuons.at(0).pt());
-    hists_["Refefficiency_TurnOn_Mu2_denom"]->Fill(targetMuons.at(1).pt());
-    hists_["MR_Refefficiency_TurnOn_Mu2_denom"]->Fill(targetMuons.at(1).pt());
-    hists_["Refefficiency_Vertex_denom"]->Fill(vertices->size());
-    hists_["MR_Refefficiency_Vertex_denom"]->Fill(vertices->size());
-    hists_["MR_Refefficiency_Pt_denom"]->Fill(targetMuons.at(0).pt(), targetMuons.at(1).pt());
-    hists_["Refefficiency_Pt_denom"]->Fill(targetMuons.at(0).pt(), targetMuons.at(1).pt());
-    hists_["Refefficiency_Eta_denom"]->Fill(targetMuons.at(0).eta(), targetMuons.at(1).eta());
-
-    // if (track0){
-    //   hists_["Refefficiency_DZ_Mu1_denom"]->Fill(track0->dz(beamSpot->position()));
-    //   hists_["MR_Refefficiency_DZ_Mu1_denom"]->Fill(track0->dz(beamSpot->position()));
-    // }
-
-    // if (track1){
-    //   hists_["Refefficiency_DZ_Mu2_denom"]->Fill(track1->dz(beamSpot->position()));
-    //   hists_["MR_Refefficiency_DZ_Mu2_denom"]->Fill(track1->dz(beamSpot->position()));
-    // }
-
-    // numerator:
-    if (nMatched > 1) {
-      hists_["Refefficiency_Eta_Mu1_numer"]->Fill(targetMuons.at(0).eta());
-      hists_["Refefficiency_Eta_Mu2_numer"]->Fill(targetMuons.at(1).eta());
-      hists_["Refefficiency_TurnOn_Mu1_numer"]->Fill(targetMuons.at(0).pt());
-      hists_["MR_Refefficiency_TurnOn_Mu1_numer"]->Fill(targetMuons.at(0).pt());
-      hists_["Refefficiency_TurnOn_Mu2_numer"]->Fill(targetMuons.at(1).pt());
-      hists_["MR_Refefficiency_TurnOn_Mu2_numer"]->Fill(targetMuons.at(1).pt());
-      hists_["Refefficiency_Vertex_numer"]->Fill(vertices->size());
-      hists_["MR_Refefficiency_Vertex_numer"]->Fill(vertices->size());
-      hists_["MR_Refefficiency_Pt_numer"]->Fill(targetMuons.at(0).pt(), targetMuons.at(1).pt());
-      hists_["Refefficiency_Pt_numer"]->Fill(targetMuons.at(0).pt(), targetMuons.at(1).pt());
-      hists_["Refefficiency_Eta_numer"]->Fill(targetMuons.at(0).eta(), targetMuons.at(1).eta());
-
-      // if (track0){
-      // 	hists_["Refefficiency_DZ_Mu1_numer"]->Fill(track0->dz(beamSpot->position()));
-      // 	hists_["MR_Refefficiency_DZ_Mu1_numer"]->Fill(track0->dz(beamSpot->position()));
-      // }
-      // if (track1){
-      // 	hists_["Refefficiency_DZ_Mu2_numer"]->Fill(track1->dz(beamSpot->position()));
-      // 	hists_["MR_Refefficiency_DZ_Mu2_numer"]->Fill(track1->dz(beamSpot->position()));
-      // }
-    }
-  }
 
   string nonSameSignPath = hltPath_;
   bool ssPath = false;
@@ -487,21 +262,6 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
       passTriggerSS =
           passTriggerSS || (trigNames.triggerName(hltIndex).substr(0, nonSameSignPath.size()) == nonSameSignPath &&
                             triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
-    }
-
-    if (ssPath && targetMuons.size() > 1 && passTriggerSS) {
-      if (targetMuons[0].charge() * targetMuons[1].charge() > 0) {
-        hists_["Ref_SS_pt1_denom"]->Fill(targetMuons[0].pt());
-        hists_["Ref_SS_pt2_denom"]->Fill(targetMuons[1].pt());
-        hists_["Ref_SS_eta1_denom"]->Fill(targetMuons[0].eta());
-        hists_["Ref_SS_eta2_denom"]->Fill(targetMuons[1].eta());
-        if (nMatched > 1) {
-          hists_["Ref_SS_pt1_numer"]->Fill(targetMuons[0].pt());
-          hists_["Ref_SS_pt2_numer"]->Fill(targetMuons[1].pt());
-          hists_["Ref_SS_eta1_numer"]->Fill(targetMuons[0].eta());
-          hists_["Ref_SS_eta2_numer"]->Fill(targetMuons[1].eta());
-        }
-      }
     }
   }
 
@@ -519,51 +279,6 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>& allMuons,
                                         triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
     }
   }
-
-  if (dzPath && targetMuons.size() > 1 && passTriggerDZ) {
-    const Track* track0 = nullptr;
-    const Track* track1 = nullptr;
-    if (targetMuons.at(0).isTrackerMuon())
-      track0 = &*targetMuons.at(0).innerTrack();
-    else if (targetMuons.at(0).isTrackerMuon())
-      track0 = &*targetMuons.at(0).outerTrack();
-    if (targetMuons.at(1).isTrackerMuon())
-      track1 = &*targetMuons.at(1).innerTrack();
-    else if (targetMuons.at(1).isTrackerMuon())
-      track1 = &*targetMuons.at(1).outerTrack();
-
-    if (track0 && track1) {
-      hists_["Refefficiency_DZ_Mu_denom"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
-      hists_["MR_Refefficiency_DZ_Mu_denom"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
-    }
-    hists_["Refefficiency_DZ_Vertex_denom"]->Fill(vertices->size());
-    hists_["MR_Refefficiency_DZ_Vertex_denom"]->Fill(vertices->size());
-    if (nMatched > 1) {
-      if (track0 && track1) {
-        hists_["Refefficiency_DZ_Mu_numer"]->Fill(track0->dz(beamSpot->position()) - track1->dz(beamSpot->position()));
-        hists_["MR_Refefficiency_DZ_Mu_numer"]->Fill(track0->dz(beamSpot->position()) -
-                                                     track1->dz(beamSpot->position()));
-        hists_["Refefficiency_DZ_Vertex_numer"]->Fill(vertices->size());
-        hists_["MR_Refefficiency_DZ_Vertex_numer"]->Fill(vertices->size());
-      }
-    }
-  }
-
-  // Plot fake rates (efficiency for HLT objects to not get matched to RECO).
-  vector<size_t> hltMatches = matchByDeltaR(hltMuons, targetMuons, plotCuts_[triggerLevel_ + "DeltaR"]);
-  for (size_t i = 0; i < hltMuons.size(); i++) {
-    TriggerObject& hltMuon = hltMuons[i];
-    bool isFake = hltMatches[i] > hltMuons.size();
-    for (const auto& suffix : EFFICIENCY_SUFFIXES) {
-      // If match is found, then numerator plots should not get filled
-      if (suffix == "numer" && !isFake)
-        continue;
-      hists_["fakerateVertex_" + suffix]->Fill(vertices->size());
-      hists_["fakerateEta_" + suffix]->Fill(hltMuon.eta());
-      hists_["fakeratePhi_" + suffix]->Fill(hltMuon.phi());
-      hists_["fakerateTurnOn_" + suffix]->Fill(hltMuon.pt());
-    }  // End loop over numerator and denominator.
-  }    // End loop over hltMuons.
 
 }  // End analyze() method.
 

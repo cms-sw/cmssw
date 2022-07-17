@@ -12,7 +12,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -23,7 +23,7 @@ class DTGeometry;
 class DTSuperLayer;
 class DTTtrig;
 
-class FakeTTrig : public edm::EDAnalyzer {
+class FakeTTrig : public edm::one::EDAnalyzer<edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
 public:
   /// Constructor
   FakeTTrig(const edm::ParameterSet& pset);
@@ -35,6 +35,8 @@ public:
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& setup) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override {}
+  virtual void endRun(const edm::Run& run, const edm::EventSetup& setup) override{};
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override{};
   virtual void endJob() override;
 
   // TOF computation

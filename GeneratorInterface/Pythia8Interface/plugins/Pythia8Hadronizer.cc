@@ -18,6 +18,7 @@ using namespace Pythia8;
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
 #include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
+#include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
 
 // PS matchning prototype
 //
@@ -28,6 +29,7 @@ using namespace Pythia8;
 // Emission Veto Hooks
 //
 #include "Pythia8Plugins/PowhegHooks.h"
+#include "Pythia8Plugins/PowhegHooksVincia.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
 // Resonance scale hook
@@ -131,6 +133,7 @@ private:
   // Emission Veto Hooks
   //
   std::shared_ptr<PowhegHooks> fEmissionVetoHook;
+  std::shared_ptr<PowhegHooksVincia> fEmissionVetoHookVincia;
   std::shared_ptr<EmissionVetoHook1> fEmissionVetoHook1;
 
   // Resonance scale hook
@@ -145,6 +148,9 @@ private:
 
   //PT filter hook
   std::shared_ptr<PTFilterHook> fPTFilterHook;
+
+  //Generic customized hooks vector
+  std::shared_ptr<UserHooksVector> fCustomHooksVector;
 
   int EV1_nFinal;
   bool EV1_vetoOn;
@@ -204,6 +210,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
     throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
         << " UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
   }
+
+  // avoid filling weights twice (from v8.30x)
+  toHepMC.set_store_weights(false);
 
   // Reweight user hook
   //
@@ -309,6 +318,17 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
                                                    0));
   }
 
+  if (params.exists("UserCustomization")) {
+    fCustomHooksVector = std::make_shared<UserHooksVector>();
+    const std::vector<edm::ParameterSet> userParams =
+        params.getParameter<std::vector<edm::ParameterSet>>("UserCustomization");
+    for (const auto &pluginParams : userParams) {
+      (fCustomHooksVector->hooks)
+          .push_back(
+              CustomHookFactory::get()->create(pluginParams.getParameter<std::string>("pluginName"), pluginParams));
+    }
+  }
+
   if (params.exists("VinciaPlugin")) {
     throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
         << " Obsolete parameter: VinciaPlugin \n Please use the parameter PartonShowers:model instead \n";
@@ -365,7 +385,10 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook1);
   }
 
-  if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
+  bool VinciaShower = fMasterGen->settings.mode("PartonShowers:Model") == 2;
+
+  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) &&
+      !VinciaShower) {
     if (fJetMatchingHook.get() || fEmissionVetoHook1.get())
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
@@ -376,6 +399,13 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
+  }
+
+  if (fMasterGen->settings.mode("POWHEG:veto") > 0 && VinciaShower) {
+    edm::LogInfo("Pythia8Interface") << "Turning on Vincia Emission Veto Hook from pythia8 code";
+    if (!fEmissionVetoHookVincia.get())
+      fEmissionVetoHookVincia.reset(new PowhegHooksVincia());
+    (fUserHooksVector->hooks).push_back(fEmissionVetoHookVincia);
   }
 
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
@@ -453,6 +483,13 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     UserHooksSet = true;
   }
 
+  if (fCustomHooksVector.get()) {
+    edm::LogInfo("Pythia8Interface") << "Adding customized user hooks";
+    for (const auto &fUserHook : fCustomHooksVector->hooks) {
+      fMasterGen->addUserHooksPtr(fUserHook);
+    }
+  }
+
   edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
   status = fMasterGen->init();
 
@@ -510,7 +547,17 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook1);
   }
 
-  if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
+  if (fCustomHooksVector.get()) {
+    edm::LogInfo("Pythia8Interface") << "Adding customized user hook";
+    for (const auto &fUserHook : fCustomHooksVector->hooks) {
+      (fUserHooksVector->hooks).push_back(fUserHook);
+    }
+  }
+
+  bool VinciaShower = fMasterGen->settings.mode("PartonShowers:Model") == 2;
+
+  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) &&
+      !VinciaShower) {
     if (fJetMatchingHook.get() || fEmissionVetoHook1.get())
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
@@ -521,6 +568,13 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
+  }
+
+  if (fMasterGen->settings.mode("POWHEG:veto") > 0 && VinciaShower) {
+    edm::LogInfo("Pythia8Interface") << "Turning on Vincia Emission Veto Hook from pythia8 code";
+    if (!fEmissionVetoHookVincia.get())
+      fEmissionVetoHookVincia.reset(new PowhegHooksVincia());
+    (fUserHooksVector->hooks).push_back(fEmissionVetoHookVincia);
   }
 
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
@@ -712,6 +766,9 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
     return false;
   }
 
+  // 0th weight is not filled anymore since v8.30x, pushback manually
+  event()->weights().push_back(fMasterGen->info.weight());
+
   //add ckkw/umeps/unlops merging weight
   if (mergeweight != 1.) {
     event()->weights()[0] *= mergeweight;
@@ -821,10 +878,15 @@ bool Pythia8Hadronizer::hadronize() {
     evtgenDecays->decay();
 
   event() = std::make_unique<HepMC::GenEvent>();
+
   bool py8hepmc = toHepMC.fill_next_event(*(fMasterGen.get()), event().get());
+
   if (!py8hepmc) {
     return false;
   }
+
+  // 0th weight is not filled anymore since v8.30x, pushback manually
+  event()->weights().push_back(fMasterGen->info.weight());
 
   //add ckkw/umeps/unlops merging weight
   if (mergeweight != 1.) {

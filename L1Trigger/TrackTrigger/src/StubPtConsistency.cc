@@ -58,11 +58,11 @@ namespace StubPtConsistency {
       float intercept = 0.504148;
       float correction;
       if (tiltedBarrel)
-        correction = gradient * fabs(stub_z) / stub_r + intercept;
+        correction = gradient * std::abs(stub_z) / stub_r + intercept;
       else if (isBarrel)
         correction = 1;
       else
-        correction = fabs(stub_z) / stub_r;
+        correction = std::abs(stub_z) / stub_r;
 
       float stubBend = stubRef->bendFE();
       if (!isBarrel && stub_z < 0.0)

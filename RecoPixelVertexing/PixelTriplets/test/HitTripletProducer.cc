@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -20,7 +20,7 @@
 #include "TH1D.h"
 #include "TFile.h"
 
-class HitTripletProducer : public edm::EDAnalyzer {
+class HitTripletProducer : public edm::one::EDAnalyzer<> {
 public:
   explicit HitTripletProducer(const edm::ParameterSet& conf);
   ~HitTripletProducer();

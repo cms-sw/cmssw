@@ -8,7 +8,9 @@ arguments  = runlist_run $(ClusterID) $(ProcId) $(Proxy_path)
 Should_Transfer_Files = YES
 WhenToTransferOutput = ON_EXIT
 
-Transfer_Input_Files = run_condor.csh,mkcfg_new120.csh,file_lists.csh,a.py.beg,a.py.end,runlist_run,/afs/cern.ch/work/z/zhokin/hcal/qq7/CMSSW_12_2_0_pre2/src/DPGAnalysis/HcalTools/plugins/CMTRawAnalyzer.cc,/afs/cern.ch/work/z/zhokin/hcal/qq7/CMSSW_12_2_0_pre2/src/DPGAnalysis/HcalTools/plugins/BuildFile.xml
+Transfer_Input_Files = run_condor.csh,mkcfg_new120.csh,file_lists.csh,a.py.beg,a.py.end,runlist_run,/afs/cern.ch/work/z/zhokin/public/salavat8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/plugins/CMTRawAnalyzer.cc,/afs/cern.ch/work/z/zhokin/public/salavat8/CMSSW_12_3_0_pre4/src/DPGAnalysis/HcalTools/plugins/BuildFile.xml
+
+
 
 output                = output/zhokin.$(ClusterId).$(ProcId).out
 error                 = error/zhokin.$(ClusterId).$(ProcId).err

@@ -1,8 +1,10 @@
 <use name="DQMServices/Core"/>
 <use name="DataFormats/Scalers"/>
+<use name="DataFormats/OnlineMetaData"/>
 <use name="DataFormats/TrackReco"/>
 <use name="FWCore/Framework"/>
 <use name="DataFormats/BeamSpot"/>
+<use name="DataFormats/TCDS"/>
 <use name="CondFormats/DataRecord"/>
 <use name="CondFormats/BeamSpotObjects"/>
 <use name="RecoVertex/BeamSpotProducer"/>
@@ -54,11 +56,10 @@
   <flags EDM_PLUGIN="1"/>
 </library>
 
-<ifarchitecture name="_amd64_">
+<ifarch value="x86_64">
 <library file="BeamSpotDipServer.cc" name="BeamSpotDipServer">
-  <use name="DataFormats/OnlineMetaData"/>
   <use name="dip"/>
   <use name="log4cplus"/>
   <flags EDM_PLUGIN="1"/>
 </library>
-</ifarchitecture>
+</ifarch>

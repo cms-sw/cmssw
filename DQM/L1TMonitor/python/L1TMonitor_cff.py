@@ -32,10 +32,10 @@ l1tRctRun1 = l1tRct.clone()
 l1tRct.rctSource = 'caloStage1Digis'
 #l1tRct.gctSource = 'caloStage1Digis'
 
-l1tRctfromRCT = l1tRct.clone()
-l1tRctfromRCT.rctSource = 'rctDigis'
-l1tRctfromRCT.HistFolder = cms.untracked.string('L1T/L1TRCT_FromRCT')
-
+l1tRctfromRCT = l1tRct.clone(
+rctSource = 'rctDigis',
+HistFolder = 'L1T/L1TRCT_FromRCT'
+)
 # RCT PUM DQM
 from DQM.L1TMonitor.L1TPUM_cfi import *
 

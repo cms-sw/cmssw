@@ -62,7 +62,7 @@ namespace externalgen {
         {
           auto nlines = std::to_string(std::count(iConfig.begin(), iConfig.end(), '\n'));
           auto result = fwrite(nlines.data(), sizeof(char), nlines.size(), pipe_);
-          assert(result = nlines.size());
+          assert(result == nlines.size());
           result = fwrite(iConfig.data(), sizeof(char), iConfig.size(), pipe_);
           assert(result == iConfig.size());
           fflush(pipe_);
@@ -77,8 +77,8 @@ namespace externalgen {
       if (not channel_.doTransition(
               [&value, &iDeserializer]() { value = iDeserializer.deserialize(); }, iTrans, iTransitionID)) {
         externalFailed_ = true;
-        throw cms::Exception("ExternalFailed")
-            << "failed waiting for external process. Timed out after " << channel_.maxWaitInSeconds() << " seconds.";
+        throw cms::Exception("ExternalFailed") << "failed waiting for external process " << channel_.uniqueID()
+                                               << ". Timed out after " << channel_.maxWaitInSeconds() << " seconds.";
       }
       return value;
     }

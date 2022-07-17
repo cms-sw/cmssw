@@ -360,21 +360,21 @@ bool UCTSummaryCard::processRegion(UCTRegionIndex center) {
   uint32_t pu3x3 = centralPU + northPU + nwPU + westPU + swPU + southPU + sePU + eastPU + nePU;
 
   // Jet - a 3x3 object with center greater than a seed and all neighbors
+  uint32_t jetET = et3x3;
 
   if (centralET >= northET && centralET >= nwET && centralET >= westET && centralET >= swET && centralET > southET &&
       centralET > seET && centralET > eastET && centralET > neET && centralET > jetSeed) {
-    uint32_t jetET = et3x3;
     if (centralRegion)
       centralJetObjs.push_back(new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3));
     else
       forwardJetObjs.push_back(new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3));
-
-    auto boostedJet = new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3);
-    boostedJet->setNTaus(nTauLike);
-    boostedJet->setBoostedJetRegionET(boostedJetRegionET);
-    boostedJet->setBoostedJetRegionTauVeto(boostedJetRegionTauVeto);
-    boostedJetObjs.push_back(boostedJet);
   }
+
+  auto boostedJet = new UCTObject(UCTObject::jet, jetET, hitCaloEta, hitCaloPhi, pu3x3, 0, et3x3);
+  boostedJet->setNTaus(nTauLike);
+  boostedJet->setBoostedJetRegionET(boostedJetRegionET);
+  boostedJet->setBoostedJetRegionTauVeto(boostedJetRegionTauVeto);
+  boostedJetObjs.push_back(boostedJet);
 
   // tau Object - a single region or a 2-region sum, where the neighbor with lower ET is located using matching hit calo towers
 

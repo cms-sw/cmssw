@@ -4,7 +4,7 @@
 TopKinFitter::TopKinFitter(
     const int maxNrIter, const double maxDeltaS, const double maxF, const double mW, const double mTop)
     : maxNrIter_(maxNrIter), maxDeltaS_(maxDeltaS), maxF_(maxF), mW_(mW), mTop_(mTop) {
-  fitter_ = new TKinFitter("TopKinFitter", "TopKinFitter");
+  fitter_ = std::make_unique<TKinFitter>("TopKinFitter", "TopKinFitter");
   fitter_->setMaxNbIter(maxNrIter_);
   fitter_->setMaxDeltaS(maxDeltaS_);
   fitter_->setMaxF(maxF_);
@@ -12,7 +12,7 @@ TopKinFitter::TopKinFitter(
 }
 
 /// default destructor
-TopKinFitter::~TopKinFitter() { delete fitter_; }
+TopKinFitter::~TopKinFitter() = default;
 
 /// convert Param to human readable form
 std::string TopKinFitter::param(const Param& param) const {

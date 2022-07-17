@@ -1,0 +1,13 @@
+<lcgdict>
+  <class name="EcalPhiSymRecHit" ClassVersion="3" transient="true">
+    <version ClassVersion="3" checksum="1626363389"/>
+  </class>
+  <class name="std::vector<EcalPhiSymRecHit>"/>
+  <class name="edm::Wrapper<std::vector<EcalPhiSymRecHit> >"/>
+  
+  <class name="EcalPhiSymInfo" ClassVersion="3" transient="true">
+    <version ClassVersion="3" checksum="1743768969"/>
+  </class>
+  <class name="std::vector<EcalPhiSymInfo>"/>
+  <class name="edm::Wrapper<EcalPhiSymInfo>"/>
+</lcgdict>

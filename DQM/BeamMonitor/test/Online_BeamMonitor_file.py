@@ -10,19 +10,22 @@ process.BeamSpotDBSource = cms.ESSource("PoolDBESSource",
                                         toGet = cms.VPSet(
                                             cms.PSet(
                                                 record = cms.string('BeamSpotOnlineLegacyObjectsRcd'),
-                                                tag = cms.string("BeamSpotOnlineTestLegacy"),
-                                                refreshTime = cms.uint64(1)
+                                                tag = cms.string("BeamSpotOnlineLegacy"),
+                                                refreshTime = cms.uint64(2)
                                             ),
                                             cms.PSet(
                                                 record = cms.string('BeamSpotOnlineHLTObjectsRcd'),
-                                                tag = cms.string("BeamSpotOnlineTestHLT"),
-                                                refreshTime = cms.uint64(1)
+                                                tag = cms.string("BeamSpotOnlineHLT"),
+                                                refreshTime = cms.uint64(2)
 
                                             ),
                                 ),
                                         )
 process.BeamSpotDBSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS') 
-process.BeamSpotESProducer = cms.ESProducer("OnlineBeamSpotESProducer")
+import RecoVertex.BeamSpotProducer.onlineBeamSpotESProducer_cfi as _mod
+process.BeamSpotESProducer = _mod.onlineBeamSpotESProducer.clone(
+        timeThreshold = 999999 # for express allow >48h old payloads for replays. DO NOT CHANGE
+)
 
 # initialize MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -40,9 +43,9 @@ process.MessageLogger.cout = cms.untracked.PSet(
 )
 #process.MessageLogger.cout.enableStatistics = cms.untracked.bool(True)
 process.source = cms.Source("EmptySource")
-process.source.numberEventsInRun=cms.untracked.uint32(20)
-process.source.firstRun = cms.untracked.uint32(336055)
-process.source.firstLuminosityBlock = cms.untracked.uint32(49)
+process.source.numberEventsInRun=cms.untracked.uint32(100)
+process.source.firstRun = cms.untracked.uint32(346512)
+process.source.firstLuminosityBlock = cms.untracked.uint32(614)
 process.source.numberEventsInLuminosityBlock = cms.untracked.uint32(1)
 process.maxEvents = cms.untracked.PSet(
             input = cms.untracked.int32(100)
@@ -50,7 +53,11 @@ process.maxEvents = cms.untracked.PSet(
 
 #process.load("DQMServices.Core.DQMEDAnalyzer") 
 process.onlineBeamMonitor = cms.EDProducer("OnlineBeamMonitor",
-MonitorName = cms.untracked.string("onlineBeamMonitor"))
+MonitorName         = cms.untracked.string("onlineBeamMonitor"),
+AppendRunToFileName = cms.untracked.bool(False),
+WriteDIPAscii       = cms.untracked.bool(True),
+DIPFileName         = cms.untracked.string("BeamFitResultsForDIP.txt")
+)
 
 
 # DQM Live Environment

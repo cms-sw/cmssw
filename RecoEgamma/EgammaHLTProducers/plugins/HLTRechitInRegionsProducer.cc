@@ -1,10 +1,10 @@
 // C/C++ headers
 #include <vector>
+#include <memory>
 
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -34,8 +34,6 @@
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"
-
-#include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -75,13 +73,15 @@ class HLTRechitInRegionsProducer : public edm::stream::EDProducer<> {
 
 public:
   HLTRechitInRegionsProducer(const edm::ParameterSet& ps);
-  ~HLTRechitInRegionsProducer() override;
+  ~HLTRechitInRegionsProducer() override = default;
 
-  void produce(edm::Event&, const edm::EventSetup&) override;
+  void produce(edm::Event&, edm::EventSetup const&) override;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void getEtaPhiRegions(std::vector<RectangularEtaPhiRegion>*, T1Collection, const L1CaloGeometry&, bool);
+  void eventSetupConsumes();
+
+  void getEtaPhiRegions(std::vector<RectangularEtaPhiRegion>*, T1Collection const&, edm::EventSetup const&, bool const);
 
   const bool useUncalib_;
 
@@ -102,8 +102,8 @@ private:
   std::vector<edm::EDGetTokenT<EcalRecHitCollection>> hitTokens;
   std::vector<edm::EDGetTokenT<EcalUncalibratedRecHitCollection>> uncalibHitTokens;
 
-  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
-  const edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> l1CaloGeometryToken_;
+  edm::ESGetToken<CaloGeometry, CaloGeometryRecord> caloGeometryToken_;
+  edm::ESGetToken<L1CaloGeometry, L1CaloGeometryRecord> l1CaloGeometryToken_;
 };
 
 template <typename T1>
@@ -119,9 +119,9 @@ HLTRechitInRegionsProducer<T1>::HLTRechitInRegionsProducer(const edm::ParameterS
       regionEtaMargin_(ps.getParameter<double>("regionEtaMargin")),
       regionPhiMargin_(ps.getParameter<double>("regionPhiMargin")),
       hitLabels(ps.getParameter<std::vector<edm::InputTag>>("ecalhitLabels")),
-      productLabels(ps.getParameter<std::vector<std::string>>("productLabels")),
-      caloGeometryToken_{esConsumes()},
-      l1CaloGeometryToken_{esConsumes()} {
+      productLabels(ps.getParameter<std::vector<std::string>>("productLabels")) {
+  eventSetupConsumes();
+
   if (useUncalib_) {
     for (unsigned int i = 0; i < hitLabels.size(); i++) {
       uncalibHitTokens.push_back(consumes<EcalUncalibratedRecHitCollection>(hitLabels[i]));
@@ -135,8 +135,16 @@ HLTRechitInRegionsProducer<T1>::HLTRechitInRegionsProducer(const edm::ParameterS
   }
 }
 
+template <>
+void HLTRechitInRegionsProducer<l1extra::L1EmParticle>::eventSetupConsumes() {
+  caloGeometryToken_ = esConsumes();
+  l1CaloGeometryToken_ = esConsumes();
+}
+
 template <typename T1>
-HLTRechitInRegionsProducer<T1>::~HLTRechitInRegionsProducer() {}
+void HLTRechitInRegionsProducer<T1>::eventSetupConsumes() {
+  caloGeometryToken_ = esConsumes();
+}
 
 template <typename T1>
 void HLTRechitInRegionsProducer<T1>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -163,7 +171,7 @@ void HLTRechitInRegionsProducer<T1>::fillDescriptions(edm::ConfigurationDescript
 }
 
 template <typename T1>
-void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSetup& eventSetup) {
+void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, edm::EventSetup const& eventSetup) {
   // get the collection geometry:
   auto const& geometry = eventSetup.getData(caloGeometryToken_);
   const CaloSubdetectorGeometry* geometry_p;
@@ -175,15 +183,12 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
     evt.getByToken(l1TokenIsolated_, emIsolColl);
   }
 
-  // Get the CaloGeometry
-  auto const& l1CaloGeom = eventSetup.getData(l1CaloGeometryToken_);
-
   std::vector<RectangularEtaPhiRegion> regions;
   if (doIsolated_)
-    getEtaPhiRegions(&regions, *emIsolColl, l1CaloGeom, true);
+    getEtaPhiRegions(&regions, *emIsolColl, eventSetup, true);
 
   if (!doIsolated_ or (l1LowerThrIgnoreIsolation_ < 64))
-    getEtaPhiRegions(&regions, evt.get(l1TokenNonIsolated_), l1CaloGeom, false);
+    getEtaPhiRegions(&regions, evt.get(l1TokenNonIsolated_), eventSetup, false);
 
   if (useUncalib_) {
     edm::Handle<EcalUncalibratedRecHitCollection> urhcH[3];
@@ -279,9 +284,11 @@ void HLTRechitInRegionsProducer<T1>::produce(edm::Event& evt, const edm::EventSe
 template <>
 void HLTRechitInRegionsProducer<l1extra::L1EmParticle>::getEtaPhiRegions(
     std::vector<RectangularEtaPhiRegion>* theRegions,
-    T1Collection theCandidateCollection,
-    const L1CaloGeometry& l1CaloGeom,
-    bool isolatedCase) {
+    T1Collection const& theCandidateCollection,
+    edm::EventSetup const& eventSetup,
+    bool const isolatedCase) {
+  auto const& l1CaloGeom = eventSetup.getData(l1CaloGeometryToken_);
+
   for (unsigned int candItr = 0; candItr < theCandidateCollection.size(); candItr++) {
     l1extra::L1EmParticle emItr = theCandidateCollection.at(candItr);
 
@@ -313,9 +320,9 @@ void HLTRechitInRegionsProducer<l1extra::L1EmParticle>::getEtaPhiRegions(
 
 template <typename T1>
 void HLTRechitInRegionsProducer<T1>::getEtaPhiRegions(std::vector<RectangularEtaPhiRegion>* theRegions,
-                                                      T1Collection theCandidateCollection,
-                                                      const L1CaloGeometry& l1CaloGeom,
-                                                      bool isolatedCase) {
+                                                      T1Collection const& theCandidateCollection,
+                                                      edm::EventSetup const&,
+                                                      bool const) {
   for (unsigned int candItr = 0; candItr < theCandidateCollection.size(); candItr++) {
     T1 emItr = theCandidateCollection.at(candItr);
     if ((emItr.et() > l1LowerThr_) and (emItr.et() < l1UpperThr_)) {

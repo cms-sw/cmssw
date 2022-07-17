@@ -7,11 +7,11 @@
 #include "RecoHGCal/TICL/interface/PatternRecognitionAlgoBase.h"
 #include "RecoHGCal/TICL/interface/GlobalCache.h"
 
-typedef edmplugin::PluginFactory<ticl::PatternRecognitionAlgoBaseT<TICLLayerTiles>*(
-    const edm::ParameterSet&, const ticl::CacheBase*, edm::ConsumesCollector)>
+typedef edmplugin::PluginFactory<ticl::PatternRecognitionAlgoBaseT<TICLLayerTiles>*(const edm::ParameterSet&,
+                                                                                    edm::ConsumesCollector)>
     PatternRecognitionFactory;
-typedef edmplugin::PluginFactory<ticl::PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>*(
-    const edm::ParameterSet&, const ticl::CacheBase*, edm::ConsumesCollector)>
+typedef edmplugin::PluginFactory<ticl::PatternRecognitionAlgoBaseT<TICLLayerTilesHFNose>*(const edm::ParameterSet&,
+                                                                                          edm::ConsumesCollector)>
     PatternRecognitionHFNoseFactory;
 
 #endif

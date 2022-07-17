@@ -11,6 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <memory>
+#include <array>
 
 class MaterialBudgetData;
 class G4Step;
@@ -50,6 +51,9 @@ public:
   float getSiliconFractionMB() const { return theSiliconFractionMB; }
   float getStainlessSteelFractionMB() const { return theStainlessSteelFractionMB; }
   float getWCuFractionMB() const { return theWCuFractionMB; }
+  float getPolystyreneFractionMB() const { return thePolystyreneFractionMB; }
+  float getHGC_EEConnectorFractionMB() const { return theHGC_EEConnectorFractionMB; }
+  float getHGC_HEConnectorFractionMB() const { return theHGC_HEConnectorFractionMB; }
 
   float getSupportMB() const { return theSupportMB; }
   float getSensitiveMB() const { return theSensitiveMB; }
@@ -69,6 +73,9 @@ public:
   float getSiliconMB() const { return theSiliconMB; }
   float getStainlessSteelMB() const { return theStainlessSteelMB; }
   float getWCuMB() const { return theWCuMB; }
+  float getPolystyreneMB() const { return thePolystyreneMB; }
+  float getHGC_EEConnectorMB() const { return theHGC_EEConnectorMB; }
+  float getHGC_HEConnectorMB() const { return theHGC_HEConnectorMB; }
 
   float getSupportFractionIL() const { return theSupportFractionIL; }
   float getSensitiveFractionIL() const { return theSensitiveFractionIL; }
@@ -87,6 +94,10 @@ public:
   float getSiliconFractionIL() const { return theSiliconFractionIL; }
   float getStainlessSteelFractionIL() const { return theStainlessSteelFractionIL; }
   float getWCuFractionIL() const { return theWCuFractionIL; }
+  float getPolystyreneFractionIL() const { return thePolystyreneFractionIL; }
+  float getHGC_EEConnectorFractionIL() const { return theHGC_EEConnectorFractionIL; }
+  float getHGC_HEConnectorFractionIL() const { return theHGC_HEConnectorFractionIL; }
+
   float getTotalIL() const { return theTotalIL; }
   float getSupportIL() const { return theSupportIL; }
   float getSensitiveIL() const { return theSensitiveIL; }
@@ -105,6 +116,9 @@ public:
   float getSiliconIL() const { return theSiliconIL; }
   float getStainlessSteelIL() const { return theStainlessSteelIL; }
   float getWCuIL() const { return theWCuIL; }
+  float getPolystyreneIL() const { return thePolystyreneIL; }
+  float getHGC_EEConnectorIL() const { return theHGC_EEConnectorIL; }
+  float getHGC_HEConnectorIL() const { return theHGC_HEConnectorIL; }
 
   float getEta() const { return theEta; }
   float getPhi() const { return thePhi; }
@@ -140,6 +154,9 @@ public:
   float getSiliconDmb(int is) const { return theSiliconDmb[is]; }
   float getStainlessSteelDmb(int is) const { return theStainlessSteelDmb[is]; }
   float getWCuDmb(int is) const { return theWCuDmb[is]; }
+  float getPolystyreneDmb(int is) const { return thePolystyreneDmb[is]; }
+  float getHGC_EEConnectorDmb(int is) const { return theHGC_EEConnectorDmb[is]; }
+  float getHGC_HEConnectorDmb(int is) const { return theHGC_HEConnectorDmb[is]; }
 
   float getStepDil(int is) { return theDil[is]; }
   float getSupportDil(int is) const { return theSupportDil[is]; }
@@ -159,6 +176,9 @@ public:
   float getSiliconDil(int is) const { return theSiliconDil[is]; }
   float getStainlessSteelDil(int is) const { return theStainlessSteelDil[is]; }
   float getWCuDil(int is) const { return theWCuDil[is]; }
+  float getPolystyreneDil(int is) const { return thePolystyreneDil[is]; }
+  float getHGC_EEConnectorDil(int is) const { return theHGC_EEConnectorDil[is]; }
+  float getHGC_HEConnectorDil(int is) const { return theHGC_HEConnectorDil[is]; }
 
   double getStepInitialX(int is) { return theInitialX[is]; }
   double getStepInitialY(int is) { return theInitialY[is]; }
@@ -261,6 +281,9 @@ private:
   float theSiliconFractionMB;
   float theStainlessSteelFractionMB;
   float theWCuFractionMB;
+  float thePolystyreneFractionMB;
+  float theHGC_EEConnectorFractionMB;
+  float theHGC_HEConnectorFractionMB;
   float theCopperMB;
   float theH_ScintillatorMB;
   float theLeadMB;
@@ -271,6 +294,9 @@ private:
   float theSiliconMB;
   float theStainlessSteelMB;
   float theWCuMB;
+  float thePolystyreneMB;
+  float theHGC_EEConnectorMB;
+  float theHGC_HEConnectorMB;
   float theTotalIL;
   float theSupportIL;
   float theSensitiveIL;
@@ -291,6 +317,9 @@ private:
   float theSiliconFractionIL;
   float theStainlessSteelFractionIL;
   float theWCuFractionIL;
+  float thePolystyreneFractionIL;
+  float theHGC_EEConnectorFractionIL;
+  float theHGC_HEConnectorFractionIL;
   float theCopperIL;
   float theH_ScintillatorIL;
   float theLeadIL;
@@ -301,6 +330,9 @@ private:
   float theSiliconIL;
   float theStainlessSteelIL;
   float theWCuIL;
+  float thePolystyreneIL;
+  float theHGC_EEConnectorIL;
+  float theHGC_HEConnectorIL;
 
   int theStepN;
   std::array<double, MAXNUMBERSTEPS> theInitialX;
@@ -329,6 +361,9 @@ private:
   std::array<float, MAXNUMBERSTEPS> theSiliconDmb;
   std::array<float, MAXNUMBERSTEPS> theStainlessSteelDmb;
   std::array<float, MAXNUMBERSTEPS> theWCuDmb;
+  std::array<float, MAXNUMBERSTEPS> thePolystyreneDmb;
+  std::array<float, MAXNUMBERSTEPS> theHGC_EEConnectorDmb;
+  std::array<float, MAXNUMBERSTEPS> theHGC_HEConnectorDmb;
 
   std::array<float, MAXNUMBERSTEPS> theDil;
   std::array<float, MAXNUMBERSTEPS> theSupportDil;
@@ -348,6 +383,9 @@ private:
   std::array<float, MAXNUMBERSTEPS> theSiliconDil;
   std::array<float, MAXNUMBERSTEPS> theStainlessSteelDil;
   std::array<float, MAXNUMBERSTEPS> theWCuDil;
+  std::array<float, MAXNUMBERSTEPS> thePolystyreneDil;
+  std::array<float, MAXNUMBERSTEPS> theHGC_EEConnectorDil;
+  std::array<float, MAXNUMBERSTEPS> theHGC_HEConnectorDil;
 
   std::array<int, MAXNUMBERSTEPS> theVolumeID;
   std::array<std::string, MAXNUMBERSTEPS> theVolumeName;

@@ -1434,18 +1434,13 @@ edm::ParameterSet EmDQM::makePSetForEgammaGenericFilter(const std::string &modul
   // the following cases seem to have identical PSets ?
   //--------------------
 
-  if (inputType == "EgammaHLTR9Producer" ||                        // R9 shape
-      inputType == "EgammaHLTR9IDProducer" ||                      // R9 ID
+  if (inputType == "EgammaHLTR9IDProducer" ||                      // R9 ID
       inputType == "EgammaHLTClusterShapeProducer" ||              // cluster shape
-      inputType == "EgammaHLTEcalRecIsolationProducer" ||          // ecal isolation
-      inputType == "EgammaHLTHcalIsolationProducersRegional" ||    // HCAL isolation and HE
       inputType == "EgammaHLTGsfTrackVarProducer" ||               // GSF track deta and dphi filter
-      inputType == "EgammaHLTBcHcalIsolationProducersRegional" ||  // HCAL isolation and
-                                                                   // HE
-      inputType == "EgammaHLTEcalPFClusterIsolationProducer" ||    // ECAL PF isolation
-                                                                   // filter
-      inputType == "EgammaHLTHcalPFClusterIsolationProducer" ||    // HCAL PF isolation
-                                                                   // filter
+      inputType == "EgammaHLTBcHcalIsolationProducersRegional" ||  // HCAL isolation, or H for H/E (based on CaloTowers)
+      inputType == "EgammaHLTHcalVarProducerFromRecHit" ||         // HCAL isolation, or H for H/E (based on RecHits)
+      inputType == "EgammaHLTEcalPFClusterIsolationProducer" ||    // ECAL PF isolation filter
+      inputType == "EgammaHLTHcalPFClusterIsolationProducer" ||    // HCAL PF isolation filter
       inputType == "EgammaHLTElectronTrackIsolationProducers"      // Track isolation filter
   ) {
     retPSet.addParameter<std::vector<double>>("PlotBounds", std::vector<double>(2, 0.0));
@@ -1523,19 +1518,13 @@ edm::ParameterSet EmDQM::makePSetForEgammaGenericQuadraticFilter(const std::stri
   // the following cases seem to have identical PSets ?
   //--------------------
 
-  if (inputType == "EgammaHLTR9Producer" ||                          // R9 shape
-      inputType == "EgammaHLTR9IDProducer" ||                        // R9 ID
-      inputType == "EgammaHLTClusterShapeProducer" ||                // cluster shape
-      inputType == "EgammaHLTEcalRecIsolationProducer" ||            // ecal isolation
-      inputType == "EgammaHLTHcalIsolationProducersRegional" ||      // HCAL isolation and HE
-      inputType == "EgammaHLTBcHcalIsolationProducersRegional" ||    // HCAL isolation and
-                                                                     // HE
-      inputType == "EgammaHLTEcalPFClusterIsolationProducer" ||      // ECAL PF isolation
-                                                                     // filter
-      inputType == "EgammaHLTHcalPFClusterIsolationProducer" ||      // HCAL PF isolation
-                                                                     // filter
-      inputType == "EgammaHLTPhotonTrackIsolationProducersRegional"  // Photon track
-                                                                     // isolation
+  if (inputType == "EgammaHLTR9IDProducer" ||                      // R9 ID
+      inputType == "EgammaHLTClusterShapeProducer" ||              // cluster shape
+      inputType == "EgammaHLTBcHcalIsolationProducersRegional" ||  // HCAL isolation, or H for H/E (based on CaloTowers)
+      inputType == "EgammaHLTHcalVarProducerFromRecHit" ||         // HCAL isolation, or H for H/E (based on RecHits)
+      inputType == "EgammaHLTEcalPFClusterIsolationProducer" ||    // ECAL PF isolation filter
+      inputType == "EgammaHLTHcalPFClusterIsolationProducer" ||    // HCAL PF isolation filter
+      inputType == "EgammaHLTPhotonTrackIsolationProducersRegional"  // Photon track isolation
   ) {
     retPSet.addParameter<std::vector<double>>("PlotBounds", std::vector<double>(2, 0.0));
     // retPSet.addParameter<edm::InputTag>("HLTCollectionLabels",
@@ -1609,8 +1598,7 @@ edm::ParameterSet EmDQM::makePSetForElectronGenericFilter(const std::string &mod
 
   // note that whether deta or dphi is used is determined from
   // the product instance (not the module label)
-  if (inputType == "EgammaHLTElectronDetaDphiProducer" ||      // deta and dphi filter
-      inputType == "EgammaHLTElectronTrackIsolationProducers"  // track isolation
+  if (inputType == "EgammaHLTElectronTrackIsolationProducers"  // track isolation
   ) {
     retPSet.addParameter<std::vector<double>>("PlotBounds", std::vector<double>(2, 0.0));
     // retPSet.addParameter<edm::InputTag>("HLTCollectionLabels",

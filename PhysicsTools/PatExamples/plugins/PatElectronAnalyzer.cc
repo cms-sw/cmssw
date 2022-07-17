@@ -3,7 +3,7 @@
 #include "TMath.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -12,7 +12,7 @@
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
-class PatElectronAnalyzer : public edm::EDAnalyzer {
+class PatElectronAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   explicit PatElectronAnalyzer(const edm::ParameterSet &);
   ~PatElectronAnalyzer() override;
@@ -81,6 +81,8 @@ PatElectronAnalyzer::PatElectronAnalyzer(const edm::ParameterSet &cfg)
       particleSrcToken_(consumes<reco::GenParticleCollection>(cfg.getParameter<edm::InputTag>("particleSrc"))),
       genMatchMode_(cfg.getParameter<edm::ParameterSet>("genMatchMode")),
       tagAndProbeMode_(cfg.getParameter<edm::ParameterSet>("tagAndProbeMode")) {
+  usesResource(TFileService::kSharedResource);
+
   // complete the configuration of the analyzer
   maxDeltaR_ = genMatchMode_.getParameter<double>("maxDeltaR");
   maxDeltaM_ = tagAndProbeMode_.getParameter<double>("maxDeltaM");

@@ -1,10 +1,81 @@
-// This file was removed but it should not have been.
-// This comment is to restore it.
+/** class
+ *
+ * \author Stephen Mrenna, FNAL
+ *
+ * \version $Id: FlavorHistoryProducer.cc,v 1.0
+ *
+ */
 
-#include "PhysicsTools/HepMCCandAlgos/interface/FlavorHistoryProducer.h"
+// -------------------------------------------------------------
+// Identify the ancestry of the Quark
+//
+//
+// Matrix Element:
+//    Status 3 parent with precisely 2 "grandparents" that
+//    is outside of the "initial" section (0-5) that has the
+//    same ID as the status 2 parton in question.
+//
+// Flavor excitation:
+//    Almost the same as the matrix element classification,
+//    but has only one outgoing parton product instead of two.
+//
+// Gluon splitting:
+//    Parent is a quark of a different flavor than the parton
+//    in question, or a gluon. Can come from either ISR or FSR.
+//
+// True decay:
+//    Decays from a resonance like top, Higgs, etc.
+// -------------------------------------------------------------
+
+#include "FWCore/Framework/interface/global/EDProducer.h"
+#include <string>
+#include <vector>
+#include <set>
+#include <utility>
+#include <algorithm>
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/Candidate/interface/ShallowClonePtrCandidate.h"
+#include "DataFormats/HepMCCandidate/interface/FlavorHistory.h"
+#include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <fstream>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/deltaR.h"
+
+class FlavorHistoryProducer : public edm::global::EDProducer<> {
+public:
+  /// constructor
+  FlavorHistoryProducer(const edm::ParameterSet &);
+
+private:
+  /// process one event
+  void produce(edm::StreamID, edm::Event &e, const edm::EventSetup &) const override;
+
+  void getAncestors(const reco::Candidate &c, std::vector<reco::Candidate const *> &moms) const;
+
+  reco::CandidateView::const_iterator getClosestJet(edm::Handle<reco::CandidateView> const &pJets,
+                                                    reco::Candidate const &parton) const;
+
+  const edm::EDGetTokenT<reco::CandidateView> srcToken_;         // GenParticles source collection name
+  const edm::EDGetTokenT<reco::CandidateView> matchedSrcToken_;  // matched particles source collection name
+  const double matchDR_;                                         // delta r to match matched particles
+  const int pdgIdToSelect_;                                      // pdg of hf partons to select
+  const double ptMinParticle_;                                   // minimum pt of the partons
+  const double ptMinShower_;                                     // minimum pt of the shower
+  const double etaMaxParticle_;                                  // max eta of the parton
+  const double etaMaxShower_;                                    // max eta of the shower
+  const std::string flavorHistoryName_;                          // name to give flavor history
+  const bool verbose_;                                           // verbose flag
+};
 
 // #include "DataFormats/Common/interface/ValueMap.h"
 // #include <iterators>
@@ -48,9 +119,7 @@ FlavorHistoryProducer::FlavorHistoryProducer(const ParameterSet &p)
   produces<FlavorHistoryEvent>(flavorHistoryName_);
 }
 
-FlavorHistoryProducer::~FlavorHistoryProducer() {}
-
-void FlavorHistoryProducer::produce(Event &evt, const EventSetup &) {
+void FlavorHistoryProducer::produce(StreamID, Event &evt, const EventSetup &) const {
   if (verbose_)
     cout << "---------- Hello from FlavorHistoryProducer! -----" << endl;
 
@@ -338,7 +407,7 @@ void FlavorHistoryProducer::produce(Event &evt, const EventSetup &) {
 }
 
 // Helper function to get all ancestors of this candidate
-void FlavorHistoryProducer::getAncestors(const Candidate &c, vector<Candidate const *> &moms) {
+void FlavorHistoryProducer::getAncestors(const Candidate &c, vector<Candidate const *> &moms) const {
   if (c.numberOfMothers() == 1) {
     const Candidate *dau = &c;
     const Candidate *mom = c.mother();

@@ -60,9 +60,9 @@ namespace edm {
     return rootFile()->readLuminosityBlockAuxiliary_();
   }
 
-  void RootInputFileSequence::readRun_(RunPrincipal& runPrincipal) {
+  bool RootInputFileSequence::readRun_(RunPrincipal& runPrincipal) {
     assert(rootFile());
-    rootFile()->readRun_(runPrincipal);
+    return rootFile()->readRun_(runPrincipal);
   }
 
   void RootInputFileSequence::fillProcessBlockHelper_() {
@@ -80,9 +80,9 @@ namespace edm {
     rootFile()->readProcessBlock_(processBlockPrincipal);
   }
 
-  void RootInputFileSequence::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
+  bool RootInputFileSequence::readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal) {
     assert(rootFile());
-    rootFile()->readLuminosityBlock_(lumiPrincipal);
+    return rootFile()->readLuminosityBlock_(lumiPrincipal);
   }
 
   // readEvent() is responsible for setting up the EventPrincipal.
@@ -245,7 +245,7 @@ namespace edm {
     std::list<std::string> exInfo;
     {
       std::unique_ptr<InputSource::FileOpenSentry> sentry(
-          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_, false) : nullptr);
+          input ? std::make_unique<InputSource::FileOpenSentry>(*input, lfn_) : nullptr);
       edm::Service<edm::storage::StatisticsSenderService> service;
       if (service.isAvailable()) {
         service->openingFile(lfn(), inputType, -1);

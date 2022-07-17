@@ -2,7 +2,6 @@
 #include "Validation/RecoEgamma/plugins/PhotonValidatorMiniAOD.h"
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Framework/interface/Event.h"

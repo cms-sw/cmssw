@@ -6,6 +6,7 @@
 //
 
 // system include files
+#include <array>
 #include <memory>
 #include <fstream>
 #include <utility>

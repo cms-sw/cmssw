@@ -100,7 +100,7 @@ DetGeomDesc::DetGeomDesc(const PDetGeomDesc::Item& item)
   m_diamondBoxParams = computeDiamondDimensions(m_isABox, m_isDD4hep, m_params);
 }
 
-DetGeomDesc::DetGeomDesc(const PDetGeomDesc& pd) {
+DetGeomDesc::DetGeomDesc(const PDetGeomDesc& pd) : m_copy(0), m_isDD4hep(false), m_isABox(false), m_z(0) {
   for (const auto& i : pd.container_) {
     DetGeomDesc* gd = new DetGeomDesc(i);
     this->addComponent(gd);

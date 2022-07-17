@@ -1,6 +1,5 @@
 #include "SimTransport/PPSProtonTransport/interface/HectorTransport.h"
 #include "Utilities/PPS/interface/PPSUtilities.h"
-#include <CLHEP/Random/RandGauss.h>
 #include "TLorentzVector.h"
 //Hector headers
 #include "H_BeamLine.h"
@@ -9,45 +8,44 @@
 
 #include <string>
 
-HectorTransport::~HectorTransport(){};
-
 HectorTransport::HectorTransport(const edm::ParameterSet& iConfig, edm::ConsumesCollector iC)
     : BaseProtonTransport(iConfig),
       m_beamline45(nullptr),
       m_beamline56(nullptr),
       beamParametersToken_(iC.esConsumes()),
       beamspotToken_(iC.esConsumes()) {
-  // Create LHC beam line
-
-  MODE = TransportMode::HECTOR;  // defines the MODE for the transport
-  beam1Filename_ = iConfig.getParameter<std::string>("Beam1Filename");
-  beam2Filename_ = iConfig.getParameter<std::string>("Beam2Filename");
-  fCrossingAngleX_45 = iConfig.getParameter<double>("halfCrossingAngleXSector45");
-  fCrossingAngleX_56 = iConfig.getParameter<double>("halfCrossingAngleXSector56");
-  fCrossingAngleY_45 = iConfig.getParameter<double>("halfCrossingAngleYSector45");
-  fCrossingAngleY_56 = iConfig.getParameter<double>("halfCrossingAngleYSector56");
-  m_sigmaSTX = iConfig.getParameter<double>("BeamDivergenceX");
-  m_sigmaSTY = iConfig.getParameter<double>("BeamDivergenceY");
-  m_sigmaSX = iConfig.getParameter<double>("BeamSigmaX");
-  m_sigmaSY = iConfig.getParameter<double>("BeamSigmaY");
-  m_sig_E = iConfig.getParameter<double>("BeamEnergyDispersion");
-
+  MODE = TransportMode::HECTOR;
+  std::string s1 = iConfig.getParameter<std::string>("Beam1Filename");
+  std::string s2 = iConfig.getParameter<std::string>("Beam2Filename");
+  setBeamFileNames(s1, s2);
+  double cax45 = iConfig.getParameter<double>("halfCrossingAngleXSector45");
+  double cax56 = iConfig.getParameter<double>("halfCrossingAngleXSector56");
+  double cay45 = iConfig.getParameter<double>("halfCrossingAngleYSector45");
+  double cay56 = iConfig.getParameter<double>("halfCrossingAngleYSector56");
+  setCrossingAngles(cax45, cax56, cay45, cay56);
+  double stx = iConfig.getParameter<double>("BeamDivergenceX");
+  double sty = iConfig.getParameter<double>("BeamDivergenceY");
+  double sx = iConfig.getParameter<double>("BeamSigmaX");
+  double sy = iConfig.getParameter<double>("BeamSigmaY");
+  double se = iConfig.getParameter<double>("BeamEnergyDispersion");
+  setBeamParameters(stx, sty, sx, sy, se);
   //PPS
-  edm::LogInfo("ProtonTransport") << "=============================================================================\n"
-                                  << "             Bulding LHC Proton transporter based on HECTOR model\n"
-                                  << "=============================================================================\n";
+  edm::LogVerbatim("ProtonTransport")
+      << "=============================================================================\n"
+      << "             Bulding LHC Proton transporter based on HECTOR model\n"
+      << "=============================================================================\n";
   setBeamLine();
 }
+HectorTransport::~HectorTransport() {}
 //
 // this method is the same for all propagator, but since transportProton is different for each derived class
 // it needes to be overriden
 //
 void HectorTransport::process(const HepMC::GenEvent* evt,
                               const edm::EventSetup& iSetup,
-                              CLHEP::HepRandomEngine* _engine) {
-  this->clear();
-
-  engine_ = _engine;  // the engine needs to be updated for each event
+                              CLHEP::HepRandomEngine* engine) {
+  clear();
+  engine_ = engine;  // the engine needs to be updated for each event
 
   beamspot_ = &iSetup.getData(beamspotToken_);
   beamParameters_ = &iSetup.getData(beamParametersToken_);
@@ -75,7 +73,7 @@ void HectorTransport::process(const HepMC::GenEvent* evt,
   }
 }
 bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
-  edm::LogInfo("ProtonTransport") << "Starting proton transport using HECTOR method\n";
+  edm::LogVerbatim("ProtonTransport") << "Starting proton transport using HECTOR method\n";
 
   double px, py, pz, e;
   unsigned int line = (gpart)->barcode();
@@ -84,19 +82,16 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   double charge = 1.;
 
   // remove the CMS vertex shift
-  double vtxXoffset_;
-  double vtxYoffset_;
-  double vtxZoffset_;
+  double vtxXoffset;
+  double vtxYoffset;
   if (useBeamPositionFromLHCInfo_) {
-    vtxXoffset_ = beamParameters_->getVtxOffsetX45() * cm_to_mm;
-    vtxYoffset_ = beamParameters_->getVtxOffsetY45() * cm_to_mm;
-    vtxZoffset_ = beamParameters_->getVtxOffsetZ45() * cm_to_mm;
+    vtxXoffset = beamParameters_->getVtxOffsetX45() * cm_to_mm;
+    vtxYoffset = beamParameters_->getVtxOffsetY45() * cm_to_mm;
   } else {
-    vtxXoffset_ = beamspot_->GetX() * cm_to_mm;
-    vtxYoffset_ = beamspot_->GetY() * cm_to_mm;
-    vtxZoffset_ = beamspot_->GetZ() * cm_to_mm;
+    vtxXoffset = beamspot_->x() * cm_to_mm;
+    vtxYoffset = beamspot_->y() * cm_to_mm;
   }
-  vtxZoffset_ *= 1;  // to avoid compilation error, should be used in the future
+
   // Momentum in LHC ref. frame
   px = -gpart->momentum().px();
   py = gpart->momentum().py();
@@ -108,8 +103,8 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   double XforPosition = -gpart->production_vertex()->position().x();  //mm in the ref. frame of LHC
   double YforPosition = gpart->production_vertex()->position().y();   //mm
   double ZforPosition = -gpart->production_vertex()->position().z();  //mm
-  double fCrossingAngleX = (pz < 0) ? fCrossingAngleX_45 : fCrossingAngleX_56;
-  double fCrossingAngleY = (pz < 0) ? fCrossingAngleY_45 : fCrossingAngleY_56;
+  double fCrossingAngleX = (pz < 0) ? fCrossingAngleX_45_ : fCrossingAngleX_56_;
+  double fCrossingAngleY = (pz < 0) ? fCrossingAngleY_45_ : fCrossingAngleY_56_;
   //
   H_BeamParticle h_p(mass, charge);
   h_p.set4Momentum(px, py, pz, e);
@@ -117,9 +112,8 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   // shift the starting position of the track to Z=0 if configured so (all the variables below are still in cm)
   XforPosition = XforPosition - ZforPosition * (px / pz + fCrossingAngleX * urad);  // theta ~=tan(theta)
   YforPosition = YforPosition - ZforPosition * (py / pz + fCrossingAngleY * urad);
-  XforPosition -= (-vtxXoffset_);  // X was already in the LHC ref. frame
-  YforPosition -= vtxYoffset_;
-  ZforPosition = 0.;
+  XforPosition -= (-vtxXoffset);  // X was already in the LHC ref. frame
+  YforPosition -= vtxYoffset;
 
   // set position, but do not invert the coordinate for the angles (TX,TY) because it is done by set4Momentum
   h_p.setPosition(XforPosition * mm_to_um, YforPosition * mm_to_um, h_p.getTX(), h_p.getTY(), 0.);
@@ -128,21 +122,21 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   float x1_ctpps;
   float y1_ctpps;
 
-  H_BeamLine* _beamline = nullptr;
-  double _targetZ = 0;
+  H_BeamLine* beamline = nullptr;
+  double targetZ = 0;
   switch (direction) {
     case 1:
-      _beamline = &*m_beamline56;  // negative side propagation
-      _targetZ = fPPSRegionStart_56;
+      beamline = &*m_beamline56;  // negative side propagation
+      targetZ = fPPSRegionStart_56_;
       break;
     case -1:
-      _beamline = &*m_beamline45;
-      _targetZ = fPPSRegionStart_45;
+      beamline = &*m_beamline45;
+      targetZ = fPPSRegionStart_45_;
       break;
   }
   // insert protection for NULL beamlines here
-  h_p.computePath(&*_beamline);
-  is_stop = h_p.stopped(&*_beamline);
+  h_p.computePath(&*beamline);
+  is_stop = h_p.stopped(&*beamline);
   if (verbosity_)
     LogDebug("HectorTransportEventProcessing")
         << "HectorTransport:filterPPS: barcode = " << line << " is_stop=  " << is_stop;
@@ -152,7 +146,7 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
   //
   //propagating
   //
-  h_p.propagate(_targetZ);
+  h_p.propagate(targetZ);
   x1_ctpps = h_p.getX();
   y1_ctpps = h_p.getY();
 
@@ -161,14 +155,14 @@ bool HectorTransport::transportProton(const HepMC::GenParticle* gpart) {
 
   if (produceHitsRelativeToBeam_) {
     H_BeamParticle p_beam(mass, charge);
-    p_beam.set4Momentum(0., 0., beamMomentum_, beamEnergy_);
+    p_beam.set4Momentum(0., 0., beamMomentum(), beamEnergy());
     p_beam.setPosition(0., 0., fCrossingAngleX * urad, fCrossingAngleY * urad, 0.);
-    p_beam.computePath(&*_beamline);
+    p_beam.computePath(&*beamline);
     thx -= p_beam.getTX();
     thy -= p_beam.getTY();
     x1_ctpps -= p_beam.getX();
     y1_ctpps -= p_beam.getY();
-    edm::LogInfo("HectorTransportEventProcessing")
+    edm::LogVerbatim("HectorTransportEventProcessing")
         << "Shifting the hit relative to beam :  X = " << p_beam.getX() << "(mm)      Y = " << p_beam.getY() << "(mm)";
   }
 
@@ -226,16 +220,14 @@ bool HectorTransport::setBeamLine() {
                                          << " * * * * * * * * * * * * * * * * * * * * * * * * * * * *           \n"
                                          << " HectorTransport configuration: \n"
                                          << " Beam line length      = " << fPPSBeamLineLength_ << "\n"
-                                         << " PPS Region Start 44   =  " << fPPSRegionStart_45 << "\n"
-                                         << " PPS Region Start 56   =  " << fPPSRegionStart_56 << "\n"
+                                         << " PPS Region Start 44   =  " << fPPSRegionStart_45_ << "\n"
+                                         << " PPS Region Start 56   =  " << fPPSRegionStart_56_ << "\n"
                                          << "===================================================================\n";
-  }
-  if (verbosity_) {
-    edm::LogInfo("HectorTransportSetup") << "====================================================================\n"
-                                         << "                  Forward beam line elements \n";
+    edm::LogVerbatim("HectorTransportSetup") << "===================================================================\n"
+                                             << "                  Forward beam line elements \n";
     m_beamline45->showElements();
-    edm::LogInfo("HectorTransportSetup") << "====================================================================\n"
-                                         << "                 Backward beam line elements \n";
+    edm::LogVerbatim("HectorTransportSetup") << "===================================================================\n"
+                                             << "                 Backward beam line elements \n";
     m_beamline56->showElements();
   }
   return true;

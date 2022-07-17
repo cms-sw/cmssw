@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-process = cms.Process("HcalParametersTest")
+from Configuration.Eras.Era_Run3_DDD_cff import Run3_DDD
+process = cms.Process("HcalParametersTest",Run3_DDD)
 
 process.load('Configuration.Geometry.GeometryExtended2021_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')

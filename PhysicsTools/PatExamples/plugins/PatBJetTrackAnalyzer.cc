@@ -12,7 +12,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -27,7 +27,7 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
-class PatBJetTrackAnalyzer : public edm::EDAnalyzer {
+class PatBJetTrackAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// constructor and destructor
   PatBJetTrackAnalyzer(const edm::ParameterSet &params);
@@ -80,7 +80,9 @@ PatBJetTrackAnalyzer::PatBJetTrackAnalyzer(const edm::ParameterSet &params)
       minPt_(params.getParameter<double>("minPt")),
       minPixelHits_(params.getParameter<unsigned int>("minPixelHits")),
       minTotalHits_(params.getParameter<unsigned int>("minTotalHits")),
-      nThTrack_(params.getParameter<unsigned int>("nThTrack")) {}
+      nThTrack_(params.getParameter<unsigned int>("nThTrack")) {
+  usesResource(TFileService::kSharedResource);
+}
 
 PatBJetTrackAnalyzer::~PatBJetTrackAnalyzer() {}
 

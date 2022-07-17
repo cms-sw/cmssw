@@ -4,6 +4,7 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="EventFilter/Utilities"/>
+<use name="Utilities/OpenSSL"/>
 <use name="stdcxx-fs"/>
 <use name="boost"/>
 <use name="boost_iostreams"/>

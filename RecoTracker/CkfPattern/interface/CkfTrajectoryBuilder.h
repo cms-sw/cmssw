@@ -11,6 +11,7 @@ class TrajectoryStateOnSurface;
 class TrajectoryFilter;
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -40,6 +41,8 @@ public:
                        std::unique_ptr<TrajectoryFilter> filter);
 
   ~CkfTrajectoryBuilder() override {}
+
+  static void fillPSetDescription(edm::ParameterSetDescription& iDesc);
 
   /// trajectories building starting from a seed
   TrajectoryContainer trajectories(const TrajectorySeed& seed) const override;

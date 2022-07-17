@@ -36,15 +36,17 @@ private:
   const std::string dashedLine_;
   const std::string myName_;
 
-  int ntries;  // no. of points to generate (set in config)
+  const int ntries;  // no. of points to generate (set in config)
 
   // No,. of bins and range of x and y generation (set in config)
-  int nbx;
-  int nby;
-  double xlo;
-  double xhi;
-  double ylo;
-  double yhi;
+  const int nbx;
+  const int nby;
+  const double xlo;
+  const double xhi;
+  const double ylo;
+  const double yhi;
+
+  const edm::ESGetToken<CSCGeometry, MuonGeometryRecord> tokGeom_;
 
   //      TH1F* h1as;
   //      TH1F* h1bs;
@@ -68,7 +70,8 @@ CSCLayerGeometryInside::CSCLayerGeometryInside(const edm::ParameterSet& ps)
       xlo(ps.getUntrackedParameter<double>("xlo")),
       xhi(ps.getUntrackedParameter<double>("xhi")),
       ylo(ps.getUntrackedParameter<double>("ylo")),
-      yhi(ps.getUntrackedParameter<double>("yhi")) {
+      yhi(ps.getUntrackedParameter<double>("yhi")),
+      tokGeom_(esConsumes()) {
   usesResource("TFileService");
 
   std::cout << myName_ << " constructor:" << std::endl;
@@ -96,8 +99,7 @@ void CSCLayerGeometryInside::analyze(const edm::Event& iEvent, const edm::EventS
   std::cout << "start " << dashedLine_ << std::endl;
 
   // Build the geometry
-  edm::ESHandle<CSCGeometry> pgeom;
-  iSetup.get<MuonGeometryRecord>().get(pgeom);
+  const edm::ESHandle<CSCGeometry>& pgeom = iSetup.getHandle(tokGeom_);
 
   std::cout << "CSCGeometry contains " << pgeom->chambers().size() << " chambers" << std::endl;
   std::cout << "CSCGeometry contains " << pgeom->layers().size() << " layers" << std::endl;

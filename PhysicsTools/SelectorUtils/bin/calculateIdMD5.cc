@@ -7,7 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSetReader/interface/ParameterSetReader.h"
 
-#include <openssl/md5.h>
+#include "Utilities/OpenSSL/interface/openssl_init.h"
 
 using namespace std;
 
@@ -38,11 +38,19 @@ int main(int argc, char** argv) {
   }
 
   // now setup the md5 and cute accessor functions
-  unsigned char id_md5_[MD5_DIGEST_LENGTH];
-  memset(id_md5_, 0, MD5_DIGEST_LENGTH * sizeof(unsigned char));
-  MD5((const unsigned char*)tracked.c_str(), tracked.size(), id_md5_);
+  cms::openssl_init();
+  EVP_MD_CTX* mdctx = EVP_MD_CTX_new();
+  const EVP_MD* md = EVP_get_digestbyname("SHA1");
+  unsigned int md_len = 0;
+  unsigned char id_md5_[EVP_MAX_MD_SIZE];
+
+  EVP_DigestInit_ex(mdctx, md, nullptr);
+  EVP_DigestUpdate(mdctx, (const unsigned char*)tracked.c_str(), tracked.size());
+  EVP_DigestFinal_ex(mdctx, id_md5_, &md_len);
+  EVP_MD_CTX_free(mdctx);
+
   printf("%s : ", argv[2]);
-  for (unsigned i = 0; i < MD5_DIGEST_LENGTH; ++i) {
+  for (unsigned i = 0; i < md_len; ++i) {
     printf("%02x", id_md5_[i]);
   }
   printf("\n");

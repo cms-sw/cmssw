@@ -12,9 +12,8 @@ using namespace dtamgrouping;
 // Constructors and destructor
 // ============================================================================
 InitialGrouping::InitialGrouping(const ParameterSet &pset, edm::ConsumesCollector &iC)
-    : MotherGrouping(pset, iC), currentBaseChannel_(-1) {
+    : MotherGrouping(pset, iC), debug_(pset.getUntrackedParameter<bool>("debug")), currentBaseChannel_(-1) {
   // Obtention of parameters
-  debug_ = pset.getUntrackedParameter<bool>("debug");
   if (debug_)
     LogDebug("InitialGrouping") << "InitialGrouping: constructor";
 

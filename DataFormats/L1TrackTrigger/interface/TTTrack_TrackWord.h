@@ -223,6 +223,7 @@ public:
   double getChi2RZ() const { return chi2RZBins[getChi2RZBits()]; }
   double getBendChi2() const { return bendChi2Bins[getBendChi2Bits()]; }
   unsigned int getHitPattern() const { return getHitPatternBits(); }
+  unsigned int getNStubs() const { return countSetBits(getHitPatternBits()); }
   unsigned int getMVAQuality() const { return getMVAQualityBits(); }
   unsigned int getMVAOther() const { return getMVAOtherBits(); }
 
@@ -277,6 +278,16 @@ protected:
 
 private:
   // ----------private member functions --------------
+  unsigned int countSetBits(unsigned int n) const {
+    // Adapted from: https://www.geeksforgeeks.org/count-set-bits-in-an-integer/
+    unsigned int count = 0;
+    while (n) {
+      n &= (n - 1);
+      count++;
+    }
+    return count;
+  }
+
   unsigned int digitizeSignedValue(double value, unsigned int nBits, double lsb) const {
     // Digitize the incoming value
     int digitizedValue = std::floor(value / lsb);

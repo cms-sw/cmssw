@@ -7,7 +7,9 @@ OutALCARECOPPSCalTrackBasedSel_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ALCARECOPPSCalTrackBasedSel_*_*',
         'keep *_ctppsDiamondRawToDigi_*_*',
+        'keep *_ctppsDiamondRecHits_*_*',
         'keep *_totemTimingRawToDigi_*_*',
+        'keep *_totemTimingRecHits_*_*',
         'keep *_ctppsLocalTrackLiteProducer_*_*'
     )
 )

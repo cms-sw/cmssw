@@ -833,7 +833,7 @@ namespace tmtt {
     }
 
     bool ambiguous = false;
-    if (settings_->kfUseMaybeLayers())
+    if (settings_->kfUseMaybeLayers() and kfLayer < nKFlayer)
       ambiguous = ambiguityMap[kfEtaReg][kfLayer];
 
     return ambiguous;

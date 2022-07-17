@@ -74,14 +74,14 @@ HGVHistoProducerAlgoBlock = cms.PSet(
     #2. Fraction of each of the calo particles energy
     #   related to a layer cluster over that layer cluster's energy.
     minSharedEneFrac = cms.double(0.),
-    maxSharedEneFrac = cms.double(1.),
-    nintSharedEneFrac = cms.int32(100),
+    maxSharedEneFrac = cms.double(1.02),
+    nintSharedEneFrac = cms.int32(51),
     minTSTSharedEneFracEfficiency = cms.double(0.5),
 
     #Same as above for tracksters
     minTSTSharedEneFrac = cms.double(0.),
-    maxTSTSharedEneFrac = cms.double(1.0),
-    nintTSTSharedEneFrac = cms.int32(100),
+    maxTSTSharedEneFrac = cms.double(1.01),
+    nintTSTSharedEneFrac = cms.int32(101),
 
     #Parameters for the total number of simclusters per thickness
     minTotNsimClsperthick = cms.double(0.),

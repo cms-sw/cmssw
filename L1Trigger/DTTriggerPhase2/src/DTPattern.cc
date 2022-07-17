@@ -5,7 +5,7 @@
 #include <iostream>
 
 //------------------------------------------------------------------
-//--- Constructores y destructores
+//--- Constructors and destructor
 //------------------------------------------------------------------
 DTPattern::DTPattern() {}
 

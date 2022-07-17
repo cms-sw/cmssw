@@ -21,7 +21,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -38,7 +38,7 @@
 // class declaration
 //
 
-class EcalSimpleUncalibRecHitFilter : public edm::EDFilter {
+class EcalSimpleUncalibRecHitFilter : public edm::global::EDFilter<> {
 public:
   explicit EcalSimpleUncalibRecHitFilter(const edm::ParameterSet &);
   ~EcalSimpleUncalibRecHitFilter() override;
@@ -46,7 +46,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  bool filter(edm::Event &, edm::EventSetup const &) override;
+  bool filter(edm::StreamID, edm::Event &, edm::EventSetup const &) const override;
 
   // ----------member data ---------------------------
   const edm::EDGetTokenT<EcalUncalibratedRecHitCollection> EcalUncalibRecHitToken_;
@@ -77,7 +77,7 @@ EcalSimpleUncalibRecHitFilter::~EcalSimpleUncalibRecHitFilter() {
 //
 
 // ------------ method called on each new Event  ------------
-bool EcalSimpleUncalibRecHitFilter::filter(edm::Event &iEvent, edm::EventSetup const &iSetup) {
+bool EcalSimpleUncalibRecHitFilter::filter(edm::StreamID, edm::Event &iEvent, edm::EventSetup const &iSetup) const {
   using namespace edm;
 
   // getting very basic uncalRH

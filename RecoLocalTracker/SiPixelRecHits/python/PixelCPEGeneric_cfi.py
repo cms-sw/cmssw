@@ -54,11 +54,3 @@ from Configuration.Eras.Modifier_phase2_squarePixels_cff import phase2_squarePix
 (phase2_tracker & (phase2_squarePixels | phase2_3DPixels)).toModify(PixelCPEGenericESProducer,
                                                                     NoTemplateErrorsWhenNoTrkAngles = False # use genErrors in the seeding step (when no track angles are available)
                                                                     )
-# customize phase2 CPE generic for bricked pixels
-from Configuration.Eras.Modifier_phase2_brickedPixels_cff import phase2_brickedPixels
-(phase2_tracker & phase2_brickedPixels ).toModify(PixelCPEGenericESProducer, 
-  ComponentName = 'PixelCPEGenericForBricked', # PixelCPEGenericForBricked is derived from PixelCPEGeneric with changes in some of the methods to deal with bricked pixel topology
-  UseErrorsFromTemplates = False,              # no GenErrors
-  LoadTemplatesFromDB = False,                 # do not load template
-                                                  )
-

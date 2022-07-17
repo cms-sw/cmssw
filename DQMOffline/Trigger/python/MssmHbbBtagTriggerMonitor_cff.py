@@ -3,12 +3,20 @@ import FWCore.ParameterSet.Config as cms
 from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_cfi import *
 
 mssmHbbBtagTriggerMonitor = cms.Sequence(
-    mssmHbbBtagTriggerMonitorSL40noMu +
-    mssmHbbBtagTriggerMonitorSL40 +
-    mssmHbbBtagTriggerMonitorSL100 +
-    mssmHbbBtagTriggerMonitorSL200 +
-    mssmHbbBtagTriggerMonitorSL350 +
-    mssmHbbBtagTriggerMonitorAH100 +
-    mssmHbbBtagTriggerMonitorAH200 +
-    mssmHbbBtagTriggerMonitorAH350
+    mssmHbbDeepCSVBtagTriggerMonitorFH40  +
+    mssmHbbDeepCSVBtagTriggerMonitorFH100 +
+    mssmHbbDeepCSVBtagTriggerMonitorFH200 +
+    mssmHbbDeepCSVBtagTriggerMonitorFH350 +
+    mssmHbbDeepCSVBtagTriggerMonitorSL40  +
+    mssmHbbDeepCSVBtagTriggerMonitorSL100 +
+    mssmHbbDeepCSVBtagTriggerMonitorSL200 +
+    mssmHbbDeepCSVBtagTriggerMonitorSL350 +
+    mssmHbbDeepJetBtagTriggerMonitorFH40  +
+    mssmHbbDeepJetBtagTriggerMonitorFH100 +
+    mssmHbbDeepJetBtagTriggerMonitorFH200 +
+    mssmHbbDeepJetBtagTriggerMonitorFH350 +
+    mssmHbbDeepJetBtagTriggerMonitorSL40  +
+    mssmHbbDeepJetBtagTriggerMonitorSL100 +
+    mssmHbbDeepJetBtagTriggerMonitorSL200 +
+    mssmHbbDeepJetBtagTriggerMonitorSL350
 )

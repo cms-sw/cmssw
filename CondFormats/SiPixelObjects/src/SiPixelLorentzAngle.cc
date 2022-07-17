@@ -5,7 +5,7 @@ bool SiPixelLorentzAngle::putLorentzAngle(const uint32_t& detid, float& value) {
   std::map<unsigned int, float>::const_iterator id = m_LA.find(detid);
   if (id != m_LA.end()) {
     edm::LogError("SiPixelLorentzAngle") << "SiPixelLorentzAngle for DetID " << detid
-                                         << " is already stored. Skippig this put" << std::endl;
+                                         << " is already stored. Skipping this put" << std::endl;
     return false;
   } else
     m_LA[detid] = value;

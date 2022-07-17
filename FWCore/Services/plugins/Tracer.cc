@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 
@@ -88,11 +89,11 @@ namespace edm {
       void preSourceProcessBlock();
       void postSourceProcessBlock(std::string const&);
 
-      void preOpenFile(std::string const&, bool);
-      void postOpenFile(std::string const&, bool);
+      void preOpenFile(std::string const&);
+      void postOpenFile(std::string const&);
 
-      void preCloseFile(std::string const& lfn, bool primary);
-      void postCloseFile(std::string const&, bool);
+      void preCloseFile(std::string const& lfn);
+      void postCloseFile(std::string const&);
 
       void preModuleBeginStream(StreamContext const&, ModuleCallingContext const&);
       void postModuleBeginStream(StreamContext const&, ModuleCallingContext const&);
@@ -438,6 +439,19 @@ Tracer::Tracer(ParameterSet const& iPS, ActivityRegistry& iRegistry)
         }
         out << " : time = " << iContext.timestamp().value();
       });
+
+  iRegistry.esSyncIOVQueuingSignal_.connect([this](edm::IOVSyncValue const& iSync) {
+    LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_
+                          << " queuing: EventSetup synchronization " << iSync.eventID();
+  });
+  iRegistry.preESSyncIOVSignal_.connect([this](edm::IOVSyncValue const& iSync) {
+    LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_
+                          << " pre: EventSetup synchronizing " << iSync.eventID();
+  });
+  iRegistry.postESSyncIOVSignal_.connect([this](edm::IOVSyncValue const& iSync) {
+    LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << indention_
+                          << " post: EventSetup synchronizing " << iSync.eventID();
+  });
 }
 
 void Tracer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -603,35 +617,27 @@ void Tracer::postSourceProcessBlock(std::string const& processName) {
                         << " finished: source process block " << processName;
 }
 
-void Tracer::preOpenFile(std::string const& lfn, bool b) {
+void Tracer::preOpenFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: open input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
-void Tracer::postOpenFile(std::string const& lfn, bool b) {
+void Tracer::postOpenFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: open input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
-void Tracer::preCloseFile(std::string const& lfn, bool b) {
+void Tracer::preCloseFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " starting: close input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
-void Tracer::postCloseFile(std::string const& lfn, bool b) {
+void Tracer::postCloseFile(std::string const& lfn) {
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   out << indention_ << indention_ << " finished: close input file: lfn = " << lfn;
-  if (dumpNonModuleContext_)
-    out << " usedFallBack = " << b;
 }
 
 void Tracer::preModuleBeginStream(StreamContext const& sc, ModuleCallingContext const& mcc) {

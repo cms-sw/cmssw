@@ -134,7 +134,7 @@ namespace cscdqm {
     }
 
     // Check if ME11 with PostLS1 readout (7 DCFEBs)
-    if ((cscType == 8 || cscType == 9) && theFormatVersion == 2013)
+    if ((cscType == 8 || cscType == 9) && theFormatVersion >= 2013)
       nCFEBs = 7;
 
     // Check if in standby!
@@ -251,7 +251,6 @@ namespace cscdqm {
       mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->GetMaximumBin())), "Y");
     }
 
-    /**   if (getCSCHisto(h::CSC_DMB_BXN_VS_DDU_BXN, crateID, dmbID, mo)) mo->Fill((int)(BXN), (int)dmbHeaderBXN); */
     if (getCSCHisto(h::CSC_DMB_BXN_VS_DDU_BXN, crateID, dmbID, mo))
       mo->Fill(((int)(BXN)) % 256, ((int)dmbHeaderBXN) % 256);
 
@@ -288,12 +287,8 @@ namespace cscdqm {
       /**   mo->SetEntries(config->getNEvents()); */
     }
 
-    /**  if (getCSCHisto(h::CSC_DMB_CFEB_ACTIVE, crateID, dmbID, mo) mo->Fill((dmbTrailer->header_1a>>5)&0x1F); //KK */
     if (getCSCHisto(h::CSC_DMB_CFEB_ACTIVE, crateID, dmbID, mo))
       mo->Fill(dmbHeader->cfebActive());  //KK
-
-    /** if (getCSCHisto(h::CSC_DMB_CFEB_ACTIVE_VS_DAV, crateID, dmbID, mo)) mo->Fill(dmbHeader->cfebAvailable(),(int)((dmbTrailer->header_1a>>5)&0x1F)); //KK */
-    /**  if (getCSCHisto(h::CSC_DMB_CFEB_ACTIVE_VS_DAV, crateID, dmbID, mo)) mo->Fill(dmbHeader->cfebAvailable(),dmbHeader->cfebActive()); //KK */
 
     if (getCSCHisto(h::CSC_DMB_L1_PIPE, crateID, dmbID, mo))
       mo->Fill(dmbTrailer->dmb_l1pipe());
@@ -418,10 +413,17 @@ namespace cscdqm {
     if (data.nalct()) {
       const CSCALCTHeader* alctHeader = data.alctHeader();
       int fwVersion = alctHeader->alctFirmwareVersion();
+      int fwRevision = alctHeader->alctFirmwareRevision();
       const CSCALCTTrailer* alctTrailer = data.alctTrailer();
       const CSCAnodeData* alctData = data.alctData();
 
       if (alctHeader && alctTrailer) {
+        /** Summary plot for chambers with detected Run3 ALCT firmware */
+        if (getEMUHisto(h::EMU_CSC_RUN3_ALCT_FORMAT, mo)) {
+          /// ALCT Run3 firmware revision should be > 5
+          if (fwRevision > 5)
+            mo->SetBinContent(cscPosition, cscType + 1, fwRevision);
+        }
         std::vector<CSCALCTDigi> alctsDatasTmp = alctHeader->ALCTDigis();
         std::vector<CSCALCTDigi> alctsDatas;
 
@@ -514,6 +516,19 @@ namespace cscdqm {
             mo->Fill(alctsDatas[0].getKeyWG(), alctsDatas[1].getKeyWG());
         }
 
+        /** Run3 ALCT HMT bits from ALCT data */
+        std::vector<CSCShowerDigi> alctShowers = alctHeader->alctShowerDigis();
+        for (unsigned bx = 0; bx < alctShowers.size(); bx++) {
+          if (getCSCHisto(h::CSC_RUN3_ALCT_HMT_BITS_VS_BX, crateID, dmbID, mo)) {
+            mo->Fill(alctShowers[bx].bitsInTime(), bx);
+          }
+          /** Summary occupancy plot for ANode HMT bits per BX from ALCT */
+          if (getEMUHisto(h::EMU_CSC_ANODE_HMT_ALCT_REPORTING, mo)) {
+            if (alctShowers[bx].isValid())
+              mo->Fill(cscPosition, cscType);
+          }
+        }
+
         MonitorObject* mo_CSC_ALCT0_BXN_mean = nullptr;
         getEMUHisto(h::EMU_CSC_ALCT0_BXN_MEAN, mo_CSC_ALCT0_BXN_mean);
 
@@ -576,14 +591,6 @@ namespace cscdqm {
 
             // == For ALCT0 Fill Summary dTime Histograms
             if (lct == 0) {
-              /* -- Moved outside of CSC histo check
-              if (cid.endcap() == 1) {
-                if (mo_CSC_Plus_endcap_ALCT0_dTime) mo_CSC_Plus_endcap_ALCT0_dTime->Fill(alct_dtime);
-              }
-              if (cid.endcap() == 2) {
-                if (mo_CSC_Minus_endcap_ALCT0_dTime) mo_CSC_Minus_endcap_ALCT0_dTime->Fill(alct_dtime);
-              }
-	      */
               if (cscPosition && mo_CSC_ALCT0_BXN_mean) {
                 mo_CSC_ALCT0_BXN_mean->SetBinContent(cscPosition, cscType + 1, dTime_mean);
               }
@@ -684,7 +691,6 @@ namespace cscdqm {
             for (std::vector<CSCWireDigi>::iterator wireDigisItr = wireDigis.begin(); wireDigisItr != wireDigis.end();
                  ++wireDigisItr) {
               int wg = wireDigisItr->getWireGroup();
-              /**  int tbin = wireDigisItr->getBeamCrossingTag(); */
               std::vector<int> tbins = wireDigisItr->getTimeBinsOn();
               int tbin = wireDigisItr->getTimeBin();
 
@@ -809,7 +815,6 @@ namespace cscdqm {
         if (tmbData) {
           CSCTMBHeader* tmbHeader = tmbData->tmbHeader();
           if (tmbHeader) {
-            /**  if (getCSCHisto(h::CSC_TMB_BXN_VS_ALCT_BXN, crateID, dmbID, mo)) mo->Fill((int)((alctHeader->BXNCount())),(int)(tmbHeader->BXNCount())); */
             if (getCSCHisto(h::CSC_TMB_BXN_VS_ALCT_BXN, crateID, dmbID, mo))
               mo->Fill(((int)(alctHeader->BXNCount())) % 256, ((int)(tmbHeader->BXNCount())) % 256);
 
@@ -863,14 +868,469 @@ namespace cscdqm {
         CSCTMBTrailer* tmbTrailer = tmbData->tmbTrailer();
 
         if (tmbHeader && tmbTrailer) {
+          bool isRun3_df = false;
+          bool isGEM_df = false;
+          bool isTMB_hybrid_df = false;
+          if (tmbHeader->FirmwareVersion() == 2020) {
+            // revision code major part: 0x0 - Run3 df, 0x1 - is legacy Run2 df
+            if (((tmbHeader->FirmwareRevision() >> 5) & 0xF) == 0x0)
+              isRun3_df = true;
+            if (((tmbHeader->FirmwareRevision() >> 9) & 0xF) == 0x3)
+              isGEM_df = true;
+            if (((tmbHeader->FirmwareRevision() >> 9) & 0xF) == 0x4)
+              isTMB_hybrid_df = true;
+            /** Summary plot for chambers with detected (O)TMB Run3 data format */
+            if ((isTMB_hybrid_df || isRun3_df) && getEMUHisto(h::EMU_CSC_TMB_RUN3_DATA_FORMAT, mo)) {
+              mo->SetBinContent(cscPosition, cscType + 1, 1);
+            }
+          }
+
+          if (tmbHeader->FirmwareVersion() == 2020) {
+            if (isRun3_df) {
+              /** Summary plot for chambers with detected enabled (O)TMB Run3 CCLUT mode */
+              if (getEMUHisto(h::EMU_CSC_TMB_RUN3_CCLUT_MODE, mo)) {
+                if (tmbHeader->clct0_ComparatorCode() > 0)
+                  mo->SetBinContent(cscPosition, cscType + 1, 1);
+              }
+
+              if (isGEM_df) {
+                if (getCSCHisto(h::CSC_GEM_FIBERS_STATUS, crateID, dmbID, mo)) {
+                  int gem_fibers = tmbHeader->gem_enabled_fibers();
+                  for (unsigned i = 0; i < 4; i++) {
+                    if ((gem_fibers >> i) & 0x1)
+                      mo->Fill(i);
+                  }
+                }
+                uint16_t gem_sync_status = tmbHeader->gem_sync_dataword();
+                if (getCSCHisto(h::CSC_GEM_SYNC_STATUS, crateID, dmbID, mo)) {
+                  for (int i = 0; i < 15; i++) {
+                    if ((gem_sync_status >> i) & 0x1)
+                      mo->Fill(i);
+                  }
+                }
+                uint16_t gem_timing_status = tmbHeader->gem_timing_dataword();
+                if (getCSCHisto(h::CSC_GEM_NUM_COPADS, crateID, dmbID, mo)) {
+                  // For GEM firmware after rev0. 4-bits num_copad
+                  mo->Fill(gem_timing_status & 0xF);
+                }
+
+                if (tmbData->hasGEM()) {
+                  CSCGEMData* gemData = tmbData->gemData();
+                  if (gemData != nullptr) {
+                    bool isGEM_hits_found = false;
+                    std::vector<CSCCorrelatedLCTDigi> corr_lctsDatasTmp = tmbHeader->CorrelatedLCTDigis(cid.rawId());
+                    for (int i = 0; i < gemData->numGEMs(); i++) {
+                      std::vector<GEMPadDigiCluster> gemDigis = gemData->digis(i);
+                      if (getCSCHisto(h::CSC_GEM_NUM_CLUSTERS, crateID, dmbID, mo)) {
+                        mo->Fill(gemDigis.size());
+                      }
+
+                      if (!gemDigis.empty()) {
+                        isGEM_hits_found = true;
+                        for (unsigned digi = 0; digi < gemDigis.size(); digi++) {
+                          if (gemDigis[digi].isValid()) {
+                            std::vector<uint16_t> pads_hits = gemDigis[digi].pads();
+                            int hits_timebin = gemDigis[digi].bx();
+                            if (getCSCHisto(((i == 0) ? h::CSC_GEM_GEMA_CLUSTER_SIZE : h::CSC_GEM_GEMB_CLUSTER_SIZE),
+                                            crateID,
+                                            dmbID,
+                                            mo)) {
+                              mo->Fill(pads_hits.size());
+                            }
+                            if (!pads_hits.empty()) {
+                              if (getCSCHisto(((i == 0) ? h::CSC_GEM_GEMA_PADS_CLUSTER_SIZE
+                                                        : h::CSC_GEM_GEMB_PADS_CLUSTER_SIZE),
+                                              crateID,
+                                              dmbID,
+                                              mo)) {
+                                // int npad = (7 - (pads_hits[0] / 192)) * 192 + pads_hits[0] % 192;
+                                int npad = pads_hits[0];  // no eta recode
+                                mo->Fill(npad, pads_hits.size());
+                              }
+
+                              if (getCSCHisto(
+                                      ((i == 0) ? h::CSC_GEM_GEMA_BX_DISTRIBUTION : h::CSC_GEM_GEMB_BX_DISTRIBUTION),
+                                      crateID,
+                                      dmbID,
+                                      mo)) {
+                                mo->Fill(hits_timebin);
+                              }
+
+                              /// Fill summary GEM VFATs occupancies plots for endcaps
+                              if ((cid.endcap() == 1) && getEMUHisto(h::EMU_GEM_PLUS_ENDCAP_VFAT_OCCUPANCY, mo)) {
+                                int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
+                                mo->Fill((cscPosition)*2 + i - 1, vfat);
+                              }
+
+                              if ((cid.endcap() == 2) && getEMUHisto(h::EMU_GEM_MINUS_ENDCAP_VFAT_OCCUPANCY, mo)) {
+                                int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
+                                mo->Fill((cscPosition)*2 + i - 1, vfat);
+                              }
+
+                              for (unsigned pad = 0; pad < pads_hits.size(); pad++) {
+                                // int npad = (7 - (pads_hits[pad] / 192)) * 192 + pads_hits[pad] % 192;
+                                int npad = pads_hits[pad];  // no eta recode
+                                if (getCSCHisto(
+                                        ((i == 0) ? h::CSC_GEM_GEMA_HITS : h::CSC_GEM_GEMB_HITS), crateID, dmbID, mo)) {
+                                  mo->Fill(npad);
+                                }
+
+                                if (getCSCHisto(
+                                        ((i == 0) ? h::CSC_GEM_GEMA_HITS_IN_TIME : h::CSC_GEM_GEMB_HITS_IN_TIME),
+                                        crateID,
+                                        dmbID,
+                                        mo)) {
+                                  mo->Fill(npad, hits_timebin);
+                                }
+                                if (getCSCHisto(((i == 0) ? h::CSC_GEM_GEMA_HITS_IN_TIME_PROFILE
+                                                          : h::CSC_GEM_GEMB_HITS_IN_TIME_PROFILE),
+                                                crateID,
+                                                dmbID,
+                                                mo)) {
+                                  mo->Fill(npad, hits_timebin);
+                                }
+
+                                if (getCSCHisto(((i == 0) ? h::CSC_GEM_GEMA_VFAT_HITS_IN_TIME
+                                                          : h::CSC_GEM_GEMB_VFAT_HITS_IN_TIME),
+                                                crateID,
+                                                dmbID,
+                                                mo)) {
+                                  int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
+                                  mo->Fill(vfat, hits_timebin);
+                                }
+                                if (getCSCHisto(((i == 0) ? h::CSC_GEM_GEMA_VFAT_HITS_IN_TIME_PROFILE
+                                                          : h::CSC_GEM_GEMB_VFAT_HITS_IN_TIME_PROFILE),
+                                                crateID,
+                                                dmbID,
+                                                mo)) {
+                                  int vfat = (pads_hits[0] / 192) + ((pads_hits[0] % 192) / 64) * 8;
+                                  mo->Fill(vfat, hits_timebin);
+                                }
+                              }
+                            }  // pads_hits.size() > 0
+                          }
+                        }
+                      }
+                      for (unsigned ieta = 0; ieta < 8; ieta++) {
+                        std::vector<GEMPadDigiCluster> gemEtaDigis = gemData->etaDigis(i, ieta);
+                        if (!gemEtaDigis.empty()) {
+                          for (unsigned digi = 0; digi < gemEtaDigis.size(); digi++) {
+                            if (gemEtaDigis[digi].isValid()) {
+                              std::vector<uint16_t> pads_hits = gemEtaDigis[digi].pads();
+                              for (unsigned pad = 0; pad < pads_hits.size(); pad++) {
+                                if (getCSCHisto(
+                                        ((i == 0) ? h::CSC_GEM_GEMA_HITS_W_ROLLS : h::CSC_GEM_GEMB_HITS_W_ROLLS),
+                                        crateID,
+                                        dmbID,
+                                        mo)) {
+                                  mo->Fill(pads_hits[pad], 7 - ieta);
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    if (isGEM_hits_found) {
+                      if (getCSCHisto(h::CSC_GEM_ALCT_MATCH, crateID, dmbID, mo)) {
+                        mo->Fill((gem_timing_status >> 12) & 0x7);
+                      }
+                      if (getCSCHisto(h::CSC_GEM_CLCT_MATCH, crateID, dmbID, mo)) {
+                        mo->Fill((gem_timing_status >> 8) & 0xF);
+                      }
+                    }
+                  }
+                }  // OTMB hasGEM
+              }    // isGEM_df
+
+              /// Summary occupancy plot for Anode HMT bits from OTMB
+              if (getEMUHisto(h::EMU_CSC_ANODE_HMT_REPORTING, mo)) {
+                if (tmbHeader->alctHMT() > 0)
+                  mo->Fill(cscPosition, cscType);
+              }
+
+              /// Summary occupancy plot for Cathode HMT bits from OTMB
+              if (getEMUHisto(h::EMU_CSC_CATHODE_HMT_REPORTING, mo)) {
+                if (tmbHeader->clctHMT() > 0)
+                  mo->Fill(cscPosition, cscType);
+              }
+
+              if (getCSCHisto(h::CSC_CLCT_RUN3_HMT_NHITS, crateID, dmbID, mo)) {
+                mo->Fill(tmbHeader->hmt_nhits());
+              }
+
+              if (getCSCHisto(h::CSC_RUN3_CLCT_ALCT_HMT, crateID, dmbID, mo)) {
+                mo->Fill(tmbHeader->clctHMT());
+                mo->Fill(tmbHeader->alctHMT() + 4);
+              }
+
+              if (getCSCHisto(h::CSC_RUN3_CLCT_VS_ALCT_HMT_BITS, crateID, dmbID, mo)) {
+                mo->Fill(tmbHeader->clctHMT(), tmbHeader->alctHMT());
+              }
+
+              if (getCSCHisto(h::CSC_CORR_LCT_RUN3_PATTERN_ID, crateID, dmbID, mo)) {
+                mo->Fill(tmbHeader->run3_CLCT_patternID());
+              }
+            }
+            /*
+              LOG_DEBUG << "OTMB dump: " << "CLCT0_ComparatorCode: 0x" << std::hex << tmbHeader->CLCT0_ComparatorCode()
+                        << ", CLCT0_xky: 0x" << std::hex << tmbHeader->CLCT0_xky()
+                        << ", CLCT1_ComparatorCode: 0x" << std::hex << tmbHeader->CLCT1_ComparatorCode()
+                        << ", CLCT1_xky: 0x" << std::hex << tmbHeader->CLCT1_xky()
+                        << ", GEM_sync_dataword: 0x" << std::hex << tmbHeader->GEM_sync_dataword()
+                        << ", GEM_timing_dataword: 0x" << std::hex << tmbHeader->GEM_timing_dataword()
+                        << ",\n   HMT_nhits: 0x" << std::hex << tmbHeader->HMT_nhits()
+                        << ", GEM_enabled_fibers: 0x" << std::hex << tmbHeader->GEM_enabled_fibers()
+                        << ", GEM_fifo_tbins: " << std::dec << tmbHeader->GEM_fifo_tbins()
+                        << ", GEM_fifo_pretrig: " << std::dec << tmbHeader->GEM_fifo_pretrig()
+                        << ", GEM_zero_suppression: " << std::dec << tmbHeader->GEM_zero_suppress();
+*/
+          }
           CSCComparatorData* comparatorData = data.comparatorData();
 
           std::vector<CSCCLCTDigi> clctsDatasTmp = tmbHeader->CLCTDigis(cid.rawId());
           std::vector<CSCCLCTDigi> clctsDatas;
 
           for (uint32_t lct = 0; lct < clctsDatasTmp.size(); lct++) {
-            if (clctsDatasTmp[lct].isValid())
+            if (clctsDatasTmp[lct].isValid()) {
               clctsDatas.push_back(clctsDatasTmp[lct]);
+              if (clctsDatasTmp[lct].isRun3()) {
+                if ((lct == 0) && getCSCHisto(h::CSC_CLCTXX_KEY_STRIP_TYPE, crateID, dmbID, lct, mo))
+                  mo->Fill(tmbHeader->clct0_xky());
+                if ((lct == 1) && getCSCHisto(h::CSC_CLCTXX_KEY_STRIP_TYPE, crateID, dmbID, lct, mo))
+                  mo->Fill(tmbHeader->clct1_xky());
+              }
+            }
+          }
+
+          for (uint32_t lct = 0; lct < clctsDatas.size(); lct++) {
+            /*
+                  LOG_DEBUG << "CLCT Digis dump: "
+                            << "CLCT" << lct << " isRun3:" << clctsDatasTmp[lct].isRun3()
+                            << ", isValid: " << clctsDatasTmp[lct].isValid()
+                            << ", getCFEB: " << clctsDatasTmp[lct].getCFEB()
+                            << ", getKeyStrip: " << clctsDatasTmp[lct].getKeyStrip()
+                            << ", getFractionalStrip: " <<  clctsDatasTmp[lct].getFractionalStrip()
+                            << ", getQuartStrip: " << clctsDatasTmp[lct].getQuartStripBit()
+                            << ", getEightStrip: " << clctsDatasTmp[lct].getEightStripBit()
+                            << ",\n    getCompCode: 0x" << std::hex << clctsDatasTmp[lct].getCompCode()
+                            << ", getQuality: " << clctsDatasTmp[lct].getQuality() << std::dec
+                            << ", getPattern: " << clctsDatasTmp[lct].getPattern() << std::dec
+                            << ", getBend: " << clctsDatasTmp[lct].getBend() << std::dec
+                            << ", getSlope: " << clctsDatasTmp[lct].getSlope() << std::dec
+                            << ", getFractionalSlope: " <<  clctsDatasTmp[lct].getFractionalSlope()
+                            << ", getBX: " << clctsDatasTmp[lct].getBX()
+                            << ", getRun3Pattern: 0x" << std::hex << clctsDatasTmp[lct].getRun3Pattern()
+                            << std::dec;
+*/
+            if (clctsDatas[lct].isRun3()) {
+              if (getCSCHisto(h::CSC_CLCTXX_COMPARATOR_CODE, crateID, dmbID, lct, mo)) {
+                mo->Fill(clctsDatas[lct].getCompCode());
+              }
+              if (getCSCHisto(h::CSC_CLCTXX_RUN3_TO_RUN2_PATTERN, crateID, dmbID, lct, mo)) {
+                int bend = clctsDatas[lct].getSlope() + ((clctsDatas[lct].getBend() & 0x1) << 4);
+                mo->Fill(bend, clctsDatas[lct].getPattern());
+              }
+              if (getCSCHisto(h::CSC_CLCTXX_RUN3_BEND_VS_SLOPE, crateID, dmbID, lct, mo)) {
+                mo->Fill(clctsDatas[lct].getSlope(), clctsDatas[lct].getBend());
+              }
+            }
+          }
+
+          /// Correlated LCTs processing
+          std::vector<CSCCorrelatedLCTDigi> corr_lctsDatasTmp = tmbHeader->CorrelatedLCTDigis(cid.rawId());
+          std::vector<CSCCorrelatedLCTDigi> corr_lctsDatas;
+
+          for (uint32_t lct = 0; lct < corr_lctsDatasTmp.size(); lct++) {
+            if (corr_lctsDatasTmp[lct].isValid()) {
+              corr_lctsDatas.push_back(corr_lctsDatasTmp[lct]);
+            }
+
+            if (isGEM_df) {
+              uint16_t gem_sync_status = tmbHeader->gem_sync_dataword();
+
+              for (unsigned i = lct * 4; i < (lct * 4 + 4); i++) {
+                if ((gem_sync_status >> i) & 0x1) {
+                  if (corr_lctsDatasTmp[lct].isValid()) {
+                    if (getCSCHisto(h::CSC_GEM_LCT_SYNC_STATUS, crateID, dmbID, mo)) {
+                      mo->Fill(lct, i);  // Fill for valid LCT
+                    }
+                  }
+                }
+              }
+            }
+
+            if (getCSCHisto(h::CSC_CORR_LCT_CLCT_COMBINATION, crateID, dmbID, mo)) {
+              mo->Fill(clctsDatasTmp[lct].isValid() * 2 + lct, corr_lctsDatasTmp[lct].isValid() * 2 + lct);
+            }
+
+            if (lct == 0) {
+              if (corr_lctsDatasTmp[lct].isRun3() || isTMB_hybrid_df) {
+                /// Summary occupancy plot for combined HMT bits sent to MPC
+                if (getEMUHisto(h::EMU_CSC_LCT_HMT_REPORTING, mo)) {
+                  if (corr_lctsDatasTmp[lct].getHMT() > 0)
+                    mo->Fill(cscPosition, cscType);
+                }
+                if (getCSCHisto(h::CSC_RUN3_HMT_DISTRIBUTION, crateID, dmbID, mo)) {
+                  mo->Fill(corr_lctsDatasTmp[lct].getHMT());
+                }
+                if (getCSCHisto(h::CSC_CLCT_RUN3_HMT_NHITS_VS_HMT_BITS, crateID, dmbID, mo)) {
+                  mo->Fill(tmbHeader->hmt_nhits(),
+                           (corr_lctsDatasTmp[lct].getHMT() & 0x3));  // in-time Hadronic shower bits
+                  mo->Fill(tmbHeader->hmt_nhits(),
+                           ((corr_lctsDatasTmp[lct].getHMT() >> 2) & 0x3) + 4);  // out-of-time Hadronic shower bits
+                }
+                if (getCSCHisto(h::CSC_RUN3_HMT_COINCIDENCE_MATCH, crateID, dmbID, mo)) {
+                  if ((corr_lctsDatasTmp[lct].getHMT() > 0) && (corr_lctsDatasTmp[lct].getHMT() <= 0xF)) {
+                    mo->Fill(0);  // Run3 HMT is fired
+                    if ((!clctsDatasTmp.empty()) && clctsDatasTmp[lct].isValid()) {
+                      mo->Fill(2);  // Run3 HMT+CLCT match
+                    }
+                    if (corr_lctsDatasTmp[lct].isValid()) {
+                      mo->Fill(3);  // Run3 HMT+LCT match
+                    }
+                  }
+                }
+                if (getCSCHisto(h::CSC_RUN3_HMT_ALCT_MATCH, crateID, dmbID, mo)) {
+                  if ((corr_lctsDatasTmp[lct].getHMT() > 0) && (corr_lctsDatasTmp[lct].getHMT() <= 0xF)) {
+                    mo->Fill(tmbHeader->hmt_ALCTMatchTime());
+                  }
+                }
+                if (getCSCHisto(h::CSC_RUN3_HMT_HADRONIC_SHOWER, crateID, dmbID, mo)) {
+                  mo->Fill(corr_lctsDatasTmp[lct].getHMT() & 0x3);               // in-time Hadronic shower bits
+                  mo->Fill(((corr_lctsDatasTmp[lct].getHMT() >> 2) & 0x3) + 4);  // out-of-time Hadronic shower bits
+                }
+              }
+            }
+          }
+
+          if (clctsDatasTmp[0].isValid() && corr_lctsDatasTmp[0].isValid() &&
+              getCSCHisto(h::CSC_CORR_LCT0_VS_CLCT0_KEY_STRIP, crateID, dmbID, mo)) {
+            mo->Fill(clctsDatasTmp[0].getKeyStrip(), corr_lctsDatasTmp[0].getStrip());
+          }
+
+          if (clctsDatasTmp[1].isValid() && corr_lctsDatasTmp[1].isValid() &&
+              getCSCHisto(h::CSC_CORR_LCT1_VS_CLCT1_KEY_STRIP, crateID, dmbID, mo)) {
+            mo->Fill(clctsDatasTmp[1].getKeyStrip(), corr_lctsDatasTmp[1].getStrip());
+          }
+
+          if (!corr_lctsDatas.empty()) {
+            if (corr_lctsDatasTmp[0].isRun3()) {
+              if (getCSCHisto(h::CSC_CORR_LCT0_VS_LCT1_RUN3_PATTERN, crateID, dmbID, mo)) {
+                int lct1_pattern = corr_lctsDatasTmp[1].getRun3Pattern();
+                if (!corr_lctsDatasTmp[1].isValid())
+                  lct1_pattern = -1;
+                mo->Fill(corr_lctsDatasTmp[0].getRun3Pattern(), lct1_pattern);
+              }
+            }
+          }
+
+          for (uint32_t lct = 0; lct < corr_lctsDatas.size(); lct++) {
+            /*
+                  LOG_DEBUG << "CorrelatedLCT Digis dump: "
+                            << "CorrLCT" << lct << " isRun3:" << corr_lctsDatasTmp[lct].isRun3()
+                            << ", isValid: " << corr_lctsDatasTmp[lct].isValid()
+                            << ", getStrip: " << corr_lctsDatasTmp[lct].getStrip()
+                            << ", getKeyWG: " << corr_lctsDatasTmp[lct].getKeyWG()
+                            << ", getQuality: " << corr_lctsDatasTmp[lct].getQuality()
+                            << ", getFractionalStrip: " <<  corr_lctsDatasTmp[lct].getFractionalStrip()
+                            << ", getQuartStrip: " << corr_lctsDatasTmp[lct].getQuartStripBit()
+                            << ", getEightStrip: " << corr_lctsDatasTmp[lct].getEightStripBit()
+                            << ",\n getSlope: " << corr_lctsDatasTmp[lct].getSlope() << std::dec
+                            << ", getBend: " << corr_lctsDatasTmp[lct].getBend()
+                            << ", getBX: " << corr_lctsDatasTmp[lct].getBX()
+                            << ", getPattern: 0x" << std::hex << corr_lctsDatasTmp[lct].getPattern()
+                            << ", getRun3Pattern: 0x" << std::hex << corr_lctsDatasTmp[lct].getRun3Pattern()
+                            // << ", getRun3PatternID: " << std::dec << corr_lctsDatasTmp[lct].getRun3PatternID()
+                            << ", getHMT: " << corr_lctsDatasTmp[lct].getHMT()
+			    << std::dec;
+*/
+            if (getCSCHisto(h::CSC_CORR_LCTXX_HITS_DISTRIBUTION, crateID, dmbID, lct, mo)) {
+              mo->Fill(corr_lctsDatas[lct].getStrip(), corr_lctsDatas[lct].getKeyWG());
+            }
+
+            if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_WG, crateID, dmbID, lct, mo)) {
+              mo->Fill(corr_lctsDatas[lct].getKeyWG());
+            }
+
+            if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_HALFSTRIP, crateID, dmbID, lct, mo)) {
+              mo->Fill(corr_lctsDatas[lct].getStrip(2));
+            }
+
+            if (corr_lctsDatas[lct].isRun3()) {
+              if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_QUARTSTRIP, crateID, dmbID, lct, mo)) {
+                mo->Fill(corr_lctsDatas[lct].getStrip(4));
+              }
+
+              if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_EIGHTSTRIP, crateID, dmbID, lct, mo)) {
+                mo->Fill(corr_lctsDatas[lct].getStrip(8));
+              }
+
+              if (getCSCHisto(h::CSC_CORR_LCTXX_RUN3_TO_RUN2_PATTERN, crateID, dmbID, lct, mo)) {
+                int bend = corr_lctsDatas[lct].getSlope() + ((corr_lctsDatas[lct].getBend() & 0x1) << 4);
+                mo->Fill(bend, corr_lctsDatas[lct].getPattern());
+              }
+
+              if (getCSCHisto(h::CSC_CORR_LCTXX_BEND_VS_SLOPE, crateID, dmbID, lct, mo)) {
+                mo->Fill(corr_lctsDatas[lct].getSlope(), corr_lctsDatas[lct].getBend());
+              }
+
+              if (getCSCHisto(h::CSC_CORR_LCTXX_KEY_STRIP_TYPE, crateID, dmbID, lct, mo)) {
+                int strip_type =
+                    (corr_lctsDatas[lct].getQuartStripBit() << 1) + (corr_lctsDatas[lct].getEighthStripBit());
+                mo->Fill(strip_type);
+              }
+
+              if ((cid.station() == 1) && (cid.ring() == 1)) {
+                if (getCSCHisto(h::CSC_CORR_LCTXX_RUN3_ME11_QUALITY, crateID, dmbID, lct, mo)) {
+                  mo->Fill(corr_lctsDatas[lct].getQuality());
+                }
+              } else {
+                if (getCSCHisto(h::CSC_CORR_LCTXX_RUN3_QUALITY, crateID, dmbID, lct, mo)) {
+                  mo->Fill(corr_lctsDatas[lct].getQuality());
+                }
+              }
+            }
+          }
+
+          if (data.nalct()) {
+            CSCALCTHeader* alctHeader = data.alctHeader();
+            if (alctHeader) {
+              std::vector<CSCALCTDigi> alctsDatasTmp = alctHeader->ALCTDigis();
+              std::vector<CSCALCTDigi> alctsDatas;
+              std::vector<uint32_t> keyWG_list;
+              keyWG_list.clear();
+              for (uint32_t lct = 0; lct < alctsDatasTmp.size(); lct++) {
+                if (alctsDatasTmp[lct].isValid()) {
+                  alctsDatas.push_back(alctsDatasTmp[lct]);
+                  keyWG_list.push_back(alctsDatasTmp[lct].getKeyWG());
+                }
+              }
+
+              if (!alctsDatas.empty() && getCSCHisto(h::CSC_RUN3_HMT_COINCIDENCE_MATCH, crateID, dmbID, mo) &&
+                  corr_lctsDatasTmp[0].isRun3() && (corr_lctsDatasTmp[0].getHMT() > 0) &&
+                  (corr_lctsDatasTmp[0].getHMT() <= 0xF) && alctsDatas[0].isValid()) {
+                mo->Fill(1);  // Run3 HMT+ALCT match
+              }
+
+              for (uint32_t lct = 0; lct < corr_lctsDatasTmp.size(); lct++) {
+                if (corr_lctsDatasTmp[lct].isValid()) {
+                  for (uint32_t i = 0; i < keyWG_list.size(); i++) {
+                    /// Find matching keyWG from ALCT keyWG list
+                    if (corr_lctsDatasTmp[lct].getKeyWG() == keyWG_list[i]) {
+                      if ((lct == 0) && getCSCHisto(h::CSC_CORR_LCT0_VS_ALCT0_KEY_WG, crateID, dmbID, mo))
+                        mo->Fill(alctsDatas[i].getKeyWG(), corr_lctsDatasTmp[lct].getKeyWG());
+                      if ((lct == 1) && getCSCHisto(h::CSC_CORR_LCT1_VS_ALCT1_KEY_WG, crateID, dmbID, mo))
+                        mo->Fill(alctsDatas[i].getKeyWG(), corr_lctsDatasTmp[lct].getKeyWG());
+                      if (getCSCHisto(h::CSC_CORR_LCT_VS_ALCT_DIGI_MATCH, crateID, dmbID, mo)) {
+                        mo->Fill(lct, i);
+                      }
+                      continue;
+                    }
+                  }
+                }
+              }
+            }
           }
 
           FEBunpacked = FEBunpacked + 1;
@@ -953,7 +1413,6 @@ namespace cscdqm {
             mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->GetMaximumBin())), "Y");
           }
 
-          /**  if (getCSCHisto(h::CSC_DMB_L1A_VS_CLCT_L1A, crateID, dmbID, mo)) mo->Fill(tmbHeader->L1ANumber(),dmbHeader->l1a()); */
           if (getCSCHisto(h::CSC_DMB_L1A_VS_CLCT_L1A, crateID, dmbID, mo))
             mo->Fill(tmbHeader->L1ANumber() % 256, dmbHeader->l1a24() % 256);
 
@@ -973,7 +1432,6 @@ namespace cscdqm {
           if (getCSCHisto(h::CSC_CLCT_BXN, crateID, dmbID, mo))
             mo->Fill((int)(tmbHeader->BXNCount()));
 
-          /**  if (getCSCHisto(h::CSC_CLCT_BXN_VS_DMB_BXN, crateID, dmbID, mo)) mo->Fill(tmbHeader->BXNCount(),dmbHeader->bxn()); */
           if (getCSCHisto(h::CSC_CLCT_BXN_VS_DMB_BXN, crateID, dmbID, mo))
             mo->Fill(tmbHeader->BXNCount() % 256, dmbHeader->bxn12() % 256);
 
@@ -1010,7 +1468,6 @@ namespace cscdqm {
 
           if (getCSCHisto(h::CSC_TMB_WORD_COUNT, crateID, dmbID, mo))
             mo->Fill((int)(tmbTrailer->wordCount()));
-          /** LOG_DEBUG <<  "TMB Trailer Word Count = " << dec << (int)tmbTrailer->wordCount(); */
 
           MonitorObject* mo_CSC_Plus_endcap_CLCT0_dTime = nullptr;
           getEMUHisto(h::EMU_CSC_ENDCAP_PLUS_CLCT0_DTIME, mo_CSC_Plus_endcap_CLCT0_dTime);
@@ -1047,15 +1504,6 @@ namespace cscdqm {
             }
 
             if (getCSCHisto(h::CSC_CLCTXX_DTIME, crateID, dmbID, lct, mo)) {
-              /*
-              int dTime = clct_dtime;
-              if (clct_dtime < -16) {
-                dTime = clct_dtime + 32;
-              } else {
-                if (clct_dtime > 16) dTime = clct_dtime - 32;
-              }
-              */
-
               mo->Fill(dTime);
               mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->GetMaximumBin())), "Y");
 
@@ -1064,14 +1512,6 @@ namespace cscdqm {
 
               // == For CLCT0 Fill Summary dTime Histograms
               if (lct == 0) {
-                /* -- Moved
-                if (cid.endcap() == 1) {
-                  if (mo_CSC_Plus_endcap_CLCT0_dTime) mo_CSC_Plus_endcap_CLCT0_dTime->Fill(dTime);
-                }
-                if (cid.endcap() == 2) {
-                  if (mo_CSC_Minus_endcap_CLCT0_dTime) mo_CSC_Minus_endcap_CLCT0_dTime->Fill(dTime);
-                }
-		*/
                 if (cscPosition && mo_CSC_CLCT0_BXN_mean) {
                   mo_CSC_CLCT0_BXN_mean->SetBinContent(cscPosition, cscType + 1, dTime_mean);
                 }
@@ -1081,38 +1521,28 @@ namespace cscdqm {
               }
             }
 
-            /** LOG_DEBUG << "CLCT BX = " << clctsDatas[lct].getBX() << " TMB BX = " << tmbHeader->BXNCount() << " 03 = " << (int)(tmbHeader->BXNCount()&0x3); */
-            /** LOG_DEBUG <<  "diff = " << clctsDatas[lct].getBX()-(tmbHeader->BXNCount()&0x3); */
-            LOG_DEBUG << "LCT:" << lct << " Type:" << clctsDatas[lct].getStripType()
+            /* LOG_DEBUG << "LCT:" << lct << " Type:" << clctsDatas[lct].getStripType()
                       << " Strip:" << clctsDatas[lct].getKeyStrip();
+             */
 
             if (clctsDatas[lct].getStripType()) {  // HalfStrip Type
 
               if (getCSCHisto(h::CSC_CLCTXX_KEYHALFSTRIP, crateID, dmbID, lct, mo))
                 mo->Fill(clctsDatas[lct].getKeyStrip());
 
+              /* === Run3 CSC-GEM Trigger data format */
+              if (getCSCHisto(h::CSC_CLCTXX_KEY_QUARTSTRIP, crateID, dmbID, lct, mo))
+                mo->Fill(clctsDatas[lct].getKeyStrip(4));
+              if (getCSCHisto(h::CSC_CLCTXX_KEY_EIGHTSTRIP, crateID, dmbID, lct, mo))
+                mo->Fill(clctsDatas[lct].getKeyStrip(8));
+              /* === Run3 */
+
               if (getCSCHisto(h::CSC_CLCTXX_DTIME_VS_HALF_STRIP, crateID, dmbID, lct, mo)) {
                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
-                /*
-                if (clct_dtime < -16) {
-                  mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 32);
-                } else {
-                  if (clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 32);
-                  else                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
-                }
-                */
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_DTIME_PROFILE, crateID, dmbID, lct, mo)) {
                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
-                /*
-                if (clct_dtime < -16) {
-                  mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 32);
-                } else {
-                  if (clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 32);
-                  else                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
-                }
-                */
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_HALF_STRIP_PATTERN, crateID, dmbID, lct, mo)) {
@@ -1201,13 +1631,6 @@ namespace cscdqm {
 
               if (getCSCHisto(h::CSC_CLCTXX_DTIME_VS_DISTRIP, crateID, dmbID, lct, mo)) {
                 mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
-                /*
-                if(clct_dtime < -16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime + 32);
-                else {
-                  if(clct_dtime > 16) mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime - 32);
-                  else mo->Fill((int)(clctsDatas[lct].getKeyStrip()), clct_dtime);
-                }
-                */
               }
 
               if (getCSCHisto(h::CSC_CLCTXX_DISTRIP_PATTERN, crateID, dmbID, lct, mo)) {
@@ -1240,9 +1663,7 @@ namespace cscdqm {
             }
           }
 
-          // int N_CFEBs = 5;
           int N_CFEBs = tmbHeader->NCFEBs();
-
           int NumberOfLayersWithHitsInCLCT = 0;
           int NumberOfHalfStripsWithHitsInCLCT = 0;
 
@@ -1394,9 +1815,6 @@ namespace cscdqm {
     const int N_CFEBs = nCFEBs, N_Samples = 16, N_Layers = 6, N_Strips = 16, nStrips = nCFEBs * N_Strips;
     int ADC = 0, OutOffRange, Threshold = 30;
     /**  bool DebugCFEB = false; */
-    //     CSCCFEBData * cfebData[N_CFEBs];
-    //     CSCCFEBTimeSlice *  timeSlice[N_CFEBs][16];
-    //     CSCCFEBDataWord * timeSample[N_CFEBs][16][6][16];
     int Pedestal[N_CFEBs][6][16];
     memset(Pedestal, 0, sizeof(Pedestal));
 #ifdef __clang__
@@ -1406,13 +1824,10 @@ namespace cscdqm {
     std::pair<int, int> CellPeak[N_CFEBs][6][16];
     memset(CellPeak, 0, sizeof(CellPeak));
 #endif
-    //     float PedestalError[N_CFEBs][6][16];
-    //     CSCCFEBSCAControllerWord scaControllerWord[5][16][6];
     bool CheckCFEB = true;
     /** --------------B */
     float Clus_Sum_Charge;
     int TrigTime, L1APhase, UnpackedTrigTime, LCTPhase, SCA_BLK, NmbTimeSamples;
-    /**  int NmbCell, SCA_Nmb_FC; */
     int FreeCells, LCT_Pipe_Empty, LCT_Pipe_Full, LCT_Pipe_Count, L1_Pipe_Empty, L1_Pipe_Full, Buffer_Count;
     /** --------------E */
 
@@ -1430,10 +1845,8 @@ namespace cscdqm {
 
     /** --------------B */
     float cscdata[N_CFEBs * 16][N_Samples][N_Layers];
-    /**   int TrigTimeData[N_CFEBs*16][N_Samples][N_Layers]; */
     int SCABlockData[N_CFEBs * 16][N_Samples][N_Layers];
     memset(cscdata, 0, sizeof(cscdata));
-    /**   memset(TrigTimeData, 0, sizeof(TrigTimeData)); */
     memset(SCABlockData, 0, sizeof(SCABlockData));
     /** --------------E */
 
@@ -1486,8 +1899,6 @@ namespace cscdqm {
         /** -------------B */
         NmbTimeSamples = (data.cfebData(nCFEB))->nTimeSamples();
         /** -------------E */
-        /** LOG_DEBUG <<  "NEvents = " << config->getNEvents(); */
-        /** LOG_DEBUG <<  "Chamber ID = "<< cscTag << " Crate ID = "<< crateID << " DMB ID = " << dmbID << "nCFEB =" << nCFEB; */
 
         /**  =VB= Optimizations for faster histogram object access  */
         MonitorObject* mo_CFEB_SCA_Block_Occupancy = nullptr;
@@ -1502,8 +1913,6 @@ namespace cscdqm {
             h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, crateID, dmbID, nCFEB + 1, mo_CFEB_SCA_Blocks_Locked_by_LCTxL1);
         MonitorObject* mo_CFEB_DMB_L1A_diff = nullptr;
         getCSCHisto(h::CSC_CFEBXX_DMB_L1A_DIFF, crateID, dmbID, nCFEB + 1, mo_CFEB_DMB_L1A_diff);
-
-        /** LOG_DEBUG << " nSample = " << nSample; */
 
         for (int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
           /**   =VB= Optimizations for faster histogram object access */
@@ -1533,14 +1942,12 @@ namespace cscdqm {
           getCSCHisto(h::CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo_CFEB_PedestalRMS_Sample);
 
           for (int nSample = 0; nSample < NmbTimeSamples; ++nSample) {
-            //             timeSlice[nCFEB][nSample] = (CSCCFEBTimeSlice * )((cfebData[nCFEB])->timeSlice(nSample));
             if (timeSlice(data, nCFEB, nSample) == nullptr) {
               LOG_WARN << "CFEB" << nCFEB << " nSample: " << nSample << " - B-Word";
               continue;
             }
 
             if (mo_CFEB_DMB_L1A_diff && !fCloseL1As) {
-              /**  if (mo_CFEB_DMB_L1A_diff)  */
               int cfeb_dmb_l1a_diff =
                   (int)((timeSlice(data, nCFEB, nSample)->get_L1A_number()) - dmbHeader->l1a24() % 64);
               if (cfeb_dmb_l1a_diff != 0) {
@@ -1558,11 +1965,6 @@ namespace cscdqm {
                   0.1, 1.1 * (1.0 + mo_CFEB_DMB_L1A_diff->GetBinContent(mo_CFEB_DMB_L1A_diff->GetMaximumBin())), "Y");
             }
 
-            /**  LOG_DEBUG <<  " nSample = " << nSample; */
-            /**  for(int nLayer = 1; nLayer <= N_Layers; ++nLayer)  */
-            //             scaControllerWord[nCFEB][nSample][nLayer-1] = timeSlice(cfebData, nCFEB, nSample)->scaControllerWord(nLayer);
-
-            // TrigTime = (int)(timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).trig_time);
             /** --------------B */
             FreeCells = timeSlice(data, nCFEB, nSample)->get_n_free_sca_blocks();
             LCT_Pipe_Empty = timeSlice(data, nCFEB, nSample)->get_lctpipe_empty();
@@ -1570,26 +1972,19 @@ namespace cscdqm {
             LCT_Pipe_Count = timeSlice(data, nCFEB, nSample)->get_lctpipe_count();
             L1_Pipe_Empty = timeSlice(data, nCFEB, nSample)->get_l1pipe_empty();
             L1_Pipe_Full = timeSlice(data, nCFEB, nSample)->get_l1pipe_full();
-            /**  L1_Pipe_Count = (timeSlice[nCFEB][nSample])->get_L1A_number(); */
             Buffer_Count = timeSlice(data, nCFEB, nSample)->get_buffer_count();
 
             SCA_BLK = (int)(timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).sca_blk);
-            /**  LOG_DEBUG <<  "SCA BLOCK: Chamber=" << chamberID << " CFEB=" << nCFEB + 1 */
-            /**   <<" TRIGTIME="<<TrigTime<<" TimeSlice="<<nSample+1<<" Layer="<<nLayer<<" SCA_BLK="<<SCA_BLK; */
 
             for (int nStrip = 0; nStrip < N_Strips; ++nStrip) {
               SCABlockData[nCFEB * 16 + nStrip][nSample][nLayer - 1] = SCA_BLK;
-              /**  if(res<=1) TrigTimeData[nCFEB*16+nStrip][nSample][nLayer-1] = TrigTime; */
             }
-            /** LOG_DEBUG << "*********"<<" TRIGTIME="<<TrigTime<<" BIT COUNT="<<bit_count; */
 
             /**  SCA Block Occupancy Histograms */
-            /**  if (getCSCHisto(h::CSC_CFEBXX_SCA_BLOCK_OCCUPANCY, crateID, dmbID, nCFEB + 1, mo)) mo->Fill(SCA_BLK); */
             if (mo_CFEB_SCA_Block_Occupancy)
               mo_CFEB_SCA_Block_Occupancy->Fill(SCA_BLK);
 
             /**  Free SCA Cells */
-            /**  if (getCSCHisto(h::CSC_CFEBXX_FREE_SCA_CELLS, crateID, dmbID, nCFEB + 1, mo))  */
             if (mo_CFEB_Free_SCA_Cells) {
               if (timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).sca_full == 1)
                 mo_CFEB_Free_SCA_Cells->Fill(-1);
@@ -1597,7 +1992,6 @@ namespace cscdqm {
             }
 
             /**  Number of SCA Blocks Locked by LCTs */
-            /**  if (getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTS, crateID, dmbID, nCFEB + 1, mo))  */
             if (mo_CFEB_SCA_Blocks_Locked_by_LCTs) {
               if (LCT_Pipe_Empty == 1)
                 mo_CFEB_SCA_Blocks_Locked_by_LCTs->Fill(-0.5);
@@ -1607,7 +2001,6 @@ namespace cscdqm {
             }
 
             /**  Number of SCA Blocks Locked by LCTxL1 */
-            /**  if (getCSCHisto(h::CSC_CFEBXX_SCA_BLOCKS_LOCKED_BY_LCTXL1, crateID, dmbID, nCFEB + 1, mo))  */
             if (mo_CFEB_SCA_Blocks_Locked_by_LCTxL1) {
               if (L1_Pipe_Empty == 1)
                 mo_CFEB_SCA_Blocks_Locked_by_LCTxL1->Fill(-0.5);
@@ -1617,7 +2010,6 @@ namespace cscdqm {
             }
 
             /** --------------E */
-            /**  LOG_DEBUG <<  "nCFEB " << nCFEB << " nSample " << nSample << " nLayer " << nLayer << " TrigTime " << TrigTime; */
             if (nSample == 0 && nLayer == 1) {
               TrigTime = (int)(timeSlice(data, nCFEB, nSample)->scaControllerWord(nLayer).trig_time);
               int k = 1;
@@ -1633,8 +2025,6 @@ namespace cscdqm {
 
               if (getCSCHisto(h::CSC_CFEBXX_LCT_PHASE_VS_L1A_PHASE, crateID, dmbID, nCFEB + 1, mo))
                 mo->Fill(LCTPhase, L1APhase);
-
-              /**  LOG_DEBUG <<  "L1APhase " << L1APhase << " UnpackedTrigTime " << UnpackedTrigTime; */
 
               if (getCSCHisto(h::CSC_CFEBXX_L1A_SYNC_TIME_VS_DMB, crateID, dmbID, nCFEB + 1, mo))
                 mo->Fill((int)(dmbHeader->dmbCfebSync()), (int)UnpackedTrigTime);
@@ -1654,41 +2044,33 @@ namespace cscdqm {
             }
 
             for (int nStrip = 1; nStrip <= N_Strips; ++nStrip) {
-              //               timeSample[nCFEB][nSample][nLayer - 1][nStrip - 1]=(data.cfebData(nCFEB)->timeSlice(nSample))->timeSample(nLayer,nStrip,data.cfebData(nCFEB)->isDCFEB());
               ADC = (int)((timeSample(data, nCFEB, nSample, nLayer, nStrip)->adcCounts) & 0xFFF);
-              /**  LOG_DEBUG <<  " nStrip="<< dec << nStrip << " ADC=" << std::hex << ADC; */
               OutOffRange = (int)((timeSample(data, nCFEB, nSample, nLayer, nStrip)->adcOverflow) & 0x1);
 
               if (nSample == 0) {  // nSample == 0
                 CellPeak[nCFEB][nLayer - 1][nStrip - 1] = std::make_pair(nSample, ADC);
                 Pedestal[nCFEB][nLayer - 1][nStrip - 1] = ADC;
-                /**  LOG_DEBUG <<  " nStrip="<< dec << nStrip << " Pedestal=" << std::hex << Pedestal[nCFEB][nLayer-1][nStrip-1]; */
               }
 
               if (OutOffRange == 1 && CheckOutOffRangeStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] == true) {
-                /**  if (getCSCHisto(h::CSC_CFEB_OUT_OFF_RANGE_STRIPS_LYXX, crateID, dmbID, nLayer, mo))  */
                 if (mo_CFEB_Out_Off_Range_Strips)
                   mo_CFEB_Out_Off_Range_Strips->Fill((int)(nCFEB * 16 + nStrip - 1));
                 CheckOutOffRangeStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] = false;
               }
               if (ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1] > Threshold && OutOffRange != 1) {
-                /**  if (getCSCHisto(h::CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX, crateID, dmbID, nLayer, mo)) */
                 if (mo_CFEB_Active_Samples_vs_Strip)
                   mo_CFEB_Active_Samples_vs_Strip->Fill((int)(nCFEB * 16 + nStrip - 1), nSample);
 
-                /**  if (getCSCHisto(h::CSC_CFEB_ACTIVE_SAMPLES_VS_STRIP_LYXX_PROFILE, crateID, dmbID, nLayer, mo)) */
                 if (mo_CFEB_Active_Samples_vs_Strip_Profile)
                   mo_CFEB_Active_Samples_vs_Strip_Profile->Fill((int)(nCFEB * 16 + nStrip - 1), nSample);
 
                 if (CheckThresholdStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] == true) {
-                  /**  if (getCSCHisto(h::CSC_CFEB_ACTIVESTRIPS_LYXX, crateID, dmbID, nLayer, mo)) */
                   if (mo_CFEB_ActiveStrips)
                     mo_CFEB_ActiveStrips->Fill((int)(nCFEB * 16 + nStrip));
                   CheckThresholdStripInTheLayer[nLayer - 1][nCFEB * 16 + nStrip - 1] = false;
                 }
                 /** --------------B */
                 if (ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1] > Threshold) {
-                  /**  LOG_DEBUG <<  "Layer="<<nLayer<<" Strip="<<nCFEB*16+nStrip<<" Time="<<nSample << " ADC-PEDEST = "<<ADC - Pedestal[nCFEB][nLayer-1][nStrip-1]; */
                   cscdata[nCFEB * 16 + nStrip - 1][nSample][nLayer - 1] = ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1];
                 }
                 /** --------------E */
@@ -1702,18 +2084,14 @@ namespace cscdqm {
               if (nSample == 1) {
                 int channel_threshold = 40;
                 if (std::abs(ADC - Pedestal[nCFEB][nLayer - 1][nStrip - 1]) < channel_threshold) {
-                  /**  if (getCSCHisto(h::CSC_CFEB_PEDESTAL__WITHEMV__SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo)) */
                   if (mo_CFEB_Pedestal_withEMV_Sample)
                     mo_CFEB_Pedestal_withEMV_Sample->Fill((int)(nCFEB * 16 + nStrip - 1),
                                                           Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
 
-                  /** if (getCSCHisto(h::CSC_CFEB_PEDESTAL__WITHRMS__SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo))  */
                   if (mo_CFEB_Pedestal_withRMS_Sample) {
                     mo_CFEB_Pedestal_withRMS_Sample->Fill((int)(nCFEB * 16 + nStrip - 1),
                                                           Pedestal[nCFEB][nLayer - 1][nStrip - 1]);
-                    //                     PedestalError[nCFEB][nLayer - 1][nStrip - 1] = mo_CFEB_Pedestal_withRMS_Sample->GetBinError(nCFEB * 16 + nStrip);
 
-                    /**  if (getCSCHisto(h::CSC_CFEB_PEDESTALRMS_SAMPLE_01_LYXX, crateID, dmbID, nLayer, mo))  */
                     if (mo_CFEB_PedestalRMS_Sample) {
                       mo_CFEB_PedestalRMS_Sample->SetBinContent(
                           nCFEB * 16 + nStrip - 1, mo_CFEB_Pedestal_withRMS_Sample->GetBinError(nCFEB * 16 + nStrip));
@@ -1803,25 +2181,17 @@ namespace cscdqm {
     StripClusterFinder ClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips);
 
     for (int nLayer = 1; nLayer <= N_Layers; ++nLayer) {
-      /**  StripClusterFinder *ClusterFinder = new StripClusterFinder(N_Layers, N_Samples, N_CFEBs, N_Strips); */
-
       ClusterFinder.DoAction(nLayer - 1, Cathodes);
       Clus = ClusterFinder.getClusters();
 
-      /**  LOG_DEBUG <<  "***  CATHODE PART  DEBUG: Layer=" << nLayer <<"  Number of Clusters=" << Clus.size() << "      ***"; */
       /**  Number of Clusters Histograms */
       if (getCSCHisto(h::CSC_CFEB_NUMBER_OF_CLUSTERS_LY_XX, crateID, dmbID, nLayer, mo)) {
-        // Allways true because Clus.size() = unsigned
-        // if (Clus.size() >= 0)
         mo->Fill(Clus.size());
       }
 
       for (uint32_t u = 0; u < Clus.size(); u++) {
         Clus_Sum_Charge = 0.0;
-
         for (uint32_t k = 0; k < Clus[u].ClusterPulseMapHeight.size(); k++) {
-          /**  LOG_DEBUG <<  "Strip: " << Clus[u].ClusterPulseMapHeight[k].channel_+1; */
-
           for (int n = Clus[u].LFTBNDTime; n < Clus[u].IRTBNDTime; n++) {
             Clus_Sum_Charge = Clus_Sum_Charge + Clus[u].ClusterPulseMapHeight[k].height_[n];
           }

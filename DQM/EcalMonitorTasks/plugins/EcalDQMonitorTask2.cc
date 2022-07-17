@@ -90,10 +90,14 @@ void EcalDQMonitorTask::formSchedule(std::vector<ecaldqm::Collections> const& _p
         sch.first = &EcalDQMonitorTask::runOnCollection<EESrFlagCollection>;
         break;
       case ecaldqm::kEBDigi:
+      case ecaldqm::kEBCpuDigi:
+      case ecaldqm::kEBGpuDigi:
         collectionTokens_[*colItr] = edm::EDGetToken(consumes<EBDigiCollection>(tag));
         sch.first = &EcalDQMonitorTask::runOnCollection<EBDigiCollection>;
         break;
       case ecaldqm::kEEDigi:
+      case ecaldqm::kEECpuDigi:
+      case ecaldqm::kEEGpuDigi:
         collectionTokens_[*colItr] = edm::EDGetToken(consumes<EEDigiCollection>(tag));
         sch.first = &EcalDQMonitorTask::runOnCollection<EEDigiCollection>;
         break;
@@ -112,6 +116,10 @@ void EcalDQMonitorTask::formSchedule(std::vector<ecaldqm::Collections> const& _p
       case ecaldqm::kEELaserLedUncalibRecHit:
       case ecaldqm::kEBTestPulseUncalibRecHit:
       case ecaldqm::kEETestPulseUncalibRecHit:
+      case ecaldqm::kEBCpuUncalibRecHit:
+      case ecaldqm::kEECpuUncalibRecHit:
+      case ecaldqm::kEBGpuUncalibRecHit:
+      case ecaldqm::kEEGpuUncalibRecHit:
         collectionTokens_[*colItr] = edm::EDGetToken(consumes<EcalUncalibratedRecHitCollection>(tag));
         sch.first = &EcalDQMonitorTask::runOnCollection<EcalUncalibratedRecHitCollection>;
         break;
@@ -119,6 +127,10 @@ void EcalDQMonitorTask::formSchedule(std::vector<ecaldqm::Collections> const& _p
       case ecaldqm::kEBReducedRecHit:
       case ecaldqm::kEERecHit:
       case ecaldqm::kEEReducedRecHit:
+      case ecaldqm::kEBCpuRecHit:
+      case ecaldqm::kEECpuRecHit:
+      case ecaldqm::kEBGpuRecHit:
+      case ecaldqm::kEEGpuRecHit:
         collectionTokens_[*colItr] = edm::EDGetToken(consumes<EcalRecHitCollection>(tag));
         sch.first = &EcalDQMonitorTask::runOnCollection<EcalRecHitCollection>;
         break;

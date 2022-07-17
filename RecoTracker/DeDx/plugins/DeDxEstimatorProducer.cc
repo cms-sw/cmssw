@@ -37,10 +37,11 @@ void DeDxEstimatorProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("ShapeTest", true);
   desc.add<bool>("UseCalibration", false);
   desc.add<string>("calibrationPath", "");
-  desc.add<string>("Reccord", "SiStripDeDxMip_3D_Rcd");
+  desc.add<string>("Record", "SiStripDeDxMip_3D_Rcd");
   desc.add<string>("ProbabilityMode", "Accumulation");
   desc.add<double>("fraction", 0.4);
   desc.add<double>("exponent", -2.0);
+  desc.add<bool>("truncate", true);
 
   descriptions.add("DeDxEstimatorProducer", desc);
 }
@@ -97,7 +98,7 @@ void DeDxEstimatorProducer::beginRun(edm::Run const& run, const edm::EventSetup&
   if (useCalibration && calibGains.empty()) {
     m_off = tkGeom->offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
 
-    DeDxTools::makeCalibrationMap(m_calibrationPath, *tkGeom, calibGains, m_off);
+    deDxTools::makeCalibrationMap(m_calibrationPath, *tkGeom, calibGains, m_off);
   }
 
   m_estimator->beginRun(run, iSetup);
@@ -182,9 +183,9 @@ void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit,
       detUnit = tkGeom->idToDet(thit.geographicalId());
     int NSaturating = 0;
     float pathLen = detUnit->surface().bounds().thickness() / fabs(cosine);
-    float chargeAbs = DeDxTools::getCharge(&(clus.stripCluster()), NSaturating, *detUnit, calibGains, m_off);
+    float chargeAbs = deDxTools::getCharge(&(clus.stripCluster()), NSaturating, *detUnit, calibGains, m_off);
     float charge = meVperADCStrip * chargeAbs / pathLen;
-    if (!shapetest || (shapetest && DeDxTools::shapeSelection(clus.stripCluster()))) {
+    if (!shapetest || (shapetest && deDxTools::shapeSelection(clus.stripCluster()))) {
       dedxHits.push_back(DeDxHit(charge, trackMomentum, pathLen, thit.geographicalId()));
       if (NSaturating > 0)
         NClusterSaturating++;
@@ -202,9 +203,9 @@ void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit,
     auto& detUnitM = *(gdet->monoDet());
     int NSaturating = 0;
     float pathLen = detUnitM.surface().bounds().thickness() / fabs(cosine);
-    float chargeAbs = DeDxTools::getCharge(&(matchedHit->monoCluster()), NSaturating, detUnitM, calibGains, m_off);
+    float chargeAbs = deDxTools::getCharge(&(matchedHit->monoCluster()), NSaturating, detUnitM, calibGains, m_off);
     float charge = meVperADCStrip * chargeAbs / pathLen;
-    if (!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->monoCluster()))) {
+    if (!shapetest || (shapetest && deDxTools::shapeSelection(matchedHit->monoCluster()))) {
       dedxHits.push_back(DeDxHit(charge, trackMomentum, pathLen, matchedHit->monoId()));
       if (NSaturating > 0)
         NClusterSaturating++;
@@ -213,9 +214,9 @@ void DeDxEstimatorProducer::processHit(const TrackingRecHit* recHit,
     auto& detUnitS = *(gdet->stereoDet());
     NSaturating = 0;
     pathLen = detUnitS.surface().bounds().thickness() / fabs(cosine);
-    chargeAbs = DeDxTools::getCharge(&(matchedHit->stereoCluster()), NSaturating, detUnitS, calibGains, m_off);
+    chargeAbs = deDxTools::getCharge(&(matchedHit->stereoCluster()), NSaturating, detUnitS, calibGains, m_off);
     charge = meVperADCStrip * chargeAbs / pathLen;
-    if (!shapetest || (shapetest && DeDxTools::shapeSelection(matchedHit->stereoCluster()))) {
+    if (!shapetest || (shapetest && deDxTools::shapeSelection(matchedHit->stereoCluster()))) {
       dedxHits.push_back(DeDxHit(charge, trackMomentum, pathLen, matchedHit->stereoId()));
       if (NSaturating > 0)
         NClusterSaturating++;

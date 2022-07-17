@@ -3,6 +3,7 @@
 
 <ConstantsSection label="hgcalcell.xml" eval="true">
   <Constant name="WaferSize"             value="[hgcal:WaferSize]"/>
+  <Constant name="SensorSeparation"      value="[hgcal:SensorSeparation]"/>
   <Constant name="WaferThicknessFine"    value="[hgcal:WaferThicknessFine]"/>
   <Constant name="WaferThicknessCoarse1" value="[hgcal:WaferThicknessCoarse1]"/>
   <Constant name="WaferThicknessCoarse2" value="[hgcal:WaferThicknessCoarse2]"/>
@@ -29,17 +30,17 @@
        HGCalEECellTrunc03Fine, HGCalEECellTrunc04Fine,
        HGCalEECellTrunc05Fine, HGCalEECellTrunc06Fine</Vector>
     <Vector name="TruncatedSensitive" type="string" nEntries="6">
-      HGCalEESensitiveTrunc01Fine, HGCalEESensitiveTrunc02Fine,
-      HGCalEESensitiveTrunc03Fine, HGCalEESensitiveTrunc04Fine,
-      HGCalEESensitiveTrunc05Fine, HGCalEESensitiveTrunc06Fine</Vector>
+      HGCalEECellSensitiveTrunc01Fine, HGCalEECellSensitiveTrunc02Fine,
+      HGCalEECellSensitiveTrunc03Fine, HGCalEECellSensitiveTrunc04Fine,
+      HGCalEECellSensitiveTrunc05Fine, HGCalEECellSensitiveTrunc06Fine</Vector>
     <Vector name="ExtendedCell" type="string" nEntries="6">
        HGCalEECellExten01Fine, HGCalEECellExten02Fine,
        HGCalEECellExten03Fine, HGCalEECellExten04Fine,
        HGCalEECellExten05Fine, HGCalEECellExten06Fine</Vector>
     <Vector name="ExtendedSensitive" type="string" nEntries="6">
-      HGCalEESensitiveExten01Fine, HGCalEESensitiveExten02Fine,
-      HGCalEESensitiveExten03Fine, HGCalEESensitiveExten04Fine,
-      HGCalEESensitiveExten05Fine, HGCalEESensitiveExten06Fine</Vector>
+      HGCalEECellSensitiveExten01Fine, HGCalEECellSensitiveExten02Fine,
+      HGCalEECellSensitiveExten03Fine, HGCalEECellSensitiveExten04Fine,
+      HGCalEECellSensitiveExten05Fine, HGCalEECellSensitiveExten06Fine</Vector>
     <Vector name="CornerCell" type="string" nEntries="12">
        HGCalEECellCorner01Fine, HGCalEECellCorner02Fine,
        HGCalEECellCorner03Fine, HGCalEECellCorner04Fine,
@@ -48,12 +49,12 @@
        HGCalEECellCorner09Fine, HGCalEECellCorner10Fine,
        HGCalEECellCorner11Fine, HGCalEECellCorner12Fine</Vector>
     <Vector name="CornerSensitive" type="string" nEntries="12">
-      HGCalEESensitiveCorner01Fine, HGCalEESensitiveCorner02Fine,
-      HGCalEESensitiveCorner03Fine, HGCalEESensitiveCorner04Fine,
-      HGCalEESensitiveCorner05Fine, HGCalEESensitiveCorner06Fine,
-      HGCalEESensitiveCorner07Fine, HGCalEESensitiveCorner08Fine,
-      HGCalEESensitiveCorner09Fine, HGCalEESensitiveCorner10Fine,
-      HGCalEESensitiveCorner11Fine, HGCalEESensitiveCorner126Fine</Vector>
+      HGCalEECellSensitiveCorner01Fine, HGCalEECellSensitiveCorner02Fine,
+      HGCalEECellSensitiveCorner03Fine, HGCalEECellSensitiveCorner04Fine,
+      HGCalEECellSensitiveCorner05Fine, HGCalEECellSensitiveCorner06Fine,
+      HGCalEECellSensitiveCorner07Fine, HGCalEECellSensitiveCorner08Fine,
+      HGCalEECellSensitiveCorner09Fine, HGCalEECellSensitiveCorner10Fine,
+      HGCalEECellSensitiveCorner11Fine, HGCalEECellSensitiveCorner12Fine</Vector>
   </Algorithm>
 </PosPartSection>
 

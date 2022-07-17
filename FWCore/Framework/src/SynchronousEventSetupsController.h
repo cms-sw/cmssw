@@ -20,8 +20,8 @@
 
 #include "FWCore/Framework/interface/EventSetupsController.h"
 
-#include "tbb/task_group.h"
-#include "tbb/global_control.h"
+#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/global_control.h"
 
 namespace edm {
 
@@ -45,8 +45,8 @@ namespace edm {
       void eventSetupForInstance(IOVSyncValue const&);
 
     private:
-      tbb::global_control globalControl_;
-      tbb::task_group taskGroup_;
+      oneapi::tbb::global_control globalControl_;
+      oneapi::tbb::task_group taskGroup_;
       EventSetupsController controller_;
     };
   }  // namespace eventsetup

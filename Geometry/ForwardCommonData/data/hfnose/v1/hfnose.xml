@@ -9,7 +9,7 @@
   <Constant name="FixShldR5"             value="1.7000*m"/>
   <Constant name="FixShldR7"             value="2.1000*m"/>
   <Constant name="FixShldR8"             value="2.1500*m"/>
-  <Constant name="WaferSize"             value="167.4408*mm"/>
+  <Constant name="WaferSize"             value="166.4408*mm"/>
   <Constant name="WaferThickness"        value="0.30*mm"/>
   <Constant name="SensorSeparation"      value="1.00*mm"/>
   <Constant name="MouseBite"             value="5.00*mm"/>

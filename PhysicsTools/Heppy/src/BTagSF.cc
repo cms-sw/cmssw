@@ -43,13 +43,11 @@ namespace heppy {
 
     if (std::abs(jetflavor) == 5) {  // real b-jet
       if (csv > 0.679) {             // if tagged
-        btagged = kTRUE;
         if (demoteProb_btag > 0 && randm->Uniform() > demoteProb_btag)
           btagged = kTRUE;  // leave it tagged
         else
           btagged = kFALSE;  // demote it to untagged
       } else {
-        btagged = kFALSE;
         if (promoteProb_btag > 0 && randm->Uniform() < promoteProb_btag)
           btagged = kTRUE;  // promote it to tagged
         else
@@ -84,13 +82,11 @@ namespace heppy {
     }
 
     if (csv > 0.679) {  // if tagged
-      btagged = kTRUE;
       if (demoteProb_mistag > 0 && randm->Uniform() > demoteProb_mistag)
         btagged = kFALSE;  // demote it to untagged
       else
         btagged = kTRUE;  // leave it tagged
     } else {              // not tagged
-      btagged = kFALSE;
       if (promoteProb_mistag > 0 && randm->Uniform() < promoteProb_mistag)
         btagged = kTRUE;  // promote it to tagged
       else

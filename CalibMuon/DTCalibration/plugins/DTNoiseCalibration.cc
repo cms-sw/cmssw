@@ -356,7 +356,7 @@ void DTNoiseCalibration::endJob() {
   }
 
   // Save on file the occupancy histos and write the list of noisy cells
-  DTStatusFlag* statusMap = new DTStatusFlag();
+  DTStatusFlag statusMap;
   for (map<DTLayerId, TH1F*>::const_iterator lHisto = theHistoOccupancyMap_.begin();
        lHisto != theHistoOccupancyMap_.end();
        ++lHisto) {
@@ -405,7 +405,7 @@ void DTNoiseCalibration::endJob() {
         double rateOffset = (useAbsoluteRate_) ? 0. : averageRate;
         if ((channelRate - rateOffset) > maximumNoiseRate_) {
           DTWireId wireID((*lHisto).first, i_wire);
-          statusMap->setCellNoise(wireID, true);
+          statusMap.setCellNoise(wireID, true);
           LogVerbatim("Calibration") << ">>> Channel noisy: " << wireID;
         }
       }

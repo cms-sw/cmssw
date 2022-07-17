@@ -42,6 +42,11 @@ namespace gen {
   bool Py8JetGun::generatePartonsAndHadronize() {
     fMasterGen->event.reset();
 
+    int NTotParticles = fPartIDs.size();
+
+    // energy below is dummy, it is not used
+    (fMasterGen->event).append(990, -11, 0, 0, 2, 1 + NTotParticles, 0, 0, 0., 0., 0., 15000., 15000.);
+
     double totPx = 0.;
     double totPy = 0.;
     double totPz = 0.;
@@ -50,7 +55,7 @@ namespace gen {
     double phi, eta, the, ee, pp;
 
     for (size_t i = 0; i < fPartIDs.size(); i++) {
-      int particleID = fPartIDs[i];  // this is PDG - need to convert to Py8 ???
+      int particleID = fPartIDs[i];  // this is PDG
 
       phi = 2. * M_PI * randomEngine().flat();
       the = acos(-1. + 2. * randomEngine().flat());
@@ -70,7 +75,7 @@ namespace gen {
       if (!((fMasterGen->particleData).isParticle(particleID))) {
         particleID = std::fabs(particleID);
       }
-      (fMasterGen->event).append(particleID, 1, 0, 0, px, py, pz, ee, mass);
+      (fMasterGen->event).append(particleID, 1, 1, 0, 0, 0, 0, 0, px, py, pz, ee, mass);
       int eventSize = (fMasterGen->event).size() - 1;
       // -log(flat) = exponential distribution
       double tauTmp = -(fMasterGen->event)[eventSize].tau0() * log(randomEngine().flat());

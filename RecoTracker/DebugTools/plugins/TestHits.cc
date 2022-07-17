@@ -29,16 +29,25 @@ TestHits::TestHits(const edm::ParameterSet& iConfig) : trackerHitAssociatorConfi
   fname = iConfig.getParameter<std::string>("Fitter");
   mineta = iConfig.getParameter<double>("mineta");
   maxeta = iConfig.getParameter<double>("maxeta");
+
+  theGToken = esConsumes<edm::Transition::BeginRun>();
+  theMFToken = esConsumes<edm::Transition::BeginRun>();
+  thePropagatorToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", propagatorName));
+  theBuilderToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", builderName));
+  fitToken = esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", fname));
+  tTopoToken = esConsumes();
+
+  theTCCollectionToken = consumes(edm::InputTag(srcName));
 }
 
 TestHits::~TestHits() {}
 
 void TestHits::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
-  iSetup.get<TrackerDigiGeometryRecord>().get(theG);
-  iSetup.get<IdealMagneticFieldRecord>().get(theMF);
-  iSetup.get<TrackingComponentsRecord>().get(propagatorName, thePropagator);
-  iSetup.get<TransientRecHitRecord>().get(builderName, theBuilder);
-  iSetup.get<TrajectoryFitter::Record>().get(fname, fit);
+  theG = iSetup.getHandle(theGToken);
+  theMF = iSetup.getHandle(theMFToken);
+  thePropagator = iSetup.getHandle(thePropagatorToken);
+  theBuilder = iSetup.getHandle(theBuilderToken);
+  fit = iSetup.getHandle(fitToken);
 
   file = new TFile("testhits.root", "recreate");
   for (int i = 0; i != 6; i++)
@@ -189,12 +198,11 @@ void TestHits::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
 
 void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<TrackerTopologyRcd>().get(tTopo);
+  edm::ESHandle<TrackerTopology> tTopo = iSetup.getHandle(tTopoToken);
 
   LogTrace("TestHits") << "\nnew event";
 
-  iEvent.getByLabel(srcName, theTCCollection);
+  theTCCollection = iEvent.getHandle(theTCCollectionToken);
   TrackerHitAssociator hitAssociator(iEvent, trackerHitAssociatorConfig_);
 
   TrajectoryStateCombiner combiner;

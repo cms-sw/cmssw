@@ -67,7 +67,10 @@ public:
                     bool etaFlag = false);
 
   /// copy constructor
-  L1MuBMTrackSegPhi(const L1MuBMTrackSegPhi&);
+  L1MuBMTrackSegPhi(const L1MuBMTrackSegPhi&) = default;
+
+  /// move constructor
+  L1MuBMTrackSegPhi(L1MuBMTrackSegPhi&&) = default;
 
   /// destructor
   virtual ~L1MuBMTrackSegPhi();
@@ -118,7 +121,10 @@ public:
   inline void setEtaFlag(bool flag) { m_etaFlag = flag; }
 
   /// assignment operator
-  L1MuBMTrackSegPhi& operator=(const L1MuBMTrackSegPhi&);
+  L1MuBMTrackSegPhi& operator=(const L1MuBMTrackSegPhi&) = default;
+
+  /// move assignment operator
+  L1MuBMTrackSegPhi& operator=(L1MuBMTrackSegPhi&&) = default;
 
   /// equal operator
   bool operator==(const L1MuBMTrackSegPhi&) const;

@@ -30,6 +30,7 @@
 
 #include "G4Timer.hh"
 #include "G4GeometryManager.hh"
+#include "G4ScoringManager.hh"
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
 #include "G4MTRunManagerKernel.hh"
@@ -62,6 +63,7 @@
 #include <memory>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
     : m_managerInitialized(false),
@@ -86,7 +88,8 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const& p)
   m_kernel = new G4MTRunManagerKernel();
   m_stateManager = G4StateManager::GetStateManager();
   double th = p.getParameter<double>("ThresholdForGeometryExceptions") * CLHEP::GeV;
-  m_stateManager->SetExceptionHandler(new ExceptionHandler(th));
+  bool tr = p.getParameter<bool>("TraceExceptions");
+  m_stateManager->SetExceptionHandler(new ExceptionHandler(th, tr));
   m_check = p.getUntrackedParameter<bool>("CheckGeometry", false);
 }
 
@@ -144,13 +147,13 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   std::unique_ptr<PhysicsListMakerBase> physicsMaker(
       PhysicsListFactory::get()->create(m_pPhysics.getParameter<std::string>("type")));
   if (physicsMaker.get() == nullptr) {
-    throw edm::Exception(edm::errors::Configuration) << "Unable to find the Physics list requested";
+    throw cms::Exception("Configuration") << "Unable to find the Physics list requested";
   }
   m_physicsList = physicsMaker->make(m_pPhysics, m_registry);
 
   PhysicsList* phys = m_physicsList.get();
   if (phys == nullptr) {
-    throw edm::Exception(edm::errors::Configuration, "Physics list construction failed!");
+    throw cms::Exception("Configuration") << "Physics list construction failed!";
   }
   if (stepverb > 0) {
     verb = std::max(verb, 1);
@@ -184,6 +187,12 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
 
   edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: PhysicsList and cuts are defined";
 
+  // Enable couple transportation
+  bool scorer = m_p.getParameter<bool>("UseCommandBaseScorer");
+  if (scorer) {
+    G4ScoringManager* scManager = G4ScoringManager::GetScoringManager();
+    scManager->SetVerboseLevel(1);
+  }
   // Geant4 UI commands before initialisation of physics
   if (!m_G4Commands.empty()) {
     edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT: Requested UI commands: ";
@@ -201,7 +210,7 @@ void RunManagerMT::initG4(const DDCompactView* pDD,
   if (m_kernel->RunInitialization()) {
     m_managerInitialized = true;
   } else {
-    throw edm::Exception(edm::errors::LogicError, "G4RunManagerKernel initialization failed!");
+    throw cms::Exception("LogicError") << "G4RunManagerKernel initialization failed!";
   }
 
   if (m_StorePhysicsTables) {
@@ -267,14 +276,17 @@ void RunManagerMT::Connect(RunAction* runAction) {
 }
 
 void RunManagerMT::stopG4() {
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::stopG4";
   G4GeometryManager::GetInstance()->OpenGeometry();
   m_stateManager->SetNewState(G4State_Quit);
   if (!m_runTerminated) {
     terminateRun();
   }
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::stopG4 done";
 }
 
 void RunManagerMT::terminateRun() {
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::terminateRun";
   if (nullptr != m_userRunAction) {
     m_userRunAction->EndOfRunAction(m_currentRun);
     delete m_userRunAction;
@@ -284,5 +296,5 @@ void RunManagerMT::terminateRun() {
     m_kernel->RunTermination();
   }
   m_runTerminated = true;
-  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT:: terminateRun done";
+  edm::LogVerbatim("SimG4CoreApplication") << "RunManagerMT::terminateRun done";
 }

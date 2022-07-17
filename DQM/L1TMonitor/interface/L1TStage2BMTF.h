@@ -37,10 +37,8 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "L1Trigger/L1TMuon/interface/MuonRawDigiTranslator.h"
 #include "L1Trigger/L1TMuon/interface/RegionalMuonRawDigiTranslator.h"

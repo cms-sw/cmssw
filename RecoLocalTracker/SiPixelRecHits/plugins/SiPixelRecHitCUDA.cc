@@ -80,7 +80,8 @@ void SiPixelRecHitCUDA::produce(edm::StreamID streamID, edm::Event& iEvent, cons
 
   ctx.emplace(iEvent,
               tokenHit_,
-              gpuAlgo_.makeHitsAsync(digis, clusters, bs, fcpe->getGPUProductAsync(ctx.stream()), ctx.stream()));
+              gpuAlgo_.makeHitsAsync(
+                  digis, clusters, bs, fcpe->getGPUProductAsync(ctx.stream()), fcpe->isPhase2(), ctx.stream()));
 }
 
 DEFINE_FWK_MODULE(SiPixelRecHitCUDA);

@@ -93,6 +93,7 @@ namespace edm {
   class LuminosityBlock;
   class Run;
   class EventSetup;
+  class IOVSyncValue;
   class HLTPathStatus;
   class GlobalContext;
   class StreamContext;
@@ -231,31 +232,30 @@ namespace edm {
     AR_WATCH_USING_METHOD_1(watchPostSourceProcessBlock)
 
     /// signal is emitted before the source opens a file
-    typedef signalslot::Signal<void(std::string const&, bool)> PreOpenFile;
+    typedef signalslot::Signal<void(std::string const&)> PreOpenFile;
     PreOpenFile preOpenFileSignal_;
     void watchPreOpenFile(PreOpenFile::slot_type const& iSlot) { preOpenFileSignal_.connect(iSlot); }
-    AR_WATCH_USING_METHOD_2(watchPreOpenFile)
+    AR_WATCH_USING_METHOD_1(watchPreOpenFile)
 
     /// signal is emitted after the source opens a file
     //   Note this is only done for a primary file, not a secondary one.
-    typedef signalslot::Signal<void(std::string const&, bool)> PostOpenFile;
+    typedef signalslot::Signal<void(std::string const&)> PostOpenFile;
     PostOpenFile postOpenFileSignal_;
     void watchPostOpenFile(PostOpenFile::slot_type const& iSlot) { postOpenFileSignal_.connect_front(iSlot); }
-    AR_WATCH_USING_METHOD_2(watchPostOpenFile)
+    AR_WATCH_USING_METHOD_1(watchPostOpenFile)
 
-    /// signal is emitted before the Closesource closes a file
+    /// signal is emitted before the source closes a file
     //   First argument is the LFN of the file which is being closed.
-    //   Second argument is false if fallback is used; true otherwise.
-    typedef signalslot::Signal<void(std::string const&, bool)> PreCloseFile;
+    typedef signalslot::Signal<void(std::string const&)> PreCloseFile;
     PreCloseFile preCloseFileSignal_;
     void watchPreCloseFile(PreCloseFile::slot_type const& iSlot) { preCloseFileSignal_.connect(iSlot); }
-    AR_WATCH_USING_METHOD_2(watchPreCloseFile)
+    AR_WATCH_USING_METHOD_1(watchPreCloseFile)
 
-    /// signal is emitted after the source opens a file
-    typedef signalslot::Signal<void(std::string const&, bool)> PostCloseFile;
+    /// signal is emitted after the source closes a file
+    typedef signalslot::Signal<void(std::string const&)> PostCloseFile;
     PostCloseFile postCloseFileSignal_;
     void watchPostCloseFile(PostCloseFile::slot_type const& iSlot) { postCloseFileSignal_.connect_front(iSlot); }
-    AR_WATCH_USING_METHOD_2(watchPostCloseFile)
+    AR_WATCH_USING_METHOD_1(watchPostCloseFile)
 
     typedef signalslot::Signal<void(StreamContext const&, ModuleCallingContext const&)> PreModuleBeginStream;
     PreModuleBeginStream preModuleBeginStreamSignal_;
@@ -518,6 +518,32 @@ namespace edm {
       preSourceEarlyTerminationSignal_.connect(iSlot);
     }
     AR_WATCH_USING_METHOD_1(watchPreSourceEarlyTermination)
+
+    /// signal is emitted after the ESModule is registered with EventSetupProvider
+    using PostESModuleRegistration = signalslot::Signal<void(eventsetup::ComponentDescription const&)>;
+    PostESModuleRegistration postESModuleRegistrationSignal_;
+    void watchPostESModuleRegistration(PostESModuleRegistration::slot_type const& iSlot) {
+      postESModuleRegistrationSignal_.connect(iSlot);
+    }
+    AR_WATCH_USING_METHOD_1(watchPostESModuleRegistration)
+
+    /// signal is emitted when a new IOV may be needed so we queue a task to do that
+    using ESSyncIOVQueuing = signalslot::Signal<void(IOVSyncValue const&)>;
+    ESSyncIOVQueuing esSyncIOVQueuingSignal_;
+    void watchESSyncIOVQueuing(ESSyncIOVQueuing::slot_type const& iSlot) { esSyncIOVQueuingSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchESSyncIOVQueuing)
+
+    /// signal is emitted just before a new IOV is synchronized
+    using PreESSyncIOV = signalslot::Signal<void(IOVSyncValue const&)>;
+    PreESSyncIOV preESSyncIOVSignal_;
+    void watchPreESSyncIOV(PreESSyncIOV::slot_type const& iSlot) { preESSyncIOVSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPreESSyncIOV)
+
+    /// signal is emitted just after a new IOV is synchronized
+    using PostESSyncIOV = signalslot::Signal<void(IOVSyncValue const&)>;
+    PostESSyncIOV postESSyncIOVSignal_;
+    void watchPostESSyncIOV(PostESSyncIOV::slot_type const& iSlot) { postESSyncIOVSignal_.connect(iSlot); }
+    AR_WATCH_USING_METHOD_1(watchPostESSyncIOV)
 
     /// signal is emitted before the esmodule starts processing and before prefetching has started
     typedef signalslot::Signal<void(eventsetup::EventSetupRecordKey const&, ESModuleCallingContext const&)>

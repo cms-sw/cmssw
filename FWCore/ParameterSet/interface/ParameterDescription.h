@@ -172,6 +172,7 @@ namespace edm {
       return writeParameterValue::hasNestedContent(value_);
     }
 
+    using ParameterDescriptionNode::writeCfi_;
     void writeCfi_(std::ostream& os, int indentation) const override {
       writeParameterValue::writeValue(os, indentation, value_, writeParameterValue::CFI);
     }
@@ -226,6 +227,7 @@ namespace edm {
 
     bool exists_(ParameterSet const& pset) const override;
 
+    using ParameterDescriptionNode::writeCfi_;
     void writeCfi_(std::ostream& os, int indentation) const override;
 
     void writeDoc_(std::ostream& os, int indentation) const override;
@@ -282,6 +284,7 @@ namespace edm {
 
     bool exists_(ParameterSet const& pset) const override;
 
+    using ParameterDescriptionNode::writeCfi_;
     void writeCfi_(std::ostream& os, int indentation) const override;
 
     void writeDoc_(std::ostream& os, int indentation) const override;

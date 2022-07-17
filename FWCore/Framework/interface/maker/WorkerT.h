@@ -15,6 +15,7 @@ WorkerT: Code common to all workers.
 #include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/propagate_const.h"
 
+#include <array>
 #include <map>
 #include <memory>
 #include <string>

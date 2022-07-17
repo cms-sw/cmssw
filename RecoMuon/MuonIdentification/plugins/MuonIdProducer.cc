@@ -64,6 +64,7 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   fillGlobalTrackQuality_ = iConfig.getParameter<bool>("fillGlobalTrackQuality");
   fillGlobalTrackRefits_ = iConfig.getParameter<bool>("fillGlobalTrackRefits");
   arbitrateTrackerMuons_ = iConfig.getParameter<bool>("arbitrateTrackerMuons");
+  selectHighPurity_ = iConfig.getParameter<bool>("selectHighPurity");
   //SK: (maybe temporary) run it only if the global is also run
   fillTrackerKink_ = false;
   if (fillGlobalTrackQuality_)
@@ -155,6 +156,11 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
   if (fillTrackerKink_) {
     trackerKinkFinder_ =
         std::make_unique<MuonKinkFinder>(iConfig.getParameter<edm::ParameterSet>("TrackerKinkFinderParameters"), iC);
+  }
+
+  if (selectHighPurity_) {
+    const auto& pvTag = iConfig.getParameter<edm::InputTag>("pvInputTag");
+    pvToken_ = mayConsume<reco::VertexCollection>(pvTag);
   }
 
   //create mesh holder
@@ -253,6 +259,8 @@ void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(rpcHitToken_, rpcHitHandle_);
   if (fillGlobalTrackQuality_)
     iEvent.getByToken(glbQualToken_, glbQualHandle_);
+  if (selectHighPurity_)
+    iEvent.getByToken(pvToken_, pvHandle_);
 }
 
 reco::Muon MuonIdProducer::makeMuon(edm::Event& iEvent,
@@ -540,6 +548,11 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
       const reco::Track& track = innerTrackCollectionHandle_->at(i);
       if (!isGoodTrack(track))
         continue;
+      if (selectHighPurity_ && !track.quality(reco::TrackBase::highPurity)) {
+        const reco::VertexCollection* recoVertices = pvHandle_.product();
+        if (!(*recoVertices)[0].isFake())
+          continue;
+      }
       const auto& trackRef = reco::TrackRef(innerTrackCollectionHandle_, i);
       bool splitTrack = false;
       if (track.extra().isAvailable() && TrackDetectorAssociator::crossedIP(track))
@@ -1396,6 +1409,10 @@ void MuonIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("arbitrateTrackerMuons", false);
   desc.add<bool>("storeCrossedHcalRecHits", false);
   desc.add<bool>("fillShowerDigis", false);
+  desc.ifValue(
+      edm::ParameterDescription<bool>("selectHighPurity", false, true),
+      true >> (edm::ParameterDescription<edm::InputTag>("pvInputTag", edm::InputTag("offlinePrimaryVertices"), true)) or
+          false >> (edm::ParameterDescription<edm::InputTag>("pvInputTag", edm::InputTag(""), true)));
 
   edm::ParameterSetDescription descTrkAsoPar;
   descTrkAsoPar.add<edm::InputTag>("GEMSegmentCollectionLabel", edm::InputTag("gemSegments"));

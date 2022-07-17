@@ -23,9 +23,9 @@
 // auxilliary functions
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
 #include "CalibTracker/StandaloneTrackerTopology/interface/StandaloneTrackerTopology.h"
-
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "SiStripCondObjectRepresent.h"
 
 #include <memory>
 #include <sstream>
@@ -45,8 +45,135 @@
 #include "TPaveStats.h"
 
 namespace {
-
   using namespace cond::payloadInspector;
+
+  class SiStripPedestalContainer : public SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float> {
+  public:
+    SiStripPedestalContainer(const std::shared_ptr<SiStripPedestals>& payload,
+                             const SiStripPI::MetaData& metadata,
+                             const std::string& tagName)
+        : SiStripCondObjectRepresent::SiStripDataContainer<SiStripPedestals, float>(payload, metadata, tagName) {
+      payloadType_ = "SiStripPedestals";
+      setGranularity(SiStripCondObjectRepresent::PERSTRIP);
+    }
+
+    void storeAllValues() override {
+      std::vector<uint32_t> detid;
+      payload_->getDetIds(detid);
+
+      for (const auto& d : detid) {
+        SiStripPedestals::Range range = payload_->getRange(d);
+        for (int it = 0; it < (range.second - range.first) * 8 / 10; ++it) {
+          // to be used to fill the histogram
+          SiStripCondData_.fillByPushBack(d, payload_->getPed(it, range));
+        }
+      }
+    }
+  };
+
+  class SiStripPedestalCompareByPartition : public PlotImage<SiStripPedestals, MULTI_IOV, 2> {
+  public:
+    SiStripPedestalCompareByPartition()
+        : PlotImage<SiStripPedestals, MULTI_IOV, 2>("SiStrip Compare Pedestals By Partition") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
+
+      std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, tagname1);
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, tagname2);
+
+      l_objContainer->compare(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 300, 0.1, 300.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripPedestalDiffByPartition : public PlotImage<SiStripPedestals, MULTI_IOV, 2> {
+  public:
+    SiStripPedestalDiffByPartition()
+        : PlotImage<SiStripPedestals, MULTI_IOV, 2>("SiStrip Diff Pedestals By Partition") {}
+
+    bool fill() override {
+      // trick to deal with the multi-ioved tag and two tag case at the same time
+      auto theIOVs = PlotBase::getTag<0>().iovs;
+      auto tagname1 = PlotBase::getTag<0>().name;
+      auto tag2iovs = PlotBase::getTag<1>().iovs;
+      auto tagname2 = PlotBase::getTag<1>().name;
+      SiStripPI::MetaData firstiov = theIOVs.front();
+      SiStripPI::MetaData lastiov = tag2iovs.front();
+
+      std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, tagname1);
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, tagname2);
+
+      l_objContainer->subtract(f_objContainer);
+
+      //l_objContainer->printAll();
+
+      TCanvas canvas("Partition summary", "partition summary", 1400, 1000);
+      l_objContainer->fillByPartition(canvas, 100, -30., 30.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
+
+  class SiStripPedestalCorrelationByPartition : public PlotImage<SiStripPedestals> {
+  public:
+    SiStripPedestalCorrelationByPartition()
+        : PlotImage<SiStripPedestals>("SiStrip Pedestals Correlation By Partition") {
+      setSingleIov(false);
+    }
+
+    bool fill(const std::vector<SiStripPI::MetaData>& iovs) override {
+      std::vector<SiStripPI::MetaData> sorted_iovs = iovs;
+
+      // make absolute sure the IOVs are sortd by since
+      std::sort(begin(sorted_iovs), end(sorted_iovs), [](auto const& t1, auto const& t2) {
+        return std::get<0>(t1) < std::get<0>(t2);
+      });
+
+      auto firstiov = sorted_iovs.front();
+      auto lastiov = sorted_iovs.back();
+
+      std::shared_ptr<SiStripPedestals> last_payload = fetchPayload(std::get<1>(lastiov));
+      std::shared_ptr<SiStripPedestals> first_payload = fetchPayload(std::get<1>(firstiov));
+
+      SiStripPedestalContainer* l_objContainer = new SiStripPedestalContainer(last_payload, lastiov, "");
+      SiStripPedestalContainer* f_objContainer = new SiStripPedestalContainer(first_payload, firstiov, "");
+
+      l_objContainer->compare(f_objContainer);
+
+      TCanvas canvas("Partition summary", "partition summary", 1200, 1200);
+      l_objContainer->fillCorrelationByPartition(canvas, 100, 0., 300.);
+
+      std::string fileName(m_imageFileName);
+      canvas.SaveAs(fileName.c_str());
+
+      return true;
+    }  // fill
+  };
 
   /************************************************
     test class
@@ -158,9 +285,9 @@ namespace {
               Form("Pedestal profile %s", std::to_string(the_detid).c_str()),
               Form("SiStrip Pedestal profile for DetId: %s;Strip number;SiStrip Pedestal [ADC counts]",
                    std::to_string(the_detid).c_str()),
-              128 * nAPVs,
+              sistrip::STRIPS_PER_APV * nAPVs,
               -0.5,
-              (128 * nAPVs) - 0.5);
+              (sistrip::STRIPS_PER_APV * nAPVs) - 0.5);
 
           histo->SetStats(false);
           histo->SetTitle("");
@@ -191,7 +318,7 @@ namespace {
 
           std::vector<int> boundaries;
           for (size_t b = 0; b < v_nAPVs.at(index); b++) {
-            boundaries.push_back(b * 128);
+            boundaries.push_back(b * sistrip::STRIPS_PER_APV);
           }
 
           std::vector<std::shared_ptr<TLine>> linesVec;
@@ -378,7 +505,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -394,7 +521,7 @@ namespace {
           }
 
           epedestal.add(std::min<float>(pedestal, 300.));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -461,12 +588,14 @@ namespace {
         : PlotImage<SiStripPedestals, nIOVs, ntags>("SiStrip Pedestal values comparison") {}
 
     bool fill() override {
+      TGaxis::SetExponentOffset(-0.1, 0.01, "y");  // X and Y offset for Y axis
+
       // trick to deal with the multi-ioved tag and two tag case at the same time
       auto theIOVs = PlotBase::getTag<0>().iovs;
       auto tagname1 = PlotBase::getTag<0>().name;
       std::string tagname2 = "";
       auto firstiov = theIOVs.front();
-      std::tuple<cond::Time_t, cond::Hash> lastiov;
+      SiStripPI::MetaData lastiov;
 
       // we don't support (yet) comparison with more than 2 tags
       assert(this->m_plotAnnotations.ntags < 3);
@@ -485,12 +614,7 @@ namespace {
       auto f_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
           op_mode_,
           "f_Pedestal",
-          Form("#LT Strip Pedestal #GT per %s for IOV [%s,%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
-               opType(op_mode_).c_str(),
-               std::to_string(std::get<0>(firstiov)).c_str(),
-               std::to_string(std::get<0>(lastiov)).c_str(),
-               opType(op_mode_).c_str(),
-               opType(op_mode_).c_str()),
+          Form(";#LTStrip Pedestal per %s#GT [ADC counts];n. %ss", opType(op_mode_).c_str(), opType(op_mode_).c_str()),
           300,
           0.,
           300.));
@@ -498,12 +622,7 @@ namespace {
       auto l_mon = std::unique_ptr<SiStripPI::Monitor1D>(new SiStripPI::Monitor1D(
           op_mode_,
           "l_Pedestal",
-          Form("#LT Strip Pedestal #GT per %s for IOV [%s,%s];#LTStrip Pedestal per %s#GT [ADC counts];n. %ss",
-               opType(op_mode_).c_str(),
-               std::to_string(std::get<0>(lastiov)).c_str(),
-               std::to_string(std::get<0>(lastiov)).c_str(),
-               opType(op_mode_).c_str(),
-               opType(op_mode_).c_str()),
+          Form(";#LTStrip Pedestal per %s#GT [ADC counts];n. %ss", opType(op_mode_).c_str(), opType(op_mode_).c_str()),
           300,
           0.,
           300.));
@@ -526,7 +645,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -541,7 +660,7 @@ namespace {
             epedestal.reset();
           }
           epedestal.add(std::min<float>(pedestal, 300.));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -564,7 +683,7 @@ namespace {
           bool flush = false;
           switch (op_mode_) {
             case (SiStripPI::APV_BASED):
-              flush = (prev_det != 0 && prev_apv != istrip / 128);
+              flush = (prev_det != 0 && prev_apv != istrip / sistrip::STRIPS_PER_APV);
               break;
             case (SiStripPI::MODULE_BASED):
               flush = (prev_det != 0 && prev_det != d);
@@ -580,7 +699,7 @@ namespace {
           }
 
           epedestal.add(std::min<float>(pedestal, 300.));
-          prev_apv = istrip / 128;
+          prev_apv = istrip / sistrip::STRIPS_PER_APV;
           istrip++;
         }
         prev_det = d;
@@ -609,25 +728,41 @@ namespace {
       //=========================
       TCanvas canvas("Partion summary", "partition summary", 1200, 1000);
       canvas.cd();
-      canvas.SetBottomMargin(0.11);
+      canvas.SetTopMargin(0.06);
+      canvas.SetBottomMargin(0.10);
       canvas.SetLeftMargin(0.13);
       canvas.SetRightMargin(0.05);
       canvas.Modified();
 
       float theMax = (h_first.GetMaximum() > h_last.GetMaximum()) ? h_first.GetMaximum() : h_last.GetMaximum();
 
-      h_first.SetMaximum(theMax * 1.30);
-      h_last.SetMaximum(theMax * 1.30);
+      h_first.SetMaximum(theMax * 1.20);
+      h_last.SetMaximum(theMax * 1.20);
 
       h_first.Draw();
+      h_last.SetFillColorAlpha(kBlue, 0.15);
       h_last.Draw("same");
 
-      TLegend legend = TLegend(0.52, 0.82, 0.95, 0.9);
-      legend.SetHeader("SiStrip Pedestal comparison", "C");  // option "C" allows to center the header
-      legend.AddEntry(&h_first, ("IOV: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
-      legend.AddEntry(&h_last, ("IOV: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      TLegend legend = TLegend(0.13, 0.83, 0.95, 0.94);
+      if (this->m_plotAnnotations.ntags == 2) {
+        legend.SetHeader("#bf{Two Tags Comparison}", "C");  // option "C" allows to center the header
+        legend.AddEntry(&h_first, (tagname1 + " : " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(&h_last, (tagname2 + " : " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      } else {
+        legend.SetHeader(("tag: #bf{" + tagname1 + "}").c_str(), "C");  // option "C" allows to center the header
+        legend.AddEntry(&h_first, ("IOV since: " + std::to_string(std::get<0>(firstiov))).c_str(), "F");
+        legend.AddEntry(&h_last, ("IOV since: " + std::to_string(std::get<0>(lastiov))).c_str(), "F");
+      }
       legend.SetTextSize(0.025);
       legend.Draw("same");
+
+      auto ltx = TLatex();
+      ltx.SetTextFont(62);
+      ltx.SetTextSize(0.05);
+      ltx.SetTextAlign(11);
+      ltx.DrawLatexNDC(gPad->GetLeftMargin(),
+                       1 - gPad->GetTopMargin() + 0.01,
+                       Form("#LTSiStrip Pedestals#GT Comparison per %s", opType(op_mode_).c_str()));
 
       std::string fileName(this->m_imageFileName);
       canvas.SaveAs(fileName.c_str());
@@ -702,7 +837,8 @@ namespace {
             zeropeds_per_detid[d] += 1;
           }
         }  // end of loop on strips
-        float fraction = zeropeds_per_detid[d] / (128. * detInfo.getNumberOfApvsAndStripLength(d).first);
+        float fraction =
+            zeropeds_per_detid[d] / (sistrip::STRIPS_PER_APV * detInfo.getNumberOfApvsAndStripLength(d).first);
         if (fraction > 0.) {
           tmap->fill(d, fraction);
           std::cout << "detid: " << d << " (n. APVs=" << detInfo.getNumberOfApvsAndStripLength(d).first << ") has "
@@ -973,6 +1109,9 @@ namespace {
 }  // namespace
 
 PAYLOAD_INSPECTOR_MODULE(SiStripPedestals) {
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalCompareByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalDiffByPartition);
+  PAYLOAD_INSPECTOR_CLASS(SiStripPedestalCorrelationByPartition);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsTest);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalPerDetId);
   PAYLOAD_INSPECTOR_CLASS(SiStripPedestalsValue);

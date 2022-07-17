@@ -92,7 +92,6 @@ process.HLTEndSequence = cms.Sequence(process.dummyModule)
 
 # HLT schedule
 process.schedule = cms.Schedule()
-process.schedule.extend(process.HLTSchedule)
 
 # To write out events 
 process.load("FastSimulation.Configuration.EventContent_cff")

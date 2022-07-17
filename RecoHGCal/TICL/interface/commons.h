@@ -42,6 +42,7 @@ namespace ticl {
       const int& pdgId,
       const int& charge,
       const edm::ProductID& seed,
+      const Trackster::IterationIndex iter,
       std::vector<float>& output_mask,
       std::vector<Trackster>& result) {
     if (lcVec.empty())
@@ -64,6 +65,7 @@ namespace ticl {
 
     tmpTrackster.setIdProbability(tracksterParticleTypeFromPdgId(pdgId, charge), 1.f);
     tmpTrackster.setRegressedEnergy(energy);
+    tmpTrackster.setIteration(iter);
     tmpTrackster.setSeed(seed, index);
     result.emplace_back(tmpTrackster);
   }

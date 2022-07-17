@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 
@@ -32,6 +33,8 @@ namespace l1t {
          * methods here.
          */
 
+    virtual void setToken(edm::ConsumesCollector cc) = 0;
+
     virtual std::string save(const edm::EventSetup& setup) const = 0;
 
   protected:
@@ -42,8 +45,13 @@ namespace l1t {
  */
   template <class Record, class Type>
   class WriterProxyT : public WriterProxy {
+  private:
+    edm::ESGetToken<Type, Record> rcdToken;
+
   public:
     ~WriterProxyT() override {}
+
+    void setToken(edm::ConsumesCollector cc) override { rcdToken = cc.esConsumes(); }
 
     /* This method requires that Record and Type supports copy constructor */
     std::string save(const edm::EventSetup& setup) const override {
@@ -51,11 +59,10 @@ namespace l1t {
       edm::ESHandle<Type> handle;
 
       try {
-        setup.get<Record>().get(handle);
+        handle = setup.getHandle(rcdToken);
       } catch (l1t::DataAlreadyPresentException& ex) {
         return std::string();
       }
-
       // If handle is invalid, then data is already in DB
 
       edm::Service<cond::service::PoolDBOutputService> poolDb;
@@ -64,14 +71,13 @@ namespace l1t {
       }
       poolDb->forceInit();
       cond::persistency::Session session = poolDb->session();
-      cond::persistency::TransactionScope tr(session.transaction());
-      // if throw transaction will unroll
-      ///	    tr.start(false);
+      if (not session.transaction().isActive())
+        session.transaction().start(false);  // true: read only, false: read-write
 
       std::shared_ptr<Type> pointer = std::make_shared<Type>(*(handle.product()));
       std::string payloadToken = session.storePayload(*pointer);
-      ///	    tr.commit();
-      tr.close();
+
+      session.transaction().commit();
       return payloadToken;
     }
   };

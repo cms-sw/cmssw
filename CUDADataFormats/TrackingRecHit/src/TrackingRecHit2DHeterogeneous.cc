@@ -12,10 +12,24 @@ cms::cuda::host::unique_ptr<float[]> TrackingRecHit2DGPU::localCoordToHostAsync(
 }
 
 template <>
+cms::cuda::host::unique_ptr<float[]> TrackingRecHit2DGPU::store32ToHostAsync(cudaStream_t stream) const {
+  auto ret = cms::cuda::make_host_unique<float[]>(static_cast<int>(n32) * nHits(), stream);
+  cms::cuda::copyAsync(ret, m_store32, static_cast<int>(n32) * nHits(), stream);
+  return ret;
+}
+
+template <>
+cms::cuda::host::unique_ptr<uint16_t[]> TrackingRecHit2DGPU::store16ToHostAsync(cudaStream_t stream) const {
+  auto ret = cms::cuda::make_host_unique<uint16_t[]>(static_cast<int>(n16) * nHits(), stream);
+  cms::cuda::copyAsync(ret, m_store16, static_cast<int>(n16) * nHits(), stream);
+  return ret;
+}
+
+template <>
 cms::cuda::host::unique_ptr<uint32_t[]> TrackingRecHit2DGPU::hitsModuleStartToHostAsync(cudaStream_t stream) const {
-  auto ret = cms::cuda::make_host_unique<uint32_t[]>(gpuClustering::maxNumModules + 1, stream);
-  cudaCheck(cudaMemcpyAsync(
-      ret.get(), m_hitsModuleStart, sizeof(uint32_t) * (gpuClustering::maxNumModules + 1), cudaMemcpyDefault, stream));
+  auto ret = cms::cuda::make_host_unique<uint32_t[]>(nMaxModules() + 1, stream);
+  cudaCheck(
+      cudaMemcpyAsync(ret.get(), m_hitsModuleStart, sizeof(uint32_t) * (nMaxModules() + 1), cudaMemcpyDefault, stream));
   return ret;
 }
 

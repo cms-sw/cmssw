@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/Utilities/interface/transform.h"
 
 class TagAndProbeBtagTriggerMonitor : public DQMEDAnalyzer {
 public:
@@ -28,6 +29,13 @@ public:
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
+
+  struct JetRefCompare {
+    inline bool operator()(const edm::RefToBase<reco::Jet>& j1, const edm::RefToBase<reco::Jet>& j2) const {
+      return (j1.id() < j2.id()) || ((j1.id() == j2.id()) && (j1.key() < j2.key()));
+    }
+  };
+  typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
 
 private:
   const std::string folderName_;
@@ -50,7 +58,8 @@ private:
 
   edm::InputTag triggerSummaryLabel_;
 
-  edm::EDGetTokenT<reco::JetTagCollection> offlineBtagToken_;
+  std::vector<edm::EDGetTokenT<reco::JetTagCollection> > jetTagTokens_;
+
   edm::EDGetTokenT<trigger::TriggerEvent> triggerSummaryToken_;
 
   MonitorElement* pt_jet1_;
@@ -89,7 +98,10 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::Paramete
   probeBtagmin_ = iConfig.getParameter<double>("probeBtagMin");
   triggerSummaryLabel_ = iConfig.getParameter<edm::InputTag>("triggerSummary");
   triggerSummaryToken_ = consumes<trigger::TriggerEvent>(triggerSummaryLabel_);
-  offlineBtagToken_ = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineBtag"));
+  // New
+  jetTagTokens_ =
+      edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >("btagAlgos"),
+                            [this](edm::InputTag const& tag) { return mayConsume<reco::JetTagCollection>(tag); });
 
   genTriggerEventFlag_ = std::make_unique<GenericTriggerEventFlag>(
       iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this);
@@ -173,21 +185,40 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
   bool match1 = false;
   bool match2 = false;
 
-  edm::Handle<reco::JetTagCollection> offlineJetTagPFHandler;
-  iEvent.getByToken(offlineBtagToken_, offlineJetTagPFHandler);
+  JetTagMap allJetBTagVals;
+  for (const auto& jetTagToken : jetTagTokens_) {
+    edm::Handle<reco::JetTagCollection> bjetHandle;
+    iEvent.getByToken(jetTagToken, bjetHandle);
+    if (not bjetHandle.isValid()) {
+      edm::LogWarning("TagAndProbeBtagTriggerMonitor") << "B-Jet handle not valid, will skip event \n";
+      return;
+    }
 
-  if (!offlineJetTagPFHandler.isValid())
-    return;
+    const reco::JetTagCollection& bTags = *(bjetHandle.product());
+    for (const auto& i_jetTag : bTags) {
+      const auto& jetRef = i_jetTag.first;
+      const auto btagVal = i_jetTag.second;
+      if (not std::isfinite(btagVal)) {
+        continue;
+      }
+      if (allJetBTagVals.find(jetRef) != allJetBTagVals.end()) {
+        allJetBTagVals.at(jetRef) += btagVal;
+      } else {
+        allJetBTagVals.insert(JetTagMap::value_type(jetRef, btagVal));
+      }
+    }
+  }
 
   // applying selection for event; tag & probe -> selection  for all events
-  if (genTriggerEventFlag_->on() && !genTriggerEventFlag_->accept(iEvent, iSetup)) {
-    reco::JetTagCollection jettags = *(offlineJetTagPFHandler.product());
-    if (jettags.size() > 1) {
-      const reco::Jet jet1 = *(jettags.key(0).get());
-      const reco::Jet jet2 = *(jettags.key(1).get());
+  if (genTriggerEventFlag_->on() && genTriggerEventFlag_->accept(iEvent, iSetup)) {
+    if (allJetBTagVals.size() > 1) {
+      auto jetBTagVal = allJetBTagVals.begin();
+      auto jet1 = *dynamic_cast<const reco::Jet*>(jetBTagVal->first.get());
+      auto btag1 = jetBTagVal->second;
 
-      float btag1 = jettags.value(0);
-      float btag2 = jettags.value(1);
+      ++jetBTagVal;
+      auto jet2 = *dynamic_cast<const reco::Jet*>(jetBTagVal->first.get());
+      auto btag2 = jetBTagVal->second;
 
       if (jet1.pt() > jetPtmin_ && jet2.pt() > jetPtmin_ && fabs(jet1.eta()) < jetEtamax_ &&
           fabs(jet2.eta()) < jetEtamax_) {
@@ -200,10 +231,6 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
           phi_jet2_->Fill(jet2.phi());
           eta_phi_jet1_->Fill(jet1.eta(), jet1.phi());
           eta_phi_jet2_->Fill(jet2.eta(), jet2.phi());
-          if (btag1 < 0)
-            btag1 = -0.5;
-          if (btag2 < 0)
-            btag2 = -0.5;
           discr_offline_btag_jet1_->Fill(btag1);
           discr_offline_btag_jet2_->Fill(btag2);
 
@@ -222,9 +249,9 @@ void TagAndProbeBtagTriggerMonitor::analyze(edm::Event const& iEvent, edm::Event
             }
           }
           for (auto const& to : onlinebtags) {
-            if (reco::deltaR(jet1, to))
+            if (reco::deltaR2(jet1, to) < 0.09)
               match1 = true;
-            if (reco::deltaR(jet2, to))
+            if (reco::deltaR2(jet2, to) < 0.09)
               match2 = true;
           }
 

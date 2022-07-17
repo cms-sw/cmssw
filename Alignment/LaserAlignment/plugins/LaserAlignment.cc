@@ -909,18 +909,18 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
     // Store
 
     //     if ( poolDbService->isNewTagRequest(theAlignRecordName) ) {
-    //       poolDbService->createNewIOV<Alignments>( alignments, poolDbService->currentTime(), poolDbService->endOfTime(), theAlignRecordName );
+    //       poolDbService->createOneIOV<Alignments>( alignments, poolDbService->currentTime(), theAlignRecordName );
     //     }
     //     else {
-    //       poolDbService->appendSinceTime<Alignments>( alignments, poolDbService->currentTime(), theAlignRecordName );
+    //       poolDbService->appendOneIOV<Alignments>( alignments, poolDbService->currentTime(), theAlignRecordName );
     //     }
     poolDbService->writeOneIOV<Alignments>(alignments, poolDbService->beginOfTime(), theAlignRecordName);
 
     //     if ( poolDbService->isNewTagRequest(theErrorRecordName) ) {
-    //       poolDbService->createNewIOV<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), poolDbService->endOfTime(), theErrorRecordName );
+    //       poolDbService->createOneIOV<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), poolDbService->endOfTime(), theErrorRecordName );
     //     }
     //     else {
-    //       poolDbService->appendSinceTime<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), theErrorRecordName );
+    //       poolDbService->appendOneIOV<AlignmentErrorsExtended>( alignmentErrors, poolDbService->currentTime(), theErrorRecordName );
     //     }
     poolDbService->writeOneIOV<AlignmentErrorsExtended>(
         alignmentErrors, poolDbService->beginOfTime(), theErrorRecordName);

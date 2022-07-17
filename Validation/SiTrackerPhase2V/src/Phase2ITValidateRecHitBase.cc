@@ -275,7 +275,7 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
 
   edm::ParameterSetDescription psd7;
   psd7.add<std::string>("name", "Delta_X_vs_ClusterSizeY");
-  psd7.add<std::string>("title", ";Cluster size Y;#Delta y [#mum]");
+  psd7.add<std::string>("title", ";Cluster size Y;#Delta x [#mum]");
   psd7.add<double>("ymin", -100.0);
   psd7.add<double>("ymax", 100.0);
   psd7.add<int>("NxBins", 21);
@@ -286,7 +286,7 @@ void Phase2ITValidateRecHitBase::fillPSetDescription(edm::ParameterSetDescriptio
 
   edm::ParameterSetDescription psd8;
   psd8.add<std::string>("name", "Delta_Y_vs_ClusterSizeX");
-  psd8.add<std::string>("title", ";Cluster size Y;#Delta y [#mum]");
+  psd8.add<std::string>("title", ";Cluster size X;#Delta y [#mum]");
   psd8.add<double>("ymin", -100.0);
   psd8.add<double>("ymax", 100.0);
   psd8.add<int>("NxBins", 21);

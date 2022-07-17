@@ -1,7 +1,4 @@
 
-#include "CondFormats/CSCObjects/interface/CSCBadChambers.h"
-#include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -35,8 +32,7 @@ void MuonPSimHitSelector::select(PSimHitCollection &selection,
   std::unique_ptr<MixCollection<PSimHit>> pSimHits(new MixCollection<PSimHit>(cfPSimHitProductPointers));
 
   // Get CSC Bad Chambers (ME4/2)
-  edm::ESHandle<CSCBadChambers> cscBadChambers;
-  setup.get<CSCBadChambersRcd>().get(cscBadChambers);
+  edm::ESHandle<CSCBadChambers> cscBadChambers = setup.getHandle(cscBadToken_);
 
   // Select only psimhits from alive modules
   for (MixCollection<PSimHit>::MixItr pSimHit = pSimHits->begin(); pSimHit != pSimHits->end(); ++pSimHit) {

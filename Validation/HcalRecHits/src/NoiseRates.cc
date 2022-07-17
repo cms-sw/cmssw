@@ -14,24 +14,18 @@
 // constructors and destructor
 //
 
-NoiseRates::NoiseRates(const edm::ParameterSet &iConfig) {
+NoiseRates::NoiseRates(const edm::ParameterSet &iConfig)
+    : outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root")),
+      rbxCollName_(iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName")),
+      minRBXEnergy_(iConfig.getUntrackedParameter<double>("minRBXEnergy")),
+      minHitEnergy_(iConfig.getUntrackedParameter<double>("minHitEnergy")),
+      useAllHistos_(iConfig.getUntrackedParameter<bool>("useAllHistos", false)),
+      tok_rbx_(consumes<reco::HcalNoiseRBXCollection>(rbxCollName_)),
+      noisetoken_(consumes<HcalNoiseSummary>(iConfig.getParameter<edm::InputTag>("noiselabel"))) {
   // DQM ROOT output
-  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
-
   // set parameters
-  rbxCollName_ = iConfig.getUntrackedParameter<edm::InputTag>("rbxCollName");
-  minRBXEnergy_ = iConfig.getUntrackedParameter<double>("minRBXEnergy");
-  minHitEnergy_ = iConfig.getUntrackedParameter<double>("minHitEnergy");
-
-  tok_rbx_ = consumes<reco::HcalNoiseRBXCollection>(rbxCollName_);
-
-  useAllHistos_ = iConfig.getUntrackedParameter<bool>("useAllHistos", false);
-
   // Hcal Noise Summary
-  noisetoken_ = consumes<HcalNoiseSummary>(iConfig.getParameter<edm::InputTag>("noiselabel"));
 }
-
-NoiseRates::~NoiseRates() {}
 
 //
 // member functions
@@ -102,8 +96,7 @@ void NoiseRates::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetu
   lumiCountMap_[lumiSection]++;
 
   // get the RBX Noise collection
-  edm::Handle<reco::HcalNoiseRBXCollection> handle;
-  iEvent.getByToken(tok_rbx_, handle);
+  const edm::Handle<reco::HcalNoiseRBXCollection> &handle = iEvent.getHandle(tok_rbx_);
   if (!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
         << " could not find HcalNoiseRBXCollection named " << rbxCollName_ << ".\n";
@@ -111,8 +104,7 @@ void NoiseRates::analyze(const edm::Event &iEvent, const edm::EventSetup &evSetu
   }
 
   // get the Noise summary object
-  edm::Handle<HcalNoiseSummary> summary_h;
-  iEvent.getByToken(noisetoken_, summary_h);
+  const edm::Handle<HcalNoiseSummary> &summary_h = iEvent.getHandle(noisetoken_);
   if (!summary_h.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     return;

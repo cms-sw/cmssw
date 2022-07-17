@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.Eras.Era_Phase2C11I13M9_cff import Phase2C11I13M9
+from Configuration.Eras.Era_Phase2C17I13M9_cff import Phase2C17I13M9
 
-process = cms.Process("GeometryTest",Phase2C11I13M9)
+process = cms.Process("GeometryTest",Phase2C17I13M9)
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(1),
@@ -46,7 +46,7 @@ process.MessageLogger.files.mtdGeometryDDD = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
 )
 
-process.load("Configuration.Geometry.GeometryExtended2026D76_cff")
+process.load("Configuration.Geometry.GeometryExtended2026D88_cff")
 
 process.load("Geometry.MTDNumberingBuilder.mtdNumberingGeometry_cff")
 

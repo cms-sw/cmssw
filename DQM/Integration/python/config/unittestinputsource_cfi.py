@@ -67,6 +67,12 @@ options.register('eventsPerLumi',
                  VarParsing.VarParsing.varType.int,
                  "This number of last events in each lumisection will be processed.")
 
+options.register('BeamSplashRun',
+                 False, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.bool,
+                 "Set client source settings for beam SPLASH run")
+
 # This is used only by the online clients themselves. 
 # We need to register it here because otherwise an error occurs saying that there is an unidentified option.
 options.register('unitTest',

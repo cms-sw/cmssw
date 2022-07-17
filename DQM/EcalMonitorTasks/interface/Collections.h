@@ -41,6 +41,18 @@ namespace ecaldqm {
     kEEBasicCluster,
     kEBSuperCluster,
     kEESuperCluster,
+    kEBCpuDigi,
+    kEECpuDigi,
+    kEBGpuDigi,
+    kEEGpuDigi,
+    kEBCpuUncalibRecHit,
+    kEECpuUncalibRecHit,
+    kEBGpuUncalibRecHit,
+    kEEGpuUncalibRecHit,
+    kEBCpuRecHit,
+    kEECpuRecHit,
+    kEBGpuRecHit,
+    kEEGpuRecHit,
     nCollections
   };
 
@@ -78,7 +90,19 @@ namespace ecaldqm {
                                                     "EBBasicCluster",
                                                     "EEBasicCluster",
                                                     "EBSuperCluster",
-                                                    "EESuperCluster"};
+                                                    "EESuperCluster",
+                                                    "EBCpuDigi",
+                                                    "EECpuDigi",
+                                                    "EBGpuDigi",
+                                                    "EEGpuDigi",
+                                                    "EBCpuUncalibRecHit",
+                                                    "EECpuUncalibRecHit",
+                                                    "EBGpuUncalibRecHit",
+                                                    "EEGpuUncalibRecHit",
+                                                    "EBCpuRecHit",
+                                                    "EECpuRecHit",
+                                                    "EBGpuRecHit",
+                                                    "EEGpuRecHit"};
 
 }  // namespace ecaldqm
 

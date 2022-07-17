@@ -6,17 +6,11 @@ class SwitchProducerTest(cms.SwitchProducer):
     def __init__(self, **kargs):
         super(SwitchProducerTest,self).__init__(
             dict(
-                test1 = lambda: (True, -10),
-                test2 = lambda: (enableTest2, -9)
+                test1 = lambda accelerators: (True, -10),
+                test2 = lambda accelerators: (enableTest2, -9)
             ), **kargs)
 
 process = cms.Process("PROD1")
-
-process.options = cms.untracked.PSet(
-    numberOfStreams = cms.untracked.uint32(1),
-    numberOfConcurrentRuns = cms.untracked.uint32(1),
-    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
-)
 
 process.source = cms.Source("EmptySource")
 if enableTest2:
@@ -57,6 +51,24 @@ process.intProducerAlias = SwitchProducerTest(
                                                  cms.PSet(type = cms.string("edmtestIntProduct"), fromProductInstance = cms.string("foo"), toProductInstance = cms.string("other"))))
 )
 
+# SwitchProducer of EDAlias in a Path causes alone is enough to trigger aliased-for EDProducers to be run
+if enableTest2:
+    process.intProducer4 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(314), throw=cms.untracked.bool(True))
+    process.intProducer6 = cms.EDProducer("edmtest::MustRunIntProducer", ivalue = cms.int32(4))
+else:
+    process.intProducer4 = cms.EDProducer("edmtest::MustRunIntProducer", ivalue = cms.int32(314))
+    process.intProducer6 = cms.EDProducer("ManyIntProducer", ivalue = cms.int32(4), throw=cms.untracked.bool(True))
+process.intProducer5 = process.intProducer4.clone(ivalue = 159)
+process.intProducer7 = process.intProducer6.clone(ivalue = 2)
+
+process.intProducerAlias2 = SwitchProducerTest(
+    test1 = cms.EDAlias(intProducer4 = cms.VPSet(cms.PSet(type = cms.string("*"), fromProductInstance = cms.string(""), toProductInstance = cms.string(""))),
+                        intProducer5 = cms.VPSet(cms.PSet(type = cms.string("*"), fromProductInstance = cms.string(""), toProductInstance = cms.string("other")))),
+    test2 = cms.EDAlias(intProducer6 = cms.VPSet(cms.PSet(type = cms.string("*"), fromProductInstance = cms.string(""), toProductInstance = cms.string(""))),
+                        intProducer7 = cms.VPSet(cms.PSet(type = cms.string("*"), fromProductInstance = cms.string(""), toProductInstance = cms.string("other"))))
+)
+
+
 # Test multiple consumers of a SwitchProducer
 process.intProducerDep1 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer"))
 process.intProducerDep2 = cms.EDProducer("AddIntsProducer", labels = cms.VInputTag("intProducer"))
@@ -66,5 +78,8 @@ process.intProducerDep3 = cms.EDProducer("AddIntsProducer", labels = cms.VInputT
 process.t = cms.Task(process.intProducer1, process.intProducer2, process.intProducer3,
                      process.intProducerDep1, process.intProducerDep2, process.intProducerDep3)
 process.p = cms.Path(process.intProducer + process.intProducerAlias, process.t)
+
+process.t2 = cms.Task(process.intProducer4, process.intProducer5, process.intProducer6, process.intProducer7)
+process.p2 = cms.Path(process.intProducerAlias2, process.t2)
 
 process.e = cms.EndPath(process.out)

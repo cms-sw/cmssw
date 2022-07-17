@@ -24,6 +24,7 @@
 //  Add shape and charge probabilities for the merged cluster hypothesis (v2.23)
 //  Incorporate VI-like speed improvements (v2.25)
 //  Improve speed by eliminating the triple index boost::multiarray objects and add speed switch to optimize the algorithm (v2.30)
+//  Change VVIObjF so it only reads kappa
 //
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
@@ -131,7 +132,7 @@ int SiPixelTemplateSplit::PixelTempSplit(int id,
   float originx, originy, bias, maxpix, minmax;
   double chi2x, meanx, chi2y, meany, chi2ymin, chi2xmin, chi21max;
   double hchi2, hndof, sigmal1, sigmal2, mpv1, mpv2, arg1, arg2, q05, like, loglike1, loglike2;
-  double prvav, mpv, sigmaQ, kappa, xvav, beta2;
+  double prvav, mpv, sigmaQ, kappa, xvav;
   float ysum[BYSIZE], xsum[BXSIZE], ysort[BYSIZE], xsort[BXSIZE];
   float ysig2[BYSIZE], xsig2[BXSIZE];
   float yw2[BYSIZE], xw2[BXSIZE], ysw[BYSIZE], xsw[BXSIZE];
@@ -602,9 +603,8 @@ int SiPixelTemplateSplit::PixelTempSplit(int id,
     assert((sigmaQ > 0.) && (mpv > 0.) && (kappa > 0.01) && (kappa < 10.));
 #endif
     xvav = ((double)qtotal - mpv) / sigmaQ;
-    beta2 = 1.;
     //  VVIObj is a private port of CERNLIB VVIDIS
-    VVIObj vvidist(kappa, beta2, 1);
+    VVIObj vvidist(kappa);
     prvav = vvidist.fcn(xvav);
     prob2Q = 1. - prvav;
     if (prob2Q < prob2Qmin) {

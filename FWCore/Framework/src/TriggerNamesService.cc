@@ -11,6 +11,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/path_configuration.h"
 
 namespace edm {
   namespace service {
@@ -32,10 +33,12 @@ namespace edm {
 
       const unsigned int n(trignames_.size());
       for (unsigned int i = 0; i != n; ++i) {
-        modulenames_.push_back(pset.getParameter<Strings>(trignames_[i]));
+        modulenames_.push_back(
+            path_configuration::configurationToModuleBitPosition(pset.getParameter<Strings>(trignames_[i])));
       }
       for (unsigned int i = 0; i != end_names_.size(); ++i) {
-        end_modulenames_.push_back(pset.getParameter<Strings>(end_names_[i]));
+        end_modulenames_.push_back(
+            path_configuration::configurationToModuleBitPosition(pset.getParameter<Strings>(end_names_[i])));
       }
     }
 

@@ -6,14 +6,7 @@ TtFullLepHypothesis::TtFullLepHypothesis(const edm::ParameterSet& cfg)
     : elecsToken_(consumes<std::vector<pat::Electron> >(cfg.getParameter<edm::InputTag>("electrons"))),
       musToken_(consumes<std::vector<pat::Muon> >(cfg.getParameter<edm::InputTag>("muons"))),
       jetsToken_(consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
-      metsToken_(consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
-
-      lepton_(nullptr),
-      leptonBar_(nullptr),
-      b_(nullptr),
-      bBar_(nullptr),
-      neutrino_(nullptr),
-      neutrinoBar_(nullptr) {
+      metsToken_(consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))) {
   getMatch_ = false;
   if (cfg.exists("match")) {
     getMatch_ = true;
@@ -28,23 +21,6 @@ TtFullLepHypothesis::TtFullLepHypothesis(const edm::ParameterSet& cfg)
   }
   produces<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >();
   produces<int>("Key");
-}
-
-/// default destructor
-TtFullLepHypothesis::~TtFullLepHypothesis() {
-  if (lepton_)
-    delete lepton_;
-  if (leptonBar_)
-    delete leptonBar_;
-  if (b_)
-    delete b_;
-  if (bBar_)
-    delete bBar_;
-  if (neutrino_)
-    delete neutrino_;
-  if (neutrinoBar_)
-    delete neutrinoBar_;
-  //if( met_         ) delete met_;
 }
 
 /// produce the event hypothesis as CompositeCandidate and Key
@@ -100,12 +76,12 @@ void TtFullLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 
 /// reset candidate pointers before hypo build process
 void TtFullLepHypothesis::resetCandidates() {
-  lepton_ = nullptr;
-  leptonBar_ = nullptr;
-  b_ = nullptr;
-  bBar_ = nullptr;
-  neutrino_ = nullptr;
-  neutrinoBar_ = nullptr;
+  lepton_.reset();
+  leptonBar_.reset();
+  b_.reset();
+  bBar_.reset();
+  neutrino_.reset();
+  neutrinoBar_.reset();
   //met_        = 0;
 }
 
@@ -131,25 +107,25 @@ reco::CompositeCandidate TtFullLepHypothesis::hypo() {
   AddFourMomenta addFourMomenta;
 
   // build up the top branch
-  WPlus.addDaughter(*leptonBar_, TtFullLepDaughter::LepBar);
+  WPlus.addDaughter(std::move(leptonBar_), TtFullLepDaughter::LepBar);
   if (key() == TtFullLeptonicEvent::kKinSolution)
-    WPlus.addDaughter(*neutrino_, TtFullLepDaughter::Nu);
+    WPlus.addDaughter(std::move(neutrino_), TtFullLepDaughter::Nu);
   else if (key() == TtFullLeptonicEvent::kGenMatch)
-    WPlus.addDaughter(*recNu, TtFullLepDaughter::Nu);
+    WPlus.addDaughter(std::move(recNu), TtFullLepDaughter::Nu);
   addFourMomenta.set(WPlus);
   Top.addDaughter(WPlus, TtFullLepDaughter::WPlus);
-  Top.addDaughter(*b_, TtFullLepDaughter::B);
+  Top.addDaughter(std::move(b_), TtFullLepDaughter::B);
   addFourMomenta.set(Top);
 
   // build up the anti top branch
-  WMinus.addDaughter(*lepton_, TtFullLepDaughter::Lep);
+  WMinus.addDaughter(std::move(lepton_), TtFullLepDaughter::Lep);
   if (key() == TtFullLeptonicEvent::kKinSolution)
-    WMinus.addDaughter(*neutrinoBar_, TtFullLepDaughter::NuBar);
+    WMinus.addDaughter(std::move(neutrinoBar_), TtFullLepDaughter::NuBar);
   else if (key() == TtFullLeptonicEvent::kGenMatch)
-    WMinus.addDaughter(*recNuBar, TtFullLepDaughter::NuBar);
+    WMinus.addDaughter(std::move(recNuBar), TtFullLepDaughter::NuBar);
   addFourMomenta.set(WMinus);
   TopBar.addDaughter(WMinus, TtFullLepDaughter::WMinus);
-  TopBar.addDaughter(*bBar_, TtFullLepDaughter::BBar);
+  TopBar.addDaughter(std::move(bBar_), TtFullLepDaughter::BBar);
   addFourMomenta.set(TopBar);
 
   // build ttbar hypothesis
@@ -164,11 +140,9 @@ reco::CompositeCandidate TtFullLepHypothesis::hypo() {
 }
 
 /// use one object in a jet collection to set a ShallowClonePtrCandidate with proper jet corrections
-void TtFullLepHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >& handle,
-                                       const int& idx,
-                                       reco::ShallowClonePtrCandidate*& clone,
-                                       const std::string& correctionLevel) {
+std::unique_ptr<reco::ShallowClonePtrCandidate> TtFullLepHypothesis::makeCandidate(
+    const edm::Handle<std::vector<pat::Jet> >& handle, const int& idx, const std::string& correctionLevel) {
   edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
-  clone = new reco::ShallowClonePtrCandidate(
+  return std::make_unique<reco::ShallowClonePtrCandidate>(
       ptr, ptr->charge(), ptr->correctedJet(jetCorrectionLevel_, "bottom").p4(), ptr->vertex());
 }

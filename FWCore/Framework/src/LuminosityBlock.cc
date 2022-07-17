@@ -25,6 +25,8 @@ namespace edm {
 
   LuminosityBlock::~LuminosityBlock() {}
 
+  LuminosityBlockAuxiliary const& LuminosityBlock::luminosityBlockAuxiliary() const { return aux_; }
+
   LuminosityBlockIndex LuminosityBlock::index() const { return luminosityBlockPrincipal().index(); }
 
   LuminosityBlock::CacheIdentifier_t LuminosityBlock::cacheIdentifier() const {

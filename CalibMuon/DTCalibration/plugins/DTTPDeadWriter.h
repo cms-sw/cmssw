@@ -7,7 +7,7 @@
  *  \author S. Bolognesi
  */
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
@@ -25,7 +25,7 @@ namespace edm {
 class DTT0;
 class DTDeadFlag;
 
-class DTTPDeadWriter : public edm::EDAnalyzer {
+class DTTPDeadWriter : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
 public:
   /// Constructor
   DTTPDeadWriter(const edm::ParameterSet& pset);
@@ -40,6 +40,8 @@ public:
 
   /// Compute the ttrig by fiting the TB rising edge
   void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override;
+
+  void endRun(const edm::Run&, const edm::EventSetup& setup) override{};
 
   /// Write ttrig in the DB
   void endJob() override;

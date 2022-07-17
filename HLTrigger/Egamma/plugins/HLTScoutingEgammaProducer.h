@@ -85,6 +85,7 @@ private:
   const int mantissaPrecision;
   const bool saveRecHitTiming;
   const int rechitMatrixSize;
+  const bool rechitZeroSuppression;
 
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEB_;
   const edm::EDGetTokenT<EcalRecHitCollection> ecalRechitEE_;

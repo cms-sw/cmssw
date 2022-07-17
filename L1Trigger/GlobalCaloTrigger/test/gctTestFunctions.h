@@ -35,6 +35,10 @@ class gctTestHfEtSums;
 
 class L1GlobalCaloTrigger;
 
+class L1GctJetFinderParams;
+class L1GctChannelMask;
+class L1CaloEtScale;
+
 class gctTestFunctions {
 public:
   // structs and typedefs
@@ -44,7 +48,11 @@ public:
   ~gctTestFunctions();
 
   // Configuration method based on EventSetup - so not to be called from constructor
-  void configure(const edm::EventSetup& c);
+  void configure(const L1GctJetFinderParams& jfPars,
+                 const L1GctChannelMask& chanMask,
+                 const L1CaloEtScale& etScale,
+                 const L1CaloEtScale& htMissScale,
+                 const L1CaloEtScale& hfRingEtScale);
 
   /// Clear vectors of input data
   void reset();

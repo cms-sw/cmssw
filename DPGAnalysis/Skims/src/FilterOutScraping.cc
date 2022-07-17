@@ -15,7 +15,6 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +35,7 @@ FilterOutScraping::FilterOutScraping(const edm::ParameterSet& iConfig) {
       iConfig.getUntrackedParameter<edm::InputTag>("src", edm::InputTag("generalTracks")));
 }
 
-FilterOutScraping::~FilterOutScraping() {}
+FilterOutScraping::~FilterOutScraping() = default;
 
 bool FilterOutScraping::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   bool accepted = false;

@@ -18,7 +18,7 @@ class MPQualityEnhancerFilter : public MPFilter {
 public:
   // Constructors and destructor
   MPQualityEnhancerFilter(const edm::ParameterSet &pset);
-  ~MPQualityEnhancerFilter() override;
+  ~MPQualityEnhancerFilter() override = default;
 
   // Main methods
   void initialise(const edm::EventSetup &iEventSetup) override;
@@ -48,8 +48,7 @@ private:
   void filterUnique(std::vector<cmsdt::metaPrimitive> &inMPath, std::vector<cmsdt::metaPrimitive> &outMPath);
 
   // Private attributes
-  bool debug_;
-  bool filter_cousins_;
+  const bool debug_;
 };
 
 #endif

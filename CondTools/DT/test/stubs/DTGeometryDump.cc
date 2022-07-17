@@ -22,8 +22,6 @@ namespace edmtest {
 
   DTGeometryDump::DTGeometryDump(int i) : dtgeomToken_(esConsumes()) {}
 
-  DTGeometryDump::~DTGeometryDump() {}
-
   void DTGeometryDump::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     auto muonGeom = context.getHandle(dtgeomToken_);

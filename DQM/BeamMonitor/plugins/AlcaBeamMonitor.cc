@@ -243,26 +243,26 @@ std::shared_ptr<alcabeammonitor::NoCache> AlcaBeamMonitor::globalBeginLuminosity
     const BeamSpotObjects* spotDB = bsDBHandle.product();
 
     // translate from BeamSpotObjects to reco::BeamSpot
-    BeamSpot::Point apoint(spotDB->GetX(), spotDB->GetY(), spotDB->GetZ());
+    BeamSpot::Point apoint(spotDB->x(), spotDB->y(), spotDB->z());
 
     BeamSpot::CovarianceMatrix matrix;
     for (int i = 0; i < 7; ++i) {
       for (int j = 0; j < 7; ++j) {
-        matrix(i, j) = spotDB->GetCovariance(i, j);
+        matrix(i, j) = spotDB->covariance(i, j);
       }
     }
 
     beamSpotsMap_["DB"] =
-        BeamSpot(apoint, spotDB->GetSigmaZ(), spotDB->Getdxdz(), spotDB->Getdydz(), spotDB->GetBeamWidthX(), matrix);
+        BeamSpot(apoint, spotDB->sigmaZ(), spotDB->dxdz(), spotDB->dydz(), spotDB->beamWidthX(), matrix);
 
     BeamSpot* aSpot = &(beamSpotsMap_["DB"]);
 
-    aSpot->setBeamWidthY(spotDB->GetBeamWidthY());
-    aSpot->setEmittanceX(spotDB->GetEmittanceX());
-    aSpot->setEmittanceY(spotDB->GetEmittanceY());
-    aSpot->setbetaStar(spotDB->GetBetaStar());
+    aSpot->setBeamWidthY(spotDB->beamWidthY());
+    aSpot->setEmittanceX(spotDB->emittanceX());
+    aSpot->setEmittanceY(spotDB->emittanceY());
+    aSpot->setbetaStar(spotDB->betaStar());
 
-    if (spotDB->GetBeamType() == 2) {
+    if (spotDB->beamType() == 2) {
       aSpot->setType(reco::BeamSpot::Tracker);
     } else {
       aSpot->setType(reco::BeamSpot::Fake);

@@ -7,7 +7,7 @@
 
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/Utilities/interface/InputTag.h>
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,7 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
-class CSCDigiToPattern : public edm::EDAnalyzer {
+class CSCDigiToPattern : public edm::one::EDAnalyzer<> {
 public:
   explicit CSCDigiToPattern(edm::ParameterSet const& conf);
   void analyze(edm::Event const& e, edm::EventSetup const& iSetup) override;

@@ -22,7 +22,7 @@
 #include "CondFormats/DataRecord/interface/L1RPCConeDefinitionRcd.h"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,17 +41,15 @@
 // class decleration
 //
 
-class DumpConeDefinition : public edm::EDAnalyzer {
+class DumpConeDefinition : public edm::global::EDAnalyzer<> {
 public:
   explicit DumpConeDefinition(const edm::ParameterSet&);
-  ~DumpConeDefinition();
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void analyze(edm::StreamID, const edm::Event&, const edm::EventSetup&) const override;
 
   // ----------member data ---------------------------
+  const edm::ESGetToken<L1RPCConeDefinition, L1RPCConeDefinitionRcd> getToken_;
 };
 
 //
@@ -66,14 +64,10 @@ private:
 // constructors and destructor
 //
 DumpConeDefinition::DumpConeDefinition(const edm::ParameterSet& iConfig)
+    : getToken_(esConsumes())
 
 {
   //now do what ever initialization is needed
-}
-
-DumpConeDefinition::~DumpConeDefinition() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
 //
@@ -81,14 +75,13 @@ DumpConeDefinition::~DumpConeDefinition() {
 //
 
 // ------------ method called to for each event  ------------
-void DumpConeDefinition::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void DumpConeDefinition::analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   using namespace edm;
 
-  edm::ESHandle<L1RPCConeDefinition> l1RPCConeDefinition;
-  iSetup.get<L1RPCConeDefinitionRcd>().get(l1RPCConeDefinition);
+  L1RPCConeDefinition const& l1RPCConeDefinition = iSetup.getData(getToken_);
 
-  L1RPCConeDefinition::TLPSizeVec::const_iterator it = l1RPCConeDefinition->getLPSizeVec().begin();
-  L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd = l1RPCConeDefinition->getLPSizeVec().end();
+  L1RPCConeDefinition::TLPSizeVec::const_iterator it = l1RPCConeDefinition.getLPSizeVec().begin();
+  L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd = l1RPCConeDefinition.getLPSizeVec().end();
 
   LogTrace("DumpConeDefinition") << std::endl;
 
@@ -101,21 +94,15 @@ void DumpConeDefinition::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 
   LogTrace("DumpConeDefinition") << "\nRing to tower connections dump: \n" << std::endl;
-  L1RPCConeDefinition::TRingToTowerVec::const_iterator itR = l1RPCConeDefinition->getRingToTowerVec().begin();
+  L1RPCConeDefinition::TRingToTowerVec::const_iterator itR = l1RPCConeDefinition.getRingToTowerVec().begin();
 
-  const L1RPCConeDefinition::TRingToTowerVec::const_iterator itREnd = l1RPCConeDefinition->getRingToTowerVec().end();
+  const L1RPCConeDefinition::TRingToTowerVec::const_iterator itREnd = l1RPCConeDefinition.getRingToTowerVec().end();
 
   for (; itR != itREnd; ++itR) {
     LogTrace("DumpConeDefinition") << "EP " << (int)itR->m_etaPart << " hwPL " << (int)itR->m_hwPlane << " tw "
                                    << (int)itR->m_tower << " index " << (int)itR->m_index << std::endl;
   }
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void DumpConeDefinition::beginJob() {}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void DumpConeDefinition::endJob() {}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(DumpConeDefinition);

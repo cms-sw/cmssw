@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,13 +15,13 @@ Toy EDAnalyzer for testing purposes only.
 #include "CondFormats/DataRecord/interface/DTDeadFlagRcd.h"
 
 namespace edmtest {
-  class DTDeadUpdate : public edm::EDAnalyzer {
+  class DTDeadUpdate : public edm::one::EDAnalyzer<> {
   public:
     explicit DTDeadUpdate(edm::ParameterSet const& p);
     explicit DTDeadUpdate(int i);
-    virtual ~DTDeadUpdate();
-    virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-    virtual void endJob();
+    ~DTDeadUpdate() override;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+    void endJob() override;
 
   private:
     void fill_dead_HV(const char* file, DTDeadFlag* deadList);

@@ -27,6 +27,8 @@
 #include "FWCore/SharedMemory/interface/ROOTDeserializer.h"
 #include "FWCore/SharedMemory/interface/WorkerMonitorThread.h"
 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 static char const* const kMemoryNameOpt = "memory-name";
 static char const* const kMemoryNameCommandOpt = "memory-name,m";
 static char const* const kUniqueIDOpt = "unique-id";
@@ -35,6 +37,9 @@ static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kVerboseOpt = "verbose";
 static char const* const kVerboseCommandOpt = "verbose,v";
+
+//This application only uses 1 thread
+CMS_THREAD_SAFE static std::string s_uniqueID;
 
 //NOTE: Can use TestProcessor as the harness for the worker
 
@@ -79,11 +84,11 @@ using Serializer = ROOTSerializer<T, WriteBuffer>;
 
 namespace {
   //needed for atexit handling
-  boost::interprocess::scoped_lock<boost::interprocess::named_mutex>* s_sharedLock = nullptr;
+  CMS_THREAD_SAFE boost::interprocess::scoped_lock<boost::interprocess::named_mutex>* s_sharedLock = nullptr;
 
   void atexit_handler() {
     if (s_sharedLock) {
-      std::cerr << "early exit called: unlock\n";
+      std::cerr << s_uniqueID << " process: early exit called: unlock\n";
       s_sharedLock->unlock();
     }
   }
@@ -149,27 +154,33 @@ int main(int argc, char* argv[]) {
 
   monitorThread.startThread();
 
+  std::string presentState = "setting up communicationChannel";
+
   CMS_SA_ALLOW try {
     std::string const memoryName(vm[kMemoryNameOpt].as<std::string>());
     std::string const uniqueID(vm[kUniqueIDOpt].as<std::string>());
+    s_uniqueID = uniqueID;
     {
       //This class is holding the lock
       WorkerChannel communicationChannel(memoryName, uniqueID);
 
+      presentState = "setting up read/write buffers";
       WriteBuffer sm_buffer{memoryName, communicationChannel.fromWorkerBufferInfo()};
       ReadBuffer sm_readbuffer{std::string("Rand") + memoryName, communicationChannel.toWorkerBufferInfo()};
       int counter = 0;
 
+      presentState = "setting up monitor thread";
       //The lock must be released if there is a catastrophic signal
       auto lockPtr = communicationChannel.accessLock();
 
       monitorThread.setAction([lockPtr]() {
         if (lockPtr) {
-          std::cerr << "SIGNAL CAUGHT: unlock\n";
+          std::cerr << s_uniqueID << " process: SIGNAL CAUGHT: unlock\n";
           lockPtr->unlock();
         }
       });
 
+      presentState = "setting up termination handler";
       //be sure to unset the address of the shared lock before the lock goes away
       s_sharedLock = lockPtr;
       auto unsetLockPtr = [](void*) { s_sharedLock = nullptr; };
@@ -177,7 +188,7 @@ int main(int argc, char* argv[]) {
       std::atexit(atexit_handler);
       auto releaseLock = []() {
         if (s_sharedLock) {
-          std::cerr << "terminate called: unlock\n";
+          std::cerr << s_uniqueID << " process: terminate called: unlock\n";
           s_sharedLock->unlock();
           s_sharedLock = nullptr;
           //deactivate the abort signal
@@ -192,6 +203,7 @@ int main(int argc, char* argv[]) {
       };
       std::set_terminate(releaseLock);
 
+      presentState = "setting up serializers";
       Serializer<ExternalGeneratorEventInfo> serializer(sm_buffer);
       Serializer<ExternalGeneratorLumiInfo> bl_serializer(sm_buffer);
       Serializer<GenLumiInfoProduct> el_serializer(sm_buffer);
@@ -199,6 +211,7 @@ int main(int argc, char* argv[]) {
 
       ROOTDeserializer<edm::RandomNumberGeneratorState, ReadBuffer> random_deserializer(sm_readbuffer);
 
+      presentState = "reading configuration";
       std::cerr << uniqueID << " process: initializing " << std::endl;
       int nlines;
       std::cin >> nlines;
@@ -213,6 +226,7 @@ int main(int argc, char* argv[]) {
         configuration += c + "\n";
       }
 
+      presentState = "setting up random number generator";
       edm::ExternalRandomNumberGeneratorService* randomService = new edm::ExternalRandomNumberGeneratorService;
       auto serviceToken =
           edm::ServiceRegistry::createContaining(std::unique_ptr<edm::RandomNumberGenerator>(randomService));
@@ -225,14 +239,17 @@ int main(int argc, char* argv[]) {
       if (verbose) {
         std::cerr << uniqueID << " process: done initializing" << std::endl;
       }
+      presentState = "finished initialization";
       communicationChannel.workerSetupDone();
 
+      presentState = "waiting for transition";
       if (verbose)
         std::cerr << uniqueID << " process: waiting " << counter << std::endl;
       communicationChannel.handleTransitions([&](edm::Transition iTransition, unsigned long long iTransitionID) {
         ++counter;
         switch (iTransition) {
           case edm::Transition::BeginRun: {
+            presentState = "beginRun transition";
             if (verbose)
               std::cerr << uniqueID << " process: start beginRun " << std::endl;
             if (verbose)
@@ -241,16 +258,20 @@ int main(int argc, char* argv[]) {
             break;
           }
           case edm::Transition::BeginLuminosityBlock: {
+            presentState = "begin lumi";
             if (verbose)
               std::cerr << uniqueID << " process: start beginLumi " << std::endl;
             auto randState = random_deserializer.deserialize();
+            presentState = "deserialized random state in begin lumi";
             if (verbose)
               std::cerr << uniqueID << " random " << randState.state_.size() << " " << randState.seed_ << std::endl;
             randomService->setState(randState.state_, randState.seed_);
+            presentState = "processing begin lumi";
             auto value = harness.getBeginLumiValue(iTransitionID);
             value.randomState_.state_ = randomService->getState();
             value.randomState_.seed_ = randomService->mySeed();
 
+            presentState = "serialize lumi";
             bl_serializer.serialize(value);
             if (verbose)
               std::cerr << uniqueID << " process: end beginLumi " << std::endl;
@@ -260,10 +281,13 @@ int main(int argc, char* argv[]) {
             break;
           }
           case edm::Transition::Event: {
+            presentState = "begin event";
             if (verbose)
               std::cerr << uniqueID << " process: event " << counter << std::endl;
+            presentState = "deserialized random state in event";
             auto randState = random_deserializer.deserialize();
             randomService->setState(randState.state_, randState.seed_);
+            presentState = "processing event";
             auto value = harness.getEventValue();
             value.randomState_.state_ = randomService->getState();
             value.randomState_.seed_ = randomService->mySeed();
@@ -271,6 +295,7 @@ int main(int argc, char* argv[]) {
             if (verbose)
               std::cerr << uniqueID << " process: event " << counter << std::endl;
 
+            presentState = "serialize event";
             serializer.serialize(value);
             if (verbose)
               std::cerr << uniqueID << " process: "
@@ -279,10 +304,13 @@ int main(int argc, char* argv[]) {
             break;
           }
           case edm::Transition::EndLuminosityBlock: {
+            presentState = "begin end lumi";
             if (verbose)
               std::cerr << uniqueID << " process: start endLumi " << std::endl;
+            presentState = "processing end lumi";
             auto value = harness.getEndLumiValue();
 
+            presentState = "serialize end lumi";
             el_serializer.serialize(value);
             if (verbose)
               std::cerr << uniqueID << " process: end endLumi " << std::endl;
@@ -290,10 +318,13 @@ int main(int argc, char* argv[]) {
             break;
           }
           case edm::Transition::EndRun: {
+            presentState = "begin end run";
             if (verbose)
               std::cerr << uniqueID << " process: start endRun " << std::endl;
+            presentState = "process end run";
             auto value = harness.getEndRunValue();
 
+            presentState = "serialize end run";
             er_serializer.serialize(value);
             if (verbose)
               std::cerr << uniqueID << " process: end endRun " << std::endl;
@@ -304,15 +335,22 @@ int main(int argc, char* argv[]) {
             assert(false);
           }
         }
+        presentState = "notifying and waiting after " + presentState;
         if (verbose)
           std::cerr << uniqueID << " process: notifying and waiting " << counter << std::endl;
       });
     }
   } catch (std::exception const& iExcept) {
-    std::cerr << "caught exception \n" << iExcept.what() << "\n";
+    std::cerr << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+              << s_uniqueID << " process: caught exception \n"
+              << iExcept.what() << "\n"
+              << "  while " << presentState << "\n"
+              << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
     return 1;
   } catch (...) {
-    std::cerr << "caught unknown exception";
+    std::cerr << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+              << s_uniqueID << " process: caught unknown exception\n  while " << presentState << "\n"
+              << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n";
     return 1;
   }
   return 0;

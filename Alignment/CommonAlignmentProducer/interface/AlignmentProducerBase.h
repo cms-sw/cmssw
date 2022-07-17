@@ -250,6 +250,7 @@ private:
   const bool saveToDB_, saveApeToDB_, saveDeformationsToDB_;
   const bool useSurvey_;
   const bool enableAlignableUpdates_;
+  const std::string tkAliRcdName_;
 
   /*** ESTokens ***/
   const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> ttopoToken_;

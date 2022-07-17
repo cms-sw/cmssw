@@ -21,6 +21,7 @@
 <use name="boost"/>
 <use name="root"/>
 <use name="clhep"/>
+<use name="geant4core"/>
 <library file="*.cc" name="SimG4CMSCaloPlugins">
   <flags EDM_PLUGIN="1"/>
 </library>

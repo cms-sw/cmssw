@@ -6,7 +6,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -29,7 +29,7 @@
    The shift is applied to all mass calculations.
 */
 
-class PatZToMuMuAnalyzer : public edm::EDAnalyzer {
+class PatZToMuMuAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 public:
   /// typedef's to simplify get functions
   typedef math::XYZVector Vector;
@@ -77,6 +77,8 @@ inline double PatZToMuMuAnalyzer::mass(const Vector& t1, const Vector& t2) const
 PatZToMuMuAnalyzer::PatZToMuMuAnalyzer(const edm::ParameterSet& cfg)
     : muonsToken_(consumes<edm::View<pat::Muon> >(cfg.getParameter<edm::InputTag>("muons"))),
       shift_(cfg.getParameter<double>("shift")) {
+  usesResource(TFileService::kSharedResource);
+
   edm::Service<TFileService> fileService;
 
   // mass plot around Z peak from global tracks

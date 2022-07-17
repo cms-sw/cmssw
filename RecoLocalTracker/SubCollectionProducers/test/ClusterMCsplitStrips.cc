@@ -34,6 +34,7 @@ private:
   void refineCluster(const edm::Handle<edmNew::DetSetVector<SiStripCluster>>& input,
                      edmNew::DetSetVector<SiStripCluster>& output);
 
+  const edm::ESGetToken<TrackerTopology, TrackerTopologyRcd> esTopoToken;
   const edm::InputTag inputTag;
   typedef edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> token_t;
   token_t inputToken;
@@ -49,7 +50,8 @@ private:
 // Class implementation
 
 ClusterMCsplitStrips::ClusterMCsplitStrips(const edm::ParameterSet& conf)
-    : inputTag(conf.getParameter<edm::InputTag>("UnsplitClusterProducer")),
+    : esTopoToken(esConsumes()),
+      inputTag(conf.getParameter<edm::InputTag>("UnsplitClusterProducer")),
       confClusterRefiner_(conf.getParameter<edm::ParameterSet>("ClusterRefiner")) {
   produces<edmNew::DetSetVector<SiStripCluster>>();
   inputToken = consumes<edmNew::DetSetVector<SiStripCluster>>(inputTag);
@@ -89,7 +91,7 @@ ClusterMCsplitStrips::ClusterMCsplitStrips(const edm::ParameterSet& conf)
 
 void ClusterMCsplitStrips::produce(edm::Event& event, const edm::EventSetup& evSetup) {
   //Retrieve tracker topology from geometry
-  evSetup.get<TrackerTopologyRcd>().get(tTopoHandle_);
+  tTopoHandle_ = evSetup.getHandle(esTopoToken);
 
   auto output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>();
   output->reserve(10000, 4 * 10000);
@@ -220,8 +222,7 @@ void ClusterMCsplitStrips::refineCluster(const edm::Handle<edmNew::DetSetVector<
         }
       }
     }  // end loop over original clusters
-
-  }  // end loop over sensors
+  }    // end loop over sensors
 }
 
 template <class T>

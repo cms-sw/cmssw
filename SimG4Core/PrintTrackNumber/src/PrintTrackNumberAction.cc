@@ -4,6 +4,7 @@
 #include "SimG4Core/Notification/interface/EndOfTrack.h"
 
 #include "G4Event.hh"
+#include "G4ios.hh"
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
@@ -12,7 +13,7 @@ PrintTrackNumberAction::PrintTrackNumberAction(edm::ParameterSet const &p)
   theNoTracksToPrint = p.getUntrackedParameter<int>("EachNTrack", -1);
   // do not count tracks killed by user limits (MinEkineCut for the moment only)
   bNoUserLimits = p.getUntrackedParameter<bool>("NoUserLimits", true);
-  std::cout << " PrintTrackNumberAction::bNoUserLimits " << bNoUserLimits << std::endl;
+  G4cout << " PrintTrackNumberAction::bNoUserLimits " << bNoUserLimits << G4endl;
 }
 
 PrintTrackNumberAction::~PrintTrackNumberAction() {}
@@ -50,14 +51,14 @@ void PrintTrackNumberAction::update(const EndOfTrack *trk) {
       theNoTracksThisEventNoUL++;
       if (theNoTracksToPrint > 0) {
         if (theNoTracksThisEventNoUL % theNoTracksToPrint == 0) {
-          std::cout << "PTNA: Simulating Track Number = " << theNoTracksThisEventNoUL << std::endl;
+          G4cout << "PTNA: Simulating Track Number = " << theNoTracksThisEventNoUL << G4endl;
         }
       }
     }
   } else {
     if (theNoTracksToPrint > 0) {
       if (theNoTracksThisEvent % theNoTracksToPrint == 0) {
-        std::cout << "PTNA: Simulating Track Number = " << theNoTracksThisEvent << std::endl;
+        G4cout << "PTNA: Simulating Track Number = " << theNoTracksThisEvent << G4endl;
       }
     }
   }
@@ -65,13 +66,13 @@ void PrintTrackNumberAction::update(const EndOfTrack *trk) {
 
 void PrintTrackNumberAction::update(const EndOfEvent *e) {
   const G4Event *g4e = (*e)();
-  std::cout << "PTNA: Event simulated= " << g4e->GetEventID() << " #tracks= ";
+  G4cout << "PTNA: Event simulated= " << g4e->GetEventID() << " #tracks= ";
   if (bNoUserLimits) {
-    std::cout << theNoTracksThisEventNoUL << "  Total #tracks in run= " << theNoTracksNoUL
-              << " counting killed by UL= " << theNoTracks << std::endl;
+    G4cout << theNoTracksThisEventNoUL << "  Total #tracks in run= " << theNoTracksNoUL
+           << " counting killed by UL= " << theNoTracks << G4endl;
     theNoTracksThisEventNoUL = 0;
   } else {
-    std::cout << theNoTracksThisEvent << "  Total #tracks in run= " << theNoTracks << std::endl;
+    G4cout << theNoTracksThisEvent << "  Total #tracks in run= " << theNoTracks << G4endl;
     theNoTracksThisEvent = 0;
   }
 }

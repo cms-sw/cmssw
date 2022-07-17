@@ -41,7 +41,7 @@ L1TStage2CaloLayer1::L1TStage2CaloLayer1(const edm::ParameterSet& ps)
       fedRawData_(consumes<FEDRawDataCollection>(ps.getParameter<edm::InputTag>("fedRawDataLabel"))),
       histFolder_(ps.getParameter<std::string>("histFolder")),
       tpFillThreshold_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold", 0)),
-      tpFillThreshold5Bx_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold5Bx", 1)),
+      tpFillThreshold5Bx_(ps.getUntrackedParameter<int>("etDistributionsFillThreshold5Bx", 4)),
       ignoreHFfbs_(ps.getUntrackedParameter<bool>("ignoreHFfbs", false)) {}
 
 L1TStage2CaloLayer1::~L1TStage2CaloLayer1() {}
@@ -221,6 +221,11 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
+      const bool towerMasked = tp.sample(0).raw() & (1 << 13);
+      const bool linkError = tp.sample(0).raw() & (1 << 15);
+      if (towerMasked || caloLayer1OutOfRun || linkError) {
+        continue;
+      }
       eventMonitors.ecalOccRecdBx1_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(1);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(1, tp.compressedEt());
@@ -230,6 +235,11 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
+      const bool towerMasked = tp.sample(0).raw() & (1 << 13);
+      const bool linkError = tp.sample(0).raw() & (1 << 15);
+      if (towerMasked || caloLayer1OutOfRun || linkError) {
+        continue;
+      }
       eventMonitors.ecalOccRecdBx2_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(2);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(2, tp.compressedEt());
@@ -239,6 +249,11 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
+      const bool towerMasked = tp.sample(0).raw() & (1 << 13);
+      const bool linkError = tp.sample(0).raw() & (1 << 15);
+      if (towerMasked || caloLayer1OutOfRun || linkError) {
+        continue;
+      }
       eventMonitors.ecalOccRecdBx3_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(3);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(3, tp.compressedEt());
@@ -248,6 +263,11 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
+      const bool towerMasked = tp.sample(0).raw() & (1 << 13);
+      const bool linkError = tp.sample(0).raw() & (1 << 15);
+      if (towerMasked || caloLayer1OutOfRun || linkError) {
+        continue;
+      }
       eventMonitors.ecalOccRecdBx4_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(4);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(4, tp.compressedEt());
@@ -257,6 +277,11 @@ void L1TStage2CaloLayer1::dqmAnalyze(const edm::Event& event,
     if (tp.compressedEt() > tpFillThreshold5Bx_) {
       const int ieta = tp.id().ieta();
       const int iphi = tp.id().iphi();
+      const bool towerMasked = tp.sample(0).raw() & (1 << 13);
+      const bool linkError = tp.sample(0).raw() & (1 << 15);
+      if (towerMasked || caloLayer1OutOfRun || linkError) {
+        continue;
+      }
       eventMonitors.ecalOccRecdBx5_->Fill(ieta, iphi);
       eventMonitors.ecalOccRecd5Bx_->Fill(5);
       eventMonitors.ecalOccRecd5BxEtWgt_->Fill(5, tp.compressedEt());
@@ -510,8 +535,9 @@ void L1TStage2CaloLayer1::bookHistograms(DQMStore::IBooker& ibooker,
   eventMonitors.ecalTPRawEtRecd_ = bookEt("ecalTPRawEtRecd", "ECal Raw Et Layer1 Readout");
   eventMonitors.ecalTPRawEtSentAndRecd_ = bookEt("ecalTPRawEtMatch", "ECal Raw Et FULL MATCH");
   eventMonitors.ecalTPRawEtSent_ = bookEt("ecalTPRawEtSent", "ECal Raw Et TCC Readout");
-  eventMonitors.ecalOccRecd5Bx_ = ibooker.book1D("ecalOccRecd5Bx", "ECal TP Values Averaged vs BX", 5, 1, 6);
-  eventMonitors.ecalOccRecd5BxEtWgt_ = ibooker.book1D("ecalOccRecd5BxEtWgt", "ECal TP*Et Averaged vs BX", 5, 1, 6);
+  eventMonitors.ecalOccRecd5Bx_ = ibooker.book1D("ecalOccRecd5Bx", "Number of TPs vs BX", 5, 1, 6);
+  eventMonitors.ecalOccRecd5BxEtWgt_ =
+      ibooker.book1D("ecalOccRecd5BxEtWgt", "Et-weighted number of TPs vs BX", 5, 1, 6);
   eventMonitors.ecalOccRecdBx1_ = bookEcalOccupancy("ecalOccRecdBx1", "ECal TP Occupancy for BX1");
   eventMonitors.ecalOccRecdBx2_ = bookEcalOccupancy("ecalOccRecdBx2", "ECal TP Occupancy for BX2");
   eventMonitors.ecalOccRecdBx3_ = bookEcalOccupancy("ecalOccRecdBx3", "ECal TP Occupancy for BX3");

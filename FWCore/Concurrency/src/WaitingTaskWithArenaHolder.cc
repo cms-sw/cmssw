@@ -18,15 +18,17 @@ namespace edm {
   // Note that the arena will be the one containing the thread
   // that runs this constructor. This is the arena where you
   // eventually intend for the task to be spawned.
-  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(tbb::task_group& iGroup, WaitingTask* iTask)
-      : m_task(iTask), m_group(&iGroup), m_arena(std::make_shared<tbb::task_arena>(tbb::task_arena::attach())) {
+  WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(oneapi::tbb::task_group& iGroup, WaitingTask* iTask)
+      : m_task(iTask),
+        m_group(&iGroup),
+        m_arena(std::make_shared<oneapi::tbb::task_arena>(oneapi::tbb::task_arena::attach())) {
     m_task->increment_ref_count();
   }
 
   WaitingTaskWithArenaHolder::WaitingTaskWithArenaHolder(WaitingTaskHolder&& iTask)
       : m_task(iTask.release_no_decrement()),
         m_group(iTask.group()),
-        m_arena(std::make_shared<tbb::task_arena>(tbb::task_arena::attach())) {}
+        m_arena(std::make_shared<oneapi::tbb::task_arena>(oneapi::tbb::task_arena::attach())) {}
 
   WaitingTaskWithArenaHolder::~WaitingTaskWithArenaHolder() {
     if (m_task) {

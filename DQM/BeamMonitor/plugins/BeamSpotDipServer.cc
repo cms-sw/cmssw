@@ -50,14 +50,14 @@ BeamSpotDipServer::BeamSpotDipServer(const edm::ParameterSet& ps) {
   //
   bsLegacyToken_ = esConsumes<edm::Transition::EndLuminosityBlock>();
 
-  dcsRecordInputTag_ = ps.getParameter<edm::InputTag>("dcsRecordInputTag");
+  dcsRecordInputTag_ = ps.getUntrackedParameter<edm::InputTag>("dcsRecordInputTag");
   dcsRecordToken_ = consumes<DCSRecord>(dcsRecordInputTag_);
 
   //
   dip = Dip::create("CmsBeamSpotServer");
 
-  //
-  dip->setDNSNode("cmsdimns1.cern.ch");
+  // Use both CMS-based DIM DNS server (https://its.cern.ch/jira/browse/CMSOMS-280)
+  dip->setDNSNode("cmsdimns1.cern.ch,cmsdimns2.cern.ch");
 
   edm::LogInfo("BeamSpotDipServer") << "reading from " << (readFromNFS ? "file (NFS)" : "database");
 }
@@ -366,35 +366,35 @@ void BeamSpotDipServer::problem() {
 bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects& bs)
 // read from database
 {
-  runnum = bs.GetLastAnalyzedRun();
+  runnum = bs.lastAnalyzedRun();
 
   // get from BeamSpotOnlineObject
 
   try {
-    startTime = bs.GetStartTime();
-    startTimeStamp = bs.GetStartTimeStamp();
-    endTime = bs.GetEndTime();
-    endTimeStamp = bs.GetEndTimeStamp();
+    startTime = bs.startTime();
+    startTimeStamp = bs.startTimeStamp();
+    endTime = bs.endTime();
+    endTimeStamp = bs.endTimeStamp();
   } catch (exception& e) {
     edm::LogWarning("BeamSpotDipServer") << "time variables are not available (readRcd): " << e.what();
 
-    startTime = bs.GetCreationTime();
-    startTimeStamp = bs.GetCreationTime();
-    endTime = bs.GetCreationTime();
-    endTimeStamp = bs.GetCreationTime();
+    startTime = bs.creationTime();
+    startTimeStamp = bs.creationTime();
+    endTime = bs.creationTime();
+    endTimeStamp = bs.creationTime();
   }
 
   try {
-    lumiRange = bs.GetLumiRange();
+    lumiRange = bs.lumiRange();
   } catch (exception& e) {
     edm::LogWarning("BeamSpotDipServer") << "lumirange variable not avaialble (readRcd): " << e.what();
 
-    lumiRange = to_string(bs.GetLastAnalyzedLumi());
+    lumiRange = to_string(bs.lastAnalyzedLumi());
   }
 
-  currentLS = bs.GetLastAnalyzedLumi();
+  currentLS = bs.lastAnalyzedLumi();
 
-  type = bs.GetBeamType();
+  type = bs.beamType();
 
   if (verbose)
     edm::LogInfo("BeamSpotDipServer") << "run: " << runnum << ", LS: " << currentLS << ", time: " << startTime << " "
@@ -407,32 +407,32 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects& bs)
   else
     quality = qualities[1];  // Bad
 
-  x = bs.GetX();
-  y = bs.GetY();
-  z = bs.GetZ();
+  x = bs.x();
+  y = bs.y();
+  z = bs.z();
 
-  sigma_z = bs.GetSigmaZ();
-  dxdz = bs.Getdxdz();
-  dydz = bs.Getdydz();
-  width_x = bs.GetBeamWidthX();
-  width_y = bs.GetBeamWidthX();
+  sigma_z = bs.sigmaZ();
+  dxdz = bs.dxdz();
+  dydz = bs.dydz();
+  width_x = bs.beamWidthX();
+  width_y = bs.beamWidthX();
 
-  err_x = bs.GetXError();
-  err_y = bs.GetYError();
-  err_z = bs.GetZError();
-  err_sigma_z = bs.GetSigmaZError();
-  err_dxdz = bs.GetdxdzError();
-  err_dydz = bs.GetdydzError();
-  err_width_x = bs.GetBeamWidthXError();
-  err_width_y = bs.GetBeamWidthYError();
+  err_x = bs.xError();
+  err_y = bs.yError();
+  err_z = bs.zError();
+  err_sigma_z = bs.sigmaZError();
+  err_dxdz = bs.dxdzError();
+  err_dydz = bs.dydzError();
+  err_width_x = bs.beamWidthXError();
+  err_width_y = bs.beamWidthYError();
 
   try {
-    events = bs.GetUsedEvents();
-    meanPV = bs.GetMeanPV();
-    err_meanPV = bs.GetMeanErrorPV();
-    rmsPV = bs.GetRmsPV();
-    err_rmsPV = bs.GetRmsErrorPV();
-    maxPV = bs.GetMaxPVs();
+    events = bs.usedEvents();
+    meanPV = bs.meanPV();
+    err_meanPV = bs.meanErrorPV();
+    rmsPV = bs.rmsPV();
+    err_rmsPV = bs.rmsErrorPV();
+    maxPV = bs.maxPVs();
   } catch (exception& e) {
     edm::LogWarning("BeamSpotDipServer") << "PV variables are not available (readRcd): " << e.what();
 
@@ -444,7 +444,7 @@ bool BeamSpotDipServer::readRcd(const BeamSpotOnlineObjects& bs)
     maxPV = 0.;
   }
 
-  nPV = bs.GetNumPVs();
+  nPV = bs.numPVs();
 
   if (verbose)
     edm::LogInfo("BeamSpotDipServer") << "pos: (" << x << "," << y << "," << z << ")"

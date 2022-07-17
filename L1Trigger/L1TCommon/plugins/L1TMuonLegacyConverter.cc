@@ -72,6 +72,11 @@ L1TMuonLegacyConverter::L1TMuonLegacyConverter(const edm::ParameterSet& iConfig)
 
   produces<MuonBxCollection>("imdMuonsLegacy");
   muonSource_InputToken = consumes<L1MuGMTReadoutCollection>(muonSource_InputTag);
+
+  if (produceMuonParticles_) {
+    muScalesToken_ = esConsumes();
+    muPtScaleToken_ = esConsumes();
+  }
 }
 
 L1TMuonLegacyConverter::~L1TMuonLegacyConverter() {
@@ -99,11 +104,9 @@ void L1TMuonLegacyConverter::produce(edm::Event& iEvent, const edm::EventSetup& 
                                      << "\nrequested in configuration, but not found in the event." << std::endl;
 
   if (produceMuonParticles_) {
-    ESHandle<L1MuTriggerScales> muScales;
-    iSetup.get<L1MuTriggerScalesRcd>().get(muScales);
+    ESHandle<L1MuTriggerScales> muScales = iSetup.getHandle(muScalesToken_);
 
-    ESHandle<L1MuTriggerPtScale> muPtScale;
-    iSetup.get<L1MuTriggerPtScaleRcd>().get(muPtScale);
+    ESHandle<L1MuTriggerPtScale> muPtScale = iSetup.getHandle(muPtScaleToken_);
 
     Handle<L1MuGMTReadoutCollection> simMuCollection;
     iEvent.getByToken(muonSource_InputToken, simMuCollection);

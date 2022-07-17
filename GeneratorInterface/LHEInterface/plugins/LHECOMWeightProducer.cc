@@ -2,7 +2,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -21,21 +21,24 @@
 //
 // class declaration
 //
-class LHECOMWeightProducer : public edm::EDProducer {
+class LHECOMWeightProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
   explicit LHECOMWeightProducer(const edm::ParameterSet&);
-  ~LHECOMWeightProducer() override;
+  ~LHECOMWeightProducer() override = default;
 
 private:
   void beginJob() override;
   void beginRun(edm::Run const& run, const edm::EventSetup& es) override;
+  void endRun(edm::Run const& run, const edm::EventSetup& es) override {}
   void produce(edm::Event&, const edm::EventSetup&) override;
 
-  edm::InputTag lheTag_;
+  const edm::InputTag lheTag_;
+  const double _newECMS;
+  const edm::EDGetTokenT<LHERunInfoProduct> tokenLHERun_;
+  const edm::EDGetTokenT<LHEEventProduct> tokenLHEEvent_;
   int _pdfset;
   int _pdfmember;
   double _origECMS;
-  double _newECMS;
   std::string _label;
 };
 
@@ -54,7 +57,10 @@ namespace LHAPDF {
 
 /////////////////////////////////////////////////////////////////////////////////////
 LHECOMWeightProducer::LHECOMWeightProducer(const edm::ParameterSet& pset)
-    : lheTag_(pset.getParameter<edm::InputTag>("lheSrc")), _newECMS(pset.getParameter<double>("NewECMS")) {
+    : lheTag_(pset.getParameter<edm::InputTag>("lheSrc")),
+      _newECMS(pset.getParameter<double>("NewECMS")),
+      tokenLHERun_(consumes<LHERunInfoProduct, edm::InRun>(lheTag_)),
+      tokenLHEEvent_(consumes<LHEEventProduct>(lheTag_)) {
   std::stringstream labelStr;
   labelStr << "com"
            << "To" << _newECMS;
@@ -63,13 +69,9 @@ LHECOMWeightProducer::LHECOMWeightProducer(const edm::ParameterSet& pset)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-LHECOMWeightProducer::~LHECOMWeightProducer() {}
-
-/////////////////////////////////////////////////////////////////////////////////////
 void LHECOMWeightProducer::beginRun(edm::Run const& run, const edm::EventSetup& es) {
   using namespace edm;
-  Handle<LHERunInfoProduct> lheRun;
-  run.getByLabel(lheTag_, lheRun);
+  const edm::Handle<LHERunInfoProduct>& lheRun = run.getHandle(tokenLHERun_);
   //assumes the same pdf is used for both beams
   _pdfset = lheRun->heprup().PDFSUP.first;
   _pdfmember = lheRun->heprup().PDFGUP.first;
@@ -94,8 +96,7 @@ void LHECOMWeightProducer::produce(edm::Event& iEvent, const edm::EventSetup&) {
   if (iEvent.isRealData())
     return;
 
-  edm::Handle<LHEEventProduct> lheevent;
-  iEvent.getByLabel(lheTag_, lheevent);
+  const edm::Handle<LHEEventProduct>& lheevent = iEvent.getHandle(tokenLHEEvent_);
 
   float Q = lheevent->hepeup().SCALUP;
 

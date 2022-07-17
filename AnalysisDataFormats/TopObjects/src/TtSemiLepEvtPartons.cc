@@ -23,7 +23,7 @@ TtSemiLepEvtPartons::TtSemiLepEvtPartons(const std::vector<std::string>& partons
   }
 }
 
-std::vector<const reco::Candidate*> TtSemiLepEvtPartons::vec(const TtGenEvent& genEvt) {
+std::vector<const reco::Candidate*> TtSemiLepEvtPartons::vec(const TtGenEvent& genEvt) const {
   std::vector<const reco::Candidate*> vec;
 
   if (genEvt.isSemiLeptonic()) {

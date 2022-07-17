@@ -15,7 +15,6 @@
 #include "CondCore/CondDB/interface/Time.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -59,9 +58,6 @@ WriteCTPPSPixelDAQMapping::WriteCTPPSPixelDAQMapping(const edm::ParameterSet &ps
       tokenMapping_(esConsumes<CTPPSPixelDAQMapping, CTPPSPixelDAQMappingRcd>(edm::ESInputTag("", label_))) {}
 
 void WriteCTPPSPixelDAQMapping::analyze(const edm::Event &, edm::EventSetup const &es) {
-  // get DAQ mapping
-  edm::ESHandle<CTPPSPixelDAQMapping> hMapping = es.getHandle(tokenMapping_);
-
   // print mapping
   /*printf("* DAQ mapping\n");
   for (const auto &p : mapping->ROCMapping)
@@ -69,10 +65,12 @@ void WriteCTPPSPixelDAQMapping::analyze(const edm::Event &, edm::EventSetup cons
   */
 
   // Write DAQ Mapping to sqlite file:
-  const CTPPSPixelDAQMapping *pCTPPSPixelDAQMapping = hMapping.product();  // DAQ Mapping
+
+  const auto &mapping = es.getData(tokenMapping_);
+
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if (poolDbService.isAvailable()) {
-    poolDbService->writeOneIOV(*pCTPPSPixelDAQMapping, daqmappingiov_, /*m_record*/ record_);
+    poolDbService->writeOneIOV(mapping, daqmappingiov_, record_);
   }
 }
 

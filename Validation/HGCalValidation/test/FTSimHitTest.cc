@@ -46,7 +46,6 @@ protected:
   void plotHits(const edm::Handle<edm::PSimHitContainer>&, const int);
 
 private:
-  edm::Service<TFileService> fs_;
   const std::string g4Label_, barrelHit_, endcapHit_;
   const edm::ESGetToken<FastTimeDDDConstants, IdealGeometryRecord> tok_ftg_;
   const FastTimeDDDConstants* ftcons_;
@@ -83,22 +82,23 @@ void FTSimHitTest::beginRun(edm::Run const&, edm::EventSetup const& es) {
   //Histograms for Sim Hits
   std::string detector[2] = {"Barrel", "Endcap"};
   char name[80], title[120];
+  edm::Service<TFileService> fs;
   for (unsigned int k = 0; k < 2; ++k) {
     sprintf(name, "SimHitEn%d", k);
     sprintf(title, "Sim Hit Energy (%s)", detector[k].c_str());
-    hsimE_[k] = fs_->make<TH1D>(name, title, 1000, 0.0, 1.0);
+    hsimE_[k] = fs->make<TH1D>(name, title, 1000, 0.0, 1.0);
     sprintf(name, "SimHitTm%d", k);
     sprintf(title, "Sim Hit Time (%s)", detector[k].c_str());
-    hsimT_[k] = fs_->make<TH1D>(name, title, 1000, 0.0, 500.0);
+    hsimT_[k] = fs->make<TH1D>(name, title, 1000, 0.0, 500.0);
     sprintf(name, "SimHitOc%d", k);
     sprintf(title, "# Cells with Sim Hit (%s)", detector[k].c_str());
-    hcell_[k] = fs_->make<TH1D>(name, title, 1000, 0.0, 1000.0);
+    hcell_[k] = fs->make<TH1D>(name, title, 1000, 0.0, 1000.0);
     sprintf(name, "SimHitPos%d", k);
     sprintf(title, "Sim Hit Eta(z)-Phi (%s) for +z", detector[k].c_str());
-    hsimP_[k] = fs_->make<TH2D>(name, title, 200, 0, 400.0, 360, 0, 720.0);
+    hsimP_[k] = fs->make<TH2D>(name, title, 200, 0, 400.0, 360, 0, 720.0);
     sprintf(name, "SimHitNeg%d", k);
     sprintf(title, "Sim Hit Eta(z)-Phi (%s) for -z", detector[k].c_str());
-    hsimM_[k] = fs_->make<TH2D>(name, title, 200, 0, 400.0, 360, 0, 720.0);
+    hsimM_[k] = fs->make<TH2D>(name, title, 200, 0, 400.0, 360, 0, 720.0);
   }
 }
 

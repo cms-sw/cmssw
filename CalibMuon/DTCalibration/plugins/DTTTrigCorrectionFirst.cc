@@ -47,7 +47,7 @@ void DTTTrigCorrectionFirst::beginRun(const edm::Run& run, const edm::EventSetup
 
 void DTTTrigCorrectionFirst::endJob() {
   // Create the object to be written to DB
-  DTTtrig* tTrigNewMap = new DTTtrig();
+  DTTtrig tTrigNewMap;
   //Get the superlayers list
   vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
 
@@ -57,7 +57,6 @@ void DTTTrigCorrectionFirst::endJob() {
   double rms = 0.;
   double averageSigma = 0.;
   double average2Sigma = 0.;
-  double rmsSigma = 0.;
   double counter = 0.;
   double averagekfactor = 0;
   float kfactor = 0;
@@ -92,9 +91,7 @@ void DTTTrigCorrectionFirst::endJob() {
   }  //End of loop on superlayers
 
   rms = average2 / (counter - 1);
-  rmsSigma = average2Sigma / (counter - 1);
   rms = sqrt(rms);
-  rmsSigma = sqrt(rmsSigma);
   cout << "average averageSigma counter rms " << average << " " << averageSigma << " " << counter << " " << rms << endl;
 
   for (auto sl = dtSupLylist.begin(); sl != dtSupLylist.end(); sl++) {
@@ -225,7 +222,7 @@ void DTTTrigCorrectionFirst::endJob() {
     }
 
     //Store new ttrig in the new map
-    tTrigNewMap->set((*sl)->id(), newTTrigMean, newTTrigSigma, newkfactor, DTTimeUnits::ns);
+    tTrigNewMap.set((*sl)->id(), newTTrigMean, newTTrigSigma, newkfactor, DTTimeUnits::ns);
     if (debug) {
       cout << "New tTrig: " << (*sl)->id() << " from " << ttrigMean << " to " << newTTrigMean << endl;
       cout << "New tTrigSigma: " << (*sl)->id() << " from " << ttrigSigma << " to " << newTTrigSigma << endl;

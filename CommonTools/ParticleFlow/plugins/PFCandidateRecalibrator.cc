@@ -64,6 +64,12 @@ private:
 
   edm::EDGetTokenT<reco::PFCandidateCollection> pfcandidates_;
 
+  const edm::ESGetToken<HcalDbService, HcalDbRecord> gtCondToken_;
+  const edm::ESGetToken<HcalTopology, HcalRecNumberingRecord> htopoToken_;
+  const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> buggedCondToken_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> calogeomTokenRun_;
+  const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> calogeomTokenEvent_;
+
   std::vector<HEChannel> badChHE_;
   std::vector<HFChannel> badChHF_;
 
@@ -73,6 +79,11 @@ private:
 
 PFCandidateRecalibrator::PFCandidateRecalibrator(const edm::ParameterSet& iConfig)
     : pfcandidates_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfcandidates"))),
+      gtCondToken_(esConsumes<edm::Transition::BeginRun>()),
+      htopoToken_(esConsumes<edm::Transition::BeginRun>()),
+      buggedCondToken_(esConsumes<edm::Transition::BeginRun>(edm::ESInputTag("", "bugged"))),
+      calogeomTokenRun_(esConsumes<edm::Transition::BeginRun>()),
+      calogeomTokenEvent_(esConsumes()),
       shortFibreThr_(iConfig.getParameter<double>("shortFibreThr")),
       longFibreThr_(iConfig.getParameter<double>("longFibreThr")) {
   produces<reco::PFCandidateCollection>();
@@ -83,25 +94,17 @@ PFCandidateRecalibrator::PFCandidateRecalibrator(const edm::ParameterSet& iConfi
 void PFCandidateRecalibrator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   if (hcalDbWatcher_.check(iSetup) || hcalRCWatcher_.check(iSetup)) {
     //Get Calib Constants from current GT
-    edm::ESHandle<HcalDbService> gtCond;
-    iSetup.get<HcalDbRecord>().get(gtCond);
+    HcalDbService const& gtCond = iSetup.getData(gtCondToken_);
 
     //Get Calib Constants from bugged tag
-    edm::ESHandle<HcalTopology> htopo;
-    iSetup.get<HcalRecNumberingRecord>().get(htopo);
-    const HcalTopology* theHBHETopology = htopo.product();
+    const HcalTopology& theHBHETopology = iSetup.getData(htopoToken_);
 
-    edm::ESHandle<HcalRespCorrs> buggedCond;
-    iSetup.get<HcalRespCorrsRcd>().get("bugged", buggedCond);
-    HcalRespCorrs buggedRespCorrs(*buggedCond.product());
-    buggedRespCorrs.setTopo(theHBHETopology);
+    HcalRespCorrs buggedRespCorrs = iSetup.getData(buggedCondToken_);
+    buggedRespCorrs.setTopo(&theHBHETopology);
 
     //access calogeometry
-    edm::ESHandle<CaloGeometry> calogeom;
-    iSetup.get<CaloGeometryRecord>().get(calogeom);
-    const CaloGeometry* cgeo = calogeom.product();
-    const HcalGeometry* hgeom =
-        static_cast<const HcalGeometry*>(cgeo->getSubdetectorGeometry(DetId::Hcal, HcalForward));
+    const CaloGeometry& cgeo = iSetup.getData(calogeomTokenRun_);
+    const HcalGeometry* hgeom = static_cast<const HcalGeometry*>(cgeo.getSubdetectorGeometry(DetId::Hcal, HcalForward));
 
     //reset the bad channel containers
     badChHE_.clear();
@@ -110,7 +113,7 @@ void PFCandidateRecalibrator::beginRun(const edm::Run& iRun, const edm::EventSet
     //fill bad cells HE (use eta, phi)
     const std::vector<DetId>& cellsHE = hgeom->getValidDetIds(DetId::Detector::Hcal, HcalEndcap);
     for (auto id : cellsHE) {
-      float currentRespCorr = gtCond->getHcalRespCorr(id)->getValue();
+      float currentRespCorr = gtCond.getHcalRespCorr(id)->getValue();
       float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
       if (buggedRespCorr == 0.)
         continue;
@@ -125,7 +128,7 @@ void PFCandidateRecalibrator::beginRun(const edm::Run& iRun, const edm::EventSet
     //fill bad cells HF (use ieta, iphi)
     auto const& cellsHF = hgeom->getValidDetIds(DetId::Detector::Hcal, HcalForward);
     for (auto id : cellsHF) {
-      float currentRespCorr = gtCond->getHcalRespCorr(id)->getValue();
+      float currentRespCorr = gtCond.getHcalRespCorr(id)->getValue();
       float buggedRespCorr = buggedRespCorrs.getValues(id)->getValue();
       if (buggedRespCorr == 0.)
         continue;
@@ -143,10 +146,8 @@ void PFCandidateRecalibrator::endRun(const edm::Run& iRun, const edm::EventSetup
 
 void PFCandidateRecalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //access calogeometry
-  edm::ESHandle<CaloGeometry> calogeom;
-  iSetup.get<CaloGeometryRecord>().get(calogeom);
-  const CaloGeometry* cgeo = calogeom.product();
-  const HcalGeometry* hgeom = static_cast<const HcalGeometry*>(cgeo->getSubdetectorGeometry(DetId::Hcal, HcalForward));
+  const CaloGeometry& cgeo = iSetup.getData(calogeomTokenEvent_);
+  const HcalGeometry* hgeom = static_cast<const HcalGeometry*>(cgeo.getSubdetectorGeometry(DetId::Hcal, HcalForward));
 
   //access PFCandidates
   edm::Handle<reco::PFCandidateCollection> pfcandidates;

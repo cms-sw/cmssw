@@ -18,11 +18,9 @@ process.GlobalTag.globaltag = "80X_dataRun2_2016SeptRepro_v7"
 
 #DTTriggerPhase2
 process.load("L1Trigger.DTTriggerPhase2.dtTriggerPhase2PrimitiveDigis_cfi")
-process.dtTriggerPhase2PrimitiveDigis.trigger_with_sl = 4  #4 means SL 1 and 3
 process.dtTriggerPhase2PrimitiveDigis.digiTag=("ogdtab7unpacker")
 
 #for the moment the part working in phase2 format is the slice test
-process.dtTriggerPhase2PrimitiveDigis.do_correlation = False 
 process.dtTriggerPhase2PrimitiveDigis.p2_df = True
 #for debugging
 #process.dtTriggerPhase2PrimitiveDigis.debug = True

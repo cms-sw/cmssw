@@ -64,8 +64,8 @@ def get_file_pairs(base_dir, pr_dir):
 
     # Remove base directories and leave
     # only parts of paths that are same
-    base_files = map(lambda x: os.path.relpath(x, base_dir), base_files)
-    pr_files = map(lambda x: os.path.relpath(x, pr_dir), pr_files)
+    base_files = [ os.path.relpath(x, base_dir) for x in base_files ]
+    pr_files =   [ os.path.relpath(x, pr_dir) for x in pr_files ]
     
     # Find intersection
     return [value for value in base_files if value in pr_files]

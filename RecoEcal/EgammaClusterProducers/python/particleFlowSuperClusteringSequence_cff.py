@@ -17,7 +17,6 @@ phase2_hgcal.toModify(
     particleFlowSuperClusterHGCal,
     PFClusters                     = 'particleFlowClusterHGCal',
     useRegression                  = True,
-    use_preshower                  = False,
     PFBasicClusterCollectionEndcap = "",
     PFSuperClusterCollectionEndcap = "",
     PFSuperClusterCollectionEndcapWithPreshower = "",
@@ -36,4 +35,3 @@ _phase2_hgcal_particleFlowSuperClusteringTask = particleFlowSuperClusteringTask.
 _phase2_hgcal_particleFlowSuperClusteringTask.add(particleFlowSuperClusterHGCal)
 
 phase2_hgcal.toReplaceWith( particleFlowSuperClusteringTask, _phase2_hgcal_particleFlowSuperClusteringTask )
-

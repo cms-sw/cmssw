@@ -11,7 +11,7 @@
 #include <unistd.h>
 #include <memory>
 #include <atomic>
-#include "tbb/task_arena.h"
+#include "oneapi/tbb/task_arena.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
 #include "FWCore/Concurrency/interface/LimitedTaskQueue.h"
 #include "FWCore/Concurrency/interface/FunctorTask.h"
@@ -40,7 +40,7 @@ void LimitedTaskQueue_test::testPush() {
     edm::LimitedTaskQueue queue{1};
     {
       std::atomic<int> waitingTasks{3};
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
 
       queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ == 0);
@@ -74,7 +74,7 @@ void LimitedTaskQueue_test::testPush() {
     edm::LimitedTaskQueue queue{kMax};
     {
       std::atomic<int> waitingTasks{3};
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
 
       queue.push(group, [&count, &waitingTasks] {
         CPPUNIT_ASSERT(count++ < kMax);
@@ -112,7 +112,7 @@ void LimitedTaskQueue_test::testPause() {
   {
     {
       std::atomic<int> waitingTasks{3};
-      tbb::task_group group;
+      oneapi::tbb::task_group group;
 
       edm::LimitedTaskQueue::Resumer resumer;
       std::atomic<bool> resumerSet{false};
@@ -173,7 +173,7 @@ void LimitedTaskQueue_test::testPause() {
 
 void LimitedTaskQueue_test::stressTest() {
   //NOTE: group needs to last longer than queue
-  tbb::task_group group;
+  oneapi::tbb::task_group group;
 
   constexpr unsigned int kMax = 3;
   edm::LimitedTaskQueue queue{kMax};

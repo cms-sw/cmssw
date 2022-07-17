@@ -42,7 +42,6 @@ private:
   void beginRun(edm::Run const&, edm::EventSetup const&) override {}
   void endRun(edm::Run const&, edm::EventSetup const&) override;
 
-  edm::Service<TFileService> fs;
   const double pTrackLow_, pTrackHigh_;
   const int useRaw_, dataType_;
   const edm::InputTag labelIsoTkVar_, labelIsoTkEvt_;
@@ -117,23 +116,23 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
   // Fill from IsoTrkCalibVariables collection
   auto const& isotrkCalibColl = iEvent.getHandle(tokIsoTrkVar_);
   if (isotrkCalibColl.isValid()) {
-    auto isotrkCalib = isotrkCalibColl.product();
+    auto isotrkCalib = *isotrkCalibColl.product();
 #ifdef EDM_ML_DEBUG
     if (debug)
-      edm::LogVerbatim("HcalIsoTrack") << "Finds HcalIsoTrkCalibVariablesCollection with " << isotrkCalib->size()
+      edm::LogVerbatim("HcalIsoTrack") << "Finds HcalIsoTrkCalibVariablesCollection with " << isotrkCalib.size()
                                        << " entries";
     int k(0);
 #endif
-    for (auto itr = isotrkCalib->begin(); itr != isotrkCalib->end(); ++itr) {
-      t_ieta = itr->ieta_;
-      t_iphi = itr->iphi_;
-      t_goodPV = itr->goodPV_;
-      t_nVtx = itr->nVtx_;
-      t_nTrk = itr->nTrk_;
-      t_EventWeight = itr->eventWeight_;
-      t_p = itr->p_;
-      t_pt = itr->pt_;
-      t_phi = itr->phi_;
+    for (const auto& itr : isotrkCalib) {
+      t_ieta = itr.ieta_;
+      t_iphi = itr.iphi_;
+      t_goodPV = itr.goodPV_;
+      t_nVtx = itr.nVtx_;
+      t_nTrk = itr.nTrk_;
+      t_EventWeight = itr.eventWeight_;
+      t_p = itr.p_;
+      t_pt = itr.pt_;
+      t_phi = itr.phi_;
 #ifdef EDM_ML_DEBUG
       ++k;
       if (debug)
@@ -141,83 +140,83 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
                                          << " nvtx:ntrk:goodPV:wt " << t_nVtx << ":" << t_nTrk << ":" << t_goodPV << ":"
                                          << t_EventWeight << " ieta:iphi " << t_ieta << ":" << t_iphi;
 #endif
-      t_l1pt = itr->l1pt_;
-      t_l1eta = itr->l1eta_;
-      t_l1phi = itr->l1phi_;
-      t_l3pt = itr->l3pt_;
-      t_l3eta = itr->l3eta_;
-      t_l3phi = itr->l3phi_;
-      t_mindR1 = itr->mindR1_;
-      t_mindR2 = itr->mindR2_;
+      t_l1pt = itr.l1pt_;
+      t_l1eta = itr.l1eta_;
+      t_l1phi = itr.l1phi_;
+      t_l3pt = itr.l3pt_;
+      t_l3eta = itr.l3eta_;
+      t_l3phi = itr.l3phi_;
+      t_mindR1 = itr.mindR1_;
+      t_mindR2 = itr.mindR2_;
 #ifdef EDM_ML_DEBUG
       if (debug)
         edm::LogVerbatim("HcalIsoTrack") << "L1 pt:eta:phi " << t_l1pt << ":" << t_l1eta << ":" << t_l1phi
                                          << " L3 pt:eta:phi " << t_l3pt << ":" << t_l3eta << ":" << t_l3phi << " R1:R2 "
                                          << t_mindR1 << ":" << t_mindR2;
 #endif
-      t_eMipDR = itr->eMipDR_[0];
-      t_eMipDR2 = itr->eMipDR_[1];
-      t_eMipDR3 = itr->eMipDR_[2];
-      t_eMipDR4 = itr->eMipDR_[3];
-      t_eMipDR5 = itr->eMipDR_[4];
+      t_eMipDR = itr.eMipDR_[0];
+      t_eMipDR2 = itr.eMipDR_[1];
+      t_eMipDR3 = itr.eMipDR_[2];
+      t_eMipDR4 = itr.eMipDR_[3];
+      t_eMipDR5 = itr.eMipDR_[4];
 #ifdef EDM_ML_DEBUG
       if (debug)
         edm::LogVerbatim("HcalIsoTrack") << "eMIPDR 1:2:3:4:5 " << t_eMipDR << ":" << t_eMipDR2 << ":" << t_eMipDR3
                                          << ":" << t_eMipDR4 << ":" << t_eMipDR5;
 #endif
-      t_hmaxNearP = itr->hmaxNearP_;
-      t_emaxNearP = itr->emaxNearP_;
-      t_eAnnular = itr->eAnnular_;
-      t_hAnnular = itr->hAnnular_;
+      t_hmaxNearP = itr.hmaxNearP_;
+      t_emaxNearP = itr.emaxNearP_;
+      t_eAnnular = itr.eAnnular_;
+      t_hAnnular = itr.hAnnular_;
 #ifdef EDM_ML_DEBUG
       if (debug)
         edm::LogVerbatim("HcalIsoTrack") << "emaxNearP:hmaxNearP " << t_emaxNearP << ":" << t_hmaxNearP
                                          << " eAnnlar:hAnnular" << t_eAnnular << ":" << t_hAnnular;
 #endif
-      t_gentrackP = itr->gentrackP_;
-      t_rhoh = itr->rhoh_;
-      t_selectTk = itr->selectTk_;
-      t_qltyFlag = itr->qltyFlag_;
-      t_qltyMissFlag = itr->qltyMissFlag_;
-      t_qltyPVFlag = itr->qltyPVFlag_;
+      t_gentrackP = itr.gentrackP_;
+      t_rhoh = itr.rhoh_;
+      t_selectTk = itr.selectTk_;
+      t_qltyFlag = itr.qltyFlag_;
+      t_qltyMissFlag = itr.qltyMissFlag_;
+      t_qltyPVFlag = itr.qltyPVFlag_;
 #ifdef EDM_ML_DEBUG
       if (debug)
         edm::LogVerbatim("HcalIsoTrack") << "gentrackP " << t_gentrackP << " rhoh " << t_rhoh
                                          << " qltyFlag:qltyMissFlag:qltyPVFlag:selectTk " << t_qltyFlag << ":"
                                          << t_qltyMissFlag << ":" << t_qltyPVFlag << ":" << t_selectTk;
 #endif
-      t_trgbits = itr->trgbits_;
-      t_DetIds = itr->detIds_;
-      t_DetIds1 = itr->detIds1_;
-      t_DetIds3 = itr->detIds3_;
+      t_trgbits = itr.trgbits_;
+      t_DetIds = itr.detIds_;
+      t_DetIds1 = itr.detIds1_;
+      t_DetIds3 = itr.detIds3_;
       if (useRaw_ == 1) {
-        t_eHcal = itr->eHcalAux_;
-        t_eHcal10 = itr->eHcal10Aux_;
-        t_eHcal30 = itr->eHcal30Aux_;
-        t_HitEnergies = itr->hitEnergiesAux_;
-        t_HitEnergies1 = itr->hitEnergies1Aux_;
-        t_HitEnergies3 = itr->hitEnergies3Aux_;
+        t_eHcal = itr.eHcalAux_;
+        t_eHcal10 = itr.eHcal10Aux_;
+        t_eHcal30 = itr.eHcal30Aux_;
+        t_HitEnergies = itr.hitEnergiesAux_;
+        t_HitEnergies1 = itr.hitEnergies1Aux_;
+        t_HitEnergies3 = itr.hitEnergies3Aux_;
       } else if (useRaw_ == 2) {
-        t_eHcal = itr->eHcalRaw_;
-        t_eHcal10 = itr->eHcal10Raw_;
-        t_eHcal30 = itr->eHcal30Raw_;
-        t_HitEnergies = itr->hitEnergiesRaw_;
-        t_HitEnergies1 = itr->hitEnergies1Raw_;
-        t_HitEnergies3 = itr->hitEnergies3Raw_;
+        t_eHcal = itr.eHcalRaw_;
+        t_eHcal10 = itr.eHcal10Raw_;
+        t_eHcal30 = itr.eHcal30Raw_;
+        t_HitEnergies = itr.hitEnergiesRaw_;
+        t_HitEnergies1 = itr.hitEnergies1Raw_;
+        t_HitEnergies3 = itr.hitEnergies3Raw_;
       } else {
-        t_eHcal = itr->eHcal_;
-        t_eHcal10 = itr->eHcal10_;
-        t_eHcal30 = itr->eHcal30_;
-        t_HitEnergies = itr->hitEnergies_;
-        t_HitEnergies1 = itr->hitEnergies1_;
-        t_HitEnergies3 = itr->hitEnergies3_;
+        t_eHcal = itr.eHcal_;
+        t_eHcal10 = itr.eHcal10_;
+        t_eHcal30 = itr.eHcal30_;
+        t_HitEnergies = itr.hitEnergies_;
+        t_HitEnergies1 = itr.hitEnergies1_;
+        t_HitEnergies3 = itr.hitEnergies3_;
       }
 #ifdef EDM_ML_DEBUG
       if (debug)
         edm::LogVerbatim("HcalIsoTrack") << "eHcal:eHcal10:eHCal30 " << t_eHcal << ":" << t_eHcal10 << t_eHcal30;
 #endif
       tree->Fill();
-      edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event;
+      edm::LogVerbatim("HcalIsoTrackX") << "Run " << t_Run << " Event " << t_Event << " p " << t_p;
 
       if (t_p < pTrackLow_) {
         ++nLow_;
@@ -265,6 +264,7 @@ void HcalIsoTrackAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup con
 }
 
 void HcalIsoTrackAnalyzer::beginJob() {
+  edm::Service<TFileService> fs;
   tree = fs->make<TTree>("CalibTree", "CalibTree");
 
   tree->Branch("t_Run", &t_Run, "t_Run/I");

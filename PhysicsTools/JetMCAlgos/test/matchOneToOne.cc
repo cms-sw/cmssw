@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,7 +30,7 @@ using namespace reco;
 using namespace edm;
 using namespace ROOT::Math::VectorUtil;
 
-class matchOneToOne : public edm::EDAnalyzer {
+class matchOneToOne : public edm::one::EDAnalyzer<> {
 public:
   explicit matchOneToOne(const edm::ParameterSet&);
   ~matchOneToOne() {}

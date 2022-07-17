@@ -69,6 +69,8 @@ private:
   MEPSet scalLumiMEPSet_;
   MEPSet pixelLumiMEPSet_;
   MEPSet puMEPSet_;
+
+  bool fillEveryLumiSection_;
 };
 
 FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const& config)
@@ -80,7 +82,8 @@ FastTimerServiceClient::FastTimerServiceClient(edm::ParameterSet const& config)
                                          : MEPSet{}),
       pixelLumiMEPSet_(doPlotsVsPixelLumi_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("pixelLumiME"))
                                            : MEPSet{}),
-      puMEPSet_(doPlotsVsPU_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("puME")) : MEPSet{}) {}
+      puMEPSet_(doPlotsVsPU_ ? getHistoPSet(config.getParameter<edm::ParameterSet>("puME")) : MEPSet{}),
+      fillEveryLumiSection_(config.getParameter<bool>("fillEveryLumiSection")) {}
 
 FastTimerServiceClient::~FastTimerServiceClient() = default;
 
@@ -92,7 +95,8 @@ void FastTimerServiceClient::dqmEndLuminosityBlock(DQMStore::IBooker& booker,
                                                    DQMStore::IGetter& getter,
                                                    edm::LuminosityBlock const& lumi,
                                                    edm::EventSetup const& setup) {
-  fillSummaryPlots(booker, getter);
+  if (fillEveryLumiSection_)
+    fillSummaryPlots(booker, getter);
 }
 
 void FastTimerServiceClient::fillSummaryPlots(DQMStore::IBooker& booker, DQMStore::IGetter& getter) {
@@ -251,7 +255,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
     MonitorElement* me;
 
     booker.setCurrentFolder(subsubdir);
-    me = getter.get("module_time_real_average");
+    me = getter.get(subsubdir + "/module_time_real_average");
     if (me) {
       real_average = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
@@ -266,7 +270,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       }
     }
 
-    me = getter.get("module_time_thread_average");
+    me = getter.get(subsubdir + "/module_time_thread_average");
     if (me) {
       thread_average = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
@@ -282,7 +286,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       }
     }
 
-    me = getter.get("module_time_real_running");
+    me = getter.get(subsubdir + "/module_time_real_running");
     if (me) {
       real_running = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
@@ -297,7 +301,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       }
     }
 
-    me = getter.get("module_time_thread_running");
+    me = getter.get(subsubdir + "/module_time_thread_running");
     if (me) {
       thread_running = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
@@ -313,7 +317,7 @@ void FastTimerServiceClient::fillPathSummaryPlots(DQMStore::IBooker& booker,
       }
     }
 
-    me = getter.get("module_efficiency");
+    me = getter.get(subsubdir + "/module_efficiency");
     if (me) {
       efficiency = me->getTH1F();
       assert(me->getTH1F()->GetXaxis()->GetXmin() == min);
@@ -488,7 +492,7 @@ void FastTimerServiceClient::fillDescriptions(edm::ConfigurationDescriptions& de
   edm::ParameterSetDescription puMEPSet;
   fillPUMePSetDescription(puMEPSet);
   desc.add<edm::ParameterSetDescription>("puME", puMEPSet);
-
+  desc.add<bool>("fillEveryLumiSection", true);
   descriptions.add("fastTimerServiceClient", desc);
 }
 

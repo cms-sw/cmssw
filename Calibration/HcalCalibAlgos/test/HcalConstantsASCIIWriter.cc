@@ -1,30 +1,76 @@
 // system include files
-#include <memory>
-#include <string>
+#include <fstream>
+#include <map>
 #include <iostream>
+#include <memory>
+#include <sstream>
+#include <string>
+#include <vector>
 
 // user include files
-#include "HcalConstantsASCIIWriter.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
+#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
+#include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
+#include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
+
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
+
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
-#include <fstream>
-#include <sstream>
-#include <map>
-#include <vector>
+
+//
+// class decleration
+//
+namespace cms {
+  class HcalConstantsASCIIWriter : public edm::one::EDAnalyzer<> {
+  public:
+    explicit HcalConstantsASCIIWriter(const edm::ParameterSet&);
+    ~HcalConstantsASCIIWriter();
+
+    virtual void analyze(const edm::Event&, const edm::EventSetup&);
+    virtual void beginJob();
+    virtual void endJob();
+
+  private:
+    // ----------member data ---------------------------
+    const edm::ESGetToken<CaloGeometry, CaloGeometryRecord> tok_geom_;
+    const edm::ESGetToken<HcalRespCorrs, HcalRespCorrsRcd> tok_resp_;
+
+    std::ofstream* myout_hcal;
+    std::string file_input;
+    std::string file_output;
+  };
+}  // namespace cms
 
 //#define EDM_ML_DEBUG
 
@@ -32,9 +78,9 @@
 // constructors and destructor
 //
 namespace cms {
-  HcalConstantsASCIIWriter::HcalConstantsASCIIWriter(const edm::ParameterSet& iConfig) {
-    tok_geom_ = esConsumes<CaloGeometry, CaloGeometryRecord>();
-    tok_resp_ = esConsumes<HcalRespCorrs, HcalRespCorrsRcd>();
+  HcalConstantsASCIIWriter::HcalConstantsASCIIWriter(const edm::ParameterSet& iConfig)
+      : tok_geom_(esConsumes<CaloGeometry, CaloGeometryRecord>()),
+        tok_resp_(esConsumes<HcalRespCorrs, HcalRespCorrsRcd>()) {
     // get name of output file with histogramms
     file_input = "Calibration/HcalCalibAlgos/data/" + iConfig.getParameter<std::string>("fileInput") + ".txt";
     file_output = "Calibration/HcalCalibAlgos/data/" + iConfig.getParameter<std::string>("fileOutput") + ".txt";

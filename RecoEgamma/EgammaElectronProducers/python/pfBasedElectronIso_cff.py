@@ -16,8 +16,7 @@ pfBasedElectronIsoSequence = cms.Sequence(pfBasedElectronIsoTask)
 
 gedElectronPFIsoTask = cms.Task(
     pfParticleSelectionTask,
-    gedElectronPFIsolationDepositsTask,
-    gedElectronPFIsolationValuesTask,
     gedGsfElectrons
 )
 gedElectronPFIsoSequence = cms.Sequence(gedElectronPFIsoTask)
+

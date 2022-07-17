@@ -26,8 +26,6 @@ namespace edmtest {
 
   DTHVDump::DTHVDump(int i) : dthvstatusToken_(esConsumes()) {}
 
-  DTHVDump::~DTHVDump() {}
-
   void DTHVDump::analyze(const edm::Event& e, const edm::EventSetup& context) {
     using namespace edm::eventsetup;
     // Context is not used.

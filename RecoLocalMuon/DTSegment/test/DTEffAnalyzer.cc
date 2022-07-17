@@ -45,7 +45,7 @@ using namespace std;
 /* ====================================================================== */
 
 /* Constructor */
-DTEffAnalyzer::DTEffAnalyzer(const ParameterSet& pset) {
+DTEffAnalyzer::DTEffAnalyzer(const ParameterSet& pset) : theDtGeomToken(esConsumes()) {
   // Get the debug parameter for verbose output
   debug = pset.getUntrackedParameter<bool>("debug");
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
@@ -62,11 +62,8 @@ DTEffAnalyzer::DTEffAnalyzer(const ParameterSet& pset) {
   theMinHitsSegment = static_cast<unsigned int>(pset.getParameter<int>("minHitsSegment"));
   theMinChi2NormSegment = pset.getParameter<double>("minChi2NormSegment");
   theMinCloseDist = pset.getParameter<double>("minCloseDist");
-}
 
-void DTEffAnalyzer::beginRun(const edm::Run& run, const EventSetup& setup) {
-  // Get the DT Geometry
-  setup.get<MuonGeometryRecord>().get(dtGeom);
+  consumes<DTRecSegment4DCollection>(theRecHits4DLabel);
 }
 
 void DTEffAnalyzer::beginJob() {
@@ -137,6 +134,8 @@ DTEffAnalyzer::~DTEffAnalyzer() {
 
 /* Operations */
 void DTEffAnalyzer::analyze(const Event& event, const EventSetup& eventSetup) {
+  dtGeom = eventSetup.getHandle(theDtGeomToken);
+
   if (debug)
     cout << endl
          << "--- [DTEffAnalyzer] Event analysed #Run: " << event.id().run() << " #Event: " << event.id().event()

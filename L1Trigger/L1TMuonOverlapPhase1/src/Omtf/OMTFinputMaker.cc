@@ -177,7 +177,39 @@ void RpcDigiToStubsConverterOmtf::addRPCstub(MuonStubPtrs2D& muonStubsInLayers,
   stub.logicLayer = iLayer;
   stub.detId = rawid;
 
-  OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  //This is very simple filtering of the clusters
+  //Till Nov 2021: unfortunately performance of the firmware cannot be easily emulated from digi
+  //(in principle would required raws, because in the firmware the clusterizaton is based on the 8-bit strip partitions)
+  //The FW from from Nov 2021 solved this problem - option dropAllClustersIfMoreThanMax:
+  //if any cluster is dropped in one barrel roll or endcap chamber - all are dropped for this roll/chamber.
+  //Beside better data-to-emulator agreement it provides better eff for high pt muons
+  if (config->getRpcDropAllClustersIfMoreThanMax()) {
+    //two clusters were already added, so as we have the next one, we mark as dropped the one that was added before
+    if (muonStubsInLayers[iLayer][iInput + 1]) {
+      //if iInput+1 is not null, iInput is not null as well
+      muonStubsInLayers[iLayer][iInput]->type = MuonStub::RPC_DROPPED;
+      muonStubsInLayers[iLayer][iInput + 1]->type = MuonStub::RPC_DROPPED;
+    } else if (cluster.size() > config->getRpcMaxClusterSize()) {
+      //marking as dropped the one that was added before on the iInput
+      if (muonStubsInLayers[iLayer][iInput]) {
+        muonStubsInLayers[iLayer][iInput]->type = MuonStub::RPC_DROPPED;
+
+        muonStubsInLayers[iLayer][iInput + 1] = std::make_shared<MuonStub>(stub);
+        muonStubsInLayers[iLayer][iInput + 1]->type = MuonStub::RPC_DROPPED;
+      } else {
+        //no stub was added at this input already, so adding a stub and marking it as dropped
+        muonStubsInLayers[iLayer].at(iInput) = std::make_shared<MuonStub>(stub);
+        muonStubsInLayers[iLayer][iInput]->type = MuonStub::RPC_DROPPED;
+
+        muonStubsInLayers[iLayer][iInput + 1] = std::make_shared<MuonStub>(stub);
+        muonStubsInLayers[iLayer][iInput + 1]->type = MuonStub::RPC_DROPPED;
+      }
+    } else
+      OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  } else {
+    if (cluster.size() <= config->getRpcMaxClusterSize())
+      OMTFinputMaker::addStub(config, muonStubsInLayers, iLayer, iInput, stub);
+  }
 
   std::ostringstream str;
   str << " RPC halfDigi "
@@ -431,5 +463,5 @@ void OMTFinputMaker::addStub(const OMTFConfiguration* config,
     return;
   //in this implementation only two first stubs are added for a given iInput
 
-  muonStubsInLayers.at(iLayer).at(iInput) = std::make_shared<const MuonStub>(stub);
+  muonStubsInLayers.at(iLayer).at(iInput) = std::make_shared<MuonStub>(stub);
 }

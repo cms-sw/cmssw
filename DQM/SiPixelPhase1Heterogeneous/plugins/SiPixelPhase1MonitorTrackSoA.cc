@@ -63,7 +63,7 @@ private:
 
 SiPixelPhase1MonitorTrackSoA::SiPixelPhase1MonitorTrackSoA(const edm::ParameterSet& iConfig) {
   tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
-  topFolderName_ = iConfig.getParameter<std::string>("TopFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
+  topFolderName_ = iConfig.getParameter<std::string>("topFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
   useQualityCut_ = iConfig.getParameter<bool>("useQualityCut");
   minQuality_ = pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"));
 }
@@ -144,6 +144,7 @@ void SiPixelPhase1MonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
 
   toRep = "Number of all RecHits per track (quality #geq loose)";
   hnHits = iBook.book1D("nRecHits", fmt::sprintf(";%s;#tracks",toRep), 15, -0.5, 14.5);
+<<<<<<< HEAD
   hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 15.);
   hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30,-M_PI,-M_PI,0.,15.);
 
@@ -156,6 +157,20 @@ void SiPixelPhase1MonitorTrackSoA::bookHistograms(DQMStore::IBooker& iBook,
   hchi2 = iBook.book1D("nChi2ndof", fmt::sprintf(";%s;#tracks",toRep), 40, 0., 20.);
   hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 20.);
   hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, -M_PI, 0., 20.);
+=======
+  hnHitsVsPhi = iBook.bookProfile("nHitsPerTrackVsPhi", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
+  hnHitsVsEta = iBook.bookProfile("nHitsPerTrackVsEta", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 15.);
+
+  toRep = "Number of all layers per track (quality #geq loose)";
+  hnLayers = iBook.book1D("nLayers", fmt::sprintf(";%s;#tracks",toRep), 15, -0.5, 14.5);
+  hnLayersVsPhi = iBook.bookProfile("nLayersPerTrackVsPhi", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, M_PI,0., 15.);
+  hnLayersVsEta = iBook.bookProfile("nLayersPerTrackVsEta", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 15.);
+
+  toRep = "Track (quality #geq loose) #chi^{2}/ndof";
+  hchi2 = iBook.book1D("nChi2ndof", fmt::sprintf(";%s;#tracks",toRep), 40, 0., 20.);
+  hChi2VsPhi = iBook.bookProfile("nChi2ndofVsPhi", fmt::sprintf("%s vs track #phi;Track #phi;%s",toRep,toRep), 30, -M_PI, M_PI, 0., 20.);
+  hChi2VsEta = iBook.bookProfile("nChi2ndofVsEta", fmt::sprintf("%s vs track #eta;Track #eta;%s",toRep,toRep), 30, -3., 3., 0., 20.);
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
   // clang-format on
 
   hpt = iBook.book1D("pt", ";Track (quality #geq loose) p_{T} [GeV];#tracks", 200, 0., 200.);
@@ -175,7 +190,11 @@ void SiPixelPhase1MonitorTrackSoA::fillDescriptions(edm::ConfigurationDescriptio
   // monitorpixelTrackSoA
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelTrackSrc", edm::InputTag("pixelTracksSoA"));
+<<<<<<< HEAD
   desc.add<std::string>("TopFolderName", "SiPixelHeterogeneous/PixelTrackSoA");
+=======
+  desc.add<std::string>("topFolderName", "SiPixelHeterogeneous/PixelTrackSoA");
+>>>>>>> 2b294546c3ee51493450581eb7729a1e5e139fa3
   desc.add<bool>("useQualityCut", true);
   desc.add<std::string>("minQuality", "loose");
   descriptions.addWithDefaultLabel(desc);

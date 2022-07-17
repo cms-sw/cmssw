@@ -95,7 +95,7 @@ private:
   std::string m_calibrationPath;
 
   std::vector<std::vector<float>> calibGains;
-  unsigned int m_off;
+  unsigned int offsetDU_;
 
   edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken;
   edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
@@ -124,7 +124,7 @@ void FastTrackDeDxProducer::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<bool>("ShapeTest", true);
   desc.add<bool>("UseCalibration", false);
   desc.add<string>("calibrationPath", "");
-  desc.add<string>("Reccord", "SiStripDeDxMip_3D_Rcd");
+  desc.add<string>("Record", "SiStripDeDxMip_3D_Rcd");
   desc.add<string>("ProbabilityMode", "Accumulation");
   desc.add<double>("fraction", 0.4);
   desc.add<double>("exponent", -2.0);
@@ -191,9 +191,9 @@ FastTrackDeDxProducer::FastTrackDeDxProducer(const edm::ParameterSet& iConfig)
 void FastTrackDeDxProducer::beginRun(edm::Run const& run, const edm::EventSetup& iSetup) {
   if (useCalibration && calibGains.empty()) {
     auto const& tkGeom = iSetup.getData(tkGeomToken);
-    m_off = tkGeom.offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
+    offsetDU_ = tkGeom.offsetDU(GeomDetEnumerators::PixelBarrel);  //index start at the first pixel
 
-    DeDxTools::makeCalibrationMap(m_calibrationPath, tkGeom, calibGains, m_off);
+    deDxTools::makeCalibrationMap(m_calibrationPath, tkGeom, calibGains, offsetDU_);
   }
 
   m_estimator->beginRun(run, iSetup);

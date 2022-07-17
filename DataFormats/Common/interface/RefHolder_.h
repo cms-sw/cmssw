@@ -7,6 +7,7 @@
 #include "FWCore/Utilities/interface/OffsetToBase.h"
 #include <memory>
 #include <typeinfo>
+#include <string>
 
 namespace edm {
   namespace reftobase {
@@ -26,7 +27,6 @@ namespace edm {
       ProductID id() const override;
       size_t key() const override;
       bool isEqualTo(RefHolderBase const& rhs) const override;
-      bool fillRefIfMyTypeMatches(RefHolderBase& fillme, std::string& msg) const override;
       REF const& getRef() const;
       void setRef(REF const& r);
       std::unique_ptr<RefVectorHolderBase> makeVectorHolder() const override;
@@ -72,17 +72,6 @@ namespace edm {
     bool RefHolder<REF>::isEqualTo(RefHolderBase const& rhs) const {
       RefHolder const* h(dynamic_cast<RefHolder const*>(&rhs));
       return h && (getRef() == h->getRef());
-    }
-
-    template <class REF>
-    bool RefHolder<REF>::fillRefIfMyTypeMatches(RefHolderBase& fillme, std::string& msg) const {
-      RefHolder* h = dynamic_cast<RefHolder*>(&fillme);
-      bool conversion_worked = (h != nullptr);
-      if (conversion_worked)
-        h->setRef(ref_);
-      else
-        msg = typeid(REF).name();
-      return conversion_worked;
     }
 
     template <class REF>

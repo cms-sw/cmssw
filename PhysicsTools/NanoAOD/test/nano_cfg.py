@@ -6,6 +6,9 @@ process = cms.Process('NANO',Run2_2017,run2_nanoAOD_92X)
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.load("Configuration.StandardSequences.GeometryDB_cff")
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration.StandardSequences.Services_cff')
 from Configuration.AlCa.autoCond import autoCond

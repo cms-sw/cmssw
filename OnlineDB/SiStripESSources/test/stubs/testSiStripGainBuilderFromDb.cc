@@ -1,22 +1,45 @@
-
-#include "OnlineDB/SiStripESSources/test/stubs/testSiStripGainBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 
-// -----------------------------------------------------------------------------
-//
-void testSiStripGainBuilderFromDb::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
-  edm::ESHandle<SiStripApvGain> gain;
-  setup.get<SiStripApvGainRcd>().get(gain);
+/**
+   @class testSiStripGainBuilderFromDb 
+   @brief Analyzes FEC (and FED) cabling object(s)
+*/
+class testSiStripGainBuilderFromDb : public edm::one::EDAnalyzer<edm::one::WatchRuns> {
+public:
+  testSiStripGainBuilderFromDb(const edm::ParameterSet&) : gainToken_(esConsumes<edm::Transition::BeginRun>()) {}
 
+  ~testSiStripGainBuilderFromDb() override = default;
+  void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+private:
+  const edm::ESGetToken<SiStripApvGain, SiStripApvGainRcd> gainToken_;
+};
+
+void testSiStripGainBuilderFromDb::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
+
+// -----------------------------------------------------------------------------
+void testSiStripGainBuilderFromDb::endRun(const edm::Run& run, const edm::EventSetup& setup) {}
+
+// -----------------------------------------------------------------------------
+void testSiStripGainBuilderFromDb::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
+  const SiStripApvGain* gain = &setup.getData(gainToken_);
   std::vector<uint32_t> ids;
   gain->getDetIds(ids);
 
@@ -69,3 +92,6 @@ void testSiStripGainBuilderFromDb::beginRun(const edm::Run& run, const edm::Even
   sss << std::endl << " Is set (!=0.8)    : " << isset << std::endl << " Not set (=0.8)    : " << unset;
   edm::LogVerbatim("TEST") << sss.str();
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(testSiStripGainBuilderFromDb);

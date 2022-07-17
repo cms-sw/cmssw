@@ -172,6 +172,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     }
   }
   // check transition tracker/calo
+  bool isKilled = false;
   if (sAlive == tstat || sVeryForward == tstat) {
     if (isThisVolume(preStep->GetTouchable(), tracker) && isThisVolume(postStep->GetTouchable(), calo)) {
       math::XYZVectorD pos((preStep->GetPosition()).x(), (preStep->GetPosition()).y(), (preStep->GetPosition()).z());
@@ -188,12 +189,13 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep) {
     }
   } else {
     theTrack->SetTrackStatus(fStopAndKill);
+    isKilled = true;
 #ifdef DebugLog
     PrintKilledTrack(theTrack, tstat);
 #endif
   }
   if (nullptr != steppingVerbose) {
-    steppingVerbose->NextStep(aStep, fpSteppingManager, (1 < tstat));
+    steppingVerbose->NextStep(aStep, fpSteppingManager, isKilled);
   }
 }
 

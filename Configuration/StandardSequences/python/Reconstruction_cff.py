@@ -231,6 +231,9 @@ reconstruction_ecalOnlyTask = cms.Task(
 )
 reconstruction_ecalOnly = cms.Sequence(reconstruction_ecalOnlyTask)
 
+from Configuration.Eras.Modifier_phase2_ecal_devel_cff import phase2_ecal_devel
+phase2_ecal_devel.toReplaceWith(reconstruction_ecalOnlyTask, reconstruction_ecalOnlyTask.copyAndExclude([pfClusteringPSTask, pfClusteringECALTask, particleFlowSuperClusterECALOnly]))
+
 reconstruction_hcalOnlyTask = cms.Task(
     bunchSpacingProducer,
     offlineBeamSpot,

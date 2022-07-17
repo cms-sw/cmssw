@@ -62,10 +62,11 @@ protected:
 private:
   NeutronWriter* theHitWriter;
   bool useRandFlat;
-  edm::InputTag theInputTag;
-  double theNeutronTimeCut;
-  double theTimeWindow;
-  double theT0;
+  const edm::InputTag theInputTag;
+  const double theNeutronTimeCut;
+  const double theTimeWindow;
+  const double theT0;
+  const edm::EDGetTokenT<edm::PSimHitContainer> hitToken_;
   int theNEvents;
   bool initialized;
   // true means to translate DetId into just layer number, e.g., 1-6 in CSC

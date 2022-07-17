@@ -493,7 +493,7 @@ namespace edm {
                                   SharedResourcesAcquirer* sra,
                                   ModuleCallingContext const* mcc,
                                   ServiceToken token,
-                                  tbb::task_group*) const;
+                                  oneapi::tbb::task_group*) const;
 
     bool dataValidFromResolver(unsigned int iProcessingIndex,
                                Principal const& principal,

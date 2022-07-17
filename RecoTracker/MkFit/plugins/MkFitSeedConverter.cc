@@ -31,8 +31,8 @@
 #include "Math/SMatrix.h"
 
 // mkFit includes
-#include "LayerNumberConverter.h"
-#include "Track.h"
+#include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
+#include "RecoTracker/MkFitCore/interface/Track.h"
 
 class MkFitSeedConverter : public edm::global::EDProducer<> {
 public:

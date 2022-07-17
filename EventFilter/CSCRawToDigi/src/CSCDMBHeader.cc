@@ -5,7 +5,7 @@
 #include <iostream>
 
 CSCDMBHeader::CSCDMBHeader(uint16_t firmware_version) : theHeaderFormat(), theFirmwareVersion(firmware_version) {
-  if (theFirmwareVersion == 2013) {
+  if (theFirmwareVersion >= 2013) {
     theHeaderFormat = std::make_shared<CSCDMBHeader2013>();
   } else {
     theHeaderFormat = std::make_shared<CSCDMBHeader2005>();
@@ -14,7 +14,7 @@ CSCDMBHeader::CSCDMBHeader(uint16_t firmware_version) : theHeaderFormat(), theFi
 
 CSCDMBHeader::CSCDMBHeader(const uint16_t *buf, uint16_t firmware_version)
     : theHeaderFormat(), theFirmwareVersion(firmware_version) {
-  if (theFirmwareVersion == 2013) {
+  if (theFirmwareVersion >= 2013) {
     theHeaderFormat = std::make_shared<CSCDMBHeader2013>(buf);
   } else {
     theHeaderFormat = std::make_shared<CSCDMBHeader2005>(buf);

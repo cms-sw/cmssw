@@ -8,7 +8,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/ESGetToken.h"
 #include "DataFormats/MuonDetId/interface/DTLayerId.h"
@@ -26,7 +26,7 @@ class DTT0;
 class TFile;
 class TH1D;
 
-class DTT0Analyzer : public edm::EDAnalyzer {
+class DTT0Analyzer : public edm::one::EDAnalyzer<> {
 public:
   /// Constructor
   DTT0Analyzer(const edm::ParameterSet& pset);

@@ -5,8 +5,8 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MkFit/interface/MkFitGeometry.h"
 
-#include "LayerNumberConverter.h"
-#include "TrackerInfo.h"
+#include "RecoTracker/MkFitCMS/interface/LayerNumberConverter.h"
+#include "RecoTracker/MkFitCore/interface/TrackerInfo.h"
 
 namespace {
   bool isPlusSide(const TrackerTopology& ttopo, DetId detid) {
@@ -55,17 +55,6 @@ MkFitGeometry::MkFitGeometry(const TrackerGeometry& geom,
         subdet == StripSubdetector::TID or subdet == StripSubdetector::TEC) {
       setDet(subdet, layer, stereoLayer, detId, lay);
     }
-  }
-
-  // Create "short id" aka "unique id within layer"
-  detIdToShortId_.resize(lnc_->nLayers());
-  for (const auto& detId : geom.detIds()) {
-    const auto ilay = mkFitLayerNumber(detId);
-    auto& map = detIdToShortId_[ilay];
-    const unsigned int ind = map.size();
-    // Make sure the short id fits in the 12 bits...
-    assert(ind < (int)1 << 11);
-    map[detId.rawId()] = ind;
   }
 }
 

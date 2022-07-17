@@ -169,6 +169,7 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor
                                )
 
 process.hi = cms.Path(process.scalersRawToDigi
+                     *process.onlineMetaDataDigis
                      *process.dqmTKStatus
                      *process.hltTriggerTypeFilter
                      *process.filter_step

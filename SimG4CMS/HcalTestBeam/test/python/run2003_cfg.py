@@ -101,12 +101,7 @@ process.g4SimHits.HCalSD.WtFile     = ' '
 process.g4SimHits.HCalSD.UseShowerLibrary    = False
 process.g4SimHits.HCalSD.TestNumberingScheme = False
 process.g4SimHits.HCalSD.UseHF   = False
-process.g4SimHits.HCalSD.ForTBHCAL = True
 process.g4SimHits.HCalSD.ForTBH2 = True
-process.g4SimHits.OnlySDs = ['CaloTrkProcessing',
-                             'EcalSensitiveDetector',
-                             'HcalSensitiveDetector']
-process.g4SimHits.CaloTrkProcessing.TestBeam = True
 
 #process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 #    HcalTB04Analysis = cms.PSet(

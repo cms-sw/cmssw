@@ -91,9 +91,14 @@ private:
   HcalDigiStatistics hfDigiStatistics_;
   HcalDigiStatistics zdcDigiStatistics_;
 
-  edm::InputTag hbheDigiCollectionTag_;
-  edm::InputTag hoDigiCollectionTag_;
-  edm::InputTag hfDigiCollectionTag_;
+  const edm::InputTag hbheDigiCollectionTag_;
+  const edm::InputTag hoDigiCollectionTag_;
+  const edm::InputTag hfDigiCollectionTag_;
+  const edm::EDGetTokenT<HBHEDigiCollection> hbheDigiCollectionToken_;
+  const edm::EDGetTokenT<HODigiCollection> hoDigiCollectionToken_;
+  const edm::EDGetTokenT<HFDigiCollection> hfDigiCollectionToken_;
+  const edm::EDGetTokenT<CrossingFrame<PCaloHit>> cfToken_;
+  const edm::EDGetTokenT<CrossingFrame<PCaloHit>> zdccfToken_;
 };
 
 HcalDigiAnalyzer::HcalDigiAnalyzer(edm::ParameterSet const &conf)
@@ -112,15 +117,19 @@ HcalDigiAnalyzer::HcalDigiAnalyzer(edm::ParameterSet const &conf)
       zdcDigiStatistics_("ZDCDigi", 3, 10., 6., 0.1, 0.5, zdcHitAnalyzer_),
       hbheDigiCollectionTag_(conf.getParameter<edm::InputTag>("hbheDigiCollectionTag")),
       hoDigiCollectionTag_(conf.getParameter<edm::InputTag>("hoDigiCollectionTag")),
-      hfDigiCollectionTag_(conf.getParameter<edm::InputTag>("hfDigiCollectionTag")) {}
+      hfDigiCollectionTag_(conf.getParameter<edm::InputTag>("hfDigiCollectionTag")),
+      hbheDigiCollectionToken_(consumes(hbheDigiCollectionTag_)),
+      hoDigiCollectionToken_(consumes(hoDigiCollectionTag_)),
+      hfDigiCollectionToken_(consumes(hfDigiCollectionTag_)),
+      cfToken_(consumes(edm::InputTag("mix", "HcalHits"))),
+      zdccfToken_(consumes(edm::InputTag("mix", "ZDCHits"))) {}
 
 namespace HcalDigiAnalyzerImpl {
   template <class Collection>
-  void analyze(edm::Event const &e, HcalDigiStatistics &statistics, edm::InputTag &tag) {
-    edm::Handle<Collection> digis;
-    e.getByLabel(tag, digis);
+  void analyze(edm::Event const &e, HcalDigiStatistics &statistics, const edm::EDGetTokenT<Collection> &token) {
+    const edm::Handle<Collection> &digis = e.getHandle(token);
     for (unsigned i = 0; i < digis->size(); ++i) {
-      std::cout << (*digis)[i] << std::endl;
+      edm::LogVerbatim("HcalSim") << (*digis)[i];
       statistics.analyze((*digis)[i]);
     }
   }
@@ -128,21 +137,19 @@ namespace HcalDigiAnalyzerImpl {
 
 void HcalDigiAnalyzer::analyze(edm::Event const &e, edm::EventSetup const &c) {
   // Step A: Get Inputs
-  edm::Handle<CrossingFrame<PCaloHit>> cf, zdccf;
-  e.getByLabel("mix", "HcalHits", cf);
-  // e.getByLabel("mix", "ZDCHits", zdccf);
+  const edm::Handle<CrossingFrame<PCaloHit>> &cf = e.getHandle(cfToken_);
+  //const edm::Handle<CrossingFrame<PCaloHit>>& zdccf = e.getHandle(zdccfToken_);
 
   // test access to SimHits for HcalHits and ZDC hits
   std::unique_ptr<MixCollection<PCaloHit>> hits(new MixCollection<PCaloHit>(cf.product()));
-  // std::unique_ptr<MixCollection<PCaloHit> > zdcHits(new
-  // MixCollection<PCaloHit>(zdccf.product()));
+  // std::unique_ptr<MixCollection<PCaloHit> > zdcHits(new MixCollection<PCaloHit>(zdccf.product()));
   hbheHitAnalyzer_.fillHits(*hits);
   hoHitAnalyzer_.fillHits(*hits);
   hfHitAnalyzer_.fillHits(*hits);
   // zdcHitAnalyzer_.fillHits(*zdcHits);
-  HcalDigiAnalyzerImpl::analyze<HBHEDigiCollection>(e, hbheDigiStatistics_, hbheDigiCollectionTag_);
-  HcalDigiAnalyzerImpl::analyze<HODigiCollection>(e, hoDigiStatistics_, hoDigiCollectionTag_);
-  HcalDigiAnalyzerImpl::analyze<HFDigiCollection>(e, hfDigiStatistics_, hfDigiCollectionTag_);
+  HcalDigiAnalyzerImpl::analyze<HBHEDigiCollection>(e, hbheDigiStatistics_, hbheDigiCollectionToken_);
+  HcalDigiAnalyzerImpl::analyze<HODigiCollection>(e, hoDigiStatistics_, hoDigiCollectionToken_);
+  HcalDigiAnalyzerImpl::analyze<HFDigiCollection>(e, hfDigiStatistics_, hfDigiCollectionToken_);
   // HcalDigiAnalyzerImpl::analyze<ZDCDigiCollection>(e, zdcDigiStatistics_);
 }
 

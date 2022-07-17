@@ -30,6 +30,7 @@ int copyContents(TH1F **hDest, TString hname, TString htitle, const TH1F *hSrc, 
 // -----------------------------------------------------
 
 int main(int argc, char *argv[]) {
+  std::string dirnm = "Analyzer";
   gROOT->Reset();
   gROOT->SetStyle("Plain");
   gStyle->SetOptStat(0);
@@ -50,6 +51,9 @@ int main(int argc, char *argv[]) {
     runnumber += fname[i];
 
   TFile *hfile = new TFile(fname, "READ");
+  hfile->ls();
+  TDirectory *dir = (TDirectory *)hfile->FindObjectAny(dirnm.c_str());
+
   // Cut [test][sub][depth]
   //                              Empty                         HB                           HE                                                     HO                          HF
   double Cut0[7][5][8] = {
@@ -146,12 +150,13 @@ int main(int argc, char *argv[]) {
   //  int k_maxupgrade[5]={0,2,3,4,4}; // maximum depth for each subdet HB HE HO HF
   int k_maxupgrade[5] = {0, 4, 7, 4, 4};  // maximum depth for each subdet HB HE HO HF
 
+  // with TfileService implementation, change everywhere below:     hfile->Get     to     dir->FindObjectAny
   //+++++++++++++++++++++++++++++
   // Lumi iLumi and number of events
   //+++++++++++++++++++++++++++++
   cHB->Divide(2, 1);
   cHB->cd(1);
-  TH1F *LumLum = (TH1F *)hfile->Get("h_lsnumber_per_eachLS");
+  TH1F *LumLum = (TH1F *)dir->FindObjectAny("h_lsnumber_per_eachLS");
   int MaxLumDanila = LumLum->GetBinContent(LumLum->GetMaximumBin());  // old variant of Danila
   cout << " MaxLumDanila=     " << MaxLumDanila << endl;
   gPad->SetGridy();
@@ -169,7 +174,7 @@ int main(int argc, char *argv[]) {
   LumLum->Draw("Error");
 
   cHB->cd(2);
-  TH1F *LumiEv = (TH1F *)hfile->Get("h_nevents_per_eachRealLS");
+  TH1F *LumiEv = (TH1F *)dir->FindObjectAny("h_nevents_per_eachRealLS");
   int MaxLum0 = LumiEv->GetBinContent(LumiEv->GetMaximumBin());
   int MaxLum = 0;
   for (int i = 1; i <= LumiEv->GetXaxis()->GetNbins(); i++) {
@@ -207,81 +212,81 @@ int main(int argc, char *argv[]) {
   // ADC Amplitude
   //+++++++++++++++++++++++++++++
 
-  H_NumBadChanDepth[1][1][1] = (TH1F *)hfile->Get("h_sumADCAmplLS1");
-  H_NumBadChanDepth[1][1][2] = (TH1F *)hfile->Get("h_sumADCAmplLS2");
+  H_NumBadChanDepth[1][1][1] = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS1");
+  H_NumBadChanDepth[1][1][2] = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS2");
 
-  H_NumBadChanDepth[1][2][1] = (TH1F *)hfile->Get("h_sumADCAmplLS3");
-  H_NumBadChanDepth[1][2][2] = (TH1F *)hfile->Get("h_sumADCAmplLS4");
-  H_NumBadChanDepth[1][2][3] = (TH1F *)hfile->Get("h_sumADCAmplLS5");
+  H_NumBadChanDepth[1][2][1] = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS3");
+  H_NumBadChanDepth[1][2][2] = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS4");
+  H_NumBadChanDepth[1][2][3] = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS5");
 
-  H_NumBadChanDepth[1][3][4] = (TH1F *)hfile->Get("h_sumADCAmplLS8");
+  H_NumBadChanDepth[1][3][4] = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS8");
 
-  H_NumBadChanDepth[1][4][1] = (TH1F *)hfile->Get("h_sumADCAmplLS6");
-  H_NumBadChanDepth[1][4][2] = (TH1F *)hfile->Get("h_sumADCAmplLS7");
+  H_NumBadChanDepth[1][4][1] = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS6");
+  H_NumBadChanDepth[1][4][2] = (TH1F *)dir->FindObjectAny("h_sumADCAmplLS7");
 
   //+++++++++++++++++++++++++++++
   // Width
   //+++++++++++++++++++++++++++++
 
-  H_NumBadChanDepth[2][1][1] = (TH1F *)hfile->Get("h_sumAmplitudeLS1");
-  H_NumBadChanDepth[2][1][2] = (TH1F *)hfile->Get("h_sumAmplitudeLS2");
+  H_NumBadChanDepth[2][1][1] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeLS1");
+  H_NumBadChanDepth[2][1][2] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeLS2");
 
-  H_NumBadChanDepth[2][2][1] = (TH1F *)hfile->Get("h_sumAmplitudeLS3");
-  H_NumBadChanDepth[2][2][2] = (TH1F *)hfile->Get("h_sumAmplitudeLS4");
-  H_NumBadChanDepth[2][2][3] = (TH1F *)hfile->Get("h_sumAmplitudeLS5");
+  H_NumBadChanDepth[2][2][1] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeLS3");
+  H_NumBadChanDepth[2][2][2] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeLS4");
+  H_NumBadChanDepth[2][2][3] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeLS5");
 
-  H_NumBadChanDepth[2][3][4] = (TH1F *)hfile->Get("h_sumAmplitudeLS8");
+  H_NumBadChanDepth[2][3][4] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeLS8");
 
-  H_NumBadChanDepth[2][4][1] = (TH1F *)hfile->Get("h_sumAmplitudeLS6");
-  H_NumBadChanDepth[2][4][2] = (TH1F *)hfile->Get("h_sumAmplitudeLS7");
+  H_NumBadChanDepth[2][4][1] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeLS6");
+  H_NumBadChanDepth[2][4][2] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeLS7");
 
   //+++++++++++++++++++++++++++++
   // Ratio
   //+++++++++++++++++++++++++++++
 
-  H_NumBadChanDepth[3][1][1] = (TH1F *)hfile->Get("h_sumAmplLS1");
-  H_NumBadChanDepth[3][1][2] = (TH1F *)hfile->Get("h_sumAmplLS2");
+  H_NumBadChanDepth[3][1][1] = (TH1F *)dir->FindObjectAny("h_sumAmplLS1");
+  H_NumBadChanDepth[3][1][2] = (TH1F *)dir->FindObjectAny("h_sumAmplLS2");
 
-  H_NumBadChanDepth[3][2][1] = (TH1F *)hfile->Get("h_sumAmplLS3");
-  H_NumBadChanDepth[3][2][2] = (TH1F *)hfile->Get("h_sumAmplLS4");
-  H_NumBadChanDepth[3][2][3] = (TH1F *)hfile->Get("h_sumAmplLS5");
+  H_NumBadChanDepth[3][2][1] = (TH1F *)dir->FindObjectAny("h_sumAmplLS3");
+  H_NumBadChanDepth[3][2][2] = (TH1F *)dir->FindObjectAny("h_sumAmplLS4");
+  H_NumBadChanDepth[3][2][3] = (TH1F *)dir->FindObjectAny("h_sumAmplLS5");
 
-  H_NumBadChanDepth[3][3][4] = (TH1F *)hfile->Get("h_sumAmplLS8");
+  H_NumBadChanDepth[3][3][4] = (TH1F *)dir->FindObjectAny("h_sumAmplLS8");
 
-  H_NumBadChanDepth[3][4][1] = (TH1F *)hfile->Get("h_sumAmplLS6");
-  H_NumBadChanDepth[3][4][2] = (TH1F *)hfile->Get("h_sumAmplLS7");
+  H_NumBadChanDepth[3][4][1] = (TH1F *)dir->FindObjectAny("h_sumAmplLS6");
+  H_NumBadChanDepth[3][4][2] = (TH1F *)dir->FindObjectAny("h_sumAmplLS7");
 
   //+++++++++++++++++++++++++++++
   // Tmean
   //+++++++++++++++++++++++++++++
 
-  H_NumBadChanDepth[4][1][1] = (TH1F *)hfile->Get("h_sumTSmeanALS1");
-  H_NumBadChanDepth[4][1][2] = (TH1F *)hfile->Get("h_sumTSmeanALS2");
+  H_NumBadChanDepth[4][1][1] = (TH1F *)dir->FindObjectAny("h_sumTSmeanALS1");
+  H_NumBadChanDepth[4][1][2] = (TH1F *)dir->FindObjectAny("h_sumTSmeanALS2");
 
-  H_NumBadChanDepth[4][2][1] = (TH1F *)hfile->Get("h_sumTSmeanALS3");
-  H_NumBadChanDepth[4][2][2] = (TH1F *)hfile->Get("h_sumTSmeanALS4");
-  H_NumBadChanDepth[4][2][3] = (TH1F *)hfile->Get("h_sumTSmeanALS5");
+  H_NumBadChanDepth[4][2][1] = (TH1F *)dir->FindObjectAny("h_sumTSmeanALS3");
+  H_NumBadChanDepth[4][2][2] = (TH1F *)dir->FindObjectAny("h_sumTSmeanALS4");
+  H_NumBadChanDepth[4][2][3] = (TH1F *)dir->FindObjectAny("h_sumTSmeanALS5");
 
-  H_NumBadChanDepth[4][3][4] = (TH1F *)hfile->Get("h_sumTSmeanALS8");
+  H_NumBadChanDepth[4][3][4] = (TH1F *)dir->FindObjectAny("h_sumTSmeanALS8");
 
-  H_NumBadChanDepth[4][4][1] = (TH1F *)hfile->Get("h_sumTSmeanALS6");
-  H_NumBadChanDepth[4][4][2] = (TH1F *)hfile->Get("h_sumTSmeanALS7");
+  H_NumBadChanDepth[4][4][1] = (TH1F *)dir->FindObjectAny("h_sumTSmeanALS6");
+  H_NumBadChanDepth[4][4][2] = (TH1F *)dir->FindObjectAny("h_sumTSmeanALS7");
 
   //+++++++++++++++++++++++++++++
   // Tmax
   //+++++++++++++++++++++++++++++
 
-  H_NumBadChanDepth[5][1][1] = (TH1F *)hfile->Get("h_sumTSmaxALS1");
-  H_NumBadChanDepth[5][1][2] = (TH1F *)hfile->Get("h_sumTSmaxALS2");
+  H_NumBadChanDepth[5][1][1] = (TH1F *)dir->FindObjectAny("h_sumTSmaxALS1");
+  H_NumBadChanDepth[5][1][2] = (TH1F *)dir->FindObjectAny("h_sumTSmaxALS2");
 
-  H_NumBadChanDepth[5][2][1] = (TH1F *)hfile->Get("h_sumTSmaxALS3");
-  H_NumBadChanDepth[5][2][2] = (TH1F *)hfile->Get("h_sumTSmaxALS4");
-  H_NumBadChanDepth[5][2][3] = (TH1F *)hfile->Get("h_sumTSmaxALS5");
+  H_NumBadChanDepth[5][2][1] = (TH1F *)dir->FindObjectAny("h_sumTSmaxALS3");
+  H_NumBadChanDepth[5][2][2] = (TH1F *)dir->FindObjectAny("h_sumTSmaxALS4");
+  H_NumBadChanDepth[5][2][3] = (TH1F *)dir->FindObjectAny("h_sumTSmaxALS5");
 
-  H_NumBadChanDepth[5][3][4] = (TH1F *)hfile->Get("h_sumTSmaxALS8");
+  H_NumBadChanDepth[5][3][4] = (TH1F *)dir->FindObjectAny("h_sumTSmaxALS8");
 
-  H_NumBadChanDepth[5][4][1] = (TH1F *)hfile->Get("h_sumTSmaxALS6");
-  H_NumBadChanDepth[5][4][2] = (TH1F *)hfile->Get("h_sumTSmaxALS7");
+  H_NumBadChanDepth[5][4][1] = (TH1F *)dir->FindObjectAny("h_sumTSmaxALS6");
+  H_NumBadChanDepth[5][4][2] = (TH1F *)dir->FindObjectAny("h_sumTSmaxALS7");
 
   gStyle->SetOptStat(110000);
 
@@ -461,31 +466,31 @@ int main(int argc, char *argv[]) {
   // CapID
   //+++++++++++++++++++++++++++++
 
-  MapNumBadChanDepth[0][1][1] = (TH2F *)hfile->Get("h_mapDepth1Error_HB");
-  MapNumBadChanDepth[0][1][2] = (TH2F *)hfile->Get("h_mapDepth2Error_HB");
+  MapNumBadChanDepth[0][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Error_HB");
+  MapNumBadChanDepth[0][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Error_HB");
 
-  MapNumBadChanDepth[0][2][1] = (TH2F *)hfile->Get("h_mapDepth1Error_HE");
-  MapNumBadChanDepth[0][2][2] = (TH2F *)hfile->Get("h_mapDepth2Error_HE");
-  MapNumBadChanDepth[0][2][3] = (TH2F *)hfile->Get("h_mapDepth3Error_HE");
+  MapNumBadChanDepth[0][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Error_HE");
+  MapNumBadChanDepth[0][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Error_HE");
+  MapNumBadChanDepth[0][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3Error_HE");
 
-  MapNumBadChanDepth[0][3][4] = (TH2F *)hfile->Get("h_mapDepth4Error_HO");
+  MapNumBadChanDepth[0][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4Error_HO");
 
-  MapNumBadChanDepth[0][4][1] = (TH2F *)hfile->Get("h_mapDepth1Error_HF");
-  MapNumBadChanDepth[0][4][2] = (TH2F *)hfile->Get("h_mapDepth2Error_HF");
+  MapNumBadChanDepth[0][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1Error_HF");
+  MapNumBadChanDepth[0][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2Error_HF");
 
   MapNumBadChanFull[0] = (TH2F *)MapNumBadChanDepth[0][1][1]->Clone();
 
-  MapNumChanDepth[0][1][1] = (TH2F *)hfile->Get("h_mapDepth1_HB");
-  MapNumChanDepth[0][1][2] = (TH2F *)hfile->Get("h_mapDepth2_HB");
+  MapNumChanDepth[0][1][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HB");
+  MapNumChanDepth[0][1][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HB");
 
-  MapNumChanDepth[0][2][1] = (TH2F *)hfile->Get("h_mapDepth1_HE");
-  MapNumChanDepth[0][2][2] = (TH2F *)hfile->Get("h_mapDepth2_HE");
-  MapNumChanDepth[0][2][3] = (TH2F *)hfile->Get("h_mapDepth3_HE");
+  MapNumChanDepth[0][2][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HE");
+  MapNumChanDepth[0][2][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HE");
+  MapNumChanDepth[0][2][3] = (TH2F *)dir->FindObjectAny("h_mapDepth3_HE");
 
-  MapNumChanDepth[0][3][4] = (TH2F *)hfile->Get("h_mapDepth4_HO");
+  MapNumChanDepth[0][3][4] = (TH2F *)dir->FindObjectAny("h_mapDepth4_HO");
 
-  MapNumChanDepth[0][4][1] = (TH2F *)hfile->Get("h_mapDepth1_HF");
-  MapNumChanDepth[0][4][2] = (TH2F *)hfile->Get("h_mapDepth2_HF");
+  MapNumChanDepth[0][4][1] = (TH2F *)dir->FindObjectAny("h_mapDepth1_HF");
+  MapNumChanDepth[0][4][2] = (TH2F *)dir->FindObjectAny("h_mapDepth2_HF");
 
   MapNumChanFull[0] = (TH2F *)MapNumChanDepth[0][1][1]->Clone();
 
@@ -493,31 +498,31 @@ int main(int argc, char *argv[]) {
   // ADC Amplitude
   //+++++++++++++++++++++++++++++
 
-  MapNumBadChanDepth[1][1][1] = (TH2F *)hfile->Get("h_2DsumADCAmplLS1");
-  MapNumBadChanDepth[1][1][2] = (TH2F *)hfile->Get("h_2DsumADCAmplLS2");
+  MapNumBadChanDepth[1][1][1] = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplLS1");
+  MapNumBadChanDepth[1][1][2] = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplLS2");
 
-  MapNumBadChanDepth[1][2][1] = (TH2F *)hfile->Get("h_2DsumADCAmplLS3");
-  MapNumBadChanDepth[1][2][2] = (TH2F *)hfile->Get("h_2DsumADCAmplLS4");
-  MapNumBadChanDepth[1][2][3] = (TH2F *)hfile->Get("h_2DsumADCAmplLS5");
+  MapNumBadChanDepth[1][2][1] = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplLS3");
+  MapNumBadChanDepth[1][2][2] = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplLS4");
+  MapNumBadChanDepth[1][2][3] = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplLS5");
 
-  MapNumBadChanDepth[1][3][4] = (TH2F *)hfile->Get("h_2DsumADCAmplLS8");
+  MapNumBadChanDepth[1][3][4] = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplLS8");
 
-  MapNumBadChanDepth[1][4][1] = (TH2F *)hfile->Get("h_2DsumADCAmplLS6");
-  MapNumBadChanDepth[1][4][2] = (TH2F *)hfile->Get("h_2DsumADCAmplLS7");
+  MapNumBadChanDepth[1][4][1] = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplLS6");
+  MapNumBadChanDepth[1][4][2] = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplLS7");
 
   MapNumBadChanFull[1] = (TH2F *)MapNumBadChanDepth[1][1][1]->Clone();
 
-  MapNumChanDepth[1][1][1] = (TH2F *)hfile->Get("h_2D0sumADCAmplLS1");
-  MapNumChanDepth[1][1][2] = (TH2F *)hfile->Get("h_2D0sumADCAmplLS2");
+  MapNumChanDepth[1][1][1] = (TH2F *)dir->FindObjectAny("h_2D0sumADCAmplLS1");
+  MapNumChanDepth[1][1][2] = (TH2F *)dir->FindObjectAny("h_2D0sumADCAmplLS2");
 
-  MapNumChanDepth[1][2][1] = (TH2F *)hfile->Get("h_2D0sumADCAmplLS3");
-  MapNumChanDepth[1][2][2] = (TH2F *)hfile->Get("h_2D0sumADCAmplLS4");
-  MapNumChanDepth[1][2][3] = (TH2F *)hfile->Get("h_2D0sumADCAmplLS5");
+  MapNumChanDepth[1][2][1] = (TH2F *)dir->FindObjectAny("h_2D0sumADCAmplLS3");
+  MapNumChanDepth[1][2][2] = (TH2F *)dir->FindObjectAny("h_2D0sumADCAmplLS4");
+  MapNumChanDepth[1][2][3] = (TH2F *)dir->FindObjectAny("h_2D0sumADCAmplLS5");
 
-  MapNumChanDepth[1][3][4] = (TH2F *)hfile->Get("h_2D0sumADCAmplLS8");
+  MapNumChanDepth[1][3][4] = (TH2F *)dir->FindObjectAny("h_2D0sumADCAmplLS8");
 
-  MapNumChanDepth[1][4][1] = (TH2F *)hfile->Get("h_2D0sumADCAmplLS6");
-  MapNumChanDepth[1][4][2] = (TH2F *)hfile->Get("h_2D0sumADCAmplLS7");
+  MapNumChanDepth[1][4][1] = (TH2F *)dir->FindObjectAny("h_2D0sumADCAmplLS6");
+  MapNumChanDepth[1][4][2] = (TH2F *)dir->FindObjectAny("h_2D0sumADCAmplLS7");
 
   MapNumChanFull[1] = (TH2F *)MapNumChanDepth[1][1][1]->Clone();
 
@@ -525,31 +530,31 @@ int main(int argc, char *argv[]) {
   // Width
   //+++++++++++++++++++++++++++++
 
-  MapNumBadChanDepth[2][1][1] = (TH2F *)hfile->Get("h_2DsumAmplitudeLS1");
-  MapNumBadChanDepth[2][1][2] = (TH2F *)hfile->Get("h_2DsumAmplitudeLS2");
+  MapNumBadChanDepth[2][1][1] = (TH2F *)dir->FindObjectAny("h_2DsumAmplitudeLS1");
+  MapNumBadChanDepth[2][1][2] = (TH2F *)dir->FindObjectAny("h_2DsumAmplitudeLS2");
 
-  MapNumBadChanDepth[2][2][1] = (TH2F *)hfile->Get("h_2DsumAmplitudeLS3");
-  MapNumBadChanDepth[2][2][2] = (TH2F *)hfile->Get("h_2DsumAmplitudeLS4");
-  MapNumBadChanDepth[2][2][3] = (TH2F *)hfile->Get("h_2DsumAmplitudeLS5");
+  MapNumBadChanDepth[2][2][1] = (TH2F *)dir->FindObjectAny("h_2DsumAmplitudeLS3");
+  MapNumBadChanDepth[2][2][2] = (TH2F *)dir->FindObjectAny("h_2DsumAmplitudeLS4");
+  MapNumBadChanDepth[2][2][3] = (TH2F *)dir->FindObjectAny("h_2DsumAmplitudeLS5");
 
-  MapNumBadChanDepth[2][3][4] = (TH2F *)hfile->Get("h_2DsumAmplitudeLS8");
+  MapNumBadChanDepth[2][3][4] = (TH2F *)dir->FindObjectAny("h_2DsumAmplitudeLS8");
 
-  MapNumBadChanDepth[2][4][1] = (TH2F *)hfile->Get("h_2DsumAmplitudeLS6");
-  MapNumBadChanDepth[2][4][2] = (TH2F *)hfile->Get("h_2DsumAmplitudeLS7");
+  MapNumBadChanDepth[2][4][1] = (TH2F *)dir->FindObjectAny("h_2DsumAmplitudeLS6");
+  MapNumBadChanDepth[2][4][2] = (TH2F *)dir->FindObjectAny("h_2DsumAmplitudeLS7");
 
   MapNumBadChanFull[2] = (TH2F *)MapNumBadChanDepth[2][1][1]->Clone();
 
-  MapNumChanDepth[2][1][1] = (TH2F *)hfile->Get("h_2D0sumAmplitudeLS1");
-  MapNumChanDepth[2][1][2] = (TH2F *)hfile->Get("h_2D0sumAmplitudeLS2");
+  MapNumChanDepth[2][1][1] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplitudeLS1");
+  MapNumChanDepth[2][1][2] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplitudeLS2");
 
-  MapNumChanDepth[2][2][1] = (TH2F *)hfile->Get("h_2D0sumAmplitudeLS3");
-  MapNumChanDepth[2][2][2] = (TH2F *)hfile->Get("h_2D0sumAmplitudeLS4");
-  MapNumChanDepth[2][2][3] = (TH2F *)hfile->Get("h_2D0sumAmplitudeLS5");
+  MapNumChanDepth[2][2][1] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplitudeLS3");
+  MapNumChanDepth[2][2][2] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplitudeLS4");
+  MapNumChanDepth[2][2][3] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplitudeLS5");
 
-  MapNumChanDepth[2][3][4] = (TH2F *)hfile->Get("h_2D0sumAmplitudeLS8");
+  MapNumChanDepth[2][3][4] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplitudeLS8");
 
-  MapNumChanDepth[2][4][1] = (TH2F *)hfile->Get("h_2D0sumAmplitudeLS6");
-  MapNumChanDepth[2][4][2] = (TH2F *)hfile->Get("h_2D0sumAmplitudeLS7");
+  MapNumChanDepth[2][4][1] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplitudeLS6");
+  MapNumChanDepth[2][4][2] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplitudeLS7");
 
   MapNumChanFull[2] = (TH2F *)MapNumChanDepth[2][1][1]->Clone();
 
@@ -557,31 +562,31 @@ int main(int argc, char *argv[]) {
   // Ratio
   //+++++++++++++++++++++++++++++
 
-  MapNumBadChanDepth[3][1][1] = (TH2F *)hfile->Get("h_2DsumAmplLS1");
-  MapNumBadChanDepth[3][1][2] = (TH2F *)hfile->Get("h_2DsumAmplLS2");
+  MapNumBadChanDepth[3][1][1] = (TH2F *)dir->FindObjectAny("h_2DsumAmplLS1");
+  MapNumBadChanDepth[3][1][2] = (TH2F *)dir->FindObjectAny("h_2DsumAmplLS2");
 
-  MapNumBadChanDepth[3][2][1] = (TH2F *)hfile->Get("h_2DsumAmplLS3");
-  MapNumBadChanDepth[3][2][2] = (TH2F *)hfile->Get("h_2DsumAmplLS4");
-  MapNumBadChanDepth[3][2][3] = (TH2F *)hfile->Get("h_2DsumAmplLS5");
+  MapNumBadChanDepth[3][2][1] = (TH2F *)dir->FindObjectAny("h_2DsumAmplLS3");
+  MapNumBadChanDepth[3][2][2] = (TH2F *)dir->FindObjectAny("h_2DsumAmplLS4");
+  MapNumBadChanDepth[3][2][3] = (TH2F *)dir->FindObjectAny("h_2DsumAmplLS5");
 
-  MapNumBadChanDepth[3][3][4] = (TH2F *)hfile->Get("h_2DsumAmplLS8");
+  MapNumBadChanDepth[3][3][4] = (TH2F *)dir->FindObjectAny("h_2DsumAmplLS8");
 
-  MapNumBadChanDepth[3][4][1] = (TH2F *)hfile->Get("h_2DsumAmplLS6");
-  MapNumBadChanDepth[3][4][2] = (TH2F *)hfile->Get("h_2DsumAmplLS7");
+  MapNumBadChanDepth[3][4][1] = (TH2F *)dir->FindObjectAny("h_2DsumAmplLS6");
+  MapNumBadChanDepth[3][4][2] = (TH2F *)dir->FindObjectAny("h_2DsumAmplLS7");
 
   MapNumBadChanFull[3] = (TH2F *)MapNumBadChanDepth[3][1][1]->Clone();
 
-  MapNumChanDepth[3][1][1] = (TH2F *)hfile->Get("h_2D0sumAmplLS1");
-  MapNumChanDepth[3][1][2] = (TH2F *)hfile->Get("h_2D0sumAmplLS2");
+  MapNumChanDepth[3][1][1] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplLS1");
+  MapNumChanDepth[3][1][2] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplLS2");
 
-  MapNumChanDepth[3][2][1] = (TH2F *)hfile->Get("h_2D0sumAmplLS3");
-  MapNumChanDepth[3][2][2] = (TH2F *)hfile->Get("h_2D0sumAmplLS4");
-  MapNumChanDepth[3][2][3] = (TH2F *)hfile->Get("h_2D0sumAmplLS5");
+  MapNumChanDepth[3][2][1] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplLS3");
+  MapNumChanDepth[3][2][2] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplLS4");
+  MapNumChanDepth[3][2][3] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplLS5");
 
-  MapNumChanDepth[3][3][4] = (TH2F *)hfile->Get("h_2D0sumAmplLS8");
+  MapNumChanDepth[3][3][4] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplLS8");
 
-  MapNumChanDepth[3][4][1] = (TH2F *)hfile->Get("h_2D0sumAmplLS6");
-  MapNumChanDepth[3][4][2] = (TH2F *)hfile->Get("h_2D0sumAmplLS7");
+  MapNumChanDepth[3][4][1] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplLS6");
+  MapNumChanDepth[3][4][2] = (TH2F *)dir->FindObjectAny("h_2D0sumAmplLS7");
 
   MapNumChanFull[3] = (TH2F *)MapNumChanDepth[3][1][1]->Clone();
 
@@ -589,31 +594,31 @@ int main(int argc, char *argv[]) {
   // Tmean
   //+++++++++++++++++++++++++++++
 
-  MapNumBadChanDepth[4][1][1] = (TH2F *)hfile->Get("h_2DsumTSmeanALS1");
-  MapNumBadChanDepth[4][1][2] = (TH2F *)hfile->Get("h_2DsumTSmeanALS2");
+  MapNumBadChanDepth[4][1][1] = (TH2F *)dir->FindObjectAny("h_2DsumTSmeanALS1");
+  MapNumBadChanDepth[4][1][2] = (TH2F *)dir->FindObjectAny("h_2DsumTSmeanALS2");
 
-  MapNumBadChanDepth[4][2][1] = (TH2F *)hfile->Get("h_2DsumTSmeanALS3");
-  MapNumBadChanDepth[4][2][2] = (TH2F *)hfile->Get("h_2DsumTSmeanALS4");
-  MapNumBadChanDepth[4][2][3] = (TH2F *)hfile->Get("h_2DsumTSmeanALS5");
+  MapNumBadChanDepth[4][2][1] = (TH2F *)dir->FindObjectAny("h_2DsumTSmeanALS3");
+  MapNumBadChanDepth[4][2][2] = (TH2F *)dir->FindObjectAny("h_2DsumTSmeanALS4");
+  MapNumBadChanDepth[4][2][3] = (TH2F *)dir->FindObjectAny("h_2DsumTSmeanALS5");
 
-  MapNumBadChanDepth[4][3][4] = (TH2F *)hfile->Get("h_2DsumTSmeanALS8");
+  MapNumBadChanDepth[4][3][4] = (TH2F *)dir->FindObjectAny("h_2DsumTSmeanALS8");
 
-  MapNumBadChanDepth[4][4][1] = (TH2F *)hfile->Get("h_2DsumTSmeanALS6");
-  MapNumBadChanDepth[4][4][2] = (TH2F *)hfile->Get("h_2DsumTSmeanALS7");
+  MapNumBadChanDepth[4][4][1] = (TH2F *)dir->FindObjectAny("h_2DsumTSmeanALS6");
+  MapNumBadChanDepth[4][4][2] = (TH2F *)dir->FindObjectAny("h_2DsumTSmeanALS7");
 
   MapNumBadChanFull[4] = (TH2F *)MapNumBadChanDepth[4][1][1]->Clone();
 
-  MapNumChanDepth[4][1][1] = (TH2F *)hfile->Get("h_2D0sumTSmeanALS1");
-  MapNumChanDepth[4][1][2] = (TH2F *)hfile->Get("h_2D0sumTSmeanALS2");
+  MapNumChanDepth[4][1][1] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmeanALS1");
+  MapNumChanDepth[4][1][2] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmeanALS2");
 
-  MapNumChanDepth[4][2][1] = (TH2F *)hfile->Get("h_2D0sumTSmeanALS3");
-  MapNumChanDepth[4][2][2] = (TH2F *)hfile->Get("h_2D0sumTSmeanALS4");
-  MapNumChanDepth[4][2][3] = (TH2F *)hfile->Get("h_2D0sumTSmeanALS5");
+  MapNumChanDepth[4][2][1] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmeanALS3");
+  MapNumChanDepth[4][2][2] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmeanALS4");
+  MapNumChanDepth[4][2][3] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmeanALS5");
 
-  MapNumChanDepth[4][3][4] = (TH2F *)hfile->Get("h_2D0sumTSmeanALS8");
+  MapNumChanDepth[4][3][4] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmeanALS8");
 
-  MapNumChanDepth[4][4][1] = (TH2F *)hfile->Get("h_2D0sumTSmeanALS6");
-  MapNumChanDepth[4][4][2] = (TH2F *)hfile->Get("h_2D0sumTSmeanALS7");
+  MapNumChanDepth[4][4][1] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmeanALS6");
+  MapNumChanDepth[4][4][2] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmeanALS7");
 
   MapNumChanFull[4] = (TH2F *)MapNumChanDepth[4][1][1]->Clone();
 
@@ -621,31 +626,31 @@ int main(int argc, char *argv[]) {
   // Tmax
   //+++++++++++++++++++++++++++++
 
-  MapNumBadChanDepth[5][1][1] = (TH2F *)hfile->Get("h_2DsumTSmaxALS1");
-  MapNumBadChanDepth[5][1][2] = (TH2F *)hfile->Get("h_2DsumTSmaxALS2");
+  MapNumBadChanDepth[5][1][1] = (TH2F *)dir->FindObjectAny("h_2DsumTSmaxALS1");
+  MapNumBadChanDepth[5][1][2] = (TH2F *)dir->FindObjectAny("h_2DsumTSmaxALS2");
 
-  MapNumBadChanDepth[5][2][1] = (TH2F *)hfile->Get("h_2DsumTSmaxALS3");
-  MapNumBadChanDepth[5][2][2] = (TH2F *)hfile->Get("h_2DsumTSmaxALS4");
-  MapNumBadChanDepth[5][2][3] = (TH2F *)hfile->Get("h_2DsumTSmaxALS5");
+  MapNumBadChanDepth[5][2][1] = (TH2F *)dir->FindObjectAny("h_2DsumTSmaxALS3");
+  MapNumBadChanDepth[5][2][2] = (TH2F *)dir->FindObjectAny("h_2DsumTSmaxALS4");
+  MapNumBadChanDepth[5][2][3] = (TH2F *)dir->FindObjectAny("h_2DsumTSmaxALS5");
 
-  MapNumBadChanDepth[5][3][4] = (TH2F *)hfile->Get("h_2DsumTSmaxALS8");
+  MapNumBadChanDepth[5][3][4] = (TH2F *)dir->FindObjectAny("h_2DsumTSmaxALS8");
 
-  MapNumBadChanDepth[5][4][1] = (TH2F *)hfile->Get("h_2DsumTSmaxALS6");
-  MapNumBadChanDepth[5][4][2] = (TH2F *)hfile->Get("h_2DsumTSmaxALS7");
+  MapNumBadChanDepth[5][4][1] = (TH2F *)dir->FindObjectAny("h_2DsumTSmaxALS6");
+  MapNumBadChanDepth[5][4][2] = (TH2F *)dir->FindObjectAny("h_2DsumTSmaxALS7");
 
   MapNumBadChanFull[5] = (TH2F *)MapNumBadChanDepth[5][1][1]->Clone();
 
-  MapNumChanDepth[5][1][1] = (TH2F *)hfile->Get("h_2D0sumTSmaxALS1");
-  MapNumChanDepth[5][1][2] = (TH2F *)hfile->Get("h_2D0sumTSmaxALS2");
+  MapNumChanDepth[5][1][1] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmaxALS1");
+  MapNumChanDepth[5][1][2] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmaxALS2");
 
-  MapNumChanDepth[5][2][1] = (TH2F *)hfile->Get("h_2D0sumTSmaxALS3");
-  MapNumChanDepth[5][2][2] = (TH2F *)hfile->Get("h_2D0sumTSmaxALS4");
-  MapNumChanDepth[5][2][3] = (TH2F *)hfile->Get("h_2D0sumTSmaxALS5");
+  MapNumChanDepth[5][2][1] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmaxALS3");
+  MapNumChanDepth[5][2][2] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmaxALS4");
+  MapNumChanDepth[5][2][3] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmaxALS5");
 
-  MapNumChanDepth[5][3][4] = (TH2F *)hfile->Get("h_2D0sumTSmaxALS8");
+  MapNumChanDepth[5][3][4] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmaxALS8");
 
-  MapNumChanDepth[5][4][1] = (TH2F *)hfile->Get("h_2D0sumTSmaxALS6");
-  MapNumChanDepth[5][4][2] = (TH2F *)hfile->Get("h_2D0sumTSmaxALS7");
+  MapNumChanDepth[5][4][1] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmaxALS6");
+  MapNumChanDepth[5][4][2] = (TH2F *)dir->FindObjectAny("h_2D0sumTSmaxALS7");
 
   MapNumChanFull[5] = (TH2F *)MapNumChanDepth[5][1][1]->Clone();
 
@@ -869,43 +874,43 @@ int main(int argc, char *argv[]) {
   // Rate of Cap ID errors
   //+++++++++++++++++++++++++++++
 
-  HistNumBadChanDepth[0][1][1] = (TH1F *)hfile->Get("h_runnbadchannels_depth1_HB");
-  HistNumBadChanDepth[0][1][2] = (TH1F *)hfile->Get("h_runnbadchannels_depth2_HB");
+  HistNumBadChanDepth[0][1][1] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth1_HB");
+  HistNumBadChanDepth[0][1][2] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth2_HB");
 
-  HistNumBadChanDepth[0][2][1] = (TH1F *)hfile->Get("h_runnbadchannels_depth1_HE");
-  HistNumBadChanDepth[0][2][2] = (TH1F *)hfile->Get("h_runnbadchannels_depth2_HE");
-  HistNumBadChanDepth[0][2][3] = (TH1F *)hfile->Get("h_runnbadchannels_depth3_HE");
+  HistNumBadChanDepth[0][2][1] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth1_HE");
+  HistNumBadChanDepth[0][2][2] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth2_HE");
+  HistNumBadChanDepth[0][2][3] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth3_HE");
 
-  HistNumBadChanDepth[0][3][4] = (TH1F *)hfile->Get("h_runnbadchannels_depth4_HO");
+  HistNumBadChanDepth[0][3][4] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth4_HO");
 
-  HistNumBadChanDepth[0][4][1] = (TH1F *)hfile->Get("h_runnbadchannels_depth1_HF");
-  HistNumBadChanDepth[0][4][2] = (TH1F *)hfile->Get("h_runnbadchannels_depth2_HF");
+  HistNumBadChanDepth[0][4][1] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth1_HF");
+  HistNumBadChanDepth[0][4][2] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth2_HF");
 
   HistNumBadChanFull[0] = (TH1F *)HistNumBadChanDepth[0][1][1]->Clone();
 
-  HistCutNumBadChanDepth[0][1][1] = (TH1F *)hfile->Get("h_runnbadchannels_depth1_HB");
-  HistCutNumBadChanDepth[0][1][2] = (TH1F *)hfile->Get("h_runnbadchannels_depth2_HB");
+  HistCutNumBadChanDepth[0][1][1] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth1_HB");
+  HistCutNumBadChanDepth[0][1][2] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth2_HB");
 
-  HistCutNumBadChanDepth[0][2][1] = (TH1F *)hfile->Get("h_runnbadchannels_depth1_HE");
-  HistCutNumBadChanDepth[0][2][2] = (TH1F *)hfile->Get("h_runnbadchannels_depth2_HE");
-  HistCutNumBadChanDepth[0][2][3] = (TH1F *)hfile->Get("h_runnbadchannels_depth3_HE");
+  HistCutNumBadChanDepth[0][2][1] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth1_HE");
+  HistCutNumBadChanDepth[0][2][2] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth2_HE");
+  HistCutNumBadChanDepth[0][2][3] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth3_HE");
 
-  HistCutNumBadChanDepth[0][3][4] = (TH1F *)hfile->Get("h_runnbadchannels_depth4_HO");
+  HistCutNumBadChanDepth[0][3][4] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth4_HO");
 
-  HistCutNumBadChanDepth[0][4][1] = (TH1F *)hfile->Get("h_runnbadchannels_depth1_HF");
-  HistCutNumBadChanDepth[0][4][2] = (TH1F *)hfile->Get("h_runnbadchannels_depth2_HF");
+  HistCutNumBadChanDepth[0][4][1] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth1_HF");
+  HistCutNumBadChanDepth[0][4][2] = (TH1F *)dir->FindObjectAny("h_runnbadchannels_depth2_HF");
 
-  HistNumChanDepth[0][1][1] = (TH1F *)hfile->Get("h_runbadrate0_depth1_HB");
-  HistNumChanDepth[0][1][2] = (TH1F *)hfile->Get("h_runbadrate0_depth2_HB");
+  HistNumChanDepth[0][1][1] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth1_HB");
+  HistNumChanDepth[0][1][2] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth2_HB");
 
-  HistNumChanDepth[0][2][1] = (TH1F *)hfile->Get("h_runbadrate0_depth1_HE");
-  HistNumChanDepth[0][2][2] = (TH1F *)hfile->Get("h_runbadrate0_depth2_HE");
-  HistNumChanDepth[0][2][3] = (TH1F *)hfile->Get("h_runbadrate0_depth3_HE");
+  HistNumChanDepth[0][2][1] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth1_HE");
+  HistNumChanDepth[0][2][2] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth2_HE");
+  HistNumChanDepth[0][2][3] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth3_HE");
 
-  HistNumChanDepth[0][3][4] = (TH1F *)hfile->Get("h_runbadrate0_depth4_HO");
+  HistNumChanDepth[0][3][4] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth4_HO");
 
-  HistNumChanDepth[0][4][1] = (TH1F *)hfile->Get("h_runbadrate0_depth1_HF");
-  HistNumChanDepth[0][4][2] = (TH1F *)hfile->Get("h_runbadrate0_depth2_HF");
+  HistNumChanDepth[0][4][1] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth1_HF");
+  HistNumChanDepth[0][4][2] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth2_HF");
 
   HistNumChanFull[0] = (TH1F *)HistNumChanDepth[0][1][1]->Clone();
 
@@ -915,90 +920,90 @@ int main(int argc, char *argv[]) {
 
   //////////////////////
   // HB:
-  HistNumBadChanDepth[1][1][1] = (TH1F *)hfile->Get("h_sumADCAmplperLS1");
-  HistNumBadChanDepth[1][1][2] = (TH1F *)hfile->Get("h_sumADCAmplperLS2");
+  HistNumBadChanDepth[1][1][1] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS1");
+  HistNumBadChanDepth[1][1][2] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS2");
   // HB upgrade:
-  HistNumBadChanDepth[1][1][3] = (TH1F *)hfile->Get("h_sumADCAmplperLSdepth3HBu");
-  HistNumBadChanDepth[1][1][4] = (TH1F *)hfile->Get("h_sumADCAmplperLSdepth4HBu");
+  HistNumBadChanDepth[1][1][3] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth3HBu");
+  HistNumBadChanDepth[1][1][4] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth4HBu");
 
   // HE:
-  HistNumBadChanDepth[1][2][1] = (TH1F *)hfile->Get("h_sumADCAmplperLS3");
-  HistNumBadChanDepth[1][2][2] = (TH1F *)hfile->Get("h_sumADCAmplperLS4");
-  HistNumBadChanDepth[1][2][3] = (TH1F *)hfile->Get("h_sumADCAmplperLS5");
+  HistNumBadChanDepth[1][2][1] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS3");
+  HistNumBadChanDepth[1][2][2] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS4");
+  HistNumBadChanDepth[1][2][3] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS5");
   // HE upgrade:
-  HistNumBadChanDepth[1][2][4] = (TH1F *)hfile->Get("h_sumADCAmplperLSdepth4HEu");
-  HistNumBadChanDepth[1][2][5] = (TH1F *)hfile->Get("h_sumADCAmplperLSdepth5HEu");
-  HistNumBadChanDepth[1][2][6] = (TH1F *)hfile->Get("h_sumADCAmplperLSdepth6HEu");
-  HistNumBadChanDepth[1][2][7] = (TH1F *)hfile->Get("h_sumADCAmplperLSdepth7HEu");
+  HistNumBadChanDepth[1][2][4] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth4HEu");
+  HistNumBadChanDepth[1][2][5] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth5HEu");
+  HistNumBadChanDepth[1][2][6] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth6HEu");
+  HistNumBadChanDepth[1][2][7] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLSdepth7HEu");
 
   // HO:
-  HistNumBadChanDepth[1][3][4] = (TH1F *)hfile->Get("h_sumADCAmplperLS8");
+  HistNumBadChanDepth[1][3][4] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS8");
 
   // HF:
-  HistNumBadChanDepth[1][4][1] = (TH1F *)hfile->Get("h_sumADCAmplperLS6");
-  HistNumBadChanDepth[1][4][2] = (TH1F *)hfile->Get("h_sumADCAmplperLS7");
+  HistNumBadChanDepth[1][4][1] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS6");
+  HistNumBadChanDepth[1][4][2] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS7");
   // HF upgrade:
-  HistNumBadChanDepth[1][4][3] = (TH1F *)hfile->Get("h_sumADCAmplperLS6u");
-  HistNumBadChanDepth[1][4][4] = (TH1F *)hfile->Get("h_sumADCAmplperLS7u");
+  HistNumBadChanDepth[1][4][3] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS6u");
+  HistNumBadChanDepth[1][4][4] = (TH1F *)dir->FindObjectAny("h_sumADCAmplperLS7u");
 
   // other cases:
   HistNumBadChanFull[1] = (TH1F *)HistNumBadChanDepth[1][1][1]->Clone();
 
   //////////////////////
   // HB:
-  HistCutNumBadChanDepth[1][1][1] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS1");
-  HistCutNumBadChanDepth[1][1][2] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS2");
+  HistCutNumBadChanDepth[1][1][1] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS1");
+  HistCutNumBadChanDepth[1][1][2] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS2");
   // HB upgrade:
-  HistCutNumBadChanDepth[1][1][3] = (TH1F *)hfile->Get("h_sumCutADCAmplperLSdepth3HBu");
-  HistCutNumBadChanDepth[1][1][4] = (TH1F *)hfile->Get("h_sumCutADCAmplperLSdepth4HBu");
+  HistCutNumBadChanDepth[1][1][3] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth3HBu");
+  HistCutNumBadChanDepth[1][1][4] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth4HBu");
 
   // HE:
-  HistCutNumBadChanDepth[1][2][1] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS3");
-  HistCutNumBadChanDepth[1][2][2] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS4");
-  HistCutNumBadChanDepth[1][2][3] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS5");
+  HistCutNumBadChanDepth[1][2][1] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS3");
+  HistCutNumBadChanDepth[1][2][2] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS4");
+  HistCutNumBadChanDepth[1][2][3] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS5");
   // HE upgrade:
-  HistCutNumBadChanDepth[1][2][4] = (TH1F *)hfile->Get("h_sumCutADCAmplperLSdepth4HEu");
-  HistCutNumBadChanDepth[1][2][5] = (TH1F *)hfile->Get("h_sumCutADCAmplperLSdepth5HEu");
-  HistCutNumBadChanDepth[1][2][6] = (TH1F *)hfile->Get("h_sumCutADCAmplperLSdepth6HEu");
-  HistCutNumBadChanDepth[1][2][7] = (TH1F *)hfile->Get("h_sumCutADCAmplperLSdepth7HEu");
+  HistCutNumBadChanDepth[1][2][4] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth4HEu");
+  HistCutNumBadChanDepth[1][2][5] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth5HEu");
+  HistCutNumBadChanDepth[1][2][6] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth6HEu");
+  HistCutNumBadChanDepth[1][2][7] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLSdepth7HEu");
 
   // HO:
-  HistCutNumBadChanDepth[1][3][4] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS8");
+  HistCutNumBadChanDepth[1][3][4] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS8");
 
   // HF:
-  HistCutNumBadChanDepth[1][4][1] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS6");
-  HistCutNumBadChanDepth[1][4][2] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS7");
+  HistCutNumBadChanDepth[1][4][1] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS6");
+  HistCutNumBadChanDepth[1][4][2] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS7");
   // HF upgrade:
-  HistCutNumBadChanDepth[1][4][3] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS6u");
-  HistCutNumBadChanDepth[1][4][4] = (TH1F *)hfile->Get("h_sumCutADCAmplperLS7u");
+  HistCutNumBadChanDepth[1][4][3] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS6u");
+  HistCutNumBadChanDepth[1][4][4] = (TH1F *)dir->FindObjectAny("h_sumCutADCAmplperLS7u");
 
   //////////////////////
   // HB:
-  HistNumChanDepth[1][1][1] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS1");
-  HistNumChanDepth[1][1][2] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS2");
+  HistNumChanDepth[1][1][1] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS1");
+  HistNumChanDepth[1][1][2] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS2");
   // HB upgrade:
-  HistNumChanDepth[1][1][3] = (TH1F *)hfile->Get("h_sum0ADCAmplperLSdepth3HBu");
-  HistNumChanDepth[1][1][4] = (TH1F *)hfile->Get("h_sum0ADCAmplperLSdepth4HBu");
+  HistNumChanDepth[1][1][3] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth3HBu");
+  HistNumChanDepth[1][1][4] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth4HBu");
 
   // HE:
-  HistNumChanDepth[1][2][1] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS3");
-  HistNumChanDepth[1][2][2] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS4");
-  HistNumChanDepth[1][2][3] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS5");
+  HistNumChanDepth[1][2][1] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS3");
+  HistNumChanDepth[1][2][2] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS4");
+  HistNumChanDepth[1][2][3] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS5");
   // HE upgrade:
-  HistNumChanDepth[1][2][4] = (TH1F *)hfile->Get("h_sum0ADCAmplperLSdepth4HEu");
-  HistNumChanDepth[1][2][5] = (TH1F *)hfile->Get("h_sum0ADCAmplperLSdepth5HEu");
-  HistNumChanDepth[1][2][6] = (TH1F *)hfile->Get("h_sum0ADCAmplperLSdepth6HEu");
-  HistNumChanDepth[1][2][7] = (TH1F *)hfile->Get("h_sum0ADCAmplperLSdepth7HEu");
+  HistNumChanDepth[1][2][4] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth4HEu");
+  HistNumChanDepth[1][2][5] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth5HEu");
+  HistNumChanDepth[1][2][6] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth6HEu");
+  HistNumChanDepth[1][2][7] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLSdepth7HEu");
 
   // HO:
-  HistNumChanDepth[1][3][4] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS8");
+  HistNumChanDepth[1][3][4] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS8");
 
   // HF:
-  HistNumChanDepth[1][4][1] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS6");
-  HistNumChanDepth[1][4][2] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS7");
+  HistNumChanDepth[1][4][1] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS6");
+  HistNumChanDepth[1][4][2] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS7");
   // HF upgrade:
-  HistNumChanDepth[1][4][3] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS6u");
-  HistNumChanDepth[1][4][4] = (TH1F *)hfile->Get("h_sum0ADCAmplperLS7u");
+  HistNumChanDepth[1][4][3] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS6u");
+  HistNumChanDepth[1][4][4] = (TH1F *)dir->FindObjectAny("h_sum0ADCAmplperLS7u");
 
   // other cases:
   HistNumChanFull[1] = (TH1F *)HistNumChanDepth[1][1][1]->Clone();
@@ -1009,172 +1014,172 @@ int main(int argc, char *argv[]) {
   // Width
   //+++++++++++++++++++++++++++++
 
-  HistNumBadChanDepth[2][1][1] = (TH1F *)hfile->Get("h_sumAmplitudeperLS1");
-  HistNumBadChanDepth[2][1][2] = (TH1F *)hfile->Get("h_sumAmplitudeperLS2");
+  HistNumBadChanDepth[2][1][1] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeperLS1");
+  HistNumBadChanDepth[2][1][2] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeperLS2");
 
-  HistNumBadChanDepth[2][2][1] = (TH1F *)hfile->Get("h_sumAmplitudeperLS3");
-  HistNumBadChanDepth[2][2][2] = (TH1F *)hfile->Get("h_sumAmplitudeperLS4");
-  HistNumBadChanDepth[2][2][3] = (TH1F *)hfile->Get("h_sumAmplitudeperLS5");
+  HistNumBadChanDepth[2][2][1] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeperLS3");
+  HistNumBadChanDepth[2][2][2] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeperLS4");
+  HistNumBadChanDepth[2][2][3] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeperLS5");
 
-  HistNumBadChanDepth[2][3][4] = (TH1F *)hfile->Get("h_sumAmplitudeperLS8");
+  HistNumBadChanDepth[2][3][4] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeperLS8");
 
-  HistNumBadChanDepth[2][4][1] = (TH1F *)hfile->Get("h_sumAmplitudeperLS6");
-  HistNumBadChanDepth[2][4][2] = (TH1F *)hfile->Get("h_sumAmplitudeperLS7");
+  HistNumBadChanDepth[2][4][1] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeperLS6");
+  HistNumBadChanDepth[2][4][2] = (TH1F *)dir->FindObjectAny("h_sumAmplitudeperLS7");
 
   HistNumBadChanFull[2] = (TH1F *)HistNumBadChanDepth[2][1][1]->Clone();
 
-  HistCutNumBadChanDepth[2][1][1] = (TH1F *)hfile->Get("h_sumCutAmplitudeperLS1");
-  HistCutNumBadChanDepth[2][1][2] = (TH1F *)hfile->Get("h_sumCutAmplitudeperLS2");
+  HistCutNumBadChanDepth[2][1][1] = (TH1F *)dir->FindObjectAny("h_sumCutAmplitudeperLS1");
+  HistCutNumBadChanDepth[2][1][2] = (TH1F *)dir->FindObjectAny("h_sumCutAmplitudeperLS2");
 
-  HistCutNumBadChanDepth[2][2][1] = (TH1F *)hfile->Get("h_sumCutAmplitudeperLS3");
-  HistCutNumBadChanDepth[2][2][2] = (TH1F *)hfile->Get("h_sumCutAmplitudeperLS4");
-  HistCutNumBadChanDepth[2][2][3] = (TH1F *)hfile->Get("h_sumCutAmplitudeperLS5");
+  HistCutNumBadChanDepth[2][2][1] = (TH1F *)dir->FindObjectAny("h_sumCutAmplitudeperLS3");
+  HistCutNumBadChanDepth[2][2][2] = (TH1F *)dir->FindObjectAny("h_sumCutAmplitudeperLS4");
+  HistCutNumBadChanDepth[2][2][3] = (TH1F *)dir->FindObjectAny("h_sumCutAmplitudeperLS5");
 
-  HistCutNumBadChanDepth[2][3][4] = (TH1F *)hfile->Get("h_sumCutAmplitudeperLS8");
+  HistCutNumBadChanDepth[2][3][4] = (TH1F *)dir->FindObjectAny("h_sumCutAmplitudeperLS8");
 
-  HistCutNumBadChanDepth[2][4][1] = (TH1F *)hfile->Get("h_sumCutAmplitudeperLS6");
-  HistCutNumBadChanDepth[2][4][2] = (TH1F *)hfile->Get("h_sumCutAmplitudeperLS7");
+  HistCutNumBadChanDepth[2][4][1] = (TH1F *)dir->FindObjectAny("h_sumCutAmplitudeperLS6");
+  HistCutNumBadChanDepth[2][4][2] = (TH1F *)dir->FindObjectAny("h_sumCutAmplitudeperLS7");
 
-  HistNumChanDepth[2][1][1] = (TH1F *)hfile->Get("h_sum0AmplitudeperLS1");
-  HistNumChanDepth[2][1][2] = (TH1F *)hfile->Get("h_sum0AmplitudeperLS2");
+  HistNumChanDepth[2][1][1] = (TH1F *)dir->FindObjectAny("h_sum0AmplitudeperLS1");
+  HistNumChanDepth[2][1][2] = (TH1F *)dir->FindObjectAny("h_sum0AmplitudeperLS2");
 
-  HistNumChanDepth[2][2][1] = (TH1F *)hfile->Get("h_sum0AmplitudeperLS3");
-  HistNumChanDepth[2][2][2] = (TH1F *)hfile->Get("h_sum0AmplitudeperLS4");
-  HistNumChanDepth[2][2][3] = (TH1F *)hfile->Get("h_sum0AmplitudeperLS5");
+  HistNumChanDepth[2][2][1] = (TH1F *)dir->FindObjectAny("h_sum0AmplitudeperLS3");
+  HistNumChanDepth[2][2][2] = (TH1F *)dir->FindObjectAny("h_sum0AmplitudeperLS4");
+  HistNumChanDepth[2][2][3] = (TH1F *)dir->FindObjectAny("h_sum0AmplitudeperLS5");
 
-  HistNumChanDepth[2][3][4] = (TH1F *)hfile->Get("h_sum0AmplitudeperLS8");
+  HistNumChanDepth[2][3][4] = (TH1F *)dir->FindObjectAny("h_sum0AmplitudeperLS8");
 
-  HistNumChanDepth[2][4][1] = (TH1F *)hfile->Get("h_sum0AmplitudeperLS6");
-  HistNumChanDepth[2][4][2] = (TH1F *)hfile->Get("h_sum0AmplitudeperLS7");
+  HistNumChanDepth[2][4][1] = (TH1F *)dir->FindObjectAny("h_sum0AmplitudeperLS6");
+  HistNumChanDepth[2][4][2] = (TH1F *)dir->FindObjectAny("h_sum0AmplitudeperLS7");
 
   HistNumChanFull[2] = (TH1F *)HistNumChanDepth[2][1][1]->Clone();
   //+++++++++++++++++++++++++++++
   // Ratio
   //+++++++++++++++++++++++++++++
 
-  HistNumBadChanDepth[3][1][1] = (TH1F *)hfile->Get("h_sumAmplperLS1");
-  HistNumBadChanDepth[3][1][2] = (TH1F *)hfile->Get("h_sumAmplperLS2");
+  HistNumBadChanDepth[3][1][1] = (TH1F *)dir->FindObjectAny("h_sumAmplperLS1");
+  HistNumBadChanDepth[3][1][2] = (TH1F *)dir->FindObjectAny("h_sumAmplperLS2");
 
-  HistNumBadChanDepth[3][2][1] = (TH1F *)hfile->Get("h_sumAmplperLS3");
-  HistNumBadChanDepth[3][2][2] = (TH1F *)hfile->Get("h_sumAmplperLS4");
-  HistNumBadChanDepth[3][2][3] = (TH1F *)hfile->Get("h_sumAmplperLS5");
+  HistNumBadChanDepth[3][2][1] = (TH1F *)dir->FindObjectAny("h_sumAmplperLS3");
+  HistNumBadChanDepth[3][2][2] = (TH1F *)dir->FindObjectAny("h_sumAmplperLS4");
+  HistNumBadChanDepth[3][2][3] = (TH1F *)dir->FindObjectAny("h_sumAmplperLS5");
 
-  HistNumBadChanDepth[3][3][4] = (TH1F *)hfile->Get("h_sumAmplperLS8");
+  HistNumBadChanDepth[3][3][4] = (TH1F *)dir->FindObjectAny("h_sumAmplperLS8");
 
-  HistNumBadChanDepth[3][4][1] = (TH1F *)hfile->Get("h_sumAmplperLS6");
-  HistNumBadChanDepth[3][4][2] = (TH1F *)hfile->Get("h_sumAmplperLS7");
+  HistNumBadChanDepth[3][4][1] = (TH1F *)dir->FindObjectAny("h_sumAmplperLS6");
+  HistNumBadChanDepth[3][4][2] = (TH1F *)dir->FindObjectAny("h_sumAmplperLS7");
 
   HistNumBadChanFull[3] = (TH1F *)HistNumBadChanDepth[3][1][1]->Clone();
 
-  HistCutNumBadChanDepth[3][1][1] = (TH1F *)hfile->Get("h_sumCutAmplperLS1");
-  HistCutNumBadChanDepth[3][1][2] = (TH1F *)hfile->Get("h_sumCutAmplperLS2");
+  HistCutNumBadChanDepth[3][1][1] = (TH1F *)dir->FindObjectAny("h_sumCutAmplperLS1");
+  HistCutNumBadChanDepth[3][1][2] = (TH1F *)dir->FindObjectAny("h_sumCutAmplperLS2");
 
-  HistCutNumBadChanDepth[3][2][1] = (TH1F *)hfile->Get("h_sumCutAmplperLS3");
-  HistCutNumBadChanDepth[3][2][2] = (TH1F *)hfile->Get("h_sumCutAmplperLS4");
-  HistCutNumBadChanDepth[3][2][3] = (TH1F *)hfile->Get("h_sumCutAmplperLS5");
+  HistCutNumBadChanDepth[3][2][1] = (TH1F *)dir->FindObjectAny("h_sumCutAmplperLS3");
+  HistCutNumBadChanDepth[3][2][2] = (TH1F *)dir->FindObjectAny("h_sumCutAmplperLS4");
+  HistCutNumBadChanDepth[3][2][3] = (TH1F *)dir->FindObjectAny("h_sumCutAmplperLS5");
 
-  HistCutNumBadChanDepth[3][3][4] = (TH1F *)hfile->Get("h_sumCutAmplperLS8");
+  HistCutNumBadChanDepth[3][3][4] = (TH1F *)dir->FindObjectAny("h_sumCutAmplperLS8");
 
-  HistCutNumBadChanDepth[3][4][1] = (TH1F *)hfile->Get("h_sumCutAmplperLS6");
-  HistCutNumBadChanDepth[3][4][2] = (TH1F *)hfile->Get("h_sumCutAmplperLS7");
+  HistCutNumBadChanDepth[3][4][1] = (TH1F *)dir->FindObjectAny("h_sumCutAmplperLS6");
+  HistCutNumBadChanDepth[3][4][2] = (TH1F *)dir->FindObjectAny("h_sumCutAmplperLS7");
 
-  HistNumChanDepth[3][1][1] = (TH1F *)hfile->Get("h_sum0AmplperLS1");
-  HistNumChanDepth[3][1][2] = (TH1F *)hfile->Get("h_sum0AmplperLS2");
+  HistNumChanDepth[3][1][1] = (TH1F *)dir->FindObjectAny("h_sum0AmplperLS1");
+  HistNumChanDepth[3][1][2] = (TH1F *)dir->FindObjectAny("h_sum0AmplperLS2");
 
-  HistNumChanDepth[3][2][1] = (TH1F *)hfile->Get("h_sum0AmplperLS3");
-  HistNumChanDepth[3][2][2] = (TH1F *)hfile->Get("h_sum0AmplperLS4");
-  HistNumChanDepth[3][2][3] = (TH1F *)hfile->Get("h_sum0AmplperLS5");
+  HistNumChanDepth[3][2][1] = (TH1F *)dir->FindObjectAny("h_sum0AmplperLS3");
+  HistNumChanDepth[3][2][2] = (TH1F *)dir->FindObjectAny("h_sum0AmplperLS4");
+  HistNumChanDepth[3][2][3] = (TH1F *)dir->FindObjectAny("h_sum0AmplperLS5");
 
-  HistNumChanDepth[3][3][4] = (TH1F *)hfile->Get("h_sum0AmplperLS8");
+  HistNumChanDepth[3][3][4] = (TH1F *)dir->FindObjectAny("h_sum0AmplperLS8");
 
-  HistNumChanDepth[3][4][1] = (TH1F *)hfile->Get("h_sum0AmplperLS6");
-  HistNumChanDepth[3][4][2] = (TH1F *)hfile->Get("h_sum0AmplperLS7");
+  HistNumChanDepth[3][4][1] = (TH1F *)dir->FindObjectAny("h_sum0AmplperLS6");
+  HistNumChanDepth[3][4][2] = (TH1F *)dir->FindObjectAny("h_sum0AmplperLS7");
 
   HistNumChanFull[3] = (TH1F *)HistNumChanDepth[3][1][1]->Clone();
   //+++++++++++++++++++++++++++++
   // Tmean
   //+++++++++++++++++++++++++++++
 
-  HistNumBadChanDepth[4][1][1] = (TH1F *)hfile->Get("h_sumTSmeanAperLS1");
-  HistNumBadChanDepth[4][1][2] = (TH1F *)hfile->Get("h_sumTSmeanAperLS2");
+  HistNumBadChanDepth[4][1][1] = (TH1F *)dir->FindObjectAny("h_sumTSmeanAperLS1");
+  HistNumBadChanDepth[4][1][2] = (TH1F *)dir->FindObjectAny("h_sumTSmeanAperLS2");
 
-  HistNumBadChanDepth[4][2][1] = (TH1F *)hfile->Get("h_sumTSmeanAperLS3");
-  HistNumBadChanDepth[4][2][2] = (TH1F *)hfile->Get("h_sumTSmeanAperLS4");
-  HistNumBadChanDepth[4][2][3] = (TH1F *)hfile->Get("h_sumTSmeanAperLS5");
+  HistNumBadChanDepth[4][2][1] = (TH1F *)dir->FindObjectAny("h_sumTSmeanAperLS3");
+  HistNumBadChanDepth[4][2][2] = (TH1F *)dir->FindObjectAny("h_sumTSmeanAperLS4");
+  HistNumBadChanDepth[4][2][3] = (TH1F *)dir->FindObjectAny("h_sumTSmeanAperLS5");
 
-  HistNumBadChanDepth[4][3][4] = (TH1F *)hfile->Get("h_sumTSmeanAperLS8");
+  HistNumBadChanDepth[4][3][4] = (TH1F *)dir->FindObjectAny("h_sumTSmeanAperLS8");
 
-  HistNumBadChanDepth[4][4][1] = (TH1F *)hfile->Get("h_sumTSmeanAperLS6");
-  HistNumBadChanDepth[4][4][2] = (TH1F *)hfile->Get("h_sumTSmeanAperLS7");
+  HistNumBadChanDepth[4][4][1] = (TH1F *)dir->FindObjectAny("h_sumTSmeanAperLS6");
+  HistNumBadChanDepth[4][4][2] = (TH1F *)dir->FindObjectAny("h_sumTSmeanAperLS7");
 
   HistNumBadChanFull[4] = (TH1F *)HistNumBadChanDepth[4][1][1]->Clone();
 
-  HistCutNumBadChanDepth[4][1][1] = (TH1F *)hfile->Get("h_sumCutTSmeanAperLS1");
-  HistCutNumBadChanDepth[4][1][2] = (TH1F *)hfile->Get("h_sumCutTSmeanAperLS2");
+  HistCutNumBadChanDepth[4][1][1] = (TH1F *)dir->FindObjectAny("h_sumCutTSmeanAperLS1");
+  HistCutNumBadChanDepth[4][1][2] = (TH1F *)dir->FindObjectAny("h_sumCutTSmeanAperLS2");
 
-  HistCutNumBadChanDepth[4][2][1] = (TH1F *)hfile->Get("h_sumCutTSmeanAperLS3");
-  HistCutNumBadChanDepth[4][2][2] = (TH1F *)hfile->Get("h_sumCutTSmeanAperLS4");
-  HistCutNumBadChanDepth[4][2][3] = (TH1F *)hfile->Get("h_sumCutTSmeanAperLS5");
+  HistCutNumBadChanDepth[4][2][1] = (TH1F *)dir->FindObjectAny("h_sumCutTSmeanAperLS3");
+  HistCutNumBadChanDepth[4][2][2] = (TH1F *)dir->FindObjectAny("h_sumCutTSmeanAperLS4");
+  HistCutNumBadChanDepth[4][2][3] = (TH1F *)dir->FindObjectAny("h_sumCutTSmeanAperLS5");
 
-  HistCutNumBadChanDepth[4][3][4] = (TH1F *)hfile->Get("h_sumCutTSmeanAperLS8");
+  HistCutNumBadChanDepth[4][3][4] = (TH1F *)dir->FindObjectAny("h_sumCutTSmeanAperLS8");
 
-  HistCutNumBadChanDepth[4][4][1] = (TH1F *)hfile->Get("h_sumCutTSmeanAperLS6");
-  HistCutNumBadChanDepth[4][4][2] = (TH1F *)hfile->Get("h_sumCutTSmeanAperLS7");
+  HistCutNumBadChanDepth[4][4][1] = (TH1F *)dir->FindObjectAny("h_sumCutTSmeanAperLS6");
+  HistCutNumBadChanDepth[4][4][2] = (TH1F *)dir->FindObjectAny("h_sumCutTSmeanAperLS7");
 
-  HistNumChanDepth[4][1][1] = (TH1F *)hfile->Get("h_sum0TSmeanAperLS1");
-  HistNumChanDepth[4][1][2] = (TH1F *)hfile->Get("h_sum0TSmeanAperLS2");
+  HistNumChanDepth[4][1][1] = (TH1F *)dir->FindObjectAny("h_sum0TSmeanAperLS1");
+  HistNumChanDepth[4][1][2] = (TH1F *)dir->FindObjectAny("h_sum0TSmeanAperLS2");
 
-  HistNumChanDepth[4][2][1] = (TH1F *)hfile->Get("h_sum0TSmeanAperLS3");
-  HistNumChanDepth[4][2][2] = (TH1F *)hfile->Get("h_sum0TSmeanAperLS4");
-  HistNumChanDepth[4][2][3] = (TH1F *)hfile->Get("h_sum0TSmeanAperLS5");
+  HistNumChanDepth[4][2][1] = (TH1F *)dir->FindObjectAny("h_sum0TSmeanAperLS3");
+  HistNumChanDepth[4][2][2] = (TH1F *)dir->FindObjectAny("h_sum0TSmeanAperLS4");
+  HistNumChanDepth[4][2][3] = (TH1F *)dir->FindObjectAny("h_sum0TSmeanAperLS5");
 
-  HistNumChanDepth[4][3][4] = (TH1F *)hfile->Get("h_sum0TSmeanAperLS8");
+  HistNumChanDepth[4][3][4] = (TH1F *)dir->FindObjectAny("h_sum0TSmeanAperLS8");
 
-  HistNumChanDepth[4][4][1] = (TH1F *)hfile->Get("h_sum0TSmeanAperLS6");
-  HistNumChanDepth[4][4][2] = (TH1F *)hfile->Get("h_sum0TSmeanAperLS7");
+  HistNumChanDepth[4][4][1] = (TH1F *)dir->FindObjectAny("h_sum0TSmeanAperLS6");
+  HistNumChanDepth[4][4][2] = (TH1F *)dir->FindObjectAny("h_sum0TSmeanAperLS7");
 
   HistNumChanFull[4] = (TH1F *)HistNumChanDepth[4][1][1]->Clone();
   //+++++++++++++++++++++++++++++
   // Tmax
   //+++++++++++++++++++++++++++++
 
-  HistNumBadChanDepth[5][1][1] = (TH1F *)hfile->Get("h_sumTSmaxAperLS1");
-  HistNumBadChanDepth[5][1][2] = (TH1F *)hfile->Get("h_sumTSmaxAperLS2");
+  HistNumBadChanDepth[5][1][1] = (TH1F *)dir->FindObjectAny("h_sumTSmaxAperLS1");
+  HistNumBadChanDepth[5][1][2] = (TH1F *)dir->FindObjectAny("h_sumTSmaxAperLS2");
 
-  HistNumBadChanDepth[5][2][1] = (TH1F *)hfile->Get("h_sumTSmaxAperLS3");
-  HistNumBadChanDepth[5][2][2] = (TH1F *)hfile->Get("h_sumTSmaxAperLS4");
-  HistNumBadChanDepth[5][2][3] = (TH1F *)hfile->Get("h_sumTSmaxAperLS5");
+  HistNumBadChanDepth[5][2][1] = (TH1F *)dir->FindObjectAny("h_sumTSmaxAperLS3");
+  HistNumBadChanDepth[5][2][2] = (TH1F *)dir->FindObjectAny("h_sumTSmaxAperLS4");
+  HistNumBadChanDepth[5][2][3] = (TH1F *)dir->FindObjectAny("h_sumTSmaxAperLS5");
 
-  HistNumBadChanDepth[5][3][4] = (TH1F *)hfile->Get("h_sumTSmaxAperLS8");
+  HistNumBadChanDepth[5][3][4] = (TH1F *)dir->FindObjectAny("h_sumTSmaxAperLS8");
 
-  HistNumBadChanDepth[5][4][1] = (TH1F *)hfile->Get("h_sumTSmaxAperLS6");
-  HistNumBadChanDepth[5][4][2] = (TH1F *)hfile->Get("h_sumTSmaxAperLS7");
+  HistNumBadChanDepth[5][4][1] = (TH1F *)dir->FindObjectAny("h_sumTSmaxAperLS6");
+  HistNumBadChanDepth[5][4][2] = (TH1F *)dir->FindObjectAny("h_sumTSmaxAperLS7");
 
   HistNumBadChanFull[5] = (TH1F *)HistNumBadChanDepth[5][1][1]->Clone();
 
-  HistCutNumBadChanDepth[5][1][1] = (TH1F *)hfile->Get("h_sumCutTSmaxAperLS1");
-  HistCutNumBadChanDepth[5][1][2] = (TH1F *)hfile->Get("h_sumCutTSmaxAperLS2");
+  HistCutNumBadChanDepth[5][1][1] = (TH1F *)dir->FindObjectAny("h_sumCutTSmaxAperLS1");
+  HistCutNumBadChanDepth[5][1][2] = (TH1F *)dir->FindObjectAny("h_sumCutTSmaxAperLS2");
 
-  HistCutNumBadChanDepth[5][2][1] = (TH1F *)hfile->Get("h_sumCutTSmaxAperLS3");
-  HistCutNumBadChanDepth[5][2][2] = (TH1F *)hfile->Get("h_sumCutTSmaxAperLS4");
-  HistCutNumBadChanDepth[5][2][3] = (TH1F *)hfile->Get("h_sumCutTSmaxAperLS5");
+  HistCutNumBadChanDepth[5][2][1] = (TH1F *)dir->FindObjectAny("h_sumCutTSmaxAperLS3");
+  HistCutNumBadChanDepth[5][2][2] = (TH1F *)dir->FindObjectAny("h_sumCutTSmaxAperLS4");
+  HistCutNumBadChanDepth[5][2][3] = (TH1F *)dir->FindObjectAny("h_sumCutTSmaxAperLS5");
 
-  HistCutNumBadChanDepth[5][3][4] = (TH1F *)hfile->Get("h_sumCutTSmaxAperLS8");
+  HistCutNumBadChanDepth[5][3][4] = (TH1F *)dir->FindObjectAny("h_sumCutTSmaxAperLS8");
 
-  HistCutNumBadChanDepth[5][4][1] = (TH1F *)hfile->Get("h_sumCutTSmaxAperLS6");
-  HistCutNumBadChanDepth[5][4][2] = (TH1F *)hfile->Get("h_sumCutTSmaxAperLS7");
+  HistCutNumBadChanDepth[5][4][1] = (TH1F *)dir->FindObjectAny("h_sumCutTSmaxAperLS6");
+  HistCutNumBadChanDepth[5][4][2] = (TH1F *)dir->FindObjectAny("h_sumCutTSmaxAperLS7");
 
-  HistNumChanDepth[5][1][1] = (TH1F *)hfile->Get("h_sum0TSmaxAperLS1");
-  HistNumChanDepth[5][1][2] = (TH1F *)hfile->Get("h_sum0TSmaxAperLS2");
+  HistNumChanDepth[5][1][1] = (TH1F *)dir->FindObjectAny("h_sum0TSmaxAperLS1");
+  HistNumChanDepth[5][1][2] = (TH1F *)dir->FindObjectAny("h_sum0TSmaxAperLS2");
 
-  HistNumChanDepth[5][2][1] = (TH1F *)hfile->Get("h_sum0TSmaxAperLS3");
-  HistNumChanDepth[5][2][2] = (TH1F *)hfile->Get("h_sum0TSmaxAperLS4");
-  HistNumChanDepth[5][2][3] = (TH1F *)hfile->Get("h_sum0TSmaxAperLS5");
+  HistNumChanDepth[5][2][1] = (TH1F *)dir->FindObjectAny("h_sum0TSmaxAperLS3");
+  HistNumChanDepth[5][2][2] = (TH1F *)dir->FindObjectAny("h_sum0TSmaxAperLS4");
+  HistNumChanDepth[5][2][3] = (TH1F *)dir->FindObjectAny("h_sum0TSmaxAperLS5");
 
-  HistNumChanDepth[5][3][4] = (TH1F *)hfile->Get("h_sum0TSmaxAperLS8");
+  HistNumChanDepth[5][3][4] = (TH1F *)dir->FindObjectAny("h_sum0TSmaxAperLS8");
 
-  HistNumChanDepth[5][4][1] = (TH1F *)hfile->Get("h_sum0TSmaxAperLS6");
-  HistNumChanDepth[5][4][2] = (TH1F *)hfile->Get("h_sum0TSmaxAperLS7");
+  HistNumChanDepth[5][4][1] = (TH1F *)dir->FindObjectAny("h_sum0TSmaxAperLS6");
+  HistNumChanDepth[5][4][2] = (TH1F *)dir->FindObjectAny("h_sum0TSmaxAperLS7");
 
   HistNumChanFull[5] = (TH1F *)HistNumChanDepth[5][1][1]->Clone();
 
@@ -1588,14 +1593,14 @@ int main(int argc, char *argv[]) {
   // Abnormal Bad Channels Rate of Cap ID errors  first set of histograms
   //+++++++++++++++++++++++++++++
 
-  HistAbnormNumBadChanDepth[1][1] = (TH1F *)hfile->Get("h_runnbadchannelsC_depth1_HB");
-  HistAbnormNumBadChanDepth[1][2] = (TH1F *)hfile->Get("h_runnbadchannelsC_depth2_HB");
-  HistAbnormNumBadChanDepth[2][1] = (TH1F *)hfile->Get("h_runnbadchannelsC_depth1_HE");
-  HistAbnormNumBadChanDepth[2][2] = (TH1F *)hfile->Get("h_runnbadchannelsC_depth2_HE");
-  HistAbnormNumBadChanDepth[2][3] = (TH1F *)hfile->Get("h_runnbadchannelsC_depth3_HE");
-  HistAbnormNumBadChanDepth[3][4] = (TH1F *)hfile->Get("h_runnbadchannelsC_depth4_HO");
-  HistAbnormNumBadChanDepth[4][1] = (TH1F *)hfile->Get("h_runnbadchannelsC_depth1_HF");
-  HistAbnormNumBadChanDepth[4][2] = (TH1F *)hfile->Get("h_runnbadchannelsC_depth2_HF");
+  HistAbnormNumBadChanDepth[1][1] = (TH1F *)dir->FindObjectAny("h_runnbadchannelsC_depth1_HB");
+  HistAbnormNumBadChanDepth[1][2] = (TH1F *)dir->FindObjectAny("h_runnbadchannelsC_depth2_HB");
+  HistAbnormNumBadChanDepth[2][1] = (TH1F *)dir->FindObjectAny("h_runnbadchannelsC_depth1_HE");
+  HistAbnormNumBadChanDepth[2][2] = (TH1F *)dir->FindObjectAny("h_runnbadchannelsC_depth2_HE");
+  HistAbnormNumBadChanDepth[2][3] = (TH1F *)dir->FindObjectAny("h_runnbadchannelsC_depth3_HE");
+  HistAbnormNumBadChanDepth[3][4] = (TH1F *)dir->FindObjectAny("h_runnbadchannelsC_depth4_HO");
+  HistAbnormNumBadChanDepth[4][1] = (TH1F *)dir->FindObjectAny("h_runnbadchannelsC_depth1_HF");
+  HistAbnormNumBadChanDepth[4][2] = (TH1F *)dir->FindObjectAny("h_runnbadchannelsC_depth2_HF");
 
   for (int sub = 1; sub <= 4; sub++) {  //Subdetector: 1-HB, 2-HE, 3-HF, 4-HO
     if (sub == 1)
@@ -1667,24 +1672,24 @@ int main(int argc, char *argv[]) {
 
   TH1F *HistPortBadEventsDepth[5][5];  // 1d histogramm for subdet, depth
 
-  HistPortBadEventsDepth[1][1] = (TH1F *)hfile->Get("h_runbadrateC_depth1_HB");
-  HistPortBadEventsDepth[1][2] = (TH1F *)hfile->Get("h_runbadrateC_depth2_HB");
-  HistPortBadEventsDepth[2][1] = (TH1F *)hfile->Get("h_runbadrateC_depth1_HE");
-  HistPortBadEventsDepth[2][2] = (TH1F *)hfile->Get("h_runbadrateC_depth2_HE");
-  HistPortBadEventsDepth[2][3] = (TH1F *)hfile->Get("h_runbadrateC_depth3_HE");
-  HistPortBadEventsDepth[3][4] = (TH1F *)hfile->Get("h_runbadrateC_depth4_HO");
-  HistPortBadEventsDepth[4][1] = (TH1F *)hfile->Get("h_runbadrateC_depth1_HF");
-  HistPortBadEventsDepth[4][2] = (TH1F *)hfile->Get("h_runbadrateC_depth2_HF");
+  HistPortBadEventsDepth[1][1] = (TH1F *)dir->FindObjectAny("h_runbadrateC_depth1_HB");
+  HistPortBadEventsDepth[1][2] = (TH1F *)dir->FindObjectAny("h_runbadrateC_depth2_HB");
+  HistPortBadEventsDepth[2][1] = (TH1F *)dir->FindObjectAny("h_runbadrateC_depth1_HE");
+  HistPortBadEventsDepth[2][2] = (TH1F *)dir->FindObjectAny("h_runbadrateC_depth2_HE");
+  HistPortBadEventsDepth[2][3] = (TH1F *)dir->FindObjectAny("h_runbadrateC_depth3_HE");
+  HistPortBadEventsDepth[3][4] = (TH1F *)dir->FindObjectAny("h_runbadrateC_depth4_HO");
+  HistPortBadEventsDepth[4][1] = (TH1F *)dir->FindObjectAny("h_runbadrateC_depth1_HF");
+  HistPortBadEventsDepth[4][2] = (TH1F *)dir->FindObjectAny("h_runbadrateC_depth2_HF");
 
   TH1F *HistNumRateDepth[5][5];
-  HistNumRateDepth[1][1] = (TH1F *)hfile->Get("h_runbadrate0_depth1_HB");
-  HistNumRateDepth[1][2] = (TH1F *)hfile->Get("h_runbadrate0_depth2_HB");
-  HistNumRateDepth[2][1] = (TH1F *)hfile->Get("h_runbadrate0_depth1_HE");
-  HistNumRateDepth[2][2] = (TH1F *)hfile->Get("h_runbadrate0_depth2_HE");
-  HistNumRateDepth[2][3] = (TH1F *)hfile->Get("h_runbadrate0_depth3_HE");
-  HistNumRateDepth[3][4] = (TH1F *)hfile->Get("h_runbadrate0_depth4_HO");
-  HistNumRateDepth[4][1] = (TH1F *)hfile->Get("h_runbadrate0_depth1_HF");
-  HistNumRateDepth[4][2] = (TH1F *)hfile->Get("h_runbadrate0_depth2_HF");
+  HistNumRateDepth[1][1] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth1_HB");
+  HistNumRateDepth[1][2] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth2_HB");
+  HistNumRateDepth[2][1] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth1_HE");
+  HistNumRateDepth[2][2] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth2_HE");
+  HistNumRateDepth[2][3] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth3_HE");
+  HistNumRateDepth[3][4] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth4_HO");
+  HistNumRateDepth[4][1] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth1_HF");
+  HistNumRateDepth[4][2] = (TH1F *)dir->FindObjectAny("h_runbadrate0_depth2_HF");
 
   for (int sub = 1; sub <= 4; sub++) {  //Subdetector: 1-HB, 2-HE, 3-HF, 4-HO
     if (sub == 1)
@@ -1758,14 +1763,14 @@ int main(int argc, char *argv[]) {
 
   TH1F *HistNBadChsDepth[5][5];  // 1d histogramm for subdet, depth
 
-  HistNBadChsDepth[1][1] = (TH1F *)hfile->Get("h_nbadchannels_depth1_HB");
-  HistNBadChsDepth[1][2] = (TH1F *)hfile->Get("h_nbadchannels_depth2_HB");
-  HistNBadChsDepth[2][1] = (TH1F *)hfile->Get("h_nbadchannels_depth1_HE");
-  HistNBadChsDepth[2][2] = (TH1F *)hfile->Get("h_nbadchannels_depth2_HE");
-  HistNBadChsDepth[2][3] = (TH1F *)hfile->Get("h_nbadchannels_depth3_HE");
-  HistNBadChsDepth[3][4] = (TH1F *)hfile->Get("h_nbadchannels_depth4_HO");
-  HistNBadChsDepth[4][1] = (TH1F *)hfile->Get("h_nbadchannels_depth1_HF");
-  HistNBadChsDepth[4][2] = (TH1F *)hfile->Get("h_nbadchannels_depth2_HF");
+  HistNBadChsDepth[1][1] = (TH1F *)dir->FindObjectAny("h_nbadchannels_depth1_HB");
+  HistNBadChsDepth[1][2] = (TH1F *)dir->FindObjectAny("h_nbadchannels_depth2_HB");
+  HistNBadChsDepth[2][1] = (TH1F *)dir->FindObjectAny("h_nbadchannels_depth1_HE");
+  HistNBadChsDepth[2][2] = (TH1F *)dir->FindObjectAny("h_nbadchannels_depth2_HE");
+  HistNBadChsDepth[2][3] = (TH1F *)dir->FindObjectAny("h_nbadchannels_depth3_HE");
+  HistNBadChsDepth[3][4] = (TH1F *)dir->FindObjectAny("h_nbadchannels_depth4_HO");
+  HistNBadChsDepth[4][1] = (TH1F *)dir->FindObjectAny("h_nbadchannels_depth1_HF");
+  HistNBadChsDepth[4][2] = (TH1F *)dir->FindObjectAny("h_nbadchannels_depth2_HF");
 
   for (int sub = 1; sub <= 4; sub++) {  //Subdetector: 1-HB, 2-HE, 3-HF, 4-HO
     if (sub == 1)
@@ -1855,8 +1860,8 @@ int main(int argc, char *argv[]) {
       if (1)
         std::cout << "debugger: errA_HB : get histos for i=" << i << " " << hnames[i][0] << " and " << hnames[i][1]
                   << "\n";
-      TH1F *h1 = (TH1F *)hfile->Get(hnames[i][0]);
-      TH1F *h0 = (TH1F *)hfile->Get(hnames[i][1]);
+      TH1F *h1 = (TH1F *)dir->FindObjectAny(hnames[i][0]);
+      TH1F *h0 = (TH1F *)dir->FindObjectAny(hnames[i][1]);
       if (!h1 || !h0) {
         TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
         ptext->AddText("Missing histo");
@@ -1986,8 +1991,8 @@ int main(int argc, char *argv[]) {
       TH2F *h2Cefz6 = NULL;
       TString hname1 = hnames[2 * depth - 2][0];
       TString hname0 = hnames[2 * depth - 2][1];
-      TH2F *twod1 = (TH2F *)hfile->Get(hname1);
-      TH2F *twod0 = (TH2F *)hfile->Get(hname0);
+      TH2F *twod1 = (TH2F *)dir->FindObjectAny(hname1);
+      TH2F *twod0 = (TH2F *)dir->FindObjectAny(hname0);
       if (1)
         std::cout << "debugger: errB_HB depth=" << depth << ". get 2D histos " << hname1 << " and " << hname0 << "\n";
       if (!twod1 || !twod0) {
@@ -2028,8 +2033,8 @@ int main(int argc, char *argv[]) {
       cHB->cd(2);
       hname1 = hnames[2 * depth - 1][0];
       hname0 = hnames[2 * depth - 1][1];
-      TH1F *h1 = (TH1F *)hfile->Get(hname1);
-      TH1F *h0 = (TH1F *)hfile->Get(hname0);
+      TH1F *h1 = (TH1F *)dir->FindObjectAny(hname1);
+      TH1F *h0 = (TH1F *)dir->FindObjectAny(hname0);
       if (1)
         std::cout << "errB_HB depth=" << depth << ". get 2D histos " << hname1 << " and " << hname0 << "\n";
       if (!h1 || !h0) {
@@ -2132,8 +2137,8 @@ int main(int argc, char *argv[]) {
       if (1)
         std::cout << "debugger: errA_HE : get histos for i=" << i << " " << hnames[i][0] << " and " << hnames[i][1]
                   << "\n";
-      TH1F *h1 = (TH1F *)hfile->Get(hnames[i][0]);
-      TH1F *h0 = (TH1F *)hfile->Get(hnames[i][1]);
+      TH1F *h1 = (TH1F *)dir->FindObjectAny(hnames[i][0]);
+      TH1F *h0 = (TH1F *)dir->FindObjectAny(hnames[i][1]);
       if (!h1 || !h0) {
         TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
         ptext->AddText("Missing histo");
@@ -2265,8 +2270,8 @@ int main(int argc, char *argv[]) {
       TH2F *h2Cefz6 = NULL;
       TString hname1 = hnames[2 * depth - 2][0];
       TString hname0 = hnames[2 * depth - 2][1];
-      TH2F *twod1 = (TH2F *)hfile->Get(hname1);
-      TH2F *twod0 = (TH2F *)hfile->Get(hname0);
+      TH2F *twod1 = (TH2F *)dir->FindObjectAny(hname1);
+      TH2F *twod0 = (TH2F *)dir->FindObjectAny(hname0);
       if (1)
         std::cout << "debugger: errB_HE depth=" << depth << ". get 2D histos " << hname1 << " and " << hname0 << "\n";
       if (!twod1 || !twod0) {
@@ -2307,8 +2312,8 @@ int main(int argc, char *argv[]) {
       cHB->cd(2);
       hname1 = hnames[2 * depth - 1][0];
       hname0 = hnames[2 * depth - 1][1];
-      TH1F *h1 = (TH1F *)hfile->Get(hname1);
-      TH1F *h0 = (TH1F *)hfile->Get(hname0);
+      TH1F *h1 = (TH1F *)dir->FindObjectAny(hname1);
+      TH1F *h0 = (TH1F *)dir->FindObjectAny(hname0);
       if (1)
         std::cout << "errB_HE depth=" << depth << ". get 2D histos " << hname1 << " and " << hname0 << "\n";
       if (!h1 || !h0) {
@@ -2411,8 +2416,8 @@ int main(int argc, char *argv[]) {
       if (1)
         std::cout << "debugger: errA_HO : get histos for i=" << i << " " << hnames[i][0] << " and " << hnames[i][1]
                   << "\n";
-      TH1F *h1 = (TH1F *)hfile->Get(hnames[i][0]);
-      TH1F *h0 = (TH1F *)hfile->Get(hnames[i][1]);
+      TH1F *h1 = (TH1F *)dir->FindObjectAny(hnames[i][0]);
+      TH1F *h0 = (TH1F *)dir->FindObjectAny(hnames[i][1]);
       if (!h1 || !h0) {
         TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
         ptext->AddText("Missing histo");
@@ -2540,8 +2545,8 @@ int main(int argc, char *argv[]) {
       TH2F *h2Cefz6 = NULL;
       TString hname1 = hnames[2 * depth - 8][0];
       TString hname0 = hnames[2 * depth - 8][1];
-      TH2F *twod1 = (TH2F *)hfile->Get(hname1);
-      TH2F *twod0 = (TH2F *)hfile->Get(hname0);
+      TH2F *twod1 = (TH2F *)dir->FindObjectAny(hname1);
+      TH2F *twod0 = (TH2F *)dir->FindObjectAny(hname0);
       if (1)
         std::cout << "debugger: errB_HO depth=" << depth << ". get 2D histos " << hname1 << " and " << hname0 << "\n";
       if (!twod1 || !twod0) {
@@ -2582,8 +2587,8 @@ int main(int argc, char *argv[]) {
       cHB->cd(2);
       hname1 = hnames[2 * depth - 7][0];
       hname0 = hnames[2 * depth - 7][1];
-      TH1F *h1 = (TH1F *)hfile->Get(hname1);
-      TH1F *h0 = (TH1F *)hfile->Get(hname0);
+      TH1F *h1 = (TH1F *)dir->FindObjectAny(hname1);
+      TH1F *h0 = (TH1F *)dir->FindObjectAny(hname0);
       if (1)
         std::cout << "errB_HO depth=" << depth << ". get 2D histos " << hname1 << " and " << hname0 << "\n";
       if (!h1 || !h0) {
@@ -2685,8 +2690,8 @@ int main(int argc, char *argv[]) {
       if (1)
         std::cout << "debugger: errA_HF : get histos for i=" << i << " " << hnames[i][0] << " and " << hnames[i][1]
                   << "\n";
-      TH1F *h1 = (TH1F *)hfile->Get(hnames[i][0]);
-      TH1F *h0 = (TH1F *)hfile->Get(hnames[i][1]);
+      TH1F *h1 = (TH1F *)dir->FindObjectAny(hnames[i][0]);
+      TH1F *h0 = (TH1F *)dir->FindObjectAny(hnames[i][1]);
       if (!h1 || !h0) {
         TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
         ptext->AddText("Missing histo");
@@ -2815,8 +2820,8 @@ int main(int argc, char *argv[]) {
       TH2F *h2Cefz6 = NULL;
       TString hname1 = hnames[2 * depth - 2][0];
       TString hname0 = hnames[2 * depth - 2][1];
-      TH2F *twod1 = (TH2F *)hfile->Get(hname1);
-      TH2F *twod0 = (TH2F *)hfile->Get(hname0);
+      TH2F *twod1 = (TH2F *)dir->FindObjectAny(hname1);
+      TH2F *twod0 = (TH2F *)dir->FindObjectAny(hname0);
       if (1)
         std::cout << "debugger: errB_HF depth=" << depth << ". get 2D histos " << hname1 << " and " << hname0 << "\n";
       if (!twod1 || !twod0) {
@@ -2855,8 +2860,8 @@ int main(int argc, char *argv[]) {
       cHB->cd(2);
       hname1 = hnames[2 * depth - 1][0];
       hname0 = hnames[2 * depth - 1][1];
-      TH1F *h1 = (TH1F *)hfile->Get(hname1);
-      TH1F *h0 = (TH1F *)hfile->Get(hname0);
+      TH1F *h1 = (TH1F *)dir->FindObjectAny(hname1);
+      TH1F *h0 = (TH1F *)dir->FindObjectAny(hname0);
       if (1)
         std::cout << "errB_HF depth=" << depth << ". get 2D histos " << hname1 << " and " << hname0 << "\n";
       if (!h1 || !h0) {
@@ -2942,8 +2947,8 @@ int main(int argc, char *argv[]) {
     // h_mapDepth1ADCAmpl_HB div h_mapDepth1_HB
     TString hname1 = Form("h_mapDepth%dADCAmpl_HB", depth);
     TString hname0 = Form("h_mapDepth%d_HB", depth);
-    TH2F *twod1 = (TH2F *)hfile->Get(hname1);
-    TH2F *twod0 = (TH2F *)hfile->Get(hname0);
+    TH2F *twod1 = (TH2F *)dir->FindObjectAny(hname1);
+    TH2F *twod0 = (TH2F *)dir->FindObjectAny(hname0);
     if (!twod1 || !twod0) {
       TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
       ptext->AddText("Missing histo");
@@ -3006,7 +3011,7 @@ int main(int argc, char *argv[]) {
 
     cHE->cd(3);
     TString hname3 = Form("h_mapDepth%dADCAmpl225Copy_HB", depth);
-    TH2F *twod3 = (TH2F *)hfile->Get(hname3);
+    TH2F *twod3 = (TH2F *)dir->FindObjectAny(hname3);
     if (!twod3 || !twod0) {
       TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
       ptext->AddText("Missing histo");
@@ -3071,8 +3076,8 @@ int main(int argc, char *argv[]) {
     // h_mapDepth1ADCAmpl_HE div h_mapDepth1_HE
     TString hname1 = Form("h_mapDepth%dADCAmpl_HE", depth);
     TString hname0 = Form("h_mapDepth%d_HE", depth);
-    TH2F *twod1 = (TH2F *)hfile->Get(hname1);
-    TH2F *twod0 = (TH2F *)hfile->Get(hname0);
+    TH2F *twod1 = (TH2F *)dir->FindObjectAny(hname1);
+    TH2F *twod0 = (TH2F *)dir->FindObjectAny(hname0);
     if (!twod1 || !twod0) {
       TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
       ptext->AddText("Missing histo");
@@ -3135,7 +3140,7 @@ int main(int argc, char *argv[]) {
 
     cHE->cd(3);
     TString hname3 = Form("h_mapDepth%dADCAmpl225Copy_HE", depth);
-    TH2F *twod3 = (TH2F *)hfile->Get(hname3);
+    TH2F *twod3 = (TH2F *)dir->FindObjectAny(hname3);
     if (!twod3 || !twod0) {
       TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
       ptext->AddText("Missing histo");
@@ -3200,8 +3205,8 @@ int main(int argc, char *argv[]) {
     // h_mapDepth1ADCAmpl_HO div h_mapDepth1_HO
     TString hname1 = Form("h_mapDepth%dADCAmpl_HO", depth);
     TString hname0 = Form("h_mapDepth%d_HO", depth);
-    TH2F *twod1 = (TH2F *)hfile->Get(hname1);
-    TH2F *twod0 = (TH2F *)hfile->Get(hname0);
+    TH2F *twod1 = (TH2F *)dir->FindObjectAny(hname1);
+    TH2F *twod0 = (TH2F *)dir->FindObjectAny(hname0);
     if (!twod1 || !twod0) {
       TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
       ptext->AddText("Missing histo");
@@ -3264,7 +3269,7 @@ int main(int argc, char *argv[]) {
 
     cHE->cd(3);
     TString hname3 = Form("h_mapDepth%dADCAmpl225Copy_HO", depth);
-    TH2F *twod3 = (TH2F *)hfile->Get(hname3);
+    TH2F *twod3 = (TH2F *)dir->FindObjectAny(hname3);
     if (!twod3 || !twod0) {
       TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
       ptext->AddText("Missing histo");
@@ -3329,8 +3334,8 @@ int main(int argc, char *argv[]) {
     // h_mapDepth1ADCAmpl_HF div h_mapDepth1_HF
     TString hname1 = Form("h_mapDepth%dADCAmpl_HF", depth);
     TString hname0 = Form("h_mapDepth%d_HF", depth);
-    TH2F *twod1 = (TH2F *)hfile->Get(hname1);
-    TH2F *twod0 = (TH2F *)hfile->Get(hname0);
+    TH2F *twod1 = (TH2F *)dir->FindObjectAny(hname1);
+    TH2F *twod0 = (TH2F *)dir->FindObjectAny(hname0);
     if (!twod1 || !twod0) {
       TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
       ptext->AddText("Missing histo");
@@ -3418,7 +3423,7 @@ int main(int argc, char *argv[]) {
     }
     */
     TString hname3 = Form("h_mapDepth%dADCAmpl225Copy_HF", depth);
-    TH2F *twod3 = (TH2F *)hfile->Get(hname3);
+    TH2F *twod3 = (TH2F *)dir->FindObjectAny(hname3);
     if (!twod3 || !twod0) {
       TPaveText *ptext = new TPaveText(0.05, 0.85, 0.95, 0.95);
       ptext->AddText("Missing histo");
@@ -3484,7 +3489,7 @@ int main(int argc, char *argv[]) {
   //  int njeta = 22; int njphi = 18; int lsmax=2600;
   int njeta = 22;
   int njphi = 18;
-  int lsmax = 2600;
+  int lsmax = 1800;
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>     int njeta = 22; int njphi = 18; int lsmax=2600;                        "
        << endl;
 
@@ -3551,8 +3556,8 @@ HF: j = 0,1,2, 3            18,19,20,21
   //======================================================================
   //======================================================================
   cout << " RBX general for HB **************************" << endl;
-  TH2F *Ghb1KKK = (TH2F *)hfile->Get("h_2DsumADCAmplEtaPhiLs0");
-  TH2F *Ghb1LLL = (TH2F *)hfile->Get("h_2DsumADCAmplEtaPhiLs00");
+  TH2F *Ghb1KKK = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplEtaPhiLs0");
+  TH2F *Ghb1LLL = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplEtaPhiLs00");
   TH2F *Ghb1 = (TH2F *)Ghb1LLL->Clone("Ghb1");
   Ghb1->Divide(Ghb1KKK, Ghb1LLL, 1, 1, "B");  // average A
   //    Ghb1->Sumw2();
@@ -4139,8 +4144,8 @@ HF: j = 0,1,2, 3            18,19,20,21
   //======================================================================
   //======================================================================
   cout << " RBX general for HE **************************" << endl;
-  TH2F *Ghe1KKK = (TH2F *)hfile->Get("h_2DsumADCAmplEtaPhiLs1");
-  TH2F *Ghe1LLL = (TH2F *)hfile->Get("h_2DsumADCAmplEtaPhiLs10");
+  TH2F *Ghe1KKK = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplEtaPhiLs1");
+  TH2F *Ghe1LLL = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplEtaPhiLs10");
   TH2F *Ghe1 = (TH2F *)Ghe1LLL->Clone("Ghe1");
   Ghe1->Divide(Ghe1KKK, Ghe1LLL, 1, 1, "B");  // average A
   //    Ghe1->Sumw2();
@@ -4727,8 +4732,8 @@ HF: j = 0,1,2, 3            18,19,20,21
   //======================================================================
   //======================================================================
   cout << " RBX general for HO **************************" << endl;
-  TH2F *Gho1KKK = (TH2F *)hfile->Get("h_2DsumADCAmplEtaPhiLs2");
-  TH2F *Gho1LLL = (TH2F *)hfile->Get("h_2DsumADCAmplEtaPhiLs20");
+  TH2F *Gho1KKK = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplEtaPhiLs2");
+  TH2F *Gho1LLL = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplEtaPhiLs20");
   TH2F *Gho1 = (TH2F *)Gho1LLL->Clone("Gho1");
   Gho1->Divide(Gho1KKK, Gho1LLL, 1, 1, "B");  // average A
   //    Gho1->Sumw2();
@@ -5316,8 +5321,8 @@ HF: j = 0,1,2, 3            18,19,20,21
   //======================================================================
   //======================================================================
   cout << " RBX general for HF **************************" << endl;
-  TH2F *Ghf1KKK = (TH2F *)hfile->Get("h_2DsumADCAmplEtaPhiLs3");
-  TH2F *Ghf1LLL = (TH2F *)hfile->Get("h_2DsumADCAmplEtaPhiLs30");
+  TH2F *Ghf1KKK = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplEtaPhiLs3");
+  TH2F *Ghf1LLL = (TH2F *)dir->FindObjectAny("h_2DsumADCAmplEtaPhiLs30");
   TH2F *Ghf1 = (TH2F *)Ghf1LLL->Clone("Ghf1");
   Ghf1->Divide(Ghf1KKK, Ghf1LLL, 1, 1, "B");  // average A
   //    Ghf1->Sumw2();
@@ -5900,7 +5905,7 @@ HF: j = 0,1,2, 3            18,19,20,21
     cHB->Divide(2, 1);
     /////////
     cHB->cd(1);
-    TH2F *occhbm = (TH2F *)hfile->Get("h_RatioOccupancy_HBM");
+    TH2F *occhbm = (TH2F *)dir->FindObjectAny("h_RatioOccupancy_HBM");
     TH1F *uyhbm = new TH1F("uyhbm", "", mymaxbins, 1., mymaxbins + 1.);
     for (int i = 1; i <= occhbm->GetXaxis()->GetNbins(); i++) {
       double ccc1 = occhbm->GetBinContent(i);
@@ -5921,7 +5926,7 @@ HF: j = 0,1,2, 3            18,19,20,21
     uyhbm->Draw("Error");
     /////////
     cHB->cd(2);
-    TH2F *occhbp = (TH2F *)hfile->Get("h_RatioOccupancy_HBP");
+    TH2F *occhbp = (TH2F *)dir->FindObjectAny("h_RatioOccupancy_HBP");
     TH1F *uyhbp = new TH1F("uyhbp", "", mymaxbins, 1., mymaxbins + 1.);
     for (int i = 1; i <= occhbp->GetXaxis()->GetNbins(); i++) {
       double ccc1 = occhbp->GetBinContent(i);
@@ -5964,7 +5969,7 @@ HF: j = 0,1,2, 3            18,19,20,21
     cHB->Divide(2, 1);
     /////////
     cHB->cd(1);
-    TH2F *occhem = (TH2F *)hfile->Get("h_RatioOccupancy_HEM");
+    TH2F *occhem = (TH2F *)dir->FindObjectAny("h_RatioOccupancy_HEM");
     TH1F *uyhem = new TH1F("uyhem", "", mymaxbins, 1., mymaxbins + 1.);
     for (int i = 1; i <= occhem->GetXaxis()->GetNbins(); i++) {
       double ccc1 = occhem->GetBinContent(i);
@@ -5985,7 +5990,7 @@ HF: j = 0,1,2, 3            18,19,20,21
     uyhem->Draw("Error");
     /////////
     cHB->cd(2);
-    TH2F *occhep = (TH2F *)hfile->Get("h_RatioOccupancy_HEP");
+    TH2F *occhep = (TH2F *)dir->FindObjectAny("h_RatioOccupancy_HEP");
     TH1F *uyhep = new TH1F("uyhep", "", mymaxbins, 1., mymaxbins + 1.);
     for (int i = 1; i <= occhep->GetXaxis()->GetNbins(); i++) {
       double ccc1 = occhep->GetBinContent(i);
@@ -6028,7 +6033,7 @@ HF: j = 0,1,2, 3            18,19,20,21
     cHB->Divide(2, 1);
     /////////
     cHB->cd(1);
-    TH2F *occhom = (TH2F *)hfile->Get("h_RatioOccupancy_HOM");
+    TH2F *occhom = (TH2F *)dir->FindObjectAny("h_RatioOccupancy_HOM");
     TH1F *uyhom = new TH1F("uyhom", "", mymaxbins, 1., mymaxbins + 1.);
     for (int i = 1; i <= occhom->GetXaxis()->GetNbins(); i++) {
       double ccc1 = occhom->GetBinContent(i);
@@ -6049,7 +6054,7 @@ HF: j = 0,1,2, 3            18,19,20,21
     uyhom->Draw("Error");
     /////////
     cHB->cd(2);
-    TH2F *occhop = (TH2F *)hfile->Get("h_RatioOccupancy_HOP");
+    TH2F *occhop = (TH2F *)dir->FindObjectAny("h_RatioOccupancy_HOP");
     TH1F *uyhop = new TH1F("uyhop", "", mymaxbins, 1., mymaxbins + 1.);
     for (int i = 1; i <= occhop->GetXaxis()->GetNbins(); i++) {
       double ccc1 = occhop->GetBinContent(i);
@@ -6092,7 +6097,7 @@ HF: j = 0,1,2, 3            18,19,20,21
     cHB->Divide(2, 1);
     /////////
     cHB->cd(1);
-    TH2F *occhfm = (TH2F *)hfile->Get("h_RatioOccupancy_HFM");
+    TH2F *occhfm = (TH2F *)dir->FindObjectAny("h_RatioOccupancy_HFM");
     TH1F *uyhfm = new TH1F("uyhfm", "", mymaxbins, 1., mymaxbins + 1.);
     for (int i = 1; i <= occhfm->GetXaxis()->GetNbins(); i++) {
       double ccc1 = occhfm->GetBinContent(i);
@@ -6113,7 +6118,7 @@ HF: j = 0,1,2, 3            18,19,20,21
     uyhfm->Draw("Error");
     /////////
     cHB->cd(2);
-    TH2F *occhfp = (TH2F *)hfile->Get("h_RatioOccupancy_HFP");
+    TH2F *occhfp = (TH2F *)dir->FindObjectAny("h_RatioOccupancy_HFP");
     TH1F *uyhfp = new TH1F("uyhfp", "", mymaxbins, 1., mymaxbins + 1.);
     for (int i = 1; i <= occhfp->GetXaxis()->GetNbins(); i++) {
       double ccc1 = occhfp->GetBinContent(i);
@@ -6160,15 +6165,15 @@ HF: j = 0,1,2, 3            18,19,20,21
   int maxbins = MaxLum;
   cout << ">>>>   maxbins =     " << maxbins << endl;
   TH1F *SummedAmplitudeHisto[4];  // 1d histogramm for subdet
-  SummedAmplitudeHisto[0] = (TH1F *)hfile->Get("h_averSIGNALsumamplitude_HB");
-  SummedAmplitudeHisto[1] = (TH1F *)hfile->Get("h_averSIGNALsumamplitude_HE");
-  SummedAmplitudeHisto[2] = (TH1F *)hfile->Get("h_averSIGNALsumamplitude_HO");
-  SummedAmplitudeHisto[3] = (TH1F *)hfile->Get("h_averSIGNALsumamplitude_HF");
+  SummedAmplitudeHisto[0] = (TH1F *)dir->FindObjectAny("h_averSIGNALsumamplitude_HB");
+  SummedAmplitudeHisto[1] = (TH1F *)dir->FindObjectAny("h_averSIGNALsumamplitude_HE");
+  SummedAmplitudeHisto[2] = (TH1F *)dir->FindObjectAny("h_averSIGNALsumamplitude_HO");
+  SummedAmplitudeHisto[3] = (TH1F *)dir->FindObjectAny("h_averSIGNALsumamplitude_HF");
   TH1F *SummedAmplitudeOccupancyHisto[4];  // 1d histogramm for subdet
-  SummedAmplitudeOccupancyHisto[0] = (TH1F *)hfile->Get("h_averSIGNALoccupancy_HB");
-  SummedAmplitudeOccupancyHisto[1] = (TH1F *)hfile->Get("h_averSIGNALoccupancy_HE");
-  SummedAmplitudeOccupancyHisto[2] = (TH1F *)hfile->Get("h_averSIGNALoccupancy_HO");
-  SummedAmplitudeOccupancyHisto[3] = (TH1F *)hfile->Get("h_averSIGNALoccupancy_HF");
+  SummedAmplitudeOccupancyHisto[0] = (TH1F *)dir->FindObjectAny("h_averSIGNALoccupancy_HB");
+  SummedAmplitudeOccupancyHisto[1] = (TH1F *)dir->FindObjectAny("h_averSIGNALoccupancy_HE");
+  SummedAmplitudeOccupancyHisto[2] = (TH1F *)dir->FindObjectAny("h_averSIGNALoccupancy_HO");
+  SummedAmplitudeOccupancyHisto[3] = (TH1F *)dir->FindObjectAny("h_averSIGNALoccupancy_HF");
   for (int sub = 0; sub < 4; sub++) {
     cHE->Clear();
     cHE->Divide(2, 1);
@@ -6237,15 +6242,15 @@ HF: j = 0,1,2, 3            18,19,20,21
   //*************************                        *****     NoSignal                   *****
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>start Summed Amplitude Plots NoSignal " << endl;
   TH1F *NoSignalSummedAmplitudeHisto[4];  // 1d histogramm for subdet
-  NoSignalSummedAmplitudeHisto[0] = (TH1F *)hfile->Get("h_averNOSIGNALsumamplitude_HB");
-  NoSignalSummedAmplitudeHisto[1] = (TH1F *)hfile->Get("h_averNOSIGNALsumamplitude_HE");
-  NoSignalSummedAmplitudeHisto[2] = (TH1F *)hfile->Get("h_averNOSIGNALsumamplitude_HO");
-  NoSignalSummedAmplitudeHisto[3] = (TH1F *)hfile->Get("h_averNOSIGNALsumamplitude_HF");
+  NoSignalSummedAmplitudeHisto[0] = (TH1F *)dir->FindObjectAny("h_averNOSIGNALsumamplitude_HB");
+  NoSignalSummedAmplitudeHisto[1] = (TH1F *)dir->FindObjectAny("h_averNOSIGNALsumamplitude_HE");
+  NoSignalSummedAmplitudeHisto[2] = (TH1F *)dir->FindObjectAny("h_averNOSIGNALsumamplitude_HO");
+  NoSignalSummedAmplitudeHisto[3] = (TH1F *)dir->FindObjectAny("h_averNOSIGNALsumamplitude_HF");
   TH1F *NoSignalSummedAmplitudeOccupancyHisto[4];  // 1d histogramm for subdet
-  NoSignalSummedAmplitudeOccupancyHisto[0] = (TH1F *)hfile->Get("h_averNOSIGNALoccupancy_HB");
-  NoSignalSummedAmplitudeOccupancyHisto[1] = (TH1F *)hfile->Get("h_averNOSIGNALoccupancy_HE");
-  NoSignalSummedAmplitudeOccupancyHisto[2] = (TH1F *)hfile->Get("h_averNOSIGNALoccupancy_HO");
-  NoSignalSummedAmplitudeOccupancyHisto[3] = (TH1F *)hfile->Get("h_averNOSIGNALoccupancy_HF");
+  NoSignalSummedAmplitudeOccupancyHisto[0] = (TH1F *)dir->FindObjectAny("h_averNOSIGNALoccupancy_HB");
+  NoSignalSummedAmplitudeOccupancyHisto[1] = (TH1F *)dir->FindObjectAny("h_averNOSIGNALoccupancy_HE");
+  NoSignalSummedAmplitudeOccupancyHisto[2] = (TH1F *)dir->FindObjectAny("h_averNOSIGNALoccupancy_HO");
+  NoSignalSummedAmplitudeOccupancyHisto[3] = (TH1F *)dir->FindObjectAny("h_averNOSIGNALoccupancy_HF");
   for (int sub = 0; sub < 4; sub++) {
     cHE->Clear();
     cHE->Divide(2, 1);
@@ -6339,25 +6344,25 @@ HF: j = 0,1,2, 3            18,19,20,21
   //*************************                        *****     MaxxValues                   *****
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>start Summed Amplitude Plots Maxx " << endl;
   TH1F *MaxxSummedAmplitudeHisto[4];  // 1d histogramm for subdet
-  MaxxSummedAmplitudeHisto[0] = (TH1F *)hfile->Get("h_maxxSUMAmpl_HB");
-  MaxxSummedAmplitudeHisto[1] = (TH1F *)hfile->Get("h_maxxSUMAmpl_HE");
-  MaxxSummedAmplitudeHisto[2] = (TH1F *)hfile->Get("h_maxxSUMAmpl_HO");
-  MaxxSummedAmplitudeHisto[3] = (TH1F *)hfile->Get("h_maxxSUMAmpl_HF");
+  MaxxSummedAmplitudeHisto[0] = (TH1F *)dir->FindObjectAny("h_maxxSUMAmpl_HB");
+  MaxxSummedAmplitudeHisto[1] = (TH1F *)dir->FindObjectAny("h_maxxSUMAmpl_HE");
+  MaxxSummedAmplitudeHisto[2] = (TH1F *)dir->FindObjectAny("h_maxxSUMAmpl_HO");
+  MaxxSummedAmplitudeHisto[3] = (TH1F *)dir->FindObjectAny("h_maxxSUMAmpl_HF");
   TH1F *MaxxSummedAmplitudeOccupancyHisto[4];  // 1d histogramm for subdet
-  MaxxSummedAmplitudeOccupancyHisto[0] = (TH1F *)hfile->Get("h_maxxOCCUP_HB");
-  MaxxSummedAmplitudeOccupancyHisto[1] = (TH1F *)hfile->Get("h_maxxOCCUP_HE");
-  MaxxSummedAmplitudeOccupancyHisto[2] = (TH1F *)hfile->Get("h_maxxOCCUP_HO");
-  MaxxSummedAmplitudeOccupancyHisto[3] = (TH1F *)hfile->Get("h_maxxOCCUP_HF");
+  MaxxSummedAmplitudeOccupancyHisto[0] = (TH1F *)dir->FindObjectAny("h_maxxOCCUP_HB");
+  MaxxSummedAmplitudeOccupancyHisto[1] = (TH1F *)dir->FindObjectAny("h_maxxOCCUP_HE");
+  MaxxSummedAmplitudeOccupancyHisto[2] = (TH1F *)dir->FindObjectAny("h_maxxOCCUP_HO");
+  MaxxSummedAmplitudeOccupancyHisto[3] = (TH1F *)dir->FindObjectAny("h_maxxOCCUP_HF");
   TH1F *SAmplitudeHisto[4];  // 1d histogramm for subdet
-  SAmplitudeHisto[0] = (TH1F *)hfile->Get("h_eventamplitude_HB");
-  SAmplitudeHisto[1] = (TH1F *)hfile->Get("h_eventamplitude_HE");
-  SAmplitudeHisto[2] = (TH1F *)hfile->Get("h_eventamplitude_HO");
-  SAmplitudeHisto[3] = (TH1F *)hfile->Get("h_eventamplitude_HF");
+  SAmplitudeHisto[0] = (TH1F *)dir->FindObjectAny("h_eventamplitude_HB");
+  SAmplitudeHisto[1] = (TH1F *)dir->FindObjectAny("h_eventamplitude_HE");
+  SAmplitudeHisto[2] = (TH1F *)dir->FindObjectAny("h_eventamplitude_HO");
+  SAmplitudeHisto[3] = (TH1F *)dir->FindObjectAny("h_eventamplitude_HF");
   TH1F *OccupancyHisto[4];  // 1d histogramm for subdet
-  OccupancyHisto[0] = (TH1F *)hfile->Get("h_eventoccupancy_HB");
-  OccupancyHisto[1] = (TH1F *)hfile->Get("h_eventoccupancy_HE");
-  OccupancyHisto[2] = (TH1F *)hfile->Get("h_eventoccupancy_HO");
-  OccupancyHisto[3] = (TH1F *)hfile->Get("h_eventoccupancy_HF");
+  OccupancyHisto[0] = (TH1F *)dir->FindObjectAny("h_eventoccupancy_HB");
+  OccupancyHisto[1] = (TH1F *)dir->FindObjectAny("h_eventoccupancy_HE");
+  OccupancyHisto[2] = (TH1F *)dir->FindObjectAny("h_eventoccupancy_HO");
+  OccupancyHisto[3] = (TH1F *)dir->FindObjectAny("h_eventoccupancy_HF");
 
   int countamplmaxHB = 0;
   int countamplmaxHE = 0;
@@ -6551,10 +6556,10 @@ HF: j = 0,1,2, 3            18,19,20,21
   //*************************                        *****     channelsummedA over depths                   *****
   cout << ">>>>>>>>>>>>>>>>>>>>>>>>channelsummedA over depths " << endl;
   TH1F *ChannelDepthsummedAmplitudesPlots[4];  // 1d histogramm for subdet
-  ChannelDepthsummedAmplitudesPlots[0] = (TH1F *)hfile->Get("h_sumamplitudechannel_HB");
-  ChannelDepthsummedAmplitudesPlots[1] = (TH1F *)hfile->Get("h_sumamplitudechannel_HE");
-  ChannelDepthsummedAmplitudesPlots[2] = (TH1F *)hfile->Get("h_sumamplitudechannel_HO");
-  ChannelDepthsummedAmplitudesPlots[3] = (TH1F *)hfile->Get("h_sumamplitudechannel_HF");
+  ChannelDepthsummedAmplitudesPlots[0] = (TH1F *)dir->FindObjectAny("h_sumamplitudechannel_HB");
+  ChannelDepthsummedAmplitudesPlots[1] = (TH1F *)dir->FindObjectAny("h_sumamplitudechannel_HE");
+  ChannelDepthsummedAmplitudesPlots[2] = (TH1F *)dir->FindObjectAny("h_sumamplitudechannel_HO");
+  ChannelDepthsummedAmplitudesPlots[3] = (TH1F *)dir->FindObjectAny("h_sumamplitudechannel_HF");
   TLine *litebdt[4];
   if (ChannelDepthsummedAmplitudesPlots[0])
     litebdt[0] = new TLine(80., 0.8, 80., ChannelDepthsummedAmplitudesPlots[0]->GetBinContent(4) + 100.);
@@ -6616,8 +6621,8 @@ HF: j = 0,1,2, 3            18,19,20,21
   cHB->Divide(2, 1);
 
   TH2F *DAtaildepth1[2];  // 1d histogramm for subdet
-  DAtaildepth1[0] = (TH2F *)hfile->Get("h_2DAtaildepth1_HB");
-  DAtaildepth1[1] = (TH2F *)hfile->Get("h_2D0Ataildepth1_HB");
+  DAtaildepth1[0] = (TH2F *)dir->FindObjectAny("h_2DAtaildepth1_HB");
+  DAtaildepth1[1] = (TH2F *)dir->FindObjectAny("h_2D0Ataildepth1_HB");
   cHB->cd(1);
   if (!DAtaildepth1[0] || !DAtaildepth1[1]) {
     cout << ">>>>>>>>>>>>>>>>>>>>>>>>Ataildepth1_HB EMPTY histoes for 2DAtaildepth 1" << endl;
@@ -6639,8 +6644,8 @@ HF: j = 0,1,2, 3            18,19,20,21
     tail1->Draw("COLZ");
   }
   TH2F *DAtaildepth2[2];  // 1d histogramm for subdet
-  DAtaildepth2[0] = (TH2F *)hfile->Get("h_2DAtaildepth2_HB");
-  DAtaildepth2[1] = (TH2F *)hfile->Get("h_2D0Ataildepth2_HB");
+  DAtaildepth2[0] = (TH2F *)dir->FindObjectAny("h_2DAtaildepth2_HB");
+  DAtaildepth2[1] = (TH2F *)dir->FindObjectAny("h_2D0Ataildepth2_HB");
   cHB->cd(2);
   if (!DAtaildepth2[0] || !DAtaildepth2[1]) {
     cout << ">>>>>>>>>>>>>>>>>>>>>>>>Ataildepth1_HB EMPTY histoes for 2DAtaildepth 2" << endl;

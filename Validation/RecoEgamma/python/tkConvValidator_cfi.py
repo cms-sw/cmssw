@@ -10,29 +10,29 @@ trackAssociatorByHitsForConversionValidation.Purity_SimToReco = 0.5
 trackAssociatorByHitsForConversionValidation.Cut_RecoToSim = 0.5
 
 from CommonTools.RecoAlgos.trackingParticleRefSelector_cfi import trackingParticleRefSelector as _trackingParticleRefSelector
-tpSelecForEfficiency = _trackingParticleRefSelector.clone()
-tpSelecForEfficiency.chargedOnly = True
+tpSelecForEfficiency = _trackingParticleRefSelector.clone(
+chargedOnly = True,
 # trackingParticleSelector.pdgId = cms.vint32()
-tpSelecForEfficiency.tip = 120
-tpSelecForEfficiency.lip = 280
-tpSelecForEfficiency.signalOnly = False
-tpSelecForEfficiency.minRapidity = -2.5
-tpSelecForEfficiency.ptMin = 0.3
-tpSelecForEfficiency.maxRapidity = 2.5
-tpSelecForEfficiency.minHit = 0
+tip = 120,
+lip = 280,
+signalOnly = False,
+minRapidity = -2.5,
+ptMin = 0.3,
+maxRapidity = 2.5,
+minHit = 0
+)
 
-
-tpSelecForFakeRate = _trackingParticleRefSelector.clone()
-tpSelecForFakeRate.chargedOnly = True
+tpSelecForFakeRate = _trackingParticleRefSelector.clone(
+chargedOnly = True,
 # trackingParticleSelector.pdgId = cms.vint32()
-tpSelecForFakeRate.tip = 120
-tpSelecForFakeRate.lip = 280
-tpSelecForFakeRate.signalOnly = False
-tpSelecForFakeRate.minRapidity = -2.5
-tpSelecForFakeRate.ptMin = 0.
-tpSelecForFakeRate.maxRapidity = 2.5
-tpSelecForFakeRate.minHit = 0
-
+tip = 120,
+lip = 280,
+signalOnly = False,
+minRapidity = -2.5,
+ptMin = 0.0,
+maxRapidity = 2.5,
+minHit = 0
+)
 
 
 from DQMServices.Core.DQMEDAnalyzer import DQMEDAnalyzer

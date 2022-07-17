@@ -24,12 +24,11 @@ namespace edm {
     // ---------------------------------------------------------------
     std::unique_ptr<EventSetupProvider> makeEventSetupProvider(ParameterSet const& params,
                                                                unsigned subProcessIndex,
-                                                               ActivityRegistry* activityRegistry,
-                                                               tbb::task_arena* taskArena) {
+                                                               ActivityRegistry* activityRegistry) {
       std::vector<std::string> prefers = params.getParameter<std::vector<std::string> >("@all_esprefers");
 
       if (prefers.empty()) {
-        return std::make_unique<EventSetupProvider>(activityRegistry, taskArena, subProcessIndex);
+        return std::make_unique<EventSetupProvider>(activityRegistry, subProcessIndex);
       }
 
       EventSetupProvider::PreferredProviderInfo preferInfo;
@@ -85,9 +84,10 @@ namespace edm {
         }
         preferInfo[ComponentDescription(preferPSet.getParameter<std::string>("@module_type"),
                                         preferPSet.getParameter<std::string>("@module_label"),
+                                        ComponentDescription::unknownID(),
                                         false)] = recordToData;
       }
-      return std::make_unique<EventSetupProvider>(activityRegistry, taskArena, subProcessIndex, &preferInfo);
+      return std::make_unique<EventSetupProvider>(activityRegistry, subProcessIndex, &preferInfo);
     }
 
     // ---------------------------------------------------------------

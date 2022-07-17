@@ -42,7 +42,7 @@ public:
   void fillNPUObjectTable(const std::vector<PileupSummaryInfo>& npuProd, nanoaod::FlatTable& out, double refpvz) const {
     // Get BX 0
     unsigned int bx0 = 0;
-    unsigned int nt = 0;
+    float nt = 0;
     unsigned int npu = 0;
 
     auto zbin = std::lower_bound(vz_.begin(), vz_.end() - 1, std::abs(refpvz));
@@ -87,7 +87,8 @@ public:
     out.addColumnValue<float>("nTrueInt",
                               nt,
                               "the true mean number of the poisson distribution for this event from which the number "
-                              "of interactions each bunch crossing has been sampled");
+                              "of interactions each bunch crossing has been sampled",
+                              10);
     out.addColumnValue<int>(
         "nPU",
         npu,

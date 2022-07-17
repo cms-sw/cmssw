@@ -6,11 +6,15 @@
 MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data, const std::string &filename)
     : MaterialBudgetFormat(data) {
   fname = filename;
+  tmpName = "tmp" + fname;
   book();
 }
 
 void MaterialBudgetTree::book() {
-  LogDebug("MaterialBudget") << "MaterialBudgetTree: Booking user TTree";
+  TFile *tmpFile = new TFile(tmpName.c_str(), "RECREATE");
+  // Create temporary file to hold TTree when it grows beyond 1 MB in size
+
+  LogDebug("MaterialBudget") << "MaterialBudgetTree: Booking user TTree " << tmpFile->GetSize();
   // create the TTree
   theTree = std::make_unique<TTree>("T1", "GeometryTest Tree");
 
@@ -225,4 +229,5 @@ void MaterialBudgetTree::endOfRun() {
   }
 
   delete outFile;
+  unlink(tmpName.c_str());  // Clean up temp file
 }
