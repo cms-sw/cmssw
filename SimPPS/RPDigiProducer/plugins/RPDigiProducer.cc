@@ -1,7 +1,7 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -49,7 +49,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPDigiProducer : public edm::EDProducer {
+class RPDigiProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
 public:
   explicit RPDigiProducer(const edm::ParameterSet&);
   ~RPDigiProducer() override = default;
@@ -59,6 +59,7 @@ public:
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
+  void endRun(const edm::Run&, const edm::EventSetup&) override {}
 
   edm::DetSet<TotemRPDigi> convertRPStripDetSet(const edm::DetSet<TotemRPDigi>&);
 
