@@ -4,6 +4,7 @@
   <use name="FWCore/ParameterSet"/>
   <use name="FWCore/Utilities"/>
   <use name="DQMServices/Core"/>
+  <use name="DQM/CTPPS"/>
   <use name="DataFormats/OnlineMetaData"/>
   <use name="DataFormats/Common"/>
   <use name="DataFormats/CTPPSDetId"/>
@@ -11,6 +12,7 @@
   <use name="DataFormats/CTPPSReco"/>
   <use name="DataFormats/ProtonReco"/>
   <use name="Geometry/Records"/>
+  <use name="Geometry/ForwardGeometry"/>
   <use name="Geometry/VeryForwardGeometryBuilder"/>
   <use name="Geometry/VeryForwardRPTopology"/>
   <use name="CondFormats/DataRecord"/>
