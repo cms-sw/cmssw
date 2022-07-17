@@ -126,19 +126,6 @@ namespace l1t {
         // payload[0] = bits 0-15, payload[1] = 16-31, payload[3] = 32-47, etc.
         auto payload = block.payload();
 
-        // if (true) {
-        //   std::cout << ">>> GEM block to unpack <<<" << std::endl
-        //             << "hdr:  " << std::hex << std::setw(8) << std::setfill('0') << block.header().raw()
-        //             << std::dec << " (ID " << block.header().getID() << ", size " << block.header().getSize()
-        //             << ", CapID 0x" << std::hex << std::setw(2) << std::setfill('0') << block.header().getCapID()
-        //             << ")" << std::dec << std::endl;
-        //   for (const auto& word : block.payload()) {
-        //     if (true)
-        //       std::cout << "data: " << std::hex << std::setw(8) << std::setfill('0') << word << std::dec
-        //                 << std::endl;
-        //   }
-        // }
-
         // Check Format of Payload
         l1t::emtf::GEM GEM_;
         for (int err = 0; err < checkFormat(block); ++err) {
@@ -253,8 +240,6 @@ namespace l1t {
 
         }
 
-        // if (exact_duplicate)
-          // edm::LogWarning("L1T|EMTF") << "payload: " << payload[0] << " " << payload[1] << " " << payload[2] << " " << payload[3] << std::endl;
 
 
         (res->at(iOut)).push_GEM(GEM_);
@@ -263,8 +248,6 @@ namespace l1t {
 
         if (!exact_duplicate)
           res_GEM->insertDigi(Hit_.GEM_DetId(), Hit_.CreateGEMPadDigiCluster());
-
-        // std::cout << "GEM layer: " << Hit_.Layer() << std::endl;
 
         // Finished with unpacking one GEM Data Record
         return true;
