@@ -1,7 +1,7 @@
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -25,10 +25,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
-#include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
-#include "CondFormats/PPSObjects/interface/CTPPSRPAlignmentCorrectionsData.h"
 #include "CondFormats/PPSObjects/interface/TotemAnalysisMask.h"
 #include "CondFormats/DataRecord/interface/TotemReadoutRcd.h"
 #include "SimPPS/RPDigiProducer/interface/RPSimTypes.h"
@@ -53,7 +49,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class RPDigiProducer : public edm::one::EDProducer<edm::one::WatchRuns> {
+class RPDigiProducer : public edm::EDProducer {
 public:
   explicit RPDigiProducer(const edm::ParameterSet&);
   ~RPDigiProducer() override = default;
@@ -63,7 +59,6 @@ public:
 private:
   void beginRun(const edm::Run&, const edm::EventSetup&) override;
   void produce(edm::Event&, const edm::EventSetup&) override;
-  void endRun(const edm::Run&, const edm::EventSetup&) override {}
 
   edm::DetSet<TotemRPDigi> convertRPStripDetSet(const edm::DetSet<TotemRPDigi>&);
 
@@ -72,9 +67,7 @@ private:
   typedef std::map<unsigned int, std::vector<PSimHit>> simhit_map;
   typedef simhit_map::iterator simhit_map_iterator;
 
-  const edm::ParameterSet conf_;
-  const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> alignToken_;
-  const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> geomToken_;
+  edm::ParameterSet conf_;
   std::map<RPDetId, std::unique_ptr<RPDetDigitizer>> theAlgoMap;
 
   CLHEP::HepRandomEngine* rndEngine_ = nullptr;
@@ -94,7 +87,7 @@ private:
   edm::ESGetToken<TotemAnalysisMask, TotemReadoutRcd> tokenAnalysisMask;
 };
 
-RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf), alignToken_(esConsumes<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord>()), geomToken_(esConsumes<CTPPSGeometry, VeryForwardRealGeometryRecord> ()) {
+RPDigiProducer::RPDigiProducer(const edm::ParameterSet& conf) : conf_(conf) {
   //now do what ever other initialization is needed
   produces<edm::DetSetVector<TotemRPDigi>>();
 
@@ -179,7 +172,7 @@ void RPDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     edm::DetSet<TotemRPDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {
-      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup, alignToken_, geomToken_);
+      theAlgoMap[it->first] = std::make_unique<RPDetDigitizer>(conf_, *rndEngine_, it->first, iSetup);
     }
 
     std::vector<int> input_links;

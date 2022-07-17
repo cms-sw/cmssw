@@ -9,10 +9,8 @@
 RPDetDigitizer::RPDetDigitizer(const edm::ParameterSet &params,
                                CLHEP::HepRandomEngine &eng,
                                RPDetId det_id,
-                               const edm::EventSetup &iSetup,
-			       const edm::ESGetToken<CTPPSRPAlignmentCorrectionsData, VeryForwardMisalignedGeometryRecord> &alignToken,
-			       const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> &geomToken)
-  : det_id_(det_id) {
+                               const edm::EventSetup &iSetup)
+    : det_id_(det_id) {
   verbosity_ = params.getParameter<int>("RPVerbosity");
   numStrips_ = RPTopology().DetStripNo();
   theNoiseInElectrons = params.getParameter<double>("RPEquivalentNoiseCharge300um");
@@ -26,8 +24,7 @@ RPDetDigitizer::RPDetDigitizer(const edm::ParameterSet &params,
   theRPPileUpSignals = std::make_unique<RPPileUpSignals>(params, det_id_);
   theRPVFATSimulator = std::make_unique<RPVFATSimulator>(params, det_id_);
   theRPHitChargeConverter = std::make_unique<RPHitChargeConverter>(params, eng, det_id_);
-
-  theRPDisplacementGenerator = std::make_unique<RPDisplacementGenerator>(params, det_id_, iSetup, alignToken, geomToken);
+  theRPDisplacementGenerator = std::make_unique<RPDisplacementGenerator>(params, det_id_, iSetup);
 }
 
 void RPDetDigitizer::run(const std::vector<PSimHit> &input,
