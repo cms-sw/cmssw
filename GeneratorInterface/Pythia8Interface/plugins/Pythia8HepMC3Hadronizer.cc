@@ -2,20 +2,20 @@
 #include <memory>
 
 #include <cstdint>
-#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
 
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
+#include "HepMC3/GenEvent.h"
+#include "HepMC3/GenParticle.h"
+#include "HepMC3/Print.h"
 
 #include "Pythia8/Pythia.h"
-#include "Pythia8Plugins/HepMC2.h"
+#include "Pythia8Plugins/HepMC3.h"
 
 using namespace Pythia8;
 
-#include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
+#include "GeneratorInterface/Pythia8Interface/interface/Py8HMC3InterfaceBase.h"
 
 #include "GeneratorInterface/Pythia8Interface/plugins/ReweightUserHooks.h"
 #include "GeneratorInterface/Pythia8Interface/interface/CustomHook.h"
@@ -29,7 +29,6 @@ using namespace Pythia8;
 // Emission Veto Hooks
 //
 #include "Pythia8Plugins/PowhegHooks.h"
-#include "Pythia8Plugins/PowhegHooksVincia.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
 // Resonance scale hook
@@ -76,10 +75,10 @@ namespace CLHEP {
 
 using namespace gen;
 
-class Pythia8Hadronizer : public Py8InterfaceBase {
+class Pythia8HepMC3Hadronizer : public Py8HMC3InterfaceBase {
 public:
-  Pythia8Hadronizer(const edm::ParameterSet &params);
-  ~Pythia8Hadronizer() override;
+  Pythia8HepMC3Hadronizer(const edm::ParameterSet &params);
+  ~Pythia8HepMC3Hadronizer() override = default;
 
   bool initializeForInternalPartons() override;
   bool initializeForExternalPartons();
@@ -93,7 +92,7 @@ public:
 
   void statistics() override;
 
-  const char *classname() const override { return "Pythia8Hadronizer"; }
+  const char *classname() const override { return "Pythia8HepMC3Hadronizer"; }
 
   std::unique_ptr<GenLumiInfoHeader> getGenLumiInfoHeader() const override;
 
@@ -133,7 +132,6 @@ private:
   // Emission Veto Hooks
   //
   std::shared_ptr<PowhegHooks> fEmissionVetoHook;
-  std::shared_ptr<PowhegHooksVincia> fEmissionVetoHookVincia;
   std::shared_ptr<EmissionVetoHook1> fEmissionVetoHook1;
 
   // Resonance scale hook
@@ -173,10 +171,10 @@ private:
   int nFSRveto;
 };
 
-const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = {edm::SharedResourceNames::kPythia8};
+const std::vector<std::string> Pythia8HepMC3Hadronizer::p8SharedResources = {edm::SharedResourceNames::kPythia8};
 
-Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
-    : Py8InterfaceBase(params),
+Pythia8HepMC3Hadronizer::Pythia8HepMC3Hadronizer(const edm::ParameterSet &params)
+    : Py8HMC3InterfaceBase(params),
       comEnergy(params.getParameter<double>("comEnergy")),
       LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName", "")),
       fInitialState(PP),
@@ -185,7 +183,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
       nMEFiltered(-1),
       nISRveto(0),
       nFSRveto(0) {
-  ivhepmc = 2;
+  ivhepmc = 3;
   // J.Y.: the following 3 parameters are hacked "for a reason"
   //
   if (params.exists("PPbarInitialState")) {
@@ -340,9 +338,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params)
   }
 }
 
-Pythia8Hadronizer::~Pythia8Hadronizer() {}
-
-bool Pythia8Hadronizer::initializeForInternalPartons() {
+bool Pythia8HepMC3Hadronizer::initializeForInternalPartons() {
   bool status = false, status1 = false;
 
   if (lheFile_.empty()) {
@@ -386,10 +382,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook1);
   }
 
-  bool VinciaShower = fMasterGen->settings.mode("PartonShowers:Model") == 2;
-
-  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) &&
-      !VinciaShower) {
+  if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
     if (fJetMatchingHook.get() || fEmissionVetoHook1.get())
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
@@ -400,13 +393,6 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
-  }
-
-  if (fMasterGen->settings.mode("POWHEG:veto") > 0 && VinciaShower) {
-    edm::LogInfo("Pythia8Interface") << "Turning on Vincia Emission Veto Hook from pythia8 code";
-    if (!fEmissionVetoHookVincia.get())
-      fEmissionVetoHookVincia.reset(new PowhegHooksVincia());
-    (fUserHooksVector->hooks).push_back(fEmissionVetoHookVincia);
   }
 
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
@@ -524,7 +510,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons() {
   return (status && status1);
 }
 
-bool Pythia8Hadronizer::initializeForExternalPartons() {
+bool Pythia8HepMC3Hadronizer::initializeForExternalPartons() {
   edm::LogInfo("Pythia8Interface") << "Initializing for external partons";
 
   bool status = false, status1 = false;
@@ -555,10 +541,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
     }
   }
 
-  bool VinciaShower = fMasterGen->settings.mode("PartonShowers:Model") == 2;
-
-  if ((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) &&
-      !VinciaShower) {
+  if (fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) {
     if (fJetMatchingHook.get() || fEmissionVetoHook1.get())
       throw edm::Exception(edm::errors::Configuration, "Pythia8Interface")
           << " Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible "
@@ -569,13 +552,6 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
 
     edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
     (fUserHooksVector->hooks).push_back(fEmissionVetoHook);
-  }
-
-  if (fMasterGen->settings.mode("POWHEG:veto") > 0 && VinciaShower) {
-    edm::LogInfo("Pythia8Interface") << "Turning on Vincia Emission Veto Hook from pythia8 code";
-    if (!fEmissionVetoHookVincia.get())
-      fEmissionVetoHookVincia.reset(new PowhegHooksVincia());
-    (fUserHooksVector->hooks).push_back(fEmissionVetoHookVincia);
   }
 
   bool PowhegRes = fMasterGen->settings.flag("POWHEGres:calcScales");
@@ -705,7 +681,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons() {
   return (status && status1);
 }
 
-void Pythia8Hadronizer::statistics() {
+void Pythia8HepMC3Hadronizer::statistics() {
   fMasterGen->stat();
 
   if (fEmissionVetoHook.get()) {
@@ -721,7 +697,7 @@ void Pythia8Hadronizer::statistics() {
   runInfo().setInternalXSec(GenRunInfoProduct::XSec(xsec, err));
 }
 
-bool Pythia8Hadronizer::generatePartonsAndHadronize() {
+bool Pythia8HepMC3Hadronizer::generatePartonsAndHadronize() {
   DJR.resize(0);
   nME = -1;
   nMEFiltered = -1;
@@ -760,19 +736,20 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
   if (evtgenDecays.get())
     evtgenDecays->decay();
 
-  event() = std::make_unique<HepMC::GenEvent>();
-  bool py8hepmc = toHepMC.fill_next_event(*(fMasterGen.get()), event().get());
+  //event() = std::make_unique<HepMC::GenEvent>();
+  event3() = std::make_unique<HepMC3::GenEvent>();
+  bool py8hepmc = toHepMC.fill_next_event(*(fMasterGen.get()), event3().get());
 
   if (!py8hepmc) {
     return false;
   }
 
   // 0th weight is not filled anymore since v8.30x, pushback manually
-  event()->weights().push_back(fMasterGen->info.weight());
+  event3()->weights().push_back(fMasterGen->info.weight());
 
   //add ckkw/umeps/unlops merging weight
   if (mergeweight != 1.) {
-    event()->weights()[0] *= mergeweight;
+    event3()->weights()[0] *= mergeweight;
   }
 
   if (fEmissionVetoHook.get()) {
@@ -784,12 +761,12 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
   if (fMasterGen->info.getWeightsDetailedSize() > 0) {
     for (const string &key : fMasterGen->info.initrwgt->weightsKeys) {
       double wgt = (*fMasterGen->info.weights_detailed)[key];
-      event()->weights().push_back(wgt);
+      event3()->weights().push_back(wgt);
     }
   } else if (fMasterGen->info.getWeightsCompressedSize() > 0) {
     for (unsigned int i = 0; i < fMasterGen->info.getWeightsCompressedSize(); i++) {
       double wgt = fMasterGen->info.getWeightsCompressedValue(i);
-      event()->weights().push_back(wgt);
+      event3()->weights().push_back(wgt);
     }
   }
 
@@ -798,7 +775,7 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
   if (fMasterGen->info.nWeights() > 1) {
     for (int i = 0; i < fMasterGen->info.nWeights(); ++i) {
       double wgt = fMasterGen->info.weight(i);
-      event()->weights().push_back(wgt);
+      event3()->weights().push_back(wgt);
     }
   }
 
@@ -833,7 +810,7 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize() {
   return true;
 }
 
-bool Pythia8Hadronizer::hadronize() {
+bool Pythia8HepMC3Hadronizer::hadronize() {
   DJR.resize(0);
   nME = -1;
   nMEFiltered = -1;
@@ -855,7 +832,7 @@ bool Pythia8Hadronizer::hadronize() {
   //protect against 0-weight from ckkw or similar
   if (!py8next || std::abs(mergeweight) == 0.) {
     lheEvent()->count(lhef::LHERunInfo::kSelected, 1.0, mergeweight);
-    event().reset();
+    event3().reset();
     return false;
   }
 
@@ -879,19 +856,19 @@ bool Pythia8Hadronizer::hadronize() {
     evtgenDecays->decay();
 
   event() = std::make_unique<HepMC::GenEvent>();
-
-  bool py8hepmc = toHepMC.fill_next_event(*(fMasterGen.get()), event().get());
+  event3() = std::make_unique<HepMC3::GenEvent>();
+  bool py8hepmc = toHepMC.fill_next_event(*(fMasterGen.get()), event3().get());
 
   if (!py8hepmc) {
     return false;
   }
 
   // 0th weight is not filled anymore since v8.30x, pushback manually
-  event()->weights().push_back(fMasterGen->info.weight());
+  event3()->weights().push_back(fMasterGen->info.weight());
 
   //add ckkw/umeps/unlops merging weight
   if (mergeweight != 1.) {
-    event()->weights()[0] *= mergeweight;
+    event3()->weights()[0] *= mergeweight;
   }
 
   if (fEmissionVetoHook.get()) {
@@ -904,24 +881,33 @@ bool Pythia8Hadronizer::hadronize() {
   if (fMasterGen->info.nWeights() > 1) {
     for (int i = 0; i < fMasterGen->info.nWeights(); ++i) {
       double wgt = fMasterGen->info.weight(i);
-      event()->weights().push_back(wgt);
+      event3()->weights().push_back(wgt);
     }
   }
 
   return true;
 }
 
-bool Pythia8Hadronizer::residualDecay() {
+bool Pythia8HepMC3Hadronizer::residualDecay() {
   Event *pythiaEvent = &(fMasterGen->event);
 
-  int NPartsBeforeDecays = pythiaEvent->size();
-  int NPartsAfterDecays = event().get()->particles_size();
+  int NPartsBeforeDecays = pythiaEvent->size() - 1;  // do NOT count the very 1st "system" particle
+                                                     // in Pythia8::Event record; it does NOT even
+                                                     // get translated by the HepMCInterface to the
+                                                     // HepMC::GenEvent record !!!
+  //int NPartsAfterDecays = event().get()->particles_size();
+  int NPartsAfterDecays = 0;
+  for (auto p : (event3().get())->particles()) {
+    NPartsAfterDecays++;
+  }
 
   if (NPartsAfterDecays == NPartsBeforeDecays)
     return true;
 
   bool result = true;
 
+// this below is to be rewritten in future development, then it will be uncommented
+#if 0
   for (int ipart = NPartsAfterDecays; ipart > NPartsBeforeDecays; ipart--) {
     HepMC::GenParticle *part = event().get()->barcode_to_particle(ipart);
 
@@ -957,31 +943,32 @@ bool Pythia8Hadronizer::residualDecay() {
       result = toHepMC.fill_next_event(*(fDecayer.get()), event().get(), -1, true, part);
     }
   }
+#endif
 
   return result;
 }
 
-void Pythia8Hadronizer::finalizeEvent() {
+void Pythia8HepMC3Hadronizer::finalizeEvent() {
   bool lhe = lheEvent() != nullptr;
 
   // protection against empty weight container
-  if ((event()->weights()).empty())
-    (event()->weights()).push_back(1.);
+  if ((event3()->weights()).empty())
+    (event3()->weights()).push_back(1.);
 
   // now create the GenEventInfo product from the GenEvent and fill
   // the missing pieces
-  eventInfo() = std::make_unique<GenEventInfoProduct>(event().get());
+  eventInfo3() = std::make_unique<GenEventInfoProduct3>(event3().get());
 
   // in pythia pthat is used to subdivide samples into different bins
   // in LHE mode the binning is done by the external ME generator
   // which is likely not pthat, so only filling it for Py6 internal mode
   if (!lhe) {
-    eventInfo()->setBinningValues(std::vector<double>(1, fMasterGen->info.pTHat()));
+    eventInfo3()->setBinningValues(std::vector<double>(1, fMasterGen->info.pTHat()));
   }
 
-  eventInfo()->setDJR(DJR);
-  eventInfo()->setNMEPartons(nME);
-  eventInfo()->setNMEPartonsFiltered(nMEFiltered);
+  eventInfo3()->setDJR(DJR);
+  eventInfo3()->setNMEPartons(nME);
+  eventInfo3()->setNMEPartonsFiltered(nMEFiltered);
 
   //******** Verbosity ********
 
@@ -995,17 +982,21 @@ void Pythia8Hadronizer::finalizeEvent() {
     if (pythiaHepMCVerbosity) {
       std::cout << "Event process = " << fMasterGen->info.code() << "\n"
                 << "----------------------" << std::endl;
-      event()->print();
+      //event3()->print();
+      HepMC3::Print::listing(*(event3().get()));
     }
     if (pythiaHepMCVerbosityParticles) {
       std::cout << "Event process = " << fMasterGen->info.code() << "\n"
                 << "----------------------" << std::endl;
-      ascii_io->write_event(event().get());
+      //ascii_io->write_event(event().get());
+      for (const auto &p : (event3().get())->particles()) {
+        HepMC3::Print::line(p, true);
+      }
     }
   }
 }
 
-std::unique_ptr<GenLumiInfoHeader> Pythia8Hadronizer::getGenLumiInfoHeader() const {
+std::unique_ptr<GenLumiInfoHeader> Pythia8HepMC3Hadronizer::getGenLumiInfoHeader() const {
   auto genLumiInfoHeader = BaseHadronizer::getGenLumiInfoHeader();
 
   //fill lhe headers
@@ -1079,16 +1070,16 @@ std::unique_ptr<GenLumiInfoHeader> Pythia8Hadronizer::getGenLumiInfoHeader() con
   return genLumiInfoHeader;
 }
 
-typedef edm::GeneratorFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8GeneratorFilter;
-DEFINE_FWK_MODULE(Pythia8GeneratorFilter);
+typedef edm::GeneratorFilter<Pythia8HepMC3Hadronizer, ExternalDecayDriver> Pythia8HepMC3GeneratorFilter;
+DEFINE_FWK_MODULE(Pythia8HepMC3GeneratorFilter);
 
-typedef edm::HadronizerFilter<Pythia8Hadronizer, ExternalDecayDriver> Pythia8HadronizerFilter;
-DEFINE_FWK_MODULE(Pythia8HadronizerFilter);
+typedef edm::HadronizerFilter<Pythia8HepMC3Hadronizer, ExternalDecayDriver> Pythia8HepMC3HadronizerFilter;
+DEFINE_FWK_MODULE(Pythia8HepMC3HadronizerFilter);
 
-typedef edm::ConcurrentGeneratorFilter<Pythia8Hadronizer, ConcurrentExternalDecayDriver>
-    Pythia8ConcurrentGeneratorFilter;
-DEFINE_FWK_MODULE(Pythia8ConcurrentGeneratorFilter);
+typedef edm::ConcurrentGeneratorFilter<Pythia8HepMC3Hadronizer, ConcurrentExternalDecayDriver>
+    Pythia8HepMC3ConcurrentGeneratorFilter;
+DEFINE_FWK_MODULE(Pythia8HepMC3ConcurrentGeneratorFilter);
 
-typedef edm::ConcurrentHadronizerFilter<Pythia8Hadronizer, ConcurrentExternalDecayDriver>
-    Pythia8ConcurrentHadronizerFilter;
-DEFINE_FWK_MODULE(Pythia8ConcurrentHadronizerFilter);
+typedef edm::ConcurrentHadronizerFilter<Pythia8HepMC3Hadronizer, ConcurrentExternalDecayDriver>
+    Pythia8HepMC3ConcurrentHadronizerFilter;
+DEFINE_FWK_MODULE(Pythia8HepMC3ConcurrentHadronizerFilter);
