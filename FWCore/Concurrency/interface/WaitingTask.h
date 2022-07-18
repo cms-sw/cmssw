@@ -48,24 +48,33 @@ namespace edm {
     ///Returns exception thrown by dependent task
     /** If the value evalutes to true then the dependent task failed.
     */
-    std::exception_ptr const& exceptionPtr() const { return m_ptr; }
+    std::exception_ptr exceptionPtr() const {
+      if (m_ptrSet == static_cast<unsigned char>(State::kSet)) {
+        return m_ptr;
+      }
+      return std::exception_ptr{};
+    }
+
+  protected:
+    std::exception_ptr const& uncheckedExceptionPtr() const { return m_ptr; }
 
   private:
+    enum class State : unsigned char { kUnset = 0, kSetting = 1, kSet = 2 };
     ///Called if waited for task failed
     /**Allows transfer of the exception caused by the dependent task to be
      * moved to another thread.
      * This method should only be called by WaitingTaskList
      */
     void dependentTaskFailed(std::exception_ptr iPtr) {
-      bool isSet = false;
-      if (iPtr and m_ptrSet.compare_exchange_strong(isSet, true)) {
+      unsigned char isSet = static_cast<unsigned char>(State::kUnset);
+      if (iPtr and m_ptrSet.compare_exchange_strong(isSet, static_cast<unsigned char>(State::kSetting))) {
         m_ptr = iPtr;
-        //NOTE: the atomic counter in TaskBase will synchronize m_ptr
+        m_ptrSet = static_cast<unsigned char>(State::kSet);
       }
     }
 
     std::exception_ptr m_ptr;
-    std::atomic<bool> m_ptrSet = false;
+    std::atomic<unsigned char> m_ptrSet = static_cast<unsigned char>(State::kUnset);
   };
 
   template <typename F>
@@ -73,7 +82,7 @@ namespace edm {
   public:
     explicit FunctorWaitingTask(F f) : func_(std::move(f)) {}
 
-    void execute() final { func_(exceptionPtr() ? &exceptionPtr() : nullptr); };
+    void execute() final { func_(uncheckedExceptionPtr() ? &uncheckedExceptionPtr() : nullptr); };
 
   private:
     F func_;
