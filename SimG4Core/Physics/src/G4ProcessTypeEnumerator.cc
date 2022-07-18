@@ -53,6 +53,8 @@ static const int g4subtype[nprocesses] = {
 
 G4ProcessTypeEnumerator::G4ProcessTypeEnumerator() {}
 
+G4ProcessTypeEnumerator::~G4ProcessTypeEnumerator() {}
+
 std::string G4ProcessTypeEnumerator::processG4Name(int idx) const {
   std::string res = "";
   for (int i = 0; i < nprocesses; ++i) {
