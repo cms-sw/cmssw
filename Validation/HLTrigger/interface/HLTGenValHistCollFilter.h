@@ -58,6 +58,7 @@ private:
   std::string path_;
   std::string hltProcessName_;
   double dR2limit_;
+  std::string separator_;
 };
 
 #endif
