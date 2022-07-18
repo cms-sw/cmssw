@@ -5,12 +5,11 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #process.load("Configuration.StandardSequences.MagneticField_4T_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 #from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = autoCond['mc']
 from Configuration.AlCa.autoCond import autoCond 
-process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
-#process.GlobalTag.globaltag = 'START50_V10::All'
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
