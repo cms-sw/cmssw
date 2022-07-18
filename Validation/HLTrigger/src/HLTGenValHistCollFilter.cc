@@ -79,7 +79,6 @@ void HLTGenValHistCollFilter::fillHists(const HLTGenValObject& obj, edm::Handle<
 
 // booker function for 1D hists
 void HLTGenValHistCollFilter::book1D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig) {
-
   // extracting parameters from configuration
   auto vsVar = histConfig.getParameter<std::string>("vsVar");
   auto vsVarFunc = hltdqm::getUnaryFuncFloat<HLTGenValObject>(vsVar);
@@ -132,7 +131,7 @@ void HLTGenValHistCollFilter::book1D(DQMStore::IBooker& iBooker, const edm::Para
       histTitle += " " + tag;
     }
   } else {  // naming of all regular hists
-    histName = objType_ + separator_ + path_ + separator_ + filterName + separator_ +"vs" + vsVar;
+    histName = objType_ + separator_ + path_ + separator_ + filterName + separator_ + "vs" + vsVar;
     histTitle = objType_ + " " + path_ + " " + filterName + " vs" + vsVar;
 
     // appending the tag, in case it is filled
@@ -154,7 +153,6 @@ void HLTGenValHistCollFilter::book1D(DQMStore::IBooker& iBooker, const edm::Para
 
 // booker function for 2D hists
 void HLTGenValHistCollFilter::book2D(DQMStore::IBooker& iBooker, const edm::ParameterSet& histConfig2D) {
-
   // extracting parameters from configuration
   auto vsVarX = histConfig2D.getParameter<std::string>("vsVarX");
   auto vsVarY = histConfig2D.getParameter<std::string>("vsVarY");
@@ -195,7 +193,7 @@ void HLTGenValHistCollFilter::book2D(DQMStore::IBooker& iBooker, const edm::Para
     histName = objType_ + separator_ + path_ + separator_ + "GEN" + separator_ + "2Dvs" + vsVarX + separator_ + vsVarY;
     histTitle = objType_ + " " + path_ + " GEN 2D vs " + vsVarX + " " + vsVarY;
   } else {
-    histName = objType_ + separator_ + path_ + separator_ + filterName + separator_ +"2Dvs" + vsVarX + vsVarY;
+    histName = objType_ + separator_ + path_ + separator_ + filterName + separator_ + "2Dvs" + vsVarX + vsVarY;
     histTitle = objType_ + " " + path_ + " " + filterName + " 2D vs" + vsVarX + " " + vsVarY;
   }
 
