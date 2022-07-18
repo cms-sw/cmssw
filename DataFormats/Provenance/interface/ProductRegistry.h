@@ -32,7 +32,6 @@ namespace edm {
 
   class ProductResolverIndexHelper;
   class TypeID;
-  class TypeWithDict;
 
   class ProductRegistry {
   public:
@@ -172,12 +171,12 @@ namespace edm {
                                 std::string const* processName);
     void addElementTypesForAliases(std::set<TypeID> const* elementTypesConsumed,
                                    std::map<TypeID, TypeID> const& containedTypeMap,
-                                   std::map<TypeID, std::vector<TypeWithDict>> const& containedTypeToBaseTypesMap);
+                                   std::map<TypeID, std::vector<TypeID>> const& containedTypeToBaseTypesMap);
 
     void checkDictionariesOfConsumedTypes(std::set<TypeID> const* productTypesConsumed,
                                           std::set<TypeID> const* elementTypesConsumed,
                                           std::map<TypeID, TypeID> const& containedTypeMap,
-                                          std::map<TypeID, std::vector<TypeWithDict>>& containedTypeToBaseTypesMap);
+                                          std::map<TypeID, std::vector<TypeID>>& containedTypeToBaseTypesMap);
 
     void checkForDuplicateProcessName(BranchDescription const& desc, std::string const* processName) const;
 

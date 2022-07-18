@@ -186,7 +186,7 @@ namespace edm {
                                 char const* instance,
                                 char const* process,
                                 TypeID const& containedTypeID,
-                                std::vector<TypeWithDict>* baseTypesOfContainedType);
+                                std::vector<TypeID>* baseTypesOfContainedType);
 
     ProductResolverIndex insert(TypeID const& typeID,
                                 char const* moduleLabel,
