@@ -74,13 +74,13 @@ void HLTGenValHistCollPath::bookHists(DQMStore::IBooker& iBooker,
   if (!pathString_.empty())
     iBooker.bookString("path-" + pathStringName_, pathString_);
 
-  for (auto& collection_filter : collectionFilter_)
-    collection_filter.bookHists(iBooker, histConfigs, histConfigs2D);
+  for (auto& collectionFilter : collectionFilter_)
+    collectionFilter.bookHists(iBooker, histConfigs, histConfigs2D);
 }
 
 // hist filling function
 // this just calls the filling for each object in the filter collection
 void HLTGenValHistCollPath::fillHists(const HLTGenValObject& obj, edm::Handle<trigger::TriggerEvent>& triggerEvent) {
-  for (auto& collection_filter : collectionFilter_)
-    collection_filter.fillHists(obj, triggerEvent);
+  for (auto& collectionFilter : collectionFilter_)
+    collectionFilter.fillHists(obj, triggerEvent);
 }
