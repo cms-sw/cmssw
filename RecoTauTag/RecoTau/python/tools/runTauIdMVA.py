@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.TauDiscriminatorTools import noPrediscriminants
 from RecoTauTag.RecoTau.PATTauDiscriminationByMVAIsolationRun2_cff import patDiscriminationByIsolationMVArun2v1raw, patDiscriminationByIsolationMVArun2v1
 from RecoTauTag.RecoTau.DeepTau_cfi import DeepTau
-from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p1, WORKING_POINTS_v2p5
+from RecoTauTag.RecoTau.tauIdWPsDefs import WORKING_POINTS_v2p1
 
 import os
 import re
@@ -60,7 +60,7 @@ class TauIDEmbedder(object):
             if discr not in TauIDEmbedder.availableDiscriminators:
                 raise RuntimeError('TauIDEmbedder: discriminator "{}" is not supported'.format(discr))
         self.toKeep = toKeep
-    
+
     @staticmethod
     def get_cmssw_version(debug = False):
         """returns 'CMSSW_X_Y_Z'"""
@@ -617,7 +617,11 @@ class TauIDEmbedder(object):
             if self.debug: print ("Adding DeepTau IDs")
 
             _deepTauName = "deepTau2018v2p5"
-            workingPoints_ = WORKING_POINTS_v2p5
+            workingPoints_ = {
+                "e": {},
+                "mu": {},
+                "jet": {},
+            }
 
             file_names = [
                 'core:RecoTauTag/TrainingFiles/data/DeepTauId/deepTau_2018v2p5_core.pb',
@@ -869,7 +873,7 @@ class TauIDEmbedder(object):
         for target,points in workingPoints_.items():
             setattr(tauIDSources, 'by{}VS{}raw'.format(producer_name[0].upper()+producer_name[1:], target),
                         cms.PSet(inputTag = cms.InputTag(producer_name+self.postfix, 'VS{}'.format(target)), workingPointIndex = cms.int32(-1)))
-            
+
             cut_expressions = []
             for index, (point,cut) in enumerate(points.items()):
                 cut_expressions.append(str(cut))

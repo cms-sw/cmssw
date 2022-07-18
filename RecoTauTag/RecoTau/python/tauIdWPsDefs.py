@@ -26,32 +26,3 @@ WORKING_POINTS_v2p1 = {
         "VVTight": 0.9733927,
     },
 }
-
-WORKING_POINTS_v2p5 = {
-    "e": {
-        "VVVLoose": 0.099,
-        "VVLoose": 0.2384,
-        "VLoose": 0.4136,
-        "Loose": 0.688,
-        "Medium": 0.8704,
-        "Tight": 0.9669,
-        "VTight": 0.9882,
-        "VVTight": 0.9951
-    },
-    "mu": {
-        "VLoose": 0.2949,
-        "Loose": 0.4746,
-        "Medium": 0.7454,
-        "Tight": 0.9172
-    },
-    "jet": {
-        "VVVLoose": 0.4083,
-        "VVLoose": 0.6285,
-        "VLoose": 0.8052,
-        "Loose": 0.9233,
-        "Medium": 0.9632,
-        "Tight": 0.9799,
-        "VTight": 0.9884,
-        "VVTight": 0.9931
-    }
-}
