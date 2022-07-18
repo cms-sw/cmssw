@@ -72,7 +72,7 @@ void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,
       double tot = -1., ch_t_twc = 0.;
       if (t_lead != 0 && t_trail != 0) {
         tot = (t_trail - t_lead) * ts_to_ns_;  // in ns
-        if (calib_fct_ && apply_calib_) {
+        if (calib_fct_ && apply_calib_ && !ch_params.empty()) {
           // compute the time-walk correction
           ch_t_twc = calib_fct_->evaluate(std::vector<double>{tot}, ch_params);
           if (edm::isNotFinite(ch_t_twc))
