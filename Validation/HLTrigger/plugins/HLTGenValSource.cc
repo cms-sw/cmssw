@@ -80,8 +80,8 @@ private:
   // tokens to get collections
   const edm::EDGetTokenT<reco::GenParticleCollection> genParticleToken_;
   const edm::EDGetTokenT<reco::GenMETCollection> genMETToken_;
-  const edm::EDGetTokenT<reco::GenJetCollection> AK4genJetToken_;
-  const edm::EDGetTokenT<reco::GenJetCollection> AK8genJetToken_;
+  const edm::EDGetTokenT<reco::GenJetCollection> ak4genJetToken_;
+  const edm::EDGetTokenT<reco::GenJetCollection> ak8genJetToken_;
   const edm::EDGetTokenT<trigger::TriggerEvent> trigEventToken_;
 
   // config strings/Psets
@@ -115,9 +115,9 @@ HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
           iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("genParticles"))),
       genMETToken_(consumes<reco::GenMETCollection>(
           iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("genMET"))),
-      AK4genJetToken_(consumes<reco::GenJetCollection>(
+      ak4genJetToken_(consumes<reco::GenJetCollection>(
           iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("ak4GenJets"))),
-      AK8genJetToken_(consumes<reco::GenJetCollection>(
+      ak8genJetToken_(consumes<reco::GenJetCollection>(
           iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("ak8GenJets"))),
       trigEventToken_(consumes<trigger::TriggerEvent>(
           iConfig.getParameterSet("inputCollections").getParameter<edm::InputTag>("TrigEvent"))) {
@@ -127,7 +127,7 @@ HLTGenValSource::HLTGenValSource(const edm::ParameterSet& iConfig)
   binnings_ = iConfig.getParameterSetVector("binnings");
 
   // getting all other configurations
-  dirName_ = iConfig.getParameter<std::string>("DQMDirName");
+  dirName_ = iConfig.getParameter<std::string>("dqmDirName");
   objType_ = iConfig.getParameter<std::string>("objType");
   dR2limit_ = iConfig.getParameter<double>("dR2limit");
   doOnlyLastFilter_ = iConfig.getParameter<bool>("doOnlyLastFilter");
@@ -147,13 +147,13 @@ void HLTGenValSource::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& i
   infoString_ += "\"date & time\":\"" + timeString + "\",";
 
   // CMSSW version
-  std::stringstream CMSSWversionStream(std::getenv("CMSSW_BASE"));
-  std::string CMSSWversionSegment;
-  std::string CMSSWversion;
-  while (std::getline(CMSSWversionStream, CMSSWversionSegment, '/')) {
-    CMSSWversion = CMSSWversionSegment;
+  std::stringstream cmsswVersionStream(std::getenv("CMSSW_BASE"));
+  std::string cmsswVersionSegment;
+  std::string cmsswVersion;
+  while (std::getline(cmsswVersionStream, cmsswVersionSegment, '/')) {
+    cmsswVersion = cmsswVersionSegment;
   }
-  infoString_ += std::string("\"CMSSW release\":\"") + CMSSWversion + "\",";
+  infoString_ += std::string("\"CMSSW release\":\"") + cmsswVersion + "\",";
 
   // Initialize hltConfig, for cross-checking whether chosen paths exist
   bool changedConfig;
@@ -290,7 +290,7 @@ void HLTGenValSource::fillDescriptions(edm::ConfigurationDescriptions& descripti
       "objType");  // this deliberately has no default, as this is the main thing the user needs to chose
   desc.add<std::vector<std::string>>(
       "hltPathsToCheck");  // this for the moment also has no default: maybe there can be some way to handle this later?
-  desc.add<std::string>("DQMDirName", "HLTGenVal");
+  desc.add<std::string>("dqmDirName", "HLTGenVal");
   desc.add<std::string>("hltProcessName", "HLT");
   desc.add<double>("dR2limit", 0.1);
   desc.add<bool>("doOnlyLastFilter", false);
@@ -376,19 +376,19 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
       implementedGenParticles.end()) {
     objects = getGenParticles(iEvent);
   } else if (objType_ == "AK4jet") {  // ak4 jets, using the ak4GenJets collection
-    const auto& genJets = iEvent.getHandle(AK4genJetToken_);
+    const auto& genJets = iEvent.getHandle(ak4genJetToken_);
     for (size_t i = 0; i < genJets->size(); i++) {
       const reco::GenJet p = (*genJets)[i];
       objects.emplace_back(p);
     }
   } else if (objType_ == "AK8jet") {  // ak8 jets, using the ak8GenJets collection
-    const auto& genJets = iEvent.getHandle(AK8genJetToken_);
+    const auto& genJets = iEvent.getHandle(ak8genJetToken_);
     for (size_t i = 0; i < genJets->size(); i++) {
       const reco::GenJet p = (*genJets)[i];
       objects.emplace_back(p);
     }
   } else if (objType_ == "AK4HT") {  // ak4-based HT, using the ak4GenJets collection
-    const auto& genJets = iEvent.getHandle(AK4genJetToken_);
+    const auto& genJets = iEvent.getHandle(ak4genJetToken_);
     if (!genJets->empty()) {
       auto HTsum = (*genJets)[0].pt();
       for (size_t i = 1; i < genJets->size(); i++) {
@@ -398,7 +398,7 @@ std::vector<HLTGenValObject> HLTGenValSource::getObjectCollection(const edm::Eve
       objects.emplace_back(reco::Candidate::PolarLorentzVector(HTsum, 0, 0, 0));
     }
   } else if (objType_ == "AK8HT") {  // ak8-based HT, using the ak8GenJets collection
-    const auto& genJets = iEvent.getHandle(AK8genJetToken_);
+    const auto& genJets = iEvent.getHandle(ak8genJetToken_);
     if (!genJets->empty()) {
       auto HTsum = (*genJets)[0].pt();
       for (size_t i = 1; i < genJets->size(); i++) {

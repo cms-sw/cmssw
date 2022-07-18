@@ -55,7 +55,7 @@ void HLTGenValHistCollFilter::fillHists(const HLTGenValObject& obj, edm::Handle<
     }
 
     // differentiate between event level and particle level variables
-    std::vector<std::string> eventLevelVariables = {"AK4HT", "AK8HT", "MET"};
+    const static std::vector<std::string> eventLevelVariables = {"AK4HT", "AK8HT", "MET"};
     if (std::find(eventLevelVariables.begin(), eventLevelVariables.end(), objType_) != eventLevelVariables.end()) {
       // for these event level variables we only require the existence of a trigger object, but no matching
       if (!selectedObjects.empty())
@@ -91,16 +91,16 @@ void HLTGenValHistCollFilter::book1D(DQMStore::IBooker& iBooker, const edm::Para
   // getting the bin edges, path-specific overwrites general if present
   auto binLowEdgesDouble = histConfig.getParameter<std::vector<double>>("binLowEdges");
   if (parser.havePathSpecificBins())
-    binLowEdgesDouble = parser.getPathSpecificBins();
+    binLowEdgesDouble = *parser.getPathSpecificBins();
 
   // additional cuts applied to this histogram, combination of general ones and path-specific ones
   std::vector<edm::ParameterSet> allCutsVector = histConfig.getParameter<std::vector<edm::ParameterSet>>("rangeCuts");
-  std::vector<edm::ParameterSet> pathSpecificCutsVector = parser.getPathSpecificCuts();
+  std::vector<edm::ParameterSet> pathSpecificCutsVector = *parser.getPathSpecificCuts();
   allCutsVector.insert(allCutsVector.end(), pathSpecificCutsVector.begin(), pathSpecificCutsVector.end());
   VarRangeCutColl<HLTGenValObject> rangeCuts(allCutsVector);
 
   // getting the custom tag
-  std::string tag = parser.getTag();
+  const std::string tag = *parser.getTag();
 
   // checking validity of vsVar
   if (!vsVarFunc) {
@@ -141,7 +141,7 @@ void HLTGenValHistCollFilter::book1D(DQMStore::IBooker& iBooker, const edm::Para
   }
 
   auto me = iBooker.book1D(
-      histName.c_str(), histTitle.c_str(), binLowEdges.size() - 1, &binLowEdges[0]);  // booking MonitorElement
+      histName.c_str(), histTitle.c_str(), binLowEdges.size() - 1, binLowEdges.data());  // booking MonitorElement
 
   std::unique_ptr<HLTGenValHist> hist;  // creating the hist object
 
@@ -199,9 +199,9 @@ void HLTGenValHistCollFilter::book2D(DQMStore::IBooker& iBooker, const edm::Para
   auto me = iBooker.book2D(histName.c_str(),
                            histTitle.c_str(),
                            binLowEdgesX.size() - 1,
-                           &binLowEdgesX[0],
+                           binLowEdgesX.data(),
                            binLowEdgesY.size() - 1,
-                           &binLowEdgesY[0]);
+                           binLowEdgesY.data());
 
   std::unique_ptr<HLTGenValHist> hist;
 

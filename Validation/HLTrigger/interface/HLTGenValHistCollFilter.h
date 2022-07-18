@@ -35,8 +35,8 @@
 // functions for initial booking of hists, and filling of hists for a single object are available
 class HLTGenValHistCollFilter {
 public:
-  typedef dqm::legacy::MonitorElement MonitorElement;
-  typedef dqm::legacy::DQMStore DQMStore;
+  using MonitorElement = dqm::legacy::MonitorElement;
+  using DQMStore = dqm::legacy::DQMStore;
 
   explicit HLTGenValHistCollFilter(edm::ParameterSet filterCollConfig);
 

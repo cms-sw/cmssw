@@ -1,5 +1,5 @@
 #ifndef Validation_HLTrigger_HLTGenValPathSpecificSettingParser_h
-#define Validation_HLTrigger_HLTGenValSpecificCutParser_h
+#define Validation_HLTrigger_HLTGenValPathSpecificSettingParser_h
 
 //********************************************************************************
 //
@@ -26,10 +26,10 @@ public:
                                      std::vector<edm::ParameterSet> binnings,
                                      std::string vsVar);
 
-  std::vector<edm::ParameterSet> getPathSpecificCuts() { return pathSpecificCutsVector_; }
-  std::vector<double> getPathSpecificBins() { return pathSpecificBins_; }
-  bool havePathSpecificBins() { return (!pathSpecificBins_.empty()); }
-  std::string getTag() { return tag_; }
+  const std::vector<edm::ParameterSet>* getPathSpecificCuts() const { return & pathSpecificCutsVector_; }
+  const std::vector<double>* getPathSpecificBins() const { return & pathSpecificBins_; }
+  const bool havePathSpecificBins() const { return (!pathSpecificBins_.empty()); }
+  const std::string* getTag() const { return & tag_; }
 
 private:
   std::vector<edm::ParameterSet> pathSpecificCutsVector_;
