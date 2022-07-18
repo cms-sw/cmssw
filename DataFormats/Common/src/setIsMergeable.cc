@@ -17,7 +17,8 @@ namespace edm {
     // data member can only be true for run or lumi products.
     // It defaults to false. Also if it is true that means it
     // was already set.
-    if (desc.branchType() == InRun || desc.branchType() == InLumi) {
+    // Set it only for branches that are present
+    if (desc.present() and (desc.branchType() == InRun or desc.branchType() == InLumi)) {
       if (!desc.isMergeable()) {
         TClass* wrapperBaseTClass = TypeWithDict::byName("edm::WrapperBase").getClass();
         TClass* tClass = desc.wrappedType().getClass();
