@@ -160,6 +160,12 @@ namespace edm {
     ProductRegistry::ProductList const& productList = productRegistry.productList();
     for (auto const& product : productList) {
       BranchDescription const& desc = product.second;
+      if (desc.dropped()) {
+        // Dropped branch does not have type information, but they can
+        // be ignored here because all of the parent/thinned/association
+        // branches are expected to be present
+        continue;
+      }
       if (desc.unwrappedType().typeInfo() == typeid(Collection)) {
         if (desc.produced() && desc.moduleLabel() == moduleDescription().moduleLabel() &&
             desc.productInstanceName().empty()) {
