@@ -26,10 +26,10 @@ public:
                                      std::vector<edm::ParameterSet> binnings,
                                      std::string vsVar);
 
-  const std::vector<edm::ParameterSet>* getPathSpecificCuts() const { return & pathSpecificCutsVector_; }
-  const std::vector<double>* getPathSpecificBins() const { return & pathSpecificBins_; }
+  const std::vector<edm::ParameterSet>* getPathSpecificCuts() const { return &pathSpecificCutsVector_; }
+  const std::vector<double>* getPathSpecificBins() const { return &pathSpecificBins_; }
   const bool havePathSpecificBins() const { return (!pathSpecificBins_.empty()); }
-  const std::string* getTag() const { return & tag_; }
+  const std::string* getTag() const { return &tag_; }
 
 private:
   std::vector<edm::ParameterSet> pathSpecificCutsVector_;

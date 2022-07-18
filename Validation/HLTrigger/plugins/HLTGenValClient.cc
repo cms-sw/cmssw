@@ -167,16 +167,15 @@ void HLTGenValClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGetter
     // construct efficiency options automatically from systematically names histograms^
     const auto contents = igetter.getAllContents(dirName);
     for (const auto& content : contents) {
-
       // splitting the input string
       std::string name = content->getName();
       std::vector<std::string> seglist;
       size_t pos = 0;
       std::string token;
       while ((pos = name.find(separator_)) != std::string::npos) {
-          token = name.substr(0, pos);
-          seglist.push_back(token);
-          name.erase(0, pos + separator_.length());
+        token = name.substr(0, pos);
+        seglist.push_back(token);
+        name.erase(0, pos + separator_.length());
       }
       seglist.push_back(name);
 
@@ -195,26 +194,26 @@ void HLTGenValClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGetter
         if (seglist.at(3).rfind("2D", 0) == 0) {
           // 2D case
           EfficOption opt;
-          opt.name = seglist.at(0) + separator_ + seglist.at(1) + separator_ + seglist.at(2) + separator_ + seglist.at(3) +
-                     separator_ + "eff";  // efficiency histogram name
+          opt.name = seglist.at(0) + separator_ + seglist.at(1) + separator_ + seglist.at(2) + separator_ +
+                     seglist.at(3) + separator_ + "eff";  // efficiency histogram name
           opt.title = seglist.at(0) + " " + seglist.at(1) + " " + seglist.at(2) + " " + seglist.at(3) +
                       " efficiency";           // efficiency histogram title
           opt.numerator = content->getName();  // numerator histogram (after a filter)
-          opt.denominator = seglist.at(0) + separator_ + seglist.at(1) +
-                            separator_ + "GEN" + separator_ + seglist.at(3);  // denominator histogram (before all filters)
+          opt.denominator = seglist.at(0) + separator_ + seglist.at(1) + separator_ + "GEN" + separator_ +
+                            seglist.at(3);  // denominator histogram (before all filters)
 
           efficOptions_.push_back(opt);
 
         } else {
           // 1D case
           EfficOption opt;
-          opt.name = seglist.at(0) + separator_ + seglist.at(1) + separator_ + seglist.at(2) + separator_ + seglist.at(3) +
-                     separator_ + "eff";  // efficiency histogram name
+          opt.name = seglist.at(0) + separator_ + seglist.at(1) + separator_ + seglist.at(2) + separator_ +
+                     seglist.at(3) + separator_ + "eff";  // efficiency histogram name
           opt.title = seglist.at(0) + " " + seglist.at(1) + " " + seglist.at(2) + " " + seglist.at(3) +
                       " efficiency";           // efficiency histogram title
           opt.numerator = content->getName();  // numerator histogram (after a filter)
-          opt.denominator = seglist.at(0) + separator_ + seglist.at(1) +
-                            separator_ + "GEN" + separator_ + seglist.at(3);  // denominator histogram (before all filters)
+          opt.denominator = seglist.at(0) + separator_ + seglist.at(1) + separator_ + "GEN" + separator_ +
+                            seglist.at(3);  // denominator histogram (before all filters)
 
           // propagating the custom tag to the efficiency
           if (!tag.empty()) {
