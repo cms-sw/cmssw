@@ -27,6 +27,10 @@ namespace emtf {
 
   std::pair<int, int> get_csc_max_pattern_and_quality(int station, int ring);
 
+  // CSC max slope
+
+  int get_csc_max_slope(int station, int ring, bool useRun3CCLUT_OTMB, bool useRun3CCLUT_TMB);
+
   // ___________________________________________________________________________
   // coordinate ranges: phi[-180, 180] or [-pi, pi], theta[0, 90] or [0, pi/2]
   inline double wrap_phi_deg(double deg) {
