@@ -165,6 +165,20 @@
 // clang-format on
 #define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME) _DEFINE_METADATA_MEMBERS_IMPL TYPE_NAME
 
+// clang-format off
+#define _TRIVIAL_VIEW_ELEMENT_TUPLE_TYPES_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                             \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+      /* Scalar (empty) */                                                                                             \
+      ,                                                                                                                \
+      /* Column */                                                                                                     \
+      (CPP_TYPE)                                                                                                       \
+      ,                                                                                                                \
+      /* Eigen column */                                                                                               \
+      (CPP_TYPE)                                                                                                       \
+)
+// clang-format on
+
+#define _TRIVIAL_VIEW_ELEMENT_TUPLE_TYPES(R, DATA, TYPE_NAME) _TRIVIAL_VIEW_ELEMENT_TUPLE_TYPES_IMPL TYPE_NAME
 /**
  * Member assignment for trivial constructor
  */
@@ -392,6 +406,10 @@
       }                                                                                                                \
       _ITERATE_ON_ALL(_DEFINE_METADATA_MEMBERS, ~, __VA_ARGS__)                                                        \
                                                                                                                        \
+      using RowInitializer = std::tuple <                                                                              \
+        _ITERATE_ON_ALL_COMMA(_TRIVIAL_VIEW_ELEMENT_TUPLE_TYPES, BOOST_PP_EMPTY(), __VA_ARGS__)                        \
+      >;                                                                                                               \
+                                                                                                                       \
       Metadata& operator=(const Metadata&) = delete;                                                                   \
       Metadata(const Metadata&) = delete;                                                                              \
                                                                                                                        \
@@ -471,7 +489,6 @@
     /* So instead we make the code unconditional with paceholder names which are protected by a private protection. */ \
     /* This will be handled later as we handle the integration of the view as a subclass of the layout.             */ \
   public:                                                                                                              \
-                                                                                                                       \
   _GENERATE_SOA_TRIVIAL_CONST_VIEW(CLASS,                                                                              \
                     SOA_VIEW_LAYOUT_LIST(                                                                              \
                         SOA_VIEW_LAYOUT(BOOST_PP_CAT(CLASS, _parametrized) , BOOST_PP_CAT(instance_, CLASS))),         \
@@ -486,7 +503,8 @@
                     SOA_VIEW_LAYOUT_LIST(                                                                              \
                         SOA_VIEW_LAYOUT(BOOST_PP_CAT(CLASS, _parametrized), BOOST_PP_CAT(instance_, CLASS))),          \
                     SOA_VIEW_VALUE_LIST(_ITERATE_ON_ALL_COMMA(                                                         \
-                    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, CLASS), __VA_ARGS__)))                            \
+                    _VIEW_FIELD_FROM_LAYOUT, BOOST_PP_CAT(instance_, CLASS), __VA_ARGS__)),                            \
+                    __VA_ARGS__)                                                                                       \
                                                                                                                        \
     template <bool RESTRICT_QUALIFY, bool RANGE_CHECKING>                                                              \
     using ViewTemplate = ViewTemplateFreeParams<ALIGNMENT, ALIGNMENT_ENFORCEMENT, RESTRICT_QUALIFY, RANGE_CHECKING>;   \
