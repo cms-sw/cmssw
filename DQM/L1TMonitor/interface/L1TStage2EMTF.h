@@ -105,6 +105,10 @@ private:
   MonitorElement* gemHitVScscLCTPhi[2];
   MonitorElement* gemHitVScscLCTTheta[2];
   MonitorElement* gemHitVScscLCTBX[2];
+
+  // GEM plots added June 01 2022 
+  MonitorElement* gemBXVFATPerChamber[36][2][2];
+  MonitorElement* gemChamberVFATBX[2];
 };
 
 #endif
