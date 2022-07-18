@@ -2618,8 +2618,8 @@ steps['RECODR3_ZBOffline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:SiStripCa
 steps['RECODR3_HLTPhysics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,ALCA:TkAlMinBias+HcalCalIterativePhiSym+HcalCalIsoTrkProducerFilter+HcalCalHO+HcalCalHBHEMuonProducerFilter,DQM:@commonReduced+@miniAODDQM','--procModifiers':'siPixelQualityRawToDigi'},steps['RECODR3_2021']])
 steps['RECODR3_AlCaTkCosmics_Offline']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,SKIM:EXONoBPTXSkim,PAT,ALCA:TkAlCosmicsInCollisions,DQM:@standardDQMFakeHLT+@miniAODDQM'},steps['RECODR3_2021']])
 
-steps['RECODR3']['--customise'] += ',PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'
 steps['RECONANORUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,PAT,NANO,DQM:@miniAODDQM+@nanoAODDQM'},steps['RECODR3']])
+steps['RECONANORUN3']['--customise'] += ',PhysicsTools/NanoAOD/V10/nano_cff.nanoAOD_customizeV10'
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
 #steps['RECOmAOD']=merge([step3DefaultsUnsch])
