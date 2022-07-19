@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 // Make the change for "big" pixels. 3/06 d.k.
 #include "Geometry/MTDGeometryBuilder/interface/MTDPixelTopologyBuilder.h"

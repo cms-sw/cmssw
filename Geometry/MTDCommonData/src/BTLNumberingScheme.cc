@@ -3,7 +3,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Geometry/MTDCommonData/interface/BTLNumberingScheme.h"
-#include "DataFormats/ForwardDetId/interface/BTLDetId.h"
 
 #include <iostream>
 #include <cstring>
@@ -98,6 +97,12 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
       uint32_t pos = rodName.find("Zpos");
       zside = (pos <= rodName.size() ? 1 : 0);
 
+      // for negative side swap module numbers betwee sides of the tray, so as to keep the same number for the same phi angle
+      // in the existing model. This introduces a misalignemtn between module number and volume copy for the negative side.
+      if (zside == 0) {
+        modCopy = negModCopy[modCopy - 1];
+      }
+
       modtyp = ::atoi(&baseNumber.getLevelName(2).back());
 
       // error checking
@@ -151,7 +156,6 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
 
   } else if (nLevels == kBTLmoduleLevel && baseNumber.getLevelName(0).find("BTLModule") != std::string_view::npos) {
     // v2 scenario, geographicalId per module
-    // grouping modules 3 by 3, to reproduce barphiflat crystal grouping
     // for tracking navigation geometry
     LogDebug("MTDGeom") << baseNumber.getLevelName(0) << ", " << baseNumber.getLevelName(1) << ", "
                         << baseNumber.getLevelName(2) << ", " << baseNumber.getLevelName(3) << ", "
@@ -165,6 +169,12 @@ uint32_t BTLNumberingScheme::getUnitID(const MTDBaseNumber& baseNumber) const {
     const std::string_view& rodName(baseNumber.getLevelName(2));  // name of module volume
     uint32_t pos = rodName.find("Zpos");
     zside = (pos <= rodName.size() ? 1 : 0);
+
+    // for negative side swap module numbers betwee sides of the tray, so as to keep the same number for the same phi angle
+    // in the existing model. This introduces a misalignemtn between module number and volume copy for the negative side.
+    if (zside == 0) {
+      modCopy = negModCopy[modCopy - 1];
+    }
 
     modtyp = ::atoi(&baseNumber.getLevelName(1).back());
 

@@ -1,4 +1,4 @@
-#define EDM_ML_DEBUG
+//#define EDM_ML_DEBUG
 
 #include <iostream>
 #include <fstream>
@@ -224,10 +224,10 @@ void DD4hep_TestBTLPixelTopology::analyze(const edm::Event& iEvent, const edm::E
 
       int origRow = theId.row(topo.nrows());
       int origCol = theId.column(topo.nrows());
-      spix << "rawId= " << theId.rawId() << " side/rod= " << theId.mtdSide() << " / " << theId.mtdRR()
+      spix << "rawId= " << theId.rawId() << " geoId= " << geoId.rawId() << " side/rod= " << theId.mtdSide() << " / "
+           << theId.mtdRR() << " type/RU= " << theId.modType() << " / " << theId.runit()
            << " module/geomodule= " << theId.module() << " / " << static_cast<BTLDetId>(geoId).module()
-           << " crys/type= " << theId.crystal() << " / " << theId.modType() << " BTLDetId row/col= " << origRow << " / "
-           << origCol;
+           << " crys= " << theId.crystal() << " BTLDetId row/col= " << origRow << " / " << origCol;
       spix << "\n";
 
       //
