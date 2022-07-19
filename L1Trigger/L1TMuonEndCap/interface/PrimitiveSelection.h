@@ -15,7 +15,9 @@ public:
                  int bxShiftME0,
                  bool includeNeighbor,
                  bool duplicateTheta,
-                 bool bugME11Dupes);
+                 bool bugME11Dupes,
+                 bool useRun3CCLUT_OTMB,
+                 bool useRun3CCLUT_TMB);
 
   template <typename T>
   void process(T tag,
@@ -114,6 +116,9 @@ private:
   bool includeNeighbor_, duplicateTheta_;
 
   bool bugME11Dupes_;
+  // Run 3 CCLUT algorithm
+  bool useRun3CCLUT_OTMB_;
+  bool useRun3CCLUT_TMB_;
 };
 
 #endif
