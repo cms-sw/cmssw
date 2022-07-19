@@ -47,7 +47,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 #!
 #! JET RECONSTRUCTION
 #!
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load('Configuration.StandardSequences.GeometryDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('RecoJets.Configuration.GenJetParticles_cff')
 process.load('RecoJets.JetProducers.caSubjetFilterGenJets_cfi')
