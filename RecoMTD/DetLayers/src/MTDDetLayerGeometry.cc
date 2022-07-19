@@ -28,18 +28,17 @@ MTDDetLayerGeometry::MTDDetLayerGeometry() {}
 MTDDetLayerGeometry::~MTDDetLayerGeometry() {}
 
 void MTDDetLayerGeometry::buildLayers(const MTDGeometry* geo, const MTDTopology* mtopo) {
-  if (geo) {
-    // Build BTL layers
-    this->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*geo));
-    // Build ETL layers, depends on the scenario
-    if (mtopo) {
-      this->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*geo, *mtopo));
-    } else {
-      LogWarning("MTDDetLayers") << "No MTD topology  is available.";
-    }
-  } else {
+  if (geo == nullptr) {
     LogWarning("MTDDetLayers") << "No MTD geometry is available.";
   }
+  if (mtopo == nullptr) {
+    LogWarning("MTDDetLayers") << "No MTD topology  is available.";
+  }
+
+  // Build BTL layers
+  this->addBTLLayers(BTLDetLayerGeometryBuilder::buildLayers(*geo, *mtopo));
+  // Build ETL layers, depends on the scenario
+  this->addETLLayers(ETLDetLayerGeometryBuilder::buildLayers(*geo, *mtopo));
 }
 
 void MTDDetLayerGeometry::addETLLayers(const pair<vector<DetLayer*>, vector<DetLayer*> >& etllayers) {
