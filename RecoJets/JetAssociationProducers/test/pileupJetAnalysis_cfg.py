@@ -6,10 +6,10 @@ process.source = cms.Source("PoolSource",
 	fileNames = cms.untracked.vstring(*[("rfio:/castor/cern.ch/user/t/tboccali/ttbar_fastsim_224_reco/TTbar_cfi_GEN_FASTSIM_PU.root.%d" % (x + 1)) for x in range(20)])
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'IDEAL_V11::All'
+process.GlobalTag.globaltag = 'auto:phase1_2022_realistic'
 
 process.load("TrackingTools.TransientTrack.TransientTrackBuilder_cfi")
 

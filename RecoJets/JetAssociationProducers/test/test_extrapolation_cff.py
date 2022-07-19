@@ -7,10 +7,10 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 
 ### Standard Configurations
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'GR10_P_V8::All'
+process.GlobalTag.globaltag = 'auto:run3_data_prompt'
 
 
 ### Extrapolation

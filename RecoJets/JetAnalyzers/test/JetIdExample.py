@@ -42,7 +42,7 @@ if isMC:
    
 process = cms.Process("Ana")
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.GlobalTag.globaltag = GLOBAL_TAG
 
 #############   Format MessageLogger #################
