@@ -11,7 +11,7 @@ pushd ${LOCAL_TMP_DIR}
 
   echo cmsRun testSubProcess_cfg.py
   cmsRun -p ${LOCAL_TEST_DIR}/${test}_cfg.py >& ${test}.log 2>&1 || die "cmsRun ${test}_cfg.py" $?
-  grep Doodad ${test}.log > testSubProcess.grep.txt
+  grep Doodad ${test}.log | grep -v "Tracer" > testSubProcess.grep.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcess.grep.txt testSubProcess.grep.txt || die "comparing testSubProcess.grep.txt" $?
   grep "++" ${test}.log | grep -v "Disabling gnu" > testSubProcess.grep2.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcess.grep2.txt testSubProcess.grep2.txt || die "comparing testSubProcess.grep2.txt" $?
