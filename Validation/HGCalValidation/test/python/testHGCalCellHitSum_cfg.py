@@ -59,12 +59,14 @@ process.hgcalCellHitSumEE.geometryFileName = geomFile
 
 process.hgcalCellHitSumHEF = process.hgcalCellHitSumEE.clone(
     simhits = 'g4SimHits : HGCHitsHEfront',
-    detector = 'HGCalHESiliconSensitive'
+    detector = 'HGCalHESiliconSensitive',
+    geometryFileName = geomFile
 )
 
 process.hgcalCellHitSumHEB = process.hgcalCellHitSumEE.clone(
     simhits = 'g4SimHits : HGCHitsHEback',
-    detector = 'HGCalHEScintillatorSensitive'
+    detector = 'HGCalHEScintillatorSensitive',
+    geometryFileName = geomFile
 )
 
 #process.Tracer = cms.Service("Tracer")
