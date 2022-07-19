@@ -32,7 +32,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     uint32_t elementsPerThread = 1;
     auto workDiv = WorkDiv1D{blocksPerGrid, threadsPerBlock, elementsPerThread};
 
-    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, *collection, collection->metadata().size());
+    alpaka::exec<Acc1D>(queue, workDiv, TestAlgoKernel{}, collection.view(), collection->metadata().size());
   }
 
 }  // namespace ALPAKA_ACCELERATOR_NAMESPACE

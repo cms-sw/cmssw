@@ -17,6 +17,7 @@ class PortableDeviceCollection {
 public:
   using Layout = T;
   using View = typename Layout::View;
+  using ConstView = typename Layout::ConstView;
   using Buffer = alpaka::Buf<TDev, std::byte, alpaka::DimInt<1u>, uint32_t>;
   using ConstBuffer = alpaka::ViewConst<Buffer>;
 
@@ -41,13 +42,15 @@ public:
   PortableDeviceCollection(PortableDeviceCollection &&other) = default;
   PortableDeviceCollection &operator=(PortableDeviceCollection &&other) = default;
 
-  View &operator*() { return view_; }
+  View &view() { return view_; }
+  ConstView const &view() const { return view_; }
+  ConstView const &const_view() const { return view_; }
 
-  View const &operator*() const { return view_; }
+  View &operator*() { return view_; }
+  ConstView const &operator*() const { return view_; }
 
   View *operator->() { return &view_; }
-
-  View const *operator->() const { return &view_; }
+  ConstView const *operator->() const { return &view_; }
 
   Buffer buffer() { return *buffer_; }
   ConstBuffer buffer() const { return *buffer_; }

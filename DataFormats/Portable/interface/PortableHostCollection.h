@@ -5,6 +5,7 @@
 
 #include <alpaka/alpaka.hpp>
 
+#include "DataFormats/SoATemplate/interface/SoACommon.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/config.h"
 #include "HeterogeneousCore/AlpakaInterface/interface/host.h"
 
@@ -51,13 +52,15 @@ public:
   PortableHostCollection(PortableHostCollection &&other) = default;
   PortableHostCollection &operator=(PortableHostCollection &&other) = default;
 
-  View &operator*() { return view_; }
+  View &view() { return view_; }
+  ConstView const &view() const { return view_; }
+  ConstView const &const_view() const { return view_; }
 
-  View const &operator*() const { return view_; }
+  View &operator*() { return view_; }
+  ConstView const &operator*() const { return view_; }
 
   View *operator->() { return &view_; }
-
-  View const *operator->() const { return &view_; }
+  ConstView const *operator->() const { return &view_; }
 
   Buffer buffer() { return *buffer_; }
   ConstBuffer buffer() const { return *buffer_; }

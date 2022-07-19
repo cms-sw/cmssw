@@ -21,7 +21,7 @@ public:
   void analyze(edm::Event const& event, edm::EventSetup const&) override {
     portabletest::TestHostCollection const& product = event.get(token_);
 
-    auto const& view = *product;
+    auto const& view = product.const_view();
     for (int32_t i = 0; i < view.metadata().size(); ++i) {
       assert(view[i].id() == i);
     }
