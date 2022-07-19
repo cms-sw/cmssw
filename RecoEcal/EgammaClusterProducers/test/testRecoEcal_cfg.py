@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('testRecoEcal')
 process.load('RecoEcal.Configuration.RecoEcal_cff')
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
