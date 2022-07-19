@@ -20,10 +20,12 @@ Created: August 2009
 // system include files
 #include <memory>
 #include <map>
+#include <sstream>
 #include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/DetId/interface/DetId.h"
