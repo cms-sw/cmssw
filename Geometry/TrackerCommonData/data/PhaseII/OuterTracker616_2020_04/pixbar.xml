@@ -148,7 +148,7 @@ note: see OT616_IT615_cmssw_2020_04_30.cfg for full config files
     <Constant name="RadialCoolZ" value="29.5*cm"/>
     <Constant name="RadialCoolDZ" value="1.0*cm"/>
     <Constant name="RadialCoolRin" value="4.0*cm"/>
-    <Constant name="Tracker2SOuterRadius" value="116.0*cm"/>
+    <Constant name="Tracker2SOuterRadius" value="114.0*cm"/>
   </ConstantsSection>
   <RotationSection label="pixbar.xml">
     <Rotation name="180D" thetaX="90*deg" phiX="180*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg"/>

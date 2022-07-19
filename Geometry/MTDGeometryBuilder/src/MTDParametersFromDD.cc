@@ -1,4 +1,4 @@
-//#define EDM_ML_DEBUG
+#define EDM_ML_DEBUG
 
 #include "Geometry/MTDGeometryBuilder/interface/MTDParametersFromDD.h"
 #include "Geometry/MTDCommonData/interface/MTDTopologyMode.h"

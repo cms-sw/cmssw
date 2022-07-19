@@ -8,6 +8,7 @@ CmsMTDStringToEnum::Impl::Impl() {
   map_.emplace("Layer1", GeometricTimingDet::BTLLayer);
   map_.emplace("Layer1Timing", GeometricTimingDet::BTLLayer);
   map_.emplace("BModule", GeometricTimingDet::BTLModule);
+  map_.emplace("BTLModu", GeometricTimingDet::BTLModule);  // truncate name to have the same length as old versions
   map_.emplace("EndcapTimingLayer", GeometricTimingDet::ETL);
   map_.emplace("Disc1", GeometricTimingDet::ETLDisc);
   map_.emplace("Disc1Timing", GeometricTimingDet::ETLDisc);
