@@ -140,6 +140,18 @@
 #define LUT_LATENCY 2
 #define DSP_LATENCY 3
 
+namespace Trk_bitShift{
+  inline int bitShift(int num, int bits){
+    if(num<0){
+      return -1*( (-1*num) << bits);
+    }
+    else{
+      return (num << bits);
+    }
+  }
+}
+
+
 // Print out information on the pass/fail status of all variables. Warning:
 // this outputs a lot of information for busy events!
 
@@ -1012,11 +1024,11 @@ namespace trklet {
     int addr_to_ival(int addr) {
       switch (m_) {
         case mode::pos:
-          return addr << shift_;
+          return Trk_bitShift::bitShift(addr,shift_);
         case mode::neg:
-          return (addr - Nelements_) << shift_;
+          return Trk_bitShift::bitShift((addr - Nelements_),shift_);
         case mode::both:
-          return (addr << ashift_) >> (ashift_ - shift_);
+          return Trk_bitShift::bitShift(addr,ashift_) >> (ashift_ - shift_);
       }
       assert(0);
     }
