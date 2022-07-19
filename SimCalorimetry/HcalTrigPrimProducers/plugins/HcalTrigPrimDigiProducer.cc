@@ -195,7 +195,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
           theAlgo_.setWeightQIE11(aieta, (fixedPointWeight));
         } else {
           theAlgo_.setNumFilterPresamplesHBQIE11(0);
-          theAlgo_.setWeightQIE11(aieta, 1.0);
+          theAlgo_.setWeightQIE11(aieta, 255);
         }
       }
     } else if (aieta < lastHERing) {
@@ -205,7 +205,7 @@ void HcalTrigPrimDigiProducer::beginRun(const edm::Run& run, const edm::EventSet
           theAlgo_.setWeightQIE11(aieta, (fixedPointWeight));
         } else {
           theAlgo_.setNumFilterPresamplesHEQIE11(0);
-          theAlgo_.setWeightQIE11(aieta, 1.0);
+          theAlgo_.setWeightQIE11(aieta, 255);
         }
       }
     }
