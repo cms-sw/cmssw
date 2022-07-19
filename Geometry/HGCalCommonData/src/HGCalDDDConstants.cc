@@ -1336,6 +1336,13 @@ void HGCalDDDConstants::waferFromPosition(const double x,
         if (waferHexagon8File()) {
           int index = HGCalWaferIndex::waferIndex(layer, waferU, waferV);
           celltype = HGCalWaferType::getType(index, hgpar_->waferInfoMap_);
+#ifdef EDM_ML_DEBUG
+          if (debug)
+            edm::LogVerbatim("HGCalGeom") << "Position (" << x << ", " << y << ") Wafer type:partial:orient:cassette "
+                                          << celltype << ":" << HGCalWaferType::getPartial(index, hgpar_->waferInfoMap_)
+                                          << ":" << HGCalWaferType::getOrient(index, hgpar_->waferInfoMap_) << ":"
+                                          << HGCalWaferType::getCassette(index, hgpar_->waferInfoMap_);
+#endif
         } else {
           auto itr = hgpar_->typesInLayers_.find(HGCalWaferIndex::waferIndex(layer, waferU, waferV));
           celltype = ((itr == hgpar_->typesInLayers_.end()) ? HGCSiliconDetId::HGCalCoarseThick
