@@ -33,11 +33,14 @@ print(options)
 if (options.geometry == "V16"):
     process.load('Configuration.Geometry.GeometryExtended2026D86Reco_cff')
     geomFile = 'Validation/HGCalValidation/data/wafer_v16.csv'
+    hitFile = "file:/eos/user/i/idas/SimOut/DeltaPt/Extended2026D88/step1.root"
 else:
     process.load('Configuration.Geometry.GeometryExtended2026D92Reco_cff')
     geomFile = 'Validation/HGCalValidation/data/wafer_v17.csv'
+    hitFile = "file:/eos/user/i/idas/SimOut/DeltaPt/Extended2026D92/step1.root"
 
 print("Geometry file: ", geomFile)
+print("Hit file: ", hitFile)
 
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -46,7 +49,7 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/eos/user/i/idas/SimOut/DeltaPt/Extended2026D92/step1.root')
+    fileNames = cms.untracked.vstring(hitFile)
 )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
