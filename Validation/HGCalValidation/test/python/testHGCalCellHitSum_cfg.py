@@ -58,12 +58,12 @@ process.load('Validation.HGCalValidation.hgcalCellHitSumEE_cfi')
 process.hgcalCellHitSumEE.geometryFileName = geomFile
 
 process.hgcalCellHitSumHEF = process.hgcalCellHitSumEE.clone(
-    simhits = cms.InputTag('g4SimHits', 'HGCHitsHEfront'),
+    simhits = 'g4SimHits : HGCHitsHEfront',
     detector = 'HGCalHESiliconSensitive'
 )
 
 process.hgcalCellHitSumHEB = process.hgcalCellHitSumEE.clone(
-    simhits = cms.untracked.InputTag('g4SimHits','HGCHitsHEback'),
+    simhits = 'g4SimHits : HGCHitsHEback',
     detector = 'HGCalHEScintillatorSensitive'
 )
 
