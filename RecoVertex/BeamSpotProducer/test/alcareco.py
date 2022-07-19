@@ -48,7 +48,7 @@ process.maxEvents = cms.untracked.PSet(
 
 ## Geometry
 ##
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 
 ## Magnetic Field
 ##
@@ -65,7 +65,8 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag = 'IDEAL_V9::All'  # take your favourite
 
 process.GlobalTag.connect = "sqlite_file:/afs/cern.ch/user/f/futyand/public/globaltag/10PB_21X.db"
-process.GlobalTag.globaltag = '10PB_V1::All'
+#process.GlobalTag.globaltag = '10PB_V1::All'
+process.GlobalTag.globaltag = cms.string( autoCond[ 'phase1_2022_realistic' ] )
 
 process.load("RecoTracker.TrackProducer.RefitterWithMaterial_cff")
 # process.TrackRefitter.src = 'generalTracks' # should be default
