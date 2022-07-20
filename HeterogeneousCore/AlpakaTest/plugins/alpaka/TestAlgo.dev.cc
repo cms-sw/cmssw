@@ -18,7 +18,7 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
     ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::View view, int32_t size) const {
       int32_t idx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
       if (idx < size) {
-        view[idx].id() = idx;
+        view[idx] = {0., 0., 0., idx};
       }
     }
   };
