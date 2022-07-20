@@ -70,14 +70,14 @@ bool EmbeddingHepMCFilter::filter(const HepMC::GenEvent *evt) {
     if (vertex != nullptr) {  // search for the mom via the production_vertex
       HepMC::GenVertex::particles_in_const_iterator mom = vertex->particles_in_const_begin();
       if (mom != vertex->particles_in_const_end()) {
-        mom_id = (*mom)->pdg_id();  // mom was found
-        if (mom_id == ZPDGID_) {
-          isHardProc = true;  // intermediate boson
-        } else if (includeDY_ && 11 <= pdg_id && pdg_id <= 16 && mcTruthHelper_.isFirstCopy(**particle) &&
-                   mcTruthHelper_.fromHardProcess(**particle)) {
-          std::cout << "Found prompt particle: " << (*particle)->pdg_id() << " with mother " << mom_id << std::endl;
-          isHardProc = true;  // Drell-Yan qq -> ll without intermediate boson
-        }
+        mom_id = std::abs((*mom)->pdg_id());  // mom was found
+      }
+      if (mom_id == ZPDGID_) {
+        isHardProc = true;  // intermediate boson
+      } else if (includeDY_ && 11 <= pdg_id && pdg_id <= 16 && mcTruthHelper_.isFirstCopy(**particle) &&
+                 mcTruthHelper_.fromHardProcess(**particle)) {
+        std::cout << "Found prompt particle: " << (*particle)->pdg_id() << " with mother " << mom_id << std::endl;
+        isHardProc = true;  // Drell-Yan qq -> ll without intermediate boson
       }
     }
 
