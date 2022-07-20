@@ -525,6 +525,7 @@
     /* data members */                                                                                                 \
     std::byte* mem_;                                                                                                   \
     size_type nElements_;                                                                                              \
+    size_type const scalar_ = 1;                                                                                       \
     byte_size_type byteSize_;                                                                                          \
     _ITERATE_ON_ALL(_DECLARE_SOA_DATA_MEMBER, ~, __VA_ARGS__)                                                          \
     /* Making the code conditional is problematic in macros as the commas will interfere with parameter lisings     */ \
