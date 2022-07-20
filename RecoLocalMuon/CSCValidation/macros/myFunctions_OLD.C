@@ -1,12 +1,3 @@
-// myFunctions.C contains various functions required by makePlots.C
-// for making plots of root file output from CSCValidation
-// Original author: Andy Kubik (NWU)
-// - Updated by many people over the past 15 years
-// - This version from Sicheng Wang (UCSB) Jul-2022
-// - Please contact CSC DPG for current status - 12.07.2022
-
-void drawColoredChamberLines(int station, int nchamber1[4][36]);
-
 TFile *OpenFiles(std::string path) {
   TFile *f;
   f = new TFile(path.c_str(), "READ");
@@ -108,217 +99,6 @@ void make1DPlot(std::string histoname, TFile *f1, std::string histotitle, int st
     h1->GetYaxis()->SetLabelSize(0.04);
     h1->GetXaxis()->SetTitleOffset(0.7);
     h1->GetXaxis()->SetTitleSize(0.06);
-    h1->GetYaxis()->SetTitleSize(0.06);
-    h1->GetYaxis()->CenterTitle(kTRUE);
-    h1->GetXaxis()->SetNdivisions(208, kTRUE);
-
-    h1->Draw();
-
-    c->Update();
-    c->Print(savename.c_str(), "png");
-  }
-  delete c;
-}
-
-void make1DPlot(std::string histoname,
-                TFile *f1,
-                std::string histotitle,
-                std::string xtitle,
-                std::string ytitle,
-                int statoption,
-                std::string savename) {
-  TH1F *h1 = (TH1F *)f1->Get(histoname.c_str());
-
-  TCanvas *c = new TCanvas("c", "my canvas", 1);
-
-  if (h1) {
-    if (statoption == 0)
-      gStyle->SetOptStat(kFALSE);
-    else
-      gStyle->SetOptStat(statoption);
-    gStyle->SetHistFillColor(92);
-    gStyle->SetFrameFillColor(4000);
-    gStyle->SetTitleW(0.7);
-    gStyle->SetTitleH(0.07);
-    gPad->SetFillColor(4000);
-    c->SetFillStyle(4000);
-    gStyle->SetStatColor(0);
-    gStyle->SetTitleFillColor(0);
-    h1->UseCurrentStyle();
-
-    h1->SetTitle(histotitle.c_str());
-    h1->GetXaxis()->SetLabelSize(0.04);
-    h1->GetYaxis()->SetLabelSize(0.04);
-    h1->GetXaxis()->SetTitle(xtitle.c_str());
-    h1->GetYaxis()->SetTitle(ytitle.c_str());
-    h1->GetXaxis()->SetTitleOffset(0.85);
-    h1->GetYaxis()->SetTitleOffset(0.85);
-    h1->GetXaxis()->SetTitleSize(0.05);
-    h1->GetYaxis()->SetTitleSize(0.05);
-    h1->GetYaxis()->CenterTitle(kTRUE);
-    h1->GetXaxis()->SetNdivisions(208, kTRUE);
-
-    h1->Draw();
-
-    c->Update();
-    c->Print(savename.c_str(), "png");
-  }
-  delete c;
-}
-
-void make2DPlot(std::string histoname, TFile *f1, std::string histotitle, int statoption, std::string savename) {
-  TH2F *h1 = (TH2F *)f1->Get(histoname.c_str());
-
-  TCanvas *c = new TCanvas("c", "my canvas", 1);
-
-  if (h1) {
-    if (statoption == 0)
-      gStyle->SetOptStat(kFALSE);
-    else
-      gStyle->SetOptStat(statoption);
-    gStyle->SetHistFillColor(92);
-    gStyle->SetFrameFillColor(4000);
-    gStyle->SetTitleW(0.7);
-    gStyle->SetTitleH(0.07);
-    gPad->SetFillColor(4000);
-    c->SetFillStyle(4000);
-    gStyle->SetStatColor(0);
-    gStyle->SetTitleFillColor(0);
-    h1->UseCurrentStyle();
-
-    h1->SetTitle(histotitle.c_str());
-    h1->GetXaxis()->SetLabelSize(0.04);
-    h1->GetYaxis()->SetLabelSize(0.04);
-    h1->GetXaxis()->SetTitleOffset(0.7);
-    h1->GetXaxis()->SetTitleSize(0.06);
-    h1->GetXaxis()->SetNdivisions(208, kTRUE);
-
-    h1->Draw();
-
-    c->Update();
-    c->Print(savename.c_str(), "png");
-  }
-  delete c;
-}
-
-void make2DPlot(std::string histoname,
-                TFile *f1,
-                std::string histotitle,
-                std::string xtitle,
-                std::string ytitle,
-                int statoption,
-                std::string savename) {
-  TH2F *h1 = (TH2F *)f1->Get(histoname.c_str());
-
-  TCanvas *c = new TCanvas("c", "my canvas", 1);
-
-  if (h1) {
-    if (statoption == 0)
-      gStyle->SetOptStat(kFALSE);
-    else
-      gStyle->SetOptStat(statoption);
-    gStyle->SetHistFillColor(92);
-    gStyle->SetFrameFillColor(4000);
-    gStyle->SetTitleW(0.7);
-    gStyle->SetTitleH(0.07);
-    gPad->SetFillColor(4000);
-    c->SetFillStyle(4000);
-    gStyle->SetStatColor(0);
-    gStyle->SetTitleFillColor(0);
-    h1->UseCurrentStyle();
-
-    h1->SetTitle(histotitle.c_str());
-    h1->GetXaxis()->SetTitle(xtitle.c_str());
-    h1->GetYaxis()->SetTitle(ytitle.c_str());
-    h1->GetXaxis()->SetLabelSize(0.04);
-    h1->GetYaxis()->SetLabelSize(0.04);
-    h1->GetXaxis()->SetTitleOffset(0.85);
-    h1->GetYaxis()->SetTitleOffset(0.85);
-    h1->GetXaxis()->SetTitleSize(0.05);
-    h1->GetYaxis()->SetTitleSize(0.05);
-    h1->GetYaxis()->CenterTitle(kTRUE);
-    h1->GetXaxis()->SetNdivisions(208, kTRUE);
-
-    h1->Draw();
-
-    c->Update();
-    c->Print(savename.c_str(), "png");
-  }
-  delete c;
-}
-
-void makeProfile(std::string histoname, TFile *f1, std::string histotitle, int statoption, std::string savename) {
-  TProfile *h1 = (TProfile *)f1->Get(histoname.c_str());
-
-  TCanvas *c = new TCanvas("c", "my canvas", 1);
-
-  if (h1) {
-    if (statoption == 0)
-      gStyle->SetOptStat(kFALSE);
-    else
-      gStyle->SetOptStat(statoption);
-    gStyle->SetHistFillColor(92);
-    gStyle->SetFrameFillColor(4000);
-    gStyle->SetTitleW(0.7);
-    gStyle->SetTitleH(0.07);
-    gPad->SetFillColor(4000);
-    c->SetFillStyle(4000);
-    gStyle->SetStatColor(0);
-    gStyle->SetTitleFillColor(0);
-    h1->UseCurrentStyle();
-
-    h1->GetYaxis()->SetRangeUser(h1->GetYmin(), h1->GetYmax());
-    h1->SetTitle(histotitle.c_str());
-    h1->GetXaxis()->SetLabelSize(0.04);
-    h1->GetYaxis()->SetLabelSize(0.04);
-    h1->GetXaxis()->SetTitleOffset(0.7);
-    h1->GetXaxis()->SetTitleSize(0.06);
-    h1->GetXaxis()->SetNdivisions(208, kTRUE);
-
-    h1->Draw();
-
-    c->Update();
-    c->Print(savename.c_str(), "png");
-  }
-  delete c;
-}
-void makeProfile(std::string histoname,
-                 TFile *f1,
-                 std::string histotitle,
-                 std::string xtitle,
-                 std::string ytitle,
-                 int statoption,
-                 std::string savename) {
-  TProfile *h1 = (TProfile *)f1->Get(histoname.c_str());
-
-  TCanvas *c = new TCanvas("c", "my canvas", 1);
-
-  if (h1) {
-    if (statoption == 0)
-      gStyle->SetOptStat(kFALSE);
-    else
-      gStyle->SetOptStat(statoption);
-    gStyle->SetHistFillColor(92);
-    gStyle->SetFrameFillColor(4000);
-    gStyle->SetTitleW(0.7);
-    gStyle->SetTitleH(0.07);
-    gPad->SetFillColor(4000);
-    c->SetFillStyle(4000);
-    gStyle->SetStatColor(0);
-    gStyle->SetTitleFillColor(0);
-    h1->UseCurrentStyle();
-
-    h1->GetYaxis()->SetRangeUser(h1->GetYmin(), h1->GetYmax());
-    h1->SetTitle(histotitle.c_str());
-    h1->GetXaxis()->SetTitle(xtitle.c_str());
-    h1->GetYaxis()->SetTitle(ytitle.c_str());
-    h1->GetXaxis()->SetLabelSize(0.04);
-    h1->GetYaxis()->SetLabelSize(0.04);
-    h1->GetXaxis()->SetTitleOffset(0.85);
-    h1->GetYaxis()->SetTitleOffset(0.85);
-    h1->GetXaxis()->SetTitleSize(0.05);
-    h1->GetYaxis()->SetTitleSize(0.05);
-    h1->GetYaxis()->CenterTitle(kTRUE);
     h1->GetXaxis()->SetNdivisions(208, kTRUE);
 
     h1->Draw();
@@ -413,7 +193,7 @@ void make1DPlot2(std::string histoname1,
     gStyle->SetHistFillColor(72);
     b1->UseCurrentStyle();
 
-    //t2 = t2 + " (run " + run + ")";
+    t2 = t2 + " (run " + run + ")";
     b1->SetTitle(t2.c_str());
     b1->GetXaxis()->SetLabelSize(0.06);
     b1->GetYaxis()->SetLabelSize(0.06);
@@ -503,7 +283,7 @@ void makeEffGif(std::string histoname, TFile *f1, std::string histotitle, std::s
 }
 
 void Draw2DProfile(std::string histoname, TFile *f1, std::string title, std::string option, std::string savename) {
-  TProfile2D *test = (TProfile2D *)f1->Get(histoname.c_str());
+  TProfile2D *test = f1->Get(histoname.c_str());
   TH2D *plot = test->ProjectionXY("test2", option.c_str());
 
   if (plot) {
@@ -562,40 +342,34 @@ void Draw2DEfficiency(std::string histo, TFile *f1, std::string title, std::stri
   c->SetFillStyle(4000);
   gStyle->SetStatColor(0);
   gStyle->SetTitleFillColor(0);
-  gStyle->SetOptStat(10);
 
   TH2F *num = (TH2F *)f1->Get(histo.c_str());
   TH2F *denom = (TH2F *)f1->Get("Efficiency/hEffDenominator");
-  if (histo.find("Tight") != std::string::npos)
-    denom = (TH2F *)f1->Get("Efficiency/hEffDenominatorTight");
 
-  TH2F *plot = new TH2F("plot", title.c_str(), 36, 0.5, 36.5, 20, 0.5, 20.5);
+  TH2F *plot = new TH2F("plot", title.c_str(), 36, 0.5, 36.5, 18, 0.5, 18.5);
 
-  if (num && denom)
-    plot->Divide(num, denom, 1., 1., "B");
+  plot->Divide(num, denom, 1., 1., "B");
 
-  //plot->SetStats(kFALSE);
+  plot->SetStats(kFALSE);
 
-  plot->GetYaxis()->SetBinLabel(1, "ME- 4/2");  //jun28
-  plot->GetYaxis()->SetBinLabel(2, "ME- 4/1");
-  plot->GetYaxis()->SetBinLabel(3, "ME- 3/2");
-  plot->GetYaxis()->SetBinLabel(4, "ME- 3/1");
-  plot->GetYaxis()->SetBinLabel(5, "ME- 2/2");
-  plot->GetYaxis()->SetBinLabel(6, "ME- 2/1");
-  plot->GetYaxis()->SetBinLabel(10, "ME- 1/1a");
-  plot->GetYaxis()->SetBinLabel(7, "ME- 1/3");
-  plot->GetYaxis()->SetBinLabel(8, "ME- 1/2");
-  plot->GetYaxis()->SetBinLabel(9, "ME- 1/1b");
-  plot->GetYaxis()->SetBinLabel(12, "ME+ 1/1b");
-  plot->GetYaxis()->SetBinLabel(13, "ME+ 1/2");
-  plot->GetYaxis()->SetBinLabel(14, "ME+ 1/3");
-  plot->GetYaxis()->SetBinLabel(11, "ME+ 1/1a");
-  plot->GetYaxis()->SetBinLabel(15, "ME+ 2/1");
-  plot->GetYaxis()->SetBinLabel(16, "ME+ 2/2");
-  plot->GetYaxis()->SetBinLabel(17, "ME+ 3/1");
-  plot->GetYaxis()->SetBinLabel(18, "ME+ 3/2");
-  plot->GetYaxis()->SetBinLabel(19, "ME+ 4/1");
-  plot->GetYaxis()->SetBinLabel(20, "ME+ 4/2");  //jun28
+  plot->GetYaxis()->SetBinLabel(1, "ME- 4/1");
+  plot->GetYaxis()->SetBinLabel(2, "ME- 3/2");
+  plot->GetYaxis()->SetBinLabel(3, "ME- 3/1");
+  plot->GetYaxis()->SetBinLabel(4, "ME- 2/2");
+  plot->GetYaxis()->SetBinLabel(5, "ME- 2/1");
+  plot->GetYaxis()->SetBinLabel(9, "ME- 1/1a");
+  plot->GetYaxis()->SetBinLabel(6, "ME- 1/3");
+  plot->GetYaxis()->SetBinLabel(7, "ME- 1/2");
+  plot->GetYaxis()->SetBinLabel(8, "ME- 1/1b");
+  plot->GetYaxis()->SetBinLabel(11, "ME+ 1/1b");
+  plot->GetYaxis()->SetBinLabel(12, "ME+ 1/2");
+  plot->GetYaxis()->SetBinLabel(13, "ME+ 1/3");
+  plot->GetYaxis()->SetBinLabel(10, "ME+ 1/1a");
+  plot->GetYaxis()->SetBinLabel(14, "ME+ 2/1");
+  plot->GetYaxis()->SetBinLabel(15, "ME+ 2/2");
+  plot->GetYaxis()->SetBinLabel(16, "ME+ 3/1");
+  plot->GetYaxis()->SetBinLabel(17, "ME+ 3/2");
+  plot->GetYaxis()->SetBinLabel(18, "ME+ 4/1");
 
   for (int i = 1; i < 37; i++) {
     ostringstream oss1;
@@ -621,94 +395,15 @@ void Draw2DEfficiency(std::string histo, TFile *f1, std::string title, std::stri
   delete plot;
 }
 
-void Draw2DTempPlot(std::string histo, TFile *f1, bool includeME11, std::string savename, bool hasLabels = false) {
+void Draw2DTempPlot(std::string histo, TFile *f1, bool includeME11, std::string savename) {
   TCanvas *c = new TCanvas("c", "my canvas", 1);
   gStyle->SetPalette(1, 0);
   gPad->SetFillColor(4000);
   c->SetFillStyle(4000);
   gStyle->SetStatColor(0);
   gStyle->SetTitleFillColor(0);
-  gStyle->SetOptStat(10);
 
   TH2I *plot = (TH2I *)f1->Get(histo.c_str());
-
-  //plot->SetStats(kFALSE);
-
-  if (!hasLabels) {
-    if (includeME11) {
-      plot->GetYaxis()->SetBinLabel(1, "ME- 4/2");
-      plot->GetYaxis()->SetBinLabel(2, "ME- 4/1");
-      plot->GetYaxis()->SetBinLabel(3, "ME- 3/2");
-      plot->GetYaxis()->SetBinLabel(4, "ME- 3/1");
-      plot->GetYaxis()->SetBinLabel(5, "ME- 2/2");
-      plot->GetYaxis()->SetBinLabel(6, "ME- 2/1");
-      plot->GetYaxis()->SetBinLabel(10, "ME- 1/1a");
-      plot->GetYaxis()->SetBinLabel(7, "ME- 1/3");
-      plot->GetYaxis()->SetBinLabel(8, "ME- 1/2");
-      plot->GetYaxis()->SetBinLabel(9, "ME- 1/1b");
-      plot->GetYaxis()->SetBinLabel(12, "ME+ 1/1b");
-      plot->GetYaxis()->SetBinLabel(13, "ME+ 1/2");
-      plot->GetYaxis()->SetBinLabel(14, "ME+ 1/3");
-      plot->GetYaxis()->SetBinLabel(11, "ME+ 1/1a");
-      plot->GetYaxis()->SetBinLabel(15, "ME+ 2/1");
-      plot->GetYaxis()->SetBinLabel(16, "ME+ 2/2");
-      plot->GetYaxis()->SetBinLabel(17, "ME+ 3/1");
-      plot->GetYaxis()->SetBinLabel(18, "ME+ 3/2");
-      plot->GetYaxis()->SetBinLabel(19, "ME+ 4/1");
-      plot->GetYaxis()->SetBinLabel(20, "ME+ 4/2");
-    } else {
-      plot->GetYaxis()->SetBinLabel(1, "ME- 4/1");
-      plot->GetYaxis()->SetBinLabel(2, "ME- 3/2");
-      plot->GetYaxis()->SetBinLabel(3, "ME- 3/1");
-      plot->GetYaxis()->SetBinLabel(4, "ME- 2/2");
-      plot->GetYaxis()->SetBinLabel(5, "ME- 2/1");
-      plot->GetYaxis()->SetBinLabel(6, "ME- 1/3");
-      plot->GetYaxis()->SetBinLabel(7, "ME- 1/2");
-      plot->GetYaxis()->SetBinLabel(8, "ME- 1/1b");
-      plot->GetYaxis()->SetBinLabel(9, "ME- 1/1a");
-      plot->GetYaxis()->SetBinLabel(10, "ME+ 1/1a");
-      plot->GetYaxis()->SetBinLabel(11, "ME+ 1/1b");
-      plot->GetYaxis()->SetBinLabel(12, "ME+ 1/2");
-      plot->GetYaxis()->SetBinLabel(13, "ME+ 1/3");
-      plot->GetYaxis()->SetBinLabel(14, "ME+ 2/1");
-      plot->GetYaxis()->SetBinLabel(15, "ME+ 2/2");
-      plot->GetYaxis()->SetBinLabel(16, "ME+ 3/1");
-      plot->GetYaxis()->SetBinLabel(17, "ME+ 3/2");
-      plot->GetYaxis()->SetBinLabel(18, "ME+ 4/1");
-    }
-
-    for (int i = 1; i < 37; i++) {
-      ostringstream oss1;
-      oss1 << i;
-      string ch = oss1.str();
-      plot->GetXaxis()->SetBinLabel(i, ch.c_str());
-    }
-
-    plot->GetYaxis()->SetNdivisions(20, kFALSE);
-    plot->GetXaxis()->SetNdivisions(36, kFALSE);
-
-    plot->GetXaxis()->SetTitle("Chamber #");
-
-    c->SetGrid();
-  }
-
-  c->SetRightMargin(0.12);
-  plot->Draw("COLZ");
-
-  c->Update();
-  c->Print(savename.c_str(), "png");
-  delete c;
-}
-
-void Draw2DTempPlot2(std::string histo, TFile *f1, bool includeME11, std::string savename) {
-  TCanvas *c = new TCanvas("c", "my canvas", 1);
-  gStyle->SetPalette(1, 0);
-  gPad->SetFillColor(4000);
-  c->SetFillStyle(4000);
-  gStyle->SetStatColor(0);
-  gStyle->SetTitleFillColor(0);
-
-  TH2F *plot = (TH2F *)f1->Get(histo.c_str());
 
   plot->SetStats(kFALSE);
 
@@ -807,8 +502,8 @@ void GlobalPosfromTree(
 
   int n1 = (int)t1->GetEntries();
   const int nevents1 = n1;
-  TVectorF globx1(nevents1);
-  TVectorF globy1(nevents1);
+  float globx1[nevents1];
+  float globy1[nevents1];
   int nstation1 = 0;
   const int num_of_rings = 4;
   const int num_of_chambers = 36;
@@ -831,8 +526,7 @@ void GlobalPosfromTree(
 
   TCanvas *c = new TCanvas("c", "my canvas", 1);
   c->SetCanvasSize(700, 700);
-  //TGraph *graph1 = new TGraph(nstation1,globx1,globy1);
-  TGraph *graph1 = new TGraph(globx1, globy1);
+  TGraph *graph1 = new TGraph(nstation1, globx1, globy1);
 
   std::string name1 = graphname;
 
@@ -843,10 +537,7 @@ void GlobalPosfromTree(
   gStyle->SetTitleFillColor(0);
   gPad->SetFillColor(4000);
   c->SetFillStyle(4000);
-
-  //asking to show the total number of entries for rechit and seg plots
-  //i.e. SetOptStat(10), returns 0 entries for some reason
-  gStyle->SetOptStat(0);
+  gStyle->SetOptStat(10);
 
   graph1->GetXaxis()->SetLimits(-720, 720);
   graph1->GetYaxis()->SetLimits(-720, 720);
@@ -865,86 +556,7 @@ void GlobalPosfromTree(
 
 }  // end GlobalPosfromTree
 
-void GlobalPosfromChain(std::string graphname,
-                        TChain *ch1,
-                        int endcap,
-                        int station,
-                        std::string type,
-                        std::string savename,
-                        const int maxNumPoints = 10'000'000) {
-  struct posRecord {
-    int endcap;
-    int station;
-    int ring;
-    int chamber;
-    int layer;
-    float localx;
-    float localy;
-    float globalx;
-    float globaly;
-  } points;
-
-  if (type == "rechit")
-    ch1->SetBranchAddress("rHpos", &points);
-  else if (type == "segment")
-    ch1->SetBranchAddress("segpos", &points);
-
-  int n1 = ch1->GetEntries();
-  const int nevents1 = TMath::Min(n1, maxNumPoints);
-  TVectorF globx1(nevents1);
-  TVectorF globy1(nevents1);
-  int nstation1 = 0;
-  const int num_of_rings = 4;
-  const int num_of_chambers = 36;
-  int nchamber1[num_of_rings][num_of_chambers];
-  for (int i = 0; i < num_of_rings; i++) {
-    for (int j = 0; j < num_of_chambers; j++) {
-      nchamber1[i][j] = 0;
-    }
-  }
-
-  for (int i = 0; i < nevents1; i++) {
-    ch1->GetEntry(i);
-    if (points.station == station && points.endcap == endcap) {
-      globx1[nstation1] = points.globalx;
-      globy1[nstation1] = points.globaly;
-      nstation1++;
-      nchamber1[points.ring - 1][points.chamber - 1]++;
-    }
-  }
-
-  TCanvas *c = new TCanvas("c", "my canvas", 1);
-  c->SetCanvasSize(700, 700);
-  gStyle->SetPalette(1, 0);
-  gStyle->SetTitleW(0.9);
-  gStyle->SetTitleH(0.1);
-  gStyle->SetStatColor(0);
-  gStyle->SetTitleFillColor(0);
-  gPad->SetFillColor(4000);
-  c->SetFillStyle(4000);
-
-  //asking to show the total number of entries for rechit and seg plots
-  //i.e. SetOptStat(10), returns 0 entries for some reason
-  gStyle->SetOptStat(0);
-
-  TGraph *graph1 = new TGraph(globx1, globy1);
-  std::string name1 = graphname;
-  graph1->GetXaxis()->SetLimits(-720, 720);
-  graph1->GetYaxis()->SetLimits(-720, 720);
-  graph1->GetXaxis()->SetRangeUser(-720, 720);
-  graph1->GetYaxis()->SetRangeUser(-720, 720);
-
-  graph1->SetTitle(name1.c_str());
-  graph1->UseCurrentStyle();
-  graph1->Draw("AP");
-
-  drawColoredChamberLines(station, nchamber1);
-
-  c->Print(savename.c_str(), "png");
-
-}  // end GlobalPosfromChain
-
-void drawChamberLines(int station) {
+drawChamberLines(int station) {
   gStyle->SetLineWidth(2);
   float pi = 3.14159;
   TVector3 x(0, 0, 1);
@@ -1025,7 +637,7 @@ void drawChamberLines(int station) {
     TVector3 r1(511.99, 31.7, 0);
     TVector3 r2(511.99, -31.7, 0);
     TVector3 r3(676.15, -46.05, 0);
-    TVector3 r4(676.15, 46.05, 0);
+    TVector3 r4(676.15, 46.05.6, 0);
 
     for (int i = 0; i < 36; i++) {
       if (linecolor == lc1)
@@ -1203,7 +815,7 @@ void drawChamberLines(int station) {
   }
 
   if (station == 4) {
-    TVector3 p1(186.99, 34.505, 0);
+    TVector3 p1(186.99, 34.505.15, 0);
     TVector3 p2(186.99, -34.505, 0);
     TVector3 p3(336.41, -62.825, 0);
     TVector3 p4(336.41, 62.825, 0);
@@ -1318,8 +930,8 @@ void compareEffGif(std::string histoname, TFile *f1, TFile *f2, std::string hist
       hn1->SetBinError(i + 1, EffE);
     }
 
-    Num = 1;
-    Den = 1;
+    float Num = 1;
+    float Den = 1;
     for (int i = 0; i < 20; i++) {
       Num = h2->GetBinContent(i + 1);
       Den = h2->GetBinContent(i + 21);
@@ -1497,90 +1109,80 @@ void NikolaiPlots(TFile *f_in, int flag) {
 
   std::ostringstream ss, ss1;
 
-  std::string folder;
-  std::string input_histName, input_title_X, input_title_Y, slice_title_X;
-  Int_t ny;
-  Float_t ylow, yhigh;
-  std::string result_histName, result_histTitle, result_title_Y, result_histNameEntries, result_histTitleEntries;
-
   if (flag == 1) {  // gas gain results
-    folder = "GasGain/";
+    std::string folder = "GasGain/";
 
-    input_histName = "gas_gain_rechit_adc_3_3_sum_location_ME_";
-    input_title_X = "Location=(layer-1)*nsegm+segm";
-    input_title_Y = "3X3 ADC Sum";
+    std::string input_histName = "gas_gain_rechit_adc_3_3_sum_location_ME_";
+    std::string input_title_X = "Location=(layer-1)*nsegm+segm";
+    std::string input_title_Y = "3X3 ADC Sum";
 
-    slice_title_X = "3X3 ADC Sum Location";
+    std::string slice_title_X = "3X3 ADC Sum Location";
 
-    ny = 30;
-    ylow = 1.0;
-    yhigh = 31.0;
-    result_histName = "mean_gas_gain_vs_location_csc_ME_";
-    result_histTitle = "Mean 3X3 ADC Sum";
-    result_title_Y = "Location=(layer-1)*nsegm+segm";
+    Int_t ny = 30;
+    Float_t ylow = 1.0, yhigh = 31.0;
+    std::string result_histName = "mean_gas_gain_vs_location_csc_ME_";
+    std::string result_histTitle = "Mean 3X3 ADC Sum";
+    std::string result_title_Y = "Location=(layer-1)*nsegm+segm";
 
-    result_histNameEntries = "entries_gas_gain_vs_location_csc_ME_";
-    result_histTitleEntries = "Entries 3X3 ADC Sum";
+    std::string result_histNameEntries = "entries_gas_gain_vs_location_csc_ME_";
+    std::string result_histTitleEntries = "Entries 3X3 ADC Sum";
   }
 
   if (flag == 2) {  // AFEB timing results
-    folder = "AFEBTiming/";
+    std::string folder = "AFEBTiming/";
 
-    input_histName = "afeb_time_bin_vs_afeb_occupancy_ME_";
-    input_title_X = "AFEB";
-    input_title_Y = "Time Bin";
+    std::string input_histName = "afeb_time_bin_vs_afeb_occupancy_ME_";
+    std::string input_title_X = "AFEB";
+    std::string input_title_Y = "Time Bin";
 
-    slice_title_X = "AFEB";
+    std::string slice_title_X = "AFEB";
 
-    ny = 42;
-    ylow = 1.0;
-    yhigh = 42.0;
-    result_histName = "mean_afeb_time_bin_vs_afeb_csc_ME_";
-    result_histTitle = "AFEB Mean Time Bin";
-    result_title_Y = "AFEB";
+    Int_t ny = 42;
+    Float_t ylow = 1.0, yhigh = 42.0;
+    std::string result_histName = "mean_afeb_time_bin_vs_afeb_csc_ME_";
+    std::string result_histTitle = "AFEB Mean Time Bin";
+    std::string result_title_Y = "AFEB";
 
-    result_histNameEntries = "entries_afeb_time_bin_vs_afeb_csc_ME_";
-    result_histTitleEntries = "Entries AFEB Time Bin";
+    std::string result_histNameEntries = "entries_afeb_time_bin_vs_afeb_csc_ME_";
+    std::string result_histTitleEntries = "Entries AFEB Time Bin";
   }
 
   if (flag == 3) {  // Comparator timing results
-    folder = "CompTiming/";
+    std::string folder = "CompTiming/";
 
-    input_histName = "comp_time_bin_vs_cfeb_occupancy_ME_";
-    input_title_X = "CFEB";
-    input_title_Y = "Time Bin";
+    std::string input_histName = "comp_time_bin_vs_cfeb_occupancy_ME_";
+    std::string input_title_X = "CFEB";
+    std::string input_title_Y = "Time Bin";
 
-    slice_title_X = "CFEB";
+    std::string slice_title_X = "CFEB";
 
-    ny = 5;
-    ylow = 1.0;
-    yhigh = 6.0;
-    result_histName = "mean_comp_time_bin_vs_cfeb_csc_ME_";
-    result_histTitle = "Comparator Mean Time Bin";
-    result_title_Y = "CFEB";
+    Int_t ny = 5;
+    Float_t ylow = 1.0, yhigh = 6.0;
+    std::string result_histName = "mean_comp_time_bin_vs_cfeb_csc_ME_";
+    std::string result_histTitle = "Comparator Mean Time Bin";
+    std::string result_title_Y = "CFEB";
 
-    result_histNameEntries = "entries_comp_time_bin_vs_cfeb_csc_ME_";
-    result_histTitleEntries = "Entries Comparator Time Bin";
+    std::string result_histNameEntries = "entries_comp_time_bin_vs_cfeb_csc_ME_";
+    std::string result_histTitleEntries = "Entries Comparator Time Bin";
   }
 
   if (flag == 4) {  // Strip ADC timing results
-    folder = "ADCTiming/";
+    std::string folder = "ADCTiming/";
 
-    input_histName = "adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_";
-    input_title_X = "CFEB";
-    input_title_Y = "Time Bin";
+    std::string input_histName = "adc_3_3_weight_time_bin_vs_cfeb_occupancy_ME_";
+    std::string input_title_X = "CFEB";
+    std::string input_title_Y = "Time Bin";
 
-    slice_title_X = "CFEB";
+    std::string slice_title_X = "CFEB";
 
-    ny = 5;
-    ylow = 1.0;
-    yhigh = 6.0;
-    result_histName = "mean_adc_time_bin_vs_cfeb_csc_ME_";
-    result_histTitle = "ADC 3X3 Mean Time Bin";
-    result_title_Y = "CFEB";
+    Int_t ny = 5;
+    Float_t ylow = 1.0, yhigh = 6.0;
+    std::string result_histName = "mean_adc_time_bin_vs_cfeb_csc_ME_";
+    std::string result_histTitle = "ADC 3X3 Mean Time Bin";
+    std::string result_title_Y = "CFEB";
 
-    result_histNameEntries = "entries_adc_time_bin_vs_cfeb_csc_ME_";
-    result_histTitleEntries = "Entries ADC 3X3 Time Bin";
+    std::string result_histNameEntries = "entries_adc_time_bin_vs_cfeb_csc_ME_";
+    std::string result_histTitleEntries = "Entries ADC 3X3 Time Bin";
   }
 
   std::vector<std::string> xTitle;
@@ -1666,19 +1268,17 @@ void NikolaiPlots(TFile *f_in, int flag) {
     hentr->GetZaxis()->SetLabelSize(0.03);
     hentr->SetOption("COLZ");
 
-    //TH2F* ha;
-
     if (flag == 2) {  // adding special cases for AFEB timing
       ss.str("");
       ss << "normal_afeb_time_bin_vs_csc_ME_" << esr[jesr];
       ss1.str("");
       ss1 << "Normalized AFEB time bin, %";
-      //TH2F *ha=new TH2F(ss.str().c_str(),ss1.str().c_str(),40,0.0,40.0,16,0.0,16.0);
-      //ha->SetStats(kFALSE);
-      //ha->GetXaxis()->SetTitle(xTitle[jesr].c_str());
-      //ha->GetYaxis()->SetTitle("Time Bin");
-      //ha->GetZaxis()->SetLabelSize(0.03);
-      //ha->SetOption("COLZ");
+      TH2F *ha = new TH2F(ss.str().c_str(), ss1.str().c_str(), 40, 0.0, 40.0, 16, 0.0, 16.0);
+      ha->SetStats(kFALSE);
+      ha->GetXaxis()->SetTitle(xTitle[jesr].c_str());
+      ha->GetYaxis()->SetTitle("Time Bin");
+      ha->GetZaxis()->SetLabelSize(0.03);
+      ha->SetOption("COLZ");
     }
 
     for (Int_t csc = 1; csc < 37; csc++) {
@@ -1710,7 +1310,7 @@ void NikolaiPlots(TFile *f_in, int flag) {
           for (Int_t m = 1; m < h1d->GetNbinsX(); m++) {
             Float_t w = h1d->GetBinContent(m);
             w = 100.0 * w / entr;
-            //ha->SetBinContent(csc+1,m,w);
+            ha->SetBinContent(csc + 1, m, w);
           }
           Float_t mean = h1d->GetMean();
           Int_t me;
@@ -1764,7 +1364,8 @@ void NikolaiPlots(TFile *f_in, int flag) {
     }
     delete h;
     delete hentr;
-    //if(flag==2) delete ha;
+    if (flag == 2)
+      delete ha;
   }
   if (flag == 2) {
     hb->Draw();
@@ -1780,7 +1381,7 @@ void NikolaiPlots(TFile *f_in, int flag) {
   delete c1;
 }
 
-void drawColoredChamberLines(int station, int nchamber1[4][36]) {
+drawColoredChamberLines(int station, int nchamber1[4][36]) {
   // thanks to Luca Sabbatini for this coe
   const int maxRingIdxOfRelevance = 2;
   const int maxChamberIdxOfRelevance = 35;
@@ -1876,12 +1477,10 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
     for (int i = 0; i < numChambersInRing; i++) {
       // set the line color
       if (nchamber1[thisRingIdx][i] != 0) {
-        if ((thisRingNchamber1Max - thisRingNchamber1Base) != 0)
-          hFloatHLS =
-              int((nchamber1[0][i] - thisRingNchamber1Base) / (thisRingNchamber1Max - thisRingNchamber1Base) *  //
-                      (lineHueMax - lineHueMin) +
-                  lineHueMin) %
-              360;
+        hFloatHLS = int((nchamber1[0][i] - thisRingNchamber1Base) / (thisRingNchamber1Max - thisRingNchamber1Base) *  //
+                            (lineHueMax - lineHueMin) +
+                        lineHueMin) %
+                    360;
         tempColor.HLS2RGB(hFloatHLS, lFloatHLS, sFloatHLS, rFloatRGB, gFloatRGB, bFloatRGB);
         linecolor = tempColor.GetColor(rFloatRGB, gFloatRGB, bFloatRGB);
       } else if (emptyLineColor >= 0) {
@@ -1943,12 +1542,11 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
 
     for (int i = 0; i < numChambersInRing; i++) {
       if (nchamber1[thisRingIdx][i] != 0) {
-        if ((thisRingNchamber1Max - thisRingNchamber1Base) != 0)
-          hFloatHLS = int((nchamber1[thisRingIdx][i] - thisRingNchamber1Base) /
-                              (thisRingNchamber1Max - thisRingNchamber1Base) *  //
-                              (lineHueMax - lineHueMin) +
-                          lineHueMin) %
-                      360;
+        hFloatHLS = int((nchamber1[thisRingIdx][i] - thisRingNchamber1Base) /
+                            (thisRingNchamber1Max - thisRingNchamber1Base) *  //
+                            (lineHueMax - lineHueMin) +
+                        lineHueMin) %
+                    360;
         tempColor.HLS2RGB(hFloatHLS, lFloatHLS, sFloatHLS, rFloatRGB, gFloatRGB, bFloatRGB);
         linecolor = tempColor.GetColor(rFloatRGB, gFloatRGB, bFloatRGB);
       } else if (emptyLineColor >= 0) {
@@ -1970,20 +1568,6 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
         line2->Draw();
         line3->Draw();
         line4->Draw();
-
-        int chamberNum = i + 1;
-        char chStr[3];
-        sprintf(chStr, "%d", chamberNum);
-        TLatex l;
-        l.SetTextAlign(22);
-        l.SetTextSize(0.02);
-        float r = sqrt(q3(0) * q3(0) + q3(1) * q3(1));
-        float theta = atan2(q3(1), q3(0));
-        r = r + 25;
-        theta = pi / numChambersInRing + theta;
-        float xpos = r * cos(theta);
-        float ypos = r * sin(theta);
-        l.DrawLatex(xpos, ypos, chStr);
       }
       q1.Rotate(2 * pi / numChambersInRing, x);
       q2.Rotate(2 * pi / numChambersInRing, x);
@@ -1997,7 +1581,7 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
     TVector3 r1(511.99, 31.7, 0);
     TVector3 r2(511.99, -31.7, 0);
     TVector3 r3(676.15, -46.05, 0);
-    TVector3 r4(676.15, 46.05, 0);
+    TVector3 r4(676.15, 46.05.6, 0);
 
     thisRingNchamber1Avg = 0.;
     thisRingNchamber1Max = 0.;
@@ -2019,12 +1603,11 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
 
     for (int i = 0; i < numChambersInRing; i++) {
       if (nchamber1[thisRingIdx][i] != 0) {
-        if ((thisRingNchamber1Max - thisRingNchamber1Base) != 0)
-          hFloatHLS = int((nchamber1[thisRingIdx][i] - thisRingNchamber1Base) /
-                              (thisRingNchamber1Max - thisRingNchamber1Base) *  //
-                              (lineHueMax - lineHueMin) +
-                          lineHueMin) %
-                      360;
+        hFloatHLS = int((nchamber1[thisRingIdx][i] - thisRingNchamber1Base) /
+                            (thisRingNchamber1Max - thisRingNchamber1Base) *  //
+                            (lineHueMax - lineHueMin) +
+                        lineHueMin) %
+                    360;
         tempColor.HLS2RGB(hFloatHLS, lFloatHLS, sFloatHLS, rFloatRGB, gFloatRGB, bFloatRGB);
         linecolor = tempColor.GetColor(rFloatRGB, gFloatRGB, bFloatRGB);
       } else if (emptyLineColor >= 0) {
@@ -2046,19 +1629,6 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
         line2->Draw();
         line3->Draw();
         line4->Draw();
-        int chamberNum = i + 1;
-        char chStr[3];
-        sprintf(chStr, "%d", chamberNum);
-        TLatex l;
-        l.SetTextAlign(22);
-        l.SetTextSize(0.02);
-        float r = sqrt(r3(0) * r3(0) + r3(1) * r3(1));
-        float theta = atan2(r3(1), r3(0));
-        r = r + 25;
-        theta = pi / numChambersInRing + theta;
-        float xpos = r * cos(theta);
-        float ypos = r * sin(theta);
-        l.DrawLatex(xpos, ypos, chStr);
       }
       r1.Rotate(2 * pi / numChambersInRing, x);
       r2.Rotate(2 * pi / numChambersInRing, x);
@@ -2102,12 +1672,10 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
 
     for (int i = 0; i < numChambersInRing; i++) {
       if (nchamber1[thisRingIdx][i] != 0) {
-        if ((thisRingNchamber1Max - thisRingNchamber1Base) != 0)
-          hFloatHLS =
-              int((nchamber1[0][i] - thisRingNchamber1Base) / (thisRingNchamber1Max - thisRingNchamber1Base) *  //
-                      (lineHueMax - lineHueMin) +
-                  lineHueMin) %
-              360;
+        hFloatHLS = int((nchamber1[0][i] - thisRingNchamber1Base) / (thisRingNchamber1Max - thisRingNchamber1Base) *  //
+                            (lineHueMax - lineHueMin) +
+                        lineHueMin) %
+                    360;
         tempColor.HLS2RGB(hFloatHLS, lFloatHLS, sFloatHLS, rFloatRGB, gFloatRGB, bFloatRGB);
         linecolor = tempColor.GetColor(rFloatRGB, gFloatRGB, bFloatRGB);
       } else if (emptyLineColor >= 0) {
@@ -2129,19 +1697,6 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
         line2->Draw();
         line3->Draw();
         line4->Draw();
-        int chamberNum = i + 1;
-        char chStr[3];
-        sprintf(chStr, "%d", chamberNum);
-        TLatex l;
-        l.SetTextAlign(22);
-        l.SetTextSize(0.02);
-        float r = sqrt(p3(0) * p3(0) + p3(1) * p3(1));
-        float theta = atan2(p3(1), p3(0));
-        r = r + 10;
-        theta = pi / numChambersInRing + theta;
-        float xpos = r * cos(theta);
-        float ypos = r * sin(theta);
-        l.DrawLatex(xpos, ypos, chStr);
       }
       p1.Rotate(2 * pi / numChambersInRing, x);
       p2.Rotate(2 * pi / numChambersInRing, x);
@@ -2177,12 +1732,11 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
 
     for (int i = 0; i < numChambersInRing; i++) {
       if (nchamber1[thisRingIdx][i] != 0) {
-        if ((thisRingNchamber1Max - thisRingNchamber1Base) != 0)
-          hFloatHLS = int((nchamber1[thisRingIdx][i] - thisRingNchamber1Base) /
-                              (thisRingNchamber1Max - thisRingNchamber1Base) *  //
-                              (lineHueMax - lineHueMin) +
-                          lineHueMin) %
-                      360;
+        hFloatHLS = int((nchamber1[thisRingIdx][i] - thisRingNchamber1Base) /
+                            (thisRingNchamber1Max - thisRingNchamber1Base) *  //
+                            (lineHueMax - lineHueMin) +
+                        lineHueMin) %
+                    360;
         tempColor.HLS2RGB(hFloatHLS, lFloatHLS, sFloatHLS, rFloatRGB, gFloatRGB, bFloatRGB);
         linecolor = tempColor.GetColor(rFloatRGB, gFloatRGB, bFloatRGB);
       } else if (emptyLineColor >= 0) {
@@ -2204,19 +1758,6 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
         line2->Draw();
         line3->Draw();
         line4->Draw();
-        int chamberNum = i + 1;
-        char chStr[3];
-        sprintf(chStr, "%d", chamberNum);
-        TLatex l;
-        l.SetTextAlign(22);
-        l.SetTextSize(0.02);
-        float r = sqrt(q3(0) * q3(0) + q3(1) * q3(1));
-        float theta = atan2(q3(1), q3(0));
-        r = r + 25;
-        theta = pi / numChambersInRing + theta;
-        float xpos = r * cos(theta);
-        float ypos = r * sin(theta);
-        l.DrawLatex(xpos, ypos, chStr);
       }
       q1.Rotate(2 * pi / numChambersInRing, x);
       q2.Rotate(2 * pi / numChambersInRing, x);
@@ -2265,12 +1806,10 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
 
     for (int i = 0; i < numChambersInRing; i++) {
       if (nchamber1[thisRingIdx][i] != 0) {
-        if ((thisRingNchamber1Max - thisRingNchamber1Base) != 0)
-          hFloatHLS =
-              int((nchamber1[0][i] - thisRingNchamber1Base) / (thisRingNchamber1Max - thisRingNchamber1Base) *  //
-                      (lineHueMax - lineHueMin) +
-                  lineHueMin) %
-              360;
+        hFloatHLS = int((nchamber1[0][i] - thisRingNchamber1Base) / (thisRingNchamber1Max - thisRingNchamber1Base) *  //
+                            (lineHueMax - lineHueMin) +
+                        lineHueMin) %
+                    360;
         tempColor.HLS2RGB(hFloatHLS, lFloatHLS, sFloatHLS, rFloatRGB, gFloatRGB, bFloatRGB);
         linecolor = tempColor.GetColor(rFloatRGB, gFloatRGB, bFloatRGB);
       } else if (emptyLineColor >= 0) {
@@ -2292,19 +1831,6 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
         line2->Draw();
         line3->Draw();
         line4->Draw();
-        int chamberNum = i + 1;
-        char chStr[3];
-        sprintf(chStr, "%d", chamberNum);
-        TLatex l;
-        l.SetTextAlign(22);
-        l.SetTextSize(0.02);
-        float r = sqrt(p3(0) * p3(0) + p3(1) * p3(1));
-        float theta = atan2(p3(1), p3(0));
-        r = r + 10;
-        theta = pi / numChambersInRing + theta;
-        float xpos = r * cos(theta);
-        float ypos = r * sin(theta);
-        l.DrawLatex(xpos, ypos, chStr);
       }
       p1.Rotate(2 * pi / numChambersInRing, x);
       p2.Rotate(2 * pi / numChambersInRing, x);
@@ -2340,12 +1866,11 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
 
     for (int i = 0; i < numChambersInRing; i++) {
       if (nchamber1[thisRingIdx][i] != 0) {
-        if ((thisRingNchamber1Max - thisRingNchamber1Base) != 0)
-          hFloatHLS = int((nchamber1[thisRingIdx][i] - thisRingNchamber1Base) /
-                              (thisRingNchamber1Max - thisRingNchamber1Base) *  //
-                              (lineHueMax - lineHueMin) +
-                          lineHueMin) %
-                      360;
+        hFloatHLS = int((nchamber1[thisRingIdx][i] - thisRingNchamber1Base) /
+                            (thisRingNchamber1Max - thisRingNchamber1Base) *  //
+                            (lineHueMax - lineHueMin) +
+                        lineHueMin) %
+                    360;
         tempColor.HLS2RGB(hFloatHLS, lFloatHLS, sFloatHLS, rFloatRGB, gFloatRGB, bFloatRGB);
         linecolor = tempColor.GetColor(rFloatRGB, gFloatRGB, bFloatRGB);
       } else if (emptyLineColor >= 0) {
@@ -2367,19 +1892,6 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
         line2->Draw();
         line3->Draw();
         line4->Draw();
-        int chamberNum = i + 1;
-        char chStr[3];
-        sprintf(chStr, "%d", chamberNum);
-        TLatex l;
-        l.SetTextAlign(22);
-        l.SetTextSize(0.02);
-        float r = sqrt(q3(0) * q3(0) + q3(1) * q3(1));
-        float theta = atan2(q3(1), q3(0));
-        r = r + 25;
-        theta = pi / numChambersInRing + theta;
-        float xpos = r * cos(theta);
-        float ypos = r * sin(theta);
-        l.DrawLatex(xpos, ypos, chStr);
       }
       q1.Rotate(2 * pi / numChambersInRing, x);
       q2.Rotate(2 * pi / numChambersInRing, x);
@@ -2392,7 +1904,7 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
     // station 4, ring 1 (the only ring on station 4... so far)
     thisRingIdx = 0;
     numChambersInRing = 18;
-    TVector3 p1(186.99, 34.505, 0);
+    TVector3 p1(186.99, 34.505.15, 0);
     TVector3 p2(186.99, -34.505, 0);
     TVector3 p3(336.41, -62.825, 0);
     TVector3 p4(336.41, 62.825, 0);
@@ -2428,12 +1940,10 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
 
     for (int i = 0; i < numChambersInRing; i++) {
       if (nchamber1[thisRingIdx][i] != 0) {
-        if ((thisRingNchamber1Max - thisRingNchamber1Base) != 0)
-          hFloatHLS =
-              int((nchamber1[0][i] - thisRingNchamber1Base) / (thisRingNchamber1Max - thisRingNchamber1Base) *  //
-                      (lineHueMax - lineHueMin) +
-                  lineHueMin) %
-              360;
+        hFloatHLS = int((nchamber1[0][i] - thisRingNchamber1Base) / (thisRingNchamber1Max - thisRingNchamber1Base) *  //
+                            (lineHueMax - lineHueMin) +
+                        lineHueMin) %
+                    360;
         tempColor.HLS2RGB(hFloatHLS, lFloatHLS, sFloatHLS, rFloatRGB, gFloatRGB, bFloatRGB);
         linecolor = tempColor.GetColor(rFloatRGB, gFloatRGB, bFloatRGB);
       } else if (emptyLineColor >= 0) {
@@ -2455,99 +1965,11 @@ void drawColoredChamberLines(int station, int nchamber1[4][36]) {
         line2->Draw();
         line3->Draw();
         line4->Draw();
-        int chamberNum = i + 1;
-        char chStr[3];
-        sprintf(chStr, "%d", chamberNum);
-        TLatex l;
-        l.SetTextAlign(22);
-        l.SetTextSize(0.02);
-        float r = sqrt(p3(0) * p3(0) + p3(1) * p3(1));
-        float theta = atan2(p3(1), p3(0));
-        r = r + 10;
-        theta = pi / numChambersInRing + theta;
-        float xpos = r * cos(theta);
-        float ypos = r * sin(theta);
-        l.DrawLatex(xpos, ypos, chStr);
       }
       p1.Rotate(2 * pi / numChambersInRing, x);
       p2.Rotate(2 * pi / numChambersInRing, x);
       p3.Rotate(2 * pi / numChambersInRing, x);
       p4.Rotate(2 * pi / numChambersInRing, x);
-    }
-
-    // station 4, ring 2 (outer ring) (This is just a copy of the ME3/2 code)
-    thisRingIdx = 1;
-    numChambersInRing = 36;
-    TVector3 q1(364.02, 33.23, 0);
-    TVector3 q2(364.02, -33.23, 0);
-    TVector3 q3(687.08, -63.575, 0);
-    TVector3 q4(687.08, 63.575, 0);
-
-    thisRingNchamber1Avg = 0.;
-    thisRingNchamber1Max = 0.;
-    for (int j = 0; j < numChambersInRing; j++) {
-      thisRingNchamber1Avg += nchamber1[thisRingIdx][j];
-      if (thisRingNchamber1Max < nchamber1[thisRingIdx][j]) {
-        thisRingNchamber1Max = nchamber1[thisRingIdx][j];
-      }
-    }
-    thisRingNchamber1Min = thisRingNchamber1Max;
-    for (int j = 0; j < numChambersInRing; j++) {
-      if (thisRingNchamber1Min > nchamber1[thisRingIdx][j] &&  //
-          nchamber1[thisRingIdx][j] != 0) {
-        thisRingNchamber1Min = nchamber1[thisRingIdx][j];
-      }
-    }
-    thisRingNchamber1Avg = thisRingNchamber1Avg / numChambersInRing;
-    thisRingNchamber1Base = thisRingNchamber1Min;
-
-    for (int i = 0; i < numChambersInRing; i++) {
-      if (nchamber1[thisRingIdx][i] != 0) {
-        if ((thisRingNchamber1Max - thisRingNchamber1Base) != 0)
-          hFloatHLS = int((nchamber1[thisRingIdx][i] - thisRingNchamber1Base) /
-                              (thisRingNchamber1Max - thisRingNchamber1Base) *  //
-                              (lineHueMax - lineHueMin) +
-                          lineHueMin) %
-                      360;
-        tempColor.HLS2RGB(hFloatHLS, lFloatHLS, sFloatHLS, rFloatRGB, gFloatRGB, bFloatRGB);
-        linecolor = tempColor.GetColor(rFloatRGB, gFloatRGB, bFloatRGB);
-      } else if (emptyLineColor >= 0) {
-        linecolor = emptyLineColor;
-      }
-
-      if ((nchamber1[thisRingIdx][i] != 0) ||  //
-          (nchamber1[thisRingIdx][i] == 0 && emptyLineColor >= 0)) {
-        line1 = new TLine(q1(0), q1(1), q2(0), q2(1));
-        line2 = new TLine(q2(0), q2(1), q3(0), q3(1));
-        line3 = new TLine(q3(0), q3(1), q4(0), q4(1));
-        line4 = new TLine(q4(0), q4(1), q1(0), q1(1));
-        line1->SetLineColor(linecolor);
-        line2->SetLineColor(linecolor);
-        line3->SetLineColor(linecolor);
-        line4->SetLineColor(linecolor);
-
-        line1->Draw();
-        line2->Draw();
-        line3->Draw();
-        line4->Draw();
-        int chamberNum = i + 1;
-        char chStr[3];
-        sprintf(chStr, "%d", chamberNum);
-        TLatex l;
-        l.SetTextAlign(22);
-        l.SetTextSize(0.02);
-        float r = sqrt(q3(0) * q3(0) + q3(1) * q3(1));
-        float theta = atan2(q3(1), q3(0));
-        r = r + 25;
-        theta = pi / numChambersInRing + theta;
-        float xpos = r * cos(theta);
-        float ypos = r * sin(theta);
-        l.DrawLatex(xpos, ypos, chStr);
-      }
-      q1.Rotate(2 * pi / numChambersInRing, x);
-      q2.Rotate(2 * pi / numChambersInRing, x);
-      q3.Rotate(2 * pi / numChambersInRing, x);
-      q4.Rotate(2 * pi / numChambersInRing, x);
     }
   }
 }
