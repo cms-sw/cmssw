@@ -499,14 +499,13 @@ void PlotAlignmentValidation::plotSS(const std::string& options, const std::stri
   //  bool plotPlain = false;
   bool plotLayers = false;  // overrides plotLayerN
   //  bool plotRings  = false;  // Todo: implement this?
-  bool plotSplits = false;
-  if (plotSplits) {
-    ;
-  }
   int plotSubDetN = 0;  // if zero, plot all
 
   TRegexp layer_re("layer=[0-9]+");
   Ssiz_t index, len;
+  bool plotSplits = false;
+  if (plotSplits) {
+  }
   if (options.find("split") != std::string::npos) {
     plotSplits = true;
   } else {

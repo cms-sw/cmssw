@@ -46,6 +46,8 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
     ScaleFactor = 1;
 
   map<pair<pair<TString, int>, TString>, Geometry> mappoints;  // pair = (structure, layer), geometry
+  Point *point = nullptr;
+  TFile *f = nullptr;
 
   for (unsigned int i = 0; i < inputFiles.size(); ++i) {
     if (fs::is_empty(inputFiles.at(i).c_str())) {
@@ -55,8 +57,7 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
 
     int runN = IOVlist.at(i);
 
-    TFile *f = new TFile(inputFiles.at(i).c_str(), "READ");
-
+    f = new TFile(inputFiles.at(i).c_str(), "READ");
     std::cout << inputFiles.at(i) << std::endl;
 
     for (TString &structure : structures) {
@@ -67,8 +68,7 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
         for (const string &geometry : geometries) {
           TString name = Variable + "_" + getName(structure, layer, geometry);
           TH1F *histo = dynamic_cast<TH1F *>(f->Get(name));
-          //Geometry *geom =nullptr;
-          Point *point = nullptr;
+
           // Three possibilities:
           //  - All histograms are produced correctly
           //  - Only the non-split histograms are produced
@@ -101,6 +101,7 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
   }
 
   TFile *fout = TFile::Open(outputFileName_, "RECREATE");
+  TGraphErrors *g = nullptr;
   for (TString &structure : structures) {
     TString structname = structure;
     structname.ReplaceAll("_y", "");
@@ -127,7 +128,7 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
           emptyvec.push_back(0.);
         for (size_t iVar = 0; iVar < variables.size(); iVar++) {
           Trend trend = trends.at(iVar);
-          TGraphErrors *g = new TGraphErrors(n, runs.data(), (geom.*trend)().data(), emptyvec.data(), emptyvec.data());
+          g = new TGraphErrors(n, runs.data(), (geom.*trend)().data(), emptyvec.data(), emptyvec.data());
           g->SetTitle(geometry.c_str());
           g->Write(name + "_" + variables.at(iVar));
         }
@@ -142,7 +143,7 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
         for (size_t iVar = 0; iVar < variablepairs.size(); iVar++) {
           Trend meantrend = trendspair.at(iVar).first;
           Trend sigmatrend = trendspair.at(iVar).second;
-          TGraphErrors *g = new TGraphErrors(
+          g = new TGraphErrors(
               n, runs.data(), (geom.*meantrend)().data(), emptyvec.data(), (geom.*sigmatrend)().data());
           g->SetTitle(geometry.c_str());
           TString graphname = name + "_" + variablepairs.at(iVar).first;
@@ -153,4 +154,8 @@ void PrepareDMRTrends::compileDMRTrends(vector<int> IOVlist,
     }
   }
   fout->Close();
+
+  delete point;
+  delete f;
+  delete g;
 }

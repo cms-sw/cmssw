@@ -1,9 +1,7 @@
 <flags CXXFLAGS="-g -Wall -DDEBUG -O3 -Wall -std=c++17 -lASImage -lMultiProc" />
 
-<lib name="MultiProc" />
 <use name="rootcore" />
 <use name="root" />
-<use name="rootgraphics"/>
 <use name="boost" />
 <use name="boost_program_options"/>
 <use name="boost_system"/>

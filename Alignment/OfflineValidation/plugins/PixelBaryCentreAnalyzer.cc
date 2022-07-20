@@ -53,7 +53,6 @@
 // ROOT
 #include <TTree.h>
 #include <TString.h>
-//#include <TVector3.h>
 
 //
 // class declaration
@@ -71,6 +70,8 @@ public:
     SimplePoint(const GlobalPoint& p) : x(p.x()), y(p.y()), z(p.z()){};
     SimplePoint() : x(0), y(0), z(0){};
   };
+  static const unsigned int nPixelLayers = 4;
+  static const unsigned int nPixelDiscs = 3;
 
 private:
   void beginJob() override;
@@ -109,28 +110,28 @@ private:
   GlobalPoint PIX_, BPIX_, FPIX_;
   GlobalPoint BPIX_Flipped_, BPIX_NonFlipped_, BPIX_DiffFlippedNonFlipped_;
 
-  GlobalPoint BPIXLayer_[4];
-  GlobalPoint BPIXLayer_Flipped_[4];
-  GlobalPoint BPIXLayer_NonFlipped_[4];
-  GlobalPoint BPIXLayer_DiffFlippedNonFlipped_[4];
+  GlobalPoint BPIXLayer_[nPixelLayers];
+  GlobalPoint BPIXLayer_Flipped_[nPixelLayers];
+  GlobalPoint BPIXLayer_NonFlipped_[nPixelLayers];
+  GlobalPoint BPIXLayer_DiffFlippedNonFlipped_[nPixelLayers];
 
   GlobalPoint FPIX_plus_, FPIX_minus_;
-  GlobalPoint FPIXDisks_plus_[3];
-  GlobalPoint FPIXDisks_minus_[3];
+  GlobalPoint FPIXDisks_plus_[nPixelDiscs];
+  GlobalPoint FPIXDisks_minus_[nPixelDiscs];
 
   SimplePoint vBS_;
 
   SimplePoint vPIX_, vBPIX_, vFPIX_;
   SimplePoint vBPIX_Flipped_, vBPIX_NonFlipped_, vBPIX_DiffFlippedNonFlipped_;
 
-  SimplePoint vBPIXLayer_[4];
-  SimplePoint vBPIXLayer_Flipped_[4];
-  SimplePoint vBPIXLayer_NonFlipped_[4];
-  SimplePoint vBPIXLayer_DiffFlippedNonFlipped_[4];
+  SimplePoint vBPIXLayer_[nPixelLayers];
+  SimplePoint vBPIXLayer_Flipped_[nPixelLayers];
+  SimplePoint vBPIXLayer_NonFlipped_[nPixelLayers];
+  SimplePoint vBPIXLayer_DiffFlippedNonFlipped_[nPixelLayers];
 
   SimplePoint vFPIX_plus_, vFPIX_minus_;
-  SimplePoint vFPIXDisks_plus_[3];
-  SimplePoint vFPIXDisks_minus_[3];
+  SimplePoint vFPIXDisks_plus_[nPixelDiscs];
+  SimplePoint vFPIXDisks_minus_[nPixelDiscs];
 
   edm::Service<TFileService> tFileService;
   std::map<std::string, TTree*> bcTrees_;
@@ -192,14 +193,14 @@ void PixelBaryCentreAnalyzer::initBC() {
   FPIX_plus_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
   FPIX_minus_ = GlobalPoint(dummy_float, dummy_float, dummy_float);
 
-  for (unsigned int i = 0; i < 4; i++) {
+  for (unsigned int i = 0; i < nPixelLayers; i++) {
     BPIXLayer_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
     BPIXLayer_Flipped_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
     BPIXLayer_NonFlipped_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
     BPIXLayer_DiffFlippedNonFlipped_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
   }
 
-  for (unsigned int i = 0; i < 3; i++) {
+  for (unsigned int i = 0; i < nPixelDiscs; i++) {
     FPIXDisks_plus_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
     FPIXDisks_minus_[i] = GlobalPoint(dummy_float, dummy_float, dummy_float);
   }
@@ -215,14 +216,14 @@ void PixelBaryCentreAnalyzer::initBC() {
   vFPIX_plus_ = SimplePoint(FPIX_plus_);
   vFPIX_minus_ = SimplePoint(FPIX_minus_);
 
-  for (unsigned int i = 0; i < 4; i++) {
+  for (unsigned int i = 0; i < nPixelLayers; i++) {
     vBPIXLayer_[i] = SimplePoint(BPIXLayer_[i]);
     vBPIXLayer_Flipped_[i] = SimplePoint(BPIXLayer_Flipped_[i]);
     vBPIXLayer_NonFlipped_[i] = SimplePoint(BPIXLayer_NonFlipped_[i]);
     vBPIXLayer_DiffFlippedNonFlipped_[i] = SimplePoint(BPIXLayer_DiffFlippedNonFlipped_[i]);
   }
 
-  for (unsigned int i = 0; i < 3; i++) {
+  for (unsigned int i = 0; i < nPixelDiscs; i++) {
     vFPIXDisks_plus_[i] = SimplePoint(FPIXDisks_plus_[i]);
     vFPIXDisks_minus_[i] = SimplePoint(FPIXDisks_minus_[i]);
   }
@@ -612,7 +613,7 @@ void PixelBaryCentreAnalyzer::beginJob() {
     bcTrees_[label]->Branch("FPIX_minus", &vFPIX_minus_, "x/F:y/F:z/F");
 
     //per-layer
-    for (unsigned int i = 0; i < 4; i++) {
+    for (unsigned int i = 0; i < nPixelLayers; i++) {
       TString structure = "BPIXLYR";
       int layer = i + 1;
       structure += layer;
@@ -625,7 +626,7 @@ void PixelBaryCentreAnalyzer::beginJob() {
     }
 
     //per-disk/ring
-    for (unsigned int i = 0; i < 3; i++) {
+    for (unsigned int i = 0; i < nPixelDiscs; i++) {
       TString structure = "FPIXDisk_plus";
       int disk = i + 1;
       structure += disk;

@@ -29,19 +29,15 @@ void Plot10Mu(const char* text, float X, float Y, float size) {
 void normArrow(float x, float y, float norm) {
   // draw 100 mu m arrow if norm = 1
   TArrow* normArrow = new TArrow(x, y, x + norm, y, arrowSize, ">");
-  // normArrow->SetLineWidth(2);
   normArrow->Draw();
 }
 
 void DrawRPhiLegend(double xLim, double yLim, double barrelRPhiRescale) {
   float xTest = 0.9 * xLim;
   float yTest = yLim / 2;
-  float testBlockSize = 0.2 * xLim;  //5cm in axis unit
+  float testBlockSize = 0.2 * xLim;  // 5cm in axis unit
   float disty = 0;
   float dYTest = 0.1 * xLim;
-  //float dZTest =2;
-  //float xLegObj = 20;
-  //float yLegObj = 18;
 
   Plot10Mu("#Delta r:", xTest, yTest, testBlockSize);
   Plot10Mu("500 #mum", xTest, yTest - 3 * dYTest, testBlockSize);
@@ -80,14 +76,10 @@ int makeRPhiArrowPlot(TTree* data,
   }
   DrawRPhiLegend(xLim, yLim, barrelRPhiRescale);
 
-  //char sliceLeg[192];
   std::ostringstream sliceLeg_s;
   sliceLeg_s << name << ": " << zMin << " < z <= " << zMax;
   TString sliceLeg(sliceLeg_s.str());
-  //sprintf( sliceLeg, "%s: %f < z <= %f", name, zMin, zMax );
-  //Plot10Mu( name, xLim/2, yLim, 0.2*xLim );
   TPaveText* atext = new TPaveText(0.2 * xLim, 0.85 * yLim, 0.66 * xLim, 0.99 * yLim);
-  //atext->AddText(sliceLeg);
   atext->AddText(sliceLeg);
   atext->SetLineColor(0);
   atext->SetFillColor(0);
@@ -95,9 +87,6 @@ int makeRPhiArrowPlot(TTree* data,
   atext->SetTextSize(0.04);
   atext->Draw();
 
-  //char outfile[192];
-  //sprintf( outfile, "%s/%s.png", outputDir_, name );
-  //OBPCanvas->Print( outfile );
   std::ostringstream outfile_s;
   outfile_s << outputDir_ << "/" << name << ".png";
   TString outfile(outfile_s.str());
@@ -105,8 +94,6 @@ int makeRPhiArrowPlot(TTree* data,
   std::ostringstream outfile2_s;
   outfile2_s << outputDir_ << "/" << name << ".pdf";
   TString outfile2(outfile2_s.str());
-  //sprintf(outfile, "%s/%s.pdf", outputDir_, name);
-  //OBPCanvas->SaveAs(outfile);
   OBPCanvas->SaveAs(outfile2);
 
   delete atext;
@@ -148,12 +135,9 @@ int makeZPhiArrowPlot(TTree* data,
   }
   DrawRPhiLegend(zLim, phiLim, barrelRPhiRescale);
 
-  //char sliceLeg[192];
-  //sprintf( sliceLeg, "%s: %f < r <= %f", name, rMin, rMax );
   std::ostringstream sliceLeg_s;
   sliceLeg_s << name << ": " << rMin << " < r <= " << rMax;
   TString sliceLeg(sliceLeg_s.str());
-  //Plot10Mu( name, xLim/2, yLim, 0.2*xLim );
   TPaveText* atext = new TPaveText(0.2 * zLim, 0.85 * phiLim, 0.66 * zLim, 0.99 * phiLim);
   atext->AddText(sliceLeg);
   atext->SetLineColor(0);
@@ -162,14 +146,10 @@ int makeZPhiArrowPlot(TTree* data,
   atext->SetTextSize(0.04);
   atext->Draw();
 
-  //char outfile[192];
-  //sprintf( outfile, "%s/%s.png", outputDir_, name );
   std::ostringstream outfile_s;
   outfile_s << outputDir_ << "/" << name << ".png";
   TString outfile(outfile_s.str());
   OBPCanvas->Print(outfile);
-  //sprintf(outfile, "%s/%s.pdf", outputDir_, name);
-  //OBPCanvas->SaveAs(outfile);
   std::ostringstream outfile2_s;
   outfile2_s << outputDir_ << "/" << name << ".pdf";
   TString outfile2(outfile2_s.str());
