@@ -166,23 +166,6 @@
 #define _DEFINE_METADATA_MEMBERS(R, DATA, TYPE_NAME) _DEFINE_METADATA_MEMBERS_IMPL TYPE_NAME
 
 // clang-format off
-#define _TRIVIAL_VIEW_ELEMENT_TUPLE_TYPES_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                             \
-  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
-      /* Scalar (empty) */                                                                                             \
-      ,                                                                                                                \
-      /* Column */                                                                                                     \
-      (CPP_TYPE)                                                                                                       \
-      ,                                                                                                                \
-      /* Eigen column */                                                                                               \
-      (CPP_TYPE)                                                                                                       \
-)
-// clang-format on
-
-#define _TRIVIAL_VIEW_ELEMENT_TUPLE_TYPES(R, DATA, TYPE_NAME) _TRIVIAL_VIEW_ELEMENT_TUPLE_TYPES_IMPL TYPE_NAME
-/**
- * Member assignment for trivial constructor
- */
-// clang-format off
 #define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                          \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar */                                                                                                     \
@@ -197,6 +180,58 @@
 
 #define _DECLARE_MEMBER_TRIVIAL_CONSTRUCTION(R, DATA, TYPE_NAME) \
   BOOST_PP_EXPAND(_DECLARE_MEMBER_TRIVIAL_CONSTRUCTION_IMPL TYPE_NAME)
+
+/**
+ * Declare the value_element data members
+ */
+// clang-format off
+#define _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                 \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+      /* Scalar (empty) */                                                                                             \
+      ,                                                                                                                \
+      /* Column */                                                                                                     \
+      CPP_TYPE NAME;                                                                                                   \
+      ,                                                                                                                \
+      /* Eigen column */                                                                                               \
+      CPP_TYPE NAME;                                                                                                   \
+  )
+// clang-format on
+
+#define _DEFINE_VALUE_ELEMENT_MEMBERS(R, DATA, TYPE_NAME) _DEFINE_VALUE_ELEMENT_MEMBERS_IMPL TYPE_NAME
+
+/**
+ * List of data members in the value_element constructor arguments
+ */
+// clang-format off
+#define _VALUE_ELEMENT_CTOR_ARGS_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                      \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+      /* Scalar (empty) */                                                                                             \
+      ,                                                                                                                \
+      /* Column */                                                                                                     \
+      (CPP_TYPE NAME),                                                                                                 \
+      /* Eigen column */                                                                                               \
+      (CPP_TYPE NAME)                                                                                                  \
+  )
+// clang-format on
+
+#define _VALUE_ELEMENT_CTOR_ARGS(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_VALUE_ELEMENT_CTOR_ARGS_IMPL TYPE_NAME)
+
+/**
+ * List-initalise the value_element data members
+ */
+// clang-format off
+#define _VALUE_ELEMENT_INITIALIZERS_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                                   \
+  _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
+      /* Scalar (empty) */                                                                                             \
+      ,                                                                                                                \
+      /* Column */                                                                                                     \
+      (NAME{NAME}),                                                                                                    \
+      /* Eigen column */                                                                                               \
+      (NAME{NAME})                                                                                                     \
+  )
+// clang-format on
+
+#define _VALUE_ELEMENT_INITIALIZERS(R, DATA, TYPE_NAME) BOOST_PP_EXPAND(_VALUE_ELEMENT_INITIALIZERS_IMPL TYPE_NAME)
 
 /**
  * Computation of the column or scalar pointer location in the memory layout (at SoA construction time)
@@ -404,11 +439,18 @@
       SOA_HOST_DEVICE SOA_INLINE CLASS cloneToNewAddress(std::byte* addr) const {                                      \
         return CLASS(addr, parent_.nElements_);                                                                        \
       }                                                                                                                \
+                                                                                                                       \
       _ITERATE_ON_ALL(_DEFINE_METADATA_MEMBERS, ~, __VA_ARGS__)                                                        \
                                                                                                                        \
-      using RowInitializer = std::tuple <                                                                              \
-        _ITERATE_ON_ALL_COMMA(_TRIVIAL_VIEW_ELEMENT_TUPLE_TYPES, BOOST_PP_EMPTY(), __VA_ARGS__)                        \
-      >;                                                                                                               \
+      struct value_element {                                                                                           \
+        SOA_HOST_DEVICE SOA_INLINE value_element(                                                                      \
+          _ITERATE_ON_ALL_COMMA(_VALUE_ELEMENT_CTOR_ARGS, ~, __VA_ARGS__)                                              \
+        ) :                                                                                                            \
+          _ITERATE_ON_ALL_COMMA(_VALUE_ELEMENT_INITIALIZERS, ~, __VA_ARGS__)                                           \
+        {}                                                                                                             \
+                                                                                                                       \
+        _ITERATE_ON_ALL(_DEFINE_VALUE_ELEMENT_MEMBERS, ~, __VA_ARGS__)                                                 \
+      };                                                                                                               \
                                                                                                                        \
       Metadata& operator=(const Metadata&) = delete;                                                                   \
       Metadata(const Metadata&) = delete;                                                                              \

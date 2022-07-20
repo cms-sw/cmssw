@@ -416,24 +416,23 @@ namespace cms::soa {
   BOOST_PP_EXPAND(_DECLARE_CONST_VIEW_SOA_MEMBER_IMPL BOOST_PP_TUPLE_PUSH_BACK(LAYOUT_MEMBER_NAME, DATA))
 
 /**
-  * Element members for trivial mutable view only (listing only the column elements at macro time thanks to the
-  * layout list of elements.
-  */
+ * Assign the value of the view from the values in the value_element.
+ */
 
 // clang-format off
-#define _TRIVIAL_VIEW_COLUMN_ELEMENT_TIE_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                              \
+#define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL(VALUE_TYPE, CPP_TYPE, NAME)                                            \
   _SWITCH_ON_TYPE(VALUE_TYPE,                                                                                          \
       /* Scalar (empty) */                                                                                             \
       ,                                                                                                                \
       /* Column */                                                                                                     \
-      (NAME())                                                                                                         \
+      NAME() = value.NAME;                                                                                             \
       ,                                                                                                                \
       /* Eigen column */                                                                                               \
-      (NAME())                                                                                                         \
+      NAME() = value.NAME;                                                                                             \
 )
 // clang-format on
 
-#define _TRIVIAL_VIEW_COLUMN_ELEMENT_TIE(R, DATA, TYPE_NAME) _TRIVIAL_VIEW_COLUMN_ELEMENT_TIE_IMPL TYPE_NAME
+#define _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT(R, DATA, TYPE_NAME) _TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT_IMPL TYPE_NAME
 
 /* ---- MUTABLE VIEW ------------------------------------------------------------------------------------------------ */
 // clang-format off
@@ -763,14 +762,14 @@ namespace cms::soa {
    using BOOST_PP_CAT(CLASS, _parametrized) = CLASS<VIEW_ALIGNMENT, VIEW_ALIGNMENT_ENFORCEMENT>;                       \
    _GENERATE_SOA_VIEW_PART_1(ConstViewTemplateFreeParams, ViewTemplateFreeParams,                                      \
      SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))                                              \
-   /* Extra operator=() for mutable element */                                                                         \
-   element & operator=(const typename                                                                                  \
-       BOOST_PP_CAT(CLASS, _parametrized)::Metadata::RowInitializer & val) {                                           \
-     std::tie(                                                                                                         \
-       _ITERATE_ON_ALL_COMMA(_TRIVIAL_VIEW_COLUMN_ELEMENT_TIE, BOOST_PP_EMPTY(), __VA_ARGS__)                          \
-     ) = val;                                                                                                          \
+                                                                                                                       \
+   /* Extra operator=() for mutable element to emulate the aggregate initialisation syntax */                          \
+   SOA_HOST_DEVICE SOA_INLINE constexpr element & operator=(const typename                                             \
+       BOOST_PP_CAT(CLASS, _parametrized)::Metadata::value_element value) {                                            \
+     _ITERATE_ON_ALL(_TRIVIAL_VIEW_ASSIGN_VALUE_ELEMENT, ~, __VA_ARGS__)                                               \
      return *this;                                                                                                     \
    }                                                                                                                   \
+                                                                                                                       \
    _GENERATE_SOA_VIEW_PART_2(ConstViewTemplateFreeParams, ViewTemplateFreeParams,                                      \
      SOA_VIEW_LAYOUT_LIST(LAYOUTS_LIST), SOA_VIEW_VALUE_LIST(VALUE_LIST))
 // clang-format on
