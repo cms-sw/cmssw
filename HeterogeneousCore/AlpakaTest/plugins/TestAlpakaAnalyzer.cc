@@ -28,11 +28,24 @@ public:
 
     edm::LogInfo msg("TestAlpakaAnalyzer");
     msg << source_.encode() << ".size() = " << view.metadata().size() << '\n';
-    msg << "data = " << product.buffer().data() << " x = " << view.x() << " y = " << view.y() << " z = " << view.z()
-        << " id = " << view.id() << '\n';
-    msg << std::hex << "[y - x] = 0x" << reinterpret_cast<intptr_t>(view.y()) - reinterpret_cast<intptr_t>(view.x())
-        << " [z - y] = 0x" << reinterpret_cast<intptr_t>(view.z()) - reinterpret_cast<intptr_t>(view.y())
-        << " [id - z] = 0x" << reinterpret_cast<intptr_t>(view.id()) - reinterpret_cast<intptr_t>(view.z());
+    msg << "  data = " << product.buffer().data() << ",\n"
+        << "  x    = " << view.metadata().addressOf_x() << ",\n"
+        << "  y    = " << view.metadata().addressOf_y() << ",\n"
+        << "  z    = " << view.metadata().addressOf_z() << ",\n"
+        << "  id   = " << view.metadata().addressOf_id() << ",\n"
+        << "  r    = " << view.metadata().addressOf_r() << '\n';
+    msg << std::hex << "  [y - x] = 0x"
+        << reinterpret_cast<intptr_t>(view.metadata().addressOf_y()) -
+               reinterpret_cast<intptr_t>(view.metadata().addressOf_x())
+        << "  [z - y] = 0x"
+        << reinterpret_cast<intptr_t>(view.metadata().addressOf_z()) -
+               reinterpret_cast<intptr_t>(view.metadata().addressOf_y())
+        << "  [id - z] = 0x"
+        << reinterpret_cast<intptr_t>(view.metadata().addressOf_id()) -
+               reinterpret_cast<intptr_t>(view.metadata().addressOf_z())
+        << "  [r - id] = 0x"
+        << reinterpret_cast<intptr_t>(view.metadata().addressOf_r()) -
+               reinterpret_cast<intptr_t>(view.metadata().addressOf_id());
   }
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
