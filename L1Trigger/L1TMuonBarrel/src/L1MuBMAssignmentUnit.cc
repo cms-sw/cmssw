@@ -166,11 +166,11 @@ void L1MuBMAssignmentUnit::PhiAU(const L1TMuonBarrelParams& bmtfParams) {
   int phi_8 = static_cast<int>(floor(phi_f * k));
 
   if (second == nullptr && first) {
-    int bend_angle = L1TMB_bitShift::bitShift((first->phib() >> sh_phib),sh_phib);
+    int bend_angle = L1TMB_bitShift::bitShift((first->phib() >> sh_phib), sh_phib);
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(0, bend_angle);
     //phi_8 = phi_8 + getDeltaPhi(0, bend_angle, bmtfParams->phi_lut());
   } else if (second == nullptr && forth) {
-    int bend_angle = L1TMB_bitShift::bitShift((forth->phib() >> sh_phib),sh_phib);
+    int bend_angle = L1TMB_bitShift::bitShift((forth->phib() >> sh_phib), sh_phib);
     phi_8 = phi_8 + thePhiLUTs->getDeltaPhi(1, bend_angle);
     //phi_8 = phi_8 + getDeltaPhi(1, bend_angle, bmtfParams->phi_lut());
   }
@@ -658,7 +658,7 @@ int L1MuBMAssignmentUnit::phiDiff(int stat1, int stat2) const {
   //  assert( abs(sectordiff) <= 1 );
 
   int offset = (2144 >> sh_phi) * sectordiff;
-  int bendangle = L1TMB_bitShift::bitShift((phi2 - phi1 + offset),sh_phi);
+  int bendangle = L1TMB_bitShift::bitShift((phi2 - phi1 + offset), sh_phi);
 
   return bendangle;
 }

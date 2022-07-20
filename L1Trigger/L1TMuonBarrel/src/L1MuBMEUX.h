@@ -124,7 +124,7 @@ private:
   L1MuDTTFParameters pars;
 };
 
-namespace L1TMB_bitShift{
+namespace L1TMB_bitShift {
   int bitShift(int num, int bits);
 }
 

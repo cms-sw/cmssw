@@ -38,17 +38,15 @@
 #include "CondFormats/DataRecord/interface/L1MuDTTFParametersRcd.h"
 #include "CondFormats/L1TObjects/interface/L1MuDTExtParam.h"
 
-namespace L1TMB_bitShift{
-  int bitShift(int num, int bits){
-    if(num<0){
-      return -1*( (-1*num) << bits);
-    }
-    else{
+namespace L1TMB_bitShift {
+  int bitShift(int num, int bits) {
+    if (num < 0) {
+      return -1 * ((-1 * num) << bits);
+    } else {
       return (num << bits);
     }
   }
-}
-
+}  // namespace L1TMB_bitShift
 
 using namespace std;
 
@@ -174,7 +172,7 @@ void L1MuBMEUX::run(const L1TMuonBarrelParams& bmtfParams) {
 
   int phi_target = m_target->phi() >> sh_phi;
   int phi_start = m_start->phi() >> sh_phi;
-  int phib_start = L1TMB_bitShift::bitShift((m_start->phib() >> sh_phib),sh_phib);
+  int phib_start = L1TMB_bitShift::bitShift((m_start->phib() >> sh_phib), sh_phib);
   if (phib_start < 0)
     phib_start += (1 << sh_phib) - 1;
 

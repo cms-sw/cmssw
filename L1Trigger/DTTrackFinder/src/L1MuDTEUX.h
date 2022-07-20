@@ -119,7 +119,7 @@ private:
   unsigned short const nbit_phib = 10;  // number of bits used for phib
 };
 
-namespace DT_bitShift{
+namespace DT_bitShift {
   int bitShift(int num, int bits);
 }
 

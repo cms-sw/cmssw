@@ -20,8 +20,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-
-namespace RPC_bitShift{
+namespace RPC_bitShift {
   int bitShift(int num, int bits);
 }
 
