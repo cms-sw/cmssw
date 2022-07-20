@@ -885,6 +885,15 @@ namespace edm {
         if (m_statisticsResets[i])
           m_statisticsDestControls[i]->wipe();
       }
+      auto dropped = m_tooManyWaitingMessagesCount.load();
+      if (m_statisticsDestControls.empty() and dropped != 0) {
+        if (m_stream_ps.find("cerr") != m_stream_ps.end()) {
+          std::cerr << "MessageLogger: dropped waiting message count " << dropped << "\n";
+        }
+        if (m_stream_ps.find("cout") != m_stream_ps.end()) {
+          std::cout << "MessageLogger: dropped waiting message count " << dropped << "\n";
+        }
+      }
     }
 
     void ThreadSafeLogMessageLoggerScribe::triggerFJRmessageSummary(std::map<std::string, double>& sm)  // ChangeLog 29
