@@ -64,7 +64,7 @@ bool EmbeddingHepMCFilter::filter(const HepMC::GenEvent *evt) {
   for (HepMC::GenEvent::particle_const_iterator particle = evt->particles_begin(); particle != evt->particles_end();
        ++particle) {
     int mom_id = 0;           // no particle available with PDG ID 0
-    bool isHardProc = false;  // mother is ZPDGID_, or is from DY process qq -> ll
+    bool isHardProc = false;  // mother is ZPDGID_, or is lepton from hard process (DY process qq -> ll)
     int pdg_id = std::abs((*particle)->pdg_id());
     HepMC::GenVertex *vertex = (*particle)->production_vertex();
     if (vertex != nullptr) {  // search for the mom via the production_vertex
@@ -76,8 +76,8 @@ bool EmbeddingHepMCFilter::filter(const HepMC::GenEvent *evt) {
         isHardProc = true;  // intermediate boson
       } else if (includeDY_ && 11 <= pdg_id && pdg_id <= 16 && mcTruthHelper_.isFirstCopy(**particle) &&
                  mcTruthHelper_.fromHardProcess(**particle)) {
-        std::cout << "Found prompt particle: " << (*particle)->pdg_id() << " with mother " << mom_id << std::endl;
-        isHardProc = true;  // Drell-Yan qq -> ll without intermediate boson
+        edm::LogInfo("EmbeddingHepMCFilter") << (*particle)->pdg_id() << " with mother " << (*mom)->pdg_id();
+        isHardProc = true;  // assume Drell-Yan qq -> ll without intermediate boson
       }
     }
 
