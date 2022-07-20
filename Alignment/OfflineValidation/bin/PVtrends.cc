@@ -31,7 +31,7 @@ using namespace AllInOneConfig;
 namespace fs = boost::filesystem;
 
 static const char *bold = "\e[1m", *normal = "\e[0m";
-
+static const float defaultConvertScale = 1000.;
 namespace pt = boost::property_tree;
 
 int trends(int argc, char *argv[]) {
@@ -106,8 +106,9 @@ int trends(int argc, char *argv[]) {
 
   assert(fs::exists(pname));
 
-  float convertUnit =
-      style.get_child("trends").count("convertUnit") ? style.get_child("trends").get<float>("convertUnit") : 1000.;
+  float convertUnit = style.get_child("trends").count("convertUnit")
+                          ? style.get_child("trends").get<float>("convertUnit")
+                          : defaultConvertScale;
   int firstRun = validation.count("firstRun") ? validation.get<int>("firstRun") : 272930;
   int lastRun = validation.count("lastRun") ? validation.get<int>("lastRun") : 325175;
 

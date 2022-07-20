@@ -20,7 +20,7 @@
 class SmartSelectionMonitor {
 public:
   SmartSelectionMonitor() {}
-  ~SmartSelectionMonitor() {}
+  ~SmartSelectionMonitor() = default;
 
   typedef std::unordered_map<std::string, std::map<std::string, TH1*>*> Monitor_t;
 
@@ -50,7 +50,6 @@ public:
     h->Reset("ICE");
     h->SetDirectory(gROOT);
     (*map)[tag] = h;
-    //    printf("new histo created with name = %30s and tag = %15s: Name=%s\n",allName.c_str(), tag.c_str(), h->GetName());
     return true;
   }
 
@@ -89,7 +88,6 @@ public:
         if (h->first == "all") {
           h->second->SetName(Form("%s_%s", h->first.c_str(), h->second->GetName()));
         }
-        //printf("histo = %30s tag = %15s Name = %s\n",it->first.c_str(), h->first.c_str(),  h->second->GetName());
         h->second->Write();
       }
 

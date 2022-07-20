@@ -8,7 +8,6 @@
 #include <TROOT.h>
 #include <TCanvas.h>
 #include <TLegend.h>
-//#include <TH1.h> // TODO
 #include <TGraph.h>
 
 ////////////////////////////////////////////////////////////////////////////////
