@@ -39,7 +39,6 @@
 
 #include "HeavyFlavorAnalysis/RecoDecay/interface/BPHTrackReference.h"
 
-
 //
 // class declaration
 //
@@ -48,12 +47,12 @@ struct ComponentHists {
   dqm::reco::MonitorElement* h_pt;
   dqm::reco::MonitorElement* h_eta;
   dqm::reco::MonitorElement* h_phi;
-  
+
   dqm::reco::MonitorElement* h_dxy;
   dqm::reco::MonitorElement* h_exy;
   dqm::reco::MonitorElement* h_dz;
   dqm::reco::MonitorElement* h_ez;
-  
+
   dqm::reco::MonitorElement* h_chi2;
 };
 
@@ -63,21 +62,21 @@ struct DecayHists {
   dqm::reco::MonitorElement* h_pt;
   dqm::reco::MonitorElement* h_eta;
   dqm::reco::MonitorElement* h_phi;
-  
+
   // position
   dqm::reco::MonitorElement* h_displ2D;
   dqm::reco::MonitorElement* h_displ3D;
   dqm::reco::MonitorElement* h_sign2D;
   dqm::reco::MonitorElement* h_sign3D;
-  
+
   // ct and pointing angle
   dqm::reco::MonitorElement* h_ct;
   dqm::reco::MonitorElement* h_pointing;
-  
+
   // quality
   dqm::reco::MonitorElement* h_vertNormChi2;
   dqm::reco::MonitorElement* h_vertProb;
-  
+
   std::vector<ComponentHists> decayComponents;
 };
 
@@ -115,58 +114,157 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  void bookHistograms(DQMStore::IBooker&,
-                      edm::Run const&,
-                      edm::EventSetup const&,
-                      Histograms&) const override;
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, Histograms&) const override;
 
   void dqmAnalyze(edm::Event const&, edm::EventSetup const&, Histograms const&) const override;
-  
-  void bookDecayHists(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&, std::string const&, std::string const&, int, float, float, float distanceScaleFactor = 1.) const;
-  void initComponentHists(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&, TString const&) const; // TString for the IBooker interface
-  
+
+  void bookDecayHists(DQMStore::IBooker&,
+                      edm::Run const&,
+                      edm::EventSetup const&,
+                      DecayHists&,
+                      std::string const&,
+                      std::string const&,
+                      int,
+                      float,
+                      float,
+                      float distanceScaleFactor = 1.) const;
+  void initComponentHists(DQMStore::IBooker&,
+                          edm::Run const&,
+                          edm::EventSetup const&,
+                          DecayHists&,
+                          TString const&) const;  // TString for the IBooker interface
+
   void initOniaToMuMuComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
   void initKx0ToKPiComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
   void initPhiToKKComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
   void initK0sToPiPiComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
-  void initLambda0ToPPiComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
+  void initLambda0ToPPiComponentHistograms(DQMStore::IBooker&,
+                                           edm::Run const&,
+                                           edm::EventSetup const&,
+                                           DecayHists&) const;
   void initBuToJPsiKComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
   void initBuToPsi2SKComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
-  void initBdToJPsiKx0ComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
-  void initBsToJPsiPhiComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
-  void initBdToJPsiK0sComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
+  void initBdToJPsiKx0ComponentHistograms(DQMStore::IBooker&,
+                                          edm::Run const&,
+                                          edm::EventSetup const&,
+                                          DecayHists&) const;
+  void initBsToJPsiPhiComponentHistograms(DQMStore::IBooker&,
+                                          edm::Run const&,
+                                          edm::EventSetup const&,
+                                          DecayHists&) const;
+  void initBdToJPsiK0sComponentHistograms(DQMStore::IBooker&,
+                                          edm::Run const&,
+                                          edm::EventSetup const&,
+                                          DecayHists&) const;
   void initBcToJPsiPiComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
-  void initLambdaBToJPsiLambda0ComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
-  void initPsi2SToJPsiPiPiComponentHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&, DecayHists&) const;
-  
-  bool fillDecayHistograms(DecayHists const&, pat::CompositeCandidate const& cand, reco::VertexCollection const& pvs) const;
-  void fillComponentHistograms(ComponentHists const& histos, reco::Track const& component) const;
-  
-  int fillComponentHistogramsSinglePart(DecayHists const&, pat::CompositeCandidate const& cand, std::string const& name, int startPosition = 0) const;
-  int fillComponentHistogramsLeadSoft(DecayHists const&, pat::CompositeCandidate const& cand, std::string const& name1, std::string const& name2, int startPosition = 0) const;
-  
-  const reco::Track* getDaughterTrack(pat::CompositeCandidate const& cand, std::string const& name, bool throwOnMissing = true) const;
+  void initLambdaBToJPsiLambda0ComponentHistograms(DQMStore::IBooker&,
+                                                   edm::Run const&,
+                                                   edm::EventSetup const&,
+                                                   DecayHists&) const;
+  void initPsi2SToJPsiPiPiComponentHistograms(DQMStore::IBooker&,
+                                              edm::Run const&,
+                                              edm::EventSetup const&,
+                                              DecayHists&) const;
+
+  reco::Vertex const* fillDecayHistograms(DecayHists const&,
+                                          pat::CompositeCandidate const& cand,
+                                          reco::VertexCollection const& pvs) const;
+  void fillComponentHistograms(ComponentHists const& histos,
+                               reco::Track const& component,
+                               reco::BeamSpot const* bs,
+                               reco::Vertex const* pv) const;
+
+  int fillComponentHistogramsSinglePart(DecayHists const&,
+                                        pat::CompositeCandidate const& cand,
+                                        std::string const& name,
+                                        reco::BeamSpot const* bs,
+                                        reco::Vertex const* pv,
+                                        int startPosition = 0) const;
+  int fillComponentHistogramsLeadSoft(DecayHists const&,
+                                      pat::CompositeCandidate const& cand,
+                                      std::string const& name1,
+                                      std::string const& name2,
+                                      reco::BeamSpot const* bs,
+                                      reco::Vertex const* pv,
+                                      int startPosition = 0) const;
+
+  const reco::Track* getDaughterTrack(pat::CompositeCandidate const& cand,
+                                      std::string const& name,
+                                      bool throwOnMissing = true) const;
   bool allTracksAvailable(pat::CompositeCandidate const& cand) const;
-  
-  int fillOniaToMuMuComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillKx0ToKPiComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillPhiToKKComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillK0sToPiPiComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillLambda0ToPPiComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillBuToJPsiKComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillBuToPsi2SKComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillBdToJPsiKx0Components(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillBsToJPsiPhiComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillBdToJPsiK0sComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillBcToJPsiPiComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillLambdaBToJPsiLambda0Components(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
-  int fillPsi2SToJPsiPiPiComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
+
+  int fillOniaToMuMuComponents(DecayHists const& histos,
+                               pat::CompositeCandidate const& cand,
+                               reco::BeamSpot const* bs,
+                               reco::Vertex const* pv,
+                               int startPosition = 0) const;
+  int fillKx0ToKPiComponents(DecayHists const& histos,
+                             pat::CompositeCandidate const& cand,
+                             reco::BeamSpot const* bs,
+                             reco::Vertex const* pv,
+                             int startPosition = 0) const;
+  int fillPhiToKKComponents(DecayHists const& histos,
+                            pat::CompositeCandidate const& cand,
+                            reco::BeamSpot const* bs,
+                            reco::Vertex const* pv,
+                            int startPosition = 0) const;
+  int fillK0sToPiPiComponents(DecayHists const& histos,
+                              pat::CompositeCandidate const& cand,
+                              reco::BeamSpot const* bs,
+                              reco::Vertex const* pv,
+                              int startPosition = 0) const;
+  int fillLambda0ToPPiComponents(DecayHists const& histos,
+                                 pat::CompositeCandidate const& cand,
+                                 reco::BeamSpot const* bs,
+                                 reco::Vertex const* pv,
+                                 int startPosition = 0) const;
+  int fillBuToJPsiKComponents(DecayHists const& histos,
+                              pat::CompositeCandidate const& cand,
+                              reco::BeamSpot const* bs,
+                              reco::Vertex const* pv,
+                              int startPosition = 0) const;
+  int fillBuToPsi2SKComponents(DecayHists const& histos,
+                               pat::CompositeCandidate const& cand,
+                               reco::BeamSpot const* bs,
+                               reco::Vertex const* pv,
+                               int startPosition = 0) const;
+  int fillBdToJPsiKx0Components(DecayHists const& histos,
+                                pat::CompositeCandidate const& cand,
+                                reco::BeamSpot const* bs,
+                                reco::Vertex const* pv,
+                                int startPosition = 0) const;
+  int fillBsToJPsiPhiComponents(DecayHists const& histos,
+                                pat::CompositeCandidate const& cand,
+                                reco::BeamSpot const* bs,
+                                reco::Vertex const* pv,
+                                int startPosition = 0) const;
+  int fillBdToJPsiK0sComponents(DecayHists const& histos,
+                                pat::CompositeCandidate const& cand,
+                                reco::BeamSpot const* bs,
+                                reco::Vertex const* pv,
+                                int startPosition = 0) const;
+  int fillBcToJPsiPiComponents(DecayHists const& histos,
+                               pat::CompositeCandidate const& cand,
+                               reco::BeamSpot const* bs,
+                               reco::Vertex const* pv,
+                               int startPosition = 0) const;
+  int fillLambdaBToJPsiLambda0Components(DecayHists const& histos,
+                                         pat::CompositeCandidate const& cand,
+                                         reco::BeamSpot const* bs,
+                                         reco::Vertex const* pv,
+                                         int startPosition = 0) const;
+  int fillPsi2SToJPsiPiPiComponents(DecayHists const& histos,
+                                    pat::CompositeCandidate const& cand,
+                                    reco::BeamSpot const* bs,
+                                    reco::Vertex const* pv,
+                                    int startPosition = 0) const;
 
   // ------------ member data ------------
   std::string folder_;
-  
+
   edm::EDGetTokenT<reco::VertexCollection> pvCollectionToken;
-  
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
+
   edm::EDGetTokenT<pat::CompositeCandidateCollection> oniaToMuMuCandsToken;
   edm::EDGetTokenT<pat::CompositeCandidateCollection> kx0ToKPiCandsToken;
   edm::EDGetTokenT<pat::CompositeCandidateCollection> phiToKKCandsToken;
