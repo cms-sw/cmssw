@@ -57,21 +57,19 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions &descriptions);
 
 private:
-  int verbosity_;
-  int maxHitPerPlane_;
-  int maxHitPerRomanPot_;
-  int maxTrackPerRomanPot_;
-  int maxTrackPerPattern_;
+  const int verbosity_;
+  const int maxHitPerPlane_;
+  const int maxHitPerRomanPot_;
+  const int maxTrackPerRomanPot_;
+  const int maxTrackPerPattern_;
 
-  edm::InputTag inputTag_;
-  edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
+  const edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelRecHit>> tokenCTPPSPixelRecHit_;
   const edm::ESGetToken<CTPPSGeometry, VeryForwardRealGeometryRecord> tokenCTPPSGeometry_;
   edm::ESWatcher<VeryForwardRealGeometryRecord> geometryWatcher_;
 
   const edm::ESGetToken<CTPPSPixelAnalysisMask, CTPPSPixelAnalysisMaskRcd> tokenCTPPSPixelAnalysisMask_;
 
-  uint32_t numberOfPlanesPerPot_;
-  std::vector<uint32_t> listOfAllPlanes_;
+  const uint32_t numberOfPlanesPerPot_;
 
   std::unique_ptr<RPixDetPatternFinder> patternFinder_;
   std::unique_ptr<RPixDetTrackFinder> trackFinder_;
@@ -92,6 +90,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
       numberOfPlanesPerPot_(parameterSet.getParameter<int>("numberOfPlanesPerPot")) {
   std::string patternFinderAlgorithm = parameterSet.getParameter<std::string>("patternFinderAlgorithm");
   std::string trackFitterAlgorithm = parameterSet.getParameter<std::string>("trackFinderAlgorithm");
+  std::vector<uint32_t> listOfAllPlanes_;
 
   // pattern algorithm selector
   if (patternFinderAlgorithm == "RPixRoadFinder") {
@@ -101,7 +100,6 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
         << "Pattern finder algorithm" << patternFinderAlgorithm << " does not exist";
   }
 
-  listOfAllPlanes_.reserve(6);
   for (uint32_t i = 0; i < numberOfPlanesPerPot_; ++i) {
     listOfAllPlanes_.push_back(i);
   }
