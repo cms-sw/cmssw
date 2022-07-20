@@ -2038,7 +2038,7 @@ steps['TIER0PROMPTRUN3']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@allFor
                           '--process':'RECO',
                           '--datatier':'ALCARECO,DQMIO',
                           '--eventcontent':'ALCARECO,DQM',
-                          #'--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
+                          '--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                           '--era':'Run3',
                           '--conditions':'auto:run3_data_prompt'
                           },steps['TIER0']])
