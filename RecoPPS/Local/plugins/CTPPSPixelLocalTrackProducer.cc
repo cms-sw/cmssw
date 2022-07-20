@@ -90,7 +90,6 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
       numberOfPlanesPerPot_(parameterSet.getParameter<int>("numberOfPlanesPerPot")) {
   std::string patternFinderAlgorithm = parameterSet.getParameter<std::string>("patternFinderAlgorithm");
   std::string trackFitterAlgorithm = parameterSet.getParameter<std::string>("trackFinderAlgorithm");
-  std::vector<uint32_t> listOfAllPlanes_;
 
   // pattern algorithm selector
   if (patternFinderAlgorithm == "RPixRoadFinder") {
@@ -100,8 +99,9 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
         << "Pattern finder algorithm" << patternFinderAlgorithm << " does not exist";
   }
 
+  std::vector<uint32_t> listOfAllPlanes;
   for (uint32_t i = 0; i < numberOfPlanesPerPot_; ++i) {
-    listOfAllPlanes_.push_back(i);
+    listOfAllPlanes.push_back(i);
   }
 
   //tracking algorithm selector
@@ -111,7 +111,7 @@ CTPPSPixelLocalTrackProducer::CTPPSPixelLocalTrackProducer(const edm::ParameterS
     throw cms::Exception("CTPPSPixelLocalTrackProducer")
         << "Tracking fitter algorithm" << trackFitterAlgorithm << " does not exist";
   }
-  trackFinder_->setListOfPlanes(listOfAllPlanes_);
+  trackFinder_->setListOfPlanes(listOfAllPlanes);
   trackFinder_->initialize();
   produces<edm::DetSetVector<CTPPSPixelLocalTrack>>();
 }
