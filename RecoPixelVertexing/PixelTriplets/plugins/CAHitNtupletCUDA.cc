@@ -25,17 +25,17 @@
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <typename TrackerTraits>
-class CAHitNtupletCUDAT : public edm::global::EDProducer<> {
+class CAHitNtupletCUDA : public edm::global::EDProducer<> {
   using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
 
   using HitsView = TrackingRecHit2DSOAViewT<TrackerTraits>;
   using HitsOnGPU = TrackingRecHit2DGPUT<TrackerTraits>;
   using HitsOnCPU = TrackingRecHit2DCPUT<TrackerTraits>;
-  using GPUAlgo = CAHitNtupletGeneratorOnGPUT<TrackerTraits>;
+  using GPUAlgo = CAHitNtupletGeneratorOnGPU<TrackerTraits>;
 
 public:
-  explicit CAHitNtupletCUDAT(const edm::ParameterSet& iConfig);
-  ~CAHitNtupletCUDAT() override = default;
+  explicit CAHitNtupletCUDA(const edm::ParameterSet& iConfig);
+  ~CAHitNtupletCUDA() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -57,7 +57,7 @@ private:
 };
 
 template <typename TrackerTraits>
-CAHitNtupletCUDAT<TrackerTraits>::CAHitNtupletCUDAT(const edm::ParameterSet& iConfig)
+CAHitNtupletCUDA<TrackerTraits>::CAHitNtupletCUDA(const edm::ParameterSet& iConfig)
     : onGPU_(iConfig.getParameter<bool>("onGPU")), tokenField_(esConsumes()), gpuAlgo_(iConfig, consumesCollector()) {
   if (onGPU_) {
     tokenHitGPU_ = consumes<cms::cuda::Product<HitsOnGPU>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"));
@@ -69,7 +69,7 @@ CAHitNtupletCUDAT<TrackerTraits>::CAHitNtupletCUDAT(const edm::ParameterSet& iCo
 }
 
 template <typename TrackerTraits>
-void CAHitNtupletCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void CAHitNtupletCUDA<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   desc.add<bool>("onGPU", true);
@@ -82,19 +82,19 @@ void CAHitNtupletCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescri
 }
 
 template <typename TrackerTraits>
-void CAHitNtupletCUDAT<TrackerTraits>::beginJob() {
+void CAHitNtupletCUDA<TrackerTraits>::beginJob() {
   gpuAlgo_.beginJob();
 }
 
 template <typename TrackerTraits>
-void CAHitNtupletCUDAT<TrackerTraits>::endJob() {
+void CAHitNtupletCUDA<TrackerTraits>::endJob() {
   gpuAlgo_.endJob();
 }
 
 template <typename TrackerTraits>
-void CAHitNtupletCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
-                                               edm::Event& iEvent,
-                                               const edm::EventSetup& es) const {
+void CAHitNtupletCUDA<TrackerTraits>::produce(edm::StreamID streamID,
+                                              edm::Event& iEvent,
+                                              const edm::EventSetup& es) const {
   auto bf = 1. / es.getData(tokenField_).inverseBzAtOriginInGeV();
 
   if (onGPU_) {
@@ -108,7 +108,7 @@ void CAHitNtupletCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
   }
 }
 
-using CAHitNtupletCUDA = CAHitNtupletCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(CAHitNtupletCUDA);
-using CAHitNtupletCUDAPhase2 = CAHitNtupletCUDAT<pixelTopology::Phase2>;
+using CAHitNtupletCUDAPhase1 = CAHitNtupletCUDA<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(CAHitNtupletCUDAPhase1);
+using CAHitNtupletCUDAPhase2 = CAHitNtupletCUDA<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(CAHitNtupletCUDAPhase2);

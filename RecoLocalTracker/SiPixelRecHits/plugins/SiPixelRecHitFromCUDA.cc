@@ -25,10 +25,10 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/pixelCPEforGPU.h"
 
 template <typename TrackerTraits>
-class SiPixelRecHitFromCUDAT : public edm::stream::EDProducer<edm::ExternalWork> {
+class SiPixelRecHitFromCUDA : public edm::stream::EDProducer<edm::ExternalWork> {
 public:
-  explicit SiPixelRecHitFromCUDAT(const edm::ParameterSet& iConfig);
-  ~SiPixelRecHitFromCUDAT() override = default;
+  explicit SiPixelRecHitFromCUDA(const edm::ParameterSet& iConfig);
+  ~SiPixelRecHitFromCUDA() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -53,7 +53,7 @@ private:
 };
 
 template <typename TrackerTraits>
-SiPixelRecHitFromCUDAT<TrackerTraits>::SiPixelRecHitFromCUDAT(const edm::ParameterSet& iConfig)
+SiPixelRecHitFromCUDA<TrackerTraits>::SiPixelRecHitFromCUDA(const edm::ParameterSet& iConfig)
     : geomToken_(esConsumes()),
       hitsToken_(consumes<cms::cuda::Product<HitsOnGPU>>(iConfig.getParameter<edm::InputTag>("pixelRecHitSrc"))),
       clusterToken_(consumes<SiPixelClusterCollectionNew>(iConfig.getParameter<edm::InputTag>("src"))),
@@ -61,20 +61,20 @@ SiPixelRecHitFromCUDAT<TrackerTraits>::SiPixelRecHitFromCUDAT(const edm::Paramet
       hostPutToken_(produces<HMSstorage>()) {}
 
 template <typename TrackerTraits>
-void SiPixelRecHitFromCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelRecHitFromCUDA<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("pixelRecHitSrc", edm::InputTag("siPixelRecHitsPreSplittingCUDA"));
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelClustersPreSplitting"));
 
-  std::string name = "siPixelRecHitFromCUDA";
-  name += TrackerTraits::nameModifier;
-  descriptions.add(name, desc);
+  std::string label = "siPixelRecHitFromCUDA";
+  label += TrackerTraits::nameModifier;
+  descriptions.add(label, desc);
 }
 
 template <typename TrackerTraits>
-void SiPixelRecHitFromCUDAT<TrackerTraits>::acquire(edm::Event const& iEvent,
-                                                    edm::EventSetup const& iSetup,
-                                                    edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
+void SiPixelRecHitFromCUDA<TrackerTraits>::acquire(edm::Event const& iEvent,
+                                                   edm::EventSetup const& iSetup,
+                                                   edm::WaitingTaskWithArenaHolder waitingTaskHolder) {
   cms::cuda::Product<HitsOnGPU> const& inputDataWrapped = iEvent.get(hitsToken_);
 
   cms::cuda::ScopedContextAcquire ctx{inputDataWrapped, std::move(waitingTaskHolder)};
@@ -92,7 +92,7 @@ void SiPixelRecHitFromCUDAT<TrackerTraits>::acquire(edm::Event const& iEvent,
 }
 
 template <typename TrackerTraits>
-void SiPixelRecHitFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::EventSetup const& es) {
+void SiPixelRecHitFromCUDA<TrackerTraits>::produce(edm::Event& iEvent, edm::EventSetup const& es) {
   // allocate a buffer for the indices of the clusters
   constexpr auto nMaxModules = TrackerTraits::numberOfModules;
   auto hmsp = std::make_unique<uint32_t[]>(nMaxModules + 1);
@@ -197,7 +197,7 @@ void SiPixelRecHitFromCUDAT<TrackerTraits>::produce(edm::Event& iEvent, edm::Eve
   iEvent.emplace(rechitsPutToken_, std::move(output));
 }
 
-using SiPixelRecHitFromCUDA = SiPixelRecHitFromCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(SiPixelRecHitFromCUDA);
-using SiPixelRecHitFromCUDAPhase2 = SiPixelRecHitFromCUDAT<pixelTopology::Phase2>;
+using SiPixelRecHitFromCUDAPhase1 = SiPixelRecHitFromCUDA<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(SiPixelRecHitFromCUDAPhase1);
+using SiPixelRecHitFromCUDAPhase2 = SiPixelRecHitFromCUDA<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(SiPixelRecHitFromCUDAPhase2);

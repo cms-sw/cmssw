@@ -402,8 +402,5 @@ void CAHitNtupletGeneratorKernelsGPU<TrackerTraits>::printCounters(Counters cons
   caHitNtupletGeneratorKernels::kernel_printCounters<<<1, 1>>>(counters);
 }
 
-template class CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::GPUTraits, pixelTopology::Phase1>;
-template class CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::GPUTraits, pixelTopology::Phase2>;
-
-template class CAHitNtupletGeneratorKernelsGPUT<cms::cudacompat::GPUTraits, pixelTopology::Phase1>;
-template class CAHitNtupletGeneratorKernelsGPUT<cms::cudacompat::GPUTraits, pixelTopology::Phase2>;
+template class CAHitNtupletGeneratorKernelsGPU<pixelTopology::Phase1>;
+template class CAHitNtupletGeneratorKernelsGPU<pixelTopology::Phase2>;

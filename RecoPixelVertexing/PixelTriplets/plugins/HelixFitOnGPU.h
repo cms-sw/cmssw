@@ -41,7 +41,7 @@ namespace riemannFit {
 }  // namespace riemannFit
 
 template <typename TrackerTraits>
-class HelixFitOnGPUT {
+class HelixFitOnGPU {
 public:
   using HitsView = TrackingRecHit2DSOAViewT<TrackerTraits>;
 
@@ -50,8 +50,8 @@ public:
 
   using TupleMultiplicity = caStructures::TupleMultiplicityT<TrackerTraits>;
 
-  explicit HelixFitOnGPUT(float bf, bool fitNas4) : bField_(bf), fitNas4_(fitNas4) {}
-  ~HelixFitOnGPUT() { deallocateOnGPU(); }
+  explicit HelixFitOnGPU(float bf, bool fitNas4) : bField_(bf), fitNas4_(fitNas4) {}
+  ~HelixFitOnGPU() { deallocateOnGPU(); }
 
   void setBField(double bField) { bField_ = bField; }
   void launchRiemannKernels(HitsView const *hv, uint32_t nhits, uint32_t maxNumberOfTuples, cudaStream_t cudaStream);

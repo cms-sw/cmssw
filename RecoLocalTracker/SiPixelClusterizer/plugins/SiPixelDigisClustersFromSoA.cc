@@ -22,10 +22,10 @@
 #include "SiPixelClusterThresholds.h"
 
 template <typename TrackerTraits>
-class SiPixelDigisClustersFromSoAT : public edm::global::EDProducer<> {
+class SiPixelDigisClustersFromSoA : public edm::global::EDProducer<> {
 public:
-  explicit SiPixelDigisClustersFromSoAT(const edm::ParameterSet& iConfig);
-  ~SiPixelDigisClustersFromSoAT() override = default;
+  explicit SiPixelDigisClustersFromSoA(const edm::ParameterSet& iConfig);
+  ~SiPixelDigisClustersFromSoA() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -46,7 +46,7 @@ private:
 };
 
 template <typename TrackerTraits>
-SiPixelDigisClustersFromSoAT<TrackerTraits>::SiPixelDigisClustersFromSoAT(const edm::ParameterSet& iConfig)
+SiPixelDigisClustersFromSoA<TrackerTraits>::SiPixelDigisClustersFromSoA(const edm::ParameterSet& iConfig)
     : topoToken_(esConsumes()),
       digiGetToken_(consumes<SiPixelDigisSoA>(iConfig.getParameter<edm::InputTag>("src"))),
       clusterPutToken_(produces<SiPixelClusterCollectionNew>()),
@@ -59,20 +59,23 @@ SiPixelDigisClustersFromSoAT<TrackerTraits>::SiPixelDigisClustersFromSoAT(const 
 }
 
 template <typename TrackerTraits>
-void SiPixelDigisClustersFromSoAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void SiPixelDigisClustersFromSoA<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("src", edm::InputTag("siPixelDigisSoA"));
   desc.add<int>("clusterThreshold_layer1", kSiPixelClusterThresholdsDefaultPhase1.layer1);
   desc.add<int>("clusterThreshold_otherLayers", kSiPixelClusterThresholdsDefaultPhase1.otherLayers);
   desc.add<bool>("produceDigis", true);
   desc.add<bool>("storeDigis", true);
-  descriptions.addWithDefaultLabel(desc);
+
+  std::string label = "siPixelDigisClustersFromSoA";
+  label += TrackerTraits::nameModifier;
+  descriptions.add(label, desc);
 }
 
 template <typename TrackerTraits>
-void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
-                                                          edm::Event& iEvent,
-                                                          const edm::EventSetup& iSetup) const {
+void SiPixelDigisClustersFromSoA<TrackerTraits>::produce(edm::StreamID,
+                                                         edm::Event& iEvent,
+                                                         const edm::EventSetup& iSetup) const {
   const auto& digis = iEvent.get(digiGetToken_);
   const uint32_t nDigis = digis.size();
   const auto& ttopo = iSetup.getData(topoToken_);
@@ -121,7 +124,7 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
     for (int32_t ic = 0; ic < nclus + 1; ++ic) {
       auto const& acluster = aclusters[ic];
       // in any case we cannot  go out of sync with gpu...
-      if (acluster.charge < clusterThreshold and !std::is_same_v<TrackerTraits, pixelTopology::Phase2>)
+      if (std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value and acluster.charge < clusterThreshold)
         edm::LogWarning("SiPixelDigisClustersFromSoA") << "cluster below charge Threshold "
                                                        << "Layer/DetId/clusId " << layer << '/' << detId << '/' << ic
                                                        << " size/charge " << acluster.isize << '/' << acluster.charge;
@@ -204,7 +207,7 @@ void SiPixelDigisClustersFromSoAT<TrackerTraits>::produce(edm::StreamID,
   iEvent.put(clusterPutToken_, std::move(outputClusters));
 }
 
-using SiPixelDigisClustersFromSoA = SiPixelDigisClustersFromSoAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(SiPixelDigisClustersFromSoA);
-using SiPixelDigisClustersFromSoAPhase2 = SiPixelDigisClustersFromSoAT<pixelTopology::Phase2>;
+using SiPixelDigisClustersFromSoAPhase1 = SiPixelDigisClustersFromSoA<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(SiPixelDigisClustersFromSoAPhase1);
+using SiPixelDigisClustersFromSoAPhase2 = SiPixelDigisClustersFromSoA<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(SiPixelDigisClustersFromSoAPhase2);

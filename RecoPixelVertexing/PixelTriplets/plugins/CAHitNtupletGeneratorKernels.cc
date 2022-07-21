@@ -238,8 +238,5 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::classifyTuples(HitsOnCPU co
 #endif
 }
 
-template class CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::CPUTraits, pixelTopology::Phase1>;
-template class CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::CPUTraits, pixelTopology::Phase2>;
-
-template class CAHitNtupletGeneratorKernelsCPUT<cms::cudacompat::CPUTraits, pixelTopology::Phase1>;
-template class CAHitNtupletGeneratorKernelsCPUT<cms::cudacompat::CPUTraits, pixelTopology::Phase2>;
+template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase1>;
+template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase2>;

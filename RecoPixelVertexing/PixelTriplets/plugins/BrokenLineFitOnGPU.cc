@@ -1,9 +1,9 @@
 #include "BrokenLineFitOnGPU.h"
 
 template <typename TrackerTraits>
-void HelixFitOnGPUT<TrackerTraits>::launchBrokenLineKernelsOnCPU(HitsView const* hv,
-                                                                 uint32_t hitsInFit,
-                                                                 uint32_t maxNumberOfTuples) {
+void HelixFitOnGPU<TrackerTraits>::launchBrokenLineKernelsOnCPU(HitsView const* hv,
+                                                                uint32_t hitsInFit,
+                                                                uint32_t maxNumberOfTuples) {
   assert(tuples_);
 
 #ifdef BROKENLINE_DEBUG
@@ -213,5 +213,5 @@ void HelixFitOnGPUT<TrackerTraits>::launchBrokenLineKernelsOnCPU(HitsView const*
   }  // loop on concurrent fits
 }
 
-template class HelixFitOnGPUT<pixelTopology::Phase1>;
-template class HelixFitOnGPUT<pixelTopology::Phase2>;
+template class HelixFitOnGPU<pixelTopology::Phase1>;
+template class HelixFitOnGPU<pixelTopology::Phase2>;

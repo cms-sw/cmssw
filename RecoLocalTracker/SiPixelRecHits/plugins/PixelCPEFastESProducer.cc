@@ -17,9 +17,9 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEFast.h"
 
 template <typename TrackerTraits>
-class PixelCPEFastESProducerT : public edm::ESProducer {
+class PixelCPEFastESProducer : public edm::ESProducer {
 public:
-  PixelCPEFastESProducerT(const edm::ParameterSet& p);
+  PixelCPEFastESProducer(const edm::ParameterSet& p);
   std::unique_ptr<PixelClusterParameterEstimator> produce(const TkPixelCPERecord&);
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -38,7 +38,7 @@ private:
 using namespace edm;
 
 template <typename TrackerTraits>
-PixelCPEFastESProducerT<TrackerTraits>::PixelCPEFastESProducerT(const edm::ParameterSet& p) : pset_(p) {
+PixelCPEFastESProducer<TrackerTraits>::PixelCPEFastESProducer(const edm::ParameterSet& p) : pset_(p) {
   auto const& myname = p.getParameter<std::string>("ComponentName");
   auto const& magname = p.getParameter<edm::ESInputTag>("MagneticFieldRecord");
   useErrorsFromTemplates_ = p.getParameter<bool>("UseErrorsFromTemplates");
@@ -55,7 +55,7 @@ PixelCPEFastESProducerT<TrackerTraits>::PixelCPEFastESProducerT(const edm::Param
 }
 
 template <typename TrackerTraits>
-std::unique_ptr<PixelClusterParameterEstimator> PixelCPEFastESProducerT<TrackerTraits>::produce(
+std::unique_ptr<PixelClusterParameterEstimator> PixelCPEFastESProducer<TrackerTraits>::produce(
     const TkPixelCPERecord& iRecord) {
   // add the new la width object
   const SiPixelLorentzAngle* lorentzAngleWidthProduct = nullptr;
@@ -69,24 +69,24 @@ std::unique_ptr<PixelClusterParameterEstimator> PixelCPEFastESProducerT<TrackerT
     //} else {
     //std::cout<<" pass an empty GenError pointer"<<std::endl;
   }
-  return std::make_unique<PixelCPEFastT<TrackerTraits>>(pset_,
-                                                        &iRecord.get(magfieldToken_),
-                                                        iRecord.get(pDDToken_),
-                                                        iRecord.get(hTTToken_),
-                                                        &iRecord.get(lorentzAngleToken_),
-                                                        genErrorDBObjectProduct,
-                                                        lorentzAngleWidthProduct);
+  return std::make_unique<PixelCPEFast<TrackerTraits>>(pset_,
+                                                       &iRecord.get(magfieldToken_),
+                                                       iRecord.get(pDDToken_),
+                                                       iRecord.get(hTTToken_),
+                                                       &iRecord.get(lorentzAngleToken_),
+                                                       genErrorDBObjectProduct,
+                                                       lorentzAngleWidthProduct);
 }
 
 template <typename TrackerTraits>
-void PixelCPEFastESProducerT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PixelCPEFastESProducer<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   // from PixelCPEBase
   PixelCPEBase::fillPSetDescription(desc);
 
   // from PixelCPEFast
-  PixelCPEFastT<TrackerTraits>::fillPSetDescription(desc);
+  PixelCPEFast<TrackerTraits>::fillPSetDescription(desc);
 
   // used by PixelCPEFast
   desc.add<double>("EdgeClusterErrorX", 50.0);
@@ -94,7 +94,6 @@ void PixelCPEFastESProducerT<TrackerTraits>::fillDescriptions(edm::Configuration
   desc.add<bool>("UseErrorsFromTemplates", true);
   desc.add<bool>("TruncatePixelCharge", true);
 
-  // specific to PixelCPEFastESProducer
   std::string name = "PixelCPEFast";
   name += TrackerTraits::nameModifier;
   desc.add<std::string>("ComponentName", name);
@@ -105,7 +104,7 @@ void PixelCPEFastESProducerT<TrackerTraits>::fillDescriptions(edm::Configuration
   descriptions.add(name, desc);
 }
 
-using PixelCPEFastESProducer = PixelCPEFastESProducerT<pixelTopology::Phase1>;
-DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEFastESProducer);
-using PixelCPEFastESProducerPhase2 = PixelCPEFastESProducerT<pixelTopology::Phase2>;
+using PixelCPEFastESProducerPhase1 = PixelCPEFastESProducer<pixelTopology::Phase1>;
+DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEFastESProducerPhase1);
+using PixelCPEFastESProducerPhase2 = PixelCPEFastESProducer<pixelTopology::Phase2>;
 DEFINE_FWK_EVENTSETUP_MODULE(PixelCPEFastESProducerPhase2);

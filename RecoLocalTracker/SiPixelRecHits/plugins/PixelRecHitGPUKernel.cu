@@ -36,7 +36,7 @@ namespace {
 namespace pixelgpudetails {
 
   template <typename TrackerTraits>
-  TrackingRecHit2DGPUT<TrackerTraits> PixelRecHitGPUKernelT<TrackerTraits>::makeHitsAsync(
+  TrackingRecHit2DGPUT<TrackerTraits> PixelRecHitGPUKernel<TrackerTraits>::makeHitsAsync(
       SiPixelDigisCUDA const& digis_d,
       SiPixelClustersCUDA const& clusters_d,
       BeamSpotCUDA const& bs_d,
@@ -90,6 +90,6 @@ namespace pixelgpudetails {
     return hits_d;
   }
 
-  template class PixelRecHitGPUKernelT<pixelTopology::Phase1>;
-  template class PixelRecHitGPUKernelT<pixelTopology::Phase2>;
+  template class PixelRecHitGPUKernel<pixelTopology::Phase1>;
+  template class PixelRecHitGPUKernel<pixelTopology::Phase2>;
 }  // namespace pixelgpudetails

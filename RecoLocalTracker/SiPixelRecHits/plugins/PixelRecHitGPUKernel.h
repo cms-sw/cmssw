@@ -1,5 +1,5 @@
-#ifndef RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHitGPUKernelT_h
-#define RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHitGPUKernelT_h
+#ifndef RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHitGPUKernel_h
+#define RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHitGPUKernel_h
 
 #include <cstdint>
 
@@ -14,15 +14,15 @@
 namespace pixelgpudetails {
 
   template <typename TrackerTraits>
-  class PixelRecHitGPUKernelT {
+  class PixelRecHitGPUKernel {
   public:
-    PixelRecHitGPUKernelT() = default;
-    ~PixelRecHitGPUKernelT() = default;
+    PixelRecHitGPUKernel() = default;
+    ~PixelRecHitGPUKernel() = default;
 
-    PixelRecHitGPUKernelT(const PixelRecHitGPUKernelT&) = delete;
-    PixelRecHitGPUKernelT(PixelRecHitGPUKernelT&&) = delete;
-    PixelRecHitGPUKernelT& operator=(const PixelRecHitGPUKernelT&) = delete;
-    PixelRecHitGPUKernelT& operator=(PixelRecHitGPUKernelT&&) = delete;
+    PixelRecHitGPUKernel(const PixelRecHitGPUKernel&) = delete;
+    PixelRecHitGPUKernel(PixelRecHitGPUKernel&&) = delete;
+    PixelRecHitGPUKernel& operator=(const PixelRecHitGPUKernel&) = delete;
+    PixelRecHitGPUKernel& operator=(PixelRecHitGPUKernel&&) = delete;
 
     using ParamsOnGPU = pixelCPEforGPU::ParamsOnGPUT<TrackerTraits>;
 
@@ -35,4 +35,4 @@ namespace pixelgpudetails {
 
 }  // namespace pixelgpudetails
 
-#endif  // RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHitGPUKernelT_h
+#endif  // RecoLocalTracker_SiPixelRecHits_plugins_PixelRecHitGPUKernel_h

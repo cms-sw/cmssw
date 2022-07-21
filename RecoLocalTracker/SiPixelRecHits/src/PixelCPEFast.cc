@@ -21,13 +21,13 @@ namespace {
 //!  The constructor.
 //-----------------------------------------------------------------------------
 template <typename TrackerTraits>
-PixelCPEFastT<TrackerTraits>::PixelCPEFastT(edm::ParameterSet const& conf,
-                                            const MagneticField* mag,
-                                            const TrackerGeometry& geom,
-                                            const TrackerTopology& ttopo,
-                                            const SiPixelLorentzAngle* lorentzAngle,
-                                            const SiPixelGenErrorDBObject* genErrorDBObject,
-                                            const SiPixelLorentzAngle* lorentzAngleWidth)
+PixelCPEFast<TrackerTraits>::PixelCPEFast(edm::ParameterSet const& conf,
+                                          const MagneticField* mag,
+                                          const TrackerGeometry& geom,
+                                          const TrackerTopology& ttopo,
+                                          const SiPixelLorentzAngle* lorentzAngle,
+                                          const SiPixelGenErrorDBObject* genErrorDBObject,
+                                          const SiPixelLorentzAngle* lorentzAngleWidth)
     : PixelCPEGenericBase(conf, mag, geom, ttopo, lorentzAngle, genErrorDBObject, lorentzAngleWidth) {
   // Use errors from templates or from GenError
   if (useErrorsFromTemplates_) {
@@ -48,7 +48,7 @@ PixelCPEFastT<TrackerTraits>::PixelCPEFastT(edm::ParameterSet const& conf,
 }
 
 template <typename TrackerTraits>
-const pixelCPEforGPU::ParamsOnGPUT<TrackerTraits>* PixelCPEFastT<TrackerTraits>::getGPUProductAsync(
+const pixelCPEforGPU::ParamsOnGPUT<TrackerTraits>* PixelCPEFast<TrackerTraits>::getGPUProductAsync(
     cudaStream_t cudaStream) const {
   using ParamsOnGPU = pixelCPEforGPU::ParamsOnGPUT<TrackerTraits>;
   using LayerGeometry = pixelCPEforGPU::LayerGeometryT<TrackerTraits>;
@@ -89,7 +89,7 @@ const pixelCPEforGPU::ParamsOnGPUT<TrackerTraits>* PixelCPEFastT<TrackerTraits>:
 }
 
 template <typename TrackerTraits>
-void PixelCPEFastT<TrackerTraits>::fillParamsForGpu() {
+void PixelCPEFast<TrackerTraits>::fillParamsForGpu() {
   //
   // this code executes only once per job, computation inefficiency is not an issue
   // many code blocks are repeated: better keep the computation local and self oconsistent as blocks may in future move around, be deleted ...
@@ -377,7 +377,7 @@ void PixelCPEFastT<TrackerTraits>::fillParamsForGpu() {
 }
 
 template <typename TrackerTraits>
-PixelCPEFastT<TrackerTraits>::GPUData::~GPUData() {
+PixelCPEFast<TrackerTraits>::GPUData::~GPUData() {
   if (paramsOnGPU_d != nullptr) {
     cudaFree((void*)paramsOnGPU_h.m_commonParams);
     cudaFree((void*)paramsOnGPU_h.m_detParams);
@@ -388,9 +388,9 @@ PixelCPEFastT<TrackerTraits>::GPUData::~GPUData() {
 }
 
 template <typename TrackerTraits>
-void PixelCPEFastT<TrackerTraits>::errorFromTemplates(DetParam const& theDetParam,
-                                                      ClusterParamGeneric& theClusterParam,
-                                                      float qclus) const {
+void PixelCPEFast<TrackerTraits>::errorFromTemplates(DetParam const& theDetParam,
+                                                     ClusterParamGeneric& theClusterParam,
+                                                     float qclus) const {
   float locBz = theDetParam.bz;
   float locBx = theDetParam.bx;
   LogDebug("PixelCPEFast") << "PixelCPEFast::localPosition(...) : locBz = " << locBz;
@@ -440,9 +440,9 @@ void PixelCPEFastT<TrackerTraits>::errorFromTemplates(DetParam const& theDetPara
 }
 
 template <>
-void PixelCPEFastT<pixelTopology::Phase2>::errorFromTemplates(DetParam const& theDetParam,
-                                                              ClusterParamGeneric& theClusterParam,
-                                                              float qclus) const {
+void PixelCPEFast<pixelTopology::Phase2>::errorFromTemplates(DetParam const& theDetParam,
+                                                             ClusterParamGeneric& theClusterParam,
+                                                             float qclus) const {
   theClusterParam.qBin_ = 0.0f;
 }
 
@@ -452,8 +452,8 @@ void PixelCPEFastT<pixelTopology::Phase2>::errorFromTemplates(DetParam const& th
 //! into the local frame (in centimeters).
 //-----------------------------------------------------------------------------
 template <typename TrackerTraits>
-LocalPoint PixelCPEFastT<TrackerTraits>::localPosition(DetParam const& theDetParam,
-                                                       ClusterParam& theClusterParamBase) const {
+LocalPoint PixelCPEFast<TrackerTraits>::localPosition(DetParam const& theDetParam,
+                                                      ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   assert(!theClusterParam.with_track_angle);
@@ -509,8 +509,8 @@ LocalPoint PixelCPEFastT<TrackerTraits>::localPosition(DetParam const& theDetPar
 //  Hit error in the local frame
 //-------------------------------------------------------------------------
 template <typename TrackerTraits>
-LocalError PixelCPEFastT<TrackerTraits>::localError(DetParam const& theDetParam,
-                                                    ClusterParam& theClusterParamBase) const {
+LocalError PixelCPEFast<TrackerTraits>::localError(DetParam const& theDetParam,
+                                                   ClusterParam& theClusterParamBase) const {
   ClusterParamGeneric& theClusterParam = static_cast<ClusterParamGeneric&>(theClusterParamBase);
 
   auto xerr = theClusterParam.sigmax;
@@ -525,10 +525,10 @@ LocalError PixelCPEFastT<TrackerTraits>::localError(DetParam const& theDetParam,
 }
 
 template <typename TrackerTraits>
-void PixelCPEFastT<TrackerTraits>::fillPSetDescription(edm::ParameterSetDescription& desc) {
+void PixelCPEFast<TrackerTraits>::fillPSetDescription(edm::ParameterSetDescription& desc) {
   // call PixelCPEGenericBase fillPSetDescription to add common rechit errors
   PixelCPEGenericBase::fillPSetDescription(desc);
 }
 
-template class PixelCPEFastT<pixelTopology::Phase1>;
-template class PixelCPEFastT<pixelTopology::Phase2>;
+template class PixelCPEFast<pixelTopology::Phase1>;
+template class PixelCPEFast<pixelTopology::Phase2>;

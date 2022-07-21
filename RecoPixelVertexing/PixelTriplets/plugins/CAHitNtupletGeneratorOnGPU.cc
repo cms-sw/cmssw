@@ -69,10 +69,7 @@ namespace {
     static constexpr QualityCutsT<TrackerTraits> makeQualityCuts(edm::ParameterSet const& pset) {
       auto coeff = pset.getParameter<std::array<double, 2>>("chi2Coeff");
       auto ptMax = pset.getParameter<double>("chi2MaxPt");
-      // if (coeff.size() != 2) {
-      //   throw edm::Exception(edm::errors::Configuration,
-      //                        "CAHitNtupletGeneratorOnGPUT.trackQualityCuts.chi2Coeff must have 2 elements");
-      // }
+
       coeff[1] = (coeff[1] - coeff[0]) / log2(ptMax);
       return QualityCutsT<TrackerTraits>{// polynomial coefficients for the pT-dependent chi2 cut
                                          {(float)coeff[0], (float)coeff[1], 0.f, 0.f},
@@ -126,82 +123,13 @@ namespace {
                                     cfg.getParameter<bool>("idealConditions")};
   }
 
-  // //CAParams
-  // template <typename TrakterTraits>
-  // CAParamsT<TrakterTraits> makeCACuts(edm::ParameterSet const& cfg) {
-  //   return CAParamsT<TrakterTraits>{{cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
-  //                                                           (float)cfg.getParameter<double>("ptmin"),
-  //                                                           (float)cfg.getParameter<double>("CAThetaCutBarrel"),
-  //                                                           (float)cfg.getParameter<double>("CAThetaCutForward"),
-  //                                                           (float)cfg.getParameter<double>("hardCurvCut"),
-  //                                                           (float)cfg.getParameter<double>("dcaCutInnerTriplet"),
-  //                                                           (float)cfg.getParameter<double>("dcaCutOuterTriplet")}};
-  //
-  //                                                         }
-  //
-  //
-  // // CAParams
-  // template <>
-  // CAParamsT<Phase2> makeCACuts(edm::ParameterSet const& cfg) {
-  //   return CAParamsT<Phase2>{{cfg.getParameter<unsigned int>("minHitsPerNtuplet"),
-  //                                                           (float)cfg.getParameter<double>("ptmin"),
-  //                                                           (float)cfg.getParameter<double>("CAThetaCutBarrel"),
-  //                                                           (float)cfg.getParameter<double>("CAThetaCutForward"),
-  //                                                           (float)cfg.getParameter<double>("hardCurvCut"),
-  //                                                           (float)cfg.getParameter<double>("dcaCutInnerTriplet"),
-  //                                                           (float)cfg.getParameter<double>("dcaCutOuterTriplet")},
-  //                                                           {(bool) cfg.getParameter<bool>("includeFarForwards")}};
-  //                                                         }
-
-  // //Track Quality Cuts
-  // template <typename TrakterTraits>
-  // QualityCutsT<TrakterTraits> makeQualityCuts(edm::ParameterSet const& pset) {
-  //   return QualityCutsT<TrakterTraits>{};
-  // }
-  //
-  // template <>
-  // QualityCutsT<Phase1> makeQualityCuts<Phase1>(edm::ParameterSet const& pset) {
-  //   auto coeff = pset.getParameter<std::vector<double>>("chi2Coeff");
-  //   auto ptMax = pset.getParameter<double>("chi2MaxPt");
-  //   if (coeff.size() != 2) {
-  //     throw edm::Exception(edm::errors::Configuration,
-  //                          "CAHitNtupletGeneratorOnGPUT.trackQualityCuts.chi2Coeff must have 2 elements");
-  //   }
-  //   coeff[1] = (coeff[1] - coeff[0]) / log2(ptMax);
-  //   return QualityCutsT<Phase1>{
-  //       // polynomial coefficients for the pT-dependent chi2 cut
-  //       {(float)coeff[0], (float)coeff[1], 0.f, 0.f},
-  //       // max pT used to determine the chi2 cut
-  //       (float)ptMax,
-  //       // chi2 scale factor: 8 for broken line fit, ?? for Riemann fit
-  //       (float)pset.getParameter<double>("chi2Scale"),
-  //       // regional cuts for triplets
-  //       {(float)pset.getParameter<double>("tripletMaxTip"),
-  //        (float)pset.getParameter<double>("tripletMinPt"),
-  //        (float)pset.getParameter<double>("tripletMaxZip")},
-  //       // regional cuts for quadruplets
-  //       {(float)pset.getParameter<double>("quadrupletMaxTip"),
-  //        (float)pset.getParameter<double>("quadrupletMinPt"),
-  //        (float)pset.getParameter<double>("quadrupletMaxZip")}};
-  // }
-  //
-  // template <>
-  // QualityCutsT<Phase2> makeQualityCuts<Phase2>(edm::ParameterSet const& pset) {
-  //   return QualityCutsT<Phase2>{
-  //       (float)pset.getParameter<double>("maxChi2"),
-  //       (float)pset.getParameter<double>("minPt"),
-  //       (float)pset.getParameter<double>("maxTip"),
-  //       (float)pset.getParameter<double>("maxZip"),
-  //   };
-  // }
-
 }  // namespace
 
 using namespace std;
 
 template <typename TrackerTraits>
-CAHitNtupletGeneratorOnGPUT<TrackerTraits>::CAHitNtupletGeneratorOnGPUT(const edm::ParameterSet& cfg,
-                                                                        edm::ConsumesCollector& iC)
+CAHitNtupletGeneratorOnGPU<TrackerTraits>::CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& cfg,
+                                                                      edm::ConsumesCollector& iC)
     : m_params(makeCommonParams(cfg),
                makeCellCuts<TrackerTraits>(cfg),
                topologyCuts<TrackerTraits>::makeQualityCuts(cfg.getParameterSet("trackQualityCuts")),
@@ -229,15 +157,15 @@ CAHitNtupletGeneratorOnGPUT<TrackerTraits>::CAHitNtupletGeneratorOnGPUT(const ed
 }
 
 template <typename TrackerTraits>
-void CAHitNtupletGeneratorOnGPUT<TrackerTraits>::fillDescriptions(edm::ParameterSetDescription& desc) {
+void CAHitNtupletGeneratorOnGPU<TrackerTraits>::fillDescriptions(edm::ParameterSetDescription& desc) {
   fillDescriptionsCommon(desc);
-  edm::LogWarning("CAHitNtupletGeneratorOnGPUT::fillDescriptions")
+  edm::LogWarning("CAHitNtupletGeneratorOnGPU::fillDescriptions")
       << "Note: this fillDescriptions is a dummy one. Most probably you are missing some parameters. \n"
-         "please implement your TrackerTraits descriptions in CAHitNtupletGeneratorOnGPUT. \n";
+         "please implement your TrackerTraits descriptions in CAHitNtupletGeneratorOnGPU. \n";
 }
 
 template <>
-void CAHitNtupletGeneratorOnGPUT<pixelTopology::Phase1>::fillDescriptions(edm::ParameterSetDescription& desc) {
+void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase1>::fillDescriptions(edm::ParameterSetDescription& desc) {
   fillDescriptionsCommon(desc);
 
   desc.add<bool>("includeJumpingForwardDoublets", false);
@@ -262,7 +190,7 @@ void CAHitNtupletGeneratorOnGPUT<pixelTopology::Phase1>::fillDescriptions(edm::P
 }
 
 template <>
-void CAHitNtupletGeneratorOnGPUT<pixelTopology::Phase2>::fillDescriptions(edm::ParameterSetDescription& desc) {
+void CAHitNtupletGeneratorOnGPU<pixelTopology::Phase2>::fillDescriptions(edm::ParameterSetDescription& desc) {
   fillDescriptionsCommon(desc);
 
   desc.add<bool>("includeFarForwards", true);
@@ -280,7 +208,7 @@ void CAHitNtupletGeneratorOnGPUT<pixelTopology::Phase2>::fillDescriptions(edm::P
 }
 
 template <typename TrackerTraits>
-void CAHitNtupletGeneratorOnGPUT<TrackerTraits>::fillDescriptionsCommon(edm::ParameterSetDescription& desc) {
+void CAHitNtupletGeneratorOnGPU<TrackerTraits>::fillDescriptionsCommon(edm::ParameterSetDescription& desc) {
   // 87 cm/GeV = 1/(3.8T * 0.3)
   // take less than radius given by the hardPtCut and reject everything below
   // auto hardCurvCut = 1.f/(0.35 * 87.f);
@@ -310,7 +238,7 @@ void CAHitNtupletGeneratorOnGPUT<TrackerTraits>::fillDescriptionsCommon(edm::Par
 }
 
 template <typename TrackerTraits>
-void CAHitNtupletGeneratorOnGPUT<TrackerTraits>::beginJob() {
+void CAHitNtupletGeneratorOnGPU<TrackerTraits>::beginJob() {
   if (m_params.onGPU_) {
     // allocate pinned host memory only if CUDA is available
     edm::Service<CUDAService> cs;
@@ -325,7 +253,7 @@ void CAHitNtupletGeneratorOnGPUT<TrackerTraits>::beginJob() {
 }
 
 template <typename TrackerTraits>
-void CAHitNtupletGeneratorOnGPUT<TrackerTraits>::endJob() {
+void CAHitNtupletGeneratorOnGPU<TrackerTraits>::endJob() {
   if (m_params.onGPU_) {
     // print the gpu statistics and free pinned host memory only if CUDA is available
     edm::Service<CUDAService> cs;
@@ -345,9 +273,9 @@ void CAHitNtupletGeneratorOnGPUT<TrackerTraits>::endJob() {
 }
 
 template <typename TrackerTraits>
-PixelTrackHeterogeneousT<TrackerTraits> CAHitNtupletGeneratorOnGPUT<TrackerTraits>::makeTuplesAsync(
+PixelTrackHeterogeneousT<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits>::makeTuplesAsync(
     HitsOnGPU const& hits_d, float bfield, cudaStream_t stream) const {
-  using HelixFitOnGPU = HelixFitOnGPUT<TrackerTraits>;
+  using HelixFitOnGPU = HelixFitOnGPU<TrackerTraits>;
   using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
   using GPUKernels = CAHitNtupletGeneratorKernelsGPU<TrackerTraits>;
 
@@ -386,9 +314,9 @@ PixelTrackHeterogeneousT<TrackerTraits> CAHitNtupletGeneratorOnGPUT<TrackerTrait
 }
 
 template <typename TrackerTraits>
-PixelTrackHeterogeneousT<TrackerTraits> CAHitNtupletGeneratorOnGPUT<TrackerTraits>::makeTuples(HitsOnCPU const& hits_d,
-                                                                                               float bfield) const {
-  using HelixFitOnGPU = HelixFitOnGPUT<TrackerTraits>;
+PixelTrackHeterogeneousT<TrackerTraits> CAHitNtupletGeneratorOnGPU<TrackerTraits>::makeTuples(HitsOnCPU const& hits_d,
+                                                                                              float bfield) const {
+  using HelixFitOnGPU = HelixFitOnGPU<TrackerTraits>;
   using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
   using CPUKernels = CAHitNtupletGeneratorKernelsCPU<TrackerTraits>;
 
@@ -436,5 +364,5 @@ PixelTrackHeterogeneousT<TrackerTraits> CAHitNtupletGeneratorOnGPUT<TrackerTrait
   return tracks;
 }
 
-template class CAHitNtupletGeneratorOnGPUT<pixelTopology::Phase1>;
-template class CAHitNtupletGeneratorOnGPUT<pixelTopology::Phase2>;
+template class CAHitNtupletGeneratorOnGPU<pixelTopology::Phase1>;
+template class CAHitNtupletGeneratorOnGPU<pixelTopology::Phase2>;

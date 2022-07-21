@@ -20,7 +20,7 @@ public:
   using Status = SiPixelHitStatus;
   static_assert(sizeof(Status) == sizeof(uint8_t));
 
-  using hindex_type = typename TrackerTraits::hindex_type;  // if above is <=2^32
+  using hindex_type = typename TrackerTraits::hindex_type;
   using PhiBinner = cms::cuda::HistoContainer<int16_t,
                                               256,
                                               -1,

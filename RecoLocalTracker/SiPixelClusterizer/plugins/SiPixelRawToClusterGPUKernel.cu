@@ -483,7 +483,7 @@ namespace pixelgpudetails {
       moduleStart[i + 1] = std::min(gpuClustering::maxHitsInModule(), clusInModule[i]);
     }
 
-    constexpr bool isPhase2 = std::is_same_v<TrackerTraits, pixelTopology::Phase2>;
+    constexpr bool isPhase2 = std::is_base_of<pixelTopology::Phase2, TrackerTraits>::value;
     __shared__ uint32_t ws[32];
     cms::cuda::blockPrefixScan(moduleStart + 1, moduleStart + 1, 1024, ws);
     constexpr int lastModules = isPhase2 ? 1024 : nMaxModules - 1024;
@@ -520,7 +520,7 @@ namespace pixelgpudetails {
     }
 
 #ifdef GPU_DEBUG
-    uint16_t maxH = (isPhase2) ? 3027 : 1024;
+    uint16_t maxH = isPhase2 ? 3027 : 1024;
     assert(0 == moduleStart[0]);
     auto c0 = std::min(gpuClustering::maxHitsInModule(), clusInModule[0]);
     assert(c0 == moduleStart[1]);

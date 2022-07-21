@@ -1,5 +1,5 @@
-#ifndef CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneousT_h
-#define CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneousT_h
+#ifndef CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneous_h
+#define CUDADataFormats_TrackingRecHit_interface_TrackingRecHit2DHeterogeneous_h
 
 #include "CUDADataFormats/TrackingRecHit/interface/TrackingRecHit2DSOAView.h"
 #include "CUDADataFormats/Common/interface/HeterogeneousSoA.h"
@@ -76,9 +76,6 @@ public:
   cms::cuda::host::unique_ptr<uint16_t[]> store16ToHostAsync(cudaStream_t stream) const;
   cms::cuda::host::unique_ptr<float[]> store32ToHostAsync(cudaStream_t stream) const;
 
-  // unique_ptr<uint16_t[]> store16Ptr() const {return std::move(m_store16);};
-  // unique_ptr<float[]> store32Ptr() const {return std::move(m_store32);};
-
   // needs specialization for Host
   void copyFromGPU(TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> const* input,
                    cudaStream_t stream);
@@ -123,20 +120,19 @@ protected:
 // but it seems to me more messy than this.
 // The same reasoning applies to CAHitNtupletGeneratorKernels.
 
-template <typename Traits, typename TrackerTraits>
-class TrackingRecHit2DGPUBaseT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> {};
+// template <typename Traits, typename TrackerTraits>
+// class TrackingRecHit2DGPUBaseT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> {};
+//
+// template <typename Traits, typename TrackerTraits>
+// class TrackingRecHit2DCPUBaseT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits> {};
+//
+// template <typename Traits, typename TrackerTraits>
+// class TrackingRecHit2DHostBaseT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits> {};
 
-template <typename Traits, typename TrackerTraits>
-class TrackingRecHit2DCPUBaseT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits> {};
-
-template <typename Traits, typename TrackerTraits>
-class TrackingRecHit2DHostBaseT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits> {};
-
-//Specialize and overload only what we need to overload, remember to use this->
+//Inherit and overload only what we need to overload, remember to use this->
 //GPU
 template <typename TrackerTraits>
-class TrackingRecHit2DGPUBaseT<cms::cudacompat::GPUTraits, TrackerTraits>
-    : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> {
+class TrackingRecHit2DGPUT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits> {
 public:
   using TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>::TrackingRecHit2DHeterogeneousT;
   cms::cuda::host::unique_ptr<float[]> localCoordToHostAsync(cudaStream_t stream) const;
@@ -147,8 +143,7 @@ public:
 
 //CPU
 template <typename TrackerTraits>
-class TrackingRecHit2DCPUBaseT<cms::cudacompat::CPUTraits, TrackerTraits>
-    : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits> {
+class TrackingRecHit2DCPUT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits> {
 public:
   using TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits>::TrackingRecHit2DHeterogeneousT;
   cms::cuda::host::unique_ptr<uint32_t[]> hitsModuleStartToHostAsync(cudaStream_t stream) const;
@@ -158,23 +153,21 @@ public:
 
 //HOST
 template <typename TrackerTraits>
-class TrackingRecHit2DHostBaseT<cms::cudacompat::HostTraits, TrackerTraits>
-    : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits> {
+class TrackingRecHit2DHostT : public TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits> {
 public:
   using TrackingRecHit2DHeterogeneousT<cms::cudacompat::HostTraits, TrackerTraits>::TrackingRecHit2DHeterogeneousT;
-  void copyFromGPU(TrackingRecHit2DGPUBaseT<cms::cudacompat::GPUTraits, TrackerTraits> const* input,
-                   cudaStream_t stream);
+  void copyFromGPU(TrackingRecHit2DGPUT<TrackerTraits> const* input, cudaStream_t stream);
 };
 
 // Aliases to avoid bringing Host/CPU/GPU traits around
-template <typename TrackerTraits>
-using TrackingRecHit2DGPUT = TrackingRecHit2DGPUBaseT<cms::cudacompat::GPUTraits, TrackerTraits>;
+// template <typename TrackerTraits>
+// using TrackingRecHit2DGPUT = TrackingRecHit2DGPUBaseT<cms::cudacompat::GPUTraits, TrackerTraits>;
 
-template <typename TrackerTraits>
-using TrackingRecHit2DCPUT = TrackingRecHit2DCPUBaseT<cms::cudacompat::CPUTraits, TrackerTraits>;
-
-template <typename TrackerTraits>
-using TrackingRecHit2DHostT = TrackingRecHit2DHostBaseT<cms::cudacompat::HostTraits, TrackerTraits>;
+// template <typename TrackerTraits>
+// using TrackingRecHit2DCPUT = TrackingRecHit2DCPUBaseT<cms::cudacompat::CPUTraits, TrackerTraits>;
+//
+// template <typename TrackerTraits>
+// using TrackingRecHit2DHostT = TrackingRecHit2DHostBaseT<cms::cudacompat::HostTraits, TrackerTraits>;
 
 #include "HeterogeneousCore/CUDAUtilities/interface/copyAsync.h"
 #include "HeterogeneousCore/CUDAUtilities/interface/cudaCheck.h"

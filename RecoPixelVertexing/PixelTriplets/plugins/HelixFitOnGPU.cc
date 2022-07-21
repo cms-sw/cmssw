@@ -2,7 +2,7 @@
 #include "HelixFitOnGPU.h"
 
 template <typename TrackerTraits>
-void HelixFitOnGPUT<TrackerTraits>::allocateOnGPU(
+void HelixFitOnGPU<TrackerTraits>::allocateOnGPU(
     Tuples const *tuples,
     caStructures::TupleMultiplicityT<TrackerTraits> const *tupleMultiplicity,
     pixelTrack::TrackSoAT<TrackerTraits> *helix_fit_results) {
@@ -16,7 +16,7 @@ void HelixFitOnGPUT<TrackerTraits>::allocateOnGPU(
 }
 
 template <typename TrackerTraits>
-void HelixFitOnGPUT<TrackerTraits>::deallocateOnGPU() {}
+void HelixFitOnGPU<TrackerTraits>::deallocateOnGPU() {}
 
-template class HelixFitOnGPUT<pixelTopology::Phase1>;
-template class HelixFitOnGPUT<pixelTopology::Phase2>;
+template class HelixFitOnGPU<pixelTopology::Phase1>;
+template class HelixFitOnGPU<pixelTopology::Phase2>;

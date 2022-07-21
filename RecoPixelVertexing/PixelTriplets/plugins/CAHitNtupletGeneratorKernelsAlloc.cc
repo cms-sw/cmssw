@@ -17,7 +17,6 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::allocateOnGPU(int32_t nHits
 
   this->device_theCellNeighbors_ = Traits::template make_unique<CellNeighborsVector>(stream);
   this->device_theCellTracks_ = Traits::template make_unique<CellTracksVector>(stream);
-  // this->params_ = Traits::template make_unique<caHitNtupletGenerator::ParamsT<TrackerTraits>>(stream);
 
 #ifdef GPU_DEBUG
   std::cout << "Allocation for tuple building. N hits " << nHits << std::endl;
@@ -44,7 +43,6 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::allocateOnGPU(int32_t nHits
     cudaCheck(cudaMemsetAsync(this->device_nCells_, 0, sizeof(uint32_t), stream));
   } else {
     *(this->device_nCells_) = 0;
-    // this->caParams_ = new CAParams(params);
   }
   cms::cuda::launchZero(this->device_tupleMultiplicity_.get(), stream);
   cms::cuda::launchZero(this->hitToTupleView_, stream);  // we may wish to keep it in the edm
@@ -54,8 +52,8 @@ void CAHitNtupletGeneratorKernelsCPU<TrackerTraits>::allocateOnGPU(int32_t nHits
 #endif
 }
 
-template class CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::CPUTraits, pixelTopology::Phase1>;
-template class CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::CPUTraits, pixelTopology::Phase2>;
+template class CAHitNtupletGeneratorKernelsGPU<pixelTopology::Phase1>;
+template class CAHitNtupletGeneratorKernelsGPU<pixelTopology::Phase2>;
 
-template class CAHitNtupletGeneratorKernelsCPUT<cms::cudacompat::CPUTraits, pixelTopology::Phase1>;
-template class CAHitNtupletGeneratorKernelsCPUT<cms::cudacompat::CPUTraits, pixelTopology::Phase2>;
+template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase1>;
+template class CAHitNtupletGeneratorKernelsCPU<pixelTopology::Phase2>;

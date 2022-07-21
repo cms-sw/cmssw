@@ -105,8 +105,6 @@ private:
 
 namespace pixelTrack {
 
-  using namespace pixelTopology;
-
 #ifdef GPU_SMALL_EVENTS
   // kept for testing and debugging
   constexpr uint32_t maxNumber() { return 2 * 1024; }
@@ -125,14 +123,15 @@ namespace pixelTrack {
   template <typename TrackerTraits>
   using HitContainerT = typename PixelTrackSoAT<TrackerTraits>::HitContainer;
 
-  using TrackSoAPhase1 = TrackSoAT<pixelTopology::Phase1>;
-  using TrackSoAPhase2 = TrackSoAT<pixelTopology::Phase2>;
+  //Used only to ease classes definitions
+  using TrackSoAPhase1 = PixelTrackSoAT<pixelTopology::Phase1>;
+  using TrackSoAPhase2 = PixelTrackSoAT<pixelTopology::Phase2>;
 
   template <typename TrackerTraits, typename Enable = void>
   struct QualityCutsT {};
 
   template <typename TrackerTraits>
-  struct QualityCutsT<TrackerTraits, isPhase1Topology<TrackerTraits>> {
+  struct QualityCutsT<TrackerTraits, pixelTopology::isPhase1Topology<TrackerTraits>> {
     // chi2 cut = chi2Scale * (chi2Coeff[0] + pT/GeV * (chi2Coeff[1] + pT/GeV * (chi2Coeff[2] + pT/GeV * chi2Coeff[3])))
     float chi2Coeff[4];
     float chi2MaxPt;  // GeV
@@ -195,7 +194,7 @@ namespace pixelTrack {
   };
 
   template <typename TrackerTraits>
-  struct QualityCutsT<TrackerTraits, isPhase2Topology<TrackerTraits>> {
+  struct QualityCutsT<TrackerTraits, pixelTopology::isPhase2Topology<TrackerTraits>> {
     float maxChi2;
     float minPt;
     float maxTip;

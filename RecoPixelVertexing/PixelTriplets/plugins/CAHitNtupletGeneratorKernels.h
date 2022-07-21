@@ -10,8 +10,6 @@
 
 namespace caHitNtupletGenerator {
 
-  using namespace pixelTopology;
-
   //Configuration params common to all topologies, for the algorithms
   struct AlgoParams {
     const bool onGPU_;
@@ -45,7 +43,7 @@ namespace caHitNtupletGenerator {
   };
 
   template <typename TrackerTraits>
-  struct CAParamsT<TrackerTraits, isPhase1Topology<TrackerTraits>> : public CACommon {
+  struct CAParamsT<TrackerTraits, pixelTopology::isPhase1Topology<TrackerTraits>> : public CACommon {
     /// Is is a starting layer pair?
     __device__ __forceinline__ bool startingLayerPair(int16_t pid) const {
       return minHitsPerNtuplet_ > 3 ? pid < 3 : pid < 8 || pid > 12;
@@ -53,14 +51,14 @@ namespace caHitNtupletGenerator {
 
     /// Is this a pair with inner == 0?
     __device__ __forceinline__ bool startAt0(int16_t pid) const {
-      assert((Phase1::layerPairs[pid * 2] == 0) ==
+      assert((pixelTopology::Phase1::layerPairs[pid * 2] == 0) ==
              (pid < 3 || pid == 13 || pid == 15 || pid == 16));  // to be 100% sure it's working, may be removed
-      return Phase1::layerPairs[pid * 2] == 0;
+      return pixelTopology::Phase1::layerPairs[pid * 2] == 0;
     }
   };
 
   template <typename TrackerTraits>
-  struct CAParamsT<TrackerTraits, isPhase2Topology<TrackerTraits>> : public CACommon {
+  struct CAParamsT<TrackerTraits, pixelTopology::isPhase2Topology<TrackerTraits>> : public CACommon {
     const bool includeFarForwards_;
     /// Is is a starting layer pair?
     __device__ __forceinline__ bool startingLayerPair(int16_t pid) const {
@@ -69,8 +67,8 @@ namespace caHitNtupletGenerator {
 
     /// Is this a pair with inner == 0
     __device__ __forceinline__ bool startAt0(int16_t pid) const {
-      assert((Phase2::layerPairs[pid * 2] == 0) == ((pid < 3) | (pid >= 23 && pid < 28)));
-      return Phase2::layerPairs[pid * 2] == 0;
+      assert((pixelTopology::Phase2::layerPairs[pid * 2] == 0) == ((pid < 3) | (pid >= 23 && pid < 28)));
+      return pixelTopology::Phase2::layerPairs[pid * 2] == 0;
     }
   };
 
@@ -85,7 +83,7 @@ namespace caHitNtupletGenerator {
   };
 
   template <typename TrackerTraits>
-  struct ParamsT<TrackerTraits, isPhase1Topology<TrackerTraits>> : public AlgoParams {
+  struct ParamsT<TrackerTraits, pixelTopology::isPhase1Topology<TrackerTraits>> : public AlgoParams {
     using TT = TrackerTraits;
     using QualityCuts = pixelTrack::QualityCutsT<TT>;  //track quality cuts
     using CellCuts = gpuPixelDoublets::CellCutsT<TT>;  //cell building cuts
@@ -97,26 +95,26 @@ namespace caHitNtupletGenerator {
             CAParams const& caParams)
         : AlgoParams(commonCuts), cellCuts_(cellCuts), qualityCuts_(cutsCuts), caParams_(caParams) {}
 
-    CellCuts cellCuts_;
-    QualityCuts qualityCuts_{// polynomial coefficients for the pT-dependent chi2 cut
-                             {0.68177776, 0.74609577, -0.08035491, 0.00315399},
-                             // max pT used to determine the chi2 cut
-                             10.,
-                             // chi2 scale factor: 30 for broken line fit, 45 for Riemann fit
-                             30.,
-                             // regional cuts for triplets
-                             {
-                                 0.3,  // |Tip| < 0.3 cm
-                                 0.5,  // pT > 0.5 GeV
-                                 12.0  // |Zip| < 12.0 cm
-                             },
-                             // regional cuts for quadruplets
-                             {
-                                 0.5,  // |Tip| < 0.5 cm
-                                 0.3,  // pT > 0.3 GeV
-                                 12.0  // |Zip| < 12.0 cm
-                             }};
-    CAParams caParams_;
+    const CellCuts cellCuts_;
+    const QualityCuts qualityCuts_{// polynomial coefficients for the pT-dependent chi2 cut
+                                   {0.68177776, 0.74609577, -0.08035491, 0.00315399},
+                                   // max pT used to determine the chi2 cut
+                                   10.,
+                                   // chi2 scale factor: 30 for broken line fit, 45 for Riemann fit
+                                   30.,
+                                   // regional cuts for triplets
+                                   {
+                                       0.3,  // |Tip| < 0.3 cm
+                                       0.5,  // pT > 0.5 GeV
+                                       12.0  // |Zip| < 12.0 cm
+                                   },
+                                   // regional cuts for quadruplets
+                                   {
+                                       0.5,  // |Tip| < 0.5 cm
+                                       0.3,  // pT > 0.3 GeV
+                                       12.0  // |Zip| < 12.0 cm
+                                   }};
+    const CAParams caParams_;
     /// Compute the number of pairs
     inline uint32_t nPairs() const {
       // take all layer pairs into account
@@ -136,7 +134,7 @@ namespace caHitNtupletGenerator {
   };  // Params Phase1
 
   template <typename TrackerTraits>
-  struct ParamsT<TrackerTraits, isPhase2Topology<TrackerTraits>> : public AlgoParams {
+  struct ParamsT<TrackerTraits, pixelTopology::isPhase2Topology<TrackerTraits>> : public AlgoParams {
     using TT = TrackerTraits;
     using QualityCuts = pixelTrack::QualityCutsT<TT>;
     using CellCuts = gpuPixelDoublets::CellCutsT<TT>;
@@ -149,9 +147,9 @@ namespace caHitNtupletGenerator {
         : AlgoParams(commonCuts), cellCuts_(cellCuts), qualityCuts_(qualityCuts), caParams_(caParams) {}
 
     // quality cuts
-    CellCuts cellCuts_;
-    QualityCuts qualityCuts_{5.0f, /*chi2*/ 0.9f, /* pT in Gev*/ 0.4f, /*zip in cm*/ 12.0f /*tip in cm*/};
-    CAParams caParams_;
+    const CellCuts cellCuts_;
+    const QualityCuts qualityCuts_{5.0f, /*chi2*/ 0.9f, /* pT in Gev*/ 0.4f, /*zip in cm*/ 12.0f /*tip in cm*/};
+    const CAParams caParams_;
 
     inline uint32_t nPairs() const {
       // take all layer pairs into account
@@ -192,7 +190,7 @@ namespace caHitNtupletGenerator {
 }  // namespace caHitNtupletGenerator
 
 template <typename TTraits, typename TTTraits>
-class CAHitNtupletGeneratorKernelsBaseT {
+class CAHitNtupletGeneratorKernels {
 public:
   using Traits = TTraits;
   using TrackerTraits = TTTraits;
@@ -216,16 +214,16 @@ public:
   using OuterHitOfCellContainer = caStructures::OuterHitOfCellContainerT<TrackerTraits>;
   using OuterHitOfCell = caStructures::OuterHitOfCellT<TrackerTraits>;
 
-  using GPUCACell = GPUCACellT<TrackerTraits>;
+  using CACell = GPUCACellT<TrackerTraits>;
 
   using Quality = pixelTrack::Quality;
   using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
   using HitContainer = pixelTrack::HitContainerT<TrackerTraits>;
 
-  CAHitNtupletGeneratorKernelsBaseT(Params const& params)
+  CAHitNtupletGeneratorKernels(Params const& params)
       : params_(params), paramsMaxDoubletes3Quarters_(3 * params.cellCuts_.maxNumberOfDoublets_ / 4) {}
 
-  ~CAHitNtupletGeneratorKernelsBaseT() = default;
+  ~CAHitNtupletGeneratorKernels() = default;
 
   TupleMultiplicity const* tupleMultiplicity() const { return device_tupleMultiplicity_.get(); }
 
@@ -249,7 +247,7 @@ protected:
   unique_ptr<CellTracksVector> device_theCellTracks_;
   CellTracks* device_theCellTracksContainer_;
 
-  unique_ptr<GPUCACell[]> device_theCells_;
+  unique_ptr<CACell[]> device_theCells_;
   unique_ptr<OuterHitOfCellContainer[]> device_isOuterHitOfCell_;
   OuterHitOfCell isOuterHitOfCell_;
   uint32_t* device_nCells_ = nullptr;
@@ -283,13 +281,9 @@ protected:
   }
 };
 
-template <typename Traits, typename TrackerTraits>
-class CAHitNtupletGeneratorKernelsGPUT : public CAHitNtupletGeneratorKernelsBaseT<Traits, TrackerTraits> {};
-
 template <typename TrackerTraits>
-class CAHitNtupletGeneratorKernelsGPUT<cms::cudacompat::GPUTraits, TrackerTraits>
-    : public CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::GPUTraits, TrackerTraits> {
-  using CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::GPUTraits, TrackerTraits>::CAHitNtupletGeneratorKernelsBaseT;
+class CAHitNtupletGeneratorKernelsGPU : public CAHitNtupletGeneratorKernels<cms::cudacompat::GPUTraits, TrackerTraits> {
+  using CAHitNtupletGeneratorKernels<cms::cudacompat::GPUTraits, TrackerTraits>::CAHitNtupletGeneratorKernels;
   using HitsOnCPU = TrackingRecHit2DHeterogeneousT<cms::cudacompat::GPUTraits, TrackerTraits>;
   using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
   using Counters = caHitNtupletGenerator::Counters;
@@ -308,13 +302,9 @@ public:
   static void printCounters(Counters const* counters);
 };
 
-template <typename Traits, typename TrackerTraits>
-class CAHitNtupletGeneratorKernelsCPUT : public CAHitNtupletGeneratorKernelsBaseT<Traits, TrackerTraits> {};
-
 template <typename TrackerTraits>
-class CAHitNtupletGeneratorKernelsCPUT<cms::cudacompat::CPUTraits, TrackerTraits>
-    : public CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::CPUTraits, TrackerTraits> {
-  using CAHitNtupletGeneratorKernelsBaseT<cms::cudacompat::CPUTraits, TrackerTraits>::CAHitNtupletGeneratorKernelsBaseT;
+class CAHitNtupletGeneratorKernelsCPU : public CAHitNtupletGeneratorKernels<cms::cudacompat::CPUTraits, TrackerTraits> {
+  using CAHitNtupletGeneratorKernels<cms::cudacompat::CPUTraits, TrackerTraits>::CAHitNtupletGeneratorKernels;
   using HitsOnCPU = TrackingRecHit2DHeterogeneousT<cms::cudacompat::CPUTraits, TrackerTraits>;
   using TkSoA = pixelTrack::TrackSoAT<TrackerTraits>;
   using Counters = caHitNtupletGenerator::Counters;
@@ -331,11 +321,5 @@ public:
   void allocateOnGPU(int32_t nHits, cudaStream_t stream);
   static void printCounters(Counters const* counters);
 };
-
-template <typename TrackerTraits>
-using CAHitNtupletGeneratorKernelsGPU = CAHitNtupletGeneratorKernelsGPUT<cms::cudacompat::GPUTraits, TrackerTraits>;
-
-template <typename TrackerTraits>
-using CAHitNtupletGeneratorKernelsCPU = CAHitNtupletGeneratorKernelsCPUT<cms::cudacompat::CPUTraits, TrackerTraits>;
 
 #endif  // RecoPixelVertexing_PixelTriplets_plugins_CAHitNtupletGeneratorKernels_h
