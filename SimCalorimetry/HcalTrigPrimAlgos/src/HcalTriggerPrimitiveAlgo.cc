@@ -453,7 +453,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
         if (sample > QIE11_MAX_LINEARIZATION_ET)
           sample = QIE11_MAX_LINEARIZATION_ET;
 
-        // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
+        // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 2
         int segmentationFactor = 1;
         if (ids.size() == 2) {
           segmentationFactor = 2;
@@ -488,7 +488,7 @@ void HcalTriggerPrimitiveAlgo::analyzeQIE11(IntegerCaloSamples& samples,
       if (sampleTSminus1 > QIE11_MAX_LINEARIZATION_ET)
         sampleTSminus1 = QIE11_MAX_LINEARIZATION_ET;
 
-      // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 0.5
+      // Usually use a segmentation factor of 1.0 but for ieta >= 21 use 2
       int segmentationFactor = 1;
       if (ids.size() == 2) {
         segmentationFactor = 2;
