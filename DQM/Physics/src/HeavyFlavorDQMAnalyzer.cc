@@ -18,7 +18,8 @@ float getMass(pat::CompositeCandidate const& cand) {
 //
 HeavyFlavorDQMAnalyzer::HeavyFlavorDQMAnalyzer(const edm::ParameterSet& iConfig)
     : folder_(iConfig.getParameter<std::string>("folder")),
-      pvCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection"))) {
+      pvCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection"))),
+      beamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpot"))) {
   if (iConfig.existsAs<edm::InputTag>("OniaToMuMuCands")) {
     oniaToMuMuCandsToken =
         consumes<pat::CompositeCandidateCollection>(iConfig.getParameter<edm::InputTag>("OniaToMuMuCands"));
@@ -112,6 +113,7 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
                                         edm::EventSetup const& iSetup,
                                         Histograms const& histos) const {
   auto& pvColl = iEvent.get(pvCollectionToken);
+  auto bs = iEvent.getHandle(beamSpotToken).product();
 
   std::vector<bool> displacedJPsiToMuMu;
   pat::CompositeCandidateCollection lOniaToMuMu;
@@ -128,9 +130,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       if (jpsiMass < 2.9 or jpsiMass > 3.3)
         continue;
 
-      if (not fillDecayHistograms(histos.buToJPsiK, cand, pvColl))
+      auto closestPV = fillDecayHistograms(histos.buToJPsiK, cand, pvColl);
+      if (not closestPV)
         continue;
-      fillBuToJPsiKComponents(histos.buToJPsiK, cand);
+      fillBuToJPsiKComponents(histos.buToJPsiK, cand, bs, closestPV);
 
       displacedJPsiToMuMu[jpsi.index()] = true;
     }
@@ -156,9 +159,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       if (jpsiMass < 2.9 or jpsiMass > 3.3)
         continue;
 
-      if (not fillDecayHistograms(histos.buToPsi2SK, cand, pvColl))
+      auto closestPV = fillDecayHistograms(histos.buToPsi2SK, cand, pvColl);
+      if (not closestPV)
         continue;
-      fillBuToPsi2SKComponents(histos.buToPsi2SK, cand);
+      fillBuToPsi2SKComponents(histos.buToPsi2SK, cand, bs, closestPV);
 
       displacedPsi2SToJPsiPiPi[psi2S.index()] = true;
       displacedJPsiToMuMu[jpsi.index()] = true;
@@ -173,9 +177,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     if (jpsiMass < 2.9 or jpsiMass > 3.3)
       continue;
 
-    if (not fillDecayHistograms(histos.psi2SToJPsiPiPi, cand, pvColl))
+    auto closestPV = fillDecayHistograms(histos.psi2SToJPsiPiPi, cand, pvColl);
+    if (not closestPV)
       continue;
-    fillPsi2SToJPsiPiPiComponents(histos.psi2SToJPsiPiPi, cand);
+    fillPsi2SToJPsiPiPiComponents(histos.psi2SToJPsiPiPi, cand, bs, closestPV);
 
     auto decayHistos = &histos.psi2SToJPsiPiPiPrompt;
     if (displacedPsi2SToJPsiPiPi[i]) {
@@ -183,7 +188,7 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     }
 
     fillDecayHistograms(*decayHistos, cand, pvColl);
-    fillPsi2SToJPsiPiPiComponents(*decayHistos, cand);
+    fillPsi2SToJPsiPiPiComponents(*decayHistos, cand, bs, closestPV);
   }
   lPsi2SToJPsiPiPi.clear();
   displacedPsi2SToJPsiPiPi.clear();
@@ -208,9 +213,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       if (kx0Mass < 0.77 or kx0Mass > 1.02)
         continue;
 
-      if (not fillDecayHistograms(histos.bdToJPsiKx0, cand, pvColl))
+      auto closestPV = fillDecayHistograms(histos.bdToJPsiKx0, cand, pvColl);
+      if (not closestPV)
         continue;
-      fillBdToJPsiKx0Components(histos.bdToJPsiKx0, cand);
+      fillBdToJPsiKx0Components(histos.bdToJPsiKx0, cand, bs, closestPV);
 
       displacedKx0ToKPi[kx0.index()] = true;
     }
@@ -219,9 +225,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   for (size_t i = 0; i < lKx0ToKPi.size(); i++) {
     auto&& cand = lKx0ToKPi[i];
 
-    if (not fillDecayHistograms(histos.kx0ToKPi, cand, pvColl))
+    auto closestPV = fillDecayHistograms(histos.kx0ToKPi, cand, pvColl);
+    if (not closestPV)
       continue;
-    fillKx0ToKPiComponents(histos.kx0ToKPi, cand);
+    fillKx0ToKPiComponents(histos.kx0ToKPi, cand, bs, closestPV);
 
     auto decayHistos = &histos.kx0ToKPiPrompt;
     if (displacedKx0ToKPi[i]) {
@@ -229,7 +236,7 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     }
 
     fillDecayHistograms(*decayHistos, cand, pvColl);
-    fillKx0ToKPiComponents(*decayHistos, cand);
+    fillKx0ToKPiComponents(*decayHistos, cand, bs, closestPV);
   }
   lKx0ToKPi.clear();
   displacedKx0ToKPi.clear();
@@ -254,9 +261,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       if (phiMass < 1.005 or phiMass > 1.035)
         continue;
 
-      if (not fillDecayHistograms(histos.bsToJPsiPhi, cand, pvColl))
+      auto closestPV = fillDecayHistograms(histos.bsToJPsiPhi, cand, pvColl);
+      if (not closestPV)
         continue;
-      fillBsToJPsiPhiComponents(histos.bsToJPsiPhi, cand);
+      fillBsToJPsiPhiComponents(histos.bsToJPsiPhi, cand, bs, closestPV);
 
       displacedJPsiToMuMu[jpsi.index()] = true;
       displacedPhiToKK[phi.index()] = true;
@@ -266,9 +274,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   for (size_t i = 0; i < lPhiToKK.size(); i++) {
     auto&& cand = lPhiToKK[i];
 
-    if (not fillDecayHistograms(histos.phiToKK, cand, pvColl))
+    auto closestPV = fillDecayHistograms(histos.phiToKK, cand, pvColl);
+    if (not closestPV)
       continue;
-    fillPhiToKKComponents(histos.phiToKK, cand);
+    fillPhiToKKComponents(histos.phiToKK, cand, bs, closestPV);
 
     auto decayHistos = &histos.phiToKKPrompt;
     if (displacedPhiToKK[i]) {
@@ -276,7 +285,7 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     }
 
     fillDecayHistograms(*decayHistos, cand, pvColl);
-    fillPhiToKKComponents(*decayHistos, cand);
+    fillPhiToKKComponents(*decayHistos, cand, bs, closestPV);
   }
   lPhiToKK.clear();
   displacedPhiToKK.clear();
@@ -289,9 +298,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       if (jpsiMass < 2.9 or jpsiMass > 3.3)
         continue;
 
-      if (not fillDecayHistograms(histos.bdToJPsiK0s, cand, pvColl))
+      auto closestPV = fillDecayHistograms(histos.bdToJPsiK0s, cand, pvColl);
+      if (not closestPV)
         continue;
-      fillBdToJPsiK0sComponents(histos.bdToJPsiK0s, cand);
+      fillBdToJPsiK0sComponents(histos.bdToJPsiK0s, cand, bs, closestPV);
 
       displacedJPsiToMuMu[jpsi.index()] = true;
     }
@@ -305,9 +315,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       if (jpsiMass < 2.9 or jpsiMass > 3.3)
         continue;
 
-      if (not fillDecayHistograms(histos.bcToJPsiPi, cand, pvColl))
+      auto closestPV = fillDecayHistograms(histos.bcToJPsiPi, cand, pvColl);
+      if (not closestPV)
         continue;
-      fillBcToJPsiPiComponents(histos.bcToJPsiPi, cand);
+      fillBcToJPsiPiComponents(histos.bcToJPsiPi, cand, bs, closestPV);
 
       displacedJPsiToMuMu[jpsi.index()] = true;
     }
@@ -321,9 +332,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
       if (jpsiMass < 2.9 or jpsiMass > 3.3)
         continue;
 
-      if (not fillDecayHistograms(histos.lambdaBToJPsiLambda0, cand, pvColl))
+      auto closestPV = fillDecayHistograms(histos.lambdaBToJPsiLambda0, cand, pvColl);
+      if (not closestPV)
         continue;
-      fillLambdaBToJPsiLambda0Components(histos.lambdaBToJPsiLambda0, cand);
+      fillLambdaBToJPsiLambda0Components(histos.lambdaBToJPsiLambda0, cand, bs, closestPV);
 
       displacedJPsiToMuMu[jpsi.index()] = true;
     }
@@ -332,9 +344,10 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   for (size_t i = 0; i < lOniaToMuMu.size(); i++) {
     auto&& cand = lOniaToMuMu[i];
 
-    if (not fillDecayHistograms(histos.oniaToMuMu, cand, pvColl))
+    auto closestPV = fillDecayHistograms(histos.oniaToMuMu, cand, pvColl);
+    if (not closestPV)
       continue;
-    fillOniaToMuMuComponents(histos.oniaToMuMu, cand);
+    fillOniaToMuMuComponents(histos.oniaToMuMu, cand, bs, closestPV);
 
     auto decayHistos = &histos.oniaToMuMuPrompt;
     if (displacedJPsiToMuMu[i]) {
@@ -342,7 +355,7 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
     }
 
     fillDecayHistograms(*decayHistos, cand, pvColl);
-    fillOniaToMuMuComponents(*decayHistos, cand);
+    fillOniaToMuMuComponents(*decayHistos, cand, bs, closestPV);
   }
   lOniaToMuMu.clear();
   displacedJPsiToMuMu.clear();
@@ -350,18 +363,20 @@ void HeavyFlavorDQMAnalyzer::dqmAnalyze(edm::Event const& iEvent,
   if (not k0sToPiPiCandsToken.isUninitialized()) {
     auto lK0sToPiPi = iEvent.get(k0sToPiPiCandsToken);
     for (auto&& cand : lK0sToPiPi) {
-      if (not fillDecayHistograms(histos.k0sToPiPi, cand, pvColl))
+      auto closestPV = fillDecayHistograms(histos.k0sToPiPi, cand, pvColl);
+      if (not closestPV)
         continue;
-      fillK0sToPiPiComponents(histos.k0sToPiPi, cand);
+      fillK0sToPiPiComponents(histos.k0sToPiPi, cand, bs, closestPV);
     }
   }
 
   if (not lambda0ToPPiCandsToken.isUninitialized()) {
     auto lLambda0ToPPi = iEvent.get(lambda0ToPPiCandsToken);
     for (auto&& cand : lLambda0ToPPi) {
-      if (not fillDecayHistograms(histos.lambda0ToPPi, cand, pvColl))
+      auto closestPV = fillDecayHistograms(histos.lambda0ToPPi, cand, pvColl);
+      if (not closestPV)
         continue;
-      fillLambda0ToPPiComponents(histos.lambda0ToPPi, cand);
+      fillLambda0ToPPiComponents(histos.lambda0ToPPi, cand, bs, closestPV);
     }
   }
 }
@@ -582,14 +597,14 @@ void HeavyFlavorDQMAnalyzer::initComponentHists(DQMStore::IBooker& ibook,
                                                 TString const& componentName) const {
   ComponentHists comp;
 
-  comp.h_pt = ibook.book1D(componentName + "_pt", "", 200, 0, 20);
-  comp.h_eta = ibook.book1D(componentName + "_eta", "", 200, -3, 3);
-  comp.h_phi = ibook.book1D(componentName + "_phi", "", 200, -TMath::Pi(), TMath::Pi());
-  comp.h_dxy = ibook.book1D(componentName + "_dxy", "", 200, 0, 3);
-  comp.h_exy = ibook.book1D(componentName + "_exy", "", 200, 0, 0.2);
-  comp.h_dz = ibook.book1D(componentName + "_dz", "", 200, 0, 20);
-  comp.h_ez = ibook.book1D(componentName + "_ez", "", 200, 0, 2);
-  comp.h_chi2 = ibook.book1D(componentName + "_chi2", "", 200, 0, 20);
+  comp.h_pt = ibook.book1D(componentName + "_pt", ";p_{T} [GeV]", 200, 0, 20);
+  comp.h_eta = ibook.book1D(componentName + "_eta", ";#eta", 200, -3, 3);
+  comp.h_phi = ibook.book1D(componentName + "_phi", ";#phi", 200, -TMath::Pi(), TMath::Pi());
+  comp.h_dxy = ibook.book1D(componentName + "_dxyBS", ";d_{xy}(BS) [cm]", 200, -3, 3);
+  comp.h_exy = ibook.book1D(componentName + "_exy", ";#sigma(d_{xy}(BS)) [cm]", 200, 0, 0.2);
+  comp.h_dz = ibook.book1D(componentName + "_dzPV", ";d_{z}(PV) [cm]", 200, -20, 20);
+  comp.h_ez = ibook.book1D(componentName + "_ez", ";#sigma(d_{z}(PV)) [cm]", 200, 0, 2);
+  comp.h_chi2 = ibook.book1D(componentName + "_chi2", ";#chi^{2}", 200, 0, 20);
 
   histos.decayComponents.push_back(comp);
 }
@@ -699,21 +714,21 @@ void HeavyFlavorDQMAnalyzer::initPsi2SToJPsiPiPiComponentHistograms(DQMStore::IB
   initComponentHists(ibook, run, iSetup, histos, "soft_pi");
 }
 
-bool HeavyFlavorDQMAnalyzer::fillDecayHistograms(DecayHists const& histos,
-                                                 pat::CompositeCandidate const& cand,
-                                                 reco::VertexCollection const& pvs) const {
+reco::Vertex const* HeavyFlavorDQMAnalyzer::fillDecayHistograms(DecayHists const& histos,
+                                                                pat::CompositeCandidate const& cand,
+                                                                reco::VertexCollection const& pvs) const {
   //  if (not cand.hasUserData("fitMomentum")) {
   //    return -2;
   //  }
   //  auto mass = cand.userFloat("fitMass");
   //  auto& momentum = *cand.userData<GlobalVector>("fitMomentum");
   if (not allTracksAvailable(cand)) {
-    return false;
+    return nullptr;
   }
 
   auto svtx = cand.userData<reco::Vertex>("vertex");
   if (not svtx->isValid()) {
-    return false;
+    return nullptr;
   }
 
   float mass = cand.mass();
@@ -726,6 +741,9 @@ bool HeavyFlavorDQMAnalyzer::fillDecayHistograms(DecayHists const& histos,
   auto pvtx = std::min_element(pvs.begin(), pvs.end(), [svtx](reco::Vertex const& pv1, reco::Vertex const& pv2) {
     return abs(pv1.z() - svtx->z()) < abs(pv2.z() - svtx->z());
   });
+  if (pvtx == pvs.end()) {
+    return nullptr;
+  }
 
   VertexDistanceXY vdistXY;
   Measurement1D distXY = vdistXY.distance(*svtx, *pvtx);
@@ -757,142 +775,182 @@ bool HeavyFlavorDQMAnalyzer::fillDecayHistograms(DecayHists const& histos,
     histos.h_vertProb->Fill(ChiSquaredProbability(svtx->chi2(), svtx->ndof()));
   }
 
-  return true;
+  return &*pvtx;
 }
 
 int HeavyFlavorDQMAnalyzer::fillOniaToMuMuComponents(DecayHists const& histos,
                                                      pat::CompositeCandidate const& cand,
+                                                     reco::BeamSpot const* bs,
+                                                     reco::Vertex const* pv,
                                                      int startPosition) const {
-  startPosition = fillComponentHistogramsLeadSoft(histos, cand, "MuPos", "MuNeg", startPosition);
+  startPosition = fillComponentHistogramsLeadSoft(histos, cand, "MuPos", "MuNeg", bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillKx0ToKPiComponents(DecayHists const& histos,
                                                    pat::CompositeCandidate const& cand,
+                                                   reco::BeamSpot const* bs,
+                                                   reco::Vertex const* pv,
                                                    int startPosition) const {
-  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Kaon", startPosition);
-  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Pion", startPosition);
+  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Kaon", bs, pv, startPosition);
+  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Pion", bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillPhiToKKComponents(DecayHists const& histos,
                                                   pat::CompositeCandidate const& cand,
+                                                  reco::BeamSpot const* bs,
+                                                  reco::Vertex const* pv,
                                                   int startPosition) const {
-  startPosition = fillComponentHistogramsLeadSoft(histos, cand, "KPos", "KNeg", startPosition);
+  startPosition = fillComponentHistogramsLeadSoft(histos, cand, "KPos", "KNeg", bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillK0sToPiPiComponents(DecayHists const& histos,
                                                     pat::CompositeCandidate const& cand,
+                                                    reco::BeamSpot const* bs,
+                                                    reco::Vertex const* pv,
                                                     int startPosition) const {
-  startPosition = fillComponentHistogramsLeadSoft(histos, cand, "PionPos", "PionNeg", startPosition);
+  startPosition = fillComponentHistogramsLeadSoft(histos, cand, "PionPos", "PionNeg", bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillLambda0ToPPiComponents(DecayHists const& histos,
                                                        pat::CompositeCandidate const& cand,
+                                                       reco::BeamSpot const* bs,
+                                                       reco::Vertex const* pv,
                                                        int startPosition) const {
-  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Proton", startPosition);
-  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Pion", startPosition);
+  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Proton", bs, pv, startPosition);
+  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Pion", bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillBuToJPsiKComponents(DecayHists const& histos,
                                                     pat::CompositeCandidate const& cand,
+                                                    reco::BeamSpot const* bs,
+                                                    reco::Vertex const* pv,
                                                     int startPosition) const {
   startPosition = fillOniaToMuMuComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), startPosition);
-  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Kaon", startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), bs, pv, startPosition);
+  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Kaon", bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillBuToPsi2SKComponents(DecayHists const& histos,
                                                      pat::CompositeCandidate const& cand,
+                                                     reco::BeamSpot const* bs,
+                                                     reco::Vertex const* pv,
                                                      int startPosition) const {
   startPosition = fillPsi2SToJPsiPiPiComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToPsi2S"), startPosition);
-  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Kaon", startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToPsi2S"), bs, pv, startPosition);
+  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Kaon", bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillBdToJPsiKx0Components(DecayHists const& histos,
                                                       pat::CompositeCandidate const& cand,
+                                                      reco::BeamSpot const* bs,
+                                                      reco::Vertex const* pv,
                                                       int startPosition) const {
   startPosition = fillOniaToMuMuComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), bs, pv, startPosition);
   startPosition = fillKx0ToKPiComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToKx0"), startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToKx0"), bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillBsToJPsiPhiComponents(DecayHists const& histos,
                                                       pat::CompositeCandidate const& cand,
+                                                      reco::BeamSpot const* bs,
+                                                      reco::Vertex const* pv,
                                                       int startPosition) const {
   startPosition = fillOniaToMuMuComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), bs, pv, startPosition);
   startPosition = fillPhiToKKComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToPhi"), startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToPhi"), bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillBdToJPsiK0sComponents(DecayHists const& histos,
                                                       pat::CompositeCandidate const& cand,
+                                                      reco::BeamSpot const* bs,
+                                                      reco::Vertex const* pv,
                                                       int startPosition) const {
   startPosition = fillOniaToMuMuComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), bs, pv, startPosition);
   startPosition = fillK0sToPiPiComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToK0s"), startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToK0s"), bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillBcToJPsiPiComponents(DecayHists const& histos,
                                                      pat::CompositeCandidate const& cand,
+                                                     reco::BeamSpot const* bs,
+                                                     reco::Vertex const* pv,
                                                      int startPosition) const {
   startPosition = fillOniaToMuMuComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), startPosition);
-  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Pion", startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), bs, pv, startPosition);
+  startPosition = fillComponentHistogramsSinglePart(histos, cand, "Pion", bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillLambdaBToJPsiLambda0Components(DecayHists const& histos,
                                                                pat::CompositeCandidate const& cand,
+                                                               reco::BeamSpot const* bs,
+                                                               reco::Vertex const* pv,
                                                                int startPosition) const {
   startPosition = fillOniaToMuMuComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), bs, pv, startPosition);
   startPosition = fillLambda0ToPPiComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToLambda0"), startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToLambda0"), bs, pv, startPosition);
 
   return startPosition;
 }
 
 int HeavyFlavorDQMAnalyzer::fillPsi2SToJPsiPiPiComponents(DecayHists const& histos,
                                                           pat::CompositeCandidate const& cand,
+                                                          reco::BeamSpot const* bs,
+                                                          reco::Vertex const* pv,
                                                           int startPosition) const {
   startPosition = fillOniaToMuMuComponents(
-      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), startPosition);
-  startPosition = fillComponentHistogramsLeadSoft(histos, cand, "PionPos", "PionNeg", startPosition);
+      histos, **cand.userData<edm::Ref<pat::CompositeCandidateCollection>>("refToJPsi"), bs, pv, startPosition);
+  startPosition = fillComponentHistogramsLeadSoft(histos, cand, "PionPos", "PionNeg", bs, pv, startPosition);
   return startPosition;
 }
 
-void HeavyFlavorDQMAnalyzer::fillComponentHistograms(ComponentHists const& histos, reco::Track const& component) const {
+void HeavyFlavorDQMAnalyzer::fillComponentHistograms(ComponentHists const& histos,
+                                                     reco::Track const& component,
+                                                     reco::BeamSpot const* bs,
+                                                     reco::Vertex const* pv) const {
   histos.h_pt->Fill(component.pt());
   histos.h_eta->Fill(component.eta());
   histos.h_phi->Fill(component.phi());
 
-  histos.h_dxy->Fill(component.dxy());
-  histos.h_exy->Fill(component.dxyError());
-  histos.h_dz->Fill(component.dz());
+  math::XYZPoint zero(0, 0, 0);
+  math::Error<3>::type zeroCov;  // needed for dxyError
+  if (bs) {
+    histos.h_dxy->Fill(component.dxy(*bs));
+    histos.h_exy->Fill(component.dxyError(*bs));
+  } else {
+    histos.h_dxy->Fill(component.dxy(zero));
+    histos.h_exy->Fill(component.dxyError(zero, zeroCov));
+  }
+  if (pv) {
+    histos.h_dz->Fill(component.dz(pv->position()));
+  } else {
+    histos.h_dz->Fill(component.dz(zero));
+  }
   histos.h_ez->Fill(component.dzError());
 
   histos.h_chi2->Fill(component.chi2() / component.ndof());
@@ -935,8 +993,10 @@ const reco::Track* HeavyFlavorDQMAnalyzer::getDaughterTrack(pat::CompositeCandid
 int HeavyFlavorDQMAnalyzer::fillComponentHistogramsSinglePart(DecayHists const& histos,
                                                               pat::CompositeCandidate const& cand,
                                                               std::string const& name,
+                                                              reco::BeamSpot const* bs,
+                                                              reco::Vertex const* pv,
                                                               int startPosition) const {
-  fillComponentHistograms(histos.decayComponents[startPosition], *getDaughterTrack(cand, name));
+  fillComponentHistograms(histos.decayComponents[startPosition], *getDaughterTrack(cand, name), bs, pv);
 
   return startPosition + 1;
 }
@@ -945,6 +1005,8 @@ int HeavyFlavorDQMAnalyzer::fillComponentHistogramsLeadSoft(DecayHists const& hi
                                                             pat::CompositeCandidate const& cand,
                                                             std::string const& name1,
                                                             std::string const& name2,
+                                                            reco::BeamSpot const* bs,
+                                                            reco::Vertex const* pv,
                                                             int startPosition) const {
   auto daughSoft = getDaughterTrack(cand, name1);
   auto daughLead = getDaughterTrack(cand, name2);
@@ -953,8 +1015,8 @@ int HeavyFlavorDQMAnalyzer::fillComponentHistogramsLeadSoft(DecayHists const& hi
     std::swap(daughLead, daughSoft);
   }
 
-  fillComponentHistograms(histos.decayComponents[startPosition], *daughLead);
-  fillComponentHistograms(histos.decayComponents[startPosition + 1], *daughSoft);
+  fillComponentHistograms(histos.decayComponents[startPosition], *daughLead, bs, pv);
+  fillComponentHistograms(histos.decayComponents[startPosition + 1], *daughSoft, bs, pv);
 
   return startPosition + 2;
 }
@@ -966,6 +1028,7 @@ void HeavyFlavorDQMAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& de
   desc.add<std::string>("folder", "Physics/HeavyFlavor");
 
   desc.add<edm::InputTag>("pvCollection");
+  desc.add<edm::InputTag>("beamSpot");
 
   desc.addOptional<edm::InputTag>("OniaToMuMuCands");
   desc.addOptional<edm::InputTag>("Kx0ToKPiCands");
