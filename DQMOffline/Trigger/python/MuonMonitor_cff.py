@@ -53,20 +53,43 @@ DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring = hltMuonmonitoring.clone(
 DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL2Mu23NoVtx_2Cha_CosmicSeed_v*")
 DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
 #--------------------------------------------------
-DoubleL2Mu10NoVtx_2Cha_PromptL3Mu0Veto_monitoring = hltMuonmonitoring.clone(
-    FolderName = 'HLT/EXO/Muon/DoubleL2Mu10NoVtx_2Cha_PromptL3Mu0Veto/',
+DoubleL2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm_monitoring = hltMuonmonitoring.clone(
+    FolderName = 'HLT/EXO/Muon/DoubleL2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm/',
     nmuons = 2
 )
-DoubleL2Mu10NoVtx_2Cha_PromptL3Mu0Veto_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL2Mu10NoVtx_2Cha_PromptL3Mu0Veto_v*")
-DoubleL2Mu10NoVtx_2Cha_PromptL3Mu0Veto_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
-
+DoubleL2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm_v*")
+DoubleL2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
 #--------------------------------------------------
-DoubleL3Mu10NoVtx_Displaced_monitoring = hltMuonmonitoring.clone(
-    FolderName = 'HLT/EXO/Muon/DoubleL3Mu10NoVtx_Displaced/',
+DoubleL2Mu_L3Mu16NoVtx_VetoL3Mu0DxyMax0p1cm_monitoring = hltMuonmonitoring.clone(
+    FolderName = 'HLT/EXO/Muon/DoubleL2Mu_L3Mu16NoVtx_VetoL3Mu0DxyMax0p1cm/',
     nmuons = 2
 )
-DoubleL3Mu10NoVtx_Displaced_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL3Mu10NoVtx_Displaced_v*")
-DoubleL3Mu10NoVtx_Displaced_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+DoubleL2Mu_L3Mu16NoVtx_VetoL3Mu0DxyMax0p1cm_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL2Mu_L3Mu16NoVtx_VetoL3Mu0DxyMax0p1cm_v*")
+DoubleL2Mu_L3Mu16NoVtx_VetoL3Mu0DxyMax0p1cm_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+#--------------------------------------------------
+DoubleL2Mu10NoVtx_2Cha_CosmicSeed_VetoL3Mu0DxyMax1cm_monitoring = hltMuonmonitoring.clone(
+    FolderName = 'HLT/EXO/Muon/DoubleL2Mu10NoVtx_2Cha_CosmicSeed_VetoL3Mu0DxyMax1cm/',
+    nmuons = 2
+)
+DoubleL2Mu10NoVtx_2Cha_CosmicSeed_VetoL3Mu0DxyMax1cm_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL2Mu10NoVtx_2Cha_CosmicSeed_VetoL3Mu0DxyMax1cm_v*")
+DoubleL2Mu10NoVtx_2Cha_CosmicSeed_VetoL3Mu0DxyMax1cm_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+#--------------------------------------------------
+DoubleL3Mu16_10NoVtx_DxyMin0p01cm_monitoring = hltMuonmonitoring.clone(
+    FolderName = 'HLT/EXO/Muon/DoubleL3Mu16_10NoVtx_DxyMin0p01cm/',
+    nmuons = 2
+)
+DoubleL3Mu16_10NoVtx_DxyMin0p01cm_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL3Mu16_10NoVtx_DxyMin0p01cm_v*")
+DoubleL3Mu16_10NoVtx_DxyMin0p01cm_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+#--------------------------------------------------
+DoubleL3dTksMu16_10NoVtx_DxyMin0p01cm_monitoring = hltMuonmonitoring.clone(
+    FolderName = 'HLT/EXO/Muon/DoubleL3dTksMu16_10NoVtx_DxyMin0p01cm/',
+    nmuons = 2
+)
+DoubleL3dTksMu16_10NoVtx_DxyMin0p01cm_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_DoubleL3dTksMu16_10NoVtx_DxyMin0p01cm_v*")
+DoubleL3dTksMu16_10NoVtx_DxyMin0p01cm_monitoring.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_v*","HLT_PFMETTypeOne120_PFMHT120_IDTight_v*","HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_IDTight_v*")
+
+
+
 
 #--------------------------------------------------
 
@@ -172,8 +195,11 @@ exoHLTMuonmonitoring = cms.Sequence(
     + Mu20NoFiltersNoVtxDisplaced_Photon20_CaloCustomId_EleLeg_monitoring
     + DoubleL2Mu23NoVtx_2Cha_monitoring
     + DoubleL2Mu23NoVtx_2Cha_CosmicSeed_monitoring
-    + DoubleL2Mu10NoVtx_2Cha_PromptL3Mu0Veto_monitoring
-    + DoubleL3Mu10NoVtx_Displaced_monitoring
+    + DoubleL2Mu10NoVtx_2Cha_VetoL3Mu0DxyMax1cm_monitoring
+    + DoubleL2Mu_L3Mu16NoVtx_VetoL3Mu0DxyMax0p1cm_monitoring
+    + DoubleL2Mu10NoVtx_2Cha_CosmicSeed_VetoL3Mu0DxyMax1cm_monitoring
+    + DoubleL3Mu16_10NoVtx_DxyMin0p01cm_monitoring
+    + DoubleL3dTksMu16_10NoVtx_DxyMin0p01cm_monitoring
 )
 
 
