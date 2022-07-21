@@ -2764,7 +2764,7 @@ void IsolatedTracksNxN::printTrack(const reco::Track *pTrack) {
     std::ostringstream st1;
     st1 << "default ";
     for (int i = 0; i < p.numberOfAllHits(reco::HitPattern::TRACK_HITS); i++) {
-      p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
+      p.printHitPattern(reco::HitPattern::TRACK_HITS, i, st1);
     }
     edm::LogVerbatim("IsoTrack") << st1.str();
     std::ostringstream st2;
