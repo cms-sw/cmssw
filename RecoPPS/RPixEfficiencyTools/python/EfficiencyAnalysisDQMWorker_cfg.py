@@ -17,7 +17,7 @@ lastRunOfTheYear  = 324897
 
 
 #SETUP PROCESS
-process = cms.Process("DQMWorkerProcess", eras.Run2_2017,eras.run2_miniAOD_devel)
+process = cms.Process("DQMWorkerProcess", eras.Run2_2018,eras.run2_miniAOD_devel)
 
 
 #SETUP PARAMETERS
@@ -208,7 +208,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
 #SETUP GLOBAL TAG
-process.GlobalTag = GlobalTag(process.GlobalTag, '113X_dataRun2_v6')
+process.GlobalTag = GlobalTag(process.GlobalTag, '123X_dataRun2_v4')
 
 
 #SETUP INPUT
