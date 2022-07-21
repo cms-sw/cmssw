@@ -143,6 +143,21 @@ namespace edm {
 
       return workerManager.getWorker(*modpset, preg, prealloc, processConfiguration, moduleLabel);
     }
+
+    // If ConditionalTask modules exist in the container of module
+    // names, returns the range (std::pair) for the modules. The range
+    // excludes the special markers '#' (right before the
+    // ConditionalTask modules) and '@' (last element).
+    // If the module name container does not contain ConditionalTask
+    // modules, returns std::pair of end iterators.
+    template <typename T>
+    auto findConditionalTaskModulesRange(T& modnames) {
+      auto beg = std::find(modnames.begin(), modnames.end(), "#");
+      if (beg == modnames.end()) {
+        return std::pair(modnames.end(), modnames.end());
+      }
+      return std::pair(beg + 1, std::prev(modnames.end()));
+    }
   }  // namespace
 
   // -----------------------------
@@ -166,12 +181,12 @@ namespace edm {
         auto const modnames = proc_pset.getParameter<vstring>(pathName);
 
         //Pull out ConditionalTask modules
-        auto itCondBegin = std::find(modnames.begin(), modnames.end(), "#");
-        if (itCondBegin == modnames.end())
+        auto condRange = findConditionalTaskModulesRange(modnames);
+        if (condRange.first == condRange.second)
           continue;
 
         //the last entry should be ignored since it is required to be "@"
-        allConditionalMods.insert(itCondBegin + 1, std::prev(modnames.end()));
+        allConditionalMods.insert(condRange.first, condRange.second);
       }
 
       for (auto const& cond : allConditionalMods) {
@@ -190,11 +205,11 @@ namespace edm {
       }
     }
 
-    std::multimap<std::string, AliasInfo> const& aliasMap() const { return aliasMap_; }
+    std::unordered_multimap<std::string, AliasInfo> const& aliasMap() const { return aliasMap_; }
 
-    std::multimap<std::string, edm::BranchDescription const*> conditionalModuleBranches(
+    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModuleBranches(
         std::unordered_set<std::string> const& conditionalmods) const {
-      std::multimap<std::string, edm::BranchDescription const*> ret;
+      std::unordered_multimap<std::string, edm::BranchDescription const*> ret;
       for (auto const& mod : conditionalmods) {
         auto range = conditionalModsBranches_.equal_range(mod);
         ret.insert(range.first, range.second);
@@ -255,8 +270,8 @@ namespace edm {
           switchEDAliases, allConditionalMods, proc_pset, processConfiguration.processName(), preg);
     }
 
-    std::multimap<std::string, AliasInfo> aliasMap_;
-    std::multimap<std::string, edm::BranchDescription const*> conditionalModsBranches_;
+    std::unordered_multimap<std::string, AliasInfo> aliasMap_;
+    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches_;
   };
 
   // -----------------------------
@@ -521,8 +536,8 @@ namespace edm {
   std::vector<Worker*> StreamSchedule::tryToPlaceConditionalModules(
       Worker* worker,
       std::unordered_set<std::string>& conditionalModules,
-      std::multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
-      std::multimap<std::string, AliasInfo> const& aliasMap,
+      std::unordered_multimap<std::string, edm::BranchDescription const*> const& conditionalModuleBranches,
+      std::unordered_multimap<std::string, AliasInfo> const& aliasMap,
       ParameterSet& proc_pset,
       ProductRegistry& preg,
       PreallocationConfiguration const* prealloc,
@@ -672,25 +687,24 @@ namespace edm {
     PathWorkers tmpworkers;
 
     //Pull out ConditionalTask modules
-    auto itCondBegin = std::find(modnames.begin(), modnames.end(), "#");
+    auto condRange = findConditionalTaskModulesRange(modnames);
 
     std::unordered_set<std::string> conditionalmods;
     //An EDAlias may be redirecting to a module on a ConditionalTask
-    std::multimap<std::string, AliasInfo> aliasMap;
-    std::multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
+    std::unordered_multimap<std::string, edm::BranchDescription const*> conditionalModsBranches;
     std::unordered_map<std::string, unsigned int> conditionalModOrder;
-    if (itCondBegin != modnames.end()) {
-      for (auto it = itCondBegin + 1; it != modnames.begin() + modnames.size() - 1; ++it) {
+    if (condRange.first != condRange.second) {
+      for (auto it = condRange.first; it != condRange.second; ++it) {
         // ordering needs to skip the # token in the path list
         conditionalModOrder.emplace(*it, it - modnames.begin() - 1);
       }
       //the last entry should be ignored since it is required to be "@"
-      conditionalmods = std::unordered_set<std::string>(
-          std::make_move_iterator(itCondBegin + 1), std::make_move_iterator(modnames.begin() + modnames.size() - 1));
+      conditionalmods = std::unordered_set<std::string>(std::make_move_iterator(condRange.first),
+                                                        std::make_move_iterator(condRange.second));
 
       conditionalModsBranches = conditionalTaskHelper.conditionalModuleBranches(conditionalmods);
+      modnames.erase(std::prev(condRange.first), modnames.end());
     }
-    modnames.erase(itCondBegin, modnames.end());
 
     unsigned int placeInPath = 0;
     for (auto const& name : modnames) {
