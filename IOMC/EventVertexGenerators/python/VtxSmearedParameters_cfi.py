@@ -796,10 +796,10 @@ Realistic25ns900GeV2021CollisionVtxSmearingParameters = cms.PSet(
 # From LHC calculator, emittance is 6.621e-8 cm
 # https://lpc.web.cern.ch/lumiCalc.html
 #
-# BPIX absolute position (https://twiki.cern.ch/twiki/bin/view/CMS/TkAlignmentPixelPosition?rev=42#2022):
-# X = -0.01955 cm
-# Y = -0.1583  cm
-# Z = -0.2626  cm
+# BPIX absolute position (https://twiki.cern.ch/twiki/bin/view/CMS/TkAlignmentPixelPosition?rev=45#Collisions_at_s_13_6_TeV):
+# X =  0.0717651 cm
+# Y = -0.165951  cm
+# Z = -0.356345  cm
 Realistic25ns13p6TeVEarly2022CollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(30.0),
@@ -807,9 +807,9 @@ Realistic25ns13p6TeVEarly2022CollisionVtxSmearingParameters = cms.PSet(
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(3.8),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.191944),
-    Y0 = cms.double(-0.022646),
-    Z0 = cms.double(1.20441)
+    X0 = cms.double(0.100629),
+    Y0 = cms.double(-0.014995),
+    Z0 = cms.double(1.298155)
 )
 
 # Test HF offset
