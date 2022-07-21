@@ -2397,7 +2397,7 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(10000000)
         ),
         enable = cms.untracked.bool(True),
-        enableStatistics = cms.untracked.bool(True),
+        enableStatistics = cms.untracked.bool(False),
         lineLength = cms.optional.untracked.int32,
         noLineBreaks = cms.optional.untracked.bool,
         noTimeStamps = cms.untracked.bool(False),
