@@ -16,9 +16,11 @@ namespace ALPAKA_ACCELERATOR_NAMESPACE {
   public:
     template <typename TAcc>
     ALPAKA_FN_ACC void operator()(TAcc const& acc, portabletest::TestDeviceCollection::View view, int32_t size) const {
-      int32_t idx = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
-      if (idx < size) {
-        view[idx] = {0., 0., 0., idx};
+      // this example accepts an arbitrary number of blocks and threads, and always uses 1 element per thread
+      const int32_t thread = alpaka::getIdx<alpaka::Grid, alpaka::Threads>(acc)[0u];
+      const int32_t stride = alpaka::getWorkDiv<alpaka::Grid, alpaka::Threads>(acc)[0u];
+      for (auto i = thread; i < size; i += stride) {
+        view[i] = {0., 0., 0., i};
       }
     }
   };
