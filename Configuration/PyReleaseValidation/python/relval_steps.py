@@ -3849,7 +3849,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                     '--scenario' : 'pp'
                                     }
 
-    upgradeStepDict['FastSimRun3'][k]={'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@standardValidation,DQM:@standardDQMFS',
+    upgradeStepDict['FastSimRun3'][k]={'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,DIGI2RAW,L1Reco,RECO,PAT,VALIDATION:@standardValidation,DQM:@standardDQMFS+@miniAODDQM',
                                        '--fast':'',
                                        '--era':'Run3_FastSim',
                                        '--beamspot':beamspot,
@@ -3859,7 +3859,7 @@ for year,k in [(year,k) for year in upgradeKeys for k in upgradeKeys[year]]:
                                        '--datatier':'GEN-SIM-DIGI-RECO,MINIAODSIM,DQMIO',
                                        '--relval':'27000,3000'}
     
-    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting',
+    upgradeStepDict['HARVESTFastRun3'][k]={'-s':'HARVESTING:validationHarvesting+@miniAODDQM',
                                            '--conditions':gt,
                                            '--mc':'',
                                            '--fast':'',
