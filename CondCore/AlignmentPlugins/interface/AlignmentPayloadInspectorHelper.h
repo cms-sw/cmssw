@@ -877,6 +877,11 @@ namespace AlignmentPI {
                                                   const std::map<AlignmentPI::coordinate, float>& GPR)
   /*--------------------------------------------------------------------*/
   {
+    // zero in the n. modules per partition...
+    for (const auto& p : PARTITIONS) {
+      nmodules[p] = 0.;
+    }
+
     for (const auto& ali : input) {
       if (DetId(ali.rawId()).det() != DetId::Tracker) {
         edm::LogWarning("TkAlBarycenters::computeBarycenters")
@@ -958,15 +963,17 @@ namespace AlignmentPI {
     }
 
     for (const auto& p : PARTITIONS) {
+      // take the arithmetic mean
       Xbarycenters[p] /= nmodules[p];
       Ybarycenters[p] /= nmodules[p];
       Zbarycenters[p] /= nmodules[p];
 
+      // add the Tracker Global Position Record
       Xbarycenters[p] += GPR.at(AlignmentPI::t_x);
       Ybarycenters[p] += GPR.at(AlignmentPI::t_y);
       Zbarycenters[p] += GPR.at(AlignmentPI::t_z);
 
-      COUT << p << "|"
+      COUT << "Partition: " << p << " n. modules: " << nmodules[p] << "|"
            << " X: " << std::right << std::setw(12) << Xbarycenters[p] << " Y: " << std::right << std::setw(12)
            << Ybarycenters[p] << " Z: " << std::right << std::setw(12) << Zbarycenters[p] << std::endl;
     }
