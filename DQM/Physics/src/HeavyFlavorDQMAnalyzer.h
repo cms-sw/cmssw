@@ -166,19 +166,26 @@ private:
                                               edm::EventSetup const&,
                                               DecayHists&) const;
 
-  bool fillDecayHistograms(DecayHists const&,
-                           pat::CompositeCandidate const& cand,
-                           reco::VertexCollection const& pvs) const;
-  void fillComponentHistograms(ComponentHists const& histos, reco::Track const& component) const;
+  reco::Vertex const* fillDecayHistograms(DecayHists const&,
+                                          pat::CompositeCandidate const& cand,
+                                          reco::VertexCollection const& pvs) const;
+  void fillComponentHistograms(ComponentHists const& histos,
+                               reco::Track const& component,
+                               reco::BeamSpot const* bs,
+                               reco::Vertex const* pv) const;
 
   int fillComponentHistogramsSinglePart(DecayHists const&,
                                         pat::CompositeCandidate const& cand,
                                         std::string const& name,
+                                        reco::BeamSpot const* bs,
+                                        reco::Vertex const* pv,
                                         int startPosition = 0) const;
   int fillComponentHistogramsLeadSoft(DecayHists const&,
                                       pat::CompositeCandidate const& cand,
                                       std::string const& name1,
                                       std::string const& name2,
+                                      reco::BeamSpot const* bs,
+                                      reco::Vertex const* pv,
                                       int startPosition = 0) const;
 
   const reco::Track* getDaughterTrack(pat::CompositeCandidate const& cand,
@@ -188,46 +195,75 @@ private:
 
   int fillOniaToMuMuComponents(DecayHists const& histos,
                                pat::CompositeCandidate const& cand,
+                               reco::BeamSpot const* bs,
+                               reco::Vertex const* pv,
                                int startPosition = 0) const;
   int fillKx0ToKPiComponents(DecayHists const& histos,
                              pat::CompositeCandidate const& cand,
+                             reco::BeamSpot const* bs,
+                             reco::Vertex const* pv,
                              int startPosition = 0) const;
-  int fillPhiToKKComponents(DecayHists const& histos, pat::CompositeCandidate const& cand, int startPosition = 0) const;
+  int fillPhiToKKComponents(DecayHists const& histos,
+                            pat::CompositeCandidate const& cand,
+                            reco::BeamSpot const* bs,
+                            reco::Vertex const* pv,
+                            int startPosition = 0) const;
   int fillK0sToPiPiComponents(DecayHists const& histos,
                               pat::CompositeCandidate const& cand,
+                              reco::BeamSpot const* bs,
+                              reco::Vertex const* pv,
                               int startPosition = 0) const;
   int fillLambda0ToPPiComponents(DecayHists const& histos,
                                  pat::CompositeCandidate const& cand,
+                                 reco::BeamSpot const* bs,
+                                 reco::Vertex const* pv,
                                  int startPosition = 0) const;
   int fillBuToJPsiKComponents(DecayHists const& histos,
                               pat::CompositeCandidate const& cand,
+                              reco::BeamSpot const* bs,
+                              reco::Vertex const* pv,
                               int startPosition = 0) const;
   int fillBuToPsi2SKComponents(DecayHists const& histos,
                                pat::CompositeCandidate const& cand,
+                               reco::BeamSpot const* bs,
+                               reco::Vertex const* pv,
                                int startPosition = 0) const;
   int fillBdToJPsiKx0Components(DecayHists const& histos,
                                 pat::CompositeCandidate const& cand,
+                                reco::BeamSpot const* bs,
+                                reco::Vertex const* pv,
                                 int startPosition = 0) const;
   int fillBsToJPsiPhiComponents(DecayHists const& histos,
                                 pat::CompositeCandidate const& cand,
+                                reco::BeamSpot const* bs,
+                                reco::Vertex const* pv,
                                 int startPosition = 0) const;
   int fillBdToJPsiK0sComponents(DecayHists const& histos,
                                 pat::CompositeCandidate const& cand,
+                                reco::BeamSpot const* bs,
+                                reco::Vertex const* pv,
                                 int startPosition = 0) const;
   int fillBcToJPsiPiComponents(DecayHists const& histos,
                                pat::CompositeCandidate const& cand,
+                               reco::BeamSpot const* bs,
+                               reco::Vertex const* pv,
                                int startPosition = 0) const;
   int fillLambdaBToJPsiLambda0Components(DecayHists const& histos,
                                          pat::CompositeCandidate const& cand,
+                                         reco::BeamSpot const* bs,
+                                         reco::Vertex const* pv,
                                          int startPosition = 0) const;
   int fillPsi2SToJPsiPiPiComponents(DecayHists const& histos,
                                     pat::CompositeCandidate const& cand,
+                                    reco::BeamSpot const* bs,
+                                    reco::Vertex const* pv,
                                     int startPosition = 0) const;
 
   // ------------ member data ------------
   std::string folder_;
 
   edm::EDGetTokenT<reco::VertexCollection> pvCollectionToken;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
 
   edm::EDGetTokenT<pat::CompositeCandidateCollection> oniaToMuMuCandsToken;
   edm::EDGetTokenT<pat::CompositeCandidateCollection> kx0ToKPiCandsToken;
