@@ -30,17 +30,15 @@ namespace gpuClustering {
     __shared__ uint16_t newclusId[maxNumClustersPerModules];
 
     constexpr int startBPIX2 = TrackerTraits::layerStart[1];
-    // constexpr int nMaxModules = TrackerTraits::numberOfModules;
 
-    // assert(nMaxModules < maxNumModules);
-    // assert(startBPIX2 < nMaxModules);
+    assert(TrackerTraits::numberOfModules < maxNumModules);
 
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
       auto thisModuleId = id[firstPixel];
-      // assert(thisModuleId < nMaxModules);
+      assert(thisModuleId < TrackerTraits::numberOfModules);
       assert(thisModuleId == moduleId[module]);
 
       auto nclus = nClustersInModule[thisModuleId];

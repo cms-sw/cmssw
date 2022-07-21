@@ -2,10 +2,10 @@
 #include "HeterogeneousCore/CUDAUtilities/interface/device_unique_ptr.h"
 
 template <typename TrackerTraits>
-void HelixFitOnGPUT<TrackerTraits>::launchRiemannKernels(HitsView const *hv,
-                                                         uint32_t nhits,
-                                                         uint32_t maxNumberOfTuples,
-                                                         cudaStream_t stream) {
+void HelixFitOnGPU<TrackerTraits>::launchRiemannKernels(HitsView const *hv,
+                                                        uint32_t nhits,
+                                                        uint32_t maxNumberOfTuples,
+                                                        cudaStream_t stream) {
   assert(tuples_);
 
   auto blockSize = 64;
@@ -131,5 +131,5 @@ void HelixFitOnGPUT<TrackerTraits>::launchRiemannKernels(HitsView const *hv,
   }
 }
 
-template class HelixFitOnGPUT<pixelTopology::Phase1>;
-template class HelixFitOnGPUT<pixelTopology::Phase2>;
+template class HelixFitOnGPU<pixelTopology::Phase1>;
+template class HelixFitOnGPU<pixelTopology::Phase2>;

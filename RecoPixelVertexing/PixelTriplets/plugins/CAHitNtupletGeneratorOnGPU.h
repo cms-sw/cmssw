@@ -22,7 +22,7 @@ namespace edm {
 }  // namespace edm
 
 template <typename TrackerTraits>
-class CAHitNtupletGeneratorOnGPUT {
+class CAHitNtupletGeneratorOnGPU {
 public:
   using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
 
@@ -50,9 +50,9 @@ public:
   using Counters = caHitNtupletGenerator::Counters;
 
 public:
-  CAHitNtupletGeneratorOnGPUT(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
-      : CAHitNtupletGeneratorOnGPUT(cfg, iC) {}
-  CAHitNtupletGeneratorOnGPUT(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
+  CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector&& iC)
+      : CAHitNtupletGeneratorOnGPU(cfg, iC) {}
+  CAHitNtupletGeneratorOnGPU(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
   static void fillDescriptions(edm::ParameterSetDescription& desc);
   static void fillDescriptionsCommon(edm::ParameterSetDescription& desc);

@@ -23,13 +23,13 @@
 #undef PIXVERTEX_DEBUG_PRODUCE
 
 template <typename TrackerTraits>
-class PixelVertexProducerCUDAT : public edm::global::EDProducer<> {
+class PixelVertexProducerCUDA : public edm::global::EDProducer<> {
   using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<TrackerTraits>;
-  using GPUAlgo = gpuVertexFinder::ProducerT<TrackerTraits>;
+  using GPUAlgo = gpuVertexFinder::Producer<TrackerTraits>;
 
 public:
-  explicit PixelVertexProducerCUDAT(const edm::ParameterSet& iConfig);
-  ~PixelVertexProducerCUDAT() override = default;
+  explicit PixelVertexProducerCUDA(const edm::ParameterSet& iConfig);
+  ~PixelVertexProducerCUDA() override = default;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -53,7 +53,7 @@ private:
 };
 
 template <typename TrackerTraits>
-PixelVertexProducerCUDAT<TrackerTraits>::PixelVertexProducerCUDAT(const edm::ParameterSet& conf)
+PixelVertexProducerCUDA<TrackerTraits>::PixelVertexProducerCUDA(const edm::ParameterSet& conf)
     : onGPU_(conf.getParameter<bool>("onGPU")),
       gpuAlgo_(conf.getParameter<bool>("oneKernel"),
                conf.getParameter<bool>("useDensity"),
@@ -77,7 +77,7 @@ PixelVertexProducerCUDAT<TrackerTraits>::PixelVertexProducerCUDAT(const edm::Par
 }
 
 template <typename TrackerTraits>
-void PixelVertexProducerCUDAT<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+void PixelVertexProducerCUDA<TrackerTraits>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
 
   // Only one of these three algos can be used at once.
@@ -103,9 +103,9 @@ void PixelVertexProducerCUDAT<TrackerTraits>::fillDescriptions(edm::Configuratio
 }
 
 template <typename TrackerTraits>
-void PixelVertexProducerCUDAT<TrackerTraits>::produceOnGPU(edm::StreamID streamID,
-                                                           edm::Event& iEvent,
-                                                           const edm::EventSetup& iSetup) const {
+void PixelVertexProducerCUDA<TrackerTraits>::produceOnGPU(edm::StreamID streamID,
+                                                          edm::Event& iEvent,
+                                                          const edm::EventSetup& iSetup) const {
   edm::Handle<cms::cuda::Product<PixelTrackHeterogeneous>> hTracks;
   iEvent.getByToken(tokenGPUTrack_, hTracks);
 
@@ -118,9 +118,9 @@ void PixelVertexProducerCUDAT<TrackerTraits>::produceOnGPU(edm::StreamID streamI
 }
 
 template <typename TrackerTraits>
-void PixelVertexProducerCUDAT<TrackerTraits>::produceOnCPU(edm::StreamID streamID,
-                                                           edm::Event& iEvent,
-                                                           const edm::EventSetup& iSetup) const {
+void PixelVertexProducerCUDA<TrackerTraits>::produceOnCPU(edm::StreamID streamID,
+                                                          edm::Event& iEvent,
+                                                          const edm::EventSetup& iSetup) const {
   auto const* tracks = iEvent.get(tokenCPUTrack_).get();
   assert(tracks);
 
@@ -144,9 +144,9 @@ void PixelVertexProducerCUDAT<TrackerTraits>::produceOnCPU(edm::StreamID streamI
 }
 
 template <typename TrackerTraits>
-void PixelVertexProducerCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
-                                                      edm::Event& iEvent,
-                                                      const edm::EventSetup& iSetup) const {
+void PixelVertexProducerCUDA<TrackerTraits>::produce(edm::StreamID streamID,
+                                                     edm::Event& iEvent,
+                                                     const edm::EventSetup& iSetup) const {
   if (onGPU_) {
     produceOnGPU(streamID, iEvent, iSetup);
   } else {
@@ -154,8 +154,8 @@ void PixelVertexProducerCUDAT<TrackerTraits>::produce(edm::StreamID streamID,
   }
 }
 
-using PixelVertexProducerCUDA = PixelVertexProducerCUDAT<pixelTopology::Phase1>;
-DEFINE_FWK_MODULE(PixelVertexProducerCUDA);
+using PixelVertexProducerCUDAPhase1 = PixelVertexProducerCUDA<pixelTopology::Phase1>;
+DEFINE_FWK_MODULE(PixelVertexProducerCUDAPhase1);
 
-using PixelVertexProducerCUDAPhase2 = PixelVertexProducerCUDAT<pixelTopology::Phase2>;
+using PixelVertexProducerCUDAPhase2 = PixelVertexProducerCUDA<pixelTopology::Phase2>;
 DEFINE_FWK_MODULE(PixelVertexProducerCUDAPhase2);

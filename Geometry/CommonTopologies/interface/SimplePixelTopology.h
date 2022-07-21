@@ -1,5 +1,5 @@
-#ifndef CUDADataFormats_TrackerGeometry_SimplePixelTopology_h
-#define CUDADataFormats_TrackerGeometry_SimplePixelTopology_h
+#ifndef Geometry_CommonTopologies_SimplePixelTopology_h
+#define Geometry_CommonTopologies_SimplePixelTopology_h
 
 #include <array>
 #include <cstdint>

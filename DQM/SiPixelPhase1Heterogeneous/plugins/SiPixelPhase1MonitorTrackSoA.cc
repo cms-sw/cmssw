@@ -27,7 +27,7 @@
 
 class SiPixelPhase1MonitorTrackSoA : public DQMEDAnalyzer {
 public:
-  using PixelTrackHeterogeneous = PixelTrackHeterogeneousT<pixelTopology::Phase1>;
+  using PixelTrackHeterogeneousPhase1 = PixelTrackHeterogeneousT<pixelTopology::Phase1>;
   explicit SiPixelPhase1MonitorTrackSoA(const edm::ParameterSet&);
   ~SiPixelPhase1MonitorTrackSoA() override = default;
   void bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm::EventSetup const& iSetup) override;
@@ -35,7 +35,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  edm::EDGetTokenT<PixelTrackHeterogeneous> tokenSoATrack_;
+  edm::EDGetTokenT<PixelTrackHeterogeneousPhase1> tokenSoATrack_;
   std::string topFolderName_;
   bool useQualityCut_;
   pixelTrack::Quality minQuality_;
@@ -63,7 +63,7 @@ private:
 //
 
 SiPixelPhase1MonitorTrackSoA::SiPixelPhase1MonitorTrackSoA(const edm::ParameterSet& iConfig) {
-  tokenSoATrack_ = consumes<PixelTrackHeterogeneous>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
+  tokenSoATrack_ = consumes<PixelTrackHeterogeneousPhase1>(iConfig.getParameter<edm::InputTag>("pixelTrackSrc"));
   topFolderName_ = iConfig.getParameter<std::string>("topFolderName");  //"SiPixelHeterogeneous/PixelTrackSoA";
   useQualityCut_ = iConfig.getParameter<bool>("useQualityCut");
   minQuality_ = pixelTrack::qualityByName(iConfig.getParameter<std::string>("minQuality"));

@@ -24,7 +24,7 @@ namespace gpuClustering {
                                int numElements) {
     int first = blockDim.x * blockIdx.x + threadIdx.x;
     constexpr int nMaxModules = TrackerTraits::numberOfModules;
-    // assert(nMaxModules < maxNumModules);
+    assert(nMaxModules < maxNumModules);
     for (int i = first; i < numElements; i += gridDim.x * blockDim.x) {
       clusterId[i] = i;
       if (invalidModuleId == id[i])
@@ -54,13 +54,12 @@ namespace gpuClustering {
     auto firstModule = blockIdx.x;
     auto endModule = moduleStart[0];
 
-    // constexpr int nMaxModules = TrackerTraits::numberOfModules;
-    // assert(nMaxModules < maxNumModules);
+    assert(TrackerTraits::numberOfModules < maxNumModules);
 
     for (auto module = firstModule; module < endModule; module += gridDim.x) {
       auto firstPixel = moduleStart[1 + module];
       auto thisModuleId = id[firstPixel];
-      // assert(thisModuleId < nMaxModules);
+      assert(thisModuleId < TrackerTraits::numberOfModules);
 
 #ifdef GPU_DEBUG
       if (thisModuleId % 100 == 1)
@@ -87,7 +86,7 @@ namespace gpuClustering {
       //init hist  (ymax=416 < 512 : 9bits)
       //6000 max pixels required for HI operations with no measurable impact on pp performance
       constexpr uint32_t maxPixInModule = TrackerTraits::maxPixInModule;
-      constexpr auto nbins = TrackerTraits::clusterBinning;  //2+2;
+      constexpr auto nbins = TrackerTraits::clusterBinning;
       constexpr auto nbits = TrackerTraits::clusterBits;
 
       using Hist = cms::cuda::HistoContainer<uint16_t, nbins, maxPixInModule, nbits, uint16_t>;

@@ -237,9 +237,11 @@ def customizeHLTfor39577(process):
 def customizeHLTfor38761(process):
 
      for producer in producers_by_type(process, "SiPixelRecHitSoAFromLegacy"):
+         producer._TypedParameterizable__type = "SiPixelRecHitSoAFromLegacyPhase1"
          if hasattr(producer, "isPhase2"):
              delattr(producer, "isPhase2")
      for producer in producers_by_type(process, "SiPixelDigisClustersFromSoA"):
+         producer._TypedParameterizable__type = "SiPixelDigisClustersFromSoAPhase1"
          if hasattr(producer, "isPhase2"):
              delattr(producer, "isPhase2")
      for producer in producers_by_type(process, "SiPixelDigisClustersFromSoA"):
@@ -248,20 +250,29 @@ def customizeHLTfor38761(process):
      if 'hltSiPixelRecHitsSoA' in process.__dict__:
          process.hltSiPixelRecHitsSoA.cpu =  cms.EDAlias(hltSiPixelRecHitsFromLegacy = cms.VPSet(
             cms.PSet(
-                type = cms.string('cmscudacompatCPUTraitspixelTopologyPhase1TrackingRecHit2DCPUBaseT')
+                type = cms.string('pixelTopologyPhase1TrackingRecHit2DCPUT')
             ),
             cms.PSet(
                 type = cms.string('uintAsHostProduct')
             )))
 
+     producer_tochange =  ["SiPixelRecHitCUDA","SiPixelRecHitFromCUDA","SiPixelRecHitSoAFromCUDA","PixelTrackProducerFromSoA"]
+     producer_tochange = producer_tochange + ["PixelTrackDumpCUDA","PixelTrackSoAFromCUDA","CAHitNtupletCUDA"]
+     producer_tochange = producer_tochange + ["PixelVertexProducerCUDA","SeedProducerFromSoA"]
+
+     for thiproducer in producer_tochange:
+         for producer in producers_by_type(process, thiproducer):
+             producer._TypedParameterizable__type = thiproducer + "Phase1"
+
      for producer in esproducers_by_type(process, "PixelCPEFastESProducer"):
+         producer._TypedParameterizable__type = "PixelCPEFastESProducerPhase1"
          if hasattr(producer, "isPhase2"):
              delattr(producer, "isPhase2")
      for producer in esproducers_by_type(process, "PixelCPEGenericESProducer"):
          if hasattr(producer, "Upgrade"):
              setattr(producer,"isPhase2",getattr(producer,"Upgrade"))
              delattr(producer, "Upgrade")
-             
+
      return process
 
 # CMSSW version specific customizations

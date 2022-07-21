@@ -6,10 +6,8 @@
 
 namespace testTrackingRecHit2D {
 
-  // Yes I could template it, but would need some workaround
-  // to include the not specialized method and seems too much for a dummy test
-  void runKernels(TrackingRecHit2DSOAViewT<pixelTopology::Phase1>* hits);
-  void runKernelsPhase2(TrackingRecHit2DSOAViewT<pixelTopology::Phase2>* hits);
+  template <typename TrackerTraits>
+  void runKernels(TrackingRecHit2DSOAViewT<TrackerTraits>* hits);
 }  // namespace testTrackingRecHit2D
 
 int main() {
@@ -22,10 +20,10 @@ int main() {
   // inner scope to deallocate memory before destroying the stream
   {
     TrackingRecHit2DGPUT<pixelTopology::Phase1> tkhit(nHits, 0, nullptr, nullptr, stream);
-    testTrackingRecHit2D::runKernels(tkhit.view());
+    testTrackingRecHit2D::runKernels<pixelTopology::Phase1>(tkhit.view());
 
     TrackingRecHit2DGPUT<pixelTopology::Phase2> tkhitPhase2(nHits, 0, nullptr, nullptr, stream);
-    testTrackingRecHit2D::runKernelsPhase2(tkhitPhase2.view());
+    testTrackingRecHit2D::runKernels<pixelTopology::Phase2>(tkhitPhase2.view());
 
     TrackingRecHit2DHostT<pixelTopology::Phase1> tkhitH(nHits, 0, nullptr, nullptr, stream, &tkhit);
     cudaStreamSynchronize(stream);
