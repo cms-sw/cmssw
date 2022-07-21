@@ -1,19 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 
-HighPtPhotonPSet = cms.PSet(
+DisplacedDiPhotonPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_Photon175_v",  # Run2 proposal # Claimed path for Run3
-        "HLT_Photon60_R9Id90_CaloIdL_IsoL_DisplacedIdL_PFHT350MinPFJet15_v", # 2017 # Claimed path for Run3
-        "HLT_Photon110EB_TightID_TightIso_v", # Claimed path for Run3 
-        "HLT_Photon200_v" # Claimed path for Run3
+        "HLT_DiPhoton10Time1p4ns_v", # New for Run3 (introduced in HLT V1.3)
+        "HLT_DiPhoton10sminlt0p1_v", # New for Run3 (introduced in HLT V1.3)
         ),
     recPhotonLabel  = cms.InputTag("gedPhotons"),
     # -- Analysis specific cuts
-    minCandidates = cms.uint32(1),
+    minCandidates = cms.uint32(2),
     # -- Analysis specific binnings
     parametersTurnOn = cms.vdouble( 0, 25, 50, 75, 100, 125, 150, 175, 200, 225,
                                     250, 275, 300, 400, 500, 600, 700, 800, 900, 1000
                                    ),
-    dropPt2 = cms.bool(True),
+    parametersDxy      = cms.vdouble(50, -50, 50),
     dropPt3 = cms.bool(True),
     )
