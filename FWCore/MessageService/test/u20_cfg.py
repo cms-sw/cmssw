@@ -16,6 +16,7 @@ process.MessageLogger.default = cms.untracked.PSet(
     noTimeStamps = cms.untracked.bool(True)
 )
 process.MessageLogger.cerr.noTimeStamps = True
+process.MessageLogger.cerr.enableStatistics = True
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
